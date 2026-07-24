@@ -1,0 +1,71 @@
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-light bg-light" th:fragment="navbar">
+    <div class="container-fluid">
+
+        <!-- Logo -->
+        <a class="navbar-brand" th:href="@{/inicio}">
+            <img src="https://i.imgur.com/QpPFWjs.png" alt="Logo EcoMisiones" height="40" class="d-inline-block align-text-top">
+        </a>
+
+        <!-- Botón de menú responsivo -->
+        <button class="navbar-toggler" type="button" data-mdb-toggle="collapse" data-mdb-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        <!-- Contenido del navbar -->
+        <div class="collapse navbar-collapse" id="navbarNav">
+
+            <!-- Enlaces de navegación -->
+            <ul class="navbar-nav me-3 mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link active" th:href="@{/inicio}">Inicio</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/catalogo/ver}">Catálogo</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/acercaDe}">Acerca de</a>
+                </li>
+            </ul>
+
+            <!-- Barra de búsqueda -->
+            <form class="d-flex align-items-center" th:action="@{/producto/filtrar}" method="get">
+                <div class="input-group">
+                    <input class="form-control" type="search" placeholder="Buscar productos..." name="busqueda" id="busqueda" aria-label="Buscar">
+                    <button class="btn btn-primary" type="submit" aria-label="Buscar">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Sección derecha (Carrito y perfil) -->
+        <div class="d-flex align-items-center">
+
+            <!-- Carrito -->
+            <a th:href="@{/carrito/ver}" class="text-reset me-3 position-relative">
+                <i class="fas fa-shopping-cart"></i>
+                <span class="badge bg-danger text-white position-absolute top-0 start-100 translate-middle"
+                    th:text="${usuario.carrito.detalles.size() ?: 0}">0</span>
+            </a>
+
+            <!-- Menú desplegable del usuario -->
+            <div class="dropdown">
+                <a class="dropdown-toggle d-flex align-items-center" role="button"
+                    data-mdb-toggle="dropdown" aria-expanded="false">
+                    <img src="https://mdbcdn.b-cdn.net/img/new/avatars/2.webp" class="rounded-circle" height="30"
+                        alt="Avatar" loading="lazy">
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a th:href="@{/usuario/verPerfil}" class="dropdown-item">Ir al perfil</a></li>
+                    <li><a th:href="@{/pedido/misPedidos}" class="dropdown-item">Mis pedidos</a></li>
+                    <li th:if="${usuario.rol.name().equalsIgnoreCase('Administrador')}">
+                        <a th:href="@{/admin}" class="dropdown-item">Gestionar</a>
+                    </li>
+                    <li><a class="dropdown-item btnLogout" pag-redirect="/logout">Cerrar sesión</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</nav>
