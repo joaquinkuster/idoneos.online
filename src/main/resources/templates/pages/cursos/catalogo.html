@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<div th:replace="~{fragments/head :: head}"></div>
+
+<body>
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <div class="bg-dark text-white py-4 mb-4">
+        <div class="container">
+            <h1 class="fw-bold mb-1">Catálogo de Cursos</h1>
+            <p class="text-white-50 mb-0">Explora nuestra oferta académica de Finanzas, Economía y Mercado de Capitales</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Filtros y Búsqueda -->
+        <div class="card border-0 shadow-sm p-4 mb-4 rounded-4">
+            <form th:action="@{/cursos}" method="get" class="row g-3 align-items-end">
+                <div class="col-md-5">
+                    <label for="busqueda" class="form-label fw-bold">Buscar por Nombre</label>
+                    <input type="text" class="form-control" id="busqueda" name="busqueda" th:value="${busqueda}" placeholder="Ej: Mercado de Capitales...">
+                </div>
+                <div class="col-md-5">
+                    <label for="categoriaId" class="form-label fw-bold">Filtrar por Categoría</label>
+                    <select class="form-select" id="categoriaId" name="categoriaId">
+                        <option value="">Todas las Categorías</option>
+                        <option th:each="cat : ${categorias}" 
+                                th:value="${cat.id}" 
+                                th:text="${cat.nombre}" 
+                                th:selected="${cat.id == categoriaSeleccionada}">Categoría</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100 rounded-pill"><i class="fa-solid fa-filter me-2"></i>Filtrar</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Cursos Grilla -->
+        <div class="row g-4 mb-5">
+            <div th:if="${cursos.isEmpty()}" class="col-12 text-center py-5">
+                <i class="fa-solid fa-book-open display-1 text-muted mb-3"></i>
+                <h4 class="text-muted">No se encontraron cursos con los criterios seleccionados.</h4>
+            </div>
+
+            <div th:each="curso : ${cursos}" class="col-md-4">
+                <div th:replace="~{fragments/cartaCurso :: cartaCurso}"></div>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+    <div th:replace="~{fragments/scripts :: scripts}"></div>
+</body>
+</html>

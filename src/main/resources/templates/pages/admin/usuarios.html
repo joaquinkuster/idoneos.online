@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<div th:replace="~{fragments/head :: head}"></div>
+
+<body class="bg-light">
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <div class="bg-dark text-white py-4 mb-4">
+        <div class="container d-flex justify-content-between align-items-center">
+            <h1 class="fw-bold mb-0">Gestión de Usuarios</h1>
+            <a th:href="@{/admin}" class="btn btn-outline-light rounded-pill">Volver al Panel</a>
+        </div>
+    </div>
+
+    <div class="container mb-5">
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre Completo</th>
+                            <th>Correo Electrónico</th>
+                            <th>Rol</th>
+                            <th>Clon IA Habilitado</th>
+                            <th>Fecha Alta</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="u : ${usuarios}">
+                            <td th:text="${u.id}">1</td>
+                            <td class="fw-bold" th:text="${u.nombreCompleto}">Nombre</td>
+                            <td th:text="${u.correo}">Correo</td>
+                            <td>
+                                <span th:if="${u.rol.name() == 'Administrador'}" class="badge bg-danger rounded-pill">ADMIN</span>
+                                <span th:if="${u.rol.name() == 'Docente'}" class="badge bg-success rounded-pill">DOCENTE</span>
+                                <span th:if="${u.rol.name() == 'Alumno'}" class="badge bg-primary rounded-pill">ALUMNO</span>
+                            </td>
+                            <td>
+                                <span th:if="${u.habilitadoClonIA}" class="badge bg-success">SI</span>
+                                <span th:if="${!u.habilitadoClonIA}" class="badge bg-secondary">NO</span>
+                            </td>
+                            <td th:text="${u.fechaCreacion}">2026-01-01</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+    <div th:replace="~{fragments/scripts :: scripts}"></div>
+</body>
+</html>

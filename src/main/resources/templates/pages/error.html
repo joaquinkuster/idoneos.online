@@ -1,4 +1,19 @@
-<div class="text-center my-5">
-    <h1 class="text-danger">¡Error!</h1>
-    <p class="text-muted">Algo salió mal. Por favor, intenta nuevamente más tarde.</p>
-</div>
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<div th:replace="~{fragments/head :: head}"></div>
+
+<body class="bg-light d-flex flex-column min-vh-100">
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <div class="container my-auto text-center py-5">
+        <i class="fa-solid fa-triangle-exclamation display-1 text-warning mb-4"></i>
+        <h1 class="display-5 fw-bold mb-3">Ha ocurrido un error</h1>
+        <p class="lead text-muted mb-4">La página que buscas no existe o ha ocurrido un problema inesperado.</p>
+        <a th:href="@{/inicio}" class="btn btn-primary btn-lg rounded-pill px-4">Volver al Inicio</a>
+    </div>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+    <div th:replace="~{fragments/scripts :: scripts}"></div>
+</body>
+</html>

@@ -1,76 +1,58 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org">
 
-<!-- Incluir el head desde un fragmento -->
-<div th:insert="~{fragments/head :: head}"></div>
+<div th:replace="~{fragments/head :: head}"></div>
 
-<body class="min-h-screen bg-gray-100 flex justify-center items-center">
+<body class="bg-light d-flex flex-column min-vh-100">
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
 
-    <div class="max-w-screen-xl m-0 sm:m-10 bg-white shadow sm:rounded-lg flex justify-center flex-1">
-        <!-- Sección de formulario -->
-        <div class="lg:w-1/2 xl:w-5/12 p-6 sm:p-12">
-            <div class="text-center">
-                <img src="https://i.imgur.com/QpPFWjs.png" alt="EcoMisiones Logo" height="80" class="w-48 mx-auto">
-            </div>
-            <div class="mt-12 flex flex-col items-center">
-                <!-- Mensajes de alerta -->
-                <div th:if="${mensaje != null}" class="alert alert-primary alert-dismissible fade show" role="alert">
-                    <p th:text="${mensaje}" class="text-center font-medium text-blue-600"></p>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
-                </div>
+    <div class="container my-auto py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-5">
+                <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+                    <div class="card-header bg-dark text-white text-center py-4">
+                        <i class="fa-solid fa-chart-line text-primary display-5 mb-2"></i>
+                        <h3 class="fw-bold mb-0">Idóneos<span class="text-primary">Online</span></h3>
+                        <small class="text-white-50">Plataforma de Cursos de Educación Financiera</small>
+                    </div>
+                    <div class="card-body p-4 p-md-5">
+                        <div th:if="${mensaje != null}" class="alert alert-info alert-dismissible fade show" role="alert">
+                            <span th:text="${mensaje}"></span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
 
-                <h2 class="text-2xl font-semibold text-gray-900 mb-4">Iniciar Sesión</h2>
-                <div class="w-full flex-1">
-                    <div class="mx-auto max-w-xs">
-                        <form th:action="@{/login}" method="post" id="formLogin" class="space-y-4">
-                            <!-- Campo de correo -->
-                            <div>
-                                <label for="username" class="block text-gray-700 font-semibold">Correo</label>
-                                <input type="text" id="username" name="username" aria-label="Correo"
-                                    placeholder="Inserte su correo"
-                                    class="w-full mt-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-                                    required>
-                                <p id="correoError" class="error-message text-sm text-red-500 mt-1"></p>
+                        <h4 class="fw-bold text-center mb-4">Iniciar Sesión</h4>
+
+                        <form th:action="@{/login}" method="post">
+                            <div class="mb-3">
+                                <label for="username" class="form-label font-weight-bold">Correo Electrónico</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fa-solid fa-envelope"></i></span>
+                                    <input type="email" class="form-control" id="username" name="username" placeholder="usuario@correo.com" required>
+                                </div>
                             </div>
-                            <!-- Campo de contraseña -->
-                            <div>
-                                <label for="password" class="block text-gray-700 font-semibold">Contraseña</label>
-                                <input type="password" id="password" name="password" aria-label="Contraseña"
-                                    placeholder="Inserte su contraseña"
-                                    class="w-full mt-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-                                    required>
-                                <p id="passwordError" class="error-message text-sm text-red-500 mt-1"></p>
+                            <div class="mb-4">
+                                <label for="password" class="form-label font-weight-bold">Contraseña</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
+                                    <input type="password" class="form-control" id="password" name="password" placeholder="••••••••" required>
+                                </div>
                             </div>
-                            <!-- Botón de enviar -->
-                            <button type="submit"
-                                class="w-full bg-blue-500 text-white font-semibold py-2 rounded-md hover:bg-blue-600 transition">
-                                Iniciar Sesión
-                            </button>
-                            <!-- Registro -->
-                            <div class="mt-5 text-xs text-center">
-                                <p>¿No tienes una cuenta? <a th:href="@{/registro}"
-                                        class="text-blue-500 hover:underline">
-                                        Regístrate aquí</a></p>
-                            </div>
+                            <button type="submit" class="btn btn-primary w-100 py-2 rounded-pill font-weight-bold">Ingresar</button>
                         </form>
+
+                        <hr class="my-4">
+
+                        <p class="text-center text-muted mb-0">
+                            ¿No tienes cuenta aún? <a th:href="@{/registro}" class="text-primary fw-bold text-decoration-none">Registrate gratis aquí</a>
+                        </p>
                     </div>
                 </div>
             </div>
         </div>
-        <!-- Imagen decorativa -->
-        <div class="flex-1 bg-green-100 text-center hidden lg:flex">
-            <div class="m-0 w-full h-full bg-cover bg-center"
-                style="background-image: url('https://img.freepik.com/free-photo/drops-sliding-down-leaf_1160-472.jpg?t=st=1733501989~exp=1733505589~hmac=e9a5ecc800c7e251f419a030707a76d5be48c1fb81157b794b13460c42a4aab1&w=1380');">
-            </div>
-        </div>
     </div>
 
-    <!-- Scripts desde un fragmento -->
-    <div th:insert="~{fragments/scripts :: scripts}"></div>
-
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-
+    <div th:replace="~{fragments/footer :: footer}"></div>
+    <div th:replace="~{fragments/scripts :: scripts}"></div>
 </body>
-
 </html>

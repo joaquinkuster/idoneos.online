@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<div th:replace="~{fragments/head :: head}"></div>
+
+<body>
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <div class="bg-dark text-white py-5 mb-5" style="background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <span class="badge bg-primary px-3 py-2 rounded-pill text-uppercase mb-3" th:text="${curso.categoria.nombre}">Categoría</span>
+                    <h1 class="display-5 fw-bold text-white mb-3" th:text="${curso.nombre}">Nombre del Curso</h1>
+                    <p class="lead text-white-50 mb-4" th:text="${curso.descripcion}">Descripción completa del curso...</p>
+                    <div class="d-flex align-items-center gap-4 text-white-50">
+                        <div><i class="fa-solid fa-chalkboard-user text-primary me-2"></i><span th:text="${curso.docenteTitular.nombreCompleto}">Titular</span></div>
+                        <div th:if="${curso.docenteSupervisor != null}">
+                            <i class="fa-solid fa-user-shield text-info me-2"></i>
+                            <span th:text="'Supervisor: ' + ${curso.docenteSupervisor.nombreCompleto}">Supervisor</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mt-4 mt-md-0">
+                    <div class="card border-0 shadow-lg rounded-4 text-center p-4">
+                        <small class="text-muted text-uppercase font-weight-bold">Arancel del Curso</small>
+                        <h2 class="display-6 fw-bold text-dark my-2">
+                            <span th:if="${curso.esGratuito()}" class="text-success">GRATUITO</span>
+                            <span th:if="${!curso.esGratuito()}" th:text="'$' + ${#numbers.formatDecimal(curso.precio, 1, 'POINT', 0, 'COMMA')}">$0</span>
+                        </h2>
+
+                        <div th:if="${usuario == null}">
+                            <a th:href="@{/login}" class="btn btn-primary w-100 py-3 rounded-pill fw-bold mt-3">Iniciar Sesión para Inscribirte</a>
+                        </div>
+
+                        <div th:if="${usuario != null}">
+                            <div th:if="${yaInscripto}">
+                                <a th:href="@{'/cursos/' + ${curso.id} + '/mi-cursada'}" class="btn btn-success w-100 py-3 rounded-pill fw-bold mt-3">
+                                    <i class="fa-solid fa-circle-play me-2"></i>Ir a Mi Cursada
+                                </a>
+                            </div>
+                            <div th:if="${!yaInscripto}">
+                                <form th:action="@{'/cursos/' + ${curso.id} + '/inscribir'}" method="post">
+                                    <button type="submit" class="btn btn-primary w-100 py-3 rounded-pill fw-bold mt-3">
+                                        <i class="fa-solid fa-user-plus me-2"></i>Inscribirme Ahora
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Temario del Curso -->
+    <div class="container mb-5">
+        <h3 class="fw-bold mb-4"><i class="fa-solid fa-list-check text-primary me-2"></i>Programa Unidades Academicas</h3>
+
+        <div class="accordion shadow-sm rounded-4 overflow-hidden" id="accordionUnidades">
+            <div th:each="unidad, iter : ${curso.unidades}" class="accordion-item border-0 border-bottom">
+                <h2 class="accordion-header" th:id="'heading' + ${unidad.id}">
+                    <button class="accordion-button collapsed fw-bold py-3" type="button" data-bs-toggle="collapse" th:data-bs-target="'#collapse' + ${unidad.id}">
+                        <span class="badge bg-secondary me-3" th:text="'Unidad ' + ${unidad.numeroOrden}">1</span>
+                        <span th:text="${unidad.titulo}">Título Unidad</span>
+                    </button>
+                </h2>
+                <div th:id="'collapse' + ${unidad.id}" class="accordion-collapse collapse" data-bs-parent="#accordionUnidades">
+                    <div class="accordion-body bg-light">
+                        <p class="text-muted mb-0" th:text="${unidad.descripcion}">Descripción de la unidad...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+    <div th:replace="~{fragments/scripts :: scripts}"></div>
+</body>
+</html>

@@ -1,64 +1,47 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 
-<!-- Incluir el head -->
-<div th:insert="~{fragments/head :: head}"></div>
+<div th:replace="~{fragments/head :: head}"></div>
 
-<body style="background-color: #f0eeee;">
-    <!-- Navbar -->
-    <div th:insert="~{fragments/navbar :: navbar}"></div>
+<body class="bg-light">
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
 
-    <!-- Formulario para cambiar la contraseña -->
-    <div class="container mt-5">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-5">
+                <div class="card border-0 shadow-lg rounded-4 p-4 p-md-5 bg-white">
+                    <h3 class="fw-bold mb-4 text-center"><i class="fa-solid fa-lock text-primary me-2"></i>Cambiar Contraseña</h3>
 
-        <!-- Mensaje de alerta -->
-        <div th:if="${mensaje != null}" class="alert alert-primary alert-dismissible fade show" role="alert">
-            <p th:text="${mensaje}"></p>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    <div th:if="${mensaje != null}" class="alert alert-info alert-dismissible fade show mb-4" role="alert">
+                        <span th:text="${mensaje}"></span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+
+                    <form th:action="@{'/usuario/cambiarContrasena/' + ${usuario.id}}" method="post">
+                        <div class="mb-3">
+                            <label for="actual" class="form-label fw-bold">Contraseña Actual</label>
+                            <input type="password" class="form-control" id="actual" name="actual" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="nueva" class="form-label fw-bold">Nueva Contraseña</label>
+                            <input type="password" class="form-control" id="nueva" name="nueva" required>
+                        </div>
+                        <div class="mb-4">
+                            <label for="nuevaRepetida" class="form-label fw-bold">Repetir Nueva Contraseña</label>
+                            <input type="password" class="form-control" id="nuevaRepetida" name="nuevaRepetida" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 py-2 rounded-pill fw-bold">Actualizar Contraseña</button>
+                    </form>
+
+                    <div class="text-center mt-4">
+                        <a th:href="@{/usuario/verPerfil}" class="text-muted text-decoration-none"><i class="fa-solid fa-arrow-left me-1"></i>Volver al Perfil</a>
+                    </div>
+                </div>
+            </div>
         </div>
-
-        <h2 class="fw-bold text-dark mb-4">Cambiar Contraseña</h2>
-
-        <!-- Formulario de cambio de contraseña -->
-        <form method="post" th:action="@{/usuario/cambiarContrasena/{id}(id=${usuario.id})}" id="formCambiarContrasena" class="bg-white shadow-lg p-4 rounded">
-            
-            <div class="row g-3">
-                <!-- Contraseña Actual -->
-                <div class="col-md-6">
-                    <label for="actual" class="form-label">Contraseña Actual</label>
-                    <input type="password" class="form-control" id="actual" name="actual" required
-                        placeholder="Ingrese su contraseña actual">
-                </div>
-
-                <!-- Nueva Contraseña -->
-                <div class="col-md-6">
-                    <label for="nueva" class="form-label">Nueva Contraseña</label>
-                    <input type="password" class="form-control" id="nueva" name="nueva" required
-                        placeholder="Ingrese la nueva contraseña">
-                    <div class="form-text text-danger" id="nuevaError"></div>
-                </div>
-            </div>
-
-            <!-- Repetir Nueva Contraseña -->
-            <div class="mt-3">
-                <label for="nuevaRepetida" class="form-label">Repetir Nueva Contraseña</label>
-                <input type="password" class="form-control" id="nuevaRepetida" name="nuevaRepetida" required
-                    placeholder="Repita la nueva contraseña">
-                <div class="form-text text-danger" id="nuevaRepetidaError"></div>
-            </div>
-
-            <!-- Botón para Cambiar Contraseña -->
-            <div class="text-center mt-4">
-                <button type="submit" class="btn btn-primary">Cambiar Contraseña</button>
-            </div>
-        </form>
     </div>
 
-    <!-- Footer -->
-    <div th:insert="~{fragments/footer :: footer}"></div>
-
-    <!-- Scripts -->
-    <div th:insert="~{fragments/scripts :: scripts}"></div>
+    <div th:replace="~{fragments/footer :: footer}"></div>
+    <div th:replace="~{fragments/scripts :: scripts}"></div>
 </body>
-
 </html>

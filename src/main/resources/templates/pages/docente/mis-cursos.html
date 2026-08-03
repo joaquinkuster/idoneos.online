@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<div th:replace="~{fragments/head :: head}"></div>
+
+<body class="bg-light">
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <div class="bg-dark text-white py-4 mb-4">
+        <div class="container d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="fw-bold mb-0"><i class="fa-solid fa-chalkboard-user text-success me-2"></i>Panel Docente</h1>
+                <p class="text-white-50 mb-0">Gestión de tus cursos y material académico</p>
+            </div>
+            <a th:href="@{/docente/curso/nuevo}" class="btn btn-success rounded-pill fw-bold"><i class="fa-solid fa-plus me-2"></i>Crear Nuevo Curso</a>
+        </div>
+    </div>
+
+    <div class="container mb-5">
+        <div th:if="${mensaje != null}" class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+            <span th:text="${mensaje}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <h4 class="fw-bold mb-4">Mis Cursos Titulares</h4>
+
+        <div class="row g-4">
+            <div th:if="${cursos.isEmpty()}" class="col-12 text-center py-5">
+                <i class="fa-solid fa-folder-open display-1 text-muted mb-3"></i>
+                <h4 class="text-muted">Aún no tienes cursos creados.</h4>
+            </div>
+
+            <div th:each="curso : ${cursos}" class="col-md-4">
+                <div th:replace="~{fragments/cartaCurso :: cartaCurso}"></div>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+    <div th:replace="~{fragments/scripts :: scripts}"></div>
+</body>
+</html>
