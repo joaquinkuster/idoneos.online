@@ -93,6 +93,17 @@ public class Curso {
     }
 
     /**
+     * Retorna true si más del 50% de las unidades del curso tienen materiales generados por Clon IA.
+     */
+    public boolean esCursoConClonIA() {
+        if (unidades == null || unidades.isEmpty()) return false;
+        long unidadesClon = unidades.stream()
+                .filter(u -> u.getMateriales().stream().anyMatch(m -> !m.getBaja() && Boolean.TRUE.equals(m.getGeneradoPorIA())))
+                .count();
+        return (unidadesClon * 100.0 / unidades.size()) >= 50.0;
+    }
+
+    /**
      * Devuelve el docente titular (es_supervisor = false).
      */
     public Docente getDocenteTitular() {

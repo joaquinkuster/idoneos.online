@@ -107,4 +107,16 @@ public class UsuarioController {
             return "redirect:/usuario/cambiarContrasena";
         }
     }
+
+    @Autowired private com.app.ecomisiones.repository.NotificacionRepository notificacionRepository;
+
+    @GetMapping("/notificaciones")
+    public String verNotificaciones(Model modelo, Authentication auth) {
+        Usuario usuario = (Usuario) auth.getPrincipal();
+        var notificaciones = notificacionRepository.findByUsuarioOrderByFechaDesc(usuario);
+        modelo.addAttribute("usuario", usuario);
+        modelo.addAttribute("notificaciones", notificaciones);
+        modelo.addAttribute("titulo", "Mis Notificaciones | Idóneos Online");
+        return "pages/perfil/notificaciones";
+    }
 }

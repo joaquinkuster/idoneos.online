@@ -61,6 +61,10 @@ public class SecurityConfig {
                         .failureUrl("/login?error=true")
                 )
                 .userDetailsService(usuarioDetallesService)
+                .sessionManagement(session -> session
+                        .maximumSessions(1)
+                        .maxSessionsPreventsLogin(false)
+                )
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/login?logout=true")
