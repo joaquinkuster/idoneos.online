@@ -7,41 +7,74 @@
     <div th:replace="~{fragments/navbar :: navbar}"></div>
 
     <div class="bg-dark text-white py-4 mb-4">
-        <div class="container d-flex justify-content-between align-items-center">
+        <div class="container d-flex justify-content-between align-items-center flex-wrap gap-3">
             <h1 class="fw-bold mb-0">Gestión de Usuarios</h1>
             <a th:href="@{/admin}" class="btn btn-outline-light rounded-pill">Volver al Panel</a>
         </div>
     </div>
 
     <div class="container mb-5">
+        <div th:if="${mensaje != null}" class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+            <span th:text="${mensaje}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
         <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
             <div class="table-responsive">
                 <table class="table table-hover align-middle">
                     <thead class="table-dark">
                         <tr>
                             <th>ID</th>
-                            <th>Nombre Completo</th>
-                            <th>Correo Electrónico</th>
+                            <th>Nombre</th>
+                            <th>Correo</th>
                             <th>Rol</th>
-                            <th>Clon IA Habilitado</th>
-                            <th>Fecha Alta</th>
+                            <th>Clon IA</th>
+                            <th>Estado</th>
+                            <th>Alta</th>
+                            <th class="text-center">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr th:each="u : ${usuarios}">
+                        <tr th:each="u : ${usuarios}" th:classappend="${u.getBaja() ? 'table-secondary text-muted' : ''}">
                             <td th:text="${u.id}">1</td>
                             <td class="fw-bold" th:text="${u.nombreCompleto}">Nombre</td>
-                            <td th:text="${u.correo}">Correo</td>
+                            <td th:text="${u.correo}">correo</td>
                             <td>
-                                <span th:if="${u.rol.name() == 'Administrador'}" class="badge bg-danger rounded-pill">ADMIN</span>
-                                <span th:if="${u.rol.name() == 'Docente'}" class="badge bg-success rounded-pill">DOCENTE</span>
-                                <span th:if="${u.rol.name() == 'Alumno'}" class="badge bg-primary rounded-pill">ALUMNO</span>
+                                <!-- Cambiar Rol -->
+                                <form th:action="@{'/admin/usuarios/' + ${u.id} + '/cambiar-rol'}" method="post" class="d-flex align-items-center gap-1">
+                                    <select class="form-select form-select-sm rounded-pill" name="rol" style="width: auto;">
+                                        <option th:each="rol : ${roles}" th:value="${rol}" th:text="${rol}"
+                                                th:selected="${rol == u.rol}">Rol</option>
+                                    </select>
+                                    <button class="btn btn-outline-primary btn-sm rounded-pill" type="submit" title="Cambiar Rol">
+                                        <i class="fa-solid fa-check"></i>
+                                    </button>
+                                </form>
                             </td>
                             <td>
-                                <span th:if="${u.habilitadoClonIA}" class="badge bg-success">SI</span>
-                                <span th:if="${!u.habilitadoClonIA}" class="badge bg-secondary">NO</span>
+                                <form th:action="@{'/admin/usuarios/' + ${u.id} + '/toggle-clon-ia'}" method="post">
+                                    <button class="btn btn-sm rounded-pill" type="submit"
+                                            th:classappend="${u.getHabilitadoClonIA() ? 'btn-success' : 'btn-outline-secondary'}"
+                                            th:title="${u.getHabilitadoClonIA() ? 'Deshabilitar Clon IA' : 'Habilitar Clon IA'}">
+                                        <i class="fa-solid fa-robot me-1"></i>
+                                        <span th:text="${u.getHabilitadoClonIA() ? 'SI' : 'NO'}">NO</span>
+                                    </button>
+                                </form>
                             </td>
-                            <td th:text="${u.fechaCreacion}">2026-01-01</td>
+                            <td>
+                                <span th:if="${!u.getBaja()}" class="badge bg-success rounded-pill">Activo</span>
+                                <span th:if="${u.getBaja()}" class="badge bg-secondary rounded-pill">Inactivo</span>
+                            </td>
+                            <td th:text="${u.fechaCreacion}">Fecha</td>
+                            <td class="text-center">
+                                <form th:action="@{'/admin/usuarios/' + ${u.id} + '/toggle-baja'}" method="post">
+                                    <button class="btn btn-sm rounded-pill" type="submit"
+                                            th:classappend="${u.getBaja() ? 'btn-outline-success' : 'btn-outline-danger'}"
+                                            th:text="${u.getBaja() ? 'Reactivar' : 'Dar de Baja'}"
+                                            th:onclick="${u.getBaja() ? '' : 'return confirm(\'¿Dar de baja a este usuario?\')'}">
+                                    </button>
+                                </form>
+                            </td>
                         </tr>
                     </tbody>
                 </table>

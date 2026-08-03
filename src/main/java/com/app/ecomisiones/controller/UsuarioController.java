@@ -85,7 +85,7 @@ public class UsuarioController {
                 throw new IllegalArgumentException("Error! El usuario ingresado no existe.");
             }
 
-            if (!passwordEncoder.matches(actual, usuario.getPassword())) {
+            if (!passwordEncoder.matches(actual, usuario.getContrasena())) {
                 throw new BadCredentialsException("La contraseña actual ingresada es incorrecta.");
             }
 
@@ -93,7 +93,7 @@ public class UsuarioController {
                 throw new IllegalArgumentException("Las contraseñas nuevas no coinciden.");
             }
 
-            usuario.setPassword(passwordEncoder.encode(nueva));
+            usuario.setContrasena(passwordEncoder.encode(nueva));
             usuario = usuarioService.modificar(usuario);
 
             SecurityContextHolder.getContext()

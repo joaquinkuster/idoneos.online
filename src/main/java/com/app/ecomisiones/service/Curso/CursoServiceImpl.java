@@ -43,7 +43,7 @@ public class CursoServiceImpl implements CursoService {
 
     @Override
     public List<Curso> obtenerPorDocente(Usuario docente) {
-        return cursoRepository.findByDocenteTitularAndBajaFalse(docente);
+        return cursoRepository.findByDocenteId(docente.getId());
     }
 
     @Override

@@ -1,9 +1,7 @@
 package com.app.ecomisiones.model;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -13,6 +11,8 @@ import java.util.Set;
 
 /**
  * Representa un curso académico en la plataforma Idóneos Online.
+ * precio = 0 indica gratuito (no existe atributo esGratuito separado).
+ * La relación con docentes se maneja vía DocenteCurso (tabla asociativa M:N).
  */
 @Entity
 @Table(name = "cursos")
@@ -25,20 +25,33 @@ public class Curso {
     @Column(name = "id")
     private int id;
 
-    @Column(name = "nombre", nullable = false, length = 200)
+    @Column(name = "nombre", nullable = false, length = 50)
     private String nombre;
 
-    @Column(name = "descripcion", nullable = false, length = 2000)
+    @Column(name = "descripcion", nullable = false, length = 150)
     private String descripcion;
 
     @Column(name = "precio", nullable = false)
     private float precio = 0f;
 
-    @Column(name = "imagen_portada", nullable = true, length = 500)
-    private String imagenPortada;
+    @Column(name = "imagen", nullable = true, length = 150)
+    private String imagen;
 
     @Column(name = "publicado", nullable = false)
     private Boolean publicado = true;
+
+    @Column(name = "fecha_inicio_inscripcion", nullable = true)
+    private LocalDate fechaInicioInscripcion;
+
+    @Column(name = "fecha_fin_inscripcion", nullable = true)
+    private LocalDate fechaFinInscripcion;
+
+    /**
+     * Meses de acceso desde la fecha de inscripción. Se usa para calcular
+     * Inscripcion.fechaVencimientoAcceso.
+     */
+    @Column(name = "meses_acceso", nullable = true)
+    private Integer mesesAcceso;
 
     @Column(name = "baja", nullable = false)
     private Boolean baja = false;
@@ -46,17 +59,9 @@ public class Curso {
     @Column(name = "fecha_creacion", nullable = false)
     private LocalDate fechaCreacion = LocalDate.now();
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_categoria", nullable = false)
     private Categoria categoria;
-
-    @ManyToOne
-    @JoinColumn(name = "id_docente_titular", nullable = false)
-    private Usuario docenteTitular;
-
-    @ManyToOne
-    @JoinColumn(name = "id_docente_supervisor", nullable = true)
-    private Usuario docenteSupervisor;
 
     @OneToMany(mappedBy = "curso", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("numeroOrden ASC")
@@ -65,16 +70,37 @@ public class Curso {
     @OneToMany(mappedBy = "curso", cascade = CascadeType.ALL)
     private Set<Inscripcion> inscripciones = new HashSet<>();
 
-    public Curso(String nombre, String descripcion, float precio, Categoria categoria, Usuario docenteTitular) {
+    @OneToMany(mappedBy = "curso", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<DocenteCurso> docentes = new ArrayList<>();
+
+    @ManyToMany
+    @JoinTable(
+        name = "modalidad_curso",
+        joinColumns = @JoinColumn(name = "id_curso"),
+        inverseJoinColumns = @JoinColumn(name = "id_modalidad")
+    )
+    private Set<Modalidad> modalidades = new HashSet<>();
+
+    public Curso(String nombre, String descripcion, float precio, Categoria categoria) {
         this.nombre = nombre;
         this.descripcion = descripcion;
         this.precio = precio;
         this.categoria = categoria;
-        this.docenteTitular = docenteTitular;
     }
 
     public boolean esGratuito() {
         return precio == 0f;
+    }
+
+    /**
+     * Devuelve el docente titular (es_supervisor = false).
+     */
+    public Docente getDocenteTitular() {
+        return docentes.stream()
+                .filter(dc -> !dc.isEsSupervisor())
+                .map(DocenteCurso::getDocente)
+                .findFirst()
+                .orElse(null);
     }
 
     @Override

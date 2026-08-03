@@ -8,12 +8,15 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
- * Representa a un usuario (Alumno, Docente o Administrador) en Idóneos Online.
+ * Entidad base de autenticación. Alumno, Docente y Administrador son subtipos
+ * implementados con @OneToOne para garantizar integridad referencial por tabla.
+ * Se conserva el campo rol (enum) para compatibilidad con Spring Security sin
+ * necesidad de joins adicionales en cada request.
  */
 @Entity
 @Table(name = "usuarios")
@@ -32,87 +35,114 @@ public class Usuario implements UserDetails {
     @Column(name = "apellido", nullable = false, length = 50)
     private String apellido;
 
+    @Column(name = "dni", nullable = true, length = 8)
+    private String dni;
+
+    @Column(name = "telefono", nullable = true, length = 20)
+    private String telefono;
+
     @Column(name = "correo", nullable = false, unique = true, length = 150)
     private String correo;
 
-    @Column(name = "password", nullable = false)
-    private String password;
+    @Column(name = "contrasena", nullable = true, length = 255)
+    private String contrasena;
 
-    @Column(name = "fecha_creacion", nullable = false)
-    private LocalDate fechaCreacion = LocalDate.now();
+    @Column(name = "google_id", nullable = true, length = 255)
+    private String googleId;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "rol", nullable = false)
-    private RolUsuario rol = RolUsuario.Alumno;
+    @Column(name = "imagen", nullable = true, length = 150)
+    private String imagen;
 
-    @Column(name = "cuenta_verificada", nullable = false)
-    private Boolean cuentaVerificada = true;
+    @Column(name = "email_validado", nullable = false)
+    private Boolean emailValidado = false;
 
-    @Column(name = "habilitado_clon_ia", nullable = false)
-    private Boolean habilitadoClonIA = false;
+    @Column(name = "token_recuperacion", nullable = true, length = 255)
+    private String tokenRecuperacion;
+
+    @Column(name = "expiracion_token", nullable = true)
+    private LocalDate expiracionToken;
+
+    @Column(name = "fecha_registro", nullable = false)
+    private LocalDate fechaRegistro = LocalDate.now();
 
     @Column(name = "baja", nullable = false)
     private Boolean baja = false;
 
-    @OneToMany(mappedBy = "alumno", cascade = CascadeType.ALL)
-    private Set<Inscripcion> inscripciones = new HashSet<>();
+    // Rol duplicado intencionalmente para que Spring Security no necesite
+    // hacer joins a las tablas de subtipos en cada request autenticado.
+    @Enumerated(EnumType.STRING)
+    @Column(name = "rol", nullable = false)
+    private RolUsuario rol = RolUsuario.Alumno;
 
-    @OneToMany(mappedBy = "docenteTitular")
-    private Set<Curso> cursosComoTitular = new HashSet<>();
+    // ─── Relaciones con subtipos (lazy para no cargar por defecto) ─────────────
+    @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Alumno alumno;
 
-    @OneToMany(mappedBy = "docenteSupervisor")
-    private Set<Curso> cursosComoSupervisor = new HashSet<>();
+    @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Docente docente;
 
-    public Usuario(String nombre, String apellido, String correo, String password, RolUsuario rol) {
+    @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Administrador administrador;
+
+    // ─── Relaciones de negocio ─────────────────────────────────────────────────
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
+    private Set<UsuarioRol> usuarioRoles = new HashSet<>();
+
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
+    private List<Sesion> sesiones;
+
+    // ─── Constructores ─────────────────────────────────────────────────────────
+
+    public Usuario(String nombre, String apellido, String correo, String contrasena, RolUsuario rol) {
         this.nombre = nombre;
         this.apellido = apellido;
         this.correo = correo;
-        this.password = password;
+        this.contrasena = contrasena;
         this.rol = rol;
+        this.emailValidado = true; // simplificado para el PMV
     }
 
-    public boolean esInactivo() {
-        return baja;
+    // ─── Helpers ───────────────────────────────────────────────────────────────
+
+    public boolean esInactivo() { return baja; }
+
+    public boolean esDocente() { return rol == RolUsuario.Docente; }
+
+    public boolean esAlumno() { return rol == RolUsuario.Alumno; }
+
+    public boolean esAdmin() { return rol == RolUsuario.Administrador; }
+
+    public boolean tieneClonIA() {
+        return docente != null && docente.getFechaConsentimientoClon() != null;
     }
 
-    public String getNombreCompleto() {
-        return nombre + " " + apellido;
-    }
+    public String getNombreCompleto() { return nombre + " " + apellido; }
 
     @Override
-    public String toString() {
-        return getNombreCompleto();
-    }
+    public String toString() { return getNombreCompleto(); }
 
-    // UserDetails implementation
+    // ─── Spring Security: UserDetails ─────────────────────────────────────────
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + rol.name()));
+        return List.of(new SimpleGrantedAuthority("ROLE_" + rol.name()));
     }
 
     @Override
-    public String getUsername() {
-        return correo;
-    }
+    public String getPassword() { return contrasena; }
 
     @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
+    public String getUsername() { return correo; }
 
     @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
+    public boolean isAccountNonExpired() { return true; }
 
     @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
+    public boolean isAccountNonLocked() { return true; }
 
     @Override
-    public boolean isEnabled() {
-        return !baja;
-    }
+    public boolean isCredentialsNonExpired() { return true; }
+
+    @Override
+    public boolean isEnabled() { return !baja && emailValidado; }
 }

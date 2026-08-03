@@ -1,19 +1,15 @@
 package com.app.ecomisiones.controller;
 
+import com.app.ecomisiones.model.Alumno;
+import com.app.ecomisiones.model.RolUsuario;
+import com.app.ecomisiones.model.Usuario;
+import com.app.ecomisiones.repository.AlumnoRepository;
+import com.app.ecomisiones.service.Usuario.UsuarioServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import com.app.ecomisiones.model.RolUsuario;
-import com.app.ecomisiones.model.Usuario;
-import com.app.ecomisiones.service.Usuario.UsuarioServiceImpl;
-
-import jakarta.validation.Valid;
 
 /**
  * Controlador para la autenticación y registro de usuarios en Idóneos Online.
@@ -24,37 +20,46 @@ public class LoginController {
     @Autowired
     private UsuarioServiceImpl usuarioService;
 
+    @Autowired
+    private AlumnoRepository alumnoRepository;
+
     @GetMapping("/login")
     public String verLogin(@RequestParam(value = "error", required = false) String error,
-            @RequestParam(value = "logout", required = false) String logout, Model model) {
-        
+                           @RequestParam(value = "logout", required = false) String logout,
+                           Model model) {
         if (error != null) {
             model.addAttribute("mensaje", "Error! La contraseña o el correo ingresado es inválido.");
         } else if (logout != null) {
             model.addAttribute("mensaje", "Hecho! Has cerrado sesión correctamente.");
         }
-        
         model.addAttribute("titulo", "Iniciar Sesión | Idóneos Online");
         return "pages/login";
     }
 
     @GetMapping("/registro")
-    public String verRegistro(Model modelo) {
-        modelo.addAttribute("titulo", "Crear Cuenta | Idóneos Online");
+    public String verRegistro(Model model) {
+        model.addAttribute("titulo", "Crear Cuenta | Idóneos Online");
         return "pages/registro";
     }
 
     @PostMapping("/registro")
-    public String registrarUsuario(@Valid @ModelAttribute Usuario usuario, RedirectAttributes redirectAttributes) {
+    public String registrarUsuario(@RequestParam String nombre,
+                                   @RequestParam String apellido,
+                                   @RequestParam String correo,
+                                   @RequestParam String contrasena,
+                                   RedirectAttributes redirectAttributes) {
         try {
-            usuario.setRol(RolUsuario.Alumno);
-            Usuario nuevoUsuario = usuarioService.guardar(usuario);
-
-            if (nuevoUsuario == null) {
-                throw new IllegalArgumentException("Error! El usuario ingresado es inválido.");
+            if (usuarioService.buscarPorCorreo(correo).isPresent()) {
+                throw new IllegalArgumentException("Ya existe una cuenta con ese correo electrónico.");
             }
 
-            redirectAttributes.addFlashAttribute("mensaje", "¡Cuenta creada exitosamente! Ya puedes iniciar sesión.");
+            Usuario nuevo = new Usuario(nombre, apellido, correo, contrasena, RolUsuario.Alumno);
+            Usuario guardado = usuarioService.guardar(nuevo);
+
+            // Crear el subtipo Alumno para integridad referencial
+            alumnoRepository.save(new Alumno(guardado));
+
+            redirectAttributes.addFlashAttribute("mensaje", "¡Cuenta creada exitosamente! Ya podés iniciar sesión.");
             return "redirect:/login";
 
         } catch (Exception e) {

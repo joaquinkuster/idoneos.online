@@ -1,12 +1,11 @@
 package com.app.ecomisiones.controller;
 
-import com.app.ecomisiones.model.Categoria;
-import com.app.ecomisiones.model.Curso;
-import com.app.ecomisiones.model.Inscripcion;
-import com.app.ecomisiones.model.Usuario;
+import com.app.ecomisiones.model.*;
 import com.app.ecomisiones.service.Categoria.CategoriaServiceImpl;
 import com.app.ecomisiones.service.Curso.CursoServiceImpl;
 import com.app.ecomisiones.service.Inscripcion.InscripcionServiceImpl;
+import com.app.ecomisiones.service.Progreso.ProgresoServiceImpl;
+import com.app.ecomisiones.service.Unidad.UnidadServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -14,8 +13,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Controller
 @RequestMapping("/cursos")
@@ -29,6 +27,14 @@ public class CursoController {
 
     @Autowired
     private InscripcionServiceImpl inscripcionService;
+
+    @Autowired
+    private ProgresoServiceImpl progresoService;
+
+    @Autowired
+    private UnidadServiceImpl unidadService;
+
+    // ─── Catálogo Público ──────────────────────────────────────────────────────
 
     @GetMapping
     public String listarCursos(@RequestParam(value = "categoriaId", required = false) Integer categoriaId,
@@ -44,7 +50,7 @@ public class CursoController {
             cursos = cursoService.buscarPorNombre(busqueda.trim());
         } else if (categoriaId != null) {
             Optional<Categoria> cat = categoriaService.buscarPorId(categoriaId);
-            cursos = cat.map(categoria -> cursoService.obtenerPorCategoria(categoria)).orElseGet(() -> cursoService.obtenerPublicados());
+            cursos = cat.map(c -> cursoService.obtenerPorCategoria(c)).orElseGet(() -> cursoService.obtenerPublicados());
         } else {
             cursos = cursoService.obtenerPublicados();
         }
@@ -58,12 +64,12 @@ public class CursoController {
         return "pages/cursos/catalogo";
     }
 
+    // ─── Detalle del Curso ─────────────────────────────────────────────────────
+
     @GetMapping("/{id}")
     public String verDetalleCurso(@PathVariable("id") Integer id, Model model, Authentication auth) {
         Optional<Curso> cursoOpt = cursoService.buscarPorId(id);
-        if (cursoOpt.isEmpty()) {
-            return "redirect:/cursos";
-        }
+        if (cursoOpt.isEmpty()) return "redirect:/cursos";
 
         Curso curso = cursoOpt.get();
         boolean yaInscripto = false;
@@ -75,17 +81,19 @@ public class CursoController {
         }
 
         model.addAttribute("curso", curso);
+        model.addAttribute("unidades", unidadService.obtenerPorCurso(curso));
         model.addAttribute("yaInscripto", yaInscripto);
         model.addAttribute("titulo", curso.getNombre() + " | Idóneos Online");
 
         return "pages/cursos/detalle";
     }
 
+    // ─── Inscripción ───────────────────────────────────────────────────────────
+
     @PostMapping("/{id}/inscribir")
-    public String inscribirseACurso(@PathVariable("id") Integer id, Authentication auth, RedirectAttributes redirectAttributes) {
-        if (auth == null || !(auth.getPrincipal() instanceof Usuario)) {
-            return "redirect:/login";
-        }
+    public String inscribirseACurso(@PathVariable("id") Integer id, Authentication auth,
+                                     RedirectAttributes redirectAttributes) {
+        if (auth == null || !(auth.getPrincipal() instanceof Usuario)) return "redirect:/login";
 
         Usuario usuario = (Usuario) auth.getPrincipal();
         Optional<Curso> cursoOpt = cursoService.buscarPorId(id);
@@ -95,37 +103,51 @@ public class CursoController {
             return "redirect:/cursos";
         }
 
-        Curso curso = cursoOpt.get();
-        inscripcionService.inscribirAlumno(usuario, curso);
-
-        redirectAttributes.addFlashAttribute("mensaje", "¡Inscripción exitosa! Ya puedes acceder a las unidades de este curso.");
+        inscripcionService.inscribirAlumno(usuario, cursoOpt.get());
+        redirectAttributes.addFlashAttribute("mensaje", "¡Inscripción exitosa! Ya podés acceder al contenido del curso.");
         return "redirect:/cursos/" + id + "/mi-cursada";
     }
 
+    // ─── Vista de Cursada del Alumno ───────────────────────────────────────────
+
     @GetMapping("/{id}/mi-cursada")
-    public String verMiCursada(@PathVariable("id") Integer id, Authentication auth, Model model, RedirectAttributes redirectAttributes) {
-        if (auth == null || !(auth.getPrincipal() instanceof Usuario)) {
-            return "redirect:/login";
-        }
+    public String verMiCursada(@PathVariable("id") Integer id, Authentication auth,
+                                Model model, RedirectAttributes redirectAttributes) {
+        if (auth == null || !(auth.getPrincipal() instanceof Usuario)) return "redirect:/login";
 
         Usuario usuario = (Usuario) auth.getPrincipal();
         Optional<Curso> cursoOpt = cursoService.buscarPorId(id);
-
-        if (cursoOpt.isEmpty()) {
-            return "redirect:/cursos";
-        }
+        if (cursoOpt.isEmpty()) return "redirect:/cursos";
 
         Curso curso = cursoOpt.get();
         Optional<Inscripcion> inscripcionOpt = inscripcionService.obtenerPorAlumnoYCurso(usuario, curso);
 
         if (inscripcionOpt.isEmpty()) {
-            redirectAttributes.addFlashAttribute("mensaje", "Debes estar inscripto para ver la cursada de este curso.");
+            redirectAttributes.addFlashAttribute("mensaje", "Debes inscribirte para acceder a la cursada.");
             return "redirect:/cursos/" + id;
         }
 
+        Inscripcion inscripcion = inscripcionOpt.get();
+        List<Unidad> unidades = unidadService.obtenerPorCurso(curso);
+
+        // Mapa de progreso: unidad.id -> completada?
+        Map<Integer, Boolean> progresoPorUnidad = new LinkedHashMap<>();
+        for (Unidad u : unidades) {
+            progresoPorUnidad.put(u.getId(), progresoService.unidadCompletada(inscripcion, u));
+        }
+
+        int completadas = progresoService.contarCompletadas(inscripcion);
+        int totalUnidades = unidades.size();
+        int porcentaje = totalUnidades > 0 ? (completadas * 100 / totalUnidades) : 0;
+
         model.addAttribute("usuario", usuario);
         model.addAttribute("curso", curso);
-        model.addAttribute("inscripcion", inscripcionOpt.get());
+        model.addAttribute("inscripcion", inscripcion);
+        model.addAttribute("unidades", unidades);
+        model.addAttribute("progresoPorUnidad", progresoPorUnidad);
+        model.addAttribute("completadas", completadas);
+        model.addAttribute("totalUnidades", totalUnidades);
+        model.addAttribute("porcentaje", porcentaje);
         model.addAttribute("titulo", "Cursada: " + curso.getNombre());
 
         return "pages/cursos/mi-cursada";

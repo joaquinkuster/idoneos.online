@@ -12,9 +12,11 @@ import java.util.Optional;
 @Repository
 public interface InscripcionRepository extends JpaRepository<Inscripcion, Integer> {
 
-    List<Inscripcion> findByAlumnoAndBajaFalse(Usuario alumno);
+    List<Inscripcion> findByUsuarioAndBajaFalse(Usuario usuario);
 
-    Optional<Inscripcion> findByAlumnoAndCursoAndBajaFalse(Usuario alumno, Curso curso);
+    Optional<Inscripcion> findByUsuarioAndCursoAndBajaFalse(Usuario usuario, Curso curso);
 
-    boolean existsByAlumnoAndCursoAndBajaFalse(Usuario alumno, Curso curso);
+    boolean existsByUsuarioAndCursoAndBajaFalse(Usuario usuario, Curso curso);
+
+    List<Inscripcion> findByCursoAndBajaFalse(Curso curso);
 }

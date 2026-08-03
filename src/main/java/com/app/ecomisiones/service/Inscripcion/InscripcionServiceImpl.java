@@ -32,26 +32,26 @@ public class InscripcionServiceImpl implements InscripcionService {
     }
 
     @Override
-    public List<Inscripcion> obtenerPorAlumno(Usuario alumno) {
-        return inscripcionRepository.findByAlumnoAndBajaFalse(alumno);
+    public List<Inscripcion> obtenerPorAlumno(Usuario usuario) {
+        return inscripcionRepository.findByUsuarioAndBajaFalse(usuario);
     }
 
     @Override
-    public Optional<Inscripcion> obtenerPorAlumnoYCurso(Usuario alumno, Curso curso) {
-        return inscripcionRepository.findByAlumnoAndCursoAndBajaFalse(alumno, curso);
+    public Optional<Inscripcion> obtenerPorAlumnoYCurso(Usuario usuario, Curso curso) {
+        return inscripcionRepository.findByUsuarioAndCursoAndBajaFalse(usuario, curso);
     }
 
     @Override
-    public boolean estaInscripto(Usuario alumno, Curso curso) {
-        return inscripcionRepository.existsByAlumnoAndCursoAndBajaFalse(alumno, curso);
+    public boolean estaInscripto(Usuario usuario, Curso curso) {
+        return inscripcionRepository.existsByUsuarioAndCursoAndBajaFalse(usuario, curso);
     }
 
     @Override
-    public Inscripcion inscribirAlumno(Usuario alumno, Curso curso) {
-        if (estaInscripto(alumno, curso)) {
-            return obtenerPorAlumnoYCurso(alumno, curso).orElseThrow();
+    public Inscripcion inscribirAlumno(Usuario usuario, Curso curso) {
+        if (estaInscripto(usuario, curso)) {
+            return obtenerPorAlumnoYCurso(usuario, curso).orElseThrow();
         }
-        Inscripcion nueva = new Inscripcion(alumno, curso);
+        Inscripcion nueva = new Inscripcion(usuario, curso);
         return inscripcionRepository.save(nueva);
     }
 

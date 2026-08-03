@@ -7,61 +7,144 @@
     <div th:replace="~{fragments/navbar :: navbar}"></div>
 
     <div class="bg-dark text-white py-4 mb-4">
-        <div class="container d-flex justify-content-between align-items-center">
+        <div class="container d-flex justify-content-between align-items-center flex-wrap gap-3">
             <div>
-                <span class="badge bg-success px-3 py-2 rounded-pill mb-2">Inscripto</span>
+                <span class="badge bg-success px-3 py-2 rounded-pill mb-2 text-uppercase">Inscripto</span>
                 <h1 class="fw-bold mb-0" th:text="${curso.nombre}">Curso</h1>
+                <small class="text-white-50" th:text="'Titular: ' + ${curso.docenteTitular.nombreCompleto}">Docente</small>
             </div>
-            <a th:href="@{/cursos}" class="btn btn-outline-light rounded-pill"><i class="fa-solid fa-arrow-left me-2"></i>Volver al Catálogo</a>
+            <a th:href="@{/cursos}" class="btn btn-outline-light rounded-pill"><i class="fa-solid fa-arrow-left me-2"></i>Catálogo</a>
         </div>
     </div>
 
     <div class="container mb-5">
+        <!-- Mensajes Flash -->
+        <div th:if="${mensaje != null}" class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+            <span th:text="${mensaje}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <!-- Barra de Progreso Global -->
+        <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h5 class="fw-bold mb-0">Tu Progreso en el Curso</h5>
+                <span class="fw-bold text-primary" th:text="${completadas} + '/' + ${totalUnidades} + ' unidades completadas'">0/0</span>
+            </div>
+            <div class="progress" style="height: 12px; border-radius: 8px;">
+                <div class="progress-bar bg-success" role="progressbar"
+                     th:style="'width: ' + ${porcentaje} + '%'"
+                     th:attr="aria-valuenow=${porcentaje}"
+                     aria-valuemin="0" aria-valuemax="100">
+                </div>
+            </div>
+            <small class="text-muted mt-2 d-block" th:text="${porcentaje} + '% completado'">0%</small>
+
+            <div th:if="${porcentaje == 100}" class="alert alert-success mt-3 mb-0 rounded-3 d-flex align-items-center gap-3">
+                <i class="fa-solid fa-trophy text-warning fs-3"></i>
+                <div>
+                    <strong>¡Felicitaciones! Completaste el 100% del curso.</strong>
+                    <br><small>Pronto podrás rendir el examen final para obtener tu certificado.</small>
+                </div>
+            </div>
+        </div>
+
         <div class="row g-4">
-            <!-- Menú de Unidades -->
+            <!-- Índice de Unidades -->
             <div class="col-md-4">
                 <div class="card border-0 shadow-sm rounded-4 p-3">
-                    <h5 class="fw-bold mb-3 px-2">Unidades Secuenciales</h5>
-                    <div class="list-group list-group-flush">
-                        <th:block th:each="unidad : ${curso.unidades}">
-                            <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center rounded-3 mb-2 border-0 bg-white shadow-sm p-3">
-                                <div>
-                                    <span class="badge bg-primary rounded-pill mb-1" th:text="'Unidad ' + ${unidad.numeroOrden}">U1</span>
-                                    <h6 class="fw-bold text-dark mb-0" th:text="${unidad.titulo}">Título</h6>
+                    <h5 class="fw-bold mb-3 px-2">Unidades Académicas</h5>
+                    <div class="list-group list-group-flush gap-2">
+                        <th:block th:each="unidad, iter : ${unidades}">
+                            <div class="list-group-item list-group-item-action rounded-3 border-0 p-3"
+                                 th:classappend="${progresoPorUnidad[unidad.id] ? 'bg-success bg-opacity-10' : 'bg-white shadow-sm'}">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <span class="badge rounded-pill mb-1"
+                                              th:classappend="${progresoPorUnidad[unidad.id] ? 'bg-success' : 'bg-primary'}"
+                                              th:text="'Unidad ' + ${unidad.numeroOrden}">U1</span>
+                                        <h6 class="fw-bold text-dark mb-0 small" th:text="${unidad.titulo}">Título</h6>
+                                    </div>
+                                    <i th:if="${progresoPorUnidad[unidad.id]}" class="fa-solid fa-circle-check text-success fs-5 flex-shrink-0"></i>
+                                    <i th:if="${!progresoPorUnidad[unidad.id]}" class="fa-regular fa-circle text-muted fs-5 flex-shrink-0"></i>
                                 </div>
-                                <i class="fa-solid fa-circle-check text-success fs-5"></i>
                             </div>
                         </th:block>
+                        <div th:if="${unidades.isEmpty()}" class="text-center text-muted py-4">
+                            <i class="fa-solid fa-folder-open fs-2 mb-2"></i>
+                            <p class="mb-0 small">Sin unidades aún</p>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Contenido de la Unidad -->
+            <!-- Contenido Principal -->
             <div class="col-md-8">
-                <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5">
-                    <div th:if="${!curso.unidades.isEmpty()}">
-                        <span class="badge bg-primary px-3 py-2 rounded-pill mb-2" th:text="'Unidad ' + ${curso.unidades[0].numeroOrden}">U1</span>
-                        <h2 class="fw-bold mb-3" th:text="${curso.unidades[0].titulo}">Título de la primera unidad</h2>
-                        <p class="lead text-muted mb-4" th:text="${curso.unidades[0].descripcion}">Descripción...</p>
+                <th:block th:each="unidad, iter : ${unidades}">
+                    <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden">
+                        <!-- Header Unidad -->
+                        <div class="card-header d-flex justify-content-between align-items-center py-3 px-4"
+                             th:classappend="${progresoPorUnidad[unidad.id] ? 'bg-success text-white' : 'bg-white border-bottom'}">
+                            <div>
+                                <span class="badge rounded-pill me-2"
+                                      th:classappend="${progresoPorUnidad[unidad.id] ? 'bg-white text-success' : 'bg-primary'}"
+                                      th:text="'Unidad ' + ${unidad.numeroOrden}">U1</span>
+                                <strong th:text="${unidad.titulo}">Título</strong>
+                            </div>
+                            <span th:if="${progresoPorUnidad[unidad.id]}" class="badge bg-white text-success rounded-pill">
+                                <i class="fa-solid fa-check me-1"></i>Completada
+                            </span>
+                        </div>
 
-                        <hr class="my-4">
+                        <div class="card-body p-4">
+                            <p class="text-muted" th:text="${unidad.descripcion}">Descripción...</p>
 
-                        <h5 class="fw-bold mb-3"><i class="fa-solid fa-folder-open text-primary me-2"></i>Material Didáctico</h5>
-                        <div class="list-group">
-                            <div th:each="material : ${curso.unidades[0].materiales}" class="list-group-item d-flex justify-content-between align-items-center p-3 border-0 bg-light rounded-3 mb-2">
-                                <div class="d-flex align-items-center gap-3">
-                                    <i th:if="${material.tipo.name() == 'GRABACION'}" class="fa-solid fa-video text-danger fs-4"></i>
-                                    <i th:if="${material.tipo.name() == 'BIBLIOGRAFIA'}" class="fa-solid fa-file-pdf text-danger fs-4"></i>
-                                    <i th:if="${material.tipo.name() == 'GLOSARIO'}" class="fa-solid fa-book text-info fs-4"></i>
-                                    <div>
-                                        <h6 class="fw-bold mb-0" th:text="${material.titulo}">Material</h6>
-                                        <small class="text-muted" th:text="${material.tipo}">TIPO</small>
+                            <!-- Materiales -->
+                            <div th:if="${!unidad.materiales.isEmpty()}">
+                                <h6 class="fw-bold mb-3"><i class="fa-solid fa-folder-open text-primary me-2"></i>Material de la Unidad</h6>
+                                <div class="list-group gap-2">
+                                    <div th:each="material : ${unidad.materiales}"
+                                         th:if="${!material.getBaja() && material.getPublicado()}"
+                                         class="list-group-item d-flex justify-content-between align-items-center p-3 border-0 bg-light rounded-3">
+                                        <div class="d-flex align-items-center gap-3">
+                                            <i th:if="${material.tipo.name() == 'GRABACION'}" class="fa-solid fa-video text-danger fs-5"></i>
+                                            <i th:if="${material.tipo.name() == 'BIBLIOGRAFIA'}" class="fa-solid fa-file-pdf text-danger fs-5"></i>
+                                            <i th:if="${material.tipo.name() == 'PRESENTACION'}" class="fa-solid fa-file-powerpoint text-warning fs-5"></i>
+                                            <i th:if="${material.tipo.name() == 'RESUMEN'}" class="fa-solid fa-file-lines text-info fs-5"></i>
+                                            <i th:if="${material.tipo.name() == 'GLOSARIO'}" class="fa-solid fa-book text-success fs-5"></i>
+                                            <div>
+                                                <h6 class="fw-bold mb-0 small" th:text="${material.titulo}">Material</h6>
+                                                <small class="text-muted" th:text="${material.tipo}">TIPO</small>
+                                            </div>
+                                        </div>
+                                        <a th:href="${material.ruta}" target="_blank" class="btn btn-outline-primary btn-sm rounded-pill px-3">
+                                            <i class="fa-solid fa-external-link-alt me-1"></i>Abrir
+                                        </a>
                                     </div>
                                 </div>
-                                <a href="#" class="btn btn-outline-primary btn-sm rounded-pill px-3">Ver / Descargar</a>
+                            </div>
+
+                            <!-- Botón Completar Unidad -->
+                            <div class="mt-4 pt-3 border-top">
+                                <div th:if="${!progresoPorUnidad[unidad.id]}">
+                                    <form th:action="@{/progreso/completar}" method="post">
+                                        <input type="hidden" name="cursoId" th:value="${curso.id}">
+                                        <input type="hidden" name="unidadId" th:value="${unidad.id}">
+                                        <button type="submit" class="btn btn-success rounded-pill px-4 fw-bold">
+                                            <i class="fa-solid fa-check-circle me-2"></i>Marcar como Completada
+                                        </button>
+                                    </form>
+                                </div>
+                                <div th:if="${progresoPorUnidad[unidad.id]}" class="text-success fw-bold">
+                                    <i class="fa-solid fa-circle-check me-2"></i>¡Unidad completada!
+                                </div>
                             </div>
                         </div>
                     </div>
+                </th:block>
+
+                <div th:if="${unidades.isEmpty()}" class="card border-0 shadow-sm rounded-4 p-5 text-center">
+                    <i class="fa-solid fa-clock-rotate-left display-3 text-muted mb-3"></i>
+                    <h5 class="text-muted">El docente aún no ha cargado unidades para este curso.</h5>
                 </div>
             </div>
         </div>

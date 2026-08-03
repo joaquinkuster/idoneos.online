@@ -42,7 +42,7 @@ public class UsuarioServiceImpl implements UsuarioService, CrudService<Usuario> 
             throw new RuntimeException("El usuario con este email ya está registrado");
         }
         // Cifrar la contraseña antes de guardar
-        usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
+        usuario.setContrasena(passwordEncoder.encode(usuario.getContrasena()));
         return usuarioRepository.save(usuario);
     }
 
@@ -86,7 +86,8 @@ public class UsuarioServiceImpl implements UsuarioService, CrudService<Usuario> 
      */
     @Override
     public void borrar(Usuario usuario) {
-        usuarioRepository.delete(usuario); // Elimina el usuario
+        usuario.setBaja(true); // Borrado lógico
+        usuarioRepository.save(usuario);
     }
 
     /**

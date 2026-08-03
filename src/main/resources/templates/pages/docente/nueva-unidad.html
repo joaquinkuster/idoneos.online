@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<div th:replace="~{fragments/head :: head}"></div>
+
+<body class="bg-light">
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <div class="bg-dark text-white py-4 mb-4">
+        <div class="container d-flex justify-content-between align-items-center">
+            <h1 class="fw-bold mb-0">Nueva Unidad Académica</h1>
+            <a th:href="@{'/docente/curso/' + ${curso.id} + '/gestionar'}" class="btn btn-outline-light rounded-pill">Volver</a>
+        </div>
+    </div>
+
+    <div class="container mb-5">
+        <div class="row justify-content-center">
+            <div class="col-md-7">
+                <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 bg-white">
+                    <div class="mb-4">
+                        <h5 class="fw-bold mb-1">Curso: <span class="text-primary" th:text="${curso.nombre}">Nombre</span></h5>
+                        <small class="text-muted" th:text="'Categoría: ' + ${curso.categoria.nombre}">Categoría</small>
+                    </div>
+                    <form th:action="@{'/docente/curso/' + ${curso.id} + '/unidad/guardar'}" method="post">
+                        <div class="mb-3">
+                            <label for="numeroOrden" class="form-label fw-bold">Número de Orden</label>
+                            <input type="number" min="1" class="form-control" id="numeroOrden" name="numeroOrden"
+                                   th:value="${numeroOrdenSugerido}" required>
+                            <small class="text-muted">Define la posición secuencial de la unidad en el curso.</small>
+                        </div>
+                        <div class="mb-3">
+                            <label for="titulo" class="form-label fw-bold">Título de la Unidad</label>
+                            <input type="text" class="form-control" id="titulo" name="titulo"
+                                   placeholder="Ej: Introducción al Mercado de Capitales" required>
+                        </div>
+                        <div class="mb-4">
+                            <label for="descripcion" class="form-label fw-bold">Descripción</label>
+                            <textarea class="form-control" id="descripcion" name="descripcion" rows="4"
+                                      placeholder="Describí los temas y objetivos de esta unidad..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 py-2 rounded-pill fw-bold">Crear Unidad</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+    <div th:replace="~{fragments/scripts :: scripts}"></div>
+</body>
+</html>

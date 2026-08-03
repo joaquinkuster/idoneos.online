@@ -40,18 +40,25 @@
 
         <!-- Links Rápidos Admin -->
         <div class="row g-4">
-            <div class="col-md-6">
-                <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
-                    <h4 class="fw-bold mb-3"><i class="fa-solid fa-users-gear text-primary me-2"></i>Gestión de Usuarios</h4>
-                    <p class="text-muted">Administra alumnos, docentes y otros administradores del sistema.</p>
-                    <a th:href="@{/admin/usuarios}" class="btn btn-outline-primary rounded-pill">Ver Usuarios</a>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+                    <h4 class="fw-bold mb-3"><i class="fa-solid fa-users-gear text-primary me-2"></i>Usuarios</h4>
+                    <p class="text-muted">Administra alumnos, docentes y administradores. Gestiona roles y acceso al Clon IA.</p>
+                    <a th:href="@{/admin/usuarios}" class="btn btn-outline-primary rounded-pill mt-auto">Ver Usuarios</a>
                 </div>
             </div>
-            <div class="col-md-6">
-                <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
-                    <h4 class="fw-bold mb-3"><i class="fa-solid fa-folder-tree text-warning me-2"></i>Gestión de Categorías</h4>
-                    <p class="text-muted">Crea y modifica las áreas temáticas de la plataforma.</p>
-                    <a th:href="@{/admin/categorias}" class="btn btn-outline-warning rounded-pill">Ver Categorías</a>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+                    <h4 class="fw-bold mb-3"><i class="fa-solid fa-graduation-cap text-success me-2"></i>Cursos</h4>
+                    <p class="text-muted">Administra todos los cursos del sistema. Publica, oculta o elimina cursos.</p>
+                    <a th:href="@{/admin/cursos}" class="btn btn-outline-success rounded-pill mt-auto">Ver Cursos</a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+                    <h4 class="fw-bold mb-3"><i class="fa-solid fa-folder-tree text-warning me-2"></i>Categorías</h4>
+                    <p class="text-muted">Crea y modifica las áreas temáticas de la plataforma educativa.</p>
+                    <a th:href="@{/admin/categorias}" class="btn btn-outline-warning rounded-pill mt-auto">Ver Categorías</a>
                 </div>
             </div>
         </div>
