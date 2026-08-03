@@ -25,7 +25,7 @@ public class IntentoAutoevaluacion {
     @Column(name = "fecha", nullable = false)
     private LocalDateTime fecha = LocalDateTime.now();
 
-    @Column(name = "nota", nullable = true, precision = 5, scale = 2)
+    @Column(name = "nota", nullable = true)
     private Double nota;
 
     @ManyToOne(fetch = FetchType.LAZY)

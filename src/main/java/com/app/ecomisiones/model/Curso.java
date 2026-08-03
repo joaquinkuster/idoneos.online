@@ -103,6 +103,17 @@ public class Curso {
                 .orElse(null);
     }
 
+    /**
+     * Devuelve el docente supervisor (es_supervisor = true), si existe.
+     */
+    public Docente getDocenteSupervisor() {
+        return docentes.stream()
+                .filter(DocenteCurso::isEsSupervisor)
+                .map(DocenteCurso::getDocente)
+                .findFirst()
+                .orElse(null);
+    }
+
     @Override
     public String toString() {
         return nombre;

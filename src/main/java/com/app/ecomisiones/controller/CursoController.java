@@ -66,7 +66,7 @@ public class CursoController {
 
     // ─── Detalle del Curso ─────────────────────────────────────────────────────
 
-    @GetMapping("/{id}")
+    @GetMapping("/{id:\\d+}")
     public String verDetalleCurso(@PathVariable("id") Integer id, Model model, Authentication auth) {
         Optional<Curso> cursoOpt = cursoService.buscarPorId(id);
         if (cursoOpt.isEmpty()) return "redirect:/cursos";
@@ -86,6 +86,29 @@ public class CursoController {
         model.addAttribute("titulo", curso.getNombre() + " | Idóneos Online");
 
         return "pages/cursos/detalle";
+    }
+
+    // ─── Mis Cursos Inscriptos (Alumno) ───────────────────────────────────────
+
+    @GetMapping("/mis-cursos")
+    public String listarMisCursos(Authentication auth, Model model) {
+        if (auth == null || !(auth.getPrincipal() instanceof Usuario)) return "redirect:/login";
+
+        Usuario usuario = (Usuario) auth.getPrincipal();
+        List<Inscripcion> inscripciones = inscripcionService.obtenerPorAlumno(usuario);
+
+        List<Curso> misCursos = new ArrayList<>();
+        for (Inscripcion i : inscripciones) {
+            if (!i.getBaja()) {
+                misCursos.add(i.getCurso());
+            }
+        }
+
+        model.addAttribute("usuario", usuario);
+        model.addAttribute("misCursos", misCursos);
+        model.addAttribute("titulo", "Mis Cursos | Idóneos Online");
+
+        return "pages/cursos/mis-cursos";
     }
 
     // ─── Inscripción ───────────────────────────────────────────────────────────

@@ -91,28 +91,30 @@ public class SemillaService {
         // ── 2. Usuarios base ───────────────────────────────────────────────────
 
         Usuario adminUsuario = new Usuario("Admin", "Idóneos", adminEmail, passwordEncoder.encode("123456"), RolUsuario.Administrador);
+        Administrador adminObj = new Administrador(adminUsuario);
+        adminUsuario.setAdministrador(adminObj);
         usuarioRepository.save(adminUsuario);
-        administradorRepository.save(new Administrador(adminUsuario));
 
         Usuario usuFausto = new Usuario("Fausto", "Spotorno", "fausto.spotorno@idoneos.online", passwordEncoder.encode("123456"), RolUsuario.Docente);
-        usuarioRepository.save(usuFausto);
         Docente docenteFausto = new Docente(usuFausto);
         docenteFausto.setBiografia("Economista UBA, Magíster en Finanzas UTDT. Ex-Director de Relevamiento Económico de Orlando J. Ferreres & Asociados.");
         docenteFausto.setAniosExperiencia(20);
         docenteFausto.setFechaConsentimientoClon(LocalDate.now()); // habilitado para Clon IA
-        docenteRepository.save(docenteFausto);
+        usuFausto.setDocente(docenteFausto);
+        usuarioRepository.save(usuFausto);
 
         Usuario usuSebas = new Usuario("Sebastián", "Bordato", "sebastian.bordato@idoneos.online", passwordEncoder.encode("123456"), RolUsuario.Docente);
-        usuarioRepository.save(usuSebas);
         Docente docenteSebas = new Docente(usuSebas);
         docenteSebas.setBiografia("Contador Público UBA. Especialista en planificación fiscal y mercados financieros.");
         docenteSebas.setAniosExperiencia(15);
         docenteSebas.setFechaConsentimientoClon(LocalDate.now());
-        docenteRepository.save(docenteSebas);
+        usuSebas.setDocente(docenteSebas);
+        usuarioRepository.save(usuSebas);
 
         Usuario usuAlumno = new Usuario("Juan", "Pérez", "alumno@correo.com", passwordEncoder.encode("123456"), RolUsuario.Alumno);
+        Alumno alumnoObj = new Alumno(usuAlumno);
+        usuAlumno.setAlumno(alumnoObj);
         usuarioRepository.save(usuAlumno);
-        alumnoRepository.save(new Alumno(usuAlumno));
 
         // ── 3. Categorías temáticas ────────────────────────────────────────────
 
