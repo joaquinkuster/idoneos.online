@@ -1,40 +1,167 @@
+/* ============================================================
+   Idóneos Online — Design System CSS
+   Paleta:
+     navy     #0B1F3A  base institucional
+     navy2    #12294D  degradé de navy
+     navyLine #23375C  bordes sobre navy
+     paper    #F7F5EF  fondo cálido de contenido
+     card     #FFFFFF  superficie de tarjeta
+     ink      #1B2431  texto principal
+     mute     #66727F  texto secundario
+     gold     #C9982F  acento principal (acción, prestigio)
+     goldDeep #9C7423  hover / texto sobre dorado claro
+     goldSoft #FBF1DB  fondos suaves dorados
+     line     #E7E3D8  bordes sutiles sobre paper
+     ok       #2F7D52  aprobado
+   ============================================================ */
+
+:root {
+  --navy: #0B1F3A;
+  --navy2: #12294D;
+  --navy-line: #23375C;
+  --paper: #F7F5EF;
+  --card: #FFFFFF;
+  --ink: #1B2431;
+  --mute: #66727F;
+  --gold: #C9982F;
+  --gold-deep: #9C7423;
+  --gold-soft: #FBF1DB;
+  --line: #E7E3D8;
+  --ok: #2F7D52;
+  --font-serif: 'Fraunces', serif;
+  --font-sans: 'Inter', sans-serif;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--paper);
+  color: var(--ink);
+}
+
+h1, h2, h3, .font-serif {
+  font-family: var(--font-serif);
+}
+
+.bg-navy {
+  background: linear-gradient(160deg, var(--navy), var(--navy2)) !important;
+}
+
+.text-gold {
+  color: var(--gold) !important;
+}
+
+.bg-gold {
+  background-color: var(--gold) !important;
+  color: var(--navy) !important;
+}
+
+.bg-gold-soft {
+  background-color: var(--gold-soft) !important;
+  color: var(--gold-deep) !important;
+  border: 1px solid #EFDBA6;
+}
+
+.idn-fade {
+  animation: idnFade 0.5s ease both;
+}
+
+@keyframes idnFade {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.idn-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  transition: transform .22s cubic-bezier(.22,1,.36,1), box-shadow .22s ease, border-color .22s ease;
+}
+
+.idn-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px -18px rgba(11,31,58,0.28);
+  border-color: rgba(201,152,47,0.55) !important;
+}
+
+.idn-btn-gold {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  color: var(--navy) !important;
+  background: linear-gradient(140deg, #E4BE6C, #C9982F) !important;
+  border: none !important;
+  transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+  box-shadow: 0 10px 22px -10px rgba(201,152,47,0.55);
+}
+
+.idn-btn-gold:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.04);
+  box-shadow: 0 16px 28px -12px rgba(201,152,47,0.65);
+}
+
+.idn-btn-gold:active {
+  transform: translateY(0px) scale(0.98);
+}
+
+.idn-btn-ghost {
+  font-family: var(--font-sans);
+  color: var(--paper) !important;
+  background: rgba(255,255,255,0.04) !important;
+  border: 1px solid #2C4874 !important;
+  transition: background .15s ease, border-color .15s ease, color .15s ease;
+}
+
+.idn-btn-ghost:hover {
+  background: rgba(255,255,255,0.1) !important;
+  border-color: var(--gold) !important;
+}
+
+.idn-navlink {
+  position: relative;
+  transition: color .15s ease;
+}
+
+.idn-navlink::after {
+  content: "";
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 3px;
+  height: 2px;
+  background: var(--gold);
+  border-radius: 2px;
+  transform: scaleX(0);
+  transition: transform .2s ease;
+}
+
+.idn-navlink.active::after {
+  transform: scaleX(1);
+}
+
+.idn-row {
+  transition: background .15s ease, border-color .15s ease, transform .15s ease;
+}
+
+.idn-row:hover {
+  transform: translateX(2px);
+}
+
+.idn-input-wrap {
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+
+.idn-input-wrap:focus-within {
+  border-color: var(--gold) !important;
+  box-shadow: 0 0 0 3px rgba(201,152,47,0.16);
+}
+
 .cartaProducto:hover {
-    transform: scale(1.05);
-    transition: transform 0.3s;
-}
-
-.carousel-inner img {
-    width: 100%;
-    height: 50vh;
-    object-fit: cover;
-}
-
-.carousel-indicators button {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background-color: #007bff;
-}
-
-.carousel-indicators .active {
-    background-color: #0056b3;
-}
-
-.product-image {
-    max-height: 400px;
-    object-fit: contain;
-    cursor: pointer;
-}
-
-.product-thumbnail {
-    max-height: 80px;
-    object-fit: contain;
-    cursor: pointer;
-    margin-right: 8px;
+  transform: scale(1.03);
+  transition: transform 0.3s;
 }
 
 .error-message {
-    color: red;
-    font-size: 0.875rem;
-    margin-top: 0.25rem;
+  color: #d9534f;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
 }

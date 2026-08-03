@@ -3,27 +3,74 @@
 
 <div th:replace="~{fragments/head :: head}"></div>
 
-<body>
+<body class="bg-light">
     <!-- Navbar -->
     <div th:replace="~{fragments/navbar :: navbar}"></div>
 
-    <!-- Hero Section -->
-    <section class="hero-banner text-center position-relative">
-        <div class="container py-5">
+    <!-- Hero Section con la paleta Navy/Gold de Idóneos Online -->
+    <section style="background: radial-gradient(1100px 480px at 15% -10%, #16335C 0%, transparent 60%), linear-gradient(160deg, #0B1F3A, #12294D 60%, #0E2544); color: #F7F5EF; position: relative; overflow: hidden;" class="py-5">
+        <div class="container py-4">
             <!-- Mensaje flash si existe -->
-            <div th:if="${mensaje != null}" class="alert alert-info alert-dismissible fade show text-start mb-4 max-w-md mx-auto" role="alert">
+            <div th:if="${mensaje != null}" class="alert alert-info alert-dismissible fade show text-start mb-4" role="alert">
                 <span th:text="${mensaje}"></span>
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
 
-            <span class="badge bg-primary text-uppercase px-3 py-2 rounded-pill mb-3 fw-bold">Plataforma de Formación Financiera de Élite</span>
-            <h1 class="display-4 fw-extrabold mb-3">Aprende Finanzas, Economía y Mercado de Capitales</h1>
-            <p class="lead mb-4 text-white-50 mx-auto" style="max-width: 700px;">
-                Capacítate con docentes de primer nivel académico en modalidad en vivo, grabada secuencial y dictado con Clon de IA.
-            </p>
-            <div class="d-flex justify-content-center gap-3">
-                <a th:href="@{/cursos}" class="btn btn-primary btn-lg rounded-pill px-4 font-weight-bold">Explorar Catálogo</a>
-                <a th:href="@{/registro}" class="btn btn-outline-light btn-lg rounded-pill px-4" th:if="${usuario == null}">Crear Cuenta Gratis</a>
+            <div class="row align-items-center g-5">
+                <div class="col-lg-7">
+                    <div class="d-flex align-items-center gap-2 mb-3 fw-bold small text-gold" style="letter-spacing: 0.14em;">
+                        <i class="fa-solid fa-graduation-cap"></i> DOCENTES DE ÉLITE · METODOLOGÍA SECUENCIAL
+                    </div>
+                    <h1 class="font-serif display-4 fw-bold mb-3 text-white" style="line-height: 1.12; letter-spacing: -0.01em;">
+                        Formación de posgrado en finanzas, sin pasar por la maestría.
+                    </h1>
+                    <p class="lead mb-4 text-white-50 fs-5" style="line-height: 1.75; max-width: 580px;">
+                        Cursos dictados por directores de maestría y economistas de referencia, estructurados en unidades breves con avance verificado y certificación al finalizar.
+                    </p>
+                    <div class="d-flex gap-3 flex-wrap">
+                        <a th:href="@{/cursos}" class="btn btn-lg rounded-pill px-4 idn-btn-gold">
+                            Ver todos los cursos <i class="fa-solid fa-arrow-right ms-2"></i>
+                        </a>
+                        <a th:href="@{/registro}" class="btn btn-lg rounded-pill px-4 idn-btn-ghost" th:if="${usuario == null}">
+                            <i class="fa-solid fa-user-plus me-2"></i>Crear Cuenta
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Tarjeta lateral interactiva del Hero -->
+                <div class="col-lg-5">
+                    <div style="background: rgba(16,38,71,0.6); backdrop-filter: blur(6px); border: 1px solid #22406C; border-radius: 16px;" class="p-4 shadow-lg">
+                        <div class="small fw-bold text-white-50 mb-3" style="letter-spacing: 0.1em;">CÓMO SE ESTRUCTURA UN CURSO</div>
+
+                        <div class="d-flex align-items-center gap-3 py-2 border-bottom border-secondary border-opacity-25">
+                            <div style="width: 32px; height: 32px; border-radius: 8px; background: rgba(201,152,47,0.14);" class="d-flex align-items-center justify-content-center text-gold flex-shrink-0">
+                                <i class="fa-solid fa-book-open"></i>
+                            </div>
+                            <div class="small text-white">10+ unidades secuenciales por curso</div>
+                        </div>
+
+                        <div class="d-flex align-items-center gap-3 py-2 border-bottom border-secondary border-opacity-25">
+                            <div style="width: 32px; height: 32px; border-radius: 8px; background: rgba(201,152,47,0.14);" class="d-flex align-items-center justify-content-center text-gold flex-shrink-0">
+                                <i class="fa-solid fa-satellite-dish"></i>
+                            </div>
+                            <div class="small text-white">En vivo, grabado o con Clon de IA</div>
+                        </div>
+
+                        <div class="d-flex align-items-center gap-3 py-2 border-bottom border-secondary border-opacity-25">
+                            <div style="width: 32px; height: 32px; border-radius: 8px; background: rgba(201,152,47,0.14);" class="d-flex align-items-center justify-content-center text-gold flex-shrink-0">
+                                <i class="fa-solid fa-shield-halved"></i>
+                            </div>
+                            <div class="small text-white">Autoevaluación obligatoria para avanzar</div>
+                        </div>
+
+                        <div class="d-flex align-items-center gap-3 py-2">
+                            <div style="width: 32px; height: 32px; border-radius: 8px; background: rgba(201,152,47,0.14);" class="d-flex align-items-center justify-content-center text-gold flex-shrink-0">
+                                <i class="fa-solid fa-award"></i>
+                            </div>
+                            <div class="small text-white">Constancia digital automática al finalizar</div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
@@ -32,17 +79,18 @@
     <section class="py-5 bg-white">
         <div class="container">
             <div class="text-center mb-5">
-                <h2 class="fw-bold">Especialidades Académicas</h2>
-                <p class="text-muted">Formación integral adaptada a la legislación y mercado argentino</p>
+                <span class="small fw-bold text-gold text-uppercase" style="letter-spacing: 0.1em;">Especialidades Académicas</span>
+                <h2 class="font-serif fw-bold display-6 text-navy mt-1">Áreas Temáticas de Formación</h2>
+                <p class="text-muted">Contenidos 100% enfocados en la legislación, impuestos y mercado argentino</p>
             </div>
             <div class="row g-4">
                 <div th:each="cat : ${categorias}" class="col-md-3">
                     <a th:href="@{'/cursos?categoriaId=' + ${cat.id}}" class="text-decoration-none">
-                        <div class="card h-100 border-0 bg-light p-4 text-center rounded-4 shadow-sm hover-shadow">
-                            <div class="text-primary mb-3">
-                                <i class="fa-solid fa-graduation-cap fs-1"></i>
+                        <div class="idn-card p-4 text-center h-100">
+                            <div class="text-gold mb-3">
+                                <i class="fa-solid fa-landmark fs-1"></i>
                             </div>
-                            <h5 class="fw-bold text-dark mb-2" th:text="${cat.nombre}">Categoría</h5>
+                            <h5 class="font-serif fw-bold text-navy mb-2" th:text="${cat.nombre}">Categoría</h5>
                             <small class="text-muted" th:text="${cat.descripcion}">Descripción</small>
                         </div>
                     </a>
@@ -54,12 +102,12 @@
     <!-- Sección de Cursos Destacados -->
     <section class="py-5">
         <div class="container">
-            <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="d-flex justify-content-between align-items-end mb-4 flex-wrap gap-2">
                 <div>
-                    <h2 class="fw-bold mb-0">Cursos Destacados</h2>
-                    <p class="text-muted mb-0">Comienza tu formación con nuestra oferta académica principal</p>
+                    <span class="small fw-bold text-gold text-uppercase" style="letter-spacing: 0.1em;">Catálogo Destacado</span>
+                    <h2 class="font-serif fw-bold display-6 text-navy mb-0">Cursos Disponibles</h2>
                 </div>
-                <a th:href="@{/cursos}" class="btn btn-outline-primary rounded-pill px-4">Ver Todos</a>
+                <a th:href="@{/cursos}" class="btn btn-outline-dark rounded-pill px-4">Ver Todos los Cursos</a>
             </div>
             
             <div class="row g-4">
