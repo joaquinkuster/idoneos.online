@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<div th:replace="~{fragments/head :: head}"></div>
+
+<body class="bg-light">
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<!-- Header -->
+<div class="bg-dark text-white py-4 mb-4">
+    <div class="container d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+            <h1 class="fw-bold mb-1"><i class="fa-solid fa-video text-danger me-2"></i>Gestión de Clases en Vivo</h1>
+            <small class="text-white-50">Transmisión vía OBS Studio y streaming RTMP</small>
+        </div>
+        <a th:href="@{/docente}" class="btn btn-outline-light rounded-pill">Volver al Panel</a>
+    </div>
+</div>
+
+<div class="container pb-5">
+
+    <div th:if="${mensaje}" class="alert alert-info alert-dismissible fade show shadow-sm rounded-3 mb-4" role="alert">
+        <i class="fa-solid fa-circle-info me-2"></i>
+        <span th:text="${mensaje}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <!-- Modal / Card para Programar Nueva Clase -->
+    <div class="card shadow-sm border-0 rounded-4 mb-4">
+        <div class="card-body p-4">
+            <h5 class="fw-bold mb-3"><i class="fa-solid fa-calendar-plus me-2 text-primary"></i>Programar Nueva Clase en Vivo</h5>
+            <form th:action="@{/clase-vivo/programar}" method="post" class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Título de la Clase</label>
+                    <input type="text" name="titulo" class="form-control rounded-3" required placeholder="ej: Clase en Vivo - Módulo Especial Finanzas">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">ID Unidad</label>
+                    <input type="number" name="unidadId" class="form-control rounded-3" required placeholder="ej: 1">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">Fecha y Hora</label>
+                    <input type="datetime-local" name="fechaHora" class="form-control rounded-3" required>
+                </div>
+                <div class="col-12 text-end">
+                    <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold">
+                        <i class="fa-solid fa-plus me-2"></i>Programar Clase
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Lista de Clases Programadas / En Vivo / Finalizadas -->
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-body p-4">
+            <h5 class="fw-bold mb-3"><i class="fa-solid fa-list me-2 text-success"></i>Historial de Clases en Vivo</h5>
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Título</th>
+                            <th>Unidad</th>
+                            <th>Fecha/Hora</th>
+                            <th>Estado</th>
+                            <th>Acciones / Datos OBS</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="c : ${clases}">
+                            <td class="fw-bold" th:text="${c.titulo}">Clase</td>
+                            <td th:text="${c.unidad.titulo}">Unidad</td>
+                            <td th:text="${#temporals.format(c.fechaHora, 'dd/MM/yyyy HH:mm')}">Fecha</td>
+                            <td>
+                                <span class="badge rounded-pill"
+                                      th:classappend="${c.estado.nombre == 'Programada'} ? 'bg-secondary' : (${c.estado.nombre == 'En vivo'} ? 'bg-danger animate-pulse' : 'bg-success')"
+                                      th:text="${c.estado.nombre}">Estado</span>
+                            </td>
+                            <td>
+                                <!-- Acciones según estado -->
+                                <div th:if="${c.estado.nombre == 'Programada'}">
+                                    <form th:action="@{'/clase-vivo/' + ${c.id} + '/iniciar'}" method="post" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-danger rounded-pill fw-bold">
+                                            <i class="fa-solid fa-play me-1"></i>Iniciar Transmisión
+                                        </button>
+                                    </form>
+                                </div>
+
+                                <div th:if="${c.estado.nombre == 'En vivo'}">
+                                    <div class="small bg-dark text-warning p-2 rounded mb-2">
+                                        <strong>URL RTMP:</strong> <span th:text="${c.urlRtmp}">rtmp://...</span><br>
+                                        <strong>Clave:</strong> <span th:text="${c.claveStream}">key</span>
+                                    </div>
+                                    <form th:action="@{'/clase-vivo/' + ${c.id} + '/finalizar'}" method="post" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-dark rounded-pill fw-bold">
+                                            <i class="fa-solid fa-square me-1"></i>Finalizar Clase
+                                        </button>
+                                    </form>
+                                </div>
+
+                                <div th:if="${c.estado.nombre == 'Finalizada'}">
+                                    <span class="text-muted small"><i class="fa-solid fa-check me-1"></i>Grabación lista</span>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr th:if="${clases.isEmpty()}">
+                            <td colspan="5" class="text-center text-muted fst-italic py-4">No tenés clases en vivo programadas.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

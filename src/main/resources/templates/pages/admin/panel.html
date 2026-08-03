@@ -14,7 +14,7 @@
     </div>
 
     <div class="container mb-5">
-        <div class="row g-4 mb-5">
+        <div class="row g-4 mb-4">
             <div class="col-md-4">
                 <div class="card border-0 shadow-sm rounded-4 p-4 text-center bg-white">
                     <i class="fa-solid fa-users text-primary display-4 mb-2"></i>
@@ -39,7 +39,7 @@
         </div>
 
         <!-- Links Rápidos Admin -->
-        <div class="row g-4">
+        <div class="row g-4 mb-4">
             <div class="col-md-4">
                 <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
                     <h4 class="fw-bold mb-3"><i class="fa-solid fa-users-gear text-primary me-2"></i>Usuarios</h4>
@@ -59,6 +59,31 @@
                     <h4 class="fw-bold mb-3"><i class="fa-solid fa-folder-tree text-warning me-2"></i>Categorías</h4>
                     <p class="text-muted">Crea y modifica las áreas temáticas de la plataforma educativa.</p>
                     <a th:href="@{/admin/categorias}" class="btn btn-outline-warning rounded-pill mt-auto">Ver Categorías</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Módulos Adicionales (Reportes, Auditoría, Configuración) -->
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+                    <h4 class="fw-bold mb-3"><i class="fa-solid fa-chart-line text-info me-2"></i>Reportes y Estadísticas</h4>
+                    <p class="text-muted">Indicadores en vivo de alumnos, ingresos e inscripciones. Generación de informes.</p>
+                    <a th:href="@{/admin/reportes}" class="btn btn-outline-info rounded-pill mt-auto">Ver Reportes</a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+                    <h4 class="fw-bold mb-3"><i class="fa-solid fa-clipboard-list text-danger me-2"></i>Log de Auditoría</h4>
+                    <p class="text-muted">Registro automático AOP de creación, modificación y eliminación de registros.</p>
+                    <a th:href="@{/admin/auditoria}" class="btn btn-outline-danger rounded-pill mt-auto">Ver Auditoría</a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+                    <h4 class="fw-bold mb-3"><i class="fa-solid fa-sliders text-secondary me-2"></i>Configuración</h4>
+                    <p class="text-muted">Ajusta los parámetros operativos clave-valor del sistema en tiempo real.</p>
+                    <a th:href="@{/admin/configuracion}" class="btn btn-outline-secondary rounded-pill mt-auto">Ver Configuración</a>
                 </div>
             </div>
         </div>

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<div th:replace="~{fragments/head :: head}"></div>
+
+<body class="bg-light">
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<!-- Header -->
+<div class="bg-dark text-white py-4 mb-4">
+    <div class="container">
+        <h1 class="fw-bold mb-1"><i class="fa-solid fa-credit-card me-2 text-primary"></i>Inscripción y Pago Seguro</h1>
+        <p class="text-white-50 mb-0">Procesado vía Mercado Pago Checkout API (Tarjeta Crédito/Débito)</p>
+    </div>
+</div>
+
+<div class="container pb-5">
+    <div class="row g-4">
+
+        <!-- Resumen del Curso -->
+        <div class="col-lg-5">
+            <div class="card shadow-sm border-0 rounded-4 p-4 mb-4">
+                <h5 class="fw-bold mb-3">Resumen de la Cursada</h5>
+                <h4 class="fw-bold text-primary mb-2" th:text="${curso.nombre}">Curso</h4>
+                <p class="text-muted small mb-3" th:text="${curso.descripcion}">Descripción</p>
+
+                <hr>
+
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Precio del Curso:</span>
+                    <span class="fw-bold" th:text="'$' + ${#numbers.formatDecimal(montoOriginal, 1, 2)}">$0</span>
+                </div>
+                <div th:if="${tieneDescuento}" class="d-flex justify-content-between mb-2 text-success">
+                    <span><i class="fa-solid fa-tag me-1"></i>Descuento aplicado:</span>
+                    <span class="fw-bold">- $<span th:text="${#numbers.formatDecimal(montoOriginal - montoFinal, 1, 2)}">0</span></span>
+                </div>
+
+                <hr>
+
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="fs-5 fw-bold">Total a Pagar:</span>
+                    <span class="fs-3 fw-bold text-success" th:text="'$' + ${#numbers.formatDecimal(montoFinal, 1, 2)}">$0</span>
+                </div>
+
+                <div class="mt-3 bg-light p-3 rounded-3 border">
+                    <small class="text-muted"><i class="fa-solid fa-shield-halved text-success me-1"></i>Pago 100% encriptado. Habilitación inmediata de acceso tras acreditación.</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Formulario de Tarjeta -->
+        <div class="col-lg-7">
+            <div class="card shadow-sm border-0 rounded-4 p-4">
+                <h5 class="fw-bold mb-3"><i class="fa-solid fa-lock me-2 text-success"></i>Datos de la Tarjeta</h5>
+
+                <form th:action="@{'/pago/procesar/' + ${curso.id}}" method="post">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Titular de la Tarjeta</label>
+                        <input type="text" name="nombreTarjeta" class="form-control rounded-3" required th:value="${usuario.nombreCompleto}">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Número de Tarjeta (Crédito o Débito)</label>
+                        <div class="input-group">
+                            <input type="text" name="numeroTarjeta" class="form-control rounded-start-3" maxlength="16" required placeholder="4509 0000 0000 0000">
+                            <span class="input-group-text bg-white rounded-end-3 text-muted"><i class="fa-brands fa-cc-visa me-1"></i><i class="fa-brands fa-cc-mastercard"></i></span>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Vencimiento</label>
+                            <input type="text" name="vencimiento" class="form-control rounded-3" placeholder="MM/AA" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Código de Seguridad (CVV)</label>
+                            <input type="password" name="cvv" class="form-control rounded-3" maxlength="4" placeholder="123" required>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-success btn-lg w-100 rounded-pill fw-bold shadow">
+                        <i class="fa-solid fa-check-circle me-2"></i>Pagar $<span th:text="${#numbers.formatDecimal(montoFinal, 1, 2)}">0</span> y Comprar Curso
+                    </button>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

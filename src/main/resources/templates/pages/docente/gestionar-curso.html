@@ -36,12 +36,18 @@
         </div>
 
         <div th:each="unidad : ${unidades}" class="card border-0 shadow-sm rounded-4 mb-4">
-            <div class="card-header bg-white py-3 px-4 d-flex justify-content-between align-items-center border-bottom">
+            <div class="card-header bg-white py-3 px-4 d-flex justify-content-between align-items-center border-bottom flex-wrap gap-2">
                 <div>
                     <span class="badge bg-primary rounded-pill me-2" th:text="'Unidad ' + ${unidad.numeroOrden}">U1</span>
                     <strong th:text="${unidad.titulo}">Título</strong>
                 </div>
-                <div class="d-flex gap-2">
+                <div class="d-flex gap-2 flex-wrap">
+                    <a th:href="@{'/docente/unidad/' + ${unidad.id} + '/pool'}" class="btn btn-outline-warning btn-sm rounded-pill">
+                        <i class="fa-solid fa-layer-group me-1"></i>Pool Preguntas
+                    </a>
+                    <a th:href="@{'/foro/unidad/' + ${unidad.id}}" class="btn btn-outline-info btn-sm rounded-pill">
+                        <i class="fa-solid fa-comments me-1"></i>Foro
+                    </a>
                     <a th:href="@{'/docente/unidad/' + ${unidad.id} + '/material/nuevo'}" class="btn btn-outline-primary btn-sm rounded-pill">
                         <i class="fa-solid fa-plus me-1"></i>Material
                     </a>
@@ -58,6 +64,24 @@
             <div class="card-body p-4">
                 <p class="text-muted mb-3" th:text="${unidad.descripcion}">Descripción...</p>
 
+                <!-- Herramientas IA (Gemini) para esta unidad -->
+                <div class="bg-light p-3 rounded-3 mb-4 border d-flex align-items-center justify-content-between flex-wrap gap-2">
+                    <small class="fw-bold text-purple"><i class="fa-solid fa-wand-magic-sparkles me-1 text-primary"></i>Herramientas IA Gemini 3.1 Pro:</small>
+                    <div class="d-flex gap-2">
+                        <form th:action="@{'/docente/ia/unidad/' + ${unidad.id} + '/generar-banco'}" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-sm btn-outline-primary rounded-pill">
+                                <i class="fa-solid fa-robot me-1"></i>Generar Banco Preguntas
+                            </button>
+                        </form>
+                        <form th:action="@{'/docente/ia/unidad/' + ${unidad.id} + '/generar-presentacion'}" method="post" class="d-inline">
+                            <input type="hidden" name="promptInput" th:value="'Diapositivas ' + ${unidad.titulo}">
+                            <button type="submit" class="btn btn-sm btn-outline-success rounded-pill">
+                                <i class="fa-solid fa-file-powerpoint me-1"></i>Generar Slides IA
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
                 <!-- Materiales de esta unidad -->
                 <h6 class="fw-bold mb-3"><i class="fa-solid fa-folder-open text-primary me-2"></i>Materiales</h6>
                 <div th:if="${unidad.materiales.isEmpty()}" class="text-muted fst-italic small">Sin materiales cargados.</div>
@@ -65,18 +89,21 @@
                     <div th:each="m : ${unidad.materiales}" th:if="${!m.getBaja()}"
                          class="list-group-item d-flex justify-content-between align-items-center p-3 border-0 bg-light rounded-3">
                         <div class="d-flex align-items-center gap-3">
-                            <i th:if="${m.tipo.name() == 'GRABACION'}" class="fa-solid fa-video text-danger fs-5"></i>
-                            <i th:if="${m.tipo.name() == 'BIBLIOGRAFIA'}" class="fa-solid fa-file-pdf text-danger fs-5"></i>
-                            <i th:if="${m.tipo.name() == 'PRESENTACION'}" class="fa-solid fa-file-powerpoint text-warning fs-5"></i>
-                            <i th:if="${m.tipo.name() == 'RESUMEN'}" class="fa-solid fa-file-lines text-info fs-5"></i>
-                            <i th:if="${m.tipo.name() == 'GLOSARIO'}" class="fa-solid fa-book text-success fs-5"></i>
+                            <i class="fa-solid fa-file-lines text-primary fs-5"></i>
                             <div>
                                 <h6 class="fw-bold mb-0 small" th:text="${m.titulo}">Material</h6>
-                                <small class="text-muted" th:text="${m.tipo + (m.publicado ? '' : ' · Oculto')}">TIPO</small>
+                                <small class="text-muted" th:text="${m.tipo.nombre + (m.publicado ? '' : ' · Oculto')}">TIPO</small>
+                                <span th:if="${m.generadoPorIA}" class="badge bg-purple text-white ms-1">IA Gemini</span>
                             </div>
                         </div>
                         <div class="d-flex gap-2">
-                            <a th:href="${m.ruta}" target="_blank" class="btn btn-outline-secondary btn-sm rounded-pill">Ver</a>
+                            <form th:if="${m.tipo.nombre == 'Grabación'}"
+                                  th:action="@{'/docente/ia/material/' + ${m.id} + '/generar-resumen'}" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-outline-info btn-sm rounded-pill">
+                                    <i class="fa-solid fa-brain me-1"></i>Resumen IA (Whisper)
+                                </button>
+                            </form>
+                            <a th:href="${m.rutaArchivo}" target="_blank" class="btn btn-outline-secondary btn-sm rounded-pill">Ver</a>
                             <form th:action="@{'/docente/material/' + ${m.id} + '/eliminar'}" method="post" class="d-inline"
                                   onsubmit="return confirm('¿Eliminar este material?')">
                                 <input type="hidden" name="cursoId" th:value="${curso.id}">

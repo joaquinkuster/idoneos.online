@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<div th:replace="~{fragments/head :: head}"></div>
+
+<body class="bg-light">
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<!-- Header -->
+<div class="bg-dark text-white py-4 mb-4">
+    <div class="container d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+            <h1 class="fw-bold mb-1"><i class="fa-solid fa-sliders text-info me-2"></i>Parámetros Operativos del Sistema</h1>
+            <small class="text-white-50">Configuración dinámica clave-valor sin tocar el código fuente</small>
+        </div>
+        <a th:href="@{/admin/panel}" class="btn btn-outline-light rounded-pill">Volver al Panel Admin</a>
+    </div>
+</div>
+
+<div class="container pb-5">
+
+    <div th:if="${mensaje}" class="alert alert-success alert-dismissible fade show shadow-sm rounded-3 mb-4" role="alert">
+        <i class="fa-solid fa-circle-check me-2"></i>
+        <span th:text="${mensaje}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <!-- Guardar / Editar Parámetro -->
+    <div class="card shadow-sm border-0 rounded-4 mb-4">
+        <div class="card-body p-4">
+            <h5 class="fw-bold mb-3"><i class="fa-solid fa-plus-circle me-2 text-primary"></i>Guardar / Editar Parámetro</h5>
+            <form th:action="@{/admin/configuracion/guardar}" method="post" class="row g-3">
+                <div class="col-md-5">
+                    <label class="form-label fw-semibold">Clave (Key)</label>
+                    <input type="text" name="clave" class="form-control rounded-3" required placeholder="ej: plataforma.nombre">
+                </div>
+                <div class="col-md-5">
+                    <label class="form-label fw-semibold">Valor (Value)</label>
+                    <input type="text" name="valor" class="form-control rounded-3" required placeholder="ej: Idóneos Online S.A.S.">
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary rounded-pill w-100 fw-bold">
+                        <i class="fa-solid fa-floppy-disk me-2"></i>Guardar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Lista de Parámetros Activos -->
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-body p-4">
+            <h5 class="fw-bold mb-3"><i class="fa-solid fa-list-ul me-2 text-secondary"></i>Parámetros Configurados</h5>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Clave</th>
+                            <th>Valor</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="p : ${parametros}">
+                            <td class="fw-bold text-primary" th:text="${p.clave}">Clave</td>
+                            <td class="font-monospace" th:text="${p.valor}">Valor</td>
+                            <td>
+                                <form th:action="@{'/admin/configuracion/borrar/' + ${p.id}}" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill" onclick="return confirm('¿Eliminar este parámetro?')">
+                                        <i class="fa-solid fa-trash me-1"></i>Borrar
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        <tr th:if="${parametros.isEmpty()}">
+                            <td colspan="3" class="text-center text-muted fst-italic py-4">No hay parámetros configurados aún.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

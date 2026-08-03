@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<div th:replace="~{fragments/head :: head}"></div>
+
+<body class="bg-light">
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<!-- Header -->
+<div class="bg-dark text-white py-4 mb-4">
+    <div class="container d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+            <h1 class="fw-bold mb-1" th:text="'Pool de Preguntas — ' + ${unidad.titulo}">Pool</h1>
+            <small class="text-white-50">Banco de preguntas para autoevaluación de esta unidad</small>
+        </div>
+        <a th:href="@{'/docente/curso/' + ${unidad.curso.id} + '/gestionar'}" class="btn btn-outline-light rounded-pill">
+            <i class="fa-solid fa-arrow-left me-2"></i>Volver al Curso
+        </a>
+    </div>
+</div>
+
+<div class="container pb-5">
+
+    <!-- Flash mensaje -->
+    <div th:if="${mensaje}" class="alert alert-success alert-dismissible fade show shadow-sm rounded-3 mb-4" role="alert">
+        <i class="fa-solid fa-circle-check me-2"></i>
+        <span th:text="${mensaje}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <!-- Crear Pool si no existe -->
+    <div th:if="${pool == null}" class="card shadow-sm border-0 rounded-4 mb-4">
+        <div class="card-body p-4">
+            <h5 class="fw-bold mb-3"><i class="fa-solid fa-layer-group me-2 text-primary"></i>Crear Pool de Preguntas</h5>
+            <form th:action="@{'/docente/unidad/' + ${unidad.id} + '/pool/crear'}" method="post">
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Nombre del pool</label>
+                    <input type="text" name="nombre" class="form-control rounded-3" required
+                           th:placeholder="'Pool Unidad ' + ${unidad.numeroOrden}">
+                </div>
+                <button type="submit" class="btn btn-primary rounded-pill">
+                    <i class="fa-solid fa-plus me-2"></i>Crear Pool
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Pool existente: listado de preguntas -->
+    <div th:if="${pool != null}">
+        <div class="card shadow-sm border-0 rounded-4 mb-4">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold mb-0">
+                        <i class="fa-solid fa-list-check me-2 text-success"></i>
+                        <span th:text="${pool.nombre}">Pool</span>
+                        <span class="badge bg-secondary ms-2" th:text="${pool.preguntas.size()} + ' preguntas'">0 preguntas</span>
+                    </h5>
+                </div>
+
+                <!-- Lista de preguntas existentes -->
+                <div th:if="${pool.preguntas.isEmpty()}" class="text-muted fst-italic">
+                    Todavía no hay preguntas. Agregá la primera abajo.
+                </div>
+
+                <div th:each="pregunta, i : ${pool.preguntas}" th:if="${!pregunta.baja}"
+                     class="border rounded-3 p-3 mb-3 bg-white">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="w-100">
+                            <p class="fw-semibold mb-2">
+                                <span class="badge bg-primary me-2" th:text="${i.index + 1}">1</span>
+                                <span th:text="${pregunta.texto}">Pregunta</span>
+                                <span class="badge bg-info text-dark ms-2 small"
+                                      th:text="${pregunta.esOpcionMultiple} ? 'Opción Múltiple' : 'Verdadero/Falso'">tipo</span>
+                            </p>
+                            <ul class="list-unstyled ms-3 mb-0">
+                                <li th:each="opcion : ${pregunta.opciones}" th:if="${!opcion.baja}">
+                                    <i class="fa-solid me-1"
+                                       th:classappend="${opcion.esCorrecta} ? 'fa-circle-check text-success' : 'fa-circle-xmark text-muted'"></i>
+                                    <span th:text="${opcion.texto}"></span>
+                                </li>
+                            </ul>
+                        </div>
+                        <form th:action="@{'/docente/pregunta/' + ${pregunta.id} + '/borrar'}" method="post" class="ms-2">
+                            <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill"
+                                    onclick="return confirm('¿Eliminar esta pregunta?')">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Agregar nueva pregunta -->
+        <div class="card shadow-sm border-0 rounded-4">
+            <div class="card-body p-4">
+                <h5 class="fw-bold mb-4"><i class="fa-solid fa-plus-circle me-2 text-primary"></i>Agregar Pregunta</h5>
+                <form th:action="@{'/docente/pool/' + ${pool.id} + '/pregunta/agregar'}" method="post" id="formPregunta">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Enunciado de la pregunta</label>
+                        <textarea name="texto" class="form-control rounded-3" rows="2" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Tipo</label>
+                        <select name="esOpcionMultiple" class="form-select rounded-3" id="tipoSelect" onchange="actualizarOpciones()">
+                            <option value="true">Opción Múltiple (4 opciones)</option>
+                            <option value="false">Verdadero / Falso</option>
+                        </select>
+                    </div>
+
+                    <!-- Opciones dinámicas -->
+                    <div id="opcionesContainer" class="mb-3">
+                        <label class="form-label fw-semibold">Opciones de respuesta</label>
+                        <div class="form-check mb-2" th:each="i : ${#numbers.sequence(0, 3)}">
+                            <input class="form-check-input" type="radio" name="correcta" th:value="${i}" th:id="'rad' + ${i}" required>
+                            <input type="text" th:name="opciones" class="form-control form-control-sm d-inline-block w-75 ms-2 rounded-3"
+                                   th:placeholder="'Opción ' + (${i} + 1)" required>
+                            <label class="form-check-label text-success small ms-1" th:for="'rad' + ${i}">✓ correcta</label>
+                        </div>
+                        <div class="form-text">Marcá el círculo a la izquierda de la opción correcta.</div>
+                    </div>
+
+                    <button type="submit" class="btn btn-success rounded-pill fw-bold">
+                        <i class="fa-solid fa-plus me-2"></i>Agregar Pregunta
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+function actualizarOpciones() {
+    const tipo = document.getElementById('tipoSelect').value;
+    const container = document.getElementById('opcionesContainer');
+    if (tipo === 'false') {
+        container.innerHTML = `
+            <label class="form-label fw-semibold">Opciones</label>
+            <div class="form-check mb-2">
+                <input class="form-check-input" type="radio" name="correcta" value="0" id="rad0" required>
+                <input type="text" name="opciones" value="Verdadero" class="form-control form-control-sm d-inline-block w-75 ms-2 rounded-3" readonly>
+                <label class="form-check-label text-success small ms-1" for="rad0">✓ correcta</label>
+            </div>
+            <div class="form-check mb-2">
+                <input class="form-check-input" type="radio" name="correcta" value="1" id="rad1" required>
+                <input type="text" name="opciones" value="Falso" class="form-control form-control-sm d-inline-block w-75 ms-2 rounded-3" readonly>
+                <label class="form-check-label text-success small ms-1" for="rad1">✓ correcta</label>
+            </div>
+        `;
+    } else {
+        container.innerHTML = `
+            <label class="form-label fw-semibold">Opciones de respuesta</label>
+            ${[0,1,2,3].map(i => `
+            <div class="form-check mb-2">
+                <input class="form-check-input" type="radio" name="correcta" value="${i}" id="rad${i}" required>
+                <input type="text" name="opciones" class="form-control form-control-sm d-inline-block w-75 ms-2 rounded-3" placeholder="Opción ${i+1}" required>
+                <label class="form-check-label text-success small ms-1" for="rad${i}">✓ correcta</label>
+            </div>`).join('')}
+            <div class="form-text">Marcá el círculo a la izquierda de la opción correcta.</div>
+        `;
+    }
+}
+</script>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>
