@@ -8,41 +8,58 @@
 
     <div class="container my-auto py-5">
         <div class="row justify-content-center">
-            <div class="col-md-6 col-lg-5">
+            <div class="col-lg-10 col-xl-9">
                 <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
-                    <div class="card-header bg-dark text-white text-center py-4">
-                        <i class="fa-solid fa-user-plus text-primary display-6 mb-2"></i>
-                        <h3 class="fw-bold mb-0">Crear Cuenta Alumno</h3>
-                        <small class="text-white-50">Accede al catálogo completo de Idóneos Online</small>
-                    </div>
-                    <div class="card-body p-4 p-md-5">
-                        <form th:action="@{/registro}" method="post">
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <label for="nombre" class="form-label fw-bold">Nombre</label>
-                                    <input type="text" class="form-control" id="nombre" name="nombre" placeholder="Juan" required>
+                    <div class="row g-0">
+                        <!-- Columna Izquierda con Imagen Financiera -->
+                        <div class="col-md-5 d-none d-md-block position-relative" style="background: url('/img/anne-nygard-x07ELaNFt34-unsplash.jpg') center/cover no-repeat; min-height: 480px;">
+                            <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(180deg, rgba(11,31,58,0.7), rgba(11,31,58,0.92));"></div>
+                            <div class="position-relative h-100 p-4 d-flex flex-column justify-content-between text-white" style="z-index: 2;">
+                                <div>
+                                    <img th:src="@{/img/logos/logo.png}" alt="Logo" style="height: 36px;" class="mb-3">
+                                    <h4 class="font-serif fw-bold text-white mb-2">Crear Cuenta <span class="text-gold">Alumno</span></h4>
+                                    <small class="text-white-50">Accedé al catálogo completo de posgrados y certificación digital.</small>
                                 </div>
-                                <div class="col-md-6">
-                                    <label for="apellido" class="form-label fw-bold">Apellido</label>
-                                    <input type="text" class="form-control" id="apellido" name="apellido" placeholder="Pérez" required>
-                                </div>
-                                <div class="col-12">
-                                    <label for="correo" class="form-label fw-bold">Correo Electrónico</label>
-                                    <input type="email" class="form-control" id="correo" name="correo" placeholder="alumno@ejemplo.com" required>
-                                </div>
-                                <div class="col-12">
-                                    <label for="password" class="form-label fw-bold">Contraseña</label>
-                                    <input type="password" class="form-control" id="password" name="password" placeholder="••••••••" required>
+                                <div class="bg-dark bg-opacity-50 backdrop-blur rounded-3 p-3 border border-white border-opacity-10">
+                                    <div class="small fw-bold text-gold mb-1"><i class="fa-solid fa-award me-1"></i> Certificación Oficial</div>
+                                    <small class="text-white-50 d-block">Obtené constancia verificada al finalizar cada curso.</small>
                                 </div>
                             </div>
-                            <button type="submit" class="btn btn-primary w-100 mt-4 py-2 rounded-pill fw-bold">Registrarme</button>
-                        </form>
+                        </div>
 
-                        <hr class="my-4">
+                        <!-- Columna Derecha con Formulario de Registro -->
+                        <div class="col-md-7 p-4 p-md-5 bg-white">
+                            <h3 class="font-serif fw-bold text-navy mb-1">Registro de Alumno</h3>
+                            <p class="text-muted small mb-4">Completá tus datos para crear tu cuenta gratuita</p>
 
-                        <p class="text-center text-muted mb-0">
-                            ¿Ya tienes cuenta? <a th:href="@{/login}" class="text-primary fw-bold text-decoration-none">Iniciar Sesión</a>
-                        </p>
+                            <form th:action="@{/registro}" method="post">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label for="nombre" class="form-label fw-bold text-navy small">Nombre</label>
+                                        <input type="text" class="form-control" id="nombre" name="nombre" placeholder="Juan" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="apellido" class="form-label fw-bold text-navy small">Apellido</label>
+                                        <input type="text" class="form-control" id="apellido" name="apellido" placeholder="Pérez" required>
+                                    </div>
+                                    <div class="col-12">
+                                        <label for="correo" class="form-label fw-bold text-navy small">Correo Electrónico</label>
+                                        <input type="email" class="form-control" id="correo" name="correo" placeholder="alumno@ejemplo.com" required>
+                                    </div>
+                                    <div class="col-12">
+                                        <label for="password" class="form-label fw-bold text-navy small">Contraseña</label>
+                                        <input type="password" class="form-control" id="password" name="password" placeholder="••••••••" required>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn idn-btn-gold w-100 mt-4 py-2 rounded-pill fw-bold shadow-sm">Registrarme</button>
+                            </form>
+
+                            <hr class="my-4">
+
+                            <p class="text-center text-muted mb-0 small">
+                                ¿Ya tienes cuenta? <a th:href="@{/login}" class="text-gold fw-bold text-decoration-none">Iniciar Sesión</a>
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
