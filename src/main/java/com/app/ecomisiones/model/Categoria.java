@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -30,6 +31,18 @@ public class Categoria {
 
     @Column(name = "baja", nullable = false)
     private Boolean baja = false;
+
+    /**
+     * DDL: fecha_creacion timestamp — cambiado de ausente a LocalDateTime.
+     */
+    @Column(name = "fecha_creacion", nullable = false)
+    private LocalDateTime fechaCreacion = LocalDateTime.now();
+
+    /**
+     * DDL: ultima_modificacion timestamp — campo agregado según modelo conceptual.
+     */
+    @Column(name = "ultima_modificacion", nullable = true)
+    private LocalDateTime ultimaModificacion;
 
     @OneToMany(mappedBy = "categoria")
     private Set<Curso> cursos = new HashSet<>();

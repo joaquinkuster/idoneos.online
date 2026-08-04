@@ -3,11 +3,11 @@ package com.app.ecomisiones.model;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 /**
  * Descuento aplicable al precio de un curso.
- * cursoRequeridos: cantidad de cursos previos que el alumno debe tener
+ * cursosRequeridos: cantidad de cursos previos que el alumno debe tener
  * para acceder a este descuento (única condición de negocio existente).
  */
 @Entity
@@ -27,11 +27,17 @@ public class Descuento {
     @Column(name = "porcentaje", nullable = false)
     private Double porcentaje;
 
+    /**
+     * DDL: vigencia_desde timestamp — cambiado de LocalDate a LocalDateTime.
+     */
     @Column(name = "vigencia_desde", nullable = false)
-    private LocalDate vigenciaDesde;
+    private LocalDateTime vigenciaDesde;
 
+    /**
+     * DDL: vigencia_hasta timestamp — cambiado de LocalDate a LocalDateTime.
+     */
     @Column(name = "vigencia_hasta", nullable = false)
-    private LocalDate vigenciaHasta;
+    private LocalDateTime vigenciaHasta;
 
     @Column(name = "cantidad_limite", nullable = true)
     private Integer cantidadLimite;
@@ -45,11 +51,23 @@ public class Descuento {
     @Column(name = "baja", nullable = false)
     private Boolean baja = false;
 
+    /**
+     * DDL: fecha_creacion timestamp — campo agregado según modelo conceptual.
+     */
+    @Column(name = "fecha_creacion", nullable = false)
+    private LocalDateTime fechaCreacion = LocalDateTime.now();
+
+    /**
+     * DDL: ultima_modificacion timestamp — campo agregado según modelo conceptual.
+     */
+    @Column(name = "ultima_modificacion", nullable = true)
+    private LocalDateTime ultimaModificacion;
+
     public boolean estaVigente() {
-        LocalDate hoy = LocalDate.now();
+        LocalDateTime ahora = LocalDateTime.now();
         return !baja
-            && !hoy.isBefore(vigenciaDesde)
-            && !hoy.isAfter(vigenciaHasta)
+            && !ahora.isBefore(vigenciaDesde)
+            && !ahora.isAfter(vigenciaHasta)
             && (cantidadLimite == null || cantidadUsada < cantidadLimite);
     }
 }

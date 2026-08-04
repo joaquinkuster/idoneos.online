@@ -8,7 +8,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 /**
  * Servicio para insertar datos iniciales (Semilla) de Idóneos Online.
@@ -99,7 +99,7 @@ public class SemillaService {
         Docente docenteFausto = new Docente(usuFausto);
         docenteFausto.setBiografia("Economista UBA, Magíster en Finanzas UTDT. Ex-Director de Relevamiento Económico de Orlando J. Ferreres & Asociados.");
         docenteFausto.setAniosExperiencia(20);
-        docenteFausto.setFechaConsentimientoClon(LocalDate.now()); // habilitado para Clon IA
+        docenteFausto.setFechaConsentimientoClon(LocalDateTime.now()); // habilitado para Clon IA
         usuFausto.setDocente(docenteFausto);
         usuarioRepository.save(usuFausto);
 
@@ -107,7 +107,7 @@ public class SemillaService {
         Docente docenteSebas = new Docente(usuSebas);
         docenteSebas.setBiografia("Contador Público UBA. Especialista en planificación fiscal y mercados financieros.");
         docenteSebas.setAniosExperiencia(15);
-        docenteSebas.setFechaConsentimientoClon(LocalDate.now());
+        docenteSebas.setFechaConsentimientoClon(LocalDateTime.now());
         usuSebas.setDocente(docenteSebas);
         usuarioRepository.save(usuSebas);
 

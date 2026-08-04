@@ -29,6 +29,13 @@ public class Configuracion {
     @Column(name = "valor", nullable = true, columnDefinition = "TEXT")
     private String valor;
 
+    /**
+     * DDL: Configuracion tiene FK a Administrador — administrador que creó/modificó el parámetro.
+     */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_administrador", nullable = true)
+    private Administrador administrador;
+
     public Configuracion(String clave, String valor) {
         this.clave = clave;
         this.valor = valor;

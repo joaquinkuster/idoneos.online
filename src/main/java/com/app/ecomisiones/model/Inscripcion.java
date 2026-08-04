@@ -3,7 +3,7 @@ package com.app.ecomisiones.model;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -30,8 +30,15 @@ public class Inscripcion {
     @JoinColumn(name = "id_curso", nullable = false)
     private Curso curso;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_descuento", nullable = true)
+    private Descuento descuento;
+
+    /**
+     * DDL: fecha timestamp — cambiado de LocalDate a LocalDateTime.
+     */
     @Column(name = "fecha", nullable = false)
-    private LocalDate fecha = LocalDate.now();
+    private LocalDateTime fecha = LocalDateTime.now();
 
     @Column(name = "observaciones", nullable = true, length = 500)
     private String observaciones;
@@ -39,9 +46,10 @@ public class Inscripcion {
     /**
      * Calculado: fecha + curso.mesesAcceso. Define hasta cuándo el alumno puede acceder.
      * Null si el curso no tiene límite de tiempo (mesesAcceso = null).
+     * DDL: fecha_vencimiento_acceso timestamp — cambiado de LocalDate a LocalDateTime.
      */
     @Column(name = "fecha_vencimiento_acceso", nullable = true)
-    private LocalDate fechaVencimientoAcceso;
+    private LocalDateTime fechaVencimientoAcceso;
 
     @Column(name = "baja", nullable = false)
     private Boolean baja = false;
@@ -56,13 +64,13 @@ public class Inscripcion {
         this.usuario = usuario;
         this.curso = curso;
         if (curso.getMesesAcceso() != null) {
-            this.fechaVencimientoAcceso = LocalDate.now().plusMonths(curso.getMesesAcceso());
+            this.fechaVencimientoAcceso = LocalDateTime.now().plusMonths(curso.getMesesAcceso());
         }
     }
 
     public boolean tieneAcceso() {
         if (baja) return false;
         if (fechaVencimientoAcceso == null) return true;
-        return LocalDate.now().isBefore(fechaVencimientoAcceso) || LocalDate.now().isEqual(fechaVencimientoAcceso);
+        return LocalDateTime.now().isBefore(fechaVencimientoAcceso);
     }
 }

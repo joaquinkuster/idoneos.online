@@ -3,6 +3,7 @@ package com.app.ecomisiones.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,6 +39,18 @@ public class Autoevaluacion {
 
     @Column(name = "baja", nullable = false)
     private Boolean baja = false;
+
+    /**
+     * DDL: fecha_creacion timestamp — campo agregado según modelo conceptual.
+     */
+    @Column(name = "fecha_creacion", nullable = false)
+    private LocalDateTime fechaCreacion = LocalDateTime.now();
+
+    /**
+     * DDL: ultima_modificacion timestamp — campo agregado según modelo conceptual.
+     */
+    @Column(name = "ultima_modificacion", nullable = true)
+    private LocalDateTime ultimaModificacion;
 
     @ManyToMany
     @JoinTable(

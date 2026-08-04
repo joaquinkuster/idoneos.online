@@ -3,7 +3,7 @@ package com.app.ecomisiones.model;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -40,11 +40,17 @@ public class Curso {
     @Column(name = "publicado", nullable = false)
     private Boolean publicado = true;
 
+    /**
+     * DDL: timestamp — cambiado de LocalDate a LocalDateTime.
+     */
     @Column(name = "fecha_inicio_inscripcion", nullable = true)
-    private LocalDate fechaInicioInscripcion;
+    private LocalDateTime fechaInicioInscripcion;
 
+    /**
+     * DDL: timestamp — cambiado de LocalDate a LocalDateTime.
+     */
     @Column(name = "fecha_fin_inscripcion", nullable = true)
-    private LocalDate fechaFinInscripcion;
+    private LocalDateTime fechaFinInscripcion;
 
     /**
      * Meses de acceso desde la fecha de inscripción. Se usa para calcular
@@ -56,8 +62,17 @@ public class Curso {
     @Column(name = "baja", nullable = false)
     private Boolean baja = false;
 
+    /**
+     * DDL: timestamp — cambiado de LocalDate a LocalDateTime.
+     */
     @Column(name = "fecha_creacion", nullable = false)
-    private LocalDate fechaCreacion = LocalDate.now();
+    private LocalDateTime fechaCreacion = LocalDateTime.now();
+
+    /**
+     * DDL: ultima_modificacion timestamp — campo agregado según modelo conceptual.
+     */
+    @Column(name = "ultima_modificacion", nullable = true)
+    private LocalDateTime ultimaModificacion;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_categoria", nullable = false)

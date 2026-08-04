@@ -3,7 +3,7 @@ package com.app.ecomisiones.model;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 /**
  * Material didáctico unificado para todo archivo o contenido de una unidad,
@@ -24,8 +24,11 @@ public class Material {
     @Column(name = "titulo", nullable = false, length = 50)
     private String titulo;
 
+    /**
+     * DDL: fecha_carga timestamp — cambiado de LocalDate a LocalDateTime.
+     */
     @Column(name = "fecha_carga", nullable = false)
-    private LocalDate fechaCarga = LocalDate.now();
+    private LocalDateTime fechaCarga = LocalDateTime.now();
 
     @Column(name = "publicado", nullable = false)
     private Boolean publicado = true;
@@ -63,6 +66,18 @@ public class Material {
     @Column(name = "baja", nullable = false)
     private Boolean baja = false;
 
+    /**
+     * DDL: fecha_creacion timestamp — campo agregado según modelo conceptual.
+     */
+    @Column(name = "fecha_creacion", nullable = false)
+    private LocalDateTime fechaCreacion = LocalDateTime.now();
+
+    /**
+     * DDL: ultima_modificacion timestamp — campo agregado según modelo conceptual.
+     */
+    @Column(name = "ultima_modificacion", nullable = true)
+    private LocalDateTime ultimaModificacion;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_tipo_material", nullable = false)
     private TipoMaterial tipo;
@@ -70,6 +85,13 @@ public class Material {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_unidad", nullable = false)
     private Unidad unidad;
+
+    /**
+     * DDL: id_docente FK — docente que subió o generó el material.
+     */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_docente", nullable = true)
+    private Docente docente;
 
     public Material(TipoMaterial tipo, String titulo, String rutaArchivo, Unidad unidad) {
         this.tipo = tipo;

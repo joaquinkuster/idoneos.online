@@ -3,7 +3,7 @@ package com.app.ecomisiones.model;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 /**
  * Clase generada con avatar IA (HeyGen) a partir de un guion (no persistido).
@@ -23,8 +23,11 @@ public class ClaseClonIA {
     @Column(name = "titulo", nullable = false, length = 50)
     private String titulo;
 
+    /**
+     * DDL: fecha_generacion timestamp — cambiado de LocalDate a LocalDateTime.
+     */
     @Column(name = "fecha_generacion", nullable = true)
-    private LocalDate fechaGeneracion;
+    private LocalDateTime fechaGeneracion;
 
     @Column(name = "baja", nullable = false)
     private Boolean baja = false;

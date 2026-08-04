@@ -3,7 +3,7 @@ package com.app.ecomisiones.model;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,9 +29,10 @@ public class Docente {
     /**
      * Fecha en que el docente autorizó el uso de su imagen/voz para Clon IA.
      * Null indica que no dio consentimiento todavía.
+     * DDL: timestamp — cambiado de LocalDate a LocalDateTime.
      */
     @Column(name = "fecha_consentimiento_clon", nullable = true)
-    private LocalDate fechaConsentimientoClon;
+    private LocalDateTime fechaConsentimientoClon;
 
     @Column(name = "anios_experiencia", nullable = true)
     private Integer aniosExperiencia;

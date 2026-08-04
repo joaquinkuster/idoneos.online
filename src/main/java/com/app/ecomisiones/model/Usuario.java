@@ -6,7 +6,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -41,7 +41,7 @@ public class Usuario implements UserDetails {
     @Column(name = "telefono", nullable = true, length = 20)
     private String telefono;
 
-    @Column(name = "correo", nullable = false, unique = true, length = 150)
+    @Column(name = "email", nullable = false, unique = true, length = 150)
     private String correo;
 
     @Column(name = "contrasena", nullable = true, length = 255)
@@ -59,11 +59,17 @@ public class Usuario implements UserDetails {
     @Column(name = "token_recuperacion", nullable = true, length = 255)
     private String tokenRecuperacion;
 
+    /**
+     * DDL: timestamp — cambiado de LocalDate a LocalDateTime para alinearse al modelo conceptual.
+     */
     @Column(name = "expiracion_token", nullable = true)
-    private LocalDate expiracionToken;
+    private LocalDateTime expiracionToken;
 
+    /**
+     * DDL: timestamp — cambiado de LocalDate a LocalDateTime para alinearse al modelo conceptual.
+     */
     @Column(name = "fecha_registro", nullable = false)
-    private LocalDate fechaRegistro = LocalDate.now();
+    private LocalDateTime fechaRegistro = LocalDateTime.now();
 
     @Column(name = "baja", nullable = false)
     private Boolean baja = false;

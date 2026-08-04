@@ -80,7 +80,7 @@ public class AdminController {
                 if (d.getFechaConsentimientoClon() != null) {
                     d.setFechaConsentimientoClon(null); // deshabilitar
                 } else {
-                    d.setFechaConsentimientoClon(java.time.LocalDate.now()); // habilitar
+                    d.setFechaConsentimientoClon(java.time.LocalDateTime.now()); // habilitar
                 }
                 // Save via usuario cascade
                 usuarioService.modificar(u);
