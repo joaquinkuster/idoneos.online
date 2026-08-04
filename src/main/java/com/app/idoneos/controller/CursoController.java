@@ -141,7 +141,7 @@ public class CursoController {
 
     // ─── Vista de Cursada del Alumno ───────────────────────────────────────────
 
-    @GetMapping("/{id}/mi-cursada")
+    @GetMapping({"/{id}/mi-cursada", "/{id}/cursada"})
     public String verMiCursada(@PathVariable("id") Integer id, Authentication auth,
                                 Model model, RedirectAttributes redirectAttributes) {
         if (auth == null || !(auth.getPrincipal() instanceof Usuario)) return "redirect:/login";
