@@ -8,13 +8,18 @@
     <div th:replace="~{fragments/navbar :: navbar}"></div>
 
     <!-- Hero Section con la paleta Navy/Gold e iluminación Celeste tras el Slider -->
-    <section style="background: radial-gradient(750px circle at 75% 50%, rgba(14, 165, 233, 0.28), transparent 70%), radial-gradient(1100px 480px at 15% -10%, #16335C 0%, transparent 60%), linear-gradient(160deg, #0B1F3A, #12294D 60%, #0E2544); color: #F7F5EF; position: relative; overflow: hidden;" class="py-0">
+    <section
+        style="background: radial-gradient(750px circle at 75% 50%, rgba(14, 165, 233, 0.28), transparent 70%), radial-gradient(1100px 480px at 15% -10%, #16335C 0%, transparent 60%), linear-gradient(160deg, #0B1F3A, #12294D 60%, #0E2544); color: #F7F5EF; position: relative; overflow: hidden;"
+        class="py-0">
         <!-- Stock Chart Background Overlay -->
-        <div style="position: absolute; top:0; left:0; width:100%; height:100%; opacity: 0.12; background: url('/img/nick-chong-N__BnvQ_w18-unsplash.jpg') center/cover no-repeat; pointer-events: none;"></div>
+        <div
+            style="position: absolute; top:0; left:0; width:100%; height:100%; opacity: 0.12; background: url('/img/nick-chong-N__BnvQ_w18-unsplash.jpg') center/cover no-repeat; pointer-events: none;">
+        </div>
 
         <div class="container position-relative" style="z-index: 2;">
             <!-- Mensaje flash si existe -->
-            <div th:if="${mensaje != null}" class="alert alert-info alert-dismissible fade show text-start my-3" role="alert">
+            <div th:if="${mensaje != null}" class="alert alert-info alert-dismissible fade show text-start my-3"
+                role="alert">
                 <span th:text="${mensaje}"></span>
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
@@ -22,67 +27,87 @@
             <div class="row align-items-center g-4">
                 <!-- Columna Izquierda (Alineada con el Logo del Navbar) -->
                 <div class="col-lg-6 py-5 pe-lg-4">
-                    <div class="d-flex align-items-center gap-2 mb-3 fw-bold small text-gold" style="letter-spacing: 0.14em;">
+                    <div class="d-flex align-items-center gap-2 mb-3 fw-bold small text-gold"
+                        style="letter-spacing: 0.14em;">
                         <i class="fa-solid fa-graduation-cap"></i> DOCENTES DE ÉLITE · METODOLOGÍA SECUENCIAL
                     </div>
-                    <h1 class="font-serif display-4 fw-bold mb-3 text-white" style="line-height: 1.12; letter-spacing: -0.01em;">
+                    <h1 class="font-serif display-4 fw-bold mb-3 text-white"
+                        style="line-height: 1.12; letter-spacing: -0.01em;">
                         Formación de posgrado en finanzas, sin pasar por la maestría.
                     </h1>
                     <p class="lead mb-4 text-white-50 fs-5" style="line-height: 1.75; max-width: 540px;">
-                        Cursos dictados por directores de maestría y economistas de referencia, estructurados en unidades breves con avance verificado y certificación al finalizar.
+                        Cursos dictados por directores de maestría y economistas de referencia, estructurados en
+                        unidades breves con avance verificado y certificación al finalizar.
                     </p>
                     <div class="d-flex gap-3 flex-wrap align-items-center">
                         <a th:href="@{/cursos}" class="btn btn-lg rounded-pill px-4 idn-btn-gold shadow-sm fw-bold">
                             Ver todos los cursos <i class="fa-solid fa-arrow-right ms-2"></i>
                         </a>
-                        <a th:href="@{/registro}" class="btn btn-lg rounded-pill px-4 btn-primary shadow-sm fw-bold" th:if="${usuario == null}">
+                        <a th:href="@{/registro}" class="btn btn-lg rounded-pill px-4 btn-primary shadow-sm fw-bold"
+                            th:if="${usuario == null}">
                             <i class="fa-solid fa-user-plus me-2"></i>Crear Cuenta
                         </a>
                     </div>
                 </div>
 
                 <!-- Columna Derecha: Parallelogram Image Frame (Full Height top to bottom) -->
-                <div class="col-lg-6 position-relative align-self-stretch" style="margin-top: -3rem; margin-bottom: -3rem;">
+                <div class="col-lg-6 position-relative align-self-stretch"
+                    style="margin-top: -3rem; margin-bottom: -3rem;">
                     <div id="heroCarousel" class="carousel slide carousel-fade h-100" data-bs-ride="carousel">
-                        
+
                         <!-- Angled Image Container (Touching top navbar and bottom white section) -->
-                        <div class="shadow-lg overflow-hidden position-relative h-100" style="clip-path: polygon(14% 0%, 100% 0%, 86% 100%, 0% 100%); min-height: 560px;">
+                        <div class="shadow-lg overflow-hidden position-relative h-100"
+                            style="clip-path: polygon(14% 0%, 100% 0%, 86% 100%, 0% 100%); min-height: 560px;">
                             <div class="carousel-inner h-100">
                                 <div class="carousel-item active h-100" data-bs-interval="3000">
-                                    <img th:src="@{/img/nick-chong-N__BnvQ_w18-unsplash.jpg}" class="d-block w-100 h-100 object-fit-cover" style="transform: scale(1.15); filter: brightness(0.9);" alt="Mercado de Capitales">
+                                    <img th:src="@{/img/nick-chong-N__BnvQ_w18-unsplash.jpg}"
+                                        class="d-block w-100 h-100 object-fit-cover"
+                                        style="transform: scale(1.15); filter: brightness(0.9);"
+                                        alt="Mercado de Capitales">
                                     <!-- Floating Glassmorphism Badge -->
-                                    <div class="position-absolute top-50 start-50 translate-middle text-start" style="z-index: 5; background: rgba(16, 30, 54, 0.82); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.18); border-radius: 14px; padding: 14px 22px; width: 280px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+                                    <div class="position-absolute top-50 start-50 translate-middle text-start"
+                                        style="z-index: 5; background: rgba(16, 30, 54, 0.82); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.18); border-radius: 14px; padding: 14px 22px; width: 280px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
                                         <div class="d-flex align-items-center gap-2 text-gold fw-bold small mb-1">
                                             <i class="fa-solid fa-chart-line"></i> Mercado de Capitales
                                         </div>
-                                        <small class="text-white-50 d-block" style="font-size: 12px;">Acciones, Bonos, ONs y Opciones</small>
+                                        <small class="text-white-50 d-block" style="font-size: 12px;">Acciones, Bonos,
+                                            ONs y Opciones</small>
                                     </div>
                                 </div>
                                 <div class="carousel-item h-100" data-bs-interval="3000">
-                                    <img th:src="@{/img/anne-nygard-x07ELaNFt34-unsplash.jpg}" class="d-block w-100 h-100 object-fit-cover" style="transform: scale(1.15); filter: brightness(0.9);" alt="Economía">
+                                    <img th:src="@{/img/anne-nygard-x07ELaNFt34-unsplash.jpg}"
+                                        class="d-block w-100 h-100 object-fit-cover"
+                                        style="transform: scale(1.15); filter: brightness(0.9);" alt="Economía">
                                     <!-- Floating Glassmorphism Badge -->
-                                    <div class="position-absolute top-50 start-50 translate-middle text-start" style="z-index: 5; background: rgba(16, 30, 54, 0.82); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.18); border-radius: 14px; padding: 14px 22px; width: 280px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+                                    <div class="position-absolute top-50 start-50 translate-middle text-start"
+                                        style="z-index: 5; background: rgba(16, 30, 54, 0.82); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.18); border-radius: 14px; padding: 14px 22px; width: 280px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
                                         <div class="d-flex align-items-center gap-2 text-info fw-bold small mb-1">
                                             <i class="fa-solid fa-layer-group"></i> Análisis Macroeconómico
                                         </div>
-                                        <small class="text-white-50 d-block" style="font-size: 12px;">Proyecciones de Variables e Inflación</small>
+                                        <small class="text-white-50 d-block" style="font-size: 12px;">Proyecciones de
+                                            Variables e Inflación</small>
                                     </div>
                                 </div>
                                 <div class="carousel-item h-100" data-bs-interval="3000">
-                                    <img th:src="@{/img/towfiqu-barbhuiya-nApaSgkzaxg-unsplash.jpg}" class="d-block w-100 h-100 object-fit-cover" style="transform: scale(1.15); filter: brightness(0.9);" alt="Planificación Fiscal">
+                                    <img th:src="@{/img/towfiqu-barbhuiya-nApaSgkzaxg-unsplash.jpg}"
+                                        class="d-block w-100 h-100 object-fit-cover"
+                                        style="transform: scale(1.15); filter: brightness(0.9);"
+                                        alt="Planificación Fiscal">
                                     <!-- Floating Glassmorphism Badge -->
-                                    <div class="position-absolute top-50 start-50 translate-middle text-start" style="z-index: 5; background: rgba(16, 30, 54, 0.82); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.18); border-radius: 14px; padding: 14px 22px; width: 280px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+                                    <div class="position-absolute top-50 start-50 translate-middle text-start"
+                                        style="z-index: 5; background: rgba(16, 30, 54, 0.82); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.18); border-radius: 14px; padding: 14px 22px; width: 280px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
                                         <div class="d-flex align-items-center gap-2 text-success fw-bold small mb-1">
                                             <i class="fa-solid fa-calculator"></i> Planificación Fiscal
                                         </div>
-                                        <small class="text-white-50 d-block" style="font-size: 12px;">Estrategias Impositivas Pymes</small>
+                                        <small class="text-white-50 d-block" style="font-size: 12px;">Estrategias
+                                            Impositivas Pymes</small>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Arrow Navigation Controls Pill Located Exactly at Red Circle (Bottom-Left Angle Intersection) -->
-                        <div class="position-absolute bottom-0 start-0 translate-middle-x mb-5 pb-1 d-flex align-items-center gap-3" style="z-index: 35; background: rgba(10, 22, 40, 0.95); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.25); border-radius: 30px; padding: 8px 18px; box-shadow: 0 10px 30px rgba(0,0,0,0.8);">
+                        <!-- <div class="position-absolute bottom-0 start-0 translate-middle-x mb-5 pb-1 d-flex align-items-center gap-3" style="z-index: 35; background: rgba(10, 22, 40, 0.95); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.25); border-radius: 30px; padding: 8px 18px; box-shadow: 0 10px 30px rgba(0,0,0,0.8);">
                             <button class="btn btn-link p-0 text-white text-decoration-none shadow-none px-1" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev" style="font-size: 14px;">
                                 <i class="fa-solid fa-chevron-left"></i>
                             </button>
@@ -90,14 +115,21 @@
                             <button class="btn btn-link p-0 text-white text-decoration-none shadow-none px-1" type="button" data-bs-target="#heroCarousel" data-bs-slide="next" style="font-size: 14px;">
                                 <i class="fa-solid fa-chevron-right"></i>
                             </button>
-                        </div>
+                        </div> -->
                     </div>
 
                     <!-- Vertical Dots Indicator Interactive Buttons (Far Right) -->
-                    <div class="position-absolute top-50 end-0 translate-middle-y d-flex flex-column gap-3 me-2" style="z-index: 10;">
-                        <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="btn p-0 rounded-circle border-0 bg-gold active shadow" style="width: 10px; height: 10px;" aria-current="true" aria-label="Slide 1"></button>
-                        <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1" class="btn p-0 rounded-circle border-0 bg-white opacity-50 shadow" style="width: 10px; height: 10px;" aria-label="Slide 2"></button>
-                        <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="2" class="btn p-0 rounded-circle border-0 bg-white opacity-50 shadow" style="width: 10px; height: 10px;" aria-label="Slide 3"></button>
+                    <div class="position-absolute top-50 end-0 translate-middle-y d-flex flex-column gap-3 me-2"
+                        style="z-index: 10;">
+                        <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0"
+                            class="btn p-0 rounded-circle border-0 bg-gold active shadow"
+                            style="width: 10px; height: 10px;" aria-current="true" aria-label="Slide 1"></button>
+                        <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1"
+                            class="btn p-0 rounded-circle border-0 bg-white opacity-50 shadow"
+                            style="width: 10px; height: 10px;" aria-label="Slide 2"></button>
+                        <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="2"
+                            class="btn p-0 rounded-circle border-0 bg-white opacity-50 shadow"
+                            style="width: 10px; height: 10px;" aria-label="Slide 3"></button>
                     </div>
 
                 </div>
@@ -109,7 +141,8 @@
     <section class="py-5 bg-white">
         <div class="container">
             <div class="text-center mb-5">
-                <span class="small fw-bold text-gold text-uppercase" style="letter-spacing: 0.1em;">Especialidades Académicas</span>
+                <span class="small fw-bold text-gold text-uppercase" style="letter-spacing: 0.1em;">Especialidades
+                    Académicas</span>
                 <h2 class="font-serif fw-bold display-6 text-navy mt-1">Áreas Temáticas de Formación</h2>
                 <p class="text-muted">Contenidos 100% enfocados en la legislación, impuestos y mercado argentino</p>
             </div>
@@ -134,12 +167,13 @@
         <div class="container">
             <div class="d-flex justify-content-between align-items-end mb-4 flex-wrap gap-2">
                 <div>
-                    <span class="small fw-bold text-gold text-uppercase" style="letter-spacing: 0.1em;">Catálogo Destacado</span>
+                    <span class="small fw-bold text-gold text-uppercase" style="letter-spacing: 0.1em;">Catálogo
+                        Destacado</span>
                     <h2 class="font-serif fw-bold display-6 text-navy mb-0">Cursos Disponibles</h2>
                 </div>
                 <a th:href="@{/cursos}" class="btn btn-outline-dark rounded-pill px-4">Ver Todos los Cursos</a>
             </div>
-            
+
             <div class="row g-4">
                 <div th:each="curso : ${cursos}" class="col-md-4">
                     <div th:replace="~{fragments/cartaCurso :: cartaCurso}"></div>
@@ -153,4 +187,5 @@
     <!-- Scripts -->
     <div th:replace="~{fragments/scripts :: scripts}"></div>
 </body>
+
 </html>
