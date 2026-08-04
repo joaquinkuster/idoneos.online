@@ -9,7 +9,10 @@
 
     <!-- Hero Section con la paleta Navy/Gold de Idóneos Online -->
     <section style="background: radial-gradient(1100px 480px at 15% -10%, #16335C 0%, transparent 60%), linear-gradient(160deg, #0B1F3A, #12294D 60%, #0E2544); color: #F7F5EF; position: relative; overflow: hidden;" class="py-5">
-        <div class="container py-4">
+        <!-- Stock Chart Background Overlay -->
+        <div style="position: absolute; top:0; left:0; width:100%; height:100%; opacity: 0.12; background: url('/img/nick-chong-N__BnvQ_w18-unsplash.jpg') center/cover no-repeat; pointer-events: none;"></div>
+
+        <div class="container py-4 position-relative" style="z-index: 2;">
             <!-- Mensaje flash si existe -->
             <div th:if="${mensaje != null}" class="alert alert-info alert-dismissible fade show text-start mb-4" role="alert">
                 <span th:text="${mensaje}"></span>
@@ -17,7 +20,8 @@
             </div>
 
             <div class="row align-items-center g-5">
-                <div class="col-lg-7">
+                <!-- Columna Izquierda -->
+                <div class="col-lg-6">
                     <div class="d-flex align-items-center gap-2 mb-3 fw-bold small text-gold" style="letter-spacing: 0.14em;">
                         <i class="fa-solid fa-graduation-cap"></i> DOCENTES DE ÉLITE · METODOLOGÍA SECUENCIAL
                     </div>
@@ -27,56 +31,75 @@
                     <p class="lead mb-4 text-white-50 fs-5" style="line-height: 1.75; max-width: 580px;">
                         Cursos dictados por directores de maestría y economistas de referencia, estructurados en unidades breves con avance verificado y certificación al finalizar.
                     </p>
-                    <div class="d-flex gap-3 flex-wrap">
-                        <a th:href="@{/cursos}" class="btn btn-lg rounded-pill px-4 idn-btn-gold">
+                    <div class="d-flex gap-3 flex-wrap align-items-center">
+                        <a th:href="@{/cursos}" class="btn btn-lg rounded-pill px-4 idn-btn-gold shadow-sm fw-bold">
                             Ver todos los cursos <i class="fa-solid fa-arrow-right ms-2"></i>
                         </a>
-                        <a th:href="@{/registro}" class="btn btn-lg rounded-pill px-4 idn-btn-ghost" th:if="${usuario == null}">
+                        <a th:href="@{/registro}" class="btn btn-lg rounded-pill px-4 btn-primary shadow-sm fw-bold" th:if="${usuario == null}">
                             <i class="fa-solid fa-user-plus me-2"></i>Crear Cuenta
                         </a>
                     </div>
                 </div>
 
-                <!-- Slider / Carousel interactivo del Hero -->
-                <div class="col-lg-5">
-                    <div id="heroCarousel" class="carousel slide carousel-fade shadow-lg rounded-4 overflow-hidden border border-white border-opacity-25" data-bs-ride="carousel">
-                        <div class="carousel-indicators">
-                            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
-                            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
-                            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="2" aria-label="Slide 3"></button>
+                <!-- Columna Derecha: Parallelogram Image Frame & Slider Controls -->
+                <div class="col-lg-6 position-relative">
+                    <div id="heroCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel">
+                        
+                        <!-- Angled Image Container -->
+                        <div class="shadow-lg overflow-hidden position-relative" style="clip-path: polygon(14% 0%, 100% 0%, 86% 100%, 0% 100%); height: 420px; border-radius: 12px;">
+                            <div class="carousel-inner h-100">
+                                <div class="carousel-item active h-100" data-bs-interval="4000">
+                                    <img th:src="@{/img/nick-chong-N__BnvQ_w18-unsplash.jpg}" class="d-block w-100 h-100 object-fit-cover" style="transform: scale(1.15); filter: brightness(0.9);" alt="Mercado de Capitales">
+                                    <!-- Floating Glassmorphism Badge -->
+                                    <div class="position-absolute top-50 start-50 translate-middle text-start" style="z-index: 5; background: rgba(16, 30, 54, 0.82); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.18); border-radius: 14px; padding: 14px 22px; width: 280px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+                                        <div class="d-flex align-items-center gap-2 text-gold fw-bold small mb-1">
+                                            <i class="fa-solid fa-chart-line"></i> Mercado de Capitales
+                                        </div>
+                                        <small class="text-white-50 d-block" style="font-size: 12px;">Acciones, Bonos, ONs y Opciones</small>
+                                    </div>
+                                </div>
+                                <div class="carousel-item h-100" data-bs-interval="4000">
+                                    <img th:src="@{/img/anne-nygard-x07ELaNFt34-unsplash.jpg}" class="d-block w-100 h-100 object-fit-cover" style="transform: scale(1.15); filter: brightness(0.9);" alt="Economía">
+                                    <!-- Floating Glassmorphism Badge -->
+                                    <div class="position-absolute top-50 start-50 translate-middle text-start" style="z-index: 5; background: rgba(16, 30, 54, 0.82); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.18); border-radius: 14px; padding: 14px 22px; width: 280px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+                                        <div class="d-flex align-items-center gap-2 text-info fw-bold small mb-1">
+                                            <i class="fa-solid fa-layer-group"></i> Análisis Macroeconómico
+                                        </div>
+                                        <small class="text-white-50 d-block" style="font-size: 12px;">Proyecciones de Variables e Inflación</small>
+                                    </div>
+                                </div>
+                                <div class="carousel-item h-100" data-bs-interval="4000">
+                                    <img th:src="@{/img/towfiqu-barbhuiya-nApaSgkzaxg-unsplash.jpg}" class="d-block w-100 h-100 object-fit-cover" style="transform: scale(1.15); filter: brightness(0.9);" alt="Planificación Fiscal">
+                                    <!-- Floating Glassmorphism Badge -->
+                                    <div class="position-absolute top-50 start-50 translate-middle text-start" style="z-index: 5; background: rgba(16, 30, 54, 0.82); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.18); border-radius: 14px; padding: 14px 22px; width: 280px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+                                        <div class="d-flex align-items-center gap-2 text-success fw-bold small mb-1">
+                                            <i class="fa-solid fa-calculator"></i> Planificación Fiscal
+                                        </div>
+                                        <small class="text-white-50 d-block" style="font-size: 12px;">Estrategias Impositivas Pymes</small>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="carousel-inner">
-                            <div class="carousel-item active" data-bs-interval="4000">
-                                <img th:src="@{/img/nick-chong-N__BnvQ_w18-unsplash.jpg}" class="d-block w-100 object-fit-cover" style="height: 380px; filter: brightness(0.82);" alt="Mercado de Capitales">
-                                <div class="carousel-caption d-block bg-dark bg-opacity-75 backdrop-blur rounded-3 p-3 mb-2 mx-2 border border-secondary border-opacity-25">
-                                    <h6 class="fw-bold text-gold mb-1"><i class="fa-solid fa-chart-line me-2"></i>Mercado de Capitales</h6>
-                                    <small class="text-white-50">Acciones, Bonos, ONs y Opciones en Argentina</small>
-                                </div>
-                            </div>
-                            <div class="carousel-item" data-bs-interval="4000">
-                                <img th:src="@{/img/anne-nygard-x07ELaNFt34-unsplash.jpg}" class="d-block w-100 object-fit-cover" style="height: 380px; filter: brightness(0.82);" alt="Economía">
-                                <div class="carousel-caption d-block bg-dark bg-opacity-75 backdrop-blur rounded-3 p-3 mb-2 mx-2 border border-secondary border-opacity-25">
-                                    <h6 class="fw-bold text-info mb-1"><i class="fa-solid fa-coins me-2"></i>Análisis Macroeconómico</h6>
-                                    <small class="text-white-50">Proyecciones de Variables e Inflación</small>
-                                </div>
-                            </div>
-                            <div class="carousel-item" data-bs-interval="4000">
-                                <img th:src="@{/img/towfiqu-barbhuiya-nApaSgkzaxg-unsplash.jpg}" class="d-block w-100 object-fit-cover" style="height: 380px; filter: brightness(0.82);" alt="Impuestos y Contabilidad">
-                                <div class="carousel-caption d-block bg-dark bg-opacity-75 backdrop-blur rounded-3 p-3 mb-2 mx-2 border border-secondary border-opacity-25">
-                                    <h6 class="fw-bold text-success mb-1"><i class="fa-solid fa-calculator me-2"></i>Planificación Fiscal</h6>
-                                    <small class="text-white-50">Estrategias Impositivas para Pymes y Profesionales</small>
-                                </div>
-                            </div>
+
+                        <!-- Arrow Navigation Controls (Bottom Center of Slider) -->
+                        <div class="position-absolute bottom-0 start-50 translate-middle-x mb-2 d-flex gap-2" style="z-index: 10;">
+                            <button class="btn btn-dark btn-sm rounded-circle d-flex align-items-center justify-content-center border border-secondary shadow" style="width: 36px; height: 36px;" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+                                <i class="fa-solid fa-chevron-left small"></i>
+                            </button>
+                            <button class="btn btn-dark btn-sm rounded-circle d-flex align-items-center justify-content-center border border-secondary shadow" style="width: 36px; height: 36px;" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+                                <i class="fa-solid fa-chevron-right small"></i>
+                            </button>
                         </div>
-                        <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
-                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                            <span class="visually-hidden">Anterior</span>
-                        </button>
-                        <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
-                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                            <span class="visually-hidden">Siguiente</span>
-                        </button>
                     </div>
+
+                    <!-- Vertical Dots Indicator (Far Right) -->
+                    <div class="position-absolute top-50 end-0 translate-middle-y d-flex flex-column gap-2 me-n4" style="z-index: 10;">
+                        <span class="rounded-circle bg-gold" style="width: 8px; height: 8px;"></span>
+                        <span class="rounded-circle bg-white opacity-25" style="width: 6px; height: 6px;"></span>
+                        <span class="rounded-circle bg-white opacity-25" style="width: 6px; height: 6px;"></span>
+                        <span class="rounded-circle bg-white opacity-25" style="width: 6px; height: 6px;"></span>
+                    </div>
+
                 </div>
             </div>
         </div>
