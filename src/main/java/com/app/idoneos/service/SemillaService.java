@@ -155,7 +155,7 @@ public class SemillaService {
         Curso curso3 = new Curso(
                 "Planificación Fiscal y Eficiencia Tributaria",
                 "Estrategias impositivas para pymes y profesionales.",
-                120000f, catImpuestos
+                200f, catImpuestos
         );
         curso3.setMesesAcceso(6);
         cursoRepository.save(curso3);
