@@ -38,3 +38,5 @@ client_secret*.json
 *.pem
 *.key
 credentials.properties
+application-local.properties
+application-*.properties
