@@ -121,12 +121,20 @@ public class CursoController {
         Usuario usuario = (Usuario) auth.getPrincipal();
         Optional<Curso> cursoOpt = cursoService.buscarPorId(id);
 
-        if (cursoOpt.isEmpty()) {
-            redirectAttributes.addFlashAttribute("mensaje", "Curso no encontrado.");
-            return "redirect:/cursos";
+        Curso curso = cursoOpt.get();
+
+        // Si ya está inscripto, ir a la cursada
+        if (inscripcionService.estaInscripto(usuario, curso)) {
+            return "redirect:/cursos/" + id + "/mi-cursada";
         }
 
-        inscripcionService.inscribirAlumno(usuario, cursoOpt.get());
+        // Si el curso es de pago (precio > 0), derivar a Mercado Pago Checkout API
+        if (curso.getPrecio() != null && curso.getPrecio() > 0) {
+            return "redirect:/pago/checkout/" + id;
+        }
+
+        // Si es gratuito, inscribir directamente
+        inscripcionService.inscribirAlumno(usuario, curso);
         redirectAttributes.addFlashAttribute("mensaje", "¡Inscripción exitosa! Ya podés acceder al contenido del curso.");
         return "redirect:/cursos/" + id + "/mi-cursada";
     }

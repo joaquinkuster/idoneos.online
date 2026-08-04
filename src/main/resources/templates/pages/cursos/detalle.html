@@ -40,10 +40,13 @@
                                 </a>
                             </div>
                             <div th:if="${!yaInscripto}">
-                                <form th:action="@{'/cursos/' + ${curso.id} + '/inscribir'}" method="post">
-                                    <button type="submit" class="btn btn-primary w-100 py-3 rounded-pill fw-bold mt-3">
-                                        <i class="fa-solid fa-user-plus me-2"></i>Inscribirme Ahora
-                                    </button>
+                                <a th:if="${curso.precio != null and curso.precio > 0}" th:href="@{'/pago/checkout/' + ${curso.id}}" class="btn btn-warning w-100 py-3 rounded-pill fw-bold mt-3 text-dark shadow-sm">
+                                     <i class="fa-solid fa-credit-card me-2"></i>Comprar Curso con Mercado Pago
+                                </a>
+                                <form th:unless="${curso.precio != null and curso.precio > 0}" th:action="@{'/cursos/' + ${curso.id} + '/inscribir'}" method="post">
+                                     <button type="submit" class="btn btn-success w-100 py-3 rounded-pill fw-bold mt-3 shadow-sm">
+                                         <i class="fa-solid fa-user-plus me-2"></i>Inscribirme Gratis
+                                     </button>
                                 </form>
                             </div>
                         </div>
