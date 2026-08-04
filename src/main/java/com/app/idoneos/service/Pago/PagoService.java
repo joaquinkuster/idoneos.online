@@ -23,6 +23,7 @@ public class PagoService {
     @Autowired private MetodoPagoRepository metodoPagoRepository;
     @Autowired private ComprobanteRepository comprobanteRepository;
     @Autowired private DescuentoRepository descuentoRepository;
+    @Autowired private InscripcionRepository inscripcionRepository;
     @Autowired private ConfiguracionRepository configRepo;
     @org.springframework.beans.factory.annotation.Value("${mercadopago.access_token:}")
     private String mpTokenEnv;
