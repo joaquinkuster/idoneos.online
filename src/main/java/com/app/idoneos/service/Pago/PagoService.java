@@ -24,14 +24,15 @@ public class PagoService {
     @Autowired private ComprobanteRepository comprobanteRepository;
     @Autowired private DescuentoRepository descuentoRepository;
     @Autowired private InscripcionRepository inscripcionRepository;
-    @Autowired private ConfiguracionRepository configRepo;
-
-    private final RestTemplate restTemplate = new RestTemplate();
+    @org.springframework.beans.factory.annotation.Value("${mercadopago.access_token:}")
+    private String mpTokenEnv;
 
     private String getMercadoPagoAccessToken() {
-        return configRepo.findByClave("mercadopago.access_token")
-                .map(Configuracion::getValor)
-                .orElse(null);
+        Optional<Configuracion> configOpt = configRepo.findByClave("mercadopago.access_token");
+        if (configOpt.isPresent() && !configOpt.get().getValor().isBlank()) {
+            return configOpt.get().getValor();
+        }
+        return mpTokenEnv;
     }
 
     /**
