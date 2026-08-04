@@ -10,10 +10,10 @@
 		<!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.app</groupId>
-	<artifactId>ecomisiones</artifactId>
+	<artifactId>idoneos</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>ecomisiones</name>
-	<description>Demo project for Spring Boot</description>
+	<name>idoneos</name>
+	<description>Sistema de Gestión Idóneos Online — FCEQyN UNaM</description>
 	<url/>
 	<licenses>
 		<license/>

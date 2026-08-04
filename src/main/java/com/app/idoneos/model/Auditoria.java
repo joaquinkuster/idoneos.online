@@ -1,0 +1,47 @@
+package com.app.idoneos.model;
+
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.time.LocalDateTime;
+
+/**
+ * Registro de auditoría del sistema.
+ * Interceptado por Spring AOP (@Aspect) para registrar automáticamente
+ * las operaciones relevantes (Crear, Modificar, Eliminar, Consultar).
+ */
+@Entity
+@Table(name = "auditorias")
+@Getter @Setter
+@NoArgsConstructor
+public class Auditoria {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private int id;
+
+    @Column(name = "entidad_afectada", nullable = false, length = 50)
+    private String entidadAfectada;
+
+    @Column(name = "id_afectado", nullable = false)
+    private int idAfectado;
+
+    @Column(name = "fecha_hora", nullable = false)
+    private LocalDateTime fechaHora = LocalDateTime.now();
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_usuario", nullable = true)
+    private Usuario usuario;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_tipo_accion", nullable = false)
+    private TipoAccionAuditoria tipoAccion;
+
+    public Auditoria(String entidadAfectada, int idAfectado, Usuario usuario, TipoAccionAuditoria tipoAccion) {
+        this.entidadAfectada = entidadAfectada;
+        this.idAfectado = idAfectado;
+        this.usuario = usuario;
+        this.tipoAccion = tipoAccion;
+    }
+}

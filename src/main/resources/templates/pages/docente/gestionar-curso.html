@@ -64,10 +64,10 @@
             <div class="card-body p-4">
                 <p class="text-muted mb-3" th:text="${unidad.descripcion}">Descripción...</p>
 
-                <!-- Herramientas IA (Gemini) para esta unidad -->
+                <!-- Herramientas IA (Ollama — Llama 3.1 local) para esta unidad -->
                 <div class="bg-light p-3 rounded-3 mb-4 border d-flex align-items-center justify-content-between flex-wrap gap-2">
-                    <small class="fw-bold text-purple"><i class="fa-solid fa-wand-magic-sparkles me-1 text-primary"></i>Herramientas IA Gemini 3.1 Pro:</small>
-                    <div class="d-flex gap-2">
+                    <small class="fw-bold text-purple"><i class="fa-solid fa-wand-magic-sparkles me-1 text-primary"></i>Herramientas IA Ollama (Llama 3.1):</small>
+                    <div class="d-flex gap-2 flex-wrap">
                         <form th:action="@{'/docente/ia/unidad/' + ${unidad.id} + '/generar-banco'}" method="post" class="d-inline">
                             <button type="submit" class="btn btn-sm btn-outline-primary rounded-pill">
                                 <i class="fa-solid fa-robot me-1"></i>Generar Banco Preguntas
@@ -77,6 +77,11 @@
                             <input type="hidden" name="promptInput" th:value="'Diapositivas ' + ${unidad.titulo}">
                             <button type="submit" class="btn btn-sm btn-outline-success rounded-pill">
                                 <i class="fa-solid fa-file-powerpoint me-1"></i>Generar Slides IA
+                            </button>
+                        </form>
+                        <form th:action="@{'/docente/ia/unidad/' + ${unidad.id} + '/generar-resumen'}" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-sm btn-outline-info rounded-pill">
+                                <i class="fa-solid fa-brain me-1"></i>Resumen IA (Bibliografía)
                             </button>
                         </form>
                     </div>
@@ -93,16 +98,10 @@
                             <div>
                                 <h6 class="fw-bold mb-0 small" th:text="${m.titulo}">Material</h6>
                                 <small class="text-muted" th:text="${m.tipo.nombre + (m.publicado ? '' : ' · Oculto')}">TIPO</small>
-                                <span th:if="${m.generadoPorIA}" class="badge bg-purple text-white ms-1">IA Gemini</span>
+                                <span th:if="${m.generadoPorIA}" class="badge bg-purple text-white ms-1">IA Ollama</span>
                             </div>
                         </div>
                         <div class="d-flex gap-2">
-                            <form th:if="${m.tipo.nombre == 'Grabación'}"
-                                  th:action="@{'/docente/ia/material/' + ${m.id} + '/generar-resumen'}" method="post" class="d-inline">
-                                <button type="submit" class="btn btn-outline-info btn-sm rounded-pill">
-                                    <i class="fa-solid fa-brain me-1"></i>Resumen IA (Whisper)
-                                </button>
-                            </form>
                             <a th:href="${m.rutaArchivo}" target="_blank" class="btn btn-outline-secondary btn-sm rounded-pill">Ver</a>
                             <form th:action="@{'/docente/material/' + ${m.id} + '/eliminar'}" method="post" class="d-inline"
                                   onsubmit="return confirm('¿Eliminar este material?')">
