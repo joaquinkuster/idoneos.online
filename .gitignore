@@ -40,3 +40,6 @@ client_secret*.json
 credentials.properties
 application-local.properties
 application-*.properties
+
+*.exe
+

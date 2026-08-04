@@ -143,7 +143,9 @@ public class ClaseEnVivoController {
         // Crear material de tipo Grabación con la ruta de la grabación
         if (tipoGrabacion != null) {
             String rutaGrabacion = "grabaciones/clase_" + claseId + "_" + System.currentTimeMillis() + ".mp4";
-            Material grabacion = new Material(tipoGrabacion, "Grabación: " + clase.getTitulo(), rutaGrabacion, clase.getUnidad());
+            String tituloMat = "Grabación: " + clase.getTitulo();
+            if (tituloMat.length() > 250) tituloMat = tituloMat.substring(0, 247) + "...";
+            Material grabacion = new Material(tipoGrabacion, tituloMat, rutaGrabacion, clase.getUnidad());
             grabacion.setPublicado(false); // En revisión hasta que el docente la publique
             materialRepository.save(grabacion);
             clase.setMaterial(grabacion);

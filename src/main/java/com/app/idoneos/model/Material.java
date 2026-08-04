@@ -21,7 +21,7 @@ public class Material {
     @Column(name = "id")
     private int id;
 
-    @Column(name = "titulo", nullable = false, length = 50)
+    @Column(name = "titulo", nullable = false, length = 255)
     private String titulo;
 
     /**
@@ -36,13 +36,13 @@ public class Material {
     /**
      * Ruta del archivo (grabación, presentación, bibliografía).
      */
-    @Column(name = "ruta_archivo", nullable = true, length = 150)
+    @Column(name = "ruta_archivo", nullable = true, length = 500)
     private String rutaArchivo;
 
     /**
      * Texto del material (aplica a Resumen). Alternativa a ruta_archivo.
      */
-    @Column(name = "contenido", nullable = true, length = 500)
+    @Column(name = "contenido", nullable = true, columnDefinition = "TEXT")
     private String contenido;
 
     /**
@@ -60,7 +60,7 @@ public class Material {
     /**
      * Autor de referencia. Solo aplica a bibliografía.
      */
-    @Column(name = "autor", nullable = true, length = 50)
+    @Column(name = "autor", nullable = true, length = 255)
     private String autor;
 
     @Column(name = "baja", nullable = false)
