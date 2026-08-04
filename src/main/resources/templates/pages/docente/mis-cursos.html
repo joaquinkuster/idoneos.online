@@ -13,9 +13,17 @@
                 <h1 class="fw-bold mb-0"><i class="fa-solid fa-chalkboard-user text-success me-2"></i>Panel Docente</h1>
                 <p class="text-white-50 mb-0" th:text="'Bienvenido/a, ' + ${usuario.nombreCompleto}">Docente</p>
             </div>
-            <a th:href="@{/docente/curso/nuevo}" class="btn btn-success rounded-pill fw-bold">
-                <i class="fa-solid fa-plus me-2"></i>Crear Nuevo Curso
-            </a>
+            <div class="d-flex gap-2 flex-wrap">
+                <a th:href="@{/clase-vivo/docente}" class="btn btn-outline-light rounded-pill fw-bold">
+                    <i class="fa-solid fa-video me-2"></i>Clases en Vivo
+                </a>
+                <a th:href="@{/clon-ia/docente}" class="btn btn-outline-warning rounded-pill fw-bold">
+                    <i class="fa-solid fa-robot me-2"></i>Clon IA
+                </a>
+                <a th:href="@{/docente/curso/nuevo}" class="btn btn-success rounded-pill fw-bold">
+                    <i class="fa-solid fa-plus me-2"></i>Crear Nuevo Curso
+                </a>
+            </div>
         </div>
     </div>
 

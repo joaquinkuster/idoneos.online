@@ -66,6 +66,12 @@
                             <li th:if="${#authorization.expression('hasAnyRole(''Docente'', ''Administrador'')')}">
                                 <a class="dropdown-item py-2 text-success fw-bold" th:href="@{/docente}"><i class="fa-solid fa-chalkboard-user me-2"></i>Panel Docente</a>
                             </li>
+                            <li th:if="${#authorization.expression('hasAnyRole(''Docente'', ''Administrador'')')}">
+                                <a class="dropdown-item py-2 text-info fw-semibold" th:href="@{/clase-vivo/docente}"><i class="fa-solid fa-video me-2"></i>Clases en Vivo (RTMP)</a>
+                            </li>
+                            <li th:if="${#authorization.expression('hasAnyRole(''Docente'', ''Administrador'')')}">
+                                <a class="dropdown-item py-2 text-warning fw-semibold" th:href="@{/clon-ia/docente}"><i class="fa-solid fa-robot me-2"></i>Clon IA (HeyGen)</a>
+                            </li>
                             <li><hr class="dropdown-divider"></li>
                             <li>
                                 <form th:action="@{/logout}" method="post">
