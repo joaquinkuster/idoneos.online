@@ -106,7 +106,7 @@ public class ClaseClonIAController {
         EstadoClaseClonIA estadoGenerada = estadoRepo.findByNombre("Generada").orElseGet(() ->
                 estadoRepo.findByNombre("Pendiente").orElse(null));
 
-        String videoId = llamarHeyGenAPI(guionPrompt, docente.getIdAvatarConsent());
+        String videoId = llamarHeyGenAPI(guionPrompt, "avatar_docente_" + docente.getId());
 
         ClaseClonIA clase = new ClaseClonIA(titulo, unidad, docente, estadoGenerada);
         clase.setFechaGeneracion(LocalDateTime.now());

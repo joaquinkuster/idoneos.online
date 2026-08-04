@@ -129,7 +129,7 @@ public class CursoController {
         }
 
         // Si el curso es de pago (precio > 0), derivar a Mercado Pago Checkout API
-        if (curso.getPrecio() != null && curso.getPrecio() > 0) {
+        if (curso.getPrecio() > 0) {
             return "redirect:/pago/checkout/" + id;
         }
 
