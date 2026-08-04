@@ -6,6 +6,8 @@ import lombok.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import java.time.LocalDateTime;
+
 /**
  * Banco de preguntas de una unidad. Relación 1:0..1 con Unidad.
  */
@@ -22,6 +24,12 @@ public class Pool {
 
     @Column(name = "nombre", nullable = false, length = 50)
     private String nombre;
+
+    @Column(name = "fecha_creacion", nullable = false)
+    private LocalDateTime fechaCreacion = LocalDateTime.now();
+
+    @Column(name = "ultima_modificacion", nullable = true)
+    private LocalDateTime ultimaModificacion;
 
     @Column(name = "baja", nullable = false)
     private Boolean baja = false;

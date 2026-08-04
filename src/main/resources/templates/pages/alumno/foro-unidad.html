@@ -62,7 +62,7 @@
                          th:text="${#strings.substring(consulta.usuario.nombre, 0, 1)}">U</div>
                     <div>
                         <strong class="d-block" th:text="${consulta.usuario.nombreCompleto}">Usuario</strong>
-                        <small class="text-muted" th:text="${#temporals.format(consulta.fecha, 'dd/MM/yyyy')}">Fecha</small>
+                        <small class="text-muted" th:text="${#temporals.format(consulta.fecha, 'dd/MM/yyyy HH:mm')}">Fecha</small>
                     </div>
                 </div>
                 <form th:if="${usuario.id == consulta.usuario.id || usuario.esAdmin()}"
@@ -81,7 +81,7 @@
                     <div class="d-flex align-items-center gap-2 mb-1">
                         <span class="badge bg-success"><i class="fa-solid fa-user-graduate me-1"></i>Docente</span>
                         <strong th:text="${resp.docente.nombreCompleto}">Docente</strong>
-                        <small class="text-muted" th:text="${#temporals.format(resp.fecha, 'dd/MM/yyyy')}">Fecha</small>
+                        <small class="text-muted" th:text="${#temporals.format(resp.fecha, 'dd/MM/yyyy HH:mm')}">Fecha</small>
                     </div>
                     <p class="mb-0 text-secondary" th:text="${resp.texto}">Texto de la respuesta</p>
                 </div>

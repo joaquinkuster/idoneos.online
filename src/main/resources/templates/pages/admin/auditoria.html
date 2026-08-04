@@ -19,6 +19,24 @@
 
 <div class="container pb-5">
 
+    <div class="card shadow-sm border-0 rounded-4 mb-4">
+        <div class="card-body p-3">
+            <form th:action="@{/admin/auditoria}" method="get" class="row g-2 align-items-center">
+                <div class="col-md-9">
+                    <input type="text" name="entidad" class="form-control rounded-pill"
+                           placeholder="Filtrar por Entidad Afectada (ej: Pago, Curso, Usuario, Inscripcion)..."
+                           th:value="${filtroEntidad}">
+                </div>
+                <div class="col-md-3 d-flex gap-2">
+                    <button type="submit" class="btn btn-warning rounded-pill w-100 fw-bold">
+                        <i class="fa-solid fa-magnifying-glass me-1"></i>Filtrar
+                    </button>
+                    <a th:href="@{/admin/auditoria}" class="btn btn-outline-secondary rounded-pill">Limpiar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div class="card shadow-sm border-0 rounded-4">
         <div class="card-body p-4">
             <div class="table-responsive">

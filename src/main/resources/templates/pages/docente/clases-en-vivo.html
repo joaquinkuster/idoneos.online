@@ -85,6 +85,11 @@
                                             <i class="fa-solid fa-play me-1"></i>Iniciar Transmisión
                                         </button>
                                     </form>
+                                    <form th:action="@{'/clase-vivo/' + ${c.id} + '/cancelar'}" method="post" class="d-inline ms-1" onsubmit="return confirm('¿Cancelar esta clase en vivo?')">
+                                        <button type="submit" class="btn btn-sm btn-outline-secondary rounded-pill">
+                                            <i class="fa-solid fa-xmark me-1"></i>Cancelar
+                                        </button>
+                                    </form>
                                 </div>
 
                                 <div th:if="${c.estado.nombre == 'En vivo'}">

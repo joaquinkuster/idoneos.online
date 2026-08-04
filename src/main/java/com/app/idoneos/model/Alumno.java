@@ -25,7 +25,6 @@ public class Alumno {
 
     public Alumno(Usuario usuario) {
         this.usuario = usuario;
-        this.id = usuario.getId();
     }
 
     public String getNombreCompleto() {

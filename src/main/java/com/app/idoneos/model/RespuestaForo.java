@@ -3,7 +3,7 @@ package com.app.idoneos.model;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 /**
  * Respuesta de un docente (titular o supervisor) a una ConsultaForo.
@@ -23,7 +23,7 @@ public class RespuestaForo {
     private String texto;
 
     @Column(name = "fecha", nullable = false)
-    private LocalDate fecha = LocalDate.now();
+    private LocalDateTime fecha = LocalDateTime.now();
 
     @Column(name = "baja", nullable = false)
     private Boolean baja = false;

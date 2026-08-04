@@ -3,7 +3,7 @@ package com.app.idoneos.model;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 /**
  * Comprobante simple de un pago (no factura electrónica — alcance PMV).
@@ -27,7 +27,7 @@ public class Comprobante {
     private String numero;
 
     @Column(name = "fecha_emision", nullable = false)
-    private LocalDate fechaEmision = LocalDate.now();
+    private LocalDateTime fechaEmision = LocalDateTime.now();
 
     @Column(name = "ruta_archivo", nullable = true, length = 150)
     private String rutaArchivo;

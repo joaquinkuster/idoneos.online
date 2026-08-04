@@ -70,7 +70,37 @@ public class ClaseEnVivoController {
         return "redirect:/clase-vivo/docente";
     }
 
-    // ─── Iniciar clase ────────────────────────────────────────────────────────
+    // ─── CU-58: Modificar clase en vivo ───────────────────────────────────────
+
+    @PostMapping("/{claseId}/modificar")
+    public String modificar(@PathVariable Integer claseId,
+                            @RequestParam String titulo,
+                            @RequestParam String fechaHora,
+                            RedirectAttributes ra) {
+        ClaseEnVivo clase = claseEnVivoRepository.findById(claseId).orElse(null);
+        if (clase == null) return "redirect:/clase-vivo/docente";
+
+        LocalDateTime dt = LocalDateTime.parse(fechaHora, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm"));
+        clase.setTitulo(titulo);
+        clase.setFechaHora(dt);
+        claseEnVivoRepository.save(clase);
+
+        ra.addFlashAttribute("mensaje", "Clase modificada correctamente.");
+        return "redirect:/clase-vivo/docente";
+    }
+
+    // ─── CU-59: Cancelar clase en vivo ────────────────────────────────────────
+
+    @PostMapping("/{claseId}/cancelar")
+    public String cancelar(@PathVariable Integer claseId, RedirectAttributes ra) {
+        ClaseEnVivo clase = claseEnVivoRepository.findById(claseId).orElse(null);
+        if (clase != null) {
+            clase.setBaja(true);
+            claseEnVivoRepository.save(clase);
+        }
+        ra.addFlashAttribute("mensaje", "Clase en vivo cancelada.");
+        return "redirect:/clase-vivo/docente";
+    }
 
     @PostMapping("/{claseId}/iniciar")
     public String iniciar(@PathVariable Integer claseId, RedirectAttributes ra) {

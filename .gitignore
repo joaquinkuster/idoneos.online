@@ -31,3 +31,10 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Credenciales y Secretos de API (Protección de Seguridad) ###
+client_secret*.json
+*.json.secret
+*.pem
+*.key
+credentials.properties

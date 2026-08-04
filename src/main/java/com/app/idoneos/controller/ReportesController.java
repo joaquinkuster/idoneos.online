@@ -67,13 +67,4 @@ public class ReportesController {
         }
         return "redirect:/admin/reportes";
     }
-
-    @GetMapping("/auditoria")
-    public String verAuditoria(Model model, Authentication auth) {
-        List<Auditoria> registros = auditoriaRepository.findAll();
-        model.addAttribute("usuario", (Usuario) auth.getPrincipal());
-        model.addAttribute("registros", registros);
-        model.addAttribute("titulo", "Log de Auditoría | Idóneos Online");
-        return "pages/admin/auditoria";
-    }
 }

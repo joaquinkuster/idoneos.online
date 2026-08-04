@@ -1,5 +1,6 @@
 package com.app.idoneos.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -15,12 +16,16 @@ import com.app.idoneos.service.Usuario.UsuarioDetallesService;
 
 /**
  * Configuración de seguridad Spring Security para Idóneos Online.
+ * Soporta autenticación por Formulario y Google OAuth 2.0 (PA-1).
  */
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
     private final UsuarioDetallesService usuarioDetallesService;
+
+    @Autowired
+    private CustomOAuth2SuccessHandler oAuth2SuccessHandler;
 
     public SecurityConfig(UsuarioDetallesService usuarioDetallesService) {
         this.usuarioDetallesService = usuarioDetallesService;
@@ -49,7 +54,7 @@ public class SecurityConfig {
         return http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/inicio", "/login", "/registro", "/cursos", "/cursos/*", "/public/**", "/css/**", "/js/**", "/img/**").permitAll()
+                        .requestMatchers("/", "/inicio", "/login", "/registro", "/recuperar-contrasena", "/resetear-contrasena", "/cursos", "/cursos/*", "/public/**", "/css/**", "/js/**", "/img/**").permitAll()
                         .requestMatchers("/admin", "/admin/**").hasRole("Administrador")
                         .requestMatchers("/docente", "/docente/**").hasAnyRole("Docente", "Administrador")
                         .anyRequest().authenticated()
@@ -59,6 +64,10 @@ public class SecurityConfig {
                         .permitAll()
                         .defaultSuccessUrl("/cursos", true)
                         .failureUrl("/login?error=true")
+                )
+                .oauth2Login(oauth2 -> oauth2
+                        .loginPage("/login")
+                        .successHandler(oAuth2SuccessHandler)
                 )
                 .userDetailsService(usuarioDetallesService)
                 .sessionManagement(session -> session

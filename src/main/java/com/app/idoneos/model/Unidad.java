@@ -8,6 +8,8 @@ import lombok.Setter;
 import java.util.ArrayList;
 import java.util.List;
 
+import java.time.LocalDateTime;
+
 /**
  * Representa una unidad académica dentro de un curso de Idóneos Online.
  */
@@ -30,6 +32,12 @@ public class Unidad {
 
     @Column(name = "numero_orden", nullable = false)
     private int numeroOrden;
+
+    @Column(name = "fecha_creacion", nullable = false)
+    private LocalDateTime fechaCreacion = LocalDateTime.now();
+
+    @Column(name = "ultima_modificacion", nullable = true)
+    private LocalDateTime ultimaModificacion;
 
     @Column(name = "baja", nullable = false)
     private Boolean baja = false;

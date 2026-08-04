@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<div th:replace="~{fragments/head :: head}"></div>
+
+<body class="bg-light">
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<!-- Header -->
+<div class="bg-dark text-white py-4 mb-4">
+    <div class="container d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+            <h1 class="fw-bold mb-1"><i class="fa-solid fa-percent text-warning me-2"></i>Gestión de Descuentos Promocionales</h1>
+            <small class="text-white-50">CU-28 a CU-31: Alta, Modificación, Baja y Consulta de Descuentos</small>
+        </div>
+        <a th:href="@{/admin/panel}" class="btn btn-outline-light rounded-pill">Volver al Panel Admin</a>
+    </div>
+</div>
+
+<div class="container pb-5">
+
+    <div th:if="${mensaje}" class="alert alert-success alert-dismissible fade show shadow-sm rounded-3 mb-4" role="alert">
+        <i class="fa-solid fa-circle-check me-2"></i>
+        <span th:text="${mensaje}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <!-- Formulario Crear Descuento -->
+    <div class="card shadow-sm border-0 rounded-4 mb-4">
+        <div class="card-body p-4">
+            <h5 class="fw-bold mb-3"><i class="fa-solid fa-plus-circle text-primary me-2"></i>Crear Nuevo Descuento</h5>
+            <form th:action="@{/admin/descuentos/crear}" method="post" class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">Nombre Promoción</label>
+                    <input type="text" name="nombre" class="form-control rounded-3" placeholder="Ej: Lanzamiento 20%, Fidelidad 15%" required>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label fw-bold">Porcentaje (%)</label>
+                    <input type="number" step="0.5" name="porcentaje" class="form-control rounded-3" placeholder="20" min="1" max="100" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Vigencia Desde</label>
+                    <input type="datetime-local" name="vigenciaDesde" class="form-control rounded-3" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Vigencia Hasta</label>
+                    <input type="datetime-local" name="vigenciaHasta" class="form-control rounded-3" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Cursos Requeridos</label>
+                    <input type="number" name="cursosRequeridos" class="form-control rounded-3" value="0" min="0" placeholder="0 = sin requisito de compras previas">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Cupo Límite (Opcional)</label>
+                    <input type="number" name="cantidadLimite" class="form-control rounded-3" placeholder="Sin límite si está vacío">
+                </div>
+                <div class="col-md-6 d-flex align-items-end">
+                    <button type="submit" class="btn btn-warning fw-bold rounded-pill px-4 me-2">
+                        <i class="fa-solid fa-floppy-disk me-1"></i>Guardar Descuento
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Lista de Descuentos -->
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-body p-4">
+            <h5 class="fw-bold mb-3">Listado de Descuentos</h5>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Descuento</th>
+                            <th>Requisito Cursos</th>
+                            <th>Vigencia</th>
+                            <th>Uso / Límite</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="d : ${descuentos}">
+                            <td class="fw-bold text-primary" th:text="${d.nombre}">Descuento</td>
+                            <td><span class="badge bg-success fs-6" th:text="${d.porcentaje + '%'}">20%</span></td>
+                            <td th:text="${d.cursosRequeridos > 0 ? d.cursosRequeridos + ' compras previas' : 'Sin requisito'}">Requisito</td>
+                            <td>
+                                <small th:text="${#temporals.format(d.vigenciaDesde, 'dd/MM/yyyy')} + ' al ' + ${#temporals.format(d.vigenciaHasta, 'dd/MM/yyyy')}">Fechas</small>
+                            </td>
+                            <td>
+                                <span th:text="${d.cantidadUsada}">0</span>
+                                <span th:if="${d.cantidadLimite != null}" th:text="' / ' + ${d.cantidadLimite}"> / 100</span>
+                                <span th:unless="${d.cantidadLimite != null}" class="text-muted"> / ∞</span>
+                            </td>
+                            <td>
+                                <span th:if="${!d.baja}" class="badge bg-success">Activo</span>
+                                <span th:if="${d.baja}" class="badge bg-danger">Inactivo</span>
+                            </td>
+                            <td>
+                                <form th:action="@{'/admin/descuentos/' + ${d.id} + '/toggle-baja'}" method="post" class="d-inline">
+                                    <button class="btn btn-sm btn-outline-warning rounded-pill" type="submit" th:text="${d.baja ? 'Activar' : 'Desactivar'}">Toggle</button>
+                                </form>
+                                <form th:action="@{'/admin/descuentos/' + ${d.id} + '/eliminar'}" method="post" class="d-inline" onsubmit="return confirm('¿Eliminar descuento?')">
+                                    <button class="btn btn-sm btn-outline-danger rounded-pill" type="submit"><i class="fa-solid fa-trash"></i></button>
+                                </form>
+                            </td>
+                        </tr>
+                        <tr th:if="${descuentos.isEmpty()}">
+                            <td colspan="7" class="text-center text-muted fst-italic py-4">No hay descuentos registrados.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>
