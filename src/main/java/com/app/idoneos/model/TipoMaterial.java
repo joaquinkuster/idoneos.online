@@ -9,7 +9,7 @@ import lombok.*;
  * Se convirtió de enum a entidad catálogo porque tiene más de 2 valores.
  */
 @Entity
-@Table(name = "tipos_material")
+@Table(name = "tipo_material")
 @Getter @Setter
 @NoArgsConstructor
 public class TipoMaterial {

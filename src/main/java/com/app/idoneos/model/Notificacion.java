@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
  * Entidad que representa una notificación in-app enviada a un usuario.
  */
 @Entity
-@Table(name = "notificaciones")
+@Table(name = "notificacion")
 @Getter @Setter
 @NoArgsConstructor
 public class Notificacion {

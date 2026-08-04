@@ -9,7 +9,7 @@ import lombok.*;
  * sin recorrer las tablas de subtipo. Debe mantenerse sincronizada en la aplicación.
  */
 @Entity
-@Table(name = "usuario_roles",
+@Table(name = "usuario_rol",
     uniqueConstraints = @UniqueConstraint(columnNames = {"id_usuario", "id_rol"}))
 @Getter @Setter
 @NoArgsConstructor

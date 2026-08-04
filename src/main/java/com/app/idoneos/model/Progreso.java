@@ -11,7 +11,7 @@ import java.time.LocalDate;
  * Registra el progreso secuencial de un alumno en una unidad específica.
  */
 @Entity
-@Table(name = "progresos")
+@Table(name = "progreso")
 @Getter @Setter
 @NoArgsConstructor
 public class Progreso {

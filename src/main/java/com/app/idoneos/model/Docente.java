@@ -12,7 +12,7 @@ import java.util.List;
  * Contiene los atributos propios del perfil profesional del docente.
  */
 @Entity
-@Table(name = "docentes")
+@Table(name = "docente")
 @Getter @Setter
 @NoArgsConstructor
 public class Docente {

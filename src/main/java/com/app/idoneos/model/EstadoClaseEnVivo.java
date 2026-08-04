@@ -7,7 +7,7 @@ import lombok.*;
  * Catálogo de estados de ClaseEnVivo: Programada, En vivo, Finalizada.
  */
 @Entity
-@Table(name = "estados_clase_en_vivo")
+@Table(name = "estado_clase_en_vivo")
 @Getter @Setter
 @NoArgsConstructor
 public class EstadoClaseEnVivo {

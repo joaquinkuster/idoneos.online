@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
  * Registra cada inicio de sesión de un usuario para trazabilidad de seguridad.
  */
 @Entity
-@Table(name = "sesiones")
+@Table(name = "sesion")
 @Getter @Setter
 @NoArgsConstructor
 public class Sesion {

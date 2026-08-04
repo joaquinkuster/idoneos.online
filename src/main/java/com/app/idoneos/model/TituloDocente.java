@@ -8,7 +8,7 @@ import lombok.*;
  * Un docente puede tener más de uno (ej. Contador y Lic. en Administración).
  */
 @Entity
-@Table(name = "titulos_docente")
+@Table(name = "titulo_docente")
 @Getter @Setter
 @NoArgsConstructor
 public class TituloDocente {

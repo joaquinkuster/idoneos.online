@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
  * para acceder a este descuento (única condición de negocio existente).
  */
 @Entity
-@Table(name = "descuentos")
+@Table(name = "descuento")
 @Getter @Setter
 @NoArgsConstructor
 public class Descuento {

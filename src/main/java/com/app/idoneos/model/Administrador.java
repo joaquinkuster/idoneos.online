@@ -8,7 +8,7 @@ import lombok.*;
  * Sin atributos propios: su existencia en la tabla garantiza integridad referencial.
  */
 @Entity
-@Table(name = "administradores")
+@Table(name = "administrador")
 @Getter @Setter
 @NoArgsConstructor
 public class Administrador {

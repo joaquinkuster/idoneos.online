@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
  * La grabación resultante (Material) es opcional: se completa al finalizar la clase.
  */
 @Entity
-@Table(name = "clases_en_vivo")
+@Table(name = "clase_en_vivo")
 @Getter @Setter
 @NoArgsConstructor
 public class ClaseEnVivo {

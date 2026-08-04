@@ -8,7 +8,7 @@ import lombok.*;
  * Solo tarjeta (crédito/débito) per alcance del PMV.
  */
 @Entity
-@Table(name = "metodos_pago")
+@Table(name = "metodo_pago")
 @Getter @Setter
 @NoArgsConstructor
 public class MetodoPago {

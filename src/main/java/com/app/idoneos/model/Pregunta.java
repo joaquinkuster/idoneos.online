@@ -10,7 +10,7 @@ import java.util.List;
  * Pregunta de evaluación. Puede ser de opción múltiple o verdadero/falso.
  */
 @Entity
-@Table(name = "preguntas")
+@Table(name = "pregunta")
 @Getter @Setter
 @NoArgsConstructor
 public class Pregunta {

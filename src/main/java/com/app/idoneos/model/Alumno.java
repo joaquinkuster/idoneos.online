@@ -9,7 +9,7 @@ import lombok.*;
  * Una FK a Alumno asegura a nivel de BD que ese usuario tiene rol de alumno.
  */
 @Entity
-@Table(name = "alumnos")
+@Table(name = "alumno")
 @Getter @Setter
 @NoArgsConstructor
 public class Alumno {

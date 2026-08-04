@@ -15,7 +15,7 @@ import java.util.Set;
  * La relación con docentes se maneja vía DocenteCurso (tabla asociativa M:N).
  */
 @Entity
-@Table(name = "cursos")
+@Table(name = "curso")
 @Getter @Setter
 @NoArgsConstructor
 public class Curso {

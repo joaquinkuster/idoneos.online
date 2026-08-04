@@ -13,7 +13,7 @@ import java.util.Set;
  * Categoría temática de los cursos (Ej: Finanzas, Economía, Mercado de Capitales, Impuestos).
  */
 @Entity
-@Table(name = "categorias")
+@Table(name = "categoria")
 @Getter @Setter
 @NoArgsConstructor
 public class Categoria {

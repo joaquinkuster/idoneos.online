@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
  * Estado asincrónico: Pendiente → Generada | Error.
  */
 @Entity
-@Table(name = "clases_clon_ia")
+@Table(name = "clase_clon_ia")
 @Getter @Setter
 @NoArgsConstructor
 public class ClaseClonIA {

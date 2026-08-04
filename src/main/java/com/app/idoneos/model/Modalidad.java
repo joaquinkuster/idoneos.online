@@ -8,7 +8,7 @@ import lombok.*;
  * Un curso puede tener múltiples modalidades (relación M:N vía ModalidadCurso).
  */
 @Entity
-@Table(name = "modalidades")
+@Table(name = "modalidad")
 @Getter @Setter
 @NoArgsConstructor
 public class Modalidad {

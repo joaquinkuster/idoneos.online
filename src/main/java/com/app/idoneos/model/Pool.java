@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
  * Banco de preguntas de una unidad. Relación 1:0..1 con Unidad.
  */
 @Entity
-@Table(name = "pools")
+@Table(name = "pool")
 @Getter @Setter
 @NoArgsConstructor
 public class Pool {

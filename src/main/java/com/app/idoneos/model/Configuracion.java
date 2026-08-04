@@ -10,7 +10,7 @@ import lombok.*;
  * Ejemplos: "plataforma.nombre", "evaluacion.umbral_aprobacion", "logo.url"
  */
 @Entity
-@Table(name = "configuraciones")
+@Table(name = "configuracion")
 @Getter @Setter
 @NoArgsConstructor
 public class Configuracion {

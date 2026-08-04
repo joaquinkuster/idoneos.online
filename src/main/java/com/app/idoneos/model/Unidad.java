@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
  * Representa una unidad académica dentro de un curso de Idóneos Online.
  */
 @Entity
-@Table(name = "unidades")
+@Table(name = "unidad")
 @Getter @Setter
 @NoArgsConstructor
 public class Unidad {

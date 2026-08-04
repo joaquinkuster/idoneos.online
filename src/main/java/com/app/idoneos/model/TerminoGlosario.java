@@ -9,7 +9,7 @@ import lombok.*;
  * NO es un TipoMaterial — se modela como entidad separada.
  */
 @Entity
-@Table(name = "terminos_glosario")
+@Table(name = "termino_glosario")
 @Getter @Setter
 @NoArgsConstructor
 public class TerminoGlosario {

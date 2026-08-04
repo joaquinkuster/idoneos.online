@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
  * paymentId y preferenceId permiten conciliar el flujo asincrónico (webhook).
  */
 @Entity
-@Table(name = "pagos")
+@Table(name = "pago")
 @Getter @Setter
 @NoArgsConstructor
 public class Pago {

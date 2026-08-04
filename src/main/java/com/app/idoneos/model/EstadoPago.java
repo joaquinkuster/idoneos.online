@@ -7,7 +7,7 @@ import lombok.*;
  * Catálogo de estados de pago: Pendiente, Acreditado, Rechazado.
  */
 @Entity
-@Table(name = "estados_pago")
+@Table(name = "estado_pago")
 @Getter @Setter
 @NoArgsConstructor
 public class EstadoPago {

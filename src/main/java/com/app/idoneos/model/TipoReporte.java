@@ -7,7 +7,7 @@ import lombok.*;
  * Catálogo de tipos de reporte: Alumnos inscriptos, Tráfico, Ingresos.
  */
 @Entity
-@Table(name = "tipos_reporte")
+@Table(name = "tipo_reporte")
 @Getter @Setter
 @NoArgsConstructor
 public class TipoReporte {

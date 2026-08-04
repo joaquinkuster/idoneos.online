@@ -7,7 +7,7 @@ import lombok.*;
  * Opción de respuesta de una pregunta de evaluación.
  */
 @Entity
-@Table(name = "opciones_respuesta")
+@Table(name = "opcion_respuesta")
 @Getter @Setter
 @NoArgsConstructor
 public class OpcionRespuesta {

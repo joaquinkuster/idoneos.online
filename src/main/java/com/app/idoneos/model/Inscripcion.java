@@ -12,7 +12,7 @@ import java.util.Set;
  * fechaVencimientoAcceso se calcula como fecha + Curso.mesesAcceso meses.
  */
 @Entity
-@Table(name = "inscripciones")
+@Table(name = "inscripcion")
 @Getter @Setter
 @NoArgsConstructor
 public class Inscripcion {

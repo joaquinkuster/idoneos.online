@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
  * Relación 0..1 con Inscripcion (no toda inscripción tiene certificado).
  */
 @Entity
-@Table(name = "certificados")
+@Table(name = "certificado")
 @Getter @Setter
 @NoArgsConstructor
 public class Certificado {

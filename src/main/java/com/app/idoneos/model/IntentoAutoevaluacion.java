@@ -12,7 +12,7 @@ import java.util.List;
  * Cada intento tiene 10 preguntas sorteadas del pool.
  */
 @Entity
-@Table(name = "intentos_autoevaluacion")
+@Table(name = "intento_autoevaluacion")
 @Getter @Setter
 @NoArgsConstructor
 public class IntentoAutoevaluacion {

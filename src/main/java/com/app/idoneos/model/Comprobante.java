@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
  * Relación 1:1 con Pago.
  */
 @Entity
-@Table(name = "comprobantes")
+@Table(name = "comprobante")
 @Getter @Setter
 @NoArgsConstructor
 public class Comprobante {

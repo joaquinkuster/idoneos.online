@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
  * Respuesta de un docente (titular o supervisor) a una ConsultaForo.
  */
 @Entity
-@Table(name = "respuestas_foro")
+@Table(name = "respuesta_foro")
 @Getter @Setter
 @NoArgsConstructor
 public class RespuestaForo {

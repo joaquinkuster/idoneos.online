@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
  * Reporte generado por un Administrador del sistema.
  */
 @Entity
-@Table(name = "reportes")
+@Table(name = "reporte")
 @Getter @Setter
 @NoArgsConstructor
 public class Reporte {

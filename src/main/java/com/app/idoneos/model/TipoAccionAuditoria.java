@@ -8,7 +8,7 @@ import lombok.*;
  * Valores genéricos para reutilizar un interceptor Spring AOP.
  */
 @Entity
-@Table(name = "tipos_accion_auditoria")
+@Table(name = "tipo_accion_auditoria")
 @Getter @Setter
 @NoArgsConstructor
 public class TipoAccionAuditoria {

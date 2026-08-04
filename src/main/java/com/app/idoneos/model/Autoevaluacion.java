@@ -12,7 +12,7 @@ import java.util.List;
  * Un alumno puede tener múltiples intentos hasta agotar intentosPermitidos.
  */
 @Entity
-@Table(name = "autoevaluaciones")
+@Table(name = "autoevaluacion")
 @Getter @Setter
 @NoArgsConstructor
 public class Autoevaluacion {

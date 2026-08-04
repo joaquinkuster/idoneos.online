@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
  * Tipos: Grabación, Bibliografía, Presentación, Resumen (catálogo TipoMaterial).
  */
 @Entity
-@Table(name = "materiales")
+@Table(name = "material")
 @Getter @Setter
 @NoArgsConstructor
 public class Material {

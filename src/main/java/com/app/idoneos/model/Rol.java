@@ -9,7 +9,7 @@ import lombok.*;
  * consultas sin recorrer las tres tablas de subtipo.
  */
 @Entity
-@Table(name = "roles")
+@Table(name = "rol")
 @Getter @Setter
 @NoArgsConstructor
 public class Rol {

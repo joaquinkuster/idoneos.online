@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
  * las operaciones relevantes (Crear, Modificar, Eliminar, Consultar).
  */
 @Entity
-@Table(name = "auditorias")
+@Table(name = "auditoria")
 @Getter @Setter
 @NoArgsConstructor
 public class Auditoria {

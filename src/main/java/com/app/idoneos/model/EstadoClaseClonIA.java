@@ -7,7 +7,7 @@ import lombok.*;
  * Catálogo de estados de ClaseClonIA: Pendiente, Generada, Error.
  */
 @Entity
-@Table(name = "estados_clase_clon_ia")
+@Table(name = "estado_clase_clon_ia")
 @Getter @Setter
 @NoArgsConstructor
 public class EstadoClaseClonIA {

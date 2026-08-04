@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
  * Foro por unidad (no uno general por curso) para mantener consultas agrupadas por tema.
  */
 @Entity
-@Table(name = "consultas_foro")
+@Table(name = "consulta_foro")
 @Getter @Setter
 @NoArgsConstructor
 public class ConsultaForo {

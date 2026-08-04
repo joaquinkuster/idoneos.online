@@ -19,7 +19,7 @@ import java.util.Set;
  * necesidad de joins adicionales en cada request.
  */
 @Entity
-@Table(name = "usuarios")
+@Table(name = "usuario")
 @Getter @Setter
 @NoArgsConstructor
 public class Usuario implements UserDetails {

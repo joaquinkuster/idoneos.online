@@ -9,7 +9,7 @@ import lombok.*;
  * No referencia a Pregunta directamente — se llega a ella vía OpcionRespuesta.
  */
 @Entity
-@Table(name = "respuestas_intento")
+@Table(name = "respuesta_intento")
 @Getter @Setter
 @NoArgsConstructor
 public class RespuestaIntento {
