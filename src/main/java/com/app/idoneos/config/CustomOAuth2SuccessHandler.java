@@ -1,10 +1,7 @@
 package com.app.idoneos.config;
 
-import com.app.idoneos.model.Alumno;
-import com.app.idoneos.model.RolUsuario;
 import com.app.idoneos.model.Usuario;
-import com.app.idoneos.repository.AlumnoRepository;
-import com.app.idoneos.repository.UsuarioRepository;
+import com.app.idoneos.service.Usuario.UsuarioService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -17,20 +14,16 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.Optional;
 
 /**
  * Handler de éxito para autenticación mediante Google OAuth 2.0 (PA-1).
- * Crea automáticamente la cuenta del Alumno si no existe y establece el contexto de seguridad.
+ * Delegación a UsuarioService en un contexto transaccional.
  */
 @Component
 public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
     @Autowired
-    private UsuarioRepository usuarioRepository;
-
-    @Autowired
-    private AlumnoRepository alumnoRepository;
+    private UsuarioService usuarioService;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request,
@@ -42,29 +35,13 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
         String name = oauth2User.getAttribute("name");
         String givenName = oauth2User.getAttribute("given_name");
         String familyName = oauth2User.getAttribute("family_name");
+        String googleSub = oauth2User.getAttribute("sub");
 
         if (email != null) {
-            Optional<Usuario> usuarioOpt = usuarioRepository.findByCorreoAndBajaFalse(email);
-            Usuario usuario;
+            String nombre = (givenName != null) ? givenName : (name != null ? name : "Usuario");
+            String apellido = (familyName != null) ? familyName : "Google";
 
-            if (usuarioOpt.isEmpty()) {
-                String nombre = (givenName != null) ? givenName : (name != null ? name : "Usuario");
-                String apellido = (familyName != null) ? familyName : "Google";
-
-                usuario = new Usuario(nombre, apellido, email, null, RolUsuario.Alumno);
-                usuario.setEmailValidado(true);
-                usuario.setGoogleId(oauth2User.getAttribute("sub"));
-                usuario = usuarioRepository.save(usuario);
-
-                if (!alumnoRepository.existsById(usuario.getId())) {
-                    alumnoRepository.save(new Alumno(usuario));
-                }
-            } else {
-                usuario = usuarioOpt.get();
-                if (usuario.esAlumno() && !alumnoRepository.existsById(usuario.getId())) {
-                    alumnoRepository.save(new Alumno(usuario));
-                }
-            }
+            Usuario usuario = usuarioService.procesarUsuarioOAuth2(email, nombre, apellido, googleSub);
 
             // Actualizar contexto de seguridad con nuestra entidad Usuario
             UsernamePasswordAuthenticationToken authToken =

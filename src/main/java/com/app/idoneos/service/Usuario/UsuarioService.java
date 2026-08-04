@@ -18,4 +18,9 @@ public interface UsuarioService {
      */
     Optional<Usuario> buscarPorCorreo(String correo);
 
+    /**
+     * Procesa la autenticación y alta de usuarios autenticados mediante Google OAuth 2.0.
+     */
+    Usuario procesarUsuarioOAuth2(String email, String nombre, String apellido, String googleSub);
+
 }

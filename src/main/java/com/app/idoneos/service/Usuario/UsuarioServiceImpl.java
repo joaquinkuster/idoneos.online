@@ -1,12 +1,16 @@
 package com.app.idoneos.service.Usuario;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-
+import com.app.idoneos.model.Alumno;
+import com.app.idoneos.model.RolUsuario;
 import com.app.idoneos.model.Usuario;
+import com.app.idoneos.repository.AlumnoRepository;
 import com.app.idoneos.repository.UsuarioRepository;
 import com.app.idoneos.service.CrudService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -24,92 +28,72 @@ public class UsuarioServiceImpl implements UsuarioService, CrudService<Usuario> 
     private UsuarioRepository usuarioRepository;
 
     @Autowired
-    private PasswordEncoder passwordEncoder;
+    private AlumnoRepository alumnoRepository;
 
-    /**
-     * Guarda un nuevo usuario en la base de datos. Antes de guardarlo, se valida que
-     * no exista otro usuario con el mismo correo electrónico. Además, la contraseña es
-     * cifrada antes de ser almacenada.
-     * 
-     * @param usuario El usuario a guardar.
-     * @return El usuario guardado.
-     * @throws RuntimeException Si ya existe un usuario con el mismo correo.
-     */
+    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
     @Override
     public Usuario guardar(Usuario usuario) {
-        // Verificar si el correo ya está registrado
         if (usuarioRepository.findByCorreoAndBajaFalse(usuario.getCorreo()).isPresent()) {
             throw new RuntimeException("El usuario con este email ya está registrado");
         }
-        // Cifrar la contraseña antes de guardar
         usuario.setContrasena(passwordEncoder.encode(usuario.getContrasena()));
         return usuarioRepository.save(usuario);
     }
 
-    /**
-     * Busca un usuario por su identificador. Solo devuelve usuarios activos.
-     * 
-     * @param id El identificador del usuario.
-     * @return Un {@link Optional} con el usuario encontrado si está activo.
-     */
     @Override
     public Optional<Usuario> buscarPorId(Integer id) {
         return usuarioRepository.findById(id)
-                .filter(usuario -> !usuario.esInactivo()); // Solo devuelve usuarios activos
+                .filter(usuario -> !usuario.esInactivo());
     }
 
-    /**
-     * Obtiene todos los usuarios activos.
-     * 
-     * @return Una lista de todos los usuarios activos.
-     */
     @Override
     public List<Usuario> obtenerTodo() {
-        return usuarioRepository.findAll(); // Devuelve todos los usuarios
+        return usuarioRepository.findAll();
     }
 
-    /**
-     * Modifica un usuario existente.
-     * 
-     * @param usuario El usuario con los datos actualizados.
-     * @return El usuario modificado.
-     */
     @Override
     public Usuario modificar(Usuario usuario) {
-        return usuarioRepository.save(usuario); // Guarda el usuario modificado
+        return usuarioRepository.save(usuario);
     }
 
-    /**
-     * Elimina un usuario de la base de datos.
-     * 
-     * @param usuario El usuario a eliminar.
-     */
     @Override
     public void borrar(Usuario usuario) {
-        usuario.setBaja(true); // Borrado lógico
+        usuario.setBaja(true);
         usuarioRepository.save(usuario);
     }
 
-    /**
-     * Verifica si un usuario con el identificador dado existe y está activo.
-     * 
-     * @param id El identificador del usuario.
-     * @return true si el usuario existe y está activo, false en caso contrario.
-     */
     @Override
     public boolean existePorId(Integer id) {
-        return usuarioRepository.existsById(id) &&
-                buscarPorId(id).isPresent(); // Solo cuenta usuarios activos
+        return usuarioRepository.existsById(id) && buscarPorId(id).isPresent();
     }
 
-    /**
-     * Busca un usuario por su correo electrónico. Solo devuelve usuarios activos.
-     * 
-     * @param correo El correo electrónico del usuario.
-     * @return Un {@link Optional} con el usuario encontrado si está activo.
-     */
     @Override
     public Optional<Usuario> buscarPorCorreo(String correo) {
         return usuarioRepository.findByCorreoAndBajaFalse(correo);
+    }
+
+    @Override
+    @Transactional
+    public Usuario procesarUsuarioOAuth2(String email, String nombre, String apellido, String googleSub) {
+        Optional<Usuario> usuarioOpt = usuarioRepository.findByCorreoAndBajaFalse(email);
+        Usuario usuario;
+
+        if (usuarioOpt.isEmpty()) {
+            usuario = new Usuario(nombre, apellido, email, null, RolUsuario.Alumno);
+            usuario.setEmailValidado(true);
+            usuario.setGoogleId(googleSub);
+            usuario = usuarioRepository.save(usuario);
+
+            if (!alumnoRepository.existsById(usuario.getId())) {
+                alumnoRepository.save(new Alumno(usuario));
+            }
+        } else {
+            usuario = usuarioOpt.get();
+            if (usuario.esAlumno() && !alumnoRepository.existsById(usuario.getId())) {
+                alumnoRepository.save(new Alumno(usuario));
+            }
+        }
+        return usuario;
     }
 }
