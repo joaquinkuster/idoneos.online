@@ -162,6 +162,8 @@ public class Usuario implements UserDetails {
 
     // ─── Constructores ─────────────────────────────────────────────────────────
 
+    public Usuario() {}
+
     public Usuario(String nombre, String apellido, String correo, String contrasena, RolUsuario rol) {
         this.nombre = nombre;
         this.apellido = apellido;
