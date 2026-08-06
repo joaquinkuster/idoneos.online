@@ -5,6 +5,8 @@ import com.app.idoneos.repository.ConfiguracionRepository;
 import com.app.idoneos.repository.ConsultaForoRepository;
 import com.app.idoneos.repository.RespuestaForoRepository;
 import com.app.idoneos.repository.DocenteRepository;
+import com.app.idoneos.repository.DocenteCursoRepository;
+import com.app.idoneos.service.EmailService;
 import com.app.idoneos.service.Unidad.UnidadServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -30,7 +32,9 @@ public class ForoController {
     @Autowired private RespuestaForoRepository respuestaRepo;
     @Autowired private UnidadServiceImpl unidadService;
     @Autowired private DocenteRepository docenteRepository;
+    @Autowired private DocenteCursoRepository docenteCursoRepository;
     @Autowired private ConfiguracionRepository configRepo;
+    @Autowired private EmailService emailService;
 
     private int getTiempoLimiteEdicionMinutos() {
         return configRepo.findByClave("foro.tiempo_limite_edicion_minutos")
@@ -65,7 +69,15 @@ public class ForoController {
         Unidad unidad = unidadService.buscarPorId(unidadId).orElse(null);
         if (unidad == null) return "redirect:/cursos";
         Usuario usuario = (Usuario) auth.getPrincipal();
-        consultaRepo.save(new ConsultaForo(texto, unidad, usuario));
+        ConsultaForo consulta = consultaRepo.save(new ConsultaForo(texto, unidad, usuario));
+
+        // CU-24: Notificar al docente titular del curso
+        docenteCursoRepository.findByCurso(unidad.getCurso()).stream()
+                .filter(dc -> !dc.isEsSupervisor())
+                .findFirst()
+                .ifPresent(dc -> emailService.enviarNuevaConsultaForo(
+                        dc.getDocente().getUsuario().getCorreo(), consulta));
+
         ra.addFlashAttribute("mensaje", "Consulta publicada en el foro.");
         return "redirect:/foro/unidad/" + unidadId;
     }
@@ -108,7 +120,11 @@ public class ForoController {
         Docente docente = docenteRepository.findById(usuario.getId()).orElse(null);
         if (docente == null && !usuario.esAdmin()) return "redirect:/docente";
 
-        respuestaRepo.save(new RespuestaForo(texto, consulta, docente));
+        RespuestaForo respuesta = respuestaRepo.save(new RespuestaForo(texto, consulta, docente));
+
+        // CU-28: Notificar al alumno que publicó la consulta
+        emailService.enviarNuevaRespuestaForo(respuesta);
+
         ra.addFlashAttribute("mensaje", "Respuesta publicada.");
         return "redirect:/foro/unidad/" + consulta.getUnidad().getId();
     }

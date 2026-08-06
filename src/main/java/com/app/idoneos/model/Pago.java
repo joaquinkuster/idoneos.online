@@ -65,6 +65,53 @@ public class Pago {
     @OneToOne(mappedBy = "pago", cascade = CascadeType.ALL)
     private Comprobante comprobante;
 
+    // ─── Getters & Setters ─────────────────────────────────────────────────────
+
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+
+    public Double getMonto() { return monto; }
+    public void setMonto(Double monto) { this.monto = monto; }
+
+    public LocalDateTime getFecha() { return fecha; }
+    public void setFecha(LocalDateTime fecha) { this.fecha = fecha; }
+
+    public String getPaymentId() { return paymentId; }
+    public void setPaymentId(String paymentId) { this.paymentId = paymentId; }
+
+    public String getPreferenceId() { return preferenceId; }
+    public void setPreferenceId(String preferenceId) { this.preferenceId = preferenceId; }
+
+    public String getEmailPagador() { return emailPagador; }
+    public void setEmailPagador(String emailPagador) { this.emailPagador = emailPagador; }
+
+    public String getNombrePagador() { return nombrePagador; }
+    public void setNombrePagador(String nombrePagador) { this.nombrePagador = nombrePagador; }
+
+    public String getTipoPago() { return tipoPago; }
+    public void setTipoPago(String tipoPago) { this.tipoPago = tipoPago; }
+
+    public String getUltimosDigitosTarjeta() { return ultimosDigitosTarjeta; }
+    public void setUltimosDigitosTarjeta(String ultimosDigitosTarjeta) { this.ultimosDigitosTarjeta = ultimosDigitosTarjeta; }
+
+    public String getDetalleEstado() { return detalleEstado; }
+    public void setDetalleEstado(String detalleEstado) { this.detalleEstado = detalleEstado; }
+
+    public LocalDateTime getFechaAprobacion() { return fechaAprobacion; }
+    public void setFechaAprobacion(LocalDateTime fechaAprobacion) { this.fechaAprobacion = fechaAprobacion; }
+
+    public EstadoPago getEstadoPago() { return estadoPago; }
+    public void setEstadoPago(EstadoPago estadoPago) { this.estadoPago = estadoPago; }
+
+    public MetodoPago getMetodoPago() { return metodoPago; }
+    public void setMetodoPago(MetodoPago metodoPago) { this.metodoPago = metodoPago; }
+
+    public Inscripcion getInscripcion() { return inscripcion; }
+    public void setInscripcion(Inscripcion inscripcion) { this.inscripcion = inscripcion; }
+
+    public Comprobante getComprobante() { return comprobante; }
+    public void setComprobante(Comprobante comprobante) { this.comprobante = comprobante; }
+
     public Pago(Double monto, Inscripcion inscripcion, EstadoPago estadoPago) {
         this.monto = monto;
         this.inscripcion = inscripcion;

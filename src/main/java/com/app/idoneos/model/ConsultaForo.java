@@ -37,6 +37,26 @@ public class ConsultaForo {
     @JoinColumn(name = "id_usuario", nullable = false)
     private Usuario usuario;
 
+    // ─── Getters & Setters ─────────────────────────────────────────────────────
+
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+
+    public String getTexto() { return texto; }
+    public void setTexto(String texto) { this.texto = texto; }
+
+    public LocalDateTime getFecha() { return fecha; }
+    public void setFecha(LocalDateTime fecha) { this.fecha = fecha; }
+
+    public Boolean getBaja() { return baja; }
+    public void setBaja(Boolean baja) { this.baja = baja; }
+
+    public Unidad getUnidad() { return unidad; }
+    public void setUnidad(Unidad unidad) { this.unidad = unidad; }
+
+    public Usuario getUsuario() { return usuario; }
+    public void setUsuario(Usuario usuario) { this.usuario = usuario; }
+
     public ConsultaForo(String texto, Unidad unidad, Usuario usuario) {
         this.texto = texto;
         this.unidad = unidad;

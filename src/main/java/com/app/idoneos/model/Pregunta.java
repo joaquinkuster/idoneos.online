@@ -39,6 +39,26 @@ public class Pregunta {
     @OneToMany(mappedBy = "pregunta", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OpcionRespuesta> opciones = new ArrayList<>();
 
+    // ─── Getters & Setters ─────────────────────────────────────────────────────
+
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+
+    public String getTexto() { return texto; }
+    public void setTexto(String texto) { this.texto = texto; }
+
+    public Boolean getEsOpcionMultiple() { return esOpcionMultiple; }
+    public void setEsOpcionMultiple(Boolean esOpcionMultiple) { this.esOpcionMultiple = esOpcionMultiple; }
+
+    public Boolean getBaja() { return baja; }
+    public void setBaja(Boolean baja) { this.baja = baja; }
+
+    public Pool getPool() { return pool; }
+    public void setPool(Pool pool) { this.pool = pool; }
+
+    public List<OpcionRespuesta> getOpciones() { return opciones; }
+    public void setOpciones(List<OpcionRespuesta> opciones) { this.opciones = opciones; }
+
     public Pregunta(String texto, Boolean esOpcionMultiple, Pool pool) {
         this.texto = texto;
         this.esOpcionMultiple = esOpcionMultiple;

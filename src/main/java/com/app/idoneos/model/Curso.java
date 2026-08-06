@@ -96,6 +96,59 @@ public class Curso {
     )
     private Set<Modalidad> modalidades = new HashSet<>();
 
+    // ─── Getters & Setters ─────────────────────────────────────────────────────
+
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+
+    public String getNombre() { return nombre; }
+    public void setNombre(String nombre) { this.nombre = nombre; }
+
+    public String getDescripcion() { return descripcion; }
+    public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
+
+    public float getPrecio() { return precio; }
+    public void setPrecio(float precio) { this.precio = precio; }
+
+    public String getImagen() { return imagen; }
+    public void setImagen(String imagen) { this.imagen = imagen; }
+
+    public Boolean getPublicado() { return publicado; }
+    public void setPublicado(Boolean publicado) { this.publicado = publicado; }
+
+    public LocalDateTime getFechaInicioInscripcion() { return fechaInicioInscripcion; }
+    public void setFechaInicioInscripcion(LocalDateTime fechaInicioInscripcion) { this.fechaInicioInscripcion = fechaInicioInscripcion; }
+
+    public LocalDateTime getFechaFinInscripcion() { return fechaFinInscripcion; }
+    public void setFechaFinInscripcion(LocalDateTime fechaFinInscripcion) { this.fechaFinInscripcion = fechaFinInscripcion; }
+
+    public Integer getMesesAcceso() { return mesesAcceso; }
+    public void setMesesAcceso(Integer mesesAcceso) { this.mesesAcceso = mesesAcceso; }
+
+    public Boolean getBaja() { return baja; }
+    public void setBaja(Boolean baja) { this.baja = baja; }
+
+    public LocalDateTime getFechaCreacion() { return fechaCreacion; }
+    public void setFechaCreacion(LocalDateTime fechaCreacion) { this.fechaCreacion = fechaCreacion; }
+
+    public LocalDateTime getUltimaModificacion() { return ultimaModificacion; }
+    public void setUltimaModificacion(LocalDateTime ultimaModificacion) { this.ultimaModificacion = ultimaModificacion; }
+
+    public Categoria getCategoria() { return categoria; }
+    public void setCategoria(Categoria categoria) { this.categoria = categoria; }
+
+    public List<Unidad> getUnidades() { return unidades; }
+    public void setUnidades(List<Unidad> unidades) { this.unidades = unidades; }
+
+    public Set<Inscripcion> getInscripciones() { return inscripciones; }
+    public void setInscripciones(Set<Inscripcion> inscripciones) { this.inscripciones = inscripciones; }
+
+    public List<DocenteCurso> getDocentes() { return docentes; }
+    public void setDocentes(List<DocenteCurso> docentes) { this.docentes = docentes; }
+
+    public Set<Modalidad> getModalidades() { return modalidades; }
+    public void setModalidades(Set<Modalidad> modalidades) { this.modalidades = modalidades; }
+
     public Curso(String nombre, String descripcion, float precio, Categoria categoria) {
         this.nombre = nombre;
         this.descripcion = descripcion;

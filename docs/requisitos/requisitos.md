@@ -1,28 +1,32 @@
 # Casos de Uso Extendidos
 
-En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos Online, organizados según los diez módulos definidos en la Nota de Presentación (seis funcionales y cuatro no funcionales). Cada caso de uso se referencia mediante un código correlativo (CU-01 a CU-85).
-
----
+En esta sección se detallan los 86 casos de uso extendidos del Sistema Idóneos Online, organizados según los diez módulos definidos en la Nota de Presentación (seis funcionales y cuatro no funcionales). Cada caso de uso se referencia mediante un código correlativo (CU-01 a CU-86).
 
 ## MOD-F-01: Módulo de Cursos
 
 ### CU-01
-**Buscar curso**
+### Buscar curso
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-01: Gestionar los cursos.
-- **Requisito(s) de información asociado(s)**
-  - RI-01: Información sobre cursos.
-- **Módulo**
-  - MOD-F-01: Módulo de Cursos
-- **Actor(es)**
-  - Docente, Administrador
-- **Descripción**
-  - Permite al Administrador o al Docente titular/supervisor buscar uno o más cursos registrados en el sistema, con fines de gestión.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Docente o Administrador.
-  - Existe al menos un curso registrado previamente.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-01: Gestionar los cursos.
+
+**Requisito(s) de información asociado(s)**
+RI-01: Información sobre cursos.
+
+**Módulo**
+MOD-F-01: Módulo de Cursos
+
+**Actor(es)**
+Docente, Administrador
+
+**Descripción**
+Permite al Administrador o al Docente titular/supervisor buscar uno o más cursos registrados en el sistema, con fines de gestión.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Docente o Administrador.
+Existe al menos un curso registrado previamente.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
@@ -33,40 +37,50 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 5    | El sistema lista los cursos filtrados. |
 | 6    | Fin del caso de uso. |
 
-- **Salida**
-  - Se recuperan uno o más cursos que cumplen con los criterios de búsqueda, junto con su categoría, modalidades, docente titular, docente supervisor y estado.
-- **Excepciones**
+**Salida**
+Se recuperan uno o más cursos que cumplen con los criterios de búsqueda, junto con su categoría, modalidades, docente titular, docente supervisor y estado.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
+| -    | -      |
 
-- **Frecuencia**
-  - Alta — se consulta frecuentemente para la gestión diaria del catálogo.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - La vista varía según el rol del actor: el Administrador visualiza todos los cursos; el Docente visualiza únicamente los cursos en los que participa.
+**Frecuencia**
+Alta — se consulta frecuentemente para la gestión diaria del catálogo.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+La vista varía según el rol del actor: el Administrador visualiza todos los cursos; el Docente visualiza únicamente los cursos en los que participa.
 
 ---
 
 ### CU-02
-**Registrar curso**
+### Registrar curso
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-01: Gestionar los cursos.
-- **Requisito(s) de información asociado(s)**
-  - RI-01: Información sobre cursos.
-- **Módulo**
-  - MOD-F-01: Módulo de Cursos
-- **Actor(es)**
-  - Administrador
-- **Descripción**
-  - Permite al Administrador registrar un nuevo curso, definiendo su información comercial, académica y de acceso.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Administrador.
-  - Existe al menos una categoría activa.
-  - Existe al menos un docente habilitado.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-01: Gestionar los cursos.
+
+**Requisito(s) de información asociado(s)**
+RI-01: Información sobre cursos.
+
+**Módulo**
+MOD-F-01: Módulo de Cursos
+
+**Actor(es)**
+Administrador
+
+**Descripción**
+Permite al Administrador registrar un nuevo curso, definiendo su información comercial, académica y de acceso.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Administrador.
+Existe al menos una categoría activa.
+Existe al menos un docente habilitado.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
@@ -82,12 +96,13 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 10   | El sistema informa el éxito del registro. |
 | 11   | Fin del caso de uso. |
 
-- **Postcondición(es)**
-  - El curso queda registrado y no publicado.
-  - La fecha de creación refleja el momento del alta.
-  - Las modalidades de dictado indicadas quedan asociadas al curso.
-  - El docente titular, y el supervisor si corresponde, quedan asociados al curso.
-- **Excepciones**
+**Postcondición(es)**
+El curso queda registrado y no publicado.
+La fecha de creación refleja el momento del alta.
+Las modalidades de dictado indicadas quedan asociadas al curso.
+El docente titular, y el supervisor si corresponde, quedan asociados al curso.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
@@ -97,33 +112,41 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 7    | Si la fecha de fin de inscripción no es posterior a la de inicio, el sistema informa el error y vuelve al paso 3. |
 | 8    | Si los meses de acceso ingresados no son un número entero mayor a cero, el sistema informa el error y vuelve al paso 3. |
 
-- **Frecuencia**
-  - Media — ocurre cada vez que se incorpora un nuevo curso al catálogo.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - El sistema valida que exista exactamente un docente titular por curso; el docente supervisor es opcional.
-  - El curso se publica en el catálogo mediante CU-03: Modificar curso, una vez cargado su contenido.
+**Frecuencia**
+Media — ocurre cada vez que se incorpora un nuevo curso al catálogo.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+El sistema valida que exista exactamente un docente titular por curso; el docente supervisor es opcional.
+El curso se publica en el catálogo mediante CU-03: Modificar curso, una vez cargado su contenido.
 
 ---
 
 ### CU-03
-**Modificar curso**
+### Modificar curso
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-01: Gestionar los cursos.
-- **Requisito(s) de información asociado(s)**
-  - RI-01: Información sobre cursos.
-- **Módulo**
-  - MOD-F-01: Módulo de Cursos
-- **Actor(es)**
-  - Administrador
-- **Descripción**
-  - Permite al Administrador modificar los datos de un curso registrado, incluyendo su publicación en el catálogo una vez que su contenido está cargado.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Administrador.
-  - El curso existe en el sistema y no se encuentra en baja.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-01: Gestionar los cursos.
+
+**Requisito(s) de información asociado(s)**
+RI-01: Información sobre cursos.
+
+**Módulo**
+MOD-F-01: Módulo de Cursos
+
+**Actor(es)**
+Administrador
+
+**Descripción**
+Permite al Administrador modificar los datos de un curso registrado, incluyendo su publicación en el catálogo una vez que su contenido está cargado.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Administrador.
+El curso existe en el sistema y no se encuentra en baja.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
@@ -140,12 +163,13 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 11   | El sistema informa el éxito de la modificación. |
 | 12   | Fin del caso de uso. |
 
-- **Postcondición(es)**
-  - El curso queda actualizado con los nuevos datos.
-  - La fecha de modificación refleja el momento del cambio.
-  - Las modalidades de dictado quedan actualizadas, si fueron modificadas.
-  - El docente titular, y el supervisor si corresponde, quedan actualizados, si fueron modificados.
-- **Excepciones**
+**Postcondición(es)**
+El curso queda actualizado con los nuevos datos.
+La fecha de modificación refleja el momento del cambio.
+Las modalidades de dictado quedan actualizadas, si fueron modificadas.
+El docente titular, y el supervisor si corresponde, quedan actualizados, si fueron modificados.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
@@ -156,32 +180,40 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 8    | Si los meses de acceso ingresados no son un número entero mayor a cero, el sistema informa el error y vuelve al paso 3. |
 | 9    | Si se intenta publicar un curso sin al menos una unidad con material publicado, el sistema informa el error y vuelve al paso 3. |
 
-- **Frecuencia**
-  - Media — se usa para actualizar datos del curso y para publicarlo una vez cargado.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - El campo de estado de publicación es el que habilita o retira un curso del catálogo público (CU-05: Explorar catálogo de cursos).
+**Frecuencia**
+Media — se usa para actualizar datos del curso y para publicarlo una vez cargado.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+El campo de estado de publicación es el que habilita o retira un curso del catálogo público (CU-05: Explorar catálogo de cursos).
 
 ---
 
 ### CU-04
-**Eliminar curso**
+### Eliminar curso
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-01: Gestionar los cursos.
-- **Requisito(s) de información asociado(s)**
-  - RI-01: Información sobre cursos.
-- **Módulo**
-  - MOD-F-01: Módulo de Cursos
-- **Actor(es)**
-  - Administrador
-- **Descripción**
-  - Permite al Administrador dar de baja un curso. Si el curso posee alumnos con inscripción vigente, el sistema informa la dependencia y no permite la baja.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Administrador.
-  - El curso existe en el sistema y no se encuentra en baja.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-01: Gestionar los cursos.
+
+**Requisito(s) de información asociado(s)**
+RI-01: Información sobre cursos.
+
+**Módulo**
+MOD-F-01: Módulo de Cursos
+
+**Actor(es)**
+Administrador
+
+**Descripción**
+Permite al Administrador dar de baja un curso. Si el curso posee alumnos con inscripción vigente, el sistema informa la dependencia y no permite la baja.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Administrador.
+El curso existe en el sistema y no se encuentra en baja.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
@@ -192,40 +224,49 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 5    | El sistema informa el éxito de la operación. |
 | 6    | Fin del caso de uso. |
 
-- **Postcondición(es)**
-  - El curso queda en baja y deja de ser visible en el catálogo público.
-- **Excepciones**
+**Postcondición(es)**
+El curso queda en baja y deja de ser visible en el catálogo público.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
 | 2    | Si el curso posee alumnos con inscripción vigente, el sistema informa la dependencia y no permite la baja. |
 | 3    | Si el actor no confirma la baja, el sistema cancela la operación y finaliza el caso de uso. |
 
-- **Frecuencia**
-  - Baja — ocurre cuando un curso deja de ofrecerse definitivamente.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - La baja no elimina el registro físicamente; únicamente lo marca como inactivo para mantener la trazabilidad histórica.
+**Frecuencia**
+Baja — ocurre cuando un curso deja de ofrecerse definitivamente.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+La baja no elimina el registro físicamente; únicamente lo marca como inactivo para mantener la trazabilidad histórica.
 
 ---
 
 ### CU-05
-**Explorar catálogo de cursos**
+### Explorar catálogo de cursos
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-01: Gestionar los cursos.
-- **Requisito(s) de información asociado(s)**
-  - RI-01: Información sobre cursos.
-- **Módulo**
-  - MOD-F-01: Módulo de Cursos
-- **Actor(es)**
-  - Alumno
-- **Descripción**
-  - Permite al Alumno, con o sin sesión iniciada, explorar el catálogo público de cursos publicados y consultar la ficha de un curso específico (temática, docente, modalidades y contenido gratuito de muestra) antes de decidir inscribirse.
-- **Precondición(es)**
-  - Existe al menos un curso publicado.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-01: Gestionar los cursos.
+
+**Requisito(s) de información asociado(s)**
+RI-01: Información sobre cursos.
+
+**Módulo**
+MOD-F-01: Módulo de Cursos
+
+**Actor(es)**
+Alumno
+
+**Descripción**
+Permite al Alumno, con o sin sesión iniciada, explorar el catálogo público de cursos publicados y consultar la ficha de un curso específico (temática, docente, modalidades y contenido gratuito de muestra) antes de decidir inscribirse.
+
+**Precondición(es)**
+Existe al menos un curso publicado.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
@@ -235,39 +276,49 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 4    | El sistema muestra el detalle público del curso: descripción, docente titular, docente supervisor, modalidades, precio, período de inscripción y el material marcado como gratuito, si existe. |
 | 5    | Fin del caso de uso. |
 
-- **Salida**
-  - Se recupera el listado de cursos publicados y, si corresponde, la ficha pública del curso seleccionado.
-- **Excepciones**
+**Salida**
+Se recupera el listado de cursos publicados y, si corresponde, la ficha pública del curso seleccionado.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
+| -    | -      |
 
-- **Frecuencia**
-  - Alta — es la puerta de entrada de cualquier interesado en inscribirse.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - No requiere sesión iniciada. El material marcado como gratuito funciona como gancho comercial para atraer nuevos alumnos, según lo relevado con el cliente.
+**Frecuencia**
+Alta — es la puerta de entrada de cualquier interesado en inscribirse.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+No requiere sesión iniciada. El material marcado como gratuito funciona como gancho comercial para atraer nuevos alumnos, según lo relevado con el cliente.
 
 ---
 
 ### CU-06
-**Buscar categoría**
+### Buscar categoría
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-01: Gestionar los cursos.
-- **Requisito(s) de información asociado(s)**
-  - RI-01: Información sobre cursos.
-- **Módulo**
-  - MOD-F-01: Módulo de Cursos
-- **Actor(es)**
-  - Administrador
-- **Descripción**
-  - Permite al Administrador buscar una o más categorías temáticas registradas en el sistema.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Administrador.
-  - Existe al menos una categoría registrada previamente.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-01: Gestionar los cursos.
+
+**Requisito(s) de información asociado(s)**
+RI-01: Información sobre cursos.
+
+**Módulo**
+MOD-F-01: Módulo de Cursos
+
+**Actor(es)**
+Administrador
+
+**Descripción**
+Permite al Administrador buscar una o más categorías temáticas registradas en el sistema.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Administrador.
+Existe al menos una categoría registrada previamente.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
@@ -278,38 +329,48 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 5    | El sistema lista las categorías filtradas. |
 | 6    | Fin del caso de uso. |
 
-- **Salida**
-  - Se recuperan una o más categorías que cumplen con el criterio de búsqueda.
-- **Excepciones**
+**Salida**
+Se recuperan una o más categorías que cumplen con el criterio de búsqueda.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
+| -    | -      |
 
-- **Frecuencia**
-  - Baja — se consulta al momento de gestionar el catálogo de categorías.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - –
+**Frecuencia**
+Baja — se consulta al momento de gestionar el catálogo de categorías.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+–
 
 ---
 
 ### CU-07
-**Registrar categoría**
+### Registrar categoría
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-01: Gestionar los cursos.
-- **Requisito(s) de información asociado(s)**
-  - RI-01: Información sobre cursos.
-- **Módulo**
-  - MOD-F-01: Módulo de Cursos
-- **Actor(es)**
-  - Administrador
-- **Descripción**
-  - Permite al Administrador registrar una nueva categoría temática para clasificar los cursos.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Administrador.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-01: Gestionar los cursos.
+
+**Requisito(s) de información asociado(s)**
+RI-01: Información sobre cursos.
+
+**Módulo**
+MOD-F-01: Módulo de Cursos
+
+**Actor(es)**
+Administrador
+
+**Descripción**
+Permite al Administrador registrar una nueva categoría temática para clasificar los cursos.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Administrador.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
@@ -321,42 +382,51 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 6    | El sistema informa el éxito del registro. |
 | 7    | Fin del caso de uso. |
 
-- **Postcondición(es)**
-  - La categoría queda registrada en estado activo.
-  - La fecha de creación refleja el momento del alta.
-- **Excepciones**
+**Postcondición(es)**
+La categoría queda registrada en estado activo.
+La fecha de creación refleja el momento del alta.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
 | 4    | Si el nombre no fue completado, el sistema informa el error y vuelve al paso 3. |
 | 4    | Si ya existe una categoría activa con el mismo nombre, el sistema informa el error y vuelve al paso 3. |
 
-- **Frecuencia**
-  - Muy baja — el catálogo de categorías se define una vez y varía poco.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - –
+**Frecuencia**
+Muy baja — el catálogo de categorías se define una vez y varía poco.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+–
 
 ---
 
 ### CU-08
-**Modificar categoría**
+### Modificar categoría
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-01: Gestionar los cursos.
-- **Requisito(s) de información asociado(s)**
-  - RI-01: Información sobre cursos.
-- **Módulo**
-  - MOD-F-01: Módulo de Cursos
-- **Actor(es)**
-  - Administrador
-- **Descripción**
-  - Permite al Administrador modificar el nombre y la descripción de una categoría registrada.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Administrador.
-  - La categoría existe en el sistema y se encuentra en estado activo.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-01: Gestionar los cursos.
+
+**Requisito(s) de información asociado(s)**
+RI-01: Información sobre cursos.
+
+**Módulo**
+MOD-F-01: Módulo de Cursos
+
+**Actor(es)**
+Administrador
+
+**Descripción**
+Permite al Administrador modificar el nombre y la descripción de una categoría registrada.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Administrador.
+La categoría existe en el sistema y se encuentra en estado activo.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
@@ -368,42 +438,51 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 6    | El sistema informa el éxito de la modificación. |
 | 7    | Fin del caso de uso. |
 
-- **Postcondición(es)**
-  - La categoría queda actualizada con los nuevos datos.
-  - La fecha de modificación refleja el momento del cambio.
-- **Excepciones**
+**Postcondición(es)**
+La categoría queda actualizada con los nuevos datos.
+La fecha de modificación refleja el momento del cambio.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
 | 4    | Si el nombre queda vacío, el sistema informa el error y vuelve al paso 3. |
 | 4    | Si el nombre coincide con el de otra categoría activa, el sistema informa el error y vuelve al paso 3. |
 
-- **Frecuencia**
-  - Muy baja — se usa esporádicamente para corregir datos de una categoría.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - –
+**Frecuencia**
+Muy baja — se usa esporádicamente para corregir datos de una categoría.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+–
 
 ---
 
 ### CU-09
-**Eliminar categoría**
+### Eliminar categoría
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-01: Gestionar los cursos.
-- **Requisito(s) de información asociado(s)**
-  - RI-01: Información sobre cursos.
-- **Módulo**
-  - MOD-F-01: Módulo de Cursos
-- **Actor(es)**
-  - Administrador
-- **Descripción**
-  - Permite al Administrador dar de baja una categoría activa. Si la categoría posee cursos asociados que no están en baja, el sistema informa la dependencia y no permite la baja.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Administrador.
-  - La categoría existe en el sistema y se encuentra en estado activo.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-01: Gestionar los cursos.
+
+**Requisito(s) de información asociado(s)**
+RI-01: Información sobre cursos.
+
+**Módulo**
+MOD-F-01: Módulo de Cursos
+
+**Actor(es)**
+Administrador
+
+**Descripción**
+Permite al Administrador dar de baja una categoría activa. Si la categoría posee cursos asociados que no están en baja, el sistema informa la dependencia y no permite la baja.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Administrador.
+La categoría existe en el sistema y se encuentra en estado activo.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
@@ -414,41 +493,50 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 5    | El sistema informa el éxito de la operación. |
 | 6    | Fin del caso de uso. |
 
-- **Postcondición(es)**
-  - La categoría queda en estado de baja.
-- **Excepciones**
+**Postcondición(es)**
+La categoría queda en estado de baja.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
 | 2    | Si la categoría posee cursos activos asociados, el sistema informa la dependencia y no permite la baja. |
 | 3    | Si el actor no confirma la baja, el sistema cancela la operación y finaliza el caso de uso. |
 
-- **Frecuencia**
-  - Muy baja — ocurre cuando una temática deja de ofrecerse.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - La baja no elimina el registro físicamente; únicamente lo marca como inactivo.
+**Frecuencia**
+Muy baja — ocurre cuando una temática deja de ofrecerse.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+La baja no elimina el registro físicamente; únicamente lo marca como inactivo.
 
 ---
 
 ### CU-10
-**Buscar unidad**
+### Buscar unidad
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-01: Gestionar los cursos.
-- **Requisito(s) de información asociado(s)**
-  - RI-01: Información sobre cursos.
-- **Módulo**
-  - MOD-F-01: Módulo de Cursos
-- **Actor(es)**
-  - Docente, Administrador
-- **Descripción**
-  - Permite al Docente titular/supervisor o al Administrador buscar las unidades que componen un curso, con fines de gestión de su estructura y contenido.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Docente o Administrador.
-  - El curso existe y posee al menos una unidad registrada.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-01: Gestionar los cursos.
+
+**Requisito(s) de información asociado(s)**
+RI-01: Información sobre cursos.
+
+**Módulo**
+MOD-F-01: Módulo de Cursos
+
+**Actor(es)**
+Docente, Administrador
+
+**Descripción**
+Permite al Docente titular/supervisor o al Administrador buscar las unidades que componen un curso, con fines de gestión de su estructura y contenido.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Docente o Administrador.
+El curso existe y posee al menos una unidad registrada.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
@@ -458,39 +546,49 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 4    | El sistema recupera y lista las unidades del curso, ordenadas por su número de orden. |
 | 5    | Fin del caso de uso. |
 
-- **Salida**
-  - Se recupera el listado de unidades del curso seleccionado, con su título, número de orden y cantidad de material cargado.
-- **Excepciones**
+**Salida**
+Se recupera el listado de unidades del curso seleccionado, con su título, número de orden y cantidad de material cargado.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
+| -    | -      |
 
-- **Frecuencia**
-  - Alta — se consulta cada vez que se gestiona el contenido de un curso.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - –
+**Frecuencia**
+Alta — se consulta cada vez que se gestiona el contenido de un curso.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+–
 
 ---
 
 ### CU-11
-**Registrar unidad**
+### Registrar unidad
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-01: Gestionar los cursos.
-- **Requisito(s) de información asociado(s)**
-  - RI-01: Información sobre cursos.
-- **Módulo**
-  - MOD-F-01: Módulo de Cursos
-- **Actor(es)**
-  - Docente, Administrador
-- **Descripción**
-  - Permite al Docente titular/supervisor o al Administrador registrar una nueva unidad dentro de un curso, definiendo su posición en el avance secuencial.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Docente o Administrador.
-  - El curso existe y no se encuentra en baja.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-01: Gestionar los cursos.
+
+**Requisito(s) de información asociado(s)**
+RI-01: Información sobre cursos.
+
+**Módulo**
+MOD-F-01: Módulo de Cursos
+
+**Actor(es)**
+Docente, Administrador
+
+**Descripción**
+Permite al Docente titular/supervisor o al Administrador registrar una nueva unidad dentro de un curso, definiendo su posición en el avance secuencial.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Docente o Administrador.
+El curso existe y no se encuentra en baja.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
@@ -503,10 +601,11 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 7    | El sistema informa el éxito del registro. |
 | 8    | Fin del caso de uso. |
 
-- **Postcondición(es)**
-  - La unidad queda registrada y asociada al curso.
-  - La fecha de creación refleja el momento del alta.
-- **Excepciones**
+**Postcondición(es)**
+La unidad queda registrada y asociada al curso.
+La fecha de creación refleja el momento del alta.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
@@ -514,32 +613,40 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 5    | Si el número de orden ingresado no es un entero mayor a cero, el sistema informa el error y vuelve al paso 3. |
 | 5    | Si el número de orden ya está utilizado por otra unidad del curso, el sistema informa el error y vuelve al paso 3. |
 
-- **Frecuencia**
-  - Media — ocurre al estructurar el contenido de cada curso nuevo.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - El curso debe contar con un mínimo de 10 unidades para poder publicarse, según lo relevado con el cliente; esta validación se controla en CU-03: Modificar curso al momento de la publicación.
+**Frecuencia**
+Media — ocurre al estructurar el contenido de cada curso nuevo.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+El curso debe contar con un mínimo de 10 unidades para poder publicarse, según lo relevado con el cliente; esta validación se controla en CU-03: Modificar curso al momento de la publicación.
 
 ---
 
 ### CU-12
-**Modificar unidad**
+### Modificar unidad
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-01: Gestionar los cursos.
-- **Requisito(s) de información asociado(s)**
-  - RI-01: Información sobre cursos.
-- **Módulo**
-  - MOD-F-01: Módulo de Cursos
-- **Actor(es)**
-  - Docente, Administrador
-- **Descripción**
-  - Permite al Docente titular/supervisor o al Administrador modificar el título, la descripción o el número de orden de una unidad.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Docente o Administrador.
-  - La unidad existe y no se encuentra en baja.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-01: Gestionar los cursos.
+
+**Requisito(s) de información asociado(s)**
+RI-01: Información sobre cursos.
+
+**Módulo**
+MOD-F-01: Módulo de Cursos
+
+**Actor(es)**
+Docente, Administrador
+
+**Descripción**
+Permite al Docente titular/supervisor o al Administrador modificar el título, la descripción o el número de orden de una unidad.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Docente o Administrador.
+La unidad existe y no se encuentra en baja.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
@@ -553,10 +660,11 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 8    | El sistema informa el éxito de la modificación. |
 | 9    | Fin del caso de uso. |
 
-- **Postcondición(es)**
-  - La unidad queda actualizada con los nuevos datos.
-  - La fecha de modificación refleja el momento del cambio.
-- **Excepciones**
+**Postcondición(es)**
+La unidad queda actualizada con los nuevos datos.
+La fecha de modificación refleja el momento del cambio.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
@@ -564,32 +672,40 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 5    | Si el número de orden ingresado no es un entero mayor a cero, el sistema informa el error y vuelve al paso 3. |
 | 6    | Si el número de orden coincide con el de otra unidad del curso, el sistema informa el error y vuelve al paso 3. |
 
-- **Frecuencia**
-  - Baja — se usa para reordenar o corregir unidades ya cargadas.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - –
+**Frecuencia**
+Baja — se usa para reordenar o corregir unidades ya cargadas.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+–
 
 ---
 
 ### CU-13
-**Eliminar unidad**
+### Eliminar unidad
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-01: Gestionar los cursos.
-- **Requisito(s) de información asociado(s)**
-  - RI-01: Información sobre cursos.
-- **Módulo**
-  - MOD-F-01: Módulo de Cursos
-- **Actor(es)**
-  - Docente, Administrador
-- **Descripción**
-  - Permite al Docente titular/supervisor o al Administrador dar de baja una unidad. Si algún alumno ya registra un intento de autoevaluación aprobado en esa unidad, el sistema informa la dependencia y no permite la baja.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Docente o Administrador.
-  - La unidad existe y no se encuentra en baja.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-01: Gestionar los cursos.
+
+**Requisito(s) de información asociado(s)**
+RI-01: Información sobre cursos.
+
+**Módulo**
+MOD-F-01: Módulo de Cursos
+
+**Actor(es)**
+Docente, Administrador
+
+**Descripción**
+Permite al Docente titular/supervisor o al Administrador dar de baja una unidad. Si algún alumno ya registra un intento de autoevaluación aprobado en esa unidad, el sistema informa la dependencia y no permite la baja.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Docente o Administrador.
+La unidad existe y no se encuentra en baja.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
@@ -600,42 +716,51 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 5    | El sistema informa el éxito de la operación. |
 | 6    | Fin del caso de uso. |
 
-- **Postcondición(es)**
-  - La unidad queda en estado de baja y deja de estar disponible para los alumnos.
-- **Excepciones**
+**Postcondición(es)**
+La unidad queda en estado de baja y deja de estar disponible para los alumnos.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
 | 2    | Si algún alumno ya registra un intento de autoevaluación aprobado en esa unidad, el sistema informa la dependencia y no permite la baja. |
 | 3    | Si el actor no confirma la baja, el sistema cancela la operación y finaliza el caso de uso. |
 
-- **Frecuencia**
-  - Baja — se usa cuando el docente decide reorganizar o eliminar contenido de un curso aún no cursado.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - La baja no elimina el registro físicamente; únicamente lo marca como inactivo, preservando la trazabilidad del contenido ya cursado.
+**Frecuencia**
+Baja — se usa cuando el docente decide reorganizar o eliminar contenido de un curso aún no cursado.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+La baja no elimina el registro físicamente; únicamente lo marca como inactivo, preservando la trazabilidad del contenido ya cursado.
 
 ---
 
 ### CU-14
-**Ver contenido de unidad**
+### Ver contenido de unidad
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-01: Gestionar los cursos.
-- **Requisito(s) de información asociado(s)**
-  - RI-01: Información sobre cursos.
-- **Módulo**
-  - MOD-F-01: Módulo de Cursos
-- **Actor(es)**
-  - Alumno
-- **Descripción**
-  - Permite al Alumno acceder al contenido de una unidad de un curso en el que está inscripto: su material publicado (grabación, bibliografía, presentación o resumen), los términos de su glosario y el acceso al foro de consultas de esa unidad.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Alumno.
-  - El alumno posee una inscripción vigente al curso al que pertenece la unidad.
-  - La unidad se encuentra habilitada según el avance secuencial del alumno (la autoevaluación de la unidad anterior fue aprobada, o es la primera unidad del curso).
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-01: Gestionar los cursos.
+
+**Requisito(s) de información asociado(s)**
+RI-01: Información sobre cursos.
+
+**Módulo**
+MOD-F-01: Módulo de Cursos
+
+**Actor(es)**
+Alumno
+
+**Descripción**
+Permite al Alumno acceder al contenido de una unidad de un curso en el que está inscripto: su material publicado (grabación, bibliografía, presentación o resumen), los términos de su glosario y el acceso al foro de consultas de esa unidad.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Alumno.
+El alumno posee una inscripción vigente al curso al que pertenece la unidad.
+La unidad se encuentra habilitada según el avance secuencial del alumno (el progreso de la unidad anterior figura como completado, o es la primera unidad del curso).
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
@@ -645,40 +770,49 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 4    | El sistema muestra el contenido de la unidad al alumno. |
 | 5    | Fin del caso de uso. |
 
-- **Salida**
-  - Se recupera el material publicado de la unidad (grabación, bibliografía, presentación o resumen), sus términos de glosario y el acceso a las consultas del foro.
-- **Excepciones**
+**Salida**
+Se recupera el material publicado de la unidad (grabación, bibliografía, presentación o resumen), sus términos de glosario y el acceso a las consultas del foro.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
 | 2    | Si la unidad todavía no está habilitada para el alumno, el sistema informa que debe aprobar primero la autoevaluación de la unidad anterior y no muestra el contenido. |
 
-- **Frecuencia**
-  - Alta — es la acción central del cursado, se repite en cada unidad de cada curso.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - El material que se muestra excluye el que el Administrador o el Docente mantienen sin publicar (por ejemplo, contenido generado por IA pendiente de revisión).
+**Frecuencia**
+Alta — es la acción central del cursado, se repite en cada unidad de cada curso.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+El material que se muestra excluye el que el Administrador o el Docente mantienen sin publicar (por ejemplo, contenido generado por IA pendiente de revisión).
 
 ---
 
 ### CU-15
-**Buscar material**
+### Buscar material
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-01: Gestionar los cursos.
-- **Requisito(s) de información asociado(s)**
-  - RI-01: Información sobre cursos.
-- **Módulo**
-  - MOD-F-01: Módulo de Cursos
-- **Actor(es)**
-  - Docente, Administrador
-- **Descripción**
-  - Permite al Docente titular/supervisor o al Administrador buscar el material (grabaciones, bibliografía, presentaciones y resúmenes) cargado en una unidad, con fines de gestión.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Docente o Administrador.
-  - La unidad existe y posee al menos un material cargado.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-01: Gestionar los cursos.
+
+**Requisito(s) de información asociado(s)**
+RI-01: Información sobre cursos.
+
+**Módulo**
+MOD-F-01: Módulo de Cursos
+
+**Actor(es)**
+Docente, Administrador
+
+**Descripción**
+Permite al Docente titular/supervisor o al Administrador buscar el material (grabaciones, bibliografía, presentaciones y resúmenes) cargado en una unidad, con fines de gestión.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Docente o Administrador.
+La unidad existe y posee al menos un material cargado.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
@@ -688,39 +822,49 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 4    | El sistema recupera y lista el material que coincide con los criterios, incluyendo el no publicado. |
 | 5    | Fin del caso de uso. |
 
-- **Salida**
-  - Se recupera el material de la unidad, indicando su tipo, título, si fue generado por IA y su estado de publicación.
-- **Excepciones**
+**Salida**
+Se recupera el material de la unidad, indicando su tipo, título, si fue generado por IA y su estado de publicación.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
+| -    | -      |
 
-- **Frecuencia**
-  - Alta — se consulta cada vez que se gestiona el contenido de una unidad.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - A diferencia de CU-14: Ver contenido de unidad, este CU también recupera el material no publicado, ya que su fin es la gestión y no el consumo por parte del alumno.
+**Frecuencia**
+Alta — se consulta cada vez que se gestiona el contenido de una unidad.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+A diferencia de CU-14: Ver contenido de unidad, este CU también recupera el material no publicado, ya que su fin es la gestión y no el consumo por parte del alumno.
 
 ---
 
 ### CU-16
-**Subir material**
+### Subir material
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-01: Gestionar los cursos.
-- **Requisito(s) de información asociado(s)**
-  - RI-01: Información sobre cursos.
-- **Módulo**
-  - MOD-F-01: Módulo de Cursos
-- **Actor(es)**
-  - Docente, Administrador
-- **Descripción**
-  - Permite al Docente titular/supervisor o al Administrador cargar manualmente un material (grabación, bibliografía o presentación) en una unidad. Cada tipo de material solicita datos específicos.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Docente o Administrador.
-  - La unidad existe y no se encuentra en baja.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-01: Gestionar los cursos.
+
+**Requisito(s) de información asociado(s)**
+RI-01: Información sobre cursos.
+
+**Módulo**
+MOD-F-01: Módulo de Cursos
+
+**Actor(es)**
+Docente, Administrador
+
+**Descripción**
+Permite al Docente titular/supervisor o al Administrador cargar manualmente un material (grabación, bibliografía o presentación) en una unidad. Cada tipo de material solicita datos específicos.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Docente o Administrador.
+La unidad existe y no se encuentra en baja.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
@@ -734,41 +878,50 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 8    | El sistema informa el éxito de la carga. |
 | 9    | Fin del caso de uso. |
 
-- **Postcondición(es)**
-  - El material queda registrado, asociado a la unidad, en estado no publicado.
-  - La fecha de creación refleja el momento de la carga.
-- **Excepciones**
+**Postcondición(es)**
+El material queda registrado, asociado a la unidad, en estado no publicado.
+La fecha de creación refleja el momento de la carga.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
 | 6    | Si no se completó el título o alguno de los datos obligatorios según el tipo de material, el sistema informa el error y vuelve al paso 5. |
 
-- **Frecuencia**
-  - Alta — ocurre por cada material cargado de cada unidad de cada curso.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - El material de tipo Grabación también puede originarse automáticamente desde CU-61: Finalizar clase en vivo o CU-55: Generar clase con Clon IA; el material de tipo Presentación y Resumen también puede generarse desde el Módulo de Generación de Contenido con IA. Este CU cubre específicamente la carga manual por parte del docente.
+**Frecuencia**
+Alta — ocurre por cada material cargado de cada unidad de cada curso.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+El material de tipo Grabación también puede originarse automáticamente desde CU-62: Finalizar clase en vivo o CU-56: Generar clase con Clon IA; el material de tipo Presentación y Resumen también puede generarse desde el Módulo de Generación de Contenido con IA. Este CU cubre específicamente la carga manual por parte del docente.
 
 ---
 
 ### CU-17
-**Modificar material**
+### Modificar material
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-01: Gestionar los cursos.
-- **Requisito(s) de información asociado(s)**
-  - RI-01: Información sobre cursos.
-- **Módulo**
-  - MOD-F-01: Módulo de Cursos
-- **Actor(es)**
-  - Docente, Administrador
-- **Descripción**
-  - Permite al Docente titular/supervisor o al Administrador modificar el título de un material y, en particular, su estado de publicación para habilitarlo u ocultarlo a los alumnos.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Docente o Administrador.
-  - El material existe y no se encuentra en baja.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-01: Gestionar los cursos.
+
+**Requisito(s) de información asociado(s)**
+RI-01: Información sobre cursos.
+
+**Módulo**
+MOD-F-01: Módulo de Cursos
+
+**Actor(es)**
+Docente, Administrador
+
+**Descripción**
+Permite al Docente titular/supervisor o al Administrador modificar el título de un material y, en particular, su estado de publicación para habilitarlo u ocultarlo a los alumnos.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Docente o Administrador.
+El material existe y no se encuentra en baja.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
@@ -781,42 +934,51 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 7    | El sistema informa el éxito de la modificación. |
 | 8    | Fin del caso de uso. |
 
-- **Postcondición(es)**
-  - El material queda actualizado con los nuevos datos.
-  - La fecha de modificación refleja el momento del cambio.
-- **Excepciones**
+**Postcondición(es)**
+El material queda actualizado con los nuevos datos.
+La fecha de modificación refleja el momento del cambio.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
 | 4    | Si el título queda vacío, el sistema informa el error y vuelve al paso 3. |
 | 5    | Si el nuevo archivo no cumple los datos obligatorios del tipo de material, el sistema informa el error y vuelve al paso 3. |
 
-- **Frecuencia**
-  - Alta — se usa para corregir contenido y, principalmente, para publicar material generado por IA o generado en clases en vivo tras su revisión.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - Publicar un material lo hace visible en CU-14: Ver contenido de unidad para los alumnos con acceso habilitado a esa unidad.
+**Frecuencia**
+Alta — se usa para corregir contenido y, principalmente, para publicar material generado por IA o generado en clases en vivo tras su revisión.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+Publicar un material lo hace visible en CU-14: Ver contenido de unidad para los alumnos con acceso habilitado a esa unidad.
 
 ---
 
 ### CU-18
-**Eliminar material**
+### Eliminar material
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-01: Gestionar los cursos.
-- **Requisito(s) de información asociado(s)**
-  - RI-01: Información sobre cursos.
-- **Módulo**
-  - MOD-F-01: Módulo de Cursos
-- **Actor(es)**
-  - Docente, Administrador
-- **Descripción**
-  - Permite al Docente titular/supervisor o al Administrador dar de baja un material cargado en una unidad.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Docente o Administrador.
-  - El material existe y no se encuentra en baja.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-01: Gestionar los cursos.
+
+**Requisito(s) de información asociado(s)**
+RI-01: Información sobre cursos.
+
+**Módulo**
+MOD-F-01: Módulo de Cursos
+
+**Actor(es)**
+Docente, Administrador
+
+**Descripción**
+Permite al Docente titular/supervisor o al Administrador dar de baja un material cargado en una unidad.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Docente o Administrador.
+El material existe y no se encuentra en baja.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
@@ -826,40 +988,49 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 4    | El sistema informa el éxito de la operación. |
 | 5    | Fin del caso de uso. |
 
-- **Postcondición(es)**
-  - El material queda en estado de baja.
-- **Excepciones**
+**Postcondición(es)**
+El material queda en estado de baja.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
 | 2    | Si el actor no confirma la baja, el sistema cancela la operación y finaliza el caso de uso. |
 
-- **Frecuencia**
-  - Baja — se usa para retirar material desactualizado o cargado por error.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - La baja no elimina el archivo físicamente del servidor; únicamente lo marca como inactivo.
+**Frecuencia**
+Baja — se usa para retirar material desactualizado o cargado por error.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+La baja no elimina el archivo físicamente del servidor; únicamente lo marca como inactivo.
 
 ---
 
 ### CU-19
-**Buscar término de glosario**
+### Buscar término de glosario
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-01: Gestionar los cursos.
-- **Requisito(s) de información asociado(s)**
-  - RI-01: Información sobre cursos.
-- **Módulo**
-  - MOD-F-01: Módulo de Cursos
-- **Actor(es)**
-  - Docente, Administrador
-- **Descripción**
-  - Permite al Docente titular/supervisor o al Administrador buscar los términos del glosario cargados en una unidad.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Docente o Administrador.
-  - La unidad existe y posee al menos un término de glosario cargado.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-01: Gestionar los cursos.
+
+**Requisito(s) de información asociado(s)**
+RI-01: Información sobre cursos.
+
+**Módulo**
+MOD-F-01: Módulo de Cursos
+
+**Actor(es)**
+Docente, Administrador
+
+**Descripción**
+Permite al Docente titular/supervisor o al Administrador buscar los términos del glosario cargados en una unidad.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Docente o Administrador.
+La unidad existe y posee al menos un término de glosario cargado.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
@@ -869,39 +1040,49 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 4    | El sistema recupera y lista los términos de glosario de la unidad. |
 | 5    | Fin del caso de uso. |
 
-- **Salida**
-  - Se recupera el listado de términos y definiciones del glosario de la unidad.
-- **Excepciones**
+**Salida**
+Se recupera el listado de términos y definiciones del glosario de la unidad.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
+| -    | -      |
 
-- **Frecuencia**
-  - Media — se consulta al gestionar el contenido de una unidad.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - –
+**Frecuencia**
+Media — se consulta al gestionar el contenido de una unidad.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+–
 
 ---
 
 ### CU-20
-**Registrar término de glosario**
+### Registrar término de glosario
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-01: Gestionar los cursos.
-- **Requisito(s) de información asociado(s)**
-  - RI-01: Información sobre cursos.
-- **Módulo**
-  - MOD-F-01: Módulo de Cursos
-- **Actor(es)**
-  - Docente, Administrador
-- **Descripción**
-  - Permite al Docente titular/supervisor o al Administrador registrar un nuevo término y su definición en el glosario de una unidad.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Docente o Administrador.
-  - La unidad existe y no se encuentra en baja.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-01: Gestionar los cursos.
+
+**Requisito(s) de información asociado(s)**
+RI-01: Información sobre cursos.
+
+**Módulo**
+MOD-F-01: Módulo de Cursos
+
+**Actor(es)**
+Docente, Administrador
+
+**Descripción**
+Permite al Docente titular/supervisor o al Administrador registrar un nuevo término y su definición en el glosario de una unidad.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Docente o Administrador.
+La unidad existe y no se encuentra en baja.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
@@ -913,41 +1094,50 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 6    | El sistema informa el éxito del registro. |
 | 7    | Fin del caso de uso. |
 
-- **Postcondición(es)**
-  - El término de glosario queda registrado y asociado a la unidad.
-- **Excepciones**
+**Postcondición(es)**
+El término de glosario queda registrado y asociado a la unidad.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
 | 4    | Si el término o la definición no fueron completados, el sistema informa el error y vuelve al paso 3. |
 | 4    | Si el término ya está registrado en el glosario de esa unidad, el sistema informa el error y vuelve al paso 3. |
 
-- **Frecuencia**
-  - Media — ocurre al cargar el glosario de cada unidad.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - El glosario también puede completarse a partir de la bibliografía mediante el Módulo de Generación de Contenido con IA, aunque esa generación produce resúmenes y no términos de glosario en el PMV.
+**Frecuencia**
+Media — ocurre al cargar el glosario de cada unidad.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+El glosario también puede completarse a partir de la bibliografía mediante el Módulo de Generación de Contenido con IA, aunque esa generación produce resúmenes y no términos de glosario en el PMV.
 
 ---
 
 ### CU-21
-**Modificar término de glosario**
+### Modificar término de glosario
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-01: Gestionar los cursos.
-- **Requisito(s) de información asociado(s)**
-  - RI-01: Información sobre cursos.
-- **Módulo**
-  - MOD-F-01: Módulo de Cursos
-- **Actor(es)**
-  - Docente, Administrador
-- **Descripción**
-  - Permite al Docente titular/supervisor o al Administrador modificar el término o la definición de un término de glosario registrado.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Docente o Administrador.
-  - El término de glosario existe y no se encuentra en baja.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-01: Gestionar los cursos.
+
+**Requisito(s) de información asociado(s)**
+RI-01: Información sobre cursos.
+
+**Módulo**
+MOD-F-01: Módulo de Cursos
+
+**Actor(es)**
+Docente, Administrador
+
+**Descripción**
+Permite al Docente titular/supervisor o al Administrador modificar el término o la definición de un término de glosario registrado.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Docente o Administrador.
+El término de glosario existe y no se encuentra en baja.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
@@ -960,41 +1150,50 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 7    | El sistema informa el éxito de la modificación. |
 | 8    | Fin del caso de uso. |
 
-- **Postcondición(es)**
-  - El término de glosario queda actualizado con los nuevos datos.
-- **Excepciones**
+**Postcondición(es)**
+El término de glosario queda actualizado con los nuevos datos.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
 | 4    | Si el término o la definición quedan vacíos, el sistema informa el error y vuelve al paso 3. |
 | 5    | Si el término modificado ya está registrado en el glosario de esa unidad, el sistema informa el error y vuelve al paso 3. |
 
-- **Frecuencia**
-  - Baja — se usa para corregir definiciones ya cargadas.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - –
+**Frecuencia**
+Baja — se usa para corregir definiciones ya cargadas.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+–
 
 ---
 
 ### CU-22
-**Eliminar término de glosario**
+### Eliminar término de glosario
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-01: Gestionar los cursos.
-- **Requisito(s) de información asociado(s)**
-  - RI-01: Información sobre cursos.
-- **Módulo**
-  - MOD-F-01: Módulo de Cursos
-- **Actor(es)**
-  - Docente, Administrador
-- **Descripción**
-  - Permite al Docente titular/supervisor o al Administrador dar de baja un término del glosario de una unidad.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Docente o Administrador.
-  - El término de glosario existe y no se encuentra en baja.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-01: Gestionar los cursos.
+
+**Requisito(s) de información asociado(s)**
+RI-01: Información sobre cursos.
+
+**Módulo**
+MOD-F-01: Módulo de Cursos
+
+**Actor(es)**
+Docente, Administrador
+
+**Descripción**
+Permite al Docente titular/supervisor o al Administrador dar de baja un término del glosario de una unidad.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Docente o Administrador.
+El término de glosario existe y no se encuentra en baja.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
@@ -1004,40 +1203,49 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 4    | El sistema informa el éxito de la operación. |
 | 5    | Fin del caso de uso. |
 
-- **Postcondición(es)**
-  - El término de glosario queda en estado de baja.
-- **Excepciones**
+**Postcondición(es)**
+El término de glosario queda en estado de baja.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
 | 2    | Si el actor no confirma la baja, el sistema cancela la operación y finaliza el caso de uso. |
 
-- **Frecuencia**
-  - Baja — se usa para retirar términos cargados por error o ya desactualizados.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - –
+**Frecuencia**
+Baja — se usa para retirar términos cargados por error o ya desactualizados.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+–
 
 ---
 
 ### CU-23
-**Buscar consulta de foro**
+### Buscar consulta de foro
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-01: Gestionar los cursos.
-- **Requisito(s) de información asociado(s)**
-  - RI-01: Información sobre cursos.
-- **Módulo**
-  - MOD-F-01: Módulo de Cursos
-- **Actor(es)**
-  - Alumno, Docente, Administrador
-- **Descripción**
-  - Permite consultar las preguntas planteadas por los alumnos en el foro de una unidad. La vista varía según el rol del actor: el Alumno visualiza las consultas de las unidades de los cursos en los que está inscripto; el Docente titular/supervisor visualiza las de sus cursos; el Administrador visualiza todas.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Alumno, Docente o Administrador.
-  - Existe al menos una consulta de foro registrada en la unidad.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-01: Gestionar los cursos.
+
+**Requisito(s) de información asociado(s)**
+RI-01: Información sobre cursos.
+
+**Módulo**
+MOD-F-01: Módulo de Cursos
+
+**Actor(es)**
+Alumno, Docente, Administrador
+
+**Descripción**
+Permite consultar las preguntas planteadas por los alumnos en el foro de una unidad. La vista varía según el rol del actor: el Alumno visualiza las consultas de las unidades de los cursos en los que está inscripto; el Docente titular/supervisor visualiza las de sus cursos; el Administrador visualiza todas.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Alumno, Docente o Administrador.
+Existe al menos una consulta de foro registrada en la unidad.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
@@ -1045,41 +1253,50 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 2    | El sistema recupera y lista las consultas de foro de la unidad, con sus respuestas asociadas si existen. |
 | 3    | Fin del caso de uso. |
 
-- **Salida**
-  - Se recupera el listado de consultas del foro de la unidad, junto con sus respuestas.
-- **Excepciones**
+**Salida**
+Se recupera el listado de consultas del foro de la unidad, junto con sus respuestas.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
 | 2    | Si el actor es Alumno y no posee inscripción vigente al curso de la unidad, el sistema no muestra las consultas. |
 
-- **Frecuencia**
-  - Alta — se consulta cada vez que un alumno o docente revisa el foro de una unidad.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - –
+**Frecuencia**
+Alta — se consulta cada vez que un alumno o docente revisa el foro de una unidad.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+–
 
 ---
 
 ### CU-24
-**Registrar consulta de foro**
+### Registrar consulta de foro
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-01: Gestionar los cursos.
-- **Requisito(s) de información asociado(s)**
-  - RI-01: Información sobre cursos.
-- **Módulo**
-  - MOD-F-01: Módulo de Cursos
-- **Actor(es)**
-  - Alumno
-- **Descripción**
-  - Permite al Alumno registrar una consulta en el foro de una unidad del curso en el que está inscripto.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Alumno.
-  - El alumno posee una inscripción vigente al curso de la unidad.
-  - La unidad se encuentra habilitada según el avance secuencial del alumno.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-01: Gestionar los cursos.
+
+**Requisito(s) de información asociado(s)**
+RI-01: Información sobre cursos.
+
+**Módulo**
+MOD-F-01: Módulo de Cursos
+
+**Actor(es)**
+Alumno
+
+**Descripción**
+Permite al Alumno registrar una consulta en el foro de una unidad del curso en el que está inscripto.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Alumno.
+El alumno posee una inscripción vigente al curso de la unidad.
+La unidad se encuentra habilitada según el avance secuencial del alumno.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
@@ -1092,42 +1309,51 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 7    | El sistema informa el éxito del registro. |
 | 8    | Fin del caso de uso. |
 
-- **Postcondición(es)**
-  - La consulta queda registrada, asociada a la unidad y al alumno.
-  - El docente recibe la notificación de la nueva consulta.
-- **Excepciones**
+**Postcondición(es)**
+La consulta queda registrada, asociada a la unidad y al alumno.
+El docente recibe la notificación de la nueva consulta.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
 | 4    | Si el texto de la consulta no fue completado, el sistema informa el error y vuelve al paso 3. |
 
-- **Frecuencia**
-  - Media — depende de las dudas que le surjan al alumno durante el cursado.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - –
+**Frecuencia**
+Media — depende de las dudas que le surjan al alumno durante el cursado.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+–
 
 ---
 
 ### CU-25
-**Modificar consulta de foro**
+### Modificar consulta de foro
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-01: Gestionar los cursos.
-- **Requisito(s) de información asociado(s)**
-  - RI-01: Información sobre cursos.
-- **Módulo**
-  - MOD-F-01: Módulo de Cursos
-- **Actor(es)**
-  - Alumno
-- **Descripción**
-  - Permite al Alumno modificar el texto de una consulta de foro propia, dentro de un plazo límite configurable desde su registro.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Alumno.
-  - La consulta de foro existe, no se encuentra en baja y fue registrada por el actor.
-  - No se superó el plazo límite de edición configurado.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-01: Gestionar los cursos.
+
+**Requisito(s) de información asociado(s)**
+RI-01: Información sobre cursos.
+
+**Módulo**
+MOD-F-01: Módulo de Cursos
+
+**Actor(es)**
+Alumno
+
+**Descripción**
+Permite al Alumno modificar el texto de una consulta de foro propia, dentro de un plazo límite configurable desde su registro.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Alumno.
+La consulta de foro existe, no se encuentra en baja y fue registrada por el actor.
+No se superó el plazo límite de edición configurado.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
@@ -1140,41 +1366,50 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 7    | El sistema informa el éxito de la modificación. |
 | 8    | Fin del caso de uso. |
 
-- **Postcondición(es)**
-  - La consulta queda actualizada con el nuevo texto.
-- **Excepciones**
+**Postcondición(es)**
+La consulta queda actualizada con el nuevo texto.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
 | 2    | Si se superó el plazo límite de edición, el sistema informa que la consulta ya no puede modificarse y finaliza el caso de uso. |
 | 5    | Si el texto queda vacío, el sistema informa el error y vuelve al paso 4. |
 
-- **Frecuencia**
-  - Baja — se usa para corregir o ampliar una consulta recién publicada.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - El plazo límite de edición es un parámetro configurable desde el Módulo de Configuración.
+**Frecuencia**
+Baja — se usa para corregir o ampliar una consulta recién publicada.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+El plazo límite de edición es un parámetro configurable desde el Módulo de Configuración.
 
 ---
 
 ### CU-26
-**Eliminar consulta de foro**
+### Eliminar consulta de foro
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-01: Gestionar los cursos.
-- **Requisito(s) de información asociado(s)**
-  - RI-01: Información sobre cursos.
-- **Módulo**
-  - MOD-F-01: Módulo de Cursos
-- **Actor(es)**
-  - Administrador
-- **Descripción**
-  - Permite al Administrador dar de baja una consulta de foro ante una publicación indebida (por ejemplo, contenido ofensivo o ajeno a la temática de la unidad).
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Administrador.
-  - La consulta de foro existe y no se encuentra en baja.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-01: Gestionar los cursos.
+
+**Requisito(s) de información asociado(s)**
+RI-01: Información sobre cursos.
+
+**Módulo**
+MOD-F-01: Módulo de Cursos
+
+**Actor(es)**
+Administrador
+
+**Descripción**
+Permite al Administrador dar de baja una consulta de foro ante una publicación indebida (por ejemplo, contenido ofensivo o ajeno a la temática de la unidad).
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Administrador.
+La consulta de foro existe y no se encuentra en baja.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
@@ -1184,40 +1419,49 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 4    | El sistema informa el éxito de la operación. |
 | 5    | Fin del caso de uso. |
 
-- **Postcondición(es)**
-  - La consulta y sus respuestas asociadas quedan en estado de baja.
-- **Excepciones**
+**Postcondición(es)**
+La consulta y sus respuestas asociadas quedan en estado de baja.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
 | 2    | Si el actor no confirma la baja, el sistema cancela la operación y finaliza el caso de uso. |
 
-- **Frecuencia**
-  - Muy baja — se usa excepcionalmente ante contenido indebido.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - No surge de la entrevista con el cliente como requisito explícito; se incorpora como criterio de moderación razonable para un foro con alumnos y docentes.
+**Frecuencia**
+Muy baja — se usa excepcionalmente ante contenido indebido.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+No surge de la entrevista con el cliente como requisito explícito; se incorpora como criterio de moderación razonable para un foro con alumnos y docentes.
 
 ---
 
 ### CU-27
-**Buscar respuesta de foro**
+### Buscar respuesta de foro
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-01: Gestionar los cursos.
-- **Requisito(s) de información asociado(s)**
-  - RI-01: Información sobre cursos.
-- **Módulo**
-  - MOD-F-01: Módulo de Cursos
-- **Actor(es)**
-  - Alumno, Docente, Administrador
-- **Descripción**
-  - Permite consultar las respuestas registradas a una consulta de foro. La vista varía según el rol del actor, con el mismo criterio que CU-23: Buscar consulta de foro.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Alumno, Docente o Administrador.
-  - Existe al menos una respuesta registrada para la consulta.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-01: Gestionar los cursos.
+
+**Requisito(s) de información asociado(s)**
+RI-01: Información sobre cursos.
+
+**Módulo**
+MOD-F-01: Módulo de Cursos
+
+**Actor(es)**
+Alumno, Docente, Administrador
+
+**Descripción**
+Permite consultar las respuestas registradas a una consulta de foro. La vista varía según el rol del actor, con el mismo criterio que CU-23: Buscar consulta de foro.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Alumno, Docente o Administrador.
+Existe al menos una respuesta registrada para la consulta.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
@@ -1225,39 +1469,49 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 2    | El sistema recupera y lista las respuestas asociadas a la consulta. |
 | 3    | Fin del caso de uso. |
 
-- **Salida**
-  - Se recupera el listado de respuestas asociadas a la consulta de foro.
-- **Excepciones**
+**Salida**
+Se recupera el listado de respuestas asociadas a la consulta de foro.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
+| -    | -      |
 
-- **Frecuencia**
-  - Alta — se consulta junto con CU-23: Buscar consulta de foro.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - –
+**Frecuencia**
+Alta — se consulta junto con CU-23: Buscar consulta de foro.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+–
 
 ---
 
 ### CU-28
-**Registrar respuesta de foro**
+### Registrar respuesta de foro
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-01: Gestionar los cursos.
-- **Requisito(s) de información asociado(s)**
-  - RI-01: Información sobre cursos.
-- **Módulo**
-  - MOD-F-01: Módulo de Cursos
-- **Actor(es)**
-  - Docente
-- **Descripción**
-  - Permite al Docente titular o supervisor del curso registrar una respuesta a una consulta de foro planteada por un alumno.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Docente.
-  - La consulta de foro existe, no se encuentra en baja y pertenece a un curso en el que el actor participa como titular o supervisor.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-01: Gestionar los cursos.
+
+**Requisito(s) de información asociado(s)**
+RI-01: Información sobre cursos.
+
+**Módulo**
+MOD-F-01: Módulo de Cursos
+
+**Actor(es)**
+Docente
+
+**Descripción**
+Permite al Docente titular o supervisor del curso registrar una respuesta a una consulta de foro planteada por un alumno.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Docente.
+La consulta de foro existe, no se encuentra en baja y pertenece a un curso en el que el actor participa como titular o supervisor.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
@@ -1270,42 +1524,51 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 7    | El sistema informa el éxito del registro. |
 | 8    | Fin del caso de uso. |
 
-- **Postcondición(es)**
-  - La respuesta queda registrada, asociada a la consulta y al docente.
-  - El alumno recibe la notificación de la respuesta.
-- **Excepciones**
+**Postcondición(es)**
+La respuesta queda registrada, asociada a la consulta y al docente.
+El alumno recibe la notificación de la respuesta.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
 | 4    | Si el texto de la respuesta no fue completado, el sistema informa el error y vuelve al paso 3. |
 
-- **Frecuencia**
-  - Media — depende de la cantidad de consultas que reciba cada curso.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - –
+**Frecuencia**
+Media — depende de la cantidad de consultas que reciba cada curso.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+–
 
 ---
 
 ### CU-29
-**Modificar respuesta de foro**
+### Modificar respuesta de foro
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-01: Gestionar los cursos.
-- **Requisito(s) de información asociado(s)**
-  - RI-01: Información sobre cursos.
-- **Módulo**
-  - MOD-F-01: Módulo de Cursos
-- **Actor(es)**
-  - Docente
-- **Descripción**
-  - Permite al Docente modificar el texto de una respuesta de foro propia, dentro de un plazo límite configurable desde su registro.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Docente.
-  - La respuesta de foro existe, no se encuentra en baja y fue registrada por el actor.
-  - No se superó el plazo límite de edición configurado.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-01: Gestionar los cursos.
+
+**Requisito(s) de información asociado(s)**
+RI-01: Información sobre cursos.
+
+**Módulo**
+MOD-F-01: Módulo de Cursos
+
+**Actor(es)**
+Docente
+
+**Descripción**
+Permite al Docente modificar el texto de una respuesta de foro propia, dentro de un plazo límite configurable desde su registro.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Docente.
+La respuesta de foro existe, no se encuentra en baja y fue registrada por el actor.
+No se superó el plazo límite de edición configurado.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
@@ -1318,41 +1581,50 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 7    | El sistema informa el éxito de la modificación. |
 | 8    | Fin del caso de uso. |
 
-- **Postcondición(es)**
-  - La respuesta queda actualizada con el nuevo texto.
-- **Excepciones**
+**Postcondición(es)**
+La respuesta queda actualizada con el nuevo texto.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
 | 2    | Si se superó el plazo límite de edición, el sistema informa que la respuesta ya no puede modificarse y finaliza el caso de uso. |
 | 5    | Si el texto queda vacío, el sistema informa el error y vuelve al paso 4. |
 
-- **Frecuencia**
-  - Baja — se usa para corregir o ampliar una respuesta recién publicada.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - El plazo límite de edición es un parámetro configurable desde el Módulo de Configuración.
+**Frecuencia**
+Baja — se usa para corregir o ampliar una respuesta recién publicada.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+El plazo límite de edición es un parámetro configurable desde el Módulo de Configuración.
 
 ---
 
 ### CU-30
-**Eliminar respuesta de foro**
+### Eliminar respuesta de foro
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-01: Gestionar los cursos.
-- **Requisito(s) de información asociado(s)**
-  - RI-01: Información sobre cursos.
-- **Módulo**
-  - MOD-F-01: Módulo de Cursos
-- **Actor(es)**
-  - Administrador
-- **Descripción**
-  - Permite al Administrador dar de baja una respuesta de foro ante una publicación indebida.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Administrador.
-  - La respuesta de foro existe y no se encuentra en baja.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-01: Gestionar los cursos.
+
+**Requisito(s) de información asociado(s)**
+RI-01: Información sobre cursos.
+
+**Módulo**
+MOD-F-01: Módulo de Cursos
+
+**Actor(es)**
+Administrador
+
+**Descripción**
+Permite al Administrador dar de baja una respuesta de foro ante una publicación indebida.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Administrador.
+La respuesta de foro existe y no se encuentra en baja.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
@@ -1362,42 +1634,51 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 4    | El sistema informa el éxito de la operación. |
 | 5    | Fin del caso de uso. |
 
-- **Postcondición(es)**
-  - La respuesta queda en estado de baja.
-- **Excepciones**
+**Postcondición(es)**
+La respuesta queda en estado de baja.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
 | 2    | Si el actor no confirma la baja, el sistema cancela la operación y finaliza el caso de uso. |
 
-- **Frecuencia**
-  - Muy baja — se usa excepcionalmente ante contenido indebido.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - Mismo criterio de moderación que CU-26: Eliminar consulta de foro.
+**Frecuencia**
+Muy baja — se usa excepcionalmente ante contenido indebido.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+Mismo criterio de moderación que CU-26: Eliminar consulta de foro.
 
 ---
 
 ## MOD-F-02: Módulo de Inscripción y Pagos
 
 ### CU-31
-**Buscar inscripción**
+### Buscar inscripción
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-02: Gestionar la inscripción y el pago de los alumnos.
-- **Requisito(s) de información asociado(s)**
-  - RI-02: Información sobre inscripciones y pagos.
-- **Módulo**
-  - MOD-F-02: Módulo de Inscripción y Pagos
-- **Actor(es)**
-  - Alumno, Administrador
-- **Descripción**
-  - Permite consultar una o más inscripciones registradas en el sistema. La vista varía según el rol del actor: el Alumno visualiza únicamente las propias; el Administrador visualiza todas.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Alumno o Administrador.
-  - Existe al menos una inscripción registrada previamente.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-02: Gestionar la inscripción y el pago de los alumnos.
+
+**Requisito(s) de información asociado(s)**
+RI-02: Información sobre inscripciones y pagos.
+
+**Módulo**
+MOD-F-02: Módulo de Inscripción y Pagos
+
+**Actor(es)**
+Alumno, Administrador
+
+**Descripción**
+Permite consultar una o más inscripciones registradas en el sistema. La vista varía según el rol del actor: el Alumno visualiza únicamente las propias; el Administrador visualiza todas.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Alumno o Administrador.
+Existe al menos una inscripción registrada previamente.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
@@ -1408,40 +1689,50 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 5    | El sistema lista las inscripciones filtradas. |
 | 6    | Fin del caso de uso. |
 
-- **Salida**
-  - Se recuperan una o más inscripciones que cumplen con los criterios de búsqueda, con su curso, fecha, fecha de vencimiento de acceso y estado.
-- **Excepciones**
+**Salida**
+Se recuperan una o más inscripciones que cumplen con los criterios de búsqueda, con su curso, fecha, fecha de vencimiento de acceso y estado.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
+| -    | -      |
 
-- **Frecuencia**
-  - Alta — el alumno la consulta para ver sus cursos activos; el Administrador, para el seguimiento comercial.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - –
+**Frecuencia**
+Alta — el alumno la consulta para ver sus cursos activos; el Administrador, para el seguimiento comercial.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+–
 
 ---
 
 ### CU-32
-**Inscribir curso**
+### Inscribir curso
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-02: Gestionar la inscripción y el pago de los alumnos.
-- **Requisito(s) de información asociado(s)**
-  - RI-02: Información sobre inscripciones y pagos.
-- **Módulo**
-  - MOD-F-02: Módulo de Inscripción y Pagos
-- **Actor(es)**
-  - Alumno
-- **Descripción**
-  - Permite al Alumno inscribirse a un curso publicado, dentro del período habilitado, dando inicio al proceso de inscripción que se completa con el pago del curso.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Alumno.
-  - El curso se encuentra publicado.
-  - La fecha actual está dentro del período de inscripción del curso.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-02: Gestionar la inscripción y el pago de los alumnos.
+
+**Requisito(s) de información asociado(s)**
+RI-02: Información sobre inscripciones y pagos.
+
+**Módulo**
+MOD-F-02: Módulo de Inscripción y Pagos
+
+**Actor(es)**
+Alumno
+
+**Descripción**
+Permite al Alumno inscribirse a un curso publicado, dentro del período habilitado, dando inicio al proceso de inscripción que se completa con el pago del curso.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Alumno.
+El curso se encuentra publicado.
+La fecha actual está dentro del período de inscripción del curso.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
@@ -1453,42 +1744,51 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 6    | El sistema deriva al alumno al pago del curso (CU-35: Realizar pago). |
 | 7    | Fin del caso de uso. |
 
-- **Postcondición(es)**
-  - La inscripción queda registrada.
-  - El acceso al contenido del curso permanece bloqueado hasta que se confirme el pago mediante CU-35: Realizar pago.
-- **Excepciones**
+**Postcondición(es)**
+La inscripción queda registrada.
+El acceso al contenido del curso permanece bloqueado hasta que se confirme el pago mediante CU-35: Realizar pago.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
 | 2    | Si la fecha actual no está dentro del período de inscripción del curso, el sistema informa que la inscripción no está habilitada y finaliza el caso de uso. |
 | 3    | Si el alumno ya posee una inscripción vigente a ese curso, el sistema lo informa y finaliza el caso de uso. |
 
-- **Frecuencia**
-  - Alta — ocurre cada vez que un alumno decide comenzar un curso.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - El sistema informa los detalles del curso al alumno antes de confirmar la inscripción desde su ficha pública.
+**Frecuencia**
+Alta — ocurre cada vez que un alumno decide comenzar un curso.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+El sistema informa los detalles del curso al alumno antes de confirmar la inscripción desde su ficha pública.
 
 ---
 
 ### CU-33
-**Dar de baja inscripción**
+### Dar de baja inscripción
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-02: Gestionar la inscripción y el pago de los alumnos.
-- **Requisito(s) de información asociado(s)**
-  - RI-02: Información sobre inscripciones y pagos.
-- **Módulo**
-  - MOD-F-02: Módulo de Inscripción y Pagos
-- **Actor(es)**
-  - Alumno
-- **Descripción**
-  - Permite al Alumno darse de baja de un curso en el que está inscripto, registrando el abandono. La baja no genera reembolso del pago realizado.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Alumno.
-  - La inscripción existe, pertenece al actor y se encuentra vigente.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-02: Gestionar la inscripción y el pago de los alumnos.
+
+**Requisito(s) de información asociado(s)**
+RI-02: Información sobre inscripciones y pagos.
+
+**Módulo**
+MOD-F-02: Módulo de Inscripción y Pagos
+
+**Actor(es)**
+Alumno
+
+**Descripción**
+Permite al Alumno darse de baja de un curso en el que está inscripto, registrando el abandono. La baja no genera reembolso del pago realizado.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Alumno.
+La inscripción existe, pertenece al actor y se encuentra vigente.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
@@ -1500,41 +1800,50 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 6    | El sistema registra la baja de la inscripción, con la observación ingresada si corresponde. |
 | 7    | Fin del caso de uso. |
 
-- **Postcondición(es)**
-  - La inscripción queda en estado de baja.
-  - El alumno pierde el acceso al contenido del curso.
-- **Excepciones**
+**Postcondición(es)**
+La inscripción queda en estado de baja.
+El alumno pierde el acceso al contenido del curso.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
 | 3    | Si el actor no confirma la baja, el sistema cancela la operación y finaliza el caso de uso. |
 
-- **Frecuencia**
-  - Baja — ocurre cuando un alumno decide abandonar un curso antes de finalizarlo.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - No existe mecanismo de reembolso: la política de no devolución fue confirmada por el cliente, análoga a la habitual en el ámbito universitario.
+**Frecuencia**
+Baja — ocurre cuando un alumno decide abandonar un curso antes de finalizarlo.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+No existe mecanismo de reembolso: la política de no devolución fue confirmada por el cliente, análoga a la habitual en el ámbito universitario.
 
 ---
 
 ### CU-34
-**Buscar pago**
+### Buscar pago
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-02: Gestionar la inscripción y el pago de los alumnos.
-- **Requisito(s) de información asociado(s)**
-  - RI-02: Información sobre inscripciones y pagos.
-- **Módulo**
-  - MOD-F-02: Módulo de Inscripción y Pagos
-- **Actor(es)**
-  - Alumno, Administrador
-- **Descripción**
-  - Permite consultar uno o más pagos registrados en el sistema. La vista varía según el rol del actor: el Alumno visualiza únicamente los propios; el Administrador visualiza todos.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Alumno o Administrador.
-  - Existe al menos un pago registrado previamente.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-02: Gestionar la inscripción y el pago de los alumnos.
+
+**Requisito(s) de información asociado(s)**
+RI-02: Información sobre inscripciones y pagos.
+
+**Módulo**
+MOD-F-02: Módulo de Inscripción y Pagos
+
+**Actor(es)**
+Alumno, Administrador
+
+**Descripción**
+Permite consultar uno o más pagos registrados en el sistema. La vista varía según el rol del actor: el Alumno visualiza únicamente los propios; el Administrador visualiza todos.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Alumno o Administrador.
+Existe al menos un pago registrado previamente.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
@@ -1545,39 +1854,49 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 5    | El sistema lista los pagos filtrados. |
 | 6    | Fin del caso de uso. |
 
-- **Salida**
-  - Se recuperan uno o más pagos que cumplen con los criterios de búsqueda, con su monto, fecha, método y estado.
-- **Excepciones**
+**Salida**
+Se recuperan uno o más pagos que cumplen con los criterios de búsqueda, con su monto, fecha, método y estado.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
+| -    | -      |
 
-- **Frecuencia**
-  - Alta — el alumno la consulta para verificar sus pagos; el Administrador, para el control de acreditaciones.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - –
+**Frecuencia**
+Alta — el alumno la consulta para verificar sus pagos; el Administrador, para el control de acreditaciones.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+–
 
 ---
 
 ### CU-35
-**Realizar pago**
+### Realizar pago
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-02: Gestionar la inscripción y el pago de los alumnos.
-- **Requisito(s) de información asociado(s)**
-  - RI-02: Información sobre inscripciones y pagos.
-- **Módulo**
-  - MOD-F-02: Módulo de Inscripción y Pagos
-- **Actor(es)**
-  - Alumno
-- **Descripción**
-  - Permite al Alumno pagar un curso al que se inscribió, con tarjeta de crédito o débito o con saldo de cuenta, mediante integración con la Checkout API de Mercado Pago, por el total del curso con el descuento aplicado si corresponde. Ver PA-2: Pago con tarjeta integrado.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Alumno.
-  - El alumno posee una inscripción registrada y pendiente de pago para el curso.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-02: Gestionar la inscripción y el pago de los alumnos.
+
+**Requisito(s) de información asociado(s)**
+RI-02: Información sobre inscripciones y pagos.
+
+**Módulo**
+MOD-F-02: Módulo de Inscripción y Pagos
+
+**Actor(es)**
+Alumno
+
+**Descripción**
+Permite al Alumno pagar un curso al que se inscribió, con tarjeta de crédito o débito o con saldo de cuenta, mediante integración con la Checkout API de Mercado Pago, por el total del curso con el descuento aplicado si corresponde. Ver PA-2: Pago con tarjeta integrado.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Alumno.
+El alumno posee una inscripción registrada y pendiente de pago para el curso.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
@@ -1588,46 +1907,57 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 5    | El sistema valida que se hayan completado los datos obligatorios del medio de pago elegido. |
 | 6    | El sistema envía la operación a la Checkout API de Mercado Pago para su procesamiento. |
 | 7    | Mercado Pago valida los fondos y la autorización del banco emisor, y confirma o rechaza el pago. |
-| 8    | El sistema registra el pago con el resultado informado por Mercado Pago, incluyendo el identificador de la transacción (payment_id) y la fecha actual. |
+| 8    | El sistema registra el pago con el resultado informado por Mercado Pago, incluyendo el identificador de la transacción (payment_id), los últimos cuatro dígitos de la tarjeta, y la fecha actual. |
 | 9    | Si el pago fue acreditado, el sistema habilita el acceso al curso, genera el comprobante (CU-36) y notifica al alumno el resultado. |
 | 10   | Fin del caso de uso. |
 
-- **Postcondición(es)**
-  - El pago queda registrado con su resultado.
-  - Si el pago fue acreditado: el acceso al curso queda habilitado, se genera el comprobante y se notifica al alumno.
-  - Si el pago fue rechazado: la inscripción permanece sin acceso habilitado y se notifica al alumno.
-- **Excepciones**
+**Postcondición(es)**
+El pago queda registrado con su resultado.
+Si el pago fue acreditado: el acceso al curso queda habilitado, se genera el comprobante y se notifica al alumno.
+Si el pago fue rechazado: la inscripción permanece sin acceso habilitado y se notifica al alumno.
+Si el pago queda pendiente por una incidencia en la confirmación, el alumno y el Administrador reciben la notificación correspondiente, para su seguimiento.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
 | 5    | Si no se completaron los datos obligatorios del medio de pago, el sistema informa el error y vuelve al paso 4. |
-| 7    | Si Mercado Pago rechaza el pago, el sistema registra el pago como rechazado, informa el motivo al alumno y le permite reintentar. |
+| 7    | Si Mercado Pago rechaza el pago, el sistema registra el pago como rechazado y notifica al alumno el motivo, permitiéndole reintentar. |
+| 7    | Si no se recibe la confirmación de Mercado Pago dentro del plazo configurado (ver CU-86: Configurar parámetros), el pago queda registrado en estado Pendiente y el sistema notifica al alumno que su pago está en revisión y al Administrador la incidencia, para su seguimiento manual. |
 
-- **Frecuencia**
-  - Alta — ocurre por cada inscripción confirmada.
-- **Estabilidad**
-  - Media — depende de las condiciones de integración de la Checkout API de Mercado Pago.
-- **Comentarios**
-  - El sistema procesa exclusivamente pagos con tarjeta de crédito, débito o saldo de cuenta, unificados en la Checkout API de Mercado Pago.
+**Frecuencia**
+Alta — ocurre por cada inscripción confirmada.
+
+**Estabilidad**
+Media — depende de las condiciones de integración de la Checkout API de Mercado Pago.
+
+**Comentarios**
+El sistema procesa exclusivamente pagos con tarjeta de crédito, débito o saldo de cuenta, unificados en la Checkout API de Mercado Pago.
 
 ---
 
 ### CU-36
-**Generar comprobante**
+### Generar comprobante
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-02: Gestionar la inscripción y el pago de los alumnos.
-- **Requisito(s) de información asociado(s)**
-  - RI-02: Información sobre inscripciones y pagos.
-- **Módulo**
-  - MOD-F-02: Módulo de Inscripción y Pagos
-- **Actor(es)**
-  - Alumno, indirectamente mediante CU-35: Realizar pago
-- **Descripción**
-  - Genera automáticamente el comprobante de un pago acreditado y lo envía por correo electrónico al alumno.
-- **Precondición(es)**
-  - Un pago fue registrado con estado Acreditado.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-02: Gestionar la inscripción y el pago de los alumnos.
+
+**Requisito(s) de información asociado(s)**
+RI-02: Información sobre inscripciones y pagos.
+
+**Módulo**
+MOD-F-02: Módulo de Inscripción y Pagos
+
+**Actor(es)**
+Alumno, indirectamente mediante CU-35: Realizar pago
+
+**Descripción**
+Genera automáticamente el comprobante de un pago acreditado y lo envía por correo electrónico al alumno.
+
+**Precondición(es)**
+Un pago fue registrado con estado Acreditado.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
@@ -1637,41 +1967,104 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 4    | El sistema envía el comprobante al alumno por correo electrónico. |
 | 5    | Fin del caso de uso. |
 
-- **Postcondición(es)**
-  - El comprobante queda registrado y asociado al pago.
-  - El alumno recibe el comprobante por correo electrónico.
-- **Excepciones**
+**Postcondición(es)**
+El comprobante queda registrado y asociado al pago.
+El alumno recibe el comprobante por correo electrónico.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
+| -    | -      |
 
-- **Frecuencia**
-  - Alta — ocurre por cada pago acreditado.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - Es un comprobante simple, no una factura electrónica; la emisión de factura A o B se gestiona de forma manual por correo electrónico ante solicitud del alumno, fuera del alcance del sistema.
-  - El alumno puede volver a consultarlo y descargarlo mediante CU-34: Buscar pago.
+**Frecuencia**
+Alta — ocurre por cada pago acreditado.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+Es un comprobante simple, no una factura electrónica; la emisión de factura A o B se gestiona de forma manual por correo electrónico ante solicitud del alumno, fuera del alcance del sistema.
+El alumno puede volver a consultarlo y descargarlo mediante CU-34: Buscar pago.
 
 ---
 
 ### CU-37
-**Buscar descuento**
+### Buscar progreso
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-02: Gestionar la inscripción y el pago de los alumnos.
-- **Requisito(s) de información asociado(s)**
-  - RI-02: Información sobre inscripciones y pagos.
-- **Módulo**
-  - MOD-F-02: Módulo de Inscripción y Pagos
-- **Actor(es)**
-  - Administrador
-- **Descripción**
-  - Permite al Administrador buscar uno o más descuentos registrados en el sistema.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Administrador.
-  - Existe al menos un descuento registrado previamente.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-02: Gestionar la inscripción y el pago de los alumnos.
+
+**Requisito(s) de información asociado(s)**
+RI-02: Información sobre inscripciones y pagos.
+
+**Módulo**
+MOD-F-02: Módulo de Inscripción y Pagos
+
+**Actor(es)**
+Alumno, Administrador
+
+**Descripción**
+Permite consultar el progreso de un alumno en las unidades de un curso en el que está inscripto. La vista varía según el rol del actor: el Alumno visualiza únicamente el propio; el Administrador visualiza el de cualquier alumno.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Alumno o Administrador.
+El alumno posee una inscripción registrada al curso.
+
+**Flujo de eventos**
+
+| Paso | Acción |
+|------|--------|
+| 1    | El caso de uso inicia cuando el actor solicita consultar el progreso de un alumno en un curso. |
+| 2    | El sistema solicita los criterios de búsqueda: curso y alumno (solo para Administrador). |
+| 3    | El actor ingresa los criterios de búsqueda que desea. |
+| 4    | El sistema recupera el progreso del alumno en cada unidad del curso, restringido al propio si el actor es Alumno. |
+| 5    | El sistema lista el progreso recuperado. |
+| 6    | Fin del caso de uso. |
+
+**Salida**
+Se recupera, para cada unidad del curso, si fue completada y, en caso afirmativo, la fecha en que se completó.
+
+**Excepciones**
+
+| Paso | Acción |
+|------|--------|
+| -    | -      |
+
+**Frecuencia**
+Media — el alumno la consulta para verificar su avance; el Administrador, para el seguimiento del cursado.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+El progreso de una unidad se registra automáticamente al aprobar el intento de autoevaluación correspondiente (ver CU-51: Realizar intento de autoevaluación).
+
+---
+
+### CU-38
+### Buscar descuento
+
+**Objetivo(s) asociado(s)**
+OBJ-02: Gestionar la inscripción y el pago de los alumnos.
+
+**Requisito(s) de información asociado(s)**
+RI-02: Información sobre inscripciones y pagos.
+
+**Módulo**
+MOD-F-02: Módulo de Inscripción y Pagos
+
+**Actor(es)**
+Administrador
+
+**Descripción**
+Permite al Administrador buscar uno o más descuentos registrados en el sistema.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Administrador.
+Existe al menos un descuento registrado previamente.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
@@ -1682,38 +2075,48 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 5    | El sistema lista los descuentos filtrados. |
 | 6    | Fin del caso de uso. |
 
-- **Salida**
-  - Se recuperan uno o más descuentos que cumplen con los criterios de búsqueda, con su porcentaje, vigencia, cantidad límite y cantidad usada.
-- **Excepciones**
+**Salida**
+Se recuperan uno o más descuentos que cumplen con los criterios de búsqueda, con su porcentaje, vigencia, cantidad límite y cantidad usada.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
+| -    | -      |
 
-- **Frecuencia**
-  - Media — se consulta al gestionar promociones y campañas comerciales.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - –
+**Frecuencia**
+Media — se consulta al gestionar promociones y campañas comerciales.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+–
 
 ---
 
-### CU-38
-**Registrar descuento**
+### CU-39
+### Registrar descuento
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-02: Gestionar la inscripción y el pago de los alumnos.
-- **Requisito(s) de información asociado(s)**
-  - RI-02: Información sobre inscripciones y pagos.
-- **Módulo**
-  - MOD-F-02: Módulo de Inscripción y Pagos
-- **Actor(es)**
-  - Administrador
-- **Descripción**
-  - Permite al Administrador registrar un nuevo descuento a aplicar automáticamente a los alumnos que cumplan la condición configurada.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Administrador.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-02: Gestionar la inscripción y el pago de los alumnos.
+
+**Requisito(s) de información asociado(s)**
+RI-02: Información sobre inscripciones y pagos.
+
+**Módulo**
+MOD-F-02: Módulo de Inscripción y Pagos
+
+**Actor(es)**
+Administrador
+
+**Descripción**
+Permite al Administrador registrar un nuevo descuento a aplicar automáticamente a los alumnos que cumplan la condición configurada.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Administrador.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
@@ -1729,10 +2132,11 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 10   | El sistema informa el éxito del registro. |
 | 11   | Fin del caso de uso. |
 
-- **Postcondición(es)**
-  - El descuento queda registrado y activo.
-  - La fecha de creación refleja el momento del alta.
-- **Excepciones**
+**Postcondición(es)**
+El descuento queda registrado y activo.
+La fecha de creación refleja el momento del alta.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
@@ -1742,36 +2146,44 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 7    | Si la cantidad límite ingresada no es un número entero mayor a cero, el sistema informa el error y vuelve al paso 3. |
 | 8    | Si la cantidad de cursos requeridos ingresada no es un número entero mayor o igual a cero, el sistema informa el error y vuelve al paso 3. |
 
-- **Frecuencia**
-  - Baja — se usa al lanzar una nueva campaña o promoción comercial.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - La cantidad de cursos comprados previamente es, por el momento, la única condición de aplicación contemplada en el sistema.
+**Frecuencia**
+Baja — se usa al lanzar una nueva campaña o promoción comercial.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+La cantidad de cursos comprados previamente es, por el momento, la única condición de aplicación contemplada en el sistema.
 
 ---
 
-### CU-39
-**Modificar descuento**
+### CU-40
+### Modificar descuento
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-02: Gestionar la inscripción y el pago de los alumnos.
-- **Requisito(s) de información asociado(s)**
-  - RI-02: Información sobre inscripciones y pagos.
-- **Módulo**
-  - MOD-F-02: Módulo de Inscripción y Pagos
-- **Actor(es)**
-  - Administrador
-- **Descripción**
-  - Permite al Administrador modificar los datos de un descuento registrado.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Administrador.
-  - El descuento existe y no se encuentra en baja.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-02: Gestionar la inscripción y el pago de los alumnos.
+
+**Requisito(s) de información asociado(s)**
+RI-02: Información sobre inscripciones y pagos.
+
+**Módulo**
+MOD-F-02: Módulo de Inscripción y Pagos
+
+**Actor(es)**
+Administrador
+
+**Descripción**
+Permite al Administrador modificar los datos de un descuento registrado.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Administrador.
+El descuento existe y no se encuentra en baja.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
-| 1    | El caso de uso inicia cuando el actor busca y selecciona el descuento a modificar (ver CU-37: Buscar descuento). |
+| 1    | El caso de uso inicia cuando el actor busca y selecciona el descuento a modificar (ver CU-38: Buscar descuento). |
 | 2    | El sistema muestra los datos actuales del descuento. |
 | 3    | El actor modifica los datos que desea. |
 | 4    | El sistema valida que se mantengan completos los campos obligatorios. |
@@ -1783,10 +2195,11 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 10   | El sistema informa el éxito de la modificación. |
 | 11   | Fin del caso de uso. |
 
-- **Postcondición(es)**
-  - El descuento queda actualizado con los nuevos datos.
-  - La fecha de modificación refleja el momento del cambio.
-- **Excepciones**
+**Postcondición(es)**
+El descuento queda actualizado con los nuevos datos.
+La fecha de modificación refleja el momento del cambio.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
@@ -1796,77 +2209,94 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 7    | Si la cantidad límite ingresada no es un número entero mayor a cero, el sistema informa el error y vuelve al paso 3. |
 | 8    | Si la cantidad de cursos requeridos ingresada no es un número entero mayor o igual a cero, el sistema informa el error y vuelve al paso 3. |
 
-- **Frecuencia**
-  - Baja — se usa para ajustar los términos de una promoción vigente.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - El sistema desactiva automáticamente el descuento al vencer su vigencia o alcanzar la cantidad límite, lo que ocurra primero (ver PA-3: Aplicación automática de descuentos).
+**Frecuencia**
+Baja — se usa para ajustar los términos de una promoción vigente.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+El sistema desactiva automáticamente el descuento al vencer su vigencia o alcanzar la cantidad límite, lo que ocurra primero (ver PA-3: Aplicación automática de descuentos).
 
 ---
 
-### CU-40
-**Eliminar descuento**
+### CU-41
+### Eliminar descuento
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-02: Gestionar la inscripción y el pago de los alumnos.
-- **Requisito(s) de información asociado(s)**
-  - RI-02: Información sobre inscripciones y pagos.
-- **Módulo**
-  - MOD-F-02: Módulo de Inscripción y Pagos
-- **Actor(es)**
-  - Administrador
-- **Descripción**
-  - Permite al Administrador dar de baja un descuento antes de su vencimiento natural.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Administrador.
-  - El descuento existe y no se encuentra en baja.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-02: Gestionar la inscripción y el pago de los alumnos.
+
+**Requisito(s) de información asociado(s)**
+RI-02: Información sobre inscripciones y pagos.
+
+**Módulo**
+MOD-F-02: Módulo de Inscripción y Pagos
+
+**Actor(es)**
+Administrador
+
+**Descripción**
+Permite al Administrador dar de baja un descuento antes de su vencimiento natural.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Administrador.
+El descuento existe y no se encuentra en baja.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
-| 1    | El caso de uso inicia cuando el actor busca y selecciona el descuento a dar de baja (ver CU-37: Buscar descuento). |
+| 1    | El caso de uso inicia cuando el actor busca y selecciona el descuento a dar de baja (ver CU-38: Buscar descuento). |
 | 2    | El actor confirma la baja. |
 | 3    | El sistema marca el descuento como dado de baja, dejando de aplicarlo a nuevas inscripciones. |
 | 4    | El sistema informa el éxito de la operación. |
 | 5    | Fin del caso de uso. |
 
-- **Postcondición(es)**
-  - El descuento queda en estado de baja.
-- **Excepciones**
+**Postcondición(es)**
+El descuento queda en estado de baja.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
 | 2    | Si el actor no confirma la baja, el sistema cancela la operación y finaliza el caso de uso. |
 
-- **Frecuencia**
-  - Muy baja — ocurre cuando se decide cancelar una promoción antes de su vencimiento.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - La baja no afecta los descuentos ya aplicados a inscripciones previas.
+**Frecuencia**
+Muy baja — ocurre cuando se decide cancelar una promoción antes de su vencimiento.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+La baja no afecta los descuentos ya aplicados a inscripciones previas.
 
 ---
 
 ## MOD-F-03: Módulo de Evaluación y Certificación
 
-### CU-41
-**Buscar pool**
+### CU-42
+### Buscar pool
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-03: Evaluar y certificar a los alumnos.
-- **Requisito(s) de información asociado(s)**
-  - RI-03: Información sobre evaluación y certificación.
-- **Módulo**
-  - MOD-F-03: Módulo de Evaluación y Certificación
-- **Actor(es)**
-  - Docente, Administrador
-- **Descripción**
-  - Permite al Docente titular/supervisor o al Administrador buscar los pools de preguntas registrados en una unidad.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Docente o Administrador.
-  - La unidad existe y posee al menos un pool registrado.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-03: Evaluar y certificar a los alumnos.
+
+**Requisito(s) de información asociado(s)**
+RI-03: Información sobre evaluación y certificación.
+
+**Módulo**
+MOD-F-03: Módulo de Evaluación y Certificación
+
+**Actor(es)**
+Docente, Administrador
+
+**Descripción**
+Permite al Docente titular/supervisor o al Administrador buscar los pools de preguntas registrados en una unidad.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Docente o Administrador.
+La unidad existe y posee al menos un pool registrado.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
@@ -1876,39 +2306,49 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 4    | El sistema recupera y lista los pools de la unidad, con su cantidad de preguntas cargadas. |
 | 5    | Fin del caso de uso. |
 
-- **Salida**
-  - Se recupera el listado de pools de la unidad, con su nombre y cantidad de preguntas.
-- **Excepciones**
+**Salida**
+Se recupera el listado de pools de la unidad, con su nombre y cantidad de preguntas.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
+| -    | -      |
 
-- **Frecuencia**
-  - Media — se consulta al gestionar las evaluaciones de una unidad.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - –
+**Frecuencia**
+Media — se consulta al gestionar las evaluaciones de una unidad.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+–
 
 ---
 
-### CU-42
-**Crear pool**
+### CU-43
+### Crear pool
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-03: Evaluar y certificar a los alumnos.
-- **Requisito(s) de información asociado(s)**
-  - RI-03: Información sobre evaluación y certificación.
-- **Módulo**
-  - MOD-F-03: Módulo de Evaluación y Certificación
-- **Actor(es)**
-  - Docente
-- **Descripción**
-  - Permite al Docente crear un nuevo pool de preguntas para una unidad, cargando manualmente sus preguntas de opción múltiple o verdadero/falso junto con las opciones de respuesta de cada una.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Docente.
-  - La unidad existe y no se encuentra en baja.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-03: Evaluar y certificar a los alumnos.
+
+**Requisito(s) de información asociado(s)**
+RI-03: Información sobre evaluación y certificación.
+
+**Módulo**
+MOD-F-03: Módulo de Evaluación y Certificación
+
+**Actor(es)**
+Docente
+
+**Descripción**
+Permite al Docente crear un nuevo pool de preguntas para una unidad, cargando manualmente sus preguntas de opción múltiple o verdadero/falso junto con las opciones de respuesta de cada una.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Docente.
+La unidad existe y no se encuentra en baja.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
@@ -1921,46 +2361,55 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 7    | El sistema informa el éxito del registro. |
 | 8    | Fin del caso de uso. |
 
-- **Postcondición(es)**
-  - El pool queda registrado, asociado a la unidad, con sus preguntas y opciones de respuesta.
-  - La fecha de creación refleja el momento del alta.
-- **Excepciones**
+**Postcondición(es)**
+El pool queda registrado, asociado a la unidad, con sus preguntas y opciones de respuesta.
+La fecha de creación refleja el momento del alta.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
 | 4    | Si el nombre no fue completado o no se cargó ninguna pregunta, el sistema informa el error y vuelve al paso 3. |
 | 5    | Si alguna pregunta tiene menos de dos opciones, o no tiene exactamente una opción marcada como correcta, el sistema informa el error y vuelve al paso 3. |
 
-- **Frecuencia**
-  - Media — ocurre al preparar las evaluaciones de cada unidad.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - El pool también puede generarse automáticamente a partir del material de la unidad mediante CU-63: Generar banco de preguntas, como método alternativo a la carga manual.
+**Frecuencia**
+Media — ocurre al preparar las evaluaciones de cada unidad.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+El pool también puede generarse automáticamente a partir del material de la unidad mediante CU-64: Generar banco de preguntas, como método alternativo a la carga manual.
 
 ---
 
-### CU-43
-**Modificar pool**
+### CU-44
+### Modificar pool
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-03: Evaluar y certificar a los alumnos.
-- **Requisito(s) de información asociado(s)**
-  - RI-03: Información sobre evaluación y certificación.
-- **Módulo**
-  - MOD-F-03: Módulo de Evaluación y Certificación
-- **Actor(es)**
-  - Docente
-- **Descripción**
-  - Permite al Docente modificar el nombre de un pool y agregar, editar o eliminar sus preguntas y opciones de respuesta.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Docente.
-  - El pool existe y no se encuentra en baja.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-03: Evaluar y certificar a los alumnos.
+
+**Requisito(s) de información asociado(s)**
+RI-03: Información sobre evaluación y certificación.
+
+**Módulo**
+MOD-F-03: Módulo de Evaluación y Certificación
+
+**Actor(es)**
+Docente
+
+**Descripción**
+Permite al Docente modificar el nombre de un pool y agregar, editar o eliminar sus preguntas y opciones de respuesta.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Docente.
+El pool existe y no se encuentra en baja.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
-| 1    | El caso de uso inicia cuando el actor busca y selecciona el pool a modificar (ver CU-41: Buscar pool). |
+| 1    | El caso de uso inicia cuando el actor busca y selecciona el pool a modificar (ver CU-42: Buscar pool). |
 | 2    | El sistema muestra los datos actuales del pool, con sus preguntas y opciones. |
 | 3    | El actor modifica el nombre del pool, o agrega, edita o elimina preguntas y sus opciones. |
 | 4    | El sistema valida que el nombre no quede vacío y que el pool conserve al menos una pregunta. |
@@ -1969,87 +2418,105 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 7    | El sistema informa el éxito de la modificación. |
 | 8    | Fin del caso de uso. |
 
-- **Postcondición(es)**
-  - El pool queda actualizado con los nuevos datos.
-  - La fecha de modificación refleja el momento del cambio.
-- **Excepciones**
+**Postcondición(es)**
+El pool queda actualizado con los nuevos datos.
+La fecha de modificación refleja el momento del cambio.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
 | 4    | Si el nombre queda vacío o el pool queda sin preguntas, el sistema informa el error y vuelve al paso 3. |
 | 5    | Si alguna pregunta queda con menos de dos opciones o sin una única opción correcta, el sistema informa el error y vuelve al paso 3. |
 
-- **Frecuencia**
-  - Media — se usa para actualizar o ampliar el banco de preguntas de una unidad.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - –
+**Frecuencia**
+Media — se usa para actualizar o ampliar el banco de preguntas de una unidad.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+–
 
 ---
 
-### CU-44
-**Eliminar pool**
+### CU-45
+### Eliminar pool
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-03: Evaluar y certificar a los alumnos.
-- **Requisito(s) de información asociado(s)**
-  - RI-03: Información sobre evaluación y certificación.
-- **Módulo**
-  - MOD-F-03: Módulo de Evaluación y Certificación
-- **Actor(es)**
-  - Docente
-- **Descripción**
-  - Permite al Docente dar de baja un pool. Si el pool está asociado a alguna autoevaluación activa, el sistema informa la dependencia y no permite la baja.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Docente.
-  - El pool existe y no se encuentra en baja.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-03: Evaluar y certificar a los alumnos.
+
+**Requisito(s) de información asociado(s)**
+RI-03: Información sobre evaluación y certificación.
+
+**Módulo**
+MOD-F-03: Módulo de Evaluación y Certificación
+
+**Actor(es)**
+Docente
+
+**Descripción**
+Permite al Docente dar de baja un pool. Si el pool está asociado a alguna autoevaluación activa, el sistema informa la dependencia y no permite la baja.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Docente.
+El pool existe y no se encuentra en baja.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
-| 1    | El caso de uso inicia cuando el actor busca y selecciona el pool a dar de baja (ver CU-41: Buscar pool). |
+| 1    | El caso de uso inicia cuando el actor busca y selecciona el pool a dar de baja (ver CU-42: Buscar pool). |
 | 2    | El sistema verifica que el pool no esté asociado a ninguna autoevaluación activa. |
 | 3    | El actor confirma la baja. |
 | 4    | El sistema marca el pool como dado de baja. |
 | 5    | El sistema informa el éxito de la operación. |
 | 6    | Fin del caso de uso. |
 
-- **Postcondición(es)**
-  - El pool queda en estado de baja.
-- **Excepciones**
+**Postcondición(es)**
+El pool queda en estado de baja.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
 | 2    | Si el pool está asociado a una autoevaluación activa, el sistema informa la dependencia y no permite la baja. |
 | 3    | Si el actor no confirma la baja, el sistema cancela la operación y finaliza el caso de uso. |
 
-- **Frecuencia**
-  - Baja — se usa cuando un pool queda obsoleto.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - –
+**Frecuencia**
+Baja — se usa cuando un pool queda obsoleto.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+–
 
 ---
 
-### CU-45
-**Buscar autoevaluación**
+### CU-46
+### Buscar autoevaluación
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-03: Evaluar y certificar a los alumnos.
-- **Requisito(s) de información asociado(s)**
-  - RI-03: Información sobre evaluación y certificación.
-- **Módulo**
-  - MOD-F-03: Módulo de Evaluación y Certificación
-- **Actor(es)**
-  - Docente, Administrador
-- **Descripción**
-  - Permite al Docente titular/supervisor o al Administrador buscar las autoevaluaciones registradas en un curso o unidad.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Docente o Administrador.
-  - Existe al menos una autoevaluación registrada.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-03: Evaluar y certificar a los alumnos.
+
+**Requisito(s) de información asociado(s)**
+RI-03: Información sobre evaluación y certificación.
+
+**Módulo**
+MOD-F-03: Módulo de Evaluación y Certificación
+
+**Actor(es)**
+Docente, Administrador
+
+**Descripción**
+Permite al Docente titular/supervisor o al Administrador buscar las autoevaluaciones registradas en un curso o unidad.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Docente o Administrador.
+Existe al menos una autoevaluación registrada.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
@@ -2059,39 +2526,49 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 4    | El sistema recupera y lista las autoevaluaciones que coinciden, indicando si son de unidad o evaluaciones finales. |
 | 5    | Fin del caso de uso. |
 
-- **Salida**
-  - Se recupera el listado de autoevaluaciones, con su nombre, pools asociados, tiempo límite e intentos permitidos.
-- **Excepciones**
+**Salida**
+Se recupera el listado de autoevaluaciones, con su nombre, pools asociados, tiempo límite e intentos permitidos.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
+| -    | -      |
 
-- **Frecuencia**
-  - Media — se consulta al gestionar la evaluación de un curso.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - –
+**Frecuencia**
+Media — se consulta al gestionar la evaluación de un curso.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+–
 
 ---
 
-### CU-46
-**Crear autoevaluación**
+### CU-47
+### Crear autoevaluación
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-03: Evaluar y certificar a los alumnos.
-- **Requisito(s) de información asociado(s)**
-  - RI-03: Información sobre evaluación y certificación.
-- **Módulo**
-  - MOD-F-03: Módulo de Evaluación y Certificación
-- **Actor(es)**
-  - Docente
-- **Descripción**
-  - Permite al Docente crear una autoevaluación acotada a una unidad, o una evaluación final que integra los pools de varias unidades de un curso, asociándola a uno o más pools de preguntas.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Docente.
-  - Existe al menos un pool activo en el curso o unidad correspondiente.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-03: Evaluar y certificar a los alumnos.
+
+**Requisito(s) de información asociado(s)**
+RI-03: Información sobre evaluación y certificación.
+
+**Módulo**
+MOD-F-03: Módulo de Evaluación y Certificación
+
+**Actor(es)**
+Docente
+
+**Descripción**
+Permite al Docente crear una autoevaluación acotada a una unidad, o una evaluación final que integra los pools de varias unidades de un curso, asociándola a uno o más pools de preguntas.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Docente.
+Existe al menos un pool activo en el curso o unidad correspondiente.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
@@ -2105,10 +2582,11 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 8    | El sistema informa el éxito del registro. |
 | 9    | Fin del caso de uso. |
 
-- **Postcondición(es)**
-  - La autoevaluación queda registrada y asociada a los pools seleccionados.
-  - La fecha de creación refleja el momento del alta.
-- **Excepciones**
+**Postcondición(es)**
+La autoevaluación queda registrada y asociada a los pools seleccionados.
+La fecha de creación refleja el momento del alta.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
@@ -2116,36 +2594,44 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 5    | Si el tiempo límite o la cantidad de intentos no son valores enteros mayores a cero, el sistema informa el error y vuelve al paso 3. |
 | 6    | Si los pools seleccionados no reúnen al menos 10 preguntas activas en conjunto, el sistema informa el error y vuelve al paso 3. |
 
-- **Frecuencia**
-  - Baja — ocurre al estructurar la evaluación de un curso, típicamente una vez por unidad y una vez por curso para la evaluación final.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - Cada intento de un alumno sortea 10 preguntas de los pools asociados a la autoevaluación (ver CU-50: Realizar intento de autoevaluación).
+**Frecuencia**
+Baja — ocurre al estructurar la evaluación de un curso, típicamente una vez por unidad y una vez por curso para la evaluación final.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+Cada intento de un alumno sortea 10 preguntas de los pools asociados a la autoevaluación (ver CU-51: Realizar intento de autoevaluación).
 
 ---
 
-### CU-47
-**Modificar autoevaluación**
+### CU-48
+### Modificar autoevaluación
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-03: Evaluar y certificar a los alumnos.
-- **Requisito(s) de información asociado(s)**
-  - RI-03: Información sobre evaluación y certificación.
-- **Módulo**
-  - MOD-F-03: Módulo de Evaluación y Certificación
-- **Actor(es)**
-  - Docente
-- **Descripción**
-  - Permite al Docente modificar el nombre, tiempo límite, cantidad de intentos permitidos y los pools asociados a una autoevaluación.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Docente.
-  - La autoevaluación existe y no se encuentra en baja.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-03: Evaluar y certificar a los alumnos.
+
+**Requisito(s) de información asociado(s)**
+RI-03: Información sobre evaluación y certificación.
+
+**Módulo**
+MOD-F-03: Módulo de Evaluación y Certificación
+
+**Actor(es)**
+Docente
+
+**Descripción**
+Permite al Docente modificar el nombre, tiempo límite, cantidad de intentos permitidos y los pools asociados a una autoevaluación.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Docente.
+La autoevaluación existe y no se encuentra en baja.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
-| 1    | El caso de uso inicia cuando el actor busca y selecciona la autoevaluación a modificar (ver CU-45: Buscar autoevaluación). |
+| 1    | El caso de uso inicia cuando el actor busca y selecciona la autoevaluación a modificar (ver CU-46: Buscar autoevaluación). |
 | 2    | El sistema muestra los datos actuales de la autoevaluación. |
 | 3    | El actor modifica los datos que desea. |
 | 4    | El sistema valida que se mantengan completos los campos obligatorios y al menos un pool asociado. |
@@ -2155,10 +2641,11 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 8    | El sistema informa el éxito de la modificación. |
 | 9    | Fin del caso de uso. |
 
-- **Postcondición(es)**
-  - La autoevaluación queda actualizada con los nuevos datos.
-  - La fecha de modificación refleja el momento del cambio.
-- **Excepciones**
+**Postcondición(es)**
+La autoevaluación queda actualizada con los nuevos datos.
+La fecha de modificación refleja el momento del cambio.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
@@ -2166,77 +2653,94 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 5    | Si el tiempo límite o la cantidad de intentos no son valores enteros mayores a cero, el sistema informa el error y vuelve al paso 3. |
 | 6    | Si los pools asociados no reúnen al menos 10 preguntas activas, el sistema informa el error y vuelve al paso 3. |
 
-- **Frecuencia**
-  - Baja — se usa para ajustar parámetros de una evaluación ya configurada.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - Los cambios aplican a los intentos que se realicen a partir de la modificación; no afectan los intentos ya registrados.
+**Frecuencia**
+Baja — se usa para ajustar parámetros de una evaluación ya configurada.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+Los cambios aplican a los intentos que se realicen a partir de la modificación; no afectan los intentos ya registrados.
 
 ---
 
-### CU-48
-**Eliminar autoevaluación**
+### CU-49
+### Eliminar autoevaluación
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-03: Evaluar y certificar a los alumnos.
-- **Requisito(s) de información asociado(s)**
-  - RI-03: Información sobre evaluación y certificación.
-- **Módulo**
-  - MOD-F-03: Módulo de Evaluación y Certificación
-- **Actor(es)**
-  - Docente
-- **Descripción**
-  - Permite al Docente dar de baja una autoevaluación. Si algún alumno ya registra un intento sobre ella, el sistema informa la dependencia y no permite la baja.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Docente.
-  - La autoevaluación existe y no se encuentra en baja.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-03: Evaluar y certificar a los alumnos.
+
+**Requisito(s) de información asociado(s)**
+RI-03: Información sobre evaluación y certificación.
+
+**Módulo**
+MOD-F-03: Módulo de Evaluación y Certificación
+
+**Actor(es)**
+Docente
+
+**Descripción**
+Permite al Docente dar de baja una autoevaluación. Si algún alumno ya registra un intento sobre ella, el sistema informa la dependencia y no permite la baja.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Docente.
+La autoevaluación existe y no se encuentra en baja.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
-| 1    | El caso de uso inicia cuando el actor busca y selecciona la autoevaluación a dar de baja (ver CU-45: Buscar autoevaluación). |
+| 1    | El caso de uso inicia cuando el actor busca y selecciona la autoevaluación a dar de baja (ver CU-46: Buscar autoevaluación). |
 | 2    | El sistema verifica que ningún alumno registre intentos sobre esa autoevaluación. |
 | 3    | El actor confirma la baja. |
 | 4    | El sistema marca la autoevaluación como dada de baja. |
 | 5    | El sistema informa el éxito de la operación. |
 | 6    | Fin del caso de uso. |
 
-- **Postcondición(es)**
-  - La autoevaluación queda en estado de baja.
-- **Excepciones**
+**Postcondición(es)**
+La autoevaluación queda en estado de baja.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
 | 2    | Si algún alumno ya registra un intento sobre esa autoevaluación, el sistema informa la dependencia y no permite la baja. |
 | 3    | Si el actor no confirma la baja, el sistema cancela la operación y finaliza el caso de uso. |
 
-- **Frecuencia**
-  - Baja — se usa cuando una evaluación aún no cursada queda obsoleta.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - –
+**Frecuencia**
+Baja — se usa cuando una evaluación aún no cursada queda obsoleta.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+–
 
 ---
 
-### CU-49
-**Buscar intento de autoevaluación**
+### CU-50
+### Buscar intento de autoevaluación
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-03: Evaluar y certificar a los alumnos.
-- **Requisito(s) de información asociado(s)**
-  - RI-03: Información sobre evaluación y certificación.
-- **Módulo**
-  - MOD-F-03: Módulo de Evaluación y Certificación
-- **Actor(es)**
-  - Alumno, Docente
-- **Descripción**
-  - Permite consultar el historial de intentos de una autoevaluación. La vista varía según el rol del actor: el Alumno visualiza únicamente sus propios intentos; el Docente visualiza los de los alumnos inscriptos en su curso.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Alumno o Docente.
-  - Existe al menos un intento registrado para la autoevaluación.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-03: Evaluar y certificar a los alumnos.
+
+**Requisito(s) de información asociado(s)**
+RI-03: Información sobre evaluación y certificación.
+
+**Módulo**
+MOD-F-03: Módulo de Evaluación y Certificación
+
+**Actor(es)**
+Alumno, Docente
+
+**Descripción**
+Permite consultar el historial de intentos de una autoevaluación. La vista varía según el rol del actor: el Alumno visualiza únicamente sus propios intentos; el Docente visualiza los de los alumnos inscriptos en su curso.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Alumno o Docente.
+Existe al menos un intento registrado para la autoevaluación.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
@@ -2244,41 +2748,51 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 2    | El sistema recupera y lista los intentos, restringidos a los propios si el actor es Alumno. |
 | 3    | Fin del caso de uso. |
 
-- **Salida**
-  - Se recupera el historial de intentos de la autoevaluación, con su fecha, nota y resultado (aprobado / no aprobado).
-- **Excepciones**
+**Salida**
+Se recupera el historial de intentos de la autoevaluación, con su fecha, nota y resultado (aprobado / no aprobado).
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
+| -    | -      |
 
-- **Frecuencia**
-  - Media — el alumno la consulta para revisar su desempeño; el docente, para hacer seguimiento del curso.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - –
+**Frecuencia**
+Media — el alumno la consulta para revisar su desempeño; el docente, para hacer seguimiento del curso.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+–
 
 ---
 
-### CU-50
-**Realizar intento de autoevaluación**
+### CU-51
+### Realizar intento de autoevaluación
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-03: Evaluar y certificar a los alumnos.
-- **Requisito(s) de información asociado(s)**
-  - RI-03: Información sobre evaluación y certificación.
-- **Módulo**
-  - MOD-F-03: Módulo de Evaluación y Certificación
-- **Actor(es)**
-  - Alumno
-- **Descripción**
-  - Permite al Alumno realizar un intento de una autoevaluación, respondiendo un cuestionario de 10 preguntas sorteadas de los pools asociados, con corrección automática. Ver PA-6: Emisión automática de certificados.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Alumno.
-  - El alumno posee una inscripción vigente al curso.
-  - La unidad o el curso al que pertenece la autoevaluación se encuentra habilitado según el avance secuencial del alumno.
-  - El alumno no superó la cantidad de intentos permitidos para esa autoevaluación.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-03: Evaluar y certificar a los alumnos.
+
+**Requisito(s) de información asociado(s)**
+RI-03: Información sobre evaluación y certificación.
+
+**Módulo**
+MOD-F-03: Módulo de Evaluación y Certificación
+
+**Actor(es)**
+Alumno
+
+**Descripción**
+Permite al Alumno realizar un intento de una autoevaluación, respondiendo un cuestionario de 10 preguntas sorteadas de los pools asociados, con corrección automática. Ver PA-6: Emisión automática de certificados.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Alumno.
+El alumno posee una inscripción vigente al curso.
+La unidad o el curso al que pertenece la autoevaluación se encuentra habilitado según el avance secuencial del alumno.
+El alumno no superó la cantidad de intentos permitidos para esa autoevaluación.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
@@ -2290,46 +2804,55 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 6    | El sistema valida que se haya respondido a las 10 preguntas. |
 | 7    | El sistema corrige automáticamente el intento, comparando la opción elegida por el alumno con la opción correcta de cada pregunta. |
 | 8    | El sistema calcula la nota del intento y registra el intento con la fecha actual. |
-| 9    | Si el alumno respondió correctamente las 10 preguntas, el sistema aprueba el intento, habilita el acceso a la siguiente unidad y, si correspondía a la evaluación final del curso, dispara la emisión del certificado (CU-52). |
+| 9    | Si el alumno respondió correctamente las 10 preguntas, el sistema aprueba el intento, registra el progreso de la unidad como completada y, si correspondía a la evaluación final del curso, dispara la emisión del certificado (CU-53). |
 | 10   | Si el alumno no respondió correctamente las 10 preguntas, el sistema no aprueba el intento e informa que debe reintentar el cuestionario completo. |
 | 11   | Fin del caso de uso. |
 
-- **Postcondición(es)**
-  - El intento queda registrado, con la opción elegida por el alumno en cada pregunta sorteada, la nota obtenida y el resultado.
-  - Si fue aprobado, se habilita la siguiente unidad del curso o se dispara la emisión del certificado si correspondía a la evaluación final.
-- **Excepciones**
+**Postcondición(es)**
+El intento queda registrado, con la opción elegida por el alumno en cada pregunta sorteada, la nota obtenida y el resultado.
+Si fue aprobado: el progreso del alumno en la unidad queda registrado como completado, con la fecha de aprobación, se habilita el acceso a la siguiente unidad del curso; y, si correspondía a la evaluación final, se dispara la emisión del certificado.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
 | 6    | Si se agota el tiempo límite sin que el alumno haya respondido las 10 preguntas, el sistema cierra automáticamente el intento con las respuestas dadas hasta ese momento y lo registra como no aprobado. |
 
-- **Frecuencia**
-  - Alta — se repite en cada unidad de cada curso cursado por cada alumno.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - La aprobación exige responder correctamente la totalidad de las 10 preguntas del intento, según lo confirmado por el cliente; no existe una nota de corte parcial.
-  - Si el alumno agota la cantidad de intentos permitidos sin aprobar, queda bloqueado para continuar el curso hasta que el Administrador o el Docente amplíen sus intentos mediante CU-47: Modificar autoevaluación.
+**Frecuencia**
+Alta — se repite en cada unidad de cada curso cursado por cada alumno.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+La aprobación exige responder correctamente la totalidad de las 10 preguntas del intento, según lo confirmado por el cliente; no existe una nota de corte parcial.
+Si el alumno agota la cantidad de intentos permitidos sin aprobar, queda bloqueado para continuar el curso hasta que el Administrador o el Docente amplíen sus intentos mediante CU-48: Modificar autoevaluación.
 
 ---
 
-### CU-51
-**Buscar certificado**
+### CU-52
+### Buscar certificado
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-03: Evaluar y certificar a los alumnos.
-- **Requisito(s) de información asociado(s)**
-  - RI-03: Información sobre evaluación y certificación.
-- **Módulo**
-  - MOD-F-03: Módulo de Evaluación y Certificación
-- **Actor(es)**
-  - Alumno, Administrador
-- **Descripción**
-  - Permite consultar y descargar los certificados emitidos. La vista varía según el rol del actor: el Alumno visualiza únicamente los propios; el Administrador visualiza todos.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Alumno o Administrador.
-  - Existe al menos un certificado emitido.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-03: Evaluar y certificar a los alumnos.
+
+**Requisito(s) de información asociado(s)**
+RI-03: Información sobre evaluación y certificación.
+
+**Módulo**
+MOD-F-03: Módulo de Evaluación y Certificación
+
+**Actor(es)**
+Alumno, Administrador
+
+**Descripción**
+Permite consultar y descargar los certificados emitidos. La vista varía según el rol del actor: el Alumno visualiza únicamente los propios; el Administrador visualiza todos.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Alumno o Administrador.
+Existe al menos un certificado emitido.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
@@ -2338,84 +2861,105 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 3    | El actor puede descargar el archivo del certificado seleccionado. |
 | 4    | Fin del caso de uso. |
 
-- **Salida**
-  - Se recuperan uno o más certificados, con su número, fecha de emisión, curso y alumno.
-- **Excepciones**
+**Salida**
+Se recuperan uno o más certificados, con su número, fecha de emisión, curso y alumno.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
+| -    | -      |
 
-- **Frecuencia**
-  - Media — el alumno la consulta al finalizar un curso; el Administrador, para el seguimiento académico.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - –
+**Frecuencia**
+Media — el alumno la consulta al finalizar un curso; el Administrador, para el seguimiento académico.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+–
 
 ---
 
-### CU-52
-**Generar certificado**
+### CU-53
+### Generar certificado
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-03: Evaluar y certificar a los alumnos.
-- **Requisito(s) de información asociado(s)**
-  - RI-03: Información sobre evaluación y certificación.
-- **Módulo**
-  - MOD-F-03: Módulo de Evaluación y Certificación
-- **Actor(es)**
-  - Alumno, indirectamente mediante CU-50: Realizar intento de autoevaluación
-- **Descripción**
-  - Genera automáticamente la constancia de finalización de un curso cuando el alumno aprueba la autoevaluación que completa el curso, y la envía por correo electrónico. Ver PA-6: Emisión automática de certificados.
-- **Precondición(es)**
-  - El alumno aprobó la autoevaluación final del curso, o la última unidad si el curso no posee evaluación final integradora.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-03: Evaluar y certificar a los alumnos.
+
+**Requisito(s) de información asociado(s)**
+RI-03: Información sobre evaluación y certificación.
+
+**Módulo**
+MOD-F-03: Módulo de Evaluación y Certificación
+
+**Actor(es)**
+Alumno, indirectamente mediante CU-51: Realizar intento de autoevaluación
+
+**Descripción**
+Genera automáticamente la constancia de finalización de un curso cuando el alumno aprueba la autoevaluación que completa el curso, y la envía por correo electrónico. Ver PA-6: Emisión automática de certificados.
+
+**Precondición(es)**
+El alumno aprobó la autoevaluación final del curso, o la última unidad si el curso no posee evaluación final integradora.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
 | 1    | El caso de uso inicia automáticamente cuando el alumno aprueba la autoevaluación que completa el curso. |
-| 2    | El sistema verifica que se hayan completado todas las unidades del curso. |
+| 2    | El sistema verifica que el progreso de todas las unidades del curso se encuentre registrado como completado. |
 | 3    | El sistema genera un número de certificado único y el archivo descargable correspondiente. |
 | 4    | El sistema registra el certificado, asociado a la inscripción del alumno, con la fecha de emisión actual. |
 | 5    | El sistema envía el certificado al alumno por correo electrónico. |
 | 6    | Fin del caso de uso. |
 
-- **Postcondición(es)**
-  - El certificado queda registrado y asociado a la inscripción del alumno.
-  - El alumno recibe el certificado por correo electrónico y puede consultarlo mediante CU-51: Buscar certificado.
-- **Excepciones**
+**Postcondición(es)**
+El certificado queda registrado y asociado a la inscripción del alumno.
+El alumno recibe el certificado por correo electrónico y puede consultarlo mediante CU-52: Buscar certificado.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
+| -    | -      |
 
-- **Frecuencia**
-  - Alta — ocurre por cada alumno que finaliza un curso.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - La constancia tiene valor informativo e institucional; no incorpora firma digital certificada. Su valor oficial ante organismos como la Comisión Nacional de Valores queda fuera del alcance del sistema.
+**Frecuencia**
+Alta — ocurre por cada alumno que finaliza un curso.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+La constancia tiene valor informativo e institucional; no incorpora firma digital certificada. Su valor oficial ante organismos como la Comisión Nacional de Valores queda fuera del alcance del sistema.
+El progreso de cada unidad se registra automáticamente al aprobar el intento de autoevaluación correspondiente (ver CU-51: Realizar intento de autoevaluación) y puede consultarse mediante CU-37: Buscar progreso.
 
 ---
 
 ## MOD-F-04: Módulo de Clon con IA
 
-### CU-53
-**Habilitar Clon IA**
+### CU-54
+### Habilitar Clon IA
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-04: Generar clases con Clon de inteligencia artificial.
-- **Requisito(s) de información asociado(s)**
-  - RI-04: Información sobre clases con Clon de inteligencia artificial.
-- **Módulo**
-  - MOD-F-04: Módulo de Clon con IA
-- **Actor(es)**
-  - Docente
-- **Descripción**
-  - Permite al Docente habilitarse para dictar clases mediante Clon de inteligencia artificial, una vez completado el proceso de "Avatar Consent" en HeyGen, mediante el cual valida su identidad y da su conformidad para el uso de su imagen y voz.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Docente.
-  - El docente completó el proceso de validación de identidad y consentimiento de uso de imagen y voz en HeyGen.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-04: Generar clases con Clon de inteligencia artificial.
+
+**Requisito(s) de información asociado(s)**
+RI-04: Información sobre clases con Clon de inteligencia artificial.
+
+**Módulo**
+MOD-F-04: Módulo de Clon con IA
+
+**Actor(es)**
+Docente
+
+**Descripción**
+Permite al Docente habilitarse para dictar clases mediante Clon de inteligencia artificial, una vez completado el proceso de "Avatar Consent" en HeyGen, mediante el cual valida su identidad y da su conformidad para el uso de su imagen y voz.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Docente.
+El docente completó el proceso de validación de identidad y consentimiento de uso de imagen y voz en HeyGen.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
@@ -2426,39 +2970,49 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 5    | El sistema informa el éxito de la habilitación. |
 | 6    | Fin del caso de uso. |
 
-- **Postcondición(es)**
-  - El docente queda habilitado para dictar clases mediante Clon de IA.
-- **Excepciones**
+**Postcondición(es)**
+El docente queda habilitado para dictar clases mediante Clon de IA.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
+| -    | -      |
 
-- **Frecuencia**
-  - Muy baja — ocurre una única vez por docente, antes de su primera clase con Clon de IA.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - El proceso de "Avatar Consent" (grabación de validación de identidad, voz e imagen) lo ejecuta HeyGen directamente en su propia plataforma y queda fuera del alcance del sistema propuesto; este caso de uso solo registra que ese proceso externo fue completado.
+**Frecuencia**
+Muy baja — ocurre una única vez por docente, antes de su primera clase con Clon de IA.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+El proceso de "Avatar Consent" (grabación de validación de identidad, voz e imagen) lo ejecuta HeyGen directamente en su propia plataforma y queda fuera del alcance del sistema propuesto; este caso de uso solo registra que ese proceso externo fue completado.
 
 ---
 
-### CU-54
-**Deshabilitar Clon IA**
+### CU-55
+### Deshabilitar Clon IA
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-04: Generar clases con Clon de inteligencia artificial.
-- **Requisito(s) de información asociado(s)**
-  - RI-04: Información sobre clases con Clon de inteligencia artificial.
-- **Módulo**
-  - MOD-F-04: Módulo de Clon con IA
-- **Actor(es)**
-  - Docente
-- **Descripción**
-  - Permite al Docente revocar su habilitación para dictar clases mediante Clon de inteligencia artificial.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Docente.
-  - El docente se encuentra habilitado para dictar clases con Clon de IA.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-04: Generar clases con Clon de inteligencia artificial.
+
+**Requisito(s) de información asociado(s)**
+RI-04: Información sobre clases con Clon de inteligencia artificial.
+
+**Módulo**
+MOD-F-04: Módulo de Clon con IA
+
+**Actor(es)**
+Docente
+
+**Descripción**
+Permite al Docente revocar su habilitación para dictar clases mediante Clon de inteligencia artificial.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Docente.
+El docente se encuentra habilitado para dictar clases con Clon de IA.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
@@ -2469,40 +3023,50 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 5    | El sistema informa el éxito de la operación. |
 | 6    | Fin del caso de uso. |
 
-- **Postcondición(es)**
-  - El docente deja de estar habilitado para dictar clases mediante Clon de IA.
-- **Excepciones**
+**Postcondición(es)**
+El docente deja de estar habilitado para dictar clases mediante Clon de IA.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
+| -    | -      |
 
-- **Frecuencia**
-  - Muy baja — ocurre cuando un docente decide dejar de dictar clases con Clon de IA.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - No afecta las clases con Clon de IA ya generadas previamente; sólo impide generar nuevas mientras el docente permanezca deshabilitado.
+**Frecuencia**
+Muy baja — ocurre cuando un docente decide dejar de dictar clases con Clon de IA.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+No afecta las clases con Clon de IA ya generadas previamente; sólo impide generar nuevas mientras el docente permanezca deshabilitado.
 
 ---
 
-### CU-55
-**Generar clase con Clon IA**
+### CU-56
+### Generar clase con Clon IA
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-04: Generar clases con Clon de inteligencia artificial.
-- **Requisito(s) de información asociado(s)**
-  - RI-04: Información sobre clases con Clon de inteligencia artificial.
-- **Módulo**
-  - MOD-F-04: Módulo de Clon con IA
-- **Actor(es)**
-  - Docente
-- **Descripción**
-  - Permite al Docente titular o supervisor de un curso generar una clase para una unidad mediante un Clon de inteligencia artificial, a partir de un guión que redacta como prompt, integrando con la plataforma HeyGen. Ver PA-5: Generación de videos Clon IA.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Docente.
-  - El docente se encuentra habilitado para dictar clases con Clon de IA.
-  - La unidad existe y pertenece a un curso en el que el docente participa como titular o supervisor.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-04: Generar clases con Clon de inteligencia artificial.
+
+**Requisito(s) de información asociado(s)**
+RI-04: Información sobre clases con Clon de inteligencia artificial.
+
+**Módulo**
+MOD-F-04: Módulo de Clon con IA
+
+**Actor(es)**
+Docente
+
+**Descripción**
+Permite al Docente titular o supervisor de un curso generar una clase para una unidad mediante un Clon de inteligencia artificial, a partir de un guión que redacta como prompt, integrando con la plataforma HeyGen. Ver PA-5: Generación de videos Clon IA.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Docente.
+El docente se encuentra habilitado para dictar clases con Clon de IA.
+La unidad existe y pertenece a un curso en el que el docente participa como titular o supervisor.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
@@ -2518,45 +3082,54 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 10   | El sistema notifica al docente que el material está disponible para su revisión antes de publicarlo. |
 | 11   | Fin del caso de uso. |
 
-- **Postcondición(es)**
-  - La clase con Clon de IA queda registrada, en estado Generada.
-  - El video generado queda cargado como material de la unidad, sin publicar.
-  - El docente recibe la notificación para revisar el material.
-- **Excepciones**
+**Postcondición(es)**
+La clase con Clon de IA queda registrada, en estado Generada.
+El video generado queda cargado como material de la unidad, sin publicar.
+El docente recibe la notificación para revisar el material.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
 | 4    | Si el título o el guión no fueron completados, el sistema informa el error y vuelve al paso 3. |
 | 7    | Si HeyGen no logra generar el video, el sistema actualiza el estado de la clase a Error y notifica al docente para que reintente. |
 
-- **Frecuencia**
-  - Media — ocurre según la disponibilidad horaria de cada docente de alto nivel académico.
-- **Estabilidad**
-  - Media — depende de las capacidades y condiciones de integración de HeyGen.
-- **Comentarios**
-  - –
+**Frecuencia**
+Media — ocurre según la disponibilidad horaria de cada docente de alto nivel académico.
+
+**Estabilidad**
+Media — depende de las capacidades y condiciones de integración de HeyGen.
+
+**Comentarios**
+–
 
 ---
 
 ## MOD-F-05: Módulo de Clases en Vivo
 
-### CU-56
-**Buscar clase en vivo**
+### CU-57
+### Buscar clase en vivo
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-05: Gestionar las clases en vivo.
-- **Requisito(s) de información asociado(s)**
-  - RI-05: Información sobre clases en vivo.
-- **Módulo**
-  - MOD-F-05: Módulo de Clases en Vivo
-- **Actor(es)**
-  - Docente, Administrador
-- **Descripción**
-  - Permite al Docente titular/supervisor o al Administrador buscar las clases en vivo programadas para una unidad.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Docente o Administrador.
-  - Existe al menos una clase en vivo registrada.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-05: Gestionar las clases en vivo.
+
+**Requisito(s) de información asociado(s)**
+RI-05: Información sobre clases en vivo.
+
+**Módulo**
+MOD-F-05: Módulo de Clases en Vivo
+
+**Actor(es)**
+Docente, Administrador
+
+**Descripción**
+Permite al Docente titular/supervisor o al Administrador buscar las clases en vivo programadas para una unidad.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Docente o Administrador.
+Existe al menos una clase en vivo registrada.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
@@ -2566,39 +3139,49 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 4    | El sistema recupera y lista las clases en vivo que coinciden con los criterios ingresados. |
 | 5    | Fin del caso de uso. |
 
-- **Salida**
-  - Se recuperan una o más clases en vivo, con su título, fecha y hora, docente y estado.
-- **Excepciones**
+**Salida**
+Se recuperan una o más clases en vivo, con su título, fecha y hora, docente y estado.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
+| -    | -      |
 
-- **Frecuencia**
-  - Media — se consulta para el seguimiento del cronograma de clases en vivo.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - –
+**Frecuencia**
+Media — se consulta para el seguimiento del cronograma de clases en vivo.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+–
 
 ---
 
-### CU-57
-**Programar clase en vivo**
+### CU-58
+### Programar clase en vivo
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-05: Gestionar las clases en vivo.
-- **Requisito(s) de información asociado(s)**
-  - RI-05: Información sobre clases en vivo.
-- **Módulo**
-  - MOD-F-05: Módulo de Clases en Vivo
-- **Actor(es)**
-  - Docente
-- **Descripción**
-  - Permite al Docente titular o supervisor de un curso programar una clase en vivo para una unidad, definiendo su fecha y hora de transmisión.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Docente.
-  - La unidad existe y pertenece a un curso en el que el docente participa como titular o supervisor.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-05: Gestionar las clases en vivo.
+
+**Requisito(s) de información asociado(s)**
+RI-05: Información sobre clases en vivo.
+
+**Módulo**
+MOD-F-05: Módulo de Clases en Vivo
+
+**Actor(es)**
+Docente
+
+**Descripción**
+Permite al Docente titular o supervisor de un curso programar una clase en vivo para una unidad, definiendo su fecha y hora de transmisión.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Docente.
+La unidad existe y pertenece a un curso en el que el docente participa como titular o supervisor.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
@@ -2612,46 +3195,55 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 8    | El sistema informa el éxito del registro. |
 | 9    | Fin del caso de uso. |
 
-- **Postcondición(es)**
-  - La clase en vivo queda registrada en estado Programada, asociada a la unidad y al docente.
-  - Los alumnos inscriptos reciben la notificación.
-- **Excepciones**
+**Postcondición(es)**
+La clase en vivo queda registrada en estado Programada, asociada a la unidad y al docente.
+Los alumnos inscriptos reciben la notificación.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
 | 4    | Si no se completó alguno de los campos obligatorios, el sistema informa el error y vuelve al paso 3. |
 | 5    | Si la fecha y hora ingresadas no son posteriores al momento actual, el sistema informa el error y vuelve al paso 3. |
 
-- **Frecuencia**
-  - Media — ocurre al planificar el cronograma de clases en vivo de un curso.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - La configuración e instalación del software OBS para cada docente está a cargo del equipo de sistemas de la empresa, previo a la transmisión, y queda fuera del alcance funcional de este caso de uso.
+**Frecuencia**
+Media — ocurre al planificar el cronograma de clases en vivo de un curso.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+La configuración e instalación del software OBS para cada docente está a cargo del equipo de sistemas de la empresa, previo a la transmisión, y queda fuera del alcance funcional de este caso de uso.
 
 ---
 
-### CU-58
-**Modificar clase en vivo**
+### CU-59
+### Modificar clase en vivo
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-05: Gestionar las clases en vivo.
-- **Requisito(s) de información asociado(s)**
-  - RI-05: Información sobre clases en vivo.
-- **Módulo**
-  - MOD-F-05: Módulo de Clases en Vivo
-- **Actor(es)**
-  - Docente
-- **Descripción**
-  - Permite al Docente modificar el título, la fecha o la hora de una clase en vivo, siempre que todavía no haya sido transmitida.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Docente.
-  - La clase en vivo existe, fue registrada por el actor y se encuentra en estado Programada.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-05: Gestionar las clases en vivo.
+
+**Requisito(s) de información asociado(s)**
+RI-05: Información sobre clases en vivo.
+
+**Módulo**
+MOD-F-05: Módulo de Clases en Vivo
+
+**Actor(es)**
+Docente
+
+**Descripción**
+Permite al Docente modificar el título, la fecha o la hora de una clase en vivo, siempre que todavía no haya sido transmitida.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Docente.
+La clase en vivo existe, fue registrada por el actor y se encuentra en estado Programada.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
-| 1    | El caso de uso inicia cuando el actor busca y selecciona la clase en vivo programada a modificar (ver CU-56: Buscar clase en vivo). |
+| 1    | El caso de uso inicia cuando el actor busca y selecciona la clase en vivo programada a modificar (ver CU-57: Buscar clase en vivo). |
 | 2    | El sistema muestra los datos actuales de la clase. |
 | 3    | El actor modifica el título, la fecha o la hora. |
 | 4    | El sistema valida que se mantengan completos los campos obligatorios y que la fecha y hora sean posteriores al momento actual. |
@@ -2660,87 +3252,105 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 7    | El sistema informa el éxito de la modificación. |
 | 8    | Fin del caso de uso. |
 
-- **Postcondición(es)**
-  - La clase en vivo queda actualizada con los nuevos datos.
-  - Los alumnos inscriptos reciben la notificación del cambio, si corresponde.
-- **Excepciones**
+**Postcondición(es)**
+La clase en vivo queda actualizada con los nuevos datos.
+Los alumnos inscriptos reciben la notificación del cambio, si corresponde.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
 | 4    | Si algún campo obligatorio queda vacío, o la fecha y hora no son posteriores al momento actual, el sistema informa el error y vuelve al paso 3. |
 
-- **Frecuencia**
-  - Baja — se usa para reprogramar una clase antes de su transmisión.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - No es posible modificar una clase que ya está En vivo o Finalizada.
+**Frecuencia**
+Baja — se usa para reprogramar una clase antes de su transmisión.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+No es posible modificar una clase que ya está En vivo o Finalizada.
 
 ---
 
-### CU-59
-**Cancelar clase en vivo**
+### CU-60
+### Cancelar clase en vivo
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-05: Gestionar las clases en vivo.
-- **Requisito(s) de información asociado(s)**
-  - RI-05: Información sobre clases en vivo.
-- **Módulo**
-  - MOD-F-05: Módulo de Clases en Vivo
-- **Actor(es)**
-  - Docente
-- **Descripción**
-  - Permite al Docente cancelar una clase en vivo programada que todavía no fue transmitida.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Docente.
-  - La clase en vivo existe, fue registrada por el actor y se encuentra en estado Programada.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-05: Gestionar las clases en vivo.
+
+**Requisito(s) de información asociado(s)**
+RI-05: Información sobre clases en vivo.
+
+**Módulo**
+MOD-F-05: Módulo de Clases en Vivo
+
+**Actor(es)**
+Docente
+
+**Descripción**
+Permite al Docente cancelar una clase en vivo programada que todavía no fue transmitida.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Docente.
+La clase en vivo existe, fue registrada por el actor y se encuentra en estado Programada.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
-| 1    | El caso de uso inicia cuando el actor busca y selecciona la clase en vivo programada a cancelar (ver CU-56: Buscar clase en vivo). |
+| 1    | El caso de uso inicia cuando el actor busca y selecciona la clase en vivo programada a cancelar (ver CU-57: Buscar clase en vivo). |
 | 2    | El actor confirma la cancelación. |
 | 3    | El sistema marca la clase como dada de baja. |
 | 4    | El sistema notifica a los alumnos inscriptos la cancelación de la clase. |
 | 5    | El sistema informa el éxito de la operación. |
 | 6    | Fin del caso de uso. |
 
-- **Postcondición(es)**
-  - La clase en vivo queda dada de baja.
-  - Los alumnos inscriptos reciben la notificación de la cancelación.
-- **Excepciones**
+**Postcondición(es)**
+La clase en vivo queda dada de baja.
+Los alumnos inscriptos reciben la notificación de la cancelación.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
 | 2    | Si el actor no confirma la cancelación, el sistema cancela la operación y finaliza el caso de uso. |
 
-- **Frecuencia**
-  - Baja — ocurre cuando un docente no puede sostener una clase ya programada.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - No es posible cancelar una clase que ya está En vivo o Finalizada.
+**Frecuencia**
+Baja — ocurre cuando un docente no puede sostener una clase ya programada.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+No es posible cancelar una clase que ya está En vivo o Finalizada.
 
 ---
 
-### CU-60
-**Iniciar clase en vivo**
+### CU-61
+### Iniciar clase en vivo
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-05: Gestionar las clases en vivo.
-- **Requisito(s) de información asociado(s)**
-  - RI-05: Información sobre clases en vivo.
-- **Módulo**
-  - MOD-F-05: Módulo de Clases en Vivo
-- **Actor(es)**
-  - Docente
-- **Descripción**
-  - Permite al Docente iniciar la transmisión de una clase en vivo programada, generando los datos de conexión que utilizará desde OBS. Ver PA-4: Clases en Vivo.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Docente.
-  - La clase en vivo existe, fue registrada por el actor y se encuentra en estado Programada.
-  - Se alcanzó el horario programado para la clase.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-05: Gestionar las clases en vivo.
+
+**Requisito(s) de información asociado(s)**
+RI-05: Información sobre clases en vivo.
+
+**Módulo**
+MOD-F-05: Módulo de Clases en Vivo
+
+**Actor(es)**
+Docente
+
+**Descripción**
+Permite al Docente iniciar la transmisión de una clase en vivo programada, generando los datos de conexión que utilizará desde OBS. Ver PA-4: Clases en Vivo.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Docente.
+La clase en vivo existe, fue registrada por el actor y se encuentra en estado Programada.
+Se alcanzó el horario programado para la clase.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
@@ -2748,43 +3358,53 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 2    | El sistema genera los datos de conexión de la transmisión (URL de streaming y clave privada de transmisión). |
 | 3    | El sistema pasa la clase al estado En vivo. |
 | 4    | El docente carga los datos de conexión en OBS y comienza a transmitir. |
-| 5    | El sistema recibe la señal transmitida y la redistribuye en simultáneo a los alumnos inscriptos que ingresan a la clase (ver CU-62: Ingresar a clase en vivo), mientras graba automáticamente la transmisión. |
+| 5    | El sistema recibe la señal transmitida y la redistribuye en simultáneo a los alumnos inscriptos que ingresan a la clase (ver CU-63: Ingresar a clase en vivo), mientras graba automáticamente la transmisión. |
 | 6    | Fin del caso de uso. |
 
-- **Postcondición(es)**
-  - La clase en vivo queda en estado En vivo, con sus datos de conexión generados.
-  - La transmisión queda disponible para los alumnos inscriptos y se graba automáticamente.
-- **Excepciones**
+**Postcondición(es)**
+La clase en vivo queda en estado En vivo, con sus datos de conexión generados.
+La transmisión queda disponible para los alumnos inscriptos y se graba automáticamente.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
+| -    | -      |
 
-- **Frecuencia**
-  - Media — ocurre por cada clase en vivo programada que efectivamente se dicta.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - La clave de transmisión es privada del docente, de forma que solo él pueda transmitir con los datos de conexión generados para esa clase.
+**Frecuencia**
+Media — ocurre por cada clase en vivo programada que efectivamente se dicta.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+La clave de transmisión es privada del docente, de forma que solo él pueda transmitir con los datos de conexión generados para esa clase.
 
 ---
 
-### CU-61
-**Finalizar clase en vivo**
+### CU-62
+### Finalizar clase en vivo
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-05: Gestionar las clases en vivo.
-- **Requisito(s) de información asociado(s)**
-  - RI-05: Información sobre clases en vivo.
-- **Módulo**
-  - MOD-F-05: Módulo de Clases en Vivo
-- **Actor(es)**
-  - Docente
-- **Descripción**
-  - Permite al Docente finalizar la transmisión de una clase en vivo, dando de baja la señal en OBS de forma remota y generando la grabación resultante como material de la unidad. Ver PA-4: Clases en Vivo.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Docente.
-  - La clase en vivo existe, fue registrada por el actor y se encuentra en estado En vivo.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-05: Gestionar las clases en vivo.
+
+**Requisito(s) de información asociado(s)**
+RI-05: Información sobre clases en vivo.
+
+**Módulo**
+MOD-F-05: Módulo de Clases en Vivo
+
+**Actor(es)**
+Docente
+
+**Descripción**
+Permite al Docente finalizar la transmisión de una clase en vivo, dando de baja la señal en OBS de forma remota y generando la grabación resultante como material de la unidad. Ver PA-4: Clases en Vivo.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Docente.
+La clase en vivo existe, fue registrada por el actor y se encuentra en estado En vivo.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
@@ -2796,42 +3416,52 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 6    | El sistema notifica a los alumnos inscriptos que la grabación ya está disponible. |
 | 7    | Fin del caso de uso. |
 
-- **Postcondición(es)**
-  - La clase en vivo queda en estado Finalizada.
-  - La grabación queda cargada como material publicado de la unidad.
-  - Los alumnos inscriptos reciben la notificación de disponibilidad de la grabación.
-- **Excepciones**
+**Postcondición(es)**
+La clase en vivo queda en estado Finalizada.
+La grabación queda cargada como material publicado de la unidad.
+Los alumnos inscriptos reciben la notificación de disponibilidad de la grabación.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
+| -    | -      |
 
-- **Frecuencia**
-  - Media — ocurre por cada clase en vivo que se transmite.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - La grabación resultante queda disponible por un plazo configurable (cuatro meses por defecto), con aviso previo al alumno antes de su vencimiento y eliminación automática al cumplirse el plazo.
+**Frecuencia**
+Media — ocurre por cada clase en vivo que se transmite.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+La grabación resultante queda disponible por un plazo configurable (cuatro meses por defecto), con aviso previo al alumno antes de su vencimiento y eliminación automática al cumplirse el plazo.
 
 ---
 
-### CU-62
-**Ingresar a clase en vivo**
+### CU-63
+### Ingresar a clase en vivo
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-05: Gestionar las clases en vivo.
-- **Requisito(s) de información asociado(s)**
-  - RI-05: Información sobre clases en vivo.
-- **Módulo**
-  - MOD-F-05: Módulo de Clases en Vivo
-- **Actor(es)**
-  - Alumno
-- **Descripción**
-  - Permite al Alumno ingresar a la transmisión de una clase en vivo mientras se encuentra en curso.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Alumno.
-  - El alumno posee una inscripción vigente al curso de la unidad.
-  - La clase en vivo se encuentra en estado En vivo.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-05: Gestionar las clases en vivo.
+
+**Requisito(s) de información asociado(s)**
+RI-05: Información sobre clases en vivo.
+
+**Módulo**
+MOD-F-05: Módulo de Clases en Vivo
+
+**Actor(es)**
+Alumno
+
+**Descripción**
+Permite al Alumno ingresar a la transmisión de una clase en vivo mientras se encuentra en curso.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Alumno.
+El alumno posee una inscripción vigente al curso de la unidad.
+La clase en vivo se encuentra en estado En vivo.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
@@ -2840,42 +3470,51 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 3    | El sistema conecta al alumno a la transmisión en curso. |
 | 4    | Fin del caso de uso. |
 
-- **Salida**
-  - El alumno queda conectado a la transmisión en vivo de la clase.
-- **Excepciones**
+**Salida**
+El alumno queda conectado a la transmisión en vivo de la clase.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
 | 2    | Si la clase todavía no comenzó o ya finalizó, el sistema informa que la transmisión no está disponible en este momento. |
 
-- **Frecuencia**
-  - Alta — ocurre por cada alumno que asiste a una clase en vivo.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - El alumno que no pudo asistir en vivo puede acceder posteriormente a la grabación mediante CU-14: Ver contenido de unidad, una vez finalizada la clase.
+**Frecuencia**
+Alta — ocurre por cada alumno que asiste a una clase en vivo.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+El alumno que no pudo asistir en vivo puede acceder posteriormente a la grabación mediante CU-14: Ver contenido de unidad, una vez finalizada la clase.
 
 ---
 
 ## MOD-F-06: Módulo de Generación de Contenido con IA
 
-### CU-63
-**Generar banco de preguntas**
+### CU-64
+### Generar banco de preguntas
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-06: Generar contenido académico con inteligencia artificial.
-- **Requisito(s) de información asociado(s)**
-  - RI-06: Información sobre generación de contenido con inteligencia artificial.
-- **Módulo**
-  - MOD-F-06: Módulo de Generación de Contenido con IA
-- **Actor(es)**
-  - Docente
-- **Descripción**
-  - Permite al Docente generar automáticamente un pool de preguntas para una unidad, a partir de la bibliografía y el glosario cargados, mediante un modelo de inteligencia artificial ejecutado localmente (Ollama). Ver PA-9: Generación de banco de preguntas.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Docente.
-  - La unidad posee al menos un material de tipo Bibliografía o un término de glosario cargado.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-06: Generar contenido académico con inteligencia artificial.
+
+**Requisito(s) de información asociado(s)**
+RI-06: Información sobre generación de contenido con inteligencia artificial.
+
+**Módulo**
+MOD-F-06: Módulo de Generación de Contenido con IA
+
+**Actor(es)**
+Docente
+
+**Descripción**
+Permite al Docente generar automáticamente un pool de preguntas para una unidad, a partir de la bibliografía y el glosario cargados, mediante un modelo de inteligencia artificial ejecutado localmente (Ollama). Ver PA-9: Generación de banco de preguntas.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Docente.
+La unidad posee al menos un material de tipo Bibliografía o un término de glosario cargado.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
@@ -2889,42 +3528,51 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 8    | El sistema notifica al docente que el pool está disponible para su revisión antes de publicarse. |
 | 9    | Fin del caso de uso. |
 
-- **Postcondición(es)**
-  - El pool generado queda registrado, asociado a la unidad.
-  - El docente recibe la notificación para revisar el pool antes de utilizarlo en una autoevaluación.
-- **Excepciones**
+**Postcondición(es)**
+El pool generado queda registrado, asociado a la unidad.
+El docente recibe la notificación para revisar el pool antes de utilizarlo en una autoevaluación.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
 | 6    | Si el modelo de inteligencia artificial devuelve un banco de preguntas con un formato inválido, el sistema descarta el resultado, informa el error al docente y le permite reintentar. |
 
-- **Frecuencia**
-  - Media — se usa como alternativa a la carga manual de preguntas (CU-42: Crear pool).
-- **Estabilidad**
-  - Media — depende de la disponibilidad y el desempeño del modelo de inteligencia artificial local.
-- **Comentarios**
-  - El pool queda registrado sin publicar como pool de referencia hasta que el docente lo revise; su uso efectivo en una autoevaluación se define mediante CU-46: Crear autoevaluación.
-  - El guión ingresado como prompt no se conserva en el sistema; es un dato de uso único hacia el modelo de inteligencia artificial.
+**Frecuencia**
+Media — se usa como alternativa a la carga manual de preguntas (CU-43: Crear pool).
+
+**Estabilidad**
+Media — depende de la disponibilidad y el desempeño del modelo de inteligencia artificial local.
+
+**Comentarios**
+El pool queda registrado sin publicar como pool de referencia hasta que el docente lo revise; su uso efectivo en una autoevaluación se define mediante CU-47: Crear autoevaluación.
+El guión ingresado como prompt no se conserva en el sistema; es un dato de uso único hacia el modelo de inteligencia artificial.
 
 ---
 
-### CU-64
-**Generar resumen de unidad**
+### CU-65
+### Generar resumen de unidad
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-06: Generar contenido académico con inteligencia artificial.
-- **Requisito(s) de información asociado(s)**
-  - RI-06: Información sobre generación de contenido con inteligencia artificial.
-- **Módulo**
-  - MOD-F-06: Módulo de Generación de Contenido con IA
-- **Actor(es)**
-  - Docente
-- **Descripción**
-  - Permite al Docente generar automáticamente un resumen del contenido de una unidad, a partir de su bibliografía cargada, mediante el modelo de inteligencia artificial local. Ver PA-8: Generación de resúmenes de unidad.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Docente.
-  - La unidad posee al menos un material de tipo Bibliografía cargado.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-06: Generar contenido académico con inteligencia artificial.
+
+**Requisito(s) de información asociado(s)**
+RI-06: Información sobre generación de contenido con inteligencia artificial.
+
+**Módulo**
+MOD-F-06: Módulo de Generación de Contenido con IA
+
+**Actor(es)**
+Docente
+
+**Descripción**
+Permite al Docente generar automáticamente un resumen del contenido de una unidad, a partir de su bibliografía cargada, mediante el modelo de inteligencia artificial local. Ver PA-8: Generación de resúmenes de unidad.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Docente.
+La unidad posee al menos un material de tipo Bibliografía cargado.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
@@ -2936,39 +3584,49 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 6    | El sistema notifica al docente que el resumen está disponible para su revisión antes de publicarlo. |
 | 7    | Fin del caso de uso. |
 
-- **Postcondición(es)**
-  - El resumen queda registrado como material de la unidad, sin publicar.
-  - El docente recibe la notificación para revisarlo.
-- **Excepciones**
+**Postcondición(es)**
+El resumen queda registrado como material de la unidad, sin publicar.
+El docente recibe la notificación para revisarlo.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
+| -    | -      |
 
-- **Frecuencia**
-  - Media — se usa como alternativa a la redacción manual de un resumen.
-- **Estabilidad**
-  - Media — depende de la disponibilidad y el desempeño del modelo de inteligencia artificial local.
-- **Comentarios**
-  - El docente publica el resumen generado mediante CU-17: Modificar material, una vez revisado su contenido.
+**Frecuencia**
+Media — se usa como alternativa a la redacción manual de un resumen.
+
+**Estabilidad**
+Media — depende de la disponibilidad y el desempeño del modelo de inteligencia artificial local.
+
+**Comentarios**
+El docente publica el resumen generado mediante CU-17: Modificar material, una vez revisado su contenido.
 
 ---
 
-### CU-65
-**Generar presentación de clase**
+### CU-66
+### Generar presentación de clase
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-06: Generar contenido académico con inteligencia artificial.
-- **Requisito(s) de información asociado(s)**
-  - RI-06: Información sobre generación de contenido con inteligencia artificial.
-- **Módulo**
-  - MOD-F-06: Módulo de Generación de Contenido con IA
-- **Actor(es)**
-  - Docente
-- **Descripción**
-  - Permite al Docente generar automáticamente una presentación descargable para una unidad, a partir de un guión que redacta como prompt, mediante el modelo de inteligencia artificial local. Ver PA-7: Generación de presentaciones para clases.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Docente.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-06: Generar contenido académico con inteligencia artificial.
+
+**Requisito(s) de información asociado(s)**
+RI-06: Información sobre generación de contenido con inteligencia artificial.
+
+**Módulo**
+MOD-F-06: Módulo de Generación de Contenido con IA
+
+**Actor(es)**
+Docente
+
+**Descripción**
+Permite al Docente generar automáticamente una presentación descargable para una unidad, a partir de un guión que redacta como prompt, mediante el modelo de inteligencia artificial local. Ver PA-7: Generación de presentaciones para clases.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Docente.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
@@ -2982,42 +3640,51 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 8    | El sistema notifica al docente que la presentación está disponible para su revisión antes de publicarla. |
 | 9    | Fin del caso de uso. |
 
-- **Postcondición(es)**
-  - La presentación queda registrada como material de la unidad, sin publicar.
-  - El docente recibe la notificación para revisarla.
-- **Excepciones**
+**Postcondición(es)**
+La presentación queda registrada como material de la unidad, sin publicar.
+El docente recibe la notificación para revisarla.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
 | 4    | Si el guión no fue completado, el sistema informa el error y vuelve al paso 3. |
 
-- **Frecuencia**
-  - Media — se usa como alternativa a la carga manual de una presentación.
-- **Estabilidad**
-  - Media — depende de la disponibilidad y el desempeño del modelo de inteligencia artificial local.
-- **Comentarios**
-  - El guión ingresado no se conserva en el sistema; es un dato de uso único hacia el modelo de inteligencia artificial, igual que en CU-55: Generar clase con Clon IA.
+**Frecuencia**
+Media — se usa como alternativa a la carga manual de una presentación.
+
+**Estabilidad**
+Media — depende de la disponibilidad y el desempeño del modelo de inteligencia artificial local.
+
+**Comentarios**
+El guión ingresado no se conserva en el sistema; es un dato de uso único hacia el modelo de inteligencia artificial, igual que en CU-56: Generar clase con Clon IA.
 
 ---
 
 ## MOD-NF-01: Módulo de Usuarios y Notificaciones
 
-### CU-66
-**Registrarse**
+### CU-67
+### Registrarse
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-07: Gestionar usuarios, autenticación y notificaciones.
-- **Requisito(s) de información asociado(s)**
-  - RI-07: Información sobre usuarios y notificaciones.
-- **Módulo**
-  - MOD-NF-01: Módulo de Usuarios y Notificaciones
-- **Actor(es)**
-  - Alumno
-- **Descripción**
-  - Permite a un interesado, todavía sin cuenta, crear su propia cuenta de Alumno en la plataforma, mediante correo electrónico y contraseña, validando la cuenta a través de un enlace enviado por email.
-- **Precondición(es)**
-  - –
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-07: Gestionar usuarios, autenticación y notificaciones.
+
+**Requisito(s) de información asociado(s)**
+RI-07: Información sobre usuarios y notificaciones.
+
+**Módulo**
+MOD-NF-01: Módulo de Usuarios y Notificaciones
+
+**Actor(es)**
+Alumno
+
+**Descripción**
+Permite a un interesado, todavía sin cuenta, crear su propia cuenta de Alumno en la plataforma, mediante correo electrónico y contraseña, validando la cuenta a través de un enlace enviado por email.
+
+**Precondición(es)**
+–
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
@@ -3032,42 +3699,51 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 9    | El sistema informa el éxito del registro y habilita el inicio de sesión. |
 | 10   | Fin del caso de uso. |
 
-- **Postcondición(es)**
-  - La cuenta queda registrada con rol Alumno.
-  - La cuenta queda validada una vez que el actor accede al enlace enviado por correo.
-- **Excepciones**
+**Postcondición(es)**
+La cuenta queda registrada con rol Alumno.
+La cuenta queda validada una vez que el actor accede al enlace enviado por correo.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
 | 4    | Si no se completó alguno de los campos obligatorios, el sistema informa el error y vuelve al paso 3. |
 | 4    | Si el correo electrónico ya está registrado, el sistema informa el error y sugiere iniciar sesión o recuperar la contraseña. |
 
-- **Frecuencia**
-  - Alta — ocurre por cada nuevo alumno que se suma a la plataforma.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - Es la vía de autoregistro con correo y contraseña; el alta mediante Google OAuth se resuelve automáticamente en CU-75: Iniciar sesión (ver PA-1: Login con Google).
+**Frecuencia**
+Alta — ocurre por cada nuevo alumno que se suma a la plataforma.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+Es la vía de autoregistro con correo y contraseña; el alta mediante Google OAuth se resuelve automáticamente en CU-76: Iniciar sesión (ver PA-1: Login con Google).
 
 ---
 
-### CU-67
-**Buscar usuario**
+### CU-68
+### Buscar usuario
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-07: Gestionar usuarios, autenticación y notificaciones.
-- **Requisito(s) de información asociado(s)**
-  - RI-07: Información sobre usuarios y notificaciones.
-- **Módulo**
-  - MOD-NF-01: Módulo de Usuarios y Notificaciones
-- **Actor(es)**
-  - Administrador
-- **Descripción**
-  - Permite al Administrador buscar los usuarios registrados en el sistema, con fines de gestión.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Administrador.
-  - Existe al menos un usuario registrado.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-07: Gestionar usuarios, autenticación y notificaciones.
+
+**Requisito(s) de información asociado(s)**
+RI-07: Información sobre usuarios y notificaciones.
+
+**Módulo**
+MOD-NF-01: Módulo de Usuarios y Notificaciones
+
+**Actor(es)**
+Administrador
+
+**Descripción**
+Permite al Administrador buscar los usuarios registrados en el sistema, con fines de gestión.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Administrador.
+Existe al menos un usuario registrado.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
@@ -3078,38 +3754,48 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 5    | El sistema lista los usuarios filtrados. |
 | 6    | Fin del caso de uso. |
 
-- **Salida**
-  - Se recuperan uno o más usuarios que cumplen con los criterios de búsqueda, con su rol y estado.
-- **Excepciones**
+**Salida**
+Se recuperan uno o más usuarios que cumplen con los criterios de búsqueda, con su rol y estado.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
+| -    | -      |
 
-- **Frecuencia**
-  - Alta — se consulta frecuentemente para la gestión de cuentas.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - Para los usuarios con rol Docente, este CU también permite verificar su estado de habilitación y de habilitación para Clon de IA.
+**Frecuencia**
+Alta — se consulta frecuentemente para la gestión de cuentas.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+Para los usuarios con rol Docente, este CU también permite verificar su estado de habilitación y de habilitación para Clon de IA.
 
 ---
 
-### CU-68
-**Registrar usuario**
+### CU-69
+### Registrar usuario
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-07: Gestionar usuarios, autenticación y notificaciones.
-- **Requisito(s) de información asociado(s)**
-  - RI-07: Información sobre usuarios y notificaciones.
-- **Módulo**
-  - MOD-NF-01: Módulo de Usuarios y Notificaciones
-- **Actor(es)**
-  - Administrador
-- **Descripción**
-  - Permite al Administrador registrar manualmente la cuenta de un Alumno o de otro Administrador, para los casos en que el alta no ocurre por autoregistro (por ejemplo, la inscripción corporativa de una empresa para sus empleados).
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Administrador.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-07: Gestionar usuarios, autenticación y notificaciones.
+
+**Requisito(s) de información asociado(s)**
+RI-07: Información sobre usuarios y notificaciones.
+
+**Módulo**
+MOD-NF-01: Módulo de Usuarios y Notificaciones
+
+**Actor(es)**
+Administrador
+
+**Descripción**
+Permite al Administrador registrar manualmente la cuenta de un Alumno o de otro Administrador, para los casos en que el alta no ocurre por autoregistro (por ejemplo, la inscripción corporativa de una empresa para sus empleados).
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Administrador.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
@@ -3121,45 +3807,54 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 6    | El sistema informa el éxito del registro. |
 | 7    | Fin del caso de uso. |
 
-- **Postcondición(es)**
-  - La cuenta queda registrada con el rol indicado.
-- **Excepciones**
+**Postcondición(es)**
+La cuenta queda registrada con el rol indicado.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
 | 4    | Si no se completó alguno de los campos obligatorios, el sistema informa el error y vuelve al paso 3. |
 | 4    | Si el correo electrónico ya está registrado, el sistema informa el error y vuelve al paso 3. |
 
-- **Frecuencia**
-  - Baja — se usa para altas manuales excepcionales; el alta habitual de un Alumno ocurre por autoregistro (CU-66) y la de un Docente por CU-73: Registrar docente.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - El Administrador puede crear cuentas de otros Administradores, pero no puede modificarlas ni darlas de baja una vez creadas.
+**Frecuencia**
+Baja — se usa para altas manuales excepcionales; el alta habitual de un Alumno ocurre por autoregistro (CU-67) y la de un Docente por CU-74: Registrar docente.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+El Administrador puede crear cuentas de otros Administradores, pero no puede modificarlas ni darlas de baja una vez creadas.
 
 ---
 
-### CU-69
-**Modificar usuario**
+### CU-70
+### Modificar usuario
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-07: Gestionar usuarios, autenticación y notificaciones.
-- **Requisito(s) de información asociado(s)**
-  - RI-07: Información sobre usuarios y notificaciones.
-- **Módulo**
-  - MOD-NF-01: Módulo de Usuarios y Notificaciones
-- **Actor(es)**
-  - Administrador
-- **Descripción**
-  - Permite al Administrador modificar los datos base de la cuenta de un Alumno.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Administrador.
-  - El usuario existe, posee rol Alumno y no se encuentra en baja.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-07: Gestionar usuarios, autenticación y notificaciones.
+
+**Requisito(s) de información asociado(s)**
+RI-07: Información sobre usuarios y notificaciones.
+
+**Módulo**
+MOD-NF-01: Módulo de Usuarios y Notificaciones
+
+**Actor(es)**
+Administrador
+
+**Descripción**
+Permite al Administrador modificar los datos base de la cuenta de un Alumno.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Administrador.
+El usuario existe, posee rol Alumno y no se encuentra en baja.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
-| 1    | El caso de uso inicia cuando el actor busca y selecciona la cuenta del alumno a modificar (ver CU-67: Buscar usuario). |
+| 1    | El caso de uso inicia cuando el actor busca y selecciona la cuenta del alumno a modificar (ver CU-68: Buscar usuario). |
 | 2    | El sistema muestra los datos actuales de la cuenta. |
 | 3    | El actor modifica el nombre, apellido, correo electrónico, DNI, teléfono o imagen de perfil. |
 | 4    | El sistema valida que se mantengan completos los campos obligatorios y que el correo electrónico, si fue modificado, no esté ya registrado por otra cuenta. |
@@ -3167,45 +3862,54 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 6    | El sistema informa el éxito de la modificación. |
 | 7    | Fin del caso de uso. |
 
-- **Postcondición(es)**
-  - La cuenta del alumno queda actualizada con los nuevos datos.
-- **Excepciones**
+**Postcondición(es)**
+La cuenta del alumno queda actualizada con los nuevos datos.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
 | 4    | Si algún campo obligatorio queda vacío, el sistema informa el error y vuelve al paso 3. |
 | 4    | Si el correo electrónico ya está registrado por otra cuenta, el sistema informa el error y vuelve al paso 3. |
 
-- **Frecuencia**
-  - Baja — se usa ante un reclamo o corrección de datos solicitada por el alumno.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - No incluye el cambio de contraseña, que se gestiona exclusivamente mediante CU-77: Recuperar contraseña. Los datos propios del Docente (información profesional) se gestionan mediante CU-74: Modificar docente, no con este CU.
+**Frecuencia**
+Baja — se usa ante un reclamo o corrección de datos solicitada por el alumno.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+No incluye el cambio de contraseña, que se gestiona exclusivamente mediante CU-78: Recuperar contraseña. Los datos propios del Docente (información profesional) se gestionan mediante CU-75: Modificar docente, no con este CU.
 
 ---
 
-### CU-70
-**Dar de baja usuario**
+### CU-71
+### Dar de baja usuario
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-07: Gestionar usuarios, autenticación y notificaciones.
-- **Requisito(s) de información asociado(s)**
-  - RI-07: Información sobre usuarios y notificaciones.
-- **Módulo**
-  - MOD-NF-01: Módulo de Usuarios y Notificaciones
-- **Actor(es)**
-  - Administrador
-- **Descripción**
-  - Permite al Administrador dar de baja la cuenta de un usuario, quitándole el acceso al sistema.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Administrador.
-  - El usuario existe y no se encuentra en baja.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-07: Gestionar usuarios, autenticación y notificaciones.
+
+**Requisito(s) de información asociado(s)**
+RI-07: Información sobre usuarios y notificaciones.
+
+**Módulo**
+MOD-NF-01: Módulo de Usuarios y Notificaciones
+
+**Actor(es)**
+Administrador
+
+**Descripción**
+Permite al Administrador dar de baja la cuenta de un usuario, quitándole el acceso al sistema.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Administrador.
+El usuario existe y no se encuentra en baja.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
-| 1    | El caso de uso inicia cuando el actor busca y selecciona la cuenta del usuario a dar de baja (ver CU-67: Buscar usuario). |
+| 1    | El caso de uso inicia cuando el actor busca y selecciona la cuenta del usuario a dar de baja (ver CU-68: Buscar usuario). |
 | 2    | Si el usuario posee rol Administrador, el sistema valida que existan otros administradores activos en el sistema además de él. |
 | 3    | Si el usuario posee rol Docente, el sistema verifica que no sea titular de ningún curso publicado y no esté dado de baja. |
 | 4    | El actor confirma la baja. |
@@ -3213,10 +3917,11 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 6    | El sistema informa el éxito de la operación. |
 | 7    | Fin del caso de uso. |
 
-- **Postcondición(es)**
-  - La cuenta queda en estado de baja y pierde acceso al sistema.
-  - Las sesiones activas del usuario quedan cerradas.
-- **Excepciones**
+**Postcondición(es)**
+La cuenta queda en estado de baja y pierde acceso al sistema.
+Las sesiones activas del usuario quedan cerradas.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
@@ -3224,32 +3929,40 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 3    | Si el docente es titular de al menos un curso publicado y no dado de baja, el sistema informa la dependencia y no permite la baja hasta que se le asigne otro docente titular o se despublique el curso. |
 | 4    | Si el actor no confirma la baja, el sistema cancela la operación y finaliza el caso de uso. |
 
-- **Frecuencia**
-  - Muy baja — ocurre ante un cierre de cuenta definitivo.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - La baja no elimina el registro físicamente, para preservar el historial de inscripciones, pagos y certificados.
-  - El sistema debe garantizar en todo momento la existencia de al menos un Administrador activo, para evitar que el sistema quede sin gestión posible.
+**Frecuencia**
+Muy baja — ocurre ante un cierre de cuenta definitivo.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+La baja no elimina el registro físicamente, para preservar el historial de inscripciones, pagos y certificados.
+El sistema debe garantizar en todo momento la existencia de al menos un Administrador activo, para evitar que el sistema quede sin gestión posible.
 
 ---
 
-### CU-71
-**Ver perfil**
+### CU-72
+### Ver perfil
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-07: Gestionar usuarios, autenticación y notificaciones.
-- **Requisito(s) de información asociado(s)**
-  - RI-07: Información sobre usuarios y notificaciones.
-- **Módulo**
-  - MOD-NF-01: Módulo de Usuarios y Notificaciones
-- **Actor(es)**
-  - Alumno, Docente, Administrador
-- **Descripción**
-  - Permite a cualquier usuario autenticado consultar los datos de su propia cuenta.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-07: Gestionar usuarios, autenticación y notificaciones.
+
+**Requisito(s) de información asociado(s)**
+RI-07: Información sobre usuarios y notificaciones.
+
+**Módulo**
+MOD-NF-01: Módulo de Usuarios y Notificaciones
+
+**Actor(es)**
+Alumno, Docente, Administrador
+
+**Descripción**
+Permite a cualquier usuario autenticado consultar los datos de su propia cuenta.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
@@ -3258,38 +3971,48 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 3    | El sistema muestra los datos al actor. |
 | 4    | Fin del caso de uso. |
 
-- **Salida**
-  - Se recuperan los datos de la cuenta del actor: nombre, apellido, correo electrónico, DNI, teléfono e imagen de perfil, y los datos profesionales adicionales si el actor es Docente.
-- **Excepciones**
+**Salida**
+Se recuperan los datos de la cuenta del actor: nombre, apellido, correo electrónico, DNI, teléfono e imagen de perfil, y los datos profesionales adicionales si el actor es Docente.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
+| -    | -      |
 
-- **Frecuencia**
-  - Alta — se consulta cada vez que un usuario accede a su perfil.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - Si el actor es Docente, también se muestran sus datos profesionales (biografía, años de experiencia, títulos, matrícula y estado de habilitación), aunque solo el Administrador puede modificarlos mediante CU-74: Modificar docente.
+**Frecuencia**
+Alta — se consulta cada vez que un usuario accede a su perfil.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+Si el actor es Docente, también se muestran sus datos profesionales (biografía, años de experiencia, títulos, matrícula y estado de habilitación), aunque solo el Administrador puede modificarlos mediante CU-75: Modificar docente.
 
 ---
 
-### CU-72
-**Editar perfil**
+### CU-73
+### Editar perfil
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-07: Gestionar usuarios, autenticación y notificaciones.
-- **Requisito(s) de información asociado(s)**
-  - RI-07: Información sobre usuarios y notificaciones.
-- **Módulo**
-  - MOD-NF-01: Módulo de Usuarios y Notificaciones
-- **Actor(es)**
-  - Alumno, Docente, Administrador
-- **Descripción**
-  - Permite a cualquier usuario autenticado editar los datos base de su propia cuenta.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-07: Gestionar usuarios, autenticación y notificaciones.
+
+**Requisito(s) de información asociado(s)**
+RI-07: Información sobre usuarios y notificaciones.
+
+**Módulo**
+MOD-NF-01: Módulo de Usuarios y Notificaciones
+
+**Actor(es)**
+Alumno, Docente, Administrador
+
+**Descripción**
+Permite a cualquier usuario autenticado editar los datos base de su propia cuenta.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
@@ -3301,39 +4024,48 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 6    | El sistema informa el éxito de la modificación. |
 | 7    | Fin del caso de uso. |
 
-- **Postcondición(es)**
-  - La cuenta del actor queda actualizada con los nuevos datos.
-- **Excepciones**
+**Postcondición(es)**
+La cuenta del actor queda actualizada con los nuevos datos.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
 | 4    | Si algún campo obligatorio queda vacío, el sistema informa el error y vuelve al paso 3. |
 
-- **Frecuencia**
-  - Baja — se usa cuando el usuario decide actualizar sus datos de contacto o su foto de perfil.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - No incluye el correo electrónico ni el cambio de contraseña, que se gestionan mediante CU-77: Recuperar contraseña. Si el actor es Docente, sus datos profesionales no se editan aquí; quedan a cargo del Administrador mediante CU-74: Modificar docente.
+**Frecuencia**
+Baja — se usa cuando el usuario decide actualizar sus datos de contacto o su foto de perfil.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+No incluye el correo electrónico ni el cambio de contraseña, que se gestionan mediante CU-78: Recuperar contraseña. Si el actor es Docente, sus datos profesionales no se editan aquí; quedan a cargo del Administrador mediante CU-75: Modificar docente.
 
 ---
 
-### CU-73
-**Registrar docente**
+### CU-74
+### Registrar docente
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-07: Gestionar usuarios, autenticación y notificaciones.
-- **Requisito(s) de información asociado(s)**
-  - RI-07: Información sobre usuarios y notificaciones.
-- **Módulo**
-  - MOD-NF-01: Módulo de Usuarios y Notificaciones
-- **Actor(es)**
-  - Administrador
-- **Descripción**
-  - Permite al Administrador registrar manualmente la cuenta de un nuevo docente, verificando previamente sus credenciales académicas o profesionales. El alta de un docente no admite autoregistro.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Administrador.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-07: Gestionar usuarios, autenticación y notificaciones.
+
+**Requisito(s) de información asociado(s)**
+RI-07: Información sobre usuarios y notificaciones.
+
+**Módulo**
+MOD-NF-01: Módulo de Usuarios y Notificaciones
+
+**Actor(es)**
+Administrador
+
+**Descripción**
+Permite al Administrador registrar manualmente la cuenta de un nuevo docente, verificando previamente sus credenciales académicas o profesionales. El alta de un docente no admite autoregistro.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Administrador.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
@@ -3348,9 +4080,10 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 9    | El sistema informa el éxito del registro. |
 | 10   | Fin del caso de uso. |
 
-- **Postcondición(es)**
-  - La cuenta del docente queda registrada, habilitada y con su información profesional cargada.
-- **Excepciones**
+**Postcondición(es)**
+La cuenta del docente queda registrada, habilitada y con su información profesional cargada.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
@@ -3359,36 +4092,44 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 6    | Si no se declaró ningún título ni ninguna matrícula profesional, el sistema informa el error y vuelve al paso 3. |
 | 7    | Si los años de experiencia ingresados no son un número entero mayor o igual a cero, el sistema informa el error y vuelve al paso 3. |
 
-- **Frecuencia**
-  - Baja — ocurre cada vez que se incorpora un nuevo docente de élite a la plataforma.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - La verificación del título o la matrícula es un control manual y externo que realiza el Administrador antes de cargar los datos; el sistema no modela un flujo de estados de verificación por credencial.
+**Frecuencia**
+Baja — ocurre cada vez que se incorpora un nuevo docente de élite a la plataforma.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+La verificación del título o la matrícula es un control manual y externo que realiza el Administrador antes de cargar los datos; el sistema no modela un flujo de estados de verificación por credencial.
 
 ---
 
-### CU-74
-**Modificar docente**
+### CU-75
+### Modificar docente
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-07: Gestionar usuarios, autenticación y notificaciones.
-- **Requisito(s) de información asociado(s)**
-  - RI-07: Información sobre usuarios y notificaciones.
-- **Módulo**
-  - MOD-NF-01: Módulo de Usuarios y Notificaciones
-- **Actor(es)**
-  - Administrador
-- **Descripción**
-  - Permite al Administrador modificar la información profesional de un docente y habilitarlo o suspenderlo temporalmente para dictar clases, sin eliminar su cuenta ni su historial.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Administrador.
-  - El docente existe y no se encuentra en baja.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-07: Gestionar usuarios, autenticación y notificaciones.
+
+**Requisito(s) de información asociado(s)**
+RI-07: Información sobre usuarios y notificaciones.
+
+**Módulo**
+MOD-NF-01: Módulo de Usuarios y Notificaciones
+
+**Actor(es)**
+Administrador
+
+**Descripción**
+Permite al Administrador modificar la información profesional de un docente y habilitarlo o suspenderlo temporalmente para dictar clases, sin eliminar su cuenta ni su historial.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Administrador.
+El docente existe y no se encuentra en baja.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
-| 1    | El caso de uso inicia cuando el actor busca y selecciona el docente a modificar (ver CU-67: Buscar usuario). |
+| 1    | El caso de uso inicia cuando el actor busca y selecciona el docente a modificar (ver CU-68: Buscar usuario). |
 | 2    | El sistema muestra los datos profesionales actuales del docente. |
 | 3    | El actor modifica la biografía, los años de experiencia, los títulos, la matrícula, los cursos asignados, o el estado de habilitación para dictar clases. |
 | 4    | El sistema valida que se mantengan completos los campos obligatorios. |
@@ -3399,10 +4140,11 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 9    | El sistema informa el éxito de la modificación. |
 | 10   | Fin del caso de uso. |
 
-- **Postcondición(es)**
-  - Los datos profesionales del docente quedan actualizados.
-  - Si se modificó su estado de habilitación, el docente queda habilitado o suspendido para dictar clases, según corresponda.
-- **Excepciones**
+**Postcondición(es)**
+Los datos profesionales del docente quedan actualizados.
+Si se modificó su estado de habilitación, el docente queda habilitado o suspendido para dictar clases, según corresponda.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
@@ -3410,32 +4152,40 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 5    | Si la modificación deja al docente sin ningún título ni matrícula profesional declarados, el sistema informa el error y vuelve al paso 3. |
 | 6    | Si los años de experiencia ingresados no son un número entero mayor o igual a cero, el sistema informa el error y vuelve al paso 3. |
 
-- **Frecuencia**
-  - Baja — se usa para actualizar credenciales o ante una suspensión, por ejemplo por mala praxis.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - La suspensión no elimina la cuenta del docente ni su historial; solo le impide dictar nuevas clases mientras permanezca suspendido. Es distinta de CU-70: Dar de baja usuario, que sí quita el acceso a la cuenta.
-  - La información profesional del docente es responsabilidad exclusiva del Administrador; el docente no la autoedita.
+**Frecuencia**
+Baja — se usa para actualizar credenciales o ante una suspensión, por ejemplo por mala praxis.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+La suspensión no elimina la cuenta del docente ni su historial; solo le impide dictar nuevas clases mientras permanezca suspendido. Es distinta de CU-71: Dar de baja usuario, que sí quita el acceso a la cuenta.
+La información profesional del docente es responsabilidad exclusiva del Administrador; el docente no la autoedita.
 
 ---
 
-### CU-75
-**Iniciar sesión**
+### CU-76
+### Iniciar sesión
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-07: Gestionar usuarios, autenticación y notificaciones.
-- **Requisito(s) de información asociado(s)**
-  - RI-07: Información sobre usuarios y notificaciones.
-- **Módulo**
-  - MOD-NF-01: Módulo de Usuarios y Notificaciones
-- **Actor(es)**
-  - Alumno, Docente, Administrador
-- **Descripción**
-  - Permite a un usuario iniciar sesión en el sistema mediante correo electrónico y contraseña, o mediante Google OAuth como método alternativo. Ver PA-1: Login con Google.
-- **Precondición(es)**
-  - El actor posee una cuenta registrada y no se encuentra en baja.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-07: Gestionar usuarios, autenticación y notificaciones.
+
+**Requisito(s) de información asociado(s)**
+RI-07: Información sobre usuarios y notificaciones.
+
+**Módulo**
+MOD-NF-01: Módulo de Usuarios y Notificaciones
+
+**Actor(es)**
+Alumno, Docente, Administrador
+
+**Descripción**
+Permite a un usuario iniciar sesión en el sistema mediante correo electrónico y contraseña, o mediante Google OAuth como método alternativo. Ver PA-1: Login con Google.
+
+**Precondición(es)**
+El actor posee una cuenta registrada y no se encuentra en baja.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
@@ -3448,9 +4198,10 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 7    | El sistema informa el éxito del inicio de sesión. |
 | 8    | Fin del caso de uso. |
 
-- **Postcondición(es)**
-  - La sesión queda registrada y activa.
-- **Excepciones**
+**Postcondición(es)**
+La sesión queda registrada y activa.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
@@ -3458,31 +4209,39 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 4    | Si el correo electrónico todavía no fue validado, el sistema informa que debe validarlo antes de iniciar sesión. |
 | 5    | Si el usuario ya alcanzó el límite de sesiones concurrentes permitidas, el sistema informa el error y le solicita cerrar una sesión activa antes de continuar. |
 
-- **Frecuencia**
-  - Muy alta — ocurre en cada acceso de cada usuario al sistema.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - Si el usuario ingresa con Google y no posee una cuenta asociada a ese correo, el sistema crea automáticamente una cuenta con rol Alumno (ver PA-1: Login con Google). El límite de sesiones concurrentes busca mitigar el uso compartido de credenciales.
+**Frecuencia**
+Muy alta — ocurre en cada acceso de cada usuario al sistema.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+Si el usuario ingresa con Google y no posee una cuenta asociada a ese correo, el sistema crea automáticamente una cuenta con rol Alumno (ver PA-1: Login con Google). El límite de sesiones concurrentes busca mitigar el uso compartido de credenciales.
 
 ---
 
-### CU-76
-**Cerrar sesión**
+### CU-77
+### Cerrar sesión
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-07: Gestionar usuarios, autenticación y notificaciones.
-- **Requisito(s) de información asociado(s)**
-  - RI-07: Información sobre usuarios y notificaciones.
-- **Módulo**
-  - MOD-NF-01: Módulo de Usuarios y Notificaciones
-- **Actor(es)**
-  - Alumno, Docente, Administrador
-- **Descripción**
-  - Permite a un usuario cerrar su propia sesión activa en el sistema.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-07: Gestionar usuarios, autenticación y notificaciones.
+
+**Requisito(s) de información asociado(s)**
+RI-07: Información sobre usuarios y notificaciones.
+
+**Módulo**
+MOD-NF-01: Módulo de Usuarios y Notificaciones
+
+**Actor(es)**
+Alumno, Docente, Administrador
+
+**Descripción**
+Permite a un usuario cerrar su propia sesión activa en el sistema.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
@@ -3491,38 +4250,48 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 3    | El sistema redirige al actor a la pantalla de inicio de sesión. |
 | 4    | Fin del caso de uso. |
 
-- **Postcondición(es)**
-  - La sesión queda cerrada.
-- **Excepciones**
+**Postcondición(es)**
+La sesión queda cerrada.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
+| -    | -      |
 
-- **Frecuencia**
-  - Alta — ocurre en cada cierre de sesión de cada usuario.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - –
+**Frecuencia**
+Alta — ocurre en cada cierre de sesión de cada usuario.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+–
 
 ---
 
-### CU-77
-**Recuperar contraseña**
+### CU-78
+### Recuperar contraseña
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-07: Gestionar usuarios, autenticación y notificaciones.
-- **Requisito(s) de información asociado(s)**
-  - RI-07: Información sobre usuarios y notificaciones.
-- **Módulo**
-  - MOD-NF-01: Módulo de Usuarios y Notificaciones
-- **Actor(es)**
-  - Alumno, Docente, Administrador
-- **Descripción**
-  - Permite a un usuario restablecer su contraseña cuando la olvidó, mediante un token temporal enviado a su correo electrónico. Es la única vía por la que se modifica la contraseña de una cuenta.
-- **Precondición(es)**
-  - El actor posee una cuenta registrada con contraseña propia y no se encuentra en baja.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-07: Gestionar usuarios, autenticación y notificaciones.
+
+**Requisito(s) de información asociado(s)**
+RI-07: Información sobre usuarios y notificaciones.
+
+**Módulo**
+MOD-NF-01: Módulo de Usuarios y Notificaciones
+
+**Actor(es)**
+Alumno, Docente, Administrador
+
+**Descripción**
+Permite a un usuario restablecer su contraseña cuando la olvidó, mediante un token temporal enviado a su correo electrónico. Es la única vía por la que se modifica la contraseña de una cuenta.
+
+**Precondición(es)**
+El actor posee una cuenta registrada con contraseña propia y no se encuentra en baja.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
@@ -3537,41 +4306,50 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 9    | El sistema informa el éxito de la operación. |
 | 10   | Fin del caso de uso. |
 
-- **Postcondición(es)**
-  - La contraseña de la cuenta queda actualizada.
-  - El actor puede iniciar sesión con la nueva contraseña.
-- **Excepciones**
+**Postcondición(es)**
+La contraseña de la cuenta queda actualizada.
+El actor puede iniciar sesión con la nueva contraseña.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
 | 4    | Si el correo ingresado no está registrado, el sistema informa el error y vuelve al paso 3. |
 | 7    | Si el token de recuperación expiró, el sistema informa el error y le solicita generar uno nuevo, volviendo al paso 2. |
 
-- **Frecuencia**
-  - Media — ocurre cada vez que un usuario olvida su contraseña.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - No aplica a las cuentas que se autentican exclusivamente mediante Google OAuth, ya que no poseen contraseña propia en el sistema.
+**Frecuencia**
+Media — ocurre cada vez que un usuario olvida su contraseña.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+No aplica a las cuentas que se autentican exclusivamente mediante Google OAuth, ya que no poseen contraseña propia en el sistema.
 
 ---
 
-### CU-78
-**Buscar sesión**
+### CU-79
+### Buscar sesión
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-07: Gestionar usuarios, autenticación y notificaciones.
-- **Requisito(s) de información asociado(s)**
-  - RI-07: Información sobre usuarios y notificaciones.
-- **Módulo**
-  - MOD-NF-01: Módulo de Usuarios y Notificaciones
-- **Actor(es)**
-  - Alumno, Docente, Administrador
-- **Descripción**
-  - Permite a un usuario consultar sus propias sesiones activas. El Administrador puede además consultar las sesiones activas de cualquier usuario.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-07: Gestionar usuarios, autenticación y notificaciones.
+
+**Requisito(s) de información asociado(s)**
+RI-07: Información sobre usuarios y notificaciones.
+
+**Módulo**
+MOD-NF-01: Módulo de Usuarios y Notificaciones
+
+**Actor(es)**
+Alumno, Docente, Administrador
+
+**Descripción**
+Permite a un usuario consultar sus propias sesiones activas. El Administrador puede además consultar las sesiones activas de cualquier usuario.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
@@ -3579,83 +4357,103 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 2    | El sistema recupera y lista las sesiones activas del actor, o del usuario indicado si el actor es Administrador. |
 | 3    | Fin del caso de uso. |
 
-- **Salida**
-  - Se recupera el listado de sesiones activas, con su fecha de inicio, IP y dispositivo.
-- **Excepciones**
+**Salida**
+Se recupera el listado de sesiones activas, con su fecha de inicio, IP y dispositivo.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
+| -    | -      |
 
-- **Frecuencia**
-  - Baja — se consulta cuando el usuario quiere revisar desde dónde tiene acceso activo a su cuenta.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - –
+**Frecuencia**
+Baja — se consulta cuando el usuario quiere revisar desde dónde tiene acceso activo a su cuenta.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+–
 
 ---
 
-### CU-79
-**Eliminar sesión**
+### CU-80
+### Eliminar sesión
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-07: Gestionar usuarios, autenticación y notificaciones.
-- **Requisito(s) de información asociado(s)**
-  - RI-07: Información sobre usuarios y notificaciones.
-- **Módulo**
-  - MOD-NF-01: Módulo de Usuarios y Notificaciones
-- **Actor(es)**
-  - Alumno, Docente, Administrador
-- **Descripción**
-  - Permite a un usuario cerrar de forma forzada una sesión activa propia distinta de la actual. El Administrador puede además cerrar una sesión activa de cualquier usuario.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema.
-  - La sesión a cerrar existe y se encuentra activa.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-07: Gestionar usuarios, autenticación y notificaciones.
+
+**Requisito(s) de información asociado(s)**
+RI-07: Información sobre usuarios y notificaciones.
+
+**Módulo**
+MOD-NF-01: Módulo de Usuarios y Notificaciones
+
+**Actor(es)**
+Alumno, Docente, Administrador
+
+**Descripción**
+Permite a un usuario cerrar de forma forzada una sesión activa propia distinta de la actual. El Administrador puede además cerrar una sesión activa de cualquier usuario.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema.
+La sesión a cerrar existe y se encuentra activa.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
-| 1    | El caso de uso inicia cuando el actor busca y selecciona la sesión activa a cerrar (ver CU-78: Buscar sesión). |
+| 1    | El caso de uso inicia cuando el actor busca y selecciona la sesión activa a cerrar (ver CU-79: Buscar sesión). |
 | 2    | El actor confirma el cierre. |
 | 3    | El sistema registra la fecha de fin de esa sesión. |
 | 4    | El sistema informa el éxito de la operación. |
 | 5    | Fin del caso de uso. |
 
-- **Postcondición(es)**
-  - La sesión seleccionada queda cerrada.
-- **Excepciones**
+**Postcondición(es)**
+La sesión seleccionada queda cerrada.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
+| -    | -      |
 
-- **Frecuencia**
-  - Baja — se usa ante la sospecha de uso compartido de credenciales o para liberar un cupo de sesión concurrente.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - –
+**Frecuencia**
+Baja — se usa ante la sospecha de uso compartido de credenciales o para liberar un cupo de sesión concurrente.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+–
 
 ---
 
 ## MOD-NF-02: Módulo de Auditoría
 
-### CU-80
-**Consultar auditoría**
+### CU-81
+### Consultar auditoría
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-08: Registrar las acciones críticas del sistema.
-- **Requisito(s) de información asociado(s)**
-  - RI-08: Información sobre auditoría.
-- **Módulo**
-  - MOD-NF-02: Módulo de Auditoría
-- **Actor(es)**
-  - Administrador
-- **Descripción**
-  - Permite al Administrador consultar el registro de auditoría de las acciones críticas del sistema (pagos, acreditaciones, altas de curso y cambios de estado de inscripción, entre otras), para garantizar trazabilidad y control sobre las operaciones.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Administrador.
-  - Existe al menos un registro de auditoría.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-08: Registrar las acciones críticas del sistema.
+
+**Requisito(s) de información asociado(s)**
+RI-08: Información sobre auditoría.
+
+**Módulo**
+MOD-NF-02: Módulo de Auditoría
+
+**Actor(es)**
+Administrador
+
+**Descripción**
+Permite al Administrador consultar el registro de auditoría de las acciones críticas del sistema (pagos, acreditaciones, altas de curso y cambios de estado de inscripción, entre otras), para garantizar trazabilidad y control sobre las operaciones.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Administrador.
+Existe al menos un registro de auditoría.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
@@ -3666,40 +4464,50 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 5    | El sistema lista los registros filtrados. |
 | 6    | Fin del caso de uso. |
 
-- **Salida**
-  - Se recuperan uno o más registros de auditoría, con el usuario responsable, el tipo de acción, la entidad afectada, el identificador del registro puntual y la fecha y hora exacta.
-- **Excepciones**
+**Salida**
+Se recuperan uno o más registros de auditoría, con el usuario responsable, el tipo de acción, la entidad afectada, el identificador del registro puntual y la fecha y hora exacta.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
+| -    | -      |
 
-- **Frecuencia**
-  - Baja — se consulta ante la necesidad puntual de rastrear una operación, en especial sobre pagos.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - El alta de los registros de auditoría es automática, generada por el propio sistema ante cada operación crítica; no existe un caso de uso de registro manual. La consulta está restringida al Administrador.
+**Frecuencia**
+Baja — se consulta ante la necesidad puntual de rastrear una operación, en especial sobre pagos.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+El alta de los registros de auditoría es automática, generada por el propio sistema ante cada operación crítica; no existe un caso de uso de registro manual. La consulta está restringida al Administrador.
 
 ---
 
 ## MOD-NF-03: Módulo de Reportes y Estadísticas
 
-### CU-81
-**Generar informe de alumnos**
+### CU-82
+### Generar informe de alumnos
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-09: Generar reportes y estadísticas de gestión.
-- **Requisito(s) de información asociado(s)**
-  - RI-09: Información sobre reportes y estadísticas.
-- **Módulo**
-  - MOD-NF-03: Módulo de Reportes y Estadísticas
-- **Actor(es)**
-  - Administrador
-- **Descripción**
-  - Permite al Administrador generar un informe de alumnos inscriptos, para facilitar la toma de decisiones estratégicas de los socios.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Administrador.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-09: Generar reportes y estadísticas de gestión.
+
+**Requisito(s) de información asociado(s)**
+RI-09: Información sobre reportes y estadísticas.
+
+**Módulo**
+MOD-NF-03: Módulo de Reportes y Estadísticas
+
+**Actor(es)**
+Administrador
+
+**Descripción**
+Permite al Administrador generar un informe de alumnos inscriptos, para facilitar la toma de decisiones estratégicas de los socios.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Administrador.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
@@ -3711,39 +4519,49 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 6    | El sistema pone el informe a disposición del actor para su descarga. |
 | 7    | Fin del caso de uso. |
 
-- **Postcondición(es)**
-  - El reporte queda registrado en el historial de reportes generados.
-  - El informe de alumnos queda disponible para su descarga.
-- **Excepciones**
+**Postcondición(es)**
+El reporte queda registrado en el historial de reportes generados.
+El informe de alumnos queda disponible para su descarga.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
+| -    | -      |
 
-- **Frecuencia**
-  - Media — se genera periódicamente para el seguimiento comercial y académico.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - –
+**Frecuencia**
+Media — se genera periódicamente para el seguimiento comercial y académico.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+–
 
 ---
 
-### CU-82
-**Generar informe de tráfico**
+### CU-83
+### Generar informe de tráfico
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-09: Generar reportes y estadísticas de gestión.
-- **Requisito(s) de información asociado(s)**
-  - RI-09: Información sobre reportes y estadísticas.
-- **Módulo**
-  - MOD-NF-03: Módulo de Reportes y Estadísticas
-- **Actor(es)**
-  - Administrador
-- **Descripción**
-  - Permite al Administrador generar un informe del tráfico de la plataforma, incluyendo las visitas al catálogo público de cursos.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Administrador.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-09: Generar reportes y estadísticas de gestión.
+
+**Requisito(s) de información asociado(s)**
+RI-09: Información sobre reportes y estadísticas.
+
+**Módulo**
+MOD-NF-03: Módulo de Reportes y Estadísticas
+
+**Actor(es)**
+Administrador
+
+**Descripción**
+Permite al Administrador generar un informe del tráfico de la plataforma, incluyendo las visitas al catálogo público de cursos.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Administrador.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
@@ -3755,39 +4573,49 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 6    | El sistema pone el informe a disposición del actor para su descarga. |
 | 7    | Fin del caso de uso. |
 
-- **Postcondición(es)**
-  - El reporte queda registrado en el historial de reportes generados.
-  - El informe de tráfico queda disponible para su descarga.
-- **Excepciones**
+**Postcondición(es)**
+El reporte queda registrado en el historial de reportes generados.
+El informe de tráfico queda disponible para su descarga.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
+| -    | -      |
 
-- **Frecuencia**
-  - Media — se genera periódicamente para evaluar el alcance de las campañas comerciales.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - El tráfico incluye las visitas al catálogo público (CU-05: Explorar catálogo de cursos), relevante para medir la efectividad del contenido gratuito usado como gancho comercial.
+**Frecuencia**
+Media — se genera periódicamente para evaluar el alcance de las campañas comerciales.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+El tráfico incluye las visitas al catálogo público (CU-05: Explorar catálogo de cursos), relevante para medir la efectividad del contenido gratuito usado como gancho comercial.
 
 ---
 
-### CU-83
-**Generar informe de ingresos por pagos**
+### CU-84
+### Generar informe de ingresos por pagos
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-09: Generar reportes y estadísticas de gestión.
-- **Requisito(s) de información asociado(s)**
-  - RI-09: Información sobre reportes y estadísticas.
-- **Módulo**
-  - MOD-NF-03: Módulo de Reportes y Estadísticas
-- **Actor(es)**
-  - Administrador
-- **Descripción**
-  - Permite al Administrador generar un informe de ingresos por pagos acreditados, para facilitar la toma de decisiones estratégicas de los socios.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Administrador.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-09: Generar reportes y estadísticas de gestión.
+
+**Requisito(s) de información asociado(s)**
+RI-09: Información sobre reportes y estadísticas.
+
+**Módulo**
+MOD-NF-03: Módulo de Reportes y Estadísticas
+
+**Actor(es)**
+Administrador
+
+**Descripción**
+Permite al Administrador generar un informe de ingresos por pagos acreditados, para facilitar la toma de decisiones estratégicas de los socios.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Administrador.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
@@ -3799,39 +4627,49 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 6    | El sistema pone el informe a disposición del actor para su descarga. |
 | 7    | Fin del caso de uso. |
 
-- **Postcondición(es)**
-  - El reporte queda registrado en el historial de reportes generados.
-  - El informe de ingresos queda disponible para su descarga.
-- **Excepciones**
+**Postcondición(es)**
+El reporte queda registrado en el historial de reportes generados.
+El informe de ingresos queda disponible para su descarga.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
+| -    | -      |
 
-- **Frecuencia**
-  - Media — se genera periódicamente para el control financiero del proyecto.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - Solo contempla pagos con estado Acreditado.
+**Frecuencia**
+Media — se genera periódicamente para el control financiero del proyecto.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+Solo contempla pagos con estado Acreditado.
 
 ---
 
-### CU-84
-**Consultar estadísticas**
+### CU-85
+### Consultar estadísticas
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-09: Generar reportes y estadísticas de gestión.
-- **Requisito(s) de información asociado(s)**
-  - RI-09: Información sobre reportes y estadísticas.
-- **Módulo**
-  - MOD-NF-03: Módulo de Reportes y Estadísticas
-- **Actor(es)**
-  - Administrador
-- **Descripción**
-  - Permite al Administrador consultar en pantalla los indicadores del sistema (alumnos inscriptos, tráfico e ingresos), sin necesidad de generar un reporte descargable.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Administrador.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-09: Generar reportes y estadísticas de gestión.
+
+**Requisito(s) de información asociado(s)**
+RI-09: Información sobre reportes y estadísticas.
+
+**Módulo**
+MOD-NF-03: Módulo de Reportes y Estadísticas
+
+**Actor(es)**
+Administrador
+
+**Descripción**
+Permite al Administrador consultar en pantalla los indicadores del sistema (alumnos inscriptos, tráfico e ingresos), sin necesidad de generar un reporte descargable.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Administrador.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
@@ -3839,62 +4677,75 @@ En esta sección se detallan los 85 casos de uso extendidos del Sistema Idóneos
 | 2    | El sistema recupera y muestra en pantalla los indicadores de alumnos inscriptos, tráfico e ingresos. |
 | 3    | Fin del caso de uso. |
 
-- **Salida**
-  - Se muestran en pantalla los indicadores de alumnos inscriptos, tráfico e ingresos, sin generar un archivo descargable.
-- **Excepciones**
+**Salida**
+Se muestran en pantalla los indicadores de alumnos inscriptos, tráfico e ingresos, sin generar un archivo descargable.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
+| -    | -      |
 
-- **Frecuencia**
-  - Alta — se consulta habitualmente como panel de control del negocio.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - A diferencia de CU-81, CU-82 y CU-83, esta consulta no queda registrada como un reporte generado.
+**Frecuencia**
+Alta — se consulta habitualmente como panel de control del negocio.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+A diferencia de CU-82, CU-83 y CU-84, esta consulta no queda registrada como un reporte generado.
 
 ---
 
 ## MOD-NF-04: Módulo de Configuración
 
-### CU-85
-**Configurar parámetros**
+### CU-86
+### Configurar parámetros
 
-- **Objetivo(s) asociado(s)**
-  - OBJ-10: Permitir la configuración de los parámetros operativos.
-- **Requisito(s) de información asociado(s)**
-  - RI-10: Información sobre configuración.
-- **Módulo**
-  - MOD-NF-04: Módulo de Configuración
-- **Actor(es)**
-  - Administrador
-- **Descripción**
-  - Permite al Administrador dar de alta, modificar, dar de baja y consultar los parámetros operativos del sistema mediante un esquema de clave-valor, sin requerir intervención técnica sobre el código.
-- **Precondición(es)**
-  - El actor ha iniciado sesión en el sistema con el rol Administrador.
-- **Flujo de eventos**
+**Objetivo(s) asociado(s)**
+OBJ-10: Permitir la configuración de los parámetros operativos.
+
+**Requisito(s) de información asociado(s)**
+RI-10: Información sobre configuración.
+
+**Módulo**
+MOD-NF-04: Módulo de Configuración
+
+**Actor(es)**
+Administrador
+
+**Descripción**
+Permite al Administrador dar de alta, modificar, dar de baja y consultar los parámetros operativos del sistema mediante un esquema de clave-valor, sin requerir intervención técnica sobre el código.
+
+**Precondición(es)**
+El actor ha iniciado sesión en el sistema con el rol Administrador.
+
+**Flujo de eventos**
 
 | Paso | Acción |
 |------|--------|
 | 1    | El caso de uso inicia cuando el actor solicita gestionar los parámetros de configuración. |
-| 2    | El sistema lista los parámetros configurados: plazo de disponibilidad de grabaciones y antelación del aviso previo; cantidad máxima de sesiones concurrentes por usuario; datos institucionales usados en el sitio, comprobantes y constancias; credenciales de integración con Google OAuth y con la pasarela de pagos; proporción de tipos de pregunta en los bancos generados con IA; y tiempo límite de edición de consultas y respuestas del foro. |
+| 2    | El sistema lista los parámetros configurados: plazo de disponibilidad de grabaciones y antelación del aviso previo; cantidad máxima de sesiones concurrentes por usuario; datos institucionales utilizados en el sitio, comprobantes y constancias (razón social, CUIT, domicilio, logo, email de contacto y teléfono de contacto); credenciales de integración con Google OAuth y con la pasarela de pagos; plazo máximo de espera para la confirmación de un pago antes de registrarlo como incidencia pendiente; proporción de tipos de pregunta en los bancos generados con IA; y tiempo límite de edición de consultas y respuestas del foro. |
 | 3    | El actor selecciona un parámetro existente para modificar su valor, o ingresa una nueva clave y su valor para incorporar un parámetro nuevo. |
 | 4    | El sistema valida que la clave y el valor hayan sido completados. |
 | 5    | El sistema registra o actualiza el parámetro. |
 | 6    | El sistema informa el éxito de la operación. |
 | 7    | Fin del caso de uso. |
 
-- **Postcondición(es)**
-  - El parámetro queda registrado o actualizado con el nuevo valor.
-- **Excepciones**
+**Postcondición(es)**
+El parámetro queda registrado o actualizado con el nuevo valor.
+
+**Excepciones**
 
 | Paso | Acción |
 |------|--------|
 | 4    | Si la clave o el valor no fueron completados, el sistema informa el error y vuelve al paso 3. |
 
-- **Frecuencia**
-  - Baja — se usa al ajustar el comportamiento operativo del sistema.
-- **Estabilidad**
-  - Alta
-- **Comentarios**
-  - El esquema de clave-valor permite incorporar nuevos parámetros sin modificar el esquema de la base de datos.
+**Frecuencia**
+Baja — se usa al ajustar el comportamiento operativo del sistema.
+
+**Estabilidad**
+Alta
+
+**Comentarios**
+El esquema de clave-valor permite incorporar nuevos parámetros sin modificar el esquema de la base de datos.

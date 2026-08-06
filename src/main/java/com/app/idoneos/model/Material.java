@@ -93,6 +93,54 @@ public class Material {
     @JoinColumn(name = "id_docente", nullable = true)
     private Docente docente;
 
+    // ─── Getters & Setters ─────────────────────────────────────────────────────
+
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+
+    public String getTitulo() { return titulo; }
+    public void setTitulo(String titulo) { this.titulo = titulo; }
+
+    public LocalDateTime getFechaCarga() { return fechaCarga; }
+    public void setFechaCarga(LocalDateTime fechaCarga) { this.fechaCarga = fechaCarga; }
+
+    public Boolean isPublicado() { return publicado; }
+    public Boolean getPublicado() { return publicado; }
+    public void setPublicado(Boolean publicado) { this.publicado = publicado; }
+
+    public String getRutaArchivo() { return rutaArchivo; }
+    public void setRutaArchivo(String rutaArchivo) { this.rutaArchivo = rutaArchivo; }
+
+    public String getContenido() { return contenido; }
+    public void setContenido(String contenido) { this.contenido = contenido; }
+
+    public Boolean getGeneradoPorIA() { return generadoPorIA; }
+    public void setGeneradoPorIA(Boolean generadoPorIA) { this.generadoPorIA = generadoPorIA; }
+
+    public Integer getDuracion() { return duracion; }
+    public void setDuracion(Integer duracion) { this.duracion = duracion; }
+
+    public String getAutor() { return autor; }
+    public void setAutor(String autor) { this.autor = autor; }
+
+    public Boolean getBaja() { return baja; }
+    public void setBaja(Boolean baja) { this.baja = baja; }
+
+    public LocalDateTime getFechaCreacion() { return fechaCreacion; }
+    public void setFechaCreacion(LocalDateTime fechaCreacion) { this.fechaCreacion = fechaCreacion; }
+
+    public LocalDateTime getUltimaModificacion() { return ultimaModificacion; }
+    public void setUltimaModificacion(LocalDateTime ultimaModificacion) { this.ultimaModificacion = ultimaModificacion; }
+
+    public TipoMaterial getTipo() { return tipo; }
+    public void setTipo(TipoMaterial tipo) { this.tipo = tipo; }
+
+    public Unidad getUnidad() { return unidad; }
+    public void setUnidad(Unidad unidad) { this.unidad = unidad; }
+
+    public Docente getDocente() { return docente; }
+    public void setDocente(Docente docente) { this.docente = docente; }
+
     public Material(TipoMaterial tipo, String titulo, String rutaArchivo, Unidad unidad) {
         this.tipo = tipo;
         this.titulo = titulo;

@@ -60,6 +60,38 @@ public class Inscripcion {
     @OneToOne(mappedBy = "inscripcion", cascade = CascadeType.ALL)
     private Certificado certificado;
 
+    // ─── Getters & Setters ─────────────────────────────────────────────────────
+
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+
+    public Usuario getUsuario() { return usuario; }
+    public void setUsuario(Usuario usuario) { this.usuario = usuario; }
+
+    public Curso getCurso() { return curso; }
+    public void setCurso(Curso curso) { this.curso = curso; }
+
+    public Descuento getDescuento() { return descuento; }
+    public void setDescuento(Descuento descuento) { this.descuento = descuento; }
+
+    public LocalDateTime getFecha() { return fecha; }
+    public void setFecha(LocalDateTime fecha) { this.fecha = fecha; }
+
+    public String getObservaciones() { return observaciones; }
+    public void setObservaciones(String observaciones) { this.observaciones = observaciones; }
+
+    public LocalDateTime getFechaVencimientoAcceso() { return fechaVencimientoAcceso; }
+    public void setFechaVencimientoAcceso(LocalDateTime fechaVencimientoAcceso) { this.fechaVencimientoAcceso = fechaVencimientoAcceso; }
+
+    public Boolean getBaja() { return baja; }
+    public void setBaja(Boolean baja) { this.baja = baja; }
+
+    public Set<Progreso> getProgresos() { return progresos; }
+    public void setProgresos(Set<Progreso> progresos) { this.progresos = progresos; }
+
+    public Certificado getCertificado() { return certificado; }
+    public void setCertificado(Certificado certificado) { this.certificado = certificado; }
+
     public Inscripcion(Usuario usuario, Curso curso) {
         this.usuario = usuario;
         this.curso = curso;

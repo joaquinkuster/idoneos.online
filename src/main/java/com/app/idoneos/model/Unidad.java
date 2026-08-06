@@ -49,6 +49,35 @@ public class Unidad {
     @OneToMany(mappedBy = "unidad", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Material> materiales = new ArrayList<>();
 
+    // ─── Getters & Setters ─────────────────────────────────────────────────────
+
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+
+    public String getTitulo() { return titulo; }
+    public void setTitulo(String titulo) { this.titulo = titulo; }
+
+    public String getDescripcion() { return descripcion; }
+    public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
+
+    public int getNumeroOrden() { return numeroOrden; }
+    public void setNumeroOrden(int numeroOrden) { this.numeroOrden = numeroOrden; }
+
+    public LocalDateTime getFechaCreacion() { return fechaCreacion; }
+    public void setFechaCreacion(LocalDateTime fechaCreacion) { this.fechaCreacion = fechaCreacion; }
+
+    public LocalDateTime getUltimaModificacion() { return ultimaModificacion; }
+    public void setUltimaModificacion(LocalDateTime ultimaModificacion) { this.ultimaModificacion = ultimaModificacion; }
+
+    public Boolean getBaja() { return baja; }
+    public void setBaja(Boolean baja) { this.baja = baja; }
+
+    public Curso getCurso() { return curso; }
+    public void setCurso(Curso curso) { this.curso = curso; }
+
+    public List<Material> getMateriales() { return materiales; }
+    public void setMateriales(List<Material> materiales) { this.materiales = materiales; }
+
     public Unidad(String titulo, String descripcion, int numeroOrden, Curso curso) {
         this.titulo = titulo;
         this.descripcion = descripcion;

@@ -35,6 +35,24 @@ public class Progreso {
     @Column(name = "fecha_completado", nullable = true)
     private LocalDate fechaCompletado;
 
+    // ─── Getters & Setters ─────────────────────────────────────────────────────
+
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+
+    public Inscripcion getInscripcion() { return inscripcion; }
+    public void setInscripcion(Inscripcion inscripcion) { this.inscripcion = inscripcion; }
+
+    public Unidad getUnidad() { return unidad; }
+    public void setUnidad(Unidad unidad) { this.unidad = unidad; }
+
+    public Boolean getCompletada() { return completada; }
+    public Boolean isCompletada() { return completada; }
+    public void setCompletada(Boolean completada) { this.completada = completada; }
+
+    public LocalDate getFechaCompletado() { return fechaCompletado; }
+    public void setFechaCompletado(LocalDate fechaCompletado) { this.fechaCompletado = fechaCompletado; }
+
     public Progreso(Inscripcion inscripcion, Unidad unidad, Boolean completada) {
         this.inscripcion = inscripcion;
         this.unidad = unidad;

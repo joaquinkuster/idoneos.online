@@ -2,6 +2,7 @@ package com.app.idoneos.service.Pago;
 
 import com.app.idoneos.model.*;
 import com.app.idoneos.repository.*;
+import com.app.idoneos.service.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,7 @@ public class PagoService {
     @Autowired private DescuentoRepository descuentoRepository;
     @Autowired private InscripcionRepository inscripcionRepository;
     @Autowired private ConfiguracionRepository configRepo;
+    @Autowired private EmailService emailService;
     @org.springframework.beans.factory.annotation.Value("${mercadopago.access_token:}")
     private String mpTokenEnv;
 
@@ -128,8 +130,14 @@ public class PagoService {
 
         // Emitir Comprobante automático
         String numComprobante = "COMP-" + LocalDate.now().getYear() + "-" + String.format("%06d", guardado.getId());
-        Comprobante c = new Comprobante(numComprobante, guardado);
-        comprobanteRepository.save(c);
+        Comprobante comprobante = new Comprobante(numComprobante, guardado);
+        comprobanteRepository.save(comprobante);
+
+        // PA-2 / CU-35: Notificar confirmación de pago y comprobante al alumno
+        Usuario alumno = inscripcion.getUsuario();
+        Curso curso = inscripcion.getCurso();
+        emailService.enviarConfirmacionPago(alumno, curso, guardado);
+        emailService.enviarComprobante(alumno, comprobante, curso);
 
         return guardado;
     }
