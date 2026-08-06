@@ -47,6 +47,29 @@ public class Categoria {
     @OneToMany(mappedBy = "categoria")
     private Set<Curso> cursos = new HashSet<>();
 
+    // ─── Getters & Setters ─────────────────────────────────────────────────────
+
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+
+    public String getNombre() { return nombre; }
+    public void setNombre(String nombre) { this.nombre = nombre; }
+
+    public String getDescripcion() { return descripcion; }
+    public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
+
+    public Boolean getBaja() { return baja; }
+    public void setBaja(Boolean baja) { this.baja = baja; }
+
+    public LocalDateTime getFechaCreacion() { return fechaCreacion; }
+    public void setFechaCreacion(LocalDateTime fechaCreacion) { this.fechaCreacion = fechaCreacion; }
+
+    public LocalDateTime getUltimaModificacion() { return ultimaModificacion; }
+    public void setUltimaModificacion(LocalDateTime ultimaModificacion) { this.ultimaModificacion = ultimaModificacion; }
+
+    public Set<Curso> getCursos() { return cursos; }
+    public void setCursos(Set<Curso> cursos) { this.cursos = cursos; }
+
     public Categoria(String nombre, String descripcion) {
         this.nombre = nombre;
         this.descripcion = descripcion;

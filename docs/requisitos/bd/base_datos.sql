@@ -1,0 +1,1086 @@
+--
+-- ER/Studio Data Architect SQL Code Generation
+-- Company :      UNAM
+-- Project :      ModeloConceptual.DM1
+-- Author :       Joaquín
+--
+-- Date Created : Thursday, August 06, 2026 03:45:06
+-- Target DBMS : PostgreSQL 8.0
+--
+
+-- 
+-- TABLE: "Administrador" 
+--
+
+CREATE TABLE "Administrador"(
+    id    int4    NOT NULL,
+    CONSTRAINT "PK54" PRIMARY KEY (id)
+)
+;
+
+
+
+-- 
+-- TABLE: "Alumno" 
+--
+
+CREATE TABLE "Alumno"(
+    id    int4    NOT NULL,
+    CONSTRAINT "PK53" PRIMARY KEY (id)
+)
+;
+
+
+
+-- 
+-- TABLE: "Auditoria" 
+--
+
+CREATE TABLE "Auditoria"(
+    id                  int4           NOT NULL,
+    entidad_afectada    varchar(50)    NOT NULL,
+    id_afectado         int4           NOT NULL,
+    fecha_hora          timestamp      NOT NULL,
+    CONSTRAINT "PK46" PRIMARY KEY (id)
+)
+;
+
+
+
+-- 
+-- TABLE: "Autoevaluacion" 
+--
+
+CREATE TABLE "Autoevaluacion"(
+    id                     int4           NOT NULL,
+    nombre                 varchar(50)    NOT NULL,
+    tiempo_limite          int4           NOT NULL,
+    intentos_permitidos    int4           NOT NULL,
+    fecha_creacion         timestamp      NOT NULL,
+    ultima_modificacion    timestamp,
+    baja                   boolean        NOT NULL,
+    CONSTRAINT "PK33" PRIMARY KEY (id)
+)
+;
+
+
+
+-- 
+-- TABLE: "Categoria" 
+--
+
+CREATE TABLE "Categoria"(
+    id                     int4            NOT NULL,
+    nombre                 varchar(50)     NOT NULL,
+    descripcion            varchar(150),
+    fecha_creacion         timestamp       NOT NULL,
+    ultima_modificacion    timestamp,
+    baja                   boolean         NOT NULL,
+    CONSTRAINT "PK5" PRIMARY KEY (id)
+)
+;
+
+
+
+-- 
+-- TABLE: "Certificado" 
+--
+
+CREATE TABLE "Certificado"(
+    id               int4            NOT NULL,
+    numero           varchar(100)    NOT NULL,
+    fecha_emision    timestamp       NOT NULL,
+    ruta_archivo     varchar(150)    NOT NULL,
+    CONSTRAINT "PK35" PRIMARY KEY (id)
+)
+;
+
+
+
+-- 
+-- TABLE: "ClaseClonIA" 
+--
+
+CREATE TABLE "ClaseClonIA"(
+    id                  int4           NOT NULL,
+    titulo              varchar(50)    NOT NULL,
+    fecha_generacion    timestamp      NOT NULL,
+    baja                boolean        NOT NULL,
+    CONSTRAINT "PK20" PRIMARY KEY (id)
+)
+;
+
+
+
+-- 
+-- TABLE: "ClaseEnVivo" 
+--
+
+CREATE TABLE "ClaseEnVivo"(
+    id              int4            NOT NULL,
+    titulo          varchar(50)     NOT NULL,
+    fecha_hora      timestamp       NOT NULL,
+    url_rtmp        varchar(255)    NOT NULL,
+    clave_stream    varchar(100)    NOT NULL,
+    baja            boolean         NOT NULL,
+    CONSTRAINT "PK18" PRIMARY KEY (id)
+)
+;
+
+
+
+-- 
+-- TABLE: "Comprobante" 
+--
+
+CREATE TABLE "Comprobante"(
+    id               int4            NOT NULL,
+    numero           varchar(100)    NOT NULL,
+    fecha_emision    timestamp       NOT NULL,
+    ruta_archivo     varchar(150),
+    enviado          boolean         NOT NULL,
+    CONSTRAINT "PK27" PRIMARY KEY (id)
+)
+;
+
+
+
+-- 
+-- TABLE: "Configuracion" 
+--
+
+CREATE TABLE "Configuracion"(
+    id       int4            NOT NULL,
+    clave    varchar(100)    NOT NULL,
+    valor    text            NOT NULL,
+    CONSTRAINT "PK49" PRIMARY KEY (id)
+)
+;
+
+
+
+-- 
+-- TABLE: "ConsultaForo" 
+--
+
+CREATE TABLE "ConsultaForo"(
+    id       int4            NOT NULL,
+    texto    varchar(500)    NOT NULL,
+    fecha    timestamp       NOT NULL,
+    baja     boolean         NOT NULL,
+    CONSTRAINT "PK21" PRIMARY KEY (id)
+)
+;
+
+
+
+-- 
+-- TABLE: "Curso" 
+--
+
+CREATE TABLE "Curso"(
+    id                          int4            NOT NULL,
+    nombre                      varchar(50)     NOT NULL,
+    descripcion                 varchar(150),
+    precio                      float4          NOT NULL,
+    imagen                      varchar(150),
+    fecha_inicio_inscripcion    timestamp       NOT NULL,
+    fecha_fin_inscripcion       timestamp       NOT NULL,
+    meses_acceso                int4            NOT NULL,
+    publicado                   boolean         NOT NULL,
+    fecha_creacion              timestamp       NOT NULL,
+    ultima_modificacion         timestamp,
+    baja                        boolean         NOT NULL,
+    CONSTRAINT "PK4" PRIMARY KEY (id)
+)
+;
+
+
+
+-- 
+-- TABLE: "Descuento" 
+--
+
+CREATE TABLE "Descuento"(
+    id                     int4           NOT NULL,
+    nombre                 varchar(50)    NOT NULL,
+    cursos_requeridos      int4           NOT NULL,
+    porcentaje             float4         NOT NULL,
+    vigencia_desde         timestamp      NOT NULL,
+    vigencia_hasta         timestamp      NOT NULL,
+    cantidad_limite        int4           NOT NULL,
+    cantidad_usada         int4           NOT NULL,
+    fecha_creacion         timestamp      NOT NULL,
+    ultima_modificacion    timestamp,
+    baja                   boolean        NOT NULL,
+    CONSTRAINT "PK28" PRIMARY KEY (id)
+)
+;
+
+
+
+-- 
+-- TABLE: "Docente" 
+--
+
+CREATE TABLE "Docente"(
+    id                           int4           NOT NULL,
+    anios_experiencia            int4           NOT NULL,
+    matricula_cnv                varchar(50),
+    biografia                    text,
+    habilitado                   boolean        NOT NULL,
+    fecha_consentimiento_clon    timestamp,
+    CONSTRAINT "PK42" PRIMARY KEY (id)
+)
+;
+
+
+
+-- 
+-- TABLE: "Docente Curso" 
+--
+
+CREATE TABLE "Docente Curso"(
+    id               int4       NOT NULL,
+    es_supervisor    boolean    NOT NULL,
+    CONSTRAINT "PK55" PRIMARY KEY (id)
+)
+;
+
+
+
+-- 
+-- TABLE: "EstadoClaseClonIA" 
+--
+
+CREATE TABLE "EstadoClaseClonIA"(
+    id        int4           NOT NULL,
+    nombre    varchar(50)    NOT NULL,
+    CONSTRAINT "PK19" PRIMARY KEY (id)
+)
+;
+
+
+
+-- 
+-- TABLE: "EstadoClaseEnVIvo" 
+--
+
+CREATE TABLE "EstadoClaseEnVIvo"(
+    id        int4           NOT NULL,
+    nombre    varchar(50)    NOT NULL,
+    CONSTRAINT "PK17" PRIMARY KEY (id)
+)
+;
+
+
+
+-- 
+-- TABLE: "EstadoPago" 
+--
+
+CREATE TABLE "EstadoPago"(
+    id        int4           NOT NULL,
+    nombre    varchar(50)    NOT NULL,
+    CONSTRAINT "PK24" PRIMARY KEY (id)
+)
+;
+
+
+
+-- 
+-- TABLE: "Inscripcion" 
+--
+
+CREATE TABLE "Inscripcion"(
+    id                          int4            NOT NULL,
+    fecha                       timestamp       NOT NULL,
+    fecha_vencimiento_acceso    timestamp       NOT NULL,
+    observaciones               varchar(500),
+    baja                        boolean         NOT NULL,
+    CONSTRAINT "PK23" PRIMARY KEY (id)
+)
+;
+
+
+
+-- 
+-- TABLE: "IntentoAutoevaluacion" 
+--
+
+CREATE TABLE "IntentoAutoevaluacion"(
+    id       int4         NOT NULL,
+    fecha    timestamp    NOT NULL,
+    nota     float4       NOT NULL,
+    CONSTRAINT "PK34" PRIMARY KEY (id)
+)
+;
+
+
+
+-- 
+-- TABLE: "Material" 
+--
+
+CREATE TABLE "Material"(
+    id                     int4            NOT NULL,
+    titulo                 varchar(50)     NOT NULL,
+    ruta_archivo           varchar(150),
+    contenido              varchar(500),
+    duracion               int4,
+    autor                  varchar(50),
+    generado_por_ia        boolean         NOT NULL,
+    fecha_carga            timestamp       NOT NULL,
+    publicado              boolean         NOT NULL,
+    fecha_creacion         timestamp       NOT NULL,
+    ultima_modificacion    timestamp,
+    baja                   boolean         NOT NULL,
+    CONSTRAINT "PK10" PRIMARY KEY (id)
+)
+;
+
+
+
+-- 
+-- TABLE: "MetodoPago" 
+--
+
+CREATE TABLE "MetodoPago"(
+    id        int4           NOT NULL,
+    nombre    varchar(50)    NOT NULL,
+    CONSTRAINT "PK26" PRIMARY KEY (id)
+)
+;
+
+
+
+-- 
+-- TABLE: "Modalidad" 
+--
+
+CREATE TABLE "Modalidad"(
+    id        int4           NOT NULL,
+    nombre    varchar(50)    NOT NULL,
+    CONSTRAINT "PK6" PRIMARY KEY (id)
+)
+;
+
+
+
+-- 
+-- TABLE: "Modalidad Curso" 
+--
+
+CREATE TABLE "Modalidad Curso"(
+    id    int4    NOT NULL,
+    CONSTRAINT "PK59" PRIMARY KEY (id)
+)
+;
+
+
+
+-- 
+-- TABLE: "OpcionRespuesta" 
+--
+
+CREATE TABLE "OpcionRespuesta"(
+    id             int4            NOT NULL,
+    texto          varchar(150)    NOT NULL,
+    es_correcta    boolean         NOT NULL,
+    baja           boolean         NOT NULL,
+    CONSTRAINT "PK32" PRIMARY KEY (id)
+)
+;
+
+
+
+-- 
+-- TABLE: "Pago" 
+--
+
+CREATE TABLE "Pago"(
+    id                         int4            NOT NULL,
+    monto                      float4          NOT NULL,
+    fecha                      timestamp       NOT NULL,
+    payment_id                 varchar(100),
+    preference_id              varchar(100),
+    email_pagador              varchar(150),
+    nombre_pagador             varchar(50),
+    tipo_pago                  varchar(20),
+    ultimos_digitos_tarjeta    varchar(4),
+    detalle_estado             varchar(100),
+    fecha_aprobacion           timestamp,
+    CONSTRAINT "PK25" PRIMARY KEY (id)
+)
+;
+
+
+
+-- 
+-- TABLE: "Pool" 
+--
+
+CREATE TABLE "Pool"(
+    id                     int4           NOT NULL,
+    nombre                 varchar(50)    NOT NULL,
+    fecha_creacion         timestamp      NOT NULL,
+    ultima_modificacion    timestamp,
+    baja                   boolean        NOT NULL,
+    CONSTRAINT "PK30" PRIMARY KEY (id)
+)
+;
+
+
+
+-- 
+-- TABLE: "Pool Autoevaluacion" 
+--
+
+CREATE TABLE "Pool Autoevaluacion"(
+    id    int4    NOT NULL,
+    CONSTRAINT "PK58" PRIMARY KEY (id)
+)
+;
+
+
+
+-- 
+-- TABLE: "Pregunta" 
+--
+
+CREATE TABLE "Pregunta"(
+    id                    int4            NOT NULL,
+    texto                 varchar(150)    NOT NULL,
+    es_opcion_multiple    boolean         NOT NULL,
+    baja                  boolean         NOT NULL,
+    CONSTRAINT "PK31" PRIMARY KEY (id)
+)
+;
+
+
+
+-- 
+-- TABLE: "Progreso" 
+--
+
+CREATE TABLE "Progreso"(
+    id                  int4         NOT NULL,
+    completada          boolean      NOT NULL,
+    fecha_completada    timestamp,
+    CONSTRAINT "PK70" PRIMARY KEY (id)
+)
+;
+
+
+
+-- 
+-- TABLE: "Reporte" 
+--
+
+CREATE TABLE "Reporte"(
+    id                  int4         NOT NULL,
+    fecha_generacion    timestamp    NOT NULL,
+    CONSTRAINT "PK48" PRIMARY KEY (id)
+)
+;
+
+
+
+-- 
+-- TABLE: "RespuestaForo" 
+--
+
+CREATE TABLE "RespuestaForo"(
+    id       int4            NOT NULL,
+    texto    varchar(500)    NOT NULL,
+    fecha    timestamp       NOT NULL,
+    baja     boolean         NOT NULL,
+    CONSTRAINT "PK22" PRIMARY KEY (id)
+)
+;
+
+
+
+-- 
+-- TABLE: "RespuestaIntento" 
+--
+
+CREATE TABLE "RespuestaIntento"(
+    id    int4    NOT NULL,
+    CONSTRAINT "PK37" PRIMARY KEY (id)
+)
+;
+
+
+
+-- 
+-- TABLE: "Rol" 
+--
+
+CREATE TABLE "Rol"(
+    id        int4           NOT NULL,
+    nombre    varchar(50),
+    CONSTRAINT "PK40" PRIMARY KEY (id)
+)
+;
+
+
+
+-- 
+-- TABLE: "Sesion" 
+--
+
+CREATE TABLE "Sesion"(
+    id              int4            NOT NULL,
+    token           varchar(255)    NOT NULL,
+    fecha_inicio    timestamp       NOT NULL,
+    fecha_fin       timestamp       NOT NULL,
+    ip              varchar(45)     NOT NULL,
+    dispositivo     varchar(255)    NOT NULL,
+    CONSTRAINT "PK44" PRIMARY KEY (id)
+)
+;
+
+
+
+-- 
+-- TABLE: "TerminoGlosario" 
+--
+
+CREATE TABLE "TerminoGlosario"(
+    id            int4            NOT NULL,
+    termino       varchar(50)     NOT NULL,
+    definicion    varchar(150)    NOT NULL,
+    baja          boolean         NOT NULL,
+    CONSTRAINT "PK16" PRIMARY KEY (id)
+)
+;
+
+
+
+-- 
+-- TABLE: "TipoAccionAuditoria" 
+--
+
+CREATE TABLE "TipoAccionAuditoria"(
+    id        int4           NOT NULL,
+    nombre    varchar(50)    NOT NULL,
+    CONSTRAINT "PK45" PRIMARY KEY (id)
+)
+;
+
+
+
+-- 
+-- TABLE: "TipoMaterial" 
+--
+
+CREATE TABLE "TipoMaterial"(
+    id        int4           NOT NULL,
+    nombre    varchar(50)    NOT NULL,
+    CONSTRAINT "PK9" PRIMARY KEY (id)
+)
+;
+
+
+
+-- 
+-- TABLE: "TipoReporte" 
+--
+
+CREATE TABLE "TipoReporte"(
+    id        int4           NOT NULL,
+    nombre    varchar(50)    NOT NULL,
+    CONSTRAINT "PK47" PRIMARY KEY (id)
+)
+;
+
+
+
+-- 
+-- TABLE: "TituloDocente" 
+--
+
+CREATE TABLE "TituloDocente"(
+    id                   int4            NOT NULL,
+    titulo               varchar(100)    NOT NULL,
+    matricula_colegio    varchar(50),
+    CONSTRAINT "PK66" PRIMARY KEY (id)
+)
+;
+
+
+
+-- 
+-- TABLE: "Unidad" 
+--
+
+CREATE TABLE "Unidad"(
+    id                     int4            NOT NULL,
+    titulo                 varchar(50)     NOT NULL,
+    descripcion            varchar(150),
+    numero_orden           int4            NOT NULL,
+    fecha_creacion         timestamp       NOT NULL,
+    ultima_modificacion    timestamp,
+    baja                   boolean         NOT NULL,
+    CONSTRAINT "PK8" PRIMARY KEY (id)
+)
+;
+
+
+
+-- 
+-- TABLE: "Usuario" 
+--
+
+CREATE TABLE "Usuario"(
+    id                    int4            NOT NULL,
+    nombre                varchar(50)     NOT NULL,
+    apellido              varchar(50)     NOT NULL,
+    dni                   varchar(8)      NOT NULL,
+    email                 varchar(150)    NOT NULL,
+    contrasena            varchar(255),
+    imagen                varchar(150),
+    telefono              varchar(20),
+    token_recuperacion    varchar(255),
+    expiracion_token      timestamp,
+    google_id             varchar(255),
+    email_validado        boolean         NOT NULL,
+    fecha_registro        timestamp       NOT NULL,
+    baja                  boolean         NOT NULL,
+    CONSTRAINT "PK36" PRIMARY KEY (id)
+)
+;
+
+
+
+-- 
+-- TABLE: "Usuario Rol" 
+--
+
+CREATE TABLE "Usuario Rol"(
+    id    int4    NOT NULL,
+    CONSTRAINT "PK57" PRIMARY KEY (id)
+)
+;
+
+
+
+-- 
+-- TABLE: "Administrador" 
+--
+
+ALTER TABLE "Administrador" ADD CONSTRAINT "RefUsuario36" 
+    FOREIGN KEY (id)
+    REFERENCES "Usuario"(id)
+;
+
+
+-- 
+-- TABLE: "Alumno" 
+--
+
+ALTER TABLE "Alumno" ADD CONSTRAINT "RefUsuario33" 
+    FOREIGN KEY (id)
+    REFERENCES "Usuario"(id)
+;
+
+
+-- 
+-- TABLE: "Auditoria" 
+--
+
+ALTER TABLE "Auditoria" ADD CONSTRAINT "RefUsuario37" 
+    FOREIGN KEY (id)
+    REFERENCES "Usuario"(id)
+;
+
+ALTER TABLE "Auditoria" ADD CONSTRAINT "RefTipoAccionAuditoria38" 
+    FOREIGN KEY (id)
+    REFERENCES "TipoAccionAuditoria"(id)
+;
+
+
+-- 
+-- TABLE: "Autoevaluacion" 
+--
+
+ALTER TABLE "Autoevaluacion" ADD CONSTRAINT "RefUnidad31" 
+    FOREIGN KEY (id)
+    REFERENCES "Unidad"(id)
+;
+
+
+-- 
+-- TABLE: "Certificado" 
+--
+
+ALTER TABLE "Certificado" ADD CONSTRAINT "RefInscripcion32" 
+    FOREIGN KEY (id)
+    REFERENCES "Inscripcion"(id)
+;
+
+
+-- 
+-- TABLE: "ClaseClonIA" 
+--
+
+ALTER TABLE "ClaseClonIA" ADD CONSTRAINT "RefDocente56" 
+    FOREIGN KEY (id)
+    REFERENCES "Docente"(id)
+;
+
+ALTER TABLE "ClaseClonIA" ADD CONSTRAINT "RefEstadoClaseClonIA43" 
+    FOREIGN KEY (id)
+    REFERENCES "EstadoClaseClonIA"(id)
+;
+
+ALTER TABLE "ClaseClonIA" ADD CONSTRAINT "RefMaterial46" 
+    FOREIGN KEY (id)
+    REFERENCES "Material"(id)
+;
+
+ALTER TABLE "ClaseClonIA" ADD CONSTRAINT "RefUnidad47" 
+    FOREIGN KEY (id)
+    REFERENCES "Unidad"(id)
+;
+
+
+-- 
+-- TABLE: "ClaseEnVivo" 
+--
+
+ALTER TABLE "ClaseEnVivo" ADD CONSTRAINT "RefDocente55" 
+    FOREIGN KEY (id)
+    REFERENCES "Docente"(id)
+;
+
+ALTER TABLE "ClaseEnVivo" ADD CONSTRAINT "RefEstadoClaseEnVIvo42" 
+    FOREIGN KEY (id)
+    REFERENCES "EstadoClaseEnVIvo"(id)
+;
+
+ALTER TABLE "ClaseEnVivo" ADD CONSTRAINT "RefMaterial45" 
+    FOREIGN KEY (id)
+    REFERENCES "Material"(id)
+;
+
+ALTER TABLE "ClaseEnVivo" ADD CONSTRAINT "RefUnidad48" 
+    FOREIGN KEY (id)
+    REFERENCES "Unidad"(id)
+;
+
+
+-- 
+-- TABLE: "Comprobante" 
+--
+
+ALTER TABLE "Comprobante" ADD CONSTRAINT "RefPago21" 
+    FOREIGN KEY (id)
+    REFERENCES "Pago"(id)
+;
+
+
+-- 
+-- TABLE: "Configuracion" 
+--
+
+ALTER TABLE "Configuracion" ADD CONSTRAINT "RefAdministrador40" 
+    FOREIGN KEY (id)
+    REFERENCES "Administrador"(id)
+;
+
+
+-- 
+-- TABLE: "ConsultaForo" 
+--
+
+ALTER TABLE "ConsultaForo" ADD CONSTRAINT "RefAlumno53" 
+    FOREIGN KEY (id)
+    REFERENCES "Alumno"(id)
+;
+
+ALTER TABLE "ConsultaForo" ADD CONSTRAINT "RefUnidad5" 
+    FOREIGN KEY (id)
+    REFERENCES "Unidad"(id)
+;
+
+
+-- 
+-- TABLE: "Curso" 
+--
+
+ALTER TABLE "Curso" ADD CONSTRAINT "RefCategoria2" 
+    FOREIGN KEY (id)
+    REFERENCES "Categoria"(id)
+;
+
+
+-- 
+-- TABLE: "Docente" 
+--
+
+ALTER TABLE "Docente" ADD CONSTRAINT "RefUsuario10" 
+    FOREIGN KEY (id)
+    REFERENCES "Usuario"(id)
+;
+
+
+-- 
+-- TABLE: "Docente Curso" 
+--
+
+ALTER TABLE "Docente Curso" ADD CONSTRAINT "RefDocente91" 
+    FOREIGN KEY (id)
+    REFERENCES "Docente"(id)
+;
+
+ALTER TABLE "Docente Curso" ADD CONSTRAINT "RefCurso92" 
+    FOREIGN KEY (id)
+    REFERENCES "Curso"(id)
+;
+
+
+-- 
+-- TABLE: "Inscripcion" 
+--
+
+ALTER TABLE "Inscripcion" ADD CONSTRAINT "RefCurso15" 
+    FOREIGN KEY (id)
+    REFERENCES "Curso"(id)
+;
+
+ALTER TABLE "Inscripcion" ADD CONSTRAINT "RefDescuento17" 
+    FOREIGN KEY (id)
+    REFERENCES "Descuento"(id)
+;
+
+ALTER TABLE "Inscripcion" ADD CONSTRAINT "RefAlumno35" 
+    FOREIGN KEY (id)
+    REFERENCES "Alumno"(id)
+;
+
+
+-- 
+-- TABLE: "IntentoAutoevaluacion" 
+--
+
+ALTER TABLE "IntentoAutoevaluacion" ADD CONSTRAINT "RefAutoevaluacion27" 
+    FOREIGN KEY (id)
+    REFERENCES "Autoevaluacion"(id)
+;
+
+
+-- 
+-- TABLE: "Material" 
+--
+
+ALTER TABLE "Material" ADD CONSTRAINT "RefDocente54" 
+    FOREIGN KEY (id)
+    REFERENCES "Docente"(id)
+;
+
+ALTER TABLE "Material" ADD CONSTRAINT "RefUnidad8" 
+    FOREIGN KEY (id)
+    REFERENCES "Unidad"(id)
+;
+
+ALTER TABLE "Material" ADD CONSTRAINT "RefTipoMaterial9" 
+    FOREIGN KEY (id)
+    REFERENCES "TipoMaterial"(id)
+;
+
+
+-- 
+-- TABLE: "Modalidad Curso" 
+--
+
+ALTER TABLE "Modalidad Curso" ADD CONSTRAINT "RefModalidad67" 
+    FOREIGN KEY (id)
+    REFERENCES "Modalidad"(id)
+;
+
+ALTER TABLE "Modalidad Curso" ADD CONSTRAINT "RefCurso68" 
+    FOREIGN KEY (id)
+    REFERENCES "Curso"(id)
+;
+
+
+-- 
+-- TABLE: "OpcionRespuesta" 
+--
+
+ALTER TABLE "OpcionRespuesta" ADD CONSTRAINT "RefPregunta23" 
+    FOREIGN KEY (id)
+    REFERENCES "Pregunta"(id)
+;
+
+
+-- 
+-- TABLE: "Pago" 
+--
+
+ALTER TABLE "Pago" ADD CONSTRAINT "RefInscripcion18" 
+    FOREIGN KEY (id)
+    REFERENCES "Inscripcion"(id)
+;
+
+ALTER TABLE "Pago" ADD CONSTRAINT "RefEstadoPago19" 
+    FOREIGN KEY (id)
+    REFERENCES "EstadoPago"(id)
+;
+
+ALTER TABLE "Pago" ADD CONSTRAINT "RefMetodoPago20" 
+    FOREIGN KEY (id)
+    REFERENCES "MetodoPago"(id)
+;
+
+
+-- 
+-- TABLE: "Pool" 
+--
+
+ALTER TABLE "Pool" ADD CONSTRAINT "RefUnidad30" 
+    FOREIGN KEY (id)
+    REFERENCES "Unidad"(id)
+;
+
+
+-- 
+-- TABLE: "Pool Autoevaluacion" 
+--
+
+ALTER TABLE "Pool Autoevaluacion" ADD CONSTRAINT "RefPool64" 
+    FOREIGN KEY (id)
+    REFERENCES "Pool"(id)
+;
+
+ALTER TABLE "Pool Autoevaluacion" ADD CONSTRAINT "RefAutoevaluacion65" 
+    FOREIGN KEY (id)
+    REFERENCES "Autoevaluacion"(id)
+;
+
+
+-- 
+-- TABLE: "Pregunta" 
+--
+
+ALTER TABLE "Pregunta" ADD CONSTRAINT "RefPool22" 
+    FOREIGN KEY (id)
+    REFERENCES "Pool"(id)
+;
+
+
+-- 
+-- TABLE: "Progreso" 
+--
+
+ALTER TABLE "Progreso" ADD CONSTRAINT "RefUnidad87" 
+    FOREIGN KEY (id)
+    REFERENCES "Unidad"(id)
+;
+
+ALTER TABLE "Progreso" ADD CONSTRAINT "RefInscripcion90" 
+    FOREIGN KEY (id)
+    REFERENCES "Inscripcion"(id)
+;
+
+
+-- 
+-- TABLE: "Reporte" 
+--
+
+ALTER TABLE "Reporte" ADD CONSTRAINT "RefTipoReporte39" 
+    FOREIGN KEY (id)
+    REFERENCES "TipoReporte"(id)
+;
+
+ALTER TABLE "Reporte" ADD CONSTRAINT "RefAdministrador41" 
+    FOREIGN KEY (id)
+    REFERENCES "Administrador"(id)
+;
+
+
+-- 
+-- TABLE: "RespuestaForo" 
+--
+
+ALTER TABLE "RespuestaForo" ADD CONSTRAINT "RefDocente52" 
+    FOREIGN KEY (id)
+    REFERENCES "Docente"(id)
+;
+
+ALTER TABLE "RespuestaForo" ADD CONSTRAINT "RefConsultaForo6" 
+    FOREIGN KEY (id)
+    REFERENCES "ConsultaForo"(id)
+;
+
+
+-- 
+-- TABLE: "RespuestaIntento" 
+--
+
+ALTER TABLE "RespuestaIntento" ADD CONSTRAINT "RefOpcionRespuesta85" 
+    FOREIGN KEY (id)
+    REFERENCES "OpcionRespuesta"(id)
+;
+
+ALTER TABLE "RespuestaIntento" ADD CONSTRAINT "RefIntentoAutoevaluacion28" 
+    FOREIGN KEY (id)
+    REFERENCES "IntentoAutoevaluacion"(id)
+;
+
+
+-- 
+-- TABLE: "Sesion" 
+--
+
+ALTER TABLE "Sesion" ADD CONSTRAINT "RefUsuario11" 
+    FOREIGN KEY (id)
+    REFERENCES "Usuario"(id)
+;
+
+
+-- 
+-- TABLE: "TerminoGlosario" 
+--
+
+ALTER TABLE "TerminoGlosario" ADD CONSTRAINT "RefUnidad7" 
+    FOREIGN KEY (id)
+    REFERENCES "Unidad"(id)
+;
+
+
+-- 
+-- TABLE: "TituloDocente" 
+--
+
+ALTER TABLE "TituloDocente" ADD CONSTRAINT "RefDocente78" 
+    FOREIGN KEY (id)
+    REFERENCES "Docente"(id)
+;
+
+
+-- 
+-- TABLE: "Unidad" 
+--
+
+ALTER TABLE "Unidad" ADD CONSTRAINT "RefCurso3" 
+    FOREIGN KEY (id)
+    REFERENCES "Curso"(id)
+;
+
+
+-- 
+-- TABLE: "Usuario Rol" 
+--
+
+ALTER TABLE "Usuario Rol" ADD CONSTRAINT "RefUsuario61" 
+    FOREIGN KEY (id)
+    REFERENCES "Usuario"(id)
+;
+
+ALTER TABLE "Usuario Rol" ADD CONSTRAINT "RefRol62" 
+    FOREIGN KEY (id)
+    REFERENCES "Rol"(id)
+;

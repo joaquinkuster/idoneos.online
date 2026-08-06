@@ -38,6 +38,26 @@ public class Auditoria {
     @JoinColumn(name = "id_tipo_accion", nullable = false)
     private TipoAccionAuditoria tipoAccion;
 
+    // ─── Getters & Setters ─────────────────────────────────────────────────────
+
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+
+    public String getEntidadAfectada() { return entidadAfectada; }
+    public void setEntidadAfectada(String entidadAfectada) { this.entidadAfectada = entidadAfectada; }
+
+    public int getIdAfectado() { return idAfectado; }
+    public void setIdAfectado(int idAfectado) { this.idAfectado = idAfectado; }
+
+    public LocalDateTime getFechaHora() { return fechaHora; }
+    public void setFechaHora(LocalDateTime fechaHora) { this.fechaHora = fechaHora; }
+
+    public Usuario getUsuario() { return usuario; }
+    public void setUsuario(Usuario usuario) { this.usuario = usuario; }
+
+    public TipoAccionAuditoria getTipoAccion() { return tipoAccion; }
+    public void setTipoAccion(TipoAccionAuditoria tipoAccion) { this.tipoAccion = tipoAccion; }
+
     public Auditoria(String entidadAfectada, int idAfectado, Usuario usuario, TipoAccionAuditoria tipoAccion) {
         this.entidadAfectada = entidadAfectada;
         this.idAfectado = idAfectado;

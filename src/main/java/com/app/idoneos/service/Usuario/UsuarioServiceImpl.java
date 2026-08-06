@@ -1,10 +1,7 @@
 package com.app.idoneos.service.Usuario;
 
-import com.app.idoneos.model.Alumno;
-import com.app.idoneos.model.RolUsuario;
-import com.app.idoneos.model.Usuario;
-import com.app.idoneos.repository.AlumnoRepository;
-import com.app.idoneos.repository.UsuarioRepository;
+import com.app.idoneos.model.*;
+import com.app.idoneos.repository.*;
 import com.app.idoneos.service.CrudService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -29,6 +26,12 @@ public class UsuarioServiceImpl implements UsuarioService, CrudService<Usuario> 
 
     @Autowired
     private AlumnoRepository alumnoRepository;
+
+    @Autowired
+    private DocenteRepository docenteRepository;
+
+    @Autowired
+    private AdministradorRepository administradorRepository;
 
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
@@ -94,6 +97,74 @@ public class UsuarioServiceImpl implements UsuarioService, CrudService<Usuario> 
                 alumnoRepository.save(new Alumno(usuario));
             }
         }
+        return usuario;
+    }
+
+    // ─── Métodos adicionales ──────────────────────────────────────────────────
+
+    /**
+     * Cuenta los administradores activos (baja = false).
+     * Usado para validar RN-07: debe quedar al menos 1 admin activo.
+     */
+    public long contarAdministradoresActivos() {
+        return usuarioRepository.findByRolAndBajaFalse(RolUsuario.Administrador).size();
+    }
+
+    /**
+     * Registra un nuevo Docente: crea el Usuario + el registro Docente en una transacción.
+     * CU-74: el alta la realiza el Administrador.
+     */
+    @Transactional
+    public Docente registrarDocente(String nombre, String apellido, String correo,
+                                    String telefono, String biografia, Integer aniosExperiencia) {
+        if (usuarioRepository.existsByCorreo(correo)) {
+            throw new RuntimeException("El correo " + correo + " ya está registrado.");
+        }
+        // Contraseña temporal — el docente la cambia en su primer login
+        String contrasenaTmp = passwordEncoder.encode("Idoneos2026!");
+        Usuario usuario = new Usuario(nombre, apellido, correo, null, RolUsuario.Docente);
+        usuario.setContrasena(contrasenaTmp);
+        usuario.setTelefono(telefono);
+        usuario.setEmailValidado(true);
+        usuario = usuarioRepository.save(usuario);
+
+        Docente docente = new Docente(usuario);
+        docente.setBiografia(biografia);
+        docente.setAniosExperiencia(aniosExperiencia != null ? aniosExperiencia : 0);
+        return docenteRepository.save(docente);
+    }
+
+    /**
+     * Registra un nuevo Alumno por parte del Administrador.
+     * CU-69.
+     */
+    @Transactional
+    public Usuario registrarAlumno(String nombre, String apellido, String correo, String contrasena) {
+        if (usuarioRepository.existsByCorreo(correo)) {
+            throw new RuntimeException("El correo " + correo + " ya está registrado.");
+        }
+        Usuario usuario = new Usuario(nombre, apellido, correo, null, RolUsuario.Alumno);
+        usuario.setContrasena(passwordEncoder.encode(contrasena));
+        usuario.setEmailValidado(true);
+        usuario = usuarioRepository.save(usuario);
+        alumnoRepository.save(new Alumno(usuario));
+        return usuario;
+    }
+
+    /**
+     * Registra un nuevo Administrador.
+     * CU-69 (variante admin).
+     */
+    @Transactional
+    public Usuario registrarAdministrador(String nombre, String apellido, String correo, String contrasena) {
+        if (usuarioRepository.existsByCorreo(correo)) {
+            throw new RuntimeException("El correo " + correo + " ya está registrado.");
+        }
+        Usuario usuario = new Usuario(nombre, apellido, correo, null, RolUsuario.Administrador);
+        usuario.setContrasena(passwordEncoder.encode(contrasena));
+        usuario.setEmailValidado(true);
+        usuario = usuarioRepository.save(usuario);
+        administradorRepository.save(new Administrador(usuario));
         return usuario;
     }
 }

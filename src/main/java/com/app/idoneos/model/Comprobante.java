@@ -42,6 +42,26 @@ public class Comprobante {
     @JoinColumn(name = "id_pago", nullable = false, unique = true)
     private Pago pago;
 
+    // ─── Getters & Setters ─────────────────────────────────────────────────────
+
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+
+    public String getNumero() { return numero; }
+    public void setNumero(String numero) { this.numero = numero; }
+
+    public LocalDateTime getFechaEmision() { return fechaEmision; }
+    public void setFechaEmision(LocalDateTime fechaEmision) { this.fechaEmision = fechaEmision; }
+
+    public String getRutaArchivo() { return rutaArchivo; }
+    public void setRutaArchivo(String rutaArchivo) { this.rutaArchivo = rutaArchivo; }
+
+    public Boolean getEnviado() { return enviado; }
+    public void setEnviado(Boolean enviado) { this.enviado = enviado; }
+
+    public Pago getPago() { return pago; }
+    public void setPago(Pago pago) { this.pago = pago; }
+
     public Comprobante(String numero, Pago pago) {
         this.numero = numero;
         this.pago = pago;

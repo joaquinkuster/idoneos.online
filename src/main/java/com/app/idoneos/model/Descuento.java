@@ -63,6 +63,41 @@ public class Descuento {
     @Column(name = "ultima_modificacion", nullable = true)
     private LocalDateTime ultimaModificacion;
 
+    // ─── Getters & Setters ─────────────────────────────────────────────────────
+
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+
+    public String getNombre() { return nombre; }
+    public void setNombre(String nombre) { this.nombre = nombre; }
+
+    public Double getPorcentaje() { return porcentaje; }
+    public void setPorcentaje(Double porcentaje) { this.porcentaje = porcentaje; }
+
+    public LocalDateTime getVigenciaDesde() { return vigenciaDesde; }
+    public void setVigenciaDesde(LocalDateTime vigenciaDesde) { this.vigenciaDesde = vigenciaDesde; }
+
+    public LocalDateTime getVigenciaHasta() { return vigenciaHasta; }
+    public void setVigenciaHasta(LocalDateTime vigenciaHasta) { this.vigenciaHasta = vigenciaHasta; }
+
+    public Integer getCantidadLimite() { return cantidadLimite; }
+    public void setCantidadLimite(Integer cantidadLimite) { this.cantidadLimite = cantidadLimite; }
+
+    public Integer getCantidadUsada() { return cantidadUsada; }
+    public void setCantidadUsada(Integer cantidadUsada) { this.cantidadUsada = cantidadUsada; }
+
+    public Integer getCursosRequeridos() { return cursosRequeridos; }
+    public void setCursosRequeridos(Integer cursosRequeridos) { this.cursosRequeridos = cursosRequeridos; }
+
+    public Boolean getBaja() { return baja; }
+    public void setBaja(Boolean baja) { this.baja = baja; }
+
+    public LocalDateTime getFechaCreacion() { return fechaCreacion; }
+    public void setFechaCreacion(LocalDateTime fechaCreacion) { this.fechaCreacion = fechaCreacion; }
+
+    public LocalDateTime getUltimaModificacion() { return ultimaModificacion; }
+    public void setUltimaModificacion(LocalDateTime ultimaModificacion) { this.ultimaModificacion = ultimaModificacion; }
+
     public boolean estaVigente() {
         LocalDateTime ahora = LocalDateTime.now();
         return !baja

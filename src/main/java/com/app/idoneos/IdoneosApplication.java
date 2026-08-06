@@ -5,6 +5,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import org.springframework.scheduling.annotation.EnableAsync;
 import com.app.idoneos.service.SemillaService;
 
 /**
@@ -12,6 +13,7 @@ import com.app.idoneos.service.SemillaService;
  * Implementa {@link CommandLineRunner} para ejecutar tareas al arrancar la aplicación.
  */
 @SpringBootApplication
+@EnableAsync
 public class IdoneosApplication implements CommandLineRunner {
 
     /**

@@ -36,6 +36,26 @@ public class RespuestaForo {
     @JoinColumn(name = "id_docente", nullable = false)
     private Docente docente;
 
+    // ─── Getters & Setters ─────────────────────────────────────────────────────
+
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+
+    public String getTexto() { return texto; }
+    public void setTexto(String texto) { this.texto = texto; }
+
+    public LocalDateTime getFecha() { return fecha; }
+    public void setFecha(LocalDateTime fecha) { this.fecha = fecha; }
+
+    public Boolean getBaja() { return baja; }
+    public void setBaja(Boolean baja) { this.baja = baja; }
+
+    public ConsultaForo getConsulta() { return consulta; }
+    public void setConsulta(ConsultaForo consulta) { this.consulta = consulta; }
+
+    public Docente getDocente() { return docente; }
+    public void setDocente(Docente docente) { this.docente = docente; }
+
     public RespuestaForo(String texto, ConsultaForo consulta, Docente docente) {
         this.texto = texto;
         this.consulta = consulta;

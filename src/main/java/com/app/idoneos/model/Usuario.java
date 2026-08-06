@@ -97,6 +97,69 @@ public class Usuario implements UserDetails {
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
     private List<Sesion> sesiones;
 
+    // ─── Getters & Setters ─────────────────────────────────────────────────────
+
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+
+    public String getNombre() { return nombre; }
+    public void setNombre(String nombre) { this.nombre = nombre; }
+
+    public String getApellido() { return apellido; }
+    public void setApellido(String apellido) { this.apellido = apellido; }
+
+    public String getDni() { return dni; }
+    public void setDni(String dni) { this.dni = dni; }
+
+    public String getTelefono() { return telefono; }
+    public void setTelefono(String telefono) { this.telefono = telefono; }
+
+    public String getCorreo() { return correo; }
+    public void setCorreo(String correo) { this.correo = correo; }
+
+    public String getContrasena() { return contrasena; }
+    public void setContrasena(String contrasena) { this.contrasena = contrasena; }
+
+    public String getGoogleId() { return googleId; }
+    public void setGoogleId(String googleId) { this.googleId = googleId; }
+
+    public String getImagen() { return imagen; }
+    public void setImagen(String imagen) { this.imagen = imagen; }
+
+    public Boolean getEmailValidado() { return emailValidado; }
+    public void setEmailValidado(Boolean emailValidado) { this.emailValidado = emailValidado; }
+
+    public String getTokenRecuperacion() { return tokenRecuperacion; }
+    public void setTokenRecuperacion(String tokenRecuperacion) { this.tokenRecuperacion = tokenRecuperacion; }
+
+    public LocalDateTime getExpiracionToken() { return expiracionToken; }
+    public void setExpiracionToken(LocalDateTime expiracionToken) { this.expiracionToken = expiracionToken; }
+
+    public LocalDateTime getFechaRegistro() { return fechaRegistro; }
+    public void setFechaRegistro(LocalDateTime fechaRegistro) { this.fechaRegistro = fechaRegistro; }
+
+    public Boolean getBaja() { return baja; }
+    public void setBaja(Boolean baja) { this.baja = baja; }
+
+    public RolUsuario getRol() { return rol; }
+    public void setRol(RolUsuario rol) { this.rol = rol; }
+
+    public Alumno getAlumno() { return alumno; }
+    public void setAlumno(Alumno alumno) { this.alumno = alumno; }
+
+    public Docente getDocente() { return docente; }
+    public void setDocente(Docente docente) { this.docente = docente; }
+
+    public Administrador getAdministrador() { return administrador; }
+    public void setAdministrador(Administrador administrador) { this.administrador = administrador; }
+
+    public Set<UsuarioRol> getUsuarioRoles() { return usuarioRoles; }
+    public void setUsuarioRoles(Set<UsuarioRol> usuarioRoles) { this.usuarioRoles = usuarioRoles; }
+
+    public List<Sesion> getSesiones() { return sesiones; }
+    public void setSesiones(List<Sesion> sesiones) { this.sesiones = sesiones; }
+
+
     // ─── Constructores ─────────────────────────────────────────────────────────
 
     public Usuario(String nombre, String apellido, String correo, String contrasena, RolUsuario rol) {

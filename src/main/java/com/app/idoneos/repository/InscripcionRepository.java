@@ -19,4 +19,7 @@ public interface InscripcionRepository extends JpaRepository<Inscripcion, Intege
     boolean existsByUsuarioAndCursoAndBajaFalse(Usuario usuario, Curso curso);
 
     List<Inscripcion> findByCursoAndBajaFalse(Curso curso);
+
+    /** Verificar si un curso tiene inscripciones vigentes — CU-04. */
+    boolean existsByCursoAndBajaFalse(Curso curso);
 }
