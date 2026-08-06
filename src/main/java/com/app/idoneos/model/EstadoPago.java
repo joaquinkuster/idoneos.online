@@ -20,6 +20,14 @@ public class EstadoPago {
     @Column(name = "nombre", nullable = false, unique = true, length = 50)
     private String nombre;
 
+    // ─── Getters & Setters ─────────────────────────────────────────────────────
+
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+
+    public String getNombre() { return nombre; }
+    public void setNombre(String nombre) { this.nombre = nombre; }
+
     public EstadoPago(String nombre) { this.nombre = nombre; }
 
     @Override

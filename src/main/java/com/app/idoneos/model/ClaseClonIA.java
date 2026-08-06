@@ -51,6 +51,32 @@ public class ClaseClonIA {
     @JoinColumn(name = "id_estado", nullable = false)
     private EstadoClaseClonIA estado;
 
+    // ─── Getters & Setters ─────────────────────────────────────────────────────
+
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+
+    public String getTitulo() { return titulo; }
+    public void setTitulo(String titulo) { this.titulo = titulo; }
+
+    public LocalDateTime getFechaGeneracion() { return fechaGeneracion; }
+    public void setFechaGeneracion(LocalDateTime fechaGeneracion) { this.fechaGeneracion = fechaGeneracion; }
+
+    public Boolean getBaja() { return baja; }
+    public void setBaja(Boolean baja) { this.baja = baja; }
+
+    public Unidad getUnidad() { return unidad; }
+    public void setUnidad(Unidad unidad) { this.unidad = unidad; }
+
+    public Docente getDocente() { return docente; }
+    public void setDocente(Docente docente) { this.docente = docente; }
+
+    public Material getMaterial() { return material; }
+    public void setMaterial(Material material) { this.material = material; }
+
+    public EstadoClaseClonIA getEstado() { return estado; }
+    public void setEstado(EstadoClaseClonIA estado) { this.estado = estado; }
+
     public ClaseClonIA(String titulo, Unidad unidad, Docente docente, EstadoClaseClonIA estado) {
         this.titulo = titulo;
         this.unidad = unidad;

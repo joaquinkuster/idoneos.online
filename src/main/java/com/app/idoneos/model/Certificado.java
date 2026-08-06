@@ -37,6 +37,23 @@ public class Certificado {
     @JoinColumn(name = "id_inscripcion", nullable = false, unique = true)
     private Inscripcion inscripcion;
 
+    // ─── Getters & Setters ─────────────────────────────────────────────────────
+
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+
+    public String getNumero() { return numero; }
+    public void setNumero(String numero) { this.numero = numero; }
+
+    public LocalDateTime getFechaEmision() { return fechaEmision; }
+    public void setFechaEmision(LocalDateTime fechaEmision) { this.fechaEmision = fechaEmision; }
+
+    public String getRutaArchivo() { return rutaArchivo; }
+    public void setRutaArchivo(String rutaArchivo) { this.rutaArchivo = rutaArchivo; }
+
+    public Inscripcion getInscripcion() { return inscripcion; }
+    public void setInscripcion(Inscripcion inscripcion) { this.inscripcion = inscripcion; }
+
     public Certificado(String numero, Inscripcion inscripcion) {
         this.numero = numero;
         this.inscripcion = inscripcion;

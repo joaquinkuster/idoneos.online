@@ -58,6 +58,35 @@ public class Docente {
     @OneToMany(mappedBy = "docente", cascade = CascadeType.ALL)
     private List<DocenteCurso> cursos = new ArrayList<>();
 
+    // ─── Getters & Setters ─────────────────────────────────────────────────────
+
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+
+    public Usuario getUsuario() { return usuario; }
+    public void setUsuario(Usuario usuario) { this.usuario = usuario; }
+
+    public LocalDateTime getFechaConsentimientoClon() { return fechaConsentimientoClon; }
+    public void setFechaConsentimientoClon(LocalDateTime fechaConsentimientoClon) { this.fechaConsentimientoClon = fechaConsentimientoClon; }
+
+    public Integer getAniosExperiencia() { return aniosExperiencia; }
+    public void setAniosExperiencia(Integer aniosExperiencia) { this.aniosExperiencia = aniosExperiencia; }
+
+    public String getMatriculaCnv() { return matriculaCnv; }
+    public void setMatriculaCnv(String matriculaCnv) { this.matriculaCnv = matriculaCnv; }
+
+    public String getBiografia() { return biografia; }
+    public void setBiografia(String biografia) { this.biografia = biografia; }
+
+    public Boolean getHabilitado() { return habilitado; }
+    public void setHabilitado(Boolean habilitado) { this.habilitado = habilitado; }
+
+    public List<TituloDocente> getTitulos() { return titulos; }
+    public void setTitulos(List<TituloDocente> titulos) { this.titulos = titulos; }
+
+    public List<DocenteCurso> getCursos() { return cursos; }
+    public void setCursos(List<DocenteCurso> cursos) { this.cursos = cursos; }
+
     public Docente(Usuario usuario) {
         this.usuario = usuario;
         this.id = usuario.getId();

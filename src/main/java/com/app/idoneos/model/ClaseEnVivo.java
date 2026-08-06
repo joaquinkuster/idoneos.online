@@ -58,6 +58,38 @@ public class ClaseEnVivo {
     @JoinColumn(name = "id_estado", nullable = false)
     private EstadoClaseEnVivo estado;
 
+    // ─── Getters & Setters ─────────────────────────────────────────────────────
+
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+
+    public String getTitulo() { return titulo; }
+    public void setTitulo(String titulo) { this.titulo = titulo; }
+
+    public LocalDateTime getFechaHora() { return fechaHora; }
+    public void setFechaHora(LocalDateTime fechaHora) { this.fechaHora = fechaHora; }
+
+    public String getUrlRtmp() { return urlRtmp; }
+    public void setUrlRtmp(String urlRtmp) { this.urlRtmp = urlRtmp; }
+
+    public String getClaveStream() { return claveStream; }
+    public void setClaveStream(String claveStream) { this.claveStream = claveStream; }
+
+    public Boolean getBaja() { return baja; }
+    public void setBaja(Boolean baja) { this.baja = baja; }
+
+    public Unidad getUnidad() { return unidad; }
+    public void setUnidad(Unidad unidad) { this.unidad = unidad; }
+
+    public Docente getDocente() { return docente; }
+    public void setDocente(Docente docente) { this.docente = docente; }
+
+    public Material getMaterial() { return material; }
+    public void setMaterial(Material material) { this.material = material; }
+
+    public EstadoClaseEnVivo getEstado() { return estado; }
+    public void setEstado(EstadoClaseEnVivo estado) { this.estado = estado; }
+
     public ClaseEnVivo(String titulo, LocalDateTime fechaHora, Unidad unidad, Docente docente, EstadoClaseEnVivo estado) {
         this.titulo = titulo;
         this.fechaHora = fechaHora;

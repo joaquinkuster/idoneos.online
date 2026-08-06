@@ -34,6 +34,21 @@ public class DocenteCurso {
     @Column(name = "es_supervisor", nullable = false)
     private boolean esSupervisor = false;
 
+    // ─── Getters & Setters ─────────────────────────────────────────────────────
+
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+
+    public Docente getDocente() { return docente; }
+    public void setDocente(Docente docente) { this.docente = docente; }
+
+    public Curso getCurso() { return curso; }
+    public void setCurso(Curso curso) { this.curso = curso; }
+
+    public boolean isEsSupervisor() { return esSupervisor; }
+    public boolean getEsSupervisor() { return esSupervisor; }
+    public void setEsSupervisor(boolean esSupervisor) { this.esSupervisor = esSupervisor; }
+
     public DocenteCurso(Docente docente, Curso curso, boolean esSupervisor) {
         this.docente = docente;
         this.curso = curso;

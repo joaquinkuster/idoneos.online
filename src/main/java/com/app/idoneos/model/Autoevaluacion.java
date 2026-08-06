@@ -63,6 +63,35 @@ public class Autoevaluacion {
     @OneToMany(mappedBy = "autoevaluacion", cascade = CascadeType.ALL)
     private List<IntentoAutoevaluacion> intentos = new ArrayList<>();
 
+    // ─── Getters & Setters ─────────────────────────────────────────────────────
+
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+
+    public String getNombre() { return nombre; }
+    public void setNombre(String nombre) { this.nombre = nombre; }
+
+    public Integer getTiempoLimite() { return tiempoLimite; }
+    public void setTiempoLimite(Integer tiempoLimite) { this.tiempoLimite = tiempoLimite; }
+
+    public Integer getIntentosPermitidos() { return intentosPermitidos; }
+    public void setIntentosPermitidos(Integer intentosPermitidos) { this.intentosPermitidos = intentosPermitidos; }
+
+    public Boolean getBaja() { return baja; }
+    public void setBaja(Boolean baja) { this.baja = baja; }
+
+    public LocalDateTime getFechaCreacion() { return fechaCreacion; }
+    public void setFechaCreacion(LocalDateTime fechaCreacion) { this.fechaCreacion = fechaCreacion; }
+
+    public LocalDateTime getUltimaModificacion() { return ultimaModificacion; }
+    public void setUltimaModificacion(LocalDateTime ultimaModificacion) { this.ultimaModificacion = ultimaModificacion; }
+
+    public List<Pool> getPools() { return pools; }
+    public void setPools(List<Pool> pools) { this.pools = pools; }
+
+    public List<IntentoAutoevaluacion> getIntentos() { return intentos; }
+    public void setIntentos(List<IntentoAutoevaluacion> intentos) { this.intentos = intentos; }
+
     public Autoevaluacion(String nombre, Integer tiempoLimite, Integer intentosPermitidos) {
         this.nombre = nombre;
         this.tiempoLimite = tiempoLimite;

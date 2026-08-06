@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Nuevo Docente | Idóneos Online</title>
+    <link rel="stylesheet" th:href="@{/css/index.css}">
+    <style>
+        .form-card { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); max-width: 650px; margin: 2rem auto; }
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { display: block; font-weight: 600; margin-bottom: 0.5rem; color: #374151; }
+        .form-group input, .form-group textarea { width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 6px; font-size: 1rem; }
+        .btn-submit { background: #1a56db; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 6px; font-weight: 600; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div th:replace="~{fragments/header :: header}"></div>
+
+    <div class="container">
+        <div class="form-card">
+            <h2>Registrar Nuevo Docente</h2>
+            <p style="color: #6b7280; margin-bottom: 1.5rem;">Se enviará un correo electrónico al docente con las instrucciones para ingresar al sistema (CU-74).</p>
+
+            <form th:action="@{/admin/docentes/guardar}" method="post">
+                <div class="form-group">
+                    <label for="nombre">Nombre *</label>
+                    <input type="text" id="nombre" name="nombre" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="apellido">Apellido *</label>
+                    <input type="text" id="apellido" name="apellido" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="correo">Correo Electrónico *</label>
+                    <input type="email" id="correo" name="correo" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="telefono">Teléfono</label>
+                    <input type="text" id="telefono" name="telefono" placeholder="+54 11 1234-5678">
+                </div>
+
+                <div class="form-group">
+                    <label for="biografia">Biografía Profesional</label>
+                    <textarea id="biografia" name="biografia" rows="3" placeholder="Resumen de trayectoria académica y profesional..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="aniosExperiencia">Años de Experiencia</label>
+                    <input type="number" id="aniosExperiencia" name="aniosExperiencia" min="0" value="0">
+                </div>
+
+                <div style="display: flex; gap: 1rem; align-items: center;">
+                    <button type="submit" class="btn-submit">Registrar y Enviar Email</button>
+                    <a th:href="@{/admin/usuarios}" style="color: #6b7280; text-decoration: none;">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
