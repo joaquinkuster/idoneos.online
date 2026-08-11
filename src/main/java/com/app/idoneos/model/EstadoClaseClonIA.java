@@ -2,14 +2,15 @@ package com.app.idoneos.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import java.util.ArrayList;
+import java.util.List;
 
-/**
- * Catálogo de estados de ClaseClonIA: Pendiente, Generada, Error.
- */
 @Entity
 @Table(name = "estado_clase_clon_ia")
 @Getter @Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class EstadoClaseClonIA {
 
     @Id
@@ -17,13 +18,9 @@ public class EstadoClaseClonIA {
     @Column(name = "id")
     private int id;
 
-    @Column(name = "nombre", nullable = false, unique = true, length = 50)
+    @Column(name = "nombre", nullable = false, length = 50)
     private String nombre;
 
-    public EstadoClaseClonIA(String nombre) {
-        this.nombre = nombre;
-    }
-
-    @Override
-    public String toString() { return nombre; }
+    @OneToMany(mappedBy = "estadoClaseClonIA", cascade = CascadeType.ALL)
+    private List<ClaseClonIA> clasesClonIA = new ArrayList<>();
 }

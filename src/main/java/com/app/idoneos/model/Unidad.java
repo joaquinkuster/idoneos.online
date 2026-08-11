@@ -1,22 +1,17 @@
 package com.app.idoneos.model;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
+import lombok.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import java.time.LocalDateTime;
-
-/**
- * Representa una unidad académica dentro de un curso de Idóneos Online.
- */
 @Entity
 @Table(name = "unidad")
 @Getter @Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Unidad {
 
     @Id
@@ -24,10 +19,10 @@ public class Unidad {
     @Column(name = "id")
     private int id;
 
-    @Column(name = "titulo", nullable = false, length = 200)
+    @Column(name = "titulo", nullable = false, length = 50)
     private String titulo;
 
-    @Column(name = "descripcion", nullable = true, length = 1000)
+    @Column(name = "descripcion", length = 150)
     private String descripcion;
 
     @Column(name = "numero_orden", nullable = false)
@@ -36,57 +31,44 @@ public class Unidad {
     @Column(name = "fecha_creacion", nullable = false)
     private LocalDateTime fechaCreacion = LocalDateTime.now();
 
-    @Column(name = "ultima_modificacion", nullable = true)
+    @Column(name = "ultima_modificacion")
     private LocalDateTime ultimaModificacion;
 
     @Column(name = "baja", nullable = false)
-    private Boolean baja = false;
+    private boolean baja = false;
 
-    @ManyToOne
-    @JoinColumn(name = "id_curso", nullable = false)
-    private Curso curso;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "programa_id", nullable = false)
+    private Programa programa;
 
-    @OneToMany(mappedBy = "unidad", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "unidad", cascade = CascadeType.ALL)
     private List<Material> materiales = new ArrayList<>();
 
-    // ─── Getters & Setters ─────────────────────────────────────────────────────
+    @OneToMany(mappedBy = "unidad", cascade = CascadeType.ALL)
+    private List<ClaseClonIA> clasesClonIA = new ArrayList<>();
 
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+    @OneToMany(mappedBy = "unidad", cascade = CascadeType.ALL)
+    private List<ClaseEnVivo> clasesEnVivo = new ArrayList<>();
 
-    public String getTitulo() { return titulo; }
-    public void setTitulo(String titulo) { this.titulo = titulo; }
+    @OneToMany(mappedBy = "unidad", cascade = CascadeType.ALL)
+    private List<ConsultaForo> consultasForo = new ArrayList<>();
 
-    public String getDescripcion() { return descripcion; }
-    public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
+    @OneToMany(mappedBy = "unidad", cascade = CascadeType.ALL)
+    private List<Autoevaluacion> autoevaluaciones = new ArrayList<>();
 
-    public int getNumeroOrden() { return numeroOrden; }
-    public void setNumeroOrden(int numeroOrden) { this.numeroOrden = numeroOrden; }
+    @OneToMany(mappedBy = "unidad", cascade = CascadeType.ALL)
+    private List<Pool> pools = new ArrayList<>();
 
-    public LocalDateTime getFechaCreacion() { return fechaCreacion; }
-    public void setFechaCreacion(LocalDateTime fechaCreacion) { this.fechaCreacion = fechaCreacion; }
+    @OneToMany(mappedBy = "unidad", cascade = CascadeType.ALL)
+    private List<Progreso> progresos = new ArrayList<>();
 
-    public LocalDateTime getUltimaModificacion() { return ultimaModificacion; }
-    public void setUltimaModificacion(LocalDateTime ultimaModificacion) { this.ultimaModificacion = ultimaModificacion; }
+    @OneToMany(mappedBy = "unidad", cascade = CascadeType.ALL)
+    private List<TerminoGlosario> terminosGlosario = new ArrayList<>();
 
-    public Boolean getBaja() { return baja; }
-    public void setBaja(Boolean baja) { this.baja = baja; }
-
-    public Curso getCurso() { return curso; }
-    public void setCurso(Curso curso) { this.curso = curso; }
-
-    public List<Material> getMateriales() { return materiales; }
-    public void setMateriales(List<Material> materiales) { this.materiales = materiales; }
-
-    public Unidad(String titulo, String descripcion, int numeroOrden, Curso curso) {
+    public Unidad(String titulo, String descripcion, int numeroOrden, Programa programa) {
         this.titulo = titulo;
         this.descripcion = descripcion;
         this.numeroOrden = numeroOrden;
-        this.curso = curso;
-    }
-
-    @Override
-    public String toString() {
-        return "Unidad " + numeroOrden + ": " + titulo;
+        this.programa = programa;
     }
 }

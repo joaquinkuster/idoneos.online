@@ -2,16 +2,14 @@ package com.app.idoneos.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.time.LocalDateTime;
 
-/**
- * Registra cada inicio de sesión de un usuario para trazabilidad de seguridad.
- */
 @Entity
 @Table(name = "sesion")
 @Getter @Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Sesion {
 
     @Id
@@ -25,33 +23,16 @@ public class Sesion {
     @Column(name = "fecha_inicio", nullable = false)
     private LocalDateTime fechaInicio = LocalDateTime.now();
 
-    /**
-     * Null mientras la sesión está activa.
-     */
-    @Column(name = "fecha_fin", nullable = true)
+    @Column(name = "fecha_fin", nullable = false)
     private LocalDateTime fechaFin;
 
-    /**
-     * Longitud 45 para contemplar IPv6.
-     */
-    @Column(name = "ip", nullable = true, length = 45)
+    @Column(name = "ip", nullable = false, length = 45)
     private String ip;
 
-    @Column(name = "dispositivo", nullable = true, length = 255)
+    @Column(name = "dispositivo", nullable = false, length = 255)
     private String dispositivo;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_usuario", nullable = false)
+    @JoinColumn(name = "usuario_id", nullable = false)
     private Usuario usuario;
-
-    public Sesion(String token, String ip, String dispositivo, Usuario usuario) {
-        this.token = token;
-        this.ip = ip;
-        this.dispositivo = dispositivo;
-        this.usuario = usuario;
-    }
-
-    public boolean estaActiva() {
-        return fechaFin == null;
-    }
 }

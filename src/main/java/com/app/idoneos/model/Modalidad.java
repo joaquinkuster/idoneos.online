@@ -2,15 +2,15 @@ package com.app.idoneos.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import java.util.ArrayList;
+import java.util.List;
 
-/**
- * Catálogo de modalidades de dictado: En vivo, Grabada, Clon IA.
- * Un curso puede tener múltiples modalidades (relación M:N vía ModalidadCurso).
- */
 @Entity
 @Table(name = "modalidad")
 @Getter @Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Modalidad {
 
     @Id
@@ -18,15 +18,9 @@ public class Modalidad {
     @Column(name = "id")
     private int id;
 
-    @Column(name = "nombre", nullable = false, unique = true, length = 50)
+    @Column(name = "nombre", nullable = false, length = 50)
     private String nombre;
 
-    public Modalidad(String nombre) {
-        this.nombre = nombre;
-    }
-
-    @Override
-    public String toString() {
-        return nombre;
-    }
+    @OneToMany(mappedBy = "modalidad", cascade = CascadeType.ALL)
+    private List<ModalidadCurso> modalidadesCursos = new ArrayList<>();
 }

@@ -2,16 +2,15 @@ package com.app.idoneos.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import java.util.ArrayList;
+import java.util.List;
 
-/**
- * Catálogo de roles: Alumno, Docente, Administrador.
- * Se mantiene en paralelo con RolUsuario (enum en Usuario) para facilitar
- * consultas sin recorrer las tres tablas de subtipo.
- */
 @Entity
 @Table(name = "rol")
 @Getter @Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Rol {
 
     @Id
@@ -19,10 +18,9 @@ public class Rol {
     @Column(name = "id")
     private int id;
 
-    @Column(name = "nombre", nullable = false, unique = true, length = 50)
+    @Column(name = "nombre", length = 50)
     private String nombre;
 
-    public Rol(String nombre) {
-        this.nombre = nombre;
-    }
+    @OneToMany(mappedBy = "rol", cascade = CascadeType.ALL)
+    private List<UsuarioRol> usuarioRoles = new ArrayList<>();
 }

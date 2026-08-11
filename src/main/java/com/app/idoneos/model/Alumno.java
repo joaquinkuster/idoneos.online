@@ -2,32 +2,39 @@ package com.app.idoneos.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import java.util.ArrayList;
+import java.util.List;
 
-/**
- * Subtipo de Usuario para alumnos.
- * Sin atributos propios: su existencia en la tabla garantiza integridad referencial.
- * Una FK a Alumno asegura a nivel de BD que ese usuario tiene rol de alumno.
- */
 @Entity
 @Table(name = "alumno")
 @Getter @Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Alumno {
 
     @Id
-    @Column(name = "id_usuario")
+    @Column(name = "id")
     private int id;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne
     @MapsId
-    @JoinColumn(name = "id_usuario")
+    @JoinColumn(name = "id")
     private Usuario usuario;
+
+    @OneToMany(mappedBy = "alumno", cascade = CascadeType.ALL)
+    private List<Inscripcion> inscripciones = new ArrayList<>();
+
+    @OneToMany(mappedBy = "alumno", cascade = CascadeType.ALL)
+    private List<ConsultaForo> consultasForo = new ArrayList<>();
+
+    @OneToMany(mappedBy = "alumno", cascade = CascadeType.ALL)
+    private List<IntentoAutoevaluacion> intentosAutoevaluacion = new ArrayList<>();
 
     public Alumno(Usuario usuario) {
         this.usuario = usuario;
-    }
-
-    public String getNombreCompleto() {
-        return usuario.getNombreCompleto();
+        if (usuario != null) {
+            this.id = usuario.getId();
+        }
     }
 }

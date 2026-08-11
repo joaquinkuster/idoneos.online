@@ -4,8 +4,8 @@
 -- Project :      ModeloConceptual.DM1
 -- Author :       Joaquín
 --
--- Date Created : Thursday, August 06, 2026 03:45:06
--- Target DBMS : PostgreSQL 8.0
+-- Date Created : Tuesday, August 11, 2026 14:44:56
+-- Target DBMS : PostgreSQL 9.x
 --
 
 -- 
@@ -40,6 +40,9 @@ CREATE TABLE "Auditoria"(
     id                  int4           NOT NULL,
     entidad_afectada    varchar(50)    NOT NULL,
     id_afectado         int4           NOT NULL,
+    valor_anterior      text,
+    valor_nuevo         text,
+    ip_usuario          varchar(45)    NOT NULL,
     fecha_hora          timestamp      NOT NULL,
     CONSTRAINT "PK46" PRIMARY KEY (id)
 )
@@ -55,7 +58,9 @@ CREATE TABLE "Autoevaluacion"(
     id                     int4           NOT NULL,
     nombre                 varchar(50)    NOT NULL,
     tiempo_limite          int4           NOT NULL,
-    intentos_permitidos    int4           NOT NULL,
+    intentos_permitidos    int4,
+    fecha_apertura         timestamp      NOT NULL,
+    fecha_cierre           timestamp,
     fecha_creacion         timestamp      NOT NULL,
     ultima_modificacion    timestamp,
     baja                   boolean        NOT NULL,
@@ -83,27 +88,13 @@ CREATE TABLE "Categoria"(
 
 
 -- 
--- TABLE: "Certificado" 
---
-
-CREATE TABLE "Certificado"(
-    id               int4            NOT NULL,
-    numero           varchar(100)    NOT NULL,
-    fecha_emision    timestamp       NOT NULL,
-    ruta_archivo     varchar(150)    NOT NULL,
-    CONSTRAINT "PK35" PRIMARY KEY (id)
-)
-;
-
-
-
--- 
 -- TABLE: "ClaseClonIA" 
 --
 
 CREATE TABLE "ClaseClonIA"(
     id                  int4           NOT NULL,
     titulo              varchar(50)    NOT NULL,
+    guion               text           NOT NULL,
     fecha_generacion    timestamp      NOT NULL,
     baja                boolean        NOT NULL,
     CONSTRAINT "PK20" PRIMARY KEY (id)
@@ -124,22 +115,6 @@ CREATE TABLE "ClaseEnVivo"(
     clave_stream    varchar(100)    NOT NULL,
     baja            boolean         NOT NULL,
     CONSTRAINT "PK18" PRIMARY KEY (id)
-)
-;
-
-
-
--- 
--- TABLE: "Comprobante" 
---
-
-CREATE TABLE "Comprobante"(
-    id               int4            NOT NULL,
-    numero           varchar(100)    NOT NULL,
-    fecha_emision    timestamp       NOT NULL,
-    ruta_archivo     varchar(150),
-    enviado          boolean         NOT NULL,
-    CONSTRAINT "PK27" PRIMARY KEY (id)
 )
 ;
 
@@ -179,18 +154,15 @@ CREATE TABLE "ConsultaForo"(
 --
 
 CREATE TABLE "Curso"(
-    id                          int4            NOT NULL,
-    nombre                      varchar(50)     NOT NULL,
-    descripcion                 varchar(150),
-    precio                      float4          NOT NULL,
-    imagen                      varchar(150),
-    fecha_inicio_inscripcion    timestamp       NOT NULL,
-    fecha_fin_inscripcion       timestamp       NOT NULL,
-    meses_acceso                int4            NOT NULL,
-    publicado                   boolean         NOT NULL,
-    fecha_creacion              timestamp       NOT NULL,
-    ultima_modificacion         timestamp,
-    baja                        boolean         NOT NULL,
+    id                     int4            NOT NULL,
+    nombre                 varchar(50)     NOT NULL,
+    descripcion            varchar(150),
+    precio                 float4          NOT NULL,
+    imagen                 varchar(150),
+    publicado              boolean         NOT NULL,
+    fecha_creacion         timestamp       NOT NULL,
+    ultima_modificacion    timestamp,
+    baja                   boolean         NOT NULL,
     CONSTRAINT "PK4" PRIMARY KEY (id)
 )
 ;
@@ -220,30 +192,46 @@ CREATE TABLE "Descuento"(
 
 
 -- 
--- TABLE: "Docente" 
+-- TABLE: "Dictado" 
 --
 
-CREATE TABLE "Docente"(
-    id                           int4           NOT NULL,
-    anios_experiencia            int4           NOT NULL,
-    matricula_cnv                varchar(50),
-    biografia                    text,
-    habilitado                   boolean        NOT NULL,
-    fecha_consentimiento_clon    timestamp,
-    CONSTRAINT "PK42" PRIMARY KEY (id)
+CREATE TABLE "Dictado"(
+    id                     int4         NOT NULL,
+    fecha_inicio           timestamp    NOT NULL,
+    fecha_fin              timestamp    NOT NULL,
+    cupo_maximo            int4,
+    baja                   boolean      NOT NULL,
+    fecha_creacion         timestamp    NOT NULL,
+    ultima_modificacion    timestamp,
+    CONSTRAINT "PK76" PRIMARY KEY (id)
 )
 ;
 
 
 
 -- 
--- TABLE: "Docente Curso" 
+-- TABLE: "Dictado Docente" 
 --
 
-CREATE TABLE "Docente Curso"(
-    id               int4       NOT NULL,
-    es_supervisor    boolean    NOT NULL,
-    CONSTRAINT "PK55" PRIMARY KEY (id)
+CREATE TABLE "Dictado Docente"(
+    id    int4    NOT NULL,
+    CONSTRAINT "PK77" PRIMARY KEY (id)
+)
+;
+
+
+
+-- 
+-- TABLE: "Docente" 
+--
+
+CREATE TABLE "Docente"(
+    id                   int4           NOT NULL,
+    anios_experiencia    int4           NOT NULL,
+    matricula_cnv        varchar(50),
+    biografia            text,
+    habilitado           boolean        NOT NULL,
+    CONSTRAINT "PK42" PRIMARY KEY (id)
 )
 ;
 
@@ -293,11 +281,14 @@ CREATE TABLE "EstadoPago"(
 --
 
 CREATE TABLE "Inscripcion"(
-    id                          int4            NOT NULL,
-    fecha                       timestamp       NOT NULL,
-    fecha_vencimiento_acceso    timestamp       NOT NULL,
-    observaciones               varchar(500),
-    baja                        boolean         NOT NULL,
+    id                           int4            NOT NULL,
+    fecha                        timestamp       NOT NULL,
+    fecha_vencimiento_acceso     timestamp       NOT NULL,
+    observaciones                varchar(500),
+    numero_certificado           varchar(100),
+    fecha_emision_certificado    timestamp,
+    certificado_enviado          boolean         NOT NULL,
+    baja                         boolean         NOT NULL,
     CONSTRAINT "PK23" PRIMARY KEY (id)
 )
 ;
@@ -399,17 +390,20 @@ CREATE TABLE "OpcionRespuesta"(
 --
 
 CREATE TABLE "Pago"(
-    id                         int4            NOT NULL,
-    monto                      float4          NOT NULL,
-    fecha                      timestamp       NOT NULL,
-    payment_id                 varchar(100),
-    preference_id              varchar(100),
-    email_pagador              varchar(150),
-    nombre_pagador             varchar(50),
-    tipo_pago                  varchar(20),
-    ultimos_digitos_tarjeta    varchar(4),
-    detalle_estado             varchar(100),
-    fecha_aprobacion           timestamp,
+    id                           int4            NOT NULL,
+    monto                        float4          NOT NULL,
+    fecha                        timestamp       NOT NULL,
+    payment_request_id           varchar(50),
+    external_intention_id        varchar(50)     NOT NULL,
+    reference_code               varchar(20),
+    tipo_pago                    varchar(20),
+    ultimos_digitos_tarjeta      varchar(4),
+    detalle_estado               varchar(100),
+    fecha_aprobacion             timestamp,
+    nombre_pagador               varchar(50),
+    numero_comprobante           varchar(100),
+    fecha_emision_comprobante    timestamp,
+    comprobante_enviado          boolean         NOT NULL,
     CONSTRAINT "PK25" PRIMARY KEY (id)
 )
 ;
@@ -454,6 +448,24 @@ CREATE TABLE "Pregunta"(
     es_opcion_multiple    boolean         NOT NULL,
     baja                  boolean         NOT NULL,
     CONSTRAINT "PK31" PRIMARY KEY (id)
+)
+;
+
+
+
+-- 
+-- TABLE: "Programa" 
+--
+
+CREATE TABLE "Programa"(
+    id                     int4            NOT NULL,
+    nombre                 varchar(50)     NOT NULL,
+    descripcion            varchar(150),
+    meses_acceso           int4            NOT NULL,
+    fecha_creacion         timestamp       NOT NULL,
+    ultima_modificacion    timestamp,
+    baja                   boolean         NOT NULL,
+    CONSTRAINT "PK74" PRIMARY KEY (id)
 )
 ;
 
@@ -670,7 +682,7 @@ CREATE TABLE "Usuario Rol"(
 -- TABLE: "Administrador" 
 --
 
-ALTER TABLE "Administrador" ADD CONSTRAINT "RefUsuario36" 
+ALTER TABLE "Administrador" ADD CONSTRAINT "RefUsuario361" 
     FOREIGN KEY (id)
     REFERENCES "Usuario"(id)
 ;
@@ -680,7 +692,7 @@ ALTER TABLE "Administrador" ADD CONSTRAINT "RefUsuario36"
 -- TABLE: "Alumno" 
 --
 
-ALTER TABLE "Alumno" ADD CONSTRAINT "RefUsuario33" 
+ALTER TABLE "Alumno" ADD CONSTRAINT "RefUsuario331" 
     FOREIGN KEY (id)
     REFERENCES "Usuario"(id)
 ;
@@ -690,12 +702,12 @@ ALTER TABLE "Alumno" ADD CONSTRAINT "RefUsuario33"
 -- TABLE: "Auditoria" 
 --
 
-ALTER TABLE "Auditoria" ADD CONSTRAINT "RefUsuario37" 
+ALTER TABLE "Auditoria" ADD CONSTRAINT "RefUsuario371" 
     FOREIGN KEY (id)
     REFERENCES "Usuario"(id)
 ;
 
-ALTER TABLE "Auditoria" ADD CONSTRAINT "RefTipoAccionAuditoria38" 
+ALTER TABLE "Auditoria" ADD CONSTRAINT "RefTipoAccionAuditoria381" 
     FOREIGN KEY (id)
     REFERENCES "TipoAccionAuditoria"(id)
 ;
@@ -705,19 +717,9 @@ ALTER TABLE "Auditoria" ADD CONSTRAINT "RefTipoAccionAuditoria38"
 -- TABLE: "Autoevaluacion" 
 --
 
-ALTER TABLE "Autoevaluacion" ADD CONSTRAINT "RefUnidad31" 
+ALTER TABLE "Autoevaluacion" ADD CONSTRAINT "RefUnidad311" 
     FOREIGN KEY (id)
     REFERENCES "Unidad"(id)
-;
-
-
--- 
--- TABLE: "Certificado" 
---
-
-ALTER TABLE "Certificado" ADD CONSTRAINT "RefInscripcion32" 
-    FOREIGN KEY (id)
-    REFERENCES "Inscripcion"(id)
 ;
 
 
@@ -725,24 +727,24 @@ ALTER TABLE "Certificado" ADD CONSTRAINT "RefInscripcion32"
 -- TABLE: "ClaseClonIA" 
 --
 
-ALTER TABLE "ClaseClonIA" ADD CONSTRAINT "RefDocente56" 
-    FOREIGN KEY (id)
-    REFERENCES "Docente"(id)
-;
-
-ALTER TABLE "ClaseClonIA" ADD CONSTRAINT "RefEstadoClaseClonIA43" 
+ALTER TABLE "ClaseClonIA" ADD CONSTRAINT "RefEstadoClaseClonIA431" 
     FOREIGN KEY (id)
     REFERENCES "EstadoClaseClonIA"(id)
 ;
 
-ALTER TABLE "ClaseClonIA" ADD CONSTRAINT "RefMaterial46" 
+ALTER TABLE "ClaseClonIA" ADD CONSTRAINT "RefMaterial461" 
     FOREIGN KEY (id)
     REFERENCES "Material"(id)
 ;
 
-ALTER TABLE "ClaseClonIA" ADD CONSTRAINT "RefUnidad47" 
+ALTER TABLE "ClaseClonIA" ADD CONSTRAINT "RefUnidad471" 
     FOREIGN KEY (id)
     REFERENCES "Unidad"(id)
+;
+
+ALTER TABLE "ClaseClonIA" ADD CONSTRAINT "RefDocente561" 
+    FOREIGN KEY (id)
+    REFERENCES "Docente"(id)
 ;
 
 
@@ -750,34 +752,24 @@ ALTER TABLE "ClaseClonIA" ADD CONSTRAINT "RefUnidad47"
 -- TABLE: "ClaseEnVivo" 
 --
 
-ALTER TABLE "ClaseEnVivo" ADD CONSTRAINT "RefDocente55" 
-    FOREIGN KEY (id)
-    REFERENCES "Docente"(id)
-;
-
-ALTER TABLE "ClaseEnVivo" ADD CONSTRAINT "RefEstadoClaseEnVIvo42" 
+ALTER TABLE "ClaseEnVivo" ADD CONSTRAINT "RefEstadoClaseEnVIvo421" 
     FOREIGN KEY (id)
     REFERENCES "EstadoClaseEnVIvo"(id)
 ;
 
-ALTER TABLE "ClaseEnVivo" ADD CONSTRAINT "RefMaterial45" 
+ALTER TABLE "ClaseEnVivo" ADD CONSTRAINT "RefMaterial451" 
     FOREIGN KEY (id)
     REFERENCES "Material"(id)
 ;
 
-ALTER TABLE "ClaseEnVivo" ADD CONSTRAINT "RefUnidad48" 
+ALTER TABLE "ClaseEnVivo" ADD CONSTRAINT "RefUnidad481" 
     FOREIGN KEY (id)
     REFERENCES "Unidad"(id)
 ;
 
-
--- 
--- TABLE: "Comprobante" 
---
-
-ALTER TABLE "Comprobante" ADD CONSTRAINT "RefPago21" 
+ALTER TABLE "ClaseEnVivo" ADD CONSTRAINT "RefDocente551" 
     FOREIGN KEY (id)
-    REFERENCES "Pago"(id)
+    REFERENCES "Docente"(id)
 ;
 
 
@@ -785,7 +777,7 @@ ALTER TABLE "Comprobante" ADD CONSTRAINT "RefPago21"
 -- TABLE: "Configuracion" 
 --
 
-ALTER TABLE "Configuracion" ADD CONSTRAINT "RefAdministrador40" 
+ALTER TABLE "Configuracion" ADD CONSTRAINT "RefAdministrador401" 
     FOREIGN KEY (id)
     REFERENCES "Administrador"(id)
 ;
@@ -795,14 +787,14 @@ ALTER TABLE "Configuracion" ADD CONSTRAINT "RefAdministrador40"
 -- TABLE: "ConsultaForo" 
 --
 
-ALTER TABLE "ConsultaForo" ADD CONSTRAINT "RefAlumno53" 
-    FOREIGN KEY (id)
-    REFERENCES "Alumno"(id)
-;
-
-ALTER TABLE "ConsultaForo" ADD CONSTRAINT "RefUnidad5" 
+ALTER TABLE "ConsultaForo" ADD CONSTRAINT "RefUnidad51" 
     FOREIGN KEY (id)
     REFERENCES "Unidad"(id)
+;
+
+ALTER TABLE "ConsultaForo" ADD CONSTRAINT "RefAlumno531" 
+    FOREIGN KEY (id)
+    REFERENCES "Alumno"(id)
 ;
 
 
@@ -810,9 +802,34 @@ ALTER TABLE "ConsultaForo" ADD CONSTRAINT "RefUnidad5"
 -- TABLE: "Curso" 
 --
 
-ALTER TABLE "Curso" ADD CONSTRAINT "RefCategoria2" 
+ALTER TABLE "Curso" ADD CONSTRAINT "RefCategoria21" 
     FOREIGN KEY (id)
     REFERENCES "Categoria"(id)
+;
+
+
+-- 
+-- TABLE: "Dictado" 
+--
+
+ALTER TABLE "Dictado" ADD CONSTRAINT "RefPrograma1001" 
+    FOREIGN KEY (id)
+    REFERENCES "Programa"(id)
+;
+
+
+-- 
+-- TABLE: "Dictado Docente" 
+--
+
+ALTER TABLE "Dictado Docente" ADD CONSTRAINT "RefDictado971" 
+    FOREIGN KEY (id)
+    REFERENCES "Dictado"(id)
+;
+
+ALTER TABLE "Dictado Docente" ADD CONSTRAINT "RefDocente981" 
+    FOREIGN KEY (id)
+    REFERENCES "Docente"(id)
 ;
 
 
@@ -820,24 +837,9 @@ ALTER TABLE "Curso" ADD CONSTRAINT "RefCategoria2"
 -- TABLE: "Docente" 
 --
 
-ALTER TABLE "Docente" ADD CONSTRAINT "RefUsuario10" 
+ALTER TABLE "Docente" ADD CONSTRAINT "RefUsuario101" 
     FOREIGN KEY (id)
     REFERENCES "Usuario"(id)
-;
-
-
--- 
--- TABLE: "Docente Curso" 
---
-
-ALTER TABLE "Docente Curso" ADD CONSTRAINT "RefDocente91" 
-    FOREIGN KEY (id)
-    REFERENCES "Docente"(id)
-;
-
-ALTER TABLE "Docente Curso" ADD CONSTRAINT "RefCurso92" 
-    FOREIGN KEY (id)
-    REFERENCES "Curso"(id)
 ;
 
 
@@ -845,19 +847,19 @@ ALTER TABLE "Docente Curso" ADD CONSTRAINT "RefCurso92"
 -- TABLE: "Inscripcion" 
 --
 
-ALTER TABLE "Inscripcion" ADD CONSTRAINT "RefCurso15" 
-    FOREIGN KEY (id)
-    REFERENCES "Curso"(id)
-;
-
-ALTER TABLE "Inscripcion" ADD CONSTRAINT "RefDescuento17" 
+ALTER TABLE "Inscripcion" ADD CONSTRAINT "RefDescuento171" 
     FOREIGN KEY (id)
     REFERENCES "Descuento"(id)
 ;
 
-ALTER TABLE "Inscripcion" ADD CONSTRAINT "RefAlumno35" 
+ALTER TABLE "Inscripcion" ADD CONSTRAINT "RefAlumno351" 
     FOREIGN KEY (id)
     REFERENCES "Alumno"(id)
+;
+
+ALTER TABLE "Inscripcion" ADD CONSTRAINT "RefDictado991" 
+    FOREIGN KEY (id)
+    REFERENCES "Dictado"(id)
 ;
 
 
@@ -865,7 +867,7 @@ ALTER TABLE "Inscripcion" ADD CONSTRAINT "RefAlumno35"
 -- TABLE: "IntentoAutoevaluacion" 
 --
 
-ALTER TABLE "IntentoAutoevaluacion" ADD CONSTRAINT "RefAutoevaluacion27" 
+ALTER TABLE "IntentoAutoevaluacion" ADD CONSTRAINT "RefAutoevaluacion271" 
     FOREIGN KEY (id)
     REFERENCES "Autoevaluacion"(id)
 ;
@@ -875,19 +877,19 @@ ALTER TABLE "IntentoAutoevaluacion" ADD CONSTRAINT "RefAutoevaluacion27"
 -- TABLE: "Material" 
 --
 
-ALTER TABLE "Material" ADD CONSTRAINT "RefDocente54" 
-    FOREIGN KEY (id)
-    REFERENCES "Docente"(id)
-;
-
-ALTER TABLE "Material" ADD CONSTRAINT "RefUnidad8" 
+ALTER TABLE "Material" ADD CONSTRAINT "RefUnidad81" 
     FOREIGN KEY (id)
     REFERENCES "Unidad"(id)
 ;
 
-ALTER TABLE "Material" ADD CONSTRAINT "RefTipoMaterial9" 
+ALTER TABLE "Material" ADD CONSTRAINT "RefTipoMaterial91" 
     FOREIGN KEY (id)
     REFERENCES "TipoMaterial"(id)
+;
+
+ALTER TABLE "Material" ADD CONSTRAINT "RefDocente541" 
+    FOREIGN KEY (id)
+    REFERENCES "Docente"(id)
 ;
 
 
@@ -895,12 +897,12 @@ ALTER TABLE "Material" ADD CONSTRAINT "RefTipoMaterial9"
 -- TABLE: "Modalidad Curso" 
 --
 
-ALTER TABLE "Modalidad Curso" ADD CONSTRAINT "RefModalidad67" 
+ALTER TABLE "Modalidad Curso" ADD CONSTRAINT "RefModalidad671" 
     FOREIGN KEY (id)
     REFERENCES "Modalidad"(id)
 ;
 
-ALTER TABLE "Modalidad Curso" ADD CONSTRAINT "RefCurso68" 
+ALTER TABLE "Modalidad Curso" ADD CONSTRAINT "RefCurso681" 
     FOREIGN KEY (id)
     REFERENCES "Curso"(id)
 ;
@@ -910,7 +912,7 @@ ALTER TABLE "Modalidad Curso" ADD CONSTRAINT "RefCurso68"
 -- TABLE: "OpcionRespuesta" 
 --
 
-ALTER TABLE "OpcionRespuesta" ADD CONSTRAINT "RefPregunta23" 
+ALTER TABLE "OpcionRespuesta" ADD CONSTRAINT "RefPregunta231" 
     FOREIGN KEY (id)
     REFERENCES "Pregunta"(id)
 ;
@@ -920,17 +922,17 @@ ALTER TABLE "OpcionRespuesta" ADD CONSTRAINT "RefPregunta23"
 -- TABLE: "Pago" 
 --
 
-ALTER TABLE "Pago" ADD CONSTRAINT "RefInscripcion18" 
+ALTER TABLE "Pago" ADD CONSTRAINT "RefInscripcion181" 
     FOREIGN KEY (id)
     REFERENCES "Inscripcion"(id)
 ;
 
-ALTER TABLE "Pago" ADD CONSTRAINT "RefEstadoPago19" 
+ALTER TABLE "Pago" ADD CONSTRAINT "RefEstadoPago191" 
     FOREIGN KEY (id)
     REFERENCES "EstadoPago"(id)
 ;
 
-ALTER TABLE "Pago" ADD CONSTRAINT "RefMetodoPago20" 
+ALTER TABLE "Pago" ADD CONSTRAINT "RefMetodoPago201" 
     FOREIGN KEY (id)
     REFERENCES "MetodoPago"(id)
 ;
@@ -940,7 +942,7 @@ ALTER TABLE "Pago" ADD CONSTRAINT "RefMetodoPago20"
 -- TABLE: "Pool" 
 --
 
-ALTER TABLE "Pool" ADD CONSTRAINT "RefUnidad30" 
+ALTER TABLE "Pool" ADD CONSTRAINT "RefUnidad301" 
     FOREIGN KEY (id)
     REFERENCES "Unidad"(id)
 ;
@@ -950,12 +952,12 @@ ALTER TABLE "Pool" ADD CONSTRAINT "RefUnidad30"
 -- TABLE: "Pool Autoevaluacion" 
 --
 
-ALTER TABLE "Pool Autoevaluacion" ADD CONSTRAINT "RefPool64" 
+ALTER TABLE "Pool Autoevaluacion" ADD CONSTRAINT "RefPool641" 
     FOREIGN KEY (id)
     REFERENCES "Pool"(id)
 ;
 
-ALTER TABLE "Pool Autoevaluacion" ADD CONSTRAINT "RefAutoevaluacion65" 
+ALTER TABLE "Pool Autoevaluacion" ADD CONSTRAINT "RefAutoevaluacion651" 
     FOREIGN KEY (id)
     REFERENCES "Autoevaluacion"(id)
 ;
@@ -965,9 +967,19 @@ ALTER TABLE "Pool Autoevaluacion" ADD CONSTRAINT "RefAutoevaluacion65"
 -- TABLE: "Pregunta" 
 --
 
-ALTER TABLE "Pregunta" ADD CONSTRAINT "RefPool22" 
+ALTER TABLE "Pregunta" ADD CONSTRAINT "RefPool221" 
     FOREIGN KEY (id)
     REFERENCES "Pool"(id)
+;
+
+
+-- 
+-- TABLE: "Programa" 
+--
+
+ALTER TABLE "Programa" ADD CONSTRAINT "RefCurso941" 
+    FOREIGN KEY (id)
+    REFERENCES "Curso"(id)
 ;
 
 
@@ -975,12 +987,12 @@ ALTER TABLE "Pregunta" ADD CONSTRAINT "RefPool22"
 -- TABLE: "Progreso" 
 --
 
-ALTER TABLE "Progreso" ADD CONSTRAINT "RefUnidad87" 
+ALTER TABLE "Progreso" ADD CONSTRAINT "RefUnidad871" 
     FOREIGN KEY (id)
     REFERENCES "Unidad"(id)
 ;
 
-ALTER TABLE "Progreso" ADD CONSTRAINT "RefInscripcion90" 
+ALTER TABLE "Progreso" ADD CONSTRAINT "RefInscripcion901" 
     FOREIGN KEY (id)
     REFERENCES "Inscripcion"(id)
 ;
@@ -990,12 +1002,12 @@ ALTER TABLE "Progreso" ADD CONSTRAINT "RefInscripcion90"
 -- TABLE: "Reporte" 
 --
 
-ALTER TABLE "Reporte" ADD CONSTRAINT "RefTipoReporte39" 
+ALTER TABLE "Reporte" ADD CONSTRAINT "RefTipoReporte391" 
     FOREIGN KEY (id)
     REFERENCES "TipoReporte"(id)
 ;
 
-ALTER TABLE "Reporte" ADD CONSTRAINT "RefAdministrador41" 
+ALTER TABLE "Reporte" ADD CONSTRAINT "RefAdministrador411" 
     FOREIGN KEY (id)
     REFERENCES "Administrador"(id)
 ;
@@ -1005,14 +1017,14 @@ ALTER TABLE "Reporte" ADD CONSTRAINT "RefAdministrador41"
 -- TABLE: "RespuestaForo" 
 --
 
-ALTER TABLE "RespuestaForo" ADD CONSTRAINT "RefDocente52" 
-    FOREIGN KEY (id)
-    REFERENCES "Docente"(id)
-;
-
-ALTER TABLE "RespuestaForo" ADD CONSTRAINT "RefConsultaForo6" 
+ALTER TABLE "RespuestaForo" ADD CONSTRAINT "RefConsultaForo61" 
     FOREIGN KEY (id)
     REFERENCES "ConsultaForo"(id)
+;
+
+ALTER TABLE "RespuestaForo" ADD CONSTRAINT "RefDocente521" 
+    FOREIGN KEY (id)
+    REFERENCES "Docente"(id)
 ;
 
 
@@ -1020,14 +1032,14 @@ ALTER TABLE "RespuestaForo" ADD CONSTRAINT "RefConsultaForo6"
 -- TABLE: "RespuestaIntento" 
 --
 
-ALTER TABLE "RespuestaIntento" ADD CONSTRAINT "RefOpcionRespuesta85" 
-    FOREIGN KEY (id)
-    REFERENCES "OpcionRespuesta"(id)
-;
-
-ALTER TABLE "RespuestaIntento" ADD CONSTRAINT "RefIntentoAutoevaluacion28" 
+ALTER TABLE "RespuestaIntento" ADD CONSTRAINT "RefIntentoAutoevaluacion281" 
     FOREIGN KEY (id)
     REFERENCES "IntentoAutoevaluacion"(id)
+;
+
+ALTER TABLE "RespuestaIntento" ADD CONSTRAINT "RefOpcionRespuesta851" 
+    FOREIGN KEY (id)
+    REFERENCES "OpcionRespuesta"(id)
 ;
 
 
@@ -1035,7 +1047,7 @@ ALTER TABLE "RespuestaIntento" ADD CONSTRAINT "RefIntentoAutoevaluacion28"
 -- TABLE: "Sesion" 
 --
 
-ALTER TABLE "Sesion" ADD CONSTRAINT "RefUsuario11" 
+ALTER TABLE "Sesion" ADD CONSTRAINT "RefUsuario111" 
     FOREIGN KEY (id)
     REFERENCES "Usuario"(id)
 ;
@@ -1045,7 +1057,7 @@ ALTER TABLE "Sesion" ADD CONSTRAINT "RefUsuario11"
 -- TABLE: "TerminoGlosario" 
 --
 
-ALTER TABLE "TerminoGlosario" ADD CONSTRAINT "RefUnidad7" 
+ALTER TABLE "TerminoGlosario" ADD CONSTRAINT "RefUnidad71" 
     FOREIGN KEY (id)
     REFERENCES "Unidad"(id)
 ;
@@ -1055,7 +1067,7 @@ ALTER TABLE "TerminoGlosario" ADD CONSTRAINT "RefUnidad7"
 -- TABLE: "TituloDocente" 
 --
 
-ALTER TABLE "TituloDocente" ADD CONSTRAINT "RefDocente78" 
+ALTER TABLE "TituloDocente" ADD CONSTRAINT "RefDocente781" 
     FOREIGN KEY (id)
     REFERENCES "Docente"(id)
 ;
@@ -1065,9 +1077,9 @@ ALTER TABLE "TituloDocente" ADD CONSTRAINT "RefDocente78"
 -- TABLE: "Unidad" 
 --
 
-ALTER TABLE "Unidad" ADD CONSTRAINT "RefCurso3" 
+ALTER TABLE "Unidad" ADD CONSTRAINT "RefPrograma1011" 
     FOREIGN KEY (id)
-    REFERENCES "Curso"(id)
+    REFERENCES "Programa"(id)
 ;
 
 
@@ -1075,12 +1087,12 @@ ALTER TABLE "Unidad" ADD CONSTRAINT "RefCurso3"
 -- TABLE: "Usuario Rol" 
 --
 
-ALTER TABLE "Usuario Rol" ADD CONSTRAINT "RefUsuario61" 
+ALTER TABLE "Usuario Rol" ADD CONSTRAINT "RefUsuario611" 
     FOREIGN KEY (id)
     REFERENCES "Usuario"(id)
 ;
 
-ALTER TABLE "Usuario Rol" ADD CONSTRAINT "RefRol62" 
+ALTER TABLE "Usuario Rol" ADD CONSTRAINT "RefRol621" 
     FOREIGN KEY (id)
     REFERENCES "Rol"(id)
 ;

@@ -2,15 +2,15 @@ package com.app.idoneos.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import java.util.ArrayList;
+import java.util.List;
 
-/**
- * Catálogo de métodos de pago: Tarjeta de crédito, Tarjeta de débito.
- * Solo tarjeta (crédito/débito) per alcance del PMV.
- */
 @Entity
 @Table(name = "metodo_pago")
 @Getter @Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class MetodoPago {
 
     @Id
@@ -18,11 +18,9 @@ public class MetodoPago {
     @Column(name = "id")
     private int id;
 
-    @Column(name = "nombre", nullable = false, unique = true, length = 50)
+    @Column(name = "nombre", nullable = false, length = 50)
     private String nombre;
 
-    public MetodoPago(String nombre) { this.nombre = nombre; }
-
-    @Override
-    public String toString() { return nombre; }
+    @OneToMany(mappedBy = "metodoPago", cascade = CascadeType.ALL)
+    private List<Pago> pagos = new ArrayList<>();
 }

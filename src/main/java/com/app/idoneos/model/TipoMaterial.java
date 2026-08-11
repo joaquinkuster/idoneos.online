@@ -2,16 +2,15 @@ package com.app.idoneos.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import java.util.ArrayList;
+import java.util.List;
 
-/**
- * Catálogo de tipos de material didáctico: Grabación, Bibliografía, Presentación, Resumen.
- * Glosario NO es un tipo de material — se modela como TerminoGlosario (entidad separada).
- * Se convirtió de enum a entidad catálogo porque tiene más de 2 valores.
- */
 @Entity
 @Table(name = "tipo_material")
 @Getter @Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class TipoMaterial {
 
     @Id
@@ -19,15 +18,13 @@ public class TipoMaterial {
     @Column(name = "id")
     private int id;
 
-    @Column(name = "nombre", nullable = false, unique = true, length = 50)
+    @Column(name = "nombre", nullable = false, length = 50)
     private String nombre;
+
+    @OneToMany(mappedBy = "tipoMaterial", cascade = CascadeType.ALL)
+    private List<Material> materiales = new ArrayList<>();
 
     public TipoMaterial(String nombre) {
         this.nombre = nombre;
-    }
-
-    @Override
-    public String toString() {
-        return nombre;
     }
 }

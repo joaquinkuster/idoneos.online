@@ -7,21 +7,18 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-/**
- * Entidad base de autenticación. Alumno, Docente y Administrador son subtipos
- * implementados con @OneToOne para garantizar integridad referencial por tabla.
- * Se conserva el campo rol (enum) para compatibilidad con Spring Security sin
- * necesidad de joins adicionales en cada request.
- */
 @Entity
 @Table(name = "usuario")
 @Getter @Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Usuario implements UserDetails {
 
     @Id
@@ -35,52 +32,43 @@ public class Usuario implements UserDetails {
     @Column(name = "apellido", nullable = false, length = 50)
     private String apellido;
 
-    @Column(name = "dni", nullable = true, length = 8)
+    @Column(name = "dni", nullable = false, length = 8)
     private String dni;
-
-    @Column(name = "telefono", nullable = true, length = 20)
-    private String telefono;
 
     @Column(name = "email", nullable = false, unique = true, length = 150)
     private String correo;
 
-    @Column(name = "contrasena", nullable = true, length = 255)
+    @Column(name = "contrasena", length = 255)
     private String contrasena;
 
-    @Column(name = "google_id", nullable = true, length = 255)
-    private String googleId;
-
-    @Column(name = "imagen", nullable = true, length = 150)
+    @Column(name = "imagen", length = 150)
     private String imagen;
 
-    @Column(name = "email_validado", nullable = false)
-    private Boolean emailValidado = false;
+    @Column(name = "telefono", length = 20)
+    private String telefono;
 
-    @Column(name = "token_recuperacion", nullable = true, length = 255)
+    @Column(name = "token_recuperacion", length = 255)
     private String tokenRecuperacion;
 
-    /**
-     * DDL: timestamp — cambiado de LocalDate a LocalDateTime para alinearse al modelo conceptual.
-     */
-    @Column(name = "expiracion_token", nullable = true)
+    @Column(name = "expiracion_token")
     private LocalDateTime expiracionToken;
 
-    /**
-     * DDL: timestamp — cambiado de LocalDate a LocalDateTime para alinearse al modelo conceptual.
-     */
+    @Column(name = "google_id", length = 255)
+    private String googleId;
+
+    @Column(name = "email_validado", nullable = false)
+    private boolean emailValidado = false;
+
     @Column(name = "fecha_registro", nullable = false)
     private LocalDateTime fechaRegistro = LocalDateTime.now();
 
     @Column(name = "baja", nullable = false)
-    private Boolean baja = false;
+    private boolean baja = false;
 
-    // Rol duplicado intencionalmente para que Spring Security no necesite
-    // hacer joins a las tablas de subtipos en cada request autenticado.
     @Enumerated(EnumType.STRING)
     @Column(name = "rol", nullable = false)
     private RolUsuario rol = RolUsuario.Alumno;
 
-    // ─── Relaciones con subtipos (lazy para no cargar por defecto) ─────────────
     @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Alumno alumno;
 
@@ -90,14 +78,23 @@ public class Usuario implements UserDetails {
     @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Administrador administrador;
 
-    // ─── Relaciones de negocio ─────────────────────────────────────────────────
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
     private Set<UsuarioRol> usuarioRoles = new HashSet<>();
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
-    private List<Sesion> sesiones;
+    private List<Sesion> sesiones = new ArrayList<>();
 
-    // ─── Getters & Setters ─────────────────────────────────────────────────────
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
+    private List<Auditoria> auditorias = new ArrayList<>();
+
+    public Usuario(String nombre, String apellido, String correo, String contrasena, RolUsuario rol) {
+        this.nombre = nombre;
+        this.apellido = apellido;
+        this.correo = correo;
+        this.contrasena = contrasena;
+        this.rol = rol;
+        this.emailValidado = true;
+    }
 
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
@@ -111,23 +108,17 @@ public class Usuario implements UserDetails {
     public String getDni() { return dni; }
     public void setDni(String dni) { this.dni = dni; }
 
-    public String getTelefono() { return telefono; }
-    public void setTelefono(String telefono) { this.telefono = telefono; }
-
     public String getCorreo() { return correo; }
     public void setCorreo(String correo) { this.correo = correo; }
 
     public String getContrasena() { return contrasena; }
     public void setContrasena(String contrasena) { this.contrasena = contrasena; }
 
-    public String getGoogleId() { return googleId; }
-    public void setGoogleId(String googleId) { this.googleId = googleId; }
-
     public String getImagen() { return imagen; }
     public void setImagen(String imagen) { this.imagen = imagen; }
 
-    public Boolean getEmailValidado() { return emailValidado; }
-    public void setEmailValidado(Boolean emailValidado) { this.emailValidado = emailValidado; }
+    public String getTelefono() { return telefono; }
+    public void setTelefono(String telefono) { this.telefono = telefono; }
 
     public String getTokenRecuperacion() { return tokenRecuperacion; }
     public void setTokenRecuperacion(String tokenRecuperacion) { this.tokenRecuperacion = tokenRecuperacion; }
@@ -135,64 +126,31 @@ public class Usuario implements UserDetails {
     public LocalDateTime getExpiracionToken() { return expiracionToken; }
     public void setExpiracionToken(LocalDateTime expiracionToken) { this.expiracionToken = expiracionToken; }
 
+    public String getGoogleId() { return googleId; }
+    public void setGoogleId(String googleId) { this.googleId = googleId; }
+
+    public boolean isEmailValidado() { return emailValidado; }
+    public boolean getEmailValidado() { return emailValidado; }
+    public void setEmailValidado(boolean emailValidado) { this.emailValidado = emailValidado; }
+
     public LocalDateTime getFechaRegistro() { return fechaRegistro; }
     public void setFechaRegistro(LocalDateTime fechaRegistro) { this.fechaRegistro = fechaRegistro; }
 
-    public Boolean getBaja() { return baja; }
-    public void setBaja(Boolean baja) { this.baja = baja; }
+    public boolean isBaja() { return baja; }
+    public boolean getBaja() { return baja; }
+    public void setBaja(boolean baja) { this.baja = baja; }
 
     public RolUsuario getRol() { return rol; }
     public void setRol(RolUsuario rol) { this.rol = rol; }
 
-    public Alumno getAlumno() { return alumno; }
-    public void setAlumno(Alumno alumno) { this.alumno = alumno; }
-
-    public Docente getDocente() { return docente; }
-    public void setDocente(Docente docente) { this.docente = docente; }
-
-    public Administrador getAdministrador() { return administrador; }
-    public void setAdministrador(Administrador administrador) { this.administrador = administrador; }
-
-    public Set<UsuarioRol> getUsuarioRoles() { return usuarioRoles; }
-    public void setUsuarioRoles(Set<UsuarioRol> usuarioRoles) { this.usuarioRoles = usuarioRoles; }
-
-    public List<Sesion> getSesiones() { return sesiones; }
-    public void setSesiones(List<Sesion> sesiones) { this.sesiones = sesiones; }
-
-
-    // ─── Constructores ─────────────────────────────────────────────────────────
-
-    public Usuario() {}
-
-    public Usuario(String nombre, String apellido, String correo, String contrasena, RolUsuario rol) {
-        this.nombre = nombre;
-        this.apellido = apellido;
-        this.correo = correo;
-        this.contrasena = contrasena;
-        this.rol = rol;
-        this.emailValidado = true; // simplificado para el PMV
-    }
-
-    // ─── Helpers ───────────────────────────────────────────────────────────────
-
     public boolean esInactivo() { return baja; }
-
     public boolean esDocente() { return rol == RolUsuario.Docente; }
-
     public boolean esAlumno() { return rol == RolUsuario.Alumno; }
-
     public boolean esAdmin() { return rol == RolUsuario.Administrador; }
-
-    public boolean tieneClonIA() {
-        return docente != null && docente.getFechaConsentimientoClon() != null;
-    }
-
     public String getNombreCompleto() { return nombre + " " + apellido; }
 
     @Override
     public String toString() { return getNombreCompleto(); }
-
-    // ─── Spring Security: UserDetails ─────────────────────────────────────────
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

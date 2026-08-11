@@ -2,15 +2,15 @@ package com.app.idoneos.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import java.util.ArrayList;
+import java.util.List;
 
-/**
- * Catálogo de tipos de acción de auditoría: Crear, Modificar, Eliminar, Consultar.
- * Valores genéricos para reutilizar un interceptor Spring AOP.
- */
 @Entity
 @Table(name = "tipo_accion_auditoria")
 @Getter @Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class TipoAccionAuditoria {
 
     @Id
@@ -18,11 +18,13 @@ public class TipoAccionAuditoria {
     @Column(name = "id")
     private int id;
 
-    @Column(name = "nombre", nullable = false, unique = true, length = 50)
+    @Column(name = "nombre", nullable = false, length = 50)
     private String nombre;
 
-    public TipoAccionAuditoria(String nombre) { this.nombre = nombre; }
+    @OneToMany(mappedBy = "tipoAccionAuditoria", cascade = CascadeType.ALL)
+    private List<Auditoria> auditorias = new ArrayList<>();
 
-    @Override
-    public String toString() { return nombre; }
+    public TipoAccionAuditoria(String nombre) {
+        this.nombre = nombre;
+    }
 }

@@ -7,12 +7,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "pool")
+@Table(name = "programa")
 @Getter @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Pool {
+public class Programa {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,6 +21,12 @@ public class Pool {
 
     @Column(name = "nombre", nullable = false, length = 50)
     private String nombre;
+
+    @Column(name = "descripcion", length = 150)
+    private String descripcion;
+
+    @Column(name = "meses_acceso", nullable = false)
+    private int mesesAcceso;
 
     @Column(name = "fecha_creacion", nullable = false)
     private LocalDateTime fechaCreacion = LocalDateTime.now();
@@ -32,12 +38,12 @@ public class Pool {
     private boolean baja = false;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "unidad_id", nullable = false)
-    private Unidad unidad;
+    @JoinColumn(name = "curso_id", nullable = false)
+    private Curso curso;
 
-    @OneToMany(mappedBy = "pool", cascade = CascadeType.ALL)
-    private List<PoolAutoevaluacion> poolsAutoevaluaciones = new ArrayList<>();
+    @OneToMany(mappedBy = "programa", cascade = CascadeType.ALL)
+    private List<Dictado> dictados = new ArrayList<>();
 
-    @OneToMany(mappedBy = "pool", cascade = CascadeType.ALL)
-    private List<Pregunta> preguntas = new ArrayList<>();
+    @OneToMany(mappedBy = "programa", cascade = CascadeType.ALL)
+    private List<Unidad> unidades = new ArrayList<>();
 }

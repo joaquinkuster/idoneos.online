@@ -2,19 +2,16 @@ package com.app.idoneos.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Autoevaluación: examen que sortea preguntas de uno o más Pools.
- * Un alumno puede tener múltiples intentos hasta agotar intentosPermitidos.
- */
 @Entity
 @Table(name = "autoevaluacion")
 @Getter @Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Autoevaluacion {
 
     @Id
@@ -25,76 +22,34 @@ public class Autoevaluacion {
     @Column(name = "nombre", nullable = false, length = 50)
     private String nombre;
 
-    /**
-     * Minutos que tiene el alumno para completar el intento.
-     */
-    @Column(name = "tiempo_limite", nullable = true)
-    private Integer tiempoLimite;
+    @Column(name = "tiempo_limite", nullable = false)
+    private int tiempoLimite;
 
-    /**
-     * Cantidad máxima de intentos permitidos por alumno.
-     */
-    @Column(name = "intentos_permitidos", nullable = false)
-    private Integer intentosPermitidos = 3;
+    @Column(name = "intentos_permitidos")
+    private Integer intentosPermitidos;
 
-    @Column(name = "baja", nullable = false)
-    private Boolean baja = false;
+    @Column(name = "fecha_apertura", nullable = false)
+    private LocalDateTime fechaApertura;
 
-    /**
-     * DDL: fecha_creacion timestamp — campo agregado según modelo conceptual.
-     */
+    @Column(name = "fecha_cierre")
+    private LocalDateTime fechaCierre;
+
     @Column(name = "fecha_creacion", nullable = false)
     private LocalDateTime fechaCreacion = LocalDateTime.now();
 
-    /**
-     * DDL: ultima_modificacion timestamp — campo agregado según modelo conceptual.
-     */
-    @Column(name = "ultima_modificacion", nullable = true)
+    @Column(name = "ultima_modificacion")
     private LocalDateTime ultimaModificacion;
 
-    @ManyToMany
-    @JoinTable(
-        name = "pool_autoevaluacion",
-        joinColumns = @JoinColumn(name = "id_autoevaluacion"),
-        inverseJoinColumns = @JoinColumn(name = "id_pool")
-    )
-    private List<Pool> pools = new ArrayList<>();
+    @Column(name = "baja", nullable = false)
+    private boolean baja = false;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "unidad_id", nullable = false)
+    private Unidad unidad;
 
     @OneToMany(mappedBy = "autoevaluacion", cascade = CascadeType.ALL)
-    private List<IntentoAutoevaluacion> intentos = new ArrayList<>();
+    private List<PoolAutoevaluacion> poolsAutoevaluaciones = new ArrayList<>();
 
-    // ─── Getters & Setters ─────────────────────────────────────────────────────
-
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
-
-    public String getNombre() { return nombre; }
-    public void setNombre(String nombre) { this.nombre = nombre; }
-
-    public Integer getTiempoLimite() { return tiempoLimite; }
-    public void setTiempoLimite(Integer tiempoLimite) { this.tiempoLimite = tiempoLimite; }
-
-    public Integer getIntentosPermitidos() { return intentosPermitidos; }
-    public void setIntentosPermitidos(Integer intentosPermitidos) { this.intentosPermitidos = intentosPermitidos; }
-
-    public Boolean getBaja() { return baja; }
-    public void setBaja(Boolean baja) { this.baja = baja; }
-
-    public LocalDateTime getFechaCreacion() { return fechaCreacion; }
-    public void setFechaCreacion(LocalDateTime fechaCreacion) { this.fechaCreacion = fechaCreacion; }
-
-    public LocalDateTime getUltimaModificacion() { return ultimaModificacion; }
-    public void setUltimaModificacion(LocalDateTime ultimaModificacion) { this.ultimaModificacion = ultimaModificacion; }
-
-    public List<Pool> getPools() { return pools; }
-    public void setPools(List<Pool> pools) { this.pools = pools; }
-
-    public List<IntentoAutoevaluacion> getIntentos() { return intentos; }
-    public void setIntentos(List<IntentoAutoevaluacion> intentos) { this.intentos = intentos; }
-
-    public Autoevaluacion(String nombre, Integer tiempoLimite, Integer intentosPermitidos) {
-        this.nombre = nombre;
-        this.tiempoLimite = tiempoLimite;
-        this.intentosPermitidos = intentosPermitidos;
-    }
+    @OneToMany(mappedBy = "autoevaluacion", cascade = CascadeType.ALL)
+    private List<IntentoAutoevaluacion> intentosAutoevaluacion = new ArrayList<>();
 }

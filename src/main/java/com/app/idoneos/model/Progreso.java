@@ -1,19 +1,15 @@
 package com.app.idoneos.model;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import java.time.LocalDateTime;
 
-import java.time.LocalDate;
-
-/**
- * Registra el progreso secuencial de un alumno en una unidad específica.
- */
 @Entity
 @Table(name = "progreso")
 @Getter @Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Progreso {
 
     @Id
@@ -21,44 +17,17 @@ public class Progreso {
     @Column(name = "id")
     private int id;
 
-    @ManyToOne
-    @JoinColumn(name = "id_inscripcion", nullable = false)
-    private Inscripcion inscripcion;
+    @Column(name = "completada", nullable = false)
+    private boolean completada = false;
 
-    @ManyToOne
-    @JoinColumn(name = "id_unidad", nullable = false)
+    @Column(name = "fecha_completada")
+    private LocalDateTime fechaCompletada;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "unidad_id", nullable = false)
     private Unidad unidad;
 
-    @Column(name = "completada", nullable = false)
-    private Boolean completada = false;
-
-    @Column(name = "fecha_completado", nullable = true)
-    private LocalDate fechaCompletado;
-
-    // ─── Getters & Setters ─────────────────────────────────────────────────────
-
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
-
-    public Inscripcion getInscripcion() { return inscripcion; }
-    public void setInscripcion(Inscripcion inscripcion) { this.inscripcion = inscripcion; }
-
-    public Unidad getUnidad() { return unidad; }
-    public void setUnidad(Unidad unidad) { this.unidad = unidad; }
-
-    public Boolean getCompletada() { return completada; }
-    public Boolean isCompletada() { return completada; }
-    public void setCompletada(Boolean completada) { this.completada = completada; }
-
-    public LocalDate getFechaCompletado() { return fechaCompletado; }
-    public void setFechaCompletado(LocalDate fechaCompletado) { this.fechaCompletado = fechaCompletado; }
-
-    public Progreso(Inscripcion inscripcion, Unidad unidad, Boolean completada) {
-        this.inscripcion = inscripcion;
-        this.unidad = unidad;
-        this.completada = completada;
-        if (completada) {
-            this.fechaCompletado = LocalDate.now();
-        }
-    }
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "inscripcion_id", nullable = false)
+    private Inscripcion inscripcion;
 }

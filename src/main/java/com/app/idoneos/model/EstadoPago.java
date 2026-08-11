@@ -2,14 +2,15 @@ package com.app.idoneos.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import java.util.ArrayList;
+import java.util.List;
 
-/**
- * Catálogo de estados de pago: Pendiente, Acreditado, Rechazado.
- */
 @Entity
 @Table(name = "estado_pago")
 @Getter @Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class EstadoPago {
 
     @Id
@@ -17,19 +18,9 @@ public class EstadoPago {
     @Column(name = "id")
     private int id;
 
-    @Column(name = "nombre", nullable = false, unique = true, length = 50)
+    @Column(name = "nombre", nullable = false, length = 50)
     private String nombre;
 
-    // ─── Getters & Setters ─────────────────────────────────────────────────────
-
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
-
-    public String getNombre() { return nombre; }
-    public void setNombre(String nombre) { this.nombre = nombre; }
-
-    public EstadoPago(String nombre) { this.nombre = nombre; }
-
-    @Override
-    public String toString() { return nombre; }
+    @OneToMany(mappedBy = "estadoPago", cascade = CascadeType.ALL)
+    private List<Pago> pagos = new ArrayList<>();
 }

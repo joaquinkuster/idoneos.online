@@ -2,14 +2,15 @@ package com.app.idoneos.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import java.util.ArrayList;
+import java.util.List;
 
-/**
- * Catálogo de estados de ClaseEnVivo: Programada, En vivo, Finalizada.
- */
 @Entity
 @Table(name = "estado_clase_en_vivo")
 @Getter @Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class EstadoClaseEnVivo {
 
     @Id
@@ -17,13 +18,9 @@ public class EstadoClaseEnVivo {
     @Column(name = "id")
     private int id;
 
-    @Column(name = "nombre", nullable = false, unique = true, length = 50)
+    @Column(name = "nombre", nullable = false, length = 50)
     private String nombre;
 
-    public EstadoClaseEnVivo(String nombre) {
-        this.nombre = nombre;
-    }
-
-    @Override
-    public String toString() { return nombre; }
+    @OneToMany(mappedBy = "estadoClaseEnVivo", cascade = CascadeType.ALL)
+    private List<ClaseEnVivo> clasesEnVivo = new ArrayList<>();
 }

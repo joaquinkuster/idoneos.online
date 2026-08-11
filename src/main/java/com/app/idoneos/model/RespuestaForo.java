@@ -2,16 +2,14 @@ package com.app.idoneos.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.time.LocalDateTime;
 
-/**
- * Respuesta de un docente (titular o supervisor) a una ConsultaForo.
- */
 @Entity
 @Table(name = "respuesta_foro")
 @Getter @Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class RespuestaForo {
 
     @Id
@@ -26,39 +24,13 @@ public class RespuestaForo {
     private LocalDateTime fecha = LocalDateTime.now();
 
     @Column(name = "baja", nullable = false)
-    private Boolean baja = false;
+    private boolean baja = false;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_consulta", nullable = false)
-    private ConsultaForo consulta;
+    @JoinColumn(name = "consulta_foro_id", nullable = false)
+    private ConsultaForo consultaForo;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_docente", nullable = false)
+    @JoinColumn(name = "docente_id", nullable = false)
     private Docente docente;
-
-    // ─── Getters & Setters ─────────────────────────────────────────────────────
-
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
-
-    public String getTexto() { return texto; }
-    public void setTexto(String texto) { this.texto = texto; }
-
-    public LocalDateTime getFecha() { return fecha; }
-    public void setFecha(LocalDateTime fecha) { this.fecha = fecha; }
-
-    public Boolean getBaja() { return baja; }
-    public void setBaja(Boolean baja) { this.baja = baja; }
-
-    public ConsultaForo getConsulta() { return consulta; }
-    public void setConsulta(ConsultaForo consulta) { this.consulta = consulta; }
-
-    public Docente getDocente() { return docente; }
-    public void setDocente(Docente docente) { this.docente = docente; }
-
-    public RespuestaForo(String texto, ConsultaForo consulta, Docente docente) {
-        this.texto = texto;
-        this.consulta = consulta;
-        this.docente = docente;
-    }
 }

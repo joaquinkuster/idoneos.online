@@ -3,16 +3,12 @@ package com.app.idoneos.model;
 import jakarta.persistence.*;
 import lombok.*;
 
-/**
- * Tabla asociativa M:N entre Usuario y Rol.
- * Duplica intencionalmente el rol de Usuario para consultas convenientes
- * sin recorrer las tablas de subtipo. Debe mantenerse sincronizada en la aplicación.
- */
 @Entity
-@Table(name = "usuario_rol",
-    uniqueConstraints = @UniqueConstraint(columnNames = {"id_usuario", "id_rol"}))
+@Table(name = "usuario_rol")
 @Getter @Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class UsuarioRol {
 
     @Id
@@ -21,11 +17,11 @@ public class UsuarioRol {
     private int id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_usuario", nullable = false)
+    @JoinColumn(name = "usuario_id", nullable = false)
     private Usuario usuario;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_rol", nullable = false)
+    @JoinColumn(name = "rol_id", nullable = false)
     private Rol rol;
 
     public UsuarioRol(Usuario usuario, Rol rol) {

@@ -1,21 +1,17 @@
 package com.app.idoneos.model;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
+import lombok.*;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
-/**
- * Categoría temática de los cursos (Ej: Finanzas, Economía, Mercado de Capitales, Impuestos).
- */
 @Entity
 @Table(name = "categoria")
 @Getter @Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Categoria {
 
     @Id
@@ -23,64 +19,26 @@ public class Categoria {
     @Column(name = "id")
     private int id;
 
-    @Column(name = "nombre", nullable = false, length = 100)
+    @Column(name = "nombre", nullable = false, length = 50)
     private String nombre;
 
-    @Column(name = "descripcion", nullable = true, length = 500)
+    @Column(name = "descripcion", length = 150)
     private String descripcion;
 
-    @Column(name = "baja", nullable = false)
-    private Boolean baja = false;
-
-    /**
-     * DDL: fecha_creacion timestamp — cambiado de ausente a LocalDateTime.
-     */
     @Column(name = "fecha_creacion", nullable = false)
     private LocalDateTime fechaCreacion = LocalDateTime.now();
 
-    /**
-     * DDL: ultima_modificacion timestamp — campo agregado según modelo conceptual.
-     */
-    @Column(name = "ultima_modificacion", nullable = true)
+    @Column(name = "ultima_modificacion")
     private LocalDateTime ultimaModificacion;
 
-    @OneToMany(mappedBy = "categoria")
-    private Set<Curso> cursos = new HashSet<>();
+    @Column(name = "baja", nullable = false)
+    private boolean baja = false;
 
-    // ─── Getters & Setters ─────────────────────────────────────────────────────
-
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
-
-    public String getNombre() { return nombre; }
-    public void setNombre(String nombre) { this.nombre = nombre; }
-
-    public String getDescripcion() { return descripcion; }
-    public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
-
-    public Boolean getBaja() { return baja; }
-    public void setBaja(Boolean baja) { this.baja = baja; }
-
-    public LocalDateTime getFechaCreacion() { return fechaCreacion; }
-    public void setFechaCreacion(LocalDateTime fechaCreacion) { this.fechaCreacion = fechaCreacion; }
-
-    public LocalDateTime getUltimaModificacion() { return ultimaModificacion; }
-    public void setUltimaModificacion(LocalDateTime ultimaModificacion) { this.ultimaModificacion = ultimaModificacion; }
-
-    public Set<Curso> getCursos() { return cursos; }
-    public void setCursos(Set<Curso> cursos) { this.cursos = cursos; }
+    @OneToMany(mappedBy = "categoria", cascade = CascadeType.ALL)
+    private List<Curso> cursos = new ArrayList<>();
 
     public Categoria(String nombre, String descripcion) {
         this.nombre = nombre;
         this.descripcion = descripcion;
-    }
-
-    public boolean esInactivo() {
-        return baja != null && baja;
-    }
-
-    @Override
-    public String toString() {
-        return nombre;
     }
 }

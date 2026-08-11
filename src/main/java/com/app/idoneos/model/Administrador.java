@@ -2,32 +2,36 @@ package com.app.idoneos.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import java.util.ArrayList;
+import java.util.List;
 
-/**
- * Subtipo de Usuario para administradores.
- * Sin atributos propios: su existencia en la tabla garantiza integridad referencial.
- */
 @Entity
 @Table(name = "administrador")
 @Getter @Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Administrador {
 
     @Id
-    @Column(name = "id_usuario")
+    @Column(name = "id")
     private int id;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne
     @MapsId
-    @JoinColumn(name = "id_usuario")
+    @JoinColumn(name = "id")
     private Usuario usuario;
+
+    @OneToMany(mappedBy = "administrador", cascade = CascadeType.ALL)
+    private List<Reporte> reportes = new ArrayList<>();
+
+    @OneToMany(mappedBy = "administrador", cascade = CascadeType.ALL)
+    private List<Configuracion> configuraciones = new ArrayList<>();
 
     public Administrador(Usuario usuario) {
         this.usuario = usuario;
-        this.id = usuario.getId();
-    }
-
-    public String getNombreCompleto() {
-        return usuario.getNombreCompleto();
+        if (usuario != null) {
+            this.id = usuario.getId();
+        }
     }
 }

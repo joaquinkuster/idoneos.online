@@ -2,16 +2,14 @@ package com.app.idoneos.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.time.LocalDateTime;
 
-/**
- * Reporte generado por un Administrador del sistema.
- */
 @Entity
 @Table(name = "reporte")
 @Getter @Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Reporte {
 
     @Id
@@ -23,15 +21,10 @@ public class Reporte {
     private LocalDateTime fechaGeneracion = LocalDateTime.now();
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_tipo_reporte", nullable = false)
+    @JoinColumn(name = "tipo_reporte_id", nullable = false)
     private TipoReporte tipoReporte;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_administrador", nullable = false)
+    @JoinColumn(name = "administrador_id", nullable = false)
     private Administrador administrador;
-
-    public Reporte(TipoReporte tipoReporte, Administrador administrador) {
-        this.tipoReporte = tipoReporte;
-        this.administrador = administrador;
-    }
 }
