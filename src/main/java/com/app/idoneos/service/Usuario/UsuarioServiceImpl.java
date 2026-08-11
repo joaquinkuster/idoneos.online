@@ -167,4 +167,29 @@ public class UsuarioServiceImpl implements UsuarioService, CrudService<Usuario> 
         administradorRepository.save(new Administrador(usuario));
         return usuario;
     }
+
+    @Transactional
+    public Usuario crearUsuarioConRol(String nombre, String apellido, String correo, String contrasena, RolUsuario rol) {
+        String passHash = (contrasena != null && !contrasena.isBlank()) ? passwordEncoder.encode(contrasena) : passwordEncoder.encode("123456");
+        Usuario usuario = new Usuario(nombre, apellido, correo, passHash, rol);
+        usuario.setEmailValidado(true);
+        usuario = usuarioRepository.save(usuario);
+
+        if (rol == RolUsuario.Alumno) {
+            alumnoRepository.save(new Alumno(usuario));
+        } else if (rol == RolUsuario.Docente) {
+            docenteRepository.save(new Docente(usuario));
+        } else if (rol == RolUsuario.Administrador) {
+            administradorRepository.save(new Administrador(usuario));
+        }
+        return usuario;
+    }
+
+    @Transactional
+    public void darDeBaja(Integer id) {
+        usuarioRepository.findById(id).ifPresent(u -> {
+            u.setBaja(!u.getBaja());
+            usuarioRepository.save(u);
+        });
+    }
 }

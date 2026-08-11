@@ -22,7 +22,6 @@ public class PagoService {
     @Autowired private PagoRepository pagoRepository;
     @Autowired private EstadoPagoRepository estadoPagoRepository;
     @Autowired private MetodoPagoRepository metodoPagoRepository;
-    @Autowired private ComprobanteRepository comprobanteRepository;
     @Autowired private DescuentoRepository descuentoRepository;
     @Autowired private InscripcionRepository inscripcionRepository;
     @Autowired private ConfiguracionRepository configRepo;
@@ -128,16 +127,20 @@ public class PagoService {
         inscripcion.setBaja(false);
         inscripcionRepository.save(inscripcion);
 
-        // Emitir Comprobante automático
+        // Emitir Comprobante automático en el mismo registro Pago
         String numComprobante = "COMP-" + LocalDate.now().getYear() + "-" + String.format("%06d", guardado.getId());
-        Comprobante comprobante = new Comprobante(numComprobante, guardado);
-        comprobanteRepository.save(comprobante);
+        guardado.setNumeroComprobante(numComprobante);
+        guardado.setFechaEmisionComprobante(LocalDateTime.now());
+        guardado.setComprobanteEnviado(true);
+        guardado = pagoRepository.save(guardado);
 
         // PA-2 / CU-35: Notificar confirmación de pago y comprobante al alumno
-        Usuario alumno = inscripcion.getUsuario();
+        Usuario alumno = (inscripcion.getAlumno() != null) ? inscripcion.getAlumno().getUsuario() : null;
         Curso curso = inscripcion.getCurso();
-        emailService.enviarConfirmacionPago(alumno, curso, guardado);
-        emailService.enviarComprobante(alumno, comprobante, curso);
+        if (alumno != null) {
+            emailService.enviarConfirmacionPago(alumno, curso, guardado);
+            emailService.enviarComprobante(alumno, guardado, curso);
+        }
 
         return guardado;
     }

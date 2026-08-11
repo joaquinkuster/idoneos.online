@@ -17,6 +17,8 @@ public interface InscripcionRepository extends JpaRepository<Inscripcion, Intege
     @Query("SELECT i FROM Inscripcion i WHERE i.alumno.usuario = :usuario AND i.baja = false")
     List<Inscripcion> findByUsuarioAndBajaFalse(@Param("usuario") Usuario usuario);
 
+    List<Inscripcion> findByAlumno(com.app.idoneos.model.Alumno alumno);
+
     @Query("SELECT i FROM Inscripcion i WHERE i.alumno.usuario = :usuario AND i.dictado.programa.curso = :curso AND i.baja = false")
     Optional<Inscripcion> findByUsuarioAndCursoAndBajaFalse(@Param("usuario") Usuario usuario, @Param("curso") Curso curso);
 

@@ -1,9 +1,7 @@
 package com.app.idoneos.controller;
 
-import com.app.idoneos.model.Certificado;
 import com.app.idoneos.model.Inscripcion;
 import com.app.idoneos.model.Usuario;
-import com.app.idoneos.repository.CertificadoRepository;
 import com.app.idoneos.repository.InscripcionRepository;
 import com.app.idoneos.service.Certificado.CertificadoService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +21,6 @@ import java.util.List;
 public class CertificadoController {
 
     @Autowired private CertificadoService certificadoService;
-    @Autowired private CertificadoRepository certificadoRepository;
     @Autowired private InscripcionRepository inscripcionRepository;
 
     @GetMapping("/certificado/inscripcion/{inscripcionId}")
@@ -35,26 +32,25 @@ public class CertificadoController {
         if (inscripcion == null) return "redirect:/cursos";
 
         Usuario usuario = (Usuario) auth.getPrincipal();
-        if (inscripcion.getUsuario().getId() != usuario.getId() && !usuario.esAdmin()) {
+        Usuario alumnoUsuario = (inscripcion.getAlumno() != null) ? inscripcion.getAlumno().getUsuario() : null;
+        if (alumnoUsuario != null && alumnoUsuario.getId() != usuario.getId() && !usuario.esAdmin()) {
             ra.addFlashAttribute("mensaje", "No tenés acceso a este certificado.");
             return "redirect:/perfil";
         }
 
-        Certificado certificado = certificadoService.buscarPorInscripcion(inscripcion)
-                .orElseGet(() -> certificadoService.emitirCertificado(inscripcion));
+        inscripcion = certificadoService.emitirCertificado(inscripcion);
 
         model.addAttribute("usuario", usuario);
-        model.addAttribute("certificado", certificado);
         model.addAttribute("inscripcion", inscripcion);
         model.addAttribute("curso", inscripcion.getCurso());
-        model.addAttribute("titulo", "Constancia de Finalización | " + inscripcion.getCurso().getNombre());
+        model.addAttribute("titulo", "Constancia de Finalización | " + (inscripcion.getCurso() != null ? inscripcion.getCurso().getNombre() : "Curso"));
         return "pages/alumno/certificado-vista";
     }
 
     @GetMapping("/usuario/certificados")
     public String misCertificados(Model model, Authentication auth) {
         Usuario usuario = (Usuario) auth.getPrincipal();
-        List<Inscripcion> inscripciones = inscripcionRepository.findByUsuarioAndBajaFalse(usuario);
+        List<Inscripcion> inscripciones = (usuario.getAlumno() != null) ? inscripcionRepository.findByAlumno(usuario.getAlumno()) : List.of();
 
         model.addAttribute("usuario", usuario);
         model.addAttribute("inscripciones", inscripciones);

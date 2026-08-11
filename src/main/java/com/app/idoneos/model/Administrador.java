@@ -28,6 +28,8 @@ public class Administrador {
     @OneToMany(mappedBy = "administrador", cascade = CascadeType.ALL)
     private List<Configuracion> configuraciones = new ArrayList<>();
 
+    public Administrador() {}
+
     public Administrador(Usuario usuario) {
         this.usuario = usuario;
         if (usuario != null) {

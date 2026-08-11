@@ -47,6 +47,16 @@ public class Dictado {
     @OneToMany(mappedBy = "dictado", cascade = CascadeType.ALL)
     private List<Inscripcion> inscripciones = new ArrayList<>();
 
+    public Dictado() {}
+
+    public Dictado(LocalDateTime fechaInicio, LocalDateTime fechaFin, Integer cupoMaximo, Programa programa) {
+        this.fechaInicio = fechaInicio;
+        this.fechaFin = fechaFin;
+        this.cupoMaximo = cupoMaximo;
+        this.programa = programa;
+        this.fechaCreacion = LocalDateTime.now();
+    }
+
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 

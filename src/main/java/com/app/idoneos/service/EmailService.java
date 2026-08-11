@@ -85,7 +85,7 @@ public class EmailService {
                         + String.format("%.2f", pago.getMonto()) + "</strong>.",
                 "/cursos/" + curso.getId() + "/mi-cursada",
                 "Ir a mi cursada",
-                "Número de pago: " + pago.getPaymentId()
+                "Número de pago: " + pago.getPaymentRequest()
         );
         enviar(alumno.getCorreo(), asunto, html);
     }
@@ -140,26 +140,6 @@ public class EmailService {
                 "Fecha de emisión: " + pago.getFechaEmisionComprobante()
         );
         enviar(alumno.getCorreo(), asunto, html);
-    }
-
-    /** Overload de compatibilidad: acepta Comprobante (usa su Pago asociado). */
-    public void enviarComprobante(Usuario alumno, Comprobante comprobante, Curso curso) {
-        Pago pago = comprobante.getPago();
-        if (pago != null) {
-            enviarComprobante(alumno, pago, curso);
-        } else {
-            String asunto = "Comprobante de pago — " + curso.getNombre();
-            String html = html(
-                    "Tu comprobante de pago",
-                    "Hola " + alumno.getNombre() + ", tu comprobante N° <strong>"
-                            + comprobante.getNumero() + "</strong> para el curso <strong>"
-                            + curso.getNombre() + "</strong> fue emitido.",
-                    "/cursos/" + curso.getId() + "/mi-cursada",
-                    "Ir a mi cursada",
-                    "Fecha de emisión: " + comprobante.getFechaEmision()
-            );
-            enviar(alumno.getCorreo(), asunto, html);
-        }
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -338,6 +318,18 @@ public class EmailService {
                 "Publicalo cuando esté listo."
         );
         enviar(docente.getCorreo(), asunto, html);
+    }
+
+    public void enviarRespuestaForo(String emailAlumno, RespuestaForo respuesta) {
+        String asunto = "Nueva respuesta en tu consulta del Foro";
+        String html = html(
+                "Nueva respuesta en el Foro",
+                "Se ha publicado una respuesta a tu consulta en el foro.",
+                "/foro/unidad/" + (respuesta.getConsulta() != null && respuesta.getConsulta().getUnidad() != null ? respuesta.getConsulta().getUnidad().getId() : ""),
+                "Ver en el Foro",
+                null
+        );
+        enviar(emailAlumno, asunto, html);
     }
 
     // ─────────────────────────────────────────────────────────────────────────

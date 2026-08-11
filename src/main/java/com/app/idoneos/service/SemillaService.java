@@ -36,7 +36,9 @@ public class SemillaService {
     @Autowired private DocenteRepository docenteRepository;
     @Autowired private AlumnoRepository alumnoRepository;
     @Autowired private AdministradorRepository administradorRepository;
-    @Autowired private DocenteCursoRepository docenteCursoRepository;
+    @Autowired private DictadoDocenteRepository dictadoDocenteRepository;
+    @Autowired private ProgramaRepository programaRepository;
+    @Autowired private DictadoRepository dictadoRepository;
 
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
@@ -73,6 +75,7 @@ public class SemillaService {
 
         metodoPagoRepository.save(new MetodoPago("Tarjeta de crédito"));
         metodoPagoRepository.save(new MetodoPago("Tarjeta de débito"));
+        metodoPagoRepository.save(new MetodoPago("Saldo de cuenta"));
 
         tipoAccionAuditoriaRepository.save(new TipoAccionAuditoria("Crear"));
         tipoAccionAuditoriaRepository.save(new TipoAccionAuditoria("Modificar"));
@@ -80,12 +83,12 @@ public class SemillaService {
         tipoAccionAuditoriaRepository.save(new TipoAccionAuditoria("Consultar"));
 
         tipoReporteRepository.save(new TipoReporte("Alumnos inscriptos"));
-        tipoReporteRepository.save(new TipoReporte("Tráfico"));
         tipoReporteRepository.save(new TipoReporte("Ingresos"));
 
-        // Configuración inicial del sistema (claves-valor según Módulo de Configuración)
-        configuracionRepository.save(new Configuracion("plataforma.nombre", "Idóneos Online"));
-        configuracionRepository.save(new Configuracion("evaluacion.umbral_aprobacion", "60"));
+        // Configuraciones base (PA-8 / CU-86)
+        configuracionRepository.save(new Configuracion("autoevaluacion.intentos_maximos", "3"));
+        configuracionRepository.save(new Configuracion("autoevaluacion.tiempo_limite_minutos", "30"));
+        configuracionRepository.save(new Configuracion("autoevaluacion.nota_aprobacion", "6.0"));
         configuracionRepository.save(new Configuracion("evaluacion.preguntas_por_intento", "10"));
         configuracionRepository.save(new Configuracion("evaluacion.proporcion_opcion_multiple", "70"));   // % de preguntas V/M
         configuracionRepository.save(new Configuracion("evaluacion.proporcion_verdadero_falso", "30"));    // % de preguntas V/F
@@ -145,8 +148,12 @@ public class SemillaService {
         );
         curso1.setMesesAcceso(12);
         cursoRepository.save(curso1);
-        docenteCursoRepository.save(new DocenteCurso(docenteFausto, curso1, false)); // titular
-        docenteCursoRepository.save(new DocenteCurso(docenteSebas, curso1, true));   // supervisor
+
+        Programa prog1 = programaRepository.save(new Programa("Programa Inicial 2026", "Plan de estudios principal del curso", 12, curso1));
+        Dictado dictado1 = dictadoRepository.save(new Dictado(LocalDateTime.now(), LocalDateTime.now().plusMonths(6), 50, prog1));
+
+        dictadoDocenteRepository.save(new DictadoDocente(dictado1, docenteFausto, false)); // titular
+        dictadoDocenteRepository.save(new DictadoDocente(dictado1, docenteSebas, true));   // supervisor
 
         Curso curso2 = new Curso(
                 "Análisis Macroeconómico e Inflación en Argentina",
@@ -154,7 +161,11 @@ public class SemillaService {
                 0f, catEconomia  // Gratuito
         );
         cursoRepository.save(curso2);
-        docenteCursoRepository.save(new DocenteCurso(docenteFausto, curso2, false));
+
+        Programa prog2 = programaRepository.save(new Programa("Programa Economía 2026", "Plan de estudio macroeconomía", 6, curso2));
+        Dictado dictado2 = dictadoRepository.save(new Dictado(LocalDateTime.now(), LocalDateTime.now().plusMonths(6), 100, prog2));
+
+        dictadoDocenteRepository.save(new DictadoDocente(dictado2, docenteFausto, false));
 
         Curso curso3 = new Curso(
                 "Planificación Fiscal y Eficiencia Tributaria",
@@ -163,7 +174,11 @@ public class SemillaService {
         );
         curso3.setMesesAcceso(6);
         cursoRepository.save(curso3);
-        docenteCursoRepository.save(new DocenteCurso(docenteSebas, curso3, false));
+
+        Programa prog3 = programaRepository.save(new Programa("Programa Fiscal 2026", "Plan de estudios impositivo", 6, curso3));
+        Dictado dictado3 = dictadoRepository.save(new Dictado(LocalDateTime.now(), LocalDateTime.now().plusMonths(6), 40, prog3));
+
+        dictadoDocenteRepository.save(new DictadoDocente(dictado3, docenteSebas, false));
 
         // ── 5. Unidades del Curso 1 ────────────────────────────────────────────
 

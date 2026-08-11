@@ -47,6 +47,16 @@ public class Programa {
     @OneToMany(mappedBy = "programa", cascade = CascadeType.ALL)
     private List<Unidad> unidades = new ArrayList<>();
 
+    public Programa() {}
+
+    public Programa(String nombre, String descripcion, int mesesAcceso, Curso curso) {
+        this.nombre = nombre;
+        this.descripcion = descripcion;
+        this.mesesAcceso = mesesAcceso;
+        this.curso = curso;
+        this.fechaCreacion = LocalDateTime.now();
+    }
+
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 

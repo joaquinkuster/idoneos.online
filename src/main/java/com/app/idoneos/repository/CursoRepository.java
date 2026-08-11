@@ -20,14 +20,14 @@ public interface CursoRepository extends JpaRepository<Curso, Integer> {
     List<Curso> findByNombreContainingIgnoreCaseAndBajaFalseAndPublicadoTrue(String query);
 
     /**
-     * Cursos de un docente (titular o supervisor) via DocenteCurso.
+     * Cursos de un docente (titular o supervisor) navegando DictadoDocente -> Dictado -> Programa -> Curso.
      */
-    @Query("SELECT dc.curso FROM DocenteCurso dc WHERE dc.docente.id = :docenteId AND dc.curso.baja = false")
+    @Query("SELECT DISTINCT dd.dictado.programa.curso FROM DictadoDocente dd WHERE dd.docente.id = :docenteId AND dd.dictado.programa.curso.baja = false")
     List<Curso> findByDocenteId(int docenteId);
 
     /**
      * Cursos donde el docente es titular (esSupervisor = false).
      */
-    @Query("SELECT dc.curso FROM DocenteCurso dc WHERE dc.docente.id = :docenteId AND dc.esSupervisor = false AND dc.curso.baja = false")
+    @Query("SELECT DISTINCT dd.dictado.programa.curso FROM DictadoDocente dd WHERE dd.docente.id = :docenteId AND dd.esSupervisor = false AND dd.dictado.programa.curso.baja = false")
     List<Curso> findByDocenteTitularId(int docenteId);
 }
