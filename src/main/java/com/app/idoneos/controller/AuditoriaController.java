@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.util.List;
 
 /**
- * Controller para la consulta del Log de Auditoría por parte del Administrador (CU-81).
- * Registra automáticamente la acción 'Consultar' sobre las auditorías.
+ * Controller para la consulta del Log de Auditoría por parte del Administrador (CU-89: Consultar log de auditoría).
+ * Muestra el registro de acciones realizadas en el sistema ordenadas cronológicamente con opción de filtrado por entidad.
  */
 @Controller
 @RequestMapping("/admin/auditoria")
@@ -24,6 +24,10 @@ public class AuditoriaController {
     @Autowired
     private AuditoriaRepository auditoriaRepository;
 
+    /**
+     * CU-89 — Consultar log de auditoría.
+     * Permite al Administrador filtrar por entidad afectada (ej. Curso, Usuario, Pago) y visualizar los eventos.
+     */
     @GetMapping
     public String verAuditoria(@RequestParam(required = false) String entidad,
                                Model model,

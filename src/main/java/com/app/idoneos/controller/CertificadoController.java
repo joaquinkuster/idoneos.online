@@ -15,7 +15,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.util.List;
 
 /**
- * Controller para la consulta y descarga de Certificados / Constancias de Finalización (CU-46).
+ * Controller para la emisión y consulta de certificados digitales de aprobación (CU-91: Emitir certificado de aprobación).
  */
 @Controller
 public class CertificadoController {
@@ -23,6 +23,9 @@ public class CertificadoController {
     @Autowired private CertificadoService certificadoService;
     @Autowired private InscripcionRepository inscripcionRepository;
 
+    /**
+     * CU-91 — Emitir y visualizar certificado digital de aprobación.
+     */
     @GetMapping("/certificado/inscripcion/{inscripcionId}")
     public String verCertificado(@PathVariable Integer inscripcionId,
                                  Model model,
@@ -47,6 +50,9 @@ public class CertificadoController {
         return "pages/alumno/certificado-vista";
     }
 
+    /**
+     * CU-91 — Consultar mis certificados emitidos.
+     */
     @GetMapping("/usuario/certificados")
     public String misCertificados(Model model, Authentication auth) {
         Usuario usuario = (Usuario) auth.getPrincipal();
