@@ -14,24 +14,20 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.util.Optional;
 
 /**
- * Controlador para el registro de progreso del alumno por unidad.
+ * Controller para el seguimiento del avance y progreso de cursada del alumno (CU-46: Buscar progreso).
  */
 @Controller
 @RequestMapping("/progreso")
 public class ProgresoController {
 
-    @Autowired
-    private ProgresoServiceImpl progresoService;
+    @Autowired private ProgresoServiceImpl progresoService;
+    @Autowired private CursoServiceImpl cursoService;
+    @Autowired private InscripcionServiceImpl inscripcionService;
+    @Autowired private UnidadServiceImpl unidadService;
 
-    @Autowired
-    private CursoServiceImpl cursoService;
-
-    @Autowired
-    private InscripcionServiceImpl inscripcionService;
-
-    @Autowired
-    private UnidadServiceImpl unidadService;
-
+    /**
+     * CU-46 — Marcar unidad temática como completada por el alumno inscripto.
+     */
     @PostMapping("/completar")
     public String marcarUnidadCompletada(@RequestParam("cursoId") Integer cursoId,
                                           @RequestParam("unidadId") Integer unidadId,
@@ -48,7 +44,7 @@ public class ProgresoController {
         Optional<Unidad> unidadOpt = unidadService.buscarPorId(unidadId);
 
         if (cursoOpt.isEmpty() || unidadOpt.isEmpty()) {
-            redirectAttributes.addFlashAttribute("mensaje", "Curso o unidad no encontrados.");
+            redirectAttributes.addFlashAttribute("mensaje", "CU-46 Excepción: Curso o unidad no encontrados.");
             return "redirect:/cursos";
         }
 
@@ -58,7 +54,7 @@ public class ProgresoController {
         Optional<Inscripcion> inscripcionOpt = inscripcionService.obtenerPorAlumnoYCurso(alumno, curso);
 
         if (inscripcionOpt.isEmpty()) {
-            redirectAttributes.addFlashAttribute("mensaje", "No estás inscripto en este curso.");
+            redirectAttributes.addFlashAttribute("mensaje", "CU-46 Excepción: No estás inscripto en este curso.");
             return "redirect:/cursos/" + cursoId;
         }
 

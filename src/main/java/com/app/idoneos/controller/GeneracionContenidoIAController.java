@@ -9,9 +9,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
- * Controller para disparar la generación de contenido académico con IA local (Ollama).
- * Ollama ejecuta el modelo Llama 3.1 (8B parámetros, 128K contexto) localmente,
- * sin enviar datos fuera de la red y sin costo por uso.
+ * Controller para disparar la generación de contenido académico asistido por IA (CU-69, CU-70, PA-4, PA-5, PA-9).
+ * Integra con Ollama local (Llama 3.1 8B).
  */
 @Controller
 @RequestMapping("/docente/ia")
@@ -21,9 +20,8 @@ public class GeneracionContenidoIAController {
     @Autowired private UnidadServiceImpl unidadService;
 
     /**
-     * PA-9: Generar Banco de Preguntas.
-     * El docente aporta bibliografía/glosario de la unidad y opcionalmente un prompt.
-     * Ollama genera preguntas cerradas (opción múltiple y V/F) según la proporción configurada.
+     * CU-69 / PA-9 — Generar Banco de Preguntas asistido por IA.
+     * Genera preguntas cerradas (opción múltiple y verdadero/falso) para la evaluación.
      */
     @PostMapping("/unidad/{unidadId}/generar-banco")
     public String generarBanco(@PathVariable Integer unidadId,
@@ -38,9 +36,7 @@ public class GeneracionContenidoIAController {
     }
 
     /**
-     * PA-8: Generar Resumen de Unidad.
-     * El sistema recopila la bibliografía cargada de la unidad y la envía a Ollama,
-     * que genera un resumen estructurado. No requiere Whisper ni transcripción de audio.
+     * CU-70 / PA-4 — Generar Resumen de Unidad estructurado con IA.
      */
     @PostMapping("/unidad/{unidadId}/generar-resumen")
     public String generarResumen(@PathVariable Integer unidadId, RedirectAttributes ra) {
@@ -48,14 +44,12 @@ public class GeneracionContenidoIAController {
         if (unidad == null) return "redirect:/docente";
 
         ollamaService.generarResumenUnidad(unidad);
-        ra.addFlashAttribute("mensaje", "¡Resumen de la unidad generado exitosamente con Ollama (Llama 3.1)! Disponible en estado Oculto para su revisión.");
+        ra.addFlashAttribute("mensaje", "¡Resumen de la unidad generado exitosamente con Ollama (Llama 3.1)!");
         return "redirect:/docente/curso/" + unidad.getCurso().getId() + "/gestionar";
     }
 
     /**
-     * PA-7: Generar Presentación de Clase (Diapositivas).
-     * El docente redacta un guión mediante un prompt; Ollama devuelve la estructura
-     * de contenidos (títulos, subtítulos, puntos clave) que el sistema formatea como presentación.
+     * CU-70 / PA-7 — Generar Presentación de Diapositivas con IA.
      */
     @PostMapping("/unidad/{unidadId}/generar-presentacion")
     public String generarPresentacion(@PathVariable Integer unidadId,
@@ -65,7 +59,7 @@ public class GeneracionContenidoIAController {
         if (unidad == null) return "redirect:/docente";
 
         ollamaService.generarPresentacionClase(unidad, promptInput);
-        ra.addFlashAttribute("mensaje", "¡Estructura de presentación generada con Ollama (Llama 3.1)! Disponible en estado Oculto para su revisión.");
+        ra.addFlashAttribute("mensaje", "¡Estructura de presentación generada con Ollama (Llama 3.1)!");
         return "redirect:/docente/curso/" + unidad.getCurso().getId() + "/gestionar";
     }
 }

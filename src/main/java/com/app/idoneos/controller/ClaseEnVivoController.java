@@ -16,8 +16,7 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Gestión de Clases en Vivo (programar, iniciar, finalizar).
- * Integración con OBS vía RTMP (URL + clave de stream).
+ * Controller para la programación y transmisión de Clases en Vivo (CU-61 a CU-64).
  */
 @Controller
 @RequestMapping("/clase-vivo")
@@ -30,8 +29,9 @@ public class ClaseEnVivoController {
     @Autowired private MaterialRepository materialRepository;
     @Autowired private TipoMaterialRepository tipoMaterialRepository;
 
-    // ─── Docente: listar clases ────────────────────────────────────────────────
-
+    /**
+     * CU-61 — Buscar y listar clases en vivo del docente.
+     */
     @GetMapping("/docente")
     public String misClases(Model model, Authentication auth) {
         Usuario usuario = (Usuario) auth.getPrincipal();
@@ -45,8 +45,9 @@ public class ClaseEnVivoController {
         return "pages/docente/clases-en-vivo";
     }
 
-    // ─── Programar clase ──────────────────────────────────────────────────────
-
+    /**
+     * CU-62 — Programar nueva clase en vivo.
+     */
     @PostMapping("/programar")
     public String programar(@RequestParam Integer unidadId,
                             @RequestParam String titulo,
@@ -59,7 +60,7 @@ public class ClaseEnVivoController {
         EstadoClaseEnVivo estadoProgramada = estadoRepo.findByNombre("Programada").orElse(null);
 
         if (docente == null || unidad == null || estadoProgramada == null) {
-            ra.addFlashAttribute("mensaje", "Error al programar la clase.");
+            ra.addFlashAttribute("mensaje", "CU-62 Excepción paso 4: Datos incompletos al programar la clase.");
             return "redirect:/clase-vivo/docente";
         }
 
@@ -70,8 +71,9 @@ public class ClaseEnVivoController {
         return "redirect:/clase-vivo/docente";
     }
 
-    // ─── CU-58: Modificar clase en vivo ───────────────────────────────────────
-
+    /**
+     * CU-63 — Modificar clase en vivo programada.
+     */
     @PostMapping("/{claseId}/modificar")
     public String modificar(@PathVariable Integer claseId,
                             @RequestParam String titulo,
@@ -89,8 +91,9 @@ public class ClaseEnVivoController {
         return "redirect:/clase-vivo/docente";
     }
 
-    // ─── CU-59: Cancelar clase en vivo ────────────────────────────────────────
-
+    /**
+     * CU-64 — Eliminar/Cancelar clase en vivo (baja lógica).
+     */
     @PostMapping("/{claseId}/cancelar")
     public String cancelar(@PathVariable Integer claseId, RedirectAttributes ra) {
         ClaseEnVivo clase = claseEnVivoRepository.findById(claseId).orElse(null);
@@ -102,6 +105,9 @@ public class ClaseEnVivoController {
         return "redirect:/clase-vivo/docente";
     }
 
+    /**
+     * CU-62 — Iniciar transmisión en vivo (Generación de RTMP + Stream Key).
+     */
     @PostMapping("/{claseId}/iniciar")
     public String iniciar(@PathVariable Integer claseId, RedirectAttributes ra) {
         ClaseEnVivo clase = claseEnVivoRepository.findById(claseId).orElse(null);
@@ -112,7 +118,6 @@ public class ClaseEnVivoController {
             return "redirect:/clase-vivo/docente";
         }
 
-        // Generar datos RTMP (en producción serían del servidor de streaming)
         String urlRtmp = "rtmp://live.idoneos.online/stream/" + claseId;
         String claveStream = UUID.randomUUID().toString().replace("-", "").substring(0, 16);
 
@@ -125,8 +130,9 @@ public class ClaseEnVivoController {
         return "redirect:/clase-vivo/docente";
     }
 
-    // ─── Finalizar clase ──────────────────────────────────────────────────────
-
+    /**
+     * CU-62 — Finalizar transmisión en vivo y generar material de grabación en revisión.
+     */
     @PostMapping("/{claseId}/finalizar")
     public String finalizar(@PathVariable Integer claseId, RedirectAttributes ra) {
         ClaseEnVivo clase = claseEnVivoRepository.findById(claseId).orElse(null);
@@ -140,13 +146,12 @@ public class ClaseEnVivoController {
 
         clase.setEstado(estadoFinalizada);
 
-        // Crear material de tipo Grabación con la ruta de la grabación
         if (tipoGrabacion != null) {
             String rutaGrabacion = "grabaciones/clase_" + claseId + "_" + System.currentTimeMillis() + ".mp4";
             String tituloMat = "Grabación: " + clase.getTitulo();
             if (tituloMat.length() > 250) tituloMat = tituloMat.substring(0, 247) + "...";
             Material grabacion = new Material(tipoGrabacion, tituloMat, rutaGrabacion, clase.getUnidad());
-            grabacion.setPublicado(false); // En revisión hasta que el docente la publique
+            grabacion.setPublicado(false);
             materialRepository.save(grabacion);
             clase.setMaterial(grabacion);
         }
@@ -156,8 +161,9 @@ public class ClaseEnVivoController {
         return "redirect:/clase-vivo/docente";
     }
 
-    // ─── Alumno: ver clase en vivo ────────────────────────────────────────────
-
+    /**
+     * CU-61 — Visualizar clase en vivo para alumnos inscriptos.
+     */
     @GetMapping("/{claseId}/ver")
     public String verClase(@PathVariable Integer claseId, Model model, Authentication auth) {
         ClaseEnVivo clase = claseEnVivoRepository.findById(claseId).orElse(null);

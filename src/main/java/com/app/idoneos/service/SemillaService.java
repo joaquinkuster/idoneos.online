@@ -11,8 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 
 /**
- * Servicio para insertar datos iniciales (Semilla) de Idóneos Online.
- * Crea catálogos, usuarios base y cursos de demostración.
+ * Servicio para el semillado de datos iniciales del sistema (CU-93: Semillar datos iniciales).
+ * Puebla catálogos, administradores, docentes, cursos, unidades y parámetros operativos clave-valor.
  */
 @Service
 public class SemillaService {
@@ -23,7 +23,6 @@ public class SemillaService {
     @Autowired private UnidadRepository unidadRepository;
     @Autowired private MaterialRepository materialRepository;
 
-    // Nuevos repositorios de catálogos
     @Autowired private TipoMaterialRepository tipoMaterialRepository;
     @Autowired private ModalidadRepository modalidadRepository;
     @Autowired private EstadoClaseEnVivoRepository estadoClaseEnVivoRepository;
@@ -42,6 +41,9 @@ public class SemillaService {
 
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
+    /**
+     * CU-93 — Semillado automático de la base de datos `idoneos.online`.
+     */
     @Transactional
     public void insertarSemilla() {
         String adminEmail = "admin@idoneos.online";
@@ -50,8 +52,7 @@ public class SemillaService {
             return;
         }
 
-        // ── 1. Catálogos de sistema ────────────────────────────────────────────
-
+        // Catálogos de sistema
         TipoMaterial tmGrabacion = tipoMaterialRepository.save(new TipoMaterial("Grabación"));
         TipoMaterial tmBibliografia = tipoMaterialRepository.save(new TipoMaterial("Bibliografía"));
         TipoMaterial tmPresentacion = tipoMaterialRepository.save(new TipoMaterial("Presentación"));
@@ -85,23 +86,21 @@ public class SemillaService {
         tipoReporteRepository.save(new TipoReporte("Alumnos inscriptos"));
         tipoReporteRepository.save(new TipoReporte("Ingresos"));
 
-        // Configuraciones base (PA-8 / CU-86)
+        // Configuraciones base (CU-92)
         configuracionRepository.save(new Configuracion("autoevaluacion.intentos_maximos", "3"));
         configuracionRepository.save(new Configuracion("autoevaluacion.tiempo_limite_minutos", "30"));
         configuracionRepository.save(new Configuracion("autoevaluacion.nota_aprobacion", "6.0"));
         configuracionRepository.save(new Configuracion("evaluacion.preguntas_por_intento", "10"));
-        configuracionRepository.save(new Configuracion("evaluacion.proporcion_opcion_multiple", "70"));   // % de preguntas V/M
-        configuracionRepository.save(new Configuracion("evaluacion.proporcion_verdadero_falso", "30"));    // % de preguntas V/F
+        configuracionRepository.save(new Configuracion("evaluacion.proporcion_opcion_multiple", "70"));
+        configuracionRepository.save(new Configuracion("evaluacion.proporcion_verdadero_falso", "30"));
         configuracionRepository.save(new Configuracion("grabaciones.plazo_disponibilidad_meses", "4"));
         configuracionRepository.save(new Configuracion("grabaciones.aviso_previo_dias", "7"));
         configuracionRepository.save(new Configuracion("sesiones.max_concurrentes", "1"));
         configuracionRepository.save(new Configuracion("foro.tiempo_limite_edicion_minutos", "30"));
-        // IA local: Ollama corre en localhost:11434 — no requiere API key externa
         configuracionRepository.save(new Configuracion("ollama.model", "llama3.1"));
         configuracionRepository.save(new Configuracion("ollama.url", "http://localhost:11434/api/generate"));
 
-        // ── 2. Usuarios base ───────────────────────────────────────────────────
-
+        // Usuarios base
         Usuario adminUsuario = new Usuario("Admin", "Idóneos", adminEmail, passwordEncoder.encode("123456"), RolUsuario.Administrador);
         adminUsuario.setEmailValidado(true);
         Administrador adminObj = new Administrador(adminUsuario);
@@ -111,16 +110,16 @@ public class SemillaService {
         Usuario usuFausto = new Usuario("Fausto", "Spotorno", "fausto.spotorno@idoneos.online", passwordEncoder.encode("123456"), RolUsuario.Docente);
         usuFausto.setEmailValidado(true);
         Docente docenteFausto = new Docente(usuFausto);
-        docenteFausto.setBiografia("Economista UBA, Magíster en Finanzas UTDT. Ex-Director de Relevamiento Económico de Orlando J. Ferreres & Asociados.");
+        docenteFausto.setBiografia("Economista UBA, Magíster en Finanzas UTDT.");
         docenteFausto.setAniosExperiencia(20);
-        docenteFausto.setFechaConsentimientoClon(LocalDateTime.now()); // habilitado para Clon IA
+        docenteFausto.setFechaConsentimientoClon(LocalDateTime.now());
         usuFausto.setDocente(docenteFausto);
         usuarioRepository.save(usuFausto);
 
         Usuario usuSebas = new Usuario("Sebastián", "Bordato", "sebastian.bordato@idoneos.online", passwordEncoder.encode("123456"), RolUsuario.Docente);
         usuSebas.setEmailValidado(true);
         Docente docenteSebas = new Docente(usuSebas);
-        docenteSebas.setBiografia("Contador Público UBA. Especialista en planificación fiscal y mercados financieros.");
+        docenteSebas.setBiografia("Contador Público UBA. Especialista en planificación fiscal.");
         docenteSebas.setAniosExperiencia(15);
         docenteSebas.setFechaConsentimientoClon(LocalDateTime.now());
         usuSebas.setDocente(docenteSebas);
@@ -132,15 +131,13 @@ public class SemillaService {
         usuAlumno.setAlumno(alumnoObj);
         usuarioRepository.save(usuAlumno);
 
-        // ── 3. Categorías temáticas ────────────────────────────────────────────
+        // Categorías temáticas
+        Categoria catMercado = categoriaRepository.save(new Categoria("Mercado de Capitales", "Cursos sobre bonos, acciones, CEDEARs e instrumentos de inversión."));
+        Categoria catEconomia = categoriaRepository.save(new Categoria("Economía", "Análisis macroeconómico y coyuntura argentina."));
+        Categoria catFinanzas = categoriaRepository.save(new Categoria("Finanzas Corporativas", "Gestión financiera de empresas y valuación."));
+        Categoria catImpuestos = categoriaRepository.save(new Categoria("Impuestos y Contabilidad", "Legislación tributaria argentina."));
 
-        Categoria catMercado = categoriaRepository.save(new Categoria("Mercado de Capitales", "Cursos sobre bonos, acciones, CEDEARs, instrumentos de inversión y normativa CNV."));
-        Categoria catEconomia = categoriaRepository.save(new Categoria("Economía", "Análisis macroeconómico, coyuntura argentina, política monetaria y fiscal."));
-        Categoria catFinanzas = categoriaRepository.save(new Categoria("Finanzas Corporativas", "Gestión financiera de empresas, evaluación de proyectos y valuación."));
-        Categoria catImpuestos = categoriaRepository.save(new Categoria("Impuestos y Contabilidad", "Legislación tributaria argentina, planificación fiscal y estados contables."));
-
-        // ── 4. Cursos demo ─────────────────────────────────────────────────────
-
+        // Cursos demo
         Curso curso1 = new Curso(
                 "Introducción al Mercado de Capitales Argentino",
                 "Instrumentos financieros en Argentina: Acciones, Bonos, ONs y Opciones.",
@@ -152,13 +149,13 @@ public class SemillaService {
         Programa prog1 = programaRepository.save(new Programa("Programa Inicial 2026", "Plan de estudios principal del curso", 12, curso1));
         Dictado dictado1 = dictadoRepository.save(new Dictado(LocalDateTime.now(), LocalDateTime.now().plusMonths(6), 50, prog1));
 
-        dictadoDocenteRepository.save(new DictadoDocente(dictado1, docenteFausto, false)); // titular
-        dictadoDocenteRepository.save(new DictadoDocente(dictado1, docenteSebas, true));   // supervisor
+        dictadoDocenteRepository.save(new DictadoDocente(dictado1, docenteFausto, false));
+        dictadoDocenteRepository.save(new DictadoDocente(dictado1, docenteSebas, true));
 
         Curso curso2 = new Curso(
                 "Análisis Macroeconómico e Inflación en Argentina",
-                "Herramientas para analizar variables macroeconómicas y proyectar escenarios.",
-                0f, catEconomia  // Gratuito
+                "Herramientas para analizar variables macroeconómicas.",
+                0f, catEconomia
         );
         cursoRepository.save(curso2);
 
@@ -180,13 +177,10 @@ public class SemillaService {
 
         dictadoDocenteRepository.save(new DictadoDocente(dictado3, docenteSebas, false));
 
-        // ── 5. Unidades del Curso 1 ────────────────────────────────────────────
-
-        Unidad u1 = unidadRepository.save(new Unidad("Introducción al Sistema Financiero", "Estructura del mercado argentino, CNV, BYMA y agentes liquidadores.", 1, curso1));
-        Unidad u2 = unidadRepository.save(new Unidad("Renta Fija: Bonos y ONs", "Cálculo de TIR, Duration, curvas de rendimientos y riesgo país.", 2, curso1));
+        // Unidades y Materiales
+        Unidad u1 = unidadRepository.save(new Unidad("Introducción al Sistema Financiero", "Estructura del mercado argentino, CNV, BYMA.", 1, curso1));
+        Unidad u2 = unidadRepository.save(new Unidad("Renta Fija: Bonos y ONs", "Cálculo de TIR, Duration, curvas de rendimientos.", 2, curso1));
         Unidad u3 = unidadRepository.save(new Unidad("Renta Variable y CEDEARs", "Inversión en acciones locales e internacionales.", 3, curso1));
-
-        // ── 6. Materiales Unidad 1 ─────────────────────────────────────────────
 
         materialRepository.save(new Material(tmGrabacion, "Clase Grabada - Módulo 1", "videos/u1_clase.mp4", u1));
         materialRepository.save(new Material(tmBibliografia, "Ley de Mercado de Capitales 26.831", "docs/ley_26831.pdf", u1));

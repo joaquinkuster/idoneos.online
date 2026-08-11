@@ -14,7 +14,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.util.List;
 
 /**
- * Controller para la gestión del Foro de Consultas por Unidad (CU-23 a CU-26).
+ * Controller para la gestión del Foro de Consultas por Unidad (CU-33 a CU-40).
  */
 @Controller
 @RequestMapping("/foro")
@@ -27,6 +27,9 @@ public class ForoController {
     @Autowired private DocenteRepository docenteRepo;
     @Autowired private EmailService emailService;
 
+    /**
+     * CU-33 — Buscar y consultar publicaciones del foro temático de una unidad.
+     */
     @GetMapping("/unidad/{unidadId}")
     public String verForoUnidad(@PathVariable Integer unidadId, Model model, Authentication auth) {
         Unidad unidad = unidadService.buscarPorId(unidadId).orElse(null);
@@ -43,6 +46,10 @@ public class ForoController {
         return "pages/foro/foro-unidad";
     }
 
+    /**
+     * CU-34 — Registrar consulta de foro por parte de un alumno inscripto.
+     * Envía una notificación por correo electrónico al docente titular del dictado.
+     */
     @PostMapping("/unidad/{unidadId}/consulta")
     public String nuevaConsulta(@PathVariable Integer unidadId,
                                 @RequestParam String texto,
@@ -53,7 +60,7 @@ public class ForoController {
         Usuario usuario = (Usuario) auth.getPrincipal();
         ConsultaForo consulta = consultaRepo.save(new ConsultaForo(texto, unidad, usuario));
 
-        // CU-24: Notificar al docente titular del curso
+        // CU-34: Notificación por email al docente titular
         if (unidad.getCurso() != null) {
             dictadoDocenteRepository.findAll().stream()
                     .filter(dd -> dd.getDictado() != null && dd.getDictado().getPrograma() != null 
@@ -68,6 +75,10 @@ public class ForoController {
         return "redirect:/foro/unidad/" + unidadId;
     }
 
+    /**
+     * CU-38 — Registrar respuesta de foro por parte del docente a cargo.
+     * Envía una notificación por correo electrónico al alumno autor de la consulta.
+     */
     @PostMapping("/consulta/{consultaId}/responder")
     public String responderConsulta(@PathVariable Integer consultaId,
                                     @RequestParam String texto,
@@ -78,13 +89,12 @@ public class ForoController {
         Usuario usuario = (Usuario) auth.getPrincipal();
         Docente docente = docenteRepo.findById(usuario.getId()).orElse(null);
         if (docente == null) {
-            ra.addFlashAttribute("mensaje", "Solo los docentes pueden responder consultas.");
+            ra.addFlashAttribute("mensaje", "CU-38 Autorización: Solo los docentes pueden responder consultas.");
             return "redirect:/foro/unidad/" + consulta.getUnidad().getId();
         }
 
         RespuestaForo respuesta = respuestaRepo.save(new RespuestaForo(texto, consulta, docente));
 
-        // Notificar al alumno autor de la consulta
         if (consulta.getUsuario() != null) {
             emailService.enviarRespuestaForo(consulta.getUsuario().getCorreo(), respuesta);
         }

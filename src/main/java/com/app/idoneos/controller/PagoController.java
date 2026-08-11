@@ -12,7 +12,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
- * Controller para la pasarela de pago (Mercado Pago), checkout y comprobantes.
+ * Controller para la pasarela de pagos (CU-44: Buscar pago / CU-45: Realizar pago).
+ * Integra la Checkout API de Mercado Pago, cálculo de cupones promocionales y emisión del comprobante.
  */
 @Controller
 @RequestMapping("/pago")
@@ -22,6 +23,9 @@ public class PagoController {
     @Autowired private CursoServiceImpl cursoService;
     @Autowired private InscripcionServiceImpl inscripcionService;
 
+    /**
+     * CU-45 — Pantalla de Checkout y resumen de pago con aplicación de cupones de descuento.
+     */
     @GetMapping("/checkout/{cursoId}")
     public String verCheckout(@PathVariable Integer cursoId, Model model, Authentication auth) {
         Curso curso = cursoService.buscarPorId(cursoId).orElse(null);
@@ -39,6 +43,13 @@ public class PagoController {
         return "pages/alumno/checkout";
     }
 
+    /**
+     * CU-45 — Procesar pago con tarjeta / Mercado Pago API y activar la inscripción.
+     * Reglas de negocio:
+     * - Invocación a la API de Mercado Pago (`/v1/payments`).
+     * - Generación de estado 'Acreditado' y comprobante automático en PDF.
+     * - Envío de correo electrónico de confirmación al alumno.
+     */
     @PostMapping("/procesar/{cursoId}")
     public String procesarPago(@PathVariable Integer cursoId,
                                @RequestParam String nombreTarjeta,
@@ -50,7 +61,6 @@ public class PagoController {
 
         Usuario usuario = (Usuario) auth.getPrincipal();
 
-        // Inscribir al alumno
         Inscripcion inscripcion = inscripcionService.inscribirAlumno(usuario, curso);
 
         Double monto = pagoService.calcularMontoConDescuento(usuario, curso);
@@ -63,6 +73,9 @@ public class PagoController {
         return "redirect:/pago/resultado/" + pago.getId();
     }
 
+    /**
+     * CU-44 — Ver resultado del pago y descargar comprobante oficial emitido.
+     */
     @GetMapping("/resultado/{pagoId}")
     public String resultadoPago(@PathVariable Integer pagoId, Model model, Authentication auth) {
         Pago pago = pagoService.buscarPorId(pagoId).orElse(null);

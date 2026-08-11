@@ -16,8 +16,8 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 /**
- * Gestión de Clases generadas con Avatar Clon IA (HeyGen API).
- * Permite redactar el guion (prompt input) e integrar con la API de HeyGen.
+ * Controller para la generación de clases mediante Avatar IA Clon (CU-71 a CU-74).
+ * Integra con HeyGen API v2 y valida el consentimiento previo del docente.
  */
 @Controller
 @RequestMapping("/clon-ia")
@@ -69,6 +69,9 @@ public class ClaseClonIAController {
         return "heygen_vid_" + System.currentTimeMillis();
     }
 
+    /**
+     * CU-71 — Buscar y listar clases generadas con Clon IA para el docente.
+     */
     @GetMapping("/docente")
     public String panelClonIA(Model model, Authentication auth) {
         Usuario usuario = (Usuario) auth.getPrincipal();
@@ -83,6 +86,10 @@ public class ClaseClonIAController {
         return "pages/docente/clon-ia";
     }
 
+    /**
+     * CU-72 — Generar clase con Avatar IA Clon a partir de un guión docente.
+     * Regla de negocio: Valida consentimiento firmado del docente (`fechaConsentimientoClon != null`) (Excepción CU-72, paso 4).
+     */
     @PostMapping("/generar")
     public String generarClase(@RequestParam Integer unidadId,
                                @RequestParam String titulo,
@@ -94,12 +101,12 @@ public class ClaseClonIAController {
         Unidad unidad = unidadService.buscarPorId(unidadId).orElse(null);
 
         if (docente == null || !docente.puedeUsarClonIA()) {
-            ra.addFlashAttribute("mensaje", "Error: El docente no tiene validado el consentimiento para Clon IA en HeyGen.");
+            ra.addFlashAttribute("mensaje", "CU-72 Excepción paso 4: El docente no tiene validado el consentimiento para Clon IA.");
             return "redirect:/clon-ia/docente";
         }
 
         if (unidad == null) {
-            ra.addFlashAttribute("mensaje", "Unidad no válida.");
+            ra.addFlashAttribute("mensaje", "CU-72 Excepción paso 4: Unidad no válida.");
             return "redirect:/clon-ia/docente";
         }
 
@@ -111,19 +118,18 @@ public class ClaseClonIAController {
         ClaseClonIA clase = new ClaseClonIA(titulo, unidad, docente, estadoGenerada);
         clase.setFechaGeneracion(LocalDateTime.now());
 
-        // Generar material de tipo Grabación (HeyGen avatar result)
         TipoMaterial tipoGrabacion = tipoMaterialRepo.findByNombre("Grabación").orElse(null);
         if (tipoGrabacion != null) {
             String urlVideoHeyGen = "videos/heygen_" + videoId + ".mp4";
             Material m = new Material(tipoGrabacion, "Clon IA: " + titulo, urlVideoHeyGen, unidad);
             m.setGeneradoPorIA(true);
-            m.setPublicado(false); // Oculto por defecto para revisión
+            m.setPublicado(false);
             materialRepo.save(m);
             clase.setMaterial(m);
         }
 
         clonRepo.save(clase);
-        ra.addFlashAttribute("mensaje", "¡Video con Clon IA generado exitosamente con HeyGen API (Video ID: " + videoId + ")! Disponible en estado Oculto para tu revisión.");
+        ra.addFlashAttribute("mensaje", "¡Video con Clon IA generado exitosamente con HeyGen API (Video ID: " + videoId + ")!");
         return "redirect:/clon-ia/docente";
     }
 }

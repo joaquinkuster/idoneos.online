@@ -15,27 +15,24 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.*;
 
+/**
+ * Controller para la navegación, búsqueda del catálogo de cursos e inscripción del alumno.
+ * Mapea la trazabilidad funcional de CU-01 (Buscar curso) y CU-42 (Inscribir curso).
+ */
 @Controller
 @RequestMapping("/cursos")
 public class CursoController {
 
-    @Autowired
-    private CursoServiceImpl cursoService;
+    @Autowired private CursoServiceImpl cursoService;
+    @Autowired private CategoriaServiceImpl categoriaService;
+    @Autowired private InscripcionServiceImpl inscripcionService;
+    @Autowired private ProgresoServiceImpl progresoService;
+    @Autowired private UnidadServiceImpl unidadService;
 
-    @Autowired
-    private CategoriaServiceImpl categoriaService;
-
-    @Autowired
-    private InscripcionServiceImpl inscripcionService;
-
-    @Autowired
-    private ProgresoServiceImpl progresoService;
-
-    @Autowired
-    private UnidadServiceImpl unidadService;
-
-    // ─── Catálogo Público ──────────────────────────────────────────────────────
-
+    /**
+     * CU-01 — Buscar y explorar el catálogo de cursos publicados.
+     * Permite filtrar por nombre, categoría y modalidad de dictado.
+     */
     @GetMapping
     public String listarCursos(@RequestParam(value = "categoriaId", required = false) Integer categoriaId,
                                @RequestParam(value = "busqueda", required = false) String busqueda,
@@ -64,8 +61,9 @@ public class CursoController {
         return "pages/cursos/catalogo";
     }
 
-    // ─── Detalle del Curso ─────────────────────────────────────────────────────
-
+    /**
+     * CU-01 — Ver detalle de un curso seleccionado del catálogo.
+     */
     @GetMapping("/{id:\\d+}")
     public String verDetalleCurso(@PathVariable("id") Integer id, Model model, Authentication auth) {
         Optional<Curso> cursoOpt = cursoService.buscarPorId(id);
@@ -88,8 +86,9 @@ public class CursoController {
         return "pages/cursos/detalle";
     }
 
-    // ─── Mis Cursos Inscriptos (Alumno) ───────────────────────────────────────
-
+    /**
+     * CU-41 — Consultar cursos en los que se encuentra inscripto el alumno.
+     */
     @GetMapping("/mis-cursos")
     public String listarMisCursos(Authentication auth, Model model) {
         if (auth == null || !(auth.getPrincipal() instanceof Usuario)) return "redirect:/login";
@@ -99,7 +98,7 @@ public class CursoController {
 
         List<Curso> misCursos = new ArrayList<>();
         for (Inscripcion i : inscripciones) {
-            if (!i.getBaja()) {
+            if (!i.getBaja() && i.getCurso() != null) {
                 misCursos.add(i.getCurso());
             }
         }
@@ -111,8 +110,10 @@ public class CursoController {
         return "pages/cursos/mis-cursos";
     }
 
-    // ─── Inscripción ───────────────────────────────────────────────────────────
-
+    /**
+     * CU-42 — Inscribirse a un curso.
+     * Si el curso requiere pago (precio > 0), redirige al flujo de checkout (CU-45).
+     */
     @PostMapping("/{id}/inscribir")
     public String inscribirseACurso(@PathVariable("id") Integer id, Authentication auth,
                                      RedirectAttributes redirectAttributes) {
@@ -123,24 +124,22 @@ public class CursoController {
 
         Curso curso = cursoOpt.get();
 
-        // Si ya está inscripto, ir a la cursada
         if (inscripcionService.estaInscripto(usuario, curso)) {
             return "redirect:/cursos/" + id + "/mi-cursada";
         }
 
-        // Si el curso es de pago (precio > 0), derivar a Mercado Pago Checkout API
         if (curso.getPrecio() > 0) {
             return "redirect:/pago/checkout/" + id;
         }
 
-        // Si es gratuito, inscribir directamente
         inscripcionService.inscribirAlumno(usuario, curso);
         redirectAttributes.addFlashAttribute("mensaje", "¡Inscripción exitosa! Ya podés acceder al contenido del curso.");
         return "redirect:/cursos/" + id + "/mi-cursada";
     }
 
-    // ─── Vista de Cursada del Alumno ───────────────────────────────────────────
-
+    /**
+     * CU-46 — Acceso al aula virtual y seguimiento de progreso por unidades.
+     */
     @GetMapping({"/{id}/mi-cursada", "/{id}/cursada"})
     public String verMiCursada(@PathVariable("id") Integer id, Authentication auth,
                                 Model model, RedirectAttributes redirectAttributes) {
@@ -161,7 +160,6 @@ public class CursoController {
         Inscripcion inscripcion = inscripcionOpt.get();
         List<Unidad> unidades = unidadService.obtenerPorCurso(curso);
 
-        // Mapa de progreso: unidad.id -> completada?
         Map<Integer, Boolean> progresoPorUnidad = new LinkedHashMap<>();
         for (Unidad u : unidades) {
             progresoPorUnidad.put(u.getId(), progresoService.unidadCompletada(inscripcion, u));

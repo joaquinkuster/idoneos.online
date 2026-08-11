@@ -14,9 +14,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.util.*;
 
 /**
- * Controlador para Pools, Preguntas, Opciones, Autoevaluaciones e Intentos.
- * - Rutas /docente/** → solo DOCENTE
- * - Rutas /evaluacion/** → ALUMNO (rendir examen)
+ * Controller para la gestión de Pools de Preguntas, Autoevaluaciones e Intentos de Examen (CU-51 a CU-60).
  */
 @Controller
 public class EvaluacionController {
@@ -25,10 +23,11 @@ public class EvaluacionController {
     @Autowired private IntentoService intentoService;
     @Autowired private UnidadServiceImpl unidadService;
 
-    // ══════════════════════════════════════════════════════════════════════════
-    // DOCENTE — Gestionar Pool y Preguntas
-    // ══════════════════════════════════════════════════════════════════════════
+    // ─── DOCENTE — Pools de Preguntas (CU-51 a CU-54) ───────────────────────────
 
+    /**
+     * CU-51 — Consultar pool de preguntas de una unidad.
+     */
     @GetMapping("/docente/unidad/{unidadId}/pool")
     public String verPool(@PathVariable Integer unidadId, Model model, Authentication auth) {
         Unidad unidad = unidadService.buscarPorId(unidadId).orElse(null);
@@ -41,6 +40,9 @@ public class EvaluacionController {
         return "pages/docente/gestionar-pool";
     }
 
+    /**
+     * CU-52 — Registrar pool de preguntas para una unidad temática.
+     */
     @PostMapping("/docente/unidad/{unidadId}/pool/crear")
     public String crearPool(@PathVariable Integer unidadId,
                             @RequestParam String nombre,
@@ -49,7 +51,7 @@ public class EvaluacionController {
         if (unidad == null) return "redirect:/docente";
 
         if (evaluacionService.buscarPoolPorUnidad(unidad).isPresent()) {
-            ra.addFlashAttribute("mensaje", "Esta unidad ya tiene un pool de preguntas.");
+            ra.addFlashAttribute("mensaje", "CU-52 Excepción paso 4: Esta unidad ya cuenta con un pool de preguntas registrado.");
             return "redirect:/docente/unidad/" + unidadId + "/pool";
         }
         Pool pool = new Pool(nombre, unidad);
@@ -58,6 +60,9 @@ public class EvaluacionController {
         return "redirect:/docente/unidad/" + unidadId + "/pool";
     }
 
+    /**
+     * CU-52 — Cargar preguntas de opción múltiple / Verdadero-Falso en el pool.
+     */
     @PostMapping("/docente/pool/{poolId}/pregunta/agregar")
     public String agregarPregunta(@PathVariable Integer poolId,
                                   @RequestParam String texto,
@@ -80,6 +85,9 @@ public class EvaluacionController {
         return "redirect:/docente/unidad/" + pool.getUnidad().getId() + "/pool";
     }
 
+    /**
+     * CU-54 — Eliminar pregunta de un pool (baja lógica).
+     */
     @PostMapping("/docente/pregunta/{preguntaId}/borrar")
     public String borrarPregunta(@PathVariable Integer preguntaId, RedirectAttributes ra) {
         Pregunta p = evaluacionService.buscarPreguntaPorId(preguntaId).orElse(null);
@@ -90,10 +98,14 @@ public class EvaluacionController {
         return "redirect:/docente/unidad/" + unidadId + "/pool";
     }
 
-    // ══════════════════════════════════════════════════════════════════════════
-    // ALUMNO — Rendir Examen
-    // ══════════════════════════════════════════════════════════════════════════
+    // ─── ALUMNO — Rendición e Intentos de Examen (CU-59 y CU-60) ───────────────
 
+    /**
+     * CU-60 — Rendir examen autoevaluativo.
+     * Reglas de negocio:
+     * - Sorteo aleatorio de 10 preguntas.
+     * - Control de límite de intentos permitidos.
+     */
     @GetMapping("/evaluacion/{autoevaluacionId}/rendir")
     public String verExamen(@PathVariable Integer autoevaluacionId, Model model, Authentication auth) {
         Autoevaluacion ae = evaluacionService.buscarAutoevaluacionPorId(autoevaluacionId).orElse(null);
@@ -102,8 +114,8 @@ public class EvaluacionController {
         Usuario usuario = (Usuario) auth.getPrincipal();
 
         try {
-            intentoService.iniciarIntento(ae, usuario); // valida límite de intentos
-        } catch (IllegalStateException e) {
+            intentoService.iniciarIntento(ae, usuario);
+        } catch (Exception e) {
             model.addAttribute("error", e.getMessage());
         }
 
@@ -116,6 +128,9 @@ public class EvaluacionController {
         return "pages/alumno/rendir-examen";
     }
 
+    /**
+     * CU-60 — Enviar examen, corregir automáticamente y calcular nota sobre 100%.
+     */
     @PostMapping("/evaluacion/{autoevaluacionId}/enviar")
     public String enviarExamen(@PathVariable Integer autoevaluacionId,
                                @RequestParam Map<String, String> form,
@@ -127,7 +142,6 @@ public class EvaluacionController {
         Usuario usuario = (Usuario) auth.getPrincipal();
         IntentoAutoevaluacion intento = new IntentoAutoevaluacion(ae, usuario);
 
-        // Parsear respuestas: prefijo "pregunta_" + preguntaId → opcionId
         Map<Integer, Integer> respuestas = new HashMap<>();
         for (Map.Entry<String, String> entry : form.entrySet()) {
             if (entry.getKey().startsWith("pregunta_")) {
@@ -146,6 +160,9 @@ public class EvaluacionController {
         return "redirect:/evaluacion/" + autoevaluacionId + "/resultado";
     }
 
+    /**
+     * CU-59 — Consultar resultado de intento e historial de autoevaluaciones.
+     */
     @GetMapping("/evaluacion/{autoevaluacionId}/resultado")
     public String verResultado(@PathVariable Integer autoevaluacionId, Model model, Authentication auth) {
         Autoevaluacion ae = evaluacionService.buscarAutoevaluacionPorId(autoevaluacionId).orElse(null);

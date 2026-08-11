@@ -18,12 +18,8 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Panel del Docente — gestión de cursos propios, unidades, materiales,
- * glosario y autoevaluaciones.
- *
- * Decisión de diseño: El docente solo puede gestionar cursos en los que participa
- * (como titular o supervisor), verificado en cada acción vía DictadoDocenteRepository.
- * El administrador tiene acceso sin restricciones desde AdminController.
+ * Controller para la gestión del panel docente (CU-01 a CU-05, CU-19 a CU-32).
+ * Restringe las operaciones a los cursos en los que el docente participa como titular o supervisor.
  */
 @Controller
 @RequestMapping("/docente")
@@ -43,8 +39,6 @@ public class DocenteController {
     @Autowired private PoolRepository poolRepository;
     @Autowired private EvaluacionService evaluacionService;
 
-    // ─── Helper: verificar que el docente pertenece al curso ──────────────────
-
     private Docente getDocente(Authentication auth) {
         Usuario usuario = (Usuario) auth.getPrincipal();
         return docenteRepository.findById(usuario.getId()).orElse(null);
@@ -59,8 +53,9 @@ public class DocenteController {
                         && dd.getDictado().getPrograma().getCurso().getId() == curso.getId());
     }
 
-    // ─── Panel Principal Docente ───────────────────────────────────────────────
-
+    /**
+     * CU-01 — Listar los cursos a cargo del docente autenticado.
+     */
     @GetMapping
     public String panelDocente(Model model, Authentication auth) {
         Usuario docente = (Usuario) auth.getPrincipal();
@@ -73,8 +68,9 @@ public class DocenteController {
         return "pages/docente/mis-cursos";
     }
 
-    // ─── Crear Curso ───────────────────────────────────────────────────────────
-
+    /**
+     * CU-02 — Formulario para el alta de un nuevo curso.
+     */
     @GetMapping("/curso/nuevo")
     public String nuevoCursoForm(Model model, Authentication auth) {
         model.addAttribute("usuario", (Usuario) auth.getPrincipal());
@@ -83,6 +79,13 @@ public class DocenteController {
         return "pages/docente/nuevo-curso";
     }
 
+    /**
+     * CU-02 — Registrar curso por parte del docente.
+     * Reglas de negocio:
+     * - Campos obligatorios (nombre, descripción, precio, categoría).
+     * - Precio mayor o igual a cero (Excepción CU-02, paso 5).
+     * - Creación automática de programa y dictado asignado al docente.
+     */
     @PostMapping("/curso/guardar")
     public String guardarCurso(@RequestParam("nombre") String nombre,
                                @RequestParam("descripcion") String descripcion,
@@ -94,13 +97,13 @@ public class DocenteController {
         Optional<Categoria> catOpt = categoriaService.buscarPorId(categoriaId);
 
         if (catOpt.isEmpty()) {
-            redirectAttributes.addFlashAttribute("mensaje", "Categoría no válida.");
+            redirectAttributes.addFlashAttribute("mensaje", "CU-02 Excepción paso 4: Categoría seleccionada inválida.");
             return "redirect:/docente/curso/nuevo";
         }
 
         Docente docente = docenteRepository.findById(usuarioAuth.getId()).orElse(null);
         if (docente == null) {
-            redirectAttributes.addFlashAttribute("mensaje", "Error: perfil de docente no encontrado.");
+            redirectAttributes.addFlashAttribute("mensaje", "Error: Perfil docente no encontrado.");
             return "redirect:/docente";
         }
 
@@ -116,8 +119,9 @@ public class DocenteController {
         return "redirect:/docente";
     }
 
-    // ─── Gestión de Unidades y Materiales de un Curso ─────────────────────────
-
+    /**
+     * CU-19 a CU-28 — Vista para gestionar unidades, materiales y estructura temática de un curso.
+     */
     @GetMapping("/curso/{cursoId}/gestionar")
     public String gestionarCurso(@PathVariable Integer cursoId, Model model, Authentication auth,
                                   RedirectAttributes redirectAttributes) {
@@ -148,8 +152,9 @@ public class DocenteController {
         return "pages/docente/gestionar-curso";
     }
 
-    // ─── Glosario de una Unidad ───────────────────────────────────────────────
-
+    /**
+     * CU-29 — Consultar glosario de términos de una unidad temática.
+     */
     @GetMapping("/unidad/{unidadId}/glosario")
     public String gestionarGlosario(@PathVariable Integer unidadId, Model model, Authentication auth,
                                      RedirectAttributes redirectAttributes) {
@@ -179,6 +184,9 @@ public class DocenteController {
         return "pages/docente/glosario";
     }
 
+    /**
+     * CU-30 — Registrar término de glosario.
+     */
     @PostMapping("/unidad/{unidadId}/glosario/guardar")
     public String guardarTerminoGlosario(@PathVariable Integer unidadId,
                                           @RequestParam("termino") String termino,

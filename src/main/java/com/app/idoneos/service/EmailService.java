@@ -14,9 +14,7 @@ import jakarta.mail.internet.MimeMessage;
 
 /**
  * Servicio centralizado de notificaciones por correo electrónico (MOD-NF-01).
- * Cada método corresponde a un evento del sistema definido en los casos de uso.
- * El envío es asincrónico (@Async) para no bloquear el flujo principal.
- * Si el mail no está configurado, registra el evento en el log (fail-safe).
+ * Corresponde a la emisión de notificaciones de los Casos de Uso (CU-75, CU-86, CU-45, CU-91, PA-1 a PA-9).
  */
 @Service
 public class EmailService {
@@ -31,10 +29,6 @@ public class EmailService {
 
     @Value("${idoneos.mail.from.name:Idóneos Online}")
     private String fromName;
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // Método interno de envío
-    // ─────────────────────────────────────────────────────────────────────────
 
     @Async
     public void enviar(String para, String asunto, String htmlBody) {
@@ -56,10 +50,9 @@ public class EmailService {
         }
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // CU-67: Validación de cuenta al registrarse
-    // ─────────────────────────────────────────────────────────────────────────
-
+    /**
+     * CU-75 — Envío de enlace de validación de correo electrónico.
+     */
     public void enviarValidacionCuenta(Usuario usuario, String urlValidacion) {
         String asunto = "Validá tu cuenta en Idóneos Online";
         String html = html(
@@ -67,15 +60,14 @@ public class EmailService {
                 "Para activar tu cuenta hacé clic en el siguiente botón:",
                 urlValidacion,
                 "Validar mi cuenta",
-                "El enlace tiene validez de 24 horas. Si no lo solicitaste, ignorá este mensaje."
+                "El enlace tiene validez de 24 horas."
         );
         enviar(usuario.getCorreo(), asunto, html);
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // CU-35 / PA-2: Confirmación de pago y habilitación de acceso
-    // ─────────────────────────────────────────────────────────────────────────
-
+    /**
+     * CU-45 / PA-2 — Envío de confirmación de pago e inscripción activa.
+     */
     public void enviarConfirmacionPago(Usuario alumno, Curso curso, Pago pago) {
         String asunto = "Pago acreditado — " + curso.getNombre();
         String html = html(
@@ -90,51 +82,47 @@ public class EmailService {
         enviar(alumno.getCorreo(), asunto, html);
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // CU-35: Pago rechazado
-    // ─────────────────────────────────────────────────────────────────────────
-
+    /**
+     * CU-45 — Envío de aviso por pago rechazado.
+     */
     public void enviarPagoRechazado(Usuario alumno, Curso curso) {
         String asunto = "Pago rechazado — " + curso.getNombre();
         String html = html(
                 "Tu pago no fue aprobado",
                 "Hola " + alumno.getNombre() + ", lamentablemente tu pago por el curso <strong>"
-                        + curso.getNombre() + "</strong> fue rechazado por la pasarela de pagos.",
+                        + curso.getNombre() + "</strong> fue rechazado.",
                 "/pago/checkout/" + curso.getId(),
                 "Intentar nuevamente",
-                "Si el problema persiste, contactanos en contacto@idoneos.online."
+                "Contactanos en contacto@idoneos.online si el problema persiste."
         );
         enviar(alumno.getCorreo(), asunto, html);
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // PA-2: Pago pendiente (sin confirmación dentro del plazo)
-    // ─────────────────────────────────────────────────────────────────────────
-
+    /**
+     * CU-45 — Envío de aviso por pago pendiente.
+     */
     public void enviarPagoPendiente(Usuario alumno, Curso curso) {
         String asunto = "Tu pago está pendiente de confirmación — " + curso.getNombre();
         String html = html(
                 "Pago en proceso",
                 "Hola " + alumno.getNombre() + ", tu pago por el curso <strong>" + curso.getNombre()
-                        + "</strong> está siendo procesado. Te notificaremos cuando se confirme.",
+                        + "</strong> está siendo procesado.",
                 "/cursos",
                 "Ver catálogo",
-                "Si tenés dudas, contactanos en contacto@idoneos.online."
+                "Te notificarémos cuando se acredite."
         );
         enviar(alumno.getCorreo(), asunto, html);
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // CU-36: Comprobante de pago
-    // ─────────────────────────────────────────────────────────────────────────
-
+    /**
+     * CU-45 — Envío de comprobante oficial de pago en PDF.
+     */
     public void enviarComprobante(Usuario alumno, Pago pago, Curso curso) {
         String asunto = "Comprobante de pago — " + curso.getNombre();
         String html = html(
                 "Tu comprobante de pago",
                 "Hola " + alumno.getNombre() + ", adjuntamos el comprobante N° <strong>"
-                        + pago.getNumeroComprobante() + "</strong> por tu inscripción al curso <strong>"
-                        + curso.getNombre() + "</strong>.",
+                        + pago.getNumeroComprobante() + "</strong>.",
                 "/cursos/" + curso.getId() + "/mi-cursada",
                 "Ir a mi cursada",
                 "Fecha de emisión: " + pago.getFechaEmisionComprobante()
@@ -142,33 +130,28 @@ public class EmailService {
         enviar(alumno.getCorreo(), asunto, html);
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // PA-6 / CU-53: Certificado de finalización emitido
-    // ─────────────────────────────────────────────────────────────────────────
-
+    /**
+     * CU-91 — Envío de notificación por certificado de finalización emitido.
+     */
     public void enviarCertificado(Usuario alumno, Inscripcion inscripcion, Curso curso) {
         String asunto = "Certificado de finalización — " + curso.getNombre();
         String html = html(
                 "Felicitaciones, completaste el curso",
                 "Hola " + alumno.getNombre() + ", aprobaste el curso <strong>" + curso.getNombre()
-                        + "</strong>. Tu certificado N° <strong>" + inscripcion.getNumeroCertificado() + "</strong> ya está disponible.",
+                        + "</strong>. Tu certificado N° <strong>" + inscripcion.getNumeroCertificado() + "</strong> está disponible.",
                 "/perfil/certificados",
                 "Ver mi certificado",
-                "Segui aprendiendo en Idóneos Online."
+                "Seguí aprendiendo en Idóneos Online."
         );
         enviar(alumno.getCorreo(), asunto, html);
     }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // PA-4: Grabación de clase en vivo disponible
-    // ─────────────────────────────────────────────────────────────────────────
 
     public void enviarGrabacionDisponible(Usuario alumno, ClaseEnVivo clase) {
         String asunto = "Grabación disponible — " + clase.getTitulo();
         String html = html(
                 "La grabación ya está disponible",
                 "Hola " + alumno.getNombre() + ", la grabación de la clase <strong>"
-                        + clase.getTitulo() + "</strong> ya está disponible en tu cursada.",
+                        + clase.getTitulo() + "</strong> ya está disponible.",
                 "/cursos/" + clase.getUnidad().getCurso().getId() + "/mi-cursada",
                 "Ver grabación",
                 "Disponible por tiempo limitado."
@@ -176,16 +159,12 @@ public class EmailService {
         enviar(alumno.getCorreo(), asunto, html);
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // PA-4: Aviso de vencimiento próximo de grabación
-    // ─────────────────────────────────────────────────────────────────────────
-
     public void enviarAvisoVencimientoGrabacion(Usuario alumno, ClaseEnVivo clase, int diasRestantes) {
         String asunto = "Grabación por vencer — " + clase.getTitulo();
         String html = html(
                 "Tu grabación vence pronto",
                 "Hola " + alumno.getNombre() + ", la grabación de <strong>" + clase.getTitulo()
-                        + "</strong> vence en <strong>" + diasRestantes + " días</strong>. Descargala antes que expire.",
+                        + "</strong> vence en <strong>" + diasRestantes + " días</strong>.",
                 "/cursos/" + clase.getUnidad().getCurso().getId() + "/mi-cursada",
                 "Ver grabación",
                 ""
@@ -193,18 +172,16 @@ public class EmailService {
         enviar(alumno.getCorreo(), asunto, html);
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // CU-58: Clase en vivo programada (notificación a alumnos)
-    // ─────────────────────────────────────────────────────────────────────────
-
+    /**
+     * CU-62 / PA-8 — Notificación a alumnos de nueva clase en vivo programada.
+     */
     public void enviarClaseProgramada(Usuario alumno, ClaseEnVivo clase) {
         String asunto = "Nueva clase en vivo — " + clase.getTitulo();
         String html = html(
                 "Se programó una nueva clase en vivo",
-                "Hola " + alumno.getNombre() + ", el docente programó la clase <strong>"
+                "Hola " + alumno.getNombre() + ", se programó la clase <strong>"
                         + clase.getTitulo() + "</strong> para el <strong>"
-                        + clase.getFechaHora().toLocalDate() + "</strong> a las <strong>"
-                        + clase.getFechaHora().toLocalTime() + "</strong>.",
+                        + clase.getFechaHora().toLocalDate() + "</strong>.",
                 "/cursos/" + clase.getUnidad().getCurso().getId() + "/mi-cursada",
                 "Ver mi cursada",
                 ""
@@ -212,10 +189,9 @@ public class EmailService {
         enviar(alumno.getCorreo(), asunto, html);
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // CU-24: Nueva consulta en foro (notificación al docente)
-    // ─────────────────────────────────────────────────────────────────────────
-
+    /**
+     * CU-34 — Notificación al docente de nueva consulta en el foro.
+     */
     public void enviarNuevaConsultaForo(String emailDocente, ConsultaForo consulta) {
         String asunto = "Nueva consulta en el foro — " + consulta.getUnidad().getTitulo();
         String html = html(
@@ -231,10 +207,9 @@ public class EmailService {
         enviar(emailDocente, asunto, html);
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // CU-28: Nueva respuesta en foro (notificación al alumno)
-    // ─────────────────────────────────────────────────────────────────────────
-
+    /**
+     * CU-38 — Notificación al alumno de nueva respuesta del docente en el foro.
+     */
     public void enviarNuevaRespuestaForo(RespuestaForo respuesta) {
         ConsultaForo consulta = respuesta.getConsulta();
         Usuario alumno = consulta.getUsuario();
@@ -251,16 +226,15 @@ public class EmailService {
         enviar(alumno.getCorreo(), asunto, html);
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // CU-56 / PA-5: Clase Clon IA generada
-    // ─────────────────────────────────────────────────────────────────────────
-
+    /**
+     * CU-72 / PA-7 — Notificación al docente de clase con Avatar Clon IA generada.
+     */
     public void enviarClaseClonIAGenerada(Usuario docente, ClaseClonIA clase) {
         String asunto = "Tu clase con Clon IA fue generada — " + clase.getTitulo();
         String html = html(
                 "Clase con Clon IA lista",
                 "Hola " + docente.getNombre() + ", la clase <strong>" + clase.getTitulo()
-                        + "</strong> fue generada correctamente. Está disponible en estado oculto para tu revisión.",
+                        + "</strong> fue generada. Disponible en estado oculto para tu revisión.",
                 "/docente",
                 "Ir a mi panel",
                 "Publicala cuando esté lista."
@@ -268,51 +242,39 @@ public class EmailService {
         enviar(docente.getCorreo(), asunto, html);
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // CU-74: Bienvenida a docente recién registrado
-    // ─────────────────────────────────────────────────────────────────────────
-
+    /**
+     * CU-82 — Enviar bienvenida a docente registrado por el administrador.
+     */
     public void enviarBienvenidaDocente(Usuario docente, String urlDefinirContrasena) {
         String asunto = "Bienvenido a Idóneos Online — Activá tu cuenta docente";
         String html = html(
                 "Tu cuenta docente fue creada",
-                "Hola " + docente.getNombre() + " " + docente.getApellido() + ", el equipo de Idóneos Online creó tu cuenta como docente. "
-                        + "Hacé clic en el botón para definir tu contraseña y acceder a la plataforma.",
+                "Hola " + docente.getNombre() + " " + docente.getApellido() + ", el equipo de Idóneos Online creó tu cuenta como docente.",
                 urlDefinirContrasena,
                 "Definir mi contraseña",
-                "Si tenés dudas, contactanos en sistemas@idoneos.online."
+                "Contactanos en sistemas@idoneos.online si tenés dudas."
         );
         enviar(docente.getCorreo(), asunto, html);
     }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // CU-75: Notificación de suspensión de habilitación
-    // ─────────────────────────────────────────────────────────────────────────
 
     public void enviarSuspensionDocente(Usuario docente) {
         String asunto = "Aviso: tu habilitación como docente fue suspendida temporalmente";
         String html = html(
                 "Suspensión temporal de habilitación",
-                "Hola " + docente.getNombre() + ", la administración de Idóneos Online ha suspendido temporalmente "
-                        + "tu habilitación para dictar clases. Tu cuenta y tu historial permanecen intactos.",
+                "Hola " + docente.getNombre() + ", tu habilitación para dictar clases fue suspendida temporalmente.",
                 null,
                 null,
-                "Para más información, contactate con la administración en sistemas@idoneos.online."
+                "Contactate con la administración en sistemas@idoneos.online."
         );
         enviar(docente.getCorreo(), asunto, html);
     }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // PA-7/8/9: Contenido IA generado (resumen, presentación, banco)
-    // ─────────────────────────────────────────────────────────────────────────
 
     public void enviarContenidoIAGenerado(Usuario docente, String tipoContenido, String tituloUnidad) {
         String asunto = "Contenido IA generado — " + tipoContenido + " - " + tituloUnidad;
         String html = html(
                 tipoContenido + " generado con IA",
                 "Hola " + docente.getNombre() + ", el " + tipoContenido.toLowerCase()
-                        + " para la unidad <strong>" + tituloUnidad
-                        + "</strong> fue generado exitosamente. Está en estado oculto para tu revisión.",
+                        + " para la unidad <strong>" + tituloUnidad + "</strong> fue generado exitosamente.",
                 "/docente",
                 "Ir a mi panel",
                 "Publicalo cuando esté listo."
@@ -331,10 +293,6 @@ public class EmailService {
         );
         enviar(emailAlumno, asunto, html);
     }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // Plantilla HTML base para todos los emails
-    // ─────────────────────────────────────────────────────────────────────────
 
     private String html(String titulo, String cuerpo, String urlBoton, String textoBoton, String nota) {
         String botonHtml = (urlBoton != null && textoBoton != null)

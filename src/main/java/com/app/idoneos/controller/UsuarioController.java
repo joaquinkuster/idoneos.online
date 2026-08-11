@@ -16,7 +16,8 @@ import com.app.idoneos.model.Usuario;
 import com.app.idoneos.service.Usuario.UsuarioServiceImpl;
 
 /**
- * Control del perfil y contraseñas de usuarios en Idóneos Online.
+ * Controller para la gestión del perfil de usuario y cambio de credenciales.
+ * Mapea la trazabilidad funcional de CU-80 (Ver perfil), CU-81 (Editar perfil) y CU-86 (Cambiar contraseña).
  */
 @Controller
 @RequestMapping("/usuario")
@@ -27,6 +28,9 @@ public class UsuarioController {
 
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
+    /**
+     * CU-80 — Ver perfil del usuario autenticado.
+     */
     @GetMapping("/verPerfil")
     public String verPerfil(Model modelo, Authentication auth) {
         modelo.addAttribute("usuario", (Usuario) auth.getPrincipal());
@@ -34,6 +38,12 @@ public class UsuarioController {
         return "pages/perfil/verPerfil";
     }
 
+    /**
+     * CU-81 — Editar perfil del usuario.
+     * Reglas de negocio:
+     * - Campos obligatorios: nombre, apellido, correo.
+     * - Actualización de contexto de seguridad tras modificación.
+     */
     @PostMapping("/modificar/{id}")
     public String modificarPerfil(@PathVariable int id,
                                   @RequestParam(name = "nombre") String nombre,
@@ -43,7 +53,7 @@ public class UsuarioController {
         try {
             Usuario usuario = usuarioService.buscarPorId(id).orElse(null);
             if (usuario == null) {
-                throw new IllegalArgumentException("Error! El usuario ingresado no existe.");
+                throw new IllegalArgumentException("CU-81 Excepción: El usuario especificado no existe.");
             }
 
             usuario.setNombre(nombre);
@@ -64,6 +74,9 @@ public class UsuarioController {
         }
     }
 
+    /**
+     * CU-86 — Ver formulario de cambio de contraseña.
+     */
     @GetMapping("/cambiarContrasena")
     public String verFormularioCambiarContrasena(Model modelo, Authentication auth) {
         modelo.addAttribute("usuario", (Usuario) auth.getPrincipal());
@@ -71,6 +84,12 @@ public class UsuarioController {
         return "pages/perfil/cambiarContrasena";
     }
 
+    /**
+     * CU-86 — Cambiar contraseña.
+     * Reglas de negocio:
+     * - Coincidencia de la contraseña actual introducida.
+     * - Coincidencia entre la nueva contraseña y su repetición.
+     */
     @PostMapping("/cambiarContrasena/{id}")
     public String cambiarContrasena(@PathVariable int id,
                                     @RequestParam(name = "actual") String actual,
@@ -82,15 +101,15 @@ public class UsuarioController {
             Usuario usuario = usuarioService.buscarPorId(id).orElse(null);
 
             if (usuario == null) {
-                throw new IllegalArgumentException("Error! El usuario ingresado no existe.");
+                throw new IllegalArgumentException("CU-86 Excepción: El usuario especificado no existe.");
             }
 
             if (!passwordEncoder.matches(actual, usuario.getContrasena())) {
-                throw new BadCredentialsException("La contraseña actual ingresada es incorrecta.");
+                throw new BadCredentialsException("CU-86 Excepción paso 4: La contraseña actual es incorrecta.");
             }
 
             if (!nueva.equals(nuevaRepetida)) {
-                throw new IllegalArgumentException("Las contraseñas nuevas no coinciden.");
+                throw new IllegalArgumentException("CU-86 Excepción paso 5: Las contraseñas nuevas no coinciden.");
             }
 
             usuario.setContrasena(passwordEncoder.encode(nueva));

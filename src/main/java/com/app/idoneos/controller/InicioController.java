@@ -16,17 +16,17 @@ import com.app.idoneos.service.Categoria.CategoriaServiceImpl;
 import com.app.idoneos.service.Curso.CursoServiceImpl;
 
 /**
- * Controlador principal para la página de inicio y estáticas de Idóneos Online.
+ * Controller principal para la página institucional de bienvenida y catálogo público (CU-01).
  */
 @Controller
 public class InicioController {
 
-    @Autowired
-    private CategoriaServiceImpl categoriaService;
+    @Autowired private CategoriaServiceImpl categoriaService;
+    @Autowired private CursoServiceImpl cursoService;
 
-    @Autowired
-    private CursoServiceImpl cursoService;
-
+    /**
+     * CU-01 — Página principal con catálogo público de cursos destacados y categorías de finanzas.
+     */
     @GetMapping({"/", "/inicio"})
     public String verInicio(@RequestParam(value = "login", required = false) String login, Model model, Authentication auth) {
         if (login != null) {
