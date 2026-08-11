@@ -4,11 +4,12 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 /**
- * Entidad Reporte: Informe consolidado generado por un Administrador (ej. Alumnos inscriptos, Ingresos).
+ * Entidad Reporte: Informe consolidado generado por un Administrador (ej.
+ * Alumnos inscriptos, Ingresos).
  * Mapea directamente a la tabla "Reporte" en base_datos.sql.
  */
 @Entity
-@Table(name = "\"Reporte\"")
+@Table(name = "Reporte")
 public class Reporte {
 
     /** Identificador único del reporte. */
@@ -31,7 +32,8 @@ public class Reporte {
     @JoinColumn(name = "administrador_id")
     private Administrador administrador;
 
-    public Reporte() {}
+    public Reporte() {
+    }
 
     public Reporte(TipoReporte tipoReporte, Administrador administrador) {
         this.tipoReporte = tipoReporte;
@@ -39,15 +41,35 @@ public class Reporte {
         this.fechaGeneracion = LocalDateTime.now();
     }
 
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+    public int getId() {
+        return id;
+    }
 
-    public LocalDateTime getFechaGeneracion() { return fechaGeneracion; }
-    public void setFechaGeneracion(LocalDateTime fechaGeneracion) { this.fechaGeneracion = fechaGeneracion; }
+    public void setId(int id) {
+        this.id = id;
+    }
 
-    public TipoReporte getTipoReporte() { return tipoReporte; }
-    public void setTipoReporte(TipoReporte tipoReporte) { this.tipoReporte = tipoReporte; }
+    public LocalDateTime getFechaGeneracion() {
+        return fechaGeneracion;
+    }
 
-    public Administrador getAdministrador() { return administrador; }
-    public void setAdministrador(Administrador administrador) { this.administrador = administrador; }
+    public void setFechaGeneracion(LocalDateTime fechaGeneracion) {
+        this.fechaGeneracion = fechaGeneracion;
+    }
+
+    public TipoReporte getTipoReporte() {
+        return tipoReporte;
+    }
+
+    public void setTipoReporte(TipoReporte tipoReporte) {
+        this.tipoReporte = tipoReporte;
+    }
+
+    public Administrador getAdministrador() {
+        return administrador;
+    }
+
+    public void setAdministrador(Administrador administrador) {
+        this.administrador = administrador;
+    }
 }

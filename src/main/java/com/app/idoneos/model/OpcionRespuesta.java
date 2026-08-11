@@ -3,11 +3,12 @@ package com.app.idoneos.model;
 import jakarta.persistence.*;
 
 /**
- * Entidad OpciónRespuesta: Opción elegible dentro de una Pregunta de autoevaluación.
+ * Entidad OpciónRespuesta: Opción elegible dentro de una Pregunta de
+ * autoevaluación.
  * Mapea directamente a la tabla "OpcionRespuesta" en base_datos.sql.
  */
 @Entity
-@Table(name = "\"OpcionRespuesta\"")
+@Table(name = "OpcionRespuesta")
 public class OpcionRespuesta {
 
     /** Identificador único de la opción de respuesta. */
@@ -33,7 +34,8 @@ public class OpcionRespuesta {
     @JoinColumn(name = "pregunta_id")
     private Pregunta pregunta;
 
-    public OpcionRespuesta() {}
+    public OpcionRespuesta() {
+    }
 
     public OpcionRespuesta(String texto, boolean esCorrecta, Pregunta pregunta) {
         this.texto = texto;
@@ -41,20 +43,51 @@ public class OpcionRespuesta {
         this.pregunta = pregunta;
     }
 
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+    public int getId() {
+        return id;
+    }
 
-    public String getTexto() { return texto; }
-    public void setTexto(String texto) { this.texto = texto; }
+    public void setId(int id) {
+        this.id = id;
+    }
 
-    public boolean isEsCorrecta() { return esCorrecta; }
-    public boolean getEsCorrecta() { return esCorrecta; }
-    public void setEsCorrecta(boolean esCorrecta) { this.esCorrecta = esCorrecta; }
+    public String getTexto() {
+        return texto;
+    }
 
-    public boolean isBaja() { return baja; }
-    public boolean getBaja() { return baja; }
-    public void setBaja(boolean baja) { this.baja = baja; }
+    public void setTexto(String texto) {
+        this.texto = texto;
+    }
 
-    public Pregunta getPregunta() { return pregunta; }
-    public void setPregunta(Pregunta pregunta) { this.pregunta = pregunta; }
+    public boolean isEsCorrecta() {
+        return esCorrecta;
+    }
+
+    public boolean getEsCorrecta() {
+        return esCorrecta;
+    }
+
+    public void setEsCorrecta(boolean esCorrecta) {
+        this.esCorrecta = esCorrecta;
+    }
+
+    public boolean isBaja() {
+        return baja;
+    }
+
+    public boolean getBaja() {
+        return baja;
+    }
+
+    public void setBaja(boolean baja) {
+        this.baja = baja;
+    }
+
+    public Pregunta getPregunta() {
+        return pregunta;
+    }
+
+    public void setPregunta(Pregunta pregunta) {
+        this.pregunta = pregunta;
+    }
 }

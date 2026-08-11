@@ -4,11 +4,12 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 /**
- * Entidad Pool: Banco de preguntas de evaluación asociado a una Unidad temática.
+ * Entidad Pool: Banco de preguntas de evaluación asociado a una Unidad
+ * temática.
  * Mapea directamente a la tabla "Pool" en base_datos.sql.
  */
 @Entity
-@Table(name = "\"Pool\"")
+@Table(name = "Pool")
 public class Pool {
 
     /** Identificador único del pool de preguntas. */
@@ -38,7 +39,8 @@ public class Pool {
     @JoinColumn(name = "unidad_id")
     private Unidad unidad;
 
-    public Pool() {}
+    public Pool() {
+    }
 
     public Pool(String nombre, Unidad unidad) {
         this.nombre = nombre;
@@ -46,22 +48,55 @@ public class Pool {
         this.fechaCreacion = LocalDateTime.now();
     }
 
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+    public int getId() {
+        return id;
+    }
 
-    public String getNombre() { return nombre; }
-    public void setNombre(String nombre) { this.nombre = nombre; }
+    public void setId(int id) {
+        this.id = id;
+    }
 
-    public LocalDateTime getFechaCreacion() { return fechaCreacion; }
-    public void setFechaCreacion(LocalDateTime fechaCreacion) { this.fechaCreacion = fechaCreacion; }
+    public String getNombre() {
+        return nombre;
+    }
 
-    public LocalDateTime getUltimaModificacion() { return ultimaModificacion; }
-    public void setUltimaModificacion(LocalDateTime ultimaModificacion) { this.ultimaModificacion = ultimaModificacion; }
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
 
-    public boolean isBaja() { return baja; }
-    public boolean getBaja() { return baja; }
-    public void setBaja(boolean baja) { this.baja = baja; }
+    public LocalDateTime getFechaCreacion() {
+        return fechaCreacion;
+    }
 
-    public Unidad getUnidad() { return unidad; }
-    public void setUnidad(Unidad unidad) { this.unidad = unidad; }
+    public void setFechaCreacion(LocalDateTime fechaCreacion) {
+        this.fechaCreacion = fechaCreacion;
+    }
+
+    public LocalDateTime getUltimaModificacion() {
+        return ultimaModificacion;
+    }
+
+    public void setUltimaModificacion(LocalDateTime ultimaModificacion) {
+        this.ultimaModificacion = ultimaModificacion;
+    }
+
+    public boolean isBaja() {
+        return baja;
+    }
+
+    public boolean getBaja() {
+        return baja;
+    }
+
+    public void setBaja(boolean baja) {
+        this.baja = baja;
+    }
+
+    public Unidad getUnidad() {
+        return unidad;
+    }
+
+    public void setUnidad(Unidad unidad) {
+        this.unidad = unidad;
+    }
 }

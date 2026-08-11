@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
  * Mapea directamente a la tabla "IntentoAutoevaluacion" en base_datos.sql.
  */
 @Entity
-@Table(name = "\"IntentoAutoevaluacion\"")
+@Table(name = "IntentoAutoevaluacion")
 public class IntentoAutoevaluacion {
 
     /** Identificador único del intento de autoevaluación. */

@@ -3,11 +3,12 @@ package com.app.idoneos.model;
 import jakarta.persistence.*;
 
 /**
- * Entidad Rol: Catálogo de roles de seguridad del sistema (Alumno, Docente, Administrador).
+ * Entidad Rol: Catálogo de roles de seguridad del sistema (Alumno, Docente,
+ * Administrador).
  * Mapea directamente a la tabla "Rol" en base_datos.sql.
  */
 @Entity
-@Table(name = "\"Rol\"")
+@Table(name = "Rol")
 public class Rol {
 
     /** Identificador único del rol. */
@@ -20,15 +21,26 @@ public class Rol {
     @Column(name = "nombre", length = 50)
     private String nombre;
 
-    public Rol() {}
+    public Rol() {
+    }
 
     public Rol(String nombre) {
         this.nombre = nombre;
     }
 
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+    public int getId() {
+        return id;
+    }
 
-    public String getNombre() { return nombre; }
-    public void setNombre(String nombre) { this.nombre = nombre; }
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
 }

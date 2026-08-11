@@ -4,11 +4,12 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 /**
- * Entidad Sesión: Registro de inicios y cierres de sesión de un usuario con trazabilidad de IP y dispositivo.
+ * Entidad Sesión: Registro de inicios y cierres de sesión de un usuario con
+ * trazabilidad de IP y dispositivo.
  * Mapea directamente a la tabla "Sesion" en base_datos.sql.
  */
 @Entity
-@Table(name = "\"Sesion\"")
+@Table(name = "Sesion")
 public class Sesion {
 
     /** Identificador único de la sesión. */
@@ -42,26 +43,62 @@ public class Sesion {
     @JoinColumn(name = "usuario_id")
     private Usuario usuario;
 
-    public Sesion() {}
+    public Sesion() {
+    }
 
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+    public int getId() {
+        return id;
+    }
 
-    public String getToken() { return token; }
-    public void setToken(String token) { this.token = token; }
+    public void setId(int id) {
+        this.id = id;
+    }
 
-    public LocalDateTime getFechaInicio() { return fechaInicio; }
-    public void setFechaInicio(LocalDateTime fechaInicio) { this.fechaInicio = fechaInicio; }
+    public String getToken() {
+        return token;
+    }
 
-    public LocalDateTime getFechaFin() { return fechaFin; }
-    public void setFechaFin(LocalDateTime fechaFin) { this.fechaFin = fechaFin; }
+    public void setToken(String token) {
+        this.token = token;
+    }
 
-    public String getIp() { return ip; }
-    public void setIp(String ip) { this.ip = ip; }
+    public LocalDateTime getFechaInicio() {
+        return fechaInicio;
+    }
 
-    public String getDispositivo() { return dispositivo; }
-    public void setDispositivo(String dispositivo) { this.dispositivo = dispositivo; }
+    public void setFechaInicio(LocalDateTime fechaInicio) {
+        this.fechaInicio = fechaInicio;
+    }
 
-    public Usuario getUsuario() { return usuario; }
-    public void setUsuario(Usuario usuario) { this.usuario = usuario; }
+    public LocalDateTime getFechaFin() {
+        return fechaFin;
+    }
+
+    public void setFechaFin(LocalDateTime fechaFin) {
+        this.fechaFin = fechaFin;
+    }
+
+    public String getIp() {
+        return ip;
+    }
+
+    public void setIp(String ip) {
+        this.ip = ip;
+    }
+
+    public String getDispositivo() {
+        return dispositivo;
+    }
+
+    public void setDispositivo(String dispositivo) {
+        this.dispositivo = dispositivo;
+    }
+
+    public Usuario getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
+    }
 }

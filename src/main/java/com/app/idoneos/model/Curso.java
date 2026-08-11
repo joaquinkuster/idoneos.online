@@ -10,7 +10,7 @@ import java.util.List;
  * Mapea directamente a la tabla "Curso" en base_datos.sql.
  */
 @Entity
-@Table(name = "\"Curso\"")
+@Table(name = "Curso")
 public class Curso {
 
     /** Identificador único del curso. */
@@ -63,7 +63,8 @@ public class Curso {
     @Transient
     private int mesesAcceso = 12;
 
-    public Curso() {}
+    public Curso() {
+    }
 
     public Curso(String nombre, String descripcion, float precio, Categoria categoria) {
         this.nombre = nombre;
@@ -73,41 +74,107 @@ public class Curso {
         this.fechaCreacion = LocalDateTime.now();
     }
 
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+    public int getId() {
+        return id;
+    }
 
-    public String getNombre() { return nombre; }
-    public void setNombre(String nombre) { this.nombre = nombre; }
+    public void setId(int id) {
+        this.id = id;
+    }
 
-    public String getDescripcion() { return descripcion; }
-    public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
+    public String getNombre() {
+        return nombre;
+    }
 
-    public float getPrecio() { return precio; }
-    public void setPrecio(float precio) { this.precio = precio; }
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
 
-    public String getImagen() { return imagen; }
-    public void setImagen(String imagen) { this.imagen = imagen; }
+    public String getDescripcion() {
+        return descripcion;
+    }
 
-    public boolean isPublicado() { return publicado; }
-    public boolean getPublicado() { return publicado; }
-    public void setPublicado(boolean publicado) { this.publicado = publicado; }
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion;
+    }
 
-    public LocalDateTime getFechaCreacion() { return fechaCreacion; }
-    public void setFechaCreacion(LocalDateTime fechaCreacion) { this.fechaCreacion = fechaCreacion; }
+    public float getPrecio() {
+        return precio;
+    }
 
-    public LocalDateTime getUltimaModificacion() { return ultimaModificacion; }
-    public void setUltimaModificacion(LocalDateTime ultimaModificacion) { this.ultimaModificacion = ultimaModificacion; }
+    public void setPrecio(float precio) {
+        this.precio = precio;
+    }
 
-    public boolean isBaja() { return baja; }
-    public boolean getBaja() { return baja; }
-    public void setBaja(boolean baja) { this.baja = baja; }
+    public String getImagen() {
+        return imagen;
+    }
 
-    public Categoria getCategoria() { return categoria; }
-    public void setCategoria(Categoria categoria) { this.categoria = categoria; }
+    public void setImagen(String imagen) {
+        this.imagen = imagen;
+    }
 
-    public List<Programa> getProgramas() { return programas; }
-    public void setProgramas(List<Programa> programas) { this.programas = programas; }
+    public boolean isPublicado() {
+        return publicado;
+    }
 
-    public int getMesesAcceso() { return mesesAcceso; }
-    public void setMesesAcceso(int mesesAcceso) { this.mesesAcceso = mesesAcceso; }
+    public boolean getPublicado() {
+        return publicado;
+    }
+
+    public void setPublicado(boolean publicado) {
+        this.publicado = publicado;
+    }
+
+    public LocalDateTime getFechaCreacion() {
+        return fechaCreacion;
+    }
+
+    public void setFechaCreacion(LocalDateTime fechaCreacion) {
+        this.fechaCreacion = fechaCreacion;
+    }
+
+    public LocalDateTime getUltimaModificacion() {
+        return ultimaModificacion;
+    }
+
+    public void setUltimaModificacion(LocalDateTime ultimaModificacion) {
+        this.ultimaModificacion = ultimaModificacion;
+    }
+
+    public boolean isBaja() {
+        return baja;
+    }
+
+    public boolean getBaja() {
+        return baja;
+    }
+
+    public void setBaja(boolean baja) {
+        this.baja = baja;
+    }
+
+    public Categoria getCategoria() {
+        return categoria;
+    }
+
+    public void setCategoria(Categoria categoria) {
+        this.categoria = categoria;
+    }
+
+    public List<Programa> getProgramas() {
+        return programas;
+    }
+
+    public void setProgramas(List<Programa> programas) {
+        this.programas = programas;
+    }
+
+    public int getMesesAcceso() {
+        return mesesAcceso;
+    }
+
+    public void setMesesAcceso(int mesesAcceso) {
+        this.mesesAcceso = mesesAcceso;
+    }
 }

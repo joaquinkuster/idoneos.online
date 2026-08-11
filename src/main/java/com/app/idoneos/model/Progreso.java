@@ -4,11 +4,12 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 /**
- * Entidad Progreso: Seguimiento del estado de avance de un alumno sobre las unidades de un curso/dictado.
+ * Entidad Progreso: Seguimiento del estado de avance de un alumno sobre las
+ * unidades de un curso/dictado.
  * Mapea directamente a la tabla "Progreso" en base_datos.sql.
  */
 @Entity
-@Table(name = "\"Progreso\"")
+@Table(name = "Progreso")
 public class Progreso {
 
     /** Identificador único del registro de progreso. */
@@ -35,7 +36,8 @@ public class Progreso {
     @JoinColumn(name = "inscripcion_id")
     private Inscripcion inscripcion;
 
-    public Progreso() {}
+    public Progreso() {
+    }
 
     public Progreso(Inscripcion inscripcion, Unidad unidad, boolean completada) {
         this.inscripcion = inscripcion;
@@ -46,20 +48,51 @@ public class Progreso {
         }
     }
 
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+    public int getId() {
+        return id;
+    }
 
-    public boolean isCompletada() { return completada; }
-    public boolean getCompletada() { return completada; }
-    public void setCompletada(boolean completada) { this.completada = completada; }
+    public void setId(int id) {
+        this.id = id;
+    }
 
-    public LocalDateTime getFechaCompletada() { return fechaCompletada; }
-    public void setFechaCompletada(LocalDateTime fechaCompletada) { this.fechaCompletada = fechaCompletada; }
-    public void setFechaCompletado(java.time.LocalDate f) { this.fechaCompletada = f != null ? f.atStartOfDay() : null; }
+    public boolean isCompletada() {
+        return completada;
+    }
 
-    public Unidad getUnidad() { return unidad; }
-    public void setUnidad(Unidad unidad) { this.unidad = unidad; }
+    public boolean getCompletada() {
+        return completada;
+    }
 
-    public Inscripcion getInscripcion() { return inscripcion; }
-    public void setInscripcion(Inscripcion inscripcion) { this.inscripcion = inscripcion; }
+    public void setCompletada(boolean completada) {
+        this.completada = completada;
+    }
+
+    public LocalDateTime getFechaCompletada() {
+        return fechaCompletada;
+    }
+
+    public void setFechaCompletada(LocalDateTime fechaCompletada) {
+        this.fechaCompletada = fechaCompletada;
+    }
+
+    public void setFechaCompletado(java.time.LocalDate f) {
+        this.fechaCompletada = f != null ? f.atStartOfDay() : null;
+    }
+
+    public Unidad getUnidad() {
+        return unidad;
+    }
+
+    public void setUnidad(Unidad unidad) {
+        this.unidad = unidad;
+    }
+
+    public Inscripcion getInscripcion() {
+        return inscripcion;
+    }
+
+    public void setInscripcion(Inscripcion inscripcion) {
+        this.inscripcion = inscripcion;
+    }
 }

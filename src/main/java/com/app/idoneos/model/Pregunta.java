@@ -7,7 +7,7 @@ import jakarta.persistence.*;
  * Mapea directamente a la tabla "Pregunta" en base_datos.sql.
  */
 @Entity
-@Table(name = "\"Pregunta\"")
+@Table(name = "Pregunta")
 public class Pregunta {
 
     /** Identificador único de la pregunta. */
@@ -33,7 +33,8 @@ public class Pregunta {
     @JoinColumn(name = "pool_id")
     private Pool pool;
 
-    public Pregunta() {}
+    public Pregunta() {
+    }
 
     public Pregunta(String texto, boolean esOpcionMultiple, Pool pool) {
         this.texto = texto;
@@ -41,20 +42,51 @@ public class Pregunta {
         this.pool = pool;
     }
 
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+    public int getId() {
+        return id;
+    }
 
-    public String getTexto() { return texto; }
-    public void setTexto(String texto) { this.texto = texto; }
+    public void setId(int id) {
+        this.id = id;
+    }
 
-    public boolean isEsOpcionMultiple() { return esOpcionMultiple; }
-    public boolean getEsOpcionMultiple() { return esOpcionMultiple; }
-    public void setEsOpcionMultiple(boolean esOpcionMultiple) { this.esOpcionMultiple = esOpcionMultiple; }
+    public String getTexto() {
+        return texto;
+    }
 
-    public boolean isBaja() { return baja; }
-    public boolean getBaja() { return baja; }
-    public void setBaja(boolean baja) { this.baja = baja; }
+    public void setTexto(String texto) {
+        this.texto = texto;
+    }
 
-    public Pool getPool() { return pool; }
-    public void setPool(Pool pool) { this.pool = pool; }
+    public boolean isEsOpcionMultiple() {
+        return esOpcionMultiple;
+    }
+
+    public boolean getEsOpcionMultiple() {
+        return esOpcionMultiple;
+    }
+
+    public void setEsOpcionMultiple(boolean esOpcionMultiple) {
+        this.esOpcionMultiple = esOpcionMultiple;
+    }
+
+    public boolean isBaja() {
+        return baja;
+    }
+
+    public boolean getBaja() {
+        return baja;
+    }
+
+    public void setBaja(boolean baja) {
+        this.baja = baja;
+    }
+
+    public Pool getPool() {
+        return pool;
+    }
+
+    public void setPool(Pool pool) {
+        this.pool = pool;
+    }
 }

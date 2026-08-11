@@ -7,7 +7,7 @@ import jakarta.persistence.*;
  * Permite asignar un equipo docente a un dictado puntual de un programa.
  */
 @Entity
-@Table(name = "\"Dictado Docente\"")
+@Table(name = "DictadoDocente")
 public class DictadoDocente {
 
     @Id
@@ -30,12 +30,14 @@ public class DictadoDocente {
     private Docente docente;
 
     /**
-     * Distingue si el docente participa como supervisor (false) o titular (true) del dictado.
+     * Distingue si el docente participa como supervisor (false) o titular (true)
+     * del dictado.
      */
     @Column(name = "es_supervisor")
     private boolean esSupervisor = false;
 
-    public DictadoDocente() {}
+    public DictadoDocente() {
+    }
 
     public DictadoDocente(Dictado dictado, Docente docente, boolean esSupervisor) {
         this.dictado = dictado;
@@ -43,16 +45,39 @@ public class DictadoDocente {
         this.esSupervisor = esSupervisor;
     }
 
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+    public int getId() {
+        return id;
+    }
 
-    public Dictado getDictado() { return dictado; }
-    public void setDictado(Dictado dictado) { this.dictado = dictado; }
+    public void setId(int id) {
+        this.id = id;
+    }
 
-    public Docente getDocente() { return docente; }
-    public void setDocente(Docente docente) { this.docente = docente; }
+    public Dictado getDictado() {
+        return dictado;
+    }
 
-    public boolean isEsSupervisor() { return esSupervisor; }
-    public boolean getEsSupervisor() { return esSupervisor; }
-    public void setEsSupervisor(boolean esSupervisor) { this.esSupervisor = esSupervisor; }
+    public void setDictado(Dictado dictado) {
+        this.dictado = dictado;
+    }
+
+    public Docente getDocente() {
+        return docente;
+    }
+
+    public void setDocente(Docente docente) {
+        this.docente = docente;
+    }
+
+    public boolean isEsSupervisor() {
+        return esSupervisor;
+    }
+
+    public boolean getEsSupervisor() {
+        return esSupervisor;
+    }
+
+    public void setEsSupervisor(boolean esSupervisor) {
+        this.esSupervisor = esSupervisor;
+    }
 }

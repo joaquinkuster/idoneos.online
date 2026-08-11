@@ -10,7 +10,7 @@ import java.util.List;
  * Organiza las unidades temáticas y los dictados de clases.
  */
 @Entity
-@Table(name = "programa")
+@Table(name = "Programa")
 public class Programa {
 
     /** Identificador único del programa. */
@@ -56,7 +56,8 @@ public class Programa {
     @OneToMany(mappedBy = "programa", cascade = CascadeType.ALL)
     private List<Unidad> unidades = new ArrayList<>();
 
-    public Programa() {}
+    public Programa() {
+    }
 
     public Programa(String nombre, String descripcion, int mesesAcceso, Curso curso) {
         this.nombre = nombre;
@@ -66,34 +67,87 @@ public class Programa {
         this.fechaCreacion = LocalDateTime.now();
     }
 
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+    public int getId() {
+        return id;
+    }
 
-    public String getNombre() { return nombre; }
-    public void setNombre(String nombre) { this.nombre = nombre; }
+    public void setId(int id) {
+        this.id = id;
+    }
 
-    public String getDescripcion() { return descripcion; }
-    public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
+    public String getNombre() {
+        return nombre;
+    }
 
-    public int getMesesAcceso() { return mesesAcceso; }
-    public void setMesesAcceso(int mesesAcceso) { this.mesesAcceso = mesesAcceso; }
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
 
-    public LocalDateTime getFechaCreacion() { return fechaCreacion; }
-    public void setFechaCreacion(LocalDateTime fechaCreacion) { this.fechaCreacion = fechaCreacion; }
+    public String getDescripcion() {
+        return descripcion;
+    }
 
-    public LocalDateTime getUltimaModificacion() { return ultimaModificacion; }
-    public void setUltimaModificacion(LocalDateTime ultimaModificacion) { this.ultimaModificacion = ultimaModificacion; }
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion;
+    }
 
-    public boolean isBaja() { return baja; }
-    public boolean getBaja() { return baja; }
-    public void setBaja(boolean baja) { this.baja = baja; }
+    public int getMesesAcceso() {
+        return mesesAcceso;
+    }
 
-    public Curso getCurso() { return curso; }
-    public void setCurso(Curso curso) { this.curso = curso; }
+    public void setMesesAcceso(int mesesAcceso) {
+        this.mesesAcceso = mesesAcceso;
+    }
 
-    public List<Dictado> getDictados() { return dictados; }
-    public void setDictados(List<Dictado> dictados) { this.dictados = dictados; }
+    public LocalDateTime getFechaCreacion() {
+        return fechaCreacion;
+    }
 
-    public List<Unidad> getUnidades() { return unidades; }
-    public void setUnidades(List<Unidad> unidades) { this.unidades = unidades; }
+    public void setFechaCreacion(LocalDateTime fechaCreacion) {
+        this.fechaCreacion = fechaCreacion;
+    }
+
+    public LocalDateTime getUltimaModificacion() {
+        return ultimaModificacion;
+    }
+
+    public void setUltimaModificacion(LocalDateTime ultimaModificacion) {
+        this.ultimaModificacion = ultimaModificacion;
+    }
+
+    public boolean isBaja() {
+        return baja;
+    }
+
+    public boolean getBaja() {
+        return baja;
+    }
+
+    public void setBaja(boolean baja) {
+        this.baja = baja;
+    }
+
+    public Curso getCurso() {
+        return curso;
+    }
+
+    public void setCurso(Curso curso) {
+        this.curso = curso;
+    }
+
+    public List<Dictado> getDictados() {
+        return dictados;
+    }
+
+    public void setDictados(List<Dictado> dictados) {
+        this.dictados = dictados;
+    }
+
+    public List<Unidad> getUnidades() {
+        return unidades;
+    }
+
+    public void setUnidades(List<Unidad> unidades) {
+        this.unidades = unidades;
+    }
 }

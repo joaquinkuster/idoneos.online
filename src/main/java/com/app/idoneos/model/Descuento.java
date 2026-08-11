@@ -4,11 +4,12 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 /**
- * Entidad Descuento: Reglas promocionales o cupones aplicables al precio de inscripción de un curso.
+ * Entidad Descuento: Reglas promocionales o cupones aplicables al precio de
+ * inscripción de un curso.
  * Mapea directamente a la tabla "Descuento" en base_datos.sql.
  */
 @Entity
-@Table(name = "\"Descuento\"")
+@Table(name = "Descuento")
 public class Descuento {
 
     /** Identificador único del descuento. */
@@ -57,41 +58,100 @@ public class Descuento {
     @Column(name = "baja", nullable = false)
     private boolean baja = false;
 
-    public Descuento() {}
+    public Descuento() {
+    }
 
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+    public int getId() {
+        return id;
+    }
 
-    public String getNombre() { return nombre; }
-    public void setNombre(String nombre) { this.nombre = nombre; }
+    public void setId(int id) {
+        this.id = id;
+    }
 
-    public int getCursosRequeridos() { return cursosRequeridos; }
-    public void setCursosRequeridos(int cursosRequeridos) { this.cursosRequeridos = cursosRequeridos; }
+    public String getNombre() {
+        return nombre;
+    }
 
-    public float getPorcentaje() { return porcentaje; }
-    public void setPorcentaje(float porcentaje) { this.porcentaje = porcentaje; }
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
 
-    public LocalDateTime getVigenciaDesde() { return vigenciaDesde; }
-    public void setVigenciaDesde(LocalDateTime vigenciaDesde) { this.vigenciaDesde = vigenciaDesde; }
+    public int getCursosRequeridos() {
+        return cursosRequeridos;
+    }
 
-    public LocalDateTime getVigenciaHasta() { return vigenciaHasta; }
-    public void setVigenciaHasta(LocalDateTime vigenciaHasta) { this.vigenciaHasta = vigenciaHasta; }
+    public void setCursosRequeridos(int cursosRequeridos) {
+        this.cursosRequeridos = cursosRequeridos;
+    }
 
-    public int getCantidadLimite() { return cantidadLimite; }
-    public void setCantidadLimite(int cantidadLimite) { this.cantidadLimite = cantidadLimite; }
+    public float getPorcentaje() {
+        return porcentaje;
+    }
 
-    public int getCantidadUsada() { return cantidadUsada; }
-    public void setCantidadUsada(int cantidadUsada) { this.cantidadUsada = cantidadUsada; }
+    public void setPorcentaje(float porcentaje) {
+        this.porcentaje = porcentaje;
+    }
 
-    public LocalDateTime getFechaCreacion() { return fechaCreacion; }
-    public void setFechaCreacion(LocalDateTime fechaCreacion) { this.fechaCreacion = fechaCreacion; }
+    public LocalDateTime getVigenciaDesde() {
+        return vigenciaDesde;
+    }
 
-    public LocalDateTime getUltimaModificacion() { return ultimaModificacion; }
-    public void setUltimaModificacion(LocalDateTime ultimaModificacion) { this.ultimaModificacion = ultimaModificacion; }
+    public void setVigenciaDesde(LocalDateTime vigenciaDesde) {
+        this.vigenciaDesde = vigenciaDesde;
+    }
 
-    public boolean isBaja() { return baja; }
-    public boolean getBaja() { return baja; }
-    public void setBaja(boolean baja) { this.baja = baja; }
+    public LocalDateTime getVigenciaHasta() {
+        return vigenciaHasta;
+    }
+
+    public void setVigenciaHasta(LocalDateTime vigenciaHasta) {
+        this.vigenciaHasta = vigenciaHasta;
+    }
+
+    public int getCantidadLimite() {
+        return cantidadLimite;
+    }
+
+    public void setCantidadLimite(int cantidadLimite) {
+        this.cantidadLimite = cantidadLimite;
+    }
+
+    public int getCantidadUsada() {
+        return cantidadUsada;
+    }
+
+    public void setCantidadUsada(int cantidadUsada) {
+        this.cantidadUsada = cantidadUsada;
+    }
+
+    public LocalDateTime getFechaCreacion() {
+        return fechaCreacion;
+    }
+
+    public void setFechaCreacion(LocalDateTime fechaCreacion) {
+        this.fechaCreacion = fechaCreacion;
+    }
+
+    public LocalDateTime getUltimaModificacion() {
+        return ultimaModificacion;
+    }
+
+    public void setUltimaModificacion(LocalDateTime ultimaModificacion) {
+        this.ultimaModificacion = ultimaModificacion;
+    }
+
+    public boolean isBaja() {
+        return baja;
+    }
+
+    public boolean getBaja() {
+        return baja;
+    }
+
+    public void setBaja(boolean baja) {
+        this.baja = baja;
+    }
 
     public boolean estaVigente() {
         LocalDateTime ahora = LocalDateTime.now();

@@ -6,11 +6,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Entidad Unidad: Subdivisión de un Programa de estudios. Nodo central del que depende el contenido.
+ * Entidad Unidad: Subdivisión de un Programa de estudios. Nodo central del que
+ * depende el contenido.
  * Mapea directamente a la tabla "Unidad" en base_datos.sql.
  */
 @Entity
-@Table(name = "\"Unidad\"")
+@Table(name = "Unidad")
 public class Unidad {
 
     /** Identificador único de la unidad temática. */
@@ -72,7 +73,8 @@ public class Unidad {
     @OneToMany(mappedBy = "unidad", cascade = CascadeType.ALL)
     private List<ClaseClonIA> clasesClonIA = new ArrayList<>();
 
-    public Unidad() {}
+    public Unidad() {
+    }
 
     public Unidad(String titulo, String descripcion, int numeroOrden, Programa programa) {
         this.titulo = titulo;
@@ -92,50 +94,123 @@ public class Unidad {
         this.fechaCreacion = LocalDateTime.now();
     }
 
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+    public int getId() {
+        return id;
+    }
 
-    public String getTitulo() { return titulo; }
-    public void setTitulo(String titulo) { this.titulo = titulo; }
+    public void setId(int id) {
+        this.id = id;
+    }
 
-    public String getDescripcion() { return descripcion; }
-    public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
+    public String getTitulo() {
+        return titulo;
+    }
 
-    public int getNumeroOrden() { return numeroOrden; }
-    public void setNumeroOrden(int numeroOrden) { this.numeroOrden = numeroOrden; }
+    public void setTitulo(String titulo) {
+        this.titulo = titulo;
+    }
 
-    public LocalDateTime getFechaCreacion() { return fechaCreacion; }
-    public void setFechaCreacion(LocalDateTime fechaCreacion) { this.fechaCreacion = fechaCreacion; }
+    public String getDescripcion() {
+        return descripcion;
+    }
 
-    public LocalDateTime getUltimaModificacion() { return ultimaModificacion; }
-    public void setUltimaModificacion(LocalDateTime ultimaModificacion) { this.ultimaModificacion = ultimaModificacion; }
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion;
+    }
 
-    public boolean isBaja() { return baja; }
-    public boolean getBaja() { return baja; }
-    public void setBaja(boolean baja) { this.baja = baja; }
+    public int getNumeroOrden() {
+        return numeroOrden;
+    }
 
-    public Programa getPrograma() { return programa; }
-    public void setPrograma(Programa programa) { this.programa = programa; }
+    public void setNumeroOrden(int numeroOrden) {
+        this.numeroOrden = numeroOrden;
+    }
+
+    public LocalDateTime getFechaCreacion() {
+        return fechaCreacion;
+    }
+
+    public void setFechaCreacion(LocalDateTime fechaCreacion) {
+        this.fechaCreacion = fechaCreacion;
+    }
+
+    public LocalDateTime getUltimaModificacion() {
+        return ultimaModificacion;
+    }
+
+    public void setUltimaModificacion(LocalDateTime ultimaModificacion) {
+        this.ultimaModificacion = ultimaModificacion;
+    }
+
+    public boolean isBaja() {
+        return baja;
+    }
+
+    public boolean getBaja() {
+        return baja;
+    }
+
+    public void setBaja(boolean baja) {
+        this.baja = baja;
+    }
+
+    public Programa getPrograma() {
+        return programa;
+    }
+
+    public void setPrograma(Programa programa) {
+        this.programa = programa;
+    }
 
     public Curso getCurso() {
         return programa != null ? programa.getCurso() : null;
     }
 
-    public List<Material> getMateriales() { return materiales; }
-    public void setMateriales(List<Material> materiales) { this.materiales = materiales; }
+    public List<Material> getMateriales() {
+        return materiales;
+    }
 
-    public List<TerminoGlosario> getGlosario() { return glosario; }
-    public void setGlosario(List<TerminoGlosario> glosario) { this.glosario = glosario; }
+    public void setMateriales(List<Material> materiales) {
+        this.materiales = materiales;
+    }
 
-    public List<Pool> getPools() { return pools; }
-    public void setPools(List<Pool> pools) { this.pools = pools; }
+    public List<TerminoGlosario> getGlosario() {
+        return glosario;
+    }
 
-    public List<Autoevaluacion> getAutoevaluaciones() { return autoevaluaciones; }
-    public void setAutoevaluaciones(List<Autoevaluacion> autoevaluaciones) { this.autoevaluaciones = autoevaluaciones; }
+    public void setGlosario(List<TerminoGlosario> glosario) {
+        this.glosario = glosario;
+    }
 
-    public List<ClaseEnVivo> getClasesEnVivo() { return clasesEnVivo; }
-    public void setClasesEnVivo(List<ClaseEnVivo> clasesEnVivo) { this.clasesEnVivo = clasesEnVivo; }
+    public List<Pool> getPools() {
+        return pools;
+    }
 
-    public List<ClaseClonIA> getClasesClonIA() { return clasesClonIA; }
-    public void setClasesClonIA(List<ClaseClonIA> clasesClonIA) { this.clasesClonIA = clasesClonIA; }
+    public void setPools(List<Pool> pools) {
+        this.pools = pools;
+    }
+
+    public List<Autoevaluacion> getAutoevaluaciones() {
+        return autoevaluaciones;
+    }
+
+    public void setAutoevaluaciones(List<Autoevaluacion> autoevaluaciones) {
+        this.autoevaluaciones = autoevaluaciones;
+    }
+
+    public List<ClaseEnVivo> getClasesEnVivo() {
+        return clasesEnVivo;
+    }
+
+    public void setClasesEnVivo(List<ClaseEnVivo> clasesEnVivo) {
+        this.clasesEnVivo = clasesEnVivo;
+    }
+
+    public List<ClaseClonIA> getClasesClonIA() {
+        return clasesClonIA;
+    }
+
+    public void setClasesClonIA(List<ClaseClonIA> clasesClonIA) {
+        this.clasesClonIA = clasesClonIA;
+    }
 }

@@ -4,11 +4,12 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 /**
- * Entidad Material: Archivo o contenido de lectura genérico de una Unidad (Grabación, Bibliografía, Presentación, Resumen).
+ * Entidad Material: Archivo o contenido de lectura genérico de una Unidad
+ * (Grabación, Bibliografía, Presentación, Resumen).
  * Mapea directamente a la tabla "Material" en base_datos.sql.
  */
 @Entity
-@Table(name = "\"Material\"")
+@Table(name = "Material")
 public class Material {
 
     /** Identificador único del material. */
@@ -25,7 +26,9 @@ public class Material {
     @Column(name = "ruta_archivo", length = 150)
     private String rutaArchivo;
 
-    /** Contenido textual si el material se presenta en texto directo (ej. Resumen). */
+    /**
+     * Contenido textual si el material se presenta en texto directo (ej. Resumen).
+     */
     @Column(name = "contenido", length = 500)
     private String contenido;
 
@@ -66,7 +69,10 @@ public class Material {
     @JoinColumn(name = "unidad_id")
     private Unidad unidad;
 
-    /** Tipo o categoría de material (Grabación, Bibliografía, Presentación, Resumen). */
+    /**
+     * Tipo o categoría de material (Grabación, Bibliografía, Presentación,
+     * Resumen).
+     */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tipo_material_id")
     private TipoMaterial tipoMaterial;
@@ -76,7 +82,8 @@ public class Material {
     @JoinColumn(name = "docente_id", nullable = true)
     private Docente docente;
 
-    public Material() {}
+    public Material() {
+    }
 
     public Material(TipoMaterial tipoMaterial, String titulo, String rutaArchivo, Unidad unidad) {
         this.tipoMaterial = tipoMaterial;
@@ -87,54 +94,143 @@ public class Material {
         this.fechaCreacion = LocalDateTime.now();
     }
 
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+    public int getId() {
+        return id;
+    }
 
-    public String getTitulo() { return titulo; }
-    public void setTitulo(String titulo) { this.titulo = titulo; }
+    public void setId(int id) {
+        this.id = id;
+    }
 
-    public String getRutaArchivo() { return rutaArchivo; }
-    public void setRutaArchivo(String rutaArchivo) { this.rutaArchivo = rutaArchivo; }
+    public String getTitulo() {
+        return titulo;
+    }
 
-    public String getContenido() { return contenido; }
-    public void setContenido(String contenido) { this.contenido = contenido; }
+    public void setTitulo(String titulo) {
+        this.titulo = titulo;
+    }
 
-    public Integer getDuracion() { return duracion; }
-    public void setDuracion(Integer duracion) { this.duracion = duracion; }
+    public String getRutaArchivo() {
+        return rutaArchivo;
+    }
 
-    public String getAutor() { return autor; }
-    public void setAutor(String autor) { this.autor = autor; }
+    public void setRutaArchivo(String rutaArchivo) {
+        this.rutaArchivo = rutaArchivo;
+    }
 
-    public boolean isGeneradoPorIa() { return generadoPorIa; }
-    public boolean getGeneradoPorIa() { return generadoPorIa; }
-    public void setGeneradoPorIa(boolean generadoPorIa) { this.generadoPorIa = generadoPorIa; }
+    public String getContenido() {
+        return contenido;
+    }
 
-    public LocalDateTime getFechaCarga() { return fechaCarga; }
-    public void setFechaCarga(LocalDateTime fechaCarga) { this.fechaCarga = fechaCarga; }
+    public void setContenido(String contenido) {
+        this.contenido = contenido;
+    }
 
-    public boolean isPublicado() { return publicado; }
-    public boolean getPublicado() { return publicado; }
-    public void setPublicado(boolean publicado) { this.publicado = publicado; }
+    public Integer getDuracion() {
+        return duracion;
+    }
 
-    public LocalDateTime getFechaCreacion() { return fechaCreacion; }
-    public void setFechaCreacion(LocalDateTime fechaCreacion) { this.fechaCreacion = fechaCreacion; }
+    public void setDuracion(Integer duracion) {
+        this.duracion = duracion;
+    }
 
-    public LocalDateTime getUltimaModificacion() { return ultimaModificacion; }
-    public void setUltimaModificacion(LocalDateTime ultimaModificacion) { this.ultimaModificacion = ultimaModificacion; }
+    public String getAutor() {
+        return autor;
+    }
 
-    public boolean isBaja() { return baja; }
-    public boolean getBaja() { return baja; }
-    public void setBaja(boolean baja) { this.baja = baja; }
+    public void setAutor(String autor) {
+        this.autor = autor;
+    }
 
-    public Unidad getUnidad() { return unidad; }
-    public void setUnidad(Unidad unidad) { this.unidad = unidad; }
+    public boolean isGeneradoPorIa() {
+        return generadoPorIa;
+    }
 
-    public TipoMaterial getTipoMaterial() { return tipoMaterial; }
-    public void setTipoMaterial(TipoMaterial tipoMaterial) { this.tipoMaterial = tipoMaterial; }
+    public boolean getGeneradoPorIa() {
+        return generadoPorIa;
+    }
 
-    public Docente getDocente() { return docente; }
-    public void setDocente(Docente docente) { this.docente = docente; }
+    public void setGeneradoPorIa(boolean generadoPorIa) {
+        this.generadoPorIa = generadoPorIa;
+    }
 
-    public boolean isGeneradoPorIA() { return generadoPorIa; }
-    public void setGeneradoPorIA(boolean g) { this.generadoPorIa = g; }
+    public LocalDateTime getFechaCarga() {
+        return fechaCarga;
+    }
+
+    public void setFechaCarga(LocalDateTime fechaCarga) {
+        this.fechaCarga = fechaCarga;
+    }
+
+    public boolean isPublicado() {
+        return publicado;
+    }
+
+    public boolean getPublicado() {
+        return publicado;
+    }
+
+    public void setPublicado(boolean publicado) {
+        this.publicado = publicado;
+    }
+
+    public LocalDateTime getFechaCreacion() {
+        return fechaCreacion;
+    }
+
+    public void setFechaCreacion(LocalDateTime fechaCreacion) {
+        this.fechaCreacion = fechaCreacion;
+    }
+
+    public LocalDateTime getUltimaModificacion() {
+        return ultimaModificacion;
+    }
+
+    public void setUltimaModificacion(LocalDateTime ultimaModificacion) {
+        this.ultimaModificacion = ultimaModificacion;
+    }
+
+    public boolean isBaja() {
+        return baja;
+    }
+
+    public boolean getBaja() {
+        return baja;
+    }
+
+    public void setBaja(boolean baja) {
+        this.baja = baja;
+    }
+
+    public Unidad getUnidad() {
+        return unidad;
+    }
+
+    public void setUnidad(Unidad unidad) {
+        this.unidad = unidad;
+    }
+
+    public TipoMaterial getTipoMaterial() {
+        return tipoMaterial;
+    }
+
+    public void setTipoMaterial(TipoMaterial tipoMaterial) {
+        this.tipoMaterial = tipoMaterial;
+    }
+
+    public Docente getDocente() {
+        return docente;
+    }
+
+    public void setDocente(Docente docente) {
+        this.docente = docente;
+    }
+
+    public boolean isGeneradoPorIA() {
+        return generadoPorIa;
+    }
+
+    public void setGeneradoPorIA(boolean g) {
+        this.generadoPorIa = g;
+    }
 }

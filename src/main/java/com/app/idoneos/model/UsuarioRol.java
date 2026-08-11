@@ -3,11 +3,12 @@ package com.app.idoneos.model;
 import jakarta.persistence.*;
 
 /**
- * Entidad UsuarioRol: Tabla asociativa M a N entre Usuario y Rol ("Usuario Rol").
+ * Entidad UsuarioRol: Tabla asociativa M a N entre Usuario y Rol ("Usuario
+ * Rol").
  * Mapea directamente a la tabla "Usuario Rol" en base_datos.sql.
  */
 @Entity
-@Table(name = "\"Usuario Rol\"")
+@Table(name = "UsuarioRol")
 public class UsuarioRol {
 
     /** Identificador único de la vinculación usuario-rol. */
@@ -26,19 +27,35 @@ public class UsuarioRol {
     @JoinColumn(name = "rol_id", nullable = false)
     private Rol rol;
 
-    public UsuarioRol() {}
+    public UsuarioRol() {
+    }
 
     public UsuarioRol(Usuario usuario, Rol rol) {
         this.usuario = usuario;
         this.rol = rol;
     }
 
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+    public int getId() {
+        return id;
+    }
 
-    public Usuario getUsuario() { return usuario; }
-    public void setUsuario(Usuario usuario) { this.usuario = usuario; }
+    public void setId(int id) {
+        this.id = id;
+    }
 
-    public Rol getRol() { return rol; }
-    public void setRol(Rol rol) { this.rol = rol; }
+    public Usuario getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
+    }
+
+    public Rol getRol() {
+        return rol;
+    }
+
+    public void setRol(Rol rol) {
+        this.rol = rol;
+    }
 }

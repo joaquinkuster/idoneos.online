@@ -4,10 +4,11 @@ import jakarta.persistence.*;
 
 /**
  * Tabla asociativa M a N entre Pool de preguntas y Autoevaluación.
- * Permite que una autoevaluación incluya preguntas provenientes de múltiples pools.
+ * Permite que una autoevaluación incluya preguntas provenientes de múltiples
+ * pools.
  */
 @Entity
-@Table(name = "pool_autoevaluacion")
+@Table(name = "PoolAutoevaluacion")
 public class PoolAutoevaluacion {
 
     /** Identificador único del vínculo asociativo. */
@@ -26,19 +27,35 @@ public class PoolAutoevaluacion {
     @JoinColumn(name = "autoevaluacion_id", nullable = false)
     private Autoevaluacion autoevaluacion;
 
-    public PoolAutoevaluacion() {}
+    public PoolAutoevaluacion() {
+    }
 
     public PoolAutoevaluacion(Pool pool, Autoevaluacion autoevaluacion) {
         this.pool = pool;
         this.autoevaluacion = autoevaluacion;
     }
 
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+    public int getId() {
+        return id;
+    }
 
-    public Pool getPool() { return pool; }
-    public void setPool(Pool pool) { this.pool = pool; }
+    public void setId(int id) {
+        this.id = id;
+    }
 
-    public Autoevaluacion getAutoevaluacion() { return autoevaluacion; }
-    public void setAutoevaluacion(Autoevaluacion autoevaluacion) { this.autoevaluacion = autoevaluacion; }
+    public Pool getPool() {
+        return pool;
+    }
+
+    public void setPool(Pool pool) {
+        this.pool = pool;
+    }
+
+    public Autoevaluacion getAutoevaluacion() {
+        return autoevaluacion;
+    }
+
+    public void setAutoevaluacion(Autoevaluacion autoevaluacion) {
+        this.autoevaluacion = autoevaluacion;
+    }
 }

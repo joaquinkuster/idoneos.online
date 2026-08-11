@@ -4,11 +4,12 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 /**
- * Entidad ClaseClonIA: Clase asincrónica generada por avatar IA a partir de un guión docente.
+ * Entidad ClaseClonIA: Clase asincrónica generada por avatar IA a partir de un
+ * guión docente.
  * Mapea directamente a la tabla "ClaseClonIA" en base_datos.sql.
  */
 @Entity
-@Table(name = "\"ClaseClonIA\"")
+@Table(name = "ClaseClonIA")
 public class ClaseClonIA {
 
     /** Identificador único de la clase por avatar IA. */
@@ -21,7 +22,10 @@ public class ClaseClonIA {
     @Column(name = "titulo", nullable = false, length = 50)
     private String titulo;
 
-    /** Guión explicativo enviado al motor/proveedor de generación de video con IA (ej. HeyGen). */
+    /**
+     * Guión explicativo enviado al motor/proveedor de generación de video con IA
+     * (ej. HeyGen).
+     */
     @Column(name = "guion", nullable = false, columnDefinition = "text")
     private String guion;
 
@@ -33,7 +37,10 @@ public class ClaseClonIA {
     @Column(name = "baja", nullable = false)
     private boolean baja = false;
 
-    /** Estado del proceso asincrónico de generación de video (Pendiente, Generada, Error). */
+    /**
+     * Estado del proceso asincrónico de generación de video (Pendiente, Generada,
+     * Error).
+     */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "estado_clase_clon_ia_id")
     private EstadoClaseClonIA estadoClaseClonIA;
@@ -53,7 +60,8 @@ public class ClaseClonIA {
     @JoinColumn(name = "docente_id")
     private Docente docente;
 
-    public ClaseClonIA() {}
+    public ClaseClonIA() {
+    }
 
     public ClaseClonIA(String titulo, Unidad unidad, Docente docente, EstadoClaseClonIA estadoClaseClonIA) {
         this.titulo = titulo;
@@ -64,31 +72,79 @@ public class ClaseClonIA {
         this.fechaGeneracion = LocalDateTime.now();
     }
 
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+    public int getId() {
+        return id;
+    }
 
-    public String getTitulo() { return titulo; }
-    public void setTitulo(String titulo) { this.titulo = titulo; }
+    public void setId(int id) {
+        this.id = id;
+    }
 
-    public String getGuion() { return guion; }
-    public void setGuion(String guion) { this.guion = guion; }
+    public String getTitulo() {
+        return titulo;
+    }
 
-    public LocalDateTime getFechaGeneracion() { return fechaGeneracion; }
-    public void setFechaGeneracion(LocalDateTime fechaGeneracion) { this.fechaGeneracion = fechaGeneracion; }
+    public void setTitulo(String titulo) {
+        this.titulo = titulo;
+    }
 
-    public boolean isBaja() { return baja; }
-    public boolean getBaja() { return baja; }
-    public void setBaja(boolean baja) { this.baja = baja; }
+    public String getGuion() {
+        return guion;
+    }
 
-    public EstadoClaseClonIA getEstadoClaseClonIA() { return estadoClaseClonIA; }
-    public void setEstadoClaseClonIA(EstadoClaseClonIA estadoClaseClonIA) { this.estadoClaseClonIA = estadoClaseClonIA; }
+    public void setGuion(String guion) {
+        this.guion = guion;
+    }
 
-    public Material getMaterial() { return material; }
-    public void setMaterial(Material material) { this.material = material; }
+    public LocalDateTime getFechaGeneracion() {
+        return fechaGeneracion;
+    }
 
-    public Unidad getUnidad() { return unidad; }
-    public void setUnidad(Unidad unidad) { this.unidad = unidad; }
+    public void setFechaGeneracion(LocalDateTime fechaGeneracion) {
+        this.fechaGeneracion = fechaGeneracion;
+    }
 
-    public Docente getDocente() { return docente; }
-    public void setDocente(Docente docente) { this.docente = docente; }
+    public boolean isBaja() {
+        return baja;
+    }
+
+    public boolean getBaja() {
+        return baja;
+    }
+
+    public void setBaja(boolean baja) {
+        this.baja = baja;
+    }
+
+    public EstadoClaseClonIA getEstadoClaseClonIA() {
+        return estadoClaseClonIA;
+    }
+
+    public void setEstadoClaseClonIA(EstadoClaseClonIA estadoClaseClonIA) {
+        this.estadoClaseClonIA = estadoClaseClonIA;
+    }
+
+    public Material getMaterial() {
+        return material;
+    }
+
+    public void setMaterial(Material material) {
+        this.material = material;
+    }
+
+    public Unidad getUnidad() {
+        return unidad;
+    }
+
+    public void setUnidad(Unidad unidad) {
+        this.unidad = unidad;
+    }
+
+    public Docente getDocente() {
+        return docente;
+    }
+
+    public void setDocente(Docente docente) {
+        this.docente = docente;
+    }
 }

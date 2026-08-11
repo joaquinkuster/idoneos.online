@@ -17,7 +17,7 @@ import java.util.Set;
  * Subtipos: Alumno, Docente, Administrador.
  */
 @Entity
-@Table(name = "usuario")
+@Table(name = "Usuario")
 public class Usuario implements UserDetails {
 
     /** Identificador único del usuario. */
@@ -107,7 +107,8 @@ public class Usuario implements UserDetails {
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
     private List<Auditoria> auditorias = new ArrayList<>();
 
-    public Usuario() {}
+    public Usuario() {
+    }
 
     public Usuario(String nombre, String apellido, String correo, String contrasena, RolUsuario rol) {
         this.nombre = nombre;
@@ -118,61 +119,158 @@ public class Usuario implements UserDetails {
         this.emailValidado = true;
     }
 
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+    public int getId() {
+        return id;
+    }
 
-    public String getNombre() { return nombre; }
-    public void setNombre(String nombre) { this.nombre = nombre; }
+    public void setId(int id) {
+        this.id = id;
+    }
 
-    public String getApellido() { return apellido; }
-    public void setApellido(String apellido) { this.apellido = apellido; }
+    public String getNombre() {
+        return nombre;
+    }
 
-    public String getDni() { return dni; }
-    public void setDni(String dni) { this.dni = dni; }
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
 
-    public String getCorreo() { return correo; }
-    public void setCorreo(String correo) { this.correo = correo; }
+    public String getApellido() {
+        return apellido;
+    }
 
-    public String getContrasena() { return contrasena; }
-    public void setContrasena(String contrasena) { this.contrasena = contrasena; }
+    public void setApellido(String apellido) {
+        this.apellido = apellido;
+    }
 
-    public String getImagen() { return imagen; }
-    public void setImagen(String imagen) { this.imagen = imagen; }
+    public String getDni() {
+        return dni;
+    }
 
-    public String getTelefono() { return telefono; }
-    public void setTelefono(String telefono) { this.telefono = telefono; }
+    public void setDni(String dni) {
+        this.dni = dni;
+    }
 
-    public String getTokenRecuperacion() { return tokenRecuperacion; }
-    public void setTokenRecuperacion(String tokenRecuperacion) { this.tokenRecuperacion = tokenRecuperacion; }
+    public String getCorreo() {
+        return correo;
+    }
 
-    public LocalDateTime getExpiracionToken() { return expiracionToken; }
-    public void setExpiracionToken(LocalDateTime expiracionToken) { this.expiracionToken = expiracionToken; }
+    public void setCorreo(String correo) {
+        this.correo = correo;
+    }
 
-    public String getGoogleId() { return googleId; }
-    public void setGoogleId(String googleId) { this.googleId = googleId; }
+    public String getContrasena() {
+        return contrasena;
+    }
 
-    public boolean isEmailValidado() { return emailValidado; }
-    public boolean getEmailValidado() { return emailValidado; }
-    public void setEmailValidado(boolean emailValidado) { this.emailValidado = emailValidado; }
+    public void setContrasena(String contrasena) {
+        this.contrasena = contrasena;
+    }
 
-    public LocalDateTime getFechaRegistro() { return fechaRegistro; }
-    public void setFechaRegistro(LocalDateTime fechaRegistro) { this.fechaRegistro = fechaRegistro; }
+    public String getImagen() {
+        return imagen;
+    }
 
-    public boolean isBaja() { return baja; }
-    public boolean getBaja() { return baja; }
-    public void setBaja(boolean baja) { this.baja = baja; }
+    public void setImagen(String imagen) {
+        this.imagen = imagen;
+    }
 
-    public RolUsuario getRol() { return rol; }
-    public void setRol(RolUsuario rol) { this.rol = rol; }
+    public String getTelefono() {
+        return telefono;
+    }
 
-    public boolean esInactivo() { return baja; }
-    public boolean esDocente() { return rol == RolUsuario.Docente; }
-    public boolean esAlumno() { return rol == RolUsuario.Alumno; }
-    public boolean esAdmin() { return rol == RolUsuario.Administrador; }
-    public String getNombreCompleto() { return nombre + " " + apellido; }
+    public void setTelefono(String telefono) {
+        this.telefono = telefono;
+    }
+
+    public String getTokenRecuperacion() {
+        return tokenRecuperacion;
+    }
+
+    public void setTokenRecuperacion(String tokenRecuperacion) {
+        this.tokenRecuperacion = tokenRecuperacion;
+    }
+
+    public LocalDateTime getExpiracionToken() {
+        return expiracionToken;
+    }
+
+    public void setExpiracionToken(LocalDateTime expiracionToken) {
+        this.expiracionToken = expiracionToken;
+    }
+
+    public String getGoogleId() {
+        return googleId;
+    }
+
+    public void setGoogleId(String googleId) {
+        this.googleId = googleId;
+    }
+
+    public boolean isEmailValidado() {
+        return emailValidado;
+    }
+
+    public boolean getEmailValidado() {
+        return emailValidado;
+    }
+
+    public void setEmailValidado(boolean emailValidado) {
+        this.emailValidado = emailValidado;
+    }
+
+    public LocalDateTime getFechaRegistro() {
+        return fechaRegistro;
+    }
+
+    public void setFechaRegistro(LocalDateTime fechaRegistro) {
+        this.fechaRegistro = fechaRegistro;
+    }
+
+    public boolean isBaja() {
+        return baja;
+    }
+
+    public boolean getBaja() {
+        return baja;
+    }
+
+    public void setBaja(boolean baja) {
+        this.baja = baja;
+    }
+
+    public RolUsuario getRol() {
+        return rol;
+    }
+
+    public void setRol(RolUsuario rol) {
+        this.rol = rol;
+    }
+
+    public boolean esInactivo() {
+        return baja;
+    }
+
+    public boolean esDocente() {
+        return rol == RolUsuario.Docente;
+    }
+
+    public boolean esAlumno() {
+        return rol == RolUsuario.Alumno;
+    }
+
+    public boolean esAdmin() {
+        return rol == RolUsuario.Administrador;
+    }
+
+    public String getNombreCompleto() {
+        return nombre + " " + apellido;
+    }
 
     @Override
-    public String toString() { return getNombreCompleto(); }
+    public String toString() {
+        return getNombreCompleto();
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -180,38 +278,80 @@ public class Usuario implements UserDetails {
     }
 
     @Override
-    public String getPassword() { return contrasena; }
+    public String getPassword() {
+        return contrasena;
+    }
 
     @Override
-    public String getUsername() { return correo; }
+    public String getUsername() {
+        return correo;
+    }
 
     @Override
-    public boolean isAccountNonExpired() { return true; }
+    public boolean isAccountNonExpired() {
+        return true;
+    }
 
     @Override
-    public boolean isAccountNonLocked() { return true; }
+    public boolean isAccountNonLocked() {
+        return true;
+    }
 
     @Override
-    public boolean isCredentialsNonExpired() { return true; }
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
 
     @Override
-    public boolean isEnabled() { return !baja && emailValidado; }
+    public boolean isEnabled() {
+        return !baja && emailValidado;
+    }
 
-    public Alumno getAlumno() { return alumno; }
-    public void setAlumno(Alumno alumno) { this.alumno = alumno; }
+    public Alumno getAlumno() {
+        return alumno;
+    }
 
-    public Docente getDocente() { return docente; }
-    public void setDocente(Docente docente) { this.docente = docente; }
+    public void setAlumno(Alumno alumno) {
+        this.alumno = alumno;
+    }
 
-    public Administrador getAdministrador() { return administrador; }
-    public void setAdministrador(Administrador administrador) { this.administrador = administrador; }
+    public Docente getDocente() {
+        return docente;
+    }
 
-    public Set<UsuarioRol> getUsuarioRoles() { return usuarioRoles; }
-    public void setUsuarioRoles(Set<UsuarioRol> usuarioRoles) { this.usuarioRoles = usuarioRoles; }
+    public void setDocente(Docente docente) {
+        this.docente = docente;
+    }
 
-    public List<Sesion> getSesiones() { return sesiones; }
-    public void setSesiones(List<Sesion> sesiones) { this.sesiones = sesiones; }
+    public Administrador getAdministrador() {
+        return administrador;
+    }
 
-    public List<Auditoria> getAuditorias() { return auditorias; }
-    public void setAuditorias(List<Auditoria> auditorias) { this.auditorias = auditorias; }
+    public void setAdministrador(Administrador administrador) {
+        this.administrador = administrador;
+    }
+
+    public Set<UsuarioRol> getUsuarioRoles() {
+        return usuarioRoles;
+    }
+
+    public void setUsuarioRoles(Set<UsuarioRol> usuarioRoles) {
+        this.usuarioRoles = usuarioRoles;
+    }
+
+    public List<Sesion> getSesiones() {
+        return sesiones;
+    }
+
+    public void setSesiones(List<Sesion> sesiones) {
+        this.sesiones = sesiones;
+    }
+
+    public List<Auditoria> getAuditorias() {
+        return auditorias;
+    }
+
+    public void setAuditorias(List<Auditoria> auditorias) {
+        this.auditorias = auditorias;
+    }
 }

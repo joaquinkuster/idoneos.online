@@ -3,11 +3,12 @@ package com.app.idoneos.model;
 import jakarta.persistence.*;
 
 /**
- * Entidad TérminoGlosario: Término técnico estructurado con su definición asociado a una Unidad.
+ * Entidad TérminoGlosario: Término técnico estructurado con su definición
+ * asociado a una Unidad.
  * Mapea directamente a la tabla "TerminoGlosario" en base_datos.sql.
  */
 @Entity
-@Table(name = "\"TerminoGlosario\"")
+@Table(name = "TerminoGlosario")
 public class TerminoGlosario {
 
     /** Identificador único del término del glosario. */
@@ -33,7 +34,8 @@ public class TerminoGlosario {
     @JoinColumn(name = "unidad_id")
     private Unidad unidad;
 
-    public TerminoGlosario() {}
+    public TerminoGlosario() {
+    }
 
     public TerminoGlosario(String termino, String definicion, Unidad unidad) {
         this.termino = termino;
@@ -41,19 +43,47 @@ public class TerminoGlosario {
         this.unidad = unidad;
     }
 
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+    public int getId() {
+        return id;
+    }
 
-    public String getTermino() { return termino; }
-    public void setTermino(String termino) { this.termino = termino; }
+    public void setId(int id) {
+        this.id = id;
+    }
 
-    public String getDefinicion() { return definicion; }
-    public void setDefinicion(String definicion) { this.definicion = definicion; }
+    public String getTermino() {
+        return termino;
+    }
 
-    public boolean isBaja() { return baja; }
-    public boolean getBaja() { return baja; }
-    public void setBaja(boolean baja) { this.baja = baja; }
+    public void setTermino(String termino) {
+        this.termino = termino;
+    }
 
-    public Unidad getUnidad() { return unidad; }
-    public void setUnidad(Unidad unidad) { this.unidad = unidad; }
+    public String getDefinicion() {
+        return definicion;
+    }
+
+    public void setDefinicion(String definicion) {
+        this.definicion = definicion;
+    }
+
+    public boolean isBaja() {
+        return baja;
+    }
+
+    public boolean getBaja() {
+        return baja;
+    }
+
+    public void setBaja(boolean baja) {
+        this.baja = baja;
+    }
+
+    public Unidad getUnidad() {
+        return unidad;
+    }
+
+    public void setUnidad(Unidad unidad) {
+        this.unidad = unidad;
+    }
 }

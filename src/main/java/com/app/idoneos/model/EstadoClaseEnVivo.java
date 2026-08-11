@@ -8,7 +8,7 @@ import jakarta.persistence.*;
  * Mapea directamente a la tabla "EstadoClaseEnVIvo" en base_datos.sql.
  */
 @Entity
-@Table(name = "\"EstadoClaseEnVIvo\"")
+@Table(name = "EstadoClaseEnVIvo")
 public class EstadoClaseEnVivo {
 
     /** Identificador único del estado de transmisión en vivo. */

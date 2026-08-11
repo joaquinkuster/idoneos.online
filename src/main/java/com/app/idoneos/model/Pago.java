@@ -5,10 +5,11 @@ import java.time.LocalDateTime;
 
 /**
  * Entidad Pago: registra la transacción procesada.
- * Los datos del comprobante se guardan directamente como atributos de la entidad.
+ * Los datos del comprobante se guardan directamente como atributos de la
+ * entidad.
  */
 @Entity
-@Table(name = "\"Pago\"")
+@Table(name = "Pago")
 public class Pago {
 
     @Id
@@ -67,7 +68,8 @@ public class Pago {
     @JoinColumn(name = "metodo_pago_id")
     private MetodoPago metodoPago;
 
-    public Pago() {}
+    public Pago() {
+    }
 
     public Pago(double monto, Inscripcion inscripcion, EstadoPago estadoPago) {
         this.monto = monto;
@@ -76,60 +78,156 @@ public class Pago {
         this.fecha = LocalDateTime.now();
     }
 
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+    public int getId() {
+        return id;
+    }
 
-    public double getMonto() { return monto; }
-    public void setMonto(double monto) { this.monto = monto; }
+    public void setId(int id) {
+        this.id = id;
+    }
 
-    public LocalDateTime getFecha() { return fecha; }
-    public void setFecha(LocalDateTime fecha) { this.fecha = fecha; }
+    public double getMonto() {
+        return monto;
+    }
 
-    public String getPaymentRequest() { return paymentRequest; }
-    public void setPaymentRequest(String paymentRequest) { this.paymentRequest = paymentRequest; }
+    public void setMonto(double monto) {
+        this.monto = monto;
+    }
 
-    public String getExternalIntentionId() { return externalIntentionId; }
-    public void setExternalIntentionId(String externalIntentionId) { this.externalIntentionId = externalIntentionId; }
+    public LocalDateTime getFecha() {
+        return fecha;
+    }
 
-    public String getReferenceCode() { return referenceCode; }
-    public void setReferenceCode(String referenceCode) { this.referenceCode = referenceCode; }
+    public void setFecha(LocalDateTime fecha) {
+        this.fecha = fecha;
+    }
 
-    public String getTipoPago() { return tipoPago; }
-    public void setTipoPago(String tipoPago) { this.tipoPago = tipoPago; }
+    public String getPaymentRequest() {
+        return paymentRequest;
+    }
 
-    public String getUltimosDigitosTarjeta() { return ultimosDigitosTarjeta; }
-    public void setUltimosDigitosTarjeta(String ultimosDigitosTarjeta) { this.ultimosDigitosTarjeta = ultimosDigitosTarjeta; }
+    public void setPaymentRequest(String paymentRequest) {
+        this.paymentRequest = paymentRequest;
+    }
 
-    public String getDetalleEstado() { return detalleEstado; }
-    public void setDetalleEstado(String detalleEstado) { this.detalleEstado = detalleEstado; }
+    public String getExternalIntentionId() {
+        return externalIntentionId;
+    }
 
-    public LocalDateTime getFechaAprobacion() { return fechaAprobacion; }
-    public void setFechaAprobacion(LocalDateTime fechaAprobacion) { this.fechaAprobacion = fechaAprobacion; }
+    public void setExternalIntentionId(String externalIntentionId) {
+        this.externalIntentionId = externalIntentionId;
+    }
 
-    public String getNombrePagador() { return nombrePagador; }
-    public void setNombrePagador(String nombrePagador) { this.nombrePagador = nombrePagador; }
+    public String getReferenceCode() {
+        return referenceCode;
+    }
 
-    public String getNumeroComprobante() { return numeroComprobante; }
-    public void setNumeroComprobante(String numeroComprobante) { this.numeroComprobante = numeroComprobante; }
+    public void setReferenceCode(String referenceCode) {
+        this.referenceCode = referenceCode;
+    }
 
-    public LocalDateTime getFechaEmisionComprobante() { return fechaEmisionComprobante; }
-    public void setFechaEmisionComprobante(LocalDateTime fechaEmisionComprobante) { this.fechaEmisionComprobante = fechaEmisionComprobante; }
+    public String getTipoPago() {
+        return tipoPago;
+    }
 
-    public boolean isComprobanteEnviado() { return comprobanteEnviado; }
-    public boolean getComprobanteEnviado() { return comprobanteEnviado; }
-    public void setComprobanteEnviado(boolean comprobanteEnviado) { this.comprobanteEnviado = comprobanteEnviado; }
+    public void setTipoPago(String tipoPago) {
+        this.tipoPago = tipoPago;
+    }
 
-    public Inscripcion getInscripcion() { return inscripcion; }
-    public void setInscripcion(Inscripcion inscripcion) { this.inscripcion = inscripcion; }
+    public String getUltimosDigitosTarjeta() {
+        return ultimosDigitosTarjeta;
+    }
 
-    public EstadoPago getEstadoPago() { return estadoPago; }
-    public void setEstadoPago(EstadoPago estadoPago) { this.estadoPago = estadoPago; }
+    public void setUltimosDigitosTarjeta(String ultimosDigitosTarjeta) {
+        this.ultimosDigitosTarjeta = ultimosDigitosTarjeta;
+    }
 
-    public MetodoPago getMetodoPago() { return metodoPago; }
-    public void setMetodoPago(MetodoPago metodoPago) { this.metodoPago = metodoPago; }
+    public String getDetalleEstado() {
+        return detalleEstado;
+    }
+
+    public void setDetalleEstado(String detalleEstado) {
+        this.detalleEstado = detalleEstado;
+    }
+
+    public LocalDateTime getFechaAprobacion() {
+        return fechaAprobacion;
+    }
+
+    public void setFechaAprobacion(LocalDateTime fechaAprobacion) {
+        this.fechaAprobacion = fechaAprobacion;
+    }
+
+    public String getNombrePagador() {
+        return nombrePagador;
+    }
+
+    public void setNombrePagador(String nombrePagador) {
+        this.nombrePagador = nombrePagador;
+    }
+
+    public String getNumeroComprobante() {
+        return numeroComprobante;
+    }
+
+    public void setNumeroComprobante(String numeroComprobante) {
+        this.numeroComprobante = numeroComprobante;
+    }
+
+    public LocalDateTime getFechaEmisionComprobante() {
+        return fechaEmisionComprobante;
+    }
+
+    public void setFechaEmisionComprobante(LocalDateTime fechaEmisionComprobante) {
+        this.fechaEmisionComprobante = fechaEmisionComprobante;
+    }
+
+    public boolean isComprobanteEnviado() {
+        return comprobanteEnviado;
+    }
+
+    public boolean getComprobanteEnviado() {
+        return comprobanteEnviado;
+    }
+
+    public void setComprobanteEnviado(boolean comprobanteEnviado) {
+        this.comprobanteEnviado = comprobanteEnviado;
+    }
+
+    public Inscripcion getInscripcion() {
+        return inscripcion;
+    }
+
+    public void setInscripcion(Inscripcion inscripcion) {
+        this.inscripcion = inscripcion;
+    }
+
+    public EstadoPago getEstadoPago() {
+        return estadoPago;
+    }
+
+    public void setEstadoPago(EstadoPago estadoPago) {
+        this.estadoPago = estadoPago;
+    }
+
+    public MetodoPago getMetodoPago() {
+        return metodoPago;
+    }
+
+    public void setMetodoPago(MetodoPago metodoPago) {
+        this.metodoPago = metodoPago;
+    }
 
     // Aliases para compatibilidad
-    public void setPaymentId(String pId) { this.paymentRequest = pId; }
-    public void setPreferenceId(String pId) { this.externalIntentionId = pId; }
-    public void setEmailPagador(String email) { this.nombrePagador = email; }
+    public void setPaymentId(String pId) {
+        this.paymentRequest = pId;
+    }
+
+    public void setPreferenceId(String pId) {
+        this.externalIntentionId = pId;
+    }
+
+    public void setEmailPagador(String email) {
+        this.nombrePagador = email;
+    }
 }

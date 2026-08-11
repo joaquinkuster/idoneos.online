@@ -11,7 +11,7 @@ import java.util.List;
  * Gestiona parámetros del sistema y genera reportes.
  */
 @Entity
-@Table(name = "administrador")
+@Table(name = "Administrador")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -19,12 +19,17 @@ import java.util.List;
 @Builder
 public class Administrador {
 
-    /** Identificador único del administrador, mapeado con la clave primaria compartida de Usuario. */
+    /**
+     * Identificador único del administrador, mapeado con la clave primaria
+     * compartida de Usuario.
+     */
     @Id
     @Column(name = "id")
     private int id;
 
-    /** Relación uno a uno con la entidad base Usuario mediante claves compartidas. */
+    /**
+     * Relación uno a uno con la entidad base Usuario mediante claves compartidas.
+     */
     @OneToOne
     @MapsId
     @JoinColumn(name = "id")
@@ -35,7 +40,10 @@ public class Administrador {
     @OneToMany(mappedBy = "administrador", cascade = CascadeType.ALL)
     private List<Reporte> reportes = new ArrayList<>();
 
-    /** Lista de parámetros de configuración creados o modificados por este administrador. */
+    /**
+     * Lista de parámetros de configuración creados o modificados por este
+     * administrador.
+     */
     @Builder.Default
     @OneToMany(mappedBy = "administrador", cascade = CascadeType.ALL)
     private List<Configuracion> configuraciones = new ArrayList<>();

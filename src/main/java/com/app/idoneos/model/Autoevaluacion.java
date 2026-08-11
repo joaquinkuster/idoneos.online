@@ -6,11 +6,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Entidad Autoevaluación: Examen o prueba rrendible asociada a pools de preguntas de una Unidad.
+ * Entidad Autoevaluación: Examen o prueba rrendible asociada a pools de
+ * preguntas de una Unidad.
  * Mapea directamente a la tabla "Autoevaluacion" en base_datos.sql.
  */
 @Entity
-@Table(name = "\"Autoevaluacion\"")
+@Table(name = "Autoevaluacion")
 public class Autoevaluacion {
 
     /** Identificador único de la autoevaluación. */
@@ -27,11 +28,15 @@ public class Autoevaluacion {
     @Column(name = "tiempo_limite", nullable = false)
     private int tiempoLimite;
 
-    /** Cantidad máxima de intentos permitidos por alumno (nulo si no hay límite). */
+    /**
+     * Cantidad máxima de intentos permitidos por alumno (nulo si no hay límite).
+     */
     @Column(name = "intentos_permitidos")
     private Integer intentosPermitidos;
 
-    /** Fecha y hora a partir de la cual la autoevaluación se encuentra habilitada. */
+    /**
+     * Fecha y hora a partir de la cual la autoevaluación se encuentra habilitada.
+     */
     @Column(name = "fecha_apertura", nullable = false)
     private LocalDateTime fechaApertura = LocalDateTime.now();
 
@@ -60,7 +65,8 @@ public class Autoevaluacion {
     @OneToMany(mappedBy = "autoevaluacion", cascade = CascadeType.ALL)
     private List<PoolAutoevaluacion> pools = new ArrayList<>();
 
-    public Autoevaluacion() {}
+    public Autoevaluacion() {
+    }
 
     public Autoevaluacion(String nombre, int tiempoLimite, Integer intentosPermitidos, Unidad unidad) {
         this.nombre = nombre;
@@ -70,37 +76,95 @@ public class Autoevaluacion {
         this.fechaCreacion = LocalDateTime.now();
     }
 
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+    public int getId() {
+        return id;
+    }
 
-    public String getNombre() { return nombre; }
-    public void setNombre(String nombre) { this.nombre = nombre; }
+    public void setId(int id) {
+        this.id = id;
+    }
 
-    public int getTiempoLimite() { return tiempoLimite; }
-    public void setTiempoLimite(int tiempoLimite) { this.tiempoLimite = tiempoLimite; }
+    public String getNombre() {
+        return nombre;
+    }
 
-    public Integer getIntentosPermitidos() { return intentosPermitidos; }
-    public void setIntentosPermitidos(Integer intentosPermitidos) { this.intentosPermitidos = intentosPermitidos; }
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
 
-    public LocalDateTime getFechaApertura() { return fechaApertura; }
-    public void setFechaApertura(LocalDateTime fechaApertura) { this.fechaApertura = fechaApertura; }
+    public int getTiempoLimite() {
+        return tiempoLimite;
+    }
 
-    public LocalDateTime getFechaCierre() { return fechaCierre; }
-    public void setFechaCierre(LocalDateTime fechaCierre) { this.fechaCierre = fechaCierre; }
+    public void setTiempoLimite(int tiempoLimite) {
+        this.tiempoLimite = tiempoLimite;
+    }
 
-    public LocalDateTime getFechaCreacion() { return fechaCreacion; }
-    public void setFechaCreacion(LocalDateTime fechaCreacion) { this.fechaCreacion = fechaCreacion; }
+    public Integer getIntentosPermitidos() {
+        return intentosPermitidos;
+    }
 
-    public LocalDateTime getUltimaModificacion() { return ultimaModificacion; }
-    public void setUltimaModificacion(LocalDateTime ultimaModificacion) { this.ultimaModificacion = ultimaModificacion; }
+    public void setIntentosPermitidos(Integer intentosPermitidos) {
+        this.intentosPermitidos = intentosPermitidos;
+    }
 
-    public boolean isBaja() { return baja; }
-    public boolean getBaja() { return baja; }
-    public void setBaja(boolean baja) { this.baja = baja; }
+    public LocalDateTime getFechaApertura() {
+        return fechaApertura;
+    }
 
-    public Unidad getUnidad() { return unidad; }
-    public void setUnidad(Unidad unidad) { this.unidad = unidad; }
+    public void setFechaApertura(LocalDateTime fechaApertura) {
+        this.fechaApertura = fechaApertura;
+    }
 
-    public List<PoolAutoevaluacion> getPools() { return pools; }
-    public void setPools(List<PoolAutoevaluacion> pools) { this.pools = pools; }
+    public LocalDateTime getFechaCierre() {
+        return fechaCierre;
+    }
+
+    public void setFechaCierre(LocalDateTime fechaCierre) {
+        this.fechaCierre = fechaCierre;
+    }
+
+    public LocalDateTime getFechaCreacion() {
+        return fechaCreacion;
+    }
+
+    public void setFechaCreacion(LocalDateTime fechaCreacion) {
+        this.fechaCreacion = fechaCreacion;
+    }
+
+    public LocalDateTime getUltimaModificacion() {
+        return ultimaModificacion;
+    }
+
+    public void setUltimaModificacion(LocalDateTime ultimaModificacion) {
+        this.ultimaModificacion = ultimaModificacion;
+    }
+
+    public boolean isBaja() {
+        return baja;
+    }
+
+    public boolean getBaja() {
+        return baja;
+    }
+
+    public void setBaja(boolean baja) {
+        this.baja = baja;
+    }
+
+    public Unidad getUnidad() {
+        return unidad;
+    }
+
+    public void setUnidad(Unidad unidad) {
+        this.unidad = unidad;
+    }
+
+    public List<PoolAutoevaluacion> getPools() {
+        return pools;
+    }
+
+    public void setPools(List<PoolAutoevaluacion> pools) {
+        this.pools = pools;
+    }
 }

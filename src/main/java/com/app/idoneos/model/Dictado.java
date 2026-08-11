@@ -10,7 +10,7 @@ import java.util.List;
  * Define cronograma (fecha inicio/fin), cupos y equipo docente asociado.
  */
 @Entity
-@Table(name = "dictado")
+@Table(name = "Dictado")
 public class Dictado {
 
     /** Identificador único del dictado. */
@@ -56,7 +56,8 @@ public class Dictado {
     @OneToMany(mappedBy = "dictado", cascade = CascadeType.ALL)
     private List<Inscripcion> inscripciones = new ArrayList<>();
 
-    public Dictado() {}
+    public Dictado() {
+    }
 
     public Dictado(LocalDateTime fechaInicio, LocalDateTime fechaFin, Integer cupoMaximo, Programa programa) {
         this.fechaInicio = fechaInicio;
@@ -66,34 +67,87 @@ public class Dictado {
         this.fechaCreacion = LocalDateTime.now();
     }
 
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+    public int getId() {
+        return id;
+    }
 
-    public LocalDateTime getFechaInicio() { return fechaInicio; }
-    public void setFechaInicio(LocalDateTime fechaInicio) { this.fechaInicio = fechaInicio; }
+    public void setId(int id) {
+        this.id = id;
+    }
 
-    public LocalDateTime getFechaFin() { return fechaFin; }
-    public void setFechaFin(LocalDateTime fechaFin) { this.fechaFin = fechaFin; }
+    public LocalDateTime getFechaInicio() {
+        return fechaInicio;
+    }
 
-    public Integer getCupoMaximo() { return cupoMaximo; }
-    public void setCupoMaximo(Integer cupoMaximo) { this.cupoMaximo = cupoMaximo; }
+    public void setFechaInicio(LocalDateTime fechaInicio) {
+        this.fechaInicio = fechaInicio;
+    }
 
-    public boolean isBaja() { return baja; }
-    public boolean getBaja() { return baja; }
-    public void setBaja(boolean baja) { this.baja = baja; }
+    public LocalDateTime getFechaFin() {
+        return fechaFin;
+    }
 
-    public LocalDateTime getFechaCreacion() { return fechaCreacion; }
-    public void setFechaCreacion(LocalDateTime fechaCreacion) { this.fechaCreacion = fechaCreacion; }
+    public void setFechaFin(LocalDateTime fechaFin) {
+        this.fechaFin = fechaFin;
+    }
 
-    public LocalDateTime getUltimaModificacion() { return ultimaModificacion; }
-    public void setUltimaModificacion(LocalDateTime ultimaModificacion) { this.ultimaModificacion = ultimaModificacion; }
+    public Integer getCupoMaximo() {
+        return cupoMaximo;
+    }
 
-    public Programa getPrograma() { return programa; }
-    public void setPrograma(Programa programa) { this.programa = programa; }
+    public void setCupoMaximo(Integer cupoMaximo) {
+        this.cupoMaximo = cupoMaximo;
+    }
 
-    public List<DictadoDocente> getDictadosDocentes() { return dictadosDocentes; }
-    public void setDictadosDocentes(List<DictadoDocente> dictadosDocentes) { this.dictadosDocentes = dictadosDocentes; }
+    public boolean isBaja() {
+        return baja;
+    }
 
-    public List<Inscripcion> getInscripciones() { return inscripciones; }
-    public void setInscripciones(List<Inscripcion> inscripciones) { this.inscripciones = inscripciones; }
+    public boolean getBaja() {
+        return baja;
+    }
+
+    public void setBaja(boolean baja) {
+        this.baja = baja;
+    }
+
+    public LocalDateTime getFechaCreacion() {
+        return fechaCreacion;
+    }
+
+    public void setFechaCreacion(LocalDateTime fechaCreacion) {
+        this.fechaCreacion = fechaCreacion;
+    }
+
+    public LocalDateTime getUltimaModificacion() {
+        return ultimaModificacion;
+    }
+
+    public void setUltimaModificacion(LocalDateTime ultimaModificacion) {
+        this.ultimaModificacion = ultimaModificacion;
+    }
+
+    public Programa getPrograma() {
+        return programa;
+    }
+
+    public void setPrograma(Programa programa) {
+        this.programa = programa;
+    }
+
+    public List<DictadoDocente> getDictadosDocentes() {
+        return dictadosDocentes;
+    }
+
+    public void setDictadosDocentes(List<DictadoDocente> dictadosDocentes) {
+        this.dictadosDocentes = dictadosDocentes;
+    }
+
+    public List<Inscripcion> getInscripciones() {
+        return inscripciones;
+    }
+
+    public void setInscripciones(List<Inscripcion> inscripciones) {
+        this.inscripciones = inscripciones;
+    }
 }

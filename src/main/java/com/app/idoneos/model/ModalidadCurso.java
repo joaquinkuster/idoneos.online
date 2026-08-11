@@ -3,11 +3,12 @@ package com.app.idoneos.model;
 import jakarta.persistence.*;
 
 /**
- * Entidad ModalidadCurso: Tabla asociativa M a N entre Modalidad y Curso ("Modalidad Curso").
+ * Entidad ModalidadCurso: Tabla asociativa M a N entre Modalidad y Curso
+ * ("Modalidad Curso").
  * Mapea directamente a la tabla "Modalidad Curso" en base_datos.sql.
  */
 @Entity
-@Table(name = "\"Modalidad Curso\"")
+@Table(name = "ModalidadCurso")
 public class ModalidadCurso {
 
     /** Identificador único del vínculo de modalidad por curso. */
@@ -26,19 +27,35 @@ public class ModalidadCurso {
     @JoinColumn(name = "curso_id")
     private Curso curso;
 
-    public ModalidadCurso() {}
+    public ModalidadCurso() {
+    }
 
     public ModalidadCurso(Modalidad modalidad, Curso curso) {
         this.modalidad = modalidad;
         this.curso = curso;
     }
 
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+    public int getId() {
+        return id;
+    }
 
-    public Modalidad getModalidad() { return modalidad; }
-    public void setModalidad(Modalidad modalidad) { this.modalidad = modalidad; }
+    public void setId(int id) {
+        this.id = id;
+    }
 
-    public Curso getCurso() { return curso; }
-    public void setCurso(Curso curso) { this.curso = curso; }
+    public Modalidad getModalidad() {
+        return modalidad;
+    }
+
+    public void setModalidad(Modalidad modalidad) {
+        this.modalidad = modalidad;
+    }
+
+    public Curso getCurso() {
+        return curso;
+    }
+
+    public void setCurso(Curso curso) {
+        this.curso = curso;
+    }
 }

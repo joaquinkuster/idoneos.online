@@ -4,11 +4,12 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 /**
- * Entidad ClaseEnVivo: Transmisión en directo vía streaming (RTMP/OBS) para una unidad.
+ * Entidad ClaseEnVivo: Transmisión en directo vía streaming (RTMP/OBS) para una
+ * unidad.
  * Mapea directamente a la tabla "ClaseEnVivo" en base_datos.sql.
  */
 @Entity
-@Table(name = "\"ClaseEnVivo\"")
+@Table(name = "ClaseEnVivo")
 public class ClaseEnVivo {
 
     /** Identificador único de la clase en vivo. */
@@ -57,9 +58,11 @@ public class ClaseEnVivo {
     @JoinColumn(name = "docente_id")
     private Docente docente;
 
-    public ClaseEnVivo() {}
+    public ClaseEnVivo() {
+    }
 
-    public ClaseEnVivo(String titulo, LocalDateTime fechaHora, Unidad unidad, Docente docente, EstadoClaseEnVivo estadoClaseEnVivo) {
+    public ClaseEnVivo(String titulo, LocalDateTime fechaHora, Unidad unidad, Docente docente,
+            EstadoClaseEnVivo estadoClaseEnVivo) {
         this.titulo = titulo;
         this.fechaHora = fechaHora;
         this.unidad = unidad;
@@ -69,36 +72,91 @@ public class ClaseEnVivo {
         this.claveStream = "stream_" + System.currentTimeMillis();
     }
 
-    public void setEstado(EstadoClaseEnVivo estado) { this.estadoClaseEnVivo = estado; }
+    public void setEstado(EstadoClaseEnVivo estado) {
+        this.estadoClaseEnVivo = estado;
+    }
 
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+    public int getId() {
+        return id;
+    }
 
-    public String getTitulo() { return titulo; }
-    public void setTitulo(String titulo) { this.titulo = titulo; }
+    public void setId(int id) {
+        this.id = id;
+    }
 
-    public LocalDateTime getFechaHora() { return fechaHora; }
-    public void setFechaHora(LocalDateTime fechaHora) { this.fechaHora = fechaHora; }
+    public String getTitulo() {
+        return titulo;
+    }
 
-    public String getUrlRtmp() { return urlRtmp; }
-    public void setUrlRtmp(String urlRtmp) { this.urlRtmp = urlRtmp; }
+    public void setTitulo(String titulo) {
+        this.titulo = titulo;
+    }
 
-    public String getClaveStream() { return claveStream; }
-    public void setClaveStream(String claveStream) { this.claveStream = claveStream; }
+    public LocalDateTime getFechaHora() {
+        return fechaHora;
+    }
 
-    public boolean isBaja() { return baja; }
-    public boolean getBaja() { return baja; }
-    public void setBaja(boolean baja) { this.baja = baja; }
+    public void setFechaHora(LocalDateTime fechaHora) {
+        this.fechaHora = fechaHora;
+    }
 
-    public EstadoClaseEnVivo getEstadoClaseEnVivo() { return estadoClaseEnVivo; }
-    public void setEstadoClaseEnVivo(EstadoClaseEnVivo estadoClaseEnVivo) { this.estadoClaseEnVivo = estadoClaseEnVivo; }
+    public String getUrlRtmp() {
+        return urlRtmp;
+    }
 
-    public Material getMaterial() { return material; }
-    public void setMaterial(Material material) { this.material = material; }
+    public void setUrlRtmp(String urlRtmp) {
+        this.urlRtmp = urlRtmp;
+    }
 
-    public Unidad getUnidad() { return unidad; }
-    public void setUnidad(Unidad unidad) { this.unidad = unidad; }
+    public String getClaveStream() {
+        return claveStream;
+    }
 
-    public Docente getDocente() { return docente; }
-    public void setDocente(Docente docente) { this.docente = docente; }
+    public void setClaveStream(String claveStream) {
+        this.claveStream = claveStream;
+    }
+
+    public boolean isBaja() {
+        return baja;
+    }
+
+    public boolean getBaja() {
+        return baja;
+    }
+
+    public void setBaja(boolean baja) {
+        this.baja = baja;
+    }
+
+    public EstadoClaseEnVivo getEstadoClaseEnVivo() {
+        return estadoClaseEnVivo;
+    }
+
+    public void setEstadoClaseEnVivo(EstadoClaseEnVivo estadoClaseEnVivo) {
+        this.estadoClaseEnVivo = estadoClaseEnVivo;
+    }
+
+    public Material getMaterial() {
+        return material;
+    }
+
+    public void setMaterial(Material material) {
+        this.material = material;
+    }
+
+    public Unidad getUnidad() {
+        return unidad;
+    }
+
+    public void setUnidad(Unidad unidad) {
+        this.unidad = unidad;
+    }
+
+    public Docente getDocente() {
+        return docente;
+    }
+
+    public void setDocente(Docente docente) {
+        this.docente = docente;
+    }
 }

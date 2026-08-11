@@ -6,11 +6,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Entidad ConsultaForo: Pregunta realizada por un alumno dentro del foro temático de una Unidad.
+ * Entidad ConsultaForo: Pregunta realizada por un alumno dentro del foro
+ * temático de una Unidad.
  * Mapea directamente a la tabla "ConsultaForo" en base_datos.sql.
  */
 @Entity
-@Table(name = "\"ConsultaForo\"")
+@Table(name = "ConsultaForo")
 public class ConsultaForo {
 
     /** Identificador único de la consulta en el foro. */
@@ -45,7 +46,8 @@ public class ConsultaForo {
     @OneToMany(mappedBy = "consulta", cascade = CascadeType.ALL)
     private List<RespuestaForo> respuestas = new ArrayList<>();
 
-    public ConsultaForo() {}
+    public ConsultaForo() {
+    }
 
     public ConsultaForo(String texto, Unidad unidad, Usuario usuario) {
         this.texto = texto;
@@ -54,27 +56,67 @@ public class ConsultaForo {
         this.fecha = LocalDateTime.now();
     }
 
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+    public int getId() {
+        return id;
+    }
 
-    public String getTexto() { return texto; }
-    public void setTexto(String texto) { this.texto = texto; }
+    public void setId(int id) {
+        this.id = id;
+    }
 
-    public LocalDateTime getFecha() { return fecha; }
-    public void setFecha(LocalDateTime fecha) { this.fecha = fecha; }
+    public String getTexto() {
+        return texto;
+    }
 
-    public boolean isBaja() { return baja; }
-    public boolean getBaja() { return baja; }
-    public void setBaja(boolean baja) { this.baja = baja; }
+    public void setTexto(String texto) {
+        this.texto = texto;
+    }
 
-    public Unidad getUnidad() { return unidad; }
-    public void setUnidad(Unidad unidad) { this.unidad = unidad; }
+    public LocalDateTime getFecha() {
+        return fecha;
+    }
 
-    public Usuario getUsuario() { return usuario; }
-    public void setUsuario(Usuario usuario) { this.usuario = usuario; }
+    public void setFecha(LocalDateTime fecha) {
+        this.fecha = fecha;
+    }
 
-    public List<RespuestaForo> getRespuestas() { return respuestas; }
-    public void setRespuestas(List<RespuestaForo> respuestas) { this.respuestas = respuestas; }
+    public boolean isBaja() {
+        return baja;
+    }
 
-    public String getConsulta() { return texto; }
+    public boolean getBaja() {
+        return baja;
+    }
+
+    public void setBaja(boolean baja) {
+        this.baja = baja;
+    }
+
+    public Unidad getUnidad() {
+        return unidad;
+    }
+
+    public void setUnidad(Unidad unidad) {
+        this.unidad = unidad;
+    }
+
+    public Usuario getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
+    }
+
+    public List<RespuestaForo> getRespuestas() {
+        return respuestas;
+    }
+
+    public void setRespuestas(List<RespuestaForo> respuestas) {
+        this.respuestas = respuestas;
+    }
+
+    public String getConsulta() {
+        return texto;
+    }
 }
