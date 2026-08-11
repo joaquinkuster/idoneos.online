@@ -1,38 +1,45 @@
 package com.app.idoneos.model;
 
 import jakarta.persistence.*;
-import lombok.*;
-import java.util.ArrayList;
-import java.util.List;
 
+/**
+ * Entidad OpciónRespuesta: Opción elegible dentro de una Pregunta de autoevaluación.
+ * Mapea directamente a la tabla "OpcionRespuesta" en base_datos.sql.
+ */
 @Entity
-@Table(name = "opcion_respuesta")
-@Getter @Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@Table(name = "\"OpcionRespuesta\"")
 public class OpcionRespuesta {
 
+    /** Identificador único de la opción de respuesta. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private int id;
 
+    /** Texto explicativo o enunciado de la opción. */
     @Column(name = "texto", nullable = false, length = 150)
     private String texto;
 
+    /** Indica si esta opción constituye la respuesta correcta de la pregunta. */
     @Column(name = "es_correcta", nullable = false)
     private boolean esCorrecta = false;
 
+    /** Estado de baja lógica de la opción. */
     @Column(name = "baja", nullable = false)
     private boolean baja = false;
 
+    /** Pregunta a la que pertenece la opción. */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "pregunta_id", nullable = false)
+    @JoinColumn(name = "pregunta_id")
     private Pregunta pregunta;
 
-    @OneToMany(mappedBy = "opcionRespuesta", cascade = CascadeType.ALL)
-    private List<RespuestaIntento> respuestasIntentos = new ArrayList<>();
+    public OpcionRespuesta() {}
+
+    public OpcionRespuesta(String texto, boolean esCorrecta, Pregunta pregunta) {
+        this.texto = texto;
+        this.esCorrecta = esCorrecta;
+        this.pregunta = pregunta;
+    }
 
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
@@ -50,15 +57,4 @@ public class OpcionRespuesta {
 
     public Pregunta getPregunta() { return pregunta; }
     public void setPregunta(Pregunta pregunta) { this.pregunta = pregunta; }
-
-    public List<RespuestaIntento> getRespuestasIntentos() { return respuestasIntentos; }
-    public void setRespuestasIntentos(List<RespuestaIntento> respuestasIntentos) { this.respuestasIntentos = respuestasIntentos; }
-
-
-    public OpcionRespuesta(String texto, boolean esCorrecta, Pregunta pregunta) {
-        this.texto = texto;
-        this.esCorrecta = esCorrecta;
-        this.pregunta = pregunta;
-    }
-
 }

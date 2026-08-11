@@ -1,35 +1,34 @@
 package com.app.idoneos.model;
 
 import jakarta.persistence.*;
-import lombok.*;
-import java.util.ArrayList;
-import java.util.List;
 
+/**
+ * Entidad Rol: Catálogo de roles de seguridad del sistema (Alumno, Docente, Administrador).
+ * Mapea directamente a la tabla "Rol" en base_datos.sql.
+ */
 @Entity
-@Table(name = "rol")
-@Getter @Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@Table(name = "\"Rol\"")
 public class Rol {
 
+    /** Identificador único del rol. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private int id;
 
+    /** Nombre del rol de usuario (ej. "Alumno", "Docente", "Administrador"). */
     @Column(name = "nombre", length = 50)
     private String nombre;
 
-    @OneToMany(mappedBy = "rol", cascade = CascadeType.ALL)
-    private List<UsuarioRol> usuarioRoles = new ArrayList<>();
+    public Rol() {}
+
+    public Rol(String nombre) {
+        this.nombre = nombre;
+    }
 
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 
     public String getNombre() { return nombre; }
     public void setNombre(String nombre) { this.nombre = nombre; }
-
-    public List<UsuarioRol> getUsuarioRoles() { return usuarioRoles; }
-    public void setUsuarioRoles(List<UsuarioRol> usuarioRoles) { this.usuarioRoles = usuarioRoles; }
 }

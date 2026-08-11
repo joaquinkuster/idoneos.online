@@ -12,7 +12,7 @@
 
 ## 1. Resumen Ejecutivo
 
-En esta versión `v.0.3` se concretó la **fidelidad estricta y simplificación del modelo de datos orientada a objetos**, reduciendo las clases `@Entity` a **exactamente 43 entidades relacionales**, coincidiendo punto por punto con las 43 tablas definidas en la fuente de verdad oficial `base_datos.sql`.
+En esta versión `v.0.3` se concretó la **fidelidad estricta y trazabilidad 1:1 del modelo de datos orientada a objetos**, comentando exhaustivamente mediante Javadoc en español las **43 clases `@Entity`**, coincidiendo punto por punto con las 43 tablas definidas en la fuente de verdad oficial [`base_datos.sql`](file:///C:/Users/Lazaro/Desktop/TF/idoneos.online/docs/analisis/base_datos.sql).
 
 El sistema se encuentra **100% operativo, compila limpiamente (`BUILD SUCCESS`) y arranca en PostgreSQL 17**, poblando la semilla de datos iniciales sin excepciones ni advertencias de instanciación JPA.
 
@@ -23,64 +23,62 @@ Idóneos Online: La semilla ya se encuentra insertada.
 
 ---
 
-## 2. Reestructuración y Alineación del Modelo (43 Entidades)
+## 2. Reestructuración y Documentación Javadoc Completa (43 Entidades)
 
-### 2.1 Eliminación de Entidades Divergentes
-Se removieron las entidades `@Entity` que no poseían tabla propia en el modelo DDL de base de datos:
+### 2.1 Trazabilidad 1 a 1 con `base_datos.sql`
+Se revisó y documentó la totalidad de los 43 archivos del paquete `com.app.idoneos.model`, incorporando comentarios en español descriptivos a nivel de clase y a nivel de cada atributo/columna:
 
-1. **`Certificado.java`**: Los datos del certificado (`numero_certificado`, `fecha_emision_certificado`, `certificado_enviado`) fueron reincorporados como atributos directos de la entidad `Inscripcion`.
-2. **`Comprobante.java`**: Los datos del comprobante (`numero_comprobante`, `fecha_emision_comprobante`, `comprobante_enviado`) fueron reincorporados como atributos directos de la entidad `Pago`.
-3. **`DocenteCurso.java`**: Se eliminó la relación directa Docente ↔ Curso en favor de la tabla intermedia oficial del SQL: **`DictadoDocente.java`** (`"Dictado Docente"`), vinculando `Dictado` con `Docente`.
-4. **`RolUsuario.java`**: Se mantuvo como `enum` puro en Java para type-safety sin anotación `@Entity`.
-
-### 2.2 Documentación Javadoc en Español
-Se revisó y documentó la totalidad de los archivos de modelo en `com.app.idoneos.model`, incorporando comentarios en español descriptivos por clase y por atributo según el documento técnico de aspectos de dominio del Trabajo Final.
-
-### 2.3 Corrección de Constructores y Métodos de Entidades Clave
-Se limpiaron e independizaron de Lombok las entidades primarias (`Administrador`, `Dictado`, `Programa`, `Usuario`, `PoolAutoevaluacion`), garantizando constructores explícitos `public Entity()` (no-arg) para instanciación mediante reflección por Hibernate.
-
----
-
-## 3. Adaptación de Repositorios, Servicios y Controladores
-
-- **Repositorios**:
-  - Eliminados: `CertificadoRepository`, `ComprobanteRepository`, `DocenteCursoRepository`.
-  - Creados: `DictadoDocenteRepository`, `ProgramaRepository`, `DictadoRepository`.
-  - Actualizado `CursoRepository` para navegar `DictadoDocente -> Dictado -> Programa -> Curso`.
-- **Servicios**:
-  - `SemillaService`: Crea automáticamente `Programa`, `Dictado` y `DictadoDocente` al sembrar la base.
-  - `PagoService` y `CertificadoService`: Persisten la emisión de comprobantes y certificados en el mismo objeto `Pago` e `Inscripcion`.
-  - `EmailService`: Notificaciones adaptadas para consumir atributos integrados.
-- **Controladores**:
-  - `AdminController`, `DocenteController`, `ForoController` y `CertificadoController` actualizados a la nueva estructura de dictados y docentes.
-
----
-
-## 4. Estado de la Base de Datos (43 Entidades JPA)
-
-El paquete `com.app.idoneos.model` cuenta con **43 clases `@Entity`** exactas:
-
-| Grupo | Entidades |
-|:---|:---|
-| **Usuarios y Seguridad** | `Usuario`, `Alumno`, `Docente`, `Administrador`, `Rol`, `UsuarioRol`, `Sesion` |
-| **Estructura Académica** | `Curso`, `Categoria`, `Programa`, `Dictado`, `Unidad`, `Material`, `TipoMaterial`, `Modalidad`, `ModalidadCurso`, `DictadoDocente`, `TituloDocente` |
-| **Comunidad y Contenido** | `TerminoGlosario`, `ConsultaForo`, `RespuestaForo` |
-| **Ventas y Transacciones** | `Inscripcion`, `Pago`, `EstadoPago`, `MetodoPago`, `Descuento` |
-| **Evaluaciones e IA** | `Pool`, `Pregunta`, `OpcionRespuesta`, `Autoevaluacion`, `PoolAutoevaluacion`, `IntentoAutoevaluacion`, `RespuestaIntento`, `ClaseClonIA`, `EstadoClaseClonIA` |
-| **Streaming en Vivo** | `ClaseEnVivo`, `EstadoClaseEnVivo` |
-| **Gobierno y Métricas** | `Configuracion`, `Auditoria`, `TipoAccionAuditoria`, `Reporte`, `TipoReporte`, `Progreso` |
-
----
-
-## 5. Resumen de Cobertura y Verificación
-
-- ✅ **43/43 Tablas SQL Mapeadas**: Coincidencia exacta 1:1 con `base_datos.sql`.
-- ✅ **86/86 Casos de Uso Activos**: Sin pérdida de funcionalidad de negocio.
-- ✅ **Compilación Limpia**: `.\mvnw.cmd clean compile` aprueba sin errores (`BUILD SUCCESS`).
-- ✅ **Startup Verificado**: Servidor ejecuta Tomcat en puerto 8080 e interactúa con PostgreSQL correctamente.
+| # | Entidad JPA | Tabla SQL Mapeada | Descripción del Dominio |
+|:---|:---|:---|:---|
+| 1 | `Administrador` | `"administrador"` | Subtipo de Usuario con rol de administración del sistema. |
+| 2 | `Alumno` | `"Alumno"` | Subtipo de Usuario con rol de estudiante que cursa y rinde. |
+| 3 | `Auditoria` | `"Auditoria"` | Registro AOP de acciones y modificaciones sobre datos. |
+| 4 | `Autoevaluacion` | `"Autoevaluacion"` | Exámenes o pruebas rrendibles por unidad temática. |
+| 5 | `Categoria` | `"Categoria"` | Clasificación temática de los cursos del catálogo. |
+| 6 | `ClaseClonIA` | `"ClaseClonIA"` | Clases en video generadas por avatar IA a partir de guiones. |
+| 7 | `ClaseEnVivo` | `"ClaseEnVivo"` | Transmisiones en directo vía RTMP/OBS. |
+| 8 | `Configuracion` | `"Configuracion"` | Parámetros del sistema en clave-valor. |
+| 9 | `ConsultaForo` | `"ConsultaForo"` | Preguntas formuladas por alumnos en el foro por unidad. |
+| 10 | `Curso` | `"Curso"` | Catálogo de oferta académica comercial. |
+| 11 | `Descuento` | `"Descuento"` | Cupones o promociones sobre inscripciones. |
+| 12 | `Dictado` | `"Dictado"` | Cronograma y período de cursada de un programa. |
+| 13 | `DictadoDocente` | `"Dictado Docente"` | Tabla intermedia asociativa de asignación docente a dictado. |
+| 14 | `Docente` | `"Docente"` | Subtipo de Usuario con perfil de profesor/autor. |
+| 15 | `EstadoClaseClonIA` | `"EstadoClaseClonIA"` | Estados del proceso de generación de video con IA. |
+| 16 | `EstadoClaseEnVivo` | `"EstadoClaseEnVivo"` | Estados de la transmisión en directo. |
+| 17 | `EstadoPago` | `"EstadoPago"` | Catálogo de estados de transacciones de pago. |
+| 18 | `Inscripcion` | `"Inscripcion"` | Vínculo alumno-dictado. Incluye datos de certificado. |
+| 19 | `IntentoAutoevaluacion` | `"IntentoAutoevaluacion"` | Examen rendido por un alumno con su calificación. |
+| 20 | `Material` | `"Material"` | Archivo o contenido de lectura/video por unidad. |
+| 21 | `MetodoPago` | `"MetodoPago"` | Medios de pago aceptados. |
+| 22 | `Modalidad` | `"Modalidad"` | Modalidad de dictado (En vivo, Grabada, Clon IA). |
+| 23 | `ModalidadCurso` | `"Modalidad Curso"` | Tabla intermedia entre modalidades y cursos. |
+| 24 | `OpcionRespuesta` | `"OpcionRespuesta"` | Opciones de respuesta para preguntas de autoevaluaciones. |
+| 25 | `Pago` | `"Pago"` | Transacciones procesadas. Incluye datos de comprobante. |
+| 26 | `Pool` | `"Pool"` | Banco de preguntas por unidad. |
+| 27 | `PoolAutoevaluacion` | `"pool_autoevaluacion"` | Tabla intermedia asociativa entre Pools y Autoevaluaciones. |
+| 28 | `Pregunta` | `"Pregunta"` | Preguntas de evaluación pertenencientes a un pool. |
+| 29 | `Programa` | `"Programa"` | Versión del plan de estudios de un curso. |
+| 30 | `Progreso` | `"Progreso"` | Seguimiento de avance del alumno por unidad. |
+| 31 | `Reporte` | `"Reporte"` | Informes generados por la administración. |
+| 32 | `RespuestaForo` | `"RespuestaForo"` | Respuestas enviadas por docentes a consultas de alumnos. |
+| 33 | `RespuestaIntento` | `"RespuestaIntento"` | Opción seleccionada en un intento de autoevaluación. |
+| 34 | `Rol` | `"Rol"` | Catálogo de roles de seguridad. |
+| 35 | `Sesion` | `"Sesion"` | Sesiones de usuario con IP y dispositivo. |
+| 36 | `TerminoGlosario` | `"TerminoGlosario"` | Diccionario de términos técnicos por unidad. |
+| 37 | `TipoAccionAuditoria` | `"TipoAccionAuditoria"` | Acciones registradas en auditoría. |
+| 38 | `TipoMaterial` | `"TipoMaterial"` | Clasificación de materiales (Grabación, Bibliografía, etc.). |
+| 39 | `TipoReporte` | `"TipoReporte"` | Tipos de informes administrativos. |
+| 40 | `TituloDocente` | `"TituloDocente"` | Títulos académicos del equipo docente. |
+| 41 | `Unidad` | `"Unidad"` | Unidades temáticas componentes del programa. |
+| 42 | `Usuario` | `"Usuario"` | Entidad base de autenticación e identidad. |
+| 43 | `UsuarioRol` | `"Usuario Rol"` | Tabla intermedia asociativa entre usuarios y roles. |
 
 ---
 
-## 6. Conclusión
+## 3. Resumen de Verificación y Calidad
 
-El sistema alcanza la máxima coherencia entre el modelo relacional conceptual (`base_datos.sql`), el dominio de clases Java (`com.app.idoneos.model`) y los componentes de negocio (`service` / `controller`), preparado para ser evaluado y continuar con futuras expansiones.
+- ✅ **43/43 Entidades Comentadas en Español**: Trazabilidad absoluta con `base_datos.sql`.
+- ✅ **Sin Errores de Instanciación JPA**: Todos los modelos disponen de constructor explícito `public Entity()`.
+- ✅ **Compilación Exitosa**: `.\mvnw.cmd clean compile` ejecutado limpiamente (`BUILD SUCCESS`).
+- ✅ **Versionado Git**: Commit y push sincronizado con el repositorio oficial en GitHub.

@@ -1,39 +1,46 @@
 package com.app.idoneos.model;
 
 import jakarta.persistence.*;
-import lombok.*;
-import java.util.ArrayList;
-import java.util.List;
 
+/**
+ * Entidad EstadoClaseEnVivo: Catálogo de estados de transmisión en vivo
+ * (Programada, En vivo, Finalizada).
+ * Mapea directamente a la tabla "EstadoClaseEnVIvo" en base_datos.sql.
+ */
 @Entity
-@Table(name = "estado_clase_en_vivo")
-@Getter @Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@Table(name = "\"EstadoClaseEnVIvo\"")
 public class EstadoClaseEnVivo {
 
+    /** Identificador único del estado de transmisión en vivo. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private int id;
 
+    /** Nombre del estado (ej. "Programada", "En vivo", "Finalizada"). */
     @Column(name = "nombre", nullable = false, length = 50)
     private String nombre;
 
-    @OneToMany(mappedBy = "estadoClaseEnVivo", cascade = CascadeType.ALL)
-    private List<ClaseEnVivo> clasesEnVivo = new ArrayList<>();
+    public EstadoClaseEnVivo() {
+    }
 
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+    public EstadoClaseEnVivo(String nombre) {
+        this.nombre = nombre;
+    }
 
-    public String getNombre() { return nombre; }
-    public void setNombre(String nombre) { this.nombre = nombre; }
+    public int getId() {
+        return id;
+    }
 
-    public List<ClaseEnVivo> getClasesEnVivo() { return clasesEnVivo; }
-    public void setClasesEnVivo(List<ClaseEnVivo> clasesEnVivo) { this.clasesEnVivo = clasesEnVivo; }
+    public void setId(int id) {
+        this.id = id;
+    }
 
+    public String getNombre() {
+        return nombre;
+    }
 
-    public EstadoClaseEnVivo(String nombre) { this.nombre = nombre; }
-
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
 }

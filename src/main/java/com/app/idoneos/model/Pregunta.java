@@ -1,38 +1,45 @@
 package com.app.idoneos.model;
 
 import jakarta.persistence.*;
-import lombok.*;
-import java.util.ArrayList;
-import java.util.List;
 
+/**
+ * Entidad Pregunta: Pregunta individual perteneciente a un Pool de evaluación.
+ * Mapea directamente a la tabla "Pregunta" en base_datos.sql.
+ */
 @Entity
-@Table(name = "pregunta")
-@Getter @Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@Table(name = "\"Pregunta\"")
 public class Pregunta {
 
+    /** Identificador único de la pregunta. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private int id;
 
+    /** Enunciado o texto de la pregunta. */
     @Column(name = "texto", nullable = false, length = 150)
     private String texto;
 
+    /** Indica si es de opción múltiple (true) o verdadero/falso (false). */
     @Column(name = "es_opcion_multiple", nullable = false)
     private boolean esOpcionMultiple = true;
 
+    /** Estado de baja lógica de la pregunta. */
     @Column(name = "baja", nullable = false)
     private boolean baja = false;
 
+    /** Pool de preguntas al que pertenece esta pregunta. */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "pool_id", nullable = false)
+    @JoinColumn(name = "pool_id")
     private Pool pool;
 
-    @OneToMany(mappedBy = "pregunta", cascade = CascadeType.ALL)
-    private List<OpcionRespuesta> opcionesRespuesta = new ArrayList<>();
+    public Pregunta() {}
+
+    public Pregunta(String texto, boolean esOpcionMultiple, Pool pool) {
+        this.texto = texto;
+        this.esOpcionMultiple = esOpcionMultiple;
+        this.pool = pool;
+    }
 
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
@@ -50,15 +57,4 @@ public class Pregunta {
 
     public Pool getPool() { return pool; }
     public void setPool(Pool pool) { this.pool = pool; }
-
-    public List<OpcionRespuesta> getOpcionesRespuesta() { return opcionesRespuesta; }
-    public void setOpcionesRespuesta(List<OpcionRespuesta> opcionesRespuesta) { this.opcionesRespuesta = opcionesRespuesta; }
-
-
-    public Pregunta(String texto, boolean esOpcionMultiple, Pool pool) {
-        this.texto = texto;
-        this.esOpcionMultiple = esOpcionMultiple;
-        this.pool = pool;
-    }
-
 }

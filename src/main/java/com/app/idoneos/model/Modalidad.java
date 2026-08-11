@@ -1,39 +1,34 @@
 package com.app.idoneos.model;
 
 import jakarta.persistence.*;
-import lombok.*;
-import java.util.ArrayList;
-import java.util.List;
 
+/**
+ * Entidad Modalidad: Catálogo de modalidades de cursada (En vivo, Grabada, Clon IA).
+ * Mapea directamente a la tabla "Modalidad" en base_datos.sql.
+ */
 @Entity
-@Table(name = "modalidad")
-@Getter @Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@Table(name = "\"Modalidad\"")
 public class Modalidad {
 
+    /** Identificador único de la modalidad. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private int id;
 
+    /** Nombre de la modalidad de dictado. */
     @Column(name = "nombre", nullable = false, length = 50)
     private String nombre;
 
-    @OneToMany(mappedBy = "modalidad", cascade = CascadeType.ALL)
-    private List<ModalidadCurso> modalidadesCursos = new ArrayList<>();
+    public Modalidad() {}
+
+    public Modalidad(String nombre) {
+        this.nombre = nombre;
+    }
 
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 
     public String getNombre() { return nombre; }
     public void setNombre(String nombre) { this.nombre = nombre; }
-
-    public List<ModalidadCurso> getModalidadesCursos() { return modalidadesCursos; }
-    public void setModalidadesCursos(List<ModalidadCurso> modalidadesCursos) { this.modalidadesCursos = modalidadesCursos; }
-
-
-    public Modalidad(String nombre) { this.nombre = nombre; }
-
 }

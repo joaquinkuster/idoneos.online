@@ -1,43 +1,58 @@
 package com.app.idoneos.model;
 
 import jakarta.persistence.*;
-import lombok.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Entidad ConsultaForo: Pregunta realizada por un alumno dentro del foro temático de una Unidad.
+ * Mapea directamente a la tabla "ConsultaForo" en base_datos.sql.
+ */
 @Entity
-@Table(name = "consulta_foro")
-@Getter @Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@Table(name = "\"ConsultaForo\"")
 public class ConsultaForo {
 
+    /** Identificador único de la consulta en el foro. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private int id;
 
+    /** Contenido textual de la pregunta o duda expuesta. */
     @Column(name = "texto", nullable = false, length = 500)
     private String texto;
 
+    /** Fecha y hora en la que se publicó la consulta. */
     @Column(name = "fecha", nullable = false)
     private LocalDateTime fecha = LocalDateTime.now();
 
+    /** Marca de baja lógica. */
     @Column(name = "baja", nullable = false)
     private boolean baja = false;
 
+    /** Unidad temática a la que pertenece la duda. */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "unidad_id", nullable = false)
+    @JoinColumn(name = "unidad_id")
     private Unidad unidad;
 
+    /** Alumno (Usuario) autor de la consulta. */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "alumno_id", nullable = false)
-    private Alumno alumno;
+    @JoinColumn(name = "alumno_id")
+    private Usuario usuario;
 
-    @OneToMany(mappedBy = "consultaForo", cascade = CascadeType.ALL)
-    private List<RespuestaForo> respuestasForo = new ArrayList<>();
+    /** Respuestas docentes asociadas a esta consulta. */
+    @OneToMany(mappedBy = "consulta", cascade = CascadeType.ALL)
+    private List<RespuestaForo> respuestas = new ArrayList<>();
+
+    public ConsultaForo() {}
+
+    public ConsultaForo(String texto, Unidad unidad, Usuario usuario) {
+        this.texto = texto;
+        this.unidad = unidad;
+        this.usuario = usuario;
+        this.fecha = LocalDateTime.now();
+    }
 
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
@@ -55,22 +70,11 @@ public class ConsultaForo {
     public Unidad getUnidad() { return unidad; }
     public void setUnidad(Unidad unidad) { this.unidad = unidad; }
 
-    public Alumno getAlumno() { return alumno; }
-    public void setAlumno(Alumno alumno) { this.alumno = alumno; }
+    public Usuario getUsuario() { return usuario; }
+    public void setUsuario(Usuario usuario) { this.usuario = usuario; }
 
-    public List<RespuestaForo> getRespuestasForo() { return respuestasForo; }
-    public void setRespuestasForo(List<RespuestaForo> respuestasForo) { this.respuestasForo = respuestasForo; }
+    public List<RespuestaForo> getRespuestas() { return respuestas; }
+    public void setRespuestas(List<RespuestaForo> respuestas) { this.respuestas = respuestas; }
 
-    public Usuario getUsuario() { return alumno != null ? alumno.getUsuario() : null; }
-    public void setUsuario(Usuario u) { if (alumno == null) alumno = new Alumno(u); else alumno.setUsuario(u); }
-    public ConsultaForo getConsulta() { return this; }
-
-
-
-    public ConsultaForo(String texto, Unidad unidad, Usuario usuario) {
-        this.texto = texto;
-        this.unidad = unidad;
-        this.alumno = new Alumno(usuario);
-    }
-
+    public String getConsulta() { return texto; }
 }

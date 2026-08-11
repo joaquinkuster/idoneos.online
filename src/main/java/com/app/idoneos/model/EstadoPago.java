@@ -1,41 +1,34 @@
 package com.app.idoneos.model;
 
 import jakarta.persistence.*;
-import lombok.*;
-import java.util.ArrayList;
-import java.util.List;
 
+/**
+ * Entidad EstadoPago: Catálogo de estados de transacciones de pago (Pendiente, Acreditado, Rechazado).
+ * Mapea directamente a la tabla "EstadoPago" en base_datos.sql.
+ */
 @Entity
-@Table(name = "estado_pago")
-@Getter @Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@Table(name = "\"EstadoPago\"")
 public class EstadoPago {
 
+    /** Identificador único del estado de pago. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private int id;
 
+    /** Nombre del estado (ej. "Pendiente", "Acreditado", "Rechazado"). */
     @Column(name = "nombre", nullable = false, length = 50)
     private String nombre;
 
-    @OneToMany(mappedBy = "estadoPago", cascade = CascadeType.ALL)
-    private List<Pago> pagos = new ArrayList<>();
+    public EstadoPago() {}
+
+    public EstadoPago(String nombre) {
+        this.nombre = nombre;
+    }
 
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 
     public String getNombre() { return nombre; }
     public void setNombre(String nombre) { this.nombre = nombre; }
-
-    public List<Pago> getPagos() { return pagos; }
-    public void setPagos(List<Pago> pagos) { this.pagos = pagos; }
-
-
-    public EstadoPago(String nombre) {
-        this.nombre = nombre;
-    }
-
 }

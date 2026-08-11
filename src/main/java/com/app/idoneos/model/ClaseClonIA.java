@@ -1,49 +1,68 @@
 package com.app.idoneos.model;
 
 import jakarta.persistence.*;
-import lombok.*;
 import java.time.LocalDateTime;
 
+/**
+ * Entidad ClaseClonIA: Clase asincrónica generada por avatar IA a partir de un guión docente.
+ * Mapea directamente a la tabla "ClaseClonIA" en base_datos.sql.
+ */
 @Entity
-@Table(name = "clase_clon_ia")
-@Getter @Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@Table(name = "\"ClaseClonIA\"")
 public class ClaseClonIA {
 
+    /** Identificador único de la clase por avatar IA. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private int id;
 
+    /** Título descriptivo de la clase generada. */
     @Column(name = "titulo", nullable = false, length = 50)
     private String titulo;
 
+    /** Guión explicativo enviado al motor/proveedor de generación de video con IA (ej. HeyGen). */
     @Column(name = "guion", nullable = false, columnDefinition = "text")
     private String guion;
 
+    /** Fecha y hora en la que se generó la clase. */
     @Column(name = "fecha_generacion", nullable = false)
     private LocalDateTime fechaGeneracion = LocalDateTime.now();
 
+    /** Estado de baja lógica del registro. */
     @Column(name = "baja", nullable = false)
     private boolean baja = false;
 
+    /** Estado del proceso asincrónico de generación de video (Pendiente, Generada, Error). */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "estado_clase_clon_ia_id", nullable = false)
+    @JoinColumn(name = "estado_clase_clon_ia_id")
     private EstadoClaseClonIA estadoClaseClonIA;
 
+    /** Material multimedia generado a partir de esta clase (opcional). */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "material_id", nullable = false)
+    @JoinColumn(name = "material_id")
     private Material material;
 
+    /** Unidad temática a la que corresponde la clase. */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "unidad_id", nullable = false)
+    @JoinColumn(name = "unidad_id")
     private Unidad unidad;
 
+    /** Docente autor del guión y cuyo avatar fue clonado. */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "docente_id", nullable = false)
+    @JoinColumn(name = "docente_id")
     private Docente docente;
+
+    public ClaseClonIA() {}
+
+    public ClaseClonIA(String titulo, Unidad unidad, Docente docente, EstadoClaseClonIA estadoClaseClonIA) {
+        this.titulo = titulo;
+        this.unidad = unidad;
+        this.docente = docente;
+        this.estadoClaseClonIA = estadoClaseClonIA;
+        this.guion = "";
+        this.fechaGeneracion = LocalDateTime.now();
+    }
 
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
@@ -72,15 +91,4 @@ public class ClaseClonIA {
 
     public Docente getDocente() { return docente; }
     public void setDocente(Docente docente) { this.docente = docente; }
-
-    public ClaseClonIA(String titulo, Unidad unidad, Docente docente, EstadoClaseClonIA estadoClaseClonIA) {
-        this.titulo = titulo;
-        this.unidad = unidad;
-        this.docente = docente;
-        this.estadoClaseClonIA = estadoClaseClonIA;
-        this.guion = "";
-    }
-    public EstadoClaseClonIA getEstado() { return estadoClaseClonIA; }
-    public void setEstado(EstadoClaseClonIA estado) { this.estadoClaseClonIA = estado; }
-
 }

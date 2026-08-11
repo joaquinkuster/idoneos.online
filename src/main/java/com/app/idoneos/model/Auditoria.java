@@ -1,55 +1,65 @@
 package com.app.idoneos.model;
 
 import jakarta.persistence.*;
-import lombok.*;
 import java.time.LocalDateTime;
 
+/**
+ * Entidad Auditoría: Registro trazable AOP de operaciones sobre entidades del sistema.
+ * Mapea directamente a la tabla "Auditoria" en base_datos.sql.
+ */
 @Entity
-@Table(name = "auditoria")
-@Getter @Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@Table(name = "\"Auditoria\"")
 public class Auditoria {
 
+    /** Identificador único del registro de auditoría. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private int id;
 
+    /** Nombre de la entidad/tabla afectada por la acción (ej. "Curso", "Usuario"). */
     @Column(name = "entidad_afectada", nullable = false, length = 50)
     private String entidadAfectada;
 
+    /** Identificador primario del registro puntual afectado. */
     @Column(name = "id_afectado", nullable = false)
     private int idAfectado;
 
+    /** Representación del estado del registro previo a la modificación (JSON/texto). */
     @Column(name = "valor_anterior", columnDefinition = "text")
     private String valorAnterior;
 
+    /** Representación del estado del registro posterior a la modificación (JSON/texto). */
     @Column(name = "valor_nuevo", columnDefinition = "text")
     private String valorNuevo;
 
+    /** Dirección IP desde donde el usuario ejecutó la acción. */
     @Column(name = "ip_usuario", nullable = false, length = 45)
     private String ipUsuario;
 
+    /** Fecha y hora exacta de la acción auditada. */
     @Column(name = "fecha_hora", nullable = false)
     private LocalDateTime fechaHora = LocalDateTime.now();
 
+    /** Usuario que realizó la acción. */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "usuario_id", nullable = false)
+    @JoinColumn(name = "usuario_id")
     private Usuario usuario;
 
+    /** Tipo de acción de auditoría ejecutada (Crear, Modificar, Eliminar, Consultar). */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "tipo_accion_auditoria_id", nullable = false)
+    @JoinColumn(name = "tipo_accion_auditoria_id")
     private TipoAccionAuditoria tipoAccionAuditoria;
+
+    public Auditoria() {}
 
     public Auditoria(String entidadAfectada, int idAfectado, Usuario usuario, TipoAccionAuditoria tipoAccionAuditoria) {
         this.entidadAfectada = entidadAfectada;
         this.idAfectado = idAfectado;
         this.usuario = usuario;
         this.tipoAccionAuditoria = tipoAccionAuditoria;
-        this.ipUsuario = "127.0.0.1";
         this.fechaHora = LocalDateTime.now();
+        this.ipUsuario = "127.0.0.1";
     }
 
     public int getId() { return id; }

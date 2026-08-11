@@ -1,28 +1,26 @@
 package com.app.idoneos.model;
 
 import jakarta.persistence.*;
-import lombok.*;
-import java.util.ArrayList;
-import java.util.List;
 
+/**
+ * Entidad TipoAcciónAuditoria: Catálogo de acciones de auditoría (Crear, Modificar, Eliminar, Consultar).
+ * Mapea directamente a la tabla "TipoAccionAuditoria" en base_datos.sql.
+ */
 @Entity
-@Table(name = "tipo_accion_auditoria")
-@Getter @Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@Table(name = "\"TipoAccionAuditoria\"")
 public class TipoAccionAuditoria {
 
+    /** Identificador único del tipo de acción de auditoría. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private int id;
 
+    /** Nombre del tipo de acción (ej. "Crear", "Modificar", "Eliminar", "Consultar"). */
     @Column(name = "nombre", nullable = false, length = 50)
     private String nombre;
 
-    @OneToMany(mappedBy = "tipoAccionAuditoria", cascade = CascadeType.ALL)
-    private List<Auditoria> auditorias = new ArrayList<>();
+    public TipoAccionAuditoria() {}
 
     public TipoAccionAuditoria(String nombre) {
         this.nombre = nombre;
@@ -33,7 +31,4 @@ public class TipoAccionAuditoria {
 
     public String getNombre() { return nombre; }
     public void setNombre(String nombre) { this.nombre = nombre; }
-
-    public List<Auditoria> getAuditorias() { return auditorias; }
-    public void setAuditorias(List<Auditoria> auditorias) { this.auditorias = auditorias; }
 }

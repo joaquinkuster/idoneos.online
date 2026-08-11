@@ -1,37 +1,29 @@
 package com.app.idoneos.model;
 
 import jakarta.persistence.*;
-import lombok.*;
-import java.util.ArrayList;
-import java.util.List;
 
+/**
+ * Entidad Alumno: Subtipo de Usuario (relación 1 a 0..1 mediante clave compartida).
+ * Representa al usuario con rol de estudiante que se inscribe a dictados de cursos y rinde autoevaluaciones.
+ * Mapea directamente a la tabla "Alumno" en base_datos.sql.
+ */
 @Entity
-@Table(name = "alumno")
-@Getter @Setter
+@Table(name = "\"Alumno\"")
 public class Alumno {
 
+    /** Identificador del alumno, coincidente con el id de Usuario (clave primaria compartida). */
     @Id
     @Column(name = "id")
     private int id;
 
-    @OneToOne
+    /** Relación 1 a 1 con la entidad base Usuario (@MapsId vincula la PK con Usuario). */
+    @OneToOne(fetch = FetchType.LAZY)
     @MapsId
     @JoinColumn(name = "id")
     private Usuario usuario;
 
-    @OneToMany(mappedBy = "alumno", cascade = CascadeType.ALL)
-    private List<Inscripcion> inscripciones = new ArrayList<>();
-
-    @OneToMany(mappedBy = "alumno", cascade = CascadeType.ALL)
-    private List<ConsultaForo> consultasForo = new ArrayList<>();
-
-    @OneToMany(mappedBy = "alumno", cascade = CascadeType.ALL)
-    private List<IntentoAutoevaluacion> intentosAutoevaluacion = new ArrayList<>();
-
-    /** No-arg constructor required by JPA/Hibernate. */
     public Alumno() {}
 
-    /** Convenience constructor for service code. */
     public Alumno(Usuario usuario) {
         this.usuario = usuario;
         if (usuario != null) {
@@ -44,13 +36,4 @@ public class Alumno {
 
     public Usuario getUsuario() { return usuario; }
     public void setUsuario(Usuario usuario) { this.usuario = usuario; }
-
-    public List<Inscripcion> getInscripciones() { return inscripciones; }
-    public void setInscripciones(List<Inscripcion> inscripciones) { this.inscripciones = inscripciones; }
-
-    public List<ConsultaForo> getConsultasForo() { return consultasForo; }
-    public void setConsultasForo(List<ConsultaForo> consultasForo) { this.consultasForo = consultasForo; }
-
-    public List<IntentoAutoevaluacion> getIntentosAutoevaluacion() { return intentosAutoevaluacion; }
-    public void setIntentosAutoevaluacion(List<IntentoAutoevaluacion> intentosAutoevaluacion) { this.intentosAutoevaluacion = intentosAutoevaluacion; }
 }

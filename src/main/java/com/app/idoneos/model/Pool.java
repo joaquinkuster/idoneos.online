@@ -1,45 +1,50 @@
 package com.app.idoneos.model;
 
 import jakarta.persistence.*;
-import lombok.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
+/**
+ * Entidad Pool: Banco de preguntas de evaluación asociado a una Unidad temática.
+ * Mapea directamente a la tabla "Pool" en base_datos.sql.
+ */
 @Entity
-@Table(name = "pool")
-@Getter @Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@Table(name = "\"Pool\"")
 public class Pool {
 
+    /** Identificador único del pool de preguntas. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private int id;
 
+    /** Nombre identificatorio del banco de preguntas. */
     @Column(name = "nombre", nullable = false, length = 50)
     private String nombre;
 
+    /** Fecha de creación del pool. */
     @Column(name = "fecha_creacion", nullable = false)
     private LocalDateTime fechaCreacion = LocalDateTime.now();
 
+    /** Fecha de la última modificación del registro. */
     @Column(name = "ultima_modificacion")
     private LocalDateTime ultimaModificacion;
 
+    /** Estado de baja lógica del pool. */
     @Column(name = "baja", nullable = false)
     private boolean baja = false;
 
+    /** Unidad temática a la que pertenece el pool. */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "unidad_id", nullable = false)
+    @JoinColumn(name = "unidad_id")
     private Unidad unidad;
 
-    @OneToMany(mappedBy = "pool", cascade = CascadeType.ALL)
-    private List<PoolAutoevaluacion> poolsAutoevaluaciones = new ArrayList<>();
+    public Pool() {}
 
-    @OneToMany(mappedBy = "pool", cascade = CascadeType.ALL)
-    private List<Pregunta> preguntas = new ArrayList<>();
+    public Pool(String nombre, Unidad unidad) {
+        this.nombre = nombre;
+        this.unidad = unidad;
+        this.fechaCreacion = LocalDateTime.now();
+    }
 
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
@@ -59,17 +64,4 @@ public class Pool {
 
     public Unidad getUnidad() { return unidad; }
     public void setUnidad(Unidad unidad) { this.unidad = unidad; }
-
-    public List<PoolAutoevaluacion> getPoolsAutoevaluaciones() { return poolsAutoevaluaciones; }
-    public void setPoolsAutoevaluaciones(List<PoolAutoevaluacion> poolsAutoevaluaciones) { this.poolsAutoevaluaciones = poolsAutoevaluaciones; }
-
-    public List<Pregunta> getPreguntas() { return preguntas; }
-    public void setPreguntas(List<Pregunta> preguntas) { this.preguntas = preguntas; }
-
-
-    public Pool(String nombre, Unidad unidad) {
-        this.nombre = nombre;
-        this.unidad = unidad;
-    }
-
 }

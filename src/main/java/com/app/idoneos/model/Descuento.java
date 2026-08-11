@@ -1,56 +1,63 @@
 package com.app.idoneos.model;
 
 import jakarta.persistence.*;
-import lombok.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
+/**
+ * Entidad Descuento: Reglas promocionales o cupones aplicables al precio de inscripción de un curso.
+ * Mapea directamente a la tabla "Descuento" en base_datos.sql.
+ */
 @Entity
-@Table(name = "descuento")
-@Getter @Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@Table(name = "\"Descuento\"")
 public class Descuento {
 
+    /** Identificador único del descuento. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private int id;
 
+    /** Nombre de la promoción o cupón de descuento. */
     @Column(name = "nombre", nullable = false, length = 50)
     private String nombre;
 
+    /** Requisito de cantidad de cursos previos comprados para aplicar. */
     @Column(name = "cursos_requeridos", nullable = false)
-    private int cursosRequeridos;
+    private int cursosRequeridos = 0;
 
+    /** Porcentaje de descuento porcentual a restar sobre el precio. */
     @Column(name = "porcentaje", nullable = false)
-    private double porcentaje;
+    private float porcentaje;
 
+    /** Fecha y hora inicial de vigencia. */
     @Column(name = "vigencia_desde", nullable = false)
     private LocalDateTime vigenciaDesde;
 
+    /** Fecha y hora final de vigencia. */
     @Column(name = "vigencia_hasta", nullable = false)
     private LocalDateTime vigenciaHasta;
 
+    /** Cantidad límite de usos totales permitidos. */
     @Column(name = "cantidad_limite", nullable = false)
     private int cantidadLimite;
 
+    /** Contador de cantidad de veces que el descuento ya fue aplicado. */
     @Column(name = "cantidad_usada", nullable = false)
     private int cantidadUsada = 0;
 
+    /** Fecha de creación del registro. */
     @Column(name = "fecha_creacion", nullable = false)
     private LocalDateTime fechaCreacion = LocalDateTime.now();
 
+    /** Fecha de la última modificación de datos. */
     @Column(name = "ultima_modificacion")
     private LocalDateTime ultimaModificacion;
 
+    /** Estado de baja lógica del descuento. */
     @Column(name = "baja", nullable = false)
     private boolean baja = false;
 
-    @OneToMany(mappedBy = "descuento", cascade = CascadeType.ALL)
-    private List<Inscripcion> inscripciones = new ArrayList<>();
+    public Descuento() {}
 
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
@@ -61,8 +68,8 @@ public class Descuento {
     public int getCursosRequeridos() { return cursosRequeridos; }
     public void setCursosRequeridos(int cursosRequeridos) { this.cursosRequeridos = cursosRequeridos; }
 
-    public double getPorcentaje() { return porcentaje; }
-    public void setPorcentaje(double porcentaje) { this.porcentaje = porcentaje; }
+    public float getPorcentaje() { return porcentaje; }
+    public void setPorcentaje(float porcentaje) { this.porcentaje = porcentaje; }
 
     public LocalDateTime getVigenciaDesde() { return vigenciaDesde; }
     public void setVigenciaDesde(LocalDateTime vigenciaDesde) { this.vigenciaDesde = vigenciaDesde; }
@@ -86,15 +93,10 @@ public class Descuento {
     public boolean getBaja() { return baja; }
     public void setBaja(boolean baja) { this.baja = baja; }
 
-    public List<Inscripcion> getInscripciones() { return inscripciones; }
-    public void setInscripciones(List<Inscripcion> inscripciones) { this.inscripciones = inscripciones; }
-
-
     public boolean estaVigente() {
-        java.time.LocalDateTime now = java.time.LocalDateTime.now();
-        return !baja && (cantidadLimite <= 0 || cantidadUsada < cantidadLimite)
-                && (vigenciaDesde == null || !now.isBefore(vigenciaDesde))
-                && (vigenciaHasta == null || !now.isAfter(vigenciaHasta));
+        LocalDateTime ahora = LocalDateTime.now();
+        return !baja && (vigenciaDesde == null || !ahora.isBefore(vigenciaDesde))
+                && (vigenciaHasta == null || !ahora.isAfter(vigenciaHasta))
+                && (cantidadLimite == 0 || cantidadUsada < cantidadLimite);
     }
-
 }

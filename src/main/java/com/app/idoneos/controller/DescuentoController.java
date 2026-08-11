@@ -56,7 +56,7 @@ public class DescuentoController {
 
         Descuento d = new Descuento();
         d.setNombre(nombre);
-        d.setPorcentaje(porcentaje);
+        d.setPorcentaje(porcentaje.floatValue());
         d.setVigenciaDesde(vigenciaDesde);
         d.setVigenciaHasta(vigenciaHasta);
         d.setCantidadLimite(cantidadLimite);
@@ -96,7 +96,7 @@ public class DescuentoController {
 
         Descuento d = dOpt.get();
         d.setNombre(nombre);
-        d.setPorcentaje(porcentaje);
+        d.setPorcentaje(porcentaje.floatValue());
         d.setVigenciaDesde(vigenciaDesde);
         d.setVigenciaHasta(vigenciaHasta);
         d.setCantidadLimite(cantidadLimite);

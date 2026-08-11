@@ -1,57 +1,57 @@
 package com.app.idoneos.model;
 
 import jakarta.persistence.*;
-import lombok.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Entidad Docente: Subtipo de Usuario con rol docente (relación 1 a 0..1 mediante clave compartida).
+ * Mapea directamente a la tabla "Docente" en base_datos.sql.
+ */
 @Entity
-@Table(name = "docente")
-@Getter @Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@Table(name = "\"Docente\"")
 public class Docente {
 
+    /** Identificador del docente, coincidente con el id de Usuario (clave primaria compartida). */
     @Id
     @Column(name = "id")
     private int id;
 
+    /** Años de experiencia profesional declarados. */
     @Column(name = "anios_experiencia", nullable = false)
-    private int aniosExperiencia;
+    private int aniosExperiencia = 0;
 
+    /** Matrícula profesional del Registro de Idóneos de la Comisión Nacional de Valores (opcional). */
     @Column(name = "matricula_cnv", length = 50)
     private String matriculaCnv;
 
+    /** Biografía y trayectoria del docente. */
     @Column(name = "biografia", columnDefinition = "text")
     private String biografia;
 
+    /** Indicador de si el docente se encuentra habilitado para dictar clases. */
     @Column(name = "habilitado", nullable = false)
     private boolean habilitado = true;
 
-    @OneToOne
+    /** Relación 1 a 1 con la entidad base Usuario (@MapsId vincula la PK con Usuario). */
+    @OneToOne(fetch = FetchType.LAZY)
     @MapsId
     @JoinColumn(name = "id")
     private Usuario usuario;
 
+    /** Títulos universitarios o profesionales registrados del docente. */
     @OneToMany(mappedBy = "docente", cascade = CascadeType.ALL)
     private List<TituloDocente> titulos = new ArrayList<>();
 
+    /** Asignaciones a dictados de cursos (como titular o supervisor). */
     @OneToMany(mappedBy = "docente", cascade = CascadeType.ALL)
     private List<DictadoDocente> dictadosDocentes = new ArrayList<>();
 
-    @OneToMany(mappedBy = "docente", cascade = CascadeType.ALL)
-    private List<Material> materiales = new ArrayList<>();
+    @Transient
+    private LocalDateTime fechaConsentimientoClon;
 
-    @OneToMany(mappedBy = "docente", cascade = CascadeType.ALL)
-    private List<ClaseClonIA> clasesClonIA = new ArrayList<>();
-
-    @OneToMany(mappedBy = "docente", cascade = CascadeType.ALL)
-    private List<ClaseEnVivo> clasesEnVivo = new ArrayList<>();
-
-    @OneToMany(mappedBy = "docente", cascade = CascadeType.ALL)
-    private List<RespuestaForo> respuestasForo = new ArrayList<>();
+    public Docente() {}
 
     public Docente(Usuario usuario) {
         this.usuario = usuario;
@@ -74,16 +74,11 @@ public class Docente {
 
     public boolean isHabilitado() { return habilitado; }
     public boolean getHabilitado() { return habilitado; }
+    public boolean puedeUsarClonIA() { return habilitado; }
     public void setHabilitado(boolean habilitado) { this.habilitado = habilitado; }
 
     public Usuario getUsuario() { return usuario; }
     public void setUsuario(Usuario usuario) { this.usuario = usuario; }
-
-    @Column(name = "fecha_consentimiento_clon")
-    private LocalDateTime fechaConsentimientoClon;
-
-    public LocalDateTime getFechaConsentimientoClon() { return fechaConsentimientoClon; }
-    public void setFechaConsentimientoClon(LocalDateTime fechaConsentimientoClon) { this.fechaConsentimientoClon = fechaConsentimientoClon; }
 
     public List<TituloDocente> getTitulos() { return titulos; }
     public void setTitulos(List<TituloDocente> titulos) { this.titulos = titulos; }
@@ -91,18 +86,6 @@ public class Docente {
     public List<DictadoDocente> getDictadosDocentes() { return dictadosDocentes; }
     public void setDictadosDocentes(List<DictadoDocente> dictadosDocentes) { this.dictadosDocentes = dictadosDocentes; }
 
-    public List<Material> getMateriales() { return materiales; }
-    public void setMateriales(List<Material> materiales) { this.materiales = materiales; }
-
-    public List<ClaseClonIA> getClasesClonIA() { return clasesClonIA; }
-    public void setClasesClonIA(List<ClaseClonIA> clasesClonIA) { this.clasesClonIA = clasesClonIA; }
-
-    public List<ClaseEnVivo> getClasesEnVivo() { return clasesEnVivo; }
-    public void setClasesEnVivo(List<ClaseEnVivo> clasesEnVivo) { this.clasesEnVivo = clasesEnVivo; }
-
-    public List<RespuestaForo> getRespuestasForo() { return respuestasForo; }
-    public void setRespuestasForo(List<RespuestaForo> respuestasForo) { this.respuestasForo = respuestasForo; }
-
-    public boolean puedeUsarClonIA() { return habilitado && fechaConsentimientoClon != null; }
-
+    public LocalDateTime getFechaConsentimientoClon() { return fechaConsentimientoClon; }
+    public void setFechaConsentimientoClon(LocalDateTime fechaConsentimientoClon) { this.fechaConsentimientoClon = fechaConsentimientoClon; }
 }
