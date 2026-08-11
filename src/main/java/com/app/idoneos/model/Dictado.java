@@ -1,49 +1,58 @@
 package com.app.idoneos.model;
 
 import jakarta.persistence.*;
-import lombok.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Dictado de clases programado de un Programa de curso.
+ * Define cronograma (fecha inicio/fin), cupos y equipo docente asociado.
+ */
 @Entity
 @Table(name = "dictado")
-@Getter @Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class Dictado {
 
+    /** Identificador único del dictado. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private int id;
 
+    /** Fecha de inicio de las clases de este dictado. */
     @Column(name = "fecha_inicio", nullable = false)
     private LocalDateTime fechaInicio;
 
+    /** Fecha de finalización de las clases de este dictado. */
     @Column(name = "fecha_fin", nullable = false)
     private LocalDateTime fechaFin;
 
+    /** Cupo máximo de alumnos (nulo si no hay límite). */
     @Column(name = "cupo_maximo")
     private Integer cupoMaximo;
 
+    /** Marca de baja lógica del dictado. */
     @Column(name = "baja", nullable = false)
     private boolean baja = false;
 
+    /** Fecha y hora de creación del registro. */
     @Column(name = "fecha_creacion", nullable = false)
     private LocalDateTime fechaCreacion = LocalDateTime.now();
 
+    /** Fecha y hora de la última modificación del registro. */
     @Column(name = "ultima_modificacion")
     private LocalDateTime ultimaModificacion;
 
+    /** Programa al que pertenece este dictado. */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "programa_id", nullable = false)
     private Programa programa;
 
+    /** Asignaciones docentes a este dictado (titulares y supervisores). */
     @OneToMany(mappedBy = "dictado", cascade = CascadeType.ALL)
     private List<DictadoDocente> dictadosDocentes = new ArrayList<>();
 
+    /** Inscripciones de alumnos realizadas a este dictado puntual. */
     @OneToMany(mappedBy = "dictado", cascade = CascadeType.ALL)
     private List<Inscripcion> inscripciones = new ArrayList<>();
 

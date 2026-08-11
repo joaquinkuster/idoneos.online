@@ -1,28 +1,32 @@
 package com.app.idoneos.model;
 
 import jakarta.persistence.*;
-import lombok.*;
 
+/**
+ * Tabla asociativa M a N entre Pool de preguntas y Autoevaluación.
+ * Permite que una autoevaluación incluya preguntas provenientes de múltiples pools.
+ */
 @Entity
 @Table(name = "pool_autoevaluacion")
-@Getter @Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class PoolAutoevaluacion {
 
+    /** Identificador único del vínculo asociativo. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private int id;
 
+    /** Banco de preguntas (Pool) asociado. */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "pool_id", nullable = false)
     private Pool pool;
 
+    /** Autoevaluación asociada. */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "autoevaluacion_id", nullable = false)
     private Autoevaluacion autoevaluacion;
+
+    public PoolAutoevaluacion() {}
 
     public PoolAutoevaluacion(Pool pool, Autoevaluacion autoevaluacion) {
         this.pool = pool;
@@ -37,8 +41,4 @@ public class PoolAutoevaluacion {
 
     public Autoevaluacion getAutoevaluacion() { return autoevaluacion; }
     public void setAutoevaluacion(Autoevaluacion autoevaluacion) { this.autoevaluacion = autoevaluacion; }
-
-
-    public PoolAutoevaluacion() {}
-
 }

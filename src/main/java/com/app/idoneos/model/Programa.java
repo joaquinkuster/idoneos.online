@@ -1,49 +1,58 @@
 package com.app.idoneos.model;
 
 import jakarta.persistence.*;
-import lombok.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Representa una versión del plan de estudios de un Curso.
+ * Organiza las unidades temáticas y los dictados de clases.
+ */
 @Entity
 @Table(name = "programa")
-@Getter @Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class Programa {
 
+    /** Identificador único del programa. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private int id;
 
+    /** Nombre de la versión del programa (ej. "Edición 2026"). */
     @Column(name = "nombre", nullable = false, length = 150)
     private String nombre;
 
+    /** Descripción sintética del plan de estudios. */
     @Column(name = "descripcion", length = 500)
     private String descripcion;
 
+    /** Meses de acceso habilitados al inscribirse a un dictado de este programa. */
     @Column(name = "meses_acceso", nullable = false)
     private int mesesAcceso;
 
+    /** Fecha y hora de creación del programa. */
     @Column(name = "fecha_creacion", nullable = false)
     private LocalDateTime fechaCreacion = LocalDateTime.now();
 
+    /** Fecha y hora de la última actualización del registro. */
     @Column(name = "ultima_modificacion")
     private LocalDateTime ultimaModificacion;
 
+    /** Marca de baja lógica del programa. */
     @Column(name = "baja", nullable = false)
     private boolean baja = false;
 
+    /** Curso al que pertenece esta versión de programa. */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "curso_id", nullable = false)
     private Curso curso;
 
+    /** Lista de dictados de clases organizados bajo este programa. */
     @OneToMany(mappedBy = "programa", cascade = CascadeType.ALL)
     private List<Dictado> dictados = new ArrayList<>();
 
+    /** Lista de unidades académicas que componen el contenido de este programa. */
     @OneToMany(mappedBy = "programa", cascade = CascadeType.ALL)
     private List<Unidad> unidades = new ArrayList<>();
 

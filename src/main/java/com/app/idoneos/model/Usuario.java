@@ -1,7 +1,6 @@
 package com.app.idoneos.model;
 
 import jakarta.persistence.*;
-import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -13,79 +12,102 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Entidad base de autenticación e identidad de usuarios de la plataforma.
+ * Subtipos: Alumno, Docente, Administrador.
+ */
 @Entity
 @Table(name = "usuario")
-@Getter @Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class Usuario implements UserDetails {
 
+    /** Identificador único del usuario. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private int id;
 
+    /** Nombre del usuario (se muestra en UI y comunicaciones). */
     @Column(name = "nombre", nullable = false, length = 50)
     private String nombre;
 
+    /** Apellido del usuario. */
     @Column(name = "apellido", nullable = false, length = 50)
     private String apellido;
 
+    /** Documento Nacional de Identidad (usado en certificados y títulos). */
     @Column(name = "dni", length = 8)
     private String dni;
 
+    /** Correo electrónico (identificador de login y contacto). */
     @Column(name = "email", nullable = false, unique = true, length = 150)
     private String correo;
 
+    /** Hash de la contraseña de acceso (nula si autentica con Google OAuth). */
     @Column(name = "contrasena", length = 255)
     private String contrasena;
 
+    /** Ruta de la imagen de perfil del usuario. */
     @Column(name = "imagen", length = 150)
     private String imagen;
 
+    /** Número de teléfono de contacto. */
     @Column(name = "telefono", length = 20)
     private String telefono;
 
+    /** Token temporal para restablecimiento de contraseña. */
     @Column(name = "token_recuperacion", length = 255)
     private String tokenRecuperacion;
 
+    /** Expiración del token de recuperación. */
     @Column(name = "expiracion_token")
     private LocalDateTime expiracionToken;
 
+    /** Identificador único devuelto por Google OAuth. */
     @Column(name = "google_id", length = 255)
     private String googleId;
 
+    /** Estado de verificación del correo electrónico. */
     @Column(name = "email_validado", nullable = false)
     private boolean emailValidado = false;
 
+    /** Fecha y hora de creación de la cuenta. */
     @Column(name = "fecha_registro", nullable = false)
     private LocalDateTime fechaRegistro = LocalDateTime.now();
 
+    /** Marca de baja lógica del usuario. */
     @Column(name = "baja", nullable = false)
     private boolean baja = false;
 
+    /** Rol principal asignado al usuario. */
     @Enumerated(EnumType.STRING)
     @Column(name = "rol", nullable = false)
     private RolUsuario rol = RolUsuario.Alumno;
 
+    /** Subtipo Alumno (si aplica). */
     @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Alumno alumno;
 
+    /** Subtipo Docente (si aplica). */
     @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Docente docente;
 
+    /** Subtipo Administrador (si aplica). */
     @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Administrador administrador;
 
+    /** Vínculos con la tabla de roles de usuario. */
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
     private Set<UsuarioRol> usuarioRoles = new HashSet<>();
 
+    /** Sesiones activas e inactivas del usuario. */
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
     private List<Sesion> sesiones = new ArrayList<>();
 
+    /** Registros de auditoría AOP generados por acciones del usuario. */
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
     private List<Auditoria> auditorias = new ArrayList<>();
+
+    public Usuario() {}
 
     public Usuario(String nombre, String apellido, String correo, String contrasena, RolUsuario rol) {
         this.nombre = nombre;
@@ -192,7 +214,4 @@ public class Usuario implements UserDetails {
 
     public List<Auditoria> getAuditorias() { return auditorias; }
     public void setAuditorias(List<Auditoria> auditorias) { this.auditorias = auditorias; }
-
-    /** Required by JPA/Hibernate - explicit no-arg constructor. */
-    public Usuario() {}
 }
