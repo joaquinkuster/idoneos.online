@@ -4,7 +4,7 @@
 -- Project :      ModeloConceptual.DM1
 -- Author :       Joaquín
 --
--- Date Created : Tuesday, August 11, 2026 14:44:56
+-- Date Created : Tuesday, August 11, 2026 15:49:46
 -- Target DBMS : PostgreSQL 9.x
 --
 

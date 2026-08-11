@@ -1,14 +1,13 @@
 package com.app.idoneos.model;
 
 import jakarta.persistence.*;
-import lombok.*;
 
+/**
+ * Representa la tabla asociativa entre Dictado y Docente ("Dictado Docente").
+ * Permite asignar un equipo docente a un dictado puntual de un programa.
+ */
 @Entity
-@Table(name = "dictado_docente")
-@Getter @Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@Table(name = "\"Dictado Docente\"")
 public class DictadoDocente {
 
     @Id
@@ -16,17 +15,32 @@ public class DictadoDocente {
     @Column(name = "id")
     private int id;
 
+    /**
+     * Dictado al que pertenece el docente asignado.
+     */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "dictado_id", nullable = false)
+    @JoinColumn(name = "dictado_id")
     private Dictado dictado;
 
+    /**
+     * Docente asignado al dictado.
+     */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "docente_id", nullable = false)
+    @JoinColumn(name = "docente_id")
     private Docente docente;
 
-    public DictadoDocente(Dictado dictado, Docente docente) {
+    /**
+     * Distingue si el docente participa como supervisor (false) o titular (true) del dictado.
+     */
+    @Column(name = "es_supervisor")
+    private boolean esSupervisor = false;
+
+    public DictadoDocente() {}
+
+    public DictadoDocente(Dictado dictado, Docente docente, boolean esSupervisor) {
         this.dictado = dictado;
         this.docente = docente;
+        this.esSupervisor = esSupervisor;
     }
 
     public int getId() { return id; }
@@ -37,4 +51,8 @@ public class DictadoDocente {
 
     public Docente getDocente() { return docente; }
     public void setDocente(Docente docente) { this.docente = docente; }
+
+    public boolean isEsSupervisor() { return esSupervisor; }
+    public boolean getEsSupervisor() { return esSupervisor; }
+    public void setEsSupervisor(boolean esSupervisor) { this.esSupervisor = esSupervisor; }
 }

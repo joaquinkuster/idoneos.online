@@ -1,15 +1,14 @@
 package com.app.idoneos.model;
 
 import jakarta.persistence.*;
-import lombok.*;
 import java.time.LocalDateTime;
 
+/**
+ * Entidad Pago: registra la transacción procesada.
+ * Los datos del comprobante se guardan directamente como atributos de la entidad.
+ */
 @Entity
-@Table(name = "pago")
-@Getter @Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@Table(name = "\"Pago\"")
 public class Pago {
 
     @Id
@@ -24,10 +23,10 @@ public class Pago {
     private LocalDateTime fecha = LocalDateTime.now();
 
     @Column(name = "payment_request_id", length = 50)
-    private String paymentRequestID;
+    private String paymentRequest;
 
-    @Column(name = "external_intention_id", nullable = false, length = 50)
-    private String externalIntentionId;
+    @Column(name = "external_intention_id", length = 50, nullable = false)
+    private String externalIntentionId = "";
 
     @Column(name = "reference_code", length = 20)
     private String referenceCode;
@@ -57,16 +56,25 @@ public class Pago {
     private boolean comprobanteEnviado = false;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "inscripcion_id", nullable = false)
+    @JoinColumn(name = "inscripcion_id")
     private Inscripcion inscripcion;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "estado_pago_id", nullable = false)
+    @JoinColumn(name = "estado_pago_id")
     private EstadoPago estadoPago;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "metodo_pago_id", nullable = false)
+    @JoinColumn(name = "metodo_pago_id")
     private MetodoPago metodoPago;
+
+    public Pago() {}
+
+    public Pago(double monto, Inscripcion inscripcion, EstadoPago estadoPago) {
+        this.monto = monto;
+        this.inscripcion = inscripcion;
+        this.estadoPago = estadoPago;
+        this.fecha = LocalDateTime.now();
+    }
 
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
@@ -77,16 +85,11 @@ public class Pago {
     public LocalDateTime getFecha() { return fecha; }
     public void setFecha(LocalDateTime fecha) { this.fecha = fecha; }
 
-    public String getPaymentRequestID() { return paymentRequestID; }
-    public void setPaymentRequestID(String paymentRequestID) { this.paymentRequestID = paymentRequestID; }
+    public String getPaymentRequest() { return paymentRequest; }
+    public void setPaymentRequest(String paymentRequest) { this.paymentRequest = paymentRequest; }
 
     public String getExternalIntentionId() { return externalIntentionId; }
     public void setExternalIntentionId(String externalIntentionId) { this.externalIntentionId = externalIntentionId; }
-
-    public String getPaymentId() { return externalIntentionId != null ? externalIntentionId : paymentRequestID; }
-
-    public EstadoPago getEstadoPago() { return estadoPago; }
-    public void setEstadoPago(EstadoPago estadoPago) { this.estadoPago = estadoPago; }
 
     public String getReferenceCode() { return referenceCode; }
     public void setReferenceCode(String referenceCode) { this.referenceCode = referenceCode; }
@@ -119,23 +122,14 @@ public class Pago {
     public Inscripcion getInscripcion() { return inscripcion; }
     public void setInscripcion(Inscripcion inscripcion) { this.inscripcion = inscripcion; }
 
+    public EstadoPago getEstadoPago() { return estadoPago; }
+    public void setEstadoPago(EstadoPago estadoPago) { this.estadoPago = estadoPago; }
+
     public MetodoPago getMetodoPago() { return metodoPago; }
     public void setMetodoPago(MetodoPago metodoPago) { this.metodoPago = metodoPago; }
 
-
-    public Pago(double monto, Inscripcion inscripcion, EstadoPago estadoPago) {
-        this.monto = monto;
-        this.inscripcion = inscripcion;
-        this.estadoPago = estadoPago;
-        this.externalIntentionId = "PENDING";
-    }
-
-    public String getEmailPagador() { return inscripcion != null && inscripcion.getAlumno() != null
-            ? inscripcion.getAlumno().getUsuario().getCorreo() : null; }
-    public void setEmailPagador(String emailPagador) {
-        // stored logically in inscripcion.alumno.usuario.correo — kept for backward compat
-    }
-    public void setPaymentId(String paymentId) { this.externalIntentionId = paymentId; }
-    public void setPreferenceId(String preferenceId) { this.referenceCode = preferenceId; }
-
+    // Aliases para compatibilidad
+    public void setPaymentId(String pId) { this.paymentRequest = pId; }
+    public void setPreferenceId(String pId) { this.externalIntentionId = pId; }
+    public void setEmailPagador(String email) { this.nombrePagador = email; }
 }

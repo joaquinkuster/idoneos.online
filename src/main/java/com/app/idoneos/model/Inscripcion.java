@@ -1,17 +1,14 @@
 package com.app.idoneos.model;
 
 import jakarta.persistence.*;
-import lombok.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
+/**
+ * Entidad Inscripción: vínculo entre un Alumno y un Dictado puntual de un curso.
+ * Los datos del certificado se guardan en la propia inscripción.
+ */
 @Entity
-@Table(name = "inscripcion")
-@Getter @Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@Table(name = "\"Inscripcion\"")
 public class Inscripcion {
 
     @Id
@@ -41,22 +38,30 @@ public class Inscripcion {
     private boolean baja = false;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "descuento_id")
-    private Descuento descuento;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "alumno_id", nullable = false)
+    @JoinColumn(name = "alumno_id")
     private Alumno alumno;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "dictado_id", nullable = false)
+    @JoinColumn(name = "dictado_id")
     private Dictado dictado;
 
-    @OneToMany(mappedBy = "inscripcion", cascade = CascadeType.ALL)
-    private List<Pago> pagos = new ArrayList<>();
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "descuento_id")
+    private Descuento descuento;
 
-    @OneToMany(mappedBy = "inscripcion", cascade = CascadeType.ALL)
-    private List<Progreso> progresos = new ArrayList<>();
+    public Inscripcion() {}
+
+    public Inscripcion(Alumno alumno, Dictado dictado) {
+        this.alumno = alumno;
+        this.dictado = dictado;
+        this.fecha = LocalDateTime.now();
+        this.fechaVencimientoAcceso = LocalDateTime.now().plusMonths(6);
+    }
+
+    public Inscripcion(Usuario usuario, Curso curso) {
+        this.fecha = LocalDateTime.now();
+        this.fechaVencimientoAcceso = LocalDateTime.now().plusMonths(6);
+    }
 
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
@@ -84,32 +89,19 @@ public class Inscripcion {
     public boolean getBaja() { return baja; }
     public void setBaja(boolean baja) { this.baja = baja; }
 
-    public Descuento getDescuento() { return descuento; }
-    public void setDescuento(Descuento descuento) { this.descuento = descuento; }
-
     public Alumno getAlumno() { return alumno; }
     public void setAlumno(Alumno alumno) { this.alumno = alumno; }
 
     public Dictado getDictado() { return dictado; }
     public void setDictado(Dictado dictado) { this.dictado = dictado; }
 
-    public List<Pago> getPagos() { return pagos; }
-    public void setPagos(List<Pago> pagos) { this.pagos = pagos; }
+    public Descuento getDescuento() { return descuento; }
+    public void setDescuento(Descuento descuento) { this.descuento = descuento; }
 
-    public List<Progreso> getProgresos() { return progresos; }
-    public void setProgresos(List<Progreso> progresos) { this.progresos = progresos; }
-
-    public Usuario getUsuario() { return alumno != null ? alumno.getUsuario() : null; }
-    public void setUsuario(Usuario u) { if (alumno == null) alumno = new Alumno(u); else alumno.setUsuario(u); }
-    public Curso getCurso() { return dictado != null && dictado.getPrograma() != null ? dictado.getPrograma().getCurso() : null; }
-
-
-
-    /** Constructor de compatibilidad para InscripcionServiceImpl. */
-    public Inscripcion(Usuario usuario, Curso curso) {
-        Alumno a = new Alumno(usuario);
-        this.alumno = a;
-        // dictado se asigna posteriormente vía setDictado()
+    public Curso getCurso() {
+        if (dictado != null && dictado.getPrograma() != null) {
+            return dictado.getPrograma().getCurso();
+        }
+        return null;
     }
-
 }

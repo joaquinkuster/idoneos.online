@@ -1,10 +1,13 @@
 package com.app.idoneos.model;
 
 /**
- * Define los roles posibles de los usuarios en la plataforma Idóneos Online.
+ * Catálogo genérico de roles del sistema.
+ * 
+ * Enums de soporte para type-safety en servicios y seguridad.
+ * No es una entidad JPA persistida directamente como tabla única.
  */
 public enum RolUsuario {
-    Alumno,
+    Administrador,
     Docente,
-    Administrador
+    Alumno
 }
