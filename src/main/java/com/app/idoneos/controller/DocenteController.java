@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Controller para la gestión del panel docente (CU-01 a CU-05, CU-19 a CU-32).
+ * Controller para la gestión del panel docente (CU-01 Buscar curso, CU-02 Registrar curso, CU-19 Buscar unidad a CU-32 Consultar glosario).
  * Restringe las operaciones a los cursos en los que el docente participa como titular o supervisor.
  */
 @Controller
@@ -54,7 +54,7 @@ public class DocenteController {
     }
 
     /**
-     * CU-01 — Listar los cursos a cargo del docente autenticado.
+     * CU-01 — Buscar curso.
      */
     @GetMapping
     public String panelDocente(Model model, Authentication auth) {
@@ -69,7 +69,7 @@ public class DocenteController {
     }
 
     /**
-     * CU-02 — Formulario para el alta de un nuevo curso.
+     * CU-02 — Registrar curso.
      */
     @GetMapping("/curso/nuevo")
     public String nuevoCursoForm(Model model, Authentication auth) {
@@ -80,10 +80,9 @@ public class DocenteController {
     }
 
     /**
-     * CU-02 — Registrar curso por parte del docente.
+     * CU-02 — Registrar curso.
      * Reglas de negocio:
-     * - Campos obligatorios (nombre, descripción, precio, categoría).
-     * - Precio mayor o igual a cero (Excepción CU-02, paso 5).
+     * - RN-CU02-01: Precio mayor o igual a cero.
      * - Creación automática de programa y dictado asignado al docente.
      */
     @PostMapping("/curso/guardar")
@@ -97,7 +96,7 @@ public class DocenteController {
         Optional<Categoria> catOpt = categoriaService.buscarPorId(categoriaId);
 
         if (catOpt.isEmpty()) {
-            redirectAttributes.addFlashAttribute("mensaje", "CU-02 Excepción paso 4: Categoría seleccionada inválida.");
+            redirectAttributes.addFlashAttribute("mensaje", "EX-CU02-01: Categoría seleccionada inválida.");
             return "redirect:/docente/curso/nuevo";
         }
 
@@ -120,7 +119,7 @@ public class DocenteController {
     }
 
     /**
-     * CU-19 a CU-28 — Vista para gestionar unidades, materiales y estructura temática de un curso.
+     * CU-19 — Buscar unidad / CU-20 — Editar contenido de unidad.
      */
     @GetMapping("/curso/{cursoId}/gestionar")
     public String gestionarCurso(@PathVariable Integer cursoId, Model model, Authentication auth,
@@ -153,7 +152,7 @@ public class DocenteController {
     }
 
     /**
-     * CU-29 — Consultar glosario de términos de una unidad temática.
+     * CU-32 — Consultar glosario.
      */
     @GetMapping("/unidad/{unidadId}/glosario")
     public String gestionarGlosario(@PathVariable Integer unidadId, Model model, Authentication auth,
@@ -185,7 +184,7 @@ public class DocenteController {
     }
 
     /**
-     * CU-30 — Registrar término de glosario.
+     * CU-29 — Registrar término de glosario.
      */
     @PostMapping("/unidad/{unidadId}/glosario/guardar")
     public String guardarTerminoGlosario(@PathVariable Integer unidadId,

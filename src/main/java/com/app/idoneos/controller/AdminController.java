@@ -18,8 +18,12 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Controller para la Administración Central del Sistema (CU-01 a CU-09, CU-75 a CU-88).
- * Administra Cursos, Categorías, Usuarios, Docentes y la regla RN-07 (mínimo 1 admin activo) y RN-11 (docentes con cursos).
+ * Controller para la Administración Central del Sistema.
+ * Cubre: CU-01 Buscar curso, CU-02 Registrar curso, CU-03 Modificar curso, CU-04 Eliminar curso,
+ * CU-06 Buscar categoría, CU-07 Registrar categoría, CU-76 Buscar usuario, CU-77 Registrar usuario,
+ * CU-78 Modificar usuario, CU-79 Dar de baja usuario, CU-82 Registrar docente, CU-83 Modificar habilitación de docente,
+ * CU-88 Asignar rol a usuario.
+ * Aplica reglas de negocio: RN-07 (Al menos 1 admin activo) y RN-11 (Docente titular con cursos publicados).
  */
 @Controller
 @RequestMapping("/admin")
@@ -38,7 +42,7 @@ public class AdminController {
     @Autowired private EmailService emailService;
 
     /**
-     * CU-89 — Dashboard principal de administración e indicadores generales.
+     * CU-89 — Consultar registros de auditoría (Dashboard principal de indicadores).
      */
     @GetMapping
     public String verPanelAdmin(Model model, Authentication auth) {
@@ -57,7 +61,7 @@ public class AdminController {
     }
 
     /**
-     * CU-76 — Buscar y listar usuarios registrados en el sistema.
+     * CU-76 — Buscar usuario.
      */
     @GetMapping("/usuarios")
     public String listarUsuarios(Model model, Authentication auth) {
@@ -68,7 +72,7 @@ public class AdminController {
     }
 
     /**
-     * CU-77 / CU-82 — Formulario de alta de usuario por parte del Administrador.
+     * CU-77 — Registrar usuario / CU-82 — Registrar docente.
      */
     @GetMapping("/usuarios/nuevo")
     public String nuevoUsuarioForm(Model model, Authentication auth) {
@@ -79,7 +83,7 @@ public class AdminController {
     }
 
     /**
-     * CU-77 / CU-82 — Registrar usuario con rol por parte del Administrador.
+     * CU-77 — Registrar usuario / CU-82 — Registrar docente.
      */
     @PostMapping("/usuarios/guardar")
     public String guardarUsuario(@RequestParam String nombre,
@@ -90,7 +94,7 @@ public class AdminController {
                                  RedirectAttributes redirectAttributes) {
 
         if (usuarioService.buscarPorCorreo(correo).isPresent()) {
-            redirectAttributes.addFlashAttribute("mensaje", "CU-77 Excepción paso 5: El correo ya está registrado.");
+            redirectAttributes.addFlashAttribute("mensaje", "EX-CU77-01: El correo electrónico ya está registrado.");
             return "redirect:/admin/usuarios/nuevo";
         }
 
@@ -107,7 +111,7 @@ public class AdminController {
     }
 
     /**
-     * CU-79 — Dar de baja un usuario (Baja Lógica).
+     * CU-79 — Dar de baja usuario.
      * Reglas de negocio:
      * - RN-07: Impide la baja del único administrador activo.
      * - RN-11: Impide la baja de un docente titular con cursos publicados.
@@ -122,7 +126,7 @@ public class AdminController {
             long adminsActivos = usuarioService.contarAdministradoresActivos();
             if (adminsActivos <= 1) {
                 redirectAttributes.addFlashAttribute("mensaje",
-                        "RN-07 Excepción: No es posible dar de baja al único administrador activo del sistema.");
+                        "RN-07: No es posible dar de baja al único administrador activo del sistema.");
                 return "redirect:/admin/usuarios";
             }
         }
@@ -135,7 +139,7 @@ public class AdminController {
                             && Boolean.TRUE.equals(dd.getDictado().getPrograma().getCurso().getPublicado()));
             if (tieneCursosPublicados) {
                 redirectAttributes.addFlashAttribute("mensaje",
-                        "RN-11 Excepción: No es posible dar de baja a un docente titular con cursos publicados.");
+                        "RN-11: No es posible dar de baja a un docente titular con cursos publicados.");
                 return "redirect:/admin/usuarios";
             }
         }
@@ -148,7 +152,7 @@ public class AdminController {
     private boolean cOptEsVacio(Optional<?> opt) { return opt.isEmpty(); }
 
     /**
-     * CU-01 — Listar la totalidad de cursos del catálogo (publicados, no publicados y dados de baja).
+     * CU-01 — Buscar curso.
      */
     @GetMapping("/cursos")
     public String listarCursos(Model model, Authentication auth) {
@@ -159,7 +163,7 @@ public class AdminController {
     }
 
     /**
-     * CU-02 — Formulario de registro de nuevo curso desde el panel de administración.
+     * CU-02 — Registrar curso.
      */
     @GetMapping("/cursos/nuevo")
     public String nuevoCursoForm(Model model, Authentication auth) {
@@ -171,7 +175,7 @@ public class AdminController {
     }
 
     /**
-     * CU-02 — Registrar curso con asignación de docente titular y supervisor.
+     * CU-02 — Registrar curso.
      */
     @PostMapping("/cursos/guardar")
     public String guardarCurso(@RequestParam String nombre,
@@ -184,12 +188,12 @@ public class AdminController {
                                RedirectAttributes ra) {
         Optional<Categoria> catOpt = categoriaService.buscarPorId(categoriaId);
         if (catOpt.isEmpty()) {
-            ra.addFlashAttribute("mensaje", "CU-02 Excepción paso 4: Categoría seleccionada inválida.");
+            ra.addFlashAttribute("mensaje", "EX-CU02-01: Categoría seleccionada inválida.");
             return "redirect:/admin/cursos/nuevo";
         }
         Optional<Docente> docenteTitularOpt = docenteRepository.findById(docenteTitularId);
         if (docenteTitularOpt.isEmpty()) {
-            ra.addFlashAttribute("mensaje", "CU-02 Excepción paso 4: Docente titular seleccionado inválido.");
+            ra.addFlashAttribute("mensaje", "EX-CU02-01: Docente titular seleccionado inválido.");
             return "redirect:/admin/cursos/nuevo";
         }
 
@@ -210,7 +214,7 @@ public class AdminController {
     }
 
     /**
-     * CU-03 — Formulario de modificación de curso.
+     * CU-03 — Modificar curso.
      */
     @GetMapping("/cursos/{id}/editar")
     public String editarCursoForm(@PathVariable Integer id, Model model, Authentication auth) {
@@ -232,7 +236,7 @@ public class AdminController {
     }
 
     /**
-     * CU-03 / CU-04 — Guardar modificación de datos del curso.
+     * CU-03 — Modificar curso.
      */
     @PostMapping("/cursos/{id}/editar")
     public String guardarEdicionCurso(@PathVariable Integer id,
@@ -247,7 +251,7 @@ public class AdminController {
         Optional<Curso> cOpt = cursoService.buscarPorId(id);
         if (cOpt.isEmpty()) return "redirect:/admin/cursos";
         Optional<Categoria> catOpt = categoriaService.buscarPorId(categoriaId);
-        if (catOpt.isEmpty()) { ra.addFlashAttribute("mensaje", "CU-04 Excepción paso 4: Categoría inválida."); return "redirect:/admin/cursos/" + id + "/editar"; }
+        if (catOpt.isEmpty()) { ra.addFlashAttribute("mensaje", "EX-CU03-01: Categoría inválida."); return "redirect:/admin/cursos/" + id + "/editar"; }
 
         Curso curso = cOpt.get();
         curso.setNombre(nombre);
@@ -274,7 +278,7 @@ public class AdminController {
     }
 
     /**
-     * CU-05 — Dar de baja un curso (Baja Lógica).
+     * CU-04 — Eliminar curso.
      */
     @PostMapping("/cursos/{id}/baja")
     public String darBajaCurso(@PathVariable Integer id, RedirectAttributes ra) {
@@ -289,7 +293,7 @@ public class AdminController {
     }
 
     /**
-     * CU-03 — Cambiar estado de publicación del curso.
+     * CU-03 — Modificar curso (Cambiar estado de publicación).
      */
     @PostMapping("/cursos/{id}/publicar")
     public String publicarCurso(@PathVariable Integer id, RedirectAttributes ra) {
@@ -304,7 +308,7 @@ public class AdminController {
     }
 
     /**
-     * CU-06 — Listar categorías registradas.
+     * CU-06 — Buscar categoría.
      */
     @GetMapping("/categorias")
     public String listarCategorias(Model model, Authentication auth) {
@@ -315,7 +319,7 @@ public class AdminController {
     }
 
     /**
-     * CU-07 — Registrar nueva categoría.
+     * CU-07 — Registrar categoría.
      */
     @PostMapping("/categorias/guardar")
     public String guardarCategoria(@RequestParam String nombre,

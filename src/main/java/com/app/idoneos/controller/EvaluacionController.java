@@ -26,7 +26,7 @@ public class EvaluacionController {
     // ─── DOCENTE — Pools de Preguntas (CU-51 a CU-54) ───────────────────────────
 
     /**
-     * CU-51 — Consultar pool de preguntas de una unidad.
+     * CU-51 — Buscar pool de preguntas.
      */
     @GetMapping("/docente/unidad/{unidadId}/pool")
     public String verPool(@PathVariable Integer unidadId, Model model, Authentication auth) {
@@ -41,7 +41,7 @@ public class EvaluacionController {
     }
 
     /**
-     * CU-52 — Registrar pool de preguntas para una unidad temática.
+     * CU-52 — Registrar pool de preguntas.
      */
     @PostMapping("/docente/unidad/{unidadId}/pool/crear")
     public String crearPool(@PathVariable Integer unidadId,
@@ -51,7 +51,7 @@ public class EvaluacionController {
         if (unidad == null) return "redirect:/docente";
 
         if (evaluacionService.buscarPoolPorUnidad(unidad).isPresent()) {
-            ra.addFlashAttribute("mensaje", "CU-52 Excepción paso 4: Esta unidad ya cuenta con un pool de preguntas registrado.");
+            ra.addFlashAttribute("mensaje", "EX-CU52-01: Esta unidad ya cuenta con un pool de preguntas registrado.");
             return "redirect:/docente/unidad/" + unidadId + "/pool";
         }
         Pool pool = new Pool(nombre, unidad);
@@ -61,7 +61,7 @@ public class EvaluacionController {
     }
 
     /**
-     * CU-52 — Cargar preguntas de opción múltiple / Verdadero-Falso en el pool.
+     * CU-52 — Registrar pool de preguntas (Cargar preguntas de opción múltiple / Verdadero-Falso).
      */
     @PostMapping("/docente/pool/{poolId}/pregunta/agregar")
     public String agregarPregunta(@PathVariable Integer poolId,
@@ -86,7 +86,7 @@ public class EvaluacionController {
     }
 
     /**
-     * CU-54 — Eliminar pregunta de un pool (baja lógica).
+     * CU-54 — Eliminar pool de preguntas (Eliminar pregunta).
      */
     @PostMapping("/docente/pregunta/{preguntaId}/borrar")
     public String borrarPregunta(@PathVariable Integer preguntaId, RedirectAttributes ra) {
@@ -101,10 +101,10 @@ public class EvaluacionController {
     // ─── ALUMNO — Rendición e Intentos de Examen (CU-59 y CU-60) ───────────────
 
     /**
-     * CU-60 — Rendir examen autoevaluativo.
+     * CU-60 — Rendir autoevaluación.
      * Reglas de negocio:
      * - Sorteo aleatorio de 10 preguntas.
-     * - Control de límite de intentos permitidos.
+     * - Control de límite de intentos permitidos (RN-CU60-01).
      */
     @GetMapping("/evaluacion/{autoevaluacionId}/rendir")
     public String verExamen(@PathVariable Integer autoevaluacionId, Model model, Authentication auth) {
@@ -129,7 +129,7 @@ public class EvaluacionController {
     }
 
     /**
-     * CU-60 — Enviar examen, corregir automáticamente y calcular nota sobre 100%.
+     * CU-60 — Rendir autoevaluación (Enviar respuestas y calcular nota).
      */
     @PostMapping("/evaluacion/{autoevaluacionId}/enviar")
     public String enviarExamen(@PathVariable Integer autoevaluacionId,
@@ -161,7 +161,7 @@ public class EvaluacionController {
     }
 
     /**
-     * CU-59 — Consultar resultado de intento e historial de autoevaluaciones.
+     * CU-59 — Consultar historial de autoevaluaciones.
      */
     @GetMapping("/evaluacion/{autoevaluacionId}/resultado")
     public String verResultado(@PathVariable Integer autoevaluacionId, Model model, Authentication auth) {
