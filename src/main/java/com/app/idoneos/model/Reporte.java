@@ -27,4 +27,24 @@ public class Reporte {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "administrador_id", nullable = false)
     private Administrador administrador;
+
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+
+    public LocalDateTime getFechaGeneracion() { return fechaGeneracion; }
+    public void setFechaGeneracion(LocalDateTime fechaGeneracion) { this.fechaGeneracion = fechaGeneracion; }
+
+    public TipoReporte getTipoReporte() { return tipoReporte; }
+    public void setTipoReporte(TipoReporte tipoReporte) { this.tipoReporte = tipoReporte; }
+
+    public Administrador getAdministrador() { return administrador; }
+    public void setAdministrador(Administrador administrador) { this.administrador = administrador; }
+
+
+    public Reporte(TipoReporte tipoReporte, Administrador administrador) {
+        this.tipoReporte = tipoReporte;
+        this.administrador = administrador;
+        this.fechaGeneracion = java.time.LocalDateTime.now();
+    }
+
 }

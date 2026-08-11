@@ -44,4 +44,43 @@ public class ClaseClonIA {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "docente_id", nullable = false)
     private Docente docente;
+
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+
+    public String getTitulo() { return titulo; }
+    public void setTitulo(String titulo) { this.titulo = titulo; }
+
+    public String getGuion() { return guion; }
+    public void setGuion(String guion) { this.guion = guion; }
+
+    public LocalDateTime getFechaGeneracion() { return fechaGeneracion; }
+    public void setFechaGeneracion(LocalDateTime fechaGeneracion) { this.fechaGeneracion = fechaGeneracion; }
+
+    public boolean isBaja() { return baja; }
+    public boolean getBaja() { return baja; }
+    public void setBaja(boolean baja) { this.baja = baja; }
+
+    public EstadoClaseClonIA getEstadoClaseClonIA() { return estadoClaseClonIA; }
+    public void setEstadoClaseClonIA(EstadoClaseClonIA estadoClaseClonIA) { this.estadoClaseClonIA = estadoClaseClonIA; }
+
+    public Material getMaterial() { return material; }
+    public void setMaterial(Material material) { this.material = material; }
+
+    public Unidad getUnidad() { return unidad; }
+    public void setUnidad(Unidad unidad) { this.unidad = unidad; }
+
+    public Docente getDocente() { return docente; }
+    public void setDocente(Docente docente) { this.docente = docente; }
+
+    public ClaseClonIA(String titulo, Unidad unidad, Docente docente, EstadoClaseClonIA estadoClaseClonIA) {
+        this.titulo = titulo;
+        this.unidad = unidad;
+        this.docente = docente;
+        this.estadoClaseClonIA = estadoClaseClonIA;
+        this.guion = "";
+    }
+    public EstadoClaseClonIA getEstado() { return estadoClaseClonIA; }
+    public void setEstado(EstadoClaseClonIA estado) { this.estadoClaseClonIA = estado; }
+
 }

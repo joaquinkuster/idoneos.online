@@ -128,30 +128,50 @@ public class EmailService {
     // CU-36: Comprobante de pago
     // ─────────────────────────────────────────────────────────────────────────
 
-    public void enviarComprobante(Usuario alumno, Comprobante comprobante, Curso curso) {
+    public void enviarComprobante(Usuario alumno, Pago pago, Curso curso) {
         String asunto = "Comprobante de pago — " + curso.getNombre();
         String html = html(
                 "Tu comprobante de pago",
                 "Hola " + alumno.getNombre() + ", adjuntamos el comprobante N° <strong>"
-                        + comprobante.getNumero() + "</strong> por tu inscripción al curso <strong>"
+                        + pago.getNumeroComprobante() + "</strong> por tu inscripción al curso <strong>"
                         + curso.getNombre() + "</strong>.",
                 "/cursos/" + curso.getId() + "/mi-cursada",
                 "Ir a mi cursada",
-                "Fecha de emisión: " + comprobante.getFechaEmision()
+                "Fecha de emisión: " + pago.getFechaEmisionComprobante()
         );
         enviar(alumno.getCorreo(), asunto, html);
+    }
+
+    /** Overload de compatibilidad: acepta Comprobante (usa su Pago asociado). */
+    public void enviarComprobante(Usuario alumno, Comprobante comprobante, Curso curso) {
+        Pago pago = comprobante.getPago();
+        if (pago != null) {
+            enviarComprobante(alumno, pago, curso);
+        } else {
+            String asunto = "Comprobante de pago — " + curso.getNombre();
+            String html = html(
+                    "Tu comprobante de pago",
+                    "Hola " + alumno.getNombre() + ", tu comprobante N° <strong>"
+                            + comprobante.getNumero() + "</strong> para el curso <strong>"
+                            + curso.getNombre() + "</strong> fue emitido.",
+                    "/cursos/" + curso.getId() + "/mi-cursada",
+                    "Ir a mi cursada",
+                    "Fecha de emisión: " + comprobante.getFechaEmision()
+            );
+            enviar(alumno.getCorreo(), asunto, html);
+        }
     }
 
     // ─────────────────────────────────────────────────────────────────────────
     // PA-6 / CU-53: Certificado de finalización emitido
     // ─────────────────────────────────────────────────────────────────────────
 
-    public void enviarCertificado(Usuario alumno, Certificado certificado, Curso curso) {
+    public void enviarCertificado(Usuario alumno, Inscripcion inscripcion, Curso curso) {
         String asunto = "Certificado de finalización — " + curso.getNombre();
         String html = html(
                 "Felicitaciones, completaste el curso",
                 "Hola " + alumno.getNombre() + ", aprobaste el curso <strong>" + curso.getNombre()
-                        + "</strong>. Tu certificado N° <strong>" + certificado.getNumero() + "</strong> ya está disponible.",
+                        + "</strong>. Tu certificado N° <strong>" + inscripcion.getNumeroCertificado() + "</strong> ya está disponible.",
                 "/perfil/certificados",
                 "Ver mi certificado",
                 "Segui aprendiendo en Idóneos Online."

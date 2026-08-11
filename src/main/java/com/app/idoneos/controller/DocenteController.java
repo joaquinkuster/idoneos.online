@@ -270,7 +270,7 @@ public class DocenteController {
         material.setTitulo(titulo);
         material.setRutaArchivo(rutaArchivo);
         material.setPublicado(publicado);
-        tipoMaterialRepository.findById(tipoId).ifPresent(material::setTipo);
+        tipoMaterialRepository.findById(tipoId).ifPresent(material::setTipoMaterial);
         materialService.guardar(material);
         ra.addFlashAttribute("mensaje", "Material actualizado correctamente.");
         return "redirect:/docente/curso/" + material.getUnidad().getCurso().getId() + "/gestionar";
@@ -405,8 +405,8 @@ public class DocenteController {
         autoevaluacionRepository.save(ae);
         ra.addFlashAttribute("mensaje", "Autoevaluación actualizada.");
         // Redirigir al primer curso del primer pool
-        if (!ae.getPools().isEmpty() && ae.getPools().get(0).getUnidad() != null) {
-            return "redirect:/docente/curso/" + ae.getPools().get(0).getUnidad().getCurso().getId() + "/autoevaluaciones";
+        if (!ae.getPools().isEmpty() && ae.getPools().get(0).getPool() != null && ae.getPools().get(0).getPool().getUnidad() != null) {
+            return "redirect:/docente/curso/" + ae.getPools().get(0).getPool().getUnidad().getCurso().getId() + "/autoevaluaciones";
         }
         return "redirect:/docente";
     }

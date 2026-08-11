@@ -23,4 +23,20 @@ public class RespuestaIntento {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "opcion_respuesta_id", nullable = false)
     private OpcionRespuesta opcionRespuesta;
+
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+
+    public IntentoAutoevaluacion getIntentoAutoevaluacion() { return intentoAutoevaluacion; }
+    public void setIntentoAutoevaluacion(IntentoAutoevaluacion intentoAutoevaluacion) { this.intentoAutoevaluacion = intentoAutoevaluacion; }
+
+    public OpcionRespuesta getOpcionRespuesta() { return opcionRespuesta; }
+    public void setOpcionRespuesta(OpcionRespuesta opcionRespuesta) { this.opcionRespuesta = opcionRespuesta; }
+
+
+    public RespuestaIntento(IntentoAutoevaluacion intentoAutoevaluacion, OpcionRespuesta opcionRespuesta) {
+        this.intentoAutoevaluacion = intentoAutoevaluacion;
+        this.opcionRespuesta = opcionRespuesta;
+    }
+
 }

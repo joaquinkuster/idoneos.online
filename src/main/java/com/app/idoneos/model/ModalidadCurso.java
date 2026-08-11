@@ -28,4 +28,13 @@ public class ModalidadCurso {
         this.modalidad = modalidad;
         this.curso = curso;
     }
+
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+
+    public Modalidad getModalidad() { return modalidad; }
+    public void setModalidad(Modalidad modalidad) { this.modalidad = modalidad; }
+
+    public Curso getCurso() { return curso; }
+    public void setCurso(Curso curso) { this.curso = curso; }
 }

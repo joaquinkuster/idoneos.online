@@ -42,6 +42,7 @@ public class IntentoService {
      */
     public List<Pregunta> sortearPreguntas(Autoevaluacion autoevaluacion) {
         List<Pregunta> todas = autoevaluacion.getPools().stream()
+                .map(pa -> pa.getPool())
                 .flatMap(pool -> preguntaRepository.findByPoolAndBajaFalse(pool).stream())
                 .filter(p -> !p.getBaja())
                 .collect(Collectors.toList());
@@ -87,7 +88,7 @@ public class IntentoService {
     }
 
     public boolean estaAprobado(IntentoAutoevaluacion intento) {
-        return intento.getNota() != null && intento.getNota() >= UMBRAL_APROBACION;
+        return intento.getNota() >= UMBRAL_APROBACION;
     }
 
     public List<IntentoAutoevaluacion> historialPorAlumno(Autoevaluacion ae, Usuario usuario) {

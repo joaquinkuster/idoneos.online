@@ -28,4 +28,13 @@ public class DictadoDocente {
         this.dictado = dictado;
         this.docente = docente;
     }
+
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+
+    public Dictado getDictado() { return dictado; }
+    public void setDictado(Dictado dictado) { this.dictado = dictado; }
+
+    public Docente getDocente() { return docente; }
+    public void setDocente(Docente docente) { this.docente = docente; }
 }

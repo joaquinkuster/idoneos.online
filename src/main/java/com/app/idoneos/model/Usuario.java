@@ -32,7 +32,7 @@ public class Usuario implements UserDetails {
     @Column(name = "apellido", nullable = false, length = 50)
     private String apellido;
 
-    @Column(name = "dni", nullable = false, length = 8)
+    @Column(name = "dni", length = 8)
     private String dni;
 
     @Column(name = "email", nullable = false, unique = true, length = 150)
@@ -174,4 +174,25 @@ public class Usuario implements UserDetails {
 
     @Override
     public boolean isEnabled() { return !baja && emailValidado; }
+
+    public Alumno getAlumno() { return alumno; }
+    public void setAlumno(Alumno alumno) { this.alumno = alumno; }
+
+    public Docente getDocente() { return docente; }
+    public void setDocente(Docente docente) { this.docente = docente; }
+
+    public Administrador getAdministrador() { return administrador; }
+    public void setAdministrador(Administrador administrador) { this.administrador = administrador; }
+
+    public Set<UsuarioRol> getUsuarioRoles() { return usuarioRoles; }
+    public void setUsuarioRoles(Set<UsuarioRol> usuarioRoles) { this.usuarioRoles = usuarioRoles; }
+
+    public List<Sesion> getSesiones() { return sesiones; }
+    public void setSesiones(List<Sesion> sesiones) { this.sesiones = sesiones; }
+
+    public List<Auditoria> getAuditorias() { return auditorias; }
+    public void setAuditorias(List<Auditoria> auditorias) { this.auditorias = auditorias; }
+
+    /** Required by JPA/Hibernate - explicit no-arg constructor. */
+    public Usuario() {}
 }

@@ -23,4 +23,17 @@ public class EstadoClaseEnVivo {
 
     @OneToMany(mappedBy = "estadoClaseEnVivo", cascade = CascadeType.ALL)
     private List<ClaseEnVivo> clasesEnVivo = new ArrayList<>();
+
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+
+    public String getNombre() { return nombre; }
+    public void setNombre(String nombre) { this.nombre = nombre; }
+
+    public List<ClaseEnVivo> getClasesEnVivo() { return clasesEnVivo; }
+    public void setClasesEnVivo(List<ClaseEnVivo> clasesEnVivo) { this.clasesEnVivo = clasesEnVivo; }
+
+
+    public EstadoClaseEnVivo(String nombre) { this.nombre = nombre; }
+
 }

@@ -23,4 +23,17 @@ public class Modalidad {
 
     @OneToMany(mappedBy = "modalidad", cascade = CascadeType.ALL)
     private List<ModalidadCurso> modalidadesCursos = new ArrayList<>();
+
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+
+    public String getNombre() { return nombre; }
+    public void setNombre(String nombre) { this.nombre = nombre; }
+
+    public List<ModalidadCurso> getModalidadesCursos() { return modalidadesCursos; }
+    public void setModalidadesCursos(List<ModalidadCurso> modalidadesCursos) { this.modalidadesCursos = modalidadesCursos; }
+
+
+    public Modalidad(String nombre) { this.nombre = nombre; }
+
 }

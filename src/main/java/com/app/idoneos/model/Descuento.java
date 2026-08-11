@@ -51,4 +51,50 @@ public class Descuento {
 
     @OneToMany(mappedBy = "descuento", cascade = CascadeType.ALL)
     private List<Inscripcion> inscripciones = new ArrayList<>();
+
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+
+    public String getNombre() { return nombre; }
+    public void setNombre(String nombre) { this.nombre = nombre; }
+
+    public int getCursosRequeridos() { return cursosRequeridos; }
+    public void setCursosRequeridos(int cursosRequeridos) { this.cursosRequeridos = cursosRequeridos; }
+
+    public double getPorcentaje() { return porcentaje; }
+    public void setPorcentaje(double porcentaje) { this.porcentaje = porcentaje; }
+
+    public LocalDateTime getVigenciaDesde() { return vigenciaDesde; }
+    public void setVigenciaDesde(LocalDateTime vigenciaDesde) { this.vigenciaDesde = vigenciaDesde; }
+
+    public LocalDateTime getVigenciaHasta() { return vigenciaHasta; }
+    public void setVigenciaHasta(LocalDateTime vigenciaHasta) { this.vigenciaHasta = vigenciaHasta; }
+
+    public int getCantidadLimite() { return cantidadLimite; }
+    public void setCantidadLimite(int cantidadLimite) { this.cantidadLimite = cantidadLimite; }
+
+    public int getCantidadUsada() { return cantidadUsada; }
+    public void setCantidadUsada(int cantidadUsada) { this.cantidadUsada = cantidadUsada; }
+
+    public LocalDateTime getFechaCreacion() { return fechaCreacion; }
+    public void setFechaCreacion(LocalDateTime fechaCreacion) { this.fechaCreacion = fechaCreacion; }
+
+    public LocalDateTime getUltimaModificacion() { return ultimaModificacion; }
+    public void setUltimaModificacion(LocalDateTime ultimaModificacion) { this.ultimaModificacion = ultimaModificacion; }
+
+    public boolean isBaja() { return baja; }
+    public boolean getBaja() { return baja; }
+    public void setBaja(boolean baja) { this.baja = baja; }
+
+    public List<Inscripcion> getInscripciones() { return inscripciones; }
+    public void setInscripciones(List<Inscripcion> inscripciones) { this.inscripciones = inscripciones; }
+
+
+    public boolean estaVigente() {
+        java.time.LocalDateTime now = java.time.LocalDateTime.now();
+        return !baja && (cantidadLimite <= 0 || cantidadUsada < cantidadLimite)
+                && (vigenciaDesde == null || !now.isBefore(vigenciaDesde))
+                && (vigenciaHasta == null || !now.isAfter(vigenciaHasta));
+    }
+
 }

@@ -51,4 +51,31 @@ public class Auditoria {
         this.ipUsuario = "127.0.0.1";
         this.fechaHora = LocalDateTime.now();
     }
+
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+
+    public String getEntidadAfectada() { return entidadAfectada; }
+    public void setEntidadAfectada(String entidadAfectada) { this.entidadAfectada = entidadAfectada; }
+
+    public int getIdAfectado() { return idAfectado; }
+    public void setIdAfectado(int idAfectado) { this.idAfectado = idAfectado; }
+
+    public String getValorAnterior() { return valorAnterior; }
+    public void setValorAnterior(String valorAnterior) { this.valorAnterior = valorAnterior; }
+
+    public String getValorNuevo() { return valorNuevo; }
+    public void setValorNuevo(String valorNuevo) { this.valorNuevo = valorNuevo; }
+
+    public String getIpUsuario() { return ipUsuario; }
+    public void setIpUsuario(String ipUsuario) { this.ipUsuario = ipUsuario; }
+
+    public LocalDateTime getFechaHora() { return fechaHora; }
+    public void setFechaHora(LocalDateTime fechaHora) { this.fechaHora = fechaHora; }
+
+    public Usuario getUsuario() { return usuario; }
+    public void setUsuario(Usuario usuario) { this.usuario = usuario; }
+
+    public TipoAccionAuditoria getTipoAccionAuditoria() { return tipoAccionAuditoria; }
+    public void setTipoAccionAuditoria(TipoAccionAuditoria tipoAccionAuditoria) { this.tipoAccionAuditoria = tipoAccionAuditoria; }
 }

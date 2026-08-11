@@ -19,7 +19,7 @@ public class Categoria {
     @Column(name = "id")
     private int id;
 
-    @Column(name = "nombre", nullable = false, length = 50)
+    @Column(name = "nombre", nullable = false, length = 150)
     private String nombre;
 
     @Column(name = "descripcion", length = 150)
@@ -41,4 +41,27 @@ public class Categoria {
         this.nombre = nombre;
         this.descripcion = descripcion;
     }
+
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+
+    public String getNombre() { return nombre; }
+    public void setNombre(String nombre) { this.nombre = nombre; }
+
+    public String getDescripcion() { return descripcion; }
+    public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
+
+    public LocalDateTime getFechaCreacion() { return fechaCreacion; }
+    public void setFechaCreacion(LocalDateTime fechaCreacion) { this.fechaCreacion = fechaCreacion; }
+
+    public LocalDateTime getUltimaModificacion() { return ultimaModificacion; }
+    public void setUltimaModificacion(LocalDateTime ultimaModificacion) { this.ultimaModificacion = ultimaModificacion; }
+
+    public boolean isBaja() { return baja; }
+    public boolean getBaja() { return baja; }
+    public void setBaja(boolean baja) { this.baja = baja; }
+    public boolean esInactivo() { return baja; }
+
+    public List<Curso> getCursos() { return cursos; }
+    public void setCursos(List<Curso> cursos) { this.cursos = cursos; }
 }

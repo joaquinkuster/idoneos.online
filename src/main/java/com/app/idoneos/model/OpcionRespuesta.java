@@ -33,4 +33,32 @@ public class OpcionRespuesta {
 
     @OneToMany(mappedBy = "opcionRespuesta", cascade = CascadeType.ALL)
     private List<RespuestaIntento> respuestasIntentos = new ArrayList<>();
+
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+
+    public String getTexto() { return texto; }
+    public void setTexto(String texto) { this.texto = texto; }
+
+    public boolean isEsCorrecta() { return esCorrecta; }
+    public boolean getEsCorrecta() { return esCorrecta; }
+    public void setEsCorrecta(boolean esCorrecta) { this.esCorrecta = esCorrecta; }
+
+    public boolean isBaja() { return baja; }
+    public boolean getBaja() { return baja; }
+    public void setBaja(boolean baja) { this.baja = baja; }
+
+    public Pregunta getPregunta() { return pregunta; }
+    public void setPregunta(Pregunta pregunta) { this.pregunta = pregunta; }
+
+    public List<RespuestaIntento> getRespuestasIntentos() { return respuestasIntentos; }
+    public void setRespuestasIntentos(List<RespuestaIntento> respuestasIntentos) { this.respuestasIntentos = respuestasIntentos; }
+
+
+    public OpcionRespuesta(String texto, boolean esCorrecta, Pregunta pregunta) {
+        this.texto = texto;
+        this.esCorrecta = esCorrecta;
+        this.pregunta = pregunta;
+    }
+
 }

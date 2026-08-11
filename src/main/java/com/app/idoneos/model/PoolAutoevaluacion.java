@@ -28,4 +28,17 @@ public class PoolAutoevaluacion {
         this.pool = pool;
         this.autoevaluacion = autoevaluacion;
     }
+
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+
+    public Pool getPool() { return pool; }
+    public void setPool(Pool pool) { this.pool = pool; }
+
+    public Autoevaluacion getAutoevaluacion() { return autoevaluacion; }
+    public void setAutoevaluacion(Autoevaluacion autoevaluacion) { this.autoevaluacion = autoevaluacion; }
+
+
+    public PoolAutoevaluacion() {}
+
 }

@@ -23,4 +23,17 @@ public class TipoReporte {
 
     @OneToMany(mappedBy = "tipoReporte", cascade = CascadeType.ALL)
     private List<Reporte> reportes = new ArrayList<>();
+
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+
+    public String getNombre() { return nombre; }
+    public void setNombre(String nombre) { this.nombre = nombre; }
+
+    public List<Reporte> getReportes() { return reportes; }
+    public void setReportes(List<Reporte> reportes) { this.reportes = reportes; }
+
+
+    public TipoReporte(String nombre) { this.nombre = nombre; }
+
 }

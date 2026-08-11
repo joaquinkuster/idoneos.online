@@ -23,4 +23,17 @@ public class EstadoClaseClonIA {
 
     @OneToMany(mappedBy = "estadoClaseClonIA", cascade = CascadeType.ALL)
     private List<ClaseClonIA> clasesClonIA = new ArrayList<>();
+
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+
+    public String getNombre() { return nombre; }
+    public void setNombre(String nombre) { this.nombre = nombre; }
+
+    public List<ClaseClonIA> getClasesClonIA() { return clasesClonIA; }
+    public void setClasesClonIA(List<ClaseClonIA> clasesClonIA) { this.clasesClonIA = clasesClonIA; }
+
+
+    public EstadoClaseClonIA(String nombre) { this.nombre = nombre; }
+
 }

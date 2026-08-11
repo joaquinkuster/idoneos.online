@@ -46,4 +46,35 @@ public class Dictado {
 
     @OneToMany(mappedBy = "dictado", cascade = CascadeType.ALL)
     private List<Inscripcion> inscripciones = new ArrayList<>();
+
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+
+    public LocalDateTime getFechaInicio() { return fechaInicio; }
+    public void setFechaInicio(LocalDateTime fechaInicio) { this.fechaInicio = fechaInicio; }
+
+    public LocalDateTime getFechaFin() { return fechaFin; }
+    public void setFechaFin(LocalDateTime fechaFin) { this.fechaFin = fechaFin; }
+
+    public Integer getCupoMaximo() { return cupoMaximo; }
+    public void setCupoMaximo(Integer cupoMaximo) { this.cupoMaximo = cupoMaximo; }
+
+    public boolean isBaja() { return baja; }
+    public boolean getBaja() { return baja; }
+    public void setBaja(boolean baja) { this.baja = baja; }
+
+    public LocalDateTime getFechaCreacion() { return fechaCreacion; }
+    public void setFechaCreacion(LocalDateTime fechaCreacion) { this.fechaCreacion = fechaCreacion; }
+
+    public LocalDateTime getUltimaModificacion() { return ultimaModificacion; }
+    public void setUltimaModificacion(LocalDateTime ultimaModificacion) { this.ultimaModificacion = ultimaModificacion; }
+
+    public Programa getPrograma() { return programa; }
+    public void setPrograma(Programa programa) { this.programa = programa; }
+
+    public List<DictadoDocente> getDictadosDocentes() { return dictadosDocentes; }
+    public void setDictadosDocentes(List<DictadoDocente> dictadosDocentes) { this.dictadosDocentes = dictadosDocentes; }
+
+    public List<Inscripcion> getInscripciones() { return inscripciones; }
+    public void setInscripciones(List<Inscripcion> inscripciones) { this.inscripciones = inscripciones; }
 }

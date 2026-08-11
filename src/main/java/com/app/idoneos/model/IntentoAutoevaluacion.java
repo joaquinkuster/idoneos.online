@@ -35,4 +35,30 @@ public class IntentoAutoevaluacion {
 
     @OneToMany(mappedBy = "intentoAutoevaluacion", cascade = CascadeType.ALL)
     private List<RespuestaIntento> respuestasIntentos = new ArrayList<>();
+
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+
+    public LocalDateTime getFecha() { return fecha; }
+    public void setFecha(LocalDateTime fecha) { this.fecha = fecha; }
+
+    public double getNota() { return nota; }
+    public void setNota(double nota) { this.nota = nota; }
+
+    public Autoevaluacion getAutoevaluacion() { return autoevaluacion; }
+    public void setAutoevaluacion(Autoevaluacion autoevaluacion) { this.autoevaluacion = autoevaluacion; }
+
+    public Alumno getAlumno() { return alumno; }
+    public void setAlumno(Alumno alumno) { this.alumno = alumno; }
+
+    public List<RespuestaIntento> getRespuestasIntentos() { return respuestasIntentos; }
+    public void setRespuestasIntentos(List<RespuestaIntento> respuestasIntentos) { this.respuestasIntentos = respuestasIntentos; }
+
+
+    public IntentoAutoevaluacion(Autoevaluacion autoevaluacion, Usuario usuario) {
+        this.autoevaluacion = autoevaluacion;
+        // alumno se obtiene desde usuario
+        this.alumno = new Alumno(usuario);
+    }
+
 }

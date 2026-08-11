@@ -23,4 +23,19 @@ public class EstadoPago {
 
     @OneToMany(mappedBy = "estadoPago", cascade = CascadeType.ALL)
     private List<Pago> pagos = new ArrayList<>();
+
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+
+    public String getNombre() { return nombre; }
+    public void setNombre(String nombre) { this.nombre = nombre; }
+
+    public List<Pago> getPagos() { return pagos; }
+    public void setPagos(List<Pago> pagos) { this.pagos = pagos; }
+
+
+    public EstadoPago(String nombre) {
+        this.nombre = nombre;
+    }
+
 }

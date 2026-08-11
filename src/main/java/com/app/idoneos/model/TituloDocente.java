@@ -25,4 +25,16 @@ public class TituloDocente {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "docente_id", nullable = false)
     private Docente docente;
+
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+
+    public String getTitulo() { return titulo; }
+    public void setTitulo(String titulo) { this.titulo = titulo; }
+
+    public String getMatriculaColegio() { return matriculaColegio; }
+    public void setMatriculaColegio(String matriculaColegio) { this.matriculaColegio = matriculaColegio; }
+
+    public Docente getDocente() { return docente; }
+    public void setDocente(Docente docente) { this.docente = docente; }
 }

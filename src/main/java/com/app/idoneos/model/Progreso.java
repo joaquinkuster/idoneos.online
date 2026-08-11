@@ -30,4 +30,31 @@ public class Progreso {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "inscripcion_id", nullable = false)
     private Inscripcion inscripcion;
+
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+
+    public boolean isCompletada() { return completada; }
+    public boolean getCompletada() { return completada; }
+    public void setCompletada(boolean completada) { this.completada = completada; }
+
+    public LocalDateTime getFechaCompletada() { return fechaCompletada; }
+    public void setFechaCompletada(LocalDateTime fechaCompletada) { this.fechaCompletada = fechaCompletada; }
+
+    public Unidad getUnidad() { return unidad; }
+    public void setUnidad(Unidad unidad) { this.unidad = unidad; }
+
+    public Inscripcion getInscripcion() { return inscripcion; }
+    public void setInscripcion(Inscripcion inscripcion) { this.inscripcion = inscripcion; }
+
+
+    public Progreso(Inscripcion inscripcion, Unidad unidad, boolean completada) {
+        this.inscripcion = inscripcion;
+        this.unidad = unidad;
+        this.completada = completada;
+    }
+    public void setFechaCompletado(java.time.LocalDate fecha) {
+        this.fechaCompletada = fecha != null ? fecha.atStartOfDay() : null;
+    }
+
 }

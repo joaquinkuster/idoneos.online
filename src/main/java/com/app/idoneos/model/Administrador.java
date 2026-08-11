@@ -34,4 +34,14 @@ public class Administrador {
             this.id = usuario.getId();
         }
     }
+    public void setId(int id) { this.id = id; }
+
+    public Usuario getUsuario() { return usuario; }
+    public void setUsuario(Usuario usuario) { this.usuario = usuario; }
+
+    public List<Reporte> getReportes() { return reportes; }
+    public void setReportes(List<Reporte> reportes) { this.reportes = reportes; }
+
+    public List<Configuracion> getConfiguraciones() { return configuraciones; }
+    public void setConfiguraciones(List<Configuracion> configuraciones) { this.configuraciones = configuraciones; }
 }

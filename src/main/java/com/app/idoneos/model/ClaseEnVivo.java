@@ -47,4 +47,48 @@ public class ClaseEnVivo {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "docente_id", nullable = false)
     private Docente docente;
+
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+
+    public String getTitulo() { return titulo; }
+    public void setTitulo(String titulo) { this.titulo = titulo; }
+
+    public LocalDateTime getFechaHora() { return fechaHora; }
+    public void setFechaHora(LocalDateTime fechaHora) { this.fechaHora = fechaHora; }
+
+    public String getUrlRtmp() { return urlRtmp; }
+    public void setUrlRtmp(String urlRtmp) { this.urlRtmp = urlRtmp; }
+
+    public String getClaveStream() { return claveStream; }
+    public void setClaveStream(String claveStream) { this.claveStream = claveStream; }
+
+    public boolean isBaja() { return baja; }
+    public boolean getBaja() { return baja; }
+    public void setBaja(boolean baja) { this.baja = baja; }
+
+    public EstadoClaseEnVivo getEstadoClaseEnVivo() { return estadoClaseEnVivo; }
+    public void setEstadoClaseEnVivo(EstadoClaseEnVivo estadoClaseEnVivo) { this.estadoClaseEnVivo = estadoClaseEnVivo; }
+
+    public Material getMaterial() { return material; }
+    public void setMaterial(Material material) { this.material = material; }
+
+    public Unidad getUnidad() { return unidad; }
+    public void setUnidad(Unidad unidad) { this.unidad = unidad; }
+
+    public Docente getDocente() { return docente; }
+    public void setDocente(Docente docente) { this.docente = docente; }
+
+    public ClaseEnVivo(String titulo, LocalDateTime fechaHora, Unidad unidad, Docente docente, EstadoClaseEnVivo estadoClaseEnVivo) {
+        this.titulo = titulo;
+        this.fechaHora = fechaHora;
+        this.unidad = unidad;
+        this.docente = docente;
+        this.estadoClaseEnVivo = estadoClaseEnVivo;
+        this.urlRtmp = "";
+        this.claveStream = "";
+    }
+    public EstadoClaseEnVivo getEstado() { return estadoClaseEnVivo; }
+    public void setEstado(EstadoClaseEnVivo estado) { this.estadoClaseEnVivo = estado; }
+
 }

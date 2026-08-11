@@ -67,4 +67,75 @@ public class Pago {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "metodo_pago_id", nullable = false)
     private MetodoPago metodoPago;
+
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+
+    public double getMonto() { return monto; }
+    public void setMonto(double monto) { this.monto = monto; }
+
+    public LocalDateTime getFecha() { return fecha; }
+    public void setFecha(LocalDateTime fecha) { this.fecha = fecha; }
+
+    public String getPaymentRequestID() { return paymentRequestID; }
+    public void setPaymentRequestID(String paymentRequestID) { this.paymentRequestID = paymentRequestID; }
+
+    public String getExternalIntentionId() { return externalIntentionId; }
+    public void setExternalIntentionId(String externalIntentionId) { this.externalIntentionId = externalIntentionId; }
+
+    public String getPaymentId() { return externalIntentionId != null ? externalIntentionId : paymentRequestID; }
+
+    public EstadoPago getEstadoPago() { return estadoPago; }
+    public void setEstadoPago(EstadoPago estadoPago) { this.estadoPago = estadoPago; }
+
+    public String getReferenceCode() { return referenceCode; }
+    public void setReferenceCode(String referenceCode) { this.referenceCode = referenceCode; }
+
+    public String getTipoPago() { return tipoPago; }
+    public void setTipoPago(String tipoPago) { this.tipoPago = tipoPago; }
+
+    public String getUltimosDigitosTarjeta() { return ultimosDigitosTarjeta; }
+    public void setUltimosDigitosTarjeta(String ultimosDigitosTarjeta) { this.ultimosDigitosTarjeta = ultimosDigitosTarjeta; }
+
+    public String getDetalleEstado() { return detalleEstado; }
+    public void setDetalleEstado(String detalleEstado) { this.detalleEstado = detalleEstado; }
+
+    public LocalDateTime getFechaAprobacion() { return fechaAprobacion; }
+    public void setFechaAprobacion(LocalDateTime fechaAprobacion) { this.fechaAprobacion = fechaAprobacion; }
+
+    public String getNombrePagador() { return nombrePagador; }
+    public void setNombrePagador(String nombrePagador) { this.nombrePagador = nombrePagador; }
+
+    public String getNumeroComprobante() { return numeroComprobante; }
+    public void setNumeroComprobante(String numeroComprobante) { this.numeroComprobante = numeroComprobante; }
+
+    public LocalDateTime getFechaEmisionComprobante() { return fechaEmisionComprobante; }
+    public void setFechaEmisionComprobante(LocalDateTime fechaEmisionComprobante) { this.fechaEmisionComprobante = fechaEmisionComprobante; }
+
+    public boolean isComprobanteEnviado() { return comprobanteEnviado; }
+    public boolean getComprobanteEnviado() { return comprobanteEnviado; }
+    public void setComprobanteEnviado(boolean comprobanteEnviado) { this.comprobanteEnviado = comprobanteEnviado; }
+
+    public Inscripcion getInscripcion() { return inscripcion; }
+    public void setInscripcion(Inscripcion inscripcion) { this.inscripcion = inscripcion; }
+
+    public MetodoPago getMetodoPago() { return metodoPago; }
+    public void setMetodoPago(MetodoPago metodoPago) { this.metodoPago = metodoPago; }
+
+
+    public Pago(double monto, Inscripcion inscripcion, EstadoPago estadoPago) {
+        this.monto = monto;
+        this.inscripcion = inscripcion;
+        this.estadoPago = estadoPago;
+        this.externalIntentionId = "PENDING";
+    }
+
+    public String getEmailPagador() { return inscripcion != null && inscripcion.getAlumno() != null
+            ? inscripcion.getAlumno().getUsuario().getCorreo() : null; }
+    public void setEmailPagador(String emailPagador) {
+        // stored logically in inscripcion.alumno.usuario.correo — kept for backward compat
+    }
+    public void setPaymentId(String paymentId) { this.externalIntentionId = paymentId; }
+    public void setPreferenceId(String preferenceId) { this.referenceCode = preferenceId; }
+
 }
