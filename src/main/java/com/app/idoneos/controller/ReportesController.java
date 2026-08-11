@@ -14,7 +14,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.util.List;
 
 /**
- * Controller para la generación y visualización de reportes y estadísticas ejecutivas (CU-90: Generar reportes y estadísticas).
+ * Controller para la generación y visualización de reportes y estadísticas ejecutivas.
+ * Implementa: CU-90 — Generar informe de alumnos de un curso,
+ * CU-91 — Generar informe de ingresos de un curso, CU-92 — Consultar estadísticas.
  */
 @Controller
 @RequestMapping("/admin")
@@ -30,7 +32,8 @@ public class ReportesController {
     @Autowired private AdministradorRepository administradorRepository;
 
     /**
-     * CU-90 — Ver panel de reportes e indicadores clave de rendimiento (KPIs).
+     * CU-90 — Generar informe de alumnos de un curso / CU-91 — Generar informe de ingresos de un curso.
+     * CU-92 — Consultar estadísticas. Ver panel con indicadores clave de rendimiento (KPIs).
      */
     @GetMapping("/reportes")
     public String verReportes(Model model, Authentication auth) {
@@ -59,7 +62,7 @@ public class ReportesController {
     }
 
     /**
-     * CU-90 — Generar reporte ejecutivo (inscripciones, recaudación, completitud).
+     * CU-90 — Generar informe de alumnos de un curso. / CU-91 — Generar informe de ingresos de un curso.
      */
     @PostMapping("/reportes/generar")
     public String generarReporte(@RequestParam Integer tipoReporteId, Authentication auth, RedirectAttributes ra) {

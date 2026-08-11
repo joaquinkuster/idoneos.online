@@ -14,7 +14,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.util.List;
 
 /**
- * Controlar para la gestión de parámetros operativos del sistema (CU-92: Configurar parámetros).
+ * Controller para la gestión de parámetros operativos del sistema.
+ * Implementa: CU-93 — Configurar parámetros.
  * Permite listar, crear, modificar y eliminar la configuración clave-valor del sistema.
  */
 @Controller
@@ -24,7 +25,7 @@ public class ConfiguracionController {
     @Autowired private ConfiguracionRepository configRepo;
 
     /**
-     * CU-92 — Listar parámetros de configuración.
+     * CU-93 — Configurar parámetros. Listar parámetros de configuración.
      */
     @GetMapping
     public String verConfiguracion(Model model, Authentication auth) {
@@ -36,8 +37,8 @@ public class ConfiguracionController {
     }
 
     /**
-     * CU-92 — Registrar o modificar valor de un parámetro.
-     * Regla de negocio: La clave y el valor son obligatorios (Excepción CU-92, paso 4).
+     * CU-93 — Configurar parámetros. Registrar o modificar valor de un parámetro.
+     * Regla de negocio: La clave y el valor son obligatorios.
      */
     @PostMapping("/guardar")
     public String guardarParametro(@RequestParam String clave,
@@ -56,7 +57,7 @@ public class ConfiguracionController {
     }
 
     /**
-     * CU-92 — Eliminar parámetro de configuración.
+     * CU-93 — Configurar parámetros. Eliminar parámetro de configuración.
      */
     @PostMapping("/borrar/{id}")
     public String borrarParametro(@PathVariable Integer id, RedirectAttributes ra) {

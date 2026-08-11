@@ -14,7 +14,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.util.*;
 
 /**
- * Controller para la gestión de Pools de Preguntas, Autoevaluaciones e Intentos de Examen (CU-51 a CU-60).
+ * Controller para la gestión de Pools de Preguntas, Autoevaluaciones e Intentos de Examen.
+ * Implementa: CU-51 — Buscar pool, CU-52 — Crear pool, CU-53 — Modificar pool, CU-54 — Eliminar pool,
+ * CU-55 — Buscar autoevaluación, CU-56 — Crear autoevaluación, CU-57 — Modificar autoevaluación,
+ * CU-58 — Eliminar autoevaluación, CU-59 — Buscar intento de autoevaluación,
+ * CU-60 — Realizar intento de autoevaluación.
  */
 @Controller
 public class EvaluacionController {
@@ -26,7 +30,7 @@ public class EvaluacionController {
     // ─── DOCENTE — Pools de Preguntas (CU-51 a CU-54) ───────────────────────────
 
     /**
-     * CU-51 — Buscar pool de preguntas.
+     * CU-51 — Buscar pool.
      */
     @GetMapping("/docente/unidad/{unidadId}/pool")
     public String verPool(@PathVariable Integer unidadId, Model model, Authentication auth) {
@@ -41,7 +45,7 @@ public class EvaluacionController {
     }
 
     /**
-     * CU-52 — Registrar pool de preguntas.
+     * CU-52 — Crear pool.
      */
     @PostMapping("/docente/unidad/{unidadId}/pool/crear")
     public String crearPool(@PathVariable Integer unidadId,
@@ -61,7 +65,7 @@ public class EvaluacionController {
     }
 
     /**
-     * CU-52 — Registrar pool de preguntas (Cargar preguntas de opción múltiple / Verdadero-Falso).
+     * CU-52 — Crear pool (Cargar preguntas de opción múltiple / Verdadero-Falso).
      */
     @PostMapping("/docente/pool/{poolId}/pregunta/agregar")
     public String agregarPregunta(@PathVariable Integer poolId,
@@ -86,7 +90,7 @@ public class EvaluacionController {
     }
 
     /**
-     * CU-54 — Eliminar pool de preguntas (Eliminar pregunta).
+     * CU-54 — Eliminar pool (Eliminar pregunta).
      */
     @PostMapping("/docente/pregunta/{preguntaId}/borrar")
     public String borrarPregunta(@PathVariable Integer preguntaId, RedirectAttributes ra) {
@@ -101,7 +105,7 @@ public class EvaluacionController {
     // ─── ALUMNO — Rendición e Intentos de Examen (CU-59 y CU-60) ───────────────
 
     /**
-     * CU-60 — Rendir autoevaluación.
+     * CU-60 — Realizar intento de autoevaluación.
      * Reglas de negocio:
      * - Sorteo aleatorio de 10 preguntas.
      * - Control de límite de intentos permitidos (RN-CU60-01).
@@ -129,7 +133,7 @@ public class EvaluacionController {
     }
 
     /**
-     * CU-60 — Rendir autoevaluación (Enviar respuestas y calcular nota).
+     * CU-60 — Realizar intento de autoevaluación (Enviar respuestas y calcular nota).
      */
     @PostMapping("/evaluacion/{autoevaluacionId}/enviar")
     public String enviarExamen(@PathVariable Integer autoevaluacionId,
@@ -161,7 +165,7 @@ public class EvaluacionController {
     }
 
     /**
-     * CU-59 — Consultar historial de autoevaluaciones.
+     * CU-59 — Buscar intento de autoevaluación.
      */
     @GetMapping("/evaluacion/{autoevaluacionId}/resultado")
     public String verResultado(@PathVariable Integer autoevaluacionId, Model model, Authentication auth) {

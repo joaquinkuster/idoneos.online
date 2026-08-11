@@ -18,7 +18,13 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Controller para la gestión del panel docente (CU-01 Buscar curso, CU-02 Registrar curso, CU-19 Buscar unidad a CU-32 Consultar glosario).
+ * Controller para la gestión del panel docente.
+ * Implementa: CU-01 — Buscar curso, CU-02 — Registrar curso, CU-19 — Buscar unidad,
+ * CU-20 — Editar contenido de unidad, CU-22 — Registrar unidad, CU-23 — Modificar unidad,
+ * CU-24 — Eliminar unidad, CU-25 — Buscar material, CU-26 — Subir material,
+ * CU-27 — Modificar material, CU-28 — Eliminar material,
+ * CU-29 — Buscar término de glosario, CU-30 — Registrar término de glosario,
+ * CU-31 — Modificar término de glosario, CU-32 — Eliminar término de glosario.
  * Restringe las operaciones a los cursos en los que el docente participa como titular o supervisor.
  */
 @Controller
@@ -152,7 +158,8 @@ public class DocenteController {
     }
 
     /**
-     * CU-32 — Consultar glosario.
+     * CU-29 — Buscar término de glosario / CU-30 — Registrar término de glosario.
+     * CU-31 — Modificar término de glosario / CU-32 — Eliminar término de glosario.
      */
     @GetMapping("/unidad/{unidadId}/glosario")
     public String gestionarGlosario(@PathVariable Integer unidadId, Model model, Authentication auth,
@@ -184,7 +191,7 @@ public class DocenteController {
     }
 
     /**
-     * CU-29 — Registrar término de glosario.
+     * CU-30 — Registrar término de glosario.
      */
     @PostMapping("/unidad/{unidadId}/glosario/guardar")
     public String guardarTerminoGlosario(@PathVariable Integer unidadId,

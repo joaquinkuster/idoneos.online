@@ -16,7 +16,9 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 /**
- * Controller para la generación de clases mediante Avatar IA Clon (CU-71 a CU-74).
+ * Controller para la gestión de clases mediante Avatar IA Clon.
+ * Implementa: CU-71 — Buscar clase con Clon IA, CU-72 — Generar clase con Clon IA,
+ * CU-73 — Modificar clase con Clon IA, CU-74 — Eliminar clase con Clon IA.
  * Integra con HeyGen API v2 y valida el consentimiento previo del docente.
  */
 @Controller
@@ -70,7 +72,7 @@ public class ClaseClonIAController {
     }
 
     /**
-     * CU-71 — Buscar y listar clases generadas con Clon IA para el docente.
+     * CU-71 — Buscar clase con Clon IA.
      */
     @GetMapping("/docente")
     public String panelClonIA(Model model, Authentication auth) {
@@ -87,8 +89,8 @@ public class ClaseClonIAController {
     }
 
     /**
-     * CU-72 — Generar clase con Avatar IA Clon a partir de un guión docente.
-     * Regla de negocio: Valida consentimiento firmado del docente (`fechaConsentimientoClon != null`) (Excepción CU-72, paso 4).
+     * CU-72 — Generar clase con Clon IA.
+     * Regla de negocio: Valida consentimiento firmado del docente (`fechaConsentimientoClon != null`).
      */
     @PostMapping("/generar")
     public String generarClase(@RequestParam Integer unidadId,

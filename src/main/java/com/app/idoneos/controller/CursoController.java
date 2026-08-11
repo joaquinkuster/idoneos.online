@@ -17,7 +17,8 @@ import java.util.*;
 
 /**
  * Controller para la navegación, búsqueda del catálogo de cursos e inscripción del alumno.
- * Mapea la trazabilidad funcional de CU-01 (Buscar curso) y CU-42 (Inscribir curso).
+ * Implementa: CU-01 — Buscar curso, CU-05 — Explorar catálogo de cursos, CU-41 — Buscar inscripción,
+ * CU-42 — Inscribir curso, CU-46 — Buscar progreso.
  */
 @Controller
 @RequestMapping("/cursos")
@@ -30,8 +31,8 @@ public class CursoController {
     @Autowired private UnidadServiceImpl unidadService;
 
     /**
-     * CU-01 — Buscar y explorar el catálogo de cursos publicados.
-     * Permite filtrar por nombre, categoría y modalidad de dictado.
+     * CU-05 — Explorar catálogo de cursos.
+     * CU-01 — Buscar curso. Permite filtrar por nombre, categoría y modalidad de dictado.
      */
     @GetMapping
     public String listarCursos(@RequestParam(value = "categoriaId", required = false) Integer categoriaId,
@@ -62,7 +63,7 @@ public class CursoController {
     }
 
     /**
-     * CU-01 — Ver detalle de un curso seleccionado del catálogo.
+     * CU-05 — Explorar catálogo de cursos. Ver detalle de un curso seleccionado del catálogo.
      */
     @GetMapping("/{id:\\d+}")
     public String verDetalleCurso(@PathVariable("id") Integer id, Model model, Authentication auth) {
@@ -87,7 +88,7 @@ public class CursoController {
     }
 
     /**
-     * CU-41 — Consultar cursos en los que se encuentra inscripto el alumno.
+     * CU-41 — Buscar inscripción.
      */
     @GetMapping("/mis-cursos")
     public String listarMisCursos(Authentication auth, Model model) {
@@ -111,8 +112,8 @@ public class CursoController {
     }
 
     /**
-     * CU-42 — Inscribirse a un curso.
-     * Si el curso requiere pago (precio > 0), redirige al flujo de checkout (CU-45).
+     * CU-42 — Inscribir curso.
+     * Si el curso requiere pago (precio > 0), redirige al flujo de checkout (CU-45 — Realizar pago).
      */
     @PostMapping("/{id}/inscribir")
     public String inscribirseACurso(@PathVariable("id") Integer id, Authentication auth,
@@ -138,7 +139,7 @@ public class CursoController {
     }
 
     /**
-     * CU-46 — Acceso al aula virtual y seguimiento de progreso por unidades.
+     * CU-46 — Buscar progreso. Acceso al aula virtual y seguimiento de progreso por unidades.
      */
     @GetMapping({"/{id}/mi-cursada", "/{id}/cursada"})
     public String verMiCursada(@PathVariable("id") Integer id, Authentication auth,

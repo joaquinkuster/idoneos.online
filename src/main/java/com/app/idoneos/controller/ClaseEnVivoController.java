@@ -16,7 +16,11 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Controller para la programación y transmisión de Clases en Vivo (CU-61 a CU-64).
+ * Controller para la programación y transmisión de Clases en Vivo.
+ * Implementa: CU-61 — Buscar clase en vivo, CU-62 — Programar clase en vivo,
+ * CU-63 — Modificar clase en vivo, CU-64 — Cancelar clase en vivo,
+ * CU-65 — Iniciar clase en vivo, CU-66 — Finalizar clase en vivo,
+ * CU-67 — Ingresar a clase en vivo.
  */
 @Controller
 @RequestMapping("/clase-vivo")
@@ -92,7 +96,7 @@ public class ClaseEnVivoController {
     }
 
     /**
-     * CU-64 — Eliminar/Cancelar clase en vivo (baja lógica).
+     * CU-64 — Cancelar clase en vivo (baja lógica).
      */
     @PostMapping("/{claseId}/cancelar")
     public String cancelar(@PathVariable Integer claseId, RedirectAttributes ra) {
@@ -106,7 +110,7 @@ public class ClaseEnVivoController {
     }
 
     /**
-     * CU-62 — Iniciar transmisión en vivo (Generación de RTMP + Stream Key).
+     * CU-65 — Iniciar clase en vivo (Generación de RTMP + Stream Key).
      */
     @PostMapping("/{claseId}/iniciar")
     public String iniciar(@PathVariable Integer claseId, RedirectAttributes ra) {
@@ -131,7 +135,7 @@ public class ClaseEnVivoController {
     }
 
     /**
-     * CU-62 — Finalizar transmisión en vivo y generar material de grabación en revisión.
+     * CU-66 — Finalizar clase en vivo y generar material de grabación en revisión.
      */
     @PostMapping("/{claseId}/finalizar")
     public String finalizar(@PathVariable Integer claseId, RedirectAttributes ra) {
@@ -162,7 +166,7 @@ public class ClaseEnVivoController {
     }
 
     /**
-     * CU-61 — Visualizar clase en vivo para alumnos inscriptos.
+     * CU-67 — Ingresar a clase en vivo para alumnos inscriptos.
      */
     @GetMapping("/{claseId}/ver")
     public String verClase(@PathVariable Integer claseId, Model model, Authentication auth) {

@@ -9,7 +9,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
- * Controller para disparar la generación de contenido académico asistido por IA (CU-69, CU-70, PA-4, PA-5, PA-9).
+ * Controller para disparar la generación de contenido académico asistido por IA.
+ * Implementa: CU-68 — Generar banco de preguntas, CU-69 — Generar resumen de unidad,
+ * CU-70 — Generar presentación de unidad.
  * Integra con Ollama local (Llama 3.1 8B).
  */
 @Controller
@@ -20,7 +22,7 @@ public class GeneracionContenidoIAController {
     @Autowired private UnidadServiceImpl unidadService;
 
     /**
-     * CU-69 / PA-9 — Generar Banco de Preguntas asistido por IA.
+     * CU-68 — Generar banco de preguntas.
      * Genera preguntas cerradas (opción múltiple y verdadero/falso) para la evaluación.
      */
     @PostMapping("/unidad/{unidadId}/generar-banco")
@@ -36,7 +38,7 @@ public class GeneracionContenidoIAController {
     }
 
     /**
-     * CU-70 / PA-4 — Generar Resumen de Unidad estructurado con IA.
+     * CU-69 — Generar resumen de unidad.
      */
     @PostMapping("/unidad/{unidadId}/generar-resumen")
     public String generarResumen(@PathVariable Integer unidadId, RedirectAttributes ra) {
@@ -49,7 +51,7 @@ public class GeneracionContenidoIAController {
     }
 
     /**
-     * CU-70 / PA-7 — Generar Presentación de Diapositivas con IA.
+     * CU-70 — Generar presentación de unidad.
      */
     @PostMapping("/unidad/{unidadId}/generar-presentacion")
     public String generarPresentacion(@PathVariable Integer unidadId,

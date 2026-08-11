@@ -19,10 +19,12 @@ import java.util.Optional;
 
 /**
  * Controller para la Administración Central del Sistema.
- * Cubre: CU-01 Buscar curso, CU-02 Registrar curso, CU-03 Modificar curso, CU-04 Eliminar curso,
- * CU-06 Buscar categoría, CU-07 Registrar categoría, CU-76 Buscar usuario, CU-77 Registrar usuario,
- * CU-78 Modificar usuario, CU-79 Dar de baja usuario, CU-82 Registrar docente, CU-83 Modificar habilitación de docente,
- * CU-88 Asignar rol a usuario.
+ * Implementa: CU-01 — Buscar curso, CU-02 — Registrar curso, CU-03 — Modificar curso,
+ * CU-04 — Eliminar curso, CU-06 — Buscar categoría, CU-07 — Registrar categoría,
+ * CU-08 — Modificar categoría, CU-09 — Eliminar categoría, CU-76 — Buscar usuario,
+ * CU-77 — Registrar usuario, CU-78 — Modificar usuario, CU-79 — Dar de baja usuario,
+ * CU-82 — Registrar docente, CU-83 — Modificar docente,
+ * CU-87 — Buscar sesión, CU-88 — Eliminar sesión, CU-89 — Consultar auditoría.
  * Aplica reglas de negocio: RN-07 (Al menos 1 admin activo) y RN-11 (Docente titular con cursos publicados).
  */
 @Controller
@@ -42,7 +44,7 @@ public class AdminController {
     @Autowired private EmailService emailService;
 
     /**
-     * CU-89 — Consultar registros de auditoría (Dashboard principal de indicadores).
+     * CU-89 — Consultar auditoría (Dashboard principal de indicadores).
      */
     @GetMapping
     public String verPanelAdmin(Model model, Authentication auth) {

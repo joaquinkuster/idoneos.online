@@ -17,7 +17,7 @@ import com.app.idoneos.service.Usuario.UsuarioServiceImpl;
 
 /**
  * Controller para la gestión del perfil de usuario y cambio de credenciales.
- * Mapea la trazabilidad funcional de CU-80 (Ver perfil), CU-81 (Editar perfil) y CU-86 (Cambiar contraseña).
+ * Implementa: CU-80 — Ver perfil, CU-81 — Editar perfil, CU-86 — Recuperar contraseña.
  */
 @Controller
 @RequestMapping("/usuario")
@@ -39,7 +39,7 @@ public class UsuarioController {
     }
 
     /**
-     * CU-81 — Editar perfil del usuario.
+     * CU-81 — Editar perfil.
      * Reglas de negocio:
      * - Campos obligatorios: nombre, apellido, correo.
      * - Actualización de contexto de seguridad tras modificación.

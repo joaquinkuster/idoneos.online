@@ -14,7 +14,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.util.List;
 
 /**
- * Controller para la gestión del Foro de Consultas por Unidad (CU-33 a CU-40).
+ * Controller para la gestión del Foro de Consultas por Unidad.
+ * Implementa: CU-33 — Buscar consulta de foro, CU-34 — Registrar consulta de foro,
+ * CU-35 — Modificar consulta de foro, CU-36 — Eliminar consulta de foro,
+ * CU-37 — Buscar respuesta de foro, CU-38 — Registrar respuesta de foro,
+ * CU-39 — Modificar respuesta de foro, CU-40 — Eliminar respuesta de foro.
  */
 @Controller
 @RequestMapping("/foro")
@@ -28,7 +32,7 @@ public class ForoController {
     @Autowired private EmailService emailService;
 
     /**
-     * CU-33 — Buscar y consultar publicaciones del foro temático de una unidad.
+     * CU-33 — Buscar consulta de foro.
      */
     @GetMapping("/unidad/{unidadId}")
     public String verForoUnidad(@PathVariable Integer unidadId, Model model, Authentication auth) {
@@ -47,7 +51,7 @@ public class ForoController {
     }
 
     /**
-     * CU-34 — Registrar consulta de foro por parte de un alumno inscripto.
+     * CU-34 — Registrar consulta de foro.
      * Envía una notificación por correo electrónico al docente titular del dictado.
      */
     @PostMapping("/unidad/{unidadId}/consulta")
