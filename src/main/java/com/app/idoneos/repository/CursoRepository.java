@@ -30,4 +30,19 @@ public interface CursoRepository extends JpaRepository<Curso, Integer> {
      */
     @Query("SELECT DISTINCT dd.dictado.programa.curso FROM DictadoDocente dd WHERE dd.docente.id = :docenteId AND dd.esSupervisor = false AND dd.dictado.programa.curso.baja = false")
     List<Curso> findByDocenteTitularId(int docenteId);
+
+    /**
+     * CU-05: Buscar cursos publicados por modalidad de dictado.
+     */
+    @Query("SELECT DISTINCT mc.curso FROM ModalidadCurso mc WHERE mc.modalidad.id = :modalidadId AND mc.curso.baja = false AND mc.curso.publicado = true")
+    List<Curso> findByModalidadIdAndPublicadoTrue(int modalidadId);
+
+    /**
+     * CU-01 / CU-05: Filtro multicriterio de cursos publicados por nombre, categoría y modalidad.
+     */
+    @Query("SELECT DISTINCT c FROM Curso c LEFT JOIN ModalidadCurso mc ON mc.curso = c WHERE c.baja = false AND c.publicado = true " +
+           "AND (:nombre IS NULL OR LOWER(c.nombre) LIKE LOWER(CONCAT('%', :nombre, '%'))) " +
+           "AND (:categoriaId IS NULL OR c.categoria.id = :categoriaId) " +
+           "AND (:modalidadId IS NULL OR mc.modalidad.id = :modalidadId)")
+    List<Curso> buscarCursosPublicadosConFiltros(String nombre, Integer categoriaId, Integer modalidadId);
 }

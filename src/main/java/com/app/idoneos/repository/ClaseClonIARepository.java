@@ -10,4 +10,5 @@ import java.util.List;
 @Repository
 public interface ClaseClonIARepository extends JpaRepository<ClaseClonIA, Integer> {
     List<ClaseClonIA> findByDocenteAndBajaFalse(Docente docente);
+    List<ClaseClonIA> findByUnidad(com.app.idoneos.model.Unidad unidad);
 }

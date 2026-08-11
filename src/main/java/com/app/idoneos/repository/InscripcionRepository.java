@@ -31,4 +31,7 @@ public interface InscripcionRepository extends JpaRepository<Inscripcion, Intege
     /** Verificar si un curso tiene inscripciones vigentes — CU-04. */
     @Query("SELECT COUNT(i) > 0 FROM Inscripcion i WHERE i.dictado.programa.curso = :curso AND i.baja = false")
     boolean existsByCursoAndBajaFalse(@Param("curso") Curso curso);
+
+    /** Inscriptos de un dictado especifico — CU-18. */
+    List<Inscripcion> findByDictado(com.app.idoneos.model.Dictado dictado);
 }

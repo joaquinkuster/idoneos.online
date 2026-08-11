@@ -1,5 +1,7 @@
 package com.app.idoneos.service.Evaluacion;
 
+import com.app.idoneos.exception.ExcepcionRecursoNoEncontrado;
+import com.app.idoneos.exception.ExcepcionValidacion;
 import com.app.idoneos.model.*;
 import com.app.idoneos.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,10 +13,11 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Servicio para gestionar intentos de autoevaluación.
- * Sortea preguntas, corrige automáticamente y calcula nota.
+ * Servicio para la gestión de intentos de autoevaluación (CU-59 y CU-60).
+ * Sortea preguntas aleatoriamente de los pools asociados, corrige automáticamente y calcula la calificación final.
  */
 @Service
+@Transactional
 public class IntentoService {
 
     private static final int PREGUNTAS_POR_INTENTO = 10;
@@ -26,26 +29,37 @@ public class IntentoService {
     @Autowired private OpcionRespuestaRepository opcionRepository;
 
     /**
-     * Inicia un nuevo intento: sortea preguntas aleatoriamente del pool.
+     * CU-60 — Realizar intento de autoevaluación.
+     * Regla de negocio: Valida el límite de intentos permitidos antes de iniciar.
      */
     public IntentoAutoevaluacion iniciarIntento(Autoevaluacion autoevaluacion, Usuario usuario) {
-        long intentosYaRealizados = intentoRepository
-                .countByAutoevaluacionAndUsuario(autoevaluacion, usuario);
-        if (intentosYaRealizados >= autoevaluacion.getIntentosPermitidos()) {
-            throw new IllegalStateException("Ya agotaste los intentos permitidos para esta autoevaluación.");
+        if (autoevaluacion == null || autoevaluacion.getBaja()) {
+            throw new ExcepcionValidacion("CU-60 Precondición: La autoevaluación seleccionada no está activa.");
+        }
+
+        if (autoevaluacion.getIntentosPermitidos() != null && autoevaluacion.getIntentosPermitidos() > 0) {
+            long intentosYaRealizados = intentoRepository.countByAutoevaluacionAndUsuario(autoevaluacion, usuario);
+            if (intentosYaRealizados >= autoevaluacion.getIntentosPermitidos()) {
+                throw new ExcepcionValidacion("CU-60 Excepción paso 4: Ha alcanzado el límite máximo de intentos permitidos (" + autoevaluacion.getIntentosPermitidos() + ") para esta evaluación.");
+            }
         }
         return new IntentoAutoevaluacion(autoevaluacion, usuario);
     }
 
     /**
-     * Sortea hasta PREGUNTAS_POR_INTENTO preguntas de todos los pools de la autoevaluación.
+     * CU-60 — Sortea hasta 10 preguntas aleatorias de los pools activos asociados a la autoevaluación.
      */
+    @Transactional(readOnly = true)
     public List<Pregunta> sortearPreguntas(Autoevaluacion autoevaluacion) {
         List<Pregunta> todas = autoevaluacion.getPools().stream()
                 .map(pa -> pa.getPool())
                 .flatMap(pool -> preguntaRepository.findByPoolAndBajaFalse(pool).stream())
                 .filter(p -> !p.getBaja())
                 .collect(Collectors.toList());
+
+        if (todas.isEmpty()) {
+            throw new ExcepcionValidacion("CU-60 Excepción paso 5: La autoevaluación no posee preguntas cargadas en sus pools.");
+        }
 
         Collections.shuffle(todas);
         return todas.stream()
@@ -54,14 +68,16 @@ public class IntentoService {
     }
 
     /**
-     * Corrige el intento, calcula la nota y lo persiste.
-     * @param intento    El intento a corregir (sin persistir aún)
-     * @param respuestas Mapa preguntaId → opcionRespuestaId elegida por el alumno
+     * CU-60 — Corrige el intento, calcula el porcentaje de aciertos y persiste el resultado.
      */
     @Transactional
     public IntentoAutoevaluacion corregirYGuardar(
             IntentoAutoevaluacion intento,
             Map<Integer, Integer> respuestas) {
+
+        if (respuestas == null || respuestas.isEmpty()) {
+            throw new ExcepcionValidacion("CU-60 Excepción: Debe responder al menos una pregunta de la autoevaluación.");
+        }
 
         intento.setFecha(LocalDateTime.now());
         IntentoAutoevaluacion guardado = intentoRepository.save(intento);
@@ -72,7 +88,7 @@ public class IntentoService {
         for (Map.Entry<Integer, Integer> entry : respuestas.entrySet()) {
             Integer opcionId = entry.getValue();
             OpcionRespuesta opcion = opcionRepository.findById(opcionId)
-                    .orElseThrow(() -> new IllegalArgumentException("Opción no encontrada: " + opcionId));
+                    .orElseThrow(() -> new ExcepcionRecursoNoEncontrado("Opción de Respuesta", "id", opcionId));
 
             RespuestaIntento ri = new RespuestaIntento(guardado, opcion);
             respuestaRepository.save(ri);
@@ -87,14 +103,17 @@ public class IntentoService {
         return intentoRepository.save(guardado);
     }
 
+    @Transactional(readOnly = true)
     public boolean estaAprobado(IntentoAutoevaluacion intento) {
-        return intento.getNota() >= UMBRAL_APROBACION;
+        return intento != null && intento.getNota() >= UMBRAL_APROBACION;
     }
 
+    @Transactional(readOnly = true)
     public List<IntentoAutoevaluacion> historialPorAlumno(Autoevaluacion ae, Usuario usuario) {
         return intentoRepository.findByAutoevaluacionAndUsuarioOrderByFechaDesc(ae, usuario);
     }
 
+    @Transactional(readOnly = true)
     public boolean alumnoAproboAutoevaluacion(Autoevaluacion ae, Usuario usuario) {
         return intentoRepository.findByAutoevaluacionAndUsuarioOrderByFechaDesc(ae, usuario)
                 .stream().anyMatch(this::estaAprobado);

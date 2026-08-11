@@ -1,90 +1,140 @@
 package com.app.idoneos.service.Categoria;
 
+import com.app.idoneos.exception.ExcepcionRecursoNoEncontrado;
+import com.app.idoneos.exception.ExcepcionValidacion;
+import com.app.idoneos.model.Categoria;
+import com.app.idoneos.model.Curso;
+import com.app.idoneos.repository.CategoriaRepository;
+import com.app.idoneos.repository.CursoRepository;
+import com.app.idoneos.service.CrudService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import com.app.idoneos.model.Categoria;
-import com.app.idoneos.repository.CategoriaRepository;
-import com.app.idoneos.service.CrudService;
-
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 /**
- * Implementación del servicio para manejar operaciones relacionadas con las categorías.
- * Proporciona operaciones básicas de CRUD (crear, leer, actualizar y eliminar) para la entidad {@link Categoria}.
- * Además, garantiza que solo se trabajen con categorías activas (no marcadas como bajas).
+ * Servicio para la gestión del catálogo de categorías de cursos.
+ * Implementa las reglas de negocio en español para los Casos de Uso CU-06 a CU-09.
  */
 @Service
+@Transactional
 public class CategoriaServiceImpl implements CategoriaService, CrudService<Categoria> {
 
-    @Autowired
-    private CategoriaRepository categoriaRepository;
+    @Autowired private CategoriaRepository categoriaRepository;
+    @Autowired private CursoRepository cursoRepository;
 
     /**
-     * Guarda una nueva categoría en la base de datos.
+     * CU-06 — Buscar categoría por identificador.
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<Categoria> buscarPorId(Integer id) {
+        return categoriaRepository.findById(id).filter(c -> !c.esInactivo());
+    }
+
+    /**
+     * CU-06 — Obtener todas las categorías activas.
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public List<Categoria> obtenerTodo() {
+        return categoriaRepository.findByBajaFalse();
+    }
+
+    /**
+     * CU-07 — Registrar categoría.
      * 
-     * @param categoria La categoría a guardar.
-     * @return La categoría guardada.
+     * Reglas de negocio:
+     * - Nombre obligatorio (Excepción CU-07, paso 4).
+     * - Unicidad del nombre entre categorías activas (Excepción CU-07, paso 5).
+     * - Registro en estado activo (baja = false) con fecha de creación.
      */
     @Override
     public Categoria guardar(Categoria categoria) {
+        if (categoria.getNombre() == null || categoria.getNombre().trim().isEmpty()) {
+            throw new ExcepcionValidacion("CU-07 Excepción paso 4: El nombre de la categoría es obligatorio.");
+        }
+
+        String nombreLimpio = categoria.getNombre().trim();
+        if (categoriaRepository.existsByNombreIgnoreCaseAndBajaFalse(nombreLimpio)) {
+            throw new ExcepcionValidacion("CU-07 Excepción paso 5: Ya existe una categoría activa registrada con el nombre '" + nombreLimpio + "'.");
+        }
+
+        categoria.setNombre(nombreLimpio);
+        categoria.setBaja(false);
+        categoria.setFechaCreacion(LocalDateTime.now());
         return categoriaRepository.save(categoria);
     }
 
     /**
-     * Busca una categoría por su ID. Solo devuelve categorías activas (no marcadas como baja).
+     * CU-08 — Modificar categoría.
      * 
-     * @param id El ID de la categoría a buscar.
-     * @return Un {@link Optional} que contiene la categoría si se encuentra activa.
-     */
-    @Override
-    public Optional<Categoria> buscarPorId(Integer id) {
-        return categoriaRepository.findById(id)
-                .filter(categoria -> !categoria.esInactivo()); // Solo devuelve categorías activas
-    }
-
-    /**
-     * Obtiene todas las categorías activas (no marcadas como baja).
-     * 
-     * @return Una lista de categorías activas.
-     */
-    @Override
-    public List<Categoria> obtenerTodo() {
-        return categoriaRepository.findByBajaFalse(); // Solo devuelve categorías activas
-    }
-
-    /**
-     * Modifica una categoría existente.
-     * 
-     * @param categoria La categoría con los nuevos datos.
-     * @return La categoría modificada.
+     * Reglas de negocio:
+     * - Verificación de existencia y estado activo.
+     * - Nombre obligatorio (Excepción CU-08, paso 4).
+     * - Evitar nombres duplicados entre categorías activas (Excepción CU-08, paso 5).
      */
     @Override
     public Categoria modificar(Categoria categoria) {
-        return categoriaRepository.save(categoria); // Otros campos actualizables
+        Categoria existente = categoriaRepository.findById(categoria.getId())
+                .orElseThrow(() -> new ExcepcionRecursoNoEncontrado("Categoría", "id", categoria.getId()));
+
+        if (existente.esInactivo()) {
+            throw new ExcepcionValidacion("CU-08 Precondición: No se puede modificar una categoría dada de baja.");
+        }
+
+        if (categoria.getNombre() == null || categoria.getNombre().trim().isEmpty()) {
+            throw new ExcepcionValidacion("CU-08 Excepción paso 4: El nombre de la categoría no puede quedar vacío.");
+        }
+
+        String nuevoNombre = categoria.getNombre().trim();
+        if (!existente.getNombre().equalsIgnoreCase(nuevoNombre) && 
+            categoriaRepository.existsByNombreIgnoreCaseAndBajaFalse(nuevoNombre)) {
+            throw new ExcepcionValidacion("CU-08 Excepción paso 5: Ya existe otra categoría activa con el nombre '" + nuevoNombre + "'.");
+        }
+
+        existente.setNombre(nuevoNombre);
+        existente.setDescripcion(categoria.getDescripcion());
+        return categoriaRepository.save(existente);
     }
 
     /**
-     * Elimina una categoría. Se asume que la categoría no debe eliminarse físicamente,
-     * sino marcarse como inactiva.
+     * CU-09 — Eliminar categoría (Baja Lógica).
      * 
-     * @param categoria La categoría a eliminar.
+     * Reglas de negocio:
+     * - Valida existencia de la categoría.
+     * - Verifica si existen cursos activos asociados a la categoría.
+     * - Si posee cursos activos asociados, impide la baja (Excepción CU-09, paso 5).
+     * - Marca baja = true.
      */
     @Override
     public void borrar(Categoria categoria) {
-        categoriaRepository.delete(categoria);
+        darDeBaja(categoria.getId());
     }
 
-    /**
-     * Verifica si una categoría con el ID proporcionado existe y está activa.
-     * 
-     * @param id El ID de la categoría a verificar.
-     * @return {@code true} si la categoría existe y está activa, {@code false} en caso contrario.
-     */
+    public void darDeBaja(int categoriaId) {
+        Categoria categoria = categoriaRepository.findById(categoriaId)
+                .orElseThrow(() -> new ExcepcionRecursoNoEncontrado("Categoría", "id", categoriaId));
+
+        if (categoria.esInactivo()) {
+            throw new ExcepcionValidacion("CU-09 Excepción: La categoría ya se encuentra dada de baja.");
+        }
+
+        List<Curso> cursosAsociados = cursoRepository.findByCategoriaAndBajaFalseAndPublicadoTrue(categoria);
+        if (!cursosAsociados.isEmpty()) {
+            throw new ExcepcionValidacion("CU-09 Excepción paso 5: No se puede dar de baja la categoría porque posee " + cursosAsociados.size() + " curso(s) activo(s) asociado(s).");
+        }
+
+        categoria.setBaja(true);
+        categoriaRepository.save(categoria);
+    }
+
     @Override
+    @Transactional(readOnly = true)
     public boolean existePorId(Integer id) {
-        return categoriaRepository.existsById(id) &&
-                buscarPorId(id).isPresent(); // Solo cuenta categorías activas
+        return categoriaRepository.existsById(id) && buscarPorId(id).isPresent();
     }
 }

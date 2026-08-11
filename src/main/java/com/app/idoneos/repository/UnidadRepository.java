@@ -14,4 +14,6 @@ public interface UnidadRepository extends JpaRepository<Unidad, Integer> {
 
     @Query("SELECT u FROM Unidad u WHERE u.programa.curso = :curso AND u.baja = false ORDER BY u.numeroOrden ASC")
     List<Unidad> findByCursoAndBajaFalseOrderByNumeroOrdenAsc(@Param("curso") Curso curso);
+
+    List<Unidad> findByPrograma(com.app.idoneos.model.Programa programa);
 }

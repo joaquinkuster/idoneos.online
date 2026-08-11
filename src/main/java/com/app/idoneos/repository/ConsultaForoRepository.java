@@ -10,4 +10,5 @@ import java.util.List;
 @Repository
 public interface ConsultaForoRepository extends JpaRepository<ConsultaForo, Integer> {
     List<ConsultaForo> findByUnidadAndBajaFalseOrderByFechaDesc(Unidad unidad);
+    List<ConsultaForo> findByUnidad(Unidad unidad);
 }

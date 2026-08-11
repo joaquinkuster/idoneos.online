@@ -10,4 +10,5 @@ import java.util.List;
 @Repository
 public interface TerminoGlosarioRepository extends JpaRepository<TerminoGlosario, Integer> {
     List<TerminoGlosario> findByUnidadAndBajaFalse(Unidad unidad);
+    List<TerminoGlosario> findByUnidad(Unidad unidad);
 }

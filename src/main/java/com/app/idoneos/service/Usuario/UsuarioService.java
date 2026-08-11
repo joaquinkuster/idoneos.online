@@ -1,26 +1,29 @@
 package com.app.idoneos.service.Usuario;
 
-import java.util.Optional;
-
+import com.app.idoneos.model.Docente;
+import com.app.idoneos.model.RolUsuario;
 import com.app.idoneos.model.Usuario;
 
+import java.util.Optional;
+
 /**
- * Servicio para gestionar las operaciones relacionadas con los usuarios.
- * Proporciona métodos para realizar consultas y manipulaciones relacionadas con los usuarios.
+ * Servicio para gestionar las operaciones relacionadas con los usuarios (CU-75 a CU-88).
  */
 public interface UsuarioService {
 
-    /**
-     * Busca un usuario en el sistema a partir de su correo electrónico.
-     * 
-     * @param correo el correo electrónico del usuario a buscar
-     * @return un {@link Optional} que contiene al usuario si se encuentra, o vacío si no se encuentra
-     */
     Optional<Usuario> buscarPorCorreo(String correo);
 
-    /**
-     * Procesa la autenticación y alta de usuarios autenticados mediante Google OAuth 2.0.
-     */
     Usuario procesarUsuarioOAuth2(String email, String nombre, String apellido, String googleSub);
 
+    long contarAdministradoresActivos();
+
+    Docente registrarDocente(String nombre, String apellido, String correo, String telefono, String biografia, Integer aniosExperiencia);
+
+    Usuario registrarAlumno(String nombre, String apellido, String correo, String contrasena);
+
+    Usuario registrarAdministrador(String nombre, String apellido, String correo, String contrasena);
+
+    Usuario crearUsuarioConRol(String nombre, String apellido, String correo, String contrasena, RolUsuario rol);
+
+    String generarTokenRecuperacion(String correo);
 }

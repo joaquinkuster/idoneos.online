@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface RespuestaForoRepository extends JpaRepository<RespuestaForo, Integer> {
+    java.util.List<RespuestaForo> findByConsulta(com.app.idoneos.model.ConsultaForo consulta);
 }

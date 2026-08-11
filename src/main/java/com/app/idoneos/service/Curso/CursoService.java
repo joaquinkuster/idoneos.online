@@ -7,7 +7,20 @@ import com.app.idoneos.service.CrudService;
 
 import java.util.List;
 
+/**
+ * Servicio para la gestión del catálogo de cursos (CU-01 a CU-05).
+ */
 public interface CursoService extends CrudService<Curso> {
+
+    List<Curso> buscarCursosPublicadosConFiltros(String nombre, Integer categoriaId, Integer modalidadId);
+
+    Curso registrarCurso(Curso curso);
+
+    Curso modificarCurso(Curso curso);
+
+    Curso cambiarEstadoPublicacion(int cursoId, boolean publicar);
+
+    void darDeBajaCurso(int cursoId);
 
     List<Curso> obtenerPublicados();
 

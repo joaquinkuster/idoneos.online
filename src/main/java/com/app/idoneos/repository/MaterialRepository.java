@@ -16,6 +16,7 @@ public interface MaterialRepository extends JpaRepository<Material, Integer> {
     List<Material> findByUnidadAndBajaFalseAndPublicadoTrue(Unidad unidad);
 
     List<Material> findByUnidadAndBajaFalse(Unidad unidad);
+    List<Material> findByUnidad(Unidad unidad);
 
     @Query("SELECT m FROM Material m WHERE m.tipoMaterial = :tipo AND m.baja = false")
     List<Material> findByTipoAndBajaFalse(@Param("tipo") TipoMaterial tipo);
