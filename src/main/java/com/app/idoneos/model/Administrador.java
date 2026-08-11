@@ -1,6 +1,8 @@
 package com.app.idoneos.model;
 
 import jakarta.persistence.*;
+import lombok.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,6 +12,11 @@ import java.util.List;
  */
 @Entity
 @Table(name = "administrador")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Administrador {
 
     /** Identificador único del administrador, mapeado con la clave primaria compartida de Usuario. */
@@ -24,14 +31,14 @@ public class Administrador {
     private Usuario usuario;
 
     /** Lista de reportes generados por este administrador. */
+    @Builder.Default
     @OneToMany(mappedBy = "administrador", cascade = CascadeType.ALL)
     private List<Reporte> reportes = new ArrayList<>();
 
     /** Lista de parámetros de configuración creados o modificados por este administrador. */
+    @Builder.Default
     @OneToMany(mappedBy = "administrador", cascade = CascadeType.ALL)
     private List<Configuracion> configuraciones = new ArrayList<>();
-
-    public Administrador() {}
 
     public Administrador(Usuario usuario) {
         this.usuario = usuario;
@@ -39,16 +46,4 @@ public class Administrador {
             this.id = usuario.getId();
         }
     }
-
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
-
-    public Usuario getUsuario() { return usuario; }
-    public void setUsuario(Usuario usuario) { this.usuario = usuario; }
-
-    public List<Reporte> getReportes() { return reportes; }
-    public void setReportes(List<Reporte> reportes) { this.reportes = reportes; }
-
-    public List<Configuracion> getConfiguraciones() { return configuraciones; }
-    public void setConfiguraciones(List<Configuracion> configuraciones) { this.configuraciones = configuraciones; }
 }

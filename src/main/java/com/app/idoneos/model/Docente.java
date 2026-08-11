@@ -48,7 +48,7 @@ public class Docente {
     @OneToMany(mappedBy = "docente", cascade = CascadeType.ALL)
     private List<DictadoDocente> dictadosDocentes = new ArrayList<>();
 
-    @Transient
+    @Column(name = "fecha_consentimiento_clon")
     private LocalDateTime fechaConsentimientoClon;
 
     public Docente() {}

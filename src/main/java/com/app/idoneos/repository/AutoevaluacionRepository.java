@@ -13,7 +13,7 @@ import java.util.List;
 @Repository
 public interface AutoevaluacionRepository extends JpaRepository<Autoevaluacion, Integer> {
 
-    @Query("SELECT a FROM Autoevaluacion a JOIN a.poolsAutoevaluaciones pa WHERE pa.pool = :pool AND a.baja = false")
+    @Query("SELECT a FROM Autoevaluacion a JOIN a.pools pa WHERE pa.pool = :pool AND a.baja = false")
     List<Autoevaluacion> findByPoolsContainingAndBajaFalse(@Param("pool") Pool pool);
 
     /** Autoevaluaciones de un curso (para panel docente) — CU-46. */
