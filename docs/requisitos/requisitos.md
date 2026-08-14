@@ -2717,7 +2717,7 @@ En esta sección se detallan los 90 casos de uso extendidos del Sistema Idóneos
 - **Requisito(s) de información asociado(s)**: RI-09: Información sobre reportes y estadísticas.
 - **Módulo**: MOD-NF-03: Módulo de Reportes y Estadísticas
 - **Actor(es)**: Administrador
-- **Descripción**: Permite al Administrador generar un informe de alumnos de un curso, con 3 vistas: comparación del curso frente al resto en cantidad de inscriptos (barras horizontales), evolución de sus inscripciones en el tiempo (línea), y estado de las inscripciones; completadas, vigentes, dadas de baja (barras apiladas). Le sirve a la empresa para saber cómo le va a un curso frente al resto, si sus inscripciones vienen subiendo o bajando, y qué tan bien retiene a los alumnos que se anotan.
+- **Descripción**: Permite al Administrador generar un informe de alumnos de un curso, con 3 vistas: comparación del curso frente al resto en cantidad de inscriptos (barras horizontales), evolución de sus inscripciones en el tiempo (línea), y estado de las inscripciones; completadas, vigentes, dadas de baja (barras verticales). Le sirve a la empresa para saber cómo le va a un curso frente al resto, si sus inscripciones vienen subiendo o bajando, y qué tan bien retiene a los alumnos que se anotan.
 - **Precondición(es)**: El actor ha iniciado sesión en el sistema con el rol Administrador.
 - **Flujo de eventos**:
 
@@ -2746,7 +2746,7 @@ En esta sección se detallan los 90 casos de uso extendidos del Sistema Idóneos
 - **Requisito(s) de información asociado(s)**: RI-09: Información sobre reportes y estadísticas.
 - **Módulo**: MOD-NF-03: Módulo de Reportes y Estadísticas
 - **Actor(es)**: Administrador
-- **Descripción**: Permite al Administrador generar un informe de ingresos de un curso, con 4 vistas: comparación del curso frente al resto en ingresos por pagos acreditados (barras horizontales), evolución de sus ingresos en el tiempo (línea), ingresos por categoría de curso (torta), y monto bruto frente a monto neto por descuentos aplicados (barras comparativas). Le sirve a la empresa para saber si el curso es uno de los que genera más ingresos, si su facturación viene creciendo, si el rubro del curso es uno de los más rentables, y cuánto le está costando en la práctica la política de descuentos.
+- **Descripción**: Permite al Administrador generar un informe de ingresos de un curso, con 4 vistas: comparación del curso frente al resto en ingresos por pagos acreditados (barras horizontales), evolución de sus ingresos en el tiempo (línea), ingresos por categoría de curso (torta), y monto bruto frente a monto neto por descuentos aplicados (barras verticales). Le sirve a la empresa para saber si el curso es uno de los que genera más ingresos, si su facturación viene creciendo, si el rubro del curso es uno de los más rentables, y cuánto le está costando en la práctica la política de descuentos.
 - **Precondición(es)**: El actor ha iniciado sesión en el sistema con el rol Administrador.
 - **Flujo de eventos**:
 

@@ -262,21 +262,21 @@ public class ReporteAlumnosPdfGenerator {
         String labelBajas = String.format("Dadas de Baja (%d unid. - %.1f%%)", bajas, (bajas * 100.0) / total);
 
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-        dataset.addValue(completadas, labelCompletadas, "Estado Actual");
-        dataset.addValue(vigentes, labelVigentes, "Estado Actual");
-        dataset.addValue(bajas, labelBajas, "Estado Actual");
+        dataset.addValue(completadas, labelCompletadas, "Completadas");
+        dataset.addValue(vigentes, labelVigentes, "Vigentes");
+        dataset.addValue(bajas, labelBajas, "Dadas de Baja");
 
-        JFreeChart chart = ChartFactory.createStackedBarChart(
+        JFreeChart chart = ChartFactory.createBarChart(
                 null, null, "Alumnos", dataset,
-                PlotOrientation.HORIZONTAL, true, false, false);
+                PlotOrientation.VERTICAL, true, false, false);
         estilizarChart(chart);
 
         CategoryPlot plot = chart.getCategoryPlot();
-        StackedBarRenderer renderer = (StackedBarRenderer) plot.getRenderer();
+        BarRenderer renderer = (BarRenderer) plot.getRenderer();
         renderer.setSeriesPaint(0, COLOR_SUCCESS);
         renderer.setSeriesPaint(1, COLOR_GOLD);
         renderer.setSeriesPaint(2, COLOR_DANGER);
-        renderer.setMaximumBarWidth(0.20);
+        renderer.setMaximumBarWidth(0.14);
         renderer.setShadowVisible(false);
 
         NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
