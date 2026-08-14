@@ -20,11 +20,11 @@ public class Programa {
     private int id;
 
     /** Nombre de la versión del programa (ej. "Edición 2026"). */
-    @Column(name = "nombre", nullable = false, length = 150)
+    @Column(name = "nombre", nullable = false, length = 50)
     private String nombre;
 
     /** Descripción sintética del plan de estudios. */
-    @Column(name = "descripcion", length = 500)
+    @Column(name = "descripcion", length = 150)
     private String descripcion;
 
     /** Meses de acceso habilitados al inscribirse a un dictado de este programa. */

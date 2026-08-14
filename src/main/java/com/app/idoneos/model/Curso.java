@@ -20,7 +20,7 @@ public class Curso {
     private int id;
 
     /** Nombre comercial del curso. */
-    @Column(name = "nombre", nullable = false, length = 150)
+    @Column(name = "nombre", nullable = false, length = 50)
     private String nombre;
 
     /** Descripción detallada del alcance académico. */

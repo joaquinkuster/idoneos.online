@@ -35,7 +35,7 @@ public class Usuario implements UserDetails {
     private String apellido;
 
     /** Documento Nacional de Identidad (usado en certificados y títulos). */
-    @Column(name = "dni", length = 8)
+    @Column(name = "dni", nullable = false, length = 8)
     private String dni;
 
     /** Correo electrónico (identificador de login y contacto). */
@@ -78,9 +78,8 @@ public class Usuario implements UserDetails {
     @Column(name = "baja", nullable = false)
     private boolean baja = false;
 
-    /** Rol principal asignado al usuario. */
-    @Enumerated(EnumType.STRING)
-    @Column(name = "rol", nullable = false)
+    /** Rol principal asignado al usuario (no persiste en BD; se infiere del subtipo Alumno/Docente/Administrador). */
+    @Transient
     private RolUsuario rol = RolUsuario.Alumno;
 
     /** Subtipo Alumno (si aplica). */

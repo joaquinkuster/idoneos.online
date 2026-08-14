@@ -58,7 +58,8 @@ public class Docente {
     @OneToMany(mappedBy = "docente", cascade = CascadeType.ALL)
     private List<DictadoDocente> dictadosDocentes = new ArrayList<>();
 
-    @Column(name = "fecha_consentimiento_clon")
+    /** Fecha de consentimiento para clon IA (no persiste en BD; columna no definida en SQL). */
+    @Transient
     private LocalDateTime fechaConsentimientoClon;
 
     public Docente() {

@@ -18,7 +18,7 @@ public class Pago {
     private int id;
 
     @Column(name = "monto", nullable = false)
-    private double monto;
+    private float monto;
 
     @Column(name = "fecha", nullable = false)
     private LocalDateTime fecha = LocalDateTime.now();
@@ -32,7 +32,8 @@ public class Pago {
     @Column(name = "reference_code", length = 20)
     private String referenceCode;
 
-    @Column(name = "tipo_pago", length = 20)
+    /** Tipo de pago (no persiste en BD; columna no definida en SQL). */
+    @Transient
     private String tipoPago;
 
     @Column(name = "ultimos_digitos_tarjeta", length = 4)
@@ -46,6 +47,10 @@ public class Pago {
 
     @Column(name = "nombre_pagador", length = 50)
     private String nombrePagador;
+
+    /** DNI del titular pagador. */
+    @Column(name = "dni_pagador", length = 8)
+    private String dniPagador;
 
     @Column(name = "numero_comprobante", length = 100)
     private String numeroComprobante;
@@ -71,7 +76,7 @@ public class Pago {
     public Pago() {
     }
 
-    public Pago(double monto, Inscripcion inscripcion, EstadoPago estadoPago) {
+    public Pago(float monto, Inscripcion inscripcion, EstadoPago estadoPago) {
         this.monto = monto;
         this.inscripcion = inscripcion;
         this.estadoPago = estadoPago;
@@ -86,11 +91,11 @@ public class Pago {
         this.id = id;
     }
 
-    public double getMonto() {
+    public float getMonto() {
         return monto;
     }
 
-    public void setMonto(double monto) {
+    public void setMonto(float monto) {
         this.monto = monto;
     }
 
@@ -164,6 +169,14 @@ public class Pago {
 
     public void setNombrePagador(String nombrePagador) {
         this.nombrePagador = nombrePagador;
+    }
+
+    public String getDniPagador() {
+        return dniPagador;
+    }
+
+    public void setDniPagador(String dniPagador) {
+        this.dniPagador = dniPagador;
     }
 
     public String getNumeroComprobante() {

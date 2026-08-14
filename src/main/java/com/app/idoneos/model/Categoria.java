@@ -19,7 +19,7 @@ public class Categoria {
     private int id;
 
     /** Nombre descriptivo de la categoría. */
-    @Column(name = "nombre", nullable = false, length = 150)
+    @Column(name = "nombre", nullable = false, length = 50)
     private String nombre;
 
     /** Breve resumen del ámbito cubierto por la categoría. */

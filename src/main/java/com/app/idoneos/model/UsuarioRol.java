@@ -8,7 +8,7 @@ import jakarta.persistence.*;
  * Mapea directamente a la tabla "Usuario Rol" en base_datos.sql.
  */
 @Entity
-@Table(name = "UsuarioRol")
+@Table(name = "Usuario Rol")
 public class UsuarioRol {
 
     /** Identificador único de la vinculación usuario-rol. */

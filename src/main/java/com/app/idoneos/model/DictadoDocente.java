@@ -7,7 +7,7 @@ import jakarta.persistence.*;
  * Permite asignar un equipo docente a un dictado puntual de un programa.
  */
 @Entity
-@Table(name = "DictadoDocente")
+@Table(name = "Dictado Docente")
 public class DictadoDocente {
 
     @Id
@@ -33,7 +33,7 @@ public class DictadoDocente {
      * Distingue si el docente participa como supervisor (false) o titular (true)
      * del dictado.
      */
-    @Column(name = "es_supervisor")
+    @Column(name = "es_supervisor", nullable = false)
     private boolean esSupervisor = false;
 
     public DictadoDocente() {

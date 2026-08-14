@@ -8,7 +8,7 @@ import jakarta.persistence.*;
  * Mapea directamente a la tabla "Modalidad Curso" en base_datos.sql.
  */
 @Entity
-@Table(name = "ModalidadCurso")
+@Table(name = "Modalidad Curso")
 public class ModalidadCurso {
 
     /** Identificador único del vínculo de modalidad por curso. */

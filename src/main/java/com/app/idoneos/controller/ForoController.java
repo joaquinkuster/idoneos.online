@@ -62,7 +62,7 @@ public class ForoController {
         Unidad unidad = unidadService.buscarPorId(unidadId).orElse(null);
         if (unidad == null) return "redirect:/cursos";
         Usuario usuario = (Usuario) auth.getPrincipal();
-        ConsultaForo consulta = consultaRepo.save(new ConsultaForo(texto, unidad, usuario));
+        ConsultaForo consulta = consultaRepo.save(new ConsultaForo(texto, unidad, usuario.getAlumno()));
 
         // CU-34: Notificación por email al docente titular
         if (unidad.getCurso() != null) {

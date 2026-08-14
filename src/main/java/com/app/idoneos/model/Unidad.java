@@ -21,7 +21,7 @@ public class Unidad {
     private int id;
 
     /** Título de la unidad. */
-    @Column(name = "titulo", nullable = false, length = 150)
+    @Column(name = "titulo", nullable = false, length = 50)
     private String titulo;
 
     /** Breve descripción del alcance temático. */

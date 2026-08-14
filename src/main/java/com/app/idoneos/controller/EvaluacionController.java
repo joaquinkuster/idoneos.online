@@ -144,7 +144,7 @@ public class EvaluacionController {
         if (ae == null) return "redirect:/cursos";
 
         Usuario usuario = (Usuario) auth.getPrincipal();
-        IntentoAutoevaluacion intento = new IntentoAutoevaluacion(ae, usuario);
+        IntentoAutoevaluacion intento = new IntentoAutoevaluacion(ae);
 
         Map<Integer, Integer> respuestas = new HashMap<>();
         for (Map.Entry<String, String> entry : form.entrySet()) {

@@ -8,7 +8,7 @@ import jakarta.persistence.*;
  * pools.
  */
 @Entity
-@Table(name = "PoolAutoevaluacion")
+@Table(name = "Pool Autoevaluacion")
 public class PoolAutoevaluacion {
 
     /** Identificador único del vínculo asociativo. */

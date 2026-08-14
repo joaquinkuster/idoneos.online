@@ -38,12 +38,12 @@ public class IntentoService {
         }
 
         if (autoevaluacion.getIntentosPermitidos() != null && autoevaluacion.getIntentosPermitidos() > 0) {
-            long intentosYaRealizados = intentoRepository.countByAutoevaluacionAndUsuario(autoevaluacion, usuario);
+            long intentosYaRealizados = intentoRepository.countByAutoevaluacion(autoevaluacion);
             if (intentosYaRealizados >= autoevaluacion.getIntentosPermitidos()) {
                 throw new ExcepcionValidacion("CU-60 Excepción paso 4: Ha alcanzado el límite máximo de intentos permitidos (" + autoevaluacion.getIntentosPermitidos() + ") para esta evaluación.");
             }
         }
-        return new IntentoAutoevaluacion(autoevaluacion, usuario);
+        return new IntentoAutoevaluacion(autoevaluacion);
     }
 
     /**
@@ -98,7 +98,7 @@ public class IntentoService {
             }
         }
 
-        double nota = total > 0 ? (correctas * 100.0) / total : 0.0;
+        float nota = total > 0 ? (float)(correctas * 100.0) / total : 0.0f;
         guardado.setNota(nota);
         return intentoRepository.save(guardado);
     }
@@ -110,12 +110,12 @@ public class IntentoService {
 
     @Transactional(readOnly = true)
     public List<IntentoAutoevaluacion> historialPorAlumno(Autoevaluacion ae, Usuario usuario) {
-        return intentoRepository.findByAutoevaluacionAndUsuarioOrderByFechaDesc(ae, usuario);
+        return intentoRepository.findByAutoevaluacionOrderByFechaDesc(ae);
     }
 
     @Transactional(readOnly = true)
     public boolean alumnoAproboAutoevaluacion(Autoevaluacion ae, Usuario usuario) {
-        return intentoRepository.findByAutoevaluacionAndUsuarioOrderByFechaDesc(ae, usuario)
+        return intentoRepository.findByAutoevaluacionOrderByFechaDesc(ae)
                 .stream().anyMatch(this::estaAprobado);
     }
 }

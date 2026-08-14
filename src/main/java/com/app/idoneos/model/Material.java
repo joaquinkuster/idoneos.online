@@ -19,7 +19,7 @@ public class Material {
     private int id;
 
     /** Título descriptivo del material. */
-    @Column(name = "titulo", nullable = false, length = 150)
+    @Column(name = "titulo", nullable = false, length = 50)
     private String titulo;
 
     /** Ruta o ubicación del archivo asociado (ej. "videos/u1_clase.mp4"). */
@@ -44,8 +44,8 @@ public class Material {
     @Column(name = "generado_por_ia", nullable = false)
     private boolean generadoPorIa = false;
 
-    /** Fecha y hora en la que se cargó o generó el material. */
-    @Column(name = "fecha_carga", nullable = false)
+    /** Fecha y hora en la que se cargó o generó el material. No persiste en BD (campo transient). */
+    @Transient
     private LocalDateTime fechaCarga = LocalDateTime.now();
 
     /** Indicador de visibilidad pública del material para alumnos. */

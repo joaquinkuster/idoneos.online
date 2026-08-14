@@ -37,10 +37,10 @@ public class ConsultaForo {
     @JoinColumn(name = "unidad_id")
     private Unidad unidad;
 
-    /** Alumno (Usuario) autor de la consulta. */
+    /** Alumno autor de la consulta. */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "alumno_id")
-    private Usuario usuario;
+    private Alumno alumno;
 
     /** Respuestas docentes asociadas a esta consulta. */
     @OneToMany(mappedBy = "consulta", cascade = CascadeType.ALL)
@@ -49,10 +49,10 @@ public class ConsultaForo {
     public ConsultaForo() {
     }
 
-    public ConsultaForo(String texto, Unidad unidad, Usuario usuario) {
+    public ConsultaForo(String texto, Unidad unidad, Alumno alumno) {
         this.texto = texto;
         this.unidad = unidad;
-        this.usuario = usuario;
+        this.alumno = alumno;
         this.fecha = LocalDateTime.now();
     }
 
@@ -100,12 +100,12 @@ public class ConsultaForo {
         this.unidad = unidad;
     }
 
-    public Usuario getUsuario() {
-        return usuario;
+    public Alumno getAlumno() {
+        return alumno;
     }
 
-    public void setUsuario(Usuario usuario) {
-        this.usuario = usuario;
+    public void setAlumno(Alumno alumno) {
+        this.alumno = alumno;
     }
 
     public List<RespuestaForo> getRespuestas() {
