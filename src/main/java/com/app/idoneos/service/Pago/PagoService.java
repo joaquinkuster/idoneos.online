@@ -111,7 +111,7 @@ public class PagoService {
 
         String paymentId = llamarMercadoPagoAPI(monto, emailPagador, nombrePagador);
 
-        Pago pago = new Pago(monto, inscripcion, acreditado);
+        Pago pago = new Pago(monto.floatValue(), inscripcion, acreditado);
         pago.setEmailPagador(emailPagador);
         pago.setNombrePagador(nombrePagador);
         pago.setMetodoPago(metodo);

@@ -11,97 +11,154 @@
     <div class="container d-flex justify-content-between align-items-center flex-wrap gap-3">
         <div>
             <h1 class="fw-bold mb-1"><i class="fa-solid fa-chart-line text-primary me-2"></i>Reportes y Estadísticas</h1>
-            <small class="text-white-50">Indicadores clave de rendimiento y generación de reportes consolidados</small>
+            <small class="text-white-50">Panel ejecutivo — CU-87, CU-88 y CU-89</small>
         </div>
-        <a th:href="@{/admin/panel}" class="btn btn-outline-light rounded-pill">Volver al Panel Admin</a>
+        <a th:href="@{/admin}" class="btn btn-outline-light rounded-pill">Volver al Panel Admin</a>
     </div>
 </div>
 
 <div class="container pb-5">
 
-    <div th:if="${mensaje}" class="alert alert-success alert-dismissible fade show shadow-sm rounded-3 mb-4" role="alert">
-        <i class="fa-solid fa-circle-check me-2"></i>
-        <span th:text="${mensaje}"></span>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    <!-- CU-89 — Indicadores ejecutivos -->
+    <h5 class="fw-bold mb-3 text-secondary"><i class="fa-solid fa-gauge-high me-2"></i>Indicadores en tiempo real</h5>
+    <div class="row g-3 mb-4">
+        <!-- KPI 1: Alumnos activos -->
+        <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm rounded-4 p-3 text-center h-100" style="background: linear-gradient(135deg,#1a73e8,#0d47a1);">
+                <i class="fa-solid fa-users fa-2x text-white opacity-75 mb-2"></i>
+                <h3 class="fw-bold text-white display-6 mb-1" th:text="${stats.alumnosActivos}">0</h3>
+                <small class="text-white-50">Alumnos activos</small>
+            </div>
+        </div>
+        <!-- KPI 2: Inscripciones vigentes -->
+        <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm rounded-4 p-3 text-center h-100" style="background: linear-gradient(135deg,#28a745,#145a32);">
+                <i class="fa-solid fa-user-check fa-2x text-white opacity-75 mb-2"></i>
+                <h3 class="fw-bold text-white display-6 mb-1" th:text="${stats.inscripcionesVigentes}">0</h3>
+                <small class="text-white-50">Inscripciones vigentes</small>
+            </div>
+        </div>
+        <!-- KPI 3: Ingresos del mes -->
+        <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm rounded-4 p-3 text-center h-100" style="background: linear-gradient(135deg,#ff9800,#e65100);">
+                <i class="fa-solid fa-dollar-sign fa-2x text-white opacity-75 mb-2"></i>
+                <h3 class="fw-bold text-white mb-1" style="font-size:1.4rem;"
+                    th:text="'$' + ${#numbers.formatDecimal(stats.ingresosMesActual, 1, 'COMMA', 2, 'POINT')}">$0</h3>
+                <small class="text-white-50">Ingresos del mes</small>
+                <!-- Variación respecto al mes anterior -->
+                <div class="mt-1">
+                    <span th:if="${stats.variacionPorcentualIngresos >= 0}"
+                          class="badge bg-white text-success"
+                          th:text="'▲ ' + ${#numbers.formatDecimal(stats.variacionPorcentualIngresos, 1, 1)} + '%'">▲0%</span>
+                    <span th:if="${stats.variacionPorcentualIngresos < 0}"
+                          class="badge bg-white text-danger"
+                          th:text="'▼ ' + ${#numbers.formatDecimal(stats.variacionPorcentualIngresos, 1, 1)} + '%'">▼0%</span>
+                    <br><small class="text-white-50" style="font-size:0.7rem;">vs. mes anterior</small>
+                </div>
+            </div>
+        </div>
+        <!-- KPI 4: Total histórico ingresos netos -->
+        <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm rounded-4 p-3 text-center h-100" style="background: linear-gradient(135deg,#6f42c1,#3a0ca3);">
+                <i class="fa-solid fa-graduation-cap fa-2x text-white opacity-75 mb-2"></i>
+                <h3 class="fw-bold text-white mb-1" style="font-size:1.4rem;">Panel Activo</h3>
+                <small class="text-white-50">Estadísticas en tiempo real</small>
+            </div>
+        </div>
     </div>
 
-    <!-- Indicadores Estadísticos KPI -->
-    <div class="row g-4 mb-4">
-        <div class="col-md-3">
-            <div class="card shadow-sm border-0 rounded-4 p-4 text-center bg-primary text-white">
-                <i class="fa-solid fa-users fa-2x mb-2 opacity-75"></i>
-                <h3 class="fw-bold display-6 mb-1" th:text="${totalAlumnos}">0</h3>
-                <small class="text-white-50">Alumnos Inscriptos</small>
+    <!-- CU-89 — Gráfico: Inscripciones últimos 30 días -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-7">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-body p-4">
+                    <h6 class="fw-bold text-secondary mb-3"><i class="fa-solid fa-chart-line me-2 text-primary"></i>Inscripciones — Últimos 30 días</h6>
+                    <canvas id="chartInscripciones30" height="150"></canvas>
+                </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card shadow-sm border-0 rounded-4 p-4 text-center bg-success text-white">
-                <i class="fa-solid fa-graduation-cap fa-2x mb-2 opacity-75"></i>
-                <h3 class="fw-bold display-6 mb-1" th:text="${totalCursos}">0</h3>
-                <small class="text-white-50">Cursos Publicados</small>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card shadow-sm border-0 rounded-4 p-4 text-center bg-info text-white">
-                <i class="fa-solid fa-user-check fa-2x mb-2 opacity-75"></i>
-                <h3 class="fw-bold display-6 mb-1" th:text="${totalInscripciones}">0</h3>
-                <small class="text-white-50">Inscripciones Activas</small>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card shadow-sm border-0 rounded-4 p-4 text-center bg-warning text-dark">
-                <i class="fa-solid fa-sack-dollar fa-2x mb-2 opacity-75"></i>
-                <h3 class="fw-bold display-6 mb-1" th:text="'$' + ${#numbers.formatDecimal(totalIngresos, 1, 2)}">$0</h3>
-                <small class="text-dark-50">Ingresos Totales (ARS)</small>
+        <!-- CU-89 — Gráfico: Top 5 cursos -->
+        <div class="col-md-5">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-body p-4">
+                    <h6 class="fw-bold text-secondary mb-3"><i class="fa-solid fa-ranking-star me-2 text-warning"></i>Top 5 cursos con más inscriptos</h6>
+                    <canvas id="chartTop5" height="180"></canvas>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Generar Nuevo Reporte -->
-    <div class="card shadow-sm border-0 rounded-4 mb-4">
+    <!-- CU-87 / CU-88 — Formulario de generación de informes -->
+    <div class="card border-0 shadow-sm rounded-4 mb-4">
         <div class="card-body p-4">
-            <h5 class="fw-bold mb-3"><i class="fa-solid fa-file-invoice me-2 text-primary"></i>Generar Nuevo Reporte</h5>
-            <form th:action="@{/admin/reportes/generar}" method="post" class="row g-3">
-                <div class="col-md-8">
-                    <label class="form-label fw-semibold">Tipo de Reporte</label>
-                    <select name="tipoReporteId" class="form-select rounded-3" required>
-                        <option th:each="t : ${tiposReporte}" th:value="${t.id}" th:text="${t.nombre}">Tipo</option>
+            <h5 class="fw-bold mb-1"><i class="fa-solid fa-file-invoice me-2 text-primary"></i>Generar Informe PDF</h5>
+            <p class="text-muted small mb-3">Seleccioná un curso, un rango de fechas y el tipo de informe (CU-87 o CU-88).</p>
+            <form id="formInforme" class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold small">Curso</label>
+                    <select id="selectCurso" name="cursoId" class="form-select rounded-3" required>
+                        <option value="">— Seleccioná un curso —</option>
+                        <option th:each="c : ${cursos}" th:value="${c.id}" th:text="${c.nombre}"></option>
                     </select>
                 </div>
-                <div class="col-md-4 d-flex align-items-end">
-                    <button type="submit" class="btn btn-primary rounded-pill w-100 fw-bold">
-                        <i class="fa-solid fa-gear me-2"></i>Generar Reporte
-                    </button>
+                <div class="col-md-2">
+                    <label class="form-label fw-semibold small">Desde</label>
+                    <input type="date" id="inputDesde" class="form-control rounded-3"
+                           th:value="${fechaDesdeDefault}" required>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label fw-semibold small">Hasta</label>
+                    <input type="date" id="inputHasta" class="form-control rounded-3"
+                           th:value="${fechaHastaDefault}" required>
+                </div>
+                <div class="col-md-4 d-flex align-items-end gap-2">
+                    <!-- CU-87 -->
+                    <a id="btnAlumnos" href="#" onclick="descargarInforme('alumnos')"
+                       class="btn btn-primary rounded-pill flex-fill fw-bold">
+                        <i class="fa-solid fa-users me-1"></i>Inf. Alumnos
+                    </a>
+                    <!-- CU-88 -->
+                    <a id="btnIngresos" href="#" onclick="descargarInforme('ingresos')"
+                       class="btn btn-success rounded-pill flex-fill fw-bold">
+                        <i class="fa-solid fa-dollar-sign me-1"></i>Inf. Ingresos
+                    </a>
                 </div>
             </form>
+            <div id="mensajeDescarga" class="alert alert-info mt-3 d-none" role="alert">
+                <i class="fa-solid fa-circle-notch fa-spin me-2"></i>Generando informe PDF, por favor esperá...
+            </div>
         </div>
     </div>
 
-    <!-- Historial de Reportes Generados -->
-    <div class="card shadow-sm border-0 rounded-4">
+    <!-- Historial de reportes generados (persistidos en tabla Reporte) -->
+    <div class="card border-0 shadow-sm rounded-4">
         <div class="card-body p-4">
-            <h5 class="fw-bold mb-3"><i class="fa-solid fa-clock-rotate-left me-2 text-secondary"></i>Historial de Reportes Generados</h5>
+            <h5 class="fw-bold mb-3"><i class="fa-solid fa-clock-rotate-left me-2 text-secondary"></i>Historial de reportes generados</h5>
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0">
                     <thead class="table-light">
                         <tr>
-                            <th># ID</th>
-                            <th>Tipo de Reporte</th>
-                            <th>Generado Por</th>
-                            <th>Fecha y Hora</th>
+                            <th>#</th>
+                            <th>Tipo de reporte</th>
+                            <th>Generado por</th>
+                            <th>Fecha y hora</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr th:each="r : ${reportes}">
-                            <td class="fw-bold" th:text="${r.id}">ID</td>
+                            <td class="fw-bold text-muted" th:text="${r.id}">ID</td>
                             <td>
-                                <span class="badge bg-primary" th:text="${r.tipoReporte.nombre}">Tipo</span>
+                                <span class="badge"
+                                      th:classappend="${r.tipoReporte.nombre == 'Alumnos'} ? 'bg-primary' : 'bg-success'"
+                                      th:text="${r.tipoReporte.nombre}">Tipo</span>
                             </td>
-                            <td th:text="${r.administrador.nombreCompleto}">Admin</td>
+                            <td th:text="${r.administrador.usuario.getNombreCompleto()}">Admin</td>
                             <td th:text="${#temporals.format(r.fechaGeneracion, 'dd/MM/yyyy HH:mm')}">Fecha</td>
                         </tr>
                         <tr th:if="${reportes.isEmpty()}">
-                            <td colspan="4" class="text-center text-muted fst-italic py-4">Aún no se han generado reportes.</td>
+                            <td colspan="4" class="text-center text-muted fst-italic py-4">
+                                Aún no se han generado reportes.
+                            </td>
                         </tr>
                     </tbody>
                 </table>
@@ -110,6 +167,89 @@
     </div>
 
 </div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script th:inline="javascript">
+    // CU-89 — Gráfico 1: Inscripciones últimos 30 días (línea)
+    const labels30 = /*[[${stats.etiquetasUltimos30Dias}]]*/ [];
+    const values30 = /*[[${stats.inscripcionesUltimos30Dias}]]*/ [];
+    new Chart(document.getElementById('chartInscripciones30'), {
+        type: 'line',
+        data: {
+            labels: labels30,
+            datasets: [{
+                label: 'Inscripciones',
+                data: values30,
+                borderColor: '#1a73e8',
+                backgroundColor: 'rgba(26,115,232,0.1)',
+                borderWidth: 2,
+                tension: 0.3,
+                fill: true,
+                pointRadius: 3
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { ticks: { maxTicksLimit: 8, font: { size: 10 } } },
+                y: { beginAtZero: true, ticks: { stepSize: 1 } }
+            }
+        }
+    });
+
+    // CU-89 — Gráfico 2: Top 5 cursos (barras horizontales)
+    const top5Labels = /*[[${stats.top5CursosNombres}]]*/ [];
+    const top5Values = /*[[${stats.top5CursosCantidades}]]*/ [];
+    new Chart(document.getElementById('chartTop5'), {
+        type: 'bar',
+        data: {
+            labels: top5Labels,
+            datasets: [{
+                label: 'Inscriptos',
+                data: top5Values,
+                backgroundColor: ['#1a73e8','#28a745','#ff9800','#6f42c1','#17a2b8'],
+                borderRadius: 6
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { beginAtZero: true, ticks: { stepSize: 1 } },
+                y: { ticks: { font: { size: 10 } } }
+            }
+        }
+    });
+
+    // CU-87 / CU-88: Generación de informe con descarga directa
+    function descargarInforme(tipo) {
+        const cursoId = document.getElementById('selectCurso').value;
+        const desde = document.getElementById('inputDesde').value;
+        const hasta = document.getElementById('inputHasta').value;
+        if (!cursoId || !desde || !hasta) {
+            alert('Por favor completá todos los campos: curso, fecha desde y fecha hasta.');
+            return false;
+        }
+        if (desde > hasta) {
+            alert('La fecha "desde" debe ser anterior o igual a "hasta".');
+            return false;
+        }
+        document.getElementById('mensajeDescarga').classList.remove('d-none');
+        const url = `/admin/reportes/${tipo}?cursoId=${cursoId}&desde=${desde}&hasta=${hasta}`;
+        // Descarga en nueva pestaña para no perder el panel
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = '';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        setTimeout(() => document.getElementById('mensajeDescarga').classList.add('d-none'), 4000);
+        return false;
+    }
+</script>
 
 <div th:replace="~{fragments/footer :: footer}"></div>
 </body>

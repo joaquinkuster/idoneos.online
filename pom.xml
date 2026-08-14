@@ -96,6 +96,21 @@
 			<artifactId>spring-security-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+
+		<!-- CU-87 / CU-88: Generación de informes PDF (OpenPDF, fork libre de iText 4) -->
+		<dependency>
+			<groupId>com.github.librepdf</groupId>
+			<artifactId>openpdf</artifactId>
+			<version>1.3.35</version>
+		</dependency>
+
+		<!-- CU-87 / CU-88: Generación de gráficos embebidos en PDF (JFreeChart) -->
+		<dependency>
+			<groupId>org.jfree</groupId>
+			<artifactId>jfreechart</artifactId>
+			<version>1.5.5</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>

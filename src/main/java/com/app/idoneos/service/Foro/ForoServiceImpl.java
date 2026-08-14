@@ -48,7 +48,7 @@ public class ForoServiceImpl implements ForoService {
         if (consulta.getUnidad() == null) {
             throw new ExcepcionValidacion("CU-34 Excepción paso 4: La unidad temática asociada es obligatoria.");
         }
-        if (consulta.getUsuario() == null) {
+        if (consulta.getAlumno() == null) {
             throw new ExcepcionValidacion("CU-34 Excepción paso 4: El usuario autor de la consulta es obligatorio.");
         }
 
@@ -70,7 +70,7 @@ public class ForoServiceImpl implements ForoService {
         }
 
         if (usuarioSolicitante != null && usuarioSolicitante.getRol() != RolUsuario.Administrador &&
-            existente.getUsuario().getId() != usuarioSolicitante.getId()) {
+            existente.getAlumno().getUsuario().getId() != usuarioSolicitante.getId()) {
             throw new ExcepcionValidacion("CU-35 Autorización: Solo el autor original puede editar su consulta.");
         }
 
@@ -95,7 +95,7 @@ public class ForoServiceImpl implements ForoService {
         }
 
         if (usuarioSolicitante != null && usuarioSolicitante.getRol() != RolUsuario.Administrador &&
-            consulta.getUsuario().getId() != usuarioSolicitante.getId()) {
+            consulta.getAlumno().getUsuario().getId() != usuarioSolicitante.getId()) {
             throw new ExcepcionValidacion("CU-36 Autorización: Solo el autor original o un Administrador pueden eliminar la consulta.");
         }
 

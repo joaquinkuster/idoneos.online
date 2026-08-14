@@ -196,7 +196,7 @@ public class EmailService {
         String asunto = "Nueva consulta en el foro — " + consulta.getUnidad().getTitulo();
         String html = html(
                 "Nueva consulta de alumno",
-                "<strong>" + consulta.getUsuario().getNombre() + " " + consulta.getUsuario().getApellido()
+                "<strong>" + consulta.getAlumno().getUsuario().getNombre() + " " + consulta.getAlumno().getUsuario().getApellido()
                         + "</strong> publicó una consulta en el foro de la unidad <strong>"
                         + consulta.getUnidad().getTitulo() + "</strong>:<br><em>"
                         + consulta.getTexto() + "</em>",
@@ -212,7 +212,7 @@ public class EmailService {
      */
     public void enviarNuevaRespuestaForo(RespuestaForo respuesta) {
         ConsultaForo consulta = respuesta.getConsulta();
-        Usuario alumno = consulta.getUsuario();
+        Usuario alumno = consulta.getAlumno().getUsuario();
         String asunto = "El docente respondió tu consulta — " + consulta.getUnidad().getTitulo();
         String html = html(
                 "Respuesta a tu consulta",

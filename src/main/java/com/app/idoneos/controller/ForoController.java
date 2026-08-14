@@ -99,8 +99,8 @@ public class ForoController {
 
         RespuestaForo respuesta = respuestaRepo.save(new RespuestaForo(texto, consulta, docente));
 
-        if (consulta.getUsuario() != null) {
-            emailService.enviarRespuestaForo(consulta.getUsuario().getCorreo(), respuesta);
+        if (consulta.getAlumno() != null) {
+            emailService.enviarRespuestaForo(consulta.getAlumno().getUsuario().getCorreo(), respuesta);
         }
 
         ra.addFlashAttribute("mensaje", "Respuesta enviada.");
