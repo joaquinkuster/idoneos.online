@@ -66,7 +66,7 @@ public class ReporteIngresosPdfGenerator {
         PdfWriter writer = PdfWriter.getInstance(doc, baos);
 
         writer.setPageEvent(new ModernPdfFooter(
-                "Informe de Ingresos — " + datos.getCurso().getNombre(),
+                "Sistema de informe de ingresos por curso",
                 adminNombre,
                 LocalDateTime.now()
         ));
@@ -78,7 +78,7 @@ public class ReporteIngresosPdfGenerator {
         // ==========================================
         // PÁGINA 1: Header, KPIs y Gráficos 1 y 2
         // ==========================================
-        agregarBannerSuperior(doc, "INFORME EJECUTIVO DE INGRESOS", datos.getCurso().getNombre(),
+        agregarBannerSuperior(doc, "INFORME DE INGRESOS POR CURSO",
                 datos.getDesde(), datos.getHasta(), adminNombre);
 
         agregarTarjetasKpi(doc,
@@ -130,7 +130,7 @@ public class ReporteIngresosPdfGenerator {
         return baos.toByteArray();
     }
 
-    private void agregarBannerSuperior(Document doc, String tipoReporte, String nombreCurso,
+    private void agregarBannerSuperior(Document doc, String tipoReporte,
                                         LocalDate desde, LocalDate hasta, String adminNombre) throws Exception {
         PdfPTable banner = new PdfPTable(2);
         banner.setWidthPercentage(100);
@@ -141,6 +141,7 @@ public class ReporteIngresosPdfGenerator {
         colLogo.setBackgroundColor(COLOR_NAVY_DARK);
         colLogo.setPadding(12);
         colLogo.setBorder(Rectangle.NO_BORDER);
+        colLogo.setVerticalAlignment(Element.ALIGN_MIDDLE);
 
         try {
             com.lowagie.text.Image logoImg = null;
@@ -152,7 +153,7 @@ public class ReporteIngresosPdfGenerator {
                 logoImg = com.lowagie.text.Image.getInstance(r2.getURL());
             }
             if (logoImg != null) {
-                logoImg.scaleToFit(115, 45);
+                logoImg.scaleToFit(120, 50);
                 colLogo.addElement(logoImg);
             }
         } catch (Exception e) {
@@ -160,10 +161,6 @@ public class ReporteIngresosPdfGenerator {
             colLogo.addElement(pMarca);
         }
 
-        Paragraph pTagline = new Paragraph("EXCELENCIA EN EDUCACIÓN FINANCIERA",
-                new Font(Font.HELVETICA, 6.5f, Font.BOLD, COLOR_GOLD));
-        pTagline.setSpacingBefore(3);
-        colLogo.addElement(pTagline);
         banner.addCell(colLogo);
 
         PdfPCell colInfo = new PdfPCell();
@@ -171,24 +168,24 @@ public class ReporteIngresosPdfGenerator {
         colInfo.setPadding(12);
         colInfo.setBorder(Rectangle.NO_BORDER);
         colInfo.setHorizontalAlignment(Element.ALIGN_RIGHT);
+        colInfo.setVerticalAlignment(Element.ALIGN_MIDDLE);
 
         Paragraph pTipo = new Paragraph(tipoReporte, FONT_HEADER_TITLE);
         pTipo.setAlignment(Element.ALIGN_RIGHT);
         colInfo.addElement(pTipo);
 
-        Paragraph pCurso = new Paragraph(nombreCurso,
-                new Font(Font.HELVETICA, 10, Font.BOLD, Color.WHITE));
-        pCurso.setAlignment(Element.ALIGN_RIGHT);
-        pCurso.setSpacingBefore(2);
-        colInfo.addElement(pCurso);
-
         DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        Paragraph pPeriodo = new Paragraph("Período: " + desde.format(fmt) + " al " + hasta.format(fmt)
-                + "  |  Emitido: " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))
-                + " por " + adminNombre, FONT_HEADER_SUB);
+        Paragraph pPeriodo = new Paragraph("Período: " + desde.format(fmt) + " al " + hasta.format(fmt),
+                new Font(Font.HELVETICA, 9.5f, Font.BOLD, Color.WHITE));
         pPeriodo.setAlignment(Element.ALIGN_RIGHT);
-        pPeriodo.setSpacingBefore(3);
+        pPeriodo.setSpacingBefore(4);
         colInfo.addElement(pPeriodo);
+
+        Paragraph pMeta = new Paragraph("Emitido: " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))
+                + " por " + adminNombre, FONT_HEADER_SUB);
+        pMeta.setAlignment(Element.ALIGN_RIGHT);
+        pMeta.setSpacingBefore(2);
+        colInfo.addElement(pMeta);
 
         banner.addCell(colInfo);
         doc.add(banner);
