@@ -19,12 +19,12 @@ public class ModalidadCurso {
 
     /** Modalidad asociada. */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "modalidad_id")
+    @JoinColumn(name = "modalidad_id", nullable = false)
     private Modalidad modalidad;
 
     /** Curso asociado. */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "curso_id")
+    @JoinColumn(name = "curso_id", nullable = false)
     private Curso curso;
 
     public ModalidadCurso() {

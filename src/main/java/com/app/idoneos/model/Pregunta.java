@@ -30,7 +30,7 @@ public class Pregunta {
 
     /** Pool de preguntas al que pertenece esta pregunta. */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "pool_id")
+    @JoinColumn(name = "pool_id", nullable = false)
     private Pool pool;
 
     public Pregunta() {

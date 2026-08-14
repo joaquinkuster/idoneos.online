@@ -66,7 +66,7 @@ public class Material {
 
     /** Unidad temática a la que pertenece el material. */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "unidad_id")
+    @JoinColumn(name = "unidad_id", nullable = false)
     private Unidad unidad;
 
     /**
@@ -74,7 +74,7 @@ public class Material {
      * Resumen).
      */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "tipo_material_id")
+    @JoinColumn(name = "tipo_material_id", nullable = false)
     private TipoMaterial tipoMaterial;
 
     /** Docente autor o responsable de la carga del material (opcional). */

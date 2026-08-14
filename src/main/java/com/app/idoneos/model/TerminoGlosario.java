@@ -31,7 +31,7 @@ public class TerminoGlosario {
 
     /** Unidad temática a la que pertenece el término del glosario. */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "unidad_id")
+    @JoinColumn(name = "unidad_id", nullable = false)
     private Unidad unidad;
 
     public TerminoGlosario() {

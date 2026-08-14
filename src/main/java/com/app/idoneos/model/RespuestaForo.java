@@ -31,12 +31,12 @@ public class RespuestaForo {
 
     /** Consulta original a la que responde. */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "consulta_foro_id")
+    @JoinColumn(name = "consulta_foro_id", nullable = false)
     private ConsultaForo consulta;
 
     /** Docente autor de la respuesta. */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "docente_id")
+    @JoinColumn(name = "docente_id", nullable = false)
     private Docente docente;
 
     public RespuestaForo() {

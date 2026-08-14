@@ -27,7 +27,7 @@ public class IntentoAutoevaluacion {
 
     /** Autoevaluación rendida. */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "autoevaluacion_id")
+    @JoinColumn(name = "autoevaluacion_id", nullable = false)
     private Autoevaluacion autoevaluacion;
 
     public IntentoAutoevaluacion() {}

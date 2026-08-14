@@ -62,11 +62,11 @@ public class Pago {
     private boolean comprobanteEnviado = false;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "inscripcion_id")
+    @JoinColumn(name = "inscripcion_id", nullable = false)
     private Inscripcion inscripcion;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "estado_pago_id")
+    @JoinColumn(name = "estado_pago_id", nullable = false)
     private EstadoPago estadoPago;
 
     @ManyToOne(fetch = FetchType.LAZY)

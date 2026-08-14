@@ -19,14 +19,14 @@ public class DictadoDocente {
      * Dictado al que pertenece el docente asignado.
      */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "dictado_id")
+    @JoinColumn(name = "dictado_id", nullable = false)
     private Dictado dictado;
 
     /**
      * Docente asignado al dictado.
      */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "docente_id")
+    @JoinColumn(name = "docente_id", nullable = false)
     private Docente docente;
 
     /**

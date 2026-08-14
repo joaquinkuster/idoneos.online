@@ -31,7 +31,7 @@ public class OpcionRespuesta {
 
     /** Pregunta a la que pertenece la opción. */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "pregunta_id")
+    @JoinColumn(name = "pregunta_id", nullable = false)
     private Pregunta pregunta;
 
     public OpcionRespuesta() {

@@ -34,12 +34,12 @@ public class ConsultaForo {
 
     /** Unidad temática a la que pertenece la duda. */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "unidad_id")
+    @JoinColumn(name = "unidad_id", nullable = false)
     private Unidad unidad;
 
     /** Alumno autor de la consulta. */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "alumno_id")
+    @JoinColumn(name = "alumno_id", nullable = false)
     private Alumno alumno;
 
     /** Respuestas docentes asociadas a esta consulta. */
