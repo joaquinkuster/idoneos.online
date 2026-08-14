@@ -6,6 +6,7 @@ import com.lowagie.text.Rectangle;
 import com.lowagie.text.pdf.*;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PiePlot;
 import org.jfree.chart.plot.PlotOrientation;
@@ -29,8 +30,7 @@ import java.util.Locale;
 
 /**
  * CU-88 — Generar informe de ingresos de un curso.
- * Genera el PDF ejecutivo de alta calidad estética con 4 gráficos usando OpenPDF + JFreeChart.
- * Paleta corporativa institucional: Deep Navy (#0B1F3A, #12294D) + Elegant Gold (#D4AF37, #E4BE6C).
+ * Genera el PDF ejecutivo de alta calidad estética (Retina 300 DPI, tipografía nítida, 2 páginas balanceadas).
  */
 @Component
 public class ReporteIngresosPdfGenerator {
@@ -53,12 +53,12 @@ public class ReporteIngresosPdfGenerator {
             new Color(234, 88, 12)
     };
 
-    private static final Font FONT_BRAND = new Font(Font.HELVETICA, 16, Font.BOLD, Color.WHITE);
-    private static final Font FONT_HEADER_TITLE = new Font(Font.HELVETICA, 14, Font.BOLD, COLOR_GOLD);
-    private static final Font FONT_HEADER_SUB = new Font(Font.HELVETICA, 9, Font.NORMAL, new Color(210, 220, 235));
+    private static final Font FONT_BRAND = new Font(Font.HELVETICA, 15, Font.BOLD, Color.WHITE);
+    private static final Font FONT_HEADER_TITLE = new Font(Font.HELVETICA, 13, Font.BOLD, COLOR_GOLD);
+    private static final Font FONT_HEADER_SUB = new Font(Font.HELVETICA, 8.5f, Font.NORMAL, new Color(210, 220, 235));
     private static final Font FONT_SECTION = new Font(Font.HELVETICA, 12, Font.BOLD, COLOR_NAVY_DARK);
-    private static final Font FONT_DESC = new Font(Font.HELVETICA, 8, Font.NORMAL, COLOR_MUTED);
-    private static final Font FONT_CARD_LABEL = new Font(Font.HELVETICA, 8, Font.BOLD, COLOR_MUTED);
+    private static final Font FONT_DESC = new Font(Font.HELVETICA, 8.5f, Font.NORMAL, COLOR_MUTED);
+    private static final Font FONT_CARD_LABEL = new Font(Font.HELVETICA, 7.5f, Font.BOLD, COLOR_MUTED);
 
     public byte[] generar(DatosInformeIngresosDTO datos, String adminNombre) throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -75,49 +75,56 @@ public class ReporteIngresosPdfGenerator {
 
         NumberFormat moneda = NumberFormat.getCurrencyInstance(new Locale("es", "AR"));
 
-        // 1. Header Banner
+        // ==========================================
+        // PÁGINA 1: Header, KPIs y Gráficos 1 y 2
+        // ==========================================
         agregarBannerSuperior(doc, "INFORME EJECUTIVO DE INGRESOS", datos.getCurso().getNombre(),
                 datos.getDesde(), datos.getHasta(), adminNombre);
 
-        // 2. Tarjetas KPI
         agregarTarjetasKpi(doc,
-                moneda.format(datos.getMontoNeto()), "INGRESOS NETOS ACREDITADOS",
+                moneda.format(datos.getMontoNeto()), "NETO ACREDITADO",
                 moneda.format(datos.getMontoBruto()), "PRECIO DE LISTA BRUTO",
                 moneda.format(datos.getDescuentoAplicado()), "DESCUENTOS APLICADOS",
                 String.valueOf(datos.getTotalPagosAcreditados()), "PAGOS ACREDITADOS");
 
-        // 3. Vista 1: Gráfico de barras de comparación de ingresos
         agregarTituloSeccion(doc, "1. Comparación de facturación entre cursos",
-                "Monto total recaudado en el período, contrastando el curso seleccionado frente al catálogo.");
-        doc.add(crearImagenGrafico(
+                "Monto total recaudado en el período, contrastando el curso seleccionado frente a la oferta total.");
+        doc.add(crearImagenGraficoAltaResolucion(
                 crearGraficoBarrasHorizontales(datos.getNombresComparacion(), datos.getIngresosComparacion(), datos.getCurso().getNombre()),
-                520, 180));
+                522, 190));
 
-        // 4. Vista 2: Evolución diaria de ingresos
-        agregarTituloSeccion(doc, "2. Evolución diaria de recaudación",
-                "Comportamiento de la facturación diaria en pesos argentinos durante el período.");
-        doc.add(crearImagenGrafico(
+        agregarTituloSeccion(doc, "2. Evolución diaria de facturación",
+                "Comportamiento de los ingresos diarios percibidos a lo largo del período seleccionado.");
+        doc.add(crearImagenGraficoAltaResolucion(
                 crearGraficoLinea(datos.getEtiquetasEvolucion(), datos.getValoresEvolucion()),
-                520, 160));
+                522, 180));
 
-        // 5. Vista 3 & 4 en tabla de dos columnas: Torta por Categoría + Bruto vs Neto
+        // ==========================================
+        // PÁGINA 2: Vistas 3 & 4 y Tabla Financiera
+        // ==========================================
+        doc.newPage();
+
         agregarTituloSeccion(doc, "3. Distribución por Categoría y Análisis de Márgenes",
-                "Participación temática del mercado e impacto de descuentos sobre la facturación.");
+                "Participación de las áreas de formación y relación entre precio de lista, beneficios promocionales y neto final.");
 
         PdfPTable grid = new PdfPTable(2);
         grid.setWidthPercentage(100);
         grid.setWidths(new float[]{1f, 1f});
         grid.getDefaultCell().setBorder(Rectangle.NO_BORDER);
 
-        PdfPCell c1 = new PdfPCell(crearImagenGrafico(crearGraficoTorta(datos.getNombresCategoria(), datos.getIngresosCategoria()), 255, 150));
+        PdfPCell c1 = new PdfPCell(crearImagenGraficoAltaResolucion(crearGraficoTorta(datos.getNombresCategoria(), datos.getIngresosCategoria()), 255, 160));
         c1.setBorder(Rectangle.NO_BORDER);
         grid.addCell(c1);
 
-        PdfPCell c2 = new PdfPCell(crearImagenGrafico(crearGraficoBrutoVsNeto(datos.getMontoBruto(), datos.getDescuentoAplicado(), datos.getMontoNeto()), 255, 150));
+        PdfPCell c2 = new PdfPCell(crearImagenGraficoAltaResolucion(crearGraficoBrutoVsNeto(datos.getMontoBruto(), datos.getDescuentoAplicado(), datos.getMontoNeto()), 255, 160));
         c2.setBorder(Rectangle.NO_BORDER);
         grid.addCell(c2);
 
         doc.add(grid);
+
+        agregarTituloSeccion(doc, "4. Resumen de Liquidación Financiera",
+                "Consolidado de cobros y análisis de efectividad comercial.");
+        agregarTablaLiquidacion(doc, datos, moneda);
 
         doc.close();
         return baos.toByteArray();
@@ -130,10 +137,9 @@ public class ReporteIngresosPdfGenerator {
         banner.setWidths(new float[]{1.3f, 2.7f});
         banner.getDefaultCell().setBorder(Rectangle.NO_BORDER);
 
-        // Celda Izquierda: Logo & Marca
         PdfPCell colLogo = new PdfPCell();
         colLogo.setBackgroundColor(COLOR_NAVY_DARK);
-        colLogo.setPadding(14);
+        colLogo.setPadding(12);
         colLogo.setBorder(Rectangle.NO_BORDER);
 
         try {
@@ -146,7 +152,7 @@ public class ReporteIngresosPdfGenerator {
                 logoImg = com.lowagie.text.Image.getInstance(r2.getURL());
             }
             if (logoImg != null) {
-                logoImg.scaleToFit(120, 48);
+                logoImg.scaleToFit(115, 45);
                 colLogo.addElement(logoImg);
             }
         } catch (Exception e) {
@@ -156,14 +162,13 @@ public class ReporteIngresosPdfGenerator {
 
         Paragraph pTagline = new Paragraph("EXCELENCIA EN EDUCACIÓN FINANCIERA",
                 new Font(Font.HELVETICA, 6.5f, Font.BOLD, COLOR_GOLD));
-        pTagline.setSpacingBefore(4);
+        pTagline.setSpacingBefore(3);
         colLogo.addElement(pTagline);
         banner.addCell(colLogo);
 
-        // Celda Derecha: Metadatos del informe
         PdfPCell colInfo = new PdfPCell();
         colInfo.setBackgroundColor(COLOR_NAVY_LIGHT);
-        colInfo.setPadding(14);
+        colInfo.setPadding(12);
         colInfo.setBorder(Rectangle.NO_BORDER);
         colInfo.setHorizontalAlignment(Element.ALIGN_RIGHT);
 
@@ -182,7 +187,7 @@ public class ReporteIngresosPdfGenerator {
                 + "  |  Emitido: " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))
                 + " por " + adminNombre, FONT_HEADER_SUB);
         pPeriodo.setAlignment(Element.ALIGN_RIGHT);
-        pPeriodo.setSpacingBefore(4);
+        pPeriodo.setSpacingBefore(3);
         colInfo.addElement(pPeriodo);
 
         banner.addCell(colInfo);
@@ -194,8 +199,8 @@ public class ReporteIngresosPdfGenerator {
                                      String v3, String l3, String v4, String l4) throws Exception {
         PdfPTable kpis = new PdfPTable(4);
         kpis.setWidthPercentage(100);
-        kpis.setSpacingBefore(2);
-        kpis.setSpacingAfter(8);
+        kpis.setSpacingBefore(0);
+        kpis.setSpacingAfter(6);
 
         String[] valores = {v1, v2, v3, v4};
         String[] labels = {l1, l2, l3, l4};
@@ -209,7 +214,7 @@ public class ReporteIngresosPdfGenerator {
             card.setPadding(8);
             card.setHorizontalAlignment(Element.ALIGN_CENTER);
 
-            Paragraph pVal = new Paragraph(valores[i], new Font(Font.HELVETICA, 13, Font.BOLD, colValores[i]));
+            Paragraph pVal = new Paragraph(valores[i], new Font(Font.HELVETICA, 12, Font.BOLD, colValores[i]));
             pVal.setAlignment(Element.ALIGN_CENTER);
             card.addElement(pVal);
 
@@ -232,13 +237,69 @@ public class ReporteIngresosPdfGenerator {
         doc.add(pD);
     }
 
+    private void agregarTablaLiquidacion(Document doc, DatosInformeIngresosDTO datos, NumberFormat moneda) throws Exception {
+        PdfPTable tabla = new PdfPTable(3);
+        tabla.setWidthPercentage(100);
+        tabla.setWidths(new float[]{2f, 1.2f, 1f});
+        tabla.setSpacingBefore(6);
+
+        String[] cols = {"Concepto de Liquidación", "Importe ($ ARS)", "% del Total Bruto"};
+        for (String c : cols) {
+            PdfPCell hCell = new PdfPCell(new Phrase(c, new Font(Font.HELVETICA, 9, Font.BOLD, Color.WHITE)));
+            hCell.setBackgroundColor(COLOR_NAVY_DARK);
+            hCell.setPadding(6);
+            hCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            tabla.addCell(hCell);
+        }
+
+        double bruto = Math.max(1.0, datos.getMontoBruto());
+        agregarFilaTabla(tabla, "Facturación Bruta (Tarifa de Lista)", moneda.format(datos.getMontoBruto()), "100.0 %");
+        agregarFilaTabla(tabla, "Descuentos y Promociones Otorgadas", "- " + moneda.format(datos.getDescuentoAplicado()), String.format("- %.1f %%", (datos.getDescuentoAplicado() * 100.0) / bruto));
+        
+        // Fila Neto Final
+        PdfPCell t1 = new PdfPCell(new Phrase("TOTAL NETO ACREDITADO (Recaudación Real)", new Font(Font.HELVETICA, 9, Font.BOLD, COLOR_SUCCESS)));
+        t1.setBackgroundColor(COLOR_BG_LIGHT);
+        t1.setPadding(6);
+        tabla.addCell(t1);
+
+        PdfPCell t2 = new PdfPCell(new Phrase(moneda.format(datos.getMontoNeto()), new Font(Font.HELVETICA, 9, Font.BOLD, COLOR_SUCCESS)));
+        t2.setBackgroundColor(COLOR_BG_LIGHT);
+        t2.setPadding(6);
+        t2.setHorizontalAlignment(Element.ALIGN_RIGHT);
+        tabla.addCell(t2);
+
+        PdfPCell t3 = new PdfPCell(new Phrase(String.format("%.1f %%", (datos.getMontoNeto() * 100.0) / bruto), new Font(Font.HELVETICA, 9, Font.BOLD, COLOR_SUCCESS)));
+        t3.setBackgroundColor(COLOR_BG_LIGHT);
+        t3.setPadding(6);
+        t3.setHorizontalAlignment(Element.ALIGN_CENTER);
+        tabla.addCell(t3);
+
+        doc.add(tabla);
+    }
+
+    private void agregarFilaTabla(PdfPTable tabla, String col1, String col2, String col3) {
+        PdfPCell c1 = new PdfPCell(new Phrase(col1, new Font(Font.HELVETICA, 8.5f, Font.NORMAL, Color.DARK_GRAY)));
+        c1.setPadding(5);
+        tabla.addCell(c1);
+
+        PdfPCell c2 = new PdfPCell(new Phrase(col2, new Font(Font.HELVETICA, 8.5f, Font.BOLD, COLOR_NAVY_DARK)));
+        c2.setPadding(5);
+        c2.setHorizontalAlignment(Element.ALIGN_RIGHT);
+        tabla.addCell(c2);
+
+        PdfPCell c3 = new PdfPCell(new Phrase(col3, new Font(Font.HELVETICA, 8.5f, Font.NORMAL, Color.DARK_GRAY)));
+        c3.setPadding(5);
+        c3.setHorizontalAlignment(Element.ALIGN_CENTER);
+        tabla.addCell(c3);
+    }
+
     // ==========================================
     // GRÁFICOS JFREECHART ESTILIZADOS
     // ==========================================
     private JFreeChart crearGraficoBarrasHorizontales(List<String> nombres, List<Double> valores, String cursoSeleccionado) {
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
         for (int i = 0; i < nombres.size(); i++) {
-            dataset.addValue(valores.get(i), "Ingresos (ARS)", nombres.get(i));
+            dataset.addValue(valores.get(i), "Ingresos", nombres.get(i));
         }
         JFreeChart chart = ChartFactory.createBarChart(
                 null, null, "ARS", dataset,
@@ -255,9 +316,12 @@ public class ReporteIngresosPdfGenerator {
 
     private JFreeChart crearGraficoLinea(List<String> etiquetas, List<Double> valores) {
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+        int step = Math.max(1, etiquetas.size() / 6);
         for (int i = 0; i < etiquetas.size(); i++) {
-            dataset.addValue(valores.get(i), "Ingresos diarios", etiquetas.get(i));
+            String etiquetaVisible = (i % step == 0 || i == etiquetas.size() - 1) ? etiquetas.get(i) : "";
+            dataset.addValue(valores.get(i), "Ingresos diarios", etiquetaVisible);
         }
+
         JFreeChart chart = ChartFactory.createLineChart(
                 null, null, "Monto (ARS)", dataset,
                 PlotOrientation.VERTICAL, false, false, false);
@@ -280,11 +344,14 @@ public class ReporteIngresosPdfGenerator {
         }
         JFreeChart chart = ChartFactory.createPieChart(null, dataset, true, false, false);
         chart.setBackgroundPaint(Color.WHITE);
+        chart.setAntiAlias(true);
+        chart.setTextAntiAlias(true);
+
         PiePlot plot = (PiePlot) chart.getPlot();
         plot.setBackgroundPaint(COLOR_BG_LIGHT);
         plot.setOutlinePaint(COLOR_CARD_BORDER);
         plot.setShadowPaint(null);
-        plot.setLabelFont(new java.awt.Font("SansSerif", java.awt.Font.PLAIN, 7));
+        plot.setLabelFont(new java.awt.Font("SansSerif", java.awt.Font.PLAIN, 8));
 
         for (int i = 0; i < nombres.size(); i++) {
             plot.setSectionPaint(nombres.get(i), COLORES_TORTA[i % COLORES_TORTA.length]);
@@ -322,35 +389,52 @@ public class ReporteIngresosPdfGenerator {
 
     private void estilizarChart(JFreeChart chart) {
         chart.setBackgroundPaint(Color.WHITE);
+        chart.setAntiAlias(true);
+        chart.setTextAntiAlias(true);
+
         CategoryPlot plot = chart.getCategoryPlot();
         plot.setBackgroundPaint(COLOR_BG_LIGHT);
         plot.setOutlinePaint(COLOR_CARD_BORDER);
         plot.setRangeGridlinePaint(new Color(220, 226, 235));
         plot.setDomainGridlinesVisible(false);
+
+        java.awt.Font fontEjes = new java.awt.Font("SansSerif", java.awt.Font.PLAIN, 9);
         if (plot.getDomainAxis() != null) {
-            plot.getDomainAxis().setTickLabelFont(new java.awt.Font("SansSerif", java.awt.Font.PLAIN, 8));
+            plot.getDomainAxis().setTickLabelFont(fontEjes);
+            plot.getDomainAxis().setLabelFont(new java.awt.Font("SansSerif", java.awt.Font.BOLD, 9));
         }
         if (plot.getRangeAxis() != null) {
-            plot.getRangeAxis().setTickLabelFont(new java.awt.Font("SansSerif", java.awt.Font.PLAIN, 8));
+            plot.getRangeAxis().setTickLabelFont(fontEjes);
+            plot.getRangeAxis().setLabelFont(new java.awt.Font("SansSerif", java.awt.Font.BOLD, 9));
         }
     }
 
-    private com.lowagie.text.Image crearImagenGrafico(JFreeChart chart, int ancho, int alto) throws Exception {
-        BufferedImage bi = chart.createBufferedImage(ancho, alto);
+    private com.lowagie.text.Image crearImagenGraficoAltaResolucion(JFreeChart chart, int anchoPt, int altoPt) throws Exception {
+        int factorEscala = 2;
+        BufferedImage bi = new BufferedImage(anchoPt * factorEscala, altoPt * factorEscala, BufferedImage.TYPE_INT_RGB);
+        Graphics2D g2 = bi.createGraphics();
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+        g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        g2.scale(factorEscala, factorEscala);
+        chart.draw(g2, new java.awt.geom.Rectangle2D.Double(0, 0, anchoPt, altoPt));
+        g2.dispose();
+
         com.lowagie.text.Image img = com.lowagie.text.Image.getInstance(bi, null);
+        img.scaleToFit(anchoPt, altoPt);
         img.setAlignment(Element.ALIGN_CENTER);
         return img;
     }
 
-    // =========================================================
-    // PIE DE PÁGINA (Modern)
-    // =========================================================
+    // ==========================================
+    // PIE DE PÁGINA
+    // ==========================================
     static class ModernPdfFooter extends PdfPageEventHelper {
         private final String tipoInforme;
         private final String adminNombre;
         private final LocalDateTime fechaGeneracion;
         private final DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-        private final Font fontFooter = new Font(Font.HELVETICA, 7, Font.NORMAL, COLOR_MUTED);
+        private final Font fontFooter = new Font(Font.HELVETICA, 7.5f, Font.NORMAL, COLOR_MUTED);
 
         ModernPdfFooter(String tipoInforme, String adminNombre, LocalDateTime fechaGeneracion) {
             this.tipoInforme = tipoInforme;
@@ -372,11 +456,12 @@ public class ReporteIngresosPdfGenerator {
             ColumnText.showTextAligned(canvas, Element.ALIGN_LEFT,
                     new Phrase("Sistema de Gestión Idóneos Online  |  " + tipoInforme +
                             "  |  " + fechaGeneracion.format(fmt) + "  |  " + adminNombre, fontFooter),
-                    40, 28, 0);
+                    40, 25, 0);
 
             ColumnText.showTextAligned(canvas, Element.ALIGN_RIGHT,
                     new Phrase("Página " + numPagina, fontFooter),
-                    PageSize.A4.getWidth() - 40, 28, 0);
+                    PageSize.A4.getWidth() - 40, 25, 0);
         }
     }
 }
+
