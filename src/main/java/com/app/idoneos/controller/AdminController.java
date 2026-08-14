@@ -56,10 +56,11 @@ public class AdminController {
         model.addAttribute("usuario", (Usuario) auth.getPrincipal());
         model.addAttribute("totalCursos", cursoService.obtenerTodo().size());
         model.addAttribute("totalUsuarios", usuarioService.obtenerTodo().size());
+        model.addAttribute("totalCategorias", categoriaService.obtenerTodo().size());
         model.addAttribute("totalInscripciones", inscripcionRepository.count());
         model.addAttribute("totalIngresos", totalIngresos);
         model.addAttribute("titulo", "Panel de Administración | Idóneos Online");
-        return "pages/admin/dashboard";
+        return "pages/admin/panel";
     }
 
     /**
