@@ -83,15 +83,15 @@ public class Usuario implements UserDetails {
     private RolUsuario rol = RolUsuario.Alumno;
 
     /** Subtipo Alumno (si aplica). */
-    @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Alumno alumno;
 
     /** Subtipo Docente (si aplica). */
-    @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Docente docente;
 
     /** Subtipo Administrador (si aplica). */
-    @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Administrador administrador;
 
     /** Vínculos con la tabla de roles de usuario. */
@@ -239,7 +239,25 @@ public class Usuario implements UserDetails {
     }
 
     public RolUsuario getRol() {
-        return rol;
+        if (administrador != null) {
+            return RolUsuario.Administrador;
+        }
+        if (docente != null) {
+            return RolUsuario.Docente;
+        }
+        if (alumno != null) {
+            return RolUsuario.Alumno;
+        }
+        if (usuarioRoles != null && !usuarioRoles.isEmpty()) {
+            for (UsuarioRol ur : usuarioRoles) {
+                if (ur.getRol() != null && ur.getRol().getNombre() != null) {
+                    try {
+                        return RolUsuario.valueOf(ur.getRol().getNombre());
+                    } catch (IllegalArgumentException ignored) {}
+                }
+            }
+        }
+        return rol != null ? rol : RolUsuario.Alumno;
     }
 
     public void setRol(RolUsuario rol) {
@@ -251,15 +269,15 @@ public class Usuario implements UserDetails {
     }
 
     public boolean esDocente() {
-        return rol == RolUsuario.Docente;
+        return getRol() == RolUsuario.Docente;
     }
 
     public boolean esAlumno() {
-        return rol == RolUsuario.Alumno;
+        return getRol() == RolUsuario.Alumno;
     }
 
     public boolean esAdmin() {
-        return rol == RolUsuario.Administrador;
+        return getRol() == RolUsuario.Administrador;
     }
 
     public String getNombreCompleto() {
@@ -273,7 +291,8 @@ public class Usuario implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_" + rol.name()));
+        RolUsuario r = getRol();
+        return List.of(new SimpleGrantedAuthority("ROLE_" + r.name()));
     }
 
     @Override
