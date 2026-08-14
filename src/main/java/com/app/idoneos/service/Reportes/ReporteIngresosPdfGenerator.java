@@ -100,7 +100,7 @@ public class ReporteIngresosPdfGenerator {
                 522, 180));
 
         // ==========================================
-        // PÁGINA 2: Vistas 3 & 4 y Tabla Financiera
+        // PÁGINA 2: Vistas 3 & 4
         // ==========================================
         doc.newPage();
 
@@ -112,19 +112,15 @@ public class ReporteIngresosPdfGenerator {
         grid.setWidths(new float[]{1f, 1f});
         grid.getDefaultCell().setBorder(Rectangle.NO_BORDER);
 
-        PdfPCell c1 = new PdfPCell(crearImagenGraficoAltaResolucion(crearGraficoTorta(datos.getNombresCategoria(), datos.getIngresosCategoria()), 255, 160));
+        PdfPCell c1 = new PdfPCell(crearImagenGraficoAltaResolucion(crearGraficoTorta(datos.getNombresCategoria(), datos.getIngresosCategoria()), 255, 220));
         c1.setBorder(Rectangle.NO_BORDER);
         grid.addCell(c1);
 
-        PdfPCell c2 = new PdfPCell(crearImagenGraficoAltaResolucion(crearGraficoBrutoVsNeto(datos.getMontoBruto(), datos.getDescuentoAplicado(), datos.getMontoNeto()), 255, 160));
+        PdfPCell c2 = new PdfPCell(crearImagenGraficoAltaResolucion(crearGraficoBrutoVsNeto(datos.getMontoBruto(), datos.getDescuentoAplicado(), datos.getMontoNeto()), 255, 220));
         c2.setBorder(Rectangle.NO_BORDER);
         grid.addCell(c2);
 
         doc.add(grid);
-
-        agregarTituloSeccion(doc, "4. Resumen de Liquidación Financiera",
-                "Consolidado de cobros y análisis de efectividad comercial.");
-        agregarTablaLiquidacion(doc, datos, moneda);
 
         doc.close();
         return baos.toByteArray();
@@ -232,62 +228,6 @@ public class ReporteIngresosPdfGenerator {
         Paragraph pD = new Paragraph(descripcion, FONT_DESC);
         pD.setSpacingAfter(4);
         doc.add(pD);
-    }
-
-    private void agregarTablaLiquidacion(Document doc, DatosInformeIngresosDTO datos, NumberFormat moneda) throws Exception {
-        PdfPTable tabla = new PdfPTable(3);
-        tabla.setWidthPercentage(100);
-        tabla.setWidths(new float[]{2f, 1.2f, 1f});
-        tabla.setSpacingBefore(6);
-
-        String[] cols = {"Concepto de Liquidación", "Importe ($ ARS)", "% del Total Bruto"};
-        for (String c : cols) {
-            PdfPCell hCell = new PdfPCell(new Phrase(c, new Font(Font.HELVETICA, 9, Font.BOLD, Color.WHITE)));
-            hCell.setBackgroundColor(COLOR_NAVY_DARK);
-            hCell.setPadding(6);
-            hCell.setHorizontalAlignment(Element.ALIGN_CENTER);
-            tabla.addCell(hCell);
-        }
-
-        double bruto = Math.max(1.0, datos.getMontoBruto());
-        agregarFilaTabla(tabla, "Facturación Bruta (Tarifa de Lista)", moneda.format(datos.getMontoBruto()), "100.0 %");
-        agregarFilaTabla(tabla, "Descuentos y Promociones Otorgadas", "- " + moneda.format(datos.getDescuentoAplicado()), String.format("- %.1f %%", (datos.getDescuentoAplicado() * 100.0) / bruto));
-        
-        // Fila Neto Final
-        PdfPCell t1 = new PdfPCell(new Phrase("TOTAL NETO ACREDITADO (Recaudación Real)", new Font(Font.HELVETICA, 9, Font.BOLD, COLOR_SUCCESS)));
-        t1.setBackgroundColor(COLOR_BG_LIGHT);
-        t1.setPadding(6);
-        tabla.addCell(t1);
-
-        PdfPCell t2 = new PdfPCell(new Phrase(moneda.format(datos.getMontoNeto()), new Font(Font.HELVETICA, 9, Font.BOLD, COLOR_SUCCESS)));
-        t2.setBackgroundColor(COLOR_BG_LIGHT);
-        t2.setPadding(6);
-        t2.setHorizontalAlignment(Element.ALIGN_RIGHT);
-        tabla.addCell(t2);
-
-        PdfPCell t3 = new PdfPCell(new Phrase(String.format("%.1f %%", (datos.getMontoNeto() * 100.0) / bruto), new Font(Font.HELVETICA, 9, Font.BOLD, COLOR_SUCCESS)));
-        t3.setBackgroundColor(COLOR_BG_LIGHT);
-        t3.setPadding(6);
-        t3.setHorizontalAlignment(Element.ALIGN_CENTER);
-        tabla.addCell(t3);
-
-        doc.add(tabla);
-    }
-
-    private void agregarFilaTabla(PdfPTable tabla, String col1, String col2, String col3) {
-        PdfPCell c1 = new PdfPCell(new Phrase(col1, new Font(Font.HELVETICA, 8.5f, Font.NORMAL, Color.DARK_GRAY)));
-        c1.setPadding(5);
-        tabla.addCell(c1);
-
-        PdfPCell c2 = new PdfPCell(new Phrase(col2, new Font(Font.HELVETICA, 8.5f, Font.BOLD, COLOR_NAVY_DARK)));
-        c2.setPadding(5);
-        c2.setHorizontalAlignment(Element.ALIGN_RIGHT);
-        tabla.addCell(c2);
-
-        PdfPCell c3 = new PdfPCell(new Phrase(col3, new Font(Font.HELVETICA, 8.5f, Font.NORMAL, Color.DARK_GRAY)));
-        c3.setPadding(5);
-        c3.setHorizontalAlignment(Element.ALIGN_CENTER);
-        tabla.addCell(c3);
     }
 
     // ==========================================

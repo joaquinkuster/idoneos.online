@@ -90,7 +90,7 @@ public class ReporteAlumnosPdfGenerator {
                 522, 180));
 
         // ==========================================
-        // PÁGINA 2: Vista 3 y Detalle Estadístico
+        // PÁGINA 2: Vista 3
         // ==========================================
         doc.newPage();
 
@@ -98,12 +98,7 @@ public class ReporteAlumnosPdfGenerator {
                 "Composición porcentual y cuantitativa de inscripciones completadas con certificación, activas y canceladas.");
         doc.add(crearImagenGraficoAltaResolucion(
                 crearGraficoEstadoInscripciones(datos.getCompletadas(), datos.getVigentes(), datos.getBajas()),
-                522, 140));
-
-        // Tabla resumen complementaria
-        agregarTituloSeccion(doc, "4. Tabla de Rendimiento Académico del Curso",
-                "Desglose consolidado de métricas para la toma de decisiones directivas.");
-        agregarTablaResumen(doc, datos);
+                522, 220));
 
         doc.close();
         return baos.toByteArray();
@@ -213,64 +208,6 @@ public class ReporteAlumnosPdfGenerator {
         doc.add(pD);
     }
 
-    private void agregarTablaResumen(Document doc, DatosInformeAlumnosDTO datos) throws Exception {
-        PdfPTable tabla = new PdfPTable(3);
-        tabla.setWidthPercentage(100);
-        tabla.setWidths(new float[]{2f, 1f, 1f});
-        tabla.setSpacingBefore(6);
-
-        // Header
-        String[] cols = {"Estado de Inscripción", "Cantidad de Alumnos", "Participación"};
-        for (String c : cols) {
-            PdfPCell hCell = new PdfPCell(new Phrase(c, new Font(Font.HELVETICA, 9, Font.BOLD, Color.WHITE)));
-            hCell.setBackgroundColor(COLOR_NAVY_DARK);
-            hCell.setPadding(6);
-            hCell.setHorizontalAlignment(Element.ALIGN_CENTER);
-            tabla.addCell(hCell);
-        }
-
-        long total = Math.max(1, datos.getTotalInscripcionesCurso());
-        agregarFilaTabla(tabla, "Completadas (Certificado Emitido)", String.valueOf(datos.getCompletadas()), String.format("%.1f %%", (datos.getCompletadas() * 100.0) / total));
-        agregarFilaTabla(tabla, "Activas / Vigentes", String.valueOf(datos.getVigentes()), String.format("%.1f %%", (datos.getVigentes() * 100.0) / total));
-        agregarFilaTabla(tabla, "Dadas de Baja / Canceladas", String.valueOf(datos.getBajas()), String.format("%.1f %%", (datos.getBajas() * 100.0) / total));
-
-        // Fila Total
-        PdfPCell t1 = new PdfPCell(new Phrase("TOTAL GENERAL", new Font(Font.HELVETICA, 9, Font.BOLD, COLOR_NAVY_DARK)));
-        t1.setBackgroundColor(COLOR_BG_LIGHT);
-        t1.setPadding(6);
-        tabla.addCell(t1);
-
-        PdfPCell t2 = new PdfPCell(new Phrase(String.valueOf(datos.getTotalInscripcionesCurso()), new Font(Font.HELVETICA, 9, Font.BOLD, COLOR_NAVY_DARK)));
-        t2.setBackgroundColor(COLOR_BG_LIGHT);
-        t2.setPadding(6);
-        t2.setHorizontalAlignment(Element.ALIGN_CENTER);
-        tabla.addCell(t2);
-
-        PdfPCell t3 = new PdfPCell(new Phrase("100.0 %", new Font(Font.HELVETICA, 9, Font.BOLD, COLOR_NAVY_DARK)));
-        t3.setBackgroundColor(COLOR_BG_LIGHT);
-        t3.setPadding(6);
-        t3.setHorizontalAlignment(Element.ALIGN_CENTER);
-        tabla.addCell(t3);
-
-        doc.add(tabla);
-    }
-
-    private void agregarFilaTabla(PdfPTable tabla, String col1, String col2, String col3) {
-        PdfPCell c1 = new PdfPCell(new Phrase(col1, new Font(Font.HELVETICA, 8.5f, Font.NORMAL, Color.DARK_GRAY)));
-        c1.setPadding(5);
-        tabla.addCell(c1);
-
-        PdfPCell c2 = new PdfPCell(new Phrase(col2, new Font(Font.HELVETICA, 8.5f, Font.BOLD, COLOR_NAVY_DARK)));
-        c2.setPadding(5);
-        c2.setHorizontalAlignment(Element.ALIGN_CENTER);
-        tabla.addCell(c2);
-
-        PdfPCell c3 = new PdfPCell(new Phrase(col3, new Font(Font.HELVETICA, 8.5f, Font.NORMAL, Color.DARK_GRAY)));
-        c3.setPadding(5);
-        c3.setHorizontalAlignment(Element.ALIGN_CENTER);
-        tabla.addCell(c3);
-    }
-
     private JFreeChart crearGraficoBarrasHorizontales(List<String> nombres, List<Long> cantidades, String cursoSeleccionado) {
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
         for (int i = 0; i < nombres.size(); i++) {
@@ -319,10 +256,15 @@ public class ReporteAlumnosPdfGenerator {
     }
 
     private JFreeChart crearGraficoEstadoInscripciones(long completadas, long vigentes, long bajas) {
+        long total = Math.max(1, completadas + vigentes + bajas);
+        String labelCompletadas = String.format("Completadas (%d unid. - %.1f%%)", completadas, (completadas * 100.0) / total);
+        String labelVigentes = String.format("Vigentes (%d unid. - %.1f%%)", vigentes, (vigentes * 100.0) / total);
+        String labelBajas = String.format("Dadas de Baja (%d unid. - %.1f%%)", bajas, (bajas * 100.0) / total);
+
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-        dataset.addValue(completadas, "Completadas", "Estado Actual");
-        dataset.addValue(vigentes, "Vigentes", "Estado Actual");
-        dataset.addValue(bajas, "Dadas de Baja", "Estado Actual");
+        dataset.addValue(completadas, labelCompletadas, "Estado Actual");
+        dataset.addValue(vigentes, labelVigentes, "Estado Actual");
+        dataset.addValue(bajas, labelBajas, "Estado Actual");
 
         JFreeChart chart = ChartFactory.createStackedBarChart(
                 null, null, "Alumnos", dataset,
@@ -334,14 +276,14 @@ public class ReporteAlumnosPdfGenerator {
         renderer.setSeriesPaint(0, COLOR_SUCCESS);
         renderer.setSeriesPaint(1, COLOR_GOLD);
         renderer.setSeriesPaint(2, COLOR_DANGER);
-        renderer.setMaximumBarWidth(0.18);
+        renderer.setMaximumBarWidth(0.20);
         renderer.setShadowVisible(false);
 
         NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
         rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
 
         if (chart.getLegend() != null) {
-            chart.getLegend().setItemFont(new java.awt.Font("SansSerif", java.awt.Font.PLAIN, 9));
+            chart.getLegend().setItemFont(new java.awt.Font("SansSerif", java.awt.Font.BOLD, 10));
         }
         return chart;
     }
