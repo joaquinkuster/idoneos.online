@@ -51,7 +51,7 @@ public class Auditoria {
 
     /** Usuario que realizó la acción. */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "usuario_id")
+    @JoinColumn(name = "usuario_id", nullable = false)
     private Usuario usuario;
 
     /**
@@ -59,7 +59,7 @@ public class Auditoria {
      * Consultar).
      */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "tipo_accion_auditoria_id")
+    @JoinColumn(name = "tipo_accion_auditoria_id", nullable = false)
     private TipoAccionAuditoria tipoAccionAuditoria;
 
     public Auditoria() {

@@ -53,7 +53,7 @@ public class Curso {
 
     /** Categoría temática a la que se adscribe el curso. */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "categoria_id")
+    @JoinColumn(name = "categoria_id", nullable = false)
     private Categoria categoria;
 
     /** Programas o planes de estudio asociados. */

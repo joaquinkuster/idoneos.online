@@ -29,7 +29,7 @@ public class TituloDocente {
 
     /** Docente titular del certificado o título. */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "docente_id")
+    @JoinColumn(name = "docente_id", nullable = false)
     private Docente docente;
 
     public TituloDocente() {

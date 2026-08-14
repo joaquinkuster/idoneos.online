@@ -19,12 +19,12 @@ public class RespuestaIntento {
 
     /** Intento de autoevaluación al que pertenece la respuesta. */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "intento_autoevaluacion_id")
+    @JoinColumn(name = "intento_autoevaluacion_id", nullable = false)
     private IntentoAutoevaluacion intentoAutoevaluacion;
 
     /** Opción elegida por el alumno para la pregunta correspondida. */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "opcion_respuesta_id")
+    @JoinColumn(name = "opcion_respuesta_id", nullable = false)
     private OpcionRespuesta opcionRespuesta;
 
     public RespuestaIntento() {

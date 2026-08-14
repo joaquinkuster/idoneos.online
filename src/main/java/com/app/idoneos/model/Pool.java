@@ -36,7 +36,7 @@ public class Pool {
 
     /** Unidad temática a la que pertenece el pool. */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "unidad_id")
+    @JoinColumn(name = "unidad_id", nullable = false)
     private Unidad unidad;
 
     public Pool() {

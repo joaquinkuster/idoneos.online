@@ -24,12 +24,12 @@ public class Reporte {
 
     /** Tipo de reporte generado. */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "tipo_reporte_id")
+    @JoinColumn(name = "tipo_reporte_id", nullable = false)
     private TipoReporte tipoReporte;
 
     /** Administrador que solicitó la generación del reporte. */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "administrador_id")
+    @JoinColumn(name = "administrador_id", nullable = false)
     private Administrador administrador;
 
     public Reporte() {

@@ -58,7 +58,7 @@ public class Autoevaluacion {
 
     /** Unidad temática de la cual cuelga esta autoevaluación. */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "unidad_id")
+    @JoinColumn(name = "unidad_id", nullable = false)
     private Unidad unidad;
 
     /** Vínculos asociativos M a N con Pools de preguntas. */

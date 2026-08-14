@@ -39,11 +39,11 @@ public class Inscripcion {
     private boolean baja = false;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "alumno_id")
+    @JoinColumn(name = "alumno_id", nullable = false)
     private Alumno alumno;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "dictado_id")
+    @JoinColumn(name = "dictado_id", nullable = false)
     private Dictado dictado;
 
     @ManyToOne(fetch = FetchType.LAZY)

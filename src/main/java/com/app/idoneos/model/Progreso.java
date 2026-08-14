@@ -28,12 +28,12 @@ public class Progreso {
 
     /** Unidad temática sobre la cual se registra el progreso. */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "unidad_id")
+    @JoinColumn(name = "unidad_id", nullable = false)
     private Unidad unidad;
 
     /** Inscripción del alumno a la que corresponde el seguimiento. */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "inscripcion_id")
+    @JoinColumn(name = "inscripcion_id", nullable = false)
     private Inscripcion inscripcion;
 
     public Progreso() {

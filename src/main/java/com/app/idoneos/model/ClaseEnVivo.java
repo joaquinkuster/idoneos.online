@@ -50,12 +50,12 @@ public class ClaseEnVivo {
 
     /** Unidad a la que se adscribe la transmisión en vivo. */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "unidad_id")
+    @JoinColumn(name = "unidad_id", nullable = false)
     private Unidad unidad;
 
     /** Docente a cargo del dictado en vivo. */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "docente_id")
+    @JoinColumn(name = "docente_id", nullable = false)
     private Docente docente;
 
     public ClaseEnVivo() {

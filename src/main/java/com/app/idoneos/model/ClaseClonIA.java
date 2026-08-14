@@ -52,12 +52,12 @@ public class ClaseClonIA {
 
     /** Unidad temática a la que corresponde la clase. */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "unidad_id")
+    @JoinColumn(name = "unidad_id", nullable = false)
     private Unidad unidad;
 
     /** Docente autor del guión y cuyo avatar fue clonado. */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "docente_id")
+    @JoinColumn(name = "docente_id", nullable = false)
     private Docente docente;
 
     public ClaseClonIA() {
