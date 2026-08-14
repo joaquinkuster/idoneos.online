@@ -224,7 +224,7 @@
         }
     });
 
-    // CU-87 / CU-88: Generación de informe con descarga directa
+    // CU-87 / CU-88: Generación de informe con descarga directa de PDF
     function descargarInforme(tipo) {
         const cursoId = document.getElementById('selectCurso').value;
         const desde = document.getElementById('inputDesde').value;
@@ -238,14 +238,7 @@
             return false;
         }
         document.getElementById('mensajeDescarga').classList.remove('d-none');
-        const url = `/admin/reportes/${tipo}?cursoId=${cursoId}&desde=${desde}&hasta=${hasta}`;
-        // Descarga en nueva pestaña para no perder el panel
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = '';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        window.location.href = `/admin/reportes/${tipo}?cursoId=${encodeURIComponent(cursoId)}&desde=${encodeURIComponent(desde)}&hasta=${encodeURIComponent(hasta)}`;
         setTimeout(() => document.getElementById('mensajeDescarga').classList.add('d-none'), 4000);
         return false;
     }

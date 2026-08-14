@@ -170,11 +170,65 @@ public class Curso {
         this.programas = programas;
     }
 
-    public int getMesesAcceso() {
-        return mesesAcceso;
+    /** Modalidades de dictado asociadas al curso. */
+    @OneToMany(mappedBy = "curso", cascade = CascadeType.ALL)
+    private List<ModalidadCurso> modalidades = new ArrayList<>();
+
+    public List<ModalidadCurso> getModalidades() {
+        return modalidades;
     }
 
-    public void setMesesAcceso(int mesesAcceso) {
-        this.mesesAcceso = mesesAcceso;
+    public void setModalidades(List<ModalidadCurso> modalidades) {
+        this.modalidades = modalidades;
+    }
+
+    /** Helper para saber si el curso es gratuito (precio == 0). */
+    public boolean esGratuito() {
+        return precio == 0;
+    }
+
+    /** Helper para saber si el curso tiene la modalidad Clon IA. */
+    public boolean esCursoConClonIA() {
+        if (modalidades != null) {
+            for (ModalidadCurso mc : modalidades) {
+                if (mc.getModalidad() != null && "Clon IA".equalsIgnoreCase(mc.getModalidad().getNombre())) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /** Helper para obtener el docente titular desde el primer dictado del programa. */
+    public Usuario getDocenteTitular() {
+        if (programas != null) {
+            for (Programa p : programas) {
+                if (p.getDictados() != null) {
+                    for (Dictado d : p.getDictados()) {
+                        if (d.getDictadosDocentes() != null) {
+                            for (DictadoDocente dd : d.getDictadosDocentes()) {
+                                if (dd.getDocente() != null && dd.getDocente().getUsuario() != null) {
+                                    return dd.getDocente().getUsuario();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    /** Helper para obtener todas las unidades temáticas de todos los programas del curso. */
+    public List<Unidad> getUnidades() {
+        List<Unidad> lista = new ArrayList<>();
+        if (programas != null) {
+            for (Programa p : programas) {
+                if (p.getUnidades() != null) {
+                    lista.addAll(p.getUnidades());
+                }
+            }
+        }
+        return lista;
     }
 }
