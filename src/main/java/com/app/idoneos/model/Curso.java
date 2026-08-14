@@ -60,9 +60,6 @@ public class Curso {
     @OneToMany(mappedBy = "curso", cascade = CascadeType.ALL)
     private List<Programa> programas = new ArrayList<>();
 
-    @Transient
-    private int mesesAcceso = 12;
-
     public Curso() {
     }
 
@@ -168,6 +165,17 @@ public class Curso {
 
     public void setProgramas(List<Programa> programas) {
         this.programas = programas;
+    }
+
+    @Transient
+    private int mesesAcceso = 12;
+
+    public int getMesesAcceso() {
+        return mesesAcceso;
+    }
+
+    public void setMesesAcceso(int mesesAcceso) {
+        this.mesesAcceso = mesesAcceso;
     }
 
     /** Modalidades de dictado asociadas al curso. */
