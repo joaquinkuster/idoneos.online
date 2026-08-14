@@ -36,7 +36,7 @@ public class Usuario implements UserDetails {
 
     /** Documento Nacional de Identidad (usado en certificados y títulos). */
     @Column(name = "dni", nullable = false, length = 8)
-    private String dni;
+    private String dni = "00000000";
 
     /** Correo electrónico (identificador de login y contacto). */
     @Column(name = "email", nullable = false, unique = true, length = 150)

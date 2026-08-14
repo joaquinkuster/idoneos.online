@@ -146,7 +146,7 @@ public class UsuarioServiceImpl implements UsuarioService, CrudService<Usuario> 
     @Override
     @Transactional(readOnly = true)
     public long contarAdministradoresActivos() {
-        return usuarioRepository.findByRolAndBajaFalse(RolUsuario.Administrador).size();
+        return usuarioRepository.findAdministradoresActivos().size();
     }
 
     /**

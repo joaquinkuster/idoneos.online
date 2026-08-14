@@ -15,7 +15,7 @@ public interface DocenteRepository extends JpaRepository<Docente, Integer> {
     @Query("SELECT d FROM Docente d WHERE d.usuario.baja = false")
     List<Docente> findActivos();
 
-    /** Docentes habilitados para Clon IA. */
-    @Query("SELECT d FROM Docente d WHERE d.fechaConsentimientoClon IS NOT NULL AND d.usuario.baja = false")
+    /** Docentes habilitados para Clon IA (habilitado = true y usuario no dado de baja). */
+    @Query("SELECT d FROM Docente d WHERE d.habilitado = true AND d.usuario.baja = false")
     List<Docente> findHabilitadosParaClonIA();
 }
