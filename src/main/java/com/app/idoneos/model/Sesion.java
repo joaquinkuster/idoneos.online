@@ -4,19 +4,17 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 /**
- * Entidad Sesión: Registro de inicios y cierres de sesión de un usuario con
- * trazabilidad de IP y dispositivo.
+ * Entidad Sesion: Registro de inicios y cierres de sesión de un usuario.
  * Mapea directamente a la tabla "Sesion" en base_datos.sql.
  */
 @Entity
 @Table(name = "Sesion")
 public class Sesion {
 
-    /** Identificador único de la sesión. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private int id;
+    @Column(name = "id_sesion")
+    private int idSesion;
 
     /** Token único de la sesión activa. */
     @Column(name = "token", nullable = false, length = 255)
@@ -26,7 +24,7 @@ public class Sesion {
     @Column(name = "fecha_inicio", nullable = false)
     private LocalDateTime fechaInicio = LocalDateTime.now();
 
-    /** Fecha y hora de cierre de la sesión (nulo mientras sigue activa). */
+    /** Fecha y hora de cierre de la sesión. */
     @Column(name = "fecha_fin", nullable = false)
     private LocalDateTime fechaFin;
 
@@ -40,18 +38,26 @@ public class Sesion {
 
     /** Usuario al que corresponde la sesión. */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "usuario_id", nullable = false)
+    @JoinColumn(name = "id_usuario", nullable = false)
     private Usuario usuario;
 
     public Sesion() {
     }
 
     public int getId() {
-        return id;
+        return idSesion;
+    }
+
+    public int getIdSesion() {
+        return idSesion;
     }
 
     public void setId(int id) {
-        this.id = id;
+        this.idSesion = id;
+    }
+
+    public void setIdSesion(int idSesion) {
+        this.idSesion = idSesion;
     }
 
     public String getToken() {

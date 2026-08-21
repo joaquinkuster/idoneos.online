@@ -6,78 +6,82 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Entidad Docente: Subtipo de Usuario con rol docente (relación 1 a 0..1
- * mediante clave compartida).
+ * Entidad Docente: Perfil de docente vinculado a un Usuario.
+ * Posee su propia PK (id_docente) y una FK a Usuario (id_usuario).
  * Mapea directamente a la tabla "Docente" en base_datos.sql.
  */
 @Entity
 @Table(name = "Docente")
 public class Docente {
 
-    /**
-     * Identificador del docente, coincidente con el id de Usuario (clave primaria
-     * compartida).
-     */
     @Id
-    @Column(name = "id")
-    private int id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_docente")
+    private int idDocente;
 
     /** Años de experiencia profesional declarados. */
     @Column(name = "anios_experiencia", nullable = false)
-    private int aniosExperiencia = 0;
+    private int aniosExperiencia;
 
-    /**
-     * Matrícula profesional del Registro de Idóneos de la Comisión Nacional de
-     * Valores (opcional).
-     */
+    /** Número de matrícula en la CNV (Comisión Nacional de Valores). */
     @Column(name = "matricula_cnv", length = 50)
     private String matriculaCnv;
 
-    /** Biografía y trayectoria del docente. */
+    /** Descripción biográfica profesional del docente. */
     @Column(name = "biografia", columnDefinition = "text")
     private String biografia;
 
-    /** Indicador de si el docente se encuentra habilitado para dictar clases. */
+    /** Indica si el docente está habilitado para dictar clases. */
     @Column(name = "habilitado", nullable = false)
-    private boolean habilitado = true;
+    private boolean habilitado = false;
 
-    /**
-     * Relación 1 a 1 con la entidad base Usuario (@MapsId vincula la PK con
-     * Usuario).
-     */
-    @OneToOne(fetch = FetchType.LAZY)
-    @MapsId
-    @JoinColumn(name = "id")
+    /** Fecha en la que el docente aceptó los términos de uso del Clon IA. */
+    @Column(name = "fecha_aceptacion_tyc_clon")
+    private LocalDateTime fechaAceptacionTycClon;
+
+    /** ID del avatar de Clon IA asignado al docente. */
+    @Column(name = "avatar_id", length = 100)
+    private String avatarId;
+
+    /** ID de la voz sintetizada de Clon IA asignada al docente. */
+    @Column(name = "voice_id", length = 100)
+    private String voiceId;
+
+    /** Usuario base al que pertenece este perfil de docente. */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_usuario", nullable = false)
     private Usuario usuario;
 
-    /** Títulos universitarios o profesionales registrados del docente. */
+    /** Títulos académicos declarados por el docente. */
     @OneToMany(mappedBy = "docente", cascade = CascadeType.ALL)
     private List<TituloDocente> titulos = new ArrayList<>();
 
-    /** Asignaciones a dictados de cursos (como titular o supervisor). */
+    /** Cursos dictados por este docente. */
     @OneToMany(mappedBy = "docente", cascade = CascadeType.ALL)
-    private List<DictadoDocente> dictadosDocentes = new ArrayList<>();
-
-    /** Fecha de consentimiento para clon IA (no persiste en BD; columna no definida en SQL). */
-    @Transient
-    private LocalDateTime fechaConsentimientoClon;
+    private List<Curso> cursos = new ArrayList<>();
 
     public Docente() {
     }
 
-    public Docente(Usuario usuario) {
+    public Docente(Usuario usuario, int aniosExperiencia) {
         this.usuario = usuario;
-        if (usuario != null) {
-            this.id = usuario.getId();
-        }
+        this.aniosExperiencia = aniosExperiencia;
     }
 
     public int getId() {
-        return id;
+        return idDocente;
+    }
+
+    public int getIdDocente() {
+        return idDocente;
     }
 
     public void setId(int id) {
-        this.id = id;
+        this.idDocente = id;
+    }
+
+    public void setIdDocente(int idDocente) {
+        this.idDocente = idDocente;
     }
 
     public int getAniosExperiencia() {
@@ -112,12 +116,41 @@ public class Docente {
         return habilitado;
     }
 
-    public boolean puedeUsarClonIA() {
-        return habilitado;
-    }
-
     public void setHabilitado(boolean habilitado) {
         this.habilitado = habilitado;
+    }
+
+    public LocalDateTime getFechaAceptacionTycClon() {
+        return fechaAceptacionTycClon;
+    }
+
+    /** Alias de compatibilidad para servicios existentes. */
+    public LocalDateTime getFechaConsentimientoClon() {
+        return fechaAceptacionTycClon;
+    }
+
+    public void setFechaAceptacionTycClon(LocalDateTime fechaAceptacionTycClon) {
+        this.fechaAceptacionTycClon = fechaAceptacionTycClon;
+    }
+
+    public void setFechaConsentimientoClon(LocalDateTime fecha) {
+        this.fechaAceptacionTycClon = fecha;
+    }
+
+    public String getAvatarId() {
+        return avatarId;
+    }
+
+    public void setAvatarId(String avatarId) {
+        this.avatarId = avatarId;
+    }
+
+    public String getVoiceId() {
+        return voiceId;
+    }
+
+    public void setVoiceId(String voiceId) {
+        this.voiceId = voiceId;
     }
 
     public Usuario getUsuario() {
@@ -136,19 +169,11 @@ public class Docente {
         this.titulos = titulos;
     }
 
-    public List<DictadoDocente> getDictadosDocentes() {
-        return dictadosDocentes;
+    public List<Curso> getCursos() {
+        return cursos;
     }
 
-    public void setDictadosDocentes(List<DictadoDocente> dictadosDocentes) {
-        this.dictadosDocentes = dictadosDocentes;
-    }
-
-    public LocalDateTime getFechaConsentimientoClon() {
-        return fechaConsentimientoClon;
-    }
-
-    public void setFechaConsentimientoClon(LocalDateTime fechaConsentimientoClon) {
-        this.fechaConsentimientoClon = fechaConsentimientoClon;
+    public void setCursos(List<Curso> cursos) {
+        this.cursos = cursos;
     }
 }

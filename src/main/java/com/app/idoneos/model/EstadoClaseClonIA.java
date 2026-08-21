@@ -3,21 +3,19 @@ package com.app.idoneos.model;
 import jakarta.persistence.*;
 
 /**
- * Entidad EstadoClaseClonIA: Catálogo de estados de generación asincrónica de
- * video con IA (Pendiente, Generada, Error).
- * Mapea directamente a la tabla "EstadoClaseClonIA" en base_datos.sql.
+ * Entidad EstadoClaseClonIA: Catálogo de estados de una ClaseClon generada por IA.
+ * Mapea directamente a la tabla "EstadoClaseClon" en base_datos.sql.
  */
 @Entity
-@Table(name = "EstadoClaseClonIA")
+@Table(name = "EstadoClaseClon")
 public class EstadoClaseClonIA {
 
-    /** Identificador único del estado de clase clon IA. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private int id;
+    @Column(name = "id_estado_clase_clon")
+    private int idEstadoClaseClon;
 
-    /** Nombre del estado (ej. "Pendiente", "Generada", "Error"). */
+    /** Nombre del estado (ej. "Generando", "Disponible", "Error"). */
     @Column(name = "nombre", nullable = false, length = 50)
     private String nombre;
 
@@ -29,11 +27,19 @@ public class EstadoClaseClonIA {
     }
 
     public int getId() {
-        return id;
+        return idEstadoClaseClon;
+    }
+
+    public int getIdEstadoClaseClon() {
+        return idEstadoClaseClon;
     }
 
     public void setId(int id) {
-        this.id = id;
+        this.idEstadoClaseClon = id;
+    }
+
+    public void setIdEstadoClaseClon(int idEstadoClaseClon) {
+        this.idEstadoClaseClon = idEstadoClaseClon;
     }
 
     public String getNombre() {

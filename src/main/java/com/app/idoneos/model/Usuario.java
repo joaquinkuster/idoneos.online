@@ -8,25 +8,23 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Entidad base de autenticación e identidad de usuarios de la plataforma.
  * Subtipos: Alumno, Docente, Administrador.
+ * Mapea directamente a la tabla "Usuario" en base_datos.sql.
  */
 @Entity
 @Table(name = "Usuario")
 public class Usuario implements UserDetails {
 
-    /** Identificador único del usuario. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private int id;
+    @Column(name = "id_usuario")
+    private int idUsuario;
 
-    /** Nombre del usuario (se muestra en UI y comunicaciones). */
+    /** Nombre del usuario. */
     @Column(name = "nombre", nullable = false, length = 50)
     private String nombre;
 
@@ -34,15 +32,15 @@ public class Usuario implements UserDetails {
     @Column(name = "apellido", nullable = false, length = 50)
     private String apellido;
 
-    /** Documento Nacional de Identidad (usado en certificados y títulos). */
+    /** Documento Nacional de Identidad. */
     @Column(name = "dni", nullable = false, length = 8)
     private String dni = "00000000";
 
-    /** Correo electrónico (identificador de login y contacto). */
+    /** Correo electrónico (identificador de login). */
     @Column(name = "email", nullable = false, unique = true, length = 150)
     private String correo;
 
-    /** Hash de la contraseña de acceso (nula si autentica con Google OAuth). */
+    /** Hash de la contraseña de acceso. */
     @Column(name = "contrasena", length = 255)
     private String contrasena;
 
@@ -78,9 +76,10 @@ public class Usuario implements UserDetails {
     @Column(name = "baja", nullable = false)
     private boolean baja = false;
 
-    /** Rol principal asignado al usuario (no persiste en BD; se infiere del subtipo Alumno/Docente/Administrador). */
-    @Transient
-    private RolUsuario rol = RolUsuario.Alumno;
+    /** Rol del usuario (FK a tabla Rol, persiste en BD). */
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "id_rol", nullable = false)
+    private Rol rol;
 
     /** Subtipo Alumno (si aplica). */
     @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
@@ -94,36 +93,42 @@ public class Usuario implements UserDetails {
     @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Administrador administrador;
 
-    /** Vínculos con la tabla de roles de usuario. */
-    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
-    private Set<UsuarioRol> usuarioRoles = new HashSet<>();
-
     /** Sesiones activas e inactivas del usuario. */
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
     private List<Sesion> sesiones = new ArrayList<>();
 
-    /** Registros de auditoría AOP generados por acciones del usuario. */
+    /** Registros de auditoría generados por acciones del usuario. */
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
     private List<Auditoria> auditorias = new ArrayList<>();
 
     public Usuario() {
     }
 
-    public Usuario(String nombre, String apellido, String correo, String contrasena, RolUsuario rol) {
+    public Usuario(String nombre, String apellido, String correo, String contrasena, Rol rol) {
         this.nombre = nombre;
         this.apellido = apellido;
         this.correo = correo;
         this.contrasena = contrasena;
         this.rol = rol;
         this.emailValidado = true;
+        this.fechaRegistro = LocalDateTime.now();
     }
 
+    /** Alias de compatibilidad: retorna idUsuario. */
     public int getId() {
-        return id;
+        return idUsuario;
+    }
+
+    public int getIdUsuario() {
+        return idUsuario;
     }
 
     public void setId(int id) {
-        this.id = id;
+        this.idUsuario = id;
+    }
+
+    public void setIdUsuario(int idUsuario) {
+        this.idUsuario = idUsuario;
     }
 
     public String getNombre() {
@@ -238,30 +243,29 @@ public class Usuario implements UserDetails {
         this.baja = baja;
     }
 
-    public RolUsuario getRol() {
-        if (administrador != null) {
-            return RolUsuario.Administrador;
-        }
-        if (docente != null) {
-            return RolUsuario.Docente;
-        }
-        if (alumno != null) {
-            return RolUsuario.Alumno;
-        }
-        if (usuarioRoles != null && !usuarioRoles.isEmpty()) {
-            for (UsuarioRol ur : usuarioRoles) {
-                if (ur.getRol() != null && ur.getRol().getNombre() != null) {
-                    try {
-                        return RolUsuario.valueOf(ur.getRol().getNombre());
-                    } catch (IllegalArgumentException ignored) {}
-                }
-            }
-        }
-        return rol != null ? rol : RolUsuario.Alumno;
+    public Rol getRol() {
+        return rol;
     }
 
-    public void setRol(RolUsuario rol) {
+    public void setRol(Rol rol) {
         this.rol = rol;
+    }
+
+    /**
+     * Retorna el RolUsuario equivalente al rol persistido, para compatibilidad
+     * con lógica de Spring Security y servicios existentes.
+     */
+    public RolUsuario getRolUsuario() {
+        if (rol != null && rol.getNombre() != null) {
+            try {
+                return RolUsuario.valueOf(rol.getNombre());
+            } catch (IllegalArgumentException ignored) {
+            }
+        }
+        if (administrador != null) return RolUsuario.Administrador;
+        if (docente != null) return RolUsuario.Docente;
+        if (alumno != null) return RolUsuario.Alumno;
+        return RolUsuario.Alumno;
     }
 
     public boolean esInactivo() {
@@ -269,15 +273,15 @@ public class Usuario implements UserDetails {
     }
 
     public boolean esDocente() {
-        return getRol() == RolUsuario.Docente;
+        return docente != null || (rol != null && "Docente".equals(rol.getNombre()));
     }
 
     public boolean esAlumno() {
-        return getRol() == RolUsuario.Alumno;
+        return alumno != null || (rol != null && "Alumno".equals(rol.getNombre()));
     }
 
     public boolean esAdmin() {
-        return getRol() == RolUsuario.Administrador;
+        return administrador != null || (rol != null && "Administrador".equals(rol.getNombre()));
     }
 
     public String getNombreCompleto() {
@@ -291,8 +295,8 @@ public class Usuario implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        RolUsuario r = getRol();
-        return List.of(new SimpleGrantedAuthority("ROLE_" + r.name()));
+        String roleName = (rol != null && rol.getNombre() != null) ? rol.getNombre() : "Alumno";
+        return List.of(new SimpleGrantedAuthority("ROLE_" + roleName));
     }
 
     @Override
@@ -347,14 +351,6 @@ public class Usuario implements UserDetails {
 
     public void setAdministrador(Administrador administrador) {
         this.administrador = administrador;
-    }
-
-    public Set<UsuarioRol> getUsuarioRoles() {
-        return usuarioRoles;
-    }
-
-    public void setUsuarioRoles(Set<UsuarioRol> usuarioRoles) {
-        this.usuarioRoles = usuarioRoles;
     }
 
     public List<Sesion> getSesiones() {

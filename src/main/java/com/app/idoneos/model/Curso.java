@@ -6,44 +6,43 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Entidad Curso: Ficha comercial y catálogo principal del curso ofrecido.
+ * Entidad Curso: Oferta educativa principal de la plataforma.
  * Mapea directamente a la tabla "Curso" en base_datos.sql.
  */
 @Entity
 @Table(name = "Curso")
 public class Curso {
 
-    /** Identificador único del curso. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private int id;
+    @Column(name = "id_curso")
+    private int idCurso;
 
-    /** Nombre comercial del curso. */
+    /** Nombre del curso. */
     @Column(name = "nombre", nullable = false, length = 50)
     private String nombre;
 
-    /** Descripción detallada del alcance académico. */
+    /** Descripción breve del curso. */
     @Column(name = "descripcion", length = 150)
     private String descripcion;
 
-    /** Precio del curso (0 indica que es gratuito). */
+    /** Precio base del curso. */
     @Column(name = "precio", nullable = false)
     private float precio;
 
-    /** Ruta de la imagen de portada. */
+    /** Ruta de la imagen de portada del curso. */
     @Column(name = "imagen", length = 150)
     private String imagen;
 
-    /** Indicador de visibilidad pública en el catálogo general. */
-    @Column(name = "publicado", nullable = false)
-    private boolean publicado = false;
+    /** Indica si el curso emite certificado de aprobación. */
+    @Column(name = "emite_certificado", nullable = false)
+    private boolean emiteCertificado = false;
 
     /** Fecha de creación del registro. */
     @Column(name = "fecha_creacion", nullable = false)
     private LocalDateTime fechaCreacion = LocalDateTime.now();
 
-    /** Fecha de la última modificación de datos. */
+    /** Fecha de la última modificación. */
     @Column(name = "ultima_modificacion")
     private LocalDateTime ultimaModificacion;
 
@@ -51,32 +50,53 @@ public class Curso {
     @Column(name = "baja", nullable = false)
     private boolean baja = false;
 
-    /** Categoría temática a la que se adscribe el curso. */
+    /** Categoría temática del curso. */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "categoria_id", nullable = false)
+    @JoinColumn(name = "id_categoria", nullable = false)
     private Categoria categoria;
 
-    /** Programas o planes de estudio asociados. */
+    /** Nivel de dificultad del curso. */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_nivel", nullable = false)
+    private Nivel nivel;
+
+    /** Docente responsable del curso. */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_docente", nullable = false)
+    private Docente docente;
+
+    /** Programas de estudio asociados a este curso. */
     @OneToMany(mappedBy = "curso", cascade = CascadeType.ALL)
     private List<Programa> programas = new ArrayList<>();
 
     public Curso() {
     }
 
-    public Curso(String nombre, String descripcion, float precio, Categoria categoria) {
+    public Curso(String nombre, String descripcion, float precio, Categoria categoria,
+                 Nivel nivel, Docente docente) {
         this.nombre = nombre;
         this.descripcion = descripcion;
         this.precio = precio;
         this.categoria = categoria;
+        this.nivel = nivel;
+        this.docente = docente;
         this.fechaCreacion = LocalDateTime.now();
     }
 
     public int getId() {
-        return id;
+        return idCurso;
+    }
+
+    public int getIdCurso() {
+        return idCurso;
     }
 
     public void setId(int id) {
-        this.id = id;
+        this.idCurso = id;
+    }
+
+    public void setIdCurso(int idCurso) {
+        this.idCurso = idCurso;
     }
 
     public String getNombre() {
@@ -111,16 +131,16 @@ public class Curso {
         this.imagen = imagen;
     }
 
-    public boolean isPublicado() {
-        return publicado;
+    public boolean isEmiteCertificado() {
+        return emiteCertificado;
     }
 
-    public boolean getPublicado() {
-        return publicado;
+    public boolean getEmiteCertificado() {
+        return emiteCertificado;
     }
 
-    public void setPublicado(boolean publicado) {
-        this.publicado = publicado;
+    public void setEmiteCertificado(boolean emiteCertificado) {
+        this.emiteCertificado = emiteCertificado;
     }
 
     public LocalDateTime getFechaCreacion() {
@@ -159,84 +179,27 @@ public class Curso {
         this.categoria = categoria;
     }
 
+    public Nivel getNivel() {
+        return nivel;
+    }
+
+    public void setNivel(Nivel nivel) {
+        this.nivel = nivel;
+    }
+
+    public Docente getDocente() {
+        return docente;
+    }
+
+    public void setDocente(Docente docente) {
+        this.docente = docente;
+    }
+
     public List<Programa> getProgramas() {
         return programas;
     }
 
     public void setProgramas(List<Programa> programas) {
         this.programas = programas;
-    }
-
-    @Transient
-    private int mesesAcceso = 12;
-
-    public int getMesesAcceso() {
-        return mesesAcceso;
-    }
-
-    public void setMesesAcceso(int mesesAcceso) {
-        this.mesesAcceso = mesesAcceso;
-    }
-
-    /** Modalidades de dictado asociadas al curso. */
-    @OneToMany(mappedBy = "curso", cascade = CascadeType.ALL)
-    private List<ModalidadCurso> modalidades = new ArrayList<>();
-
-    public List<ModalidadCurso> getModalidades() {
-        return modalidades;
-    }
-
-    public void setModalidades(List<ModalidadCurso> modalidades) {
-        this.modalidades = modalidades;
-    }
-
-    /** Helper para saber si el curso es gratuito (precio == 0). */
-    public boolean esGratuito() {
-        return precio == 0;
-    }
-
-    /** Helper para saber si el curso tiene la modalidad Clon IA. */
-    public boolean esCursoConClonIA() {
-        if (modalidades != null) {
-            for (ModalidadCurso mc : modalidades) {
-                if (mc.getModalidad() != null && "Clon IA".equalsIgnoreCase(mc.getModalidad().getNombre())) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    /** Helper para obtener el docente titular desde el primer dictado del programa. */
-    public Usuario getDocenteTitular() {
-        if (programas != null) {
-            for (Programa p : programas) {
-                if (p.getDictados() != null) {
-                    for (Dictado d : p.getDictados()) {
-                        if (d.getDictadosDocentes() != null) {
-                            for (DictadoDocente dd : d.getDictadosDocentes()) {
-                                if (dd.getDocente() != null && dd.getDocente().getUsuario() != null) {
-                                    return dd.getDocente().getUsuario();
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
-    /** Helper para obtener todas las unidades temáticas de todos los programas del curso. */
-    public List<Unidad> getUnidades() {
-        List<Unidad> lista = new ArrayList<>();
-        if (programas != null) {
-            for (Programa p : programas) {
-                if (p.getUnidades() != null) {
-                    lista.addAll(p.getUnidades());
-                }
-            }
-        }
-        return lista;
     }
 }

@@ -3,24 +3,19 @@ package com.app.idoneos.model;
 import jakarta.persistence.*;
 
 /**
- * Entidad TipoAcciónAuditoria: Catálogo de acciones de auditoría (Crear,
- * Modificar, Eliminar, Consultar).
+ * Entidad TipoAccionAuditoria: Catálogo de acciones de auditoría.
  * Mapea directamente a la tabla "TipoAccionAuditoria" en base_datos.sql.
  */
 @Entity
 @Table(name = "TipoAccionAuditoria")
 public class TipoAccionAuditoria {
 
-    /** Identificador único del tipo de acción de auditoría. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private int id;
+    @Column(name = "id_tipo_accion_auditoria")
+    private int idTipoAccionAuditoria;
 
-    /**
-     * Nombre del tipo de acción (ej. "Crear", "Modificar", "Eliminar",
-     * "Consultar").
-     */
+    /** Nombre del tipo de acción (ej. "Crear", "Modificar", "Eliminar", "Consultar"). */
     @Column(name = "nombre", nullable = false, length = 50)
     private String nombre;
 
@@ -32,11 +27,19 @@ public class TipoAccionAuditoria {
     }
 
     public int getId() {
-        return id;
+        return idTipoAccionAuditoria;
+    }
+
+    public int getIdTipoAccionAuditoria() {
+        return idTipoAccionAuditoria;
     }
 
     public void setId(int id) {
-        this.id = id;
+        this.idTipoAccionAuditoria = id;
+    }
+
+    public void setIdTipoAccionAuditoria(int idTipoAccionAuditoria) {
+        this.idTipoAccionAuditoria = idTipoAccionAuditoria;
     }
 
     public String getNombre() {

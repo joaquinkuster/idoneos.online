@@ -3,19 +3,17 @@ package com.app.idoneos.model;
 import jakarta.persistence.*;
 
 /**
- * Entidad TipoMaterial: Catálogo de clases de material multimedia/lectura
- * (Grabación, Bibliografía, Presentación, Resumen).
+ * Entidad TipoMaterial: Catálogo de clases de material multimedia/lectura.
  * Mapea directamente a la tabla "TipoMaterial" en base_datos.sql.
  */
 @Entity
 @Table(name = "TipoMaterial")
 public class TipoMaterial {
 
-    /** Identificador único del tipo de material. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private int id;
+    @Column(name = "id_tipo_material")
+    private int idTipoMaterial;
 
     /** Nombre descriptivo del tipo de material. */
     @Column(name = "nombre", nullable = false, length = 50)
@@ -29,11 +27,19 @@ public class TipoMaterial {
     }
 
     public int getId() {
-        return id;
+        return idTipoMaterial;
+    }
+
+    public int getIdTipoMaterial() {
+        return idTipoMaterial;
     }
 
     public void setId(int id) {
-        this.id = id;
+        this.idTipoMaterial = id;
+    }
+
+    public void setIdTipoMaterial(int idTipoMaterial) {
+        this.idTipoMaterial = idTipoMaterial;
     }
 
     public String getNombre() {

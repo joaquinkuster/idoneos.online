@@ -1,7 +1,7 @@
 package com.app.idoneos.controller;
 
 import com.app.idoneos.model.*;
-import com.app.idoneos.service.IA.OllamaService;
+import com.app.idoneos.service.ClaseClonIa.OllamaService;
 import com.app.idoneos.service.Unidad.UnidadServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;

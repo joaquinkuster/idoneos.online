@@ -3,28 +3,26 @@ package com.app.idoneos.model;
 import jakarta.persistence.*;
 
 /**
- * Entidad RespuestaIntento: Registro de la opción seleccionada por el alumno
- * para una pregunta en un IntentoAutoevaluacion.
+ * Entidad RespuestaIntento: Registro de la opción seleccionada en un intento de autoevaluación.
  * Mapea directamente a la tabla "RespuestaIntento" en base_datos.sql.
  */
 @Entity
 @Table(name = "RespuestaIntento")
 public class RespuestaIntento {
 
-    /** Identificador único de la respuesta enviada en el intento. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private int id;
+    @Column(name = "id_respuesta_intento")
+    private int idRespuestaIntento;
 
     /** Intento de autoevaluación al que pertenece la respuesta. */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "intento_autoevaluacion_id", nullable = false)
+    @JoinColumn(name = "id_intento_autoevaluacion", nullable = false)
     private IntentoAutoevaluacion intentoAutoevaluacion;
 
-    /** Opción elegida por el alumno para la pregunta correspondida. */
+    /** Opción elegida por el alumno. */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "opcion_respuesta_id", nullable = false)
+    @JoinColumn(name = "id_opcion_respuesta", nullable = false)
     private OpcionRespuesta opcionRespuesta;
 
     public RespuestaIntento() {
@@ -36,11 +34,19 @@ public class RespuestaIntento {
     }
 
     public int getId() {
-        return id;
+        return idRespuestaIntento;
+    }
+
+    public int getIdRespuestaIntento() {
+        return idRespuestaIntento;
     }
 
     public void setId(int id) {
-        this.id = id;
+        this.idRespuestaIntento = id;
+    }
+
+    public void setIdRespuestaIntento(int idRespuestaIntento) {
+        this.idRespuestaIntento = idRespuestaIntento;
     }
 
     public IntentoAutoevaluacion getIntentoAutoevaluacion() {

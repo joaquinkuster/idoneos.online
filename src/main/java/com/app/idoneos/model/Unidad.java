@@ -6,19 +6,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Entidad Unidad: Subdivisión de un Programa de estudios. Nodo central del que
- * depende el contenido.
+ * Entidad Unidad: Subdivisión temática de un Programa de estudios.
+ * La asociación con un Programa se realiza a través de la entidad Cronograma.
  * Mapea directamente a la tabla "Unidad" en base_datos.sql.
  */
 @Entity
 @Table(name = "Unidad")
 public class Unidad {
 
-    /** Identificador único de la unidad temática. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private int id;
+    @Column(name = "id_unidad")
+    private int idUnidad;
 
     /** Título de la unidad. */
     @Column(name = "titulo", nullable = false, length = 50)
@@ -28,9 +27,9 @@ public class Unidad {
     @Column(name = "descripcion", length = 150)
     private String descripcion;
 
-    /** Posición u orden de presentación secuencial dentro del curso. */
-    @Column(name = "numero_orden", nullable = false)
-    private int numeroOrden;
+    /** Contenido detallado de la unidad. */
+    @Column(name = "contenido", nullable = false, columnDefinition = "text")
+    private String contenido;
 
     /** Fecha de creación de la unidad. */
     @Column(name = "fecha_creacion", nullable = false)
@@ -44,10 +43,9 @@ public class Unidad {
     @Column(name = "baja", nullable = false)
     private boolean baja = false;
 
-    /** Programa al que pertenece esta unidad. */
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
-    @JoinColumn(name = "programa_id", nullable = false)
-    private Programa programa;
+    /** Entradas de cronograma que vinculan esta unidad a programas. */
+    @OneToMany(mappedBy = "unidad", cascade = CascadeType.ALL)
+    private List<Cronograma> cronogramas = new ArrayList<>();
 
     /** Lista de materiales multimedia y lectura asociados. */
     @OneToMany(mappedBy = "unidad", cascade = CascadeType.ALL)
@@ -61,45 +59,40 @@ public class Unidad {
     @OneToMany(mappedBy = "unidad", cascade = CascadeType.ALL)
     private List<Pool> pools = new ArrayList<>();
 
-    /** Autoevaluaciones rrendibles asociadas. */
+    /** Autoevaluaciones asociadas. */
     @OneToMany(mappedBy = "unidad", cascade = CascadeType.ALL)
     private List<Autoevaluacion> autoevaluaciones = new ArrayList<>();
 
-    /** Clases en vivo asociadas. */
-    @OneToMany(mappedBy = "unidad", cascade = CascadeType.ALL)
-    private List<ClaseEnVivo> clasesEnVivo = new ArrayList<>();
+    /** Clases en vivo (no FK directa a Unidad en SQL; relación via Cohorte). */
+    // ClaseEnVivo referencia Cohorte, no Unidad directamente en el SQL.
 
-    /** Clases clon IA asociadas. */
-    @OneToMany(mappedBy = "unidad", cascade = CascadeType.ALL)
-    private List<ClaseClonIA> clasesClonIA = new ArrayList<>();
+    /** Clases clon IA asociadas (no FK directa a Unidad en SQL). */
+    // ClaseClon no tiene FK a Unidad en el SQL.
 
     public Unidad() {
     }
 
-    public Unidad(String titulo, String descripcion, int numeroOrden, Programa programa) {
+    public Unidad(String titulo, String descripcion, String contenido) {
         this.titulo = titulo;
         this.descripcion = descripcion;
-        this.numeroOrden = numeroOrden;
-        this.programa = programa;
-        this.fechaCreacion = LocalDateTime.now();
-    }
-
-    public Unidad(String titulo, String descripcion, int numeroOrden, Curso curso) {
-        this.titulo = titulo;
-        this.descripcion = descripcion;
-        this.numeroOrden = numeroOrden;
-        if (curso != null) {
-            this.programa = new Programa(curso.getNombre(), "Programa por defecto", 12, curso);
-        }
+        this.contenido = contenido;
         this.fechaCreacion = LocalDateTime.now();
     }
 
     public int getId() {
-        return id;
+        return idUnidad;
+    }
+
+    public int getIdUnidad() {
+        return idUnidad;
     }
 
     public void setId(int id) {
-        this.id = id;
+        this.idUnidad = id;
+    }
+
+    public void setIdUnidad(int idUnidad) {
+        this.idUnidad = idUnidad;
     }
 
     public String getTitulo() {
@@ -118,12 +111,12 @@ public class Unidad {
         this.descripcion = descripcion;
     }
 
-    public int getNumeroOrden() {
-        return numeroOrden;
+    public String getContenido() {
+        return contenido;
     }
 
-    public void setNumeroOrden(int numeroOrden) {
-        this.numeroOrden = numeroOrden;
+    public void setContenido(String contenido) {
+        this.contenido = contenido;
     }
 
     public LocalDateTime getFechaCreacion() {
@@ -154,16 +147,12 @@ public class Unidad {
         this.baja = baja;
     }
 
-    public Programa getPrograma() {
-        return programa;
+    public List<Cronograma> getCronogramas() {
+        return cronogramas;
     }
 
-    public void setPrograma(Programa programa) {
-        this.programa = programa;
-    }
-
-    public Curso getCurso() {
-        return programa != null ? programa.getCurso() : null;
+    public void setCronogramas(List<Cronograma> cronogramas) {
+        this.cronogramas = cronogramas;
     }
 
     public List<Material> getMateriales() {
@@ -196,21 +185,5 @@ public class Unidad {
 
     public void setAutoevaluaciones(List<Autoevaluacion> autoevaluaciones) {
         this.autoevaluaciones = autoevaluaciones;
-    }
-
-    public List<ClaseEnVivo> getClasesEnVivo() {
-        return clasesEnVivo;
-    }
-
-    public void setClasesEnVivo(List<ClaseEnVivo> clasesEnVivo) {
-        this.clasesEnVivo = clasesEnVivo;
-    }
-
-    public List<ClaseClonIA> getClasesClonIA() {
-        return clasesClonIA;
-    }
-
-    public void setClasesClonIA(List<ClaseClonIA> clasesClonIA) {
-        this.clasesClonIA = clasesClonIA;
     }
 }

@@ -3,21 +3,19 @@ package com.app.idoneos.model;
 import jakarta.persistence.*;
 
 /**
- * Entidad Modalidad: Catálogo de modalidades de cursada (En vivo, Grabada, Clon
- * IA).
+ * Entidad Modalidad: Catálogo de modalidades de cursado (ej. Sincrónico, Asincrónico).
  * Mapea directamente a la tabla "Modalidad" en base_datos.sql.
  */
 @Entity
 @Table(name = "Modalidad")
 public class Modalidad {
 
-    /** Identificador único de la modalidad. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private int id;
+    @Column(name = "id_modalidad")
+    private int idModalidad;
 
-    /** Nombre de la modalidad de dictado. */
+    /** Nombre de la modalidad. */
     @Column(name = "nombre", nullable = false, length = 50)
     private String nombre;
 
@@ -29,11 +27,19 @@ public class Modalidad {
     }
 
     public int getId() {
-        return id;
+        return idModalidad;
+    }
+
+    public int getIdModalidad() {
+        return idModalidad;
     }
 
     public void setId(int id) {
-        this.id = id;
+        this.idModalidad = id;
+    }
+
+    public void setIdModalidad(int idModalidad) {
+        this.idModalidad = idModalidad;
     }
 
     public String getNombre() {

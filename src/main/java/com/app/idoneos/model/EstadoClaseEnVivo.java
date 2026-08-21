@@ -3,21 +3,19 @@ package com.app.idoneos.model;
 import jakarta.persistence.*;
 
 /**
- * Entidad EstadoClaseEnVivo: Catálogo de estados de transmisión en vivo
- * (Programada, En vivo, Finalizada).
+ * Entidad EstadoClaseEnVivo: Catálogo de estados de una clase transmitida en vivo.
  * Mapea directamente a la tabla "EstadoClaseEnVIvo" en base_datos.sql.
  */
 @Entity
 @Table(name = "EstadoClaseEnVIvo")
 public class EstadoClaseEnVivo {
 
-    /** Identificador único del estado de transmisión en vivo. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private int id;
+    @Column(name = "id_estado_clase_en_vivo")
+    private int idEstadoClaseEnVivo;
 
-    /** Nombre del estado (ej. "Programada", "En vivo", "Finalizada"). */
+    /** Nombre del estado (ej. "Programada", "En Vivo", "Finalizada"). */
     @Column(name = "nombre", nullable = false, length = 50)
     private String nombre;
 
@@ -29,11 +27,19 @@ public class EstadoClaseEnVivo {
     }
 
     public int getId() {
-        return id;
+        return idEstadoClaseEnVivo;
+    }
+
+    public int getIdEstadoClaseEnVivo() {
+        return idEstadoClaseEnVivo;
     }
 
     public void setId(int id) {
-        this.id = id;
+        this.idEstadoClaseEnVivo = id;
+    }
+
+    public void setIdEstadoClaseEnVivo(int idEstadoClaseEnVivo) {
+        this.idEstadoClaseEnVivo = idEstadoClaseEnVivo;
     }
 
     public String getNombre() {

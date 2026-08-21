@@ -4,7 +4,7 @@ import com.app.idoneos.exception.ExcepcionRecursoNoEncontrado;
 import com.app.idoneos.exception.ExcepcionValidacion;
 import com.app.idoneos.model.*;
 import com.app.idoneos.repository.AlumnoRepository;
-import com.app.idoneos.repository.DictadoRepository;
+import com.app.idoneos.repository.CohorteRepository;
 import com.app.idoneos.repository.InscripcionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,7 +22,7 @@ import java.util.Optional;
 public class InscripcionServiceImpl implements InscripcionService {
 
     @Autowired private InscripcionRepository inscripcionRepository;
-    @Autowired private DictadoRepository dictadoRepository;
+    @Autowired private CohorteRepository cohorteRepository;
     @Autowired private AlumnoRepository alumnoRepository;
 
     /**
@@ -75,42 +75,53 @@ public class InscripcionServiceImpl implements InscripcionService {
             throw new ExcepcionValidacion("CU-42 Excepción paso 4: El usuario ya se encuentra inscripto activamente en el curso.");
         }
 
-        Alumno alumno = alumnoRepository.findById(usuario.getId())
+        Alumno alumno = alumnoRepository.findByUsuario(usuario)
                 .orElseGet(() -> alumnoRepository.save(new Alumno(usuario)));
 
-        Inscripcion nueva = new Inscripcion(usuario, curso);
-        nueva.setAlumno(alumno);
+        // Busca la cohorte activa más reciente del programa del curso
+        Cohorte cohorte = cohorteRepository.findAll().stream()
+                .filter(c -> !c.getBaja() && c.getPrograma() != null
+                        && c.getPrograma().getCurso() != null
+                        && c.getPrograma().getCurso().getId() == curso.getId())
+                .findFirst()
+                .orElseThrow(() -> new ExcepcionValidacion(
+                        "CU-42 Excepción paso 5: No existe una cohorte activa para el curso solicitado."));
+
+        Inscripcion nueva = new Inscripcion(cohorte, alumno);
         nueva.setBaja(false);
         nueva.setFecha(LocalDateTime.now());
-        nueva.setFechaVencimientoAcceso(LocalDateTime.now().plusMonths(curso.getMesesAcceso() > 0 ? curso.getMesesAcceso() : 12));
+        // Acceso: semanasAcceso de la cohorte, aproximado a meses
+        int semanasAcceso = cohorte.getSemanasAcceso() > 0 ? cohorte.getSemanasAcceso() : 48;
+        nueva.setFechaVencimientoAcceso(LocalDateTime.now().plusWeeks(semanasAcceso));
         return inscripcionRepository.save(nueva);
     }
 
     /**
-     * CU-42 — Inscribir alumno a dictado con control de cupo máximo.
+     * CU-42 — Inscribir alumno a cohorte con control de cupo máximo.
      */
-    public Inscripcion inscribirAlumnoADictado(Usuario usuario, Dictado dictado) {
-        if (dictado == null || dictado.getBaja()) {
-            throw new ExcepcionValidacion("CU-42 Precondición: El dictado debe estar activo.");
+    public Inscripcion inscribirAlumnoACohorte(Usuario usuario, Cohorte cohorte) {
+        if (cohorte == null || cohorte.getBaja()) {
+            throw new ExcepcionValidacion("CU-42 Precondición: La cohorte debe estar activa.");
         }
 
-        Curso curso = dictado.getPrograma() != null ? dictado.getPrograma().getCurso() : null;
+        Curso curso = cohorte.getPrograma() != null ? cohorte.getPrograma().getCurso() : null;
         if (curso != null && estaInscripto(usuario, curso)) {
             throw new ExcepcionValidacion("CU-42 Excepción paso 4: El alumno ya se encuentra inscripto en este curso.");
         }
 
-        List<Inscripcion> inscriptosDictado = inscripcionRepository.findByDictado(dictado);
-        long activos = inscriptosDictado.stream().filter(i -> !i.getBaja()).count();
-        if (dictado.getCupoMaximo() > 0 && activos >= dictado.getCupoMaximo()) {
-            throw new ExcepcionValidacion("CU-42 Excepción paso 5: El dictado ha alcanzado su cupo máximo disponible (" + dictado.getCupoMaximo() + ").");
+        List<Inscripcion> inscriptosCohorte = inscripcionRepository.findByCohorte(cohorte);
+        long activos = inscriptosCohorte.stream().filter(i -> !i.getBaja()).count();
+        if (cohorte.getCupoMaximo() != null && cohorte.getCupoMaximo() > 0 && activos >= cohorte.getCupoMaximo()) {
+            throw new ExcepcionValidacion("CU-42 Excepción paso 5: La cohorte ha alcanzado su cupo máximo (" + cohorte.getCupoMaximo() + ").");
         }
 
-        Alumno alumno = alumnoRepository.findById(usuario.getId())
+        Alumno alumno = alumnoRepository.findByUsuario(usuario)
                 .orElseGet(() -> alumnoRepository.save(new Alumno(usuario)));
 
-        Inscripcion nueva = new Inscripcion(alumno, dictado);
+        Inscripcion nueva = new Inscripcion(cohorte, alumno);
         nueva.setBaja(false);
         nueva.setFecha(LocalDateTime.now());
+        nueva.setFechaVencimientoAcceso(LocalDateTime.now().plusWeeks(cohorte.getSemanasAcceso()));
         return inscripcionRepository.save(nueva);
     }
 
@@ -136,8 +147,10 @@ public class InscripcionServiceImpl implements InscripcionService {
 
     @Override
     public Inscripcion guardar(Inscripcion entidad) {
-        if (entidad.getAlumno() != null && entidad.getAlumno().getUsuario() != null && entidad.getCurso() != null) {
-            return inscribirAlumno(entidad.getAlumno().getUsuario(), entidad.getCurso());
+        if (entidad.getAlumno() != null && entidad.getAlumno().getUsuario() != null
+                && entidad.getCohorte() != null && entidad.getCohorte().getPrograma() != null) {
+            return inscribirAlumno(entidad.getAlumno().getUsuario(),
+                    entidad.getCohorte().getPrograma().getCurso());
         }
         return inscripcionRepository.save(entidad);
     }

@@ -5,18 +5,17 @@ import java.time.LocalDateTime;
 
 /**
  * Entidad Progreso: Seguimiento del estado de avance de un alumno sobre las
- * unidades de un curso/dictado.
+ * unidades de un curso.
  * Mapea directamente a la tabla "Progreso" en base_datos.sql.
  */
 @Entity
 @Table(name = "Progreso")
 public class Progreso {
 
-    /** Identificador único del registro de progreso. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private int id;
+    @Column(name = "id_progreso")
+    private int idProgreso;
 
     /** Indica si el alumno completó la unidad. */
     @Column(name = "completada", nullable = false)
@@ -28,12 +27,12 @@ public class Progreso {
 
     /** Unidad temática sobre la cual se registra el progreso. */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "unidad_id", nullable = false)
+    @JoinColumn(name = "id_unidad", nullable = false)
     private Unidad unidad;
 
     /** Inscripción del alumno a la que corresponde el seguimiento. */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "inscripcion_id", nullable = false)
+    @JoinColumn(name = "id_inscripcion", nullable = false)
     private Inscripcion inscripcion;
 
     public Progreso() {
@@ -49,11 +48,19 @@ public class Progreso {
     }
 
     public int getId() {
-        return id;
+        return idProgreso;
+    }
+
+    public int getIdProgreso() {
+        return idProgreso;
     }
 
     public void setId(int id) {
-        this.id = id;
+        this.idProgreso = id;
+    }
+
+    public void setIdProgreso(int idProgreso) {
+        this.idProgreso = idProgreso;
     }
 
     public boolean isCompletada() {

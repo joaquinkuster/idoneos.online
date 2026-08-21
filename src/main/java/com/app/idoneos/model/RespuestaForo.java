@@ -4,20 +4,19 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 /**
- * Entidad RespuestaForo: Respuesta brindada por un docente a una ConsultaForo.
+ * Entidad RespuestaForo: Respuesta brindada por un Docente a una ConsultaForo.
  * Mapea directamente a la tabla "RespuestaForo" en base_datos.sql.
  */
 @Entity
 @Table(name = "RespuestaForo")
 public class RespuestaForo {
 
-    /** Identificador único de la respuesta en el foro. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private int id;
+    @Column(name = "id_respuesta_foro")
+    private int idRespuestaForo;
 
-    /** Contenido textual de la respuesta brindada. */
+    /** Contenido textual de la respuesta. */
     @Column(name = "texto", nullable = false, length = 500)
     private String texto;
 
@@ -29,15 +28,15 @@ public class RespuestaForo {
     @Column(name = "baja", nullable = false)
     private boolean baja = false;
 
-    /** Consulta original a la que responde. */
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "consulta_foro_id", nullable = false)
-    private ConsultaForo consulta;
-
     /** Docente autor de la respuesta. */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "docente_id", nullable = false)
+    @JoinColumn(name = "id_docente", nullable = false)
     private Docente docente;
+
+    /** Consulta original a la que responde. */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_consulta_foro", nullable = false)
+    private ConsultaForo consulta;
 
     public RespuestaForo() {
     }
@@ -50,11 +49,19 @@ public class RespuestaForo {
     }
 
     public int getId() {
-        return id;
+        return idRespuestaForo;
+    }
+
+    public int getIdRespuestaForo() {
+        return idRespuestaForo;
     }
 
     public void setId(int id) {
-        this.id = id;
+        this.idRespuestaForo = id;
+    }
+
+    public void setIdRespuestaForo(int idRespuestaForo) {
+        this.idRespuestaForo = idRespuestaForo;
     }
 
     public String getTexto() {
@@ -85,19 +92,19 @@ public class RespuestaForo {
         this.baja = baja;
     }
 
-    public ConsultaForo getConsulta() {
-        return consulta;
-    }
-
-    public void setConsulta(ConsultaForo consulta) {
-        this.consulta = consulta;
-    }
-
     public Docente getDocente() {
         return docente;
     }
 
     public void setDocente(Docente docente) {
         this.docente = docente;
+    }
+
+    public ConsultaForo getConsulta() {
+        return consulta;
+    }
+
+    public void setConsulta(ConsultaForo consulta) {
+        this.consulta = consulta;
     }
 }

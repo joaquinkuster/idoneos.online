@@ -3,21 +3,19 @@ package com.app.idoneos.model;
 import jakarta.persistence.*;
 
 /**
- * Entidad MétodoPago: Catálogo de medios de pago aceptados (Tarjeta de crédito,
- * Tarjeta de débito, Saldo de cuenta).
+ * Entidad MetodoPago: Catálogo de métodos de pago disponibles.
  * Mapea directamente a la tabla "MetodoPago" en base_datos.sql.
  */
 @Entity
 @Table(name = "MetodoPago")
 public class MetodoPago {
 
-    /** Identificador único del método de pago. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private int id;
+    @Column(name = "id_metodo_pago")
+    private int idMetodoPago;
 
-    /** Nombre del método de pago. */
+    /** Nombre del método de pago (ej. "Tarjeta de crédito", "Transferencia"). */
     @Column(name = "nombre", nullable = false, length = 50)
     private String nombre;
 
@@ -29,11 +27,19 @@ public class MetodoPago {
     }
 
     public int getId() {
-        return id;
+        return idMetodoPago;
+    }
+
+    public int getIdMetodoPago() {
+        return idMetodoPago;
     }
 
     public void setId(int id) {
-        this.id = id;
+        this.idMetodoPago = id;
+    }
+
+    public void setIdMetodoPago(int idMetodoPago) {
+        this.idMetodoPago = idMetodoPago;
     }
 
     public String getNombre() {

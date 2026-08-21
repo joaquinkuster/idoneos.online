@@ -3,21 +3,19 @@ package com.app.idoneos.model;
 import jakarta.persistence.*;
 
 /**
- * Entidad TérminoGlosario: Término técnico estructurado con su definición
- * asociado a una Unidad.
+ * Entidad TerminoGlosario: Término técnico con definición asociado a una Unidad.
  * Mapea directamente a la tabla "TerminoGlosario" en base_datos.sql.
  */
 @Entity
 @Table(name = "TerminoGlosario")
 public class TerminoGlosario {
 
-    /** Identificador único del término del glosario. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private int id;
+    @Column(name = "id_termino_glosario")
+    private int idTerminoGlosario;
 
-    /** Palabra o concepto financiero/económico definido. */
+    /** Palabra o concepto definido. */
     @Column(name = "termino", nullable = false, length = 50)
     private String termino;
 
@@ -29,9 +27,9 @@ public class TerminoGlosario {
     @Column(name = "baja", nullable = false)
     private boolean baja = false;
 
-    /** Unidad temática a la que pertenece el término del glosario. */
+    /** Unidad temática a la que pertenece el término. */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "unidad_id", nullable = false)
+    @JoinColumn(name = "id_unidad", nullable = false)
     private Unidad unidad;
 
     public TerminoGlosario() {
@@ -44,11 +42,19 @@ public class TerminoGlosario {
     }
 
     public int getId() {
-        return id;
+        return idTerminoGlosario;
+    }
+
+    public int getIdTerminoGlosario() {
+        return idTerminoGlosario;
     }
 
     public void setId(int id) {
-        this.id = id;
+        this.idTerminoGlosario = id;
+    }
+
+    public void setIdTerminoGlosario(int idTerminoGlosario) {
+        this.idTerminoGlosario = idTerminoGlosario;
     }
 
     public String getTermino() {

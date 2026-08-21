@@ -1,4 +1,4 @@
-package com.app.idoneos.service.IA;
+package com.app.idoneos.service.ClaseClonIa;
 
 import com.app.idoneos.model.*;
 import com.app.idoneos.repository.*;

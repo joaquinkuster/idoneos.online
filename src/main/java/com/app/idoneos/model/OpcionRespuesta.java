@@ -3,25 +3,23 @@ package com.app.idoneos.model;
 import jakarta.persistence.*;
 
 /**
- * Entidad OpciónRespuesta: Opción elegible dentro de una Pregunta de
- * autoevaluación.
+ * Entidad OpcionRespuesta: Opción de respuesta asociada a una Pregunta de evaluación.
  * Mapea directamente a la tabla "OpcionRespuesta" en base_datos.sql.
  */
 @Entity
 @Table(name = "OpcionRespuesta")
 public class OpcionRespuesta {
 
-    /** Identificador único de la opción de respuesta. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private int id;
+    @Column(name = "id_opcion_respuesta")
+    private int idOpcionRespuesta;
 
-    /** Texto explicativo o enunciado de la opción. */
+    /** Texto de la opción de respuesta. */
     @Column(name = "texto", nullable = false, length = 150)
     private String texto;
 
-    /** Indica si esta opción constituye la respuesta correcta de la pregunta. */
+    /** Indica si esta opción es la respuesta correcta. */
     @Column(name = "es_correcta", nullable = false)
     private boolean esCorrecta = false;
 
@@ -29,9 +27,9 @@ public class OpcionRespuesta {
     @Column(name = "baja", nullable = false)
     private boolean baja = false;
 
-    /** Pregunta a la que pertenece la opción. */
+    /** Pregunta a la que pertenece esta opción. */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "pregunta_id", nullable = false)
+    @JoinColumn(name = "id_pregunta", nullable = false)
     private Pregunta pregunta;
 
     public OpcionRespuesta() {
@@ -44,11 +42,19 @@ public class OpcionRespuesta {
     }
 
     public int getId() {
-        return id;
+        return idOpcionRespuesta;
+    }
+
+    public int getIdOpcionRespuesta() {
+        return idOpcionRespuesta;
     }
 
     public void setId(int id) {
-        this.id = id;
+        this.idOpcionRespuesta = id;
+    }
+
+    public void setIdOpcionRespuesta(int idOpcionRespuesta) {
+        this.idOpcionRespuesta = idOpcionRespuesta;
     }
 
     public String getTexto() {

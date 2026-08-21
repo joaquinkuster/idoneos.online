@@ -4,49 +4,61 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 /**
- * Entidad Reporte: Informe consolidado generado por un Administrador (ej.
- * Alumnos inscriptos, Ingresos).
+ * Entidad Reporte: Informe generado por un Administrador sobre un Curso.
  * Mapea directamente a la tabla "Reporte" en base_datos.sql.
  */
 @Entity
 @Table(name = "Reporte")
 public class Reporte {
 
-    /** Identificador único del reporte. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private int id;
+    @Column(name = "id_reporte")
+    private int idReporte;
 
-    /** Fecha y hora en la que se solicitó/generó el reporte. */
+    /** Fecha y hora en la que se generó el reporte. */
     @Column(name = "fecha_generacion", nullable = false)
     private LocalDateTime fechaGeneracion = LocalDateTime.now();
 
-    /** Tipo de reporte generado. */
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "tipo_reporte_id", nullable = false)
-    private TipoReporte tipoReporte;
-
     /** Administrador que solicitó la generación del reporte. */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "administrador_id", nullable = false)
+    @JoinColumn(name = "id_administrador", nullable = false)
     private Administrador administrador;
+
+    /** Tipo de reporte generado. */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_tipo_reporte", nullable = false)
+    private TipoReporte tipoReporte;
+
+    /** Curso sobre el cual se genera el reporte. */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_curso", nullable = false)
+    private Curso curso;
 
     public Reporte() {
     }
 
-    public Reporte(TipoReporte tipoReporte, Administrador administrador) {
+    public Reporte(TipoReporte tipoReporte, Administrador administrador, Curso curso) {
         this.tipoReporte = tipoReporte;
         this.administrador = administrador;
+        this.curso = curso;
         this.fechaGeneracion = LocalDateTime.now();
     }
 
     public int getId() {
-        return id;
+        return idReporte;
+    }
+
+    public int getIdReporte() {
+        return idReporte;
     }
 
     public void setId(int id) {
-        this.id = id;
+        this.idReporte = id;
+    }
+
+    public void setIdReporte(int idReporte) {
+        this.idReporte = idReporte;
     }
 
     public LocalDateTime getFechaGeneracion() {
@@ -57,6 +69,14 @@ public class Reporte {
         this.fechaGeneracion = fechaGeneracion;
     }
 
+    public Administrador getAdministrador() {
+        return administrador;
+    }
+
+    public void setAdministrador(Administrador administrador) {
+        this.administrador = administrador;
+    }
+
     public TipoReporte getTipoReporte() {
         return tipoReporte;
     }
@@ -65,11 +85,11 @@ public class Reporte {
         this.tipoReporte = tipoReporte;
     }
 
-    public Administrador getAdministrador() {
-        return administrador;
+    public Curso getCurso() {
+        return curso;
     }
 
-    public void setAdministrador(Administrador administrador) {
-        this.administrador = administrador;
+    public void setCurso(Curso curso) {
+        this.curso = curso;
     }
 }

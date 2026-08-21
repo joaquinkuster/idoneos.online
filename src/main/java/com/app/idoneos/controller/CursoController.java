@@ -99,8 +99,10 @@ public class CursoController {
 
         List<Curso> misCursos = new ArrayList<>();
         for (Inscripcion i : inscripciones) {
-            if (!i.getBaja() && i.getCurso() != null) {
-                misCursos.add(i.getCurso());
+            if (!i.getBaja() && i.getCohorte() != null
+                    && i.getCohorte().getPrograma() != null
+                    && i.getCohorte().getPrograma().getCurso() != null) {
+                misCursos.add(i.getCohorte().getPrograma().getCurso());
             }
         }
 

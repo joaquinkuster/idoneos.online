@@ -3,21 +3,19 @@ package com.app.idoneos.model;
 import jakarta.persistence.*;
 
 /**
- * Entidad EstadoPago: Catálogo de estados de transacciones de pago (Pendiente,
- * Acreditado, Rechazado).
+ * Entidad EstadoPago: Catálogo de estados de una transacción de pago.
  * Mapea directamente a la tabla "EstadoPago" en base_datos.sql.
  */
 @Entity
 @Table(name = "EstadoPago")
 public class EstadoPago {
 
-    /** Identificador único del estado de pago. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private int id;
+    @Column(name = "id_estado_pago")
+    private int idEstadoPago;
 
-    /** Nombre del estado (ej. "Pendiente", "Acreditado", "Rechazado"). */
+    /** Nombre del estado de pago (ej. "Pendiente", "Aprobado", "Rechazado"). */
     @Column(name = "nombre", nullable = false, length = 50)
     private String nombre;
 
@@ -29,11 +27,19 @@ public class EstadoPago {
     }
 
     public int getId() {
-        return id;
+        return idEstadoPago;
+    }
+
+    public int getIdEstadoPago() {
+        return idEstadoPago;
     }
 
     public void setId(int id) {
-        this.id = id;
+        this.idEstadoPago = id;
+    }
+
+    public void setIdEstadoPago(int idEstadoPago) {
+        this.idEstadoPago = idEstadoPago;
     }
 
     public String getNombre() {

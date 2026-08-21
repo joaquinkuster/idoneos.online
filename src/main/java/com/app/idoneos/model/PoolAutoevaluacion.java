@@ -3,28 +3,33 @@ package com.app.idoneos.model;
 import jakarta.persistence.*;
 
 /**
- * Tabla asociativa M a N entre Pool de preguntas y Autoevaluación.
- * Permite que una autoevaluación incluya preguntas provenientes de múltiples
- * pools.
+ * Entidad PoolAutoevaluacion: Tabla asociativa M:N entre Pool de preguntas y Autoevaluación.
+ * Usa clave compuesta (id_pool, id_autoevaluacion) conforme al SQL.
+ * Mapea directamente a la tabla "Pool Autoevaluacion" en base_datos.sql.
  */
 @Entity
 @Table(name = "Pool Autoevaluacion")
+@IdClass(PoolAutoevaluacionId.class)
 public class PoolAutoevaluacion {
 
-    /** Identificador único del vínculo asociativo. */
+    /** Parte de la clave compuesta: referencia a Pool. */
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private int id;
+    @Column(name = "id_pool")
+    private int idPool;
+
+    /** Parte de la clave compuesta: referencia a Autoevaluacion. */
+    @Id
+    @Column(name = "id_autoevaluacion")
+    private int idAutoevaluacion;
 
     /** Banco de preguntas (Pool) asociado. */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "pool_id", nullable = false)
+    @JoinColumn(name = "id_pool", insertable = false, updatable = false)
     private Pool pool;
 
     /** Autoevaluación asociada. */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "autoevaluacion_id", nullable = false)
+    @JoinColumn(name = "id_autoevaluacion", insertable = false, updatable = false)
     private Autoevaluacion autoevaluacion;
 
     public PoolAutoevaluacion() {
@@ -33,14 +38,24 @@ public class PoolAutoevaluacion {
     public PoolAutoevaluacion(Pool pool, Autoevaluacion autoevaluacion) {
         this.pool = pool;
         this.autoevaluacion = autoevaluacion;
+        this.idPool = pool.getId();
+        this.idAutoevaluacion = autoevaluacion.getId();
     }
 
-    public int getId() {
-        return id;
+    public int getIdPool() {
+        return idPool;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setIdPool(int idPool) {
+        this.idPool = idPool;
+    }
+
+    public int getIdAutoevaluacion() {
+        return idAutoevaluacion;
+    }
+
+    public void setIdAutoevaluacion(int idAutoevaluacion) {
+        this.idAutoevaluacion = idAutoevaluacion;
     }
 
     public Pool getPool() {
@@ -49,6 +64,7 @@ public class PoolAutoevaluacion {
 
     public void setPool(Pool pool) {
         this.pool = pool;
+        if (pool != null) this.idPool = pool.getId();
     }
 
     public Autoevaluacion getAutoevaluacion() {
@@ -57,5 +73,6 @@ public class PoolAutoevaluacion {
 
     public void setAutoevaluacion(Autoevaluacion autoevaluacion) {
         this.autoevaluacion = autoevaluacion;
+        if (autoevaluacion != null) this.idAutoevaluacion = autoevaluacion.getId();
     }
 }

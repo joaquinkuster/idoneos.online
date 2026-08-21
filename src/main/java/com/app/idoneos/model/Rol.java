@@ -11,11 +11,10 @@ import jakarta.persistence.*;
 @Table(name = "Rol")
 public class Rol {
 
-    /** Identificador único del rol. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private int id;
+    @Column(name = "id_rol")
+    private int idRol;
 
     /** Nombre del rol de usuario (ej. "Alumno", "Docente", "Administrador"). */
     @Column(name = "nombre", length = 50)
@@ -29,11 +28,19 @@ public class Rol {
     }
 
     public int getId() {
-        return id;
+        return idRol;
+    }
+
+    public int getIdRol() {
+        return idRol;
     }
 
     public void setId(int id) {
-        this.id = id;
+        this.idRol = id;
+    }
+
+    public void setIdRol(int idRol) {
+        this.idRol = idRol;
     }
 
     public String getNombre() {

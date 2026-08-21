@@ -4,84 +4,96 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 /**
- * Entidad ClaseEnVivo: Transmisión en directo vía streaming (RTMP/OBS) para una
- * unidad.
+ * Entidad ClaseEnVivo: Transmisión en vivo programada dentro de una Cohorte.
  * Mapea directamente a la tabla "ClaseEnVivo" en base_datos.sql.
  */
 @Entity
 @Table(name = "ClaseEnVivo")
 public class ClaseEnVivo {
 
-    /** Identificador único de la clase en vivo. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private int id;
+    @Column(name = "id_clase_en_vivo")
+    private int idClaseEnVivo;
 
-    /** Título descriptivo de la sesión en vivo. */
+    /** Título de la clase en vivo. */
     @Column(name = "titulo", nullable = false, length = 50)
     private String titulo;
 
-    /** Fecha y hora programada o en la que se dictó la clase. */
+    /** Fecha y hora programada de inicio de la transmisión. */
     @Column(name = "fecha_hora", nullable = false)
     private LocalDateTime fechaHora;
 
-    /** URL del servidor de transmisión RTMP. */
+    /** Duración estimada de la clase en minutos. */
+    @Column(name = "duracion_estimada", nullable = false)
+    private int duracionEstimada;
+
+    /** URL RTMP de la transmisión (endpoint del servidor de streaming). */
     @Column(name = "url_rtmp", nullable = false, length = 255)
     private String urlRtmp;
 
-    /** Clave privada de acceso al stream. */
+    /** Clave de stream para autenticación en el servidor de transmisión. */
     @Column(name = "clave_stream", nullable = false, length = 100)
     private String claveStream;
+
+    /** Indica si la clase está oculta para los alumnos. */
+    @Column(name = "oculto", nullable = false)
+    private boolean oculto = false;
 
     /** Estado de baja lógica de la clase. */
     @Column(name = "baja", nullable = false)
     private boolean baja = false;
 
-    /** Estado de la transmisión (Programada, En vivo, Finalizada). */
+    /** Docente que dicta la clase. */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "estado_clase_en_vivo_id")
+    @JoinColumn(name = "id_docente", nullable = false)
+    private Docente docente;
+
+    /** Estado de la clase (Programada, En Vivo, Finalizada, etc.). */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_estado_clase_en_vivo", nullable = false)
     private EstadoClaseEnVivo estadoClaseEnVivo;
 
-    /** Grabación resultante asociada tras finalizar la sesión (opcional). */
+    /** Material multimedia asociado (grabación generada, puede ser nulo). */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "material_id")
+    @JoinColumn(name = "id_material")
     private Material material;
 
-    /** Unidad a la que se adscribe la transmisión en vivo. */
+    /** Cohorte a la que pertenece esta clase en vivo. */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "unidad_id", nullable = false)
-    private Unidad unidad;
-
-    /** Docente a cargo del dictado en vivo. */
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "docente_id", nullable = false)
-    private Docente docente;
+    @JoinColumn(name = "id_cohorte", nullable = false)
+    private Cohorte cohorte;
 
     public ClaseEnVivo() {
     }
 
-    public ClaseEnVivo(String titulo, LocalDateTime fechaHora, Unidad unidad, Docente docente,
-            EstadoClaseEnVivo estadoClaseEnVivo) {
+    public ClaseEnVivo(String titulo, LocalDateTime fechaHora, int duracionEstimada,
+                       String urlRtmp, String claveStream,
+                       Docente docente, EstadoClaseEnVivo estadoClaseEnVivo, Cohorte cohorte) {
         this.titulo = titulo;
         this.fechaHora = fechaHora;
-        this.unidad = unidad;
+        this.duracionEstimada = duracionEstimada;
+        this.urlRtmp = urlRtmp;
+        this.claveStream = claveStream;
         this.docente = docente;
         this.estadoClaseEnVivo = estadoClaseEnVivo;
-        this.urlRtmp = "rtmp://localhost/live";
-        this.claveStream = "stream_" + System.currentTimeMillis();
-    }
-
-    public void setEstado(EstadoClaseEnVivo estado) {
-        this.estadoClaseEnVivo = estado;
+        this.cohorte = cohorte;
     }
 
     public int getId() {
-        return id;
+        return idClaseEnVivo;
+    }
+
+    public int getIdClaseEnVivo() {
+        return idClaseEnVivo;
     }
 
     public void setId(int id) {
-        this.id = id;
+        this.idClaseEnVivo = id;
+    }
+
+    public void setIdClaseEnVivo(int idClaseEnVivo) {
+        this.idClaseEnVivo = idClaseEnVivo;
     }
 
     public String getTitulo() {
@@ -100,6 +112,14 @@ public class ClaseEnVivo {
         this.fechaHora = fechaHora;
     }
 
+    public int getDuracionEstimada() {
+        return duracionEstimada;
+    }
+
+    public void setDuracionEstimada(int duracionEstimada) {
+        this.duracionEstimada = duracionEstimada;
+    }
+
     public String getUrlRtmp() {
         return urlRtmp;
     }
@@ -116,6 +136,18 @@ public class ClaseEnVivo {
         this.claveStream = claveStream;
     }
 
+    public boolean isOculto() {
+        return oculto;
+    }
+
+    public boolean getOculto() {
+        return oculto;
+    }
+
+    public void setOculto(boolean oculto) {
+        this.oculto = oculto;
+    }
+
     public boolean isBaja() {
         return baja;
     }
@@ -126,6 +158,14 @@ public class ClaseEnVivo {
 
     public void setBaja(boolean baja) {
         this.baja = baja;
+    }
+
+    public Docente getDocente() {
+        return docente;
+    }
+
+    public void setDocente(Docente docente) {
+        this.docente = docente;
     }
 
     public EstadoClaseEnVivo getEstadoClaseEnVivo() {
@@ -144,19 +184,11 @@ public class ClaseEnVivo {
         this.material = material;
     }
 
-    public Unidad getUnidad() {
-        return unidad;
+    public Cohorte getCohorte() {
+        return cohorte;
     }
 
-    public void setUnidad(Unidad unidad) {
-        this.unidad = unidad;
-    }
-
-    public Docente getDocente() {
-        return docente;
-    }
-
-    public void setDocente(Docente docente) {
-        this.docente = docente;
+    public void setCohorte(Cohorte cohorte) {
+        this.cohorte = cohorte;
     }
 }

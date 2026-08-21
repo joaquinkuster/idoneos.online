@@ -3,28 +3,33 @@ package com.app.idoneos.model;
 import jakarta.persistence.*;
 
 /**
- * Entidad ModalidadCurso: Tabla asociativa M a N entre Modalidad y Curso
- * ("Modalidad Curso").
+ * Entidad ModalidadCurso: Tabla asociativa M:N entre Modalidad y Curso.
+ * Usa clave compuesta (id_modalidad, id_curso) conforme al SQL.
  * Mapea directamente a la tabla "Modalidad Curso" en base_datos.sql.
  */
 @Entity
 @Table(name = "Modalidad Curso")
+@IdClass(ModalidadCursoId.class)
 public class ModalidadCurso {
 
-    /** Identificador único del vínculo de modalidad por curso. */
+    /** Parte de la clave compuesta: referencia a Modalidad. */
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private int id;
+    @Column(name = "id_modalidad")
+    private int idModalidad;
+
+    /** Parte de la clave compuesta: referencia a Curso. */
+    @Id
+    @Column(name = "id_curso")
+    private int idCurso;
 
     /** Modalidad asociada. */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "modalidad_id", nullable = false)
+    @JoinColumn(name = "id_modalidad", insertable = false, updatable = false)
     private Modalidad modalidad;
 
     /** Curso asociado. */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "curso_id", nullable = false)
+    @JoinColumn(name = "id_curso", insertable = false, updatable = false)
     private Curso curso;
 
     public ModalidadCurso() {
@@ -33,14 +38,24 @@ public class ModalidadCurso {
     public ModalidadCurso(Modalidad modalidad, Curso curso) {
         this.modalidad = modalidad;
         this.curso = curso;
+        this.idModalidad = modalidad.getId();
+        this.idCurso = curso.getId();
     }
 
-    public int getId() {
-        return id;
+    public int getIdModalidad() {
+        return idModalidad;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setIdModalidad(int idModalidad) {
+        this.idModalidad = idModalidad;
+    }
+
+    public int getIdCurso() {
+        return idCurso;
+    }
+
+    public void setIdCurso(int idCurso) {
+        this.idCurso = idCurso;
     }
 
     public Modalidad getModalidad() {
@@ -49,6 +64,7 @@ public class ModalidadCurso {
 
     public void setModalidad(Modalidad modalidad) {
         this.modalidad = modalidad;
+        if (modalidad != null) this.idModalidad = modalidad.getId();
     }
 
     public Curso getCurso() {
@@ -57,5 +73,6 @@ public class ModalidadCurso {
 
     public void setCurso(Curso curso) {
         this.curso = curso;
+        if (curso != null) this.idCurso = curso.getId();
     }
 }

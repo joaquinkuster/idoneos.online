@@ -4,44 +4,35 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 /**
- * Entidad Auditoría: Registro trazable AOP de operaciones sobre entidades del
- * sistema.
+ * Entidad Auditoria: Registro de acciones realizadas sobre el sistema por los usuarios.
  * Mapea directamente a la tabla "Auditoria" en base_datos.sql.
  */
 @Entity
 @Table(name = "Auditoria")
 public class Auditoria {
 
-    /** Identificador único del registro de auditoría. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private int id;
+    @Column(name = "id_auditoria")
+    private int idAuditoria;
 
-    /**
-     * Nombre de la entidad/tabla afectada por la acción (ej. "Curso", "Usuario").
-     */
+    /** Nombre de la entidad afectada por la acción. */
     @Column(name = "entidad_afectada", nullable = false, length = 50)
     private String entidadAfectada;
 
-    /** Identificador primario del registro puntual afectado. */
+    /** Identificador del registro afectado. */
     @Column(name = "id_afectado", nullable = false)
     private int idAfectado;
 
-    /**
-     * Representación del estado del registro previo a la modificación (JSON/texto).
-     */
+    /** Valor anterior al cambio (serializado como texto). */
     @Column(name = "valor_anterior", columnDefinition = "text")
     private String valorAnterior;
 
-    /**
-     * Representación del estado del registro posterior a la modificación
-     * (JSON/texto).
-     */
+    /** Nuevo valor luego del cambio (serializado como texto). */
     @Column(name = "valor_nuevo", columnDefinition = "text")
     private String valorNuevo;
 
-    /** Dirección IP desde donde el usuario ejecutó la acción. */
+    /** Dirección IP del usuario que realizó la acción. */
     @Column(name = "ip_usuario", nullable = false, length = 45)
     private String ipUsuario;
 
@@ -49,37 +40,46 @@ public class Auditoria {
     @Column(name = "fecha_hora", nullable = false)
     private LocalDateTime fechaHora = LocalDateTime.now();
 
+    /** Tipo de acción realizada (Crear, Modificar, Eliminar, Consultar). */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_tipo_accion_auditoria", nullable = false)
+    private TipoAccionAuditoria tipoAccionAuditoria;
+
     /** Usuario que realizó la acción. */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "usuario_id", nullable = false)
+    @JoinColumn(name = "id_usuario", nullable = false)
     private Usuario usuario;
-
-    /**
-     * Tipo de acción de auditoría ejecutada (Crear, Modificar, Eliminar,
-     * Consultar).
-     */
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "tipo_accion_auditoria_id", nullable = false)
-    private TipoAccionAuditoria tipoAccionAuditoria;
 
     public Auditoria() {
     }
 
-    public Auditoria(String entidadAfectada, int idAfectado, Usuario usuario, TipoAccionAuditoria tipoAccionAuditoria) {
+    public Auditoria(String entidadAfectada, int idAfectado, String valorAnterior,
+                     String valorNuevo, String ipUsuario,
+                     TipoAccionAuditoria tipoAccionAuditoria, Usuario usuario) {
         this.entidadAfectada = entidadAfectada;
         this.idAfectado = idAfectado;
-        this.usuario = usuario;
+        this.valorAnterior = valorAnterior;
+        this.valorNuevo = valorNuevo;
+        this.ipUsuario = ipUsuario;
         this.tipoAccionAuditoria = tipoAccionAuditoria;
+        this.usuario = usuario;
         this.fechaHora = LocalDateTime.now();
-        this.ipUsuario = "127.0.0.1";
     }
 
     public int getId() {
-        return id;
+        return idAuditoria;
+    }
+
+    public int getIdAuditoria() {
+        return idAuditoria;
     }
 
     public void setId(int id) {
-        this.id = id;
+        this.idAuditoria = id;
+    }
+
+    public void setIdAuditoria(int idAuditoria) {
+        this.idAuditoria = idAuditoria;
     }
 
     public String getEntidadAfectada() {
@@ -130,19 +130,19 @@ public class Auditoria {
         this.fechaHora = fechaHora;
     }
 
-    public Usuario getUsuario() {
-        return usuario;
-    }
-
-    public void setUsuario(Usuario usuario) {
-        this.usuario = usuario;
-    }
-
     public TipoAccionAuditoria getTipoAccionAuditoria() {
         return tipoAccionAuditoria;
     }
 
     public void setTipoAccionAuditoria(TipoAccionAuditoria tipoAccionAuditoria) {
         this.tipoAccionAuditoria = tipoAccionAuditoria;
+    }
+
+    public Usuario getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
     }
 }

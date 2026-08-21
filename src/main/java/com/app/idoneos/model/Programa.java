@@ -6,18 +6,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Representa una versión del plan de estudios de un Curso.
- * Organiza las unidades temáticas y los dictados de clases.
+ * Entidad Programa: Versión del plan de estudios de un Curso.
+ * Las Unidades se vinculan al Programa a través de la entidad Cronograma.
+ * Mapea directamente a la tabla "Programa" en base_datos.sql.
  */
 @Entity
 @Table(name = "Programa")
 public class Programa {
 
-    /** Identificador único del programa. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private int id;
+    @Column(name = "id_programa")
+    private int idPrograma;
 
     /** Nombre de la versión del programa (ej. "Edición 2026"). */
     @Column(name = "nombre", nullable = false, length = 50)
@@ -27,9 +27,17 @@ public class Programa {
     @Column(name = "descripcion", length = 150)
     private String descripcion;
 
-    /** Meses de acceso habilitados al inscribirse a un dictado de este programa. */
-    @Column(name = "meses_acceso", nullable = false)
-    private int mesesAcceso;
+    /** Objetivos de aprendizaje del programa. */
+    @Column(name = "objetivos", nullable = false, columnDefinition = "text")
+    private String objetivos;
+
+    /** Carga horaria total estimada en horas. */
+    @Column(name = "carga_horaria_total")
+    private Integer cargaHorariaTotal;
+
+    /** Bibliografía recomendada del programa. */
+    @Column(name = "bibliografia", nullable = false, columnDefinition = "text")
+    private String bibliografia;
 
     /** Fecha y hora de creación del programa. */
     @Column(name = "fecha_creacion", nullable = false)
@@ -45,34 +53,44 @@ public class Programa {
 
     /** Curso al que pertenece esta versión de programa. */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "curso_id", nullable = false)
+    @JoinColumn(name = "id_curso", nullable = false)
     private Curso curso;
 
-    /** Lista de dictados de clases organizados bajo este programa. */
+    /** Cohortes (dictados) organizados bajo este programa. */
     @OneToMany(mappedBy = "programa", cascade = CascadeType.ALL)
-    private List<Dictado> dictados = new ArrayList<>();
+    private List<Cohorte> cohortes = new ArrayList<>();
 
-    /** Lista de unidades académicas que componen el contenido de este programa. */
+    /** Entradas del cronograma que vinculan unidades a este programa. */
     @OneToMany(mappedBy = "programa", cascade = CascadeType.ALL)
-    private List<Unidad> unidades = new ArrayList<>();
+    private List<Cronograma> cronogramas = new ArrayList<>();
 
     public Programa() {
     }
 
-    public Programa(String nombre, String descripcion, int mesesAcceso, Curso curso) {
+    public Programa(String nombre, String descripcion, String objetivos, String bibliografia,
+                    Curso curso) {
         this.nombre = nombre;
         this.descripcion = descripcion;
-        this.mesesAcceso = mesesAcceso;
+        this.objetivos = objetivos;
+        this.bibliografia = bibliografia;
         this.curso = curso;
         this.fechaCreacion = LocalDateTime.now();
     }
 
     public int getId() {
-        return id;
+        return idPrograma;
+    }
+
+    public int getIdPrograma() {
+        return idPrograma;
     }
 
     public void setId(int id) {
-        this.id = id;
+        this.idPrograma = id;
+    }
+
+    public void setIdPrograma(int idPrograma) {
+        this.idPrograma = idPrograma;
     }
 
     public String getNombre() {
@@ -91,12 +109,28 @@ public class Programa {
         this.descripcion = descripcion;
     }
 
-    public int getMesesAcceso() {
-        return mesesAcceso;
+    public String getObjetivos() {
+        return objetivos;
     }
 
-    public void setMesesAcceso(int mesesAcceso) {
-        this.mesesAcceso = mesesAcceso;
+    public void setObjetivos(String objetivos) {
+        this.objetivos = objetivos;
+    }
+
+    public Integer getCargaHorariaTotal() {
+        return cargaHorariaTotal;
+    }
+
+    public void setCargaHorariaTotal(Integer cargaHorariaTotal) {
+        this.cargaHorariaTotal = cargaHorariaTotal;
+    }
+
+    public String getBibliografia() {
+        return bibliografia;
+    }
+
+    public void setBibliografia(String bibliografia) {
+        this.bibliografia = bibliografia;
     }
 
     public LocalDateTime getFechaCreacion() {
@@ -135,19 +169,19 @@ public class Programa {
         this.curso = curso;
     }
 
-    public List<Dictado> getDictados() {
-        return dictados;
+    public List<Cohorte> getCohortes() {
+        return cohortes;
     }
 
-    public void setDictados(List<Dictado> dictados) {
-        this.dictados = dictados;
+    public void setCohortes(List<Cohorte> cohortes) {
+        this.cohortes = cohortes;
     }
 
-    public List<Unidad> getUnidades() {
-        return unidades;
+    public List<Cronograma> getCronogramas() {
+        return cronogramas;
     }
 
-    public void setUnidades(List<Unidad> unidades) {
-        this.unidades = unidades;
+    public void setCronogramas(List<Cronograma> cronogramas) {
+        this.cronogramas = cronogramas;
     }
 }

@@ -4,45 +4,43 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 /**
- * Entidad Descuento: Reglas promocionales o cupones aplicables al precio de
- * inscripción de un curso.
+ * Entidad Descuento: Código o regla de descuento aplicable a pagos.
  * Mapea directamente a la tabla "Descuento" en base_datos.sql.
  */
 @Entity
 @Table(name = "Descuento")
 public class Descuento {
 
-    /** Identificador único del descuento. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private int id;
+    @Column(name = "id_descuento")
+    private int idDescuento;
 
-    /** Nombre de la promoción o cupón de descuento. */
+    /** Nombre o código identificatorio del descuento. */
     @Column(name = "nombre", nullable = false, length = 50)
     private String nombre;
 
-    /** Requisito de cantidad de cursos previos comprados para aplicar. */
+    /** Cantidad de cursos previos requeridos para aplicar el descuento. */
     @Column(name = "cursos_requeridos", nullable = false)
-    private int cursosRequeridos = 0;
+    private int cursosRequeridos;
 
-    /** Porcentaje de descuento porcentual a restar sobre el precio. */
+    /** Porcentaje de reducción sobre el precio (ej. 10.0 = 10%). */
     @Column(name = "porcentaje", nullable = false)
     private float porcentaje;
 
-    /** Fecha y hora inicial de vigencia. */
+    /** Fecha desde la cual el descuento es válido. */
     @Column(name = "vigencia_desde", nullable = false)
     private LocalDateTime vigenciaDesde;
 
-    /** Fecha y hora final de vigencia. */
+    /** Fecha hasta la cual el descuento es válido. */
     @Column(name = "vigencia_hasta", nullable = false)
     private LocalDateTime vigenciaHasta;
 
-    /** Cantidad límite de usos totales permitidos. */
+    /** Cantidad máxima de usos disponibles para el descuento. */
     @Column(name = "cantidad_limite", nullable = false)
     private int cantidadLimite;
 
-    /** Contador de cantidad de veces que el descuento ya fue aplicado. */
+    /** Cantidad de veces que el descuento ya ha sido utilizado. */
     @Column(name = "cantidad_usada", nullable = false)
     private int cantidadUsada = 0;
 
@@ -50,7 +48,7 @@ public class Descuento {
     @Column(name = "fecha_creacion", nullable = false)
     private LocalDateTime fechaCreacion = LocalDateTime.now();
 
-    /** Fecha de la última modificación de datos. */
+    /** Fecha de la última modificación. */
     @Column(name = "ultima_modificacion")
     private LocalDateTime ultimaModificacion;
 
@@ -62,11 +60,19 @@ public class Descuento {
     }
 
     public int getId() {
-        return id;
+        return idDescuento;
+    }
+
+    public int getIdDescuento() {
+        return idDescuento;
     }
 
     public void setId(int id) {
-        this.id = id;
+        this.idDescuento = id;
+    }
+
+    public void setIdDescuento(int idDescuento) {
+        this.idDescuento = idDescuento;
     }
 
     public String getNombre() {
@@ -151,12 +157,5 @@ public class Descuento {
 
     public void setBaja(boolean baja) {
         this.baja = baja;
-    }
-
-    public boolean estaVigente() {
-        LocalDateTime ahora = LocalDateTime.now();
-        return !baja && (vigenciaDesde == null || !ahora.isBefore(vigenciaDesde))
-                && (vigenciaHasta == null || !ahora.isAfter(vigenciaHasta))
-                && (cantidadLimite == 0 || cantidadUsada < cantidadLimite);
     }
 }

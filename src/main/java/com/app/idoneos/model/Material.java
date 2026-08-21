@@ -4,59 +4,51 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 /**
- * Entidad Material: Archivo o contenido de lectura genérico de una Unidad
- * (Grabación, Bibliografía, Presentación, Resumen).
+ * Entidad Material: Contenido multimedia o de lectura asociado a una Unidad.
  * Mapea directamente a la tabla "Material" en base_datos.sql.
  */
 @Entity
 @Table(name = "Material")
 public class Material {
 
-    /** Identificador único del material. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private int id;
+    @Column(name = "id_material")
+    private int idMaterial;
 
-    /** Título descriptivo del material. */
+    /** Título del material. */
     @Column(name = "titulo", nullable = false, length = 50)
     private String titulo;
 
-    /** Ruta o ubicación del archivo asociado (ej. "videos/u1_clase.mp4"). */
+    /** Ruta del archivo en el sistema de almacenamiento. */
     @Column(name = "ruta_archivo", length = 150)
     private String rutaArchivo;
 
-    /**
-     * Contenido textual si el material se presenta en texto directo (ej. Resumen).
-     */
+    /** Contenido textual o resumen del material. */
     @Column(name = "contenido", length = 500)
     private String contenido;
 
-    /** Duración en minutos (aplica a grabaciones de video). */
+    /** Duración del material en minutos (para videos/audio). */
     @Column(name = "duracion")
     private Integer duracion;
 
-    /** Nombre del autor de referencia (aplica a bibliografía). */
+    /** Nombre del autor o fuente del material. */
     @Column(name = "autor", length = 50)
     private String autor;
 
-    /** Indicador de si el contenido fue generado por Inteligencia Artificial. */
+    /** Indica si el material fue generado por IA. */
     @Column(name = "generado_por_ia", nullable = false)
     private boolean generadoPorIa = false;
 
-    /** Fecha y hora en la que se cargó o generó el material. No persiste en BD (campo transient). */
-    @Transient
-    private LocalDateTime fechaCarga = LocalDateTime.now();
+    /** Indica si el material está oculto para los alumnos. */
+    @Column(name = "oculto", nullable = false)
+    private boolean oculto = false;
 
-    /** Indicador de visibilidad pública del material para alumnos. */
-    @Column(name = "publicado", nullable = false)
-    private boolean publicado = true;
-
-    /** Fecha de creación del registro. */
+    /** Fecha de creación del material. */
     @Column(name = "fecha_creacion", nullable = false)
     private LocalDateTime fechaCreacion = LocalDateTime.now();
 
-    /** Fecha de la última modificación de datos. */
+    /** Fecha de la última modificación del registro. */
     @Column(name = "ultima_modificacion")
     private LocalDateTime ultimaModificacion;
 
@@ -64,42 +56,46 @@ public class Material {
     @Column(name = "baja", nullable = false)
     private boolean baja = false;
 
-    /** Unidad temática a la que pertenece el material. */
+    /** Docente responsable del material. */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "unidad_id", nullable = false)
-    private Unidad unidad;
+    @JoinColumn(name = "id_docente", nullable = false)
+    private Docente docente;
 
-    /**
-     * Tipo o categoría de material (Grabación, Bibliografía, Presentación,
-     * Resumen).
-     */
+    /** Tipo de material (Grabación, Bibliografía, Presentación, Resumen). */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "tipo_material_id", nullable = false)
+    @JoinColumn(name = "id_tipo_material", nullable = false)
     private TipoMaterial tipoMaterial;
 
-    /** Docente autor o responsable de la carga del material (opcional). */
+    /** Unidad temática a la que pertenece el material. */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "docente_id", nullable = true)
-    private Docente docente;
+    @JoinColumn(name = "id_unidad", nullable = false)
+    private Unidad unidad;
 
     public Material() {
     }
 
-    public Material(TipoMaterial tipoMaterial, String titulo, String rutaArchivo, Unidad unidad) {
-        this.tipoMaterial = tipoMaterial;
+    public Material(String titulo, Docente docente, TipoMaterial tipoMaterial, Unidad unidad) {
         this.titulo = titulo;
-        this.rutaArchivo = rutaArchivo;
+        this.docente = docente;
+        this.tipoMaterial = tipoMaterial;
         this.unidad = unidad;
-        this.fechaCarga = LocalDateTime.now();
         this.fechaCreacion = LocalDateTime.now();
     }
 
     public int getId() {
-        return id;
+        return idMaterial;
+    }
+
+    public int getIdMaterial() {
+        return idMaterial;
     }
 
     public void setId(int id) {
-        this.id = id;
+        this.idMaterial = id;
+    }
+
+    public void setIdMaterial(int idMaterial) {
+        this.idMaterial = idMaterial;
     }
 
     public String getTitulo() {
@@ -154,24 +150,26 @@ public class Material {
         this.generadoPorIa = generadoPorIa;
     }
 
-    public LocalDateTime getFechaCarga() {
-        return fechaCarga;
+    public boolean isOculto() {
+        return oculto;
     }
 
-    public void setFechaCarga(LocalDateTime fechaCarga) {
-        this.fechaCarga = fechaCarga;
+    public boolean getOculto() {
+        return oculto;
     }
 
+    public void setOculto(boolean oculto) {
+        this.oculto = oculto;
+    }
+
+    /** Alias de compatibilidad: getter de oculto con nombre anterior 'publicado'. */
     public boolean isPublicado() {
-        return publicado;
+        return !oculto;
     }
 
-    public boolean getPublicado() {
-        return publicado;
-    }
-
+    /** Alias de compatibilidad: setter de publicado (invertido → oculto). */
     public void setPublicado(boolean publicado) {
-        this.publicado = publicado;
+        this.oculto = !publicado;
     }
 
     public LocalDateTime getFechaCreacion() {
@@ -202,12 +200,12 @@ public class Material {
         this.baja = baja;
     }
 
-    public Unidad getUnidad() {
-        return unidad;
+    public Docente getDocente() {
+        return docente;
     }
 
-    public void setUnidad(Unidad unidad) {
-        this.unidad = unidad;
+    public void setDocente(Docente docente) {
+        this.docente = docente;
     }
 
     public TipoMaterial getTipoMaterial() {
@@ -218,19 +216,11 @@ public class Material {
         this.tipoMaterial = tipoMaterial;
     }
 
-    public Docente getDocente() {
-        return docente;
+    public Unidad getUnidad() {
+        return unidad;
     }
 
-    public void setDocente(Docente docente) {
-        this.docente = docente;
-    }
-
-    public boolean isGeneradoPorIA() {
-        return generadoPorIa;
-    }
-
-    public void setGeneradoPorIA(boolean g) {
-        this.generadoPorIa = g;
+    public void setUnidad(Unidad unidad) {
+        this.unidad = unidad;
     }
 }

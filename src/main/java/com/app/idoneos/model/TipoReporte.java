@@ -3,19 +3,17 @@ package com.app.idoneos.model;
 import jakarta.persistence.*;
 
 /**
- * Entidad TipoReporte: Catálogo de tipos de reportes de administración (Alumnos
- * inscriptos, Ingresos).
+ * Entidad TipoReporte: Catálogo de tipos de reportes de administración.
  * Mapea directamente a la tabla "TipoReporte" en base_datos.sql.
  */
 @Entity
 @Table(name = "TipoReporte")
 public class TipoReporte {
 
-    /** Identificador único del tipo de reporte. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private int id;
+    @Column(name = "id_tipo_reporte")
+    private int idTipoReporte;
 
     /** Nombre del tipo de reporte. */
     @Column(name = "nombre", nullable = false, length = 50)
@@ -29,11 +27,19 @@ public class TipoReporte {
     }
 
     public int getId() {
-        return id;
+        return idTipoReporte;
+    }
+
+    public int getIdTipoReporte() {
+        return idTipoReporte;
     }
 
     public void setId(int id) {
-        this.id = id;
+        this.idTipoReporte = id;
+    }
+
+    public void setIdTipoReporte(int idTipoReporte) {
+        this.idTipoReporte = idTipoReporte;
     }
 
     public String getNombre() {

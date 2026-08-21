@@ -4,9 +4,8 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 /**
- * Entidad Pago: registra la transacción procesada.
- * Los datos del comprobante se guardan directamente como atributos de la
- * entidad.
+ * Entidad Pago: Transacción de pago de una Inscripción.
+ * Mapea directamente a la tabla "Pago" en base_datos.sql.
  */
 @Entity
 @Table(name = "Pago")
@@ -14,37 +13,42 @@ public class Pago {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private int id;
+    @Column(name = "id_pago")
+    private int idPago;
 
+    /** Monto total cobrado. */
     @Column(name = "monto", nullable = false)
     private float monto;
 
+    /** Fecha y hora de la transacción. */
     @Column(name = "fecha", nullable = false)
     private LocalDateTime fecha = LocalDateTime.now();
 
+    /** ID de solicitud de pago (MercadoPago u otro gateway). */
     @Column(name = "payment_request_id", length = 50)
-    private String paymentRequest;
+    private String paymentRequestId;
 
+    /** ID de intención de pago externo. */
     @Column(name = "external_intention_id", length = 50, nullable = false)
     private String externalIntentionId = "";
 
+    /** Código de referencia de la transacción. */
     @Column(name = "reference_code", length = 20)
     private String referenceCode;
 
-    /** Tipo de pago (no persiste en BD; columna no definida en SQL). */
-    @Transient
-    private String tipoPago;
-
+    /** Últimos 4 dígitos de la tarjeta utilizada. */
     @Column(name = "ultimos_digitos_tarjeta", length = 4)
     private String ultimosDigitosTarjeta;
 
+    /** Detalle del estado retornado por el gateway. */
     @Column(name = "detalle_estado", length = 100)
     private String detalleEstado;
 
+    /** Fecha y hora de aprobación del pago. */
     @Column(name = "fecha_aprobacion")
     private LocalDateTime fechaAprobacion;
 
+    /** Nombre del titular pagador. */
     @Column(name = "nombre_pagador", length = 50)
     private String nombrePagador;
 
@@ -52,26 +56,37 @@ public class Pago {
     @Column(name = "dni_pagador", length = 8)
     private String dniPagador;
 
+    /** Número del comprobante de pago. */
     @Column(name = "numero_comprobante", length = 100)
     private String numeroComprobante;
 
+    /** Fecha de emisión del comprobante. */
     @Column(name = "fecha_emision_comprobante")
     private LocalDateTime fechaEmisionComprobante;
 
+    /** Indica si el comprobante fue enviado al alumno. */
     @Column(name = "comprobante_enviado", nullable = false)
     private boolean comprobanteEnviado = false;
 
+    /** Estado del pago (Pendiente, Aprobado, Rechazado). */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "inscripcion_id", nullable = false)
-    private Inscripcion inscripcion;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "estado_pago_id", nullable = false)
+    @JoinColumn(name = "id_estado_pago", nullable = false)
     private EstadoPago estadoPago;
 
+    /** Método de pago utilizado. */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "metodo_pago_id")
+    @JoinColumn(name = "id_metodo_pago", nullable = false)
     private MetodoPago metodoPago;
+
+    /** Inscripción asociada al pago. */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_inscripcion", nullable = false)
+    private Inscripcion inscripcion;
+
+    /** Descuento aplicado al pago (puede ser nulo). */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_descuento")
+    private Descuento descuento;
 
     public Pago() {
     }
@@ -84,11 +99,19 @@ public class Pago {
     }
 
     public int getId() {
-        return id;
+        return idPago;
+    }
+
+    public int getIdPago() {
+        return idPago;
     }
 
     public void setId(int id) {
-        this.id = id;
+        this.idPago = id;
+    }
+
+    public void setIdPago(int idPago) {
+        this.idPago = idPago;
     }
 
     public float getMonto() {
@@ -107,12 +130,20 @@ public class Pago {
         this.fecha = fecha;
     }
 
-    public String getPaymentRequest() {
-        return paymentRequest;
+    public String getPaymentRequestId() {
+        return paymentRequestId;
     }
 
-    public void setPaymentRequest(String paymentRequest) {
-        this.paymentRequest = paymentRequest;
+    public String getPaymentRequest() {
+        return paymentRequestId;
+    }
+
+    public void setPaymentRequestId(String paymentRequestId) {
+        this.paymentRequestId = paymentRequestId;
+    }
+
+    public void setPaymentRequest(String paymentRequestId) {
+        this.paymentRequestId = paymentRequestId;
     }
 
     public String getExternalIntentionId() {
@@ -129,14 +160,6 @@ public class Pago {
 
     public void setReferenceCode(String referenceCode) {
         this.referenceCode = referenceCode;
-    }
-
-    public String getTipoPago() {
-        return tipoPago;
-    }
-
-    public void setTipoPago(String tipoPago) {
-        this.tipoPago = tipoPago;
     }
 
     public String getUltimosDigitosTarjeta() {
@@ -207,14 +230,6 @@ public class Pago {
         this.comprobanteEnviado = comprobanteEnviado;
     }
 
-    public Inscripcion getInscripcion() {
-        return inscripcion;
-    }
-
-    public void setInscripcion(Inscripcion inscripcion) {
-        this.inscripcion = inscripcion;
-    }
-
     public EstadoPago getEstadoPago() {
         return estadoPago;
     }
@@ -231,9 +246,25 @@ public class Pago {
         this.metodoPago = metodoPago;
     }
 
-    // Aliases para compatibilidad
+    public Inscripcion getInscripcion() {
+        return inscripcion;
+    }
+
+    public void setInscripcion(Inscripcion inscripcion) {
+        this.inscripcion = inscripcion;
+    }
+
+    public Descuento getDescuento() {
+        return descuento;
+    }
+
+    public void setDescuento(Descuento descuento) {
+        this.descuento = descuento;
+    }
+
+    // Aliases de compatibilidad
     public void setPaymentId(String pId) {
-        this.paymentRequest = pId;
+        this.paymentRequestId = pId;
     }
 
     public void setPreferenceId(String pId) {

@@ -3,47 +3,54 @@ package com.app.idoneos.model;
 import jakarta.persistence.*;
 
 /**
- * Entidad Configuración: Parámetro operativo del sistema expresado en formato
- * clave-valor.
+ * Entidad Configuracion: Parámetros de configuración del sistema gestionados por Administradores.
  * Mapea directamente a la tabla "Configuracion" en base_datos.sql.
  */
 @Entity
 @Table(name = "Configuracion")
 public class Configuracion {
 
-    /** Identificador único del parámetro de configuración. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private int id;
+    @Column(name = "id_configuracion")
+    private int idConfiguracion;
 
-    /** Clave identificadora del parámetro (ej. "evaluacion.intentos_maximos"). */
+    /** Clave del parámetro de configuración. */
     @Column(name = "clave", nullable = false, length = 100)
     private String clave;
 
-    /** Valor asociado guardado como texto para soportar distintos datos. */
+    /** Valor del parámetro de configuración. */
     @Column(name = "valor", nullable = false, columnDefinition = "text")
     private String valor;
 
-    /** Administrador que registró o modificó la configuración (opcional). */
+    /** Administrador que creó o es responsable de la configuración. */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "administrador_id", nullable = true)
+    @JoinColumn(name = "id_administrador", nullable = false)
     private Administrador administrador;
 
     public Configuracion() {
     }
 
-    public Configuracion(String clave, String valor) {
+    public Configuracion(String clave, String valor, Administrador administrador) {
         this.clave = clave;
         this.valor = valor;
+        this.administrador = administrador;
     }
 
     public int getId() {
-        return id;
+        return idConfiguracion;
+    }
+
+    public int getIdConfiguracion() {
+        return idConfiguracion;
     }
 
     public void setId(int id) {
-        this.id = id;
+        this.idConfiguracion = id;
+    }
+
+    public void setIdConfiguracion(int idConfiguracion) {
+        this.idConfiguracion = idConfiguracion;
     }
 
     public String getClave() {

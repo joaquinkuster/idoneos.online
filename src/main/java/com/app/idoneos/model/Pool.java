@@ -4,19 +4,17 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 /**
- * Entidad Pool: Banco de preguntas de evaluación asociado a una Unidad
- * temática.
+ * Entidad Pool: Banco de preguntas de evaluación asociado a una Unidad temática.
  * Mapea directamente a la tabla "Pool" en base_datos.sql.
  */
 @Entity
 @Table(name = "Pool")
 public class Pool {
 
-    /** Identificador único del pool de preguntas. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private int id;
+    @Column(name = "id_pool")
+    private int idPool;
 
     /** Nombre identificatorio del banco de preguntas. */
     @Column(name = "nombre", nullable = false, length = 50)
@@ -36,7 +34,7 @@ public class Pool {
 
     /** Unidad temática a la que pertenece el pool. */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "unidad_id", nullable = false)
+    @JoinColumn(name = "id_unidad", nullable = false)
     private Unidad unidad;
 
     public Pool() {
@@ -49,11 +47,19 @@ public class Pool {
     }
 
     public int getId() {
-        return id;
+        return idPool;
+    }
+
+    public int getIdPool() {
+        return idPool;
     }
 
     public void setId(int id) {
-        this.id = id;
+        this.idPool = id;
+    }
+
+    public void setIdPool(int idPool) {
+        this.idPool = idPool;
     }
 
     public String getNombre() {

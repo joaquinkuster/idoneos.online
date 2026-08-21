@@ -3,23 +3,19 @@ package com.app.idoneos.model;
 import jakarta.persistence.*;
 
 /**
- * Entidad TítuloDocente: Título universitario o de posgrado declarado por un
- * Docente (relación 1 a N).
+ * Entidad TituloDocente: Título universitario o de posgrado declarado por un Docente.
  * Mapea directamente a la tabla "TituloDocente" en base_datos.sql.
  */
 @Entity
 @Table(name = "TituloDocente")
 public class TituloDocente {
 
-    /** Identificador único del título académico. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private int id;
+    @Column(name = "id_titulo_docente")
+    private int idTituloDocente;
 
-    /**
-     * Nombre del título universitario o técnico obtenido (ej. "Contador Público").
-     */
+    /** Nombre del título universitario o técnico obtenido. */
     @Column(name = "titulo", nullable = false, length = 100)
     private String titulo;
 
@@ -29,7 +25,7 @@ public class TituloDocente {
 
     /** Docente titular del certificado o título. */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "docente_id", nullable = false)
+    @JoinColumn(name = "id_docente", nullable = false)
     private Docente docente;
 
     public TituloDocente() {
@@ -42,11 +38,19 @@ public class TituloDocente {
     }
 
     public int getId() {
-        return id;
+        return idTituloDocente;
+    }
+
+    public int getIdTituloDocente() {
+        return idTituloDocente;
     }
 
     public void setId(int id) {
-        this.id = id;
+        this.idTituloDocente = id;
+    }
+
+    public void setIdTituloDocente(int idTituloDocente) {
+        this.idTituloDocente = idTituloDocente;
     }
 
     public String getTitulo() {

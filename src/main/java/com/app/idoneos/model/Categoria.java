@@ -4,25 +4,24 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 /**
- * Entidad Categoría: Clasificación temática de los cursos (ej. Finanzas
- * Personales, Economía).
+ * Entidad Categoria: Clasificación temática de cursos (ej. Finanzas Personales,
+ * Inversiones).
  * Mapea directamente a la tabla "Categoria" en base_datos.sql.
  */
 @Entity
 @Table(name = "Categoria")
 public class Categoria {
 
-    /** Identificador único de la categoría. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private int id;
+    @Column(name = "id_categoria")
+    private int idCategoria;
 
-    /** Nombre descriptivo de la categoría. */
+    /** Nombre de la categoría. */
     @Column(name = "nombre", nullable = false, length = 50)
     private String nombre;
 
-    /** Breve resumen del ámbito cubierto por la categoría. */
+    /** Descripción breve de la categoría. */
     @Column(name = "descripcion", length = 150)
     private String descripcion;
 
@@ -30,11 +29,11 @@ public class Categoria {
     @Column(name = "fecha_creacion", nullable = false)
     private LocalDateTime fechaCreacion = LocalDateTime.now();
 
-    /** Fecha de la última actualización del registro. */
+    /** Fecha de la última modificación. */
     @Column(name = "ultima_modificacion")
     private LocalDateTime ultimaModificacion;
 
-    /** Marca de baja lógica. */
+    /** Estado de baja lógica. */
     @Column(name = "baja", nullable = false)
     private boolean baja = false;
 
@@ -48,11 +47,19 @@ public class Categoria {
     }
 
     public int getId() {
-        return id;
+        return idCategoria;
+    }
+
+    public int getIdCategoria() {
+        return idCategoria;
     }
 
     public void setId(int id) {
-        this.id = id;
+        this.idCategoria = id;
+    }
+
+    public void setIdCategoria(int idCategoria) {
+        this.idCategoria = idCategoria;
     }
 
     public String getNombre() {
@@ -92,10 +99,6 @@ public class Categoria {
     }
 
     public boolean getBaja() {
-        return baja;
-    }
-
-    public boolean esInactivo() {
         return baja;
     }
 

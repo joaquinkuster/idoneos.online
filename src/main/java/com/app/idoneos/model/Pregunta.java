@@ -10,11 +10,10 @@ import jakarta.persistence.*;
 @Table(name = "Pregunta")
 public class Pregunta {
 
-    /** Identificador único de la pregunta. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private int id;
+    @Column(name = "id_pregunta")
+    private int idPregunta;
 
     /** Enunciado o texto de la pregunta. */
     @Column(name = "texto", nullable = false, length = 150)
@@ -30,7 +29,7 @@ public class Pregunta {
 
     /** Pool de preguntas al que pertenece esta pregunta. */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "pool_id", nullable = false)
+    @JoinColumn(name = "id_pool", nullable = false)
     private Pool pool;
 
     public Pregunta() {
@@ -43,11 +42,19 @@ public class Pregunta {
     }
 
     public int getId() {
-        return id;
+        return idPregunta;
+    }
+
+    public int getIdPregunta() {
+        return idPregunta;
     }
 
     public void setId(int id) {
-        this.id = id;
+        this.idPregunta = id;
+    }
+
+    public void setIdPregunta(int idPregunta) {
+        this.idPregunta = idPregunta;
     }
 
     public String getTexto() {
