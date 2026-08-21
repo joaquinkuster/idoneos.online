@@ -12,7 +12,13 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Implementación de servicios para la gestión de cupones de descuento (CU-47 a CU-50).
+ * TRAZABILIDAD — Implementación de servicios para la gestión comercial de Descuentos y Promociones.
+ *
+ * MOD-F-03: Módulo de Inscripciones y Pagos
+ *   CU-49 — Buscar descuento: consulta de promociones vigentes por nombre y validez temporal.
+ *   CU-50 — Registrar descuento: alta de bonificación con control de vigencia, límite y cursos requeridos.
+ *   CU-51 — Modificar descuento: edición de parámetros de descuento.
+ *   CU-52 — Dar de baja descuento: deshabilitación o baja lógica de la promoción.
  */
 @Service
 @Transactional

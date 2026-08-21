@@ -14,7 +14,17 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Implementación de servicios para la gestión del foro de consultas (CU-33 a CU-40).
+ * TRAZABILIDAD — Implementación de servicios para la interacción y moderación del foro temático.
+ *
+ * MOD-F-02: Módulo de Gestión Académica
+ *   CU-35 — Buscar consulta de foro: consulta de hilos temáticos por unidad y rango de fechas.
+ *   CU-36 — Registrar consulta de foro: publicación de inquietud con notificación automática.
+ *   CU-37 — Modificar consulta de foro: edición de consulta por el alumno autor.
+ *   CU-38 — Dar de baja consulta de foro: moderación y baja lógica por el administrador.
+ *   CU-39 — Buscar respuesta de foro: listado de respuestas dentro de un hilo de consulta.
+ *   CU-40 — Registrar respuesta de foro: réplica del docente con alerta de correo al alumno.
+ *   CU-41 — Modificar respuesta de foro: edición del texto de la respuesta.
+ *   CU-42 — Dar de baja respuesta de foro: baja lógica de respuestas inadecuadas.
  */
 @Service
 @Transactional

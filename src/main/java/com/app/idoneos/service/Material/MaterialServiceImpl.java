@@ -14,7 +14,13 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Servicio para la gestión de materiales de estudio de unidades (CU-25 a CU-28).
+ * TRAZABILIDAD — Servicio para la gestión de recursos y materiales didácticos de unidades.
+ *
+ * MOD-F-02: Módulo de Gestión Académica
+ *   CU-27 — Buscar material: consulta y filtrado de recursos por unidad, tipo y visibilidad.
+ *   CU-28 — Subir material: carga de grabaciones, bibliografía y presentaciones.
+ *   CU-29 — Modificar material: edición de títulos, enlaces y fechas de publicación.
+ *   CU-30 — Dar de baja material: baja lógica del recurso pedagógico.
  */
 @Service
 @Transactional

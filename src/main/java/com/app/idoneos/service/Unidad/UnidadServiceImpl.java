@@ -13,7 +13,13 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Servicio para la gestión de unidades temáticas (CU-19 a CU-24).
+ * TRAZABILIDAD — Servicio para la gestión pedagógica de Unidades Temáticas.
+ *
+ * MOD-F-02: Módulo de Gestión Académica
+ *   CU-19 — Buscar unidad: listado de unidades asociadas a un programa curricular.
+ *   CU-20 — Agregar unidad: creación desde cero o vinculación de unidad reutilizable existente.
+ *   CU-21 — Modificar unidad: actualización de título, descripción y contenido pedagógico.
+ *   CU-22 — Quitar unidad: desvinculación o baja de unidad dentro de la estructura del curso.
  */
 @Service
 @Transactional

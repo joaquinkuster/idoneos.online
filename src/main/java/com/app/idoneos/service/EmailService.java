@@ -13,8 +13,13 @@ import org.springframework.stereotype.Service;
 import jakarta.mail.internet.MimeMessage;
 
 /**
- * Servicio centralizado de notificaciones por correo electrónico (MOD-NF-01).
- * Corresponde a la emisión de notificaciones de los Casos de Uso (CU-75, CU-86, CU-45, CU-91, PA-1 a PA-9).
+ * TRAZABILIDAD — Servicio centralizado de notificaciones y alertas por correo electrónico.
+ *
+ * Soporta las notificaciones automáticas requeridas en los flujos de interacción:
+ * - CU-36 / CU-40: Notificaciones de nuevas consultas y respuestas en el foro.
+ * - CU-44 / CU-47: Confirmación de matrícula y comprobante digital de pago.
+ * - CU-68: Notificación de reprogramación o cancelación de clases en vivo.
+ * - CU-92: Envío de enlace seguro con token temporal para recuperación de contraseña.
  */
 @Service
 public class EmailService {

@@ -1,4 +1,4 @@
-package com.app.idoneos.service.IA;
+package com.app.idoneos.service.ClaseClonIa;
 
 import com.app.idoneos.exception.ExcepcionRecursoNoEncontrado;
 import com.app.idoneos.exception.ExcepcionValidacion;
@@ -15,7 +15,14 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Implementación de servicios para la generación de clases mediante Clon IA (CU-71 a CU-74).
+ * TRAZABILIDAD — Implementación de servicios para la síntesis de video-lecciones mediante Clones IA y Avatares.
+ *
+ * MOD-F-06: Módulo de IA y Clones Virtuales
+ *   CU-76 — Crear clon: verificación de consentimiento legal biométrico del docente.
+ *   CU-77 — Buscar clase con clon: consulta y filtrado de lecciones sintetizadas por unidad.
+ *   CU-78 — Generar clase con clon: renderizado de lección con guion mediante HeyGen API v2.
+ *   CU-79 — Modificar clase con clon: actualización de guion y título de la sesión.
+ *   CU-80 — Dar de baja clase con clon: baja lógica de la clase con clon.
  */
 @Service
 @Transactional

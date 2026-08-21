@@ -13,8 +13,13 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Servicio para la gestión de intentos de autoevaluación (CU-59 y CU-60).
- * Sortea preguntas aleatoriamente de los pools asociados, corrige automáticamente y calcula la calificación final.
+ * TRAZABILIDAD — Servicio para la rendición, sorteo y corrección de Intentos de Autoevaluación.
+ *
+ * MOD-F-04: Módulo de Evaluaciones y Rendición
+ *   CU-61 — Buscar intento de autoevaluación: consulta de intentos por examen, alumno, fechas y resultado.
+ *   CU-62 — Ver calificaciones: compilación de calificaciones y estado de aprobación de exámenes.
+ *   CU-63 — Realizar intento de autoevaluación: sorteo aleatorio de preguntas, captura de respuestas y calificación automática.
+ *   CU-64 — Dar de baja intento de autoevaluación: anulación y baja lógica de un intento.
  */
 @Service
 @Transactional

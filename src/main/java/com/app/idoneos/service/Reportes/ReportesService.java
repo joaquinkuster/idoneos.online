@@ -13,13 +13,12 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Servicio central del Módulo de Reportes y Estadísticas.
- * Implementa la lógica de negocio para:
- * - CU-87: Generar informe de alumnos de un curso
- * - CU-88: Generar informe de ingresos de un curso
- * - CU-89: Consultar estadísticas (panel ejecutivo)
+ * TRAZABILIDAD — Servicio central del Módulo de Reportes Ejecutivos y Métricas Estadísticas.
  *
- * Todos los datos provienen de tablas reales: Inscripcion, Pago, Alumno, Curso, EstadoPago, Descuento.
+ * MOD-NF-03: Módulo de Reportes y Estadísticas
+ *   CU-96 — Generar informe de alumnos de un curso: consolidación y exportación en PDF de métricas de cursada.
+ *   CU-97 — Generar informe de ingresos de un curso: consolidación financiera y exportación en PDF de recaudación.
+ *   CU-98 — Consultar estadísticas: métricas, KPIs globales y gráficos ejecutivos del sistema en tiempo real.
  */
 @Service
 public class ReportesService {

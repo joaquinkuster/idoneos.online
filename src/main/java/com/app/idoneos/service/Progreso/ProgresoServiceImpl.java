@@ -13,7 +13,10 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Servicio para el seguimiento y porcentaje de progreso del alumno en la cursada (CU-46: Buscar progreso).
+ * TRAZABILIDAD — Servicio para el seguimiento y cálculo del porcentaje de avance del alumno en la cursada.
+ *
+ * MOD-F-03: Módulo de Inscripciones y Pagos
+ *   CU-48 — Buscar progreso: consulta y registro de unidades pedagógicas completadas por el estudiante.
  */
 @Service
 @Transactional

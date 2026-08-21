@@ -13,7 +13,13 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Implementación de servicios para la gestión de términos del glosario técnico (CU-29 a CU-32).
+ * TRAZABILIDAD — Implementación de servicios para la administración del Glosario de Términos Financieros.
+ *
+ * MOD-F-02: Módulo de Gestión Académica
+ *   CU-31 — Buscar término de glosario: consulta de conceptos técnicos asociados a una unidad temática.
+ *   CU-32 — Registrar término de glosario: creación de nueva definición conceptual.
+ *   CU-33 — Modificar término de glosario: actualización del término y su significado.
+ *   CU-34 — Dar de baja término de glosario: baja lógica del concepto.
  */
 @Service
 @Transactional

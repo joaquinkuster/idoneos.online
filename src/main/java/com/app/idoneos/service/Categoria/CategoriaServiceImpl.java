@@ -16,8 +16,13 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Servicio para la gestión del catálogo de categorías de cursos.
- * Implementa las reglas de negocio en español para los Casos de Uso CU-06 a CU-09.
+ * TRAZABILIDAD — Implementación del servicio para la gestión del catálogo de categorías temáticas.
+ *
+ * MOD-F-01: Módulo de Cursos
+ *   CU-07 — Buscar categoría: consulta de categorías activas por ID o nombre.
+ *   CU-08 — Registrar categoría: alta de nueva categoría con validación de unicidad de nombre.
+ *   CU-09 — Modificar categoría: edición de nombre y descripción.
+ *   CU-10 — Dar de baja categoría: baja lógica con validación de cursos activos asociados.
  */
 @Service
 @Transactional
@@ -115,7 +120,8 @@ public class CategoriaServiceImpl implements CategoriaService, CrudService<Categ
         darDeBaja(categoria.getId());
     }
 
-    public void darDeBaja(int categoriaId) {
+    @Override
+    public void darDeBaja(Integer categoriaId) {
         Categoria categoria = categoriaRepository.findById(categoriaId)
                 .orElseThrow(() -> new ExcepcionRecursoNoEncontrado("Categoría", "id", categoriaId));
 

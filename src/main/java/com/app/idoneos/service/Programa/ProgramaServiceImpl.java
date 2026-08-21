@@ -17,7 +17,13 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Implementación de servicios para la gestión de programas de estudio (CU-10 a CU-14).
+ * TRAZABILIDAD — Implementación de servicios para la gestión de programas de estudio y diseño curricular.
+ *
+ * MOD-F-02: Módulo de Gestión Académica
+ *   CU-15 — Buscar programa: consulta del programa vigente o búsqueda histórica por curso.
+ *   CU-16 — Registrar programa: creación de versión curricular desde cero o a partir de un programa base previo.
+ *   CU-17 — Modificar programa: edición de contenidos, carga horaria y bibliografía.
+ *   CU-18 — Dar de baja programa: baja lógica con validación de cohortes activas.
  */
 @Service
 @Transactional

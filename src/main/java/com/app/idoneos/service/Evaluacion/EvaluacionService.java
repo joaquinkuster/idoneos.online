@@ -10,7 +10,17 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Servicio para gestionar pools de preguntas, preguntas, opciones y autoevaluaciones.
+ * TRAZABILIDAD — Servicio para la administración de Pools de Preguntas y Configuración de Autoevaluaciones.
+ *
+ * MOD-F-04: Módulo de Evaluaciones y Rendición
+ *   CU-53 — Buscar pool: listado y filtrado de bancos de preguntas por unidad.
+ *   CU-54 — Crear pool: alta de banco con preguntas y opciones de respuesta múltiple / V-F.
+ *   CU-55 — Modificar pool: edición del pool, agregado y baja de preguntas y opciones.
+ *   CU-56 — Dar de baja pool: baja lógica de bancos de evaluación.
+ *   CU-57 — Buscar autoevaluación: consulta de exámenes por unidad y nombre.
+ *   CU-58 — Crear autoevaluación: configuración de tiempo límite, fechas y asociación de pools.
+ *   CU-59 — Modificar autoevaluación: edición general con control de intentos activos.
+ *   CU-60 — Dar de baja autoevaluación: baja lógica de la instancia evaluativa.
  */
 @Service
 public class EvaluacionService {

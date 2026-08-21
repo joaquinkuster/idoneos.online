@@ -10,7 +10,11 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
- * Servicio para emitir y consultar certificados digitales de aprobación de curso (CU-91: Emitir certificado de aprobación).
+ * TRAZABILIDAD — Servicio para la emisión y verificación de Certificados Digitales Académicos.
+ *
+ * MOD-F-03: Módulo de Inscripciones y Pagos
+ *   CU-43 — Buscar inscripción (Emisión de certificado): emisión del diploma digital acreditado
+ *           con código correlativo único infalsificable (formato CERT-YYYY-000000).
  */
 @Service
 @Transactional
