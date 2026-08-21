@@ -13,19 +13,50 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 /**
- * Controller para la Administración Central del Sistema.
- * Implementa: CU-01 — Buscar curso, CU-02 — Registrar curso, CU-03 — Modificar curso,
- * CU-04 — Eliminar curso, CU-06 — Buscar categoría, CU-07 — Registrar categoría,
- * CU-08 — Modificar categoría, CU-09 — Eliminar categoría, CU-76 — Buscar usuario,
- * CU-77 — Registrar usuario, CU-78 — Modificar usuario, CU-79 — Dar de baja usuario,
- * CU-82 — Registrar docente, CU-83 — Modificar docente,
- * CU-87 — Buscar sesión, CU-88 — Eliminar sesión, CU-89 — Consultar auditoría.
- * Aplica reglas de negocio: RN-07 (Al menos 1 admin activo) y RN-11 (Docente titular con cursos publicados).
+ * TRAZABILIDAD — Controller para la Administración Central del Sistema.
+ *
+ * MOD-F-01: Módulo de Cursos
+ *   CU-01 — Buscar curso        → GET /admin/cursos
+ *   CU-03 — Registrar curso     → GET /admin/cursos/nuevo + POST /admin/cursos/guardar
+ *   CU-04 — Modificar curso     → GET /admin/cursos/{id}/editar + POST /admin/cursos/{id}/editar
+ *   CU-05 — Dar de baja curso   → POST /admin/cursos/{id}/baja (toggle baja)
+ *             Nota parcial: CU-05 exige verificar programas activos antes de la baja;
+ *             la implementación actual hace toggle directo sin esa verificación. IMPLEMENTADO PARCIALMENTE.
+ *   CU-07 — Buscar categoría    → GET /admin/categorias
+ *   CU-08 — Registrar categoría → POST /admin/categorias/guardar
+ *             Nota: CU-08 exige validar unicidad de nombre; no implementado aquí. IMPLEMENTADO PARCIALMENTE.
+ *   CU-09 — Modificar categoría → no implementado. FALTANTE.
+ *   CU-10 — Dar de baja categoría → no implementado. FALTANTE.
+ *
+ * MOD-NF-01: Módulo de Usuarios y Notificaciones
+ *   CU-82 — Buscar usuario      → GET /admin/usuarios
+ *   CU-83 — Registrar usuario   → GET/POST /admin/usuarios/nuevo + /admin/usuarios/guardar
+ *             Nota: CU-83 requiere también ejecutar CU-88 (Registrar docente) cuando el rol
+ *             es Docente; la implementación actual solo crea el Usuario sin los datos del perfil
+ *             docente requeridos (biografía, títulos, matrícula). IMPLEMENTADO PARCIALMENTE.
+ *   CU-85 — Dar de baja usuario → POST /admin/usuarios/{id}/baja
+ *             Regla RN-07 (único admin activo) implementada.
+ *             Nota crítica: la verificación de docente con cohortes vigentes usa entidades
+ *             obsoletas (DictadoDocente/Dictado) del esquema anterior; debería usar
+ *             Supervisor/Cohorte. IMPLEMENTADO CON ENTIDADES OBSOLETAS.
+ *   CU-88 — Registrar docente   → no implementado como CU separado. FALTANTE.
+ *   CU-89 — Modificar docente   → no implementado. FALTANTE.
+ *
+ * MOD-NF-02: Módulo de Auditoría
+ *   CU-95 — Consultar auditoría → GET /admin (dashboard con indicadores)
+ *             Nota: la consulta completa de auditoría está en AuditoriaController. PARCIAL AQUÍ.
+ *
+ * INCONSISTENCIAS CON EL ESQUEMA ACTUAL (para corrección futura, MODEL NO SE TOCA):
+ *   - AdminController inyecta DictadoDocenteRepository y DictadoRepository que corresponden
+ *     al esquema anterior (Dictado/DictadoDocente). En el nuevo esquema estas relaciones
+ *     se modelan con Cohorte → Cronograma → Supervisor. Requiere refactor del controller.
+ *   - AdminController usa RolUsuario (enum) que fue reemplazado por la entidad Rol en el nuevo esquema.
+ *
+ * Aplica reglas de negocio: RN-07 (Al menos 1 admin activo), RN-11 (Docente titular con cursos publicados).
  */
 @Controller
 @RequestMapping("/admin")
@@ -35,6 +66,8 @@ public class AdminController {
     @Autowired private CursoServiceImpl cursoService;
     @Autowired private CategoriaServiceImpl categoriaService;
     @Autowired private DocenteRepository docenteRepository;
+    // NOTA: DictadoDocenteRepository y DictadoRepository corresponden al esquema anterior.
+    // En el nuevo esquema usar SupervisorRepository y CohorteRepository.
     @Autowired private DictadoDocenteRepository dictadoDocenteRepository;
     @Autowired private ProgramaRepository programaRepository;
     @Autowired private DictadoRepository dictadoRepository;
@@ -44,7 +77,11 @@ public class AdminController {
     @Autowired private EmailService emailService;
 
     /**
-     * CU-89 — Consultar auditoría (Dashboard principal de indicadores).
+     * TRAZABILIDAD: CU-95 — Consultar auditoría (Dashboard principal con indicadores del sistema).
+     * CU-98 — Consultar estadísticas.
+     * Actor: Administrador.
+     * Precondición: sesión iniciada con rol Administrador.
+     * Flujo paso 2 y 3: recupera y muestra indicadores (cursos, usuarios, categorías, inscripciones, ingresos).
      */
     @GetMapping
     public String verPanelAdmin(Model model, Authentication auth) {
@@ -64,7 +101,10 @@ public class AdminController {
     }
 
     /**
-     * CU-76 — Buscar usuario.
+     * TRAZABILIDAD: CU-82 — Buscar usuario.
+     * Actor: Administrador.
+     * Precondición: sesión iniciada con rol Administrador. Existe al menos un usuario.
+     * Flujo paso 4-5: recupera y lista todos los usuarios del sistema.
      */
     @GetMapping("/usuarios")
     public String listarUsuarios(Model model, Authentication auth) {
@@ -75,18 +115,30 @@ public class AdminController {
     }
 
     /**
-     * CU-77 — Registrar usuario / CU-82 — Registrar docente.
+     * TRAZABILIDAD: CU-83 — Registrar usuario (formulario GET).
+     * TRAZABILIDAD: CU-88 — Registrar docente (cuando el rol seleccionado es Docente).
+     * Actor: Administrador.
+     * Flujo paso 2: el sistema solicita nombre, apellido, correo, DNI, teléfono y rol.
+     * NOTA PARCIAL: la vista no solicita datos del perfil docente (biografía, títulos, matrícula)
+     * requeridos por CU-88. Implementado parcialmente.
      */
     @GetMapping("/usuarios/nuevo")
     public String nuevoUsuarioForm(Model model, Authentication auth) {
         model.addAttribute("usuario", (Usuario) auth.getPrincipal());
+        // NOTA: RolUsuario es un enum del esquema anterior; en el nuevo esquema Rol es una entidad.
         model.addAttribute("roles", RolUsuario.values());
         model.addAttribute("titulo", "Nuevo Usuario | Idóneos Online");
         return "pages/admin/nuevo-usuario";
     }
 
     /**
-     * CU-77 — Registrar usuario / CU-82 — Registrar docente.
+     * TRAZABILIDAD: CU-83 — Registrar usuario (POST).
+     * TRAZABILIDAD: CU-88 — Registrar docente (cuando rol == Docente).
+     * Actor: Administrador.
+     * Flujo paso 4-6: valida campos obligatorios, unicidad de correo, registra la cuenta.
+     * EX-CU83-01: correo ya registrado → redirect con mensaje.
+     * Postcondición: cuenta registrada con el rol indicado.
+     * NOTA PARCIAL: CU-88 requiere datos adicionales del perfil docente no capturados aquí.
      */
     @PostMapping("/usuarios/guardar")
     public String guardarUsuario(@RequestParam String nombre,
@@ -97,7 +149,7 @@ public class AdminController {
                                  RedirectAttributes redirectAttributes) {
 
         if (usuarioService.buscarPorCorreo(correo).isPresent()) {
-            redirectAttributes.addFlashAttribute("mensaje", "EX-CU77-01: El correo electrónico ya está registrado.");
+            redirectAttributes.addFlashAttribute("mensaje", "EX-CU83-01: El correo electrónico ya está registrado.");
             return "redirect:/admin/usuarios/nuevo";
         }
 
@@ -114,10 +166,17 @@ public class AdminController {
     }
 
     /**
-     * CU-79 — Dar de baja usuario.
-     * Reglas de negocio:
-     * - RN-07: Impide la baja del único administrador activo.
-     * - RN-11: Impide la baja de un docente titular con cursos publicados.
+     * TRAZABILIDAD: CU-85 — Dar de baja usuario.
+     * Actor: Administrador.
+     * Flujo paso 2: valida que existan otros admins activos (RN-07).
+     * Flujo paso 3: verifica que el docente no tenga cohortes vigentes.
+     *   NOTA CRÍTICA: usa DictadoDocenteRepository/DictadoDocente del esquema ANTERIOR.
+     *   En el esquema nuevo corresponde verificar con SupervisorRepository y CohorteRepository.
+     *   Estado: IMPLEMENTADO CON ENTIDADES OBSOLETAS — requiere refactor.
+     * Flujo paso 4: advierte al alumno con inscripciones vigentes (no implementado, ver paso 4 del CU).
+     * Postcondición: cuenta en baja, sesiones cerradas (cierre de sesión no implementado).
+     * EX-CU85-01 (RN-07): único admin activo → no permite baja.
+     * EX-CU85-02 (RN-11): docente con cursos publicados → no permite baja.
      */
     @PostMapping("/usuarios/{id}/baja")
     public String darBajaUsuario(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
@@ -134,11 +193,13 @@ public class AdminController {
             }
         }
 
+        // NOTA: la verificación de docente con cursos publicados usa entidades obsoletas (Dictado/DictadoDocente).
+        // Requiere refactor para usar Cohorte/Supervisor del nuevo esquema.
         if (u.getRol() == RolUsuario.Docente && !u.getBaja() && u.getDocente() != null) {
             boolean tieneCursosPublicados = dictadoDocenteRepository.findByDocente(u.getDocente()).stream()
-                    .anyMatch(dd -> !dd.isEsSupervisor() && dd.getDictado() != null 
-                            && dd.getDictado().getPrograma() != null 
-                            && dd.getDictado().getPrograma().getCurso() != null 
+                    .anyMatch(dd -> !dd.isEsSupervisor() && dd.getDictado() != null
+                            && dd.getDictado().getPrograma() != null
+                            && dd.getDictado().getPrograma().getCurso() != null
                             && Boolean.TRUE.equals(dd.getDictado().getPrograma().getCurso().getPublicado()));
             if (tieneCursosPublicados) {
                 redirectAttributes.addFlashAttribute("mensaje",
@@ -155,7 +216,12 @@ public class AdminController {
     private boolean cOptEsVacio(Optional<?> opt) { return opt.isEmpty(); }
 
     /**
-     * CU-01 — Buscar curso.
+     * TRAZABILIDAD: CU-01 — Buscar curso.
+     * Actor: Administrador.
+     * Precondición: sesión iniciada con rol Administrador. Existe al menos un curso.
+     * Flujo paso 4-5: recupera y lista todos los cursos (sin filtro; criterios de búsqueda no implementados).
+     * NOTA PARCIAL: CU-01 especifica filtros por nombre, categoría, nivel, equipo docente y modalidad.
+     * La implementación lista todo sin filtros. IMPLEMENTADO PARCIALMENTE.
      */
     @GetMapping("/cursos")
     public String listarCursos(Model model, Authentication auth) {
@@ -166,7 +232,10 @@ public class AdminController {
     }
 
     /**
-     * CU-02 — Registrar curso.
+     * TRAZABILIDAD: CU-03 — Registrar curso (formulario GET).
+     * Actor: Administrador.
+     * Flujo paso 2: el sistema solicita nombre, descripción, precio, categoría, docente titular/supervisor.
+     * NOTA PARCIAL: CU-03 también solicita nivel, si emite certificado y modalidades. No implementado.
      */
     @GetMapping("/cursos/nuevo")
     public String nuevoCursoForm(Model model, Authentication auth) {
@@ -178,7 +247,16 @@ public class AdminController {
     }
 
     /**
-     * CU-02 — Registrar curso.
+     * TRAZABILIDAD: CU-03 — Registrar curso (POST).
+     * Actor: Administrador.
+     * Flujo paso 4-6: valida campos obligatorios (nombre, descripción, precio, categoría, docente),
+     *   registra el curso con Programa y Dictado (usando esquema anterior — ver nota).
+     * Postcondición: curso registrado con su equipo docente.
+     * EX-CU03-01: categoría inválida → redirect con mensaje.
+     * EX-CU03-01: docente inválido → redirect con mensaje.
+     * NOTA CRÍTICA: utiliza Dictado/DictadoDocente del esquema ANTERIOR.
+     *   En el nuevo esquema corresponde crear Programa + Cohorte + Cronograma + Supervisor.
+     *   Estado: IMPLEMENTADO CON ENTIDADES OBSOLETAS — requiere refactor.
      */
     @PostMapping("/cursos/guardar")
     public String guardarCurso(@RequestParam String nombre,
@@ -191,12 +269,12 @@ public class AdminController {
                                RedirectAttributes ra) {
         Optional<Categoria> catOpt = categoriaService.buscarPorId(categoriaId);
         if (catOpt.isEmpty()) {
-            ra.addFlashAttribute("mensaje", "EX-CU02-01: Categoría seleccionada inválida.");
+            ra.addFlashAttribute("mensaje", "EX-CU03-01: Categoría seleccionada inválida.");
             return "redirect:/admin/cursos/nuevo";
         }
         Optional<Docente> docenteTitularOpt = docenteRepository.findById(docenteTitularId);
         if (docenteTitularOpt.isEmpty()) {
-            ra.addFlashAttribute("mensaje", "EX-CU02-01: Docente titular seleccionado inválido.");
+            ra.addFlashAttribute("mensaje", "EX-CU03-01: Docente titular seleccionado inválido.");
             return "redirect:/admin/cursos/nuevo";
         }
 
@@ -204,8 +282,10 @@ public class AdminController {
         curso.setMesesAcceso(mesesAcceso);
         Curso cursoDef = cursoService.guardar(curso);
 
+        // NOTA: Programa + Dictado + DictadoDocente son del esquema anterior.
+        // Nuevo esquema: Programa + Cohorte + Cronograma + Supervisor.
         Programa prog = programaRepository.save(new Programa(nombre, descripcion, mesesAcceso, cursoDef));
-        Dictado dictado = dictadoRepository.save(new Dictado(LocalDateTime.now(), LocalDateTime.now().plusMonths(6), 50, prog));
+        Dictado dictado = dictadoRepository.save(new Dictado(java.time.LocalDateTime.now(), java.time.LocalDateTime.now().plusMonths(6), 50, prog));
 
         dictadoDocenteRepository.save(new DictadoDocente(dictado, docenteTitularOpt.get(), false));
         if (docenteSupervisorId != null && !docenteSupervisorId.equals(docenteTitularId)) {
@@ -217,14 +297,17 @@ public class AdminController {
     }
 
     /**
-     * CU-03 — Modificar curso.
+     * TRAZABILIDAD: CU-04 — Modificar curso (formulario GET).
+     * Actor: Administrador.
+     * Flujo paso 2: muestra datos actuales del curso con sus asignaciones docentes.
+     * NOTA CRÍTICA: usa DictadoDocente del esquema anterior.
      */
     @GetMapping("/cursos/{id}/editar")
     public String editarCursoForm(@PathVariable Integer id, Model model, Authentication auth) {
         Optional<Curso> cOpt = cursoService.buscarPorId(id);
         if (cOpt.isEmpty()) return "redirect:/admin/cursos";
         Curso curso = cOpt.get();
-        
+
         List<DictadoDocente> asignaciones = dictadoDocenteRepository.findAll().stream()
                 .filter(dd -> dd.getDictado() != null && dd.getDictado().getPrograma() != null && dd.getDictado().getPrograma().getCurso().getId() == curso.getId())
                 .toList();
@@ -239,7 +322,14 @@ public class AdminController {
     }
 
     /**
-     * CU-03 — Modificar curso.
+     * TRAZABILIDAD: CU-04 — Modificar curso (POST).
+     * Actor: Administrador.
+     * Flujo paso 4-7: valida campos, actualiza el curso con categoría y docentes.
+     * Postcondición: curso actualizado con equipo docente.
+     * EX-CU04-01: categoría inválida → redirect con mensaje.
+     * NOTA PARCIAL: CU-04 verifica si hay cohortes con inscripción vigente para restringir
+     *   qué campos pueden modificarse. Verificación no implementada.
+     * NOTA CRÍTICA: usa Dictado/DictadoDocente del esquema anterior.
      */
     @PostMapping("/cursos/{id}/editar")
     public String guardarEdicionCurso(@PathVariable Integer id,
@@ -254,7 +344,7 @@ public class AdminController {
         Optional<Curso> cOpt = cursoService.buscarPorId(id);
         if (cOpt.isEmpty()) return "redirect:/admin/cursos";
         Optional<Categoria> catOpt = categoriaService.buscarPorId(categoriaId);
-        if (catOpt.isEmpty()) { ra.addFlashAttribute("mensaje", "EX-CU03-01: Categoría inválida."); return "redirect:/admin/cursos/" + id + "/editar"; }
+        if (catOpt.isEmpty()) { ra.addFlashAttribute("mensaje", "EX-CU04-01: Categoría inválida."); return "redirect:/admin/cursos/" + id + "/editar"; }
 
         Curso curso = cOpt.get();
         curso.setNombre(nombre);
@@ -264,10 +354,11 @@ public class AdminController {
         curso.setMesesAcceso(mesesAcceso);
         cursoService.modificar(curso);
 
+        // NOTA: usa Dictado/DictadoDocente del esquema anterior.
         List<Programa> progs = programaRepository.findByCurso(curso);
         Programa prog = progs.isEmpty() ? programaRepository.save(new Programa(nombre, descripcion, mesesAcceso, curso)) : progs.get(0);
         List<Dictado> dicts = dictadoRepository.findByPrograma(prog);
-        Dictado dictado = dicts.isEmpty() ? dictadoRepository.save(new Dictado(LocalDateTime.now(), LocalDateTime.now().plusMonths(6), 50, prog)) : dicts.get(0);
+        Dictado dictado = dicts.isEmpty() ? dictadoRepository.save(new Dictado(java.time.LocalDateTime.now(), java.time.LocalDateTime.now().plusMonths(6), 50, prog)) : dicts.get(0);
 
         dictadoDocenteRepository.deleteByDictado(dictado);
         docenteRepository.findById(docenteTitularId).ifPresent(d ->
@@ -281,7 +372,11 @@ public class AdminController {
     }
 
     /**
-     * CU-04 — Eliminar curso.
+     * TRAZABILIDAD: CU-05 — Dar de baja curso.
+     * Actor: Administrador.
+     * Flujo paso 4: marca el curso como dado de baja (toggle).
+     * NOTA PARCIAL: CU-05 exige verificar que no existan programas activos asociados antes de la baja.
+     *   La implementación actual hace un toggle directo sin esa verificación. IMPLEMENTADO PARCIALMENTE.
      */
     @PostMapping("/cursos/{id}/baja")
     public String darBajaCurso(@PathVariable Integer id, RedirectAttributes ra) {
@@ -296,7 +391,10 @@ public class AdminController {
     }
 
     /**
-     * CU-03 — Modificar curso (Cambiar estado de publicación).
+     * TRAZABILIDAD: CU-04 — Modificar curso (cambiar estado de publicación).
+     * Actor: Administrador.
+     * Flujo paso 7: actualiza el flag publicado del curso.
+     * Postcondición: curso publicado o despublicado según el estado anterior.
      */
     @PostMapping("/cursos/{id}/publicar")
     public String publicarCurso(@PathVariable Integer id, RedirectAttributes ra) {
@@ -311,7 +409,11 @@ public class AdminController {
     }
 
     /**
-     * CU-06 — Buscar categoría.
+     * TRAZABILIDAD: CU-07 — Buscar categoría.
+     * Actor: Administrador.
+     * Precondición: sesión iniciada con rol Administrador. Existe al menos una categoría.
+     * Flujo paso 4-5: recupera y lista todas las categorías (sin filtro por nombre).
+     * NOTA PARCIAL: CU-07 especifica búsqueda por nombre. Lista todo sin filtros. IMPLEMENTADO PARCIALMENTE.
      */
     @GetMapping("/categorias")
     public String listarCategorias(Model model, Authentication auth) {
@@ -322,7 +424,12 @@ public class AdminController {
     }
 
     /**
-     * CU-07 — Registrar categoría.
+     * TRAZABILIDAD: CU-08 — Registrar categoría.
+     * Actor: Administrador.
+     * Flujo paso 4-5: crea y guarda la categoría.
+     * Postcondición: categoría registrada en estado activo.
+     * NOTA PARCIAL: CU-08 exige validar unicidad de nombre (que no exista otra categoría activa
+     *   con el mismo nombre). No implementado aquí. IMPLEMENTADO PARCIALMENTE.
      */
     @PostMapping("/categorias/guardar")
     public String guardarCategoria(@RequestParam String nombre,

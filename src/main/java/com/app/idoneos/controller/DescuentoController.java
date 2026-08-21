@@ -15,7 +15,28 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 /**
- * Controller para la gestión de descuentos y cupones promocionales (CU-47 a CU-50).
+ * TRAZABILIDAD — Controller para la gestión de descuentos y cupones promocionales.
+ *
+ * MOD-F-03: Módulo de Inscripciones y Pagos
+ *   CU-49 — Buscar descuento      → GET /admin/descuentos
+ *             Lista todos los descuentos (activos e inactivos).
+ *   CU-50 — Registrar descuento   → POST /admin/descuentos/crear
+ *             Actor: Administrador. Postcondición: descuento registrado con % y vigencia.
+ *   CU-51 — Modificar descuento   → GET/POST /admin/descuentos/{id}/editar
+ *             Actor: Administrador.
+ *   CU-52 — Dar de baja descuento → POST /admin/descuentos/{id}/eliminar
+ *                                    POST /admin/descuentos/{id}/toggle-baja (toggle)
+ *             Actor: Administrador.
+ *
+ * NOTAS DE COBERTURA:
+ *   CU-49 paso 4-5: lista todos los descuentos. No implementa filtros por vigencia ni nombre.
+ *   CU-50 paso 4: valida porcentaje (1-100%) y coherencia de fechas (EX-CU50-01, EX-CU50-02).
+ *   CU-51 paso 4-5: valida mismas reglas de negocio que CU-50.
+ *   CU-52: implementa tanto la baja definitiva (/eliminar) como el toggle activo/inactivo (/toggle-baja).
+ *
+ * Aplica reglas de negocio:
+ *   RN-CU50-01: El porcentaje debe estar entre 1% y 100%.
+ *   RN-CU50-02: La fecha de fin de vigencia debe ser posterior a la inicial.
  */
 @Controller
 @RequestMapping("/admin/descuentos")
@@ -24,7 +45,13 @@ public class DescuentoController {
     @Autowired
     private DescuentoRepository descuentoRepo;
 
-    /** CU-47 — Consultar / listar descuentos. */
+    /**
+     * TRAZABILIDAD: CU-49 — Buscar descuento.
+     * Actor: Administrador.
+     * Precondición: sesión con rol Administrador. Existe al menos un descuento.
+     * Flujo paso 4-5: recupera y lista todos los descuentos del sistema.
+     * NOTA PARCIAL: CU-49 especifica filtros por nombre y vigencia. No implementados.
+     */
     @GetMapping
     public String listarDescuentos(Model model, Authentication auth) {
         model.addAttribute("usuario", (Usuario) auth.getPrincipal());
@@ -34,10 +61,13 @@ public class DescuentoController {
     }
 
     /**
-     * CU-48 — Registrar nuevo descuento / cupón promocional.
-     * Reglas de negocio:
-     * - Porcentaje entre 1% y 100% (Excepción CU-48, paso 4).
-     * - Coherencia de rango de vigencia (Excepción CU-48, paso 5).
+     * TRAZABILIDAD: CU-50 — Registrar descuento.
+     * Actor: Administrador.
+     * Precondición: sesión con rol Administrador.
+     * Flujo paso 3-5: valida porcentaje y coherencia de fechas; registra el descuento.
+     * Postcondición: descuento registrado en estado activo.
+     * EX-CU50-01 (paso 4): porcentaje fuera de rango [1, 100] → redirect con mensaje.
+     * EX-CU50-02 (paso 5): fecha de fin anterior a fecha de inicio → redirect con mensaje.
      */
     @PostMapping("/crear")
     public String crearDescuento(@RequestParam String nombre,
@@ -49,11 +79,11 @@ public class DescuentoController {
                                  RedirectAttributes ra) {
 
         if (porcentaje < 1 || porcentaje > 100) {
-            ra.addFlashAttribute("mensaje", "CU-48 Excepción paso 4: El porcentaje debe estar entre 1% y 100%.");
+            ra.addFlashAttribute("mensaje", "EX-CU50-01: El porcentaje debe estar entre 1% y 100%.");
             return "redirect:/admin/descuentos";
         }
         if (vigenciaHasta.isBefore(vigenciaDesde)) {
-            ra.addFlashAttribute("mensaje", "CU-48 Excepción paso 5: La fecha de fin de vigencia debe ser posterior a la inicial.");
+            ra.addFlashAttribute("mensaje", "EX-CU50-02: La fecha de fin de vigencia debe ser posterior a la inicial.");
             return "redirect:/admin/descuentos";
         }
 
@@ -71,7 +101,12 @@ public class DescuentoController {
         return "redirect:/admin/descuentos";
     }
 
-    /** CU-49 — Modificar descuento (formulario). */
+    /**
+     * TRAZABILIDAD: CU-51 — Modificar descuento (formulario GET).
+     * Actor: Administrador.
+     * Precondición: el descuento existe.
+     * Flujo paso 2: muestra los datos actuales del descuento para su edición.
+     */
     @GetMapping("/{id}/editar")
     public String editarDescuentoForm(@PathVariable Integer id, Model model, Authentication auth) {
         Optional<Descuento> dOpt = descuentoRepo.findById(id);
@@ -82,7 +117,14 @@ public class DescuentoController {
         return "pages/admin/editar-descuento";
     }
 
-    /** CU-49 — Modificar descuento (guardar cambios). */
+    /**
+     * TRAZABILIDAD: CU-51 — Modificar descuento (guardar cambios).
+     * Actor: Administrador.
+     * Flujo paso 4-6: valida porcentaje y coherencia de fechas; guarda los cambios.
+     * Postcondición: descuento actualizado.
+     * EX-CU51-01 (paso 4): porcentaje fuera de rango → redirect con mensaje.
+     * EX-CU51-02 (paso 5): fecha de fin anterior a inicio → redirect con mensaje.
+     */
     @PostMapping("/{id}/editar")
     public String guardarEdicionDescuento(@PathVariable Integer id,
                                           @RequestParam String nombre,
@@ -94,8 +136,8 @@ public class DescuentoController {
                                           RedirectAttributes ra) {
         Optional<Descuento> dOpt = descuentoRepo.findById(id);
         if (dOpt.isEmpty()) { ra.addFlashAttribute("mensaje", "Descuento no encontrado."); return "redirect:/admin/descuentos"; }
-        if (porcentaje < 1 || porcentaje > 100) { ra.addFlashAttribute("mensaje", "CU-49 Excepción paso 4: El porcentaje debe estar entre 1% y 100%."); return "redirect:/admin/descuentos/" + id + "/editar"; }
-        if (vigenciaHasta.isBefore(vigenciaDesde)) { ra.addFlashAttribute("mensaje", "CU-49 Excepción paso 5: La fecha de fin debe ser posterior a la de inicio."); return "redirect:/admin/descuentos/" + id + "/editar"; }
+        if (porcentaje < 1 || porcentaje > 100) { ra.addFlashAttribute("mensaje", "EX-CU51-01: El porcentaje debe estar entre 1% y 100%."); return "redirect:/admin/descuentos/" + id + "/editar"; }
+        if (vigenciaHasta.isBefore(vigenciaDesde)) { ra.addFlashAttribute("mensaje", "EX-CU51-02: La fecha de fin debe ser posterior a la de inicio."); return "redirect:/admin/descuentos/" + id + "/editar"; }
 
         Descuento d = dOpt.get();
         d.setNombre(nombre);
@@ -110,7 +152,12 @@ public class DescuentoController {
         return "redirect:/admin/descuentos";
     }
 
-    /** CU-50 — Toggle estado de baja lógica del descuento. */
+    /**
+     * TRAZABILIDAD: CU-52 — Dar de baja descuento (Toggle activo/inactivo).
+     * Actor: Administrador.
+     * Flujo paso 4: alterna el estado activo/inactivo del descuento.
+     * Postcondición: estado del descuento actualizado.
+     */
     @PostMapping("/{id}/toggle-baja")
     public String toggleBaja(@PathVariable Integer id, RedirectAttributes ra) {
         descuentoRepo.findById(id).ifPresent(d -> {
@@ -122,7 +169,13 @@ public class DescuentoController {
         return "redirect:/admin/descuentos";
     }
 
-    /** CU-50 — Dar de baja un descuento (Baja Lógica). */
+    /**
+     * TRAZABILIDAD: CU-52 — Dar de baja descuento (Baja lógica definitiva).
+     * Actor: Administrador.
+     * Flujo paso 4: establece baja = true en el descuento.
+     * Postcondición: descuento dado de baja. No se elimina físicamente.
+     * NOTA: el descuento dado de baja ya no puede aplicarse en nuevas inscripciones (PagoService).
+     */
     @PostMapping("/{id}/eliminar")
     public String eliminarDescuento(@PathVariable Integer id, RedirectAttributes ra) {
         descuentoRepo.findById(id).ifPresent(d -> {
