@@ -113,12 +113,14 @@ Se implementaron todos los flujos principales, caminos alternativos (`alt`), buc
 
 ---
 
-## 3. Estado de la Base de Datos y Repositorios
+## 3. Estado de la Capa de Repositorios y Servicios
 
-Se incorporó el repositorio complementario:
-- `TituloDocenteRepository.java`: Consultas de certificaciones universitarias vinculadas a la entidad `Docente`.
-
-Todas las 43 entidades JPA permanecen en correspondencia 1:1 con el esquema DDL `base_datos.sql`.
+- **Repositorios JPA (43 interfaces):**
+  - Todas las consultas derivadas y JPQL (`@Query`) fueron sincronizadas con el modelo relacional `base_datos.sql` (resolución de `Supervisor`, `Cronograma`, `PoolAutoevaluacion`, etc.).
+  - Auditoría de firmas y nombres de atributos validada directamente por el validador estricto de Spring Data JPA.
+- **Capa de Servicios (15 paquetes y clases clave):**
+  - Trazabilidad Javadoc completa y uniforme incorporada en interfaces e implementaciones (`CursoServiceImpl`, `InscripcionServiceImpl`, `PagoService`, `UsuarioServiceImpl`, `EvaluacionServiceImpl`, `MaterialServiceImpl`, `ReportesService`, `ClaseClonIAService`, etc.).
+  - Cobertura explícita de precondiciones, postcondiciones, reglas de negocio (RN-01 a RN-11) y excepciones de negocio (EX-CUxx).
 
 ---
 
