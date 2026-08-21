@@ -150,22 +150,20 @@ public class DocenteController {
 
         model.addAttribute("usuario", docente);
         model.addAttribute("cursos", misCursos);
+        model.addAttribute("categorias", categoriaService.obtenerTodo());
+        model.addAttribute("niveles", nivelRepository.findAll());
         model.addAttribute("titulo", "Panel del Docente | Idóneos Online");
 
         return "pages/docente/mis-cursos";
     }
 
     /**
-     * TRAZABILIDAD: CU-03 — Registrar curso (formulario GET).
+     * TRAZABILIDAD: CU-03 — Registrar curso (formulario / modal).
      * Actor: Docente / Administrador.
      */
     @GetMapping("/curso/nuevo")
     public String nuevoCursoForm(Model model, Authentication auth) {
-        model.addAttribute("usuario", (Usuario) auth.getPrincipal());
-        model.addAttribute("categorias", categoriaService.obtenerTodo());
-        model.addAttribute("niveles", nivelRepository.findAll());
-        model.addAttribute("titulo", "Nuevo Curso | Idóneos Online");
-        return "pages/docente/nuevo-curso";
+        return "redirect:/docente";
     }
 
     /**
