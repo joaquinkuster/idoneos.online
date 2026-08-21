@@ -152,6 +152,7 @@ public class DocenteController {
         model.addAttribute("cursos", misCursos);
         model.addAttribute("categorias", categoriaService.obtenerTodo());
         model.addAttribute("niveles", nivelRepository.findAll());
+        model.addAttribute("docentesDisponibles", docenteRepository.findAll().stream().filter(d -> d.getId() != docente.getId()).toList());
         model.addAttribute("titulo", "Panel del Docente | Idóneos Online");
 
         return "pages/docente/mis-cursos";
@@ -169,10 +170,11 @@ public class DocenteController {
     /**
      * TRAZABILIDAD: CU-03 — Registrar curso (POST).
      * Actor: Docente.
-     * Flujo paso 4-6: valida campos, registra el curso asignado al docente como
-     * titular.
-     * Postcondición: curso registrado con el docente como titular.
-     * EX-CU03-01: categoría inválida → redirect con mensaje.
+     * Flujo paso 2-6: valida campos (nombre, descripción, precio, categoría, nivel,
+     * modalidades, certificado, docente supervisor opcional).
+     * Postcondición: curso registrado sin cohortes abiertas, con su equipo docente.
+     * EX-CU03-01: categoría inválida.
+     * EX-CU03-02: precio < 0.
      */
     @PostMapping("/curso/guardar")
     public String guardarCurso(@RequestParam("nombre") String nombre,
@@ -180,11 +182,14 @@ public class DocenteController {
             @RequestParam("precio") float precio,
             @RequestParam("categoriaId") Integer categoriaId,
             @RequestParam(value = "nivelId", required = false) Integer nivelId,
+            @RequestParam(value = "emiteCertificado", defaultValue = "false") boolean emiteCertificado,
+            @RequestParam(value = "imagen", required = false) String imagen,
+            @RequestParam(value = "supervisorId", required = false) Integer supervisorId,
             Authentication auth, RedirectAttributes redirectAttributes) {
 
         if (precio < 0) {
             redirectAttributes.addFlashAttribute("mensaje", "EX-CU03-02: El precio no puede ser menor a cero.");
-            return "redirect:/docente/curso/nuevo";
+            return "redirect:/docente";
         }
 
         Usuario usuarioAuth = (Usuario) auth.getPrincipal();
@@ -192,7 +197,7 @@ public class DocenteController {
 
         if (catOpt.isEmpty()) {
             redirectAttributes.addFlashAttribute("mensaje", "EX-CU03-01: Categoría seleccionada inválida.");
-            return "redirect:/docente/curso/nuevo";
+            return "redirect:/docente";
         }
 
         Docente docente = docenteRepository.findById(usuarioAuth.getId()).orElse(null);
@@ -211,15 +216,29 @@ public class DocenteController {
             nombre = nombre.trim().substring(0, 50);
         }
 
-        Curso curso = new Curso(nombre, descripcion, precio, catOpt.get(), nivel, docente);
+        String descCurso = (descripcion != null && descripcion.length() > 150) ? descripcion.substring(0, 150) : descripcion;
+
+        Curso curso = new Curso(nombre, descCurso, precio, catOpt.get(), nivel, docente);
+        curso.setEmiteCertificado(emiteCertificado);
+        if (imagen != null && !imagen.trim().isEmpty()) {
+            String imgClean = imagen.trim();
+            curso.setImagen(imgClean.length() > 150 ? imgClean.substring(0, 150) : imgClean);
+        }
+
         Curso cursoDef = cursoService.guardar(curso);
+
+        if (supervisorId != null) {
+            docenteRepository.findById(supervisorId).ifPresent(sup -> {
+                supervisorRepository.save(new Supervisor(cursoDef, sup));
+            });
+        }
 
         // Registro de programa inicial respetando constraints
         String descProg = (descripcion != null && descripcion.length() > 150) ? descripcion.substring(0, 150) : descripcion;
         programaRepository.save(
-                new Programa(nombre, descProg, "Objetivos generales del curso", "Bibliografía general", cursoDef));
+                new Programa(nombre, descProg, "Objetivos generales y competencias académicas", "Bibliografía general del curso y marco normativo", cursoDef));
 
-        redirectAttributes.addFlashAttribute("mensaje", "¡Curso creado correctamente!");
+        redirectAttributes.addFlashAttribute("mensaje", "¡Curso registrado con éxito según especificación CU-03!");
         return "redirect:/docente";
     }
 

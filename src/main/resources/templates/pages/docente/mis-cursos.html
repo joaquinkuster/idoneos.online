@@ -70,7 +70,7 @@
         </div>
     </main>
 
-    <!-- Modal para Registrar Nuevo Curso -->
+    <!-- Modal para Registrar Nuevo Curso (Alineado con CU-03 de Requisitos) -->
     <div class="modal fade" id="modalNuevoCurso" tabindex="-1" aria-labelledby="modalNuevoCursoLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
@@ -81,13 +81,17 @@
                         </div>
                         <div>
                             <h5 class="modal-title font-serif fw-bold text-white mb-0" id="modalNuevoCursoLabel">Registrar Nuevo Curso</h5>
-                            <small class="text-white-50">Crea la oferta formativa y luego diagramarás sus programas y lecciones.</small>
+                            <small class="text-white-50">Definición de propuesta formativa, equipo docente y modalidades</small>
                         </div>
                     </div>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
                 <form th:action="@{/docente/curso/guardar}" method="post">
                     <div class="modal-body p-4 p-md-4">
+                        <!-- Sección 1: Información Académica -->
+                        <h6 class="text-navy fw-bold text-uppercase small mb-3 border-bottom pb-2">
+                            <i class="fa-solid fa-book-open me-2 text-gold"></i>Información Académica Básica
+                        </h6>
                         <div class="mb-3">
                             <div class="d-flex justify-content-between">
                                 <label for="nombre" class="form-label small fw-bold text-navy">Nombre del Curso *</label>
@@ -104,29 +108,89 @@
                                 </select>
                             </div>
                             <div class="col-md-6">
-                                <label for="nivelId" class="form-label small fw-bold text-navy">Nivel de Dificultad</label>
-                                <select class="form-select" id="nivelId" name="nivelId">
-                                    <option value="">-- Seleccione nivel --</option>
+                                <label for="nivelId" class="form-label small fw-bold text-navy">Nivel de Dificultad *</label>
+                                <select class="form-select" id="nivelId" name="nivelId" required>
+                                    <option value="" disabled selected>-- Seleccione nivel --</option>
                                     <option th:each="n : ${niveles}" th:value="${n.id}" th:text="${n.nombre}">Inicial / Intermedio / Avanzado</option>
                                 </select>
                             </div>
                         </div>
-                        <div class="mb-3">
-                            <label for="precio" class="form-label small fw-bold text-navy">Arancel Base ($ARS - 0 para Curso Gratuito) *</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-light">$</span>
-                                <input type="number" step="100" min="0" class="form-control" id="precio" name="precio" value="0" required>
+
+                        <!-- Sección 2: Equipo Docente (CU-03) -->
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold text-navy">Docente Titular *</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="fa-solid fa-user-tie text-navy"></i></span>
+                                    <input type="text" class="form-control bg-light" th:value="${usuario.nombre + ' ' + (usuario.apellido != null ? usuario.apellido : '')}" readonly>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="supervisorId" class="form-label small fw-bold text-navy">Docente Supervisor (Opcional)</label>
+                                <select class="form-select" id="supervisorId" name="supervisorId">
+                                    <option value="">-- Sin supervisor asignado --</option>
+                                    <option th:each="doc : ${docentesDisponibles}" th:value="${doc.id}" th:text="${doc.usuario != null ? doc.usuario.nombre + ' ' + doc.usuario.apellido : 'Docente ' + doc.id}">Docente</option>
+                                </select>
                             </div>
                         </div>
+
+                        <!-- Sección 3: Modalidades y Certificación (CU-03) -->
+                        <h6 class="text-navy fw-bold text-uppercase small mt-4 mb-3 border-bottom pb-2">
+                            <i class="fa-solid fa-sliders me-2 text-gold"></i>Modalidades & Certificación
+                        </h6>
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-7">
+                                <label class="form-label small fw-bold text-navy d-block">Modalidades de Dictado *</label>
+                                <div class="d-flex flex-wrap gap-3 mt-1">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="modEnVivo" name="modalidades" value="ENVIVO" checked>
+                                        <label class="form-check-label small" for="modEnVivo"><i class="fa-solid fa-video me-1 text-danger"></i>En Vivo (RTMP)</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="modGrabado" name="modalidades" value="GRABADO" checked>
+                                        <label class="form-check-label small" for="modGrabado"><i class="fa-solid fa-circle-play me-1 text-primary"></i>Grabado</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="modClonIA" name="modalidades" value="CLONIA">
+                                        <label class="form-check-label small" for="modClonIA"><i class="fa-solid fa-robot me-1 text-warning"></i>Clon IA</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-5">
+                                <label class="form-label small fw-bold text-navy d-block">Certificación</label>
+                                <div class="form-check form-switch mt-1">
+                                    <input class="form-check-input" type="checkbox" id="emiteCertificado" name="emiteCertificado" value="true" checked>
+                                    <label class="form-check-label small fw-semibold" for="emiteCertificado">
+                                        <i class="fa-solid fa-award me-1 text-gold"></i> Emite Certificado Oficial
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sección 4: Aspectos Comerciales y Portada -->
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label for="precio" class="form-label small fw-bold text-navy">Arancel Base ($ARS - 0 para Gratuito) *</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light">$</span>
+                                    <input type="number" step="100" min="0" class="form-control" id="precio" name="precio" value="45000" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="imagen" class="form-label small fw-bold text-navy">Imagen de Portada (Opcional)</label>
+                                <input type="text" class="form-control" id="imagen" name="imagen" placeholder="/img/cursos/default.jpg o URL">
+                            </div>
+                        </div>
+
                         <div class="mb-3">
-                            <label for="descripcion" class="form-label small fw-bold text-navy">Descripción y Objetivos Principales *</label>
-                            <textarea class="form-control" id="descripcion" name="descripcion" rows="4" required placeholder="Resumen del enfoque pedagógico, temas regulatorios CNV y metodología..."></textarea>
+                            <label for="descripcion" class="form-label small fw-bold text-navy">Descripción y Enfoque Pedagógico *</label>
+                            <textarea class="form-control" id="descripcion" name="descripcion" rows="3" required placeholder="Resumen sintético del enfoque pedagógico, temas regulatorios CNV y metodología..."></textarea>
                         </div>
                     </div>
                     <div class="modal-footer bg-light py-3 px-4 border-top">
                         <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
                         <button type="submit" class="btn idn-btn-gold px-4 fw-bold shadow-sm">
-                            <i class="fa-solid fa-cloud-arrow-up me-2"></i> Crear y Comenzar a Cargar Programas
+                            <i class="fa-solid fa-cloud-arrow-up me-2"></i> Registrar Curso y Crear Programa
                         </button>
                     </div>
                 </form>
