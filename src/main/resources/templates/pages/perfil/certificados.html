@@ -1,54 +1,74 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head th:replace="~{fragments/head :: head}"></head>
+<body>
+    <header th:replace="~{fragments/navbar :: navbar}"></header>
 
-<div th:replace="~{fragments/head :: head}"></div>
-
-<body class="bg-light">
-<div th:replace="~{fragments/navbar :: navbar}"></div>
-
-<!-- Header -->
-<div class="bg-dark text-white py-4 mb-4">
-    <div class="container d-flex justify-content-between align-items-center">
-        <div>
-            <h1 class="fw-bold mb-1"><i class="fa-solid fa-award text-warning me-2"></i>Mis Certificados y Constancias</h1>
-            <small class="text-white-50">CU-46: Diplomas de finalización de cursos aprobados</small>
-        </div>
-        <a th:href="@{/perfil}" class="btn btn-outline-light rounded-pill">Mi Perfil</a>
-    </div>
-</div>
-
-<div class="container pb-5">
-    <div class="row g-4">
-        <div th:each="ins : ${inscripciones}" class="col-md-6">
-            <div class="card border-0 shadow-sm rounded-4 h-100 p-4 bg-white d-flex flex-column">
-                <div class="d-flex justify-content-between align-items-start mb-3">
-                    <span class="badge bg-primary rounded-pill px-3 py-2" th:text="${ins.curso.categoria.nombre}">Categoría</span>
-                    <span th:if="${ins.certificado != null}" class="badge bg-success rounded-pill px-3 py-2"><i class="fa-solid fa-check me-1"></i>Emitido</span>
-                    <span th:unless="${ins.certificado != null}" class="badge bg-warning text-dark rounded-pill px-3 py-2"><i class="fa-solid fa-spinner me-1"></i>En cursada</span>
+    <div class="bg-navy py-5 mb-4 text-white idn-fade">
+        <div class="container d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <div class="d-flex align-items-center gap-2 mb-2 text-gold small fw-bold" style="letter-spacing: 0.12em;">
+                    <i class="fa-solid fa-award"></i> DIPLOMAS Y CERTIFICACIONES · IDÓNEOS ONLINE
                 </div>
+                <h1 class="font-serif display-5 fw-bold text-white mb-0">Mis Certificados y Constancias</h1>
+                <p class="text-white-50 lead mb-0">Diplomas digitales de aprobación con código criptográfico de autenticidad.</p>
+            </div>
+            <a th:href="@{/cursos/mis-cursos}" class="btn btn-outline-light rounded-pill">Mis Cursos</a>
+        </div>
+    </div>
 
-                <h4 class="fw-bold text-dark mb-2" th:text="${ins.curso.nombre}">Nombre del Curso</h4>
-                <p class="text-muted small mb-3" th:text="${ins.curso.descripcion}">Descripción</p>
-
-                <div class="mt-auto pt-3 border-top d-flex justify-content-between align-items-center">
-                    <small class="text-muted" th:text="'Inscripto: ' + ${#temporals.format(ins.fecha, 'dd/MM/yyyy')}">Fecha</small>
-
-                    <a th:href="@{'/certificado/inscripcion/' + ${ins.id}}"
-                       class="btn btn-gold fw-bold rounded-pill px-4">
-                        <i class="fa-solid fa-file-pdf me-2"></i>Ver Certificado
+    <main class="container pb-5 idn-fade">
+        <div class="row g-4">
+            <div th:if="${#lists.isEmpty(inscripciones)}" class="col-12 text-center py-5">
+                <div class="card idn-card p-5 border-0 shadow-sm">
+                    <i class="fa-solid fa-award display-1 text-gold opacity-50 mb-3"></i>
+                    <h3 class="text-navy fw-bold">Aún no tienes diplomas emitidos</h3>
+                    <p class="text-muted">Completa el 100% de las unidades y autoevaluaciones de tus cursos para obtener tu certificado oficial.</p>
+                    <a th:href="@{/cursos/mis-cursos}" class="btn idn-btn-gold mx-auto px-4 py-2 mt-2">
+                        <i class="fa-solid fa-circle-play me-2"></i> Ir a Mis Cursos
                     </a>
                 </div>
             </div>
-        </div>
 
-        <div th:if="${inscripciones.isEmpty()}" class="col-12 text-center py-5 bg-white rounded-4 shadow-sm">
-            <i class="fa-solid fa-graduation-cap fa-3x text-muted mb-3"></i>
-            <h5 class="fw-bold text-muted">Aún no estás inscripto en ningún curso.</h5>
-            <a th:href="@{/cursos}" class="btn btn-primary rounded-pill mt-3">Explorar Catálogo de Cursos</a>
-        </div>
-    </div>
-</div>
+            <div th:each="ins : ${inscripciones}" class="col-md-6">
+                <div class="card idn-card border-0 shadow-sm h-100 p-4 bg-white d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <span class="badge bg-gold-soft text-gold-deep rounded-pill px-3 py-1 fw-bold" 
+                                  th:text="${ins.cohorte != null and ins.cohorte.programa != null and ins.cohorte.programa.curso != null and ins.cohorte.programa.curso.categoria != null ? ins.cohorte.programa.curso.categoria.nombre : 'Finanzas'}">Finanzas</span>
+                            <span th:if="${ins.certificado != null}" class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-1">
+                                <i class="fa-solid fa-check me-1"></i> Aprobado
+                            </span>
+                            <span th:unless="${ins.certificado != null}" class="badge bg-warning-subtle text-warning border border-warning-subtle rounded-pill px-3 py-1">
+                                <i class="fa-solid fa-spinner me-1"></i> En Cursada
+                            </span>
+                        </div>
 
-<div th:replace="~{fragments/footer :: footer}"></div>
+                        <h4 class="font-serif fw-bold text-navy mb-2" 
+                            th:text="${ins.cohorte != null and ins.cohorte.programa != null and ins.cohorte.programa.curso != null ? ins.cohorte.programa.curso.nombre : 'Curso Académico'}">Nombre del Curso</h4>
+                        <p class="text-muted small mb-3" 
+                           th:text="${ins.cohorte != null and ins.cohorte.programa != null and ins.cohorte.programa.curso != null and ins.cohorte.programa.curso.descripcion != null ? #strings.abbreviate(ins.cohorte.programa.curso.descripcion, 120) : 'Especialización financiera.'}">Descripción</p>
+                    </div>
+
+                    <div class="pt-3 border-top d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <small class="text-muted" th:text="'Fecha: ' + ${ins.fechaInscripcion != null ? #temporals.format(ins.fechaInscripcion, 'dd/MM/yyyy') : '-'}">Fecha</small>
+
+                        <a th:if="${ins.certificado != null}" th:href="@{/certificado/inscripcion/{id}(id=${ins.id})}"
+                           class="btn idn-btn-gold btn-sm px-4 fw-bold shadow-sm">
+                            <i class="fa-solid fa-file-pdf me-2"></i> Ver Diploma
+                        </a>
+                        <a th:unless="${ins.certificado != null and ins.cohorte != null and ins.cohorte.programa != null and ins.cohorte.programa.curso != null}" 
+                           th:href="@{/cursos/{id}/mi-cursada(id=${ins.cohorte.programa.curso.id})}"
+                           class="btn btn-outline-primary btn-sm rounded-pill px-3">
+                            <i class="fa-solid fa-circle-play me-1"></i> Continuar Cursada
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer th:replace="~{fragments/footer :: footer}"></footer>
+    <th:block th:replace="~{fragments/scripts :: scripts}"></th:block>
 </body>
 </html>

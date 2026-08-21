@@ -1,121 +1,142 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head th:replace="~{fragments/head :: head}"></head>
+<body>
+    <header th:replace="~{fragments/navbar :: navbar}"></header>
 
-<div th:replace="~{fragments/head :: head}"></div>
-
-<body class="bg-light">
-    <div th:replace="~{fragments/navbar :: navbar}"></div>
-
-    <div class="bg-dark text-white py-4 mb-4">
+    <!-- Header Panel de Gestión del Curso -->
+    <div class="bg-navy py-4 mb-4 text-white idn-fade">
         <div class="container d-flex justify-content-between align-items-center flex-wrap gap-3">
             <div>
-                <h1 class="fw-bold mb-1" th:text="'Gestionar: ' + ${curso.nombre}">Gestionar Curso</h1>
-                <small class="text-white-50" th:text="${curso.categoria.nombre + ' · ' + curso.unidades.size() + ' unidades'}">Categoría</small>
+                <span class="badge bg-gold text-navy rounded-pill px-3 py-1 mb-2 text-uppercase fw-bold">Panel de Gestión Docente</span>
+                <h1 class="font-serif fw-bold mb-0 text-white" th:text="${curso.nombre}">Nombre del Curso</h1>
+                <small class="text-white-50" th:text="${curso.categoria != null ? curso.categoria.nombre : 'Finanzas'}">Categoría</small>
             </div>
-            <div class="d-flex gap-2">
-                <a th:href="@{'/docente/curso/' + ${curso.id} + '/unidad/nueva'}" class="btn btn-success rounded-pill fw-bold">
-                    <i class="fa-solid fa-plus me-2"></i>Nueva Unidad
+            <div class="d-flex gap-2 flex-wrap">
+                <a th:href="@{/docente/curso/{id}/programas(id=${curso.id})}" class="btn idn-btn-gold">
+                    <i class="fa-solid fa-file-invoice me-1"></i> Programas Curriculares
+                </a>
+                <a th:href="@{/docente/curso/{id}/participantes(id=${curso.id})}" class="btn btn-outline-light rounded-pill">
+                    <i class="fa-solid fa-users me-1"></i> Participantes
                 </a>
                 <a th:href="@{/docente}" class="btn btn-outline-light rounded-pill">Volver</a>
             </div>
         </div>
     </div>
 
-    <div class="container mb-5">
-        <div th:if="${mensaje != null}" class="alert alert-success alert-dismissible fade show mb-4" role="alert">
-            <span th:text="${mensaje}"></span>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    <main class="container mb-5 idn-fade">
+        <!-- Mensajes Flash -->
+        <div th:if="${mensaje != null}" class="alert alert-info alert-dismissible fade show mb-4 border-0 shadow-sm rounded-3" role="alert">
+            <i class="fa-solid fa-circle-info me-2 text-primary"></i>
+            <span th:text="${mensaje}">Mensaje</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
 
-        <div th:if="${unidades.isEmpty()}" class="text-center py-5">
-            <i class="fa-solid fa-list-ol display-2 text-muted mb-3"></i>
-            <h4 class="text-muted mb-3">Este curso no tiene unidades aún.</h4>
-            <a th:href="@{'/docente/curso/' + ${curso.id} + '/unidad/nueva'}" class="btn btn-success rounded-pill px-4 fw-bold">
-                <i class="fa-solid fa-plus me-2"></i>Crear Primera Unidad
+        <!-- Atajos Rápidos del Curso -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-3">
+                <div class="card idn-card p-3 border-0 shadow-sm text-center">
+                    <i class="fa-solid fa-graduation-cap fa-2x text-gold mb-2"></i>
+                    <h6 class="fw-bold text-navy mb-0">Programas Académicos</h6>
+                    <small class="text-muted d-block mb-2" th:text="${curso.programas != null ? #lists.size(curso.programas) + ' versiones' : '0'}">0</small>
+                    <a th:href="@{/docente/curso/{id}/programas(id=${curso.id})}" class="btn btn-sm btn-outline-primary rounded-pill">Administrar</a>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card idn-card p-3 border-0 shadow-sm text-center">
+                    <i class="fa-solid fa-video fa-2x text-danger mb-2"></i>
+                    <h6 class="fw-bold text-navy mb-0">Clases en Vivo (RTMP)</h6>
+                    <small class="text-muted d-block mb-2">OBS Studio</small>
+                    <a th:href="@{/clase-vivo/docente}" class="btn btn-sm btn-outline-danger rounded-pill">Transmitir</a>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card idn-card p-3 border-0 shadow-sm text-center">
+                    <i class="fa-solid fa-robot fa-2x text-warning mb-2"></i>
+                    <h6 class="fw-bold text-navy mb-0">Clon IA (HeyGen)</h6>
+                    <small class="text-muted d-block mb-2">Videos Sintetizados</small>
+                    <a th:href="@{/clon-ia/docente}" class="btn btn-sm btn-outline-warning rounded-pill">Avatar IA</a>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card idn-card p-3 border-0 shadow-sm text-center">
+                    <i class="fa-solid fa-user-group fa-2x text-info mb-2"></i>
+                    <h6 class="fw-bold text-navy mb-0">Alumnos & Equipo</h6>
+                    <small class="text-muted d-block mb-2">Séquito y Roster</small>
+                    <a th:href="@{/docente/curso/{id}/participantes(id=${curso.id})}" class="btn btn-sm btn-outline-info rounded-pill">Ver Lista</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección de Unidades Didácticas del Curso -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4 class="fw-bold text-navy mb-0"><i class="fa-solid fa-layer-group me-2 text-gold"></i>Unidades Didácticas Asociadas</h4>
+        </div>
+
+        <div th:if="${#lists.isEmpty(unidades)}" class="card idn-card p-5 text-center border-0 shadow-sm mb-4">
+            <i class="fa-solid fa-list-ol display-3 text-gold opacity-50 mb-3"></i>
+            <h4 class="text-navy fw-bold">Este curso no tiene unidades registradas aún</h4>
+            <p class="text-muted">Accede a Programas Académicos para crear la estructura didáctica.</p>
+            <a th:href="@{/docente/curso/{id}/programas(id=${curso.id})}" class="btn idn-btn-gold mx-auto">
+                <i class="fa-solid fa-plus me-1"></i> Ir a Programas
             </a>
         </div>
 
-        <div th:each="unidad : ${unidades}" class="card border-0 shadow-sm rounded-4 mb-4">
+        <div th:each="unidad, iter : ${unidades}" class="card idn-card border-0 shadow-sm mb-4">
             <div class="card-header bg-white py-3 px-4 d-flex justify-content-between align-items-center border-bottom flex-wrap gap-2">
-                <div>
-                    <span class="badge bg-primary rounded-pill me-2" th:text="'Unidad ' + ${unidad.numeroOrden}">U1</span>
-                    <strong th:text="${unidad.titulo}">Título</strong>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge bg-navy text-gold rounded-pill px-3 py-2" th:text="'Unidad ' + ${iter.count}">U1</span>
+                    <h5 class="fw-bold text-navy mb-0" th:text="${unidad.titulo}">Título de la Unidad</h5>
                 </div>
                 <div class="d-flex gap-2 flex-wrap">
-                    <a th:href="@{'/docente/unidad/' + ${unidad.id} + '/pool'}" class="btn btn-outline-warning btn-sm rounded-pill">
-                        <i class="fa-solid fa-layer-group me-1"></i>Pool Preguntas
+                    <a th:href="@{/docente/unidad/{id}/pool(id=${unidad.id})}" class="btn btn-outline-warning btn-sm rounded-pill">
+                        <i class="fa-solid fa-layer-group me-1"></i> Pool Preguntas
                     </a>
-                    <a th:href="@{'/foro/unidad/' + ${unidad.id}}" class="btn btn-outline-info btn-sm rounded-pill">
-                        <i class="fa-solid fa-comments me-1"></i>Foro
+                    <a th:href="@{/docente/unidad/{id}/autoevaluaciones(id=${unidad.id})}" class="btn btn-outline-success btn-sm rounded-pill">
+                        <i class="fa-solid fa-list-check me-1"></i> Autoevaluaciones
                     </a>
-                    <a th:href="@{'/docente/unidad/' + ${unidad.id} + '/material/nuevo'}" class="btn btn-outline-primary btn-sm rounded-pill">
-                        <i class="fa-solid fa-plus me-1"></i>Material
+                    <a th:href="@{/docente/unidad/{id}/materiales(id=${unidad.id})}" class="btn btn-outline-primary btn-sm rounded-pill">
+                        <i class="fa-solid fa-folder me-1"></i> Materiales
                     </a>
-                    <form th:action="@{'/docente/unidad/' + ${unidad.id} + '/eliminar'}" method="post" class="d-inline"
-                          onsubmit="return confirm('¿Eliminar esta unidad y todo su material?')">
-                        <input type="hidden" name="cursoId" th:value="${curso.id}">
-                        <button class="btn btn-outline-danger btn-sm rounded-pill" type="submit">
-                            <i class="fa-solid fa-trash"></i>
-                        </button>
-                    </form>
+                    <a th:href="@{/docente/unidad/{id}/glosario(id=${unidad.id})}" class="btn btn-outline-info btn-sm rounded-pill">
+                        <i class="fa-solid fa-spell-check me-1"></i> Glosario
+                    </a>
+                    <a th:href="@{/foro/unidad/{id}(id=${unidad.id})}" class="btn btn-outline-secondary btn-sm rounded-pill">
+                        <i class="fa-solid fa-comments me-1"></i> Foro
+                    </a>
                 </div>
             </div>
 
             <div class="card-body p-4">
-                <p class="text-muted mb-3" th:text="${unidad.descripcion}">Descripción...</p>
+                <p class="text-muted mb-3" th:text="${unidad.descripcion != null ? unidad.descripcion : 'Sin descripción breve.'}">Descripción</p>
 
                 <!-- Herramientas IA (Ollama — Llama 3.1 local) para esta unidad -->
-                <div class="bg-light p-3 rounded-3 mb-4 border d-flex align-items-center justify-content-between flex-wrap gap-2">
-                    <small class="fw-bold text-purple"><i class="fa-solid fa-wand-magic-sparkles me-1 text-primary"></i>Herramientas IA Ollama (Llama 3.1):</small>
+                <div class="bg-light p-3 rounded-3 mb-3 border d-flex align-items-center justify-content-between flex-wrap gap-2">
+                    <small class="fw-bold text-navy"><i class="fa-solid fa-wand-magic-sparkles me-1 text-gold"></i>Generación Asistida con IA (Llama 3.1 / Ollama):</small>
                     <div class="d-flex gap-2 flex-wrap">
-                        <form th:action="@{'/docente/ia/unidad/' + ${unidad.id} + '/generar-banco'}" method="post" class="d-inline">
+                        <form th:action="@{/docente/ia/unidad/{id}/generar-banco(id=${unidad.id})}" method="post" class="d-inline">
                             <button type="submit" class="btn btn-sm btn-outline-primary rounded-pill">
-                                <i class="fa-solid fa-robot me-1"></i>Generar Banco Preguntas
+                                <i class="fa-solid fa-robot me-1"></i> Preguntas IA
                             </button>
                         </form>
-                        <form th:action="@{'/docente/ia/unidad/' + ${unidad.id} + '/generar-presentacion'}" method="post" class="d-inline">
+                        <form th:action="@{/docente/ia/unidad/{id}/generar-presentacion(id=${unidad.id})}" method="post" class="d-inline">
                             <input type="hidden" name="promptInput" th:value="'Diapositivas ' + ${unidad.titulo}">
                             <button type="submit" class="btn btn-sm btn-outline-success rounded-pill">
-                                <i class="fa-solid fa-file-powerpoint me-1"></i>Generar Slides IA
+                                <i class="fa-solid fa-file-powerpoint me-1"></i> Presentación Slides IA
                             </button>
                         </form>
-                        <form th:action="@{'/docente/ia/unidad/' + ${unidad.id} + '/generar-resumen'}" method="post" class="d-inline">
+                        <form th:action="@{/docente/ia/unidad/{id}/generar-resumen(id=${unidad.id})}" method="post" class="d-inline">
                             <button type="submit" class="btn btn-sm btn-outline-info rounded-pill">
-                                <i class="fa-solid fa-brain me-1"></i>Resumen IA (Bibliografía)
+                                <i class="fa-solid fa-brain me-1"></i> Resumen de Lecturas IA
                             </button>
                         </form>
-                    </div>
-                </div>
-
-                <!-- Materiales de esta unidad -->
-                <h6 class="fw-bold mb-3"><i class="fa-solid fa-folder-open text-primary me-2"></i>Materiales</h6>
-                <div th:if="${unidad.materiales.isEmpty()}" class="text-muted fst-italic small">Sin materiales cargados.</div>
-                <div class="list-group gap-2">
-                    <div th:each="m : ${unidad.materiales}" th:if="${!m.getBaja()}"
-                         class="list-group-item d-flex justify-content-between align-items-center p-3 border-0 bg-light rounded-3">
-                        <div class="d-flex align-items-center gap-3">
-                            <i class="fa-solid fa-file-lines text-primary fs-5"></i>
-                            <div>
-                                <h6 class="fw-bold mb-0 small" th:text="${m.titulo}">Material</h6>
-                                <small class="text-muted" th:text="${m.tipo.nombre + (m.publicado ? '' : ' · Oculto')}">TIPO</small>
-                                <span th:if="${m.generadoPorIA}" class="badge bg-purple text-white ms-1">IA Ollama</span>
-                            </div>
-                        </div>
-                        <div class="d-flex gap-2">
-                            <a th:href="${m.rutaArchivo}" target="_blank" class="btn btn-outline-secondary btn-sm rounded-pill">Ver</a>
-                            <form th:action="@{'/docente/material/' + ${m.id} + '/eliminar'}" method="post" class="d-inline"
-                                  onsubmit="return confirm('¿Eliminar este material?')">
-                                <input type="hidden" name="cursoId" th:value="${curso.id}">
-                                <button class="btn btn-outline-danger btn-sm rounded-pill" type="submit"><i class="fa-solid fa-trash"></i></button>
-                            </form>
-                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    </main>
 
-    <div th:replace="~{fragments/footer :: footer}"></div>
-    <div th:replace="~{fragments/scripts :: scripts}"></div>
+    <footer th:replace="~{fragments/footer :: footer}"></footer>
+    <th:block th:replace="~{fragments/scripts :: scripts}"></th:block>
 </body>
 </html>

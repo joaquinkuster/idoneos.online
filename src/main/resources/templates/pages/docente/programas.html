@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head th:replace="~{fragments/head :: head}"></head>
+<body>
+    <header th:replace="~{fragments/navbar :: navbar}"></header>
+
+    <main class="container py-4 idn-fade">
+        <nav aria-label="breadcrumb" class="mb-3">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a th:href="@{/docente}"><i class="fa-solid fa-chalkboard-user me-1"></i>Docente</a></li>
+                <li class="breadcrumb-item"><a th:href="@{/docente/curso/{id}/gestionar(id=${curso.id})}" th:text="${curso.nombre}">Curso</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Programas Académicos</li>
+            </ol>
+        </nav>
+
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+            <div>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge bg-gold text-navy fw-bold px-3 py-1 rounded-pill">CU-15 a CU-18</span>
+                    <h1 class="h2 mb-0 fw-bold text-navy" th:text="'Programas de ' + ${curso.nombre}">Programas Académicos</h1>
+                </div>
+                <p class="text-muted mb-0 mt-1">
+                    Administra las versiones curriculares, objetivos de aprendizaje, bibliografía y unidades didácticas.
+                </p>
+            </div>
+            <button class="btn idn-btn-gold" data-bs-toggle="modal" data-bs-target="#modalNuevoPrograma">
+                <i class="fa-solid fa-plus me-1"></i> Nuevo Programa
+            </button>
+        </div>
+
+        <!-- Mensajes Flash -->
+        <div th:if="${mensaje != null}" class="alert alert-info alert-dismissible fade show border-0 shadow-sm rounded-3 mb-4" role="alert">
+            <i class="fa-solid fa-circle-info me-2 text-primary"></i>
+            <span th:text="${mensaje}">Mensaje del sistema</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <!-- Tarjetas de Programas -->
+        <div class="row g-4">
+            <div th:if="${#lists.isEmpty(programas)}" class="col-12 text-center py-5">
+                <div class="card idn-card p-5 border-0 shadow-sm">
+                    <i class="fa-solid fa-book-bookmark fa-3x mb-3 text-gold opacity-75"></i>
+                    <h4 class="text-navy fw-bold">No hay programas académicos registrados</h4>
+                    <p class="text-muted">Crea la primera versión curricular para este curso para empezar a estructurar sus unidades didácticas.</p>
+                    <button class="btn idn-btn-gold mx-auto" data-bs-toggle="modal" data-bs-target="#modalNuevoPrograma">
+                        Crear Primer Programa
+                    </button>
+                </div>
+            </div>
+
+            <div th:each="p : ${programas}" class="col-lg-6">
+                <div class="card idn-card h-100 border-0 shadow-sm">
+                    <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="fa-solid fa-file-invoice text-gold fs-5"></i>
+                            <h5 class="mb-0 fw-bold text-navy" th:text="${p.nombre}">Versión 2026</h5>
+                        </div>
+                        <span class="badge bg-light text-navy border" th:text="${p.cargaHorariaTotal != null ? p.cargaHorariaTotal + ' Horas' : '40 Horas'}">40 Horas</span>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted small mb-3" th:text="${p.descripcion != null and !p.descripcion.isBlank() ? p.descripcion : 'Sin descripción general especificada.'}">
+                            Descripción curricular.
+                        </p>
+
+                        <div class="mb-3">
+                            <h6 class="small fw-bold text-navy mb-1"><i class="fa-solid fa-bullseye me-1 text-danger"></i>Objetivos de Aprendizaje:</h6>
+                            <p class="small text-secondary mb-0" style="white-space: pre-line;" th:text="${p.objetivos}">Objetivos.</p>
+                        </div>
+
+                        <div class="mb-3">
+                            <h6 class="small fw-bold text-navy mb-1"><i class="fa-solid fa-book me-1 text-primary"></i>Bibliografía Obligatoria / Sugerida:</h6>
+                            <p class="small text-secondary mb-0" style="white-space: pre-line;" th:text="${p.bibliografia}">Bibliografía.</p>
+                        </div>
+
+                        <div class="bg-light p-3 rounded-3 mb-3 d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="small text-muted d-block">Estructura Didáctica</span>
+                                <strong class="text-navy" th:text="${p.cronogramas != null ? #lists.size(p.cronogramas) + ' Unidades' : '0 Unidades'}">0 Unidades</strong>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <a th:href="@{/docente/programas/{id}/unidades(id=${p.id})}" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                                    <i class="fa-solid fa-layer-group me-1"></i> Unidades
+                                </a>
+                                <a th:href="@{/docente/programas/{id}/cronograma(id=${p.id})}" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
+                                    <i class="fa-solid fa-timeline me-1"></i> Cronograma
+                                </a>
+                                <a th:href="@{/admin/programas/{id}/cohortes(id=${p.id})}" class="btn btn-sm idn-btn-gold py-1 px-3">
+                                    <i class="fa-solid fa-users me-1"></i> Cohortes
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-white border-top py-2 d-flex justify-content-between align-items-center">
+                        <small class="text-muted">
+                            Última mod: <span th:text="${p.ultimaModificacion != null ? #temporals.format(p.ultimaModificacion, 'dd/MM/yyyy HH:mm') : 'Original'}">Fecha</span>
+                        </small>
+                        <div class="d-flex gap-1">
+                            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" th:data-bs-target="'#modalEditarPrograma' + ${p.id}" title="Editar Programa">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </button>
+                            <form th:action="@{/docente/programas/{id}/baja(id=${p.id})}" method="post" class="d-inline"
+                                  onsubmit="return confirm('¿Seguro que deseas dar de baja este programa? No debe poseer cohortes activas.');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Dar de baja">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal Editar Programa -->
+                <div class="modal fade text-start" th:id="'modalEditarPrograma' + ${p.id}" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content rounded-4 border-0 shadow">
+                            <form th:action="@{/docente/programas/{id}/modificar(id=${p.id})}" method="post">
+                                <div class="modal-header bg-navy text-white rounded-top-4">
+                                    <h5 class="modal-title fw-bold">Modificar Programa: <span th:text="${p.nombre}">Nombre</span></h5>
+                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body p-4">
+                                    <div class="row g-3">
+                                        <div class="col-md-8">
+                                            <label class="form-label small fw-bold">Nombre del Programa / Versión *</label>
+                                            <input type="text" class="form-control" name="nombre" th:value="${p.nombre}" required>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label small fw-bold">Carga Horaria Total (hs)</label>
+                                            <input type="number" class="form-control" name="cargaHorariaTotal" th:value="${p.cargaHorariaTotal}" min="1">
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label small fw-bold">Descripción General</label>
+                                            <textarea class="form-control" name="descripcion" rows="2" th:text="${p.descripcion}"></textarea>
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label small fw-bold">Objetivos de Aprendizaje *</label>
+                                            <textarea class="form-control" name="objetivos" rows="3" th:text="${p.objetivos}" required></textarea>
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label small fw-bold">Bibliografía *</label>
+                                            <textarea class="form-control" name="bibliografia" rows="3" th:text="${p.bibliografia}" required></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer bg-light rounded-bottom-4">
+                                    <button type="button" class="btn btn-secondary rounded-pill px-3" data-bs-dismiss="modal">Cancelar</button>
+                                    <button type="submit" class="btn idn-btn-gold">Guardar Modificaciones</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Nuevo Programa -->
+        <div class="modal fade" id="modalNuevoPrograma" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content rounded-4 border-0 shadow">
+                    <form th:action="@{/docente/curso/{cursoId}/programas/guardar(cursoId=${curso.id})}" method="post">
+                        <div class="modal-header bg-navy text-white rounded-top-4">
+                            <h5 class="modal-title fw-bold"><i class="fa-solid fa-plus-circle me-2 text-gold"></i>Registrar Nuevo Programa Académico</h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body p-4">
+                            <div class="row g-3">
+                                <div class="col-md-8">
+                                    <label class="form-label small fw-bold">Nombre del Programa / Edición *</label>
+                                    <input type="text" class="form-control" name="nombre" placeholder="Ej: Programa 2026 — Módulos CNV" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label small fw-bold">Carga Horaria Total (hs)</label>
+                                    <input type="number" class="form-control" name="cargaHorariaTotal" value="40" min="1">
+                                </div>
+                                <div class="col-12" th:if="${!#lists.isEmpty(programas)}">
+                                    <label class="form-label small fw-bold text-primary"><i class="fa-solid fa-copy me-1"></i>Clonar unidades desde programa existente (Opcional)</label>
+                                    <select class="form-select" name="programaAnteriorId">
+                                        <option value="">-- Comenzar desde cero (sin clonar) --</option>
+                                        <option th:each="prog : ${programas}" th:value="${prog.id}" th:text="${prog.nombre + ' (' + (prog.cronogramas != null ? #lists.size(prog.cronogramas) : 0) + ' unidades)'}">Prog</option>
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label small fw-bold">Descripción General</label>
+                                    <textarea class="form-control" name="descripcion" rows="2" placeholder="Resumen del alcance pedagógico del programa..."></textarea>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label small fw-bold">Objetivos de Aprendizaje *</label>
+                                    <textarea class="form-control" name="objetivos" rows="3" placeholder="Al finalizar el programa, el estudiante será capaz de..." required></textarea>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label small fw-bold">Bibliografía Obligatoria y Recomendada *</label>
+                                    <textarea class="form-control" name="bibliografia" rows="3" placeholder="Leyes, normativas CNV, libros de análisis técnico y fundamental..." required></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer bg-light rounded-bottom-4">
+                            <button type="button" class="btn btn-secondary rounded-pill px-3" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn idn-btn-gold">Registrar Programa</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer th:replace="~{fragments/footer :: footer}"></footer>
+    <th:block th:replace="~{fragments/scripts :: scripts}"></th:block>
+</body>
+</html>

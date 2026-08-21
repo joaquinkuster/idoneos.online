@@ -1,124 +1,147 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head th:replace="~{fragments/head :: head}"></head>
+<body>
+    <header th:replace="~{fragments/navbar :: navbar}"></header>
 
-<div th:replace="~{fragments/head :: head}"></div>
-
-<body class="bg-light">
-<div th:replace="~{fragments/navbar :: navbar}"></div>
-
-<!-- Header -->
-<div class="py-4 mb-4 text-white" style="background: linear-gradient(135deg, #4a154b 0%, #6b1178 100%);">
-    <div class="container d-flex justify-content-between align-items-center flex-wrap gap-3">
-        <div>
-            <h1 class="fw-bold mb-1"><i class="fa-solid fa-robot me-2"></i>Clon de Inteligencia Artificial (HeyGen)</h1>
-            <small class="text-white-50">Generación de clases de video sintetizadas con tu avatar y voz real</small>
-        </div>
-        <a th:href="@{/docente}" class="btn btn-outline-light rounded-pill">Volver al Panel</a>
-    </div>
-</div>
-
-<div class="container pb-5">
-
-    <div th:if="${mensaje}" class="alert alert-info alert-dismissible fade show shadow-sm rounded-3 mb-4" role="alert">
-        <i class="fa-solid fa-circle-info me-2"></i>
-        <span th:text="${mensaje}"></span>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-
-    <!-- Consent status badge -->
-    <div class="card shadow-sm border-0 rounded-4 mb-4"
-         th:classappend="${docente.puedeUsarClonIA()} ? 'bg-success bg-opacity-10 border-success' : 'bg-warning bg-opacity-10 border-warning'">
-        <div class="card-body p-4 d-flex align-items-center justify-content-between flex-wrap gap-3">
+    <!-- Header -->
+    <div class="bg-navy py-4 mb-4 text-white idn-fade">
+        <div class="container d-flex justify-content-between align-items-center flex-wrap gap-3">
             <div>
-                <h5 class="fw-bold mb-1">
-                    <i class="fa-solid me-2" th:classappend="${docente.puedeUsarClonIA()} ? 'fa-shield-check text-success' : 'fa-triangle-exclamation text-warning'"></i>
-                    Estado del Consentimiento de Avatar (HeyGen Avatar Consent)
-                </h5>
-                <p class="mb-0 text-secondary small">
-                    <span th:if="${docente.puedeUsarClonIA()}">
-                        Autorización concedida el <strong th:text="${#temporals.format(docente.fechaConsentimientoClon, 'dd/MM/yyyy')}">fecha</strong>. Podés sintetizar clases con tu avatar.
-                    </span>
-                    <span th:unless="${docente.puedeUsarClonIA()}">
-                        No diste consentimiento aún para Clon IA o tu estado está deshabilitado.
-                    </span>
-                </p>
+                <span class="badge bg-gold text-navy rounded-pill px-3 py-1 mb-2 text-uppercase fw-bold">MOD-F-06 · IA & Clones Pedagógicos</span>
+                <h1 class="font-serif fw-bold mb-0 text-white"><i class="fa-solid fa-robot me-2 text-gold"></i>Clon Virtual & Generación HeyGen</h1>
+                <small class="text-white-50">Sintetización de video-lecciones automatizadas con avatar docente y voz neuronal.</small>
             </div>
-            <span class="badge rounded-pill px-3 py-2 fs-6"
-                  th:classappend="${docente.puedeUsarClonIA()} ? 'bg-success' : 'bg-warning text-dark'"
-                  th:text="${docente.puedeUsarClonIA()} ? 'Habilitado' : 'Pendiente Consentimiento'">Estado</span>
+            <a th:href="@{/docente}" class="btn btn-outline-light rounded-pill"><i class="fa-solid fa-arrow-left me-1"></i> Panel Docente</a>
         </div>
     </div>
 
-    <!-- Generar Nueva Clase con Clon IA -->
-    <div th:if="${docente.puedeUsarClonIA()}" class="card shadow-sm border-0 rounded-4 mb-4">
-        <div class="card-body p-4">
-            <h5 class="fw-bold mb-3"><i class="fa-solid fa-wand-magic-sparkles me-2 text-primary"></i>Generar Clase con Clon IA</h5>
-            <form th:action="@{/clon-ia/generar}" method="post" class="row g-3">
-                <div class="col-md-8">
-                    <label class="form-label fw-semibold">Título de la Clase Synthetica</label>
-                    <input type="text" name="titulo" class="form-control rounded-3" required placeholder="ej: Valuación de Bonos y Curva CER con Clon IA">
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label fw-semibold">ID Unidad Destino</label>
-                    <input type="number" name="unidadId" class="form-control rounded-3" required placeholder="ej: 1">
-                </div>
-                <div class="col-12">
-                    <label class="form-label fw-semibold">Guión de la Clase (Prompt input para el Avatar)</label>
-                    <textarea name="guionPrompt" class="form-control rounded-3" rows="5" required
-                              placeholder="Redactá el texto o guión que el avatar de HeyGen dirá en el video..."></textarea>
-                </div>
-                <div class="col-12 text-end">
-                    <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold shadow">
-                        <i class="fa-solid fa-bolt me-2"></i>Enviar a HeyGen y Generar Video
-                    </button>
-                </div>
-            </form>
+    <main class="container pb-5 idn-fade">
+        <!-- Mensajes Flash -->
+        <div th:if="${mensaje != null}" class="alert alert-info alert-dismissible fade show border-0 shadow-sm rounded-3 mb-4" role="alert">
+            <i class="fa-solid fa-circle-info me-2 text-primary"></i>
+            <span th:text="${mensaje}">Mensaje</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
-    </div>
 
-    <!-- Listado de Clases Generadas por Clon IA -->
-    <div class="card shadow-sm border-0 rounded-4">
-        <div class="card-body p-4">
-            <h5 class="fw-bold mb-3"><i class="fa-solid fa-film me-2 text-purple"></i>Clases Generadas por Clon IA</h5>
+        <!-- Estado del Consentimiento Biométrico (CU-76) -->
+        <div class="card idn-card border-0 shadow-sm mb-4"
+             th:classappend="${docente != null and docente.fechaAceptacionTycClon != null} ? 'bg-success-subtle border-success' : 'bg-warning-subtle border-warning'">
+            <div class="card-body p-4 d-flex align-items-center justify-content-between flex-wrap gap-3">
+                <div>
+                    <h5 class="fw-bold text-navy mb-1">
+                        <i class="fa-solid me-2" th:classappend="${docente != null and docente.fechaAceptacionTycClon != null} ? 'fa-shield-check text-success' : 'fa-triangle-exclamation text-warning'"></i>
+                        Consentimiento y Términos de Uso Biométrico (HeyGen Avatar)
+                    </h5>
+                    <p class="mb-0 text-secondary small">
+                        <span th:if="${docente != null and docente.fechaAceptacionTycClon != null}">
+                            Autorización concedida el <strong th:text="${#temporals.format(docente.fechaAceptacionTycClon, 'dd/MM/yyyy HH:mm')}">fecha</strong>.
+                            Avatar ID: <code th:text="${docente.avatarId}">avatar_123</code> · Voice ID: <code th:text="${docente.voiceId}">voice_123</code>
+                        </span>
+                        <span th:if="${docente == null or docente.fechaAceptacionTycClon == null}">
+                            Para generar clases con Clon IA debes aceptar los términos y condiciones de consentimiento de imagen y voz sintética.
+                        </span>
+                    </p>
+                </div>
+                <div>
+                    <span th:if="${docente != null and docente.fechaAceptacionTycClon != null}" class="badge bg-success text-white rounded-pill px-3 py-2 fw-bold">
+                        <i class="fa-solid fa-check me-1"></i> Avatar Habilitado
+                    </span>
+                    <form th:if="${docente != null and docente.fechaAceptacionTycClon == null}" th:action="@{/clon-ia/docente/aceptar-tyc}" method="post" class="d-inline">
+                        <input type="hidden" name="aceptoTyc" value="true">
+                        <button type="submit" class="btn idn-btn-gold rounded-pill px-4 fw-bold">
+                            <i class="fa-solid fa-signature me-1"></i> Aceptar TyC y Activar Clon
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
 
+        <!-- Generar Nueva Clase con Clon IA (CU-78) -->
+        <div th:if="${docente != null and docente.fechaAceptacionTycClon != null}" class="card idn-card border-0 shadow-sm mb-4">
+            <div class="card-body p-4">
+                <h5 class="fw-bold text-navy mb-3"><i class="fa-solid fa-wand-magic-sparkles me-2 text-gold"></i>Generar Clase Sintetizada con HeyGen</h5>
+                <form th:action="@{/clon-ia/generar}" method="post" class="row g-3">
+                    <div class="col-md-8">
+                        <label class="form-label small fw-bold">Título de la Lección *</label>
+                        <input type="text" name="titulo" class="form-control" placeholder="Ej: Síntesis Didáctica: Análisis Técnico y Velas Japonesas" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold">ID de Unidad Destino *</label>
+                        <input type="number" name="unidadId" class="form-control" placeholder="ID de la unidad" required>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label small fw-bold">Guión Pedagógico (Speech input para el Avatar) *</label>
+                        <textarea name="guionPrompt" class="form-control" rows="5" placeholder="Escribe el texto exacto que el avatar sintetizará..." required></textarea>
+                    </div>
+                    <div class="col-12 text-end">
+                        <button type="submit" class="btn idn-btn-gold px-4 py-2 shadow fw-bold">
+                            <i class="fa-solid fa-film me-2"></i> Renderizar Video con HeyGen
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Listado de Clases Generadas por Clon IA (CU-77) -->
+        <div class="card idn-card border-0 shadow-sm">
+            <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold text-navy"><i class="fa-solid fa-clapperboard me-2 text-gold"></i>Lecciones Sintetizadas</h5>
+                <span class="badge bg-light text-navy border" th:text="${#lists.size(clasesClon)} + ' Videos Generados'">0</span>
+            </div>
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0">
                     <thead class="table-light">
                         <tr>
-                            <th>Título</th>
+                            <th class="ps-4">Título</th>
+                            <th>ID Video HeyGen</th>
                             <th>Unidad</th>
-                            <th>Fecha Generación</th>
+                            <th>Fecha</th>
                             <th>Estado</th>
-                            <th>Material Asociado</th>
+                            <th class="text-end pe-4">Acción</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr th:each="c : ${clasesClon}">
-                            <td class="fw-bold" th:text="${c.titulo}">Título</td>
-                            <td th:text="${c.unidad.titulo}">Unidad</td>
-                            <td th:text="${c.fechaGeneracion != null ? #temporals.format(c.fechaGeneracion, 'dd/MM/yyyy') : '—'}">Fecha</td>
-                            <td>
-                                <span class="badge bg-success rounded-pill" th:text="${c.estado.nombre}">Generada</span>
-                            </td>
-                            <td>
-                                <span th:if="${c.material != null}">
-                                    <i class="fa-solid fa-file-video text-primary me-1"></i>
-                                    <span th:text="${c.material.titulo}">Material</span>
-                                    <small class="badge bg-warning text-dark ms-1">Oculto (En revisión)</small>
-                                </span>
+                        <tr th:if="${#lists.isEmpty(clasesClon)}">
+                            <td colspan="6" class="text-center py-5 text-muted">
+                                <i class="fa-solid fa-film fa-3x mb-3 text-secondary opacity-50 d-block"></i>
+                                Aún no has renderizado video-lecciones con tu clon virtual.
                             </td>
                         </tr>
-                        <tr th:if="${clasesClon.isEmpty()}">
-                            <td colspan="5" class="text-center text-muted fst-italic py-4">Aún no generaste clases con Clon IA.</td>
+                        <tr th:each="c : ${clasesClon}">
+                            <td class="ps-4">
+                                <strong class="text-navy" th:text="${c.titulo}">Título</strong>
+                            </td>
+                            <td>
+                                <code class="text-gold-deep" th:text="${c.videoHeygenId != null ? c.videoHeygenId : 'En proceso'}">video_123</code>
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-navy border" th:text="${c.unidad != null ? c.unidad.titulo : 'Unidad'}">Unidad</span>
+                            </td>
+                            <td>
+                                <span class="small text-muted" th:text="${c.fechaCreacion != null ? #temporals.format(c.fechaCreacion, 'dd/MM/yyyy HH:mm') : '-'}">01/01/2026</span>
+                            </td>
+                            <td>
+                                <span class="badge rounded-pill"
+                                      th:classappend="${c.estadoClaseClonIA != null and c.estadoClaseClonIA.nombre == 'Completada'} ? 'bg-success-subtle text-success border border-success-subtle' : 'bg-warning-subtle text-warning border border-warning-subtle'"
+                                      th:text="${c.estadoClaseClonIA != null ? c.estadoClaseClonIA.nombre : 'Procesando'}">Completada</span>
+                            </td>
+                            <td class="text-end pe-4">
+                                <form th:action="@{/clon-ia/{id}/baja(id=${c.id})}" method="post" class="d-inline"
+                                      onsubmit="return confirm('¿Seguro que deseas eliminar este video?');">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Dar de baja">
+                                        <i class="fa-solid fa-trash-can"></i>
+                                    </button>
+                                </form>
+                            </td>
                         </tr>
                     </tbody>
                 </table>
             </div>
         </div>
-    </div>
+    </main>
 
-</div>
-
-<div th:replace="~{fragments/footer :: footer}"></div>
+    <footer th:replace="~{fragments/footer :: footer}"></footer>
+    <th:block th:replace="~{fragments/scripts :: scripts}"></th:block>
 </body>
 </html>

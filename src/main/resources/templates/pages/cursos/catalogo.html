@@ -1,30 +1,37 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-
-<div th:replace="~{fragments/head :: head}"></div>
-
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head th:replace="~{fragments/head :: head}"></head>
 <body>
-    <div th:replace="~{fragments/navbar :: navbar}"></div>
+    <header th:replace="~{fragments/navbar :: navbar}"></header>
 
-    <div class="bg-dark text-white py-4 mb-4">
+    <!-- Header Hero Banner -->
+    <div class="bg-navy py-5 mb-4 text-white idn-fade">
         <div class="container">
-            <h1 class="fw-bold mb-1">Catálogo de Cursos</h1>
-            <p class="text-white-50 mb-0">Explora nuestra oferta académica de Finanzas, Economía y Mercado de Capitales</p>
+            <div class="d-flex align-items-center gap-2 mb-2 text-gold small fw-bold" style="letter-spacing: 0.12em;">
+                <i class="fa-solid fa-graduation-cap"></i> FORMACIÓN ESPECIALIZADA CNV
+            </div>
+            <h1 class="font-serif display-5 fw-bold text-white mb-2">Catálogo de Cursos & Especializaciones</h1>
+            <p class="text-white-50 lead mb-0" style="max-width: 650px;">
+                Programas estructurados con seguimiento de avance, simuladores de examen bursátil y tutoría docente especializada.
+            </p>
         </div>
     </div>
 
-    <div class="container">
-        <!-- Filtros y Búsqueda -->
-        <div class="card border-0 shadow-sm p-4 mb-4 rounded-4">
+    <main class="container mb-5 idn-fade">
+        <!-- Barra de Búsqueda y Filtros -->
+        <div class="card idn-card border-0 shadow-sm p-4 mb-4">
             <form th:action="@{/cursos}" method="get" class="row g-3 align-items-end">
                 <div class="col-md-5">
-                    <label for="busqueda" class="form-label fw-bold">Buscar por Nombre</label>
-                    <input type="text" class="form-control" id="busqueda" name="busqueda" th:value="${busqueda}" placeholder="Ej: Mercado de Capitales...">
+                    <label for="busqueda" class="form-label small fw-bold text-navy">Buscar por Título o Contenido</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
+                        <input type="text" class="form-control border-start-0" id="busqueda" name="busqueda" th:value="${busqueda}" placeholder="Ej: Renta Fija, Opciones, Derivados CNV...">
+                    </div>
                 </div>
                 <div class="col-md-5">
-                    <label for="categoriaId" class="form-label fw-bold">Filtrar por Categoría</label>
+                    <label for="categoriaId" class="form-label small fw-bold text-navy">Filtrar por Especialidad</label>
                     <select class="form-select" id="categoriaId" name="categoriaId">
-                        <option value="">Todas las Categorías</option>
+                        <option value="">Todas las Categorías de Finanzas</option>
                         <option th:each="cat : ${categorias}" 
                                 th:value="${cat.id}" 
                                 th:text="${cat.nombre}" 
@@ -32,25 +39,45 @@
                     </select>
                 </div>
                 <div class="col-md-2">
-                    <button type="submit" class="btn btn-primary w-100 rounded-pill"><i class="fa-solid fa-filter me-2"></i>Filtrar</button>
+                    <button type="submit" class="btn idn-btn-gold w-100">
+                        <i class="fa-solid fa-filter me-1"></i> Filtrar
+                    </button>
                 </div>
             </form>
         </div>
 
-        <!-- Cursos Grilla -->
+        <!-- Categorías Pills -->
+        <div class="d-flex flex-wrap gap-2 mb-4">
+            <a th:href="@{/cursos}" class="badge text-decoration-none px-3 py-2 rounded-pill"
+               th:classappend="${categoriaSeleccionada == null ? 'bg-navy text-gold' : 'bg-white text-navy border'}">
+                Todos (<span th:text="${#lists.size(cursos)}">0</span>)
+            </a>
+            <a th:each="cat : ${categorias}" th:href="@{/cursos(categoriaId=${cat.id})}" 
+               class="badge text-decoration-none px-3 py-2 rounded-pill"
+               th:classappend="${categoriaSeleccionada == cat.id ? 'bg-gold text-navy fw-bold' : 'bg-white text-navy border'}"
+               th:text="${cat.nombre}">
+                Categoría
+            </a>
+        </div>
+
+        <!-- Grilla de Cursos -->
         <div class="row g-4 mb-5">
-            <div th:if="${cursos.isEmpty()}" class="col-12 text-center py-5">
-                <i class="fa-solid fa-book-open display-1 text-muted mb-3"></i>
-                <h4 class="text-muted">No se encontraron cursos con los criterios seleccionados.</h4>
+            <div th:if="${#lists.isEmpty(cursos)}" class="col-12 text-center py-5">
+                <div class="card idn-card p-5 border-0 shadow-sm">
+                    <i class="fa-solid fa-book-open display-1 text-gold opacity-50 mb-3"></i>
+                    <h4 class="text-navy fw-bold">No se encontraron cursos con los criterios seleccionados</h4>
+                    <p class="text-muted">Intenta buscar con otras palabras clave o restablece los filtros.</p>
+                    <a th:href="@{/cursos}" class="btn idn-btn-outline mx-auto">Ver Todos los Cursos</a>
+                </div>
             </div>
 
-            <div th:each="curso : ${cursos}" class="col-md-4">
+            <div th:each="curso : ${cursos}" class="col-md-6 col-lg-4">
                 <div th:replace="~{fragments/cartaCurso :: cartaCurso}"></div>
             </div>
         </div>
-    </div>
+    </main>
 
-    <div th:replace="~{fragments/footer :: footer}"></div>
-    <div th:replace="~{fragments/scripts :: scripts}"></div>
+    <footer th:replace="~{fragments/footer :: footer}"></footer>
+    <th:block th:replace="~{fragments/scripts :: scripts}"></th:block>
 </body>
 </html>

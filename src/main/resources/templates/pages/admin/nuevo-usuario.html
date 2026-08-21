@@ -1,59 +1,70 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Nuevo Usuario | Idóneos Online</title>
-    <link rel="stylesheet" th:href="@{/css/index.css}">
-    <style>
-        .form-card { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); max-width: 600px; margin: 2rem auto; }
-        .form-group { margin-bottom: 1.5rem; }
-        .form-group label { display: block; font-weight: 600; margin-bottom: 0.5rem; color: #374151; }
-        .form-group input, .form-group select { width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 6px; font-size: 1rem; }
-        .btn-submit { background: #1a56db; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 6px; font-weight: 600; cursor: pointer; }
-    </style>
-</head>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head th:replace="~{fragments/head :: head}"></head>
 <body>
-    <div th:replace="~{fragments/header :: header}"></div>
+    <header th:replace="~{fragments/navbar :: navbar}"></header>
 
-    <div class="container">
-        <div class="form-card">
-            <h2>Crear Nuevo Usuario (Admin)</h2>
-            <p style="color: #6b7280; margin-bottom: 1.5rem;">Crea cuentas de Alumno o Administrador. Para Docentes usa la sección específica.</p>
-
-            <form th:action="@{/admin/usuarios/guardar}" method="post">
-                <div class="form-group">
-                    <label for="nombre">Nombre *</label>
-                    <input type="text" id="nombre" name="nombre" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="apellido">Apellido *</label>
-                    <input type="text" id="apellido" name="apellido" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="correo">Correo Electrónico *</label>
-                    <input type="email" id="correo" name="correo" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="contrasena">Contraseña Inicial *</label>
-                    <input type="password" id="contrasena" name="contrasena" required minlength="6">
-                </div>
-
-                <div class="form-group">
-                    <label for="rol">Rol *</label>
-                    <select id="rol" name="rol" required>
-                        <option th:each="r : ${roles}" th:value="${r}" th:text="${r}"></option>
-                    </select>
-                </div>
-
-                <div style="display: flex; gap: 1rem; align-items: center;">
-                    <button type="submit" class="btn-submit">Crear Usuario</button>
-                    <a th:href="@{/admin/usuarios}" style="color: #6b7280; text-decoration: none;">Cancelar</a>
-                </div>
-            </form>
+    <div class="bg-navy py-4 mb-4 text-white idn-fade">
+        <div class="container d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <h1 class="font-serif fw-bold mb-0 text-white"><i class="fa-solid fa-user-plus text-gold me-2"></i>Registrar Nuevo Usuario</h1>
+                <small class="text-white-50">Alta de cuenta administrativa, docente o de alumno en la plataforma.</small>
+            </div>
+            <a th:href="@{/admin/usuarios}" class="btn btn-outline-light rounded-pill">Volver a Usuarios</a>
         </div>
     </div>
+
+    <main class="container mb-5 idn-fade">
+        <div class="row justify-content-center">
+            <div class="col-lg-7">
+                <!-- Mensajes Flash -->
+                <div th:if="${mensaje != null}" class="alert alert-danger alert-dismissible fade show mb-4 border-0 shadow-sm rounded-3" role="alert">
+                    <i class="fa-solid fa-circle-exclamation me-2"></i>
+                    <span th:text="${mensaje}">Mensaje</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+
+                <div class="card idn-card border-0 shadow-sm p-4 p-md-5 bg-white">
+                    <form th:action="@{/admin/usuarios/guardar}" method="post">
+                        <div class="row g-3 mb-3">
+                            <div class="col-6">
+                                <label for="nombre" class="form-label small fw-bold text-navy">Nombre *</label>
+                                <input type="text" id="nombre" name="nombre" class="form-control" placeholder="Ej: Juan" required>
+                            </div>
+                            <div class="col-6">
+                                <label for="apellido" class="form-label small fw-bold text-navy">Apellido *</label>
+                                <input type="text" id="apellido" name="apellido" class="form-control" placeholder="Ej: Pérez" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="correo" class="form-label small fw-bold text-navy">Correo Electrónico *</label>
+                            <input type="email" id="correo" name="correo" class="form-control" placeholder="usuario@idoneos.online" required>
+                        </div>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label for="contrasena" class="form-label small fw-bold text-navy">Contraseña Inicial *</label>
+                                <input type="password" id="contrasena" name="contrasena" class="form-control" placeholder="Mínimo 6 caracteres" required minlength="6">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="rol" class="form-label small fw-bold text-navy">Rol en el Sistema *</label>
+                                <select id="rol" name="rol" class="form-select" required>
+                                    <option th:each="r : ${roles}" th:value="${r}" th:text="${r}"></option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn idn-btn-gold w-100 py-3 fw-bold shadow">
+                            <i class="fa-solid fa-user-check me-2"></i> Crear Cuenta de Usuario
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer th:replace="~{fragments/footer :: footer}"></footer>
+    <th:block th:replace="~{fragments/scripts :: scripts}"></th:block>
 </body>
 </html>

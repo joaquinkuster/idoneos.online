@@ -1,19 +1,19 @@
-<!-- Navbar institucional -->
+<!-- Navbar institucional Idóneos Online -->
 <nav class="navbar navbar-expand-lg sticky-top shadow-sm"
-    style="background: linear-gradient(180deg, #0B1F3A, #12294D); border-bottom: 1px solid rgba(255,255,255,0.06);"
+    style="background: linear-gradient(180deg, #0B1F3A, #12294D); border-bottom: 1px solid rgba(255,255,255,0.08);"
     th:fragment="navbar">
     <div class="container">
         <!-- Logo / Marca institucional -->
         <a class="navbar-brand d-flex align-items-center gap-2" th:href="@{/inicio}" style="text-decoration: none;">
             <img th:src="@{/img/logos/image.png}" alt="Idóneos Online Logo"
-                style="height: 38px; width: auto; object-fit: contain;">
+                style="height: 40px; width: auto; object-fit: contain;">
             <div style="line-height: 1.15;">
                 <div
                     style="font-family: 'Fraunces', serif; font-size: 20px; font-weight: 600; color: #F7F5EF; letter-spacing: 0.01em;">
                     Idóneos <span style="color: #E4BE6C;">Online</span>
                 </div>
                 <div
-                    style="font-family: 'Inter', sans-serif; font-size: 9.5px; color: #8FA0BE; letter-spacing: 0.09em; font-weight: 700;">
+                    style="font-family: 'Inter', sans-serif; font-size: 9px; color: #8FA0BE; letter-spacing: 0.1em; font-weight: 700;">
                     FINANZAS · ECONOMÍA · MERCADO DE CAPITALES
                 </div>
             </div>
@@ -32,10 +32,10 @@
                     <a class="nav-link px-3 text-white-50 idn-navlink" th:href="@{/inicio}">Inicio</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link px-3 text-white-50 idn-navlink" th:href="@{/cursos}">Cursos</a>
+                    <a class="nav-link px-3 text-white-50 idn-navlink" th:href="@{/cursos}">Catálogo de Cursos</a>
                 </li>
                 <li class="nav-item" th:if="${usuario != null}">
-                    <a class="nav-link px-3 text-white-50 idn-navlink" th:href="@{/cursos/mis-cursos}">Mi Panel</a>
+                    <a class="nav-link px-3 text-white-50 idn-navlink" th:href="@{/cursos/mis-cursos}">Mis Cursos</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link px-3 text-white-50 idn-navlink" th:href="@{/acercaDe}">Acerca de</a>
@@ -45,10 +45,10 @@
             <!-- Sección Usuario / Autenticación -->
             <div class="d-flex align-items-center gap-3">
                 <th:block th:if="${usuario == null}">
-                    <a th:href="@{/login}" class="btn btn-sm px-3 rounded-pill text-white idn-btn-ghost">
+                    <a th:href="@{/login}" class="btn btn-sm px-3 text-white idn-btn-ghost">
                         <i class="fa-solid fa-right-to-bracket me-1"></i> Ingresar
                     </a>
-                    <a th:href="@{/registro}" class="btn btn-sm px-4 rounded-pill idn-btn-gold">
+                    <a th:href="@{/registro}" class="btn btn-sm px-4 idn-btn-gold">
                         Crear Cuenta
                     </a>
                 </th:block>
@@ -59,37 +59,65 @@
                             class="btn btn-outline-light btn-sm dropdown-toggle rounded-pill px-3 d-flex align-items-center gap-2 border-secondary"
                             type="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <div class="rounded-circle bg-gold text-navy fw-bold d-flex align-items-center justify-content-center"
-                                style="width: 24px; height: 24px; font-size: 11px;"
+                                style="width: 26px; height: 26px; font-size: 11px;"
                                 th:text="${#strings.substring(usuario.nombre, 0, 1)}">U</div>
-                            <span class="fw-semibold" th:text="${usuario.nombre}">Usuario</span>
+                            <span class="fw-semibold text-white" th:text="${usuario.nombre + ' ' + (usuario.apellido != null ? usuario.apellido : '')}">Usuario</span>
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-4 mt-2">
-                            <li><a class="dropdown-item py-2" th:href="@{/usuario/verPerfil}"><i
+                        <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-4 mt-2 p-2" style="min-width: 240px;">
+                            <li class="px-3 py-2 border-bottom mb-1">
+                                <div class="fw-bold text-navy" th:text="${usuario.nombre + ' ' + (usuario.apellido != null ? usuario.apellido : '')}">Usuario</div>
+                                <div class="text-muted small" th:text="${usuario.correo}">correo@ejemplo.com</div>
+                                <span class="badge mt-1" 
+                                    th:classappend="${usuario.esAdmin() ? 'badge-role-admin' : (usuario.esDocente() ? 'badge-role-docente' : 'badge-role-alumno')}"
+                                    th:text="${usuario.rol != null ? usuario.rol.nombre : 'Alumno'}">Rol</span>
+                            </li>
+                            <li><a class="dropdown-item py-2 rounded-3" th:href="@{/usuario/verPerfil}"><i
                                         class="fa-solid fa-id-card me-2 text-gold"></i>Mi Perfil</a></li>
-                            <li><a class="dropdown-item py-2" th:href="@{/cursos/mis-cursos}"><i
+                            <li><a class="dropdown-item py-2 rounded-3" th:href="@{/cursos/mis-cursos}"><i
                                         class="fa-solid fa-book-open me-2 text-primary"></i>Mis Cursos</a></li>
-                            <li th:if="${#authorization.expression('hasRole(''Administrador'')')}">
-                                <a class="dropdown-item py-2 text-primary fw-bold" th:href="@{/admin}"><i
-                                        class="fa-solid fa-shield-halved me-2"></i>Panel Admin</a>
-                            </li>
-                            <li th:if="${#authorization.expression('hasAnyRole(''Docente'', ''Administrador'')')}">
-                                <a class="dropdown-item py-2 text-success fw-bold" th:href="@{/docente}"><i
-                                        class="fa-solid fa-chalkboard-user me-2"></i>Panel Docente</a>
-                            </li>
-                            <li th:if="${#authorization.expression('hasAnyRole(''Docente'', ''Administrador'')')}">
-                                <a class="dropdown-item py-2 text-info fw-semibold" th:href="@{/clase-vivo/docente}"><i
-                                        class="fa-solid fa-video me-2"></i>Clases en Vivo (RTMP)</a>
-                            </li>
-                            <li th:if="${#authorization.expression('hasAnyRole(''Docente'', ''Administrador'')')}">
-                                <a class="dropdown-item py-2 text-warning fw-semibold" th:href="@{/clon-ia/docente}"><i
-                                        class="fa-solid fa-robot me-2"></i>Clon IA (HeyGen)</a>
-                            </li>
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
+                            <li><a class="dropdown-item py-2 rounded-3" th:href="@{/certificados}"><i
+                                        class="fa-solid fa-award me-2 text-warning"></i>Mis Certificados</a></li>
+                            <li><a class="dropdown-item py-2 rounded-3" th:href="@{/usuario/sesiones}"><i
+                                        class="fa-solid fa-shield me-2 text-secondary"></i>Sesiones Activas</a></li>
+                            
+                            <!-- Opciones para Administrador -->
+                            <th:block th:if="${#authorization.expression('hasRole(''Administrador'')')}">
+                                <li><hr class="dropdown-divider my-1"></li>
+                                <li class="dropdown-header text-uppercase text-gold fw-bold small py-1">Administración</li>
+                                <li><a class="dropdown-item py-1 text-primary fw-semibold" th:href="@{/admin}"><i
+                                        class="fa-solid fa-gauge me-2"></i>Panel de Control</a></li>
+                                <li><a class="dropdown-item py-1" th:href="@{/admin/usuarios}"><i
+                                        class="fa-solid fa-users me-2 text-secondary"></i>Usuarios</a></li>
+                                <li><a class="dropdown-item py-1" th:href="@{/admin/cursos}"><i
+                                        class="fa-solid fa-graduation-cap me-2 text-secondary"></i>Cursos</a></li>
+                                <li><a class="dropdown-item py-1" th:href="@{/admin/categorias}"><i
+                                        class="fa-solid fa-tags me-2 text-secondary"></i>Categorías</a></li>
+                                <li><a class="dropdown-item py-1" th:href="@{/admin/descuentos}"><i
+                                        class="fa-solid fa-percent me-2 text-secondary"></i>Descuentos</a></li>
+                                <li><a class="dropdown-item py-1" th:href="@{/admin/reportes}"><i
+                                        class="fa-solid fa-chart-pie me-2 text-secondary"></i>Reportes & Métricas</a></li>
+                                <li><a class="dropdown-item py-1" th:href="@{/admin/auditoria}"><i
+                                        class="fa-solid fa-list-check me-2 text-secondary"></i>Auditoría</a></li>
+                                <li><a class="dropdown-item py-1" th:href="@{/admin/configuracion}"><i
+                                        class="fa-solid fa-gear me-2 text-secondary"></i>Configuración</a></li>
+                            </th:block>
+
+                            <!-- Opciones para Docente -->
+                            <th:block th:if="${#authorization.expression('hasAnyRole(''Docente'', ''Administrador'')')}">
+                                <li><hr class="dropdown-divider my-1"></li>
+                                <li class="dropdown-header text-uppercase text-success fw-bold small py-1">Gestión Docente</li>
+                                <li><a class="dropdown-item py-1 text-success fw-semibold" th:href="@{/docente}"><i
+                                        class="fa-solid fa-chalkboard-user me-2"></i>Mis Cursos Asignados</a></li>
+                                <li><a class="dropdown-item py-1 text-info" th:href="@{/clase-vivo/docente}"><i
+                                        class="fa-solid fa-video me-2"></i>Clases en Vivo (RTMP)</a></li>
+                                <li><a class="dropdown-item py-1 text-warning" th:href="@{/clon-ia/docente}"><i
+                                        class="fa-solid fa-robot me-2"></i>Clon IA Pedagógico</a></li>
+                            </th:block>
+
+                            <li><hr class="dropdown-divider my-1"></li>
                             <li>
                                 <form th:action="@{/logout}" method="post">
-                                    <button class="dropdown-item py-2 text-danger" type="submit"><i
+                                    <button class="dropdown-item py-2 text-danger rounded-3" type="submit"><i
                                             class="fa-solid fa-right-from-bracket me-2"></i>Cerrar Sesión</button>
                                 </form>
                             </li>

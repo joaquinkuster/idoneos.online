@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head th:replace="~{fragments/head :: head}"></head>
+<body>
+    <header th:replace="~{fragments/navbar :: navbar}"></header>
+
+    <main class="container py-4 idn-fade">
+        <nav aria-label="breadcrumb" class="mb-3">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a th:href="@{/docente}"><i class="fa-solid fa-chalkboard-user me-1"></i>Docente</a></li>
+                <li class="breadcrumb-item"><a th:href="@{/docente/curso/{id}/gestionar(id=${curso.id})}" th:text="${curso.nombre}">Curso</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Participantes</li>
+            </ol>
+        </nav>
+
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+            <div>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge bg-gold text-navy fw-bold px-3 py-1 rounded-pill">CU-25</span>
+                    <h1 class="h2 mb-0 fw-bold text-navy" th:text="'Participantes: ' + ${curso.nombre}">Participantes del Curso</h1>
+                </div>
+                <p class="text-muted mb-0 mt-1">
+                    Cuerpo docente asignado y registro de alumnos inscriptos con estado académico y de pago.
+                </p>
+            </div>
+            <a th:href="@{/docente/curso/{id}/gestionar(id=${curso.id})}" class="btn btn-outline-secondary rounded-pill px-3">
+                <i class="fa-solid fa-arrow-left me-1"></i> Volver a Gestión
+            </a>
+        </div>
+
+        <!-- Sección: Equipo Docente -->
+        <div class="card idn-card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold text-navy"><i class="fa-solid fa-chalkboard-teacher me-2 text-gold"></i>Equipo Docente y Supervisores</h5>
+                <span class="badge bg-light text-navy border" th:text="${#lists.size(docentesEquipo)} + ' Docentes'">0</span>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-4">Docente</th>
+                                <th>Correo Electrónico</th>
+                                <th>Matrícula CNV / Colegio</th>
+                                <th>Títulos Académicos</th>
+                                <th>Rol en el Curso</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="d : ${docentesEquipo}">
+                                <td class="ps-4">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="rounded-circle bg-navy text-white fw-bold d-flex align-items-center justify-content-center"
+                                             style="width: 32px; height: 32px; font-size: 13px;"
+                                             th:text="${d.usuario != null ? #strings.substring(d.usuario.nombre, 0, 1) : 'D'}">D</div>
+                                        <div>
+                                            <strong class="text-navy" th:text="${d.usuario != null ? d.usuario.nombre + ' ' + (d.usuario.apellido != null ? d.usuario.apellido : '') : 'Docente'}">Nombre Docente</strong>
+                                            <div class="small text-muted" th:text="${d.aniosExperiencia != null ? d.aniosExperiencia + ' años de experiencia' : ''}">Experiencia</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td th:text="${d.usuario != null ? d.usuario.correo : '-'}">correo@docente.com</td>
+                                <td>
+                                    <span class="badge bg-light text-navy border" th:text="${d.matriculaCnv != null and !d.matriculaCnv.isBlank() ? 'CNV ' + d.matriculaCnv : 'S/M'}">CNV 12345</span>
+                                </td>
+                                <td>
+                                    <div th:if="${d.titulos != null and !#lists.isEmpty(d.titulos)}">
+                                        <span th:each="t : ${d.titulos}" class="badge bg-primary-subtle text-primary border border-primary-subtle me-1 mb-1 small" th:text="${t.titulo}">Lic. en Economía</span>
+                                    </div>
+                                    <span th:if="${d.titulos == null or #lists.isEmpty(d.titulos)}" class="text-muted small">Sin títulos registrados</span>
+                                </td>
+                                <td>
+                                    <span th:if="${curso.docente != null and curso.docente.id == d.id}" class="badge bg-gold text-navy fw-bold">Titular</span>
+                                    <span th:if="${curso.docente == null or curso.docente.id != d.id}" class="badge bg-info-subtle text-info fw-semibold">Supervisor</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección: Alumnos Inscriptos -->
+        <div class="card idn-card border-0 shadow-sm">
+            <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold text-navy"><i class="fa-solid fa-user-graduate me-2 text-primary"></i>Alumnos Inscriptos</h5>
+                <span class="badge bg-primary-subtle text-primary border border-primary-subtle" th:text="${#lists.size(inscripciones)} + ' Alumnos'">0</span>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-4">Alumno</th>
+                                <th>DNI / Identificación</th>
+                                <th>Cohorte</th>
+                                <th>Fecha Inscripción</th>
+                                <th>Progreso</th>
+                                <th>Estado Pago</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:if="${#lists.isEmpty(inscripciones)}">
+                                <td colspan="6" class="text-center py-5 text-muted">
+                                    <i class="fa-solid fa-users-slash fa-3x mb-3 text-secondary opacity-50 d-block"></i>
+                                    No hay alumnos inscriptos actualmente en las cohortes de este curso.
+                                </td>
+                            </tr>
+                            <tr th:each="i : ${inscripciones}">
+                                <td class="ps-4">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="rounded-circle bg-light text-navy fw-bold border d-flex align-items-center justify-content-center"
+                                             style="width: 32px; height: 32px; font-size: 12px;"
+                                             th:text="${i.usuario != null ? #strings.substring(i.usuario.nombre, 0, 1) : 'A'}">A</div>
+                                        <div>
+                                            <strong class="text-navy" th:text="${i.usuario != null ? i.usuario.nombre + ' ' + (i.usuario.apellido != null ? i.usuario.apellido : '') : 'Alumno'}">Nombre</strong>
+                                            <div class="small text-muted" th:text="${i.usuario != null ? i.usuario.correo : '-'}">correo@alumno.com</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span th:text="${i.usuario != null and i.usuario.dni != null ? i.usuario.dni : '-'}">DNI</span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-light text-navy border" th:text="${i.cohorte != null ? 'Cohorte #' + i.cohorte.id : 'General'}">Cohorte #1</span>
+                                </td>
+                                <td>
+                                    <span class="small" th:text="${i.fechaInscripcion != null ? #temporals.format(i.fechaInscripcion, 'dd/MM/yyyy') : '-'}">01/01/2026</span>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="progress flex-grow-1" style="height: 6px; min-width: 80px;">
+                                            <div class="progress-bar bg-gold" role="progressbar" 
+                                                 th:style="'width: ' + (${i.progreso != null and i.progreso.porcentaje != null ? i.progreso.porcentaje : 0}) + '%;'"></div>
+                                        </div>
+                                        <span class="small fw-bold text-navy" th:text="${i.progreso != null and i.progreso.porcentaje != null ? #numbers.formatDecimal(i.progreso.porcentaje, 1, 0) + '%' : '0%'}">0%</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle">Acreditado</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer th:replace="~{fragments/footer :: footer}"></footer>
+    <th:block th:replace="~{fragments/scripts :: scripts}"></th:block>
+</body>
+</html>

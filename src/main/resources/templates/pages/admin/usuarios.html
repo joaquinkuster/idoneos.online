@@ -1,88 +1,149 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head th:replace="~{fragments/head :: head}"></head>
+<body>
+    <header th:replace="~{fragments/navbar :: navbar}"></header>
 
-<div th:replace="~{fragments/head :: head}"></div>
-
-<body class="bg-light">
-    <div th:replace="~{fragments/navbar :: navbar}"></div>
-
-    <div class="bg-dark text-white py-4 mb-4">
+    <div class="bg-navy py-5 mb-4 text-white idn-fade">
         <div class="container d-flex justify-content-between align-items-center flex-wrap gap-3">
-            <h1 class="fw-bold mb-0">Gestión de Usuarios</h1>
-            <a th:href="@{/admin}" class="btn btn-outline-light rounded-pill">Volver al Panel</a>
+            <div>
+                <div class="d-flex align-items-center gap-2 mb-2 text-gold small fw-bold" style="letter-spacing: 0.12em;">
+                    <i class="fa-solid fa-shield-halved"></i> GESTIÓN MAESTRA · IDÓNEOS ONLINE
+                </div>
+                <h1 class="font-serif display-5 fw-bold text-white mb-0">Gestión de Usuarios</h1>
+                <p class="text-white-50 lead mb-0">Directorio de cuentas, perfiles docentes, asignación de roles y control de acceso.</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a th:href="@{/admin/usuarios/nuevo}" class="btn idn-btn-gold">
+                    <i class="fa-solid fa-user-plus me-1"></i> Registrar Usuario
+                </a>
+                <a th:href="@{/admin}" class="btn btn-outline-light rounded-pill">Volver al Panel</a>
+            </div>
         </div>
     </div>
 
-    <div class="container mb-5">
-        <div th:if="${mensaje != null}" class="alert alert-success alert-dismissible fade show mb-4" role="alert">
-            <span th:text="${mensaje}"></span>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    <main class="container mb-5 idn-fade">
+        <!-- Mensajes Flash -->
+        <div th:if="${mensaje != null}" class="alert alert-info alert-dismissible fade show mb-4 border-0 shadow-sm rounded-3" role="alert">
+            <i class="fa-solid fa-circle-info me-2 text-primary"></i>
+            <span th:text="${mensaje}">Mensaje</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
 
-        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+        <div class="card idn-card border-0 shadow-sm">
+            <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold text-navy"><i class="fa-solid fa-users text-gold me-2"></i>Padrón de Usuarios del Sistema</h5>
+                <span class="badge bg-light text-navy border" th:text="${#lists.size(usuarios)} + ' cuentas registradas'">0</span>
+            </div>
             <div class="table-responsive">
-                <table class="table table-hover align-middle">
-                    <thead class="table-dark">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
                         <tr>
-                            <th>ID</th>
-                            <th>Nombre</th>
-                            <th>Correo</th>
-                            <th>Rol</th>
-                            <th>Clon IA</th>
+                            <th class="ps-4">ID</th>
+                            <th>Nombre Completo</th>
+                            <th>Correo Electrónico</th>
+                            <th>DNI</th>
+                            <th>Rol Activo</th>
                             <th>Estado</th>
-                            <th>Alta</th>
-                            <th class="text-center">Acciones</th>
+                            <th class="text-end pe-4">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr th:each="u : ${usuarios}" th:classappend="${u.getBaja() ? 'table-secondary text-muted' : ''}">
-                            <td th:text="${u.id}">1</td>
-                            <td class="fw-bold" th:text="${u.nombreCompleto}">Nombre</td>
-                            <td th:text="${u.correo}">correo</td>
+                        <tr th:each="u : ${usuarios}" th:classappend="${u.baja ? 'table-secondary text-muted' : ''}">
+                            <td class="ps-4 fw-bold text-navy" th:text="'#' + ${u.id}">#1</td>
                             <td>
-                                <!-- Cambiar Rol -->
-                                <form th:action="@{'/admin/usuarios/' + ${u.id} + '/cambiar-rol'}" method="post" class="d-flex align-items-center gap-1">
-                                    <select class="form-select form-select-sm rounded-pill" name="rol" style="width: auto;">
-                                        <option th:each="rol : ${roles}" th:value="${rol}" th:text="${rol}"
-                                                th:selected="${rol == u.rol}">Rol</option>
-                                    </select>
-                                    <button class="btn btn-outline-primary btn-sm rounded-pill" type="submit" title="Cambiar Rol">
-                                        <i class="fa-solid fa-check"></i>
-                                    </button>
-                                </form>
+                                <strong class="text-navy" th:text="${u.nombre + ' ' + (u.apellido != null ? u.apellido : '')}">Nombre</strong>
+                                <div th:if="${u.docente != null and u.docente.matriculaCnv != null}" class="small text-gold-deep">
+                                    <i class="fa-solid fa-id-badge me-1"></i> CNV: <span th:text="${u.docente.matriculaCnv}">123</span>
+                                </div>
                             </td>
                             <td>
-                                <form th:action="@{'/admin/usuarios/' + ${u.id} + '/toggle-clon-ia'}" method="post">
-                                    <button class="btn btn-sm rounded-pill" type="submit"
-                                            th:classappend="${u.getHabilitadoClonIA() ? 'btn-success' : 'btn-outline-secondary'}"
-                                            th:title="${u.getHabilitadoClonIA() ? 'Deshabilitar Clon IA' : 'Habilitar Clon IA'}">
-                                        <i class="fa-solid fa-robot me-1"></i>
-                                        <span th:text="${u.getHabilitadoClonIA() ? 'SI' : 'NO'}">NO</span>
-                                    </button>
-                                </form>
+                                <span class="font-monospace small" th:text="${u.correo}">email@domain.com</span>
                             </td>
                             <td>
-                                <span th:if="${!u.getBaja()}" class="badge bg-success rounded-pill">Activo</span>
-                                <span th:if="${u.getBaja()}" class="badge bg-secondary rounded-pill">Inactivo</span>
+                                <span th:text="${u.dni != null ? u.dni : '-'}">-</span>
                             </td>
-                            <td th:text="${u.fechaCreacion}">Fecha</td>
-                            <td class="text-center">
-                                <form th:action="@{'/admin/usuarios/' + ${u.id} + '/toggle-baja'}" method="post">
-                                    <button class="btn btn-sm rounded-pill" type="submit"
-                                            th:classappend="${u.getBaja() ? 'btn-outline-success' : 'btn-outline-danger'}"
-                                            th:text="${u.getBaja() ? 'Reactivar' : 'Dar de Baja'}"
-                                            th:onclick="${u.getBaja() ? '' : 'return confirm(\'¿Dar de baja a este usuario?\')'}">
+                            <td>
+                                <span class="badge rounded-pill px-3 py-1"
+                                      th:classappend="${u.rol != null and u.rol.nombre == 'Administrador'} ? 'bg-danger-subtle text-danger border border-danger-subtle' : (${u.rol != null and u.rol.nombre == 'Docente'} ? 'bg-warning-subtle text-dark border border-warning-subtle' : 'bg-primary-subtle text-primary border border-primary-subtle')"
+                                      th:text="${u.rol != null ? u.rol.nombre : 'Alumno'}">Alumno</span>
+                            </td>
+                            <td>
+                                <span th:if="${!u.baja}" class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-1">Activo</span>
+                                <span th:if="${u.baja}" class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-3 py-1">Baja</span>
+                            </td>
+                            <td class="text-end pe-4">
+                                <div class="d-inline-flex gap-1">
+                                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" th:data-bs-target="'#modalEditarUsuario' + ${u.id}" title="Editar">
+                                        <i class="fa-solid fa-pen-to-square"></i>
                                     </button>
-                                </form>
+
+                                    <form th:if="${!u.baja}" th:action="@{/admin/usuarios/{id}/baja(id=${u.id})}" method="post" class="d-inline"
+                                          onsubmit="return confirm('¿Seguro que deseas dar de baja este usuario?');">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Dar de baja">
+                                            <i class="fa-solid fa-user-slash"></i>
+                                        </button>
+                                    </form>
+
+                                    <form th:if="${u.baja}" th:action="@{/admin/usuarios/{id}/reactivar(id=${u.id})}" method="post" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-outline-success" title="Reactivar cuenta">
+                                            <i class="fa-solid fa-user-check"></i>
+                                        </button>
+                                    </form>
+                                </div>
+
+                                <!-- Modal Editar Usuario -->
+                                <div class="modal fade text-start" th:id="'modalEditarUsuario' + ${u.id}" tabindex="-1" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content rounded-4 border-0 shadow">
+                                            <form th:action="@{/admin/usuarios/{id}/modificar(id=${u.id})}" method="post">
+                                                <div class="modal-header bg-navy text-white rounded-top-4">
+                                                    <h5 class="modal-title fw-bold"><i class="fa-solid fa-user-pen me-2 text-gold"></i>Modificar Datos del Usuario</h5>
+                                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body p-4">
+                                                    <div class="row g-3 mb-3">
+                                                        <div class="col-6">
+                                                            <label class="form-label small fw-bold">Nombre *</label>
+                                                            <input type="text" class="form-control" name="nombre" th:value="${u.nombre}" required>
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <label class="form-label small fw-bold">Apellido *</label>
+                                                            <input type="text" class="form-control" name="apellido" th:value="${u.apellido}" required>
+                                                        </div>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label small fw-bold">Correo Electrónico *</label>
+                                                        <input type="email" class="form-control" name="correo" th:value="${u.correo}" required>
+                                                    </div>
+                                                    <div class="row g-3 mb-3">
+                                                        <div class="col-6">
+                                                            <label class="form-label small fw-bold">DNI</label>
+                                                            <input type="text" class="form-control" name="dni" th:value="${u.dni}">
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <label class="form-label small fw-bold">Teléfono</label>
+                                                            <input type="text" class="form-control" name="telefono" th:value="${u.telefono}">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer bg-light rounded-bottom-4">
+                                                    <button type="button" class="btn btn-secondary rounded-pill px-3" data-bs-dismiss="modal">Cancelar</button>
+                                                    <button type="submit" class="btn idn-btn-gold">Guardar Cambios</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
                             </td>
                         </tr>
                     </tbody>
                 </table>
             </div>
         </div>
-    </div>
+    </main>
 
-    <div th:replace="~{fragments/footer :: footer}"></div>
-    <div th:replace="~{fragments/scripts :: scripts}"></div>
+    <footer th:replace="~{fragments/footer :: footer}"></footer>
+    <th:block th:replace="~{fragments/scripts :: scripts}"></th:block>
 </body>
 </html>

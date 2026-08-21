@@ -1,37 +1,43 @@
-<!-- Fragmento Carta Curso -->
-<div th:fragment="cartaCurso" class="idn-card h-100 p-4 d-flex flex-column justify-content-between">
+<!-- Fragmento Carta Curso — Idóneos Online -->
+<div th:fragment="cartaCurso" class="card idn-card h-100 p-4 d-flex flex-column justify-content-between border-0 shadow-sm">
     <div>
         <div class="d-flex justify-content-between align-items-start gap-2 mb-3">
-            <div>
-                <span class="badge bg-gold-soft rounded-pill px-3 py-2 me-1" th:text="${curso.categoria.nombre}">Finanzas</span>
-                <span class="badge bg-purple text-white rounded-pill px-3 py-2 me-1" th:if="${curso.esCursoConClonIA()}"><i class="fa-solid fa-robot me-1"></i>Clon IA</span>
-            </div>
-            <span class="badge bg-light text-dark border rounded-pill px-3 py-2" th:if="${curso.esGratuito()}">GRATIS</span>
+            <span class="badge bg-gold-soft rounded-pill px-3 py-2 fw-semibold" 
+                  th:text="${curso.categoria != null ? curso.categoria.nombre : 'Finanzas'}">Finanzas</span>
+            <span th:if="${curso.precio <= 0}" class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-2 fw-bold">GRATIS</span>
+            <span th:if="${curso.nivel != null}" class="badge bg-light text-navy border rounded-pill px-2 py-1 small" th:text="${curso.nivel.nombre}">Nivel</span>
         </div>
 
         <h3 class="font-serif fs-4 fw-bold text-navy mb-2" style="line-height: 1.25;" th:text="${curso.nombre}">Nombre del Curso</h3>
-        <p class="small text-muted mb-3" style="line-height: 1.65;" th:text="${#strings.abbreviate(curso.descripcion, 120)}">Descripción breve...</p>
+        <p class="small text-muted mb-3" style="line-height: 1.65;" th:text="${curso.descripcion != null ? #strings.abbreviate(curso.descripcion, 130) : 'Especialización en mercado de capitales y economía financiera.'}">Descripción breve...</p>
     </div>
 
     <div>
         <!-- Docente titular -->
         <div class="d-flex align-items-center gap-2 mb-3 pt-2">
-            <div class="rounded-circle bg-gold-soft text-gold-deep fw-bold d-flex align-items-center justify-content-center" style="width: 24px; height: 24px; font-size: 10px;"
-                 th:text="${curso.getDocenteTitular() != null ? #strings.substring(curso.getDocenteTitular().getNombreCompleto(), 0, 2) : 'DO'}">DO</div>
-            <small class="fw-semibold text-dark" th:text="${curso.getDocenteTitular() != null ? curso.getDocenteTitular().getNombreCompleto() : 'Docente Idóneos'}">Docente</small>
+            <div class="rounded-circle bg-navy text-white fw-bold d-flex align-items-center justify-content-center" style="width: 28px; height: 28px; font-size: 11px;"
+                 th:text="${curso.docente != null and curso.docente.usuario != null ? #strings.substring(curso.docente.usuario.nombre, 0, 1) : 'D'}">D</div>
+            <div>
+                <small class="fw-bold text-navy d-block" 
+                       th:text="${curso.docente != null and curso.docente.usuario != null ? curso.docente.usuario.nombre + ' ' + (curso.docente.usuario.apellido != null ? curso.docente.usuario.apellido : '') : 'Equipo Académico Idóneos'}">Docente Titular</small>
+                <small class="text-muted" th:if="${curso.docente != null and curso.docente.matriculaCnv != null and !curso.docente.matriculaCnv.isBlank()}" th:text="'CNV ' + ${curso.docente.matriculaCnv}">CNV 12345</small>
+            </div>
         </div>
 
         <!-- Meta info & Precio -->
         <div class="d-flex align-items-center justify-content-between pt-3 border-top">
-            <div class="d-flex gap-3 small text-muted">
-                <span><i class="fa-solid fa-book-open me-1"></i> <span th:text="${curso.unidades.size()}">10</span> unid.</span>
+            <div class="d-flex gap-2 small text-muted align-items-center">
+                <i class="fa-solid fa-award text-gold" th:if="${curso.emiteCertificado}" title="Emite Certificado Digital"></i>
+                <span th:if="${curso.programas != null and !#lists.isEmpty(curso.programas)}">
+                    <i class="fa-solid fa-book-open me-1"></i> <span th:text="${#lists.size(curso.programas)}">1</span> prog.
+                </span>
             </div>
 
             <div class="d-flex align-items-center gap-2">
-                <span th:if="${curso.esGratuito()}" class="font-serif fw-bold text-success fs-5">¡Gratis!</span>
-                <span th:unless="${curso.esGratuito()}" class="font-serif fw-bold text-navy fs-5" th:text="'$' + ${#numbers.formatDecimal(curso.precio, 1, 'POINT', 0, 'COMMA')}">$0</span>
-                <a th:href="@{'/cursos/' + ${curso.id}}" class="btn btn-sm px-3 rounded-pill idn-btn-gold">
-                    Ver
+                <span th:if="${curso.precio <= 0}" class="font-serif fw-bold text-success fs-5">¡Gratis!</span>
+                <span th:if="${curso.precio > 0}" class="font-serif fw-bold text-navy fs-5" th:text="'$' + ${#numbers.formatDecimal(curso.precio, 1, 'POINT', 0, 'COMMA')}">$0</span>
+                <a th:href="@{/cursos/{id}(id=${curso.id})}" class="btn btn-sm px-3 rounded-pill idn-btn-gold">
+                    Ver <i class="fa-solid fa-arrow-right ms-1"></i>
                 </a>
             </div>
         </div>

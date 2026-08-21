@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head th:replace="~{fragments/head :: head}"></head>
+<body>
+    <header th:replace="~{fragments/navbar :: navbar}"></header>
+
+    <main class="container py-4 idn-fade">
+        <nav aria-label="breadcrumb" class="mb-3">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a th:href="@{/docente}"><i class="fa-solid fa-chalkboard-user me-1"></i>Docente</a></li>
+                <li class="breadcrumb-item active" aria-current="page" th:text="'Glosario: ' + ${unidad.titulo}">Glosario</li>
+            </ol>
+        </nav>
+
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+            <div>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge bg-gold text-navy fw-bold px-3 py-1 rounded-pill">CU-33 a CU-36</span>
+                    <h1 class="h2 mb-0 fw-bold text-navy" th:text="'Glosario Financiero — ' + ${unidad.titulo}">Glosario</h1>
+                </div>
+                <p class="text-muted mb-0 mt-1">
+                    Diccionario técnico de términos, conceptos regulatorios bursátiles y definiciones para consulta de los alumnos.
+                </p>
+            </div>
+            <button class="btn idn-btn-gold" data-bs-toggle="modal" data-bs-target="#modalNuevoTermino">
+                <i class="fa-solid fa-plus me-1"></i> Nuevo Término
+            </button>
+        </div>
+
+        <!-- Mensajes Flash -->
+        <div th:if="${mensaje != null}" class="alert alert-info alert-dismissible fade show border-0 shadow-sm rounded-3 mb-4" role="alert">
+            <i class="fa-solid fa-circle-info me-2 text-primary"></i>
+            <span th:text="${mensaje}">Mensaje del sistema</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <!-- Tarjetas de Glosario -->
+        <div class="row g-3">
+            <div th:if="${#lists.isEmpty(terminos)}" class="col-12 text-center py-5">
+                <div class="card idn-card p-5 border-0 shadow-sm">
+                    <i class="fa-solid fa-spell-check fa-3x mb-3 text-gold opacity-75"></i>
+                    <h4 class="text-navy fw-bold">Glosario vacío</h4>
+                    <p class="text-muted">Agrega definiciones de conceptos clave como CEDEARs, ONs, TIR, Duration, Renta Fija/Variable, etc.</p>
+                    <button class="btn idn-btn-gold mx-auto" data-bs-toggle="modal" data-bs-target="#modalNuevoTermino">
+                        Agregar Primer Concepto
+                    </button>
+                </div>
+            </div>
+
+            <div th:each="t : ${terminos}" class="col-md-6">
+                <div class="card idn-card h-100 border-0 shadow-sm">
+                    <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="fa-solid fa-bookmark text-gold"></i>
+                            <h5 class="mb-0 fw-bold text-navy" th:text="${t.termino}">Término</h5>
+                        </div>
+                        <div class="d-flex gap-1">
+                            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" th:data-bs-target="'#modalEditarTermino' + ${t.id}" title="Editar">
+                                <i class="fa-solid fa-pen"></i>
+                            </button>
+                            <form th:action="@{/docente/glosario/{id}/baja(id=${t.id})}" method="post" class="d-inline"
+                                  onsubmit="return confirm('¿Seguro que deseas eliminar este término?');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Eliminar">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text text-secondary" style="white-space: pre-line;" th:text="${t.definicion}">
+                            Definición detallada del concepto financiero o regulatorio.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Modal Editar Término -->
+                <div class="modal fade text-start" th:id="'modalEditarTermino' + ${t.id}" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content rounded-4 border-0 shadow">
+                            <form th:action="@{/docente/glosario/{id}/modificar(id=${t.id})}" method="post">
+                                <div class="modal-header bg-navy text-white rounded-top-4">
+                                    <h5 class="modal-title fw-bold">Modificar Término</h5>
+                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body p-4">
+                                    <div class="mb-3">
+                                        <label class="form-label small fw-bold">Concepto / Término *</label>
+                                        <input type="text" class="form-control" name="termino" th:value="${t.termino}" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label small fw-bold">Definición Pedagógica *</label>
+                                        <textarea class="form-control" name="definicion" rows="4" th:text="${t.definicion}" required></textarea>
+                                    </div>
+                                </div>
+                                <div class="modal-footer bg-light rounded-bottom-4">
+                                    <button type="button" class="btn btn-secondary rounded-pill px-3" data-bs-dismiss="modal">Cancelar</button>
+                                    <button type="submit" class="btn idn-btn-gold">Guardar Modificación</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Nuevo Término -->
+        <div class="modal fade" id="modalNuevoTermino" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content rounded-4 border-0 shadow">
+                    <form th:action="@{/docente/unidad/{unidadId}/glosario/guardar(unidadId=${unidad.id})}" method="post">
+                        <div class="modal-header bg-navy text-white rounded-top-4">
+                            <h5 class="modal-title fw-bold"><i class="fa-solid fa-plus-circle me-2 text-gold"></i>Nuevo Término de Glosario</h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body p-4">
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold">Concepto / Sigla *</label>
+                                <input type="text" class="form-control" name="termino" placeholder="Ej: CEDEAR (Certificado de Depósito Argentino)" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold">Definición Técnica / Pedagógica *</label>
+                                <textarea class="form-control" name="definicion" rows="4" placeholder="Instrumento de renta variable que representa acciones de empresas extranjeras..." required></textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer bg-light rounded-bottom-4">
+                            <button type="button" class="btn btn-secondary rounded-pill px-3" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn idn-btn-gold">Registrar Término</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer th:replace="~{fragments/footer :: footer}"></footer>
+    <th:block th:replace="~{fragments/scripts :: scripts}"></th:block>
+</body>
+</html>

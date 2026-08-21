@@ -1,77 +1,100 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Nuevo Curso | Idóneos Online</title>
-    <link rel="stylesheet" th:href="@{/css/index.css}">
-    <style>
-        .form-card { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); max-width: 700px; margin: 2rem auto; }
-        .form-group { margin-bottom: 1.5rem; }
-        .form-group label { display: block; font-weight: 600; margin-bottom: 0.5rem; color: #374151; }
-        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 6px; font-size: 1rem; }
-        .btn-submit { background: #1a56db; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 6px; font-weight: 600; cursor: pointer; }
-        .btn-submit:hover { background: #1e40af; }
-    </style>
-</head>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head th:replace="~{fragments/head :: head}"></head>
 <body>
-    <div th:replace="~{fragments/header :: header}"></div>
+    <header th:replace="~{fragments/navbar :: navbar}"></header>
 
-    <div class="container">
-        <div class="form-card">
-            <h2>Crear Nuevo Curso (Admin)</h2>
-            <p style="color: #6b7280; margin-bottom: 1.5rem;">Carga los datos iniciales del curso. Podrás asignar titular y supervisor.</p>
-
-            <form th:action="@{/admin/cursos/guardar}" method="post">
-                <div class="form-group">
-                    <label for="nombre">Nombre del Curso *</label>
-                    <input type="text" id="nombre" name="nombre" required placeholder="Ej: Introducción al Mercado de Capitales">
-                </div>
-
-                <div class="form-group">
-                    <label for="descripcion">Descripción *</label>
-                    <textarea id="descripcion" name="descripcion" rows="4" required placeholder="Breve resumen del contenido y objetivos..."></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label for="precio">Precio ($ ARS) *</label>
-                    <input type="number" step="0.01" id="precio" name="precio" required placeholder="0.00 para gratuito">
-                </div>
-
-                <div class="form-group">
-                    <label for="categoriaId">Categoría *</label>
-                    <select id="categoriaId" name="categoriaId" required>
-                        <option value="">Seleccione una categoría</option>
-                        <option th:each="cat : ${categorias}" th:value="${cat.id}" th:text="${cat.nombre}"></option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="docenteTitularId">Docente Titular *</label>
-                    <select id="docenteTitularId" name="docenteTitularId" required>
-                        <option value="">Seleccione el docente responsable</option>
-                        <option th:each="d : ${docentes}" th:value="${d.id}" th:text="${d.usuario.nombreCompleto}"></option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="docenteSupervisorId">Docente Supervisor (Opcional)</label>
-                    <select id="docenteSupervisorId" name="docenteSupervisorId">
-                        <option value="">Ninguno</option>
-                        <option th:each="d : ${docentes}" th:value="${d.id}" th:text="${d.usuario.nombreCompleto}"></option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="mesesAcceso">Meses de Acceso *</label>
-                    <input type="number" id="mesesAcceso" name="mesesAcceso" value="12" min="1" required>
-                </div>
-
-                <div style="display: flex; gap: 1rem; align-items: center;">
-                    <button type="submit" class="btn-submit">Guardar Curso</button>
-                    <a th:href="@{/admin/cursos}" style="color: #6b7280; text-decoration: none;">Cancelar</a>
-                </div>
-            </form>
+    <div class="bg-navy py-4 mb-4 text-white idn-fade">
+        <div class="container d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <h1 class="font-serif fw-bold mb-0 text-white"><i class="fa-solid fa-graduation-cap text-gold me-2"></i>Registrar Curso (Administración)</h1>
+                <small class="text-white-50">Alta de curso en el catálogo oficial y asignación del equipo docente titular y supervisor.</small>
+            </div>
+            <a th:href="@{/admin/cursos}" class="btn btn-outline-light rounded-pill">Volver a Cursos</a>
         </div>
     </div>
+
+    <main class="container mb-5 idn-fade">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <!-- Mensajes Flash -->
+                <div th:if="${mensaje != null}" class="alert alert-danger alert-dismissible fade show mb-4 border-0 shadow-sm rounded-3" role="alert">
+                    <i class="fa-solid fa-circle-exclamation me-2"></i>
+                    <span th:text="${mensaje}">Mensaje</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+
+                <div class="card idn-card border-0 shadow-sm p-4 p-md-5 bg-white">
+                    <form th:action="@{/admin/cursos/guardar}" method="post">
+                        <div class="mb-3">
+                            <label for="nombre" class="form-label small fw-bold text-navy">Nombre del Curso *</label>
+                            <input type="text" id="nombre" name="nombre" class="form-control" required placeholder="Ej: Especialización en Derivados Financieros CNV">
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label for="categoriaId" class="form-label small fw-bold text-navy">Categoría *</label>
+                                <select id="categoriaId" name="categoriaId" class="form-select" required>
+                                    <option value="" disabled selected>-- Seleccione categoría --</option>
+                                    <option th:each="cat : ${categorias}" th:value="${cat.id}" th:text="${cat.nombre}"></option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="nivelId" class="form-label small fw-bold text-navy">Nivel de Dificultad</label>
+                                <select id="nivelId" name="nivelId" class="form-select">
+                                    <option value="">-- Seleccione nivel --</option>
+                                    <option th:each="n : ${niveles}" th:value="${n.id}" th:text="${n.nombre}"></option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label for="docenteTitularId" class="form-label small fw-bold text-navy">Docente Titular *</label>
+                                <select id="docenteTitularId" name="docenteTitularId" class="form-select" required>
+                                    <option value="" disabled selected>-- Seleccione titular --</option>
+                                    <option th:each="d : ${docentes}" th:value="${d.id}" 
+                                            th:text="${d.usuario != null ? d.usuario.nombre + ' ' + (d.usuario.apellido != null ? d.usuario.apellido : '') : 'Docente'}"></option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="docenteSupervisorId" class="form-label small fw-bold text-navy">Docente Supervisor (Opcional)</label>
+                                <select id="docenteSupervisorId" name="docenteSupervisorId" class="form-select">
+                                    <option value="">Ninguno</option>
+                                    <option th:each="d : ${docentes}" th:value="${d.id}" 
+                                            th:text="${d.usuario != null ? d.usuario.nombre + ' ' + (d.usuario.apellido != null ? d.usuario.apellido : '') : 'Docente'}"></option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label for="precio" class="form-label small fw-bold text-navy">Arancel Base ($ ARS - 0 para Gratuito) *</label>
+                                <input type="number" step="100" min="0" id="precio" name="precio" class="form-control" value="0" required>
+                            </div>
+                            <div class="col-md-6 d-flex align-items-center pt-3">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="emiteCertificado" name="emiteCertificado" value="true" checked>
+                                    <label class="form-check-label small fw-bold text-navy" for="emiteCertificado">Emite Certificado Digital Oficial</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="descripcion" class="form-label small fw-bold text-navy">Descripción y Temario *</label>
+                            <textarea id="descripcion" name="descripcion" rows="4" class="form-control" required placeholder="Resumen del contenido y objetivos pedagógicos..."></textarea>
+                        </div>
+
+                        <button type="submit" class="btn idn-btn-gold w-100 py-3 fw-bold shadow">
+                            <i class="fa-solid fa-floppy-disk me-1"></i> Guardar Curso y Asignar Equipo Docente
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer th:replace="~{fragments/footer :: footer}"></footer>
+    <th:block th:replace="~{fragments/scripts :: scripts}"></th:block>
 </body>
 </html>

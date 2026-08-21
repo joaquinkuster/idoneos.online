@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head th:replace="~{fragments/head :: head}"></head>
+<body>
+    <header th:replace="~{fragments/navbar :: navbar}"></header>
+
+    <main class="container py-4 idn-fade">
+        <nav aria-label="breadcrumb" class="mb-3">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a th:href="@{/docente}"><i class="fa-solid fa-chalkboard-user me-1"></i>Docente</a></li>
+                <li class="breadcrumb-item"><a th:href="@{/docente/curso/{id}/programas(id=${programa.curso.id})}" th:text="${programa.curso.nombre}">Curso</a></li>
+                <li class="breadcrumb-item active" aria-current="page" th:text="'Cronograma: ' + ${programa.nombre}">Cronograma</li>
+            </ol>
+        </nav>
+
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+            <div>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge bg-gold text-navy fw-bold px-3 py-1 rounded-pill">CU-23 a CU-26</span>
+                    <h1 class="h2 mb-0 fw-bold text-navy" th:text="'Cronograma Pedagógico — ' + ${programa.nombre}">Cronograma</h1>
+                </div>
+                <p class="text-muted mb-0 mt-1">
+                    Configura el orden de secuenciación y la duración estimada en semanas para cada unidad didáctica.
+                </p>
+            </div>
+            <a th:href="@{/docente/programas/{id}/unidades(id=${programa.id})}" class="btn btn-outline-primary rounded-pill px-3">
+                <i class="fa-solid fa-layer-group me-1"></i> Gestionar Unidades
+            </a>
+        </div>
+
+        <!-- Mensajes Flash -->
+        <div th:if="${mensaje != null}" class="alert alert-info alert-dismissible fade show border-0 shadow-sm rounded-3 mb-4" role="alert">
+            <i class="fa-solid fa-circle-info me-2 text-primary"></i>
+            <span th:text="${mensaje}">Mensaje del sistema</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <!-- Formulario de Reordenamiento y Semanas -->
+        <form th:action="@{/docente/programas/{id}/cronograma/modificar(id=${programa.id})}" method="post">
+            <div class="card idn-card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold text-navy"><i class="fa-solid fa-timeline me-2 text-gold"></i>Secuenciación de Unidades</h5>
+                    <button type="submit" class="btn idn-btn-gold btn-sm">
+                        <i class="fa-solid fa-floppy-disk me-1"></i> Guardar Cronograma
+                    </button>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 120px;" class="ps-4">Orden</th>
+                                <th>Unidad Didáctica</th>
+                                <th style="width: 220px;">Duración (Semanas)</th>
+                                <th>Temario Breve</th>
+                                <th class="text-end pe-4">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:if="${#lists.isEmpty(cronogramas)}">
+                                <td colspan="5" class="text-center py-5 text-muted">
+                                    <i class="fa-solid fa-calendar-xmark fa-3x mb-3 text-gold opacity-50 d-block"></i>
+                                    No hay unidades asociadas a este programa para estructurar el cronograma.
+                                </td>
+                            </tr>
+                            <tr th:each="cr, iterStat : ${cronogramas}">
+                                <td class="ps-4">
+                                    <input type="hidden" name="cronogramaId" th:value="${cr.id}">
+                                    <input type="number" class="form-control text-center fw-bold" name="numeroOrden" th:value="${cr.numeroOrden}" min="1" max="50" style="max-width: 80px;" required>
+                                </td>
+                                <td>
+                                    <strong class="text-navy" th:text="${cr.unidad.titulo}">Título</strong>
+                                </td>
+                                <td>
+                                    <div class="input-group" style="max-width: 160px;">
+                                        <input type="number" class="form-control" name="semanasDuracion" th:value="${cr.semanasDuracion}" min="1" max="20" required>
+                                        <span class="input-group-text small">sem.</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="small text-muted text-truncate d-inline-block" style="max-width: 320px;" th:text="${cr.unidad.descripcion != null ? cr.unidad.descripcion : 'Sin descripción.'}">Descripción</span>
+                                </td>
+                                <td class="text-end pe-4">
+                                    <a th:href="@{/docente/unidad/{id}/materiales(id=${cr.unidad.id})}" class="btn btn-sm btn-outline-secondary" title="Ver Materiales">
+                                        <i class="fa-solid fa-folder"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="card-footer bg-light py-3 d-flex justify-content-end">
+                    <button type="submit" class="btn idn-btn-gold">
+                        <i class="fa-solid fa-floppy-disk me-1"></i> Guardar Cronograma
+                    </button>
+                </div>
+            </div>
+        </form>
+    </main>
+
+    <footer th:replace="~{fragments/footer :: footer}"></footer>
+    <th:block th:replace="~{fragments/scripts :: scripts}"></th:block>
+</body>
+</html>

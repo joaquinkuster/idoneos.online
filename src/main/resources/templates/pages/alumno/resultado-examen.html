@@ -1,78 +1,91 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head th:replace="~{fragments/head :: head}"></head>
+<body>
+    <header th:replace="~{fragments/navbar :: navbar}"></header>
 
-<div th:replace="~{fragments/head :: head}"></div>
-
-<body class="bg-light">
-<div th:replace="~{fragments/navbar :: navbar}"></div>
-
-<!-- Resultado Header -->
-<div class="py-5 mb-4 text-center"
-     th:classappend="${aprobado} ? 'bg-success text-white' : 'bg-danger text-white'">
-    <div class="container">
-        <i class="fa-solid fa-5x mb-3"
-           th:classappend="${aprobado} ? 'fa-trophy' : 'fa-circle-xmark'"></i>
-        <h1 class="fw-bold display-5" th:text="${aprobado} ? '¡Aprobaste!' : 'No aprobaste'">Resultado</h1>
-        <p class="lead mt-2 mb-0">
-            Tu nota: <strong th:text="${nota != null ? #numbers.formatDecimal(nota, 1, 1) + '%' : '—'}">—</strong>
-            &nbsp;|&nbsp;
-            Mínimo para aprobar: <strong>60%</strong>
-        </p>
-    </div>
-</div>
-
-<div class="container pb-5">
-
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-
-            <!-- Mensaje según resultado -->
-            <div class="card shadow-sm border-0 rounded-4 mb-4 p-4 text-center">
-                <div th:if="${aprobado}">
-                    <i class="fa-solid fa-circle-check text-success fa-2x mb-3"></i>
-                    <p class="fs-5 mb-3">¡Excelente trabajo! Completaste la autoevaluación satisfactoriamente.</p>
-                    <p class="text-muted">Podés continuar con la siguiente unidad o ver tu certificado al finalizar el curso.</p>
-                </div>
-                <div th:unless="${aprobado}">
-                    <i class="fa-solid fa-rotate-right text-warning fa-2x mb-3"></i>
-                    <p class="fs-5 mb-3">No alcanzaste el puntaje mínimo requerido. ¡Podés volver a intentarlo!</p>
-                    <a th:href="@{'/evaluacion/' + ${autoevaluacion.id} + '/rendir'}"
-                       class="btn btn-warning rounded-pill fw-bold me-2">
-                        <i class="fa-solid fa-rotate-right me-2"></i>Reintentar
-                    </a>
-                </div>
-                <a href="/cursos/mis-cursos" class="btn btn-outline-secondary rounded-pill mt-3">
-                    <i class="fa-solid fa-book me-2"></i>Ir a Mis Cursos
-                </a>
+    <!-- Header del Resultado -->
+    <div class="py-5 mb-4 text-center text-white idn-fade"
+         th:style="${aprobado != null and aprobado} ? 'background: linear-gradient(135deg, #0B1F3A 0%, #208753 100%);' : 'background: linear-gradient(135deg, #0B1F3A 0%, #D93838 100%);'">
+        <div class="container">
+            <div class="mb-3">
+                <i class="fa-solid fa-5x"
+                   th:classappend="${aprobado != null and aprobado} ? 'fa-trophy text-gold' : 'fa-circle-xmark text-white-50'"></i>
             </div>
+            <h1 class="font-serif fw-bold display-5" th:text="${aprobado != null and aprobado} ? '¡Aprobado con Éxito!' : 'Examen No Aprobado'">Resultado</h1>
+            <p class="lead mt-2 mb-0" th:if="${nota != null}">
+                Calificación obtenida: <strong class="fs-4" th:text="${#numbers.formatDecimal(nota, 1, 1)} + ' / 10'">8.0 / 10</strong>
+                &nbsp;|&nbsp;
+                Mínimo para aprobar: <strong>6.0 / 10</strong>
+            </p>
+        </div>
+    </div>
 
-            <!-- Historial de intentos -->
-            <div class="card shadow-sm border-0 rounded-4">
-                <div class="card-body p-4">
-                    <h5 class="fw-bold mb-3"><i class="fa-solid fa-clock-rotate-left me-2 text-primary"></i>Historial de Intentos</h5>
+    <main class="container pb-5 idn-fade">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <!-- Tarjeta de Diagnóstico -->
+                <div class="card idn-card border-0 shadow-sm mb-4 p-4 text-center">
+                    <div th:if="${aprobado != null and aprobado}">
+                        <i class="fa-solid fa-circle-check text-success fa-3x mb-3"></i>
+                        <h4 class="fw-bold text-navy mb-2">¡Felicitaciones! Has superado los requerimientos de la unidad</h4>
+                        <p class="text-muted mb-4">Tus respuestas correctas han sido registradas y computadas hacia tu progreso académico general.</p>
+                        <div class="d-flex justify-content-center gap-3">
+                            <a th:href="@{/cursos/mis-cursos}" class="btn idn-btn-gold px-4 py-2 fw-bold">
+                                <i class="fa-solid fa-circle-play me-2"></i> Continuar Cursada
+                            </a>
+                        </div>
+                    </div>
+                    <div th:if="${aprobado == null or !aprobado}">
+                        <i class="fa-solid fa-rotate-right text-warning fa-3x mb-3"></i>
+                        <h4 class="fw-bold text-navy mb-2">No se alcanzó la nota mínima de 6.0</h4>
+                        <p class="text-muted mb-4">Repasa los materiales de lectura y el glosario de la unidad antes de realizar un nuevo intento.</p>
+                        <div class="d-flex justify-content-center gap-3">
+                            <a th:href="@{/evaluacion/{id}/rendir(id=${autoevaluacion.id})}"
+                               class="btn idn-btn-gold px-4 py-2 fw-bold">
+                                <i class="fa-solid fa-rotate-right me-2"></i> Rendir Nuevo Intento
+                            </a>
+                            <a th:href="@{/cursos/mis-cursos}" class="btn btn-outline-secondary rounded-pill px-4 py-2">
+                                <i class="fa-solid fa-book me-2"></i> Volver a Mis Cursos
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Historial de Intentos -->
+                <div class="card idn-card border-0 shadow-sm">
+                    <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+                        <h5 class="fw-bold text-navy mb-0"><i class="fa-solid fa-clock-rotate-left me-2 text-gold"></i>Historial de Intentos en este Examen</h5>
+                        <span class="badge bg-light text-navy border" th:text="${#lists.size(historial)} + ' Intentos'">0</span>
+                    </div>
                     <div class="table-responsive">
-                        <table class="table table-hover mb-0">
+                        <table class="table table-hover align-middle mb-0">
                             <thead class="table-light">
                                 <tr>
-                                    <th>#</th>
-                                    <th>Fecha</th>
-                                    <th>Nota</th>
-                                    <th>Estado</th>
+                                    <th class="ps-4"># Intento</th>
+                                    <th>Fecha y Hora</th>
+                                    <th>Nota Final</th>
+                                    <th class="text-end pe-4">Dictamen</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr th:each="intento, i : ${historial}">
-                                    <td th:text="${i.index + 1}">1</td>
-                                    <td th:text="${#temporals.format(intento.fecha, 'dd/MM/yyyy HH:mm')}">fecha</td>
-                                    <td th:text="${intento.nota != null ? #numbers.formatDecimal(intento.nota, 1, 1) + '%' : 'Sin nota'}">—</td>
+                                    <td class="ps-4 fw-bold text-navy" th:text="'#' + ${i.index + 1}">1</td>
                                     <td>
+                                        <span class="small text-muted" th:text="${intento.fecha != null ? #temporals.format(intento.fecha, 'dd/MM/yyyy HH:mm') : '-'}">01/01/2026</span>
+                                    </td>
+                                    <td>
+                                        <strong th:classappend="${intento.nota != null and intento.nota >= 6.0} ? 'text-success' : 'text-danger'"
+                                                th:text="${intento.nota != null ? #numbers.formatDecimal(intento.nota, 1, 1) + ' / 10' : '—'}">—</strong>
+                                    </td>
+                                    <td class="text-end pe-4">
                                         <span class="badge rounded-pill"
-                                              th:classappend="${intento.nota != null and intento.nota >= 60} ? 'bg-success' : 'bg-danger'"
-                                              th:text="${intento.nota != null and intento.nota >= 60} ? 'Aprobado' : 'Reprobado'">estado</span>
+                                              th:classappend="${intento.nota != null and intento.nota >= 6.0} ? 'bg-success-subtle text-success border border-success-subtle' : 'bg-danger-subtle text-danger border border-danger-subtle'"
+                                              th:text="${intento.nota != null and intento.nota >= 6.0} ? 'Aprobado' : 'No Aprobado'">Estado</span>
                                     </td>
                                 </tr>
-                                <tr th:if="${historial.isEmpty()}">
-                                    <td colspan="4" class="text-center text-muted fst-italic">Sin intentos registrados.</td>
+                                <tr th:if="${#lists.isEmpty(historial)}">
+                                    <td colspan="4" class="text-center text-muted py-4">Sin intentos registrados en el historial.</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -80,9 +93,9 @@
                 </div>
             </div>
         </div>
-    </div>
-</div>
+    </main>
 
-<div th:replace="~{fragments/footer :: footer}"></div>
+    <footer th:replace="~{fragments/footer :: footer}"></footer>
+    <th:block th:replace="~{fragments/scripts :: scripts}"></th:block>
 </body>
 </html>

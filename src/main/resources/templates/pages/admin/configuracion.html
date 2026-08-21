@@ -1,88 +1,92 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head th:replace="~{fragments/head :: head}"></head>
+<body>
+    <header th:replace="~{fragments/navbar :: navbar}"></header>
 
-<div th:replace="~{fragments/head :: head}"></div>
-
-<body class="bg-light">
-<div th:replace="~{fragments/navbar :: navbar}"></div>
-
-<!-- Header -->
-<div class="bg-dark text-white py-4 mb-4">
-    <div class="container d-flex justify-content-between align-items-center flex-wrap gap-3">
-        <div>
-            <h1 class="fw-bold mb-1"><i class="fa-solid fa-sliders text-info me-2"></i>Parámetros Operativos del Sistema</h1>
-            <small class="text-white-50">Configuración dinámica clave-valor sin tocar el código fuente</small>
-        </div>
-        <a th:href="@{/admin/panel}" class="btn btn-outline-light rounded-pill">Volver al Panel Admin</a>
-    </div>
-</div>
-
-<div class="container pb-5">
-
-    <div th:if="${mensaje}" class="alert alert-success alert-dismissible fade show shadow-sm rounded-3 mb-4" role="alert">
-        <i class="fa-solid fa-circle-check me-2"></i>
-        <span th:text="${mensaje}"></span>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-
-    <!-- Guardar / Editar Parámetro -->
-    <div class="card shadow-sm border-0 rounded-4 mb-4">
-        <div class="card-body p-4">
-            <h5 class="fw-bold mb-3"><i class="fa-solid fa-plus-circle me-2 text-primary"></i>Guardar / Editar Parámetro</h5>
-            <form th:action="@{/admin/configuracion/guardar}" method="post" class="row g-3">
-                <div class="col-md-5">
-                    <label class="form-label fw-semibold">Clave (Key)</label>
-                    <input type="text" name="clave" class="form-control rounded-3" required placeholder="ej: plataforma.nombre">
+    <div class="bg-navy py-5 mb-4 text-white idn-fade">
+        <div class="container d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <div class="d-flex align-items-center gap-2 mb-2 text-gold small fw-bold" style="letter-spacing: 0.12em;">
+                    <i class="fa-solid fa-shield-halved"></i> PARÁMETROS DINÁMICOS · IDÓNEOS ONLINE
                 </div>
-                <div class="col-md-5">
-                    <label class="form-label fw-semibold">Valor (Value)</label>
-                    <input type="text" name="valor" class="form-control rounded-3" required placeholder="ej: Idóneos Online S.A.S.">
-                </div>
-                <div class="col-md-2 d-flex align-items-end">
-                    <button type="submit" class="btn btn-primary rounded-pill w-100 fw-bold">
-                        <i class="fa-solid fa-floppy-disk me-2"></i>Guardar
-                    </button>
-                </div>
-            </form>
+                <h1 class="font-serif display-5 fw-bold text-white mb-0">Configuración del Sistema</h1>
+                <p class="text-white-50 lead mb-0">Parámetros operativos clave-valor editables en caliente para toda la plataforma.</p>
+            </div>
+            <a th:href="@{/admin}" class="btn btn-outline-light rounded-pill">Volver al Panel</a>
         </div>
     </div>
 
-    <!-- Lista de Parámetros Activos -->
-    <div class="card shadow-sm border-0 rounded-4">
-        <div class="card-body p-4">
-            <h5 class="fw-bold mb-3"><i class="fa-solid fa-list-ul me-2 text-secondary"></i>Parámetros Configurados</h5>
+    <main class="container mb-5 idn-fade">
+        <!-- Mensajes Flash -->
+        <div th:if="${mensaje != null}" class="alert alert-info alert-dismissible fade show mb-4 border-0 shadow-sm rounded-3" role="alert">
+            <i class="fa-solid fa-circle-info me-2 text-primary"></i>
+            <span th:text="${mensaje}">Mensaje</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <!-- Guardar / Editar Parámetro (CU-97) -->
+        <div class="card idn-card border-0 shadow-sm mb-4">
+            <div class="card-body p-4">
+                <h5 class="fw-bold text-navy mb-3"><i class="fa-solid fa-sliders text-gold me-2"></i>Registrar o Actualizar Parámetro</h5>
+                <form th:action="@{/admin/configuracion/guardar}" method="post" class="row g-3">
+                    <div class="col-md-5">
+                        <label class="form-label small fw-bold text-navy">Clave del Parámetro (Key) *</label>
+                        <input type="text" name="clave" class="form-control font-monospace" required placeholder="ej: plataforma.nombre_institucional">
+                    </div>
+                    <div class="col-md-5">
+                        <label class="form-label small fw-bold text-navy">Valor Asignado (Value) *</label>
+                        <input type="text" name="valor" class="form-control font-monospace" required placeholder="ej: Idóneos Online S.A.S.">
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="submit" class="btn idn-btn-gold w-100 py-2 fw-bold">
+                            <i class="fa-solid fa-floppy-disk me-1"></i> Guardar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Lista de Parámetros Activos -->
+        <div class="card idn-card border-0 shadow-sm">
+            <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold text-navy"><i class="fa-solid fa-list-check text-gold me-2"></i>Variables y Parámetros en Producción</h5>
+                <span class="badge bg-light text-navy border" th:text="${#lists.size(parametros)} + ' Parámetros'">0</span>
+            </div>
             <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
+                <table class="table table-hover align-middle mb-0 font-monospace small">
                     <thead class="table-light">
                         <tr>
-                            <th>Clave</th>
-                            <th>Valor</th>
-                            <th>Acciones</th>
+                            <th class="ps-4">Clave (Key)</th>
+                            <th>Valor Actual (Value)</th>
+                            <th class="text-end pe-4">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
+                        <tr th:if="${#lists.isEmpty(parametros)}">
+                            <td colspan="3" class="text-center py-4 text-muted font-sans-serif">No hay parámetros configurados actualmente.</td>
+                        </tr>
                         <tr th:each="p : ${parametros}">
-                            <td class="fw-bold text-primary" th:text="${p.clave}">Clave</td>
-                            <td class="font-monospace" th:text="${p.valor}">Valor</td>
+                            <td class="ps-4 fw-bold text-navy" th:text="${p.clave}">clave</td>
                             <td>
-                                <form th:action="@{'/admin/configuracion/borrar/' + ${p.id}}" method="post" class="d-inline">
-                                    <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill" onclick="return confirm('¿Eliminar este parámetro?')">
-                                        <i class="fa-solid fa-trash me-1"></i>Borrar
+                                <span class="bg-light p-1 rounded border" th:text="${p.valor}">valor</span>
+                            </td>
+                            <td class="text-end pe-4">
+                                <form th:action="@{/admin/configuracion/borrar/{id}(id=${p.id})}" method="post" class="d-inline"
+                                      onsubmit="return confirm('¿Seguro que deseas eliminar esta clave de configuración?');">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger font-sans-serif">
+                                        <i class="fa-solid fa-trash-can me-1"></i> Borrar
                                     </button>
                                 </form>
                             </td>
-                        </tr>
-                        <tr th:if="${parametros.isEmpty()}">
-                            <td colspan="3" class="text-center text-muted fst-italic py-4">No hay parámetros configurados aún.</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
         </div>
-    </div>
+    </main>
 
-</div>
-
-<div th:replace="~{fragments/footer :: footer}"></div>
+    <footer th:replace="~{fragments/footer :: footer}"></footer>
+    <th:block th:replace="~{fragments/scripts :: scripts}"></th:block>
 </body>
 </html>

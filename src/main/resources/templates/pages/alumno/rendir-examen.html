@@ -1,107 +1,112 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-
-<div th:replace="~{fragments/head :: head}"></div>
-
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head th:replace="~{fragments/head :: head}"></head>
 <body class="bg-light">
-<div th:replace="~{fragments/navbar :: navbar}"></div>
+    <header th:replace="~{fragments/navbar :: navbar}"></header>
 
-<!-- Header -->
-<div class="py-4 mb-4" style="background: linear-gradient(135deg, #1e3a5f 0%, #2d6a9f 100%);">
-    <div class="container">
-        <h1 class="fw-bold text-white mb-1">
-            <i class="fa-solid fa-pen-to-square me-2"></i>
-            <span th:text="${autoevaluacion.nombre}">Autoevaluación</span>
-        </h1>
-        <p class="text-white-50 mb-0">
-            Respondé todas las preguntas y enviá el formulario para ver tu resultado.
-            Tiempo límite: <strong th:text="${autoevaluacion.tiempoLimite != null ? autoevaluacion.tiempoLimite + ' min' : 'Sin límite'}">-</strong>
-        </p>
-    </div>
-</div>
-
-<div class="container pb-5">
-
-    <!-- Error de intentos agotados -->
-    <div th:if="${error}" class="alert alert-danger shadow-sm rounded-3 mb-4">
-        <i class="fa-solid fa-triangle-exclamation me-2"></i>
-        <span th:text="${error}"></span>
-    </div>
-
-    <form th:if="${preguntas != null and !preguntas.isEmpty()}"
-          th:action="@{'/evaluacion/' + ${autoevaluacion.id} + '/enviar'}" method="post" id="examenForm">
-
-        <!-- Timer si tiene límite -->
-        <div th:if="${autoevaluacion.tiempoLimite != null}" class="alert alert-warning shadow-sm rounded-3 mb-4 d-flex align-items-center">
-            <i class="fa-solid fa-clock me-3 fs-4"></i>
+    <!-- Header del Examen -->
+    <div class="bg-navy py-4 mb-4 text-white idn-fade">
+        <div class="container d-flex justify-content-between align-items-center flex-wrap gap-3">
             <div>
-                <strong>Tiempo restante: </strong>
-                <span id="timer" class="fw-bold text-danger fs-5"
-                      th:data-minutos="${autoevaluacion.tiempoLimite}">--:--</span>
+                <span class="badge bg-gold text-navy rounded-pill px-3 py-1 mb-2 text-uppercase fw-bold">Instancia Evaluativa</span>
+                <h1 class="font-serif fw-bold mb-0 text-white" th:text="${autoevaluacion.nombre}">Autoevaluación</h1>
+                <small class="text-white-50">Responde todas las consignas antes del cierre automático del temporizador.</small>
+            </div>
+            <div th:if="${autoevaluacion.tiempoLimite != null and autoevaluacion.tiempoLimite > 0}" class="d-flex align-items-center gap-2">
+                <div class="timer-box shadow">
+                    <i class="fa-solid fa-stopwatch text-gold"></i>
+                    <span id="timerDisplay" th:data-minutos="${autoevaluacion.tiempoLimite}">--:--</span>
+                </div>
             </div>
         </div>
+    </div>
 
-        <!-- Preguntas -->
-        <div th:each="pregunta, i : ${preguntas}" class="card shadow-sm border-0 rounded-4 mb-4">
-            <div class="card-body p-4">
-                <p class="fw-semibold mb-3">
-                    <span class="badge bg-primary rounded-pill me-2" th:text="${i.index + 1}">1</span>
-                    <span th:text="${pregunta.texto}">Pregunta</span>
-                    <span class="badge ms-2 small"
-                          th:classappend="${pregunta.esOpcionMultiple} ? 'bg-info text-dark' : 'bg-secondary'"
-                          th:text="${pregunta.esOpcionMultiple} ? 'Opción Múltiple' : 'V/F'">tipo</span>
-                </p>
-
-                <div class="ms-2">
-                    <div th:each="opcion : ${pregunta.opciones}" th:if="${!opcion.baja}" class="form-check mb-2">
-                        <input class="form-check-input" type="radio"
-                               th:name="'pregunta_' + ${pregunta.id}"
-                               th:value="${opcion.id}"
-                               th:id="'op_' + ${opcion.id}" required>
-                        <label class="form-check-label" th:for="'op_' + ${opcion.id}" th:text="${opcion.texto}">Opción</label>
-                    </div>
+    <main class="container pb-5 idn-fade">
+        <!-- Error de intentos agotados -->
+        <div th:if="${error != null}" class="alert alert-danger shadow-sm rounded-4 mb-4 p-4 border-0" role="alert">
+            <div class="d-flex align-items-center gap-3">
+                <i class="fa-solid fa-triangle-exclamation fa-2x text-danger"></i>
+                <div>
+                    <h5 class="fw-bold mb-1">No es posible rendir la autoevaluación</h5>
+                    <p class="mb-0 text-danger-emphasis" th:text="${error}">Mensaje de error</p>
                 </div>
             </div>
         </div>
 
-        <!-- Enviar -->
-        <div class="d-flex justify-content-between align-items-center mt-4">
-            <span class="text-muted">
-                <i class="fa-solid fa-info-circle me-1"></i>
-                <span th:text="${preguntas.size()} + ' preguntas en total'">N preguntas</span>
-            </span>
-            <button type="submit" class="btn btn-success btn-lg rounded-pill fw-bold shadow"
-                    onclick="return confirm('¿Estás seguro de enviar el examen?')">
-                <i class="fa-solid fa-paper-plane me-2"></i>Enviar Respuestas
-            </button>
+        <form th:if="${preguntas != null and !#lists.isEmpty(preguntas)}"
+              th:action="@{'/evaluacion/' + ${autoevaluacion.id} + '/enviar'}" method="post" id="examenForm">
+
+            <!-- Preguntas del Examen -->
+            <div th:each="pregunta, i : ${preguntas}" class="card idn-card border-0 shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge bg-navy text-gold fw-bold rounded-pill px-3 py-2" th:text="'Pregunta ' + ${i.index + 1}">Pregunta 1</span>
+                            <span class="badge bg-light text-navy border small" 
+                                  th:text="${pregunta.esOpcionMultiple ? 'Opción Múltiple' : 'Verdadero / Falso'}">Tipo</span>
+                        </div>
+                    </div>
+
+                    <h5 class="fw-bold text-navy mb-3" style="line-height: 1.4;" th:text="${pregunta.texto}">Texto de la pregunta</h5>
+
+                    <!-- Opciones de respuesta -->
+                    <div class="d-flex flex-column gap-2 ms-1">
+                        <div th:each="opcion : ${pregunta.opciones}" th:if="${!opcion.baja}" 
+                             class="p-3 bg-light rounded-3 border idn-row">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio"
+                                       th:name="'pregunta_' + ${pregunta.id}"
+                                       th:value="${opcion.id}"
+                                       th:id="'op_' + ${opcion.id}" required>
+                                <label class="form-check-label fw-semibold text-navy w-100" th:for="'op_' + ${opcion.id}" 
+                                       style="cursor: pointer;" th:text="${opcion.texto}">Opción</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botón de Envío -->
+            <div class="card idn-card border-0 shadow-sm p-4 d-flex flex-column flex-sm-row justify-content-between align-items-center gap-3">
+                <div class="text-muted small">
+                    <i class="fa-solid fa-circle-info me-1 text-gold"></i>
+                    Total: <strong class="text-navy" th:text="${#lists.size(preguntas)} + ' preguntas obligatorias'">0 preguntas</strong>
+                </div>
+                <button type="submit" class="btn idn-btn-gold btn-lg px-5 shadow fw-bold"
+                        onclick="return confirm('¿Confirmas la entrega definitiva de tus respuestas?');">
+                    <i class="fa-solid fa-paper-plane me-2"></i> Entregar y Calificar
+                </button>
+            </div>
+        </form>
+
+        <!-- Sin preguntas disponibles -->
+        <div th:if="${preguntas == null or #lists.isEmpty(preguntas)}" class="card idn-card p-5 text-center border-0 shadow-sm">
+            <i class="fa-solid fa-circle-exclamation fa-3x text-gold opacity-50 mb-3"></i>
+            <h4 class="text-navy fw-bold">Esta autoevaluación no cuenta con preguntas activas en su pool</h4>
+            <p class="text-muted">El equipo docente configurará el banco de ítems a la brevedad.</p>
         </div>
-    </form>
+    </main>
 
-    <!-- Sin preguntas -->
-    <div th:if="${preguntas == null or preguntas.isEmpty()}" class="text-center py-5">
-        <i class="fa-solid fa-circle-exclamation fa-3x text-muted mb-3"></i>
-        <p class="text-muted">Esta autoevaluación no tiene preguntas aún.</p>
-    </div>
+    <footer th:replace="~{fragments/footer :: footer}"></footer>
+    <th:block th:replace="~{fragments/scripts :: scripts}"></th:block>
 
-</div>
-
-<script th:if="${autoevaluacion.tiempoLimite != null}">
-document.addEventListener('DOMContentLoaded', function () {
-    const timerEl = document.getElementById('timer');
-    let segundos = parseInt(timerEl.dataset.minutos) * 60;
-    const intervalo = setInterval(() => {
-        const m = Math.floor(segundos / 60).toString().padStart(2, '0');
-        const s = (segundos % 60).toString().padStart(2, '0');
-        timerEl.textContent = m + ':' + s;
-        if (segundos <= 0) {
-            clearInterval(intervalo);
-            document.getElementById('examenForm').submit();
-        }
-        segundos--;
-    }, 1000);
-});
-</script>
-
-<div th:replace="~{fragments/footer :: footer}"></div>
+    <script th:if="${autoevaluacion.tiempoLimite != null and autoevaluacion.tiempoLimite > 0}">
+    document.addEventListener('DOMContentLoaded', function () {
+        const timerEl = document.getElementById('timerDisplay');
+        if (!timerEl) return;
+        let segundos = parseInt(timerEl.dataset.minutos) * 60;
+        const intervalo = setInterval(() => {
+            const m = Math.floor(segundos / 60).toString().padStart(2, '0');
+            const s = (segundos % 60).toString().padStart(2, '0');
+            timerEl.textContent = m + ':' + s;
+            if (segundos <= 0) {
+                clearInterval(intervalo);
+                alert('El tiempo límite ha expirado. Tus respuestas se enviarán automáticamente.');
+                document.getElementById('examenForm').submit();
+            }
+            segundos--;
+        }, 1000);
+    });
+    </script>
 </body>
 </html>
