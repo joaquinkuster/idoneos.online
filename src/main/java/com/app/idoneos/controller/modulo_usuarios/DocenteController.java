@@ -230,7 +230,31 @@ public class DocenteController {
         curso.setEmiteCertificado(emiteCertificado);
         if (imagen != null && !imagen.trim().isEmpty()) {
             String imgClean = imagen.trim();
-            curso.setImagen(imgClean.length() > 150 ? imgClean.substring(0, 150) : imgClean);
+            if (imgClean.startsWith("data:image")) {
+                try {
+                    String base64Data = imgClean.contains(",") ? imgClean.split(",")[1] : imgClean;
+                    byte[] decodedBytes = java.util.Base64.getDecoder().decode(base64Data);
+                    String fileName = "curso-" + System.currentTimeMillis() + ".png";
+                    
+                    java.nio.file.Path uploadPath = java.nio.file.Paths.get("src/main/resources/static/uploads/cursos");
+                    if (!java.nio.file.Files.exists(uploadPath)) {
+                        java.nio.file.Files.createDirectories(uploadPath);
+                    }
+                    java.nio.file.Files.write(uploadPath.resolve(fileName), decodedBytes);
+
+                    java.nio.file.Path targetUploadPath = java.nio.file.Paths.get("target/classes/static/uploads/cursos");
+                    if (!java.nio.file.Files.exists(targetUploadPath)) {
+                        java.nio.file.Files.createDirectories(targetUploadPath);
+                    }
+                    java.nio.file.Files.write(targetUploadPath.resolve(fileName), decodedBytes);
+
+                    curso.setImagen("/uploads/cursos/" + fileName);
+                } catch (Exception e) {
+                    curso.setImagen("https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop&q=80");
+                }
+            } else {
+                curso.setImagen(imgClean.length() > 150 ? imgClean.substring(0, 150) : imgClean);
+            }
         }
 
         Curso cursoDef = cursoService.guardar(curso);

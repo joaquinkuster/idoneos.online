@@ -37,46 +37,84 @@
             </div>
 
             <div th:each="curso : ${cursos}" class="col-md-6 col-lg-4">
-                <div class="card idn-card h-100 border-0 shadow-sm d-flex flex-column justify-content-between p-4">
-                    <div>
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="badge bg-gold-soft text-gold-deep rounded-pill px-3 py-1 fw-semibold" 
-                                  th:text="${curso.categoria != null ? curso.categoria.nombre : 'Finanzas'}">Cat</span>
-                            <span th:if="${curso.publicado}" class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-1">Publicado</span>
-                            <span th:if="${!curso.publicado}" class="badge bg-warning-subtle text-warning border border-warning-subtle rounded-pill px-3 py-1">Sin cohortes abiertas</span>
+                <div class="card idn-card h-100 border-0 shadow-sm d-flex flex-column justify-content-between p-0 overflow-hidden">
+                    <!-- Foto de Portada en la Card del Curso -->
+                    <div class="position-relative w-100 bg-navy" style="height: 140px;">
+                        <img th:if="${curso.imagen != null and !#strings.isEmpty(curso.imagen)}" 
+                             th:src="${curso.imagen}" 
+                             alt="Portada" 
+                             style="width: 100%; height: 100%; object-fit: cover;">
+                        <div th:if="${curso.imagen == null or #strings.isEmpty(curso.imagen)}" 
+                             class="w-100 h-100 d-flex align-items-center justify-content-center bg-gradient"
+                             style="background: linear-gradient(135deg, #0B1F3A, #1E3C72);">
+                            <i class="fa-solid fa-graduation-cap fa-3x text-gold opacity-50"></i>
                         </div>
-                        <h4 class="font-serif fw-bold text-navy mb-2" th:text="${curso.nombre}">Nombre del Curso</h4>
-                        <p class="small text-muted mb-3" th:text="${curso.descripcion != null ? #strings.abbreviate(curso.descripcion, 110) : 'Curso docente.'}">Descripción</p>
+                        <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(11,31,58,0.7) 100%);"></div>
+                        <div class="position-absolute bottom-0 start-0 p-3 w-100 d-flex justify-content-between align-items-center">
+                            <span class="badge bg-gold text-navy rounded-pill px-3 py-1 fw-bold shadow-sm" 
+                                  th:text="${curso.categoria != null ? curso.categoria.nombre : 'Finanzas'}">Cat</span>
+                            <span th:if="${curso.publicado}" class="badge bg-success text-white rounded-pill px-3 py-1 shadow-sm">Publicado</span>
+                            <span th:if="${!curso.publicado}" class="badge bg-warning text-dark rounded-pill px-3 py-1 shadow-sm">Sin cohortes abiertas</span>
+                        </div>
                     </div>
 
-                    <div>
-                        <div class="d-flex justify-content-between align-items-center small text-muted mb-3 pt-2 border-top">
-                            <span><i class="fa-solid fa-file-invoice me-1 text-gold"></i> <strong th:text="${curso.programas != null ? #lists.size(curso.programas) : 0}">0</strong> Programas</span>
-                            <span class="fw-bold text-navy" th:text="'$' + ${#numbers.formatDecimal(curso.precio, 1, 'POINT', 0, 'COMMA')}">$0</span>
+                    <div class="p-4 d-flex flex-column justify-content-between flex-grow-1">
+                        <div>
+                            <h4 class="font-serif fw-bold text-navy mb-2" th:text="${curso.nombre}">Nombre del Curso</h4>
+                            <p class="small text-muted mb-3" th:text="${curso.descripcion != null ? #strings.abbreviate(curso.descripcion, 110) : 'Curso docente.'}">Descripción</p>
                         </div>
-                        <a th:href="@{/docente/curso/{id}/gestionar(id=${curso.id})}" class="btn idn-btn-gold btn-sm w-100 py-2 fw-bold shadow-sm">
-                            <i class="fa-solid fa-gears me-1"></i> Gestionar Curso
-                        </a>
+
+                        <div>
+                            <div class="d-flex justify-content-between align-items-center small text-muted mb-3 pt-2 border-top">
+                                <span><i class="fa-solid fa-file-invoice me-1 text-gold"></i> <strong th:text="${curso.programas != null ? #lists.size(curso.programas) : 0}">0</strong> Programas</span>
+                                <span class="fw-bold text-navy fs-6" th:text="'$' + ${#numbers.formatDecimal(curso.precio, 1, 'POINT', 0, 'COMMA')}">$0</span>
+                            </div>
+                            <a th:href="@{/docente/curso/{id}/gestionar(id=${curso.id})}" class="btn idn-btn-gold btn-sm w-100 py-2 fw-bold shadow-sm">
+                                <i class="fa-solid fa-gears me-1"></i> Gestionar Curso
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </main>
 
-    <!-- Modal: Registrar Curso (CU-03) -->
+    <!-- Modal: Registrar Curso (CU-03) con Portada Superior y Previsualización -->
     <div class="modal fade" id="modalNuevoCurso" tabindex="-1" aria-labelledby="modalNuevoCursoLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
-                <div class="modal-header bg-navy text-white py-3 px-4">
-                    <div class="d-flex align-items-center gap-2">
-                        <div class="rounded-circle bg-gold text-navy fw-bold d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
-                            <i class="fa-solid fa-book-bookmark fs-6"></i>
-                        </div>
-                        <h5 class="modal-title font-serif fw-bold text-white mb-0" id="modalNuevoCursoLabel">Registrar Curso</h5>
-                    </div>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                </div>
                 <form th:action="@{/docente/curso/guardar}" method="post">
+                    
+                    <!-- Banner de Foto de Ancho a Ancho -->
+                    <div class="position-relative w-100 bg-navy" style="height: 170px; overflow: hidden;">
+                        <img id="previewPortadaModal" 
+                             src="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=1000&auto=format&fit=crop&q=80" 
+                             alt="Portada del Curso" 
+                             style="width: 100%; height: 100%; object-fit: cover; opacity: 0.85;">
+                        <div class="position-absolute top-0 start-0 w-100 h-100" 
+                             style="background: linear-gradient(180deg, rgba(11,31,58,0.75) 0%, rgba(11,31,58,0.4) 60%, rgba(11,31,58,0.85) 100%);"></div>
+                        
+                        <!-- Barra superior del banner: Título y Cerrar -->
+                        <div class="position-absolute top-0 start-0 w-100 p-3 d-flex justify-content-between align-items-center">
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="rounded-circle bg-gold text-navy fw-bold d-flex align-items-center justify-content-center shadow-sm" style="width: 32px; height: 32px;">
+                                    <i class="fa-solid fa-book-bookmark fs-6"></i>
+                                </div>
+                                <h5 class="modal-title font-serif fw-bold text-white mb-0" id="modalNuevoCursoLabel">Registrar Curso</h5>
+                            </div>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                        </div>
+
+                        <!-- Botón flotante para subir foto -->
+                        <div class="position-absolute bottom-0 end-0 p-3">
+                            <label for="inputFotoArchivo" class="btn btn-sm btn-light shadow rounded-pill px-3 py-1 fw-bold d-flex align-items-center gap-2" style="cursor: pointer;">
+                                <i class="fa-solid fa-camera text-gold fs-6"></i> Subir Foto
+                            </label>
+                            <input type="file" id="inputFotoArchivo" accept="image/*" style="display: none;" onchange="handleImageUpload(event)">
+                            <input type="hidden" id="imagenInput" name="imagen" value="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=1000&auto=format&fit=crop&q=80">
+                        </div>
+                    </div>
+
                     <div class="modal-body p-4 p-md-4">
                         <div class="mb-3">
                             <div class="d-flex justify-content-between">
@@ -103,7 +141,7 @@
                             </div>
                         </div>
 
-                        <!-- Selección de Docente Titular y Supervisores -->
+                        <!-- Selección de Docente Titular y Supervisores en Checkboxes Limpios -->
                         <div class="row g-3 mb-3">
                             <div class="col-md-6">
                                 <label for="titularId" class="form-label small fw-bold text-navy">Docente Titular *</label>
@@ -115,68 +153,67 @@
                                 </select>
                             </div>
                             <div class="col-md-6">
-                                <label for="supervisoresIds" class="form-label small fw-bold text-navy">Docentes Supervisores (Opcional)</label>
-                                <select class="form-select" id="supervisoresIds" name="supervisoresIds" multiple size="3">
-                                    <option th:each="d : ${docentes}" 
-                                            th:if="${d.id != usuario.id}"
-                                            th:value="${d.id}" 
-                                            th:text="${d.usuario != null ? d.usuario.nombre + ' ' + d.usuario.apellido : 'Docente ' + d.id}">Docente</option>
-                                </select>
-                                <div class="form-text small">Mantén presionado Ctrl (o Cmd) para seleccionar varios.</div>
-                            </div>
-                        </div>
-
-                        <!-- Modalidades de Dictado -->
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold text-navy d-block">Modalidades de Dictado *</label>
-                            <div class="d-flex flex-wrap gap-4 mt-1">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="modEnVivo" name="modalidades" value="ENVIVO" checked>
-                                    <label class="form-check-label small" for="modEnVivo"><i class="fa-solid fa-video me-1 text-danger"></i>En Vivo</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="modGrabado" name="modalidades" value="GRABADO" checked>
-                                    <label class="form-check-label small" for="modGrabado"><i class="fa-solid fa-circle-play me-1 text-primary"></i>Grabado</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="modClonIA" name="modalidades" value="CLONIA">
-                                    <label class="form-check-label small" for="modClonIA"><i class="fa-solid fa-robot me-1 text-warning"></i>Clon IA</label>
+                                <label class="form-label small fw-bold text-navy">Docentes Supervisores (Opcional)</label>
+                                <div class="border rounded-3 p-2 bg-light" style="max-height: 110px; overflow-y: auto;">
+                                    <div th:each="d : ${docentes}" th:if="${d.id != usuario.id}" class="form-check mb-1">
+                                        <input class="form-check-input" type="checkbox" name="supervisoresIds" th:value="${d.id}" th:id="'sup_' + ${d.id}">
+                                        <label class="form-check-label small fw-medium text-navy" th:for="'sup_' + ${d.id}">
+                                            <span class="badge bg-navy text-white rounded-pill me-1" style="font-size: 10px;" th:text="${#strings.substring(d.usuario != null ? d.usuario.nombre : 'D', 0, 1)}">D</span>
+                                            <span th:text="${d.usuario != null ? d.usuario.nombre + ' ' + d.usuario.apellido : 'Docente ' + d.id}">Docente</span>
+                                        </label>
+                                    </div>
+                                    <div th:if="${#lists.size(docentes) <= 1}" class="text-muted small p-1">No hay otros docentes registrados</div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Checkbox Emite Certificado -->
-                        <div class="mb-3">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="emiteCertificado" name="emiteCertificado" value="true" checked>
-                                <label class="form-check-label small fw-bold text-navy" for="emiteCertificado">
-                                    <i class="fa-solid fa-award me-1 text-gold"></i> Emite certificado
-                                </label>
-                            </div>
-                        </div>
-
-                        <!-- Precio y Foto -->
+                        <!-- Modalidades de Dictado y Certificado -->
                         <div class="row g-3 mb-3">
-                            <div class="col-md-6">
-                                <label for="precio" class="form-label small fw-bold text-navy">Precio (ARS) *</label>
-                                <div class="input-group">
-                                    <span class="input-group-text bg-light">$</span>
-                                    <input type="number" step="100" min="0" class="form-control" id="precio" name="precio" value="45000" required>
+                            <div class="col-md-7">
+                                <label class="form-label small fw-bold text-navy d-block">Modalidades de Dictado *</label>
+                                <div class="d-flex flex-wrap gap-3 mt-1">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="modEnVivo" name="modalidades" value="ENVIVO" checked>
+                                        <label class="form-check-label small" for="modEnVivo"><i class="fa-solid fa-video me-1 text-danger"></i>En Vivo</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="modGrabado" name="modalidades" value="GRABADO" checked>
+                                        <label class="form-check-label small" for="modGrabado"><i class="fa-solid fa-circle-play me-1 text-primary"></i>Grabado</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="modClonIA" name="modalidades" value="CLONIA">
+                                        <label class="form-check-label small" for="modClonIA"><i class="fa-solid fa-robot me-1 text-warning"></i>Clon IA</label>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <label for="imagen" class="form-label small fw-bold text-navy">Foto del Curso (Opcional)</label>
-                                <input type="text" class="form-control" id="imagen" name="imagen" placeholder="/img/cursos/default.jpg o URL">
+                            <div class="col-md-5">
+                                <label class="form-label small fw-bold text-navy d-block">Certificación</label>
+                                <div class="form-check form-switch mt-1">
+                                    <input class="form-check-input" type="checkbox" id="emiteCertificado" name="emiteCertificado" value="true" checked>
+                                    <label class="form-check-label small fw-bold text-navy" for="emiteCertificado">
+                                        <i class="fa-solid fa-award me-1 text-gold"></i> Emite certificado
+                                    </label>
+                                </div>
                             </div>
                         </div>
 
+                        <!-- Precio -->
+                        <div class="mb-3">
+                            <label for="precio" class="form-label small fw-bold text-navy">Precio (ARS) *</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light">$</span>
+                                <input type="number" step="100" min="0" class="form-control" id="precio" name="precio" value="45000" required>
+                            </div>
+                        </div>
+
+                        <!-- Descripción -->
                         <div class="mb-3">
                             <label for="descripcion" class="form-label small fw-bold text-navy">Descripción *</label>
                             <textarea class="form-control" id="descripcion" name="descripcion" rows="3" required placeholder="Descripción del curso..."></textarea>
                         </div>
                     </div>
                     <div class="modal-footer bg-light py-3 px-4 border-top">
-                        <button type="submit" class="btn idn-btn-gold px-4 fw-bold shadow-sm w-100">
+                        <button type="submit" class="btn idn-btn-gold px-4 fw-bold shadow-sm w-100 py-2">
                             Registrar Curso
                         </button>
                     </div>
@@ -184,6 +221,27 @@
             </div>
         </div>
     </div>
+
+    <!-- Script para previsualización inmediata de la foto cargada -->
+    <script>
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('previewPortadaModal');
+                    const hiddenInput = document.getElementById('imagenInput');
+                    if (preview) {
+                        preview.src = e.target.result;
+                    }
+                    if (hiddenInput) {
+                        hiddenInput.value = e.target.result;
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+    </script>
 
     <footer th:replace="~{fragments/footer :: footer}"></footer>
     <th:block th:replace="~{fragments/scripts :: scripts}"></th:block>
