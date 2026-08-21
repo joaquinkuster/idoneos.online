@@ -243,8 +243,13 @@ public class CursoServiceImpl implements CursoService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Curso> obtenerPorDocente(Usuario docente) {
-        return cursoRepository.findByDocenteId(docente.getId());
+    public List<Curso> obtenerPorDocente(Usuario usuario) {
+        // Usa el id del Docente (id_docente), NO el id del Usuario (id_usuario).
+        // Son secuencias independientes: confundirlos devuelve los cursos del docente incorrecto.
+        if (usuario.getDocente() != null) {
+            return cursoRepository.findByDocenteId(usuario.getDocente().getId());
+        }
+        return java.util.Collections.emptyList();
     }
 
     @Override
