@@ -158,4 +158,16 @@ public class Descuento {
     public void setBaja(boolean baja) {
         this.baja = baja;
     }
+
+    /**
+     * Helper para verificar si el descuento está vigente y disponible.
+     */
+    public boolean estaVigente() {
+        if (baja) return false;
+        LocalDateTime ahora = LocalDateTime.now();
+        if (vigenciaDesde != null && ahora.isBefore(vigenciaDesde)) return false;
+        if (vigenciaHasta != null && ahora.isAfter(vigenciaHasta)) return false;
+        if (cantidadLimite > 0 && cantidadUsada >= cantidadLimite) return false;
+        return true;
+    }
 }

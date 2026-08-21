@@ -2,6 +2,7 @@ package com.app.idoneos.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * Entidad Autoevaluacion: Instrumento de evaluación de conocimientos asociado a una Unidad.
@@ -171,5 +172,17 @@ public class Autoevaluacion {
 
     public void setUnidad(Unidad unidad) {
         this.unidad = unidad;
+    }
+
+    /**
+     * Helper para obtener los pools asociados a la autoevaluación (de la unidad a la que pertenece).
+     */
+    public List<PoolAutoevaluacion> getPools() {
+        if (this.unidad != null && this.unidad.getPools() != null) {
+            return this.unidad.getPools().stream()
+                    .map(p -> new PoolAutoevaluacion(p, this))
+                    .toList();
+        }
+        return List.of();
     }
 }

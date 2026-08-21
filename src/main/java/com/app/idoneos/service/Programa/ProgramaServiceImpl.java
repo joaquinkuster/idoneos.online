@@ -2,11 +2,11 @@ package com.app.idoneos.service.Programa;
 
 import com.app.idoneos.exception.ExcepcionRecursoNoEncontrado;
 import com.app.idoneos.exception.ExcepcionValidacion;
-import com.app.idoneos.model.Dictado;
+import com.app.idoneos.model.Cohorte;
 import com.app.idoneos.model.Inscripcion;
 import com.app.idoneos.model.Programa;
 import com.app.idoneos.model.Curso;
-import com.app.idoneos.repository.DictadoRepository;
+import com.app.idoneos.repository.CohorteRepository;
 import com.app.idoneos.repository.InscripcionRepository;
 import com.app.idoneos.repository.ProgramaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +24,7 @@ import java.util.Optional;
 public class ProgramaServiceImpl implements ProgramaService {
 
     @Autowired private ProgramaRepository programaRepository;
-    @Autowired private DictadoRepository dictadoRepository;
+    @Autowired private CohorteRepository cohorteRepository;
     @Autowired private InscripcionRepository inscripcionRepository;
 
     @Override
@@ -97,7 +97,7 @@ public class ProgramaServiceImpl implements ProgramaService {
 
     /**
      * CU-13 — Eliminar programa (Baja Lógica).
-     * Impide la baja si existen dictados activos con inscripciones vigentes de alumnos.
+     * Impide la baja si existen cohortes asociadas.
      */
     @Override
     public void darDeBajaPrograma(int programaId) {
@@ -108,13 +108,9 @@ public class ProgramaServiceImpl implements ProgramaService {
             throw new ExcepcionValidacion("CU-13 Excepción: El programa ya se encuentra dado de baja.");
         }
 
-        List<Dictado> dictados = dictadoRepository.findByPrograma(programa);
-        for (Dictado d : dictados) {
-            List<Inscripcion> inscripciones = inscripcionRepository.findByDictado(d);
-            boolean tieneInscripcionesActivas = inscripciones.stream().anyMatch(i -> !i.getBaja());
-            if (tieneInscripcionesActivas) {
-                throw new ExcepcionValidacion("CU-13 Excepción paso 5: No se puede dar de baja el programa porque posee dictados activos con alumnos inscriptos.");
-            }
+        List<Cohorte> cohortes = cohorteRepository.findByPrograma(programa);
+        if (!cohortes.isEmpty()) {
+            throw new ExcepcionValidacion("CU-13 Excepción paso 5: No se puede dar de baja el programa porque posee cohortes asociadas.");
         }
 
         programa.setBaja(true);

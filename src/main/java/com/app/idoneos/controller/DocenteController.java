@@ -22,9 +22,8 @@ import java.util.Optional;
  *
  * MOD-F-01: Módulo de Cursos
  *   CU-01 — Buscar curso (vista docente)  → GET /docente
- *             El sistema restringe los resultados a los cursos en los que el docente participa.
+ *             El sistema restringe los resultados a los cursos en los que el docente participa como titular o supervisor.
  *   CU-03 — Registrar curso (formulario + POST) → GET/POST /docente/curso/nuevo + /docente/curso/guardar
- *             NOTA CRÍTICA: usa Dictado/DictadoDocente del esquema ANTERIOR. Requiere refactor.
  *
  * MOD-F-02: Módulo de Gestión Académica
  *   CU-19 — Buscar unidad                → GET /docente/curso/{cursoId}/gestionar
@@ -43,13 +42,6 @@ import java.util.Optional;
  *   CU-32 — Registrar término de glosario → POST /docente/unidad/{unidadId}/glosario/guardar
  *   CU-33 — Modificar término de glosario → no implementado. FALTANTE.
  *   CU-34 — Dar de baja término          → no implementado. FALTANTE.
- *
- * INCONSISTENCIAS CON EL ESQUEMA ACTUAL:
- *   - DocenteController inyecta DictadoDocenteRepository y DictadoRepository del esquema anterior.
- *   - La verificación de pertenencia del docente al curso (docentePerteneceACurso) usa
- *     DictadoDocente/Dictado; en el nuevo esquema debe usar Supervisor/Cohorte/Cronograma.
- *   - CU-03 (registrar curso) crea Programa + Dictado + DictadoDocente en lugar de
- *     Programa + Cronograma + Cohorte + Supervisor del nuevo esquema.
  */
 @Controller
 @RequestMapping("/docente")
@@ -61,11 +53,9 @@ public class DocenteController {
     @Autowired private MaterialServiceImpl materialService;
     @Autowired private TipoMaterialRepository tipoMaterialRepository;
     @Autowired private DocenteRepository docenteRepository;
-    // NOTA: DictadoDocenteRepository y DictadoRepository son del esquema anterior.
-    // En el nuevo esquema usar SupervisorRepository y CohorteRepository.
-    @Autowired private DictadoDocenteRepository dictadoDocenteRepository;
+    @Autowired private SupervisorRepository supervisorRepository;
     @Autowired private ProgramaRepository programaRepository;
-    @Autowired private DictadoRepository dictadoRepository;
+    @Autowired private NivelRepository nivelRepository;
     @Autowired private TerminoGlosarioRepository terminoGlosarioRepository;
     @Autowired private AutoevaluacionRepository autoevaluacionRepository;
     @Autowired private PoolRepository poolRepository;
@@ -81,15 +71,30 @@ public class DocenteController {
 
     /**
      * Verifica si un Docente pertenece a un Curso como titular o supervisor.
-     * NOTA: usa DictadoDocente del esquema anterior. En el nuevo esquema verificar con Supervisor/Cohorte.
      */
     private boolean docentePerteneceACurso(Docente docente, Curso curso) {
         if (docente == null || curso == null) return false;
-        return dictadoDocenteRepository.findByDocente(docente).stream()
-                .anyMatch(dd -> dd.getDictado() != null
-                        && dd.getDictado().getPrograma() != null
-                        && dd.getDictado().getPrograma().getCurso() != null
-                        && dd.getDictado().getPrograma().getCurso().getId() == curso.getId());
+        // Titular
+        if (curso.getDocente() != null && curso.getDocente().getId() == docente.getId()) {
+            return true;
+        }
+        // Supervisor
+        return supervisorRepository.findByDocente(docente).stream()
+                .anyMatch(s -> s.getCurso() != null && s.getCurso().getId() == curso.getId());
+    }
+
+    /**
+     * Verifica si un Docente pertenece a alguno de los Cursos vinculados a la Unidad.
+     */
+    private boolean docentePerteneceAUnidad(Docente docente, Unidad unidad) {
+        if (docente == null || unidad == null || unidad.getCronogramas() == null) {
+            return false;
+        }
+        return unidad.getCronogramas().stream()
+                .map(Cronograma::getPrograma)
+                .filter(p -> p != null && p.getCurso() != null)
+                .map(Programa::getCurso)
+                .anyMatch(curso -> docentePerteneceACurso(docente, curso));
     }
 
     /**
@@ -97,8 +102,6 @@ public class DocenteController {
      * Actor: Docente.
      * Precondición: sesión iniciada con rol Docente. Existe al menos un curso asociado al docente.
      * Flujo paso 4: el sistema restringe el resultado a los cursos en los que participa como titular o supervisor.
-     * NOTA PARCIAL: CU-01 especifica criterios de búsqueda (nombre, categoría, nivel, etc.). No implementados.
-     *   La implementación lista todos los cursos del docente sin filtros.
      */
     @GetMapping
     public String panelDocente(Model model, Authentication auth) {
@@ -114,35 +117,36 @@ public class DocenteController {
 
     /**
      * TRAZABILIDAD: CU-03 — Registrar curso (formulario GET).
-     * Actor: Docente (en esta implementación el docente puede crear cursos; según la spec, es rol Administrador).
-     * NOTA DE ACTOR: CU-03 especifica que el actor es el Administrador. Esta ruta para Docente
-     *   podría corresponder a CU-16 (Registrar programa) o ser un requisito adicional no documentado.
-     *   INCONSISTENCIA DE ACTOR — pendiente de aclaración.
+     * Actor: Docente / Administrador.
      */
     @GetMapping("/curso/nuevo")
     public String nuevoCursoForm(Model model, Authentication auth) {
         model.addAttribute("usuario", (Usuario) auth.getPrincipal());
         model.addAttribute("categorias", categoriaService.obtenerTodo());
+        model.addAttribute("niveles", nivelRepository.findAll());
         model.addAttribute("titulo", "Nuevo Curso | Idóneos Online");
         return "pages/docente/nuevo-curso";
     }
 
     /**
-     * TRAZABILIDAD: CU-03 — Registrar curso (POST) / posiblemente CU-16 — Registrar programa.
+     * TRAZABILIDAD: CU-03 — Registrar curso (POST).
      * Actor: Docente.
-     * Flujo paso 4-6: valida campos, registra el curso con Programa y Dictado asignado al docente.
+     * Flujo paso 4-6: valida campos, registra el curso asignado al docente como titular.
      * Postcondición: curso registrado con el docente como titular.
      * EX-CU03-01: categoría inválida → redirect con mensaje.
-     * NOTA CRÍTICA: usa Dictado/DictadoDocente del esquema ANTERIOR.
-     *   En el nuevo esquema: Programa + Cronograma + Cohorte (por Admin) + Supervisor.
-     *   Estado: IMPLEMENTADO CON ENTIDADES OBSOLETAS — requiere refactor.
      */
     @PostMapping("/curso/guardar")
     public String guardarCurso(@RequestParam("nombre") String nombre,
                                @RequestParam("descripcion") String descripcion,
                                @RequestParam("precio") float precio,
                                @RequestParam("categoriaId") Integer categoriaId,
+                               @RequestParam(value = "nivelId", required = false) Integer nivelId,
                                Authentication auth, RedirectAttributes redirectAttributes) {
+
+        if (precio < 0) {
+            redirectAttributes.addFlashAttribute("mensaje", "EX-CU03-02: El precio no puede ser menor a cero.");
+            return "redirect:/docente/curso/nuevo";
+        }
 
         Usuario usuarioAuth = (Usuario) auth.getPrincipal();
         Optional<Categoria> catOpt = categoriaService.buscarPorId(categoriaId);
@@ -158,15 +162,17 @@ public class DocenteController {
             return "redirect:/docente";
         }
 
-        Curso curso = new Curso(nombre, descripcion, precio, catOpt.get());
+        Nivel nivel = (nivelId != null) ? nivelRepository.findById(nivelId).orElse(null) : null;
+        if (nivel == null) {
+            List<Nivel> niveles = nivelRepository.findAll();
+            nivel = niveles.isEmpty() ? null : niveles.get(0);
+        }
+
+        Curso curso = new Curso(nombre, descripcion, precio, catOpt.get(), nivel, docente);
         Curso cursoDef = cursoService.guardar(curso);
 
-        // NOTA: usa Dictado/DictadoDocente del esquema anterior.
-        // Nuevo esquema: Programa + Cronograma + Cohorte + Supervisor.
-        Programa prog = programaRepository.save(new Programa(nombre, descripcion, 12, cursoDef));
-        Dictado dictado = dictadoRepository.save(new Dictado(java.time.LocalDateTime.now(), java.time.LocalDateTime.now().plusMonths(6), 50, prog));
-
-        dictadoDocenteRepository.save(new DictadoDocente(dictado, docente, false));
+        // Registro de programa inicial
+        programaRepository.save(new Programa(nombre, descripcion, "Objetivos generales del curso", "Bibliografía general", cursoDef));
 
         redirectAttributes.addFlashAttribute("mensaje", "¡Curso creado correctamente!");
         return "redirect:/docente";
@@ -237,7 +243,7 @@ public class DocenteController {
         Docente docente = getDocente(auth);
         Usuario usuario = (Usuario) auth.getPrincipal();
 
-        if (!usuario.esAdmin() && !docentePerteneceACurso(docente, unidad.getCurso())) {
+        if (!usuario.esAdmin() && !docentePerteneceAUnidad(docente, unidad)) {
             redirectAttributes.addFlashAttribute("mensaje", "No tenés permisos.");
             return "redirect:/docente";
         }
@@ -274,7 +280,7 @@ public class DocenteController {
         Docente docente = getDocente(auth);
         Usuario usuario = (Usuario) auth.getPrincipal();
 
-        if (!usuario.esAdmin() && !docentePerteneceACurso(docente, unidad.getCurso())) {
+        if (!usuario.esAdmin() && !docentePerteneceAUnidad(docente, unidad)) {
             redirectAttributes.addFlashAttribute("mensaje", "No tenés permisos.");
             return "redirect:/docente";
         }

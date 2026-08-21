@@ -1,6 +1,7 @@
 package com.app.idoneos.controller;
 
 import com.app.idoneos.exception.ExcepcionValidacion;
+import com.app.idoneos.model.Administrador;
 import com.app.idoneos.model.Configuracion;
 import com.app.idoneos.model.Usuario;
 import com.app.idoneos.repository.ConfiguracionRepository;
@@ -74,16 +75,23 @@ public class ConfiguracionController {
     @PostMapping("/guardar")
     public String guardarParametro(@RequestParam String clave,
                                    @RequestParam String valor,
+                                   Authentication auth,
                                    RedirectAttributes ra) {
         // CU-99 EX-CU99-01: validar que clave y valor sean obligatorios.
         if (clave == null || clave.trim().isEmpty() || valor == null || valor.trim().isEmpty()) {
             throw new ExcepcionValidacion("EX-CU99-01: La clave y el valor del parámetro son obligatorios.");
         }
 
+        Usuario usuarioActual = (Usuario) auth.getPrincipal();
+        Administrador adminActual = usuarioActual != null ? usuarioActual.getAdministrador() : null;
+
         // CU-99 paso 4: upsert del parámetro (busca por clave; si no existe lo crea).
         Configuracion c = configRepo.findByClave(clave.trim())
-                .orElseGet(() -> new Configuracion(clave.trim(), valor.trim()));
+                .orElseGet(() -> new Configuracion(clave.trim(), valor.trim(), adminActual));
         c.setValor(valor.trim());
+        if (c.getAdministrador() == null && adminActual != null) {
+            c.setAdministrador(adminActual);
+        }
         configRepo.save(c);
         ra.addFlashAttribute("mensaje", "Parámetro '" + clave + "' guardado correctamente.");
         return "redirect:/admin/configuracion";

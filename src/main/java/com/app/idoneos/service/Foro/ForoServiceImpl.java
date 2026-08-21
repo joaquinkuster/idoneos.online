@@ -69,7 +69,7 @@ public class ForoServiceImpl implements ForoService {
             throw new ExcepcionValidacion("CU-35 Precondición: No se puede modificar una consulta dada de baja.");
         }
 
-        if (usuarioSolicitante != null && usuarioSolicitante.getRol() != RolUsuario.Administrador &&
+        if (usuarioSolicitante != null && usuarioSolicitante.getRolUsuario() != RolUsuario.Administrador &&
             existente.getAlumno().getUsuario().getId() != usuarioSolicitante.getId()) {
             throw new ExcepcionValidacion("CU-35 Autorización: Solo el autor original puede editar su consulta.");
         }
@@ -94,7 +94,7 @@ public class ForoServiceImpl implements ForoService {
             throw new ExcepcionValidacion("CU-36 Excepción: La consulta ya se encuentra dada de baja.");
         }
 
-        if (usuarioSolicitante != null && usuarioSolicitante.getRol() != RolUsuario.Administrador &&
+        if (usuarioSolicitante != null && usuarioSolicitante.getRolUsuario() != RolUsuario.Administrador &&
             consulta.getAlumno().getUsuario().getId() != usuarioSolicitante.getId()) {
             throw new ExcepcionValidacion("CU-36 Autorización: Solo el autor original o un Administrador pueden eliminar la consulta.");
         }

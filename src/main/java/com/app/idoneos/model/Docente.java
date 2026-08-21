@@ -63,6 +63,12 @@ public class Docente {
     public Docente() {
     }
 
+    public Docente(Usuario usuario) {
+        this.usuario = usuario;
+        this.aniosExperiencia = 0;
+        this.habilitado = true;
+    }
+
     public Docente(Usuario usuario, int aniosExperiencia) {
         this.usuario = usuario;
         this.aniosExperiencia = aniosExperiencia;
@@ -135,6 +141,13 @@ public class Docente {
 
     public void setFechaConsentimientoClon(LocalDateTime fecha) {
         this.fechaAceptacionTycClon = fecha;
+    }
+
+    /**
+     * Verifica si el docente puede utilizar Clon IA (tiene fecha de aceptación de TyC registrada).
+     */
+    public boolean puedeUsarClonIA() {
+        return this.fechaAceptacionTycClon != null;
     }
 
     public String getAvatarId() {

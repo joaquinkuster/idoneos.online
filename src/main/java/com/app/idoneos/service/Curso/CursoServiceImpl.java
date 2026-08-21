@@ -24,7 +24,6 @@ public class CursoServiceImpl implements CursoService {
     @Autowired private ProgramaRepository programaRepository;
     @Autowired private UnidadRepository unidadRepository;
     @Autowired private MaterialRepository materialRepository;
-    @Autowired private DictadoRepository dictadoRepository;
     @Autowired private InscripcionRepository inscripcionRepository;
 
     @Override
@@ -103,7 +102,6 @@ public class CursoServiceImpl implements CursoService {
         existente.setDescripcion(curso.getDescripcion());
         existente.setPrecio(curso.getPrecio());
         existente.setCategoria(curso.getCategoria());
-        existente.setMesesAcceso(curso.getMesesAcceso());
         existente.setUltimaModificacion(LocalDateTime.now());
 
         return cursoRepository.save(existente);
@@ -157,7 +155,7 @@ public class CursoServiceImpl implements CursoService {
      * 
      * Reglas de Negocio:
      * - Valida existencia del curso.
-     * - Impide la baja si existen dictados activos con inscripciones vigentes de alumnos.
+     * - Impide la baja si existen cohortes activas con inscripciones vigentes de alumnos.
      * - Marca baja = true y retira el curso del catálogo público (publicado = false).
      */
     @Override
@@ -169,15 +167,17 @@ public class CursoServiceImpl implements CursoService {
             throw new ExcepcionValidacion("CU-04 Excepción: El curso ya se encuentra dado de baja.");
         }
 
-        // CU-04: Verificación de dependencias con dictados e inscripciones vigentes
+        // CU-04: Verificación de dependencias con cohortes e inscripciones vigentes
         List<Programa> programas = programaRepository.findByCurso(curso);
         for (Programa p : programas) {
-            List<Dictado> dictados = dictadoRepository.findByPrograma(p);
-            for (Dictado d : dictados) {
-                List<Inscripcion> inscripciones = inscripcionRepository.findByDictado(d);
-                boolean tieneInscripcionesActivas = inscripciones.stream().anyMatch(i -> !i.getBaja());
-                if (tieneInscripcionesActivas) {
-                    throw new ExcepcionValidacion("CU-04 Excepción paso 5: No se puede dar de baja el curso porque posee dictados activos con alumnos inscriptos.");
+            List<Cohorte> cohortes = p.getCohortes();
+            if (cohortes != null) {
+                for (Cohorte c : cohortes) {
+                    List<Inscripcion> inscripciones = inscripcionRepository.findByCohorte(c);
+                    boolean tieneInscripcionesActivas = inscripciones.stream().anyMatch(i -> !i.getBaja());
+                    if (tieneInscripcionesActivas) {
+                        throw new ExcepcionValidacion("CU-04 Excepción paso 5: No se puede dar de baja el curso porque posee cohortes activas con alumnos inscriptos.");
+                    }
                 }
             }
         }

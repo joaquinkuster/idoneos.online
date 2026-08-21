@@ -27,7 +27,6 @@ public class UsuarioServiceImpl implements UsuarioService, CrudService<Usuario> 
     @Autowired private AlumnoRepository alumnoRepository;
     @Autowired private DocenteRepository docenteRepository;
     @Autowired private AdministradorRepository administradorRepository;
-    @Autowired private DictadoDocenteRepository dictadoDocenteRepository;
 
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
@@ -120,7 +119,7 @@ public class UsuarioServiceImpl implements UsuarioService, CrudService<Usuario> 
                 .orElseThrow(() -> new ExcepcionRecursoNoEncontrado("Usuario", "id", id));
 
         // RN-07: Al menos 1 admin activo
-        if (usuario.getRol() == RolUsuario.Administrador && !usuario.getBaja()) {
+        if (usuario.getRol() != null && "Administrador".equalsIgnoreCase(usuario.getRol().getNombre()) && !usuario.getBaja()) {
             long adminsActivos = contarAdministradoresActivos();
             if (adminsActivos <= 1) {
                 throw new ExcepcionValidacion("RN-07: No es posible dar de baja al único administrador activo del sistema.");
@@ -128,12 +127,10 @@ public class UsuarioServiceImpl implements UsuarioService, CrudService<Usuario> 
         }
 
         // RN-11: Docente titular con cursos publicados
-        if (usuario.getRol() == RolUsuario.Docente && !usuario.getBaja() && usuario.getDocente() != null) {
-            boolean tieneCursosPublicados = dictadoDocenteRepository.findByDocente(usuario.getDocente()).stream()
-                    .anyMatch(dd -> !dd.isEsSupervisor() && dd.getDictado() != null
-                            && dd.getDictado().getPrograma() != null
-                            && dd.getDictado().getPrograma().getCurso() != null
-                            && Boolean.TRUE.equals(dd.getDictado().getPrograma().getCurso().getPublicado()));
+        if (usuario.getRol() != null && "Docente".equalsIgnoreCase(usuario.getRol().getNombre()) && !usuario.getBaja() && usuario.getDocente() != null) {
+            Docente d = usuario.getDocente();
+            boolean tieneCursosPublicados = d.getCursos() != null && d.getCursos().stream()
+                    .anyMatch(c -> !c.getBaja() && Boolean.TRUE.equals(c.getPublicado()));
             if (tieneCursosPublicados) {
                 throw new ExcepcionValidacion("RN-11: No es posible dar de baja a un docente titular con cursos publicados.");
             }

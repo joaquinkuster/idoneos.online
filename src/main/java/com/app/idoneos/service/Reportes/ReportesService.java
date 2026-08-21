@@ -182,10 +182,8 @@ public class ReportesService {
         double montoBruto = pagosAcreditados.stream()
                 .mapToDouble(p -> {
                     Inscripcion insc = p.getInscripcion();
-                    if (insc != null && insc.getDictado() != null &&
-                            insc.getDictado().getPrograma() != null &&
-                            insc.getDictado().getPrograma().getCurso() != null) {
-                        return insc.getDictado().getPrograma().getCurso().getPrecio();
+                    if (insc != null && insc.getCurso() != null) {
+                        return insc.getCurso().getPrecio();
                     }
                     return (double) p.getMonto();
                 }).sum();

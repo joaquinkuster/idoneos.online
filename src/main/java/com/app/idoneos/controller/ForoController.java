@@ -41,9 +41,7 @@ public class ForoController {
     @Autowired private ConsultaForoRepository consultaRepo;
     @Autowired private RespuestaForoRepository respuestaRepo;
     @Autowired private UnidadServiceImpl unidadService;
-    // NOTA: DictadoDocenteRepository es del esquema anterior.
-    // En el nuevo esquema usar SupervisorRepository para encontrar al docente del curso.
-    @Autowired private DictadoDocenteRepository dictadoDocenteRepository;
+    @Autowired private SupervisorRepository supervisorRepository;
     @Autowired private DocenteRepository docenteRepo;
     @Autowired private EmailService emailService;
 
@@ -53,7 +51,6 @@ public class ForoController {
      * Actor: Docente, Administrador (o Alumno con acceso al foro de su curso).
      * Precondición: existe al menos una consulta registrada en la unidad.
      * Flujo paso 4: recupera y lista las consultas activas de la unidad con sus respuestas.
-     * NOTA PARCIAL: CU-35 especifica filtros por texto y rango de fechas. No implementados.
      */
     @GetMapping("/unidad/{unidadId}")
     public String verForoUnidad(@PathVariable Integer unidadId, Model model, Authentication auth) {
@@ -80,9 +77,6 @@ public class ForoController {
      * Flujo paso 5: registra la consulta asociada a la unidad y al alumno.
      * Flujo paso 6: notifica al docente titular por correo electrónico.
      * Postcondición: consulta registrada + docente notificado.
-     * EX-CU36-01 (paso 4): texto vacío → no se guarda (validación pendiente de implementar en el controller).
-     * NOTA PARCIAL: la validación del texto vacío no está implementada explícitamente.
-     * NOTA CRÍTICA: la notificación al docente usa DictadoDocenteRepository del esquema anterior.
      */
     @PostMapping("/unidad/{unidadId}/consulta")
     public String nuevaConsulta(@PathVariable Integer unidadId,
@@ -94,17 +88,18 @@ public class ForoController {
         Usuario usuario = (Usuario) auth.getPrincipal();
 
         // CU-36 paso 5: registra la consulta asociada a la unidad y al alumno con fecha actual.
-        ConsultaForo consulta = consultaRepo.save(new ConsultaForo(texto, unidad, usuario.getAlumno()));
+        ConsultaForo consulta = consultaRepo.save(new ConsultaForo(texto, usuario.getAlumno(), unidad));
 
-        // CU-36 paso 6: notifica al docente titular (usa esquema anterior DictadoDocente).
-        if (unidad.getCurso() != null) {
-            dictadoDocenteRepository.findAll().stream()
-                    .filter(dd -> dd.getDictado() != null && dd.getDictado().getPrograma() != null
-                            && dd.getDictado().getPrograma().getCurso().getId() == unidad.getCurso().getId()
-                            && !dd.isEsSupervisor() && dd.getDocente() != null && dd.getDocente().getUsuario() != null)
-                    .findFirst()
-                    .ifPresent(dd -> emailService.enviarNuevaConsultaForo(
-                            dd.getDocente().getUsuario().getCorreo(), consulta));
+        // CU-36 paso 6: notifica al docente titular
+        Docente docenteTitular = unidad.getCronogramas().stream()
+                .map(Cronograma::getPrograma)
+                .filter(p -> p != null && p.getCurso() != null && p.getCurso().getDocente() != null)
+                .map(p -> p.getCurso().getDocente())
+                .findFirst()
+                .orElse(null);
+
+        if (docenteTitular != null && docenteTitular.getUsuario() != null && docenteTitular.getUsuario().getCorreo() != null) {
+            emailService.enviarNuevaConsultaForo(docenteTitular.getUsuario().getCorreo(), consulta);
         }
 
         ra.addFlashAttribute("mensaje", "Consulta publicada en el foro.");

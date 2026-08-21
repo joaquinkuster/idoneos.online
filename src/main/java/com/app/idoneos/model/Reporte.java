@@ -38,6 +38,12 @@ public class Reporte {
     public Reporte() {
     }
 
+    public Reporte(TipoReporte tipoReporte, Administrador administrador) {
+        this.tipoReporte = tipoReporte;
+        this.administrador = administrador;
+        this.fechaGeneracion = LocalDateTime.now();
+    }
+
     public Reporte(TipoReporte tipoReporte, Administrador administrador, Curso curso) {
         this.tipoReporte = tipoReporte;
         this.administrador = administrador;

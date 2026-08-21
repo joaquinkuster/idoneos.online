@@ -186,4 +186,34 @@ public class Unidad {
     public void setAutoevaluaciones(List<Autoevaluacion> autoevaluaciones) {
         this.autoevaluaciones = autoevaluaciones;
     }
+
+    /**
+     * Helper para obtener el número de orden de la unidad según el primer cronograma.
+     */
+    public int getNumeroOrden() {
+        if (this.cronogramas != null && !this.cronogramas.isEmpty()) {
+            return this.cronogramas.get(0).getNumeroOrden();
+        }
+        return 1;
+    }
+
+    public void setNumeroOrden(int numeroOrden) {
+        if (this.cronogramas != null && !this.cronogramas.isEmpty()) {
+            this.cronogramas.get(0).setNumeroOrden(numeroOrden);
+        }
+    }
+
+    /**
+     * Helper para obtener el Curso al que pertenece la unidad a través de su Programa/Cronograma.
+     */
+    public Curso getCurso() {
+        if (this.cronogramas != null && !this.cronogramas.isEmpty()) {
+            for (Cronograma c : this.cronogramas) {
+                if (c.getPrograma() != null && c.getPrograma().getCurso() != null) {
+                    return c.getPrograma().getCurso();
+                }
+            }
+        }
+        return null;
+    }
 }

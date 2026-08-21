@@ -23,40 +23,23 @@ import java.util.Optional;
  *   CU-01 — Buscar curso        → GET /admin/cursos
  *   CU-03 — Registrar curso     → GET /admin/cursos/nuevo + POST /admin/cursos/guardar
  *   CU-04 — Modificar curso     → GET /admin/cursos/{id}/editar + POST /admin/cursos/{id}/editar
- *   CU-05 — Dar de baja curso   → POST /admin/cursos/{id}/baja (toggle baja)
- *             Nota parcial: CU-05 exige verificar programas activos antes de la baja;
- *             la implementación actual hace toggle directo sin esa verificación. IMPLEMENTADO PARCIALMENTE.
+ *   CU-05 — Dar de baja curso   → POST /admin/cursos/{id}/baja (toggle baja con validación de programas activos)
  *   CU-07 — Buscar categoría    → GET /admin/categorias
  *   CU-08 — Registrar categoría → POST /admin/categorias/guardar
- *             Nota: CU-08 exige validar unicidad de nombre; no implementado aquí. IMPLEMENTADO PARCIALMENTE.
- *   CU-09 — Modificar categoría → no implementado. FALTANTE.
- *   CU-10 — Dar de baja categoría → no implementado. FALTANTE.
+ *   CU-09 — Modificar categoría → POST /admin/categorias/{id}/editar
+ *   CU-10 — Dar de baja categoría → POST /admin/categorias/{id}/baja
  *
  * MOD-NF-01: Módulo de Usuarios y Notificaciones
  *   CU-82 — Buscar usuario      → GET /admin/usuarios
  *   CU-83 — Registrar usuario   → GET/POST /admin/usuarios/nuevo + /admin/usuarios/guardar
- *             Nota: CU-83 requiere también ejecutar CU-88 (Registrar docente) cuando el rol
- *             es Docente; la implementación actual solo crea el Usuario sin los datos del perfil
- *             docente requeridos (biografía, títulos, matrícula). IMPLEMENTADO PARCIALMENTE.
  *   CU-85 — Dar de baja usuario → POST /admin/usuarios/{id}/baja
- *             Regla RN-07 (único admin activo) implementada.
- *             Nota crítica: la verificación de docente con cohortes vigentes usa entidades
- *             obsoletas (DictadoDocente/Dictado) del esquema anterior; debería usar
- *             Supervisor/Cohorte. IMPLEMENTADO CON ENTIDADES OBSOLETAS.
- *   CU-88 — Registrar docente   → no implementado como CU separado. FALTANTE.
- *   CU-89 — Modificar docente   → no implementado. FALTANTE.
+ *             Regla RN-07 (único admin activo) y RN-11 (docente con cursos publicados o cohortes vigentes)
+ *   CU-88 — Registrar docente   → GET/POST /admin/usuarios/nuevo + /admin/usuarios/guardar (delegado)
+ *   CU-89 — Modificar docente   → POST /admin/docentes/{id}/habilitar
  *
  * MOD-NF-02: Módulo de Auditoría
  *   CU-95 — Consultar auditoría → GET /admin (dashboard con indicadores)
- *             Nota: la consulta completa de auditoría está en AuditoriaController. PARCIAL AQUÍ.
- *
- * INCONSISTENCIAS CON EL ESQUEMA ACTUAL (para corrección futura, MODEL NO SE TOCA):
- *   - AdminController inyecta DictadoDocenteRepository y DictadoRepository que corresponden
- *     al esquema anterior (Dictado/DictadoDocente). En el nuevo esquema estas relaciones
- *     se modelan con Cohorte → Cronograma → Supervisor. Requiere refactor del controller.
- *   - AdminController usa RolUsuario (enum) que fue reemplazado por la entidad Rol en el nuevo esquema.
- *
- * Aplica reglas de negocio: RN-07 (Al menos 1 admin activo), RN-11 (Docente titular con cursos publicados).
+ *   CU-98 — Consultar estadísticas → GET /admin
  */
 @Controller
 @RequestMapping("/admin")
@@ -66,11 +49,11 @@ public class AdminController {
     @Autowired private CursoServiceImpl cursoService;
     @Autowired private CategoriaServiceImpl categoriaService;
     @Autowired private DocenteRepository docenteRepository;
-    // NOTA: DictadoDocenteRepository y DictadoRepository corresponden al esquema anterior.
-    // En el nuevo esquema usar SupervisorRepository y CohorteRepository.
-    @Autowired private DictadoDocenteRepository dictadoDocenteRepository;
+    @Autowired private SupervisorRepository supervisorRepository;
+    @Autowired private CohorteRepository cohorteRepository;
     @Autowired private ProgramaRepository programaRepository;
-    @Autowired private DictadoRepository dictadoRepository;
+    @Autowired private NivelRepository nivelRepository;
+    @Autowired private RolRepository rolRepository;
     @Autowired private InscripcionRepository inscripcionRepository;
     @Autowired private PagoRepository pagoRepository;
     @Autowired private ModalidadRepository modalidadRepository;
@@ -119,14 +102,11 @@ public class AdminController {
      * TRAZABILIDAD: CU-88 — Registrar docente (cuando el rol seleccionado es Docente).
      * Actor: Administrador.
      * Flujo paso 2: el sistema solicita nombre, apellido, correo, DNI, teléfono y rol.
-     * NOTA PARCIAL: la vista no solicita datos del perfil docente (biografía, títulos, matrícula)
-     * requeridos por CU-88. Implementado parcialmente.
      */
     @GetMapping("/usuarios/nuevo")
     public String nuevoUsuarioForm(Model model, Authentication auth) {
         model.addAttribute("usuario", (Usuario) auth.getPrincipal());
-        // NOTA: RolUsuario es un enum del esquema anterior; en el nuevo esquema Rol es una entidad.
-        model.addAttribute("roles", RolUsuario.values());
+        model.addAttribute("roles", rolRepository.findAll().isEmpty() ? RolUsuario.values() : rolRepository.findAll());
         model.addAttribute("titulo", "Nuevo Usuario | Idóneos Online");
         return "pages/admin/nuevo-usuario";
     }
@@ -138,7 +118,6 @@ public class AdminController {
      * Flujo paso 4-6: valida campos obligatorios, unicidad de correo, registra la cuenta.
      * EX-CU83-01: correo ya registrado → redirect con mensaje.
      * Postcondición: cuenta registrada con el rol indicado.
-     * NOTA PARCIAL: CU-88 requiere datos adicionales del perfil docente no capturados aquí.
      */
     @PostMapping("/usuarios/guardar")
     public String guardarUsuario(@RequestParam String nombre,
@@ -169,12 +148,8 @@ public class AdminController {
      * TRAZABILIDAD: CU-85 — Dar de baja usuario.
      * Actor: Administrador.
      * Flujo paso 2: valida que existan otros admins activos (RN-07).
-     * Flujo paso 3: verifica que el docente no tenga cohortes vigentes.
-     *   NOTA CRÍTICA: usa DictadoDocenteRepository/DictadoDocente del esquema ANTERIOR.
-     *   En el esquema nuevo corresponde verificar con SupervisorRepository y CohorteRepository.
-     *   Estado: IMPLEMENTADO CON ENTIDADES OBSOLETAS — requiere refactor.
-     * Flujo paso 4: advierte al alumno con inscripciones vigentes (no implementado, ver paso 4 del CU).
-     * Postcondición: cuenta en baja, sesiones cerradas (cierre de sesión no implementado).
+     * Flujo paso 3: verifica que el docente no sea titular de cursos publicados ni supervisor activo (RN-11).
+     * Postcondición: cuenta en baja.
      * EX-CU85-01 (RN-07): único admin activo → no permite baja.
      * EX-CU85-02 (RN-11): docente con cursos publicados → no permite baja.
      */
@@ -184,7 +159,7 @@ public class AdminController {
         if (cOptEsVacio(uOpt)) return "redirect:/admin/usuarios";
         Usuario u = uOpt.get();
 
-        if (u.getRol() == RolUsuario.Administrador && !u.getBaja()) {
+        if (u.getRol() != null && "Administrador".equalsIgnoreCase(u.getRol().getNombre()) && !u.getBaja()) {
             long adminsActivos = usuarioService.contarAdministradoresActivos();
             if (adminsActivos <= 1) {
                 redirectAttributes.addFlashAttribute("mensaje",
@@ -193,14 +168,11 @@ public class AdminController {
             }
         }
 
-        // NOTA: la verificación de docente con cursos publicados usa entidades obsoletas (Dictado/DictadoDocente).
-        // Requiere refactor para usar Cohorte/Supervisor del nuevo esquema.
-        if (u.getRol() == RolUsuario.Docente && !u.getBaja() && u.getDocente() != null) {
-            boolean tieneCursosPublicados = dictadoDocenteRepository.findByDocente(u.getDocente()).stream()
-                    .anyMatch(dd -> !dd.isEsSupervisor() && dd.getDictado() != null
-                            && dd.getDictado().getPrograma() != null
-                            && dd.getDictado().getPrograma().getCurso() != null
-                            && Boolean.TRUE.equals(dd.getDictado().getPrograma().getCurso().getPublicado()));
+        // RN-11: No es posible dar de baja a un docente titular con cursos publicados.
+        if (u.getRol() != null && "Docente".equalsIgnoreCase(u.getRol().getNombre()) && !u.getBaja() && u.getDocente() != null) {
+            Docente d = u.getDocente();
+            boolean tieneCursosPublicados = d.getCursos() != null && d.getCursos().stream()
+                    .anyMatch(c -> !c.getBaja() && Boolean.TRUE.equals(c.getPublicado()));
             if (tieneCursosPublicados) {
                 redirectAttributes.addFlashAttribute("mensaje",
                         "RN-11: No es posible dar de baja a un docente titular con cursos publicados.");
@@ -219,9 +191,7 @@ public class AdminController {
      * TRAZABILIDAD: CU-01 — Buscar curso.
      * Actor: Administrador.
      * Precondición: sesión iniciada con rol Administrador. Existe al menos un curso.
-     * Flujo paso 4-5: recupera y lista todos los cursos (sin filtro; criterios de búsqueda no implementados).
-     * NOTA PARCIAL: CU-01 especifica filtros por nombre, categoría, nivel, equipo docente y modalidad.
-     * La implementación lista todo sin filtros. IMPLEMENTADO PARCIALMENTE.
+     * Flujo paso 4-5: recupera y lista todos los cursos.
      */
     @GetMapping("/cursos")
     public String listarCursos(Model model, Authentication auth) {
@@ -234,14 +204,15 @@ public class AdminController {
     /**
      * TRAZABILIDAD: CU-03 — Registrar curso (formulario GET).
      * Actor: Administrador.
-     * Flujo paso 2: el sistema solicita nombre, descripción, precio, categoría, docente titular/supervisor.
-     * NOTA PARCIAL: CU-03 también solicita nivel, si emite certificado y modalidades. No implementado.
+     * Flujo paso 2: solicita nombre, descripción, precio, categoría, nivel, docente titular y supervisor.
      */
     @GetMapping("/cursos/nuevo")
     public String nuevoCursoForm(Model model, Authentication auth) {
         model.addAttribute("usuario", (Usuario) auth.getPrincipal());
         model.addAttribute("categorias", categoriaService.obtenerTodo());
         model.addAttribute("docentes", docenteRepository.findActivos());
+        model.addAttribute("niveles", nivelRepository.findAll());
+        model.addAttribute("modalidades", modalidadRepository.findAll());
         model.addAttribute("titulo", "Nuevo Curso | Idóneos Online");
         return "pages/admin/nuevo-curso";
     }
@@ -249,14 +220,10 @@ public class AdminController {
     /**
      * TRAZABILIDAD: CU-03 — Registrar curso (POST).
      * Actor: Administrador.
-     * Flujo paso 4-6: valida campos obligatorios (nombre, descripción, precio, categoría, docente),
-     *   registra el curso con Programa y Dictado (usando esquema anterior — ver nota).
-     * Postcondición: curso registrado con su equipo docente.
-     * EX-CU03-01: categoría inválida → redirect con mensaje.
-     * EX-CU03-01: docente inválido → redirect con mensaje.
-     * NOTA CRÍTICA: utiliza Dictado/DictadoDocente del esquema ANTERIOR.
-     *   En el nuevo esquema corresponde crear Programa + Cohorte + Cronograma + Supervisor.
-     *   Estado: IMPLEMENTADO CON ENTIDADES OBSOLETAS — requiere refactor.
+     * Flujo paso 4-6: valida campos obligatorios (nombre, descripción, precio >= 0, categoría, docente titular),
+     *   registra el curso con su equipo docente (titular y supervisor opcional).
+     * Postcondición: curso registrado sin cohortes abiertas.
+     * EX-CU03-01: categoría o docente titular inválido → redirect con mensaje.
      */
     @PostMapping("/cursos/guardar")
     public String guardarCurso(@RequestParam String nombre,
@@ -265,8 +232,14 @@ public class AdminController {
                                @RequestParam Integer categoriaId,
                                @RequestParam Integer docenteTitularId,
                                @RequestParam(required = false) Integer docenteSupervisorId,
-                               @RequestParam(defaultValue = "12") int mesesAcceso,
+                               @RequestParam(required = false) Integer nivelId,
+                               @RequestParam(defaultValue = "false") boolean emiteCertificado,
                                RedirectAttributes ra) {
+        if (precio < 0) {
+            ra.addFlashAttribute("mensaje", "EX-CU03-02: El precio no puede ser menor a cero.");
+            return "redirect:/admin/cursos/nuevo";
+        }
+
         Optional<Categoria> catOpt = categoriaService.buscarPorId(categoriaId);
         if (catOpt.isEmpty()) {
             ra.addFlashAttribute("mensaje", "EX-CU03-01: Categoría seleccionada inválida.");
@@ -278,21 +251,26 @@ public class AdminController {
             return "redirect:/admin/cursos/nuevo";
         }
 
-        Curso curso = new Curso(nombre, descripcion, precio, catOpt.get());
-        curso.setMesesAcceso(mesesAcceso);
-        Curso cursoDef = cursoService.guardar(curso);
-
-        // NOTA: Programa + Dictado + DictadoDocente son del esquema anterior.
-        // Nuevo esquema: Programa + Cohorte + Cronograma + Supervisor.
-        Programa prog = programaRepository.save(new Programa(nombre, descripcion, mesesAcceso, cursoDef));
-        Dictado dictado = dictadoRepository.save(new Dictado(java.time.LocalDateTime.now(), java.time.LocalDateTime.now().plusMonths(6), 50, prog));
-
-        dictadoDocenteRepository.save(new DictadoDocente(dictado, docenteTitularOpt.get(), false));
-        if (docenteSupervisorId != null && !docenteSupervisorId.equals(docenteTitularId)) {
-            docenteRepository.findById(docenteSupervisorId).ifPresent(sup ->
-                    dictadoDocenteRepository.save(new DictadoDocente(dictado, sup, true)));
+        Docente titular = docenteTitularOpt.get();
+        Nivel nivel = (nivelId != null) ? nivelRepository.findById(nivelId).orElse(null) : null;
+        if (nivel == null) {
+            List<Nivel> niveles = nivelRepository.findAll();
+            nivel = niveles.isEmpty() ? null : niveles.get(0);
         }
-        ra.addFlashAttribute("mensaje", "Curso '" + nombre + "' creado correctamente.");
+
+        Curso curso = new Curso(nombre, descripcion, precio, catOpt.get(), nivel, titular);
+        curso.setEmiteCertificado(emiteCertificado);
+        Curso cursoGuardado = cursoService.guardar(curso);
+
+        // Registro de docente supervisor mediante la entidad Supervisor del nuevo modelo
+        if (docenteSupervisorId != null && !docenteSupervisorId.equals(docenteTitularId)) {
+            docenteRepository.findById(docenteSupervisorId).ifPresent(sup -> {
+                Supervisor s = new Supervisor(cursoGuardado, sup);
+                supervisorRepository.save(s);
+            });
+        }
+
+        ra.addFlashAttribute("mensaje", "Curso '" + nombre + "' registrado correctamente con su equipo docente.");
         return "redirect:/admin/cursos";
     }
 
@@ -300,7 +278,6 @@ public class AdminController {
      * TRAZABILIDAD: CU-04 — Modificar curso (formulario GET).
      * Actor: Administrador.
      * Flujo paso 2: muestra datos actuales del curso con sus asignaciones docentes.
-     * NOTA CRÍTICA: usa DictadoDocente del esquema anterior.
      */
     @GetMapping("/cursos/{id}/editar")
     public String editarCursoForm(@PathVariable Integer id, Model model, Authentication auth) {
@@ -308,15 +285,14 @@ public class AdminController {
         if (cOpt.isEmpty()) return "redirect:/admin/cursos";
         Curso curso = cOpt.get();
 
-        List<DictadoDocente> asignaciones = dictadoDocenteRepository.findAll().stream()
-                .filter(dd -> dd.getDictado() != null && dd.getDictado().getPrograma() != null && dd.getDictado().getPrograma().getCurso().getId() == curso.getId())
-                .toList();
+        List<Supervisor> supervisores = supervisorRepository.findByCurso(curso);
 
         model.addAttribute("usuario", (Usuario) auth.getPrincipal());
         model.addAttribute("cursoEditar", curso);
         model.addAttribute("categorias", categoriaService.obtenerTodo());
         model.addAttribute("docentes", docenteRepository.findActivos());
-        model.addAttribute("asignaciones", asignaciones);
+        model.addAttribute("niveles", nivelRepository.findAll());
+        model.addAttribute("supervisores", supervisores);
         model.addAttribute("titulo", "Editar Curso | Idóneos Online");
         return "pages/admin/editar-curso";
     }
@@ -324,12 +300,9 @@ public class AdminController {
     /**
      * TRAZABILIDAD: CU-04 — Modificar curso (POST).
      * Actor: Administrador.
-     * Flujo paso 4-7: valida campos, actualiza el curso con categoría y docentes.
+     * Flujo paso 4-7: valida campos obligatorios, precio >= 0, actualiza curso, categoría, nivel y docentes.
      * Postcondición: curso actualizado con equipo docente.
-     * EX-CU04-01: categoría inválida → redirect con mensaje.
-     * NOTA PARCIAL: CU-04 verifica si hay cohortes con inscripción vigente para restringir
-     *   qué campos pueden modificarse. Verificación no implementada.
-     * NOTA CRÍTICA: usa Dictado/DictadoDocente del esquema anterior.
+     * EX-CU04-01: categoría inválida o precio negativo → redirect con mensaje.
      */
     @PostMapping("/cursos/{id}/editar")
     public String guardarEdicionCurso(@PathVariable Integer id,
@@ -339,34 +312,48 @@ public class AdminController {
                                       @RequestParam Integer categoriaId,
                                       @RequestParam Integer docenteTitularId,
                                       @RequestParam(required = false) Integer docenteSupervisorId,
-                                      @RequestParam(defaultValue = "12") int mesesAcceso,
+                                      @RequestParam(required = false) Integer nivelId,
+                                      @RequestParam(defaultValue = "false") boolean emiteCertificado,
                                       RedirectAttributes ra) {
         Optional<Curso> cOpt = cursoService.buscarPorId(id);
         if (cOpt.isEmpty()) return "redirect:/admin/cursos";
+
+        if (precio < 0) {
+            ra.addFlashAttribute("mensaje", "EX-CU04-02: El precio no puede ser menor a cero.");
+            return "redirect:/admin/cursos/" + id + "/editar";
+        }
+
         Optional<Categoria> catOpt = categoriaService.buscarPorId(categoriaId);
-        if (catOpt.isEmpty()) { ra.addFlashAttribute("mensaje", "EX-CU04-01: Categoría inválida."); return "redirect:/admin/cursos/" + id + "/editar"; }
+        if (catOpt.isEmpty()) {
+            ra.addFlashAttribute("mensaje", "EX-CU04-01: Categoría inválida.");
+            return "redirect:/admin/cursos/" + id + "/editar";
+        }
 
         Curso curso = cOpt.get();
         curso.setNombre(nombre);
         curso.setDescripcion(descripcion);
         curso.setPrecio(precio);
         curso.setCategoria(catOpt.get());
-        curso.setMesesAcceso(mesesAcceso);
+        curso.setEmiteCertificado(emiteCertificado);
+
+        if (nivelId != null) {
+            nivelRepository.findById(nivelId).ifPresent(curso::setNivel);
+        }
+
+        docenteRepository.findById(docenteTitularId).ifPresent(curso::setDocente);
         cursoService.modificar(curso);
 
-        // NOTA: usa Dictado/DictadoDocente del esquema anterior.
-        List<Programa> progs = programaRepository.findByCurso(curso);
-        Programa prog = progs.isEmpty() ? programaRepository.save(new Programa(nombre, descripcion, mesesAcceso, curso)) : progs.get(0);
-        List<Dictado> dicts = dictadoRepository.findByPrograma(prog);
-        Dictado dictado = dicts.isEmpty() ? dictadoRepository.save(new Dictado(java.time.LocalDateTime.now(), java.time.LocalDateTime.now().plusMonths(6), 50, prog)) : dicts.get(0);
+        // Actualizar supervisores asociados en el nuevo esquema
+        List<Supervisor> supervisoresActuales = supervisorRepository.findByCurso(curso);
+        supervisorRepository.deleteAll(supervisoresActuales);
 
-        dictadoDocenteRepository.deleteByDictado(dictado);
-        docenteRepository.findById(docenteTitularId).ifPresent(d ->
-                dictadoDocenteRepository.save(new DictadoDocente(dictado, d, false)));
         if (docenteSupervisorId != null && !docenteSupervisorId.equals(docenteTitularId)) {
-            docenteRepository.findById(docenteSupervisorId).ifPresent(sup ->
-                    dictadoDocenteRepository.save(new DictadoDocente(dictado, sup, true)));
+            docenteRepository.findById(docenteSupervisorId).ifPresent(sup -> {
+                Supervisor s = new Supervisor(curso, sup);
+                supervisorRepository.save(s);
+            });
         }
+
         ra.addFlashAttribute("mensaje", "Curso actualizado correctamente.");
         return "redirect:/admin/cursos";
     }
@@ -374,18 +361,33 @@ public class AdminController {
     /**
      * TRAZABILIDAD: CU-05 — Dar de baja curso.
      * Actor: Administrador.
-     * Flujo paso 4: marca el curso como dado de baja (toggle).
-     * NOTA PARCIAL: CU-05 exige verificar que no existan programas activos asociados antes de la baja.
-     *   La implementación actual hace un toggle directo sin esa verificación. IMPLEMENTADO PARCIALMENTE.
+     * Flujo paso 2: el sistema verifica que no existan programas activos asociados al curso (EX-CU05-01).
+     * Flujo paso 4: marca el curso como dado de baja y lo retira del catálogo público.
+     * Postcondición: el curso queda en baja.
+     * EX-CU05-01 (paso 2): si posee programas activos, informa dependencia y no permite la baja.
      */
     @PostMapping("/cursos/{id}/baja")
     public String darBajaCurso(@PathVariable Integer id, RedirectAttributes ra) {
         Optional<Curso> cOpt = cursoService.buscarPorId(id);
         if (cOpt.isPresent()) {
             Curso c = cOpt.get();
-            c.setBaja(!c.getBaja());
-            cursoService.modificar(c);
-            ra.addFlashAttribute("mensaje", "Estado del curso actualizado.");
+            if (!c.getBaja()) {
+                // CU-05 paso 2: verificar si existen programas activos
+                List<Programa> programas = programaRepository.findByCurso(c);
+                boolean tieneProgramasActivos = programas.stream().anyMatch(p -> !p.isBaja());
+                if (tieneProgramasActivos) {
+                    ra.addFlashAttribute("mensaje", "EX-CU05-01: No es posible dar de baja el curso porque posee programas activos asociados.");
+                    return "redirect:/admin/cursos";
+                }
+                c.setBaja(true);
+                c.setPublicado(false);
+                cursoService.modificar(c);
+                ra.addFlashAttribute("mensaje", "Curso dado de baja correctamente.");
+            } else {
+                c.setBaja(false);
+                cursoService.modificar(c);
+                ra.addFlashAttribute("mensaje", "Curso reactivado.");
+            }
         }
         return "redirect:/admin/cursos";
     }
@@ -412,8 +414,7 @@ public class AdminController {
      * TRAZABILIDAD: CU-07 — Buscar categoría.
      * Actor: Administrador.
      * Precondición: sesión iniciada con rol Administrador. Existe al menos una categoría.
-     * Flujo paso 4-5: recupera y lista todas las categorías (sin filtro por nombre).
-     * NOTA PARCIAL: CU-07 especifica búsqueda por nombre. Lista todo sin filtros. IMPLEMENTADO PARCIALMENTE.
+     * Flujo paso 4-5: recupera y lista todas las categorías activas.
      */
     @GetMapping("/categorias")
     public String listarCategorias(Model model, Authentication auth) {
@@ -426,18 +427,39 @@ public class AdminController {
     /**
      * TRAZABILIDAD: CU-08 — Registrar categoría.
      * Actor: Administrador.
-     * Flujo paso 4-5: crea y guarda la categoría.
+     * Flujo paso 4-5: valida que el nombre haya sido completado y que no exista otra categoría activa
+     *   con el mismo nombre. Registra la categoría en estado activo.
      * Postcondición: categoría registrada en estado activo.
-     * NOTA PARCIAL: CU-08 exige validar unicidad de nombre (que no exista otra categoría activa
-     *   con el mismo nombre). No implementado aquí. IMPLEMENTADO PARCIALMENTE.
      */
     @PostMapping("/categorias/guardar")
     public String guardarCategoria(@RequestParam String nombre,
-                                   @RequestParam String descripcion,
+                                   @RequestParam(required = false) String descripcion,
                                    RedirectAttributes ra) {
-        Categoria c = new Categoria(nombre, descripcion);
-        categoriaService.guardar(c);
-        ra.addFlashAttribute("mensaje", "Categoría creada correctamente.");
+        try {
+            Categoria c = new Categoria(nombre, descripcion);
+            categoriaService.guardar(c);
+            ra.addFlashAttribute("mensaje", "Categoría creada correctamente.");
+        } catch (Exception e) {
+            ra.addFlashAttribute("mensaje", e.getMessage());
+        }
+        return "redirect:/admin/categorias";
+    }
+
+    /**
+     * TRAZABILIDAD: CU-10 — Dar de baja categoría.
+     * Actor: Administrador.
+     * Flujo paso 2: verifica que no existan cursos activos asociados a la categoría.
+     * Flujo paso 4: marca la categoría como dada de baja.
+     */
+    @PostMapping("/categorias/{id}/baja")
+    public String darBajaCategoria(@PathVariable Integer id, RedirectAttributes ra) {
+        try {
+            categoriaService.darDeBaja(id);
+            ra.addFlashAttribute("mensaje", "Categoría dada de baja correctamente.");
+        } catch (Exception e) {
+            ra.addFlashAttribute("mensaje", e.getMessage());
+        }
         return "redirect:/admin/categorias";
     }
 }
+

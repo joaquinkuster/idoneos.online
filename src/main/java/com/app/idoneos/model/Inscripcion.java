@@ -194,4 +194,16 @@ public class Inscripcion {
     public void setAlumno(Alumno alumno) {
         this.alumno = alumno;
     }
+
+    /**
+     * Helper getter para obtener directamente el Curso asociado a la inscripción
+     * a través de su Cohorte y Programa.
+     */
+    public Curso getCurso() {
+        if (this.cohorte != null && this.cohorte.getPrograma() != null) {
+            return this.cohorte.getPrograma().getCurso();
+        }
+        return null;
+    }
 }
+

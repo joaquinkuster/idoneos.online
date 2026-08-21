@@ -67,6 +67,17 @@ public class ClaseEnVivo {
     public ClaseEnVivo() {
     }
 
+    public ClaseEnVivo(String titulo, LocalDateTime fechaHora, Docente docente, EstadoClaseEnVivo estadoClaseEnVivo, Cohorte cohorte) {
+        this.titulo = titulo;
+        this.fechaHora = fechaHora;
+        this.duracionEstimada = 60;
+        this.urlRtmp = "";
+        this.claveStream = "";
+        this.docente = docente;
+        this.estadoClaseEnVivo = estadoClaseEnVivo;
+        this.cohorte = cohorte;
+    }
+
     public ClaseEnVivo(String titulo, LocalDateTime fechaHora, int duracionEstimada,
                        String urlRtmp, String claveStream,
                        Docente docente, EstadoClaseEnVivo estadoClaseEnVivo, Cohorte cohorte) {
@@ -176,6 +187,14 @@ public class ClaseEnVivo {
         this.estadoClaseEnVivo = estadoClaseEnVivo;
     }
 
+    public EstadoClaseEnVivo getEstado() {
+        return estadoClaseEnVivo;
+    }
+
+    public void setEstado(EstadoClaseEnVivo estado) {
+        this.estadoClaseEnVivo = estado;
+    }
+
     public Material getMaterial() {
         return material;
     }
@@ -190,5 +209,32 @@ public class ClaseEnVivo {
 
     public void setCohorte(Cohorte cohorte) {
         this.cohorte = cohorte;
+    }
+
+    /**
+     * Helper para obtener la Unidad asociada a la clase en vivo a través del cronograma de su cohorte/programa.
+     */
+    public Unidad getUnidad() {
+        if (this.material != null && this.material.getUnidad() != null) {
+            return this.material.getUnidad();
+        }
+        if (this.cohorte != null && this.cohorte.getPrograma() != null && this.cohorte.getPrograma().getCronogramas() != null) {
+            for (Cronograma c : this.cohorte.getPrograma().getCronogramas()) {
+                if (c.getUnidad() != null) {
+                    return c.getUnidad();
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Helper para obtener el Curso asociado a la clase en vivo.
+     */
+    public Curso getCurso() {
+        if (this.cohorte != null && this.cohorte.getPrograma() != null) {
+            return this.cohorte.getPrograma().getCurso();
+        }
+        return null;
     }
 }

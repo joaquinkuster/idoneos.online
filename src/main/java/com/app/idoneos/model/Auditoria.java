@@ -53,6 +53,15 @@ public class Auditoria {
     public Auditoria() {
     }
 
+    public Auditoria(String entidadAfectada, int idAfectado, Usuario usuario, TipoAccionAuditoria tipoAccionAuditoria) {
+        this.entidadAfectada = entidadAfectada;
+        this.idAfectado = idAfectado;
+        this.usuario = usuario;
+        this.tipoAccionAuditoria = tipoAccionAuditoria;
+        this.ipUsuario = "127.0.0.1";
+        this.fechaHora = LocalDateTime.now();
+    }
+
     public Auditoria(String entidadAfectada, int idAfectado, String valorAnterior,
                      String valorNuevo, String ipUsuario,
                      TipoAccionAuditoria tipoAccionAuditoria, Usuario usuario) {

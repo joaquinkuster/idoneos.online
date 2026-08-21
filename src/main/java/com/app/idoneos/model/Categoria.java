@@ -102,6 +102,10 @@ public class Categoria {
         return baja;
     }
 
+    public boolean esInactivo() {
+        return baja;
+    }
+
     public void setBaja(boolean baja) {
         this.baja = baja;
     }

@@ -60,6 +60,8 @@ public class ClaseEnVivoController {
     @Autowired private UnidadServiceImpl unidadService;
     @Autowired private MaterialRepository materialRepository;
     @Autowired private TipoMaterialRepository tipoMaterialRepository;
+    @Autowired private CohorteRepository cohorteRepository;
+    @Autowired private CronogramaRepository cronogramaRepository;
 
     /**
      * TRAZABILIDAD: CU-65 — Buscar clase en vivo.
@@ -105,14 +107,29 @@ public class ClaseEnVivoController {
         Unidad unidad = unidadService.buscarPorId(unidadId).orElse(null);
         EstadoClaseEnVivo estadoProgramada = estadoRepo.findByNombre("Programada").orElse(null);
 
-        if (docente == null || unidad == null || estadoProgramada == null) {
-            ra.addFlashAttribute("mensaje", "EX-CU66-01: Datos incompletos al programar la clase.");
+        // De acuerdo al modelo relacional: ClaseEnVivo -> Cohorte -> Programa -> Cronograma -> Unidad
+        Cohorte cohorte = null;
+        if (unidad != null) {
+            List<Cronograma> cronogramas = cronogramaRepository.findByUnidad(unidad);
+            for (Cronograma crono : cronogramas) {
+                if (crono.getPrograma() != null) {
+                    List<Cohorte> cohortes = cohorteRepository.findByProgramaAndBajaFalse(crono.getPrograma());
+                    if (!cohortes.isEmpty()) {
+                        cohorte = cohortes.get(0);
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (docente == null || unidad == null || estadoProgramada == null || cohorte == null) {
+            ra.addFlashAttribute("mensaje", "EX-CU66-01: Datos incompletos o cohorte no encontrada al programar la clase.");
             return "redirect:/clase-vivo/docente";
         }
 
         // CU-66 paso 8: registra la clase en vivo con estado "Programada".
         LocalDateTime dt = LocalDateTime.parse(fechaHora, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm"));
-        ClaseEnVivo clase = new ClaseEnVivo(titulo, dt, unidad, docente, estadoProgramada);
+        ClaseEnVivo clase = new ClaseEnVivo(titulo, dt, docente, estadoProgramada, cohorte);
         claseEnVivoRepository.save(clase);
         ra.addFlashAttribute("mensaje", "Clase programada para " + dt.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
         return "redirect:/clase-vivo/docente";
@@ -226,11 +243,24 @@ public class ClaseEnVivoController {
         if (tipoGrabacion != null) {
             String rutaGrabacion = "grabaciones/clase_" + claseId + "_" + System.currentTimeMillis() + ".mp4";
             String tituloMat = "Grabación: " + clase.getTitulo();
-            if (tituloMat.length() > 250) tituloMat = tituloMat.substring(0, 247) + "...";
-            Material grabacion = new Material(tipoGrabacion, tituloMat, rutaGrabacion, clase.getUnidad());
-            grabacion.setPublicado(false);
-            materialRepository.save(grabacion);
-            clase.setMaterial(grabacion);
+            if (tituloMat.length() > 50) tituloMat = tituloMat.substring(0, 47) + "...";
+
+            // Obtener unidad a través del cronograma del programa de la cohorte si está disponible
+            Unidad unidadMaterial = null;
+            if (clase.getCohorte() != null && clase.getCohorte().getPrograma() != null) {
+                List<Cronograma> cronos = cronogramaRepository.findByProgramaOrderByNumeroOrden(clase.getCohorte().getPrograma());
+                if (!cronos.isEmpty()) {
+                    unidadMaterial = cronos.get(0).getUnidad();
+                }
+            }
+
+            if (unidadMaterial != null) {
+                Material grabacion = new Material(tituloMat, clase.getDocente(), tipoGrabacion, unidadMaterial);
+                grabacion.setRutaArchivo(rutaGrabacion);
+                grabacion.setPublicado(false);
+                materialRepository.save(grabacion);
+                clase.setMaterial(grabacion);
+            }
         }
 
         claseEnVivoRepository.save(clase);

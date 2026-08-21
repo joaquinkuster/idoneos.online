@@ -114,6 +114,18 @@ public class Usuario implements UserDetails {
         this.fechaRegistro = LocalDateTime.now();
     }
 
+    public Usuario(String nombre, String apellido, String correo, String contrasena, RolUsuario rolUsuario) {
+        this.nombre = nombre;
+        this.apellido = apellido;
+        this.correo = correo;
+        this.contrasena = contrasena;
+        if (rolUsuario != null) {
+            this.rol = new Rol(rolUsuario.name());
+        }
+        this.emailValidado = true;
+        this.fechaRegistro = LocalDateTime.now();
+    }
+
     /** Alias de compatibilidad: retorna idUsuario. */
     public int getId() {
         return idUsuario;
@@ -249,6 +261,12 @@ public class Usuario implements UserDetails {
 
     public void setRol(Rol rol) {
         this.rol = rol;
+    }
+
+    public void setRol(RolUsuario rolUsuario) {
+        if (rolUsuario != null) {
+            this.rol = new Rol(rolUsuario.name());
+        }
     }
 
     /**

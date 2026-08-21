@@ -184,4 +184,20 @@ public class Programa {
     public void setCronogramas(List<Cronograma> cronogramas) {
         this.cronogramas = cronogramas;
     }
+
+    /**
+     * Helper de compatibilidad: retorna semanas/meses de acceso basados en cohortes o duración total.
+     */
+    public int getMesesAcceso() {
+        if (this.cohortes != null && !this.cohortes.isEmpty()) {
+            return this.cohortes.get(0).getSemanasAcceso();
+        }
+        return 6;
+    }
+
+    public void setMesesAcceso(int mesesAcceso) {
+        if (this.cohortes != null && !this.cohortes.isEmpty()) {
+            this.cohortes.get(0).setSemanasAcceso(mesesAcceso);
+        }
+    }
 }

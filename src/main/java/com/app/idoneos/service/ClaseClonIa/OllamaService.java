@@ -134,7 +134,7 @@ public class OllamaService {
                 "2. Instrumentos de Renta Fija: Valuación de bonos soberanos y corporativos. Curva de rendimientos y cálculo de duration.\n" +
                 "3. Conclusiones y Recomendaciones: Estrategias de cobertura frente a inflación y riesgo cambiario.";
 
-        Material resumen = new Material(tipoResumen, "Resumen IA - " + unidad.getTitulo(), null, unidad);
+        Material resumen = new Material("Resumen IA - " + unidad.getTitulo(), null, tipoResumen, unidad);
         resumen.setContenido(contenidoResumen);
         resumen.setGeneradoPorIA(true);
         resumen.setPublicado(false);
@@ -155,7 +155,8 @@ public class OllamaService {
 
         String rutaDiapositivas = "presentaciones/slides_ia_u" + unidad.getId() + "_" + System.currentTimeMillis() + ".pdf";
 
-        Material presentacion = new Material(tipoPresentacion, "Diapositivas Generadas con IA - " + unidad.getTitulo(), rutaDiapositivas, unidad);
+        Material presentacion = new Material("Diapositivas Generadas con IA - " + unidad.getTitulo(), null, tipoPresentacion, unidad);
+        presentacion.setRutaArchivo(rutaDiapositivas);
         presentacion.setGeneradoPorIA(true);
         presentacion.setPublicado(false);
 

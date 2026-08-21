@@ -170,15 +170,17 @@ public class ClaseClonIAController {
         // CU-78 paso 6: invocar HeyGen API v2 con el avatar del docente y el guión.
         String videoId = llamarHeyGenAPI(guionPrompt, "avatar_docente_" + docente.getId());
 
-        ClaseClonIA clase = new ClaseClonIA(titulo, unidad, docente, estadoGenerada);
+        ClaseClonIA clase = new ClaseClonIA(titulo, guionPrompt, docente, estadoGenerada);
+        clase.setUnidad(unidad);
         clase.setFechaGeneracion(LocalDateTime.now());
 
         // CU-78 paso 8-9: registra el material de video generado (publicado = false, pendiente de revisión).
         TipoMaterial tipoGrabacion = tipoMaterialRepo.findByNombre("Grabación").orElse(null);
         if (tipoGrabacion != null) {
             String urlVideoHeyGen = "videos/heygen_" + videoId + ".mp4";
-            Material m = new Material(tipoGrabacion, "Clon IA: " + titulo, urlVideoHeyGen, unidad);
-            m.setGeneradoPorIA(true);
+            Material m = new Material("Clon IA: " + titulo, docente, tipoGrabacion, unidad);
+            m.setRutaArchivo(urlVideoHeyGen);
+            m.setGeneradoPorIa(true);
             m.setPublicado(false);
             materialRepo.save(m);
             clase.setMaterial(m);

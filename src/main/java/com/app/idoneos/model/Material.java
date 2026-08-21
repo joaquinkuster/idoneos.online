@@ -167,6 +167,14 @@ public class Material {
         return !oculto;
     }
 
+    public boolean getPublicado() {
+        return !oculto;
+    }
+
+    public void setGeneradoPorIA(boolean generado) {
+        this.generadoPorIa = generado;
+    }
+
     /** Alias de compatibilidad: setter de publicado (invertido → oculto). */
     public void setPublicado(boolean publicado) {
         this.oculto = !publicado;

@@ -50,6 +50,10 @@ public class Curso {
     @Column(name = "baja", nullable = false)
     private boolean baja = false;
 
+    /** Indica si el curso se encuentra publicado en el catálogo público. */
+    @Column(name = "publicado", nullable = false)
+    private boolean publicado = false;
+
     /** Categoría temática del curso. */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_categoria", nullable = false)
@@ -169,6 +173,18 @@ public class Curso {
 
     public void setBaja(boolean baja) {
         this.baja = baja;
+    }
+
+    public boolean isPublicado() {
+        return publicado;
+    }
+
+    public boolean getPublicado() {
+        return publicado;
+    }
+
+    public void setPublicado(boolean publicado) {
+        this.publicado = publicado;
     }
 
     public Categoria getCategoria() {

@@ -41,6 +41,10 @@ public class IntentoAutoevaluacion {
     public IntentoAutoevaluacion() {
     }
 
+    public IntentoAutoevaluacion(Autoevaluacion autoevaluacion) {
+        this.autoevaluacion = autoevaluacion;
+    }
+
     public IntentoAutoevaluacion(Inscripcion inscripcion, Autoevaluacion autoevaluacion) {
         this.inscripcion = inscripcion;
         this.autoevaluacion = autoevaluacion;
