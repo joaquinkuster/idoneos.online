@@ -14,7 +14,16 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 /**
- * Servicio para procesar pagos (Mercado Pago API), aplicar descuentos y emitir comprobantes.
+ * TRAZABILIDAD — Servicio para la gestión y procesamiento de transacciones financieras y pasarelas de pago.
+ *
+ * MOD-F-03: Módulo de Inscripciones y Pagos
+ *   CU-46 — Buscar pago: consulta de transacciones registradas y emisión de comprobantes de pago digitales.
+ *   CU-47 — Realizar pago: cálculo del monto final, evaluación de promociones vigentes, integración
+ *           con la API de Mercado Pago y activación inmediata de la matrícula del alumno.
+ *   CU-49 — Buscar/Aplicar descuento: cálculo de bonificaciones automáticas sobre el arancel base del curso.
+ *
+ * Aplica reglas de negocio:
+ *   RN-02: Los cursos arancelados requieren acreditación de pago previo para activar la cursada.
  */
 @Service
 public class PagoService {

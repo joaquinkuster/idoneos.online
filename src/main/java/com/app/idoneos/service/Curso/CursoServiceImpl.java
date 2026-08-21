@@ -13,8 +13,15 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Implementación de servicios para la gestión del catálogo de cursos.
- * Contiene la lógica de negocio y validaciones en español de los Casos de Uso CU-01 a CU-05.
+ * TRAZABILIDAD — Servicio para la gestión pedagógica y comercial del catálogo de cursos.
+ *
+ * MOD-F-01: Módulo de Cursos
+ *   CU-01 — Buscar curso: búsqueda con filtros avanzados multicriterio.
+ *   CU-02 — Ver mis cursos: consulta de cursos matriculados por un alumno.
+ *   CU-03 — Registrar curso: alta de cursos con docentes y supervisores asociados.
+ *   CU-04 — Modificar curso: edición de metadatos, imagen y arancel.
+ *   CU-05 — Dar de baja curso: baja lógica con validación de programas y cohortes vigentes.
+ *   CU-06 — Explorar catálogo de cursos: listado público de cursos disponibles.
  */
 @Service
 @Transactional

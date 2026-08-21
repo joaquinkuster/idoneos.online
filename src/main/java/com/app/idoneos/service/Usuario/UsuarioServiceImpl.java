@@ -17,7 +17,18 @@ import java.util.Optional;
 import java.util.UUID;
 
 /**
- * Implementación de servicios para la gestión de usuarios, perfiles y autenticación (CU-75 a CU-88).
+ * TRAZABILIDAD — Servicio para la gestión de usuarios, roles, perfiles y seguridad de credenciales.
+ *
+ * MOD-NF-01: Módulo de Usuarios y Autenticación
+ *   CU-81 — Registrarse: auto-registro de alumnos con contraseña hasheada BCrypt.
+ *   CU-82 — Buscar usuario: consulta y listado de usuarios con filtros por nombre, DNI, correo o rol.
+ *   CU-83 — Registrar usuario: alta administrativa con asignación de roles.
+ *   CU-84 — Modificar usuario: actualización de datos personales y estado.
+ *   CU-85 — Dar de baja usuario: baja lógica con reglas RN-07 y RN-11.
+ *   CU-86 / CU-87 — Ver y Editar perfil: gestión del perfil propio en sesión.
+ *   CU-88 / CU-89 — Registrar y Modificar docente: gestión de perfil profesional.
+ *   CU-90 / CU-91 — Iniciar y Cerrar sesión: autenticación local y Google SSO.
+ *   CU-92 — Recuperar contraseña: token temporal UUID para restablecimiento seguro.
  */
 @Service
 @Transactional

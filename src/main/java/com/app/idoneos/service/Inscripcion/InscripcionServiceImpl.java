@@ -15,7 +15,12 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Servicio para la gestión de inscripciones de alumnos a cursos/dictados (CU-41 a CU-43).
+ * TRAZABILIDAD — Servicio para la gestión de matrículas e inscripciones de alumnos a cursos y cohortes.
+ *
+ * MOD-F-03: Módulo de Inscripciones y Pagos
+ *   CU-43 — Buscar inscripción: búsqueda de matrículas activas por alumno, curso o cohorte.
+ *   CU-44 — Inscribir curso: registro de inscripción con validación de fechas de matrícula y cupo máximo de cohorte.
+ *   CU-45 — Dar de baja inscripción: cancelación o baja lógica de la matrícula de un alumno.
  */
 @Service
 @Transactional
