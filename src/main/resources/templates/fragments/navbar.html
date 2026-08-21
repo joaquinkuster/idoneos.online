@@ -29,21 +29,19 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
                 <li class="nav-item">
-                    <a class="nav-link px-3 text-white-50 idn-navlink" th:href="@{/inicio}">Inicio</a>
+                    <a class="nav-link idn-navlink" th:href="@{/inicio}">Inicio</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link px-3 text-white-50 idn-navlink" th:href="@{/cursos}">Catálogo de Cursos</a>
+                    <a class="nav-link idn-navlink" th:href="@{/cursos}">Catálogo de Cursos</a>
                 </li>
                 <li class="nav-item" th:if="${usuario != null and usuario.esDocente()}">
-                    <a class="nav-link px-3 text-white fw-bold idn-navlink" th:href="@{/docente}">
-                        <i class="fa-solid fa-chalkboard-user text-gold me-1"></i> Panel Docente
-                    </a>
+                    <a class="nav-link idn-navlink" th:href="@{/docente}">Panel Docente</a>
                 </li>
                 <li class="nav-item" th:if="${usuario != null and !usuario.esDocente()}">
-                    <a class="nav-link px-3 text-white-50 idn-navlink" th:href="@{/cursos/mis-cursos}">Mis Cursos</a>
+                    <a class="nav-link idn-navlink" th:href="@{/cursos/mis-cursos}">Mis Cursos</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link px-3 text-white-50 idn-navlink" th:href="@{/acercaDe}">Acerca de</a>
+                    <a class="nav-link idn-navlink" th:href="@{/acercaDe}">Acerca de</a>
                 </li>
             </ul>
 
