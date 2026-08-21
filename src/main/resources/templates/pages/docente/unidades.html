@@ -23,10 +23,10 @@
                 </p>
             </div>
             <div class="d-flex gap-2">
-                <button class="btn idn-btn-gold" data-bs-toggle="modal" data-bs-target="#modalNuevaUnidad">
+                <button type="button" class="btn idn-btn-gold" data-bs-toggle="modal" data-bs-target="#modalNuevaUnidad">
                     <i class="fa-solid fa-plus me-1"></i> Crear Nueva Unidad
                 </button>
-                <button th:if="${!#lists.isEmpty(unidadesReutilizables)}" class="btn btn-outline-primary rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#modalReutilizarUnidad">
+                <button type="button" th:if="${!#lists.isEmpty(unidadesReutilizables)}" class="btn btn-outline-primary rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#modalReutilizarUnidad">
                     <i class="fa-solid fa-link me-1"></i> Reutilizar Existente
                 </button>
             </div>
@@ -46,7 +46,7 @@
                     <i class="fa-solid fa-layer-group fa-3x mb-3 text-gold opacity-75"></i>
                     <h4 class="text-navy fw-bold">No hay unidades en este programa</h4>
                     <p class="text-muted">Agrega la primera unidad didáctica o reutiliza una de otro programa.</p>
-                    <button class="btn idn-btn-gold mx-auto" data-bs-toggle="modal" data-bs-target="#modalNuevaUnidad">
+                    <button type="button" class="btn idn-btn-gold mx-auto" data-bs-toggle="modal" data-bs-target="#modalNuevaUnidad">
                         Crear Unidad #1
                     </button>
                 </div>
@@ -64,7 +64,7 @@
                                 <i class="fa-regular fa-clock me-1 text-gold"></i>
                                 <span th:text="${cr.semanasDuracion} + ' Semana(s)'">1 Semana(s)</span>
                             </span>
-                            <button class="btn btn-sm btn-outline-primary rounded-circle" data-bs-toggle="modal" th:data-bs-target="'#modalEditarUnidad' + ${cr.unidad.id}" title="Editar texto de la unidad">
+                            <button type="button" class="btn btn-sm btn-outline-primary rounded-circle" data-bs-toggle="modal" th:data-bs-target="'#modalEditarUnidad' + ${cr.unidad.id}" title="Editar texto de la unidad">
                                 <i class="fa-solid fa-pen"></i>
                             </button>
                             <form th:action="@{/docente/programas/{pId}/unidades/{uId}/quitar(pId=${programa.id}, uId=${cr.unidad.id})}" method="post" class="d-inline"
@@ -116,111 +116,128 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- Modal Editar Unidad -->
-                <div class="modal fade text-start" th:id="'modalEditarUnidad' + ${cr.unidad.id}" tabindex="-1" aria-hidden="true">
-                    <div class="modal-dialog modal-lg">
-                        <div class="modal-content rounded-4 border-0 shadow">
-                            <form th:action="@{/docente/unidades/{id}/modificar(id=${cr.unidad.id})}" method="post">
-                                <input type="hidden" name="programaId" th:value="${programa.id}">
-                                <div class="modal-header bg-navy text-white rounded-top-4">
-                                    <h5 class="modal-title fw-bold">Modificar Unidad: <span th:text="${cr.unidad.titulo}">Título</span></h5>
-                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body p-4">
-                                    <div class="mb-3">
-                                        <label class="form-label small fw-bold">Título de la Unidad *</label>
-                                        <input type="text" class="form-control" name="titulo" th:value="${cr.unidad.titulo}" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label small fw-bold">Descripción Resumida</label>
-                                        <textarea class="form-control" name="descripcion" rows="2" th:text="${cr.unidad.descripcion}"></textarea>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label small fw-bold">Contenido Teórico y Temario *</label>
-                                        <textarea class="form-control" name="contenido" rows="5" th:text="${cr.unidad.contenido}" required></textarea>
-                                    </div>
-                                </div>
-                                <div class="modal-footer bg-light rounded-bottom-4">
-                                    <button type="button" class="btn btn-secondary rounded-pill px-3" data-bs-dismiss="modal">Cancelar</button>
-                                    <button type="submit" class="btn idn-btn-gold">Guardar Modificaciones</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Modal Crear Nueva Unidad -->
-        <div class="modal fade" id="modalNuevaUnidad" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content rounded-4 border-0 shadow">
-                    <form th:action="@{/docente/programas/{programaId}/unidades/agregar(programaId=${programa.id})}" method="post">
-                        <div class="modal-header bg-navy text-white rounded-top-4">
-                            <h5 class="modal-title fw-bold"><i class="fa-solid fa-plus-circle me-2 text-gold"></i>Crear y Agregar Unidad Didáctica</h5>
-                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body p-4">
-                            <div class="row g-3">
-                                <div class="col-md-9">
-                                    <label class="form-label small fw-bold">Título de la Unidad *</label>
-                                    <input type="text" class="form-control" name="titulo" placeholder="Ej: Unidad 1: Marco Regulatorio y Ley de Mercado de Capitales" required>
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="form-label small fw-bold">Duración (Semanas) *</label>
-                                    <input type="number" class="form-control" name="semanasDuracion" value="1" min="1" max="20" required>
-                                </div>
-                                <div class="col-12">
-                                    <label class="form-label small fw-bold">Descripción Resumida</label>
-                                    <textarea class="form-control" name="descripcion" rows="2" placeholder="Breve introducción pedagógica del módulo..."></textarea>
-                                </div>
-                                <div class="col-12">
-                                    <label class="form-label small fw-bold">Contenido Teórico y Guía de Estudio *</label>
-                                    <textarea class="form-control" name="contenido" rows="5" placeholder="Detalle completo de los tópicos a evaluar..." required></textarea>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="modal-footer bg-light rounded-bottom-4">
-                            <button type="button" class="btn btn-secondary rounded-pill px-3" data-bs-dismiss="modal">Cancelar</button>
-                            <button type="submit" class="btn idn-btn-gold">Crear y Vincular Unidad</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <!-- Modal Reutilizar Unidad Existente -->
-        <div class="modal fade" id="modalReutilizarUnidad" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content rounded-4 border-0 shadow">
-                    <form th:action="@{/docente/programas/{programaId}/unidades/agregar(programaId=${programa.id})}" method="post">
-                        <div class="modal-header bg-navy text-white rounded-top-4">
-                            <h5 class="modal-title fw-bold"><i class="fa-solid fa-link me-2 text-gold"></i>Vincular Unidad Existente</h5>
-                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body p-4">
-                            <div class="mb-3">
-                                <label class="form-label small fw-bold">Seleccionar Unidad Disponible</label>
-                                <select class="form-select" name="unidadExistenteId" required>
-                                    <option value="" disabled selected>-- Selecciona una unidad --</option>
-                                    <option th:each="u : ${unidadesReutilizables}" th:value="${u.id}" th:text="${u.titulo}">Unidad</option>
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label small fw-bold">Duración asignada en este programa (Semanas)</label>
-                                <input type="number" class="form-control" name="semanasDuracion" value="1" min="1" max="20" required>
-                            </div>
-                        </div>
-                        <div class="modal-footer bg-light rounded-bottom-4">
-                            <button type="button" class="btn btn-secondary rounded-pill px-3" data-bs-dismiss="modal">Cancelar</button>
-                            <button type="submit" class="btn idn-btn-gold">Vincular al Programa</button>
-                        </div>
-                    </form>
-                </div>
             </div>
         </div>
     </main>
+
+    <!-- Modales fuera del main para evitar stacking context bug -->
+    <!-- Modal Editar Unidad (para cada unidad) -->
+    <th:block th:each="cr : ${cronogramas}">
+        <div class="modal fade text-start" th:id="'modalEditarUnidad' + ${cr.unidad.id}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content rounded-4 border-0 shadow-lg overflow-hidden">
+                    <form th:action="@{/docente/unidades/{id}/modificar(id=${cr.unidad.id})}" method="post">
+                        <input type="hidden" name="programaId" th:value="${programa.id}">
+                        <div class="modal-header bg-navy text-white py-3 px-4">
+                            <h5 class="modal-title font-serif fw-bold text-white mb-0">Modificar Unidad: <span th:text="${cr.unidad.titulo}">Título</span></h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body p-4">
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold text-navy">Título de la Unidad *</label>
+                                <input type="text" class="form-control" name="titulo" th:value="${cr.unidad.titulo}" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold text-navy">Descripción Resumida</label>
+                                <textarea class="form-control" name="descripcion" rows="2" th:text="${cr.unidad.descripcion}"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold text-navy">Contenido Teórico y Temario *</label>
+                                <textarea class="form-control" name="contenido" rows="5" th:text="${cr.unidad.contenido}" required></textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer bg-light py-3 px-4 border-top">
+                            <button type="button" class="btn btn-outline-secondary rounded-pill px-3" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn idn-btn-gold px-4 fw-bold shadow-sm">Guardar Modificaciones</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </th:block>
+
+    <!-- Modal Crear Nueva Unidad -->
+    <div class="modal fade text-start" id="modalNuevaUnidad" tabindex="-1" aria-labelledby="modalNuevaUnidadLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content rounded-4 border-0 shadow-lg overflow-hidden">
+                <form th:action="@{/docente/programas/{programaId}/unidades/agregar(programaId=${programa.id})}" method="post">
+                    <div class="modal-header bg-navy text-white py-3 px-4">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="rounded-circle bg-gold text-navy fw-bold d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                                <i class="fa-solid fa-plus fs-6"></i>
+                            </div>
+                            <h5 class="modal-title font-serif fw-bold text-white mb-0" id="modalNuevaUnidadLabel">Crear y Agregar Unidad Didáctica</h5>
+                        </div>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <div class="row g-3">
+                            <div class="col-md-9">
+                                <label class="form-label small fw-bold text-navy">Título de la Unidad *</label>
+                                <input type="text" class="form-control" name="titulo" placeholder="Ej: Unidad 1: Marco Regulatorio y Ley de Mercado de Capitales" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label small fw-bold text-navy">Duración (Semanas) *</label>
+                                <input type="number" class="form-control" name="semanasDuracion" value="1" min="1" max="20" required>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label small fw-bold text-navy">Descripción Resumida</label>
+                                <textarea class="form-control" name="descripcion" rows="2" placeholder="Breve introducción pedagógica del módulo..."></textarea>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label small fw-bold text-navy">Contenido Teórico y Guía de Estudio *</label>
+                                <textarea class="form-control" name="contenido" rows="5" placeholder="Detalle completo de los tópicos a evaluar..." required></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer bg-light py-3 px-4 border-top">
+                        <button type="button" class="btn btn-outline-secondary rounded-pill px-3" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn idn-btn-gold px-4 fw-bold shadow-sm">
+                            <i class="fa-solid fa-cloud-arrow-up me-2"></i> Crear y Vincular Unidad
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Reutilizar Unidad Existente -->
+    <div class="modal fade text-start" id="modalReutilizarUnidad" tabindex="-1" aria-labelledby="modalReutilizarUnidadLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 border-0 shadow-lg overflow-hidden">
+                <form th:action="@{/docente/programas/{programaId}/unidades/agregar(programaId=${programa.id})}" method="post">
+                    <div class="modal-header bg-navy text-white py-3 px-4">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="rounded-circle bg-gold text-navy fw-bold d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                                <i class="fa-solid fa-link fs-6"></i>
+                            </div>
+                            <h5 class="modal-title font-serif fw-bold text-white mb-0" id="modalReutilizarUnidadLabel">Vincular Unidad Existente</h5>
+                        </div>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-navy">Seleccionar Unidad Disponible</label>
+                            <select class="form-select" name="unidadExistenteId" required>
+                                <option value="" disabled selected>-- Selecciona una unidad --</option>
+                                <option th:each="u : ${unidadesReutilizables}" th:value="${u.id}" th:text="${u.titulo}">Unidad</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-navy">Duración asignada en este programa (Semanas)</label>
+                            <input type="number" class="form-control" name="semanasDuracion" value="1" min="1" max="20" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer bg-light py-3 px-4 border-top">
+                        <button type="button" class="btn btn-outline-secondary rounded-pill px-3" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn idn-btn-gold px-4 fw-bold shadow-sm">
+                            <i class="fa-solid fa-link me-2"></i> Vincular al Programa
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
     <footer th:replace="~{fragments/footer :: footer}"></footer>
     <th:block th:replace="~{fragments/scripts :: scripts}"></th:block>
