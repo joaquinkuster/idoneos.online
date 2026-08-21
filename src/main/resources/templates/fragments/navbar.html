@@ -35,7 +35,8 @@
                     <a class="nav-link px-3 text-white-50 idn-navlink" th:href="@{/cursos}">Catálogo de Cursos</a>
                 </li>
                 <li class="nav-item" th:if="${usuario != null}">
-                    <a class="nav-link px-3 text-white-50 idn-navlink" th:href="@{/cursos/mis-cursos}">Mis Cursos</a>
+                    <a class="nav-link px-3 text-white-50 idn-navlink" 
+                       th:href="${usuario.esDocente() ? '/docente' : '/cursos/mis-cursos'}">Mis Cursos</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link px-3 text-white-50 idn-navlink" th:href="@{/acercaDe}">Acerca de</a>
@@ -73,12 +74,15 @@
                             </li>
                             <li><a class="dropdown-item py-2 rounded-3" th:href="@{/usuario/verPerfil}"><i
                                         class="fa-solid fa-id-card me-2 text-gold"></i>Mi Perfil</a></li>
-                            <li><a class="dropdown-item py-2 rounded-3" th:href="@{/cursos/mis-cursos}"><i
+                            <li><a class="dropdown-item py-2 rounded-3" 
+                                   th:href="${usuario.esDocente() ? '/docente' : '/cursos/mis-cursos'}"><i
                                         class="fa-solid fa-book-open me-2 text-primary"></i>Mis Cursos</a></li>
-                            <li><a class="dropdown-item py-2 rounded-3" th:href="@{/certificados}"><i
-                                        class="fa-solid fa-award me-2 text-warning"></i>Mis Certificados</a></li>
+                            <li th:if="${#authorization.expression('hasRole(''Alumno'')')}">
+                                <a class="dropdown-item py-2 rounded-3" th:href="@{/certificados}"><i
+                                        class="fa-solid fa-award me-2 text-warning"></i>Mis Certificados</a>
+                            </li>
                             <li><a class="dropdown-item py-2 rounded-3" th:href="@{/usuario/sesiones}"><i
-                                        class="fa-solid fa-shield me-2 text-secondary"></i>Sesiones Activas</a></li>
+                                        class="fa-solid fa-shield me-2 text-secondary"></i>Sesiones</a></li>
                             
                             <!-- Opciones para Administrador -->
                             <th:block th:if="${#authorization.expression('hasRole(''Administrador'')')}">
@@ -100,18 +104,6 @@
                                         class="fa-solid fa-list-check me-2 text-secondary"></i>Auditoría</a></li>
                                 <li><a class="dropdown-item py-1" th:href="@{/admin/configuracion}"><i
                                         class="fa-solid fa-gear me-2 text-secondary"></i>Configuración</a></li>
-                            </th:block>
-
-                            <!-- Opciones para Docente -->
-                            <th:block th:if="${#authorization.expression('hasAnyRole(''Docente'', ''Administrador'')')}">
-                                <li><hr class="dropdown-divider my-1"></li>
-                                <li class="dropdown-header text-uppercase text-success fw-bold small py-1">Gestión Docente</li>
-                                <li><a class="dropdown-item py-1 text-success fw-semibold" th:href="@{/docente}"><i
-                                        class="fa-solid fa-chalkboard-user me-2"></i>Mis Cursos Asignados</a></li>
-                                <li><a class="dropdown-item py-1 text-info" th:href="@{/clase-vivo/docente}"><i
-                                        class="fa-solid fa-video me-2"></i>Clases en Vivo (RTMP)</a></li>
-                                <li><a class="dropdown-item py-1 text-warning" th:href="@{/clon-ia/docente}"><i
-                                        class="fa-solid fa-robot me-2"></i>Clon IA Pedagógico</a></li>
                             </th:block>
 
                             <li><hr class="dropdown-divider my-1"></li>
