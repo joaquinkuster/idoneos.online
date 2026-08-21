@@ -79,6 +79,10 @@ public class EvaluacionService {
         return autoevaluacionRepository.findByPoolsContainingAndBajaFalse(pool);
     }
 
+    public List<Autoevaluacion> buscarAutoevaluacionesPorUnidad(Unidad unidad) {
+        return autoevaluacionRepository.findByUnidadAndBajaFalse(unidad);
+    }
+
     public void borrarAutoevaluacion(Autoevaluacion ae) {
         ae.setBaja(true);
         autoevaluacionRepository.save(ae);

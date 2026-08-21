@@ -19,23 +19,18 @@ import java.util.*;
  * TRAZABILIDAD — Controller para la navegación, búsqueda del catálogo de cursos e inscripción del alumno.
  *
  * MOD-F-01: Módulo de Cursos
- *   CU-06 — Explorar catálogo de cursos → GET /cursos
  *   CU-01 — Buscar curso (vista alumno)  → GET /cursos (con parámetros busqueda / categoriaId)
  *   CU-02 — Ver mis cursos               → GET /cursos/mis-cursos
+ *   CU-06 — Explorar catálogo de cursos → GET /cursos y GET /cursos/{id}
+ *
+ * MOD-F-02: Módulo de Gestión Académica
+ *   CU-26 — Acceder curso (aula virtual) → GET /cursos/{id}/mi-cursada
  *
  * MOD-F-03: Módulo de Inscripciones
- *   CU-44 — Inscribir curso              → POST /cursos/{id}/inscribir
- *             Si precio > 0, redirige al flujo de pago (CU-47 — Realizar pago).
+ *   CU-43 — Buscar inscripción (alumno)  → GET /cursos/mis-cursos (y GET /certificado/inscripcion/{id})
+ *   CU-44 — Inscribir curso              → POST /cursos/{id}/inscribir (con cohorte y verificación de cupo/fechas)
+ *   CU-45 — Dar de baja inscripción      → POST /cursos/inscripciones/{id}/baja
  *   CU-48 — Buscar progreso (alumno)     → GET /cursos/{id}/mi-cursada
- *             Muestra el progreso del alumno por unidad.
- *   CU-26 — Acceder curso                → GET /cursos/{id}/mi-cursada (también acceso al aula virtual)
- *
- * NOTAS DE COBERTURA:
- *   CU-06 paso 4: la ficha del curso muestra descripción, nivel, modalidades, precio y cohortes abiertas.
- *     Implementación actual muestra descripción y unidades pero no filtra por cohortes abiertas
- *     específicamente. IMPLEMENTADO PARCIALMENTE.
- *   CU-44 paso 2-4: la implementación no verifica ventana de inscripción ni cupo máximo. IMPLEMENTADO PARCIALMENTE.
- *   CU-45 — Dar de baja inscripción: no implementado en este controller. FALTANTE.
  */
 @Controller
 @RequestMapping("/cursos")
@@ -46,6 +41,7 @@ public class CursoController {
     @Autowired private InscripcionServiceImpl inscripcionService;
     @Autowired private ProgresoServiceImpl progresoService;
     @Autowired private UnidadServiceImpl unidadService;
+    @Autowired private com.app.idoneos.repository.CohorteRepository cohorteRepository;
 
     /**
      * TRAZABILIDAD: CU-06 — Explorar catálogo de cursos.
@@ -150,24 +146,19 @@ public class CursoController {
     }
 
     /**
-     * TRAZABILIDAD: CU-44 — Inscribir curso.
+     * TRAZABILIDAD: CU-44 — Inscribir curso (con selección de cohorte y verificación de cupo/fechas).
      * Actor: Alumno.
-     * Precondición: sesión iniciada con rol Alumno. El curso posee al menos una cohorte con inscripción abierta.
-     * Flujo paso 2-4: valida que el alumno no esté ya inscripto.
-     * Flujo paso 5: registra la inscripción.
-     * Flujo paso 7: si el curso tiene costo, redirige al flujo de pago (CU-47 — Realizar pago).
-     * Postcondición: inscripción registrada.
-     * NOTA PARCIAL: CU-44 paso 2 verifica ventana de inscripción (fechas). No implementado.
-     * NOTA PARCIAL: CU-44 paso 3 verifica cupo máximo de la cohorte. No implementado.
-     * NOTA PARCIAL: CU-44 paso 6 registra progreso inicial sobre la primera unidad. No implementado aquí.
      */
     @PostMapping("/{id}/inscribir")
-    public String inscribirseACurso(@PathVariable("id") Integer id, Authentication auth,
-                                     RedirectAttributes redirectAttributes) {
+    public String inscribirseACurso(@PathVariable("id") Integer id,
+                                    @RequestParam(value = "cohorteId", required = false) Integer cohorteId,
+                                    Authentication auth,
+                                    RedirectAttributes redirectAttributes) {
         if (auth == null || !(auth.getPrincipal() instanceof Usuario)) return "redirect:/login";
 
         Usuario usuario = (Usuario) auth.getPrincipal();
         Optional<Curso> cursoOpt = cursoService.buscarPorId(id);
+        if (cursoOpt.isEmpty()) return "redirect:/cursos";
 
         Curso curso = cursoOpt.get();
 
@@ -175,14 +166,56 @@ public class CursoController {
             return "redirect:/cursos/" + id + "/mi-cursada";
         }
 
-        // CU-44 paso 7: si el curso tiene costo, deriva al pago (CU-47).
+        // CU-44: Si el curso tiene costo y no fue abonado, redirige al flujo de pago
         if (curso.getPrecio() > 0) {
             return "redirect:/pago/checkout/" + id;
         }
 
-        inscripcionService.inscribirAlumno(usuario, curso);
-        redirectAttributes.addFlashAttribute("mensaje", "¡Inscripción exitosa! Ya podés acceder al contenido del curso.");
+        try {
+            if (cohorteId != null) {
+                Cohorte cohorte = cohorteRepository.findById(cohorteId).orElse(null);
+                if (cohorte != null) {
+                    inscripcionService.inscribirAlumnoACohorte(usuario, cohorte);
+                } else {
+                    inscripcionService.inscribirAlumno(usuario, curso);
+                }
+            } else {
+                inscripcionService.inscribirAlumno(usuario, curso);
+            }
+            redirectAttributes.addFlashAttribute("mensaje", "¡Inscripción exitosa! Ya podés acceder a la cursada.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("mensaje", e.getMessage());
+        }
+
         return "redirect:/cursos/" + id + "/mi-cursada";
+    }
+
+    /**
+     * TRAZABILIDAD: CU-45 — Dar de baja inscripción.
+     * Actor: Administrador / Alumno.
+     */
+    @PostMapping("/inscripciones/{inscripcionId}/baja")
+    public String darBajaInscripcion(@PathVariable Integer inscripcionId,
+                                     @RequestParam(required = false) String motivo,
+                                     Authentication auth,
+                                     RedirectAttributes ra) {
+        if (auth == null || !(auth.getPrincipal() instanceof Usuario)) return "redirect:/login";
+
+        Optional<Inscripcion> iOpt = inscripcionService.buscarPorId(inscripcionId);
+        if (iOpt.isEmpty()) return "redirect:/cursos/mis-cursos";
+
+        Inscripcion inscripcion = iOpt.get();
+        Usuario usuario = (Usuario) auth.getPrincipal();
+
+        boolean esAlumno = inscripcion.getAlumno() != null && inscripcion.getAlumno().getUsuario().getId() == usuario.getId();
+        if (!usuario.esAdmin() && !esAlumno) {
+            ra.addFlashAttribute("mensaje", "No tenés permisos para cancelar esta inscripción.");
+            return "redirect:/cursos/mis-cursos";
+        }
+
+        inscripcionService.darDeBajaInscripcion(inscripcionId);
+        ra.addFlashAttribute("mensaje", "Inscripción dada de baja correctamente.");
+        return "redirect:/cursos/mis-cursos";
     }
 
     /**

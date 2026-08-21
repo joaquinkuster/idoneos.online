@@ -143,4 +143,111 @@ public class ForoController {
         ra.addFlashAttribute("mensaje", "Respuesta enviada.");
         return "redirect:/foro/unidad/" + consulta.getUnidad().getId();
     }
+
+    /**
+     * TRAZABILIDAD: CU-37 — Modificar consulta de foro.
+     * Actor: Alumno (autor de la consulta).
+     */
+    @PostMapping("/consulta/{consultaId}/modificar")
+    public String modificarConsulta(@PathVariable Integer consultaId,
+                                    @RequestParam String texto,
+                                    Authentication auth,
+                                    RedirectAttributes ra) {
+        ConsultaForo consulta = consultaRepo.findById(consultaId).orElse(null);
+        if (consulta == null) return "redirect:/cursos";
+
+        Usuario usuario = (Usuario) auth.getPrincipal();
+        if (consulta.getAlumno() == null || consulta.getAlumno().getUsuario().getId() != usuario.getId()) {
+            ra.addFlashAttribute("mensaje", "No tenés permisos para editar esta consulta.");
+            return "redirect:/foro/unidad/" + consulta.getUnidad().getId();
+        }
+
+        if (texto == null || texto.isBlank()) {
+            ra.addFlashAttribute("mensaje", "El contenido de la consulta no puede estar vacío.");
+            return "redirect:/foro/unidad/" + consulta.getUnidad().getId();
+        }
+
+        consulta.setTexto(texto.trim());
+        consultaRepo.save(consulta);
+        ra.addFlashAttribute("mensaje", "Consulta modificada correctamente.");
+        return "redirect:/foro/unidad/" + consulta.getUnidad().getId();
+    }
+
+    /**
+     * TRAZABILIDAD: CU-38 — Dar de baja consulta de foro.
+     * Actor: Administrador / Alumno autor.
+     */
+    @PostMapping("/consulta/{consultaId}/baja")
+    public String darBajaConsulta(@PathVariable Integer consultaId,
+                                  Authentication auth,
+                                  RedirectAttributes ra) {
+        ConsultaForo consulta = consultaRepo.findById(consultaId).orElse(null);
+        if (consulta == null) return "redirect:/cursos";
+
+        Usuario usuario = (Usuario) auth.getPrincipal();
+        boolean esAutor = consulta.getAlumno() != null && consulta.getAlumno().getUsuario().getId() == usuario.getId();
+        if (!usuario.esAdmin() && !esAutor) {
+            ra.addFlashAttribute("mensaje", "No tenés permisos para eliminar esta consulta.");
+            return "redirect:/foro/unidad/" + consulta.getUnidad().getId();
+        }
+
+        consulta.setBaja(true);
+        consultaRepo.save(consulta);
+        ra.addFlashAttribute("mensaje", "Consulta eliminada.");
+        return "redirect:/foro/unidad/" + consulta.getUnidad().getId();
+    }
+
+    /**
+     * TRAZABILIDAD: CU-41 — Modificar respuesta de foro.
+     * Actor: Docente (autor).
+     */
+    @PostMapping("/respuesta/{respuestaId}/modificar")
+    public String modificarRespuesta(@PathVariable Integer respuestaId,
+                                     @RequestParam String texto,
+                                     Authentication auth,
+                                     RedirectAttributes ra) {
+        RespuestaForo respuesta = respuestaRepo.findById(respuestaId).orElse(null);
+        if (respuesta == null) return "redirect:/cursos";
+
+        Usuario usuario = (Usuario) auth.getPrincipal();
+        boolean esAutor = respuesta.getDocente() != null && respuesta.getDocente().getUsuario().getId() == usuario.getId();
+        if (!usuario.esAdmin() && !esAutor) {
+            ra.addFlashAttribute("mensaje", "No tenés permisos para modificar esta respuesta.");
+            return "redirect:/foro/unidad/" + respuesta.getConsulta().getUnidad().getId();
+        }
+
+        if (texto == null || texto.isBlank()) {
+            ra.addFlashAttribute("mensaje", "El texto de la respuesta no puede estar vacío.");
+            return "redirect:/foro/unidad/" + respuesta.getConsulta().getUnidad().getId();
+        }
+
+        respuesta.setTexto(texto.trim());
+        respuestaRepo.save(respuesta);
+        ra.addFlashAttribute("mensaje", "Respuesta modificada correctamente.");
+        return "redirect:/foro/unidad/" + respuesta.getConsulta().getUnidad().getId();
+    }
+
+    /**
+     * TRAZABILIDAD: CU-42 — Dar de baja respuesta de foro.
+     * Actor: Administrador / Docente autor.
+     */
+    @PostMapping("/respuesta/{respuestaId}/baja")
+    public String darBajaRespuesta(@PathVariable Integer respuestaId,
+                                   Authentication auth,
+                                   RedirectAttributes ra) {
+        RespuestaForo respuesta = respuestaRepo.findById(respuestaId).orElse(null);
+        if (respuesta == null) return "redirect:/cursos";
+
+        Usuario usuario = (Usuario) auth.getPrincipal();
+        boolean esAutor = respuesta.getDocente() != null && respuesta.getDocente().getUsuario().getId() == usuario.getId();
+        if (!usuario.esAdmin() && !esAutor) {
+            ra.addFlashAttribute("mensaje", "No tenés permisos para eliminar esta respuesta.");
+            return "redirect:/foro/unidad/" + respuesta.getConsulta().getUnidad().getId();
+        }
+
+        respuesta.setBaja(true);
+        respuestaRepo.save(respuesta);
+        ra.addFlashAttribute("mensaje", "Respuesta eliminada.");
+        return "redirect:/foro/unidad/" + respuesta.getConsulta().getUnidad().getId();
+    }
 }

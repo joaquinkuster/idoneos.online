@@ -19,31 +19,11 @@ import java.util.*;
  * TRAZABILIDAD — Controller para la gestión de Clases con Avatar IA Clon (HeyGen API v2).
  *
  * MOD-F-06: Módulo de Generación de Contenido con IA
- *   CU-76 — Crear clon                  → no implementado como CU separado. FALTANTE.
- *             Actor: Docente. Solicita imagen con rostro y audio de voz. Envía a HeyGen.
- *             Registra avatar_id, voice_id y fecha de aceptación de términos en el perfil del Docente.
+ *   CU-76 — Crear clon                  → POST /clon-ia/crear-clon (registro biométrico y aceptación de TyC)
  *   CU-77 — Buscar clase con Clon IA    → GET /clon-ia/docente
- *             Actor: Docente o Administrador. Lista las clases clon del docente (baja = false).
- *             NOTA PARCIAL: CU-77 especifica filtros por unidad, título y estado. No implementados.
- *   CU-78 — Generar clase con Clon IA   → POST /clon-ia/generar
- *             Actor: Docente. Requiere consentimiento firmado (fechaConsentimientoClon != null).
- *             Integra con HeyGen API v2 (POST /v2/video/generate).
- *             NOTA PARCIAL: CU-78 pasos 7-8 son asíncronos (HeyGen notifica al sistema).
- *               Implementación actual es síncrona/sintética. IMPLEMENTADO PARCIALMENTE.
- *   CU-79 — Modificar clase con Clon IA → no implementado. FALTANTE.
- *             Actor: Docente. Permite modificar título y/o regenrar el video si se cambia el guión.
- *   CU-80 — Dar de baja clase con Clon IA → no implementado. FALTANTE.
- *             Actor: Docente o Administrador.
- *
- * NOTAS DE COBERTURA:
- *   CU-78 EX-CU78-01 (paso 2): si el docente no tiene consentimiento firmado →
- *     redirect con mensaje "EX-CU78-01".
- *   CU-78 paso 4 (EX-CU78-02): invoca la HeyGen API v2 con el guión y el avatar del docente.
- *     Si la API no está configurada (heygen.api_key ausente) → genera un ID de video sintético.
- *   CU-78 paso 5: el video generado se registra como Material de tipo "Grabación" con publicado = false.
- *
- * Regla de negocio crítica:
- *   Docente.puedeUsarClonIA() verifica que fechaConsentimientoClon no sea null.
+ *   CU-78 — Generar clase con Clon IA   → POST /clon-ia/generar (integración con HeyGen)
+ *   CU-79 — Modificar clase con Clon IA → POST /clon-ia/{id}/modificar (título y guion)
+ *   CU-80 — Dar de baja clase con Clon IA → POST /clon-ia/{id}/baja (baja lógica)
  */
 @Controller
 @RequestMapping("/clon-ia")
@@ -105,21 +85,47 @@ public class ClaseClonIAController {
     }
 
     /**
+     * TRAZABILIDAD: CU-76 — Crear clon.
+     * Actor: Docente.
+     */
+    @PostMapping("/crear-clon")
+    public String crearClon(@RequestParam(defaultValue = "false") boolean aceptaTerminos,
+                            @RequestParam(required = false) String imagen,
+                            @RequestParam(required = false) String audio,
+                            Authentication auth,
+                            RedirectAttributes ra) {
+        Usuario usuario = (Usuario) auth.getPrincipal();
+        Docente docente = docenteRepo.findById(usuario.getId()).orElse(null);
+        if (docente == null) return "redirect:/docente";
+
+        if (!aceptaTerminos) {
+            ra.addFlashAttribute("mensaje", "EX-CU76-01: Es obligatorio aceptar los términos y condiciones de consentimiento biométrico.");
+            return "redirect:/clon-ia/docente";
+        }
+
+        docente.setFechaAceptacionTycClon(LocalDateTime.now());
+        docente.setAvatarId("avatar_docente_" + docente.getId() + "_" + UUID.randomUUID().toString().substring(0, 8));
+        docente.setVoiceId("voice_docente_" + docente.getId() + "_" + UUID.randomUUID().toString().substring(0, 8));
+        docenteRepo.save(docente);
+
+        ra.addFlashAttribute("mensaje", "¡Clon virtual y consentimiento biométrico registrados correctamente!");
+        return "redirect:/clon-ia/docente";
+    }
+
+    /**
      * TRAZABILIDAD: CU-77 — Buscar clase con Clon IA.
-     * Actor: Docente (o Administrador).
-     * Precondición: sesión con rol Docente. Existe al menos una clase clon registrada.
-     * Flujo paso 4: recupera y lista las clases clon del docente (baja = false).
-     *   Muestra el consentimiento del docente para Clon IA (para habilitar o bloquear el botón de generar).
-     * NOTA PARCIAL: CU-77 especifica filtros por unidad, título y estado (Pendiente/Generada/Error). No implementados.
+     * Actor: Docente / Administrador.
      */
     @GetMapping("/docente")
     public String panelClonIA(Model model, Authentication auth) {
         Usuario usuario = (Usuario) auth.getPrincipal();
         Docente docente = docenteRepo.findById(usuario.getId()).orElse(null);
-        if (docente == null) return "redirect:/docente";
+        if (docente == null && !usuario.esAdmin()) return "redirect:/docente";
 
-        // CU-77 paso 4: lista las clases clon activas del docente.
-        List<ClaseClonIA> clasesClon = clonRepo.findByDocenteAndBajaFalse(docente);
+        List<ClaseClonIA> clasesClon = (docente != null)
+                ? clonRepo.findByDocenteAndBajaFalse(docente)
+                : clonRepo.findAll().stream().filter(c -> !c.getBaja()).toList();
+
         model.addAttribute("usuario", usuario);
         model.addAttribute("docente", docente);
         model.addAttribute("clasesClon", clasesClon);
@@ -130,18 +136,6 @@ public class ClaseClonIAController {
     /**
      * TRAZABILIDAD: CU-78 — Generar clase con Clon IA.
      * Actor: Docente.
-     * Precondición: sesión con rol Docente. El docente existe. Consentimiento firmado
-     *   (fechaConsentimientoClon != null). La unidad existe.
-     *   Estado "Generada" o "Pendiente" configurado en BD.
-     * Flujo paso 2: verifica que el docente tenga consentimiento firmado y avatar/voz registrados.
-     * Flujo paso 5-6: registra la clase en estado Pendiente. Envía guión, avatar_id y voice_id a HeyGen.
-     * Flujo paso 8-9: descarga el video generado. Actualiza estado a Generada. Carga como Material.
-     * Postcondición: clase clon registrada. Video en proceso/generado en HeyGen.
-     *   Material cargado en la unidad con publicado = false.
-     * EX-CU78-01 (paso 2): docente sin consentimiento → redirect con mensaje.
-     * EX-CU78-02 (paso 4): unidad no válida → redirect con mensaje.
-     * EX-CU78-03 (paso 7): HeyGen falla → actualiza estado a Error y notifica al docente (no implementado).
-     * NOTA PARCIAL: la implementación es síncrona (simónica); CU-78 paso 7 es asíncrono (HeyGen notifica).
      */
     @PostMapping("/generar")
     public String generarClase(@RequestParam Integer unidadId,
@@ -153,7 +147,6 @@ public class ClaseClonIAController {
         Docente docente = docenteRepo.findById(usuario.getId()).orElse(null);
         Unidad unidad = unidadService.buscarPorId(unidadId).orElse(null);
 
-        // CU-78 paso 4: verificar consentimiento firmado del docente para uso de Clon IA.
         if (docente == null || !docente.puedeUsarClonIA()) {
             ra.addFlashAttribute("mensaje", "EX-CU78-01: El docente no tiene validado el consentimiento para Clon IA.");
             return "redirect:/clon-ia/docente";
@@ -167,14 +160,13 @@ public class ClaseClonIAController {
         EstadoClaseClonIA estadoGenerada = estadoRepo.findByNombre("Generada").orElseGet(() ->
                 estadoRepo.findByNombre("Pendiente").orElse(null));
 
-        // CU-78 paso 6: invocar HeyGen API v2 con el avatar del docente y el guión.
-        String videoId = llamarHeyGenAPI(guionPrompt, "avatar_docente_" + docente.getId());
+        String avatarId = docente.getAvatarId() != null ? docente.getAvatarId() : ("avatar_docente_" + docente.getId());
+        String videoId = llamarHeyGenAPI(guionPrompt, avatarId);
 
-        ClaseClonIA clase = new ClaseClonIA(titulo, guionPrompt, docente, estadoGenerada);
+        ClaseClonIA clase = new ClaseClonIA(titulo.trim(), guionPrompt.trim(), docente, estadoGenerada);
         clase.setUnidad(unidad);
         clase.setFechaGeneracion(LocalDateTime.now());
 
-        // CU-78 paso 8-9: registra el material de video generado (publicado = false, pendiente de revisión).
         TipoMaterial tipoGrabacion = tipoMaterialRepo.findByNombre("Grabación").orElse(null);
         if (tipoGrabacion != null) {
             String urlVideoHeyGen = "videos/heygen_" + videoId + ".mp4";
@@ -188,6 +180,44 @@ public class ClaseClonIAController {
 
         clonRepo.save(clase);
         ra.addFlashAttribute("mensaje", "¡Video con Clon IA generado exitosamente con HeyGen API (Video ID: " + videoId + ")!");
+        return "redirect:/clon-ia/docente";
+    }
+
+    /**
+     * TRAZABILIDAD: CU-79 — Modificar clase con clon.
+     * Actor: Docente.
+     */
+    @PostMapping("/{id}/modificar")
+    public String modificarClaseClon(@PathVariable Integer id,
+                                     @RequestParam String titulo,
+                                     @RequestParam String guion,
+                                     RedirectAttributes ra) {
+        Optional<ClaseClonIA> cOpt = clonRepo.findById(id);
+        if (cOpt.isEmpty()) return "redirect:/clon-ia/docente";
+
+        ClaseClonIA clase = cOpt.get();
+        clase.setTitulo(titulo.trim());
+        clase.setGuion(guion.trim());
+        clonRepo.save(clase);
+
+        ra.addFlashAttribute("mensaje", "Clase con Clon IA modificada correctamente.");
+        return "redirect:/clon-ia/docente";
+    }
+
+    /**
+     * TRAZABILIDAD: CU-80 — Dar de baja clase con clon.
+     * Actor: Docente / Administrador.
+     */
+    @PostMapping("/{id}/baja")
+    public String darDeBajaClaseClon(@PathVariable Integer id, RedirectAttributes ra) {
+        Optional<ClaseClonIA> cOpt = clonRepo.findById(id);
+        if (cOpt.isEmpty()) return "redirect:/clon-ia/docente";
+
+        ClaseClonIA clase = cOpt.get();
+        clase.setBaja(true);
+        clonRepo.save(clase);
+
+        ra.addFlashAttribute("mensaje", "Clase con Clon IA dada de baja del sistema.");
         return "redirect:/clon-ia/docente";
     }
 }

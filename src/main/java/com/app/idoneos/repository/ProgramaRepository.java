@@ -10,4 +10,5 @@ import java.util.List;
 @Repository
 public interface ProgramaRepository extends JpaRepository<Programa, Integer> {
     List<Programa> findByCurso(Curso curso);
+    List<Programa> findByCursoAndBajaFalse(Curso curso);
 }

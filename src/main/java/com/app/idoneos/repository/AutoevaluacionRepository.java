@@ -19,4 +19,6 @@ public interface AutoevaluacionRepository extends JpaRepository<Autoevaluacion, 
     /** Autoevaluaciones de un curso (para panel docente) — CU-46. */
     @Query("SELECT a FROM Autoevaluacion a WHERE a.unidad.programa.curso = :curso AND a.baja = false")
     List<Autoevaluacion> findByCurso(@Param("curso") Curso curso);
+
+    List<Autoevaluacion> findByUnidadAndBajaFalse(com.app.idoneos.model.Unidad unidad);
 }

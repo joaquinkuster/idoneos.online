@@ -15,6 +15,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.app.idoneos.model.Usuario;
 import com.app.idoneos.service.Usuario.UsuarioServiceImpl;
 
+import java.util.List;
+import java.util.Optional;
+
 /**
  * TRAZABILIDAD — Controller para la gestión del perfil de usuario y cambio de credenciales.
  *
@@ -186,5 +189,52 @@ public class UsuarioController {
             redirectAttributes.addFlashAttribute("mensaje", e.getMessage());
             return "redirect:/usuario/cambiarContrasena";
         }
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // SESIONES ACTIVAS (CU-93 y CU-94)
+    // ─────────────────────────────────────────────────────────────
+
+    @Autowired
+    private com.app.idoneos.repository.SesionRepository sesionRepository;
+
+    /**
+     * TRAZABILIDAD: CU-93 — Buscar sesión.
+     * Actor: Alumno / Docente / Administrador.
+     */
+    @GetMapping("/sesiones")
+    public String listarSesiones(Model model, Authentication auth) {
+        Usuario usuario = (Usuario) auth.getPrincipal();
+        List<com.app.idoneos.model.Sesion> sesiones = usuario.esAdmin()
+                ? sesionRepository.findAll()
+                : sesionRepository.findByUsuarioOrderByFechaInicioDesc(usuario);
+
+        model.addAttribute("usuario", usuario);
+        model.addAttribute("sesiones", sesiones);
+        model.addAttribute("titulo", "Historial de Sesiones | Idóneos Online");
+        return "pages/perfil/sesiones";
+    }
+
+    /**
+     * TRAZABILIDAD: CU-94 — Eliminar sesión (Cierre remoto).
+     * Actor: Alumno / Docente / Administrador.
+     */
+    @PostMapping("/sesiones/{id}/eliminar")
+    public String eliminarSesion(@PathVariable int id, Authentication auth, RedirectAttributes ra) {
+        Usuario usuario = (Usuario) auth.getPrincipal();
+        Optional<com.app.idoneos.model.Sesion> sOpt = sesionRepository.findById(id);
+
+        if (sOpt.isPresent()) {
+            com.app.idoneos.model.Sesion s = sOpt.get();
+            if (usuario.esAdmin() || s.getUsuario().getId() == usuario.getId()) {
+                s.setFechaFin(java.time.LocalDateTime.now());
+                sesionRepository.save(s);
+                ra.addFlashAttribute("mensaje", "Sesión desautorizada y cerrada remotamente.");
+            } else {
+                ra.addFlashAttribute("mensaje", "No tenés permisos para cerrar esta sesión.");
+            }
+        }
+
+        return "redirect:/usuario/sesiones";
     }
 }

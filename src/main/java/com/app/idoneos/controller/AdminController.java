@@ -13,6 +13,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,8 +27,16 @@ import java.util.Optional;
  *   CU-05 — Dar de baja curso   → POST /admin/cursos/{id}/baja (toggle baja con validación de programas activos)
  *   CU-07 — Buscar categoría    → GET /admin/categorias
  *   CU-08 — Registrar categoría → POST /admin/categorias/guardar
- *   CU-09 — Modificar categoría → POST /admin/categorias/{id}/editar
+ *   CU-09 — Modificar categoría → POST /admin/categorias/{id}/modificar
  *   CU-10 — Dar de baja categoría → POST /admin/categorias/{id}/baja
+ *   CU-11 — Buscar cohorte      → GET /admin/programas/{programaId}/cohortes
+ *   CU-12 — Registrar cohorte   → POST /admin/programas/{programaId}/cohortes/guardar
+ *   CU-13 — Modificar cohorte   → POST /admin/cohortes/{id}/modificar
+ *   CU-14 — Dar de baja cohorte → POST /admin/cohortes/{id}/baja
+ *
+ * MOD-F-03: Módulo de Inscripciones y Pagos
+ *   CU-46 — Buscar pago         → GET /pago/resultado/{pagoId} y panel general
+ *   CU-48 — Buscar progreso     → GET /admin (indicadores globales)
  *
  * MOD-NF-01: Módulo de Usuarios y Notificaciones
  *   CU-82 — Buscar usuario      → GET /admin/usuarios
@@ -57,6 +66,10 @@ public class AdminController {
     @Autowired private InscripcionRepository inscripcionRepository;
     @Autowired private PagoRepository pagoRepository;
     @Autowired private ModalidadRepository modalidadRepository;
+    @Autowired private com.app.idoneos.repository.DescuentoRepository descuentoRepository;
+    @Autowired private com.app.idoneos.repository.TituloDocenteRepository tituloDocenteRepository;
+    @Autowired private com.app.idoneos.repository.AuditoriaRepository auditoriaRepository;
+    @Autowired private com.app.idoneos.repository.ConfiguracionRepository configuracionRepository;
     @Autowired private EmailService emailService;
 
     /**
@@ -145,6 +158,33 @@ public class AdminController {
     }
 
     /**
+     * TRAZABILIDAD: CU-84 — Modificar usuario.
+     * Actor: Administrador.
+     */
+    @PostMapping("/usuarios/{id}/modificar")
+    public String modificarUsuarioAdmin(@PathVariable Integer id,
+                                        @RequestParam String nombre,
+                                        @RequestParam String apellido,
+                                        @RequestParam String correo,
+                                        @RequestParam(required = false) String telefono,
+                                        @RequestParam(required = false) String dni,
+                                        RedirectAttributes ra) {
+        Optional<Usuario> uOpt = usuarioService.buscarPorId(id);
+        if (uOpt.isEmpty()) return "redirect:/admin/usuarios";
+
+        Usuario u = uOpt.get();
+        u.setNombre(nombre.trim());
+        u.setApellido(apellido.trim());
+        u.setCorreo(correo.trim());
+        if (telefono != null) u.setTelefono(telefono.trim());
+        if (dni != null) u.setDni(dni.trim());
+        usuarioService.modificar(u);
+
+        ra.addFlashAttribute("mensaje", "Usuario modificado correctamente.");
+        return "redirect:/admin/usuarios";
+    }
+
+    /**
      * TRAZABILIDAD: CU-85 — Dar de baja usuario.
      * Actor: Administrador.
      * Flujo paso 2: valida que existan otros admins activos (RN-07).
@@ -182,6 +222,89 @@ public class AdminController {
 
         usuarioService.darDeBaja(id);
         redirectAttributes.addFlashAttribute("mensaje", "Usuario actualizado.");
+        return "redirect:/admin/usuarios";
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // GESTIÓN DE DOCENTES Y TÍTULOS (CU-88 y CU-89)
+    // ─────────────────────────────────────────────────────────────
+
+    /**
+     * TRAZABILIDAD: CU-89 — Modificar docente (perfil profesional).
+     * Actor: Administrador.
+     */
+    @PostMapping("/docentes/{id}/modificar-perfil")
+    public String modificarDocentePerfil(@PathVariable Integer id,
+                                         @RequestParam(required = false) String biografia,
+                                         @RequestParam(defaultValue = "0") int aniosExperiencia,
+                                         @RequestParam(required = false) String matriculaCnv,
+                                         @RequestParam(defaultValue = "true") boolean habilitado,
+                                         RedirectAttributes ra) {
+        Optional<Docente> dOpt = docenteRepository.findById(id);
+        if (dOpt.isEmpty()) return "redirect:/admin/usuarios";
+
+        Docente d = dOpt.get();
+        d.setBiografia(biografia);
+        d.setAniosExperiencia(aniosExperiencia);
+        d.setMatriculaCnv(matriculaCnv);
+        d.setHabilitado(habilitado);
+        docenteRepository.save(d);
+
+        ra.addFlashAttribute("mensaje", "Perfil profesional del docente actualizado.");
+        return "redirect:/admin/usuarios";
+    }
+
+    /**
+     * TRAZABILIDAD: CU-88 / CU-89 — Agregar título académico a docente (Caso A).
+     * Actor: Administrador.
+     */
+    @PostMapping("/docentes/{id}/titulos/agregar")
+    public String agregarTituloDocente(@PathVariable Integer id,
+                                       @RequestParam String titulo,
+                                       @RequestParam(required = false) String matriculaColegio,
+                                       RedirectAttributes ra) {
+        Optional<Docente> dOpt = docenteRepository.findById(id);
+        if (dOpt.isEmpty()) return "redirect:/admin/usuarios";
+
+        TituloDocente t = new TituloDocente(titulo.trim(), matriculaColegio != null ? matriculaColegio.trim() : null, dOpt.get());
+        tituloDocenteRepository.save(t);
+
+        ra.addFlashAttribute("mensaje", "Título académico agregado al docente.");
+        return "redirect:/admin/usuarios";
+    }
+
+    /**
+     * TRAZABILIDAD: CU-89 — Modificar título académico de docente (Caso B).
+     * Actor: Administrador.
+     */
+    @PostMapping("/docentes/titulos/{tituloId}/modificar")
+    public String modificarTituloDocente(@PathVariable Integer tituloId,
+                                         @RequestParam String titulo,
+                                         @RequestParam(required = false) String matriculaColegio,
+                                         RedirectAttributes ra) {
+        Optional<TituloDocente> tOpt = tituloDocenteRepository.findById(tituloId);
+        if (tOpt.isEmpty()) return "redirect:/admin/usuarios";
+
+        TituloDocente t = tOpt.get();
+        t.setTitulo(titulo.trim());
+        t.setMatriculaColegio(matriculaColegio != null ? matriculaColegio.trim() : null);
+        tituloDocenteRepository.save(t);
+
+        ra.addFlashAttribute("mensaje", "Título académico modificado.");
+        return "redirect:/admin/usuarios";
+    }
+
+    /**
+     * TRAZABILIDAD: CU-89 — Eliminar título académico de docente (Caso C).
+     * Actor: Administrador.
+     */
+    @PostMapping("/docentes/titulos/{tituloId}/eliminar")
+    public String eliminarTituloDocente(@PathVariable Integer tituloId, RedirectAttributes ra) {
+        Optional<TituloDocente> tOpt = tituloDocenteRepository.findById(tituloId);
+        if (tOpt.isEmpty()) return "redirect:/admin/usuarios";
+
+        tituloDocenteRepository.delete(tOpt.get());
+        ra.addFlashAttribute("mensaje", "Título académico eliminado.");
         return "redirect:/admin/usuarios";
     }
 
@@ -446,6 +569,31 @@ public class AdminController {
     }
 
     /**
+     * TRAZABILIDAD: CU-09 — Modificar categoría.
+     * Actor: Administrador.
+     * Flujo paso 4-6: valida no tener cursos activos asociados, unicidad de nombre y actualiza.
+     */
+    @PostMapping("/categorias/{id}/modificar")
+    public String modificarCategoria(@PathVariable Integer id,
+                                     @RequestParam String nombre,
+                                     @RequestParam(required = false) String descripcion,
+                                     RedirectAttributes ra) {
+        try {
+            Optional<Categoria> catOpt = categoriaService.buscarPorId(id);
+            if (catOpt.isPresent()) {
+                Categoria c = catOpt.get();
+                c.setNombre(nombre);
+                c.setDescripcion(descripcion);
+                categoriaService.modificar(c);
+                ra.addFlashAttribute("mensaje", "Categoría modificada correctamente.");
+            }
+        } catch (Exception e) {
+            ra.addFlashAttribute("mensaje", e.getMessage());
+        }
+        return "redirect:/admin/categorias";
+    }
+
+    /**
      * TRAZABILIDAD: CU-10 — Dar de baja categoría.
      * Actor: Administrador.
      * Flujo paso 2: verifica que no existan cursos activos asociados a la categoría.
@@ -460,6 +608,329 @@ public class AdminController {
             ra.addFlashAttribute("mensaje", e.getMessage());
         }
         return "redirect:/admin/categorias";
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // COHORTES (CU-11 a CU-14)
+    // ─────────────────────────────────────────────────────────────
+
+    /**
+     * TRAZABILIDAD: CU-11 — Buscar cohorte.
+     * Actor: Administrador / Docente.
+     */
+    @GetMapping("/programas/{programaId}/cohortes")
+    public String listarCohortes(@PathVariable Integer programaId, Model model, Authentication auth) {
+        Optional<Programa> pOpt = programaRepository.findById(programaId);
+        if (pOpt.isEmpty()) return "redirect:/admin/cursos";
+
+        Programa programa = pOpt.get();
+        List<Cohorte> cohortes = cohorteRepository.findByProgramaAndBajaFalse(programa);
+
+        model.addAttribute("usuario", (Usuario) auth.getPrincipal());
+        model.addAttribute("programa", programa);
+        model.addAttribute("cohortes", cohortes);
+        model.addAttribute("titulo", "Cohortes de " + programa.getNombre() + " | Idóneos Online");
+        return "pages/admin/cohortes";
+    }
+
+    /**
+     * TRAZABILIDAD: CU-12 — Registrar cohorte.
+     * Actor: Administrador.
+     */
+    @PostMapping("/programas/{programaId}/cohortes/guardar")
+    public String registrarCohorte(@PathVariable Integer programaId,
+                                   @RequestParam String fechaInicioInscripcion,
+                                   @RequestParam String fechaFinInscripcion,
+                                   @RequestParam(required = false) String fechaInicioDictado,
+                                   @RequestParam(required = false) String fechaFinDictado,
+                                   @RequestParam(defaultValue = "12") int semanasAcceso,
+                                   @RequestParam(required = false) Integer cupoMaximo,
+                                   RedirectAttributes ra) {
+        Optional<Programa> pOpt = programaRepository.findById(programaId);
+        if (pOpt.isEmpty()) {
+            ra.addFlashAttribute("mensaje", "Programa inválido.");
+            return "redirect:/admin/cursos";
+        }
+
+        try {
+            LocalDateTime fIniInsc = LocalDateTime.parse(fechaInicioInscripcion + "T00:00:00");
+            LocalDateTime fFinInsc = LocalDateTime.parse(fechaFinInscripcion + "T23:59:59");
+            if (fFinInsc.isBefore(fIniInsc)) {
+                ra.addFlashAttribute("mensaje", "EX-CU12-02: La fecha de fin de inscripción debe ser posterior a la de inicio.");
+                return "redirect:/admin/programas/" + programaId + "/cohortes";
+            }
+
+            Cohorte c = new Cohorte(fIniInsc, fFinInsc, semanasAcceso, pOpt.get());
+            c.setCupoMaximo(cupoMaximo);
+
+            if (fechaInicioDictado != null && !fechaInicioDictado.isBlank()) {
+                c.setFechaInicioDictado(LocalDateTime.parse(fechaInicioDictado + "T00:00:00"));
+            }
+            if (fechaFinDictado != null && !fechaFinDictado.isBlank()) {
+                c.setFechaFinDictado(LocalDateTime.parse(fechaFinDictado + "T23:59:59"));
+            }
+
+            cohorteRepository.save(c);
+            ra.addFlashAttribute("mensaje", "Cohorte registrada exitosamente.");
+        } catch (Exception e) {
+            ra.addFlashAttribute("mensaje", "Error al registrar la cohorte: " + e.getMessage());
+        }
+
+        return "redirect:/admin/programas/" + programaId + "/cohortes";
+    }
+
+    /**
+     * TRAZABILIDAD: CU-13 — Modificar cohorte.
+     * Actor: Administrador.
+     */
+    @PostMapping("/cohortes/{id}/modificar")
+    public String modificarCohorte(@PathVariable Integer id,
+                                   @RequestParam String fechaInicioInscripcion,
+                                   @RequestParam String fechaFinInscripcion,
+                                   @RequestParam(required = false) String fechaInicioDictado,
+                                   @RequestParam(required = false) String fechaFinDictado,
+                                   @RequestParam int semanasAcceso,
+                                   @RequestParam(required = false) Integer cupoMaximo,
+                                   RedirectAttributes ra) {
+        Optional<Cohorte> cOpt = cohorteRepository.findById(id);
+        if (cOpt.isEmpty()) {
+            ra.addFlashAttribute("mensaje", "Cohorte no encontrada.");
+            return "redirect:/admin/cursos";
+        }
+
+        Cohorte c = cOpt.get();
+        // CU-13: Validar que no tenga inscripciones activas si se modifican fechas de dictado
+        List<Inscripcion> inscripciones = inscripcionRepository.findByCohorte(c);
+        if (inscripciones.stream().anyMatch(i -> !i.getBaja())) {
+            ra.addFlashAttribute("mensaje", "EX-CU13-01: No se puede modificar una cohorte con alumnos inscriptos activos.");
+            return "redirect:/admin/programas/" + c.getPrograma().getId() + "/cohortes";
+        }
+
+        try {
+            c.setFechaInicioInscripcion(LocalDateTime.parse(fechaInicioInscripcion + "T00:00:00"));
+            c.setFechaFinInscripcion(LocalDateTime.parse(fechaFinInscripcion + "T23:59:59"));
+            c.setSemanasAcceso(semanasAcceso);
+            c.setCupoMaximo(cupoMaximo);
+
+            if (fechaInicioDictado != null && !fechaInicioDictado.isBlank()) {
+                c.setFechaInicioDictado(LocalDateTime.parse(fechaInicioDictado + "T00:00:00"));
+            }
+            if (fechaFinDictado != null && !fechaFinDictado.isBlank()) {
+                c.setFechaFinDictado(LocalDateTime.parse(fechaFinDictado + "T23:59:59"));
+            }
+
+            c.setUltimaModificacion(LocalDateTime.now());
+            cohorteRepository.save(c);
+            ra.addFlashAttribute("mensaje", "Cohorte actualizada correctamente.");
+        } catch (Exception e) {
+            ra.addFlashAttribute("mensaje", "Error al modificar la cohorte: " + e.getMessage());
+        }
+
+        return "redirect:/admin/programas/" + c.getPrograma().getId() + "/cohortes";
+    }
+
+    /**
+     * TRAZABILIDAD: CU-14 — Dar de baja cohorte.
+     * Actor: Administrador.
+     */
+    @PostMapping("/cohortes/{id}/baja")
+    public String darBajaCohorte(@PathVariable Integer id, RedirectAttributes ra) {
+        Optional<Cohorte> cOpt = cohorteRepository.findById(id);
+        if (cOpt.isEmpty()) {
+            ra.addFlashAttribute("mensaje", "Cohorte no encontrada.");
+            return "redirect:/admin/cursos";
+        }
+
+        Cohorte c = cOpt.get();
+        List<Inscripcion> inscripciones = inscripcionRepository.findByCohorte(c);
+        if (inscripciones.stream().anyMatch(i -> !i.getBaja())) {
+            ra.addFlashAttribute("mensaje", "EX-CU14-01: No se puede dar de baja una cohorte con alumnos inscriptos activos.");
+            return "redirect:/admin/programas/" + c.getPrograma().getId() + "/cohortes";
+        }
+
+        c.setBaja(true);
+        c.setUltimaModificacion(LocalDateTime.now());
+        cohorteRepository.save(c);
+        ra.addFlashAttribute("mensaje", "Cohorte dada de baja correctamente.");
+        return "redirect:/admin/programas/" + c.getPrograma().getId() + "/cohortes";
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // DESCUENTOS Y PROMOCIONES (CU-49 a CU-52)
+    // ─────────────────────────────────────────────────────────────
+
+    /**
+     * TRAZABILIDAD: CU-49 — Buscar descuento.
+     * Actor: Administrador.
+     */
+    @GetMapping("/descuentos")
+    public String listarDescuentos(Model model, Authentication auth) {
+        model.addAttribute("usuario", (Usuario) auth.getPrincipal());
+        model.addAttribute("descuentos", descuentoRepository.findByBajaFalse());
+        model.addAttribute("titulo", "Promociones y Descuentos | Idóneos Online");
+        return "pages/admin/descuentos";
+    }
+
+    /**
+     * TRAZABILIDAD: CU-50 — Registrar descuento.
+     * Actor: Administrador.
+     */
+    @PostMapping("/descuentos/guardar")
+    public String registrarDescuento(@RequestParam String nombre,
+                                     @RequestParam float porcentaje,
+                                     @RequestParam String vigenciaDesde,
+                                     @RequestParam String vigenciaHasta,
+                                     @RequestParam(defaultValue = "100") int cantidadLimite,
+                                     @RequestParam(defaultValue = "0") int cursosRequeridos,
+                                     RedirectAttributes ra) {
+        try {
+            if (porcentaje <= 0 || porcentaje > 100) {
+                ra.addFlashAttribute("mensaje", "EX-CU50-01: El porcentaje de descuento debe estar entre 1% y 100%.");
+                return "redirect:/admin/descuentos";
+            }
+
+            LocalDateTime vDesde = LocalDateTime.parse(vigenciaDesde + "T00:00:00");
+            LocalDateTime vHasta = LocalDateTime.parse(vigenciaHasta + "T23:59:59");
+            if (vHasta.isBefore(vDesde)) {
+                ra.addFlashAttribute("mensaje", "EX-CU50-02: La fecha de fin de vigencia debe ser posterior al inicio.");
+                return "redirect:/admin/descuentos";
+            }
+
+            Descuento d = new Descuento();
+            d.setNombre(nombre.trim());
+            d.setPorcentaje(porcentaje);
+            d.setVigenciaDesde(vDesde);
+            d.setVigenciaHasta(vHasta);
+            d.setCantidadLimite(cantidadLimite);
+            d.setCursosRequeridos(cursosRequeridos);
+            d.setBaja(false);
+            d.setFechaCreacion(LocalDateTime.now());
+
+            descuentoRepository.save(d);
+            ra.addFlashAttribute("mensaje", "Descuento '" + nombre + "' registrado correctamente.");
+        } catch (Exception e) {
+            ra.addFlashAttribute("mensaje", "Error al registrar descuento: " + e.getMessage());
+        }
+
+        return "redirect:/admin/descuentos";
+    }
+
+    /**
+     * TRAZABILIDAD: CU-51 — Modificar descuento.
+     * Actor: Administrador.
+     */
+    @PostMapping("/descuentos/{id}/modificar")
+    public String modificarDescuento(@PathVariable Integer id,
+                                     @RequestParam String nombre,
+                                     @RequestParam float porcentaje,
+                                     @RequestParam String vigenciaDesde,
+                                     @RequestParam String vigenciaHasta,
+                                     @RequestParam int cantidadLimite,
+                                     @RequestParam int cursosRequeridos,
+                                     RedirectAttributes ra) {
+        Optional<Descuento> dOpt = descuentoRepository.findById(id);
+        if (dOpt.isEmpty()) return "redirect:/admin/descuentos";
+
+        Descuento d = dOpt.get();
+        try {
+            if (porcentaje <= 0 || porcentaje > 100) {
+                ra.addFlashAttribute("mensaje", "EX-CU51-01: El porcentaje de descuento debe estar entre 1% y 100%.");
+                return "redirect:/admin/descuentos";
+            }
+
+            LocalDateTime vDesde = LocalDateTime.parse(vigenciaDesde + "T00:00:00");
+            LocalDateTime vHasta = LocalDateTime.parse(vigenciaHasta + "T23:59:59");
+            if (vHasta.isBefore(vDesde)) {
+                ra.addFlashAttribute("mensaje", "EX-CU51-02: La fecha de fin de vigencia debe ser posterior al inicio.");
+                return "redirect:/admin/descuentos";
+            }
+
+            d.setNombre(nombre.trim());
+            d.setPorcentaje(porcentaje);
+            d.setVigenciaDesde(vDesde);
+            d.setVigenciaHasta(vHasta);
+            d.setCantidadLimite(cantidadLimite);
+            d.setCursosRequeridos(cursosRequeridos);
+            d.setUltimaModificacion(LocalDateTime.now());
+
+            descuentoRepository.save(d);
+            ra.addFlashAttribute("mensaje", "Descuento modificado correctamente.");
+        } catch (Exception e) {
+            ra.addFlashAttribute("mensaje", "Error al modificar descuento: " + e.getMessage());
+        }
+
+        return "redirect:/admin/descuentos";
+    }
+
+    /**
+     * TRAZABILIDAD: CU-52 — Dar de baja descuento.
+     * Actor: Administrador.
+     */
+    @PostMapping("/descuentos/{id}/baja")
+    public String darBajaDescuento(@PathVariable Integer id, RedirectAttributes ra) {
+        Optional<Descuento> dOpt = descuentoRepository.findById(id);
+        if (dOpt.isEmpty()) return "redirect:/admin/descuentos";
+
+        Descuento d = dOpt.get();
+        d.setBaja(true);
+        d.setUltimaModificacion(LocalDateTime.now());
+        descuentoRepository.save(d);
+
+        ra.addFlashAttribute("mensaje", "Descuento dado de baja correctamente.");
+        return "redirect:/admin/descuentos";
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // AUDITORÍA Y PARÁMETROS DEL SISTEMA (CU-95 y CU-99)
+    // ─────────────────────────────────────────────────────────────
+
+    /**
+     * TRAZABILIDAD: CU-95 — Consultar auditoría.
+     * Actor: Administrador.
+     */
+    @GetMapping("/auditoria")
+    public String listarAuditoria(@RequestParam(required = false) String entidad,
+                                  Model model, Authentication auth) {
+        List<Auditoria> registros = (entidad != null && !entidad.isBlank())
+                ? auditoriaRepository.findByEntidadAfectadaContainingIgnoreCaseOrderByFechaHoraDesc(entidad.trim())
+                : auditoriaRepository.findAllByOrderByFechaHoraDesc();
+
+        model.addAttribute("usuario", (Usuario) auth.getPrincipal());
+        model.addAttribute("registros", registros);
+        model.addAttribute("filtroEntidad", entidad);
+        model.addAttribute("titulo", "Log de Auditoría | Idóneos Online");
+        return "pages/admin/auditoria";
+    }
+
+    /**
+     * TRAZABILIDAD: CU-99 — Configurar parámetros (Listar y Consultar).
+     * Actor: Administrador.
+     */
+    @GetMapping("/configuracion")
+    public String listarParametros(Model model, Authentication auth) {
+        model.addAttribute("usuario", (Usuario) auth.getPrincipal());
+        model.addAttribute("parametros", configuracionRepository.findAll());
+        model.addAttribute("titulo", "Parámetros del Sistema | Idóneos Online");
+        return "pages/admin/configuracion";
+    }
+
+    /**
+     * TRAZABILIDAD: CU-99 — Configurar parámetros (Modificar valor).
+     * Actor: Administrador.
+     */
+    @PostMapping("/configuracion/{id}/modificar")
+    public String modificarParametro(@PathVariable Integer id,
+                                     @RequestParam String valor,
+                                     RedirectAttributes ra) {
+        Optional<Configuracion> cOpt = configuracionRepository.findById(id);
+        if (cOpt.isEmpty()) return "redirect:/admin/configuracion";
+
+        Configuracion config = cOpt.get();
+        config.setValor(valor.trim());
+        configuracionRepository.save(config);
+
+        ra.addFlashAttribute("mensaje", "Parámetro '" + config.getClave() + "' actualizado correctamente.");
+        return "redirect:/admin/configuracion";
     }
 }
 
