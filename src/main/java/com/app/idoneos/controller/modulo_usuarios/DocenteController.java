@@ -152,7 +152,7 @@ public class DocenteController {
         model.addAttribute("cursos", misCursos);
         model.addAttribute("categorias", categoriaService.obtenerTodo());
         model.addAttribute("niveles", nivelRepository.findAll());
-        model.addAttribute("docentesDisponibles", docenteRepository.findAll().stream().filter(d -> d.getId() != docente.getId()).toList());
+        model.addAttribute("docentes", docenteRepository.findAll());
         model.addAttribute("titulo", "Panel del Docente | Idóneos Online");
 
         return "pages/docente/mis-cursos";
@@ -171,7 +171,7 @@ public class DocenteController {
      * TRAZABILIDAD: CU-03 — Registrar curso (POST).
      * Actor: Docente.
      * Flujo paso 2-6: valida campos (nombre, descripción, precio, categoría, nivel,
-     * modalidades, certificado, docente supervisor opcional).
+     * modalidades, certificado, docente titular y supervisores).
      * Postcondición: curso registrado sin cohortes abiertas, con su equipo docente.
      * EX-CU03-01: categoría inválida.
      * EX-CU03-02: precio < 0.
@@ -182,13 +182,14 @@ public class DocenteController {
             @RequestParam("precio") float precio,
             @RequestParam("categoriaId") Integer categoriaId,
             @RequestParam(value = "nivelId", required = false) Integer nivelId,
+            @RequestParam(value = "titularId", required = false) Integer titularId,
+            @RequestParam(value = "supervisoresIds", required = false) List<Integer> supervisoresIds,
             @RequestParam(value = "emiteCertificado", defaultValue = "false") boolean emiteCertificado,
             @RequestParam(value = "imagen", required = false) String imagen,
-            @RequestParam(value = "supervisorId", required = false) Integer supervisorId,
             Authentication auth, RedirectAttributes redirectAttributes) {
 
         if (precio < 0) {
-            redirectAttributes.addFlashAttribute("mensaje", "EX-CU03-02: El precio no puede ser menor a cero.");
+            redirectAttributes.addFlashAttribute("error", "El precio ingresado no puede ser menor a cero.");
             return "redirect:/docente";
         }
 
@@ -196,13 +197,20 @@ public class DocenteController {
         Optional<Categoria> catOpt = categoriaService.buscarPorId(categoriaId);
 
         if (catOpt.isEmpty()) {
-            redirectAttributes.addFlashAttribute("mensaje", "EX-CU03-01: Categoría seleccionada inválida.");
+            redirectAttributes.addFlashAttribute("error", "La categoría seleccionada es inválida.");
             return "redirect:/docente";
         }
 
-        Docente docente = docenteRepository.findById(usuarioAuth.getId()).orElse(null);
-        if (docente == null) {
-            redirectAttributes.addFlashAttribute("mensaje", "Error: Perfil docente no encontrado.");
+        Docente docenteTitular = null;
+        if (titularId != null) {
+            docenteTitular = docenteRepository.findById(titularId).orElse(null);
+        }
+        if (docenteTitular == null) {
+            docenteTitular = docenteRepository.findById(usuarioAuth.getId()).orElse(null);
+        }
+
+        if (docenteTitular == null) {
+            redirectAttributes.addFlashAttribute("error", "Docente titular no encontrado.");
             return "redirect:/docente";
         }
 
@@ -218,7 +226,7 @@ public class DocenteController {
 
         String descCurso = (descripcion != null && descripcion.length() > 150) ? descripcion.substring(0, 150) : descripcion;
 
-        Curso curso = new Curso(nombre, descCurso, precio, catOpt.get(), nivel, docente);
+        Curso curso = new Curso(nombre, descCurso, precio, catOpt.get(), nivel, docenteTitular);
         curso.setEmiteCertificado(emiteCertificado);
         if (imagen != null && !imagen.trim().isEmpty()) {
             String imgClean = imagen.trim();
@@ -227,18 +235,22 @@ public class DocenteController {
 
         Curso cursoDef = cursoService.guardar(curso);
 
-        if (supervisorId != null) {
-            docenteRepository.findById(supervisorId).ifPresent(sup -> {
-                supervisorRepository.save(new Supervisor(cursoDef, sup));
-            });
+        if (supervisoresIds != null && !supervisoresIds.isEmpty()) {
+            for (Integer supId : supervisoresIds) {
+                if (supId != null && supId != docenteTitular.getId()) {
+                    docenteRepository.findById(supId).ifPresent(sup -> {
+                        supervisorRepository.save(new Supervisor(cursoDef, sup));
+                    });
+                }
+            }
         }
 
         // Registro de programa inicial respetando constraints
         String descProg = (descripcion != null && descripcion.length() > 150) ? descripcion.substring(0, 150) : descripcion;
         programaRepository.save(
-                new Programa(nombre, descProg, "Objetivos generales y competencias académicas", "Bibliografía general del curso y marco normativo", cursoDef));
+                new Programa(nombre, descProg, "Objetivos de aprendizaje del curso", "Bibliografía obligatoria", cursoDef));
 
-        redirectAttributes.addFlashAttribute("mensaje", "¡Curso registrado con éxito según especificación CU-03!");
+        redirectAttributes.addFlashAttribute("mensaje", "Curso registrado");
         return "redirect:/docente";
     }
 

@@ -24,13 +24,6 @@
     </div>
 
     <main class="container mb-5 idn-fade">
-        <!-- Mensajes Flash -->
-        <div th:if="${mensaje != null}" class="alert alert-info alert-dismissible fade show mb-4 border-0 shadow-sm rounded-3" role="alert">
-            <i class="fa-solid fa-circle-info me-2 text-primary"></i>
-            <span th:text="${mensaje}">Mensaje</span>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-
         <div class="row g-4">
             <div th:if="${#lists.isEmpty(cursos)}" class="col-12 text-center py-5">
                 <div class="card idn-card p-5 border-0 shadow-sm">
@@ -70,45 +63,39 @@
         </div>
     </main>
 
-    <!-- Modal para Registrar Nuevo Curso (Alineado con CU-03 de Requisitos) -->
+    <!-- Modal: Registrar Curso (CU-03) -->
     <div class="modal fade" id="modalNuevoCurso" tabindex="-1" aria-labelledby="modalNuevoCursoLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
                 <div class="modal-header bg-navy text-white py-3 px-4">
                     <div class="d-flex align-items-center gap-2">
                         <div class="rounded-circle bg-gold text-navy fw-bold d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
-                            <i class="fa-solid fa-plus fs-6"></i>
+                            <i class="fa-solid fa-book-bookmark fs-6"></i>
                         </div>
-                        <div>
-                            <h5 class="modal-title font-serif fw-bold text-white mb-0" id="modalNuevoCursoLabel">Registrar Nuevo Curso</h5>
-                            <small class="text-white-50">Definición de propuesta formativa, equipo docente y modalidades</small>
-                        </div>
+                        <h5 class="modal-title font-serif fw-bold text-white mb-0" id="modalNuevoCursoLabel">Registrar Curso</h5>
                     </div>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
                 <form th:action="@{/docente/curso/guardar}" method="post">
                     <div class="modal-body p-4 p-md-4">
-                        <!-- Sección 1: Información Académica -->
-                        <h6 class="text-navy fw-bold text-uppercase small mb-3 border-bottom pb-2">
-                            <i class="fa-solid fa-book-open me-2 text-gold"></i>Información Académica Básica
-                        </h6>
                         <div class="mb-3">
                             <div class="d-flex justify-content-between">
-                                <label for="nombre" class="form-label small fw-bold text-navy">Nombre del Curso *</label>
+                                <label for="nombre" class="form-label small fw-bold text-navy">Nombre *</label>
                                 <span class="text-muted small">Máx. 50 caracteres</span>
                             </div>
                             <input type="text" class="form-control" id="nombre" name="nombre" maxlength="50" required placeholder="Ej: Especialización en Renta Fija y Tasas">
                         </div>
+
                         <div class="row g-3 mb-3">
                             <div class="col-md-6">
-                                <label for="categoriaId" class="form-label small fw-bold text-navy">Categoría Temática *</label>
+                                <label for="categoriaId" class="form-label small fw-bold text-navy">Categoría *</label>
                                 <select class="form-select" id="categoriaId" name="categoriaId" required>
                                     <option value="" disabled selected>-- Seleccione categoría --</option>
                                     <option th:each="cat : ${categorias}" th:value="${cat.id}" th:text="${cat.nombre}">Categoría</option>
                                 </select>
                             </div>
                             <div class="col-md-6">
-                                <label for="nivelId" class="form-label small fw-bold text-navy">Nivel de Dificultad *</label>
+                                <label for="nivelId" class="form-label small fw-bold text-navy">Nivel *</label>
                                 <select class="form-select" id="nivelId" name="nivelId" required>
                                     <option value="" disabled selected>-- Seleccione nivel --</option>
                                     <option th:each="n : ${niveles}" th:value="${n.id}" th:text="${n.nombre}">Inicial / Intermedio / Avanzado</option>
@@ -116,81 +103,81 @@
                             </div>
                         </div>
 
-                        <!-- Sección 2: Equipo Docente (CU-03) -->
+                        <!-- Selección de Docente Titular y Supervisores -->
                         <div class="row g-3 mb-3">
                             <div class="col-md-6">
-                                <label class="form-label small fw-bold text-navy">Docente Titular *</label>
-                                <div class="input-group">
-                                    <span class="input-group-text bg-light"><i class="fa-solid fa-user-tie text-navy"></i></span>
-                                    <input type="text" class="form-control bg-light" th:value="${usuario.nombre + ' ' + (usuario.apellido != null ? usuario.apellido : '')}" readonly>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="supervisorId" class="form-label small fw-bold text-navy">Docente Supervisor (Opcional)</label>
-                                <select class="form-select" id="supervisorId" name="supervisorId">
-                                    <option value="">-- Sin supervisor asignado --</option>
-                                    <option th:each="doc : ${docentesDisponibles}" th:value="${doc.id}" th:text="${doc.usuario != null ? doc.usuario.nombre + ' ' + doc.usuario.apellido : 'Docente ' + doc.id}">Docente</option>
+                                <label for="titularId" class="form-label small fw-bold text-navy">Docente Titular *</label>
+                                <select class="form-select" id="titularId" name="titularId" required>
+                                    <option th:each="d : ${docentes}" 
+                                            th:value="${d.id}" 
+                                            th:text="${d.usuario != null ? d.usuario.nombre + ' ' + d.usuario.apellido : 'Docente ' + d.id}"
+                                            th:selected="${d.id == usuario.id}">Docente</option>
                                 </select>
                             </div>
+                            <div class="col-md-6">
+                                <label for="supervisoresIds" class="form-label small fw-bold text-navy">Docentes Supervisores (Opcional)</label>
+                                <select class="form-select" id="supervisoresIds" name="supervisoresIds" multiple size="3">
+                                    <option th:each="d : ${docentes}" 
+                                            th:if="${d.id != usuario.id}"
+                                            th:value="${d.id}" 
+                                            th:text="${d.usuario != null ? d.usuario.nombre + ' ' + d.usuario.apellido : 'Docente ' + d.id}">Docente</option>
+                                </select>
+                                <div class="form-text small">Mantén presionado Ctrl (o Cmd) para seleccionar varios.</div>
+                            </div>
                         </div>
 
-                        <!-- Sección 3: Modalidades y Certificación (CU-03) -->
-                        <h6 class="text-navy fw-bold text-uppercase small mt-4 mb-3 border-bottom pb-2">
-                            <i class="fa-solid fa-sliders me-2 text-gold"></i>Modalidades & Certificación
-                        </h6>
-                        <div class="row g-3 mb-3">
-                            <div class="col-md-7">
-                                <label class="form-label small fw-bold text-navy d-block">Modalidades de Dictado *</label>
-                                <div class="d-flex flex-wrap gap-3 mt-1">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="modEnVivo" name="modalidades" value="ENVIVO" checked>
-                                        <label class="form-check-label small" for="modEnVivo"><i class="fa-solid fa-video me-1 text-danger"></i>En Vivo (RTMP)</label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="modGrabado" name="modalidades" value="GRABADO" checked>
-                                        <label class="form-check-label small" for="modGrabado"><i class="fa-solid fa-circle-play me-1 text-primary"></i>Grabado</label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="modClonIA" name="modalidades" value="CLONIA">
-                                        <label class="form-check-label small" for="modClonIA"><i class="fa-solid fa-robot me-1 text-warning"></i>Clon IA</label>
-                                    </div>
+                        <!-- Modalidades de Dictado -->
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-navy d-block">Modalidades de Dictado *</label>
+                            <div class="d-flex flex-wrap gap-4 mt-1">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="modEnVivo" name="modalidades" value="ENVIVO" checked>
+                                    <label class="form-check-label small" for="modEnVivo"><i class="fa-solid fa-video me-1 text-danger"></i>En Vivo</label>
                                 </div>
-                            </div>
-                            <div class="col-md-5">
-                                <label class="form-label small fw-bold text-navy d-block">Certificación</label>
-                                <div class="form-check form-switch mt-1">
-                                    <input class="form-check-input" type="checkbox" id="emiteCertificado" name="emiteCertificado" value="true" checked>
-                                    <label class="form-check-label small fw-semibold" for="emiteCertificado">
-                                        <i class="fa-solid fa-award me-1 text-gold"></i> Emite Certificado Oficial
-                                    </label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="modGrabado" name="modalidades" value="GRABADO" checked>
+                                    <label class="form-check-label small" for="modGrabado"><i class="fa-solid fa-circle-play me-1 text-primary"></i>Grabado</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="modClonIA" name="modalidades" value="CLONIA">
+                                    <label class="form-check-label small" for="modClonIA"><i class="fa-solid fa-robot me-1 text-warning"></i>Clon IA</label>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Sección 4: Aspectos Comerciales y Portada -->
+                        <!-- Checkbox Emite Certificado -->
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="emiteCertificado" name="emiteCertificado" value="true" checked>
+                                <label class="form-check-label small fw-bold text-navy" for="emiteCertificado">
+                                    <i class="fa-solid fa-award me-1 text-gold"></i> Emite certificado
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Precio y Foto -->
                         <div class="row g-3 mb-3">
                             <div class="col-md-6">
-                                <label for="precio" class="form-label small fw-bold text-navy">Arancel Base ($ARS - 0 para Gratuito) *</label>
+                                <label for="precio" class="form-label small fw-bold text-navy">Precio (ARS) *</label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light">$</span>
                                     <input type="number" step="100" min="0" class="form-control" id="precio" name="precio" value="45000" required>
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <label for="imagen" class="form-label small fw-bold text-navy">Imagen de Portada (Opcional)</label>
+                                <label for="imagen" class="form-label small fw-bold text-navy">Foto del Curso (Opcional)</label>
                                 <input type="text" class="form-control" id="imagen" name="imagen" placeholder="/img/cursos/default.jpg o URL">
                             </div>
                         </div>
 
                         <div class="mb-3">
-                            <label for="descripcion" class="form-label small fw-bold text-navy">Descripción y Enfoque Pedagógico *</label>
-                            <textarea class="form-control" id="descripcion" name="descripcion" rows="3" required placeholder="Resumen sintético del enfoque pedagógico, temas regulatorios CNV y metodología..."></textarea>
+                            <label for="descripcion" class="form-label small fw-bold text-navy">Descripción *</label>
+                            <textarea class="form-control" id="descripcion" name="descripcion" rows="3" required placeholder="Descripción del curso..."></textarea>
                         </div>
                     </div>
                     <div class="modal-footer bg-light py-3 px-4 border-top">
-                        <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn idn-btn-gold px-4 fw-bold shadow-sm">
-                            <i class="fa-solid fa-cloud-arrow-up me-2"></i> Registrar Curso y Crear Programa
+                        <button type="submit" class="btn idn-btn-gold px-4 fw-bold shadow-sm w-100">
+                            Registrar Curso
                         </button>
                     </div>
                 </form>

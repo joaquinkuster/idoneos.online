@@ -1,4 +1,42 @@
 <div th:fragment="scripts">
     <!-- Bootstrap 5 Bundle JS (Includes Popper) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- SweetAlert2 JS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- Manejador Global de Alertas SweetAlert2 -->
+    <script th:if="${mensaje != null}" th:inline="javascript">
+        document.addEventListener('DOMContentLoaded', function() {
+            Swal.fire({
+                title: 'Curso registrado',
+                text: /*[[${mensaje}]]*/ 'Curso registrado con éxito.',
+                icon: 'success',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#0B1F3A',
+                background: '#FFFFFF',
+                customClass: {
+                    popup: 'rounded-4 shadow-lg border-0',
+                    confirmButton: 'rounded-pill px-4 fw-bold'
+                }
+            });
+        });
+    </script>
+
+    <script th:if="${error != null}" th:inline="javascript">
+        document.addEventListener('DOMContentLoaded', function() {
+            Swal.fire({
+                title: 'Atención',
+                text: /*[[${error}]]*/ 'Ha ocurrido un error.',
+                icon: 'warning',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#0B1F3A',
+                background: '#FFFFFF',
+                customClass: {
+                    popup: 'rounded-4 shadow-lg border-0',
+                    confirmButton: 'rounded-pill px-4 fw-bold'
+                }
+            });
+        });
+    </script>
 </div>
