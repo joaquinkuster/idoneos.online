@@ -34,9 +34,13 @@
                 <li class="nav-item">
                     <a class="nav-link px-3 text-white-50 idn-navlink" th:href="@{/cursos}">Catálogo de Cursos</a>
                 </li>
-                <li class="nav-item" th:if="${usuario != null}">
-                    <a class="nav-link px-3 text-white-50 idn-navlink" 
-                       th:href="${usuario.esDocente() ? '/docente' : '/cursos/mis-cursos'}">Mis Cursos</a>
+                <li class="nav-item" th:if="${usuario != null and usuario.esDocente()}">
+                    <a class="nav-link px-3 text-white fw-bold idn-navlink" th:href="@{/docente}">
+                        <i class="fa-solid fa-chalkboard-user text-gold me-1"></i> Panel Docente
+                    </a>
+                </li>
+                <li class="nav-item" th:if="${usuario != null and !usuario.esDocente()}">
+                    <a class="nav-link px-3 text-white-50 idn-navlink" th:href="@{/cursos/mis-cursos}">Mis Cursos</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link px-3 text-white-50 idn-navlink" th:href="@{/acercaDe}">Acerca de</a>
@@ -74,9 +78,19 @@
                             </li>
                             <li><a class="dropdown-item py-2 rounded-3" th:href="@{/usuario/verPerfil}"><i
                                         class="fa-solid fa-id-card me-2 text-gold"></i>Mi Perfil</a></li>
-                            <li><a class="dropdown-item py-2 rounded-3" 
-                                   th:href="${usuario.esDocente() ? '/docente' : '/cursos/mis-cursos'}"><i
-                                        class="fa-solid fa-book-open me-2 text-primary"></i>Mis Cursos</a></li>
+                            
+                            <!-- Opción Cursos para Docente -->
+                            <li th:if="${usuario.esDocente()}">
+                                <a class="dropdown-item py-2 rounded-3 fw-bold text-navy" th:href="@{/docente}"><i
+                                        class="fa-solid fa-chalkboard-user me-2 text-gold"></i>Panel Docente (Mis Cursos)</a>
+                            </li>
+
+                            <!-- Opción Cursos para Alumno -->
+                            <li th:if="${!usuario.esDocente()}">
+                                <a class="dropdown-item py-2 rounded-3" th:href="@{/cursos/mis-cursos}"><i
+                                        class="fa-solid fa-book-open me-2 text-primary"></i>Mis Cursos</a>
+                            </li>
+                            
                             <li th:if="${#authorization.expression('hasRole(''Alumno'')')}">
                                 <a class="dropdown-item py-2 rounded-3" th:href="@{/certificados}"><i
                                         class="fa-solid fa-award me-2 text-warning"></i>Mis Certificados</a>

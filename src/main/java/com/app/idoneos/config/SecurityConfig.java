@@ -1,5 +1,4 @@
 package com.app.idoneos.config;
-import com.app.idoneos.service.Reportes.*;
 
 import com.app.idoneos.service.Usuario.UsuarioDetallesService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,15 +9,21 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
-
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 /**
  * Configuración de seguridad Spring Security para Idóneos Online.
- * Soporta autenticación por Formulario y Google OAuth 2.0 (PA-1).
+ * Soporta autenticación por Formulario y Google OAuth 2.0 (PA-1)
+ * con redirección inteligente por rol de usuario.
  */
 @Configuration
 @EnableWebSecurity
@@ -52,6 +57,23 @@ public class SecurityConfig {
     }
 
     @Bean
+    public AuthenticationSuccessHandler customAuthenticationSuccessHandler() {
+        return (HttpServletRequest request, HttpServletResponse response, Authentication authentication) -> {
+            for (GrantedAuthority authority : authentication.getAuthorities()) {
+                String role = authority.getAuthority();
+                if ("ROLE_Administrador".equalsIgnoreCase(role) || "Administrador".equalsIgnoreCase(role)) {
+                    response.sendRedirect("/admin");
+                    return;
+                } else if ("ROLE_Docente".equalsIgnoreCase(role) || "Docente".equalsIgnoreCase(role)) {
+                    response.sendRedirect("/docente");
+                    return;
+                }
+            }
+            response.sendRedirect("/cursos");
+        };
+    }
+
+    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .csrf(csrf -> csrf.disable())
@@ -64,7 +86,7 @@ public class SecurityConfig {
                 .formLogin(login -> login
                         .loginPage("/login")
                         .permitAll()
-                        .defaultSuccessUrl("/cursos", true)
+                        .successHandler(customAuthenticationSuccessHandler())
                         .failureUrl("/login?error=true")
                 )
                 .oauth2Login(oauth2 -> oauth2
@@ -84,4 +106,3 @@ public class SecurityConfig {
                 .build();
     }
 }
-
