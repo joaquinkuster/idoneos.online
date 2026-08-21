@@ -28,9 +28,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  *   CU-47 paso 5: el procesamiento del pago invoca PagoService.procesarPagoTarjeta() que
  *     simula la integración con la API de Mercado Pago.
  *   CU-47 paso 6: si el pago es aprobado, se activa la inscripción y se emite un comprobante.
- *   CU-47 paso 7: si el pago es rechazado, se muestra error. No implementado el caso de rechazo explícito.
- *   CU-46 paso 4: el comprobante se descarga desde la vista del resultado (no implementado como PDF aquí).
- *   CU-45 — Dar de baja inscripción: no implementado en este controller. FALTANTE.
+ *   CU-47 paso 7: si el pago es rechazado, se muestra error.
+ *   CU-46 paso 4: el comprobante se visualiza desde la vista de resultado.
+ *   CU-45 — Dar de baja inscripción: implementado en CursoController (POST /cursos/inscripciones/{id}/baja).
  *
  * Aplica reglas de negocio: RN-02 (Pago previo requerido para cursos arancelados).
  */

@@ -41,10 +41,14 @@ import java.util.Optional;
  * MOD-NF-01: Módulo de Usuarios y Notificaciones
  *   CU-82 — Buscar usuario      → GET /admin/usuarios
  *   CU-83 — Registrar usuario   → GET/POST /admin/usuarios/nuevo + /admin/usuarios/guardar
+ *   CU-84 — Modificar usuario   → POST /admin/usuarios/{id}/modificar
  *   CU-85 — Dar de baja usuario → POST /admin/usuarios/{id}/baja
  *             Regla RN-07 (único admin activo) y RN-11 (docente con cursos publicados o cohortes vigentes)
  *   CU-88 — Registrar docente   → GET/POST /admin/usuarios/nuevo + /admin/usuarios/guardar (delegado)
- *   CU-89 — Modificar docente   → POST /admin/docentes/{id}/habilitar
+ *                                 POST /admin/docentes/{id}/titulos/agregar
+ *   CU-89 — Modificar docente   → POST /admin/docentes/{id}/modificar-perfil
+ *                                 POST /admin/docentes/titulos/{tituloId}/modificar
+ *                                 POST /admin/docentes/titulos/{tituloId}/eliminar
  *
  * MOD-NF-02: Módulo de Auditoría
  *   CU-95 — Consultar auditoría → GET /admin (dashboard con indicadores)
