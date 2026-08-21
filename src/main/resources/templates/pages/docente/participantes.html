@@ -110,33 +110,33 @@
                                     <div class="d-flex align-items-center gap-2">
                                         <div class="rounded-circle bg-light text-navy fw-bold border d-flex align-items-center justify-content-center"
                                              style="width: 32px; height: 32px; font-size: 12px;"
-                                             th:text="${i.usuario != null ? #strings.substring(i.usuario.nombre, 0, 1) : 'A'}">A</div>
+                                             th:text="${i.alumno != null and i.alumno.usuario != null ? #strings.substring(i.alumno.usuario.nombre, 0, 1) : 'A'}">A</div>
                                         <div>
-                                            <strong class="text-navy" th:text="${i.usuario != null ? i.usuario.nombre + ' ' + (i.usuario.apellido != null ? i.usuario.apellido : '') : 'Alumno'}">Nombre</strong>
-                                            <div class="small text-muted" th:text="${i.usuario != null ? i.usuario.correo : '-'}">correo@alumno.com</div>
+                                            <strong class="text-navy" th:text="${i.alumno != null and i.alumno.usuario != null ? i.alumno.usuario.nombre + ' ' + (i.alumno.usuario.apellido != null ? i.alumno.usuario.apellido : '') : 'Alumno'}">Nombre</strong>
+                                            <div class="small text-muted" th:text="${i.alumno != null and i.alumno.usuario != null ? i.alumno.usuario.correo : '-'}">correo@alumno.com</div>
                                         </div>
                                     </div>
                                 </td>
                                 <td>
-                                    <span th:text="${i.usuario != null and i.usuario.dni != null ? i.usuario.dni : '-'}">DNI</span>
+                                    <span th:text="${i.alumno != null and i.alumno.usuario != null and i.alumno.usuario.dni != null ? i.alumno.usuario.dni : '-'}">DNI</span>
                                 </td>
                                 <td>
                                     <span class="badge bg-light text-navy border" th:text="${i.cohorte != null ? 'Cohorte #' + i.cohorte.id : 'General'}">Cohorte #1</span>
                                 </td>
                                 <td>
-                                    <span class="small" th:text="${i.fechaInscripcion != null ? #temporals.format(i.fechaInscripcion, 'dd/MM/yyyy') : '-'}">01/01/2026</span>
+                                    <span class="small" th:text="${i.fecha != null ? #temporals.format(i.fecha, 'dd/MM/yyyy') : '-'}">01/01/2026</span>
                                 </td>
                                 <td>
                                     <div class="d-flex align-items-center gap-2">
                                         <div class="progress flex-grow-1" style="height: 6px; min-width: 80px;">
-                                            <div class="progress-bar bg-gold" role="progressbar" 
-                                                 th:style="'width: ' + (${i.progreso != null and i.progreso.porcentaje != null ? i.progreso.porcentaje : 0}) + '%;'"></div>
+                                            <div class="progress-bar bg-gold" role="progressbar" style="width: 0%;"></div>
                                         </div>
-                                        <span class="small fw-bold text-navy" th:text="${i.progreso != null and i.progreso.porcentaje != null ? #numbers.formatDecimal(i.progreso.porcentaje, 1, 0) + '%' : '0%'}">0%</span>
+                                        <span class="small fw-bold text-navy">0%</span>
                                     </div>
                                 </td>
                                 <td>
-                                    <span class="badge bg-success-subtle text-success border border-success-subtle">Acreditado</span>
+                                    <span th:if="${i.numeroCertificado != null}" class="badge bg-success-subtle text-success border border-success-subtle">Certificado emitido</span>
+                                    <span th:if="${i.numeroCertificado == null}" class="badge bg-warning-subtle text-warning border border-warning-subtle">En curso</span>
                                 </td>
                             </tr>
                         </tbody>
