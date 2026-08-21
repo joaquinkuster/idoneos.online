@@ -21,14 +21,16 @@
         <a th:href="@{/docente/curso/{id}/gestionar(id=${curso.id})}" style="color: #6b7280; text-decoration: none;">← Volver a la gestión del curso</a>
 
         <div class="card" style="margin-top: 1rem;">
-            <h2>Autoevaluaciones del Curso (CU-46 a CU-49)</h2>
+            <h2>Autoevaluaciones del Curso</h2>
             <p style="color: #6b7280;" th:text="${curso.nombre}"></p>
+            <p>Define cuestionarios de opción múltiple para que los alumnos evalúen su comprensión de cada unidad.</p>
 
             <div th:if="${mensaje}" style="background: #dcfce7; color: #15803d; padding: 0.75rem 1rem; border-radius: 6px; margin: 1rem 0;" th:text="${mensaje}"></div>
 
             <!-- Crear Autoevaluación -->
             <form th:action="@{/docente/curso/{id}/autoevaluacion/crear(id=${curso.id})}" method="post" style="margin-top: 1.5rem; background: #f9fafb; padding: 1.25rem; border-radius: 8px;">
-                <h4 style="margin-top:0;">Nueva Autoevaluación (CU-47)</h4>
+                <div class="card-body">
+                <h4 style="margin-top:0;">Nueva Autoevaluación</h4>
                 
                 <div style="margin-bottom: 1rem;">
                     <label style="font-weight: 600; display: block; margin-bottom: 0.4rem;">Nombre de la Autoevaluación *</label>

@@ -22,14 +22,14 @@
         <a th:href="@{/docente/curso/{id}/gestionar(id=${unidad.curso.id})}" style="color: #6b7280; text-decoration: none;">← Volver a la gestión del curso</a>
 
         <div class="card" style="margin-top: 1rem;">
-            <h2>Glosario de Términos (CU-19 a CU-22)</h2>
-            <p style="color: #6b7280;" th:text="${'Unidad ' + unidad.numeroOrden + ': ' + unidad.titulo}"></p>
+            <h2>Glosario de Términos</h2>
+            <p style="color: #6b7280;" th:text="${unidad.titulo}"></p>
 
             <div th:if="${mensaje}" style="background: #dcfce7; color: #15803d; padding: 0.75rem 1rem; border-radius: 6px; margin: 1rem 0;" th:text="${mensaje}"></div>
 
             <!-- Nuevo Término -->
-            <form th:action="@{/docente/unidad/{id}/glosario/agregar(id=${unidad.id})}" method="post" style="margin-top: 1.5rem; background: #f9fafb; padding: 1.25rem; border-radius: 8px;">
-                <h4 style="margin-top:0;">Agregar Nuevo Término (CU-19)</h4>
+            <form th:action="@{/docente/unidad/{id}/glosario/crear(id=${unidad.id})}" method="post" style="margin-top: 1.5rem; background: #f9fafb; padding: 1.25rem; border-radius: 8px;">
+                <h4 style="margin-top:0;">Agregar Nuevo Término</h4>
                 <div class="form-row">
                     <input type="text" name="termino" placeholder="Término (ej: TIR, Duration)" required style="flex: 1;">
                     <input type="text" name="definicion" placeholder="Definición o concepto..." required style="flex: 2;">
