@@ -89,8 +89,11 @@
                 <form th:action="@{/docente/curso/guardar}" method="post">
                     <div class="modal-body p-4 p-md-4">
                         <div class="mb-3">
-                            <label for="nombre" class="form-label small fw-bold text-navy">Nombre del Curso *</label>
-                            <input type="text" class="form-control" id="nombre" name="nombre" required placeholder="Ej: Especialización en Renta Fija y Curva de Tasas">
+                            <div class="d-flex justify-content-between">
+                                <label for="nombre" class="form-label small fw-bold text-navy">Nombre del Curso *</label>
+                                <span class="text-muted small">Máx. 50 caracteres</span>
+                            </div>
+                            <input type="text" class="form-control" id="nombre" name="nombre" maxlength="50" required placeholder="Ej: Especialización en Renta Fija y Tasas">
                         </div>
                         <div class="row g-3 mb-3">
                             <div class="col-md-6">

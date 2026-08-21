@@ -207,12 +207,17 @@ public class DocenteController {
             nivel = niveles.isEmpty() ? null : niveles.get(0);
         }
 
+        if (nombre != null && nombre.trim().length() > 50) {
+            nombre = nombre.trim().substring(0, 50);
+        }
+
         Curso curso = new Curso(nombre, descripcion, precio, catOpt.get(), nivel, docente);
         Curso cursoDef = cursoService.guardar(curso);
 
-        // Registro de programa inicial
+        // Registro de programa inicial respetando constraints
+        String descProg = (descripcion != null && descripcion.length() > 150) ? descripcion.substring(0, 150) : descripcion;
         programaRepository.save(
-                new Programa(nombre, descripcion, "Objetivos generales del curso", "Bibliografía general", cursoDef));
+                new Programa(nombre, descProg, "Objetivos generales del curso", "Bibliografía general", cursoDef));
 
         redirectAttributes.addFlashAttribute("mensaje", "¡Curso creado correctamente!");
         return "redirect:/docente";
