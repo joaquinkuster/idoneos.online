@@ -69,8 +69,11 @@
                                 <span><i class="fa-solid fa-file-invoice me-1 text-gold"></i> <strong th:text="${curso.programas != null ? #lists.size(curso.programas) : 0}">0</strong> Programas</span>
                                 <span class="fw-bold text-navy fs-6" th:text="'$' + ${#numbers.formatDecimal(curso.precio, 1, 'POINT', 0, 'COMMA')}">$0</span>
                             </div>
-                            <a th:href="@{/docente/curso/{id}/gestionar(id=${curso.id})}" class="btn idn-btn-gold btn-sm w-100 py-2 fw-bold shadow-sm">
+                            <a th:href="@{/docente/curso/{id}/gestionar(id=${curso.id})}" class="btn idn-btn-gold btn-sm w-100 py-2 fw-bold shadow-sm mb-2">
                                 <i class="fa-solid fa-gears me-1"></i> Gestionar Curso
+                            </a>
+                            <a th:href="@{/docente/curso/{id}/participantes(id=${curso.id})}" class="btn btn-outline-secondary btn-sm w-100 py-2 fw-semibold">
+                                <i class="fa-solid fa-users me-1"></i> Ver Participantes
                             </a>
                         </div>
                     </div>

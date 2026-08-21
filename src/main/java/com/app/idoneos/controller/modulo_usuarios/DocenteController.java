@@ -102,7 +102,8 @@ public class DocenteController {
      */
     private Docente getDocente(Authentication auth) {
         Usuario usuario = (Usuario) auth.getPrincipal();
-        return docenteRepository.findById(usuario.getId()).orElse(null);
+        // Usa la relación @OneToOne ya cargada: evita confundir id_usuario con id_docente.
+        return usuario.getDocente();
     }
 
     /**
