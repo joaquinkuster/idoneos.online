@@ -1,4 +1,6 @@
 package com.app.idoneos.model;
+import com.app.idoneos.service.Reportes.*;
+
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -49,3 +51,4 @@ public class PoolAutoevaluacionId implements Serializable {
         return Objects.hash(idPool, idAutoevaluacion);
     }
 }
+

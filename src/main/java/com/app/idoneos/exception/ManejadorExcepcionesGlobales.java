@@ -1,4 +1,5 @@
 package com.app.idoneos.exception;
+import com.app.idoneos.service.Reportes.*;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -53,3 +54,4 @@ public class ManejadorExcepcionesGlobales {
         return new ResponseEntity<>(cuerpo, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
+

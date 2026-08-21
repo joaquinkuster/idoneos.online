@@ -1,4 +1,6 @@
 package com.app.idoneos.model;
+import com.app.idoneos.service.Reportes.*;
+
 
 import jakarta.persistence.*;
 
@@ -51,3 +53,4 @@ public class Nivel {
         this.nombre = nombre;
     }
 }
+

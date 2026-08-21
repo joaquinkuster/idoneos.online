@@ -1,7 +1,12 @@
 package com.app.idoneos.config;
+import com.app.idoneos.service.Reportes.*;
 
-import com.app.idoneos.model.*;
-import com.app.idoneos.repository.*;
+import com.app.idoneos.model.Auditoria;
+import com.app.idoneos.model.TipoAccionAuditoria;
+import com.app.idoneos.model.Usuario;
+import com.app.idoneos.repository.modulo_auditoria.AuditoriaRepository;
+import com.app.idoneos.repository.modulo_auditoria.TipoAccionAuditoriaRepository;
+
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
@@ -71,3 +76,4 @@ public class AuditoriaAspect {
         }
     }
 }
+

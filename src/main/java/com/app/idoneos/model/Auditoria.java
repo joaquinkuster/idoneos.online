@@ -1,4 +1,6 @@
 package com.app.idoneos.model;
+import com.app.idoneos.service.Reportes.*;
+
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
@@ -155,3 +157,4 @@ public class Auditoria {
         this.usuario = usuario;
     }
 }
+

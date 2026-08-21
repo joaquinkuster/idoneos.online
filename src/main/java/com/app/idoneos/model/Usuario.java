@@ -1,4 +1,6 @@
 package com.app.idoneos.model;
+import com.app.idoneos.service.Reportes.*;
+
 
 import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -387,3 +389,4 @@ public class Usuario implements UserDetails {
         this.auditorias = auditorias;
     }
 }
+

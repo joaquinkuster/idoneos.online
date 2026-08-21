@@ -1,4 +1,5 @@
 package com.app.idoneos.exception;
+import com.app.idoneos.service.Reportes.*;
 
 import org.springframework.http.HttpStatus;
 
@@ -15,3 +16,4 @@ public class ExcepcionRecursoNoEncontrado extends ExcepcionNegocio {
         super(mensaje, HttpStatus.NOT_FOUND);
     }
 }
+

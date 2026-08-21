@@ -1,4 +1,6 @@
 package com.app.idoneos.model;
+import com.app.idoneos.service.Reportes.*;
+
 
 import jakarta.persistence.*;
 
@@ -76,3 +78,4 @@ public class PoolAutoevaluacion {
         if (autoevaluacion != null) this.idAutoevaluacion = autoevaluacion.getId();
     }
 }
+

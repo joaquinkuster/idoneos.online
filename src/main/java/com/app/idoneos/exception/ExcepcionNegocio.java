@@ -1,4 +1,5 @@
 package com.app.idoneos.exception;
+import com.app.idoneos.service.Reportes.*;
 
 import org.springframework.http.HttpStatus;
 
@@ -24,3 +25,4 @@ public class ExcepcionNegocio extends RuntimeException {
         return estadoHttp;
     }
 }
+

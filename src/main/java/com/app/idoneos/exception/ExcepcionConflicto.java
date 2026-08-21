@@ -1,4 +1,5 @@
 package com.app.idoneos.exception;
+import com.app.idoneos.service.Reportes.*;
 
 import org.springframework.http.HttpStatus;
 
@@ -11,3 +12,4 @@ public class ExcepcionConflicto extends ExcepcionNegocio {
         super(mensaje, HttpStatus.CONFLICT);
     }
 }
+

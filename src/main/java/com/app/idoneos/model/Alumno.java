@@ -1,4 +1,5 @@
 package com.app.idoneos.model;
+import com.app.idoneos.service.Reportes.*;
 
 import jakarta.persistence.*;
 import java.util.ArrayList;
@@ -78,3 +79,4 @@ public class Alumno {
         this.consultasForo = consultasForo;
     }
 }
+

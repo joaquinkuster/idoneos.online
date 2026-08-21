@@ -1,7 +1,8 @@
 package com.app.idoneos.config;
+import com.app.idoneos.service.Reportes.*;
 
 import com.app.idoneos.model.Usuario;
-import com.app.idoneos.service.Usuario.UsuarioService;
+import com.app.idoneos.service.modulo_usuarios.UsuarioService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -52,3 +53,4 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
         response.sendRedirect("/cursos");
     }
 }
+

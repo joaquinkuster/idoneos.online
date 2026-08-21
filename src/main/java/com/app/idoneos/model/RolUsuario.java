@@ -1,4 +1,6 @@
 package com.app.idoneos.model;
+import com.app.idoneos.service.Reportes.*;
+
 
 /**
  * Catálogo genérico de roles del sistema.
@@ -11,3 +13,4 @@ public enum RolUsuario {
     Docente,
     Alumno
 }
+

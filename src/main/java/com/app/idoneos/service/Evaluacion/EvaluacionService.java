@@ -1,38 +1,50 @@
 package com.app.idoneos.service.Evaluacion;
 
+import com.app.idoneos.repository.modulo_evaluaciones.*;
+
 import com.app.idoneos.model.*;
-import com.app.idoneos.repository.*;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
 /**
- * TRAZABILIDAD — Servicio para la administración de Pools de Preguntas y Configuración de Autoevaluaciones.
+ * TRAZABILIDAD — Servicio para la administración de Pools de Preguntas y
+ * Configuración de Autoevaluaciones.
  *
  * MOD-F-04: Módulo de Evaluaciones y Rendición
- *   CU-53 — Buscar pool: listado y filtrado de bancos de preguntas por unidad.
- *   CU-54 — Crear pool: alta de banco con preguntas y opciones de respuesta múltiple / V-F.
- *   CU-55 — Modificar pool: edición del pool, agregado y baja de preguntas y opciones.
- *   CU-56 — Dar de baja pool: baja lógica de bancos de evaluación.
- *   CU-57 — Buscar autoevaluación: consulta de exámenes por unidad y nombre.
- *   CU-58 — Crear autoevaluación: configuración de tiempo límite, fechas y asociación de pools.
- *   CU-59 — Modificar autoevaluación: edición general con control de intentos activos.
- *   CU-60 — Dar de baja autoevaluación: baja lógica de la instancia evaluativa.
+ * CU-53 — Buscar pool: listado y filtrado de bancos de preguntas por unidad.
+ * CU-54 — Crear pool: alta de banco con preguntas y opciones de respuesta
+ * múltiple / V-F.
+ * CU-55 — Modificar pool: edición del pool, agregado y baja de preguntas y
+ * opciones.
+ * CU-56 — Dar de baja pool: baja lógica de bancos de evaluación.
+ * CU-57 — Buscar autoevaluación: consulta de exámenes por unidad y nombre.
+ * CU-58 — Crear autoevaluación: configuración de tiempo límite, fechas y
+ * asociación de pools.
+ * CU-59 — Modificar autoevaluación: edición general con control de intentos
+ * activos.
+ * CU-60 — Dar de baja autoevaluación: baja lógica de la instancia evaluativa.
  */
 @Service
 public class EvaluacionService {
 
-    @Autowired private PoolRepository poolRepository;
-    @Autowired private PreguntaRepository preguntaRepository;
-    @Autowired private OpcionRespuestaRepository opcionRespuestaRepository;
-    @Autowired private AutoevaluacionRepository autoevaluacionRepository;
+    @Autowired
+    private PoolRepository poolRepository;
+    @Autowired
+    private PreguntaRepository preguntaRepository;
+    @Autowired
+    private OpcionRespuestaRepository opcionRespuestaRepository;
+    @Autowired
+    private AutoevaluacionRepository autoevaluacionRepository;
 
     // ─── Pool ─────────────────────────────────────────────────────────────────
 
-    public Pool guardarPool(Pool pool) { return poolRepository.save(pool); }
+    public Pool guardarPool(Pool pool) {
+        return poolRepository.save(pool);
+    }
 
     public Optional<Pool> buscarPoolPorId(Integer id) {
         return poolRepository.findById(id).filter(p -> !p.getBaja());
@@ -49,7 +61,9 @@ public class EvaluacionService {
 
     // ─── Pregunta ─────────────────────────────────────────────────────────────
 
-    public Pregunta guardarPregunta(Pregunta pregunta) { return preguntaRepository.save(pregunta); }
+    public Pregunta guardarPregunta(Pregunta pregunta) {
+        return preguntaRepository.save(pregunta);
+    }
 
     public Optional<Pregunta> buscarPreguntaPorId(Integer id) {
         return preguntaRepository.findById(id).filter(p -> !p.getBaja());
@@ -66,7 +80,9 @@ public class EvaluacionService {
 
     // ─── OpcionRespuesta ──────────────────────────────────────────────────────
 
-    public OpcionRespuesta guardarOpcion(OpcionRespuesta opcion) { return opcionRespuestaRepository.save(opcion); }
+    public OpcionRespuesta guardarOpcion(OpcionRespuesta opcion) {
+        return opcionRespuestaRepository.save(opcion);
+    }
 
     public Optional<OpcionRespuesta> buscarOpcionPorId(Integer id) {
         return opcionRespuestaRepository.findById(id).filter(o -> !o.getBaja());
@@ -79,7 +95,9 @@ public class EvaluacionService {
 
     // ─── Autoevaluacion ───────────────────────────────────────────────────────
 
-    public Autoevaluacion guardarAutoevaluacion(Autoevaluacion ae) { return autoevaluacionRepository.save(ae); }
+    public Autoevaluacion guardarAutoevaluacion(Autoevaluacion ae) {
+        return autoevaluacionRepository.save(ae);
+    }
 
     public Optional<Autoevaluacion> buscarAutoevaluacionPorId(Integer id) {
         return autoevaluacionRepository.findById(id).filter(a -> !a.getBaja());

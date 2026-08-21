@@ -1,4 +1,6 @@
 package com.app.idoneos.model;
+import com.app.idoneos.service.Reportes.*;
+
 
 import jakarta.persistence.*;
 
@@ -97,3 +99,4 @@ public class OpcionRespuesta {
         this.pregunta = pregunta;
     }
 }
+
