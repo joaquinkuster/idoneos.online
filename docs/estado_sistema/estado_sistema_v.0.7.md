@@ -124,8 +124,9 @@ Todas las 43 entidades JPA permanecen en correspondencia 1:1 con el esquema DDL 
 
 ## 4. Validación y Compilación
 
-- **Comando:** `.\mvnw.cmd test-compile`
-- **Resultado:** **`BUILD SUCCESS`**
-- **Total Time:** 5.082 s
-- **Errores:** 0
-- **Warnings:** 0 críticos (solo avisos informativos sobre Java 21 / Jansi).
+- **Comando de Compilación:** `.\mvnw.cmd test-compile` → **`BUILD SUCCESS`** (0 errores en 158 clases).
+- **Comando de Integración y Tests:** `.\mvnw.cmd test` → **`BUILD SUCCESS`**
+  - Carga completa del contexto Spring Boot (`ApplicationContext`) validada con base de datos PostgreSQL.
+  - Las 43 interfaces JPA Repository auditadas y validadas con 0 errores de sintaxis HQL/JPQL.
+  - Inicialización limpia de `SecurityFilterChain`, `EntityManagerFactory` y controladores MVC/REST.
+  - Tests ejecutados: 1, Fallos: 0, Errores: 0.

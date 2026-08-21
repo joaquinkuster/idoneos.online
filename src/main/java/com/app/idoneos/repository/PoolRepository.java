@@ -17,6 +17,7 @@ public interface PoolRepository extends JpaRepository<Pool, Integer> {
     Optional<Pool> findByUnidadAndBajaFalse(Unidad unidad);
 
     /** Pools de un curso (vía sus unidades) — para panel docente (CU-46). */
-    @Query("SELECT p FROM Pool p WHERE p.unidad.programa.curso = :curso AND p.baja = false")
+    @Query("SELECT DISTINCT p FROM Pool p JOIN Cronograma c ON c.unidad = p.unidad " +
+           "WHERE c.programa.curso = :curso AND p.baja = false")
     List<Pool> findByCurso(@Param("curso") Curso curso);
 }

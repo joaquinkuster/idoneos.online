@@ -12,8 +12,9 @@ import java.util.List;
 @Repository
 public interface UnidadRepository extends JpaRepository<Unidad, Integer> {
 
-    @Query("SELECT u FROM Unidad u WHERE u.programa.curso = :curso AND u.baja = false ORDER BY u.numeroOrden ASC")
+    @Query("SELECT DISTINCT c.unidad FROM Cronograma c WHERE c.programa.curso = :curso AND c.unidad.baja = false ORDER BY c.numeroOrden ASC")
     List<Unidad> findByCursoAndBajaFalseOrderByNumeroOrdenAsc(@Param("curso") Curso curso);
 
-    List<Unidad> findByPrograma(com.app.idoneos.model.Programa programa);
+    @Query("SELECT DISTINCT c.unidad FROM Cronograma c WHERE c.programa = :programa AND c.unidad.baja = false ORDER BY c.numeroOrden ASC")
+    List<Unidad> findByPrograma(@Param("programa") com.app.idoneos.model.Programa programa);
 }

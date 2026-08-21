@@ -10,7 +10,11 @@ import java.util.List;
 @Repository
 public interface IntentoAutoevaluacionRepository extends JpaRepository<IntentoAutoevaluacion, Integer> {
 
-    List<IntentoAutoevaluacion> findByAutoevaluacionOrderByFechaDesc(Autoevaluacion autoevaluacion);
+    List<IntentoAutoevaluacion> findByAutoevaluacionOrderByFechaEntregaDesc(Autoevaluacion autoevaluacion);
+
+    default List<IntentoAutoevaluacion> findByAutoevaluacionOrderByFechaDesc(Autoevaluacion autoevaluacion) {
+        return findByAutoevaluacionOrderByFechaEntregaDesc(autoevaluacion);
+    }
 
     long countByAutoevaluacion(Autoevaluacion autoevaluacion);
 }

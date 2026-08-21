@@ -13,7 +13,7 @@ import java.util.List;
 @Repository
 public interface MaterialRepository extends JpaRepository<Material, Integer> {
 
-    List<Material> findByUnidadAndBajaFalseAndPublicadoTrue(Unidad unidad);
+    List<Material> findByUnidadAndBajaFalseAndOcultoFalse(Unidad unidad);
 
     List<Material> findByUnidadAndBajaFalse(Unidad unidad);
     List<Material> findByUnidad(Unidad unidad);

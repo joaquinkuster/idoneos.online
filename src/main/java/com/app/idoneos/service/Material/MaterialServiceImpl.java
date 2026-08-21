@@ -40,7 +40,7 @@ public class MaterialServiceImpl implements MaterialService {
     @Override
     @Transactional(readOnly = true)
     public List<Material> obtenerPublicadosPorUnidad(Unidad unidad) {
-        return materialRepository.findByUnidadAndBajaFalseAndPublicadoTrue(unidad);
+        return materialRepository.findByUnidadAndBajaFalseAndOcultoFalse(unidad);
     }
 
     @Override
