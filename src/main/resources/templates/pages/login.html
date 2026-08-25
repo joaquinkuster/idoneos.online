@@ -12,26 +12,34 @@
                 <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
                     <div class="row g-0">
                         <!-- Columna Izquierda con Imagen Financiera -->
-                        <div class="col-md-5 d-none d-md-block position-relative" style="background: url('/img/nick-chong-N__BnvQ_w18-unsplash.jpg') center/cover no-repeat; min-height: 480px;">
-                            <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(180deg, rgba(11,31,58,0.7), rgba(11,31,58,0.92));"></div>
-                            <div class="position-relative h-100 p-4 d-flex flex-column justify-content-between text-white" style="z-index: 2;">
+                        <div class="col-md-5 d-none d-md-block position-relative"
+                            style="background: url('/img/nick-chong-N__BnvQ_w18-unsplash.jpg') center/cover no-repeat; min-height: 480px;">
+                            <div class="position-absolute top-0 start-0 w-100 h-100"
+                                style="background: linear-gradient(180deg, rgba(11,31,58,0.7), rgba(11,31,58,0.92));">
+                            </div>
+                            <div class="position-relative h-100 p-4 d-flex flex-column justify-content-between text-white"
+                                style="z-index: 2;">
                                 <div>
                                     <img th:src="@{/img/logos/logo.png}" alt="Logo" style="height: 36px;" class="mb-3">
-                                    <h4 class="font-serif fw-bold text-white mb-2">Idóneos <span class="text-gold">Online</span></h4>
-                                    <small class="text-white-50">Formación de Posgrado en Finanzas & Mercado de Capitales</small>
+                                    <h4 class="font-serif fw-bold text-white mb-2">Idóneos <span
+                                            class="text-gold">Online</span></h4>
+                                    <small class="text-white-50">Formación de Posgrado en Finanzas & Mercado de
+                                        Capitales</small>
                                 </div>
-                                <div class="bg-dark bg-opacity-50 backdrop-blur rounded-3 p-3 border border-white border-opacity-10">
+                                <!-- <div class="bg-dark bg-opacity-50 backdrop-blur rounded-3 p-3 border border-white border-opacity-10">
                                     <div class="small fw-bold text-gold mb-1"><i class="fa-solid fa-graduation-cap me-1"></i> Docentes de Élite</div>
                                     <small class="text-white-50 d-block">Accedé a tus clases en vivo, grabaciones y Clon IA.</small>
-                                </div>
+                                </div> -->
                             </div>
                         </div>
 
                         <!-- Columna Derecha con Formulario de Login -->
                         <div class="col-md-7 p-4 p-md-5 bg-white">
-                            <div th:if="${mensaje != null}" class="alert alert-info alert-dismissible fade show" role="alert">
+                            <div th:if="${mensaje != null}" class="alert alert-info alert-dismissible fade show"
+                                role="alert">
                                 <span th:text="${mensaje}"></span>
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                    aria-label="Close"></button>
                             </div>
 
                             <h3 class="font-serif fw-bold text-navy mb-1">Iniciar Sesión</h3>
@@ -39,38 +47,51 @@
 
                             <form th:action="@{/login}" method="post">
                                 <div class="mb-3">
-                                    <label for="username" class="form-label fw-bold text-navy small">Correo Electrónico</label>
+                                    <label for="username" class="form-label fw-bold text-navy small">Correo
+                                        Electrónico</label>
                                     <div class="input-group">
-                                        <span class="input-group-text bg-light text-muted"><i class="fa-solid fa-envelope"></i></span>
-                                        <input type="email" class="form-control" id="username" name="username" placeholder="usuario@correo.com" required>
+                                        <span class="input-group-text bg-light text-muted"><i
+                                                class="fa-solid fa-envelope"></i></span>
+                                        <input type="email" class="form-control" id="username" name="username"
+                                            placeholder="usuario@correo.com" required>
                                     </div>
                                 </div>
                                 <div class="mb-4">
                                     <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <label for="password" class="form-label fw-bold text-navy small mb-0">Contraseña</label>
-                                        <a th:href="@{/recuperar-contrasena}" class="small text-gold text-decoration-none fw-semibold">¿Olvidaste tu contraseña?</a>
+                                        <label for="password"
+                                            class="form-label fw-bold text-navy small mb-0">Contraseña</label>
+                                        <a th:href="@{/recuperar-contrasena}"
+                                            class="small text-gold text-decoration-none fw-semibold">¿Olvidaste tu
+                                            contraseña?</a>
                                     </div>
                                     <div class="input-group">
-                                        <span class="input-group-text bg-light text-muted"><i class="fa-solid fa-lock"></i></span>
-                                        <input type="password" class="form-control" id="password" name="password" placeholder="••••••••" required>
+                                        <span class="input-group-text bg-light text-muted"><i
+                                                class="fa-solid fa-lock"></i></span>
+                                        <input type="password" class="form-control" id="password" name="password"
+                                            placeholder="••••••••" required>
                                     </div>
                                 </div>
-                                <button type="submit" class="btn idn-btn-gold w-100 py-2 rounded-pill font-weight-bold mb-3 shadow-sm">Ingresar</button>
+                                <button type="submit"
+                                    class="btn idn-btn-gold w-100 py-2 rounded-pill font-weight-bold mb-3 shadow-sm">Ingresar</button>
                             </form>
 
                             <div class="position-relative my-3 text-center">
                                 <hr class="text-muted">
-                                <span class="position-absolute top-50 start-50 translate-middle bg-white px-3 text-muted small">o ingresá con</span>
+                                <span
+                                    class="position-absolute top-50 start-50 translate-middle bg-white px-3 text-muted small">o
+                                    ingresá con</span>
                             </div>
 
-                            <a th:href="@{/oauth2/authorization/google}" class="btn btn-outline-dark w-100 py-2 rounded-pill fw-bold d-flex align-items-center justify-content-center gap-2">
+                            <a th:href="@{/oauth2/authorization/google}"
+                                class="btn btn-outline-dark w-100 py-2 rounded-pill fw-bold d-flex align-items-center justify-content-center gap-2">
                                 <i class="fa-brands fa-google text-danger fs-5"></i>Ingresar con Google
                             </a>
 
                             <hr class="my-4">
 
                             <p class="text-center text-muted mb-0 small">
-                                ¿No tienes cuenta aún? <a th:href="@{/registro}" class="text-gold fw-bold text-decoration-none">Registrate gratis aquí</a>
+                                ¿No tienes cuenta aún? <a th:href="@{/registro}"
+                                    class="text-gold fw-bold text-decoration-none">Registrate gratis aquí</a>
                             </p>
                         </div>
                     </div>
@@ -82,4 +103,5 @@
     <div th:replace="~{fragments/footer :: footer}"></div>
     <div th:replace="~{fragments/scripts :: scripts}"></div>
 </body>
+
 </html>
