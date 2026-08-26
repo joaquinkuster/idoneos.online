@@ -1089,23 +1089,23 @@
         }
 
         /* Helper Grid Classes (Bootstrap-like) */
-        .row { display: flex; flex-wrap: wrap; margin-right: -10px; margin-left: -10px; }
+        .row { display: flex; flex-wrap: wrap; margin-right: -12px; margin-left: -12px; }
         .g-0 { margin-right: 0; margin-left: 0; }
         .g-0 > [class*="col-"] { padding-right: 0; padding-left: 0; }
-        .g-2 { margin-right: -4px; margin-left: -4px; }
-        .g-2 > [class*="col-"] { padding-right: 4px; padding-left: 4px; }
-        .g-3 { margin-right: -8px; margin-left: -8px; }
-        .g-3 > [class*="col-"] { padding-right: 8px; padding-left: 8px; }
-        .g-4 { margin-right: -12px; margin-left: -12px; }
-        .g-4 > [class*="col-"] { padding-right: 12px; padding-left: 12px; }
+        .g-2 { margin-right: -6px; margin-left: -6px; }
+        .g-2 > [class*="col-"] { padding-right: 6px; padding-left: 6px; padding-bottom: 12px; }
+        .g-3 { margin-right: -10px; margin-left: -10px; }
+        .g-3 > [class*="col-"] { padding-right: 10px; padding-left: 10px; padding-bottom: 18px; }
+        .g-4 { margin-right: -14px; margin-left: -14px; }
+        .g-4 > [class*="col-"] { padding-right: 14px; padding-left: 14px; padding-bottom: 24px; }
         
-        .col-12 { flex: 0 0 100%; max-width: 100%; padding: 0 10px; }
-        .col-md-3 { flex: 0 0 25%; max-width: 25%; padding: 0 10px; }
-        .col-md-4 { flex: 0 0 33.3333%; max-width: 33.3333%; padding: 0 10px; }
-        .col-md-5 { flex: 0 0 41.6666%; max-width: 41.6666%; padding: 0 10px; }
-        .col-md-6 { flex: 0 0 50%; max-width: 50%; padding: 0 10px; }
-        .col-md-7 { flex: 0 0 58.3333%; max-width: 58.3333%; padding: 0 10px; }
-        .col-md-8 { flex: 0 0 66.6666%; max-width: 66.6666%; padding: 0 10px; }
+        .col-12 { flex: 0 0 100%; max-width: 100%; padding: 0 12px; }
+        .col-md-3 { flex: 0 0 25%; max-width: 25%; padding: 0 12px; }
+        .col-md-4 { flex: 0 0 33.3333%; max-width: 33.3333%; padding: 0 12px; }
+        .col-md-5 { flex: 0 0 41.6666%; max-width: 41.6666%; padding: 0 12px; }
+        .col-md-6 { flex: 0 0 50%; max-width: 50%; padding: 0 12px; }
+        .col-md-7 { flex: 0 0 58.3333%; max-width: 58.3333%; padding: 0 12px; }
+        .col-md-8 { flex: 0 0 66.6666%; max-width: 66.6666%; padding: 0 12px; }
 
         .d-flex { display: flex; }
         .d-inline-flex { display: inline-flex; }
@@ -2072,7 +2072,7 @@
                     <div class="d-flex align-items-center gap-2">
                         <a href="#CU-03" class="wf-btn-gold">
                             <i class="fa-solid fa-plus"></i>
-                            <span>+ Nuevo Curso</span>
+                            <span>Nuevo Curso</span>
                         </a>
                         <span class="pin-badge">A</span>
                     </div>
@@ -2615,13 +2615,8 @@
             <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Registrar Nuevo Curso</h3>
             <p class="small text-muted" style="margin: 3px 0 0;">Defina los parámetros académicos, docentes y comerciales del programa de capacitación.</p>
           </div>
-          <div class="d-flex align-items-center gap-2">
-            <span class="wf-btn wf-btn-sm wf-btn-outline active" style="font-weight: 700;">
-              <i class="fa-solid fa-plus me-1"></i>
-              + Nuevo Curso
-            </span>
-            <span class="pin-badge">A</span>
-            <span class="wf-badge status-active ms-2">Formulario de Alta</span>
+          <div>
+            <span class="wf-badge status-active">Formulario de Alta</span>
           </div>
         </div>
 
@@ -2670,13 +2665,19 @@
             </div>
           </div>
 
-          <!-- Modalidades [F] -->
+          <!-- Modalidades [F] (Checkbox interactivos) -->
           <div class="col-md-4">
             <label class="wf-label">Modalidades de Dictado</label>
             <div class="wf-input-wrap">
-              <div class="wf-input d-flex align-items-center gap-2" style="padding: 6px 12px; font-size: 12px;">
-                <span>☑ Online Asincrónico</span>
-                <span>☑ En Vivo</span>
+              <div class="wf-input d-flex align-items-center gap-3" style="padding: 8px 14px; font-size: 12px; background: #FFFFFF;">
+                <label class="d-flex align-items-center gap-1 cursor-pointer mb-0" style="font-weight: 600; color: #081426;">
+                  <input type="checkbox" checked style="width: 16px; height: 16px; accent-color: var(--wf-gold);">
+                  <span>Online Asincrónico</span>
+                </label>
+                <label class="d-flex align-items-center gap-1 cursor-pointer mb-0" style="font-weight: 600; color: #081426;">
+                  <input type="checkbox" checked style="width: 16px; height: 16px; accent-color: var(--wf-gold);">
+                  <span>En Vivo</span>
+                </label>
               </div>
               <span class="pin-badge">F</span>
             </div>
@@ -2711,7 +2712,7 @@
                 <p class="small text-muted m-0">Generar credencial digital verificable con código QR al aprobar el 100% de autoevaluaciones.</p>
               </div>
               <div class="d-flex align-items-center gap-2">
-                <input type="checkbox" checked style="width: 18px; height: 18px;">
+                <input type="checkbox" checked style="width: 18px; height: 18px; accent-color: var(--wf-gold);">
                 <span class="pin-badge">I</span>
               </div>
             </div>
@@ -2897,13 +2898,8 @@
             <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Modificar Curso</h3>
             <p class="small text-muted" style="margin: 3px 0 0;">Defina los parámetros académicos, docentes y comerciales del programa de capacitación.</p>
           </div>
-          <div class="d-flex align-items-center gap-2">
-            <span class="wf-btn wf-btn-sm wf-btn-outline active" style="font-weight: 700;">
-              <i class="fa-solid fa-pen-to-square me-1"></i>
-              Editar Curso
-            </span>
-            <span class="pin-badge">A</span>
-            <span class="wf-badge status-active ms-2">Modo Edición</span>
+          <div>
+            <span class="wf-badge status-active">Modo Edición</span>
           </div>
         </div>
 
@@ -2952,13 +2948,19 @@
             </div>
           </div>
 
-          <!-- Modalidades [F] -->
+          <!-- Modalidades [F] (Checkbox interactivos) -->
           <div class="col-md-4">
             <label class="wf-label">Modalidades de Dictado</label>
             <div class="wf-input-wrap">
-              <div class="wf-input d-flex align-items-center gap-2" style="padding: 6px 12px; font-size: 12px;">
-                <span>☑ Online Asincrónico</span>
-                <span>☑ En Vivo</span>
+              <div class="wf-input d-flex align-items-center gap-3" style="padding: 8px 14px; font-size: 12px; background: #FFFFFF;">
+                <label class="d-flex align-items-center gap-1 cursor-pointer mb-0" style="font-weight: 600; color: #081426;">
+                  <input type="checkbox" checked style="width: 16px; height: 16px; accent-color: var(--wf-gold);">
+                  <span>Online Asincrónico</span>
+                </label>
+                <label class="d-flex align-items-center gap-1 cursor-pointer mb-0" style="font-weight: 600; color: #081426;">
+                  <input type="checkbox" checked style="width: 16px; height: 16px; accent-color: var(--wf-gold);">
+                  <span>En Vivo</span>
+                </label>
               </div>
               <span class="pin-badge">F</span>
             </div>
@@ -2993,7 +2995,7 @@
                 <p class="small text-muted m-0">Generar credencial digital verificable con código QR al aprobar el 100% de autoevaluaciones.</p>
               </div>
               <div class="d-flex align-items-center gap-2">
-                <input type="checkbox" checked style="width: 18px; height: 18px;">
+                <input type="checkbox" checked style="width: 18px; height: 18px; accent-color: var(--wf-gold);">
                 <span class="pin-badge">I</span>
               </div>
             </div>
@@ -3173,96 +3175,44 @@
                 <div class="wf-body">
                     <div class="wf-main-content">
                         
-        <!-- Vista de Fondo: Grid Real de Cursos (CU-01) -->
-        <div style="position: relative;">
-          <div class="wf-card mb-4 opacity-75" style="background: #FFFFFF; pointer-events: none; filter: blur(0.4px);">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-              <h3 style="font-size: 17px; font-weight: 800; color: #081426; margin: 0;">Mis Cursos Asignados (CU-01)</h3>
-              <span class="wf-btn-gold" style="font-size: 11px; padding: 4px 10px;"><i class="fa-solid fa-plus me-1"></i> + Nuevo Curso</span>
+        <div class="wf-modal-dialog shadow-sm" style="max-width: 620px; margin: 40px auto; background: #FFFFFF; border-radius: 12px; border: 1px solid #E2E8F0; overflow: hidden;">
+          <!-- Cabecera del Diálogo -->
+          <div class="p-3 border-bottom d-flex justify-content-between align-items-center" style="background: #F8FAFC;">
+            <div class="d-flex align-items-center gap-2">
+              <i class="fa-solid fa-triangle-exclamation text-danger"></i>
+              <strong style="font-size: 14px; color: #081426;">Dar de baja curso</strong>
             </div>
-            <div class="wf-cards-grid">
-              <div class="wf-course-card" style="border: 2px solid #DC2626; background: #FEF2F2;">
-                <div class="wf-course-card-thumb">
-                  <div class="wf-course-thumb-icon"><i class="fa-solid fa-graduation-cap w-8 h-8 text-white"></i></div>
-                  <div class="wf-course-pills-row">
-                    <span class="wf-pill-tag">Mercado de Capitales</span>
-                    <span class="wf-pill-status" style="background: #FEE2E2; color: #DC2626;">Seleccionado para Baja</span>
-                  </div>
-                </div>
-                <div class="wf-course-card-body">
-                  <h4 class="wf-course-title">Especialización en Idoneidad Bursátil</h4>
-                  <p class="wf-course-desc">Preparación integral para examen CNV.</p>
-                  <div class="wf-course-info-row">
-                    <span>📄 4 Unidades</span>
-                    <span class="wf-course-price">$120.000</span>
-                  </div>
-                </div>
-                <div class="wf-course-card-footer">
-                  <div class="d-flex align-items-center gap-2 w-100">
-                    <button class="wf-btn wf-btn-sm wf-btn-outline flex-grow-1"><i class="fa-solid fa-pen-to-square"></i> Editar Curso</button>
-                    <div class="d-flex align-items-center gap-1">
-                      <button class="wf-btn wf-btn-sm wf-btn-danger"><i class="fa-solid fa-trash me-1"></i> <span>Dar de baja</span></button>
-                      <span class="pin-badge">A</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="wf-course-card">
-                <div class="wf-course-card-thumb">
-                  <div class="wf-course-thumb-icon"><i class="fa-solid fa-graduation-cap w-8 h-8 text-white"></i></div>
-                  <div class="wf-course-pills-row">
-                    <span class="wf-pill-tag">Finanzas & Cripto</span>
-                  </div>
-                </div>
-                <div class="wf-course-card-body">
-                  <h4 class="wf-course-title">Operativa Cripto y DeFi</h4>
-                  <p class="wf-course-desc">Trading y custodia institucional.</p>
-                </div>
-              </div>
-            </div>
+            <span class="wf-badge status-active">Operación Crítica</span>
           </div>
 
-          <!-- Diálogo Modal Superpuesto en Primer Plano -->
-          <div class="wf-modal-dialog shadow-lg" style="max-width: 600px; margin: 0 auto; background: #FFFFFF; border-radius: 12px; border: 1px solid #E2E8F0; overflow: hidden; position: relative; z-index: 10;">
-            <!-- Cabecera Limpia del Diálogo Modal -->
-            <div class="p-3 border-bottom d-flex justify-content-between align-items-center" style="background: #F8FAFC;">
-              <div class="d-flex align-items-center gap-2">
-                <i class="fa-solid fa-triangle-exclamation text-danger"></i>
-                <strong style="font-size: 14px; color: #081426;">Confirmación de Dar de baja curso</strong>
+          <!-- Cuerpo del Diálogo -->
+          <div class="p-4 text-center">
+            <div class="mb-3" style="width: 56px; height: 56px; border-radius: 50%; background: #FEE2E2; color: #DC2626; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 24px;">
+              <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin-bottom: 6px;">¿Confirma la operación de dar de baja el curso?</h3>
+            <p class="small text-muted mb-4" style="line-height: 1.5;">Esta operación procesará el cambio de estado en la base de datos, retirará el curso del catálogo público y no permitirá nuevas inscripciones.</p>
+
+            <div class="p-3 mb-4 bg-light border rounded text-start" style="font-size: 13px;">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="text-muted">Curso a afectar:</span>
+                <strong style="color: #081426;">Especialización en Idoneidad Bursátil CNV</strong>
               </div>
-              <span style="color: #94A3B8; cursor: pointer; font-size: 16px;"><i class="fa-solid fa-xmark"></i></span>
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="text-muted">Estado actual:</span>
+                <span class="wf-badge status-active">Activo / En Catálogo</span>
+              </div>
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="text-muted">Validación de dependencias:</span>
+                <span class="small text-success fw-bold"><i class="fa-solid fa-circle-check me-1"></i> Sin programas activos bloqueantes</span>
+              </div>
             </div>
 
-            <!-- Cuerpo del Diálogo Modal -->
-            <div class="p-4 text-center">
-              <div class="mb-3" style="width: 54px; height: 54px; border-radius: 50%; background: #FEE2E2; color: #DC2626; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 22px;">
-                <i class="fa-solid fa-triangle-exclamation"></i>
-              </div>
-              <h3 style="font-size: 17px; font-weight: 800; color: #081426; margin-bottom: 6px;">¿Está seguro de que desea dar de baja este curso?</h3>
-              <p class="small text-muted mb-4" style="line-height: 1.5;">Esta operación retirará el curso del catálogo público y no permitirá nuevas cohortes.</p>
-
-              <div class="p-3 mb-4 bg-light border rounded text-start" style="font-size: 13px;">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                  <span class="text-muted">Curso a afectar:</span>
-                  <strong style="color: #081426;">Especialización en Idoneidad Bursátil</strong>
-                </div>
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                  <span class="text-muted">Estado actual:</span>
-                  <span class="wf-badge status-active">Activo / En Catálogo</span>
-                </div>
-                <div class="d-flex justify-content-between align-items-center">
-                  <span class="text-muted">Programas asociados:</span>
-                  <span class="small text-success fw-bold"><i class="fa-solid fa-circle-check me-1"></i> Sin programas activos bloqueantes</span>
-                </div>
-              </div>
-
-              <div class="d-flex justify-content-end align-items-center gap-3 pt-3 border-top">
-                <button class="wf-btn wf-btn-outline">Cancelar / Volver</button>
-                <div class="d-flex align-items-center gap-2">
-                  <button class="wf-btn wf-btn-danger"><i class="fa-solid fa-trash me-1"></i> Confirmar Baja</button>
-                  <span class="pin-badge">B</span>
-                </div>
+            <div class="d-flex justify-content-end align-items-center gap-3 pt-3 border-top">
+              <a href="#CU-01" class="wf-btn wf-btn-outline">Cancelar / Volver</a>
+              <div class="d-flex align-items-center gap-2">
+                <button class="wf-btn wf-btn-danger"><i class="fa-solid fa-trash me-1"></i> Confirmar Baja</button>
+                <span class="pin-badge">B</span>
               </div>
             </div>
           </div>
@@ -3431,7 +3381,7 @@
         <!-- Layout de Catálogo con Panel Lateral de Detalle Público (Paso 4) -->
         <div class="row g-4">
           <!-- Columna Izquierda: Grid de Cursos del Catálogo -->
-          <div class="col-lg-7">
+          <div class="col-lg-6" style="border-right: 2px solid #E2E8F0; padding-right: 24px;">
             <div class="d-flex flex-column gap-3">
               <!-- Curso 1: Especialización en Idoneidad Bursátil (Seleccionado) -->
               <div class="wf-course-card border-primary" style="box-shadow: 0 4px 12px rgba(212,175,55,0.15); border: 2px solid var(--wf-gold);">
@@ -3489,8 +3439,8 @@
           </div>
 
           <!-- Columna Derecha: Vista Previa y Ficha Pública del Curso Seleccionado (Paso 4) -->
-          <div class="col-lg-5">
-            <div class="wf-card" style="background: #FFFFFF; border: 1px solid #E2E8F0; position: sticky; top: 20px;">
+          <div class="col-lg-6" style="padding-left: 20px;">
+            <div class="wf-card shadow-sm" style="background: #FFFFFF; border: 1px solid #CBD5E1; border-radius: 10px; position: sticky; top: 20px;">
               <div class="pb-3 mb-3 border-bottom d-flex justify-content-between align-items-center">
                 <div>
                   <span class="wf-badge status-active mb-1">Ficha Informativa</span>
@@ -3703,7 +3653,7 @@
                     <div class="d-flex align-items-center gap-2">
                         <a href="#CU-08" class="wf-btn-gold">
                             <i class="fa-solid fa-plus"></i>
-                            <span>+ Nueva Categoría</span>
+                            <span>Nueva Categoría</span>
                         </a>
                         <span class="pin-badge">A</span>
                     </div>
@@ -4187,7 +4137,7 @@
         <button class="wf-btn wf-btn-outline">Cancelar / Volver</button>
         <div class="d-flex align-items-center gap-2">
           <button class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Guardar Cambios</button>
-          <span class="pin-badge">C</span>
+          <span class="pin-badge">D</span>
         </div>
       </div>
     </div>
@@ -4844,7 +4794,7 @@
         <button class="wf-btn wf-btn-outline">Cancelar / Volver</button>
         <div class="d-flex align-items-center gap-2">
           <button class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Guardar Cohorte</button>
-          <span class="pin-badge">D</span>
+          <span class="pin-badge">I</span>
         </div>
       </div>
     </div>
@@ -5039,7 +4989,7 @@
         <button class="wf-btn wf-btn-outline">Cancelar / Volver</button>
         <div class="d-flex align-items-center gap-2">
           <button class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Guardar Cambios</button>
-          <span class="pin-badge">C</span>
+          <span class="pin-badge">G</span>
         </div>
       </div>
     </div>
@@ -5696,7 +5646,7 @@
         <button class="wf-btn wf-btn-outline">Cancelar / Volver</button>
         <div class="d-flex align-items-center gap-2">
           <button class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Guardar Programa</button>
-          <span class="pin-badge">D</span>
+          <span class="pin-badge">H</span>
         </div>
       </div>
     </div>
@@ -5891,7 +5841,7 @@
         <button class="wf-btn wf-btn-outline">Cancelar / Volver</button>
         <div class="d-flex align-items-center gap-2">
           <button class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Guardar Cambios</button>
-          <span class="pin-badge">C</span>
+          <span class="pin-badge">G</span>
         </div>
       </div>
     </div>
@@ -8952,7 +8902,7 @@
         <button class="wf-btn wf-btn-outline">Cancelar / Volver</button>
         <div class="d-flex align-items-center gap-2">
           <button class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Guardar Cambios</button>
-          <span class="pin-badge">C</span>
+          <span class="pin-badge">F</span>
         </div>
       </div>
     </div>
@@ -9848,7 +9798,7 @@
         <button class="wf-btn wf-btn-outline">Cancelar / Volver</button>
         <div class="d-flex align-items-center gap-2">
           <button class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Guardar Cambios</button>
-          <span class="pin-badge">C</span>
+          <span class="pin-badge">D</span>
         </div>
       </div>
     </div>
@@ -13365,7 +13315,7 @@
         <button class="wf-btn wf-btn-outline">Cancelar / Volver</button>
         <div class="d-flex align-items-center gap-2">
           <button class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Guardar Descuento</button>
-          <span class="pin-badge">D</span>
+          <span class="pin-badge">H</span>
         </div>
       </div>
     </div>
@@ -13560,7 +13510,7 @@
         <button class="wf-btn wf-btn-outline">Cancelar / Volver</button>
         <div class="d-flex align-items-center gap-2">
           <button class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Guardar Cambios</button>
-          <span class="pin-badge">C</span>
+          <span class="pin-badge">H</span>
         </div>
       </div>
     </div>
@@ -14459,7 +14409,7 @@
         <button class="wf-btn wf-btn-outline">Cancelar / Volver</button>
         <div class="d-flex align-items-center gap-2">
           <button class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Guardar Cambios</button>
-          <span class="pin-badge">C</span>
+          <span class="pin-badge">E</span>
         </div>
       </div>
     </div>
@@ -15161,7 +15111,7 @@
               <button class="wf-btn wf-btn-outline wf-btn-sm">Cancelar</button>
               <div class="d-flex align-items-center gap-2">
                 <button class="wf-btn wf-btn-primary wf-btn-sm"><i class="fa-solid fa-plus me-1"></i> Agregar</button>
-                <span class="pin-badge">D</span>
+                <span class="pin-badge">I</span>
               </div>
             </div>
           </div>
@@ -15358,7 +15308,7 @@
         <button class="wf-btn wf-btn-outline">Cancelar / Volver</button>
         <div class="d-flex align-items-center gap-2">
           <button class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Guardar Cambios</button>
-          <span class="pin-badge">C</span>
+          <span class="pin-badge">I</span>
         </div>
       </div>
     </div>
@@ -16917,7 +16867,7 @@
               <button class="wf-btn wf-btn-outline wf-btn-sm">Cancelar</button>
               <div class="d-flex align-items-center gap-2">
                 <button class="wf-btn wf-btn-primary wf-btn-sm"><i class="fa-solid fa-plus me-1"></i> Agregar</button>
-                <span class="pin-badge">D</span>
+                <span class="pin-badge">G</span>
               </div>
             </div>
           </div>
@@ -17114,7 +17064,7 @@
         <button class="wf-btn wf-btn-outline">Cancelar / Volver</button>
         <div class="d-flex align-items-center gap-2">
           <button class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Guardar Cambios</button>
-          <span class="pin-badge">C</span>
+          <span class="pin-badge">F</span>
         </div>
       </div>
     </div>
@@ -20550,7 +20500,7 @@
         <button class="wf-btn wf-btn-outline">Cancelar / Volver</button>
         <div class="d-flex align-items-center gap-2">
           <button class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Guardar Usuario</button>
-          <span class="pin-badge">D</span>
+          <span class="pin-badge">I</span>
         </div>
       </div>
     </div>
@@ -20745,7 +20695,7 @@
         <button class="wf-btn wf-btn-outline">Cancelar / Volver</button>
         <div class="d-flex align-items-center gap-2">
           <button class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Guardar Cambios</button>
-          <span class="pin-badge">C</span>
+          <span class="pin-badge">H</span>
         </div>
       </div>
     </div>
@@ -21537,7 +21487,7 @@
         <button class="wf-btn wf-btn-outline">Cancelar / Volver</button>
         <div class="d-flex align-items-center gap-2">
           <button class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Guardar Docente</button>
-          <span class="pin-badge">D</span>
+          <span class="pin-badge">I</span>
         </div>
       </div>
     </div>
@@ -21732,7 +21682,7 @@
         <button class="wf-btn wf-btn-outline">Cancelar / Volver</button>
         <div class="d-flex align-items-center gap-2">
           <button class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Guardar Cambios</button>
-          <span class="pin-badge">C</span>
+          <span class="pin-badge">G</span>
         </div>
       </div>
     </div>
@@ -23918,7 +23868,7 @@
         <button class="wf-btn wf-btn-outline">Cancelar / Volver</button>
         <div class="d-flex align-items-center gap-2">
           <button class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Guardar Parámetro</button>
-          <span class="pin-badge">C</span>
+          <span class="pin-badge">D</span>
         </div>
       </div>
     </div>

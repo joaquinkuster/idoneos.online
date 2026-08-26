@@ -81,7 +81,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor solicita registrar un nuevo curso mediante el botón "+ Nuevo Curso" [A] ubicado en la barra de gestión de cursos (ver CU-01: Buscar curso). |
+| 1 | El caso de uso inicia cuando el actor solicita registrar un nuevo curso mediante el botón "Nuevo Curso" [A] ubicado en la barra de gestión de cursos (ver CU-01: Buscar curso). |
 | 2 | El sistema solicita los datos del curso: nombre [B], categoría temática [C], nivel de dificultad [D], precio de inscripción [E], modalidades de dictado [F], docente titular [G], docentes ayudantes [H], si emite certificado oficial [I], descripción detallada [J], y archivo de portada [K] mediante el botón "Examinar..." [L]. |
 | 3 | El actor completa los campos solicitados y confirma el registro mediante el botón "Guardar Curso" [M]. |
 | 4 | El sistema valida que se hayan completado los campos obligatorios (nombre, descripción, precio, categoría, nivel, al menos una modalidad y docente titular). |
@@ -196,7 +196,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 | 4 | El sistema muestra el detalle público del curso: descripción, nivel, modalidades, precio, contenidos por unidad [C], y las cohortes con inscripción abierta, con su docente titular y cupo disponible [D]. |
 | 5 | Fin del caso de uso. |
 
-- **Salida**: Se recupera el listado de cursos con cohortes abiertas y, si corresponde, la ficha pública del curso seleccionado con sus cohortes con inscripción abierta.
+- **Salida**: Se recuperan el listado de cursos con cohortes abiertas y, si corresponde, la ficha pública del curso seleccionado con sus cohortes con inscripción abierta.
 - **Excepciones**:
   - No aplica.
 - **Frecuencia**: Alta
@@ -247,7 +247,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor solicita registrar una nueva categoría mediante el botón "+ Nueva Categoría" [A] ubicado en la barra de gestión de categorías (ver CU-07: Buscar categoría). |
+| 1 | El caso de uso inicia cuando el actor solicita registrar una nueva categoría mediante el botón "Nueva Categoría" [A] ubicado en la barra de gestión de categorías (ver CU-07: Buscar categoría). |
 | 2 | El sistema solicita los datos de la categoría: nombre [B] y descripción temática [C]. |
 | 3 | El actor completa los datos solicitados en el formulario y confirma el alta mediante el botón "Guardar Categoría" [D]. |
 | 4 | El sistema valida que el nombre haya sido completado y que no exista otra categoría activa con el mismo nombre. |

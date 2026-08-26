@@ -61,7 +61,7 @@
     "steps": [
       {
         "pNum": "1",
-        "pAction": "El caso de uso inicia cuando el actor solicita registrar un nuevo curso mediante el botón \"+ Nuevo Curso\" [A] ubicado en la barra de gestión de cursos (ver CU-01: Buscar curso).",
+        "pAction": "El caso de uso inicia cuando el actor solicita registrar un nuevo curso mediante el botón \"Nuevo Curso\" [A] ubicado en la barra de gestión de cursos (ver CU-01: Buscar curso).",
         "badges": [
           "A"
         ]
@@ -211,7 +211,7 @@
     "steps": [
       {
         "pNum": "1",
-        "pAction": "El caso de uso inicia cuando el actor solicita registrar una nueva categoría mediante el botón \"+ Nueva Categoría\" [A] ubicado en la barra de gestión de categorías (ver CU-07: Buscar categoría).",
+        "pAction": "El caso de uso inicia cuando el actor solicita registrar una nueva categoría mediante el botón \"Nueva Categoría\" [A] ubicado en la barra de gestión de categorías (ver CU-07: Buscar categoría).",
         "badges": [
           "A"
         ]

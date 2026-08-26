@@ -41,12 +41,18 @@
     "id": "CU-03",
     "name": "Registrar curso",
     "totalSteps": 3,
-    "missingBadges": [],
+    "missingBadges": [
+      {
+        "badge": "A",
+        "step": "1",
+        "action": "El caso de uso inicia cuando el actor solicita registrar un nuevo curso mediante el botón \"Nuevo Curso\" [A] ubicado en la barra de gestión de cursos (ver CU-01: Buscar curso)."
+      }
+    ],
     "missingButtons": [],
     "buttonMatches": [
       {
         "badge": "A",
-        "term": "+ Nuevo Curso",
+        "term": "Nuevo Curso",
         "found": true
       },
       {
@@ -65,14 +71,22 @@
     "id": "CU-04",
     "name": "Modificar curso",
     "totalSteps": 3,
-    "missingBadges": [],
-    "missingButtons": [],
-    "buttonMatches": [
+    "missingBadges": [
       {
         "badge": "A",
+        "step": "1",
+        "action": "El caso de uso inicia cuando el actor busca y selecciona el curso a modificar mediante el botón \"Editar Curso\" [A] (ver CU-01: Buscar curso)."
+      }
+    ],
+    "missingButtons": [
+      {
+        "badge": "A",
+        "step": "1",
         "term": "Editar Curso",
-        "found": true
-      },
+        "action": "El caso de uso inicia cuando el actor busca y selecciona el curso a modificar mediante el botón \"Editar Curso\" [A] (ver CU-01: Buscar curso)."
+      }
+    ],
+    "buttonMatches": [
       {
         "badge": "L",
         "term": "Examinar...",
@@ -89,7 +103,13 @@
     "id": "CU-05",
     "name": "Dar de baja curso",
     "totalSteps": 2,
-    "missingBadges": [],
+    "missingBadges": [
+      {
+        "badge": "A",
+        "step": "1",
+        "action": "El caso de uso inicia cuando el actor busca y selecciona el curso a dar de baja mediante el botón \"Dar de baja\" [A] (ver CU-01: Buscar curso)."
+      }
+    ],
     "missingButtons": [],
     "buttonMatches": [
       {
@@ -141,7 +161,7 @@
     "buttonMatches": [
       {
         "badge": "A",
-        "term": "+ Nueva Categoría",
+        "term": "Nueva Categoría",
         "found": true
       },
       {
@@ -155,13 +175,7 @@
     "id": "CU-09",
     "name": "Modificar categoría",
     "totalSteps": 3,
-    "missingBadges": [
-      {
-        "badge": "D",
-        "step": "3",
-        "action": "El actor actualiza los campos habilitados y confirma mediante el botón \"Guardar Cambios\" [D]."
-      }
-    ],
+    "missingBadges": [],
     "missingButtons": [],
     "buttonMatches": [
       {
@@ -215,6 +229,11 @@
     "totalSteps": 3,
     "missingBadges": [
       {
+        "badge": "D",
+        "step": "2",
+        "action": "El sistema solicita los datos de la cohorte: nombre [B], fecha de inicio de inscripción [C], fecha de fin de inscripción [D], cupo máximo de alumnos [E], semanas de acceso al contenido [F] y, si incluye modalidad en vivo, fecha de inicio [G] y fecha de fin de dictado [H]."
+      },
+      {
         "badge": "E",
         "step": "2",
         "action": "El sistema solicita los datos de la cohorte: nombre [B], fecha de inicio de inscripción [C], fecha de fin de inscripción [D], cupo máximo de alumnos [E], semanas de acceso al contenido [F] y, si incluye modalidad en vivo, fecha de inicio [G] y fecha de fin de dictado [H]."
@@ -233,11 +252,6 @@
         "badge": "H",
         "step": "2",
         "action": "El sistema solicita los datos de la cohorte: nombre [B], fecha de inicio de inscripción [C], fecha de fin de inscripción [D], cupo máximo de alumnos [E], semanas de acceso al contenido [F] y, si incluye modalidad en vivo, fecha de inicio [G] y fecha de fin de dictado [H]."
-      },
-      {
-        "badge": "I",
-        "step": "3",
-        "action": "El actor completa los campos del formulario y confirma el alta mediante el botón \"Guardar Cohorte\" [I]."
       }
     ],
     "missingButtons": [],
@@ -273,11 +287,6 @@
         "badge": "F",
         "step": "2",
         "action": "El sistema muestra los datos actuales en el formulario de edición: fecha de inicio de inscripción [B], fecha de fin de inscripción [C], cupo máximo [D], semanas de acceso [E] y fechas de dictado en vivo [F]."
-      },
-      {
-        "badge": "G",
-        "step": "3",
-        "action": "El actor modifica los parámetros habilitados y confirma la actualización mediante el botón \"Guardar Cambios\" [G]."
       }
     ],
     "missingButtons": [
@@ -335,6 +344,11 @@
     "totalSteps": 3,
     "missingBadges": [
       {
+        "badge": "D",
+        "step": "2",
+        "action": "El sistema permite seleccionar opcionalmente un programa base [B] y solicita: nombre del programa [C], descripción académica [D], objetivos formativos [E], carga horaria total en horas [F] y bibliografía obligatoria [G]."
+      },
+      {
         "badge": "E",
         "step": "2",
         "action": "El sistema permite seleccionar opcionalmente un programa base [B] y solicita: nombre del programa [C], descripción académica [D], objetivos formativos [E], carga horaria total en horas [F] y bibliografía obligatoria [G]."
@@ -348,11 +362,6 @@
         "badge": "G",
         "step": "2",
         "action": "El sistema permite seleccionar opcionalmente un programa base [B] y solicita: nombre del programa [C], descripción académica [D], objetivos formativos [E], carga horaria total en horas [F] y bibliografía obligatoria [G]."
-      },
-      {
-        "badge": "H",
-        "step": "3",
-        "action": "El actor completa los campos solicitados y confirma el registro mediante el botón \"Guardar Programa\" [H]."
       }
     ],
     "missingButtons": [],
@@ -388,11 +397,6 @@
         "badge": "F",
         "step": "2",
         "action": "El sistema muestra los datos actuales en el formulario: nombre [B], descripción [C], objetivos [D], carga horaria [E] y bibliografía [F]."
-      },
-      {
-        "badge": "G",
-        "step": "3",
-        "action": "El actor modifica los campos habilitados y confirma la actualización mediante el botón \"Guardar Cambios\" [G]."
       }
     ],
     "missingButtons": [],
@@ -664,11 +668,6 @@
         "badge": "E",
         "step": "2",
         "action": "El sistema muestra los datos actuales en el formulario: título [B], archivo o documento adjunto [C] mediante \"Examinar...\" [D], y estado de visibilidad [E]."
-      },
-      {
-        "badge": "F",
-        "step": "3",
-        "action": "El actor modifica los datos y confirma la actualización mediante el botón \"Guardar Cambios\" [F]."
       }
     ],
     "missingButtons": [
@@ -753,13 +752,7 @@
     "id": "CU-33",
     "name": "Modificar término de glosario",
     "totalSteps": 3,
-    "missingBadges": [
-      {
-        "badge": "D",
-        "step": "3",
-        "action": "El actor actualiza los campos habilitados y confirma mediante el botón \"Guardar Cambios\" [D]."
-      }
-    ],
+    "missingBadges": [],
     "missingButtons": [],
     "buttonMatches": [
       {
@@ -1053,6 +1046,11 @@
     "totalSteps": 3,
     "missingBadges": [
       {
+        "badge": "D",
+        "step": "2",
+        "action": "El sistema solicita los parámetros del beneficio: nombre del descuento [B], porcentaje aplicable [C], vigencia desde [D], vigencia hasta [E], cantidad límite de usos [F] y cantidad de cursos requeridos [G]."
+      },
+      {
         "badge": "E",
         "step": "2",
         "action": "El sistema solicita los parámetros del beneficio: nombre del descuento [B], porcentaje aplicable [C], vigencia desde [D], vigencia hasta [E], cantidad límite de usos [F] y cantidad de cursos requeridos [G]."
@@ -1066,11 +1064,6 @@
         "badge": "G",
         "step": "2",
         "action": "El sistema solicita los parámetros del beneficio: nombre del descuento [B], porcentaje aplicable [C], vigencia desde [D], vigencia hasta [E], cantidad límite de usos [F] y cantidad de cursos requeridos [G]."
-      },
-      {
-        "badge": "H",
-        "step": "3",
-        "action": "El actor completa los campos solicitados y confirma el registro mediante el botón \"Guardar Descuento\" [H]."
       }
     ],
     "missingButtons": [],
@@ -1111,11 +1104,6 @@
         "badge": "G",
         "step": "2",
         "action": "El sistema muestra los datos actuales en el formulario: nombre [B], porcentaje [C], vigencia desde [D], vigencia hasta [E], cantidad límite [F] y cursos requeridos [G]."
-      },
-      {
-        "badge": "H",
-        "step": "3",
-        "action": "El actor actualiza los datos habilitados y confirma la modificación mediante el botón \"Guardar Cambios\" [H]."
       }
     ],
     "missingButtons": [],
@@ -1198,11 +1186,6 @@
         "badge": "D",
         "step": "2",
         "action": "El sistema muestra los datos actuales en el panel: nombre del pool [B], descripción [C] y editor de preguntas y opciones [D]."
-      },
-      {
-        "badge": "E",
-        "step": "3",
-        "action": "El actor actualiza los campos habilitados y confirma mediante el botón \"Guardar Cambios\" [E]."
       }
     ],
     "missingButtons": [],
@@ -1263,6 +1246,11 @@
     "totalSteps": 3,
     "missingBadges": [
       {
+        "badge": "D",
+        "step": "2",
+        "action": "El sistema solicita los parámetros del cuestionario: nombre de la autoevaluación [B], tiempo límite en minutos [C], cantidad de preguntas sorteables [D], fecha de apertura [E], fecha de cierre [F], intentos permitidos [G] y pools asociados [H]."
+      },
+      {
         "badge": "E",
         "step": "2",
         "action": "El sistema solicita los parámetros del cuestionario: nombre de la autoevaluación [B], tiempo límite en minutos [C], cantidad de preguntas sorteables [D], fecha de apertura [E], fecha de cierre [F], intentos permitidos [G] y pools asociados [H]."
@@ -1281,11 +1269,6 @@
         "badge": "H",
         "step": "2",
         "action": "El sistema solicita los parámetros del cuestionario: nombre de la autoevaluación [B], tiempo límite en minutos [C], cantidad de preguntas sorteables [D], fecha de apertura [E], fecha de cierre [F], intentos permitidos [G] y pools asociados [H]."
-      },
-      {
-        "badge": "I",
-        "step": "3",
-        "action": "El actor completa los parámetros solicitados y confirma la creación mediante el botón \"Agregar\" [I]."
       }
     ],
     "missingButtons": [],
@@ -1331,11 +1314,6 @@
         "badge": "H",
         "step": "2",
         "action": "El sistema muestra los datos actuales en el formulario de edición: nombre del cuestionario [B], tiempo límite [C], cantidad de preguntas [D], fecha de apertura [E], fecha de cierre [F], intentos permitidos [G], y pools asociados [H]."
-      },
-      {
-        "badge": "I",
-        "step": "3",
-        "action": "El actor modifica los campos habilitados y confirma la actualización mediante el botón \"Guardar Cambios\" [I]."
       }
     ],
     "missingButtons": [],
@@ -1462,6 +1440,11 @@
     "totalSteps": 3,
     "missingBadges": [
       {
+        "badge": "D",
+        "step": "2",
+        "action": "El sistema solicita los datos de la transmisión: título de la clase [B], cohorte destinataria [C], fecha y hora de inicio [D], duración estimada en minutos [E] y enlace a la sala de streaming [F]."
+      },
+      {
         "badge": "E",
         "step": "2",
         "action": "El sistema solicita los datos de la transmisión: título de la clase [B], cohorte destinataria [C], fecha y hora de inicio [D], duración estimada en minutos [E] y enlace a la sala de streaming [F]."
@@ -1470,11 +1453,6 @@
         "badge": "F",
         "step": "2",
         "action": "El sistema solicita los datos de la transmisión: título de la clase [B], cohorte destinataria [C], fecha y hora de inicio [D], duración estimada en minutos [E] y enlace a la sala de streaming [F]."
-      },
-      {
-        "badge": "G",
-        "step": "3",
-        "action": "El actor completa los datos de la sesión y confirma la programación mediante el botón \"Agregar\" [G]."
       }
     ],
     "missingButtons": [],
@@ -1505,11 +1483,6 @@
         "badge": "E",
         "step": "3",
         "action": "El sistema muestra los datos actuales en el formulario: título de la clase [B], fecha y hora [C], duración estimada [D] y enlace a la sala [E]."
-      },
-      {
-        "badge": "F",
-        "step": "4",
-        "action": "El actor reprograma los datos y confirma mediante el botón \"Guardar Cambios\" [F]."
       }
     ],
     "missingButtons": [],
@@ -1834,6 +1807,11 @@
     "totalSteps": 3,
     "missingBadges": [
       {
+        "badge": "D",
+        "step": "2",
+        "action": "El sistema solicita los datos de la cuenta: nombre [B], apellido [C], correo electrónico [D], DNI [E], contraseña de acceso [F], teléfono [G] y rol del sistema [H]."
+      },
+      {
         "badge": "E",
         "step": "2",
         "action": "El sistema solicita los datos de la cuenta: nombre [B], apellido [C], correo electrónico [D], DNI [E], contraseña de acceso [F], teléfono [G] y rol del sistema [H]."
@@ -1852,11 +1830,6 @@
         "badge": "H",
         "step": "2",
         "action": "El sistema solicita los datos de la cuenta: nombre [B], apellido [C], correo electrónico [D], DNI [E], contraseña de acceso [F], teléfono [G] y rol del sistema [H]."
-      },
-      {
-        "badge": "I",
-        "step": "3",
-        "action": "El actor completa los datos personales y de acceso y confirma el alta mediante el botón \"Guardar Usuario\" [I]."
       }
     ],
     "missingButtons": [],
@@ -1897,11 +1870,6 @@
         "badge": "G",
         "step": "2",
         "action": "El sistema muestra los datos actuales en el formulario: nombre [B], apellido [C], correo electrónico [D], DNI [E], teléfono [F] y foto de perfil [G]."
-      },
-      {
-        "badge": "H",
-        "step": "3",
-        "action": "El actor actualiza los campos habilitados y confirma mediante el botón \"Guardar Cambios\" [H]."
       }
     ],
     "missingButtons": [
@@ -1978,6 +1946,11 @@
     "totalSteps": 3,
     "missingBadges": [
       {
+        "badge": "D",
+        "step": "2",
+        "action": "El sistema solicita los antecedentes del docente: nombre y apellido [B], correo electrónico [C], DNI y teléfono [D], biografía profesional [E], años de experiencia [F], títulos universitarios [G] y matrícula CNV / profesional [H]."
+      },
+      {
         "badge": "E",
         "step": "2",
         "action": "El sistema solicita los antecedentes del docente: nombre y apellido [B], correo electrónico [C], DNI y teléfono [D], biografía profesional [E], años de experiencia [F], títulos universitarios [G] y matrícula CNV / profesional [H]."
@@ -1996,11 +1969,6 @@
         "badge": "H",
         "step": "2",
         "action": "El sistema solicita los antecedentes del docente: nombre y apellido [B], correo electrónico [C], DNI y teléfono [D], biografía profesional [E], años de experiencia [F], títulos universitarios [G] y matrícula CNV / profesional [H]."
-      },
-      {
-        "badge": "I",
-        "step": "3",
-        "action": "El actor completa los datos profesionales y confirma mediante el botón \"Guardar Docente\" [I]."
       }
     ],
     "missingButtons": [],
@@ -2036,11 +2004,6 @@
         "badge": "F",
         "step": "2",
         "action": "El sistema muestra los antecedentes actuales: biografía profesional [B], años de experiencia [C], títulos universitarios [D], matrícula CNV [E] y estado de habilitación docente [F]."
-      },
-      {
-        "badge": "G",
-        "step": "3",
-        "action": "El actor actualiza los antecedentes habilitados y confirma mediante el botón \"Guardar Cambios\" [G]."
       }
     ],
     "missingButtons": [],
@@ -2211,13 +2174,7 @@
     "id": "CU-99",
     "name": "Configurar parámetros",
     "totalSteps": 4,
-    "missingBadges": [
-      {
-        "badge": "D",
-        "step": "4",
-        "action": "El actor ingresa el nuevo valor del parámetro y confirma la actualización mediante el botón \"Guardar Parámetro\" [D]."
-      }
-    ],
+    "missingBadges": [],
     "missingButtons": [],
     "buttonMatches": [
       {
