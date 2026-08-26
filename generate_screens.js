@@ -2252,6 +2252,12 @@ function generateScreenContent(cu) {
   // --- SPECIALIZED 14: BAJA / ELIMINACIÓN GENÉRICA ---
   const isDelete = name.toLowerCase().includes('baja') || name.toLowerCase().includes('cancelar') || name.toLowerCase().includes('eliminar') || name.toLowerCase().includes('quitar');
   if (isDelete) {
+    let confirmBtnLabel = 'Confirmar Eliminación';
+    if (name.includes('baja') && !name.includes('usuario') && !name.includes('categoría')) confirmBtnLabel = 'Confirmar Baja';
+    if (name.includes('cohorte') || name.includes('vivo')) confirmBtnLabel = 'Confirmar Cancelación';
+    if (name.includes('usuario')) confirmBtnLabel = 'Confirmar Desactivación';
+    if (name.includes('intento')) confirmBtnLabel = 'Confirmar Anulación';
+
     return `
       <div class="wf-card" style="max-width: 620px; margin: 30px auto; background: #FFFFFF;">
         <div class="wf-card-header text-center mb-4">
@@ -2259,14 +2265,14 @@ function generateScreenContent(cu) {
             <i class="fa-solid fa-triangle-exclamation" style="font-size: 24px; color: #DC2626;"></i>
           </div>
           <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">${name}</h3>
-          <p class="small text-muted" style="margin: 4px 0 0;">¿Está seguro de que desea confirmar la baja o eliminación del elemento seleccionado?</p>
+          <p class="small text-muted" style="margin: 4px 0 0;">¿Está seguro de que desea confirmar la operación sobre el elemento seleccionado?</p>
         </div>
 
         <div class="p-3 mb-4 bg-light border rounded">
           <div class="d-flex justify-content-between align-items-center mb-2">
             <span class="small text-muted">Elemento seleccionado:</span>
             <div class="d-flex align-items-center gap-2">
-              <strong style="font-size: 13px; color: #081426;">Registro #${id.replace('CU-', '')} (${name.replace('Dar de baja ', '').replace('Eliminar ', '')})</strong>
+              <strong style="font-size: 13px; color: #081426;">Registro #${id.replace('CU-', '')} (${name.replace('Dar de baja ', '').replace('Eliminar ', '').replace('Cancelar ', '')})</strong>
               <span class="pin-badge">${badges[0] || 'A'}</span>
             </div>
           </div>
@@ -2279,7 +2285,7 @@ function generateScreenContent(cu) {
         <div class="d-flex justify-content-end gap-3 pt-3 border-top">
           <button class="wf-btn wf-btn-outline">Cancelar / Volver</button>
           <div class="d-flex align-items-center gap-2">
-            <button class="wf-btn wf-btn-danger"><i class="fa-solid fa-trash me-1"></i> Confirmar Eliminación</button>
+            <button class="wf-btn wf-btn-danger"><i class="fa-solid fa-trash me-1"></i> ${confirmBtnLabel}</button>
             <span class="pin-badge">${badges[1] || badges[badges.length - 1] || 'B'}</span>
           </div>
         </div>
@@ -2290,6 +2296,16 @@ function generateScreenContent(cu) {
   // --- SPECIALIZED 15: BÚSQUEDAS / TABLAS DE GESTIÓN ---
   const isSearch = name.toLowerCase().startsWith('buscar') || name.toLowerCase().startsWith('consultar') || name.toLowerCase().startsWith('ver') || name.toLowerCase().startsWith('explorar');
   if (isSearch) {
+    let actionBtnLabel = 'Seleccionar / Ver';
+    if (name.includes('curso') || name.includes('catálogo')) actionBtnLabel = 'Ver Ficha / Inscribirme';
+    if (name.includes('programa')) actionBtnLabel = 'Editar Programa';
+    if (name.includes('cohorte')) actionBtnLabel = 'Editar Cohorte';
+    if (name.includes('usuario')) actionBtnLabel = 'Editar Usuario';
+    if (name.includes('categoría')) actionBtnLabel = 'Editar';
+    if (name.includes('descuento')) actionBtnLabel = 'Editar';
+    if (name.includes('parámetro')) actionBtnLabel = 'Editar Valor';
+    if (name.includes('intento')) actionBtnLabel = 'Revisar Intento';
+
     return `
       <div class="wf-card mb-4" style="background: #FFFFFF;">
         <div class="row g-3 align-items-end">
@@ -2319,7 +2335,7 @@ function generateScreenContent(cu) {
           </div>
           <div class="col-md-3">
             <div class="d-flex align-items-center gap-2">
-              <button class="wf-btn wf-btn-primary w-100"><i class="fa-solid fa-magnifying-glass me-1"></i> Buscar</button>
+              <button class="wf-btn wf-btn-primary w-100"><i class="fa-solid fa-magnifying-glass me-1"></i> ${name.includes('mis cursos') || name.includes('participantes') || name.includes('programa') ? 'Filtrar' : 'Buscar'}</button>
               <span class="pin-badge">${badges[2] || 'C'}</span>
             </div>
           </div>
@@ -2345,7 +2361,7 @@ function generateScreenContent(cu) {
               <td><span class="wf-badge status-active">Activo</span></td>
               <td class="text-end">
                 <div class="d-inline-flex align-items-center gap-1">
-                  <button class="wf-btn wf-btn-sm wf-btn-outline">Seleccionar / Ver</button>
+                  <button class="wf-btn wf-btn-sm wf-btn-outline">${actionBtnLabel}</button>
                   <span class="pin-badge">${badges[3] || badges[badges.length - 1] || 'D'}</span>
                 </div>
               </td>
@@ -2356,7 +2372,7 @@ function generateScreenContent(cu) {
               <td>2026-08-20</td>
               <td><span class="wf-badge status-active">Activo</span></td>
               <td class="text-end">
-                <button class="wf-btn wf-btn-sm wf-btn-outline">Seleccionar / Ver</button>
+                <button class="wf-btn wf-btn-sm wf-btn-outline">${actionBtnLabel}</button>
               </td>
             </tr>
           </tbody>
@@ -2367,11 +2383,24 @@ function generateScreenContent(cu) {
 
   // --- SPECIALIZED 16: FORMULARIOS DE REGISTRO / MODIFICACIÓN ESPECÍFICOS ---
   const isMod = name.toLowerCase().startsWith('modificar') || name.toLowerCase().startsWith('editar');
+  let saveBtnText = isMod ? 'Guardar Cambios' : 'Confirmar y Guardar';
+  if (name.includes('curso') && !isMod) saveBtnText = 'Guardar Curso';
+  if (name.includes('categoría') && !isMod) saveBtnText = 'Guardar Categoría';
+  if (name.includes('cohorte') && !isMod) saveBtnText = 'Guardar Cohorte';
+  if (name.includes('programa') && !isMod) saveBtnText = 'Guardar Programa';
+  if (name.includes('descuento') && !isMod) saveBtnText = 'Guardar Descuento';
+  if (name.includes('usuario') && !isMod) saveBtnText = 'Guardar Usuario';
+  if (name.includes('docente') && !isMod) saveBtnText = 'Guardar Docente';
+  if (name.includes('parámetro')) saveBtnText = 'Guardar Parámetro';
+
   return `
     <div class="wf-card" style="max-width: 860px; margin: 0 auto; background: #FFFFFF;">
       <div class="wf-card-header mb-4 pb-3 border-bottom d-flex justify-content-between align-items-center">
         <div>
-          <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">${name}</h3>
+          <div class="d-flex align-items-center gap-2">
+            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">${name}</h3>
+            <span class="pin-badge">${badges[0] || 'A'}</span>
+          </div>
           <p class="small text-muted" style="margin: 3px 0 0;">Complete los datos correspondientes en el sistema.</p>
         </div>
         <span class="wf-badge status-active">${isMod ? 'Modo Edición' : 'Formulario de Alta'}</span>
@@ -2382,7 +2411,7 @@ function generateScreenContent(cu) {
           <label class="wf-label">Nombre / Denominación</label>
           <div class="wf-input-wrap">
             <input type="text" class="wf-input" value="${name.includes('curso') ? 'Especialización en Idoneidad Bursátil' : (name.includes('categoría') ? 'Mercado de Capitales' : (name.includes('cohorte') ? 'Cohorte 2026-1' : 'Registro de ' + name))}">
-            <span class="pin-badge">${badges[0] || 'A'}</span>
+            <span class="pin-badge">${badges[1] || 'B'}</span>
           </div>
         </div>
 
@@ -2394,17 +2423,24 @@ function generateScreenContent(cu) {
                 <span>Mercado de Capitales</span>
                 <i class="fa-solid fa-chevron-down" style="font-size: 11px;"></i>
               </div>
-              <span class="pin-badge">${badges[1] || 'B'}</span>
             </div>
           </div>
         </div>
 
         <div class="col-12">
-          <label class="wf-label">Descripción Académica / Contenido</label>
-          <div class="wf-input-wrap">
-            <textarea class="wf-input" rows="3">Descripción detallada correspondiente al caso de uso ${id} (${name}).</textarea>
-            <span class="pin-badge">${badges[2] || 'C'}</span>
-          </div>
+          <label class="wf-label">${name.includes('curso') ? 'Portada / Archivo de Imagen' : 'Descripción Académica / Contenido'}</label>
+          ${name.includes('curso') ? `
+            <div class="wf-input-wrap">
+              <input type="text" class="wf-input" value="portada_curso_idoneos.png">
+              <button class="wf-btn wf-btn-outline wf-btn-sm"><i class="fa-solid fa-folder-open me-1"></i> Examinar...</button>
+              <span class="pin-badge">${badges[2] || 'C'}</span>
+            </div>
+          ` : `
+            <div class="wf-input-wrap">
+              <textarea class="wf-input" rows="3">Descripción detallada correspondiente al caso de uso ${id} (${name}).</textarea>
+              <span class="pin-badge">${badges[2] || 'C'}</span>
+            </div>
+          `}
         </div>
 
         <div class="col-md-4">
@@ -2426,7 +2462,7 @@ function generateScreenContent(cu) {
       <div class="wf-card-footer d-flex justify-content-end gap-3 mt-4 pt-3 border-top">
         <button class="wf-btn wf-btn-outline">Cancelar / Volver</button>
         <div class="d-flex align-items-center gap-2">
-          <button class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> ${isMod ? 'Guardar Cambios' : 'Confirmar y Guardar'}</button>
+          <button class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> ${saveBtnText}</button>
           <span class="pin-badge">${badges[badges.length - 1] || 'D'}</span>
         </div>
       </div>

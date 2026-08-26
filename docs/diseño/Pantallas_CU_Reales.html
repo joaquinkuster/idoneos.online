@@ -2585,7 +2585,10 @@
     <div class="wf-card" style="max-width: 860px; margin: 0 auto; background: #FFFFFF;">
       <div class="wf-card-header mb-4 pb-3 border-bottom d-flex justify-content-between align-items-center">
         <div>
-          <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Registrar curso</h3>
+          <div class="d-flex align-items-center gap-2">
+            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Registrar curso</h3>
+            <span class="pin-badge">A</span>
+          </div>
           <p class="small text-muted" style="margin: 3px 0 0;">Complete los datos correspondientes en el sistema.</p>
         </div>
         <span class="wf-badge status-active">Formulario de Alta</span>
@@ -2596,7 +2599,7 @@
           <label class="wf-label">Nombre / Denominación</label>
           <div class="wf-input-wrap">
             <input type="text" class="wf-input" value="Especialización en Idoneidad Bursátil">
-            <span class="pin-badge">A</span>
+            <span class="pin-badge">B</span>
           </div>
         </div>
 
@@ -2608,17 +2611,19 @@
                 <span>Mercado de Capitales</span>
                 <i class="fa-solid fa-chevron-down" style="font-size: 11px;"></i>
               </div>
-              <span class="pin-badge">B</span>
             </div>
           </div>
         </div>
 
         <div class="col-12">
-          <label class="wf-label">Descripción Académica / Contenido</label>
-          <div class="wf-input-wrap">
-            <textarea class="wf-input" rows="3">Descripción detallada correspondiente al caso de uso CU-03 (Registrar curso).</textarea>
-            <span class="pin-badge">C</span>
-          </div>
+          <label class="wf-label">Portada / Archivo de Imagen</label>
+          
+            <div class="wf-input-wrap">
+              <input type="text" class="wf-input" value="portada_curso_idoneos.png">
+              <button class="wf-btn wf-btn-outline wf-btn-sm"><i class="fa-solid fa-folder-open me-1"></i> Examinar...</button>
+              <span class="pin-badge">C</span>
+            </div>
+          
         </div>
 
         <div class="col-md-4">
@@ -2640,7 +2645,7 @@
       <div class="wf-card-footer d-flex justify-content-end gap-3 mt-4 pt-3 border-top">
         <button class="wf-btn wf-btn-outline">Cancelar / Volver</button>
         <div class="d-flex align-items-center gap-2">
-          <button class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Confirmar y Guardar</button>
+          <button class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Guardar Curso</button>
           <span class="pin-badge">D</span>
         </div>
       </div>
@@ -2787,7 +2792,10 @@
     <div class="wf-card" style="max-width: 860px; margin: 0 auto; background: #FFFFFF;">
       <div class="wf-card-header mb-4 pb-3 border-bottom d-flex justify-content-between align-items-center">
         <div>
-          <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Modificar curso</h3>
+          <div class="d-flex align-items-center gap-2">
+            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Modificar curso</h3>
+            <span class="pin-badge">A</span>
+          </div>
           <p class="small text-muted" style="margin: 3px 0 0;">Complete los datos correspondientes en el sistema.</p>
         </div>
         <span class="wf-badge status-active">Modo Edición</span>
@@ -2798,7 +2806,7 @@
           <label class="wf-label">Nombre / Denominación</label>
           <div class="wf-input-wrap">
             <input type="text" class="wf-input" value="Especialización en Idoneidad Bursátil">
-            <span class="pin-badge">A</span>
+            <span class="pin-badge">B</span>
           </div>
         </div>
 
@@ -2810,17 +2818,19 @@
                 <span>Mercado de Capitales</span>
                 <i class="fa-solid fa-chevron-down" style="font-size: 11px;"></i>
               </div>
-              <span class="pin-badge">B</span>
             </div>
           </div>
         </div>
 
         <div class="col-12">
-          <label class="wf-label">Descripción Académica / Contenido</label>
-          <div class="wf-input-wrap">
-            <textarea class="wf-input" rows="3">Descripción detallada correspondiente al caso de uso CU-04 (Modificar curso).</textarea>
-            <span class="pin-badge">C</span>
-          </div>
+          <label class="wf-label">Portada / Archivo de Imagen</label>
+          
+            <div class="wf-input-wrap">
+              <input type="text" class="wf-input" value="portada_curso_idoneos.png">
+              <button class="wf-btn wf-btn-outline wf-btn-sm"><i class="fa-solid fa-folder-open me-1"></i> Examinar...</button>
+              <span class="pin-badge">C</span>
+            </div>
+          
         </div>
 
         <div class="col-md-4">
@@ -2992,7 +3002,7 @@
             <i class="fa-solid fa-triangle-exclamation" style="font-size: 24px; color: #DC2626;"></i>
           </div>
           <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Dar de baja curso</h3>
-          <p class="small text-muted" style="margin: 4px 0 0;">¿Está seguro de que desea confirmar la baja o eliminación del elemento seleccionado?</p>
+          <p class="small text-muted" style="margin: 4px 0 0;">¿Está seguro de que desea confirmar la operación sobre el elemento seleccionado?</p>
         </div>
 
         <div class="p-3 mb-4 bg-light border rounded">
@@ -3012,7 +3022,7 @@
         <div class="d-flex justify-content-end gap-3 pt-3 border-top">
           <button class="wf-btn wf-btn-outline">Cancelar / Volver</button>
           <div class="d-flex align-items-center gap-2">
-            <button class="wf-btn wf-btn-danger"><i class="fa-solid fa-trash me-1"></i> Confirmar Eliminación</button>
+            <button class="wf-btn wf-btn-danger"><i class="fa-solid fa-trash me-1"></i> Confirmar Baja</button>
             <span class="pin-badge">B</span>
           </div>
         </div>
@@ -3450,7 +3460,7 @@
               <td><span class="wf-badge status-active">Activo</span></td>
               <td class="text-end">
                 <div class="d-inline-flex align-items-center gap-1">
-                  <button class="wf-btn wf-btn-sm wf-btn-outline">Seleccionar / Ver</button>
+                  <button class="wf-btn wf-btn-sm wf-btn-outline">Editar</button>
                   <span class="pin-badge">C</span>
                 </div>
               </td>
@@ -3461,7 +3471,7 @@
               <td>2026-08-20</td>
               <td><span class="wf-badge status-active">Activo</span></td>
               <td class="text-end">
-                <button class="wf-btn wf-btn-sm wf-btn-outline">Seleccionar / Ver</button>
+                <button class="wf-btn wf-btn-sm wf-btn-outline">Editar</button>
               </td>
             </tr>
           </tbody>
@@ -3609,7 +3619,10 @@
     <div class="wf-card" style="max-width: 860px; margin: 0 auto; background: #FFFFFF;">
       <div class="wf-card-header mb-4 pb-3 border-bottom d-flex justify-content-between align-items-center">
         <div>
-          <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Registrar categoría</h3>
+          <div class="d-flex align-items-center gap-2">
+            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Registrar categoría</h3>
+            <span class="pin-badge">A</span>
+          </div>
           <p class="small text-muted" style="margin: 3px 0 0;">Complete los datos correspondientes en el sistema.</p>
         </div>
         <span class="wf-badge status-active">Formulario de Alta</span>
@@ -3620,7 +3633,7 @@
           <label class="wf-label">Nombre / Denominación</label>
           <div class="wf-input-wrap">
             <input type="text" class="wf-input" value="Mercado de Capitales">
-            <span class="pin-badge">A</span>
+            <span class="pin-badge">B</span>
           </div>
         </div>
 
@@ -3632,17 +3645,18 @@
                 <span>Mercado de Capitales</span>
                 <i class="fa-solid fa-chevron-down" style="font-size: 11px;"></i>
               </div>
-              <span class="pin-badge">B</span>
             </div>
           </div>
         </div>
 
         <div class="col-12">
           <label class="wf-label">Descripción Académica / Contenido</label>
-          <div class="wf-input-wrap">
-            <textarea class="wf-input" rows="3">Descripción detallada correspondiente al caso de uso CU-08 (Registrar categoría).</textarea>
-            <span class="pin-badge">C</span>
-          </div>
+          
+            <div class="wf-input-wrap">
+              <textarea class="wf-input" rows="3">Descripción detallada correspondiente al caso de uso CU-08 (Registrar categoría).</textarea>
+              <span class="pin-badge">C</span>
+            </div>
+          
         </div>
 
         <div class="col-md-4">
@@ -3664,7 +3678,7 @@
       <div class="wf-card-footer d-flex justify-content-end gap-3 mt-4 pt-3 border-top">
         <button class="wf-btn wf-btn-outline">Cancelar / Volver</button>
         <div class="d-flex align-items-center gap-2">
-          <button class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Confirmar y Guardar</button>
+          <button class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Guardar Categoría</button>
           <span class="pin-badge">C</span>
         </div>
       </div>
@@ -3811,7 +3825,10 @@
     <div class="wf-card" style="max-width: 860px; margin: 0 auto; background: #FFFFFF;">
       <div class="wf-card-header mb-4 pb-3 border-bottom d-flex justify-content-between align-items-center">
         <div>
-          <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Modificar categoría</h3>
+          <div class="d-flex align-items-center gap-2">
+            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Modificar categoría</h3>
+            <span class="pin-badge">A</span>
+          </div>
           <p class="small text-muted" style="margin: 3px 0 0;">Complete los datos correspondientes en el sistema.</p>
         </div>
         <span class="wf-badge status-active">Modo Edición</span>
@@ -3822,7 +3839,7 @@
           <label class="wf-label">Nombre / Denominación</label>
           <div class="wf-input-wrap">
             <input type="text" class="wf-input" value="Mercado de Capitales">
-            <span class="pin-badge">A</span>
+            <span class="pin-badge">B</span>
           </div>
         </div>
 
@@ -3834,17 +3851,18 @@
                 <span>Mercado de Capitales</span>
                 <i class="fa-solid fa-chevron-down" style="font-size: 11px;"></i>
               </div>
-              <span class="pin-badge">B</span>
             </div>
           </div>
         </div>
 
         <div class="col-12">
           <label class="wf-label">Descripción Académica / Contenido</label>
-          <div class="wf-input-wrap">
-            <textarea class="wf-input" rows="3">Descripción detallada correspondiente al caso de uso CU-09 (Modificar categoría).</textarea>
-            <span class="pin-badge">C</span>
-          </div>
+          
+            <div class="wf-input-wrap">
+              <textarea class="wf-input" rows="3">Descripción detallada correspondiente al caso de uso CU-09 (Modificar categoría).</textarea>
+              <span class="pin-badge">C</span>
+            </div>
+          
         </div>
 
         <div class="col-md-4">
@@ -4016,7 +4034,7 @@
             <i class="fa-solid fa-triangle-exclamation" style="font-size: 24px; color: #DC2626;"></i>
           </div>
           <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Dar de baja categoría</h3>
-          <p class="small text-muted" style="margin: 4px 0 0;">¿Está seguro de que desea confirmar la baja o eliminación del elemento seleccionado?</p>
+          <p class="small text-muted" style="margin: 4px 0 0;">¿Está seguro de que desea confirmar la operación sobre el elemento seleccionado?</p>
         </div>
 
         <div class="p-3 mb-4 bg-light border rounded">
@@ -4234,7 +4252,7 @@
               <td><span class="wf-badge status-active">Activo</span></td>
               <td class="text-end">
                 <div class="d-inline-flex align-items-center gap-1">
-                  <button class="wf-btn wf-btn-sm wf-btn-outline">Seleccionar / Ver</button>
+                  <button class="wf-btn wf-btn-sm wf-btn-outline">Editar Cohorte</button>
                   <span class="pin-badge">D</span>
                 </div>
               </td>
@@ -4245,7 +4263,7 @@
               <td>2026-08-20</td>
               <td><span class="wf-badge status-active">Activo</span></td>
               <td class="text-end">
-                <button class="wf-btn wf-btn-sm wf-btn-outline">Seleccionar / Ver</button>
+                <button class="wf-btn wf-btn-sm wf-btn-outline">Editar Cohorte</button>
               </td>
             </tr>
           </tbody>
@@ -4393,7 +4411,10 @@
     <div class="wf-card" style="max-width: 860px; margin: 0 auto; background: #FFFFFF;">
       <div class="wf-card-header mb-4 pb-3 border-bottom d-flex justify-content-between align-items-center">
         <div>
-          <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Registrar cohorte</h3>
+          <div class="d-flex align-items-center gap-2">
+            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Registrar cohorte</h3>
+            <span class="pin-badge">A</span>
+          </div>
           <p class="small text-muted" style="margin: 3px 0 0;">Complete los datos correspondientes en el sistema.</p>
         </div>
         <span class="wf-badge status-active">Formulario de Alta</span>
@@ -4404,7 +4425,7 @@
           <label class="wf-label">Nombre / Denominación</label>
           <div class="wf-input-wrap">
             <input type="text" class="wf-input" value="Cohorte 2026-1">
-            <span class="pin-badge">A</span>
+            <span class="pin-badge">B</span>
           </div>
         </div>
 
@@ -4416,17 +4437,18 @@
                 <span>Mercado de Capitales</span>
                 <i class="fa-solid fa-chevron-down" style="font-size: 11px;"></i>
               </div>
-              <span class="pin-badge">B</span>
             </div>
           </div>
         </div>
 
         <div class="col-12">
           <label class="wf-label">Descripción Académica / Contenido</label>
-          <div class="wf-input-wrap">
-            <textarea class="wf-input" rows="3">Descripción detallada correspondiente al caso de uso CU-12 (Registrar cohorte).</textarea>
-            <span class="pin-badge">C</span>
-          </div>
+          
+            <div class="wf-input-wrap">
+              <textarea class="wf-input" rows="3">Descripción detallada correspondiente al caso de uso CU-12 (Registrar cohorte).</textarea>
+              <span class="pin-badge">C</span>
+            </div>
+          
         </div>
 
         <div class="col-md-4">
@@ -4448,7 +4470,7 @@
       <div class="wf-card-footer d-flex justify-content-end gap-3 mt-4 pt-3 border-top">
         <button class="wf-btn wf-btn-outline">Cancelar / Volver</button>
         <div class="d-flex align-items-center gap-2">
-          <button class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Confirmar y Guardar</button>
+          <button class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Guardar Cohorte</button>
           <span class="pin-badge">D</span>
         </div>
       </div>
@@ -4595,7 +4617,10 @@
     <div class="wf-card" style="max-width: 860px; margin: 0 auto; background: #FFFFFF;">
       <div class="wf-card-header mb-4 pb-3 border-bottom d-flex justify-content-between align-items-center">
         <div>
-          <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Modificar cohorte</h3>
+          <div class="d-flex align-items-center gap-2">
+            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Modificar cohorte</h3>
+            <span class="pin-badge">A</span>
+          </div>
           <p class="small text-muted" style="margin: 3px 0 0;">Complete los datos correspondientes en el sistema.</p>
         </div>
         <span class="wf-badge status-active">Modo Edición</span>
@@ -4606,7 +4631,7 @@
           <label class="wf-label">Nombre / Denominación</label>
           <div class="wf-input-wrap">
             <input type="text" class="wf-input" value="Cohorte 2026-1">
-            <span class="pin-badge">A</span>
+            <span class="pin-badge">B</span>
           </div>
         </div>
 
@@ -4618,17 +4643,18 @@
                 <span>Mercado de Capitales</span>
                 <i class="fa-solid fa-chevron-down" style="font-size: 11px;"></i>
               </div>
-              <span class="pin-badge">B</span>
             </div>
           </div>
         </div>
 
         <div class="col-12">
           <label class="wf-label">Descripción Académica / Contenido</label>
-          <div class="wf-input-wrap">
-            <textarea class="wf-input" rows="3">Descripción detallada correspondiente al caso de uso CU-13 (Modificar cohorte).</textarea>
-            <span class="pin-badge">C</span>
-          </div>
+          
+            <div class="wf-input-wrap">
+              <textarea class="wf-input" rows="3">Descripción detallada correspondiente al caso de uso CU-13 (Modificar cohorte).</textarea>
+              <span class="pin-badge">C</span>
+            </div>
+          
         </div>
 
         <div class="col-md-4">
@@ -4800,7 +4826,7 @@
             <i class="fa-solid fa-triangle-exclamation" style="font-size: 24px; color: #DC2626;"></i>
           </div>
           <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Dar de baja cohorte</h3>
-          <p class="small text-muted" style="margin: 4px 0 0;">¿Está seguro de que desea confirmar la baja o eliminación del elemento seleccionado?</p>
+          <p class="small text-muted" style="margin: 4px 0 0;">¿Está seguro de que desea confirmar la operación sobre el elemento seleccionado?</p>
         </div>
 
         <div class="p-3 mb-4 bg-light border rounded">
@@ -4820,7 +4846,7 @@
         <div class="d-flex justify-content-end gap-3 pt-3 border-top">
           <button class="wf-btn wf-btn-outline">Cancelar / Volver</button>
           <div class="d-flex align-items-center gap-2">
-            <button class="wf-btn wf-btn-danger"><i class="fa-solid fa-trash me-1"></i> Confirmar Eliminación</button>
+            <button class="wf-btn wf-btn-danger"><i class="fa-solid fa-trash me-1"></i> Confirmar Cancelación</button>
             <span class="pin-badge">B</span>
           </div>
         </div>
@@ -4992,7 +5018,7 @@
           </div>
           <div class="col-md-3">
             <div class="d-flex align-items-center gap-2">
-              <button class="wf-btn wf-btn-primary w-100"><i class="fa-solid fa-magnifying-glass me-1"></i> Buscar</button>
+              <button class="wf-btn wf-btn-primary w-100"><i class="fa-solid fa-magnifying-glass me-1"></i> Filtrar</button>
               <span class="pin-badge">C</span>
             </div>
           </div>
@@ -5018,7 +5044,7 @@
               <td><span class="wf-badge status-active">Activo</span></td>
               <td class="text-end">
                 <div class="d-inline-flex align-items-center gap-1">
-                  <button class="wf-btn wf-btn-sm wf-btn-outline">Seleccionar / Ver</button>
+                  <button class="wf-btn wf-btn-sm wf-btn-outline">Editar Programa</button>
                   <span class="pin-badge">C</span>
                 </div>
               </td>
@@ -5029,7 +5055,7 @@
               <td>2026-08-20</td>
               <td><span class="wf-badge status-active">Activo</span></td>
               <td class="text-end">
-                <button class="wf-btn wf-btn-sm wf-btn-outline">Seleccionar / Ver</button>
+                <button class="wf-btn wf-btn-sm wf-btn-outline">Editar Programa</button>
               </td>
             </tr>
           </tbody>
@@ -5177,7 +5203,10 @@
     <div class="wf-card" style="max-width: 860px; margin: 0 auto; background: #FFFFFF;">
       <div class="wf-card-header mb-4 pb-3 border-bottom d-flex justify-content-between align-items-center">
         <div>
-          <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Registrar programa</h3>
+          <div class="d-flex align-items-center gap-2">
+            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Registrar programa</h3>
+            <span class="pin-badge">A</span>
+          </div>
           <p class="small text-muted" style="margin: 3px 0 0;">Complete los datos correspondientes en el sistema.</p>
         </div>
         <span class="wf-badge status-active">Formulario de Alta</span>
@@ -5188,7 +5217,7 @@
           <label class="wf-label">Nombre / Denominación</label>
           <div class="wf-input-wrap">
             <input type="text" class="wf-input" value="Registro de Registrar programa">
-            <span class="pin-badge">A</span>
+            <span class="pin-badge">B</span>
           </div>
         </div>
 
@@ -5200,17 +5229,18 @@
                 <span>Mercado de Capitales</span>
                 <i class="fa-solid fa-chevron-down" style="font-size: 11px;"></i>
               </div>
-              <span class="pin-badge">B</span>
             </div>
           </div>
         </div>
 
         <div class="col-12">
           <label class="wf-label">Descripción Académica / Contenido</label>
-          <div class="wf-input-wrap">
-            <textarea class="wf-input" rows="3">Descripción detallada correspondiente al caso de uso CU-16 (Registrar programa).</textarea>
-            <span class="pin-badge">C</span>
-          </div>
+          
+            <div class="wf-input-wrap">
+              <textarea class="wf-input" rows="3">Descripción detallada correspondiente al caso de uso CU-16 (Registrar programa).</textarea>
+              <span class="pin-badge">C</span>
+            </div>
+          
         </div>
 
         <div class="col-md-4">
@@ -5232,7 +5262,7 @@
       <div class="wf-card-footer d-flex justify-content-end gap-3 mt-4 pt-3 border-top">
         <button class="wf-btn wf-btn-outline">Cancelar / Volver</button>
         <div class="d-flex align-items-center gap-2">
-          <button class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Confirmar y Guardar</button>
+          <button class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Guardar Programa</button>
           <span class="pin-badge">D</span>
         </div>
       </div>
@@ -5379,7 +5409,10 @@
     <div class="wf-card" style="max-width: 860px; margin: 0 auto; background: #FFFFFF;">
       <div class="wf-card-header mb-4 pb-3 border-bottom d-flex justify-content-between align-items-center">
         <div>
-          <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Modificar programa</h3>
+          <div class="d-flex align-items-center gap-2">
+            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Modificar programa</h3>
+            <span class="pin-badge">A</span>
+          </div>
           <p class="small text-muted" style="margin: 3px 0 0;">Complete los datos correspondientes en el sistema.</p>
         </div>
         <span class="wf-badge status-active">Modo Edición</span>
@@ -5390,7 +5423,7 @@
           <label class="wf-label">Nombre / Denominación</label>
           <div class="wf-input-wrap">
             <input type="text" class="wf-input" value="Registro de Modificar programa">
-            <span class="pin-badge">A</span>
+            <span class="pin-badge">B</span>
           </div>
         </div>
 
@@ -5402,17 +5435,18 @@
                 <span>Mercado de Capitales</span>
                 <i class="fa-solid fa-chevron-down" style="font-size: 11px;"></i>
               </div>
-              <span class="pin-badge">B</span>
             </div>
           </div>
         </div>
 
         <div class="col-12">
           <label class="wf-label">Descripción Académica / Contenido</label>
-          <div class="wf-input-wrap">
-            <textarea class="wf-input" rows="3">Descripción detallada correspondiente al caso de uso CU-17 (Modificar programa).</textarea>
-            <span class="pin-badge">C</span>
-          </div>
+          
+            <div class="wf-input-wrap">
+              <textarea class="wf-input" rows="3">Descripción detallada correspondiente al caso de uso CU-17 (Modificar programa).</textarea>
+              <span class="pin-badge">C</span>
+            </div>
+          
         </div>
 
         <div class="col-md-4">
@@ -5584,7 +5618,7 @@
             <i class="fa-solid fa-triangle-exclamation" style="font-size: 24px; color: #DC2626;"></i>
           </div>
           <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Dar de baja programa</h3>
-          <p class="small text-muted" style="margin: 4px 0 0;">¿Está seguro de que desea confirmar la baja o eliminación del elemento seleccionado?</p>
+          <p class="small text-muted" style="margin: 4px 0 0;">¿Está seguro de que desea confirmar la operación sobre el elemento seleccionado?</p>
         </div>
 
         <div class="p-3 mb-4 bg-light border rounded">
@@ -5604,7 +5638,7 @@
         <div class="d-flex justify-content-end gap-3 pt-3 border-top">
           <button class="wf-btn wf-btn-outline">Cancelar / Volver</button>
           <div class="d-flex align-items-center gap-2">
-            <button class="wf-btn wf-btn-danger"><i class="fa-solid fa-trash me-1"></i> Confirmar Eliminación</button>
+            <button class="wf-btn wf-btn-danger"><i class="fa-solid fa-trash me-1"></i> Confirmar Baja</button>
             <span class="pin-badge">B</span>
           </div>
         </div>
@@ -8267,7 +8301,10 @@
     <div class="wf-card" style="max-width: 860px; margin: 0 auto; background: #FFFFFF;">
       <div class="wf-card-header mb-4 pb-3 border-bottom d-flex justify-content-between align-items-center">
         <div>
-          <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Modificar material</h3>
+          <div class="d-flex align-items-center gap-2">
+            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Modificar material</h3>
+            <span class="pin-badge">A</span>
+          </div>
           <p class="small text-muted" style="margin: 3px 0 0;">Complete los datos correspondientes en el sistema.</p>
         </div>
         <span class="wf-badge status-active">Modo Edición</span>
@@ -8278,7 +8315,7 @@
           <label class="wf-label">Nombre / Denominación</label>
           <div class="wf-input-wrap">
             <input type="text" class="wf-input" value="Registro de Modificar material">
-            <span class="pin-badge">A</span>
+            <span class="pin-badge">B</span>
           </div>
         </div>
 
@@ -8290,17 +8327,18 @@
                 <span>Mercado de Capitales</span>
                 <i class="fa-solid fa-chevron-down" style="font-size: 11px;"></i>
               </div>
-              <span class="pin-badge">B</span>
             </div>
           </div>
         </div>
 
         <div class="col-12">
           <label class="wf-label">Descripción Académica / Contenido</label>
-          <div class="wf-input-wrap">
-            <textarea class="wf-input" rows="3">Descripción detallada correspondiente al caso de uso CU-29 (Modificar material).</textarea>
-            <span class="pin-badge">C</span>
-          </div>
+          
+            <div class="wf-input-wrap">
+              <textarea class="wf-input" rows="3">Descripción detallada correspondiente al caso de uso CU-29 (Modificar material).</textarea>
+              <span class="pin-badge">C</span>
+            </div>
+          
         </div>
 
         <div class="col-md-4">
@@ -8472,7 +8510,7 @@
             <i class="fa-solid fa-triangle-exclamation" style="font-size: 24px; color: #DC2626;"></i>
           </div>
           <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Dar de baja material</h3>
-          <p class="small text-muted" style="margin: 4px 0 0;">¿Está seguro de que desea confirmar la baja o eliminación del elemento seleccionado?</p>
+          <p class="small text-muted" style="margin: 4px 0 0;">¿Está seguro de que desea confirmar la operación sobre el elemento seleccionado?</p>
         </div>
 
         <div class="p-3 mb-4 bg-light border rounded">
@@ -8492,7 +8530,7 @@
         <div class="d-flex justify-content-end gap-3 pt-3 border-top">
           <button class="wf-btn wf-btn-outline">Cancelar / Volver</button>
           <div class="d-flex align-items-center gap-2">
-            <button class="wf-btn wf-btn-danger"><i class="fa-solid fa-trash me-1"></i> Confirmar Eliminación</button>
+            <button class="wf-btn wf-btn-danger"><i class="fa-solid fa-trash me-1"></i> Confirmar Baja</button>
             <span class="pin-badge">B</span>
           </div>
         </div>
@@ -9103,7 +9141,10 @@
     <div class="wf-card" style="max-width: 860px; margin: 0 auto; background: #FFFFFF;">
       <div class="wf-card-header mb-4 pb-3 border-bottom d-flex justify-content-between align-items-center">
         <div>
-          <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Modificar término de glosario</h3>
+          <div class="d-flex align-items-center gap-2">
+            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Modificar término de glosario</h3>
+            <span class="pin-badge">A</span>
+          </div>
           <p class="small text-muted" style="margin: 3px 0 0;">Complete los datos correspondientes en el sistema.</p>
         </div>
         <span class="wf-badge status-active">Modo Edición</span>
@@ -9114,7 +9155,7 @@
           <label class="wf-label">Nombre / Denominación</label>
           <div class="wf-input-wrap">
             <input type="text" class="wf-input" value="Registro de Modificar término de glosario">
-            <span class="pin-badge">A</span>
+            <span class="pin-badge">B</span>
           </div>
         </div>
 
@@ -9126,17 +9167,18 @@
                 <span>Mercado de Capitales</span>
                 <i class="fa-solid fa-chevron-down" style="font-size: 11px;"></i>
               </div>
-              <span class="pin-badge">B</span>
             </div>
           </div>
         </div>
 
         <div class="col-12">
           <label class="wf-label">Descripción Académica / Contenido</label>
-          <div class="wf-input-wrap">
-            <textarea class="wf-input" rows="3">Descripción detallada correspondiente al caso de uso CU-33 (Modificar término de glosario).</textarea>
-            <span class="pin-badge">C</span>
-          </div>
+          
+            <div class="wf-input-wrap">
+              <textarea class="wf-input" rows="3">Descripción detallada correspondiente al caso de uso CU-33 (Modificar término de glosario).</textarea>
+              <span class="pin-badge">C</span>
+            </div>
+          
         </div>
 
         <div class="col-md-4">
@@ -9308,7 +9350,7 @@
             <i class="fa-solid fa-triangle-exclamation" style="font-size: 24px; color: #DC2626;"></i>
           </div>
           <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Dar de baja término de glosario</h3>
-          <p class="small text-muted" style="margin: 4px 0 0;">¿Está seguro de que desea confirmar la baja o eliminación del elemento seleccionado?</p>
+          <p class="small text-muted" style="margin: 4px 0 0;">¿Está seguro de que desea confirmar la operación sobre el elemento seleccionado?</p>
         </div>
 
         <div class="p-3 mb-4 bg-light border rounded">
@@ -9328,7 +9370,7 @@
         <div class="d-flex justify-content-end gap-3 pt-3 border-top">
           <button class="wf-btn wf-btn-outline">Cancelar / Volver</button>
           <div class="d-flex align-items-center gap-2">
-            <button class="wf-btn wf-btn-danger"><i class="fa-solid fa-trash me-1"></i> Confirmar Eliminación</button>
+            <button class="wf-btn wf-btn-danger"><i class="fa-solid fa-trash me-1"></i> Confirmar Baja</button>
             <span class="pin-badge">B</span>
           </div>
         </div>
@@ -9911,7 +9953,10 @@
     <div class="wf-card" style="max-width: 860px; margin: 0 auto; background: #FFFFFF;">
       <div class="wf-card-header mb-4 pb-3 border-bottom d-flex justify-content-between align-items-center">
         <div>
-          <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Modificar consulta de foro</h3>
+          <div class="d-flex align-items-center gap-2">
+            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Modificar consulta de foro</h3>
+            <span class="pin-badge">A</span>
+          </div>
           <p class="small text-muted" style="margin: 3px 0 0;">Complete los datos correspondientes en el sistema.</p>
         </div>
         <span class="wf-badge status-active">Modo Edición</span>
@@ -9922,7 +9967,7 @@
           <label class="wf-label">Nombre / Denominación</label>
           <div class="wf-input-wrap">
             <input type="text" class="wf-input" value="Registro de Modificar consulta de foro">
-            <span class="pin-badge">A</span>
+            <span class="pin-badge">B</span>
           </div>
         </div>
 
@@ -9934,17 +9979,18 @@
                 <span>Mercado de Capitales</span>
                 <i class="fa-solid fa-chevron-down" style="font-size: 11px;"></i>
               </div>
-              <span class="pin-badge">B</span>
             </div>
           </div>
         </div>
 
         <div class="col-12">
           <label class="wf-label">Descripción Académica / Contenido</label>
-          <div class="wf-input-wrap">
-            <textarea class="wf-input" rows="3">Descripción detallada correspondiente al caso de uso CU-37 (Modificar consulta de foro).</textarea>
-            <span class="pin-badge">C</span>
-          </div>
+          
+            <div class="wf-input-wrap">
+              <textarea class="wf-input" rows="3">Descripción detallada correspondiente al caso de uso CU-37 (Modificar consulta de foro).</textarea>
+              <span class="pin-badge">C</span>
+            </div>
+          
         </div>
 
         <div class="col-md-4">
@@ -10116,7 +10162,7 @@
             <i class="fa-solid fa-triangle-exclamation" style="font-size: 24px; color: #DC2626;"></i>
           </div>
           <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Dar de baja consulta de foro</h3>
-          <p class="small text-muted" style="margin: 4px 0 0;">¿Está seguro de que desea confirmar la baja o eliminación del elemento seleccionado?</p>
+          <p class="small text-muted" style="margin: 4px 0 0;">¿Está seguro de que desea confirmar la operación sobre el elemento seleccionado?</p>
         </div>
 
         <div class="p-3 mb-4 bg-light border rounded">
@@ -10136,7 +10182,7 @@
         <div class="d-flex justify-content-end gap-3 pt-3 border-top">
           <button class="wf-btn wf-btn-outline">Cancelar / Volver</button>
           <div class="d-flex align-items-center gap-2">
-            <button class="wf-btn wf-btn-danger"><i class="fa-solid fa-trash me-1"></i> Confirmar Eliminación</button>
+            <button class="wf-btn wf-btn-danger"><i class="fa-solid fa-trash me-1"></i> Confirmar Baja</button>
             <span class="pin-badge">B</span>
           </div>
         </div>
@@ -10717,7 +10763,10 @@
     <div class="wf-card" style="max-width: 860px; margin: 0 auto; background: #FFFFFF;">
       <div class="wf-card-header mb-4 pb-3 border-bottom d-flex justify-content-between align-items-center">
         <div>
-          <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Modificar respuesta de foro</h3>
+          <div class="d-flex align-items-center gap-2">
+            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Modificar respuesta de foro</h3>
+            <span class="pin-badge">A</span>
+          </div>
           <p class="small text-muted" style="margin: 3px 0 0;">Complete los datos correspondientes en el sistema.</p>
         </div>
         <span class="wf-badge status-active">Modo Edición</span>
@@ -10728,7 +10777,7 @@
           <label class="wf-label">Nombre / Denominación</label>
           <div class="wf-input-wrap">
             <input type="text" class="wf-input" value="Registro de Modificar respuesta de foro">
-            <span class="pin-badge">A</span>
+            <span class="pin-badge">B</span>
           </div>
         </div>
 
@@ -10740,17 +10789,18 @@
                 <span>Mercado de Capitales</span>
                 <i class="fa-solid fa-chevron-down" style="font-size: 11px;"></i>
               </div>
-              <span class="pin-badge">B</span>
             </div>
           </div>
         </div>
 
         <div class="col-12">
           <label class="wf-label">Descripción Académica / Contenido</label>
-          <div class="wf-input-wrap">
-            <textarea class="wf-input" rows="3">Descripción detallada correspondiente al caso de uso CU-41 (Modificar respuesta de foro).</textarea>
-            <span class="pin-badge">C</span>
-          </div>
+          
+            <div class="wf-input-wrap">
+              <textarea class="wf-input" rows="3">Descripción detallada correspondiente al caso de uso CU-41 (Modificar respuesta de foro).</textarea>
+              <span class="pin-badge">C</span>
+            </div>
+          
         </div>
 
         <div class="col-md-4">
@@ -10922,7 +10972,7 @@
             <i class="fa-solid fa-triangle-exclamation" style="font-size: 24px; color: #DC2626;"></i>
           </div>
           <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Dar de baja respuesta de foro</h3>
-          <p class="small text-muted" style="margin: 4px 0 0;">¿Está seguro de que desea confirmar la baja o eliminación del elemento seleccionado?</p>
+          <p class="small text-muted" style="margin: 4px 0 0;">¿Está seguro de que desea confirmar la operación sobre el elemento seleccionado?</p>
         </div>
 
         <div class="p-3 mb-4 bg-light border rounded">
@@ -10942,7 +10992,7 @@
         <div class="d-flex justify-content-end gap-3 pt-3 border-top">
           <button class="wf-btn wf-btn-outline">Cancelar / Volver</button>
           <div class="d-flex align-items-center gap-2">
-            <button class="wf-btn wf-btn-danger"><i class="fa-solid fa-trash me-1"></i> Confirmar Eliminación</button>
+            <button class="wf-btn wf-btn-danger"><i class="fa-solid fa-trash me-1"></i> Confirmar Baja</button>
             <span class="pin-badge">B</span>
           </div>
         </div>
@@ -12306,7 +12356,7 @@
               <td><span class="wf-badge status-active">Activo</span></td>
               <td class="text-end">
                 <div class="d-inline-flex align-items-center gap-1">
-                  <button class="wf-btn wf-btn-sm wf-btn-outline">Seleccionar / Ver</button>
+                  <button class="wf-btn wf-btn-sm wf-btn-outline">Editar</button>
                   <span class="pin-badge">C</span>
                 </div>
               </td>
@@ -12317,7 +12367,7 @@
               <td>2026-08-20</td>
               <td><span class="wf-badge status-active">Activo</span></td>
               <td class="text-end">
-                <button class="wf-btn wf-btn-sm wf-btn-outline">Seleccionar / Ver</button>
+                <button class="wf-btn wf-btn-sm wf-btn-outline">Editar</button>
               </td>
             </tr>
           </tbody>
@@ -12465,7 +12515,10 @@
     <div class="wf-card" style="max-width: 860px; margin: 0 auto; background: #FFFFFF;">
       <div class="wf-card-header mb-4 pb-3 border-bottom d-flex justify-content-between align-items-center">
         <div>
-          <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Registrar descuento</h3>
+          <div class="d-flex align-items-center gap-2">
+            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Registrar descuento</h3>
+            <span class="pin-badge">A</span>
+          </div>
           <p class="small text-muted" style="margin: 3px 0 0;">Complete los datos correspondientes en el sistema.</p>
         </div>
         <span class="wf-badge status-active">Formulario de Alta</span>
@@ -12476,7 +12529,7 @@
           <label class="wf-label">Nombre / Denominación</label>
           <div class="wf-input-wrap">
             <input type="text" class="wf-input" value="Registro de Registrar descuento">
-            <span class="pin-badge">A</span>
+            <span class="pin-badge">B</span>
           </div>
         </div>
 
@@ -12488,17 +12541,18 @@
                 <span>Mercado de Capitales</span>
                 <i class="fa-solid fa-chevron-down" style="font-size: 11px;"></i>
               </div>
-              <span class="pin-badge">B</span>
             </div>
           </div>
         </div>
 
         <div class="col-12">
           <label class="wf-label">Descripción Académica / Contenido</label>
-          <div class="wf-input-wrap">
-            <textarea class="wf-input" rows="3">Descripción detallada correspondiente al caso de uso CU-50 (Registrar descuento).</textarea>
-            <span class="pin-badge">C</span>
-          </div>
+          
+            <div class="wf-input-wrap">
+              <textarea class="wf-input" rows="3">Descripción detallada correspondiente al caso de uso CU-50 (Registrar descuento).</textarea>
+              <span class="pin-badge">C</span>
+            </div>
+          
         </div>
 
         <div class="col-md-4">
@@ -12520,7 +12574,7 @@
       <div class="wf-card-footer d-flex justify-content-end gap-3 mt-4 pt-3 border-top">
         <button class="wf-btn wf-btn-outline">Cancelar / Volver</button>
         <div class="d-flex align-items-center gap-2">
-          <button class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Confirmar y Guardar</button>
+          <button class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Guardar Descuento</button>
           <span class="pin-badge">D</span>
         </div>
       </div>
@@ -12667,7 +12721,10 @@
     <div class="wf-card" style="max-width: 860px; margin: 0 auto; background: #FFFFFF;">
       <div class="wf-card-header mb-4 pb-3 border-bottom d-flex justify-content-between align-items-center">
         <div>
-          <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Modificar descuento</h3>
+          <div class="d-flex align-items-center gap-2">
+            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Modificar descuento</h3>
+            <span class="pin-badge">A</span>
+          </div>
           <p class="small text-muted" style="margin: 3px 0 0;">Complete los datos correspondientes en el sistema.</p>
         </div>
         <span class="wf-badge status-active">Modo Edición</span>
@@ -12678,7 +12735,7 @@
           <label class="wf-label">Nombre / Denominación</label>
           <div class="wf-input-wrap">
             <input type="text" class="wf-input" value="Registro de Modificar descuento">
-            <span class="pin-badge">A</span>
+            <span class="pin-badge">B</span>
           </div>
         </div>
 
@@ -12690,17 +12747,18 @@
                 <span>Mercado de Capitales</span>
                 <i class="fa-solid fa-chevron-down" style="font-size: 11px;"></i>
               </div>
-              <span class="pin-badge">B</span>
             </div>
           </div>
         </div>
 
         <div class="col-12">
           <label class="wf-label">Descripción Académica / Contenido</label>
-          <div class="wf-input-wrap">
-            <textarea class="wf-input" rows="3">Descripción detallada correspondiente al caso de uso CU-51 (Modificar descuento).</textarea>
-            <span class="pin-badge">C</span>
-          </div>
+          
+            <div class="wf-input-wrap">
+              <textarea class="wf-input" rows="3">Descripción detallada correspondiente al caso de uso CU-51 (Modificar descuento).</textarea>
+              <span class="pin-badge">C</span>
+            </div>
+          
         </div>
 
         <div class="col-md-4">
@@ -12872,7 +12930,7 @@
             <i class="fa-solid fa-triangle-exclamation" style="font-size: 24px; color: #DC2626;"></i>
           </div>
           <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Dar de baja descuento</h3>
-          <p class="small text-muted" style="margin: 4px 0 0;">¿Está seguro de que desea confirmar la baja o eliminación del elemento seleccionado?</p>
+          <p class="small text-muted" style="margin: 4px 0 0;">¿Está seguro de que desea confirmar la operación sobre el elemento seleccionado?</p>
         </div>
 
         <div class="p-3 mb-4 bg-light border rounded">
@@ -12892,7 +12950,7 @@
         <div class="d-flex justify-content-end gap-3 pt-3 border-top">
           <button class="wf-btn wf-btn-outline">Cancelar / Volver</button>
           <div class="d-flex align-items-center gap-2">
-            <button class="wf-btn wf-btn-danger"><i class="fa-solid fa-trash me-1"></i> Confirmar Eliminación</button>
+            <button class="wf-btn wf-btn-danger"><i class="fa-solid fa-trash me-1"></i> Confirmar Baja</button>
             <span class="pin-badge">B</span>
           </div>
         </div>
@@ -13506,7 +13564,10 @@
     <div class="wf-card" style="max-width: 860px; margin: 0 auto; background: #FFFFFF;">
       <div class="wf-card-header mb-4 pb-3 border-bottom d-flex justify-content-between align-items-center">
         <div>
-          <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Modificar pool</h3>
+          <div class="d-flex align-items-center gap-2">
+            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Modificar pool</h3>
+            <span class="pin-badge">A</span>
+          </div>
           <p class="small text-muted" style="margin: 3px 0 0;">Complete los datos correspondientes en el sistema.</p>
         </div>
         <span class="wf-badge status-active">Modo Edición</span>
@@ -13517,7 +13578,7 @@
           <label class="wf-label">Nombre / Denominación</label>
           <div class="wf-input-wrap">
             <input type="text" class="wf-input" value="Registro de Modificar pool">
-            <span class="pin-badge">A</span>
+            <span class="pin-badge">B</span>
           </div>
         </div>
 
@@ -13529,17 +13590,18 @@
                 <span>Mercado de Capitales</span>
                 <i class="fa-solid fa-chevron-down" style="font-size: 11px;"></i>
               </div>
-              <span class="pin-badge">B</span>
             </div>
           </div>
         </div>
 
         <div class="col-12">
           <label class="wf-label">Descripción Académica / Contenido</label>
-          <div class="wf-input-wrap">
-            <textarea class="wf-input" rows="3">Descripción detallada correspondiente al caso de uso CU-55 (Modificar pool).</textarea>
-            <span class="pin-badge">C</span>
-          </div>
+          
+            <div class="wf-input-wrap">
+              <textarea class="wf-input" rows="3">Descripción detallada correspondiente al caso de uso CU-55 (Modificar pool).</textarea>
+              <span class="pin-badge">C</span>
+            </div>
+          
         </div>
 
         <div class="col-md-4">
@@ -13711,7 +13773,7 @@
             <i class="fa-solid fa-triangle-exclamation" style="font-size: 24px; color: #DC2626;"></i>
           </div>
           <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Dar de baja pool</h3>
-          <p class="small text-muted" style="margin: 4px 0 0;">¿Está seguro de que desea confirmar la baja o eliminación del elemento seleccionado?</p>
+          <p class="small text-muted" style="margin: 4px 0 0;">¿Está seguro de que desea confirmar la operación sobre el elemento seleccionado?</p>
         </div>
 
         <div class="p-3 mb-4 bg-light border rounded">
@@ -13731,7 +13793,7 @@
         <div class="d-flex justify-content-end gap-3 pt-3 border-top">
           <button class="wf-btn wf-btn-outline">Cancelar / Volver</button>
           <div class="d-flex align-items-center gap-2">
-            <button class="wf-btn wf-btn-danger"><i class="fa-solid fa-trash me-1"></i> Confirmar Eliminación</button>
+            <button class="wf-btn wf-btn-danger"><i class="fa-solid fa-trash me-1"></i> Confirmar Baja</button>
             <span class="pin-badge">B</span>
           </div>
         </div>
@@ -14345,7 +14407,10 @@
     <div class="wf-card" style="max-width: 860px; margin: 0 auto; background: #FFFFFF;">
       <div class="wf-card-header mb-4 pb-3 border-bottom d-flex justify-content-between align-items-center">
         <div>
-          <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Modificar autoevaluación</h3>
+          <div class="d-flex align-items-center gap-2">
+            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Modificar autoevaluación</h3>
+            <span class="pin-badge">A</span>
+          </div>
           <p class="small text-muted" style="margin: 3px 0 0;">Complete los datos correspondientes en el sistema.</p>
         </div>
         <span class="wf-badge status-active">Modo Edición</span>
@@ -14356,7 +14421,7 @@
           <label class="wf-label">Nombre / Denominación</label>
           <div class="wf-input-wrap">
             <input type="text" class="wf-input" value="Registro de Modificar autoevaluación">
-            <span class="pin-badge">A</span>
+            <span class="pin-badge">B</span>
           </div>
         </div>
 
@@ -14368,17 +14433,18 @@
                 <span>Mercado de Capitales</span>
                 <i class="fa-solid fa-chevron-down" style="font-size: 11px;"></i>
               </div>
-              <span class="pin-badge">B</span>
             </div>
           </div>
         </div>
 
         <div class="col-12">
           <label class="wf-label">Descripción Académica / Contenido</label>
-          <div class="wf-input-wrap">
-            <textarea class="wf-input" rows="3">Descripción detallada correspondiente al caso de uso CU-59 (Modificar autoevaluación).</textarea>
-            <span class="pin-badge">C</span>
-          </div>
+          
+            <div class="wf-input-wrap">
+              <textarea class="wf-input" rows="3">Descripción detallada correspondiente al caso de uso CU-59 (Modificar autoevaluación).</textarea>
+              <span class="pin-badge">C</span>
+            </div>
+          
         </div>
 
         <div class="col-md-4">
@@ -14550,7 +14616,7 @@
             <i class="fa-solid fa-triangle-exclamation" style="font-size: 24px; color: #DC2626;"></i>
           </div>
           <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Dar de baja autoevaluación</h3>
-          <p class="small text-muted" style="margin: 4px 0 0;">¿Está seguro de que desea confirmar la baja o eliminación del elemento seleccionado?</p>
+          <p class="small text-muted" style="margin: 4px 0 0;">¿Está seguro de que desea confirmar la operación sobre el elemento seleccionado?</p>
         </div>
 
         <div class="p-3 mb-4 bg-light border rounded">
@@ -14570,7 +14636,7 @@
         <div class="d-flex justify-content-end gap-3 pt-3 border-top">
           <button class="wf-btn wf-btn-outline">Cancelar / Volver</button>
           <div class="d-flex align-items-center gap-2">
-            <button class="wf-btn wf-btn-danger"><i class="fa-solid fa-trash me-1"></i> Confirmar Eliminación</button>
+            <button class="wf-btn wf-btn-danger"><i class="fa-solid fa-trash me-1"></i> Confirmar Baja</button>
             <span class="pin-badge">B</span>
           </div>
         </div>
@@ -14768,7 +14834,7 @@
               <td><span class="wf-badge status-active">Activo</span></td>
               <td class="text-end">
                 <div class="d-inline-flex align-items-center gap-1">
-                  <button class="wf-btn wf-btn-sm wf-btn-outline">Seleccionar / Ver</button>
+                  <button class="wf-btn wf-btn-sm wf-btn-outline">Revisar Intento</button>
                   <span class="pin-badge">D</span>
                 </div>
               </td>
@@ -14779,7 +14845,7 @@
               <td>2026-08-20</td>
               <td><span class="wf-badge status-active">Activo</span></td>
               <td class="text-end">
-                <button class="wf-btn wf-btn-sm wf-btn-outline">Seleccionar / Ver</button>
+                <button class="wf-btn wf-btn-sm wf-btn-outline">Revisar Intento</button>
               </td>
             </tr>
           </tbody>
@@ -15314,7 +15380,7 @@
             <i class="fa-solid fa-triangle-exclamation" style="font-size: 24px; color: #DC2626;"></i>
           </div>
           <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Dar de baja intento de autoevaluación</h3>
-          <p class="small text-muted" style="margin: 4px 0 0;">¿Está seguro de que desea confirmar la baja o eliminación del elemento seleccionado?</p>
+          <p class="small text-muted" style="margin: 4px 0 0;">¿Está seguro de que desea confirmar la operación sobre el elemento seleccionado?</p>
         </div>
 
         <div class="p-3 mb-4 bg-light border rounded">
@@ -15334,7 +15400,7 @@
         <div class="d-flex justify-content-end gap-3 pt-3 border-top">
           <button class="wf-btn wf-btn-outline">Cancelar / Volver</button>
           <div class="d-flex align-items-center gap-2">
-            <button class="wf-btn wf-btn-danger"><i class="fa-solid fa-trash me-1"></i> Confirmar Eliminación</button>
+            <button class="wf-btn wf-btn-danger"><i class="fa-solid fa-trash me-1"></i> Confirmar Anulación</button>
             <span class="pin-badge">B</span>
           </div>
         </div>
@@ -15945,7 +16011,10 @@
     <div class="wf-card" style="max-width: 860px; margin: 0 auto; background: #FFFFFF;">
       <div class="wf-card-header mb-4 pb-3 border-bottom d-flex justify-content-between align-items-center">
         <div>
-          <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Modificar clase en vivo</h3>
+          <div class="d-flex align-items-center gap-2">
+            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Modificar clase en vivo</h3>
+            <span class="pin-badge">A</span>
+          </div>
           <p class="small text-muted" style="margin: 3px 0 0;">Complete los datos correspondientes en el sistema.</p>
         </div>
         <span class="wf-badge status-active">Modo Edición</span>
@@ -15956,7 +16025,7 @@
           <label class="wf-label">Nombre / Denominación</label>
           <div class="wf-input-wrap">
             <input type="text" class="wf-input" value="Registro de Modificar clase en vivo">
-            <span class="pin-badge">A</span>
+            <span class="pin-badge">B</span>
           </div>
         </div>
 
@@ -15968,17 +16037,18 @@
                 <span>Mercado de Capitales</span>
                 <i class="fa-solid fa-chevron-down" style="font-size: 11px;"></i>
               </div>
-              <span class="pin-badge">B</span>
             </div>
           </div>
         </div>
 
         <div class="col-12">
           <label class="wf-label">Descripción Académica / Contenido</label>
-          <div class="wf-input-wrap">
-            <textarea class="wf-input" rows="3">Descripción detallada correspondiente al caso de uso CU-67 (Modificar clase en vivo).</textarea>
-            <span class="pin-badge">C</span>
-          </div>
+          
+            <div class="wf-input-wrap">
+              <textarea class="wf-input" rows="3">Descripción detallada correspondiente al caso de uso CU-67 (Modificar clase en vivo).</textarea>
+              <span class="pin-badge">C</span>
+            </div>
+          
         </div>
 
         <div class="col-md-4">
@@ -16150,14 +16220,14 @@
             <i class="fa-solid fa-triangle-exclamation" style="font-size: 24px; color: #DC2626;"></i>
           </div>
           <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Cancelar clase en vivo</h3>
-          <p class="small text-muted" style="margin: 4px 0 0;">¿Está seguro de que desea confirmar la baja o eliminación del elemento seleccionado?</p>
+          <p class="small text-muted" style="margin: 4px 0 0;">¿Está seguro de que desea confirmar la operación sobre el elemento seleccionado?</p>
         </div>
 
         <div class="p-3 mb-4 bg-light border rounded">
           <div class="d-flex justify-content-between align-items-center mb-2">
             <span class="small text-muted">Elemento seleccionado:</span>
             <div class="d-flex align-items-center gap-2">
-              <strong style="font-size: 13px; color: #081426;">Registro #68 (Cancelar clase en vivo)</strong>
+              <strong style="font-size: 13px; color: #081426;">Registro #68 (clase en vivo)</strong>
               <span class="pin-badge">A</span>
             </div>
           </div>
@@ -16170,7 +16240,7 @@
         <div class="d-flex justify-content-end gap-3 pt-3 border-top">
           <button class="wf-btn wf-btn-outline">Cancelar / Volver</button>
           <div class="d-flex align-items-center gap-2">
-            <button class="wf-btn wf-btn-danger"><i class="fa-solid fa-trash me-1"></i> Confirmar Eliminación</button>
+            <button class="wf-btn wf-btn-danger"><i class="fa-solid fa-trash me-1"></i> Confirmar Cancelación</button>
             <span class="pin-badge">B</span>
           </div>
         </div>
@@ -16320,7 +16390,7 @@
             <i class="fa-solid fa-triangle-exclamation" style="font-size: 24px; color: #DC2626;"></i>
           </div>
           <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Dar de baja clase en vivo</h3>
-          <p class="small text-muted" style="margin: 4px 0 0;">¿Está seguro de que desea confirmar la baja o eliminación del elemento seleccionado?</p>
+          <p class="small text-muted" style="margin: 4px 0 0;">¿Está seguro de que desea confirmar la operación sobre el elemento seleccionado?</p>
         </div>
 
         <div class="p-3 mb-4 bg-light border rounded">
@@ -16340,7 +16410,7 @@
         <div class="d-flex justify-content-end gap-3 pt-3 border-top">
           <button class="wf-btn wf-btn-outline">Cancelar / Volver</button>
           <div class="d-flex align-items-center gap-2">
-            <button class="wf-btn wf-btn-danger"><i class="fa-solid fa-trash me-1"></i> Confirmar Eliminación</button>
+            <button class="wf-btn wf-btn-danger"><i class="fa-solid fa-trash me-1"></i> Confirmar Cancelación</button>
             <span class="pin-badge">B</span>
           </div>
         </div>
@@ -18639,7 +18709,7 @@
             <i class="fa-solid fa-triangle-exclamation" style="font-size: 24px; color: #DC2626;"></i>
           </div>
           <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Dar de baja clase con clon</h3>
-          <p class="small text-muted" style="margin: 4px 0 0;">¿Está seguro de que desea confirmar la baja o eliminación del elemento seleccionado?</p>
+          <p class="small text-muted" style="margin: 4px 0 0;">¿Está seguro de que desea confirmar la operación sobre el elemento seleccionado?</p>
         </div>
 
         <div class="p-3 mb-4 bg-light border rounded">
@@ -18659,7 +18729,7 @@
         <div class="d-flex justify-content-end gap-3 pt-3 border-top">
           <button class="wf-btn wf-btn-outline">Cancelar / Volver</button>
           <div class="d-flex align-items-center gap-2">
-            <button class="wf-btn wf-btn-danger"><i class="fa-solid fa-trash me-1"></i> Confirmar Eliminación</button>
+            <button class="wf-btn wf-btn-danger"><i class="fa-solid fa-trash me-1"></i> Confirmar Baja</button>
             <span class="pin-badge">B</span>
           </div>
         </div>
@@ -19013,7 +19083,7 @@
               <td><span class="wf-badge status-active">Activo</span></td>
               <td class="text-end">
                 <div class="d-inline-flex align-items-center gap-1">
-                  <button class="wf-btn wf-btn-sm wf-btn-outline">Seleccionar / Ver</button>
+                  <button class="wf-btn wf-btn-sm wf-btn-outline">Editar Usuario</button>
                   <span class="pin-badge">C</span>
                 </div>
               </td>
@@ -19024,7 +19094,7 @@
               <td>2026-08-20</td>
               <td><span class="wf-badge status-active">Activo</span></td>
               <td class="text-end">
-                <button class="wf-btn wf-btn-sm wf-btn-outline">Seleccionar / Ver</button>
+                <button class="wf-btn wf-btn-sm wf-btn-outline">Editar Usuario</button>
               </td>
             </tr>
           </tbody>
@@ -19172,7 +19242,10 @@
     <div class="wf-card" style="max-width: 860px; margin: 0 auto; background: #FFFFFF;">
       <div class="wf-card-header mb-4 pb-3 border-bottom d-flex justify-content-between align-items-center">
         <div>
-          <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Registrar usuario</h3>
+          <div class="d-flex align-items-center gap-2">
+            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Registrar usuario</h3>
+            <span class="pin-badge">A</span>
+          </div>
           <p class="small text-muted" style="margin: 3px 0 0;">Complete los datos correspondientes en el sistema.</p>
         </div>
         <span class="wf-badge status-active">Formulario de Alta</span>
@@ -19183,7 +19256,7 @@
           <label class="wf-label">Nombre / Denominación</label>
           <div class="wf-input-wrap">
             <input type="text" class="wf-input" value="Registro de Registrar usuario">
-            <span class="pin-badge">A</span>
+            <span class="pin-badge">B</span>
           </div>
         </div>
 
@@ -19195,17 +19268,18 @@
                 <span>Mercado de Capitales</span>
                 <i class="fa-solid fa-chevron-down" style="font-size: 11px;"></i>
               </div>
-              <span class="pin-badge">B</span>
             </div>
           </div>
         </div>
 
         <div class="col-12">
           <label class="wf-label">Descripción Académica / Contenido</label>
-          <div class="wf-input-wrap">
-            <textarea class="wf-input" rows="3">Descripción detallada correspondiente al caso de uso CU-83 (Registrar usuario).</textarea>
-            <span class="pin-badge">C</span>
-          </div>
+          
+            <div class="wf-input-wrap">
+              <textarea class="wf-input" rows="3">Descripción detallada correspondiente al caso de uso CU-83 (Registrar usuario).</textarea>
+              <span class="pin-badge">C</span>
+            </div>
+          
         </div>
 
         <div class="col-md-4">
@@ -19227,7 +19301,7 @@
       <div class="wf-card-footer d-flex justify-content-end gap-3 mt-4 pt-3 border-top">
         <button class="wf-btn wf-btn-outline">Cancelar / Volver</button>
         <div class="d-flex align-items-center gap-2">
-          <button class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Confirmar y Guardar</button>
+          <button class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Guardar Usuario</button>
           <span class="pin-badge">D</span>
         </div>
       </div>
@@ -19374,7 +19448,10 @@
     <div class="wf-card" style="max-width: 860px; margin: 0 auto; background: #FFFFFF;">
       <div class="wf-card-header mb-4 pb-3 border-bottom d-flex justify-content-between align-items-center">
         <div>
-          <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Modificar usuario</h3>
+          <div class="d-flex align-items-center gap-2">
+            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Modificar usuario</h3>
+            <span class="pin-badge">A</span>
+          </div>
           <p class="small text-muted" style="margin: 3px 0 0;">Complete los datos correspondientes en el sistema.</p>
         </div>
         <span class="wf-badge status-active">Modo Edición</span>
@@ -19385,7 +19462,7 @@
           <label class="wf-label">Nombre / Denominación</label>
           <div class="wf-input-wrap">
             <input type="text" class="wf-input" value="Registro de Modificar usuario">
-            <span class="pin-badge">A</span>
+            <span class="pin-badge">B</span>
           </div>
         </div>
 
@@ -19397,17 +19474,18 @@
                 <span>Mercado de Capitales</span>
                 <i class="fa-solid fa-chevron-down" style="font-size: 11px;"></i>
               </div>
-              <span class="pin-badge">B</span>
             </div>
           </div>
         </div>
 
         <div class="col-12">
           <label class="wf-label">Descripción Académica / Contenido</label>
-          <div class="wf-input-wrap">
-            <textarea class="wf-input" rows="3">Descripción detallada correspondiente al caso de uso CU-84 (Modificar usuario).</textarea>
-            <span class="pin-badge">C</span>
-          </div>
+          
+            <div class="wf-input-wrap">
+              <textarea class="wf-input" rows="3">Descripción detallada correspondiente al caso de uso CU-84 (Modificar usuario).</textarea>
+              <span class="pin-badge">C</span>
+            </div>
+          
         </div>
 
         <div class="col-md-4">
@@ -19579,7 +19657,7 @@
             <i class="fa-solid fa-triangle-exclamation" style="font-size: 24px; color: #DC2626;"></i>
           </div>
           <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Dar de baja usuario</h3>
-          <p class="small text-muted" style="margin: 4px 0 0;">¿Está seguro de que desea confirmar la baja o eliminación del elemento seleccionado?</p>
+          <p class="small text-muted" style="margin: 4px 0 0;">¿Está seguro de que desea confirmar la operación sobre el elemento seleccionado?</p>
         </div>
 
         <div class="p-3 mb-4 bg-light border rounded">
@@ -19599,7 +19677,7 @@
         <div class="d-flex justify-content-end gap-3 pt-3 border-top">
           <button class="wf-btn wf-btn-outline">Cancelar / Volver</button>
           <div class="d-flex align-items-center gap-2">
-            <button class="wf-btn wf-btn-danger"><i class="fa-solid fa-trash me-1"></i> Confirmar Eliminación</button>
+            <button class="wf-btn wf-btn-danger"><i class="fa-solid fa-trash me-1"></i> Confirmar Desactivación</button>
             <span class="pin-badge">B</span>
           </div>
         </div>
@@ -20112,7 +20190,10 @@
     <div class="wf-card" style="max-width: 860px; margin: 0 auto; background: #FFFFFF;">
       <div class="wf-card-header mb-4 pb-3 border-bottom d-flex justify-content-between align-items-center">
         <div>
-          <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Registrar docente</h3>
+          <div class="d-flex align-items-center gap-2">
+            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Registrar docente</h3>
+            <span class="pin-badge">A</span>
+          </div>
           <p class="small text-muted" style="margin: 3px 0 0;">Complete los datos correspondientes en el sistema.</p>
         </div>
         <span class="wf-badge status-active">Formulario de Alta</span>
@@ -20123,7 +20204,7 @@
           <label class="wf-label">Nombre / Denominación</label>
           <div class="wf-input-wrap">
             <input type="text" class="wf-input" value="Registro de Registrar docente">
-            <span class="pin-badge">A</span>
+            <span class="pin-badge">B</span>
           </div>
         </div>
 
@@ -20135,17 +20216,18 @@
                 <span>Mercado de Capitales</span>
                 <i class="fa-solid fa-chevron-down" style="font-size: 11px;"></i>
               </div>
-              <span class="pin-badge">B</span>
             </div>
           </div>
         </div>
 
         <div class="col-12">
           <label class="wf-label">Descripción Académica / Contenido</label>
-          <div class="wf-input-wrap">
-            <textarea class="wf-input" rows="3">Descripción detallada correspondiente al caso de uso CU-88 (Registrar docente).</textarea>
-            <span class="pin-badge">C</span>
-          </div>
+          
+            <div class="wf-input-wrap">
+              <textarea class="wf-input" rows="3">Descripción detallada correspondiente al caso de uso CU-88 (Registrar docente).</textarea>
+              <span class="pin-badge">C</span>
+            </div>
+          
         </div>
 
         <div class="col-md-4">
@@ -20167,7 +20249,7 @@
       <div class="wf-card-footer d-flex justify-content-end gap-3 mt-4 pt-3 border-top">
         <button class="wf-btn wf-btn-outline">Cancelar / Volver</button>
         <div class="d-flex align-items-center gap-2">
-          <button class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Confirmar y Guardar</button>
+          <button class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Guardar Docente</button>
           <span class="pin-badge">D</span>
         </div>
       </div>
@@ -20314,7 +20396,10 @@
     <div class="wf-card" style="max-width: 860px; margin: 0 auto; background: #FFFFFF;">
       <div class="wf-card-header mb-4 pb-3 border-bottom d-flex justify-content-between align-items-center">
         <div>
-          <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Modificar docente</h3>
+          <div class="d-flex align-items-center gap-2">
+            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Modificar docente</h3>
+            <span class="pin-badge">A</span>
+          </div>
           <p class="small text-muted" style="margin: 3px 0 0;">Complete los datos correspondientes en el sistema.</p>
         </div>
         <span class="wf-badge status-active">Modo Edición</span>
@@ -20325,7 +20410,7 @@
           <label class="wf-label">Nombre / Denominación</label>
           <div class="wf-input-wrap">
             <input type="text" class="wf-input" value="Registro de Modificar docente">
-            <span class="pin-badge">A</span>
+            <span class="pin-badge">B</span>
           </div>
         </div>
 
@@ -20337,17 +20422,18 @@
                 <span>Mercado de Capitales</span>
                 <i class="fa-solid fa-chevron-down" style="font-size: 11px;"></i>
               </div>
-              <span class="pin-badge">B</span>
             </div>
           </div>
         </div>
 
         <div class="col-12">
           <label class="wf-label">Descripción Académica / Contenido</label>
-          <div class="wf-input-wrap">
-            <textarea class="wf-input" rows="3">Descripción detallada correspondiente al caso de uso CU-89 (Modificar docente).</textarea>
-            <span class="pin-badge">C</span>
-          </div>
+          
+            <div class="wf-input-wrap">
+              <textarea class="wf-input" rows="3">Descripción detallada correspondiente al caso de uso CU-89 (Modificar docente).</textarea>
+              <span class="pin-badge">C</span>
+            </div>
+          
         </div>
 
         <div class="col-md-4">
@@ -20692,7 +20778,10 @@
     <div class="wf-card" style="max-width: 860px; margin: 0 auto; background: #FFFFFF;">
       <div class="wf-card-header mb-4 pb-3 border-bottom d-flex justify-content-between align-items-center">
         <div>
-          <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Cerrar sesión</h3>
+          <div class="d-flex align-items-center gap-2">
+            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Cerrar sesión</h3>
+            <span class="pin-badge">A</span>
+          </div>
           <p class="small text-muted" style="margin: 3px 0 0;">Complete los datos correspondientes en el sistema.</p>
         </div>
         <span class="wf-badge status-active">Formulario de Alta</span>
@@ -20703,7 +20792,7 @@
           <label class="wf-label">Nombre / Denominación</label>
           <div class="wf-input-wrap">
             <input type="text" class="wf-input" value="Registro de Cerrar sesión">
-            <span class="pin-badge">A</span>
+            <span class="pin-badge">B</span>
           </div>
         </div>
 
@@ -20715,17 +20804,18 @@
                 <span>Mercado de Capitales</span>
                 <i class="fa-solid fa-chevron-down" style="font-size: 11px;"></i>
               </div>
-              <span class="pin-badge">B</span>
             </div>
           </div>
         </div>
 
         <div class="col-12">
           <label class="wf-label">Descripción Académica / Contenido</label>
-          <div class="wf-input-wrap">
-            <textarea class="wf-input" rows="3">Descripción detallada correspondiente al caso de uso CU-91 (Cerrar sesión).</textarea>
-            <span class="pin-badge">C</span>
-          </div>
+          
+            <div class="wf-input-wrap">
+              <textarea class="wf-input" rows="3">Descripción detallada correspondiente al caso de uso CU-91 (Cerrar sesión).</textarea>
+              <span class="pin-badge">C</span>
+            </div>
+          
         </div>
 
         <div class="col-md-4">
@@ -21292,7 +21382,7 @@
             <i class="fa-solid fa-triangle-exclamation" style="font-size: 24px; color: #DC2626;"></i>
           </div>
           <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Eliminar sesión</h3>
-          <p class="small text-muted" style="margin: 4px 0 0;">¿Está seguro de que desea confirmar la baja o eliminación del elemento seleccionado?</p>
+          <p class="small text-muted" style="margin: 4px 0 0;">¿Está seguro de que desea confirmar la operación sobre el elemento seleccionado?</p>
         </div>
 
         <div class="p-3 mb-4 bg-light border rounded">
@@ -22434,7 +22524,10 @@
     <div class="wf-card" style="max-width: 860px; margin: 0 auto; background: #FFFFFF;">
       <div class="wf-card-header mb-4 pb-3 border-bottom d-flex justify-content-between align-items-center">
         <div>
-          <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Configurar parámetros</h3>
+          <div class="d-flex align-items-center gap-2">
+            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Configurar parámetros</h3>
+            <span class="pin-badge">A</span>
+          </div>
           <p class="small text-muted" style="margin: 3px 0 0;">Complete los datos correspondientes en el sistema.</p>
         </div>
         <span class="wf-badge status-active">Formulario de Alta</span>
@@ -22445,7 +22538,7 @@
           <label class="wf-label">Nombre / Denominación</label>
           <div class="wf-input-wrap">
             <input type="text" class="wf-input" value="Registro de Configurar parámetros">
-            <span class="pin-badge">A</span>
+            <span class="pin-badge">B</span>
           </div>
         </div>
 
@@ -22457,17 +22550,18 @@
                 <span>Mercado de Capitales</span>
                 <i class="fa-solid fa-chevron-down" style="font-size: 11px;"></i>
               </div>
-              <span class="pin-badge">B</span>
             </div>
           </div>
         </div>
 
         <div class="col-12">
           <label class="wf-label">Descripción Académica / Contenido</label>
-          <div class="wf-input-wrap">
-            <textarea class="wf-input" rows="3">Descripción detallada correspondiente al caso de uso CU-99 (Configurar parámetros).</textarea>
-            <span class="pin-badge">C</span>
-          </div>
+          
+            <div class="wf-input-wrap">
+              <textarea class="wf-input" rows="3">Descripción detallada correspondiente al caso de uso CU-99 (Configurar parámetros).</textarea>
+              <span class="pin-badge">C</span>
+            </div>
+          
         </div>
 
         <div class="col-md-4">
@@ -22489,7 +22583,7 @@
       <div class="wf-card-footer d-flex justify-content-end gap-3 mt-4 pt-3 border-top">
         <button class="wf-btn wf-btn-outline">Cancelar / Volver</button>
         <div class="d-flex align-items-center gap-2">
-          <button class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Confirmar y Guardar</button>
+          <button class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Guardar Parámetro</button>
           <span class="pin-badge">C</span>
         </div>
       </div>
