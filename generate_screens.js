@@ -238,7 +238,7 @@ function generateScreenContent(cu) {
           <div class="col-md-5">
             <label class="wf-label">Buscar cursos por título o palabra clave</label>
             <div class="wf-input-wrap">
-              <input type="text" class="wf-input" placeholder="Ej: Idoneidad Bursátil, Finanzas...">
+              <input type="text" class="wf-input" placeholder="Ej: Planificación Fiscal, Cripto, Mercado de Capitales...">
               <span class="pin-badge">${badges[0] || 'A'}</span>
             </div>
           </div>
@@ -254,9 +254,9 @@ function generateScreenContent(cu) {
               </div>
               <div class="wf-dropdown-menu">
                 <div class="wf-dropdown-item active">☑ Todas las categorías</div>
+                <div class="wf-dropdown-item">☐ Impuestos y Contabilidad</div>
                 <div class="wf-dropdown-item">☐ Mercado de Capitales</div>
-                <div class="wf-dropdown-item">☐ Finanzas Corporativas</div>
-                <div class="wf-dropdown-item">☐ Trading & Algoritmos</div>
+                <div class="wf-dropdown-item">☐ Finanzas y Cripto</div>
               </div>
             </div>
           </div>
@@ -270,63 +270,81 @@ function generateScreenContent(cu) {
       </div>
 
       <div class="wf-cards-grid">
+        <!-- Curso 1: Planificación Fiscal -->
         <div class="wf-course-card">
           <div class="wf-course-card-thumb">
-            <div class="wf-course-tag">Mercado de Capitales</div>
-            <div class="wf-course-thumb-icon">${icons.academicCap("w-10 h-10 text-white")}</div>
+            <div class="wf-course-thumb-icon">${icons.academicCap("w-8 h-8 text-white")}</div>
+            <div class="wf-course-pills-row">
+              <span class="wf-pill-tag">Impuestos y Contabilidad</span>
+              <span class="wf-pill-status">Sin cohortes abiertas</span>
+            </div>
           </div>
           <div class="wf-course-card-body">
-            <h4 class="wf-course-title">Especialización en Idoneidad Bursátil</h4>
-            <p class="wf-course-desc">Preparación integral para el examen de idoneidad ante la CNV (Comisión Nacional de Valores).</p>
-            <div class="wf-course-meta">
-              <span><strong>Docente:</strong> Lic. Fausto Spotorno</span>
-              <span><strong>Cohorte:</strong> 2026-1 (En dictado)</span>
+            <h4 class="wf-course-title">Planificación Fiscal y Tributaria</h4>
+            <p class="wf-course-desc">Estrategias impositivas para pymes y profesionales.</p>
+            <div class="wf-course-info-row">
+              <span>📄 1 Programas</span>
+              <span class="wf-course-price">$220.000</span>
             </div>
-            ${isAlumno ? `
-              <div class="wf-progress-bar-wrap mt-2">
-                <div class="d-flex justify-content-between small text-muted mb-1">
-                  <span>Progreso: 65%</span>
-                  <span>Unidad 2 de 4</span>
-                </div>
-                <div class="wf-progress"><div class="wf-progress-fill" style="width: 65%;"></div></div>
-              </div>
-            ` : ''}
           </div>
           <div class="wf-course-card-footer">
-            <div class="d-flex align-items-center justify-content-between w-100">
-              <span class="wf-badge status-active">Activo</span>
-              <div class="d-flex align-items-center gap-2">
-                <button class="wf-btn wf-btn-primary wf-btn-sm d-flex align-items-center gap-1">
-                  <span>${isDocente ? 'Gestionar curso' : (isAlumno ? 'Ingresar al curso' : 'Ver ficha')}</span>
-                  ${icons.arrowRight()}
-                </button>
-                <span class="pin-badge">${badges[3] || badges[badges.length - 1] || 'D'}</span>
-              </div>
+            <div class="d-flex align-items-center justify-content-between gap-2">
+              <button class="wf-btn-manage-course">
+                ${icons.cog6Tooth("w-4 h-4")}
+                <span>${isDocente ? 'Gestionar Curso' : (isAlumno ? 'Ingresar al Curso' : 'Ver Detalle')}</span>
+              </button>
+              <span class="pin-badge">${badges[3] || badges[badges.length - 1] || 'D'}</span>
             </div>
           </div>
         </div>
 
+        <!-- Curso 2: Operativa Cripto -->
         <div class="wf-course-card">
           <div class="wf-course-card-thumb">
-            <div class="wf-course-tag">Finanzas de Empresas</div>
-            <div class="wf-course-thumb-icon">${icons.briefcase("w-10 h-10 text-white")}</div>
+            <div class="wf-course-thumb-icon">${icons.academicCap("w-8 h-8 text-white")}</div>
+            <div class="wf-course-pills-row">
+              <span class="wf-pill-tag">Mercado de Capitales</span>
+              <span class="wf-pill-status">Sin cohortes abiertas</span>
+            </div>
           </div>
           <div class="wf-course-card-body">
-            <h4 class="wf-course-title">Valuación de Empresas & Finanzas Corporativas</h4>
-            <p class="wf-course-desc">Métodos DCF, múltiplos comparables y modelación financiera avanzada en Excel.</p>
-            <div class="wf-course-meta">
-              <span><strong>Docente:</strong> Lic. Juan Pérez</span>
-              <span><strong>Cohorte:</strong> 2026-1</span>
+            <h4 class="wf-course-title">Operativa Cripto y DeFi</h4>
+            <p class="wf-course-desc">Trading, DeFi y custodia institucional.</p>
+            <div class="wf-course-info-row">
+              <span>📄 1 Programas</span>
+              <span class="wf-course-price">$120.000</span>
             </div>
           </div>
           <div class="wf-course-card-footer">
-            <div class="d-flex align-items-center justify-content-between w-100">
-              <span class="wf-badge status-active">Activo</span>
-              <button class="wf-btn wf-btn-primary wf-btn-sm d-flex align-items-center gap-1">
-                <span>${isDocente ? 'Gestionar curso' : (isAlumno ? 'Ingresar al curso' : 'Ver ficha')}</span>
-                ${icons.arrowRight()}
-              </button>
+            <button class="wf-btn-manage-course">
+              ${icons.cog6Tooth("w-4 h-4")}
+              <span>${isDocente ? 'Gestionar Curso' : (isAlumno ? 'Ingresar al Curso' : 'Ver Detalle')}</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Curso 3: Mercado de Capitales Argentino -->
+        <div class="wf-course-card">
+          <div class="wf-course-card-thumb">
+            <div class="wf-course-thumb-icon">${icons.academicCap("w-8 h-8 text-white")}</div>
+            <div class="wf-course-pills-row">
+              <span class="wf-pill-tag">Mercado de Capitales</span>
+              <span class="wf-pill-status">Sin cohortes abiertas</span>
             </div>
+          </div>
+          <div class="wf-course-card-body">
+            <h4 class="wf-course-title">Mercado de Capitales Argentino</h4>
+            <p class="wf-course-desc">Análisis de bonos, acciones y estructura de la CNV.</p>
+            <div class="wf-course-info-row">
+              <span>📄 2 Programas</span>
+              <span class="wf-course-price">$45.000</span>
+            </div>
+          </div>
+          <div class="wf-course-card-footer">
+            <button class="wf-btn-manage-course">
+              ${icons.cog6Tooth("w-4 h-4")}
+              <span>${isDocente ? 'Gestionar Curso' : (isAlumno ? 'Ingresar al Curso' : 'Ver Detalle')}</span>
+            </button>
           </div>
         </div>
       </div>
@@ -1574,21 +1592,24 @@ let html = `<!DOCTYPE html>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         /* ==========================================================================
-           ESTILO WIREFRAME MINIMALISTA (FIGMA-READY)
-           Paleta neutra, bordes nítidos, jerarquía clara y tipografía precisa.
+           ESTILO OFICIAL DEFINITIVO — IDÓNEOS ONLINE
+           Paleta: Deep Navy (#081426, #0F233D), Acento Oro (#D4A03D, #C59030), Blanco (#FFFFFF)
+           Bordes suaves, tarjetas con pill badges de categoría/aranceles y botones dorados.
            ========================================================================== */
         :root {
-            --wf-navy-dark: #0F172A;
-            --wf-navy-active: #1E293B;
-            --wf-gold: #475569;
-            --wf-bg: #F8FAFC;
-            --wf-canvas: #EEF2F6;
-            --wf-border: #CBD5E1;
-            --wf-border-focus: #0F172A;
+            --wf-navy-dark: #081426;
+            --wf-navy-header: #071324;
+            --wf-navy-card-top: #132A4A;
+            --wf-gold: #D4A03D;
+            --wf-gold-hover: #C59030;
+            --wf-gold-light: #FEF3C7;
+            --wf-gold-text: #92400E;
+            --wf-bg: #F4F6F9;
+            --wf-canvas: #E9ECEF;
+            --wf-border: #DDE2E8;
             --wf-text: #0F172A;
             --wf-text-muted: #64748B;
             --wf-surface: #FFFFFF;
-            --wf-surface-subtle: #F1F5F9;
         }
 
         * {
@@ -1614,12 +1635,16 @@ let html = `<!DOCTYPE html>
         }
         .w-3 { width: 14px; }
         .h-3 { height: 14px; }
+        .w-3\.5 { width: 15px; }
+        .h-3\.5 { height: 15px; }
         .w-4 { width: 16px; }
         .h-4 { height: 16px; }
         .w-5 { width: 20px; }
         .h-5 { height: 20px; }
         .w-6 { width: 24px; }
         .h-6 { height: 24px; }
+        .w-7 { width: 28px; }
+        .h-7 { height: 28px; }
         .w-8 { width: 32px; }
         .h-8 { height: 32px; }
         .w-10 { width: 40px; }
@@ -1627,11 +1652,11 @@ let html = `<!DOCTYPE html>
 
         /* Navegación Lateral */
         #nav-sidebar {
-            width: 300px;
-            background: #0F172A;
+            width: 310px;
+            background: #081426;
             color: #FFFFFF;
             overflow-y: auto;
-            border-right: 1px solid #1E293B;
+            border-right: 1px solid #142844;
             display: flex;
             flex-direction: column;
             flex-shrink: 0;
@@ -1639,8 +1664,8 @@ let html = `<!DOCTYPE html>
 
         .nav-header {
             padding: 20px;
-            border-bottom: 1px solid #1E293B;
-            background: #090E17;
+            border-bottom: 1px solid #142844;
+            background: #050E1B;
         }
 
         .nav-header h2 {
@@ -1657,16 +1682,16 @@ let html = `<!DOCTYPE html>
         }
 
         .nav-search {
-            padding: 14px 16px;
-            border-bottom: 1px solid #1E293B;
+            padding: 12px 16px;
+            border-bottom: 1px solid #142844;
         }
 
         .nav-search input {
             width: 100%;
             padding: 8px 12px;
             border-radius: 6px;
-            border: 1px solid #334155;
-            background: #1E293B;
+            border: 1px solid #1E3A5F;
+            background: #0F233D;
             color: #FFFFFF;
             font-size: 12px;
             outline: none;
@@ -1674,22 +1699,21 @@ let html = `<!DOCTYPE html>
         }
 
         .nav-search input:focus {
-            border-color: #64748B;
-            background: #0F172A;
+            border-color: var(--wf-gold);
         }
 
         .module-group {
-            border-bottom: 1px solid #1E293B;
+            border-bottom: 1px solid #142844;
         }
 
         .module-header {
             padding: 10px 16px;
-            background: #182234;
+            background: #0D2038;
             font-size: 11px;
             font-weight: 700;
-            color: #CBD5E1;
+            color: var(--wf-gold);
             letter-spacing: 0.3px;
-            border-left: 3px solid #64748B;
+            border-left: 3px solid var(--wf-gold);
         }
 
         .module-list {
@@ -1708,7 +1732,7 @@ let html = `<!DOCTYPE html>
         }
 
         .nav-item a:hover {
-            background: #1E293B;
+            background: #132A4A;
             color: #FFFFFF;
             padding-left: 20px;
         }
@@ -1750,94 +1774,566 @@ let html = `<!DOCTYPE html>
             padding-left: 2px;
         }
 
-        /* Marco de Pantalla / Wireframe Frame */
+        /* Marco de Pantalla / Screen Frame Oficial */
         .screen-frame {
             width: 100%;
-            min-height: 640px;
-            background: #FFFFFF;
+            min-height: 680px;
+            background: #F8FAFC;
             border-radius: 8px;
-            border: 1.5px solid #CBD5E1;
-            box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+            border: 1px solid #CBD5E1;
+            box-shadow: 0 10px 30px rgba(8, 20, 38, 0.08);
             display: flex;
             flex-direction: column;
-            overflow: visible;
+            overflow: hidden;
         }
 
-        /* Top Navbar Minimalista */
+        /* Top Navbar Oficial (Navy Header) */
         .wf-top-navbar {
-            height: 52px;
-            background: #FFFFFF;
-            border-bottom: 1.5px solid #CBD5E1;
-            padding: 0 20px;
+            height: 58px;
+            background: var(--wf-navy-header);
+            padding: 0 28px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             position: relative;
             z-index: 100;
+            border-bottom: 1px solid #142844;
         }
 
         .wf-brand {
             display: flex;
             align-items: center;
-            gap: 10px;
-            font-size: 13px;
+            gap: 12px;
         }
 
-        .wf-brand strong {
-            letter-spacing: 0.5px;
-            color: #0F172A;
-            font-size: 14px;
+        .wf-brand-logo {
+            font-size: 16px;
             font-weight: 800;
+            color: #FFFFFF;
+            letter-spacing: -0.3px;
         }
 
-        .wf-brand .divider {
+        .wf-brand-logo span {
+            color: var(--wf-gold);
+        }
+
+        .wf-brand-sub {
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+            color: #94A3B8;
+            text-transform: uppercase;
+        }
+
+        .wf-top-nav-links {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .wf-top-nav-link {
             color: #CBD5E1;
-        }
-
-        .wf-brand .screen-title {
+            font-size: 12px;
             font-weight: 600;
-            color: #475569;
+            text-decoration: none;
+            transition: color 0.15s;
         }
 
-        /* User Pill Trigger */
-        .wf-user-menu-wrapper {
-            position: relative;
+        .wf-top-nav-link:hover {
+            color: #FFFFFF;
+        }
+
+        .wf-top-nav-pill {
+            padding: 5px 12px;
+            border-radius: 20px;
+            border: 1px solid rgba(212, 160, 61, 0.4);
+            color: var(--wf-gold);
+            font-size: 11px;
+            font-weight: 700;
+            background: rgba(212, 160, 61, 0.08);
         }
 
         .wf-user-trigger-pill {
             display: flex;
             align-items: center;
             gap: 8px;
-            padding: 3px 10px 3px 3px;
+            padding: 3px 12px 3px 4px;
             border-radius: 20px;
-            border: 1px solid #CBD5E1;
-            background: #F8FAFC;
+            border: 1px solid #1E3A5F;
+            background: #0F233D;
             cursor: pointer;
+            color: #FFFFFF;
         }
 
         .user-avatar-circle {
             width: 28px;
             height: 28px;
             border-radius: 50%;
-            background: #0F172A;
-            color: #FFFFFF;
+            background: var(--wf-gold);
+            color: #081426;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 11px;
+            font-weight: 800;
+        }
+
+        /* Hero Banner del Cuerpo Docente */
+        .wf-hero-banner {
+            background: var(--wf-navy-header);
+            padding: 24px 32px 28px;
+            color: #FFFFFF;
+            border-bottom: 1px solid #142844;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .wf-hero-tag {
+            font-size: 10px;
+            font-weight: 800;
+            color: var(--wf-gold);
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .wf-hero-title {
+            font-size: 22px;
+            font-weight: 800;
+            color: #FFFFFF;
+            letter-spacing: -0.3px;
+        }
+
+        .wf-hero-desc {
+            font-size: 12px;
+            color: #94A3B8;
+            margin-top: 2px;
+        }
+
+        .wf-btn-gold {
+            background: var(--wf-gold);
+            color: #081426;
+            font-size: 12px;
             font-weight: 700;
+            padding: 8px 18px;
+            border-radius: 20px;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(212, 160, 61, 0.25);
+            transition: all 0.15s;
+            text-decoration: none;
+        }
+
+        .wf-btn-gold:hover {
+            background: var(--wf-gold-hover);
+        }
+
+        /* Main Content */
+        .wf-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #F4F6F9;
+            position: relative;
+        }
+
+        .wf-main-content {
+            flex: 1;
+            padding: 28px 32px;
+            overflow-y: auto;
+        }
+
+        /* Footer Inferior Oficial */
+        .wf-screen-footer {
+            height: 48px;
+            background: var(--wf-navy-header);
+            border-top: 1px solid #142844;
+            padding: 0 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 11px;
+            color: #94A3B8;
+        }
+
+        .wf-screen-footer strong {
+            color: #FFFFFF;
+        }
+
+        .wf-screen-footer strong span {
+            color: var(--wf-gold);
+        }
+
+        /* Tarjetas de Cursos Oficiales (Estilo Imagen) */
+        .wf-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .wf-course-card {
+            background: #FFFFFF;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #E2E8F0;
+            box-shadow: 0 6px 16px rgba(8, 20, 38, 0.05);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+
+        .wf-course-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 24px rgba(8, 20, 38, 0.08);
+        }
+
+        .wf-course-card-thumb {
+            height: 120px;
+            background: var(--wf-navy-card-top);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+        }
+
+        .wf-course-thumb-icon {
+            color: rgba(255,255,255,0.25);
+            margin-bottom: 8px;
+        }
+
+        .wf-course-pills-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            width: 100%;
+            justify-content: flex-start;
+        }
+
+        .wf-pill-tag {
+            background: var(--wf-gold);
+            color: #081426;
+            font-size: 9px;
+            font-weight: 800;
+            padding: 3px 8px;
+            border-radius: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .wf-pill-status {
+            background: var(--wf-gold);
+            color: #081426;
+            font-size: 9px;
+            font-weight: 800;
+            padding: 3px 8px;
+            border-radius: 12px;
+            letter-spacing: 0.3px;
+        }
+
+        .wf-course-card-body {
+            padding: 18px 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .wf-course-title {
+            font-size: 15px;
+            font-weight: 800;
+            color: #081426;
+            margin-bottom: 6px;
+            line-height: 1.3;
+        }
+
+        .wf-course-desc {
+            font-size: 11px;
+            color: #64748B;
+            margin-bottom: 14px;
+            line-height: 1.4;
+            flex: 1;
+        }
+
+        .wf-course-info-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 11px;
+            color: #64748B;
+            font-weight: 600;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #F1F5F9;
+        }
+
+        .wf-course-price {
+            font-size: 13px;
+            font-weight: 800;
+            color: #081426;
+        }
+
+        .wf-course-card-footer {
+            padding: 12px 20px 16px;
+            background: #FFFFFF;
+        }
+
+        .wf-btn-manage-course {
+            width: 100%;
+            background: var(--wf-gold);
+            color: #081426;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 9px 0;
+            border-radius: 8px;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: background 0.15s;
+            text-decoration: none;
+        }
+
+        .wf-btn-manage-course:hover {
+            background: var(--wf-gold-hover);
+        }
+
+        /* Pin Badges */
+        .pin-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 26px;
+            height: 26px;
+            min-width: 26px;
+            border-radius: 50%;
+            background: #081426;
+            color: #FFFFFF;
+            font-size: 12px;
+            font-weight: 800;
+            border: 2px solid var(--wf-gold);
+            box-shadow: 0 2px 6px rgba(8, 20, 38, 0.3);
+            flex-shrink: 0;
+            user-select: none;
+        }
+
+        /* Inputs y Formularios Oficiales */
+        .wf-card {
+            background: #FFFFFF;
+            border: 1px solid var(--wf-border);
+            border-radius: 10px;
+            padding: 24px;
+            box-shadow: 0 4px 12px rgba(8, 20, 38, 0.03);
+        }
+
+        .wf-label {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            color: #334155;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            margin-bottom: 6px;
+        }
+
+        .wf-input {
+            width: 100%;
+            height: 40px;
+            padding: 8px 14px;
+            border: 1.5px solid var(--wf-border);
+            border-radius: 6px;
+            font-size: 13px;
+            color: #081426;
+            outline: none;
+            background: #FFFFFF;
+            transition: border-color 0.15s;
+        }
+
+        .wf-input:focus {
+            border-color: #081426;
+        }
+
+        textarea.wf-input {
+            height: auto;
+        }
+
+        .bg-disabled {
+            background: #F8FAFC !important;
+            color: #64748B !important;
+            border-style: dashed !important;
+        }
+
+        .wf-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 40px;
+            padding: 0 18px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            border: 1.5px solid transparent;
+            text-decoration: none;
+            white-space: nowrap;
+            transition: all 0.15s;
+        }
+
+        .wf-btn-primary {
+            background: #081426;
+            color: #FFFFFF;
+            border-color: #081426;
+        }
+
+        .wf-btn-primary:hover {
+            background: #102540;
+        }
+
+        .wf-btn-outline {
+            background: #FFFFFF;
+            border-color: #CBD5E1;
+            color: #334155;
+        }
+
+        .wf-btn-outline:hover {
+            background: #F8FAFC;
+            border-color: #081426;
+            color: #081426;
+        }
+
+        .wf-btn-danger {
+            background: #DC2626;
+            border-color: #DC2626;
+            color: #FFFFFF;
+        }
+
+        .wf-btn-sm {
+            height: 32px;
+            padding: 0 12px;
+            font-size: 11px;
+        }
+
+        .wf-link {
+            font-size: 13px;
+            color: #081426;
+            font-weight: 700;
+            text-decoration: underline;
+            text-underline-offset: 2px;
+            cursor: pointer;
+        }
+
+        /* Tablas */
+        .wf-table-wrap {
+            background: #FFFFFF;
+            border: 1px solid var(--wf-border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .wf-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+
+        .wf-table th, .wf-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--wf-border);
+            text-align: left;
+            vertical-align: middle;
+        }
+
+        .wf-table th {
+            background: #F8FAFC;
+            font-weight: 700;
+            color: #475569;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Badges de Estado */
+        .wf-badge {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 4px;
+            border: 1px solid #CBD5E1;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .status-active {
+            background: #FEF3C7;
+            color: #92400E;
+            border-color: #FCD34D;
+        }
+
+        .status-inactive {
+            background: #FFFFFF;
+            color: #94A3B8;
+            border-color: #E2E8F0;
+        }
+
+        .wf-icon-danger {
+            width: 48px;
+            height: 48px;
+            background: #FEE2E2;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+        }
+
+        /* Meta-Strip Superior */
+        .meta-strip {
+            padding: 8px 16px;
+            background: #FFFFFF;
+            border: 1px solid #CBD5E1;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 11px;
+            color: #64748B;
+        }
+
+        .meta-strip strong {
+            color: #081426;
+        }
+
+        .meta-strip code {
+            background: #F1F5F9;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 11px;
+            color: #081426;
+            border: 1px solid #E2E8F0;
         }
 
         /* Dropdown Flotante */
+        .wf-user-menu-wrapper {
+            position: relative;
+        }
+
         .wf-user-floating-dropdown {
             position: absolute;
             top: 44px;
             right: 0;
             width: 250px;
             background: #FFFFFF;
-            border: 1.5px solid #CBD5E1;
+            border: 1px solid #CBD5E1;
             border-radius: 8px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
             z-index: 200;
             overflow: hidden;
             display: none;
@@ -1845,7 +2341,7 @@ let html = `<!DOCTYPE html>
         }
 
         .wf-dropdown-user-header {
-            padding: 10px 14px;
+            padding: 12px 14px;
             background: #F8FAFC;
             border-bottom: 1px solid #CBD5E1;
         }
@@ -1853,13 +2349,13 @@ let html = `<!DOCTYPE html>
         .wf-dropdown-user-name {
             font-size: 12px;
             font-weight: 700;
-            color: #0F172A;
+            color: #081426;
         }
 
         .wf-dropdown-user-role {
             font-size: 10px;
-            font-weight: 600;
-            color: #64748B;
+            font-weight: 700;
+            color: var(--wf-gold);
             text-transform: uppercase;
         }
 
@@ -1902,7 +2398,7 @@ let html = `<!DOCTYPE html>
 
         .wf-dropdown-item-btn:hover {
             background: #F1F5F9;
-            color: #0F172A;
+            color: #081426;
         }
 
         .wf-dropdown-item-btn.text-danger {
@@ -1920,36 +2416,56 @@ let html = `<!DOCTYPE html>
             justify-content: space-between;
         }
 
-        .wf-body {
-            flex: 1;
-            display: flex;
-            background: #F8FAFC;
-            position: relative;
-        }
-
-        .wf-main-content {
-            flex: 1;
-            padding: 24px;
-            overflow-y: auto;
-        }
-
-        /* Pin Badges (Wireframe Style - Contraste Nítido) */
-        .pin-badge {
+        .wf-tab-btn {
+            padding: 8px 14px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #64748B;
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+            text-decoration: none;
             display: inline-flex;
             align-items: center;
-            justify-content: center;
-            width: 26px;
-            height: 26px;
-            min-width: 26px;
-            border-radius: 50%;
-            background: #0F172A;
-            color: #FFFFFF;
-            font-size: 12px;
+        }
+
+        .wf-tab-btn.active {
+            color: #081426;
+            border-bottom-color: var(--wf-gold);
+            font-weight: 800;
+        }
+
+        .wf-unit-box {
+            background: #FFFFFF;
+            border: 1px solid var(--wf-border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .wf-unit-header {
+            padding: 14px 18px;
+            background: #F8FAFC;
+            border-bottom: 1px solid var(--wf-border);
+        }
+
+        .wf-unit-body {
+            padding: 18px;
+        }
+
+        .wf-content-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .wf-subcontent-title {
+            font-size: 10px;
             font-weight: 700;
-            border: 2px solid #FFFFFF;
-            box-shadow: 0 2px 5px rgba(15, 23, 42, 0.25);
-            flex-shrink: 0;
-            user-select: none;
+            text-transform: uppercase;
+            color: #64748B;
+            margin-bottom: 6px;
         }
 
         .wf-input-wrap {
@@ -1978,11 +2494,11 @@ let html = `<!DOCTYPE html>
 
         .wf-dropdown-menu {
             position: absolute;
-            top: 42px;
+            top: 44px;
             left: 0;
             width: 100%;
             background: #FFFFFF;
-            border: 1.5px solid #CBD5E1;
+            border: 1px solid var(--wf-border);
             border-radius: 6px;
             box-shadow: 0 8px 20px rgba(0,0,0,0.08);
             z-index: 50;
@@ -1998,408 +2514,9 @@ let html = `<!DOCTYPE html>
         }
 
         .wf-dropdown-item.active {
-            background: #F1F5F9;
-            font-weight: 600;
-            color: #0F172A;
-        }
-
-        /* Tarjetas y Contenedores */
-        .wf-card {
-            background: #FFFFFF;
-            border: 1.5px solid #CBD5E1;
-            border-radius: 6px;
-            padding: 20px;
-        }
-
-        .wf-label {
-            display: block;
-            font-size: 11px;
+            background: #FEF3C7;
             font-weight: 700;
-            color: #334155;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-            margin-bottom: 6px;
-        }
-
-        /* Inputs Wireframe Minimalistas */
-        .wf-input {
-            width: 100%;
-            height: 38px;
-            padding: 8px 12px;
-            border: 1.5px solid #CBD5E1;
-            border-radius: 5px;
-            font-size: 13px;
-            color: #0F172A;
-            outline: none;
-            background: #FFFFFF;
-            transition: border-color 0.15s;
-        }
-
-        .wf-input:focus {
-            border-color: #0F172A;
-        }
-
-        textarea.wf-input {
-            height: auto;
-        }
-
-        .bg-disabled {
-            background: #F8FAFC !important;
-            color: #64748B !important;
-            border-style: dashed !important;
-        }
-
-        /* Botones Wireframe Nítidos */
-        .wf-btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            height: 38px;
-            padding: 0 16px;
-            border-radius: 5px;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            border: 1.5px solid transparent;
-            text-decoration: none;
-            white-space: nowrap;
-            transition: all 0.15s;
-        }
-
-        .wf-btn-primary {
-            background: #0F172A;
-            color: #FFFFFF;
-            border-color: #0F172A;
-        }
-
-        .wf-btn-primary:hover {
-            background: #1E293B;
-        }
-
-        .wf-btn-outline {
-            background: #FFFFFF;
-            border-color: #CBD5E1;
-            color: #334155;
-        }
-
-        .wf-btn-outline:hover {
-            background: #F8FAFC;
-            border-color: #0F172A;
-            color: #0F172A;
-        }
-
-        .wf-btn-danger {
-            background: #DC2626;
-            border-color: #DC2626;
-            color: #FFFFFF;
-        }
-
-        .wf-btn-sm {
-            height: 30px;
-            padding: 0 10px;
-            font-size: 11px;
-        }
-
-        .wf-link {
-            font-size: 13px;
-            color: #0F172A;
-            font-weight: 600;
-            text-decoration: underline;
-            text-underline-offset: 2px;
-            cursor: pointer;
-        }
-
-        /* Tablas */
-        .wf-table-wrap {
-            background: #FFFFFF;
-            border: 1.5px solid #CBD5E1;
-            border-radius: 6px;
-            overflow: hidden;
-        }
-
-        .wf-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 12px;
-        }
-
-        .wf-table th, .wf-table td {
-            padding: 10px 14px;
-            border-bottom: 1px solid #CBD5E1;
-            text-align: left;
-            vertical-align: middle;
-        }
-
-        .wf-table th {
-            background: #F8FAFC;
-            font-weight: 700;
-            color: #475569;
-            font-size: 10px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        /* Badges de Estado */
-        .wf-badge {
-            font-size: 10px;
-            font-weight: 700;
-            padding: 2px 7px;
-            border-radius: 4px;
-            border: 1px solid #CBD5E1;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-        }
-
-        .status-active {
-            background: #F1F5F9;
-            color: #0F172A;
-            border-color: #94A3B8;
-        }
-
-        .status-inactive {
-            background: #FFFFFF;
-            color: #94A3B8;
-            border-color: #E2E8F0;
-        }
-
-        .wf-icon-danger {
-            width: 48px;
-            height: 48px;
-            background: #FEE2E2;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto;
-        }
-
-        /* Cards Grid */
-        .wf-cards-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 16px;
-        }
-
-        .wf-course-card {
-            background: #FFFFFF;
-            border: 1.5px solid #CBD5E1;
-            border-radius: 6px;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .wf-course-card-thumb {
-            height: 100px;
-            background: #0F172A;
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-bottom: 1.5px solid #CBD5E1;
-        }
-
-        .wf-course-tag {
-            position: absolute;
-            top: 8px;
-            left: 8px;
-            background: #FFFFFF;
-            color: #0F172A;
-            font-size: 9px;
-            font-weight: 700;
-            padding: 2px 5px;
-            border-radius: 3px;
-            text-transform: uppercase;
-            border: 1px solid #CBD5E1;
-        }
-
-        .wf-course-card-body {
-            padding: 14px;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .wf-course-title {
-            font-size: 13px;
-            font-weight: 700;
-            color: #0F172A;
-            margin-bottom: 4px;
-            line-height: 1.3;
-        }
-
-        .wf-course-desc {
-            font-size: 11px;
-            color: #64748B;
-            margin-bottom: 10px;
-            line-height: 1.4;
-            flex: 1;
-        }
-
-        .wf-course-meta {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-            font-size: 10px;
-            color: #475569;
-            padding-top: 8px;
-            border-top: 1px solid #F1F5F9;
-        }
-
-        .wf-course-card-footer {
-            padding: 10px 14px;
-            background: #F8FAFC;
-            border-top: 1px solid #CBD5E1;
-        }
-
-        .wf-progress {
-            height: 4px;
-            background: #E2E8F0;
-            border-radius: 2px;
-            overflow: hidden;
-        }
-
-        .wf-progress-fill {
-            height: 100%;
-            background: #0F172A;
-        }
-
-        .wf-tab-btn {
-            padding: 6px 12px;
-            font-size: 12px;
-            font-weight: 600;
-            color: #64748B;
-            background: transparent;
-            border: none;
-            border-bottom: 2px solid transparent;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-        }
-
-        .wf-tab-btn.active {
-            color: #0F172A;
-            border-bottom-color: #0F172A;
-            font-weight: 700;
-        }
-
-        .wf-unit-box {
-            background: #FFFFFF;
-            border: 1.5px solid #CBD5E1;
-            border-radius: 6px;
-            overflow: hidden;
-        }
-
-        .wf-unit-header {
-            padding: 12px 16px;
-            background: #F8FAFC;
-            border-bottom: 1.5px solid #CBD5E1;
-        }
-
-        .wf-unit-body {
-            padding: 16px;
-        }
-
-        .wf-content-list {
-            list-style: none;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .wf-subcontent-title {
-            font-size: 10px;
-            font-weight: 700;
-            text-transform: uppercase;
-            color: #64748B;
-            margin-bottom: 6px;
-        }
-
-        .row {
-            display: flex;
-            flex-wrap: wrap;
-            margin-right: -8px;
-            margin-left: -8px;
-        }
-
-        .col-md-3 { flex: 0 0 25%; max-width: 25%; padding: 0 8px; }
-        .col-md-4 { flex: 0 0 33.3333%; max-width: 33.3333%; padding: 0 8px; }
-        .col-md-5 { flex: 0 0 41.6666%; max-width: 41.6666%; padding: 0 8px; }
-        .col-md-6 { flex: 0 0 50%; max-width: 50%; padding: 0 8px; }
-        .col-md-7 { flex: 0 0 58.3333%; max-width: 58.3333%; padding: 0 8px; }
-        .col-md-8 { flex: 0 0 66.6666%; max-width: 66.6666%; padding: 0 8px; }
-        .col-12 { flex: 0 0 100%; max-width: 100%; padding: 0 8px; }
-
-        .d-flex { display: flex; }
-        .d-inline-flex { display: inline-flex; }
-        .align-items-center { align-items: center; }
-        .align-items-end { align-items: flex-end; }
-        .align-items-start { align-items: flex-start; }
-        .justify-content-between { justify-content: space-between; }
-        .justify-content-end { justify-content: flex-end; }
-        .flex-column { flex-direction: column; }
-        .gap-1 { gap: 4px; }
-        .gap-2 { gap: 8px; }
-        .gap-3 { gap: 12px; }
-        .gap-4 { gap: 16px; }
-        .mb-1 { margin-bottom: 4px; }
-        .mb-2 { margin-bottom: 8px; }
-        .mb-3 { margin-bottom: 12px; }
-        .mb-4 { margin-bottom: 16px; }
-        .mt-1 { margin-top: 4px; }
-        .mt-2 { margin-top: 8px; }
-        .mt-3 { margin-top: 12px; }
-        .mt-4 { margin-top: 16px; }
-        .p-2 { padding: 8px; }
-        .p-3 { padding: 12px; }
-        .p-4 { padding: 16px; }
-        .py-2 { padding-top: 8px; padding-bottom: 8px; }
-        .px-3 { padding-left: 12px; padding-right: 12px; }
-        .pt-2 { padding-top: 8px; }
-        .pt-3 { padding-top: 12px; }
-        .pt-4 { padding-top: 16px; }
-        .border-top { border-top: 1.5px solid #CBD5E1; }
-        .border-bottom { border-bottom: 1.5px solid #CBD5E1; }
-        .w-100 { width: 100%; }
-        .text-muted { color: #64748B; }
-        .text-success { color: #0F172A; font-weight: 600; }
-        .text-danger { color: #DC2626; }
-        .text-navy { color: #0F172A; }
-        .text-end { text-align: right; }
-        .text-center { text-align: center; }
-        .fw-bold { font-weight: 700; }
-        .small { font-size: 11px; }
-        .rounded { border-radius: 5px; }
-        .border { border: 1.5px solid #CBD5E1; }
-        .bg-white { background: #FFFFFF; }
-        .bg-light { background: #F8FAFC; }
-        .shadow-sm { box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
-
-        /* Meta-Strip Superior de Cada Figura (Limpio, sin texto de módulo redundante) */
-        .meta-strip {
-            padding: 6px 14px;
-            background: #FFFFFF;
-            border: 1px solid #CBD5E1;
-            border-radius: 5px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            font-size: 11px;
-            color: #64748B;
-        }
-
-        .meta-strip strong {
-            color: #0F172A;
-        }
-
-        .meta-strip code {
-            background: #F1F5F9;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 11px;
-            color: #0F172A;
-            border: 1px solid #E2E8F0;
+            color: #92400E;
         }
     </style>
 </head>
@@ -2467,67 +2584,102 @@ cus.forEach(cu => {
             </div>
 
             <div class="screen-frame">
+                <!-- Top Navbar Oficial -->
                 <div class="wf-top-navbar">
                     <div class="wf-brand">
-                        <strong>IDÓNEOS ONLINE</strong>
-                        <span class="divider">|</span>
-                        <span class="screen-title">${cu.name}</span>
+                        <div class="d-flex flex-column">
+                            <div class="wf-brand-logo">📈 Idóneos <span>Online</span></div>
+                            <div class="wf-brand-sub">FINANZAS • ECONOMÍA • MERCADO DE CAPITALES</div>
+                        </div>
                     </div>
 
-                    <div class="wf-user-menu-wrapper">
-                        <div class="wf-user-trigger-pill" onclick="toggleUserDropdown(this)">
-                            <div class="user-avatar-circle">${roleInfo.initials}</div>
-                            <div class="d-flex flex-column text-start">
-                                <span class="wf-dropdown-user-name" style="font-size: 11px;">${roleInfo.name}</span>
-                                <span class="wf-dropdown-user-role" style="font-size: 9px;">${roleInfo.role}</span>
-                            </div>
-                            ${icons.chevronDown("w-3 h-3 text-muted ms-1")}
-                        </div>
+                    <div class="wf-top-nav-links">
+                        <a href="#CU-06" class="wf-top-nav-link">Inicio</a>
+                        <a href="#CU-06" class="wf-top-nav-link">Catálogo de Cursos</a>
+                        <span class="wf-top-nav-pill">${roleInfo.isAdmin ? 'Panel Administrador' : (roleInfo.isDocente ? 'Panel Docente' : 'Panel Alumno')}</span>
+                        <a href="#CU-99" class="wf-top-nav-link">Acerca de</a>
 
-                        <div class="wf-user-floating-dropdown">
-                            <div class="wf-dropdown-user-header">
-                                <div class="wf-dropdown-user-name">${roleInfo.name}</div>
-                                <div class="wf-dropdown-user-role">${roleInfo.role}</div>
-                                <div class="wf-dropdown-user-email">${roleInfo.email}</div>
+                        <div class="wf-user-menu-wrapper">
+                            <div class="wf-user-trigger-pill" onclick="toggleUserDropdown(this)">
+                                <div class="user-avatar-circle">${roleInfo.initials}</div>
+                                <span style="font-size: 11px; font-weight: 700;">${roleInfo.name}</span>
+                                ${icons.chevronDown("w-3 h-3 text-white ms-1")}
                             </div>
+
+                            <div class="wf-user-floating-dropdown">
+                                <div class="wf-dropdown-user-header">
+                                    <div class="wf-dropdown-user-name">${roleInfo.name}</div>
+                                    <div class="wf-dropdown-user-role">${roleInfo.role}</div>
+                                    <div class="wf-dropdown-user-email">${roleInfo.email}</div>
+                                </div>
   `;
 
   roleInfo.dropdownSections.forEach(sec => {
     html += `
-                            <div class="wf-dropdown-section">
-                                <div class="wf-dropdown-section-title">${sec.title}</div>
+                                <div class="wf-dropdown-section">
+                                    <div class="wf-dropdown-section-title">${sec.title}</div>
     `;
     if (sec.hasEditingToggle) {
       html += `
-                                <div class="wf-dropdown-editing-toggle-box">
-                                    <span class="small fw-bold">${sec.isEditingActive ? 'Modo Edición Activado' : 'Activar Edición'}</span>
-                                    <span class="wf-badge ${sec.isEditingActive ? 'status-active' : 'status-inactive'}">${sec.isEditingActive ? 'ON' : 'OFF'}</span>
-                                </div>
+                                    <div class="wf-dropdown-editing-toggle-box">
+                                        <span class="small fw-bold">${sec.isEditingActive ? 'Modo Edición Activado' : 'Activar Edición'}</span>
+                                        <span class="wf-badge ${sec.isEditingActive ? 'status-active' : 'status-inactive'}">${sec.isEditingActive ? 'ON' : 'OFF'}</span>
+                                    </div>
       `;
     }
     if (sec.items) {
       sec.items.forEach(it => {
         html += `
-                                <a href="#${it.cu}" class="wf-dropdown-item-btn ${it.isDanger ? 'text-danger' : ''}">
-                                    <span>${it.label}</span>
-                                    <span class="small text-muted">${it.cu}</span>
-                                </a>
+                                    <a href="#${it.cu}" class="wf-dropdown-item-btn ${it.isDanger ? 'text-danger' : ''}">
+                                        <span>${it.label}</span>
+                                        <span class="small text-muted">${it.cu}</span>
+                                    </a>
         `;
       });
     }
     html += `
-                            </div>
+                                </div>
     `;
   });
 
   html += `
+                            </div>
                         </div>
                     </div>
+                </div>
+
+                <!-- Hero Banner Contextual Superior (Navy) -->
+                <div class="wf-hero-banner">
+                    <div>
+                        <div class="wf-hero-tag">
+                            <span>🎓 CUERPO DOCENTE • IDÓNEOS ONLINE</span>
+                        </div>
+                        <h2 class="wf-hero-title">${cu.id === 'CU-01' ? 'Mis Cursos Asignados' : cu.name}</h2>
+                        <p class="wf-hero-desc">Bienvenido/a, ${roleInfo.name}</p>
+                    </div>
+                    ${roleInfo.isDocente || roleInfo.isAdmin ? `
+                    <div>
+                        <a href="#CU-03" class="wf-btn-gold">
+                            ${icons.plus("w-4 h-4")}
+                            <span>Crear Curso</span>
+                        </a>
+                    </div>
+                    ` : ''}
                 </div>
 
                 <div class="wf-body">
                     <div class="wf-main-content">
                         ${generateScreenContent(cu)}
+                    </div>
+                </div>
+
+                <!-- Footer Oficial -->
+                <div class="wf-screen-footer">
+                    <div>
+                        <strong>Idóneos <span>Online</span> S.A.S.</strong> • Plataforma de Educación Financiera, Economía & Mercado de Capitales
+                    </div>
+                    <div>
+                        🔒 FCEQyN — UNaM • Proyecto Software (LSI) / Trabajo Final (ASI)
                     </div>
                 </div>
             </div>
