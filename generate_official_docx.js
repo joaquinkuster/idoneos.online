@@ -169,6 +169,41 @@ function parseMarkdownTable(tableMd) {
   return { headers, rowsData };
 }
 
+// Helper para parsear excepciones a tabla anidada (Paso | Acción)
+function parseExceptionsToTable(excText) {
+  if (!excText || excText.includes('No aplica') || excText.includes('Ninguna')) {
+    return new Paragraph({
+      children: [new TextRun({ text: '•  No aplica.', font: FONT_FAMILY, size: 20, color: COLOR_TEXT_DARK })]
+    });
+  }
+
+  const lines = excText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+  const rowsData = [];
+
+  for (let line of lines) {
+    const m = line.match(/(?:\*|-|•)?\s*\*?\*?Paso\s*(\d+[a-z]?)\*?\*?:\s*(.*)/i);
+    if (m) {
+      rowsData.push([m[1].trim(), m[2].trim()]);
+    } else {
+      const cleanLine = line.replace(/^[-•*]\s*/, '').trim();
+      if (cleanLine.length > 0 && !cleanLine.includes('No aplica')) {
+        rowsData.push(['—', cleanLine]);
+      }
+    }
+  }
+
+  if (rowsData.length === 0) {
+    return new Paragraph({
+      children: [new TextRun({ text: '•  No aplica.', font: FONT_FAMILY, size: 20, color: COLOR_TEXT_DARK })]
+    });
+  }
+
+  return createNestedTable({
+    headers: ['Paso', 'Acción'],
+    rowsData
+  });
+}
+
 // Helper para crear tabla interna anidada (Flujo de eventos en 2 columnas)
 function createNestedTable(tableData) {
   if (!tableData) return new Paragraph({ text: '—', spacing: { before: 60, after: 60 } });
@@ -290,7 +325,17 @@ for (let i = 1; i < cuBlocks.length; i++) {
 
   // Extraer Excepciones
   const excMatch = block.match(/- \*\*Excepciones\*\*:\s*([\s\S]*?)(?=- \*\*Frecuencia|- \*\*Estabilidad|- \*\*Comentarios|---|$)/);
-  const excText = excMatch ? excMatch[1].trim().replace(/^\s*-\s*/gm, '•  ') : '•  No aplica.';
+  const excText = excMatch ? excMatch[1].trim() : 'No aplica.';
+
+  // Extraer Frecuencia, Estabilidad y Comentarios
+  const frecMatch = block.match(/- \*\*Frecuencia\*\*:\s*([^\r\n]+)/);
+  const frecText = frecMatch ? frecMatch[1].trim() : 'Media';
+
+  const estMatch = block.match(/- \*\*Estabilidad\*\*:\s*([^\r\n]+)/);
+  const estText = estMatch ? estMatch[1].trim() : 'Alta';
+
+  const comMatch = block.match(/- \*\*Comentarios\*\*:\s*([\s\S]*?)(?=\r?\n---|###|$)/);
+  const comText = comMatch ? comMatch[1].trim() : '–';
 
   // Construir Filas de la Tabla Maestra
   const masterRows = [];
@@ -413,12 +458,23 @@ for (let i = 1; i < cuBlocks.length; i++) {
   }));
   addRow(postMatch ? 'Postcondición(es)' : 'Salida', postParagraphs);
 
-  // 10. Excepciones
-  const excParagraphs = excText.split('\n').map(p => new Paragraph({
-    children: formatTextWithBadges(p.trim(), 20),
-    spacing: { after: 40 }
+  // 10. Excepciones (Tabla anidada de 2 columnas Paso | Acción)
+  addRow('Excepciones', [parseExceptionsToTable(excText)]);
+
+  // 11. Frecuencia
+  addRow('Frecuencia', new Paragraph({
+    children: formatTextWithBadges(frecText, 20)
   }));
-  addRow('Excepciones', excParagraphs);
+
+  // 12. Estabilidad
+  addRow('Estabilidad', new Paragraph({
+    children: formatTextWithBadges(estText, 20)
+  }));
+
+  // 13. Comentarios
+  addRow('Comentarios', new Paragraph({
+    children: formatTextWithBadges(comText, 20)
+  }));
 
   // Añadir la tabla al documento con columnWidths explícito
   docChildren.push(
