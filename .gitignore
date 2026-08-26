@@ -43,3 +43,5 @@ application-*.properties
 
 *.exe
 
+### Node / JavaScript ###
+node_modules/
