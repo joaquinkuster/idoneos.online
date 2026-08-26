@@ -97,12 +97,13 @@ docChildren.push(
   })
 );
 
-// Helper para formatear texto con etiquetas [A], [B] en negrita
+// Helper para formatear texto con etiquetas [A], [B] y sintaxis Markdown **negrita**
 function formatTextWithBadges(text, fontSize = 20) {
   if (!text) return [new TextRun({ text: '', font: FONT_FAMILY, size: fontSize })];
 
   const runs = [];
-  const regex = /\[([A-Z0-9]+)\]/g;
+  // Tokenizar por negritas **texto** y badges [A]
+  const regex = /(\*\*[^*]+\*\*|\[[A-Z0-9]+\])/g;
   let lastIdx = 0;
   let match;
 
@@ -115,13 +116,25 @@ function formatTextWithBadges(text, fontSize = 20) {
         color: COLOR_TEXT_DARK
       }));
     }
-    runs.push(new TextRun({
-      text: '[' + match[1] + ']',
-      font: FONT_FAMILY,
-      size: fontSize,
-      bold: true,
-      color: COLOR_TEXT_DARK
-    }));
+
+    const token = match[1];
+    if (token.startsWith('**') && token.endsWith('**')) {
+      runs.push(new TextRun({
+        text: token.slice(2, -2),
+        font: FONT_FAMILY,
+        size: fontSize,
+        bold: true,
+        color: COLOR_TEXT_DARK
+      }));
+    } else {
+      runs.push(new TextRun({
+        text: token,
+        font: FONT_FAMILY,
+        size: fontSize,
+        bold: true,
+        color: COLOR_TEXT_DARK
+      }));
+    }
     lastIdx = match.index + match[0].length;
   }
 
@@ -360,32 +373,32 @@ for (let i = 1; i < cuBlocks.length; i++) {
 
   // 2. Objetivo(s) asociado(s)
   addRow('Objetivo(s) asociado(s)', new Paragraph({
-    children: [new TextRun({ text: objText, font: FONT_FAMILY, size: 20, color: COLOR_TEXT_DARK })]
+    children: formatTextWithBadges(objText, 20)
   }));
 
   // 3. Requisito(s) de información asociado(s)
   addRow('Requisito(s) de información asociado(s)', new Paragraph({
-    children: [new TextRun({ text: reqText, font: FONT_FAMILY, size: 20, color: COLOR_TEXT_DARK })]
+    children: formatTextWithBadges(reqText, 20)
   }));
 
   // 4. Módulo
   addRow('Módulo', new Paragraph({
-    children: [new TextRun({ text: '•  ' + cuModule, font: FONT_FAMILY, size: 20, color: COLOR_TEXT_DARK })]
+    children: formatTextWithBadges('•  ' + cuModule, 20)
   }));
 
   // 5. Actor(es)
   addRow('Actor(es)', new Paragraph({
-    children: [new TextRun({ text: actorText, font: FONT_FAMILY, size: 20, color: COLOR_TEXT_DARK })]
+    children: formatTextWithBadges(actorText, 20)
   }));
 
   // 6. Descripción
   addRow('Descripción', new Paragraph({
-    children: [new TextRun({ text: descText, font: FONT_FAMILY, size: 20, color: COLOR_TEXT_DARK })]
+    children: formatTextWithBadges(descText, 20)
   }));
 
   // 7. Precondición(es)
   const preParagraphs = preText.split('\n').map(p => new Paragraph({
-    children: [new TextRun({ text: p.trim(), font: FONT_FAMILY, size: 20, color: COLOR_TEXT_DARK })],
+    children: formatTextWithBadges(p.trim(), 20),
     spacing: { after: 40 }
   }));
   addRow('Precondición(es)', preParagraphs);
@@ -395,14 +408,14 @@ for (let i = 1; i < cuBlocks.length; i++) {
 
   // 9. Postcondición(es) / Salida
   const postParagraphs = postText.split('\n').map(p => new Paragraph({
-    children: [new TextRun({ text: p.trim(), font: FONT_FAMILY, size: 20, color: COLOR_TEXT_DARK })],
+    children: formatTextWithBadges(p.trim(), 20),
     spacing: { after: 40 }
   }));
   addRow(postMatch ? 'Postcondición(es)' : 'Salida', postParagraphs);
 
   // 10. Excepciones
   const excParagraphs = excText.split('\n').map(p => new Paragraph({
-    children: [new TextRun({ text: p.trim(), font: FONT_FAMILY, size: 20, color: COLOR_TEXT_DARK })],
+    children: formatTextWithBadges(p.trim(), 20),
     spacing: { after: 40 }
   }));
   addRow('Excepciones', excParagraphs);
