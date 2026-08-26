@@ -156,7 +156,13 @@
     "id": "CU-08",
     "name": "Registrar categoría",
     "totalSteps": 3,
-    "missingBadges": [],
+    "missingBadges": [
+      {
+        "badge": "A",
+        "step": "1",
+        "action": "El caso de uso inicia cuando el actor solicita registrar una nueva categoría mediante el botón \"Nueva Categoría\" [A] ubicado en la barra de gestión de categorías (ver CU-07: Buscar categoría)."
+      }
+    ],
     "missingButtons": [],
     "buttonMatches": [
       {
@@ -175,14 +181,22 @@
     "id": "CU-09",
     "name": "Modificar categoría",
     "totalSteps": 3,
-    "missingBadges": [],
-    "missingButtons": [],
-    "buttonMatches": [
+    "missingBadges": [
       {
         "badge": "A",
+        "step": "1",
+        "action": "El caso de uso inicia cuando el actor busca y selecciona la categoría a modificar mediante el botón \"Editar\" [A] (ver CU-07: Buscar categoría)."
+      }
+    ],
+    "missingButtons": [
+      {
+        "badge": "A",
+        "step": "1",
         "term": "Editar",
-        "found": true
-      },
+        "action": "El caso de uso inicia cuando el actor busca y selecciona la categoría a modificar mediante el botón \"Editar\" [A] (ver CU-07: Buscar categoría)."
+      }
+    ],
+    "buttonMatches": [
       {
         "badge": "D",
         "term": "Guardar Cambios",
@@ -194,14 +208,22 @@
     "id": "CU-10",
     "name": "Dar de baja categoría",
     "totalSteps": 2,
-    "missingBadges": [],
-    "missingButtons": [],
-    "buttonMatches": [
+    "missingBadges": [
       {
         "badge": "A",
+        "step": "1",
+        "action": "El caso de uso inicia cuando el actor busca y selecciona la categoría a dar de baja mediante el botón \"Eliminar\" [A] (ver CU-07: Buscar categoría)."
+      }
+    ],
+    "missingButtons": [
+      {
+        "badge": "A",
+        "step": "1",
         "term": "Eliminar",
-        "found": true
-      },
+        "action": "El caso de uso inicia cuando el actor busca y selecciona la categoría a dar de baja mediante el botón \"Eliminar\" [A] (ver CU-07: Buscar categoría)."
+      }
+    ],
+    "buttonMatches": [
       {
         "badge": "B",
         "term": "Confirmar Eliminación",
@@ -229,36 +251,16 @@
     "totalSteps": 3,
     "missingBadges": [
       {
-        "badge": "D",
-        "step": "2",
-        "action": "El sistema solicita los datos de la cohorte: nombre [B], fecha de inicio de inscripción [C], fecha de fin de inscripción [D], cupo máximo de alumnos [E], semanas de acceso al contenido [F] y, si incluye modalidad en vivo, fecha de inicio [G] y fecha de fin de dictado [H]."
-      },
-      {
-        "badge": "E",
-        "step": "2",
-        "action": "El sistema solicita los datos de la cohorte: nombre [B], fecha de inicio de inscripción [C], fecha de fin de inscripción [D], cupo máximo de alumnos [E], semanas de acceso al contenido [F] y, si incluye modalidad en vivo, fecha de inicio [G] y fecha de fin de dictado [H]."
-      },
-      {
-        "badge": "F",
-        "step": "2",
-        "action": "El sistema solicita los datos de la cohorte: nombre [B], fecha de inicio de inscripción [C], fecha de fin de inscripción [D], cupo máximo de alumnos [E], semanas de acceso al contenido [F] y, si incluye modalidad en vivo, fecha de inicio [G] y fecha de fin de dictado [H]."
-      },
-      {
-        "badge": "G",
-        "step": "2",
-        "action": "El sistema solicita los datos de la cohorte: nombre [B], fecha de inicio de inscripción [C], fecha de fin de inscripción [D], cupo máximo de alumnos [E], semanas de acceso al contenido [F] y, si incluye modalidad en vivo, fecha de inicio [G] y fecha de fin de dictado [H]."
-      },
-      {
-        "badge": "H",
-        "step": "2",
-        "action": "El sistema solicita los datos de la cohorte: nombre [B], fecha de inicio de inscripción [C], fecha de fin de inscripción [D], cupo máximo de alumnos [E], semanas de acceso al contenido [F] y, si incluye modalidad en vivo, fecha de inicio [G] y fecha de fin de dictado [H]."
+        "badge": "A",
+        "step": "1",
+        "action": "El caso de uso inicia cuando el actor busca y selecciona el programa mediante el botón \"Nueva Cohorte\" [A] (ver CU-15: Buscar programa)."
       }
     ],
     "missingButtons": [],
     "buttonMatches": [
       {
         "badge": "A",
-        "term": "+ Nueva Cohorte",
+        "term": "Nueva Cohorte",
         "found": true
       },
       {
@@ -274,19 +276,9 @@
     "totalSteps": 3,
     "missingBadges": [
       {
-        "badge": "D",
-        "step": "2",
-        "action": "El sistema muestra los datos actuales en el formulario de edición: fecha de inicio de inscripción [B], fecha de fin de inscripción [C], cupo máximo [D], semanas de acceso [E] y fechas de dictado en vivo [F]."
-      },
-      {
-        "badge": "E",
-        "step": "2",
-        "action": "El sistema muestra los datos actuales en el formulario de edición: fecha de inicio de inscripción [B], fecha de fin de inscripción [C], cupo máximo [D], semanas de acceso [E] y fechas de dictado en vivo [F]."
-      },
-      {
-        "badge": "F",
-        "step": "2",
-        "action": "El sistema muestra los datos actuales en el formulario de edición: fecha de inicio de inscripción [B], fecha de fin de inscripción [C], cupo máximo [D], semanas de acceso [E] y fechas de dictado en vivo [F]."
+        "badge": "A",
+        "step": "1",
+        "action": "El caso de uso inicia cuando el actor busca y selecciona la cohorte a modificar mediante el botón \"Editar Cohorte\" [A] (ver CU-11: Buscar cohorte)."
       }
     ],
     "missingButtons": [
@@ -309,14 +301,22 @@
     "id": "CU-14",
     "name": "Dar de baja cohorte",
     "totalSteps": 2,
-    "missingBadges": [],
-    "missingButtons": [],
-    "buttonMatches": [
+    "missingBadges": [
       {
         "badge": "A",
+        "step": "1",
+        "action": "El caso de uso inicia cuando el actor busca y selecciona la cohorte a dar de baja mediante el botón \"Cancelar Cohorte\" [A] (ver CU-11: Buscar cohorte)."
+      }
+    ],
+    "missingButtons": [
+      {
+        "badge": "A",
+        "step": "1",
         "term": "Cancelar Cohorte",
-        "found": true
-      },
+        "action": "El caso de uso inicia cuando el actor busca y selecciona la cohorte a dar de baja mediante el botón \"Cancelar Cohorte\" [A] (ver CU-11: Buscar cohorte)."
+      }
+    ],
+    "buttonMatches": [
       {
         "badge": "B",
         "term": "Confirmar Cancelación",
@@ -344,31 +344,16 @@
     "totalSteps": 3,
     "missingBadges": [
       {
-        "badge": "D",
-        "step": "2",
-        "action": "El sistema permite seleccionar opcionalmente un programa base [B] y solicita: nombre del programa [C], descripción académica [D], objetivos formativos [E], carga horaria total en horas [F] y bibliografía obligatoria [G]."
-      },
-      {
-        "badge": "E",
-        "step": "2",
-        "action": "El sistema permite seleccionar opcionalmente un programa base [B] y solicita: nombre del programa [C], descripción académica [D], objetivos formativos [E], carga horaria total en horas [F] y bibliografía obligatoria [G]."
-      },
-      {
-        "badge": "F",
-        "step": "2",
-        "action": "El sistema permite seleccionar opcionalmente un programa base [B] y solicita: nombre del programa [C], descripción académica [D], objetivos formativos [E], carga horaria total en horas [F] y bibliografía obligatoria [G]."
-      },
-      {
-        "badge": "G",
-        "step": "2",
-        "action": "El sistema permite seleccionar opcionalmente un programa base [B] y solicita: nombre del programa [C], descripción académica [D], objetivos formativos [E], carga horaria total en horas [F] y bibliografía obligatoria [G]."
+        "badge": "A",
+        "step": "1",
+        "action": "El caso de uso inicia cuando el actor busca y selecciona el curso mediante el botón \"Nuevo Programa\" [A] (ver CU-01: Buscar curso)."
       }
     ],
     "missingButtons": [],
     "buttonMatches": [
       {
         "badge": "A",
-        "term": "+ Nuevo Programa",
+        "term": "Nuevo Programa",
         "found": true
       },
       {
@@ -384,28 +369,20 @@
     "totalSteps": 3,
     "missingBadges": [
       {
-        "badge": "D",
-        "step": "2",
-        "action": "El sistema muestra los datos actuales en el formulario: nombre [B], descripción [C], objetivos [D], carga horaria [E] y bibliografía [F]."
-      },
-      {
-        "badge": "E",
-        "step": "2",
-        "action": "El sistema muestra los datos actuales en el formulario: nombre [B], descripción [C], objetivos [D], carga horaria [E] y bibliografía [F]."
-      },
-      {
-        "badge": "F",
-        "step": "2",
-        "action": "El sistema muestra los datos actuales en el formulario: nombre [B], descripción [C], objetivos [D], carga horaria [E] y bibliografía [F]."
+        "badge": "A",
+        "step": "1",
+        "action": "El caso de uso inicia cuando el actor busca y selecciona el programa a modificar mediante el botón \"Editar Programa\" [A] (ver CU-15: Buscar programa)."
       }
     ],
-    "missingButtons": [],
-    "buttonMatches": [
+    "missingButtons": [
       {
         "badge": "A",
+        "step": "1",
         "term": "Editar Programa",
-        "found": true
-      },
+        "action": "El caso de uso inicia cuando el actor busca y selecciona el programa a modificar mediante el botón \"Editar Programa\" [A] (ver CU-15: Buscar programa)."
+      }
+    ],
+    "buttonMatches": [
       {
         "badge": "G",
         "term": "Guardar Cambios",
@@ -417,7 +394,13 @@
     "id": "CU-18",
     "name": "Dar de baja programa",
     "totalSteps": 2,
-    "missingBadges": [],
+    "missingBadges": [
+      {
+        "badge": "A",
+        "step": "1",
+        "action": "El caso de uso inicia cuando el actor busca y selecciona el programa a dar de baja mediante el botón \"Dar de baja\" [A] (ver CU-15: Buscar programa)."
+      }
+    ],
     "missingButtons": [],
     "buttonMatches": [
       {
@@ -452,23 +435,20 @@
     "totalSteps": 3,
     "missingBadges": [
       {
-        "badge": "E",
-        "step": "2",
-        "action": "El sistema solicita los datos de la unidad temática: título de la sección [B], descripción de objetivos [C] y contenido temático [D], o permite seleccionar una unidad existente [E]."
-      },
-      {
-        "badge": "F",
-        "step": "3",
-        "action": "El actor ingresa los datos de la unidad y confirma la creación mediante el botón \"Agregar Unidad\" [F]."
+        "badge": "A",
+        "step": "1",
+        "action": "El caso de uso inicia cuando el actor solicita añadir una sección mediante el botón \"Añadir secciones\" [A] (ver CU-19: Buscar unidad)."
       }
     ],
-    "missingButtons": [],
-    "buttonMatches": [
+    "missingButtons": [
       {
         "badge": "A",
-        "term": "+ Añadir secciones",
-        "found": true
-      },
+        "step": "1",
+        "term": "Añadir secciones",
+        "action": "El caso de uso inicia cuando el actor solicita añadir una sección mediante el botón \"Añadir secciones\" [A] (ver CU-19: Buscar unidad)."
+      }
+    ],
+    "buttonMatches": [
       {
         "badge": "F",
         "term": "Agregar Unidad",
@@ -482,14 +462,9 @@
     "totalSteps": 3,
     "missingBadges": [
       {
-        "badge": "D",
-        "step": "2",
-        "action": "El sistema muestra los datos actuales de la unidad en el formulario: título [B], descripción [C] y contenido temático [D]."
-      },
-      {
-        "badge": "E",
-        "step": "3",
-        "action": "El actor actualiza los campos habilitados y confirma mediante el botón \"Guardar Cambios\" [E]."
+        "badge": "A",
+        "step": "1",
+        "action": "El caso de uso inicia cuando el actor busca y selecciona la unidad a modificar mediante el menú \"Editar\" [A] (ver CU-19: Buscar unidad)."
       }
     ],
     "missingButtons": [],
@@ -629,19 +604,33 @@
     "id": "CU-28",
     "name": "Subir material",
     "totalSteps": 3,
-    "missingBadges": [],
-    "missingButtons": [],
-    "buttonMatches": [
+    "missingBadges": [
       {
         "badge": "A",
-        "term": "+ Añade una actividad o un recurso",
-        "found": true
+        "step": "1",
+        "action": "El caso de uso inicia cuando el actor hace clic en \"Añade una actividad o un recurso\" [A] en el Modo Edición (ver CU-19: Buscar unidad)."
       },
       {
         "badge": "A",
+        "step": "3",
+        "action": "El actor selecciona la opción \"Material / Documento PDF\" [A] e ingresa el título en el formulario [B]."
+      }
+    ],
+    "missingButtons": [
+      {
+        "badge": "A",
+        "step": "1",
+        "term": "Añade una actividad o un recurso",
+        "action": "El caso de uso inicia cuando el actor hace clic en \"Añade una actividad o un recurso\" [A] en el Modo Edición (ver CU-19: Buscar unidad)."
+      },
+      {
+        "badge": "A",
+        "step": "3",
         "term": "Material / Documento PDF",
-        "found": true
-      },
+        "action": "El actor selecciona la opción \"Material / Documento PDF\" [A] e ingresa el título en el formulario [B]."
+      }
+    ],
+    "buttonMatches": [
       {
         "badge": "C",
         "term": "Examinar...",
@@ -660,28 +649,21 @@
     "totalSteps": 3,
     "missingBadges": [
       {
-        "badge": "D",
-        "step": "2",
-        "action": "El sistema muestra los datos actuales en el formulario: título [B], archivo o documento adjunto [C] mediante \"Examinar...\" [D], y estado de visibilidad [E]."
-      },
-      {
-        "badge": "E",
-        "step": "2",
-        "action": "El sistema muestra los datos actuales en el formulario: título [B], archivo o documento adjunto [C] mediante \"Examinar...\" [D], y estado de visibilidad [E]."
+        "badge": "A",
+        "step": "1",
+        "action": "El caso de uso inicia cuando el actor busca y selecciona el material a modificar mediante el menú \"Editar\" [A] (ver CU-27: Buscar material)."
       }
     ],
-    "missingButtons": [
-      {
-        "badge": "D",
-        "step": "2",
-        "term": "Examinar...",
-        "action": "El sistema muestra los datos actuales en el formulario: título [B], archivo o documento adjunto [C] mediante \"Examinar...\" [D], y estado de visibilidad [E]."
-      }
-    ],
+    "missingButtons": [],
     "buttonMatches": [
       {
         "badge": "A",
         "term": "Editar",
+        "found": true
+      },
+      {
+        "badge": "D",
+        "term": "Examinar...",
         "found": true
       },
       {
@@ -695,20 +677,28 @@
     "id": "CU-30",
     "name": "Dar de baja material",
     "totalSteps": 2,
-    "missingBadges": [],
-    "missingButtons": [],
-    "buttonMatches": [
+    "missingBadges": [
       {
         "badge": "A",
+        "step": "1",
+        "action": "El caso de uso inicia cuando el actor busca y selecciona el material a dar de baja mediante la opción \"Eliminar\" [A] (ver CU-27: Buscar material)."
+      }
+    ],
+    "missingButtons": [
+      {
+        "badge": "A",
+        "step": "1",
         "term": "Eliminar",
-        "found": true
+        "action": "El caso de uso inicia cuando el actor busca y selecciona el material a dar de baja mediante la opción \"Eliminar\" [A] (ver CU-27: Buscar material)."
       },
       {
         "badge": "B",
+        "step": "3",
         "term": "Confirmar Eliminación",
-        "found": true
+        "action": "El actor confirma la baja mediante el botón \"Confirmar Eliminación\" [B] del modal."
       }
-    ]
+    ],
+    "buttonMatches": []
   },
   {
     "id": "CU-31",
@@ -733,14 +723,22 @@
     "id": "CU-32",
     "name": "Registrar término de glosario",
     "totalSteps": 3,
-    "missingBadges": [],
-    "missingButtons": [],
-    "buttonMatches": [
+    "missingBadges": [
       {
         "badge": "A",
-        "term": "+ Añade una actividad o un recurso",
-        "found": true
-      },
+        "step": "1",
+        "action": "El caso de uso inicia cuando el actor selecciona \"Añade una actividad o un recurso\" [A] en la unidad (ver CU-19: Buscar unidad)."
+      }
+    ],
+    "missingButtons": [
+      {
+        "badge": "A",
+        "step": "1",
+        "term": "Añade una actividad o un recurso",
+        "action": "El caso de uso inicia cuando el actor selecciona \"Añade una actividad o un recurso\" [A] en la unidad (ver CU-19: Buscar unidad)."
+      }
+    ],
+    "buttonMatches": [
       {
         "badge": "D",
         "term": "Agregar",
@@ -752,7 +750,13 @@
     "id": "CU-33",
     "name": "Modificar término de glosario",
     "totalSteps": 3,
-    "missingBadges": [],
+    "missingBadges": [
+      {
+        "badge": "A",
+        "step": "1",
+        "action": "El caso de uso inicia cuando el actor busca y selecciona el término a modificar mediante el botón \"Editar\" [A] (ver CU-31: Buscar término de glosario)."
+      }
+    ],
     "missingButtons": [],
     "buttonMatches": [
       {
@@ -771,14 +775,22 @@
     "id": "CU-34",
     "name": "Dar de baja término de glosario",
     "totalSteps": 2,
-    "missingBadges": [],
-    "missingButtons": [],
-    "buttonMatches": [
+    "missingBadges": [
       {
         "badge": "A",
+        "step": "1",
+        "action": "El caso de uso inicia cuando el actor busca y selecciona el término a dar de baja mediante el botón \"Eliminar\" [A] (ver CU-31: Buscar término de glosario)."
+      }
+    ],
+    "missingButtons": [
+      {
+        "badge": "A",
+        "step": "1",
         "term": "Eliminar",
-        "found": true
-      },
+        "action": "El caso de uso inicia cuando el actor busca y selecciona el término a dar de baja mediante el botón \"Eliminar\" [A] (ver CU-31: Buscar término de glosario)."
+      }
+    ],
+    "buttonMatches": [
       {
         "badge": "B",
         "term": "Confirmar Baja",
@@ -809,12 +821,18 @@
     "id": "CU-36",
     "name": "Registrar consulta de foro",
     "totalSteps": 3,
-    "missingBadges": [],
+    "missingBadges": [
+      {
+        "badge": "A",
+        "step": "1",
+        "action": "El caso de uso inicia cuando el alumno solicita hacer una pregunta mediante el botón \"Nueva Consulta\" [A] en el foro de la unidad."
+      }
+    ],
     "missingButtons": [],
     "buttonMatches": [
       {
         "badge": "A",
-        "term": "+ Nueva Consulta",
+        "term": "Nueva Consulta",
         "found": true
       },
       {
@@ -828,14 +846,22 @@
     "id": "CU-37",
     "name": "Modificar consulta de foro",
     "totalSteps": 2,
-    "missingBadges": [],
-    "missingButtons": [],
-    "buttonMatches": [
+    "missingBadges": [
       {
         "badge": "A",
+        "step": "1",
+        "action": "El caso de uso inicia cuando el actor selecciona su consulta mediante la opción \"Editar Mensaje\" [A] (ver CU-35: Buscar consulta de foro)."
+      }
+    ],
+    "missingButtons": [
+      {
+        "badge": "A",
+        "step": "1",
         "term": "Editar Mensaje",
-        "found": true
-      },
+        "action": "El caso de uso inicia cuando el actor selecciona su consulta mediante la opción \"Editar Mensaje\" [A] (ver CU-35: Buscar consulta de foro)."
+      }
+    ],
+    "buttonMatches": [
       {
         "badge": "C",
         "term": "Guardar Cambios",
@@ -847,14 +873,22 @@
     "id": "CU-38",
     "name": "Dar de baja consulta de foro",
     "totalSteps": 2,
-    "missingBadges": [],
-    "missingButtons": [],
-    "buttonMatches": [
+    "missingBadges": [
       {
         "badge": "A",
+        "step": "1",
+        "action": "El caso de uso inicia cuando el administrador selecciona la consulta indebida mediante el botón \"Moderar / Eliminar\" [A] (ver CU-35: Buscar consulta de foro)."
+      }
+    ],
+    "missingButtons": [
+      {
+        "badge": "A",
+        "step": "1",
         "term": "Moderar / Eliminar",
-        "found": true
-      },
+        "action": "El caso de uso inicia cuando el administrador selecciona la consulta indebida mediante el botón \"Moderar / Eliminar\" [A] (ver CU-35: Buscar consulta de foro)."
+      }
+    ],
+    "buttonMatches": [
       {
         "badge": "B",
         "term": "Confirmar Eliminación",
@@ -874,17 +908,25 @@
     "id": "CU-40",
     "name": "Registrar respuesta de foro",
     "totalSteps": 2,
-    "missingBadges": [],
-    "missingButtons": [],
+    "missingBadges": [
+      {
+        "badge": "A",
+        "step": "1",
+        "action": "El caso de uso inicia cuando el docente selecciona el botón \"Responder\" [A] en la consulta del foro (ver CU-35: Buscar consulta de foro)."
+      }
+    ],
+    "missingButtons": [
+      {
+        "badge": "C",
+        "step": "3",
+        "term": "Enviar Respuesta",
+        "action": "El actor redacta la respuesta en el área de texto [B] y confirma mediante el botón \"Enviar Respuesta\" [C]."
+      }
+    ],
     "buttonMatches": [
       {
         "badge": "A",
         "term": "Responder",
-        "found": true
-      },
-      {
-        "badge": "C",
-        "term": "Enviar Respuesta",
         "found": true
       }
     ]
@@ -893,14 +935,22 @@
     "id": "CU-41",
     "name": "Modificar respuesta de foro",
     "totalSteps": 2,
-    "missingBadges": [],
-    "missingButtons": [],
-    "buttonMatches": [
+    "missingBadges": [
       {
         "badge": "A",
+        "step": "1",
+        "action": "El caso de uso inicia cuando el docente selecciona su respuesta mediante la opción \"Editar Respuesta\" [A] (ver CU-39: Buscar respuesta de foro)."
+      }
+    ],
+    "missingButtons": [
+      {
+        "badge": "A",
+        "step": "1",
         "term": "Editar Respuesta",
-        "found": true
-      },
+        "action": "El caso de uso inicia cuando el docente selecciona su respuesta mediante la opción \"Editar Respuesta\" [A] (ver CU-39: Buscar respuesta de foro)."
+      }
+    ],
+    "buttonMatches": [
       {
         "badge": "C",
         "term": "Guardar Cambios",
@@ -912,14 +962,22 @@
     "id": "CU-42",
     "name": "Dar de baja respuesta de foro",
     "totalSteps": 2,
-    "missingBadges": [],
-    "missingButtons": [],
-    "buttonMatches": [
+    "missingBadges": [
       {
         "badge": "A",
+        "step": "1",
+        "action": "El caso de uso inicia cuando el administrador selecciona la respuesta a moderar mediante el botón \"Eliminar Respuesta\" [A] (ver CU-39: Buscar respuesta de foro)."
+      }
+    ],
+    "missingButtons": [
+      {
+        "badge": "A",
+        "step": "1",
         "term": "Eliminar Respuesta",
-        "found": true
-      },
+        "action": "El caso de uso inicia cuando el administrador selecciona la respuesta a moderar mediante el botón \"Eliminar Respuesta\" [A] (ver CU-39: Buscar respuesta de foro)."
+      }
+    ],
+    "buttonMatches": [
       {
         "badge": "B",
         "term": "Confirmar Eliminación",
@@ -1046,33 +1104,20 @@
     "totalSteps": 3,
     "missingBadges": [
       {
-        "badge": "D",
-        "step": "2",
-        "action": "El sistema solicita los parámetros del beneficio: nombre del descuento [B], porcentaje aplicable [C], vigencia desde [D], vigencia hasta [E], cantidad límite de usos [F] y cantidad de cursos requeridos [G]."
-      },
-      {
-        "badge": "E",
-        "step": "2",
-        "action": "El sistema solicita los parámetros del beneficio: nombre del descuento [B], porcentaje aplicable [C], vigencia desde [D], vigencia hasta [E], cantidad límite de usos [F] y cantidad de cursos requeridos [G]."
-      },
-      {
-        "badge": "F",
-        "step": "2",
-        "action": "El sistema solicita los parámetros del beneficio: nombre del descuento [B], porcentaje aplicable [C], vigencia desde [D], vigencia hasta [E], cantidad límite de usos [F] y cantidad de cursos requeridos [G]."
-      },
-      {
-        "badge": "G",
-        "step": "2",
-        "action": "El sistema solicita los parámetros del beneficio: nombre del descuento [B], porcentaje aplicable [C], vigencia desde [D], vigencia hasta [E], cantidad límite de usos [F] y cantidad de cursos requeridos [G]."
+        "badge": "A",
+        "step": "1",
+        "action": "El caso de uso inicia cuando el actor solicita registrar un nuevo descuento mediante el botón \"Nuevo Descuento\" [A] (ver CU-49: Buscar descuento)."
       }
     ],
-    "missingButtons": [],
-    "buttonMatches": [
+    "missingButtons": [
       {
         "badge": "A",
-        "term": "+ Nuevo Descuento",
-        "found": true
-      },
+        "step": "1",
+        "term": "Nuevo Descuento",
+        "action": "El caso de uso inicia cuando el actor solicita registrar un nuevo descuento mediante el botón \"Nuevo Descuento\" [A] (ver CU-49: Buscar descuento)."
+      }
+    ],
+    "buttonMatches": [
       {
         "badge": "H",
         "term": "Guardar Descuento",
@@ -1086,33 +1131,20 @@
     "totalSteps": 3,
     "missingBadges": [
       {
-        "badge": "D",
-        "step": "2",
-        "action": "El sistema muestra los datos actuales en el formulario: nombre [B], porcentaje [C], vigencia desde [D], vigencia hasta [E], cantidad límite [F] y cursos requeridos [G]."
-      },
-      {
-        "badge": "E",
-        "step": "2",
-        "action": "El sistema muestra los datos actuales en el formulario: nombre [B], porcentaje [C], vigencia desde [D], vigencia hasta [E], cantidad límite [F] y cursos requeridos [G]."
-      },
-      {
-        "badge": "F",
-        "step": "2",
-        "action": "El sistema muestra los datos actuales en el formulario: nombre [B], porcentaje [C], vigencia desde [D], vigencia hasta [E], cantidad límite [F] y cursos requeridos [G]."
-      },
-      {
-        "badge": "G",
-        "step": "2",
-        "action": "El sistema muestra los datos actuales en el formulario: nombre [B], porcentaje [C], vigencia desde [D], vigencia hasta [E], cantidad límite [F] y cursos requeridos [G]."
+        "badge": "A",
+        "step": "1",
+        "action": "El caso de uso inicia cuando el actor busca y selecciona el descuento a modificar mediante el botón \"Editar\" [A] (ver CU-49: Buscar descuento)."
       }
     ],
-    "missingButtons": [],
-    "buttonMatches": [
+    "missingButtons": [
       {
         "badge": "A",
+        "step": "1",
         "term": "Editar",
-        "found": true
-      },
+        "action": "El caso de uso inicia cuando el actor busca y selecciona el descuento a modificar mediante el botón \"Editar\" [A] (ver CU-49: Buscar descuento)."
+      }
+    ],
+    "buttonMatches": [
       {
         "badge": "H",
         "term": "Guardar Cambios",
@@ -1124,14 +1156,22 @@
     "id": "CU-52",
     "name": "Dar de baja descuento",
     "totalSteps": 2,
-    "missingBadges": [],
-    "missingButtons": [],
-    "buttonMatches": [
+    "missingBadges": [
       {
         "badge": "A",
+        "step": "1",
+        "action": "El caso de uso inicia cuando el actor busca y selecciona el descuento a dar de baja mediante el botón \"Eliminar\" [A] (ver CU-49: Buscar descuento)."
+      }
+    ],
+    "missingButtons": [
+      {
+        "badge": "A",
+        "step": "1",
         "term": "Eliminar",
-        "found": true
-      },
+        "action": "El caso de uso inicia cuando el actor busca y selecciona el descuento a dar de baja mediante el botón \"Eliminar\" [A] (ver CU-49: Buscar descuento)."
+      }
+    ],
+    "buttonMatches": [
       {
         "badge": "B",
         "term": "Confirmar Baja",
@@ -1162,14 +1202,22 @@
     "id": "CU-54",
     "name": "Crear pool",
     "totalSteps": 3,
-    "missingBadges": [],
-    "missingButtons": [],
-    "buttonMatches": [
+    "missingBadges": [
       {
         "badge": "A",
-        "term": "+ Añade una actividad o un recurso",
-        "found": true
-      },
+        "step": "1",
+        "action": "El caso de uso inicia cuando el docente selecciona \"Añade una actividad o un recurso\" [A] en la unidad (ver CU-19: Buscar unidad)."
+      }
+    ],
+    "missingButtons": [
+      {
+        "badge": "A",
+        "step": "1",
+        "term": "Añade una actividad o un recurso",
+        "action": "El caso de uso inicia cuando el docente selecciona \"Añade una actividad o un recurso\" [A] en la unidad (ver CU-19: Buscar unidad)."
+      }
+    ],
+    "buttonMatches": [
       {
         "badge": "D",
         "term": "Agregar",
@@ -1183,18 +1231,25 @@
     "totalSteps": 3,
     "missingBadges": [
       {
-        "badge": "D",
-        "step": "2",
-        "action": "El sistema muestra los datos actuales en el panel: nombre del pool [B], descripción [C] y editor de preguntas y opciones [D]."
+        "badge": "A",
+        "step": "1",
+        "action": "El caso de uso inicia cuando el actor busca y selecciona el pool a modificar mediante el botón \"Editar Pool\" [A] (ver CU-53: Buscar pool)."
+      },
+      {
+        "badge": "E",
+        "step": "3",
+        "action": "El actor actualiza los campos habilitados y confirma mediante el botón \"Guardar Cambios\" [E]."
       }
     ],
-    "missingButtons": [],
-    "buttonMatches": [
+    "missingButtons": [
       {
         "badge": "A",
+        "step": "1",
         "term": "Editar Pool",
-        "found": true
-      },
+        "action": "El caso de uso inicia cuando el actor busca y selecciona el pool a modificar mediante el botón \"Editar Pool\" [A] (ver CU-53: Buscar pool)."
+      }
+    ],
+    "buttonMatches": [
       {
         "badge": "E",
         "term": "Guardar Cambios",
@@ -1206,14 +1261,22 @@
     "id": "CU-56",
     "name": "Dar de baja pool",
     "totalSteps": 2,
-    "missingBadges": [],
-    "missingButtons": [],
-    "buttonMatches": [
+    "missingBadges": [
       {
         "badge": "A",
+        "step": "1",
+        "action": "El caso de uso inicia cuando el actor busca y selecciona el pool a dar de baja mediante el botón \"Eliminar Pool\" [A] (ver CU-53: Buscar pool)."
+      }
+    ],
+    "missingButtons": [
+      {
+        "badge": "A",
+        "step": "1",
         "term": "Eliminar Pool",
-        "found": true
-      },
+        "action": "El caso de uso inicia cuando el actor busca y selecciona el pool a dar de baja mediante el botón \"Eliminar Pool\" [A] (ver CU-53: Buscar pool)."
+      }
+    ],
+    "buttonMatches": [
       {
         "badge": "B",
         "term": "Confirmar Baja",
@@ -1246,38 +1309,20 @@
     "totalSteps": 3,
     "missingBadges": [
       {
-        "badge": "D",
-        "step": "2",
-        "action": "El sistema solicita los parámetros del cuestionario: nombre de la autoevaluación [B], tiempo límite en minutos [C], cantidad de preguntas sorteables [D], fecha de apertura [E], fecha de cierre [F], intentos permitidos [G] y pools asociados [H]."
-      },
-      {
-        "badge": "E",
-        "step": "2",
-        "action": "El sistema solicita los parámetros del cuestionario: nombre de la autoevaluación [B], tiempo límite en minutos [C], cantidad de preguntas sorteables [D], fecha de apertura [E], fecha de cierre [F], intentos permitidos [G] y pools asociados [H]."
-      },
-      {
-        "badge": "F",
-        "step": "2",
-        "action": "El sistema solicita los parámetros del cuestionario: nombre de la autoevaluación [B], tiempo límite en minutos [C], cantidad de preguntas sorteables [D], fecha de apertura [E], fecha de cierre [F], intentos permitidos [G] y pools asociados [H]."
-      },
-      {
-        "badge": "G",
-        "step": "2",
-        "action": "El sistema solicita los parámetros del cuestionario: nombre de la autoevaluación [B], tiempo límite en minutos [C], cantidad de preguntas sorteables [D], fecha de apertura [E], fecha de cierre [F], intentos permitidos [G] y pools asociados [H]."
-      },
-      {
-        "badge": "H",
-        "step": "2",
-        "action": "El sistema solicita los parámetros del cuestionario: nombre de la autoevaluación [B], tiempo límite en minutos [C], cantidad de preguntas sorteables [D], fecha de apertura [E], fecha de cierre [F], intentos permitidos [G] y pools asociados [H]."
+        "badge": "A",
+        "step": "1",
+        "action": "El caso de uso inicia cuando el docente selecciona \"Añade una actividad o un recurso\" [A] en la unidad (ver CU-19: Buscar unidad)."
       }
     ],
-    "missingButtons": [],
-    "buttonMatches": [
+    "missingButtons": [
       {
         "badge": "A",
-        "term": "+ Añade una actividad o un recurso",
-        "found": true
-      },
+        "step": "1",
+        "term": "Añade una actividad o un recurso",
+        "action": "El caso de uso inicia cuando el docente selecciona \"Añade una actividad o un recurso\" [A] en la unidad (ver CU-19: Buscar unidad)."
+      }
+    ],
+    "buttonMatches": [
       {
         "badge": "I",
         "term": "Agregar",
@@ -1291,38 +1336,20 @@
     "totalSteps": 3,
     "missingBadges": [
       {
-        "badge": "D",
-        "step": "2",
-        "action": "El sistema muestra los datos actuales en el formulario de edición: nombre del cuestionario [B], tiempo límite [C], cantidad de preguntas [D], fecha de apertura [E], fecha de cierre [F], intentos permitidos [G], y pools asociados [H]."
-      },
-      {
-        "badge": "E",
-        "step": "2",
-        "action": "El sistema muestra los datos actuales en el formulario de edición: nombre del cuestionario [B], tiempo límite [C], cantidad de preguntas [D], fecha de apertura [E], fecha de cierre [F], intentos permitidos [G], y pools asociados [H]."
-      },
-      {
-        "badge": "F",
-        "step": "2",
-        "action": "El sistema muestra los datos actuales en el formulario de edición: nombre del cuestionario [B], tiempo límite [C], cantidad de preguntas [D], fecha de apertura [E], fecha de cierre [F], intentos permitidos [G], y pools asociados [H]."
-      },
-      {
-        "badge": "G",
-        "step": "2",
-        "action": "El sistema muestra los datos actuales en el formulario de edición: nombre del cuestionario [B], tiempo límite [C], cantidad de preguntas [D], fecha de apertura [E], fecha de cierre [F], intentos permitidos [G], y pools asociados [H]."
-      },
-      {
-        "badge": "H",
-        "step": "2",
-        "action": "El sistema muestra los datos actuales en el formulario de edición: nombre del cuestionario [B], tiempo límite [C], cantidad de preguntas [D], fecha de apertura [E], fecha de cierre [F], intentos permitidos [G], y pools asociados [H]."
+        "badge": "A",
+        "step": "1",
+        "action": "El caso de uso inicia cuando el actor busca y selecciona la autoevaluación a modificar mediante el botón \"Editar Cuestionario\" [A] (ver CU-57: Buscar autoevaluación)."
       }
     ],
-    "missingButtons": [],
-    "buttonMatches": [
+    "missingButtons": [
       {
         "badge": "A",
+        "step": "1",
         "term": "Editar Cuestionario",
-        "found": true
-      },
+        "action": "El caso de uso inicia cuando el actor busca y selecciona la autoevaluación a modificar mediante el botón \"Editar Cuestionario\" [A] (ver CU-57: Buscar autoevaluación)."
+      }
+    ],
+    "buttonMatches": [
       {
         "badge": "I",
         "term": "Guardar Cambios",
@@ -1334,20 +1361,28 @@
     "id": "CU-60",
     "name": "Dar de baja autoevaluación",
     "totalSteps": 2,
-    "missingBadges": [],
-    "missingButtons": [],
-    "buttonMatches": [
+    "missingBadges": [
       {
         "badge": "A",
+        "step": "1",
+        "action": "El caso de uso inicia cuando el actor busca y selecciona la autoevaluación a dar de baja mediante el botón \"Eliminar\" [A] (ver CU-57: Buscar autoevaluación)."
+      }
+    ],
+    "missingButtons": [
+      {
+        "badge": "A",
+        "step": "1",
         "term": "Eliminar",
-        "found": true
+        "action": "El caso de uso inicia cuando el actor busca y selecciona la autoevaluación a dar de baja mediante el botón \"Eliminar\" [A] (ver CU-57: Buscar autoevaluación)."
       },
       {
         "badge": "B",
+        "step": "3",
         "term": "Confirmar Eliminación",
-        "found": true
+        "action": "El actor confirma la baja mediante el botón \"Confirmar Eliminación\" [B] del modal."
       }
-    ]
+    ],
+    "buttonMatches": []
   },
   {
     "id": "CU-61",
@@ -1400,14 +1435,22 @@
     "id": "CU-64",
     "name": "Dar de baja intento de autoevaluación",
     "totalSteps": 2,
-    "missingBadges": [],
-    "missingButtons": [],
-    "buttonMatches": [
+    "missingBadges": [
       {
         "badge": "A",
+        "step": "1",
+        "action": "El caso de uso inicia cuando el actor busca y selecciona el intento a anular mediante el botón \"Anular Intento por Fraude\" [A] (ver CU-61: Buscar intento de autoevaluación)."
+      }
+    ],
+    "missingButtons": [
+      {
+        "badge": "A",
+        "step": "1",
         "term": "Anular Intento por Fraude",
-        "found": true
-      },
+        "action": "El caso de uso inicia cuando el actor busca y selecciona el intento a anular mediante el botón \"Anular Intento por Fraude\" [A] (ver CU-61: Buscar intento de autoevaluación)."
+      }
+    ],
+    "buttonMatches": [
       {
         "badge": "B",
         "term": "Confirmar Anulación",
@@ -1440,34 +1483,26 @@
     "totalSteps": 3,
     "missingBadges": [
       {
-        "badge": "D",
-        "step": "2",
-        "action": "El sistema solicita los datos de la transmisión: título de la clase [B], cohorte destinataria [C], fecha y hora de inicio [D], duración estimada en minutos [E] y enlace a la sala de streaming [F]."
-      },
-      {
-        "badge": "E",
-        "step": "2",
-        "action": "El sistema solicita los datos de la transmisión: título de la clase [B], cohorte destinataria [C], fecha y hora de inicio [D], duración estimada en minutos [E] y enlace a la sala de streaming [F]."
-      },
-      {
-        "badge": "F",
-        "step": "2",
-        "action": "El sistema solicita los datos de la transmisión: título de la clase [B], cohorte destinataria [C], fecha y hora de inicio [D], duración estimada en minutos [E] y enlace a la sala de streaming [F]."
+        "badge": "A",
+        "step": "1",
+        "action": "El caso de uso inicia cuando el docente selecciona \"Añade una actividad o un recurso\" [A] en la unidad (ver CU-19: Buscar unidad)."
       }
     ],
-    "missingButtons": [],
-    "buttonMatches": [
+    "missingButtons": [
       {
         "badge": "A",
-        "term": "+ Añade una actividad o un recurso",
-        "found": true
+        "step": "1",
+        "term": "Añade una actividad o un recurso",
+        "action": "El caso de uso inicia cuando el docente selecciona \"Añade una actividad o un recurso\" [A] en la unidad (ver CU-19: Buscar unidad)."
       },
       {
         "badge": "G",
+        "step": "3",
         "term": "Agregar",
-        "found": true
+        "action": "El actor completa los datos de la sesión y confirma la programación mediante el botón \"Agregar\" [G]."
       }
-    ]
+    ],
+    "buttonMatches": []
   },
   {
     "id": "CU-67",
@@ -1475,23 +1510,20 @@
     "totalSteps": 3,
     "missingBadges": [
       {
-        "badge": "D",
-        "step": "3",
-        "action": "El sistema muestra los datos actuales en el formulario: título de la clase [B], fecha y hora [C], duración estimada [D] y enlace a la sala [E]."
-      },
-      {
-        "badge": "E",
-        "step": "3",
-        "action": "El sistema muestra los datos actuales en el formulario: título de la clase [B], fecha y hora [C], duración estimada [D] y enlace a la sala [E]."
+        "badge": "A",
+        "step": "1",
+        "action": "El caso de uso inicia cuando el actor busca y selecciona la clase programada mediante el botón \"Reprogramar / Editar\" [A] (ver CU-65: Buscar clase en vivo)."
       }
     ],
-    "missingButtons": [],
-    "buttonMatches": [
+    "missingButtons": [
       {
         "badge": "A",
+        "step": "1",
         "term": "Reprogramar / Editar",
-        "found": true
-      },
+        "action": "El caso de uso inicia cuando el actor busca y selecciona la clase programada mediante el botón \"Reprogramar / Editar\" [A] (ver CU-65: Buscar clase en vivo)."
+      }
+    ],
+    "buttonMatches": [
       {
         "badge": "F",
         "term": "Guardar Cambios",
@@ -1503,7 +1535,13 @@
     "id": "CU-68",
     "name": "Cancelar clase en vivo",
     "totalSteps": 2,
-    "missingBadges": [],
+    "missingBadges": [
+      {
+        "badge": "A",
+        "step": "1",
+        "action": "El caso de uso inicia cuando el actor busca y selecciona la clase programada a cancelar mediante el botón \"Cancelar Clase\" [A] (ver CU-65: Buscar clase en vivo)."
+      }
+    ],
     "missingButtons": [],
     "buttonMatches": [
       {
@@ -1522,14 +1560,22 @@
     "id": "CU-69",
     "name": "Dar de baja clase en vivo",
     "totalSteps": 2,
-    "missingBadges": [],
-    "missingButtons": [],
-    "buttonMatches": [
+    "missingBadges": [
       {
         "badge": "A",
+        "step": "1",
+        "action": "El caso de uso inicia cuando el actor busca y selecciona la clase finalizada a dar de baja mediante el botón \"Eliminar Registro\" [A] (ver CU-65: Buscar clase en vivo)."
+      }
+    ],
+    "missingButtons": [
+      {
+        "badge": "A",
+        "step": "1",
         "term": "Eliminar Registro",
-        "found": true
-      },
+        "action": "El caso de uso inicia cuando el actor busca y selecciona la clase finalizada a dar de baja mediante el botón \"Eliminar Registro\" [A] (ver CU-65: Buscar clase en vivo)."
+      }
+    ],
+    "buttonMatches": [
       {
         "badge": "B",
         "term": "Confirmar Eliminación",
@@ -1678,20 +1724,28 @@
     "id": "CU-78",
     "name": "Generar clase con clon",
     "totalSteps": 2,
-    "missingBadges": [],
-    "missingButtons": [],
-    "buttonMatches": [
+    "missingBadges": [
       {
         "badge": "A",
+        "step": "1",
+        "action": "El caso de uso inicia cuando el docente selecciona \"Generar Video con Avatar Clon\" [A] en la unidad (ver CU-19: Buscar unidad)."
+      }
+    ],
+    "missingButtons": [
+      {
+        "badge": "A",
+        "step": "1",
         "term": "Generar Video con Avatar Clon",
-        "found": true
+        "action": "El caso de uso inicia cuando el docente selecciona \"Generar Video con Avatar Clon\" [A] en la unidad (ver CU-19: Buscar unidad)."
       },
       {
         "badge": "D",
+        "step": "3",
         "term": "Sintetizar Video con IA",
-        "found": true
+        "action": "El actor ingresa el título [B], redacta el guión en el prompt [C] y confirma la generación mediante el botón \"Sintetizar Video con IA\" [D]."
       }
-    ]
+    ],
+    "buttonMatches": []
   },
   {
     "id": "CU-79",
@@ -1699,47 +1753,47 @@
     "totalSteps": 3,
     "missingBadges": [
       {
-        "badge": "D",
-        "step": "2",
-        "action": "El sistema muestra los datos actuales en el editor: título de la clase [B], guión textual [C], avatar [D] y voz [E]."
-      },
+        "badge": "A",
+        "step": "1",
+        "action": "El caso de uso inicia cuando el docente busca y selecciona la clase con clon mediante el botón \"Editar Guión\" [A] (ver CU-77: Buscar clase con clon)."
+      }
+    ],
+    "missingButtons": [
       {
-        "badge": "E",
-        "step": "2",
-        "action": "El sistema muestra los datos actuales en el editor: título de la clase [B], guión textual [C], avatar [D] y voz [E]."
+        "badge": "A",
+        "step": "1",
+        "term": "Editar Guión",
+        "action": "El caso de uso inicia cuando el docente busca y selecciona la clase con clon mediante el botón \"Editar Guión\" [A] (ver CU-77: Buscar clase con clon)."
       },
       {
         "badge": "F",
         "step": "3",
+        "term": "Actualizar y Regenerar Video",
         "action": "El actor actualiza el guión y confirma mediante el botón \"Actualizar y Regenerar Video\" [F]."
       }
     ],
-    "missingButtons": [],
-    "buttonMatches": [
-      {
-        "badge": "A",
-        "term": "Editar Guión",
-        "found": true
-      },
-      {
-        "badge": "F",
-        "term": "Actualizar y Regenerar Video",
-        "found": true
-      }
-    ]
+    "buttonMatches": []
   },
   {
     "id": "CU-80",
     "name": "Dar de baja clase con clon",
     "totalSteps": 2,
-    "missingBadges": [],
-    "missingButtons": [],
-    "buttonMatches": [
+    "missingBadges": [
       {
         "badge": "A",
+        "step": "1",
+        "action": "El caso de uso inicia cuando el actor busca y selecciona la clase con clon a dar de baja mediante el botón \"Eliminar Video\" [A] (ver CU-77: Buscar clase con clon)."
+      }
+    ],
+    "missingButtons": [
+      {
+        "badge": "A",
+        "step": "1",
         "term": "Eliminar Video",
-        "found": true
-      },
+        "action": "El caso de uso inicia cuando el actor busca y selecciona la clase con clon a dar de baja mediante el botón \"Eliminar Video\" [A] (ver CU-77: Buscar clase con clon)."
+      }
+    ],
+    "buttonMatches": [
       {
         "badge": "B",
         "term": "Confirmar Eliminación",
@@ -1753,24 +1807,9 @@
     "totalSteps": 3,
     "missingBadges": [
       {
-        "badge": "D",
-        "step": "2",
-        "action": "El sistema solicita los datos de la cuenta de alumno: nombre [B], apellido [C], correo electrónico [D], DNI [E] y contraseña de seguridad [F]."
-      },
-      {
-        "badge": "E",
-        "step": "2",
-        "action": "El sistema solicita los datos de la cuenta de alumno: nombre [B], apellido [C], correo electrónico [D], DNI [E] y contraseña de seguridad [F]."
-      },
-      {
-        "badge": "F",
-        "step": "2",
-        "action": "El sistema solicita los datos de la cuenta de alumno: nombre [B], apellido [C], correo electrónico [D], DNI [E] y contraseña de seguridad [F]."
-      },
-      {
-        "badge": "G",
-        "step": "3",
-        "action": "El actor completa los datos de registro y confirma la creación mediante el botón \"Crear Cuenta\" [G]."
+        "badge": "A",
+        "step": "1",
+        "action": "El caso de uso inicia cuando el interesado solicita crear una cuenta mediante el botón \"Registrarse\" [A] en la barra de navegación."
       }
     ],
     "missingButtons": [],
@@ -1807,38 +1846,20 @@
     "totalSteps": 3,
     "missingBadges": [
       {
-        "badge": "D",
-        "step": "2",
-        "action": "El sistema solicita los datos de la cuenta: nombre [B], apellido [C], correo electrónico [D], DNI [E], contraseña de acceso [F], teléfono [G] y rol del sistema [H]."
-      },
-      {
-        "badge": "E",
-        "step": "2",
-        "action": "El sistema solicita los datos de la cuenta: nombre [B], apellido [C], correo electrónico [D], DNI [E], contraseña de acceso [F], teléfono [G] y rol del sistema [H]."
-      },
-      {
-        "badge": "F",
-        "step": "2",
-        "action": "El sistema solicita los datos de la cuenta: nombre [B], apellido [C], correo electrónico [D], DNI [E], contraseña de acceso [F], teléfono [G] y rol del sistema [H]."
-      },
-      {
-        "badge": "G",
-        "step": "2",
-        "action": "El sistema solicita los datos de la cuenta: nombre [B], apellido [C], correo electrónico [D], DNI [E], contraseña de acceso [F], teléfono [G] y rol del sistema [H]."
-      },
-      {
-        "badge": "H",
-        "step": "2",
-        "action": "El sistema solicita los datos de la cuenta: nombre [B], apellido [C], correo electrónico [D], DNI [E], contraseña de acceso [F], teléfono [G] y rol del sistema [H]."
+        "badge": "A",
+        "step": "1",
+        "action": "El caso de uso inicia cuando el actor solicita registrar manualmente un usuario mediante el botón \"Nuevo Usuario\" [A] (ver CU-82: Buscar usuario)."
       }
     ],
-    "missingButtons": [],
-    "buttonMatches": [
+    "missingButtons": [
       {
         "badge": "A",
-        "term": "+ Nuevo Usuario",
-        "found": true
-      },
+        "step": "1",
+        "term": "Nuevo Usuario",
+        "action": "El caso de uso inicia cuando el actor solicita registrar manualmente un usuario mediante el botón \"Nuevo Usuario\" [A] (ver CU-82: Buscar usuario)."
+      }
+    ],
+    "buttonMatches": [
       {
         "badge": "I",
         "term": "Guardar Usuario",
@@ -1852,24 +1873,9 @@
     "totalSteps": 3,
     "missingBadges": [
       {
-        "badge": "D",
-        "step": "2",
-        "action": "El sistema muestra los datos actuales en el formulario: nombre [B], apellido [C], correo electrónico [D], DNI [E], teléfono [F] y foto de perfil [G]."
-      },
-      {
-        "badge": "E",
-        "step": "2",
-        "action": "El sistema muestra los datos actuales en el formulario: nombre [B], apellido [C], correo electrónico [D], DNI [E], teléfono [F] y foto de perfil [G]."
-      },
-      {
-        "badge": "F",
-        "step": "2",
-        "action": "El sistema muestra los datos actuales en el formulario: nombre [B], apellido [C], correo electrónico [D], DNI [E], teléfono [F] y foto de perfil [G]."
-      },
-      {
-        "badge": "G",
-        "step": "2",
-        "action": "El sistema muestra los datos actuales en el formulario: nombre [B], apellido [C], correo electrónico [D], DNI [E], teléfono [F] y foto de perfil [G]."
+        "badge": "A",
+        "step": "1",
+        "action": "El caso de uso inicia cuando el actor busca y selecciona la cuenta a modificar mediante el botón \"Editar Usuario\" [A] (ver CU-82: Buscar usuario)."
       }
     ],
     "missingButtons": [
@@ -1892,14 +1898,22 @@
     "id": "CU-85",
     "name": "Dar de baja usuario",
     "totalSteps": 2,
-    "missingBadges": [],
-    "missingButtons": [],
-    "buttonMatches": [
+    "missingBadges": [
       {
         "badge": "A",
+        "step": "1",
+        "action": "El caso de uso inicia cuando el actor busca y selecciona la cuenta a dar de baja mediante el botón \"Desactivar Cuenta\" [A] (ver CU-82: Buscar usuario)."
+      }
+    ],
+    "missingButtons": [
+      {
+        "badge": "A",
+        "step": "1",
         "term": "Desactivar Cuenta",
-        "found": true
-      },
+        "action": "El caso de uso inicia cuando el actor busca y selecciona la cuenta a dar de baja mediante el botón \"Desactivar Cuenta\" [A] (ver CU-82: Buscar usuario)."
+      }
+    ],
+    "buttonMatches": [
       {
         "badge": "B",
         "term": "Confirmar Desactivación",
@@ -1946,38 +1960,20 @@
     "totalSteps": 3,
     "missingBadges": [
       {
-        "badge": "D",
-        "step": "2",
-        "action": "El sistema solicita los antecedentes del docente: nombre y apellido [B], correo electrónico [C], DNI y teléfono [D], biografía profesional [E], años de experiencia [F], títulos universitarios [G] y matrícula CNV / profesional [H]."
-      },
-      {
-        "badge": "E",
-        "step": "2",
-        "action": "El sistema solicita los antecedentes del docente: nombre y apellido [B], correo electrónico [C], DNI y teléfono [D], biografía profesional [E], años de experiencia [F], títulos universitarios [G] y matrícula CNV / profesional [H]."
-      },
-      {
-        "badge": "F",
-        "step": "2",
-        "action": "El sistema solicita los antecedentes del docente: nombre y apellido [B], correo electrónico [C], DNI y teléfono [D], biografía profesional [E], años de experiencia [F], títulos universitarios [G] y matrícula CNV / profesional [H]."
-      },
-      {
-        "badge": "G",
-        "step": "2",
-        "action": "El sistema solicita los antecedentes del docente: nombre y apellido [B], correo electrónico [C], DNI y teléfono [D], biografía profesional [E], años de experiencia [F], títulos universitarios [G] y matrícula CNV / profesional [H]."
-      },
-      {
-        "badge": "H",
-        "step": "2",
-        "action": "El sistema solicita los antecedentes del docente: nombre y apellido [B], correo electrónico [C], DNI y teléfono [D], biografía profesional [E], años de experiencia [F], títulos universitarios [G] y matrícula CNV / profesional [H]."
+        "badge": "A",
+        "step": "1",
+        "action": "El caso de uso inicia cuando el actor solicita registrar un nuevo docente mediante el botón \"Nuevo Docente\" [A] (ver CU-82: Buscar usuario)."
       }
     ],
-    "missingButtons": [],
-    "buttonMatches": [
+    "missingButtons": [
       {
         "badge": "A",
-        "term": "+ Nuevo Docente",
-        "found": true
-      },
+        "step": "1",
+        "term": "Nuevo Docente",
+        "action": "El caso de uso inicia cuando el actor solicita registrar un nuevo docente mediante el botón \"Nuevo Docente\" [A] (ver CU-82: Buscar usuario)."
+      }
+    ],
+    "buttonMatches": [
       {
         "badge": "I",
         "term": "Guardar Docente",
@@ -1991,28 +1987,20 @@
     "totalSteps": 3,
     "missingBadges": [
       {
-        "badge": "D",
-        "step": "2",
-        "action": "El sistema muestra los antecedentes actuales: biografía profesional [B], años de experiencia [C], títulos universitarios [D], matrícula CNV [E] y estado de habilitación docente [F]."
-      },
-      {
-        "badge": "E",
-        "step": "2",
-        "action": "El sistema muestra los antecedentes actuales: biografía profesional [B], años de experiencia [C], títulos universitarios [D], matrícula CNV [E] y estado de habilitación docente [F]."
-      },
-      {
-        "badge": "F",
-        "step": "2",
-        "action": "El sistema muestra los antecedentes actuales: biografía profesional [B], años de experiencia [C], títulos universitarios [D], matrícula CNV [E] y estado de habilitación docente [F]."
+        "badge": "A",
+        "step": "1",
+        "action": "El caso de uso inicia cuando el actor busca y selecciona el docente a modificar mediante el botón \"Editar Perfil Docente\" [A] (ver CU-82: Buscar usuario)."
       }
     ],
-    "missingButtons": [],
-    "buttonMatches": [
+    "missingButtons": [
       {
         "badge": "A",
+        "step": "1",
         "term": "Editar Perfil Docente",
-        "found": true
-      },
+        "action": "El caso de uso inicia cuando el actor busca y selecciona el docente a modificar mediante el botón \"Editar Perfil Docente\" [A] (ver CU-82: Buscar usuario)."
+      }
+    ],
+    "buttonMatches": [
       {
         "badge": "G",
         "term": "Guardar Cambios",
@@ -2095,20 +2083,28 @@
     "id": "CU-94",
     "name": "Eliminar sesión",
     "totalSteps": 2,
-    "missingBadges": [],
-    "missingButtons": [],
-    "buttonMatches": [
+    "missingBadges": [
       {
         "badge": "A",
+        "step": "1",
+        "action": "El caso de uso inicia cuando el actor busca y selecciona la sesión activa a cerrar mediante el botón \"Cerrar Sesión Remota\" [A] (ver CU-93: Buscar sesión)."
+      }
+    ],
+    "missingButtons": [
+      {
+        "badge": "A",
+        "step": "1",
         "term": "Cerrar Sesión Remota",
-        "found": true
+        "action": "El caso de uso inicia cuando el actor busca y selecciona la sesión activa a cerrar mediante el botón \"Cerrar Sesión Remota\" [A] (ver CU-93: Buscar sesión)."
       },
       {
         "badge": "B",
+        "step": "2",
         "term": "Confirmar Cierre de Sesión",
-        "found": true
+        "action": "El actor confirma el cierre mediante el botón \"Confirmar Cierre de Sesión\" [B] del diálogo modal."
       }
-    ]
+    ],
+    "buttonMatches": []
   },
   {
     "id": "CU-95",
@@ -2174,7 +2170,13 @@
     "id": "CU-99",
     "name": "Configurar parámetros",
     "totalSteps": 4,
-    "missingBadges": [],
+    "missingBadges": [
+      {
+        "badge": "A",
+        "step": "1",
+        "action": "El caso de uso inicia cuando el actor solicita configurar los parámetros del sistema listados en la tabla de configuración [A]."
+      }
+    ],
     "missingButtons": [],
     "buttonMatches": [
       {

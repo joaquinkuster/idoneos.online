@@ -315,7 +315,7 @@
     "steps": [
       {
         "pNum": "1",
-        "pAction": "El caso de uso inicia cuando el actor busca y selecciona el programa mediante el botón \"+ Nueva Cohorte\" [A] (ver CU-15: Buscar programa).",
+        "pAction": "El caso de uso inicia cuando el actor busca y selecciona el programa mediante el botón \"Nueva Cohorte\" [A] (ver CU-15: Buscar programa).",
         "badges": [
           "A"
         ]
@@ -426,7 +426,7 @@
     "steps": [
       {
         "pNum": "1",
-        "pAction": "El caso de uso inicia cuando el actor busca y selecciona el curso mediante el botón \"+ Nuevo Programa\" [A] (ver CU-01: Buscar curso).",
+        "pAction": "El caso de uso inicia cuando el actor busca y selecciona el curso mediante el botón \"Nuevo Programa\" [A] (ver CU-01: Buscar curso).",
         "badges": [
           "A"
         ]
@@ -529,7 +529,7 @@
     "steps": [
       {
         "pNum": "1",
-        "pAction": "El caso de uso inicia cuando el actor solicita añadir una sección mediante el botón \"+ Añadir secciones\" [A] (ver CU-19: Buscar unidad).",
+        "pAction": "El caso de uso inicia cuando el actor solicita añadir una sección mediante el botón \"Añadir secciones\" [A] (ver CU-19: Buscar unidad).",
         "badges": [
           "A"
         ]
@@ -708,7 +708,7 @@
       },
       {
         "pNum": "4",
-        "pAction": "El sistema habilita los controles de edición inline: botón \"+ Añadir secciones\" [A], menú \"Editar\" por unidad y botones \"+ Añade una actividad o un recurso\" [D] al pie de cada tema.",
+        "pAction": "El sistema habilita los controles de edición inline: botón \"Añadir secciones\" [A], menú \"Editar\" por unidad y botones \"Añade una actividad o un recurso\" [D] al pie de cada tema.",
         "badges": [
           "A",
           "D"
@@ -758,7 +758,7 @@
     "steps": [
       {
         "pNum": "1",
-        "pAction": "El caso de uso inicia cuando el actor hace clic en \"+ Añade una actividad o un recurso\" [A] en el Modo Edición (ver CU-19: Buscar unidad).",
+        "pAction": "El caso de uso inicia cuando el actor hace clic en \"Añade una actividad o un recurso\" [A] en el Modo Edición (ver CU-19: Buscar unidad).",
         "badges": [
           "A"
         ]
@@ -865,7 +865,7 @@
     "steps": [
       {
         "pNum": "1",
-        "pAction": "El caso de uso inicia cuando el actor selecciona \"+ Añade una actividad o un recurso\" [A] en la unidad (ver CU-19: Buscar unidad).",
+        "pAction": "El caso de uso inicia cuando el actor selecciona \"Añade una actividad o un recurso\" [A] en la unidad (ver CU-19: Buscar unidad).",
         "badges": [
           "A"
         ]
@@ -969,7 +969,7 @@
     "steps": [
       {
         "pNum": "1",
-        "pAction": "El caso de uso inicia cuando el alumno solicita hacer una pregunta mediante el botón \"+ Nueva Consulta\" [A] en el foro de la unidad.",
+        "pAction": "El caso de uso inicia cuando el alumno solicita hacer una pregunta mediante el botón \"Nueva Consulta\" [A] en el foro de la unidad.",
         "badges": [
           "A"
         ]
@@ -1310,7 +1310,7 @@
     "steps": [
       {
         "pNum": "1",
-        "pAction": "El caso de uso inicia cuando el actor solicita registrar un nuevo descuento mediante el botón \"+ Nuevo Descuento\" [A] (ver CU-49: Buscar descuento).",
+        "pAction": "El caso de uso inicia cuando el actor solicita registrar un nuevo descuento mediante el botón \"Nuevo Descuento\" [A] (ver CU-49: Buscar descuento).",
         "badges": [
           "A"
         ]
@@ -1422,7 +1422,7 @@
     "steps": [
       {
         "pNum": "1",
-        "pAction": "El caso de uso inicia cuando el docente selecciona \"+ Añade una actividad o un recurso\" [A] en la unidad (ver CU-19: Buscar unidad).",
+        "pAction": "El caso de uso inicia cuando el docente selecciona \"Añade una actividad o un recurso\" [A] en la unidad (ver CU-19: Buscar unidad).",
         "badges": [
           "A"
         ]
@@ -1527,7 +1527,7 @@
     "steps": [
       {
         "pNum": "1",
-        "pAction": "El caso de uso inicia cuando el docente selecciona \"+ Añade una actividad o un recurso\" [A] en la unidad (ver CU-19: Buscar unidad).",
+        "pAction": "El caso de uso inicia cuando el docente selecciona \"Añade una actividad o un recurso\" [A] en la unidad (ver CU-19: Buscar unidad).",
         "badges": [
           "A"
         ]
@@ -1736,7 +1736,7 @@
     "steps": [
       {
         "pNum": "1",
-        "pAction": "El caso de uso inicia cuando el docente selecciona \"+ Añade una actividad o un recurso\" [A] en la unidad (ver CU-19: Buscar unidad).",
+        "pAction": "El caso de uso inicia cuando el docente selecciona \"Añade una actividad o un recurso\" [A] en la unidad (ver CU-19: Buscar unidad).",
         "badges": [
           "A"
         ]
@@ -2130,7 +2130,7 @@
     "steps": [
       {
         "pNum": "1",
-        "pAction": "El caso de uso inicia cuando el actor solicita registrar manualmente un usuario mediante el botón \"+ Nuevo Usuario\" [A] (ver CU-82: Buscar usuario).",
+        "pAction": "El caso de uso inicia cuando el actor solicita registrar manualmente un usuario mediante el botón \"Nuevo Usuario\" [A] (ver CU-82: Buscar usuario).",
         "badges": [
           "A"
         ]
@@ -2250,7 +2250,7 @@
     "steps": [
       {
         "pNum": "1",
-        "pAction": "El caso de uso inicia cuando el actor solicita registrar un nuevo docente mediante el botón \"+ Nuevo Docente\" [A] (ver CU-82: Buscar usuario).",
+        "pAction": "El caso de uso inicia cuando el actor solicita registrar un nuevo docente mediante el botón \"Nuevo Docente\" [A] (ver CU-82: Buscar usuario).",
         "badges": [
           "A"
         ]

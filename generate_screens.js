@@ -1,3 +1,4 @@
+const specializedFormGenerators = require('./scratch/all_specialized_forms.js');
 const fs = require('fs');
 const path = require('path');
 
@@ -267,6 +268,10 @@ function generateScreenContent(cu) {
   const id = cu.id;
   const name = cu.name;
   const badges = cu.badges;
+
+  if (specializedFormGenerators && specializedFormGenerators[id]) {
+    return specializedFormGenerators[id](cu, badges);
+  }
 
   // --- TYPE 1: CARDS VIEW (Mis Cursos / Catálogo) --- CU-01, CU-02, CU-06
   if (['CU-01', 'CU-02', 'CU-06'].includes(id)) {
@@ -2644,219 +2649,105 @@ function generateScreenContent(cu) {
     if (name.includes('cohorte')) confirmBtnLabel = 'Confirmar Cancelación';
     if (name.includes('usuario')) confirmBtnLabel = 'Confirmar Desactivación';
     if (name.includes('intento')) confirmBtnLabel = 'Confirmar Anulación';
-    // CU-22: "Quitar unidad" → confirm = "Confirmar y Quitar"
     if (name.toLowerCase().includes('quitar') && name.includes('unidad')) confirmBtnLabel = 'Confirmar y Quitar';
-    // CU-38, CU-42: "foro/respuesta" → confirm = "Confirmar Eliminación"
     if (name.includes('foro') || name.includes('respuesta')) confirmBtnLabel = 'Confirmar Eliminación';
-    // CU-68: "Cancelar clase en vivo" → Confirmar Cancelación
-    // CU-69: "Dar de baja clase en vivo" → Confirmar Eliminación
     if (name.includes('vivo') && name.toLowerCase().includes('cancelar')) confirmBtnLabel = 'Confirmar Cancelación';
     if (name.includes('vivo') && !name.toLowerCase().includes('cancelar')) confirmBtnLabel = 'Confirmar Eliminación';
-    // CU-80: "clon" → confirm = "Confirmar Eliminación"
     if (name.includes('clon')) confirmBtnLabel = 'Confirmar Eliminación';
+    if (name.includes('glosario') || name.includes('descuento')) confirmBtnLabel = 'Confirmar Baja';
 
-    let triggerBtnLabel = 'Eliminar';
-    if (name.includes('baja')) triggerBtnLabel = 'Dar de baja';
-    if (name.includes('cohorte')) triggerBtnLabel = 'Cancelar Cohorte';
-    if (name.includes('foro')) triggerBtnLabel = 'Moderar / Eliminar';
-    if (name.includes('respuesta')) triggerBtnLabel = 'Eliminar Respuesta';
-    if (name.includes('usuario')) triggerBtnLabel = 'Desactivar Cuenta';
-    if (name.includes('intento')) triggerBtnLabel = 'Anular Intento por Fraude';
-    if (name.includes('clon')) triggerBtnLabel = 'Eliminar Video';
-    if (name.includes('vivo')) triggerBtnLabel = 'Eliminar Registro';
-    if (name.includes('pool')) triggerBtnLabel = 'Eliminar Pool';
-    if (name.includes('unidad')) triggerBtnLabel = 'Quitar de este programa';
-    if (name.toLowerCase().includes('sesión') || name.toLowerCase().includes('sesion')) {
-      triggerBtnLabel = 'Cerrar Sesión Remota';
-      confirmBtnLabel = 'Confirmar Cierre de Sesión';
-    }
-    if ((name.includes('categoría') || name.includes('material') || name.includes('autoevaluación')) && !name.includes('intento')) {
-      triggerBtnLabel = 'Eliminar';
-      confirmBtnLabel = 'Confirmar Eliminación';
-    }
-    if (name.includes('glosario') || name.includes('descuento')) {
-      triggerBtnLabel = 'Eliminar';
-      confirmBtnLabel = 'Confirmar Baja';
-    }
-
-    // Contextual Table Details by Entity
-    let bgTableTitle = `Gestión y Listado de ${name.replace('Dar de baja ', '').replace('Eliminar ', '').replace('Cancelar ', '')}`;
     let bgEntityName = `Registro #${id.replace('CU-', '')}`;
-    let bgEntityDesc = 'Mercado de Capitales & Finanzas';
-    let bgHeaders = ['Identificador / Nombre', 'Detalle / Contexto', 'Estado', 'Acciones'];
     let bgExtraInfo = 'Sin dependencias bloqueantes';
 
     if (id === 'CU-64' || name.includes('intento')) {
-      bgTableTitle = 'Historial y Monitoreo de Intentos de Autoevaluación (CU-61)';
       bgEntityName = 'Intento #64 — Alumno: Joaquín Küster';
-      bgEntityDesc = 'Autoevaluación Unidad 2: Renta Fija • IP: 190.220.14.88 • Tiempo: 00:45 min (Anomalía)';
-      bgHeaders = ['Alumno / Intento', 'Autoevaluación & Métricas', 'Estado', 'Acciones'];
       bgExtraInfo = 'Alerta de moderación: Patrón de tiempo sospechoso / posible suplantación';
     } else if (id === 'CU-10' || name.includes('categoría')) {
-      bgTableTitle = 'Listado Oficial de Categorías Temáticas (CU-07)';
       bgEntityName = 'Categoría: Mercado de Capitales & Finanzas';
-      bgEntityDesc = 'Asociada a 4 cursos activos del catálogo';
-      bgHeaders = ['Denominación', 'Cursos Asociados', 'Estado', 'Acciones'];
+      bgExtraInfo = 'Validación: No posee cursos activos asociados';
     } else if (id === 'CU-14' || name.includes('cohorte')) {
-      bgTableTitle = 'Listado y Cronogramas de Cohortes (CU-11)';
       bgEntityName = 'Cohorte 2026-1 — Especialización en Idoneidad Bursátil';
-      bgEntityDesc = 'Período: 01/03/2026 al 30/06/2026 • 24 alumnos inscriptos';
-      bgHeaders = ['Cohorte / Curso', 'Período & Inscripción', 'Estado', 'Acciones'];
-    } else if (id === 'CU-05' || (name.includes('curso') && name.includes('baja'))) {
-      bgTableTitle = 'Administración y Catálogo de Cursos (CU-01)';
-      bgEntityName = 'Curso: Especialización en Idoneidad Bursátil';
-      bgEntityDesc = 'Categoría: Mercado de Capitales • Docente: Lic. Fausto Spotorno';
-      bgHeaders = ['Curso / Programa', 'Docente Titular & Nivel', 'Estado', 'Acciones'];
+      bgExtraInfo = 'Validación: Sin inscripciones activas registradas';
+    } else if (id === 'CU-18' || name.includes('programa')) {
+      bgEntityName = 'Programa 2026-A (Idoneidad Bursátil)';
+      bgExtraInfo = 'Validación: Sin cohortes asociadas en el historial';
+    } else if (id === 'CU-22' || (name.includes('unidad') && name.toLowerCase().includes('quitar'))) {
+      bgEntityName = 'Unidad 5: Futuros y Opciones Financieras';
+      bgExtraInfo = 'Validación: Unidad sin cohortes con inscripción activa';
+    } else if (id === 'CU-30' || name.includes('material')) {
+      bgEntityName = 'Material: Guía Práctica de TIR y Duration (PDF)';
+      bgExtraInfo = 'Impacto: El archivo dejará de estar disponible en la unidad';
+    } else if (id === 'CU-34' || name.includes('glosario')) {
+      bgEntityName = 'Término: Duration Modificada (Glosario U2)';
+      bgExtraInfo = 'Impacto: Se retirará de las definiciones de la unidad';
+    } else if (id === 'CU-38' || name.includes('consulta')) {
+      bgEntityName = 'Consulta: Duda sobre paridad en bonos';
+      bgExtraInfo = 'Moderación: Se dará de baja el hilo junto con sus respuestas';
+    } else if (id === 'CU-42' || name.includes('respuesta')) {
+      bgEntityName = 'Respuesta de Foro en Hilo #35';
+      bgExtraInfo = 'Moderación: Se ocultará la respuesta del foro';
+    } else if (id === 'CU-48' || name.includes('inscripción') || name.includes('inscripcion')) {
+      bgEntityName = 'Inscripción #48 — Alumno: Joaquín Küster';
+      bgExtraInfo = 'Procesamiento de anulación y reembolso si corresponde';
     } else if (id === 'CU-52' || name.includes('descuento')) {
-      bgTableTitle = 'Gestión de Cupones y Becas de Descuento (CU-49)';
-      bgEntityName = 'Beca Convenio UNaM 2026 (Código: UNAM2026)';
-      bgEntityDesc = 'Descuento: 25% • Vigencia hasta 31/12/2026';
-      bgHeaders = ['Código Beca / Descuento', 'Porcentaje & Vigencia', 'Estado', 'Acciones'];
+      bgEntityName = 'Beca / Cupón: UNAM2026 (25% off)';
+      bgExtraInfo = 'Validación: Inhabilitará el código para futuras matrículas';
+    } else if (id === 'CU-56' || name.includes('pool')) {
+      bgEntityName = 'Banco de Preguntas: Renta Fija U2';
+      bgExtraInfo = 'Validación: No está asignado a evaluaciones con intentos activos';
+    } else if (id === 'CU-60' || name.includes('autoevaluación') || name.includes('autoevaluacion')) {
+      bgEntityName = 'Autoevaluación: Cuestionario U2 Renta Fija';
+      bgExtraInfo = 'Validación: No registra intentos de alumnos completados';
+    } else if (id === 'CU-68' || id === 'CU-69' || name.includes('vivo')) {
+      bgEntityName = 'Clase en Vivo: Taller Práctico de Curvas';
+      bgExtraInfo = 'Notificación: Se enviará correo de cancelación a los inscriptos';
     } else if (id === 'CU-80' || name.includes('clon')) {
-      bgTableTitle = 'Galería de Clases Generadas con Avatar Clon IA (CU-77)';
-      bgEntityName = 'Video: Explicación Teórica - Duración Modificada';
-      bgEntityDesc = 'Avatar: Fausto Spotorno HD (HeyGen) • Duración: 03:40 min';
-      bgHeaders = ['Título de la Clase', 'Avatar & Voz', 'Estado', 'Acciones'];
+      bgEntityName = 'Video Clon IA: Explicación de Convexidad';
+      bgExtraInfo = 'Impacto: Se eliminará del repositorio de medios de la unidad';
     } else if (id === 'CU-85' || name.includes('usuario')) {
-      bgTableTitle = 'Directorio y Gestión de Usuarios (CU-82)';
       bgEntityName = 'Usuario: Lic. Fausto Spotorno (fausto.spotorno@idoneos.online)';
-      bgEntityDesc = 'Rol: Docente Titular • Último acceso: Hoy 10:15 hs';
-      bgHeaders = ['Usuario / Correo', 'Rol & Acceso', 'Estado', 'Acciones'];
-    }
-
-    if (id === 'CU-05' || (name.includes('curso') && name.includes('baja'))) {
-      return `
-        <div class="wf-modal-dialog shadow-sm" style="max-width: 620px; margin: 40px auto; background: #FFFFFF; border-radius: 12px; border: 1px solid #E2E8F0; overflow: hidden;">
-          <!-- Cabecera del Diálogo -->
-          <div class="p-3 border-bottom d-flex justify-content-between align-items-center" style="background: #F8FAFC;">
-            <div class="d-flex align-items-center gap-2">
-              <i class="fa-solid fa-triangle-exclamation text-danger"></i>
-              <strong style="font-size: 14px; color: #081426;">Dar de baja curso</strong>
-            </div>
-            <span class="wf-badge status-active">Operación Crítica</span>
-          </div>
-
-          <!-- Cuerpo del Diálogo -->
-          <div class="p-4 text-center">
-            <div class="mb-3" style="width: 56px; height: 56px; border-radius: 50%; background: #FEE2E2; color: #DC2626; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 24px;">
-              <i class="fa-solid fa-triangle-exclamation"></i>
-            </div>
-            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin-bottom: 6px;">¿Confirma la operación de dar de baja el curso?</h3>
-            <p class="small text-muted mb-4" style="line-height: 1.5;">Esta operación procesará el cambio de estado en la base de datos, retirará el curso del catálogo público y no permitirá nuevas inscripciones.</p>
-
-            <div class="p-3 mb-4 bg-light border rounded text-start" style="font-size: 13px;">
-              <div class="d-flex justify-content-between align-items-center mb-2">
-                <span class="text-muted">Curso a afectar:</span>
-                <strong style="color: #081426;">Especialización en Idoneidad Bursátil CNV</strong>
-              </div>
-              <div class="d-flex justify-content-between align-items-center mb-2">
-                <span class="text-muted">Estado actual:</span>
-                <span class="wf-badge status-active">Activo / En Catálogo</span>
-              </div>
-              <div class="d-flex justify-content-between align-items-center">
-                <span class="text-muted">Validación de dependencias:</span>
-                <span class="small text-success fw-bold"><i class="fa-solid fa-circle-check me-1"></i> Sin programas activos bloqueantes</span>
-              </div>
-            </div>
-
-            <div class="d-flex justify-content-end align-items-center gap-3 pt-3 border-top">
-              <a href="#CU-01" class="wf-btn wf-btn-outline">Cancelar / Volver</a>
-              <div class="d-flex align-items-center gap-2">
-                <button class="wf-btn wf-btn-danger"><i class="fa-solid fa-trash me-1"></i> Confirmar Baja</button>
-                <span class="pin-badge">${badges[1] || 'B'}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      `;
+      bgExtraInfo = 'Validación: Desactivación de credenciales y accesos';
     }
 
     return `
-      <!-- Vista de Fondo: Tabla de Gestión Contextual de Referencia -->
-      <div style="position: relative;">
-        <div class="wf-card mb-4 opacity-75" style="background: #FFFFFF; pointer-events: none; filter: blur(0.4px);">
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <h3 style="font-size: 17px; font-weight: 800; color: #081426; margin: 0;">${bgTableTitle}</h3>
-            <span class="wf-badge status-active"><i class="fa-solid fa-layer-group me-1"></i> Vista de Búsqueda</span>
+      <div class="wf-modal-dialog shadow-sm" style="max-width: 620px; margin: 40px auto; background: #FFFFFF; border-radius: 12px; border: 1px solid #E2E8F0; overflow: hidden;">
+        <!-- Cabecera del Diálogo -->
+        <div class="p-3 border-bottom d-flex justify-content-between align-items-center" style="background: #F8FAFC;">
+          <div class="d-flex align-items-center gap-2">
+            <i class="fa-solid fa-triangle-exclamation text-danger"></i>
+            <strong style="font-size: 14px; color: #081426;">${name}</strong>
           </div>
-          <div class="wf-table-wrap">
-            <table class="wf-table">
-              <thead>
-                <tr>
-                  <th>${bgHeaders[0]}</th>
-                  <th>${bgHeaders[1]}</th>
-                  <th>${bgHeaders[2]}</th>
-                  <th class="text-end">${bgHeaders[3]}</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr class="table-active" style="background: #FEF2F2; border-left: 3px solid #DC2626;">
-                  <td><strong>${bgEntityName}</strong></td>
-                  <td>${bgEntityDesc}</td>
-                  <td><span class="wf-badge status-active">Activo</span></td>
-                  <td class="text-end">
-                    <div class="d-inline-flex align-items-center gap-2">
-                      <button class="wf-btn wf-btn-sm wf-btn-danger d-flex align-items-center gap-1">
-                        <i class="fa-solid ${name.includes('sesión') ? 'fa-arrow-right-from-bracket' : (name.includes('cancelar') ? 'fa-ban' : 'fa-trash')}"></i>
-                        <span>${triggerBtnLabel}</span>
-                      </button>
-                      <span class="pin-badge">${badges[0] || 'A'}</span>
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <td><strong>Elemento Secundario de Control</strong></td>
-                  <td>Registro complementario del catálogo</td>
-                  <td><span class="wf-badge status-active">Activo</span></td>
-                  <td class="text-end">
-                    <button class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-ellipsis"></i></button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          <span class="wf-badge status-active">Confirmación Requerida</span>
         </div>
 
-        <!-- Diálogo Modal Superpuesto en Primer Plano -->
-        <div class="wf-modal-dialog shadow-lg" style="max-width: 600px; margin: 0 auto; background: #FFFFFF; border-radius: 12px; border: 1px solid #E2E8F0; overflow: hidden; position: relative; z-index: 10;">
-          <!-- Cabecera Limpia del Diálogo Modal -->
-          <div class="p-3 border-bottom d-flex justify-content-between align-items-center" style="background: #F8FAFC;">
-            <div class="d-flex align-items-center gap-2">
-              <i class="fa-solid fa-triangle-exclamation text-danger"></i>
-              <strong style="font-size: 14px; color: #081426;">Confirmación de ${name}</strong>
+        <!-- Cuerpo del Diálogo -->
+        <div class="p-4 text-center">
+          <div class="mb-3" style="width: 56px; height: 56px; border-radius: 50%; background: #FEE2E2; color: #DC2626; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 24px;">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+          </div>
+          <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin-bottom: 6px;">¿Confirma la operación de ${name.toLowerCase()}?</h3>
+          <p class="small text-muted mb-4" style="line-height: 1.5;">Esta acción procesará el cambio de estado en la base de datos y afectará la disponibilidad del elemento en el sistema.</p>
+
+          <div class="p-3 mb-4 bg-light border rounded text-start" style="font-size: 13px;">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="text-muted">Registro afectado:</span>
+              <strong style="color: #081426;">${bgEntityName}</strong>
             </div>
-            <span style="color: #94A3B8; cursor: pointer; font-size: 16px;"><i class="fa-solid fa-xmark"></i></span>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="text-muted">Estado actual:</span>
+              <span class="wf-badge status-active">Activo / Vigente</span>
+            </div>
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="text-muted">Validación de dependencias:</span>
+              <span class="small text-success fw-bold"><i class="fa-solid fa-circle-check me-1"></i> ${bgExtraInfo}</span>
+            </div>
           </div>
 
-          <!-- Cuerpo del Diálogo Modal -->
-          <div class="p-4 text-center">
-            <div class="mb-3" style="width: 54px; height: 54px; border-radius: 50%; background: #FEE2E2; color: #DC2626; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 22px;">
-              <i class="fa-solid fa-triangle-exclamation"></i>
-            </div>
-            <h3 style="font-size: 17px; font-weight: 800; color: #081426; margin-bottom: 6px;">¿Está seguro de que desea confirmar la operación?</h3>
-            <p class="small text-muted mb-4" style="line-height: 1.5;">Esta acción procesará la baja/anulación sobre la base de datos y notificará a las partes correspondientes.</p>
-
-            <div class="p-3 mb-4 bg-light border rounded text-start" style="font-size: 13px;">
-              <div class="d-flex justify-content-between align-items-center mb-2">
-                <span class="text-muted">Registro a afectar:</span>
-                <strong style="color: #081426;">${bgEntityName}</strong>
-              </div>
-              <div class="d-flex justify-content-between align-items-center mb-2">
-                <span class="text-muted">Estado actual:</span>
-                <span class="wf-badge status-active">Activo / Vigente</span>
-              </div>
-              <div class="d-flex justify-content-between align-items-center">
-                <span class="text-muted">Impacto / Validación:</span>
-                <span class="small text-danger fw-bold"><i class="fa-solid fa-circle-exclamation me-1"></i> ${bgExtraInfo}</span>
-              </div>
-            </div>
-
-            <div class="d-flex justify-content-end align-items-center gap-3 pt-3 border-top">
-              <button class="wf-btn wf-btn-outline">Cancelar / Volver</button>
-              <div class="d-flex align-items-center gap-2">
-                <button class="wf-btn wf-btn-danger"><i class="fa-solid fa-trash me-1"></i> ${confirmBtnLabel}</button>
-                <span class="pin-badge">${badges[1] || badges[badges.length - 1] || 'B'}</span>
-              </div>
+          <div class="d-flex justify-content-end align-items-center gap-3 pt-3 border-top">
+            <button class="wf-btn wf-btn-outline">Cancelar / Volver</button>
+            <div class="d-flex align-items-center gap-2">
+              <button class="wf-btn wf-btn-danger"><i class="fa-solid fa-trash me-1"></i> ${confirmBtnLabel}</button>
+              <span class="pin-badge">${badges[1] || badges[badges.length - 1] || 'B'}</span>
             </div>
           </div>
         </div>
@@ -2873,27 +2764,27 @@ function generateScreenContent(cu) {
 
     if (name.includes('categoría')) {
       actionBtnLabel = 'Editar';
-      createBtnLabel = '+ Nueva Categoría';
+      createBtnLabel = 'Nueva Categoría';
       createCuTarget = 'CU-08';
     } else if (name.includes('cohorte')) {
       actionBtnLabel = 'Editar Cohorte';
-      createBtnLabel = '+ Nueva Cohorte';
+      createBtnLabel = 'Nueva Cohorte';
       createCuTarget = 'CU-12';
     } else if (name.includes('programa')) {
       actionBtnLabel = 'Editar Programa';
-      createBtnLabel = '+ Nuevo Programa';
+      createBtnLabel = 'Nuevo Programa';
       createCuTarget = 'CU-16';
     } else if (name.includes('descuento')) {
       actionBtnLabel = 'Editar';
-      createBtnLabel = '+ Nuevo Descuento';
+      createBtnLabel = 'Nuevo Descuento';
       createCuTarget = 'CU-50';
     } else if (name.includes('usuario')) {
       actionBtnLabel = 'Editar Usuario';
-      createBtnLabel = '+ Nuevo Usuario';
+      createBtnLabel = 'Nuevo Usuario';
       createCuTarget = 'CU-81';
     } else if (name.includes('docente')) {
       actionBtnLabel = 'Editar Perfil';
-      createBtnLabel = '+ Nuevo Docente';
+      createBtnLabel = 'Nuevo Docente';
       createCuTarget = 'CU-83';
     } else if (name.includes('curso') || name.includes('catálogo')) {
       actionBtnLabel = 'Ver Ficha / Inscribirme';
@@ -4546,6 +4437,7 @@ cus.forEach(cu => {
                         <h2 class="wf-hero-title">${cu.id === 'CU-01' ? 'Mis Cursos Asignados' : (cu.id === 'CU-02' ? 'Gestión de Cursos' : cu.name)}</h2>
                         <p class="wf-hero-desc">Bienvenido/a, ${roleInfo.name}</p>
                     </div>
+                    
                     ${cu.id === 'CU-01' ? `
                     <div class="d-flex align-items-center gap-2">
                         <a href="#CU-03" class="wf-btn-gold">
@@ -4564,7 +4456,43 @@ cus.forEach(cu => {
                         <span class="pin-badge">A</span>
                     </div>
                     ` : ''}
-                </div>
+                    ${cu.id === 'CU-11' ? `
+                    <div class="d-flex align-items-center gap-2">
+                        <a href="#CU-12" class="wf-btn-gold">
+                            <i class="fa-solid fa-plus"></i>
+                            <span>Nueva Cohorte</span>
+                        </a>
+                        <span class="pin-badge">A</span>
+                    </div>
+                    ` : ''}
+                    ${cu.id === 'CU-15' ? `
+                    <div class="d-flex align-items-center gap-2">
+                        <a href="#CU-16" class="wf-btn-gold">
+                            <i class="fa-solid fa-plus"></i>
+                            <span>Nuevo Programa</span>
+                        </a>
+                        <span class="pin-badge">A</span>
+                    </div>
+                    ` : ''}
+                    ${cu.id === 'CU-49' ? `
+                    <div class="d-flex align-items-center gap-2">
+                        <a href="#CU-50" class="wf-btn-gold">
+                            <i class="fa-solid fa-plus"></i>
+                            <span>Nuevo Descuento</span>
+                        </a>
+                        <span class="pin-badge">A</span>
+                    </div>
+                    ` : ''}
+                    ${cu.id === 'CU-82' ? `
+                    <div class="d-flex align-items-center gap-2">
+                        <a href="#CU-83" class="wf-btn-gold">
+                            <i class="fa-solid fa-plus"></i>
+                            <span>Nuevo Usuario</span>
+                        </a>
+                        <span class="pin-badge">A</span>
+                    </div>
+                    ` : ''}
+</div>
 
                 <div class="wf-body">
                     <div class="wf-main-content">
