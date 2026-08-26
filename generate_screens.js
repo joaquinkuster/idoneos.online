@@ -55,7 +55,12 @@ const icons = {
   arrowRight: (cls="w-4 h-4") => `<svg class="${cls}" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" /></svg>`,
   exclamationTriangle: (cls="w-6 h-6") => `<svg class="${cls}" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" /></svg>`,
   chevronDown: (cls="w-4 h-4") => `<svg class="${cls}" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" /></svg>`,
-  arrowRightOnRectangle: (cls="w-4 h-4") => `<svg class="${cls}" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75" /></svg>`
+  sparkles: (cls="w-5 h-5") => `<svg class="${cls}" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z" /></svg>`,
+  microphone: (cls="w-5 h-5") => `<svg class="${cls}" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 18.75a6 6 0 0 0 6-6v-1.5m-6 7.5a6 6 0 0 1-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15a3 3 0 0 0 3-3V4.5a3 3 0 0 0-6 0v7.5a3 3 0 0 0 3 3Z" /></svg>`,
+  camera: (cls="w-5 h-5") => `<svg class="${cls}" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.774 48.774 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM18.75 10.5h.008v.008h-.008V10.5Z" /></svg>`,
+  signal: (cls="w-5 h-5") => `<svg class="${cls}" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.348 14.652a3.75 3.75 0 0 1 0-5.304m5.304 0a3.75 3.75 0 0 1 0 5.304m-7.425 2.121a6.75 6.75 0 0 1 0-9.546m9.546 0a6.75 6.75 0 0 1 0 9.546M5.106 18.894c-3.808-3.807-3.808-9.98 0-13.788m13.788 0c3.808 3.807 3.808 9.98 0 13.788M12 12h.008v.008H12V12Z" /></svg>`,
+  creditCard: (cls="w-5 h-5") => `<svg class="${cls}" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5Z" /></svg>`,
+  chartBar: (cls="w-5 h-5") => `<svg class="${cls}" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" /></svg>`
 };
 
 // 4. Parse Markdown CUs
@@ -75,7 +80,7 @@ for (let i = 1; i < cuBlocks.length; i++) {
   const descMatch = block.match(/\*\*Descripción\*\*\s*[\r\n]+([\s\S]*?)(?=\*\*Precondición|\*\*Flujo)/);
   
   const badges = [];
-  const badgeRegex = /\[([A-Z])\]/g;
+  const badgeRegex = /\[([A-Z0-9]+)\]/g;
   let bm;
   while ((bm = badgeRegex.exec(block)) !== null) {
     if (!badges.includes(bm[1])) badges.push(bm[1]);
@@ -155,7 +160,8 @@ function getRoleInfo(actors, cuId) {
             { label: 'Mis cursos a cargo', cu: 'CU-01' },
             { label: 'Estructura de unidades', cu: 'CU-19' },
             { label: 'Cronograma y avance', cu: 'CU-23' },
-            { label: 'Lista de participantes', cu: 'CU-25' }
+            { label: 'Lista de participantes', cu: 'CU-25' },
+            { label: 'Estudio de Clon IA (HeyGen)', cu: 'CU-76' }
           ]
         },
         {
@@ -218,7 +224,6 @@ function generateScreenContent(cu) {
     const isCatalog = id === 'CU-06';
 
     return `
-      <!-- Barra superior de búsqueda y filtros -->
       <div class="wf-card mb-4">
         <div class="row align-items-end">
           <div class="col-md-5">
@@ -248,38 +253,31 @@ function generateScreenContent(cu) {
           </div>
           <div class="col-md-3">
             <div class="d-flex align-items-center gap-2">
-              <button class="wf-btn wf-btn-primary w-100">Buscar</button>
+              <button class="wf-btn wf-btn-primary w-100">${isDocente ? 'Buscar Cursos' : (isAlumno ? 'Filtrar' : 'Explorar')}</button>
               <span class="pin-badge">${badges[2] || 'C'}</span>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Grid de Cursos en Cards -->
-      <div class="wf-section-title d-flex justify-content-between align-items-center mb-3">
-        <h4>${isDocente ? 'Cursos asignados a mi cargo (Selección Obligatoria)' : (isAlumno ? 'Mis Cursos Matriculados' : 'Catálogo Abierto de Cursos')}</h4>
-        <span class="wf-badge status-active">3 cursos encontrados</span>
-      </div>
-
       <div class="wf-cards-grid">
-        <!-- Card 1 -->
         <div class="wf-course-card">
           <div class="wf-course-card-thumb">
             <div class="wf-course-tag">Mercado de Capitales</div>
             <div class="wf-course-thumb-icon">${icons.academicCap("w-10 h-10 text-white")}</div>
           </div>
           <div class="wf-course-card-body">
-            <h4 class="wf-course-title">Especialización en Idoneidad Bursátil CNV</h4>
-            <p class="wf-course-desc">Preparación integral para rendir el examen de idoneidad ante la Comisión Nacional de Valores.</p>
+            <h4 class="wf-course-title">Especialización en Idoneidad Bursátil</h4>
+            <p class="wf-course-desc">Preparación integral para el examen de idoneidad ante la CNV (Comisión Nacional de Valores).</p>
             <div class="wf-course-meta">
-              <span><strong>Docente:</strong> Fausto Spotorno</span>
-              <span><strong>Cohorte:</strong> 2026-1 (Programa Vigente)</span>
+              <span><strong>Docente:</strong> Lic. Fausto Spotorno</span>
+              <span><strong>Cohorte:</strong> 2026-1 (En dictado)</span>
             </div>
             ${isAlumno ? `
               <div class="wf-progress-bar-wrap mt-2">
                 <div class="d-flex justify-content-between small text-muted mb-1">
                   <span>Progreso: 65%</span>
-                  <span>Unidad 3 de 5</span>
+                  <span>Unidad 2 de 4</span>
                 </div>
                 <div class="wf-progress"><div class="wf-progress-fill" style="width: 65%;"></div></div>
               </div>
@@ -289,17 +287,16 @@ function generateScreenContent(cu) {
             <div class="d-flex align-items-center justify-content-between w-100">
               <span class="wf-badge status-active">Activo</span>
               <div class="d-flex align-items-center gap-2">
-                <a href="#CU-${isDocente ? '26b' : '26'}" class="wf-btn wf-btn-primary wf-btn-sm d-flex align-items-center gap-1">
-                  <span>${isDocente ? 'Gestionar curso' : (isAlumno ? 'Ingresar al curso' : 'Ver ficha / Inscribirme')}</span>
+                <button class="wf-btn wf-btn-primary wf-btn-sm d-flex align-items-center gap-1">
+                  <span>${isDocente ? 'Gestionar curso' : (isAlumno ? 'Ingresar al curso' : 'Ver ficha')}</span>
                   ${icons.arrowRight()}
-                </a>
-                <span class="pin-badge">${badges[3] || 'D'}</span>
+                </button>
+                <span class="pin-badge">${badges[3] || badges[badges.length - 1] || 'D'}</span>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Card 2 -->
         <div class="wf-course-card">
           <div class="wf-course-card-thumb">
             <div class="wf-course-tag">Finanzas de Empresas</div>
@@ -312,15 +309,6 @@ function generateScreenContent(cu) {
               <span><strong>Docente:</strong> Lic. Juan Pérez</span>
               <span><strong>Cohorte:</strong> 2026-1</span>
             </div>
-            ${isAlumno ? `
-              <div class="wf-progress-bar-wrap mt-2">
-                <div class="d-flex justify-content-between small text-muted mb-1">
-                  <span>Progreso: 20%</span>
-                  <span>Unidad 1 de 4</span>
-                </div>
-                <div class="wf-progress"><div class="wf-progress-fill" style="width: 20%;"></div></div>
-              </div>
-            ` : ''}
           </div>
           <div class="wf-course-card-footer">
             <div class="d-flex align-items-center justify-content-between w-100">
@@ -332,37 +320,6 @@ function generateScreenContent(cu) {
             </div>
           </div>
         </div>
-
-        <!-- Card 3 -->
-        <div class="wf-course-card">
-          <div class="wf-course-card-thumb">
-            <div class="wf-course-tag">Trading Cuantitativo</div>
-            <div class="wf-course-thumb-icon">${icons.bolt("w-10 h-10 text-white")}</div>
-          </div>
-          <div class="wf-course-card-body">
-            <h4 class="wf-course-title">Análisis Técnico y Algoritmos de Trading</h4>
-            <p class="wf-course-desc">Desarrollo de estrategias automatizadas de trading en Python y backtesting.</p>
-            <div class="wf-course-meta">
-              <span><strong>Docente:</strong> Dr. Carlos Gómez</span>
-              <span><strong>Cohorte:</strong> 2025-2</span>
-            </div>
-            ${isAlumno ? `
-              <div class="wf-progress-bar-wrap mt-2">
-                <div class="d-flex justify-content-between small text-muted mb-1">
-                  <span>Progreso: 100%</span>
-                  <span>Completado</span>
-                </div>
-                <div class="wf-progress"><div class="wf-progress-fill" style="width: 100%; background: #059669;"></div></div>
-              </div>
-            ` : ''}
-          </div>
-          <div class="wf-course-card-footer">
-            <div class="d-flex align-items-center justify-content-between w-100">
-              <span class="wf-badge status-inactive">Finalizado</span>
-              <button class="wf-btn wf-btn-outline wf-btn-sm">Ver histórico</button>
-            </div>
-          </div>
-        </div>
       </div>
     `;
   }
@@ -370,7 +327,6 @@ function generateScreenContent(cu) {
   // --- TYPE 2: VISTA DEL CURSO ESTILO MOODLE (ALUMNO) --- CU-26, CU-62
   if (id === 'CU-26') {
     return `
-      <!-- Breadcrumb & Encabezado del Curso -->
       <div class="wf-course-header-banner mb-4">
         <div class="d-flex justify-content-between align-items-start">
           <div>
@@ -386,7 +342,6 @@ function generateScreenContent(cu) {
           </div>
         </div>
 
-        <!-- Barra de Navegación del Curso (Tabs de Alumno FCEQYN Virtual: Curso, Participantes, Calificaciones, etc.) -->
         <div class="wf-course-nav-tabs mt-3 d-flex justify-content-between align-items-center">
           <div class="d-flex align-items-center gap-4">
             <button class="wf-tab-btn active"><span class="pin-badge me-1">${badges[0] || 'A'}</span> Curso</button>
@@ -400,10 +355,7 @@ function generateScreenContent(cu) {
         </div>
       </div>
 
-      <!-- Acordeón Moodle de Unidades con Heroicons -->
       <div class="wf-moodle-accordion">
-        
-        <!-- Unidad 1 (Completada) -->
         <div class="wf-unit-box completed mb-3">
           <div class="wf-unit-header d-flex justify-content-between align-items-center">
             <div class="d-flex align-items-center gap-2">
@@ -421,7 +373,6 @@ function generateScreenContent(cu) {
           </div>
         </div>
 
-        <!-- Unidad 2 (En curso / Abierta) -->
         <div class="wf-unit-box active mb-3">
           <div class="wf-unit-header d-flex justify-content-between align-items-center">
             <div class="d-flex align-items-center gap-2">
@@ -435,7 +386,6 @@ function generateScreenContent(cu) {
           </div>
           <div class="wf-unit-body">
             <p class="small text-muted mb-3">Conceptos de TIR, Duration, Modified Duration y curvas de rendimiento soberanas.</p>
-            
             <div class="wf-subcontent-group">
               <div class="wf-subcontent-title">Materiales de Estudio</div>
               <ul class="wf-content-list">
@@ -457,31 +407,18 @@ function generateScreenContent(cu) {
                   </div>
                 </li>
                 <li class="d-flex align-items-center gap-2">${icons.chatBubble("w-4 h-4 text-muted")} <a href="#CU-35" class="wf-link">Foro de Consultas: Dudas sobre Duración Modificada</a> (4 consultas)</li>
-                <li class="d-flex align-items-center gap-2">${icons.videoCamera("w-4 h-4 text-danger")} <a href="#CU-72" class="wf-link">Clase en Vivo: Resolución de Prácticos (Jueves 19:00 hs)</a></li>
+                <li class="d-flex align-items-center gap-2">${icons.videoCamera("w-4 h-4 text-danger")} <a href="#CU-72" class="wf-link">Clase en Vivo: Streaming interactivo</a></li>
               </ul>
             </div>
           </div>
         </div>
-
-        <!-- Unidad 3 (Bloqueada) -->
-        <div class="wf-unit-box locked mb-3">
-          <div class="wf-unit-header d-flex justify-content-between align-items-center">
-            <div class="d-flex align-items-center gap-2">
-              <span class="text-muted">${icons.lockClosed("w-5 h-5")}</span>
-              <span class="text-muted">Unidad 3: Instrumentos de Renta Variable (Acciones y CEDEARs)</span>
-            </div>
-            <span class="wf-badge status-inactive">Requiere aprobar Autoevaluación U2</span>
-          </div>
-        </div>
-
       </div>
     `;
   }
 
-  // --- TYPE 3: VISTA DEL CURSO EN MODO EDICIÓN (DOCENTE / ADMIN) --- CU-26b, CU-19, CU-20, CU-21, CU-22
+  // --- TYPE 3: MODO EDICIÓN DEL CURSO --- CU-26b, CU-19, CU-20, CU-21, CU-22
   if (['CU-26b', 'CU-19', 'CU-20', 'CU-21', 'CU-22'].includes(id)) {
     return `
-      <!-- Breadcrumb & Encabezado del Curso Estilo Moodle (Captura 1) -->
       <div class="wf-course-header-banner mb-4">
         <div class="d-flex justify-content-between align-items-start">
           <div>
@@ -499,7 +436,6 @@ function generateScreenContent(cu) {
           </div>
         </div>
 
-        <!-- Barra de Navegación Contextual del Curso (Tabs Moodle FCEQYN Virtual) -->
         <div class="wf-course-nav-tabs mt-3 d-flex justify-content-between align-items-center">
           <div class="d-flex align-items-center gap-1">
             <button class="wf-tab-btn active"><span class="pin-badge me-1">${badges[1] || 'B'}</span> Curso & Unidades</button>
@@ -521,29 +457,7 @@ function generateScreenContent(cu) {
         </div>
       </div>
 
-      <!-- Estructuración de Unidades Moodle en Modo Edición (Fiel a la Captura 1 del GIF) -->
       <div class="wf-moodle-accordion">
-        
-        <!-- Sección General / Avisos -->
-        <div class="wf-unit-box mb-3 p-3 bg-white border rounded">
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <div class="d-flex align-items-center gap-2">
-              <span class="text-muted">${icons.bars3("w-4 h-4")}</span>
-              <span class="d-flex align-items-center gap-1">${icons.chatBubble("w-4 h-4 text-warning")} <strong style="color: #D97706;">Avisos Generales y Novedades</strong></span>
-              <span class="text-muted">${icons.pencilSquare("w-3 h-3")}</span>
-            </div>
-            <div class="d-flex align-items-center gap-2">
-              <span class="small text-muted">Editar ▾</span>
-            </div>
-          </div>
-          <div class="d-flex justify-content-end mt-2 pt-2 border-top">
-            <a href="#CU-28" class="text-decoration-none small fw-bold d-flex align-items-center gap-1" style="color: #475569;">
-              ${icons.plus("w-3 h-3")} Añade una actividad o un recurso
-            </a>
-          </div>
-        </div>
-
-        <!-- Unidad 1 / Tema 1 -->
         <div class="wf-unit-box mb-3 p-3 bg-white border rounded">
           <div class="d-flex justify-content-between align-items-center mb-3">
             <div class="d-flex align-items-center gap-2">
@@ -551,12 +465,9 @@ function generateScreenContent(cu) {
               <h4 style="font-size: 16px; font-weight: 700; color: #D97706; margin: 0;">Unidad 1: Marco Regulatorio y Ley de Mercado de Capitales</h4>
               <span class="text-muted">${icons.pencilSquare("w-4 h-4")}</span>
             </div>
-            <div class="d-flex align-items-center gap-2">
-              <span class="small text-muted">Editar ▾</span>
-            </div>
+            <span class="small text-muted">Editar ▾</span>
           </div>
 
-          <!-- Contenidos dentro de la unidad -->
           <div class="wf-unit-body p-0">
             <div class="wf-content-item-row d-flex justify-content-between align-items-center py-2 border-bottom">
               <div class="d-flex align-items-center gap-2 ps-3">
@@ -568,27 +479,6 @@ function generateScreenContent(cu) {
               <span class="small text-muted pe-2">Editar ▾</span>
             </div>
 
-            <div class="wf-content-item-row d-flex justify-content-between align-items-center py-2 border-bottom">
-              <div class="d-flex align-items-center gap-2 ps-3">
-                <span class="text-muted">${icons.bars3("w-4 h-4")}</span>
-                ${icons.videoCamera("w-4 h-4 text-muted")}
-                <span>Grabación: Estructura del Mercado Argentino (45 min)</span>
-                <span class="text-muted">${icons.pencilSquare("w-3 h-3")}</span>
-              </div>
-              <span class="small text-muted pe-2">Editar ▾</span>
-            </div>
-
-            <div class="wf-content-item-row d-flex justify-content-between align-items-center py-2 border-bottom">
-              <div class="d-flex align-items-center gap-2 ps-3">
-                <span class="text-muted">${icons.bars3("w-4 h-4")}</span>
-                ${icons.clipboardCheck("w-4 h-4 text-muted")}
-                <span>Autoevaluación U1: Marco Legal (10 preguntas)</span>
-                <span class="text-muted">${icons.pencilSquare("w-3 h-3")}</span>
-              </div>
-              <span class="small text-muted pe-2">Editar ▾</span>
-            </div>
-
-            <!-- Botón + Añade una actividad o un recurso a la derecha con cursor (como en el GIF) -->
             <div class="d-flex justify-content-end align-items-center gap-2 mt-3 pt-2">
               <a href="#CU-28" class="text-decoration-none small fw-bold d-flex align-items-center gap-1 p-2 rounded" style="color: #1E293B; background: #F1F5F9;">
                 ${icons.plus("w-4 h-4")} <strong>Añade una actividad o un recurso</strong>
@@ -597,53 +487,11 @@ function generateScreenContent(cu) {
             </div>
           </div>
         </div>
-
-        <!-- Unidad 2 / Tema 2 -->
-        <div class="wf-unit-box mb-3 p-3 bg-white border rounded">
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <div class="d-flex align-items-center gap-2">
-              <span class="text-muted cursor-move">${icons.bars3("w-5 h-5")}</span>
-              <h4 style="font-size: 16px; font-weight: 700; color: #D97706; margin: 0;">Unidad 2: Instrumentos de Renta Fija (Bonos y ONs)</h4>
-              <span class="text-muted">${icons.pencilSquare("w-4 h-4")}</span>
-            </div>
-            <span class="small text-muted">Editar ▾</span>
-          </div>
-          <div class="d-flex justify-content-end mt-3 pt-2 border-top">
-            <a href="#CU-28" class="text-decoration-none small fw-bold d-flex align-items-center gap-1 p-2 rounded" style="color: #1E293B; background: #F1F5F9;">
-              ${icons.plus("w-4 h-4")} Añade una actividad o un recurso
-            </a>
-          </div>
-        </div>
-
-        <!-- Unidad 3 / Tema 3 -->
-        <div class="wf-unit-box mb-3 p-3 bg-white border rounded">
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <div class="d-flex align-items-center gap-2">
-              <span class="text-muted cursor-move">${icons.bars3("w-5 h-5")}</span>
-              <h4 style="font-size: 16px; font-weight: 700; color: #D97706; margin: 0;">Unidad 3: Instrumentos de Renta Variable (Acciones y CEDEARs)</h4>
-              <span class="text-muted">${icons.pencilSquare("w-4 h-4")}</span>
-            </div>
-            <span class="small text-muted">Editar ▾</span>
-          </div>
-          <div class="d-flex justify-content-end mt-3 pt-2 border-top">
-            <a href="#CU-28" class="text-decoration-none small fw-bold d-flex align-items-center gap-1 p-2 rounded" style="color: #1E293B; background: #F1F5F9;">
-              ${icons.plus("w-4 h-4")} Añade una actividad o un recurso
-            </a>
-          </div>
-        </div>
-
-        <!-- Añadir secciones al pie -->
-        <div class="d-flex justify-content-end mt-2">
-          <button class="wf-btn wf-btn-sm wf-btn-outline d-flex align-items-center gap-1" style="color: #D97706;">
-            ${icons.plus("w-4 h-4")} Añadir secciones
-          </button>
-        </div>
-
       </div>
     `;
   }
 
-  // --- TYPE 4: LISTADOS CONTEXTUALES DENTRO DEL CURSO (MOODLE STYLE FIEL A LA CAPTURA 5) --- CU-27, CU-31, CU-35, CU-53, CU-57, CU-65, CU-25
+  // --- TYPE 4: LISTADOS CONTEXTUALES DE RECURSOS --- CU-27, CU-31, CU-35, CU-53, CU-57, CU-65, CU-25
   if (['CU-27', 'CU-31', 'CU-35', 'CU-53', 'CU-57', 'CU-65', 'CU-25'].includes(id)) {
     const isMaterial = id === 'CU-27';
     const isGlosario = id === 'CU-31';
@@ -651,10 +499,8 @@ function generateScreenContent(cu) {
     const isPool = id === 'CU-53';
     const isEval = id === 'CU-57';
     const isLive = id === 'CU-65';
-    const isPart = id === 'CU-25';
 
     return `
-      <!-- Encabezado del Curso Estilo Moodle (Captura 5) -->
       <div class="wf-course-header-banner mb-4">
         <div class="d-flex justify-content-between align-items-start">
           <div>
@@ -664,12 +510,11 @@ function generateScreenContent(cu) {
             </div>
           </div>
           <div class="d-flex align-items-center gap-3">
-            <span class="wf-badge status-active">Curso Seleccionado (Programa 2026-1)</span>
+            <span class="wf-badge status-active">Curso Seleccionado</span>
             <div class="text-muted cursor-pointer" title="Ajustes del curso">${icons.cog6Tooth("w-6 h-6 text-slate-600")}</div>
           </div>
         </div>
 
-        <!-- Barra Superior de Navegación Contextual del Curso (Tabs Moodle FCEQYN Virtual) -->
         <div class="wf-course-nav-tabs mt-3 d-flex justify-content-between align-items-center">
           <div class="d-flex align-items-center gap-1">
             <a href="#CU-26b" class="wf-tab-btn">Curso & Unidades</a>
@@ -691,63 +536,28 @@ function generateScreenContent(cu) {
         </div>
       </div>
 
-      <!-- Sub-Tabs de Acción Estilo Moodle (Previsualizar / Edición / Informes / Calificar) -->
-      <div class="d-flex gap-3 px-3 py-2 bg-white border-bottom small fw-bold mb-3" style="color: #64748B;">
-        <span class="cursor-pointer text-muted">Previsualizar</span>
-        <span class="cursor-pointer pb-1 border-bottom border-2 border-warning" style="color: #D97706;">Edición</span>
-        <span class="cursor-pointer text-muted">Informes y Estadísticas</span>
-        <span class="cursor-pointer text-muted">Calificaciones</span>
-      </div>
-
-      <!-- Tabla Contextual con Iconos de Acción Inline de Moodle (Mover, Ajustes, Duplicar, Borrar) -->
       <div class="wf-table-wrap">
         <table class="wf-table">
           <thead>
             <tr>
-              <th>Título / Nombre en el Programa</th>
-              <th>Tipo de Recurso</th>
-              <th>Pertenencia / Unidad</th>
+              <th>Título / Recurso</th>
+              <th>Tipo</th>
+              <th>Pertenencia</th>
               <th>Estado</th>
-              <th class="text-end">Acciones Moodle</th>
+              <th class="text-end">Acciones</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td>
-                <div class="d-flex align-items-center gap-2">
-                  <span class="text-muted">${icons.bars3("w-4 h-4")}</span>
-                  <strong>${isMaterial ? 'Ley 26.831 de Mercado de Capitales' : (isGlosario ? 'TIR (Tasa Interna de Retorno)' : (isEval ? 'Autoevaluación Unidad 1: Marco Legal' : 'Pool Unidad 1 - Preguntas'))}</strong>
-                </div>
-              </td>
-              <td>${isMaterial ? 'Documento PDF (2.4 MB)' : (isGlosario ? 'Definición Financiera' : (isEval ? '10 preguntas aleatorias' : '25 preguntas'))}</td>
+              <td><strong>${isMaterial ? 'Ley 26.831 de Mercado de Capitales' : (isGlosario ? 'TIR (Tasa Interna de Retorno)' : (isEval ? 'Autoevaluación Unidad 1' : 'Pool Unidad 1'))}</strong></td>
+              <td>${isMaterial ? 'PDF' : (isGlosario ? 'Definición' : (isEval ? '10 preguntas' : '25 preguntas'))}</td>
               <td>Unidad 1: Marco Regulatorio</td>
               <td><span class="wf-badge status-active">Publicado</span></td>
               <td class="text-end">
                 <div class="d-inline-flex align-items-center gap-2">
-                  <span class="text-muted cursor-pointer" title="Mover">${icons.bars3("w-4 h-4")}</span>
-                  <span class="text-muted cursor-pointer" title="Configurar">${icons.cog6Tooth("w-4 h-4")}</span>
                   <button class="wf-btn wf-btn-sm wf-btn-outline">${icons.pencilSquare()}</button>
                   <button class="wf-btn wf-btn-sm wf-btn-outline text-danger">${icons.trash()}</button>
                   <span class="pin-badge">${badges[2] || badges[badges.length - 1] || 'C'}</span>
-                </div>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <div class="d-flex align-items-center gap-2">
-                  <span class="text-muted">${icons.bars3("w-4 h-4")}</span>
-                  <strong>${isMaterial ? 'Grabación Clase 1: Introducción' : (isGlosario ? 'Duration Modificada' : (isEval ? 'Autoevaluación Unidad 2: Renta Fija' : 'Pool Unidad 2 - Preguntas'))}</strong>
-                </div>
-              </td>
-              <td>${isMaterial ? 'Grabación de Video (45 min)' : (isGlosario ? 'Definición Financiera' : (isEval ? '12 preguntas aleatorias' : '30 preguntas'))}</td>
-              <td>Unidad 2: Renta Fija</td>
-              <td><span class="wf-badge status-active">Publicado</span></td>
-              <td class="text-end">
-                <div class="d-inline-flex align-items-center gap-2">
-                  <span class="text-muted cursor-pointer" title="Mover">${icons.bars3("w-4 h-4")}</span>
-                  <span class="text-muted cursor-pointer" title="Configurar">${icons.cog6Tooth("w-4 h-4")}</span>
-                  <button class="wf-btn wf-btn-sm wf-btn-outline">${icons.pencilSquare()}</button>
-                  <button class="wf-btn wf-btn-sm wf-btn-outline text-danger">${icons.trash()}</button>
                 </div>
               </td>
             </tr>
@@ -757,7 +567,7 @@ function generateScreenContent(cu) {
     `;
   }
 
-  // --- TYPE 5: MODAL DE AGREGAR CONTENIDO (MOODLE STYLE FIEL AL GIF CAPTURAS 2 Y 3) --- CU-28, CU-32, CU-36, CU-40, CU-54, CU-58, CU-66
+  // --- TYPE 5: MODAL DE AGREGAR CONTENIDO --- CU-28, CU-32, CU-36, CU-40, CU-54, CU-58, CU-66
   if (['CU-28', 'CU-32', 'CU-36', 'CU-40', 'CU-54', 'CU-58', 'CU-66'].includes(id)) {
     const isMaterial = id === 'CU-28';
     const isGlosario = id === 'CU-32';
@@ -766,137 +576,96 @@ function generateScreenContent(cu) {
     const isEval = id === 'CU-58';
     const isLive = id === 'CU-66';
 
-    let selectedTitle = 'Material / Documento de Estudio';
-    let selectedDesc = 'Permite al docente presentar contenidos teóricos, guías prácticas en PDF, videos o presentaciones multimedia organizadas en la unidad pedagógica.';
+    let selectedTitle = 'Material / Documento PDF';
     let inputLabel = 'Nombre / Título del material';
     let inputValue = 'Guía Teórica de Renta Fija v2.0 (PDF)';
 
     if (isGlosario) {
       selectedTitle = 'Glosario de Términos';
-      selectedDesc = 'Permite a los docentes y participantes crear y mantener una lista de definiciones financieras y conceptos técnicos del mercado bursátil.';
       inputLabel = 'Término a registrar';
       inputValue = 'TIR (Tasa Interna de Retorno)';
     } else if (isForo) {
-      selectedTitle = 'Foro de Consultas y Debate';
-      selectedDesc = 'Permite a los alumnos y profesores mantener conversaciones asincrónicas sobre los temas de la unidad o publicar respuestas oficiales.';
-      inputLabel = 'Asunto / Título de la consulta o respuesta';
-      inputValue = 'Respuesta oficial: Dudas sobre Duración Modificada';
+      selectedTitle = 'Foro de Consultas';
+      inputLabel = 'Asunto del tema o consulta';
+      inputValue = 'Consulta sobre Cálculo de TIR';
     } else if (isEval) {
-      selectedTitle = 'Cuestionario / Autoevaluación';
-      selectedDesc = 'Permite al profesor diseñar evaluaciones automáticas con preguntas aleatorias extraídas de un Pool temático para evaluar el aprendizaje.';
+      selectedTitle = 'Autoevaluación';
       inputLabel = 'Nombre de la autoevaluación';
-      inputValue = 'Autoevaluación Unidad 1: Marco Regulatorio';
+      inputValue = 'Autoevaluación Unidad 1: Marco Legal';
     } else if (isPool) {
-      selectedTitle = 'Pool de Preguntas de Evaluación';
-      selectedDesc = 'Banco centralizado de preguntas y opciones múltiples asociadas a los temas de la unidad para sorteo en evaluaciones.';
-      inputLabel = 'Nombre del pool de preguntas';
-      inputValue = 'Pool Unidad 1: Mercado de Capitales (25 preguntas)';
+      selectedTitle = 'Pool de Preguntas';
+      inputLabel = 'Nombre del pool';
+      inputValue = 'Pool Unidad 1: Mercado de Capitales';
     } else if (isLive) {
       selectedTitle = 'Clase en Vivo (Streaming)';
-      selectedDesc = 'Permite programar una sesión sincrónica en tiempo real con sala de streaming interactiva y chat para resolución de casos en directo.';
-      inputLabel = 'Título de la clase en vivo';
+      inputLabel = 'Título de la transmisión';
       inputValue = 'Clase en Vivo #1: Resolución de Prácticos';
     }
 
     return `
-      <!-- Fondo atenuado / Contexto de Unidad de Fondo -->
-      <div class="wf-dimmed-bg-preview mb-3 p-3 border rounded" style="opacity: 0.35; background: #F1F5F9;">
-        <div class="d-flex justify-content-between align-items-center">
-          <div>
-            <strong>Especialización en Idoneidad Bursátil</strong> ➔ <span>Unidad 1: Marco Regulatorio y Ley de Mercado de Capitales</span>
-          </div>
-          <span class="wf-badge status-active">Modo Edición Activado</span>
-        </div>
-      </div>
-
-      <!-- Modal Overlay Moodle-Style Fiel al GIF (Capturas 2 y 3) -->
       <div class="wf-modal-box" style="max-width: 900px; margin: 20px auto; border: 1px solid #CBD5E1; border-radius: 12px; box-shadow: 0 24px 54px rgba(0,0,0,0.18); overflow: hidden; background: #FFFFFF;">
-        
-        <!-- Header del Modal Moodle con Botón de Cierre -->
         <div class="d-flex justify-content-between align-items-center px-5 py-4 bg-white border-bottom">
           <h3 style="font-size: 19px; font-weight: 700; color: #1E293B; margin: 0;">Añade una actividad o un recurso</h3>
           <span class="wf-close-btn" style="font-size: 22px; color: #94A3B8; cursor: pointer; font-weight: 700;">✕</span>
         </div>
 
-        <!-- Cuerpo del Modal en 2 Columnas con Espaciado Generoso -->
         <div class="row g-0 bg-white" style="min-height: 440px;">
-          
-          <!-- Columna Izquierda: Lista Vertical de Actividades con Radio Buttons e Iconos Heroicons -->
-          <div class="col-md-5 border-end p-4" style="background: #F8FAFC; max-height: 480px; overflow-y: auto; padding: 24px 20px !important;">
-            <div class="small fw-bold text-muted text-uppercase mb-3" style="font-size: 11px; letter-spacing: 0.6px; color: #64748B; padding-left: 4px;">ACTIVIDADES & RECURSOS</div>
-            
+          <div class="col-md-5 border-end p-4" style="background: #F8FAFC;">
+            <div class="small fw-bold text-muted text-uppercase mb-3">ACTIVIDADES & RECURSOS</div>
             <div class="d-flex flex-column gap-2">
-              <!-- Opción Material -->
-              <label class="d-flex align-items-center gap-3 p-3 rounded cursor-pointer ${isMaterial ? 'bg-white border shadow-sm fw-bold' : 'border border-transparent'}" style="font-size: 13px; color: #1E293B; transition: all 0.15s; margin-bottom: 2px;">
-                <input type="radio" name="moodle_act" ${isMaterial ? 'checked' : ''}>
+              <label class="d-flex align-items-center gap-3 p-3 rounded cursor-pointer ${isMaterial ? 'bg-white border shadow-sm fw-bold' : ''}">
+                <input type="radio" name="act_opt" ${isMaterial ? 'checked' : ''}>
                 ${icons.documentText("w-5 h-5 text-primary")}
                 <span>Material / Documento PDF</span>
               </label>
-
-              <!-- Opción Glosario -->
-              <label class="d-flex align-items-center gap-3 p-3 rounded cursor-pointer ${isGlosario ? 'bg-white border shadow-sm fw-bold' : 'border border-transparent'}" style="font-size: 13px; color: #1E293B; transition: all 0.15s; margin-bottom: 2px;">
-                <input type="radio" name="moodle_act" ${isGlosario ? 'checked' : ''}>
+              <label class="d-flex align-items-center gap-3 p-3 rounded cursor-pointer ${isGlosario ? 'bg-white border shadow-sm fw-bold' : ''}">
+                <input type="radio" name="act_opt" ${isGlosario ? 'checked' : ''}>
                 ${icons.bookOpen("w-5 h-5 text-warning")}
                 <span>Glosario de Términos</span>
               </label>
-
-              <!-- Opción Cuestionario / Autoevaluación -->
-              <label class="d-flex align-items-center gap-3 p-3 rounded cursor-pointer ${isEval ? 'bg-white border shadow-sm fw-bold' : 'border border-transparent'}" style="font-size: 13px; color: #1E293B; transition: all 0.15s; margin-bottom: 2px;">
-                <input type="radio" name="moodle_act" ${isEval ? 'checked' : ''}>
+              <label class="d-flex align-items-center gap-3 p-3 rounded cursor-pointer ${isEval ? 'bg-white border shadow-sm fw-bold' : ''}">
+                <input type="radio" name="act_opt" ${isEval ? 'checked' : ''}>
                 ${icons.clipboardCheck("w-5 h-5 text-success")}
-                <span>Cuestionario / Autoevaluación</span>
+                <span>Autoevaluación</span>
               </label>
-
-              <!-- Opción Pool de Preguntas -->
-              <label class="d-flex align-items-center gap-3 p-3 rounded cursor-pointer ${isPool ? 'bg-white border shadow-sm fw-bold' : 'border border-transparent'}" style="font-size: 13px; color: #1E293B; transition: all 0.15s; margin-bottom: 2px;">
-                <input type="radio" name="moodle_act" ${isPool ? 'checked' : ''}>
+              <label class="d-flex align-items-center gap-3 p-3 rounded cursor-pointer ${isPool ? 'bg-white border shadow-sm fw-bold' : ''}">
+                <input type="radio" name="act_opt" ${isPool ? 'checked' : ''}>
                 ${icons.queueList("w-5 h-5 text-info")}
                 <span>Pool de Preguntas</span>
               </label>
-
-              <!-- Opción Foro -->
-              <label class="d-flex align-items-center gap-3 p-3 rounded cursor-pointer ${isForo ? 'bg-white border shadow-sm fw-bold' : 'border border-transparent'}" style="font-size: 13px; color: #1E293B; transition: all 0.15s; margin-bottom: 2px;">
-                <input type="radio" name="moodle_act" ${isForo ? 'checked' : ''}>
+              <label class="d-flex align-items-center gap-3 p-3 rounded cursor-pointer ${isForo ? 'bg-white border shadow-sm fw-bold' : ''}">
+                <input type="radio" name="act_opt" ${isForo ? 'checked' : ''}>
                 ${icons.chatBubble("w-5 h-5 text-muted")}
                 <span>Foro de Consultas</span>
               </label>
-
-              <!-- Opción Clase en Vivo -->
-              <label class="d-flex align-items-center gap-3 p-3 rounded cursor-pointer ${isLive ? 'bg-white border shadow-sm fw-bold' : 'border border-transparent'}" style="font-size: 13px; color: #1E293B; transition: all 0.15s; margin-bottom: 2px;">
-                <input type="radio" name="moodle_act" ${isLive ? 'checked' : ''}>
+              <label class="d-flex align-items-center gap-3 p-3 rounded cursor-pointer ${isLive ? 'bg-white border shadow-sm fw-bold' : ''}">
+                <input type="radio" name="act_opt" ${isLive ? 'checked' : ''}>
                 ${icons.videoCamera("w-5 h-5 text-danger")}
                 <span>Clase en Vivo (Streaming)</span>
               </label>
             </div>
-
             <div class="mt-4 pt-2 text-end pe-2">
               <span class="pin-badge">${badges[0] || 'A'}</span>
             </div>
           </div>
 
-          <!-- Columna Derecha: Panel de Descripción y Campos de Configuración Rápida -->
-          <div class="col-md-7 d-flex flex-column justify-content-between" style="padding: 32px 36px !important;">
+          <div class="col-md-7 d-flex flex-column justify-content-between p-4" style="padding: 32px 36px !important;">
             <div>
               <h4 style="font-size: 17px; font-weight: 700; color: #1E293B; margin-bottom: 10px;">${selectedTitle}</h4>
-              <p class="small text-muted" style="line-height: 1.6; margin-bottom: 24px; color: #64748B; font-size: 12px;">
-                ${selectedDesc}
-              </p>
-
-              <!-- Campos del formulario dentro del modal con espaciado cómodo -->
               <div class="mb-4">
-                <label class="wf-label" style="font-weight: 600; margin-bottom: 8px; font-size: 12px;">${inputLabel}</label>
+                <label class="wf-label">${inputLabel}</label>
                 <div class="wf-input-wrap">
-                  <input type="text" class="wf-input" value="${inputValue}" style="padding: 11px 14px; font-size: 13px; border-radius: 6px;">
+                  <input type="text" class="wf-input" value="${inputValue}">
                   <span class="pin-badge">${badges[1] || 'B'}</span>
                 </div>
               </div>
 
               ${isMaterial ? `
                 <div class="mb-4">
-                  <label class="wf-label" style="font-weight: 600; margin-bottom: 8px; font-size: 12px;">Archivo adjunto o Enlace URL</label>
+                  <label class="wf-label">Archivo adjunto o URL</label>
                   <div class="wf-input-wrap">
-                    <input type="text" class="wf-input" value="guia_teorica_u1.pdf (Subido)" style="padding: 11px 14px; font-size: 13px; border-radius: 6px;">
-                    <button class="wf-btn wf-btn-outline wf-btn-sm text-nowrap" style="padding: 10px 16px;">Examinar...</button>
+                    <input type="text" class="wf-input" value="guia_teorica_u1.pdf">
+                    <button class="wf-btn wf-btn-outline wf-btn-sm">Examinar...</button>
                     <span class="pin-badge">${badges[2] || 'C'}</span>
                   </div>
                 </div>
@@ -904,39 +673,9 @@ function generateScreenContent(cu) {
 
               ${isGlosario ? `
                 <div class="mb-4">
-                  <label class="wf-label" style="font-weight: 600; margin-bottom: 8px; font-size: 12px;">Definición del Concepto Financiero</label>
+                  <label class="wf-label">Definición conceptual</label>
                   <div class="wf-input-wrap">
-                    <textarea class="wf-input" rows="3" style="padding: 11px 14px; font-size: 13px; border-radius: 6px;">Tasa que iguala el valor actual de los flujos de fondos con el precio del bono.</textarea>
-                    <span class="pin-badge">${badges[2] || 'C'}</span>
-                  </div>
-                </div>
-              ` : ''}
-
-              ${isForo ? `
-                <div class="mb-4">
-                  <label class="wf-label" style="font-weight: 600; margin-bottom: 8px; font-size: 12px;">Cuerpo del Mensaje / Respuesta</label>
-                  <div class="wf-input-wrap">
-                    <textarea class="wf-input" rows="3" style="padding: 11px 14px; font-size: 13px; border-radius: 6px;">Estimados alumnos, la duración modificada mide la sensibilidad del precio del bono ante cambios en la tasa de interés.</textarea>
-                    <span class="pin-badge">${badges[2] || 'C'}</span>
-                  </div>
-                </div>
-              ` : ''}
-
-              ${isEval ? `
-                <div class="mb-4">
-                  <label class="wf-label" style="font-weight: 600; margin-bottom: 8px; font-size: 12px;">Pool de Preguntas Seleccionado</label>
-                  <div class="wf-input-wrap">
-                    <select class="wf-input" style="padding: 11px 14px; font-size: 13px; border-radius: 6px;"><option>Pool Unidad 1 - Renta Fija (25 preguntas disponibles)</option></select>
-                    <span class="pin-badge">${badges[2] || 'C'}</span>
-                  </div>
-                </div>
-              ` : ''}
-
-              ${isPool ? `
-                <div class="mb-4">
-                  <label class="wf-label" style="font-weight: 600; margin-bottom: 8px; font-size: 12px;">Unidad Académica de Pertenencia</label>
-                  <div class="wf-input-wrap">
-                    <select class="wf-input" style="padding: 11px 14px; font-size: 13px; border-radius: 6px;"><option>Unidad 1: Marco Regulatorio y Ley CNV</option></select>
+                    <textarea class="wf-input" rows="3">Tasa que iguala el valor actual de los flujos de fondos con el precio del bono.</textarea>
                     <span class="pin-badge">${badges[2] || 'C'}</span>
                   </div>
                 </div>
@@ -944,35 +683,685 @@ function generateScreenContent(cu) {
 
               ${isLive ? `
                 <div class="mb-4">
-                  <label class="wf-label" style="font-weight: 600; margin-bottom: 8px; font-size: 12px;">Fecha y Hora Programada de Transmisión</label>
+                  <label class="wf-label">Fecha y Hora de Transmisión</label>
                   <div class="wf-input-wrap">
-                    <input type="text" class="wf-input" value="Jueves 28/08/2026 - 19:00 hs (GMT-3)" style="padding: 11px 14px; font-size: 13px; border-radius: 6px;">
+                    <input type="text" class="wf-input" value="Jueves 28/08/2026 - 19:00 hs">
                     <span class="pin-badge">${badges[2] || 'C'}</span>
                   </div>
                 </div>
               ` : ''}
             </div>
 
-            <!-- Botones Naranja/Gris idénticos al GIF de Moodle -->
-            <div class="d-flex justify-content-end align-items-center gap-3 pt-4 border-top mt-4">
-              <button class="wf-btn wf-btn-sm" style="background: #E2E8F0; color: #475569; padding: 10px 20px; border-radius: 6px; font-weight: 600; font-size: 13px;">Cancelar</button>
+            <div class="d-flex justify-content-end align-items-center gap-3 pt-4 border-top">
+              <button class="wf-btn wf-btn-sm" style="background: #E2E8F0; color: #475569;">Cancelar</button>
               <div class="d-flex align-items-center gap-2">
-                <button class="wf-btn wf-btn-sm fw-bold text-white" style="background: #F97316; padding: 10px 24px; border-radius: 6px; box-shadow: 0 2px 4px rgba(249,115,22,0.3); font-size: 13px;">Agregar</button>
+                <button class="wf-btn wf-btn-sm fw-bold text-white" style="background: #F97316;">Agregar</button>
                 <span class="pin-badge">${badges[badges.length - 1] || 'D'}</span>
               </div>
             </div>
           </div>
-
         </div>
-
       </div>
     `;
   }
 
-  // --- TYPE 6: GENERIC CRUD / FORMS / TABLES FOR OTHER CUs ---
-  const isSearch = name.toLowerCase().startsWith('buscar') || name.toLowerCase().startsWith('consultar') || name.toLowerCase().startsWith('ver') || name.toLowerCase().startsWith('explorar');
-  const isDelete = name.toLowerCase().includes('baja') || name.toLowerCase().includes('cancelar') || name.toLowerCase().includes('eliminar') || name.toLowerCase().includes('quitar');
+  // --- SPECIALIZED 6: ESTUDIO DE CLON IA (HEYGEN) --- CU-76
+  if (id === 'CU-76') {
+    return `
+      <div class="wf-card" style="max-width: 960px; margin: 0 auto;">
+        <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
+          <div class="d-flex align-items-center gap-3">
+            <div style="width: 44px; height: 44px; border-radius: 10px; background: linear-gradient(135deg, #4F46E5, #9333EA); display: flex; align-items: center; justify-content: center; color: white;">
+              ${icons.sparkles("w-6 h-6")}
+            </div>
+            <div>
+              <h3 style="font-size: 18px; font-weight: 700; color: #0F172A; margin: 0;">Estudio de Clon Digital con IA (HeyGen API)</h3>
+              <p class="small text-muted" style="margin: 0;">Configure su avatar hiperrealista y clone su voz para dictado autónomo de clases.</p>
+            </div>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <button class="wf-btn wf-btn-primary wf-btn-sm d-flex align-items-center gap-2">
+              ${icons.sparkles("w-4 h-4")}
+              <span>Configurar Clon de IA</span>
+            </button>
+            <span class="pin-badge">${badges[0] || 'A'}</span>
+          </div>
+        </div>
 
+        <div class="row g-4">
+          <!-- Columna 1: Muestra Facial / Avatar -->
+          <div class="col-md-6">
+            <div class="p-4 border rounded bg-white shadow-sm h-100 d-flex flex-column justify-content-between">
+              <div>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <h4 style="font-size: 15px; font-weight: 700; color: #1E293B;">1. Captura de Rostro y Avatar</h4>
+                  <span class="wf-badge status-active">Cámara HD Lista</span>
+                </div>
+                
+                <!-- Preview del Avatar -->
+                <div style="height: 200px; background: #0F172A; border-radius: 8px; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 2px dashed #475569;">
+                  <!-- Simulación Avatar -->
+                  <div style="text-align: center; color: #E2E8F0;">
+                    <div style="width: 72px; height: 72px; border-radius: 50%; background: #334155; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 700; border: 3px solid #818CF8;">
+                      FS
+                    </div>
+                    <div class="small fw-bold">Lic. Fausto Spotorno</div>
+                    <div style="font-size: 11px; color: #94A3B8;">Encuadre Centrado 1080p • Iluminación Óptima</div>
+                  </div>
+                  <div style="position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.6); padding: 2px 8px; border-radius: 4px; font-size: 11px; color: #34D399;">
+                    ● Tracking Facial Activo
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-3 pt-3 border-top d-flex justify-content-between align-items-center">
+                <span class="small text-muted">Adjunte foto formal o tome una captura web:</span>
+                <div class="d-flex align-items-center gap-2">
+                  <button class="wf-btn wf-btn-sm wf-btn-outline d-flex align-items-center gap-1">
+                    ${icons.camera("w-4 h-4")} <span>Tomar Foto</span>
+                  </button>
+                  <span class="pin-badge">${badges[1] || 'B'}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Columna 2: Calibración de Voz -->
+          <div class="col-md-6">
+            <div class="p-4 border rounded bg-white shadow-sm h-100 d-flex flex-column justify-content-between">
+              <div>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <h4 style="font-size: 15px; font-weight: 700; color: #1E293B;">2. Muestra y Clonación de Voz</h4>
+                  <span class="wf-badge status-active">Micrófono 48kHz</span>
+                </div>
+
+                <div class="p-3 bg-light rounded border mb-3">
+                  <div class="small text-muted mb-1 fw-bold">Texto de Calibración Sugerido:</div>
+                  <p class="small text-secondary" style="font-style: italic; line-height: 1.4; margin: 0;">
+                    "Bienvenidos a la cátedra de Mercado de Capitales. Hoy analizaremos la curva de rendimiento y la duración modificada de los bonos soberanos."
+                  </p>
+                </div>
+
+                <!-- Ondas de Audio -->
+                <div style="height: 60px; background: #0F172A; border-radius: 6px; display: flex; align-items: center; justify-content: center; gap: 4px; padding: 0 20px;">
+                  <div style="width: 4px; height: 18px; background: #818CF8; border-radius: 2px;"></div>
+                  <div style="width: 4px; height: 35px; background: #818CF8; border-radius: 2px;"></div>
+                  <div style="width: 4px; height: 50px; background: #A78BFA; border-radius: 2px;"></div>
+                  <div style="width: 4px; height: 28px; background: #818CF8; border-radius: 2px;"></div>
+                  <div style="width: 4px; height: 42px; background: #C084FC; border-radius: 2px;"></div>
+                  <div style="width: 4px; height: 20px; background: #818CF8; border-radius: 2px;"></div>
+                </div>
+              </div>
+
+              <div class="mt-3 pt-3 border-top d-flex justify-content-between align-items-center">
+                <span class="small text-muted">Duración mínima: 30 seg</span>
+                <div class="d-flex align-items-center gap-2">
+                  <button class="wf-btn wf-btn-sm wf-btn-outline text-danger d-flex align-items-center gap-1">
+                    ${icons.microphone("w-4 h-4")} <span>Grabar Muestra</span>
+                  </button>
+                  <span class="pin-badge">${badges[2] || 'C'}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Términos y Confirmación HeyGen -->
+        <div class="mt-4 p-3 bg-light border rounded d-flex justify-content-between align-items-center">
+          <div class="d-flex align-items-center gap-2">
+            <input type="checkbox" id="terms" checked>
+            <label for="terms" class="small text-muted mb-0">Acepto los términos y condiciones de consentimiento biométrico para síntesis de voz y avatar en HeyGen.</label>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <button class="wf-btn wf-btn-primary d-flex align-items-center gap-2" style="background: #4F46E5;">
+              ${icons.sparkles("w-4 h-4")}
+              <span>Crear Clon en HeyGen</span>
+            </button>
+            <span class="pin-badge">${badges[3] || badges[badges.length - 1] || 'D'}</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // --- SPECIALIZED 7: GENERAR / MODIFICAR CLASE CON CLON IA --- CU-77, CU-78, CU-79
+  if (['CU-77', 'CU-78', 'CU-79'].includes(id)) {
+    return `
+      <div class="wf-card" style="max-width: 1000px; margin: 0 auto;">
+        <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
+          <div class="d-flex align-items-center gap-3">
+            <div style="width: 44px; height: 44px; border-radius: 10px; background: linear-gradient(135deg, #2563EB, #4F46E5); display: flex; align-items: center; justify-content: center; color: white;">
+              ${icons.videoCamera("w-6 h-6")}
+            </div>
+            <div>
+              <h3 style="font-size: 18px; font-weight: 700; color: #0F172A; margin: 0;">Generador de Clase Audiovisual con Clon IA</h3>
+              <p class="small text-muted" style="margin: 0;">Escriba el guión académico o genere contenido para renderizar el video explicativo.</p>
+            </div>
+          </div>
+          <span class="wf-badge status-active">Clon Activo: Fausto Spotorno HD</span>
+        </div>
+
+        <div class="row g-4">
+          <div class="col-md-7">
+            <div class="mb-3">
+              <label class="wf-label">Título de la Clase / Video</label>
+              <div class="wf-input-wrap">
+                <input type="text" class="wf-input" value="Explicación Teórica: Duración Modificada y Convexidad en Bonos">
+                <span class="pin-badge">${badges[0] || 'A'}</span>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="wf-label">Unidad Académica de Pertenencia</label>
+              <div class="wf-input-wrap">
+                <select class="wf-input">
+                  <option>Unidad 2: Instrumentos de Renta Fija (Bonos y Obligaciones Negociables)</option>
+                </select>
+                <span class="pin-badge">${badges[1] || 'B'}</span>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <label class="wf-label mb-0">Guión Académico de Locución (Speech Text)</label>
+                <a href="#CU-74" class="small text-decoration-none d-flex align-items-center gap-1" style="color: #4F46E5;">
+                  ${icons.sparkles("w-3 h-3")} Autogenerar guión con IA
+                </a>
+              </div>
+              <div class="wf-input-wrap">
+                <textarea class="wf-input" rows="6">En esta clase abordaremos el concepto de modified duration. Cuando la tasa de interés se incrementa, el precio de los títulos cae en proporción inversa a su duración ponderada. Analizaremos la aproximación por series de Taylor...</textarea>
+                <span class="pin-badge">${badges[2] || 'C'}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-5">
+            <div class="p-3 border rounded bg-light mb-3">
+              <div class="small fw-bold text-muted text-uppercase mb-2">Previsualización de Render</div>
+              <div style="height: 170px; background: #0F172A; border-radius: 6px; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                <div style="text-align: center; color: white;">
+                  <div style="width: 54px; height: 54px; border-radius: 50%; background: #334155; margin: 0 auto 6px; display: flex; align-items: center; justify-content: center; font-weight: 700; border: 2px solid #38BDF8;">
+                    FS
+                  </div>
+                  <div style="font-size: 11px;">Avatar HeyGen v2.0</div>
+                </div>
+                <div style="position: absolute; top: 8px; left: 8px; background: #EF4444; color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 700;">
+                  PREVIEW
+                </div>
+              </div>
+              <div class="d-flex justify-content-between small text-muted mt-2">
+                <span>Tiempo estimado: ~3 min 40s</span>
+                <span>Resolución: 1080p 60fps</span>
+              </div>
+            </div>
+
+            <div class="d-flex flex-column gap-2">
+              <div class="d-flex justify-content-between align-items-center p-2 border rounded bg-white">
+                <span class="small">Voz seleccionada:</span>
+                <span class="small fw-bold">Fausto_ES_AR_v1</span>
+              </div>
+              <div class="d-flex justify-content-between align-items-center p-2 border rounded bg-white">
+                <span class="small">Fondo de pantalla:</span>
+                <span class="small fw-bold">Oficina Virtual FCEQyN</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-end align-items-center gap-3 pt-3 mt-4 border-top">
+          <button class="wf-btn wf-btn-outline">Guardar como Borrador</button>
+          <div class="d-flex align-items-center gap-2">
+            <button class="wf-btn wf-btn-primary d-flex align-items-center gap-2" style="background: #2563EB;">
+              ${icons.sparkles("w-4 h-4")}
+              <span>Renderizar Video con Clon</span>
+            </button>
+            <span class="pin-badge">${badges[3] || badges[badges.length - 1] || 'D'}</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // --- SPECIALIZED 8: GENERACIÓN IA DE BANCO, RESUMEN Y SLIDES --- CU-73, CU-74, CU-75
+  if (['CU-73', 'CU-74', 'CU-75'].includes(id)) {
+    const isBank = id === 'CU-73';
+    const isSummary = id === 'CU-74';
+    const isSlides = id === 'CU-75';
+
+    return `
+      <div class="wf-card" style="max-width: 900px; margin: 0 auto;">
+        <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
+          <div class="d-flex align-items-center gap-3">
+            <div style="width: 44px; height: 44px; border-radius: 10px; background: linear-gradient(135deg, #059669, #10B981); display: flex; align-items: center; justify-content: center; color: white;">
+              ${icons.sparkles("w-6 h-6")}
+            </div>
+            <div>
+              <h3 style="font-size: 18px; font-weight: 700; color: #0F172A; margin: 0;">${isBank ? 'Generador de Banco de Preguntas con IA' : (isSummary ? 'Generador de Resumen Académico con IA' : 'Generador de Presentación de Diapositivas (Slidev/Gamma)')}</h3>
+              <p class="small text-muted" style="margin: 0;">Procesamiento automático sobre los materiales teóricos y guías subidas a la unidad.</p>
+            </div>
+          </div>
+          <span class="wf-badge status-active">Modelo: Claude 3.5 Sonnet / Gemini Pro</span>
+        </div>
+
+        <div class="row g-3 mb-4">
+          <div class="col-md-6">
+            <label class="wf-label">Unidad Académica de Origen</label>
+            <div class="wf-input-wrap">
+              <select class="wf-input">
+                <option>Unidad 2: Instrumentos de Renta Fija (Bonos y Obligaciones Negociables)</option>
+              </select>
+              <span class="pin-badge">${badges[0] || 'A'}</span>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <label class="wf-label">Materiales de Referencia a Procesar</label>
+            <div class="wf-input-wrap">
+              <input type="text" class="wf-input" value="guia_teorica_u2.pdf, ley_26831.pdf" disabled class="bg-disabled">
+              <span class="pin-badge">${badges[1] || 'B'}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-3 border rounded bg-light mb-4">
+          <div class="small fw-bold text-muted text-uppercase mb-2">Parámetros de Generación</div>
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="small text-muted">Nivel de Profundidad:</label>
+              <select class="wf-input wf-btn-sm"><option>Avanzado (Examen CNV)</option><option>Intermedio</option></select>
+            </div>
+            <div class="col-md-4">
+              <label class="small text-muted">${isBank ? 'Cantidad de Preguntas:' : (isSlides ? 'Cantidad de Diapositivas:' : 'Extensión del Resumen:')}</label>
+              <input type="text" class="wf-input wf-btn-sm" value="${isBank ? '20 preguntas cerradas' : (isSlides ? '12 diapositivas' : '3 páginas síntesis')}">
+            </div>
+            <div class="col-md-4">
+              <label class="small text-muted">Idioma & Formato:</label>
+              <input type="text" class="wf-input wf-btn-sm" value="Español (Rioplatense - Financiero)" disabled>
+            </div>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-end align-items-center gap-3 pt-3 border-top">
+          <button class="wf-btn wf-btn-outline">Cancelar</button>
+          <div class="d-flex align-items-center gap-2">
+            <button class="wf-btn wf-btn-primary d-flex align-items-center gap-2" style="background: #059669;">
+              ${icons.sparkles("w-4 h-4")}
+              <span>${isBank ? 'Generar Banco de Preguntas' : (isSummary ? 'Generar Resumen' : 'Generar Presentación')}</span>
+            </button>
+            <span class="pin-badge">${badges[2] || badges[badges.length - 1] || 'C'}</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // --- SPECIALIZED 9: CLASE EN VIVO (STREAMING) --- CU-70, CU-71, CU-72
+  if (['CU-70', 'CU-71', 'CU-72'].includes(id)) {
+    const isStart = id === 'CU-70';
+    const isEnd = id === 'CU-71';
+    const isStudent = id === 'CU-72';
+
+    return `
+      <div class="wf-card" style="max-width: 1050px; margin: 0 auto; background: #0F172A; color: #FFFFFF; border-color: #1E293B;">
+        <div class="d-flex justify-content-between align-items-center pb-3 mb-3 border-bottom border-secondary">
+          <div class="d-flex align-items-center gap-3">
+            <span class="wf-badge" style="background: #DC2626; color: white; animation: pulse 2s infinite;">● EN VIVO</span>
+            <div>
+              <h3 style="font-size: 16px; font-weight: 700; color: #FFFFFF; margin: 0;">Clase Magistral: Resolución de Prácticos de Renta Fija</h3>
+              <p class="small text-muted" style="margin: 0; color: #94A3B8;">Docente: Lic. Fausto Spotorno | Alumnos Conectados: 48</p>
+            </div>
+          </div>
+          <div class="d-flex align-items-center gap-3">
+            ${isStart ? `
+              <div class="d-flex align-items-center gap-2">
+                <button class="wf-btn wf-btn-sm wf-btn-primary" style="background: #2563EB;">Copiar Clave OBS</button>
+                <span class="pin-badge">${badges[badges.length - 1] || 'B'}</span>
+              </div>
+            ` : ''}
+            ${isEnd ? `
+              <div class="d-flex align-items-center gap-2">
+                <button class="wf-btn wf-btn-sm wf-btn-danger">Finalizar Transmisión</button>
+                <span class="pin-badge">${badges[0] || 'A'}</span>
+              </div>
+            ` : ''}
+            ${isStudent ? `
+              <div class="d-flex align-items-center gap-2">
+                <span class="wf-badge status-active">Conectado a la Sala</span>
+                <span class="pin-badge">${badges[0] || 'A'}</span>
+              </div>
+            ` : ''}
+          </div>
+        </div>
+
+        <div class="row g-3">
+          <div class="col-md-8">
+            <div style="height: 380px; background: #020617; border-radius: 8px; display: flex; align-items: center; justify-content: center; position: relative; border: 1px solid #334155;">
+              <div class="text-center text-muted">
+                <div style="width: 64px; height: 64px; border-radius: 50%; background: #1E293B; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center;">
+                  ${icons.signal("w-8 h-8 text-white")}
+                </div>
+                <div class="small fw-bold text-light">Transmisión RTMP / WebRTC en Directo (1080p 60fps)</div>
+                <div style="font-size: 11px; color: #64748B;">Latencia ultra-baja: 420 ms</div>
+              </div>
+              <div style="position: absolute; bottom: 12px; left: 12px; display: flex; gap: 8px;">
+                <span class="badge bg-dark border border-secondary text-light">Micro: ON</span>
+                <span class="badge bg-dark border border-secondary text-light">Cámara: ON</span>
+                <span class="badge bg-dark border border-secondary text-light">Grabando automático</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div style="height: 380px; background: #1E293B; border-radius: 8px; display: flex; flex-direction: column; border: 1px solid #334155;">
+              <div class="p-3 border-bottom border-secondary small fw-bold text-light d-flex justify-content-between">
+                <span>Chat en Vivo</span>
+                <span class="text-muted">48 participantes</span>
+              </div>
+              <div class="p-3 flex-1 overflow-y-auto small" style="font-size: 12px; display: flex; flex-direction: column; gap: 8px; color: #CBD5E1;">
+                <div><strong class="text-info">Joaquín Küster:</strong> ¿La modified duration incluye cupones corridos?</div>
+                <div><strong class="text-warning">Docente:</strong> Sí Joaquín, se calcula sobre el precio dirty.</div>
+                <div><strong class="text-info">María Benítez:</strong> ¡Excelente explicación profe!</div>
+              </div>
+              <div class="p-2 border-top border-secondary">
+                <input type="text" class="wf-input" placeholder="Escribir mensaje en el chat..." style="background: #0F172A; border-color: #475569; color: white;">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // --- SPECIALIZED 10: AUTOEVALUACIÓN ACTIVA (EXAMEN) --- CU-63
+  if (id === 'CU-63') {
+    return `
+      <div class="wf-card" style="max-width: 900px; margin: 0 auto;">
+        <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
+          <div>
+            <h3 style="font-size: 18px; font-weight: 700; color: #0F172A; margin: 0;">Autoevaluación Unidad 2: Renta Fija y Bonos</h3>
+            <p class="small text-muted" style="margin: 0;">Intento 1 de 3 • Tiempo restante: <strong class="text-danger">18:45 min</strong></p>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <span class="wf-badge status-active">En progreso</span>
+            <span class="pin-badge">${badges[0] || 'A'}</span>
+          </div>
+        </div>
+
+        <!-- Pregunta 1 -->
+        <div class="p-4 border rounded mb-4 bg-white shadow-sm">
+          <div class="d-flex justify-content-between mb-2">
+            <span class="small fw-bold text-muted">PREGUNTA 1 DE 10</span>
+            <span class="small text-muted">Valor: 1.00 punto</span>
+          </div>
+          <p class="fw-bold mb-3" style="font-size: 14px; color: #1E293B;">
+            Si la tasa interna de retorno (TIR) de un bono soberano a tasa fija sube 100 puntos básicos, ¿qué sucede con su precio de mercado?
+          </p>
+
+          <div class="d-flex flex-column gap-2">
+            <label class="d-flex align-items-center gap-3 p-2 rounded border bg-light cursor-pointer">
+              <input type="radio" name="p1" checked>
+              <span>El precio cae, en una magnitud aproximada a su Modified Duration.</span>
+            </label>
+            <label class="d-flex align-items-center gap-3 p-2 rounded border cursor-pointer">
+              <input type="radio" name="p1">
+              <span>El precio sube proporcionalmente al plazo de madurez.</span>
+            </label>
+            <label class="d-flex align-items-center gap-3 p-2 rounded border cursor-pointer">
+              <input type="radio" name="p1">
+              <span>El precio se mantiene inalterado ya que el cupón es fijo.</span>
+            </label>
+          </div>
+          <div class="mt-2 text-end">
+            <span class="pin-badge">${badges[1] || 'B'}</span>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+          <button class="wf-btn wf-btn-outline">Guardar y Continuar Luego</button>
+          <div class="d-flex align-items-center gap-2">
+            <button class="wf-btn wf-btn-primary" style="background: #059669;">Terminar Intento y Enviar Todo</button>
+            <span class="pin-badge">${badges[2] || badges[badges.length - 1] || 'C'}</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // --- SPECIALIZED 11: PAGOS E INSCRIPCIONES --- CU-44, CU-46, CU-47
+  if (['CU-44', 'CU-46', 'CU-47'].includes(id)) {
+    return `
+      <div class="wf-card" style="max-width: 800px; margin: 0 auto;">
+        <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
+          <div>
+            <h3 style="font-size: 18px; font-weight: 700; color: #0F172A; margin: 0;">Pasarela de Pago & Matrícula</h3>
+            <p class="small text-muted" style="margin: 0;">Inscripción al curso: <strong>Especialización en Idoneidad Bursátil (Cohorte 2026-1)</strong></p>
+          </div>
+          <span class="wf-badge status-active">Arancel: $120.000 ARS</span>
+        </div>
+
+        <div class="row g-3 mb-4">
+          <div class="col-md-6">
+            <label class="wf-label">Método de Pago Seleccionado</label>
+            <div class="wf-input-wrap">
+              <div class="wf-input d-flex align-items-center justify-content-between">
+                <span>${icons.creditCard("w-4 h-4 me-2")} Tarjeta de Débito / Crédito</span>
+                <span class="text-success fw-bold">Activo</span>
+              </div>
+              <span class="pin-badge">${badges[0] || 'A'}</span>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <label class="wf-label">Cupón de Descuento (Opcional)</label>
+            <div class="wf-input-wrap">
+              <input type="text" class="wf-input" placeholder="Ingresar código...">
+              <button class="wf-btn wf-btn-sm wf-btn-outline">Aplicar</button>
+              <span class="pin-badge">${badges[1] || 'B'}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-3 border rounded bg-light mb-4">
+          <div class="d-flex justify-content-between mb-2"><span>Arancel del Curso:</span><strong>$120.000 ARS</strong></div>
+          <div class="d-flex justify-content-between mb-2 text-success"><span>Descuento Aplicado:</span><strong>-$0 ARS</strong></div>
+          <div class="d-flex justify-content-between border-top pt-2" style="font-size: 16px;"><span>Total a Pagar:</span><strong class="text-navy">$120.000 ARS</strong></div>
+        </div>
+
+        <div class="d-flex justify-content-end align-items-center gap-3 pt-3 border-top">
+          <button class="wf-btn wf-btn-outline">Cancelar</button>
+          <div class="d-flex align-items-center gap-2">
+            <button class="wf-btn wf-btn-primary" style="background: #059669;">Confirmar y Pagar</button>
+            <span class="pin-badge">${badges[2] || badges[badges.length - 1] || 'C'}</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // --- SPECIALIZED 12: ESTADÍSTICAS, INFORMES & AUDITORÍA --- CU-95, CU-96, CU-97, CU-98
+  if (['CU-95', 'CU-96', 'CU-97', 'CU-98'].includes(id)) {
+    const isAudit = id === 'CU-95';
+    const isStats = id === 'CU-98';
+
+    return `
+      <div class="wf-card" style="max-width: 1100px; margin: 0 auto;">
+        <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
+          <div>
+            <h3 style="font-size: 18px; font-weight: 700; color: #0F172A; margin: 0;">${isAudit ? 'Registro de Auditoría del Sistema' : 'Tablero Analítico & Estadísticas Clave'}</h3>
+            <p class="small text-muted" style="margin: 0;">Supervisión en tiempo real de ingresos, métricas de retención y logs de eventos.</p>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <span class="wf-badge status-active">Actualizado al Instante</span>
+            <span class="pin-badge">${badges[0] || 'A'}</span>
+          </div>
+        </div>
+
+        ${!isAudit ? `
+          <!-- KPI Cards -->
+          <div class="row g-3 mb-4">
+            <div class="col-md-3">
+              <div class="p-3 border rounded bg-light">
+                <div class="small text-muted">Total Alumnos Matriculados</div>
+                <h2 style="font-size: 24px; font-weight: 800; color: #0F172A; margin: 4px 0;">1,420</h2>
+                <div class="small text-success">↑ +14% este mes</div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="p-3 border rounded bg-light">
+                <div class="small text-muted">Ingresos Facturados</div>
+                <h2 style="font-size: 24px; font-weight: 800; color: #059669; margin: 4px 0;">$17.4M ARS</h2>
+                <div class="small text-success">↑ +22% vs trimestre anterior</div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="p-3 border rounded bg-light">
+                <div class="small text-muted">Tasa de Aprobación</div>
+                <h2 style="font-size: 24px; font-weight: 800; color: #2563EB; margin: 4px 0;">88.5%</h2>
+                <div class="small text-muted">Promedio en autoevaluaciones</div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="p-3 border rounded bg-light">
+                <div class="small text-muted">Clases Clon Generadas</div>
+                <h2 style="font-size: 24px; font-weight: 800; color: #7C3AED; margin: 4px 0;">64</h2>
+                <div class="small text-muted">HeyGen AI Studio</div>
+              </div>
+            </div>
+          </div>
+        ` : ''}
+
+        <div class="wf-table-wrap">
+          <table class="wf-table">
+            <thead>
+              <tr>
+                <th>${isAudit ? 'Timestamp' : 'Curso / Programa'}</th>
+                <th>${isAudit ? 'Usuario / Actor' : 'Cohorte'}</th>
+                <th>${isAudit ? 'Acción / Evento' : 'Alumnos Activos'}</th>
+                <th>${isAudit ? 'Módulo Afectado' : 'Facturación'}</th>
+                <th class="text-end">Detalle</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>${isAudit ? '2026-08-26 07:45:12' : 'Especialización en Idoneidad Bursátil'}</strong></td>
+                <td>${isAudit ? 'Lic. Fausto Spotorno (Docente)' : '2026-1 (En curso)'}</td>
+                <td>${isAudit ? 'Crear Clon de IA (voice_id: #v92)' : '840 inscriptos'}</td>
+                <td>${isAudit ? 'MOD-F-06: IA' : '$10.080.000 ARS'}</td>
+                <td class="text-end">
+                  <div class="d-inline-flex align-items-center gap-1">
+                    <button class="wf-btn wf-btn-sm wf-btn-outline">Ver Registro</button>
+                    <span class="pin-badge">${badges[1] || badges[badges.length - 1] || 'B'}</span>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+  }
+
+  // --- SPECIALIZED 13: CUENTA / PERFIL / LOGIN / RECUPERO --- CU-81, CU-86, CU-87, CU-90, CU-92
+  if (['CU-81', 'CU-86', 'CU-87', 'CU-90', 'CU-92'].includes(id)) {
+    const isLogin = id === 'CU-90';
+    const isRegister = id === 'CU-81';
+    const isRecovery = id === 'CU-92';
+    const isProfile = id === 'CU-86' || id === 'CU-87';
+
+    if (isLogin || isRegister || isRecovery) {
+      return `
+        <div class="wf-card" style="max-width: 480px; margin: 40px auto; box-shadow: 0 12px 32px rgba(0,0,0,0.08);">
+          <div class="text-center mb-4">
+            <h3 style="font-size: 20px; font-weight: 800; color: var(--wf-navy-dark);">${isLogin ? 'Iniciar Sesión en Idóneos Online' : (isRegister ? 'Crear Cuenta de Usuario' : 'Recuperar Contraseña')}</h3>
+            <p class="small text-muted">${isLogin ? 'Ingrese sus credenciales académicas para acceder' : (isRegister ? 'Complete sus datos para registrarse en la plataforma' : 'Le enviaremos un enlace de restablecimiento seguro')}</p>
+          </div>
+
+          <div class="mb-3">
+            <label class="wf-label">Correo Electrónico Institucional</label>
+            <div class="wf-input-wrap">
+              <input type="email" class="wf-input" value="${isLogin ? 'fausto.spotorno@idoneos.online' : 'usuario@correo.com'}">
+              <span class="pin-badge">${badges[0] || 'A'}</span>
+            </div>
+          </div>
+
+          ${!isRecovery ? `
+            <div class="mb-3">
+              <label class="wf-label">Contraseña</label>
+              <div class="wf-input-wrap">
+                <input type="password" class="wf-input" value="••••••••••••">
+                <span class="pin-badge">${badges[1] || 'B'}</span>
+              </div>
+            </div>
+          ` : ''}
+
+          <div class="d-flex flex-column gap-2 mt-4">
+            <div class="d-flex align-items-center gap-2 w-100">
+              <button class="wf-btn wf-btn-primary w-100">${isLogin ? 'Iniciar Sesión' : (isRegister ? 'Registrarme' : 'Enviar Enlace')}</button>
+              <span class="pin-badge">${badges[2] || badges[badges.length - 1] || 'C'}</span>
+            </div>
+            
+            ${isLogin ? `
+              <div class="text-center my-2 text-muted small">o continúe con</div>
+              <div class="d-flex align-items-center gap-2 w-100">
+                <button class="wf-btn wf-btn-outline w-100">Continuar con Google</button>
+                <span class="pin-badge">${badges[3] || 'D'}</span>
+              </div>
+            ` : ''}
+          </div>
+        </div>
+      `;
+    }
+
+    if (isProfile) {
+      return `
+        <div class="wf-card" style="max-width: 800px; margin: 0 auto;">
+          <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
+            <div class="d-flex align-items-center gap-3">
+              <div class="user-avatar-circle" style="width: 52px; height: 52px; font-size: 18px;">FS</div>
+              <div>
+                <h3 style="font-size: 18px; font-weight: 700; color: #0F172A; margin: 0;">Perfil de Usuario: Lic. Fausto Spotorno</h3>
+                <p class="small text-muted" style="margin: 0;">Docente Titular • Mercado de Capitales & Finanzas</p>
+              </div>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              <button class="wf-btn wf-btn-outline wf-btn-sm">Editar Perfil</button>
+              <span class="pin-badge">${badges[0] || 'A'}</span>
+            </div>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="wf-label">Nombre Completo</label>
+              <div class="wf-input-wrap">
+                <input type="text" class="wf-input" value="Fausto Spotorno">
+                <span class="pin-badge">${badges[1] || 'B'}</span>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="wf-label">Correo Electrónico</label>
+              <input type="email" class="wf-input" value="fausto.spotorno@idoneos.online" disabled class="bg-disabled">
+            </div>
+            <div class="col-md-6">
+              <label class="wf-label">Estado de la Cuenta</label>
+              <input type="text" class="wf-input" value="Activo y Habilitado para Dictado" disabled class="bg-disabled">
+            </div>
+            <div class="col-md-6">
+              <label class="wf-label">Clon Digital (HeyGen)</label>
+              <input type="text" class="wf-input" value="Vinculado (#avatar_spotorno_v2)" disabled class="bg-disabled">
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-end align-items-center gap-3 pt-3 mt-4 border-top">
+            <div class="d-flex align-items-center gap-2">
+              <button class="wf-btn wf-btn-primary">Guardar Cambios</button>
+              <span class="pin-badge">${badges[2] || badges[badges.length - 1] || 'C'}</span>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+  }
+
+  // --- SPECIALIZED 14: BAJA / ELIMINACIÓN GENÉRICA ---
+  const isDelete = name.toLowerCase().includes('baja') || name.toLowerCase().includes('cancelar') || name.toLowerCase().includes('eliminar') || name.toLowerCase().includes('quitar');
   if (isDelete) {
     return `
       <div class="wf-card" style="max-width: 600px; margin: 40px auto;">
@@ -985,7 +1374,7 @@ function generateScreenContent(cu) {
         <div class="wf-card p-3 mb-4 bg-light">
           <div class="d-flex justify-content-between mb-2">
             <span class="text-muted">Elemento a dar de baja:</span>
-            <strong>Registro Seleccionado #${id.replace('CU-', '')}</strong>
+            <strong>Registro Seleccionado #${id.replace('CU-', '')} (${name})</strong>
           </div>
           <div class="d-flex justify-content-between">
             <span class="text-muted">Módulo asociado:</span>
@@ -1004,6 +1393,8 @@ function generateScreenContent(cu) {
     `;
   }
 
+  // --- SPECIALIZED 15: BÚSQUEDAS / TABLAS DE GESTIÓN ---
+  const isSearch = name.toLowerCase().startsWith('buscar') || name.toLowerCase().startsWith('consultar') || name.toLowerCase().startsWith('ver') || name.toLowerCase().startsWith('explorar');
   if (isSearch) {
     return `
       <div class="wf-card mb-4">
@@ -1011,7 +1402,7 @@ function generateScreenContent(cu) {
           <div class="col-md-5">
             <label class="wf-label">Criterio de búsqueda / Filtro principal</label>
             <div class="wf-input-wrap">
-              <input type="text" class="wf-input" placeholder="Ingresar término de búsqueda...">
+              <input type="text" class="wf-input" placeholder="Buscar en ${name}...">
               <span class="pin-badge">${badges[0] || 'A'}</span>
             </div>
           </div>
@@ -1028,7 +1419,7 @@ function generateScreenContent(cu) {
               <div class="wf-dropdown-menu">
                 <div class="wf-dropdown-item active">☑ Todos los registros</div>
                 <div class="wf-dropdown-item">☐ Activos / Vigentes</div>
-                <div class="wf-dropdown-item">☐ Finalizados / Históricos</div>
+                <div class="wf-dropdown-item">☐ Históricos</div>
               </div>
             </div>
           </div>
@@ -1047,7 +1438,7 @@ function generateScreenContent(cu) {
             <tr>
               <th>Identificador / Nombre</th>
               <th>Detalle / Contexto</th>
-              <th>Fecha / Registro</th>
+              <th>Registro</th>
               <th>Estado</th>
               <th class="text-end">Acciones</th>
             </tr>
@@ -1080,68 +1471,57 @@ function generateScreenContent(cu) {
     `;
   }
 
-  // Default Form View (Registrar / Modificar)
+  // --- SPECIALIZED 16: FORMULARIOS DE REGISTRO / MODIFICACIÓN ESPECÍFICOS ---
   return `
-    <div class="wf-card">
-      <div class="wf-card-header mb-4">
-        <h3>${name}</h3>
-        <p class="text-muted">Complete los campos requeridos y confirme la operación en el sistema.</p>
+    <div class="wf-card" style="max-width: 860px; margin: 0 auto;">
+      <div class="wf-card-header mb-4 pb-3 border-bottom">
+        <h3 style="font-size: 18px; font-weight: 700; color: #0F172A;">${name}</h3>
+        <p class="text-muted" style="margin: 0; font-size: 13px;">Complete los datos correspondientes en el sistema.</p>
       </div>
 
-      <div class="row">
-        <div class="col-md-6 mb-3">
-          <label class="wf-label">Campo Principal / Nombre</label>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="wf-label">Nombre / Denominación</label>
           <div class="wf-input-wrap">
-            <input type="text" class="wf-input" value="Ejemplo de Valor para ${name}">
+            <input type="text" class="wf-input" value="${name.includes('curso') ? 'Especialización en Idoneidad Bursátil' : (name.includes('categoría') ? 'Mercado de Capitales' : (name.includes('cohorte') ? 'Cohorte 2026-1' : 'Registro de ' + name))}">
             <span class="pin-badge">${badges[0] || 'A'}</span>
           </div>
         </div>
 
-        <div class="col-md-6 mb-3">
-          <label class="wf-label">Categoría / Tipo / Asociación</label>
+        <div class="col-md-6">
+          <label class="wf-label">Categoría / Asociación</label>
           <div class="wf-select-container">
             <div class="wf-input-wrap">
               <div class="wf-input wf-select-trigger">
-                <span>Opción Seleccionada por Defecto</span>
+                <span>Mercado de Capitales</span>
                 ${icons.chevronDown()}
               </div>
               <span class="pin-badge">${badges[1] || 'B'}</span>
             </div>
-            <div class="wf-dropdown-menu">
-              <div class="wf-dropdown-item active">☑ Opción Seleccionada por Defecto</div>
-              <div class="wf-dropdown-item">☐ Opción Alternativa 1</div>
-              <div class="wf-dropdown-item">☐ Opción Alternativa 2</div>
-            </div>
           </div>
         </div>
 
-        <div class="col-12 mb-3">
-          <label class="wf-label">Descripción / Parámetros Detallados</label>
+        <div class="col-12">
+          <label class="wf-label">Descripción Académica / Contenido</label>
           <div class="wf-input-wrap">
             <textarea class="wf-input" rows="3">Descripción detallada correspondiente al caso de uso ${id} (${name}).</textarea>
             <span class="pin-badge">${badges[2] || 'C'}</span>
           </div>
         </div>
 
-        <div class="col-md-4 mb-3">
-          <label class="wf-label">Parámetro Numérico / Vigencia</label>
-          <div class="wf-input-wrap">
-            <input type="text" class="wf-input" value="100">
-          </div>
+        <div class="col-md-4">
+          <label class="wf-label">Precio / Arancel</label>
+          <input type="text" class="wf-input" value="$120.000 ARS">
         </div>
 
-        <div class="col-md-4 mb-3">
-          <label class="wf-label">Estado / Configuración</label>
-          <div class="wf-input-wrap">
-            <input type="text" class="wf-input" value="Habilitado / Vigente" disabled class="bg-disabled">
-          </div>
+        <div class="col-md-4">
+          <label class="wf-label">Estado</label>
+          <input type="text" class="wf-input" value="Habilitado / Activo" disabled class="bg-disabled">
         </div>
 
-        <div class="col-md-4 mb-3">
-          <label class="wf-label">Responsable</label>
-          <div class="wf-input-wrap">
-            <input type="text" class="wf-input" value="Docente / Admin Asignado" disabled class="bg-disabled">
-          </div>
+        <div class="col-md-4">
+          <label class="wf-label">Docente Responsable</label>
+          <input type="text" class="wf-input" value="Lic. Fausto Spotorno" disabled class="bg-disabled">
         </div>
       </div>
 
@@ -1190,7 +1570,6 @@ let html = `<!DOCTYPE html>
             overflow: hidden;
         }
 
-        /* Heroicons sizing helper */
         svg {
             display: inline-block;
             vertical-align: middle;
@@ -1209,7 +1588,6 @@ let html = `<!DOCTYPE html>
         .w-10 { width: 40px; }
         .h-10 { height: 40px; }
 
-        /* Buscador Izquierdo Agrupado por Módulos */
         #nav-sidebar {
             width: 300px;
             background: #0F172A;
@@ -1297,7 +1675,6 @@ let html = `<!DOCTYPE html>
             background: rgba(255,255,255,0.1);
         }
 
-        /* Viewport Central */
         #viewport {
             flex: 1;
             overflow-y: auto;
@@ -1323,7 +1700,6 @@ let html = `<!DOCTYPE html>
             padding-left: 4px;
         }
 
-        /* Screen Frame Minimalista */
         .screen-frame {
             width: 100%;
             min-height: 680px;
@@ -1333,10 +1709,9 @@ let html = `<!DOCTYPE html>
             border: 1px solid var(--wf-border);
             display: flex;
             flex-direction: column;
-            overflow: visible; /* Para permitir que el floating dropdown se aprecie natural */
+            overflow: visible;
         }
 
-        /* Top Header Limpio y Elegante */
         .wf-top-navbar {
             height: 56px;
             background: #FFFFFF;
@@ -1371,7 +1746,6 @@ let html = `<!DOCTYPE html>
             color: #475569;
         }
 
-        /* Contenedor del Dropdown de Usuario Flotante */
         .wf-user-menu-wrapper {
             position: relative;
         }
@@ -1400,7 +1774,6 @@ let html = `<!DOCTYPE html>
             font-weight: 700;
         }
 
-        /* Menú Dropdown Flotante del Usuario (Oculto por defecto, se despliega al hacer clic en el avatar) */
         .wf-user-floating-dropdown {
             position: absolute;
             top: 48px;
@@ -1412,7 +1785,7 @@ let html = `<!DOCTYPE html>
             box-shadow: 0 10px 25px rgba(0,0,0,0.15);
             z-index: 200;
             overflow: hidden;
-            display: none; /* Oculto por defecto para no tapar el modal ni el contenido */
+            display: none;
             flex-direction: column;
         }
 
@@ -1486,7 +1859,6 @@ let html = `<!DOCTYPE html>
             background: #FEE2E2;
         }
 
-        /* Modo Edición Switch en Dropdown Flotante */
         .wf-dropdown-editing-toggle-box {
             background: #F8FAFC;
             border: 1px solid var(--wf-border);
@@ -1497,7 +1869,6 @@ let html = `<!DOCTYPE html>
             justify-content: space-between;
         }
 
-        /* Body Layout */
         .wf-body {
             flex: 1;
             display: flex;
@@ -1511,7 +1882,6 @@ let html = `<!DOCTYPE html>
             overflow-y: auto;
         }
 
-        /* Pin Badges */
         .pin-badge {
             display: inline-flex;
             align-items: center;
@@ -1719,7 +2089,6 @@ let html = `<!DOCTYPE html>
             margin: 0 auto;
         }
 
-        /* Grid de Cards de Cursos */
         .wf-cards-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -1806,69 +2175,26 @@ let html = `<!DOCTYPE html>
 
         .wf-progress-fill {
             height: 100%;
-            background: var(--wf-gold);
-            border-radius: 3px;
-        }
-
-        /* Banner de Curso Moodle & Tabs FCEQYN Virtual */
-        .wf-course-header-banner {
-            background: #FFFFFF;
-            border: 1px solid var(--wf-border);
-            border-radius: 8px;
-            padding: 20px 24px 0px 24px;
-        }
-
-        .wf-course-main-title {
-            font-size: 20px;
-            font-weight: 700;
-            color: #1E293B;
-            letter-spacing: -0.3px;
-        }
-
-        .wf-course-nav-tabs {
-            border-top: 1px solid #E2E8F0;
-            margin-top: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            overflow-x: hidden; /* Sin scroll horizontal */
-            padding-bottom: 0px;
+            background: var(--wf-navy-dark);
         }
 
         .wf-tab-btn {
-            background: none;
-            border: none;
-            border-bottom: 3px solid transparent;
-            padding: 10px 10px 8px 10px;
+            padding: 8px 14px;
             font-size: 13px;
-            font-weight: 500;
-            color: #0284C7; /* Azul Moodle institucional */
+            font-weight: 600;
+            color: #64748B;
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid transparent;
             cursor: pointer;
+            text-decoration: none;
             display: inline-flex;
             align-items: center;
-            text-decoration: none;
-            transition: all 0.15s ease;
-            white-space: nowrap;
-        }
-
-        .wf-tab-btn:hover {
-            color: #0369A1;
-            border-bottom-color: #BAE6FD;
-            background: #F8FAFC;
-            border-radius: 6px 6px 0 0;
         }
 
         .wf-tab-btn.active {
-            color: #0F172A; /* Texto oscuro activo */
-            font-weight: 700;
-            border-bottom: 3px solid #0284C7; /* Línea azul activa Moodle FCEQYN */
-        }
-
-        /* Acordeón de Unidades Moodle */
-        .wf-moodle-accordion {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
+            color: var(--wf-navy-dark);
+            border-bottom-color: var(--wf-navy-dark);
         }
 
         .wf-unit-box {
@@ -1878,32 +2204,21 @@ let html = `<!DOCTYPE html>
             overflow: hidden;
         }
 
-        .wf-unit-box.active {
-            border-color: var(--wf-gold);
-            box-shadow: 0 0 0 1px var(--wf-gold);
-        }
-
-        .wf-unit-box.locked {
-            background: #F8FAFC;
-            opacity: 0.75;
-        }
-
         .wf-unit-header {
-            padding: 12px 18px;
+            padding: 14px 18px;
             background: #F8FAFC;
             border-bottom: 1px solid var(--wf-border);
-            font-size: 13px;
         }
 
         .wf-unit-body {
-            padding: 14px 18px;
+            padding: 18px;
         }
 
         .wf-content-list {
             list-style: none;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 10px;
         }
 
         .wf-subcontent-title {
@@ -1911,338 +2226,213 @@ let html = `<!DOCTYPE html>
             font-weight: 700;
             text-transform: uppercase;
             color: var(--wf-text-muted);
-            margin-bottom: 6px;
+            margin-bottom: 8px;
         }
 
-        /* Modal Overlay Moodle-like */
-        .wf-modal-box {
-            background: #FFFFFF;
-            border: 2px solid var(--wf-navy-dark);
-            border-radius: 8px;
-            box-shadow: 0 12px 32px rgba(0,0,0,0.15);
-            overflow: hidden;
-        }
-
-        .wf-modal-header {
-            background: var(--wf-navy-dark);
-            color: #FFFFFF;
-            padding: 14px 20px;
-        }
-
-        .wf-modal-header h4 {
-            font-size: 14px;
-            font-weight: 700;
-        }
-
-        .wf-modal-header p {
-            color: #94A3B8;
-        }
-
-        .wf-close-btn {
-            font-size: 16px;
-            cursor: pointer;
-            color: #94A3B8;
-        }
-
-        .wf-radio-card {
-            display: block;
-            border: 1px solid var(--wf-border);
-            border-radius: 6px;
-            padding: 10px;
-            background: #FFFFFF;
-            cursor: pointer;
-        }
-
-        .wf-radio-card.selected {
-            border-color: var(--wf-navy-dark);
-            background: #F1F5F9;
-            font-weight: 600;
-        }
-
-        .wf-radio-title {
-            font-size: 12px;
-            font-weight: 700;
-            color: var(--wf-navy-dark);
-        }
-
-        /* Switch Toggle */
-        .wf-switch {
-            position: relative;
-            display: inline-block;
-            width: 34px;
-            height: 18px;
-        }
-
-        .wf-switch input { opacity: 0; width: 0; height: 0; }
-
-        .wf-slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-color: #CBD5E1;
-            transition: .2s;
-            border-radius: 18px;
-        }
-
-        .wf-slider:before {
-            position: absolute;
-            content: "";
-            height: 12px;
-            width: 12px;
-            left: 3px;
-            bottom: 3px;
-            background-color: white;
-            transition: .2s;
-            border-radius: 50%;
-        }
-
-        input:checked + .wf-slider {
-            background-color: #059669;
-        }
-
-        input:checked + .wf-slider:before {
-            transform: translateX(16px);
-        }
-
-        /* Panel de Trazabilidad Académica para Figma */
-        .wf-traceability-panel {
-            background: #F1F5F9;
-            border: 1px solid var(--wf-border);
-            border-radius: 6px;
-            padding: 10px 16px;
-            font-size: 11px;
-            color: #334155;
+        .row {
             display: flex;
             flex-wrap: wrap;
-            gap: 16px;
-            align-items: center;
+            margin-right: -10px;
+            margin-left: -10px;
         }
 
-        .wf-traceability-item {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .wf-trace-tag {
-            font-weight: 700;
-            background: #E2E8F0;
-            padding: 2px 6px;
-            border-radius: 4px;
-            color: #0F172A;
-        }
-
-        /* Layout Grid & Flex Utilities */
-        .row { display: flex; flex-wrap: wrap; margin: -6px; }
-        .g-0 { margin: 0 !important; }
-        .g-0 > * { padding: 0 !important; }
-        .col-12 { width: 100%; padding: 6px; }
-        .col-md-12 { width: 100%; padding: 6px; }
-        .col-md-8 { width: 66.666%; padding: 6px; }
-        .col-md-7 { width: 58.333%; padding: 6px; }
-        .col-md-6 { width: 50%; padding: 6px; }
-        .col-md-5 { width: 41.666%; padding: 6px; }
-        .col-md-4 { width: 33.333%; padding: 6px; }
-        .col-md-3 { width: 25%; padding: 6px; }
-        .col-md-2 { width: 16.666%; padding: 6px; }
+        .col-md-3 { flex: 0 0 25%; max-width: 25%; padding: 0 10px; }
+        .col-md-4 { flex: 0 0 33.3333%; max-width: 33.3333%; padding: 0 10px; }
+        .col-md-5 { flex: 0 0 41.6666%; max-width: 41.6666%; padding: 0 10px; }
+        .col-md-6 { flex: 0 0 50%; max-width: 50%; padding: 0 10px; }
+        .col-md-7 { flex: 0 0 58.3333%; max-width: 58.3333%; padding: 0 10px; }
+        .col-md-8 { flex: 0 0 66.6666%; max-width: 66.6666%; padding: 0 10px; }
+        .col-12 { flex: 0 0 100%; max-width: 100%; padding: 0 10px; }
 
         .d-flex { display: flex; }
         .d-inline-flex { display: inline-flex; }
-        .flex-column { flex-direction: column; }
         .align-items-center { align-items: center; }
-        .align-items-start { align-items: flex-start; }
         .align-items-end { align-items: flex-end; }
+        .align-items-start { align-items: flex-start; }
         .justify-content-between { justify-content: space-between; }
-        .justify-content-center { justify-content: center; }
         .justify-content-end { justify-content: flex-end; }
-
+        .flex-column { flex-direction: column; }
         .gap-1 { gap: 4px; }
         .gap-2 { gap: 8px; }
         .gap-3 { gap: 12px; }
-        .p-0 { padding: 0 !important; }
-        .p-2 { padding: 8px; }
-        .p-3 { padding: 14px; }
-        .p-4 { padding: 20px; }
-        .py-2 { padding-top: 8px; padding-bottom: 8px; }
-        .px-3 { padding-left: 14px; padding-right: 14px; }
-        .ps-3 { padding-left: 14px; }
-        .pe-2 { padding-right: 8px; }
-        .mt-1 { margin-top: 4px; }
-        .mt-2 { margin-top: 8px; }
-        .mt-3 { margin-top: 12px; }
-        .mt-4 { margin-top: 16px; }
+        .gap-4 { gap: 16px; }
         .mb-1 { margin-bottom: 4px; }
         .mb-2 { margin-bottom: 8px; }
         .mb-3 { margin-bottom: 12px; }
         .mb-4 { margin-bottom: 16px; }
-        .me-1 { margin-right: 4px; }
-        .ms-1 { margin-left: 4px; }
-
+        .mt-1 { margin-top: 4px; }
+        .mt-2 { margin-top: 8px; }
+        .mt-3 { margin-top: 12px; }
+        .mt-4 { margin-top: 16px; }
+        .p-2 { padding: 8px; }
+        .p-3 { padding: 12px; }
+        .p-4 { padding: 16px; }
+        .py-2 { padding-top: 8px; padding-bottom: 8px; }
+        .px-3 { padding-left: 12px; padding-right: 12px; }
+        .pt-2 { padding-top: 8px; }
+        .pt-3 { padding-top: 12px; }
+        .pt-4 { padding-top: 16px; }
+        .border-top { border-top: 1px solid var(--wf-border); }
+        .border-bottom { border-bottom: 1px solid var(--wf-border); }
+        .w-100 { width: 100%; }
+        .text-muted { color: var(--wf-text-muted); }
+        .text-success { color: #059669; }
+        .text-danger { color: #DC2626; }
+        .text-navy { color: var(--wf-navy-dark); }
         .text-end { text-align: right; }
         .text-center { text-align: center; }
-        .text-start { text-align: left; }
-        .w-100 { width: 100%; }
         .fw-bold { font-weight: 700; }
-        .small { font-size: 11px; }
-        .text-muted { color: var(--wf-text-muted); }
-        .text-danger { color: #DC2626; }
-        .text-success { color: #059669; }
-        .text-navy { color: var(--wf-navy-dark); }
-        .text-white { color: #FFFFFF; }
-        .text-uppercase { text-transform: uppercase; }
-        .text-decoration-none { text-decoration: none; }
-        .cursor-move { cursor: grab; }
-        .cursor-pointer { cursor: pointer; }
-
-        .border { border: 1px solid var(--wf-border); }
-        .border-bottom { border-bottom: 1px solid var(--wf-border); }
-        .border-top { border-top: 1px solid var(--wf-border); }
-        .border-end { border-right: 1px solid var(--wf-border); }
-        .border-start { border-left: 1px solid var(--wf-border); }
+        .small { font-size: 12px; }
         .rounded { border-radius: 6px; }
-        .rounded-circle { border-radius: 50%; }
-        .shadow-sm { box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .border { border: 1px solid var(--wf-border); }
         .bg-white { background: #FFFFFF; }
         .bg-light { background: #F8FAFC; }
+        .shadow-sm { box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+
+        .meta-strip {
+            padding: 8px 16px;
+            background: #FFFFFF;
+            border-bottom: 1px solid var(--wf-border);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-size: 11px;
+            color: var(--wf-text-muted);
+        }
+
+        .meta-strip strong {
+            color: var(--wf-navy-dark);
+        }
     </style>
 </head>
 <body>
-
-    <!-- Buscador Izquierdo Agrupado por Módulos -->
     <div id="nav-sidebar">
         <div class="nav-header">
             <h2>IDÓNEOS ONLINE</h2>
             <p>${cus.length} Wireframes de Casos de Uso</p>
         </div>
         <div class="nav-search">
-            <input type="text" id="searchInput" placeholder="Buscar CU (ej: CU-26, Glosario)..." onkeyup="filterCUs()">
+            <input type="text" id="searchInput" placeholder="Buscar CU o nombre..." oninput="filterCUs()">
         </div>
-        <div id="moduleNavList">
-            ${modules.map(m => `
-                <div class="module-group">
-                    <div class="module-header">
-                        <span>${m.name}</span>
-                    </div>
-                    <ul class="module-list">
-                        ${m.cus.map(c => `
-                            <li class="nav-item">
-                                <a href="#${c.id}">
-                                    <span>${c.name}</span>
-                                    <span class="cu-tag">${c.id}</span>
-                                </a>
-                            </li>
-                        `).join('')}
-                    </ul>
-                </div>
-            `).join('')}
-        </div>
-    </div>
-
-    <!-- Viewport Central con las Pantallas Wireframe -->
-    <div id="viewport">
+        <div id="moduleList">
 `;
 
-// Render each CU Screen
-cus.forEach((cu, index) => {
-  const roleInfo = getRoleInfo(cu.actors, cu.id);
-  const dssMessage = dssMap[cu.id] || `operacion(${cu.id.toLowerCase()})`;
-
+modules.forEach(m => {
   html += `
-    <div class="figure-wrapper" id="${cu.id}">
-        <div class="screen-frame">
-            
-            <!-- Top Header Limpio con Trigger de Perfil y Dropdown Flotante Representativo -->
-            <div class="wf-top-navbar">
-                <div class="wf-brand">
-                    <strong>IDÓNEOS ONLINE</strong>
-                    <span class="divider">|</span>
-                    <span class="screen-title">${cu.name}</span>
-                </div>
-
-                <!-- Menú de Usuario con Dropdown Flotante Interactivo (Click para alternar/desplegar) -->
-                <div class="wf-user-menu-wrapper">
-                    <div class="wf-user-trigger-pill" onclick="toggleUserDropdown(this)" title="Haz clic para abrir/cerrar el menú de perfil">
-                        <div class="user-avatar-circle">${roleInfo.initials}</div>
-                        <div class="d-flex flex-column text-start">
-                            <span class="small fw-bold">${roleInfo.name}</span>
-                            <span style="font-size: 10px; color: var(--wf-text-muted);">${roleInfo.role}</span>
-                        </div>
-                        ${icons.chevronDown("w-3 h-3 text-muted ms-1")}
-                    </div>
-
-                    <!-- Dropdown Flotante Superpuesto -->
-                    <div class="wf-user-floating-dropdown">
-                        <div class="wf-dropdown-user-header">
-                            <div class="wf-dropdown-user-name">${roleInfo.name}</div>
-                            <div class="wf-dropdown-user-role">${roleInfo.role}</div>
-                            <div class="wf-dropdown-user-email">${roleInfo.email}</div>
-                        </div>
-
-                        ${roleInfo.dropdownSections.map(sec => `
-                            <div class="wf-dropdown-section">
-                                <div class="wf-dropdown-section-title">${sec.title}</div>
-                                
-                                ${sec.hasEditingToggle ? `
-                                    <div class="wf-dropdown-editing-toggle-box">
-                                        <span class="small fw-bold">Activar Edición</span>
-                                        <label class="wf-switch">
-                                            <input type="checkbox" ${sec.isEditingActive ? 'checked' : ''}>
-                                            <span class="wf-slider round"></span>
-                                        </label>
-                                    </div>
-                                ` : ''}
-
-                                ${sec.items ? sec.items.map(item => `
-                                    <a href="#${item.cu}" class="wf-dropdown-item-btn ${item.isDanger ? 'text-danger' : ''}">
-                                        <span class="d-flex align-items-center gap-2">
-                                            ${item.isDanger ? icons.arrowRightOnRectangle("w-3 h-3") : ''}
-                                            ${item.label}
-                                        </span>
-                                    </a>
-                                `).join('') : ''}
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
+            <div class="module-group">
+                <div class="module-header">${m.name}</div>
+                <ul class="module-list">
+  `;
+  m.cus.forEach(c => {
+    html += `
+                    <li class="nav-item">
+                        <a href="#${c.id}">
+                            <span>${c.name}</span>
+                            <span class="cu-tag">${c.id}</span>
+                        </a>
+                    </li>
+    `;
+  });
+  html += `
+                </ul>
             </div>
-
-            <!-- Área de Contenido Principal (A Ancho Completo sin barra lateral divisoria) -->
-            <div class="wf-body">
-                <div class="wf-main-content">
-                    ${generateScreenContent(cu)}
-                </div>
-            </div>
-        </div>
-
-        <!-- Panel de Trazabilidad Académica para Figma / Profesor -->
-        <div class="wf-traceability-panel">
-            <div class="wf-traceability-item">
-                <span class="wf-trace-tag">CU Real:</span>
-                <strong>${cu.id}: ${cu.name}</strong>
-            </div>
-            <div class="wf-traceability-item">
-                <span class="wf-trace-tag">Módulo:</span>
-                <span>${cu.module}</span>
-            </div>
-            <div class="wf-traceability-item">
-                <span class="wf-trace-tag">Actor(es):</span>
-                <span>${cu.actors}</span>
-            </div>
-            <div class="wf-traceability-item">
-                <span class="wf-trace-tag">DSS Asociado:</span>
-                <code>${dssMessage}</code>
-            </div>
-        </div>
-
-        <!-- Pie de Figura Académico -->
-        <div class="figure-caption">
-            <strong>Figura ${index + 1}.</strong> Caso de uso real para la interfaz de <em>${cu.name}</em> (${cu.id}).
-        </div>
-    </div>
   `;
 });
 
-// Closing tags & client-side filter
+html += `
+        </div>
+    </div>
+
+    <div id="viewport">
+`;
+
+let figNumber = 1;
+cus.forEach(cu => {
+  const roleInfo = getRoleInfo(cu.actors, cu.id);
+  const dssMessage = dssMap[cu.id] || 'Operación de sistema correspondiente';
+
+  html += `
+        <div class="figure-wrapper" id="${cu.id}">
+            <div class="meta-strip">
+                <span><strong>CU Real:</strong> ${cu.id}: ${cu.name}</span>
+                <span><strong>Módulo:</strong> ${cu.module}</span>
+                <span><strong>Actor(es):</strong> ${cu.actors}</span>
+                <span><strong>DSS Asociado:</strong> <code>${dssMessage}</code></span>
+            </div>
+
+            <div class="figure-caption">
+                <strong>Figura ${figNumber++}.</strong> Caso de uso real para la interfaz de <em>${cu.name}</em> (${cu.id}).
+            </div>
+
+            <div class="screen-frame">
+                <div class="wf-top-navbar">
+                    <div class="wf-brand">
+                        <strong>IDÓNEOS ONLINE</strong>
+                        <span class="divider">|</span>
+                        <span class="screen-title">${cu.name}</span>
+                    </div>
+
+                    <div class="wf-user-menu-wrapper">
+                        <div class="wf-user-trigger-pill" onclick="toggleUserDropdown(this)">
+                            <div class="user-avatar-circle">${roleInfo.initials}</div>
+                            <div class="d-flex flex-column text-start">
+                                <span class="wf-dropdown-user-name" style="font-size: 11px;">${roleInfo.name}</span>
+                                <span class="wf-dropdown-user-role" style="font-size: 9px;">${roleInfo.role}</span>
+                            </div>
+                            ${icons.chevronDown("w-3 h-3 text-muted ms-1")}
+                        </div>
+
+                        <div class="wf-user-floating-dropdown">
+                            <div class="wf-dropdown-user-header">
+                                <div class="wf-dropdown-user-name">${roleInfo.name}</div>
+                                <div class="wf-dropdown-user-role">${roleInfo.role}</div>
+                                <div class="wf-dropdown-user-email">${roleInfo.email}</div>
+                            </div>
+  `;
+
+  roleInfo.dropdownSections.forEach(sec => {
+    html += `
+                            <div class="wf-dropdown-section">
+                                <div class="wf-dropdown-section-title">${sec.title}</div>
+    `;
+    if (sec.hasEditingToggle) {
+      html += `
+                                <div class="wf-dropdown-editing-toggle-box">
+                                    <span class="small fw-bold">${sec.isEditingActive ? 'Modo Edición Activado' : 'Activar Edición'}</span>
+                                    <span class="wf-badge ${sec.isEditingActive ? 'status-active' : 'status-inactive'}">${sec.isEditingActive ? 'ON' : 'OFF'}</span>
+                                </div>
+      `;
+    }
+    if (sec.items) {
+      sec.items.forEach(it => {
+        html += `
+                                <a href="#${it.cu}" class="wf-dropdown-item-btn ${it.isDanger ? 'text-danger' : ''}">
+                                    <span>${it.label}</span>
+                                    <span class="small text-muted">${it.cu}</span>
+                                </a>
+        `;
+      });
+    }
+    html += `
+                            </div>
+    `;
+  });
+
+  html += `
+                        </div>
+                    </div>
+                </div>
+
+                <div class="wf-body">
+                    <div class="wf-main-content">
+                        ${generateScreenContent(cu)}
+                    </div>
+                </div>
+            </div>
+        </div>
+  `;
+});
+
 html += `
     </div>
 
@@ -2291,4 +2481,4 @@ html += `
 const outputPath = path.join(__dirname, 'docs', 'diseño', 'Pantallas_CU_Reales.html');
 fs.writeFileSync(outputPath, html, 'utf8');
 
-console.log(`Successfully updated wireframes with floating dropdown menu in ${outputPath}`);
+console.log(`Successfully generated specialized wireframes in ${outputPath}`);
