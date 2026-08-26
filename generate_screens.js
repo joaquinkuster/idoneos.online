@@ -2468,34 +2468,65 @@ function generateScreenContent(cu) {
     }
 
     return `
-      <!-- Modal Overlay Flotante de Confirmación de Operación -->
-      <div class="wf-modal-backdrop" style="padding: 20px 0;">
-        <div class="wf-card shadow-lg" style="max-width: 600px; margin: 0 auto; background: #FFFFFF; border-radius: 12px; border: 1px solid #E2E8F0; overflow: hidden;">
-          <!-- Cabecera del Diálogo Modal -->
+      <!-- Vista de Fondo: Tabla de Gestión Contextual -->
+      <div style="position: relative;">
+        <div class="wf-card mb-4 opacity-75" style="background: #FFFFFF; pointer-events: none; filter: blur(0.5px);">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Gestión y Listado de ${name.replace('Dar de baja ', '').replace('Eliminar ', '').replace('Cancelar ', '')}</h3>
+            <span class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-plus me-1"></i> Nuevo Registro</span>
+          </div>
+          <div class="wf-table-wrap">
+            <table class="wf-table">
+              <thead>
+                <tr>
+                  <th>Identificador / Nombre</th>
+                  <th>Detalle / Contexto</th>
+                  <th>Estado</th>
+                  <th class="text-end">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="table-active" style="background: #FEF2F2; border-left: 3px solid #DC2626;">
+                  <td><strong>Registro #${id.replace('CU-', '')} (${name.replace('Dar de baja ', '').replace('Eliminar ', '').replace('Cancelar ', '')})</strong></td>
+                  <td>Mercado de Capitales & Finanzas</td>
+                  <td><span class="wf-badge status-active">Activo</span></td>
+                  <td class="text-end">
+                    <div class="d-inline-flex align-items-center gap-2">
+                      <button class="wf-btn wf-btn-sm wf-btn-danger d-flex align-items-center gap-1">
+                        <i class="fa-solid ${name.includes('sesión') ? 'fa-arrow-right-from-bracket' : (name.includes('cancelar') ? 'fa-ban' : 'fa-trash')}"></i>
+                        <span>${triggerBtnLabel}</span>
+                      </button>
+                      <span class="pin-badge">${badges[0] || 'A'}</span>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Diálogo Modal Superpuesto en Primer Plano -->
+        <div class="wf-modal-dialog shadow-lg" style="max-width: 600px; margin: 0 auto; background: #FFFFFF; border-radius: 12px; border: 1px solid #E2E8F0; overflow: hidden; position: relative; z-index: 10;">
+          <!-- Cabecera Limpia del Diálogo Modal -->
           <div class="p-3 border-bottom d-flex justify-content-between align-items-center" style="background: #F8FAFC;">
             <div class="d-flex align-items-center gap-2">
-              <span class="wf-btn wf-btn-sm wf-btn-outline ${name.includes('baja') || name.includes('eliminar') || name.includes('quitar') ? 'text-danger' : 'text-primary'}" style="font-weight: 700;">
-                <i class="fa-solid ${name.includes('sesión') ? 'fa-arrow-right-from-bracket' : (name.includes('cancelar') ? 'fa-ban' : 'fa-trash')} me-1"></i>
-                ${triggerBtnLabel}
-              </span>
-              <span class="pin-badge">${badges[0] || 'A'}</span>
-              <span style="color: #94A3B8;">|</span>
-              <span class="small fw-bold text-muted text-uppercase" style="font-size: 11px;">Confirmación requerida</span>
+              <i class="fa-solid fa-triangle-exclamation text-danger"></i>
+              <strong style="font-size: 14px; color: #081426;">Confirmación de ${name}</strong>
             </div>
             <span style="color: #94A3B8; cursor: pointer; font-size: 16px;"><i class="fa-solid fa-xmark"></i></span>
           </div>
 
           <!-- Cuerpo del Diálogo Modal -->
           <div class="p-4 text-center">
-            <div class="mb-3" style="width: 56px; height: 56px; border-radius: 50%; background: #FEE2E2; color: #DC2626; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 24px;">
+            <div class="mb-3" style="width: 54px; height: 54px; border-radius: 50%; background: #FEE2E2; color: #DC2626; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 22px;">
               <i class="fa-solid fa-triangle-exclamation"></i>
             </div>
-            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin-bottom: 8px;">¿Confirma la operación de ${name.toLowerCase()}?</h3>
-            <p class="small text-muted mb-4" style="line-height: 1.5;">Esta acción procesará el cambio de estado en la base de datos y afectará la disponibilidad del elemento en el sistema.</p>
+            <h3 style="font-size: 17px; font-weight: 800; color: #081426; margin-bottom: 6px;">¿Está seguro de que desea confirmar la baja?</h3>
+            <p class="small text-muted mb-4" style="line-height: 1.5;">Esta operación marcará la entidad como inactiva/dada de baja en el sistema.</p>
 
             <div class="p-3 mb-4 bg-light border rounded text-start" style="font-size: 13px;">
               <div class="d-flex justify-content-between align-items-center mb-2">
-                <span class="text-muted">Registro afectado:</span>
+                <span class="text-muted">Registro a afectar:</span>
                 <strong style="color: #081426;">Registro #${id.replace('CU-', '')} (${name.replace('Dar de baja ', '').replace('Eliminar ', '').replace('Cancelar ', '')})</strong>
               </div>
               <div class="d-flex justify-content-between align-items-center mb-2">
@@ -2504,7 +2535,7 @@ function generateScreenContent(cu) {
               </div>
               <div class="d-flex justify-content-between align-items-center">
                 <span class="text-muted">Validación de dependencias:</span>
-                <span class="small text-success fw-bold"><i class="fa-solid fa-circle-check me-1"></i> Sin bloqueos activos</span>
+                <span class="small text-success fw-bold"><i class="fa-solid fa-circle-check me-1"></i> Sin dependencias bloqueantes</span>
               </div>
             </div>
 
@@ -2525,16 +2556,56 @@ function generateScreenContent(cu) {
   const isSearch = name.toLowerCase().startsWith('buscar') || name.toLowerCase().startsWith('consultar') || name.toLowerCase().startsWith('ver') || name.toLowerCase().startsWith('explorar');
   if (isSearch) {
     let actionBtnLabel = 'Seleccionar / Ver';
-    if (name.includes('curso') || name.includes('catálogo')) actionBtnLabel = 'Ver Ficha / Inscribirme';
-    if (name.includes('programa')) actionBtnLabel = 'Editar Programa';
-    if (name.includes('cohorte')) actionBtnLabel = 'Editar Cohorte';
-    if (name.includes('usuario')) actionBtnLabel = 'Editar Usuario';
-    if (name.includes('categoría')) actionBtnLabel = 'Editar';
-    if (name.includes('descuento')) actionBtnLabel = 'Editar';
-    if (name.includes('parámetro')) actionBtnLabel = 'Editar Valor';
-    if (name.includes('intento')) actionBtnLabel = 'Revisar Intento';
+    let createBtnLabel = '';
+    let createCuTarget = '';
+
+    if (name.includes('categoría')) {
+      actionBtnLabel = 'Editar';
+      createBtnLabel = '+ Nueva Categoría';
+      createCuTarget = 'CU-08';
+    } else if (name.includes('cohorte')) {
+      actionBtnLabel = 'Editar Cohorte';
+      createBtnLabel = '+ Nueva Cohorte';
+      createCuTarget = 'CU-12';
+    } else if (name.includes('programa')) {
+      actionBtnLabel = 'Editar Programa';
+      createBtnLabel = '+ Nuevo Programa';
+      createCuTarget = 'CU-16';
+    } else if (name.includes('descuento')) {
+      actionBtnLabel = 'Editar';
+      createBtnLabel = '+ Nuevo Descuento';
+      createCuTarget = 'CU-50';
+    } else if (name.includes('usuario')) {
+      actionBtnLabel = 'Editar Usuario';
+      createBtnLabel = '+ Nuevo Usuario';
+      createCuTarget = 'CU-81';
+    } else if (name.includes('docente')) {
+      actionBtnLabel = 'Editar Perfil';
+      createBtnLabel = '+ Nuevo Docente';
+      createCuTarget = 'CU-83';
+    } else if (name.includes('curso') || name.includes('catálogo')) {
+      actionBtnLabel = 'Ver Ficha / Inscribirme';
+    } else if (name.includes('parámetro')) {
+      actionBtnLabel = 'Editar Valor';
+    } else if (name.includes('intento')) {
+      actionBtnLabel = 'Revisar Intento';
+    }
 
     return `
+      <!-- Cabecera de Gestión con Botón Principal + Nuevo -->
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+          <h3 style="font-size: 19px; font-weight: 800; color: #081426; margin: 0;">${name}</h3>
+          <p class="small text-muted m-0">Consulte, filtre y gestione los registros activos del sistema</p>
+        </div>
+        ${createBtnLabel ? `
+          <a href="#${createCuTarget}" class="wf-btn wf-btn-primary d-flex align-items-center gap-2" style="font-weight: 700;">
+            <i class="fa-solid fa-plus"></i>
+            <span>${createBtnLabel}</span>
+          </a>
+        ` : ''}
+      </div>
+
       <div class="wf-card mb-4" style="background: #FFFFFF;">
         <div class="row g-3 align-items-end">
           <div class="col-md-5">
@@ -2588,9 +2659,12 @@ function generateScreenContent(cu) {
               <td>2026-08-25</td>
               <td><span class="wf-badge status-active">Activo</span></td>
               <td class="text-end">
-                <div class="d-inline-flex align-items-center gap-1">
-                  <button class="wf-btn wf-btn-sm wf-btn-outline">${actionBtnLabel}</button>
+                <div class="d-inline-flex align-items-center gap-2">
+                  <button class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-pen-to-square me-1"></i> ${actionBtnLabel}</button>
                   <span class="pin-badge">${badges[3] || badges[badges.length - 1] || 'D'}</span>
+                  ${!name.includes('curso') && !name.includes('catálogo') && !name.includes('participantes') ? `
+                    <button class="wf-btn wf-btn-sm wf-btn-outline text-danger" title="Dar de baja"><i class="fa-solid fa-trash"></i></button>
+                  ` : ''}
                 </div>
               </td>
             </tr>
@@ -2600,7 +2674,12 @@ function generateScreenContent(cu) {
               <td>2026-08-20</td>
               <td><span class="wf-badge status-active">Activo</span></td>
               <td class="text-end">
-                <button class="wf-btn wf-btn-sm wf-btn-outline">${actionBtnLabel}</button>
+                <div class="d-inline-flex align-items-center gap-2">
+                  <button class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-pen-to-square me-1"></i> ${actionBtnLabel}</button>
+                  ${!name.includes('curso') && !name.includes('catálogo') && !name.includes('participantes') ? `
+                    <button class="wf-btn wf-btn-sm wf-btn-outline text-danger" title="Dar de baja"><i class="fa-solid fa-trash"></i></button>
+                  ` : ''}
+                </div>
               </td>
             </tr>
           </tbody>

@@ -3006,34 +3006,65 @@
                 <div class="wf-body">
                     <div class="wf-main-content">
                         
-      <!-- Modal Overlay Flotante de Confirmación de Operación -->
-      <div class="wf-modal-backdrop" style="padding: 20px 0;">
-        <div class="wf-card shadow-lg" style="max-width: 600px; margin: 0 auto; background: #FFFFFF; border-radius: 12px; border: 1px solid #E2E8F0; overflow: hidden;">
-          <!-- Cabecera del Diálogo Modal -->
+      <!-- Vista de Fondo: Tabla de Gestión Contextual -->
+      <div style="position: relative;">
+        <div class="wf-card mb-4 opacity-75" style="background: #FFFFFF; pointer-events: none; filter: blur(0.5px);">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Gestión y Listado de curso</h3>
+            <span class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-plus me-1"></i> Nuevo Registro</span>
+          </div>
+          <div class="wf-table-wrap">
+            <table class="wf-table">
+              <thead>
+                <tr>
+                  <th>Identificador / Nombre</th>
+                  <th>Detalle / Contexto</th>
+                  <th>Estado</th>
+                  <th class="text-end">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="table-active" style="background: #FEF2F2; border-left: 3px solid #DC2626;">
+                  <td><strong>Registro #05 (curso)</strong></td>
+                  <td>Mercado de Capitales & Finanzas</td>
+                  <td><span class="wf-badge status-active">Activo</span></td>
+                  <td class="text-end">
+                    <div class="d-inline-flex align-items-center gap-2">
+                      <button class="wf-btn wf-btn-sm wf-btn-danger d-flex align-items-center gap-1">
+                        <i class="fa-solid fa-trash"></i>
+                        <span>Dar de baja</span>
+                      </button>
+                      <span class="pin-badge">A</span>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Diálogo Modal Superpuesto en Primer Plano -->
+        <div class="wf-modal-dialog shadow-lg" style="max-width: 600px; margin: 0 auto; background: #FFFFFF; border-radius: 12px; border: 1px solid #E2E8F0; overflow: hidden; position: relative; z-index: 10;">
+          <!-- Cabecera Limpia del Diálogo Modal -->
           <div class="p-3 border-bottom d-flex justify-content-between align-items-center" style="background: #F8FAFC;">
             <div class="d-flex align-items-center gap-2">
-              <span class="wf-btn wf-btn-sm wf-btn-outline text-danger" style="font-weight: 700;">
-                <i class="fa-solid fa-trash me-1"></i>
-                Dar de baja
-              </span>
-              <span class="pin-badge">A</span>
-              <span style="color: #94A3B8;">|</span>
-              <span class="small fw-bold text-muted text-uppercase" style="font-size: 11px;">Confirmación requerida</span>
+              <i class="fa-solid fa-triangle-exclamation text-danger"></i>
+              <strong style="font-size: 14px; color: #081426;">Confirmación de Dar de baja curso</strong>
             </div>
             <span style="color: #94A3B8; cursor: pointer; font-size: 16px;"><i class="fa-solid fa-xmark"></i></span>
           </div>
 
           <!-- Cuerpo del Diálogo Modal -->
           <div class="p-4 text-center">
-            <div class="mb-3" style="width: 56px; height: 56px; border-radius: 50%; background: #FEE2E2; color: #DC2626; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 24px;">
+            <div class="mb-3" style="width: 54px; height: 54px; border-radius: 50%; background: #FEE2E2; color: #DC2626; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 22px;">
               <i class="fa-solid fa-triangle-exclamation"></i>
             </div>
-            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin-bottom: 8px;">¿Confirma la operación de dar de baja curso?</h3>
-            <p class="small text-muted mb-4" style="line-height: 1.5;">Esta acción procesará el cambio de estado en la base de datos y afectará la disponibilidad del elemento en el sistema.</p>
+            <h3 style="font-size: 17px; font-weight: 800; color: #081426; margin-bottom: 6px;">¿Está seguro de que desea confirmar la baja?</h3>
+            <p class="small text-muted mb-4" style="line-height: 1.5;">Esta operación marcará la entidad como inactiva/dada de baja en el sistema.</p>
 
             <div class="p-3 mb-4 bg-light border rounded text-start" style="font-size: 13px;">
               <div class="d-flex justify-content-between align-items-center mb-2">
-                <span class="text-muted">Registro afectado:</span>
+                <span class="text-muted">Registro a afectar:</span>
                 <strong style="color: #081426;">Registro #05 (curso)</strong>
               </div>
               <div class="d-flex justify-content-between align-items-center mb-2">
@@ -3042,7 +3073,7 @@
               </div>
               <div class="d-flex justify-content-between align-items-center">
                 <span class="text-muted">Validación de dependencias:</span>
-                <span class="small text-success fw-bold"><i class="fa-solid fa-circle-check me-1"></i> Sin bloqueos activos</span>
+                <span class="small text-success fw-bold"><i class="fa-solid fa-circle-check me-1"></i> Sin dependencias bloqueantes</span>
               </div>
             </div>
 
@@ -3435,6 +3466,20 @@
                 <div class="wf-body">
                     <div class="wf-main-content">
                         
+      <!-- Cabecera de Gestión con Botón Principal + Nuevo -->
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+          <h3 style="font-size: 19px; font-weight: 800; color: #081426; margin: 0;">Buscar categoría</h3>
+          <p class="small text-muted m-0">Consulte, filtre y gestione los registros activos del sistema</p>
+        </div>
+        
+          <a href="#CU-08" class="wf-btn wf-btn-primary d-flex align-items-center gap-2" style="font-weight: 700;">
+            <i class="fa-solid fa-plus"></i>
+            <span>+ Nueva Categoría</span>
+          </a>
+        
+      </div>
+
       <div class="wf-card mb-4" style="background: #FFFFFF;">
         <div class="row g-3 align-items-end">
           <div class="col-md-5">
@@ -3488,9 +3533,12 @@
               <td>2026-08-25</td>
               <td><span class="wf-badge status-active">Activo</span></td>
               <td class="text-end">
-                <div class="d-inline-flex align-items-center gap-1">
-                  <button class="wf-btn wf-btn-sm wf-btn-outline">Editar</button>
+                <div class="d-inline-flex align-items-center gap-2">
+                  <button class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-pen-to-square me-1"></i> Editar</button>
                   <span class="pin-badge">C</span>
+                  
+                    <button class="wf-btn wf-btn-sm wf-btn-outline text-danger" title="Dar de baja"><i class="fa-solid fa-trash"></i></button>
+                  
                 </div>
               </td>
             </tr>
@@ -3500,7 +3548,12 @@
               <td>2026-08-20</td>
               <td><span class="wf-badge status-active">Activo</span></td>
               <td class="text-end">
-                <button class="wf-btn wf-btn-sm wf-btn-outline">Editar</button>
+                <div class="d-inline-flex align-items-center gap-2">
+                  <button class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-pen-to-square me-1"></i> Editar</button>
+                  
+                    <button class="wf-btn wf-btn-sm wf-btn-outline text-danger" title="Dar de baja"><i class="fa-solid fa-trash"></i></button>
+                  
+                </div>
               </td>
             </tr>
           </tbody>
@@ -4067,34 +4120,65 @@
                 <div class="wf-body">
                     <div class="wf-main-content">
                         
-      <!-- Modal Overlay Flotante de Confirmación de Operación -->
-      <div class="wf-modal-backdrop" style="padding: 20px 0;">
-        <div class="wf-card shadow-lg" style="max-width: 600px; margin: 0 auto; background: #FFFFFF; border-radius: 12px; border: 1px solid #E2E8F0; overflow: hidden;">
-          <!-- Cabecera del Diálogo Modal -->
+      <!-- Vista de Fondo: Tabla de Gestión Contextual -->
+      <div style="position: relative;">
+        <div class="wf-card mb-4 opacity-75" style="background: #FFFFFF; pointer-events: none; filter: blur(0.5px);">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Gestión y Listado de categoría</h3>
+            <span class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-plus me-1"></i> Nuevo Registro</span>
+          </div>
+          <div class="wf-table-wrap">
+            <table class="wf-table">
+              <thead>
+                <tr>
+                  <th>Identificador / Nombre</th>
+                  <th>Detalle / Contexto</th>
+                  <th>Estado</th>
+                  <th class="text-end">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="table-active" style="background: #FEF2F2; border-left: 3px solid #DC2626;">
+                  <td><strong>Registro #10 (categoría)</strong></td>
+                  <td>Mercado de Capitales & Finanzas</td>
+                  <td><span class="wf-badge status-active">Activo</span></td>
+                  <td class="text-end">
+                    <div class="d-inline-flex align-items-center gap-2">
+                      <button class="wf-btn wf-btn-sm wf-btn-danger d-flex align-items-center gap-1">
+                        <i class="fa-solid fa-trash"></i>
+                        <span>Eliminar</span>
+                      </button>
+                      <span class="pin-badge">A</span>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Diálogo Modal Superpuesto en Primer Plano -->
+        <div class="wf-modal-dialog shadow-lg" style="max-width: 600px; margin: 0 auto; background: #FFFFFF; border-radius: 12px; border: 1px solid #E2E8F0; overflow: hidden; position: relative; z-index: 10;">
+          <!-- Cabecera Limpia del Diálogo Modal -->
           <div class="p-3 border-bottom d-flex justify-content-between align-items-center" style="background: #F8FAFC;">
             <div class="d-flex align-items-center gap-2">
-              <span class="wf-btn wf-btn-sm wf-btn-outline text-danger" style="font-weight: 700;">
-                <i class="fa-solid fa-trash me-1"></i>
-                Eliminar
-              </span>
-              <span class="pin-badge">A</span>
-              <span style="color: #94A3B8;">|</span>
-              <span class="small fw-bold text-muted text-uppercase" style="font-size: 11px;">Confirmación requerida</span>
+              <i class="fa-solid fa-triangle-exclamation text-danger"></i>
+              <strong style="font-size: 14px; color: #081426;">Confirmación de Dar de baja categoría</strong>
             </div>
             <span style="color: #94A3B8; cursor: pointer; font-size: 16px;"><i class="fa-solid fa-xmark"></i></span>
           </div>
 
           <!-- Cuerpo del Diálogo Modal -->
           <div class="p-4 text-center">
-            <div class="mb-3" style="width: 56px; height: 56px; border-radius: 50%; background: #FEE2E2; color: #DC2626; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 24px;">
+            <div class="mb-3" style="width: 54px; height: 54px; border-radius: 50%; background: #FEE2E2; color: #DC2626; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 22px;">
               <i class="fa-solid fa-triangle-exclamation"></i>
             </div>
-            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin-bottom: 8px;">¿Confirma la operación de dar de baja categoría?</h3>
-            <p class="small text-muted mb-4" style="line-height: 1.5;">Esta acción procesará el cambio de estado en la base de datos y afectará la disponibilidad del elemento en el sistema.</p>
+            <h3 style="font-size: 17px; font-weight: 800; color: #081426; margin-bottom: 6px;">¿Está seguro de que desea confirmar la baja?</h3>
+            <p class="small text-muted mb-4" style="line-height: 1.5;">Esta operación marcará la entidad como inactiva/dada de baja en el sistema.</p>
 
             <div class="p-3 mb-4 bg-light border rounded text-start" style="font-size: 13px;">
               <div class="d-flex justify-content-between align-items-center mb-2">
-                <span class="text-muted">Registro afectado:</span>
+                <span class="text-muted">Registro a afectar:</span>
                 <strong style="color: #081426;">Registro #10 (categoría)</strong>
               </div>
               <div class="d-flex justify-content-between align-items-center mb-2">
@@ -4103,7 +4187,7 @@
               </div>
               <div class="d-flex justify-content-between align-items-center">
                 <span class="text-muted">Validación de dependencias:</span>
-                <span class="small text-success fw-bold"><i class="fa-solid fa-circle-check me-1"></i> Sin bloqueos activos</span>
+                <span class="small text-success fw-bold"><i class="fa-solid fa-circle-check me-1"></i> Sin dependencias bloqueantes</span>
               </div>
             </div>
 
@@ -4256,6 +4340,20 @@
                 <div class="wf-body">
                     <div class="wf-main-content">
                         
+      <!-- Cabecera de Gestión con Botón Principal + Nuevo -->
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+          <h3 style="font-size: 19px; font-weight: 800; color: #081426; margin: 0;">Buscar cohorte</h3>
+          <p class="small text-muted m-0">Consulte, filtre y gestione los registros activos del sistema</p>
+        </div>
+        
+          <a href="#CU-12" class="wf-btn wf-btn-primary d-flex align-items-center gap-2" style="font-weight: 700;">
+            <i class="fa-solid fa-plus"></i>
+            <span>+ Nueva Cohorte</span>
+          </a>
+        
+      </div>
+
       <div class="wf-card mb-4" style="background: #FFFFFF;">
         <div class="row g-3 align-items-end">
           <div class="col-md-5">
@@ -4309,9 +4407,12 @@
               <td>2026-08-25</td>
               <td><span class="wf-badge status-active">Activo</span></td>
               <td class="text-end">
-                <div class="d-inline-flex align-items-center gap-1">
-                  <button class="wf-btn wf-btn-sm wf-btn-outline">Editar Cohorte</button>
+                <div class="d-inline-flex align-items-center gap-2">
+                  <button class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-pen-to-square me-1"></i> Editar Cohorte</button>
                   <span class="pin-badge">D</span>
+                  
+                    <button class="wf-btn wf-btn-sm wf-btn-outline text-danger" title="Dar de baja"><i class="fa-solid fa-trash"></i></button>
+                  
                 </div>
               </td>
             </tr>
@@ -4321,7 +4422,12 @@
               <td>2026-08-20</td>
               <td><span class="wf-badge status-active">Activo</span></td>
               <td class="text-end">
-                <button class="wf-btn wf-btn-sm wf-btn-outline">Editar Cohorte</button>
+                <div class="d-inline-flex align-items-center gap-2">
+                  <button class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-pen-to-square me-1"></i> Editar Cohorte</button>
+                  
+                    <button class="wf-btn wf-btn-sm wf-btn-outline text-danger" title="Dar de baja"><i class="fa-solid fa-trash"></i></button>
+                  
+                </div>
               </td>
             </tr>
           </tbody>
@@ -4888,34 +4994,65 @@
                 <div class="wf-body">
                     <div class="wf-main-content">
                         
-      <!-- Modal Overlay Flotante de Confirmación de Operación -->
-      <div class="wf-modal-backdrop" style="padding: 20px 0;">
-        <div class="wf-card shadow-lg" style="max-width: 600px; margin: 0 auto; background: #FFFFFF; border-radius: 12px; border: 1px solid #E2E8F0; overflow: hidden;">
-          <!-- Cabecera del Diálogo Modal -->
+      <!-- Vista de Fondo: Tabla de Gestión Contextual -->
+      <div style="position: relative;">
+        <div class="wf-card mb-4 opacity-75" style="background: #FFFFFF; pointer-events: none; filter: blur(0.5px);">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Gestión y Listado de cohorte</h3>
+            <span class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-plus me-1"></i> Nuevo Registro</span>
+          </div>
+          <div class="wf-table-wrap">
+            <table class="wf-table">
+              <thead>
+                <tr>
+                  <th>Identificador / Nombre</th>
+                  <th>Detalle / Contexto</th>
+                  <th>Estado</th>
+                  <th class="text-end">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="table-active" style="background: #FEF2F2; border-left: 3px solid #DC2626;">
+                  <td><strong>Registro #14 (cohorte)</strong></td>
+                  <td>Mercado de Capitales & Finanzas</td>
+                  <td><span class="wf-badge status-active">Activo</span></td>
+                  <td class="text-end">
+                    <div class="d-inline-flex align-items-center gap-2">
+                      <button class="wf-btn wf-btn-sm wf-btn-danger d-flex align-items-center gap-1">
+                        <i class="fa-solid fa-trash"></i>
+                        <span>Cancelar Cohorte</span>
+                      </button>
+                      <span class="pin-badge">A</span>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Diálogo Modal Superpuesto en Primer Plano -->
+        <div class="wf-modal-dialog shadow-lg" style="max-width: 600px; margin: 0 auto; background: #FFFFFF; border-radius: 12px; border: 1px solid #E2E8F0; overflow: hidden; position: relative; z-index: 10;">
+          <!-- Cabecera Limpia del Diálogo Modal -->
           <div class="p-3 border-bottom d-flex justify-content-between align-items-center" style="background: #F8FAFC;">
             <div class="d-flex align-items-center gap-2">
-              <span class="wf-btn wf-btn-sm wf-btn-outline text-danger" style="font-weight: 700;">
-                <i class="fa-solid fa-trash me-1"></i>
-                Cancelar Cohorte
-              </span>
-              <span class="pin-badge">A</span>
-              <span style="color: #94A3B8;">|</span>
-              <span class="small fw-bold text-muted text-uppercase" style="font-size: 11px;">Confirmación requerida</span>
+              <i class="fa-solid fa-triangle-exclamation text-danger"></i>
+              <strong style="font-size: 14px; color: #081426;">Confirmación de Dar de baja cohorte</strong>
             </div>
             <span style="color: #94A3B8; cursor: pointer; font-size: 16px;"><i class="fa-solid fa-xmark"></i></span>
           </div>
 
           <!-- Cuerpo del Diálogo Modal -->
           <div class="p-4 text-center">
-            <div class="mb-3" style="width: 56px; height: 56px; border-radius: 50%; background: #FEE2E2; color: #DC2626; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 24px;">
+            <div class="mb-3" style="width: 54px; height: 54px; border-radius: 50%; background: #FEE2E2; color: #DC2626; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 22px;">
               <i class="fa-solid fa-triangle-exclamation"></i>
             </div>
-            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin-bottom: 8px;">¿Confirma la operación de dar de baja cohorte?</h3>
-            <p class="small text-muted mb-4" style="line-height: 1.5;">Esta acción procesará el cambio de estado en la base de datos y afectará la disponibilidad del elemento en el sistema.</p>
+            <h3 style="font-size: 17px; font-weight: 800; color: #081426; margin-bottom: 6px;">¿Está seguro de que desea confirmar la baja?</h3>
+            <p class="small text-muted mb-4" style="line-height: 1.5;">Esta operación marcará la entidad como inactiva/dada de baja en el sistema.</p>
 
             <div class="p-3 mb-4 bg-light border rounded text-start" style="font-size: 13px;">
               <div class="d-flex justify-content-between align-items-center mb-2">
-                <span class="text-muted">Registro afectado:</span>
+                <span class="text-muted">Registro a afectar:</span>
                 <strong style="color: #081426;">Registro #14 (cohorte)</strong>
               </div>
               <div class="d-flex justify-content-between align-items-center mb-2">
@@ -4924,7 +5061,7 @@
               </div>
               <div class="d-flex justify-content-between align-items-center">
                 <span class="text-muted">Validación de dependencias:</span>
-                <span class="small text-success fw-bold"><i class="fa-solid fa-circle-check me-1"></i> Sin bloqueos activos</span>
+                <span class="small text-success fw-bold"><i class="fa-solid fa-circle-check me-1"></i> Sin dependencias bloqueantes</span>
               </div>
             </div>
 
@@ -5077,6 +5214,20 @@
                 <div class="wf-body">
                     <div class="wf-main-content">
                         
+      <!-- Cabecera de Gestión con Botón Principal + Nuevo -->
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+          <h3 style="font-size: 19px; font-weight: 800; color: #081426; margin: 0;">Buscar programa</h3>
+          <p class="small text-muted m-0">Consulte, filtre y gestione los registros activos del sistema</p>
+        </div>
+        
+          <a href="#CU-16" class="wf-btn wf-btn-primary d-flex align-items-center gap-2" style="font-weight: 700;">
+            <i class="fa-solid fa-plus"></i>
+            <span>+ Nuevo Programa</span>
+          </a>
+        
+      </div>
+
       <div class="wf-card mb-4" style="background: #FFFFFF;">
         <div class="row g-3 align-items-end">
           <div class="col-md-5">
@@ -5130,9 +5281,12 @@
               <td>2026-08-25</td>
               <td><span class="wf-badge status-active">Activo</span></td>
               <td class="text-end">
-                <div class="d-inline-flex align-items-center gap-1">
-                  <button class="wf-btn wf-btn-sm wf-btn-outline">Editar Programa</button>
+                <div class="d-inline-flex align-items-center gap-2">
+                  <button class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-pen-to-square me-1"></i> Editar Programa</button>
                   <span class="pin-badge">C</span>
+                  
+                    <button class="wf-btn wf-btn-sm wf-btn-outline text-danger" title="Dar de baja"><i class="fa-solid fa-trash"></i></button>
+                  
                 </div>
               </td>
             </tr>
@@ -5142,7 +5296,12 @@
               <td>2026-08-20</td>
               <td><span class="wf-badge status-active">Activo</span></td>
               <td class="text-end">
-                <button class="wf-btn wf-btn-sm wf-btn-outline">Editar Programa</button>
+                <div class="d-inline-flex align-items-center gap-2">
+                  <button class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-pen-to-square me-1"></i> Editar Programa</button>
+                  
+                    <button class="wf-btn wf-btn-sm wf-btn-outline text-danger" title="Dar de baja"><i class="fa-solid fa-trash"></i></button>
+                  
+                </div>
               </td>
             </tr>
           </tbody>
@@ -5709,34 +5868,65 @@
                 <div class="wf-body">
                     <div class="wf-main-content">
                         
-      <!-- Modal Overlay Flotante de Confirmación de Operación -->
-      <div class="wf-modal-backdrop" style="padding: 20px 0;">
-        <div class="wf-card shadow-lg" style="max-width: 600px; margin: 0 auto; background: #FFFFFF; border-radius: 12px; border: 1px solid #E2E8F0; overflow: hidden;">
-          <!-- Cabecera del Diálogo Modal -->
+      <!-- Vista de Fondo: Tabla de Gestión Contextual -->
+      <div style="position: relative;">
+        <div class="wf-card mb-4 opacity-75" style="background: #FFFFFF; pointer-events: none; filter: blur(0.5px);">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Gestión y Listado de programa</h3>
+            <span class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-plus me-1"></i> Nuevo Registro</span>
+          </div>
+          <div class="wf-table-wrap">
+            <table class="wf-table">
+              <thead>
+                <tr>
+                  <th>Identificador / Nombre</th>
+                  <th>Detalle / Contexto</th>
+                  <th>Estado</th>
+                  <th class="text-end">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="table-active" style="background: #FEF2F2; border-left: 3px solid #DC2626;">
+                  <td><strong>Registro #18 (programa)</strong></td>
+                  <td>Mercado de Capitales & Finanzas</td>
+                  <td><span class="wf-badge status-active">Activo</span></td>
+                  <td class="text-end">
+                    <div class="d-inline-flex align-items-center gap-2">
+                      <button class="wf-btn wf-btn-sm wf-btn-danger d-flex align-items-center gap-1">
+                        <i class="fa-solid fa-trash"></i>
+                        <span>Dar de baja</span>
+                      </button>
+                      <span class="pin-badge">A</span>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Diálogo Modal Superpuesto en Primer Plano -->
+        <div class="wf-modal-dialog shadow-lg" style="max-width: 600px; margin: 0 auto; background: #FFFFFF; border-radius: 12px; border: 1px solid #E2E8F0; overflow: hidden; position: relative; z-index: 10;">
+          <!-- Cabecera Limpia del Diálogo Modal -->
           <div class="p-3 border-bottom d-flex justify-content-between align-items-center" style="background: #F8FAFC;">
             <div class="d-flex align-items-center gap-2">
-              <span class="wf-btn wf-btn-sm wf-btn-outline text-danger" style="font-weight: 700;">
-                <i class="fa-solid fa-trash me-1"></i>
-                Dar de baja
-              </span>
-              <span class="pin-badge">A</span>
-              <span style="color: #94A3B8;">|</span>
-              <span class="small fw-bold text-muted text-uppercase" style="font-size: 11px;">Confirmación requerida</span>
+              <i class="fa-solid fa-triangle-exclamation text-danger"></i>
+              <strong style="font-size: 14px; color: #081426;">Confirmación de Dar de baja programa</strong>
             </div>
             <span style="color: #94A3B8; cursor: pointer; font-size: 16px;"><i class="fa-solid fa-xmark"></i></span>
           </div>
 
           <!-- Cuerpo del Diálogo Modal -->
           <div class="p-4 text-center">
-            <div class="mb-3" style="width: 56px; height: 56px; border-radius: 50%; background: #FEE2E2; color: #DC2626; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 24px;">
+            <div class="mb-3" style="width: 54px; height: 54px; border-radius: 50%; background: #FEE2E2; color: #DC2626; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 22px;">
               <i class="fa-solid fa-triangle-exclamation"></i>
             </div>
-            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin-bottom: 8px;">¿Confirma la operación de dar de baja programa?</h3>
-            <p class="small text-muted mb-4" style="line-height: 1.5;">Esta acción procesará el cambio de estado en la base de datos y afectará la disponibilidad del elemento en el sistema.</p>
+            <h3 style="font-size: 17px; font-weight: 800; color: #081426; margin-bottom: 6px;">¿Está seguro de que desea confirmar la baja?</h3>
+            <p class="small text-muted mb-4" style="line-height: 1.5;">Esta operación marcará la entidad como inactiva/dada de baja en el sistema.</p>
 
             <div class="p-3 mb-4 bg-light border rounded text-start" style="font-size: 13px;">
               <div class="d-flex justify-content-between align-items-center mb-2">
-                <span class="text-muted">Registro afectado:</span>
+                <span class="text-muted">Registro a afectar:</span>
                 <strong style="color: #081426;">Registro #18 (programa)</strong>
               </div>
               <div class="d-flex justify-content-between align-items-center mb-2">
@@ -5745,7 +5935,7 @@
               </div>
               <div class="d-flex justify-content-between align-items-center">
                 <span class="text-muted">Validación de dependencias:</span>
-                <span class="small text-success fw-bold"><i class="fa-solid fa-circle-check me-1"></i> Sin bloqueos activos</span>
+                <span class="small text-success fw-bold"><i class="fa-solid fa-circle-check me-1"></i> Sin dependencias bloqueantes</span>
               </div>
             </div>
 
@@ -8735,34 +8925,65 @@
                 <div class="wf-body">
                     <div class="wf-main-content">
                         
-      <!-- Modal Overlay Flotante de Confirmación de Operación -->
-      <div class="wf-modal-backdrop" style="padding: 20px 0;">
-        <div class="wf-card shadow-lg" style="max-width: 600px; margin: 0 auto; background: #FFFFFF; border-radius: 12px; border: 1px solid #E2E8F0; overflow: hidden;">
-          <!-- Cabecera del Diálogo Modal -->
+      <!-- Vista de Fondo: Tabla de Gestión Contextual -->
+      <div style="position: relative;">
+        <div class="wf-card mb-4 opacity-75" style="background: #FFFFFF; pointer-events: none; filter: blur(0.5px);">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Gestión y Listado de material</h3>
+            <span class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-plus me-1"></i> Nuevo Registro</span>
+          </div>
+          <div class="wf-table-wrap">
+            <table class="wf-table">
+              <thead>
+                <tr>
+                  <th>Identificador / Nombre</th>
+                  <th>Detalle / Contexto</th>
+                  <th>Estado</th>
+                  <th class="text-end">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="table-active" style="background: #FEF2F2; border-left: 3px solid #DC2626;">
+                  <td><strong>Registro #30 (material)</strong></td>
+                  <td>Mercado de Capitales & Finanzas</td>
+                  <td><span class="wf-badge status-active">Activo</span></td>
+                  <td class="text-end">
+                    <div class="d-inline-flex align-items-center gap-2">
+                      <button class="wf-btn wf-btn-sm wf-btn-danger d-flex align-items-center gap-1">
+                        <i class="fa-solid fa-trash"></i>
+                        <span>Eliminar</span>
+                      </button>
+                      <span class="pin-badge">A</span>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Diálogo Modal Superpuesto en Primer Plano -->
+        <div class="wf-modal-dialog shadow-lg" style="max-width: 600px; margin: 0 auto; background: #FFFFFF; border-radius: 12px; border: 1px solid #E2E8F0; overflow: hidden; position: relative; z-index: 10;">
+          <!-- Cabecera Limpia del Diálogo Modal -->
           <div class="p-3 border-bottom d-flex justify-content-between align-items-center" style="background: #F8FAFC;">
             <div class="d-flex align-items-center gap-2">
-              <span class="wf-btn wf-btn-sm wf-btn-outline text-danger" style="font-weight: 700;">
-                <i class="fa-solid fa-trash me-1"></i>
-                Eliminar
-              </span>
-              <span class="pin-badge">A</span>
-              <span style="color: #94A3B8;">|</span>
-              <span class="small fw-bold text-muted text-uppercase" style="font-size: 11px;">Confirmación requerida</span>
+              <i class="fa-solid fa-triangle-exclamation text-danger"></i>
+              <strong style="font-size: 14px; color: #081426;">Confirmación de Dar de baja material</strong>
             </div>
             <span style="color: #94A3B8; cursor: pointer; font-size: 16px;"><i class="fa-solid fa-xmark"></i></span>
           </div>
 
           <!-- Cuerpo del Diálogo Modal -->
           <div class="p-4 text-center">
-            <div class="mb-3" style="width: 56px; height: 56px; border-radius: 50%; background: #FEE2E2; color: #DC2626; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 24px;">
+            <div class="mb-3" style="width: 54px; height: 54px; border-radius: 50%; background: #FEE2E2; color: #DC2626; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 22px;">
               <i class="fa-solid fa-triangle-exclamation"></i>
             </div>
-            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin-bottom: 8px;">¿Confirma la operación de dar de baja material?</h3>
-            <p class="small text-muted mb-4" style="line-height: 1.5;">Esta acción procesará el cambio de estado en la base de datos y afectará la disponibilidad del elemento en el sistema.</p>
+            <h3 style="font-size: 17px; font-weight: 800; color: #081426; margin-bottom: 6px;">¿Está seguro de que desea confirmar la baja?</h3>
+            <p class="small text-muted mb-4" style="line-height: 1.5;">Esta operación marcará la entidad como inactiva/dada de baja en el sistema.</p>
 
             <div class="p-3 mb-4 bg-light border rounded text-start" style="font-size: 13px;">
               <div class="d-flex justify-content-between align-items-center mb-2">
-                <span class="text-muted">Registro afectado:</span>
+                <span class="text-muted">Registro a afectar:</span>
                 <strong style="color: #081426;">Registro #30 (material)</strong>
               </div>
               <div class="d-flex justify-content-between align-items-center mb-2">
@@ -8771,7 +8992,7 @@
               </div>
               <div class="d-flex justify-content-between align-items-center">
                 <span class="text-muted">Validación de dependencias:</span>
-                <span class="small text-success fw-bold"><i class="fa-solid fa-circle-check me-1"></i> Sin bloqueos activos</span>
+                <span class="small text-success fw-bold"><i class="fa-solid fa-circle-check me-1"></i> Sin dependencias bloqueantes</span>
               </div>
             </div>
 
@@ -9605,34 +9826,65 @@
                 <div class="wf-body">
                     <div class="wf-main-content">
                         
-      <!-- Modal Overlay Flotante de Confirmación de Operación -->
-      <div class="wf-modal-backdrop" style="padding: 20px 0;">
-        <div class="wf-card shadow-lg" style="max-width: 600px; margin: 0 auto; background: #FFFFFF; border-radius: 12px; border: 1px solid #E2E8F0; overflow: hidden;">
-          <!-- Cabecera del Diálogo Modal -->
+      <!-- Vista de Fondo: Tabla de Gestión Contextual -->
+      <div style="position: relative;">
+        <div class="wf-card mb-4 opacity-75" style="background: #FFFFFF; pointer-events: none; filter: blur(0.5px);">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Gestión y Listado de término de glosario</h3>
+            <span class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-plus me-1"></i> Nuevo Registro</span>
+          </div>
+          <div class="wf-table-wrap">
+            <table class="wf-table">
+              <thead>
+                <tr>
+                  <th>Identificador / Nombre</th>
+                  <th>Detalle / Contexto</th>
+                  <th>Estado</th>
+                  <th class="text-end">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="table-active" style="background: #FEF2F2; border-left: 3px solid #DC2626;">
+                  <td><strong>Registro #34 (término de glosario)</strong></td>
+                  <td>Mercado de Capitales & Finanzas</td>
+                  <td><span class="wf-badge status-active">Activo</span></td>
+                  <td class="text-end">
+                    <div class="d-inline-flex align-items-center gap-2">
+                      <button class="wf-btn wf-btn-sm wf-btn-danger d-flex align-items-center gap-1">
+                        <i class="fa-solid fa-trash"></i>
+                        <span>Eliminar</span>
+                      </button>
+                      <span class="pin-badge">A</span>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Diálogo Modal Superpuesto en Primer Plano -->
+        <div class="wf-modal-dialog shadow-lg" style="max-width: 600px; margin: 0 auto; background: #FFFFFF; border-radius: 12px; border: 1px solid #E2E8F0; overflow: hidden; position: relative; z-index: 10;">
+          <!-- Cabecera Limpia del Diálogo Modal -->
           <div class="p-3 border-bottom d-flex justify-content-between align-items-center" style="background: #F8FAFC;">
             <div class="d-flex align-items-center gap-2">
-              <span class="wf-btn wf-btn-sm wf-btn-outline text-danger" style="font-weight: 700;">
-                <i class="fa-solid fa-trash me-1"></i>
-                Eliminar
-              </span>
-              <span class="pin-badge">A</span>
-              <span style="color: #94A3B8;">|</span>
-              <span class="small fw-bold text-muted text-uppercase" style="font-size: 11px;">Confirmación requerida</span>
+              <i class="fa-solid fa-triangle-exclamation text-danger"></i>
+              <strong style="font-size: 14px; color: #081426;">Confirmación de Dar de baja término de glosario</strong>
             </div>
             <span style="color: #94A3B8; cursor: pointer; font-size: 16px;"><i class="fa-solid fa-xmark"></i></span>
           </div>
 
           <!-- Cuerpo del Diálogo Modal -->
           <div class="p-4 text-center">
-            <div class="mb-3" style="width: 56px; height: 56px; border-radius: 50%; background: #FEE2E2; color: #DC2626; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 24px;">
+            <div class="mb-3" style="width: 54px; height: 54px; border-radius: 50%; background: #FEE2E2; color: #DC2626; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 22px;">
               <i class="fa-solid fa-triangle-exclamation"></i>
             </div>
-            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin-bottom: 8px;">¿Confirma la operación de dar de baja término de glosario?</h3>
-            <p class="small text-muted mb-4" style="line-height: 1.5;">Esta acción procesará el cambio de estado en la base de datos y afectará la disponibilidad del elemento en el sistema.</p>
+            <h3 style="font-size: 17px; font-weight: 800; color: #081426; margin-bottom: 6px;">¿Está seguro de que desea confirmar la baja?</h3>
+            <p class="small text-muted mb-4" style="line-height: 1.5;">Esta operación marcará la entidad como inactiva/dada de baja en el sistema.</p>
 
             <div class="p-3 mb-4 bg-light border rounded text-start" style="font-size: 13px;">
               <div class="d-flex justify-content-between align-items-center mb-2">
-                <span class="text-muted">Registro afectado:</span>
+                <span class="text-muted">Registro a afectar:</span>
                 <strong style="color: #081426;">Registro #34 (término de glosario)</strong>
               </div>
               <div class="d-flex justify-content-between align-items-center mb-2">
@@ -9641,7 +9893,7 @@
               </div>
               <div class="d-flex justify-content-between align-items-center">
                 <span class="text-muted">Validación de dependencias:</span>
-                <span class="small text-success fw-bold"><i class="fa-solid fa-circle-check me-1"></i> Sin bloqueos activos</span>
+                <span class="small text-success fw-bold"><i class="fa-solid fa-circle-check me-1"></i> Sin dependencias bloqueantes</span>
               </div>
             </div>
 
@@ -10447,34 +10699,65 @@
                 <div class="wf-body">
                     <div class="wf-main-content">
                         
-      <!-- Modal Overlay Flotante de Confirmación de Operación -->
-      <div class="wf-modal-backdrop" style="padding: 20px 0;">
-        <div class="wf-card shadow-lg" style="max-width: 600px; margin: 0 auto; background: #FFFFFF; border-radius: 12px; border: 1px solid #E2E8F0; overflow: hidden;">
-          <!-- Cabecera del Diálogo Modal -->
+      <!-- Vista de Fondo: Tabla de Gestión Contextual -->
+      <div style="position: relative;">
+        <div class="wf-card mb-4 opacity-75" style="background: #FFFFFF; pointer-events: none; filter: blur(0.5px);">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Gestión y Listado de consulta de foro</h3>
+            <span class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-plus me-1"></i> Nuevo Registro</span>
+          </div>
+          <div class="wf-table-wrap">
+            <table class="wf-table">
+              <thead>
+                <tr>
+                  <th>Identificador / Nombre</th>
+                  <th>Detalle / Contexto</th>
+                  <th>Estado</th>
+                  <th class="text-end">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="table-active" style="background: #FEF2F2; border-left: 3px solid #DC2626;">
+                  <td><strong>Registro #38 (consulta de foro)</strong></td>
+                  <td>Mercado de Capitales & Finanzas</td>
+                  <td><span class="wf-badge status-active">Activo</span></td>
+                  <td class="text-end">
+                    <div class="d-inline-flex align-items-center gap-2">
+                      <button class="wf-btn wf-btn-sm wf-btn-danger d-flex align-items-center gap-1">
+                        <i class="fa-solid fa-trash"></i>
+                        <span>Moderar / Eliminar</span>
+                      </button>
+                      <span class="pin-badge">A</span>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Diálogo Modal Superpuesto en Primer Plano -->
+        <div class="wf-modal-dialog shadow-lg" style="max-width: 600px; margin: 0 auto; background: #FFFFFF; border-radius: 12px; border: 1px solid #E2E8F0; overflow: hidden; position: relative; z-index: 10;">
+          <!-- Cabecera Limpia del Diálogo Modal -->
           <div class="p-3 border-bottom d-flex justify-content-between align-items-center" style="background: #F8FAFC;">
             <div class="d-flex align-items-center gap-2">
-              <span class="wf-btn wf-btn-sm wf-btn-outline text-danger" style="font-weight: 700;">
-                <i class="fa-solid fa-trash me-1"></i>
-                Moderar / Eliminar
-              </span>
-              <span class="pin-badge">A</span>
-              <span style="color: #94A3B8;">|</span>
-              <span class="small fw-bold text-muted text-uppercase" style="font-size: 11px;">Confirmación requerida</span>
+              <i class="fa-solid fa-triangle-exclamation text-danger"></i>
+              <strong style="font-size: 14px; color: #081426;">Confirmación de Dar de baja consulta de foro</strong>
             </div>
             <span style="color: #94A3B8; cursor: pointer; font-size: 16px;"><i class="fa-solid fa-xmark"></i></span>
           </div>
 
           <!-- Cuerpo del Diálogo Modal -->
           <div class="p-4 text-center">
-            <div class="mb-3" style="width: 56px; height: 56px; border-radius: 50%; background: #FEE2E2; color: #DC2626; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 24px;">
+            <div class="mb-3" style="width: 54px; height: 54px; border-radius: 50%; background: #FEE2E2; color: #DC2626; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 22px;">
               <i class="fa-solid fa-triangle-exclamation"></i>
             </div>
-            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin-bottom: 8px;">¿Confirma la operación de dar de baja consulta de foro?</h3>
-            <p class="small text-muted mb-4" style="line-height: 1.5;">Esta acción procesará el cambio de estado en la base de datos y afectará la disponibilidad del elemento en el sistema.</p>
+            <h3 style="font-size: 17px; font-weight: 800; color: #081426; margin-bottom: 6px;">¿Está seguro de que desea confirmar la baja?</h3>
+            <p class="small text-muted mb-4" style="line-height: 1.5;">Esta operación marcará la entidad como inactiva/dada de baja en el sistema.</p>
 
             <div class="p-3 mb-4 bg-light border rounded text-start" style="font-size: 13px;">
               <div class="d-flex justify-content-between align-items-center mb-2">
-                <span class="text-muted">Registro afectado:</span>
+                <span class="text-muted">Registro a afectar:</span>
                 <strong style="color: #081426;">Registro #38 (consulta de foro)</strong>
               </div>
               <div class="d-flex justify-content-between align-items-center mb-2">
@@ -10483,7 +10766,7 @@
               </div>
               <div class="d-flex justify-content-between align-items-center">
                 <span class="text-muted">Validación de dependencias:</span>
-                <span class="small text-success fw-bold"><i class="fa-solid fa-circle-check me-1"></i> Sin bloqueos activos</span>
+                <span class="small text-success fw-bold"><i class="fa-solid fa-circle-check me-1"></i> Sin dependencias bloqueantes</span>
               </div>
             </div>
 
@@ -10636,6 +10919,15 @@
                 <div class="wf-body">
                     <div class="wf-main-content">
                         
+      <!-- Cabecera de Gestión con Botón Principal + Nuevo -->
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+          <h3 style="font-size: 19px; font-weight: 800; color: #081426; margin: 0;">Buscar respuesta de foro</h3>
+          <p class="small text-muted m-0">Consulte, filtre y gestione los registros activos del sistema</p>
+        </div>
+        
+      </div>
+
       <div class="wf-card mb-4" style="background: #FFFFFF;">
         <div class="row g-3 align-items-end">
           <div class="col-md-5">
@@ -10689,9 +10981,12 @@
               <td>2026-08-25</td>
               <td><span class="wf-badge status-active">Activo</span></td>
               <td class="text-end">
-                <div class="d-inline-flex align-items-center gap-1">
-                  <button class="wf-btn wf-btn-sm wf-btn-outline">Seleccionar / Ver</button>
+                <div class="d-inline-flex align-items-center gap-2">
+                  <button class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-pen-to-square me-1"></i> Seleccionar / Ver</button>
                   <span class="pin-badge">B</span>
+                  
+                    <button class="wf-btn wf-btn-sm wf-btn-outline text-danger" title="Dar de baja"><i class="fa-solid fa-trash"></i></button>
+                  
                 </div>
               </td>
             </tr>
@@ -10701,7 +10996,12 @@
               <td>2026-08-20</td>
               <td><span class="wf-badge status-active">Activo</span></td>
               <td class="text-end">
-                <button class="wf-btn wf-btn-sm wf-btn-outline">Seleccionar / Ver</button>
+                <div class="d-inline-flex align-items-center gap-2">
+                  <button class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-pen-to-square me-1"></i> Seleccionar / Ver</button>
+                  
+                    <button class="wf-btn wf-btn-sm wf-btn-outline text-danger" title="Dar de baja"><i class="fa-solid fa-trash"></i></button>
+                  
+                </div>
               </td>
             </tr>
           </tbody>
@@ -11224,34 +11524,65 @@
                 <div class="wf-body">
                     <div class="wf-main-content">
                         
-      <!-- Modal Overlay Flotante de Confirmación de Operación -->
-      <div class="wf-modal-backdrop" style="padding: 20px 0;">
-        <div class="wf-card shadow-lg" style="max-width: 600px; margin: 0 auto; background: #FFFFFF; border-radius: 12px; border: 1px solid #E2E8F0; overflow: hidden;">
-          <!-- Cabecera del Diálogo Modal -->
+      <!-- Vista de Fondo: Tabla de Gestión Contextual -->
+      <div style="position: relative;">
+        <div class="wf-card mb-4 opacity-75" style="background: #FFFFFF; pointer-events: none; filter: blur(0.5px);">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Gestión y Listado de respuesta de foro</h3>
+            <span class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-plus me-1"></i> Nuevo Registro</span>
+          </div>
+          <div class="wf-table-wrap">
+            <table class="wf-table">
+              <thead>
+                <tr>
+                  <th>Identificador / Nombre</th>
+                  <th>Detalle / Contexto</th>
+                  <th>Estado</th>
+                  <th class="text-end">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="table-active" style="background: #FEF2F2; border-left: 3px solid #DC2626;">
+                  <td><strong>Registro #42 (respuesta de foro)</strong></td>
+                  <td>Mercado de Capitales & Finanzas</td>
+                  <td><span class="wf-badge status-active">Activo</span></td>
+                  <td class="text-end">
+                    <div class="d-inline-flex align-items-center gap-2">
+                      <button class="wf-btn wf-btn-sm wf-btn-danger d-flex align-items-center gap-1">
+                        <i class="fa-solid fa-trash"></i>
+                        <span>Eliminar Respuesta</span>
+                      </button>
+                      <span class="pin-badge">A</span>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Diálogo Modal Superpuesto en Primer Plano -->
+        <div class="wf-modal-dialog shadow-lg" style="max-width: 600px; margin: 0 auto; background: #FFFFFF; border-radius: 12px; border: 1px solid #E2E8F0; overflow: hidden; position: relative; z-index: 10;">
+          <!-- Cabecera Limpia del Diálogo Modal -->
           <div class="p-3 border-bottom d-flex justify-content-between align-items-center" style="background: #F8FAFC;">
             <div class="d-flex align-items-center gap-2">
-              <span class="wf-btn wf-btn-sm wf-btn-outline text-danger" style="font-weight: 700;">
-                <i class="fa-solid fa-trash me-1"></i>
-                Eliminar Respuesta
-              </span>
-              <span class="pin-badge">A</span>
-              <span style="color: #94A3B8;">|</span>
-              <span class="small fw-bold text-muted text-uppercase" style="font-size: 11px;">Confirmación requerida</span>
+              <i class="fa-solid fa-triangle-exclamation text-danger"></i>
+              <strong style="font-size: 14px; color: #081426;">Confirmación de Dar de baja respuesta de foro</strong>
             </div>
             <span style="color: #94A3B8; cursor: pointer; font-size: 16px;"><i class="fa-solid fa-xmark"></i></span>
           </div>
 
           <!-- Cuerpo del Diálogo Modal -->
           <div class="p-4 text-center">
-            <div class="mb-3" style="width: 56px; height: 56px; border-radius: 50%; background: #FEE2E2; color: #DC2626; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 24px;">
+            <div class="mb-3" style="width: 54px; height: 54px; border-radius: 50%; background: #FEE2E2; color: #DC2626; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 22px;">
               <i class="fa-solid fa-triangle-exclamation"></i>
             </div>
-            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin-bottom: 8px;">¿Confirma la operación de dar de baja respuesta de foro?</h3>
-            <p class="small text-muted mb-4" style="line-height: 1.5;">Esta acción procesará el cambio de estado en la base de datos y afectará la disponibilidad del elemento en el sistema.</p>
+            <h3 style="font-size: 17px; font-weight: 800; color: #081426; margin-bottom: 6px;">¿Está seguro de que desea confirmar la baja?</h3>
+            <p class="small text-muted mb-4" style="line-height: 1.5;">Esta operación marcará la entidad como inactiva/dada de baja en el sistema.</p>
 
             <div class="p-3 mb-4 bg-light border rounded text-start" style="font-size: 13px;">
               <div class="d-flex justify-content-between align-items-center mb-2">
-                <span class="text-muted">Registro afectado:</span>
+                <span class="text-muted">Registro a afectar:</span>
                 <strong style="color: #081426;">Registro #42 (respuesta de foro)</strong>
               </div>
               <div class="d-flex justify-content-between align-items-center mb-2">
@@ -11260,7 +11591,7 @@
               </div>
               <div class="d-flex justify-content-between align-items-center">
                 <span class="text-muted">Validación de dependencias:</span>
-                <span class="small text-success fw-bold"><i class="fa-solid fa-circle-check me-1"></i> Sin bloqueos activos</span>
+                <span class="small text-success fw-bold"><i class="fa-solid fa-circle-check me-1"></i> Sin dependencias bloqueantes</span>
               </div>
             </div>
 
@@ -12579,6 +12910,20 @@
                 <div class="wf-body">
                     <div class="wf-main-content">
                         
+      <!-- Cabecera de Gestión con Botón Principal + Nuevo -->
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+          <h3 style="font-size: 19px; font-weight: 800; color: #081426; margin: 0;">Buscar descuento</h3>
+          <p class="small text-muted m-0">Consulte, filtre y gestione los registros activos del sistema</p>
+        </div>
+        
+          <a href="#CU-50" class="wf-btn wf-btn-primary d-flex align-items-center gap-2" style="font-weight: 700;">
+            <i class="fa-solid fa-plus"></i>
+            <span>+ Nuevo Descuento</span>
+          </a>
+        
+      </div>
+
       <div class="wf-card mb-4" style="background: #FFFFFF;">
         <div class="row g-3 align-items-end">
           <div class="col-md-5">
@@ -12632,9 +12977,12 @@
               <td>2026-08-25</td>
               <td><span class="wf-badge status-active">Activo</span></td>
               <td class="text-end">
-                <div class="d-inline-flex align-items-center gap-1">
-                  <button class="wf-btn wf-btn-sm wf-btn-outline">Editar</button>
+                <div class="d-inline-flex align-items-center gap-2">
+                  <button class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-pen-to-square me-1"></i> Editar</button>
                   <span class="pin-badge">C</span>
+                  
+                    <button class="wf-btn wf-btn-sm wf-btn-outline text-danger" title="Dar de baja"><i class="fa-solid fa-trash"></i></button>
+                  
                 </div>
               </td>
             </tr>
@@ -12644,7 +12992,12 @@
               <td>2026-08-20</td>
               <td><span class="wf-badge status-active">Activo</span></td>
               <td class="text-end">
-                <button class="wf-btn wf-btn-sm wf-btn-outline">Editar</button>
+                <div class="d-inline-flex align-items-center gap-2">
+                  <button class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-pen-to-square me-1"></i> Editar</button>
+                  
+                    <button class="wf-btn wf-btn-sm wf-btn-outline text-danger" title="Dar de baja"><i class="fa-solid fa-trash"></i></button>
+                  
+                </div>
               </td>
             </tr>
           </tbody>
@@ -13211,34 +13564,65 @@
                 <div class="wf-body">
                     <div class="wf-main-content">
                         
-      <!-- Modal Overlay Flotante de Confirmación de Operación -->
-      <div class="wf-modal-backdrop" style="padding: 20px 0;">
-        <div class="wf-card shadow-lg" style="max-width: 600px; margin: 0 auto; background: #FFFFFF; border-radius: 12px; border: 1px solid #E2E8F0; overflow: hidden;">
-          <!-- Cabecera del Diálogo Modal -->
+      <!-- Vista de Fondo: Tabla de Gestión Contextual -->
+      <div style="position: relative;">
+        <div class="wf-card mb-4 opacity-75" style="background: #FFFFFF; pointer-events: none; filter: blur(0.5px);">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Gestión y Listado de descuento</h3>
+            <span class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-plus me-1"></i> Nuevo Registro</span>
+          </div>
+          <div class="wf-table-wrap">
+            <table class="wf-table">
+              <thead>
+                <tr>
+                  <th>Identificador / Nombre</th>
+                  <th>Detalle / Contexto</th>
+                  <th>Estado</th>
+                  <th class="text-end">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="table-active" style="background: #FEF2F2; border-left: 3px solid #DC2626;">
+                  <td><strong>Registro #52 (descuento)</strong></td>
+                  <td>Mercado de Capitales & Finanzas</td>
+                  <td><span class="wf-badge status-active">Activo</span></td>
+                  <td class="text-end">
+                    <div class="d-inline-flex align-items-center gap-2">
+                      <button class="wf-btn wf-btn-sm wf-btn-danger d-flex align-items-center gap-1">
+                        <i class="fa-solid fa-trash"></i>
+                        <span>Eliminar</span>
+                      </button>
+                      <span class="pin-badge">A</span>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Diálogo Modal Superpuesto en Primer Plano -->
+        <div class="wf-modal-dialog shadow-lg" style="max-width: 600px; margin: 0 auto; background: #FFFFFF; border-radius: 12px; border: 1px solid #E2E8F0; overflow: hidden; position: relative; z-index: 10;">
+          <!-- Cabecera Limpia del Diálogo Modal -->
           <div class="p-3 border-bottom d-flex justify-content-between align-items-center" style="background: #F8FAFC;">
             <div class="d-flex align-items-center gap-2">
-              <span class="wf-btn wf-btn-sm wf-btn-outline text-danger" style="font-weight: 700;">
-                <i class="fa-solid fa-trash me-1"></i>
-                Eliminar
-              </span>
-              <span class="pin-badge">A</span>
-              <span style="color: #94A3B8;">|</span>
-              <span class="small fw-bold text-muted text-uppercase" style="font-size: 11px;">Confirmación requerida</span>
+              <i class="fa-solid fa-triangle-exclamation text-danger"></i>
+              <strong style="font-size: 14px; color: #081426;">Confirmación de Dar de baja descuento</strong>
             </div>
             <span style="color: #94A3B8; cursor: pointer; font-size: 16px;"><i class="fa-solid fa-xmark"></i></span>
           </div>
 
           <!-- Cuerpo del Diálogo Modal -->
           <div class="p-4 text-center">
-            <div class="mb-3" style="width: 56px; height: 56px; border-radius: 50%; background: #FEE2E2; color: #DC2626; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 24px;">
+            <div class="mb-3" style="width: 54px; height: 54px; border-radius: 50%; background: #FEE2E2; color: #DC2626; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 22px;">
               <i class="fa-solid fa-triangle-exclamation"></i>
             </div>
-            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin-bottom: 8px;">¿Confirma la operación de dar de baja descuento?</h3>
-            <p class="small text-muted mb-4" style="line-height: 1.5;">Esta acción procesará el cambio de estado en la base de datos y afectará la disponibilidad del elemento en el sistema.</p>
+            <h3 style="font-size: 17px; font-weight: 800; color: #081426; margin-bottom: 6px;">¿Está seguro de que desea confirmar la baja?</h3>
+            <p class="small text-muted mb-4" style="line-height: 1.5;">Esta operación marcará la entidad como inactiva/dada de baja en el sistema.</p>
 
             <div class="p-3 mb-4 bg-light border rounded text-start" style="font-size: 13px;">
               <div class="d-flex justify-content-between align-items-center mb-2">
-                <span class="text-muted">Registro afectado:</span>
+                <span class="text-muted">Registro a afectar:</span>
                 <strong style="color: #081426;">Registro #52 (descuento)</strong>
               </div>
               <div class="d-flex justify-content-between align-items-center mb-2">
@@ -13247,7 +13631,7 @@
               </div>
               <div class="d-flex justify-content-between align-items-center">
                 <span class="text-muted">Validación de dependencias:</span>
-                <span class="small text-success fw-bold"><i class="fa-solid fa-circle-check me-1"></i> Sin bloqueos activos</span>
+                <span class="small text-success fw-bold"><i class="fa-solid fa-circle-check me-1"></i> Sin dependencias bloqueantes</span>
               </div>
             </div>
 
@@ -14084,34 +14468,65 @@
                 <div class="wf-body">
                     <div class="wf-main-content">
                         
-      <!-- Modal Overlay Flotante de Confirmación de Operación -->
-      <div class="wf-modal-backdrop" style="padding: 20px 0;">
-        <div class="wf-card shadow-lg" style="max-width: 600px; margin: 0 auto; background: #FFFFFF; border-radius: 12px; border: 1px solid #E2E8F0; overflow: hidden;">
-          <!-- Cabecera del Diálogo Modal -->
+      <!-- Vista de Fondo: Tabla de Gestión Contextual -->
+      <div style="position: relative;">
+        <div class="wf-card mb-4 opacity-75" style="background: #FFFFFF; pointer-events: none; filter: blur(0.5px);">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Gestión y Listado de pool</h3>
+            <span class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-plus me-1"></i> Nuevo Registro</span>
+          </div>
+          <div class="wf-table-wrap">
+            <table class="wf-table">
+              <thead>
+                <tr>
+                  <th>Identificador / Nombre</th>
+                  <th>Detalle / Contexto</th>
+                  <th>Estado</th>
+                  <th class="text-end">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="table-active" style="background: #FEF2F2; border-left: 3px solid #DC2626;">
+                  <td><strong>Registro #56 (pool)</strong></td>
+                  <td>Mercado de Capitales & Finanzas</td>
+                  <td><span class="wf-badge status-active">Activo</span></td>
+                  <td class="text-end">
+                    <div class="d-inline-flex align-items-center gap-2">
+                      <button class="wf-btn wf-btn-sm wf-btn-danger d-flex align-items-center gap-1">
+                        <i class="fa-solid fa-trash"></i>
+                        <span>Eliminar Pool</span>
+                      </button>
+                      <span class="pin-badge">A</span>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Diálogo Modal Superpuesto en Primer Plano -->
+        <div class="wf-modal-dialog shadow-lg" style="max-width: 600px; margin: 0 auto; background: #FFFFFF; border-radius: 12px; border: 1px solid #E2E8F0; overflow: hidden; position: relative; z-index: 10;">
+          <!-- Cabecera Limpia del Diálogo Modal -->
           <div class="p-3 border-bottom d-flex justify-content-between align-items-center" style="background: #F8FAFC;">
             <div class="d-flex align-items-center gap-2">
-              <span class="wf-btn wf-btn-sm wf-btn-outline text-danger" style="font-weight: 700;">
-                <i class="fa-solid fa-trash me-1"></i>
-                Eliminar Pool
-              </span>
-              <span class="pin-badge">A</span>
-              <span style="color: #94A3B8;">|</span>
-              <span class="small fw-bold text-muted text-uppercase" style="font-size: 11px;">Confirmación requerida</span>
+              <i class="fa-solid fa-triangle-exclamation text-danger"></i>
+              <strong style="font-size: 14px; color: #081426;">Confirmación de Dar de baja pool</strong>
             </div>
             <span style="color: #94A3B8; cursor: pointer; font-size: 16px;"><i class="fa-solid fa-xmark"></i></span>
           </div>
 
           <!-- Cuerpo del Diálogo Modal -->
           <div class="p-4 text-center">
-            <div class="mb-3" style="width: 56px; height: 56px; border-radius: 50%; background: #FEE2E2; color: #DC2626; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 24px;">
+            <div class="mb-3" style="width: 54px; height: 54px; border-radius: 50%; background: #FEE2E2; color: #DC2626; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 22px;">
               <i class="fa-solid fa-triangle-exclamation"></i>
             </div>
-            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin-bottom: 8px;">¿Confirma la operación de dar de baja pool?</h3>
-            <p class="small text-muted mb-4" style="line-height: 1.5;">Esta acción procesará el cambio de estado en la base de datos y afectará la disponibilidad del elemento en el sistema.</p>
+            <h3 style="font-size: 17px; font-weight: 800; color: #081426; margin-bottom: 6px;">¿Está seguro de que desea confirmar la baja?</h3>
+            <p class="small text-muted mb-4" style="line-height: 1.5;">Esta operación marcará la entidad como inactiva/dada de baja en el sistema.</p>
 
             <div class="p-3 mb-4 bg-light border rounded text-start" style="font-size: 13px;">
               <div class="d-flex justify-content-between align-items-center mb-2">
-                <span class="text-muted">Registro afectado:</span>
+                <span class="text-muted">Registro a afectar:</span>
                 <strong style="color: #081426;">Registro #56 (pool)</strong>
               </div>
               <div class="d-flex justify-content-between align-items-center mb-2">
@@ -14120,7 +14535,7 @@
               </div>
               <div class="d-flex justify-content-between align-items-center">
                 <span class="text-muted">Validación de dependencias:</span>
-                <span class="small text-success fw-bold"><i class="fa-solid fa-circle-check me-1"></i> Sin bloqueos activos</span>
+                <span class="small text-success fw-bold"><i class="fa-solid fa-circle-check me-1"></i> Sin dependencias bloqueantes</span>
               </div>
             </div>
 
@@ -14957,34 +15372,65 @@
                 <div class="wf-body">
                     <div class="wf-main-content">
                         
-      <!-- Modal Overlay Flotante de Confirmación de Operación -->
-      <div class="wf-modal-backdrop" style="padding: 20px 0;">
-        <div class="wf-card shadow-lg" style="max-width: 600px; margin: 0 auto; background: #FFFFFF; border-radius: 12px; border: 1px solid #E2E8F0; overflow: hidden;">
-          <!-- Cabecera del Diálogo Modal -->
+      <!-- Vista de Fondo: Tabla de Gestión Contextual -->
+      <div style="position: relative;">
+        <div class="wf-card mb-4 opacity-75" style="background: #FFFFFF; pointer-events: none; filter: blur(0.5px);">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Gestión y Listado de autoevaluación</h3>
+            <span class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-plus me-1"></i> Nuevo Registro</span>
+          </div>
+          <div class="wf-table-wrap">
+            <table class="wf-table">
+              <thead>
+                <tr>
+                  <th>Identificador / Nombre</th>
+                  <th>Detalle / Contexto</th>
+                  <th>Estado</th>
+                  <th class="text-end">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="table-active" style="background: #FEF2F2; border-left: 3px solid #DC2626;">
+                  <td><strong>Registro #60 (autoevaluación)</strong></td>
+                  <td>Mercado de Capitales & Finanzas</td>
+                  <td><span class="wf-badge status-active">Activo</span></td>
+                  <td class="text-end">
+                    <div class="d-inline-flex align-items-center gap-2">
+                      <button class="wf-btn wf-btn-sm wf-btn-danger d-flex align-items-center gap-1">
+                        <i class="fa-solid fa-trash"></i>
+                        <span>Eliminar</span>
+                      </button>
+                      <span class="pin-badge">A</span>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Diálogo Modal Superpuesto en Primer Plano -->
+        <div class="wf-modal-dialog shadow-lg" style="max-width: 600px; margin: 0 auto; background: #FFFFFF; border-radius: 12px; border: 1px solid #E2E8F0; overflow: hidden; position: relative; z-index: 10;">
+          <!-- Cabecera Limpia del Diálogo Modal -->
           <div class="p-3 border-bottom d-flex justify-content-between align-items-center" style="background: #F8FAFC;">
             <div class="d-flex align-items-center gap-2">
-              <span class="wf-btn wf-btn-sm wf-btn-outline text-danger" style="font-weight: 700;">
-                <i class="fa-solid fa-trash me-1"></i>
-                Eliminar
-              </span>
-              <span class="pin-badge">A</span>
-              <span style="color: #94A3B8;">|</span>
-              <span class="small fw-bold text-muted text-uppercase" style="font-size: 11px;">Confirmación requerida</span>
+              <i class="fa-solid fa-triangle-exclamation text-danger"></i>
+              <strong style="font-size: 14px; color: #081426;">Confirmación de Dar de baja autoevaluación</strong>
             </div>
             <span style="color: #94A3B8; cursor: pointer; font-size: 16px;"><i class="fa-solid fa-xmark"></i></span>
           </div>
 
           <!-- Cuerpo del Diálogo Modal -->
           <div class="p-4 text-center">
-            <div class="mb-3" style="width: 56px; height: 56px; border-radius: 50%; background: #FEE2E2; color: #DC2626; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 24px;">
+            <div class="mb-3" style="width: 54px; height: 54px; border-radius: 50%; background: #FEE2E2; color: #DC2626; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 22px;">
               <i class="fa-solid fa-triangle-exclamation"></i>
             </div>
-            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin-bottom: 8px;">¿Confirma la operación de dar de baja autoevaluación?</h3>
-            <p class="small text-muted mb-4" style="line-height: 1.5;">Esta acción procesará el cambio de estado en la base de datos y afectará la disponibilidad del elemento en el sistema.</p>
+            <h3 style="font-size: 17px; font-weight: 800; color: #081426; margin-bottom: 6px;">¿Está seguro de que desea confirmar la baja?</h3>
+            <p class="small text-muted mb-4" style="line-height: 1.5;">Esta operación marcará la entidad como inactiva/dada de baja en el sistema.</p>
 
             <div class="p-3 mb-4 bg-light border rounded text-start" style="font-size: 13px;">
               <div class="d-flex justify-content-between align-items-center mb-2">
-                <span class="text-muted">Registro afectado:</span>
+                <span class="text-muted">Registro a afectar:</span>
                 <strong style="color: #081426;">Registro #60 (autoevaluación)</strong>
               </div>
               <div class="d-flex justify-content-between align-items-center mb-2">
@@ -14993,7 +15439,7 @@
               </div>
               <div class="d-flex justify-content-between align-items-center">
                 <span class="text-muted">Validación de dependencias:</span>
-                <span class="small text-success fw-bold"><i class="fa-solid fa-circle-check me-1"></i> Sin bloqueos activos</span>
+                <span class="small text-success fw-bold"><i class="fa-solid fa-circle-check me-1"></i> Sin dependencias bloqueantes</span>
               </div>
             </div>
 
@@ -15146,6 +15592,15 @@
                 <div class="wf-body">
                     <div class="wf-main-content">
                         
+      <!-- Cabecera de Gestión con Botón Principal + Nuevo -->
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+          <h3 style="font-size: 19px; font-weight: 800; color: #081426; margin: 0;">Buscar intento de autoevaluación</h3>
+          <p class="small text-muted m-0">Consulte, filtre y gestione los registros activos del sistema</p>
+        </div>
+        
+      </div>
+
       <div class="wf-card mb-4" style="background: #FFFFFF;">
         <div class="row g-3 align-items-end">
           <div class="col-md-5">
@@ -15199,9 +15654,12 @@
               <td>2026-08-25</td>
               <td><span class="wf-badge status-active">Activo</span></td>
               <td class="text-end">
-                <div class="d-inline-flex align-items-center gap-1">
-                  <button class="wf-btn wf-btn-sm wf-btn-outline">Revisar Intento</button>
+                <div class="d-inline-flex align-items-center gap-2">
+                  <button class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-pen-to-square me-1"></i> Revisar Intento</button>
                   <span class="pin-badge">D</span>
+                  
+                    <button class="wf-btn wf-btn-sm wf-btn-outline text-danger" title="Dar de baja"><i class="fa-solid fa-trash"></i></button>
+                  
                 </div>
               </td>
             </tr>
@@ -15211,7 +15669,12 @@
               <td>2026-08-20</td>
               <td><span class="wf-badge status-active">Activo</span></td>
               <td class="text-end">
-                <button class="wf-btn wf-btn-sm wf-btn-outline">Revisar Intento</button>
+                <div class="d-inline-flex align-items-center gap-2">
+                  <button class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-pen-to-square me-1"></i> Revisar Intento</button>
+                  
+                    <button class="wf-btn wf-btn-sm wf-btn-outline text-danger" title="Dar de baja"><i class="fa-solid fa-trash"></i></button>
+                  
+                </div>
               </td>
             </tr>
           </tbody>
@@ -15356,6 +15819,15 @@
                 <div class="wf-body">
                     <div class="wf-main-content">
                         
+      <!-- Cabecera de Gestión con Botón Principal + Nuevo -->
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+          <h3 style="font-size: 19px; font-weight: 800; color: #081426; margin: 0;">Ver calificaciones</h3>
+          <p class="small text-muted m-0">Consulte, filtre y gestione los registros activos del sistema</p>
+        </div>
+        
+      </div>
+
       <div class="wf-card mb-4" style="background: #FFFFFF;">
         <div class="row g-3 align-items-end">
           <div class="col-md-5">
@@ -15409,9 +15881,12 @@
               <td>2026-08-25</td>
               <td><span class="wf-badge status-active">Activo</span></td>
               <td class="text-end">
-                <div class="d-inline-flex align-items-center gap-1">
-                  <button class="wf-btn wf-btn-sm wf-btn-outline">Seleccionar / Ver</button>
+                <div class="d-inline-flex align-items-center gap-2">
+                  <button class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-pen-to-square me-1"></i> Seleccionar / Ver</button>
                   <span class="pin-badge">B</span>
+                  
+                    <button class="wf-btn wf-btn-sm wf-btn-outline text-danger" title="Dar de baja"><i class="fa-solid fa-trash"></i></button>
+                  
                 </div>
               </td>
             </tr>
@@ -15421,7 +15896,12 @@
               <td>2026-08-20</td>
               <td><span class="wf-badge status-active">Activo</span></td>
               <td class="text-end">
-                <button class="wf-btn wf-btn-sm wf-btn-outline">Seleccionar / Ver</button>
+                <div class="d-inline-flex align-items-center gap-2">
+                  <button class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-pen-to-square me-1"></i> Seleccionar / Ver</button>
+                  
+                    <button class="wf-btn wf-btn-sm wf-btn-outline text-danger" title="Dar de baja"><i class="fa-solid fa-trash"></i></button>
+                  
+                </div>
               </td>
             </tr>
           </tbody>
@@ -15740,34 +16220,65 @@
                 <div class="wf-body">
                     <div class="wf-main-content">
                         
-      <!-- Modal Overlay Flotante de Confirmación de Operación -->
-      <div class="wf-modal-backdrop" style="padding: 20px 0;">
-        <div class="wf-card shadow-lg" style="max-width: 600px; margin: 0 auto; background: #FFFFFF; border-radius: 12px; border: 1px solid #E2E8F0; overflow: hidden;">
-          <!-- Cabecera del Diálogo Modal -->
+      <!-- Vista de Fondo: Tabla de Gestión Contextual -->
+      <div style="position: relative;">
+        <div class="wf-card mb-4 opacity-75" style="background: #FFFFFF; pointer-events: none; filter: blur(0.5px);">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Gestión y Listado de intento de autoevaluación</h3>
+            <span class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-plus me-1"></i> Nuevo Registro</span>
+          </div>
+          <div class="wf-table-wrap">
+            <table class="wf-table">
+              <thead>
+                <tr>
+                  <th>Identificador / Nombre</th>
+                  <th>Detalle / Contexto</th>
+                  <th>Estado</th>
+                  <th class="text-end">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="table-active" style="background: #FEF2F2; border-left: 3px solid #DC2626;">
+                  <td><strong>Registro #64 (intento de autoevaluación)</strong></td>
+                  <td>Mercado de Capitales & Finanzas</td>
+                  <td><span class="wf-badge status-active">Activo</span></td>
+                  <td class="text-end">
+                    <div class="d-inline-flex align-items-center gap-2">
+                      <button class="wf-btn wf-btn-sm wf-btn-danger d-flex align-items-center gap-1">
+                        <i class="fa-solid fa-trash"></i>
+                        <span>Anular Intento por Fraude</span>
+                      </button>
+                      <span class="pin-badge">A</span>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Diálogo Modal Superpuesto en Primer Plano -->
+        <div class="wf-modal-dialog shadow-lg" style="max-width: 600px; margin: 0 auto; background: #FFFFFF; border-radius: 12px; border: 1px solid #E2E8F0; overflow: hidden; position: relative; z-index: 10;">
+          <!-- Cabecera Limpia del Diálogo Modal -->
           <div class="p-3 border-bottom d-flex justify-content-between align-items-center" style="background: #F8FAFC;">
             <div class="d-flex align-items-center gap-2">
-              <span class="wf-btn wf-btn-sm wf-btn-outline text-danger" style="font-weight: 700;">
-                <i class="fa-solid fa-trash me-1"></i>
-                Anular Intento por Fraude
-              </span>
-              <span class="pin-badge">A</span>
-              <span style="color: #94A3B8;">|</span>
-              <span class="small fw-bold text-muted text-uppercase" style="font-size: 11px;">Confirmación requerida</span>
+              <i class="fa-solid fa-triangle-exclamation text-danger"></i>
+              <strong style="font-size: 14px; color: #081426;">Confirmación de Dar de baja intento de autoevaluación</strong>
             </div>
             <span style="color: #94A3B8; cursor: pointer; font-size: 16px;"><i class="fa-solid fa-xmark"></i></span>
           </div>
 
           <!-- Cuerpo del Diálogo Modal -->
           <div class="p-4 text-center">
-            <div class="mb-3" style="width: 56px; height: 56px; border-radius: 50%; background: #FEE2E2; color: #DC2626; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 24px;">
+            <div class="mb-3" style="width: 54px; height: 54px; border-radius: 50%; background: #FEE2E2; color: #DC2626; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 22px;">
               <i class="fa-solid fa-triangle-exclamation"></i>
             </div>
-            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin-bottom: 8px;">¿Confirma la operación de dar de baja intento de autoevaluación?</h3>
-            <p class="small text-muted mb-4" style="line-height: 1.5;">Esta acción procesará el cambio de estado en la base de datos y afectará la disponibilidad del elemento en el sistema.</p>
+            <h3 style="font-size: 17px; font-weight: 800; color: #081426; margin-bottom: 6px;">¿Está seguro de que desea confirmar la baja?</h3>
+            <p class="small text-muted mb-4" style="line-height: 1.5;">Esta operación marcará la entidad como inactiva/dada de baja en el sistema.</p>
 
             <div class="p-3 mb-4 bg-light border rounded text-start" style="font-size: 13px;">
               <div class="d-flex justify-content-between align-items-center mb-2">
-                <span class="text-muted">Registro afectado:</span>
+                <span class="text-muted">Registro a afectar:</span>
                 <strong style="color: #081426;">Registro #64 (intento de autoevaluación)</strong>
               </div>
               <div class="d-flex justify-content-between align-items-center mb-2">
@@ -15776,7 +16287,7 @@
               </div>
               <div class="d-flex justify-content-between align-items-center">
                 <span class="text-muted">Validación de dependencias:</span>
-                <span class="small text-success fw-bold"><i class="fa-solid fa-circle-check me-1"></i> Sin bloqueos activos</span>
+                <span class="small text-success fw-bold"><i class="fa-solid fa-circle-check me-1"></i> Sin dependencias bloqueantes</span>
               </div>
             </div>
 
@@ -16610,34 +17121,65 @@
                 <div class="wf-body">
                     <div class="wf-main-content">
                         
-      <!-- Modal Overlay Flotante de Confirmación de Operación -->
-      <div class="wf-modal-backdrop" style="padding: 20px 0;">
-        <div class="wf-card shadow-lg" style="max-width: 600px; margin: 0 auto; background: #FFFFFF; border-radius: 12px; border: 1px solid #E2E8F0; overflow: hidden;">
-          <!-- Cabecera del Diálogo Modal -->
+      <!-- Vista de Fondo: Tabla de Gestión Contextual -->
+      <div style="position: relative;">
+        <div class="wf-card mb-4 opacity-75" style="background: #FFFFFF; pointer-events: none; filter: blur(0.5px);">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Gestión y Listado de clase en vivo</h3>
+            <span class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-plus me-1"></i> Nuevo Registro</span>
+          </div>
+          <div class="wf-table-wrap">
+            <table class="wf-table">
+              <thead>
+                <tr>
+                  <th>Identificador / Nombre</th>
+                  <th>Detalle / Contexto</th>
+                  <th>Estado</th>
+                  <th class="text-end">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="table-active" style="background: #FEF2F2; border-left: 3px solid #DC2626;">
+                  <td><strong>Registro #68 (clase en vivo)</strong></td>
+                  <td>Mercado de Capitales & Finanzas</td>
+                  <td><span class="wf-badge status-active">Activo</span></td>
+                  <td class="text-end">
+                    <div class="d-inline-flex align-items-center gap-2">
+                      <button class="wf-btn wf-btn-sm wf-btn-danger d-flex align-items-center gap-1">
+                        <i class="fa-solid fa-trash"></i>
+                        <span>Eliminar Registro</span>
+                      </button>
+                      <span class="pin-badge">A</span>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Diálogo Modal Superpuesto en Primer Plano -->
+        <div class="wf-modal-dialog shadow-lg" style="max-width: 600px; margin: 0 auto; background: #FFFFFF; border-radius: 12px; border: 1px solid #E2E8F0; overflow: hidden; position: relative; z-index: 10;">
+          <!-- Cabecera Limpia del Diálogo Modal -->
           <div class="p-3 border-bottom d-flex justify-content-between align-items-center" style="background: #F8FAFC;">
             <div class="d-flex align-items-center gap-2">
-              <span class="wf-btn wf-btn-sm wf-btn-outline text-primary" style="font-weight: 700;">
-                <i class="fa-solid fa-trash me-1"></i>
-                Eliminar Registro
-              </span>
-              <span class="pin-badge">A</span>
-              <span style="color: #94A3B8;">|</span>
-              <span class="small fw-bold text-muted text-uppercase" style="font-size: 11px;">Confirmación requerida</span>
+              <i class="fa-solid fa-triangle-exclamation text-danger"></i>
+              <strong style="font-size: 14px; color: #081426;">Confirmación de Cancelar clase en vivo</strong>
             </div>
             <span style="color: #94A3B8; cursor: pointer; font-size: 16px;"><i class="fa-solid fa-xmark"></i></span>
           </div>
 
           <!-- Cuerpo del Diálogo Modal -->
           <div class="p-4 text-center">
-            <div class="mb-3" style="width: 56px; height: 56px; border-radius: 50%; background: #FEE2E2; color: #DC2626; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 24px;">
+            <div class="mb-3" style="width: 54px; height: 54px; border-radius: 50%; background: #FEE2E2; color: #DC2626; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 22px;">
               <i class="fa-solid fa-triangle-exclamation"></i>
             </div>
-            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin-bottom: 8px;">¿Confirma la operación de cancelar clase en vivo?</h3>
-            <p class="small text-muted mb-4" style="line-height: 1.5;">Esta acción procesará el cambio de estado en la base de datos y afectará la disponibilidad del elemento en el sistema.</p>
+            <h3 style="font-size: 17px; font-weight: 800; color: #081426; margin-bottom: 6px;">¿Está seguro de que desea confirmar la baja?</h3>
+            <p class="small text-muted mb-4" style="line-height: 1.5;">Esta operación marcará la entidad como inactiva/dada de baja en el sistema.</p>
 
             <div class="p-3 mb-4 bg-light border rounded text-start" style="font-size: 13px;">
               <div class="d-flex justify-content-between align-items-center mb-2">
-                <span class="text-muted">Registro afectado:</span>
+                <span class="text-muted">Registro a afectar:</span>
                 <strong style="color: #081426;">Registro #68 (clase en vivo)</strong>
               </div>
               <div class="d-flex justify-content-between align-items-center mb-2">
@@ -16646,7 +17188,7 @@
               </div>
               <div class="d-flex justify-content-between align-items-center">
                 <span class="text-muted">Validación de dependencias:</span>
-                <span class="small text-success fw-bold"><i class="fa-solid fa-circle-check me-1"></i> Sin bloqueos activos</span>
+                <span class="small text-success fw-bold"><i class="fa-solid fa-circle-check me-1"></i> Sin dependencias bloqueantes</span>
               </div>
             </div>
 
@@ -16799,34 +17341,65 @@
                 <div class="wf-body">
                     <div class="wf-main-content">
                         
-      <!-- Modal Overlay Flotante de Confirmación de Operación -->
-      <div class="wf-modal-backdrop" style="padding: 20px 0;">
-        <div class="wf-card shadow-lg" style="max-width: 600px; margin: 0 auto; background: #FFFFFF; border-radius: 12px; border: 1px solid #E2E8F0; overflow: hidden;">
-          <!-- Cabecera del Diálogo Modal -->
+      <!-- Vista de Fondo: Tabla de Gestión Contextual -->
+      <div style="position: relative;">
+        <div class="wf-card mb-4 opacity-75" style="background: #FFFFFF; pointer-events: none; filter: blur(0.5px);">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Gestión y Listado de clase en vivo</h3>
+            <span class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-plus me-1"></i> Nuevo Registro</span>
+          </div>
+          <div class="wf-table-wrap">
+            <table class="wf-table">
+              <thead>
+                <tr>
+                  <th>Identificador / Nombre</th>
+                  <th>Detalle / Contexto</th>
+                  <th>Estado</th>
+                  <th class="text-end">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="table-active" style="background: #FEF2F2; border-left: 3px solid #DC2626;">
+                  <td><strong>Registro #69 (clase en vivo)</strong></td>
+                  <td>Mercado de Capitales & Finanzas</td>
+                  <td><span class="wf-badge status-active">Activo</span></td>
+                  <td class="text-end">
+                    <div class="d-inline-flex align-items-center gap-2">
+                      <button class="wf-btn wf-btn-sm wf-btn-danger d-flex align-items-center gap-1">
+                        <i class="fa-solid fa-trash"></i>
+                        <span>Eliminar Registro</span>
+                      </button>
+                      <span class="pin-badge">A</span>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Diálogo Modal Superpuesto en Primer Plano -->
+        <div class="wf-modal-dialog shadow-lg" style="max-width: 600px; margin: 0 auto; background: #FFFFFF; border-radius: 12px; border: 1px solid #E2E8F0; overflow: hidden; position: relative; z-index: 10;">
+          <!-- Cabecera Limpia del Diálogo Modal -->
           <div class="p-3 border-bottom d-flex justify-content-between align-items-center" style="background: #F8FAFC;">
             <div class="d-flex align-items-center gap-2">
-              <span class="wf-btn wf-btn-sm wf-btn-outline text-danger" style="font-weight: 700;">
-                <i class="fa-solid fa-trash me-1"></i>
-                Eliminar Registro
-              </span>
-              <span class="pin-badge">A</span>
-              <span style="color: #94A3B8;">|</span>
-              <span class="small fw-bold text-muted text-uppercase" style="font-size: 11px;">Confirmación requerida</span>
+              <i class="fa-solid fa-triangle-exclamation text-danger"></i>
+              <strong style="font-size: 14px; color: #081426;">Confirmación de Dar de baja clase en vivo</strong>
             </div>
             <span style="color: #94A3B8; cursor: pointer; font-size: 16px;"><i class="fa-solid fa-xmark"></i></span>
           </div>
 
           <!-- Cuerpo del Diálogo Modal -->
           <div class="p-4 text-center">
-            <div class="mb-3" style="width: 56px; height: 56px; border-radius: 50%; background: #FEE2E2; color: #DC2626; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 24px;">
+            <div class="mb-3" style="width: 54px; height: 54px; border-radius: 50%; background: #FEE2E2; color: #DC2626; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 22px;">
               <i class="fa-solid fa-triangle-exclamation"></i>
             </div>
-            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin-bottom: 8px;">¿Confirma la operación de dar de baja clase en vivo?</h3>
-            <p class="small text-muted mb-4" style="line-height: 1.5;">Esta acción procesará el cambio de estado en la base de datos y afectará la disponibilidad del elemento en el sistema.</p>
+            <h3 style="font-size: 17px; font-weight: 800; color: #081426; margin-bottom: 6px;">¿Está seguro de que desea confirmar la baja?</h3>
+            <p class="small text-muted mb-4" style="line-height: 1.5;">Esta operación marcará la entidad como inactiva/dada de baja en el sistema.</p>
 
             <div class="p-3 mb-4 bg-light border rounded text-start" style="font-size: 13px;">
               <div class="d-flex justify-content-between align-items-center mb-2">
-                <span class="text-muted">Registro afectado:</span>
+                <span class="text-muted">Registro a afectar:</span>
                 <strong style="color: #081426;">Registro #69 (clase en vivo)</strong>
               </div>
               <div class="d-flex justify-content-between align-items-center mb-2">
@@ -16835,7 +17408,7 @@
               </div>
               <div class="d-flex justify-content-between align-items-center">
                 <span class="text-muted">Validación de dependencias:</span>
-                <span class="small text-success fw-bold"><i class="fa-solid fa-circle-check me-1"></i> Sin bloqueos activos</span>
+                <span class="small text-success fw-bold"><i class="fa-solid fa-circle-check me-1"></i> Sin dependencias bloqueantes</span>
               </div>
             </div>
 
@@ -19142,34 +19715,65 @@
                 <div class="wf-body">
                     <div class="wf-main-content">
                         
-      <!-- Modal Overlay Flotante de Confirmación de Operación -->
-      <div class="wf-modal-backdrop" style="padding: 20px 0;">
-        <div class="wf-card shadow-lg" style="max-width: 600px; margin: 0 auto; background: #FFFFFF; border-radius: 12px; border: 1px solid #E2E8F0; overflow: hidden;">
-          <!-- Cabecera del Diálogo Modal -->
+      <!-- Vista de Fondo: Tabla de Gestión Contextual -->
+      <div style="position: relative;">
+        <div class="wf-card mb-4 opacity-75" style="background: #FFFFFF; pointer-events: none; filter: blur(0.5px);">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Gestión y Listado de clase con clon</h3>
+            <span class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-plus me-1"></i> Nuevo Registro</span>
+          </div>
+          <div class="wf-table-wrap">
+            <table class="wf-table">
+              <thead>
+                <tr>
+                  <th>Identificador / Nombre</th>
+                  <th>Detalle / Contexto</th>
+                  <th>Estado</th>
+                  <th class="text-end">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="table-active" style="background: #FEF2F2; border-left: 3px solid #DC2626;">
+                  <td><strong>Registro #80 (clase con clon)</strong></td>
+                  <td>Mercado de Capitales & Finanzas</td>
+                  <td><span class="wf-badge status-active">Activo</span></td>
+                  <td class="text-end">
+                    <div class="d-inline-flex align-items-center gap-2">
+                      <button class="wf-btn wf-btn-sm wf-btn-danger d-flex align-items-center gap-1">
+                        <i class="fa-solid fa-trash"></i>
+                        <span>Eliminar Video</span>
+                      </button>
+                      <span class="pin-badge">A</span>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Diálogo Modal Superpuesto en Primer Plano -->
+        <div class="wf-modal-dialog shadow-lg" style="max-width: 600px; margin: 0 auto; background: #FFFFFF; border-radius: 12px; border: 1px solid #E2E8F0; overflow: hidden; position: relative; z-index: 10;">
+          <!-- Cabecera Limpia del Diálogo Modal -->
           <div class="p-3 border-bottom d-flex justify-content-between align-items-center" style="background: #F8FAFC;">
             <div class="d-flex align-items-center gap-2">
-              <span class="wf-btn wf-btn-sm wf-btn-outline text-danger" style="font-weight: 700;">
-                <i class="fa-solid fa-trash me-1"></i>
-                Eliminar Video
-              </span>
-              <span class="pin-badge">A</span>
-              <span style="color: #94A3B8;">|</span>
-              <span class="small fw-bold text-muted text-uppercase" style="font-size: 11px;">Confirmación requerida</span>
+              <i class="fa-solid fa-triangle-exclamation text-danger"></i>
+              <strong style="font-size: 14px; color: #081426;">Confirmación de Dar de baja clase con clon</strong>
             </div>
             <span style="color: #94A3B8; cursor: pointer; font-size: 16px;"><i class="fa-solid fa-xmark"></i></span>
           </div>
 
           <!-- Cuerpo del Diálogo Modal -->
           <div class="p-4 text-center">
-            <div class="mb-3" style="width: 56px; height: 56px; border-radius: 50%; background: #FEE2E2; color: #DC2626; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 24px;">
+            <div class="mb-3" style="width: 54px; height: 54px; border-radius: 50%; background: #FEE2E2; color: #DC2626; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 22px;">
               <i class="fa-solid fa-triangle-exclamation"></i>
             </div>
-            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin-bottom: 8px;">¿Confirma la operación de dar de baja clase con clon?</h3>
-            <p class="small text-muted mb-4" style="line-height: 1.5;">Esta acción procesará el cambio de estado en la base de datos y afectará la disponibilidad del elemento en el sistema.</p>
+            <h3 style="font-size: 17px; font-weight: 800; color: #081426; margin-bottom: 6px;">¿Está seguro de que desea confirmar la baja?</h3>
+            <p class="small text-muted mb-4" style="line-height: 1.5;">Esta operación marcará la entidad como inactiva/dada de baja en el sistema.</p>
 
             <div class="p-3 mb-4 bg-light border rounded text-start" style="font-size: 13px;">
               <div class="d-flex justify-content-between align-items-center mb-2">
-                <span class="text-muted">Registro afectado:</span>
+                <span class="text-muted">Registro a afectar:</span>
                 <strong style="color: #081426;">Registro #80 (clase con clon)</strong>
               </div>
               <div class="d-flex justify-content-between align-items-center mb-2">
@@ -19178,7 +19782,7 @@
               </div>
               <div class="d-flex justify-content-between align-items-center">
                 <span class="text-muted">Validación de dependencias:</span>
-                <span class="small text-success fw-bold"><i class="fa-solid fa-circle-check me-1"></i> Sin bloqueos activos</span>
+                <span class="small text-success fw-bold"><i class="fa-solid fa-circle-check me-1"></i> Sin dependencias bloqueantes</span>
               </div>
             </div>
 
@@ -19487,6 +20091,20 @@
                 <div class="wf-body">
                     <div class="wf-main-content">
                         
+      <!-- Cabecera de Gestión con Botón Principal + Nuevo -->
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+          <h3 style="font-size: 19px; font-weight: 800; color: #081426; margin: 0;">Buscar usuario</h3>
+          <p class="small text-muted m-0">Consulte, filtre y gestione los registros activos del sistema</p>
+        </div>
+        
+          <a href="#CU-81" class="wf-btn wf-btn-primary d-flex align-items-center gap-2" style="font-weight: 700;">
+            <i class="fa-solid fa-plus"></i>
+            <span>+ Nuevo Usuario</span>
+          </a>
+        
+      </div>
+
       <div class="wf-card mb-4" style="background: #FFFFFF;">
         <div class="row g-3 align-items-end">
           <div class="col-md-5">
@@ -19540,9 +20158,12 @@
               <td>2026-08-25</td>
               <td><span class="wf-badge status-active">Activo</span></td>
               <td class="text-end">
-                <div class="d-inline-flex align-items-center gap-1">
-                  <button class="wf-btn wf-btn-sm wf-btn-outline">Editar Usuario</button>
+                <div class="d-inline-flex align-items-center gap-2">
+                  <button class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-pen-to-square me-1"></i> Editar Usuario</button>
                   <span class="pin-badge">C</span>
+                  
+                    <button class="wf-btn wf-btn-sm wf-btn-outline text-danger" title="Dar de baja"><i class="fa-solid fa-trash"></i></button>
+                  
                 </div>
               </td>
             </tr>
@@ -19552,7 +20173,12 @@
               <td>2026-08-20</td>
               <td><span class="wf-badge status-active">Activo</span></td>
               <td class="text-end">
-                <button class="wf-btn wf-btn-sm wf-btn-outline">Editar Usuario</button>
+                <div class="d-inline-flex align-items-center gap-2">
+                  <button class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-pen-to-square me-1"></i> Editar Usuario</button>
+                  
+                    <button class="wf-btn wf-btn-sm wf-btn-outline text-danger" title="Dar de baja"><i class="fa-solid fa-trash"></i></button>
+                  
+                </div>
               </td>
             </tr>
           </tbody>
@@ -20119,34 +20745,65 @@
                 <div class="wf-body">
                     <div class="wf-main-content">
                         
-      <!-- Modal Overlay Flotante de Confirmación de Operación -->
-      <div class="wf-modal-backdrop" style="padding: 20px 0;">
-        <div class="wf-card shadow-lg" style="max-width: 600px; margin: 0 auto; background: #FFFFFF; border-radius: 12px; border: 1px solid #E2E8F0; overflow: hidden;">
-          <!-- Cabecera del Diálogo Modal -->
+      <!-- Vista de Fondo: Tabla de Gestión Contextual -->
+      <div style="position: relative;">
+        <div class="wf-card mb-4 opacity-75" style="background: #FFFFFF; pointer-events: none; filter: blur(0.5px);">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Gestión y Listado de usuario</h3>
+            <span class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-plus me-1"></i> Nuevo Registro</span>
+          </div>
+          <div class="wf-table-wrap">
+            <table class="wf-table">
+              <thead>
+                <tr>
+                  <th>Identificador / Nombre</th>
+                  <th>Detalle / Contexto</th>
+                  <th>Estado</th>
+                  <th class="text-end">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="table-active" style="background: #FEF2F2; border-left: 3px solid #DC2626;">
+                  <td><strong>Registro #85 (usuario)</strong></td>
+                  <td>Mercado de Capitales & Finanzas</td>
+                  <td><span class="wf-badge status-active">Activo</span></td>
+                  <td class="text-end">
+                    <div class="d-inline-flex align-items-center gap-2">
+                      <button class="wf-btn wf-btn-sm wf-btn-danger d-flex align-items-center gap-1">
+                        <i class="fa-solid fa-trash"></i>
+                        <span>Desactivar Cuenta</span>
+                      </button>
+                      <span class="pin-badge">A</span>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Diálogo Modal Superpuesto en Primer Plano -->
+        <div class="wf-modal-dialog shadow-lg" style="max-width: 600px; margin: 0 auto; background: #FFFFFF; border-radius: 12px; border: 1px solid #E2E8F0; overflow: hidden; position: relative; z-index: 10;">
+          <!-- Cabecera Limpia del Diálogo Modal -->
           <div class="p-3 border-bottom d-flex justify-content-between align-items-center" style="background: #F8FAFC;">
             <div class="d-flex align-items-center gap-2">
-              <span class="wf-btn wf-btn-sm wf-btn-outline text-danger" style="font-weight: 700;">
-                <i class="fa-solid fa-trash me-1"></i>
-                Desactivar Cuenta
-              </span>
-              <span class="pin-badge">A</span>
-              <span style="color: #94A3B8;">|</span>
-              <span class="small fw-bold text-muted text-uppercase" style="font-size: 11px;">Confirmación requerida</span>
+              <i class="fa-solid fa-triangle-exclamation text-danger"></i>
+              <strong style="font-size: 14px; color: #081426;">Confirmación de Dar de baja usuario</strong>
             </div>
             <span style="color: #94A3B8; cursor: pointer; font-size: 16px;"><i class="fa-solid fa-xmark"></i></span>
           </div>
 
           <!-- Cuerpo del Diálogo Modal -->
           <div class="p-4 text-center">
-            <div class="mb-3" style="width: 56px; height: 56px; border-radius: 50%; background: #FEE2E2; color: #DC2626; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 24px;">
+            <div class="mb-3" style="width: 54px; height: 54px; border-radius: 50%; background: #FEE2E2; color: #DC2626; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 22px;">
               <i class="fa-solid fa-triangle-exclamation"></i>
             </div>
-            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin-bottom: 8px;">¿Confirma la operación de dar de baja usuario?</h3>
-            <p class="small text-muted mb-4" style="line-height: 1.5;">Esta acción procesará el cambio de estado en la base de datos y afectará la disponibilidad del elemento en el sistema.</p>
+            <h3 style="font-size: 17px; font-weight: 800; color: #081426; margin-bottom: 6px;">¿Está seguro de que desea confirmar la baja?</h3>
+            <p class="small text-muted mb-4" style="line-height: 1.5;">Esta operación marcará la entidad como inactiva/dada de baja en el sistema.</p>
 
             <div class="p-3 mb-4 bg-light border rounded text-start" style="font-size: 13px;">
               <div class="d-flex justify-content-between align-items-center mb-2">
-                <span class="text-muted">Registro afectado:</span>
+                <span class="text-muted">Registro a afectar:</span>
                 <strong style="color: #081426;">Registro #85 (usuario)</strong>
               </div>
               <div class="d-flex justify-content-between align-items-center mb-2">
@@ -20155,7 +20812,7 @@
               </div>
               <div class="d-flex justify-content-between align-items-center">
                 <span class="text-muted">Validación de dependencias:</span>
-                <span class="small text-success fw-bold"><i class="fa-solid fa-circle-check me-1"></i> Sin bloqueos activos</span>
+                <span class="small text-success fw-bold"><i class="fa-solid fa-circle-check me-1"></i> Sin dependencias bloqueantes</span>
               </div>
             </div>
 
@@ -21665,6 +22322,15 @@
                 <div class="wf-body">
                     <div class="wf-main-content">
                         
+      <!-- Cabecera de Gestión con Botón Principal + Nuevo -->
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+          <h3 style="font-size: 19px; font-weight: 800; color: #081426; margin: 0;">Buscar sesión</h3>
+          <p class="small text-muted m-0">Consulte, filtre y gestione los registros activos del sistema</p>
+        </div>
+        
+      </div>
+
       <div class="wf-card mb-4" style="background: #FFFFFF;">
         <div class="row g-3 align-items-end">
           <div class="col-md-5">
@@ -21718,9 +22384,12 @@
               <td>2026-08-25</td>
               <td><span class="wf-badge status-active">Activo</span></td>
               <td class="text-end">
-                <div class="d-inline-flex align-items-center gap-1">
-                  <button class="wf-btn wf-btn-sm wf-btn-outline">Seleccionar / Ver</button>
+                <div class="d-inline-flex align-items-center gap-2">
+                  <button class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-pen-to-square me-1"></i> Seleccionar / Ver</button>
                   <span class="pin-badge">D</span>
+                  
+                    <button class="wf-btn wf-btn-sm wf-btn-outline text-danger" title="Dar de baja"><i class="fa-solid fa-trash"></i></button>
+                  
                 </div>
               </td>
             </tr>
@@ -21730,7 +22399,12 @@
               <td>2026-08-20</td>
               <td><span class="wf-badge status-active">Activo</span></td>
               <td class="text-end">
-                <button class="wf-btn wf-btn-sm wf-btn-outline">Seleccionar / Ver</button>
+                <div class="d-inline-flex align-items-center gap-2">
+                  <button class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-pen-to-square me-1"></i> Seleccionar / Ver</button>
+                  
+                    <button class="wf-btn wf-btn-sm wf-btn-outline text-danger" title="Dar de baja"><i class="fa-solid fa-trash"></i></button>
+                  
+                </div>
               </td>
             </tr>
           </tbody>
@@ -21875,34 +22549,65 @@
                 <div class="wf-body">
                     <div class="wf-main-content">
                         
-      <!-- Modal Overlay Flotante de Confirmación de Operación -->
-      <div class="wf-modal-backdrop" style="padding: 20px 0;">
-        <div class="wf-card shadow-lg" style="max-width: 600px; margin: 0 auto; background: #FFFFFF; border-radius: 12px; border: 1px solid #E2E8F0; overflow: hidden;">
-          <!-- Cabecera del Diálogo Modal -->
+      <!-- Vista de Fondo: Tabla de Gestión Contextual -->
+      <div style="position: relative;">
+        <div class="wf-card mb-4 opacity-75" style="background: #FFFFFF; pointer-events: none; filter: blur(0.5px);">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Gestión y Listado de sesión</h3>
+            <span class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-plus me-1"></i> Nuevo Registro</span>
+          </div>
+          <div class="wf-table-wrap">
+            <table class="wf-table">
+              <thead>
+                <tr>
+                  <th>Identificador / Nombre</th>
+                  <th>Detalle / Contexto</th>
+                  <th>Estado</th>
+                  <th class="text-end">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="table-active" style="background: #FEF2F2; border-left: 3px solid #DC2626;">
+                  <td><strong>Registro #94 (sesión)</strong></td>
+                  <td>Mercado de Capitales & Finanzas</td>
+                  <td><span class="wf-badge status-active">Activo</span></td>
+                  <td class="text-end">
+                    <div class="d-inline-flex align-items-center gap-2">
+                      <button class="wf-btn wf-btn-sm wf-btn-danger d-flex align-items-center gap-1">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                        <span>Cerrar Sesión Remota</span>
+                      </button>
+                      <span class="pin-badge">A</span>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Diálogo Modal Superpuesto en Primer Plano -->
+        <div class="wf-modal-dialog shadow-lg" style="max-width: 600px; margin: 0 auto; background: #FFFFFF; border-radius: 12px; border: 1px solid #E2E8F0; overflow: hidden; position: relative; z-index: 10;">
+          <!-- Cabecera Limpia del Diálogo Modal -->
           <div class="p-3 border-bottom d-flex justify-content-between align-items-center" style="background: #F8FAFC;">
             <div class="d-flex align-items-center gap-2">
-              <span class="wf-btn wf-btn-sm wf-btn-outline text-primary" style="font-weight: 700;">
-                <i class="fa-solid fa-arrow-right-from-bracket me-1"></i>
-                Cerrar Sesión Remota
-              </span>
-              <span class="pin-badge">A</span>
-              <span style="color: #94A3B8;">|</span>
-              <span class="small fw-bold text-muted text-uppercase" style="font-size: 11px;">Confirmación requerida</span>
+              <i class="fa-solid fa-triangle-exclamation text-danger"></i>
+              <strong style="font-size: 14px; color: #081426;">Confirmación de Eliminar sesión</strong>
             </div>
             <span style="color: #94A3B8; cursor: pointer; font-size: 16px;"><i class="fa-solid fa-xmark"></i></span>
           </div>
 
           <!-- Cuerpo del Diálogo Modal -->
           <div class="p-4 text-center">
-            <div class="mb-3" style="width: 56px; height: 56px; border-radius: 50%; background: #FEE2E2; color: #DC2626; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 24px;">
+            <div class="mb-3" style="width: 54px; height: 54px; border-radius: 50%; background: #FEE2E2; color: #DC2626; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 22px;">
               <i class="fa-solid fa-triangle-exclamation"></i>
             </div>
-            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin-bottom: 8px;">¿Confirma la operación de eliminar sesión?</h3>
-            <p class="small text-muted mb-4" style="line-height: 1.5;">Esta acción procesará el cambio de estado en la base de datos y afectará la disponibilidad del elemento en el sistema.</p>
+            <h3 style="font-size: 17px; font-weight: 800; color: #081426; margin-bottom: 6px;">¿Está seguro de que desea confirmar la baja?</h3>
+            <p class="small text-muted mb-4" style="line-height: 1.5;">Esta operación marcará la entidad como inactiva/dada de baja en el sistema.</p>
 
             <div class="p-3 mb-4 bg-light border rounded text-start" style="font-size: 13px;">
               <div class="d-flex justify-content-between align-items-center mb-2">
-                <span class="text-muted">Registro afectado:</span>
+                <span class="text-muted">Registro a afectar:</span>
                 <strong style="color: #081426;">Registro #94 (sesión)</strong>
               </div>
               <div class="d-flex justify-content-between align-items-center mb-2">
@@ -21911,7 +22616,7 @@
               </div>
               <div class="d-flex justify-content-between align-items-center">
                 <span class="text-muted">Validación de dependencias:</span>
-                <span class="small text-success fw-bold"><i class="fa-solid fa-circle-check me-1"></i> Sin bloqueos activos</span>
+                <span class="small text-success fw-bold"><i class="fa-solid fa-circle-check me-1"></i> Sin dependencias bloqueantes</span>
               </div>
             </div>
 
