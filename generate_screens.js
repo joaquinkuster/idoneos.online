@@ -33,42 +33,84 @@ if (dssContent) {
 }
 dssMap['CU-26b'] = 'verContenidoUnidad(unaUnidad) ➔ ModoEdición';
 
-// 3. Heroicons SVG Library (Full Outline Heroicons v2)
+// 3. FontAwesome 6 Helper Functions
+const fa = {
+  graduationCap: (cls="text-slate-400") => `<i class="fa-solid fa-graduation-cap ${cls}"></i>`,
+  briefcase: (cls="text-slate-400") => `<i class="fa-solid fa-briefcase ${cls}"></i>`,
+  bolt: (cls="") => `<i class="fa-solid fa-bolt ${cls}"></i>`,
+  filePdf: (cls="") => `<i class="fa-solid fa-file-pdf ${cls}"></i>`,
+  fileLines: (cls="") => `<i class="fa-solid fa-file-lines ${cls}"></i>`,
+  video: (cls="") => `<i class="fa-solid fa-video ${cls}"></i>`,
+  chartLine: (cls="") => `<i class="fa-solid fa-chart-line ${cls}"></i>`,
+  chartBar: (cls="") => `<i class="fa-solid fa-chart-simple ${cls}"></i>`,
+  book: (cls="") => `<i class="fa-solid fa-book ${cls}"></i>`,
+  bookOpen: (cls="") => `<i class="fa-solid fa-book-open ${cls}"></i>`,
+  clipboardCheck: (cls="") => `<i class="fa-solid fa-clipboard-check ${cls}"></i>`,
+  listCheck: (cls="") => `<i class="fa-solid fa-list-check ${cls}"></i>`,
+  comments: (cls="") => `<i class="fa-solid fa-comments ${cls}"></i>`,
+  circleCheck: (cls="") => `<i class="fa-solid fa-circle-check ${cls}"></i>`,
+  lock: (cls="") => `<i class="fa-solid fa-lock ${cls}"></i>`,
+  gear: (cls="") => `<i class="fa-solid fa-gear ${cls}"></i>`,
+  plus: (cls="") => `<i class="fa-solid fa-plus ${cls}"></i>`,
+  penToSquare: (cls="") => `<i class="fa-solid fa-pen-to-square ${cls}"></i>`,
+  trash: (cls="") => `<i class="fa-solid fa-trash ${cls}"></i>`,
+  bars: (cls="") => `<i class="fa-solid fa-bars ${cls}"></i>`,
+  arrowRight: (cls="") => `<i class="fa-solid fa-arrow-right ${cls}"></i>`,
+  triangleExclamation: (cls="") => `<i class="fa-solid fa-triangle-exclamation ${cls}"></i>`,
+  chevronDown: (cls="") => `<i class="fa-solid fa-chevron-down ${cls}"></i>`,
+  wandMagicSparkles: (cls="") => `<i class="fa-solid fa-wand-magic-sparkles ${cls}"></i>`,
+  microphone: (cls="") => `<i class="fa-solid fa-microphone ${cls}"></i>`,
+  camera: (cls="") => `<i class="fa-solid fa-camera ${cls}"></i>`,
+  towerBroadcast: (cls="") => `<i class="fa-solid fa-tower-broadcast ${cls}"></i>`,
+  creditCard: (cls="") => `<i class="fa-solid fa-credit-card ${cls}"></i>`,
+  user: (cls="") => `<i class="fa-solid fa-user ${cls}"></i>`,
+  users: (cls="") => `<i class="fa-solid fa-users ${cls}"></i>`,
+  shieldHalved: (cls="") => `<i class="fa-solid fa-shield-halved ${cls}"></i>`,
+  tag: (cls="") => `<i class="fa-solid fa-tag ${cls}"></i>`,
+  bell: (cls="") => `<i class="fa-solid fa-bell ${cls}"></i>`,
+  magnifyingGlass: (cls="") => `<i class="fa-solid fa-magnifying-glass ${cls}"></i>`,
+  xmark: (cls="") => `<i class="fa-solid fa-xmark ${cls}"></i>`,
+  image: (cls="") => `<i class="fa-solid fa-image ${cls}"></i>`,
+  arrowRightFromBracket: (cls="") => `<i class="fa-solid fa-arrow-right-from-bracket ${cls}"></i>`,
+  circlePlay: (cls="") => `<i class="fa-solid fa-circle-play ${cls}"></i>`
+};
+
+// Aliases for compatibility
 const icons = {
-  academicCap: (cls="w-5 h-5") => `<svg class="${cls}" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-5.25 6.557c1.764.39 3.58.648 5.25.75" /></svg>`,
-  briefcase: (cls="w-5 h-5") => `<svg class="${cls}" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 0 0 .75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 0 0-3.413-.387m4.5 8.006c-.194.165-.42.295-.673.38A23.978 23.978 0 0 1 12 15.75c-2.648 0-5.195-.429-7.577-1.22a2.016 2.016 0 0 1-.673-.38m0 0A2.18 2.18 0 0 1 3 12.489V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 0 1 3.413-.387m7.5 0V5.25A2.25 2.25 0 0 0 13.5 3h-3a2.25 2.25 0 0 0-2.25 2.25v.894m7.5 0a48.667 48.667 0 0 0-7.5 0M12 12.75h.008v.008H12v-.008Z" /></svg>`,
-  bolt: (cls="w-5 h-5") => `<svg class="${cls}" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" /></svg>`,
-  documentText: (cls="w-5 h-5") => `<svg class="${cls}" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" /></svg>`,
-  videoCamera: (cls="w-5 h-5") => `<svg class="${cls}" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m15.75 10.5 4.72-4.72a.75.75 0 0 1 1.28.53v11.38a.75.75 0 0 1-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25h-9A2.25 2.25 0 0 0 2.25 7.5v9a2.25 2.25 0 0 0 2.25 2.25Z" /></svg>`,
-  presentationChart: (cls="w-5 h-5") => `<svg class="${cls}" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0 1 18 16.5h-2.25m-7.5 0h7.5m-7.5 0-1 3m8.5-3 1 3m0 0 .5 1.5m-.5-1.5h-9.5m0 0-.5 1.5m.75-9 3-3 2.143 2.143L15.75 6" /></svg>`,
-  bookOpen: (cls="w-5 h-5") => `<svg class="${cls}" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" /></svg>`,
-  clipboardCheck: (cls="w-5 h-5") => `<svg class="${cls}" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.35 3.836c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m8.9-4.414c.376.023.75.05 1.124.08 1.131.09 1.976 1.053 1.976 2.188V19.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 19.5V6.25c0-1.135.845-2.098 1.976-2.188a48.57 48.57 0 0 1 1.124-.08C7.6 3.98 7.6 3.98 7.6 3.98m3.75 9.75 2.25 2.25 4.5-4.5" /></svg>`,
-  queueList: (cls="w-5 h-5") => `<svg class="${cls}" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 0 1 0 3.75H5.625a1.875 1.875 0 0 1 0-3.75Z" /></svg>`,
-  chatBubble: (cls="w-5 h-5") => `<svg class="${cls}" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a.75.75 0 0 1-.974-.94 5.95 5.95 0 0 0 .97-2.613A8.136 8.136 0 0 1 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z" /></svg>`,
-  checkCircle: (cls="w-5 h-5") => `<svg class="${cls}" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>`,
-  lockClosed: (cls="w-5 h-5") => `<svg class="${cls}" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" /></svg>`,
-  cog6Tooth: (cls="w-5 h-5") => `<svg class="${cls}" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 0 1 0 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 0 1 0-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>`,
-  plus: (cls="w-4 h-4") => `<svg class="${cls}" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>`,
-  pencilSquare: (cls="w-4 h-4") => `<svg class="${cls}" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" /></svg>`,
-  trash: (cls="w-4 h-4") => `<svg class="${cls}" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" /></svg>`,
-  bars3: (cls="w-5 h-5") => `<svg class="${cls}" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" /></svg>`,
-  arrowRight: (cls="w-4 h-4") => `<svg class="${cls}" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" /></svg>`,
-  exclamationTriangle: (cls="w-6 h-6") => `<svg class="${cls}" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" /></svg>`,
-  chevronDown: (cls="w-4 h-4") => `<svg class="${cls}" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" /></svg>`,
-  sparkles: (cls="w-5 h-5") => `<svg class="${cls}" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z" /></svg>`,
-  microphone: (cls="w-5 h-5") => `<svg class="${cls}" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 18.75a6 6 0 0 0 6-6v-1.5m-6 7.5a6 6 0 0 1-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15a3 3 0 0 0 3-3V4.5a3 3 0 0 0-6 0v7.5a3 3 0 0 0 3 3Z" /></svg>`,
-  camera: (cls="w-5 h-5") => `<svg class="${cls}" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.774 48.774 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM18.75 10.5h.008v.008h-.008V10.5Z" /></svg>`,
-  signal: (cls="w-5 h-5") => `<svg class="${cls}" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.348 14.652a3.75 3.75 0 0 1 0-5.304m5.304 0a3.75 3.75 0 0 1 0 5.304m-7.425 2.121a6.75 6.75 0 0 1 0-9.546m9.546 0a6.75 6.75 0 0 1 0 9.546M5.106 18.894c-3.808-3.807-3.808-9.98 0-13.788m13.788 0c3.808 3.807 3.808 9.98 0 13.788M12 12h.008v.008H12V12Z" /></svg>`,
-  creditCard: (cls="w-5 h-5") => `<svg class="${cls}" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5Z" /></svg>`,
-  chartBar: (cls="w-5 h-5") => `<svg class="${cls}" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" /></svg>`,
-  user: (cls="w-5 h-5") => `<svg class="${cls}" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" /></svg>`,
-  users: (cls="w-5 h-5") => `<svg class="${cls}" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" /></svg>`,
-  shieldCheck: (cls="w-5 h-5") => `<svg class="${cls}" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" /></svg>`,
-  tag: (cls="w-5 h-5") => `<svg class="${cls}" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 0 0 5.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 0 0 9.568 3Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6Z" /></svg>`,
-  bell: (cls="w-5 h-5") => `<svg class="${cls}" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" /></svg>`,
-  magnifyingGlass: (cls="w-5 h-5") => `<svg class="${cls}" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" /></svg>`,
-  xMark: (cls="w-5 h-5") => `<svg class="${cls}" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>`,
-  photo: (cls="w-5 h-5") => `<svg class="${cls}" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" /></svg>`
+  academicCap: (cls="") => fa.graduationCap(cls),
+  briefcase: (cls="") => fa.briefcase(cls),
+  bolt: (cls="") => fa.bolt(cls),
+  documentText: (cls="") => fa.fileLines(cls),
+  videoCamera: (cls="") => fa.video(cls),
+  presentationChart: (cls="") => fa.chartLine(cls),
+  bookOpen: (cls="") => fa.bookOpen(cls),
+  clipboardCheck: (cls="") => fa.clipboardCheck(cls),
+  queueList: (cls="") => fa.listCheck(cls),
+  chatBubble: (cls="") => fa.comments(cls),
+  checkCircle: (cls="") => fa.circleCheck(cls),
+  lockClosed: (cls="") => fa.lock(cls),
+  cog6Tooth: (cls="") => fa.gear(cls),
+  plus: (cls="") => fa.plus(cls),
+  pencilSquare: (cls="") => fa.penToSquare(cls),
+  trash: (cls="") => fa.trash(cls),
+  bars3: (cls="") => fa.bars(cls),
+  arrowRight: (cls="") => fa.arrowRight(cls),
+  exclamationTriangle: (cls="") => fa.triangleExclamation(cls),
+  chevronDown: (cls="") => fa.chevronDown(cls),
+  sparkles: (cls="") => fa.wandMagicSparkles(cls),
+  microphone: (cls="") => fa.microphone(cls),
+  camera: (cls="") => fa.camera(cls),
+  signal: (cls="") => fa.towerBroadcast(cls),
+  creditCard: (cls="") => fa.creditCard(cls),
+  chartBar: (cls="") => fa.chartBar(cls),
+  user: (cls="") => fa.user(cls),
+  users: (cls="") => fa.users(cls),
+  shieldCheck: (cls="") => fa.shieldHalved(cls),
+  tag: (cls="") => fa.tag(cls),
+  bell: (cls="") => fa.bell(cls),
+  magnifyingGlass: (cls="") => fa.magnifyingGlass(cls),
+  xMark: (cls="") => fa.xmark(cls),
+  photo: (cls="") => fa.image(cls)
 };
 
 // 4. Parse Markdown CUs
@@ -354,14 +396,14 @@ function generateScreenContent(cu) {
   // --- TYPE 2: VISTA DEL CURSO ESTILO MOODLE (ALUMNO) --- CU-26, CU-62
   if (id === 'CU-26') {
     return `
-      <div class="wf-course-header-banner mb-4">
-        <div class="d-flex justify-content-between align-items-start">
+      <div class="wf-card mb-4" style="background: #FFFFFF;">
+        <div class="d-flex justify-content-between align-items-start pb-3 border-bottom">
           <div>
-            <div class="wf-breadcrumbs small text-muted mb-1">
-              <span>Mis cursos</span> ➔ <span>Mercado de Capitales</span> ➔ <strong>Especialización en Idoneidad Bursátil</strong>
+            <div class="small text-muted mb-1" style="font-size: 11px;">
+              <span>Mis cursos</span> <i class="fa-solid fa-chevron-right" style="font-size: 9px; margin: 0 4px;"></i> <span>Mercado de Capitales</span> <i class="fa-solid fa-chevron-right" style="font-size: 9px; margin: 0 4px;"></i> <strong>Especialización en Idoneidad Bursátil</strong>
             </div>
-            <h3 class="wf-course-main-title">Especialización en Idoneidad Bursátil (Cohorte 2026-1)</h3>
-            <p class="small text-muted">Docente Titular: Lic. Fausto Spotorno | Duración: 8 Semanas | Programa Vigente</p>
+            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 4px 0;">Especialización en Idoneidad Bursátil (Cohorte 2026-1)</h3>
+            <p class="small text-muted" style="margin: 0;">Docente Titular: Lic. Fausto Spotorno | Duración: 8 Semanas | Programa Vigente</p>
           </div>
           <div class="text-end">
             <span class="wf-badge status-active">Inscripción Vigente</span>
@@ -369,41 +411,42 @@ function generateScreenContent(cu) {
           </div>
         </div>
 
-        <div class="wf-course-nav-tabs mt-3 d-flex justify-content-between align-items-center">
-          <div class="d-flex align-items-center gap-4">
+        <div class="d-flex justify-content-between align-items-center pt-2">
+          <div class="d-flex align-items-center gap-2">
             <button class="wf-tab-btn active"><span class="pin-badge me-1">${badges[0] || 'A'}</span> Curso</button>
             <button class="wf-tab-btn"><span class="pin-badge me-1">${badges[4] || 'E'}</span> Participantes</button>
             <button class="wf-tab-btn"><span class="pin-badge me-1">${badges[5] || 'F'}</span> Calificaciones</button>
             <button class="wf-tab-btn"><span class="pin-badge me-1">${badges[1] || 'B'}</span> Cronograma</button>
             <button class="wf-tab-btn">Insignias</button>
             <button class="wf-tab-btn">Competencias</button>
-            <button class="wf-tab-btn">Más ▾</button>
           </div>
         </div>
       </div>
 
-      <div class="wf-moodle-accordion">
-        <div class="wf-unit-box completed mb-3">
+      <div class="d-flex flex-column gap-3">
+        <!-- Unidad 1 -->
+        <div class="wf-unit-box">
           <div class="wf-unit-header d-flex justify-content-between align-items-center">
             <div class="d-flex align-items-center gap-2">
-              <span class="text-success">${icons.checkCircle("w-5 h-5")}</span>
+              <i class="fa-solid fa-circle-check text-success"></i>
               <strong>Unidad 1: Marco Regulatorio y Ley de Mercado de Capitales</strong>
             </div>
             <span class="wf-badge status-active">Aprobada (Nota: 9/10)</span>
           </div>
           <div class="wf-unit-body">
             <ul class="wf-content-list">
-              <li class="d-flex align-items-center gap-2">${icons.documentText("w-4 h-4 text-muted")} <a href="#" class="wf-link">Ley 26.831 y modificatorias (PDF - 2.4 MB)</a></li>
-              <li class="d-flex align-items-center gap-2">${icons.videoCamera("w-4 h-4 text-muted")} <a href="#" class="wf-link">Grabación: Estructura del Mercado Argentino (45 min)</a></li>
-              <li class="d-flex align-items-center gap-2">${icons.bookOpen("w-4 h-4 text-muted")} <a href="#" class="wf-link">Glosario de Términos CNV (12 términos)</a></li>
+              <li class="d-flex align-items-center gap-2"><i class="fa-solid fa-file-pdf text-danger"></i> <a href="#" class="wf-link">Ley 26.831 y modificatorias (PDF - 2.4 MB)</a></li>
+              <li class="d-flex align-items-center gap-2"><i class="fa-solid fa-circle-play text-primary"></i> <a href="#" class="wf-link">Grabación: Estructura del Mercado Argentino (45 min)</a></li>
+              <li class="d-flex align-items-center gap-2"><i class="fa-solid fa-book text-warning"></i> <a href="#" class="wf-link">Glosario de Términos CNV (12 términos)</a></li>
             </ul>
           </div>
         </div>
 
-        <div class="wf-unit-box active mb-3">
+        <!-- Unidad 2 -->
+        <div class="wf-unit-box">
           <div class="wf-unit-header d-flex justify-content-between align-items-center">
             <div class="d-flex align-items-center gap-2">
-              <span class="text-navy">${icons.bookOpen("w-5 h-5")}</span>
+              <i class="fa-solid fa-book-open" style="color: var(--wf-gold);"></i>
               <strong>Unidad 2: Instrumentos de Renta Fija (Bonos y Obligaciones Negociables)</strong>
             </div>
             <div class="d-flex align-items-center gap-2">
@@ -413,28 +456,28 @@ function generateScreenContent(cu) {
           </div>
           <div class="wf-unit-body">
             <p class="small text-muted mb-3">Conceptos de TIR, Duration, Modified Duration y curvas de rendimiento soberanas.</p>
-            <div class="wf-subcontent-group">
+            <div class="mb-3">
               <div class="wf-subcontent-title">Materiales de Estudio</div>
               <ul class="wf-content-list">
-                <li class="d-flex align-items-center gap-2">${icons.documentText("w-4 h-4 text-muted")} <a href="#" class="wf-link">Guía Teórica de Renta Fija v2.1 (PDF)</a></li>
-                <li class="d-flex align-items-center gap-2">${icons.presentationChart("w-4 h-4 text-muted")} <a href="#" class="wf-link">Planilla Excel: Cálculo de TIR y Flujos de Fondos</a></li>
+                <li class="d-flex align-items-center gap-2"><i class="fa-solid fa-file-pdf text-danger"></i> <a href="#" class="wf-link">Guía Teórica de Renta Fija v2.1 (PDF)</a></li>
+                <li class="d-flex align-items-center gap-2"><i class="fa-solid fa-chart-line text-info"></i> <a href="#" class="wf-link">Planilla Excel: Cálculo de TIR y Flujos de Fondos</a></li>
               </ul>
             </div>
 
-            <div class="wf-subcontent-group mt-3">
+            <div>
               <div class="wf-subcontent-title">Actividades & Evaluaciones</div>
               <ul class="wf-content-list">
                 <li>
                   <div class="d-flex justify-content-between align-items-center">
                     <div class="d-flex align-items-center gap-2">
-                      ${icons.clipboardCheck("w-4 h-4 text-navy")}
+                      <i class="fa-solid fa-clipboard-check text-success"></i>
                       <span><a href="#CU-63" class="wf-link"><strong>Autoevaluación Unidad 2: Ejercicios de Rendimiento</strong></a> (3 intentos máx.)</span>
                     </div>
                     <span class="pin-badge">${badges[3] || 'D'}</span>
                   </div>
                 </li>
-                <li class="d-flex align-items-center gap-2">${icons.chatBubble("w-4 h-4 text-muted")} <a href="#CU-35" class="wf-link">Foro de Consultas: Dudas sobre Duración Modificada</a> (4 consultas)</li>
-                <li class="d-flex align-items-center gap-2">${icons.videoCamera("w-4 h-4 text-danger")} <a href="#CU-72" class="wf-link">Clase en Vivo: Streaming interactivo</a></li>
+                <li class="d-flex align-items-center gap-2"><i class="fa-solid fa-comments text-muted"></i> <a href="#CU-35" class="wf-link">Foro de Consultas: Dudas sobre Duración Modificada</a> (4 consultas)</li>
+                <li class="d-flex align-items-center gap-2"><i class="fa-solid fa-video text-danger"></i> <a href="#CU-72" class="wf-link">Clase en Vivo: Streaming interactivo</a></li>
               </ul>
             </div>
           </div>
@@ -446,24 +489,24 @@ function generateScreenContent(cu) {
   // --- TYPE 3: MODO EDICIÓN DEL CURSO --- CU-26b, CU-19, CU-20, CU-21, CU-22
   if (['CU-26b', 'CU-19', 'CU-20', 'CU-21', 'CU-22'].includes(id)) {
     return `
-      <div class="wf-course-header-banner mb-4">
-        <div class="d-flex justify-content-between align-items-start">
+      <div class="wf-card mb-4" style="background: #FFFFFF;">
+        <div class="d-flex justify-content-between align-items-start pb-3 border-bottom">
           <div>
-            <h2 class="wf-course-main-title" style="font-size: 24px; font-weight: 700; color: #1E293B;">Especialización en Idoneidad Bursátil</h2>
-            <div class="wf-breadcrumbs small text-muted mt-1" style="color: #D97706;">
-              <span>Página Principal</span> / <span>Mis cursos</span> / <span>Idoneidad Bursátil</span>
+            <h2 style="font-size: 20px; font-weight: 800; color: #081426; margin: 0;">Especialización en Idoneidad Bursátil</h2>
+            <div class="small text-muted mt-1">
+              <span>Página Principal</span> <i class="fa-solid fa-chevron-right" style="font-size: 9px; margin: 0 4px;"></i> <span>Mis cursos</span> <i class="fa-solid fa-chevron-right" style="font-size: 9px; margin: 0 4px;"></i> <span>Idoneidad Bursátil</span>
             </div>
           </div>
           <div class="d-flex align-items-center gap-3">
             <div class="d-flex align-items-center gap-2 bg-light p-2 border rounded">
-              <span class="wf-badge status-active">Modo Edición ACTIVO</span>
+              <span class="wf-badge status-active"><i class="fa-solid fa-pen-to-square me-1"></i> Modo Edición ACTIVO</span>
               <span class="pin-badge">${badges[2] || 'C'}</span>
             </div>
-            <div class="text-muted cursor-pointer" title="Ajustes del curso">${icons.cog6Tooth("w-6 h-6 text-slate-600")}</div>
+            <div class="text-muted cursor-pointer" title="Ajustes del curso"><i class="fa-solid fa-gear" style="font-size: 18px;"></i></div>
           </div>
         </div>
 
-        <div class="wf-course-nav-tabs mt-3 d-flex justify-content-between align-items-center">
+        <div class="d-flex justify-content-between align-items-center pt-2">
           <div class="d-flex align-items-center gap-1">
             <button class="wf-tab-btn active"><span class="pin-badge me-1">${badges[1] || 'B'}</span> Curso & Unidades</button>
             <a href="#CU-27" class="wf-tab-btn">Materiales</a>
@@ -472,11 +515,10 @@ function generateScreenContent(cu) {
             <a href="#CU-53" class="wf-tab-btn">Pools</a>
             <a href="#CU-35" class="wf-tab-btn">Foros</a>
             <a href="#CU-65" class="wf-tab-btn">Clases en Vivo</a>
-            <span class="wf-tab-btn text-muted">Más ▾</span>
           </div>
-          <div class="d-flex align-items-center gap-2 pb-1">
+          <div class="d-flex align-items-center gap-2">
             <button class="wf-btn wf-btn-sm wf-btn-outline d-flex align-items-center gap-1">
-              ${icons.plus()}
+              <i class="fa-solid fa-plus"></i>
               <span>Añadir secciones</span>
             </button>
             <span class="pin-badge">${badges[0] || 'A'}</span>
@@ -484,31 +526,35 @@ function generateScreenContent(cu) {
         </div>
       </div>
 
-      <div class="wf-moodle-accordion">
-        <div class="wf-unit-box mb-3 p-3 bg-white border rounded">
-          <div class="d-flex justify-content-between align-items-center mb-3">
+      <div class="d-flex flex-column gap-3">
+        <!-- Unidad 1 en Modo Edición -->
+        <div class="wf-unit-box">
+          <div class="wf-unit-header d-flex justify-content-between align-items-center">
             <div class="d-flex align-items-center gap-2">
-              <span class="text-muted cursor-move">${icons.bars3("w-5 h-5")}</span>
-              <h4 style="font-size: 16px; font-weight: 700; color: #D97706; margin: 0;">Unidad 1: Marco Regulatorio y Ley de Mercado de Capitales</h4>
-              <span class="text-muted">${icons.pencilSquare("w-4 h-4")}</span>
+              <i class="fa-solid fa-bars text-muted" style="cursor: grab;"></i>
+              <strong>Unidad 1: Marco Regulatorio y Ley de Mercado de Capitales</strong>
+              <button class="wf-btn wf-btn-sm wf-btn-outline" style="padding: 2px 6px; height: 24px;"><i class="fa-solid fa-pen-to-square"></i></button>
             </div>
-            <span class="small text-muted">Editar ▾</span>
+            <div class="d-flex align-items-center gap-2">
+              <button class="wf-btn wf-btn-sm wf-btn-outline">Editar <i class="fa-solid fa-chevron-down ms-1" style="font-size: 10px;"></i></button>
+            </div>
           </div>
+          <div class="wf-unit-body">
+            <ul class="wf-content-list">
+              <li class="d-flex justify-content-between align-items-center p-2 border rounded bg-white">
+                <div class="d-flex align-items-center gap-2">
+                  <i class="fa-solid fa-bars text-muted" style="cursor: grab;"></i>
+                  <i class="fa-solid fa-file-pdf text-danger"></i>
+                  <span>Ley 26.831 y modificatorias (PDF - 2.4 MB)</span>
+                </div>
+                <button class="wf-btn wf-btn-sm wf-btn-outline" style="padding: 2px 8px; height: 24px;">Editar <i class="fa-solid fa-chevron-down ms-1" style="font-size: 10px;"></i></button>
+              </li>
+            </ul>
 
-          <div class="wf-unit-body p-0">
-            <div class="wf-content-item-row d-flex justify-content-between align-items-center py-2 border-bottom">
-              <div class="d-flex align-items-center gap-2 ps-3">
-                <span class="text-muted">${icons.bars3("w-4 h-4")}</span>
-                ${icons.documentText("w-4 h-4 text-muted")}
-                <span>Ley 26.831 y modificatorias (PDF - 2.4 MB)</span>
-                <span class="text-muted">${icons.pencilSquare("w-3 h-3")}</span>
-              </div>
-              <span class="small text-muted pe-2">Editar ▾</span>
-            </div>
-
-            <div class="d-flex justify-content-end align-items-center gap-2 mt-3 pt-2">
-              <a href="#CU-28" class="text-decoration-none small fw-bold d-flex align-items-center gap-1 p-2 rounded" style="color: #1E293B; background: #F1F5F9;">
-                ${icons.plus("w-4 h-4")} <strong>Añade una actividad o un recurso</strong>
+            <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
+              <a href="#CU-28" class="wf-link d-flex align-items-center gap-2" style="font-size: 12px; font-weight: 700; color: #081426;">
+                <i class="fa-solid fa-plus-circle" style="color: var(--wf-gold);"></i>
+                <span>Añade una actividad o un recurso</span>
               </a>
               <span class="pin-badge">${badges[3] || badges[4] || 'D'}</span>
             </div>
@@ -630,55 +676,52 @@ function generateScreenContent(cu) {
     }
 
     return `
-      <div class="wf-modal-box" style="max-width: 900px; margin: 20px auto; border: 1px solid #CBD5E1; border-radius: 12px; box-shadow: 0 24px 54px rgba(0,0,0,0.18); overflow: hidden; background: #FFFFFF;">
-        <div class="d-flex justify-content-between align-items-center px-5 py-4 bg-white border-bottom">
-          <h3 style="font-size: 19px; font-weight: 700; color: #1E293B; margin: 0;">Añade una actividad o un recurso</h3>
-          <span class="wf-close-btn" style="font-size: 22px; color: #94A3B8; cursor: pointer; font-weight: 700;">✕</span>
+      <div class="wf-modal-box" style="max-width: 900px; margin: 20px auto;">
+        <div class="wf-modal-header">
+          <h3 class="wf-modal-title">Añade una actividad o un recurso</h3>
+          <span style="font-size: 18px; color: #94A3B8; cursor: pointer;"><i class="fa-solid fa-xmark"></i></span>
         </div>
 
-        <div class="row g-0 bg-white" style="min-height: 440px;">
-          <div class="col-md-5 border-end p-4" style="background: #F8FAFC;">
-            <div class="small fw-bold text-muted text-uppercase mb-3">ACTIVIDADES & RECURSOS</div>
-            <div class="d-flex flex-column gap-2">
-              <label class="d-flex align-items-center gap-3 p-3 rounded cursor-pointer ${isMaterial ? 'bg-white border shadow-sm fw-bold' : ''}">
-                <input type="radio" name="act_opt" ${isMaterial ? 'checked' : ''}>
-                ${icons.documentText("w-5 h-5 text-primary")}
-                <span>Material / Documento PDF</span>
-              </label>
-              <label class="d-flex align-items-center gap-3 p-3 rounded cursor-pointer ${isGlosario ? 'bg-white border shadow-sm fw-bold' : ''}">
-                <input type="radio" name="act_opt" ${isGlosario ? 'checked' : ''}>
-                ${icons.bookOpen("w-5 h-5 text-warning")}
-                <span>Glosario de Términos</span>
-              </label>
-              <label class="d-flex align-items-center gap-3 p-3 rounded cursor-pointer ${isEval ? 'bg-white border shadow-sm fw-bold' : ''}">
-                <input type="radio" name="act_opt" ${isEval ? 'checked' : ''}>
-                ${icons.clipboardCheck("w-5 h-5 text-success")}
-                <span>Autoevaluación</span>
-              </label>
-              <label class="d-flex align-items-center gap-3 p-3 rounded cursor-pointer ${isPool ? 'bg-white border shadow-sm fw-bold' : ''}">
-                <input type="radio" name="act_opt" ${isPool ? 'checked' : ''}>
-                ${icons.queueList("w-5 h-5 text-info")}
-                <span>Pool de Preguntas</span>
-              </label>
-              <label class="d-flex align-items-center gap-3 p-3 rounded cursor-pointer ${isForo ? 'bg-white border shadow-sm fw-bold' : ''}">
-                <input type="radio" name="act_opt" ${isForo ? 'checked' : ''}>
-                ${icons.chatBubble("w-5 h-5 text-muted")}
-                <span>Foro de Consultas</span>
-              </label>
-              <label class="d-flex align-items-center gap-3 p-3 rounded cursor-pointer ${isLive ? 'bg-white border shadow-sm fw-bold' : ''}">
-                <input type="radio" name="act_opt" ${isLive ? 'checked' : ''}>
-                ${icons.videoCamera("w-5 h-5 text-danger")}
-                <span>Clase en Vivo (Streaming)</span>
-              </label>
+        <div class="wf-modal-grid">
+          <div class="wf-modal-sidebar">
+            <div>
+              <div class="small fw-bold text-muted text-uppercase mb-3">ACTIVIDADES & RECURSOS</div>
+              <div class="d-flex flex-column gap-1">
+                <div class="wf-modal-option ${isMaterial ? 'active' : ''}">
+                  <i class="fa-solid fa-file-pdf text-primary"></i>
+                  <span>Material / Documento PDF</span>
+                </div>
+                <div class="wf-modal-option ${isGlosario ? 'active' : ''}">
+                  <i class="fa-solid fa-book-open text-warning"></i>
+                  <span>Glosario de Términos</span>
+                </div>
+                <div class="wf-modal-option ${isEval ? 'active' : ''}">
+                  <i class="fa-solid fa-clipboard-check text-success"></i>
+                  <span>Autoevaluación</span>
+                </div>
+                <div class="wf-modal-option ${isPool ? 'active' : ''}">
+                  <i class="fa-solid fa-list-check text-info"></i>
+                  <span>Pool de Preguntas</span>
+                </div>
+                <div class="wf-modal-option ${isForo ? 'active' : ''}">
+                  <i class="fa-solid fa-comments text-muted"></i>
+                  <span>Foro de Consultas</span>
+                </div>
+                <div class="wf-modal-option ${isLive ? 'active' : ''}">
+                  <i class="fa-solid fa-video text-danger"></i>
+                  <span>Clase en Vivo (Streaming)</span>
+                </div>
+              </div>
             </div>
-            <div class="mt-4 pt-2 text-end pe-2">
+            <div class="pt-3 text-end">
               <span class="pin-badge">${badges[0] || 'A'}</span>
             </div>
           </div>
 
-          <div class="col-md-7 d-flex flex-column justify-content-between p-4" style="padding: 32px 36px !important;">
+          <div class="wf-modal-content">
             <div>
-              <h4 style="font-size: 17px; font-weight: 700; color: #1E293B; margin-bottom: 10px;">${selectedTitle}</h4>
+              <h4 style="font-size: 16px; font-weight: 800; color: #081426; margin-bottom: 16px;">${selectedTitle}</h4>
+              
               <div class="mb-4">
                 <label class="wf-label">${inputLabel}</label>
                 <div class="wf-input-wrap">
@@ -692,7 +735,7 @@ function generateScreenContent(cu) {
                   <label class="wf-label">Archivo adjunto o URL</label>
                   <div class="wf-input-wrap">
                     <input type="text" class="wf-input" value="guia_teorica_u1.pdf">
-                    <button class="wf-btn wf-btn-outline wf-btn-sm">Examinar...</button>
+                    <button class="wf-btn wf-btn-outline wf-btn-sm"><i class="fa-solid fa-folder-open me-1"></i> Examinar...</button>
                     <span class="pin-badge">${badges[2] || 'C'}</span>
                   </div>
                 </div>
@@ -702,7 +745,7 @@ function generateScreenContent(cu) {
                 <div class="mb-4">
                   <label class="wf-label">Definición conceptual</label>
                   <div class="wf-input-wrap">
-                    <textarea class="wf-input" rows="3">Tasa que iguala el valor actual de los flujos de fondos con el precio del bono.</textarea>
+                    <textarea class="wf-input" rows="4">Tasa que iguala el valor actual de los flujos de fondos con el precio del bono.</textarea>
                     <span class="pin-badge">${badges[2] || 'C'}</span>
                   </div>
                 </div>
@@ -720,9 +763,9 @@ function generateScreenContent(cu) {
             </div>
 
             <div class="d-flex justify-content-end align-items-center gap-3 pt-4 border-top">
-              <button class="wf-btn wf-btn-sm" style="background: #E2E8F0; color: #475569;">Cancelar</button>
+              <button class="wf-btn wf-btn-outline wf-btn-sm">Cancelar</button>
               <div class="d-flex align-items-center gap-2">
-                <button class="wf-btn wf-btn-sm fw-bold text-white" style="background: #F97316;">Agregar</button>
+                <button class="wf-btn wf-btn-primary wf-btn-sm"><i class="fa-solid fa-plus me-1"></i> Agregar Recurso</button>
                 <span class="pin-badge">${badges[badges.length - 1] || 'D'}</span>
               </div>
             </div>
@@ -1519,10 +1562,13 @@ function generateScreenContent(cu) {
 
   // --- SPECIALIZED 16: FORMULARIOS DE REGISTRO / MODIFICACIÓN ESPECÍFICOS ---
   return `
-    <div class="wf-card" style="max-width: 860px; margin: 0 auto;">
-      <div class="wf-card-header mb-4 pb-3 border-bottom">
-        <h3 style="font-size: 18px; font-weight: 700; color: #0F172A;">${name}</h3>
-        <p class="text-muted" style="margin: 0; font-size: 13px;">Complete los datos correspondientes en el sistema.</p>
+    <div class="wf-card" style="max-width: 860px; margin: 0 auto; background: #FFFFFF;">
+      <div class="wf-card-header mb-4 pb-3 border-bottom d-flex justify-content-between align-items-center">
+        <div>
+          <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">${name}</h3>
+          <p class="small text-muted" style="margin: 3px 0 0;">Complete los datos correspondientes en el sistema.</p>
+        </div>
+        <span class="wf-badge status-active">Formulario Oficial</span>
       </div>
 
       <div class="row g-3">
@@ -1540,7 +1586,7 @@ function generateScreenContent(cu) {
             <div class="wf-input-wrap">
               <div class="wf-input wf-select-trigger">
                 <span>Mercado de Capitales</span>
-                ${icons.chevronDown()}
+                <i class="fa-solid fa-chevron-down" style="font-size: 11px;"></i>
               </div>
               <span class="pin-badge">${badges[1] || 'B'}</span>
             </div>
@@ -1562,19 +1608,19 @@ function generateScreenContent(cu) {
 
         <div class="col-md-4">
           <label class="wf-label">Estado</label>
-          <input type="text" class="wf-input" value="Habilitado / Activo" disabled class="bg-disabled">
+          <input type="text" class="wf-input bg-disabled" value="Habilitado / Activo" disabled>
         </div>
 
         <div class="col-md-4">
           <label class="wf-label">Docente Responsable</label>
-          <input type="text" class="wf-input" value="Lic. Fausto Spotorno" disabled class="bg-disabled">
+          <input type="text" class="wf-input bg-disabled" value="Lic. Fausto Spotorno" disabled>
         </div>
       </div>
 
       <div class="wf-card-footer d-flex justify-content-end gap-3 mt-4 pt-3 border-top">
         <button class="wf-btn wf-btn-outline">Cancelar / Volver</button>
         <div class="d-flex align-items-center gap-2">
-          <button class="wf-btn wf-btn-primary">Confirmar y Guardar</button>
+          <button class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Confirmar y Guardar</button>
           <span class="pin-badge">${badges[badges.length - 1] || 'D'}</span>
         </div>
       </div>
@@ -1590,6 +1636,7 @@ let html = `<!DOCTYPE html>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wireframes UI — Idóneos Online (${cus.length} Casos de Uso Reales)</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
         /* ==========================================================================
            ESTILO OFICIAL DEFINITIVO — IDÓNEOS ONLINE
@@ -1628,27 +1675,10 @@ let html = `<!DOCTYPE html>
             overflow: hidden;
         }
 
-        svg {
+        i {
             display: inline-block;
             vertical-align: middle;
-            flex-shrink: 0;
         }
-        .w-3 { width: 14px; }
-        .h-3 { height: 14px; }
-        .w-3\.5 { width: 15px; }
-        .h-3\.5 { height: 15px; }
-        .w-4 { width: 16px; }
-        .h-4 { height: 16px; }
-        .w-5 { width: 20px; }
-        .h-5 { height: 20px; }
-        .w-6 { width: 24px; }
-        .h-6 { height: 24px; }
-        .w-7 { width: 28px; }
-        .h-7 { height: 28px; }
-        .w-8 { width: 32px; }
-        .h-8 { height: 32px; }
-        .w-10 { width: 40px; }
-        .h-10 { height: 40px; }
 
         /* Navegación Lateral */
         #nav-sidebar {
@@ -1811,6 +1841,9 @@ let html = `<!DOCTYPE html>
             font-weight: 800;
             color: #FFFFFF;
             letter-spacing: -0.3px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .wf-brand-logo span {
@@ -1971,7 +2004,7 @@ let html = `<!DOCTYPE html>
             color: var(--wf-gold);
         }
 
-        /* Tarjetas de Cursos Oficiales (Estilo Imagen) */
+        /* Tarjetas de Cursos Oficiales */
         .wf-cards-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -2007,6 +2040,7 @@ let html = `<!DOCTYPE html>
 
         .wf-course-thumb-icon {
             color: rgba(255,255,255,0.25);
+            font-size: 32px;
             margin-bottom: 8px;
         }
 
@@ -2123,6 +2157,82 @@ let html = `<!DOCTYPE html>
             box-shadow: 0 2px 6px rgba(8, 20, 38, 0.3);
             flex-shrink: 0;
             user-select: none;
+        }
+
+        /* Modal Box Modern 2-Columns */
+        .wf-modal-box {
+            background: #FFFFFF;
+            border-radius: 12px;
+            box-shadow: 0 20px 50px rgba(8, 20, 38, 0.15);
+            border: 1px solid #CBD5E1;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .wf-modal-header {
+            padding: 18px 24px;
+            background: #FFFFFF;
+            border-bottom: 1px solid #E2E8F0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .wf-modal-title {
+            font-size: 17px;
+            font-weight: 800;
+            color: #081426;
+        }
+
+        .wf-modal-grid {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            min-height: 420px;
+        }
+
+        .wf-modal-sidebar {
+            background: #F8FAFC;
+            border-right: 1px solid #E2E8F0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .wf-modal-option {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1.5px solid transparent;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            color: #334155;
+            transition: all 0.15s;
+            margin-bottom: 6px;
+        }
+
+        .wf-modal-option:hover {
+            background: #FFFFFF;
+            border-color: #CBD5E1;
+        }
+
+        .wf-modal-option.active {
+            background: #FFFFFF;
+            border-color: var(--wf-gold);
+            color: #081426;
+            font-weight: 700;
+            box-shadow: 0 2px 8px rgba(8, 20, 38, 0.04);
+        }
+
+        .wf-modal-content {
+            padding: 28px 32px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
         /* Inputs y Formularios Oficiales */
@@ -2388,8 +2498,8 @@ let html = `<!DOCTYPE html>
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 5px 8px;
-            font-size: 11px;
+            padding: 7px 10px;
+            font-size: 12px;
             color: #334155;
             border-radius: 4px;
             text-decoration: none;
@@ -2410,7 +2520,7 @@ let html = `<!DOCTYPE html>
             background: #F8FAFC;
             border: 1px solid #CBD5E1;
             border-radius: 4px;
-            padding: 5px 8px;
+            padding: 6px 10px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -2518,6 +2628,87 @@ let html = `<!DOCTYPE html>
             font-weight: 700;
             color: #92400E;
         }
+
+        /* Helper Grid Classes (Bootstrap-like) */
+        .row { display: flex; flex-wrap: wrap; margin-right: -10px; margin-left: -10px; }
+        .g-0 { margin-right: 0; margin-left: 0; }
+        .g-0 > [class*="col-"] { padding-right: 0; padding-left: 0; }
+        .g-2 { margin-right: -4px; margin-left: -4px; }
+        .g-2 > [class*="col-"] { padding-right: 4px; padding-left: 4px; }
+        .g-3 { margin-right: -8px; margin-left: -8px; }
+        .g-3 > [class*="col-"] { padding-right: 8px; padding-left: 8px; }
+        .g-4 { margin-right: -12px; margin-left: -12px; }
+        .g-4 > [class*="col-"] { padding-right: 12px; padding-left: 12px; }
+        
+        .col-12 { flex: 0 0 100%; max-width: 100%; padding: 0 10px; }
+        .col-md-3 { flex: 0 0 25%; max-width: 25%; padding: 0 10px; }
+        .col-md-4 { flex: 0 0 33.3333%; max-width: 33.3333%; padding: 0 10px; }
+        .col-md-5 { flex: 0 0 41.6666%; max-width: 41.6666%; padding: 0 10px; }
+        .col-md-6 { flex: 0 0 50%; max-width: 50%; padding: 0 10px; }
+        .col-md-7 { flex: 0 0 58.3333%; max-width: 58.3333%; padding: 0 10px; }
+        .col-md-8 { flex: 0 0 66.6666%; max-width: 66.6666%; padding: 0 10px; }
+
+        .d-flex { display: flex; }
+        .d-inline-flex { display: inline-flex; }
+        .flex-column { flex-direction: column; }
+        .align-items-center { align-items: center; }
+        .align-items-start { align-items: flex-start; }
+        .align-items-end { align-items: flex-end; }
+        .justify-content-between { justify-content: space-between; }
+        .justify-content-end { justify-content: flex-end; }
+        .justify-content-center { justify-content: center; }
+        
+        .gap-1 { gap: 4px; }
+        .gap-2 { gap: 8px; }
+        .gap-3 { gap: 12px; }
+        .gap-4 { gap: 16px; }
+
+        .mb-1 { margin-bottom: 4px; }
+        .mb-2 { margin-bottom: 8px; }
+        .mb-3 { margin-bottom: 12px; }
+        .mb-4 { margin-bottom: 16px; }
+        .mt-1 { margin-top: 4px; }
+        .mt-2 { margin-top: 8px; }
+        .mt-3 { margin-top: 12px; }
+        .mt-4 { margin-top: 16px; }
+        .me-1 { margin-right: 4px; }
+        .me-2 { margin-right: 8px; }
+        .ms-1 { margin-left: 4px; }
+        .ms-2 { margin-left: 8px; }
+        
+        .p-2 { padding: 8px; }
+        .p-3 { padding: 12px; }
+        .p-4 { padding: 16px; }
+        .px-3 { padding-left: 12px; padding-right: 12px; }
+        .py-2 { padding-top: 8px; padding-bottom: 8px; }
+        .pt-2 { padding-top: 8px; }
+        .pt-3 { padding-top: 12px; }
+        .pt-4 { padding-top: 16px; }
+        .pb-1 { padding-bottom: 4px; }
+        .pb-2 { padding-bottom: 8px; }
+        .pb-3 { padding-bottom: 12px; }
+        
+        .border-top { border-top: 1px solid #E2E8F0; }
+        .border-bottom { border-bottom: 1px solid #E2E8F0; }
+        .border-end { border-right: 1px solid #E2E8F0; }
+        .border { border: 1px solid #E2E8F0; }
+        .rounded { border-radius: 6px; }
+        .w-100 { width: 100%; }
+        .h-100 { height: 100%; }
+        .text-muted { color: #64748B; }
+        .text-danger { color: #DC2626; }
+        .text-success { color: #16A34A; }
+        .text-primary { color: #2563EB; }
+        .text-warning { color: #D97706; }
+        .text-info { color: #0284C7; }
+        .text-end { text-align: right; }
+        .text-center { text-align: center; }
+        .fw-bold { font-weight: 700; }
+        .small { font-size: 11px; }
+        .cursor-pointer { cursor: pointer; }
+        .bg-white { background: #FFFFFF; }
+        .bg-light { background: #F8FAFC; }
+        .shadow-sm { box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
     </style>
 </head>
 <body>
@@ -2588,7 +2779,7 @@ cus.forEach(cu => {
                 <div class="wf-top-navbar">
                     <div class="wf-brand">
                         <div class="d-flex flex-column">
-                            <div class="wf-brand-logo">📈 Idóneos <span>Online</span></div>
+                            <div class="wf-brand-logo"><i class="fa-solid fa-chart-line" style="color: var(--wf-gold);"></i> Idóneos <span>Online</span></div>
                             <div class="wf-brand-sub">FINANZAS • ECONOMÍA • MERCADO DE CAPITALES</div>
                         </div>
                     </div>
@@ -2632,7 +2823,6 @@ cus.forEach(cu => {
         html += `
                                     <a href="#${it.cu}" class="wf-dropdown-item-btn ${it.isDanger ? 'text-danger' : ''}">
                                         <span>${it.label}</span>
-                                        <span class="small text-muted">${it.cu}</span>
                                     </a>
         `;
       });
@@ -2652,7 +2842,8 @@ cus.forEach(cu => {
                 <div class="wf-hero-banner">
                     <div>
                         <div class="wf-hero-tag">
-                            <span>🎓 CUERPO DOCENTE • IDÓNEOS ONLINE</span>
+                            <i class="fa-solid fa-graduation-cap" style="color: var(--wf-gold);"></i>
+                            <span>CUERPO DOCENTE • IDÓNEOS ONLINE</span>
                         </div>
                         <h2 class="wf-hero-title">${cu.id === 'CU-01' ? 'Mis Cursos Asignados' : cu.name}</h2>
                         <p class="wf-hero-desc">Bienvenido/a, ${roleInfo.name}</p>
@@ -2679,7 +2870,7 @@ cus.forEach(cu => {
                         <strong>Idóneos <span>Online</span> S.A.S.</strong> • Plataforma de Educación Financiera, Economía & Mercado de Capitales
                     </div>
                     <div>
-                        🔒 FCEQyN — UNaM • Proyecto Software (LSI) / Trabajo Final (ASI)
+                        <i class="fa-solid fa-lock" style="margin-right: 4px;"></i> FCEQyN — UNaM • Proyecto Software (LSI) / Trabajo Final (ASI)
                     </div>
                 </div>
             </div>
