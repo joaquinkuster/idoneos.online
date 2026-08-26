@@ -2454,41 +2454,82 @@ function generateScreenContent(cu) {
       triggerBtnLabel = 'Cerrar Sesión Remota';
       confirmBtnLabel = 'Confirmar Cierre de Sesión';
     }
-    // CU-10 (categoría), CU-30 (material), CU-60 (autoevaluación) - but NOT CU-64 (intento):
-    // trigger [A] = "Eliminar", confirm [B] = "Confirmar Eliminación"
     if ((name.includes('categoría') || name.includes('material') || name.includes('autoevaluación')) && !name.includes('intento')) {
       triggerBtnLabel = 'Eliminar';
       confirmBtnLabel = 'Confirmar Eliminación';
     }
-    // CU-34 (glosario), CU-52 (descuento):
-    // trigger [A] = "Eliminar", confirm [B] = "Confirmar Baja"
     if (name.includes('glosario') || name.includes('descuento')) {
       triggerBtnLabel = 'Eliminar';
       confirmBtnLabel = 'Confirmar Baja';
     }
 
+    // Contextual Table Details by Entity
+    let bgTableTitle = `Gestión y Listado de ${name.replace('Dar de baja ', '').replace('Eliminar ', '').replace('Cancelar ', '')}`;
+    let bgEntityName = `Registro #${id.replace('CU-', '')}`;
+    let bgEntityDesc = 'Mercado de Capitales & Finanzas';
+    let bgHeaders = ['Identificador / Nombre', 'Detalle / Contexto', 'Estado', 'Acciones'];
+    let bgExtraInfo = 'Sin dependencias bloqueantes';
+
+    if (id === 'CU-64' || name.includes('intento')) {
+      bgTableTitle = 'Historial y Monitoreo de Intentos de Autoevaluación (CU-61)';
+      bgEntityName = 'Intento #64 — Alumno: Joaquín Küster';
+      bgEntityDesc = 'Autoevaluación Unidad 2: Renta Fija • IP: 190.220.14.88 • Tiempo: 00:45 min (Anomalía)';
+      bgHeaders = ['Alumno / Intento', 'Autoevaluación & Métricas', 'Estado', 'Acciones'];
+      bgExtraInfo = 'Alerta de moderación: Patrón de tiempo sospechoso / posible suplantación';
+    } else if (id === 'CU-10' || name.includes('categoría')) {
+      bgTableTitle = 'Listado Oficial de Categorías Temáticas (CU-07)';
+      bgEntityName = 'Categoría: Mercado de Capitales & Finanzas';
+      bgEntityDesc = 'Asociada a 4 cursos activos del catálogo';
+      bgHeaders = ['Denominación', 'Cursos Asociados', 'Estado', 'Acciones'];
+    } else if (id === 'CU-14' || name.includes('cohorte')) {
+      bgTableTitle = 'Listado y Cronogramas de Cohortes (CU-11)';
+      bgEntityName = 'Cohorte 2026-1 — Especialización en Idoneidad Bursátil';
+      bgEntityDesc = 'Período: 01/03/2026 al 30/06/2026 • 24 alumnos inscriptos';
+      bgHeaders = ['Cohorte / Curso', 'Período & Inscripción', 'Estado', 'Acciones'];
+    } else if (id === 'CU-05' || (name.includes('curso') && name.includes('baja'))) {
+      bgTableTitle = 'Administración y Catálogo de Cursos (CU-01)';
+      bgEntityName = 'Curso: Especialización en Idoneidad Bursátil';
+      bgEntityDesc = 'Categoría: Mercado de Capitales • Docente: Lic. Fausto Spotorno';
+      bgHeaders = ['Curso / Programa', 'Docente Titular & Nivel', 'Estado', 'Acciones'];
+    } else if (id === 'CU-52' || name.includes('descuento')) {
+      bgTableTitle = 'Gestión de Cupones y Becas de Descuento (CU-49)';
+      bgEntityName = 'Beca Convenio UNaM 2026 (Código: UNAM2026)';
+      bgEntityDesc = 'Descuento: 25% • Vigencia hasta 31/12/2026';
+      bgHeaders = ['Código Beca / Descuento', 'Porcentaje & Vigencia', 'Estado', 'Acciones'];
+    } else if (id === 'CU-80' || name.includes('clon')) {
+      bgTableTitle = 'Galería de Clases Generadas con Avatar Clon IA (CU-77)';
+      bgEntityName = 'Video: Explicación Teórica - Duración Modificada';
+      bgEntityDesc = 'Avatar: Fausto Spotorno HD (HeyGen) • Duración: 03:40 min';
+      bgHeaders = ['Título de la Clase', 'Avatar & Voz', 'Estado', 'Acciones'];
+    } else if (id === 'CU-85' || name.includes('usuario')) {
+      bgTableTitle = 'Directorio y Gestión de Usuarios (CU-82)';
+      bgEntityName = 'Usuario: Lic. Fausto Spotorno (fausto.spotorno@idoneos.online)';
+      bgEntityDesc = 'Rol: Docente Titular • Último acceso: Hoy 10:15 hs';
+      bgHeaders = ['Usuario / Correo', 'Rol & Acceso', 'Estado', 'Acciones'];
+    }
+
     return `
-      <!-- Vista de Fondo: Tabla de Gestión Contextual -->
+      <!-- Vista de Fondo: Tabla de Gestión Contextual de Referencia -->
       <div style="position: relative;">
-        <div class="wf-card mb-4 opacity-75" style="background: #FFFFFF; pointer-events: none; filter: blur(0.5px);">
+        <div class="wf-card mb-4 opacity-75" style="background: #FFFFFF; pointer-events: none; filter: blur(0.4px);">
           <div class="d-flex justify-content-between align-items-center mb-3">
-            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Gestión y Listado de ${name.replace('Dar de baja ', '').replace('Eliminar ', '').replace('Cancelar ', '')}</h3>
-            <span class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-plus me-1"></i> Nuevo Registro</span>
+            <h3 style="font-size: 17px; font-weight: 800; color: #081426; margin: 0;">${bgTableTitle}</h3>
+            <span class="wf-badge status-active"><i class="fa-solid fa-layer-group me-1"></i> Vista de Búsqueda</span>
           </div>
           <div class="wf-table-wrap">
             <table class="wf-table">
               <thead>
                 <tr>
-                  <th>Identificador / Nombre</th>
-                  <th>Detalle / Contexto</th>
-                  <th>Estado</th>
-                  <th class="text-end">Acciones</th>
+                  <th>${bgHeaders[0]}</th>
+                  <th>${bgHeaders[1]}</th>
+                  <th>${bgHeaders[2]}</th>
+                  <th class="text-end">${bgHeaders[3]}</th>
                 </tr>
               </thead>
               <tbody>
                 <tr class="table-active" style="background: #FEF2F2; border-left: 3px solid #DC2626;">
-                  <td><strong>Registro #${id.replace('CU-', '')} (${name.replace('Dar de baja ', '').replace('Eliminar ', '').replace('Cancelar ', '')})</strong></td>
-                  <td>Mercado de Capitales & Finanzas</td>
+                  <td><strong>${bgEntityName}</strong></td>
+                  <td>${bgEntityDesc}</td>
                   <td><span class="wf-badge status-active">Activo</span></td>
                   <td class="text-end">
                     <div class="d-inline-flex align-items-center gap-2">
@@ -2498,6 +2539,14 @@ function generateScreenContent(cu) {
                       </button>
                       <span class="pin-badge">${badges[0] || 'A'}</span>
                     </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>Elemento Secundario de Control</strong></td>
+                  <td>Registro complementario del catálogo</td>
+                  <td><span class="wf-badge status-active">Activo</span></td>
+                  <td class="text-end">
+                    <button class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-ellipsis"></i></button>
                   </td>
                 </tr>
               </tbody>
@@ -2521,21 +2570,21 @@ function generateScreenContent(cu) {
             <div class="mb-3" style="width: 54px; height: 54px; border-radius: 50%; background: #FEE2E2; color: #DC2626; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 22px;">
               <i class="fa-solid fa-triangle-exclamation"></i>
             </div>
-            <h3 style="font-size: 17px; font-weight: 800; color: #081426; margin-bottom: 6px;">¿Está seguro de que desea confirmar la baja?</h3>
-            <p class="small text-muted mb-4" style="line-height: 1.5;">Esta operación marcará la entidad como inactiva/dada de baja en el sistema.</p>
+            <h3 style="font-size: 17px; font-weight: 800; color: #081426; margin-bottom: 6px;">¿Está seguro de que desea confirmar la operación?</h3>
+            <p class="small text-muted mb-4" style="line-height: 1.5;">Esta acción procesará la baja/anulación sobre la base de datos y notificará a las partes correspondientes.</p>
 
             <div class="p-3 mb-4 bg-light border rounded text-start" style="font-size: 13px;">
               <div class="d-flex justify-content-between align-items-center mb-2">
                 <span class="text-muted">Registro a afectar:</span>
-                <strong style="color: #081426;">Registro #${id.replace('CU-', '')} (${name.replace('Dar de baja ', '').replace('Eliminar ', '').replace('Cancelar ', '')})</strong>
+                <strong style="color: #081426;">${bgEntityName}</strong>
               </div>
               <div class="d-flex justify-content-between align-items-center mb-2">
                 <span class="text-muted">Estado actual:</span>
                 <span class="wf-badge status-active">Activo / Vigente</span>
               </div>
               <div class="d-flex justify-content-between align-items-center">
-                <span class="text-muted">Validación de dependencias:</span>
-                <span class="small text-success fw-bold"><i class="fa-solid fa-circle-check me-1"></i> Sin dependencias bloqueantes</span>
+                <span class="text-muted">Impacto / Validación:</span>
+                <span class="small text-danger fw-bold"><i class="fa-solid fa-circle-exclamation me-1"></i> ${bgExtraInfo}</span>
               </div>
             </div>
 
