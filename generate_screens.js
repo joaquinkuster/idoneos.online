@@ -2759,19 +2759,18 @@ cus.forEach(cu => {
 
   html += `
         <div class="figure-wrapper" id="${cu.id}">
+            <!-- Franja Superior de Metadatos y Trazabilidad Formal -->
             <div class="meta-strip">
-                <div>
-                    <span><strong>CU Real:</strong> ${cu.id}: ${cu.name}</span>
-                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
-                    <span><strong>Actor(es):</strong> ${cu.actors}</span>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="wf-badge" style="background: #081426; color: var(--wf-gold); border-color: var(--wf-gold); font-size: 11px;">${cu.id}</span>
+                    <strong style="font-size: 13px; color: #081426;">${cu.name}</strong>
+                    <span style="color: #94A3B8;">|</span>
+                    <span class="text-muted" style="font-size: 11px;"><strong>Actor(es):</strong> ${cu.actors}</span>
                 </div>
-                <div>
-                    <span><strong>DSS:</strong> <code>${dssMessage}</code></span>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="text-muted" style="font-size: 11px; font-weight: 700;">DSS:</span>
+                    <code>${dssMessage}</code>
                 </div>
-            </div>
-
-            <div class="figure-caption">
-                <strong>Figura ${figNumber++}.</strong> Prototipo UI / Wireframe para <em>${cu.name}</em> (${cu.id}).
             </div>
 
             <div class="screen-frame">
@@ -2843,15 +2842,15 @@ cus.forEach(cu => {
                     <div>
                         <div class="wf-hero-tag">
                             <i class="fa-solid fa-graduation-cap" style="color: var(--wf-gold);"></i>
-                            <span>CUERPO DOCENTE • IDÓNEOS ONLINE</span>
+                            <span>${roleInfo.isAdmin ? 'PANEL DE ADMINISTRACIÓN' : (roleInfo.isDocente ? 'CUERPO DOCENTE • IDÓNEOS ONLINE' : 'PORTAL DEL ALUMNO')}</span>
                         </div>
-                        <h2 class="wf-hero-title">${cu.id === 'CU-01' ? 'Mis Cursos Asignados' : cu.name}</h2>
+                        <h2 class="wf-hero-title">${cu.id === 'CU-01' ? 'Mis Cursos Asignados' : (cu.id === 'CU-02' ? 'Gestión de Cursos' : cu.name)}</h2>
                         <p class="wf-hero-desc">Bienvenido/a, ${roleInfo.name}</p>
                     </div>
-                    ${roleInfo.isDocente || roleInfo.isAdmin ? `
+                    ${['CU-01', 'CU-02'].includes(cu.id) ? `
                     <div>
                         <a href="#CU-03" class="wf-btn-gold">
-                            ${icons.plus("w-4 h-4")}
+                            <i class="fa-solid fa-plus"></i>
                             <span>Crear Curso</span>
                         </a>
                     </div>
@@ -2870,9 +2869,14 @@ cus.forEach(cu => {
                         <strong>Idóneos <span>Online</span> S.A.S.</strong> • Plataforma de Educación Financiera, Economía & Mercado de Capitales
                     </div>
                     <div>
-                        <i class="fa-solid fa-lock" style="margin-right: 4px;"></i> FCEQyN — UNaM • Proyecto Software (LSI) / Trabajo Final (ASI)
+                        FCEQyN — UNaM • Proyecto Software (LSI) / Trabajo Final (ASI)
                     </div>
                 </div>
+            </div>
+
+            <!-- Epígrafe Formal de Tesis / Wireframe -->
+            <div class="figure-caption" style="margin-top: 4px; text-align: center; color: #64748B;">
+                <strong>Figura ${figNumber++}.</strong> Prototipo UI / Wireframe para <em>${cu.name}</em> (${cu.id}).
             </div>
         </div>
   `;
