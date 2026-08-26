@@ -32,8 +32,8 @@ const COLOR_TABLE_HEADER_BG = 'EDEDED';
 const MASTER_COL_WIDTHS = [2600, 7000];
 const MASTER_TOTAL_WIDTH = 9600;
 
-// Tabla Anidada (Flujo / Excepciones): 6300 dxa (Paso: 900 dxa, Actor: 1700 dxa, Interacción: 3700 dxa)
-const NESTED_COL_WIDTHS = [900, 1700, 3700];
+// Tabla Anidada (Flujo de eventos en 2 columnas: Paso: 1000 dxa, Acción: 5300 dxa)
+const NESTED_COL_WIDTHS = [1000, 5300];
 const NESTED_TOTAL_WIDTH = 6300;
 
 const tableBorders = {
@@ -76,7 +76,7 @@ docChildren.push(
   new Paragraph({
     children: [
       new TextRun({
-        text: 'En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos Online, derivados de los casos de uso extendidos y complementados con la información funcional y de interacción disponible en los contratos de módulo, diagramas de secuencia del sistema y diagramas de secuencia del diseño. Cada caso de uso se referencia mediante un código correlativo (CU-01 a CU-99, incluyendo CU-26b).',
+        text: 'En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos Online, derivados de los casos de uso extendidos y complementados con la información funcional y de interacción disponible en las pantallas y prototipos de interfaz de usuario. Cada caso de uso se referencia mediante un código correlativo (CU-01 a CU-99, incluyendo CU-26b).',
         font: FONT_FAMILY,
         size: 22, // 11pt
         color: COLOR_TEXT_DARK
@@ -99,12 +99,14 @@ docChildren.push(
 
 // Helper para formatear texto con etiquetas [A], [B] en negrita
 function formatTextWithBadges(text, fontSize = 20) {
-  const badgeRegex = /(\[[A-Z]\])/g;
+  if (!text) return [new TextRun({ text: '', font: FONT_FAMILY, size: fontSize })];
+
   const runs = [];
+  const regex = /\[([A-Z0-9]+)\]/g;
   let lastIdx = 0;
   let match;
 
-  while ((match = badgeRegex.exec(text)) !== null) {
+  while ((match = regex.exec(text)) !== null) {
     if (match.index > lastIdx) {
       runs.push(new TextRun({
         text: text.substring(lastIdx, match.index),
@@ -114,7 +116,7 @@ function formatTextWithBadges(text, fontSize = 20) {
       }));
     }
     runs.push(new TextRun({
-      text: match[1],
+      text: '[' + match[1] + ']',
       font: FONT_FAMILY,
       size: fontSize,
       bold: true,
@@ -154,7 +156,7 @@ function parseMarkdownTable(tableMd) {
   return { headers, rowsData };
 }
 
-// Helper para crear tabla interna anidada (Flujo de eventos / Excepciones)
+// Helper para crear tabla interna anidada (Flujo de eventos en 2 columnas)
 function createNestedTable(tableData) {
   if (!tableData) return new Paragraph({ text: '—', spacing: { before: 60, after: 60 } });
 
@@ -162,7 +164,7 @@ function createNestedTable(tableData) {
   
   // Fila Header de la tabla interna
   const headerCells = tableData.headers.map((h, idx) => {
-    const width = NESTED_COL_WIDTHS[idx] || 3700;
+    const width = NESTED_COL_WIDTHS[idx] || 5300;
 
     return new TableCell({
       width: { size: width, type: WidthType.DXA },
@@ -189,7 +191,7 @@ function createNestedTable(tableData) {
   // Filas de Datos
   tableData.rowsData.forEach(r => {
     const cells = r.map((c, idx) => {
-      const width = NESTED_COL_WIDTHS[idx] || 3700;
+      const width = NESTED_COL_WIDTHS[idx] || 5300;
 
       return new TableCell({
         width: { size: width, type: WidthType.DXA },
@@ -227,7 +229,7 @@ for (let i = 1; i < cuBlocks.length; i++) {
   const cuName = titleMatch[2].trim();
   
   // Extraer Módulo
-  const modMatch = block.match(/\*\*Módulo\*\*\s*[\r\n]+-\s*([^\r\n]+)/);
+  const modMatch = block.match(/- \*\*Módulo\*\*:\s*([^\r\n]+)/);
   const cuModule = modMatch ? modMatch[1].trim() : 'Módulo General';
   
   // Si cambia el módulo, agregar el título del módulo en negrita
@@ -250,30 +252,32 @@ for (let i = 1; i < cuBlocks.length; i++) {
   }
 
   // Extraer Campos
-  const objMatch = block.match(/\*\*Objetivo\(s\) asociado\(s\)\*\*\s*[\r\n]+([\s\S]*?)(?=\*\*Requisito|\*\*Módulo)/);
-  const objText = objMatch ? objMatch[1].trim().replace(/^[*-]\s*/gm, '•  ') : '—';
+  const objMatch = block.match(/- \*\*Objetivo\(s\) asociado\(s\)\*\*:\s*([^\r\n]+)/);
+  const objText = objMatch ? objMatch[1].trim() : '—';
 
-  const reqMatch = block.match(/\*\*Requisito\(s\) de información asociado\(s\)\*\*\s*[\r\n]+([\s\S]*?)(?=\*\*Módulo|\*\*Actor)/);
-  const reqText = reqMatch ? reqMatch[1].trim().replace(/^[*-]\s*/gm, '•  ') : '—';
+  const reqMatch = block.match(/- \*\*Requisito\(s\) de información asociado\(s\)\*\*:\s*([^\r\n]+)/);
+  const reqText = reqMatch ? reqMatch[1].trim() : '—';
 
-  const actorMatch = block.match(/\*\*Actor\(es\)\*\*\s*[\r\n]+-\s*([^\r\n]+)/);
+  const actorMatch = block.match(/- \*\*Actor\(es\)\*\*:\s*([^\r\n]+)/);
   const actorText = actorMatch ? actorMatch[1].trim() : 'Usuario';
 
-  const descMatch = block.match(/\*\*Descripción\*\*\s*[\r\n]+([\s\S]*?)(?=\*\*Precondición|\*\*Flujo)/);
+  const descMatch = block.match(/- \*\*Descripción\*\*:\s*([\s\S]*?)(?=- \*\*Precondición)/);
   const descText = descMatch ? descMatch[1].trim() : '—';
 
-  const preMatch = block.match(/\*\*Precondición\(es\)\*\*\s*[\r\n]+([\s\S]*?)(?=\*\*Flujo)/);
-  const preText = preMatch ? preMatch[1].trim().replace(/^[*-]\s*/gm, '•  ') : '—';
+  const preMatch = block.match(/- \*\*Precondición\(es\)\*\*:\s*([\s\S]*?)(?=- \*\*Flujo)/);
+  const preText = preMatch ? preMatch[1].trim().replace(/^\s*-\s*/gm, '•  ') : '—';
 
-  const postMatch = block.match(/\*\*Postcondición\(es\)\*\*\s*[\r\n]+([\s\S]*?)(?=\*\*Excepciones)/);
-  const postText = postMatch ? postMatch[1].trim().replace(/^[*-]\s*/gm, '•  ') : '—';
+  const postMatch = block.match(/- \*\*Postcondición\(es\)\*\*:\s*([\s\S]*?)(?=- \*\*Excepciones)/);
+  const salidaMatch = block.match(/- \*\*Salida\*\*:\s*([\s\S]*?)(?=- \*\*Excepciones)/);
+  const postText = postMatch ? postMatch[1].trim().replace(/^\s*-\s*/gm, '•  ') : (salidaMatch ? salidaMatch[1].trim() : '—');
 
-  // Extraer Tablas de Flujo y Excepciones
-  const flujoMatch = block.match(/\*\*Flujo de eventos\*\*\s*[\r\n]+([\s\S]*?)(?=\*\*Postcondición)/);
+  // Extraer Flujo
+  const flujoMatch = block.match(/- \*\*Flujo de eventos\*\*:\s*([\s\S]*?)(?=- \*\*Postcondición|- \*\*Salida|- \*\*Excepciones)/);
   const flujoTableData = flujoMatch ? parseMarkdownTable(flujoMatch[1]) : null;
 
-  const excMatch = block.match(/\*\*Excepciones\*\*\s*[\r\n]+([\s\S]*?)(?=\*\*Frecuencia|\*\*Estabilidad|\*\*Comentarios|---|$)/);
-  const excTableData = excMatch ? parseMarkdownTable(excMatch[1]) : null;
+  // Extraer Excepciones
+  const excMatch = block.match(/- \*\*Excepciones\*\*:\s*([\s\S]*?)(?=- \*\*Frecuencia|- \*\*Estabilidad|- \*\*Comentarios|---|$)/);
+  const excText = excMatch ? excMatch[1].trim().replace(/^\s*-\s*/gm, '•  ') : '•  No aplica.';
 
   // Construir Filas de la Tabla Maestra
   const masterRows = [];
@@ -355,22 +359,18 @@ for (let i = 1; i < cuBlocks.length; i++) {
   }
 
   // 2. Objetivo(s) asociado(s)
-  const objParagraphs = objText.split('\n').map(p => new Paragraph({
-    children: [new TextRun({ text: p.trim(), font: FONT_FAMILY, size: 20, color: COLOR_TEXT_DARK })],
-    spacing: { after: 40 }
+  addRow('Objetivo(s) asociado(s)', new Paragraph({
+    children: [new TextRun({ text: objText, font: FONT_FAMILY, size: 20, color: COLOR_TEXT_DARK })]
   }));
-  addRow('Objetivo(s) asociado(s)', objParagraphs);
 
   // 3. Requisito(s) de información asociado(s)
-  const reqParagraphs = reqText.split('\n').map(p => new Paragraph({
-    children: [new TextRun({ text: p.trim(), font: FONT_FAMILY, size: 20, color: COLOR_TEXT_DARK })],
-    spacing: { after: 40 }
+  addRow('Requisito(s) de información asociado(s)', new Paragraph({
+    children: [new TextRun({ text: reqText, font: FONT_FAMILY, size: 20, color: COLOR_TEXT_DARK })]
   }));
-  addRow('Requisito(s) de información asociado(s)', reqParagraphs);
 
   // 4. Módulo
   addRow('Módulo', new Paragraph({
-    children: [new TextRun({ text: `•  ${cuModule}`, font: FONT_FAMILY, size: 20, color: COLOR_TEXT_DARK })]
+    children: [new TextRun({ text: '•  ' + cuModule, font: FONT_FAMILY, size: 20, color: COLOR_TEXT_DARK })]
   }));
 
   // 5. Actor(es)
@@ -390,18 +390,22 @@ for (let i = 1; i < cuBlocks.length; i++) {
   }));
   addRow('Precondición(es)', preParagraphs);
 
-  // 8. Flujo de eventos (Tabla anidada)
+  // 8. Flujo de eventos (Tabla anidada de 2 columnas)
   addRow('Flujo de eventos', [createNestedTable(flujoTableData)]);
 
-  // 9. Postcondición(es)
+  // 9. Postcondición(es) / Salida
   const postParagraphs = postText.split('\n').map(p => new Paragraph({
     children: [new TextRun({ text: p.trim(), font: FONT_FAMILY, size: 20, color: COLOR_TEXT_DARK })],
     spacing: { after: 40 }
   }));
-  addRow('Postcondición(es)', postParagraphs);
+  addRow(postMatch ? 'Postcondición(es)' : 'Salida', postParagraphs);
 
-  // 10. Excepciones (Tabla anidada)
-  addRow('Excepciones', [createNestedTable(excTableData)]);
+  // 10. Excepciones
+  const excParagraphs = excText.split('\n').map(p => new Paragraph({
+    children: [new TextRun({ text: p.trim(), font: FONT_FAMILY, size: 20, color: COLOR_TEXT_DARK })],
+    spacing: { after: 40 }
+  }));
+  addRow('Excepciones', excParagraphs);
 
   // Añadir la tabla al documento con columnWidths explícito
   docChildren.push(
@@ -445,5 +449,5 @@ const doc = new Document({
 const outputPath = path.join(__dirname, 'docs', 'diseño', 'Casos de Uso Reales.docx');
 Packer.toBuffer(doc).then(buffer => {
   fs.writeFileSync(outputPath, buffer);
-  console.log(`Successfully regenerated Casos de Uso Reales.docx with columnWidths (${cuBlocks.length - 1} CUs).`);
+  console.log(`Successfully generated Casos de Uso Reales.docx (${cuBlocks.length - 1} CUs).`);
 });
