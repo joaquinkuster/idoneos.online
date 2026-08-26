@@ -245,11 +245,18 @@
         ]
       },
       {
-        "pNum": "3",
-        "pAction": "El actor modifica el nombre o la descripción mediante el formulario [B] y confirma mediante el botón \"Guardar Cambios\" [C].",
+        "pNum": "2",
+        "pAction": "El sistema muestra los datos actuales en el formulario: nombre de la categoría [B] y descripción temática [C].",
         "badges": [
           "B",
           "C"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor actualiza los campos habilitados y confirma mediante el botón \"Guardar Cambios\" [D].",
+        "badges": [
+          "D"
         ]
       }
     ]
@@ -314,12 +321,23 @@
         ]
       },
       {
-        "pNum": "3",
-        "pAction": "El actor ingresa los datos solicitados mediante el formulario de cohorte [B], define fechas y cupos [C] y confirma mediante el botón \"Guardar Cohorte\" [D].",
+        "pNum": "2",
+        "pAction": "El sistema solicita los datos de la cohorte: nombre [B], fecha de inicio de inscripción [C], fecha de fin de inscripción [D], cupo máximo de alumnos [E], semanas de acceso al contenido [F] y, si incluye modalidad en vivo, fecha de inicio [G] y fecha de fin de dictado [H].",
         "badges": [
           "B",
           "C",
-          "D"
+          "D",
+          "E",
+          "F",
+          "G",
+          "H"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor completa los campos del formulario y confirma el alta mediante el botón \"Guardar Cohorte\" [I].",
+        "badges": [
+          "I"
         ]
       }
     ]
@@ -330,17 +348,27 @@
     "steps": [
       {
         "pNum": "1",
-        "pAction": "El caso de uso inicia cuando el actor busca y selecciona la cohorte a modificar mediante el botón \"Editar\" [A] (ver CU-11: Buscar cohorte).",
+        "pAction": "El caso de uso inicia cuando el actor busca y selecciona la cohorte a modificar mediante el botón \"Editar Cohorte\" [A] (ver CU-11: Buscar cohorte).",
         "badges": [
           "A"
         ]
       },
       {
-        "pNum": "3",
-        "pAction": "El actor modifica los campos mediante el formulario [B] y confirma los cambios mediante el botón \"Guardar Cambios\" [C].",
+        "pNum": "2",
+        "pAction": "El sistema muestra los datos actuales en el formulario de edición: fecha de inicio de inscripción [B], fecha de fin de inscripción [C], cupo máximo [D], semanas de acceso [E] y fechas de dictado en vivo [F].",
         "badges": [
           "B",
-          "C"
+          "C",
+          "D",
+          "E",
+          "F"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor modifica los parámetros habilitados y confirma la actualización mediante el botón \"Guardar Cambios\" [G].",
+        "badges": [
+          "G"
         ]
       }
     ]
@@ -404,12 +432,22 @@
         ]
       },
       {
-        "pNum": "3",
-        "pAction": "El actor opcionalmente selecciona un programa anterior del cual partir mediante el desplegable [B], ingresa los datos en el formulario [C] y confirma mediante el botón \"Guardar Programa\" [D].",
+        "pNum": "2",
+        "pAction": "El sistema permite seleccionar opcionalmente un programa base [B] y solicita: nombre del programa [C], descripción académica [D], objetivos formativos [E], carga horaria total en horas [F] y bibliografía obligatoria [G].",
         "badges": [
           "B",
           "C",
-          "D"
+          "D",
+          "E",
+          "F",
+          "G"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor completa los campos solicitados y confirma el registro mediante el botón \"Guardar Programa\" [H].",
+        "badges": [
+          "H"
         ]
       }
     ]
@@ -426,11 +464,21 @@
         ]
       },
       {
-        "pNum": "3",
-        "pAction": "El actor modifica los datos mediante el formulario de edición [B] y confirma mediante el botón \"Guardar Cambios\" [C].",
+        "pNum": "2",
+        "pAction": "El sistema muestra los datos actuales en el formulario: nombre [B], descripción [C], objetivos [D], carga horaria [E] y bibliografía [F].",
         "badges": [
           "B",
-          "C"
+          "C",
+          "D",
+          "E",
+          "F"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor modifica los campos habilitados y confirma la actualización mediante el botón \"Guardar Cambios\" [G].",
+        "badges": [
+          "G"
         ]
       }
     ]
@@ -481,18 +529,26 @@
     "steps": [
       {
         "pNum": "1",
-        "pAction": "El caso de uso inicia cuando el actor busca y selecciona el programa mediante el botón \"+ Añadir secciones\" [A] (ver CU-15: Buscar programa).",
+        "pAction": "El caso de uso inicia cuando el actor solicita añadir una sección mediante el botón \"+ Añadir secciones\" [A] (ver CU-19: Buscar unidad).",
         "badges": [
           "A"
         ]
       },
       {
-        "pNum": "3",
-        "pAction": "El actor ingresa el título y descripción en el modal [B], o selecciona la unidad reutilizable [C], y confirma mediante el botón \"Agregar Unidad\" [D].",
+        "pNum": "2",
+        "pAction": "El sistema solicita los datos de la unidad temática: título de la sección [B], descripción de objetivos [C] y contenido temático [D], o permite seleccionar una unidad existente [E].",
         "badges": [
           "B",
           "C",
-          "D"
+          "D",
+          "E"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor ingresa los datos de la unidad y confirma la creación mediante el botón \"Agregar Unidad\" [F].",
+        "badges": [
+          "F"
         ]
       }
     ]
@@ -503,17 +559,25 @@
     "steps": [
       {
         "pNum": "1",
-        "pAction": "El caso de uso inicia cuando el actor busca y selecciona la unidad a modificar mediante el icono del lápiz o menú \"Editar\" [A] (ver CU-19: Buscar unidad).",
+        "pAction": "El caso de uso inicia cuando el actor busca y selecciona la unidad a modificar mediante el menú \"Editar\" [A] (ver CU-19: Buscar unidad).",
         "badges": [
           "A"
         ]
       },
       {
-        "pNum": "3",
-        "pAction": "El actor modifica el título, la descripción o el contenido en el formulario [B] y confirma mediante el botón \"Guardar Cambios\" [C].",
+        "pNum": "2",
+        "pAction": "El sistema muestra los datos actuales de la unidad en el formulario: título [B], descripción [C] y contenido temático [D].",
         "badges": [
           "B",
-          "C"
+          "C",
+          "D"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor actualiza los campos habilitados y confirma mediante el botón \"Guardar Cambios\" [E].",
+        "badges": [
+          "E"
         ]
       }
     ]
@@ -729,11 +793,20 @@
         ]
       },
       {
-        "pNum": "3",
-        "pAction": "El actor modifica el título, el archivo o el estado de visibilidad mediante el formulario [B] y confirma mediante el botón \"Guardar Cambios\" [C].",
+        "pNum": "2",
+        "pAction": "El sistema muestra los datos actuales en el formulario: título [B], archivo o documento adjunto [C] mediante \"Examinar...\" [D], y estado de visibilidad [E].",
         "badges": [
           "B",
-          "C"
+          "C",
+          "D",
+          "E"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor modifica los datos y confirma la actualización mediante el botón \"Guardar Cambios\" [F].",
+        "badges": [
+          "F"
         ]
       }
     ]
@@ -798,12 +871,17 @@
         ]
       },
       {
-        "pNum": "3",
-        "pAction": "El actor selecciona \"Glosario de Términos\" [A], ingresa el concepto [B], su definición [C] y confirma mediante el botón \"Agregar\" [D].",
+        "pNum": "2",
+        "pAction": "El sistema solicita los datos del término: concepto / término [B] y definición técnica [C].",
         "badges": [
-          "A",
           "B",
-          "C",
+          "C"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor completa el concepto y su definición y confirma mediante el botón \"Agregar\" [D].",
+        "badges": [
           "D"
         ]
       }
@@ -821,11 +899,18 @@
         ]
       },
       {
-        "pNum": "3",
-        "pAction": "El actor modifica el término o la definición en el formulario [B] y confirma mediante el botón \"Guardar Cambios\" [C].",
+        "pNum": "2",
+        "pAction": "El sistema muestra los datos actuales en el formulario: concepto / término [B] y definición técnica [C].",
         "badges": [
           "B",
           "C"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor actualiza los campos habilitados y confirma mediante el botón \"Guardar Cambios\" [D].",
+        "badges": [
+          "D"
         ]
       }
     ]
@@ -890,11 +975,17 @@
         ]
       },
       {
-        "pNum": "4",
-        "pAction": "El actor ingresa el título [B], redacta la consulta en el editor [C] y confirma la publicación mediante el botón \"Publicar Consulta\" [D].",
+        "pNum": "3",
+        "pAction": "El sistema solicita los datos de la consulta: asunto / título [B] y texto del mensaje [C].",
         "badges": [
           "B",
-          "C",
+          "C"
+        ]
+      },
+      {
+        "pNum": "4",
+        "pAction": "El actor ingresa el asunto y redacta el mensaje en el editor y confirma la publicación mediante el botón \"Publicar Consulta\" [D].",
+        "badges": [
           "D"
         ]
       }
@@ -1219,18 +1310,28 @@
     "steps": [
       {
         "pNum": "1",
-        "pAction": "El caso de uso inicia cuando el actor solicita registrar un nuevo descuento mediante el botón \"+ Nuevo Descuento\" [A].",
+        "pAction": "El caso de uso inicia cuando el actor solicita registrar un nuevo descuento mediante el botón \"+ Nuevo Descuento\" [A] (ver CU-49: Buscar descuento).",
         "badges": [
           "A"
         ]
       },
       {
-        "pNum": "3",
-        "pAction": "El actor ingresa los datos solicitados en el formulario [B], define el porcentaje y vigencia [C] y confirma mediante el botón \"Guardar Descuento\" [D].",
+        "pNum": "2",
+        "pAction": "El sistema solicita los parámetros del beneficio: nombre del descuento [B], porcentaje aplicable [C], vigencia desde [D], vigencia hasta [E], cantidad límite de usos [F] y cantidad de cursos requeridos [G].",
         "badges": [
           "B",
           "C",
-          "D"
+          "D",
+          "E",
+          "F",
+          "G"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor completa los campos solicitados y confirma el registro mediante el botón \"Guardar Descuento\" [H].",
+        "badges": [
+          "H"
         ]
       }
     ]
@@ -1247,11 +1348,22 @@
         ]
       },
       {
-        "pNum": "3",
-        "pAction": "El actor modifica los datos que desea en el formulario [B] y confirma mediante el botón \"Guardar Cambios\" [C].",
+        "pNum": "2",
+        "pAction": "El sistema muestra los datos actuales en el formulario: nombre [B], porcentaje [C], vigencia desde [D], vigencia hasta [E], cantidad límite [F] y cursos requeridos [G].",
         "badges": [
           "B",
-          "C"
+          "C",
+          "D",
+          "E",
+          "F",
+          "G"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor actualiza los datos habilitados y confirma la modificación mediante el botón \"Guardar Cambios\" [H].",
+        "badges": [
+          "H"
         ]
       }
     ]
@@ -1316,12 +1428,17 @@
         ]
       },
       {
-        "pNum": "3",
-        "pAction": "El actor selecciona \"Pool de Preguntas\" [A], ingresa el nombre [B], carga las preguntas y respuestas [C] y confirma mediante el botón \"Agregar\" [D].",
+        "pNum": "2",
+        "pAction": "El sistema solicita los datos del banco de preguntas: nombre del pool [B] y descripción temática [C].",
         "badges": [
-          "A",
           "B",
-          "C",
+          "C"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor completa el nombre y descripción del pool y confirma la creación mediante el botón \"Agregar\" [D].",
+        "badges": [
           "D"
         ]
       }
@@ -1339,11 +1456,19 @@
         ]
       },
       {
-        "pNum": "3",
-        "pAction": "El actor modifica el nombre o edita preguntas en el panel [B] y confirma mediante el botón \"Guardar Cambios\" [C].",
+        "pNum": "2",
+        "pAction": "El sistema muestra los datos actuales en el panel: nombre del pool [B], descripción [C] y editor de preguntas y opciones [D].",
         "badges": [
           "B",
-          "C"
+          "C",
+          "D"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor actualiza los campos habilitados y confirma mediante el botón \"Guardar Cambios\" [E].",
+        "badges": [
+          "E"
         ]
       }
     ]
@@ -1408,13 +1533,23 @@
         ]
       },
       {
-        "pNum": "3",
-        "pAction": "El actor selecciona \"Cuestionario / Autoevaluación\" [A], completa el título y parámetros [B], selecciona el pool asociado [C] y confirma mediante el botón \"Agregar\" [D].",
+        "pNum": "2",
+        "pAction": "El sistema solicita los parámetros del cuestionario: nombre de la autoevaluación [B], tiempo límite en minutos [C], cantidad de preguntas sorteables [D], fecha de apertura [E], fecha de cierre [F], intentos permitidos [G] y pools asociados [H].",
         "badges": [
-          "A",
           "B",
           "C",
-          "D"
+          "D",
+          "E",
+          "F",
+          "G",
+          "H"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor completa los parámetros solicitados y confirma la creación mediante el botón \"Agregar\" [I].",
+        "badges": [
+          "I"
         ]
       }
     ]
@@ -1431,11 +1566,23 @@
         ]
       },
       {
-        "pNum": "3",
-        "pAction": "El actor modifica los datos habilitados en el formulario [B] y confirma mediante el botón \"Guardar Cambios\" [C].",
+        "pNum": "2",
+        "pAction": "El sistema muestra los datos actuales en el formulario de edición: nombre del cuestionario [B], tiempo límite [C], cantidad de preguntas [D], fecha de apertura [E], fecha de cierre [F], intentos permitidos [G], y pools asociados [H].",
         "badges": [
           "B",
-          "C"
+          "C",
+          "D",
+          "E",
+          "F",
+          "G",
+          "H"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor modifica los campos habilitados y confirma la actualización mediante el botón \"Guardar Cambios\" [I].",
+        "badges": [
+          "I"
         ]
       }
     ]
@@ -1595,13 +1742,21 @@
         ]
       },
       {
-        "pNum": "3",
-        "pAction": "El actor selecciona \"Clase en Vivo (Streaming)\" [A], completa el título [B], define la fecha y hora de transmisión [C] y confirma mediante el botón \"Agregar\" [D].",
+        "pNum": "2",
+        "pAction": "El sistema solicita los datos de la transmisión: título de la clase [B], cohorte destinataria [C], fecha y hora de inicio [D], duración estimada en minutos [E] y enlace a la sala de streaming [F].",
         "badges": [
-          "A",
           "B",
           "C",
-          "D"
+          "D",
+          "E",
+          "F"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor completa los datos de la sesión y confirma la programación mediante el botón \"Agregar\" [G].",
+        "badges": [
+          "G"
         ]
       }
     ]
@@ -1618,11 +1773,20 @@
         ]
       },
       {
-        "pNum": "4",
-        "pAction": "El actor modifica los datos en el formulario [B] y confirma la reprogramación mediante el botón \"Guardar Cambios\" [C].",
+        "pNum": "3",
+        "pAction": "El sistema muestra los datos actuales en el formulario: título de la clase [B], fecha y hora [C], duración estimada [D] y enlace a la sala [E].",
         "badges": [
           "B",
-          "C"
+          "C",
+          "D",
+          "E"
+        ]
+      },
+      {
+        "pNum": "4",
+        "pAction": "El actor reprograma los datos y confirma mediante el botón \"Guardar Cambios\" [F].",
+        "badges": [
+          "F"
         ]
       }
     ]
@@ -1864,11 +2028,20 @@
         ]
       },
       {
-        "pNum": "3",
-        "pAction": "El actor modifica el título o el guión en el editor [B] y confirma mediante el botón \"Actualizar y Regenerar Video\" [C].",
+        "pNum": "2",
+        "pAction": "El sistema muestra los datos actuales en el editor: título de la clase [B], guión textual [C], avatar [D] y voz [E].",
         "badges": [
           "B",
-          "C"
+          "C",
+          "D",
+          "E"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor actualiza el guión y confirma mediante el botón \"Actualizar y Regenerar Video\" [F].",
+        "badges": [
+          "F"
         ]
       }
     ]
@@ -1905,11 +2078,21 @@
         ]
       },
       {
-        "pNum": "3",
-        "pAction": "El actor ingresa los datos solicitados en el formulario de registro [B] y presiona el botón \"Crear Cuenta\" [C].",
+        "pNum": "2",
+        "pAction": "El sistema solicita los datos de la cuenta de alumno: nombre [B], apellido [C], correo electrónico [D], DNI [E] y contraseña de seguridad [F].",
         "badges": [
           "B",
-          "C"
+          "C",
+          "D",
+          "E",
+          "F"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor completa los datos de registro y confirma la creación mediante el botón \"Crear Cuenta\" [G].",
+        "badges": [
+          "G"
         ]
       }
     ]
@@ -1947,18 +2130,29 @@
     "steps": [
       {
         "pNum": "1",
-        "pAction": "El caso de uso inicia cuando el actor solicita registrar manualmente un usuario mediante el botón \"+ Nuevo Usuario\" [A].",
+        "pAction": "El caso de uso inicia cuando el actor solicita registrar manualmente un usuario mediante el botón \"+ Nuevo Usuario\" [A] (ver CU-82: Buscar usuario).",
         "badges": [
           "A"
         ]
       },
       {
-        "pNum": "3",
-        "pAction": "El actor ingresa los datos solicitados en el formulario [B], asigna el rol correspondiente [C] y confirma mediante el botón \"Guardar Usuario\" [D].",
+        "pNum": "2",
+        "pAction": "El sistema solicita los datos de la cuenta: nombre [B], apellido [C], correo electrónico [D], DNI [E], contraseña de acceso [F], teléfono [G] y rol del sistema [H].",
         "badges": [
           "B",
           "C",
-          "D"
+          "D",
+          "E",
+          "F",
+          "G",
+          "H"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor completa los datos personales y de acceso y confirma el alta mediante el botón \"Guardar Usuario\" [I].",
+        "badges": [
+          "I"
         ]
       }
     ]
@@ -1969,17 +2163,28 @@
     "steps": [
       {
         "pNum": "1",
-        "pAction": "El caso de uso inicia cuando el actor busca y selecciona la cuenta del alumno a modificar mediante el botón \"Editar\" [A] (ver CU-82: Buscar usuario).",
+        "pAction": "El caso de uso inicia cuando el actor busca y selecciona la cuenta a modificar mediante el botón \"Editar Usuario\" [A] (ver CU-82: Buscar usuario).",
         "badges": [
           "A"
         ]
       },
       {
-        "pNum": "3",
-        "pAction": "El actor modifica los datos en el formulario de cuenta [B] y confirma mediante el botón \"Guardar Cambios\" [C].",
+        "pNum": "2",
+        "pAction": "El sistema muestra los datos actuales en el formulario: nombre [B], apellido [C], correo electrónico [D], DNI [E], teléfono [F] y foto de perfil [G].",
         "badges": [
           "B",
-          "C"
+          "C",
+          "D",
+          "E",
+          "F",
+          "G"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor actualiza los campos habilitados y confirma mediante el botón \"Guardar Cambios\" [H].",
+        "badges": [
+          "H"
         ]
       }
     ]
@@ -2045,18 +2250,29 @@
     "steps": [
       {
         "pNum": "1",
-        "pAction": "El caso de uso inicia cuando el actor solicita registrar un nuevo docente mediante el botón \"+ Nuevo Docente\" [A].",
+        "pAction": "El caso de uso inicia cuando el actor solicita registrar un nuevo docente mediante el botón \"+ Nuevo Docente\" [A] (ver CU-82: Buscar usuario).",
         "badges": [
           "A"
         ]
       },
       {
-        "pNum": "3",
-        "pAction": "El actor ingresa los datos personales y profesionales en el formulario docente [B], adjunta títulos y matrículas [C] y confirma mediante el botón \"Guardar Docente\" [D].",
+        "pNum": "2",
+        "pAction": "El sistema solicita los antecedentes del docente: nombre y apellido [B], correo electrónico [C], DNI y teléfono [D], biografía profesional [E], años de experiencia [F], títulos universitarios [G] y matrícula CNV / profesional [H].",
         "badges": [
           "B",
           "C",
-          "D"
+          "D",
+          "E",
+          "F",
+          "G",
+          "H"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor completa los datos profesionales y confirma mediante el botón \"Guardar Docente\" [I].",
+        "badges": [
+          "I"
         ]
       }
     ]
@@ -2073,11 +2289,21 @@
         ]
       },
       {
-        "pNum": "3",
-        "pAction": "El actor modifica la biografía, experiencia, títulos o estado de habilitación en el formulario [B] y confirma mediante el botón \"Guardar Cambios\" [C].",
+        "pNum": "2",
+        "pAction": "El sistema muestra los antecedentes actuales: biografía profesional [B], años de experiencia [C], títulos universitarios [D], matrícula CNV [E] y estado de habilitación docente [F].",
         "badges": [
           "B",
-          "C"
+          "C",
+          "D",
+          "E",
+          "F"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor actualiza los antecedentes habilitados y confirma mediante el botón \"Guardar Cambios\" [G].",
+        "badges": [
+          "G"
         ]
       }
     ]
@@ -2290,18 +2516,31 @@
     "name": "Configurar parámetros",
     "steps": [
       {
-        "pNum": "2",
-        "pAction": "El actor selecciona un parámetro existente de la tabla de configuración mediante el botón \"Editar Valor\" [A].",
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor solicita configurar los parámetros del sistema listados en la tabla de configuración [A].",
         "badges": [
           "A"
         ]
       },
       {
-        "pNum": "4",
-        "pAction": "El actor ingresa el nuevo valor en el formulario de parámetro [B] y confirma mediante el botón \"Guardar Parámetro\" [C].",
+        "pNum": "2",
+        "pAction": "El actor selecciona el parámetro a modificar mediante el botón \"Editar Valor\" [B].",
         "badges": [
-          "B",
+          "B"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El sistema solicita el nuevo valor y muestra la descripción del impacto [C].",
+        "badges": [
           "C"
+        ]
+      },
+      {
+        "pNum": "4",
+        "pAction": "El actor ingresa el nuevo valor del parámetro y confirma la actualización mediante el botón \"Guardar Parámetro\" [D].",
+        "badges": [
+          "D"
         ]
       }
     ]
