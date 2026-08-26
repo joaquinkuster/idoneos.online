@@ -1471,171 +1471,64 @@ function generateScreenContent(cu) {
     `;
   }
 
-  // --- SPECIALIZED 16: FORMULARIOS DE REGISTRO / MODIFICACIÓN ESPECÍFICOS (ESTILO WIREFRAME DE LA CAPTURA) ---
-  const isCourseForm = id === 'CU-03' || id === 'CU-04';
-
-  if (isCourseForm) {
-    return `
-      <!-- Tag / Header de Acción Minimalista con Barra Dorada/Gris -->
-      <div class="d-flex align-items-center mb-4">
-        <div class="wf-action-pill-header">
-          <span>${name}</span>
-        </div>
-        <div class="wf-action-pill-dash"></div>
-      </div>
-
-      <div class="row g-4">
-        <!-- Columna Izquierda: Subir Foto / Thumbnail -->
-        <div class="col-md-2">
-          <div class="wf-upload-box">
-            ${icons.camera("w-6 h-6 text-muted mb-2")}
-            <span class="small fw-bold text-muted">Subir Foto</span>
-            <div class="mt-2">
-              <span class="pin-badge">${badges[badges.length - 2] || 'C'}</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Columna Derecha: Formulario Estructurado en Bloques -->
-        <div class="col-md-10">
-          
-          <!-- Bloque: Datos del Curso -->
-          <div class="mb-4">
-            <h4 class="wf-section-title">Datos del Curso</h4>
-            <div class="row g-3">
-              <div class="col-md-6">
-                <label class="wf-label">Nombre del curso</label>
-                <div class="wf-input-wrap">
-                  <input type="text" class="wf-input wf-input-pill" value="Especialización en Renta Fija y Curvas">
-                  <span class="pin-badge">${badges[0] || 'A'}</span>
-                </div>
-              </div>
-              <div class="col-md-6">
-                <label class="wf-label">Categoría</label>
-                <div class="wf-select-container">
-                  <div class="wf-input-wrap">
-                    <input type="text" class="wf-input wf-input-pill" value="Mercado de Capitales">
-                    <span class="pin-badge">${badges[1] || 'B'}</span>
-                  </div>
-                </div>
-              </div>
-              <div class="col-md-6">
-                <label class="wf-label">Nivel de Dificultad</label>
-                <input type="text" class="wf-input wf-input-pill" value="Avanzado">
-              </div>
-              <div class="col-md-6">
-                <label class="wf-label">Precio (ARS)</label>
-                <input type="text" class="wf-input wf-input-pill" value="45000">
-              </div>
-            </div>
-          </div>
-
-          <!-- Bloque: Equipo Docente -->
-          <div class="mb-4">
-            <h4 class="wf-section-title">Equipo Docente</h4>
-            <div class="row g-3">
-              <div class="col-md-6">
-                <label class="wf-label">Docente Titular</label>
-                <input type="text" class="wf-input wf-input-pill" value="Fausto Spotorno">
-              </div>
-              <div class="col-md-6">
-                <label class="wf-label">Docente Supervisor / Ayudante</label>
-                <input type="text" class="wf-input wf-input-pill" value="Claudio Zuchovicki">
-              </div>
-            </div>
-          </div>
-
-          <!-- Bloque: Modalidad y Certificación -->
-          <div class="mb-4">
-            <h4 class="wf-section-title">Modalidad y Certificación</h4>
-            <div class="row g-3 align-items-center">
-              <div class="col-md-6">
-                <label class="wf-label">Modalidad</label>
-                <input type="text" class="wf-input wf-input-pill" value="En Vivo (RTMP) / Grabado">
-              </div>
-              <div class="col-md-6">
-                <label class="wf-label">Certificación</label>
-                <div class="d-flex align-items-center gap-2 pt-1">
-                  <input type="checkbox" checked id="certCheck" style="width: 16px; height: 16px;">
-                  <label for="certCheck" class="small fw-bold text-dark mb-0">Emite Certificado Oficial</label>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Bloque: Descripción -->
-          <div class="mb-4">
-            <label class="wf-label">Descripción</label>
-            <textarea class="wf-input wf-input-rounded" rows="3">Análisis de bonos soberanos, cálculo de duración y convexidad.</textarea>
-          </div>
-
-          <!-- Botón de Acción a la Derecha -->
-          <div class="d-flex justify-content-end align-items-center gap-2 mt-4 pt-2">
-            <button class="wf-btn wf-btn-primary wf-btn-pill px-4">${name}</button>
-            <span class="pin-badge">${badges[badges.length - 1] || 'D'}</span>
-          </div>
-
-        </div>
-      </div>
-    `;
-  }
-
-  // Formulario genérico para otros registros / modificaciones con el mismo estilo
+  // --- SPECIALIZED 16: FORMULARIOS DE REGISTRO / MODIFICACIÓN ESPECÍFICOS ---
   return `
-    <div class="d-flex align-items-center mb-4">
-      <div class="wf-action-pill-header">
-        <span>${name}</span>
+    <div class="wf-card" style="max-width: 860px; margin: 0 auto;">
+      <div class="wf-card-header mb-4 pb-3 border-bottom">
+        <h3 style="font-size: 18px; font-weight: 700; color: #0F172A;">${name}</h3>
+        <p class="text-muted" style="margin: 0; font-size: 13px;">Complete los datos correspondientes en el sistema.</p>
       </div>
-      <div class="wf-action-pill-dash"></div>
-    </div>
 
-    <div class="row g-4">
-      <div class="col-md-2">
-        <div class="wf-upload-box">
-          ${icons.documentText("w-6 h-6 text-muted mb-2")}
-          <span class="small fw-bold text-muted">Elemento</span>
-          <div class="mt-2">
-            <span class="pin-badge">${badges[badges.length - 2] || 'C'}</span>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="wf-label">Nombre / Denominación</label>
+          <div class="wf-input-wrap">
+            <input type="text" class="wf-input" value="${name.includes('curso') ? 'Especialización en Idoneidad Bursátil' : (name.includes('categoría') ? 'Mercado de Capitales' : (name.includes('cohorte') ? 'Cohorte 2026-1' : 'Registro de ' + name))}">
+            <span class="pin-badge">${badges[0] || 'A'}</span>
           </div>
         </div>
-      </div>
 
-      <div class="col-md-10">
-        <div class="mb-4">
-          <h4 class="wf-section-title">Parámetros Principales</h4>
-          <div class="row g-3">
-            <div class="col-md-6">
-              <label class="wf-label">Nombre / Título</label>
-              <div class="wf-input-wrap">
-                <input type="text" class="wf-input wf-input-pill" value="Registro correspondiente a ${name}">
-                <span class="pin-badge">${badges[0] || 'A'}</span>
+        <div class="col-md-6">
+          <label class="wf-label">Categoría / Asociación</label>
+          <div class="wf-select-container">
+            <div class="wf-input-wrap">
+              <div class="wf-input wf-select-trigger">
+                <span>Mercado de Capitales</span>
+                ${icons.chevronDown()}
               </div>
-            </div>
-            <div class="col-md-6">
-              <label class="wf-label">Categoría / Tipo</label>
-              <div class="wf-input-wrap">
-                <input type="text" class="wf-input wf-input-pill" value="Mercado de Capitales">
-                <span class="pin-badge">${badges[1] || 'B'}</span>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <label class="wf-label">Parámetro Numérico</label>
-              <input type="text" class="wf-input wf-input-pill" value="100">
-            </div>
-            <div class="col-md-6">
-              <label class="wf-label">Estado de la Operación</label>
-              <input type="text" class="wf-input wf-input-pill" value="Habilitado / Activo" disabled class="bg-disabled">
+              <span class="pin-badge">${badges[1] || 'B'}</span>
             </div>
           </div>
         </div>
 
-        <div class="mb-4">
-          <label class="wf-label">Descripción Detallada</label>
-          <textarea class="wf-input wf-input-rounded" rows="3">Descripción y especificación funcional para el caso de uso ${id} (${name}).</textarea>
+        <div class="col-12">
+          <label class="wf-label">Descripción Académica / Contenido</label>
+          <div class="wf-input-wrap">
+            <textarea class="wf-input" rows="3">Descripción detallada correspondiente al caso de uso ${id} (${name}).</textarea>
+            <span class="pin-badge">${badges[2] || 'C'}</span>
+          </div>
         </div>
 
-        <div class="d-flex justify-content-end align-items-center gap-2 mt-4 pt-2">
-          <button class="wf-btn wf-btn-primary wf-btn-pill px-4">Confirmar y Guardar</button>
+        <div class="col-md-4">
+          <label class="wf-label">Precio / Arancel</label>
+          <input type="text" class="wf-input" value="$120.000 ARS">
+        </div>
+
+        <div class="col-md-4">
+          <label class="wf-label">Estado</label>
+          <input type="text" class="wf-input" value="Habilitado / Activo" disabled class="bg-disabled">
+        </div>
+
+        <div class="col-md-4">
+          <label class="wf-label">Docente Responsable</label>
+          <input type="text" class="wf-input" value="Lic. Fausto Spotorno" disabled class="bg-disabled">
+        </div>
+      </div>
+
+      <div class="wf-card-footer d-flex justify-content-end gap-3 mt-4 pt-3 border-top">
+        <button class="wf-btn wf-btn-outline">Cancelar / Volver</button>
+        <div class="d-flex align-items-center gap-2">
+          <button class="wf-btn wf-btn-primary">Confirmar y Guardar</button>
           <span class="pin-badge">${badges[badges.length - 1] || 'D'}</span>
         </div>
       </div>
@@ -1821,38 +1714,36 @@ let html = `<!DOCTYPE html>
             padding-left: 2px;
         }
 
-        /* Marco de Pantalla / Wireframe Frame (Estilo Captura de Referencia) */
+        /* Marco de Pantalla / Wireframe Frame */
         .screen-frame {
             width: 100%;
-            min-height: 660px;
+            min-height: 640px;
             background: #FFFFFF;
             border-radius: 8px;
-            border: 1px solid #CBD5E1;
-            box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.08), 0 4px 12px -2px rgba(15, 23, 42, 0.04);
+            border: 1.5px solid #CBD5E1;
+            box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
             display: flex;
             flex-direction: column;
-            overflow: hidden;
-            position: relative;
+            overflow: visible;
         }
 
-        /* Top Bar Minimalista */
+        /* Top Navbar Minimalista */
         .wf-top-navbar {
-            height: 48px;
+            height: 52px;
             background: #FFFFFF;
-            border-bottom: 1px solid #E2E8F0;
-            padding: 0 24px;
+            border-bottom: 1.5px solid #CBD5E1;
+            padding: 0 20px;
             display: flex;
             align-items: center;
-            justify-content: flex-start;
-            gap: 12px;
+            justify-content: space-between;
             position: relative;
-            z-index: 50;
+            z-index: 100;
         }
 
         .wf-brand {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
             font-size: 13px;
         }
 
@@ -1868,99 +1759,142 @@ let html = `<!DOCTYPE html>
         }
 
         .wf-brand .screen-title {
-            font-weight: 700;
-            color: #334155;
-            font-size: 12px;
+            font-weight: 600;
+            color: #475569;
         }
 
-        /* Contenedor Principal con Barra Lateral Derecha */
-        .wf-body-container {
+        /* User Pill Trigger */
+        .wf-user-menu-wrapper {
+            position: relative;
+        }
+
+        .wf-user-trigger-pill {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 3px 10px 3px 3px;
+            border-radius: 20px;
+            border: 1px solid #CBD5E1;
+            background: #F8FAFC;
+            cursor: pointer;
+        }
+
+        .user-avatar-circle {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #0F172A;
+            color: #FFFFFF;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        /* Dropdown Flotante */
+        .wf-user-floating-dropdown {
+            position: absolute;
+            top: 44px;
+            right: 0;
+            width: 250px;
+            background: #FFFFFF;
+            border: 1.5px solid #CBD5E1;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            z-index: 200;
+            overflow: hidden;
+            display: none;
+            flex-direction: column;
+        }
+
+        .wf-dropdown-user-header {
+            padding: 10px 14px;
+            background: #F8FAFC;
+            border-bottom: 1px solid #CBD5E1;
+        }
+
+        .wf-dropdown-user-name {
+            font-size: 12px;
+            font-weight: 700;
+            color: #0F172A;
+        }
+
+        .wf-dropdown-user-role {
+            font-size: 10px;
+            font-weight: 600;
+            color: #64748B;
+            text-transform: uppercase;
+        }
+
+        .wf-dropdown-user-email {
+            font-size: 11px;
+            color: #64748B;
+            margin-top: 2px;
+        }
+
+        .wf-dropdown-section {
+            padding: 6px 8px;
+            border-bottom: 1px solid #F1F5F9;
+        }
+
+        .wf-dropdown-section:last-child {
+            border-bottom: none;
+        }
+
+        .wf-dropdown-section-title {
+            font-size: 9px;
+            font-weight: 700;
+            color: #94A3B8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 2px;
+            padding-left: 6px;
+        }
+
+        .wf-dropdown-item-btn {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 5px 8px;
+            font-size: 11px;
+            color: #334155;
+            border-radius: 4px;
+            text-decoration: none;
+            transition: all 0.1s;
+        }
+
+        .wf-dropdown-item-btn:hover {
+            background: #F1F5F9;
+            color: #0F172A;
+        }
+
+        .wf-dropdown-item-btn.text-danger {
+            color: #DC2626;
+            font-weight: 600;
+        }
+
+        .wf-dropdown-editing-toggle-box {
+            background: #F8FAFC;
+            border: 1px solid #CBD5E1;
+            border-radius: 4px;
+            padding: 5px 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .wf-body {
             flex: 1;
             display: flex;
             background: #F8FAFC;
-            min-height: 610px;
+            position: relative;
         }
 
         .wf-main-content {
             flex: 1;
-            padding: 32px 40px;
+            padding: 24px;
             overflow-y: auto;
-            background: #F8FAFC;
-        }
-
-        /* Barra Lateral Derecha (Dark Sidebar como en la imagen) */
-        .wf-right-sidebar {
-            width: 140px;
-            background: #0A2540;
-            color: #FFFFFF;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px 10px;
-            flex-shrink: 0;
-            border-left: 1px solid #06182A;
-            box-shadow: -4px 0 15px rgba(10, 37, 64, 0.05);
-        }
-
-        .wf-right-nav-list {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-            width: 100%;
-            text-align: center;
-            margin-top: 10px;
-        }
-
-        .wf-right-nav-item {
-            font-size: 10px;
-            font-weight: 700;
-            color: #94A3B8;
-            text-decoration: none;
-            padding: 6px 4px;
-            border-radius: 20px;
-            transition: all 0.15s;
-            line-height: 1.2;
-            display: block;
-        }
-
-        .wf-right-nav-item:hover {
-            color: #FFFFFF;
-        }
-
-        .wf-right-nav-item.active {
-            color: #C5A059;
-            border: 1px solid #C5A059;
-            background: rgba(197, 160, 89, 0.08);
-        }
-
-        .wf-right-user-bottom {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 6px;
-            margin-bottom: 8px;
-        }
-
-        .wf-right-user-avatar {
-            width: 38px;
-            height: 38px;
-            border-radius: 50%;
-            background: #CBD5E1;
-            color: #0F172A;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            font-weight: 800;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-        }
-
-        .wf-right-user-name {
-            font-size: 9px;
-            font-weight: 700;
-            color: #FFFFFF;
-            text-align: center;
         }
 
         /* Pin Badges (Wireframe Style - Contraste Nítido) */
@@ -2051,85 +1985,32 @@ let html = `<!DOCTYPE html>
             margin-bottom: 6px;
         }
 
-        /* Estilos Especiales Wireframe (Captura de Referencia) */
-        .wf-action-pill-header {
-            background: #0A2540;
-            color: #FFFFFF;
-            padding: 8px 18px;
-            border-radius: 4px;
+        /* Inputs Wireframe Minimalistas */
+        .wf-input {
+            width: 100%;
+            height: 38px;
+            padding: 8px 12px;
+            border: 1.5px solid #CBD5E1;
+            border-radius: 5px;
             font-size: 13px;
-            font-weight: 700;
-            display: inline-flex;
-            align-items: center;
-            box-shadow: 0 2px 6px rgba(10, 37, 64, 0.2);
-        }
-
-        .wf-action-pill-dash {
-            width: 24px;
-            height: 14px;
-            background: #C5A059;
-            margin-left: 2px;
-            border-radius: 2px;
-        }
-
-        .wf-section-title {
-            font-size: 13px;
-            font-weight: 800;
             color: #0F172A;
-            margin-bottom: 12px;
-            letter-spacing: -0.2px;
-        }
-
-        .wf-upload-box {
-            border: 2px dashed #94A3B8;
-            border-radius: 6px;
+            outline: none;
             background: #FFFFFF;
-            padding: 24px 10px;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
-            transition: all 0.15s;
+            transition: border-color 0.15s;
         }
 
-        .wf-upload-box:hover {
-            border-color: #0A2540;
-            background: #F8FAFC;
+        .wf-input:focus {
+            border-color: #0F172A;
         }
 
-        .wf-input-pill {
-            border-radius: 20px !important;
-            padding: 8px 16px !important;
-            border: 1.5px solid #94A3B8 !important;
-            box-shadow: inset 0 1px 2px rgba(0,0,0,0.03);
+        textarea.wf-input {
+            height: auto;
         }
 
-        .wf-input-pill:focus {
-            border-color: #0A2540 !important;
-            box-shadow: 0 0 0 3px rgba(10, 37, 64, 0.1) !important;
-        }
-
-        .wf-input-rounded {
-            border-radius: 8px !important;
-            border: 1.5px solid #94A3B8 !important;
-            padding: 10px 14px !important;
-            box-shadow: inset 0 1px 2px rgba(0,0,0,0.03);
-        }
-
-        .wf-btn-pill {
-            border-radius: 20px !important;
-            background: #0A2540 !important;
-            color: #FFFFFF !important;
-            font-weight: 700 !important;
-            box-shadow: 0 4px 10px rgba(10, 37, 64, 0.25) !important;
-            border: none !important;
-        }
-
-        .wf-btn-pill:hover {
-            background: #103358 !important;
-            box-shadow: 0 6px 14px rgba(10, 37, 64, 0.3) !important;
+        .bg-disabled {
+            background: #F8FAFC !important;
+            color: #64748B !important;
+            border-style: dashed !important;
         }
 
         /* Botones Wireframe Nítidos */
@@ -2550,40 +2431,67 @@ cus.forEach(cu => {
             </div>
 
             <div class="screen-frame">
-                <!-- Top Brand & Breadcrumb Header -->
                 <div class="wf-top-navbar">
                     <div class="wf-brand">
                         <strong>IDÓNEOS ONLINE</strong>
                         <span class="divider">|</span>
                         <span class="screen-title">${cu.name}</span>
                     </div>
+
+                    <div class="wf-user-menu-wrapper">
+                        <div class="wf-user-trigger-pill" onclick="toggleUserDropdown(this)">
+                            <div class="user-avatar-circle">${roleInfo.initials}</div>
+                            <div class="d-flex flex-column text-start">
+                                <span class="wf-dropdown-user-name" style="font-size: 11px;">${roleInfo.name}</span>
+                                <span class="wf-dropdown-user-role" style="font-size: 9px;">${roleInfo.role}</span>
+                            </div>
+                            ${icons.chevronDown("w-3 h-3 text-muted ms-1")}
+                        </div>
+
+                        <div class="wf-user-floating-dropdown">
+                            <div class="wf-dropdown-user-header">
+                                <div class="wf-dropdown-user-name">${roleInfo.name}</div>
+                                <div class="wf-dropdown-user-role">${roleInfo.role}</div>
+                                <div class="wf-dropdown-user-email">${roleInfo.email}</div>
+                            </div>
+  `;
+
+  roleInfo.dropdownSections.forEach(sec => {
+    html += `
+                            <div class="wf-dropdown-section">
+                                <div class="wf-dropdown-section-title">${sec.title}</div>
+    `;
+    if (sec.hasEditingToggle) {
+      html += `
+                                <div class="wf-dropdown-editing-toggle-box">
+                                    <span class="small fw-bold">${sec.isEditingActive ? 'Modo Edición Activado' : 'Activar Edición'}</span>
+                                    <span class="wf-badge ${sec.isEditingActive ? 'status-active' : 'status-inactive'}">${sec.isEditingActive ? 'ON' : 'OFF'}</span>
+                                </div>
+      `;
+    }
+    if (sec.items) {
+      sec.items.forEach(it => {
+        html += `
+                                <a href="#${it.cu}" class="wf-dropdown-item-btn ${it.isDanger ? 'text-danger' : ''}">
+                                    <span>${it.label}</span>
+                                    <span class="small text-muted">${it.cu}</span>
+                                </a>
+        `;
+      });
+    }
+    html += `
+                            </div>
+    `;
+  });
+
+  html += `
+                        </div>
+                    </div>
                 </div>
 
-                <div class="wf-body-container">
-                    <!-- Main Screen Body Content -->
+                <div class="wf-body">
                     <div class="wf-main-content">
                         ${generateScreenContent(cu)}
-                    </div>
-
-                    <!-- Right Dark Navigation Sidebar (Referencia Imagen Wireframe) -->
-                    <div class="wf-right-sidebar">
-                        <div class="d-flex justify-content-end w-100 mb-2">
-                            <span class="text-muted cursor-pointer" style="font-size: 12px;">←</span>
-                        </div>
-
-                        <div class="wf-right-nav-list">
-                            <a href="#CU-01" class="wf-right-nav-item">Dashboard</a>
-                            <a href="#${cu.id}" class="wf-right-nav-item active">${roleInfo.role === 'Alumno' ? 'Panel Alumno' : (roleInfo.role === 'Docente Titular' ? 'Panel Docente (Mis cursos)' : 'Panel Admin')}</a>
-                            <a href="#CU-19" class="wf-right-nav-item">Gestión Académica</a>
-                            <a href="#CU-65" class="wf-right-nav-item">Clases en Vivo</a>
-                            <a href="#CU-76" class="wf-right-nav-item">Clon IA</a>
-                            <a href="#CU-06" class="wf-right-nav-item">Vista pública</a>
-                        </div>
-
-                        <div class="wf-right-user-bottom">
-                            <div class="wf-right-user-avatar">${roleInfo.initials}</div>
-                            <div class="wf-right-user-name">${roleInfo.name}</div>
-                        </div>
                     </div>
                 </div>
             </div>
