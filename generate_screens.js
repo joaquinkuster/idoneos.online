@@ -785,9 +785,14 @@ function generateScreenContent(cu) {
     return `
       <div class="wf-card" style="max-width: 960px; margin: 0 auto; background: #FFFFFF;">
         <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
-          <div>
-            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Reordenar y Modificar Cronograma</h3>
-            <p class="small text-muted" style="margin: 3px 0 0;">Arrastre los bloques de unidades para modificar su orden secuencial y ajuste las semanas lectivas.</p>
+          <div class="d-flex align-items-center gap-3">
+            <div>
+              <div class="d-flex align-items-center gap-2">
+                <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Reordenar y Modificar Cronograma</h3>
+                <span class="pin-badge">${badges[0] || 'A'}</span>
+              </div>
+              <p class="small text-muted" style="margin: 3px 0 0;">Arrastre los bloques de unidades para modificar su orden secuencial y ajuste las semanas lectivas.</p>
+            </div>
           </div>
           <span class="wf-badge status-active">Modo Edición Cronograma</span>
         </div>
@@ -1089,6 +1094,42 @@ function generateScreenContent(cu) {
                 </div>
               ` : ''}
 
+              ${isForo ? `
+                <div class="mb-4">
+                  <label class="wf-label">Redacción de la Consulta / Mensaje</label>
+                  <div class="wf-input-wrap">
+                    <textarea class="wf-input" rows="4">Estimado docente, tengo una duda respecto a la aplicación de la duración modificada cuando los bonos no tienen cupones periódicos...</textarea>
+                    <span class="pin-badge">${badges[2] || 'C'}</span>
+                  </div>
+                </div>
+              ` : ''}
+
+              ${isEval ? `
+                <div class="mb-4">
+                  <label class="wf-label">Pool de Preguntas Vinculado</label>
+                  <div class="wf-input-wrap">
+                    <select class="wf-input">
+                      <option>Pool Unidad 1: Marco Regulatorio (25 preguntas)</option>
+                      <option>Pool Unidad 2: Renta Fija (30 preguntas)</option>
+                    </select>
+                    <span class="pin-badge">${badges[2] || 'C'}</span>
+                  </div>
+                </div>
+              ` : ''}
+
+              ${isPool ? `
+                <div class="mb-4">
+                  <label class="wf-label">Categoría Temática / Dificultad</label>
+                  <div class="wf-input-wrap">
+                    <select class="wf-input">
+                      <option>Nivel Avanzado (Examen Oficial CNV)</option>
+                      <option>Nivel Intermedio</option>
+                    </select>
+                    <span class="pin-badge">${badges[2] || 'C'}</span>
+                  </div>
+                </div>
+              ` : ''}
+
               ${isLive ? `
                 <div class="mb-4">
                   <label class="wf-label">Fecha y Hora de Transmisión</label>
@@ -1103,7 +1144,7 @@ function generateScreenContent(cu) {
             <div class="d-flex justify-content-end align-items-center gap-3 pt-4 border-top">
               <button class="wf-btn wf-btn-outline wf-btn-sm">Cancelar</button>
               <div class="d-flex align-items-center gap-2">
-                <button class="wf-btn wf-btn-primary wf-btn-sm"><i class="fa-solid fa-plus me-1"></i> Agregar Recurso</button>
+                <button class="wf-btn wf-btn-primary wf-btn-sm"><i class="fa-solid fa-plus me-1"></i> ${isForo ? 'Publicar Consulta' : 'Agregar'}</button>
                 <span class="pin-badge">${badges[badges.length - 1] || 'D'}</span>
               </div>
             </div>
@@ -1354,7 +1395,10 @@ function generateScreenContent(cu) {
               <i class="fa-solid fa-wand-magic-sparkles" style="font-size: 20px;"></i>
             </div>
             <div>
-              <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Generar Clase Audiovisual con Clon IA</h3>
+              <div class="d-flex align-items-center gap-2">
+                <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Generar Clase Audiovisual con Clon IA</h3>
+                <span class="pin-badge">${badges[0] || 'A'}</span>
+              </div>
               <p class="small text-muted" style="margin: 3px 0 0;">Ingrese el título, seleccione la unidad y redacte el guión que el avatar HeyGen sintetizará.</p>
             </div>
           </div>
@@ -1650,49 +1694,259 @@ function generateScreenContent(cu) {
     `;
   }
 
-  // --- SPECIALIZED 11: PAGOS E INSCRIPCIONES --- CU-44, CU-46, CU-47
-  if (['CU-44', 'CU-46', 'CU-47'].includes(id)) {
+  // --- SPECIALIZED 11A: BUSCAR INSCRIPCIÓN / HISTORIAL --- CU-43, CU-48
+  if (['CU-43', 'CU-48'].includes(id)) {
+    const isProg = id === 'CU-48';
     return `
-      <div class="wf-card" style="max-width: 800px; margin: 0 auto;">
+      <div class="wf-card mb-4" style="background: #FFFFFF;">
         <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
           <div>
-            <h3 style="font-size: 18px; font-weight: 700; color: #0F172A; margin: 0;">Pasarela de Pago & Matrícula</h3>
-            <p class="small text-muted" style="margin: 0;">Inscripción al curso: <strong>Especialización en Idoneidad Bursátil (Cohorte 2026-1)</strong></p>
+            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">${isProg ? 'Seguimiento y Progreso de Alumnos' : 'Gestión e Historial de Inscripciones'}</h3>
+            <p class="small text-muted" style="margin: 3px 0 0;">Consulte las matriculaciones vigentes, certificados emitidos y porcentaje de avance pedagógico.</p>
           </div>
-          <span class="wf-badge status-active">Arancel: $120.000 ARS</span>
+          <span class="wf-badge status-active">Total: 1.240 Alumnos</span>
         </div>
 
-        <div class="row g-3 mb-4">
-          <div class="col-md-6">
-            <label class="wf-label">Método de Pago Seleccionado</label>
+        <div class="row g-3 align-items-end mb-4">
+          <div class="col-md-5">
+            <label class="wf-label">Buscar por Alumno o DNI</label>
             <div class="wf-input-wrap">
-              <div class="wf-input d-flex align-items-center justify-content-between">
-                <span>${icons.creditCard("w-4 h-4 me-2")} Tarjeta de Débito / Crédito</span>
-                <span class="text-success fw-bold">Activo</span>
-              </div>
+              <input type="text" class="wf-input" placeholder="Ej: Joaquín Küster, 40.123.456...">
               <span class="pin-badge">${badges[0] || 'A'}</span>
             </div>
           </div>
-          <div class="col-md-6">
-            <label class="wf-label">Cupón de Descuento (Opcional)</label>
-            <div class="wf-input-wrap">
-              <input type="text" class="wf-input" placeholder="Ingresar código...">
-              <button class="wf-btn wf-btn-sm wf-btn-outline">Aplicar</button>
+          <div class="col-md-4">
+            <label class="wf-label">Estado de la Inscripción</label>
+            <select class="wf-input">
+              <option>Todas las inscripciones (Activas, Finalizadas, Bajas)</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <div class="d-flex align-items-center gap-2">
+              <button class="wf-btn wf-btn-primary w-100"><i class="fa-solid fa-magnifying-glass me-1"></i> Buscar</button>
               <span class="pin-badge">${badges[1] || 'B'}</span>
             </div>
           </div>
         </div>
 
-        <div class="p-3 border rounded bg-light mb-4">
-          <div class="d-flex justify-content-between mb-2"><span>Arancel del Curso:</span><strong>$120.000 ARS</strong></div>
-          <div class="d-flex justify-content-between mb-2 text-success"><span>Descuento Aplicado:</span><strong>-$0 ARS</strong></div>
-          <div class="d-flex justify-content-between border-top pt-2" style="font-size: 16px;"><span>Total a Pagar:</span><strong class="text-navy">$120.000 ARS</strong></div>
+        <div class="wf-table-wrap">
+          <table class="wf-table">
+            <thead>
+              <tr>
+                <th>Alumno / DNI</th>
+                <th>Curso & Cohorte</th>
+                <th>Fecha Matrícula</th>
+                <th>${isProg ? 'Progreso Pedagógico' : 'Estado / Certificado'}</th>
+                <th class="text-end">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Joaquín Küster</strong><div class="small text-muted">DNI: 40.123.456 • joaquin@idoneos.online</div></td>
+                <td>Especialización en Idoneidad Bursátil (2026-1)</td>
+                <td>2026-08-15</td>
+                <td>
+                  ${isProg ? `
+                    <div class="d-flex align-items-center gap-2">
+                      <div style="flex: 1; height: 8px; background: #E2E8F0; border-radius: 4px; overflow: hidden;">
+                        <div style="width: 65%; height: 100%; background: #2563EB;"></div>
+                      </div>
+                      <span class="small fw-bold">65%</span>
+                    </div>
+                  ` : `
+                    <span class="wf-badge status-active">Activo (Aprobado)</span>
+                  `}
+                </td>
+                <td class="text-end">
+                  <div class="d-inline-flex align-items-center gap-1">
+                    <span class="pin-badge">${badges[2] || 'C'}</span>
+                    <button class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-certificate me-1 text-warning"></i> Descargar Certificado</button>
+                    <span class="pin-badge">${badges[3] || 'D'}</span>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+  }
+
+  // --- SPECIALIZED 11B: BUSCAR PAGOS / COMPROBANTES --- CU-46
+  if (id === 'CU-46') {
+    return `
+      <div class="wf-card mb-4" style="background: #FFFFFF;">
+        <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
+          <div>
+            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Historial y Registro de Pagos</h3>
+            <p class="small text-muted" style="margin: 3px 0 0;">Liquidaciones de aranceles, cobros por MODO QR, tarjetas y descarga de comprobantes.</p>
+          </div>
+          <span class="wf-badge status-active">Facturación Vigente</span>
+        </div>
+
+        <div class="row g-3 align-items-end mb-4">
+          <div class="col-md-5">
+            <label class="wf-label">Filtrar por Transacción / Alumno</label>
+            <div class="wf-input-wrap">
+              <input type="text" class="wf-input" placeholder="ID Pago, DNI o Alumno...">
+              <span class="pin-badge">${badges[0] || 'A'}</span>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <label class="wf-label">Estado de Transacción</label>
+            <select class="wf-input">
+              <option>Acreditados / Aprobados</option>
+              <option>Pendientes</option>
+              <option>Reembolsados</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <div class="d-flex align-items-center gap-2">
+              <button class="wf-btn wf-btn-primary w-100"><i class="fa-solid fa-magnifying-glass me-1"></i> Buscar</button>
+              <span class="pin-badge">${badges[1] || 'B'}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="wf-table-wrap">
+          <table class="wf-table">
+            <thead>
+              <tr>
+                <th>ID Transacción</th>
+                <th>Alumno / Pagador</th>
+                <th>Concepto / Curso</th>
+                <th>Monto / Medio</th>
+                <th class="text-end">Comprobante</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>#PAY-2026-8841</strong><div class="small text-muted">2026-08-25 14:22 hs</div></td>
+                <td>Joaquín Küster</td>
+                <td>Especialización en Idoneidad Bursátil</td>
+                <td><strong style="color: #059669;">$120.000 ARS</strong><div class="small text-muted">MODO QR Interoperable</div></td>
+                <td class="text-end">
+                  <div class="d-inline-flex align-items-center gap-1">
+                    <span class="pin-badge">${badges[2] || 'C'}</span>
+                    <button class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-file-invoice-dollar me-1 text-primary"></i> Descargar Comprobante</button>
+                    <span class="pin-badge">${badges[3] || 'D'}</span>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+  }
+
+  // --- SPECIALIZED 11C: REALIZAR PAGO Y MATRÍCULA (MODO QR) --- CU-44, CU-47
+  if (['CU-44', 'CU-47'].includes(id)) {
+    return `
+      <div class="wf-card" style="max-width: 860px; margin: 0 auto; background: #FFFFFF;">
+        <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
+          <div>
+            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Pasarela de Pago & Matrícula Online</h3>
+            <p class="small text-muted" style="margin: 3px 0 0;">Inscripción oficial al curso: <strong>Especialización en Idoneidad Bursátil (Cohorte 2026-1)</strong></p>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <span class="wf-badge status-active">Arancel: $120.000 ARS</span>
+            <span class="pin-badge">${badges[0] || 'A'}</span>
+          </div>
+        </div>
+
+        <div class="row g-4">
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="wf-label">Seleccione el Medio de Pago</label>
+              <div class="d-flex flex-column gap-2">
+                <label class="p-3 border rounded d-flex align-items-center justify-content-between bg-light cursor-pointer" style="border-color: #2563EB !important;">
+                  <div class="d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-qrcode text-primary" style="font-size: 18px;"></i>
+                    <strong>MODO Billetera Virtual (QR Interoperable)</strong>
+                  </div>
+                  <span class="pin-badge">${badges[1] || 'B'}</span>
+                </label>
+                <label class="p-3 border rounded d-flex align-items-center justify-content-between cursor-pointer">
+                  <div class="d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-credit-card text-muted"></i>
+                    <span>Tarjeta de Débito / Crédito</span>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <div class="p-3 border rounded bg-light">
+              <div class="d-flex justify-content-between mb-2"><span>Arancel Oficial:</span><strong>$120.000 ARS</strong></div>
+              <div class="d-flex justify-content-between mb-2 text-success"><span>Beca / Descuento:</span><strong>-$0 ARS</strong></div>
+              <div class="d-flex justify-content-between border-top pt-2" style="font-size: 15px; color: #081426;">
+                <span>Total a Pagar:</span><strong>$120.000 ARS</strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6 text-center">
+            <div class="p-3 border rounded bg-white shadow-sm h-100 d-flex flex-column align-items-center justify-content-center">
+              <div class="small fw-bold text-muted text-uppercase mb-2">Escanee para pagar con MODO o App Bancaria</div>
+              <div style="width: 170px; height: 170px; background: #081426; border-radius: 8px; display: flex; align-items: center; justify-content: center; position: relative; padding: 12px;">
+                <div style="background: white; width: 100%; height: 100%; border-radius: 4px; display: flex; align-items: center; justify-content: center;">
+                  <i class="fa-solid fa-qrcode" style="font-size: 110px; color: #081426;"></i>
+                </div>
+              </div>
+              <div class="small text-muted mt-2">Transacción segura BCRA • Acreditación instantánea</div>
+              <div class="mt-2">
+                <span class="pin-badge">${badges[2] || badges[badges.length - 1] || 'C'}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-end align-items-center gap-3 pt-3 mt-4 border-top">
+          <a href="#CU-06" class="wf-btn wf-btn-outline">Cancelar</a>
+          <button class="wf-btn wf-btn-primary" style="background: #059669;"><i class="fa-solid fa-lock me-1"></i> Confirmar Pago Acreditado</button>
+        </div>
+      </div>
+    `;
+  }
+
+  // --- SPECIALIZED 11D: DAR DE BAJA INSCRIPCIÓN --- CU-45
+  if (id === 'CU-45') {
+    return `
+      <div class="wf-card" style="max-width: 640px; margin: 30px auto; background: #FFFFFF;">
+        <div class="text-center mb-4">
+          <div class="wf-icon-danger mb-3" style="width: 54px; height: 54px; border-radius: 50%; background: #FEE2E2; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
+            <i class="fa-solid fa-triangle-exclamation" style="font-size: 24px; color: #DC2626;"></i>
+          </div>
+          <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Dar de Baja Inscripción</h3>
+          <p class="small text-muted" style="margin: 4px 0 0;">Esta acción cancelará su matrícula en la cohorte seleccionada sin derecho a reembolso.</p>
+        </div>
+
+        <div class="p-3 bg-light rounded border mb-4">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="small text-muted">Inscripción a dar de baja:</span>
+            <div class="d-flex align-items-center gap-2">
+              <strong style="font-size: 13px; color: #081426;">Idoneidad Bursátil (Cohorte 2026-1)</strong>
+              <span class="pin-badge">${badges[0] || 'A'}</span>
+            </div>
+          </div>
+          <div class="d-flex justify-content-between align-items-center">
+            <span class="small text-muted">Alumno matriculado:</span>
+            <strong style="font-size: 13px; color: #081426;">Joaquín Küster (DNI: 40.123.456)</strong>
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <label class="wf-label">Motivo de la baja (Opcional):</label>
+          <div class="wf-input-wrap">
+            <textarea class="wf-input" rows="3" placeholder="Indique brevemente el motivo de su baja..."></textarea>
+            <span class="pin-badge">${badges[1] || 'B'}</span>
+          </div>
         </div>
 
         <div class="d-flex justify-content-end align-items-center gap-3 pt-3 border-top">
-          <button class="wf-btn wf-btn-outline">Cancelar</button>
+          <a href="#CU-43" class="wf-btn wf-btn-outline">Cancelar / Volver</a>
           <div class="d-flex align-items-center gap-2">
-            <button class="wf-btn wf-btn-primary" style="background: #059669;">Confirmar y Pagar</button>
+            <button class="wf-btn wf-btn-danger"><i class="fa-solid fa-user-xmark me-1"></i> Confirmar Baja Definitiva</button>
             <span class="pin-badge">${badges[2] || badges[badges.length - 1] || 'C'}</span>
           </div>
         </div>
