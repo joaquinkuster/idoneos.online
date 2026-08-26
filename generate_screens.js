@@ -27,11 +27,11 @@ if (dssContent) {
         const found = mm[1] || mm[2];
         if (found && !msgs.includes(found)) msgs.push(found);
       }
-      dssMap[cuId] = msgs.slice(0, 3).join(' ➔ ');
+      dssMap[cuId] = msgs.length > 0 ? msgs.join(' ➔ ') : 'Operación del sistema correspondiente';
     }
   }
 }
-dssMap['CU-26b'] = 'verContenidoUnidad(unaUnidad) ➔ ModoEdición';
+dssMap['CU-26b'] = 'verContenidoUnidad(unaUnidad) ➔ activarModoEdicion(unCurso)';
 
 // 3. FontAwesome 6 Helper Functions
 const fa = {
@@ -579,6 +579,34 @@ function generateScreenContent(cu) {
 
   // --- TYPE 3: MODO EDICIÓN DEL CURSO --- CU-26b, CU-19, CU-20, CU-21
   if (['CU-26b', 'CU-19', 'CU-20', 'CU-21'].includes(id)) {
+    // Semantic Badge Mapping per CU:
+    // CU-19: Pestaña "Curso & Unidades" [A], Acordeón Moodle [B]
+    // CU-26b: Switch "Modo Edición" [C], Pestaña "Curso & Unidades" [B], "+ Añadir secciones" [A], "+ Añade una actividad o un recurso" [D]
+    // CU-20: "+ Añadir secciones" [A], Formulario [B], "Guardar Unidad" [C]
+    // CU-21: Botón contextual "Editar" [A], "Título de la Unidad" [B], "Guardar Cambios" [C]
+
+    let badgeTab = '';
+    let badgeToggle = '';
+    let badgeAddSection = '';
+    let badgeAddActivity = '';
+    let badgeAccordionUnit1 = '';
+    let badgeEditUnit1 = '';
+
+    if (id === 'CU-19') {
+      badgeTab = '<span class="pin-badge me-1">A</span>';
+      badgeAccordionUnit1 = '<span class="pin-badge ms-2">B</span>';
+    } else if (id === 'CU-26b') {
+      badgeToggle = '<span class="pin-badge ms-2">C</span>';
+      badgeTab = '<span class="pin-badge me-1">B</span>';
+      badgeAddSection = '<span class="pin-badge ms-1">A</span>';
+      badgeAddActivity = '<span class="pin-badge">D</span>';
+    } else if (id === 'CU-20') {
+      badgeAddSection = '<span class="pin-badge ms-1">A</span>';
+      badgeTab = '<span class="pin-badge me-1">B</span>';
+    } else if (id === 'CU-21') {
+      badgeEditUnit1 = '<span class="pin-badge ms-1">A</span>';
+    }
+
     return `
       <div class="wf-card mb-4" style="background: #FFFFFF;">
         <div class="d-flex justify-content-between align-items-start pb-3 border-bottom">
@@ -591,7 +619,7 @@ function generateScreenContent(cu) {
           <div class="d-flex align-items-center gap-3">
             <div class="d-flex align-items-center gap-2 bg-light p-2 border rounded">
               <span class="wf-badge status-active"><i class="fa-solid fa-pen-to-square me-1"></i> Modo Edición ACTIVO</span>
-              <span class="pin-badge">${badges[2] || 'C'}</span>
+              ${badgeToggle}
             </div>
             <div class="text-muted cursor-pointer" title="Ajustes del curso"><i class="fa-solid fa-gear" style="font-size: 18px;"></i></div>
           </div>
@@ -599,7 +627,7 @@ function generateScreenContent(cu) {
 
         <div class="d-flex justify-content-between align-items-center pt-2">
           <div class="d-flex align-items-center gap-1">
-            <button class="wf-tab-btn active"><span class="pin-badge me-1">${badges[1] || 'B'}</span> Curso & Unidades</button>
+            <button class="wf-tab-btn active">${badgeTab}Curso & Unidades</button>
             <a href="#CU-27" class="wf-tab-btn">Materiales</a>
             <a href="#CU-31" class="wf-tab-btn">Glosario</a>
             <a href="#CU-57" class="wf-tab-btn">Autoevaluaciones</a>
@@ -610,9 +638,9 @@ function generateScreenContent(cu) {
           <div class="d-flex align-items-center gap-2">
             <button class="wf-btn wf-btn-sm wf-btn-outline d-flex align-items-center gap-1">
               <i class="fa-solid fa-plus"></i>
-              <span>Añadir secciones</span>
+              <span>+ Añadir secciones</span>
             </button>
-            <span class="pin-badge">${badges[0] || 'A'}</span>
+            ${badgeAddSection}
           </div>
         </div>
       </div>
@@ -624,10 +652,11 @@ function generateScreenContent(cu) {
             <div class="d-flex align-items-center gap-2">
               <i class="fa-solid fa-bars text-muted" style="cursor: grab;"></i>
               <strong style="font-size: 14px; color: #081426;">Unidad 1: Marco Regulatorio y Ley de Mercado de Capitales</strong>
-              <button class="wf-btn wf-btn-sm wf-btn-outline" style="padding: 2px 6px; height: 24px;"><i class="fa-solid fa-pen-to-square"></i></button>
+              ${badgeAccordionUnit1}
             </div>
             <div class="d-flex align-items-center gap-2">
               <button class="wf-btn wf-btn-sm wf-btn-outline">Editar <i class="fa-solid fa-chevron-down ms-1" style="font-size: 10px;"></i></button>
+              ${badgeEditUnit1}
             </div>
           </div>
           <div class="wf-unit-body d-flex flex-column gap-2">
@@ -664,34 +693,92 @@ function generateScreenContent(cu) {
                 <i class="fa-solid fa-plus-circle" style="color: var(--wf-gold); font-size: 16px;"></i>
                 <span>Añade una actividad o un recurso</span>
               </a>
-              <span class="pin-badge">${badges[3] || badges[4] || 'D'}</span>
+              ${badgeAddActivity}
             </div>
           </div>
         </div>
       </div>
 
-      ${id === 'CU-21' ? `
-      <div class="wf-card mt-4" style="background: #FFFFFF; max-width: 760px;">
-        <div class="d-flex align-items-center gap-2 mb-3">
-          <h4 style="font-size: 15px; font-weight: 800; color: #081426; margin: 0;"><i class="fa-solid fa-pen-to-square text-muted me-2"></i>Editar Unidad Seleccionada</h4>
-          <span class="badge bg-light text-dark border d-inline-flex align-items-center gap-1"><i class="fa-solid fa-arrow-pointer text-muted"></i> Acci\u00f3n: <strong>Editar</strong> <span class="pin-badge">${badges[0] || 'A'}</span></span>
+      ${id === 'CU-20' ? `
+      <!-- Modal Contextual para Agregar Unidad (DSS: crearUnidad(unPrograma, titulo, descripcion, contenido) / agregarUnidadExistente(unPrograma, unaUnidad)) -->
+      <div class="wf-card mt-4 shadow-sm" style="background: #FFFFFF; max-width: 820px; border-left: 4px solid var(--wf-gold);">
+        <div class="d-flex justify-content-between align-items-center pb-3 mb-3 border-bottom">
+          <div>
+            <h4 style="font-size: 16px; font-weight: 800; color: #081426; margin: 0;"><i class="fa-solid fa-plus-circle me-2" style="color: var(--wf-gold);"></i>Agregar Unidad al Programa</h4>
+            <p class="small text-muted m-0">Incorpore una sección pedagógica nueva o reutilice una existente de otro programa</p>
+          </div>
+          <span class="wf-badge status-active">Cohorte 2026-1</span>
         </div>
-        <div class="mb-3">
-          <label class="wf-label">T\u00edtulo de la Unidad</label>
-          <div class="wf-input-wrap">
-            <input type="text" class="wf-input" value="Unidad 1: Marco Regulatorio y Ley de Mercado de Capitales">
-            <span class="pin-badge">${badges[1] || 'B'}</span>
+
+        <div class="row g-3 mb-3">
+          <div class="col-12">
+            <label class="wf-label">Título de la Unidad</label>
+            <div class="wf-input-wrap">
+              <input type="text" class="wf-input" placeholder="Ej. Unidad 3: Análisis Técnico y Fundamental en Acciones">
+              <span class="pin-badge">B</span>
+            </div>
+          </div>
+          <div class="col-12">
+            <label class="wf-label">O Seleccionar Unidad Reutilizable de Otro Programa</label>
+            <div class="wf-input-wrap">
+              <select class="wf-input">
+                <option>-- Crear nueva unidad desde cero --</option>
+                <option>Unidad Reutilizable: Marco Legal y Regulatorio Bursátil (Programa 2025-2)</option>
+                <option>Unidad Reutilizable: Renta Fija y Valuación de Bonos (Programa 2025-1)</option>
+              </select>
+              <span class="pin-badge">C</span>
+            </div>
+          </div>
+          <div class="col-12">
+            <label class="wf-label">Descripción Académica / Contenido Inicial</label>
+            <textarea class="wf-input" rows="3" placeholder="Resumen temático de los módulos pedagógicos a incluir..."></textarea>
           </div>
         </div>
-        <div class="mb-4">
-          <label class="wf-label">Descripci\u00f3n / Contenido de la Unidad</label>
-          <textarea class="wf-input" rows="4">Esta unidad aborda el marco normativo vigente para el mercado de capitales argentino...</textarea>
+
+        <div class="d-flex justify-content-end align-items-center gap-3 pt-3 border-top">
+          <button class="wf-btn wf-btn-outline">Cancelar</button>
+          <div class="d-flex align-items-center gap-2">
+            <button class="wf-btn wf-btn-primary"><i class="fa-solid fa-plus me-1"></i> Agregar Unidad</button>
+            <span class="pin-badge">D</span>
+          </div>
         </div>
-        <div class="d-flex justify-content-end align-items-center gap-2 pt-3 border-top">
+      </div>
+      ` : ''}
+
+      ${id === 'CU-21' ? `
+      <!-- Panel Contextual de Modificación de Unidad (DSS: modificarUnidad(unaUnidad, titulo, descripcion, contenido)) -->
+      <div class="wf-card mt-4 shadow-sm" style="background: #FFFFFF; max-width: 820px; border-left: 4px solid #2563EB;">
+        <div class="d-flex justify-content-between align-items-center pb-3 mb-3 border-bottom">
+          <div>
+            <h4 style="font-size: 16px; font-weight: 800; color: #081426; margin: 0;"><i class="fa-solid fa-pen-to-square text-primary me-2"></i>Ajustes de la Unidad 1</h4>
+            <p class="small text-muted m-0">Edición de parámetros y contenido temático según plan de estudios</p>
+          </div>
+          <span class="wf-badge status-active">Unidad Activa</span>
+        </div>
+        
+        <div class="row g-3 mb-3">
+          <div class="col-12">
+            <label class="wf-label">Título de la Unidad</label>
+            <div class="wf-input-wrap">
+              <input type="text" class="wf-input" value="Unidad 1: Marco Regulatorio y Ley de Mercado de Capitales">
+              <span class="pin-badge">B</span>
+            </div>
+          </div>
+          <div class="col-12">
+            <label class="wf-label">Descripción Académica / Resumen</label>
+            <textarea class="wf-input" rows="2">Marco normativo general, Ley de Mercado de Capitales (Ley 26.831), Decreto Reglamentario 1023/13 y Resoluciones Generales CNV aplicables a Idóneos.</textarea>
+          </div>
+          <div class="col-12">
+            <label class="wf-label">Contenido Pedagógico Detallado</label>
+            <textarea class="wf-input" rows="4">1. Estructura y órganos del mercado argentino (CNV, BYMA, MAE, Rofex, Caja de Valores).\n2. Tipos de agentes registrados: ALyC, AN, AGyC, ACYDI.\n3. Régimen de transparencia y deber de idoneidad profesional.</textarea>
+          </div>
+        </div>
+        
+        <div class="d-flex justify-content-end align-items-center gap-3 pt-3 border-top">
           <button class="wf-btn wf-btn-outline">Cancelar</button>
           <div class="d-flex align-items-center gap-2">
             <button class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Guardar Cambios</button>
-            <span class="pin-badge">${badges[2] || 'C'}</span>
+            <span class="pin-badge">C</span>
           </div>
         </div>
       </div>
@@ -1086,10 +1173,13 @@ function generateScreenContent(cu) {
 
     return `
       <div class="wf-modal-box" style="max-width: 900px; margin: 20px auto;">
-        <div class="wf-modal-header">
-          <div class="d-flex align-items-center gap-2">
-            <h3 class="wf-modal-title">Añade una actividad o un recurso</h3>
-            <span class="badge bg-light text-dark border d-inline-flex align-items-center gap-1"><i class="fa-solid fa-arrow-pointer text-muted"></i> Acción: <strong>${modalTriggerLabel}</strong> <span class="pin-badge">${badges[0] || 'A'}</span></span>
+        <div class="wf-modal-header d-flex justify-content-between align-items-center">
+          <div class="d-flex align-items-center gap-3">
+            <h3 class="wf-modal-title m-0">Añade una actividad o un recurso</h3>
+            <span class="wf-btn wf-btn-xs wf-btn-outline active" style="font-weight: 700;">
+              <i class="fa-solid fa-plus me-1"></i> ${modalTriggerLabel}
+            </span>
+            <span class="pin-badge">${badges[0] || 'A'}</span>
           </div>
           <span style="font-size: 18px; color: #94A3B8; cursor: pointer;"><i class="fa-solid fa-xmark"></i></span>
         </div>
@@ -1468,14 +1558,18 @@ function generateScreenContent(cu) {
               <i class="fa-solid fa-wand-magic-sparkles" style="font-size: 20px;"></i>
             </div>
             <div>
-              <div class="d-flex align-items-center gap-2">
-                <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">${isGenerate ? 'Generar Clase Audiovisual con Clon IA' : 'Modificar Guión de Clase con Clon IA'}</h3>
-                <span class="badge bg-light text-dark border d-inline-flex align-items-center gap-1"><i class="fa-solid fa-arrow-pointer text-muted"></i> <strong>${triggerLabel78_79}</strong> <span class="pin-badge">${badges[0] || 'A'}</span></span>
-              </div>
+              <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">${isGenerate ? 'Generar Clase Audiovisual con Clon IA' : 'Modificar Guión de Clase con Clon IA'}</h3>
               <p class="small text-muted" style="margin: 3px 0 0;">Ingrese el título, seleccione la unidad y redacte el guión que el avatar HeyGen sintetizará.</p>
             </div>
           </div>
-          <span class="wf-badge status-active">Clon Activo: Lic. Fausto Spotorno HD</span>
+          <div class="d-flex align-items-center gap-2">
+            <span class="wf-btn wf-btn-sm wf-btn-outline active" style="font-weight: 700;">
+              <i class="fa-solid ${isGenerate ? 'fa-wand-magic-sparkles' : 'fa-pen-to-square'} me-1"></i>
+              ${triggerLabel78_79}
+            </span>
+            <span class="pin-badge">${badges[0] || 'A'}</span>
+            <span class="wf-badge status-active ms-2">Clon Activo: Lic. Fausto Spotorno HD</span>
+          </div>
         </div>
 
         <div class="row g-4">
@@ -2374,36 +2468,53 @@ function generateScreenContent(cu) {
     }
 
     return `
-      <div class="wf-card" style="max-width: 620px; margin: 30px auto; background: #FFFFFF;">
-        <div class="wf-card-header text-center mb-4">
-          <div class="wf-icon-danger mb-3" style="width: 54px; height: 54px; border-radius: 50%; background: #FEE2E2; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
-            <i class="fa-solid fa-triangle-exclamation" style="font-size: 24px; color: #DC2626;"></i>
-          </div>
-          <div class="d-flex align-items-center justify-content-center gap-2 mb-1">
-            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">${name}</h3>
-            <span class="badge bg-light text-dark border d-inline-flex align-items-center gap-1"><i class="fa-solid fa-arrow-pointer text-muted"></i> Acción: <strong>${triggerBtnLabel}</strong> <span class="pin-badge">${badges[0] || 'A'}</span></span>
-          </div>
-          <p class="small text-muted" style="margin: 4px 0 0;">¿Está seguro de que desea confirmar la operación sobre el elemento seleccionado?</p>
-        </div>
-
-        <div class="p-3 mb-4 bg-light border rounded">
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <span class="small text-muted">Elemento seleccionado:</span>
+      <!-- Modal Overlay Flotante de Confirmación de Operación -->
+      <div class="wf-modal-backdrop" style="padding: 20px 0;">
+        <div class="wf-card shadow-lg" style="max-width: 600px; margin: 0 auto; background: #FFFFFF; border-radius: 12px; border: 1px solid #E2E8F0; overflow: hidden;">
+          <!-- Cabecera del Diálogo Modal -->
+          <div class="p-3 border-bottom d-flex justify-content-between align-items-center" style="background: #F8FAFC;">
             <div class="d-flex align-items-center gap-2">
-              <strong style="font-size: 13px; color: #081426;">Registro #${id.replace('CU-', '')} (${name.replace('Dar de baja ', '').replace('Eliminar ', '').replace('Cancelar ', '')})</strong>
+              <span class="wf-btn wf-btn-sm wf-btn-outline ${name.includes('baja') || name.includes('eliminar') || name.includes('quitar') ? 'text-danger' : 'text-primary'}" style="font-weight: 700;">
+                <i class="fa-solid ${name.includes('sesión') ? 'fa-arrow-right-from-bracket' : (name.includes('cancelar') ? 'fa-ban' : 'fa-trash')} me-1"></i>
+                ${triggerBtnLabel}
+              </span>
+              <span class="pin-badge">${badges[0] || 'A'}</span>
+              <span style="color: #94A3B8;">|</span>
+              <span class="small fw-bold text-muted text-uppercase" style="font-size: 11px;">Confirmación requerida</span>
             </div>
+            <span style="color: #94A3B8; cursor: pointer; font-size: 16px;"><i class="fa-solid fa-xmark"></i></span>
           </div>
-          <div class="d-flex justify-content-between align-items-center">
-            <span class="small text-muted">Estado de la entidad:</span>
-            <span class="wf-badge status-active">Activo / Vigente</span>
-          </div>
-        </div>
 
-        <div class="d-flex justify-content-end gap-3 pt-3 border-top">
-          <button class="wf-btn wf-btn-outline">Cancelar / Volver</button>
-          <div class="d-flex align-items-center gap-2">
-            <button class="wf-btn wf-btn-danger"><i class="fa-solid fa-trash me-1"></i> ${confirmBtnLabel}</button>
-            <span class="pin-badge">${badges[1] || badges[badges.length - 1] || 'B'}</span>
+          <!-- Cuerpo del Diálogo Modal -->
+          <div class="p-4 text-center">
+            <div class="mb-3" style="width: 56px; height: 56px; border-radius: 50%; background: #FEE2E2; color: #DC2626; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 24px;">
+              <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin-bottom: 8px;">¿Confirma la operación de ${name.toLowerCase()}?</h3>
+            <p class="small text-muted mb-4" style="line-height: 1.5;">Esta acción procesará el cambio de estado en la base de datos y afectará la disponibilidad del elemento en el sistema.</p>
+
+            <div class="p-3 mb-4 bg-light border rounded text-start" style="font-size: 13px;">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="text-muted">Registro afectado:</span>
+                <strong style="color: #081426;">Registro #${id.replace('CU-', '')} (${name.replace('Dar de baja ', '').replace('Eliminar ', '').replace('Cancelar ', '')})</strong>
+              </div>
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="text-muted">Estado actual:</span>
+                <span class="wf-badge status-active">Activo / Vigente</span>
+              </div>
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="text-muted">Validación de dependencias:</span>
+                <span class="small text-success fw-bold"><i class="fa-solid fa-circle-check me-1"></i> Sin bloqueos activos</span>
+              </div>
+            </div>
+
+            <div class="d-flex justify-content-end align-items-center gap-3 pt-3 border-top">
+              <button class="wf-btn wf-btn-outline">Cancelar / Volver</button>
+              <div class="d-flex align-items-center gap-2">
+                <button class="wf-btn wf-btn-danger"><i class="fa-solid fa-trash me-1"></i> ${confirmBtnLabel}</button>
+                <span class="pin-badge">${badges[1] || badges[badges.length - 1] || 'B'}</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -2530,22 +2641,27 @@ function generateScreenContent(cu) {
 
   return `
     <div class="wf-card" style="max-width: 860px; margin: 0 auto; background: #FFFFFF;">
+      <!-- Barra Superior de la Tarjeta con Acción de Disparo [A] -->
       <div class="wf-card-header mb-4 pb-3 border-bottom d-flex justify-content-between align-items-center">
         <div>
-          <div class="d-flex align-items-center gap-2">
-            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">${name}</h3>
-            <span class="badge bg-light text-dark border d-inline-flex align-items-center gap-1"><i class="fa-solid fa-arrow-pointer text-muted"></i> Acción: <strong>${triggerBtnLabel}</strong> <span class="pin-badge">${badges[0] || 'A'}</span></span>
-          </div>
-          <p class="small text-muted" style="margin: 3px 0 0;">Complete los datos correspondientes en el sistema.</p>
+          <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">${isMod ? 'Modificar' : 'Registrar'} ${name.replace('Registrar ', '').replace('Modificar ', '').replace('Crear ', '')}</h3>
+          <p class="small text-muted" style="margin: 3px 0 0;">Complete los parámetros requeridos por la operación del sistema.</p>
         </div>
-        <span class="wf-badge status-active">${isMod ? 'Modo Edición' : 'Formulario de Alta'}</span>
+        <div class="d-flex align-items-center gap-2">
+          <span class="wf-btn wf-btn-sm wf-btn-outline active" style="font-weight: 700;">
+            <i class="fa-solid ${isMod ? 'fa-pen-to-square' : 'fa-plus'} me-1"></i>
+            ${triggerBtnLabel}
+          </span>
+          <span class="pin-badge">${badges[0] || 'A'}</span>
+          <span class="wf-badge status-active ms-2">${isMod ? 'Modo Edición' : 'Formulario de Alta'}</span>
+        </div>
       </div>
 
       <div class="row g-3">
         <div class="col-md-6">
           <label class="wf-label">Nombre / Denominación</label>
           <div class="wf-input-wrap">
-            <input type="text" class="wf-input" value="${name.includes('curso') ? 'Especialización en Idoneidad Bursátil' : (name.includes('categoría') ? 'Mercado de Capitales' : (name.includes('cohorte') ? 'Cohorte 2026-1' : 'Registro de ' + name))}">
+            <input type="text" class="wf-input" value="${name.includes('curso') ? 'Especialización en Idoneidad Bursátil' : (name.includes('categoría') ? 'Mercado de Capitales' : (name.includes('cohorte') ? 'Cohorte 2026-1' : (name.includes('descuento') ? 'Beca Convenio UNaM 2026' : (name.includes('docente') ? 'Lic. Fausto Spotorno' : 'Registro de ' + name))))}">
             <span class="pin-badge">${badges[1] || 'B'}</span>
           </div>
         </div>
@@ -2572,7 +2688,7 @@ function generateScreenContent(cu) {
             </div>
           ` : `
             <div class="wf-input-wrap">
-              <textarea class="wf-input" rows="3">Descripción detallada correspondiente al caso de uso ${id} (${name}).</textarea>
+              <textarea class="wf-input" rows="3">Descripción y especificaciones correspondientes al registro de ${name}.</textarea>
               <span class="pin-badge">${badges[2] || 'C'}</span>
             </div>
           `}
@@ -2584,12 +2700,12 @@ function generateScreenContent(cu) {
         </div>
 
         <div class="col-md-4">
-          <label class="wf-label">Estado</label>
-          <input type="text" class="wf-input bg-disabled" value="Habilitado / Activo" disabled>
+          <label class="wf-label">Nivel / Modalidad</label>
+          <input type="text" class="wf-input" value="Avanzado • 100% Online">
         </div>
 
         <div class="col-md-4">
-          <label class="wf-label">Docente Responsable</label>
+          <label class="wf-label">Docente Responsable / Titular</label>
           <input type="text" class="wf-input bg-disabled" value="Lic. Fausto Spotorno" disabled>
         </div>
       </div>
