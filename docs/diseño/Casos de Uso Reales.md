@@ -803,8 +803,9 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 | Paso | Acción |
 |------|--------|
 | 1 | El caso de uso inicia cuando el actor busca y selecciona el programa cuyo cronograma desea consultar desde la pestaña "Cronograma" [A]. |
-| 2 | El sistema recupera y lista las unidades del cronograma del programa, ordenadas por su número de orden, con su duración en semanas. |
-| 3 | Fin del caso de uso. |
+| 2 | El sistema recupera y lista las unidades del cronograma del programa, ordenadas por su número de orden, con su duración en semanas y carga horaria estimada. |
+| 3 | El actor puede seleccionar la opción de reordenamiento temporal mediante el botón "Reordenar Cronograma" [B] (ver CU-24: Modificar cronograma). |
+| 4 | Fin del caso de uso. |
 
 - **Salida**: Se recupera el cronograma del programa seleccionado: sus unidades, con título, número de orden, semanas de duración y cantidad de material cargado.
 - **Excepciones**:
@@ -930,11 +931,11 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor busca y selecciona un curso desde su listado de cursos asignados (ver CU-01: Buscar curso). |
+| 1 | El caso de uso inicia cuando el actor busca y selecciona un curso desde su listado de cursos asignados mediante el botón "Ingresar al Curso" [A] (ver CU-01: Buscar curso). |
 | 2 | El sistema muestra la vista del curso con sus unidades pedagógicas en acordeón y las pestañas contextuales de navegación [B]. |
 | 3 | El actor activa el switch "Modo Edición" [C] ubicado en la cabecera superior del curso. |
-| 4 | El sistema habilita los controles de edición inline: botón "Añadir secciones" [A], menú "Editar" por unidad y botones "Añade una actividad o un recurso" [D] al pie de cada tema. |
-| 5 | El actor puede seleccionar añadir una nueva sección [A] o incorporar una actividad o recurso a una unidad [D]. |
+| 4 | El sistema habilita los controles de edición inline: botón "Añadir secciones" [D], menú "Editar" por unidad y botones "Añade una actividad o un recurso" [E] al pie de cada tema. |
+| 5 | El actor puede seleccionar añadir una nueva sección o incorporar una actividad o recurso a una unidad. |
 | 6 | Fin del caso de uso. |
 
 - **Postcondición(es)**:
@@ -994,7 +995,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 |------|--------|
 | 1 | El caso de uso inicia cuando el actor hace clic en "Añade una actividad o un recurso" [A] en el Modo Edición (ver CU-19: Buscar unidad). |
 | 2 | El sistema solicita el tipo de material (Grabación, Bibliografía o Presentación) y el título. |
-| 3 | El actor selecciona la opción "Material / Documento PDF" [A] e ingresa el título en el formulario [B]. |
+| 3 | El actor selecciona el tipo de material e ingresa el título en el formulario [B]. |
 | 4 | Según el tipo elegido, el sistema solicita: el archivo de video (Grabación); el archivo o enlace externo y el autor (Bibliografía); o el archivo de la presentación (Presentación). |
 | 5 | El actor adjunta el archivo mediante el botón "Examinar..." [C] y confirma la carga mediante el botón "Agregar" [D]. |
 | 6 | El sistema valida que el docente participe en el curso como titular o ayudante, que la unidad esté activa, y que se hayan completado el título, el tipo y los datos obligatorios según el tipo seleccionado. |
