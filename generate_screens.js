@@ -874,21 +874,21 @@ function generateScreenContent(cu) {
     const isLive = id === 'CU-65';
 
     return `
-      <div class="wf-course-header-banner mb-4">
-        <div class="d-flex justify-content-between align-items-start">
+      <div class="wf-card mb-4" style="background: #FFFFFF;">
+        <div class="d-flex justify-content-between align-items-start pb-3 border-bottom">
           <div>
-            <h2 class="wf-course-main-title" style="font-size: 24px; font-weight: 700; color: #1E293B;">Especialización en Idoneidad Bursátil</h2>
-            <div class="wf-breadcrumbs small text-muted mt-1" style="color: #D97706;">
-              <span>Página Principal</span> / <span>Mis cursos</span> / <span>Idoneidad Bursátil</span> / <span>${name}</span>
+            <h2 style="font-size: 20px; font-weight: 800; color: #081426; margin: 0;">Especialización en Idoneidad Bursátil</h2>
+            <div class="small text-muted mt-1">
+              <span>Página Principal</span> <i class="fa-solid fa-chevron-right" style="font-size: 9px; margin: 0 4px;"></i> <span>Mis cursos</span> <i class="fa-solid fa-chevron-right" style="font-size: 9px; margin: 0 4px;"></i> <span>${name}</span>
             </div>
           </div>
           <div class="d-flex align-items-center gap-3">
             <span class="wf-badge status-active">Curso Seleccionado</span>
-            <div class="text-muted cursor-pointer" title="Ajustes del curso">${icons.cog6Tooth("w-6 h-6 text-slate-600")}</div>
+            <div class="text-muted cursor-pointer" title="Ajustes del curso"><i class="fa-solid fa-gear" style="font-size: 18px;"></i></div>
           </div>
         </div>
 
-        <div class="wf-course-nav-tabs mt-3 d-flex justify-content-between align-items-center">
+        <div class="d-flex justify-content-between align-items-center pt-2">
           <div class="d-flex align-items-center gap-1">
             <a href="#CU-26b" class="wf-tab-btn">Curso & Unidades</a>
             <a href="#CU-27" class="wf-tab-btn ${isMaterial ? 'active' : ''}">Materiales</a>
@@ -896,15 +896,41 @@ function generateScreenContent(cu) {
             <a href="#CU-57" class="wf-tab-btn ${isEval ? 'active' : ''}">Autoevaluaciones</a>
             <a href="#CU-53" class="wf-tab-btn ${isPool ? 'active' : ''}">Pools</a>
             <a href="#CU-35" class="wf-tab-btn ${isForo ? 'active' : ''}">Foros</a>
-            <a href="#CU-65" class="wf-tab-btn ${isLive ? 'active' : ''}">Clases</a>
-            <span class="wf-tab-btn text-muted">Más ▾</span>
+            <a href="#CU-65" class="wf-tab-btn ${isLive ? 'active' : ''}">Clases en Vivo</a>
           </div>
-          <div class="d-flex align-items-center gap-2 pb-1">
+          <div class="d-flex align-items-center gap-2">
             <a href="#${isMaterial ? 'CU-28' : (isGlosario ? 'CU-32' : (isEval ? 'CU-58' : (isPool ? 'CU-54' : 'CU-66')))}" class="wf-btn wf-btn-sm wf-btn-primary d-flex align-items-center gap-1">
-              ${icons.plus()}
+              <i class="fa-solid fa-plus"></i>
               <span>Nuevo ${isMaterial ? 'Material' : (isGlosario ? 'Término' : (isEval ? 'Autoevaluación' : (isPool ? 'Pool' : 'Elemento')))}</span>
             </a>
             <span class="pin-badge">${badges[0] || 'A'}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Barra de Filtros y Búsqueda -->
+      <div class="wf-card mb-4" style="background: #FFFFFF;">
+        <div class="row g-3 align-items-end">
+          <div class="col-md-5">
+            <label class="wf-label">Buscar por título o palabra clave</label>
+            <div class="wf-input-wrap">
+              <input type="text" class="wf-input" placeholder="Buscar en ${isMaterial ? 'materiales' : (isGlosario ? 'glosario' : (isForo ? 'consultas' : (isPool ? 'pools' : 'evaluaciones')))}...">
+              <span class="pin-badge">${badges[1] || 'B'}</span>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <label class="wf-label">Filtrar por Unidad</label>
+            <select class="wf-input">
+              <option>Todas las unidades temáticas</option>
+              <option>Unidad 1: Marco Regulatorio</option>
+              <option>Unidad 2: Renta Fija</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <div class="d-flex align-items-center gap-2">
+              <button class="wf-btn wf-btn-primary w-100"><i class="fa-solid fa-magnifying-glass me-1"></i> Buscar</button>
+              <span class="pin-badge">${badges[2] || 'C'}</span>
+            </div>
           </div>
         </div>
       </div>
@@ -922,15 +948,27 @@ function generateScreenContent(cu) {
           </thead>
           <tbody>
             <tr>
-              <td><strong>${isMaterial ? 'Ley 26.831 de Mercado de Capitales' : (isGlosario ? 'TIR (Tasa Interna de Retorno)' : (isEval ? 'Autoevaluación Unidad 1' : 'Pool Unidad 1'))}</strong></td>
-              <td>${isMaterial ? 'PDF' : (isGlosario ? 'Definición' : (isEval ? '10 preguntas' : '25 preguntas'))}</td>
+              <td><strong>${isMaterial ? 'Ley 26.831 de Mercado de Capitales' : (isGlosario ? 'TIR (Tasa Interna de Retorno)' : (isEval ? 'Autoevaluación Unidad 1' : (isPool ? 'Pool Unidad 1' : 'Clase Streaming')))}</strong></td>
+              <td>${isMaterial ? 'Documento PDF' : (isGlosario ? 'Definición' : (isEval ? '10 preguntas' : '25 preguntas'))}</td>
               <td>Unidad 1: Marco Regulatorio</td>
               <td><span class="wf-badge status-active">Publicado</span></td>
               <td class="text-end">
                 <div class="d-inline-flex align-items-center gap-2">
-                  <button class="wf-btn wf-btn-sm wf-btn-outline">${icons.pencilSquare()}</button>
-                  <button class="wf-btn wf-btn-sm wf-btn-outline text-danger">${icons.trash()}</button>
-                  <span class="pin-badge">${badges[2] || badges[badges.length - 1] || 'C'}</span>
+                  <a href="#${isMaterial ? 'CU-29' : (isGlosario ? 'CU-33' : (isEval ? 'CU-59' : (isPool ? 'CU-55' : 'CU-67')))}" class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-pen-to-square"></i></a>
+                  <a href="#${isMaterial ? 'CU-30' : (isGlosario ? 'CU-34' : (isEval ? 'CU-60' : (isPool ? 'CU-56' : 'CU-69')))}" class="wf-btn wf-btn-sm wf-btn-outline text-danger"><i class="fa-solid fa-trash"></i></a>
+                  <span class="pin-badge">${badges[3] || badges[badges.length - 1] || 'D'}</span>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td><strong>${isMaterial ? 'Guía Teórica de Renta Fija v2.1' : (isGlosario ? 'Duration Modificada' : (isEval ? 'Autoevaluación Unidad 2' : (isPool ? 'Pool Unidad 2' : 'Clase en Vivo')))}</strong></td>
+              <td>${isMaterial ? 'Documento PDF' : (isGlosario ? 'Definición' : (isEval ? '10 preguntas' : '30 preguntas'))}</td>
+              <td>Unidad 2: Renta Fija</td>
+              <td><span class="wf-badge status-active">Publicado</span></td>
+              <td class="text-end">
+                <div class="d-inline-flex align-items-center gap-2">
+                  <button class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-pen-to-square"></i></button>
+                  <button class="wf-btn wf-btn-sm wf-btn-outline text-danger"><i class="fa-solid fa-trash"></i></button>
                 </div>
               </td>
             </tr>
@@ -1498,8 +1536,9 @@ function generateScreenContent(cu) {
           <div class="d-flex align-items-center gap-3">
             ${isStart ? `
               <div class="d-flex align-items-center gap-2">
-                <button class="wf-btn wf-btn-sm wf-btn-primary" style="background: #2563EB;">Copiar Clave OBS</button>
-                <span class="pin-badge">${badges[badges.length - 1] || 'B'}</span>
+                <span class="pin-badge">${badges[0] || 'A'}</span>
+                <button class="wf-btn wf-btn-sm wf-btn-primary" style="background: #2563EB;"><i class="fa-solid fa-tower-broadcast me-1"></i> Transmitir en Vivo (Clave OBS)</button>
+                <span class="pin-badge">${badges[1] || badges[badges.length - 1] || 'B'}</span>
               </div>
             ` : ''}
             ${isEnd ? `
@@ -1713,6 +1752,68 @@ function generateScreenContent(cu) {
           </div>
         ` : ''}
 
+        <div class="wf-card mb-4" style="background: #FFFFFF;">
+          <div class="row g-3 align-items-end">
+            <div class="col-md-5">
+              <label class="wf-label">Criterio de búsqueda / Filtro principal</label>
+              <div class="wf-input-wrap">
+                <input type="text" class="wf-input" placeholder="Buscar en ${name}...">
+                <span class="pin-badge">${badges[0] || 'A'}</span>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <label class="wf-label">Filtro Secundario / Rango</label>
+              <div class="wf-input-wrap">
+                <select class="wf-input">
+                  <option>Últimos 30 días</option>
+                  <option>Últimos 90 días</option>
+                  <option>Todo el historial</option>
+                </select>
+                <span class="pin-badge">${badges[1] || 'B'}</span>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="d-flex align-items-center gap-2">
+                <button class="wf-btn wf-btn-primary w-100"><i class="fa-solid fa-filter me-1"></i> Filtrar Eventos</button>
+                <span class="pin-badge">${badges[2] || 'C'}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        ${isStats ? `
+          <div class="row g-3 mb-4">
+            <div class="col-md-3">
+              <div class="p-3 border rounded bg-light">
+                <div class="small text-muted">Total Alumnos Matriculados</div>
+                <h2 style="font-size: 24px; font-weight: 800; color: #081426; margin: 4px 0;">1.240</h2>
+                <div class="small text-success">↑ +14% este mes</div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="p-3 border rounded bg-light">
+                <div class="small text-muted">Ingresos Facturados</div>
+                <h2 style="font-size: 24px; font-weight: 800; color: #059669; margin: 4px 0;">$17.4M ARS</h2>
+                <div class="small text-success">↑ +22% vs trimestre anterior</div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="p-3 border rounded bg-light">
+                <div class="small text-muted">Tasa de Aprobación</div>
+                <h2 style="font-size: 24px; font-weight: 800; color: #2563EB; margin: 4px 0;">88.5%</h2>
+                <div class="small text-muted">Promedio en autoevaluaciones</div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="p-3 border rounded bg-light">
+                <div class="small text-muted">Clases Clon Generadas</div>
+                <h2 style="font-size: 24px; font-weight: 800; color: #7C3AED; margin: 4px 0;">64</h2>
+                <div class="small text-muted">HeyGen AI Studio</div>
+              </div>
+            </div>
+          </div>
+        ` : ''}
+
         <div class="wf-table-wrap">
           <table class="wf-table">
             <thead>
@@ -1721,7 +1822,7 @@ function generateScreenContent(cu) {
                 <th>${isAudit ? 'Usuario / Actor' : 'Cohorte'}</th>
                 <th>${isAudit ? 'Acción / Evento' : 'Alumnos Activos'}</th>
                 <th>${isAudit ? 'Módulo Afectado' : 'Facturación'}</th>
-                <th class="text-end">Detalle</th>
+                <th class="text-end">Acciones / Descargas</th>
               </tr>
             </thead>
             <tbody>
@@ -1732,8 +1833,8 @@ function generateScreenContent(cu) {
                 <td>${isAudit ? 'MOD-F-06: IA' : '$10.080.000 ARS'}</td>
                 <td class="text-end">
                   <div class="d-inline-flex align-items-center gap-1">
-                    <button class="wf-btn wf-btn-sm wf-btn-outline">Ver Registro</button>
-                    <span class="pin-badge">${badges[1] || badges[badges.length - 1] || 'B'}</span>
+                    <button class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-file-pdf me-1 text-danger"></i> Descargar PDF / Excel</button>
+                    <span class="pin-badge">${badges[3] || badges[badges.length - 1] || 'D'}</span>
                   </div>
                 </td>
               </tr>
@@ -1751,12 +1852,63 @@ function generateScreenContent(cu) {
     const isRecovery = id === 'CU-92';
     const isProfile = id === 'CU-86' || id === 'CU-87';
 
-    if (isLogin || isRegister || isRecovery) {
+    if (isRecovery) {
       return `
-        <div class="wf-card" style="max-width: 480px; margin: 40px auto; box-shadow: 0 12px 32px rgba(0,0,0,0.08);">
+        <div class="wf-card" style="max-width: 500px; margin: 30px auto; background: #FFFFFF;">
           <div class="text-center mb-4">
-            <h3 style="font-size: 20px; font-weight: 800; color: var(--wf-navy-dark);">${isLogin ? 'Iniciar Sesión en Idóneos Online' : (isRegister ? 'Crear Cuenta de Usuario' : 'Recuperar Contraseña')}</h3>
-            <p class="small text-muted">${isLogin ? 'Ingrese sus credenciales académicas para acceder' : (isRegister ? 'Complete sus datos para registrarse en la plataforma' : 'Le enviaremos un enlace de restablecimiento seguro')}</p>
+            <h3 style="font-size: 19px; font-weight: 800; color: #081426; margin: 0;">Recuperar y Restablecer Contraseña</h3>
+            <p class="small text-muted" style="margin: 4px 0 0;">Ingrese su correo institucional o valide el código para crear una nueva clave.</p>
+          </div>
+
+          <div class="mb-3">
+            <label class="wf-label">Correo Electrónico Registrado</label>
+            <div class="wf-input-wrap">
+              <input type="email" class="wf-input" value="usuario@correo.com">
+              <span class="pin-badge">${badges[0] || 'A'}</span>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="wf-label">Código de Seguridad (Token de 6 Dígitos)</label>
+            <div class="wf-input-wrap">
+              <input type="text" class="wf-input" value="739-102">
+              <span class="pin-badge">${badges[1] || 'B'}</span>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="wf-label">Nueva Contraseña Segura</label>
+            <div class="wf-input-wrap">
+              <input type="password" class="wf-input" value="••••••••••••">
+              <span class="pin-badge">${badges[2] || 'C'}</span>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="wf-label">Confirmar Nueva Contraseña</label>
+            <div class="wf-input-wrap">
+              <input type="password" class="wf-input" value="••••••••••••">
+              <span class="pin-badge">${badges[3] || 'D'}</span>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-end align-items-center gap-3 pt-3 border-top mt-4">
+            <a href="#CU-90" class="wf-btn wf-btn-outline">Volver al Login</a>
+            <div class="d-flex align-items-center gap-2">
+              <button class="wf-btn wf-btn-primary"><i class="fa-solid fa-key me-1"></i> Restablecer Contraseña</button>
+              <span class="pin-badge">${badges[4] || badges[badges.length - 1] || 'E'}</span>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    if (isLogin || isRegister) {
+      return `
+        <div class="wf-card" style="max-width: 480px; margin: 40px auto; box-shadow: 0 12px 32px rgba(0,0,0,0.08); background: #FFFFFF;">
+          <div class="text-center mb-4">
+            <h3 style="font-size: 20px; font-weight: 800; color: #081426;">${isLogin ? 'Iniciar Sesión en Idóneos Online' : 'Crear Cuenta de Usuario'}</h3>
+            <p class="small text-muted">${isLogin ? 'Ingrese sus credenciales académicas para acceder' : 'Complete sus datos para registrarse en la plataforma'}</p>
           </div>
 
           <div class="mb-3">
@@ -1767,26 +1919,24 @@ function generateScreenContent(cu) {
             </div>
           </div>
 
-          ${!isRecovery ? `
-            <div class="mb-3">
-              <label class="wf-label">Contraseña</label>
-              <div class="wf-input-wrap">
-                <input type="password" class="wf-input" value="••••••••••••">
-                <span class="pin-badge">${badges[1] || 'B'}</span>
-              </div>
+          <div class="mb-3">
+            <label class="wf-label">Contraseña</label>
+            <div class="wf-input-wrap">
+              <input type="password" class="wf-input" value="••••••••••••">
+              <span class="pin-badge">${badges[1] || 'B'}</span>
             </div>
-          ` : ''}
+          </div>
 
           <div class="d-flex flex-column gap-2 mt-4">
             <div class="d-flex align-items-center gap-2 w-100">
-              <button class="wf-btn wf-btn-primary w-100">${isLogin ? 'Iniciar Sesión' : (isRegister ? 'Registrarme' : 'Enviar Enlace')}</button>
+              <button class="wf-btn wf-btn-primary w-100">${isLogin ? 'Iniciar Sesión' : 'Registrarme'}</button>
               <span class="pin-badge">${badges[2] || badges[badges.length - 1] || 'C'}</span>
             </div>
             
             ${isLogin ? `
               <div class="text-center my-2 text-muted small">o continúe con</div>
               <div class="d-flex align-items-center gap-2 w-100">
-                <button class="wf-btn wf-btn-outline w-100">Continuar con Google</button>
+                <button class="wf-btn wf-btn-outline w-100"><i class="fa-brands fa-google me-1"></i> Continuar con Google</button>
                 <span class="pin-badge">${badges[3] || 'D'}</span>
               </div>
             ` : ''}
@@ -1849,29 +1999,34 @@ function generateScreenContent(cu) {
   const isDelete = name.toLowerCase().includes('baja') || name.toLowerCase().includes('cancelar') || name.toLowerCase().includes('eliminar') || name.toLowerCase().includes('quitar');
   if (isDelete) {
     return `
-      <div class="wf-card" style="max-width: 600px; margin: 40px auto;">
+      <div class="wf-card" style="max-width: 620px; margin: 30px auto; background: #FFFFFF;">
         <div class="wf-card-header text-center mb-4">
-          <div class="wf-icon-danger mb-3">${icons.exclamationTriangle("w-8 h-8 text-danger")}</div>
-          <h3>Confirmar Baja / Eliminación</h3>
-          <p class="text-muted">¿Está seguro de que desea realizar la operación sobre el elemento seleccionado?</p>
+          <div class="wf-icon-danger mb-3" style="width: 54px; height: 54px; border-radius: 50%; background: #FEE2E2; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
+            <i class="fa-solid fa-triangle-exclamation" style="font-size: 24px; color: #DC2626;"></i>
+          </div>
+          <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">${name}</h3>
+          <p class="small text-muted" style="margin: 4px 0 0;">¿Está seguro de que desea confirmar la baja o eliminación del elemento seleccionado?</p>
         </div>
 
-        <div class="wf-card p-3 mb-4 bg-light">
-          <div class="d-flex justify-content-between mb-2">
-            <span class="text-muted">Elemento a dar de baja:</span>
-            <strong>Registro Seleccionado #${id.replace('CU-', '')} (${name})</strong>
+        <div class="p-3 mb-4 bg-light border rounded">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="small text-muted">Elemento seleccionado:</span>
+            <div class="d-flex align-items-center gap-2">
+              <strong style="font-size: 13px; color: #081426;">Registro #${id.replace('CU-', '')} (${name.replace('Dar de baja ', '').replace('Eliminar ', '')})</strong>
+              <span class="pin-badge">${badges[0] || 'A'}</span>
+            </div>
           </div>
-          <div class="d-flex justify-content-between">
-            <span class="text-muted">Estado actual:</span>
+          <div class="d-flex justify-content-between align-items-center">
+            <span class="small text-muted">Estado de la entidad:</span>
             <span class="wf-badge status-active">Activo / Vigente</span>
           </div>
         </div>
 
-        <div class="d-flex justify-content-end gap-3">
+        <div class="d-flex justify-content-end gap-3 pt-3 border-top">
           <button class="wf-btn wf-btn-outline">Cancelar / Volver</button>
           <div class="d-flex align-items-center gap-2">
-            <button class="wf-btn wf-btn-danger">${icons.trash()} Confirmar Baja</button>
-            <span class="pin-badge">${badges[badges.length - 1] || 'A'}</span>
+            <button class="wf-btn wf-btn-danger"><i class="fa-solid fa-trash me-1"></i> Confirmar Eliminación</button>
+            <span class="pin-badge">${badges[1] || badges[badges.length - 1] || 'B'}</span>
           </div>
         </div>
       </div>
@@ -1882,8 +2037,8 @@ function generateScreenContent(cu) {
   const isSearch = name.toLowerCase().startsWith('buscar') || name.toLowerCase().startsWith('consultar') || name.toLowerCase().startsWith('ver') || name.toLowerCase().startsWith('explorar');
   if (isSearch) {
     return `
-      <div class="wf-card mb-4">
-        <div class="row align-items-end">
+      <div class="wf-card mb-4" style="background: #FFFFFF;">
+        <div class="row g-3 align-items-end">
           <div class="col-md-5">
             <label class="wf-label">Criterio de búsqueda / Filtro principal</label>
             <div class="wf-input-wrap">
@@ -1897,7 +2052,7 @@ function generateScreenContent(cu) {
               <div class="wf-input-wrap">
                 <div class="wf-input wf-select-trigger">
                   <span>Todos los registros</span>
-                  ${icons.chevronDown()}
+                  <i class="fa-solid fa-chevron-down" style="font-size: 11px;"></i>
                 </div>
                 <span class="pin-badge">${badges[1] || 'B'}</span>
               </div>
@@ -1910,7 +2065,7 @@ function generateScreenContent(cu) {
           </div>
           <div class="col-md-3">
             <div class="d-flex align-items-center gap-2">
-              <button class="wf-btn wf-btn-primary w-100">Buscar</button>
+              <button class="wf-btn wf-btn-primary w-100"><i class="fa-solid fa-magnifying-glass me-1"></i> Buscar</button>
               <span class="pin-badge">${badges[2] || 'C'}</span>
             </div>
           </div>
@@ -1957,6 +2112,7 @@ function generateScreenContent(cu) {
   }
 
   // --- SPECIALIZED 16: FORMULARIOS DE REGISTRO / MODIFICACIÓN ESPECÍFICOS ---
+  const isMod = name.toLowerCase().startsWith('modificar') || name.toLowerCase().startsWith('editar');
   return `
     <div class="wf-card" style="max-width: 860px; margin: 0 auto; background: #FFFFFF;">
       <div class="wf-card-header mb-4 pb-3 border-bottom d-flex justify-content-between align-items-center">
@@ -1964,7 +2120,7 @@ function generateScreenContent(cu) {
           <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">${name}</h3>
           <p class="small text-muted" style="margin: 3px 0 0;">Complete los datos correspondientes en el sistema.</p>
         </div>
-        <span class="wf-badge status-active">Formulario Oficial</span>
+        <span class="wf-badge status-active">${isMod ? 'Modo Edición' : 'Formulario de Alta'}</span>
       </div>
 
       <div class="row g-3">
@@ -2016,7 +2172,7 @@ function generateScreenContent(cu) {
       <div class="wf-card-footer d-flex justify-content-end gap-3 mt-4 pt-3 border-top">
         <button class="wf-btn wf-btn-outline">Cancelar / Volver</button>
         <div class="d-flex align-items-center gap-2">
-          <button class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Confirmar y Guardar</button>
+          <button class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> ${isMod ? 'Guardar Cambios' : 'Confirmar y Guardar'}</button>
           <span class="pin-badge">${badges[badges.length - 1] || 'D'}</span>
         </div>
       </div>
