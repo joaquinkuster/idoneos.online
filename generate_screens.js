@@ -402,7 +402,7 @@ function generateScreenContent(cu) {
             <div class="small text-muted mb-1" style="font-size: 11px;">
               <span>Mis cursos</span> <i class="fa-solid fa-chevron-right" style="font-size: 9px; margin: 0 4px;"></i> <span>Mercado de Capitales</span> <i class="fa-solid fa-chevron-right" style="font-size: 9px; margin: 0 4px;"></i> <strong>Especialización en Idoneidad Bursátil</strong>
             </div>
-            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 4px 0;">Especialización en Idoneidad Bursátil (Cohorte 2026-1)</h3>
+            <h3 style="font-size: 19px; font-weight: 800; color: #081426; margin: 4px 0;">Especialización en Idoneidad Bursátil (Cohorte 2026-1)</h3>
             <p class="small text-muted" style="margin: 0;">Docente Titular: Lic. Fausto Spotorno | Duración: 8 Semanas | Programa Vigente</p>
           </div>
           <div class="text-end">
@@ -423,22 +423,58 @@ function generateScreenContent(cu) {
         </div>
       </div>
 
-      <div class="d-flex flex-column gap-3">
+      <div class="d-flex flex-column gap-4">
         <!-- Unidad 1 -->
         <div class="wf-unit-box">
           <div class="wf-unit-header d-flex justify-content-between align-items-center">
             <div class="d-flex align-items-center gap-2">
-              <i class="fa-solid fa-circle-check text-success"></i>
-              <strong>Unidad 1: Marco Regulatorio y Ley de Mercado de Capitales</strong>
+              <i class="fa-solid fa-circle-check text-success" style="font-size: 16px;"></i>
+              <strong style="font-size: 14px; color: #081426;">Unidad 1: Marco Regulatorio y Ley de Mercado de Capitales</strong>
             </div>
             <span class="wf-badge status-active">Aprobada (Nota: 9/10)</span>
           </div>
-          <div class="wf-unit-body">
-            <ul class="wf-content-list">
-              <li class="d-flex align-items-center gap-2"><i class="fa-solid fa-file-pdf text-danger"></i> <a href="#" class="wf-link">Ley 26.831 y modificatorias (PDF - 2.4 MB)</a></li>
-              <li class="d-flex align-items-center gap-2"><i class="fa-solid fa-circle-play text-primary"></i> <a href="#" class="wf-link">Grabación: Estructura del Mercado Argentino (45 min)</a></li>
-              <li class="d-flex align-items-center gap-2"><i class="fa-solid fa-book text-warning"></i> <a href="#" class="wf-link">Glosario de Términos CNV (12 términos)</a></li>
-            </ul>
+          <div class="wf-unit-body d-flex flex-column gap-2">
+            <!-- Item 1: PDF -->
+            <div class="moodle-activity-card">
+              <div class="moodle-activity-left">
+                <div class="moodle-icon-box moodle-icon-pdf">
+                  <i class="fa-solid fa-file-pdf"></i>
+                </div>
+                <div>
+                  <a href="#" class="moodle-activity-title wf-link">Ley 26.831 y modificatorias CNV</a>
+                  <div class="moodle-activity-desc">Documento PDF oficial descargable • 2.4 MB</div>
+                </div>
+              </div>
+              <button class="moodle-btn-check completed"><i class="fa-solid fa-check"></i> Hecho</button>
+            </div>
+
+            <!-- Item 2: Video -->
+            <div class="moodle-activity-card">
+              <div class="moodle-activity-left">
+                <div class="moodle-icon-box moodle-icon-video">
+                  <i class="fa-solid fa-circle-play"></i>
+                </div>
+                <div>
+                  <a href="#" class="moodle-activity-title wf-link">Grabación: Estructura del Mercado Argentino</a>
+                  <div class="moodle-activity-desc">Video clase dictada por Lic. Fausto Spotorno • 45 min</div>
+                </div>
+              </div>
+              <button class="moodle-btn-check completed"><i class="fa-solid fa-check"></i> Hecho</button>
+            </div>
+
+            <!-- Item 3: Glosario -->
+            <div class="moodle-activity-card">
+              <div class="moodle-activity-left">
+                <div class="moodle-icon-box moodle-icon-glossary">
+                  <i class="fa-solid fa-book-open"></i>
+                </div>
+                <div>
+                  <a href="#" class="moodle-activity-title wf-link">Glosario de Términos CNV</a>
+                  <div class="moodle-activity-desc">Diccionario con 12 conceptos normativos clave</div>
+                </div>
+              </div>
+              <button class="moodle-btn-check completed"><i class="fa-solid fa-check"></i> Hecho</button>
+            </div>
           </div>
         </div>
 
@@ -446,39 +482,94 @@ function generateScreenContent(cu) {
         <div class="wf-unit-box">
           <div class="wf-unit-header d-flex justify-content-between align-items-center">
             <div class="d-flex align-items-center gap-2">
-              <i class="fa-solid fa-book-open" style="color: var(--wf-gold);"></i>
-              <strong>Unidad 2: Instrumentos de Renta Fija (Bonos y Obligaciones Negociables)</strong>
+              <i class="fa-solid fa-book-open" style="color: var(--wf-gold); font-size: 16px;"></i>
+              <strong style="font-size: 14px; color: #081426;">Unidad 2: Instrumentos de Renta Fija (Bonos y Obligaciones Negociables)</strong>
             </div>
             <div class="d-flex align-items-center gap-2">
               <span class="wf-badge status-active">En Curso</span>
               <span class="pin-badge">${badges[2] || 'C'}</span>
             </div>
           </div>
-          <div class="wf-unit-body">
-            <p class="small text-muted mb-3">Conceptos de TIR, Duration, Modified Duration y curvas de rendimiento soberanas.</p>
-            <div class="mb-3">
+          <div class="wf-unit-body d-flex flex-column gap-3">
+            <p class="small text-muted" style="margin: 0;">Conceptos de TIR, Duration, Modified Duration y curvas de rendimiento soberanas.</p>
+            
+            <div class="d-flex flex-column gap-2">
               <div class="wf-subcontent-title">Materiales de Estudio</div>
-              <ul class="wf-content-list">
-                <li class="d-flex align-items-center gap-2"><i class="fa-solid fa-file-pdf text-danger"></i> <a href="#" class="wf-link">Guía Teórica de Renta Fija v2.1 (PDF)</a></li>
-                <li class="d-flex align-items-center gap-2"><i class="fa-solid fa-chart-line text-info"></i> <a href="#" class="wf-link">Planilla Excel: Cálculo de TIR y Flujos de Fondos</a></li>
-              </ul>
+              
+              <div class="moodle-activity-card">
+                <div class="moodle-activity-left">
+                  <div class="moodle-icon-box moodle-icon-pdf">
+                    <i class="fa-solid fa-file-pdf"></i>
+                  </div>
+                  <div>
+                    <a href="#" class="moodle-activity-title wf-link">Guía Teórica de Renta Fija v2.1</a>
+                    <div class="moodle-activity-desc">Material principal de lectura (PDF - 4.1 MB)</div>
+                  </div>
+                </div>
+                <button class="moodle-btn-check completed"><i class="fa-solid fa-check"></i> Hecho</button>
+              </div>
+
+              <div class="moodle-activity-card">
+                <div class="moodle-activity-left">
+                  <div class="moodle-icon-box moodle-icon-video">
+                    <i class="fa-solid fa-file-excel" style="color: #16A34A;"></i>
+                  </div>
+                  <div>
+                    <a href="#" class="moodle-activity-title wf-link">Planilla Excel: Cálculo de TIR y Flujos de Fondos</a>
+                    <div class="moodle-activity-desc">Plantilla de ejercicios prácticos (.xlsx - 850 KB)</div>
+                  </div>
+                </div>
+                <button class="moodle-btn-check">Marcar como hecha</button>
+              </div>
             </div>
 
-            <div>
+            <div class="d-flex flex-column gap-2 mt-2">
               <div class="wf-subcontent-title">Actividades & Evaluaciones</div>
-              <ul class="wf-content-list">
-                <li>
-                  <div class="d-flex justify-content-between align-items-center">
-                    <div class="d-flex align-items-center gap-2">
-                      <i class="fa-solid fa-clipboard-check text-success"></i>
-                      <span><a href="#CU-63" class="wf-link"><strong>Autoevaluación Unidad 2: Ejercicios de Rendimiento</strong></a> (3 intentos máx.)</span>
-                    </div>
-                    <span class="pin-badge">${badges[3] || 'D'}</span>
+              
+              <!-- Autoevaluación -->
+              <div class="moodle-activity-card">
+                <div class="moodle-activity-left">
+                  <div class="moodle-icon-box moodle-icon-quiz">
+                    <i class="fa-solid fa-clipboard-check"></i>
                   </div>
-                </li>
-                <li class="d-flex align-items-center gap-2"><i class="fa-solid fa-comments text-muted"></i> <a href="#CU-35" class="wf-link">Foro de Consultas: Dudas sobre Duración Modificada</a> (4 consultas)</li>
-                <li class="d-flex align-items-center gap-2"><i class="fa-solid fa-video text-danger"></i> <a href="#CU-72" class="wf-link">Clase en Vivo: Streaming interactivo</a></li>
-              </ul>
+                  <div>
+                    <a href="#CU-63" class="moodle-activity-title wf-link">Autoevaluación Unidad 2: Ejercicios de Rendimiento</a>
+                    <div class="moodle-activity-desc">10 preguntas aleatorias • 3 intentos máximos permitidos • Aprobación: 70%</div>
+                  </div>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                  <button class="moodle-btn-check">Iniciar intento</button>
+                  <span class="pin-badge">${badges[3] || 'D'}</span>
+                </div>
+              </div>
+
+              <!-- Foro de Consultas -->
+              <div class="moodle-activity-card">
+                <div class="moodle-activity-left">
+                  <div class="moodle-icon-box moodle-icon-forum">
+                    <i class="fa-solid fa-comments"></i>
+                  </div>
+                  <div>
+                    <a href="#CU-35" class="moodle-activity-title wf-link">Foro de Consultas: Dudas sobre Duración Modificada</a>
+                    <div class="moodle-activity-desc">Espacio de debate e interacción con el docente titular (4 consultas activas)</div>
+                  </div>
+                </div>
+                <button class="moodle-btn-check">Ver debates</button>
+              </div>
+
+              <!-- Clase en Vivo -->
+              <div class="moodle-activity-card">
+                <div class="moodle-activity-left">
+                  <div class="moodle-icon-box moodle-icon-live">
+                    <i class="fa-solid fa-video"></i>
+                  </div>
+                  <div>
+                    <a href="#CU-72" class="moodle-activity-title wf-link">Clase en Vivo: Streaming Interactivo con OBS</a>
+                    <div class="moodle-activity-desc">Transmisión sincrónica con sala de chat • Jueves 19:00 hs</div>
+                  </div>
+                </div>
+                <button class="moodle-btn-check" style="background: #FEF3C7; color: #92400E; border-color: #FCD34D;"><i class="fa-solid fa-broadcast-tower"></i> Sala en Vivo</button>
+              </div>
             </div>
           </div>
         </div>
@@ -526,34 +617,51 @@ function generateScreenContent(cu) {
         </div>
       </div>
 
-      <div class="d-flex flex-column gap-3">
+      <div class="d-flex flex-column gap-4">
         <!-- Unidad 1 en Modo Edición -->
         <div class="wf-unit-box">
           <div class="wf-unit-header d-flex justify-content-between align-items-center">
             <div class="d-flex align-items-center gap-2">
               <i class="fa-solid fa-bars text-muted" style="cursor: grab;"></i>
-              <strong>Unidad 1: Marco Regulatorio y Ley de Mercado de Capitales</strong>
+              <strong style="font-size: 14px; color: #081426;">Unidad 1: Marco Regulatorio y Ley de Mercado de Capitales</strong>
               <button class="wf-btn wf-btn-sm wf-btn-outline" style="padding: 2px 6px; height: 24px;"><i class="fa-solid fa-pen-to-square"></i></button>
             </div>
             <div class="d-flex align-items-center gap-2">
               <button class="wf-btn wf-btn-sm wf-btn-outline">Editar <i class="fa-solid fa-chevron-down ms-1" style="font-size: 10px;"></i></button>
             </div>
           </div>
-          <div class="wf-unit-body">
-            <ul class="wf-content-list">
-              <li class="d-flex justify-content-between align-items-center p-2 border rounded bg-white">
-                <div class="d-flex align-items-center gap-2">
-                  <i class="fa-solid fa-bars text-muted" style="cursor: grab;"></i>
-                  <i class="fa-solid fa-file-pdf text-danger"></i>
-                  <span>Ley 26.831 y modificatorias (PDF - 2.4 MB)</span>
+          <div class="wf-unit-body d-flex flex-column gap-2">
+            <div class="moodle-activity-card">
+              <div class="moodle-activity-left">
+                <i class="fa-solid fa-bars text-muted" style="cursor: grab;"></i>
+                <div class="moodle-icon-box moodle-icon-pdf">
+                  <i class="fa-solid fa-file-pdf"></i>
                 </div>
-                <button class="wf-btn wf-btn-sm wf-btn-outline" style="padding: 2px 8px; height: 24px;">Editar <i class="fa-solid fa-chevron-down ms-1" style="font-size: 10px;"></i></button>
-              </li>
-            </ul>
+                <div>
+                  <span class="moodle-activity-title">Ley 26.831 y modificatorias (PDF - 2.4 MB)</span>
+                  <div class="moodle-activity-desc">Documento adjunto</div>
+                </div>
+              </div>
+              <button class="wf-btn wf-btn-sm wf-btn-outline">Editar <i class="fa-solid fa-chevron-down ms-1" style="font-size: 10px;"></i></button>
+            </div>
+
+            <div class="moodle-activity-card">
+              <div class="moodle-activity-left">
+                <i class="fa-solid fa-bars text-muted" style="cursor: grab;"></i>
+                <div class="moodle-icon-box moodle-icon-video">
+                  <i class="fa-solid fa-circle-play"></i>
+                </div>
+                <div>
+                  <span class="moodle-activity-title">Grabación: Estructura del Mercado Argentino (45 min)</span>
+                  <div class="moodle-activity-desc">Video lección</div>
+                </div>
+              </div>
+              <button class="wf-btn wf-btn-sm wf-btn-outline">Editar <i class="fa-solid fa-chevron-down ms-1" style="font-size: 10px;"></i></button>
+            </div>
 
             <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
               <a href="#CU-28" class="wf-link d-flex align-items-center gap-2" style="font-size: 12px; font-weight: 700; color: #081426;">
-                <i class="fa-solid fa-plus-circle" style="color: var(--wf-gold);"></i>
+                <i class="fa-solid fa-plus-circle" style="color: var(--wf-gold); font-size: 16px;"></i>
                 <span>Añade una actividad o un recurso</span>
               </a>
               <span class="pin-badge">${badges[3] || badges[4] || 'D'}</span>
@@ -2240,39 +2348,43 @@ let html = `<!DOCTYPE html>
             background: #FFFFFF;
             border: 1px solid var(--wf-border);
             border-radius: 10px;
-            padding: 24px;
-            box-shadow: 0 4px 12px rgba(8, 20, 38, 0.03);
+            padding: 28px 32px;
+            box-shadow: 0 4px 14px rgba(8, 20, 38, 0.04);
         }
 
         .wf-label {
             display: block;
             font-size: 11px;
             font-weight: 700;
-            color: #334155;
+            color: #475569;
             text-transform: uppercase;
-            letter-spacing: 0.3px;
-            margin-bottom: 6px;
+            letter-spacing: 0.5px;
+            margin-bottom: 9px;
+            margin-top: 4px;
         }
 
         .wf-input {
             width: 100%;
-            height: 40px;
-            padding: 8px 14px;
-            border: 1.5px solid var(--wf-border);
-            border-radius: 6px;
+            height: 44px;
+            padding: 10px 16px;
+            border: 1.5px solid #CBD5E1;
+            border-radius: 8px;
             font-size: 13px;
             color: #081426;
             outline: none;
             background: #FFFFFF;
-            transition: border-color 0.15s;
+            transition: all 0.15s;
         }
 
         .wf-input:focus {
             border-color: #081426;
+            box-shadow: 0 0 0 3px rgba(8, 20, 38, 0.08);
         }
 
         textarea.wf-input {
             height: auto;
+            min-height: 90px;
+            line-height: 1.5;
         }
 
         .bg-disabled {
@@ -2285,9 +2397,9 @@ let html = `<!DOCTYPE html>
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            height: 40px;
-            padding: 0 18px;
-            border-radius: 6px;
+            height: 42px;
+            padding: 0 20px;
+            border-radius: 8px;
             font-size: 12px;
             font-weight: 700;
             cursor: pointer;
@@ -2295,6 +2407,7 @@ let html = `<!DOCTYPE html>
             text-decoration: none;
             white-space: nowrap;
             transition: all 0.15s;
+            gap: 6px;
         }
 
         .wf-btn-primary {
@@ -2326,9 +2439,10 @@ let html = `<!DOCTYPE html>
         }
 
         .wf-btn-sm {
-            height: 32px;
-            padding: 0 12px;
+            height: 34px;
+            padding: 0 14px;
             font-size: 11px;
+            border-radius: 6px;
         }
 
         .wf-link {
@@ -2338,6 +2452,90 @@ let html = `<!DOCTYPE html>
             text-decoration: underline;
             text-underline-offset: 2px;
             cursor: pointer;
+        }
+
+        /* Moodle Style Activities & Resources */
+        .moodle-activity-card {
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-radius: 8px;
+            padding: 14px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.15s ease;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .moodle-activity-card:hover {
+            border-color: var(--wf-gold);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(8, 20, 38, 0.06);
+        }
+
+        .moodle-activity-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .moodle-icon-box {
+            width: 42px;
+            height: 42px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .moodle-icon-pdf { background: #FEE2E2; color: #DC2626; }
+        .moodle-icon-video { background: #DBEAFE; color: #2563EB; }
+        .moodle-icon-quiz { background: #DCFCE7; color: #16A34A; }
+        .moodle-icon-forum { background: #FFEDD5; color: #EA580C; }
+        .moodle-icon-glossary { background: #FEF3C7; color: #D97706; }
+        .moodle-icon-live { background: #FCE7F3; color: #DB2777; }
+
+        .moodle-activity-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #081426;
+            line-height: 1.3;
+        }
+
+        .moodle-activity-desc {
+            font-size: 11px;
+            color: #64748B;
+            margin-top: 2px;
+        }
+
+        .moodle-btn-check {
+            border: 1px solid #CBD5E1;
+            background: #F8FAFC;
+            color: #475569;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 6px 14px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .moodle-btn-check:hover {
+            background: #E2E8F0;
+            color: #081426;
+        }
+
+        .moodle-btn-check.completed {
+            background: #DCFCE7;
+            border-color: #86EFAC;
+            color: #166534;
         }
 
         /* Tablas */
