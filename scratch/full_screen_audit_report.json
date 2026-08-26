@@ -1,0 +1,1811 @@
+[
+  {
+    "id": "CU-01",
+    "name": "Buscar curso",
+    "totalSteps": 3,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "C",
+        "term": "Buscar",
+        "found": true
+      },
+      {
+        "badge": "D",
+        "term": "Gestionar curso",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-02",
+    "name": "Ver mis cursos",
+    "totalSteps": 3,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "C",
+        "term": "Filtrar",
+        "found": true
+      },
+      {
+        "badge": "D",
+        "term": "Ingresar al curso",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-03",
+    "name": "Registrar curso",
+    "totalSteps": 2,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "+ Nuevo Curso",
+        "found": true
+      },
+      {
+        "badge": "C",
+        "term": "Examinar...",
+        "found": true
+      },
+      {
+        "badge": "D",
+        "term": "Guardar Curso",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-04",
+    "name": "Modificar curso",
+    "totalSteps": 2,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "Modificar",
+        "found": true
+      },
+      {
+        "badge": "C",
+        "term": "Guardar Cambios",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-05",
+    "name": "Dar de baja curso",
+    "totalSteps": 2,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "Dar de baja",
+        "found": true
+      },
+      {
+        "badge": "B",
+        "term": "Confirmar Baja",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-06",
+    "name": "Explorar catálogo de cursos",
+    "totalSteps": 2,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "B",
+        "term": "Ver Ficha / Inscribirme",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-07",
+    "name": "Buscar categoría",
+    "totalSteps": 3,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "B",
+        "term": "Buscar",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-08",
+    "name": "Registrar categoría",
+    "totalSteps": 2,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "+ Nueva Categoría",
+        "found": true
+      },
+      {
+        "badge": "C",
+        "term": "Guardar Categoría",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-09",
+    "name": "Modificar categoría",
+    "totalSteps": 2,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "Editar",
+        "found": true
+      },
+      {
+        "badge": "C",
+        "term": "Guardar Cambios",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-10",
+    "name": "Dar de baja categoría",
+    "totalSteps": 2,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "Eliminar",
+        "found": true
+      },
+      {
+        "badge": "B",
+        "term": "Confirmar Eliminación",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-11",
+    "name": "Buscar cohorte",
+    "totalSteps": 3,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "C",
+        "term": "Buscar",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-12",
+    "name": "Registrar cohorte",
+    "totalSteps": 2,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "+ Nueva Cohorte",
+        "found": true
+      },
+      {
+        "badge": "D",
+        "term": "Guardar Cohorte",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-13",
+    "name": "Modificar cohorte",
+    "totalSteps": 2,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "Editar",
+        "found": true
+      },
+      {
+        "badge": "C",
+        "term": "Guardar Cambios",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-14",
+    "name": "Dar de baja cohorte",
+    "totalSteps": 2,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "Cancelar Cohorte",
+        "found": true
+      },
+      {
+        "badge": "B",
+        "term": "Confirmar Cancelación",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-15",
+    "name": "Buscar programa",
+    "totalSteps": 3,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "B",
+        "term": "Filtrar",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-16",
+    "name": "Registrar programa",
+    "totalSteps": 2,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "+ Nuevo Programa",
+        "found": true
+      },
+      {
+        "badge": "D",
+        "term": "Guardar Programa",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-17",
+    "name": "Modificar programa",
+    "totalSteps": 2,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "Editar Programa",
+        "found": true
+      },
+      {
+        "badge": "C",
+        "term": "Guardar Cambios",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-18",
+    "name": "Dar de baja programa",
+    "totalSteps": 2,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "Dar de baja",
+        "found": true
+      },
+      {
+        "badge": "B",
+        "term": "Confirmar Baja",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-19",
+    "name": "Buscar unidad",
+    "totalSteps": 2,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "Curso & Unidades",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-20",
+    "name": "Agregar unidad",
+    "totalSteps": 2,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "+ Añadir secciones",
+        "found": true
+      },
+      {
+        "badge": "D",
+        "term": "Agregar Unidad",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-21",
+    "name": "Modificar unidad",
+    "totalSteps": 2,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "Editar",
+        "found": true
+      },
+      {
+        "badge": "C",
+        "term": "Guardar Cambios",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-22",
+    "name": "Quitar unidad",
+    "totalSteps": 2,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "Quitar de este programa",
+        "found": true
+      },
+      {
+        "badge": "B",
+        "term": "Confirmar y Quitar",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-23",
+    "name": "Buscar cronograma",
+    "totalSteps": 1,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "Cronograma",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-24",
+    "name": "Modificar cronograma",
+    "totalSteps": 2,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "Reordenar Cronograma",
+        "found": true
+      },
+      {
+        "badge": "D",
+        "term": "Guardar Cronograma",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-25",
+    "name": "Ver participantes",
+    "totalSteps": 2,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "Participantes",
+        "found": true
+      },
+      {
+        "badge": "C",
+        "term": "Filtrar",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-26",
+    "name": "Acceder curso",
+    "totalSteps": 3,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "Curso",
+        "found": true
+      },
+      {
+        "badge": "B",
+        "term": "Cronograma",
+        "found": true
+      },
+      {
+        "badge": "E",
+        "term": "Participantes",
+        "found": true
+      },
+      {
+        "badge": "F",
+        "term": "Calificaciones",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-27",
+    "name": "Buscar material",
+    "totalSteps": 3,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "Materiales",
+        "found": true
+      },
+      {
+        "badge": "C",
+        "term": "Buscar",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-28",
+    "name": "Subir material",
+    "totalSteps": 3,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "+ Añade una actividad o un recurso",
+        "found": true
+      },
+      {
+        "badge": "A",
+        "term": "Material / Documento PDF",
+        "found": true
+      },
+      {
+        "badge": "C",
+        "term": "Examinar...",
+        "found": true
+      },
+      {
+        "badge": "D",
+        "term": "Agregar",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-29",
+    "name": "Modificar material",
+    "totalSteps": 2,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "Editar",
+        "found": true
+      },
+      {
+        "badge": "C",
+        "term": "Guardar Cambios",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-30",
+    "name": "Dar de baja material",
+    "totalSteps": 2,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "Eliminar",
+        "found": true
+      },
+      {
+        "badge": "B",
+        "term": "Confirmar Eliminación",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-31",
+    "name": "Buscar término de glosario",
+    "totalSteps": 3,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "Glosario",
+        "found": true
+      },
+      {
+        "badge": "C",
+        "term": "Buscar",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-32",
+    "name": "Registrar término de glosario",
+    "totalSteps": 2,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "+ Añade una actividad o un recurso",
+        "found": true
+      },
+      {
+        "badge": "A",
+        "term": "Glosario de Términos",
+        "found": true
+      },
+      {
+        "badge": "D",
+        "term": "Agregar",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-33",
+    "name": "Modificar término de glosario",
+    "totalSteps": 2,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "Editar",
+        "found": true
+      },
+      {
+        "badge": "C",
+        "term": "Guardar Cambios",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-34",
+    "name": "Dar de baja término de glosario",
+    "totalSteps": 2,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "Eliminar",
+        "found": true
+      },
+      {
+        "badge": "B",
+        "term": "Confirmar Baja",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-35",
+    "name": "Buscar consulta de foro",
+    "totalSteps": 3,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "Foros",
+        "found": true
+      },
+      {
+        "badge": "C",
+        "term": "Buscar",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-36",
+    "name": "Registrar consulta de foro",
+    "totalSteps": 2,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "+ Nueva Consulta",
+        "found": true
+      },
+      {
+        "badge": "D",
+        "term": "Publicar Consulta",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-37",
+    "name": "Modificar consulta de foro",
+    "totalSteps": 2,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "Editar Mensaje",
+        "found": true
+      },
+      {
+        "badge": "C",
+        "term": "Guardar Cambios",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-38",
+    "name": "Dar de baja consulta de foro",
+    "totalSteps": 2,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "Moderar / Eliminar",
+        "found": true
+      },
+      {
+        "badge": "B",
+        "term": "Confirmar Eliminación",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-39",
+    "name": "Buscar respuesta de foro",
+    "totalSteps": 2,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": []
+  },
+  {
+    "id": "CU-40",
+    "name": "Registrar respuesta de foro",
+    "totalSteps": 2,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "Responder",
+        "found": true
+      },
+      {
+        "badge": "C",
+        "term": "Enviar Respuesta",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-41",
+    "name": "Modificar respuesta de foro",
+    "totalSteps": 2,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "Editar Respuesta",
+        "found": true
+      },
+      {
+        "badge": "C",
+        "term": "Guardar Cambios",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-42",
+    "name": "Dar de baja respuesta de foro",
+    "totalSteps": 2,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "Eliminar Respuesta",
+        "found": true
+      },
+      {
+        "badge": "B",
+        "term": "Confirmar Eliminación",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-43",
+    "name": "Buscar inscripción",
+    "totalSteps": 4,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "B",
+        "term": "Buscar",
+        "found": true
+      },
+      {
+        "badge": "D",
+        "term": "Descargar Certificado",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-44",
+    "name": "Inscribir curso",
+    "totalSteps": 1,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "Inscribirme Ahora",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-45",
+    "name": "Dar de baja inscripción",
+    "totalSteps": 3,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "Dar de baja inscripción",
+        "found": true
+      },
+      {
+        "badge": "C",
+        "term": "Confirmar Baja Definitiva",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-46",
+    "name": "Buscar pago",
+    "totalSteps": 4,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "B",
+        "term": "Buscar",
+        "found": true
+      },
+      {
+        "badge": "D",
+        "term": "Descargar Comprobante",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-47",
+    "name": "Realizar pago",
+    "totalSteps": 3,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "Proceder al Pago",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-48",
+    "name": "Buscar progreso",
+    "totalSteps": 3,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "B",
+        "term": "Buscar",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-49",
+    "name": "Buscar descuento",
+    "totalSteps": 3,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "B",
+        "term": "Buscar",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-50",
+    "name": "Registrar descuento",
+    "totalSteps": 2,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "+ Nuevo Descuento",
+        "found": true
+      },
+      {
+        "badge": "D",
+        "term": "Guardar Descuento",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-51",
+    "name": "Modificar descuento",
+    "totalSteps": 2,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "Editar",
+        "found": true
+      },
+      {
+        "badge": "C",
+        "term": "Guardar Cambios",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-52",
+    "name": "Dar de baja descuento",
+    "totalSteps": 2,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "Eliminar",
+        "found": true
+      },
+      {
+        "badge": "B",
+        "term": "Confirmar Baja",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-53",
+    "name": "Buscar pool",
+    "totalSteps": 3,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "Pools",
+        "found": true
+      },
+      {
+        "badge": "C",
+        "term": "Buscar",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-54",
+    "name": "Crear pool",
+    "totalSteps": 2,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "+ Añade una actividad o un recurso",
+        "found": true
+      },
+      {
+        "badge": "A",
+        "term": "Pool de Preguntas",
+        "found": true
+      },
+      {
+        "badge": "D",
+        "term": "Agregar",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-55",
+    "name": "Modificar pool",
+    "totalSteps": 2,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "Editar Pool",
+        "found": true
+      },
+      {
+        "badge": "C",
+        "term": "Guardar Cambios",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-56",
+    "name": "Dar de baja pool",
+    "totalSteps": 2,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "Eliminar Pool",
+        "found": true
+      },
+      {
+        "badge": "B",
+        "term": "Confirmar Baja",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-57",
+    "name": "Buscar autoevaluación",
+    "totalSteps": 3,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "Autoevaluaciones",
+        "found": true
+      },
+      {
+        "badge": "C",
+        "term": "Buscar",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-58",
+    "name": "Crear autoevaluación",
+    "totalSteps": 2,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "+ Añade una actividad o un recurso",
+        "found": true
+      },
+      {
+        "badge": "A",
+        "term": "Cuestionario / Autoevaluación",
+        "found": true
+      },
+      {
+        "badge": "D",
+        "term": "Agregar",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-59",
+    "name": "Modificar autoevaluación",
+    "totalSteps": 2,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "Editar Cuestionario",
+        "found": true
+      },
+      {
+        "badge": "C",
+        "term": "Guardar Cambios",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-60",
+    "name": "Dar de baja autoevaluación",
+    "totalSteps": 2,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "Eliminar",
+        "found": true
+      },
+      {
+        "badge": "B",
+        "term": "Confirmar Eliminación",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-61",
+    "name": "Buscar intento de autoevaluación",
+    "totalSteps": 3,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "C",
+        "term": "Buscar",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-62",
+    "name": "Ver calificaciones",
+    "totalSteps": 2,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "Calificaciones",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-63",
+    "name": "Realizar intento de autoevaluación",
+    "totalSteps": 3,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "Comenzar Intento",
+        "found": true
+      },
+      {
+        "badge": "C",
+        "term": "Terminar Intento y Enviar Todo",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-64",
+    "name": "Dar de baja intento de autoevaluación",
+    "totalSteps": 2,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "Anular Intento por Fraude",
+        "found": true
+      },
+      {
+        "badge": "B",
+        "term": "Confirmar Anulación",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-65",
+    "name": "Buscar clase en vivo",
+    "totalSteps": 3,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "Clases en Vivo",
+        "found": true
+      },
+      {
+        "badge": "C",
+        "term": "Buscar",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-66",
+    "name": "Programar clase en vivo",
+    "totalSteps": 2,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "+ Añade una actividad o un recurso",
+        "found": true
+      },
+      {
+        "badge": "A",
+        "term": "Clase en Vivo (Streaming)",
+        "found": true
+      },
+      {
+        "badge": "D",
+        "term": "Agregar",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-67",
+    "name": "Modificar clase en vivo",
+    "totalSteps": 2,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "Reprogramar / Editar",
+        "found": true
+      },
+      {
+        "badge": "C",
+        "term": "Guardar Cambios",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-68",
+    "name": "Cancelar clase en vivo",
+    "totalSteps": 2,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "Cancelar Clase",
+        "found": true
+      },
+      {
+        "badge": "B",
+        "term": "Confirmar Cancelación",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-69",
+    "name": "Dar de baja clase en vivo",
+    "totalSteps": 2,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "Eliminar Registro",
+        "found": true
+      },
+      {
+        "badge": "B",
+        "term": "Confirmar Eliminación",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-70",
+    "name": "Iniciar clase en vivo",
+    "totalSteps": 2,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "Transmitir en Vivo",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-71",
+    "name": "Finalizar clase en vivo",
+    "totalSteps": 1,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "Finalizar Transmisión",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-72",
+    "name": "Ingresar a clase en vivo",
+    "totalSteps": 1,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "Ingresar a la Sala en Vivo",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-73",
+    "name": "Generar banco de preguntas",
+    "totalSteps": 2,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "Generar Banco con IA (Ollama)",
+        "found": true
+      },
+      {
+        "badge": "C",
+        "term": "Generar Preguntas con IA",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-74",
+    "name": "Generar resumen de unidad",
+    "totalSteps": 2,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "Generar Resumen de Unidad con IA",
+        "found": true
+      },
+      {
+        "badge": "B",
+        "term": "Crear Resumen Automático",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-75",
+    "name": "Generar presentación de unidad",
+    "totalSteps": 2,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "Generar Presentación con IA",
+        "found": true
+      },
+      {
+        "badge": "B",
+        "term": "Generar Diapositivas",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-76",
+    "name": "Crear clon",
+    "totalSteps": 3,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "Configurar Clon de IA",
+        "found": true
+      },
+      {
+        "badge": "C",
+        "term": "Grabar Muestra",
+        "found": true
+      },
+      {
+        "badge": "D",
+        "term": "Crear Clon en HeyGen",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-77",
+    "name": "Buscar clase con clon",
+    "totalSteps": 3,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "C",
+        "term": "Buscar",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-78",
+    "name": "Generar clase con clon",
+    "totalSteps": 2,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "Generar Video con Avatar Clon",
+        "found": true
+      },
+      {
+        "badge": "D",
+        "term": "Sintetizar Video con IA",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-79",
+    "name": "Modificar clase con clon",
+    "totalSteps": 2,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "Editar Guión",
+        "found": true
+      },
+      {
+        "badge": "C",
+        "term": "Actualizar y Regenerar Video",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-80",
+    "name": "Dar de baja clase con clon",
+    "totalSteps": 2,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "Eliminar Video",
+        "found": true
+      },
+      {
+        "badge": "B",
+        "term": "Confirmar Eliminación",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-81",
+    "name": "Registrarse",
+    "totalSteps": 2,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "Registrarse",
+        "found": true
+      },
+      {
+        "badge": "C",
+        "term": "Crear Cuenta",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-82",
+    "name": "Buscar usuario",
+    "totalSteps": 3,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "B",
+        "term": "Buscar",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-83",
+    "name": "Registrar usuario",
+    "totalSteps": 2,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "+ Nuevo Usuario",
+        "found": true
+      },
+      {
+        "badge": "D",
+        "term": "Guardar Usuario",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-84",
+    "name": "Modificar usuario",
+    "totalSteps": 2,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "Editar",
+        "found": true
+      },
+      {
+        "badge": "C",
+        "term": "Guardar Cambios",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-85",
+    "name": "Dar de baja usuario",
+    "totalSteps": 2,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "Desactivar Cuenta",
+        "found": true
+      },
+      {
+        "badge": "B",
+        "term": "Confirmar Desactivación",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-86",
+    "name": "Ver perfil",
+    "totalSteps": 1,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "B",
+        "term": "Ver Perfil",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-87",
+    "name": "Editar perfil",
+    "totalSteps": 2,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "Editar Perfil",
+        "found": true
+      },
+      {
+        "badge": "C",
+        "term": "Guardar Cambios",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-88",
+    "name": "Registrar docente",
+    "totalSteps": 2,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "+ Nuevo Docente",
+        "found": true
+      },
+      {
+        "badge": "D",
+        "term": "Guardar Docente",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-89",
+    "name": "Modificar docente",
+    "totalSteps": 2,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "Editar Perfil Docente",
+        "found": true
+      },
+      {
+        "badge": "C",
+        "term": "Guardar Cambios",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-90",
+    "name": "Iniciar sesión",
+    "totalSteps": 2,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "C",
+        "term": "Iniciar Sesión",
+        "found": true
+      },
+      {
+        "badge": "D",
+        "term": "Continuar con Google",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-91",
+    "name": "Cerrar sesión",
+    "totalSteps": 1,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "B",
+        "term": "Cerrar sesión",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-92",
+    "name": "Recuperar contraseña",
+    "totalSteps": 3,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "¿Olvidaste tu contraseña?",
+        "found": true
+      },
+      {
+        "badge": "C",
+        "term": "Enviar Enlace",
+        "found": true
+      },
+      {
+        "badge": "E",
+        "term": "Restablecer Contraseña",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-93",
+    "name": "Buscar sesión",
+    "totalSteps": 3,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "C",
+        "term": "Buscar",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-94",
+    "name": "Eliminar sesión",
+    "totalSteps": 2,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "Cerrar Sesión Remota",
+        "found": true
+      },
+      {
+        "badge": "B",
+        "term": "Confirmar Cierre de Sesión",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-95",
+    "name": "Consultar auditoría",
+    "totalSteps": 2,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "C",
+        "term": "Filtrar Eventos",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-96",
+    "name": "Generar informe de alumnos de un curso",
+    "totalSteps": 3,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "C",
+        "term": "Generar Informe",
+        "found": true
+      },
+      {
+        "badge": "D",
+        "term": "Descargar PDF / Excel",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-97",
+    "name": "Generar informe de ingresos de un curso",
+    "totalSteps": 3,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "C",
+        "term": "Generar Reporte de Ingresos",
+        "found": true
+      },
+      {
+        "badge": "D",
+        "term": "Descargar Reporte",
+        "found": true
+      }
+    ]
+  },
+  {
+    "id": "CU-98",
+    "name": "Consultar estadísticas",
+    "totalSteps": 1,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": []
+  },
+  {
+    "id": "CU-99",
+    "name": "Configurar parámetros",
+    "totalSteps": 2,
+    "missingBadges": [],
+    "missingButtons": [],
+    "buttonMatches": [
+      {
+        "badge": "A",
+        "term": "Editar Valor",
+        "found": true
+      },
+      {
+        "badge": "C",
+        "term": "Guardar Parámetro",
+        "found": true
+      }
+    ]
+  }
+]

@@ -333,7 +333,7 @@ function generateScreenContent(cu) {
             <div class="d-flex align-items-center justify-content-between gap-2">
               <button class="wf-btn-manage-course">
                 ${icons.cog6Tooth("w-4 h-4")}
-                <span>${isDocente ? 'Gestionar Curso' : (isAlumno ? 'Ingresar al Curso' : 'Ver Detalle')}</span>
+                <span>${id === 'CU-06' ? 'Ver Ficha / Inscribirme' : (isDocente ? 'Gestionar Curso' : (isAlumno ? 'Ingresar al Curso' : 'Ver Detalle'))}</span>
               </button>
               <span class="pin-badge">${badges[3] || badges[badges.length - 1] || 'D'}</span>
             </div>
@@ -669,6 +669,33 @@ function generateScreenContent(cu) {
           </div>
         </div>
       </div>
+
+      ${id === 'CU-21' ? `
+      <div class="wf-card mt-4" style="background: #FFFFFF; max-width: 760px;">
+        <div class="d-flex align-items-center gap-2 mb-3">
+          <h4 style="font-size: 15px; font-weight: 800; color: #081426; margin: 0;"><i class="fa-solid fa-pen-to-square text-muted me-2"></i>Editar Unidad Seleccionada</h4>
+          <span class="badge bg-light text-dark border d-inline-flex align-items-center gap-1"><i class="fa-solid fa-arrow-pointer text-muted"></i> Acci\u00f3n: <strong>Editar</strong> <span class="pin-badge">${badges[0] || 'A'}</span></span>
+        </div>
+        <div class="mb-3">
+          <label class="wf-label">T\u00edtulo de la Unidad</label>
+          <div class="wf-input-wrap">
+            <input type="text" class="wf-input" value="Unidad 1: Marco Regulatorio y Ley de Mercado de Capitales">
+            <span class="pin-badge">${badges[1] || 'B'}</span>
+          </div>
+        </div>
+        <div class="mb-4">
+          <label class="wf-label">Descripci\u00f3n / Contenido de la Unidad</label>
+          <textarea class="wf-input" rows="4">Esta unidad aborda el marco normativo vigente para el mercado de capitales argentino...</textarea>
+        </div>
+        <div class="d-flex justify-content-end align-items-center gap-2 pt-3 border-top">
+          <button class="wf-btn wf-btn-outline">Cancelar</button>
+          <div class="d-flex align-items-center gap-2">
+            <button class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Guardar Cambios</button>
+            <span class="pin-badge">${badges[2] || 'C'}</span>
+          </div>
+        </div>
+      </div>
+      ` : ''}
     `;
   }
 
@@ -678,6 +705,7 @@ function generateScreenContent(cu) {
       <div class="wf-card" style="max-width: 650px; margin: 30px auto; background: #FFFFFF;">
         <div class="text-center mb-4">
           <div class="wf-icon-danger mb-3"><i class="fa-solid fa-triangle-exclamation" style="font-size: 24px; color: #DC2626;"></i></div>
+          <span class="badge bg-light text-dark border d-inline-flex align-items-center gap-1 mb-2"><i class="fa-solid fa-arrow-pointer text-muted"></i> Acción: <strong>Quitar de este programa</strong> <span class="pin-badge">${badges[0] || 'A'}</span></span>
           <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Quitar Unidad del Programa</h3>
           <p class="small text-muted" style="margin: 4px 0 0;">Esta acción desvinculará la sección pedagógica de este programa académico.</p>
         </div>
@@ -789,7 +817,7 @@ function generateScreenContent(cu) {
             <div>
               <div class="d-flex align-items-center gap-2">
                 <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Reordenar y Modificar Cronograma</h3>
-                <span class="pin-badge">${badges[0] || 'A'}</span>
+                <span class="badge bg-light text-dark border d-inline-flex align-items-center gap-1"><i class="fa-solid fa-arrow-pointer text-muted"></i> Acción: <strong>Reordenar Cronograma</strong> <span class="pin-badge">${badges[0] || 'A'}</span></span>
               </div>
               <p class="small text-muted" style="margin: 3px 0 0;">Arrastre los bloques de unidades para modificar su orden secuencial y ajuste las semanas lectivas.</p>
             </div>
@@ -983,11 +1011,45 @@ function generateScreenContent(cu) {
     `;
   }
 
-  // --- TYPE 5: MODAL DE AGREGAR CONTENIDO --- CU-28, CU-32, CU-36, CU-40, CU-54, CU-58, CU-66
-  if (['CU-28', 'CU-32', 'CU-36', 'CU-40', 'CU-54', 'CU-58', 'CU-66'].includes(id)) {
+  // --- SPECIALIZED 4A: REGISTRAR RESPUESTA DE FORO --- CU-40
+  if (id === 'CU-40') {
+    return `
+      <div class="wf-card" style="max-width: 780px; margin: 0 auto; background: #FFFFFF;">
+        <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
+          <div>
+            <div class="d-flex align-items-center gap-2">
+              <h3 style="font-size: 18px; font-weight: 700; color: #081426; margin: 0;"><i class="fa-solid fa-comments text-muted me-2"></i>Responder Consulta de Foro</h3>
+              <span class="badge bg-light text-dark border d-inline-flex align-items-center gap-1"><i class="fa-solid fa-arrow-pointer text-muted"></i> Acción: <strong>Responder</strong> <span class="pin-badge">${badges[0] || 'A'}</span></span>
+            </div>
+            <p class="small text-muted" style="margin: 3px 0 0;">Consulta del alumno: <em>¿Cómo se calcula la TIR en bonos soberanos a tasa fija?</em></p>
+          </div>
+          <span class="wf-badge status-active">Consulta Activa</span>
+        </div>
+
+        <div class="mb-4">
+          <label class="wf-label">Texto de la Respuesta</label>
+          <div class="wf-input-wrap">
+            <textarea class="wf-input" rows="6" placeholder="Redacte aquí su respuesta académica al alumno...">La TIR (Tasa Interna de Retorno) de un bono soberano se calcula mediante el método iterativo de flujos descontados, igualando el precio de mercado con el valor presente neto de todos los cupones y el capital de amortización al vencimiento...</textarea>
+            <span class="pin-badge">${badges[1] || 'B'}</span>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-end align-items-center gap-3 pt-3 border-top">
+          <a href="#CU-35" class="wf-btn wf-btn-outline">Cancelar</a>
+          <div class="d-flex align-items-center gap-2">
+            <button class="wf-btn wf-btn-primary"><i class="fa-solid fa-paper-plane me-1"></i> Enviar Respuesta</button>
+            <span class="pin-badge">${badges[2] || 'C'}</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // --- TYPE 5: MODAL DE AGREGAR CONTENIDO --- CU-28, CU-32, CU-36, CU-54, CU-58, CU-66
+  if (['CU-28', 'CU-32', 'CU-36', 'CU-54', 'CU-58', 'CU-66'].includes(id)) {
     const isMaterial = id === 'CU-28';
     const isGlosario = id === 'CU-32';
-    const isForo = id === 'CU-36' || id === 'CU-40';
+    const isForo = id === 'CU-36';
     const isPool = id === 'CU-54';
     const isEval = id === 'CU-58';
     const isLive = id === 'CU-66';
@@ -1018,10 +1080,17 @@ function generateScreenContent(cu) {
       inputValue = 'Clase en Vivo #1: Resolución de Prácticos';
     }
 
+    let modalTriggerLabel = 'Añade una actividad o un recurso';
+    if (id === 'CU-36') modalTriggerLabel = '+ Nueva Consulta';
+    if (id === 'CU-40') modalTriggerLabel = 'Responder';
+
     return `
       <div class="wf-modal-box" style="max-width: 900px; margin: 20px auto;">
         <div class="wf-modal-header">
-          <h3 class="wf-modal-title">Añade una actividad o un recurso</h3>
+          <div class="d-flex align-items-center gap-2">
+            <h3 class="wf-modal-title">Añade una actividad o un recurso</h3>
+            <span class="badge bg-light text-dark border d-inline-flex align-items-center gap-1"><i class="fa-solid fa-arrow-pointer text-muted"></i> Acción: <strong>${modalTriggerLabel}</strong> <span class="pin-badge">${badges[0] || 'A'}</span></span>
+          </div>
           <span style="font-size: 18px; color: #94A3B8; cursor: pointer;"><i class="fa-solid fa-xmark"></i></span>
         </div>
 
@@ -1040,7 +1109,7 @@ function generateScreenContent(cu) {
                 </div>
                 <div class="wf-modal-option ${isEval ? 'active' : ''}">
                   <i class="fa-solid fa-clipboard-check text-success"></i>
-                  <span>Autoevaluación</span>
+                  <span>Cuestionario / Autoevaluación</span>
                 </div>
                 <div class="wf-modal-option ${isPool ? 'active' : ''}">
                   <i class="fa-solid fa-list-check text-info"></i>
@@ -1169,11 +1238,11 @@ function generateScreenContent(cu) {
             </div>
           </div>
           <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-light text-dark border d-inline-flex align-items-center gap-1"><i class="fa-solid fa-arrow-pointer text-muted"></i> Acción: <strong>Configurar Clon de IA</strong> <span class="pin-badge">${badges[0] || 'A'}</span></span>
             <button class="wf-btn wf-btn-primary wf-btn-sm d-flex align-items-center gap-2">
               ${icons.cog6Tooth("w-4 h-4")}
               <span>Configurar API HeyGen</span>
             </button>
-            <span class="pin-badge">${badges[0] || 'A'}</span>
           </div>
         </div>
 
@@ -1386,7 +1455,11 @@ function generateScreenContent(cu) {
   }
 
   // --- SPECIALIZED 7B: GENERAR / MODIFICAR CLASE CON CLON IA --- CU-78, CU-79
-  if (['CU-78', 'CU-79'].includes(id)) {
+  if (['CU-78', 'Cu-79'].includes(id) || id === 'CU-79') {
+    const isGenerate = id === 'CU-78';
+    const triggerLabel78_79 = isGenerate ? 'Generar Video con Avatar Clon' : 'Editar Guión';
+    const saveBtnLabel78_79 = isGenerate ? 'Sintetizar Video con IA' : 'Actualizar y Regenerar Video';
+    const saveBtnBadge78_79 = isGenerate ? (badges[3] || 'D') : (badges[2] || 'C');
     return `
       <div class="wf-card" style="max-width: 1020px; margin: 0 auto; background: #FFFFFF;">
         <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
@@ -1396,8 +1469,8 @@ function generateScreenContent(cu) {
             </div>
             <div>
               <div class="d-flex align-items-center gap-2">
-                <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Generar Clase Audiovisual con Clon IA</h3>
-                <span class="pin-badge">${badges[0] || 'A'}</span>
+                <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">${isGenerate ? 'Generar Clase Audiovisual con Clon IA' : 'Modificar Guión de Clase con Clon IA'}</h3>
+                <span class="badge bg-light text-dark border d-inline-flex align-items-center gap-1"><i class="fa-solid fa-arrow-pointer text-muted"></i> <strong>${triggerLabel78_79}</strong> <span class="pin-badge">${badges[0] || 'A'}</span></span>
               </div>
               <p class="small text-muted" style="margin: 3px 0 0;">Ingrese el título, seleccione la unidad y redacte el guión que el avatar HeyGen sintetizará.</p>
             </div>
@@ -1480,9 +1553,9 @@ function generateScreenContent(cu) {
           <div class="d-flex align-items-center gap-2">
             <button class="wf-btn wf-btn-primary d-flex align-items-center gap-2">
               <i class="fa-solid fa-wand-magic-sparkles"></i>
-              <span>Sintetizar Video con IA</span>
+              <span>${saveBtnLabel78_79}</span>
             </button>
-            <span class="pin-badge">${badges[3] || 'D'}</span>
+            <span class="pin-badge">${saveBtnBadge78_79}</span>
           </div>
         </div>
       </div>
@@ -1494,6 +1567,12 @@ function generateScreenContent(cu) {
     const isBank = id === 'CU-73';
     const isSummary = id === 'CU-74';
     const isSlides = id === 'CU-75';
+    // CU-73: [A]="Generar Banco con IA (Ollama)", [B]=prompt, [C]="Generar Preguntas con IA"
+    // CU-74: [A]="Generar Resumen de Unidad con IA", [B]="Crear Resumen Automático"
+    // CU-75: [A]="Generar Presentación con IA", [B]="Generar Diapositivas"
+    const triggerAction = isBank ? 'Generar Banco con IA (Ollama)' : (isSummary ? 'Generar Resumen de Unidad con IA' : 'Generar Presentación con IA');
+    const confirmBtn = isBank ? 'Generar Preguntas con IA' : (isSummary ? 'Crear Resumen Automático' : 'Generar Diapositivas');
+    const confirmBtnBadge = isBank ? (badges[2] || 'C') : (badges[1] || 'B');
 
     return `
       <div class="wf-card" style="max-width: 900px; margin: 0 auto;">
@@ -1503,11 +1582,11 @@ function generateScreenContent(cu) {
               ${icons.sparkles("w-6 h-6")}
             </div>
             <div>
-              <h3 style="font-size: 18px; font-weight: 700; color: #0F172A; margin: 0;">${isBank ? 'Generador de Banco de Preguntas con IA' : (isSummary ? 'Generador de Resumen Académico con IA' : 'Generador de Presentación de Diapositivas (Slidev/Gamma)')}</h3>
+              <h3 style="font-size: 18px; font-weight: 700; color: #0F172A; margin: 0;">${isBank ? 'Generador de Banco de Preguntas con IA (Ollama)' : (isSummary ? 'Generador de Resumen Académico con IA' : 'Generador de Presentación de Diapositivas')}</h3>
               <p class="small text-muted" style="margin: 0;">Procesamiento automático sobre los materiales teóricos y guías subidas a la unidad.</p>
             </div>
           </div>
-          <span class="wf-badge status-active">Modelo: Claude 3.5 Sonnet / Gemini Pro</span>
+          <span class="badge bg-light text-dark border d-inline-flex align-items-center gap-1"><i class="fa-solid fa-arrow-pointer text-muted"></i> Acción: <strong>${triggerAction}</strong> <span class="pin-badge">${badges[0] || 'A'}</span></span>
         </div>
 
         <div class="row g-3 mb-4">
@@ -1517,14 +1596,13 @@ function generateScreenContent(cu) {
               <select class="wf-input">
                 <option>Unidad 2: Instrumentos de Renta Fija (Bonos y Obligaciones Negociables)</option>
               </select>
-              <span class="pin-badge">${badges[0] || 'A'}</span>
             </div>
           </div>
           <div class="col-md-6">
             <label class="wf-label">Materiales de Referencia a Procesar</label>
             <div class="wf-input-wrap">
-              <input type="text" class="wf-input" value="guia_teorica_u2.pdf, ley_26831.pdf" disabled class="bg-disabled">
-              <span class="pin-badge">${badges[1] || 'B'}</span>
+              <input type="text" class="wf-input" value="guia_teorica_u2.pdf, ley_26831.pdf" disabled>
+              ${isBank ? `<span class="pin-badge">${badges[1] || 'B'}</span>` : ''}
             </div>
           </div>
         </div>
@@ -1541,7 +1619,7 @@ function generateScreenContent(cu) {
               <input type="text" class="wf-input wf-btn-sm" value="${isBank ? '20 preguntas cerradas' : (isSlides ? '12 diapositivas' : '3 páginas síntesis')}">
             </div>
             <div class="col-md-4">
-              <label class="small text-muted">Idioma & Formato:</label>
+              <label class="small text-muted">Idioma &amp; Formato:</label>
               <input type="text" class="wf-input wf-btn-sm" value="Español (Rioplatense - Financiero)" disabled>
             </div>
           </div>
@@ -1552,14 +1630,15 @@ function generateScreenContent(cu) {
           <div class="d-flex align-items-center gap-2">
             <button class="wf-btn wf-btn-primary d-flex align-items-center gap-2" style="background: #059669;">
               ${icons.sparkles("w-4 h-4")}
-              <span>${isBank ? 'Generar Banco de Preguntas' : (isSummary ? 'Generar Resumen' : 'Generar Presentación')}</span>
+              <span>${confirmBtn}</span>
             </button>
-            <span class="pin-badge">${badges[2] || badges[badges.length - 1] || 'C'}</span>
+            <span class="pin-badge">${confirmBtnBadge}</span>
           </div>
         </div>
       </div>
     `;
   }
+
 
   // --- SPECIALIZED 9: CLASE EN VIVO (STREAMING) --- CU-70, CU-71, CU-72
   if (['CU-70', 'CU-71', 'CU-72'].includes(id)) {
@@ -1593,8 +1672,8 @@ function generateScreenContent(cu) {
             ` : ''}
             ${isStudent ? `
               <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-dark text-white border d-inline-flex align-items-center gap-1"><i class="fa-solid fa-arrow-pointer"></i> Acción: <strong>Ingresar a la Sala en Vivo</strong> <span class="pin-badge">${badges[0] || 'A'}</span></span>
                 <span class="wf-badge status-active">Conectado a la Sala</span>
-                <span class="pin-badge">${badges[0] || 'A'}</span>
               </div>
             ` : ''}
           </div>
@@ -1649,8 +1728,8 @@ function generateScreenContent(cu) {
             <p class="small text-muted" style="margin: 0;">Intento 1 de 3 • Tiempo restante: <strong class="text-danger">18:45 min</strong></p>
           </div>
           <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-light text-dark border d-inline-flex align-items-center gap-1"><i class="fa-solid fa-arrow-pointer text-muted"></i> Acción: <strong>Comenzar Intento</strong> <span class="pin-badge">${badges[0] || 'A'}</span></span>
             <span class="wf-badge status-active">En progreso</span>
-            <span class="pin-badge">${badges[0] || 'A'}</span>
           </div>
         </div>
 
@@ -1842,6 +1921,7 @@ function generateScreenContent(cu) {
 
   // --- SPECIALIZED 11C: REALIZAR PAGO Y MATRÍCULA (MODO QR) --- CU-44, CU-47
   if (['CU-44', 'CU-47'].includes(id)) {
+    const payTriggerLabel = id === 'CU-44' ? 'Inscribirme Ahora' : 'Proceder al Pago';
     return `
       <div class="wf-card" style="max-width: 860px; margin: 0 auto; background: #FFFFFF;">
         <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
@@ -1850,8 +1930,8 @@ function generateScreenContent(cu) {
             <p class="small text-muted" style="margin: 3px 0 0;">Inscripción oficial al curso: <strong>Especialización en Idoneidad Bursátil (Cohorte 2026-1)</strong></p>
           </div>
           <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-light text-dark border d-inline-flex align-items-center gap-1"><i class="fa-solid fa-arrow-pointer text-muted"></i> Acción: <strong>${payTriggerLabel}</strong> <span class="pin-badge">${badges[0] || 'A'}</span></span>
             <span class="wf-badge status-active">Arancel: $120.000 ARS</span>
-            <span class="pin-badge">${badges[0] || 'A'}</span>
           </div>
         </div>
 
@@ -2028,7 +2108,7 @@ function generateScreenContent(cu) {
             </div>
             <div class="col-md-3">
               <div class="d-flex align-items-center gap-2">
-                <button class="wf-btn wf-btn-primary w-100"><i class="fa-solid fa-filter me-1"></i> Filtrar Eventos</button>
+                <button class="wf-btn wf-btn-primary w-100"><i class="fa-solid fa-${id === 'CU-97' ? 'file-invoice-dollar' : 'filter'} me-1"></i> ${id === 'CU-97' ? 'Generar Reporte de Ingresos' : 'Filtrar Eventos'}</button>
                 <span class="pin-badge">${badges[2] || 'C'}</span>
               </div>
             </div>
@@ -2087,7 +2167,7 @@ function generateScreenContent(cu) {
                 <td>${isAudit ? 'MOD-F-06: IA' : '$10.080.000 ARS'}</td>
                 <td class="text-end">
                   <div class="d-inline-flex align-items-center gap-1">
-                    <button class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-file-pdf me-1 text-danger"></i> Descargar PDF / Excel</button>
+                    <button class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-file-pdf me-1 text-danger"></i> ${id === 'CU-97' ? 'Descargar Reporte' : 'Descargar PDF / Excel'}</button>
                     <span class="pin-badge">${badges[3] || badges[badges.length - 1] || 'D'}</span>
                   </div>
                 </td>
@@ -2110,48 +2190,45 @@ function generateScreenContent(cu) {
       return `
         <div class="wf-card" style="max-width: 500px; margin: 30px auto; background: #FFFFFF;">
           <div class="text-center mb-4">
+            <span class="badge bg-light text-dark border d-inline-flex align-items-center gap-1 mb-2"><i class="fa-solid fa-arrow-pointer text-muted"></i> Acción: <strong>¿Olvidaste tu contraseña?</strong> <span class="pin-badge">${badges[0] || 'A'}</span></span>
             <h3 style="font-size: 19px; font-weight: 800; color: #081426; margin: 0;">Recuperar y Restablecer Contraseña</h3>
-            <p class="small text-muted" style="margin: 4px 0 0;">Ingrese su correo institucional o valide el código para crear una nueva clave.</p>
+            <p class="small text-muted" style="margin: 4px 0 0;">Ingrese su correo institucional para recibir el enlace de recuperación.</p>
           </div>
 
           <div class="mb-3">
             <label class="wf-label">Correo Electrónico Registrado</label>
             <div class="wf-input-wrap">
               <input type="email" class="wf-input" value="usuario@correo.com">
-              <span class="pin-badge">${badges[0] || 'A'}</span>
-            </div>
-          </div>
-
-          <div class="mb-3">
-            <label class="wf-label">Código de Seguridad (Token de 6 Dígitos)</label>
-            <div class="wf-input-wrap">
-              <input type="text" class="wf-input" value="739-102">
               <span class="pin-badge">${badges[1] || 'B'}</span>
-            </div>
-          </div>
-
-          <div class="mb-3">
-            <label class="wf-label">Nueva Contraseña Segura</label>
-            <div class="wf-input-wrap">
-              <input type="password" class="wf-input" value="••••••••••••">
-              <span class="pin-badge">${badges[2] || 'C'}</span>
-            </div>
-          </div>
-
-          <div class="mb-3">
-            <label class="wf-label">Confirmar Nueva Contraseña</label>
-            <div class="wf-input-wrap">
-              <input type="password" class="wf-input" value="••••••••••••">
-              <span class="pin-badge">${badges[3] || 'D'}</span>
             </div>
           </div>
 
           <div class="d-flex justify-content-end align-items-center gap-3 pt-3 border-top mt-4">
             <a href="#CU-90" class="wf-btn wf-btn-outline">Volver al Login</a>
             <div class="d-flex align-items-center gap-2">
-              <button class="wf-btn wf-btn-primary"><i class="fa-solid fa-key me-1"></i> Restablecer Contraseña</button>
-              <span class="pin-badge">${badges[4] || badges[badges.length - 1] || 'E'}</span>
+              <button class="wf-btn wf-btn-primary"><i class="fa-solid fa-envelope me-1"></i> Enviar Enlace</button>
+              <span class="pin-badge">${badges[2] || 'C'}</span>
             </div>
+          </div>
+
+          <hr class="my-4">
+          <div class="small text-muted text-center mb-3">Una vez recibido el enlace, cree su nueva contraseña:</div>
+          <div class="mb-3">
+            <label class="wf-label">Nueva Contraseña Segura</label>
+            <div class="wf-input-wrap">
+              <input type="password" class="wf-input" value="••••••••••••">
+              <span class="pin-badge">${badges[3] || 'D'}</span>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="wf-label">Confirmar Nueva Contraseña</label>
+            <div class="wf-input-wrap">
+              <input type="password" class="wf-input" value="••••••••••••">
+            </div>
+          </div>
+          <div class="d-flex justify-content-end align-items-center gap-2 pt-3 border-top">
+            <button class="wf-btn wf-btn-primary"><i class="fa-solid fa-key me-1"></i> Restablecer Contraseña</button>
+            <span class="pin-badge">${badges[4] || badges[badges.length - 1] || 'E'}</span>
           </div>
         </div>
       `;
@@ -2254,9 +2331,47 @@ function generateScreenContent(cu) {
   if (isDelete) {
     let confirmBtnLabel = 'Confirmar Eliminación';
     if (name.includes('baja') && !name.includes('usuario') && !name.includes('categoría')) confirmBtnLabel = 'Confirmar Baja';
-    if (name.includes('cohorte') || name.includes('vivo')) confirmBtnLabel = 'Confirmar Cancelación';
+    if (name.includes('cohorte')) confirmBtnLabel = 'Confirmar Cancelación';
     if (name.includes('usuario')) confirmBtnLabel = 'Confirmar Desactivación';
     if (name.includes('intento')) confirmBtnLabel = 'Confirmar Anulación';
+    // CU-22: "Quitar unidad" → confirm = "Confirmar y Quitar"
+    if (name.toLowerCase().includes('quitar') && name.includes('unidad')) confirmBtnLabel = 'Confirmar y Quitar';
+    // CU-38, CU-42: "foro/respuesta" → confirm = "Confirmar Eliminación"
+    if (name.includes('foro') || name.includes('respuesta')) confirmBtnLabel = 'Confirmar Eliminación';
+    // CU-68: "Cancelar clase en vivo" → Confirmar Cancelación
+    // CU-69: "Dar de baja clase en vivo" → Confirmar Eliminación
+    if (name.includes('vivo') && name.toLowerCase().includes('cancelar')) confirmBtnLabel = 'Confirmar Cancelación';
+    if (name.includes('vivo') && !name.toLowerCase().includes('cancelar')) confirmBtnLabel = 'Confirmar Eliminación';
+    // CU-80: "clon" → confirm = "Confirmar Eliminación"
+    if (name.includes('clon')) confirmBtnLabel = 'Confirmar Eliminación';
+
+    let triggerBtnLabel = 'Eliminar';
+    if (name.includes('baja')) triggerBtnLabel = 'Dar de baja';
+    if (name.includes('cohorte')) triggerBtnLabel = 'Cancelar Cohorte';
+    if (name.includes('foro')) triggerBtnLabel = 'Moderar / Eliminar';
+    if (name.includes('respuesta')) triggerBtnLabel = 'Eliminar Respuesta';
+    if (name.includes('usuario')) triggerBtnLabel = 'Desactivar Cuenta';
+    if (name.includes('intento')) triggerBtnLabel = 'Anular Intento por Fraude';
+    if (name.includes('clon')) triggerBtnLabel = 'Eliminar Video';
+    if (name.includes('vivo')) triggerBtnLabel = 'Eliminar Registro';
+    if (name.includes('pool')) triggerBtnLabel = 'Eliminar Pool';
+    if (name.includes('unidad')) triggerBtnLabel = 'Quitar de este programa';
+    if (name.toLowerCase().includes('sesión') || name.toLowerCase().includes('sesion')) {
+      triggerBtnLabel = 'Cerrar Sesión Remota';
+      confirmBtnLabel = 'Confirmar Cierre de Sesión';
+    }
+    // CU-10 (categoría), CU-30 (material), CU-60 (autoevaluación) - but NOT CU-64 (intento):
+    // trigger [A] = "Eliminar", confirm [B] = "Confirmar Eliminación"
+    if ((name.includes('categoría') || name.includes('material') || name.includes('autoevaluación')) && !name.includes('intento')) {
+      triggerBtnLabel = 'Eliminar';
+      confirmBtnLabel = 'Confirmar Eliminación';
+    }
+    // CU-34 (glosario), CU-52 (descuento):
+    // trigger [A] = "Eliminar", confirm [B] = "Confirmar Baja"
+    if (name.includes('glosario') || name.includes('descuento')) {
+      triggerBtnLabel = 'Eliminar';
+      confirmBtnLabel = 'Confirmar Baja';
+    }
 
     return `
       <div class="wf-card" style="max-width: 620px; margin: 30px auto; background: #FFFFFF;">
@@ -2264,7 +2379,10 @@ function generateScreenContent(cu) {
           <div class="wf-icon-danger mb-3" style="width: 54px; height: 54px; border-radius: 50%; background: #FEE2E2; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
             <i class="fa-solid fa-triangle-exclamation" style="font-size: 24px; color: #DC2626;"></i>
           </div>
-          <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">${name}</h3>
+          <div class="d-flex align-items-center justify-content-center gap-2 mb-1">
+            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">${name}</h3>
+            <span class="badge bg-light text-dark border d-inline-flex align-items-center gap-1"><i class="fa-solid fa-arrow-pointer text-muted"></i> Acción: <strong>${triggerBtnLabel}</strong> <span class="pin-badge">${badges[0] || 'A'}</span></span>
+          </div>
           <p class="small text-muted" style="margin: 4px 0 0;">¿Está seguro de que desea confirmar la operación sobre el elemento seleccionado?</p>
         </div>
 
@@ -2273,7 +2391,6 @@ function generateScreenContent(cu) {
             <span class="small text-muted">Elemento seleccionado:</span>
             <div class="d-flex align-items-center gap-2">
               <strong style="font-size: 13px; color: #081426;">Registro #${id.replace('CU-', '')} (${name.replace('Dar de baja ', '').replace('Eliminar ', '').replace('Cancelar ', '')})</strong>
-              <span class="pin-badge">${badges[0] || 'A'}</span>
             </div>
           </div>
           <div class="d-flex justify-content-between align-items-center">
@@ -2393,13 +2510,31 @@ function generateScreenContent(cu) {
   if (name.includes('docente') && !isMod) saveBtnText = 'Guardar Docente';
   if (name.includes('parámetro')) saveBtnText = 'Guardar Parámetro';
 
+  let triggerBtnLabel = isMod ? 'Editar' : `+ Nuevo ${name.replace('Registrar ', '').replace('Crear ', '')}`;
+  if (name.includes('curso') && !isMod) triggerBtnLabel = '+ Nuevo Curso';
+  if (name.includes('categoría') && !isMod) triggerBtnLabel = '+ Nueva Categoría';
+  if (name.includes('cohorte') && !isMod) triggerBtnLabel = '+ Nueva Cohorte';
+  if (name.includes('programa') && !isMod) triggerBtnLabel = '+ Nuevo Programa';
+  if (name.includes('descuento') && !isMod) triggerBtnLabel = '+ Nuevo Descuento';
+  if (name.includes('usuario') && !isMod) triggerBtnLabel = '+ Nuevo Usuario';
+  if (name.includes('docente') && !isMod) triggerBtnLabel = '+ Nuevo Docente';
+  if (name.includes('programa') && isMod) triggerBtnLabel = 'Editar Programa';
+  if (name.includes('docente') && isMod) triggerBtnLabel = 'Editar Perfil Docente';
+  if (name.includes('pool') && isMod) triggerBtnLabel = 'Editar Pool';
+  if (name.includes('autoevaluación') && isMod) triggerBtnLabel = 'Editar Cuestionario';
+  if (name.includes('consulta') && isMod) triggerBtnLabel = 'Editar Mensaje';
+  if (name.includes('respuesta') && isMod) triggerBtnLabel = 'Editar Respuesta';
+  if (name.includes('clon') && isMod) triggerBtnLabel = 'Editar Guión';
+  if (name.includes('vivo') && isMod) triggerBtnLabel = 'Reprogramar / Editar';
+  if (name.includes('parámetro')) triggerBtnLabel = 'Editar Valor';
+
   return `
     <div class="wf-card" style="max-width: 860px; margin: 0 auto; background: #FFFFFF;">
       <div class="wf-card-header mb-4 pb-3 border-bottom d-flex justify-content-between align-items-center">
         <div>
           <div class="d-flex align-items-center gap-2">
             <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">${name}</h3>
-            <span class="pin-badge">${badges[0] || 'A'}</span>
+            <span class="badge bg-light text-dark border d-inline-flex align-items-center gap-1"><i class="fa-solid fa-arrow-pointer text-muted"></i> Acción: <strong>${triggerBtnLabel}</strong> <span class="pin-badge">${badges[0] || 'A'}</span></span>
           </div>
           <p class="small text-muted" style="margin: 3px 0 0;">Complete los datos correspondientes en el sistema.</p>
         </div>

@@ -1,0 +1,497 @@
+[
+  {
+    "id": "CU-01",
+    "name": "Buscar curso",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-02",
+    "name": "Ver mis cursos",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-03",
+    "name": "Registrar curso",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-04",
+    "name": "Modificar curso",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-05",
+    "name": "Dar de baja curso",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-06",
+    "name": "Explorar catálogo de cursos",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-07",
+    "name": "Buscar categoría",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-08",
+    "name": "Registrar categoría",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-09",
+    "name": "Modificar categoría",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-10",
+    "name": "Dar de baja categoría",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-11",
+    "name": "Buscar cohorte",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-12",
+    "name": "Registrar cohorte",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-13",
+    "name": "Modificar cohorte",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-14",
+    "name": "Dar de baja cohorte",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-15",
+    "name": "Buscar programa",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-16",
+    "name": "Registrar programa",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-17",
+    "name": "Modificar programa",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-18",
+    "name": "Dar de baja programa",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-19",
+    "name": "Buscar unidad",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-20",
+    "name": "Agregar unidad",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-21",
+    "name": "Modificar unidad",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-22",
+    "name": "Quitar unidad",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-23",
+    "name": "Buscar cronograma",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-24",
+    "name": "Modificar cronograma",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-25",
+    "name": "Ver participantes",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-26",
+    "name": "Acceder curso",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-27",
+    "name": "Buscar material",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-28",
+    "name": "Subir material",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-29",
+    "name": "Modificar material",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-30",
+    "name": "Dar de baja material",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-31",
+    "name": "Buscar término de glosario",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-32",
+    "name": "Registrar término de glosario",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-33",
+    "name": "Modificar término de glosario",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-34",
+    "name": "Dar de baja término de glosario",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-35",
+    "name": "Buscar consulta de foro",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-36",
+    "name": "Registrar consulta de foro",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-37",
+    "name": "Modificar consulta de foro",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-38",
+    "name": "Dar de baja consulta de foro",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-39",
+    "name": "Buscar respuesta de foro",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-40",
+    "name": "Registrar respuesta de foro",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-41",
+    "name": "Modificar respuesta de foro",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-42",
+    "name": "Dar de baja respuesta de foro",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-43",
+    "name": "Buscar inscripción",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-44",
+    "name": "Inscribir curso",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-45",
+    "name": "Dar de baja inscripción",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-46",
+    "name": "Buscar pago",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-47",
+    "name": "Realizar pago",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-48",
+    "name": "Buscar progreso",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-49",
+    "name": "Buscar descuento",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-50",
+    "name": "Registrar descuento",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-51",
+    "name": "Modificar descuento",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-52",
+    "name": "Dar de baja descuento",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-53",
+    "name": "Buscar pool",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-54",
+    "name": "Crear pool",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-55",
+    "name": "Modificar pool",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-56",
+    "name": "Dar de baja pool",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-57",
+    "name": "Buscar autoevaluación",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-58",
+    "name": "Crear autoevaluación",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-59",
+    "name": "Modificar autoevaluación",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-60",
+    "name": "Dar de baja autoevaluación",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-61",
+    "name": "Buscar intento de autoevaluación",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-62",
+    "name": "Ver calificaciones",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-63",
+    "name": "Realizar intento de autoevaluación",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-64",
+    "name": "Dar de baja intento de autoevaluación",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-65",
+    "name": "Buscar clase en vivo",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-66",
+    "name": "Programar clase en vivo",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-67",
+    "name": "Modificar clase en vivo",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-68",
+    "name": "Cancelar clase en vivo",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-69",
+    "name": "Dar de baja clase en vivo",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-70",
+    "name": "Iniciar clase en vivo",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-71",
+    "name": "Finalizar clase en vivo",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-72",
+    "name": "Ingresar a clase en vivo",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-73",
+    "name": "Generar banco de preguntas",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-74",
+    "name": "Generar resumen de unidad",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-75",
+    "name": "Generar presentación de unidad",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-76",
+    "name": "Crear clon",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-77",
+    "name": "Buscar clase con clon",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-78",
+    "name": "Generar clase con clon",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-79",
+    "name": "Modificar clase con clon",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-80",
+    "name": "Dar de baja clase con clon",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-81",
+    "name": "Registrarse",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-82",
+    "name": "Buscar usuario",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-83",
+    "name": "Registrar usuario",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-84",
+    "name": "Modificar usuario",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-85",
+    "name": "Dar de baja usuario",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-86",
+    "name": "Ver perfil",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-87",
+    "name": "Editar perfil",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-88",
+    "name": "Registrar docente",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-89",
+    "name": "Modificar docente",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-90",
+    "name": "Iniciar sesión",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-91",
+    "name": "Cerrar sesión",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-92",
+    "name": "Recuperar contraseña",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-93",
+    "name": "Buscar sesión",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-94",
+    "name": "Eliminar sesión",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-95",
+    "name": "Consultar auditoría",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-96",
+    "name": "Generar informe de alumnos de un curso",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-97",
+    "name": "Generar informe de ingresos de un curso",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-98",
+    "name": "Consultar estadísticas",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  },
+  {
+    "id": "CU-99",
+    "name": "Configurar parámetros",
+    "error": "PANTALLA NO ENCONTRADA EN HTML"
+  }
+]

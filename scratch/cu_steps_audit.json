@@ -1,0 +1,2262 @@
+[
+  {
+    "id": "CU-01",
+    "name": "Buscar curso",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor solicita buscar uno o más cursos mediante los campos de búsqueda [A] y filtros por categoría [B].",
+        "badges": [
+          "A",
+          "B"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor ingresa los criterios de búsqueda que desea y confirma la búsqueda mediante el botón \"Buscar\" [C].",
+        "badges": [
+          "C"
+        ]
+      },
+      {
+        "pNum": "6",
+        "pAction": "El actor puede seleccionar uno de los resultados mediante la tarjeta de curso y el botón \"Gestionar curso\" [D] para ver su detalle.",
+        "badges": [
+          "D"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-02",
+    "name": "Ver mis cursos",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor solicita buscar sus inscripciones mediante el buscador [A] y selector de estado [B].",
+        "badges": [
+          "A",
+          "B"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor ingresa los criterios de búsqueda que desea y confirma mediante el botón \"Filtrar\" [C].",
+        "badges": [
+          "C"
+        ]
+      },
+      {
+        "pNum": "6",
+        "pAction": "El actor selecciona un curso mediante el botón \"Ingresar al curso\" [D] para acceder al contenido del programa de su cohorte.",
+        "badges": [
+          "D"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-03",
+    "name": "Registrar curso",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor solicita registrar un nuevo curso mediante el botón \"+ Nuevo Curso\" [A].",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor ingresa los datos solicitados mediante el formulario de curso [B], adjunta la portada mediante el botón \"Examinar...\" [C] y confirma mediante el botón \"Guardar Curso\" [D].",
+        "badges": [
+          "B",
+          "C",
+          "D"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-04",
+    "name": "Modificar curso",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor busca y selecciona el curso a modificar mediante la tabla y el botón \"Modificar\" [A] (ver CU-01: Buscar curso).",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor modifica los datos habilitados mediante el formulario de edición [B] y confirma mediante el botón \"Guardar Cambios\" [C].",
+        "badges": [
+          "B",
+          "C"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-05",
+    "name": "Dar de baja curso",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor busca y selecciona el curso a dar de baja mediante el botón \"Dar de baja\" [A] (ver CU-01: Buscar curso).",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor confirma la baja mediante el botón \"Confirmar Baja\" [B] del modal de confirmación.",
+        "badges": [
+          "B"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-06",
+    "name": "Explorar catálogo de cursos",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor accede al catálogo público de cursos y aplica filtros de búsqueda [A].",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor selecciona un curso mediante la tarjeta y el botón \"Ver Ficha / Inscribirme\" [B].",
+        "badges": [
+          "B"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-07",
+    "name": "Buscar categoría",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor solicita buscar una o más categorías mediante la barra de búsqueda [A].",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor ingresa el criterio que desea y presiona el botón \"Buscar\" [B].",
+        "badges": [
+          "B"
+        ]
+      },
+      {
+        "pNum": "6",
+        "pAction": "El actor puede seleccionar uno de los resultados mediante la fila de la tabla [C] para ver su detalle.",
+        "badges": [
+          "C"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-08",
+    "name": "Registrar categoría",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor solicita registrar una nueva categoría mediante el botón \"+ Nueva Categoría\" [A].",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor ingresa los datos solicitados mediante el formulario [B] y confirma mediante el botón \"Guardar Categoría\" [C].",
+        "badges": [
+          "B",
+          "C"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-09",
+    "name": "Modificar categoría",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor busca y selecciona la categoría a modificar mediante el botón \"Editar\" [A] (ver CU-07: Buscar categoría).",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor modifica el nombre o la descripción mediante el formulario [B] y confirma mediante el botón \"Guardar Cambios\" [C].",
+        "badges": [
+          "B",
+          "C"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-10",
+    "name": "Dar de baja categoría",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor busca y selecciona la categoría a dar de baja mediante el botón \"Eliminar\" [A] (ver CU-07: Buscar categoría).",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor confirma la baja mediante el botón \"Confirmar Eliminación\" [B] del modal.",
+        "badges": [
+          "B"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-11",
+    "name": "Buscar cohorte",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor solicita buscar las cohortes de un programa mediante el selector de programa [A].",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor ingresa los criterios de búsqueda que desea mediante los filtros [B] y presiona \"Buscar\" [C].",
+        "badges": [
+          "B",
+          "C"
+        ]
+      },
+      {
+        "pNum": "6",
+        "pAction": "El actor puede seleccionar uno de los resultados mediante la fila de la cohorte [D] para ver su detalle.",
+        "badges": [
+          "D"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-12",
+    "name": "Registrar cohorte",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor busca y selecciona el programa mediante el botón \"+ Nueva Cohorte\" [A] (ver CU-15: Buscar programa).",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor ingresa los datos solicitados mediante el formulario de cohorte [B], define fechas y cupos [C] y confirma mediante el botón \"Guardar Cohorte\" [D].",
+        "badges": [
+          "B",
+          "C",
+          "D"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-13",
+    "name": "Modificar cohorte",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor busca y selecciona la cohorte a modificar mediante el botón \"Editar\" [A] (ver CU-11: Buscar cohorte).",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor modifica los campos mediante el formulario [B] y confirma los cambios mediante el botón \"Guardar Cambios\" [C].",
+        "badges": [
+          "B",
+          "C"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-14",
+    "name": "Dar de baja cohorte",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor busca y selecciona la cohorte a dar de baja mediante el botón \"Cancelar Cohorte\" [A] (ver CU-11: Buscar cohorte).",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor confirma la baja mediante el botón \"Confirmar Cancelación\" [B] del diálogo modal.",
+        "badges": [
+          "B"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-15",
+    "name": "Buscar programa",
+    "steps": [
+      {
+        "pNum": "3",
+        "pAction": "Si el actor desea actuar sobre un programa distinto, solicita buscarlo mediante el desplegable de versiones de programa [A].",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "5",
+        "pAction": "El actor ingresa los criterios de búsqueda que desea y presiona \"Filtrar\" [B].",
+        "badges": [
+          "B"
+        ]
+      },
+      {
+        "pNum": "8",
+        "pAction": "El actor puede seleccionar uno de los resultados mediante la lista de programas [C] para ver su detalle.",
+        "badges": [
+          "C"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-16",
+    "name": "Registrar programa",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor busca y selecciona el curso mediante el botón \"+ Nuevo Programa\" [A] (ver CU-01: Buscar curso).",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor opcionalmente selecciona un programa anterior del cual partir mediante el desplegable [B], ingresa los datos en el formulario [C] y confirma mediante el botón \"Guardar Programa\" [D].",
+        "badges": [
+          "B",
+          "C",
+          "D"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-17",
+    "name": "Modificar programa",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor busca y selecciona el programa a modificar mediante el botón \"Editar Programa\" [A] (ver CU-15: Buscar programa).",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor modifica los datos mediante el formulario de edición [B] y confirma mediante el botón \"Guardar Cambios\" [C].",
+        "badges": [
+          "B",
+          "C"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-18",
+    "name": "Dar de baja programa",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor busca y selecciona el programa a dar de baja mediante el botón \"Dar de baja\" [A] (ver CU-15: Buscar programa).",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor confirma la baja mediante el botón \"Confirmar Baja\" [B] del cuadro de confirmación.",
+        "badges": [
+          "B"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-19",
+    "name": "Buscar unidad",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor solicita buscar las unidades de un programa desde la pestaña \"Curso & Unidades\" [A].",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor puede seleccionar una unidad mediante el encabezado del acordeón Moodle [B] para gestionar su contenido.",
+        "badges": [
+          "B"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-20",
+    "name": "Agregar unidad",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor busca y selecciona el programa mediante el botón \"+ Añadir secciones\" [A] (ver CU-15: Buscar programa).",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor ingresa el título y descripción en el modal [B], o selecciona la unidad reutilizable [C], y confirma mediante el botón \"Agregar Unidad\" [D].",
+        "badges": [
+          "B",
+          "C",
+          "D"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-21",
+    "name": "Modificar unidad",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor busca y selecciona la unidad a modificar mediante el icono del lápiz o menú \"Editar\" [A] (ver CU-19: Buscar unidad).",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor modifica el título, la descripción o el contenido en el formulario [B] y confirma mediante el botón \"Guardar Cambios\" [C].",
+        "badges": [
+          "B",
+          "C"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-22",
+    "name": "Quitar unidad",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor busca y selecciona la unidad a quitar mediante la opción \"Quitar de este programa\" [A] del menú de la unidad (ver CU-19: Buscar unidad).",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "4",
+        "pAction": "El actor confirma la operación mediante el botón \"Confirmar y Quitar\" [B] del diálogo de confirmación.",
+        "badges": [
+          "B"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-23",
+    "name": "Buscar cronograma",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor busca y selecciona el programa cuyo cronograma desea consultar desde la pestaña \"Cronograma\" [A].",
+        "badges": [
+          "A"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-24",
+    "name": "Modificar cronograma",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor busca y selecciona el programa cuyo cronograma desea modificar mediante el botón \"Reordenar Cronograma\" [A] (ver CU-23: Buscar cronograma).",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor reordena las unidades arrastrándolas mediante el tirador [B], ajusta la duración en semanas [C] y confirma mediante el botón \"Guardar Cronograma\" [D].",
+        "badges": [
+          "B",
+          "C",
+          "D"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-25",
+    "name": "Ver participantes",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor solicita ver los participantes desde la pestaña \"Participantes\" [A].",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor ingresa los criterios que desea mediante los filtros [B] y confirma la búsqueda con el botón \"Filtrar\" [C].",
+        "badges": [
+          "B",
+          "C"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-26",
+    "name": "Acceder curso",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el alumno solicita acceder a las unidades de un curso matriculado desde la pestaña \"Curso\" [A].",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El alumno puede seleccionar alternativamente la pestaña \"Cronograma\" [B], \"Participantes\" [E] o \"Calificaciones\" [F].",
+        "badges": [
+          "B",
+          "E",
+          "F"
+        ]
+      },
+      {
+        "pNum": "6",
+        "pAction": "El alumno selecciona una unidad habilitada mediante el acordeón Moodle [C] y accede a la actividad o autoevaluación deseada [D].",
+        "badges": [
+          "C",
+          "D"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "",
+    "name": "",
+    "steps": [
+      {
+        "pNum": "2",
+        "pAction": "El sistema muestra la vista del curso con sus unidades pedagógicas en acordeón y las pestañas contextuales de navegación [B].",
+        "badges": [
+          "B"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor activa el switch \"Modo Edición\" [C] ubicado en la cabecera superior del curso.",
+        "badges": [
+          "C"
+        ]
+      },
+      {
+        "pNum": "4",
+        "pAction": "El sistema habilita los controles de edición inline: botón \"+ Añadir secciones\" [A], menú \"Editar\" por unidad y botones \"+ Añade una actividad o un recurso\" [D] al pie de cada tema.",
+        "badges": [
+          "A",
+          "D"
+        ]
+      },
+      {
+        "pNum": "5",
+        "pAction": "El actor puede seleccionar añadir una nueva sección [A] o incorporar una actividad o recurso a una unidad [D].",
+        "badges": [
+          "A",
+          "D"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-27",
+    "name": "Buscar material",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor solicita buscar material desde la pestaña \"Materiales\" [A].",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor ingresa los criterios de búsqueda que desea mediante el formulario de filtros [B] y presiona \"Buscar\" [C].",
+        "badges": [
+          "B",
+          "C"
+        ]
+      },
+      {
+        "pNum": "5",
+        "pAction": "El actor puede seleccionar uno de los resultados mediante la fila del material [D] para ver su detalle.",
+        "badges": [
+          "D"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-28",
+    "name": "Subir material",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor hace clic en \"+ Añade una actividad o un recurso\" [A] en el Modo Edición (ver CU-19: Buscar unidad).",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor selecciona la opción \"Material / Documento PDF\" [A] e ingresa el título en el formulario [B].",
+        "badges": [
+          "A",
+          "B"
+        ]
+      },
+      {
+        "pNum": "5",
+        "pAction": "El actor adjunta el archivo mediante el botón \"Examinar...\" [C] y confirma la carga mediante el botón \"Agregar\" [D].",
+        "badges": [
+          "C",
+          "D"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-29",
+    "name": "Modificar material",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor busca y selecciona el material a modificar mediante el menú \"Editar\" [A] (ver CU-27: Buscar material).",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor modifica el título, el archivo o el estado de visibilidad mediante el formulario [B] y confirma mediante el botón \"Guardar Cambios\" [C].",
+        "badges": [
+          "B",
+          "C"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-30",
+    "name": "Dar de baja material",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor busca y selecciona el material a dar de baja mediante la opción \"Eliminar\" [A] (ver CU-27: Buscar material).",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor confirma la baja mediante el botón \"Confirmar Eliminación\" [B] del modal.",
+        "badges": [
+          "B"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-31",
+    "name": "Buscar término de glosario",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor solicita buscar términos desde la pestaña \"Glosario\" [A].",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor ingresa los criterios de búsqueda mediante la barra de búsqueda de términos [B] y presiona \"Buscar\" [C].",
+        "badges": [
+          "B",
+          "C"
+        ]
+      },
+      {
+        "pNum": "5",
+        "pAction": "El actor puede seleccionar un término en específico mediante la lista [D].",
+        "badges": [
+          "D"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-32",
+    "name": "Registrar término de glosario",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor selecciona \"+ Añade una actividad o un recurso\" [A] en la unidad (ver CU-19: Buscar unidad).",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor selecciona \"Glosario de Términos\" [A], ingresa el concepto [B], su definición [C] y confirma mediante el botón \"Agregar\" [D].",
+        "badges": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-33",
+    "name": "Modificar término de glosario",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor busca y selecciona el término a modificar mediante el botón \"Editar\" [A] (ver CU-31: Buscar término de glosario).",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor modifica el término o la definición en el formulario [B] y confirma mediante el botón \"Guardar Cambios\" [C].",
+        "badges": [
+          "B",
+          "C"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-34",
+    "name": "Dar de baja término de glosario",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor busca y selecciona el término a dar de baja mediante el botón \"Eliminar\" [A] (ver CU-31: Buscar término de glosario).",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor confirma la baja mediante el botón \"Confirmar Baja\" [B] del modal.",
+        "badges": [
+          "B"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-35",
+    "name": "Buscar consulta de foro",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor solicita buscar consultas desde la pestaña \"Foros\" [A].",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor ingresa los criterios de búsqueda mediante el buscador de temas [B] y presiona \"Buscar\" [C].",
+        "badges": [
+          "B",
+          "C"
+        ]
+      },
+      {
+        "pNum": "5",
+        "pAction": "El actor puede seleccionar uno de los hilos de consulta [D] para ver su detalle.",
+        "badges": [
+          "D"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-36",
+    "name": "Registrar consulta de foro",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el alumno solicita hacer una pregunta mediante el botón \"+ Nueva Consulta\" [A] en el foro de la unidad.",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "4",
+        "pAction": "El actor ingresa el título [B], redacta la consulta en el editor [C] y confirma la publicación mediante el botón \"Publicar Consulta\" [D].",
+        "badges": [
+          "B",
+          "C",
+          "D"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-37",
+    "name": "Modificar consulta de foro",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor selecciona su consulta mediante la opción \"Editar Mensaje\" [A] (ver CU-35: Buscar consulta de foro).",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "4",
+        "pAction": "El actor modifica el texto en el editor [B] y confirma mediante el botón \"Guardar Cambios\" [C].",
+        "badges": [
+          "B",
+          "C"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-38",
+    "name": "Dar de baja consulta de foro",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el administrador selecciona la consulta indebida mediante el botón \"Moderar / Eliminar\" [A] (ver CU-35: Buscar consulta de foro).",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor confirma la baja mediante el botón \"Confirmar Eliminación\" [B] del cuadro de moderación.",
+        "badges": [
+          "B"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-39",
+    "name": "Buscar respuesta de foro",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor selecciona un hilo de consulta para ver las respuestas mediante el enlace del tema [A].",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor puede seleccionar una respuesta en específico [B] para leerla o moderarla.",
+        "badges": [
+          "B"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-40",
+    "name": "Registrar respuesta de foro",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el docente selecciona el botón \"Responder\" [A] en la consulta del foro (ver CU-35: Buscar consulta de foro).",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor redacta la respuesta en el área de texto [B] y confirma mediante el botón \"Enviar Respuesta\" [C].",
+        "badges": [
+          "B",
+          "C"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-41",
+    "name": "Modificar respuesta de foro",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el docente selecciona su respuesta mediante la opción \"Editar Respuesta\" [A] (ver CU-39: Buscar respuesta de foro).",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "4",
+        "pAction": "El actor modifica el texto en el editor [B] y confirma mediante el botón \"Guardar Cambios\" [C].",
+        "badges": [
+          "B",
+          "C"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-42",
+    "name": "Dar de baja respuesta de foro",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el administrador selecciona la respuesta a moderar mediante el botón \"Eliminar Respuesta\" [A] (ver CU-39: Buscar respuesta de foro).",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor confirma la baja mediante el botón \"Confirmar Eliminación\" [B] del modal.",
+        "badges": [
+          "B"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-43",
+    "name": "Buscar inscripción",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor solicita buscar inscripciones mediante la barra de filtros [A].",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor ingresa los criterios de búsqueda que desea y presiona \"Buscar\" [B].",
+        "badges": [
+          "B"
+        ]
+      },
+      {
+        "pNum": "6",
+        "pAction": "El actor puede seleccionar una inscripción de la tabla [C] para ver su detalle.",
+        "badges": [
+          "C"
+        ]
+      },
+      {
+        "pNum": "7",
+        "pAction": "El actor puede generar el certificado de la inscripción seleccionada mediante el botón \"Descargar Certificado\" [D], si fue emitido.",
+        "badges": [
+          "D"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-44",
+    "name": "Inscribir curso",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el alumno selecciona una cohorte con inscripción abierta y presiona el botón \"Inscribirme Ahora\" [A] (ver CU-06: Explorar catálogo de cursos).",
+        "badges": [
+          "A"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-45",
+    "name": "Dar de baja inscripción",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor busca y selecciona la inscripción a dar de baja mediante el botón \"Dar de baja inscripción\" [A] (ver CU-43: Buscar inscripción).",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "4",
+        "pAction": "El actor confirma la baja y, si lo desea, ingresa el motivo en el cuadro de texto [B].",
+        "badges": [
+          "B"
+        ]
+      },
+      {
+        "pNum": "6",
+        "pAction": "El actor confirma la advertencia de no reembolso mediante el botón \"Confirmar Baja Definitiva\" [C].",
+        "badges": [
+          "C"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-46",
+    "name": "Buscar pago",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor solicita buscar pagos mediante los filtros de estado y fechas [A].",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor ingresa los criterios de búsqueda que desea y presiona \"Buscar\" [B].",
+        "badges": [
+          "B"
+        ]
+      },
+      {
+        "pNum": "6",
+        "pAction": "El actor puede seleccionar un pago de la lista [C] para ver su detalle.",
+        "badges": [
+          "C"
+        ]
+      },
+      {
+        "pNum": "7",
+        "pAction": "El actor puede generar el comprobante mediante el botón \"Descargar Comprobante\" [D], si el pago fue acreditado.",
+        "badges": [
+          "D"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-47",
+    "name": "Realizar pago",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el alumno solicita pagar el curso mediante el botón \"Proceder al Pago\" [A].",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "5",
+        "pAction": "El alumno selecciona la opción de pago con billetera virtual MODO [B].",
+        "badges": [
+          "B"
+        ]
+      },
+      {
+        "pNum": "8",
+        "pAction": "El alumno escanea el código QR interactivo [C] con la app de MODO o banco y completa el pago desde su dispositivo.",
+        "badges": [
+          "C"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-48",
+    "name": "Buscar progreso",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor solicita consultar los progresos mediante el buscador de alumnos [A].",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor ingresa los criterios de búsqueda que desea y presiona \"Buscar\" [B].",
+        "badges": [
+          "B"
+        ]
+      },
+      {
+        "pNum": "6",
+        "pAction": "El actor puede seleccionar uno de los alumnos mediante la tabla [C] para ver su avance detallado por unidad [D].",
+        "badges": [
+          "C",
+          "D"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-49",
+    "name": "Buscar descuento",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor solicita buscar descuentos mediante el filtro de vigencia [A].",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor ingresa los criterios de búsqueda que desea y presiona \"Buscar\" [B].",
+        "badges": [
+          "B"
+        ]
+      },
+      {
+        "pNum": "6",
+        "pAction": "El actor puede seleccionar un descuento de la tabla [C] para ver su detalle.",
+        "badges": [
+          "C"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-50",
+    "name": "Registrar descuento",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor solicita registrar un nuevo descuento mediante el botón \"+ Nuevo Descuento\" [A].",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor ingresa los datos solicitados en el formulario [B], define el porcentaje y vigencia [C] y confirma mediante el botón \"Guardar Descuento\" [D].",
+        "badges": [
+          "B",
+          "C",
+          "D"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-51",
+    "name": "Modificar descuento",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor busca y selecciona el descuento a modificar mediante el botón \"Editar\" [A] (ver CU-49: Buscar descuento).",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor modifica los datos que desea en el formulario [B] y confirma mediante el botón \"Guardar Cambios\" [C].",
+        "badges": [
+          "B",
+          "C"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-52",
+    "name": "Dar de baja descuento",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor busca y selecciona el descuento a dar de baja mediante el botón \"Eliminar\" [A] (ver CU-49: Buscar descuento).",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor confirma la baja mediante el botón \"Confirmar Baja\" [B] del modal.",
+        "badges": [
+          "B"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-53",
+    "name": "Buscar pool",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor solicita buscar pools desde la pestaña \"Pools\" [A].",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor ingresa los criterios de búsqueda mediante la barra de filtros [B] y presiona \"Buscar\" [C].",
+        "badges": [
+          "B",
+          "C"
+        ]
+      },
+      {
+        "pNum": "5",
+        "pAction": "El actor puede seleccionar uno de los pools de la lista [D] para ver sus preguntas.",
+        "badges": [
+          "D"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-54",
+    "name": "Crear pool",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el docente selecciona \"+ Añade una actividad o un recurso\" [A] en la unidad (ver CU-19: Buscar unidad).",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor selecciona \"Pool de Preguntas\" [A], ingresa el nombre [B], carga las preguntas y respuestas [C] y confirma mediante el botón \"Agregar\" [D].",
+        "badges": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-55",
+    "name": "Modificar pool",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor busca y selecciona el pool a modificar mediante el botón \"Editar Pool\" [A] (ver CU-53: Buscar pool).",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor modifica el nombre o edita preguntas en el panel [B] y confirma mediante el botón \"Guardar Cambios\" [C].",
+        "badges": [
+          "B",
+          "C"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-56",
+    "name": "Dar de baja pool",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor busca y selecciona el pool a dar de baja mediante el botón \"Eliminar Pool\" [A] (ver CU-53: Buscar pool).",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor confirma la baja mediante el botón \"Confirmar Baja\" [B] del cuadro de confirmación.",
+        "badges": [
+          "B"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-57",
+    "name": "Buscar autoevaluación",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor solicita buscar autoevaluaciones desde la pestaña \"Autoevaluaciones\" [A].",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor ingresa los criterios de búsqueda mediante el buscador [B] y presiona \"Buscar\" [C].",
+        "badges": [
+          "B",
+          "C"
+        ]
+      },
+      {
+        "pNum": "5",
+        "pAction": "El actor puede seleccionar una autoevaluación de la lista [D] para ver su configuración.",
+        "badges": [
+          "D"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-58",
+    "name": "Crear autoevaluación",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el docente selecciona \"+ Añade una actividad o un recurso\" [A] en la unidad (ver CU-19: Buscar unidad).",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor selecciona \"Cuestionario / Autoevaluación\" [A], completa el título y parámetros [B], selecciona el pool asociado [C] y confirma mediante el botón \"Agregar\" [D].",
+        "badges": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-59",
+    "name": "Modificar autoevaluación",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor busca y selecciona la autoevaluación a modificar mediante el botón \"Editar Cuestionario\" [A] (ver CU-57: Buscar autoevaluación).",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor modifica los datos habilitados en el formulario [B] y confirma mediante el botón \"Guardar Cambios\" [C].",
+        "badges": [
+          "B",
+          "C"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-60",
+    "name": "Dar de baja autoevaluación",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor busca y selecciona la autoevaluación a dar de baja mediante el botón \"Eliminar\" [A] (ver CU-57: Buscar autoevaluación).",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor confirma la baja mediante el botón \"Confirmar Eliminación\" [B] del modal.",
+        "badges": [
+          "B"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-61",
+    "name": "Buscar intento de autoevaluación",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor solicita buscar intentos desde la tabla de intentos de la autoevaluación [A].",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor ingresa los criterios de búsqueda mediante los filtros [B] y presiona \"Buscar\" [C].",
+        "badges": [
+          "B",
+          "C"
+        ]
+      },
+      {
+        "pNum": "5",
+        "pAction": "El actor puede seleccionar uno de los intentos de la lista [D] para revisar el detalle de respuestas.",
+        "badges": [
+          "D"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-62",
+    "name": "Ver calificaciones",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor solicita consultar las calificaciones desde la pestaña \"Calificaciones\" [A].",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor ingresa el alumno a consultar mediante el selector o buscador [B].",
+        "badges": [
+          "B"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-63",
+    "name": "Realizar intento de autoevaluación",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el alumno, viendo el contenido de la unidad (ver CU-26: Acceder curso), selecciona el enlace de la autoevaluación y presiona \"Comenzar Intento\" [A].",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "5",
+        "pAction": "El alumno selecciona una opción de respuesta para cada una de las preguntas mediante los radio buttons [B].",
+        "badges": [
+          "B"
+        ]
+      },
+      {
+        "pNum": "6",
+        "pAction": "El alumno confirma la entrega del intento mediante el botón \"Terminar Intento y Enviar Todo\" [C].",
+        "badges": [
+          "C"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-64",
+    "name": "Dar de baja intento de autoevaluación",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor busca y selecciona el intento a anular mediante el botón \"Anular Intento por Fraude\" [A] (ver CU-61: Buscar intento de autoevaluación).",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "4",
+        "pAction": "El actor confirma la baja mediante el botón \"Confirmar Anulación\" [B] del modal de moderación.",
+        "badges": [
+          "B"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-65",
+    "name": "Buscar clase en vivo",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor solicita buscar clases en vivo desde la pestaña \"Clases en Vivo\" [A].",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor ingresa los criterios de búsqueda mediante los filtros de estado [B] y presiona \"Buscar\" [C].",
+        "badges": [
+          "B",
+          "C"
+        ]
+      },
+      {
+        "pNum": "5",
+        "pAction": "El actor puede seleccionar una de las clases de la lista [D] para ver su ficha de transmisión.",
+        "badges": [
+          "D"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-66",
+    "name": "Programar clase en vivo",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el docente selecciona \"+ Añade una actividad o un recurso\" [A] en la unidad (ver CU-19: Buscar unidad).",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor selecciona \"Clase en Vivo (Streaming)\" [A], completa el título [B], define la fecha y hora de transmisión [C] y confirma mediante el botón \"Agregar\" [D].",
+        "badges": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-67",
+    "name": "Modificar clase en vivo",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor busca y selecciona la clase programada mediante el botón \"Reprogramar / Editar\" [A] (ver CU-65: Buscar clase en vivo).",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "4",
+        "pAction": "El actor modifica los datos en el formulario [B] y confirma la reprogramación mediante el botón \"Guardar Cambios\" [C].",
+        "badges": [
+          "B",
+          "C"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-68",
+    "name": "Cancelar clase en vivo",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor busca y selecciona la clase programada a cancelar mediante el botón \"Cancelar Clase\" [A] (ver CU-65: Buscar clase en vivo).",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor confirma la cancelación mediante el botón \"Confirmar Cancelación\" [B] del modal.",
+        "badges": [
+          "B"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-69",
+    "name": "Dar de baja clase en vivo",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor busca y selecciona la clase finalizada a dar de baja mediante el botón \"Eliminar Registro\" [A] (ver CU-65: Buscar clase en vivo).",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor confirma la baja mediante el botón \"Confirmar Eliminación\" [B] del cuadro modal.",
+        "badges": [
+          "B"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-70",
+    "name": "Iniciar clase en vivo",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el docente busca y selecciona la clase programada y presiona el botón \"Transmitir en Vivo\" [A] (ver CU-65: Buscar clase en vivo).",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "5",
+        "pAction": "El docente copia la clave privada de transmisión generada [B], la carga en OBS y comienza a transmitir.",
+        "badges": [
+          "B"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-71",
+    "name": "Finalizar clase en vivo",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el docente presiona el botón \"Finalizar Transmisión\" [A] en el panel de control de la clase en vivo (ver CU-65: Buscar clase en vivo).",
+        "badges": [
+          "A"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-72",
+    "name": "Ingresar a clase en vivo",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el alumno, viendo el contenido de la unidad (ver CU-26: Acceder curso), presiona el botón \"Ingresar a la Sala en Vivo\" [A].",
+        "badges": [
+          "A"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-73",
+    "name": "Generar banco de preguntas",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el docente selecciona la opción \"Generar Banco con IA (Ollama)\" [A] dentro de la unidad (ver CU-19: Buscar unidad).",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "4",
+        "pAction": "El actor ingresa opcionalmente un guión en el prompt [B] y confirma la generación mediante el botón \"Generar Preguntas con IA\" [C].",
+        "badges": [
+          "B",
+          "C"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-74",
+    "name": "Generar resumen de unidad",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el docente selecciona la opción \"Generar Resumen de Unidad con IA\" [A] (ver CU-19: Buscar unidad).",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor confirma la generación mediante el botón \"Crear Resumen Automático\" [B].",
+        "badges": [
+          "B"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-75",
+    "name": "Generar presentación de unidad",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el docente selecciona la opción \"Generar Presentación con IA\" [A] (ver CU-19: Buscar unidad).",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor confirma la generación mediante el botón \"Generar Diapositivas\" [B].",
+        "badges": [
+          "B"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-76",
+    "name": "Crear clon",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el docente solicita crear su clon mediante el botón \"Configurar Clon de IA\" [A] en su perfil.",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "4",
+        "pAction": "El actor adjunta o toma su foto facial [B] y graba el audio de calibración de voz mediante el botón \"Grabar Muestra\" [C].",
+        "badges": [
+          "B",
+          "C"
+        ]
+      },
+      {
+        "pNum": "6",
+        "pAction": "El actor acepta los términos de uso y confirma mediante el botón \"Crear Clon en HeyGen\" [D].",
+        "badges": [
+          "D"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-77",
+    "name": "Buscar clase con clon",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor solicita buscar clases con Clon de IA desde la sección de contenidos generados [A] (ver CU-19: Buscar unidad).",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor ingresa los criterios de búsqueda en los filtros [B] y presiona \"Buscar\" [C].",
+        "badges": [
+          "B",
+          "C"
+        ]
+      },
+      {
+        "pNum": "5",
+        "pAction": "El actor puede seleccionar una clase de la lista [D] para previsualizar el video generado.",
+        "badges": [
+          "D"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-78",
+    "name": "Generar clase con clon",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el docente selecciona \"Generar Video con Avatar Clon\" [A] en la unidad (ver CU-19: Buscar unidad).",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor ingresa el título [B], redacta el guión en el prompt [C] y confirma la generación mediante el botón \"Sintetizar Video con IA\" [D].",
+        "badges": [
+          "B",
+          "C",
+          "D"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-79",
+    "name": "Modificar clase con clon",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el docente busca y selecciona la clase con clon mediante el botón \"Editar Guión\" [A] (ver CU-77: Buscar clase con clon).",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor modifica el título o el guión en el editor [B] y confirma mediante el botón \"Actualizar y Regenerar Video\" [C].",
+        "badges": [
+          "B",
+          "C"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-80",
+    "name": "Dar de baja clase con clon",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor busca y selecciona la clase con clon a dar de baja mediante el botón \"Eliminar Video\" [A] (ver CU-77: Buscar clase con clon).",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor confirma la baja mediante el botón \"Confirmar Eliminación\" [B] del modal.",
+        "badges": [
+          "B"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-81",
+    "name": "Registrarse",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el interesado solicita crear una cuenta mediante el botón \"Registrarse\" [A] en la barra de navegación.",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor ingresa los datos solicitados en el formulario de registro [B] y presiona el botón \"Crear Cuenta\" [C].",
+        "badges": [
+          "B",
+          "C"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-82",
+    "name": "Buscar usuario",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor solicita buscar usuarios mediante la barra de filtros [A].",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor ingresa los criterios de búsqueda que desea y presiona \"Buscar\" [B].",
+        "badges": [
+          "B"
+        ]
+      },
+      {
+        "pNum": "6",
+        "pAction": "El actor puede seleccionar un usuario de la tabla [C] para consultar su expediente.",
+        "badges": [
+          "C"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-83",
+    "name": "Registrar usuario",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor solicita registrar manualmente un usuario mediante el botón \"+ Nuevo Usuario\" [A].",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor ingresa los datos solicitados en el formulario [B], asigna el rol correspondiente [C] y confirma mediante el botón \"Guardar Usuario\" [D].",
+        "badges": [
+          "B",
+          "C",
+          "D"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-84",
+    "name": "Modificar usuario",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor busca y selecciona la cuenta del alumno a modificar mediante el botón \"Editar\" [A] (ver CU-82: Buscar usuario).",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor modifica los datos en el formulario de cuenta [B] y confirma mediante el botón \"Guardar Cambios\" [C].",
+        "badges": [
+          "B",
+          "C"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-85",
+    "name": "Dar de baja usuario",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor busca y selecciona la cuenta a dar de baja mediante el botón \"Desactivar Cuenta\" [A] (ver CU-82: Buscar usuario).",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "6",
+        "pAction": "El actor confirma la baja mediante el botón \"Confirmar Desactivación\" [B] del modal de seguridad.",
+        "badges": [
+          "B"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-86",
+    "name": "Ver perfil",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor despliega el menú de usuario [A] en la barra superior y selecciona la opción \"Ver Perfil\" [B].",
+        "badges": [
+          "A",
+          "B"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-87",
+    "name": "Editar perfil",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor selecciona la opción \"Editar Perfil\" [A] desde el menú de usuario o su ficha de perfil.",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor modifica sus datos personales en el formulario [B] y confirma mediante el botón \"Guardar Cambios\" [C].",
+        "badges": [
+          "B",
+          "C"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-88",
+    "name": "Registrar docente",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor solicita registrar un nuevo docente mediante el botón \"+ Nuevo Docente\" [A].",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor ingresa los datos personales y profesionales en el formulario docente [B], adjunta títulos y matrículas [C] y confirma mediante el botón \"Guardar Docente\" [D].",
+        "badges": [
+          "B",
+          "C",
+          "D"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-89",
+    "name": "Modificar docente",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor busca y selecciona el docente a modificar mediante el botón \"Editar Perfil Docente\" [A] (ver CU-82: Buscar usuario).",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor modifica la biografía, experiencia, títulos o estado de habilitación en el formulario [B] y confirma mediante el botón \"Guardar Cambios\" [C].",
+        "badges": [
+          "B",
+          "C"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-90",
+    "name": "Iniciar sesión",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor accede a la pantalla de autenticación y solicita iniciar sesión [A].",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor ingresa sus credenciales en el formulario [B] y presiona \"Iniciar Sesión\" [C], o selecciona el botón \"Continuar con Google\" [D].",
+        "badges": [
+          "B",
+          "C",
+          "D"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-91",
+    "name": "Cerrar sesión",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor hace clic en el trigger del usuario [A] y selecciona la opción \"Cerrar sesión\" [B].",
+        "badges": [
+          "A",
+          "B"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-92",
+    "name": "Recuperar contraseña",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor presiona el enlace \"¿Olvidaste tu contraseña?\" [A] en la pantalla de inicio de sesión.",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor ingresa su correo en el campo de recuperación [B] y presiona el botón \"Enviar Enlace\" [C].",
+        "badges": [
+          "B",
+          "C"
+        ]
+      },
+      {
+        "pNum": "6",
+        "pAction": "El actor accede al enlace recibido en su correo, ingresa la nueva contraseña en el formulario [D] y confirma mediante el botón \"Restablecer Contraseña\" [E].",
+        "badges": [
+          "D",
+          "E"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-93",
+    "name": "Buscar sesión",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor solicita ver las sesiones activas desde la sección de seguridad [A].",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor ingresa los criterios de búsqueda en los filtros [B] y presiona \"Buscar\" [C].",
+        "badges": [
+          "B",
+          "C"
+        ]
+      },
+      {
+        "pNum": "6",
+        "pAction": "El actor puede seleccionar una sesión en específico de la tabla [D] para ver sus detalles de IP y dispositivo.",
+        "badges": [
+          "D"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-94",
+    "name": "Eliminar sesión",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor busca y selecciona la sesión activa a cerrar mediante el botón \"Cerrar Sesión Remota\" [A] (ver CU-93: Buscar sesión).",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "2",
+        "pAction": "El actor confirma el cierre mediante el botón \"Confirmar Cierre de Sesión\" [B] del diálogo modal.",
+        "badges": [
+          "B"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-95",
+    "name": "Consultar auditoría",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor solicita consultar el registro de auditoría desde el menú administrativo [A].",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor ingresa los criterios de búsqueda mediante los filtros de eventos [B] y presiona \"Filtrar Eventos\" [C].",
+        "badges": [
+          "B",
+          "C"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-96",
+    "name": "Generar informe de alumnos de un curso",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor solicita generar un informe de alumnos desde el módulo de reportes [A].",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor selecciona el curso y el rango de fechas en los controles [B] y presiona el botón \"Generar Informe\" [C].",
+        "badges": [
+          "B",
+          "C"
+        ]
+      },
+      {
+        "pNum": "6",
+        "pAction": "El sistema pone el informe a disposición del actor mediante el botón \"Descargar PDF / Excel\" [D].",
+        "badges": [
+          "D"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-97",
+    "name": "Generar informe de ingresos de un curso",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor solicita generar un informe de ingresos desde el módulo de reportes [A].",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor selecciona el curso y el período en el panel de parámetros [B] y presiona el botón \"Generar Reporte de Ingresos\" [C].",
+        "badges": [
+          "B",
+          "C"
+        ]
+      },
+      {
+        "pNum": "6",
+        "pAction": "El sistema pone el informe a disposición del actor mediante el botón \"Descargar Reporte\" [D].",
+        "badges": [
+          "D"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-98",
+    "name": "Consultar estadísticas",
+    "steps": [
+      {
+        "pNum": "1",
+        "pAction": "El caso de uso inicia cuando el actor accede al dashboard de estadísticas e indicadores clave [A].",
+        "badges": [
+          "A"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "CU-99",
+    "name": "Configurar parámetros",
+    "steps": [
+      {
+        "pNum": "2",
+        "pAction": "El actor selecciona un parámetro existente de la tabla de configuración mediante el botón \"Editar Valor\" [A].",
+        "badges": [
+          "A"
+        ]
+      },
+      {
+        "pNum": "4",
+        "pAction": "El actor ingresa el nuevo valor en el formulario de parámetro [B] y confirma mediante el botón \"Guardar Parámetro\" [C].",
+        "badges": [
+          "B",
+          "C"
+        ]
+      }
+    ]
+  }
+]
