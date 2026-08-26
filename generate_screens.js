@@ -1377,8 +1377,8 @@ function generateScreenContent(cu) {
             <strong>Registro Seleccionado #${id.replace('CU-', '')} (${name})</strong>
           </div>
           <div class="d-flex justify-content-between">
-            <span class="text-muted">Módulo asociado:</span>
-            <span>${cu.module}</span>
+            <span class="text-muted">Estado actual:</span>
+            <span class="wf-badge status-active">Activo / Vigente</span>
           </div>
         </div>
 
@@ -1545,25 +1545,34 @@ let html = `<!DOCTYPE html>
     <title>Wireframes UI — Idóneos Online (${cus.length} Casos de Uso Reales)</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
+        /* ==========================================================================
+           ESTILO WIREFRAME MINIMALISTA (FIGMA-READY)
+           Paleta neutra, bordes nítidos, jerarquía clara y tipografía precisa.
+           ========================================================================== */
         :root {
-            --wf-navy-dark: #0A2540;
-            --wf-navy-active: #103358;
-            --wf-gold: #C5A059;
+            --wf-navy-dark: #0F172A;
+            --wf-navy-active: #1E293B;
+            --wf-gold: #475569;
             --wf-bg: #F8FAFC;
+            --wf-canvas: #EEF2F6;
             --wf-border: #CBD5E1;
+            --wf-border-focus: #0F172A;
             --wf-text: #0F172A;
             --wf-text-muted: #64748B;
+            --wf-surface: #FFFFFF;
+            --wf-surface-subtle: #F1F5F9;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            -webkit-font-smoothing: antialiased;
         }
 
         body {
-            background-color: #E2E8F0;
+            background-color: var(--wf-canvas);
             color: var(--wf-text);
             display: flex;
             height: 100vh;
@@ -1588,8 +1597,9 @@ let html = `<!DOCTYPE html>
         .w-10 { width: 40px; }
         .h-10 { height: 40px; }
 
+        /* Navegación Lateral */
         #nav-sidebar {
-            width: 300px;
+            width: 280px;
             background: #0F172A;
             color: #FFFFFF;
             overflow-y: auto;
@@ -1600,20 +1610,20 @@ let html = `<!DOCTYPE html>
         }
 
         .nav-header {
-            padding: 20px;
+            padding: 18px 20px;
             border-bottom: 1px solid #1E293B;
-            background: #0A1120;
+            background: #090E17;
         }
 
         .nav-header h2 {
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 700;
             letter-spacing: 0.5px;
         }
 
         .nav-header p {
             font-size: 11px;
-            color: var(--wf-text-muted);
+            color: #94A3B8;
             margin-top: 2px;
         }
 
@@ -1639,11 +1649,12 @@ let html = `<!DOCTYPE html>
 
         .module-header {
             padding: 10px 16px;
-            background: #1E293B;
-            font-size: 11px;
+            background: #182234;
+            font-size: 10px;
             font-weight: 700;
-            color: var(--wf-gold);
+            color: #94A3B8;
             text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .module-list {
@@ -1664,30 +1675,32 @@ let html = `<!DOCTYPE html>
         .nav-item a:hover {
             background: #1E293B;
             color: #FFFFFF;
-            border-left: 3px solid var(--wf-gold);
+            border-left: 3px solid #64748B;
         }
 
         .nav-item .cu-tag {
             font-size: 10px;
             font-weight: 700;
-            padding: 2px 4px;
+            padding: 2px 5px;
             border-radius: 4px;
-            background: rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.08);
+            color: #CBD5E1;
         }
 
+        /* Viewport Central (Canvas de Figma) */
         #viewport {
             flex: 1;
             overflow-y: auto;
-            padding: 30px;
+            padding: 40px;
             display: flex;
             flex-direction: column;
-            gap: 60px;
+            gap: 64px;
             align-items: center;
         }
 
         .figure-wrapper {
             width: 100%;
-            max-width: 1200px;
+            max-width: 1160px;
             display: flex;
             flex-direction: column;
             gap: 12px;
@@ -1695,28 +1708,31 @@ let html = `<!DOCTYPE html>
 
         .figure-caption {
             font-size: 13px;
-            color: #334155;
+            font-weight: 600;
+            color: #475569;
             text-align: left;
-            padding-left: 4px;
+            padding-left: 2px;
         }
 
+        /* Marco de Pantalla / Wireframe Frame */
         .screen-frame {
             width: 100%;
-            min-height: 680px;
+            min-height: 640px;
             background: #FFFFFF;
             border-radius: 8px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.06);
-            border: 1px solid var(--wf-border);
+            border: 1.5px solid #CBD5E1;
+            box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
             display: flex;
             flex-direction: column;
             overflow: visible;
         }
 
+        /* Top Navbar Minimalista */
         .wf-top-navbar {
-            height: 56px;
+            height: 52px;
             background: #FFFFFF;
-            border-bottom: 1px solid var(--wf-border);
-            padding: 0 24px;
+            border-bottom: 1.5px solid #CBD5E1;
+            padding: 0 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -1727,14 +1743,15 @@ let html = `<!DOCTYPE html>
         .wf-brand {
             display: flex;
             align-items: center;
-            gap: 12px;
-            font-size: 14px;
+            gap: 10px;
+            font-size: 13px;
         }
 
         .wf-brand strong {
             letter-spacing: 0.5px;
-            color: var(--wf-navy-dark);
-            font-size: 15px;
+            color: #0F172A;
+            font-size: 14px;
+            font-weight: 800;
         }
 
         .wf-brand .divider {
@@ -1746,6 +1763,7 @@ let html = `<!DOCTYPE html>
             color: #475569;
         }
 
+        /* User Pill Trigger */
         .wf-user-menu-wrapper {
             position: relative;
         }
@@ -1753,36 +1771,37 @@ let html = `<!DOCTYPE html>
         .wf-user-trigger-pill {
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 4px 12px 4px 4px;
+            gap: 8px;
+            padding: 3px 10px 3px 3px;
             border-radius: 20px;
-            border: 1px solid var(--wf-border);
+            border: 1px solid #CBD5E1;
             background: #F8FAFC;
             cursor: pointer;
         }
 
         .user-avatar-circle {
-            width: 32px;
-            height: 32px;
+            width: 28px;
+            height: 28px;
             border-radius: 50%;
-            background: var(--wf-navy-dark);
+            background: #0F172A;
             color: #FFFFFF;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 700;
         }
 
+        /* Dropdown Flotante */
         .wf-user-floating-dropdown {
             position: absolute;
-            top: 48px;
+            top: 44px;
             right: 0;
-            width: 260px;
+            width: 250px;
             background: #FFFFFF;
-            border: 1px solid var(--wf-border);
+            border: 1.5px solid #CBD5E1;
             border-radius: 8px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
             z-index: 200;
             overflow: hidden;
             display: none;
@@ -1790,32 +1809,32 @@ let html = `<!DOCTYPE html>
         }
 
         .wf-dropdown-user-header {
-            padding: 12px 14px;
+            padding: 10px 14px;
             background: #F8FAFC;
-            border-bottom: 1px solid var(--wf-border);
+            border-bottom: 1px solid #CBD5E1;
         }
 
         .wf-dropdown-user-name {
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 700;
             color: #0F172A;
         }
 
         .wf-dropdown-user-role {
             font-size: 10px;
-            font-weight: 700;
-            color: var(--wf-gold);
+            font-weight: 600;
+            color: #64748B;
             text-transform: uppercase;
         }
 
         .wf-dropdown-user-email {
             font-size: 11px;
-            color: var(--wf-text-muted);
+            color: #64748B;
             margin-top: 2px;
         }
 
         .wf-dropdown-section {
-            padding: 8px 10px;
+            padding: 6px 8px;
             border-bottom: 1px solid #F1F5F9;
         }
 
@@ -1824,12 +1843,12 @@ let html = `<!DOCTYPE html>
         }
 
         .wf-dropdown-section-title {
-            font-size: 10px;
+            font-size: 9px;
             font-weight: 700;
             color: #94A3B8;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
             padding-left: 6px;
         }
 
@@ -1837,12 +1856,12 @@ let html = `<!DOCTYPE html>
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 6px 10px;
-            font-size: 12px;
+            padding: 5px 8px;
+            font-size: 11px;
             color: #334155;
-            border-radius: 6px;
+            border-radius: 4px;
             text-decoration: none;
-            transition: all 0.15s;
+            transition: all 0.1s;
         }
 
         .wf-dropdown-item-btn:hover {
@@ -1855,15 +1874,11 @@ let html = `<!DOCTYPE html>
             font-weight: 600;
         }
 
-        .wf-dropdown-item-btn.text-danger:hover {
-            background: #FEE2E2;
-        }
-
         .wf-dropdown-editing-toggle-box {
             background: #F8FAFC;
-            border: 1px solid var(--wf-border);
-            border-radius: 6px;
-            padding: 6px 10px;
+            border: 1px solid #CBD5E1;
+            border-radius: 4px;
+            padding: 5px 8px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -1872,30 +1887,31 @@ let html = `<!DOCTYPE html>
         .wf-body {
             flex: 1;
             display: flex;
-            background: var(--wf-bg);
+            background: #F8FAFC;
             position: relative;
         }
 
         .wf-main-content {
             flex: 1;
-            padding: 28px;
+            padding: 24px;
             overflow-y: auto;
         }
 
+        /* Pin Badges (Wireframe Style - Contraste Nítido) */
         .pin-badge {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 28px;
-            height: 28px;
-            min-width: 28px;
+            width: 26px;
+            height: 26px;
+            min-width: 26px;
             border-radius: 50%;
-            background: #FFFFFF;
-            color: #0F172A;
-            font-size: 13px;
+            background: #0F172A;
+            color: #FFFFFF;
+            font-size: 12px;
             font-weight: 700;
-            border: 2px solid #334155;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border: 2px solid #FFFFFF;
+            box-shadow: 0 2px 5px rgba(15, 23, 42, 0.25);
             flex-shrink: 0;
             user-select: none;
         }
@@ -1903,7 +1919,7 @@ let html = `<!DOCTYPE html>
         .wf-input-wrap {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             width: 100%;
         }
 
@@ -1926,19 +1942,19 @@ let html = `<!DOCTYPE html>
 
         .wf-dropdown-menu {
             position: absolute;
-            top: 46px;
+            top: 42px;
             left: 0;
-            width: calc(100% - 40px);
+            width: 100%;
             background: #FFFFFF;
-            border: 1px solid var(--wf-border);
-            border-radius: 8px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            border: 1.5px solid #CBD5E1;
+            border-radius: 6px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
             z-index: 50;
             overflow: hidden;
         }
 
         .wf-dropdown-item {
-            padding: 8px 14px;
+            padding: 8px 12px;
             font-size: 12px;
             color: #334155;
             border-bottom: 1px solid #F1F5F9;
@@ -1946,37 +1962,45 @@ let html = `<!DOCTYPE html>
         }
 
         .wf-dropdown-item.active {
-            background: #E2E8F0;
+            background: #F1F5F9;
             font-weight: 600;
             color: #0F172A;
         }
 
+        /* Tarjetas y Contenedores */
         .wf-card {
             background: #FFFFFF;
-            border: 1px solid var(--wf-border);
-            border-radius: 8px;
-            padding: 24px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+            border: 1.5px solid #CBD5E1;
+            border-radius: 6px;
+            padding: 20px;
         }
 
         .wf-label {
             display: block;
-            font-size: 12px;
-            font-weight: 600;
+            font-size: 11px;
+            font-weight: 700;
             color: #334155;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
             margin-bottom: 6px;
         }
 
+        /* Inputs Wireframe Minimalistas */
         .wf-input {
             width: 100%;
-            height: 40px;
+            height: 38px;
             padding: 8px 12px;
-            border: 1px solid var(--wf-border);
-            border-radius: 6px;
+            border: 1.5px solid #CBD5E1;
+            border-radius: 5px;
             font-size: 13px;
-            color: var(--wf-text);
+            color: #0F172A;
             outline: none;
             background: #FFFFFF;
+            transition: border-color 0.15s;
+        }
+
+        .wf-input:focus {
+            border-color: #0F172A;
         }
 
         textarea.wf-input {
@@ -1985,57 +2009,74 @@ let html = `<!DOCTYPE html>
 
         .bg-disabled {
             background: #F8FAFC !important;
-            color: var(--wf-text-muted) !important;
+            color: #64748B !important;
+            border-style: dashed !important;
         }
 
+        /* Botones Wireframe Nítidos */
         .wf-btn {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            height: 40px;
-            padding: 0 18px;
-            border-radius: 6px;
-            font-size: 13px;
+            height: 38px;
+            padding: 0 16px;
+            border-radius: 5px;
+            font-size: 12px;
             font-weight: 600;
             cursor: pointer;
-            border: 1px solid transparent;
+            border: 1.5px solid transparent;
             text-decoration: none;
             white-space: nowrap;
+            transition: all 0.15s;
         }
 
         .wf-btn-primary {
-            background: var(--wf-navy-dark);
+            background: #0F172A;
             color: #FFFFFF;
+            border-color: #0F172A;
+        }
+
+        .wf-btn-primary:hover {
+            background: #1E293B;
         }
 
         .wf-btn-outline {
             background: #FFFFFF;
-            border-color: var(--wf-border);
+            border-color: #CBD5E1;
             color: #334155;
+        }
+
+        .wf-btn-outline:hover {
+            background: #F8FAFC;
+            border-color: #0F172A;
+            color: #0F172A;
         }
 
         .wf-btn-danger {
             background: #DC2626;
+            border-color: #DC2626;
             color: #FFFFFF;
         }
 
         .wf-btn-sm {
-            height: 32px;
-            padding: 0 12px;
-            font-size: 12px;
+            height: 30px;
+            padding: 0 10px;
+            font-size: 11px;
         }
 
         .wf-link {
             font-size: 13px;
-            color: var(--wf-navy-dark);
+            color: #0F172A;
             font-weight: 600;
-            text-decoration: none;
+            text-decoration: underline;
+            text-underline-offset: 2px;
             cursor: pointer;
         }
 
+        /* Tablas */
         .wf-table-wrap {
             background: #FFFFFF;
-            border: 1px solid var(--wf-border);
+            border: 1.5px solid #CBD5E1;
             border-radius: 6px;
             overflow: hidden;
         }
@@ -2043,44 +2084,51 @@ let html = `<!DOCTYPE html>
         .wf-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 13px;
+            font-size: 12px;
         }
 
         .wf-table th, .wf-table td {
-            padding: 12px 16px;
-            border-bottom: 1px solid var(--wf-border);
+            padding: 10px 14px;
+            border-bottom: 1px solid #CBD5E1;
             text-align: left;
             vertical-align: middle;
         }
 
         .wf-table th {
             background: #F8FAFC;
-            font-weight: 600;
-            color: var(--wf-text-muted);
-            font-size: 11px;
+            font-weight: 700;
+            color: #475569;
+            font-size: 10px;
             text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
+        /* Badges de Estado */
         .wf-badge {
-            font-size: 11px;
-            font-weight: 600;
-            padding: 3px 8px;
-            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: 4px;
+            border: 1px solid #CBD5E1;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
         }
 
         .status-active {
-            background: #DEF7EC;
-            color: #03543F;
+            background: #F1F5F9;
+            color: #0F172A;
+            border-color: #94A3B8;
         }
 
         .status-inactive {
-            background: #F1F5F9;
-            color: #64748B;
+            background: #FFFFFF;
+            color: #94A3B8;
+            border-color: #E2E8F0;
         }
 
         .wf-icon-danger {
-            width: 52px;
-            height: 52px;
+            width: 48px;
+            height: 48px;
             background: #FEE2E2;
             border-radius: 50%;
             display: flex;
@@ -2089,63 +2137,65 @@ let html = `<!DOCTYPE html>
             margin: 0 auto;
         }
 
+        /* Cards Grid */
         .wf-cards-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 18px;
+            gap: 16px;
         }
 
         .wf-course-card {
             background: #FFFFFF;
-            border: 1px solid var(--wf-border);
-            border-radius: 8px;
+            border: 1.5px solid #CBD5E1;
+            border-radius: 6px;
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.03);
         }
 
         .wf-course-card-thumb {
-            height: 110px;
-            background: linear-gradient(135deg, #0A2540, #1E3A8A);
+            height: 100px;
+            background: #0F172A;
             position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
+            border-bottom: 1.5px solid #CBD5E1;
         }
 
         .wf-course-tag {
             position: absolute;
             top: 8px;
             left: 8px;
-            background: rgba(255,255,255,0.9);
-            color: var(--wf-navy-dark);
-            font-size: 10px;
+            background: #FFFFFF;
+            color: #0F172A;
+            font-size: 9px;
             font-weight: 700;
-            padding: 2px 6px;
-            border-radius: 4px;
+            padding: 2px 5px;
+            border-radius: 3px;
             text-transform: uppercase;
+            border: 1px solid #CBD5E1;
         }
 
         .wf-course-card-body {
-            padding: 16px;
+            padding: 14px;
             flex: 1;
             display: flex;
             flex-direction: column;
         }
 
         .wf-course-title {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 700;
-            color: var(--wf-navy-dark);
-            margin-bottom: 6px;
+            color: #0F172A;
+            margin-bottom: 4px;
             line-height: 1.3;
         }
 
         .wf-course-desc {
-            font-size: 12px;
-            color: var(--wf-text-muted);
-            margin-bottom: 12px;
+            font-size: 11px;
+            color: #64748B;
+            margin-bottom: 10px;
             line-height: 1.4;
             flex: 1;
         }
@@ -2153,34 +2203,34 @@ let html = `<!DOCTYPE html>
         .wf-course-meta {
             display: flex;
             flex-direction: column;
-            gap: 3px;
-            font-size: 11px;
+            gap: 2px;
+            font-size: 10px;
             color: #475569;
-            padding-top: 10px;
+            padding-top: 8px;
             border-top: 1px solid #F1F5F9;
         }
 
         .wf-course-card-footer {
-            padding: 12px 16px;
+            padding: 10px 14px;
             background: #F8FAFC;
-            border-top: 1px solid var(--wf-border);
+            border-top: 1px solid #CBD5E1;
         }
 
         .wf-progress {
-            height: 6px;
+            height: 4px;
             background: #E2E8F0;
-            border-radius: 3px;
+            border-radius: 2px;
             overflow: hidden;
         }
 
         .wf-progress-fill {
             height: 100%;
-            background: var(--wf-navy-dark);
+            background: #0F172A;
         }
 
         .wf-tab-btn {
-            padding: 8px 14px;
-            font-size: 13px;
+            padding: 6px 12px;
+            font-size: 12px;
             font-weight: 600;
             color: #64748B;
             background: transparent;
@@ -2193,56 +2243,57 @@ let html = `<!DOCTYPE html>
         }
 
         .wf-tab-btn.active {
-            color: var(--wf-navy-dark);
-            border-bottom-color: var(--wf-navy-dark);
+            color: #0F172A;
+            border-bottom-color: #0F172A;
+            font-weight: 700;
         }
 
         .wf-unit-box {
             background: #FFFFFF;
-            border: 1px solid var(--wf-border);
-            border-radius: 8px;
+            border: 1.5px solid #CBD5E1;
+            border-radius: 6px;
             overflow: hidden;
         }
 
         .wf-unit-header {
-            padding: 14px 18px;
+            padding: 12px 16px;
             background: #F8FAFC;
-            border-bottom: 1px solid var(--wf-border);
+            border-bottom: 1.5px solid #CBD5E1;
         }
 
         .wf-unit-body {
-            padding: 18px;
+            padding: 16px;
         }
 
         .wf-content-list {
             list-style: none;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 8px;
         }
 
         .wf-subcontent-title {
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 700;
             text-transform: uppercase;
-            color: var(--wf-text-muted);
-            margin-bottom: 8px;
+            color: #64748B;
+            margin-bottom: 6px;
         }
 
         .row {
             display: flex;
             flex-wrap: wrap;
-            margin-right: -10px;
-            margin-left: -10px;
+            margin-right: -8px;
+            margin-left: -8px;
         }
 
-        .col-md-3 { flex: 0 0 25%; max-width: 25%; padding: 0 10px; }
-        .col-md-4 { flex: 0 0 33.3333%; max-width: 33.3333%; padding: 0 10px; }
-        .col-md-5 { flex: 0 0 41.6666%; max-width: 41.6666%; padding: 0 10px; }
-        .col-md-6 { flex: 0 0 50%; max-width: 50%; padding: 0 10px; }
-        .col-md-7 { flex: 0 0 58.3333%; max-width: 58.3333%; padding: 0 10px; }
-        .col-md-8 { flex: 0 0 66.6666%; max-width: 66.6666%; padding: 0 10px; }
-        .col-12 { flex: 0 0 100%; max-width: 100%; padding: 0 10px; }
+        .col-md-3 { flex: 0 0 25%; max-width: 25%; padding: 0 8px; }
+        .col-md-4 { flex: 0 0 33.3333%; max-width: 33.3333%; padding: 0 8px; }
+        .col-md-5 { flex: 0 0 41.6666%; max-width: 41.6666%; padding: 0 8px; }
+        .col-md-6 { flex: 0 0 50%; max-width: 50%; padding: 0 8px; }
+        .col-md-7 { flex: 0 0 58.3333%; max-width: 58.3333%; padding: 0 8px; }
+        .col-md-8 { flex: 0 0 66.6666%; max-width: 66.6666%; padding: 0 8px; }
+        .col-12 { flex: 0 0 100%; max-width: 100%; padding: 0 8px; }
 
         .d-flex { display: flex; }
         .d-inline-flex { display: inline-flex; }
@@ -2272,36 +2323,47 @@ let html = `<!DOCTYPE html>
         .pt-2 { padding-top: 8px; }
         .pt-3 { padding-top: 12px; }
         .pt-4 { padding-top: 16px; }
-        .border-top { border-top: 1px solid var(--wf-border); }
-        .border-bottom { border-bottom: 1px solid var(--wf-border); }
+        .border-top { border-top: 1.5px solid #CBD5E1; }
+        .border-bottom { border-bottom: 1.5px solid #CBD5E1; }
         .w-100 { width: 100%; }
-        .text-muted { color: var(--wf-text-muted); }
-        .text-success { color: #059669; }
+        .text-muted { color: #64748B; }
+        .text-success { color: #0F172A; font-weight: 600; }
         .text-danger { color: #DC2626; }
-        .text-navy { color: var(--wf-navy-dark); }
+        .text-navy { color: #0F172A; }
         .text-end { text-align: right; }
         .text-center { text-align: center; }
         .fw-bold { font-weight: 700; }
-        .small { font-size: 12px; }
-        .rounded { border-radius: 6px; }
-        .border { border: 1px solid var(--wf-border); }
+        .small { font-size: 11px; }
+        .rounded { border-radius: 5px; }
+        .border { border: 1.5px solid #CBD5E1; }
         .bg-white { background: #FFFFFF; }
         .bg-light { background: #F8FAFC; }
-        .shadow-sm { box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .shadow-sm { box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
 
+        /* Meta-Strip Superior de Cada Figura (Limpio, sin texto de módulo redundante) */
         .meta-strip {
-            padding: 8px 16px;
+            padding: 6px 14px;
             background: #FFFFFF;
-            border-bottom: 1px solid var(--wf-border);
+            border: 1px solid #CBD5E1;
+            border-radius: 5px;
             display: flex;
             align-items: center;
-            gap: 16px;
+            justify-content: space-between;
             font-size: 11px;
-            color: var(--wf-text-muted);
+            color: #64748B;
         }
 
         .meta-strip strong {
-            color: var(--wf-navy-dark);
+            color: #0F172A;
+        }
+
+        .meta-strip code {
+            background: #F1F5F9;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 11px;
+            color: #0F172A;
+            border: 1px solid #E2E8F0;
         }
     </style>
 </head>
@@ -2354,14 +2416,18 @@ cus.forEach(cu => {
   html += `
         <div class="figure-wrapper" id="${cu.id}">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> ${cu.id}: ${cu.name}</span>
-                <span><strong>Módulo:</strong> ${cu.module}</span>
-                <span><strong>Actor(es):</strong> ${cu.actors}</span>
-                <span><strong>DSS Asociado:</strong> <code>${dssMessage}</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> ${cu.id}: ${cu.name}</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> ${cu.actors}</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>${dssMessage}</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura ${figNumber++}.</strong> Caso de uso real para la interfaz de <em>${cu.name}</em> (${cu.id}).
+                <strong>Figura ${figNumber++}.</strong> Prototipo UI / Wireframe para <em>${cu.name}</em> (${cu.id}).
             </div>
 
             <div class="screen-frame">

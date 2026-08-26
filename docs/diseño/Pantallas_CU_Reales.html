@@ -6,25 +6,34 @@
     <title>Wireframes UI — Idóneos Online (100 Casos de Uso Reales)</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
+        /* ==========================================================================
+           ESTILO WIREFRAME MINIMALISTA (FIGMA-READY)
+           Paleta neutra, bordes nítidos, jerarquía clara y tipografía precisa.
+           ========================================================================== */
         :root {
-            --wf-navy-dark: #0A2540;
-            --wf-navy-active: #103358;
-            --wf-gold: #C5A059;
+            --wf-navy-dark: #0F172A;
+            --wf-navy-active: #1E293B;
+            --wf-gold: #475569;
             --wf-bg: #F8FAFC;
+            --wf-canvas: #EEF2F6;
             --wf-border: #CBD5E1;
+            --wf-border-focus: #0F172A;
             --wf-text: #0F172A;
             --wf-text-muted: #64748B;
+            --wf-surface: #FFFFFF;
+            --wf-surface-subtle: #F1F5F9;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            -webkit-font-smoothing: antialiased;
         }
 
         body {
-            background-color: #E2E8F0;
+            background-color: var(--wf-canvas);
             color: var(--wf-text);
             display: flex;
             height: 100vh;
@@ -49,8 +58,9 @@
         .w-10 { width: 40px; }
         .h-10 { height: 40px; }
 
+        /* Navegación Lateral */
         #nav-sidebar {
-            width: 300px;
+            width: 280px;
             background: #0F172A;
             color: #FFFFFF;
             overflow-y: auto;
@@ -61,20 +71,20 @@
         }
 
         .nav-header {
-            padding: 20px;
+            padding: 18px 20px;
             border-bottom: 1px solid #1E293B;
-            background: #0A1120;
+            background: #090E17;
         }
 
         .nav-header h2 {
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 700;
             letter-spacing: 0.5px;
         }
 
         .nav-header p {
             font-size: 11px;
-            color: var(--wf-text-muted);
+            color: #94A3B8;
             margin-top: 2px;
         }
 
@@ -100,11 +110,12 @@
 
         .module-header {
             padding: 10px 16px;
-            background: #1E293B;
-            font-size: 11px;
+            background: #182234;
+            font-size: 10px;
             font-weight: 700;
-            color: var(--wf-gold);
+            color: #94A3B8;
             text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .module-list {
@@ -125,30 +136,32 @@
         .nav-item a:hover {
             background: #1E293B;
             color: #FFFFFF;
-            border-left: 3px solid var(--wf-gold);
+            border-left: 3px solid #64748B;
         }
 
         .nav-item .cu-tag {
             font-size: 10px;
             font-weight: 700;
-            padding: 2px 4px;
+            padding: 2px 5px;
             border-radius: 4px;
-            background: rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.08);
+            color: #CBD5E1;
         }
 
+        /* Viewport Central (Canvas de Figma) */
         #viewport {
             flex: 1;
             overflow-y: auto;
-            padding: 30px;
+            padding: 40px;
             display: flex;
             flex-direction: column;
-            gap: 60px;
+            gap: 64px;
             align-items: center;
         }
 
         .figure-wrapper {
             width: 100%;
-            max-width: 1200px;
+            max-width: 1160px;
             display: flex;
             flex-direction: column;
             gap: 12px;
@@ -156,28 +169,31 @@
 
         .figure-caption {
             font-size: 13px;
-            color: #334155;
+            font-weight: 600;
+            color: #475569;
             text-align: left;
-            padding-left: 4px;
+            padding-left: 2px;
         }
 
+        /* Marco de Pantalla / Wireframe Frame */
         .screen-frame {
             width: 100%;
-            min-height: 680px;
+            min-height: 640px;
             background: #FFFFFF;
             border-radius: 8px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.06);
-            border: 1px solid var(--wf-border);
+            border: 1.5px solid #CBD5E1;
+            box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
             display: flex;
             flex-direction: column;
             overflow: visible;
         }
 
+        /* Top Navbar Minimalista */
         .wf-top-navbar {
-            height: 56px;
+            height: 52px;
             background: #FFFFFF;
-            border-bottom: 1px solid var(--wf-border);
-            padding: 0 24px;
+            border-bottom: 1.5px solid #CBD5E1;
+            padding: 0 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -188,14 +204,15 @@
         .wf-brand {
             display: flex;
             align-items: center;
-            gap: 12px;
-            font-size: 14px;
+            gap: 10px;
+            font-size: 13px;
         }
 
         .wf-brand strong {
             letter-spacing: 0.5px;
-            color: var(--wf-navy-dark);
-            font-size: 15px;
+            color: #0F172A;
+            font-size: 14px;
+            font-weight: 800;
         }
 
         .wf-brand .divider {
@@ -207,6 +224,7 @@
             color: #475569;
         }
 
+        /* User Pill Trigger */
         .wf-user-menu-wrapper {
             position: relative;
         }
@@ -214,36 +232,37 @@
         .wf-user-trigger-pill {
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 4px 12px 4px 4px;
+            gap: 8px;
+            padding: 3px 10px 3px 3px;
             border-radius: 20px;
-            border: 1px solid var(--wf-border);
+            border: 1px solid #CBD5E1;
             background: #F8FAFC;
             cursor: pointer;
         }
 
         .user-avatar-circle {
-            width: 32px;
-            height: 32px;
+            width: 28px;
+            height: 28px;
             border-radius: 50%;
-            background: var(--wf-navy-dark);
+            background: #0F172A;
             color: #FFFFFF;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 700;
         }
 
+        /* Dropdown Flotante */
         .wf-user-floating-dropdown {
             position: absolute;
-            top: 48px;
+            top: 44px;
             right: 0;
-            width: 260px;
+            width: 250px;
             background: #FFFFFF;
-            border: 1px solid var(--wf-border);
+            border: 1.5px solid #CBD5E1;
             border-radius: 8px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
             z-index: 200;
             overflow: hidden;
             display: none;
@@ -251,32 +270,32 @@
         }
 
         .wf-dropdown-user-header {
-            padding: 12px 14px;
+            padding: 10px 14px;
             background: #F8FAFC;
-            border-bottom: 1px solid var(--wf-border);
+            border-bottom: 1px solid #CBD5E1;
         }
 
         .wf-dropdown-user-name {
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 700;
             color: #0F172A;
         }
 
         .wf-dropdown-user-role {
             font-size: 10px;
-            font-weight: 700;
-            color: var(--wf-gold);
+            font-weight: 600;
+            color: #64748B;
             text-transform: uppercase;
         }
 
         .wf-dropdown-user-email {
             font-size: 11px;
-            color: var(--wf-text-muted);
+            color: #64748B;
             margin-top: 2px;
         }
 
         .wf-dropdown-section {
-            padding: 8px 10px;
+            padding: 6px 8px;
             border-bottom: 1px solid #F1F5F9;
         }
 
@@ -285,12 +304,12 @@
         }
 
         .wf-dropdown-section-title {
-            font-size: 10px;
+            font-size: 9px;
             font-weight: 700;
             color: #94A3B8;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
             padding-left: 6px;
         }
 
@@ -298,12 +317,12 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 6px 10px;
-            font-size: 12px;
+            padding: 5px 8px;
+            font-size: 11px;
             color: #334155;
-            border-radius: 6px;
+            border-radius: 4px;
             text-decoration: none;
-            transition: all 0.15s;
+            transition: all 0.1s;
         }
 
         .wf-dropdown-item-btn:hover {
@@ -316,15 +335,11 @@
             font-weight: 600;
         }
 
-        .wf-dropdown-item-btn.text-danger:hover {
-            background: #FEE2E2;
-        }
-
         .wf-dropdown-editing-toggle-box {
             background: #F8FAFC;
-            border: 1px solid var(--wf-border);
-            border-radius: 6px;
-            padding: 6px 10px;
+            border: 1px solid #CBD5E1;
+            border-radius: 4px;
+            padding: 5px 8px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -333,30 +348,31 @@
         .wf-body {
             flex: 1;
             display: flex;
-            background: var(--wf-bg);
+            background: #F8FAFC;
             position: relative;
         }
 
         .wf-main-content {
             flex: 1;
-            padding: 28px;
+            padding: 24px;
             overflow-y: auto;
         }
 
+        /* Pin Badges (Wireframe Style - Contraste Nítido) */
         .pin-badge {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 28px;
-            height: 28px;
-            min-width: 28px;
+            width: 26px;
+            height: 26px;
+            min-width: 26px;
             border-radius: 50%;
-            background: #FFFFFF;
-            color: #0F172A;
-            font-size: 13px;
+            background: #0F172A;
+            color: #FFFFFF;
+            font-size: 12px;
             font-weight: 700;
-            border: 2px solid #334155;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border: 2px solid #FFFFFF;
+            box-shadow: 0 2px 5px rgba(15, 23, 42, 0.25);
             flex-shrink: 0;
             user-select: none;
         }
@@ -364,7 +380,7 @@
         .wf-input-wrap {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             width: 100%;
         }
 
@@ -387,19 +403,19 @@
 
         .wf-dropdown-menu {
             position: absolute;
-            top: 46px;
+            top: 42px;
             left: 0;
-            width: calc(100% - 40px);
+            width: 100%;
             background: #FFFFFF;
-            border: 1px solid var(--wf-border);
-            border-radius: 8px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            border: 1.5px solid #CBD5E1;
+            border-radius: 6px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
             z-index: 50;
             overflow: hidden;
         }
 
         .wf-dropdown-item {
-            padding: 8px 14px;
+            padding: 8px 12px;
             font-size: 12px;
             color: #334155;
             border-bottom: 1px solid #F1F5F9;
@@ -407,37 +423,45 @@
         }
 
         .wf-dropdown-item.active {
-            background: #E2E8F0;
+            background: #F1F5F9;
             font-weight: 600;
             color: #0F172A;
         }
 
+        /* Tarjetas y Contenedores */
         .wf-card {
             background: #FFFFFF;
-            border: 1px solid var(--wf-border);
-            border-radius: 8px;
-            padding: 24px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+            border: 1.5px solid #CBD5E1;
+            border-radius: 6px;
+            padding: 20px;
         }
 
         .wf-label {
             display: block;
-            font-size: 12px;
-            font-weight: 600;
+            font-size: 11px;
+            font-weight: 700;
             color: #334155;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
             margin-bottom: 6px;
         }
 
+        /* Inputs Wireframe Minimalistas */
         .wf-input {
             width: 100%;
-            height: 40px;
+            height: 38px;
             padding: 8px 12px;
-            border: 1px solid var(--wf-border);
-            border-radius: 6px;
+            border: 1.5px solid #CBD5E1;
+            border-radius: 5px;
             font-size: 13px;
-            color: var(--wf-text);
+            color: #0F172A;
             outline: none;
             background: #FFFFFF;
+            transition: border-color 0.15s;
+        }
+
+        .wf-input:focus {
+            border-color: #0F172A;
         }
 
         textarea.wf-input {
@@ -446,57 +470,74 @@
 
         .bg-disabled {
             background: #F8FAFC !important;
-            color: var(--wf-text-muted) !important;
+            color: #64748B !important;
+            border-style: dashed !important;
         }
 
+        /* Botones Wireframe Nítidos */
         .wf-btn {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            height: 40px;
-            padding: 0 18px;
-            border-radius: 6px;
-            font-size: 13px;
+            height: 38px;
+            padding: 0 16px;
+            border-radius: 5px;
+            font-size: 12px;
             font-weight: 600;
             cursor: pointer;
-            border: 1px solid transparent;
+            border: 1.5px solid transparent;
             text-decoration: none;
             white-space: nowrap;
+            transition: all 0.15s;
         }
 
         .wf-btn-primary {
-            background: var(--wf-navy-dark);
+            background: #0F172A;
             color: #FFFFFF;
+            border-color: #0F172A;
+        }
+
+        .wf-btn-primary:hover {
+            background: #1E293B;
         }
 
         .wf-btn-outline {
             background: #FFFFFF;
-            border-color: var(--wf-border);
+            border-color: #CBD5E1;
             color: #334155;
+        }
+
+        .wf-btn-outline:hover {
+            background: #F8FAFC;
+            border-color: #0F172A;
+            color: #0F172A;
         }
 
         .wf-btn-danger {
             background: #DC2626;
+            border-color: #DC2626;
             color: #FFFFFF;
         }
 
         .wf-btn-sm {
-            height: 32px;
-            padding: 0 12px;
-            font-size: 12px;
+            height: 30px;
+            padding: 0 10px;
+            font-size: 11px;
         }
 
         .wf-link {
             font-size: 13px;
-            color: var(--wf-navy-dark);
+            color: #0F172A;
             font-weight: 600;
-            text-decoration: none;
+            text-decoration: underline;
+            text-underline-offset: 2px;
             cursor: pointer;
         }
 
+        /* Tablas */
         .wf-table-wrap {
             background: #FFFFFF;
-            border: 1px solid var(--wf-border);
+            border: 1.5px solid #CBD5E1;
             border-radius: 6px;
             overflow: hidden;
         }
@@ -504,44 +545,51 @@
         .wf-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 13px;
+            font-size: 12px;
         }
 
         .wf-table th, .wf-table td {
-            padding: 12px 16px;
-            border-bottom: 1px solid var(--wf-border);
+            padding: 10px 14px;
+            border-bottom: 1px solid #CBD5E1;
             text-align: left;
             vertical-align: middle;
         }
 
         .wf-table th {
             background: #F8FAFC;
-            font-weight: 600;
-            color: var(--wf-text-muted);
-            font-size: 11px;
+            font-weight: 700;
+            color: #475569;
+            font-size: 10px;
             text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
+        /* Badges de Estado */
         .wf-badge {
-            font-size: 11px;
-            font-weight: 600;
-            padding: 3px 8px;
-            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: 4px;
+            border: 1px solid #CBD5E1;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
         }
 
         .status-active {
-            background: #DEF7EC;
-            color: #03543F;
+            background: #F1F5F9;
+            color: #0F172A;
+            border-color: #94A3B8;
         }
 
         .status-inactive {
-            background: #F1F5F9;
-            color: #64748B;
+            background: #FFFFFF;
+            color: #94A3B8;
+            border-color: #E2E8F0;
         }
 
         .wf-icon-danger {
-            width: 52px;
-            height: 52px;
+            width: 48px;
+            height: 48px;
             background: #FEE2E2;
             border-radius: 50%;
             display: flex;
@@ -550,63 +598,65 @@
             margin: 0 auto;
         }
 
+        /* Cards Grid */
         .wf-cards-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 18px;
+            gap: 16px;
         }
 
         .wf-course-card {
             background: #FFFFFF;
-            border: 1px solid var(--wf-border);
-            border-radius: 8px;
+            border: 1.5px solid #CBD5E1;
+            border-radius: 6px;
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.03);
         }
 
         .wf-course-card-thumb {
-            height: 110px;
-            background: linear-gradient(135deg, #0A2540, #1E3A8A);
+            height: 100px;
+            background: #0F172A;
             position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
+            border-bottom: 1.5px solid #CBD5E1;
         }
 
         .wf-course-tag {
             position: absolute;
             top: 8px;
             left: 8px;
-            background: rgba(255,255,255,0.9);
-            color: var(--wf-navy-dark);
-            font-size: 10px;
+            background: #FFFFFF;
+            color: #0F172A;
+            font-size: 9px;
             font-weight: 700;
-            padding: 2px 6px;
-            border-radius: 4px;
+            padding: 2px 5px;
+            border-radius: 3px;
             text-transform: uppercase;
+            border: 1px solid #CBD5E1;
         }
 
         .wf-course-card-body {
-            padding: 16px;
+            padding: 14px;
             flex: 1;
             display: flex;
             flex-direction: column;
         }
 
         .wf-course-title {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 700;
-            color: var(--wf-navy-dark);
-            margin-bottom: 6px;
+            color: #0F172A;
+            margin-bottom: 4px;
             line-height: 1.3;
         }
 
         .wf-course-desc {
-            font-size: 12px;
-            color: var(--wf-text-muted);
-            margin-bottom: 12px;
+            font-size: 11px;
+            color: #64748B;
+            margin-bottom: 10px;
             line-height: 1.4;
             flex: 1;
         }
@@ -614,34 +664,34 @@
         .wf-course-meta {
             display: flex;
             flex-direction: column;
-            gap: 3px;
-            font-size: 11px;
+            gap: 2px;
+            font-size: 10px;
             color: #475569;
-            padding-top: 10px;
+            padding-top: 8px;
             border-top: 1px solid #F1F5F9;
         }
 
         .wf-course-card-footer {
-            padding: 12px 16px;
+            padding: 10px 14px;
             background: #F8FAFC;
-            border-top: 1px solid var(--wf-border);
+            border-top: 1px solid #CBD5E1;
         }
 
         .wf-progress {
-            height: 6px;
+            height: 4px;
             background: #E2E8F0;
-            border-radius: 3px;
+            border-radius: 2px;
             overflow: hidden;
         }
 
         .wf-progress-fill {
             height: 100%;
-            background: var(--wf-navy-dark);
+            background: #0F172A;
         }
 
         .wf-tab-btn {
-            padding: 8px 14px;
-            font-size: 13px;
+            padding: 6px 12px;
+            font-size: 12px;
             font-weight: 600;
             color: #64748B;
             background: transparent;
@@ -654,56 +704,57 @@
         }
 
         .wf-tab-btn.active {
-            color: var(--wf-navy-dark);
-            border-bottom-color: var(--wf-navy-dark);
+            color: #0F172A;
+            border-bottom-color: #0F172A;
+            font-weight: 700;
         }
 
         .wf-unit-box {
             background: #FFFFFF;
-            border: 1px solid var(--wf-border);
-            border-radius: 8px;
+            border: 1.5px solid #CBD5E1;
+            border-radius: 6px;
             overflow: hidden;
         }
 
         .wf-unit-header {
-            padding: 14px 18px;
+            padding: 12px 16px;
             background: #F8FAFC;
-            border-bottom: 1px solid var(--wf-border);
+            border-bottom: 1.5px solid #CBD5E1;
         }
 
         .wf-unit-body {
-            padding: 18px;
+            padding: 16px;
         }
 
         .wf-content-list {
             list-style: none;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 8px;
         }
 
         .wf-subcontent-title {
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 700;
             text-transform: uppercase;
-            color: var(--wf-text-muted);
-            margin-bottom: 8px;
+            color: #64748B;
+            margin-bottom: 6px;
         }
 
         .row {
             display: flex;
             flex-wrap: wrap;
-            margin-right: -10px;
-            margin-left: -10px;
+            margin-right: -8px;
+            margin-left: -8px;
         }
 
-        .col-md-3 { flex: 0 0 25%; max-width: 25%; padding: 0 10px; }
-        .col-md-4 { flex: 0 0 33.3333%; max-width: 33.3333%; padding: 0 10px; }
-        .col-md-5 { flex: 0 0 41.6666%; max-width: 41.6666%; padding: 0 10px; }
-        .col-md-6 { flex: 0 0 50%; max-width: 50%; padding: 0 10px; }
-        .col-md-7 { flex: 0 0 58.3333%; max-width: 58.3333%; padding: 0 10px; }
-        .col-md-8 { flex: 0 0 66.6666%; max-width: 66.6666%; padding: 0 10px; }
-        .col-12 { flex: 0 0 100%; max-width: 100%; padding: 0 10px; }
+        .col-md-3 { flex: 0 0 25%; max-width: 25%; padding: 0 8px; }
+        .col-md-4 { flex: 0 0 33.3333%; max-width: 33.3333%; padding: 0 8px; }
+        .col-md-5 { flex: 0 0 41.6666%; max-width: 41.6666%; padding: 0 8px; }
+        .col-md-6 { flex: 0 0 50%; max-width: 50%; padding: 0 8px; }
+        .col-md-7 { flex: 0 0 58.3333%; max-width: 58.3333%; padding: 0 8px; }
+        .col-md-8 { flex: 0 0 66.6666%; max-width: 66.6666%; padding: 0 8px; }
+        .col-12 { flex: 0 0 100%; max-width: 100%; padding: 0 8px; }
 
         .d-flex { display: flex; }
         .d-inline-flex { display: inline-flex; }
@@ -733,36 +784,47 @@
         .pt-2 { padding-top: 8px; }
         .pt-3 { padding-top: 12px; }
         .pt-4 { padding-top: 16px; }
-        .border-top { border-top: 1px solid var(--wf-border); }
-        .border-bottom { border-bottom: 1px solid var(--wf-border); }
+        .border-top { border-top: 1.5px solid #CBD5E1; }
+        .border-bottom { border-bottom: 1.5px solid #CBD5E1; }
         .w-100 { width: 100%; }
-        .text-muted { color: var(--wf-text-muted); }
-        .text-success { color: #059669; }
+        .text-muted { color: #64748B; }
+        .text-success { color: #0F172A; font-weight: 600; }
         .text-danger { color: #DC2626; }
-        .text-navy { color: var(--wf-navy-dark); }
+        .text-navy { color: #0F172A; }
         .text-end { text-align: right; }
         .text-center { text-align: center; }
         .fw-bold { font-weight: 700; }
-        .small { font-size: 12px; }
-        .rounded { border-radius: 6px; }
-        .border { border: 1px solid var(--wf-border); }
+        .small { font-size: 11px; }
+        .rounded { border-radius: 5px; }
+        .border { border: 1.5px solid #CBD5E1; }
         .bg-white { background: #FFFFFF; }
         .bg-light { background: #F8FAFC; }
-        .shadow-sm { box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .shadow-sm { box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
 
+        /* Meta-Strip Superior de Cada Figura (Limpio, sin texto de módulo redundante) */
         .meta-strip {
-            padding: 8px 16px;
+            padding: 6px 14px;
             background: #FFFFFF;
-            border-bottom: 1px solid var(--wf-border);
+            border: 1px solid #CBD5E1;
+            border-radius: 5px;
             display: flex;
             align-items: center;
-            gap: 16px;
+            justify-content: space-between;
             font-size: 11px;
-            color: var(--wf-text-muted);
+            color: #64748B;
         }
 
         .meta-strip strong {
-            color: var(--wf-navy-dark);
+            color: #0F172A;
+        }
+
+        .meta-strip code {
+            background: #F1F5F9;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 11px;
+            color: #0F172A;
+            border: 1px solid #E2E8F0;
         }
     </style>
 </head>
@@ -1491,14 +1553,18 @@
 
         <div class="figure-wrapper" id="CU-01">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-01: Buscar curso</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>buscarCursos(nombre, categoria, nivel, docentes, modalidades) ➔ seleccionarCurso(idCurso, cursos)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-01: Buscar curso</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>buscarCursos(nombre, categoria, nivel, docentes, modalidades) ➔ seleccionarCurso(idCurso, cursos)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 1.</strong> Caso de uso real para la interfaz de <em>Buscar curso</em> (CU-01).
+                <strong>Figura 1.</strong> Prototipo UI / Wireframe para <em>Buscar curso</em> (CU-01).
             </div>
 
             <div class="screen-frame">
@@ -1690,14 +1756,18 @@
   
         <div class="figure-wrapper" id="CU-02">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-02: Ver mis cursos</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>buscarInscripcionesAlumno(nombreCurso, estadoInscripcion) ➔ seleccionarInscripcion(idInscripcion, inscripciones)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-02: Ver mis cursos</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>buscarInscripcionesAlumno(nombreCurso, estadoInscripcion) ➔ seleccionarInscripcion(idInscripcion, inscripciones)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 2.</strong> Caso de uso real para la interfaz de <em>Ver mis cursos</em> (CU-02).
+                <strong>Figura 2.</strong> Prototipo UI / Wireframe para <em>Ver mis cursos</em> (CU-02).
             </div>
 
             <div class="screen-frame">
@@ -1897,14 +1967,18 @@
   
         <div class="figure-wrapper" id="CU-03">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-03: Registrar curso</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>buscarCategorias() ➔ seleccionarCategoria(idCategoria, categorias) ➔ buscarNiveles()</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-03: Registrar curso</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>buscarCategorias() ➔ seleccionarCategoria(idCategoria, categorias) ➔ buscarNiveles()</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 3.</strong> Caso de uso real para la interfaz de <em>Registrar curso</em> (CU-03).
+                <strong>Figura 3.</strong> Prototipo UI / Wireframe para <em>Registrar curso</em> (CU-03).
             </div>
 
             <div class="screen-frame">
@@ -2067,14 +2141,18 @@
   
         <div class="figure-wrapper" id="CU-04">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-04: Modificar curso</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>buscarCategorias() ➔ seleccionarCategoria(idCategoria, categorias) ➔ buscarNiveles()</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-04: Modificar curso</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>buscarCategorias() ➔ seleccionarCategoria(idCategoria, categorias) ➔ buscarNiveles()</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 4.</strong> Caso de uso real para la interfaz de <em>Modificar curso</em> (CU-04).
+                <strong>Figura 4.</strong> Prototipo UI / Wireframe para <em>Modificar curso</em> (CU-04).
             </div>
 
             <div class="screen-frame">
@@ -2237,14 +2315,18 @@
   
         <div class="figure-wrapper" id="CU-05">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-05: Dar de baja curso</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>darDeBajaCurso(unCurso)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-05: Dar de baja curso</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>darDeBajaCurso(unCurso)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 5.</strong> Caso de uso real para la interfaz de <em>Dar de baja curso</em> (CU-05).
+                <strong>Figura 5.</strong> Prototipo UI / Wireframe para <em>Dar de baja curso</em> (CU-05).
             </div>
 
             <div class="screen-frame">
@@ -2352,8 +2434,8 @@
             <strong>Registro Seleccionado #05 (Dar de baja curso)</strong>
           </div>
           <div class="d-flex justify-content-between">
-            <span class="text-muted">Módulo asociado:</span>
-            <span>Módulo General</span>
+            <span class="text-muted">Estado actual:</span>
+            <span class="wf-badge status-active">Activo / Vigente</span>
           </div>
         </div>
 
@@ -2373,14 +2455,18 @@
   
         <div class="figure-wrapper" id="CU-06">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-06: Explorar catálogo de cursos</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>buscarCursosAbiertos(nombre, categoria, nivel, docente, modalidad) ➔ seleccionarCurso(idCurso, cursos)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-06: Explorar catálogo de cursos</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>buscarCursosAbiertos(nombre, categoria, nivel, docente, modalidad) ➔ seleccionarCurso(idCurso, cursos)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 6.</strong> Caso de uso real para la interfaz de <em>Explorar catálogo de cursos</em> (CU-06).
+                <strong>Figura 6.</strong> Prototipo UI / Wireframe para <em>Explorar catálogo de cursos</em> (CU-06).
             </div>
 
             <div class="screen-frame">
@@ -2572,14 +2658,18 @@
   
         <div class="figure-wrapper" id="CU-07">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-07: Buscar categoría</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>buscarCategorias(nombre) ➔ seleccionarCategoria(idCategoria, categorias)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-07: Buscar categoría</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>buscarCategorias(nombre) ➔ seleccionarCategoria(idCategoria, categorias)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 7.</strong> Caso de uso real para la interfaz de <em>Buscar categoría</em> (CU-07).
+                <strong>Figura 7.</strong> Prototipo UI / Wireframe para <em>Buscar categoría</em> (CU-07).
             </div>
 
             <div class="screen-frame">
@@ -2753,14 +2843,18 @@
   
         <div class="figure-wrapper" id="CU-08">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-08: Registrar categoría</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>registrarCategoria(nombre, descripcion)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-08: Registrar categoría</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>registrarCategoria(nombre, descripcion)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 8.</strong> Caso de uso real para la interfaz de <em>Registrar categoría</em> (CU-08).
+                <strong>Figura 8.</strong> Prototipo UI / Wireframe para <em>Registrar categoría</em> (CU-08).
             </div>
 
             <div class="screen-frame">
@@ -2923,14 +3017,18 @@
   
         <div class="figure-wrapper" id="CU-09">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-09: Modificar categoría</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>modificarCategoria(unaCategoria, nombre, descripcion)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-09: Modificar categoría</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>modificarCategoria(unaCategoria, nombre, descripcion)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 9.</strong> Caso de uso real para la interfaz de <em>Modificar categoría</em> (CU-09).
+                <strong>Figura 9.</strong> Prototipo UI / Wireframe para <em>Modificar categoría</em> (CU-09).
             </div>
 
             <div class="screen-frame">
@@ -3093,14 +3191,18 @@
   
         <div class="figure-wrapper" id="CU-10">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-10: Dar de baja categoría</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>darDeBajaCategoria(unaCategoria)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-10: Dar de baja categoría</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>darDeBajaCategoria(unaCategoria)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 10.</strong> Caso de uso real para la interfaz de <em>Dar de baja categoría</em> (CU-10).
+                <strong>Figura 10.</strong> Prototipo UI / Wireframe para <em>Dar de baja categoría</em> (CU-10).
             </div>
 
             <div class="screen-frame">
@@ -3208,8 +3310,8 @@
             <strong>Registro Seleccionado #10 (Dar de baja categoría)</strong>
           </div>
           <div class="d-flex justify-content-between">
-            <span class="text-muted">Módulo asociado:</span>
-            <span>Módulo General</span>
+            <span class="text-muted">Estado actual:</span>
+            <span class="wf-badge status-active">Activo / Vigente</span>
           </div>
         </div>
 
@@ -3229,14 +3331,18 @@
   
         <div class="figure-wrapper" id="CU-11">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-11: Buscar cohorte</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>buscarCohortes(programa, estado, fechaInicioInscripcion, fechaFinInscripcion) ➔ seleccionarCohorte(idCohorte, cohortes)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-11: Buscar cohorte</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>buscarCohortes(programa, estado, fechaInicioInscripcion, fechaFinInscripcion) ➔ seleccionarCohorte(idCohorte, cohortes)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 11.</strong> Caso de uso real para la interfaz de <em>Buscar cohorte</em> (CU-11).
+                <strong>Figura 11.</strong> Prototipo UI / Wireframe para <em>Buscar cohorte</em> (CU-11).
             </div>
 
             <div class="screen-frame">
@@ -3410,14 +3516,18 @@
   
         <div class="figure-wrapper" id="CU-12">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-12: Registrar cohorte</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>registrarCohorte(unPrograma, fechaInicioInscripcion, fechaFinInscripcion, cupoMaximo, semanasAcceso, fechaInicioDictado, fechaFinDictado)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-12: Registrar cohorte</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>registrarCohorte(unPrograma, fechaInicioInscripcion, fechaFinInscripcion, cupoMaximo, semanasAcceso, fechaInicioDictado, fechaFinDictado)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 12.</strong> Caso de uso real para la interfaz de <em>Registrar cohorte</em> (CU-12).
+                <strong>Figura 12.</strong> Prototipo UI / Wireframe para <em>Registrar cohorte</em> (CU-12).
             </div>
 
             <div class="screen-frame">
@@ -3580,14 +3690,18 @@
   
         <div class="figure-wrapper" id="CU-13">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-13: Modificar cohorte</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>modificarCohorte(unCohorte, fechaInicioInscripcion, fechaFinInscripcion, cupoMaximo, semanasAcceso, fechaInicioDictado, fechaFinDictado)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-13: Modificar cohorte</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>modificarCohorte(unCohorte, fechaInicioInscripcion, fechaFinInscripcion, cupoMaximo, semanasAcceso, fechaInicioDictado, fechaFinDictado)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 13.</strong> Caso de uso real para la interfaz de <em>Modificar cohorte</em> (CU-13).
+                <strong>Figura 13.</strong> Prototipo UI / Wireframe para <em>Modificar cohorte</em> (CU-13).
             </div>
 
             <div class="screen-frame">
@@ -3750,14 +3864,18 @@
   
         <div class="figure-wrapper" id="CU-14">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-14: Dar de baja cohorte</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>darDeBajaCohorte(unaCohorte)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-14: Dar de baja cohorte</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>darDeBajaCohorte(unaCohorte)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 14.</strong> Caso de uso real para la interfaz de <em>Dar de baja cohorte</em> (CU-14).
+                <strong>Figura 14.</strong> Prototipo UI / Wireframe para <em>Dar de baja cohorte</em> (CU-14).
             </div>
 
             <div class="screen-frame">
@@ -3865,8 +3983,8 @@
             <strong>Registro Seleccionado #14 (Dar de baja cohorte)</strong>
           </div>
           <div class="d-flex justify-content-between">
-            <span class="text-muted">Módulo asociado:</span>
-            <span>Módulo General</span>
+            <span class="text-muted">Estado actual:</span>
+            <span class="wf-badge status-active">Activo / Vigente</span>
           </div>
         </div>
 
@@ -3886,14 +4004,18 @@
   
         <div class="figure-wrapper" id="CU-15">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-15: Buscar programa</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>obtenerProgramaVigente(curso) ➔ buscarProgramas(curso, nombre, estado) ➔ seleccionarPrograma(idPrograma, programas)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-15: Buscar programa</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>obtenerProgramaVigente(curso) ➔ buscarProgramas(curso, nombre, estado) ➔ seleccionarPrograma(idPrograma, programas)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 15.</strong> Caso de uso real para la interfaz de <em>Buscar programa</em> (CU-15).
+                <strong>Figura 15.</strong> Prototipo UI / Wireframe para <em>Buscar programa</em> (CU-15).
             </div>
 
             <div class="screen-frame">
@@ -4067,14 +4189,18 @@
   
         <div class="figure-wrapper" id="CU-16">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-16: Registrar programa</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>buscarProgramas(unCurso) ➔ seleccionarPrograma(idPrograma, programas) ➔ registrarPrograma(unCurso, nombre, descripcion, objetivos, cargaHorariaTotal, bibliografia, unProgramaAnterior)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-16: Registrar programa</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>buscarProgramas(unCurso) ➔ seleccionarPrograma(idPrograma, programas) ➔ registrarPrograma(unCurso, nombre, descripcion, objetivos, cargaHorariaTotal, bibliografia, unProgramaAnterior)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 16.</strong> Caso de uso real para la interfaz de <em>Registrar programa</em> (CU-16).
+                <strong>Figura 16.</strong> Prototipo UI / Wireframe para <em>Registrar programa</em> (CU-16).
             </div>
 
             <div class="screen-frame">
@@ -4237,14 +4363,18 @@
   
         <div class="figure-wrapper" id="CU-17">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-17: Modificar programa</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>modificarPrograma(unPrograma, nombre, descripcion, objetivos, cargaHorariaTotal, bibliografia)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-17: Modificar programa</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>modificarPrograma(unPrograma, nombre, descripcion, objetivos, cargaHorariaTotal, bibliografia)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 17.</strong> Caso de uso real para la interfaz de <em>Modificar programa</em> (CU-17).
+                <strong>Figura 17.</strong> Prototipo UI / Wireframe para <em>Modificar programa</em> (CU-17).
             </div>
 
             <div class="screen-frame">
@@ -4407,14 +4537,18 @@
   
         <div class="figure-wrapper" id="CU-18">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-18: Dar de baja programa</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>darDeBajaPrograma(unPrograma)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-18: Dar de baja programa</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>darDeBajaPrograma(unPrograma)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 18.</strong> Caso de uso real para la interfaz de <em>Dar de baja programa</em> (CU-18).
+                <strong>Figura 18.</strong> Prototipo UI / Wireframe para <em>Dar de baja programa</em> (CU-18).
             </div>
 
             <div class="screen-frame">
@@ -4522,8 +4656,8 @@
             <strong>Registro Seleccionado #18 (Dar de baja programa)</strong>
           </div>
           <div class="d-flex justify-content-between">
-            <span class="text-muted">Módulo asociado:</span>
-            <span>Módulo General</span>
+            <span class="text-muted">Estado actual:</span>
+            <span class="wf-badge status-active">Activo / Vigente</span>
           </div>
         </div>
 
@@ -4543,14 +4677,18 @@
   
         <div class="figure-wrapper" id="CU-19">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-19: Buscar unidad</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>buscarUnidades(programa) ➔ seleccionarUnidad(idUnidad, unidades)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-19: Buscar unidad</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>buscarUnidades(programa) ➔ seleccionarUnidad(idUnidad, unidades)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 19.</strong> Caso de uso real para la interfaz de <em>Buscar unidad</em> (CU-19).
+                <strong>Figura 19.</strong> Prototipo UI / Wireframe para <em>Buscar unidad</em> (CU-19).
             </div>
 
             <div class="screen-frame">
@@ -4722,14 +4860,18 @@
   
         <div class="figure-wrapper" id="CU-20">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-20: Agregar unidad</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>crearUnidad(unPrograma, titulo, descripcion, contenido) ➔ buscarUnidadesReutilizables(unPrograma) ➔ seleccionarUnidad(idUnidad, unidadesReutilizables)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-20: Agregar unidad</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>crearUnidad(unPrograma, titulo, descripcion, contenido) ➔ buscarUnidadesReutilizables(unPrograma) ➔ seleccionarUnidad(idUnidad, unidadesReutilizables)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 20.</strong> Caso de uso real para la interfaz de <em>Agregar unidad</em> (CU-20).
+                <strong>Figura 20.</strong> Prototipo UI / Wireframe para <em>Agregar unidad</em> (CU-20).
             </div>
 
             <div class="screen-frame">
@@ -4901,14 +5043,18 @@
   
         <div class="figure-wrapper" id="CU-21">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-21: Modificar unidad</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>modificarUnidad(unaUnidad, titulo, descripcion, contenido)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-21: Modificar unidad</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>modificarUnidad(unaUnidad, titulo, descripcion, contenido)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 21.</strong> Caso de uso real para la interfaz de <em>Modificar unidad</em> (CU-21).
+                <strong>Figura 21.</strong> Prototipo UI / Wireframe para <em>Modificar unidad</em> (CU-21).
             </div>
 
             <div class="screen-frame">
@@ -5080,14 +5226,18 @@
   
         <div class="figure-wrapper" id="CU-22">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-22: Quitar unidad</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>quitarUnidad(unPrograma, unaUnidad)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-22: Quitar unidad</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>quitarUnidad(unPrograma, unaUnidad)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 22.</strong> Caso de uso real para la interfaz de <em>Quitar unidad</em> (CU-22).
+                <strong>Figura 22.</strong> Prototipo UI / Wireframe para <em>Quitar unidad</em> (CU-22).
             </div>
 
             <div class="screen-frame">
@@ -5259,14 +5409,18 @@
   
         <div class="figure-wrapper" id="CU-23">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-23: Buscar cronograma</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>buscarCronograma(programa)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-23: Buscar cronograma</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>buscarCronograma(programa)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 23.</strong> Caso de uso real para la interfaz de <em>Buscar cronograma</em> (CU-23).
+                <strong>Figura 23.</strong> Prototipo UI / Wireframe para <em>Buscar cronograma</em> (CU-23).
             </div>
 
             <div class="screen-frame">
@@ -5440,14 +5594,18 @@
   
         <div class="figure-wrapper" id="CU-24">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-24: Modificar cronograma</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>modificarCronograma(unPrograma, ordenUnidades, duraciones)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-24: Modificar cronograma</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>modificarCronograma(unPrograma, ordenUnidades, duraciones)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 24.</strong> Caso de uso real para la interfaz de <em>Modificar cronograma</em> (CU-24).
+                <strong>Figura 24.</strong> Prototipo UI / Wireframe para <em>Modificar cronograma</em> (CU-24).
             </div>
 
             <div class="screen-frame">
@@ -5610,14 +5768,18 @@
   
         <div class="figure-wrapper" id="CU-25">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-25: Ver participantes</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>buscarParticipantes(curso, nombreCompleto, rol)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-25: Ver participantes</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>buscarParticipantes(curso, nombreCompleto, rol)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 25.</strong> Caso de uso real para la interfaz de <em>Ver participantes</em> (CU-25).
+                <strong>Figura 25.</strong> Prototipo UI / Wireframe para <em>Ver participantes</em> (CU-25).
             </div>
 
             <div class="screen-frame">
@@ -5783,14 +5945,18 @@
   
         <div class="figure-wrapper" id="CU-26">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-26: Acceder curso</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>buscarUnidades(programa) ➔ seleccionarUnidad(idUnidad, unidades) ➔ verContenidoUnidad(unaUnidad)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-26: Acceder curso</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>buscarUnidades(programa) ➔ seleccionarUnidad(idUnidad, unidades) ➔ verContenidoUnidad(unaUnidad)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 26.</strong> Caso de uso real para la interfaz de <em>Acceder curso</em> (CU-26).
+                <strong>Figura 26.</strong> Prototipo UI / Wireframe para <em>Acceder curso</em> (CU-26).
             </div>
 
             <div class="screen-frame">
@@ -5979,14 +6145,18 @@
   
         <div class="figure-wrapper" id="CU-26b">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-26b: Acceder curso — Modo Edición (Docente / Administrador)</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>verContenidoUnidad(unaUnidad) ➔ ModoEdición</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-26b: Acceder curso — Modo Edición (Docente / Administrador)</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>verContenidoUnidad(unaUnidad) ➔ ModoEdición</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 27.</strong> Caso de uso real para la interfaz de <em>Acceder curso — Modo Edición (Docente / Administrador)</em> (CU-26b).
+                <strong>Figura 27.</strong> Prototipo UI / Wireframe para <em>Acceder curso — Modo Edición (Docente / Administrador)</em> (CU-26b).
             </div>
 
             <div class="screen-frame">
@@ -6158,14 +6328,18 @@
   
         <div class="figure-wrapper" id="CU-27">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-27: Buscar material</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>buscarMateriales(unidad, tipo, titulo, generadoIA) ➔ seleccionarMaterial(idMaterial, materiales)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-27: Buscar material</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>buscarMateriales(unidad, tipo, titulo, generadoIA) ➔ seleccionarMaterial(idMaterial, materiales)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 28.</strong> Caso de uso real para la interfaz de <em>Buscar material</em> (CU-27).
+                <strong>Figura 28.</strong> Prototipo UI / Wireframe para <em>Buscar material</em> (CU-27).
             </div>
 
             <div class="screen-frame">
@@ -6331,14 +6505,18 @@
   
         <div class="figure-wrapper" id="CU-28">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-28: Subir material</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>buscarTiposMateriales() ➔ seleccionarTipoMaterial(idTipoMaterial, tiposMateriales) ➔ subirGrabacion(unaUnidad, titulo, archivoVideo, unTipoMaterial)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-28: Subir material</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>buscarTiposMateriales() ➔ seleccionarTipoMaterial(idTipoMaterial, tiposMateriales) ➔ subirGrabacion(unaUnidad, titulo, archivoVideo, unTipoMaterial)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 29.</strong> Caso de uso real para la interfaz de <em>Subir material</em> (CU-28).
+                <strong>Figura 29.</strong> Prototipo UI / Wireframe para <em>Subir material</em> (CU-28).
             </div>
 
             <div class="screen-frame">
@@ -6524,14 +6702,18 @@
   
         <div class="figure-wrapper" id="CU-29">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-29: Modificar material</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>modificarMaterial(unMaterial, titulo, archivo, estadoPublicacion)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-29: Modificar material</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>modificarMaterial(unMaterial, titulo, archivo, estadoPublicacion)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 30.</strong> Caso de uso real para la interfaz de <em>Modificar material</em> (CU-29).
+                <strong>Figura 30.</strong> Prototipo UI / Wireframe para <em>Modificar material</em> (CU-29).
             </div>
 
             <div class="screen-frame">
@@ -6694,14 +6876,18 @@
   
         <div class="figure-wrapper" id="CU-30">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-30: Dar de baja material</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>darDeBajaMaterial(unMaterial)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-30: Dar de baja material</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>darDeBajaMaterial(unMaterial)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 31.</strong> Caso de uso real para la interfaz de <em>Dar de baja material</em> (CU-30).
+                <strong>Figura 31.</strong> Prototipo UI / Wireframe para <em>Dar de baja material</em> (CU-30).
             </div>
 
             <div class="screen-frame">
@@ -6809,8 +6995,8 @@
             <strong>Registro Seleccionado #30 (Dar de baja material)</strong>
           </div>
           <div class="d-flex justify-content-between">
-            <span class="text-muted">Módulo asociado:</span>
-            <span>Módulo General</span>
+            <span class="text-muted">Estado actual:</span>
+            <span class="wf-badge status-active">Activo / Vigente</span>
           </div>
         </div>
 
@@ -6830,14 +7016,18 @@
   
         <div class="figure-wrapper" id="CU-31">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-31: Buscar término de glosario</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>seleccionarTerminoGlosario(idTermino, terminos)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-31: Buscar término de glosario</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>seleccionarTerminoGlosario(idTermino, terminos)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 32.</strong> Caso de uso real para la interfaz de <em>Buscar término de glosario</em> (CU-31).
+                <strong>Figura 32.</strong> Prototipo UI / Wireframe para <em>Buscar término de glosario</em> (CU-31).
             </div>
 
             <div class="screen-frame">
@@ -7003,14 +7193,18 @@
   
         <div class="figure-wrapper" id="CU-32">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-32: Registrar término de glosario</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>registrarTerminoGlosario(unaUnidad, termino, definicion)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-32: Registrar término de glosario</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>registrarTerminoGlosario(unaUnidad, termino, definicion)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 33.</strong> Caso de uso real para la interfaz de <em>Registrar término de glosario</em> (CU-32).
+                <strong>Figura 33.</strong> Prototipo UI / Wireframe para <em>Registrar término de glosario</em> (CU-32).
             </div>
 
             <div class="screen-frame">
@@ -7195,14 +7389,18 @@
   
         <div class="figure-wrapper" id="CU-33">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-33: Modificar término de glosario</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>modificarTerminoGlosario(unTermino, termino, definicion)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-33: Modificar término de glosario</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>modificarTerminoGlosario(unTermino, termino, definicion)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 34.</strong> Caso de uso real para la interfaz de <em>Modificar término de glosario</em> (CU-33).
+                <strong>Figura 34.</strong> Prototipo UI / Wireframe para <em>Modificar término de glosario</em> (CU-33).
             </div>
 
             <div class="screen-frame">
@@ -7365,14 +7563,18 @@
   
         <div class="figure-wrapper" id="CU-34">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-34: Dar de baja término de glosario</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>darDeBajaTerminoGlosario(unTermino)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-34: Dar de baja término de glosario</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>darDeBajaTerminoGlosario(unTermino)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 35.</strong> Caso de uso real para la interfaz de <em>Dar de baja término de glosario</em> (CU-34).
+                <strong>Figura 35.</strong> Prototipo UI / Wireframe para <em>Dar de baja término de glosario</em> (CU-34).
             </div>
 
             <div class="screen-frame">
@@ -7480,8 +7682,8 @@
             <strong>Registro Seleccionado #34 (Dar de baja término de glosario)</strong>
           </div>
           <div class="d-flex justify-content-between">
-            <span class="text-muted">Módulo asociado:</span>
-            <span>Módulo General</span>
+            <span class="text-muted">Estado actual:</span>
+            <span class="wf-badge status-active">Activo / Vigente</span>
           </div>
         </div>
 
@@ -7501,14 +7703,18 @@
   
         <div class="figure-wrapper" id="CU-35">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-35: Buscar consulta de foro</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>buscarConsultasForo(unidad, texto, rangoFechas) ➔ seleccionarConsultaForo(idConsulta, consultas)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-35: Buscar consulta de foro</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>buscarConsultasForo(unidad, texto, rangoFechas) ➔ seleccionarConsultaForo(idConsulta, consultas)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 36.</strong> Caso de uso real para la interfaz de <em>Buscar consulta de foro</em> (CU-35).
+                <strong>Figura 36.</strong> Prototipo UI / Wireframe para <em>Buscar consulta de foro</em> (CU-35).
             </div>
 
             <div class="screen-frame">
@@ -7674,14 +7880,18 @@
   
         <div class="figure-wrapper" id="CU-36">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-36: Registrar consulta de foro</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>registrarConsultaForo(unaUnidad, texto)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-36: Registrar consulta de foro</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>registrarConsultaForo(unaUnidad, texto)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 37.</strong> Caso de uso real para la interfaz de <em>Registrar consulta de foro</em> (CU-36).
+                <strong>Figura 37.</strong> Prototipo UI / Wireframe para <em>Registrar consulta de foro</em> (CU-36).
             </div>
 
             <div class="screen-frame">
@@ -7858,14 +8068,18 @@
   
         <div class="figure-wrapper" id="CU-37">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-37: Modificar consulta de foro</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>modificarConsultaForo(unaConsulta, texto)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-37: Modificar consulta de foro</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>modificarConsultaForo(unaConsulta, texto)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 38.</strong> Caso de uso real para la interfaz de <em>Modificar consulta de foro</em> (CU-37).
+                <strong>Figura 38.</strong> Prototipo UI / Wireframe para <em>Modificar consulta de foro</em> (CU-37).
             </div>
 
             <div class="screen-frame">
@@ -8028,14 +8242,18 @@
   
         <div class="figure-wrapper" id="CU-38">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-38: Dar de baja consulta de foro</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>darDeBajaConsultaForo(unaConsulta)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-38: Dar de baja consulta de foro</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>darDeBajaConsultaForo(unaConsulta)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 39.</strong> Caso de uso real para la interfaz de <em>Dar de baja consulta de foro</em> (CU-38).
+                <strong>Figura 39.</strong> Prototipo UI / Wireframe para <em>Dar de baja consulta de foro</em> (CU-38).
             </div>
 
             <div class="screen-frame">
@@ -8143,8 +8361,8 @@
             <strong>Registro Seleccionado #38 (Dar de baja consulta de foro)</strong>
           </div>
           <div class="d-flex justify-content-between">
-            <span class="text-muted">Módulo asociado:</span>
-            <span>Módulo General</span>
+            <span class="text-muted">Estado actual:</span>
+            <span class="wf-badge status-active">Activo / Vigente</span>
           </div>
         </div>
 
@@ -8164,14 +8382,18 @@
   
         <div class="figure-wrapper" id="CU-39">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-39: Buscar respuesta de foro</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>buscarRespuestasForo(consulta) ➔ seleccionarRespuestaForo(idRespuestas, respuestas)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-39: Buscar respuesta de foro</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>buscarRespuestasForo(consulta) ➔ seleccionarRespuestaForo(idRespuestas, respuestas)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 40.</strong> Caso de uso real para la interfaz de <em>Buscar respuesta de foro</em> (CU-39).
+                <strong>Figura 40.</strong> Prototipo UI / Wireframe para <em>Buscar respuesta de foro</em> (CU-39).
             </div>
 
             <div class="screen-frame">
@@ -8345,14 +8567,18 @@
   
         <div class="figure-wrapper" id="CU-40">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-40: Registrar respuesta de foro</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>registrarRespuestaForo(unaConsulta, texto)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-40: Registrar respuesta de foro</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>registrarRespuestaForo(unaConsulta, texto)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 41.</strong> Caso de uso real para la interfaz de <em>Registrar respuesta de foro</em> (CU-40).
+                <strong>Figura 41.</strong> Prototipo UI / Wireframe para <em>Registrar respuesta de foro</em> (CU-40).
             </div>
 
             <div class="screen-frame">
@@ -8529,14 +8755,18 @@
   
         <div class="figure-wrapper" id="CU-41">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-41: Modificar respuesta de foro</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>modificarRespuestaForo(unaRespuesta, texto)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-41: Modificar respuesta de foro</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>modificarRespuestaForo(unaRespuesta, texto)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 42.</strong> Caso de uso real para la interfaz de <em>Modificar respuesta de foro</em> (CU-41).
+                <strong>Figura 42.</strong> Prototipo UI / Wireframe para <em>Modificar respuesta de foro</em> (CU-41).
             </div>
 
             <div class="screen-frame">
@@ -8699,14 +8929,18 @@
   
         <div class="figure-wrapper" id="CU-42">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-42: Dar de baja respuesta de foro</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>darDeBajaRespuestaForo(unaRespuesta)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-42: Dar de baja respuesta de foro</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>darDeBajaRespuestaForo(unaRespuesta)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 43.</strong> Caso de uso real para la interfaz de <em>Dar de baja respuesta de foro</em> (CU-42).
+                <strong>Figura 43.</strong> Prototipo UI / Wireframe para <em>Dar de baja respuesta de foro</em> (CU-42).
             </div>
 
             <div class="screen-frame">
@@ -8814,8 +9048,8 @@
             <strong>Registro Seleccionado #42 (Dar de baja respuesta de foro)</strong>
           </div>
           <div class="d-flex justify-content-between">
-            <span class="text-muted">Módulo asociado:</span>
-            <span>Módulo General</span>
+            <span class="text-muted">Estado actual:</span>
+            <span class="wf-badge status-active">Activo / Vigente</span>
           </div>
         </div>
 
@@ -8835,14 +9069,18 @@
   
         <div class="figure-wrapper" id="CU-43">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-43: Buscar inscripción</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>buscarInscripciones(curso, alumno, estado) ➔ seleccionarInscripcion(idInscripcion, inscripciones) ➔ generarCertificado(unaInscripcion)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-43: Buscar inscripción</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>buscarInscripciones(curso, alumno, estado) ➔ seleccionarInscripcion(idInscripcion, inscripciones) ➔ generarCertificado(unaInscripcion)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 44.</strong> Caso de uso real para la interfaz de <em>Buscar inscripción</em> (CU-43).
+                <strong>Figura 44.</strong> Prototipo UI / Wireframe para <em>Buscar inscripción</em> (CU-43).
             </div>
 
             <div class="screen-frame">
@@ -9016,14 +9254,18 @@
   
         <div class="figure-wrapper" id="CU-44">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-44: Inscribir curso</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>buscarCohortesAbiertas(unCurso) ➔ seleccionarCohorte(idCohorte, cohortes) ➔ registrarInscripcion(unaCohorte)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-44: Inscribir curso</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>buscarCohortesAbiertas(unCurso) ➔ seleccionarCohorte(idCohorte, cohortes) ➔ registrarInscripcion(unaCohorte)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 45.</strong> Caso de uso real para la interfaz de <em>Inscribir curso</em> (CU-44).
+                <strong>Figura 45.</strong> Prototipo UI / Wireframe para <em>Inscribir curso</em> (CU-44).
             </div>
 
             <div class="screen-frame">
@@ -9170,14 +9412,18 @@
   
         <div class="figure-wrapper" id="CU-45">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-45: Dar de baja inscripción</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>darDeBajaInscripcion(unaInscripcion, motivo)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-45: Dar de baja inscripción</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>darDeBajaInscripcion(unaInscripcion, motivo)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 46.</strong> Caso de uso real para la interfaz de <em>Dar de baja inscripción</em> (CU-45).
+                <strong>Figura 46.</strong> Prototipo UI / Wireframe para <em>Dar de baja inscripción</em> (CU-45).
             </div>
 
             <div class="screen-frame">
@@ -9285,8 +9531,8 @@
             <strong>Registro Seleccionado #45 (Dar de baja inscripción)</strong>
           </div>
           <div class="d-flex justify-content-between">
-            <span class="text-muted">Módulo asociado:</span>
-            <span>Módulo General</span>
+            <span class="text-muted">Estado actual:</span>
+            <span class="wf-badge status-active">Activo / Vigente</span>
           </div>
         </div>
 
@@ -9306,14 +9552,18 @@
   
         <div class="figure-wrapper" id="CU-46">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-46: Buscar pago</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>buscarPagos(curso, alumno, estado, rangoFechas) ➔ seleccionarPago(idPago, pagos) ➔ generarComprobantePago(unPago)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-46: Buscar pago</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>buscarPagos(curso, alumno, estado, rangoFechas) ➔ seleccionarPago(idPago, pagos) ➔ generarComprobantePago(unPago)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 47.</strong> Caso de uso real para la interfaz de <em>Buscar pago</em> (CU-46).
+                <strong>Figura 47.</strong> Prototipo UI / Wireframe para <em>Buscar pago</em> (CU-46).
             </div>
 
             <div class="screen-frame">
@@ -9460,14 +9710,18 @@
   
         <div class="figure-wrapper" id="CU-47">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-47: Realizar pago</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>calcularMonto(unCurso) ➔ buscarMediosPago() ➔ seleccionarMedioPago(idMedioPago, mediosPago)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-47: Realizar pago</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>calcularMonto(unCurso) ➔ buscarMediosPago() ➔ seleccionarMedioPago(idMedioPago, mediosPago)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 48.</strong> Caso de uso real para la interfaz de <em>Realizar pago</em> (CU-47).
+                <strong>Figura 48.</strong> Prototipo UI / Wireframe para <em>Realizar pago</em> (CU-47).
             </div>
 
             <div class="screen-frame">
@@ -9614,14 +9868,18 @@
   
         <div class="figure-wrapper" id="CU-48">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-48: Buscar progreso</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>buscarProgreso(curso, alumno) ➔ seleccionarPago(idProgreso, progresos)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-48: Buscar progreso</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>buscarProgreso(curso, alumno) ➔ seleccionarPago(idProgreso, progresos)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 49.</strong> Caso de uso real para la interfaz de <em>Buscar progreso</em> (CU-48).
+                <strong>Figura 49.</strong> Prototipo UI / Wireframe para <em>Buscar progreso</em> (CU-48).
             </div>
 
             <div class="screen-frame">
@@ -9795,14 +10053,18 @@
   
         <div class="figure-wrapper" id="CU-49">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-49: Buscar descuento</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>buscarDescuentos(nombre, vigencia) ➔ seleccionarDescuento(idDescuento, descuentos)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-49: Buscar descuento</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>buscarDescuentos(nombre, vigencia) ➔ seleccionarDescuento(idDescuento, descuentos)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 50.</strong> Caso de uso real para la interfaz de <em>Buscar descuento</em> (CU-49).
+                <strong>Figura 50.</strong> Prototipo UI / Wireframe para <em>Buscar descuento</em> (CU-49).
             </div>
 
             <div class="screen-frame">
@@ -9976,14 +10238,18 @@
   
         <div class="figure-wrapper" id="CU-50">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-50: Registrar descuento</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>registrarDescuento(nombre, porcentaje, vigenciaDesde, vigenciaHasta, cantidadLimite, cantidadCursosRequeridos)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-50: Registrar descuento</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>registrarDescuento(nombre, porcentaje, vigenciaDesde, vigenciaHasta, cantidadLimite, cantidadCursosRequeridos)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 51.</strong> Caso de uso real para la interfaz de <em>Registrar descuento</em> (CU-50).
+                <strong>Figura 51.</strong> Prototipo UI / Wireframe para <em>Registrar descuento</em> (CU-50).
             </div>
 
             <div class="screen-frame">
@@ -10146,14 +10412,18 @@
   
         <div class="figure-wrapper" id="CU-51">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-51: Modificar descuento</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>modificarDescuento(unDescuento, nombre, porcentaje, vigenciaDesde, vigenciaHasta, cantidadLimite, cantidadCursosRequeridos)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-51: Modificar descuento</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>modificarDescuento(unDescuento, nombre, porcentaje, vigenciaDesde, vigenciaHasta, cantidadLimite, cantidadCursosRequeridos)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 52.</strong> Caso de uso real para la interfaz de <em>Modificar descuento</em> (CU-51).
+                <strong>Figura 52.</strong> Prototipo UI / Wireframe para <em>Modificar descuento</em> (CU-51).
             </div>
 
             <div class="screen-frame">
@@ -10316,14 +10586,18 @@
   
         <div class="figure-wrapper" id="CU-52">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-52: Dar de baja descuento</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>darDeBajaDescuento(unDescuento)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-52: Dar de baja descuento</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>darDeBajaDescuento(unDescuento)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 53.</strong> Caso de uso real para la interfaz de <em>Dar de baja descuento</em> (CU-52).
+                <strong>Figura 53.</strong> Prototipo UI / Wireframe para <em>Dar de baja descuento</em> (CU-52).
             </div>
 
             <div class="screen-frame">
@@ -10431,8 +10705,8 @@
             <strong>Registro Seleccionado #52 (Dar de baja descuento)</strong>
           </div>
           <div class="d-flex justify-content-between">
-            <span class="text-muted">Módulo asociado:</span>
-            <span>Módulo General</span>
+            <span class="text-muted">Estado actual:</span>
+            <span class="wf-badge status-active">Activo / Vigente</span>
           </div>
         </div>
 
@@ -10452,14 +10726,18 @@
   
         <div class="figure-wrapper" id="CU-53">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-53: Buscar pool</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>Operación de sistema correspondiente</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-53: Buscar pool</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>Operación de sistema correspondiente</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 54.</strong> Caso de uso real para la interfaz de <em>Buscar pool</em> (CU-53).
+                <strong>Figura 54.</strong> Prototipo UI / Wireframe para <em>Buscar pool</em> (CU-53).
             </div>
 
             <div class="screen-frame">
@@ -10625,14 +10903,18 @@
   
         <div class="figure-wrapper" id="CU-54">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-54: Crear pool</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>agregarOpcion(unaPregunta, texto, esCorrecta)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-54: Crear pool</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>agregarOpcion(unaPregunta, texto, esCorrecta)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 55.</strong> Caso de uso real para la interfaz de <em>Crear pool</em> (CU-54).
+                <strong>Figura 55.</strong> Prototipo UI / Wireframe para <em>Crear pool</em> (CU-54).
             </div>
 
             <div class="screen-frame">
@@ -10809,14 +11091,18 @@
   
         <div class="figure-wrapper" id="CU-55">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-55: Modificar pool</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>modificarPool(unPool, nombre) ➔ agregarOpcion(unaPregunta, texto, esCorrecta) ➔ modificarPregunta(unaPregunta, tipo, enunciado)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-55: Modificar pool</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>modificarPool(unPool, nombre) ➔ agregarOpcion(unaPregunta, texto, esCorrecta) ➔ modificarPregunta(unaPregunta, tipo, enunciado)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 56.</strong> Caso de uso real para la interfaz de <em>Modificar pool</em> (CU-55).
+                <strong>Figura 56.</strong> Prototipo UI / Wireframe para <em>Modificar pool</em> (CU-55).
             </div>
 
             <div class="screen-frame">
@@ -10979,14 +11265,18 @@
   
         <div class="figure-wrapper" id="CU-56">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-56: Dar de baja pool</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>darDeBajaPool(unPool)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-56: Dar de baja pool</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>darDeBajaPool(unPool)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 57.</strong> Caso de uso real para la interfaz de <em>Dar de baja pool</em> (CU-56).
+                <strong>Figura 57.</strong> Prototipo UI / Wireframe para <em>Dar de baja pool</em> (CU-56).
             </div>
 
             <div class="screen-frame">
@@ -11094,8 +11384,8 @@
             <strong>Registro Seleccionado #56 (Dar de baja pool)</strong>
           </div>
           <div class="d-flex justify-content-between">
-            <span class="text-muted">Módulo asociado:</span>
-            <span>Módulo General</span>
+            <span class="text-muted">Estado actual:</span>
+            <span class="wf-badge status-active">Activo / Vigente</span>
           </div>
         </div>
 
@@ -11115,14 +11405,18 @@
   
         <div class="figure-wrapper" id="CU-57">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-57: Buscar autoevaluación</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>Operación de sistema correspondiente</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-57: Buscar autoevaluación</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>Operación de sistema correspondiente</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 58.</strong> Caso de uso real para la interfaz de <em>Buscar autoevaluación</em> (CU-57).
+                <strong>Figura 58.</strong> Prototipo UI / Wireframe para <em>Buscar autoevaluación</em> (CU-57).
             </div>
 
             <div class="screen-frame">
@@ -11288,14 +11582,18 @@
   
         <div class="figure-wrapper" id="CU-58">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-58: Crear autoevaluación</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>Operación de sistema correspondiente</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-58: Crear autoevaluación</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>Operación de sistema correspondiente</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 59.</strong> Caso de uso real para la interfaz de <em>Crear autoevaluación</em> (CU-58).
+                <strong>Figura 59.</strong> Prototipo UI / Wireframe para <em>Crear autoevaluación</em> (CU-58).
             </div>
 
             <div class="screen-frame">
@@ -11472,14 +11770,18 @@
   
         <div class="figure-wrapper" id="CU-59">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-59: Modificar autoevaluación</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>modificarAutoevaluacion(unaAutoevaluacion, nombre, tiempoLimite, cantidadPreguntas, fechaApertura, fechaCierre, cantidadIntentosPermitidos, poolsSeleccionados) ➔ modificarAutoevaluacion(unaAutoevaluacion, fechaCierre, visible, cantidadIntentosPermitidos)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-59: Modificar autoevaluación</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>modificarAutoevaluacion(unaAutoevaluacion, nombre, tiempoLimite, cantidadPreguntas, fechaApertura, fechaCierre, cantidadIntentosPermitidos, poolsSeleccionados) ➔ modificarAutoevaluacion(unaAutoevaluacion, fechaCierre, visible, cantidadIntentosPermitidos)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 60.</strong> Caso de uso real para la interfaz de <em>Modificar autoevaluación</em> (CU-59).
+                <strong>Figura 60.</strong> Prototipo UI / Wireframe para <em>Modificar autoevaluación</em> (CU-59).
             </div>
 
             <div class="screen-frame">
@@ -11642,14 +11944,18 @@
   
         <div class="figure-wrapper" id="CU-60">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-60: Dar de baja autoevaluación</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>darDeBajaAutoevaluacion(unaAutoevaluacion)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-60: Dar de baja autoevaluación</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>darDeBajaAutoevaluacion(unaAutoevaluacion)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 61.</strong> Caso de uso real para la interfaz de <em>Dar de baja autoevaluación</em> (CU-60).
+                <strong>Figura 61.</strong> Prototipo UI / Wireframe para <em>Dar de baja autoevaluación</em> (CU-60).
             </div>
 
             <div class="screen-frame">
@@ -11757,8 +12063,8 @@
             <strong>Registro Seleccionado #60 (Dar de baja autoevaluación)</strong>
           </div>
           <div class="d-flex justify-content-between">
-            <span class="text-muted">Módulo asociado:</span>
-            <span>Módulo General</span>
+            <span class="text-muted">Estado actual:</span>
+            <span class="wf-badge status-active">Activo / Vigente</span>
           </div>
         </div>
 
@@ -11778,14 +12084,18 @@
   
         <div class="figure-wrapper" id="CU-61">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-61: Buscar intento de autoevaluación</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>Operación de sistema correspondiente</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-61: Buscar intento de autoevaluación</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>Operación de sistema correspondiente</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 62.</strong> Caso de uso real para la interfaz de <em>Buscar intento de autoevaluación</em> (CU-61).
+                <strong>Figura 62.</strong> Prototipo UI / Wireframe para <em>Buscar intento de autoevaluación</em> (CU-61).
             </div>
 
             <div class="screen-frame">
@@ -11959,14 +12269,18 @@
   
         <div class="figure-wrapper" id="CU-62">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-62: Ver calificaciones</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>Operación de sistema correspondiente</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-62: Ver calificaciones</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>Operación de sistema correspondiente</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 63.</strong> Caso de uso real para la interfaz de <em>Ver calificaciones</em> (CU-62).
+                <strong>Figura 63.</strong> Prototipo UI / Wireframe para <em>Ver calificaciones</em> (CU-62).
             </div>
 
             <div class="screen-frame">
@@ -12140,14 +12454,18 @@
   
         <div class="figure-wrapper" id="CU-63">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-63: Realizar intento de autoevaluación</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>agregarRespuesta(unIntento, unaOpcion)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-63: Realizar intento de autoevaluación</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>agregarRespuesta(unIntento, unaOpcion)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 64.</strong> Caso de uso real para la interfaz de <em>Realizar intento de autoevaluación</em> (CU-63).
+                <strong>Figura 64.</strong> Prototipo UI / Wireframe para <em>Realizar intento de autoevaluación</em> (CU-63).
             </div>
 
             <div class="screen-frame">
@@ -12299,14 +12617,18 @@
   
         <div class="figure-wrapper" id="CU-64">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-64: Dar de baja intento de autoevaluación</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>darDeBajaIntento(unIntento)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-64: Dar de baja intento de autoevaluación</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>darDeBajaIntento(unIntento)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 65.</strong> Caso de uso real para la interfaz de <em>Dar de baja intento de autoevaluación</em> (CU-64).
+                <strong>Figura 65.</strong> Prototipo UI / Wireframe para <em>Dar de baja intento de autoevaluación</em> (CU-64).
             </div>
 
             <div class="screen-frame">
@@ -12414,8 +12736,8 @@
             <strong>Registro Seleccionado #64 (Dar de baja intento de autoevaluación)</strong>
           </div>
           <div class="d-flex justify-content-between">
-            <span class="text-muted">Módulo asociado:</span>
-            <span>Módulo General</span>
+            <span class="text-muted">Estado actual:</span>
+            <span class="wf-badge status-active">Activo / Vigente</span>
           </div>
         </div>
 
@@ -12435,14 +12757,18 @@
   
         <div class="figure-wrapper" id="CU-65">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-65: Buscar clase en vivo</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>Operación de sistema correspondiente</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-65: Buscar clase en vivo</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>Operación de sistema correspondiente</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 66.</strong> Caso de uso real para la interfaz de <em>Buscar clase en vivo</em> (CU-65).
+                <strong>Figura 66.</strong> Prototipo UI / Wireframe para <em>Buscar clase en vivo</em> (CU-65).
             </div>
 
             <div class="screen-frame">
@@ -12608,14 +12934,18 @@
   
         <div class="figure-wrapper" id="CU-66">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-66: Programar clase en vivo</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>Operación de sistema correspondiente</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-66: Programar clase en vivo</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>Operación de sistema correspondiente</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 67.</strong> Caso de uso real para la interfaz de <em>Programar clase en vivo</em> (CU-66).
+                <strong>Figura 67.</strong> Prototipo UI / Wireframe para <em>Programar clase en vivo</em> (CU-66).
             </div>
 
             <div class="screen-frame">
@@ -12800,14 +13130,18 @@
   
         <div class="figure-wrapper" id="CU-67">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-67: Modificar clase en vivo</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>modificarClaseEnVivo(unaClase, titulo, fechaHora, duracionEstimada)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-67: Modificar clase en vivo</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>modificarClaseEnVivo(unaClase, titulo, fechaHora, duracionEstimada)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 68.</strong> Caso de uso real para la interfaz de <em>Modificar clase en vivo</em> (CU-67).
+                <strong>Figura 68.</strong> Prototipo UI / Wireframe para <em>Modificar clase en vivo</em> (CU-67).
             </div>
 
             <div class="screen-frame">
@@ -12970,14 +13304,18 @@
   
         <div class="figure-wrapper" id="CU-68">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-68: Cancelar clase en vivo</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>cancelarClaseEnVivo(unaClase)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-68: Cancelar clase en vivo</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>cancelarClaseEnVivo(unaClase)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 69.</strong> Caso de uso real para la interfaz de <em>Cancelar clase en vivo</em> (CU-68).
+                <strong>Figura 69.</strong> Prototipo UI / Wireframe para <em>Cancelar clase en vivo</em> (CU-68).
             </div>
 
             <div class="screen-frame">
@@ -13085,8 +13423,8 @@
             <strong>Registro Seleccionado #68 (Cancelar clase en vivo)</strong>
           </div>
           <div class="d-flex justify-content-between">
-            <span class="text-muted">Módulo asociado:</span>
-            <span>Módulo General</span>
+            <span class="text-muted">Estado actual:</span>
+            <span class="wf-badge status-active">Activo / Vigente</span>
           </div>
         </div>
 
@@ -13106,14 +13444,18 @@
   
         <div class="figure-wrapper" id="CU-69">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-69: Dar de baja clase en vivo</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>darDeBajaClaseEnVivo(unaClase)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-69: Dar de baja clase en vivo</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>darDeBajaClaseEnVivo(unaClase)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 70.</strong> Caso de uso real para la interfaz de <em>Dar de baja clase en vivo</em> (CU-69).
+                <strong>Figura 70.</strong> Prototipo UI / Wireframe para <em>Dar de baja clase en vivo</em> (CU-69).
             </div>
 
             <div class="screen-frame">
@@ -13221,8 +13563,8 @@
             <strong>Registro Seleccionado #69 (Dar de baja clase en vivo)</strong>
           </div>
           <div class="d-flex justify-content-between">
-            <span class="text-muted">Módulo asociado:</span>
-            <span>Módulo General</span>
+            <span class="text-muted">Estado actual:</span>
+            <span class="wf-badge status-active">Activo / Vigente</span>
           </div>
         </div>
 
@@ -13242,14 +13584,18 @@
   
         <div class="figure-wrapper" id="CU-70">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-70: Iniciar clase en vivo</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>Operación de sistema correspondiente</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-70: Iniciar clase en vivo</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>Operación de sistema correspondiente</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 71.</strong> Caso de uso real para la interfaz de <em>Iniciar clase en vivo</em> (CU-70).
+                <strong>Figura 71.</strong> Prototipo UI / Wireframe para <em>Iniciar clase en vivo</em> (CU-70).
             </div>
 
             <div class="screen-frame">
@@ -13409,14 +13755,18 @@
   
         <div class="figure-wrapper" id="CU-71">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-71: Finalizar clase en vivo</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>finalizarClaseEnVivo(unaClase)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-71: Finalizar clase en vivo</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>finalizarClaseEnVivo(unaClase)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 72.</strong> Caso de uso real para la interfaz de <em>Finalizar clase en vivo</em> (CU-71).
+                <strong>Figura 72.</strong> Prototipo UI / Wireframe para <em>Finalizar clase en vivo</em> (CU-71).
             </div>
 
             <div class="screen-frame">
@@ -13576,14 +13926,18 @@
   
         <div class="figure-wrapper" id="CU-72">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-72: Ingresar a clase en vivo</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>ingresarClaseEnVivo(unaClase)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-72: Ingresar a clase en vivo</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>ingresarClaseEnVivo(unaClase)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 73.</strong> Caso de uso real para la interfaz de <em>Ingresar a clase en vivo</em> (CU-72).
+                <strong>Figura 73.</strong> Prototipo UI / Wireframe para <em>Ingresar a clase en vivo</em> (CU-72).
             </div>
 
             <div class="screen-frame">
@@ -13743,14 +14097,18 @@
   
         <div class="figure-wrapper" id="CU-73">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-73: Generar banco de preguntas</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>Operación de sistema correspondiente</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-73: Generar banco de preguntas</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>Operación de sistema correspondiente</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 74.</strong> Caso de uso real para la interfaz de <em>Generar banco de preguntas</em> (CU-73).
+                <strong>Figura 74.</strong> Prototipo UI / Wireframe para <em>Generar banco de preguntas</em> (CU-73).
             </div>
 
             <div class="screen-frame">
@@ -13915,14 +14273,18 @@
   
         <div class="figure-wrapper" id="CU-74">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-74: Generar resumen de unidad</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>Operación de sistema correspondiente</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-74: Generar resumen de unidad</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>Operación de sistema correspondiente</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 75.</strong> Caso de uso real para la interfaz de <em>Generar resumen de unidad</em> (CU-74).
+                <strong>Figura 75.</strong> Prototipo UI / Wireframe para <em>Generar resumen de unidad</em> (CU-74).
             </div>
 
             <div class="screen-frame">
@@ -14087,14 +14449,18 @@
   
         <div class="figure-wrapper" id="CU-75">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-75: Generar presentación de unidad</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>Operación de sistema correspondiente</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-75: Generar presentación de unidad</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>Operación de sistema correspondiente</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 76.</strong> Caso de uso real para la interfaz de <em>Generar presentación de unidad</em> (CU-75).
+                <strong>Figura 76.</strong> Prototipo UI / Wireframe para <em>Generar presentación de unidad</em> (CU-75).
             </div>
 
             <div class="screen-frame">
@@ -14259,14 +14625,18 @@
   
         <div class="figure-wrapper" id="CU-76">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-76: Crear clon</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>crearClon(imagen, audio, comprobacionVoz)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-76: Crear clon</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>crearClon(imagen, audio, comprobacionVoz)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 77.</strong> Caso de uso real para la interfaz de <em>Crear clon</em> (CU-76).
+                <strong>Figura 77.</strong> Prototipo UI / Wireframe para <em>Crear clon</em> (CU-76).
             </div>
 
             <div class="screen-frame">
@@ -14482,14 +14852,18 @@
   
         <div class="figure-wrapper" id="CU-77">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-77: Buscar clase con clon</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>Operación de sistema correspondiente</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-77: Buscar clase con clon</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>Operación de sistema correspondiente</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 78.</strong> Caso de uso real para la interfaz de <em>Buscar clase con clon</em> (CU-77).
+                <strong>Figura 78.</strong> Prototipo UI / Wireframe para <em>Buscar clase con clon</em> (CU-77).
             </div>
 
             <div class="screen-frame">
@@ -14684,14 +15058,18 @@
   
         <div class="figure-wrapper" id="CU-78">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-78: Generar clase con clon</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>Operación de sistema correspondiente</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-78: Generar clase con clon</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>Operación de sistema correspondiente</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 79.</strong> Caso de uso real para la interfaz de <em>Generar clase con clon</em> (CU-78).
+                <strong>Figura 79.</strong> Prototipo UI / Wireframe para <em>Generar clase con clon</em> (CU-78).
             </div>
 
             <div class="screen-frame">
@@ -14886,14 +15264,18 @@
   
         <div class="figure-wrapper" id="CU-79">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-79: Modificar clase con clon</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>modificarClaseConClon(unaClase, titulo, guion)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-79: Modificar clase con clon</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>modificarClaseConClon(unaClase, titulo, guion)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 80.</strong> Caso de uso real para la interfaz de <em>Modificar clase con clon</em> (CU-79).
+                <strong>Figura 80.</strong> Prototipo UI / Wireframe para <em>Modificar clase con clon</em> (CU-79).
             </div>
 
             <div class="screen-frame">
@@ -15088,14 +15470,18 @@
   
         <div class="figure-wrapper" id="CU-80">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-80: Dar de baja clase con clon</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>darDeBajaClaseConClon(unaClase)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-80: Dar de baja clase con clon</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>darDeBajaClaseConClon(unaClase)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 81.</strong> Caso de uso real para la interfaz de <em>Dar de baja clase con clon</em> (CU-80).
+                <strong>Figura 81.</strong> Prototipo UI / Wireframe para <em>Dar de baja clase con clon</em> (CU-80).
             </div>
 
             <div class="screen-frame">
@@ -15203,8 +15589,8 @@
             <strong>Registro Seleccionado #80 (Dar de baja clase con clon)</strong>
           </div>
           <div class="d-flex justify-content-between">
-            <span class="text-muted">Módulo asociado:</span>
-            <span>Módulo General</span>
+            <span class="text-muted">Estado actual:</span>
+            <span class="wf-badge status-active">Activo / Vigente</span>
           </div>
         </div>
 
@@ -15224,14 +15610,18 @@
   
         <div class="figure-wrapper" id="CU-81">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-81: Registrarse</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>validarCuenta(token)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-81: Registrarse</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>validarCuenta(token)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 82.</strong> Caso de uso real para la interfaz de <em>Registrarse</em> (CU-81).
+                <strong>Figura 82.</strong> Prototipo UI / Wireframe para <em>Registrarse</em> (CU-81).
             </div>
 
             <div class="screen-frame">
@@ -15367,14 +15757,18 @@
   
         <div class="figure-wrapper" id="CU-82">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-82: Buscar usuario</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>Operación de sistema correspondiente</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-82: Buscar usuario</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>Operación de sistema correspondiente</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 83.</strong> Caso de uso real para la interfaz de <em>Buscar usuario</em> (CU-82).
+                <strong>Figura 83.</strong> Prototipo UI / Wireframe para <em>Buscar usuario</em> (CU-82).
             </div>
 
             <div class="screen-frame">
@@ -15548,14 +15942,18 @@
   
         <div class="figure-wrapper" id="CU-83">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-83: Registrar usuario</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>Operación de sistema correspondiente</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-83: Registrar usuario</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>Operación de sistema correspondiente</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 84.</strong> Caso de uso real para la interfaz de <em>Registrar usuario</em> (CU-83).
+                <strong>Figura 84.</strong> Prototipo UI / Wireframe para <em>Registrar usuario</em> (CU-83).
             </div>
 
             <div class="screen-frame">
@@ -15718,14 +16116,18 @@
   
         <div class="figure-wrapper" id="CU-84">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-84: Modificar usuario</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>modificarUsuario(unUsuario, nombre, apellido, correo, dni, telefono, imagenPerfil)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-84: Modificar usuario</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>modificarUsuario(unUsuario, nombre, apellido, correo, dni, telefono, imagenPerfil)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 85.</strong> Caso de uso real para la interfaz de <em>Modificar usuario</em> (CU-84).
+                <strong>Figura 85.</strong> Prototipo UI / Wireframe para <em>Modificar usuario</em> (CU-84).
             </div>
 
             <div class="screen-frame">
@@ -15888,14 +16290,18 @@
   
         <div class="figure-wrapper" id="CU-85">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-85: Dar de baja usuario</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>darDeBajaUsuario(unUsuario)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-85: Dar de baja usuario</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>darDeBajaUsuario(unUsuario)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 86.</strong> Caso de uso real para la interfaz de <em>Dar de baja usuario</em> (CU-85).
+                <strong>Figura 86.</strong> Prototipo UI / Wireframe para <em>Dar de baja usuario</em> (CU-85).
             </div>
 
             <div class="screen-frame">
@@ -16003,8 +16409,8 @@
             <strong>Registro Seleccionado #85 (Dar de baja usuario)</strong>
           </div>
           <div class="d-flex justify-content-between">
-            <span class="text-muted">Módulo asociado:</span>
-            <span>Módulo General</span>
+            <span class="text-muted">Estado actual:</span>
+            <span class="wf-badge status-active">Activo / Vigente</span>
           </div>
         </div>
 
@@ -16024,14 +16430,18 @@
   
         <div class="figure-wrapper" id="CU-86">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-86: Ver perfil</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>Operación de sistema correspondiente</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-86: Ver perfil</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>Operación de sistema correspondiente</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 87.</strong> Caso de uso real para la interfaz de <em>Ver perfil</em> (CU-86).
+                <strong>Figura 87.</strong> Prototipo UI / Wireframe para <em>Ver perfil</em> (CU-86).
             </div>
 
             <div class="screen-frame">
@@ -16178,14 +16588,18 @@
   
         <div class="figure-wrapper" id="CU-87">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-87: Editar perfil</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>editarPerfil(nombre, apellido, telefono, imagenPerfil)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-87: Editar perfil</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>editarPerfil(nombre, apellido, telefono, imagenPerfil)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 88.</strong> Caso de uso real para la interfaz de <em>Editar perfil</em> (CU-87).
+                <strong>Figura 88.</strong> Prototipo UI / Wireframe para <em>Editar perfil</em> (CU-87).
             </div>
 
             <div class="screen-frame">
@@ -16332,14 +16746,18 @@
   
         <div class="figure-wrapper" id="CU-88">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-88: Registrar docente</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>Operación de sistema correspondiente</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-88: Registrar docente</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>Operación de sistema correspondiente</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 89.</strong> Caso de uso real para la interfaz de <em>Registrar docente</em> (CU-88).
+                <strong>Figura 89.</strong> Prototipo UI / Wireframe para <em>Registrar docente</em> (CU-88).
             </div>
 
             <div class="screen-frame">
@@ -16502,14 +16920,18 @@
   
         <div class="figure-wrapper" id="CU-89">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-89: Modificar docente</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>modificarDocente(unDocente, biografia, aniosExperiencia, matriculaCnv, habilitado) ➔ modificarTitulo(unTitulo, titulo, matriculaColegio) ➔ eliminarTitulo(unTitulo)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-89: Modificar docente</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>modificarDocente(unDocente, biografia, aniosExperiencia, matriculaCnv, habilitado) ➔ modificarTitulo(unTitulo, titulo, matriculaColegio) ➔ eliminarTitulo(unTitulo)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 90.</strong> Caso de uso real para la interfaz de <em>Modificar docente</em> (CU-89).
+                <strong>Figura 90.</strong> Prototipo UI / Wireframe para <em>Modificar docente</em> (CU-89).
             </div>
 
             <div class="screen-frame">
@@ -16672,14 +17094,18 @@
   
         <div class="figure-wrapper" id="CU-90">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-90: Iniciar sesión</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>Operación de sistema correspondiente</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-90: Iniciar sesión</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>Operación de sistema correspondiente</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 91.</strong> Caso de uso real para la interfaz de <em>Iniciar sesión</em> (CU-90).
+                <strong>Figura 91.</strong> Prototipo UI / Wireframe para <em>Iniciar sesión</em> (CU-90).
             </div>
 
             <div class="screen-frame">
@@ -16821,14 +17247,18 @@
   
         <div class="figure-wrapper" id="CU-91">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-91: Cerrar sesión</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>cerrarSesion()</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-91: Cerrar sesión</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>cerrarSesion()</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 92.</strong> Caso de uso real para la interfaz de <em>Cerrar sesión</em> (CU-91).
+                <strong>Figura 92.</strong> Prototipo UI / Wireframe para <em>Cerrar sesión</em> (CU-91).
             </div>
 
             <div class="screen-frame">
@@ -16991,14 +17421,18 @@
   
         <div class="figure-wrapper" id="CU-92">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-92: Recuperar contraseña</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>solicitarRecuperacionContrasena(correo) ➔ restablecerContrasena(token, nuevaContrasena)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-92: Recuperar contraseña</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>solicitarRecuperacionContrasena(correo) ➔ restablecerContrasena(token, nuevaContrasena)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 93.</strong> Caso de uso real para la interfaz de <em>Recuperar contraseña</em> (CU-92).
+                <strong>Figura 93.</strong> Prototipo UI / Wireframe para <em>Recuperar contraseña</em> (CU-92).
             </div>
 
             <div class="screen-frame">
@@ -17126,14 +17560,18 @@
   
         <div class="figure-wrapper" id="CU-93">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-93: Buscar sesión</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>Operación de sistema correspondiente</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-93: Buscar sesión</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>Operación de sistema correspondiente</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 94.</strong> Caso de uso real para la interfaz de <em>Buscar sesión</em> (CU-93).
+                <strong>Figura 94.</strong> Prototipo UI / Wireframe para <em>Buscar sesión</em> (CU-93).
             </div>
 
             <div class="screen-frame">
@@ -17307,14 +17745,18 @@
   
         <div class="figure-wrapper" id="CU-94">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-94: Eliminar sesión</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>eliminarSesion(unaSesion)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-94: Eliminar sesión</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>eliminarSesion(unaSesion)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 95.</strong> Caso de uso real para la interfaz de <em>Eliminar sesión</em> (CU-94).
+                <strong>Figura 95.</strong> Prototipo UI / Wireframe para <em>Eliminar sesión</em> (CU-94).
             </div>
 
             <div class="screen-frame">
@@ -17422,8 +17864,8 @@
             <strong>Registro Seleccionado #94 (Eliminar sesión)</strong>
           </div>
           <div class="d-flex justify-content-between">
-            <span class="text-muted">Módulo asociado:</span>
-            <span>Módulo General</span>
+            <span class="text-muted">Estado actual:</span>
+            <span class="wf-badge status-active">Activo / Vigente</span>
           </div>
         </div>
 
@@ -17443,14 +17885,18 @@
   
         <div class="figure-wrapper" id="CU-95">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-95: Consultar auditoría</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>Operación de sistema correspondiente</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-95: Consultar auditoría</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>Operación de sistema correspondiente</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 96.</strong> Caso de uso real para la interfaz de <em>Consultar auditoría</em> (CU-95).
+                <strong>Figura 96.</strong> Prototipo UI / Wireframe para <em>Consultar auditoría</em> (CU-95).
             </div>
 
             <div class="screen-frame">
@@ -17595,14 +18041,18 @@
   
         <div class="figure-wrapper" id="CU-96">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-96: Generar informe de alumnos de un curso</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>Operación de sistema correspondiente</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-96: Generar informe de alumnos de un curso</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>Operación de sistema correspondiente</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 97.</strong> Caso de uso real para la interfaz de <em>Generar informe de alumnos de un curso</em> (CU-96).
+                <strong>Figura 97.</strong> Prototipo UI / Wireframe para <em>Generar informe de alumnos de un curso</em> (CU-96).
             </div>
 
             <div class="screen-frame">
@@ -17779,14 +18229,18 @@
   
         <div class="figure-wrapper" id="CU-97">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-97: Generar informe de ingresos de un curso</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>Operación de sistema correspondiente</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-97: Generar informe de ingresos de un curso</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>Operación de sistema correspondiente</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 98.</strong> Caso de uso real para la interfaz de <em>Generar informe de ingresos de un curso</em> (CU-97).
+                <strong>Figura 98.</strong> Prototipo UI / Wireframe para <em>Generar informe de ingresos de un curso</em> (CU-97).
             </div>
 
             <div class="screen-frame">
@@ -17963,14 +18417,18 @@
   
         <div class="figure-wrapper" id="CU-98">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-98: Consultar estadísticas</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>Operación de sistema correspondiente</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-98: Consultar estadísticas</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>Operación de sistema correspondiente</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 99.</strong> Caso de uso real para la interfaz de <em>Consultar estadísticas</em> (CU-98).
+                <strong>Figura 99.</strong> Prototipo UI / Wireframe para <em>Consultar estadísticas</em> (CU-98).
             </div>
 
             <div class="screen-frame">
@@ -18147,14 +18605,18 @@
   
         <div class="figure-wrapper" id="CU-99">
             <div class="meta-strip">
-                <span><strong>CU Real:</strong> CU-99: Configurar parámetros</span>
-                <span><strong>Módulo:</strong> Módulo General</span>
-                <span><strong>Actor(es):</strong> Usuario</span>
-                <span><strong>DSS Asociado:</strong> <code>modificarParametro(unParametro, valorNuevo)</code></span>
+                <div>
+                    <span><strong>CU Real:</strong> CU-99: Configurar parámetros</span>
+                    <span style="margin: 0 8px; color: #CBD5E1;">•</span>
+                    <span><strong>Actor(es):</strong> Usuario</span>
+                </div>
+                <div>
+                    <span><strong>DSS:</strong> <code>modificarParametro(unParametro, valorNuevo)</code></span>
+                </div>
             </div>
 
             <div class="figure-caption">
-                <strong>Figura 100.</strong> Caso de uso real para la interfaz de <em>Configurar parámetros</em> (CU-99).
+                <strong>Figura 100.</strong> Prototipo UI / Wireframe para <em>Configurar parámetros</em> (CU-99).
             </div>
 
             <div class="screen-frame">
