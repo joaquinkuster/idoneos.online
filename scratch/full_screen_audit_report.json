@@ -8,12 +8,12 @@
     "buttonMatches": [
       {
         "badge": "C",
-        "term": "Buscar",
+        "term": "Buscar Cursos",
         "found": true
       },
       {
         "badge": "D",
-        "term": "Gestionar curso",
+        "term": "Editar Curso",
         "found": true
       }
     ]
@@ -32,7 +32,7 @@
       },
       {
         "badge": "D",
-        "term": "Ingresar al curso",
+        "term": "Ingresar al Curso",
         "found": true
       }
     ]
@@ -40,7 +40,7 @@
   {
     "id": "CU-03",
     "name": "Registrar curso",
-    "totalSteps": 2,
+    "totalSteps": 3,
     "missingBadges": [],
     "missingButtons": [],
     "buttonMatches": [
@@ -50,12 +50,12 @@
         "found": true
       },
       {
-        "badge": "C",
+        "badge": "L",
         "term": "Examinar...",
         "found": true
       },
       {
-        "badge": "D",
+        "badge": "M",
         "term": "Guardar Curso",
         "found": true
       }
@@ -64,17 +64,22 @@
   {
     "id": "CU-04",
     "name": "Modificar curso",
-    "totalSteps": 2,
+    "totalSteps": 3,
     "missingBadges": [],
     "missingButtons": [],
     "buttonMatches": [
       {
         "badge": "A",
-        "term": "Modificar",
+        "term": "Editar Curso",
         "found": true
       },
       {
-        "badge": "C",
+        "badge": "L",
+        "term": "Examinar...",
+        "found": true
+      },
+      {
+        "badge": "M",
         "term": "Guardar Cambios",
         "found": true
       }
@@ -102,7 +107,7 @@
   {
     "id": "CU-06",
     "name": "Explorar catálogo de cursos",
-    "totalSteps": 2,
+    "totalSteps": 3,
     "missingBadges": [],
     "missingButtons": [],
     "buttonMatches": [
@@ -121,7 +126,7 @@
     "missingButtons": [],
     "buttonMatches": [
       {
-        "badge": "B",
+        "badge": "C",
         "term": "Buscar",
         "found": true
       }
@@ -130,7 +135,7 @@
   {
     "id": "CU-08",
     "name": "Registrar categoría",
-    "totalSteps": 2,
+    "totalSteps": 3,
     "missingBadges": [],
     "missingButtons": [],
     "buttonMatches": [
@@ -140,7 +145,7 @@
         "found": true
       },
       {
-        "badge": "C",
+        "badge": "D",
         "term": "Guardar Categoría",
         "found": true
       }

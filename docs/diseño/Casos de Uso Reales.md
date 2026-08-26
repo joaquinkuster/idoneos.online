@@ -20,12 +20,12 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor solicita buscar uno o más cursos mediante los campos de búsqueda [A] y filtros por categoría [B]. |
+| 1 | El caso de uso inicia cuando el actor solicita buscar uno o más cursos mediante los campos de búsqueda [A] y filtros por categoría / estado [B]. |
 | 2 | El sistema solicita los criterios de búsqueda: nombre, categoría, nivel, equipo docente y modalidad. |
-| 3 | El actor ingresa los criterios de búsqueda que desea y confirma la búsqueda mediante el botón "Buscar" [C]. |
+| 3 | El actor ingresa los criterios de búsqueda que desea y confirma la búsqueda mediante el botón "Buscar Cursos" [C]. |
 | 4 | El sistema recupera y filtra los cursos que coincidan con los criterios ingresados. Si el actor es Docente, el sistema restringe el resultado a los cursos en los que participa como titular o ayudante. |
-| 5 | El sistema lista los cursos filtrados. |
-| 6 | El actor puede seleccionar uno de los resultados mediante la tarjeta de curso y el botón "Gestionar curso" [D] para ver su detalle. |
+| 5 | El sistema lista los cursos filtrados en formato de tarjetas. |
+| 6 | El actor puede seleccionar uno de los resultados mediante la tarjeta de curso y el botón "Editar Curso" [D] para ver su detalle o gestionarlo, o iniciar la baja mediante el botón "Dar de baja". |
 | 7 | Fin del caso de uso. |
 
 - **Salida**: Se recuperan uno o más cursos que cumplen con los criterios de búsqueda, junto con su categoría, nivel, modalidades y equipo docente.
@@ -55,7 +55,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 | 3 | El actor ingresa los criterios de búsqueda que desea y confirma mediante el botón "Filtrar" [C]. |
 | 4 | El sistema recupera y filtra las inscripciones que coincidan con los criterios ingresados. |
 | 5 | El sistema lista las inscripciones recuperadas, con su nombre e imagen del curso y el progreso general en cada uno. |
-| 6 | El actor selecciona un curso mediante el botón "Ingresar al curso" [D] para acceder al contenido del programa de su cohorte. |
+| 6 | El actor selecciona un curso mediante el botón "Ingresar al Curso" [D] para acceder al contenido del programa de su cohorte. |
 | 7 | Fin del caso de uso. |
 
 - **Salida**: Se recuperan uno o más cursos inscritos del alumno, y se accede al contenido del curso seleccionado.
@@ -81,9 +81,9 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor solicita registrar un nuevo curso mediante el botón "+ Nuevo Curso" [A]. |
-| 2 | El sistema solicita: nombre, descripción, precio, imagen de portada (opcional), categoría, nivel, si emite certificado al finalizar, modalidades de dictado, docente titular y, opcionalmente, docente ayudante. |
-| 3 | El actor ingresa los datos solicitados mediante el formulario de curso [B], adjunta la portada mediante el botón "Examinar..." [C] y confirma mediante el botón "Guardar Curso" [D]. |
+| 1 | El caso de uso inicia cuando el actor solicita registrar un nuevo curso mediante el botón "+ Nuevo Curso" [A] ubicado en la barra de gestión de cursos (ver CU-01: Buscar curso). |
+| 2 | El sistema solicita los datos del curso: nombre [B], categoría temática [C], nivel de dificultad [D], precio de inscripción [E], modalidades de dictado [F], docente titular [G], docentes ayudantes [H], si emite certificado oficial [I], descripción detallada [J], y archivo de portada [K] mediante el botón "Examinar..." [L]. |
+| 3 | El actor completa los campos solicitados y confirma el registro mediante el botón "Guardar Curso" [M]. |
 | 4 | El sistema valida que se hayan completado los campos obligatorios (nombre, descripción, precio, categoría, nivel, al menos una modalidad y docente titular). |
 | 5 | El sistema valida que el precio ingresado sea mayor o igual a cero. |
 | 6 | El sistema registra el curso, sin cohortes abiertas, con su equipo docente. |
@@ -118,9 +118,9 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor busca y selecciona el curso a modificar mediante la tabla y el botón "Modificar" [A] (ver CU-01: Buscar curso). |
-| 2 | El sistema muestra los datos actuales del curso y, si posee alguna cohorte con inscripción vigente, indica que sólo pueden modificarse el precio y la imagen. |
-| 3 | El actor modifica los datos habilitados mediante el formulario de edición [B] y confirma mediante el botón "Guardar Cambios" [C]. |
+| 1 | El caso de uso inicia cuando el actor busca y selecciona el curso a modificar mediante el botón "Editar Curso" [A] (ver CU-01: Buscar curso). |
+| 2 | El sistema muestra los datos actuales del curso en el formulario de edición: nombre [B], categoría temática [C], nivel de dificultad [D], precio de arancel [E], modalidades de dictado [F], docente titular [G], docentes ayudantes [H], emisión de certificado [I], descripción detallada [J], y archivo de portada [K] mediante el botón "Examinar..." [L]. |
+| 3 | El actor modifica los datos habilitados y confirma la actualización mediante el botón "Guardar Cambios" [M]. |
 | 4 | El sistema valida que el curso esté activo, y sólo si posee alguna inscripción activa asociada, el actor no haya modificado datos distintos al precio o la imagen. |
 | 5 | El sistema valida que se mantengan completos los campos obligatorios (nombre, descripción, categoría, nivel, al menos una modalidad y docente titular). |
 | 6 | El sistema valida que el precio ingresado, si se modificó, sea mayor o igual a cero. |
@@ -193,7 +193,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 | 1 | El caso de uso inicia cuando el actor accede al catálogo público de cursos y aplica filtros de búsqueda [A]. |
 | 2 | El sistema lista los cursos con cohortes abiertas, pudiendo filtrar por nombre, categoría, nivel, docente o modalidad del curso. |
 | 3 | El actor selecciona un curso mediante la tarjeta y el botón "Ver Ficha / Inscribirme" [B]. |
-| 4 | El sistema muestra el detalle público del curso: descripción, nivel, modalidades, precio, contenidos por unidad, y las cohortes con inscripción abierta, con su docente titular y cupo disponible si corresponde. |
+| 4 | El sistema muestra el detalle público del curso: descripción, nivel, modalidades, precio, contenidos por unidad [C], y las cohortes con inscripción abierta, con su docente titular y cupo disponible [D]. |
 | 5 | Fin del caso de uso. |
 
 - **Salida**: Se recupera el listado de cursos con cohortes abiertas y, si corresponde, la ficha pública del curso seleccionado con sus cohortes con inscripción abierta.
@@ -218,12 +218,12 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor solicita buscar una o más categorías mediante la barra de búsqueda [A]. |
-| 2 | El sistema solicita el criterio de búsqueda: nombre. |
-| 3 | El actor ingresa el criterio que desea y presiona el botón "Buscar" [B]. |
+| 1 | El caso de uso inicia cuando el actor solicita buscar una o más categorías mediante la barra de búsqueda [A] y selector de estado [B]. |
+| 2 | El sistema solicita el criterio de búsqueda: nombre y estado de vigencia. |
+| 3 | El actor ingresa el criterio que desea y presiona el botón "Buscar" [C]. |
 | 4 | El sistema recupera y filtra las categorías que coincidan con el criterio ingresado. |
-| 5 | El sistema lista las categorías filtradas. |
-| 6 | El actor puede seleccionar uno de los resultados mediante la fila de la tabla [C] para ver su detalle. |
+| 5 | El sistema lista las categorías filtradas en la tabla de gestión. |
+| 6 | El actor puede seleccionar uno de los resultados mediante la fila de la tabla [D] para ver su detalle o editar sus datos. |
 | 7 | Fin del caso de uso. |
 
 - **Salida**: Se recuperan una o más categorías que cumplen con el criterio de búsqueda.
@@ -247,13 +247,14 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor solicita registrar una nueva categoría mediante el botón "+ Nueva Categoría" [A]. |
-| 2 | El sistema solicita: nombre y descripción (opcional). |
-| 3 | El actor ingresa los datos solicitados mediante el formulario [B] y confirma mediante el botón "Guardar Categoría" [C]. |
+| 1 | El caso de uso inicia cuando el actor solicita registrar una nueva categoría mediante el botón "+ Nueva Categoría" [A] ubicado en la barra de gestión de categorías (ver CU-07: Buscar categoría). |
+| 2 | El sistema solicita los datos de la categoría: nombre [B] y descripción temática [C]. |
+| 3 | El actor completa los datos solicitados en el formulario y confirma el alta mediante el botón "Guardar Categoría" [D]. |
 | 4 | El sistema valida que el nombre haya sido completado y que no exista otra categoría activa con el mismo nombre. |
 | 5 | El sistema registra la categoría en estado activo. |
 | 6 | El sistema informa el éxito del registro. |
 | 7 | Fin del caso de uso. |
+
 
 - **Postcondición(es)**:
   - La categoría queda registrada en estado activo.

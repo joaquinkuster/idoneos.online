@@ -5,7 +5,7 @@
     "steps": [
       {
         "pNum": "1",
-        "pAction": "El caso de uso inicia cuando el actor solicita buscar uno o más cursos mediante los campos de búsqueda [A] y filtros por categoría [B].",
+        "pAction": "El caso de uso inicia cuando el actor solicita buscar uno o más cursos mediante los campos de búsqueda [A] y filtros por categoría / estado [B].",
         "badges": [
           "A",
           "B"
@@ -13,14 +13,14 @@
       },
       {
         "pNum": "3",
-        "pAction": "El actor ingresa los criterios de búsqueda que desea y confirma la búsqueda mediante el botón \"Buscar\" [C].",
+        "pAction": "El actor ingresa los criterios de búsqueda que desea y confirma la búsqueda mediante el botón \"Buscar Cursos\" [C].",
         "badges": [
           "C"
         ]
       },
       {
         "pNum": "6",
-        "pAction": "El actor puede seleccionar uno de los resultados mediante la tarjeta de curso y el botón \"Gestionar curso\" [D] para ver su detalle.",
+        "pAction": "El actor puede seleccionar uno de los resultados mediante la tarjeta de curso y el botón \"Editar Curso\" [D] para ver su detalle o gestionarlo, o iniciar la baja mediante el botón \"Dar de baja\".",
         "badges": [
           "D"
         ]
@@ -48,7 +48,7 @@
       },
       {
         "pNum": "6",
-        "pAction": "El actor selecciona un curso mediante el botón \"Ingresar al curso\" [D] para acceder al contenido del programa de su cohorte.",
+        "pAction": "El actor selecciona un curso mediante el botón \"Ingresar al Curso\" [D] para acceder al contenido del programa de su cohorte.",
         "badges": [
           "D"
         ]
@@ -61,18 +61,33 @@
     "steps": [
       {
         "pNum": "1",
-        "pAction": "El caso de uso inicia cuando el actor solicita registrar un nuevo curso mediante el botón \"+ Nuevo Curso\" [A].",
+        "pAction": "El caso de uso inicia cuando el actor solicita registrar un nuevo curso mediante el botón \"+ Nuevo Curso\" [A] ubicado en la barra de gestión de cursos (ver CU-01: Buscar curso).",
         "badges": [
           "A"
         ]
       },
       {
-        "pNum": "3",
-        "pAction": "El actor ingresa los datos solicitados mediante el formulario de curso [B], adjunta la portada mediante el botón \"Examinar...\" [C] y confirma mediante el botón \"Guardar Curso\" [D].",
+        "pNum": "2",
+        "pAction": "El sistema solicita los datos del curso: nombre [B], categoría temática [C], nivel de dificultad [D], precio de inscripción [E], modalidades de dictado [F], docente titular [G], docentes ayudantes [H], si emite certificado oficial [I], descripción detallada [J], y archivo de portada [K] mediante el botón \"Examinar...\" [L].",
         "badges": [
           "B",
           "C",
-          "D"
+          "D",
+          "E",
+          "F",
+          "G",
+          "H",
+          "I",
+          "J",
+          "K",
+          "L"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor completa los campos solicitados y confirma el registro mediante el botón \"Guardar Curso\" [M].",
+        "badges": [
+          "M"
         ]
       }
     ]
@@ -83,17 +98,33 @@
     "steps": [
       {
         "pNum": "1",
-        "pAction": "El caso de uso inicia cuando el actor busca y selecciona el curso a modificar mediante la tabla y el botón \"Modificar\" [A] (ver CU-01: Buscar curso).",
+        "pAction": "El caso de uso inicia cuando el actor busca y selecciona el curso a modificar mediante el botón \"Editar Curso\" [A] (ver CU-01: Buscar curso).",
         "badges": [
           "A"
         ]
       },
       {
-        "pNum": "3",
-        "pAction": "El actor modifica los datos habilitados mediante el formulario de edición [B] y confirma mediante el botón \"Guardar Cambios\" [C].",
+        "pNum": "2",
+        "pAction": "El sistema muestra los datos actuales del curso en el formulario de edición: nombre [B], categoría temática [C], nivel de dificultad [D], precio de arancel [E], modalidades de dictado [F], docente titular [G], docentes ayudantes [H], emisión de certificado [I], descripción detallada [J], y archivo de portada [K] mediante el botón \"Examinar...\" [L].",
         "badges": [
           "B",
-          "C"
+          "C",
+          "D",
+          "E",
+          "F",
+          "G",
+          "H",
+          "I",
+          "J",
+          "K",
+          "L"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor modifica los datos habilitados y confirma la actualización mediante el botón \"Guardar Cambios\" [M].",
+        "badges": [
+          "M"
         ]
       }
     ]
@@ -135,6 +166,14 @@
         "badges": [
           "B"
         ]
+      },
+      {
+        "pNum": "4",
+        "pAction": "El sistema muestra el detalle público del curso: descripción, nivel, modalidades, precio, contenidos por unidad [C], y las cohortes con inscripción abierta, con su docente titular y cupo disponible [D].",
+        "badges": [
+          "C",
+          "D"
+        ]
       }
     ]
   },
@@ -144,23 +183,24 @@
     "steps": [
       {
         "pNum": "1",
-        "pAction": "El caso de uso inicia cuando el actor solicita buscar una o más categorías mediante la barra de búsqueda [A].",
+        "pAction": "El caso de uso inicia cuando el actor solicita buscar una o más categorías mediante la barra de búsqueda [A] y selector de estado [B].",
         "badges": [
-          "A"
-        ]
-      },
-      {
-        "pNum": "3",
-        "pAction": "El actor ingresa el criterio que desea y presiona el botón \"Buscar\" [B].",
-        "badges": [
+          "A",
           "B"
         ]
       },
       {
-        "pNum": "6",
-        "pAction": "El actor puede seleccionar uno de los resultados mediante la fila de la tabla [C] para ver su detalle.",
+        "pNum": "3",
+        "pAction": "El actor ingresa el criterio que desea y presiona el botón \"Buscar\" [C].",
         "badges": [
           "C"
+        ]
+      },
+      {
+        "pNum": "6",
+        "pAction": "El actor puede seleccionar uno de los resultados mediante la fila de la tabla [D] para ver su detalle o editar sus datos.",
+        "badges": [
+          "D"
         ]
       }
     ]
@@ -171,17 +211,24 @@
     "steps": [
       {
         "pNum": "1",
-        "pAction": "El caso de uso inicia cuando el actor solicita registrar una nueva categoría mediante el botón \"+ Nueva Categoría\" [A].",
+        "pAction": "El caso de uso inicia cuando el actor solicita registrar una nueva categoría mediante el botón \"+ Nueva Categoría\" [A] ubicado en la barra de gestión de categorías (ver CU-07: Buscar categoría).",
         "badges": [
           "A"
         ]
       },
       {
-        "pNum": "3",
-        "pAction": "El actor ingresa los datos solicitados mediante el formulario [B] y confirma mediante el botón \"Guardar Categoría\" [C].",
+        "pNum": "2",
+        "pAction": "El sistema solicita los datos de la categoría: nombre [B] y descripción temática [C].",
         "badges": [
           "B",
           "C"
+        ]
+      },
+      {
+        "pNum": "3",
+        "pAction": "El actor completa los datos solicitados en el formulario y confirma el alta mediante el botón \"Guardar Categoría\" [D].",
+        "badges": [
+          "D"
         ]
       }
     ]

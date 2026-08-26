@@ -274,6 +274,183 @@ function generateScreenContent(cu) {
     const isAlumno = id === 'CU-02';
     const isCatalog = id === 'CU-06';
 
+    if (isCatalog) {
+      return `
+        <!-- Filtros del Catálogo de Cursos -->
+        <div class="wf-card mb-4">
+          <div class="row align-items-end">
+            <div class="col-md-5">
+              <label class="wf-label">Buscar cursos por temática o palabra clave</label>
+              <div class="wf-input-wrap">
+                <input type="text" class="wf-input" placeholder="Ej: Bonos, Futuros, Renta Fija, Criptomonedas...">
+                <span class="pin-badge">${badges[0] || 'A'}</span>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <label class="wf-label">Filtrar por Categoría / Nivel</label>
+              <div class="wf-select-container">
+                <div class="wf-input-wrap">
+                  <div class="wf-input wf-select-trigger">
+                    <span>Todas las categorías</span>
+                    ${icons.chevronDown()}
+                  </div>
+                </div>
+                <div class="wf-dropdown-menu">
+                  <div class="wf-dropdown-item active">☑ Todas las categorías</div>
+                  <div class="wf-dropdown-item">☐ Mercado de Capitales & Finanzas</div>
+                  <div class="wf-dropdown-item">☐ Impuestos & Contabilidad</div>
+                  <div class="wf-dropdown-item">☐ Finanzas Cuantitativas & Cripto</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="d-flex align-items-center gap-2">
+                <button class="wf-btn wf-btn-primary w-100"><i class="fa-solid fa-magnifying-glass me-1"></i> Explorar Catálogo</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Layout de Catálogo con Panel Lateral de Detalle Público (Paso 4) -->
+        <div class="row g-4">
+          <!-- Columna Izquierda: Grid de Cursos del Catálogo -->
+          <div class="col-lg-7">
+            <div class="d-flex flex-column gap-3">
+              <!-- Curso 1: Especialización en Idoneidad Bursátil (Seleccionado) -->
+              <div class="wf-course-card border-primary" style="box-shadow: 0 4px 12px rgba(212,175,55,0.15); border: 2px solid var(--wf-gold);">
+                <div class="wf-course-card-thumb">
+                  <div class="wf-course-thumb-icon">${icons.academicCap("w-8 h-8 text-white")}</div>
+                  <div class="wf-course-pills-row">
+                    <span class="wf-pill-tag">Mercado de Capitales</span>
+                    <span class="wf-pill-status" style="background: #ECFDF5; color: #047857; font-weight: 700;">● Inscripción Abierta</span>
+                  </div>
+                </div>
+                <div class="wf-course-card-body">
+                  <h4 class="wf-course-title">Especialización en Idoneidad Bursátil CNV</h4>
+                  <p class="wf-course-desc">Preparación integral para el examen de Idóneo en Mercado de Capitales.</p>
+                  <div class="wf-course-info-row">
+                    <span>📄 4 Unidades temáticas</span>
+                    <span class="wf-course-price">$120.000 ARS</span>
+                  </div>
+                </div>
+                <div class="wf-course-card-footer">
+                  <div class="d-flex align-items-center justify-content-between gap-2">
+                    <button class="wf-btn wf-btn-primary w-100 d-flex align-items-center justify-content-center gap-2">
+                      <i class="fa-solid fa-ticket"></i>
+                      <span>Ver Ficha / Inscribirme</span>
+                    </button>
+                    <span class="pin-badge">${badges[1] || 'B'}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Curso 2: Operativa Cripto y DeFi -->
+              <div class="wf-course-card">
+                <div class="wf-course-card-thumb">
+                  <div class="wf-course-thumb-icon">${icons.academicCap("w-8 h-8 text-white")}</div>
+                  <div class="wf-course-pills-row">
+                    <span class="wf-pill-tag">Finanzas & Cripto</span>
+                    <span class="wf-pill-status">● Inscripción Abierta</span>
+                  </div>
+                </div>
+                <div class="wf-course-card-body">
+                  <h4 class="wf-course-title">Operativa Cripto y DeFi Profesional</h4>
+                  <p class="wf-course-desc">Trading algorítmico, finanzas descentralizadas y custodia institucional.</p>
+                  <div class="wf-course-info-row">
+                    <span>📄 3 Unidades</span>
+                    <span class="wf-course-price">$95.000 ARS</span>
+                  </div>
+                </div>
+                <div class="wf-course-card-footer">
+                  <button class="wf-btn wf-btn-outline w-100 d-flex align-items-center justify-content-center gap-2">
+                    <i class="fa-solid fa-ticket"></i>
+                    <span>Ver Ficha / Inscribirme</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Columna Derecha: Vista Previa y Ficha Pública del Curso Seleccionado (Paso 4) -->
+          <div class="col-lg-5">
+            <div class="wf-card" style="background: #FFFFFF; border: 1px solid #E2E8F0; position: sticky; top: 20px;">
+              <div class="pb-3 mb-3 border-bottom d-flex justify-content-between align-items-center">
+                <div>
+                  <span class="wf-badge status-active mb-1">Ficha Informativa</span>
+                  <h3 style="font-size: 17px; font-weight: 800; color: #081426; margin: 0;">Especialización en Idoneidad Bursátil</h3>
+                </div>
+                <div class="text-end">
+                  <strong style="font-size: 18px; color: var(--wf-gold);">$120.000</strong>
+                  <div class="small text-muted">Arancel único</div>
+                </div>
+              </div>
+
+              <!-- Metadatos del Curso -->
+              <div class="p-3 bg-light rounded mb-3" style="font-size: 12px;">
+                <div class="d-flex justify-content-between mb-1">
+                  <span class="text-muted">Nivel:</span>
+                  <strong>Intermedio / Profesional</strong>
+                </div>
+                <div class="d-flex justify-content-between mb-1">
+                  <span class="text-muted">Modalidad:</span>
+                  <strong>Online Asincrónico + Clases en Vivo</strong>
+                </div>
+                <div class="d-flex justify-content-between">
+                  <span class="text-muted">Certificación:</span>
+                  <strong class="text-success"><i class="fa-solid fa-circle-check me-1"></i> Certificado de Idoneidad</strong>
+                </div>
+              </div>
+
+              <!-- Contenidos por Unidad (Paso 4 - Badge C) -->
+              <div class="mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <label class="wf-label m-0" style="font-size: 12px;">Estructura de Contenidos por Unidad</label>
+                  <span class="pin-badge">${badges[2] || 'C'}</span>
+                </div>
+                <div class="d-flex flex-column gap-2" style="font-size: 12px;">
+                  <div class="p-2 border rounded bg-white d-flex justify-content-between align-items-center">
+                    <span><strong>Unidad 1:</strong> Marco Regulatorio & Ley de Mercado de Capitales</span>
+                    <span class="badge bg-secondary">Muestra Gratis</span>
+                  </div>
+                  <div class="p-2 border rounded bg-white">
+                    <strong>Unidad 2:</strong> Instrumentos de Renta Fija (Bonos y ONs)
+                  </div>
+                  <div class="p-2 border rounded bg-white">
+                    <strong>Unidad 3:</strong> Renta Variable y Valuación de Acciones
+                  </div>
+                  <div class="p-2 border rounded bg-white">
+                    <strong>Unidad 4:</strong> Derivados Financieros (Opciones y Futuros)
+                  </div>
+                </div>
+              </div>
+
+              <!-- Cohortes Abiertas y Docente (Paso 4 - Badge D) -->
+              <div>
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <label class="wf-label m-0" style="font-size: 12px;">Cohortes Abiertas Disponibles</label>
+                  <span class="pin-badge">${badges[3] || badges[badges.length - 1] || 'D'}</span>
+                </div>
+                <div class="p-3 border rounded" style="background: #F8FAFC; font-size: 12px;">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <strong>Cohorte 2026-1 (Inicio 01/03/2026)</strong>
+                    <span class="wf-badge status-active">15 cupos libres</span>
+                  </div>
+                  <div class="d-flex align-items-center gap-2 text-muted mb-3">
+                    <i class="fa-solid fa-chalkboard-user"></i>
+                    <span>Docente Titular: <strong>Lic. Fausto Spotorno</strong></span>
+                  </div>
+                  <a href="#CU-43" class="wf-btn wf-btn-primary w-100 d-flex align-items-center justify-content-center gap-2" style="font-weight: 700;">
+                    <i class="fa-solid fa-bolt"></i>
+                    <span>Iniciar Inscripción Online</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
     return `
       <div class="wf-card mb-4">
         <div class="row align-items-end">
@@ -331,10 +508,23 @@ function generateScreenContent(cu) {
           </div>
           <div class="wf-course-card-footer">
             <div class="d-flex align-items-center justify-content-between gap-2">
-              <button class="wf-btn-manage-course">
-                ${icons.cog6Tooth("w-4 h-4")}
-                <span>${id === 'CU-06' ? 'Ver Ficha / Inscribirme' : (isDocente ? 'Gestionar Curso' : (isAlumno ? 'Ingresar al Curso' : 'Ver Detalle'))}</span>
-              </button>
+              ${isDocente ? `
+                <div class="d-flex align-items-center gap-2 w-100">
+                  <a href="#CU-04" class="wf-btn wf-btn-sm wf-btn-primary flex-grow-1 d-flex align-items-center justify-content-center gap-1">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                    <span>Editar Curso</span>
+                  </a>
+                  <a href="#CU-05" class="wf-btn wf-btn-sm wf-btn-outline text-danger" title="Dar de baja curso">
+                    <i class="fa-solid fa-trash me-1"></i>
+                    <span>Dar de baja</span>
+                  </a>
+                </div>
+              ` : `
+                <button class="wf-btn-manage-course">
+                  ${icons.cog6Tooth("w-4 h-4")}
+                  <span>${isAlumno ? 'Ingresar al Curso' : 'Ver Ficha / Inscribirme'}</span>
+                </button>
+              `}
               <span class="pin-badge">${badges[3] || badges[badges.length - 1] || 'D'}</span>
             </div>
           </div>
@@ -358,10 +548,23 @@ function generateScreenContent(cu) {
             </div>
           </div>
           <div class="wf-course-card-footer">
-            <button class="wf-btn-manage-course">
-              ${icons.cog6Tooth("w-4 h-4")}
-              <span>${isDocente ? 'Gestionar Curso' : (isAlumno ? 'Ingresar al Curso' : 'Ver Detalle')}</span>
-            </button>
+            ${isDocente ? `
+              <div class="d-flex align-items-center gap-2 w-100">
+                <a href="#CU-04" class="wf-btn wf-btn-sm wf-btn-primary flex-grow-1 d-flex align-items-center justify-content-center gap-1">
+                  <i class="fa-solid fa-pen-to-square"></i>
+                  <span>Editar Curso</span>
+                </a>
+                <a href="#CU-05" class="wf-btn wf-btn-sm wf-btn-outline text-danger" title="Dar de baja curso">
+                  <i class="fa-solid fa-trash me-1"></i>
+                  <span>Dar de baja</span>
+                </a>
+              </div>
+            ` : `
+              <button class="wf-btn-manage-course">
+                ${icons.cog6Tooth("w-4 h-4")}
+                <span>${isAlumno ? 'Ingresar al Curso' : 'Ver Ficha / Inscribirme'}</span>
+              </button>
+            `}
           </div>
         </div>
 
@@ -383,10 +586,23 @@ function generateScreenContent(cu) {
             </div>
           </div>
           <div class="wf-course-card-footer">
-            <button class="wf-btn-manage-course">
-              ${icons.cog6Tooth("w-4 h-4")}
-              <span>${isDocente ? 'Gestionar Curso' : (isAlumno ? 'Ingresar al Curso' : 'Ver Detalle')}</span>
-            </button>
+            ${isDocente ? `
+              <div class="d-flex align-items-center gap-2 w-100">
+                <a href="#CU-04" class="wf-btn wf-btn-sm wf-btn-primary flex-grow-1 d-flex align-items-center justify-content-center gap-1">
+                  <i class="fa-solid fa-pen-to-square"></i>
+                  <span>Editar Curso</span>
+                </a>
+                <a href="#CU-05" class="wf-btn wf-btn-sm wf-btn-outline text-danger" title="Dar de baja curso">
+                  <i class="fa-solid fa-trash me-1"></i>
+                  <span>Dar de baja</span>
+                </a>
+              </div>
+            ` : `
+              <button class="wf-btn-manage-course">
+                ${icons.cog6Tooth("w-4 h-4")}
+                <span>${isAlumno ? 'Ingresar al Curso' : 'Ver Ficha / Inscribirme'}</span>
+              </button>
+            `}
           </div>
         </div>
       </div>
@@ -2508,6 +2724,105 @@ function generateScreenContent(cu) {
       bgHeaders = ['Usuario / Correo', 'Rol & Acceso', 'Estado', 'Acciones'];
     }
 
+    if (id === 'CU-05' || (name.includes('curso') && name.includes('baja'))) {
+      return `
+        <!-- Vista de Fondo: Grid Real de Cursos (CU-01) -->
+        <div style="position: relative;">
+          <div class="wf-card mb-4 opacity-75" style="background: #FFFFFF; pointer-events: none; filter: blur(0.4px);">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h3 style="font-size: 17px; font-weight: 800; color: #081426; margin: 0;">Mis Cursos Asignados (CU-01)</h3>
+              <span class="wf-btn-gold" style="font-size: 11px; padding: 4px 10px;"><i class="fa-solid fa-plus me-1"></i> + Nuevo Curso</span>
+            </div>
+            <div class="wf-cards-grid">
+              <div class="wf-course-card" style="border: 2px solid #DC2626; background: #FEF2F2;">
+                <div class="wf-course-card-thumb">
+                  <div class="wf-course-thumb-icon">${icons.academicCap("w-8 h-8 text-white")}</div>
+                  <div class="wf-course-pills-row">
+                    <span class="wf-pill-tag">Mercado de Capitales</span>
+                    <span class="wf-pill-status" style="background: #FEE2E2; color: #DC2626;">Seleccionado para Baja</span>
+                  </div>
+                </div>
+                <div class="wf-course-card-body">
+                  <h4 class="wf-course-title">Especialización en Idoneidad Bursátil</h4>
+                  <p class="wf-course-desc">Preparación integral para examen CNV.</p>
+                  <div class="wf-course-info-row">
+                    <span>📄 4 Unidades</span>
+                    <span class="wf-course-price">$120.000</span>
+                  </div>
+                </div>
+                <div class="wf-course-card-footer">
+                  <div class="d-flex align-items-center gap-2 w-100">
+                    <button class="wf-btn wf-btn-sm wf-btn-outline flex-grow-1"><i class="fa-solid fa-pen-to-square"></i> Editar Curso</button>
+                    <div class="d-flex align-items-center gap-1">
+                      <button class="wf-btn wf-btn-sm wf-btn-danger"><i class="fa-solid fa-trash me-1"></i> <span>Dar de baja</span></button>
+                      <span class="pin-badge">A</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="wf-course-card">
+                <div class="wf-course-card-thumb">
+                  <div class="wf-course-thumb-icon">${icons.academicCap("w-8 h-8 text-white")}</div>
+                  <div class="wf-course-pills-row">
+                    <span class="wf-pill-tag">Finanzas & Cripto</span>
+                  </div>
+                </div>
+                <div class="wf-course-card-body">
+                  <h4 class="wf-course-title">Operativa Cripto y DeFi</h4>
+                  <p class="wf-course-desc">Trading y custodia institucional.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Diálogo Modal Superpuesto en Primer Plano -->
+          <div class="wf-modal-dialog shadow-lg" style="max-width: 600px; margin: 0 auto; background: #FFFFFF; border-radius: 12px; border: 1px solid #E2E8F0; overflow: hidden; position: relative; z-index: 10;">
+            <!-- Cabecera Limpia del Diálogo Modal -->
+            <div class="p-3 border-bottom d-flex justify-content-between align-items-center" style="background: #F8FAFC;">
+              <div class="d-flex align-items-center gap-2">
+                <i class="fa-solid fa-triangle-exclamation text-danger"></i>
+                <strong style="font-size: 14px; color: #081426;">Confirmación de Dar de baja curso</strong>
+              </div>
+              <span style="color: #94A3B8; cursor: pointer; font-size: 16px;"><i class="fa-solid fa-xmark"></i></span>
+            </div>
+
+            <!-- Cuerpo del Diálogo Modal -->
+            <div class="p-4 text-center">
+              <div class="mb-3" style="width: 54px; height: 54px; border-radius: 50%; background: #FEE2E2; color: #DC2626; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 22px;">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+              </div>
+              <h3 style="font-size: 17px; font-weight: 800; color: #081426; margin-bottom: 6px;">¿Está seguro de que desea dar de baja este curso?</h3>
+              <p class="small text-muted mb-4" style="line-height: 1.5;">Esta operación retirará el curso del catálogo público y no permitirá nuevas cohortes.</p>
+
+              <div class="p-3 mb-4 bg-light border rounded text-start" style="font-size: 13px;">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <span class="text-muted">Curso a afectar:</span>
+                  <strong style="color: #081426;">Especialización en Idoneidad Bursátil</strong>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <span class="text-muted">Estado actual:</span>
+                  <span class="wf-badge status-active">Activo / En Catálogo</span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                  <span class="text-muted">Programas asociados:</span>
+                  <span class="small text-success fw-bold"><i class="fa-solid fa-circle-check me-1"></i> Sin programas activos bloqueantes</span>
+                </div>
+              </div>
+
+              <div class="d-flex justify-content-end align-items-center gap-3 pt-3 border-top">
+                <button class="wf-btn wf-btn-outline">Cancelar / Volver</button>
+                <div class="d-flex align-items-center gap-2">
+                  <button class="wf-btn wf-btn-danger"><i class="fa-solid fa-trash me-1"></i> Confirmar Baja</button>
+                  <span class="pin-badge">B</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
     return `
       <!-- Vista de Fondo: Tabla de Gestión Contextual de Referencia -->
       <div style="position: relative;">
@@ -2647,7 +2962,7 @@ function generateScreenContent(cu) {
           <h3 style="font-size: 19px; font-weight: 800; color: #081426; margin: 0;">${name}</h3>
           <p class="small text-muted m-0">Consulte, filtre y gestione los registros activos del sistema</p>
         </div>
-        ${createBtnLabel ? `
+        ${createBtnLabel && id !== 'CU-07' ? `
           <a href="#${createCuTarget}" class="wf-btn wf-btn-primary d-flex align-items-center gap-2" style="font-weight: 700;">
             <i class="fa-solid fa-plus"></i>
             <span>${createBtnLabel}</span>
@@ -2767,6 +3082,153 @@ function generateScreenContent(cu) {
   if (name.includes('vivo') && isMod) triggerBtnLabel = 'Reprogramar / Editar';
   if (name.includes('parámetro')) triggerBtnLabel = 'Editar Valor';
 
+  if (id === 'CU-03' || id === 'CU-04') {
+    return `
+      <div class="wf-card" style="max-width: 900px; margin: 0 auto; background: #FFFFFF;">
+        <div class="wf-card-header mb-4 pb-3 border-bottom d-flex justify-content-between align-items-center">
+          <div>
+            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">${isMod ? 'Modificar Curso' : 'Registrar Nuevo Curso'}</h3>
+            <p class="small text-muted" style="margin: 3px 0 0;">Defina los parámetros académicos, docentes y comerciales del programa de capacitación.</p>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <span class="wf-btn wf-btn-sm wf-btn-outline active" style="font-weight: 700;">
+              <i class="fa-solid ${isMod ? 'fa-pen-to-square' : 'fa-plus'} me-1"></i>
+              ${isMod ? 'Editar Curso' : '+ Nuevo Curso'}
+            </span>
+            <span class="pin-badge">A</span>
+            <span class="wf-badge status-active ms-2">${isMod ? 'Modo Edición' : 'Formulario de Alta'}</span>
+          </div>
+        </div>
+
+        <div class="row g-3">
+          <!-- Nombre [B] -->
+          <div class="col-md-8">
+            <label class="wf-label">Nombre del Curso</label>
+            <div class="wf-input-wrap">
+              <input type="text" class="wf-input" value="Especialización en Idoneidad Bursátil CNV">
+              <span class="pin-badge">B</span>
+            </div>
+          </div>
+
+          <!-- Categoría [C] -->
+          <div class="col-md-4">
+            <label class="wf-label">Categoría Temática</label>
+            <div class="wf-input-wrap">
+              <select class="wf-input">
+                <option selected>Mercado de Capitales & Finanzas</option>
+                <option>Impuestos & Contabilidad</option>
+                <option>Cripto & DeFi</option>
+              </select>
+              <span class="pin-badge">C</span>
+            </div>
+          </div>
+
+          <!-- Nivel [D] -->
+          <div class="col-md-4">
+            <label class="wf-label">Nivel de Dificultad</label>
+            <div class="wf-input-wrap">
+              <select class="wf-input">
+                <option selected>Intermedio / Profesional</option>
+                <option>Inicial / Básico</option>
+                <option>Avanzado</option>
+              </select>
+              <span class="pin-badge">D</span>
+            </div>
+          </div>
+
+          <!-- Precio [E] -->
+          <div class="col-md-4">
+            <label class="wf-label">Precio / Arancel de Inscripción</label>
+            <div class="wf-input-wrap">
+              <input type="text" class="wf-input" value="$120.000 ARS">
+              <span class="pin-badge">E</span>
+            </div>
+          </div>
+
+          <!-- Modalidades [F] -->
+          <div class="col-md-4">
+            <label class="wf-label">Modalidades de Dictado</label>
+            <div class="wf-input-wrap">
+              <div class="wf-input d-flex align-items-center gap-2" style="padding: 6px 12px; font-size: 12px;">
+                <span>☑ Online Asincrónico</span>
+                <span>☑ En Vivo</span>
+              </div>
+              <span class="pin-badge">F</span>
+            </div>
+          </div>
+
+          <!-- Docente Titular [G] -->
+          <div class="col-md-6">
+            <label class="wf-label">Docente Titular Responsable</label>
+            <div class="wf-input-wrap">
+              <select class="wf-input">
+                <option selected>Lic. Fausto Spotorno (Economista & Consultor)</option>
+                <option>Dr. Roberto Cachanosky</option>
+              </select>
+              <span class="pin-badge">G</span>
+            </div>
+          </div>
+
+          <!-- Docentes Ayudantes [H] -->
+          <div class="col-md-6">
+            <label class="wf-label">Equipo de Docentes Ayudantes</label>
+            <div class="wf-input-wrap">
+              <input type="text" class="wf-input" value="Lic. Joaquín Küster, Mg. Elena Valenzuela">
+              <span class="pin-badge">H</span>
+            </div>
+          </div>
+
+          <!-- Emite Certificado [I] -->
+          <div class="col-12">
+            <div class="p-3 bg-light rounded border d-flex justify-content-between align-items-center">
+              <div>
+                <strong>Emisión Automática de Certificado Oficial</strong>
+                <p class="small text-muted m-0">Generar credencial digital verificable con código QR al aprobar el 100% de autoevaluaciones.</p>
+              </div>
+              <div class="d-flex align-items-center gap-2">
+                <input type="checkbox" checked style="width: 18px; height: 18px;">
+                <span class="pin-badge">I</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Descripción [J] -->
+          <div class="col-12">
+            <label class="wf-label">Descripción Académica y Objetivos</label>
+            <div class="wf-input-wrap">
+              <textarea class="wf-input" rows="3">Programa intensivo diseñado para brindar los conocimientos teóricos, regulatorios y prácticos requeridos para rendir y aprobar el examen de Idóneo en Mercado de Capitales ante la Comisión Nacional de Valores (CNV).</textarea>
+              <span class="pin-badge">J</span>
+            </div>
+          </div>
+
+          <!-- Portada [K] y Examinar [L] -->
+          <div class="col-12">
+            <label class="wf-label">Imagen de Portada / Banner del Curso</label>
+            <div class="d-flex align-items-center gap-2">
+              <div class="wf-input-wrap flex-grow-1">
+                <input type="text" class="wf-input" value="portada_idoneidad_bursatil_2026.png">
+                <span class="pin-badge">K</span>
+              </div>
+              <div class="d-flex align-items-center gap-2">
+                <button class="wf-btn wf-btn-outline"><i class="fa-solid fa-folder-open me-1"></i> Examinar...</button>
+                <span class="pin-badge">L</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer con Guardar [M] -->
+        <div class="wf-card-footer d-flex justify-content-end gap-3 mt-4 pt-3 border-top">
+          <button class="wf-btn wf-btn-outline">Cancelar / Volver</button>
+          <div class="d-flex align-items-center gap-2">
+            <button class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> ${isMod ? 'Guardar Cambios' : 'Guardar Curso'}</button>
+            <span class="pin-badge">M</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
   return `
     <div class="wf-card" style="max-width: 860px; margin: 0 auto; background: #FFFFFF;">
       <!-- Barra Superior de la Tarjeta con Acción de Disparo [A] -->
@@ -2789,7 +3251,7 @@ function generateScreenContent(cu) {
         <div class="col-md-6">
           <label class="wf-label">Nombre / Denominación</label>
           <div class="wf-input-wrap">
-            <input type="text" class="wf-input" value="${name.includes('curso') ? 'Especialización en Idoneidad Bursátil' : (name.includes('categoría') ? 'Mercado de Capitales' : (name.includes('cohorte') ? 'Cohorte 2026-1' : (name.includes('descuento') ? 'Beca Convenio UNaM 2026' : (name.includes('docente') ? 'Lic. Fausto Spotorno' : 'Registro de ' + name))))}">
+            <input type="text" class="wf-input" value="${name.includes('categoría') ? 'Mercado de Capitales' : (name.includes('cohorte') ? 'Cohorte 2026-1' : (name.includes('descuento') ? 'Beca Convenio UNaM 2026' : (name.includes('docente') ? 'Lic. Fausto Spotorno' : 'Registro de ' + name)))}">
             <span class="pin-badge">${badges[1] || 'B'}</span>
           </div>
         </div>
@@ -2807,34 +3269,11 @@ function generateScreenContent(cu) {
         </div>
 
         <div class="col-12">
-          <label class="wf-label">${name.includes('curso') ? 'Portada / Archivo de Imagen' : 'Descripción Académica / Contenido'}</label>
-          ${name.includes('curso') ? `
-            <div class="wf-input-wrap">
-              <input type="text" class="wf-input" value="portada_curso_idoneos.png">
-              <button class="wf-btn wf-btn-outline wf-btn-sm"><i class="fa-solid fa-folder-open me-1"></i> Examinar...</button>
-              <span class="pin-badge">${badges[2] || 'C'}</span>
-            </div>
-          ` : `
-            <div class="wf-input-wrap">
-              <textarea class="wf-input" rows="3">Descripción y especificaciones correspondientes al registro de ${name}.</textarea>
-              <span class="pin-badge">${badges[2] || 'C'}</span>
-            </div>
-          `}
-        </div>
-
-        <div class="col-md-4">
-          <label class="wf-label">Precio / Arancel</label>
-          <input type="text" class="wf-input" value="$120.000 ARS">
-        </div>
-
-        <div class="col-md-4">
-          <label class="wf-label">Nivel / Modalidad</label>
-          <input type="text" class="wf-input" value="Avanzado • 100% Online">
-        </div>
-
-        <div class="col-md-4">
-          <label class="wf-label">Docente Responsable / Titular</label>
-          <input type="text" class="wf-input bg-disabled" value="Lic. Fausto Spotorno" disabled>
+          <label class="wf-label">Descripción Académica / Contenido</label>
+          <div class="wf-input-wrap">
+            <textarea class="wf-input" rows="3">Descripción y especificaciones correspondientes al registro de ${name}.</textarea>
+            <span class="pin-badge">${badges[2] || 'C'}</span>
+          </div>
         </div>
       </div>
 
@@ -4158,12 +4597,22 @@ cus.forEach(cu => {
                         <h2 class="wf-hero-title">${cu.id === 'CU-01' ? 'Mis Cursos Asignados' : (cu.id === 'CU-02' ? 'Gestión de Cursos' : cu.name)}</h2>
                         <p class="wf-hero-desc">Bienvenido/a, ${roleInfo.name}</p>
                     </div>
-                    ${['CU-01', 'CU-02'].includes(cu.id) ? `
-                    <div>
+                    ${cu.id === 'CU-01' ? `
+                    <div class="d-flex align-items-center gap-2">
                         <a href="#CU-03" class="wf-btn-gold">
                             <i class="fa-solid fa-plus"></i>
-                            <span>Crear Curso</span>
+                            <span>+ Nuevo Curso</span>
                         </a>
+                        <span class="pin-badge">A</span>
+                    </div>
+                    ` : ''}
+                    ${cu.id === 'CU-07' ? `
+                    <div class="d-flex align-items-center gap-2">
+                        <a href="#CU-08" class="wf-btn-gold">
+                            <i class="fa-solid fa-plus"></i>
+                            <span>+ Nueva Categoría</span>
+                        </a>
+                        <span class="pin-badge">A</span>
                     </div>
                     ` : ''}
                 </div>
