@@ -33,7 +33,7 @@ if (dssContent) {
 }
 dssMap['CU-26b'] = 'verContenidoUnidad(unaUnidad) ➔ ModoEdición';
 
-// 3. Heroicons SVG Library
+// 3. Heroicons SVG Library (Full Outline Heroicons v2)
 const icons = {
   academicCap: (cls="w-5 h-5") => `<svg class="${cls}" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-5.25 6.557c1.764.39 3.58.648 5.25.75" /></svg>`,
   briefcase: (cls="w-5 h-5") => `<svg class="${cls}" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 0 0 .75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 0 0-3.413-.387m4.5 8.006c-.194.165-.42.295-.673.38A23.978 23.978 0 0 1 12 15.75c-2.648 0-5.195-.429-7.577-1.22a2.016 2.016 0 0 1-.673-.38m0 0A2.18 2.18 0 0 1 3 12.489V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 0 1 3.413-.387m7.5 0V5.25A2.25 2.25 0 0 0 13.5 3h-3a2.25 2.25 0 0 0-2.25 2.25v.894m7.5 0a48.667 48.667 0 0 0-7.5 0M12 12.75h.008v.008H12v-.008Z" /></svg>`,
@@ -60,7 +60,15 @@ const icons = {
   camera: (cls="w-5 h-5") => `<svg class="${cls}" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.774 48.774 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM18.75 10.5h.008v.008h-.008V10.5Z" /></svg>`,
   signal: (cls="w-5 h-5") => `<svg class="${cls}" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.348 14.652a3.75 3.75 0 0 1 0-5.304m5.304 0a3.75 3.75 0 0 1 0 5.304m-7.425 2.121a6.75 6.75 0 0 1 0-9.546m9.546 0a6.75 6.75 0 0 1 0 9.546M5.106 18.894c-3.808-3.807-3.808-9.98 0-13.788m13.788 0c3.808 3.807 3.808 9.98 0 13.788M12 12h.008v.008H12V12Z" /></svg>`,
   creditCard: (cls="w-5 h-5") => `<svg class="${cls}" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5Z" /></svg>`,
-  chartBar: (cls="w-5 h-5") => `<svg class="${cls}" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" /></svg>`
+  chartBar: (cls="w-5 h-5") => `<svg class="${cls}" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" /></svg>`,
+  user: (cls="w-5 h-5") => `<svg class="${cls}" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" /></svg>`,
+  users: (cls="w-5 h-5") => `<svg class="${cls}" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" /></svg>`,
+  shieldCheck: (cls="w-5 h-5") => `<svg class="${cls}" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" /></svg>`,
+  tag: (cls="w-5 h-5") => `<svg class="${cls}" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 0 0 5.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 0 0 9.568 3Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6Z" /></svg>`,
+  bell: (cls="w-5 h-5") => `<svg class="${cls}" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" /></svg>`,
+  magnifyingGlass: (cls="w-5 h-5") => `<svg class="${cls}" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" /></svg>`,
+  xMark: (cls="w-5 h-5") => `<svg class="${cls}" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>`,
+  photo: (cls="w-5 h-5") => `<svg class="${cls}" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" /></svg>`
 };
 
 // 4. Parse Markdown CUs
@@ -75,9 +83,10 @@ for (let i = 1; i < cuBlocks.length; i++) {
   const id = titleMatch[1].trim();
   const name = titleMatch[2].trim();
   
-  const moduleMatch = block.match(/\*\*Módulo\*\*\s*[\r\n]+-\s*([^\r\n]+)/);
-  const actorsMatch = block.match(/\*\*Actor\(es\)\*\*\s*[\r\n]+-\s*([^\r\n]+)/);
-  const descMatch = block.match(/\*\*Descripción\*\*\s*[\r\n]+([\s\S]*?)(?=\*\*Precondición|\*\*Flujo)/);
+  // Soporte tanto para formato en línea (**Módulo**: ...) como con salto de línea
+  const moduleMatch = block.match(/\*\*Módulo\*\*:\s*([^\r\n]+)/) || block.match(/\*\*Módulo\*\*\s*[\r\n]+-\s*([^\r\n]+)/);
+  const actorsMatch = block.match(/\*\*Actor\(es\)\*\*:\s*([^\r\n]+)/) || block.match(/\*\*Actor\(es\)\*\*\s*[\r\n]+-\s*([^\r\n]+)/);
+  const descMatch = block.match(/\*\*Descripción\*\*:\s*([^\r\n]+)/) || block.match(/\*\*Descripción\*\*\s*[\r\n]+([\s\S]*?)(?=\*\*Precondición|\*\*Flujo)/);
   
   const badges = [];
   const badgeRegex = /\[([A-Z0-9]+)\]/g;
@@ -705,57 +714,66 @@ function generateScreenContent(cu) {
     `;
   }
 
-  // --- SPECIALIZED 6: ESTUDIO DE CLON IA (HEYGEN) --- CU-76
+  // --- SPECIALIZED 6: ESTUDIO DE CLON DIGITAL CON IA (HEYGEN) --- CU-76
   if (id === 'CU-76') {
     return `
-      <div class="wf-card" style="max-width: 960px; margin: 0 auto;">
+      <div class="wf-card" style="max-width: 1020px; margin: 0 auto;">
         <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
           <div class="d-flex align-items-center gap-3">
-            <div style="width: 44px; height: 44px; border-radius: 10px; background: linear-gradient(135deg, #4F46E5, #9333EA); display: flex; align-items: center; justify-content: center; color: white;">
-              ${icons.sparkles("w-6 h-6")}
+            <div style="width: 44px; height: 44px; border-radius: 8px; background: #0F172A; display: flex; align-items: center; justify-content: center; color: white;">
+              ${icons.sparkles("w-6 h-6 text-white")}
             </div>
             <div>
-              <h3 style="font-size: 18px; font-weight: 700; color: #0F172A; margin: 0;">Estudio de Clon Digital con IA (HeyGen API)</h3>
-              <p class="small text-muted" style="margin: 0;">Configure su avatar hiperrealista y clone su voz para dictado autónomo de clases.</p>
+              <h3 style="font-size: 17px; font-weight: 800; color: #0F172A; margin: 0;">Estudio de Clon Digital con IA (HeyGen API)</h3>
+              <p class="small text-muted" style="margin: 0;">Configure su avatar hiperrealista y clone su voz para el dictado autónomo de clases.</p>
             </div>
           </div>
           <div class="d-flex align-items-center gap-2">
             <button class="wf-btn wf-btn-primary wf-btn-sm d-flex align-items-center gap-2">
-              ${icons.sparkles("w-4 h-4")}
-              <span>Configurar Clon de IA</span>
+              ${icons.cog6Tooth("w-4 h-4")}
+              <span>Configurar API HeyGen</span>
             </button>
             <span class="pin-badge">${badges[0] || 'A'}</span>
           </div>
         </div>
 
         <div class="row g-4">
-          <!-- Columna 1: Muestra Facial / Avatar -->
+          <!-- Columna 1: Captura Facial / Avatar Preview -->
           <div class="col-md-6">
-            <div class="p-4 border rounded bg-white shadow-sm h-100 d-flex flex-column justify-content-between">
+            <div class="p-3 border rounded bg-white h-100 d-flex flex-column justify-content-between shadow-sm">
               <div>
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                  <h4 style="font-size: 15px; font-weight: 700; color: #1E293B;">1. Captura de Rostro y Avatar</h4>
-                  <span class="wf-badge status-active">Cámara HD Lista</span>
+                  <h4 style="font-size: 14px; font-weight: 700; color: #0F172A; margin: 0;">1. Captura de Rostro & Avatar</h4>
+                  <span class="wf-badge status-active">Cámara HD Activa</span>
                 </div>
                 
-                <!-- Preview del Avatar -->
-                <div style="height: 200px; background: #0F172A; border-radius: 8px; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 2px dashed #475569;">
-                  <!-- Simulación Avatar -->
-                  <div style="text-align: center; color: #E2E8F0;">
-                    <div style="width: 72px; height: 72px; border-radius: 50%; background: #334155; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 700; border: 3px solid #818CF8;">
-                      FS
+                <!-- Preview del Avatar / Cámara con Tracking -->
+                <div style="height: 220px; background: #0F172A; border-radius: 6px; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1.5px solid #334155;">
+                  <!-- Avatar Wireframe Silhouette -->
+                  <div style="text-align: center; color: #F8FAFC; z-index: 2;">
+                    <div style="width: 80px; height: 80px; border-radius: 50%; background: #1E293B; margin: 0 auto 8px; display: flex; align-items: center; justify-content: center; border: 2px solid #64748B; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+                      ${icons.user("w-10 h-10 text-slate-300")}
                     </div>
-                    <div class="small fw-bold">Lic. Fausto Spotorno</div>
-                    <div style="font-size: 11px; color: #94A3B8;">Encuadre Centrado 1080p • Iluminación Óptima</div>
+                    <div style="font-size: 13px; font-weight: 700;">Lic. Fausto Spotorno</div>
+                    <div style="font-size: 10px; color: #94A3B8;">Modelo: Instant Avatar v2 • 1080p 60fps</div>
                   </div>
-                  <div style="position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.6); padding: 2px 8px; border-radius: 4px; font-size: 11px; color: #34D399;">
-                    ● Tracking Facial Activo
+
+                  <!-- Face Tracking Bounding Box Grid -->
+                  <div style="position: absolute; width: 120px; height: 130px; border: 1.5px dashed #38BDF8; border-radius: 8px; pointer-events: none; opacity: 0.6;"></div>
+                  
+                  <div style="position: absolute; top: 10px; left: 10px; display: flex; gap: 6px;">
+                    <span style="background: rgba(15,23,42,0.85); color: #38BDF8; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 3px; border: 1px solid rgba(56,189,248,0.3);">REC 1080P</span>
+                    <span style="background: rgba(15,23,42,0.85); color: #34D399; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 3px; border: 1px solid rgba(52,211,153,0.3);">● TRACKING ON</span>
+                  </div>
+
+                  <div style="position: absolute; bottom: 8px; right: 8px; font-size: 10px; color: #94A3B8; background: rgba(0,0,0,0.6); padding: 2px 6px; border-radius: 3px;">
+                    Iluminación: 98% (Óptima)
                   </div>
                 </div>
               </div>
 
               <div class="mt-3 pt-3 border-top d-flex justify-content-between align-items-center">
-                <span class="small text-muted">Adjunte foto formal o tome una captura web:</span>
+                <span class="small text-muted">Adjuntar archivo o tomar foto web:</span>
                 <div class="d-flex align-items-center gap-2">
                   <button class="wf-btn wf-btn-sm wf-btn-outline d-flex align-items-center gap-1">
                     ${icons.camera("w-4 h-4")} <span>Tomar Foto</span>
@@ -766,12 +784,12 @@ function generateScreenContent(cu) {
             </div>
           </div>
 
-          <!-- Columna 2: Calibración de Voz -->
+          <!-- Columna 2: Calibración y Muestra de Voz -->
           <div class="col-md-6">
-            <div class="p-4 border rounded bg-white shadow-sm h-100 d-flex flex-column justify-content-between">
+            <div class="p-3 border rounded bg-white h-100 d-flex flex-column justify-content-between shadow-sm">
               <div>
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                  <h4 style="font-size: 15px; font-weight: 700; color: #1E293B;">2. Muestra y Clonación de Voz</h4>
+                  <h4 style="font-size: 14px; font-weight: 700; color: #0F172A; margin: 0;">2. Muestra y Clonación de Voz</h4>
                   <span class="wf-badge status-active">Micrófono 48kHz</span>
                 </div>
 
@@ -782,19 +800,25 @@ function generateScreenContent(cu) {
                   </p>
                 </div>
 
-                <!-- Ondas de Audio -->
-                <div style="height: 60px; background: #0F172A; border-radius: 6px; display: flex; align-items: center; justify-content: center; gap: 4px; padding: 0 20px;">
-                  <div style="width: 4px; height: 18px; background: #818CF8; border-radius: 2px;"></div>
-                  <div style="width: 4px; height: 35px; background: #818CF8; border-radius: 2px;"></div>
-                  <div style="width: 4px; height: 50px; background: #A78BFA; border-radius: 2px;"></div>
-                  <div style="width: 4px; height: 28px; background: #818CF8; border-radius: 2px;"></div>
-                  <div style="width: 4px; height: 42px; background: #C084FC; border-radius: 2px;"></div>
-                  <div style="width: 4px; height: 20px; background: #818CF8; border-radius: 2px;"></div>
+                <!-- Visualizador de Espectro de Audio -->
+                <div style="height: 90px; background: #0F172A; border-radius: 6px; display: flex; align-items: center; justify-content: center; gap: 5px; padding: 0 20px; border: 1.5px solid #334155; position: relative;">
+                  <div style="width: 4px; height: 24px; background: #64748B; border-radius: 2px;"></div>
+                  <div style="width: 4px; height: 42px; background: #94A3B8; border-radius: 2px;"></div>
+                  <div style="width: 4px; height: 68px; background: #CBD5E1; border-radius: 2px;"></div>
+                  <div style="width: 4px; height: 38px; background: #94A3B8; border-radius: 2px;"></div>
+                  <div style="width: 4px; height: 56px; background: #CBD5E1; border-radius: 2px;"></div>
+                  <div style="width: 4px; height: 28px; background: #64748B; border-radius: 2px;"></div>
+                  <div style="width: 4px; height: 48px; background: #CBD5E1; border-radius: 2px;"></div>
+                  <div style="width: 4px; height: 20px; background: #64748B; border-radius: 2px;"></div>
+                  
+                  <div style="position: absolute; bottom: 6px; left: 10px; font-size: 10px; color: #94A3B8;">
+                    Ruido ambiente: -52 dB (Bajo)
+                  </div>
                 </div>
               </div>
 
               <div class="mt-3 pt-3 border-top d-flex justify-content-between align-items-center">
-                <span class="small text-muted">Duración mínima: 30 seg</span>
+                <span class="small text-muted">Duración grabada: 00:32 / 00:30 min</span>
                 <div class="d-flex align-items-center gap-2">
                   <button class="wf-btn wf-btn-sm wf-btn-outline text-danger d-flex align-items-center gap-1">
                     ${icons.microphone("w-4 h-4")} <span>Grabar Muestra</span>
@@ -806,14 +830,14 @@ function generateScreenContent(cu) {
           </div>
         </div>
 
-        <!-- Términos y Confirmación HeyGen -->
+        <!-- Consentimiento y Envío a HeyGen API -->
         <div class="mt-4 p-3 bg-light border rounded d-flex justify-content-between align-items-center">
           <div class="d-flex align-items-center gap-2">
-            <input type="checkbox" id="terms" checked>
-            <label for="terms" class="small text-muted mb-0">Acepto los términos y condiciones de consentimiento biométrico para síntesis de voz y avatar en HeyGen.</label>
+            <input type="checkbox" id="terms" checked style="width: 16px; height: 16px;">
+            <label for="terms" class="small text-muted mb-0">Acepto los términos y condiciones de consentimiento biométrico para síntesis de voz y avatar en HeyGen API.</label>
           </div>
           <div class="d-flex align-items-center gap-2">
-            <button class="wf-btn wf-btn-primary d-flex align-items-center gap-2" style="background: #4F46E5;">
+            <button class="wf-btn wf-btn-primary d-flex align-items-center gap-2">
               ${icons.sparkles("w-4 h-4")}
               <span>Crear Clon en HeyGen</span>
             </button>
@@ -827,14 +851,14 @@ function generateScreenContent(cu) {
   // --- SPECIALIZED 7: GENERAR / MODIFICAR CLASE CON CLON IA --- CU-77, CU-78, CU-79
   if (['CU-77', 'CU-78', 'CU-79'].includes(id)) {
     return `
-      <div class="wf-card" style="max-width: 1000px; margin: 0 auto;">
+      <div class="wf-card" style="max-width: 1020px; margin: 0 auto;">
         <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
           <div class="d-flex align-items-center gap-3">
-            <div style="width: 44px; height: 44px; border-radius: 10px; background: linear-gradient(135deg, #2563EB, #4F46E5); display: flex; align-items: center; justify-content: center; color: white;">
-              ${icons.videoCamera("w-6 h-6")}
+            <div style="width: 44px; height: 44px; border-radius: 8px; background: #0F172A; display: flex; align-items: center; justify-content: center; color: white;">
+              ${icons.videoCamera("w-6 h-6 text-white")}
             </div>
             <div>
-              <h3 style="font-size: 18px; font-weight: 700; color: #0F172A; margin: 0;">Generador de Clase Audiovisual con Clon IA</h3>
+              <h3 style="font-size: 17px; font-weight: 800; color: #0F172A; margin: 0;">Generador de Clase Audiovisual con Clon IA</h3>
               <p class="small text-muted" style="margin: 0;">Escriba el guión académico o genere contenido para renderizar el video explicativo.</p>
             </div>
           </div>
@@ -864,8 +888,8 @@ function generateScreenContent(cu) {
             <div class="mb-3">
               <div class="d-flex justify-content-between align-items-center mb-1">
                 <label class="wf-label mb-0">Guión Académico de Locución (Speech Text)</label>
-                <a href="#CU-74" class="small text-decoration-none d-flex align-items-center gap-1" style="color: #4F46E5;">
-                  ${icons.sparkles("w-3 h-3")} Autogenerar guión con IA
+                <a href="#CU-74" class="small text-decoration-none d-flex align-items-center gap-1" style="color: #0F172A; font-weight: 700;">
+                  ${icons.sparkles("w-3.5 h-3.5")} Autogenerar guión con IA
                 </a>
               </div>
               <div class="wf-input-wrap">
@@ -876,32 +900,36 @@ function generateScreenContent(cu) {
           </div>
 
           <div class="col-md-5">
-            <div class="p-3 border rounded bg-light mb-3">
+            <div class="p-3 border rounded bg-white shadow-sm mb-3">
               <div class="small fw-bold text-muted text-uppercase mb-2">Previsualización de Render</div>
-              <div style="height: 170px; background: #0F172A; border-radius: 6px; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+              <div style="height: 180px; background: #0F172A; border-radius: 6px; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1.5px solid #334155;">
                 <div style="text-align: center; color: white;">
-                  <div style="width: 54px; height: 54px; border-radius: 50%; background: #334155; margin: 0 auto 6px; display: flex; align-items: center; justify-content: center; font-weight: 700; border: 2px solid #38BDF8;">
-                    FS
+                  <div style="width: 56px; height: 56px; border-radius: 50%; background: #1E293B; margin: 0 auto 6px; display: flex; align-items: center; justify-content: center; font-weight: 700; border: 2px solid #64748B;">
+                    ${icons.user("w-7 h-7 text-slate-300")}
                   </div>
-                  <div style="font-size: 11px;">Avatar HeyGen v2.0</div>
+                  <div style="font-size: 11px; font-weight: 700;">Avatar HeyGen v2.0</div>
+                  <div style="font-size: 9px; color: #94A3B8;">Lic. Fausto Spotorno</div>
                 </div>
-                <div style="position: absolute; top: 8px; left: 8px; background: #EF4444; color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 700;">
+                <div style="position: absolute; top: 8px; left: 8px; background: #DC2626; color: white; padding: 2px 6px; border-radius: 3px; font-size: 9px; font-weight: 700; letter-spacing: 0.5px;">
                   PREVIEW
+                </div>
+                <div style="position: absolute; bottom: 8px; right: 8px; font-size: 10px; color: #34D399; background: rgba(0,0,0,0.6); padding: 2px 6px; border-radius: 3px;">
+                  1080p 60fps
                 </div>
               </div>
               <div class="d-flex justify-content-between small text-muted mt-2">
                 <span>Tiempo estimado: ~3 min 40s</span>
-                <span>Resolución: 1080p 60fps</span>
+                <span>Voz: Fausto_ES_AR_v1</span>
               </div>
             </div>
 
             <div class="d-flex flex-column gap-2">
-              <div class="d-flex justify-content-between align-items-center p-2 border rounded bg-white">
-                <span class="small">Voz seleccionada:</span>
+              <div class="d-flex justify-content-between align-items-center p-2 border rounded bg-light">
+                <span class="small text-muted">Voz seleccionada:</span>
                 <span class="small fw-bold">Fausto_ES_AR_v1</span>
               </div>
-              <div class="d-flex justify-content-between align-items-center p-2 border rounded bg-white">
-                <span class="small">Fondo de pantalla:</span>
+              <div class="d-flex justify-content-between align-items-center p-2 border rounded bg-light">
+                <span class="small text-muted">Fondo de pantalla:</span>
                 <span class="small fw-bold">Oficina Virtual FCEQyN</span>
               </div>
             </div>
@@ -911,7 +939,7 @@ function generateScreenContent(cu) {
         <div class="d-flex justify-content-end align-items-center gap-3 pt-3 mt-4 border-top">
           <button class="wf-btn wf-btn-outline">Guardar como Borrador</button>
           <div class="d-flex align-items-center gap-2">
-            <button class="wf-btn wf-btn-primary d-flex align-items-center gap-2" style="background: #2563EB;">
+            <button class="wf-btn wf-btn-primary d-flex align-items-center gap-2">
               ${icons.sparkles("w-4 h-4")}
               <span>Renderizar Video con Clon</span>
             </button>
@@ -1599,7 +1627,7 @@ let html = `<!DOCTYPE html>
 
         /* Navegación Lateral */
         #nav-sidebar {
-            width: 280px;
+            width: 300px;
             background: #0F172A;
             color: #FFFFFF;
             overflow-y: auto;
@@ -1610,25 +1638,26 @@ let html = `<!DOCTYPE html>
         }
 
         .nav-header {
-            padding: 18px 20px;
+            padding: 20px;
             border-bottom: 1px solid #1E293B;
             background: #090E17;
         }
 
         .nav-header h2 {
             font-size: 14px;
-            font-weight: 700;
+            font-weight: 800;
             letter-spacing: 0.5px;
+            color: #FFFFFF;
         }
 
         .nav-header p {
             font-size: 11px;
             color: #94A3B8;
-            margin-top: 2px;
+            margin-top: 3px;
         }
 
         .nav-search {
-            padding: 12px 16px;
+            padding: 14px 16px;
             border-bottom: 1px solid #1E293B;
         }
 
@@ -1641,6 +1670,12 @@ let html = `<!DOCTYPE html>
             color: #FFFFFF;
             font-size: 12px;
             outline: none;
+            transition: all 0.15s;
+        }
+
+        .nav-search input:focus {
+            border-color: #64748B;
+            background: #0F172A;
         }
 
         .module-group {
@@ -1650,11 +1685,11 @@ let html = `<!DOCTYPE html>
         .module-header {
             padding: 10px 16px;
             background: #182234;
-            font-size: 10px;
+            font-size: 11px;
             font-weight: 700;
-            color: #94A3B8;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            color: #CBD5E1;
+            letter-spacing: 0.3px;
+            border-left: 3px solid #64748B;
         }
 
         .module-list {
@@ -1665,7 +1700,7 @@ let html = `<!DOCTYPE html>
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 7px 16px;
+            padding: 8px 16px;
             color: #94A3B8;
             text-decoration: none;
             font-size: 12px;
@@ -1675,16 +1710,17 @@ let html = `<!DOCTYPE html>
         .nav-item a:hover {
             background: #1E293B;
             color: #FFFFFF;
-            border-left: 3px solid #64748B;
+            padding-left: 20px;
         }
 
         .nav-item .cu-tag {
             font-size: 10px;
             font-weight: 700;
-            padding: 2px 5px;
+            padding: 2px 6px;
             border-radius: 4px;
             background: rgba(255,255,255,0.08);
-            color: #CBD5E1;
+            color: #E2E8F0;
+            border: 1px solid rgba(255,255,255,0.1);
         }
 
         /* Viewport Central (Canvas de Figma) */
