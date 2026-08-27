@@ -1893,9 +1893,9 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el docente selecciona "Añade una actividad o un recurso" [A] en la unidad (ver CU-19: Buscar unidad). |
-| 2 | El sistema solicita los datos del banco de preguntas: nombre del pool [B] y descripción temática [C]. |
-| 3 | El actor completa el nombre y descripción del pool y confirma la creación mediante el botón "Agregar" [D]. |
+| 1 | El caso de uso inicia cuando el docente selecciona el botón "Nuevo Pool" [A] en la unidad (ver CU-19: Buscar unidad). |
+| 2 | El sistema solicita los datos del banco de preguntas: nombre del pool [B], descripción temática [C] y el editor de preguntas. |
+| 3 | El actor ingresa el nombre, la descripción y comienza a cargar preguntas con su tipo (opción múltiple o verdadero/falso), enunciado y opciones de respuesta marcando la correcta, y confirma la creación mediante el botón "Guardar y Crear Pool" [D]. |
 | 4 | El sistema valida que el docente participe en el curso como titular o ayudante, que la unidad esté activa, que el nombre del pool haya sido completado y que se haya cargado al menos una pregunta. |
 | 5 | El sistema valida que cada pregunta tenga al menos dos opciones de respuesta y que exactamente una esté marcada como correcta. |
 | 6 | El sistema registra el pool con sus preguntas y opciones. |
@@ -1995,7 +1995,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 - **Requisito(s) de información asociado(s)**: RI-04: Información sobre evaluaciones.
 - **Módulo**: MOD-F-04: Módulo de Evaluaciones
 - **Actor(es)**: Docente, Administrador
-- **Descripción**: Permite al Docente titular/ayudante o al Administrador buscar las autoevaluaciones registradas en una unidad.
+- **Descripción**: Permite al Docente titular/ayudante o al Administrador buscar las autoevaluaciones configuradas en una unidad.
 - **Precondición(es)**:
   - El actor ha iniciado sesión en el sistema con el rol Docente o Administrador.
   - Si el actor es Docente, participa en el curso como titular o ayudante.
@@ -2008,7 +2008,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 | 2 | El sistema solicita la unidad sobre la que se desea consultar y, opcionalmente, el nombre de la autoevaluación. |
 | 3 | El actor ingresa los criterios de búsqueda mediante el buscador [B] y presiona "Buscar" [C]. |
 | 4 | El sistema recupera y lista las autoevaluaciones que coinciden con los criterios. |
-| 5 | El actor puede seleccionar una autoevaluación de la lista [D] para ver su configuración. |
+| 5 | El actor puede seleccionar uno de los resultados de la lista [D] para ver su detalle. |
 | 6 | Fin del caso de uso. |
 
 - **Salida**: Se recupera el listado de autoevaluaciones de la unidad, con su nombre, pools asociados, tiempo límite, intentos permitidos y si integra pools de otras unidades como evaluación final.
@@ -2035,7 +2035,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el docente selecciona "Añade una actividad o un recurso" [A] en la unidad (ver CU-19: Buscar unidad). |
+| 1 | El caso de uso inicia cuando el docente selecciona el botón "Nueva Autoevaluación" [A] en la unidad (ver CU-19: Buscar unidad). |
 | 2 | El sistema solicita los parámetros del cuestionario: nombre de la autoevaluación [B], tiempo límite en minutos [C], cantidad de preguntas sorteables [D], fecha de apertura [E], fecha de cierre [F], intentos permitidos [G] y pools asociados [H]. |
 | 3 | El actor completa los parámetros solicitados y confirma la creación mediante el botón "Agregar" [I]. |
 | 4 | El sistema valida que el docente participe en el curso como titular o ayudante, que la unidad esté activa, que se hayan completado los campos obligatorios y que se haya seleccionado al menos un pool activo. |
@@ -2184,7 +2184,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor solicita consultar las calificaciones desde la pestaña "Calificaciones" [A]. |
+| 1 | El caso de uso inicia cuando el actor solicita consultar las calificaciones de un alumno en un curso mediante el botón "Ver Calificaciones" [A] (ver CU-01: Buscar curso). |
 | 2 | El sistema solicita el alumno a consultar. |
 | 3 | El actor ingresa el alumno a consultar mediante el selector o buscador [B]. |
 | 4 | El sistema recupera, para cada autoevaluación rendida por el alumno en el programa de su cohorte, la nota y el resultado. |
@@ -2331,7 +2331,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el docente selecciona "Añade una actividad o un recurso" [A] en la unidad (ver CU-19: Buscar unidad). |
+| 1 | El caso de uso inicia cuando el docente selecciona el botón "Programar clase en vivo" [A] en la unidad (ver CU-19: Buscar unidad). |
 | 2 | El sistema solicita los datos de la transmisión: título de la clase [B], cohorte destinataria [C], fecha y hora de inicio [D], duración estimada en minutos [E] y enlace a la sala de streaming [F]. |
 | 3 | El actor completa los datos de la sesión y confirma la programación mediante el botón "Agregar" [G]. |
 | 4 | El sistema valida que el docente participe en el curso como titular o ayudante, que la unidad y la cohorte estén activas, y que se hayan completado los campos obligatorios. |

@@ -444,9 +444,9 @@ function generateScreenContent(cu) {
                     <i class="fa-solid fa-chalkboard-user"></i>
                     <span>Docente Titular: <strong>Lic. Fausto Spotorno</strong></span>
                   </div>
-                  <a href="#CU-43" class="wf-btn wf-btn-primary w-100 d-flex align-items-center justify-content-center gap-2" style="font-weight: 700;">
-                    <i class="fa-solid fa-bolt"></i>
-                    <span>Iniciar Inscripción Online</span>
+                  <a href="#CU-44" class="wf-btn wf-btn-primary w-100 d-flex align-items-center justify-content-center gap-2" style="font-weight: 700; text-decoration: none;">
+                    <i class="fa-solid fa-ticket"></i>
+                    <span>Inscribirme Ahora</span>
                   </a>
                 </div>
               </div>
@@ -515,11 +515,17 @@ function generateScreenContent(cu) {
             ${isDocente ? `
               <div class="d-flex flex-column gap-2 w-100">
                 <div class="d-flex align-items-center gap-2 w-100">
-                  <a href="#CU-26b" class="wf-btn wf-btn-sm wf-btn-primary w-100 d-flex align-items-center justify-content-center gap-2" style="background: var(--wf-navy); font-weight: 700; height: 38px;">
+                  <a href="#CU-26b" class="wf-btn wf-btn-sm wf-btn-primary w-100 d-flex align-items-center justify-content-center gap-2" style="background: #2563EB; border-color: #2563EB; color: #FFFFFF; font-weight: 700; height: 38px;">
                     <i class="fa-solid fa-arrow-right-to-bracket"></i>
                     <span>Ingresar al Curso</span>
                   </a>
                   <span class="pin-badge">${badges[3] || badges[badges.length - 1] || 'D'}</span>
+                </div>
+                <div class="d-flex align-items-center gap-2 w-100">
+                  <a href="#CU-62" class="wf-btn wf-btn-sm wf-btn-outline flex-grow-1 d-flex align-items-center justify-content-center gap-1" style="font-weight: 600; color: #081426;">
+                    <i class="fa-solid fa-chart-simple text-primary"></i>
+                    <span>Ver Calificaciones</span>
+                  </a>
                 </div>
                 <div class="d-flex align-items-center gap-2 w-100">
                   <a href="#CU-04" class="wf-btn wf-btn-sm wf-btn-outline flex-grow-1 d-flex align-items-center justify-content-center gap-1">
@@ -533,10 +539,10 @@ function generateScreenContent(cu) {
                 </div>
               </div>
             ` : `
-              <button class="wf-btn-manage-course">
-                ${icons.cog6Tooth("w-4 h-4")}
+              <a href="#CU-26" class="wf-btn-manage-course" style="text-decoration: none;">
+                <i class="fa-solid fa-arrow-right-to-bracket"></i>
                 <span>${isAlumno ? 'Ingresar al Curso' : 'Ver Ficha / Inscribirme'}</span>
-              </button>
+              </a>
             `}
           </div>
         </div>
@@ -561,10 +567,16 @@ function generateScreenContent(cu) {
           <div class="wf-course-card-footer">
             ${isDocente ? `
               <div class="d-flex flex-column gap-2 w-100">
-                <a href="#CU-26b" class="wf-btn wf-btn-sm wf-btn-primary w-100 d-flex align-items-center justify-content-center gap-2" style="background: var(--wf-navy); font-weight: 700; height: 38px;">
+                <a href="#CU-26b" class="wf-btn wf-btn-sm wf-btn-primary w-100 d-flex align-items-center justify-content-center gap-2" style="background: #2563EB; border-color: #2563EB; color: #FFFFFF; font-weight: 700; height: 38px;">
                   <i class="fa-solid fa-arrow-right-to-bracket"></i>
                   <span>Ingresar al Curso</span>
                 </a>
+                <div class="d-flex align-items-center gap-2 w-100">
+                  <a href="#CU-62" class="wf-btn wf-btn-sm wf-btn-outline flex-grow-1 d-flex align-items-center justify-content-center gap-1" style="font-weight: 600; color: #081426;">
+                    <i class="fa-solid fa-chart-simple text-primary"></i>
+                    <span>Ver Calificaciones</span>
+                  </a>
+                </div>
                 <div class="d-flex align-items-center gap-2 w-100">
                   <a href="#CU-04" class="wf-btn wf-btn-sm wf-btn-outline flex-grow-1 d-flex align-items-center justify-content-center gap-1">
                     <i class="fa-solid fa-pen-to-square"></i>
@@ -577,10 +589,10 @@ function generateScreenContent(cu) {
                 </div>
               </div>
             ` : `
-              <button class="wf-btn-manage-course">
-                ${icons.cog6Tooth("w-4 h-4")}
+              <a href="#CU-26" class="wf-btn-manage-course" style="text-decoration: none;">
+                <i class="fa-solid fa-arrow-right-to-bracket"></i>
                 <span>${isAlumno ? 'Ingresar al Curso' : 'Ver Ficha / Inscribirme'}</span>
-              </button>
+              </a>
             `}
           </div>
         </div>
@@ -605,10 +617,16 @@ function generateScreenContent(cu) {
           <div class="wf-course-card-footer">
             ${isDocente ? `
               <div class="d-flex flex-column gap-2 w-100">
-                <a href="#CU-26b" class="wf-btn wf-btn-sm wf-btn-primary w-100 d-flex align-items-center justify-content-center gap-2" style="background: var(--wf-navy); font-weight: 700; height: 38px;">
+                <a href="#CU-26b" class="wf-btn wf-btn-sm wf-btn-primary w-100 d-flex align-items-center justify-content-center gap-2" style="background: #2563EB; border-color: #2563EB; color: #FFFFFF; font-weight: 700; height: 38px;">
                   <i class="fa-solid fa-arrow-right-to-bracket"></i>
                   <span>Ingresar al Curso</span>
                 </a>
+                <div class="d-flex align-items-center gap-2 w-100">
+                  <a href="#CU-62" class="wf-btn wf-btn-sm wf-btn-outline flex-grow-1 d-flex align-items-center justify-content-center gap-1" style="font-weight: 600; color: #081426;">
+                    <i class="fa-solid fa-chart-simple text-primary"></i>
+                    <span>Ver Calificaciones</span>
+                  </a>
+                </div>
                 <div class="d-flex align-items-center gap-2 w-100">
                   <a href="#CU-04" class="wf-btn wf-btn-sm wf-btn-outline flex-grow-1 d-flex align-items-center justify-content-center gap-1">
                     <i class="fa-solid fa-pen-to-square"></i>
@@ -621,10 +639,10 @@ function generateScreenContent(cu) {
                 </div>
               </div>
             ` : `
-              <button class="wf-btn-manage-course">
-                ${icons.cog6Tooth("w-4 h-4")}
+              <a href="#CU-26" class="wf-btn-manage-course" style="text-decoration: none;">
+                <i class="fa-solid fa-arrow-right-to-bracket"></i>
                 <span>${isAlumno ? 'Ingresar al Curso' : 'Ver Ficha / Inscribirme'}</span>
-              </button>
+              </a>
             `}
           </div>
         </div>
@@ -632,7 +650,7 @@ function generateScreenContent(cu) {
     `;
   }
 
-  // --- TYPE 2: VISTA DEL CURSO ESTILO MOODLE (ALUMNO) --- CU-26, CU-62
+  // --- TYPE 2: VISTA DEL CURSO ESTILO MOODLE (ALUMNO) --- CU-26
   if (id === 'CU-26') {
     return `
       <div class="wf-card mb-4" style="background: #FFFFFF;">
@@ -657,6 +675,28 @@ function generateScreenContent(cu) {
             <button class="wf-tab-btn"><span class="pin-badge me-1">${badges[4] || 'E'}</span> Participantes</button>
             <button class="wf-tab-btn"><span class="pin-badge me-1">${badges[5] || 'F'}</span> Calificaciones</button>
           </div>
+        </div>
+      </div>
+
+      <!-- Banner de Transmisión en Vivo Ahora Mismo -->
+      <div class="p-3 mb-4 rounded border shadow-sm d-flex justify-content-between align-items-center" style="background: linear-gradient(135deg, #0F172A, #1E293B); color: #FFFFFF; border-left: 5px solid #DC2626 !important;">
+        <div class="d-flex align-items-center gap-3">
+          <div style="width: 44px; height: 44px; border-radius: 50%; background: #DC2626; display: flex; align-items: center; justify-content: center; color: white; animation: pulse 1.8s infinite;">
+            <i class="fa-solid fa-broadcast-tower" style="font-size: 18px;"></i>
+          </div>
+          <div>
+            <div class="d-flex align-items-center gap-2">
+              <span class="badge" style="background: #DC2626; color: white; font-size: 10px; font-weight: 700; letter-spacing: 0.5px;">● EN DIRECTO AHORA</span>
+              <span class="small text-muted" style="color: #94A3B8 !important;">Unidad 2 • Lic. Fausto Spotorno</span>
+            </div>
+            <h4 style="font-size: 15px; font-weight: 700; color: #FFFFFF; margin: 3px 0 0;">Clase Magistral: Resolución de Prácticos de Renta Fija y Valuación de Bonos</h4>
+          </div>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+          <a href="#CU-72" class="wf-btn wf-btn-sm d-flex align-items-center gap-2" style="background: #DC2626; border-color: #DC2626; color: #FFFFFF; font-weight: 700; border-radius: 20px; padding: 8px 18px; text-decoration: none; box-shadow: 0 4px 12px rgba(220,38,38,0.4);">
+            <i class="fa-solid fa-video"></i>
+            <span>Ingresar a la Sala en Vivo</span>
+          </a>
         </div>
       </div>
 
@@ -775,7 +815,10 @@ function generateScreenContent(cu) {
                   </div>
                 </div>
                 <div class="d-flex align-items-center gap-2">
-                  <button class="moodle-btn-check">Iniciar intento</button>
+                  <a href="#CU-63" class="wf-btn wf-btn-sm wf-btn-primary d-flex align-items-center gap-1" style="font-weight: 700; text-decoration: none;">
+                    <i class="fa-solid fa-play"></i>
+                    <span>Comenzar Intento</span>
+                  </a>
                   <span class="pin-badge">${badges[3] || 'D'}</span>
                 </div>
               </div>
@@ -791,7 +834,7 @@ function generateScreenContent(cu) {
                     <div class="moodle-activity-desc">Espacio de debate e interacción con el docente titular (4 consultas activas)</div>
                   </div>
                 </div>
-                <button class="moodle-btn-check">Ver debates</button>
+                <a href="#CU-35" class="moodle-btn-check" style="text-decoration: none;">Ver debates</a>
               </div>
 
               <!-- Clase en Vivo -->
@@ -805,7 +848,7 @@ function generateScreenContent(cu) {
                     <div class="moodle-activity-desc">Sesión sincrónica semanal • Jueves 19:00 hs</div>
                   </div>
                 </div>
-                <button class="moodle-btn-check" style="background: #FEF3C7; color: #92400E; border-color: #FCD34D;"><i class="fa-solid fa-broadcast-tower"></i> Sala en Vivo</button>
+                <a href="#CU-72" class="moodle-btn-check" style="background: #FEF3C7; color: #92400E; border-color: #FCD34D; text-decoration: none;"><i class="fa-solid fa-broadcast-tower"></i> Sala en Vivo</a>
               </div>
             </div>
           </div>
@@ -885,7 +928,7 @@ function generateScreenContent(cu) {
               <strong style="font-size: 14px; color: #081426;">Unidad 1: Marco Regulatorio y Ley de Mercado de Capitales</strong>
               ${badgeAccordionUnit1}
             </div>
-            <div class="d-flex align-items-center gap-2">
+            <div class="d-flex flex-wrap align-items-center gap-2">
               <div class="dropdown d-inline-block">
                 <a href="#CU-21" class="wf-btn wf-btn-sm wf-btn-outline d-inline-flex align-items-center gap-1">
                   <i class="fa-solid fa-pen-to-square me-1"></i>
@@ -895,6 +938,18 @@ function generateScreenContent(cu) {
               <a href="#CU-22" class="wf-btn wf-btn-sm wf-btn-outline text-danger d-inline-flex align-items-center gap-1" title="Quitar de este programa">
                 <i class="fa-solid fa-trash me-1"></i>
                 <span>Quitar de este programa</span>
+              </a>
+              <a href="#CU-73" class="wf-btn wf-btn-sm wf-btn-outline d-inline-flex align-items-center gap-1" style="background: #F0FDF4; border-color: #86EFAC; color: #166534; font-weight: 600;">
+                <i class="fa-solid fa-wand-magic-sparkles text-success"></i>
+                <span>Generar Banco con IA (Ollama)</span>
+              </a>
+              <a href="#CU-74" class="wf-btn wf-btn-sm wf-btn-outline d-inline-flex align-items-center gap-1" style="background: #F0FDF4; border-color: #86EFAC; color: #166534; font-weight: 600;">
+                <i class="fa-solid fa-file-lines text-success"></i>
+                <span>Generar Resumen de Unidad con IA</span>
+              </a>
+              <a href="#CU-75" class="wf-btn wf-btn-sm wf-btn-outline d-inline-flex align-items-center gap-1" style="background: #F0FDF4; border-color: #86EFAC; color: #166534; font-weight: 600;">
+                <i class="fa-solid fa-person-chalkboard text-success"></i>
+                <span>Generar Presentación con IA</span>
               </a>
               ${badgeEditUnit1}
             </div>
@@ -989,14 +1044,31 @@ function generateScreenContent(cu) {
                   <div class="moodle-activity-desc">Video generado mediante HeyGen API (05:12 min • 1080p)</div>
                 </div>
               </div>
-              <a href="#CU-79" class="wf-btn wf-btn-sm wf-btn-outline">Editar <i class="fa-solid fa-chevron-down ms-1" style="font-size: 10px;"></i></a>
+              <div class="d-flex align-items-center gap-2">
+                <a href="#CU-77" class="wf-btn wf-btn-sm wf-btn-outline" title="Buscar clases con Clon de IA"><i class="fa-solid fa-magnifying-glass me-1"></i> Ver Clones</a>
+                <a href="#CU-79" class="wf-btn wf-btn-sm wf-btn-outline">Editar <i class="fa-solid fa-chevron-down ms-1" style="font-size: 10px;"></i></a>
+              </div>
             </div>
 
-            <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
-              <a href="#CU-28" class="wf-link d-flex align-items-center gap-2" style="font-size: 12px; font-weight: 700; color: #081426;">
-                <i class="fa-solid fa-plus-circle" style="color: var(--wf-gold); font-size: 16px;"></i>
-                <span>Añade una actividad o un recurso</span>
-              </a>
+            <div class="d-flex flex-wrap justify-content-between align-items-center mt-3 pt-3 border-top gap-2">
+              <div class="d-flex flex-wrap align-items-center gap-2">
+                <a href="#CU-28" class="wf-link d-flex align-items-center gap-2" style="font-size: 12px; font-weight: 700; color: #081426;">
+                  <i class="fa-solid fa-plus-circle" style="color: var(--wf-gold); font-size: 16px;"></i>
+                  <span>Añade una actividad o un recurso</span>
+                </a>
+                <a href="#CU-54" class="wf-btn wf-btn-sm wf-btn-outline d-inline-flex align-items-center gap-1" style="font-weight: 700; color: #081426;">
+                  <i class="fa-solid fa-list-check" style="color: var(--wf-gold);"></i>
+                  <span>Nuevo Pool</span>
+                </a>
+                <a href="#CU-78" class="wf-btn wf-btn-sm wf-btn-outline d-inline-flex align-items-center gap-1" style="font-weight: 700; color: #7C3AED; background: #FAF5FF; border-color: #DDD6FE;">
+                  <i class="fa-solid fa-video"></i>
+                  <span>Generar Video con Avatar Clon</span>
+                </a>
+                <a href="#CU-77" class="wf-btn wf-btn-sm wf-btn-outline d-inline-flex align-items-center gap-1" style="font-weight: 600; color: #475569;">
+                  <i class="fa-solid fa-film"></i>
+                  <span>Buscar clases con Clon de IA</span>
+                </a>
+              </div>
               ${badgeAddActivity}
             </div>
           </div>
@@ -1132,7 +1204,7 @@ function generateScreenContent(cu) {
         <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
           <div>
             <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Cronograma de Dictado Académico</h3>
-            <p class="small text-muted" style="margin: 3px 0 0;">Visualice la secuencia pedagógica temporal y semanas asignadas por unidad.</p>
+            <p class="small text-muted" style="margin: 3px 0 0;">Visualice la secuencia pedagógica temporal, calendario de semanas lectivas y fechas asignadas por unidad.</p>
           </div>
           <span class="wf-badge status-active">Programa Vigente</span>
         </div>
@@ -1148,25 +1220,77 @@ function generateScreenContent(cu) {
           </div>
           <div class="col-md-6">
             <label class="wf-label">Duración Total Estimada</label>
-            <input type="text" class="wf-input bg-disabled" value="8 Semanas (40 Horas Cátedra)" disabled>
+            <input type="text" class="wf-input bg-disabled" value="8 Semanas Lectivas (40 Horas Cátedra)" disabled>
           </div>
         </div>
 
-        <!-- Tiras de Calendario Semanal / Gantt Visual -->
-        <div class="mb-4 p-3 bg-light rounded border">
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <span class="small fw-bold text-muted text-uppercase">Línea de Tiempo del Programa (8 Semanas)</span>
-            <span class="small text-muted">Inicio: 05/04/2026 • Fin: 30/06/2026</span>
+        <!-- Calendario Minimalista de Celdas y Semanas Interactivas -->
+        <div class="mb-4 p-3 bg-white rounded border shadow-sm">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="d-flex align-items-center gap-2">
+              <i class="fa-regular fa-calendar-days text-primary" style="font-size: 16px;"></i>
+              <span class="small fw-bold text-dark text-uppercase">Calendario Secuencial de Cursado (Semanas 1 a 8)</span>
+            </div>
+            <span class="small text-muted">Período de Dictado: <strong>05/04/2026 al 30/05/2026</strong></span>
           </div>
-          <div class="d-flex gap-1" style="height: 36px; border-radius: 6px; overflow: hidden; font-size: 11px; font-weight: 700;">
-            <div style="flex: 2; background: #1E3A5F; color: white; display: flex; align-items: center; justify-content: center; border-right: 1px solid white;" title="Semanas 1-2: Unidad 1">
-              Sem 1-2 (U1)
+
+          <!-- Matriz de Celdas Semanales -->
+          <div class="row g-2 mb-3 text-center" style="font-size: 11px;">
+            <div class="col">
+              <div class="p-2 rounded border" style="background: #1E3A5F; color: white;">
+                <div class="fw-bold">SEM 1</div>
+                <div style="font-size: 9px; opacity: 0.85;">05/04 - 11/04</div>
+                <div class="mt-1 badge bg-light text-dark" style="font-size: 9px;">Unidad 1</div>
+              </div>
             </div>
-            <div style="flex: 3; background: #2563EB; color: white; display: flex; align-items: center; justify-content: center; border-right: 1px solid white;" title="Semanas 3-5: Unidad 2">
-              Sem 3-5 (U2)
+            <div class="col">
+              <div class="p-2 rounded border" style="background: #1E3A5F; color: white;">
+                <div class="fw-bold">SEM 2</div>
+                <div style="font-size: 9px; opacity: 0.85;">12/04 - 18/04</div>
+                <div class="mt-1 badge bg-light text-dark" style="font-size: 9px;">Unidad 1</div>
+              </div>
             </div>
-            <div style="flex: 3; background: #0D9488; color: white; display: flex; align-items: center; justify-content: center;" title="Semanas 6-8: Unidad 3">
-              Sem 6-8 (U3)
+            <div class="col">
+              <div class="p-2 rounded border" style="background: #2563EB; color: white;">
+                <div class="fw-bold">SEM 3</div>
+                <div style="font-size: 9px; opacity: 0.85;">19/04 - 25/04</div>
+                <div class="mt-1 badge bg-light text-dark" style="font-size: 9px;">Unidad 2</div>
+              </div>
+            </div>
+            <div class="col">
+              <div class="p-2 rounded border" style="background: #2563EB; color: white;">
+                <div class="fw-bold">SEM 4</div>
+                <div style="font-size: 9px; opacity: 0.85;">26/04 - 02/05</div>
+                <div class="mt-1 badge bg-light text-dark" style="font-size: 9px;">Unidad 2</div>
+              </div>
+            </div>
+            <div class="col">
+              <div class="p-2 rounded border" style="background: #2563EB; color: white;">
+                <div class="fw-bold">SEM 5</div>
+                <div style="font-size: 9px; opacity: 0.85;">03/05 - 09/05</div>
+                <div class="mt-1 badge bg-light text-dark" style="font-size: 9px;">Unidad 2</div>
+              </div>
+            </div>
+            <div class="col">
+              <div class="p-2 rounded border" style="background: #0D9488; color: white;">
+                <div class="fw-bold">SEM 6</div>
+                <div style="font-size: 9px; opacity: 0.85;">10/05 - 16/05</div>
+                <div class="mt-1 badge bg-light text-dark" style="font-size: 9px;">Unidad 3</div>
+              </div>
+            </div>
+            <div class="col">
+              <div class="p-2 rounded border" style="background: #0D9488; color: white;">
+                <div class="fw-bold">SEM 7</div>
+                <div style="font-size: 9px; opacity: 0.85;">17/05 - 23/05</div>
+                <div class="mt-1 badge bg-light text-dark" style="font-size: 9px;">Unidad 3</div>
+              </div>
+            </div>
+            <div class="col">
+              <div class="p-2 rounded border" style="background: #0D9488; color: white;">
+                <div class="fw-bold">SEM 8</div>
+                <div style="font-size: 9px; opacity: 0.85;">24/05 - 30/05</div>
+                <div class="mt-1 badge bg-light text-dark" style="font-size: 9px;">Unidad 3</div>
+              </div>
             </div>
           </div>
         </div>
@@ -1175,32 +1299,62 @@ function generateScreenContent(cu) {
           <table class="wf-table">
             <thead>
               <tr>
-                <th style="width: 90px;">Semanas</th>
-                <th>Unidad Temática</th>
-                <th>Dedicación / Duración</th>
-                <th>Actividades Clave</th>
+                <th style="width: 140px;">Semanas Lectivas</th>
+                <th>Rango de Fechas</th>
+                <th>Unidad Temática del Programa</th>
+                <th>Dedicación</th>
+                <th>Hitos Pedagógicos</th>
                 <th class="text-end">Estado</th>
               </tr>
             </thead>
             <tbody>
+              <!-- Unidad 1 -->
               <tr>
-                <td><span class="wf-badge" style="background: #1E3A5F; color: white;">Sem 1-2</span></td>
-                <td><strong>Unidad 1: Marco Regulatorio y Ley de Mercado de Capitales</strong></td>
-                <td>2 Semanas (10 hs cátedra)</td>
+                <td>
+                  <span class="badge" style="background: #1E3A5F; color: white; padding: 6px 10px; font-size: 11px;">
+                    <i class="fa-solid fa-calendar-check me-1"></i> Sem 1 a 2
+                  </span>
+                </td>
+                <td><strong style="color: #081426;">05/04/2026</strong> al <strong>18/04/2026</strong></td>
+                <td>
+                  <strong style="color: #081426;">Unidad 1: Marco Regulatorio y Ley de Mercado de Capitales</strong>
+                  <div class="small text-muted">Régimen informativo, CNV y agentes del mercado</div>
+                </td>
+                <td>2 Semanas (10 hs)</td>
                 <td>Lectura Ley 26.831 • Autoevaluación U1</td>
                 <td class="text-end"><span class="wf-badge status-active">Publicada</span></td>
               </tr>
+
+              <!-- Unidad 2 -->
               <tr>
-                <td><span class="wf-badge" style="background: #2563EB; color: white;">Sem 3-5</span></td>
-                <td><strong>Unidad 2: Instrumentos de Renta Fija (Bonos y ONs)</strong></td>
-                <td>3 Semanas (15 hs cátedra)</td>
+                <td>
+                  <span class="badge" style="background: #2563EB; color: white; padding: 6px 10px; font-size: 11px;">
+                    <i class="fa-solid fa-calendar-check me-1"></i> Sem 3 a 5
+                  </span>
+                </td>
+                <td><strong style="color: #081426;">19/04/2026</strong> al <strong>09/05/2026</strong></td>
+                <td>
+                  <strong style="color: #081426;">Unidad 2: Instrumentos de Renta Fija (Bonos y ONs)</strong>
+                  <div class="small text-muted">Cálculo de TIR, duration modificada y cupones soberanos</div>
+                </td>
+                <td>3 Semanas (15 hs)</td>
                 <td>Clase HeyGen • Planilla TIR • Streaming OBS</td>
                 <td class="text-end"><span class="wf-badge status-active">En Dictado</span></td>
               </tr>
+
+              <!-- Unidad 3 -->
               <tr>
-                <td><span class="wf-badge" style="background: #0D9488; color: white;">Sem 6-8</span></td>
-                <td><strong>Unidad 3: Instrumentos de Renta Variable y Derivados</strong></td>
-                <td>3 Semanas (15 hs cátedra)</td>
+                <td>
+                  <span class="badge" style="background: #0D9488; color: white; padding: 6px 10px; font-size: 11px;">
+                    <i class="fa-solid fa-calendar-check me-1"></i> Sem 6 a 8
+                  </span>
+                </td>
+                <td><strong style="color: #081426;">10/05/2026</strong> al <strong>30/05/2026</strong></td>
+                <td>
+                  <strong style="color: #081426;">Unidad 3: Instrumentos de Renta Variable y Derivados</strong>
+                  <div class="small text-muted">Valuación de acciones, ratios bursátiles y futuros</div>
+                </td>
+                <td>3 Semanas (15 hs)</td>
                 <td>Valuación Acciones • Examen Integrador</td>
                 <td class="text-end"><span class="wf-badge status-inactive">Programada</span></td>
               </tr>
@@ -1218,33 +1372,32 @@ function generateScreenContent(cu) {
         <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
           <div>
             <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Reordenar y Modificar Cronograma</h3>
-            <p class="small text-muted" style="margin: 3px 0 0;">Arrastre los bloques de unidades para modificar su orden secuencial y ajuste las semanas lectivas.</p>
+            <p class="small text-muted" style="margin: 3px 0 0;">Arrastre los bloques de unidades para modificar su secuencia y ajuste las semanas lectivas en el calendario interactivo.</p>
           </div>
           <span class="wf-badge status-active">Modo Edición Cronograma</span>
         </div>
 
-        <!-- Tiras Horizontales Interactivas de Calendario Semanal -->
-        <div class="mb-4 p-3 bg-light rounded border">
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <span class="small fw-bold text-muted text-uppercase">Vista Previa Dinámica del Cronograma</span>
-            <span class="small text-muted">Duración Total Acumulada: <strong>8 Semanas</strong></span>
+        <!-- Calendario Dinámico con Celdas Pintadas -->
+        <div class="mb-4 p-3 bg-white rounded border shadow-sm">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <span class="small fw-bold text-dark text-uppercase">Vista Previa Dinámica del Calendario (8 Semanas)</span>
+            <span class="small text-muted">Total Acumulado: <strong>8 Semanas Lectivas</strong></span>
           </div>
-          <div class="d-flex gap-1" style="height: 38px; border-radius: 6px; overflow: hidden; font-size: 11px; font-weight: 700;">
-            <div style="flex: 2; background: #1E3A5F; color: white; display: flex; align-items: center; justify-content: center; border-right: 1px solid white;">
-              Unidad 1 (2 sem)
-            </div>
-            <div style="flex: 3; background: #2563EB; color: white; display: flex; align-items: center; justify-content: center; border-right: 1px solid white;">
-              Unidad 2 (3 sem)
-            </div>
-            <div style="flex: 3; background: #0D9488; color: white; display: flex; align-items: center; justify-content: center;">
-              Unidad 3 (3 sem)
-            </div>
+          <div class="row g-2 mb-2 text-center" style="font-size: 11px;">
+            <div class="col"><div class="p-2 rounded border" style="background: #1E3A5F; color: white; font-weight: 700;">SEM 1 (U1)</div></div>
+            <div class="col"><div class="p-2 rounded border" style="background: #1E3A5F; color: white; font-weight: 700;">SEM 2 (U1)</div></div>
+            <div class="col"><div class="p-2 rounded border" style="background: #2563EB; color: white; font-weight: 700;">SEM 3 (U2)</div></div>
+            <div class="col"><div class="p-2 rounded border" style="background: #2563EB; color: white; font-weight: 700;">SEM 4 (U2)</div></div>
+            <div class="col"><div class="p-2 rounded border" style="background: #2563EB; color: white; font-weight: 700;">SEM 5 (U2)</div></div>
+            <div class="col"><div class="p-2 rounded border" style="background: #0D9488; color: white; font-weight: 700;">SEM 6 (U3)</div></div>
+            <div class="col"><div class="p-2 rounded border" style="background: #0D9488; color: white; font-weight: 700;">SEM 7 (U3)</div></div>
+            <div class="col"><div class="p-2 rounded border" style="background: #0D9488; color: white; font-weight: 700;">SEM 8 (U3)</div></div>
           </div>
         </div>
 
         <div class="d-flex flex-column gap-3 mb-4">
           <!-- Unidad 1 Drag Box -->
-          <div class="p-3 border rounded bg-white d-flex justify-content-between align-items-center shadow-sm">
+          <div class="p-3 border rounded bg-white d-flex justify-content-between align-items-center shadow-sm" style="border-left: 5px solid #1E3A5F !important;">
             <div class="d-flex align-items-center gap-3">
               <div class="d-flex align-items-center gap-2">
                 <i class="fa-solid fa-grip-vertical text-muted" style="cursor: grab; font-size: 18px;"></i>
@@ -1252,7 +1405,7 @@ function generateScreenContent(cu) {
               </div>
               <div>
                 <strong style="font-size: 14px; color: #081426;">Unidad 1: Marco Regulatorio y Ley de Mercado de Capitales</strong>
-                <div class="small text-muted">Contiene 3 materiales, 1 foro y 1 autoevaluación</div>
+                <div class="small text-muted">Período: <strong>05/04/2026 al 18/04/2026</strong> (Semanas 1 a 2)</div>
               </div>
             </div>
             <div class="d-flex align-items-center gap-3">
@@ -1267,14 +1420,14 @@ function generateScreenContent(cu) {
           </div>
 
           <!-- Unidad 2 Drag Box -->
-          <div class="p-3 border rounded bg-white d-flex justify-content-between align-items-center shadow-sm">
+          <div class="p-3 border rounded bg-white d-flex justify-content-between align-items-center shadow-sm" style="border-left: 5px solid #2563EB !important;">
             <div class="d-flex align-items-center gap-3">
               <div class="d-flex align-items-center gap-2">
                 <i class="fa-solid fa-grip-vertical text-muted" style="cursor: grab; font-size: 18px;"></i>
               </div>
               <div>
                 <strong style="font-size: 14px; color: #081426;">Unidad 2: Instrumentos de Renta Fija (Bonos y Obligaciones Negociables)</strong>
-                <div class="small text-muted">Contiene 4 materiales, 1 autoevaluación, 1 clase en vivo y 1 video clon</div>
+                <div class="small text-muted">Período: <strong>19/04/2026 al 09/05/2026</strong> (Semanas 3 a 5)</div>
               </div>
             </div>
             <div class="d-flex align-items-center gap-3">
@@ -1290,14 +1443,14 @@ function generateScreenContent(cu) {
           </div>
 
           <!-- Unidad 3 Drag Box -->
-          <div class="p-3 border rounded bg-white d-flex justify-content-between align-items-center shadow-sm">
+          <div class="p-3 border rounded bg-white d-flex justify-content-between align-items-center shadow-sm" style="border-left: 5px solid #0D9488 !important;">
             <div class="d-flex align-items-center gap-3">
               <div class="d-flex align-items-center gap-2">
                 <i class="fa-solid fa-grip-vertical text-muted" style="cursor: grab; font-size: 18px;"></i>
               </div>
               <div>
                 <strong style="font-size: 14px; color: #081426;">Unidad 3: Instrumentos de Renta Variable y Derivados Financieros</strong>
-                <div class="small text-muted">Contiene 2 materiales y 1 evaluación final</div>
+                <div class="small text-muted">Período: <strong>10/05/2026 al 30/05/2026</strong> (Semanas 6 a 8)</div>
               </div>
             </div>
             <div class="d-flex align-items-center gap-3">
@@ -1323,14 +1476,220 @@ function generateScreenContent(cu) {
     `;
   }
 
-  // --- TYPE 4: LISTADOS CONTEXTUALES DE RECURSOS --- CU-27, CU-31, CU-35, CU-53, CU-57, CU-65
-  if (['CU-27', 'CU-31', 'CU-35', 'CU-53', 'CU-57', 'CU-65'].includes(id)) {
+  // --- SPECIALIZED 4B: FORO DE CONSULTAS ESTILO MOODLE FCEQYN --- CU-35
+  if (id === 'CU-35') {
+    return `
+      <div class="wf-card mb-4" style="background: #FFFFFF;">
+        <div class="d-flex justify-content-between align-items-start pb-3 border-bottom">
+          <div>
+            <div class="small text-muted mb-1" style="font-size: 11px;">
+              <span>Página Principal</span> <i class="fa-solid fa-chevron-right" style="font-size: 9px; margin: 0 4px;"></i> 
+              <span>Mis cursos</span> <i class="fa-solid fa-chevron-right" style="font-size: 9px; margin: 0 4px;"></i> 
+              <span>Idoneidad Bursátil</span> <i class="fa-solid fa-chevron-right" style="font-size: 9px; margin: 0 4px;"></i> 
+              <strong style="color: #081426;">Foro de Consultas Académicas</strong>
+            </div>
+            <div class="d-flex align-items-center gap-3 mt-2">
+              <div class="moodle-icon-box moodle-icon-forum" style="width: 44px; height: 44px; font-size: 20px;">
+                <i class="fa-solid fa-comments"></i>
+              </div>
+              <div>
+                <h2 style="font-size: 20px; font-weight: 800; color: #081426; margin: 0;">Foro: Consultas sobre Mercado de Capitales & Renta Fija</h2>
+                <p class="small text-muted mb-0 mt-1">Espacio de debate e intercambio académico para resolver dudas sobre ejercicios y normativas CNV.</p>
+              </div>
+            </div>
+          </div>
+          <div class="d-flex align-items-center gap-3">
+            <span class="wf-badge status-active">Cohorte 2026-1</span>
+            <div class="text-muted cursor-pointer" title="Ajustes del foro"><i class="fa-solid fa-gear" style="font-size: 18px;"></i></div>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center pt-2">
+          <div class="d-flex align-items-center gap-1">
+            <a href="#CU-26b" class="wf-tab-btn">Curso & Unidades</a>
+            <a href="#CU-27" class="wf-tab-btn">Materiales</a>
+            <a href="#CU-31" class="wf-tab-btn">Glosario</a>
+            <a href="#CU-57" class="wf-tab-btn">Autoevaluaciones</a>
+            <a href="#CU-53" class="wf-tab-btn">Pools</a>
+            <button class="wf-tab-btn active"><span class="pin-badge me-1">${badges[0] || 'A'}</span>Foros</button>
+            <a href="#CU-65" class="wf-tab-btn">Clases en Vivo</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Barra de Filtros y Búsqueda Moodle -->
+      <div class="wf-card mb-4" style="background: #FFFFFF;">
+        <div class="row g-3 align-items-center">
+          <div class="col-12">
+            <label class="wf-label mb-1">Buscar consultas en el foro</label>
+            <div class="wf-input-wrap">
+              <input type="text" class="wf-input" placeholder="Buscar consultas por palabra clave, contenido, tema o autor en este foro...">
+              <span class="pin-badge">${badges[1] || 'B'}</span>
+              <button class="wf-btn wf-btn-primary" style="height: 44px; padding: 0 20px;"><i class="fa-solid fa-magnifying-glass me-1"></i> Buscar</button>
+              <span class="pin-badge">${badges[2] || 'C'}</span>
+            </div>
+          </div>
+        </div>
+        <div class="small text-muted mt-2">
+          <span>Grupos separados: <strong>Cohorte 2026-1 (Grupo 4)</strong></span>
+        </div>
+      </div>
+
+      <!-- Tabla de Debates y Consultas estilo Moodle FCEQyN -->
+      <div class="wf-table-wrap">
+        <table class="wf-table">
+          <thead>
+            <tr>
+              <th style="width: 40px;"><i class="fa-regular fa-star text-muted"></i></th>
+              <th>Debate / Asunto</th>
+              <th>Grupo / Cohorte</th>
+              <th>Comenzado por</th>
+              <th>Último mensaje <i class="fa-solid fa-arrow-down-long ms-1"></i></th>
+              <th class="text-center">Réplicas</th>
+              <th class="text-end">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Fila 1: Consulta 1 -->
+            <tr>
+              <td><i class="fa-regular fa-star text-warning" style="cursor: pointer;"></i></td>
+              <td>
+                <div class="d-flex align-items-center gap-2">
+                  <a href="#CU-39" class="wf-link fw-bold" style="color: #0284C7; font-size: 13px; text-decoration: none;">
+                    Duda con TP N° 1: Punto 4 - Cálculo de TIR y Duración de Bonos
+                  </a>
+                  <span class="pin-badge">${badges[3] || 'D'}</span>
+                </div>
+                <div class="small text-muted mt-1">Unidad 2: Instrumentos de Renta Fija • Bonos Soberanos AL30</div>
+              </td>
+              <td><span class="badge bg-light text-dark border">Cohorte 2026-1</span></td>
+              <td>
+                <div class="d-flex align-items-center gap-2">
+                  <div class="user-avatar-circle" style="width: 28px; height: 28px; font-size: 10px; background: #2563EB; color: white;">JK</div>
+                  <div>
+                    <span class="fw-bold" style="font-size: 12px; color: #081426;">Joaquín Küster</span>
+                    <div class="small text-muted" style="font-size: 10px;">11 abr 2026</div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="d-flex align-items-center gap-2">
+                  <div class="user-avatar-circle" style="width: 28px; height: 28px; font-size: 10px; background: #081426; color: white;">FS</div>
+                  <div>
+                    <span class="fw-bold" style="font-size: 12px; color: #081426;">Lic. Fausto Spotorno</span>
+                    <div class="small text-muted" style="font-size: 10px;">12 abr 2026, 10:15</div>
+                  </div>
+                </div>
+              </td>
+              <td class="text-center">
+                <span class="badge bg-primary text-white" style="font-size: 11px; padding: 4px 8px;">3</span>
+              </td>
+              <td class="text-end">
+                <div class="d-inline-flex align-items-center gap-2">
+                  <a href="#CU-37" class="wf-btn wf-btn-sm wf-btn-outline" title="Editar Mensaje"><i class="fa-solid fa-pen-to-square"></i></a>
+                  <a href="#CU-38" class="wf-btn wf-btn-sm wf-btn-outline text-danger" title="Moderar / Eliminar"><i class="fa-solid fa-trash"></i></a>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Fila 2: Consulta 2 -->
+            <tr>
+              <td><i class="fa-regular fa-star text-muted" style="cursor: pointer;"></i></td>
+              <td>
+                <a href="#CU-39" class="wf-link fw-bold" style="color: #0284C7; font-size: 13px; text-decoration: none;">
+                  Régimen Informativo y Deber de Idoneidad según Ley 26.831
+                </a>
+                <div class="small text-muted mt-1">Unidad 1: Marco Regulatorio • Normas CNV</div>
+              </td>
+              <td><span class="badge bg-light text-dark border">Cohorte 2026-1</span></td>
+              <td>
+                <div class="d-flex align-items-center gap-2">
+                  <div class="user-avatar-circle" style="width: 28px; height: 28px; font-size: 10px; background: #0D9488; color: white;">MB</div>
+                  <div>
+                    <span class="fw-bold" style="font-size: 12px; color: #081426;">María Benítez</span>
+                    <div class="small text-muted" style="font-size: 10px;">09 abr 2026</div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="d-flex align-items-center gap-2">
+                  <div class="user-avatar-circle" style="width: 28px; height: 28px; font-size: 10px; background: #0D9488; color: white;">MB</div>
+                  <div>
+                    <span class="fw-bold" style="font-size: 12px; color: #081426;">María Benítez</span>
+                    <div class="small text-muted" style="font-size: 10px;">09 abr 2026, 18:30</div>
+                  </div>
+                </div>
+              </td>
+              <td class="text-center">
+                <span class="badge bg-light text-muted border" style="font-size: 11px; padding: 4px 8px;">0</span>
+              </td>
+              <td class="text-end">
+                <div class="d-inline-flex align-items-center gap-2">
+                  <a href="#CU-40" class="wf-btn wf-btn-sm wf-btn-outline" title="Responder Consulta"><i class="fa-solid fa-reply me-1"></i> Responder</a>
+                  <a href="#CU-38" class="wf-btn wf-btn-sm wf-btn-outline text-danger" title="Moderar"><i class="fa-solid fa-trash"></i></a>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Fila 3: Consulta 3 -->
+            <tr>
+              <td><i class="fa-regular fa-star text-muted" style="cursor: pointer;"></i></td>
+              <td>
+                <a href="#CU-39" class="wf-link fw-bold" style="color: #0284C7; font-size: 13px; text-decoration: none;">
+                  Diferencia práctica entre ALyC Propio e Integral
+                </a>
+                <div class="small text-muted mt-1">Unidad 1: Marco Regulatorio • Tipología de Agentes</div>
+              </td>
+              <td><span class="badge bg-light text-dark border">Cohorte 2026-1</span></td>
+              <td>
+                <div class="d-flex align-items-center gap-2">
+                  <div class="user-avatar-circle" style="width: 28px; height: 28px; font-size: 10px; background: #E11D48; color: white;">LR</div>
+                  <div>
+                    <span class="fw-bold" style="font-size: 12px; color: #081426;">Lucas Romero</span>
+                    <div class="small text-muted" style="font-size: 10px;">04 abr 2026</div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="d-flex align-items-center gap-2">
+                  <div class="user-avatar-circle" style="width: 28px; height: 28px; font-size: 10px; background: #081426; color: white;">FS</div>
+                  <div>
+                    <span class="fw-bold" style="font-size: 12px; color: #081426;">Lic. Fausto Spotorno</span>
+                    <div class="small text-muted" style="font-size: 10px;">05 abr 2026, 11:20</div>
+                  </div>
+                </div>
+              </td>
+              <td class="text-center">
+                <span class="badge bg-primary text-white" style="font-size: 11px; padding: 4px 8px;">2</span>
+              </td>
+              <td class="text-end">
+                <div class="d-inline-flex align-items-center gap-2">
+                  <a href="#CU-40" class="wf-btn wf-btn-sm wf-btn-outline" title="Responder Consulta"><i class="fa-solid fa-reply me-1"></i> Responder</a>
+                  <a href="#CU-38" class="wf-btn wf-btn-sm wf-btn-outline text-danger" title="Moderar"><i class="fa-solid fa-trash"></i></a>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Paginación Moodle -->
+      <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
+        <div class="small text-muted">Mostrando 1 - 3 de 14 consultas registradas en este foro</div>
+        <div class="d-flex gap-1" style="font-size: 12px;">
+          <span class="badge bg-dark text-white px-2 py-1">1</span>
+          <span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">2</span>
+          <span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">»</span>
+        </div>
+      </div>
+    `;
+  }
+
+  // --- TYPE 4: LISTADOS CONTEXTUALES DE RECURSOS --- CU-27, CU-31, CU-53
+  if (['CU-27', 'CU-31', 'CU-53'].includes(id)) {
     const isMaterial = id === 'CU-27';
     const isGlosario = id === 'CU-31';
-    const isForo = id === 'CU-35';
     const isPool = id === 'CU-53';
-    const isEval = id === 'CU-57';
-    const isLive = id === 'CU-65';
 
     return `
       <div class="wf-card mb-4" style="background: #FFFFFF;">
@@ -1352,41 +1711,13 @@ function generateScreenContent(cu) {
             <a href="#CU-26b" class="wf-tab-btn">Curso & Unidades</a>
             <a href="#CU-27" class="wf-tab-btn ${isMaterial ? 'active' : ''}">${isMaterial ? `<span class="pin-badge me-1">${badges[0] || 'A'}</span>` : ''}Materiales</a>
             <a href="#CU-31" class="wf-tab-btn ${isGlosario ? 'active' : ''}">${isGlosario ? `<span class="pin-badge me-1">${badges[0] || 'A'}</span>` : ''}Glosario</a>
-            <a href="#CU-57" class="wf-tab-btn ${isEval ? 'active' : ''}">Autoevaluaciones</a>
-            <a href="#CU-53" class="wf-tab-btn ${isPool ? 'active' : ''}">Pools</a>
-            <a href="#CU-35" class="wf-tab-btn ${isForo ? 'active' : ''}">Foros</a>
-            <a href="#CU-65" class="wf-tab-btn ${isLive ? 'active' : ''}">Clases en Vivo</a>
+            <a href="#CU-57" class="wf-tab-btn">Autoevaluaciones</a>
+            <a href="#CU-53" class="wf-tab-btn ${isPool ? 'active' : ''}">${isPool ? `<span class="pin-badge me-1">${badges[0] || 'A'}</span>` : ''}Pools</a>
+            <a href="#CU-35" class="wf-tab-btn">Foros</a>
+            <a href="#CU-65" class="wf-tab-btn">Clases en Vivo</a>
           </div>
         </div>
       </div>
-
-      ${isGlosario ? `
-        <!-- Barra de Alfabeto A-Z para Glosario -->
-        <div class="wf-card mb-3 p-2 bg-light border">
-          <div class="d-flex flex-wrap gap-1 align-items-center justify-content-center" style="font-size: 11px; font-weight: 700;">
-            <span class="text-muted me-2">Índice:</span>
-            <span class="badge bg-dark text-white px-2 py-1 cursor-pointer">Todos</span>
-            <span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">A</span>
-            <span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">B</span>
-            <span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">C</span>
-            <span class="badge bg-primary text-white px-2 py-1 cursor-pointer">D</span>
-            <span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">E</span>
-            <span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">F</span>
-            <span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">G</span>
-            <span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">H</span>
-            <span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">I</span>
-            <span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">J</span>
-            <span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">L</span>
-            <span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">M</span>
-            <span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">O</span>
-            <span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">P</span>
-            <span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">R</span>
-            <span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">S</span>
-            <span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">T</span>
-            <span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">V</span>
-          </div>
-        </div>
-      ` : ''}
 
       <!-- Barra de Filtros y Búsqueda -->
       <div class="wf-card mb-4" style="background: #FFFFFF;">
@@ -1394,7 +1725,7 @@ function generateScreenContent(cu) {
           <div class="col-md-5">
             <label class="wf-label">Buscar por título o palabra clave</label>
             <div class="wf-input-wrap">
-              <input type="text" class="wf-input" placeholder="Buscar en ${isMaterial ? 'materiales' : (isGlosario ? 'glosario' : (isForo ? 'consultas' : (isPool ? 'pools' : 'evaluaciones')))}...">
+              <input type="text" class="wf-input" placeholder="Buscar en ${isMaterial ? 'materiales' : (isGlosario ? 'glosario' : 'pools')}...">
               <span class="pin-badge">${badges[1] || 'B'}</span>
             </div>
           </div>
@@ -1429,10 +1760,10 @@ function generateScreenContent(cu) {
           <tbody>
             <tr>
               <td>
-                <strong>${isMaterial ? 'Ley 26.831 de Mercado de Capitales' : (isGlosario ? 'Duration Modificada (Modified Duration)' : (isEval ? 'Autoevaluación Unidad 1' : (isPool ? 'Pool Unidad 1' : 'Clase Streaming')))}</strong>
+                <strong>${isMaterial ? 'Ley 26.831 de Mercado de Capitales' : (isGlosario ? 'Duration Modificada (Modified Duration)' : 'Pool Unidad 1: Marco Regulatorio')}</strong>
                 ${isGlosario ? `<div class="small text-muted mt-1">Sensibilidad del precio del bono ante variaciones de 100 pbs en la TIR.</div>` : ''}
               </td>
-              <td>${isMaterial ? 'Documento PDF (2.4 MB)' : (isGlosario ? 'Concepto Financiero' : (isEval ? '10 preguntas' : '25 preguntas'))}</td>
+              <td>${isMaterial ? 'Documento PDF (2.4 MB)' : (isGlosario ? 'Concepto Financiero' : '25 preguntas')}</td>
               <td>Unidad 1: Marco Regulatorio</td>
               <td>
                 <span class="wf-badge status-active">Publicado</span>
@@ -1440,18 +1771,25 @@ function generateScreenContent(cu) {
               </td>
               <td class="text-end">
                 <div class="d-inline-flex align-items-center gap-2">
-                  <a href="#${isMaterial ? 'CU-29' : (isGlosario ? 'CU-33' : (isEval ? 'CU-59' : (isPool ? 'CU-55' : 'CU-67')))}" class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-pen-to-square"></i></a>
-                  <a href="#${isMaterial ? 'CU-30' : (isGlosario ? 'CU-34' : (isEval ? 'CU-60' : (isPool ? 'CU-56' : 'CU-69')))}" class="wf-btn wf-btn-sm wf-btn-outline text-danger"><i class="fa-solid fa-trash"></i></a>
+                  <a href="#${isMaterial ? 'CU-29' : (isGlosario ? 'CU-33' : 'CU-55')}" class="wf-btn wf-btn-sm wf-btn-outline">
+                    <i class="fa-solid fa-pen-to-square me-1"></i>
+                    <span>${isPool ? 'Editar Pool' : 'Editar'}</span>
+                  </a>
+                  <a href="#${isMaterial ? 'CU-30' : (isGlosario ? 'CU-34' : 'CU-56')}" class="wf-btn wf-btn-sm wf-btn-outline text-danger">
+                    <i class="fa-solid fa-trash me-1"></i>
+                    <span>Eliminar</span>
+                  </a>
                   <span class="pin-badge">${badges[3] || badges[badges.length - 1] || 'D'}</span>
                 </div>
               </td>
             </tr>
             <tr>
               <td>
-                <strong>${isMaterial ? 'Resumen Teórico: Valuación y Curvas de Bonos' : (isGlosario ? 'TIR (Tasa Interna de Retorno)' : (isEval ? 'Autoevaluación Unidad 2' : (isPool ? 'Pool Unidad 2' : 'Clase en Vivo')))}</strong>
+                <strong>${isMaterial ? 'Resumen Teórico: Valuación y Curvas de Bonos' : (isGlosario ? 'TIR (Tasa Interna de Retorno)' : 'Pool Unidad 2: Renta Fija y Bonos')}</strong>
                 ${isGlosario ? `<div class="small text-muted mt-1">Tasa de descuento que iguala el VAN de los flujos de fondos con el precio dirty.</div>` : ''}
+                ${isPool ? `<div class="small text-muted mt-1">Banco de 30 preguntas de opción múltiple y V/F sobre bonos</div>` : ''}
               </td>
-              <td>${isMaterial ? 'Síntesis PDF (Generado IA)' : (isGlosario ? 'Concepto Financiero' : (isEval ? '10 preguntas' : '30 preguntas'))}</td>
+              <td>${isMaterial ? 'Síntesis PDF (Generado IA)' : (isGlosario ? 'Concepto Financiero' : '30 preguntas')}</td>
               <td>Unidad 2: Renta Fija</td>
               <td>
                 <span class="wf-badge status-active">Publicado</span>
@@ -1459,8 +1797,639 @@ function generateScreenContent(cu) {
               </td>
               <td class="text-end">
                 <div class="d-inline-flex align-items-center gap-2">
-                  <button class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-pen-to-square"></i></button>
-                  <button class="wf-btn wf-btn-sm wf-btn-outline text-danger"><i class="fa-solid fa-trash"></i></button>
+                  <a href="#${isPool ? 'CU-55' : '#'}" class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-pen-to-square me-1"></i><span>${isPool ? 'Editar Pool' : 'Editar'}</span></a>
+                  <a href="#${isPool ? 'CU-56' : '#'}" class="wf-btn wf-btn-sm wf-btn-outline text-danger"><i class="fa-solid fa-trash me-1"></i><span>Eliminar</span></a>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+
+  // --- SPECIALIZED 8D: BUSCAR AUTOEVALUACIÓN (DETALLE A LA DERECHA) --- CU-57
+  if (id === 'CU-57') {
+    return `
+      <div class="wf-card mb-4" style="background: #FFFFFF;">
+        <div class="d-flex justify-content-between align-items-start pb-3 border-bottom">
+          <div>
+            <h2 style="font-size: 20px; font-weight: 800; color: #081426; margin: 0;">Especialización en Idoneidad Bursátil</h2>
+            <div class="small text-muted mt-1">
+              <span>Página Principal</span> <i class="fa-solid fa-chevron-right" style="font-size: 9px; margin: 0 4px;"></i> <span>Mis cursos</span> <i class="fa-solid fa-chevron-right" style="font-size: 9px; margin: 0 4px;"></i> <span>Autoevaluaciones</span>
+            </div>
+          </div>
+          <div class="d-flex align-items-center gap-3">
+            <span class="wf-badge status-active">Módulo Evaluaciones</span>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center pt-2">
+          <div class="d-flex align-items-center gap-1">
+            <a href="#CU-26b" class="wf-tab-btn">Curso & Unidades</a>
+            <a href="#CU-27" class="wf-tab-btn">Materiales</a>
+            <a href="#CU-31" class="wf-tab-btn">Glosario</a>
+            <button class="wf-tab-btn active"><span class="pin-badge me-1">${badges[0] || 'A'}</span>Autoevaluaciones</button>
+            <a href="#CU-53" class="wf-tab-btn">Pools</a>
+            <a href="#CU-35" class="wf-tab-btn">Foros</a>
+            <a href="#CU-65" class="wf-tab-btn">Clases en Vivo</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Barra de Filtros y Búsqueda -->
+      <div class="wf-card mb-4" style="background: #FFFFFF;">
+        <div class="row g-3 align-items-end">
+          <div class="col-md-5">
+            <label class="wf-label">Buscar por nombre de autoevaluación</label>
+            <div class="wf-input-wrap">
+              <input type="text" class="wf-input" placeholder="Ej: Autoevaluación Unidad 2: Renta Fija...">
+              <span class="pin-badge">${badges[1] || 'B'}</span>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <label class="wf-label">Filtrar por Unidad Temática</label>
+            <select class="wf-input">
+              <option>Todas las unidades</option>
+              <option>Unidad 1: Marco Regulatorio</option>
+              <option selected>Unidad 2: Renta Fija y Bonos</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <div class="d-flex align-items-center gap-2">
+              <button class="wf-btn wf-btn-primary w-100"><i class="fa-solid fa-magnifying-glass me-1"></i> Buscar</button>
+              <span class="pin-badge">${badges[2] || 'C'}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row g-4">
+        <!-- Columna Izquierda: Listado de Autoevaluaciones -->
+        <div class="col-lg-7" style="border-right: 2px solid #E2E8F0; padding-right: 20px;">
+          <div class="wf-table-wrap">
+            <table class="wf-table">
+              <thead>
+                <tr>
+                  <th>Cuestionario / Unidad</th>
+                  <th>Preguntas & Tiempo</th>
+                  <th>Estado</th>
+                  <th class="text-end">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Autoevaluación Seleccionada -->
+                <tr class="table-active" style="background: #F0FDF4; border-left: 4px solid #16A34A;">
+                  <td>
+                    <div class="d-flex align-items-center gap-2">
+                      <strong style="color: #081426;">Autoevaluación Unidad 2: Renta Fija</strong>
+                      <span class="pin-badge">${badges[3] || 'D'}</span>
+                    </div>
+                    <div class="small text-muted">Unidad 2: Instrumentos de Renta Fija</div>
+                  </td>
+                  <td>10 preguntas • 20 min</td>
+                  <td><span class="wf-badge status-active">Activa</span></td>
+                  <td class="text-end">
+                    <div class="d-inline-flex align-items-center gap-1">
+                      <a href="#CU-59" class="wf-btn wf-btn-sm wf-btn-outline" title="Editar Cuestionario"><i class="fa-solid fa-pen-to-square"></i></a>
+                      <a href="#CU-60" class="wf-btn wf-btn-sm wf-btn-outline text-danger" title="Dar de baja"><i class="fa-solid fa-trash"></i></a>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Autoevaluación 1 -->
+                <tr>
+                  <td>
+                    <strong style="color: #081426;">Autoevaluación Unidad 1: Marco Regulatorio</strong>
+                    <div class="small text-muted">Unidad 1: Marco Regulatorio CNV</div>
+                  </td>
+                  <td>10 preguntas • 15 min</td>
+                  <td><span class="wf-badge status-active">Activa</span></td>
+                  <td class="text-end">
+                    <div class="d-inline-flex align-items-center gap-1">
+                      <a href="#CU-59" class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-pen-to-square"></i></a>
+                      <a href="#CU-60" class="wf-btn wf-btn-sm wf-btn-outline text-danger"><i class="fa-solid fa-trash"></i></a>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Examen Final -->
+                <tr>
+                  <td>
+                    <strong style="color: #081426;">Evaluación Final Integradora (Certificación)</strong>
+                    <div class="small text-muted">Unidad 3: Multi-pool Integrador</div>
+                  </td>
+                  <td>30 preguntas • 60 min</td>
+                  <td><span class="wf-badge" style="background: #E0E7FF; color: #3730A3;">Examen Final</span></td>
+                  <td class="text-end">
+                    <div class="d-inline-flex align-items-center gap-1">
+                      <a href="#CU-59" class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-pen-to-square"></i></a>
+                      <a href="#CU-60" class="wf-btn wf-btn-sm wf-btn-outline text-danger"><i class="fa-solid fa-trash"></i></a>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Columna Derecha: Panel de Configuración y Detalle [D] -->
+        <div class="col-lg-5">
+          <div class="p-4 bg-white rounded border shadow-sm" style="border-top: 4px solid #16A34A !important;">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <div>
+                <span class="badge bg-success text-white mb-1">Detalle de Configuración [D]</span>
+                <h4 style="font-size: 16px; font-weight: 800; color: #081426; margin: 0;">Autoevaluación Unidad 2: Renta Fija</h4>
+              </div>
+              <a href="#CU-61" class="wf-btn wf-btn-sm wf-btn-outline d-flex align-items-center gap-1" title="Ver intentos rendidos">
+                <i class="fa-solid fa-chart-line text-primary"></i> <span>Ver Intentos</span>
+              </a>
+            </div>
+
+            <div class="d-flex flex-column gap-2" style="font-size: 12px;">
+              <div class="p-2 border rounded bg-light d-flex justify-content-between">
+                <span class="text-muted">Pools de Preguntas Asociados:</span>
+                <strong>Pool Unidad 2: Renta Fija (30 preg)</strong>
+              </div>
+              <div class="p-2 border rounded bg-light d-flex justify-content-between">
+                <span class="text-muted">Preguntas por Intento:</span>
+                <strong>10 preguntas sorteables</strong>
+              </div>
+              <div class="p-2 border rounded bg-light d-flex justify-content-between">
+                <span class="text-muted">Tiempo Límite:</span>
+                <strong>20 minutos</strong>
+              </div>
+              <div class="p-2 border rounded bg-light d-flex justify-content-between">
+                <span class="text-muted">Intentos Permitidos:</span>
+                <strong>3 intentos máximos</strong>
+              </div>
+              <div class="p-2 border rounded bg-light d-flex justify-content-between">
+                <span class="text-muted">Criterio de Aprobación:</span>
+                <strong class="text-success">100% de respuestas correctas</strong>
+              </div>
+              <div class="p-2 border rounded bg-light d-flex justify-content-between">
+                <span class="text-muted">Período de Apertura:</span>
+                <strong>19/04/2026 00:00 al 09/05/2026 23:59</strong>
+              </div>
+              <div class="p-2 border rounded bg-light d-flex justify-content-between">
+                <span class="text-muted">Integración Multi-Pool:</span>
+                <span>No (Evaluación específica de unidad)</span>
+              </div>
+            </div>
+
+            <div class="mt-3 pt-3 border-top d-flex justify-content-between align-items-center">
+              <span class="small text-muted">Total intentos registrados: <strong>28</strong></span>
+              <a href="#CU-59" class="wf-btn wf-btn-sm wf-btn-primary"><i class="fa-solid fa-pen-to-square me-1"></i> Modificar Configuración</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // --- SPECIALIZED 8E: BUSCAR INTENTO DE AUTOEVALUACIÓN --- CU-61
+  if (id === 'CU-61') {
+    return `
+      <div class="wf-card mb-4" style="background: #FFFFFF;">
+        <div class="d-flex justify-content-between align-items-start pb-3 border-bottom">
+          <div>
+            <div class="small text-muted mb-1" style="font-size: 11px;">
+              <span>Autoevaluaciones</span> <i class="fa-solid fa-chevron-right" style="font-size: 9px; margin: 0 4px;"></i> 
+              <span>Autoevaluación Unidad 2: Renta Fija</span> <i class="fa-solid fa-chevron-right" style="font-size: 9px; margin: 0 4px;"></i> 
+              <strong style="color: #081426;">Historial de Intentos</strong>
+            </div>
+            <h2 style="font-size: 19px; font-weight: 800; color: #081426; margin: 2px 0 0;">Intentos de Autoevaluación: Renta Fija</h2>
+            <p class="small text-muted" style="margin: 2px 0 0;">Supervisión de calificaciones, tiempos de entrega y anulación por sospecha de fraude.</p>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <span class="wf-badge status-active">28 Intentos Totales</span>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center pt-2">
+          <div class="d-flex align-items-center gap-1">
+            <a href="#CU-26b" class="wf-tab-btn">Curso & Unidades</a>
+            <a href="#CU-57" class="wf-tab-btn">Autoevaluaciones</a>
+            <button class="wf-tab-btn active"><span class="pin-badge me-1">${badges[0] || 'A'}</span>Historial de Intentos</button>
+            <a href="#CU-62" class="wf-tab-btn">Calificaciones</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Barra de Filtros -->
+      <div class="wf-card mb-4" style="background: #FFFFFF;">
+        <div class="row g-3 align-items-end">
+          <div class="col-md-5">
+            <label class="wf-label">Buscar Alumno por Nombre o DNI</label>
+            <div class="wf-input-wrap">
+              <input type="text" class="wf-input" placeholder="Buscar por alumno o DNI...">
+              <span class="pin-badge">${badges[1] || 'B'}</span>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <label class="wf-label">Filtrar por Resultado</label>
+            <select class="wf-input">
+              <option>Todos los resultados (Aprobado / No aprobado)</option>
+              <option>Solo Aprobados</option>
+              <option>Solo No Aprobados</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <div class="d-flex align-items-center gap-2">
+              <button class="wf-btn wf-btn-primary w-100"><i class="fa-solid fa-magnifying-glass me-1"></i> Buscar</button>
+              <span class="pin-badge">${badges[2] || 'C'}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row g-4">
+        <!-- Columna Izquierda: Tabla de Intentos -->
+        <div class="col-lg-7" style="border-right: 2px solid #E2E8F0; padding-right: 20px;">
+          <div class="wf-table-wrap">
+            <table class="wf-table">
+              <thead>
+                <tr>
+                  <th>Alumno & Intento</th>
+                  <th>Fecha & Duración</th>
+                  <th>Nota / Resultado</th>
+                  <th class="text-end">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Intento 1 (Seleccionado) -->
+                <tr class="table-active" style="background: #F0FDF4; border-left: 4px solid #16A34A;">
+                  <td>
+                    <div class="d-flex align-items-center gap-2">
+                      <strong style="color: #081426;">Joaquín Küster</strong>
+                      <span class="pin-badge">${badges[3] || 'D'}</span>
+                    </div>
+                    <div class="small text-muted">Intento #1 • DNI: 40.123.456</div>
+                  </td>
+                  <td>22/04/2026 14:15<div class="small text-muted">Duración: 14 min 30 s</div></td>
+                  <td>
+                    <strong style="color: #16A34A; font-size: 14px;">10 / 10</strong>
+                    <div><span class="badge bg-success text-white" style="font-size: 10px;">Aprobado</span></div>
+                  </td>
+                  <td class="text-end">
+                    <div class="d-inline-flex align-items-center gap-1">
+                      <a href="#CU-64" class="wf-btn wf-btn-sm wf-btn-outline text-danger" title="Anular Intento por Fraude">
+                        <i class="fa-solid fa-ban me-1"></i>
+                        <span>Anular Intento por Fraude</span>
+                      </a>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Intento 2 -->
+                <tr>
+                  <td>
+                    <strong style="color: #081426;">María Benítez</strong>
+                    <div class="small text-muted">Intento #2 • DNI: 38.945.112</div>
+                  </td>
+                  <td>21/04/2026 19:40<div class="small text-muted">Duración: 18 min 10 s</div></td>
+                  <td>
+                    <strong style="color: #DC2626; font-size: 14px;">7 / 10</strong>
+                    <div><span class="badge bg-danger text-white" style="font-size: 10px;">No Aprobado</span></div>
+                  </td>
+                  <td class="text-end">
+                    <a href="#CU-64" class="wf-btn wf-btn-sm wf-btn-outline text-danger" title="Anular Intento"><i class="fa-solid fa-ban me-1"></i> Anular</a>
+                  </td>
+                </tr>
+
+                <!-- Intento 3 -->
+                <tr>
+                  <td>
+                    <strong style="color: #081426;">Lucas Romero</strong>
+                    <div class="small text-muted">Intento #1 • DNI: 42.887.654</div>
+                  </td>
+                  <td>20/04/2026 11:05<div class="small text-muted">Duración: 12 min 00 s</div></td>
+                  <td>
+                    <strong style="color: #16A34A; font-size: 14px;">10 / 10</strong>
+                    <div><span class="badge bg-success text-white" style="font-size: 10px;">Aprobado</span></div>
+                  </td>
+                  <td class="text-end">
+                    <a href="#CU-64" class="wf-btn wf-btn-sm wf-btn-outline text-danger" title="Anular Intento"><i class="fa-solid fa-ban me-1"></i> Anular</a>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Columna Derecha: Detalle de Respuestas del Intento [D] -->
+        <div class="col-lg-5">
+          <div class="p-4 bg-white rounded border shadow-sm" style="border-top: 4px solid #2563EB !important;">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <div>
+                <span class="badge bg-primary text-white mb-1">Revisión de Respuestas [D]</span>
+                <h4 style="font-size: 16px; font-weight: 800; color: #081426; margin: 0;">Intento #1 — Joaquín Küster</h4>
+                <div class="small text-muted">Calificación Obtenida: <strong>100% (10/10)</strong> • Aprobado</div>
+              </div>
+              <span class="wf-badge status-active">Completado</span>
+            </div>
+
+            <!-- Desglose de preguntas respondidas -->
+            <div class="d-flex flex-column gap-2 mb-3" style="font-size: 12px; max-height: 280px; overflow-y: auto;">
+              <div class="p-2 border rounded bg-light" style="border-left: 3px solid #16A34A !important;">
+                <div class="fw-bold text-dark mb-1">1. ¿Qué representa la Duration Modificada de un bono?</div>
+                <div class="text-success"><i class="fa-solid fa-check me-1"></i> <strong>Respuesta del alumno:</strong> La variación porcentual del precio ante un cambio del 1% en el rendimiento.</div>
+              </div>
+              <div class="p-2 border rounded bg-light" style="border-left: 3px solid #16A34A !important;">
+                <div class="fw-bold text-dark mb-1">2. ¿Una curva de rendimientos invertida indica generalmente expectativas recesivas?</div>
+                <div class="text-success"><i class="fa-solid fa-check me-1"></i> <strong>Respuesta del alumno:</strong> Verdadero.</div>
+              </div>
+              <div class="p-2 border rounded bg-light" style="border-left: 3px solid #16A34A !important;">
+                <div class="fw-bold text-dark mb-1">3. ¿Qué función cumple la paridad en la cotización de un título público?</div>
+                <div class="text-success"><i class="fa-solid fa-check me-1"></i> <strong>Respuesta del alumno:</strong> Relación porcentual entre el valor de mercado y su valor técnico.</div>
+              </div>
+            </div>
+
+            <div class="pt-3 border-top d-flex justify-content-between align-items-center">
+              <span class="small text-muted">IP Origen: 181.44.12.98</span>
+              <a href="#CU-64" class="wf-btn wf-btn-sm wf-btn-outline text-danger d-flex align-items-center gap-1">
+                <i class="fa-solid fa-triangle-exclamation"></i> <span>Anular por Fraude</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // --- SPECIALIZED 8F: VER CALIFICACIONES --- CU-62
+  if (id === 'CU-62') {
+    return `
+      <div class="wf-card mb-4" style="background: #FFFFFF;">
+        <div class="d-flex justify-content-between align-items-start pb-3 border-bottom">
+          <div>
+            <div class="small text-muted mb-1" style="font-size: 11px;">
+              <span>Cursos</span> <i class="fa-solid fa-chevron-right" style="font-size: 9px; margin: 0 4px;"></i> 
+              <span>Especialización en Idoneidad Bursátil</span> <i class="fa-solid fa-chevron-right" style="font-size: 9px; margin: 0 4px;"></i> 
+              <strong style="color: #081426;">Libro de Calificaciones</strong>
+            </div>
+            <h2 style="font-size: 20px; font-weight: 800; color: #081426; margin: 2px 0 0;">Calificaciones del Alumno en el Curso</h2>
+            <p class="small text-muted" style="margin: 2px 0 0;">Consulte las autoevaluaciones rendidas por el alumno en el programa de su cohorte, con nota numérica y resultado.</p>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <span class="wf-badge status-active">Cohorte 2026-1</span>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center pt-2">
+          <div class="d-flex align-items-center gap-1">
+            <a href="#CU-26b" class="wf-tab-btn">Curso</a>
+            <a href="#CU-23" class="wf-tab-btn">Cronograma</a>
+            <a href="#CU-25" class="wf-tab-btn">Participantes</a>
+            <button class="wf-tab-btn active"><span class="pin-badge me-1">${badges[0] || 'A'}</span>Calificaciones</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Selector / Buscador de Alumno [B] -->
+      <div class="wf-card mb-4" style="background: #FFFFFF;">
+        <div class="row g-3 align-items-end">
+          <div class="col-md-6">
+            <label class="wf-label">Seleccionar Alumno a Consultar</label>
+            <div class="wf-input-wrap">
+              <input type="text" class="wf-input" placeholder="Buscar alumno por nombre, apellido o DNI..." value="Joaquín Küster (DNI: 40.123.456)">
+              <span class="pin-badge">${badges[1] || 'B'}</span>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <label class="wf-label">Cohorte Asignada</label>
+            <select class="wf-input">
+              <option selected>Cohorte 2026-1 (Programa 2026-A)</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <button class="wf-btn wf-btn-primary w-100"><i class="fa-solid fa-magnifying-glass me-1"></i> Consultar Calificaciones</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ficha del Alumno y Tabla de Calificaciones -->
+      <div class="wf-card" style="background: #FFFFFF;">
+        <div class="p-3 bg-light rounded border mb-4 d-flex justify-content-between align-items-center">
+          <div class="d-flex align-items-center gap-3">
+            <div class="user-avatar-circle" style="width: 44px; height: 44px; font-size: 16px; background: #081426; color: white;">JK</div>
+            <div>
+              <h4 style="font-size: 15px; font-weight: 800; color: #081426; margin: 0;">Joaquín Küster</h4>
+              <div class="small text-muted">DNI: 40.123.456 • joaquin.kuster@idoneos.online • Inscripción: Vigente</div>
+            </div>
+          </div>
+          <div class="d-flex gap-3 text-end" style="font-size: 12px;">
+            <div>
+              <div class="text-muted">Promedio General:</div>
+              <strong style="font-size: 16px; color: #16A34A;">9.5 / 10</strong>
+            </div>
+            <div>
+              <div class="text-muted">Unidades Completadas:</div>
+              <strong style="font-size: 16px; color: #2563EB;">2 de 3</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="wf-table-wrap">
+          <table class="wf-table">
+            <thead>
+              <tr>
+                <th>Unidad Temática</th>
+                <th>Autoevaluación Rendida</th>
+                <th>Fecha de Entrega</th>
+                <th>Intentos Usados</th>
+                <th>Nota Obtenida</th>
+                <th>Resultado</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Unidad 1 -->
+              <tr>
+                <td><strong>Unidad 1: Marco Regulatorio</strong></td>
+                <td>Autoevaluación Unidad 1: Marco Normativo y CNV</td>
+                <td>10/04/2026 18:22</td>
+                <td>1 / 3</td>
+                <td><strong style="color: #16A34A; font-size: 15px;">9.00 / 10</strong></td>
+                <td><span class="wf-badge status-active">Aprobado</span></td>
+              </tr>
+
+              <!-- Unidad 2 -->
+              <tr>
+                <td><strong>Unidad 2: Renta Fija</strong></td>
+                <td>Autoevaluación Unidad 2: Ejercicios de Rendimiento</td>
+                <td>22/04/2026 14:15</td>
+                <td>1 / 3</td>
+                <td><strong style="color: #16A34A; font-size: 15px;">10.00 / 10</strong></td>
+                <td><span class="wf-badge status-active">Aprobado</span></td>
+              </tr>
+
+              <!-- Unidad 3 (Pendiente) -->
+              <tr>
+                <td><strong>Unidad 3: Derivados & Integración</strong></td>
+                <td>Evaluación Final Integradora CNV</td>
+                <td><span class="text-muted fst-italic">Pendiente de rendición</span></td>
+                <td>0 / 3</td>
+                <td><span class="text-muted">-</span></td>
+                <td><span class="badge bg-light text-muted border">Sin rendir</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+  }
+
+  // --- SPECIALIZED 8G: BUSCAR CLASE EN VIVO --- CU-65
+  if (id === 'CU-65') {
+    return `
+      <div class="wf-card mb-4" style="background: #FFFFFF;">
+        <div class="d-flex justify-content-between align-items-start pb-3 border-bottom">
+          <div>
+            <h2 style="font-size: 20px; font-weight: 800; color: #081426; margin: 0;">Especialización en Idoneidad Bursátil</h2>
+            <div class="small text-muted mt-1">
+              <span>Página Principal</span> <i class="fa-solid fa-chevron-right" style="font-size: 9px; margin: 0 4px;"></i> <span>Mis cursos</span> <i class="fa-solid fa-chevron-right" style="font-size: 9px; margin: 0 4px;"></i> <span>Clases en Vivo</span>
+            </div>
+          </div>
+          <div class="d-flex align-items-center gap-3">
+            <span class="wf-badge status-active">Módulo Clases en Vivo</span>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center pt-2">
+          <div class="d-flex align-items-center gap-1">
+            <a href="#CU-26b" class="wf-tab-btn">Curso & Unidades</a>
+            <a href="#CU-27" class="wf-tab-btn">Materiales</a>
+            <a href="#CU-31" class="wf-tab-btn">Glosario</a>
+            <a href="#CU-57" class="wf-tab-btn">Autoevaluaciones</a>
+            <a href="#CU-53" class="wf-tab-btn">Pools</a>
+            <a href="#CU-35" class="wf-tab-btn">Foros</a>
+            <button class="wf-tab-btn active"><span class="pin-badge me-1">${badges[0] || 'A'}</span>Clases en Vivo</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Barra de Filtros y Búsqueda -->
+      <div class="wf-card mb-4" style="background: #FFFFFF;">
+        <div class="row g-3 align-items-end">
+          <div class="col-md-5">
+            <label class="wf-label">Buscar por título o docente</label>
+            <div class="wf-input-wrap">
+              <input type="text" class="wf-input" placeholder="Ej: Taller de Renta Fija, Lic. Spotorno...">
+            </div>
+          </div>
+          <div class="col-md-4">
+            <label class="wf-label">Filtrar por Estado de Transmisión</label>
+            <div class="wf-input-wrap">
+              <select class="wf-input">
+                <option>Todos los estados (Programada / En vivo / Finalizada)</option>
+                <option selected>En vivo / Programadas activas</option>
+                <option>Solo Finalizadas</option>
+              </select>
+              <span class="pin-badge">${badges[1] || 'B'}</span>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="d-flex align-items-center gap-2">
+              <button class="wf-btn wf-btn-primary w-100"><i class="fa-solid fa-magnifying-glass me-1"></i> Buscar</button>
+              <span class="pin-badge">${badges[2] || 'C'}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="wf-table-wrap">
+        <table class="wf-table">
+          <thead>
+            <tr>
+              <th>Título de la Clase en Vivo</th>
+              <th>Docente Titular</th>
+              <th>Fecha, Hora & Duración</th>
+              <th>Estado</th>
+              <th class="text-end">Acciones Disponibles</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Fila 1: En Vivo Ahora Mismo -->
+            <tr style="background: #FEF2F2; border-left: 4px solid #DC2626;">
+              <td>
+                <div class="d-flex align-items-center gap-2">
+                  <strong style="color: #081426;">Clase Magistral: Resolución de Prácticos de Renta Fija</strong>
+                  <span class="pin-badge">${badges[3] || 'D'}</span>
+                </div>
+                <div class="small text-muted">Unidad 2: Renta Fija • Cohorte 2026-1</div>
+              </td>
+              <td>Lic. Fausto Spotorno</td>
+              <td>Hoy, 19:00 hs (Duración: 90 min)</td>
+              <td><span class="wf-badge" style="background: #DC2626; color: white;">● EN VIVO</span></td>
+              <td class="text-end">
+                <div class="d-inline-flex align-items-center gap-2">
+                  <a href="#CU-71" class="wf-btn wf-btn-sm wf-btn-danger d-flex align-items-center gap-1" title="Finalizar Transmisión">
+                    <i class="fa-solid fa-stop"></i>
+                    <span>Finalizar Transmisión</span>
+                  </a>
+                  <a href="#CU-67" class="wf-btn wf-btn-sm wf-btn-outline" title="Reprogramar clase">
+                    <i class="fa-solid fa-clock-rotate-left me-1"></i>
+                    <span>Reprogramar / Editar</span>
+                  </a>
+                  <a href="#CU-68" class="wf-btn wf-btn-sm wf-btn-outline text-warning" style="color: #D97706; border-color: #FCD34D;" title="Cancelar Clase">
+                    <i class="fa-solid fa-calendar-xmark me-1"></i>
+                    <span>Cancelar Clase</span>
+                  </a>
+                  <a href="#CU-69" class="wf-btn wf-btn-sm wf-btn-outline text-danger" title="Eliminar Registro">
+                    <i class="fa-solid fa-trash me-1"></i>
+                    <span>Eliminar Registro</span>
+                  </a>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Fila 2: Programada Próxima Semana -->
+            <tr>
+              <td>
+                <strong style="color: #081426;">Taller en Vivo: Análisis Técnico con TradingView</strong>
+                <div class="small text-muted">Unidad 3: Renta Variable • Cohorte 2026-1</div>
+              </td>
+              <td>Lic. Fausto Spotorno</td>
+              <td>Jueves 30/04, 19:00 hs (60 min)</td>
+              <td><span class="wf-badge status-active">Programada</span></td>
+              <td class="text-end">
+                <div class="d-inline-flex align-items-center gap-2">
+                  <a href="#CU-70" class="wf-btn wf-btn-sm wf-btn-primary d-flex align-items-center gap-1">
+                    <i class="fa-solid fa-tower-broadcast"></i>
+                    <span>Iniciar Clase</span>
+                  </a>
+                  <a href="#CU-67" class="wf-btn wf-btn-sm wf-btn-outline">
+                    <i class="fa-solid fa-pen-to-square me-1"></i>
+                    <span>Reprogramar / Editar</span>
+                  </a>
+                  <a href="#CU-68" class="wf-btn wf-btn-sm wf-btn-outline text-warning" style="color: #D97706; border-color: #FCD34D;">
+                    <i class="fa-solid fa-calendar-xmark me-1"></i>
+                    <span>Cancelar Clase</span>
+                  </a>
+                  <a href="#CU-69" class="wf-btn wf-btn-sm wf-btn-outline text-danger">
+                    <i class="fa-solid fa-trash me-1"></i>
+                    <span>Eliminar Registro</span>
+                  </a>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Fila 3: Finalizada -->
+            <tr>
+              <td>
+                <strong style="color: #081426;">Clase Inaugural: Marco Legal CNV y Ética Profesional</strong>
+                <div class="small text-muted">Unidad 1: Marco Regulatorio • Cohorte 2026-1</div>
+              </td>
+              <td>Lic. Fausto Spotorno</td>
+              <td>Jueves 09/04, 19:00 hs (Grabación disponible)</td>
+              <td><span class="wf-badge status-inactive">Finalizada</span></td>
+              <td class="text-end">
+                <div class="d-inline-flex align-items-center gap-2">
+                  <button class="wf-btn wf-btn-sm wf-btn-outline" title="Ver Grabación"><i class="fa-solid fa-video me-1"></i> Ver Grabación</button>
+                  <a href="#CU-69" class="wf-btn wf-btn-sm wf-btn-outline text-danger">
+                    <i class="fa-solid fa-trash me-1"></i>
+                    <span>Eliminar Registro</span>
+                  </a>
                 </div>
               </td>
             </tr>
@@ -1623,6 +2592,205 @@ function generateScreenContent(cu) {
     `;
   }
 
+  // --- SPECIALIZED 4C: REGISTRAR CONSULTA DE FORO --- CU-36
+  if (id === 'CU-36') {
+    return `
+      <div class="wf-card mb-4" style="background: #FFFFFF;">
+        <div class="d-flex justify-content-between align-items-start pb-3 border-bottom">
+          <div>
+            <div class="small text-muted mb-1" style="font-size: 11px;">
+              <span>Página Principal</span> <i class="fa-solid fa-chevron-right" style="font-size: 9px; margin: 0 4px;"></i> 
+              <span>Mis cursos</span> <i class="fa-solid fa-chevron-right" style="font-size: 9px; margin: 0 4px;"></i> 
+              <span>Idoneidad Bursátil</span> <i class="fa-solid fa-chevron-right" style="font-size: 9px; margin: 0 4px;"></i> 
+              <a href="#CU-35" class="text-muted" style="text-decoration: none;">Foro de Consultas</a> <i class="fa-solid fa-chevron-right" style="font-size: 9px; margin: 0 4px;"></i> 
+              <strong style="color: #081426;">Añadir un nuevo tema de debate</strong>
+            </div>
+            <h2 style="font-size: 20px; font-weight: 800; color: #081426; margin: 6px 0 0;"><i class="fa-solid fa-comments text-muted me-2"></i>Nueva Consulta de Foro</h2>
+            <p class="small text-muted mb-0 mt-1">Plantee su duda pedagógica al equipo docente. Las consultas son públicas para todos los compañeros de cohorte.</p>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <span class="wf-badge status-active">Cohorte 2026-1</span>
+            <span class="pin-badge">${badges[0] || 'A'}</span>
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <div class="mb-4">
+            <label class="wf-label">Asunto / Título de la Consulta</label>
+            <div class="wf-input-wrap">
+              <input type="text" class="wf-input" placeholder="Ej: Duda con el cálculo de la Tasa Interna de Retorno (TIR) en bonos a tasa fija">
+              <span class="pin-badge">${badges[1] || 'B'}</span>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label class="wf-label">Mensaje Pedagógico / Explicación del Inconveniente</label>
+            <div class="wf-input-wrap">
+              <textarea class="wf-input" rows="6" placeholder="Buenas tardes profesor, estoy intentando resolver el ejercicio 4 del TP 1 de la Unidad 2, pero me surge una discrepancia al descontar los cupones con fecha de liquidación T+2..."></textarea>
+              <span class="pin-badge">${badges[2] || 'C'}</span>
+            </div>
+          <div class="d-flex justify-content-end align-items-center gap-3 pt-3 border-top">
+            <a href="#CU-35" class="wf-btn wf-btn-outline">Cancelar</a>
+            <div class="d-flex align-items-center gap-2">
+              <button class="wf-btn wf-btn-primary"><i class="fa-solid fa-paper-plane me-1"></i> Publicar Consulta</button>
+              <span class="pin-badge">${badges[3] || 'D'}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // --- SPECIALIZED 4D: MODIFICAR CONSULTA DE FORO --- CU-37
+  if (id === 'CU-37') {
+    return `
+      <div class="wf-card mb-4" style="background: #FFFFFF; max-width: 900px; margin: 0 auto;">
+        <div class="d-flex justify-content-between align-items-start pb-3 mb-4 border-bottom">
+          <div>
+            <div class="small text-muted mb-1" style="font-size: 11px;">
+              <span>Página Principal</span> <i class="fa-solid fa-chevron-right" style="font-size: 9px; margin: 0 4px;"></i> 
+              <a href="#CU-35" class="text-muted" style="text-decoration: none;">Foro de Consultas</a> <i class="fa-solid fa-chevron-right" style="font-size: 9px; margin: 0 4px;"></i> 
+              <strong style="color: #081426;">Editar Mensaje</strong>
+            </div>
+            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 4px 0 0;"><i class="fa-solid fa-pen-to-square text-primary me-2"></i>Modificar Consulta de Foro</h3>
+            <p class="small text-muted mb-0 mt-1">Dispone de hasta 30 minutos desde la publicación original para realizar modificaciones al texto.</p>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-warning text-dark border"><i class="fa-regular fa-clock me-1"></i> Tiempo restante: 24 min</span>
+            <span class="pin-badge">${badges[0] || 'A'}</span>
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <label class="wf-label">Asunto / Título del Debate</label>
+          <input type="text" class="wf-input" value="Duda con TP N° 1: Punto 4 - Cálculo de TIR y Duración de Bonos">
+        </div>
+
+        <div class="mb-4">
+          <label class="wf-label">Texto de la Consulta</label>
+          <div class="wf-input-wrap">
+            <textarea class="wf-input" rows="7">Buenas tardes profesor,\n\nEstoy intentando resolver el ejercicio 4 del Trabajo Práctico 1 correspondiente a la Unidad 2 sobre Bonos Soberanos AL30.\nAl calcular la duración modificada con una tasa de descuento anualizada del 14.5%, la fórmula me da un resultado de 2.85 años, pero el apunte de cátedra indica 3.12 años.\n\n¿Debo considerar la amortización parcial semestral en el flujo del período 2026? Agradezco mucho su aclaración.</textarea>
+            <span class="pin-badge">${badges[1] || 'B'}</span>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-end align-items-center gap-3 pt-3 border-top">
+          <a href="#CU-35" class="wf-btn wf-btn-outline">Cancelar</a>
+          <div class="d-flex align-items-center gap-2">
+            <button class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Guardar Cambios</button>
+            <span class="pin-badge">${badges[2] || 'C'}</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // --- SPECIALIZED 4E: BUSCAR RESPUESTA / VER HILO DE FORO ESTILO MOODLE FCEQYN --- CU-39
+  if (id === 'CU-39') {
+    return `
+      <div class="wf-card mb-4" style="background: #FFFFFF;">
+        <div class="d-flex justify-content-between align-items-start pb-3 border-bottom">
+          <div>
+            <div class="small text-muted mb-1" style="font-size: 11px;">
+              <span>Página Principal</span> <i class="fa-solid fa-chevron-right" style="font-size: 9px; margin: 0 4px;"></i> 
+              <a href="#CU-35" class="text-muted" style="text-decoration: none;">Foro PostgreSQL</a> <i class="fa-solid fa-chevron-right" style="font-size: 9px; margin: 0 4px;"></i> 
+              <strong style="color: #081426;">Duda con TP N° 1: Punto 4</strong>
+            </div>
+            <h2 style="font-size: 20px; font-weight: 800; color: #081426; margin: 6px 0 0;">Duda con TP N° 1: Punto 4 - Cálculo de TIR y Duración de Bonos</h2>
+            <div class="small text-muted mt-1">
+              <span class="text-muted">◄ Tema anterior: <a href="#" class="text-primary" style="text-decoration: none;">Régimen Informativo CNV</a></span>
+              <span class="mx-2">•</span>
+              <span class="text-muted">Tema siguiente: <a href="#" class="text-primary" style="text-decoration: none;">Diferencia entre ALyC Propio e Integral</a> ►</span>
+            </div>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <a href="#CU-35" class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-arrow-left me-1"></i> Volver al Foro</a>
+            <span class="pin-badge">${badges[0] || 'A'}</span>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center py-2 border-bottom mb-4 bg-light px-3 rounded">
+          <span class="small text-muted">Modo de visualización: <strong>Mostrar respuestas anidadas</strong></span>
+          <div class="dropdown">
+            <button class="wf-btn wf-btn-sm wf-btn-outline" style="font-size: 11px;">Configuraciones <i class="fa-solid fa-chevron-down ms-1"></i></button>
+          </div>
+        </div>
+
+        <!-- Mensaje Raíz de la Consulta (Alumno) -->
+        <div class="p-3 border rounded bg-white mb-4 shadow-sm" style="border-left: 4px solid #2563EB !important;">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <div class="d-flex align-items-center gap-3">
+              <div class="user-avatar-circle" style="width: 38px; height: 38px; font-size: 13px; background: #2563EB; color: white;">JK</div>
+              <div>
+                <strong style="font-size: 13px; color: #081426;">Duda con TP N° 1: Punto 4 - Cálculo de TIR y Duración</strong>
+                <div class="small text-muted">de <strong style="color: #081426;">Joaquín Küster</strong> - miércoles, 11 de abril de 2026, 14:20</div>
+              </div>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              <a href="#CU-37" class="wf-btn wf-btn-sm wf-btn-outline" style="font-size: 10px; height: 28px; padding: 0 8px;"><i class="fa-solid fa-pen-to-square me-1"></i> Editar</a>
+              <a href="#CU-38" class="wf-btn wf-btn-sm wf-btn-outline text-danger" style="font-size: 10px; height: 28px; padding: 0 8px;"><i class="fa-solid fa-trash me-1"></i> Borrar</a>
+            </div>
+          </div>
+          <div style="font-size: 13px; color: #1E293B; line-height: 1.6; padding-left: 48px;">
+            <p>Buenas tardes profesor,</p>
+            <p>Estoy intentando calcular la duración modificada y la TIR para el bono soberano AL30 según el enunciado del TP 1. Al descontar los cupones semestrales me surge una discrepancia con el valor de la guía teórica.</p>
+            <p class="mb-0">¿Debemos considerar la convención 30/360 o Actual/Actual para el devengamiento de intereses?</p>
+          </div>
+          <div class="d-flex justify-content-end gap-3 mt-3 pt-2 border-top" style="font-size: 11px;">
+            <a href="#" class="text-muted" style="text-decoration: none;">Enlace permanente</a>
+            <a href="#CU-40" class="text-primary fw-bold" style="text-decoration: none;"><i class="fa-solid fa-reply me-1"></i> Responder</a>
+          </div>
+        </div>
+
+        <!-- Respuesta 1 Anidada (Docente Titular) -->
+        <div class="p-3 border rounded bg-light mb-3 shadow-sm" style="margin-left: 48px; border-left: 4px solid var(--wf-navy) !important;">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <div class="d-flex align-items-center gap-3">
+              <div class="user-avatar-circle" style="width: 36px; height: 36px; font-size: 12px; background: #081426; color: white;">FS</div>
+              <div>
+                <div class="d-flex align-items-center gap-2">
+                  <strong style="font-size: 13px; color: #081426;">Re: Duda con TP N° 1: Punto 4</strong>
+                  <span class="pin-badge">${badges[1] || 'B'}</span>
+                </div>
+                <div class="small text-muted">de <strong style="color: #081426;">Lic. Fausto Spotorno</strong> (Docente Titular) - jueves, 12 de abril de 2026, 10:15</div>
+              </div>
+            </div>
+            <span class="badge bg-primary text-white">Profesor</span>
+          </div>
+          <div style="font-size: 13px; color: #1E293B; line-height: 1.6; padding-left: 46px;">
+            <p>Estimado Joaquín,</p>
+            <p>Para los bonos soberanos emitidos bajo ley argentina (como el AL30) la convención estándar de mercado utilizada por el MAE y BYMA es <strong>Actual/Actual</strong> para el cálculo del cupón corrido y TIR.</p>
+            <p class="mb-0">Revisa también que estés tomando el precio Clean para calcular el rendimiento hasta el vencimiento.</p>
+          </div>
+          <div class="d-flex justify-content-end gap-3 mt-3 pt-2 border-top" style="font-size: 11px;">
+            <a href="#" class="text-muted" style="text-decoration: none;">Enlace permanente</a>
+            <a href="#CU-40" class="text-primary fw-bold" style="text-decoration: none;"><i class="fa-solid fa-reply me-1"></i> Responder</a>
+          </div>
+        </div>
+
+        <!-- Respuesta 2 Anidada de Agradecimiento (Alumno) -->
+        <div class="p-3 border rounded bg-white mb-3 shadow-sm" style="margin-left: 96px; border-left: 4px solid #10B981 !important;">
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <div class="d-flex align-items-center gap-3">
+              <div class="user-avatar-circle" style="width: 32px; height: 32px; font-size: 11px; background: #2563EB; color: white;">JK</div>
+              <div>
+                <strong style="font-size: 12px; color: #081426;">Solucionado, muchas gracias</strong>
+                <div class="small text-muted">de <strong style="color: #081426;">Joaquín Küster</strong> - viernes, 13 de abril de 2026, 09:05</div>
+              </div>
+            </div>
+            <span class="badge bg-success text-white" style="font-size: 10px;">Solucionado</span>
+          </div>
+          <div style="font-size: 12px; color: #334155; line-height: 1.5; padding-left: 42px;">
+            <p class="mb-0">Excelente profesor, al cambiar a convención Actual/Actual la duración me dio exactamente 3.12 años. Ya pude subir la entrega del práctico.</p>
+          </div>
+          <div class="d-flex justify-content-end gap-3 mt-2 pt-2 border-top" style="font-size: 11px;">
+            <a href="#" class="text-muted" style="text-decoration: none;">Enlace permanente</a>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
   // --- SPECIALIZED 4A: REGISTRAR RESPUESTA DE FORO --- CU-40
   if (id === 'CU-40') {
     return `
@@ -1657,14 +2825,172 @@ function generateScreenContent(cu) {
     `;
   }
 
-  // --- TYPE 5: MODAL DE AGREGAR CONTENIDO --- CU-28, CU-32, CU-36, CU-54, CU-58, CU-66
-  if (['CU-28', 'CU-32', 'CU-36', 'CU-54', 'CU-58', 'CU-66'].includes(id)) {
+  // --- TYPE 5: MODAL DE AGREGAR CONTENIDO --- CU-28, CU-32, CU-58, CU-66
+  if (['CU-28', 'CU-32', 'CU-58', 'CU-66'].includes(id)) {
     const isMaterial = id === 'CU-28';
     const isGlosario = id === 'CU-32';
-    const isForo = id === 'CU-36';
-    const isPool = id === 'CU-54';
     const isEval = id === 'CU-58';
     const isLive = id === 'CU-66';
+
+    let modalTriggerLabel = 'Añade una actividad o un recurso';
+    if (id === 'CU-58') modalTriggerLabel = 'Nueva Autoevaluación';
+    if (id === 'CU-66') modalTriggerLabel = 'Programar clase en vivo';
+
+    if (isEval) {
+      return `
+        <div class="wf-modal-box" style="max-width: 900px; margin: 20px auto; background: #FFFFFF;">
+          <div class="wf-modal-header d-flex justify-content-between align-items-center pb-3 mb-3 border-bottom">
+            <div class="d-flex align-items-center gap-3">
+              <h3 class="wf-modal-title m-0" style="font-size: 18px; font-weight: 800; color: #081426;">Nueva Autoevaluación</h3>
+              <span class="wf-btn wf-btn-xs wf-btn-outline active" style="font-weight: 700;">
+                <i class="fa-solid fa-clipboard-check me-1 text-success"></i> ${modalTriggerLabel}
+              </span>
+              <span class="pin-badge">${badges[0] || 'A'}</span>
+            </div>
+            <span style="font-size: 18px; color: #94A3B8; cursor: pointer;"><i class="fa-solid fa-xmark"></i></span>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="wf-label">Nombre de la Autoevaluación</label>
+              <div class="wf-input-wrap">
+                <input type="text" class="wf-input" value="Autoevaluación Unidad 2: Instrumentos de Renta Fija">
+                <span class="pin-badge">${badges[1] || 'B'}</span>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="wf-label">Tiempo Límite (minutos)</label>
+              <div class="wf-input-wrap">
+                <input type="number" class="wf-input" value="20">
+                <span class="pin-badge">${badges[2] || 'C'}</span>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="wf-label">Cantidad de Preguntas Sorteables</label>
+              <div class="wf-input-wrap">
+                <input type="number" class="wf-input" value="10">
+                <span class="pin-badge">${badges[3] || 'D'}</span>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="wf-label">Fecha y Hora de Apertura</label>
+              <div class="wf-input-wrap">
+                <input type="text" class="wf-input" value="19/04/2026 00:00">
+                <span class="pin-badge">${badges[4] || 'E'}</span>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="wf-label">Fecha y Hora de Cierre (Opcional)</label>
+              <div class="wf-input-wrap">
+                <input type="text" class="wf-input" value="09/05/2026 23:59">
+                <span class="pin-badge">${badges[5] || 'F'}</span>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="wf-label">Intentos Permitidos</label>
+              <div class="wf-input-wrap">
+                <input type="number" class="wf-input" value="3">
+                <span class="pin-badge">${badges[6] || 'G'}</span>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="wf-label">Pools de Preguntas Asociados</label>
+              <div class="wf-input-wrap">
+                <select class="wf-input">
+                  <option selected>Pool Unidad 2: Renta Fija y Bonos (30 preguntas)</option>
+                  <option>Pool Unidad 1: Marco Regulatorio (25 preguntas)</option>
+                </select>
+                <span class="pin-badge">${badges[7] || 'H'}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-end align-items-center gap-3 pt-4 mt-3 border-top">
+            <button class="wf-btn wf-btn-outline wf-btn-sm">Cancelar</button>
+            <div class="d-flex align-items-center gap-2">
+              <button class="wf-btn wf-btn-primary wf-btn-sm"><i class="fa-solid fa-plus me-1"></i> Agregar</button>
+              <span class="pin-badge">${badges[8] || badges[badges.length - 1] || 'I'}</span>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    if (isLive) {
+      return `
+        <div class="wf-modal-box" style="max-width: 860px; margin: 20px auto; background: #FFFFFF;">
+          <div class="wf-modal-header d-flex justify-content-between align-items-center pb-3 mb-3 border-bottom">
+            <div class="d-flex align-items-center gap-3">
+              <h3 class="wf-modal-title m-0" style="font-size: 18px; font-weight: 800; color: #081426;">Programar Clase en Vivo</h3>
+              <span class="wf-btn wf-btn-xs wf-btn-outline active" style="font-weight: 700;">
+                <i class="fa-solid fa-video me-1 text-danger"></i> ${modalTriggerLabel}
+              </span>
+              <span class="pin-badge">${badges[0] || 'A'}</span>
+            </div>
+            <span style="font-size: 18px; color: #94A3B8; cursor: pointer;"><i class="fa-solid fa-xmark"></i></span>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="wf-label">Título de la Sesión en Vivo</label>
+              <div class="wf-input-wrap">
+                <input type="text" class="wf-input" value="Clase Magistral: Resolución de Prácticos de Renta Fija y Valuación">
+                <span class="pin-badge">${badges[1] || 'B'}</span>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="wf-label">Cohorte Destinataria</label>
+              <div class="wf-input-wrap">
+                <select class="wf-input">
+                  <option selected>Cohorte 2026-1 (Modalidad con clases en vivo)</option>
+                  <option>Cohorte 2026-2</option>
+                </select>
+                <span class="pin-badge">${badges[2] || 'C'}</span>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="wf-label">Fecha y Hora de Inicio</label>
+              <div class="wf-input-wrap">
+                <input type="text" class="wf-input" value="28/08/2026 19:00 hs">
+                <span class="pin-badge">${badges[3] || 'D'}</span>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="wf-label">Duración Estimada (minutos)</label>
+              <div class="wf-input-wrap">
+                <input type="number" class="wf-input" value="90">
+                <span class="pin-badge">${badges[4] || 'E'}</span>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="wf-label">Enlace / Servidor a la Sala de Streaming</label>
+              <div class="wf-input-wrap">
+                <input type="text" class="wf-input" value="rtmp://live.idoneos.online/app/stream_u2_spotorno">
+                <span class="pin-badge">${badges[5] || 'F'}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-end align-items-center gap-3 pt-4 mt-3 border-top">
+            <button class="wf-btn wf-btn-outline wf-btn-sm">Cancelar</button>
+            <div class="d-flex align-items-center gap-2">
+              <button class="wf-btn wf-btn-primary wf-btn-sm"><i class="fa-solid fa-plus me-1"></i> Agregar</button>
+              <span class="pin-badge">${badges[6] || badges[badges.length - 1] || 'G'}</span>
+            </div>
+          </div>
+        </div>
+      `;
+    }
 
     let selectedTitle = 'Material / Documento PDF';
     let inputLabel = 'Nombre / Título del material';
@@ -1674,27 +3000,7 @@ function generateScreenContent(cu) {
       selectedTitle = 'Glosario de Términos';
       inputLabel = 'Término a registrar';
       inputValue = 'TIR (Tasa Interna de Retorno)';
-    } else if (isForo) {
-      selectedTitle = 'Foro de Consultas';
-      inputLabel = 'Asunto del tema o consulta';
-      inputValue = 'Consulta sobre Cálculo de TIR';
-    } else if (isEval) {
-      selectedTitle = 'Autoevaluación';
-      inputLabel = 'Nombre de la autoevaluación';
-      inputValue = 'Autoevaluación Unidad 1: Marco Legal';
-    } else if (isPool) {
-      selectedTitle = 'Pool de Preguntas';
-      inputLabel = 'Nombre del pool';
-      inputValue = 'Pool Unidad 1: Mercado de Capitales';
-    } else if (isLive) {
-      selectedTitle = 'Clase en Vivo (Streaming)';
-      inputLabel = 'Título de la transmisión';
-      inputValue = 'Clase en Vivo #1: Resolución de Prácticos';
     }
-
-    let modalTriggerLabel = 'Añade una actividad o un recurso';
-    if (id === 'CU-36') modalTriggerLabel = '+ Nueva Consulta';
-    if (id === 'CU-40') modalTriggerLabel = 'Responder';
 
     return `
       <div class="wf-modal-box" style="max-width: 900px; margin: 20px auto;">
@@ -1722,26 +3028,23 @@ function generateScreenContent(cu) {
                   <i class="fa-solid fa-book-open text-warning"></i>
                   <span>Glosario de Términos</span>
                 </div>
-                <div class="wf-modal-option ${isEval ? 'active' : ''}">
+                <div class="wf-modal-option">
                   <i class="fa-solid fa-clipboard-check text-success"></i>
                   <span>Cuestionario / Autoevaluación</span>
                 </div>
-                <div class="wf-modal-option ${isPool ? 'active' : ''}">
+                <div class="wf-modal-option">
                   <i class="fa-solid fa-list-check text-info"></i>
                   <span>Pool de Preguntas</span>
                 </div>
-                <div class="wf-modal-option ${isForo ? 'active' : ''}">
+                <div class="wf-modal-option">
                   <i class="fa-solid fa-comments text-muted"></i>
                   <span>Foro de Consultas</span>
                 </div>
-                <div class="wf-modal-option ${isLive ? 'active' : ''}">
+                <div class="wf-modal-option">
                   <i class="fa-solid fa-video text-danger"></i>
                   <span>Clase en Vivo (Streaming)</span>
                 </div>
               </div>
-            </div>
-            <div class="pt-3 text-end">
-              <span class="pin-badge">${badges[0] || 'A'}</span>
             </div>
           </div>
 
@@ -1777,58 +3080,12 @@ function generateScreenContent(cu) {
                   </div>
                 </div>
               ` : ''}
-
-              ${isForo ? `
-                <div class="mb-4">
-                  <label class="wf-label">Redacción de la Consulta / Mensaje</label>
-                  <div class="wf-input-wrap">
-                    <textarea class="wf-input" rows="4">Estimado docente, tengo una duda respecto a la aplicación de la duración modificada cuando los bonos no tienen cupones periódicos...</textarea>
-                    <span class="pin-badge">${badges[2] || 'C'}</span>
-                  </div>
-                </div>
-              ` : ''}
-
-              ${isEval ? `
-                <div class="mb-4">
-                  <label class="wf-label">Pool de Preguntas Vinculado</label>
-                  <div class="wf-input-wrap">
-                    <select class="wf-input">
-                      <option>Pool Unidad 1: Marco Regulatorio (25 preguntas)</option>
-                      <option>Pool Unidad 2: Renta Fija (30 preguntas)</option>
-                    </select>
-                    <span class="pin-badge">${badges[2] || 'C'}</span>
-                  </div>
-                </div>
-              ` : ''}
-
-              ${isPool ? `
-                <div class="mb-4">
-                  <label class="wf-label">Categoría Temática / Dificultad</label>
-                  <div class="wf-input-wrap">
-                    <select class="wf-input">
-                      <option>Nivel Avanzado (Examen Oficial CNV)</option>
-                      <option>Nivel Intermedio</option>
-                    </select>
-                    <span class="pin-badge">${badges[2] || 'C'}</span>
-                  </div>
-                </div>
-              ` : ''}
-
-              ${isLive ? `
-                <div class="mb-4">
-                  <label class="wf-label">Fecha y Hora de Transmisión</label>
-                  <div class="wf-input-wrap">
-                    <input type="text" class="wf-input" value="Jueves 28/08/2026 - 19:00 hs">
-                    <span class="pin-badge">${badges[2] || 'C'}</span>
-                  </div>
-                </div>
-              ` : ''}
             </div>
 
             <div class="d-flex justify-content-end align-items-center gap-3 pt-4 border-top">
               <button class="wf-btn wf-btn-outline wf-btn-sm">Cancelar</button>
               <div class="d-flex align-items-center gap-2">
-                <button class="wf-btn wf-btn-primary wf-btn-sm"><i class="fa-solid fa-plus me-1"></i> ${isForo ? 'Publicar Consulta' : 'Agregar'}</button>
+                <button class="wf-btn wf-btn-primary wf-btn-sm"><i class="fa-solid fa-plus me-1"></i> Agregar</button>
                 <span class="pin-badge">${badges[badges.length - 1] || 'D'}</span>
               </div>
             </div>
@@ -1841,131 +3098,147 @@ function generateScreenContent(cu) {
   // --- SPECIALIZED 6: ESTUDIO DE CLON DIGITAL CON IA (HEYGEN) --- CU-76
   if (id === 'CU-76') {
     return `
-      <div class="wf-card" style="max-width: 1020px; margin: 0 auto;">
+      <div class="wf-card" style="max-width: 1040px; margin: 0 auto; background: #FFFFFF;">
+        <!-- Cabecera Limpia -->
         <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
           <div class="d-flex align-items-center gap-3">
-            <div style="width: 44px; height: 44px; border-radius: 8px; background: #0F172A; display: flex; align-items: center; justify-content: center; color: white;">
-              ${icons.sparkles("w-6 h-6 text-white")}
+            <div style="width: 44px; height: 44px; border-radius: 10px; background: #081426; display: flex; align-items: center; justify-content: center; color: var(--wf-gold);">
+              <i class="fa-solid fa-wand-magic-sparkles" style="font-size: 20px;"></i>
             </div>
             <div>
-              <h3 style="font-size: 17px; font-weight: 800; color: #0F172A; margin: 0;">Estudio de Clon Digital con IA (HeyGen API)</h3>
-              <p class="small text-muted" style="margin: 0;">Configure su avatar hiperrealista y clone su voz para el dictado autónomo de clases.</p>
+              <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Configuración de Avatar y Clon de Voz (HeyGen)</h3>
+              <p class="small text-muted" style="margin: 2px 0 0;">Complete los 3 pasos para sintetizar su clon de docente y habilitar la generación de clases con IA.</p>
             </div>
           </div>
           <div class="d-flex align-items-center gap-2">
-            <span class="badge bg-light text-dark border d-inline-flex align-items-center gap-1"><i class="fa-solid fa-arrow-pointer text-muted"></i> Acción: <strong>Configurar Clon de IA</strong> <span class="pin-badge">${badges[0] || 'A'}</span></span>
-            <button class="wf-btn wf-btn-primary wf-btn-sm d-flex align-items-center gap-2">
-              ${icons.cog6Tooth("w-4 h-4")}
-              <span>Configurar API HeyGen</span>
-            </button>
+            <span class="wf-badge status-active">Docente Habilitado</span>
+            <span class="pin-badge">${badges[0] || 'A'}</span>
+          </div>
+        </div>
+
+        <!-- Indicador de 3 Pasos (Step Progress Bar) -->
+        <div class="p-3 bg-light rounded border mb-4">
+          <div class="row text-center g-2" style="font-size: 12px;">
+            <div class="col-md-4">
+              <div class="p-2 rounded bg-white border fw-bold text-dark d-flex align-items-center justify-content-center gap-2 shadow-sm" style="border-left: 4px solid var(--wf-gold) !important;">
+                <span class="badge rounded-circle" style="background: var(--wf-gold); color: #081426; width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center;">1</span>
+                <span>Foto Facial & Rostro</span>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="p-2 rounded bg-white border fw-bold text-dark d-flex align-items-center justify-content-center gap-2 shadow-sm" style="border-left: 4px solid #2563EB !important;">
+                <span class="badge rounded-circle bg-primary text-white" style="width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center;">2</span>
+                <span>Calibración de Voz</span>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="p-2 rounded bg-white border fw-bold text-dark d-flex align-items-center justify-content-center gap-2 shadow-sm" style="border-left: 4px solid #16A34A !important;">
+                <span class="badge rounded-circle bg-success text-white" style="width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center;">3</span>
+                <span>Consentimiento & Síntesis</span>
+              </div>
+            </div>
           </div>
         </div>
 
         <div class="row g-4">
-          <!-- Columna 1: Captura Facial / Avatar Preview -->
-          <div class="col-md-6">
-            <div class="p-3 border rounded bg-white h-100 d-flex flex-column justify-content-between shadow-sm">
-              <div>
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                  <h4 style="font-size: 14px; font-weight: 700; color: #0F172A; margin: 0;">1. Captura de Rostro & Avatar</h4>
-                  <span class="wf-badge status-active">Cámara HD Activa</span>
-                </div>
-                
-                <!-- Preview del Avatar / Cámara con Tracking -->
-                <div style="height: 220px; background: #0F172A; border-radius: 6px; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1.5px solid #334155;">
-                  <!-- Avatar Wireframe Silhouette -->
-                  <div style="text-align: center; color: #F8FAFC; z-index: 2;">
-                    <div style="width: 80px; height: 80px; border-radius: 50%; background: #1E293B; margin: 0 auto 8px; display: flex; align-items: center; justify-content: center; border: 2px solid #64748B; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
-                      ${icons.user("w-10 h-10 text-slate-300")}
-                    </div>
-                    <div style="font-size: 13px; font-weight: 700;">Lic. Fausto Spotorno</div>
-                    <div style="font-size: 10px; color: #94A3B8;">Modelo: Instant Avatar v2 • 1080p 60fps</div>
-                  </div>
-
-                  <!-- Face Tracking Bounding Box Grid -->
-                  <div style="position: absolute; width: 120px; height: 130px; border: 1.5px dashed #38BDF8; border-radius: 8px; pointer-events: none; opacity: 0.6;"></div>
-                  
-                  <div style="position: absolute; top: 10px; left: 10px; display: flex; gap: 6px;">
-                    <span style="background: rgba(15,23,42,0.85); color: #38BDF8; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 3px; border: 1px solid rgba(56,189,248,0.3);">REC 1080P</span>
-                    <span style="background: rgba(15,23,42,0.85); color: #34D399; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 3px; border: 1px solid rgba(52,211,153,0.3);">● TRACKING ON</span>
-                  </div>
-
-                  <div style="position: absolute; bottom: 8px; right: 8px; font-size: 10px; color: #94A3B8; background: rgba(0,0,0,0.6); padding: 2px 6px; border-radius: 3px;">
-                    Iluminación: 98% (Óptima)
-                  </div>
-                </div>
+          <!-- Columna Izquierda: Formulario de los 3 Pasos -->
+          <div class="col-lg-7">
+            <!-- Paso 1: Rostro -->
+            <div class="p-3 border rounded bg-white mb-3 shadow-sm" style="border-left: 4px solid var(--wf-gold) !important;">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <strong style="font-size: 14px; color: #081426;"><i class="fa-solid fa-camera me-2" style="color: var(--wf-gold);"></i>Paso 1: Captura Facial del Docente</strong>
+                <span class="badge bg-light text-dark border" style="font-size: 10px;">Cámara HD Activa</span>
               </div>
-
-              <div class="mt-3 pt-3 border-top d-flex justify-content-between align-items-center">
-                <span class="small text-muted">Adjuntar archivo o tomar foto web:</span>
+              <p class="small text-muted mb-3" style="font-size: 11px;">Mire de frente con buena iluminación natural para calibrar el modelo 3D de HeyGen.</p>
+              <div class="d-flex align-items-center justify-content-between">
+                <span class="small text-muted"><i class="fa-solid fa-image me-1"></i> Imagen: <strong>foto_fausto_spotorno_hd.jpg</strong></span>
                 <div class="d-flex align-items-center gap-2">
                   <button class="wf-btn wf-btn-sm wf-btn-outline d-flex align-items-center gap-1">
-                    ${icons.camera("w-4 h-4")} <span>Tomar Foto</span>
+                    <i class="fa-solid fa-camera"></i> <span>Tomar Foto Web</span>
                   </button>
                   <span class="pin-badge">${badges[1] || 'B'}</span>
                 </div>
               </div>
             </div>
-          </div>
 
-          <!-- Columna 2: Calibración y Muestra de Voz -->
-          <div class="col-md-6">
-            <div class="p-3 border rounded bg-white h-100 d-flex flex-column justify-content-between shadow-sm">
-              <div>
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                  <h4 style="font-size: 14px; font-weight: 700; color: #0F172A; margin: 0;">2. Muestra y Clonación de Voz</h4>
-                  <span class="wf-badge status-active">Micrófono 48kHz</span>
-                </div>
-
-                <div class="p-3 bg-light rounded border mb-3">
-                  <div class="small text-muted mb-1 fw-bold">Texto de Calibración Sugerido:</div>
-                  <p class="small text-secondary" style="font-style: italic; line-height: 1.4; margin: 0;">
-                    "Bienvenidos a la cátedra de Mercado de Capitales. Hoy analizaremos la curva de rendimiento y la duración modificada de los bonos soberanos."
-                  </p>
-                </div>
-
-                <!-- Visualizador de Espectro de Audio -->
-                <div style="height: 90px; background: #0F172A; border-radius: 6px; display: flex; align-items: center; justify-content: center; gap: 5px; padding: 0 20px; border: 1.5px solid #334155; position: relative;">
-                  <div style="width: 4px; height: 24px; background: #64748B; border-radius: 2px;"></div>
-                  <div style="width: 4px; height: 42px; background: #94A3B8; border-radius: 2px;"></div>
-                  <div style="width: 4px; height: 68px; background: #CBD5E1; border-radius: 2px;"></div>
-                  <div style="width: 4px; height: 38px; background: #94A3B8; border-radius: 2px;"></div>
-                  <div style="width: 4px; height: 56px; background: #CBD5E1; border-radius: 2px;"></div>
-                  <div style="width: 4px; height: 28px; background: #64748B; border-radius: 2px;"></div>
-                  <div style="width: 4px; height: 48px; background: #CBD5E1; border-radius: 2px;"></div>
-                  <div style="width: 4px; height: 20px; background: #64748B; border-radius: 2px;"></div>
-                  
-                  <div style="position: absolute; bottom: 6px; left: 10px; font-size: 10px; color: #94A3B8;">
-                    Ruido ambiente: -52 dB (Bajo)
-                  </div>
-                </div>
+            <!-- Paso 2: Voz -->
+            <div class="p-3 border rounded bg-white mb-3 shadow-sm" style="border-left: 4px solid #2563EB !important;">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <strong style="font-size: 14px; color: #081426;"><i class="fa-solid fa-microphone me-2 text-primary"></i>Paso 2: Muestra de Audio y Voz</strong>
+                <span class="badge bg-light text-primary border" style="font-size: 10px;">Micrófono 48kHz</span>
               </div>
-
-              <div class="mt-3 pt-3 border-top d-flex justify-content-between align-items-center">
-                <span class="small text-muted">Duración grabada: 00:32 / 00:30 min</span>
+              <div class="p-2 bg-light rounded border mb-2 small text-secondary" style="font-style: italic; font-size: 11px;">
+                "Bienvenidos a la cátedra de Mercado de Capitales. Hoy analizaremos la curva de rendimiento y la duración modificada."
+              </div>
+              <div class="d-flex align-items-center justify-content-between">
+                <span class="small text-muted"><i class="fa-solid fa-wave-square me-1"></i> Audio grabado: <strong>00:32 / 00:30 min (Óptimo)</strong></span>
                 <div class="d-flex align-items-center gap-2">
                   <button class="wf-btn wf-btn-sm wf-btn-outline text-danger d-flex align-items-center gap-1">
-                    ${icons.microphone("w-4 h-4")} <span>Grabar Muestra</span>
+                    <i class="fa-solid fa-microphone"></i> <span>Grabar Muestra</span>
                   </button>
                   <span class="pin-badge">${badges[2] || 'C'}</span>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
 
-        <!-- Consentimiento y Envío a HeyGen API -->
-        <div class="mt-4 p-3 bg-light border rounded d-flex justify-content-between align-items-center">
-          <div class="d-flex align-items-center gap-2">
-            <input type="checkbox" id="terms" checked style="width: 16px; height: 16px;">
-            <label for="terms" class="small text-muted mb-0">Acepto los términos y condiciones de consentimiento biométrico para síntesis de voz y avatar en HeyGen API.</label>
+            <!-- Paso 3: Consentimiento -->
+            <div class="p-3 border rounded bg-white shadow-sm" style="border-left: 4px solid #16A34A !important;">
+              <strong style="font-size: 14px; color: #081426;"><i class="fa-solid fa-file-contract me-2 text-success"></i>Paso 3: Consentimiento Biométrico</strong>
+              <div class="mt-2 d-flex align-items-start gap-2">
+                <input type="checkbox" id="terms_clon" checked style="width: 16px; height: 16px; margin-top: 3px;">
+                <label for="terms_clon" class="small text-muted mb-0" style="font-size: 11px; line-height: 1.4;">
+                  Autorizo a Idóneos Online S.A.S. y al proveedor HeyGen API a sintetizar mi avatar digital y voz clonada con fines exclusivamente educativos.
+                </label>
+              </div>
+            </div>
           </div>
-          <div class="d-flex align-items-center gap-2">
-            <button class="wf-btn wf-btn-primary d-flex align-items-center gap-2">
-              ${icons.sparkles("w-4 h-4")}
-              <span>Crear Clon en HeyGen</span>
-            </button>
-            <span class="pin-badge">${badges[3] || badges[badges.length - 1] || 'D'}</span>
+
+          <!-- Columna Derecha: Resumen y Preview del Clon -->
+          <div class="col-lg-5">
+            <div class="p-3 border rounded bg-white shadow-sm h-100 d-flex flex-column justify-content-between">
+              <div>
+                <div class="small fw-bold text-muted text-uppercase mb-2">Resumen de Calibración</div>
+                
+                <!-- Preview Visual del Avatar -->
+                <div style="height: 190px; background: #081426; border-radius: 8px; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1.5px solid #1E293B;">
+                  <div style="text-align: center; color: white;">
+                    <div style="width: 70px; height: 70px; border-radius: 50%; background: #0F172A; margin: 0 auto 8px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--wf-gold); box-shadow: 0 4px 12px rgba(0,0,0,0.4);">
+                      <i class="fa-solid fa-user-tie" style="font-size: 32px; color: #E2E8F0;"></i>
+                    </div>
+                    <strong style="font-size: 13px;">Lic. Fausto Spotorno</strong>
+                    <div style="font-size: 10px; color: #94A3B8;">Modelo: Instant Avatar v2 • 1080p 60fps</div>
+                  </div>
+                  <div style="position: absolute; top: 8px; left: 8px; background: #16A34A; color: white; padding: 2px 6px; border-radius: 3px; font-size: 9px; font-weight: 700;">
+                    ✓ FOTO OK
+                  </div>
+                  <div style="position: absolute; bottom: 8px; right: 8px; font-size: 9px; color: #38BDF8; background: rgba(0,0,0,0.6); padding: 2px 6px; border-radius: 3px;">
+                    Iluminación: 98% (Óptima)
+                  </div>
+                </div>
+
+                <div class="d-flex flex-column gap-2 mt-3" style="font-size: 11px;">
+                  <div class="d-flex justify-content-between p-2 border rounded bg-light">
+                    <span class="text-muted">Estado Biométrico:</span>
+                    <strong class="text-success"><i class="fa-solid fa-circle-check me-1"></i> Listo para procesar</strong>
+                  </div>
+                  <div class="d-flex justify-content-between p-2 border rounded bg-light">
+                    <span class="text-muted">Identificador sugerido:</span>
+                    <span class="fw-bold">#avatar_spotorno_v2</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="pt-3 border-top d-flex justify-content-end align-items-center gap-2">
+                <a href="#CU-86" class="wf-btn wf-btn-sm wf-btn-outline">Cancelar</a>
+                <div class="d-flex align-items-center gap-2">
+                  <button class="wf-btn wf-btn-sm wf-btn-primary d-flex align-items-center gap-2" style="font-weight: 700;">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    <span>Crear Clon en HeyGen</span>
+                  </button>
+                  <span class="pin-badge">${badges[3] || badges[badges.length - 1] || 'D'}</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -1975,36 +3248,41 @@ function generateScreenContent(cu) {
   // --- SPECIALIZED 7A: BUSCAR CLASE CON CLON IA --- CU-77
   if (id === 'CU-77') {
     return `
-      <div class="wf-card" style="max-width: 1000px; margin: 0 auto; background: #FFFFFF;">
+      <div class="wf-card" style="max-width: 1100px; margin: 0 auto; background: #FFFFFF;">
         <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
           <div>
             <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Clases con Clon de IA (HeyGen)</h3>
             <p class="small text-muted" style="margin: 3px 0 0;">Listado y búsqueda de videos generados mediante síntesis de avatar hiperrealista y voz.</p>
           </div>
           <div class="d-flex align-items-center gap-2">
-            <a href="#CU-78" class="wf-btn wf-btn-primary wf-btn-sm d-flex align-items-center gap-1">
-              <i class="fa-solid fa-plus"></i>
-              <span>Generar Nueva Clase con Clon</span>
+            <a href="#CU-78" class="wf-btn wf-btn-primary wf-btn-sm d-inline-flex align-items-center gap-2" style="background: #7C3AED; border-color: #6D28D9; font-weight: 700;">
+              <i class="fa-solid fa-wand-magic-sparkles"></i>
+              <span>Generar Video con Avatar Clon</span>
             </a>
             <span class="pin-badge">${badges[0] || 'A'}</span>
           </div>
         </div>
 
+        <!-- Filtros de Búsqueda -->
         <div class="p-3 bg-light rounded border mb-4">
           <div class="row g-3 align-items-end">
             <div class="col-md-5">
               <label class="wf-label">Unidad Académica</label>
               <div class="wf-input-wrap">
                 <select class="wf-input">
-                  <option>Unidad 2: Instrumentos de Renta Fija (Bonos y ONs)</option>
+                  <option selected>Unidad 2: Instrumentos de Renta Fija (Bonos y ONs)</option>
+                  <option>Unidad 1: Marco Regulatorio Bursátil</option>
                 </select>
                 <span class="pin-badge">${badges[1] || 'B'}</span>
               </div>
             </div>
             <div class="col-md-4">
-              <label class="wf-label">Estado de Render</label>
+              <label class="wf-label">Estado de Generación</label>
               <select class="wf-input">
-                <option>Todos los estados (Generada, Pendiente, Error)</option>
+                <option selected>Todos los estados (Generada, Pendiente, Error)</option>
+                <option>Generada (Lista)</option>
+                <option>Pendiente de Render</option>
+                <option>Error</option>
               </select>
             </div>
             <div class="col-md-3">
@@ -2016,54 +3294,124 @@ function generateScreenContent(cu) {
           </div>
         </div>
 
-        <div class="wf-table-wrap">
-          <table class="wf-table">
-            <thead>
-              <tr>
-                <th>Video / Título de la Clase</th>
-                <th>Unidad Pertenencia</th>
-                <th>Avatar & Voz</th>
-                <th>Duración / Render</th>
-                <th>Estado</th>
-                <th class="text-end">Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>
-                  <div class="d-flex align-items-center gap-2">
-                    <i class="fa-solid fa-circle-play text-primary" style="font-size: 16px;"></i>
-                    <strong>Explicación Teórica: Duración Modificada</strong>
+        <div class="row g-4">
+          <!-- Columna Izquierda: Tabla de Clases con Clon -->
+          <div class="col-lg-7">
+            <div class="wf-table-wrap">
+              <table class="wf-table">
+                <thead>
+                  <tr>
+                    <th>Clase / Video Generado</th>
+                    <th>Estado</th>
+                    <th class="text-end">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- Clase 1: Seleccionada -->
+                  <tr style="background: #F8FAFC; border-left: 3px solid var(--wf-gold);">
+                    <td>
+                      <div class="d-flex align-items-center gap-2">
+                        <div style="width: 32px; height: 32px; border-radius: 6px; background: #081426; color: var(--wf-gold); display: flex; align-items: center; justify-content: center; font-size: 13px;">
+                          <i class="fa-solid fa-play"></i>
+                        </div>
+                        <div>
+                          <strong style="color: #081426; font-size: 13px;">Explicación Teórica: Duración Modificada</strong>
+                          <div class="small text-muted" style="font-size: 11px;">Avatar Lic. Spotorno • 03:40 min • 1080p</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td><span class="wf-badge status-active">Generada</span></td>
+                    <td class="text-end">
+                      <div class="d-inline-flex align-items-center gap-2">
+                        <button class="wf-btn wf-btn-xs wf-btn-primary" style="font-size: 11px;"><i class="fa-solid fa-eye me-1"></i> Ver Video</button>
+                        <span class="pin-badge">${badges[3] || 'D'}</span>
+                      </div>
+                    </td>
+                  </tr>
+
+                  <!-- Clase 2 -->
+                  <tr>
+                    <td>
+                      <div class="d-flex align-items-center gap-2">
+                        <div style="width: 32px; height: 32px; border-radius: 6px; background: #F1F5F9; color: #475569; display: flex; align-items: center; justify-content: center; font-size: 13px;">
+                          <i class="fa-solid fa-play"></i>
+                        </div>
+                        <div>
+                          <strong style="color: #081426; font-size: 13px;">Introducción a la Ley de Mercado de Capitales</strong>
+                          <div class="small text-muted" style="font-size: 11px;">Avatar Lic. Spotorno • 05:12 min • 1080p</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td><span class="wf-badge status-active">Generada</span></td>
+                    <td class="text-end">
+                      <button class="wf-btn wf-btn-xs wf-btn-outline" style="font-size: 11px;"><i class="fa-solid fa-eye me-1"></i> Ver Video</button>
+                    </td>
+                  </tr>
+
+                  <!-- Clase 3: Pendiente -->
+                  <tr>
+                    <td>
+                      <div class="d-flex align-items-center gap-2">
+                        <div style="width: 32px; height: 32px; border-radius: 6px; background: #FEF3C7; color: #D97706; display: flex; align-items: center; justify-content: center; font-size: 13px;">
+                          <i class="fa-solid fa-spinner fa-spin"></i>
+                        </div>
+                        <div>
+                          <strong style="color: #081426; font-size: 13px;">Valuación de Bonos Bullet vs Amortizables</strong>
+                          <div class="small text-muted" style="font-size: 11px;">En cola de procesamiento HeyGen...</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td><span class="badge bg-light text-warning border" style="font-size: 10px;">Pendiente</span></td>
+                    <td class="text-end">
+                      <span class="small text-muted" style="font-size: 10px;">Renderizando...</span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Columna Derecha: Panel de Previsualización del Video Generado [D] -->
+          <div class="col-lg-5">
+            <div class="p-3 border rounded bg-white shadow-sm">
+              <div class="d-flex justify-content-between align-items-center pb-2 mb-3 border-bottom">
+                <div>
+                  <span class="small text-muted">Previsualización de Clase con Clon</span>
+                  <h4 style="font-size: 14px; font-weight: 800; color: #081426; margin: 2px 0 0;">Explicación Teórica: Duración Modificada</h4>
+                </div>
+                <span class="pin-badge">${badges[3] || 'D'}</span>
+              </div>
+
+              <!-- Reproductor de Video Simulado -->
+              <div style="height: 200px; background: #081426; border-radius: 8px; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1.5px solid #1E293B; margin-bottom: 12px;">
+                <div style="text-align: center; color: white;">
+                  <div style="width: 60px; height: 60px; border-radius: 50%; background: #0F233D; margin: 0 auto 8px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--wf-gold);">
+                    <i class="fa-solid fa-user-tie" style="font-size: 28px; color: #CBD5E1;"></i>
                   </div>
-                </td>
-                <td>Unidad 2: Renta Fija</td>
-                <td>Fausto Spotorno HD (HeyGen)</td>
-                <td>03:40 min • 1080p</td>
-                <td><span class="wf-badge status-active">Generada</span></td>
-                <td class="text-end">
-                  <div class="d-inline-flex align-items-center gap-1">
-                    <a href="#CU-78" class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-play me-1"></i> Previsualizar</a>
-                    <span class="pin-badge">${badges[3] || 'D'}</span>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <div class="d-flex align-items-center gap-2">
-                    <i class="fa-solid fa-circle-play text-primary" style="font-size: 16px;"></i>
-                    <strong>Introducción a la Ley de Mercado de Capitales</strong>
-                  </div>
-                </td>
-                <td>Unidad 1: Marco Legal</td>
-                <td>Fausto Spotorno HD (HeyGen)</td>
-                <td>05:12 min • 1080p</td>
-                <td><span class="wf-badge status-active">Generada</span></td>
-                <td class="text-end">
-                  <button class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-play me-1"></i> Previsualizar</button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+                  <strong style="font-size: 12px;">Avatar Lic. Fausto Spotorno</strong>
+                  <div style="font-size: 10px; color: #94A3B8;">HeyGen HD Video Synthesis</div>
+                </div>
+
+                <div style="position: absolute; bottom: 8px; left: 8px; right: 8px; display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.6); padding: 4px 8px; border-radius: 4px; font-size: 10px; color: white;">
+                  <span><i class="fa-solid fa-play me-1 text-warning"></i> 01:24 / 03:40</span>
+                  <span>1080p 60fps</span>
+                </div>
+              </div>
+
+              <!-- Guión Sincronizado -->
+              <div class="p-2 border rounded bg-light mb-3" style="font-size: 11px;">
+                <strong class="text-dark mb-1 d-block">Guión del Prompt Sintetizado:</strong>
+                <p class="text-muted m-0" style="line-height: 1.4; font-style: italic;">
+                  "En esta clase abordaremos el concepto de modified duration. Cuando la tasa de interés se incrementa, el precio de los títulos cae en proporción inversa..."
+                </p>
+              </div>
+
+              <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                <a href="#CU-79" class="wf-btn wf-btn-xs wf-btn-outline"><i class="fa-solid fa-pen-to-square me-1"></i> Modificar Guión</a>
+                <a href="#CU-80" class="wf-btn wf-btn-xs wf-btn-outline text-danger"><i class="fa-solid fa-trash me-1"></i> Dar de Baja</a>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     `;
@@ -2186,78 +3534,399 @@ function generateScreenContent(cu) {
     const isBank = id === 'CU-73';
     const isSummary = id === 'CU-74';
     const isSlides = id === 'CU-75';
-    // CU-73: [A]="Generar Banco con IA (Ollama)", [B]=prompt, [C]="Generar Preguntas con IA"
-    // CU-74: [A]="Generar Resumen de Unidad con IA", [B]="Crear Resumen Automático"
-    // CU-75: [A]="Generar Presentación con IA", [B]="Generar Diapositivas"
-    const triggerAction = isBank ? 'Generar Banco con IA (Ollama)' : (isSummary ? 'Generar Resumen de Unidad con IA' : 'Generar Presentación con IA');
-    const confirmBtn = isBank ? 'Generar Preguntas con IA' : (isSummary ? 'Crear Resumen Automático' : 'Generar Diapositivas');
-    const confirmBtnBadge = isBank ? (badges[2] || 'C') : (badges[1] || 'B');
+
+    let pageTitle = 'Generador de Banco de Preguntas con IA (Ollama)';
+    let pageSubtitle = 'Generación automatizada de preguntas de opción múltiple y V/F a partir de la bibliografía cargada.';
+    let triggerAction = 'Generar Banco con IA (Ollama)';
+    let confirmBtn = 'Generar Preguntas con IA';
+    let confirmBadge = badges[2] || 'C';
+
+    if (isSummary) {
+      pageTitle = 'Generador de Resumen de Unidad con IA (Ollama)';
+      pageSubtitle = 'Síntesis conceptual estructurada a partir de los documentos teóricos cargados en la unidad.';
+      triggerAction = 'Generar Resumen de Unidad con IA';
+      confirmBtn = 'Crear Resumen Automático';
+      confirmBadge = badges[1] || 'B';
+    } else if (isSlides) {
+      pageTitle = 'Generador de Presentación con IA (Ollama)';
+      pageSubtitle = 'Estructuración de diapositivas descargables (títulos, subtítulos y conceptos clave) desde la bibliografía.';
+      triggerAction = 'Generar Presentación con IA';
+      confirmBtn = 'Generar Diapositivas';
+      confirmBadge = badges[1] || 'B';
+    }
 
     return `
-      <div class="wf-card" style="max-width: 900px; margin: 0 auto;">
+      <div class="wf-card" style="max-width: 1040px; margin: 0 auto; background: #FFFFFF;">
+        <!-- Header Limpio y Elegante -->
         <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
           <div class="d-flex align-items-center gap-3">
-            <div style="width: 44px; height: 44px; border-radius: 10px; background: linear-gradient(135deg, #059669, #10B981); display: flex; align-items: center; justify-content: center; color: white;">
-              ${icons.sparkles("w-6 h-6")}
+            <div style="width: 44px; height: 44px; border-radius: 10px; background: linear-gradient(135deg, #059669, #10B981); display: flex; align-items: center; justify-content: center; color: white; box-shadow: 0 4px 12px rgba(5,150,105,0.2);">
+              <i class="fa-solid fa-wand-magic-sparkles" style="font-size: 20px;"></i>
             </div>
             <div>
-              <h3 style="font-size: 18px; font-weight: 700; color: #0F172A; margin: 0;">${isBank ? 'Generador de Banco de Preguntas con IA (Ollama)' : (isSummary ? 'Generador de Resumen Académico con IA' : 'Generador de Presentación de Diapositivas')}</h3>
-              <p class="small text-muted" style="margin: 0;">Procesamiento automático sobre los materiales teóricos y guías subidas a la unidad.</p>
+              <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">${pageTitle}</h3>
+              <p class="small text-muted" style="margin: 2px 0 0;">${pageSubtitle}</p>
             </div>
           </div>
-          <span class="badge bg-light text-dark border d-inline-flex align-items-center gap-1"><i class="fa-solid fa-arrow-pointer text-muted"></i> Acción: <strong>${triggerAction}</strong> <span class="pin-badge">${badges[0] || 'A'}</span></span>
-        </div>
-
-        <div class="row g-3 mb-4">
-          <div class="col-md-6">
-            <label class="wf-label">Unidad Académica de Origen</label>
-            <div class="wf-input-wrap">
-              <select class="wf-input">
-                <option>Unidad 2: Instrumentos de Renta Fija (Bonos y Obligaciones Negociables)</option>
-              </select>
-            </div>
-          </div>
-          <div class="col-md-6">
-            <label class="wf-label">Materiales de Referencia a Procesar</label>
-            <div class="wf-input-wrap">
-              <input type="text" class="wf-input" value="guia_teorica_u2.pdf, ley_26831.pdf" disabled>
-              ${isBank ? `<span class="pin-badge">${badges[1] || 'B'}</span>` : ''}
-            </div>
-          </div>
-        </div>
-
-        <div class="p-3 border rounded bg-light mb-4">
-          <div class="small fw-bold text-muted text-uppercase mb-2">Parámetros de Generación</div>
-          <div class="row g-3">
-            <div class="col-md-4">
-              <label class="small text-muted">Nivel de Profundidad:</label>
-              <select class="wf-input wf-btn-sm"><option>Avanzado (Examen CNV)</option><option>Intermedio</option></select>
-            </div>
-            <div class="col-md-4">
-              <label class="small text-muted">${isBank ? 'Cantidad de Preguntas:' : (isSlides ? 'Cantidad de Diapositivas:' : 'Extensión del Resumen:')}</label>
-              <input type="text" class="wf-input wf-btn-sm" value="${isBank ? '20 preguntas cerradas' : (isSlides ? '12 diapositivas' : '3 páginas síntesis')}">
-            </div>
-            <div class="col-md-4">
-              <label class="small text-muted">Idioma &amp; Formato:</label>
-              <input type="text" class="wf-input wf-btn-sm" value="Español (Rioplatense - Financiero)" disabled>
-            </div>
-          </div>
-        </div>
-
-        <div class="d-flex justify-content-end align-items-center gap-3 pt-3 border-top">
-          <button class="wf-btn wf-btn-outline">Cancelar</button>
           <div class="d-flex align-items-center gap-2">
-            <button class="wf-btn wf-btn-primary d-flex align-items-center gap-2" style="background: #059669;">
-              ${icons.sparkles("w-4 h-4")}
-              <span>${confirmBtn}</span>
-            </button>
-            <span class="pin-badge">${confirmBtnBadge}</span>
+            <span class="wf-btn wf-btn-xs wf-btn-outline active" style="font-weight: 700; color: #065F46; background: #ECFDF5; border-color: #A7F3D0;">
+              <i class="fa-solid fa-wand-magic-sparkles text-success me-1"></i> ${triggerAction}
+            </span>
+            <span class="pin-badge">${badges[0] || 'A'}</span>
+          </div>
+        </div>
+
+        <div class="row g-4">
+          <!-- Columna Izquierda: Configuración y Prompt de Entrada -->
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="wf-label">Unidad Académica de Origen</label>
+              <div class="wf-input-wrap">
+                <select class="wf-input">
+                  <option selected>Unidad 2: Instrumentos de Renta Fija (Bonos y Obligaciones Negociables)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="wf-label">Fuentes de Contenido (Bibliografía & Glosario)</label>
+              <div class="p-2 border rounded bg-light d-flex flex-column gap-1" style="font-size: 12px;">
+                <div class="d-flex justify-content-between align-items-center">
+                  <span><i class="fa-solid fa-file-pdf text-danger me-1"></i> Guía Teórica de Renta Fija v2.0.pdf</span>
+                  <span class="badge bg-success text-white" style="font-size: 9px;">Cargado</span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                  <span><i class="fa-solid fa-book-open text-warning me-1"></i> Glosario de Unidad (8 términos técnicos)</span>
+                  <span class="badge bg-success text-white" style="font-size: 9px;">Cargado</span>
+                </div>
+              </div>
+            </div>
+
+            ${isBank ? `
+              <div class="mb-3">
+                <label class="wf-label">Guión Adicional / Prompt de Orientación (Opcional)</label>
+                <div class="wf-input-wrap">
+                  <textarea class="wf-input" rows="4" placeholder="Ej: Enfatizar preguntas sobre cálculo de TIR, duration de Macaulay y convexidad de bonos soberanos...">Enfatizar preguntas sobre cálculo de TIR, duration de Macaulay y convexidad de bonos soberanos con casos prácticos.</textarea>
+                  <span class="pin-badge">${badges[1] || 'B'}</span>
+                </div>
+                <div class="small text-muted mt-1" style="font-size: 11px;">El modelo Ollama utilizará este guión junto con la bibliografía de la unidad para generar los enunciados.</div>
+              </div>
+            ` : ''}
+
+            ${isSummary ? `
+              <div class="p-3 bg-light rounded border mb-3">
+                <div class="small fw-bold text-muted text-uppercase mb-2">Parámetros de Síntesis</div>
+                <div class="d-flex justify-content-between align-items-center small text-muted">
+                  <span>Extensión estimada:</span>
+                  <strong class="text-dark">3 a 4 páginas estructuradas</strong>
+                </div>
+                <div class="d-flex justify-content-between align-items-center small text-muted mt-1">
+                  <span>Nivel de detalle:</span>
+                  <strong class="text-dark">Avanzado (Énfasis en conceptos CNV)</strong>
+                </div>
+              </div>
+            ` : ''}
+
+            ${isSlides ? `
+              <div class="p-3 bg-light rounded border mb-3">
+                <div class="small fw-bold text-muted text-uppercase mb-2">Formato de Presentación</div>
+                <div class="d-flex justify-content-between align-items-center small text-muted">
+                  <span>Estructura:</span>
+                  <strong class="text-dark">12 diapositivas temáticas con puntos clave</strong>
+                </div>
+                <div class="d-flex justify-content-between align-items-center small text-muted mt-1">
+                  <span>Exportación:</span>
+                  <strong class="text-dark">Formato PPTX / PDF descargable</strong>
+                </div>
+              </div>
+            ` : ''}
+
+            <div class="p-2 border rounded bg-white shadow-sm d-flex align-items-center justify-content-between">
+              <span class="small text-muted"><i class="fa-solid fa-server me-1 text-primary"></i> Motor IA: <strong>Ollama Local (LLaMA-3 8B)</strong></span>
+              <span class="badge bg-success text-white" style="font-size: 10px;">En Línea</span>
+            </div>
+          </div>
+
+          <!-- Columna Derecha: Preview del Contenido Generado -->
+          <div class="col-lg-6">
+            <div class="p-3 border rounded bg-white shadow-sm h-100 d-flex flex-column justify-content-between">
+              <div>
+                <div class="d-flex justify-content-between align-items-center pb-2 mb-3 border-bottom">
+                  <strong style="font-size: 13px; color: #081426;"><i class="fa-solid fa-eye me-1 text-primary"></i>Previsualización del Resultado IA</strong>
+                  <span class="badge bg-light text-muted border">Estado: No Publicado</span>
+                </div>
+
+                ${isBank ? `
+                  <div class="d-flex flex-column gap-2" style="font-size: 12px;">
+                    <div class="p-2 border rounded bg-light">
+                      <div class="fw-bold text-dark mb-1">1. ¿Qué mide la modified duration en un título de renta fija?</div>
+                      <div class="text-success small"><i class="fa-solid fa-check-circle me-1"></i> A) La sensibilidad porcentual del precio ante variaciones en la TIR. (Correcta)</div>
+                      <div class="text-muted small ms-3">B) El plazo promedio ponderado de los flujos de fondos.</div>
+                      <div class="text-muted small ms-3">C) El cupón de interés nominal anual.</div>
+                    </div>
+                    <div class="p-2 border rounded bg-light">
+                      <div class="fw-bold text-dark mb-1">2. Ante una suba en la tasa de interés, el precio de un bono con alta convexidad cae más que uno de baja convexidad.</div>
+                      <div class="text-success small"><i class="fa-solid fa-check-circle me-1"></i> Falso (La convexidad amortigua la caída de precio). (Correcta)</div>
+                    </div>
+                  </div>
+                ` : ''}
+
+                ${isSummary ? `
+                  <div class="p-3 bg-light rounded border" style="font-size: 12px; line-height: 1.5;">
+                    <strong style="color: #081426; font-size: 13px;">Resumen Temático: Valuación y Riesgo de Tasa en Renta Fija</strong>
+                    <hr class="my-2">
+                    <p class="mb-2"><strong>1. Conceptos Fundamentales:</strong> Los bonos son instrumentos de deuda emitidos por Estados o empresas. Su precio es el valor presente de sus cupones futuros descontados a la TIR.</p>
+                    <p class="mb-0"><strong>2. Medición de Riesgo:</strong> La duración modificada cuantifica la volatilidad ante desplazamientos paralelos de la curva de rendimientos.</p>
+                  </div>
+                ` : ''}
+
+                ${isSlides ? `
+                  <div class="p-3 rounded border text-white" style="background: #081426; font-size: 12px;">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                      <span class="badge bg-primary">Diapositiva 1 / 12</span>
+                      <span class="small text-muted">Idóneos Online • Presentación Oficial</span>
+                    </div>
+                    <h5 style="color: var(--wf-gold); font-size: 15px; font-weight: 800; margin: 4px 0 8px;">Instrumentos de Renta Fija: Bonos & Curva de Rendimientos</h5>
+                    <ul class="ps-3 mb-0" style="font-size: 11px; color: #CBD5E1;">
+                      <li>Morfología de flujos: bullet vs. amortizables.</li>
+                      <li>Relación inversa entre precio y tasa (TIR).</li>
+                      <li>Curvas Soberanas: spot vs. forward.</li>
+                    </ul>
+                  </div>
+                ` : ''}
+              </div>
+
+              <div class="pt-3 mt-3 border-top d-flex justify-content-end align-items-center gap-3">
+                <a href="#CU-19" class="wf-btn wf-btn-sm wf-btn-outline">Cancelar</a>
+                <div class="d-flex align-items-center gap-2">
+                  <button class="wf-btn wf-btn-sm wf-btn-primary d-flex align-items-center gap-2" style="background: #059669; border-color: #047857; font-weight: 700;">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    <span>${confirmBtn}</span>
+                  </button>
+                  <span class="pin-badge">${confirmBadge}</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     `;
   }
 
+
+  // --- SPECIALIZED 8B: CREAR POOL DE PREGUNTAS (DSS BUCLE PREGUNTAS Y OPCIONES) --- CU-54
+  if (id === 'CU-54') {
+    return `
+      <div class="wf-card" style="max-width: 1040px; margin: 0 auto; background: #FFFFFF;">
+        <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
+          <div>
+            <div class="small text-muted mb-1" style="font-size: 11px;">
+              <span>Unidad 1: Marco Regulatorio</span> <i class="fa-solid fa-chevron-right" style="font-size: 9px; margin: 0 4px;"></i> 
+              <strong style="color: #081426;">Nuevo Pool de Preguntas</strong>
+            </div>
+            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Crear Pool de Preguntas</h3>
+            <p class="small text-muted" style="margin: 3px 0 0;">Defina el banco de ítems evaluativos, agregando preguntas con sus enunciados, tipos y opciones de respuesta.</p>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <span class="wf-badge status-active">Docente Titular</span>
+            <span class="pin-badge">${badges[0] || 'A'}</span>
+          </div>
+        </div>
+
+        <!-- Datos del Pool -->
+        <div class="row g-3 mb-4">
+          <div class="col-md-6">
+            <label class="wf-label">Nombre del Pool de Preguntas</label>
+            <div class="wf-input-wrap">
+              <input type="text" class="wf-input" placeholder="Ej: Pool Unidad 1: Marco Regulatorio y CNV" value="Pool Unidad 1: Marco Regulatorio y CNV">
+              <span class="pin-badge">${badges[1] || 'B'}</span>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <label class="wf-label">Descripción Temática</label>
+            <div class="wf-input-wrap">
+              <input type="text" class="wf-input" placeholder="Ej: Banco evaluativo de preguntas sobre la Ley 26.831" value="Banco evaluativo de preguntas sobre la Ley 26.831 y ALyCs">
+              <span class="pin-badge">${badges[2] || 'C'}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Editor de Preguntas y Opciones (DSS Loop de Preguntas y Opciones) -->
+        <div class="p-4 bg-light rounded border mb-4">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <strong style="font-size: 15px; color: #081426;"><i class="fa-solid fa-list-check me-2 text-primary"></i>Editor de Preguntas del Pool</strong>
+            <button class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-plus me-1"></i> Añadir Pregunta</button>
+          </div>
+
+          <!-- Pregunta 1: Opción Múltiple -->
+          <div class="p-3 bg-white rounded border mb-3 shadow-sm">
+            <div class="row g-3 align-items-center mb-3">
+              <div class="col-md-8">
+                <label class="wf-label mb-1">Enunciado de la Pregunta 1</label>
+                <input type="text" class="wf-input" style="width: 100%;" value="¿Cuál es la función principal de la Comisión Nacional de Valores (CNV) según la Ley 26.831?">
+              </div>
+              <div class="col-md-4">
+                <label class="wf-label mb-1">Tipo de Pregunta</label>
+                <select class="wf-input" style="width: 100%;">
+                  <option selected>Opción Múltiple (Múltiple Choice)</option>
+                  <option>Verdadero / Falso</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="small fw-bold text-muted mb-2">Opciones de Respuesta (Marque la opción correcta):</div>
+            <div class="d-flex flex-column gap-2 mb-2" style="font-size: 12px;">
+              <div class="p-2 border rounded d-flex align-items-center justify-content-between bg-light" style="border-left: 4px solid #16A34A !important;">
+                <div class="d-flex align-items-center gap-2 flex-grow-1 me-3">
+                  <input type="radio" name="p1_opt" checked style="width: 16px; height: 16px; flex-shrink: 0;">
+                  <input type="text" class="wf-input" style="flex: 1;" value="Supervisar, regular y fiscalizar a los agentes y los mercados de capitales en Argentina.">
+                </div>
+                <span class="badge bg-success text-white" style="flex-shrink: 0; padding: 5px 8px;">Opción Correcta</span>
+              </div>
+              <div class="p-2 border rounded d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center gap-2 flex-grow-1 me-3">
+                  <input type="radio" name="p1_opt" style="width: 16px; height: 16px; flex-shrink: 0;">
+                  <input type="text" class="wf-input" style="flex: 1;" value="Emitir moneda y fijar la tasa de política monetaria en el sistema financiero.">
+                </div>
+                <span class="badge bg-light text-muted border" style="flex-shrink: 0; padding: 5px 8px;">Incorrecta</span>
+              </div>
+              <div class="p-2 border rounded d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center gap-2 flex-grow-1 me-3">
+                  <input type="radio" name="p1_opt" style="width: 16px; height: 16px; flex-shrink: 0;">
+                  <input type="text" class="wf-input" style="flex: 1;" value="Garantizar la rentabilidad de las inversiones bursátiles de los inversores minoristas.">
+                </div>
+                <span class="badge bg-light text-muted border" style="flex-shrink: 0; padding: 5px 8px;">Incorrecta</span>
+              </div>
+            </div>
+            <button class="btn btn-link btn-sm p-0 text-decoration-none mt-1" style="font-size: 11px;"><i class="fa-solid fa-plus me-1"></i> Añadir otra opción</button>
+          </div>
+
+          <!-- Pregunta 2: Verdadero o Falso -->
+          <div class="p-3 bg-white rounded border shadow-sm">
+            <div class="row g-3 align-items-center mb-3">
+              <div class="col-md-8">
+                <label class="wf-label mb-1">Enunciado de la Pregunta 2</label>
+                <input type="text" class="wf-input" style="width: 100%;" value="Un Agente de Liquidación y Compensación Propio (ALyC Propio) puede liquidar operaciones de terceros sin límite.">
+              </div>
+              <div class="col-md-4">
+                <label class="wf-label mb-1">Tipo de Pregunta</label>
+                <select class="wf-input" style="width: 100%;">
+                  <option>Opción Múltiple (Múltiple Choice)</option>
+                  <option selected>Verdadero / Falso</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="small fw-bold text-muted mb-2">Opciones de Respuesta:</div>
+            <div class="d-flex gap-3" style="font-size: 12px;">
+              <label class="p-2 border rounded d-flex align-items-center gap-2 flex-grow-1 cursor-pointer">
+                <input type="radio" name="p2_opt" style="width: 16px; height: 16px;">
+                <span>Verdadero</span>
+              </label>
+              <label class="p-2 border rounded d-flex align-items-center justify-content-between flex-grow-1 bg-light cursor-pointer" style="border-left: 4px solid #16A34A !important;">
+                <div class="d-flex align-items-center gap-2">
+                  <input type="radio" name="p2_opt" checked style="width: 16px; height: 16px;">
+                  <span>Falso (Solo puede liquidar operaciones propias)</span>
+                </div>
+                <span class="badge bg-success text-white" style="padding: 5px 8px;">Opción Correcta</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-end align-items-center gap-3 pt-3 border-top">
+          <a href="#CU-19" class="wf-btn wf-btn-outline">Cancelar</a>
+          <div class="d-flex align-items-center gap-2">
+            <button class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Guardar y Crear Pool</button>
+            <span class="pin-badge">${badges[3] || 'D'}</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // --- SPECIALIZED 8C: MODIFICAR POOL DE PREGUNTAS --- CU-55
+  if (id === 'CU-55') {
+    return `
+      <div class="wf-card" style="max-width: 1040px; margin: 0 auto; background: #FFFFFF;">
+        <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
+          <div>
+            <div class="small text-muted mb-1" style="font-size: 11px;">
+              <span>Pools de Preguntas</span> <i class="fa-solid fa-chevron-right" style="font-size: 9px; margin: 0 4px;"></i> 
+              <strong style="color: #081426;">Modificar Pool</strong>
+            </div>
+            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Modificar Pool de Preguntas</h3>
+            <p class="small text-muted" style="margin: 3px 0 0;">Actualice el nombre, descripción y administre las preguntas y opciones del banco evaluativo.</p>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <span class="wf-badge status-active">Sin intentos asociados</span>
+            <span class="pin-badge">${badges[0] || 'A'}</span>
+          </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+          <div class="col-md-6">
+            <label class="wf-label">Nombre del Pool</label>
+            <div class="wf-input-wrap">
+              <input type="text" class="wf-input" value="Pool Unidad 1: Marco Regulatorio y CNV">
+              <span class="pin-badge">${badges[1] || 'B'}</span>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <label class="wf-label">Descripción Temática</label>
+            <div class="wf-input-wrap">
+              <input type="text" class="wf-input" value="Banco evaluativo de preguntas sobre la Ley 26.831 y ALyCs">
+              <span class="pin-badge">${badges[2] || 'C'}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-4 bg-light rounded border mb-4">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="d-flex align-items-center gap-2">
+              <strong style="font-size: 15px; color: #081426;"><i class="fa-solid fa-list-check me-2 text-primary"></i>Preguntas y Opciones del Pool</strong>
+              <span class="pin-badge">${badges[3] || 'D'}</span>
+            </div>
+            <button class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-plus me-1"></i> Añadir Pregunta</button>
+          </div>
+
+          <div class="p-3 bg-white rounded border mb-3 shadow-sm">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <div class="flex-grow-1 me-3">
+                <label class="wf-label mb-1">Pregunta 1: Enunciado</label>
+                <input type="text" class="wf-input" style="width: 100%;" value="¿Cuál es la función principal de la Comisión Nacional de Valores (CNV) según la Ley 26.831?">
+              </div>
+              <button class="btn btn-outline-danger btn-sm mt-4" title="Eliminar pregunta"><i class="fa-solid fa-trash"></i></button>
+            </div>
+            <div class="d-flex flex-column gap-2 mb-2" style="font-size: 12px;">
+              <div class="p-2 border rounded d-flex align-items-center justify-content-between bg-light" style="border-left: 4px solid #16A34A !important;">
+                <div class="d-flex align-items-center gap-2 flex-grow-1 me-3">
+                  <input type="radio" name="p1_edit" checked style="width: 16px; height: 16px; flex-shrink: 0;">
+                  <input type="text" class="wf-input" style="flex: 1;" value="Supervisar, regular y fiscalizar a los agentes y los mercados de capitales en Argentina.">
+                </div>
+                <span class="badge bg-success text-white" style="flex-shrink: 0; padding: 5px 8px;">Correcta</span>
+              </div>
+              <div class="p-2 border rounded d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center gap-2 flex-grow-1 me-3">
+                  <input type="radio" name="p1_edit" style="width: 16px; height: 16px; flex-shrink: 0;">
+                  <input type="text" class="wf-input" style="flex: 1;" value="Emitir moneda y fijar la tasa de política monetaria en el sistema financiero.">
+                </div>
+                <span class="badge bg-light text-muted border" style="flex-shrink: 0; padding: 5px 8px;">Incorrecta</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-end align-items-center gap-3 pt-3 border-top">
+          <a href="#CU-53" class="wf-btn wf-btn-outline">Cancelar</a>
+          <div class="d-flex align-items-center gap-2">
+            <button class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Guardar Cambios</button>
+            <span class="pin-badge">${badges[4] || badges[badges.length - 1] || 'E'}</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }
 
   // --- SPECIALIZED 9: CLASE EN VIVO (STREAMING) --- CU-70, CU-71, CU-72
   if (['CU-70', 'CU-71', 'CU-72'].includes(id)) {
@@ -2279,7 +3948,11 @@ function generateScreenContent(cu) {
             ${isStart ? `
               <div class="d-flex align-items-center gap-2">
                 <span class="pin-badge">${badges[0] || 'A'}</span>
-                <button class="wf-btn wf-btn-sm wf-btn-primary" style="background: #2563EB;"><i class="fa-solid fa-tower-broadcast me-1"></i> Transmitir en Vivo (Clave OBS)</button>
+                <button class="wf-btn wf-btn-sm wf-btn-primary d-flex align-items-center gap-2" style="background: #2563EB; font-weight: 700;">
+                  <i class="fa-solid fa-key text-warning"></i>
+                  <span>Copiar clave para transmitir en vivo por OBS</span>
+                  <i class="fa-solid fa-copy ms-1"></i>
+                </button>
                 <span class="pin-badge">${badges[1] || badges[badges.length - 1] || 'B'}</span>
               </div>
             ` : ''}
@@ -2291,8 +3964,9 @@ function generateScreenContent(cu) {
             ` : ''}
             ${isStudent ? `
               <div class="d-flex align-items-center gap-2">
-                <span class="badge bg-dark text-white border d-inline-flex align-items-center gap-1"><i class="fa-solid fa-arrow-pointer"></i> Acción: <strong>Ingresar a la Sala en Vivo</strong> <span class="pin-badge">${badges[0] || 'A'}</span></span>
+                <span class="wf-badge" style="background: #DC2626; color: white;">● En vivo</span>
                 <span class="wf-badge status-active">Conectado a la Sala</span>
+                <span class="pin-badge">${badges[0] || 'A'}</span>
               </div>
             ` : ''}
           </div>
@@ -2347,8 +4021,8 @@ function generateScreenContent(cu) {
             <p class="small text-muted" style="margin: 0;">Intento 1 de 3 • Tiempo restante: <strong class="text-danger">18:45 min</strong></p>
           </div>
           <div class="d-flex align-items-center gap-2">
-            <span class="badge bg-light text-dark border d-inline-flex align-items-center gap-1"><i class="fa-solid fa-arrow-pointer text-muted"></i> Acción: <strong>Comenzar Intento</strong> <span class="pin-badge">${badges[0] || 'A'}</span></span>
             <span class="wf-badge status-active">En progreso</span>
+            <span class="pin-badge">${badges[0] || 'A'}</span>
           </div>
         </div>
 
@@ -2392,31 +4066,33 @@ function generateScreenContent(cu) {
     `;
   }
 
-  // --- SPECIALIZED 11A: BUSCAR INSCRIPCIÓN / HISTORIAL --- CU-43, CU-48
-  if (['CU-43', 'CU-48'].includes(id)) {
-    const isProg = id === 'CU-48';
+  // --- SPECIALIZED 11A: BUSCAR INSCRIPCIÓN / HISTORIAL --- CU-43
+  if (id === 'CU-43') {
     return `
       <div class="wf-card mb-4" style="background: #FFFFFF;">
         <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
           <div>
-            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">${isProg ? 'Seguimiento y Progreso de Alumnos' : 'Gestión e Historial de Inscripciones'}</h3>
-            <p class="small text-muted" style="margin: 3px 0 0;">Consulte las matriculaciones vigentes, certificados emitidos y porcentaje de avance pedagógico.</p>
+            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Gestión e Historial de Inscripciones</h3>
+            <p class="small text-muted" style="margin: 3px 0 0;">Consulte las matriculaciones vigentes, cohortes asignadas, certificados emitidos y gestión de bajas.</p>
           </div>
-          <span class="wf-badge status-active">Total: 1.240 Alumnos</span>
+          <span class="wf-badge status-active">Total: 146 Inscripciones Activas</span>
         </div>
 
         <div class="row g-3 align-items-end mb-4">
           <div class="col-md-5">
             <label class="wf-label">Buscar por Alumno o DNI</label>
             <div class="wf-input-wrap">
-              <input type="text" class="wf-input" placeholder="Ej: Joaquín Küster, 40.123.456...">
+              <input type="text" class="wf-input" placeholder="Ej: Joaquín Küster, 40.123.456, María Benítez...">
               <span class="pin-badge">${badges[0] || 'A'}</span>
             </div>
           </div>
           <div class="col-md-4">
             <label class="wf-label">Estado de la Inscripción</label>
             <select class="wf-input">
-              <option>Todas las inscripciones (Activas, Finalizadas, Bajas)</option>
+              <option>Todas las inscripciones (Vigente / Vencida / Dada de baja)</option>
+              <option>Vigente (Con acceso activo)</option>
+              <option>Vencida (Plazo cumplido)</option>
+              <option>Dada de baja</option>
             </select>
           </div>
           <div class="col-md-3">
@@ -2434,37 +4110,411 @@ function generateScreenContent(cu) {
                 <th>Alumno / DNI</th>
                 <th>Curso & Cohorte</th>
                 <th>Fecha Matrícula</th>
-                <th>${isProg ? 'Progreso Pedagógico' : 'Estado / Certificado'}</th>
+                <th>Vencimiento Acceso</th>
+                <th>Estado</th>
+                <th class="text-end">Acciones / Certificado</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Alumno 1: Joaquín Küster (Aprobado con Certificado) -->
+              <tr>
+                <td>
+                  <strong>Joaquín Küster</strong>
+                  <div class="small text-muted">DNI: 40.123.456 • joaquin@idoneos.online</div>
+                </td>
+                <td>
+                  <div class="d-flex align-items-center gap-2">
+                    <span class="fw-bold" style="color: #081426;">Especialización en Idoneidad Bursátil</span>
+                    <span class="pin-badge">${badges[2] || 'C'}</span>
+                  </div>
+                  <div class="small text-muted">Cohorte 2026-1 (Programa 2026-A)</div>
+                </td>
+                <td>15/03/2026</td>
+                <td>15/07/2026</td>
+                <td><span class="wf-badge status-active">Vigente (Aprobado)</span></td>
+                <td class="text-end">
+                  <div class="d-inline-flex align-items-center gap-2">
+                    <button class="wf-btn wf-btn-sm wf-btn-outline" title="Descargar Certificado Oficial">
+                      <i class="fa-solid fa-award me-1" style="color: var(--wf-gold);"></i>
+                      <span>Descargar Certificado</span>
+                    </button>
+                    <span class="pin-badge">${badges[3] || 'D'}</span>
+                    <a href="#CU-45" class="wf-btn wf-btn-sm wf-btn-outline text-danger" title="Dar de baja inscripción">
+                      <i class="fa-solid fa-user-xmark me-1"></i>
+                      <span>Dar de baja</span>
+                    </a>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Alumno 2: María Benítez (En Curso) -->
+              <tr>
+                <td>
+                  <strong>María Benítez</strong>
+                  <div class="small text-muted">DNI: 38.945.112 • maria.benitez@idoneos.online</div>
+                </td>
+                <td>
+                  <span class="fw-bold" style="color: #081426;">Especialización en Idoneidad Bursátil</span>
+                  <div class="small text-muted">Cohorte 2026-1 (Programa 2026-A)</div>
+                </td>
+                <td>18/03/2026</td>
+                <td>18/07/2026</td>
+                <td><span class="wf-badge status-active">Vigente (En curso)</span></td>
+                <td class="text-end">
+                  <div class="d-inline-flex align-items-center gap-2">
+                    <button class="wf-btn wf-btn-sm wf-btn-outline" disabled title="Certificado no emitido aún (Requiere aprobar todas las unidades)">
+                      <i class="fa-solid fa-award me-1 text-muted"></i>
+                      <span class="text-muted">Certificado Pendiente</span>
+                    </button>
+                    <a href="#CU-45" class="wf-btn wf-btn-sm wf-btn-outline text-danger" title="Dar de baja inscripción">
+                      <i class="fa-solid fa-user-xmark me-1"></i>
+                      <span>Dar de baja</span>
+                    </a>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Alumno 3: Lucas Romero (Operativa Cripto) -->
+              <tr>
+                <td>
+                  <strong>Lucas Romero</strong>
+                  <div class="small text-muted">DNI: 42.887.654 • lucas.romero@idoneos.online</div>
+                </td>
+                <td>
+                  <span class="fw-bold" style="color: #081426;">Operativa Cripto y DeFi Profesional</span>
+                  <div class="small text-muted">Cohorte 2026-1 (Programa 2026-C)</div>
+                </td>
+                <td>01/04/2026</td>
+                <td>01/08/2026</td>
+                <td><span class="wf-badge status-active">Vigente (En curso)</span></td>
+                <td class="text-end">
+                  <div class="d-inline-flex align-items-center gap-2">
+                    <button class="wf-btn wf-btn-sm wf-btn-outline" disabled>
+                      <i class="fa-solid fa-award me-1 text-muted"></i>
+                      <span class="text-muted">Certificado Pendiente</span>
+                    </button>
+                    <a href="#CU-45" class="wf-btn wf-btn-sm wf-btn-outline text-danger" title="Dar de baja inscripción">
+                      <i class="fa-solid fa-user-xmark me-1"></i>
+                      <span>Dar de baja</span>
+                    </a>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Alumno 4: Carlos Fernández (Baja por Abandono) -->
+              <tr>
+                <td>
+                  <strong>Carlos Fernández</strong>
+                  <div class="small text-muted">DNI: 35.612.890 • carlos.f@idoneos.online</div>
+                </td>
+                <td>
+                  <span class="fw-bold" style="color: #081426;">Mercado de Capitales Argentino</span>
+                  <div class="small text-muted">Cohorte 2025-2 (Programa 2025-B)</div>
+                </td>
+                <td>10/11/2025</td>
+                <td>10/03/2026</td>
+                <td><span class="wf-badge status-inactive" style="color: #DC2626; border-color: #FCA5A5; background: #FEF2F2;">Dada de baja</span></td>
+                <td class="text-end">
+                  <span class="small text-muted fst-italic">Baja registrada el 22/12/2025</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+  }
+
+  // --- SPECIALIZED 11A-3: BUSCAR DESCUENTO --- CU-49
+  if (id === 'CU-49') {
+    return `
+      <div class="wf-card mb-4" style="background: #FFFFFF;">
+        <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
+          <div>
+            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Gestión de Descuentos y Becas Arancelarias</h3>
+            <p class="small text-muted" style="margin: 3px 0 0;">Configure las reglas de descuento por cantidad de cursos, promociones temporales y límites de uso.</p>
+          </div>
+          <span class="wf-badge status-active">Módulo de Facturación</span>
+        </div>
+
+        <div class="row g-3 align-items-end mb-4">
+          <div class="col-md-5">
+            <label class="wf-label">Buscar Descuento por Nombre</label>
+            <div class="wf-input-wrap">
+              <input type="text" class="wf-input" placeholder="Ej: Beca Alumno Destacado, Promo Lanzamiento...">
+            </div>
+          </div>
+          <div class="col-md-4">
+            <label class="wf-label">Filtro por Vigencia</label>
+            <div class="wf-input-wrap">
+              <select class="wf-input">
+                <option>Todos los estados (Vigente / Vencido / Agotado)</option>
+                <option selected>Vigente (Activo para aplicar)</option>
+                <option>Vencido (Fecha límite expirada)</option>
+                <option>Agotado (Cupo máximo alcanzado)</option>
+              </select>
+              <span class="pin-badge">${badges[0] || 'A'}</span>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="d-flex align-items-center gap-2">
+              <button class="wf-btn wf-btn-primary w-100"><i class="fa-solid fa-magnifying-glass me-1"></i> Buscar</button>
+              <span class="pin-badge">${badges[1] || 'B'}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="wf-table-wrap">
+          <table class="wf-table">
+            <thead>
+              <tr>
+                <th>Nombre del Beneficio</th>
+                <th>Porcentaje</th>
+                <th>Vigencia (Desde / Hasta)</th>
+                <th>Usos / Límite</th>
+                <th>Condición Requerida</th>
+                <th>Estado</th>
                 <th class="text-end">Acciones</th>
               </tr>
             </thead>
             <tbody>
+              <!-- Descuento 1: Promo Lanzamiento -->
               <tr>
-                <td><strong>Joaquín Küster</strong><div class="small text-muted">DNI: 40.123.456 • joaquin@idoneos.online</div></td>
-                <td>Especialización en Idoneidad Bursátil (2026-1)</td>
-                <td>2026-08-15</td>
                 <td>
-                  ${isProg ? `
-                    <div class="d-flex align-items-center gap-2">
-                      <div style="flex: 1; height: 8px; background: #E2E8F0; border-radius: 4px; overflow: hidden;">
-                        <div style="width: 65%; height: 100%; background: #2563EB;"></div>
-                      </div>
-                      <span class="small fw-bold">65%</span>
-                    </div>
-                  ` : `
-                    <span class="wf-badge status-active">Activo (Aprobado)</span>
-                  `}
-                </td>
-                <td class="text-end">
-                  <div class="d-inline-flex align-items-center gap-1">
+                  <div class="d-flex align-items-center gap-2">
+                    <strong style="color: #081426;">Promo Lanzamiento 2026</strong>
                     <span class="pin-badge">${badges[2] || 'C'}</span>
-                    <button class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-certificate me-1 text-warning"></i> Descargar Certificado</button>
-                    <span class="pin-badge">${badges[3] || 'D'}</span>
+                  </div>
+                  <div class="small text-muted">Descuento general para nuevos ingresantes</div>
+                </td>
+                <td><strong style="color: #059669; font-size: 14px;">20% OFF</strong></td>
+                <td>01/02/2026 al 31/03/2026</td>
+                <td><strong>14</strong> / 50 usados</td>
+                <td>Sin cursos previos</td>
+                <td><span class="wf-badge status-active">Vigente</span></td>
+                <td class="text-end">
+                  <div class="d-inline-flex align-items-center gap-2">
+                    <a href="#CU-51" class="wf-btn wf-btn-sm wf-btn-outline" title="Editar descuento"><i class="fa-solid fa-pen-to-square me-1"></i> Editar</a>
+                    <a href="#CU-52" class="wf-btn wf-btn-sm wf-btn-outline text-danger" title="Dar de baja descuento"><i class="fa-solid fa-trash me-1"></i> Eliminar</a>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Descuento 2: Paquete Mercado de Capitales -->
+              <tr>
+                <td>
+                  <strong style="color: #081426;">Beca Alumno Continuo (FCEQyN)</strong>
+                  <div class="small text-muted">Reconocimiento académico a graduados</div>
+                </td>
+                <td><strong style="color: #059669; font-size: 14px;">30% OFF</strong></td>
+                <td>01/01/2026 al 31/12/2026</td>
+                <td><strong>8</strong> / 20 usados</td>
+                <td>≥ 1 curso aprobado</td>
+                <td><span class="wf-badge status-active">Vigente</span></td>
+                <td class="text-end">
+                  <div class="d-inline-flex align-items-center gap-2">
+                    <a href="#CU-51" class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-pen-to-square me-1"></i> Editar</a>
+                    <a href="#CU-52" class="wf-btn wf-btn-sm wf-btn-outline text-danger"><i class="fa-solid fa-trash me-1"></i> Eliminar</a>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Descuento 3: Expirado 2025 -->
+              <tr>
+                <td>
+                  <strong style="color: #081426;">Black Friday Bursátil 2025</strong>
+                  <div class="small text-muted">Campaña especial de fin de año</div>
+                </td>
+                <td><strong style="color: #64748B; font-size: 14px;">40% OFF</strong></td>
+                <td>20/11/2025 al 30/11/2025</td>
+                <td><strong>30</strong> / 30 usados</td>
+                <td>Sin cursos previos</td>
+                <td><span class="wf-badge status-inactive">Agotado</span></td>
+                <td class="text-end">
+                  <div class="d-inline-flex align-items-center gap-2">
+                    <a href="#CU-51" class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-pen-to-square me-1"></i> Editar</a>
+                    <span class="small text-muted fst-italic">No eliminable</span>
                   </div>
                 </td>
               </tr>
             </tbody>
           </table>
+        </div>
+      </div>
+    `;
+  }
+
+  // --- SPECIALIZED 11A-2: BUSCAR PROGRESO DE ALUMNOS --- CU-48
+  if (id === 'CU-48') {
+    return `
+      <div class="wf-card mb-4" style="background: #FFFFFF;">
+        <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
+          <div>
+            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Seguimiento y Progreso Pedagógico de Alumnos</h3>
+            <p class="small text-muted" style="margin: 3px 0 0;">Consulte el progreso académico general y el desglose de avance por unidad con fechas de completitud.</p>
+          </div>
+          <span class="wf-badge status-active">Cohorte 2026-1 (8 Semanas)</span>
+        </div>
+
+        <div class="row g-3 align-items-end mb-4">
+          <div class="col-md-5">
+            <label class="wf-label">Buscar Alumno por Nombre o DNI</label>
+            <div class="wf-input-wrap">
+              <input type="text" class="wf-input" placeholder="Buscar alumno por nombre, apellido o DNI...">
+              <span class="pin-badge">${badges[0] || 'A'}</span>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <label class="wf-label">Filtrar por Cohorte / Curso</label>
+            <select class="wf-input">
+              <option>Especialización en Idoneidad Bursátil (Cohorte 2026-1)</option>
+              <option>Operativa Cripto y DeFi Profesional (Cohorte 2026-1)</option>
+              <option>Mercado de Capitales Argentino (Cohorte 2025-2)</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <div class="d-flex align-items-center gap-2">
+              <button class="wf-btn wf-btn-primary w-100"><i class="fa-solid fa-magnifying-glass me-1"></i> Buscar</button>
+              <span class="pin-badge">${badges[1] || 'B'}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-4">
+          <!-- Columna Izquierda: Listado de Alumnos -->
+          <div class="col-lg-7" style="border-right: 2px solid #E2E8F0; padding-right: 20px;">
+            <div class="wf-table-wrap">
+              <table class="wf-table">
+                <thead>
+                  <tr>
+                    <th>Alumno / Contacto</th>
+                    <th>Estado</th>
+                    <th style="min-width: 140px;">Progreso</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- Alumno 1: Joaquín Küster (Seleccionado) -->
+                  <tr style="background: #F0F9FF; border-left: 4px solid var(--wf-navy);">
+                    <td>
+                      <div class="d-flex align-items-center gap-2">
+                        <div class="user-avatar-circle" style="width: 32px; height: 32px; font-size: 11px; background: #2563EB; color: white;">JK</div>
+                        <div>
+                          <div class="d-flex align-items-center gap-2">
+                            <strong>Joaquín Küster</strong>
+                            <span class="pin-badge">${badges[2] || 'C'}</span>
+                          </div>
+                          <div class="small text-muted">DNI: 40.123.456</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td><span class="wf-badge status-active">Al día</span></td>
+                    <td>
+                      <div class="d-flex align-items-center gap-2">
+                        <div style="flex: 1; height: 8px; background: #E2E8F0; border-radius: 4px; overflow: hidden;">
+                          <div style="width: 100%; height: 100%; background: #16A34A;"></div>
+                        </div>
+                        <span class="small fw-bold text-success">100%</span>
+                      </div>
+                    </td>
+                  </tr>
+
+                  <!-- Alumno 2: María Benítez -->
+                  <tr>
+                    <td>
+                      <div class="d-flex align-items-center gap-2">
+                        <div class="user-avatar-circle" style="width: 32px; height: 32px; font-size: 11px; background: #0D9488; color: white;">MB</div>
+                        <div>
+                          <strong>María Benítez</strong>
+                          <div class="small text-muted">DNI: 38.945.112</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td><span class="badge bg-light text-primary border">En curso</span></td>
+                    <td>
+                      <div class="d-flex align-items-center gap-2">
+                        <div style="flex: 1; height: 8px; background: #E2E8F0; border-radius: 4px; overflow: hidden;">
+                          <div style="width: 66%; height: 100%; background: #2563EB;"></div>
+                        </div>
+                        <span class="small fw-bold text-primary">66%</span>
+                      </div>
+                    </td>
+                  </tr>
+
+                  <!-- Alumno 3: Lucas Romero -->
+                  <tr>
+                    <td>
+                      <div class="d-flex align-items-center gap-2">
+                        <div class="user-avatar-circle" style="width: 32px; height: 32px; font-size: 11px; background: #E11D48; color: white;">LR</div>
+                        <div>
+                          <strong>Lucas Romero</strong>
+                          <div class="small text-muted">DNI: 42.887.654</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td><span class="badge bg-light text-warning border">Atrasado</span></td>
+                    <td>
+                      <div class="d-flex align-items-center gap-2">
+                        <div style="flex: 1; height: 8px; background: #E2E8F0; border-radius: 4px; overflow: hidden;">
+                          <div style="width: 33%; height: 100%; background: #D97706;"></div>
+                        </div>
+                        <span class="small fw-bold text-warning">33%</span>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Columna Derecha: Panel de Avance Detallado por Unidad (Badge D) -->
+          <div class="col-lg-5">
+            <div class="p-3 border rounded bg-white shadow-sm">
+              <div class="d-flex justify-content-between align-items-center pb-2 mb-3 border-bottom">
+                <div>
+                  <span class="small text-muted">Detalle Académico del Alumno</span>
+                  <h4 style="font-size: 15px; font-weight: 800; color: #081426; margin: 2px 0 0;">Joaquín Küster</h4>
+                </div>
+                <span class="pin-badge">${badges[3] || 'D'}</span>
+              </div>
+
+              <div class="d-flex flex-column gap-3" style="font-size: 12px;">
+                <!-- Unidad 1 -->
+                <div class="p-2 border rounded bg-light">
+                  <div class="d-flex justify-content-between align-items-center mb-1">
+                    <strong>Unidad 1: Marco Regulatorio</strong>
+                    <span class="badge bg-success text-white">Completada</span>
+                  </div>
+                  <div class="small text-muted">Fecha de completitud: <strong>20/03/2026</strong></div>
+                  <div class="small text-muted">Autoevaluación U1: <strong>Nota 10/10</strong></div>
+                </div>
+
+                <!-- Unidad 2 -->
+                <div class="p-2 border rounded bg-light">
+                  <div class="d-flex justify-content-between align-items-center mb-1">
+                    <strong>Unidad 2: Renta Fija (Bonos y ONs)</strong>
+                    <span class="badge bg-success text-white">Completada</span>
+                  </div>
+                  <div class="small text-muted">Fecha de completitud: <strong>10/04/2026</strong></div>
+                  <div class="small text-muted">Autoevaluación U2: <strong>Nota 9/10</strong></div>
+                </div>
+
+                <!-- Unidad 3 -->
+                <div class="p-2 border rounded bg-light">
+                  <div class="d-flex justify-content-between align-items-center mb-1">
+                    <strong>Unidad 3: Renta Variable & Derivados</strong>
+                    <span class="badge bg-success text-white">Completada</span>
+                  </div>
+                  <div class="small text-muted">Fecha de completitud: <strong>02/05/2026</strong></div>
+                  <div class="small text-muted">Examen Integrador: <strong>Nota 9.5/10</strong></div>
+                </div>
+              </div>
+
+              <div class="mt-3 pt-3 border-top d-flex justify-content-between align-items-center">
+                <span class="small text-muted">Certificado Oficial Emitido:</span>
+                <span class="badge status-active"><i class="fa-solid fa-award me-1"></i> ID-2026-8812</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     `;
@@ -2477,26 +4527,31 @@ function generateScreenContent(cu) {
         <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
           <div>
             <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Historial y Registro de Pagos</h3>
-            <p class="small text-muted" style="margin: 3px 0 0;">Liquidaciones de aranceles, cobros por MODO QR, tarjetas y descarga de comprobantes.</p>
+            <p class="small text-muted" style="margin: 3px 0 0;">Liquidaciones de aranceles, cobros por MODO QR, tarjetas y descarga de comprobantes oficiales.</p>
           </div>
           <span class="wf-badge status-active">Facturación Vigente</span>
         </div>
 
         <div class="row g-3 align-items-end mb-4">
-          <div class="col-md-5">
-            <label class="wf-label">Filtrar por Transacción / Alumno</label>
+          <div class="col-md-4">
+            <label class="wf-label">Estado de Transacción</label>
             <div class="wf-input-wrap">
-              <input type="text" class="wf-input" placeholder="ID Pago, DNI o Alumno...">
+              <select class="wf-input">
+                <option>Todos los estados (Acreditado, Pendiente, Rechazado)</option>
+                <option>Acreditados (Aprobados)</option>
+                <option>Pendientes de Pago</option>
+                <option>Rechazados / Cancelados</option>
+              </select>
               <span class="pin-badge">${badges[0] || 'A'}</span>
             </div>
           </div>
-          <div class="col-md-4">
-            <label class="wf-label">Estado de Transacción</label>
-            <select class="wf-input">
-              <option>Acreditados / Aprobados</option>
-              <option>Pendientes</option>
-              <option>Reembolsados</option>
-            </select>
+          <div class="col-md-5">
+            <label class="wf-label">Rango de Fechas / Transacción</label>
+            <div class="d-flex align-items-center gap-2">
+              <input type="date" class="wf-input" value="2026-03-01">
+              <span class="text-muted small">a</span>
+              <input type="date" class="wf-input" value="2026-08-30">
+            </div>
           </div>
           <div class="col-md-3">
             <div class="d-flex align-items-center gap-2">
@@ -2514,21 +4569,95 @@ function generateScreenContent(cu) {
                 <th>Alumno / Pagador</th>
                 <th>Concepto / Curso</th>
                 <th>Monto / Medio</th>
-                <th class="text-end">Comprobante</th>
+                <th>Estado</th>
+                <th class="text-end">Comprobante Oficial</th>
               </tr>
             </thead>
             <tbody>
+              <!-- Pago 1: Acreditado MODO QR -->
               <tr>
-                <td><strong>#PAY-2026-8841</strong><div class="small text-muted">2026-08-25 14:22 hs</div></td>
-                <td>Joaquín Küster</td>
-                <td>Especialización en Idoneidad Bursátil</td>
-                <td><strong style="color: #059669;">$120.000 ARS</strong><div class="small text-muted">MODO QR Interoperable</div></td>
-                <td class="text-end">
-                  <div class="d-inline-flex align-items-center gap-1">
+                <td>
+                  <div class="d-flex align-items-center gap-2">
+                    <strong style="color: #081426;">#PAY-2026-8841</strong>
                     <span class="pin-badge">${badges[2] || 'C'}</span>
-                    <button class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-file-invoice-dollar me-1 text-primary"></i> Descargar Comprobante</button>
+                  </div>
+                  <div class="small text-muted">15/03/2026 • 14:22 hs</div>
+                </td>
+                <td>
+                  <strong>Joaquín Küster</strong>
+                  <div class="small text-muted">DNI: 40.123.456</div>
+                </td>
+                <td>
+                  <span class="fw-bold">Especialización en Idoneidad Bursátil</span>
+                  <div class="small text-muted">Cohorte 2026-1</div>
+                </td>
+                <td>
+                  <strong style="color: #059669;">$120.000 ARS</strong>
+                  <div class="small text-muted"><i class="fa-solid fa-qrcode me-1 text-primary"></i> MODO Billetera QR</div>
+                </td>
+                <td><span class="wf-badge status-active">Acreditado</span></td>
+                <td class="text-end">
+                  <div class="d-inline-flex align-items-center gap-2">
+                    <button class="wf-btn wf-btn-sm wf-btn-outline" title="Descargar comprobante en PDF">
+                      <i class="fa-solid fa-receipt me-1 text-primary"></i>
+                      <span>Descargar Comprobante</span>
+                    </button>
                     <span class="pin-badge">${badges[3] || 'D'}</span>
                   </div>
+                </td>
+              </tr>
+
+              <!-- Pago 2: Acreditado Tarjeta -->
+              <tr>
+                <td>
+                  <strong style="color: #081426;">#PAY-2026-8912</strong>
+                  <div class="small text-muted">18/03/2026 • 10:45 hs</div>
+                </td>
+                <td>
+                  <strong>María Benítez</strong>
+                  <div class="small text-muted">DNI: 38.945.112</div>
+                </td>
+                <td>
+                  <span class="fw-bold">Especialización en Idoneidad Bursátil</span>
+                  <div class="small text-muted">Cohorte 2026-1</div>
+                </td>
+                <td>
+                  <strong style="color: #059669;">$120.000 ARS</strong>
+                  <div class="small text-muted"><i class="fa-solid fa-credit-card me-1 text-muted"></i> Tarjeta Débito (*** 4129)</div>
+                </td>
+                <td><span class="wf-badge status-active">Acreditado</span></td>
+                <td class="text-end">
+                  <button class="wf-btn wf-btn-sm wf-btn-outline">
+                    <i class="fa-solid fa-receipt me-1 text-primary"></i>
+                    <span>Descargar Comprobante</span>
+                  </button>
+                </td>
+              </tr>
+
+              <!-- Pago 3: Operativa Cripto -->
+              <tr>
+                <td>
+                  <strong style="color: #081426;">#PAY-2026-9055</strong>
+                  <div class="small text-muted">01/04/2026 • 19:10 hs</div>
+                </td>
+                <td>
+                  <strong>Lucas Romero</strong>
+                  <div class="small text-muted">DNI: 42.887.654</div>
+                </td>
+                <td>
+                  <span class="fw-bold">Operativa Cripto y DeFi Profesional</span>
+                  <div class="small text-muted">Cohorte 2026-1</div>
+                </td>
+                <td>
+                  <strong style="color: #059669;">$95.000 ARS</strong>
+                  <div class="small text-muted"><i class="fa-solid fa-qrcode me-1 text-primary"></i> MODO Billetera QR</div>
+                </td>
+                <td><span class="wf-badge status-active">Acreditado</span></td>
+                <td class="text-end">
+                  <button class="wf-btn wf-btn-sm wf-btn-outline">
+                    <i class="fa-solid fa-receipt me-1 text-primary"></i>
+                    <span>Descargar Comprobante</span>
+                  </button>
                 </td>
               </tr>
             </tbody>
@@ -2538,19 +4667,113 @@ function generateScreenContent(cu) {
     `;
   }
 
-  // --- SPECIALIZED 11C: REALIZAR PAGO Y MATRÍCULA (MODO QR) --- CU-44, CU-47
-  if (['CU-44', 'CU-47'].includes(id)) {
-    const payTriggerLabel = id === 'CU-44' ? 'Inscribirme Ahora' : 'Proceder al Pago';
+  // --- SPECIALIZED 11C: INSCRIBIR CURSO (CONFIRMACIÓN DE MATRÍCULA Y DERIVACIÓN A PAGO) --- CU-44
+  if (id === 'CU-44') {
+    return `
+      <div class="wf-card" style="max-width: 820px; margin: 0 auto; background: #FFFFFF;">
+        <div class="d-flex justify-content-between align-items-start pb-3 mb-4 border-bottom">
+          <div>
+            <div class="small text-muted mb-1" style="font-size: 11px;">
+              <span>Catálogo de Cursos</span> <i class="fa-solid fa-chevron-right" style="font-size: 9px; margin: 0 4px;"></i> 
+              <span style="color: #081426; font-weight: 700;">Inscripción Online</span>
+            </div>
+            <h3 style="font-size: 20px; font-weight: 800; color: #081426; margin: 4px 0 0;">Confirmación de Inscripción al Curso</h3>
+            <p class="small text-muted" style="margin: 3px 0 0;">Verifique los detalles de la cohorte seleccionada y confirme su matriculación para proceder al pago.</p>
+          </div>
+          <span class="wf-badge status-active">Inscripción Abierta</span>
+        </div>
+
+        <div class="row g-4 mb-4">
+          <!-- Datos del Curso y Cohorte -->
+          <div class="col-md-7">
+            <div class="p-3 bg-light rounded border h-100">
+              <div class="d-flex align-items-center gap-2 mb-2">
+                <span class="wf-pill-tag">Mercado de Capitales</span>
+                <span class="small text-muted">Duración: <strong>8 Semanas (40 Horas)</strong></span>
+              </div>
+              <h4 style="font-size: 16px; font-weight: 800; color: #081426; margin-bottom: 8px;">Especialización en Idoneidad Bursátil CNV</h4>
+              <p class="small text-muted mb-3">Preparación integral para el examen oficial de Idóneo con clases sincrónicas, materiales normativos y simuladores de examen.</p>
+              
+              <div class="p-2 bg-white rounded border" style="font-size: 12px;">
+                <div class="d-flex justify-content-between mb-1">
+                  <span class="text-muted">Cohorte asignada:</span>
+                  <strong>Cohorte 2026-1</strong>
+                </div>
+                <div class="d-flex justify-content-between mb-1">
+                  <span class="text-muted">Inicio de dictado:</span>
+                  <strong>01 de Marzo de 2026</strong>
+                </div>
+                <div class="d-flex justify-content-between mb-1">
+                  <span class="text-muted">Docente Titular:</span>
+                  <strong>Lic. Fausto Spotorno</strong>
+                </div>
+                <div class="d-flex justify-content-between">
+                  <span class="text-muted">Progreso inicial:</span>
+                  <strong class="text-primary">0% (Unidad 1: Marco Regulatorio)</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Resumen Arancelario y Derivación al Pago -->
+          <div class="col-md-5">
+            <div class="p-3 border rounded bg-white shadow-sm h-100 d-flex flex-column justify-content-between">
+              <div>
+                <span class="wf-label mb-2">Resumen de Matrícula</span>
+                <div class="d-flex justify-content-between mb-2 small">
+                  <span class="text-muted">Arancel del Programa:</span>
+                  <strong>$120.000 ARS</strong>
+                </div>
+                <div class="d-flex justify-content-between mb-2 small text-success">
+                  <span>Descuento Aplicado:</span>
+                  <strong>-$0 ARS</strong>
+                </div>
+                <div class="d-flex justify-content-between border-top pt-2" style="font-size: 16px; color: #081426;">
+                  <span class="fw-bold">Total a Pagar:</span>
+                  <strong style="color: var(--wf-navy);">$120.000 ARS</strong>
+                </div>
+              </div>
+
+              <div class="mt-4 pt-3 border-top">
+                <div class="small text-muted mb-3" style="line-height: 1.3;">
+                  <i class="fa-solid fa-shield-halved text-success me-1"></i> El acceso se habilitará automáticamente al confirmarse la acreditación del pago.
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                  <a href="#CU-47" class="wf-btn wf-btn-primary w-100 d-flex align-items-center justify-content-center gap-2" style="font-weight: 700; height: 42px; text-decoration: none;">
+                    <i class="fa-solid fa-credit-card"></i>
+                    <span>Proceder al Pago</span>
+                  </a>
+                  <span class="pin-badge">${badges[0] || 'A'}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+          <a href="#CU-06" class="wf-btn wf-btn-outline"><i class="fa-solid fa-arrow-left me-1"></i> Volver al Catálogo</a>
+          <span class="small text-muted">ID Inscripción Temporal: <strong>#INS-2026-9042</strong></span>
+        </div>
+      </div>
+    `;
+  }
+
+  // --- SPECIALIZED 11C-2: REALIZAR PAGO ONLINE CON MODO QR --- CU-47
+  if (id === 'CU-47') {
     return `
       <div class="wf-card" style="max-width: 860px; margin: 0 auto; background: #FFFFFF;">
         <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
           <div>
-            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Pasarela de Pago & Matrícula Online</h3>
-            <p class="small text-muted" style="margin: 3px 0 0;">Inscripción oficial al curso: <strong>Especialización en Idoneidad Bursátil (Cohorte 2026-1)</strong></p>
+            <div class="small text-muted mb-1" style="font-size: 11px;">
+              <span>Inscripción</span> <i class="fa-solid fa-chevron-right" style="font-size: 9px; margin: 0 4px;"></i> 
+              <strong style="color: #081426;">Pasarela de Pago MODO API</strong>
+            </div>
+            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Realizar Pago Online</h3>
+            <p class="small text-muted" style="margin: 3px 0 0;">Curso: <strong>Especialización en Idoneidad Bursátil (Cohorte 2026-1)</strong></p>
           </div>
           <div class="d-flex align-items-center gap-2">
-            <span class="badge bg-light text-dark border d-inline-flex align-items-center gap-1"><i class="fa-solid fa-arrow-pointer text-muted"></i> Acción: <strong>${payTriggerLabel}</strong> <span class="pin-badge">${badges[0] || 'A'}</span></span>
-            <span class="wf-badge status-active">Arancel: $120.000 ARS</span>
+            <span class="wf-badge status-active">Total: $120.000 ARS</span>
+            <span class="pin-badge">${badges[0] || 'A'}</span>
           </div>
         </div>
 
@@ -2586,23 +4809,23 @@ function generateScreenContent(cu) {
 
           <div class="col-md-6 text-center">
             <div class="p-3 border rounded bg-white shadow-sm h-100 d-flex flex-column align-items-center justify-content-center">
-              <div class="small fw-bold text-muted text-uppercase mb-2">Escanee para pagar con MODO o App Bancaria</div>
+              <div class="small fw-bold text-muted text-uppercase mb-2">Escanee con App MODO o Billetera Bancaria</div>
               <div style="width: 170px; height: 170px; background: #081426; border-radius: 8px; display: flex; align-items: center; justify-content: center; position: relative; padding: 12px;">
                 <div style="background: white; width: 100%; height: 100%; border-radius: 4px; display: flex; align-items: center; justify-content: center;">
                   <i class="fa-solid fa-qrcode" style="font-size: 110px; color: #081426;"></i>
                 </div>
               </div>
-              <div class="small text-muted mt-2">Transacción segura BCRA • Acreditación instantánea</div>
+              <div class="small text-muted mt-2">Transacción encriptada BCRA • Acreditación automática</div>
               <div class="mt-2">
-                <span class="pin-badge">${badges[2] || badges[badges.length - 1] || 'C'}</span>
+                <span class="pin-badge">${badges[2] || 'C'}</span>
               </div>
             </div>
           </div>
         </div>
 
-        <div class="d-flex justify-content-end align-items-center gap-3 pt-3 mt-4 border-top">
-          <a href="#CU-06" class="wf-btn wf-btn-outline">Cancelar</a>
-          <button class="wf-btn wf-btn-primary" style="background: #059669;"><i class="fa-solid fa-lock me-1"></i> Confirmar Pago Acreditado</button>
+        <div class="d-flex justify-content-between align-items-center pt-3 mt-4 border-top">
+          <a href="#CU-44" class="wf-btn wf-btn-outline">Cancelar</a>
+          <div class="small text-muted"><i class="fa-solid fa-circle-check text-success me-1"></i> Aguardando notificación de webhook de MODO API...</div>
         </div>
       </div>
     `;
@@ -2897,17 +5120,22 @@ function generateScreenContent(cu) {
 
     if (isProfile) {
       return `
-        <div class="wf-card" style="max-width: 800px; margin: 0 auto;">
+        <div class="wf-card" style="max-width: 880px; margin: 0 auto; background: #FFFFFF;">
           <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
             <div class="d-flex align-items-center gap-3">
-              <div class="user-avatar-circle" style="width: 52px; height: 52px; font-size: 18px;">FS</div>
+              <div style="width: 56px; height: 56px; border-radius: 50%; background: #081426; border: 2px solid var(--wf-gold); display: flex; align-items: center; justify-content: center; color: var(--wf-gold); font-size: 24px; box-shadow: 0 4px 12px rgba(8,20,38,0.15);">
+                <i class="fa-solid fa-user-tie"></i>
+              </div>
               <div>
-                <h3 style="font-size: 18px; font-weight: 700; color: #0F172A; margin: 0;">Perfil de Usuario: Lic. Fausto Spotorno</h3>
-                <p class="small text-muted" style="margin: 0;">Docente Titular • Mercado de Capitales & Finanzas</p>
+                <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Perfil de Usuario: Lic. Fausto Spotorno</h3>
+                <p class="small text-muted" style="margin: 2px 0 0;"><i class="fa-solid fa-graduation-cap me-1 text-primary"></i> Docente Titular • Mercado de Capitales & Finanzas</p>
               </div>
             </div>
             <div class="d-flex align-items-center gap-2">
-              <button class="wf-btn wf-btn-outline wf-btn-sm">Editar Perfil</button>
+              <a href="#CU-76" class="wf-btn wf-btn-sm wf-btn-primary d-inline-flex align-items-center gap-2" style="background: #7C3AED; border-color: #6D28D9; font-weight: 700;">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                <span>Configurar Clon de IA</span>
+              </a>
               <span class="pin-badge">${badges[0] || 'A'}</span>
             </div>
           </div>
@@ -2921,22 +5149,29 @@ function generateScreenContent(cu) {
               </div>
             </div>
             <div class="col-md-6">
-              <label class="wf-label">Correo Electrónico</label>
-              <input type="email" class="wf-input" value="fausto.spotorno@idoneos.online" disabled class="bg-disabled">
+              <label class="wf-label">Correo Electrónico Institucional</label>
+              <input type="email" class="wf-input bg-light" value="fausto.spotorno@idoneos.online" disabled>
             </div>
             <div class="col-md-6">
-              <label class="wf-label">Estado de la Cuenta</label>
-              <input type="text" class="wf-input" value="Activo y Habilitado para Dictado" disabled class="bg-disabled">
+              <label class="wf-label">Estado de Habilitación Docente</label>
+              <div class="p-2 rounded border bg-light d-flex align-items-center justify-content-between">
+                <span class="small fw-bold text-success"><i class="fa-solid fa-circle-check me-1"></i> Activo y Habilitado para Dictado</span>
+                <span class="badge bg-success text-white" style="font-size: 10px;">Vigente</span>
+              </div>
             </div>
             <div class="col-md-6">
-              <label class="wf-label">Clon Digital (HeyGen)</label>
-              <input type="text" class="wf-input" value="Vinculado (#avatar_spotorno_v2)" disabled class="bg-disabled">
+              <label class="wf-label">Estado de Clon Digital (HeyGen)</label>
+              <div class="p-2 rounded border bg-light d-flex align-items-center justify-content-between">
+                <span class="small text-muted"><i class="fa-solid fa-robot me-1 text-primary"></i> Avatar vinculado: <strong>#avatar_spotorno_v2</strong></span>
+                <a href="#CU-76" class="small fw-bold text-primary text-decoration-none">Reconfigurar</a>
+              </div>
             </div>
           </div>
 
           <div class="d-flex justify-content-end align-items-center gap-3 pt-3 mt-4 border-top">
+            <button class="wf-btn wf-btn-outline wf-btn-sm">Cancelar</button>
             <div class="d-flex align-items-center gap-2">
-              <button class="wf-btn wf-btn-primary">Guardar Cambios</button>
+              <button class="wf-btn wf-btn-primary wf-btn-sm"><i class="fa-solid fa-floppy-disk me-1"></i> Guardar Cambios</button>
               <span class="pin-badge">${badges[2] || badges[badges.length - 1] || 'C'}</span>
             </div>
           </div>
@@ -4732,136 +6967,111 @@ cus.forEach(cu => {
                             <i class="fa-solid fa-graduation-cap" style="color: var(--wf-gold);"></i>
                             <span>${roleInfo.isAdmin ? 'PANEL DE ADMINISTRACIÓN' : (roleInfo.isDocente ? 'CUERPO DOCENTE • IDÓNEOS ONLINE' : 'PORTAL DEL ALUMNO')}</span>
                         </div>
-                        <h2 class="wf-hero-title">${cu.id === 'CU-01' ? 'Mis Cursos Asignados' : (cu.id === 'CU-02' ? 'Gestión de Cursos' : cu.name)}</h2>
+                        <h2 class="wf-hero-title">${cu.id === 'CU-01' ? 'Gestión de Cursos' : (cu.id === 'CU-02' ? 'Mis Cursos Asignados' : cu.name)}</h2>
                         <p class="wf-hero-desc">Bienvenido/a, ${roleInfo.name}</p>
                     </div>
                     
-                    ${cu.id === 'CU-01' ? `
                     <div class="d-flex align-items-center gap-2">
+                    ${cu.id === 'CU-01' ? `
                         <a href="#CU-03" class="wf-btn-gold">
                             <i class="fa-solid fa-plus"></i>
                             <span>Nuevo Curso</span>
                         </a>
                         <span class="pin-badge">A</span>
-                    </div>
                     ` : ''}
                     ${cu.id === 'CU-07' ? `
-                    <div class="d-flex align-items-center gap-2">
                         <a href="#CU-08" class="wf-btn-gold">
                             <i class="fa-solid fa-plus"></i>
                             <span>Nueva Categoría</span>
                         </a>
                         <span class="pin-badge">A</span>
-                    </div>
                     ` : ''}
                     ${cu.id === 'CU-11' ? `
-                    <div class="d-flex align-items-center gap-2">
                         <a href="#CU-12" class="wf-btn-gold">
                             <i class="fa-solid fa-plus"></i>
                             <span>Nueva Cohorte</span>
                         </a>
                         <span class="pin-badge">A</span>
-                    </div>
                     ` : ''}
                     ${cu.id === 'CU-15' ? `
-                    <div class="d-flex align-items-center gap-2">
                         <a href="#CU-16" class="wf-btn-gold">
                             <i class="fa-solid fa-plus"></i>
                             <span>Nuevo Programa</span>
                         </a>
                         <span class="pin-badge">A</span>
-                    </div>
                     ` : ''}
                     ${cu.id === 'CU-19' || cu.id === 'CU-26b' ? `
-                    <div class="d-flex align-items-center gap-2">
                         <a href="#CU-20" class="wf-btn-gold">
                             <i class="fa-solid fa-plus"></i>
                             <span>Nueva Unidad</span>
                         </a>
                         <span class="pin-badge">A</span>
-                    </div>
+                        <a href="#CU-54" class="wf-btn-gold">
+                            <i class="fa-solid fa-list-check"></i>
+                            <span>Nuevo Pool</span>
+                        </a>
+                        <a href="#CU-66" class="wf-btn-gold">
+                            <i class="fa-solid fa-video"></i>
+                            <span>Programar clase en vivo</span>
+                        </a>
                     ` : ''}
                     ${cu.id === 'CU-23' ? `
-                    <div class="d-flex align-items-center gap-2">
                         <a href="#CU-24" class="wf-btn-gold">
                             <i class="fa-solid fa-arrow-down-short-wide"></i>
                             <span>Reordenar Cronograma</span>
                         </a>
                         <span class="pin-badge">A</span>
-                    </div>
                     ` : ''}
                     ${cu.id === 'CU-27' ? `
-                    <div class="d-flex align-items-center gap-2">
                         <a href="#CU-28" class="wf-btn-gold">
                             <i class="fa-solid fa-plus"></i>
                             <span>Nuevo Material</span>
                         </a>
                         <span class="pin-badge">A</span>
-                    </div>
                     ` : ''}
                     ${cu.id === 'CU-31' ? `
-                    <div class="d-flex align-items-center gap-2">
                         <a href="#CU-32" class="wf-btn-gold">
                             <i class="fa-solid fa-plus"></i>
                             <span>Nuevo Término</span>
                         </a>
                         <span class="pin-badge">A</span>
-                    </div>
                     ` : ''}
                     ${cu.id === 'CU-35' ? `
-                    <div class="d-flex align-items-center gap-2">
                         <a href="#CU-36" class="wf-btn-gold">
                             <i class="fa-solid fa-plus"></i>
                             <span>Nueva Consulta</span>
                         </a>
                         <span class="pin-badge">A</span>
-                    </div>
-                    ` : ''}
-                    ${cu.id === 'CU-53' ? `
-                    <div class="d-flex align-items-center gap-2">
-                        <a href="#CU-54" class="wf-btn-gold">
-                            <i class="fa-solid fa-plus"></i>
-                            <span>Nuevo Pool</span>
-                        </a>
-                        <span class="pin-badge">A</span>
-                    </div>
                     ` : ''}
                     ${cu.id === 'CU-57' ? `
-                    <div class="d-flex align-items-center gap-2">
                         <a href="#CU-58" class="wf-btn-gold">
                             <i class="fa-solid fa-plus"></i>
                             <span>Nueva Autoevaluación</span>
                         </a>
                         <span class="pin-badge">A</span>
-                    </div>
                     ` : ''}
                     ${cu.id === 'CU-65' ? `
-                    <div class="d-flex align-items-center gap-2">
                         <a href="#CU-66" class="wf-btn-gold">
-                            <i class="fa-solid fa-plus"></i>
-                            <span>Programar Clase</span>
+                            <i class="fa-solid fa-video"></i>
+                            <span>Programar clase en vivo</span>
                         </a>
                         <span class="pin-badge">A</span>
-                    </div>
                     ` : ''}
                     ${cu.id === 'CU-49' ? `
-                    <div class="d-flex align-items-center gap-2">
                         <a href="#CU-50" class="wf-btn-gold">
                             <i class="fa-solid fa-plus"></i>
                             <span>Nuevo Descuento</span>
                         </a>
                         <span class="pin-badge">A</span>
-                    </div>
                     ` : ''}
                     ${cu.id === 'CU-82' ? `
-                    <div class="d-flex align-items-center gap-2">
                         <a href="#CU-83" class="wf-btn-gold">
                             <i class="fa-solid fa-plus"></i>
                             <span>Nuevo Usuario</span>
                         </a>
                         <span class="pin-badge">A</span>
-                    </div>
                     ` : ''}
+                    </div>
 </div>
 
                 <div class="wf-body">

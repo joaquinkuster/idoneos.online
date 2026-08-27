@@ -22,7 +22,13 @@
     "id": "CU-02",
     "name": "Ver mis cursos",
     "totalSteps": 3,
-    "missingBadges": [],
+    "missingBadges": [
+      {
+        "badge": "D",
+        "step": "6",
+        "action": "El actor selecciona un curso mediante el botón \"Ingresar al Curso\" [D] para acceder al contenido del programa de su cohorte."
+      }
+    ],
     "missingButtons": [],
     "buttonMatches": [
       {
@@ -486,13 +492,15 @@
     "name": "Quitar unidad",
     "totalSteps": 2,
     "missingBadges": [],
-    "missingButtons": [],
-    "buttonMatches": [
+    "missingButtons": [
       {
         "badge": "A",
+        "step": "1",
         "term": "Quitar de este programa",
-        "found": true
-      },
+        "action": "El caso de uso inicia cuando el actor busca y selecciona la unidad a quitar mediante la opción \"Quitar de este programa\" [A] del menú de la unidad (ver CU-19: Buscar unidad)."
+      }
+    ],
+    "buttonMatches": [
       {
         "badge": "B",
         "term": "Confirmar y Quitar",
@@ -518,14 +526,22 @@
     "id": "CU-24",
     "name": "Modificar cronograma",
     "totalSteps": 2,
-    "missingBadges": [],
-    "missingButtons": [],
-    "buttonMatches": [
+    "missingBadges": [
       {
         "badge": "A",
+        "step": "1",
+        "action": "El caso de uso inicia cuando el actor busca y selecciona el programa cuyo cronograma desea modificar mediante el botón \"Reordenar Cronograma\" [A] (ver CU-23: Buscar cronograma)."
+      }
+    ],
+    "missingButtons": [
+      {
+        "badge": "A",
+        "step": "1",
         "term": "Reordenar Cronograma",
-        "found": true
-      },
+        "action": "El caso de uso inicia cuando el actor busca y selecciona el programa cuyo cronograma desea modificar mediante el botón \"Reordenar Cronograma\" [A] (ver CU-23: Buscar cronograma)."
+      }
+    ],
+    "buttonMatches": [
       {
         "badge": "D",
         "term": "Guardar Cronograma",
@@ -802,7 +818,13 @@
     "id": "CU-35",
     "name": "Buscar consulta de foro",
     "totalSteps": 3,
-    "missingBadges": [],
+    "missingBadges": [
+      {
+        "badge": "C",
+        "step": "3",
+        "action": "El actor ingresa los criterios de búsqueda mediante el buscador de temas [B] y presiona \"Buscar\" [C]."
+      }
+    ],
     "missingButtons": [],
     "buttonMatches": [
       {
@@ -900,7 +922,13 @@
     "id": "CU-39",
     "name": "Buscar respuesta de foro",
     "totalSteps": 2,
-    "missingBadges": [],
+    "missingBadges": [
+      {
+        "badge": "B",
+        "step": "3",
+        "action": "El actor puede seleccionar una respuesta en específico [B] para leerla o moderarla."
+      }
+    ],
     "missingButtons": [],
     "buttonMatches": []
   },
@@ -1234,11 +1262,6 @@
         "badge": "A",
         "step": "1",
         "action": "El caso de uso inicia cuando el actor busca y selecciona el pool a modificar mediante el botón \"Editar Pool\" [A] (ver CU-53: Buscar pool)."
-      },
-      {
-        "badge": "E",
-        "step": "3",
-        "action": "El actor actualiza los campos habilitados y confirma mediante el botón \"Guardar Cambios\" [E]."
       }
     ],
     "missingButtons": [
