@@ -2,6 +2,14 @@ const specializedFormGenerators = require('./scratch/all_specialized_forms.js');
 const fs = require('fs');
 const path = require('path');
 
+// Avatar docente preview base64
+let avatarDocenteImg = 'docs/diseño/avatar_docente_preview.png';
+try {
+  if (fs.existsSync(path.join(__dirname, 'scratch', 'avatar_base64.txt'))) {
+    avatarDocenteImg = fs.readFileSync(path.join(__dirname, 'scratch', 'avatar_base64.txt'), 'utf8');
+  }
+} catch(e) {}
+
 // 1. Read Casos de Uso Reales
 const mdPath = path.join(__dirname, 'docs', 'diseño', 'Casos de Uso Reales.md');
 const mdContent = fs.readFileSync(mdPath, 'utf8');
@@ -185,7 +193,7 @@ function getRoleInfo(actors, cuId) {
         {
           title: 'Cuenta',
           items: [
-            { label: 'Ver mi perfil', cu: 'CU-86' },
+            { label: 'Ver perfil', cu: 'CU-86' },
             { label: 'Editar datos de perfil', cu: 'CU-87' },
             { label: 'Cerrar sesión', cu: 'CU-91', isDanger: true }
           ]
@@ -195,9 +203,9 @@ function getRoleInfo(actors, cuId) {
   } else if (a.includes('docente') && !a.includes('administrador')) {
     return {
       role: 'Docente Titular',
-      name: 'Lic. Fausto Spotorno',
-      email: 'fausto.spotorno@idoneos.online',
-      initials: 'FS',
+      name: 'Mg. Elena Valenzuela',
+      email: 'elena.valenzuela@idoneos.online',
+      initials: 'EV',
       isDocente: true,
       isAdmin: false,
       dropdownSections: [
@@ -219,7 +227,7 @@ function getRoleInfo(actors, cuId) {
         {
           title: 'Cuenta & Sesión',
           items: [
-            { label: 'Mi perfil docente', cu: 'CU-86' },
+            { label: 'Ver perfil', cu: 'CU-86' },
             { label: 'Editar perfil', cu: 'CU-87' },
             { label: 'Cerrar sesión', cu: 'CU-91', isDanger: true }
           ]
@@ -254,7 +262,7 @@ function getRoleInfo(actors, cuId) {
         {
           title: 'Cuenta',
           items: [
-            { label: 'Perfil de administrador', cu: 'CU-86' },
+            { label: 'Ver perfil', cu: 'CU-86' },
             { label: 'Cerrar sesión', cu: 'CU-91', isDanger: true }
           ]
         }
@@ -442,7 +450,7 @@ function generateScreenContent(cu) {
                   </div>
                   <div class="d-flex align-items-center gap-2 text-muted mb-3">
                     <i class="fa-solid fa-chalkboard-user"></i>
-                    <span>Docente Titular: <strong>Lic. Fausto Spotorno</strong></span>
+                    <span>Docente Titular: <strong>Mg. Elena Valenzuela</strong></span>
                   </div>
                   <a href="#CU-44" class="wf-btn wf-btn-primary w-100 d-flex align-items-center justify-content-center gap-2" style="font-weight: 700; text-decoration: none;">
                     <i class="fa-solid fa-ticket"></i>
@@ -660,7 +668,7 @@ function generateScreenContent(cu) {
               <span>Mis cursos</span> <i class="fa-solid fa-chevron-right" style="font-size: 9px; margin: 0 4px;"></i> <span>Mercado de Capitales</span> <i class="fa-solid fa-chevron-right" style="font-size: 9px; margin: 0 4px;"></i> <strong>Especialización en Idoneidad Bursátil</strong>
             </div>
             <h3 style="font-size: 19px; font-weight: 800; color: #081426; margin: 4px 0;">Especialización en Idoneidad Bursátil (Cohorte 2026-1)</h3>
-            <p class="small text-muted" style="margin: 0;">Docente Titular: Lic. Fausto Spotorno | Duración: 8 Semanas | Programa Vigente</p>
+            <p class="small text-muted" style="margin: 0;">Docente Titular: Mg. Elena Valenzuela | Duración: 8 Semanas | Programa Vigente</p>
           </div>
           <div class="text-end">
             <span class="wf-badge status-active">Inscripción Vigente</span>
@@ -687,7 +695,7 @@ function generateScreenContent(cu) {
           <div>
             <div class="d-flex align-items-center gap-2">
               <span class="badge" style="background: #DC2626; color: white; font-size: 10px; font-weight: 700; letter-spacing: 0.5px;">● EN DIRECTO AHORA</span>
-              <span class="small text-muted" style="color: #94A3B8 !important;">Unidad 2 • Lic. Fausto Spotorno</span>
+              <span class="small text-muted" style="color: #94A3B8 !important;">Unidad 2 • Mg. Elena Valenzuela</span>
             </div>
             <h4 style="font-size: 15px; font-weight: 700; color: #FFFFFF; margin: 3px 0 0;">Clase Magistral: Resolución de Prácticos de Renta Fija y Valuación de Bonos</h4>
           </div>
@@ -733,7 +741,7 @@ function generateScreenContent(cu) {
                 </div>
                 <div>
                   <a href="#" class="moodle-activity-title wf-link">Grabación: Estructura del Mercado Argentino</a>
-                  <div class="moodle-activity-desc">Video clase dictada por Lic. Fausto Spotorno • 45 min</div>
+                  <div class="moodle-activity-desc">Video clase dictada por Mg. Elena Valenzuela • 45 min</div>
                 </div>
               </div>
               <button class="moodle-btn-check completed"><i class="fa-solid fa-check"></i> Hecho</button>
@@ -921,40 +929,68 @@ function generateScreenContent(cu) {
 
       <div class="d-flex flex-column gap-4">
         <!-- Unidad 1 en Modo Edición con desglose completo del CU Real -->
-        <div class="wf-unit-box">
-          <div class="wf-unit-header d-flex justify-content-between align-items-center">
-            <div class="d-flex align-items-center gap-2">
-              <i class="fa-solid fa-bars text-muted" style="cursor: grab;"></i>
-              <strong style="font-size: 14px; color: #081426;">Unidad 1: Marco Regulatorio y Ley de Mercado de Capitales</strong>
-              ${badgeAccordionUnit1}
-            </div>
-            <div class="d-flex flex-wrap align-items-center gap-2">
-              <div class="dropdown d-inline-block">
-                <a href="#CU-21" class="wf-btn wf-btn-sm wf-btn-outline d-inline-flex align-items-center gap-1">
-                  <i class="fa-solid fa-pen-to-square me-1"></i>
-                  <span>Editar</span>
-                </a>
+        <div class="wf-unit-box" style="border: 1px solid #E2E8F0; border-radius: 8px; overflow: hidden; background: #FFFFFF; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+          <!-- Cabecera de la Unidad: Título completo arriba + Toolbar organizada abajo -->
+          <div class="wf-unit-header p-3 border-bottom" style="background: #F8FAFC;">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <div class="d-flex align-items-center gap-2">
+                <i class="fa-solid fa-bars text-muted" style="cursor: grab; font-size: 16px;"></i>
+                <h3 style="font-size: 16px; font-weight: 800; color: #081426; margin: 0;">Unidad 1: Marco Regulatorio y Ley de Mercado de Capitales</h3>
+                ${badgeAccordionUnit1}
               </div>
-              <a href="#CU-22" class="wf-btn wf-btn-sm wf-btn-outline text-danger d-inline-flex align-items-center gap-1" title="Quitar de este programa">
-                <i class="fa-solid fa-trash me-1"></i>
-                <span>Quitar de este programa</span>
-              </a>
-              <a href="#CU-73" class="wf-btn wf-btn-sm wf-btn-outline d-inline-flex align-items-center gap-1" style="background: #F0FDF4; border-color: #86EFAC; color: #166534; font-weight: 600;">
-                <i class="fa-solid fa-wand-magic-sparkles text-success"></i>
-                <span>Generar Banco con IA (Ollama)</span>
-              </a>
-              <a href="#CU-74" class="wf-btn wf-btn-sm wf-btn-outline d-inline-flex align-items-center gap-1" style="background: #F0FDF4; border-color: #86EFAC; color: #166534; font-weight: 600;">
-                <i class="fa-solid fa-file-lines text-success"></i>
-                <span>Generar Resumen de Unidad con IA</span>
-              </a>
-              <a href="#CU-75" class="wf-btn wf-btn-sm wf-btn-outline d-inline-flex align-items-center gap-1" style="background: #F0FDF4; border-color: #86EFAC; color: #166534; font-weight: 600;">
-                <i class="fa-solid fa-person-chalkboard text-success"></i>
-                <span>Generar Presentación con IA</span>
-              </a>
-              ${badgeEditUnit1}
+              <div class="d-flex align-items-center gap-2">
+                <span class="wf-badge status-active"><i class="fa-solid fa-circle-check me-1"></i> Unidad Activa</span>
+                ${badgeEditUnit1}
+              </div>
+            </div>
+
+            <!-- Barra de Acciones y Herramientas con IA -->
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 pt-3 border-top">
+              <!-- Herramientas de Inteligencia Artificial (Izquierda en 2 filas limpias con fondo relleno) -->
+              <div class="d-flex flex-column gap-2" style="flex: 1; min-width: 320px;">
+                <div class="d-flex flex-wrap align-items-center gap-2">
+                  <a href="#CU-73" class="wf-btn wf-btn-sm d-inline-flex align-items-center gap-1 shadow-sm" style="background: #059669; border-color: #059669; color: #FFFFFF; font-weight: 700;">
+                    <i class="fa-solid fa-list-check"></i>
+                    <span>Generar Banco con IA (Ollama)</span>
+                  </a>
+                  <a href="#CU-74" class="wf-btn wf-btn-sm d-inline-flex align-items-center gap-1 shadow-sm" style="background: #0D9488; border-color: #0D9488; color: #FFFFFF; font-weight: 700;">
+                    <i class="fa-solid fa-file-lines"></i>
+                    <span>Generar Resumen de Unidad con IA</span>
+                  </a>
+                  <a href="#CU-75" class="wf-btn wf-btn-sm d-inline-flex align-items-center gap-1 shadow-sm" style="background: #0284C7; border-color: #0284C7; color: #FFFFFF; font-weight: 700;">
+                    <i class="fa-solid fa-person-chalkboard"></i>
+                    <span>Generar Presentación con IA</span>
+                  </a>
+                </div>
+                <div class="d-flex flex-wrap align-items-center gap-2">
+                  <a href="#CU-78" class="wf-btn wf-btn-sm d-inline-flex align-items-center gap-1 shadow-sm" style="background: #7C3AED; border-color: #7C3AED; color: #FFFFFF; font-weight: 700;">
+                    <i class="fa-solid fa-video"></i>
+                    <span>Generar Video con Avatar Clon</span>
+                  </a>
+                  <a href="#CU-77" class="wf-btn wf-btn-sm d-inline-flex align-items-center gap-1 shadow-sm" style="background: #4F46E5; border-color: #4F46E5; color: #FFFFFF; font-weight: 700;">
+                    <i class="fa-solid fa-film"></i>
+                    <span>Buscar clases con Clon de IA</span>
+                  </a>
+                </div>
+              </div>
+
+              <!-- Barra Divisoria Vertical + Bloque Derecho de Acciones de Unidad -->
+              <div class="d-flex align-items-center gap-3">
+                <div class="d-none d-md-block" style="width: 1px; height: 60px; background: #CBD5E1;"></div>
+                <div class="d-flex flex-column gap-2">
+                  <a href="#CU-21" class="wf-btn wf-btn-sm d-inline-flex align-items-center justify-content-center gap-1 shadow-sm" style="background: #2563EB; border-color: #2563EB; color: #FFFFFF; font-weight: 700; min-width: 170px;">
+                    <i class="fa-solid fa-pen-to-square me-1"></i>
+                    <span>Editar</span>
+                  </a>
+                  <a href="#CU-22" class="wf-btn wf-btn-sm text-white d-inline-flex align-items-center justify-content-center gap-1 shadow-sm" style="background: #DC2626; border-color: #DC2626; color: #FFFFFF; font-weight: 700; min-width: 170px;" title="Quitar de este programa">
+                    <i class="fa-solid fa-trash me-1"></i>
+                    <span>Quitar de este programa</span>
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
-          <div class="wf-unit-body d-flex flex-column gap-2">
+          <div class="wf-unit-body p-3 d-flex flex-column gap-2">
             <!-- 1. Material de Estudio (PDF) -->
             <div class="moodle-activity-card">
               <div class="moodle-activity-left">
@@ -1040,7 +1076,7 @@ function generateScreenContent(cu) {
                   <i class="fa-solid fa-wand-magic-sparkles"></i>
                 </div>
                 <div>
-                  <span class="moodle-activity-title">Clase con Clon de IA: Explicación de Órganos del Mercado (Avatar Lic. Spotorno)</span>
+                  <span class="moodle-activity-title">Clase con Clon de IA: Explicación de Órganos del Mercado (Avatar Mg. Valenzuela)</span>
                   <div class="moodle-activity-desc">Video generado mediante HeyGen API (05:12 min • 1080p)</div>
                 </div>
               </div>
@@ -1050,23 +1086,11 @@ function generateScreenContent(cu) {
               </div>
             </div>
 
-            <div class="d-flex flex-wrap justify-content-between align-items-center mt-3 pt-3 border-top gap-2">
-              <div class="d-flex flex-wrap align-items-center gap-2">
+            <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
+              <div class="d-flex align-items-center gap-3">
                 <a href="#CU-28" class="wf-link d-flex align-items-center gap-2" style="font-size: 12px; font-weight: 700; color: #081426;">
                   <i class="fa-solid fa-plus-circle" style="color: var(--wf-gold); font-size: 16px;"></i>
                   <span>Añade una actividad o un recurso</span>
-                </a>
-                <a href="#CU-54" class="wf-btn wf-btn-sm wf-btn-outline d-inline-flex align-items-center gap-1" style="font-weight: 700; color: #081426;">
-                  <i class="fa-solid fa-list-check" style="color: var(--wf-gold);"></i>
-                  <span>Nuevo Pool</span>
-                </a>
-                <a href="#CU-78" class="wf-btn wf-btn-sm wf-btn-outline d-inline-flex align-items-center gap-1" style="font-weight: 700; color: #7C3AED; background: #FAF5FF; border-color: #DDD6FE;">
-                  <i class="fa-solid fa-video"></i>
-                  <span>Generar Video con Avatar Clon</span>
-                </a>
-                <a href="#CU-77" class="wf-btn wf-btn-sm wf-btn-outline d-inline-flex align-items-center gap-1" style="font-weight: 600; color: #475569;">
-                  <i class="fa-solid fa-film"></i>
-                  <span>Buscar clases con Clon de IA</span>
                 </a>
               </div>
               ${badgeAddActivity}
@@ -1576,7 +1600,7 @@ function generateScreenContent(cu) {
                 <div class="d-flex align-items-center gap-2">
                   <div class="user-avatar-circle" style="width: 28px; height: 28px; font-size: 10px; background: #081426; color: white;">FS</div>
                   <div>
-                    <span class="fw-bold" style="font-size: 12px; color: #081426;">Lic. Fausto Spotorno</span>
+                    <span class="fw-bold" style="font-size: 12px; color: #081426;">Mg. Elena Valenzuela</span>
                     <div class="small text-muted" style="font-size: 10px;">12 abr 2026, 10:15</div>
                   </div>
                 </div>
@@ -1654,7 +1678,7 @@ function generateScreenContent(cu) {
                 <div class="d-flex align-items-center gap-2">
                   <div class="user-avatar-circle" style="width: 28px; height: 28px; font-size: 10px; background: #081426; color: white;">FS</div>
                   <div>
-                    <span class="fw-bold" style="font-size: 12px; color: #081426;">Lic. Fausto Spotorno</span>
+                    <span class="fw-bold" style="font-size: 12px; color: #081426;">Mg. Elena Valenzuela</span>
                     <div class="small text-muted" style="font-size: 10px;">05 abr 2026, 11:20</div>
                   </div>
                 </div>
@@ -1864,9 +1888,9 @@ function generateScreenContent(cu) {
         </div>
       </div>
 
-      <div class="row g-4">
+      <div class="d-flex flex-column flex-lg-row align-items-stretch justify-content-between gap-4">
         <!-- Columna Izquierda: Listado de Autoevaluaciones -->
-        <div class="col-lg-7" style="border-right: 2px solid #E2E8F0; padding-right: 20px;">
+        <div style="flex: 1 1 56%; min-width: 320px;">
           <div class="wf-table-wrap">
             <table class="wf-table">
               <thead>
@@ -1891,8 +1915,14 @@ function generateScreenContent(cu) {
                   <td><span class="wf-badge status-active">Activa</span></td>
                   <td class="text-end">
                     <div class="d-inline-flex align-items-center gap-1">
-                      <a href="#CU-59" class="wf-btn wf-btn-sm wf-btn-outline" title="Editar Cuestionario"><i class="fa-solid fa-pen-to-square"></i></a>
-                      <a href="#CU-60" class="wf-btn wf-btn-sm wf-btn-outline text-danger" title="Dar de baja"><i class="fa-solid fa-trash"></i></a>
+                      <a href="#CU-59" class="wf-btn wf-btn-sm wf-btn-outline d-inline-flex align-items-center gap-1" title="Editar Cuestionario">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                        <span>Editar cuestionario</span>
+                      </a>
+                      <a href="#CU-60" class="wf-btn wf-btn-sm wf-btn-outline text-danger d-inline-flex align-items-center gap-1" title="Eliminar">
+                        <i class="fa-solid fa-trash"></i>
+                        <span>Eliminar</span>
+                      </a>
                     </div>
                   </td>
                 </tr>
@@ -1907,8 +1937,14 @@ function generateScreenContent(cu) {
                   <td><span class="wf-badge status-active">Activa</span></td>
                   <td class="text-end">
                     <div class="d-inline-flex align-items-center gap-1">
-                      <a href="#CU-59" class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-pen-to-square"></i></a>
-                      <a href="#CU-60" class="wf-btn wf-btn-sm wf-btn-outline text-danger"><i class="fa-solid fa-trash"></i></a>
+                      <a href="#CU-59" class="wf-btn wf-btn-sm wf-btn-outline d-inline-flex align-items-center gap-1">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                        <span>Editar cuestionario</span>
+                      </a>
+                      <a href="#CU-60" class="wf-btn wf-btn-sm wf-btn-outline text-danger d-inline-flex align-items-center gap-1">
+                        <i class="fa-solid fa-trash"></i>
+                        <span>Eliminar</span>
+                      </a>
                     </div>
                   </td>
                 </tr>
@@ -1923,8 +1959,14 @@ function generateScreenContent(cu) {
                   <td><span class="wf-badge" style="background: #E0E7FF; color: #3730A3;">Examen Final</span></td>
                   <td class="text-end">
                     <div class="d-inline-flex align-items-center gap-1">
-                      <a href="#CU-59" class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-pen-to-square"></i></a>
-                      <a href="#CU-60" class="wf-btn wf-btn-sm wf-btn-outline text-danger"><i class="fa-solid fa-trash"></i></a>
+                      <a href="#CU-59" class="wf-btn wf-btn-sm wf-btn-outline d-inline-flex align-items-center gap-1">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                        <span>Editar cuestionario</span>
+                      </a>
+                      <a href="#CU-60" class="wf-btn wf-btn-sm wf-btn-outline text-danger d-inline-flex align-items-center gap-1">
+                        <i class="fa-solid fa-trash"></i>
+                        <span>Eliminar</span>
+                      </a>
                     </div>
                   </td>
                 </tr>
@@ -1933,53 +1975,61 @@ function generateScreenContent(cu) {
           </div>
         </div>
 
-        <!-- Columna Derecha: Panel de Configuración y Detalle [D] -->
-        <div class="col-lg-5">
-          <div class="p-4 bg-white rounded border shadow-sm" style="border-top: 4px solid #16A34A !important;">
-            <div class="d-flex justify-content-between align-items-start mb-3">
-              <div>
-                <span class="badge bg-success text-white mb-1">Detalle de Configuración [D]</span>
-                <h4 style="font-size: 16px; font-weight: 800; color: #081426; margin: 0;">Autoevaluación Unidad 2: Renta Fija</h4>
-              </div>
-              <a href="#CU-61" class="wf-btn wf-btn-sm wf-btn-outline d-flex align-items-center gap-1" title="Ver intentos rendidos">
-                <i class="fa-solid fa-chart-line text-primary"></i> <span>Ver Intentos</span>
-              </a>
-            </div>
+        <!-- Barra Divisoria Vertical en el medio -->
+        <div class="d-none d-lg-block" style="width: 1px; background: #CBD5E1; min-height: 100%;"></div>
 
-            <div class="d-flex flex-column gap-2" style="font-size: 12px;">
-              <div class="p-2 border rounded bg-light d-flex justify-content-between">
-                <span class="text-muted">Pools de Preguntas Asociados:</span>
-                <strong>Pool Unidad 2: Renta Fija (30 preg)</strong>
+        <!-- Columna Derecha: Panel de Configuración y Detalle [D] -->
+        <div style="flex: 1 1 44%; min-width: 320px;">
+          <div class="p-4 bg-white rounded border shadow-sm h-100 d-flex flex-column justify-content-between" style="border-top: 4px solid #16A34A !important;">
+            <div>
+              <div class="d-flex justify-content-between align-items-start mb-3">
+                <div>
+                  <span class="badge bg-success text-white mb-1">Detalle de Configuración [D]</span>
+                  <h4 style="font-size: 16px; font-weight: 800; color: #081426; margin: 0;">Autoevaluación Unidad 2: Renta Fija</h4>
+                </div>
+                <a href="#CU-61" class="wf-btn wf-btn-sm wf-btn-outline d-flex align-items-center gap-1" title="Ver intentos rendidos">
+                  <i class="fa-solid fa-chart-line text-primary"></i> <span>Ver Intentos</span>
+                </a>
               </div>
-              <div class="p-2 border rounded bg-light d-flex justify-content-between">
-                <span class="text-muted">Preguntas por Intento:</span>
-                <strong>10 preguntas sorteables</strong>
-              </div>
-              <div class="p-2 border rounded bg-light d-flex justify-content-between">
-                <span class="text-muted">Tiempo Límite:</span>
-                <strong>20 minutos</strong>
-              </div>
-              <div class="p-2 border rounded bg-light d-flex justify-content-between">
-                <span class="text-muted">Intentos Permitidos:</span>
-                <strong>3 intentos máximos</strong>
-              </div>
-              <div class="p-2 border rounded bg-light d-flex justify-content-between">
-                <span class="text-muted">Criterio de Aprobación:</span>
-                <strong class="text-success">100% de respuestas correctas</strong>
-              </div>
-              <div class="p-2 border rounded bg-light d-flex justify-content-between">
-                <span class="text-muted">Período de Apertura:</span>
-                <strong>19/04/2026 00:00 al 09/05/2026 23:59</strong>
-              </div>
-              <div class="p-2 border rounded bg-light d-flex justify-content-between">
-                <span class="text-muted">Integración Multi-Pool:</span>
-                <span>No (Evaluación específica de unidad)</span>
+
+              <div class="d-flex flex-column gap-2" style="font-size: 12px;">
+                <div class="p-2 border rounded bg-light d-flex justify-content-between">
+                  <span class="text-muted">Pools de Preguntas Asociados:</span>
+                  <strong>Pool Unidad 2: Renta Fija (30 preg)</strong>
+                </div>
+                <div class="p-2 border rounded bg-light d-flex justify-content-between">
+                  <span class="text-muted">Preguntas por Intento:</span>
+                  <strong>10 preguntas sorteables</strong>
+                </div>
+                <div class="p-2 border rounded bg-light d-flex justify-content-between">
+                  <span class="text-muted">Tiempo Límite:</span>
+                  <strong>20 minutos</strong>
+                </div>
+                <div class="p-2 border rounded bg-light d-flex justify-content-between">
+                  <span class="text-muted">Intentos Permitidos:</span>
+                  <strong>3 intentos máximos</strong>
+                </div>
+                <div class="p-2 border rounded bg-light d-flex justify-content-between">
+                  <span class="text-muted">Criterio de Aprobación:</span>
+                  <strong class="text-success">100% de respuestas correctas</strong>
+                </div>
+                <div class="p-2 border rounded bg-light d-flex justify-content-between">
+                  <span class="text-muted">Período de Apertura:</span>
+                  <strong>19/04/2026 00:00 al 09/05/2026 23:59</strong>
+                </div>
+                <div class="p-2 border rounded bg-light d-flex justify-content-between">
+                  <span class="text-muted">Integración Multi-Pool:</span>
+                  <span>No (Evaluación específica de unidad)</span>
+                </div>
               </div>
             </div>
 
             <div class="mt-3 pt-3 border-top d-flex justify-content-between align-items-center">
               <span class="small text-muted">Total intentos registrados: <strong>28</strong></span>
-              <a href="#CU-59" class="wf-btn wf-btn-sm wf-btn-primary"><i class="fa-solid fa-pen-to-square me-1"></i> Modificar Configuración</a>
+              <a href="#CU-59" class="wf-btn wf-btn-sm wf-btn-primary d-inline-flex align-items-center gap-1">
+                <i class="fa-solid fa-pen-to-square me-1"></i>
+                <span>Editar cuestionario</span>
+              </a>
             </div>
           </div>
         </div>
@@ -2043,9 +2093,9 @@ function generateScreenContent(cu) {
         </div>
       </div>
 
-      <div class="row g-4">
+      <div class="d-flex flex-column flex-lg-row align-items-stretch justify-content-between gap-4">
         <!-- Columna Izquierda: Tabla de Intentos -->
-        <div class="col-lg-7" style="border-right: 2px solid #E2E8F0; padding-right: 20px;">
+        <div style="flex: 1 1 56%; min-width: 320px;">
           <div class="wf-table-wrap">
             <table class="wf-table">
               <thead>
@@ -2073,7 +2123,7 @@ function generateScreenContent(cu) {
                   </td>
                   <td class="text-end">
                     <div class="d-inline-flex align-items-center gap-1">
-                      <a href="#CU-64" class="wf-btn wf-btn-sm wf-btn-outline text-danger" title="Anular Intento por Fraude">
+                      <a href="#CU-64" class="wf-btn wf-btn-sm wf-btn-outline text-danger d-inline-flex align-items-center gap-1" title="Anular Intento por Fraude">
                         <i class="fa-solid fa-ban me-1"></i>
                         <span>Anular Intento por Fraude</span>
                       </a>
@@ -2093,7 +2143,10 @@ function generateScreenContent(cu) {
                     <div><span class="badge bg-danger text-white" style="font-size: 10px;">No Aprobado</span></div>
                   </td>
                   <td class="text-end">
-                    <a href="#CU-64" class="wf-btn wf-btn-sm wf-btn-outline text-danger" title="Anular Intento"><i class="fa-solid fa-ban me-1"></i> Anular</a>
+                    <a href="#CU-64" class="wf-btn wf-btn-sm wf-btn-outline text-danger d-inline-flex align-items-center gap-1" title="Anular Intento por Fraude">
+                      <i class="fa-solid fa-ban me-1"></i>
+                      <span>Anular Intento por Fraude</span>
+                    </a>
                   </td>
                 </tr>
 
@@ -2109,7 +2162,10 @@ function generateScreenContent(cu) {
                     <div><span class="badge bg-success text-white" style="font-size: 10px;">Aprobado</span></div>
                   </td>
                   <td class="text-end">
-                    <a href="#CU-64" class="wf-btn wf-btn-sm wf-btn-outline text-danger" title="Anular Intento"><i class="fa-solid fa-ban me-1"></i> Anular</a>
+                    <a href="#CU-64" class="wf-btn wf-btn-sm wf-btn-outline text-danger d-inline-flex align-items-center gap-1" title="Anular Intento por Fraude">
+                      <i class="fa-solid fa-ban me-1"></i>
+                      <span>Anular Intento por Fraude</span>
+                    </a>
                   </td>
                 </tr>
               </tbody>
@@ -2117,38 +2173,43 @@ function generateScreenContent(cu) {
           </div>
         </div>
 
-        <!-- Columna Derecha: Detalle de Respuestas del Intento [D] -->
-        <div class="col-lg-5">
-          <div class="p-4 bg-white rounded border shadow-sm" style="border-top: 4px solid #2563EB !important;">
-            <div class="d-flex justify-content-between align-items-start mb-3">
-              <div>
-                <span class="badge bg-primary text-white mb-1">Revisión de Respuestas [D]</span>
-                <h4 style="font-size: 16px; font-weight: 800; color: #081426; margin: 0;">Intento #1 — Joaquín Küster</h4>
-                <div class="small text-muted">Calificación Obtenida: <strong>100% (10/10)</strong> • Aprobado</div>
-              </div>
-              <span class="wf-badge status-active">Completado</span>
-            </div>
+        <!-- Barra Divisoria Vertical en el medio -->
+        <div class="d-none d-lg-block" style="width: 1px; background: #CBD5E1; min-height: 100%;"></div>
 
-            <!-- Desglose de preguntas respondidas -->
-            <div class="d-flex flex-column gap-2 mb-3" style="font-size: 12px; max-height: 280px; overflow-y: auto;">
-              <div class="p-2 border rounded bg-light" style="border-left: 3px solid #16A34A !important;">
-                <div class="fw-bold text-dark mb-1">1. ¿Qué representa la Duration Modificada de un bono?</div>
-                <div class="text-success"><i class="fa-solid fa-check me-1"></i> <strong>Respuesta del alumno:</strong> La variación porcentual del precio ante un cambio del 1% en el rendimiento.</div>
+        <!-- Columna Derecha: Detalle de Respuestas del Intento [D] -->
+        <div style="flex: 1 1 44%; min-width: 320px;">
+          <div class="p-4 bg-white rounded border shadow-sm h-100 d-flex flex-column justify-content-between" style="border-top: 4px solid #2563EB !important;">
+            <div>
+              <div class="d-flex justify-content-between align-items-start mb-3">
+                <div>
+                  <span class="badge bg-primary text-white mb-1">Revisión de Respuestas [D]</span>
+                  <h4 style="font-size: 16px; font-weight: 800; color: #081426; margin: 0;">Intento #1 — Joaquín Küster</h4>
+                  <div class="small text-muted">Calificación Obtenida: <strong>100% (10/10)</strong> • Aprobado</div>
+                </div>
+                <span class="wf-badge status-active">Completado</span>
               </div>
-              <div class="p-2 border rounded bg-light" style="border-left: 3px solid #16A34A !important;">
-                <div class="fw-bold text-dark mb-1">2. ¿Una curva de rendimientos invertida indica generalmente expectativas recesivas?</div>
-                <div class="text-success"><i class="fa-solid fa-check me-1"></i> <strong>Respuesta del alumno:</strong> Verdadero.</div>
-              </div>
-              <div class="p-2 border rounded bg-light" style="border-left: 3px solid #16A34A !important;">
-                <div class="fw-bold text-dark mb-1">3. ¿Qué función cumple la paridad en la cotización de un título público?</div>
-                <div class="text-success"><i class="fa-solid fa-check me-1"></i> <strong>Respuesta del alumno:</strong> Relación porcentual entre el valor de mercado y su valor técnico.</div>
+
+              <!-- Desglose de preguntas respondidas -->
+              <div class="d-flex flex-column gap-2 mb-3" style="font-size: 12px; max-height: 280px; overflow-y: auto;">
+                <div class="p-2 border rounded bg-light" style="border-left: 3px solid #16A34A !important;">
+                  <div class="fw-bold text-dark mb-1">1. ¿Qué representa la Duration Modificada de un bono?</div>
+                  <div class="text-success"><i class="fa-solid fa-check me-1"></i> <strong>Respuesta del alumno:</strong> La variación porcentual del precio ante un cambio del 1% en el rendimiento.</div>
+                </div>
+                <div class="p-2 border rounded bg-light" style="border-left: 3px solid #16A34A !important;">
+                  <div class="fw-bold text-dark mb-1">2. ¿Una curva de rendimientos invertida indica generalmente expectativas recesivas?</div>
+                  <div class="text-success"><i class="fa-solid fa-check me-1"></i> <strong>Respuesta del alumno:</strong> Verdadero.</div>
+                </div>
+                <div class="p-2 border rounded bg-light" style="border-left: 3px solid #16A34A !important;">
+                  <div class="fw-bold text-dark mb-1">3. ¿Qué función cumple la paridad en la cotización de un título público?</div>
+                  <div class="text-success"><i class="fa-solid fa-check me-1"></i> <strong>Respuesta del alumno:</strong> Relación porcentual entre el valor de mercado y su valor técnico.</div>
+                </div>
               </div>
             </div>
 
             <div class="pt-3 border-top d-flex justify-content-between align-items-center">
               <span class="small text-muted">IP Origen: 181.44.12.98</span>
               <a href="#CU-64" class="wf-btn wf-btn-sm wf-btn-outline text-danger d-flex align-items-center gap-1">
-                <i class="fa-solid fa-triangle-exclamation"></i> <span>Anular por Fraude</span>
+                <i class="fa-solid fa-ban me-1"></i> <span>Anular por Fraude</span>
               </a>
             </div>
           </div>
@@ -2314,7 +2375,7 @@ function generateScreenContent(cu) {
           <div class="col-md-5">
             <label class="wf-label">Buscar por título o docente</label>
             <div class="wf-input-wrap">
-              <input type="text" class="wf-input" placeholder="Ej: Taller de Renta Fija, Lic. Spotorno...">
+              <input type="text" class="wf-input" placeholder="Ej: Taller de Renta Fija, Mg. Valenzuela...">
             </div>
           </div>
           <div class="col-md-4">
@@ -2358,7 +2419,7 @@ function generateScreenContent(cu) {
                 </div>
                 <div class="small text-muted">Unidad 2: Renta Fija • Cohorte 2026-1</div>
               </td>
-              <td>Lic. Fausto Spotorno</td>
+              <td>Mg. Elena Valenzuela</td>
               <td>Hoy, 19:00 hs (Duración: 90 min)</td>
               <td><span class="wf-badge" style="background: #DC2626; color: white;">● EN VIVO</span></td>
               <td class="text-end">
@@ -2389,7 +2450,7 @@ function generateScreenContent(cu) {
                 <strong style="color: #081426;">Taller en Vivo: Análisis Técnico con TradingView</strong>
                 <div class="small text-muted">Unidad 3: Renta Variable • Cohorte 2026-1</div>
               </td>
-              <td>Lic. Fausto Spotorno</td>
+              <td>Mg. Elena Valenzuela</td>
               <td>Jueves 30/04, 19:00 hs (60 min)</td>
               <td><span class="wf-badge status-active">Programada</span></td>
               <td class="text-end">
@@ -2420,7 +2481,7 @@ function generateScreenContent(cu) {
                 <strong style="color: #081426;">Clase Inaugural: Marco Legal CNV y Ética Profesional</strong>
                 <div class="small text-muted">Unidad 1: Marco Regulatorio • Cohorte 2026-1</div>
               </td>
-              <td>Lic. Fausto Spotorno</td>
+              <td>Mg. Elena Valenzuela</td>
               <td>Jueves 09/04, 19:00 hs (Grabación disponible)</td>
               <td><span class="wf-badge status-inactive">Finalizada</span></td>
               <td class="text-end">
@@ -2487,7 +2548,7 @@ function generateScreenContent(cu) {
           <div class="col-md-5">
             <label class="wf-label">Buscar por nombre, apellido o email</label>
             <div class="wf-input-wrap">
-              <input type="text" class="wf-input" placeholder="Ej: Joaquín Küster, Fausto Spotorno...">
+              <input type="text" class="wf-input" placeholder="Ej: Joaquín Küster, Elena Valenzuela...">
               <span class="pin-badge">${badges[1] || 'B'}</span>
             </div>
           </div>
@@ -2530,8 +2591,8 @@ function generateScreenContent(cu) {
                 <div class="d-flex align-items-center gap-2">
                   <div class="user-avatar-circle" style="width: 34px; height: 34px; font-size: 12px; background: #081426; color: white;">FS</div>
                   <div>
-                    <a href="#" class="wf-link fw-bold" style="color: #081426; text-decoration: none;">Fausto Spotorno</a>
-                    <div class="small text-muted">fausto.spotorno@idoneos.online</div>
+                    <a href="#" class="wf-link fw-bold" style="color: #081426; text-decoration: none;">Elena Valenzuela</a>
+                    <div class="small text-muted">elena.valenzuela@idoneos.online</div>
                   </div>
                 </div>
               </td>
@@ -2752,7 +2813,7 @@ function generateScreenContent(cu) {
                   <strong style="font-size: 13px; color: #081426;">Re: Duda con TP N° 1: Punto 4</strong>
                   <span class="pin-badge">${badges[1] || 'B'}</span>
                 </div>
-                <div class="small text-muted">de <strong style="color: #081426;">Lic. Fausto Spotorno</strong> (Docente Titular) - jueves, 12 de abril de 2026, 10:15</div>
+                <div class="small text-muted">de <strong style="color: #081426;">Mg. Elena Valenzuela</strong> (Docente Titular) - jueves, 12 de abril de 2026, 10:15</div>
               </div>
             </div>
             <span class="badge bg-primary text-white">Profesor</span>
@@ -2975,7 +3036,7 @@ function generateScreenContent(cu) {
             <div class="col-md-6">
               <label class="wf-label">Enlace / Servidor a la Sala de Streaming</label>
               <div class="wf-input-wrap">
-                <input type="text" class="wf-input" value="rtmp://live.idoneos.online/app/stream_u2_spotorno">
+                <input type="text" class="wf-input" value="rtmp://live.idoneos.online/app/stream_u2_valenzuela">
                 <span class="pin-badge">${badges[5] || 'F'}</span>
               </div>
             </div>
@@ -3095,143 +3156,205 @@ function generateScreenContent(cu) {
     `;
   }
 
-  // --- SPECIALIZED 6: ESTUDIO DE CLON DIGITAL CON IA (HEYGEN) --- CU-76
-  if (id === 'CU-76') {
+  // --- SPECIALIZED 5B: FINALIZAR CLASE EN VIVO --- CU-71
+  if (id === 'CU-71') {
     return `
-      <div class="wf-card" style="max-width: 1040px; margin: 0 auto; background: #FFFFFF;">
-        <!-- Cabecera Limpia -->
-        <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
+      <div class="wf-modal-box" style="max-width: 680px; margin: 30px auto; background: #FFFFFF; border-top: 5px solid #16A34A;">
+        <div class="wf-modal-header d-flex justify-content-between align-items-center bg-white border-bottom p-4">
           <div class="d-flex align-items-center gap-3">
-            <div style="width: 44px; height: 44px; border-radius: 10px; background: #081426; display: flex; align-items: center; justify-content: center; color: var(--wf-gold);">
-              <i class="fa-solid fa-wand-magic-sparkles" style="font-size: 20px;"></i>
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: #DCFCE7; color: #16A34A; display: flex; align-items: center; justify-content: center; font-size: 20px;">
+              <i class="fa-solid fa-circle-check"></i>
             </div>
             <div>
-              <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Configuración de Avatar y Clon de Voz (HeyGen)</h3>
-              <p class="small text-muted" style="margin: 2px 0 0;">Complete los 3 pasos para sintetizar su clon de docente y habilitar la generación de clases con IA.</p>
+              <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Clase en Vivo Finalizada con Éxito</h3>
+              <p class="small text-muted mb-0 mt-1">Transmisión sincrónica concluida y grabación procesada.</p>
             </div>
           </div>
           <div class="d-flex align-items-center gap-2">
-            <span class="wf-badge status-active">Docente Habilitado</span>
+            <span class="wf-badge status-active" style="background: #DCFCE7; color: #166534; border-color: #86EFAC;">Transmisión Finalizada</span>
             <span class="pin-badge">${badges[0] || 'A'}</span>
           </div>
         </div>
 
-        <!-- Indicador de 3 Pasos (Step Progress Bar) -->
-        <div class="p-3 bg-light rounded border mb-4">
-          <div class="row text-center g-2" style="font-size: 12px;">
-            <div class="col-md-4">
-              <div class="p-2 rounded bg-white border fw-bold text-dark d-flex align-items-center justify-content-center gap-2 shadow-sm" style="border-left: 4px solid var(--wf-gold) !important;">
-                <span class="badge rounded-circle" style="background: var(--wf-gold); color: #081426; width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center;">1</span>
-                <span>Foto Facial & Rostro</span>
+        <div class="p-4 bg-white">
+          <!-- Detalle de la Operación y Notificaciones Automáticas -->
+          <div class="d-flex flex-column gap-3 mb-4" style="font-size: 13px;">
+            <div class="p-3 bg-light rounded border">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <strong style="color: #081426; font-size: 14px;">Taller de Análisis Práctico de Casos CNV</strong>
+                <span class="badge bg-dark text-white">Unidad 2: Renta Fija</span>
+              </div>
+              <div class="small text-muted mb-2">
+                <i class="fa-solid fa-clock me-1 text-primary"></i> Duración total registrada: <strong>01:28:45 hs</strong> • Docente: <strong>Mg. Elena Valenzuela</strong>
+              </div>
+              <div class="small text-muted">
+                <i class="fa-solid fa-satellite-dish me-1 text-danger"></i> Orden de corte de señal y grabación enviada a OBS Studio remoto con éxito.
               </div>
             </div>
-            <div class="col-md-4">
-              <div class="p-2 rounded bg-white border fw-bold text-dark d-flex align-items-center justify-content-center gap-2 shadow-sm" style="border-left: 4px solid #2563EB !important;">
-                <span class="badge rounded-circle bg-primary text-white" style="width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center;">2</span>
-                <span>Calibración de Voz</span>
+
+            <!-- Lista de Resultados Automáticos -->
+            <div class="d-flex flex-column gap-2" style="font-size: 12px;">
+              <div class="p-2 border rounded d-flex align-items-center justify-content-between bg-light">
+                <span class="text-muted"><i class="fa-solid fa-video text-primary me-2"></i>Grabación Generada:</span>
+                <strong class="text-dark">clase_vivo_u2_valenzuela_hd.mp4 (1080p)</strong>
+              </div>
+              <div class="p-2 border rounded d-flex align-items-center justify-content-between bg-light">
+                <span class="text-muted"><i class="fa-solid fa-file-arrow-up text-success me-2"></i>Carga como Material:</span>
+                <strong class="text-success"><i class="fa-solid fa-check-circle me-1"></i> Publicado en Unidad 2 (Tipo Grabación)</strong>
+              </div>
+              <div class="p-2 border rounded d-flex align-items-center justify-content-between bg-light">
+                <span class="text-muted"><i class="fa-solid fa-bell text-warning me-2"></i>Notificación a Estudiantes:</span>
+                <strong class="text-dark">Enviada a 146 alumnos inscriptos</strong>
+              </div>
+              <div class="p-2 border rounded d-flex align-items-center justify-content-between bg-light">
+                <span class="text-muted"><i class="fa-solid fa-calendar-check text-info me-2"></i>Vigencia de Disponibilidad:</span>
+                <span class="fw-bold">Disponible por 4 meses (Eliminación automática programada)</span>
               </div>
             </div>
-            <div class="col-md-4">
-              <div class="p-2 rounded bg-white border fw-bold text-dark d-flex align-items-center justify-content-center gap-2 shadow-sm" style="border-left: 4px solid #16A34A !important;">
-                <span class="badge rounded-circle bg-success text-white" style="width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center;">3</span>
-                <span>Consentimiento & Síntesis</span>
-              </div>
-            </div>
+          </div>
+
+          <div class="p-3 bg-light rounded border small text-muted text-center" style="font-style: italic;">
+            <i class="fa-solid fa-circle-info text-primary me-1"></i> El sistema ha guardado todos los cambios y notificado a la cohorte. No se requieren acciones adicionales.
           </div>
         </div>
 
-        <div class="row g-4">
-          <!-- Columna Izquierda: Formulario de los 3 Pasos -->
-          <div class="col-lg-7">
-            <!-- Paso 1: Rostro -->
-            <div class="p-3 border rounded bg-white mb-3 shadow-sm" style="border-left: 4px solid var(--wf-gold) !important;">
-              <div class="d-flex justify-content-between align-items-center mb-2">
-                <strong style="font-size: 14px; color: #081426;"><i class="fa-solid fa-camera me-2" style="color: var(--wf-gold);"></i>Paso 1: Captura Facial del Docente</strong>
-                <span class="badge bg-light text-dark border" style="font-size: 10px;">Cámara HD Activa</span>
-              </div>
-              <p class="small text-muted mb-3" style="font-size: 11px;">Mire de frente con buena iluminación natural para calibrar el modelo 3D de HeyGen.</p>
-              <div class="d-flex align-items-center justify-content-between">
-                <span class="small text-muted"><i class="fa-solid fa-image me-1"></i> Imagen: <strong>foto_fausto_spotorno_hd.jpg</strong></span>
-                <div class="d-flex align-items-center gap-2">
-                  <button class="wf-btn wf-btn-sm wf-btn-outline d-flex align-items-center gap-1">
-                    <i class="fa-solid fa-camera"></i> <span>Tomar Foto Web</span>
-                  </button>
-                  <span class="pin-badge">${badges[1] || 'B'}</span>
+        <div class="p-3 bg-light border-top d-flex justify-content-end align-items-center">
+          <a href="#CU-65" class="wf-btn wf-btn-sm wf-btn-primary" style="font-weight: 700;">
+            <i class="fa-solid fa-arrow-left me-1"></i> Volver a Clases en Vivo
+          </a>
+        </div>
+      </div>
+    `;
+  }
+
+  // --- SPECIALIZED 6: ESTUDIO DE CLON DIGITAL CON IA (HEYGEN) --- CU-76
+  if (id === 'CU-76') {
+    return `
+      <div class="wf-card" style="max-width: 1080px; margin: 0 auto; background: #FFFFFF;">
+        <!-- Cabecera -->
+        <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
+          <div class="d-flex align-items-center gap-3">
+            <div style="width: 44px; height: 44px; border-radius: 10px; background: #081426; display: flex; align-items: center; justify-content: center; color: var(--wf-gold);">
+              <i class="fa-solid fa-user-astronaut" style="font-size: 20px;"></i>
+            </div>
+            <div>
+              <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Configuración de Avatar y Clon de Voz (HeyGen)</h3>
+              <p class="small text-muted" style="margin: 2px 0 0;">Calibre su fotografía facial y muestra de locución para sintetizar su clon docente.</p>
+            </div>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <span class="wf-badge status-active">Docente Habilitado</span>
+          </div>
+        </div>
+
+        <div class="d-flex flex-column flex-lg-row align-items-stretch justify-content-between gap-4">
+          <!-- Columna Izquierda: Línea de Tiempo de Pasos (Timeline Visual) -->
+          <div style="flex: 1 1 50%; min-width: 320px;">
+            <div style="position: relative; padding-left: 36px;">
+              <!-- Línea vertical conectora continua -->
+              <div style="position: absolute; left: 14px; top: 12px; bottom: 24px; width: 3px; background: #E2E8F0; border-radius: 2px;"></div>
+
+              <!-- Paso 1: Rostro -->
+              <div style="position: relative; margin-bottom: 24px;">
+                <!-- Nodo circular Paso 1 -->
+                <div style="position: absolute; left: -36px; top: 0; width: 28px; height: 28px; border-radius: 50%; background: #081426; color: var(--wf-gold); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; border: 3px solid #FFFFFF; box-shadow: 0 2px 8px rgba(8,20,38,0.25); z-index: 2;">
+                  1
+                </div>
+                <div class="p-3 border rounded bg-white shadow-sm" style="border-left: 3px solid var(--wf-gold) !important;">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <strong style="font-size: 14px; color: #081426;">Paso 1: Captura Facial del Docente</strong>
+                    <span class="badge bg-light text-dark border" style="font-size: 10px;">Cámara HD Activa</span>
+                  </div>
+                  <p class="small text-muted mb-3" style="font-size: 11px;">Mire de frente con buena iluminación natural para calibrar el modelo 3D de HeyGen.</p>
+                  <div class="d-flex align-items-center justify-content-between pt-2 border-top">
+                    <span class="small text-muted"><i class="fa-solid fa-image me-1 text-primary"></i> Imagen: <strong>foto_docente_hd.jpg</strong></span>
+                    <div class="d-flex align-items-center gap-2">
+                      <button class="wf-btn wf-btn-sm wf-btn-outline d-flex align-items-center gap-1">
+                        <i class="fa-solid fa-camera"></i> <span>Tomar foto facial</span>
+                      </button>
+                      <span class="pin-badge">${badges[1] || 'B'}</span>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <!-- Paso 2: Voz -->
-            <div class="p-3 border rounded bg-white mb-3 shadow-sm" style="border-left: 4px solid #2563EB !important;">
-              <div class="d-flex justify-content-between align-items-center mb-2">
-                <strong style="font-size: 14px; color: #081426;"><i class="fa-solid fa-microphone me-2 text-primary"></i>Paso 2: Muestra de Audio y Voz</strong>
-                <span class="badge bg-light text-primary border" style="font-size: 10px;">Micrófono 48kHz</span>
-              </div>
-              <div class="p-2 bg-light rounded border mb-2 small text-secondary" style="font-style: italic; font-size: 11px;">
-                "Bienvenidos a la cátedra de Mercado de Capitales. Hoy analizaremos la curva de rendimiento y la duración modificada."
-              </div>
-              <div class="d-flex align-items-center justify-content-between">
-                <span class="small text-muted"><i class="fa-solid fa-wave-square me-1"></i> Audio grabado: <strong>00:32 / 00:30 min (Óptimo)</strong></span>
-                <div class="d-flex align-items-center gap-2">
-                  <button class="wf-btn wf-btn-sm wf-btn-outline text-danger d-flex align-items-center gap-1">
-                    <i class="fa-solid fa-microphone"></i> <span>Grabar Muestra</span>
-                  </button>
-                  <span class="pin-badge">${badges[2] || 'C'}</span>
+              <!-- Paso 2: Voz -->
+              <div style="position: relative;">
+                <!-- Nodo circular Paso 2 -->
+                <div style="position: absolute; left: -36px; top: 0; width: 28px; height: 28px; border-radius: 50%; background: #2563EB; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; border: 3px solid #FFFFFF; box-shadow: 0 2px 8px rgba(37,99,235,0.3); z-index: 2;">
+                  2
                 </div>
-              </div>
-            </div>
-
-            <!-- Paso 3: Consentimiento -->
-            <div class="p-3 border rounded bg-white shadow-sm" style="border-left: 4px solid #16A34A !important;">
-              <strong style="font-size: 14px; color: #081426;"><i class="fa-solid fa-file-contract me-2 text-success"></i>Paso 3: Consentimiento Biométrico</strong>
-              <div class="mt-2 d-flex align-items-start gap-2">
-                <input type="checkbox" id="terms_clon" checked style="width: 16px; height: 16px; margin-top: 3px;">
-                <label for="terms_clon" class="small text-muted mb-0" style="font-size: 11px; line-height: 1.4;">
-                  Autorizo a Idóneos Online S.A.S. y al proveedor HeyGen API a sintetizar mi avatar digital y voz clonada con fines exclusivamente educativos.
-                </label>
+                <div class="p-3 border rounded bg-white shadow-sm" style="border-left: 3px solid #2563EB !important;">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <strong style="font-size: 14px; color: #081426;">Paso 2: Muestra de Audio y Voz</strong>
+                    <span class="badge bg-light text-primary border" style="font-size: 10px;">Micrófono 48kHz</span>
+                  </div>
+                  <div class="p-2 bg-light rounded border mb-2 small text-secondary" style="font-style: italic; font-size: 11px;">
+                    "Bienvenidos a la cátedra de Mercado de Capitales. Hoy analizaremos la curva de rendimiento y la duración modificada."
+                  </div>
+                  <div class="d-flex align-items-center justify-content-between pt-2 border-top">
+                    <span class="small text-muted"><i class="fa-solid fa-wave-square me-1 text-primary"></i> Audio: <strong>00:32 / 00:30 min</strong></span>
+                    <div class="d-flex align-items-center gap-2">
+                      <button class="wf-btn wf-btn-sm wf-btn-outline text-danger d-flex align-items-center gap-1">
+                        <i class="fa-solid fa-microphone"></i> <span>Grabar Muestra</span>
+                      </button>
+                      <span class="pin-badge">${badges[2] || 'C'}</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
-          <!-- Columna Derecha: Resumen y Preview del Clon -->
-          <div class="col-lg-5">
-            <div class="p-3 border rounded bg-white shadow-sm h-100 d-flex flex-column justify-content-between">
+          <!-- Barra Divisoria Vertical en el medio -->
+          <div class="d-none d-lg-block" style="width: 1px; background: #CBD5E1; min-height: 100%;"></div>
+
+          <!-- Columna Derecha: Resumen de Calibración con Avatar Completo -->
+          <div style="flex: 1 1 50%; min-width: 320px;">
+            <div class="p-4 border rounded bg-white shadow-sm h-100 d-flex flex-column justify-content-between" style="border-top: 4px solid var(--wf-gold) !important;">
               <div>
-                <div class="small fw-bold text-muted text-uppercase mb-2">Resumen de Calibración</div>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <div class="small fw-bold text-muted text-uppercase">Resumen de Calibración de Avatar</div>
+                  <span class="badge bg-success text-white" style="font-size: 10px;"><i class="fa-solid fa-check me-1"></i> Biometría Óptima</span>
+                </div>
                 
-                <!-- Preview Visual del Avatar -->
-                <div style="height: 190px; background: #081426; border-radius: 8px; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1.5px solid #1E293B;">
-                  <div style="text-align: center; color: white;">
-                    <div style="width: 70px; height: 70px; border-radius: 50%; background: #0F172A; margin: 0 auto 8px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--wf-gold); box-shadow: 0 4px 12px rgba(0,0,0,0.4);">
-                      <i class="fa-solid fa-user-tie" style="font-size: 32px; color: #E2E8F0;"></i>
+                <!-- Preview Visual del Avatar Completo de la Docente -->
+                <div style="height: 240px; background: linear-gradient(180deg, #0F172A 0%, #081426 100%); border-radius: 8px; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1.5px solid #1E293B;">
+                  <img src="${avatarDocenteImg}" style="height: 100%; width: auto; max-width: 100%; object-fit: contain; display: block;" alt="Foto Facial Docente">
+                  
+                  <div style="position: absolute; top: 10px; left: 10px; background: rgba(22,163,74,0.9); color: white; padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 700;">
+                    <i class="fa-solid fa-camera me-1"></i> FOTO OK
+                  </div>
+                  
+                  <div style="position: absolute; top: 10px; right: 10px; background: rgba(8,20,38,0.85); border: 1px solid rgba(255,255,255,0.2); color: var(--wf-gold); padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 700;">
+                    HeyGen Instant Avatar v2
+                  </div>
+
+                  <div style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(0deg, rgba(8,20,38,0.95) 0%, rgba(8,20,38,0.7) 70%, transparent 100%); padding: 10px 14px; display: flex; justify-content: space-between; align-items: flex-end;">
+                    <div>
+                      <strong style="color: white; font-size: 13px;">Mg. Elena Valenzuela</strong>
+                      <div style="font-size: 10px; color: #94A3B8;">Docente Titular • #avatar_valenzuela_v2</div>
                     </div>
-                    <strong style="font-size: 13px;">Lic. Fausto Spotorno</strong>
-                    <div style="font-size: 10px; color: #94A3B8;">Modelo: Instant Avatar v2 • 1080p 60fps</div>
-                  </div>
-                  <div style="position: absolute; top: 8px; left: 8px; background: #16A34A; color: white; padding: 2px 6px; border-radius: 3px; font-size: 9px; font-weight: 700;">
-                    ✓ FOTO OK
-                  </div>
-                  <div style="position: absolute; bottom: 8px; right: 8px; font-size: 9px; color: #38BDF8; background: rgba(0,0,0,0.6); padding: 2px 6px; border-radius: 3px;">
-                    Iluminación: 98% (Óptima)
+                    <span style="font-size: 10px; color: #38BDF8; font-weight: 600;">1080p HD</span>
                   </div>
                 </div>
 
                 <div class="d-flex flex-column gap-2 mt-3" style="font-size: 11px;">
                   <div class="d-flex justify-content-between p-2 border rounded bg-light">
                     <span class="text-muted">Estado Biométrico:</span>
-                    <strong class="text-success"><i class="fa-solid fa-circle-check me-1"></i> Listo para procesar</strong>
+                    <strong class="text-success"><i class="fa-solid fa-circle-check me-1"></i> Calibración Facial Completa</strong>
                   </div>
                   <div class="d-flex justify-content-between p-2 border rounded bg-light">
-                    <span class="text-muted">Identificador sugerido:</span>
-                    <span class="fw-bold">#avatar_spotorno_v2</span>
+                    <span class="text-muted">Identificador del Clon:</span>
+                    <span class="fw-bold text-dark">#avatar_valenzuela_v2</span>
                   </div>
                 </div>
               </div>
 
-              <div class="pt-3 border-top d-flex justify-content-end align-items-center gap-2">
+              <div class="pt-3 mt-3 border-top d-flex justify-content-end align-items-center gap-2">
                 <a href="#CU-86" class="wf-btn wf-btn-sm wf-btn-outline">Cancelar</a>
                 <div class="d-flex align-items-center gap-2">
-                  <button class="wf-btn wf-btn-sm wf-btn-primary d-flex align-items-center gap-2" style="font-weight: 700;">
+                  <button class="wf-btn wf-btn-sm wf-btn-primary d-flex align-items-center gap-2" style="font-weight: 700; background: #7C3AED; border-color: #6D28D9;">
                     <i class="fa-solid fa-wand-magic-sparkles"></i>
                     <span>Crear Clon en HeyGen</span>
                   </button>
@@ -3248,18 +3371,14 @@ function generateScreenContent(cu) {
   // --- SPECIALIZED 7A: BUSCAR CLASE CON CLON IA --- CU-77
   if (id === 'CU-77') {
     return `
-      <div class="wf-card" style="max-width: 1100px; margin: 0 auto; background: #FFFFFF;">
+      <div class="wf-card" style="max-width: 1080px; margin: 0 auto; background: #FFFFFF;">
         <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
           <div>
             <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Clases con Clon de IA (HeyGen)</h3>
             <p class="small text-muted" style="margin: 3px 0 0;">Listado y búsqueda de videos generados mediante síntesis de avatar hiperrealista y voz.</p>
           </div>
           <div class="d-flex align-items-center gap-2">
-            <a href="#CU-78" class="wf-btn wf-btn-primary wf-btn-sm d-inline-flex align-items-center gap-2" style="background: #7C3AED; border-color: #6D28D9; font-weight: 700;">
-              <i class="fa-solid fa-wand-magic-sparkles"></i>
-              <span>Generar Video con Avatar Clon</span>
-            </a>
-            <span class="pin-badge">${badges[0] || 'A'}</span>
+            <span class="wf-badge status-active">Módulo de Clones IA</span>
           </div>
         </div>
 
@@ -3294,121 +3413,134 @@ function generateScreenContent(cu) {
           </div>
         </div>
 
-        <div class="row g-4">
-          <!-- Columna Izquierda: Tabla de Clases con Clon -->
-          <div class="col-lg-7">
-            <div class="wf-table-wrap">
-              <table class="wf-table">
-                <thead>
-                  <tr>
-                    <th>Clase / Video Generado</th>
-                    <th>Estado</th>
-                    <th class="text-end">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <!-- Clase 1: Seleccionada -->
-                  <tr style="background: #F8FAFC; border-left: 3px solid var(--wf-gold);">
-                    <td>
-                      <div class="d-flex align-items-center gap-2">
-                        <div style="width: 32px; height: 32px; border-radius: 6px; background: #081426; color: var(--wf-gold); display: flex; align-items: center; justify-content: center; font-size: 13px;">
-                          <i class="fa-solid fa-play"></i>
-                        </div>
-                        <div>
-                          <strong style="color: #081426; font-size: 13px;">Explicación Teórica: Duración Modificada</strong>
-                          <div class="small text-muted" style="font-size: 11px;">Avatar Lic. Spotorno • 03:40 min • 1080p</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td><span class="wf-badge status-active">Generada</span></td>
-                    <td class="text-end">
-                      <div class="d-inline-flex align-items-center gap-2">
-                        <button class="wf-btn wf-btn-xs wf-btn-primary" style="font-size: 11px;"><i class="fa-solid fa-eye me-1"></i> Ver Video</button>
-                        <span class="pin-badge">${badges[3] || 'D'}</span>
-                      </div>
-                    </td>
-                  </tr>
+        <div class="d-flex flex-column flex-lg-row align-items-stretch justify-content-between gap-4">
+          <!-- Columna Izquierda: Cards de Clases con Clon y Paginación -->
+          <div style="flex: 1 1 50%; min-width: 320px;" class="d-flex flex-column justify-content-between">
+            <div class="d-flex flex-column gap-3">
+              <!-- Card 1: Seleccionada / Activa -->
+              <div class="p-3 rounded border shadow-sm" style="background: #F8FAFC; border-left: 4px solid var(--wf-gold) !important;">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <div class="d-flex align-items-center gap-2">
+                    <div style="width: 34px; height: 34px; border-radius: 8px; background: #081426; color: var(--wf-gold); display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0;">
+                      <i class="fa-solid fa-play"></i>
+                    </div>
+                    <div>
+                      <strong style="color: #081426; font-size: 13px;">Explicación Teórica: Duración Modificada</strong>
+                      <div class="small text-muted" style="font-size: 11px;">Avatar Docente • 03:40 min • 1080p HD</div>
+                    </div>
+                  </div>
+                  <span class="wf-badge status-active">Generada</span>
+                </div>
+                <div class="d-flex justify-content-end align-items-center gap-2 pt-2 border-top">
+                  <button class="wf-btn wf-btn-xs wf-btn-primary" style="font-size: 11px; height: 30px; padding: 0 10px;">
+                    <i class="fa-solid fa-eye me-1"></i> Ver Video
+                  </button>
+                  <span class="pin-badge">${badges[3] || 'D'}</span>
+                  <a href="#CU-79" class="wf-btn wf-btn-xs wf-btn-outline" style="font-size: 11px; height: 30px; padding: 0 10px;">
+                    <i class="fa-solid fa-pen-to-square me-1"></i> Editar Guión
+                  </a>
+                </div>
+              </div>
 
-                  <!-- Clase 2 -->
-                  <tr>
-                    <td>
-                      <div class="d-flex align-items-center gap-2">
-                        <div style="width: 32px; height: 32px; border-radius: 6px; background: #F1F5F9; color: #475569; display: flex; align-items: center; justify-content: center; font-size: 13px;">
-                          <i class="fa-solid fa-play"></i>
-                        </div>
-                        <div>
-                          <strong style="color: #081426; font-size: 13px;">Introducción a la Ley de Mercado de Capitales</strong>
-                          <div class="small text-muted" style="font-size: 11px;">Avatar Lic. Spotorno • 05:12 min • 1080p</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td><span class="wf-badge status-active">Generada</span></td>
-                    <td class="text-end">
-                      <button class="wf-btn wf-btn-xs wf-btn-outline" style="font-size: 11px;"><i class="fa-solid fa-eye me-1"></i> Ver Video</button>
-                    </td>
-                  </tr>
+              <!-- Card 2: Generada -->
+              <div class="p-3 rounded border bg-white shadow-sm">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <div class="d-flex align-items-center gap-2">
+                    <div style="width: 34px; height: 34px; border-radius: 8px; background: #F1F5F9; color: #475569; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0;">
+                      <i class="fa-solid fa-play"></i>
+                    </div>
+                    <div>
+                      <strong style="color: #081426; font-size: 13px;">Introducción a la Ley de Mercado de Capitales</strong>
+                      <div class="small text-muted" style="font-size: 11px;">Avatar Docente • 05:12 min • 1080p HD</div>
+                    </div>
+                  </div>
+                  <span class="wf-badge status-active">Generada</span>
+                </div>
+                <div class="d-flex justify-content-end align-items-center gap-2 pt-2 border-top">
+                  <button class="wf-btn wf-btn-xs wf-btn-outline" style="font-size: 11px; height: 30px; padding: 0 10px;">
+                    <i class="fa-solid fa-eye me-1"></i> Ver Video
+                  </button>
+                  <a href="#CU-79" class="wf-btn wf-btn-xs wf-btn-outline" style="font-size: 11px; height: 30px; padding: 0 10px;">
+                    <i class="fa-solid fa-pen-to-square me-1"></i> Editar Guión
+                  </a>
+                </div>
+              </div>
 
-                  <!-- Clase 3: Pendiente -->
-                  <tr>
-                    <td>
-                      <div class="d-flex align-items-center gap-2">
-                        <div style="width: 32px; height: 32px; border-radius: 6px; background: #FEF3C7; color: #D97706; display: flex; align-items: center; justify-content: center; font-size: 13px;">
-                          <i class="fa-solid fa-spinner fa-spin"></i>
-                        </div>
-                        <div>
-                          <strong style="color: #081426; font-size: 13px;">Valuación de Bonos Bullet vs Amortizables</strong>
-                          <div class="small text-muted" style="font-size: 11px;">En cola de procesamiento HeyGen...</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td><span class="badge bg-light text-warning border" style="font-size: 10px;">Pendiente</span></td>
-                    <td class="text-end">
-                      <span class="small text-muted" style="font-size: 10px;">Renderizando...</span>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+              <!-- Card 3: Pendiente de Procesamiento -->
+              <div class="p-3 rounded border bg-white shadow-sm">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <div class="d-flex align-items-center gap-2">
+                    <div style="width: 34px; height: 34px; border-radius: 8px; background: #FEF3C7; color: #D97706; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0;">
+                      <i class="fa-solid fa-spinner fa-spin"></i>
+                    </div>
+                    <div>
+                      <strong style="color: #081426; font-size: 13px;">Valuación de Bonos Bullet vs Amortizables</strong>
+                      <div class="small text-muted" style="font-size: 11px;">En cola de procesamiento HeyGen...</div>
+                    </div>
+                  </div>
+                  <span class="badge bg-light text-warning border" style="font-size: 10px;">Pendiente</span>
+                </div>
+                <div class="d-flex justify-content-end align-items-center gap-2 pt-2 border-top">
+                  <span class="small text-muted fst-italic" style="font-size: 10px;"><i class="fa-solid fa-clock me-1"></i> Renderizando síntesis...</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Paginación de Cards -->
+            <div class="d-flex justify-content-between align-items-center pt-3 mt-3 border-top" style="font-size: 11px;">
+              <span class="text-muted">Mostrando 1-3 de 3 clases con clon</span>
+              <div class="d-flex align-items-center gap-1">
+                <button class="wf-btn wf-btn-xs wf-btn-outline" disabled style="height: 26px; padding: 0 8px;">«</button>
+                <button class="wf-btn wf-btn-xs wf-btn-primary" style="height: 26px; min-width: 26px; padding: 0 6px;">1</button>
+                <button class="wf-btn wf-btn-xs wf-btn-outline" style="height: 26px; min-width: 26px; padding: 0 6px;">2</button>
+                <button class="wf-btn wf-btn-xs wf-btn-outline" style="height: 26px; padding: 0 8px;">»</button>
+              </div>
             </div>
           </div>
 
-          <!-- Columna Derecha: Panel de Previsualización del Video Generado [D] -->
-          <div class="col-lg-5">
-            <div class="p-3 border rounded bg-white shadow-sm">
-              <div class="d-flex justify-content-between align-items-center pb-2 mb-3 border-bottom">
-                <div>
-                  <span class="small text-muted">Previsualización de Clase con Clon</span>
-                  <h4 style="font-size: 14px; font-weight: 800; color: #081426; margin: 2px 0 0;">Explicación Teórica: Duración Modificada</h4>
-                </div>
-                <span class="pin-badge">${badges[3] || 'D'}</span>
-              </div>
+          <!-- Barra Divisoria Vertical en el medio -->
+          <div class="d-none d-lg-block" style="width: 1px; background: #CBD5E1; min-height: 100%;"></div>
 
-              <!-- Reproductor de Video Simulado -->
-              <div style="height: 200px; background: #081426; border-radius: 8px; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1.5px solid #1E293B; margin-bottom: 12px;">
-                <div style="text-align: center; color: white;">
-                  <div style="width: 60px; height: 60px; border-radius: 50%; background: #0F233D; margin: 0 auto 8px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--wf-gold);">
-                    <i class="fa-solid fa-user-tie" style="font-size: 28px; color: #CBD5E1;"></i>
+          <!-- Columna Derecha: Panel de Previsualización del Video con Avatar Completo -->
+          <div style="flex: 1 1 50%; min-width: 320px;">
+            <div class="p-4 border rounded bg-white shadow-sm h-100 d-flex flex-column justify-content-between" style="border-top: 4px solid var(--wf-gold) !important;">
+              <div>
+                <div class="d-flex justify-content-between align-items-center pb-2 mb-3 border-bottom">
+                  <div>
+                    <span class="small text-muted">Previsualización de Clase con Clon</span>
+                    <h4 style="font-size: 15px; font-weight: 800; color: #081426; margin: 2px 0 0;">Explicación Teórica: Duración Modificada</h4>
                   </div>
-                  <strong style="font-size: 12px;">Avatar Lic. Fausto Spotorno</strong>
-                  <div style="font-size: 10px; color: #94A3B8;">HeyGen HD Video Synthesis</div>
                 </div>
 
-                <div style="position: absolute; bottom: 8px; left: 8px; right: 8px; display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.6); padding: 4px 8px; border-radius: 4px; font-size: 10px; color: white;">
-                  <span><i class="fa-solid fa-play me-1 text-warning"></i> 01:24 / 03:40</span>
-                  <span>1080p 60fps</span>
-                </div>
-              </div>
+                <!-- Reproductor de Video Simulado con Imagen Completa de la Docente -->
+                <div style="height: 240px; background: linear-gradient(180deg, #0F172A 0%, #081426 100%); border-radius: 8px; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1.5px solid #1E293B; margin-bottom: 12px;">
+                  <img src="${avatarDocenteImg}" style="height: 100%; width: auto; max-width: 100%; object-fit: contain; display: block;" alt="Foto Clon Docente">
+                  
+                  <div style="position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.7); border: 1px solid rgba(255,255,255,0.2); padding: 3px 8px; border-radius: 4px; font-size: 10px; color: var(--wf-gold); font-weight: 700;">
+                    <i class="fa-solid fa-wand-magic-sparkles me-1"></i> HeyGen AI Studio
+                  </div>
 
-              <!-- Guión Sincronizado -->
-              <div class="p-2 border rounded bg-light mb-3" style="font-size: 11px;">
-                <strong class="text-dark mb-1 d-block">Guión del Prompt Sintetizado:</strong>
-                <p class="text-muted m-0" style="line-height: 1.4; font-style: italic;">
-                  "En esta clase abordaremos el concepto de modified duration. Cuando la tasa de interés se incrementa, el precio de los títulos cae en proporción inversa..."
-                </p>
+                  <div style="position: absolute; bottom: 8px; left: 8px; right: 8px; display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.75); padding: 6px 12px; border-radius: 6px; font-size: 11px; color: white;">
+                    <div class="d-flex align-items-center gap-2">
+                      <i class="fa-solid fa-play text-warning"></i>
+                      <span>01:24 / 03:40</span>
+                    </div>
+                    <span class="badge bg-secondary" style="font-size: 9px;">1080p HD</span>
+                  </div>
+                </div>
+
+                <!-- Guión Sincronizado -->
+                <div class="p-2 border rounded bg-light mb-3" style="font-size: 11px;">
+                  <strong class="text-dark mb-1 d-block">Guión del Prompt Sintetizado:</strong>
+                  <p class="text-muted m-0" style="line-height: 1.4; font-style: italic;">
+                    "En esta clase abordaremos el concepto de modified duration. Cuando la tasa de interés se incrementa, el precio de los títulos cae en proporción inversa..."
+                  </p>
+                </div>
               </div>
 
               <div class="d-flex justify-content-between align-items-center pt-2 border-top">
-                <a href="#CU-79" class="wf-btn wf-btn-xs wf-btn-outline"><i class="fa-solid fa-pen-to-square me-1"></i> Modificar Guión</a>
-                <a href="#CU-80" class="wf-btn wf-btn-xs wf-btn-outline text-danger"><i class="fa-solid fa-trash me-1"></i> Dar de Baja</a>
+                <a href="#CU-79" class="wf-btn wf-btn-xs wf-btn-outline"><i class="fa-solid fa-pen-to-square me-1"></i> Editar Guión</a>
+                <a href="#CU-80" class="wf-btn wf-btn-xs wf-btn-outline text-danger"><i class="fa-solid fa-trash me-1"></i> Eliminar Video</a>
               </div>
             </div>
           </div>
@@ -3417,38 +3549,125 @@ function generateScreenContent(cu) {
     `;
   }
 
-  // --- SPECIALIZED 7B: GENERAR / MODIFICAR CLASE CON CLON IA --- CU-78, CU-79
-  if (['CU-78', 'Cu-79'].includes(id) || id === 'CU-79') {
-    const isGenerate = id === 'CU-78';
-    const triggerLabel78_79 = isGenerate ? 'Generar Video con Avatar Clon' : 'Editar Guión';
-    const saveBtnLabel78_79 = isGenerate ? 'Sintetizar Video con IA' : 'Actualizar y Regenerar Video';
-    const saveBtnBadge78_79 = isGenerate ? (badges[3] || 'D') : (badges[2] || 'C');
+  // --- SPECIALIZED 7B: GENERAR CLASE CON CLON IA --- CU-78
+  if (id === 'CU-78') {
     return `
-      <div class="wf-card" style="max-width: 1020px; margin: 0 auto; background: #FFFFFF;">
+      <div class="wf-card" style="max-width: 1080px; margin: 0 auto; background: #FFFFFF;">
         <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
           <div class="d-flex align-items-center gap-3">
-            <div style="width: 44px; height: 44px; border-radius: 8px; background: #081426; display: flex; align-items: center; justify-content: center; color: var(--wf-gold);">
-              <i class="fa-solid fa-wand-magic-sparkles" style="font-size: 20px;"></i>
+            <div style="width: 44px; height: 44px; border-radius: 10px; background: #081426; display: flex; align-items: center; justify-content: center; color: var(--wf-gold);">
+              <i class="fa-solid fa-video" style="font-size: 20px;"></i>
             </div>
             <div>
-              <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">${isGenerate ? 'Generar Clase Audiovisual con Clon IA' : 'Modificar Guión de Clase con Clon IA'}</h3>
-              <p class="small text-muted" style="margin: 3px 0 0;">Ingrese el título, seleccione la unidad y redacte el guión que el avatar HeyGen sintetizará.</p>
+              <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Generar Clase con Clon de IA</h3>
+              <p class="small text-muted" style="margin: 3px 0 0;">Genere una clase audiovisual mediante síntesis en HeyGen a partir de su guión prompt.</p>
             </div>
           </div>
           <div class="d-flex align-items-center gap-2">
-            <span class="wf-btn wf-btn-sm wf-btn-outline active" style="font-weight: 700;">
-              <i class="fa-solid ${isGenerate ? 'fa-wand-magic-sparkles' : 'fa-pen-to-square'} me-1"></i>
-              ${triggerLabel78_79}
-            </span>
-            <span class="pin-badge">${badges[0] || 'A'}</span>
-            <span class="wf-badge status-active ms-2">Clon Activo: Lic. Fausto Spotorno HD</span>
+            <span class="wf-badge status-active"><i class="fa-solid fa-circle-check me-1"></i> Avatar & Voz Calibrada</span>
           </div>
         </div>
 
-        <div class="row g-4">
-          <div class="col-md-7">
+        <div class="d-flex flex-column flex-lg-row align-items-stretch justify-content-between gap-4">
+          <!-- Columna Izquierda: Formulario Real (Título y Prompt) -->
+          <div style="flex: 1 1 50%; min-width: 320px;">
             <div class="mb-3">
-              <label class="wf-label">Título de la Clase / Video</label>
+              <label class="wf-label">Título de la Clase</label>
+              <div class="wf-input-wrap">
+                <input type="text" class="wf-input" placeholder="Ej: Explicación Teórica: Duración Modificada y Convexidad" value="Explicación Teórica: Duración Modificada y Convexidad en Bonos">
+                <span class="pin-badge">${badges[1] || 'B'}</span>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="wf-label">Guión de la Clase (Prompt de Texto)</label>
+              <div class="wf-input-wrap">
+                <textarea class="wf-input" rows="7" placeholder="Redacte el guión que el avatar de HeyGen sintetizará...">En esta clase abordaremos el concepto de modified duration. Cuando la tasa de interés se incrementa, el precio de los títulos cae en proporción inversa a su duración ponderada. Analizaremos la aproximación por series de Taylor y los ejercicios prácticos del examen CNV.</textarea>
+                <span class="pin-badge">${badges[2] || 'C'}</span>
+              </div>
+              <div class="small text-muted mt-1" style="font-size: 11px;">El guión será enviado a HeyGen junto con el avatar_id y voice_id registrados en su perfil.</div>
+            </div>
+          </div>
+
+          <!-- Barra Divisoria Vertical en el medio -->
+          <div class="d-none d-lg-block" style="width: 1px; background: #CBD5E1; min-height: 100%;"></div>
+
+          <!-- Columna Derecha: Previsualización de Avatar Completo y Parámetros -->
+          <div style="flex: 1 1 50%; min-width: 320px;">
+            <div class="p-4 border rounded bg-white shadow-sm h-100 d-flex flex-column justify-content-between" style="border-top: 4px solid var(--wf-gold) !important;">
+              <div>
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <div class="small fw-bold text-muted text-uppercase">Configuración de Síntesis HeyGen</div>
+                  <span class="badge bg-primary text-white" style="font-size: 9px;">HD 1080p</span>
+                </div>
+                
+                <!-- Preview Visual del Avatar Completo -->
+                <div style="height: 220px; background: linear-gradient(180deg, #0F172A 0%, #081426 100%); border-radius: 8px; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1.5px solid #1E3A5F; margin-bottom: 12px;">
+                  <img src="${avatarDocenteImg}" style="height: 100%; width: auto; max-width: 100%; object-fit: contain; display: block;" alt="Avatar HeyGen">
+                  
+                  <div style="position: absolute; top: 8px; left: 8px; background: #2563EB; color: white; padding: 2px 6px; border-radius: 4px; font-size: 9px; font-weight: 700;">
+                    Avatar HeyGen v2.0
+                  </div>
+                  
+                  <div style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(0deg, rgba(8,20,38,0.9) 0%, transparent 100%); padding: 8px 12px;">
+                    <div style="font-size: 12px; font-weight: 700; color: white;">Mg. Elena Valenzuela</div>
+                    <div style="font-size: 9px; color: #94A3B8;">Docente Titular (#avatar_valenzuela_v2)</div>
+                  </div>
+                </div>
+
+                <div class="d-flex flex-column gap-2" style="font-size: 11px;">
+                  <div class="d-flex justify-content-between p-2 border rounded bg-light">
+                    <span class="text-muted">Voz configurada:</span>
+                    <strong class="text-dark">Docente_ES_AR_v1 (Voice Clone)</strong>
+                  </div>
+                  <div class="d-flex justify-content-between p-2 border rounded bg-light">
+                    <span class="text-muted">Destino:</span>
+                    <span class="fw-bold">Material de Grabación (No Publicado)</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="pt-3 mt-3 border-top d-flex justify-content-end align-items-center gap-3">
+                <a href="#CU-19" class="wf-btn wf-btn-sm wf-btn-outline">Cancelar</a>
+                <div class="d-flex align-items-center gap-2">
+                  <button class="wf-btn wf-btn-sm wf-btn-primary d-flex align-items-center gap-2" style="font-weight: 700; background: #7C3AED; border-color: #6D28D9;">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    <span>Sintetizar Video con IA</span>
+                  </button>
+                  <span class="pin-badge">${badges[3] || badges[badges.length - 1] || 'D'}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // --- SPECIALIZED 7C: MODIFICAR CLASE CON CLON IA --- CU-79
+  if (id === 'CU-79') {
+    return `
+      <div class="wf-card" style="max-width: 1080px; margin: 0 auto; background: #FFFFFF;">
+        <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
+          <div class="d-flex align-items-center gap-3">
+            <div style="width: 44px; height: 44px; border-radius: 10px; background: #081426; display: flex; align-items: center; justify-content: center; color: var(--wf-gold);">
+              <i class="fa-solid fa-pen-to-square" style="font-size: 20px;"></i>
+            </div>
+            <div>
+              <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Modificar Clase con Clon de IA</h3>
+              <p class="small text-muted" style="margin: 3px 0 0;">Actualice el título y/o el guión textual de la clase para regenerar el video en HeyGen.</p>
+            </div>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <span class="wf-badge status-active"><i class="fa-solid fa-pen-to-square me-1"></i> Modo Edición</span>
+          </div>
+        </div>
+
+        <div class="d-flex flex-column flex-lg-row align-items-stretch justify-content-between gap-4">
+          <!-- Columna Izquierda: Editor de Título y Guión -->
+          <div style="flex: 1 1 50%; min-width: 320px;">
+            <div class="mb-3">
+              <label class="wf-label">Título de la Clase</label>
               <div class="wf-input-wrap">
                 <input type="text" class="wf-input" value="Explicación Teórica: Duración Modificada y Convexidad en Bonos">
                 <span class="pin-badge">${badges[1] || 'B'}</span>
@@ -3456,73 +3675,80 @@ function generateScreenContent(cu) {
             </div>
 
             <div class="mb-3">
-              <label class="wf-label">Unidad Académica de Pertenencia</label>
+              <label class="wf-label">Guión Textual (Prompt de Síntesis)</label>
               <div class="wf-input-wrap">
-                <select class="wf-input">
-                  <option>Unidad 2: Instrumentos de Renta Fija (Bonos y Obligaciones Negociables)</option>
-                </select>
-              </div>
-            </div>
-
-            <div class="mb-3">
-              <div class="d-flex justify-content-between align-items-center mb-1">
-                <label class="wf-label mb-0">Guión Académico de Locución (Prompt Speech)</label>
-                <a href="#CU-74" class="small text-decoration-none d-flex align-items-center gap-1" style="color: #081426; font-weight: 700;">
-                  <i class="fa-solid fa-wand-magic-sparkles"></i> Autogenerar guión con IA
-                </a>
-              </div>
-              <div class="wf-input-wrap">
-                <textarea class="wf-input" rows="6">En esta clase abordaremos el concepto de modified duration. Cuando la tasa de interés se incrementa, el precio de los títulos cae en proporción inversa a su duración ponderada. Analizaremos la aproximación por series de Taylor...</textarea>
+                <textarea class="wf-input" rows="7">En esta clase abordaremos el concepto de modified duration. Cuando la tasa de interés se incrementa, el precio de los títulos cae en proporción inversa a su duración ponderada. Analizaremos la aproximación por series de Taylor y los ejercicios prácticos actualizados del examen CNV.</textarea>
                 <span class="pin-badge">${badges[2] || 'C'}</span>
               </div>
             </div>
+
+            <div class="p-2 border rounded bg-light small text-muted">
+              <i class="fa-solid fa-circle-info text-primary me-1"></i> <em>Si solo se modifica el título, no se dispara una nueva generación en HeyGen. Si se modifica el guión, el video se regenerará automáticamente.</em>
+            </div>
           </div>
 
-          <div class="col-md-5">
-            <div class="p-3 border rounded bg-white shadow-sm mb-3">
-              <div class="small fw-bold text-muted text-uppercase mb-2">Previsualización de Render</div>
-              <div style="height: 180px; background: #081426; border-radius: 8px; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1.5px solid #1E3A5F;">
-                <div style="text-align: center; color: white;">
-                  <div style="width: 56px; height: 56px; border-radius: 50%; background: #0F233D; margin: 0 auto 6px; display: flex; align-items: center; justify-content: center; font-weight: 700; border: 2px solid var(--wf-gold);">
-                    <i class="fa-solid fa-user" style="font-size: 24px; color: #CBD5E1;"></i>
+          <!-- Barra Divisoria Vertical en el medio -->
+          <div class="d-none d-lg-block" style="width: 1px; background: #CBD5E1; min-height: 100%;"></div>
+
+          <!-- Columna Derecha: Previsualización de Clon Completo y Parámetros -->
+          <div style="flex: 1 1 50%; min-width: 320px;">
+            <div class="p-4 border rounded bg-white shadow-sm h-100 d-flex flex-column justify-content-between" style="border-top: 4px solid var(--wf-gold) !important;">
+              <div>
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <div class="small fw-bold text-muted text-uppercase">Parámetros del Clon Vinculado</div>
+                  <span class="badge bg-success text-white" style="font-size: 9px;">Clon Activo</span>
+                </div>
+
+                <!-- Preview Visual del Avatar Completo en el Reproductor -->
+                <div style="height: 190px; background: linear-gradient(180deg, #0F172A 0%, #081426 100%); border-radius: 8px; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1.5px solid #1E293B; margin-bottom: 12px;">
+                  <img src="${avatarDocenteImg}" style="height: 100%; width: auto; max-width: 100%; object-fit: contain; display: block;" alt="Docente">
+                  
+                  <div style="position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.7); border: 1px solid rgba(255,255,255,0.2); padding: 2px 6px; border-radius: 4px; font-size: 9px; color: var(--wf-gold);">
+                    HeyGen Studio
                   </div>
-                  <div style="font-size: 11px; font-weight: 700;">Avatar HeyGen v2.0</div>
-                  <div style="font-size: 9px; color: #94A3B8;">Lic. Fausto Spotorno</div>
+                  
+                  <div style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(0deg, rgba(8,20,38,0.9) 0%, transparent 100%); padding: 6px 12px; display: flex; justify-content: space-between; align-items: flex-end;">
+                    <div>
+                      <strong style="font-size: 11px; color: white;">Mg. Elena Valenzuela</strong>
+                      <div class="small text-muted" style="font-size: 9px; color: #94A3B8 !important;">#avatar_valenzuela_v2</div>
+                    </div>
+                    <span class="pin-badge" style="font-size: 10px; width: 20px; height: 20px;">${badges[3] || 'D'}</span>
+                  </div>
                 </div>
-                <div style="position: absolute; top: 8px; left: 8px; background: #DC2626; color: white; padding: 2px 6px; border-radius: 4px; font-size: 9px; font-weight: 700; letter-spacing: 0.5px;">
-                  PREVIEW
+
+                <div class="mb-2">
+                  <label class="wf-label mb-1" style="font-size: 11px;">Voz Clonada</label>
+                  <div class="wf-input-wrap">
+                    <div class="p-2 rounded border bg-light d-flex align-items-center justify-content-between w-100">
+                      <div class="d-flex align-items-center gap-2">
+                        <i class="fa-solid fa-microphone text-primary"></i>
+                        <div>
+                          <strong style="font-size: 11px; color: #081426;">Docente_ES_AR_v1</strong>
+                          <div class="small text-muted" style="font-size: 9px;">Voz en Español Rioplatense • 48kHz</div>
+                        </div>
+                      </div>
+                      <span class="badge bg-success text-white" style="font-size: 9px;">Calibrada</span>
+                    </div>
+                    <span class="pin-badge">${badges[4] || 'E'}</span>
+                  </div>
                 </div>
-                <div style="position: absolute; bottom: 8px; right: 8px; font-size: 10px; color: #34D399; background: rgba(0,0,0,0.6); padding: 2px 6px; border-radius: 4px;">
-                  1080p 60fps
+
+                <div class="p-2 border rounded bg-light small text-muted" style="font-size: 10px;">
+                  Estado de la clase: <strong class="text-success">Generada</strong> (Reemplazará grabación anterior)
                 </div>
               </div>
-              <div class="d-flex justify-content-between small text-muted mt-2">
-                <span>Tiempo estimado: ~3 min 40s</span>
-                <span>Voz: Fausto_ES_AR_v1</span>
+
+              <div class="pt-3 mt-3 border-top d-flex justify-content-end align-items-center gap-3">
+                <a href="#CU-77" class="wf-btn wf-btn-sm wf-btn-outline">Cancelar</a>
+                <div class="d-flex align-items-center gap-2">
+                  <button class="wf-btn wf-btn-sm wf-btn-primary d-flex align-items-center gap-2" style="font-weight: 700; background: #7C3AED; border-color: #6D28D9;">
+                    <i class="fa-solid fa-rotate me-1"></i>
+                    <span>Actualizar y Regenerar Video</span>
+                  </button>
+                  <span class="pin-badge">${badges[5] || badges[badges.length - 1] || 'F'}</span>
+                </div>
               </div>
             </div>
-
-            <div class="d-flex flex-column gap-2">
-              <div class="d-flex justify-content-between align-items-center p-2 border rounded bg-light">
-                <span class="small text-muted">Voz clonada:</span>
-                <span class="small fw-bold">Fausto_ES_AR_v1</span>
-              </div>
-              <div class="d-flex justify-content-between align-items-center p-2 border rounded bg-light">
-                <span class="small text-muted">Escenario / Fondo:</span>
-                <span class="small fw-bold">Oficina Virtual FCEQyN</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="d-flex justify-content-end align-items-center gap-3 pt-3 mt-4 border-top">
-          <a href="#CU-77" class="wf-btn wf-btn-outline">Cancelar</a>
-          <div class="d-flex align-items-center gap-2">
-            <button class="wf-btn wf-btn-primary d-flex align-items-center gap-2">
-              <i class="fa-solid fa-wand-magic-sparkles"></i>
-              <span>${saveBtnLabel78_79}</span>
-            </button>
-            <span class="pin-badge">${saveBtnBadge78_79}</span>
           </div>
         </div>
       </div>
@@ -3535,33 +3761,33 @@ function generateScreenContent(cu) {
     const isSummary = id === 'CU-74';
     const isSlides = id === 'CU-75';
 
-    let pageTitle = 'Generador de Banco de Preguntas con IA (Ollama)';
-    let pageSubtitle = 'Generación automatizada de preguntas de opción múltiple y V/F a partir de la bibliografía cargada.';
-    let triggerAction = 'Generar Banco con IA (Ollama)';
+    let pageTitle = 'Generar Banco de Preguntas con IA (Ollama)';
+    let pageSubtitle = 'Generación automatizada de preguntas cerradas de opción múltiple y V/F a partir de la bibliografía cargada.';
+    let iconHeader = 'fa-solid fa-list-check';
     let confirmBtn = 'Generar Preguntas con IA';
     let confirmBadge = badges[2] || 'C';
 
     if (isSummary) {
-      pageTitle = 'Generador de Resumen de Unidad con IA (Ollama)';
+      pageTitle = 'Generar Resumen de Unidad con IA';
       pageSubtitle = 'Síntesis conceptual estructurada a partir de los documentos teóricos cargados en la unidad.';
-      triggerAction = 'Generar Resumen de Unidad con IA';
+      iconHeader = 'fa-solid fa-file-lines';
       confirmBtn = 'Crear Resumen Automático';
       confirmBadge = badges[1] || 'B';
     } else if (isSlides) {
-      pageTitle = 'Generador de Presentación con IA (Ollama)';
+      pageTitle = 'Generar Presentación con IA';
       pageSubtitle = 'Estructuración de diapositivas descargables (títulos, subtítulos y conceptos clave) desde la bibliografía.';
-      triggerAction = 'Generar Presentación con IA';
+      iconHeader = 'fa-solid fa-person-chalkboard';
       confirmBtn = 'Generar Diapositivas';
       confirmBadge = badges[1] || 'B';
     }
 
     return `
-      <div class="wf-card" style="max-width: 1040px; margin: 0 auto; background: #FFFFFF;">
-        <!-- Header Limpio y Elegante -->
+      <div class="wf-card" style="max-width: 1080px; margin: 0 auto; background: #FFFFFF;">
+        <!-- Cabecera Limpia sin badge A -->
         <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
           <div class="d-flex align-items-center gap-3">
-            <div style="width: 44px; height: 44px; border-radius: 10px; background: linear-gradient(135deg, #059669, #10B981); display: flex; align-items: center; justify-content: center; color: white; box-shadow: 0 4px 12px rgba(5,150,105,0.2);">
-              <i class="fa-solid fa-wand-magic-sparkles" style="font-size: 20px;"></i>
+            <div style="width: 44px; height: 44px; border-radius: 10px; background: #081426; display: flex; align-items: center; justify-content: center; color: var(--wf-gold);">
+              <i class="${iconHeader}" style="font-size: 20px;"></i>
             </div>
             <div>
               <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">${pageTitle}</h3>
@@ -3569,104 +3795,106 @@ function generateScreenContent(cu) {
             </div>
           </div>
           <div class="d-flex align-items-center gap-2">
-            <span class="wf-btn wf-btn-xs wf-btn-outline active" style="font-weight: 700; color: #065F46; background: #ECFDF5; border-color: #A7F3D0;">
-              <i class="fa-solid fa-wand-magic-sparkles text-success me-1"></i> ${triggerAction}
-            </span>
-            <span class="pin-badge">${badges[0] || 'A'}</span>
+            <span class="wf-badge status-active">Ollama Local (LLaMA-3 8B)</span>
           </div>
         </div>
 
-        <div class="row g-4">
-          <!-- Columna Izquierda: Configuración y Prompt de Entrada -->
-          <div class="col-lg-6">
-            <div class="mb-3">
-              <label class="wf-label">Unidad Académica de Origen</label>
-              <div class="wf-input-wrap">
-                <select class="wf-input">
-                  <option selected>Unidad 2: Instrumentos de Renta Fija (Bonos y Obligaciones Negociables)</option>
-                </select>
-              </div>
-            </div>
-
-            <div class="mb-3">
-              <label class="wf-label">Fuentes de Contenido (Bibliografía & Glosario)</label>
-              <div class="p-2 border rounded bg-light d-flex flex-column gap-1" style="font-size: 12px;">
-                <div class="d-flex justify-content-between align-items-center">
-                  <span><i class="fa-solid fa-file-pdf text-danger me-1"></i> Guía Teórica de Renta Fija v2.0.pdf</span>
-                  <span class="badge bg-success text-white" style="font-size: 9px;">Cargado</span>
-                </div>
-                <div class="d-flex justify-content-between align-items-center">
-                  <span><i class="fa-solid fa-book-open text-warning me-1"></i> Glosario de Unidad (8 términos técnicos)</span>
-                  <span class="badge bg-success text-white" style="font-size: 9px;">Cargado</span>
-                </div>
-              </div>
-            </div>
-
-            ${isBank ? `
+        <div class="d-flex flex-column flex-lg-row align-items-stretch justify-content-between gap-4">
+          <!-- Columna Izquierda: Configuración y Parámetros de Entrada -->
+          <div style="flex: 1 1 50%; min-width: 320px;" class="d-flex flex-column justify-content-between">
+            <div>
               <div class="mb-3">
-                <label class="wf-label">Guión Adicional / Prompt de Orientación (Opcional)</label>
+                <label class="wf-label">Unidad Académica de Origen</label>
                 <div class="wf-input-wrap">
-                  <textarea class="wf-input" rows="4" placeholder="Ej: Enfatizar preguntas sobre cálculo de TIR, duration de Macaulay y convexidad de bonos soberanos...">Enfatizar preguntas sobre cálculo de TIR, duration de Macaulay y convexidad de bonos soberanos con casos prácticos.</textarea>
-                  <span class="pin-badge">${badges[1] || 'B'}</span>
-                </div>
-                <div class="small text-muted mt-1" style="font-size: 11px;">El modelo Ollama utilizará este guión junto con la bibliografía de la unidad para generar los enunciados.</div>
-              </div>
-            ` : ''}
-
-            ${isSummary ? `
-              <div class="p-3 bg-light rounded border mb-3">
-                <div class="small fw-bold text-muted text-uppercase mb-2">Parámetros de Síntesis</div>
-                <div class="d-flex justify-content-between align-items-center small text-muted">
-                  <span>Extensión estimada:</span>
-                  <strong class="text-dark">3 a 4 páginas estructuradas</strong>
-                </div>
-                <div class="d-flex justify-content-between align-items-center small text-muted mt-1">
-                  <span>Nivel de detalle:</span>
-                  <strong class="text-dark">Avanzado (Énfasis en conceptos CNV)</strong>
+                  <select class="wf-input">
+                    <option selected>Unidad 2: Instrumentos de Renta Fija (Bonos y Obligaciones Negociables)</option>
+                  </select>
                 </div>
               </div>
-            ` : ''}
 
-            ${isSlides ? `
-              <div class="p-3 bg-light rounded border mb-3">
-                <div class="small fw-bold text-muted text-uppercase mb-2">Formato de Presentación</div>
-                <div class="d-flex justify-content-between align-items-center small text-muted">
-                  <span>Estructura:</span>
-                  <strong class="text-dark">12 diapositivas temáticas con puntos clave</strong>
-                </div>
-                <div class="d-flex justify-content-between align-items-center small text-muted mt-1">
-                  <span>Exportación:</span>
-                  <strong class="text-dark">Formato PPTX / PDF descargable</strong>
+              <div class="mb-3">
+                <label class="wf-label">Fuentes de Contenido (Bibliografía & Glosario)</label>
+                <div class="p-2 border rounded bg-light d-flex flex-column gap-1" style="font-size: 12px;">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <span><i class="fa-solid fa-file-pdf text-danger me-1"></i> Guía Teórica de Renta Fija v2.0.pdf</span>
+                    <span class="badge bg-success text-white" style="font-size: 9px;">Cargado</span>
+                  </div>
+                  <div class="d-flex justify-content-between align-items-center">
+                    <span><i class="fa-solid fa-book-open text-warning me-1"></i> Glosario de Unidad (8 términos técnicos)</span>
+                    <span class="badge bg-success text-white" style="font-size: 9px;">Cargado</span>
+                  </div>
                 </div>
               </div>
-            ` : ''}
 
-            <div class="p-2 border rounded bg-white shadow-sm d-flex align-items-center justify-content-between">
-              <span class="small text-muted"><i class="fa-solid fa-server me-1 text-primary"></i> Motor IA: <strong>Ollama Local (LLaMA-3 8B)</strong></span>
+              ${isBank ? `
+                <div class="mb-3">
+                  <label class="wf-label">Guión Adicional / Prompt de Orientación (Opcional)</label>
+                  <div class="wf-input-wrap">
+                    <textarea class="wf-input" rows="4" placeholder="Ej: Enfatizar preguntas sobre cálculo de TIR, duration de Macaulay y convexidad de bonos soberanos...">Enfatizar preguntas sobre cálculo de TIR, duration de Macaulay y convexidad de bonos soberanos con casos prácticos.</textarea>
+                    <span class="pin-badge">${badges[1] || 'B'}</span>
+                  </div>
+                  <div class="small text-muted mt-1" style="font-size: 11px;">El modelo Ollama utilizará este guión junto con la bibliografía de la unidad para generar los enunciados.</div>
+                </div>
+              ` : ''}
+
+              ${isSummary ? `
+                <div class="p-3 bg-light rounded border mb-3">
+                  <div class="small fw-bold text-muted text-uppercase mb-2">Parámetros de Síntesis</div>
+                  <div class="d-flex justify-content-between align-items-center small text-muted">
+                    <span>Extensión estimada:</span>
+                    <strong class="text-dark">3 a 4 páginas estructuradas</strong>
+                  </div>
+                  <div class="d-flex justify-content-between align-items-center small text-muted mt-1">
+                    <span>Nivel de detalle:</span>
+                    <strong class="text-dark">Avanzado (Énfasis en conceptos CNV)</strong>
+                  </div>
+                </div>
+              ` : ''}
+
+              ${isSlides ? `
+                <div class="p-3 bg-light rounded border mb-3">
+                  <div class="small fw-bold text-muted text-uppercase mb-2">Formato de Presentación</div>
+                  <div class="d-flex justify-content-between align-items-center small text-muted">
+                    <span>Estructura:</span>
+                    <strong class="text-dark">12 diapositivas temáticas con puntos clave</strong>
+                  </div>
+                  <div class="d-flex justify-content-between align-items-center small text-muted mt-1">
+                    <span>Exportación:</span>
+                    <strong class="text-dark">Formato PPTX / PDF descargable</strong>
+                  </div>
+                </div>
+              ` : ''}
+            </div>
+
+            <div class="p-2 border rounded bg-white shadow-sm d-flex align-items-center justify-content-between mt-2">
+              <span class="small text-muted"><i class="fa-solid fa-server me-1 text-primary"></i> Estado de Inferencia: <strong>Local Ollama API</strong></span>
               <span class="badge bg-success text-white" style="font-size: 10px;">En Línea</span>
             </div>
           </div>
 
-          <!-- Columna Derecha: Preview del Contenido Generado -->
-          <div class="col-lg-6">
-            <div class="p-3 border rounded bg-white shadow-sm h-100 d-flex flex-column justify-content-between">
+          <!-- Barra Divisoria Vertical en el medio -->
+          <div class="d-none d-lg-block" style="width: 1px; background: #CBD5E1; min-height: 100%;"></div>
+
+          <!-- Columna Derecha: Previsualización del Resultado IA -->
+          <div style="flex: 1 1 50%; min-width: 320px;">
+            <div class="p-4 border rounded bg-white shadow-sm h-100 d-flex flex-column justify-content-between" style="border-top: 4px solid #059669 !important;">
               <div>
                 <div class="d-flex justify-content-between align-items-center pb-2 mb-3 border-bottom">
-                  <strong style="font-size: 13px; color: #081426;"><i class="fa-solid fa-eye me-1 text-primary"></i>Previsualización del Resultado IA</strong>
+                  <strong style="font-size: 14px; color: #081426;"><i class="fa-solid fa-eye me-1 text-primary"></i>Previsualización del Resultado IA</strong>
                   <span class="badge bg-light text-muted border">Estado: No Publicado</span>
                 </div>
 
                 ${isBank ? `
                   <div class="d-flex flex-column gap-2" style="font-size: 12px;">
-                    <div class="p-2 border rounded bg-light">
+                    <div class="p-3 border rounded bg-light">
                       <div class="fw-bold text-dark mb-1">1. ¿Qué mide la modified duration en un título de renta fija?</div>
-                      <div class="text-success small"><i class="fa-solid fa-check-circle me-1"></i> A) La sensibilidad porcentual del precio ante variaciones en la TIR. (Correcta)</div>
+                      <div class="text-success small"><i class="fa-solid fa-circle-check me-1"></i> A) La sensibilidad porcentual del precio ante variaciones en la TIR. (Correcta)</div>
                       <div class="text-muted small ms-3">B) El plazo promedio ponderado de los flujos de fondos.</div>
                       <div class="text-muted small ms-3">C) El cupón de interés nominal anual.</div>
                     </div>
-                    <div class="p-2 border rounded bg-light">
+                    <div class="p-3 border rounded bg-light">
                       <div class="fw-bold text-dark mb-1">2. Ante una suba en la tasa de interés, el precio de un bono con alta convexidad cae más que uno de baja convexidad.</div>
-                      <div class="text-success small"><i class="fa-solid fa-check-circle me-1"></i> Falso (La convexidad amortigua la caída de precio). (Correcta)</div>
+                      <div class="text-success small"><i class="fa-solid fa-circle-check me-1"></i> Falso (La convexidad amortigua la caída de precio). (Correcta)</div>
                     </div>
                   </div>
                 ` : ''}
@@ -3696,7 +3924,7 @@ function generateScreenContent(cu) {
                 ` : ''}
               </div>
 
-              <div class="pt-3 mt-3 border-top d-flex justify-content-end align-items-center gap-3">
+              <div class="pt-3 mt-4 border-top d-flex justify-content-end align-items-center gap-3">
                 <a href="#CU-19" class="wf-btn wf-btn-sm wf-btn-outline">Cancelar</a>
                 <div class="d-flex align-items-center gap-2">
                   <button class="wf-btn wf-btn-sm wf-btn-primary d-flex align-items-center gap-2" style="background: #059669; border-color: #047857; font-weight: 700;">
@@ -3941,13 +4169,12 @@ function generateScreenContent(cu) {
             <span class="wf-badge" style="background: #DC2626; color: white; animation: pulse 2s infinite;">● EN VIVO</span>
             <div>
               <h3 style="font-size: 16px; font-weight: 700; color: #FFFFFF; margin: 0;">Clase Magistral: Resolución de Prácticos de Renta Fija</h3>
-              <p class="small text-muted" style="margin: 0; color: #94A3B8;">Docente: Lic. Fausto Spotorno | Alumnos Conectados: 48</p>
+              <p class="small text-muted" style="margin: 0; color: #94A3B8;">Docente: Mg. Elena Valenzuela | Alumnos Conectados: 48</p>
             </div>
           </div>
           <div class="d-flex align-items-center gap-3">
             ${isStart ? `
               <div class="d-flex align-items-center gap-2">
-                <span class="pin-badge">${badges[0] || 'A'}</span>
                 <button class="wf-btn wf-btn-sm wf-btn-primary d-flex align-items-center gap-2" style="background: #2563EB; font-weight: 700;">
                   <i class="fa-solid fa-key text-warning"></i>
                   <span>Copiar clave para transmitir en vivo por OBS</span>
@@ -3966,7 +4193,6 @@ function generateScreenContent(cu) {
               <div class="d-flex align-items-center gap-2">
                 <span class="wf-badge" style="background: #DC2626; color: white;">● En vivo</span>
                 <span class="wf-badge status-active">Conectado a la Sala</span>
-                <span class="pin-badge">${badges[0] || 'A'}</span>
               </div>
             ` : ''}
           </div>
@@ -4216,6 +4442,195 @@ function generateScreenContent(cu) {
                 <td><span class="wf-badge status-inactive" style="color: #DC2626; border-color: #FCA5A5; background: #FEF2F2;">Dada de baja</span></td>
                 <td class="text-end">
                   <span class="small text-muted fst-italic">Baja registrada el 22/12/2025</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+  }
+
+  // --- SPECIALIZED 11A-4: BUSCAR USUARIO --- CU-82
+  if (id === 'CU-82') {
+    return `
+      <div class="wf-card mb-4" style="background: #FFFFFF;">
+        <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
+          <div>
+            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Gestión y Búsqueda de Usuarios</h3>
+            <p class="small text-muted" style="margin: 3px 0 0;">Consulte, filtre y gestione los expedientes de usuarios registrados en el sistema con sus roles y credenciales.</p>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <span class="wf-badge status-active">Módulo de Usuarios</span>
+          </div>
+        </div>
+
+        <!-- Barra de Filtros [A] -->
+        <div class="p-3 bg-light rounded border mb-4">
+          <div class="row g-3 align-items-end">
+            <div class="col" style="flex: 1 1 22%; min-width: 180px;">
+              <label class="wf-label">Buscar por Nombre o Apellido</label>
+              <div class="wf-input-wrap">
+                <input type="text" class="wf-input" placeholder="Ej: Elena, Valenzuela, Joaquín...">
+                <span class="pin-badge">${badges[0] || 'A'}</span>
+              </div>
+            </div>
+            <div class="col" style="flex: 1 1 22%; min-width: 180px;">
+              <label class="wf-label">Correo Electrónico</label>
+              <div class="wf-input-wrap">
+                <input type="email" class="wf-input" placeholder="ejemplo@idoneos.online">
+              </div>
+            </div>
+            <div class="col" style="flex: 1 1 16%; min-width: 130px;">
+              <label class="wf-label">DNI</label>
+              <div class="wf-input-wrap">
+                <input type="text" class="wf-input" placeholder="DNI sin puntos...">
+              </div>
+            </div>
+            <div class="col" style="flex: 1 1 18%; min-width: 140px;">
+              <label class="wf-label">Rol del Usuario</label>
+              <div class="wf-input-wrap">
+                <select class="wf-input">
+                  <option selected>Todos los roles</option>
+                  <option>Docente</option>
+                  <option>Alumno</option>
+                  <option>Administrador</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-auto" style="min-width: 120px;">
+              <div class="d-flex align-items-center gap-2">
+                <button class="wf-btn wf-btn-primary w-100"><i class="fa-solid fa-magnifying-glass me-1"></i> Buscar</button>
+                <span class="pin-badge">${badges[1] || 'B'}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Listado de Usuarios Filtrados con Acción [C] -->
+        <div class="wf-table-wrap">
+          <table class="wf-table">
+            <thead>
+              <tr>
+                <th>Usuario / Datos Personales</th>
+                <th>Correo Electrónico</th>
+                <th>DNI / Identificación</th>
+                <th>Rol Asignado</th>
+                <th>Estado</th>
+                <th class="text-end">Acciones / Perfil</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Usuario 1: Mg. Elena Valenzuela (Docente Seleccionada) -->
+              <tr style="background: #F0F9FF; border-left: 4px solid var(--wf-navy);">
+                <td>
+                  <div class="d-flex align-items-center gap-2">
+                    <img src="${avatarDocenteImg}" style="width: 36px; height: 36px; min-width: 36px; border-radius: 50%; object-fit: cover; aspect-ratio: 1 / 1; flex-shrink: 0; border: 1.5px solid var(--wf-gold);" alt="Docente">
+                    <div>
+                      <strong style="color: #081426;">Mg. Elena Valenzuela</strong>
+                      <div class="small text-muted">Especialista en Finanzas & Mercado CNV</div>
+                    </div>
+                  </div>
+                </td>
+                <td>elena.valenzuela@idoneos.online</td>
+                <td><span class="fw-bold">35.456.789</span></td>
+                <td><span class="badge bg-primary text-white">Docente</span></td>
+                <td><span class="wf-badge status-active">Activo</span></td>
+                <td class="text-end">
+                  <div class="d-inline-flex align-items-center gap-2">
+                    <a href="#CU-86" class="wf-btn wf-btn-sm wf-btn-primary" title="Consultar perfil del usuario">
+                      <i class="fa-solid fa-user me-1"></i>
+                      <span>Ver Perfil</span>
+                    </a>
+                    <span class="pin-badge">${badges[2] || 'C'}</span>
+                    <a href="#CU-84" class="wf-btn wf-btn-sm wf-btn-outline" title="Modificar usuario">
+                      <i class="fa-solid fa-pen-to-square"></i>
+                    </a>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Usuario 2: Joaquín Küster (Alumno) -->
+              <tr>
+                <td>
+                  <div class="d-flex align-items-center gap-2">
+                    <div class="user-avatar-circle" style="width: 36px; height: 36px; min-width: 36px; border-radius: 50%; aspect-ratio: 1 / 1; flex-shrink: 0; background: #2563EB; color: white;">JK</div>
+                    <div>
+                      <strong style="color: #081426;">Joaquín Küster</strong>
+                      <div class="small text-muted">Estudiante de Especialización</div>
+                    </div>
+                  </div>
+                </td>
+                <td>joaquin.kuster@idoneos.online</td>
+                <td><span class="fw-bold">40.123.456</span></td>
+                <td><span class="badge bg-light text-dark border">Alumno</span></td>
+                <td><span class="wf-badge status-active">Activo</span></td>
+                <td class="text-end">
+                  <div class="d-inline-flex align-items-center gap-1">
+                    <a href="#CU-86" class="wf-btn wf-btn-sm wf-btn-outline">
+                      <i class="fa-solid fa-user me-1"></i>
+                      <span>Ver Perfil</span>
+                    </a>
+                    <a href="#CU-84" class="wf-btn wf-btn-sm wf-btn-outline">
+                      <i class="fa-solid fa-pen-to-square"></i>
+                    </a>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Usuario 3: Dr. Roberto Cachanosky (Docente) -->
+              <tr>
+                <td>
+                  <div class="d-flex align-items-center gap-2">
+                    <div class="user-avatar-circle" style="width: 36px; height: 36px; min-width: 36px; border-radius: 50%; aspect-ratio: 1 / 1; flex-shrink: 0; background: #081426; color: var(--wf-gold);">RC</div>
+                    <div>
+                      <strong style="color: #081426;">Dr. Roberto Cachanosky</strong>
+                      <div class="small text-muted">Docente Titular de Economía</div>
+                    </div>
+                  </div>
+                </td>
+                <td>roberto.cachanosky@idoneos.online</td>
+                <td><span class="fw-bold">14.567.890</span></td>
+                <td><span class="badge bg-primary text-white">Docente</span></td>
+                <td><span class="wf-badge status-active">Activo</span></td>
+                <td class="text-end">
+                  <div class="d-inline-flex align-items-center gap-1">
+                    <a href="#CU-86" class="wf-btn wf-btn-sm wf-btn-outline">
+                      <i class="fa-solid fa-user me-1"></i>
+                      <span>Ver Perfil</span>
+                    </a>
+                    <a href="#CU-84" class="wf-btn wf-btn-sm wf-btn-outline">
+                      <i class="fa-solid fa-pen-to-square"></i>
+                    </a>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Usuario 4: Admin Central (Administrador) -->
+              <tr>
+                <td>
+                  <div class="d-flex align-items-center gap-2">
+                    <div class="user-avatar-circle" style="width: 36px; height: 36px; min-width: 36px; border-radius: 50%; aspect-ratio: 1 / 1; flex-shrink: 0; background: #DC2626; color: white;">AD</div>
+                    <div>
+                      <strong style="color: #081426;">Administrador General</strong>
+                      <div class="small text-muted">Gestión Central Idóneos Online</div>
+                    </div>
+                  </div>
+                </td>
+                <td>admin@idoneos.online</td>
+                <td><span class="fw-bold">28.990.112</span></td>
+                <td><span class="badge bg-danger text-white">Administrador</span></td>
+                <td><span class="wf-badge status-active">Activo</span></td>
+                <td class="text-end">
+                  <div class="d-inline-flex align-items-center gap-1">
+                    <a href="#CU-86" class="wf-btn wf-btn-sm wf-btn-outline">
+                      <i class="fa-solid fa-user me-1"></i>
+                      <span>Ver Perfil</span>
+                    </a>
+                    <a href="#CU-84" class="wf-btn wf-btn-sm wf-btn-outline">
+                      <i class="fa-solid fa-pen-to-square"></i>
+                    </a>
+                  </div>
                 </td>
               </tr>
             </tbody>
@@ -4705,7 +5120,7 @@ function generateScreenContent(cu) {
                 </div>
                 <div class="d-flex justify-content-between mb-1">
                   <span class="text-muted">Docente Titular:</span>
-                  <strong>Lic. Fausto Spotorno</strong>
+                  <strong>Mg. Elena Valenzuela</strong>
                 </div>
                 <div class="d-flex justify-content-between">
                   <span class="text-muted">Progreso inicial:</span>
@@ -5004,7 +5419,7 @@ function generateScreenContent(cu) {
             <tbody>
               <tr>
                 <td><strong>${isAudit ? '2026-08-26 07:45:12' : 'Especialización en Idoneidad Bursátil'}</strong></td>
-                <td>${isAudit ? 'Lic. Fausto Spotorno (Docente)' : '2026-1 (En curso)'}</td>
+                <td>${isAudit ? 'Mg. Elena Valenzuela (Docente)' : '2026-1 (En curso)'}</td>
                 <td>${isAudit ? 'Crear Clon de IA (voice_id: #v92)' : '840 inscriptos'}</td>
                 <td>${isAudit ? 'MOD-F-06: IA' : '$10.080.000 ARS'}</td>
                 <td class="text-end">
@@ -5087,7 +5502,7 @@ function generateScreenContent(cu) {
           <div class="mb-3">
             <label class="wf-label">Correo Electrónico Institucional</label>
             <div class="wf-input-wrap">
-              <input type="email" class="wf-input" value="${isLogin ? 'fausto.spotorno@idoneos.online' : 'usuario@correo.com'}">
+              <input type="email" class="wf-input" value="${isLogin ? 'elena.valenzuela@idoneos.online' : 'usuario@correo.com'}">
               <span class="pin-badge">${badges[0] || 'A'}</span>
             </div>
           </div>
@@ -5127,7 +5542,7 @@ function generateScreenContent(cu) {
                 <i class="fa-solid fa-user-tie"></i>
               </div>
               <div>
-                <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Perfil de Usuario: Lic. Fausto Spotorno</h3>
+                <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Perfil de Usuario: Mg. Elena Valenzuela</h3>
                 <p class="small text-muted" style="margin: 2px 0 0;"><i class="fa-solid fa-graduation-cap me-1 text-primary"></i> Docente Titular • Mercado de Capitales & Finanzas</p>
               </div>
             </div>
@@ -5144,13 +5559,13 @@ function generateScreenContent(cu) {
             <div class="col-md-6">
               <label class="wf-label">Nombre Completo</label>
               <div class="wf-input-wrap">
-                <input type="text" class="wf-input" value="Fausto Spotorno">
+                <input type="text" class="wf-input" value="Elena Valenzuela">
                 <span class="pin-badge">${badges[1] || 'B'}</span>
               </div>
             </div>
             <div class="col-md-6">
               <label class="wf-label">Correo Electrónico Institucional</label>
-              <input type="email" class="wf-input bg-light" value="fausto.spotorno@idoneos.online" disabled>
+              <input type="email" class="wf-input bg-light" value="elena.valenzuela@idoneos.online" disabled>
             </div>
             <div class="col-md-6">
               <label class="wf-label">Estado de Habilitación Docente</label>
@@ -5162,7 +5577,7 @@ function generateScreenContent(cu) {
             <div class="col-md-6">
               <label class="wf-label">Estado de Clon Digital (HeyGen)</label>
               <div class="p-2 rounded border bg-light d-flex align-items-center justify-content-between">
-                <span class="small text-muted"><i class="fa-solid fa-robot me-1 text-primary"></i> Avatar vinculado: <strong>#avatar_spotorno_v2</strong></span>
+                <span class="small text-muted"><i class="fa-solid fa-robot me-1 text-primary"></i> Avatar vinculado: <strong>#avatar_valenzuela_v2</strong></span>
                 <a href="#CU-76" class="small fw-bold text-primary text-decoration-none">Reconfigurar</a>
               </div>
             </div>
@@ -5244,7 +5659,7 @@ function generateScreenContent(cu) {
       bgEntityName = 'Video Clon IA: Explicación de Convexidad';
       bgExtraInfo = 'Impacto: Se eliminará del repositorio de medios de la unidad';
     } else if (id === 'CU-85' || name.includes('usuario')) {
-      bgEntityName = 'Usuario: Lic. Fausto Spotorno (fausto.spotorno@idoneos.online)';
+      bgEntityName = 'Usuario: Mg. Elena Valenzuela (elena.valenzuela@idoneos.online)';
       bgExtraInfo = 'Validación: Desactivación de credenciales y accesos';
     }
 
@@ -5535,7 +5950,7 @@ function generateScreenContent(cu) {
             <label class="wf-label">Docente Titular Responsable</label>
             <div class="wf-input-wrap">
               <select class="wf-input">
-                <option selected>Lic. Fausto Spotorno (Economista & Consultor)</option>
+                <option selected>Mg. Elena Valenzuela (Economista & Consultor)</option>
                 <option>Dr. Roberto Cachanosky</option>
               </select>
               <span class="pin-badge">G</span>
@@ -5624,7 +6039,7 @@ function generateScreenContent(cu) {
         <div class="col-md-6">
           <label class="wf-label">Nombre / Denominación</label>
           <div class="wf-input-wrap">
-            <input type="text" class="wf-input" value="${name.includes('categoría') ? 'Mercado de Capitales' : (name.includes('cohorte') ? 'Cohorte 2026-1' : (name.includes('descuento') ? 'Beca Convenio UNaM 2026' : (name.includes('docente') ? 'Lic. Fausto Spotorno' : 'Registro de ' + name)))}">
+            <input type="text" class="wf-input" value="${name.includes('categoría') ? 'Mercado de Capitales' : (name.includes('cohorte') ? 'Cohorte 2026-1' : (name.includes('descuento') ? 'Beca Convenio UNaM 2026' : (name.includes('docente') ? 'Mg. Elena Valenzuela' : 'Registro de ' + name)))}">
             <span class="pin-badge">${badges[1] || 'B'}</span>
           </div>
         </div>
@@ -6764,12 +7179,23 @@ let html = `<!DOCTYPE html>
         .g-4 > [class*="col-"] { padding-right: 14px; padding-left: 14px; padding-bottom: 24px; }
         
         .col-12 { flex: 0 0 100%; max-width: 100%; padding: 0 12px; }
+        .col { flex: 1 0 0%; min-width: 0; padding: 0 12px; }
+        .col-auto { flex: 0 0 auto; width: auto; }
         .col-md-3 { flex: 0 0 25%; max-width: 25%; padding: 0 12px; }
         .col-md-4 { flex: 0 0 33.3333%; max-width: 33.3333%; padding: 0 12px; }
         .col-md-5 { flex: 0 0 41.6666%; max-width: 41.6666%; padding: 0 12px; }
         .col-md-6 { flex: 0 0 50%; max-width: 50%; padding: 0 12px; }
         .col-md-7 { flex: 0 0 58.3333%; max-width: 58.3333%; padding: 0 12px; }
         .col-md-8 { flex: 0 0 66.6666%; max-width: 66.6666%; padding: 0 12px; }
+
+        .col-lg-auto { flex: 0 0 auto; width: auto; }
+        .col-lg-5 { flex: 0 0 41.6666%; max-width: 41.6666%; padding: 0 12px; }
+        .col-lg-6 { flex: 0 0 50%; max-width: 50%; padding: 0 12px; }
+        .col-lg-7 { flex: 0 0 58.3333%; max-width: 58.3333%; padding: 0 12px; }
+        .pe-lg-4 { padding-right: 20px; }
+        .ps-lg-4 { padding-left: 20px; }
+        .position-relative { position: relative; }
+        .position-absolute { position: absolute; }
 
         .d-flex { display: flex; }
         .d-inline-flex { display: inline-flex; }
@@ -6811,6 +7237,21 @@ let html = `<!DOCTYPE html>
         .pb-2 { padding-bottom: 8px; }
         .pb-3 { padding-bottom: 12px; }
         
+        .flex-row { flex-direction: row !important; }
+        .flex-column { flex-direction: column !important; }
+        .flex-wrap { flex-wrap: wrap !important; }
+        .flex-nowrap { flex-wrap: nowrap !important; }
+        .flex-grow-1 { flex-grow: 1 !important; }
+        .flex-shrink-0 { flex-shrink: 0 !important; }
+
+        @media (min-width: 900px) {
+            .flex-lg-row { flex-direction: row !important; }
+            .flex-lg-column { flex-direction: column !important; }
+            .d-lg-block { display: block !important; }
+            .d-lg-none { display: none !important; }
+            .d-lg-flex { display: flex !important; }
+        }
+
         .border-top { border-top: 1px solid #E2E8F0; }
         .border-bottom { border-bottom: 1px solid #E2E8F0; }
         .border-end { border-right: 1px solid #E2E8F0; }
@@ -7001,16 +7442,16 @@ cus.forEach(cu => {
                         <span class="pin-badge">A</span>
                     ` : ''}
                     ${cu.id === 'CU-19' || cu.id === 'CU-26b' ? `
-                        <a href="#CU-20" class="wf-btn-gold">
+                        <a href="#CU-20" class="wf-btn-gold" style="padding: 6px 14px; font-size: 11px; height: 32px;">
                             <i class="fa-solid fa-plus"></i>
                             <span>Nueva Unidad</span>
                         </a>
                         <span class="pin-badge">A</span>
-                        <a href="#CU-54" class="wf-btn-gold">
+                        <a href="#CU-54" class="wf-btn-gold" style="padding: 6px 14px; font-size: 11px; height: 32px;">
                             <i class="fa-solid fa-list-check"></i>
                             <span>Nuevo Pool</span>
                         </a>
-                        <a href="#CU-66" class="wf-btn-gold">
+                        <a href="#CU-66" class="wf-btn-gold" style="padding: 6px 14px; font-size: 11px; height: 32px;">
                             <i class="fa-solid fa-video"></i>
                             <span>Programar clase en vivo</span>
                         </a>
@@ -7047,13 +7488,6 @@ cus.forEach(cu => {
                         <a href="#CU-58" class="wf-btn-gold">
                             <i class="fa-solid fa-plus"></i>
                             <span>Nueva Autoevaluación</span>
-                        </a>
-                        <span class="pin-badge">A</span>
-                    ` : ''}
-                    ${cu.id === 'CU-65' ? `
-                        <a href="#CU-66" class="wf-btn-gold">
-                            <i class="fa-solid fa-video"></i>
-                            <span>Programar clase en vivo</span>
                         </a>
                         <span class="pin-badge">A</span>
                     ` : ''}
