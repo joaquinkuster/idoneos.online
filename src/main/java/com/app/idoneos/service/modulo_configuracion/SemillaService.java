@@ -310,7 +310,7 @@ public class SemillaService {
         terminoGlosarioRepository.save(new TerminoGlosario("CEDEAR", "Certificado de Depósito Argentino representativo de acciones extranjeras.", u3));
 
         // Consultas y Foros (CU-35 a CU-42)
-        ConsultaForo cForo = new ConsultaForo(alumnoPrincipal, "¿Cómo calcular la paridad cambiaria al comprar CEDEARs?", u1);
+        ConsultaForo cForo = new ConsultaForo("¿Cómo calcular la paridad cambiaria al comprar CEDEARs?", alumnoPrincipal, u1);
         consultaForoRepository.save(cForo);
         RespuestaForo rForo = new RespuestaForo("Para calcular el tipo de cambio implícito (CCL), dividís el precio del CEDEAR en pesos por su ratio de conversión multiplicado por el precio del activo subyacente en dólares en Wall Street.", cForo, docenteFausto);
         respuestaForoRepository.save(rForo);
@@ -337,9 +337,7 @@ public class SemillaService {
         // ===============================================================
         // 7. CLASES EN VIVO Y CLASES CON CLON IA (CU-65 a CU-80)
         // ===============================================================
-        ClaseEnVivo claseVivo = new ClaseEnVivo("Taller en Vivo: Análisis de Tasas y Bonos", LocalDateTime.now().plusDays(3), 90, docenteFausto, estProg, cohorte1);
-        claseVivo.setUrlRtmp("rtmp://stream.idoneos.online/live");
-        claseVivo.setClaveStream("live_fausto_k8172");
+        ClaseEnVivo claseVivo = new ClaseEnVivo("Taller en Vivo: Análisis de Tasas y Bonos", LocalDateTime.now().plusDays(3), 90, "rtmp://stream.idoneos.online/live", "live_fausto_k8172", docenteFausto, estProg, cohorte1);
         claseEnVivoRepository.save(claseVivo);
 
         ClaseClonIA claseClon = new ClaseClonIA("Estrategia de Liquidez con FaustIA", "Bienvenidos a la clase sobre optimización de caja y fondos comunes...", docenteFausto, estClonGen);
@@ -472,9 +470,9 @@ public class SemillaService {
         // ===============================================================
         // 9. AUDITORÍA Y REPORTES HISTÓRICOS (CU-95, CU-96 a CU-98)
         // ===============================================================
-        auditoriaRepository.save(new Auditoria(adminUsuario, accionCrear, "Curso", curso1.getId(), "Creación de curso Mercado de Capitales"));
-        auditoriaRepository.save(new Auditoria(adminUsuario, accionCrear, "Cohorte", cohorte1.getId(), "Apertura de Cohorte 2026"));
-        auditoriaRepository.save(new Auditoria(usuAlumnoPrincipal, accionCrear, "Pago", pagoPrincipal.getId(), "Pago acreditado con MODO"));
+        auditoriaRepository.save(new Auditoria("Curso", curso1.getId(), adminUsuario, accionCrear));
+        auditoriaRepository.save(new Auditoria("Cohorte", cohorte1.getId(), adminUsuario, accionCrear));
+        auditoriaRepository.save(new Auditoria("Pago", pagoPrincipal.getId(), usuAlumnoPrincipal, accionCrear));
 
         Reporte repAlumnos = new Reporte(trAlumnos, adminActual, curso1);
         repAlumnos.setFechaGeneracion(LocalDateTime.now().minusDays(4));
