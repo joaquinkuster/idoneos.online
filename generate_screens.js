@@ -512,30 +512,32 @@ function generateScreenContent(cu) {
             </div>
           </div>
           <div class="wf-course-card-footer">
-            <div class="d-flex align-items-center justify-content-between gap-2">
-              ${isDocente ? `
+            ${isDocente ? `
+              <div class="d-flex flex-column gap-2 w-100">
                 <div class="d-flex align-items-center gap-2 w-100">
-                  <a href="#CU-26b" class="wf-btn wf-btn-sm wf-btn-primary d-flex align-items-center justify-content-center gap-1" style="background: var(--wf-navy); font-weight: 700;">
+                  <a href="#CU-26b" class="wf-btn wf-btn-sm wf-btn-primary w-100 d-flex align-items-center justify-content-center gap-2" style="background: var(--wf-navy); font-weight: 700; height: 38px;">
                     <i class="fa-solid fa-arrow-right-to-bracket"></i>
                     <span>Ingresar al Curso</span>
                   </a>
+                  <span class="pin-badge">${badges[3] || badges[badges.length - 1] || 'D'}</span>
+                </div>
+                <div class="d-flex align-items-center gap-2 w-100">
                   <a href="#CU-04" class="wf-btn wf-btn-sm wf-btn-outline flex-grow-1 d-flex align-items-center justify-content-center gap-1">
                     <i class="fa-solid fa-pen-to-square"></i>
                     <span>Editar Curso</span>
                   </a>
-                  <a href="#CU-05" class="wf-btn wf-btn-sm wf-btn-outline text-danger" title="Dar de baja curso">
+                  <a href="#CU-05" class="wf-btn wf-btn-sm wf-btn-outline text-danger flex-grow-1 d-flex align-items-center justify-content-center gap-1" title="Dar de baja curso">
                     <i class="fa-solid fa-trash me-1"></i>
                     <span>Dar de baja</span>
                   </a>
                 </div>
-              ` : `
-                <button class="wf-btn-manage-course">
-                  ${icons.cog6Tooth("w-4 h-4")}
-                  <span>${isAlumno ? 'Ingresar al Curso' : 'Ver Ficha / Inscribirme'}</span>
-                </button>
-              `}
-              <span class="pin-badge">${badges[3] || badges[badges.length - 1] || 'D'}</span>
-            </div>
+              </div>
+            ` : `
+              <button class="wf-btn-manage-course">
+                ${icons.cog6Tooth("w-4 h-4")}
+                <span>${isAlumno ? 'Ingresar al Curso' : 'Ver Ficha / Inscribirme'}</span>
+              </button>
+            `}
           </div>
         </div>
 
@@ -558,19 +560,21 @@ function generateScreenContent(cu) {
           </div>
           <div class="wf-course-card-footer">
             ${isDocente ? `
-              <div class="d-flex align-items-center gap-2 w-100">
-                <a href="#CU-26b" class="wf-btn wf-btn-sm wf-btn-primary d-flex align-items-center justify-content-center gap-1" style="background: var(--wf-navy); font-weight: 700;">
+              <div class="d-flex flex-column gap-2 w-100">
+                <a href="#CU-26b" class="wf-btn wf-btn-sm wf-btn-primary w-100 d-flex align-items-center justify-content-center gap-2" style="background: var(--wf-navy); font-weight: 700; height: 38px;">
                   <i class="fa-solid fa-arrow-right-to-bracket"></i>
                   <span>Ingresar al Curso</span>
                 </a>
-                <a href="#CU-04" class="wf-btn wf-btn-sm wf-btn-outline flex-grow-1 d-flex align-items-center justify-content-center gap-1">
-                  <i class="fa-solid fa-pen-to-square"></i>
-                  <span>Editar Curso</span>
-                </a>
-                <a href="#CU-05" class="wf-btn wf-btn-sm wf-btn-outline text-danger" title="Dar de baja curso">
-                  <i class="fa-solid fa-trash me-1"></i>
-                  <span>Dar de baja</span>
-                </a>
+                <div class="d-flex align-items-center gap-2 w-100">
+                  <a href="#CU-04" class="wf-btn wf-btn-sm wf-btn-outline flex-grow-1 d-flex align-items-center justify-content-center gap-1">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                    <span>Editar Curso</span>
+                  </a>
+                  <a href="#CU-05" class="wf-btn wf-btn-sm wf-btn-outline text-danger flex-grow-1 d-flex align-items-center justify-content-center gap-1" title="Dar de baja curso">
+                    <i class="fa-solid fa-trash me-1"></i>
+                    <span>Dar de baja</span>
+                  </a>
+                </div>
               </div>
             ` : `
               <button class="wf-btn-manage-course">
@@ -600,19 +604,21 @@ function generateScreenContent(cu) {
           </div>
           <div class="wf-course-card-footer">
             ${isDocente ? `
-              <div class="d-flex align-items-center gap-2 w-100">
-                <a href="#CU-26b" class="wf-btn wf-btn-sm wf-btn-primary d-flex align-items-center justify-content-center gap-1" style="background: var(--wf-navy); font-weight: 700;">
+              <div class="d-flex flex-column gap-2 w-100">
+                <a href="#CU-26b" class="wf-btn wf-btn-sm wf-btn-primary w-100 d-flex align-items-center justify-content-center gap-2" style="background: var(--wf-navy); font-weight: 700; height: 38px;">
                   <i class="fa-solid fa-arrow-right-to-bracket"></i>
                   <span>Ingresar al Curso</span>
                 </a>
-                <a href="#CU-04" class="wf-btn wf-btn-sm wf-btn-outline flex-grow-1 d-flex align-items-center justify-content-center gap-1">
-                  <i class="fa-solid fa-pen-to-square"></i>
-                  <span>Editar Curso</span>
-                </a>
-                <a href="#CU-05" class="wf-btn wf-btn-sm wf-btn-outline text-danger" title="Dar de baja curso">
-                  <i class="fa-solid fa-trash me-1"></i>
-                  <span>Dar de baja</span>
-                </a>
+                <div class="d-flex align-items-center gap-2 w-100">
+                  <a href="#CU-04" class="wf-btn wf-btn-sm wf-btn-outline flex-grow-1 d-flex align-items-center justify-content-center gap-1">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                    <span>Editar Curso</span>
+                  </a>
+                  <a href="#CU-05" class="wf-btn wf-btn-sm wf-btn-outline text-danger flex-grow-1 d-flex align-items-center justify-content-center gap-1" title="Dar de baja curso">
+                    <i class="fa-solid fa-trash me-1"></i>
+                    <span>Dar de baja</span>
+                  </a>
+                </div>
               </div>
             ` : `
               <button class="wf-btn-manage-course">
@@ -867,13 +873,6 @@ function generateScreenContent(cu) {
             <a href="#CU-35" class="wf-tab-btn">Foros</a>
             <a href="#CU-65" class="wf-tab-btn">Clases en Vivo</a>
           </div>
-          <div class="d-flex align-items-center gap-2">
-            <a href="#CU-20" class="wf-btn-gold" style="font-size: 12px; padding: 6px 14px; text-decoration: none;">
-              <i class="fa-solid fa-folder-plus me-1"></i>
-              <span>Añadir secciones</span>
-            </a>
-            ${badgeAddSection}
-          </div>
         </div>
       </div>
 
@@ -889,11 +888,13 @@ function generateScreenContent(cu) {
             <div class="d-flex align-items-center gap-2">
               <div class="dropdown d-inline-block">
                 <a href="#CU-21" class="wf-btn wf-btn-sm wf-btn-outline d-inline-flex align-items-center gap-1">
-                  <span>Editar</span> <i class="fa-solid fa-chevron-down" style="font-size: 10px;"></i>
+                  <i class="fa-solid fa-pen-to-square me-1"></i>
+                  <span>Editar</span>
                 </a>
               </div>
-              <a href="#CU-22" class="wf-btn wf-btn-sm wf-btn-outline text-danger" title="Quitar de este programa">
-                <i class="fa-solid fa-trash"></i>
+              <a href="#CU-22" class="wf-btn wf-btn-sm wf-btn-outline text-danger d-inline-flex align-items-center gap-1" title="Quitar de este programa">
+                <i class="fa-solid fa-trash me-1"></i>
+                <span>Quitar de este programa</span>
               </a>
               ${badgeEditUnit1}
             </div>
@@ -1095,7 +1096,6 @@ function generateScreenContent(cu) {
       <div class="wf-card" style="max-width: 650px; margin: 30px auto; background: #FFFFFF;">
         <div class="text-center mb-4">
           <div class="wf-icon-danger mb-3"><i class="fa-solid fa-triangle-exclamation" style="font-size: 24px; color: #DC2626;"></i></div>
-          <span class="badge bg-light text-dark border d-inline-flex align-items-center gap-1 mb-2"><i class="fa-solid fa-arrow-pointer text-muted"></i> Acción: <strong>Quitar de este programa</strong> <span class="pin-badge">${badges[0] || 'A'}</span></span>
           <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Quitar Unidad del Programa</h3>
           <p class="small text-muted" style="margin: 4px 0 0;">Esta acción desvinculará la sección pedagógica de este programa académico.</p>
         </div>
@@ -1134,13 +1134,7 @@ function generateScreenContent(cu) {
             <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Cronograma de Dictado Académico</h3>
             <p class="small text-muted" style="margin: 3px 0 0;">Visualice la secuencia pedagógica temporal y semanas asignadas por unidad.</p>
           </div>
-          <div class="d-flex align-items-center gap-2">
-            <a href="#CU-24" class="wf-btn-gold" style="font-size: 12px; padding: 6px 14px; text-decoration: none;">
-              <i class="fa-solid fa-arrow-down-short-wide me-1"></i>
-              <span>Reordenar Cronograma</span>
-            </a>
-            <span class="pin-badge">${badges[0] || 'A'}</span>
-          </div>
+          <span class="wf-badge status-active">Programa Vigente</span>
         </div>
 
         <div class="row g-3 mb-4">
@@ -1362,12 +1356,6 @@ function generateScreenContent(cu) {
             <a href="#CU-53" class="wf-tab-btn ${isPool ? 'active' : ''}">Pools</a>
             <a href="#CU-35" class="wf-tab-btn ${isForo ? 'active' : ''}">Foros</a>
             <a href="#CU-65" class="wf-tab-btn ${isLive ? 'active' : ''}">Clases en Vivo</a>
-          </div>
-          <div class="d-flex align-items-center gap-2">
-            <a href="#${isMaterial ? 'CU-28' : (isGlosario ? 'CU-32' : (isEval ? 'CU-58' : (isPool ? 'CU-54' : 'CU-66')))}" class="wf-btn-gold" style="font-size: 12px; padding: 6px 14px; text-decoration: none;">
-              <i class="fa-solid fa-plus me-1"></i>
-              <span>Nuevo ${isMaterial ? 'Material' : (isGlosario ? 'Término' : (isEval ? 'Autoevaluación' : (isPool ? 'Pool' : 'Elemento')))}</span>
-            </a>
           </div>
         </div>
       </div>
@@ -4780,6 +4768,78 @@ cus.forEach(cu => {
                         <a href="#CU-16" class="wf-btn-gold">
                             <i class="fa-solid fa-plus"></i>
                             <span>Nuevo Programa</span>
+                        </a>
+                        <span class="pin-badge">A</span>
+                    </div>
+                    ` : ''}
+                    ${cu.id === 'CU-19' || cu.id === 'CU-26b' ? `
+                    <div class="d-flex align-items-center gap-2">
+                        <a href="#CU-20" class="wf-btn-gold">
+                            <i class="fa-solid fa-plus"></i>
+                            <span>Nueva Unidad</span>
+                        </a>
+                        <span class="pin-badge">A</span>
+                    </div>
+                    ` : ''}
+                    ${cu.id === 'CU-23' ? `
+                    <div class="d-flex align-items-center gap-2">
+                        <a href="#CU-24" class="wf-btn-gold">
+                            <i class="fa-solid fa-arrow-down-short-wide"></i>
+                            <span>Reordenar Cronograma</span>
+                        </a>
+                        <span class="pin-badge">A</span>
+                    </div>
+                    ` : ''}
+                    ${cu.id === 'CU-27' ? `
+                    <div class="d-flex align-items-center gap-2">
+                        <a href="#CU-28" class="wf-btn-gold">
+                            <i class="fa-solid fa-plus"></i>
+                            <span>Nuevo Material</span>
+                        </a>
+                        <span class="pin-badge">A</span>
+                    </div>
+                    ` : ''}
+                    ${cu.id === 'CU-31' ? `
+                    <div class="d-flex align-items-center gap-2">
+                        <a href="#CU-32" class="wf-btn-gold">
+                            <i class="fa-solid fa-plus"></i>
+                            <span>Nuevo Término</span>
+                        </a>
+                        <span class="pin-badge">A</span>
+                    </div>
+                    ` : ''}
+                    ${cu.id === 'CU-35' ? `
+                    <div class="d-flex align-items-center gap-2">
+                        <a href="#CU-36" class="wf-btn-gold">
+                            <i class="fa-solid fa-plus"></i>
+                            <span>Nueva Consulta</span>
+                        </a>
+                        <span class="pin-badge">A</span>
+                    </div>
+                    ` : ''}
+                    ${cu.id === 'CU-53' ? `
+                    <div class="d-flex align-items-center gap-2">
+                        <a href="#CU-54" class="wf-btn-gold">
+                            <i class="fa-solid fa-plus"></i>
+                            <span>Nuevo Pool</span>
+                        </a>
+                        <span class="pin-badge">A</span>
+                    </div>
+                    ` : ''}
+                    ${cu.id === 'CU-57' ? `
+                    <div class="d-flex align-items-center gap-2">
+                        <a href="#CU-58" class="wf-btn-gold">
+                            <i class="fa-solid fa-plus"></i>
+                            <span>Nueva Autoevaluación</span>
+                        </a>
+                        <span class="pin-badge">A</span>
+                    </div>
+                    ` : ''}
+                    ${cu.id === 'CU-65' ? `
+                    <div class="d-flex align-items-center gap-2">
+                        <a href="#CU-66" class="wf-btn-gold">
+                            <i class="fa-solid fa-plus"></i>
+                            <span>Programar Clase</span>
                         </a>
                         <span class="pin-badge">A</span>
                     </div>

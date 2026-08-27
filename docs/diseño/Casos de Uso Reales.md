@@ -685,7 +685,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor solicita añadir una sección mediante el botón "Añadir secciones" [A] (ver CU-19: Buscar unidad). |
+| 1 | El caso de uso inicia cuando el actor solicita añadir una nueva unidad mediante el botón "Nueva Unidad" [A] (ver CU-19: Buscar unidad). |
 | 2 | El sistema solicita los datos de la unidad temática: título de la sección [B], descripción de objetivos [C] y contenido temático [D], o permite seleccionar una unidad existente [E]. |
 | 3 | El actor ingresa los datos de la unidad y confirma la creación mediante el botón "Agregar Unidad" [F]. |
 | 4 | El sistema valida que, el programa esté activo, el docente participa en el curso como titular o ayudante, y si se creó una unidad nueva, que el título y el contenido hayan sido completados. |
@@ -934,8 +934,8 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 | 1 | El caso de uso inicia cuando el actor busca y selecciona un curso desde su listado de cursos asignados mediante el botón "Ingresar al Curso" [A] (ver CU-01: Buscar curso). |
 | 2 | El sistema muestra la vista del curso con sus unidades pedagógicas en acordeón y las pestañas contextuales de navegación [B]. |
 | 3 | El actor activa el switch "Modo Edición" [C] ubicado en la cabecera superior del curso. |
-| 4 | El sistema habilita los controles de edición inline: botón "Añadir secciones" [D], menú "Editar" por unidad y botones "Añade una actividad o un recurso" [E] al pie de cada tema. |
-| 5 | El actor puede seleccionar añadir una nueva sección o incorporar una actividad o recurso a una unidad. |
+| 4 | El sistema habilita los controles de edición inline: botón "Nueva Unidad" [D], menú "Editar" por unidad y botones "Añade una actividad o un recurso" [E] al pie de cada tema. |
+| 5 | El actor puede seleccionar añadir una nueva unidad o incorporar una actividad o recurso a una unidad. |
 | 6 | Fin del caso de uso. |
 
 - **Postcondición(es)**:
