@@ -59,11 +59,14 @@ public class SemillaService {
     @Autowired private ReporteRepository reporteRepository;
     @Autowired private TerminoGlosarioRepository terminoGlosarioRepository;
     @Autowired private ConsultaForoRepository consultaForoRepository;
+    @Autowired private RespuestaForoRepository respuestaForoRepository;
     @Autowired private PoolRepository poolRepository;
     @Autowired private PreguntaRepository preguntaRepository;
     @Autowired private OpcionRespuestaRepository opcionRespuestaRepository;
     @Autowired private AutoevaluacionRepository autoevaluacionRepository;
     @Autowired private PoolAutoevaluacionRepository poolAutoevaluacionRepository;
+    @Autowired private IntentoAutoevaluacionRepository intentoAutoevaluacionRepository;
+    @Autowired private ProgresoRepository progresoRepository;
     @Autowired private ClaseEnVivoRepository claseEnVivoRepository;
     @Autowired private ClaseClonIARepository claseClonIARepository;
     @Autowired private AuditoriaRepository auditoriaRepository;
@@ -309,6 +312,8 @@ public class SemillaService {
         // Consultas y Foros (CU-35 a CU-42)
         ConsultaForo cForo = new ConsultaForo(alumnoPrincipal, "¿Cómo calcular la paridad cambiaria al comprar CEDEARs?", u1);
         consultaForoRepository.save(cForo);
+        RespuestaForo rForo = new RespuestaForo("Para calcular el tipo de cambio implícito (CCL), dividís el precio del CEDEAR en pesos por su ratio de conversión multiplicado por el precio del activo subyacente en dólares en Wall Street.", cForo, docenteFausto);
+        respuestaForoRepository.save(rForo);
 
         // ===============================================================
         // 6. BANCOS DE PREGUNTAS (POOLS) Y AUTOEVALUACIONES (CU-53 a CU-64)
@@ -383,6 +388,19 @@ public class SemillaService {
         pagoPrincipal.setFechaEmisionComprobante(LocalDateTime.now().minusDays(15));
         pagoPrincipal.setComprobanteEnviado(true);
         pagoRepository.save(pagoPrincipal);
+
+        // Progreso e Intentos para el Alumno Principal
+        Progreso progU1 = new Progreso(inscPrincipal, u1, true);
+        progU1.setFechaCompletada(LocalDateTime.now().minusDays(10));
+        progresoRepository.save(progU1);
+
+        Progreso progU2 = new Progreso(inscPrincipal, u2, false);
+        progresoRepository.save(progU2);
+
+        IntentoAutoevaluacion intento1 = new IntentoAutoevaluacion(inscPrincipal, auto1);
+        intento1.setFechaEntrega(LocalDateTime.now().minusDays(10));
+        intento1.setNota(9.5f);
+        intentoAutoevaluacionRepository.save(intento1);
 
         // Población masiva de Alumnos e Historial para métricas y reportes
         String[][] alumnosDatos = {
