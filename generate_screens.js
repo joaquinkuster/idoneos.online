@@ -195,6 +195,7 @@ function getRoleInfo(actors, cuId) {
           items: [
             { label: 'Ver perfil', cu: 'CU-86' },
             { label: 'Editar datos de perfil', cu: 'CU-87' },
+            { label: 'Seguridad y sesiones activas', cu: 'CU-93' },
             { label: 'Cerrar sesión', cu: 'CU-91', isDanger: true }
           ]
         }
@@ -225,10 +226,11 @@ function getRoleInfo(actors, cuId) {
           ]
         },
         {
-          title: 'Cuenta & Sesión',
+          title: 'Cuenta & Seguridad',
           items: [
             { label: 'Ver perfil', cu: 'CU-86' },
             { label: 'Editar perfil', cu: 'CU-87' },
+            { label: 'Seguridad y sesiones activas', cu: 'CU-93' },
             { label: 'Cerrar sesión', cu: 'CU-91', isDanger: true }
           ]
         }
@@ -249,20 +251,23 @@ function getRoleInfo(actors, cuId) {
           isEditingActive: isEditingMode
         },
         {
-          title: 'Administración',
+          title: 'Administración del Sistema',
           items: [
             { label: 'Gestión de cursos', cu: 'CU-01' },
             { label: 'Cohortes y programas', cu: 'CU-11' },
             { label: 'Gestión de usuarios', cu: 'CU-82' },
             { label: 'Auditoría de eventos', cu: 'CU-95' },
-            { label: 'Reportes y estadísticas', cu: 'CU-98' },
+            { label: 'Informe de alumnos', cu: 'CU-96' },
+            { label: 'Informe de ingresos', cu: 'CU-97' },
+            { label: 'Dashboard de estadísticas', cu: 'CU-98' },
             { label: 'Configuración general', cu: 'CU-99' }
           ]
         },
         {
-          title: 'Cuenta',
+          title: 'Cuenta & Seguridad',
           items: [
             { label: 'Ver perfil', cu: 'CU-86' },
+            { label: 'Seguridad y sesiones activas', cu: 'CU-93' },
             { label: 'Cerrar sesión', cu: 'CU-91', isDanger: true }
           ]
         }
@@ -4546,6 +4551,10 @@ function generateScreenContent(cu) {
                     <a href="#CU-84" class="wf-btn wf-btn-sm wf-btn-outline" title="Modificar usuario">
                       <i class="fa-solid fa-pen-to-square"></i>
                     </a>
+                    <a href="#CU-85" class="wf-btn wf-btn-sm wf-btn-outline text-danger" title="Desactivar cuenta de usuario">
+                      <i class="fa-solid fa-user-slash me-1"></i>
+                      <span>Desactivar Cuenta</span>
+                    </a>
                   </div>
                 </td>
               </tr>
@@ -4573,6 +4582,10 @@ function generateScreenContent(cu) {
                     </a>
                     <a href="#CU-84" class="wf-btn wf-btn-sm wf-btn-outline">
                       <i class="fa-solid fa-pen-to-square"></i>
+                    </a>
+                    <a href="#CU-85" class="wf-btn wf-btn-sm wf-btn-outline text-danger">
+                      <i class="fa-solid fa-user-slash me-1"></i>
+                      <span>Desactivar Cuenta</span>
                     </a>
                   </div>
                 </td>
@@ -4602,6 +4615,10 @@ function generateScreenContent(cu) {
                     <a href="#CU-84" class="wf-btn wf-btn-sm wf-btn-outline">
                       <i class="fa-solid fa-pen-to-square"></i>
                     </a>
+                    <a href="#CU-85" class="wf-btn wf-btn-sm wf-btn-outline text-danger">
+                      <i class="fa-solid fa-user-slash me-1"></i>
+                      <span>Desactivar Cuenta</span>
+                    </a>
                   </div>
                 </td>
               </tr>
@@ -4629,6 +4646,10 @@ function generateScreenContent(cu) {
                     </a>
                     <a href="#CU-84" class="wf-btn wf-btn-sm wf-btn-outline">
                       <i class="fa-solid fa-pen-to-square"></i>
+                    </a>
+                    <a href="#CU-85" class="wf-btn wf-btn-sm wf-btn-outline text-danger">
+                      <i class="fa-solid fa-user-slash me-1"></i>
+                      <span>Desactivar Cuenta</span>
                     </a>
                   </div>
                 </td>
@@ -5291,142 +5312,148 @@ function generateScreenContent(cu) {
     `;
   }
 
-  // --- SPECIALIZED 12: ESTADÍSTICAS, INFORMES & AUDITORÍA --- CU-95, CU-96, CU-97, CU-98
-  if (['CU-95', 'CU-96', 'CU-97', 'CU-98'].includes(id)) {
-    const isAudit = id === 'CU-95';
-    const isStats = id === 'CU-98';
-
+  // --- SPECIALIZED 12A: BUSCAR SESIÓN --- CU-93
+  if (id === 'CU-93') {
     return `
-      <div class="wf-card" style="max-width: 1100px; margin: 0 auto;">
+      <div class="wf-card mb-4" style="background: #FFFFFF;">
         <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
           <div>
-            <h3 style="font-size: 18px; font-weight: 700; color: #0F172A; margin: 0;">${isAudit ? 'Registro de Auditoría del Sistema' : 'Tablero Analítico & Estadísticas Clave'}</h3>
-            <p class="small text-muted" style="margin: 0;">Supervisión en tiempo real de ingresos, métricas de retención y logs de eventos.</p>
+            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Sesiones Activas y Seguridad de Cuenta</h3>
+            <p class="small text-muted" style="margin: 3px 0 0;">Consulte los dispositivos conectados y el registro de sesiones activas en la plataforma.</p>
           </div>
           <div class="d-flex align-items-center gap-2">
-            <span class="wf-badge status-active">Actualizado al Instante</span>
-            <span class="pin-badge">${badges[0] || 'A'}</span>
+            <span class="wf-badge status-active"><i class="fa-solid fa-shield-halved me-1"></i> Control de Acceso</span>
           </div>
         </div>
 
-        ${!isAudit ? `
-          <!-- KPI Cards -->
-          <div class="row g-3 mb-4">
-            <div class="col-md-3">
-              <div class="p-3 border rounded bg-light">
-                <div class="small text-muted">Total Alumnos Matriculados</div>
-                <h2 style="font-size: 24px; font-weight: 800; color: #0F172A; margin: 4px 0;">1,420</h2>
-                <div class="small text-success">↑ +14% este mes</div>
-              </div>
-            </div>
-            <div class="col-md-3">
-              <div class="p-3 border rounded bg-light">
-                <div class="small text-muted">Ingresos Facturados</div>
-                <h2 style="font-size: 24px; font-weight: 800; color: #059669; margin: 4px 0;">$17.4M ARS</h2>
-                <div class="small text-success">↑ +22% vs trimestre anterior</div>
-              </div>
-            </div>
-            <div class="col-md-3">
-              <div class="p-3 border rounded bg-light">
-                <div class="small text-muted">Tasa de Aprobación</div>
-                <h2 style="font-size: 24px; font-weight: 800; color: #2563EB; margin: 4px 0;">88.5%</h2>
-                <div class="small text-muted">Promedio en autoevaluaciones</div>
-              </div>
-            </div>
-            <div class="col-md-3">
-              <div class="p-3 border rounded bg-light">
-                <div class="small text-muted">Clases Clon Generadas</div>
-                <h2 style="font-size: 24px; font-weight: 800; color: #7C3AED; margin: 4px 0;">64</h2>
-                <div class="small text-muted">HeyGen AI Studio</div>
-              </div>
-            </div>
-          </div>
-        ` : ''}
-
-        <div class="wf-card mb-4" style="background: #FFFFFF;">
+        <!-- Filtros de Búsqueda [B] y Botón Buscar [C] -->
+        <div class="p-3 bg-light rounded border mb-4">
           <div class="row g-3 align-items-end">
-            <div class="col-md-5">
-              <label class="wf-label">Criterio de búsqueda / Filtro principal</label>
+            <div class="col" style="flex: 1 1 25%; min-width: 180px;">
+              <label class="wf-label">Filtrar por Usuario (Admin)</label>
               <div class="wf-input-wrap">
-                <input type="text" class="wf-input" placeholder="Buscar en ${name}...">
-                <span class="pin-badge">${badges[0] || 'A'}</span>
+                <input type="text" class="wf-input" placeholder="Todos los usuarios o email..." value="Mg. Elena Valenzuela">
+                <span class="pin-badge">${badges[0] || 'B'}</span>
               </div>
             </div>
-            <div class="col-md-4">
-              <label class="wf-label">Filtro Secundario / Rango</label>
+            <div class="col" style="flex: 1 1 20%; min-width: 150px;">
+              <label class="wf-label">Rango de Fechas</label>
               <div class="wf-input-wrap">
                 <select class="wf-input">
+                  <option selected>Últimos 7 días</option>
                   <option>Últimos 30 días</option>
-                  <option>Últimos 90 días</option>
                   <option>Todo el historial</option>
                 </select>
-                <span class="pin-badge">${badges[1] || 'B'}</span>
               </div>
             </div>
-            <div class="col-md-3">
+            <div class="col" style="flex: 1 1 20%; min-width: 150px;">
+              <label class="wf-label">Dispositivo / Navegador</label>
+              <div class="wf-input-wrap">
+                <input type="text" class="wf-input" placeholder="Ej: Chrome, Firefox, Safari...">
+              </div>
+            </div>
+            <div class="col" style="flex: 1 1 15%; min-width: 130px;">
+              <label class="wf-label">Dirección IP</label>
+              <div class="wf-input-wrap">
+                <input type="text" class="wf-input" placeholder="181.44.xxx.xxx">
+              </div>
+            </div>
+            <div class="col-auto" style="min-width: 120px;">
               <div class="d-flex align-items-center gap-2">
-                <button class="wf-btn wf-btn-primary w-100"><i class="fa-solid fa-${id === 'CU-97' ? 'file-invoice-dollar' : 'filter'} me-1"></i> ${id === 'CU-97' ? 'Generar Reporte de Ingresos' : 'Filtrar Eventos'}</button>
-                <span class="pin-badge">${badges[2] || 'C'}</span>
+                <button class="wf-btn wf-btn-primary w-100"><i class="fa-solid fa-magnifying-glass me-1"></i> Buscar</button>
+                <span class="pin-badge">${badges[1] || 'C'}</span>
               </div>
             </div>
           </div>
         </div>
 
-        ${isStats ? `
-          <div class="row g-3 mb-4">
-            <div class="col-md-3">
-              <div class="p-3 border rounded bg-light">
-                <div class="small text-muted">Total Alumnos Matriculados</div>
-                <h2 style="font-size: 24px; font-weight: 800; color: #081426; margin: 4px 0;">1.240</h2>
-                <div class="small text-success">↑ +14% este mes</div>
-              </div>
-            </div>
-            <div class="col-md-3">
-              <div class="p-3 border rounded bg-light">
-                <div class="small text-muted">Ingresos Facturados</div>
-                <h2 style="font-size: 24px; font-weight: 800; color: #059669; margin: 4px 0;">$17.4M ARS</h2>
-                <div class="small text-success">↑ +22% vs trimestre anterior</div>
-              </div>
-            </div>
-            <div class="col-md-3">
-              <div class="p-3 border rounded bg-light">
-                <div class="small text-muted">Tasa de Aprobación</div>
-                <h2 style="font-size: 24px; font-weight: 800; color: #2563EB; margin: 4px 0;">88.5%</h2>
-                <div class="small text-muted">Promedio en autoevaluaciones</div>
-              </div>
-            </div>
-            <div class="col-md-3">
-              <div class="p-3 border rounded bg-light">
-                <div class="small text-muted">Clases Clon Generadas</div>
-                <h2 style="font-size: 24px; font-weight: 800; color: #7C3AED; margin: 4px 0;">64</h2>
-                <div class="small text-muted">HeyGen AI Studio</div>
-              </div>
-            </div>
-          </div>
-        ` : ''}
-
+        <!-- Listado de Sesiones con Selección [D] y Cierre Remoto [A] -->
         <div class="wf-table-wrap">
           <table class="wf-table">
             <thead>
               <tr>
-                <th>${isAudit ? 'Timestamp' : 'Curso / Programa'}</th>
-                <th>${isAudit ? 'Usuario / Actor' : 'Cohorte'}</th>
-                <th>${isAudit ? 'Acción / Evento' : 'Alumnos Activos'}</th>
-                <th>${isAudit ? 'Módulo Afectado' : 'Facturación'}</th>
-                <th class="text-end">Acciones / Descargas</th>
+                <th>Dispositivo y Navegador</th>
+                <th>Usuario Responsable</th>
+                <th>Fecha y Hora de Inicio</th>
+                <th>Dirección IP</th>
+                <th>Estado</th>
+                <th class="text-end">Acción de Seguridad</th>
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td><strong>${isAudit ? '2026-08-26 07:45:12' : 'Especialización en Idoneidad Bursátil'}</strong></td>
-                <td>${isAudit ? 'Mg. Elena Valenzuela (Docente)' : '2026-1 (En curso)'}</td>
-                <td>${isAudit ? 'Crear Clon de IA (voice_id: #v92)' : '840 inscriptos'}</td>
-                <td>${isAudit ? 'MOD-F-06: IA' : '$10.080.000 ARS'}</td>
-                <td class="text-end">
-                  <div class="d-inline-flex align-items-center gap-1">
-                    <button class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-file-pdf me-1 text-danger"></i> ${id === 'CU-97' ? 'Descargar Reporte' : 'Descargar PDF / Excel'}</button>
-                    <span class="pin-badge">${badges[3] || badges[badges.length - 1] || 'D'}</span>
+              <!-- Sesión 1: Actual -->
+              <tr style="background: #F0FDF4; border-left: 4px solid #16A34A;">
+                <td>
+                  <div class="d-flex align-items-center gap-2">
+                    <div style="width: 34px; height: 34px; border-radius: 8px; background: #DCFCE7; color: #16A34A; display: flex; align-items: center; justify-content: center; font-size: 16px;">
+                      <i class="fa-solid fa-laptop"></i>
+                    </div>
+                    <div>
+                      <strong style="color: #081426;">Chrome 122 on Windows 11</strong>
+                      <div class="small text-success fw-bold">Sesión Actual (Este Dispositivo)</div>
+                    </div>
                   </div>
+                </td>
+                <td>elena.valenzuela@idoneos.online</td>
+                <td>27/08/2026 • 08:14 hs</td>
+                <td><code>181.44.120.45</code></td>
+                <td><span class="wf-badge status-active">Activa</span></td>
+                <td class="text-end">
+                  <span class="badge bg-light text-muted border">En Uso</span>
+                </td>
+              </tr>
+
+              <!-- Sesión 2: Remota (Seleccionada para CU-94) -->
+              <tr style="background: #FEF2F2; border-left: 4px solid #DC2626;">
+                <td>
+                  <div class="d-flex align-items-center gap-2">
+                    <div style="width: 34px; height: 34px; border-radius: 8px; background: #FEE2E2; color: #DC2626; display: flex; align-items: center; justify-content: center; font-size: 16px;">
+                      <i class="fa-solid fa-mobile-screen"></i>
+                    </div>
+                    <div>
+                      <strong style="color: #081426;">Safari Mobile on iOS 17 (iPhone 15)</strong>
+                      <div class="small text-muted">Última actividad: hace 42 minutos</div>
+                    </div>
+                  </div>
+                </td>
+                <td>elena.valenzuela@idoneos.online</td>
+                <td>26/08/2026 • 21:30 hs</td>
+                <td><code>190.183.45.12</code></td>
+                <td><span class="wf-badge status-active">Activa</span></td>
+                <td class="text-end">
+                  <div class="d-inline-flex align-items-center gap-2">
+                    <button class="wf-btn wf-btn-xs wf-btn-outline" title="Ver detalles de IP y dispositivo">
+                      <i class="fa-solid fa-circle-info me-1"></i> Detalles
+                    </button>
+                    <span class="pin-badge">${badges[2] || 'D'}</span>
+                    <a href="#CU-94" class="wf-btn wf-btn-xs wf-btn-danger" title="Cerrar forzadamente esta sesión">
+                      <i class="fa-solid fa-power-off me-1"></i> Cerrar Sesión Remota
+                    </a>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Sesión 3: Remota Tablet -->
+              <tr>
+                <td>
+                  <div class="d-flex align-items-center gap-2">
+                    <div style="width: 34px; height: 34px; border-radius: 8px; background: #F1F5F9; color: #475569; display: flex; align-items: center; justify-content: center; font-size: 16px;">
+                      <i class="fa-solid fa-tablet-screen-button"></i>
+                    </div>
+                    <div>
+                      <strong style="color: #081426;">Firefox 120 on iPad OS</strong>
+                      <div class="small text-muted">Última actividad: ayer 18:05 hs</div>
+                    </div>
+                  </div>
+                </td>
+                <td>joaquin.kuster@idoneos.online</td>
+                <td>25/08/2026 • 15:20 hs</td>
+                <td><code>186.137.90.11</code></td>
+                <td><span class="wf-badge status-active">Activa</span></td>
+                <td class="text-end">
+                  <a href="#CU-94" class="wf-btn wf-btn-xs wf-btn-outline text-danger">
+                    <i class="fa-solid fa-power-off me-1"></i> Cerrar Sesión Remota
+                  </a>
                 </td>
               </tr>
             </tbody>
@@ -5436,56 +5463,725 @@ function generateScreenContent(cu) {
     `;
   }
 
-  // --- SPECIALIZED 13: CUENTA / PERFIL / LOGIN / RECUPERO --- CU-81, CU-86, CU-87, CU-90, CU-92
-  if (['CU-81', 'CU-86', 'CU-87', 'CU-90', 'CU-92'].includes(id)) {
+  // --- SPECIALIZED 12B: ELIMINAR SESIÓN (CONFIRMACIÓN MODAL) --- CU-94
+  if (id === 'CU-94') {
+    return `
+      <div class="wf-card" style="max-width: 580px; margin: 40px auto; background: #FFFFFF; box-shadow: 0 16px 40px rgba(8,20,38,0.12); border-radius: 12px; overflow: hidden; border: 1px solid #CBD5E1;">
+        <div class="p-4 border-bottom" style="background: #FEF2F2;">
+          <div class="d-flex align-items-center gap-3">
+            <div style="width: 48px; height: 48px; border-radius: 50%; background: #DC2626; color: white; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0;">
+              <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <div>
+              <h3 style="font-size: 18px; font-weight: 800; color: #991B1B; margin: 0;">Cerrar Sesión Activa Remota</h3>
+              <p class="small text-muted m-0" style="color: #B91C1C !important;">Se revocará de inmediato el token de autenticación del dispositivo seleccionado.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-4">
+          <p class="small text-secondary mb-3">¿Está seguro de que desea desconectar y finalizar la siguiente sesión activa de forma inmediata?</p>
+          
+          <div class="p-3 bg-light rounded border mb-3" style="font-size: 12px;">
+            <div class="d-flex justify-content-between mb-2">
+              <span class="text-muted">Usuario:</span>
+              <strong>Mg. Elena Valenzuela (elena.valenzuela@idoneos.online)</strong>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+              <span class="text-muted">Dispositivo:</span>
+              <strong><i class="fa-solid fa-mobile-screen me-1 text-primary"></i> Safari Mobile on iOS 17 (iPhone 15)</strong>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+              <span class="text-muted">Dirección IP:</span>
+              <code>190.183.45.12</code>
+            </div>
+            <div class="d-flex justify-content-between">
+              <span class="text-muted">Fecha de inicio:</span>
+              <span>26/08/2026 • 21:30 hs (hace 42 min)</span>
+            </div>
+          </div>
+
+          <div class="small text-muted p-2 rounded bg-white border" style="font-size: 11px;">
+            <i class="fa-solid fa-circle-info text-primary me-1"></i> El usuario deberá volver a autenticarse en ese dispositivo para acceder nuevamente.
+          </div>
+        </div>
+
+        <div class="p-3 bg-light border-top d-flex justify-content-end align-items-center gap-3">
+          <a href="#CU-93" class="wf-btn wf-btn-sm wf-btn-outline">Cancelar</a>
+          <div class="d-flex align-items-center gap-2">
+            <button class="wf-btn wf-btn-sm wf-btn-danger" style="font-weight: 700;">
+              <i class="fa-solid fa-power-off me-1"></i> Confirmar Cierre de Sesión
+            </button>
+            <span class="pin-badge">${badges[1] || badges[badges.length - 1] || 'B'}</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // --- SPECIALIZED 12C: CONSULTAR AUDITORÍA --- CU-95
+  if (id === 'CU-95') {
+    return `
+      <div class="wf-card mb-4" style="background: #FFFFFF;">
+        <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
+          <div>
+            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Registro de Auditoría y Trazabilidad del Sistema</h3>
+            <p class="small text-muted" style="margin: 3px 0 0;">Historial inmutable de operaciones críticas: altas, modificaciones, pagos y cambios de estado.</p>
+          </div>
+          <span class="wf-badge status-active">Logs de Auditoría Activos</span>
+        </div>
+
+        <!-- Filtros de Eventos [B] y Botón Filtrar [C] -->
+        <div class="p-3 bg-light rounded border mb-4">
+          <div class="row g-3 align-items-end">
+            <div class="col" style="flex: 1 1 20%; min-width: 160px;">
+              <label class="wf-label">Usuario Responsable</label>
+              <div class="wf-input-wrap">
+                <input type="text" class="wf-input" placeholder="Todos los usuarios..." value="Admin General">
+                <span class="pin-badge">${badges[0] || 'B'}</span>
+              </div>
+            </div>
+            <div class="col" style="flex: 1 1 20%; min-width: 150px;">
+              <label class="wf-label">Tipo de Acción</label>
+              <div class="wf-input-wrap">
+                <select class="wf-input">
+                  <option selected>Todas las acciones</option>
+                  <option>CREAR (Alta)</option>
+                  <option>MODIFICAR (Actualización)</option>
+                  <option>ELIMINAR / DESACTIVAR (Baja)</option>
+                  <option>CONSULTAR (Lectura)</option>
+                </select>
+              </div>
+            </div>
+            <div class="col" style="flex: 1 1 20%; min-width: 150px;">
+              <label class="wf-label">Entidad Afectada</label>
+              <div class="wf-input-wrap">
+                <select class="wf-input">
+                  <option selected>Todas las entidades</option>
+                  <option>CURSO / UNIDAD</option>
+                  <option>PAGO / FACTURACIÓN</option>
+                  <option>INSCRIPCIÓN / MATRÍCULA</option>
+                  <option>USUARIO / SESIÓN</option>
+                  <option>CLON IA / CONTENIDO</option>
+                </select>
+              </div>
+            </div>
+            <div class="col" style="flex: 1 1 20%; min-width: 150px;">
+              <label class="wf-label">Rango de Fechas</label>
+              <div class="wf-input-wrap">
+                <select class="wf-input">
+                  <option selected>Últimos 7 días</option>
+                  <option>Últimos 30 días</option>
+                  <option>Año 2026</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-auto" style="min-width: 130px;">
+              <div class="d-flex align-items-center gap-2">
+                <button class="wf-btn wf-btn-primary w-100"><i class="fa-solid fa-filter me-1"></i> Filtrar Eventos</button>
+                <span class="pin-badge">${badges[1] || 'C'}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tabla Completa con Datos de Auditoría -->
+        <div class="wf-table-wrap">
+          <table class="wf-table">
+            <thead>
+              <tr>
+                <th>Fecha y Hora</th>
+                <th>Usuario Responsable</th>
+                <th>Acción</th>
+                <th>Entidad / ID Registro</th>
+                <th>Valor Anterior</th>
+                <th>Valor Nuevo</th>
+                <th>Dirección IP</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Log 1: Modificación de Curso -->
+              <tr>
+                <td><strong>27/08/2026 • 08:35:12</strong></td>
+                <td>
+                  <strong>Admin General</strong>
+                  <div class="small text-muted">admin@idoneos.online</div>
+                </td>
+                <td><span class="badge bg-warning text-dark">MODIFICAR</span></td>
+                <td>
+                  <strong>CURSO #102</strong>
+                  <div class="small text-muted">Especialización Idoneidad</div>
+                </td>
+                <td><code>precio: 100000</code></td>
+                <td><code>precio: 120000</code></td>
+                <td><code>181.44.120.45</code></td>
+              </tr>
+
+              <!-- Log 2: Acreditación de Pago -->
+              <tr style="background: #F8FAFC;">
+                <td><strong>27/08/2026 • 07:15:40</strong></td>
+                <td>
+                  <strong>Sistema MODO API</strong>
+                  <div class="small text-muted">gateway@modo.com.ar</div>
+                </td>
+                <td><span class="badge bg-success text-white">CREAR</span></td>
+                <td>
+                  <strong>PAGO #PAY-2026-8841</strong>
+                  <div class="small text-muted">Joaquín Küster</div>
+                </td>
+                <td><code>estado: PENDIENTE</code></td>
+                <td><code>estado: ACREDITADO</code></td>
+                <td><code>190.220.14.88</code></td>
+              </tr>
+
+              <!-- Log 3: Alta de Clon IA -->
+              <tr>
+                <td><strong>26/08/2026 • 19:40:22</strong></td>
+                <td>
+                  <strong>Mg. Elena Valenzuela</strong>
+                  <div class="small text-muted">elena.valenzuela@idoneos.online</div>
+                </td>
+                <td><span class="badge bg-primary text-white">CREAR</span></td>
+                <td>
+                  <strong>CLON_IA #avatar_valenzuela_v2</strong>
+                  <div class="small text-muted">HeyGen AI Studio</div>
+                </td>
+                <td><code>-</code></td>
+                <td><code>calibracion: OK</code></td>
+                <td><code>181.44.120.45</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+  }
+
+  // --- SPECIALIZED 12D: INFORME DE ALUMNOS DE UN CURSO --- CU-96
+  if (id === 'CU-96') {
+    return `
+      <div class="wf-card mb-4" style="background: #FFFFFF;">
+        <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
+          <div>
+            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Informe Analítico de Alumnos e Inscripciones</h3>
+            <p class="small text-muted" style="margin: 3px 0 0;">Reporte gerencial con 4 dimensiones visuales de captación, evolución y retención.</p>
+          </div>
+          <span class="wf-badge status-active">Módulo de Reportes</span>
+        </div>
+
+        <!-- Parámetros del Reporte [B] y Botón Generar [C] -->
+        <div class="p-3 bg-light rounded border mb-4">
+          <div class="row g-3 align-items-end">
+            <div class="col-md-6">
+              <label class="wf-label">Seleccionar Curso a Analizar</label>
+              <div class="wf-input-wrap">
+                <select class="wf-input">
+                  <option selected>Especialización en Idoneidad Bursátil (CNV)</option>
+                  <option>Operativa Cripto y DeFi Profesional</option>
+                  <option>Mercado de Capitales Argentino</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <label class="wf-label">Rango de Fechas</label>
+              <div class="wf-input-wrap">
+                <select class="wf-input">
+                  <option selected>Año 2026 Completo (Cohortes 1 y 2)</option>
+                  <option>Últimos 6 meses</option>
+                  <option>Todo el histórico</option>
+                </select>
+                <span class="pin-badge">B</span>
+              </div>
+            </div>
+            <div class="col-md-2">
+              <div class="d-flex align-items-center gap-2">
+                <button class="wf-btn wf-btn-primary w-100"><i class="fa-solid fa-chart-pie me-1"></i> Generar Informe</button>
+                <span class="pin-badge">C</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4 Vistas Visuales del Informe Real -->
+        <div class="row g-4 mb-4">
+          <!-- Vista 1: Comparación del curso frente al resto en inscriptos (Barras Horizontales) -->
+          <div class="col-md-6">
+            <div class="p-3 border rounded bg-white shadow-sm h-100">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <strong style="font-size: 13px; color: #081426;">1. Inscriptos: Curso vs Resto de la Oferta</strong>
+                <span class="badge bg-light text-primary border" style="font-size: 9px;">Barras Horizontales</span>
+              </div>
+              <div class="d-flex flex-column gap-2" style="font-size: 11px;">
+                <div>
+                  <div class="d-flex justify-content-between mb-1">
+                    <span class="fw-bold text-primary">Idoneidad Bursátil (Seleccionado)</span>
+                    <strong>840 alumnos (60%)</strong>
+                  </div>
+                  <div style="height: 10px; background: #E2E8F0; border-radius: 5px; overflow: hidden;">
+                    <div style="width: 60%; height: 100%; background: #2563EB; border-radius: 5px;"></div>
+                  </div>
+                </div>
+                <div>
+                  <div class="d-flex justify-content-between mb-1">
+                    <span>Operativa Cripto & DeFi</span>
+                    <strong>380 alumnos (27%)</strong>
+                  </div>
+                  <div style="height: 10px; background: #E2E8F0; border-radius: 5px; overflow: hidden;">
+                    <div style="width: 27%; height: 100%; background: #0D9488; border-radius: 5px;"></div>
+                  </div>
+                </div>
+                <div>
+                  <div class="d-flex justify-content-between mb-1">
+                    <span>Mercado de Capitales Base</span>
+                    <strong>180 alumnos (13%)</strong>
+                  </div>
+                  <div style="height: 10px; background: #E2E8F0; border-radius: 5px; overflow: hidden;">
+                    <div style="width: 13%; height: 100%; background: #64748B; border-radius: 5px;"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Vista 2: Evolución de inscripciones en el tiempo por programa (Línea) -->
+          <div class="col-md-6">
+            <div class="p-3 border rounded bg-white shadow-sm h-100">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <strong style="font-size: 13px; color: #081426;">2. Evolución Temporal de Inscripciones</strong>
+                <span class="badge bg-light text-primary border" style="font-size: 9px;">Gráfico de Línea</span>
+              </div>
+              <div class="p-3 rounded border bg-light text-center" style="height: 100px; display: flex; align-items: center; justify-content: center; flex-direction: column;">
+                <i class="fa-solid fa-chart-line text-primary" style="font-size: 28px; margin-bottom: 6px;"></i>
+                <div class="small fw-bold text-dark">Tendencia Alcista: +28% en Cohorte 2026-1</div>
+                <div class="small text-muted" style="font-size: 10px;">Ene: 120 → Feb: 340 → Mar: 840 alumnos</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Vista 3: Tasa de abandono de las inscripciones (Torta) -->
+          <div class="col-md-6">
+            <div class="p-3 border rounded bg-white shadow-sm h-100">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <strong style="font-size: 13px; color: #081426;">3. Tasa de Retención vs Abandono</strong>
+                <span class="badge bg-light text-primary border" style="font-size: 9px;">Gráfico Circular</span>
+              </div>
+              <div class="d-flex align-items-center justify-content-around">
+                <div style="width: 70px; height: 70px; border-radius: 50%; background: conic-gradient(#16A34A 0% 92%, #DC2626 92% 100%); display: flex; align-items: center; justify-content: center;">
+                  <div style="width: 44px; height: 44px; border-radius: 50%; background: white; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: #081426;">92%</div>
+                </div>
+                <div style="font-size: 11px;">
+                  <div class="mb-1"><span class="badge bg-success me-1">92%</span> <strong>Alumnos Activos / Graduados</strong> (773)</div>
+                  <div><span class="badge bg-danger me-1">8%</span> <strong>Bajas / Abandonos</strong> (67)</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Vista 4: Comparación entre programas del curso (Efectividad) -->
+          <div class="col-md-6">
+            <div class="p-3 border rounded bg-white shadow-sm h-100">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <strong style="font-size: 13px; color: #081426;">4. Efectividad por Programa del Curso</strong>
+                <span class="badge bg-light text-primary border" style="font-size: 9px;">Comparativa Programas</span>
+              </div>
+              <div class="d-flex flex-column gap-2" style="font-size: 11px;">
+                <div>
+                  <div class="d-flex justify-content-between mb-1">
+                    <strong>Programa 2026-A (Intensivo Verano)</strong>
+                    <strong class="text-success">520 alumnos</strong>
+                  </div>
+                  <div style="height: 8px; background: #E2E8F0; border-radius: 4px; overflow: hidden;">
+                    <div style="width: 72%; height: 100%; background: #059669; border-radius: 4px;"></div>
+                  </div>
+                </div>
+                <div>
+                  <div class="d-flex justify-content-between mb-1">
+                    <strong>Programa 2026-B (Regular Semestral)</strong>
+                    <strong class="text-primary">320 alumnos</strong>
+                  </div>
+                  <div style="height: 8px; background: #E2E8F0; border-radius: 4px; overflow: hidden;">
+                    <div style="width: 48%; height: 100%; background: #2563EB; border-radius: 4px;"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Descarga de Reporte [D] -->
+        <div class="p-3 bg-light rounded border d-flex justify-content-between align-items-center">
+          <div class="small text-muted">
+            <i class="fa-solid fa-clock-rotate-left me-1"></i> Reporte generado el <strong>27/08/2026</strong> por <strong>Admin General</strong>. ID: <code>#REP-ALU-9642</code>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <button class="wf-btn wf-btn-sm wf-btn-primary" style="background: #059669; border-color: #059669; font-weight: 700;">
+              <i class="fa-solid fa-file-excel me-1"></i>
+              <span>Descargar PDF / Excel</span>
+            </button>
+            <span class="pin-badge">D</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // --- SPECIALIZED 12E: INFORME DE INGRESOS DE UN CURSO --- CU-97
+  if (id === 'CU-97') {
+    return `
+      <div class="wf-card mb-4" style="background: #FFFFFF;">
+        <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
+          <div>
+            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Informe Financiero y Facturación de Cursos</h3>
+            <p class="small text-muted" style="margin: 3px 0 0;">Análisis de ingresos netos acreditados, rentabilidad por rubro y efectividad de programas.</p>
+          </div>
+          <span class="wf-badge status-active">Módulo de Facturación</span>
+        </div>
+
+        <!-- Panel de Parámetros [B] y Botón Generar [C] -->
+        <div class="p-3 bg-light rounded border mb-4">
+          <div class="row g-3 align-items-end">
+            <div class="col-md-6">
+              <label class="wf-label">Curso Seleccionado</label>
+              <div class="wf-input-wrap">
+                <select class="wf-input">
+                  <option selected>Especialización en Idoneidad Bursátil ($120.000 ARS)</option>
+                  <option>Operativa Cripto y DeFi Profesional ($95.000 ARS)</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <label class="wf-label">Período Fiscal</label>
+              <div class="wf-input-wrap">
+                <select class="wf-input">
+                  <option selected>Primer Semestre 2026 (Ene - Jun)</option>
+                  <option>Año Completo 2025</option>
+                </select>
+                <span class="pin-badge">B</span>
+              </div>
+            </div>
+            <div class="col-md-2">
+              <div class="d-flex align-items-center gap-2">
+                <button class="wf-btn wf-btn-primary w-100"><i class="fa-solid fa-file-invoice-dollar me-1"></i> Generar Reporte de Ingresos</button>
+                <span class="pin-badge">C</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4 Vistas Financieras -->
+        <div class="row g-4 mb-4">
+          <!-- Vista 1: Comparación del curso frente al resto en ingresos -->
+          <div class="col-md-6">
+            <div class="p-3 border rounded bg-white shadow-sm h-100">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <strong style="font-size: 13px; color: #081426;">1. Ingresos: Curso vs Resto</strong>
+                <span class="badge bg-light text-success border" style="font-size: 9px;">Barras Horizontales</span>
+              </div>
+              <div class="d-flex flex-column gap-2" style="font-size: 11px;">
+                <div>
+                  <div class="d-flex justify-content-between mb-1">
+                    <span class="fw-bold text-success">Idoneidad Bursátil (Top 1)</span>
+                    <strong>$100.800.000 ARS (72%)</strong>
+                  </div>
+                  <div style="height: 10px; background: #E2E8F0; border-radius: 5px; overflow: hidden;">
+                    <div style="width: 72%; height: 100%; background: #059669; border-radius: 5px;"></div>
+                  </div>
+                </div>
+                <div>
+                  <div class="d-flex justify-content-between mb-1">
+                    <span>Operativa Cripto & DeFi</span>
+                    <strong>$36.100.000 ARS (26%)</strong>
+                  </div>
+                  <div style="height: 10px; background: #E2E8F0; border-radius: 5px; overflow: hidden;">
+                    <div style="width: 26%; height: 100%; background: #0284C7; border-radius: 5px;"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Vista 2: Evolución de ingresos en el tiempo -->
+          <div class="col-md-6">
+            <div class="p-3 border rounded bg-white shadow-sm h-100">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <strong style="font-size: 13px; color: #081426;">2. Evolución de Ingresos en el Tiempo</strong>
+                <span class="badge bg-light text-success border" style="font-size: 9px;">Línea Temporal</span>
+              </div>
+              <div class="p-3 rounded border bg-light text-center" style="height: 100px; display: flex; align-items: center; justify-content: center; flex-direction: column;">
+                <i class="fa-solid fa-arrow-trend-up text-success" style="font-size: 28px; margin-bottom: 6px;"></i>
+                <div class="small fw-bold text-dark">Facturación Creciente: +34% vs Mes Anterior</div>
+                <div class="small text-muted" style="font-size: 10px;">Ene: $14.4M → Feb: $40.8M → Mar: $100.8M ARS</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Vista 3: Ingresos por categoría de curso -->
+          <div class="col-md-6">
+            <div class="p-3 border rounded bg-white shadow-sm h-100">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <strong style="font-size: 13px; color: #081426;">3. Distribución por Categoría</strong>
+                <span class="badge bg-light text-success border" style="font-size: 9px;">Gráfico Circular</span>
+              </div>
+              <div class="d-flex align-items-center justify-content-around">
+                <div style="width: 70px; height: 70px; border-radius: 50%; background: conic-gradient(#059669 0% 75%, #0284C7 75% 100%); display: flex; align-items: center; justify-content: center;">
+                  <div style="width: 44px; height: 44px; border-radius: 50%; background: white; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: #081426;">75%</div>
+                </div>
+                <div style="font-size: 11px;">
+                  <div class="mb-1"><span class="badge bg-success me-1">75%</span> <strong>Mercado de Capitales</strong> ($100.8M)</div>
+                  <div><span class="badge bg-info me-1">25%</span> <strong>Cripto & DeFi</strong> ($36.1M)</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Vista 4: Comparación entre programas del curso -->
+          <div class="col-md-6">
+            <div class="p-3 border rounded bg-white shadow-sm h-100">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <strong style="font-size: 13px; color: #081426;">4. Facturación Neta por Programa</strong>
+                <span class="badge bg-light text-success border" style="font-size: 9px;">Comparativa</span>
+              </div>
+              <div class="d-flex flex-column gap-2" style="font-size: 11px;">
+                <div>
+                  <div class="d-flex justify-content-between mb-1">
+                    <strong>Programa 2026-A (Intensivo)</strong>
+                    <strong class="text-success">$62.400.000 ARS</strong>
+                  </div>
+                  <div style="height: 8px; background: #E2E8F0; border-radius: 4px; overflow: hidden;">
+                    <div style="width: 75%; height: 100%; background: #059669; border-radius: 4px;"></div>
+                  </div>
+                </div>
+                <div>
+                  <div class="d-flex justify-content-between mb-1">
+                    <strong>Programa 2026-B (Semestral)</strong>
+                    <strong class="text-primary">$38.400.000 ARS</strong>
+                  </div>
+                  <div style="height: 8px; background: #E2E8F0; border-radius: 4px; overflow: hidden;">
+                    <div style="width: 50%; height: 100%; background: #2563EB; border-radius: 4px;"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Descarga [D] -->
+        <div class="p-3 bg-light rounded border d-flex justify-content-between align-items-center">
+          <div class="small text-muted">
+            <i class="fa-solid fa-circle-check text-success me-1"></i> Estado: <strong>Reporte Financiero Consolidado y Validado</strong>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <button class="wf-btn wf-btn-sm wf-btn-primary" style="background: #081426; border-color: #081426; font-weight: 700;">
+              <i class="fa-solid fa-file-pdf me-1 text-danger"></i>
+              <span>Descargar Reporte</span>
+            </button>
+            <span class="pin-badge">D</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // --- SPECIALIZED 12F: CONSULTAR ESTADÍSTICAS (DASHBOARD EJECUTIVO) --- CU-98
+  if (id === 'CU-98') {
+    return `
+      <div class="wf-card mb-4" style="background: #FFFFFF;">
+        <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
+          <div>
+            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Dashboard Ejecutivo de Estadísticas e Indicadores</h3>
+            <p class="small text-muted" style="margin: 3px 0 0;">Monitoreo en tiempo real de alumnos activos, ingresos mensuales y cursos destacados.</p>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <span class="wf-badge status-active"><i class="fa-solid fa-chart-line me-1"></i> En Tiempo Real</span>
+          </div>
+        </div>
+
+        <!-- KPIs Principales del CU Real -->
+        <div class="row g-3 mb-4">
+          <div class="col-md-4">
+            <div class="p-3 border rounded bg-white shadow-sm" style="border-left: 4px solid #2563EB !important;">
+              <div class="small text-muted fw-bold">Alumnos Activos en Plataforma</div>
+              <h2 style="font-size: 26px; font-weight: 800; color: #081426; margin: 4px 0;">1.240</h2>
+              <div class="small text-success"><i class="fa-solid fa-arrow-up me-1"></i> +14% vs mes anterior</div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="p-3 border rounded bg-white shadow-sm" style="border-left: 4px solid var(--wf-gold) !important;">
+              <div class="small text-muted fw-bold">Inscripciones Vigentes Totales</div>
+              <h2 style="font-size: 26px; font-weight: 800; color: #081426; margin: 4px 0;">1.420</h2>
+              <div class="small text-muted">En 3 cursos activos</div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="p-3 border rounded bg-white shadow-sm" style="border-left: 4px solid #059669 !important;">
+              <div class="small text-muted fw-bold">Ingresos del Mes Facturados</div>
+              <h2 style="font-size: 26px; font-weight: 800; color: #059669; margin: 4px 0;">$17.4M ARS</h2>
+              <div class="small text-success"><i class="fa-solid fa-arrow-up me-1"></i> +22% vs mes anterior</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Gráficos de Indicadores Clave -->
+        <div class="row g-4">
+          <!-- Gráfico 1: Inscripciones de los últimos 30 días (Línea) -->
+          <div class="col-md-6">
+            <div class="p-3 border rounded bg-white shadow-sm h-100">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <strong style="font-size: 13px; color: #081426;">Inscripciones (Últimos 30 días)</strong>
+                <span class="badge bg-light text-primary border" style="font-size: 9px;">Gráfico de Línea</span>
+              </div>
+              <div class="p-4 rounded border bg-light text-center d-flex flex-column align-items-center justify-content-center" style="height: 140px;">
+                <i class="fa-solid fa-chart-line text-primary" style="font-size: 32px; margin-bottom: 8px;"></i>
+                <strong style="color: #081426;">Promedio Diario: 48 nuevas matrículas</strong>
+                <span class="small text-muted">Pico máximo: 92 matrículas el 15/08/2026</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Gráfico 2: Ranking Top 5 Cursos con Más Inscriptos (Barras) -->
+          <div class="col-md-6">
+            <div class="p-3 border rounded bg-white shadow-sm h-100">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <strong style="font-size: 13px; color: #081426;">Top 5 Cursos con Más Inscriptos</strong>
+                <span class="badge bg-light text-primary border" style="font-size: 9px;">Barras Horizontales</span>
+              </div>
+              <div class="d-flex flex-column gap-2" style="font-size: 11px;">
+                <div>
+                  <div class="d-flex justify-content-between mb-1">
+                    <span>1. Especialización Idoneidad Bursátil</span>
+                    <strong>840 inscriptos</strong>
+                  </div>
+                  <div style="height: 8px; background: #E2E8F0; border-radius: 4px; overflow: hidden;">
+                    <div style="width: 85%; height: 100%; background: #2563EB; border-radius: 4px;"></div>
+                  </div>
+                </div>
+                <div>
+                  <div class="d-flex justify-content-between mb-1">
+                    <span>2. Operativa Cripto y DeFi</span>
+                    <strong>380 inscriptos</strong>
+                  </div>
+                  <div style="height: 8px; background: #E2E8F0; border-radius: 4px; overflow: hidden;">
+                    <div style="width: 45%; height: 100%; background: #0D9488; border-radius: 4px;"></div>
+                  </div>
+                </div>
+                <div>
+                  <div class="d-flex justify-content-between mb-1">
+                    <span>3. Mercado de Capitales Argentino</span>
+                    <strong>180 inscriptos</strong>
+                  </div>
+                  <div style="height: 8px; background: #E2E8F0; border-radius: 4px; overflow: hidden;">
+                    <div style="width: 25%; height: 100%; background: #64748B; border-radius: 4px;"></div>
+                  </div>
+                </div>
+                <div>
+                  <div class="d-flex justify-content-between mb-1">
+                    <span>4. Valuación de Bonos y Renta Fija</span>
+                    <strong>95 inscriptos</strong>
+                  </div>
+                  <div style="height: 8px; background: #E2E8F0; border-radius: 4px; overflow: hidden;">
+                    <div style="width: 15%; height: 100%; background: #D97706; border-radius: 4px;"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // --- SPECIALIZED 13: CUENTA / PERFIL / LOGIN / RECUPERO / CERRAR SESIÓN --- CU-81, CU-86, CU-87, CU-90, CU-91, CU-92
+  if (['CU-81', 'CU-86', 'CU-87', 'CU-90', 'CU-91', 'CU-92'].includes(id)) {
     const isLogin = id === 'CU-90';
     const isRegister = id === 'CU-81';
     const isRecovery = id === 'CU-92';
+    const isLogout = id === 'CU-91';
     const isProfile = id === 'CU-86' || id === 'CU-87';
+
+    if (isLogout) {
+      return `
+        <div class="wf-card text-center" style="max-width: 480px; margin: 60px auto; background: #FFFFFF; padding: 40px 30px; box-shadow: 0 12px 32px rgba(0,0,0,0.08); border-radius: 12px;">
+          <div style="width: 64px; height: 64px; border-radius: 50%; background: #FEF2F2; color: #DC2626; display: flex; align-items: center; justify-content: center; font-size: 28px; margin: 0 auto 20px;">
+            <i class="fa-solid fa-right-from-bracket"></i>
+          </div>
+          <h3 style="font-size: 20px; font-weight: 800; color: #081426; margin-bottom: 8px;">Cerrando Sesión Activa</h3>
+          <p class="small text-muted mb-4">El sistema está registrando la fecha de finalización y destruyendo las credenciales de la sesión activa.</p>
+          
+          <div class="p-3 bg-light rounded border mb-4 text-start" style="font-size: 11px;">
+            <div class="d-flex justify-content-between mb-2">
+              <span class="text-muted">Usuario:</span>
+              <strong style="color: #081426;">Mg. Elena Valenzuela</strong>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+              <span class="text-muted">Dispositivo / IP:</span>
+              <span>Chrome 122 • 181.44.120.45</span>
+            </div>
+            <div class="d-flex justify-content-between">
+              <span class="text-muted">Estado:</span>
+              <strong class="text-success"><i class="fa-solid fa-circle-check me-1"></i> Sesión finalizada exitosamente</strong>
+            </div>
+          </div>
+
+          <div class="d-flex align-items-center justify-content-center gap-2 text-muted small">
+            <i class="fa-solid fa-spinner fa-spin text-primary"></i>
+            <span>Redirigiendo automáticamente a la pantalla de inicio de sesión...</span>
+          </div>
+        </div>
+      `;
+    }
 
     if (isRecovery) {
       return `
-        <div class="wf-card" style="max-width: 500px; margin: 30px auto; background: #FFFFFF;">
-          <div class="text-center mb-4">
-            <span class="badge bg-light text-dark border d-inline-flex align-items-center gap-1 mb-2"><i class="fa-solid fa-arrow-pointer text-muted"></i> Acción: <strong>¿Olvidaste tu contraseña?</strong> <span class="pin-badge">${badges[0] || 'A'}</span></span>
+        <div class="wf-card" style="max-width: 520px; margin: 30px auto; background: #FFFFFF; box-shadow: 0 12px 32px rgba(0,0,0,0.08); border-radius: 12px;">
+          <div class="text-center mb-4 pb-3 border-bottom">
+            <div style="width: 50px; height: 50px; border-radius: 50%; background: #EFF6FF; color: #2563EB; display: flex; align-items: center; justify-content: center; font-size: 22px; margin: 0 auto 12px;">
+              <i class="fa-solid fa-key"></i>
+            </div>
             <h3 style="font-size: 19px; font-weight: 800; color: #081426; margin: 0;">Recuperar y Restablecer Contraseña</h3>
-            <p class="small text-muted" style="margin: 4px 0 0;">Ingrese su correo institucional para recibir el enlace de recuperación.</p>
+            <p class="small text-muted" style="margin: 4px 0 0;">Ingrese su correo institucional para recibir el token temporal de recuperación.</p>
           </div>
 
           <div class="mb-3">
             <label class="wf-label">Correo Electrónico Registrado</label>
             <div class="wf-input-wrap">
-              <input type="email" class="wf-input" value="usuario@correo.com">
-              <span class="pin-badge">${badges[1] || 'B'}</span>
+              <input type="email" class="wf-input" placeholder="ej: docente@idoneos.online" value="elena.valenzuela@idoneos.online">
+              <span class="pin-badge">${badges[0] || badges[1] || 'B'}</span>
             </div>
           </div>
 
-          <div class="d-flex justify-content-end align-items-center gap-3 pt-3 border-top mt-4">
-            <a href="#CU-90" class="wf-btn wf-btn-outline">Volver al Login</a>
+          <div class="d-flex justify-content-between align-items-center gap-3 pt-2 mb-4">
+            <a href="#CU-90" class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-arrow-left me-1"></i> Volver al Login</a>
             <div class="d-flex align-items-center gap-2">
-              <button class="wf-btn wf-btn-primary"><i class="fa-solid fa-envelope me-1"></i> Enviar Enlace</button>
-              <span class="pin-badge">${badges[2] || 'C'}</span>
+              <button class="wf-btn wf-btn-sm wf-btn-primary"><i class="fa-solid fa-paper-plane me-1"></i> Enviar Enlace</button>
+              <span class="pin-badge">${badges[1] || badges[2] || 'C'}</span>
             </div>
           </div>
 
-          <hr class="my-4">
-          <div class="small text-muted text-center mb-3">Una vez recibido el enlace, cree su nueva contraseña:</div>
-          <div class="mb-3">
-            <label class="wf-label">Nueva Contraseña Segura</label>
-            <div class="wf-input-wrap">
-              <input type="password" class="wf-input" value="••••••••••••">
-              <span class="pin-badge">${badges[3] || 'D'}</span>
+          <div class="p-3 bg-light rounded border mb-3">
+            <div class="small fw-bold text-dark mb-2"><i class="fa-solid fa-lock me-1 text-primary"></i> Restablecimiento mediante Token Temporal:</div>
+            
+            <div class="mb-3">
+              <label class="wf-label" style="font-size: 11px;">Nueva Contraseña Segura</label>
+              <div class="wf-input-wrap">
+                <input type="password" class="wf-input" value="••••••••••••" style="height: 38px;">
+                <span class="pin-badge">${badges[2] || badges[3] || 'D'}</span>
+              </div>
+            </div>
+
+            <div class="mb-2">
+              <label class="wf-label" style="font-size: 11px;">Confirmar Nueva Contraseña</label>
+              <div class="wf-input-wrap">
+                <input type="password" class="wf-input" value="••••••••••••" style="height: 38px;">
+              </div>
             </div>
           </div>
-          <div class="mb-3">
-            <label class="wf-label">Confirmar Nueva Contraseña</label>
-            <div class="wf-input-wrap">
-              <input type="password" class="wf-input" value="••••••••••••">
-            </div>
-          </div>
-          <div class="d-flex justify-content-end align-items-center gap-2 pt-3 border-top">
-            <button class="wf-btn wf-btn-primary"><i class="fa-solid fa-key me-1"></i> Restablecer Contraseña</button>
-            <span class="pin-badge">${badges[4] || badges[badges.length - 1] || 'E'}</span>
+
+          <div class="d-flex justify-content-end align-items-center gap-2 pt-2 border-top">
+            <button class="wf-btn wf-btn-primary w-100" style="background: #081426; border-color: #081426; font-weight: 700;">
+              <i class="fa-solid fa-shield-check me-1" style="color: var(--wf-gold);"></i>
+              <span>Restablecer Contraseña</span>
+            </button>
+            <span class="pin-badge">${badges[badges.length - 1] || 'E'}</span>
           </div>
         </div>
       `;
@@ -5507,8 +6203,15 @@ function generateScreenContent(cu) {
             </div>
           </div>
 
-          <div class="mb-3">
-            <label class="wf-label">Contraseña</label>
+          <div class="mb-2">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <label class="wf-label mb-0">Contraseña</label>
+              ${isLogin ? `
+                <a href="#CU-92" class="small text-primary fw-bold text-decoration-none" style="font-size: 11px;">
+                  ¿Olvidaste tu contraseña?
+                </a>
+              ` : ''}
+            </div>
             <div class="wf-input-wrap">
               <input type="password" class="wf-input" value="••••••••••••">
               <span class="pin-badge">${badges[1] || 'B'}</span>
