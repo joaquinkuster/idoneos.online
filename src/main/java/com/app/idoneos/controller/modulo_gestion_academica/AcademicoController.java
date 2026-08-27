@@ -245,7 +245,7 @@ public class AcademicoController {
     // CU-23, CU-24, CU-25: CRONOGRAMA Y PARTICIPANTES
     // ─────────────────────────────────────────────────────────────
 
-    @GetMapping("/cronogramas")
+    @GetMapping({"/cronogramas", "/cronograma"})
     public String buscarCronograma(@RequestParam(value = "cohorteId", required = false) Integer cohorteId,
                                    Model model, Authentication auth) {
         agregarUsuarioAlModelo(model, auth);
@@ -291,15 +291,30 @@ public class AcademicoController {
     // CU-26 & CU-26b: AULA VIRTUAL Y MODO EDICIÓN
     // ─────────────────────────────────────────────────────────────
 
-    @GetMapping("/curso/{id}/aula")
-    public String accederCurso(@PathVariable Integer id, Model model, Authentication auth, RedirectAttributes ra) {
+    @GetMapping({"/aula", "/curso/{id}/aula"})
+    public String accederCurso(@PathVariable(value = "id", required = false) Integer id,
+                               @RequestParam(value = "cursoId", required = false) Integer cursoIdParam,
+                               Model model, Authentication auth, RedirectAttributes ra) {
         if (auth == null || !(auth.getPrincipal() instanceof Usuario)) return "redirect:/login";
         Usuario usuario = (Usuario) auth.getPrincipal();
 
-        Optional<Curso> cOpt = cursoService.buscarPorId(id);
-        if (cOpt.isEmpty()) return "redirect:/cursos";
+        Integer targetId = (id != null) ? id : (cursoIdParam != null ? cursoIdParam : null);
+        Curso curso = null;
+        if (targetId != null) {
+            curso = cursoService.buscarPorId(targetId).orElse(null);
+        } else {
+            List<Curso> todos = cursoService.obtenerTodo();
+            if (!todos.isEmpty()) curso = todos.get(0);
+        }
 
-        Curso curso = cOpt.get();
+        if (curso == null) {
+            model.addAttribute("usuario", usuario);
+            model.addAttribute("curso", new Curso());
+            model.addAttribute("unidades", List.of());
+            model.addAttribute("titulo", "CU-26 - Aula Virtual | Idóneos Online");
+            return "pages/academico/cu-26-acceder-curso";
+        }
+
         List<Unidad> unidades = unidadService.obtenerPorCurso(curso);
 
         model.addAttribute("usuario", usuario);

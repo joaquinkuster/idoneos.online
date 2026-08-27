@@ -23,103 +23,8 @@
         <!-- Pantalla / Screen Frame Oficial -->
         <div class="screen-frame">
 
-                <!-- Top Navbar Oficial -->
-                <div class="wf-top-navbar">
-                    <div class="wf-brand">
-                        <div class="d-flex flex-column">
-                            <div class="wf-brand-logo"><i class="fa-solid fa-chart-line" style="color: var(--wf-gold);"></i> Idóneos <span>Online</span></div>
-                            <div class="wf-brand-sub">FINANZAS • ECONOMÍA • MERCADO DE CAPITALES</div>
-                        </div>
-                    </div>
-
-                    <div class="wf-top-nav-links">
-                        <a th:href="@{/cursos/catalogo}" class="wf-top-nav-link">Inicio</a>
-                        <a th:href="@{/cursos/catalogo}" class="wf-top-nav-link">Catálogo de Cursos</a>
-                        <span class="wf-top-nav-pill">Panel Administrador</span>
-                        <a th:href="@{/configuracion}" class="wf-top-nav-link">Acerca de</a>
-
-                        <div class="wf-user-menu-wrapper">
-                            <div class="wf-user-trigger-pill" onclick="toggleUserDropdown(this)">
-                                <div class="user-avatar-circle" th:text="${usuario != null ? #strings.substring(usuario.nombre,0,1) + #strings.substring(usuario.apellido,0,1) : 'AG'}">AG</div>
-                                <span style="font-size: 11px; font-weight: 700;" th:text="${usuario != null ? usuario.nombreCompleto : 'Admin General'}">Admin General</span>
-                                <i class="fa-solid fa-chevron-down w-3 h-3 text-white ms-1"></i>
-                            </div>
-
-                            <div class="wf-user-floating-dropdown">
-                                <div class="wf-dropdown-user-header">
-                                    <div class="wf-dropdown-user-name" th:text="${usuario != null ? usuario.nombreCompleto : 'Admin General'}">Admin General</div>
-                                    <div class="wf-dropdown-user-role" th:text="${usuario != null and usuario.rol != null ? usuario.rol.nombre : 'Administrador'}">Administrador</div>
-                                    <div class="wf-dropdown-user-email" th:text="${usuario != null ? usuario.correo : 'admin@idoneos.online'}">admin@idoneos.online</div>
-                                </div>
-  
-                                <div class="wf-dropdown-section">
-                                    <div class="wf-dropdown-section-title">Modo Edición</div>
-    
-                                    <div class="wf-dropdown-editing-toggle-box">
-                                        <span class="small fw-bold">Activar Edición</span>
-                                        <span class="wf-badge status-inactive">OFF</span>
-                                    </div>
-      
-                                </div>
-    
-                                <div class="wf-dropdown-section">
-                                    <div class="wf-dropdown-section-title">Administración del Sistema</div>
-    
-                                    <a th:href="@{/cursos}" class="wf-dropdown-item-btn ">
-                                        <span>Gestión de cursos</span>
-                                    </a>
-        
-                                    <a th:href="@{/cursos/cohortes}" class="wf-dropdown-item-btn ">
-                                        <span>Cohortes y programas</span>
-                                    </a>
-        
-                                    <a th:href="@{/seguridad/usuarios}" class="wf-dropdown-item-btn ">
-                                        <span>Gestión de usuarios</span>
-                                    </a>
-        
-                                    <a th:href="@{/auditoria}" class="wf-dropdown-item-btn ">
-                                        <span>Auditoría de eventos</span>
-                                    </a>
-        
-                                    <a th:href="@{/reportes/alumnos}" class="wf-dropdown-item-btn ">
-                                        <span>Informe de alumnos</span>
-                                    </a>
-        
-                                    <a th:href="@{/reportes/ingresos}" class="wf-dropdown-item-btn ">
-                                        <span>Informe de ingresos</span>
-                                    </a>
-        
-                                    <a th:href="@{/reportes/estadisticas}" class="wf-dropdown-item-btn ">
-                                        <span>Dashboard de estadísticas</span>
-                                    </a>
-        
-                                    <a th:href="@{/configuracion}" class="wf-dropdown-item-btn ">
-                                        <span>Configuración general</span>
-                                    </a>
-        
-                                </div>
-    
-                                <div class="wf-dropdown-section">
-                                    <div class="wf-dropdown-section-title">Cuenta & Seguridad</div>
-    
-                                    <a th:href="@{/seguridad/perfil}" class="wf-dropdown-item-btn ">
-                                        <span>Ver perfil</span>
-                                    </a>
-        
-                                    <a th:href="@{/seguridad/sesiones}" class="wf-dropdown-item-btn ">
-                                        <span>Seguridad y sesiones activas</span>
-                                    </a>
-        
-                                    <a th:href="@{/seguridad/logout}" class="wf-dropdown-item-btn text-danger">
-                                        <span>Cerrar sesión</span>
-                                    </a>
-        
-                                </div>
-    
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <!-- Top Navbar Oficial Dinámica -->
+                <div th:replace="~{fragments/wf_navbar :: wf-top-navbar}"></div>
 
                 <!-- Hero Banner Contextual Superior (Navy) -->
                 <div class="wf-hero-banner">
@@ -129,48 +34,20 @@
                             <span>PANEL DE ADMINISTRACIÓN</span>
                         </div>
                         <h2 class="wf-hero-title">Buscar pago</h2>
-                        <p class="wf-hero-desc">Bienvenido/a, Admin General</p>
+                        <p class="wf-hero-desc">Registro y auditoría de transacciones financieras</p>
                     </div>
-                    
-                    <div class="d-flex align-items-center gap-2">
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    </div>
-</div>
+                </div>
 
                 <div class="wf-body">
                     <div class="wf-main-content">
                         
       <div class="wf-card mb-4" style="background: #FFFFFF;">
-        <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
-          <div>
-            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Historial y Registro de Pagos</h3>
-            <p class="small text-muted" style="margin: 3px 0 0;">Liquidaciones de aranceles, cobros por MODO QR, tarjetas y descarga de comprobantes oficiales.</p>
-          </div>
-          <span class="wf-badge status-active">Facturación Vigente</span>
-        </div>
-
-        <div class="row g-3 align-items-end mb-4">
+        <div class="row align-items-end g-3 mb-4">
           <div class="col-md-4">
             <label class="wf-label">Estado de Transacción</label>
-            <div class="wf-input-wrap">
-              <select class="wf-input">
-                <option>Todos los estados (Acreditado, Pendiente, Rechazado)</option>
-                <option>Acreditados (Aprobados)</option>
-                <option>Pendientes de Pago</option>
-                <option>Rechazados / Cancelados</option>
-              </select>
-              <span class="pin-badge">A</span>
+            <div class="wf-input wf-select-trigger">
+              <span>Todos los estados</span>
+              <i class="fa-solid fa-chevron-down text-muted"></i>
             </div>
           </div>
           <div class="col-md-5">
@@ -182,10 +59,7 @@
             </div>
           </div>
           <div class="col-md-3">
-            <div class="d-flex align-items-center gap-2">
-              <button class="wf-btn wf-btn-primary w-100"><i class="fa-solid fa-magnifying-glass me-1"></i> Buscar</button>
-              <span class="pin-badge">B</span>
-            </div>
+            <button class="wf-btn wf-btn-primary w-100"><i class="fa-solid fa-magnifying-glass me-1"></i> Buscar</button>
           </div>
         </div>
 
@@ -202,97 +76,26 @@
               </tr>
             </thead>
             <tbody>
-              <!-- Pago 1: Acreditado MODO QR -->
-              <tr>
-                <td>
-                  <div class="d-flex align-items-center gap-2">
-                    <strong style="color: #081426;">#PAY-2026-8841</strong>
-                    <span class="pin-badge">C</span>
-                  </div>
-                  <div class="small text-muted">15/03/2026 • 14:22 hs</div>
-                </td>
-                <td>
-                  <strong>Joaquín Küster</strong>
-                  <div class="small text-muted">DNI: 40.123.456</div>
-                </td>
-                <td>
-                  <span class="fw-bold">Especialización en Idoneidad Bursátil</span>
-                  <div class="small text-muted">Cohorte 2026-1</div>
-                </td>
-                <td>
-                  <strong style="color: #059669;">$120.000 ARS</strong>
-                  <div class="small text-muted"><i class="fa-solid fa-qrcode me-1 text-primary"></i> MODO Billetera QR</div>
-                </td>
-                <td><span class="wf-badge status-active">Acreditado</span></td>
+              <tr th:each="p : ${pagos}">
+                <td><strong style="color: #081426;" th:text="${p.numeroComprobante != null ? p.numeroComprobante : 'TRANS-' + p.id}">COMP-001</strong></td>
+                <td th:text="${p.inscripcion != null && p.inscripcion.alumno != null && p.inscripcion.alumno.usuario != null ? p.inscripcion.alumno.usuario.nombreCompleto : 'Alumno'}">Alumno</td>
+                <td th:text="${p.inscripcion != null && p.inscripcion.cohorte != null && p.inscripcion.cohorte.programa != null && p.inscripcion.cohorte.programa.curso != null ? p.inscripcion.cohorte.programa.curso.nombre : (p.inscripcion != null && p.inscripcion.curso != null ? p.inscripcion.curso.nombre : 'Curso')}">Curso</td>
+                <td><strong class="text-success" th:text="${p.monto != null ? '$ ' + #numbers.formatDecimal(p.monto, 1, 'POINT', 0, 'COMMA') : '$ 0'}">$0</strong></td>
+                <td><span class="wf-pill-tag" th:text="${p.estadoPago != null ? p.estadoPago.nombre : 'Acreditado'}">Acreditado</span></td>
                 <td class="text-end">
-                  <div class="d-inline-flex align-items-center gap-2">
-                    <button class="wf-btn wf-btn-sm wf-btn-outline" title="Descargar comprobante en PDF">
-                      <i class="fa-solid fa-receipt me-1 text-primary"></i>
-                      <span>Descargar Comprobante</span>
-                    </button>
-                    <span class="pin-badge">D</span>
-                  </div>
+                  <a th:href="@{'/pago/resultado/' + ${p.id}}" class="wf-btn wf-btn-sm wf-btn-outline text-decoration-none">
+                    <i class="fa-solid fa-file-invoice"></i> Ver Recibo
+                  </a>
                 </td>
               </tr>
-
-              <!-- Pago 2: Acreditado Tarjeta -->
-              <tr>
-                <td>
-                  <strong style="color: #081426;">#PAY-2026-8912</strong>
-                  <div class="small text-muted">18/03/2026 • 10:45 hs</div>
-                </td>
-                <td>
-                  <strong>María Benítez</strong>
-                  <div class="small text-muted">DNI: 38.945.112</div>
-                </td>
-                <td>
-                  <span class="fw-bold">Especialización en Idoneidad Bursátil</span>
-                  <div class="small text-muted">Cohorte 2026-1</div>
-                </td>
-                <td>
-                  <strong style="color: #059669;">$120.000 ARS</strong>
-                  <div class="small text-muted"><i class="fa-solid fa-credit-card me-1 text-muted"></i> Tarjeta Débito (*** 4129)</div>
-                </td>
-                <td><span class="wf-badge status-active">Acreditado</span></td>
-                <td class="text-end">
-                  <button class="wf-btn wf-btn-sm wf-btn-outline">
-                    <i class="fa-solid fa-receipt me-1 text-primary"></i>
-                    <span>Descargar Comprobante</span>
-                  </button>
-                </td>
-              </tr>
-
-              <!-- Pago 3: Operativa Cripto -->
-              <tr>
-                <td>
-                  <strong style="color: #081426;">#PAY-2026-9055</strong>
-                  <div class="small text-muted">01/04/2026 • 19:10 hs</div>
-                </td>
-                <td>
-                  <strong>Lucas Romero</strong>
-                  <div class="small text-muted">DNI: 42.887.654</div>
-                </td>
-                <td>
-                  <span class="fw-bold">Operativa Cripto y DeFi Profesional</span>
-                  <div class="small text-muted">Cohorte 2026-1</div>
-                </td>
-                <td>
-                  <strong style="color: #059669;">$95.000 ARS</strong>
-                  <div class="small text-muted"><i class="fa-solid fa-qrcode me-1 text-primary"></i> MODO Billetera QR</div>
-                </td>
-                <td><span class="wf-badge status-active">Acreditado</span></td>
-                <td class="text-end">
-                  <button class="wf-btn wf-btn-sm wf-btn-outline">
-                    <i class="fa-solid fa-receipt me-1 text-primary"></i>
-                    <span>Descargar Comprobante</span>
-                  </button>
-                </td>
+              <tr th:if="${#lists.isEmpty(pagos)}">
+                <td colspan="6" class="text-center py-4 text-muted">No se registran pagos en el sistema actualmente.</td>
               </tr>
             </tbody>
           </table>
         </div>
       </div>
-    
+
                     </div>
                 </div>
 
@@ -305,7 +108,7 @@
                         FCEQyN — UNaM • Proyecto Software (LSI) / Trabajo Final (ASI)
                     </div>
                 </div>
-            
+
         </div>
     </div>
 
@@ -321,33 +124,6 @@
                 }
             }
         }
-    </script>
-
-    <!-- DSS & Case of Use Console Logger -->
-    <script>
-        (function() {
-            const cuId = 'CU-46';
-            const cuNombre = 'Buscar pago';
-            const cuActores = 'Alumno / Administrador';
-            const cuDss = 'buscarPagos(curso, alumno, estado, rangoFechas) ➔ seleccionarPago(idPago, pagos) ➔ generarComprobantePago(unPago)';
-
-            console.log(
-                '%c[IDÓNEOS ONLINE] %c ' + cuId + ' %c ' + cuNombre + ' ',
-                'color: #C9982F; font-weight: 800; font-size: 13px;',
-                'background: #081426; color: #E4BE6C; padding: 3px 8px; border-radius: 4px; font-weight: 700; font-size: 12px; border: 1px solid #C9982F;',
-                'color: #081426; font-weight: 800; font-size: 13px;'
-            );
-            console.log(
-                '%c👤 Actor(es): %c' + cuActores,
-                'color: #64748B; font-weight: 700; font-size: 11px;',
-                'color: #0F172A; font-weight: 600; font-size: 11px;'
-            );
-            console.log(
-                '%c⚡ DSS: %c' + cuDss,
-                'color: #64748B; font-weight: 700; font-size: 11px;',
-                'color: #0284C7; font-family: monospace; font-size: 11px; font-weight: 600;'
-            );
-        })();
     </script>
 </body>
 </html>

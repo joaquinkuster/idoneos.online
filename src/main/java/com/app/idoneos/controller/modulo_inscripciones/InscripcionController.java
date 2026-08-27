@@ -136,7 +136,7 @@ public class InscripcionController {
         return "pages/inscripciones/cu-46-buscar-pago";
     }
 
-    @GetMapping("/pagos/nuevo")
+    @GetMapping({"/pagos/nuevo", "/pagar"})
     public String realizarPagoForm(@RequestParam(value = "cursoId", required = false) Integer cursoId,
                                    Model model, Authentication auth) {
         agregarUsuarioAlModelo(model, auth);

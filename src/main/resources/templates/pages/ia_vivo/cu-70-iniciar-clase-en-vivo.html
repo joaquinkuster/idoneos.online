@@ -23,95 +23,8 @@
         <!-- Pantalla / Screen Frame Oficial -->
         <div class="screen-frame">
 
-                <!-- Top Navbar Oficial -->
-                <div class="wf-top-navbar">
-                    <div class="wf-brand">
-                        <div class="d-flex flex-column">
-                            <div class="wf-brand-logo"><i class="fa-solid fa-chart-line" style="color: var(--wf-gold);"></i> Idóneos <span>Online</span></div>
-                            <div class="wf-brand-sub">FINANZAS • ECONOMÍA • MERCADO DE CAPITALES</div>
-                        </div>
-                    </div>
-
-                    <div class="wf-top-nav-links">
-                        <a th:href="@{/cursos/catalogo}" class="wf-top-nav-link">Inicio</a>
-                        <a th:href="@{/cursos/catalogo}" class="wf-top-nav-link">Catálogo de Cursos</a>
-                        <span class="wf-top-nav-pill">Panel Docente</span>
-                        <a th:href="@{/configuracion}" class="wf-top-nav-link">Acerca de</a>
-
-                        <div class="wf-user-menu-wrapper">
-                            <div class="wf-user-trigger-pill" onclick="toggleUserDropdown(this)">
-                                <div class="user-avatar-circle">EV</div>
-                                <span style="font-size: 11px; font-weight: 700;">Mg. Elena Valenzuela</span>
-                                <i class="fa-solid fa-chevron-down w-3 h-3 text-white ms-1"></i>
-                            </div>
-
-                            <div class="wf-user-floating-dropdown">
-                                <div class="wf-dropdown-user-header">
-                                    <div class="wf-dropdown-user-name">Mg. Elena Valenzuela</div>
-                                    <div class="wf-dropdown-user-role">Docente Titular</div>
-                                    <div class="wf-dropdown-user-email">elena.valenzuela@idoneos.online</div>
-                                </div>
-  
-                                <div class="wf-dropdown-section">
-                                    <div class="wf-dropdown-section-title">Modo Edición</div>
-    
-                                    <div class="wf-dropdown-editing-toggle-box">
-                                        <span class="small fw-bold">Modo Edición Activado</span>
-                                        <span class="wf-badge status-active">ON</span>
-                                    </div>
-      
-                                </div>
-    
-                                <div class="wf-dropdown-section">
-                                    <div class="wf-dropdown-section-title">Gestión de Cursos</div>
-    
-                                    <a th:href="@{/cursos}" class="wf-dropdown-item-btn ">
-                                        <span>Mis cursos a cargo</span>
-                                    </a>
-        
-                                    <a th:href="@{/academico/unidades}" class="wf-dropdown-item-btn ">
-                                        <span>Estructura de unidades</span>
-                                    </a>
-        
-                                    <a th:href="@{/academico/cronograma}" class="wf-dropdown-item-btn ">
-                                        <span>Cronograma y avance</span>
-                                    </a>
-        
-                                    <a th:href="@{/academico/participantes}" class="wf-dropdown-item-btn ">
-                                        <span>Lista de participantes</span>
-                                    </a>
-        
-                                    <a th:href="@{/ia/clon/nuevo}" class="wf-dropdown-item-btn ">
-                                        <span>Estudio de Clon IA (HeyGen)</span>
-                                    </a>
-        
-                                </div>
-    
-                                <div class="wf-dropdown-section">
-                                    <div class="wf-dropdown-section-title">Cuenta & Seguridad</div>
-    
-                                    <a th:href="@{/seguridad/perfil}" class="wf-dropdown-item-btn ">
-                                        <span>Ver perfil</span>
-                                    </a>
-        
-                                    <a th:href="@{/seguridad/perfil/editar}" class="wf-dropdown-item-btn ">
-                                        <span>Editar perfil</span>
-                                    </a>
-        
-                                    <a th:href="@{/seguridad/sesiones}" class="wf-dropdown-item-btn ">
-                                        <span>Seguridad y sesiones activas</span>
-                                    </a>
-        
-                                    <a th:href="@{/seguridad/logout}" class="wf-dropdown-item-btn text-danger">
-                                        <span>Cerrar sesión</span>
-                                    </a>
-        
-                                </div>
-    
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <!-- Top Navbar Oficial Dinámica -->
+                <div th:replace="~{fragments/wf_navbar :: wf-top-navbar}"></div>
 
                 <!-- Hero Banner Contextual Superior (Navy) -->
                 <div class="wf-hero-banner">
@@ -160,7 +73,7 @@
                   <span>Copiar clave para transmitir en vivo por OBS</span>
                   <i class="fa-solid fa-copy ms-1"></i>
                 </button>
-                <span class="pin-badge">B</span>
+                
               </div>
             
             

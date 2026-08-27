@@ -1,8 +1,6 @@
 package com.app.idoneos.repository.modulo_cursos;
-import com.app.idoneos.service.modulo_reportes.*;
 
 import com.app.idoneos.model.*;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -26,7 +24,7 @@ public interface CursoRepository extends JpaRepository<Curso, Integer> {
      * Cursos de un docente (titular o supervisor).
      */
     @Query("SELECT DISTINCT c FROM Curso c LEFT JOIN Supervisor s ON s.curso = c " +
-           "WHERE (c.docente.id = :docenteId OR s.docente.id = :docenteId) AND c.baja = false")
+           "WHERE (c.docente.idDocente = :docenteId OR s.docente.idDocente = :docenteId) AND c.baja = false")
     List<Curso> findByDocenteId(int docenteId);
 
     /**
@@ -36,18 +34,10 @@ public interface CursoRepository extends JpaRepository<Curso, Integer> {
     List<Curso> findByDocenteTitularId(int docenteId);
 
     /**
-     * CU-05: Buscar cursos publicados por modalidad de dictado.
+     * CU-01 / CU-05: Filtro multicriterio de cursos publicados por nombre y categoría.
      */
-    @Query("SELECT DISTINCT mc.curso FROM ModalidadCurso mc WHERE mc.modalidad.id = :modalidadId AND mc.curso.baja = false AND mc.curso.publicado = true")
-    List<Curso> findByModalidadIdAndPublicadoTrue(int modalidadId);
-
-    /**
-     * CU-01 / CU-05: Filtro multicriterio de cursos publicados por nombre, categoría y modalidad.
-     */
-    @Query("SELECT DISTINCT c FROM Curso c LEFT JOIN ModalidadCurso mc ON mc.curso = c WHERE c.baja = false AND c.publicado = true " +
+    @Query("SELECT DISTINCT c FROM Curso c WHERE c.baja = false AND c.publicado = true " +
            "AND (:nombre IS NULL OR LOWER(c.nombre) LIKE LOWER(CONCAT('%', :nombre, '%'))) " +
-           "AND (:categoriaId IS NULL OR c.categoria.id = :categoriaId) " +
-           "AND (:modalidadId IS NULL OR mc.modalidad.id = :modalidadId)")
+           "AND (:categoriaId IS NULL OR c.categoria.id = :categoriaId)")
     List<Curso> buscarCursosPublicadosConFiltros(String nombre, Integer categoriaId, Integer modalidadId);
 }
-

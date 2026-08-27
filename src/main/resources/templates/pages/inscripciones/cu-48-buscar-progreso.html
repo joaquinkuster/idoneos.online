@@ -23,103 +23,8 @@
         <!-- Pantalla / Screen Frame Oficial -->
         <div class="screen-frame">
 
-                <!-- Top Navbar Oficial -->
-                <div class="wf-top-navbar">
-                    <div class="wf-brand">
-                        <div class="d-flex flex-column">
-                            <div class="wf-brand-logo"><i class="fa-solid fa-chart-line" style="color: var(--wf-gold);"></i> Idóneos <span>Online</span></div>
-                            <div class="wf-brand-sub">FINANZAS • ECONOMÍA • MERCADO DE CAPITALES</div>
-                        </div>
-                    </div>
-
-                    <div class="wf-top-nav-links">
-                        <a th:href="@{/cursos/catalogo}" class="wf-top-nav-link">Inicio</a>
-                        <a th:href="@{/cursos/catalogo}" class="wf-top-nav-link">Catálogo de Cursos</a>
-                        <span class="wf-top-nav-pill">Panel Administrador</span>
-                        <a th:href="@{/configuracion}" class="wf-top-nav-link">Acerca de</a>
-
-                        <div class="wf-user-menu-wrapper">
-                            <div class="wf-user-trigger-pill" onclick="toggleUserDropdown(this)">
-                                <div class="user-avatar-circle" th:text="${usuario != null ? #strings.substring(usuario.nombre,0,1) + #strings.substring(usuario.apellido,0,1) : 'AG'}">AG</div>
-                                <span style="font-size: 11px; font-weight: 700;" th:text="${usuario != null ? usuario.nombreCompleto : 'Admin General'}">Admin General</span>
-                                <i class="fa-solid fa-chevron-down w-3 h-3 text-white ms-1"></i>
-                            </div>
-
-                            <div class="wf-user-floating-dropdown">
-                                <div class="wf-dropdown-user-header">
-                                    <div class="wf-dropdown-user-name" th:text="${usuario != null ? usuario.nombreCompleto : 'Admin General'}">Admin General</div>
-                                    <div class="wf-dropdown-user-role" th:text="${usuario != null and usuario.rol != null ? usuario.rol.nombre : 'Administrador'}">Administrador</div>
-                                    <div class="wf-dropdown-user-email" th:text="${usuario != null ? usuario.correo : 'admin@idoneos.online'}">admin@idoneos.online</div>
-                                </div>
-  
-                                <div class="wf-dropdown-section">
-                                    <div class="wf-dropdown-section-title">Modo Edición</div>
-    
-                                    <div class="wf-dropdown-editing-toggle-box">
-                                        <span class="small fw-bold">Activar Edición</span>
-                                        <span class="wf-badge status-inactive">OFF</span>
-                                    </div>
-      
-                                </div>
-    
-                                <div class="wf-dropdown-section">
-                                    <div class="wf-dropdown-section-title">Administración del Sistema</div>
-    
-                                    <a th:href="@{/cursos}" class="wf-dropdown-item-btn ">
-                                        <span>Gestión de cursos</span>
-                                    </a>
-        
-                                    <a th:href="@{/cursos/cohortes}" class="wf-dropdown-item-btn ">
-                                        <span>Cohortes y programas</span>
-                                    </a>
-        
-                                    <a th:href="@{/seguridad/usuarios}" class="wf-dropdown-item-btn ">
-                                        <span>Gestión de usuarios</span>
-                                    </a>
-        
-                                    <a th:href="@{/auditoria}" class="wf-dropdown-item-btn ">
-                                        <span>Auditoría de eventos</span>
-                                    </a>
-        
-                                    <a th:href="@{/reportes/alumnos}" class="wf-dropdown-item-btn ">
-                                        <span>Informe de alumnos</span>
-                                    </a>
-        
-                                    <a th:href="@{/reportes/ingresos}" class="wf-dropdown-item-btn ">
-                                        <span>Informe de ingresos</span>
-                                    </a>
-        
-                                    <a th:href="@{/reportes/estadisticas}" class="wf-dropdown-item-btn ">
-                                        <span>Dashboard de estadísticas</span>
-                                    </a>
-        
-                                    <a th:href="@{/configuracion}" class="wf-dropdown-item-btn ">
-                                        <span>Configuración general</span>
-                                    </a>
-        
-                                </div>
-    
-                                <div class="wf-dropdown-section">
-                                    <div class="wf-dropdown-section-title">Cuenta & Seguridad</div>
-    
-                                    <a th:href="@{/seguridad/perfil}" class="wf-dropdown-item-btn ">
-                                        <span>Ver perfil</span>
-                                    </a>
-        
-                                    <a th:href="@{/seguridad/sesiones}" class="wf-dropdown-item-btn ">
-                                        <span>Seguridad y sesiones activas</span>
-                                    </a>
-        
-                                    <a th:href="@{/seguridad/logout}" class="wf-dropdown-item-btn text-danger">
-                                        <span>Cerrar sesión</span>
-                                    </a>
-        
-                                </div>
-    
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <!-- Top Navbar Oficial Dinámica -->
+                <div th:replace="~{fragments/wf_navbar :: wf-top-navbar}"></div>
 
                 <!-- Hero Banner Contextual Superior (Navy) -->
                 <div class="wf-hero-banner">
@@ -165,7 +70,7 @@
             <label class="wf-label">Buscar Alumno por Nombre o DNI</label>
             <div class="wf-input-wrap">
               <input type="text" class="wf-input" placeholder="Buscar alumno por nombre, apellido o DNI...">
-              <span class="pin-badge">A</span>
+              
             </div>
           </div>
           <div class="col-md-4">
@@ -179,7 +84,7 @@
           <div class="col-md-3">
             <div class="d-flex align-items-center gap-2">
               <button class="wf-btn wf-btn-primary w-100"><i class="fa-solid fa-magnifying-glass me-1"></i> Buscar</button>
-              <span class="pin-badge">B</span>
+              
             </div>
           </div>
         </div>
@@ -197,75 +102,16 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <!-- Alumno 1: Joaquín Küster (Seleccionado) -->
-                  <tr style="background: #F0F9FF; border-left: 4px solid var(--wf-navy);">
-                    <td>
-                      <div class="d-flex align-items-center gap-2">
-                        <div class="user-avatar-circle" style="width: 32px; height: 32px; font-size: 11px; background: #2563EB; color: white;">JK</div>
-                        <div>
-                          <div class="d-flex align-items-center gap-2">
-                            <strong>Joaquín Küster</strong>
-                            <span class="pin-badge">C</span>
-                          </div>
-                          <div class="small text-muted">DNI: 40.123.456</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td><span class="wf-badge status-active">Al día</span></td>
-                    <td>
-                      <div class="d-flex align-items-center gap-2">
-                        <div style="flex: 1; height: 8px; background: #E2E8F0; border-radius: 4px; overflow: hidden;">
-                          <div style="width: 100%; height: 100%; background: #16A34A;"></div>
-                        </div>
-                        <span class="small fw-bold text-success">100%</span>
-                      </div>
-                    </td>
-                  </tr>
-
-                  <!-- Alumno 2: María Benítez -->
-                  <tr>
-                    <td>
-                      <div class="d-flex align-items-center gap-2">
-                        <div class="user-avatar-circle" style="width: 32px; height: 32px; font-size: 11px; background: #0D9488; color: white;">MB</div>
-                        <div>
-                          <strong>María Benítez</strong>
-                          <div class="small text-muted">DNI: 38.945.112</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td><span class="badge bg-light text-primary border">En curso</span></td>
-                    <td>
-                      <div class="d-flex align-items-center gap-2">
-                        <div style="flex: 1; height: 8px; background: #E2E8F0; border-radius: 4px; overflow: hidden;">
-                          <div style="width: 66%; height: 100%; background: #2563EB;"></div>
-                        </div>
-                        <span class="small fw-bold text-primary">66%</span>
-                      </div>
-                    </td>
-                  </tr>
-
-                  <!-- Alumno 3: Lucas Romero -->
-                  <tr>
-                    <td>
-                      <div class="d-flex align-items-center gap-2">
-                        <div class="user-avatar-circle" style="width: 32px; height: 32px; font-size: 11px; background: #E11D48; color: white;">LR</div>
-                        <div>
-                          <strong>Lucas Romero</strong>
-                          <div class="small text-muted">DNI: 42.887.654</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td><span class="badge bg-light text-warning border">Atrasado</span></td>
-                    <td>
-                      <div class="d-flex align-items-center gap-2">
-                        <div style="flex: 1; height: 8px; background: #E2E8F0; border-radius: 4px; overflow: hidden;">
-                          <div style="width: 33%; height: 100%; background: #D97706;"></div>
-                        </div>
-                        <span class="small fw-bold text-warning">33%</span>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
+  <tr th:each="prog : ${progresos}">
+    <td><strong style="color: #081426;" th:text="${prog.inscripcion.alumno.usuario.nombreCompleto}">Alumno</strong></td>
+    <td th:text="${prog.unidad.titulo}">Unidad</td>
+    <td><span th:class="${prog.completada ? 'wf-badge status-active' : 'wf-badge status-inactive'}" th:text="${prog.completada ? 'Completada' : 'Pendiente'}">Completada</span></td>
+    <td th:text="${prog.fechaCompletada != null ? #temporals.format(prog.fechaCompletada, 'dd/MM/yyyy') : '-'}">-</td>
+  </tr>
+  <tr th:if="${#lists.isEmpty(progresos)}">
+    <td colspan="4" class="text-center py-4 text-muted">No se encontraron registros de avance académico.</td>
+  </tr>
+</tbody>
               </table>
             </div>
           </div>
@@ -278,7 +124,7 @@
                   <span class="small text-muted">Detalle Académico del Alumno</span>
                   <h4 style="font-size: 15px; font-weight: 800; color: #081426; margin: 2px 0 0;">Joaquín Küster</h4>
                 </div>
-                <span class="pin-badge">D</span>
+                
               </div>
 
               <div class="d-flex flex-column gap-3" style="font-size: 12px;">

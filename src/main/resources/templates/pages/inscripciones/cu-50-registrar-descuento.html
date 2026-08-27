@@ -23,103 +23,8 @@
         <!-- Pantalla / Screen Frame Oficial -->
         <div class="screen-frame">
 
-                <!-- Top Navbar Oficial -->
-                <div class="wf-top-navbar">
-                    <div class="wf-brand">
-                        <div class="d-flex flex-column">
-                            <div class="wf-brand-logo"><i class="fa-solid fa-chart-line" style="color: var(--wf-gold);"></i> Idóneos <span>Online</span></div>
-                            <div class="wf-brand-sub">FINANZAS • ECONOMÍA • MERCADO DE CAPITALES</div>
-                        </div>
-                    </div>
-
-                    <div class="wf-top-nav-links">
-                        <a th:href="@{/cursos/catalogo}" class="wf-top-nav-link">Inicio</a>
-                        <a th:href="@{/cursos/catalogo}" class="wf-top-nav-link">Catálogo de Cursos</a>
-                        <span class="wf-top-nav-pill">Panel Administrador</span>
-                        <a th:href="@{/configuracion}" class="wf-top-nav-link">Acerca de</a>
-
-                        <div class="wf-user-menu-wrapper">
-                            <div class="wf-user-trigger-pill" onclick="toggleUserDropdown(this)">
-                                <div class="user-avatar-circle" th:text="${usuario != null ? #strings.substring(usuario.nombre,0,1) + #strings.substring(usuario.apellido,0,1) : 'AG'}">AG</div>
-                                <span style="font-size: 11px; font-weight: 700;" th:text="${usuario != null ? usuario.nombreCompleto : 'Admin General'}">Admin General</span>
-                                <i class="fa-solid fa-chevron-down w-3 h-3 text-white ms-1"></i>
-                            </div>
-
-                            <div class="wf-user-floating-dropdown">
-                                <div class="wf-dropdown-user-header">
-                                    <div class="wf-dropdown-user-name" th:text="${usuario != null ? usuario.nombreCompleto : 'Admin General'}">Admin General</div>
-                                    <div class="wf-dropdown-user-role" th:text="${usuario != null and usuario.rol != null ? usuario.rol.nombre : 'Administrador'}">Administrador</div>
-                                    <div class="wf-dropdown-user-email" th:text="${usuario != null ? usuario.correo : 'admin@idoneos.online'}">admin@idoneos.online</div>
-                                </div>
-  
-                                <div class="wf-dropdown-section">
-                                    <div class="wf-dropdown-section-title">Modo Edición</div>
-    
-                                    <div class="wf-dropdown-editing-toggle-box">
-                                        <span class="small fw-bold">Activar Edición</span>
-                                        <span class="wf-badge status-inactive">OFF</span>
-                                    </div>
-      
-                                </div>
-    
-                                <div class="wf-dropdown-section">
-                                    <div class="wf-dropdown-section-title">Administración del Sistema</div>
-    
-                                    <a th:href="@{/cursos}" class="wf-dropdown-item-btn ">
-                                        <span>Gestión de cursos</span>
-                                    </a>
-        
-                                    <a th:href="@{/cursos/cohortes}" class="wf-dropdown-item-btn ">
-                                        <span>Cohortes y programas</span>
-                                    </a>
-        
-                                    <a th:href="@{/seguridad/usuarios}" class="wf-dropdown-item-btn ">
-                                        <span>Gestión de usuarios</span>
-                                    </a>
-        
-                                    <a th:href="@{/auditoria}" class="wf-dropdown-item-btn ">
-                                        <span>Auditoría de eventos</span>
-                                    </a>
-        
-                                    <a th:href="@{/reportes/alumnos}" class="wf-dropdown-item-btn ">
-                                        <span>Informe de alumnos</span>
-                                    </a>
-        
-                                    <a th:href="@{/reportes/ingresos}" class="wf-dropdown-item-btn ">
-                                        <span>Informe de ingresos</span>
-                                    </a>
-        
-                                    <a th:href="@{/reportes/estadisticas}" class="wf-dropdown-item-btn ">
-                                        <span>Dashboard de estadísticas</span>
-                                    </a>
-        
-                                    <a th:href="@{/configuracion}" class="wf-dropdown-item-btn ">
-                                        <span>Configuración general</span>
-                                    </a>
-        
-                                </div>
-    
-                                <div class="wf-dropdown-section">
-                                    <div class="wf-dropdown-section-title">Cuenta & Seguridad</div>
-    
-                                    <a th:href="@{/seguridad/perfil}" class="wf-dropdown-item-btn ">
-                                        <span>Ver perfil</span>
-                                    </a>
-        
-                                    <a th:href="@{/seguridad/sesiones}" class="wf-dropdown-item-btn ">
-                                        <span>Seguridad y sesiones activas</span>
-                                    </a>
-        
-                                    <a th:href="@{/seguridad/logout}" class="wf-dropdown-item-btn text-danger">
-                                        <span>Cerrar sesión</span>
-                                    </a>
-        
-                                </div>
-    
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <!-- Top Navbar Oficial Dinámica -->
+                <div th:replace="~{fragments/wf_navbar :: wf-top-navbar}"></div>
 
                 <!-- Hero Banner Contextual Superior (Navy) -->
                 <div class="wf-hero-banner">
@@ -167,14 +72,14 @@
           <label class="wf-label">Nombre del Descuento / Beca</label>
           <div class="wf-input-wrap">
             <input type="text" class="wf-input" value="Beca Convenio UNaM 2026">
-            <span class="pin-badge">B</span>
+            
           </div>
         </div>
         <div class="col-md-6">
           <label class="wf-label">Porcentaje de Descuento</label>
           <div class="wf-input-wrap">
             <input type="number" class="wf-input" value="25" min="1" max="100">
-            <span class="pin-badge">C</span>
+            
           </div>
         </div>
 
@@ -182,14 +87,14 @@
           <label class="wf-label">Vigencia Desde</label>
           <div class="wf-input-wrap">
             <input type="date" class="wf-input" value="2026-03-01">
-            <span class="pin-badge">D</span>
+            
           </div>
         </div>
         <div class="col-md-6">
           <label class="wf-label">Vigencia Hasta</label>
           <div class="wf-input-wrap">
             <input type="date" class="wf-input" value="2026-12-31">
-            <span class="pin-badge">E</span>
+            
           </div>
         </div>
 
@@ -197,14 +102,14 @@
           <label class="wf-label">Cantidad Límite de Usos</label>
           <div class="wf-input-wrap">
             <input type="number" class="wf-input" value="100">
-            <span class="pin-badge">F</span>
+            
           </div>
         </div>
         <div class="col-md-6">
           <label class="wf-label">Cantidad de Cursos Requeridos</label>
           <div class="wf-input-wrap">
             <input type="number" class="wf-input" value="1" placeholder="0 = Sin requisito previo">
-            <span class="pin-badge">G</span>
+            
           </div>
         </div>
       </div>
@@ -212,8 +117,8 @@
       <div class="wf-card-footer d-flex justify-content-end gap-3 mt-4 pt-3 border-top">
         <a th:href="@{/inscripciones/descuentos}" class="wf-btn wf-btn-outline">Cancelar / Volver</a>
         <div class="d-flex align-items-center gap-2">
-          <button class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Guardar Descuento</button>
-          <span class="pin-badge">H</span>
+          <button type="submit" class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Guardar Descuento</button>
+          
         </div>
       </div>
     </div>

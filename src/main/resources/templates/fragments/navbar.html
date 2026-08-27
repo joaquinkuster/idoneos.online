@@ -1,27 +1,21 @@
 <!-- Navbar institucional Idóneos Online -->
-<nav class="navbar navbar-expand-lg sticky-top shadow-sm"
-    style="background: linear-gradient(180deg, #0B1F3A, #12294D); border-bottom: 1px solid rgba(255,255,255,0.08);"
-    th:fragment="navbar">
+<nav class="navbar navbar-expand-lg sticky-top shadow-sm" style="background: linear-gradient(180deg, #0B1F3A, #12294D); border-bottom: 1px solid rgba(255,255,255,0.08);" th:fragment="navbar">
     <div class="container">
         <!-- Logo / Marca institucional -->
         <a class="navbar-brand d-flex align-items-center gap-2" th:href="@{/inicio}" style="text-decoration: none;">
-            <img th:src="@{/img/logos/image.png}" alt="Idóneos Online Logo"
-                style="height: 40px; width: auto; object-fit: contain;">
+            <img th:src="@{/img/logos/image.png}" alt="Idóneos Online Logo" style="height: 40px; width: auto; object-fit: contain;">
             <div style="line-height: 1.15;">
-                <div
-                    style="font-family: 'Fraunces', serif; font-size: 20px; font-weight: 600; color: #F7F5EF; letter-spacing: 0.01em;">
+                <div style="font-family: 'Fraunces', serif; font-size: 20px; font-weight: 600; color: #F7F5EF; letter-spacing: 0.01em;">
                     Idóneos <span style="color: #E4BE6C;">Online</span>
                 </div>
-                <div
-                    style="font-family: 'Inter', sans-serif; font-size: 9px; color: #8FA0BE; letter-spacing: 0.1em; font-weight: 700;">
+                <div style="font-family: 'Inter', sans-serif; font-size: 9px; color: #8FA0BE; letter-spacing: 0.1em; font-weight: 700;">
                     FINANZAS · ECONOMÍA · MERCADO DE CAPITALES
                 </div>
             </div>
         </a>
 
         <!-- Botón Menú Responsivo -->
-        <button class="navbar-toggler border-0 text-white" type="button" data-bs-toggle="collapse"
-            data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <button class="navbar-toggler border-0 text-white" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <i class="fa-solid fa-bars fs-4"></i>
         </button>
 
@@ -55,27 +49,19 @@
 
                 <th:block th:if="${usuario != null}">
                     <div class="dropdown">
-                        <button
-                            class="btn btn-outline-light btn-sm dropdown-toggle rounded-pill px-3 d-flex align-items-center gap-2 border-secondary"
-                            type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <div class="rounded-circle bg-gold text-navy fw-bold d-flex align-items-center justify-content-center"
-                                style="width: 26px; height: 26px; font-size: 11px;"
-                                th:text="${#strings.substring(usuario.nombre, 0, 1)}">U</div>
+                        <button class="btn btn-outline-light btn-sm dropdown-toggle rounded-pill px-3 d-flex align-items-center gap-2 border-secondary" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <div class="rounded-circle bg-gold text-navy fw-bold d-flex align-items-center justify-content-center" style="width: 26px; height: 26px; font-size: 11px;" th:text="${#strings.substring(usuario.nombre, 0, 1)}">U</div>
                             <span class="fw-semibold text-white" th:text="${usuario.nombre + ' ' + (usuario.apellido != null ? usuario.apellido : '')}">Usuario</span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-4 mt-2 p-2" style="min-width: 240px;">
                             <li class="px-3 py-2 border-bottom mb-1">
                                 <div class="fw-bold text-navy" th:text="${usuario.nombre + ' ' + (usuario.apellido != null ? usuario.apellido : '')}">Usuario</div>
                                 <div class="text-muted small" th:text="${usuario.correo}">correo@ejemplo.com</div>
-                                <span class="badge mt-1 badge-role-admin"
-                                    th:text="${usuario.rol != null ? usuario.rol.nombre : 'Alumno'}">Rol</span>
+                                <span class="badge mt-1 badge-role-admin" th:text="${usuario.rol != null ? usuario.rol.nombre : 'Alumno'}">Rol</span>
                             </li>
-                            <li><a class="dropdown-item py-2 rounded-3" th:href="@{/seguridad/perfil}"><i
-                                        class="fa-solid fa-id-card me-2 text-gold"></i>Ver perfil</a></li>
-                            <li><a class="dropdown-item py-2 rounded-3" th:href="@{/cursos/mis-cursos}"><i
-                                        class="fa-solid fa-book-open me-2 text-primary"></i>Mis Cursos</a></li>
-                            <li><a class="dropdown-item py-2 rounded-3" th:href="@{/seguridad/sesiones}"><i
-                                        class="fa-solid fa-shield-halved me-2 text-secondary"></i>Seguridad y sesiones</a></li>
+                            <li><a class="dropdown-item py-2 rounded-3" th:href="@{/seguridad/perfil}"><i class="fa-solid fa-id-card me-2 text-gold"></i>Ver perfil</a></li>
+                            <li><a class="dropdown-item py-2 rounded-3" th:href="@{/cursos/mis-cursos}"><i class="fa-solid fa-book-open me-2 text-primary"></i>Mis Cursos</a></li>
+                            <li><a class="dropdown-item py-2 rounded-3" th:href="@{/seguridad/sesiones}"><i class="fa-solid fa-shield-halved me-2 text-secondary"></i>Seguridad y sesiones</a></li>
                             
                             <!-- Menú Completo de Módulos del Sistema -->
                             <li><hr class="dropdown-divider my-1"></li>
@@ -94,7 +80,7 @@
                             <li><hr class="dropdown-divider my-1"></li>
                             <li>
                                 <form th:action="@{/logout}" method="post" class="d-inline">
-                                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" th:if="${_csrf}" />
+                                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" th:if="${_csrf}">
                                     <button type="submit" class="dropdown-item py-2 text-danger rounded-3">
                                         <i class="fa-solid fa-right-from-bracket me-2"></i>Cerrar sesión
                                     </button>

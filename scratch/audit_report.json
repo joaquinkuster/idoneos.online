@@ -1,0 +1,2324 @@
+{
+  "controllers": [
+    {
+      "controller": "AuditoriaController.java",
+      "httpMethod": "RequestMapping",
+      "route": "/auditoria/auditoria"
+    },
+    {
+      "controller": "ClaseEnVivoController.java",
+      "httpMethod": "RequestMapping",
+      "route": "/clases-vivo/clases-vivo"
+    },
+    {
+      "controller": "ClaseEnVivoController.java",
+      "httpMethod": "GetMapping",
+      "route": "/clases-vivo/nueva"
+    },
+    {
+      "controller": "ClaseEnVivoController.java",
+      "httpMethod": "PostMapping",
+      "route": "/clases-vivo/guardar"
+    },
+    {
+      "controller": "ClaseEnVivoController.java",
+      "httpMethod": "GetMapping",
+      "route": "/clases-vivo/{id}/editar"
+    },
+    {
+      "controller": "ClaseEnVivoController.java",
+      "httpMethod": "PostMapping",
+      "route": "/clases-vivo/{id}/editar"
+    },
+    {
+      "controller": "ClaseEnVivoController.java",
+      "httpMethod": "GetMapping",
+      "route": "/clases-vivo/{id}/cancelar"
+    },
+    {
+      "controller": "ClaseEnVivoController.java",
+      "httpMethod": "PostMapping",
+      "route": "/clases-vivo/{id}/cancelar"
+    },
+    {
+      "controller": "ClaseEnVivoController.java",
+      "httpMethod": "GetMapping",
+      "route": "/clases-vivo/{id}/baja"
+    },
+    {
+      "controller": "ClaseEnVivoController.java",
+      "httpMethod": "PostMapping",
+      "route": "/clases-vivo/{id}/baja"
+    },
+    {
+      "controller": "ClaseEnVivoController.java",
+      "httpMethod": "GetMapping",
+      "route": "/clases-vivo/{id}/iniciar"
+    },
+    {
+      "controller": "ClaseEnVivoController.java",
+      "httpMethod": "PostMapping",
+      "route": "/clases-vivo/{id}/iniciar"
+    },
+    {
+      "controller": "ClaseEnVivoController.java",
+      "httpMethod": "GetMapping",
+      "route": "/clases-vivo/{id}/finalizar"
+    },
+    {
+      "controller": "ClaseEnVivoController.java",
+      "httpMethod": "PostMapping",
+      "route": "/clases-vivo/{id}/finalizar"
+    },
+    {
+      "controller": "ClaseEnVivoController.java",
+      "httpMethod": "GetMapping",
+      "route": "/clases-vivo/{id}/sala"
+    },
+    {
+      "controller": "ConfiguracionController.java",
+      "httpMethod": "RequestMapping",
+      "route": "/configuracion/configuracion"
+    },
+    {
+      "controller": "ConfiguracionController.java",
+      "httpMethod": "PostMapping",
+      "route": "/configuracion/guardar"
+    },
+    {
+      "controller": "ConfiguracionController.java",
+      "httpMethod": "PostMapping",
+      "route": "/configuracion/borrar/{id}"
+    },
+    {
+      "controller": "CursoController.java",
+      "httpMethod": "RequestMapping",
+      "route": "/cursos/cursos"
+    },
+    {
+      "controller": "CursoController.java",
+      "httpMethod": "GetMapping",
+      "route": "/cursos/catalogo"
+    },
+    {
+      "controller": "CursoController.java",
+      "httpMethod": "GetMapping",
+      "route": "/cursos/mis-cursos"
+    },
+    {
+      "controller": "CursoController.java",
+      "httpMethod": "GetMapping",
+      "route": "/cursos/nuevo"
+    },
+    {
+      "controller": "CursoController.java",
+      "httpMethod": "PostMapping",
+      "route": "/cursos/guardar"
+    },
+    {
+      "controller": "CursoController.java",
+      "httpMethod": "GetMapping",
+      "route": "/cursos/{id}/editar"
+    },
+    {
+      "controller": "CursoController.java",
+      "httpMethod": "PostMapping",
+      "route": "/cursos/{id}/editar"
+    },
+    {
+      "controller": "CursoController.java",
+      "httpMethod": "GetMapping",
+      "route": "/cursos/{id}/baja"
+    },
+    {
+      "controller": "CursoController.java",
+      "httpMethod": "PostMapping",
+      "route": "/cursos/{id}/baja"
+    },
+    {
+      "controller": "CursoController.java",
+      "httpMethod": "GetMapping",
+      "route": "/cursos/categorias"
+    },
+    {
+      "controller": "CursoController.java",
+      "httpMethod": "GetMapping",
+      "route": "/cursos/categorias/nueva"
+    },
+    {
+      "controller": "CursoController.java",
+      "httpMethod": "PostMapping",
+      "route": "/cursos/categorias/guardar"
+    },
+    {
+      "controller": "CursoController.java",
+      "httpMethod": "GetMapping",
+      "route": "/cursos/categorias/{id}/editar"
+    },
+    {
+      "controller": "CursoController.java",
+      "httpMethod": "PostMapping",
+      "route": "/cursos/categorias/{id}/editar"
+    },
+    {
+      "controller": "CursoController.java",
+      "httpMethod": "GetMapping",
+      "route": "/cursos/categorias/{id}/baja"
+    },
+    {
+      "controller": "CursoController.java",
+      "httpMethod": "PostMapping",
+      "route": "/cursos/categorias/{id}/baja"
+    },
+    {
+      "controller": "CursoController.java",
+      "httpMethod": "GetMapping",
+      "route": "/cursos/cohortes"
+    },
+    {
+      "controller": "CursoController.java",
+      "httpMethod": "GetMapping",
+      "route": "/cursos/cohortes/nueva"
+    },
+    {
+      "controller": "CursoController.java",
+      "httpMethod": "PostMapping",
+      "route": "/cursos/cohortes/guardar"
+    },
+    {
+      "controller": "CursoController.java",
+      "httpMethod": "GetMapping",
+      "route": "/cursos/cohortes/{id}/editar"
+    },
+    {
+      "controller": "CursoController.java",
+      "httpMethod": "PostMapping",
+      "route": "/cursos/cohortes/{id}/editar"
+    },
+    {
+      "controller": "CursoController.java",
+      "httpMethod": "GetMapping",
+      "route": "/cursos/cohortes/{id}/baja"
+    },
+    {
+      "controller": "CursoController.java",
+      "httpMethod": "PostMapping",
+      "route": "/cursos/cohortes/{id}/baja"
+    },
+    {
+      "controller": "EvaluacionController.java",
+      "httpMethod": "RequestMapping",
+      "route": "/evaluaciones/evaluaciones"
+    },
+    {
+      "controller": "EvaluacionController.java",
+      "httpMethod": "GetMapping",
+      "route": "/evaluaciones/pools"
+    },
+    {
+      "controller": "EvaluacionController.java",
+      "httpMethod": "GetMapping",
+      "route": "/evaluaciones/pools/nuevo"
+    },
+    {
+      "controller": "EvaluacionController.java",
+      "httpMethod": "PostMapping",
+      "route": "/evaluaciones/pools/guardar"
+    },
+    {
+      "controller": "EvaluacionController.java",
+      "httpMethod": "GetMapping",
+      "route": "/evaluaciones/pools/{id}/editar"
+    },
+    {
+      "controller": "EvaluacionController.java",
+      "httpMethod": "PostMapping",
+      "route": "/evaluaciones/pools/{id}/editar"
+    },
+    {
+      "controller": "EvaluacionController.java",
+      "httpMethod": "GetMapping",
+      "route": "/evaluaciones/pools/{id}/baja"
+    },
+    {
+      "controller": "EvaluacionController.java",
+      "httpMethod": "PostMapping",
+      "route": "/evaluaciones/pools/{id}/baja"
+    },
+    {
+      "controller": "EvaluacionController.java",
+      "httpMethod": "GetMapping",
+      "route": "/evaluaciones/autoevaluaciones"
+    },
+    {
+      "controller": "EvaluacionController.java",
+      "httpMethod": "GetMapping",
+      "route": "/evaluaciones/autoevaluaciones/nueva"
+    },
+    {
+      "controller": "EvaluacionController.java",
+      "httpMethod": "PostMapping",
+      "route": "/evaluaciones/autoevaluaciones/guardar"
+    },
+    {
+      "controller": "EvaluacionController.java",
+      "httpMethod": "GetMapping",
+      "route": "/evaluaciones/autoevaluaciones/{id}/editar"
+    },
+    {
+      "controller": "EvaluacionController.java",
+      "httpMethod": "PostMapping",
+      "route": "/evaluaciones/autoevaluaciones/{id}/editar"
+    },
+    {
+      "controller": "EvaluacionController.java",
+      "httpMethod": "GetMapping",
+      "route": "/evaluaciones/autoevaluaciones/{id}/baja"
+    },
+    {
+      "controller": "EvaluacionController.java",
+      "httpMethod": "PostMapping",
+      "route": "/evaluaciones/autoevaluaciones/{id}/baja"
+    },
+    {
+      "controller": "EvaluacionController.java",
+      "httpMethod": "GetMapping",
+      "route": "/evaluaciones/intentos"
+    },
+    {
+      "controller": "EvaluacionController.java",
+      "httpMethod": "GetMapping",
+      "route": "/evaluaciones/calificaciones"
+    },
+    {
+      "controller": "EvaluacionController.java",
+      "httpMethod": "GetMapping",
+      "route": "/evaluaciones/autoevaluaciones/{id}/rendir"
+    },
+    {
+      "controller": "EvaluacionController.java",
+      "httpMethod": "PostMapping",
+      "route": "/evaluaciones/autoevaluaciones/{id}/enviar"
+    },
+    {
+      "controller": "EvaluacionController.java",
+      "httpMethod": "GetMapping",
+      "route": "/evaluaciones/intentos/{id}/baja"
+    },
+    {
+      "controller": "EvaluacionController.java",
+      "httpMethod": "PostMapping",
+      "route": "/evaluaciones/intentos/{id}/baja"
+    },
+    {
+      "controller": "AcademicoController.java",
+      "httpMethod": "RequestMapping",
+      "route": "/academico/academico"
+    },
+    {
+      "controller": "AcademicoController.java",
+      "httpMethod": "GetMapping",
+      "route": "/academico/programas"
+    },
+    {
+      "controller": "AcademicoController.java",
+      "httpMethod": "GetMapping",
+      "route": "/academico/programas/nuevo"
+    },
+    {
+      "controller": "AcademicoController.java",
+      "httpMethod": "PostMapping",
+      "route": "/academico/programas/guardar"
+    },
+    {
+      "controller": "AcademicoController.java",
+      "httpMethod": "GetMapping",
+      "route": "/academico/programas/{id}/editar"
+    },
+    {
+      "controller": "AcademicoController.java",
+      "httpMethod": "PostMapping",
+      "route": "/academico/programas/{id}/editar"
+    },
+    {
+      "controller": "AcademicoController.java",
+      "httpMethod": "GetMapping",
+      "route": "/academico/programas/{id}/baja"
+    },
+    {
+      "controller": "AcademicoController.java",
+      "httpMethod": "PostMapping",
+      "route": "/academico/programas/{id}/baja"
+    },
+    {
+      "controller": "AcademicoController.java",
+      "httpMethod": "GetMapping",
+      "route": "/academico/unidades"
+    },
+    {
+      "controller": "AcademicoController.java",
+      "httpMethod": "GetMapping",
+      "route": "/academico/unidades/nueva"
+    },
+    {
+      "controller": "AcademicoController.java",
+      "httpMethod": "PostMapping",
+      "route": "/academico/unidades/guardar"
+    },
+    {
+      "controller": "AcademicoController.java",
+      "httpMethod": "GetMapping",
+      "route": "/academico/unidades/{id}/editar"
+    },
+    {
+      "controller": "AcademicoController.java",
+      "httpMethod": "PostMapping",
+      "route": "/academico/unidades/{id}/editar"
+    },
+    {
+      "controller": "AcademicoController.java",
+      "httpMethod": "GetMapping",
+      "route": "/academico/unidades/{id}/quitar"
+    },
+    {
+      "controller": "AcademicoController.java",
+      "httpMethod": "PostMapping",
+      "route": "/academico/unidades/{id}/quitar"
+    },
+    {
+      "controller": "AcademicoController.java",
+      "httpMethod": "GetMapping",
+      "route": "/academico/cronogramas"
+    },
+    {
+      "controller": "AcademicoController.java",
+      "httpMethod": "GetMapping",
+      "route": "/academico/cronogramas/{id}/editar"
+    },
+    {
+      "controller": "AcademicoController.java",
+      "httpMethod": "GetMapping",
+      "route": "/academico/participantes"
+    },
+    {
+      "controller": "AcademicoController.java",
+      "httpMethod": "GetMapping",
+      "route": "/academico/curso/{id}/aula"
+    },
+    {
+      "controller": "AcademicoController.java",
+      "httpMethod": "GetMapping",
+      "route": "/academico/curso/{id}/edicion"
+    },
+    {
+      "controller": "AcademicoController.java",
+      "httpMethod": "GetMapping",
+      "route": "/academico/materiales"
+    },
+    {
+      "controller": "AcademicoController.java",
+      "httpMethod": "GetMapping",
+      "route": "/academico/materiales/nuevo"
+    },
+    {
+      "controller": "AcademicoController.java",
+      "httpMethod": "PostMapping",
+      "route": "/academico/materiales/guardar"
+    },
+    {
+      "controller": "AcademicoController.java",
+      "httpMethod": "GetMapping",
+      "route": "/academico/materiales/{id}/editar"
+    },
+    {
+      "controller": "AcademicoController.java",
+      "httpMethod": "PostMapping",
+      "route": "/academico/materiales/{id}/editar"
+    },
+    {
+      "controller": "AcademicoController.java",
+      "httpMethod": "GetMapping",
+      "route": "/academico/materiales/{id}/baja"
+    },
+    {
+      "controller": "AcademicoController.java",
+      "httpMethod": "PostMapping",
+      "route": "/academico/materiales/{id}/baja"
+    },
+    {
+      "controller": "AcademicoController.java",
+      "httpMethod": "GetMapping",
+      "route": "/academico/glosario"
+    },
+    {
+      "controller": "AcademicoController.java",
+      "httpMethod": "GetMapping",
+      "route": "/academico/glosario/nuevo"
+    },
+    {
+      "controller": "AcademicoController.java",
+      "httpMethod": "PostMapping",
+      "route": "/academico/glosario/guardar"
+    },
+    {
+      "controller": "AcademicoController.java",
+      "httpMethod": "GetMapping",
+      "route": "/academico/glosario/{id}/editar"
+    },
+    {
+      "controller": "AcademicoController.java",
+      "httpMethod": "PostMapping",
+      "route": "/academico/glosario/{id}/editar"
+    },
+    {
+      "controller": "AcademicoController.java",
+      "httpMethod": "GetMapping",
+      "route": "/academico/glosario/{id}/baja"
+    },
+    {
+      "controller": "AcademicoController.java",
+      "httpMethod": "PostMapping",
+      "route": "/academico/glosario/{id}/baja"
+    },
+    {
+      "controller": "AcademicoController.java",
+      "httpMethod": "GetMapping",
+      "route": "/academico/foro"
+    },
+    {
+      "controller": "AcademicoController.java",
+      "httpMethod": "GetMapping",
+      "route": "/academico/foro/nueva"
+    },
+    {
+      "controller": "AcademicoController.java",
+      "httpMethod": "PostMapping",
+      "route": "/academico/foro/guardar"
+    },
+    {
+      "controller": "AcademicoController.java",
+      "httpMethod": "GetMapping",
+      "route": "/academico/foro/{id}/editar"
+    },
+    {
+      "controller": "AcademicoController.java",
+      "httpMethod": "PostMapping",
+      "route": "/academico/foro/{id}/editar"
+    },
+    {
+      "controller": "AcademicoController.java",
+      "httpMethod": "GetMapping",
+      "route": "/academico/foro/{id}/baja"
+    },
+    {
+      "controller": "AcademicoController.java",
+      "httpMethod": "PostMapping",
+      "route": "/academico/foro/{id}/baja"
+    },
+    {
+      "controller": "ForoController.java",
+      "httpMethod": "RequestMapping",
+      "route": "/foro/foro"
+    },
+    {
+      "controller": "ForoController.java",
+      "httpMethod": "GetMapping",
+      "route": "/foro/consultas/{consultaId}/respuestas"
+    },
+    {
+      "controller": "ForoController.java",
+      "httpMethod": "GetMapping",
+      "route": "/foro/consultas/{consultaId}/responder"
+    },
+    {
+      "controller": "ForoController.java",
+      "httpMethod": "PostMapping",
+      "route": "/foro/consultas/{consultaId}/responder"
+    },
+    {
+      "controller": "ForoController.java",
+      "httpMethod": "GetMapping",
+      "route": "/foro/respuestas/{id}/editar"
+    },
+    {
+      "controller": "ForoController.java",
+      "httpMethod": "PostMapping",
+      "route": "/foro/respuestas/{id}/editar"
+    },
+    {
+      "controller": "ForoController.java",
+      "httpMethod": "GetMapping",
+      "route": "/foro/respuestas/{id}/baja"
+    },
+    {
+      "controller": "ForoController.java",
+      "httpMethod": "PostMapping",
+      "route": "/foro/respuestas/{id}/baja"
+    },
+    {
+      "controller": "ClaseClonIAController.java",
+      "httpMethod": "RequestMapping",
+      "route": "/clon-ia/clon-ia"
+    },
+    {
+      "controller": "ClaseClonIAController.java",
+      "httpMethod": "PostMapping",
+      "route": "/clon-ia/crear-clon"
+    },
+    {
+      "controller": "ClaseClonIAController.java",
+      "httpMethod": "GetMapping",
+      "route": "/clon-ia/docente"
+    },
+    {
+      "controller": "ClaseClonIAController.java",
+      "httpMethod": "PostMapping",
+      "route": "/clon-ia/generar"
+    },
+    {
+      "controller": "ClaseClonIAController.java",
+      "httpMethod": "PostMapping",
+      "route": "/clon-ia/{id}/modificar"
+    },
+    {
+      "controller": "ClaseClonIAController.java",
+      "httpMethod": "PostMapping",
+      "route": "/clon-ia/{id}/baja"
+    },
+    {
+      "controller": "GeneracionContenidoIAController.java",
+      "httpMethod": "RequestMapping",
+      "route": "/docente/ia/docente/ia"
+    },
+    {
+      "controller": "GeneracionContenidoIAController.java",
+      "httpMethod": "PostMapping",
+      "route": "/docente/ia/unidad/{unidadId}/generar-banco"
+    },
+    {
+      "controller": "GeneracionContenidoIAController.java",
+      "httpMethod": "PostMapping",
+      "route": "/docente/ia/unidad/{unidadId}/generar-resumen"
+    },
+    {
+      "controller": "GeneracionContenidoIAController.java",
+      "httpMethod": "PostMapping",
+      "route": "/docente/ia/unidad/{unidadId}/generar-presentacion"
+    },
+    {
+      "controller": "IAController.java",
+      "httpMethod": "RequestMapping",
+      "route": "/ia/ia"
+    },
+    {
+      "controller": "IAController.java",
+      "httpMethod": "GetMapping",
+      "route": "/ia/banco-preguntas"
+    },
+    {
+      "controller": "IAController.java",
+      "httpMethod": "PostMapping",
+      "route": "/ia/banco-preguntas/generar"
+    },
+    {
+      "controller": "IAController.java",
+      "httpMethod": "GetMapping",
+      "route": "/ia/resumen-unidad"
+    },
+    {
+      "controller": "IAController.java",
+      "httpMethod": "PostMapping",
+      "route": "/ia/resumen-unidad/generar"
+    },
+    {
+      "controller": "IAController.java",
+      "httpMethod": "GetMapping",
+      "route": "/ia/presentacion-unidad"
+    },
+    {
+      "controller": "IAController.java",
+      "httpMethod": "PostMapping",
+      "route": "/ia/presentacion-unidad/generar"
+    },
+    {
+      "controller": "IAController.java",
+      "httpMethod": "GetMapping",
+      "route": "/ia/clon/nuevo"
+    },
+    {
+      "controller": "IAController.java",
+      "httpMethod": "PostMapping",
+      "route": "/ia/clon/crear"
+    },
+    {
+      "controller": "IAController.java",
+      "httpMethod": "GetMapping",
+      "route": "/ia/clon/clases"
+    },
+    {
+      "controller": "IAController.java",
+      "httpMethod": "GetMapping",
+      "route": "/ia/clon/clases/nueva"
+    },
+    {
+      "controller": "IAController.java",
+      "httpMethod": "PostMapping",
+      "route": "/ia/clon/clases/generar"
+    },
+    {
+      "controller": "IAController.java",
+      "httpMethod": "GetMapping",
+      "route": "/ia/clon/clases/{id}/editar"
+    },
+    {
+      "controller": "IAController.java",
+      "httpMethod": "PostMapping",
+      "route": "/ia/clon/clases/{id}/editar"
+    },
+    {
+      "controller": "IAController.java",
+      "httpMethod": "GetMapping",
+      "route": "/ia/clon/clases/{id}/baja"
+    },
+    {
+      "controller": "IAController.java",
+      "httpMethod": "PostMapping",
+      "route": "/ia/clon/clases/{id}/baja"
+    },
+    {
+      "controller": "CertificadoController.java",
+      "httpMethod": "GetMapping",
+      "route": "/certificado/inscripcion/{inscripcionId}"
+    },
+    {
+      "controller": "CertificadoController.java",
+      "httpMethod": "GetMapping",
+      "route": "/usuario/certificados"
+    },
+    {
+      "controller": "DescuentoController.java",
+      "httpMethod": "RequestMapping",
+      "route": "/admin/descuentos/admin/descuentos"
+    },
+    {
+      "controller": "DescuentoController.java",
+      "httpMethod": "PostMapping",
+      "route": "/admin/descuentos/crear"
+    },
+    {
+      "controller": "DescuentoController.java",
+      "httpMethod": "GetMapping",
+      "route": "/admin/descuentos/{id}/editar"
+    },
+    {
+      "controller": "DescuentoController.java",
+      "httpMethod": "PostMapping",
+      "route": "/admin/descuentos/{id}/editar"
+    },
+    {
+      "controller": "DescuentoController.java",
+      "httpMethod": "PostMapping",
+      "route": "/admin/descuentos/{id}/toggle-baja"
+    },
+    {
+      "controller": "DescuentoController.java",
+      "httpMethod": "PostMapping",
+      "route": "/admin/descuentos/{id}/eliminar"
+    },
+    {
+      "controller": "InscripcionController.java",
+      "httpMethod": "RequestMapping",
+      "route": "/inscripciones/inscripciones"
+    },
+    {
+      "controller": "InscripcionController.java",
+      "httpMethod": "GetMapping",
+      "route": "/inscripciones/nueva"
+    },
+    {
+      "controller": "InscripcionController.java",
+      "httpMethod": "PostMapping",
+      "route": "/inscripciones/guardar"
+    },
+    {
+      "controller": "InscripcionController.java",
+      "httpMethod": "GetMapping",
+      "route": "/inscripciones/{id}/baja"
+    },
+    {
+      "controller": "InscripcionController.java",
+      "httpMethod": "PostMapping",
+      "route": "/inscripciones/{id}/baja"
+    },
+    {
+      "controller": "InscripcionController.java",
+      "httpMethod": "GetMapping",
+      "route": "/inscripciones/pagos"
+    },
+    {
+      "controller": "InscripcionController.java",
+      "httpMethod": "GetMapping",
+      "route": "/inscripciones/pagos/nuevo"
+    },
+    {
+      "controller": "InscripcionController.java",
+      "httpMethod": "GetMapping",
+      "route": "/inscripciones/progreso"
+    },
+    {
+      "controller": "InscripcionController.java",
+      "httpMethod": "GetMapping",
+      "route": "/inscripciones/descuentos"
+    },
+    {
+      "controller": "InscripcionController.java",
+      "httpMethod": "GetMapping",
+      "route": "/inscripciones/descuentos/nuevo"
+    },
+    {
+      "controller": "InscripcionController.java",
+      "httpMethod": "PostMapping",
+      "route": "/inscripciones/descuentos/guardar"
+    },
+    {
+      "controller": "InscripcionController.java",
+      "httpMethod": "GetMapping",
+      "route": "/inscripciones/descuentos/{id}/editar"
+    },
+    {
+      "controller": "InscripcionController.java",
+      "httpMethod": "PostMapping",
+      "route": "/inscripciones/descuentos/{id}/editar"
+    },
+    {
+      "controller": "InscripcionController.java",
+      "httpMethod": "GetMapping",
+      "route": "/inscripciones/descuentos/{id}/baja"
+    },
+    {
+      "controller": "InscripcionController.java",
+      "httpMethod": "PostMapping",
+      "route": "/inscripciones/descuentos/{id}/baja"
+    },
+    {
+      "controller": "PagoController.java",
+      "httpMethod": "RequestMapping",
+      "route": "/pago/pago"
+    },
+    {
+      "controller": "PagoController.java",
+      "httpMethod": "GetMapping",
+      "route": "/pago/checkout/{cursoId}"
+    },
+    {
+      "controller": "PagoController.java",
+      "httpMethod": "PostMapping",
+      "route": "/pago/procesar/{cursoId}"
+    },
+    {
+      "controller": "PagoController.java",
+      "httpMethod": "GetMapping",
+      "route": "/pago/resultado/{pagoId}"
+    },
+    {
+      "controller": "ProgresoController.java",
+      "httpMethod": "RequestMapping",
+      "route": "/progreso/progreso"
+    },
+    {
+      "controller": "ProgresoController.java",
+      "httpMethod": "PostMapping",
+      "route": "/progreso/completar"
+    },
+    {
+      "controller": "ReportesController.java",
+      "httpMethod": "RequestMapping",
+      "route": "/reportes/reportes"
+    },
+    {
+      "controller": "ReportesController.java",
+      "httpMethod": "GetMapping",
+      "route": "/reportes/alumnos"
+    },
+    {
+      "controller": "ReportesController.java",
+      "httpMethod": "GetMapping",
+      "route": "/reportes/alumnos/descargar"
+    },
+    {
+      "controller": "ReportesController.java",
+      "httpMethod": "GetMapping",
+      "route": "/reportes/ingresos"
+    },
+    {
+      "controller": "ReportesController.java",
+      "httpMethod": "GetMapping",
+      "route": "/reportes/ingresos/descargar"
+    },
+    {
+      "controller": "ReportesController.java",
+      "httpMethod": "GetMapping",
+      "route": "/reportes/estadisticas"
+    },
+    {
+      "controller": "AdminController.java",
+      "httpMethod": "RequestMapping",
+      "route": "/admin/admin"
+    },
+    {
+      "controller": "AdminController.java",
+      "httpMethod": "GetMapping",
+      "route": "/admin/usuarios"
+    },
+    {
+      "controller": "AdminController.java",
+      "httpMethod": "GetMapping",
+      "route": "/admin/usuarios/nuevo"
+    },
+    {
+      "controller": "AdminController.java",
+      "httpMethod": "PostMapping",
+      "route": "/admin/usuarios/guardar"
+    },
+    {
+      "controller": "AdminController.java",
+      "httpMethod": "PostMapping",
+      "route": "/admin/usuarios/{id}/modificar"
+    },
+    {
+      "controller": "AdminController.java",
+      "httpMethod": "PostMapping",
+      "route": "/admin/usuarios/{id}/baja"
+    },
+    {
+      "controller": "AdminController.java",
+      "httpMethod": "PostMapping",
+      "route": "/admin/docentes/{id}/modificar-perfil"
+    },
+    {
+      "controller": "AdminController.java",
+      "httpMethod": "PostMapping",
+      "route": "/admin/docentes/{id}/titulos/agregar"
+    },
+    {
+      "controller": "AdminController.java",
+      "httpMethod": "PostMapping",
+      "route": "/admin/docentes/titulos/{tituloId}/modificar"
+    },
+    {
+      "controller": "AdminController.java",
+      "httpMethod": "PostMapping",
+      "route": "/admin/docentes/titulos/{tituloId}/eliminar"
+    },
+    {
+      "controller": "AdminController.java",
+      "httpMethod": "GetMapping",
+      "route": "/admin/cursos"
+    },
+    {
+      "controller": "AdminController.java",
+      "httpMethod": "GetMapping",
+      "route": "/admin/cursos/nuevo"
+    },
+    {
+      "controller": "AdminController.java",
+      "httpMethod": "PostMapping",
+      "route": "/admin/cursos/guardar"
+    },
+    {
+      "controller": "AdminController.java",
+      "httpMethod": "GetMapping",
+      "route": "/admin/cursos/{id}/editar"
+    },
+    {
+      "controller": "AdminController.java",
+      "httpMethod": "PostMapping",
+      "route": "/admin/cursos/{id}/editar"
+    },
+    {
+      "controller": "AdminController.java",
+      "httpMethod": "PostMapping",
+      "route": "/admin/cursos/{id}/baja"
+    },
+    {
+      "controller": "AdminController.java",
+      "httpMethod": "PostMapping",
+      "route": "/admin/cursos/{id}/publicar"
+    },
+    {
+      "controller": "AdminController.java",
+      "httpMethod": "GetMapping",
+      "route": "/admin/categorias"
+    },
+    {
+      "controller": "AdminController.java",
+      "httpMethod": "PostMapping",
+      "route": "/admin/categorias/guardar"
+    },
+    {
+      "controller": "AdminController.java",
+      "httpMethod": "PostMapping",
+      "route": "/admin/categorias/{id}/modificar"
+    },
+    {
+      "controller": "AdminController.java",
+      "httpMethod": "PostMapping",
+      "route": "/admin/categorias/{id}/baja"
+    },
+    {
+      "controller": "AdminController.java",
+      "httpMethod": "GetMapping",
+      "route": "/admin/programas/{programaId}/cohortes"
+    },
+    {
+      "controller": "AdminController.java",
+      "httpMethod": "PostMapping",
+      "route": "/admin/programas/{programaId}/cohortes/guardar"
+    },
+    {
+      "controller": "AdminController.java",
+      "httpMethod": "PostMapping",
+      "route": "/admin/cohortes/{id}/modificar"
+    },
+    {
+      "controller": "AdminController.java",
+      "httpMethod": "PostMapping",
+      "route": "/admin/cohortes/{id}/baja"
+    },
+    {
+      "controller": "DocenteController.java",
+      "httpMethod": "RequestMapping",
+      "route": "/docente/docente"
+    },
+    {
+      "controller": "DocenteController.java",
+      "httpMethod": "GetMapping",
+      "route": "/docente/curso/nuevo"
+    },
+    {
+      "controller": "DocenteController.java",
+      "httpMethod": "PostMapping",
+      "route": "/docente/curso/guardar"
+    },
+    {
+      "controller": "DocenteController.java",
+      "httpMethod": "GetMapping",
+      "route": "/docente/curso/{cursoId}/gestionar"
+    },
+    {
+      "controller": "DocenteController.java",
+      "httpMethod": "GetMapping",
+      "route": "/docente/unidad/{unidadId}/glosario"
+    },
+    {
+      "controller": "DocenteController.java",
+      "httpMethod": "PostMapping",
+      "route": "/docente/unidad/{unidadId}/glosario/guardar"
+    },
+    {
+      "controller": "DocenteController.java",
+      "httpMethod": "PostMapping",
+      "route": "/docente/glosario/{id}/modificar"
+    },
+    {
+      "controller": "DocenteController.java",
+      "httpMethod": "PostMapping",
+      "route": "/docente/glosario/{id}/baja"
+    },
+    {
+      "controller": "DocenteController.java",
+      "httpMethod": "GetMapping",
+      "route": "/docente/curso/{cursoId}/programas"
+    },
+    {
+      "controller": "DocenteController.java",
+      "httpMethod": "PostMapping",
+      "route": "/docente/curso/{cursoId}/programas/guardar"
+    },
+    {
+      "controller": "DocenteController.java",
+      "httpMethod": "PostMapping",
+      "route": "/docente/programas/{id}/modificar"
+    },
+    {
+      "controller": "DocenteController.java",
+      "httpMethod": "PostMapping",
+      "route": "/docente/programas/{id}/baja"
+    },
+    {
+      "controller": "DocenteController.java",
+      "httpMethod": "GetMapping",
+      "route": "/docente/programas/{programaId}/unidades"
+    },
+    {
+      "controller": "DocenteController.java",
+      "httpMethod": "PostMapping",
+      "route": "/docente/programas/{programaId}/unidades/agregar"
+    },
+    {
+      "controller": "DocenteController.java",
+      "httpMethod": "PostMapping",
+      "route": "/docente/unidades/{id}/modificar"
+    },
+    {
+      "controller": "DocenteController.java",
+      "httpMethod": "PostMapping",
+      "route": "/docente/programas/{programaId}/unidades/{unidadId}/quitar"
+    },
+    {
+      "controller": "DocenteController.java",
+      "httpMethod": "GetMapping",
+      "route": "/docente/programas/{programaId}/cronograma"
+    },
+    {
+      "controller": "DocenteController.java",
+      "httpMethod": "PostMapping",
+      "route": "/docente/programas/{programaId}/cronograma/modificar"
+    },
+    {
+      "controller": "DocenteController.java",
+      "httpMethod": "GetMapping",
+      "route": "/docente/curso/{cursoId}/participantes"
+    },
+    {
+      "controller": "DocenteController.java",
+      "httpMethod": "PostMapping",
+      "route": "/docente/unidad/{unidadId}/material/guardar"
+    },
+    {
+      "controller": "DocenteController.java",
+      "httpMethod": "GetMapping",
+      "route": "/docente/unidad/{unidadId}/materiales"
+    },
+    {
+      "controller": "DocenteController.java",
+      "httpMethod": "PostMapping",
+      "route": "/docente/material/{id}/modificar"
+    },
+    {
+      "controller": "DocenteController.java",
+      "httpMethod": "PostMapping",
+      "route": "/docente/material/{id}/baja"
+    },
+    {
+      "controller": "InicioController.java",
+      "httpMethod": "GetMapping",
+      "route": "/"
+    },
+    {
+      "controller": "InicioController.java",
+      "httpMethod": "GetMapping",
+      "route": "/acercaDe"
+    },
+    {
+      "controller": "InicioController.java",
+      "httpMethod": "GetMapping",
+      "route": "/error"
+    },
+    {
+      "controller": "LoginController.java",
+      "httpMethod": "GetMapping",
+      "route": "/login"
+    },
+    {
+      "controller": "LoginController.java",
+      "httpMethod": "GetMapping",
+      "route": "/registro"
+    },
+    {
+      "controller": "LoginController.java",
+      "httpMethod": "PostMapping",
+      "route": "/registro"
+    },
+    {
+      "controller": "LoginController.java",
+      "httpMethod": "GetMapping",
+      "route": "/recuperar-contrasena"
+    },
+    {
+      "controller": "LoginController.java",
+      "httpMethod": "PostMapping",
+      "route": "/recuperar-contrasena"
+    },
+    {
+      "controller": "LoginController.java",
+      "httpMethod": "GetMapping",
+      "route": "/resetear-contrasena"
+    },
+    {
+      "controller": "LoginController.java",
+      "httpMethod": "PostMapping",
+      "route": "/resetear-contrasena"
+    },
+    {
+      "controller": "SeguridadController.java",
+      "httpMethod": "RequestMapping",
+      "route": "/seguridad/seguridad"
+    },
+    {
+      "controller": "SeguridadController.java",
+      "httpMethod": "GetMapping",
+      "route": "/seguridad/registro"
+    },
+    {
+      "controller": "SeguridadController.java",
+      "httpMethod": "PostMapping",
+      "route": "/seguridad/registro"
+    },
+    {
+      "controller": "SeguridadController.java",
+      "httpMethod": "GetMapping",
+      "route": "/seguridad/login"
+    },
+    {
+      "controller": "SeguridadController.java",
+      "httpMethod": "GetMapping",
+      "route": "/seguridad/logout"
+    },
+    {
+      "controller": "SeguridadController.java",
+      "httpMethod": "GetMapping",
+      "route": "/seguridad/recuperar-contrasena"
+    },
+    {
+      "controller": "SeguridadController.java",
+      "httpMethod": "PostMapping",
+      "route": "/seguridad/recuperar-contrasena"
+    },
+    {
+      "controller": "SeguridadController.java",
+      "httpMethod": "GetMapping",
+      "route": "/seguridad/usuarios"
+    },
+    {
+      "controller": "SeguridadController.java",
+      "httpMethod": "GetMapping",
+      "route": "/seguridad/usuarios/nuevo"
+    },
+    {
+      "controller": "SeguridadController.java",
+      "httpMethod": "PostMapping",
+      "route": "/seguridad/usuarios/guardar"
+    },
+    {
+      "controller": "SeguridadController.java",
+      "httpMethod": "GetMapping",
+      "route": "/seguridad/usuarios/{id}/editar"
+    },
+    {
+      "controller": "SeguridadController.java",
+      "httpMethod": "PostMapping",
+      "route": "/seguridad/usuarios/{id}/editar"
+    },
+    {
+      "controller": "SeguridadController.java",
+      "httpMethod": "GetMapping",
+      "route": "/seguridad/usuarios/{id}/baja"
+    },
+    {
+      "controller": "SeguridadController.java",
+      "httpMethod": "PostMapping",
+      "route": "/seguridad/usuarios/{id}/baja"
+    },
+    {
+      "controller": "SeguridadController.java",
+      "httpMethod": "GetMapping",
+      "route": "/seguridad/perfil"
+    },
+    {
+      "controller": "SeguridadController.java",
+      "httpMethod": "GetMapping",
+      "route": "/seguridad/perfil/editar"
+    },
+    {
+      "controller": "SeguridadController.java",
+      "httpMethod": "PostMapping",
+      "route": "/seguridad/perfil/editar"
+    },
+    {
+      "controller": "SeguridadController.java",
+      "httpMethod": "GetMapping",
+      "route": "/seguridad/docentes/nuevo"
+    },
+    {
+      "controller": "SeguridadController.java",
+      "httpMethod": "PostMapping",
+      "route": "/seguridad/docentes/guardar"
+    },
+    {
+      "controller": "SeguridadController.java",
+      "httpMethod": "GetMapping",
+      "route": "/seguridad/docentes/{id}/editar"
+    },
+    {
+      "controller": "SeguridadController.java",
+      "httpMethod": "PostMapping",
+      "route": "/seguridad/docentes/{id}/editar"
+    },
+    {
+      "controller": "SeguridadController.java",
+      "httpMethod": "GetMapping",
+      "route": "/seguridad/sesiones"
+    },
+    {
+      "controller": "SeguridadController.java",
+      "httpMethod": "GetMapping",
+      "route": "/seguridad/sesiones/{id}/eliminar"
+    },
+    {
+      "controller": "SeguridadController.java",
+      "httpMethod": "PostMapping",
+      "route": "/seguridad/sesiones/{id}/eliminar"
+    },
+    {
+      "controller": "UsuarioController.java",
+      "httpMethod": "RequestMapping",
+      "route": "/usuario/usuario"
+    },
+    {
+      "controller": "UsuarioController.java",
+      "httpMethod": "GetMapping",
+      "route": "/usuario/verPerfil"
+    },
+    {
+      "controller": "UsuarioController.java",
+      "httpMethod": "PostMapping",
+      "route": "/usuario/modificar/{id}"
+    },
+    {
+      "controller": "UsuarioController.java",
+      "httpMethod": "GetMapping",
+      "route": "/usuario/cambiarContrasena"
+    },
+    {
+      "controller": "UsuarioController.java",
+      "httpMethod": "PostMapping",
+      "route": "/usuario/cambiarContrasena/{id}"
+    },
+    {
+      "controller": "UsuarioController.java",
+      "httpMethod": "GetMapping",
+      "route": "/usuario/sesiones"
+    },
+    {
+      "controller": "UsuarioController.java",
+      "httpMethod": "PostMapping",
+      "route": "/usuario/sesiones/{id}/eliminar"
+    }
+  ],
+  "templates": [
+    {
+      "module": "cursos",
+      "file": "cu-01-buscar-curso.html",
+      "thVars": [
+        "titulo",
+        "usuario",
+        "busqueda",
+        "categorias",
+        "cat",
+        "categoriaSeleccionada",
+        "cursos",
+        "curso"
+      ],
+      "formActions": [
+        "/cursos"
+      ],
+      "linkHrefsCount": 15
+    },
+    {
+      "module": "cursos",
+      "file": "cu-02-ver-mis-cursos.html",
+      "thVars": [
+        "titulo"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 11
+    },
+    {
+      "module": "cursos",
+      "file": "cu-03-registrar-curso.html",
+      "thVars": [
+        "titulo",
+        "usuario"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 13
+    },
+    {
+      "module": "cursos",
+      "file": "cu-04-modificar-curso.html",
+      "thVars": [
+        "titulo",
+        "usuario"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 13
+    },
+    {
+      "module": "cursos",
+      "file": "cu-05-dar-de-baja-curso.html",
+      "thVars": [
+        "titulo",
+        "usuario",
+        "curso"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 13
+    },
+    {
+      "module": "cursos",
+      "file": "cu-06-explorar-catalogo-de-cursos.html",
+      "thVars": [
+        "titulo",
+        "busqueda",
+        "categorias",
+        "cat",
+        "categoriaSeleccionada",
+        "cursos",
+        "curso"
+      ],
+      "formActions": [
+        "/cursos/catalogo"
+      ],
+      "linkHrefsCount": 11
+    },
+    {
+      "module": "cursos",
+      "file": "cu-07-buscar-categoria.html",
+      "thVars": [
+        "titulo",
+        "usuario",
+        "categorias",
+        "cat"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 14
+    },
+    {
+      "module": "cursos",
+      "file": "cu-08-registrar-categoria.html",
+      "thVars": [
+        "titulo",
+        "usuario"
+      ],
+      "formActions": [
+        "/cursos/categorias/guardar"
+      ],
+      "linkHrefsCount": 14
+    },
+    {
+      "module": "cursos",
+      "file": "cu-09-modificar-categoria.html",
+      "thVars": [
+        "titulo",
+        "usuario"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 14
+    },
+    {
+      "module": "cursos",
+      "file": "cu-10-dar-de-baja-categoria.html",
+      "thVars": [
+        "titulo",
+        "usuario"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 13
+    },
+    {
+      "module": "cursos",
+      "file": "cu-11-buscar-cohorte.html",
+      "thVars": [
+        "titulo",
+        "usuario"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 14
+    },
+    {
+      "module": "cursos",
+      "file": "cu-12-registrar-cohorte.html",
+      "thVars": [
+        "titulo",
+        "usuario"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 13
+    },
+    {
+      "module": "cursos",
+      "file": "cu-13-modificar-cohorte.html",
+      "thVars": [
+        "titulo",
+        "usuario"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 13
+    },
+    {
+      "module": "cursos",
+      "file": "cu-14-dar-de-baja-cohorte.html",
+      "thVars": [
+        "titulo",
+        "usuario"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 13
+    },
+    {
+      "module": "academico",
+      "file": "cu-15-buscar-programa.html",
+      "thVars": [
+        "titulo",
+        "usuario",
+        "programas",
+        "prog"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 14
+    },
+    {
+      "module": "academico",
+      "file": "cu-16-registrar-programa.html",
+      "thVars": [
+        "titulo"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 13
+    },
+    {
+      "module": "academico",
+      "file": "cu-17-modificar-programa.html",
+      "thVars": [
+        "titulo"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 13
+    },
+    {
+      "module": "academico",
+      "file": "cu-18-dar-de-baja-programa.html",
+      "thVars": [
+        "titulo",
+        "usuario"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 13
+    },
+    {
+      "module": "academico",
+      "file": "cu-19-buscar-unidad.html",
+      "thVars": [
+        "titulo",
+        "usuario"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 29
+    },
+    {
+      "module": "academico",
+      "file": "cu-20-agregar-unidad.html",
+      "thVars": [
+        "titulo"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 12
+    },
+    {
+      "module": "academico",
+      "file": "cu-21-modificar-unidad.html",
+      "thVars": [
+        "titulo"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 12
+    },
+    {
+      "module": "academico",
+      "file": "cu-22-quitar-unidad.html",
+      "thVars": [
+        "titulo",
+        "usuario"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 14
+    },
+    {
+      "module": "academico",
+      "file": "cu-23-buscar-cronograma.html",
+      "thVars": [
+        "titulo",
+        "usuario"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 14
+    },
+    {
+      "module": "academico",
+      "file": "cu-24-modificar-cronograma.html",
+      "thVars": [
+        "titulo"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 12
+    },
+    {
+      "module": "academico",
+      "file": "cu-25-ver-participantes.html",
+      "thVars": [
+        "titulo",
+        "usuario"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 17
+    },
+    {
+      "module": "academico",
+      "file": "cu-26-acceder-curso.html",
+      "thVars": [
+        "titulo",
+        "curso",
+        "unidades",
+        "unidad"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 11
+    },
+    {
+      "module": "academico",
+      "file": "cu-26b-acceder-curso-modo-edicion-docente-administrador.html",
+      "thVars": [
+        "titulo",
+        "usuario"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 29
+    },
+    {
+      "module": "academico",
+      "file": "cu-27-buscar-material.html",
+      "thVars": [
+        "titulo",
+        "usuario"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 21
+    },
+    {
+      "module": "academico",
+      "file": "cu-28-subir-material.html",
+      "thVars": [
+        "titulo"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 13
+    },
+    {
+      "module": "academico",
+      "file": "cu-29-modificar-material.html",
+      "thVars": [
+        "titulo"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 13
+    },
+    {
+      "module": "academico",
+      "file": "cu-30-dar-de-baja-material.html",
+      "thVars": [
+        "titulo",
+        "usuario"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 13
+    },
+    {
+      "module": "academico",
+      "file": "cu-31-buscar-termino-de-glosario.html",
+      "thVars": [
+        "titulo",
+        "usuario"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 21
+    },
+    {
+      "module": "academico",
+      "file": "cu-32-registrar-termino-de-glosario.html",
+      "thVars": [
+        "titulo"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 13
+    },
+    {
+      "module": "academico",
+      "file": "cu-33-modificar-termino-de-glosario.html",
+      "thVars": [
+        "titulo"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 13
+    },
+    {
+      "module": "academico",
+      "file": "cu-34-dar-de-baja-termino-de-glosario.html",
+      "thVars": [
+        "titulo",
+        "usuario"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 13
+    },
+    {
+      "module": "academico",
+      "file": "cu-35-buscar-consulta-de-foro.html",
+      "thVars": [
+        "titulo",
+        "usuario"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 23
+    },
+    {
+      "module": "academico",
+      "file": "cu-36-registrar-consulta-de-foro.html",
+      "thVars": [
+        "titulo"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 11
+    },
+    {
+      "module": "academico",
+      "file": "cu-37-modificar-consulta-de-foro.html",
+      "thVars": [
+        "titulo"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 11
+    },
+    {
+      "module": "academico",
+      "file": "cu-38-dar-de-baja-consulta-de-foro.html",
+      "thVars": [
+        "titulo",
+        "usuario"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 13
+    },
+    {
+      "module": "foro",
+      "file": "cu-39-buscar-respuesta-de-foro.html",
+      "thVars": [
+        "titulo",
+        "usuario"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 15
+    },
+    {
+      "module": "foro",
+      "file": "cu-40-registrar-respuesta-de-foro.html",
+      "thVars": [
+        "titulo"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 13
+    },
+    {
+      "module": "foro",
+      "file": "cu-41-modificar-respuesta-de-foro.html",
+      "thVars": [
+        "titulo"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 13
+    },
+    {
+      "module": "foro",
+      "file": "cu-42-dar-de-baja-respuesta-de-foro.html",
+      "thVars": [
+        "titulo",
+        "usuario"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 13
+    },
+    {
+      "module": "inscripciones",
+      "file": "cu-43-buscar-inscripcion.html",
+      "thVars": [
+        "titulo",
+        "usuario",
+        "inscripciones",
+        "insc"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 13
+    },
+    {
+      "module": "inscripciones",
+      "file": "cu-44-inscribir-curso.html",
+      "thVars": [
+        "titulo"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 11
+    },
+    {
+      "module": "inscripciones",
+      "file": "cu-45-dar-de-baja-inscripcion.html",
+      "thVars": [
+        "titulo",
+        "usuario"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 14
+    },
+    {
+      "module": "inscripciones",
+      "file": "cu-46-buscar-pago.html",
+      "thVars": [
+        "titulo",
+        "usuario"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 13
+    },
+    {
+      "module": "inscripciones",
+      "file": "cu-47-realizar-pago.html",
+      "thVars": [
+        "titulo"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 11
+    },
+    {
+      "module": "inscripciones",
+      "file": "cu-48-buscar-progreso.html",
+      "thVars": [
+        "titulo",
+        "usuario"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 13
+    },
+    {
+      "module": "inscripciones",
+      "file": "cu-49-buscar-descuento.html",
+      "thVars": [
+        "titulo",
+        "usuario"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 15
+    },
+    {
+      "module": "inscripciones",
+      "file": "cu-50-registrar-descuento.html",
+      "thVars": [
+        "titulo",
+        "usuario"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 14
+    },
+    {
+      "module": "inscripciones",
+      "file": "cu-51-modificar-descuento.html",
+      "thVars": [
+        "titulo",
+        "usuario"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 14
+    },
+    {
+      "module": "inscripciones",
+      "file": "cu-52-dar-de-baja-descuento.html",
+      "thVars": [
+        "titulo",
+        "usuario"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 13
+    },
+    {
+      "module": "evaluaciones",
+      "file": "cu-53-buscar-pool.html",
+      "thVars": [
+        "titulo",
+        "usuario",
+        "pools",
+        "p"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 20
+    },
+    {
+      "module": "evaluaciones",
+      "file": "cu-54-crear-pool.html",
+      "thVars": [
+        "titulo"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 12
+    },
+    {
+      "module": "evaluaciones",
+      "file": "cu-55-modificar-pool.html",
+      "thVars": [
+        "titulo"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 13
+    },
+    {
+      "module": "evaluaciones",
+      "file": "cu-56-dar-de-baja-pool.html",
+      "thVars": [
+        "titulo",
+        "usuario"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 13
+    },
+    {
+      "module": "evaluaciones",
+      "file": "cu-57-buscar-autoevaluacion.html",
+      "thVars": [
+        "titulo",
+        "usuario",
+        "autoevaluaciones",
+        "a"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 22
+    },
+    {
+      "module": "evaluaciones",
+      "file": "cu-58-crear-autoevaluacion.html",
+      "thVars": [
+        "titulo"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 13
+    },
+    {
+      "module": "evaluaciones",
+      "file": "cu-59-modificar-autoevaluacion.html",
+      "thVars": [
+        "titulo"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 13
+    },
+    {
+      "module": "evaluaciones",
+      "file": "cu-60-dar-de-baja-autoevaluacion.html",
+      "thVars": [
+        "titulo",
+        "usuario"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 13
+    },
+    {
+      "module": "evaluaciones",
+      "file": "cu-61-buscar-intento-de-autoevaluacion.html",
+      "thVars": [
+        "titulo",
+        "usuario"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 17
+    },
+    {
+      "module": "evaluaciones",
+      "file": "cu-62-ver-calificaciones.html",
+      "thVars": [
+        "titulo",
+        "usuario"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 16
+    },
+    {
+      "module": "evaluaciones",
+      "file": "cu-63-realizar-intento-de-autoevaluacion.html",
+      "thVars": [
+        "titulo"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 10
+    },
+    {
+      "module": "evaluaciones",
+      "file": "cu-64-dar-de-baja-intento-de-autoevaluacion.html",
+      "thVars": [
+        "titulo",
+        "usuario"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 13
+    },
+    {
+      "module": "ia_vivo",
+      "file": "cu-65-buscar-clase-en-vivo.html",
+      "thVars": [
+        "titulo",
+        "usuario",
+        "clases",
+        "c"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 19
+    },
+    {
+      "module": "ia_vivo",
+      "file": "cu-66-programar-clase-en-vivo.html",
+      "thVars": [
+        "titulo"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 13
+    },
+    {
+      "module": "ia_vivo",
+      "file": "cu-67-modificar-clase-en-vivo.html",
+      "thVars": [
+        "titulo"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 13
+    },
+    {
+      "module": "ia_vivo",
+      "file": "cu-68-cancelar-clase-en-vivo.html",
+      "thVars": [
+        "titulo"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 12
+    },
+    {
+      "module": "ia_vivo",
+      "file": "cu-69-dar-de-baja-clase-en-vivo.html",
+      "thVars": [
+        "titulo",
+        "usuario"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 13
+    },
+    {
+      "module": "ia_vivo",
+      "file": "cu-70-iniciar-clase-en-vivo.html",
+      "thVars": [
+        "titulo"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 12
+    },
+    {
+      "module": "ia_vivo",
+      "file": "cu-71-finalizar-clase-en-vivo.html",
+      "thVars": [
+        "titulo"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 13
+    },
+    {
+      "module": "ia_vivo",
+      "file": "cu-72-ingresar-a-clase-en-vivo.html",
+      "thVars": [
+        "titulo"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 10
+    },
+    {
+      "module": "ia_vivo",
+      "file": "cu-73-generar-banco-de-preguntas.html",
+      "thVars": [
+        "titulo",
+        "mensaje",
+        "unidades",
+        "u"
+      ],
+      "formActions": [
+        "/ia/banco-preguntas/generar"
+      ],
+      "linkHrefsCount": 12
+    },
+    {
+      "module": "ia_vivo",
+      "file": "cu-74-generar-resumen-de-unidad.html",
+      "thVars": [
+        "titulo"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 12
+    },
+    {
+      "module": "ia_vivo",
+      "file": "cu-75-generar-presentacion-de-unidad.html",
+      "thVars": [
+        "titulo"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 12
+    },
+    {
+      "module": "ia_vivo",
+      "file": "cu-76-crear-clon.html",
+      "thVars": [
+        "titulo"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 12
+    },
+    {
+      "module": "ia_vivo",
+      "file": "cu-77-buscar-clase-con-clon.html",
+      "thVars": [
+        "titulo",
+        "usuario"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 14
+    },
+    {
+      "module": "ia_vivo",
+      "file": "cu-78-generar-clase-con-clon.html",
+      "thVars": [
+        "titulo"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 12
+    },
+    {
+      "module": "ia_vivo",
+      "file": "cu-79-modificar-clase-con-clon.html",
+      "thVars": [
+        "titulo"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 13
+    },
+    {
+      "module": "ia_vivo",
+      "file": "cu-80-dar-de-baja-clase-con-clon.html",
+      "thVars": [
+        "titulo",
+        "usuario"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 13
+    },
+    {
+      "module": "seguridad",
+      "file": "cu-81-registrarse.html",
+      "thVars": [
+        "titulo"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 11
+    },
+    {
+      "module": "seguridad",
+      "file": "cu-82-buscar-usuario.html",
+      "thVars": [
+        "titulo",
+        "usuario"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 14
+    },
+    {
+      "module": "seguridad",
+      "file": "cu-83-registrar-usuario.html",
+      "thVars": [
+        "titulo",
+        "usuario"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 13
+    },
+    {
+      "module": "seguridad",
+      "file": "cu-84-modificar-usuario.html",
+      "thVars": [
+        "titulo",
+        "usuario"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 13
+    },
+    {
+      "module": "seguridad",
+      "file": "cu-85-dar-de-baja-usuario.html",
+      "thVars": [
+        "titulo",
+        "usuario"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 13
+    },
+    {
+      "module": "seguridad",
+      "file": "cu-86-ver-perfil.html",
+      "thVars": [
+        "titulo",
+        "usuario"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 14
+    },
+    {
+      "module": "seguridad",
+      "file": "cu-87-editar-perfil.html",
+      "thVars": [
+        "titulo",
+        "usuario"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 14
+    },
+    {
+      "module": "seguridad",
+      "file": "cu-88-registrar-docente.html",
+      "thVars": [
+        "titulo",
+        "usuario"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 14
+    },
+    {
+      "module": "seguridad",
+      "file": "cu-89-modificar-docente.html",
+      "thVars": [
+        "titulo",
+        "usuario"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 14
+    },
+    {
+      "module": "seguridad",
+      "file": "cu-90-iniciar-sesion.html",
+      "thVars": [
+        "titulo",
+        "usuario",
+        "error",
+        "mensaje"
+      ],
+      "formActions": [
+        "/seguridad/login"
+      ],
+      "linkHrefsCount": 15
+    },
+    {
+      "module": "seguridad",
+      "file": "cu-91-cerrar-sesion.html",
+      "thVars": [
+        "titulo",
+        "usuario"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 13
+    },
+    {
+      "module": "seguridad",
+      "file": "cu-92-recuperar-contrasena.html",
+      "thVars": [
+        "titulo",
+        "usuario"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 14
+    },
+    {
+      "module": "seguridad",
+      "file": "cu-93-buscar-sesion.html",
+      "thVars": [
+        "titulo",
+        "usuario"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 13
+    },
+    {
+      "module": "seguridad",
+      "file": "cu-94-eliminar-sesion.html",
+      "thVars": [
+        "titulo",
+        "usuario"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 13
+    },
+    {
+      "module": "auditoria",
+      "file": "cu-95-consultar-auditoria.html",
+      "thVars": [
+        "titulo",
+        "usuario",
+        "registros",
+        "log"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 13
+    },
+    {
+      "module": "reportes",
+      "file": "cu-96-generar-informe-de-alumnos-de-un-curso.html",
+      "thVars": [
+        "titulo",
+        "usuario"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 13
+    },
+    {
+      "module": "reportes",
+      "file": "cu-97-generar-informe-de-ingresos-de-un-curso.html",
+      "thVars": [
+        "titulo",
+        "usuario"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 13
+    },
+    {
+      "module": "reportes",
+      "file": "cu-98-consultar-estadisticas.html",
+      "thVars": [
+        "titulo",
+        "usuario",
+        "stats"
+      ],
+      "formActions": [],
+      "linkHrefsCount": 13
+    },
+    {
+      "module": "configuracion",
+      "file": "cu-99-configurar-parametros.html",
+      "thVars": [
+        "titulo",
+        "usuario",
+        "parametros"
+      ],
+      "formActions": [
+        "/configuracion/guardar"
+      ],
+      "linkHrefsCount": 13
+    }
+  ]
+}

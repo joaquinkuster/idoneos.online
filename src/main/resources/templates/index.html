@@ -1,191 +1,286 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${titulo != null ? titulo : 'Idóneos Online | Plataforma de Finanzas y Mercado de Capitales'}">Idóneos Online | Finanzas & Mercado de Capitales</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome 6 Pro / Solid Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Estilos del Sistema Centralizados -->
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    
+    <style>
+        /* Hero Parallelogram Slider Frame Oficial */
+        .wf-hero-section {
+            background: radial-gradient(750px circle at 75% 50%, rgba(14, 165, 233, 0.22), transparent 70%), 
+                        radial-gradient(1100px 480px at 15% -10%, #16335C 0%, transparent 60%), 
+                        linear-gradient(160deg, #071324, #0A192F 60%, #081426);
+            color: #F7F5EF;
+            position: relative;
+            overflow: hidden;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
 
-<div th:replace="~{fragments/head :: head}"></div>
+        .wf-hero-parallelogram {
+            clip-path: polygon(12% 0%, 100% 0%, 88% 100%, 0% 100%);
+            min-height: 480px;
+            border-radius: 4px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
 
-<body class="bg-light">
-    <!-- Navbar -->
-    <div th:replace="~{fragments/navbar :: navbar}"></div>
+        @media (max-width: 991.98px) {
+            .wf-hero-parallelogram {
+                clip-path: none;
+                min-height: 320px;
+                border-radius: 12px;
+                margin-top: 24px;
+            }
+        }
 
-    <!-- Hero Section con la paleta Navy/Gold e iluminación Celeste tras el Slider -->
-    <section
-        style="background: radial-gradient(750px circle at 75% 50%, rgba(14, 165, 233, 0.28), transparent 70%), radial-gradient(1100px 480px at 15% -10%, #16335C 0%, transparent 60%), linear-gradient(160deg, #0B1F3A, #12294D 60%, #0E2544); color: #F7F5EF; position: relative; overflow: hidden;"
-        class="py-0">
-        <!-- Stock Chart Background Overlay -->
-        <div
-            style="position: absolute; top:0; left:0; width:100%; height:100%; opacity: 0.12; background: url('/img/nick-chong-N__BnvQ_w18-unsplash.jpg') center/cover no-repeat; pointer-events: none;">
-        </div>
+        .wf-glass-badge {
+            position: absolute;
+            bottom: 24px;
+            left: 24px;
+            z-index: 10;
+            background: rgba(8, 20, 38, 0.85);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 12px;
+            padding: 14px 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            max-width: 320px;
+        }
+    </style>
+</head>
+<body class="wf-canvas-bg">
 
-        <div class="container position-relative" style="z-index: 2;">
-            <!-- Mensaje flash si existe -->
-            <div th:if="${mensaje != null}" class="alert alert-info alert-dismissible fade show text-start my-3"
-                role="alert">
-                <span th:text="${mensaje}"></span>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
+    <div class="cu-page-container">
+        <div class="screen-frame">
 
-            <div class="row align-items-center g-4">
-                <!-- Columna Izquierda (Alineada con el Logo del Navbar) -->
-                <div class="col-lg-6 py-5 pe-lg-4">
-                    <div class="d-flex align-items-center gap-2 mb-3 fw-bold small text-gold"
-                        style="letter-spacing: 0.14em;">
-                        <i class="fa-solid fa-graduation-cap"></i> DOCENTES DE ÉLITE · METODOLOGÍA SECUENCIAL
+            <!-- Top Navbar Oficial Dinámica -->
+            <div th:replace="~{fragments/wf_navbar :: wf-top-navbar}"></div>
+
+            <!-- Hero Section con Slider en Paralelogramo e Iluminación Oficial -->
+            <div class="wf-hero-section">
+                <!-- Subtle Background Texture Overlay -->
+                <div style="position: absolute; top:0; left:0; width:100%; height:100%; opacity: 0.08; background: url('/img/nick-chong-N__BnvQ_w18-unsplash.jpg') center/cover no-repeat; pointer-events: none;"></div>
+
+                <div class="container-fluid px-4 px-lg-5 py-4 py-lg-5 position-relative" style="z-index: 2;">
+                    <!-- Mensaje flash si existe -->
+                    <div th:if="${mensaje != null}" class="alert alert-info alert-dismissible fade show text-start mb-4" style="border-radius: 10px;" role="alert">
+                        <i class="fa-solid fa-circle-info me-2"></i>
+                        <span th:text="${mensaje}"></span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
-                    <h1 class="font-serif display-4 fw-bold mb-3 text-white"
-                        style="line-height: 1.12; letter-spacing: -0.01em;">
-                        Formación de posgrado en finanzas, sin pasar por la maestría.
-                    </h1>
-                    <p class="lead mb-4 text-white-50 fs-5" style="line-height: 1.75; max-width: 540px;">
-                        Cursos dictados por directores de maestría y economistas de referencia, estructurados en
-                        unidades breves con avance verificado y certificación al finalizar.
-                    </p>
-                    <div class="d-flex gap-3 flex-wrap align-items-center">
-                        <a th:href="@{/cursos}" class="btn btn-lg rounded-pill px-4 idn-btn-gold shadow-sm fw-bold">
-                            Ver todos los cursos <i class="fa-solid fa-arrow-right ms-2"></i>
-                        </a>
-                        <a th:href="@{/registro}" class="btn btn-lg rounded-pill px-4 btn-primary shadow-sm fw-bold"
-                            th:if="${usuario == null}">
-                            <i class="fa-solid fa-user-plus me-2"></i>Crear Cuenta
-                        </a>
+
+                    <div class="row align-items-center g-4">
+                        <!-- Columna Izquierda: Información de Posgrado y CTA -->
+                        <div class="col-lg-6 pe-lg-4">
+                            <div class="wf-hero-tag mb-3">
+                                <i class="fa-solid fa-graduation-cap" style="color: var(--wf-gold);"></i>
+                                <span>DOCENTES DE ÉLITE • METODOLOGÍA SECUENCIAL • CERTIFICACIÓN</span>
+                            </div>
+                            <h1 class="wf-hero-title mb-3" style="font-size: 38px; font-weight: 800; line-height: 1.15; letter-spacing: -0.02em;">
+                                Formación de posgrado en finanzas, sin pasar por la maestría.
+                            </h1>
+                            <p class="lead mb-4 text-white-50" style="font-size: 15px; line-height: 1.7; max-width: 560px;">
+                                Cursos dictados por directores de posgrado y economistas de referencia. Estructurados en unidades breves con avance verificado, autoevaluaciones inteligentes y certificación digital verificable.
+                            </p>
+                            <div class="d-flex gap-3 flex-wrap align-items-center">
+                                <a th:href="@{/cursos/catalogo}" class="wf-btn-gold text-decoration-none">
+                                    <i class="fa-solid fa-compass"></i>
+                                    <span>Explorar Catálogo</span>
+                                </a>
+                                <a th:href="@{/seguridad/registro}" class="wf-btn wf-btn-outline text-decoration-none" th:if="${usuario == null}">
+                                    <i class="fa-solid fa-user-plus"></i>
+                                    <span>Crear Cuenta Gratis</span>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Columna Derecha: Parallelogram Image Slider -->
+                        <div class="col-lg-6 position-relative">
+                            <div id="heroCarousel" class="carousel slide carousel-fade h-100" data-bs-ride="carousel">
+                                
+                                <div class="wf-hero-parallelogram shadow-lg">
+                                    <div class="carousel-inner h-100">
+                                        <!-- Slide 1: Mercado de Capitales -->
+                                        <div class="carousel-item active h-100" data-bs-interval="4000">
+                                            <img th:src="@{/img/nick-chong-N__BnvQ_w18-unsplash.jpg}" class="d-block w-100 h-100 object-fit-cover" style="min-height: 480px; transform: scale(1.1); filter: brightness(0.88);" alt="Mercado de Capitales">
+                                            
+                                            <!-- Floating Glassmorphism Badge -->
+                                            <div class="wf-glass-badge">
+                                                <div class="d-flex align-items-center gap-2 text-gold fw-bold small mb-1">
+                                                    <i class="fa-solid fa-chart-line"></i> <span>Mercado de Capitales</span>
+                                                </div>
+                                                <small class="text-white-50 d-block" style="font-size: 12px;">Acciones, Bonos Soberanos, ONs y Opciones</small>
+                                            </div>
+                                        </div>
+
+                                        <!-- Slide 2: Análisis Macroeconómico -->
+                                        <div class="carousel-item h-100" data-bs-interval="4000">
+                                            <img th:src="@{/img/anne-nygard-x07ELaNFt34-unsplash.jpg}" class="d-block w-100 h-100 object-fit-cover" style="min-height: 480px; transform: scale(1.1); filter: brightness(0.88);" alt="Economía">
+                                            
+                                            <!-- Floating Glassmorphism Badge -->
+                                            <div class="wf-glass-badge">
+                                                <div class="d-flex align-items-center gap-2 text-info fw-bold small mb-1">
+                                                    <i class="fa-solid fa-layer-group"></i> <span>Análisis Macroeconómico</span>
+                                                </div>
+                                                <small class="text-white-50 d-block" style="font-size: 12px;">Proyecciones de Variables, Tasas e Inflación</small>
+                                            </div>
+                                        </div>
+
+                                        <!-- Slide 3: Planificación Fiscal -->
+                                        <div class="carousel-item h-100" data-bs-interval="4000">
+                                            <img th:src="@{/img/towfiqu-barbhuiya-nApaSgkzaxg-unsplash.jpg}" class="d-block w-100 h-100 object-fit-cover" style="min-height: 480px; transform: scale(1.1); filter: brightness(0.88);" alt="Planificación Fiscal">
+                                            
+                                            <!-- Floating Glassmorphism Badge -->
+                                            <div class="wf-glass-badge">
+                                                <div class="d-flex align-items-center gap-2 text-success fw-bold small mb-1">
+                                                    <i class="fa-solid fa-calculator"></i> <span>Planificación Fiscal</span>
+                                                </div>
+                                                <small class="text-white-50 d-block" style="font-size: 12px;">Estrategias Impositivas para Pymes y Directivos</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Vertical Dots Indicator -->
+                                <div class="position-absolute top-50 end-0 translate-middle-y d-flex flex-column gap-2 me-3" style="z-index: 15;">
+                                    <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="btn p-0 rounded-circle border-0 active" style="width: 10px; height: 10px; background: var(--wf-gold);" aria-current="true" aria-label="Slide 1"></button>
+                                    <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1" class="btn p-0 rounded-circle border-0" style="width: 10px; height: 10px; background: rgba(255,255,255,0.4);" aria-label="Slide 2"></button>
+                                    <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="2" class="btn p-0 rounded-circle border-0" style="width: 10px; height: 10px; background: rgba(255,255,255,0.4);" aria-label="Slide 3"></button>
+                                </div>
+
+                            </div>
+                        </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- Columna Derecha: Parallelogram Image Frame (Full Height top to bottom) -->
-                <div class="col-lg-6 position-relative align-self-stretch"
-                    style="margin-top: -3rem; margin-bottom: -3rem;">
-                    <div id="heroCarousel" class="carousel slide carousel-fade h-100" data-bs-ride="carousel">
+            <div class="wf-body">
+                <div class="wf-main-content">
+                    
+                    <!-- Sección de Categorías y Especialidades -->
+                    <div class="mb-5">
+                        <div class="d-flex justify-content-between align-items-end mb-3 flex-wrap gap-2">
+                            <div>
+                                <span class="small fw-bold text-gold text-uppercase" style="letter-spacing: 0.8px;">ESPECIALIDADES ACADÉMICAS</span>
+                                <h3 class="wf-hero-title text-dark" style="font-size: 22px; color: #081426; margin-top: 2px;">Áreas Temáticas de Formación</h3>
+                            </div>
+                            <span class="small text-muted">Contenidos 100% enfocados en el mercado y marco normativo argentino</span>
+                        </div>
 
-                        <!-- Angled Image Container (Touching top navbar and bottom white section) -->
-                        <div class="shadow-lg overflow-hidden position-relative h-100"
-                            style="clip-path: polygon(14% 0%, 100% 0%, 86% 100%, 0% 100%); min-height: 560px;">
-                            <div class="carousel-inner h-100">
-                                <div class="carousel-item active h-100" data-bs-interval="3000">
-                                    <img th:src="@{/img/nick-chong-N__BnvQ_w18-unsplash.jpg}"
-                                        class="d-block w-100 h-100 object-fit-cover"
-                                        style="transform: scale(1.15); filter: brightness(0.9);"
-                                        alt="Mercado de Capitales">
-                                    <!-- Floating Glassmorphism Badge -->
-                                    <div class="position-absolute top-50 start-50 translate-middle text-start"
-                                        style="z-index: 5; background: rgba(16, 30, 54, 0.82); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.18); border-radius: 14px; padding: 14px 22px; width: 280px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
-                                        <div class="d-flex align-items-center gap-2 text-gold fw-bold small mb-1">
-                                            <i class="fa-solid fa-chart-line"></i> Mercado de Capitales
+                        <div class="row g-3">
+                            <div th:each="cat : ${categorias}" class="col-md-3">
+                                <a th:href="@{'/cursos/catalogo?categoriaId=' + ${cat.id}}" class="text-decoration-none">
+                                    <div class="wf-card h-100 p-4 d-flex flex-column justify-content-between text-start" style="transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); border-radius: 12px;">
+                                        <div>
+                                            <div class="d-inline-flex p-3 rounded-3 mb-3" style="background: rgba(212, 160, 61, 0.12); color: var(--wf-gold);">
+                                                <i class="fa-solid fa-landmark fs-4"></i>
+                                            </div>
+                                            <h5 class="fw-bold mb-2" style="color: #081426; font-size: 16px;" th:text="${cat.nombre}">Categoría</h5>
+                                            <p class="small text-muted mb-0" style="line-height: 1.5;" th:text="${cat.descripcion}">Descripción del área financiera...</p>
                                         </div>
-                                        <small class="text-white-50 d-block" style="font-size: 12px;">Acciones, Bonos,
-                                            ONs y Opciones</small>
+                                        <div class="mt-3 pt-2 border-top d-flex align-items-center gap-1 small fw-bold" style="color: var(--wf-gold-text);">
+                                            <span>Ver Cursos</span>
+                                            <i class="fa-solid fa-arrow-right fs-xs"></i>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Catálogo de Cursos Destacados -->
+                    <div>
+                        <div class="d-flex justify-content-between align-items-end mb-4 flex-wrap gap-2">
+                            <div>
+                                <span class="small fw-bold text-gold text-uppercase" style="letter-spacing: 0.8px;">CATÁLOGO DESTACADO</span>
+                                <h3 class="wf-hero-title text-dark" style="font-size: 22px; color: #081426; margin-top: 2px;">Cursos de Posgrado Disponibles</h3>
+                            </div>
+                            <a th:href="@{/cursos/catalogo}" class="wf-btn wf-btn-outline wf-btn-sm text-decoration-none">
+                                <span>Ver Catálogo Completo</span>
+                                <i class="fa-solid fa-arrow-right ms-1"></i>
+                            </a>
+                        </div>
+
+                        <!-- Grilla de Tarjetas Oficiales -->
+                        <div class="wf-cards-grid">
+                            <div th:each="curso : ${cursos}" class="wf-course-card">
+                                <div class="wf-course-card-thumb">
+                                    <div class="wf-course-thumb-icon"><i class="fa-solid fa-graduation-cap text-white"></i></div>
+                                    <div class="wf-course-pills-row">
+                                        <span class="wf-pill-tag" th:text="${curso.categoria != null ? curso.categoria.nombre : 'Finanzas'}">Categoría</span>
+                                        <span class="wf-pill-status" th:text="${curso.nivel != null ? curso.nivel.nombre : 'Avanzado'}">Nivel</span>
                                     </div>
                                 </div>
-                                <div class="carousel-item h-100" data-bs-interval="3000">
-                                    <img th:src="@{/img/anne-nygard-x07ELaNFt34-unsplash.jpg}"
-                                        class="d-block w-100 h-100 object-fit-cover"
-                                        style="transform: scale(1.15); filter: brightness(0.9);" alt="Economía">
-                                    <!-- Floating Glassmorphism Badge -->
-                                    <div class="position-absolute top-50 start-50 translate-middle text-start"
-                                        style="z-index: 5; background: rgba(16, 30, 54, 0.82); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.18); border-radius: 14px; padding: 14px 22px; width: 280px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
-                                        <div class="d-flex align-items-center gap-2 text-info fw-bold small mb-1">
-                                            <i class="fa-solid fa-layer-group"></i> Análisis Macroeconómico
-                                        </div>
-                                        <small class="text-white-50 d-block" style="font-size: 12px;">Proyecciones de
-                                            Variables e Inflación</small>
+                                <div class="wf-course-card-body">
+                                    <h4 class="wf-course-title" th:text="${curso.nombre}">Planificación Fiscal</h4>
+                                    <p class="wf-course-desc" th:text="${curso.descripcion}">Estrategias impositivas para empresas y profesionales.</p>
+                                    
+                                    <div class="wf-course-info-row">
+                                        <span>
+                                            <i class="fa-solid fa-chalkboard-user me-1 text-muted"></i>
+                                            <strong th:text="${curso.docente != null and curso.docente.usuario != null ? curso.docente.usuario.nombreCompleto : 'Equipo Académico'}">Docente</strong>
+                                        </span>
+                                        <span class="wf-course-price" th:text="${curso.precio != null and curso.precio <= 0 ? 'GRATIS' : '$ ' + #numbers.formatDecimal(curso.precio != null ? curso.precio : 0, 1, 'POINT', 0, 'COMMA')}">$0</span>
                                     </div>
                                 </div>
-                                <div class="carousel-item h-100" data-bs-interval="3000">
-                                    <img th:src="@{/img/towfiqu-barbhuiya-nApaSgkzaxg-unsplash.jpg}"
-                                        class="d-block w-100 h-100 object-fit-cover"
-                                        style="transform: scale(1.15); filter: brightness(0.9);"
-                                        alt="Planificación Fiscal">
-                                    <!-- Floating Glassmorphism Badge -->
-                                    <div class="position-absolute top-50 start-50 translate-middle text-start"
-                                        style="z-index: 5; background: rgba(16, 30, 54, 0.82); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.18); border-radius: 14px; padding: 14px 22px; width: 280px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
-                                        <div class="d-flex align-items-center gap-2 text-success fw-bold small mb-1">
-                                            <i class="fa-solid fa-calculator"></i> Planificación Fiscal
-                                        </div>
-                                        <small class="text-white-50 d-block" style="font-size: 12px;">Estrategias
-                                            Impositivas Pymes</small>
+                                <div class="wf-course-card-footer">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <a th:href="@{'/cursos/' + ${curso.id}}" class="wf-btn-manage-course flex-grow-1">
+                                            <i class="fa-solid fa-eye"></i>
+                                            <span>Ver Programa</span>
+                                        </a>
+                                        <a th:href="@{'/inscripciones/nueva?cursoId=' + ${curso.id}}" class="wf-btn wf-btn-primary px-3" title="Inscribirme" style="height: 38px; border-radius: 8px;">
+                                            <i class="fa-solid fa-bolt"></i>
+                                        </a>
                                     </div>
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Arrow Navigation Controls Pill Located Exactly at Red Circle (Bottom-Left Angle Intersection) -->
-                        <!-- <div class="position-absolute bottom-0 start-0 translate-middle-x mb-5 pb-1 d-flex align-items-center gap-3" style="z-index: 35; background: rgba(10, 22, 40, 0.95); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.25); border-radius: 30px; padding: 8px 18px; box-shadow: 0 10px 30px rgba(0,0,0,0.8);">
-                            <button class="btn btn-link p-0 text-white text-decoration-none shadow-none px-1" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev" style="font-size: 14px;">
-                                <i class="fa-solid fa-chevron-left"></i>
-                            </button>
-                            <span style="width: 1px; height: 14px; background: rgba(255,255,255,0.3);"></span>
-                            <button class="btn btn-link p-0 text-white text-decoration-none shadow-none px-1" type="button" data-bs-target="#heroCarousel" data-bs-slide="next" style="font-size: 14px;">
-                                <i class="fa-solid fa-chevron-right"></i>
-                            </button>
-                        </div> -->
-                    </div>
-
-                    <!-- Vertical Dots Indicator Interactive Buttons (Far Right) -->
-                    <div class="position-absolute top-50 end-0 translate-middle-y d-flex flex-column gap-3 me-2"
-                        style="z-index: 10;">
-                        <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0"
-                            class="btn p-0 rounded-circle border-0 bg-gold active shadow"
-                            style="width: 10px; height: 10px;" aria-current="true" aria-label="Slide 1"></button>
-                        <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1"
-                            class="btn p-0 rounded-circle border-0 bg-white opacity-50 shadow"
-                            style="width: 10px; height: 10px;" aria-label="Slide 2"></button>
-                        <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="2"
-                            class="btn p-0 rounded-circle border-0 bg-white opacity-50 shadow"
-                            style="width: 10px; height: 10px;" aria-label="Slide 3"></button>
                     </div>
 
                 </div>
             </div>
-        </div>
-    </section>
 
-    <!-- Sección de Categorías -->
-    <section class="py-5 bg-white">
-        <div class="container">
-            <div class="text-center mb-5">
-                <span class="small fw-bold text-gold text-uppercase" style="letter-spacing: 0.1em;">Especialidades
-                    Académicas</span>
-                <h2 class="font-serif fw-bold display-6 text-navy mt-1">Áreas Temáticas de Formación</h2>
-                <p class="text-muted">Contenidos 100% enfocados en la legislación, impuestos y mercado argentino</p>
-            </div>
-            <div class="row g-4">
-                <div th:each="cat : ${categorias}" class="col-md-3">
-                    <a th:href="@{'/cursos?categoriaId=' + ${cat.id}}" class="text-decoration-none">
-                        <div class="idn-card p-4 text-center h-100">
-                            <div class="text-gold mb-3">
-                                <i class="fa-solid fa-landmark fs-1"></i>
-                            </div>
-                            <h5 class="font-serif fw-bold text-navy mb-2" th:text="${cat.nombre}">Categoría</h5>
-                            <small class="text-muted" th:text="${cat.descripcion}">Descripción</small>
-                        </div>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Sección de Cursos Destacados -->
-    <section class="py-5">
-        <div class="container">
-            <div class="d-flex justify-content-between align-items-end mb-4 flex-wrap gap-2">
+            <!-- Footer Oficial de Idóneos Online -->
+            <div class="wf-screen-footer">
                 <div>
-                    <span class="small fw-bold text-gold text-uppercase" style="letter-spacing: 0.1em;">Catálogo
-                        Destacado</span>
-                    <h2 class="font-serif fw-bold display-6 text-navy mb-0">Cursos Disponibles</h2>
+                    <strong>Idóneos <span>Online</span> S.A.S.</strong> • Plataforma de Educación Financiera, Economía & Mercado de Capitales
                 </div>
-                <a th:href="@{/cursos}" class="btn btn-outline-dark rounded-pill px-4">Ver Todos los Cursos</a>
+                <div>
+                    FCEQyN — UNaM • Proyecto Software (LSI) / Trabajo Final (ASI)
+                </div>
             </div>
 
-            <div class="row g-4">
-                <div th:each="curso : ${cursos}" class="col-md-4">
-                    <div th:replace="~{fragments/cartaCurso :: cartaCurso}"></div>
-                </div>
-            </div>
         </div>
-    </section>
+    </div>
 
-    <!-- Footer -->
-    <div th:replace="~{fragments/footer :: footer}"></div>
-    <!-- Scripts -->
-    <div th:replace="~{fragments/scripts :: scripts}"></div>
+    <!-- Bootstrap Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function toggleUserDropdown(triggerEl) {
+            const wrapper = triggerEl.closest('.wf-user-menu-wrapper');
+            if (wrapper) {
+                const dropdown = wrapper.querySelector('.wf-user-floating-dropdown');
+                if (dropdown) {
+                    dropdown.style.display = (dropdown.style.display === 'none' || dropdown.style.display === '') ? 'flex' : 'none';
+                }
+            }
+        }
+    </script>
 </body>
-
 </html>

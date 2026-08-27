@@ -23,81 +23,8 @@
         <!-- Pantalla / Screen Frame Oficial -->
         <div class="screen-frame">
 
-                <!-- Top Navbar Oficial -->
-                <div class="wf-top-navbar">
-                    <div class="wf-brand">
-                        <div class="d-flex flex-column">
-                            <div class="wf-brand-logo"><i class="fa-solid fa-chart-line" style="color: var(--wf-gold);"></i> Idóneos <span>Online</span></div>
-                            <div class="wf-brand-sub">FINANZAS • ECONOMÍA • MERCADO DE CAPITALES</div>
-                        </div>
-                    </div>
-
-                    <div class="wf-top-nav-links">
-                        <a th:href="@{/cursos/catalogo}" class="wf-top-nav-link">Inicio</a>
-                        <a th:href="@{/cursos/catalogo}" class="wf-top-nav-link">Catálogo de Cursos</a>
-                        <span class="wf-top-nav-pill">Panel Alumno</span>
-                        <a th:href="@{/configuracion}" class="wf-top-nav-link">Acerca de</a>
-
-                        <div class="wf-user-menu-wrapper">
-                            <div class="wf-user-trigger-pill" onclick="toggleUserDropdown(this)">
-                                <div class="user-avatar-circle">JK</div>
-                                <span style="font-size: 11px; font-weight: 700;">Joaquín Küster</span>
-                                <i class="fa-solid fa-chevron-down w-3 h-3 text-white ms-1"></i>
-                            </div>
-
-                            <div class="wf-user-floating-dropdown">
-                                <div class="wf-dropdown-user-header">
-                                    <div class="wf-dropdown-user-name">Joaquín Küster</div>
-                                    <div class="wf-dropdown-user-role">Alumno</div>
-                                    <div class="wf-dropdown-user-email">joaquin.kuster@idoneos.online</div>
-                                </div>
-  
-                                <div class="wf-dropdown-section">
-                                    <div class="wf-dropdown-section-title">Navegación</div>
-    
-                                    <a th:href="@{/cursos/mis-cursos}" class="wf-dropdown-item-btn ">
-                                        <span>Mis cursos matriculados</span>
-                                    </a>
-        
-                                    <a th:href="@{/cursos/catalogo}" class="wf-dropdown-item-btn ">
-                                        <span>Explorar catálogo abierto</span>
-                                    </a>
-        
-                                    <a th:href="@{/inscripciones/pagos}" class="wf-dropdown-item-btn ">
-                                        <span>Historial de pagos e inscripciones</span>
-                                    </a>
-        
-                                    <a th:href="@{/evaluaciones/calificaciones}" class="wf-dropdown-item-btn ">
-                                        <span>Mis calificaciones obtenidas</span>
-                                    </a>
-        
-                                </div>
-    
-                                <div class="wf-dropdown-section">
-                                    <div class="wf-dropdown-section-title">Cuenta</div>
-    
-                                    <a th:href="@{/seguridad/perfil}" class="wf-dropdown-item-btn ">
-                                        <span>Ver perfil</span>
-                                    </a>
-        
-                                    <a th:href="@{/seguridad/perfil/editar}" class="wf-dropdown-item-btn ">
-                                        <span>Editar datos de perfil</span>
-                                    </a>
-        
-                                    <a th:href="@{/seguridad/sesiones}" class="wf-dropdown-item-btn ">
-                                        <span>Seguridad y sesiones activas</span>
-                                    </a>
-        
-                                    <a th:href="@{/seguridad/logout}" class="wf-dropdown-item-btn text-danger">
-                                        <span>Cerrar sesión</span>
-                                    </a>
-        
-                                </div>
-    
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <!-- Top Navbar Oficial Dinámica -->
+                <div th:replace="~{fragments/wf_navbar :: wf-top-navbar}"></div>
 
                 <!-- Hero Banner Contextual Superior (Navy) -->
                 <div class="wf-hero-banner">
@@ -145,14 +72,14 @@
           <label class="wf-label">Asunto</label>
           <div class="wf-input-wrap">
             <input type="text" class="wf-input" value="Duda sobre el cálculo de la paridad en bonos bajo la par">
-            <span class="pin-badge">B</span>
+            
           </div>
         </div>
         <div class="col-12">
           <label class="wf-label">Texto del Mensaje</label>
           <div class="wf-input-wrap">
             <textarea class="wf-input" rows="5">Buenas tardes profesor, revisando la planilla de bonos soberanos me surgió una duda sobre cuándo cotiza 'bajo la par' y cómo impacta el cupón corrido en el precio clean vs dirty en Bonos GD30. Muchas gracias.</textarea>
-            <span class="pin-badge">C</span>
+            
           </div>
         </div>
       </div>
@@ -160,8 +87,8 @@
       <div class="wf-card-footer d-flex justify-content-end gap-3 mt-4 pt-3 border-top">
         <a th:href="@{/academico/consultas}" class="wf-btn wf-btn-outline">Cancelar / Volver</a>
         <div class="d-flex align-items-center gap-2">
-          <button class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Guardar Cambios</button>
-          <span class="pin-badge">D</span>
+          <button type="submit" class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Guardar Cambios</button>
+          
         </div>
       </div>
     </div>

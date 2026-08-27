@@ -81,9 +81,11 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/", "/inicio", "/acercaDe", 
                                 "/login", "/registro", "/recuperar-contrasena", "/resetear-contrasena",
-                                "/seguridad/login", "/seguridad/registro", "/seguridad/recuperar-contrasena",
-                                "/cursos", "/cursos/*", 
-                                "/public/**", "/css/**", "/js/**", "/img/**"
+                                "/seguridad/**",
+                                "/cursos", "/cursos/**", 
+                                "/inscripciones/**",
+                                "/pago/**",
+                                "/public/**", "/css/**", "/js/**", "/img/**", "/webjars/**"
                         ).permitAll()
                         .requestMatchers(
                                 "/admin/**", 

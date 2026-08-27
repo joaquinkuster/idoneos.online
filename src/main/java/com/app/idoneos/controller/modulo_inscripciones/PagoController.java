@@ -153,4 +153,14 @@ public class PagoController {
         model.addAttribute("titulo", "Comprobante de Pago | Idóneos Online");
         return "pages/alumno/pago-resultado";
     }
+
+    @GetMapping({"", "/historial"})
+    public String verHistorialPagos(Model model, Authentication auth) {
+        if (auth != null && auth.getPrincipal() instanceof Usuario) {
+            model.addAttribute("usuario", (Usuario) auth.getPrincipal());
+        }
+        model.addAttribute("pagos", pagoService.obtenerTodos());
+        model.addAttribute("titulo", "CU-46 - Buscar pago | Idóneos Online");
+        return "pages/inscripciones/cu-46-buscar-pago";
+    }
 }

@@ -23,103 +23,8 @@
         <!-- Pantalla / Screen Frame Oficial -->
         <div class="screen-frame">
 
-                <!-- Top Navbar Oficial -->
-                <div class="wf-top-navbar">
-                    <div class="wf-brand">
-                        <div class="d-flex flex-column">
-                            <div class="wf-brand-logo"><i class="fa-solid fa-chart-line" style="color: var(--wf-gold);"></i> Idóneos <span>Online</span></div>
-                            <div class="wf-brand-sub">FINANZAS • ECONOMÍA • MERCADO DE CAPITALES</div>
-                        </div>
-                    </div>
-
-                    <div class="wf-top-nav-links">
-                        <a th:href="@{/cursos/catalogo}" class="wf-top-nav-link">Inicio</a>
-                        <a th:href="@{/cursos/catalogo}" class="wf-top-nav-link">Catálogo de Cursos</a>
-                        <span class="wf-top-nav-pill">Panel Administrador</span>
-                        <a th:href="@{/configuracion}" class="wf-top-nav-link">Acerca de</a>
-
-                        <div class="wf-user-menu-wrapper">
-                            <div class="wf-user-trigger-pill" onclick="toggleUserDropdown(this)">
-                                <div class="user-avatar-circle" th:text="${usuario != null ? #strings.substring(usuario.nombre,0,1) + #strings.substring(usuario.apellido,0,1) : 'AG'}">AG</div>
-                                <span style="font-size: 11px; font-weight: 700;" th:text="${usuario != null ? usuario.nombreCompleto : 'Admin General'}">Admin General</span>
-                                <i class="fa-solid fa-chevron-down w-3 h-3 text-white ms-1"></i>
-                            </div>
-
-                            <div class="wf-user-floating-dropdown">
-                                <div class="wf-dropdown-user-header">
-                                    <div class="wf-dropdown-user-name" th:text="${usuario != null ? usuario.nombreCompleto : 'Admin General'}">Admin General</div>
-                                    <div class="wf-dropdown-user-role" th:text="${usuario != null and usuario.rol != null ? usuario.rol.nombre : 'Administrador'}">Administrador</div>
-                                    <div class="wf-dropdown-user-email" th:text="${usuario != null ? usuario.correo : 'admin@idoneos.online'}">admin@idoneos.online</div>
-                                </div>
-  
-                                <div class="wf-dropdown-section">
-                                    <div class="wf-dropdown-section-title">Modo Edición</div>
-    
-                                    <div class="wf-dropdown-editing-toggle-box">
-                                        <span class="small fw-bold">Modo Edición Activado</span>
-                                        <span class="wf-badge status-active">ON</span>
-                                    </div>
-      
-                                </div>
-    
-                                <div class="wf-dropdown-section">
-                                    <div class="wf-dropdown-section-title">Administración del Sistema</div>
-    
-                                    <a th:href="@{/cursos}" class="wf-dropdown-item-btn ">
-                                        <span>Gestión de cursos</span>
-                                    </a>
-        
-                                    <a th:href="@{/cursos/cohortes}" class="wf-dropdown-item-btn ">
-                                        <span>Cohortes y programas</span>
-                                    </a>
-        
-                                    <a th:href="@{/seguridad/usuarios}" class="wf-dropdown-item-btn ">
-                                        <span>Gestión de usuarios</span>
-                                    </a>
-        
-                                    <a th:href="@{/auditoria}" class="wf-dropdown-item-btn ">
-                                        <span>Auditoría de eventos</span>
-                                    </a>
-        
-                                    <a th:href="@{/reportes/alumnos}" class="wf-dropdown-item-btn ">
-                                        <span>Informe de alumnos</span>
-                                    </a>
-        
-                                    <a th:href="@{/reportes/ingresos}" class="wf-dropdown-item-btn ">
-                                        <span>Informe de ingresos</span>
-                                    </a>
-        
-                                    <a th:href="@{/reportes/estadisticas}" class="wf-dropdown-item-btn ">
-                                        <span>Dashboard de estadísticas</span>
-                                    </a>
-        
-                                    <a th:href="@{/configuracion}" class="wf-dropdown-item-btn ">
-                                        <span>Configuración general</span>
-                                    </a>
-        
-                                </div>
-    
-                                <div class="wf-dropdown-section">
-                                    <div class="wf-dropdown-section-title">Cuenta & Seguridad</div>
-    
-                                    <a th:href="@{/seguridad/perfil}" class="wf-dropdown-item-btn ">
-                                        <span>Ver perfil</span>
-                                    </a>
-        
-                                    <a th:href="@{/seguridad/sesiones}" class="wf-dropdown-item-btn ">
-                                        <span>Seguridad y sesiones activas</span>
-                                    </a>
-        
-                                    <a th:href="@{/seguridad/logout}" class="wf-dropdown-item-btn text-danger">
-                                        <span>Cerrar sesión</span>
-                                    </a>
-        
-                                </div>
-    
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <!-- Top Navbar Oficial Dinámica -->
+                <div th:replace="~{fragments/wf_navbar :: wf-top-navbar}"></div>
 
                 <!-- Hero Banner Contextual Superior (Navy) -->
                 <div class="wf-hero-banner">
@@ -171,7 +76,7 @@
             <a th:href="@{/academico/materiales}" class="wf-tab-btn ">Materiales</a>
             <a th:href="@{/academico/glosario}" class="wf-tab-btn ">Glosario</a>
             <a th:href="@{/evaluaciones/autoevaluaciones}" class="wf-tab-btn">Autoevaluaciones</a>
-            <a th:href="@{/evaluaciones/pools}" class="wf-tab-btn active"><span class="pin-badge me-1">A</span>Pools</a>
+            <a th:href="@{/evaluaciones/pools}" class="wf-tab-btn active">Pools</a>
             <a th:href="@{/academico/consultas}" class="wf-tab-btn">Foros</a>
             <a th:href="@{/clases-vivo}" class="wf-tab-btn">Clases en Vivo</a>
           </div>
@@ -185,7 +90,7 @@
             <label class="wf-label">Buscar por título o palabra clave</label>
             <div class="wf-input-wrap">
               <input type="text" class="wf-input" placeholder="Buscar en pools...">
-              <span class="pin-badge">B</span>
+              
             </div>
           </div>
           <div class="col-md-4">
@@ -199,7 +104,7 @@
           <div class="col-md-3">
             <div class="d-flex align-items-center gap-2">
               <button class="wf-btn wf-btn-primary w-100"><i class="fa-solid fa-magnifying-glass me-1"></i> Buscar</button>
-              <span class="pin-badge">C</span>
+              
             </div>
           </div>
         </div>
@@ -217,18 +122,22 @@
             </tr>
           </thead>
           <tbody>
-            <tr th:each="p : ${pools}">
-              <td><strong th:text="'#' + ${p.id}">#1</strong></td>
-              <td><strong th:text="${p.nombre}">Nombre Pool</strong></td>
-              <td><span class="badge bg-light text-navy border" th:text="${p.unidad != null ? p.unidad.titulo : 'General'}">Unidad</span></td>
-              <td class="text-end">
-                <div class="d-inline-flex align-items-center gap-2">
-                  <a th:href="@{'/evaluaciones/pools/' + ${p.id} + '/editar'}" class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-pen-to-square me-1"></i> Editar</a>
-                  <a th:href="@{'/evaluaciones/pools/' + ${p.id} + '/baja'}" class="wf-btn wf-btn-sm wf-btn-outline text-danger"><i class="fa-solid fa-trash"></i></a>
-                </div>
-              </td>
-            </tr>
-          </tbody>
+  <tr th:each="p : ${pools}">
+    <td><strong style="color: #081426;" th:text="${p.nombre}">Nombre del Pool</strong></td>
+    <td th:text="${p.unidad != null ? p.unidad.titulo : 'Unidad General'}">Unidad</td>
+    <td th:text="${#temporals.format(p.fechaCreacion, 'dd/MM/yyyy')}">01/01/2026</td>
+    <td><span class="wf-badge status-active" th:text="${p.baja ? 'Inactivo' : 'Activo'}">Activo</span></td>
+    <td class="text-end">
+      <div class="d-inline-flex gap-2">
+        <a th:href="@{'/evaluaciones/pools/' + ${p.id} + '/preguntas'}" class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-list-check me-1"></i> Preguntas</a>
+        <a th:href="@{'/evaluaciones/pools/' + ${p.id} + '/editar'}" class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-pen-to-square"></i></a>
+      </div>
+    </td>
+  </tr>
+  <tr th:if="${#lists.isEmpty(pools)}">
+    <td colspan="5" class="text-center py-4 text-muted">No se encontraron pools de preguntas registrados.</td>
+  </tr>
+</tbody>
         </table>
       </div>
     

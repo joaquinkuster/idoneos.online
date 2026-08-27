@@ -52,11 +52,13 @@ public class CursoServiceImpl implements CursoService {
     @Override
     @Transactional(readOnly = true)
     public List<Curso> buscarCursosPublicadosConFiltros(String nombre, Integer categoriaId, Integer modalidadId) {
-        return cursoRepository.buscarCursosPublicadosConFiltros(
-                (nombre != null && !nombre.trim().isEmpty()) ? nombre.trim() : null,
-                categoriaId,
-                modalidadId
-        );
+        List<Curso> publicados = cursoRepository.findByBajaFalseAndPublicadoTrue();
+        return publicados.stream()
+                .filter(c -> nombre == null || nombre.isBlank() ||
+                        c.getNombre().toLowerCase().contains(nombre.trim().toLowerCase()) ||
+                        (c.getDescripcion() != null && c.getDescripcion().toLowerCase().contains(nombre.trim().toLowerCase())))
+                .filter(c -> categoriaId == null || (c.getCategoria() != null && c.getCategoria().getId() == categoriaId))
+                .collect(Collectors.toList());
     }
 
     /**

@@ -23,103 +23,8 @@
         <!-- Pantalla / Screen Frame Oficial -->
         <div class="screen-frame">
 
-                <!-- Top Navbar Oficial -->
-                <div class="wf-top-navbar">
-                    <div class="wf-brand">
-                        <div class="d-flex flex-column">
-                            <div class="wf-brand-logo"><i class="fa-solid fa-chart-line" style="color: var(--wf-gold);"></i> Idóneos <span>Online</span></div>
-                            <div class="wf-brand-sub">FINANZAS • ECONOMÍA • MERCADO DE CAPITALES</div>
-                        </div>
-                    </div>
-
-                    <div class="wf-top-nav-links">
-                        <a th:href="@{/cursos/catalogo}" class="wf-top-nav-link">Inicio</a>
-                        <a th:href="@{/cursos/catalogo}" class="wf-top-nav-link">Catálogo de Cursos</a>
-                        <span class="wf-top-nav-pill">Panel Administrador</span>
-                        <a th:href="@{/configuracion}" class="wf-top-nav-link">Acerca de</a>
-
-                        <div class="wf-user-menu-wrapper">
-                            <div class="wf-user-trigger-pill" onclick="toggleUserDropdown(this)">
-                                <div class="user-avatar-circle" th:text="${usuario != null ? #strings.substring(usuario.nombre,0,1) + #strings.substring(usuario.apellido,0,1) : 'AG'}">AG</div>
-                                <span style="font-size: 11px; font-weight: 700;" th:text="${usuario != null ? usuario.nombreCompleto : 'Admin General'}">Admin General</span>
-                                <i class="fa-solid fa-chevron-down w-3 h-3 text-white ms-1"></i>
-                            </div>
-
-                            <div class="wf-user-floating-dropdown">
-                                <div class="wf-dropdown-user-header">
-                                    <div class="wf-dropdown-user-name" th:text="${usuario != null ? usuario.nombreCompleto : 'Admin General'}">Admin General</div>
-                                    <div class="wf-dropdown-user-role" th:text="${usuario != null and usuario.rol != null ? usuario.rol.nombre : 'Administrador'}">Administrador</div>
-                                    <div class="wf-dropdown-user-email" th:text="${usuario != null ? usuario.correo : 'admin@idoneos.online'}">admin@idoneos.online</div>
-                                </div>
-  
-                                <div class="wf-dropdown-section">
-                                    <div class="wf-dropdown-section-title">Modo Edición</div>
-    
-                                    <div class="wf-dropdown-editing-toggle-box">
-                                        <span class="small fw-bold">Activar Edición</span>
-                                        <span class="wf-badge status-inactive">OFF</span>
-                                    </div>
-      
-                                </div>
-    
-                                <div class="wf-dropdown-section">
-                                    <div class="wf-dropdown-section-title">Administración del Sistema</div>
-    
-                                    <a th:href="@{/cursos}" class="wf-dropdown-item-btn ">
-                                        <span>Gestión de cursos</span>
-                                    </a>
-        
-                                    <a th:href="@{/cursos/cohortes}" class="wf-dropdown-item-btn ">
-                                        <span>Cohortes y programas</span>
-                                    </a>
-        
-                                    <a th:href="@{/seguridad/usuarios}" class="wf-dropdown-item-btn ">
-                                        <span>Gestión de usuarios</span>
-                                    </a>
-        
-                                    <a th:href="@{/auditoria}" class="wf-dropdown-item-btn ">
-                                        <span>Auditoría de eventos</span>
-                                    </a>
-        
-                                    <a th:href="@{/reportes/alumnos}" class="wf-dropdown-item-btn ">
-                                        <span>Informe de alumnos</span>
-                                    </a>
-        
-                                    <a th:href="@{/reportes/ingresos}" class="wf-dropdown-item-btn ">
-                                        <span>Informe de ingresos</span>
-                                    </a>
-        
-                                    <a th:href="@{/reportes/estadisticas}" class="wf-dropdown-item-btn ">
-                                        <span>Dashboard de estadísticas</span>
-                                    </a>
-        
-                                    <a th:href="@{/configuracion}" class="wf-dropdown-item-btn ">
-                                        <span>Configuración general</span>
-                                    </a>
-        
-                                </div>
-    
-                                <div class="wf-dropdown-section">
-                                    <div class="wf-dropdown-section-title">Cuenta & Seguridad</div>
-    
-                                    <a th:href="@{/seguridad/perfil}" class="wf-dropdown-item-btn ">
-                                        <span>Ver perfil</span>
-                                    </a>
-        
-                                    <a th:href="@{/seguridad/sesiones}" class="wf-dropdown-item-btn ">
-                                        <span>Seguridad y sesiones activas</span>
-                                    </a>
-        
-                                    <a th:href="@{/seguridad/logout}" class="wf-dropdown-item-btn text-danger">
-                                        <span>Cerrar sesión</span>
-                                    </a>
-        
-                                </div>
-    
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <!-- Top Navbar Oficial Dinámica -->
+                <div th:replace="~{fragments/wf_navbar :: wf-top-navbar}"></div>
 
                 <!-- Hero Banner Contextual Superior (Navy) -->
                 <div class="wf-hero-banner">
@@ -151,149 +56,77 @@
                 <div class="wf-body">
                     <div class="wf-main-content">
                         
-      <div class="wf-card" style="max-width: 900px; margin: 0 auto; background: #FFFFFF;">
-        <div class="wf-card-header mb-4 pb-3 border-bottom d-flex justify-content-between align-items-center">
-          <div>
-            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Registrar Nuevo Curso</h3>
-            <p class="small text-muted" style="margin: 3px 0 0;">Defina los parámetros académicos, docentes y comerciales del programa de capacitación.</p>
-          </div>
-          <div>
-            <span class="wf-badge status-active">Formulario de Alta</span>
-          </div>
-        </div>
-
-        <div class="row g-3">
-          <!-- Nombre [B] -->
-          <div class="col-md-8">
-            <label class="wf-label">Nombre del Curso</label>
-            <div class="wf-input-wrap">
-              <input type="text" class="wf-input" value="Especialización en Idoneidad Bursátil CNV">
-              <span class="pin-badge">B</span>
-            </div>
-          </div>
-
-          <!-- Categoría [C] -->
-          <div class="col-md-4">
-            <label class="wf-label">Categoría Temática</label>
-            <div class="wf-input-wrap">
-              <select class="wf-input">
-                <option selected>Mercado de Capitales & Finanzas</option>
-                <option>Impuestos & Contabilidad</option>
-                <option>Cripto & DeFi</option>
-              </select>
-              <span class="pin-badge">C</span>
-            </div>
-          </div>
-
-          <!-- Nivel [D] -->
-          <div class="col-md-4">
-            <label class="wf-label">Nivel de Dificultad</label>
-            <div class="wf-input-wrap">
-              <select class="wf-input">
-                <option selected>Intermedio / Profesional</option>
-                <option>Inicial / Básico</option>
-                <option>Avanzado</option>
-              </select>
-              <span class="pin-badge">D</span>
-            </div>
-          </div>
-
-          <!-- Precio [E] -->
-          <div class="col-md-4">
-            <label class="wf-label">Precio / Arancel de Inscripción</label>
-            <div class="wf-input-wrap">
-              <input type="text" class="wf-input" value="$120.000 ARS">
-              <span class="pin-badge">E</span>
-            </div>
-          </div>
-
-          <!-- Modalidades [F] (Checkbox interactivos) -->
-          <div class="col-md-4">
-            <label class="wf-label">Modalidades de Dictado</label>
-            <div class="wf-input-wrap">
-              <div class="wf-input d-flex align-items-center gap-3" style="padding: 8px 14px; font-size: 12px; background: #FFFFFF;">
-                <label class="d-flex align-items-center gap-1 cursor-pointer mb-0" style="font-weight: 600; color: #081426;">
-                  <input type="checkbox" checked style="width: 16px; height: 16px; accent-color: var(--wf-gold);">
-                  <span>Online Asincrónico</span>
-                </label>
-                <label class="d-flex align-items-center gap-1 cursor-pointer mb-0" style="font-weight: 600; color: #081426;">
-                  <input type="checkbox" checked style="width: 16px; height: 16px; accent-color: var(--wf-gold);">
-                  <span>En Vivo</span>
-                </label>
-              </div>
-              <span class="pin-badge">F</span>
-            </div>
-          </div>
-
-          <!-- Docente Titular [G] -->
-          <div class="col-md-6">
-            <label class="wf-label">Docente Titular Responsable</label>
-            <div class="wf-input-wrap">
-              <select class="wf-input">
-                <option selected>Mg. Elena Valenzuela (Economista & Consultor)</option>
-                <option>Dr. Roberto Cachanosky</option>
-              </select>
-              <span class="pin-badge">G</span>
-            </div>
-          </div>
-
-          <!-- Docentes Ayudantes [H] -->
-          <div class="col-md-6">
-            <label class="wf-label">Equipo de Docentes Ayudantes</label>
-            <div class="wf-input-wrap">
-              <input type="text" class="wf-input" value="Lic. Joaquín Küster, Mg. Elena Valenzuela">
-              <span class="pin-badge">H</span>
-            </div>
-          </div>
-
-          <!-- Emite Certificado [I] -->
-          <div class="col-12">
-            <div class="p-3 bg-light rounded border d-flex justify-content-between align-items-center">
-              <div>
-                <strong>Emisión Automática de Certificado Oficial</strong>
-                <p class="small text-muted m-0">Generar credencial digital verificable con código QR al aprobar el 100% de autoevaluaciones.</p>
-              </div>
-              <div class="d-flex align-items-center gap-2">
-                <input type="checkbox" checked style="width: 18px; height: 18px; accent-color: var(--wf-gold);">
-                <span class="pin-badge">I</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Descripción [J] -->
-          <div class="col-12">
-            <label class="wf-label">Descripción Académica y Objetivos</label>
-            <div class="wf-input-wrap">
-              <textarea class="wf-input" rows="3">Programa intensivo diseñado para brindar los conocimientos teóricos, regulatorios y prácticos requeridos para rendir y aprobar el examen de Idóneo en Mercado de Capitales ante la Comisión Nacional de Valores (CNV).</textarea>
-              <span class="pin-badge">J</span>
-            </div>
-          </div>
-
-          <!-- Portada [K] y Examinar [L] -->
-          <div class="col-12">
-            <label class="wf-label">Imagen de Portada / Banner del Curso</label>
-            <div class="d-flex align-items-center gap-2">
-              <div class="wf-input-wrap flex-grow-1">
-                <input type="text" class="wf-input" value="portada_idoneidad_bursatil_2026.png">
-                <span class="pin-badge">K</span>
-              </div>
-              <div class="d-flex align-items-center gap-2">
-                <button class="wf-btn wf-btn-outline"><i class="fa-solid fa-folder-open me-1"></i> Examinar...</button>
-                <span class="pin-badge">L</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Footer con Guardar [M] -->
-        <div class="wf-card-footer d-flex justify-content-end gap-3 mt-4 pt-3 border-top">
-          <button class="wf-btn wf-btn-outline">Cancelar / Volver</button>
-          <div class="d-flex align-items-center gap-2">
-            <button class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Guardar Curso</button>
-            <span class="pin-badge">M</span>
-          </div>
-        </div>
+      <form th:action="@{/cursos/guardar}" method="post" class="wf-card" style="max-width: 900px; margin: 0 auto; background: #FFFFFF;">
+  <div class="pb-3 mb-4 border-bottom">
+    <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Registrar Nuevo Curso</h3>
+    <p class="small text-muted" style="margin: 2px 0 0;">Complete los datos comerciales y académicos para dar de alta un nuevo curso en la plataforma.</p>
+  </div>
+  <div class="row g-3 mb-4">
+    <div class="col-md-8">
+      <label class="wf-label">Nombre del Curso <span class="text-danger">*</span></label>
+      <div class="wf-input-wrap">
+        <input type="text" name="nombre" class="wf-input" placeholder="Ej: Especialización en Renta Fija y Bonos Soberanos" required>
       </div>
+    </div>
+    <div class="col-md-4">
+      <label class="wf-label">Categoría Temática <span class="text-danger">*</span></label>
+      <div class="wf-input-wrap">
+        <select name="categoriaId" class="wf-input" required>
+          <option value="">Seleccionar Categoría...</option>
+          <option th:each="cat : ${categorias}" th:value="${cat.id}" th:text="${cat.nombre}">Categoría</option>
+        </select>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <label class="wf-label">Nivel de Dificultad <span class="text-danger">*</span></label>
+      <div class="wf-input-wrap">
+        <select name="nivelId" class="wf-input" required>
+          <option value="">Seleccionar Nivel...</option>
+          <option th:each="n : ${niveles}" th:value="${n.id}" th:text="${n.nombre}">Nivel</option>
+        </select>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <label class="wf-label">Precio de Arancel (ARS) <span class="text-danger">*</span></label>
+      <div class="wf-input-wrap">
+        <input type="number" step="0.01" min="0" name="precio" class="wf-input" placeholder="Ej: 45000" required>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <label class="wf-label">Docente Titular <span class="text-danger">*</span></label>
+      <div class="wf-input-wrap">
+        <select name="docenteTitularId" class="wf-input" required>
+          <option value="">Seleccionar Docente...</option>
+          <option th:each="d : ${docentes}" th:value="${d.id}" th:text="${d.usuario.nombreCompleto}">Docente</option>
+        </select>
+      </div>
+    </div>
+    <div class="col-12">
+      <label class="wf-label">Descripción del Curso <span class="text-danger">*</span></label>
+      <div class="wf-input-wrap">
+        <textarea name="descripcion" rows="3" class="wf-input" placeholder="Descripción detallada del contenido del curso..." required></textarea>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <label class="wf-label">URL de Imagen de Portada</label>
+      <div class="wf-input-wrap">
+        <input type="text" name="imagen" class="wf-input" placeholder="https://ejemplo.com/portada.jpg">
+      </div>
+    </div>
+    <div class="col-md-6 d-flex align-items-center">
+      <div class="form-check mt-3">
+        <input class="form-check-input" type="checkbox" name="emiteCertificado" value="true" id="certCheck" checked>
+        <label class="form-check-label fw-bold small text-dark" for="certCheck">Emite Certificado Oficial al Aprobar</label>
+      </div>
+    </div>
+  </div>
+  <div class="pt-3 border-top d-flex justify-content-end gap-3">
+    <a th:href="@{/cursos}" class="wf-btn wf-btn-outline">Cancelar</a>
+    <button type="submit" class="wf-btn wf-btn-primary"><i class="fa-solid fa-floppy-disk me-1"></i> Guardar Curso</button>
+  </div>
+</form>
+</div>
+</div>
     
                     </div>
                 </div>
