@@ -594,20 +594,23 @@ a:hover {
             flex-direction: column;
             overflow-x: hidden;
             overflow-y: auto;
+            margin: 0;
+            padding: 0;
         }
 
         .cu-page-container {
-            max-width: 1320px;
             width: 100%;
-            margin: 20px auto 40px auto;
-            padding: 0 20px;
+            margin: 0;
+            padding: 0;
             flex: 1;
+            display: flex;
+            flex-direction: column;
         }
 
         @media (max-width: 768px) {
             .cu-page-container {
-                padding: 0 10px;
-                margin: 10px auto 25px auto;
+                padding: 0;
+                margin: 0;
             }
         }
 
@@ -743,39 +746,37 @@ a:hover {
         /* Marco de Pantalla / Screen Frame Oficial */
         .screen-frame {
             width: 100%;
-            min-height: calc(100vh - 80px);
-            background: #FFFFFF;
-            border-radius: 12px;
-            border: 1px solid #CBD5E1;
-            box-shadow: 0 10px 30px rgba(8, 20, 38, 0.06);
+            min-height: 100vh;
+            background: #F4F6F9;
+            border-radius: 0;
+            border: none;
+            box-shadow: none;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
-            margin-bottom: 20px;
+            flex: 1;
+            margin: 0;
         }
 
         /* Top Navbar Oficial (Navy Header) */
         .wf-top-navbar {
-            min-height: 60px;
+            min-height: 64px;
             background: var(--wf-navy-header);
-            padding: 10px 24px;
+            padding: 10px 32px;
             display: flex;
             flex-wrap: wrap;
             align-items: center;
             justify-content: space-between;
-            position: relative;
-            z-index: 100;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
             border-bottom: 1px solid #142844;
             gap: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
 
         @media (max-width: 768px) {
-            .screen-frame {
-                border-radius: 8px;
-                min-height: auto;
-            }
             .wf-top-navbar {
-                padding: 10px 14px;
+                padding: 10px 16px;
             }
             .wf-top-nav-links {
                 display: none !important;
