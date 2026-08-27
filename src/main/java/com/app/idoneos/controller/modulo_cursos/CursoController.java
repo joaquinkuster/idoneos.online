@@ -419,7 +419,7 @@ public class CursoController {
      * CU-12 — Registrar cohorte (POST).
      */
     @PostMapping("/cohortes/guardar")
-    public String guardarCohorte(@RequestParam Integer programaId,
+    public String guardarCohorte(@RequestParam(required = false) Integer programaId,
                                  @RequestParam String fechaInicioInscripcion,
                                  @RequestParam String fechaFinInscripcion,
                                  @RequestParam(required = false) String fechaInicioDictado,
@@ -428,13 +428,16 @@ public class CursoController {
                                  @RequestParam(required = false) Integer cupoMaximo,
                                  RedirectAttributes ra) {
         try {
+            if (programaId == null) {
+                programaId = 1; // Fallback al programa por defecto
+            }
             cohorteService.registrarCohorte(programaId, fechaInicioInscripcion, fechaFinInscripcion,
                     fechaInicioDictado, fechaFinDictado, semanasAcceso, cupoMaximo);
             ra.addFlashAttribute("mensaje", "Cohorte registrada correctamente.");
-            return "redirect:/cursos/cohortes?programaId=" + programaId;
+            return "redirect:/cursos/cohortes";
         } catch (Exception e) {
             ra.addFlashAttribute("error", e.getMessage());
-            return "redirect:/cursos/cohortes/nueva?programaId=" + programaId;
+            return "redirect:/cursos/cohortes";
         }
     }
 

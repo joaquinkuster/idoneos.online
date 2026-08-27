@@ -38,6 +38,14 @@
                     </div>
                     
                     <div class="d-flex align-items-center gap-2">
+                        <a th:href="@{/cursos/categorias}" class="wf-btn wf-btn-outline text-white" style="border-color: rgba(255,255,255,0.3); text-decoration: none;">
+                            <i class="fa-solid fa-tags me-1" style="color: var(--wf-gold);"></i>
+                            <span>Ver Categorías</span>
+                        </a>
+                        <a th:href="@{/cursos/cohortes}" class="wf-btn wf-btn-outline text-white" style="border-color: rgba(255,255,255,0.3); text-decoration: none;">
+                            <i class="fa-solid fa-calendar-days me-1" style="color: var(--wf-gold);"></i>
+                            <span>Ver Cohortes</span>
+                        </a>
                         <a th:href="@{/cursos/nuevo}" class="wf-btn-gold text-decoration-none">
                             <i class="fa-solid fa-plus"></i>
                             <span>Nuevo Curso</span>
@@ -65,7 +73,7 @@
           </div>
           <div class="col-md-3">
             <div class="d-flex align-items-center gap-2">
-              <button type="submit" class="wf-btn wf-btn-primary w-100">Buscar Cursos</button>
+              <button type="submit" class="wf-btn wf-btn-primary w-100"><i class="fa-solid fa-magnifying-glass me-1"></i> <span>Buscar Cursos</span></button>
             </div>
           </div>
         </form>

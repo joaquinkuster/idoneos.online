@@ -43,19 +43,19 @@
                     
                     
                     
-                        <a th:href="@{/academico/unidades/nueva}" class="wf-btn-gold" style="padding: 6px 14px; font-size: 11px; height: 32px;">
+                        <button type="button" class="wf-btn-gold border-0" data-bs-toggle="modal" data-bs-target="#modalNuevaUnidad" style="padding: 6px 14px; font-size: 11px; height: 32px;">
                             <i class="fa-solid fa-plus"></i>
                             <span>Nueva Unidad</span>
-                        </a>
+                        </button>
                         
                         <a th:href="@{/evaluaciones/pools/nuevo}" class="wf-btn-gold" style="padding: 6px 14px; font-size: 11px; height: 32px;">
                             <i class="fa-solid fa-list-check"></i>
                             <span>Nuevo Pool</span>
                         </a>
-                        <a th:href="@{/clases-vivo/nueva}" class="wf-btn-gold" style="padding: 6px 14px; font-size: 11px; height: 32px;">
+                        <button type="button" class="wf-btn-gold border-0" data-bs-toggle="modal" data-bs-target="#modalProgramarClase" style="padding: 6px 14px; font-size: 11px; height: 32px;">
                             <i class="fa-solid fa-video"></i>
                             <span>Programar clase en vivo</span>
-                        </a>
+                        </button>
                     
                     
                     
@@ -265,12 +265,11 @@
 
             <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
               <div class="d-flex align-items-center gap-3">
-                <a th:href="@{/academico/materiales/nuevo}" class="wf-link d-flex align-items-center gap-2" style="font-size: 12px; font-weight: 700; color: #081426;">
+                <button type="button" class="btn p-0 border-0 bg-transparent wf-link d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#modalSubirMaterial" style="font-size: 12px; font-weight: 700; color: #081426;">
                   <i class="fa-solid fa-plus-circle" style="color: var(--wf-gold); font-size: 16px;"></i>
                   <span>Añade una actividad o un recurso</span>
-                </a>
+                </button>
               </div>
-              
             </div>
           </div>
         </div>
@@ -294,6 +293,186 @@
                 </div>
             
         </div>
+
+      <!-- =========================================================================
+           MODALES DINÁMICOS EN EL AULA VIRTUAL (CU-20, CU-28, CU-66)
+           ========================================================================= -->
+
+      <!-- Modal 1: Agregar Unidad (CU-20 - 100% Fiel al Wireframe Oficial) -->
+      <div class="modal fade" id="modalNuevaUnidad" tabindex="-1" aria-labelledby="modalNuevaUnidadLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+          <div class="modal-content" style="border-radius: 12px; border: 1px solid #CBD5E1; box-shadow: 0 20px 50px rgba(8, 20, 38, 0.15); overflow: hidden;">
+            <div class="p-4 bg-white">
+              <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+                <div>
+                  <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Agregar Unidad Pedagógica</h3>
+                  <p class="small text-muted" style="margin: 3px 0 0;">Incorpore un nuevo módulo al cronograma académico del programa.</p>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                  <span class="wf-badge status-active" style="background: rgba(212, 160, 61, 0.15); color: var(--wf-gold-text); border: 1px solid var(--wf-gold); font-size: 11px; font-weight: 700;">FORMULARIO DE ALTA</span>
+                  <button type="button" class="btn-close ms-2" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+              </div>
+
+              <form th:action="@{/academico/unidades/guardar}" method="post">
+                <input type="hidden" name="cursoId" th:value="${curso != null ? curso.id : 1}">
+                <div class="row g-3">
+                  <div class="col-12">
+                    <label class="wf-label">TÍTULO DE LA SECCIÓN / UNIDAD</label>
+                    <input type="text" name="titulo" class="wf-input" placeholder="Unidad 5: Futuros y Opciones Financieras" required>
+                  </div>
+                  <div class="col-12">
+                    <label class="wf-label">DESCRIPCIÓN DE OBJETIVOS</label>
+                    <textarea name="descripcion" class="wf-input" rows="2" placeholder="Comprensión de coberturas con contratos de futuros y estrategias de opciones (Calls y Puts)." required></textarea>
+                  </div>
+                  <div class="col-12">
+                    <label class="wf-label">CONTENIDO TEMÁTICO DETALLADO</label>
+                    <textarea name="contenido" class="wf-input" rows="3" placeholder="1. Mercados de derivados (Matba Rofex) • 2. Cobertura vs especulación • 3. Valuación Black-Scholes • 4. Garantías y liquidación diaria."></textarea>
+                  </div>
+                  <div class="col-12">
+                    <label class="wf-label">REUTILIZAR UNIDAD DE OTRO PROGRAMA (OPCIONAL)</label>
+                    <select class="wf-input">
+                      <option selected>-- No reutilizar (Crear nueva unidad) --</option>
+                      <option th:each="u : ${unidades}" th:value="${u.id}" th:text="${u.titulo}">Unidad existente</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="d-flex justify-content-end gap-3 mt-4 pt-3 border-top">
+                  <button type="button" class="wf-btn wf-btn-outline" data-bs-dismiss="modal"><i class="fa-solid fa-arrow-left me-1"></i> <span>Cancelar / Volver</span></button>
+                  <button type="submit" class="wf-btn wf-btn-primary" style="background: #081426; color: #FFFFFF; border-color: #081426; font-weight: 700;">
+                    <i class="fa-solid fa-check me-1"></i> Agregar Unidad
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal 2: Subir Material de Estudio (CU-28 - 100% Fiel al Wireframe Oficial) -->
+      <div class="modal fade" id="modalSubirMaterial" tabindex="-1" aria-labelledby="modalSubirMaterialLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+          <div class="modal-content" style="border-radius: 12px; border: 1px solid #CBD5E1; box-shadow: 0 20px 50px rgba(8, 20, 38, 0.15); overflow: hidden;">
+            <div class="p-4 bg-white">
+              <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+                <div>
+                  <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Subir Material de Estudio</h3>
+                  <p class="small text-muted" style="margin: 3px 0 0;">Unidad 2: Instrumentos de Renta Fija</p>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                  <span class="wf-badge" style="background: rgba(212, 160, 61, 0.15); color: var(--wf-gold-text); border: 1px solid var(--wf-gold); font-size: 11px; font-weight: 700;">NUEVO RECURSO</span>
+                  <button type="button" class="btn-close ms-2" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+              </div>
+
+              <form th:action="@{/academico/materiales/guardar}" method="post" enctype="multipart/form-data">
+                <input type="hidden" name="cursoId" th:value="${curso != null ? curso.id : 1}">
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <label class="wf-label">TIPO DE MATERIAL</label>
+                    <select name="tipoMaterialId" class="wf-input" required>
+                      <option value="1" selected>Documento PDF / Presentación</option>
+                      <option value="2">Planilla de Cálculo (Excel / CSV)</option>
+                      <option value="3">Enlace Externo / Video</option>
+                    </select>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="wf-label">TÍTULO DEL RECURSO</label>
+                    <input type="text" name="titulo" class="wf-input" placeholder="Guía Práctica: Cálculo de TIR y Duration de Bonos" required>
+                  </div>
+
+                  <div class="col-12">
+                    <label class="wf-label">ARCHIVO O DOCUMENTO ADJUNTO</label>
+                    <div class="d-flex align-items-center gap-2">
+                      <input type="text" name="archivoUrl" class="wf-input flex-grow-1" placeholder="guia_practica_renta_fija_2026.pdf">
+                      <button type="button" class="wf-btn wf-btn-outline" style="white-space: nowrap;">
+                        <i class="fa-solid fa-folder-open me-1"></i> Examinar...
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="col-12">
+                    <div class="p-3 bg-light rounded border d-flex justify-content-between align-items-center">
+                      <div>
+                        <strong>Estado de Visibilidad para Alumnos</strong>
+                        <p class="small text-muted m-0">Permite que el material sea visible inmediatamente o permanezca oculto como borrador.</p>
+                      </div>
+                      <label class="d-flex align-items-center gap-2 cursor-pointer mb-0">
+                        <input type="checkbox" name="visible" checked style="width: 18px; height: 18px; accent-color: var(--wf-gold);">
+                        <span class="small fw-bold">Visible</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-3 mt-4 pt-3 border-top">
+                  <button type="button" class="wf-btn wf-btn-outline" data-bs-dismiss="modal"><i class="fa-solid fa-arrow-left me-1"></i> <span>Cancelar / Volver</span></button>
+                  <button type="submit" class="wf-btn wf-btn-primary" style="background: #081426; color: #FFFFFF; border-color: #081426; font-weight: 700;">
+                    <i class="fa-solid fa-check me-1"></i> Agregar
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal 3: Programar Clase en Vivo (CU-66 - 100% Fiel al Wireframe Oficial) -->
+      <div class="modal fade" id="modalProgramarClase" tabindex="-1" aria-labelledby="modalProgramarClaseLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+          <div class="modal-content" style="border-radius: 12px; border: 1px solid #CBD5E1; box-shadow: 0 20px 50px rgba(8, 20, 38, 0.15); overflow: hidden;">
+            <div class="p-4 bg-white">
+              <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+                <div>
+                  <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Programar Clase en Vivo</h3>
+                  <p class="small text-muted" style="margin: 3px 0 0;">Defina la sesión sincrónica de videoconferencia para la cohorte.</p>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                  <span class="wf-badge status-active" style="background: rgba(212, 160, 61, 0.15); color: var(--wf-gold-text); border: 1px solid var(--wf-gold); font-size: 11px; font-weight: 700;">NUEVA SESIÓN</span>
+                  <button type="button" class="btn-close ms-2" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+              </div>
+
+              <form th:action="@{/clases-vivo/guardar}" method="post">
+                <input type="hidden" name="cursoId" th:value="${curso != null ? curso.id : 1}">
+                <div class="row g-3">
+                  <div class="col-md-8">
+                    <label class="wf-label">TÍTULO DE LA CLASE</label>
+                    <input type="text" name="titulo" class="wf-input" placeholder="Taller en Vivo: Análisis de Curvas y Duration en Tiempo Real" required>
+                  </div>
+                  <div class="col-md-4">
+                    <label class="wf-label">COHORTE DESTINATARIA</label>
+                    <select name="cohorteId" class="wf-input">
+                      <option selected>Cohorte 2026-1</option>
+                      <option>Cohorte 2026-2</option>
+                    </select>
+                  </div>
+
+                  <div class="col-md-4">
+                    <label class="wf-label">FECHA Y HORA DE INICIO</label>
+                    <input type="datetime-local" name="fechaInicio" class="wf-input" value="2026-04-15T19:00" required>
+                  </div>
+                  <div class="col-md-4">
+                    <label class="wf-label">DURACIÓN ESTIMADA (MINUTOS)</label>
+                    <input type="number" name="duracionMinutos" class="wf-input" value="90" required>
+                  </div>
+                  <div class="col-md-4">
+                    <label class="wf-label">ENLACE A SALA DE VIDEOCONFERENCIA</label>
+                    <input type="url" name="enlaceTransmision" class="wf-input" placeholder="https://meet.google.com/ido-bour-cnv" required>
+                  </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-3 mt-4 pt-3 border-top">
+                  <button type="button" class="wf-btn wf-btn-outline" data-bs-dismiss="modal"><i class="fa-solid fa-arrow-left me-1"></i> <span>Cancelar / Volver</span></button>
+                  <button type="submit" class="wf-btn wf-btn-primary" style="background: #081426; color: #FFFFFF; border-color: #081426; font-weight: 700;">
+                    <i class="fa-solid fa-video me-1"></i> Programar Clase
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Bootstrap Bundle JS -->

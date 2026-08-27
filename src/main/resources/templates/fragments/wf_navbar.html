@@ -1,9 +1,15 @@
 <!-- Navbar Oficial Dinámica de Idóneos Online -->
 <div th:fragment="wf-top-navbar" class="wf-top-navbar">
+    <!-- Contenedor Global de SweetAlert Toasts Animados -->
+    <div id="wfToastContainer" class="wf-toast-container"></div>
+
     <div class="wf-brand">
-        <a th:href="@{/inicio}" class="d-flex flex-column text-decoration-none">
-            <div class="wf-brand-logo"><i class="fa-solid fa-chart-line" style="color: var(--wf-gold);"></i> Idóneos <span>Online</span></div>
-            <div class="wf-brand-sub">FINANZAS • ECONOMÍA • MERCADO DE CAPITALES</div>
+        <a th:href="@{/inicio}" class="d-flex align-items-center gap-3 text-decoration-none">
+            <img th:src="@{/img/logos/image.png}" src="/img/logos/image.png" alt="Idóneos Online Logo" style="height: 38px; width: auto; object-fit: contain;">
+            <div class="d-flex flex-column">
+                <div class="wf-brand-logo">Idóneos <span>Online</span></div>
+                <div class="wf-brand-sub">FINANZAS • ECONOMÍA • MERCADO DE CAPITALES</div>
+            </div>
         </a>
     </div>
 
@@ -83,6 +89,9 @@
                 <!-- Sección Exclusiva para Administradores -->
                 <div class="wf-dropdown-section" th:if="${usuario.rol != null and usuario.rol.nombre == 'Administrador'}">
                     <div class="wf-dropdown-section-title">Administración del Sistema</div>
+                    <a th:href="@{/cursos/categorias}" class="wf-dropdown-item-btn"><i class="fa-solid fa-tags me-2 text-gold"></i><span>Categorías de Cursos</span></a>
+                    <a th:href="@{/cursos/cohortes}" class="wf-dropdown-item-btn"><i class="fa-solid fa-graduation-cap me-2 text-gold"></i><span>Cohortes y Períodos</span></a>
+                    <a th:href="@{/inscripciones/descuentos}" class="wf-dropdown-item-btn"><i class="fa-solid fa-percent me-2 text-gold"></i><span>Cupones y Descuentos</span></a>
                     <a th:href="@{/seguridad/usuarios}" class="wf-dropdown-item-btn"><i class="fa-solid fa-users me-2 text-muted"></i><span>Gestión de usuarios</span></a>
                     <a th:href="@{/inscripciones}" class="wf-dropdown-item-btn"><i class="fa-solid fa-receipt me-2 text-muted"></i><span>Inscripciones y Pagos</span></a>
                     <a th:href="@{/auditoria}" class="wf-dropdown-item-btn"><i class="fa-solid fa-shield-halved me-2 text-muted"></i><span>Auditoría de eventos</span></a>
@@ -140,8 +149,9 @@
             const capsule = document.getElementById('wfNavCapsule');
             if (!navLinksContainer || !capsule) return;
 
-            const links = navLinksContainer.querySelectorAll('.wf-top-nav-link, .wf-top-nav-pill');
+            const links = navLinksContainer.querySelectorAll('.wf-top-nav-link');
             const currentPath = window.location.pathname;
+
             let activeElement = null;
 
             links.forEach(link => {
@@ -220,5 +230,54 @@
                 window.location.href = '/academico/curso/1';
             }
         }
+
+        // Helper global para disparar SweetAlerts Toasts en operaciones básicas del sistema
+        window.showIdoneosToast = function(tipo, titulo, mensaje) {
+            const container = document.getElementById('wfToastContainer');
+            if (!container) return;
+
+            const toast = document.createElement('div');
+            toast.className = `wf-toast wf-toast-${tipo}`;
+
+            let iconHtml = '<i class="fa-solid fa-circle-check"></i>';
+            if (tipo === 'error') iconHtml = '<i class="fa-solid fa-circle-exclamation"></i>';
+            if (tipo === 'info') iconHtml = '<i class="fa-solid fa-circle-info"></i>';
+
+            toast.innerHTML = `
+                <div class="wf-toast-icon-wrap">${iconHtml}</div>
+                <div class="wf-toast-content">
+                    <div class="wf-toast-title">${titulo}</div>
+                    <div class="wf-toast-message">${mensaje}</div>
+                </div>
+                <button type="button" class="wf-toast-close" onclick="this.parentElement.remove()"><i class="fa-solid fa-xmark"></i></button>
+            `;
+
+            container.appendChild(toast);
+            requestAnimationFrame(() => toast.classList.add('show'));
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 400);
+            }, 4500);
+        };
+    </script>
+
+    <!-- Disparar notificación SOLO cuando el servidor Spring Boot envía un mensaje explícito -->
+    <script th:if="${mensaje != null and !#strings.isEmpty(mensaje)}" th:inline="javascript">
+        (function() {
+            var msg = /*[[${mensaje}]]*/ '';
+            var title = '¡Operación Exitosa!';
+            if (msg.toLowerCase().includes('registrad') || msg.toLowerCase().includes('cread')) title = 'Guardado Exitoso';
+            if (msg.toLowerCase().includes('modificad') || msg.toLowerCase().includes('actualizad')) title = 'Actualización Exitosa';
+            if (msg.toLowerCase().includes('eliminad') || msg.toLowerCase().includes('baja')) title = 'Eliminación Exitosa';
+            if (msg.toLowerCase().includes('bienvenid')) title = '¡Bienvenido de vuelta!';
+            showIdoneosToast('success', title, msg);
+        })();
+    </script>
+    <script th:if="${error != null and !#strings.isEmpty(error)}" th:inline="javascript">
+        (function() {
+            var err = /*[[${error}]]*/ '';
+            showIdoneosToast('error', 'Atención', err);
+        })();
     </script>
 </div>

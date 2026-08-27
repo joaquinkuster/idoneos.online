@@ -5,6 +5,7 @@
    Diseño Full-Width, Fluido y 100% Responsivo.
    ========================================================================== */
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800;900&display=swap');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css');
 
 :root {
     --wf-navy-dark: #081426;
@@ -26,10 +27,13 @@
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+}
+
+body, input, button, select, textarea {
+    font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 body {
@@ -1525,4 +1529,120 @@ textarea.wf-input {
     .wf-course-card-footer {
         padding: 12px 16px 16px;
     }
+}
+
+/* ==========================================================================
+   SWEET TOAST NOTIFICATION — LATERAL DERECHA ANIMADA & ELEGANTE
+   ========================================================================== */
+.wf-toast-container {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    z-index: 99999;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    pointer-events: none;
+}
+
+.wf-toast {
+    pointer-events: auto;
+    min-width: 320px;
+    max-width: 420px;
+    background: #FFFFFF;
+    border-radius: 12px;
+    padding: 16px 20px;
+    box-shadow: 0 16px 36px rgba(8, 20, 38, 0.18), 0 4px 12px rgba(8, 20, 38, 0.08);
+    border-left: 5px solid var(--wf-gold);
+    border-top: 1px solid #E2E8F0;
+    border-right: 1px solid #E2E8F0;
+    border-bottom: 1px solid #E2E8F0;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    transform: translateX(120%);
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.wf-toast.show {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+.wf-toast-icon-wrap {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 16px;
+}
+
+.wf-toast-success {
+    border-left-color: #10B981;
+}
+.wf-toast-success .wf-toast-icon-wrap {
+    background: #ECFDF5;
+    color: #059669;
+}
+
+.wf-toast-error {
+    border-left-color: #EF4444;
+}
+.wf-toast-error .wf-toast-icon-wrap {
+    background: #FEF2F2;
+    color: #DC2626;
+}
+
+.wf-toast-info {
+    border-left-color: var(--wf-gold);
+}
+.wf-toast-info .wf-toast-icon-wrap {
+    background: #FFFBEB;
+    color: #D97706;
+}
+
+.wf-toast-content {
+    flex-grow: 1;
+}
+
+.wf-toast-title {
+    font-size: 13px;
+    font-weight: 800;
+    color: #081426;
+    margin-bottom: 2px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.wf-toast-message {
+    font-size: 12px;
+    color: #475569;
+    line-height: 1.4;
+}
+
+.wf-toast-dss {
+    font-size: 10px;
+    font-family: monospace;
+    color: #0284C7;
+    margin-top: 4px;
+    font-weight: 600;
+}
+
+.wf-toast-close {
+    background: transparent;
+    border: none;
+    color: #94A3B8;
+    cursor: pointer;
+    padding: 0;
+    font-size: 14px;
+    transition: color 0.15s;
+}
+
+.wf-toast-close:hover {
+    color: #081426;
 }
