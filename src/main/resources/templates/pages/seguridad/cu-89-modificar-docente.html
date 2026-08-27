@@ -47,23 +47,23 @@
                     </div>
 
                     <div class="wf-top-nav-links">
-                        <a href="#CU-06" class="wf-top-nav-link">Inicio</a>
-                        <a href="#CU-06" class="wf-top-nav-link">Catálogo de Cursos</a>
+                        <a th:href="@{/cursos/catalogo}" class="wf-top-nav-link">Inicio</a>
+                        <a th:href="@{/cursos/catalogo}" class="wf-top-nav-link">Catálogo de Cursos</a>
                         <span class="wf-top-nav-pill">Panel Administrador</span>
-                        <a href="#CU-99" class="wf-top-nav-link">Acerca de</a>
+                        <a th:href="@{/configuracion}" class="wf-top-nav-link">Acerca de</a>
 
                         <div class="wf-user-menu-wrapper">
                             <div class="wf-user-trigger-pill" onclick="toggleUserDropdown(this)">
-                                <div class="user-avatar-circle">AG</div>
-                                <span style="font-size: 11px; font-weight: 700;">Admin General</span>
+                                <div class="user-avatar-circle" th:text="${usuario != null ? #strings.substring(usuario.nombre,0,1) + #strings.substring(usuario.apellido,0,1) : 'AG'}">AG</div>
+                                <span style="font-size: 11px; font-weight: 700;" th:text="${usuario != null ? usuario.nombreCompleto : 'Admin General'}">Admin General</span>
                                 <i class="fa-solid fa-chevron-down w-3 h-3 text-white ms-1"></i>
                             </div>
 
                             <div class="wf-user-floating-dropdown">
                                 <div class="wf-dropdown-user-header">
-                                    <div class="wf-dropdown-user-name">Admin General</div>
-                                    <div class="wf-dropdown-user-role">Administrador</div>
-                                    <div class="wf-dropdown-user-email">admin@idoneos.online</div>
+                                    <div class="wf-dropdown-user-name" th:text="${usuario != null ? usuario.nombreCompleto : 'Admin General'}">Admin General</div>
+                                    <div class="wf-dropdown-user-role" th:text="${usuario != null and usuario.rol != null ? usuario.rol.nombre : 'Administrador'}">Administrador</div>
+                                    <div class="wf-dropdown-user-email" th:text="${usuario != null ? usuario.correo : 'admin@idoneos.online'}">admin@idoneos.online</div>
                                 </div>
   
                                 <div class="wf-dropdown-section">
@@ -79,35 +79,35 @@
                                 <div class="wf-dropdown-section">
                                     <div class="wf-dropdown-section-title">Administración del Sistema</div>
     
-                                    <a href="#CU-01" class="wf-dropdown-item-btn ">
+                                    <a th:href="@{/cursos}" class="wf-dropdown-item-btn ">
                                         <span>Gestión de cursos</span>
                                     </a>
         
-                                    <a href="#CU-11" class="wf-dropdown-item-btn ">
+                                    <a th:href="@{/cursos/cohortes}" class="wf-dropdown-item-btn ">
                                         <span>Cohortes y programas</span>
                                     </a>
         
-                                    <a href="#CU-82" class="wf-dropdown-item-btn ">
+                                    <a th:href="@{/seguridad/usuarios}" class="wf-dropdown-item-btn ">
                                         <span>Gestión de usuarios</span>
                                     </a>
         
-                                    <a href="#CU-95" class="wf-dropdown-item-btn ">
+                                    <a th:href="@{/auditoria}" class="wf-dropdown-item-btn ">
                                         <span>Auditoría de eventos</span>
                                     </a>
         
-                                    <a href="#CU-96" class="wf-dropdown-item-btn ">
+                                    <a th:href="@{/reportes/alumnos}" class="wf-dropdown-item-btn ">
                                         <span>Informe de alumnos</span>
                                     </a>
         
-                                    <a href="#CU-97" class="wf-dropdown-item-btn ">
+                                    <a th:href="@{/reportes/ingresos}" class="wf-dropdown-item-btn ">
                                         <span>Informe de ingresos</span>
                                     </a>
         
-                                    <a href="#CU-98" class="wf-dropdown-item-btn ">
+                                    <a th:href="@{/reportes/estadisticas}" class="wf-dropdown-item-btn ">
                                         <span>Dashboard de estadísticas</span>
                                     </a>
         
-                                    <a href="#CU-99" class="wf-dropdown-item-btn ">
+                                    <a th:href="@{/configuracion}" class="wf-dropdown-item-btn ">
                                         <span>Configuración general</span>
                                     </a>
         
@@ -116,15 +116,15 @@
                                 <div class="wf-dropdown-section">
                                     <div class="wf-dropdown-section-title">Cuenta & Seguridad</div>
     
-                                    <a href="#CU-86" class="wf-dropdown-item-btn ">
+                                    <a th:href="@{/seguridad/perfil}" class="wf-dropdown-item-btn ">
                                         <span>Ver perfil</span>
                                     </a>
         
-                                    <a href="#CU-93" class="wf-dropdown-item-btn ">
+                                    <a th:href="@{/seguridad/sesiones}" class="wf-dropdown-item-btn ">
                                         <span>Seguridad y sesiones activas</span>
                                     </a>
         
-                                    <a href="#CU-91" class="wf-dropdown-item-btn text-danger">
+                                    <a th:href="@{/seguridad/logout}" class="wf-dropdown-item-btn text-danger">
                                         <span>Cerrar sesión</span>
                                     </a>
         
@@ -225,7 +225,7 @@
       </div>
 
       <div class="wf-card-footer d-flex justify-content-end gap-3 mt-4 pt-3 border-top">
-        <a href="#CU-87" class="wf-btn wf-btn-outline">Cancelar / Volver</a>
+        <a th:href="@{/seguridad/perfil/editar}" class="wf-btn wf-btn-outline">Cancelar / Volver</a>
         <div class="d-flex align-items-center gap-2">
           <button class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Guardar Cambios</button>
           <span class="pin-badge">G</span>
