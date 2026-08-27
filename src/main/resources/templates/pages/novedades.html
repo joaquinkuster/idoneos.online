@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${titulo != null ? titulo : 'Novedades & Actualizaciones | Idóneos Online'}">Novedades & Actualizaciones | Idóneos Online</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome 6 Pro / Solid Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Estilos del Sistema Centralizados -->
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body class="wf-canvas-bg">
+
+    <div class="cu-page-container">
+        <div class="screen-frame">
+
+            <!-- Top Navbar Oficial Dinámica -->
+            <div th:replace="~{fragments/wf_navbar :: wf-top-navbar}"></div>
+
+            <!-- Hero Banner Contextual Superior (Navy) -->
+            <div class="wf-hero-banner">
+                <div>
+                    <div class="wf-hero-tag">
+                        <i class="fa-solid fa-bullhorn" style="color: var(--wf-gold);"></i>
+                        <span>COMUNICADOS OFICIALES & ACTUALIZACIONES DE MERCADO</span>
+                    </div>
+                    <h2 class="wf-hero-title">Novedades & Anuncios Académicos</h2>
+                    <p class="wf-hero-desc">Últimos comunicados sobre regulaciones CNV, lanzamientos de cohortes y clases especiales</p>
+                </div>
+                
+                <div class="d-flex align-items-center gap-2">
+                    <a th:href="@{/cursos/catalogo}" class="wf-btn-gold text-decoration-none">
+                        <i class="fa-solid fa-compass"></i>
+                        <span>Explorar Cursos</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="wf-body">
+                <div class="wf-main-content">
+                    
+                    <div class="row g-4">
+                        <div class="col-lg-8">
+                            
+                            <!-- Noticia 1 -->
+                            <div class="wf-card mb-4">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="wf-badge" style="background: rgba(212, 160, 61, 0.15); color: var(--wf-gold-text); border-color: var(--wf-gold);">Regulación CNV</span>
+                                    <small class="text-muted"><i class="fa-regular fa-clock me-1"></i> Publicado recientemente</small>
+                                </div>
+                                <h4 class="fw-bold mb-2" style="color: #081426;">Actualización del Marco Normativo para Idóneos en Mercado de Capitales</h4>
+                                <p class="text-muted" style="line-height: 1.6;">
+                                    Se han incorporado las últimas resoluciones generales de la Comisión Nacional de Valores (CNV) en los programas de 
+                                    <strong>Mercado de Capitales Argentino</strong> y <strong>Planificación Fiscal</strong>. Los contenidos de las unidades temáticas 
+                                    y las preguntas de autoevaluación ya reflejan el marco tributario y operativo vigente.
+                                </p>
+                            </div>
+
+                            <!-- Noticia 2 -->
+                            <div class="wf-card mb-4">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="wf-badge" style="background: rgba(14, 165, 233, 0.15); color: #0284C7; border-color: #38BDF8;">Innovación IA</span>
+                                    <small class="text-muted"><i class="fa-regular fa-clock me-1"></i> Nueva funcionalidad</small>
+                                </div>
+                                <h4 class="fw-bold mb-2" style="color: #081426;">Lanzamiento del Asistente IA para Generación de Autoevaluaciones</h4>
+                                <p class="text-muted" style="line-height: 1.6;">
+                                    El cuerpo docente ahora dispone del motor de Inteligencia Artificial para generar automáticamente bancos de preguntas y 
+                                    resúmenes pedagógicos por unidad, optimizando la experiencia de aprendizaje adaptativo.
+                                </p>
+                            </div>
+
+                            <!-- Noticia 3 -->
+                            <div class="wf-card">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="wf-badge status-active">Nueva Cohorte</span>
+                                    <small class="text-muted"><i class="fa-regular fa-clock me-1"></i> Inscripciones Abiertas</small>
+                                </div>
+                                <h4 class="fw-bold mb-2" style="color: #081426;">Apertura de Inscripciones para Cohorte Primavera 2026</h4>
+                                <p class="text-muted" style="line-height: 1.6;">
+                                    Ya se encuentran abiertas las vacantes para las nuevas cohortes de los programas de <strong>Análisis Macroeconómico de Coyuntura</strong> 
+                                    y <strong>Finanzas Corporativas</strong>. Clases grabadas, masterclasses en vivo y certificación oficial al completar el 100% del progreso.
+                                </p>
+                            </div>
+
+                        </div>
+
+                        <div class="col-lg-4">
+                            <div class="wf-card mb-4">
+                                <h5 class="fw-bold mb-3" style="color: #081426;"><i class="fa-solid fa-bell me-2 text-gold"></i> Canales de Aviso</h5>
+                                <p class="small text-muted mb-3">Recibe notificaciones automáticas sobre fechas de examen, clases en vivo y entrega de certificados.</p>
+                                <a th:href="@{/cursos/mis-cursos}" class="wf-btn wf-btn-outline w-100 mb-2">Ir a Mis Cursos</a>
+                                <a th:href="@{/cursos/catalogo}" class="wf-btn wf-btn-primary w-100">Explorar Catálogo</a>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Footer Oficial de Idóneos Online -->
+            <div class="wf-screen-footer">
+                <div>
+                    <strong>Idóneos <span>Online</span> S.A.S.</strong> • Plataforma de Educación Financiera, Economía & Mercado de Capitales
+                </div>
+                <div>
+                    FCEQyN — UNaM • Proyecto Software (LSI) / Trabajo Final (ASI)
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

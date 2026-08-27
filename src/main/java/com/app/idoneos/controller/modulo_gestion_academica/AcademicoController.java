@@ -291,7 +291,7 @@ public class AcademicoController {
     // CU-26 & CU-26b: AULA VIRTUAL Y MODO EDICIÓN
     // ─────────────────────────────────────────────────────────────
 
-    @GetMapping({"/aula", "/curso/{id}/aula"})
+    @GetMapping({"/aula", "/curso/{id}", "/curso/{id}/aula"})
     public String accederCurso(@PathVariable(value = "id", required = false) Integer id,
                                @RequestParam(value = "cursoId", required = false) Integer cursoIdParam,
                                Model model, Authentication auth, RedirectAttributes ra) {

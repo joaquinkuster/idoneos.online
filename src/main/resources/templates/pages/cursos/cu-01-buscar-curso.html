@@ -57,7 +57,7 @@
             </div>
           </div>
           <div class="col-md-4">
-            <label class="wf-label">Filtrar por Categoría</label>
+            <label class="wf-label">Filtrar por Categoría / Estado</label>
             <select name="categoriaId" class="wf-input">
               <option value="">Todas las categorías</option>
               <option th:each="cat : ${categorias}" th:value="${cat.id}" th:text="${cat.nombre}" th:selected="${categoriaSeleccionada != null and categoriaSeleccionada == cat.id}">Categoría</option>
@@ -77,35 +77,37 @@
             <div class="wf-course-thumb-icon"><i class="fa-solid fa-graduation-cap w-8 h-8 text-white"></i></div>
             <div class="wf-course-pills-row">
               <span class="wf-pill-tag" th:text="${curso.categoria != null ? curso.categoria.nombre : 'Mercado de Capitales'}">Categoría</span>
-              <span class="wf-pill-status" th:text="${curso.nivel != null ? curso.nivel.nombre : 'General'}">Nivel</span>
+              <span class="wf-pill-status">Sin cohortes abiertas</span>
             </div>
           </div>
           <div class="wf-course-card-body">
             <h4 class="wf-course-title" th:text="${curso.nombre}">Nombre Curso</h4>
             <p class="wf-course-desc" th:text="${curso.descripcion}">Descripción</p>
             <div class="wf-course-info-row">
-              <span>📄 <strong th:text="${curso.docente != null and curso.docente.usuario != null ? curso.docente.usuario.nombreCompleto : 'Docente'}">Docente</strong></span>
+              <span>📄 <span th:text="${curso.programas != null and !curso.programas.isEmpty() ? curso.programas.size() + ' Programas' : '1 Programas'}">1 Programas</span></span>
               <span class="wf-course-price" th:text="${curso.precio != null && curso.precio <= 0 ? 'GRATIS' : '$ ' + #numbers.formatDecimal(curso.precio != null ? curso.precio : 0, 1, 'POINT', 0, 'COMMA')}">$0</span>
             </div>
           </div>
           <div class="wf-course-card-footer">
             <div class="d-flex flex-column gap-2 w-100">
-              <a th:href="@{'/academico/aula?cursoId=' + ${curso.id}}" class="wf-btn wf-btn-sm wf-btn-primary w-100 d-flex align-items-center justify-content-center gap-2" style="background: #2563EB; border-color: #2563EB; color: #FFFFFF; font-weight: 700; height: 38px; text-decoration: none;">
+              <a th:href="@{'/academico/curso/' + ${curso.id}}" class="wf-btn wf-btn-sm wf-btn-primary w-100 d-flex align-items-center justify-content-center gap-2" style="background: #2563EB; border-color: #2563EB; color: #FFFFFF; font-weight: 700; height: 38px; text-decoration: none;">
                 <i class="fa-solid fa-arrow-right-to-bracket"></i>
                 <span>Ingresar al Curso</span>
               </a>
               <div class="d-flex align-items-center gap-2 w-100">
                 <a th:href="@{/evaluaciones/calificaciones}" class="wf-btn wf-btn-sm wf-btn-outline flex-grow-1 d-flex align-items-center justify-content-center gap-1" style="font-weight: 600; color: #081426; text-decoration: none;">
                   <i class="fa-solid fa-chart-simple text-primary"></i>
-                  <span>Calificaciones</span>
+                  <span>Ver Calificaciones</span>
                 </a>
+              </div>
+              <div class="d-flex align-items-center gap-2 w-100">
                 <a th:href="@{'/cursos/' + ${curso.id} + '/editar'}" class="wf-btn wf-btn-sm wf-btn-outline flex-grow-1 d-flex align-items-center justify-content-center gap-1" style="text-decoration: none;">
                   <i class="fa-solid fa-pen-to-square"></i>
-                  <span>Editar</span>
+                  <span>Editar Curso</span>
                 </a>
                 <a th:href="@{'/cursos/' + ${curso.id} + '/baja'}" class="wf-btn wf-btn-sm wf-btn-outline text-danger flex-grow-1 d-flex align-items-center justify-content-center gap-1" title="Dar de baja curso" style="text-decoration: none;">
                   <i class="fa-solid fa-trash me-1"></i>
-                  <span>Baja</span>
+                  <span>Dar de baja</span>
                 </a>
               </div>
             </div>

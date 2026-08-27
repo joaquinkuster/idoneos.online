@@ -139,7 +139,27 @@ i {
 .wf-top-nav-links {
     display: flex;
     align-items: center;
-    gap: 24px;
+    gap: 8px;
+    position: relative;
+    padding: 4px 6px;
+    border-radius: 30px;
+    background: rgba(15, 35, 61, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.wf-nav-sliding-capsule {
+    position: absolute;
+    top: 4px;
+    left: 0;
+    height: calc(100% - 8px);
+    background: linear-gradient(135deg, rgba(212, 160, 61, 0.2) 0%, rgba(228, 190, 108, 0.12) 100%);
+    border: 1.5px solid var(--wf-gold);
+    border-radius: 20px;
+    box-shadow: 0 0 14px rgba(212, 160, 61, 0.35), inset 0 0 8px rgba(212, 160, 61, 0.15);
+    transition: all 0.35s cubic-bezier(0.25, 1, 0.5, 1);
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0;
 }
 
 .wf-top-nav-link {
@@ -147,13 +167,24 @@ i {
     font-size: 13px;
     font-weight: 600;
     text-decoration: none;
-    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: color 0.25s ease, transform 0.2s ease;
     letter-spacing: -0.01em;
+    position: relative;
+    padding: 7px 16px;
+    border-radius: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
 }
 
 .wf-top-nav-link:hover {
     color: #FFFFFF;
-    transform: translateY(-1px);
+}
+
+.wf-top-nav-link.active {
+    color: #FFFFFF;
+    font-weight: 700;
 }
 
 .wf-top-nav-pill {
@@ -166,6 +197,42 @@ i {
     background: rgba(212, 160, 61, 0.1);
     letter-spacing: 0.2px;
     box-shadow: 0 2px 6px rgba(212, 160, 61, 0.12);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.wf-top-nav-pill::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(212, 160, 61, 0.25), transparent);
+    transition: left 0.5s ease;
+}
+
+.wf-top-nav-pill:hover {
+    background: rgba(212, 160, 61, 0.22);
+    border-color: var(--wf-gold);
+    color: #FFFFFF;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 14px rgba(212, 160, 61, 0.3);
+}
+
+.wf-top-nav-pill:hover::before {
+    left: 100%;
+}
+
+.wf-top-nav-pill:active {
+    transform: translateY(0);
+    box-shadow: 0 0 0 3px rgba(212, 160, 61, 0.35);
 }
 
 .wf-user-trigger-pill {
@@ -174,32 +241,64 @@ i {
     gap: 10px;
     padding: 4px 16px 4px 5px;
     border-radius: 24px;
-    border: 1px solid #1E3A5F;
+    border: 1.5px solid #1E3A5F;
     background: #0F233D;
     cursor: pointer;
     color: #FFFFFF;
-    transition: all 0.2s ease;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    position: relative;
+    user-select: none;
 }
 
 .wf-user-trigger-pill:hover {
     background: #142E52;
     border-color: var(--wf-gold);
-    transform: translateY(-1px);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(212, 160, 61, 0.25);
+}
+
+.wf-user-trigger-pill:active,
+.wf-user-trigger-pill.active {
+    background: #173660;
+    border-color: var(--wf-gold);
+    box-shadow: 0 0 0 3px rgba(212, 160, 61, 0.4), 0 4px 12px rgba(0,0,0,0.3);
+    transform: translateY(0);
+}
+
+.wf-user-trigger-pill .fa-chevron-down {
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.wf-user-trigger-pill.active .fa-chevron-down {
+    transform: rotate(180deg);
 }
 
 .user-avatar-circle {
-    width: 30px;
-    height: 30px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     background: linear-gradient(135deg, #E4BE6C 0%, #C59030 100%);
     color: #081426;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 11px;
+    font-size: 11.5px;
     font-weight: 800;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    border: 1.5px solid rgba(255, 255, 255, 0.2);
+}
+
+.wf-user-trigger-pill:hover .user-avatar-circle {
+    transform: scale(1.08) rotate(5deg);
+    box-shadow: 0 0 12px rgba(212, 160, 61, 0.6);
+    border-color: #FFFFFF;
+}
+
+.wf-user-trigger-pill.active .user-avatar-circle {
+    transform: scale(1.05);
+    box-shadow: 0 0 14px rgba(212, 160, 61, 0.8);
 }
 
 .wf-mobile-nav-toggle {
@@ -689,6 +788,83 @@ textarea.wf-input {
 }
 
 /* Moodle Style Activities & Resources */
+/* Switch Animado para Modo Edición */
+.wf-switch-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    background: rgba(212, 160, 61, 0.08);
+    border: 1px solid rgba(212, 160, 61, 0.3);
+    border-radius: 8px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.wf-switch-container:hover {
+    background: rgba(212, 160, 61, 0.15);
+    border-color: var(--wf-gold);
+}
+
+.wf-toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 22px;
+    flex-shrink: 0;
+}
+
+.wf-toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.wf-toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #CBD5E1;
+    transition: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    border-radius: 22px;
+}
+
+.wf-toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    border-radius: 50%;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+.wf-toggle-switch input:checked + .wf-toggle-slider {
+    background: linear-gradient(135deg, var(--wf-gold) 0%, #C59030 100%);
+    box-shadow: 0 0 8px rgba(212, 160, 61, 0.5);
+}
+
+.wf-toggle-switch input:checked + .wf-toggle-slider:before {
+    transform: translateX(22px);
+}
+
+.wf-dropdown-editing-toggle-box {
+    background: #F8FAFC;
+    border: 1px solid #CBD5E1;
+    border-radius: 4px;
+    padding: 6px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
 .moodle-activity-card {
     background: #FFFFFF;
     border: 1px solid #E2E8F0;
@@ -938,27 +1114,47 @@ textarea.wf-input {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 8px 12px;
+    padding: 9px 14px;
     font-size: 12.5px;
     font-weight: 600;
     color: #334155;
-    border-radius: 6px;
+    border-radius: 8px;
     text-decoration: none;
-    transition: all 0.15s;
+    transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.wf-dropdown-item-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 3px;
+    height: 100%;
+    background: var(--wf-gold);
+    transform: scaleY(0);
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    border-radius: 0 4px 4px 0;
 }
 
 .wf-dropdown-item-btn:hover {
-    background: #F1F5F9;
+    background: #F8FAFC;
     color: #081426;
+    transform: translateX(4px);
+    padding-left: 16px;
 }
 
-.wf-dropdown-item-btn.text-danger {
-    color: #DC2626;
-    font-weight: 700;
+.wf-dropdown-item-btn:hover::before {
+    transform: scaleY(1);
+}
+
+.wf-dropdown-item-btn.text-danger:hover::before {
+    background: #DC2626;
 }
 
 .wf-tab-btn {
-    padding: 10px 16px;
+    padding: 10px 18px;
     font-size: 13px;
     font-weight: 600;
     color: #64748B;
@@ -969,12 +1165,35 @@ textarea.wf-input {
     text-decoration: none;
     display: inline-flex;
     align-items: center;
-    transition: all 0.15s;
+    position: relative;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.wf-tab-btn::after {
+    content: '';
+    position: absolute;
+    bottom: -2.5px;
+    left: 0;
+    width: 100%;
+    height: 2.5px;
+    background: linear-gradient(90deg, var(--wf-gold) 0%, #E4BE6C 100%);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    border-radius: 2px;
+}
+
+.wf-tab-btn:hover {
+    color: #081426;
+}
+
+.wf-tab-btn:hover::after,
+.wf-tab-btn.active::after {
+    transform: scaleX(1);
 }
 
 .wf-tab-btn.active {
     color: #081426;
-    border-bottom-color: var(--wf-gold);
     font-weight: 800;
 }
 

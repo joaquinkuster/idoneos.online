@@ -13,16 +13,17 @@
     </button>
 
     <div class="wf-top-nav-links" id="wfNavLinks">
+        <!-- Floating Golden Sliding Capsule Indicator -->
+        <div class="wf-nav-sliding-capsule" id="wfNavCapsule"></div>
+
         <a th:href="@{/inicio}" class="wf-top-nav-link">Inicio</a>
         <a th:href="@{/cursos/catalogo}" class="wf-top-nav-link">Catálogo de Cursos</a>
         
         <!-- Enlace Mis Cursos para Alumnos -->
         <a th:if="${usuario != null and usuario.rol != null and usuario.rol.nombre == 'Alumno'}" th:href="@{/cursos/mis-cursos}" class="wf-top-nav-link">Mis Cursos</a>
         
-        <!-- Pill Contextual según Rol -->
-        <span th:if="${usuario != null and usuario.rol != null and usuario.rol.nombre == 'Administrador'}" class="wf-top-nav-pill">Panel Administrador</span>
-        <span th:if="${usuario != null and usuario.rol != null and usuario.rol.nombre == 'Docente'}" class="wf-top-nav-pill" style="background: rgba(228, 190, 108, 0.15); color: var(--wf-gold); border: 1px solid rgba(228, 190, 108, 0.3);">Panel Docente</span>
-        <span th:if="${usuario != null and usuario.rol != null and usuario.rol.nombre == 'Alumno'}" class="wf-top-nav-pill" style="background: rgba(16, 185, 129, 0.15); color: #10B981; border: 1px solid rgba(16, 185, 129, 0.3);">Aula Virtual</span>
+        <!-- Enlace Novedades -->
+        <a th:href="@{/novedades}" class="wf-top-nav-link">Novedades</a>
         
         <a th:href="@{/acercaDe}" class="wf-top-nav-link">Acerca de</a>
 
@@ -53,6 +54,21 @@
                     <a th:href="@{/cursos/mis-cursos}" class="wf-dropdown-item-btn"><i class="fa-solid fa-graduation-cap me-2 text-gold"></i><span>Mis Cursos Activos</span></a>
                     <a th:href="@{/cursos/catalogo}" class="wf-dropdown-item-btn"><i class="fa-solid fa-magnifying-glass me-2 text-muted"></i><span>Explorar Cursos</span></a>
                     <a th:href="@{/inscripciones}" class="wf-dropdown-item-btn"><i class="fa-solid fa-certificate me-2 text-muted"></i><span>Mis Certificados</span></a>
+                </div>
+
+                <!-- Modo Edición para Docentes y Administradores -->
+                <div class="wf-dropdown-section" th:if="${usuario.rol != null and (usuario.rol.nombre == 'Administrador' or usuario.rol.nombre == 'Docente')}">
+                    <div class="wf-dropdown-section-title">Modo Edición</div>
+                    <div class="wf-switch-container" onclick="toggleModoEdicionNavbar(this)">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="fa-solid fa-pen-to-square text-gold"></i>
+                            <span class="fw-bold" style="color: var(--wf-gold-text); font-size: 12px;">Modo Edición</span>
+                        </div>
+                        <label class="wf-toggle-switch" onclick="event.stopPropagation()">
+                            <input type="checkbox" id="navbarModoEdicionToggle" onchange="redirectModoEdicion(this)">
+                            <span class="wf-toggle-slider"></span>
+                        </label>
+                    </div>
                 </div>
 
                 <!-- Sección para Docentes y Administradores -->
@@ -93,6 +109,115 @@
             const navLinks = document.getElementById('wfNavLinks');
             if (navLinks) {
                 navLinks.classList.toggle('mobile-open');
+            }
+        }
+
+        function toggleUserDropdown(triggerEl) {
+            const wrapper = triggerEl.closest('.wf-user-menu-wrapper');
+            if (wrapper) {
+                const dropdown = wrapper.querySelector('.wf-user-floating-dropdown');
+                if (dropdown) {
+                    const isOpen = dropdown.style.display === 'flex';
+                    dropdown.style.display = isOpen ? 'none' : 'flex';
+                    triggerEl.classList.toggle('active', !isOpen);
+                }
+            }
+        }
+
+        document.addEventListener('click', function(e) {
+            const menuWrapper = document.querySelector('.wf-user-menu-wrapper');
+            if (menuWrapper && !menuWrapper.contains(e.target)) {
+                const dropdown = menuWrapper.querySelector('.wf-user-floating-dropdown');
+                const trigger = menuWrapper.querySelector('.wf-user-trigger-pill');
+                if (dropdown) dropdown.style.display = 'none';
+                if (trigger) trigger.classList.remove('active');
+            }
+        });
+
+        // Golden Sliding Capsule Tracker
+        document.addEventListener('DOMContentLoaded', function() {
+            const navLinksContainer = document.getElementById('wfNavLinks');
+            const capsule = document.getElementById('wfNavCapsule');
+            if (!navLinksContainer || !capsule) return;
+
+            const links = navLinksContainer.querySelectorAll('.wf-top-nav-link, .wf-top-nav-pill');
+            const currentPath = window.location.pathname;
+            let activeElement = null;
+
+            links.forEach(link => {
+                const href = link.getAttribute('href');
+                if (href && (href === currentPath || (href !== '/' && href !== '/inicio' && currentPath.startsWith(href)))) {
+                    activeElement = link;
+                    link.classList.add('active');
+                }
+            });
+
+            function moveCapsule(el) {
+                if (!el || window.innerWidth < 992) {
+                    capsule.style.opacity = '0';
+                    return;
+                }
+                const containerRect = navLinksContainer.getBoundingClientRect();
+                const elRect = el.getBoundingClientRect();
+                const leftPos = elRect.left - containerRect.left;
+                const width = elRect.width;
+
+                capsule.style.width = width + 'px';
+                capsule.style.transform = `translateX(${leftPos}px)`;
+                capsule.style.opacity = '1';
+            }
+
+            if (activeElement) {
+                setTimeout(() => moveCapsule(activeElement), 60);
+            }
+
+            links.forEach(link => {
+                link.addEventListener('mouseenter', function() {
+                    moveCapsule(this);
+                });
+                link.addEventListener('click', function() {
+                    links.forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
+                    activeElement = this;
+                    moveCapsule(this);
+                });
+            });
+
+            navLinksContainer.addEventListener('mouseleave', function() {
+                if (activeElement) {
+                    moveCapsule(activeElement);
+                } else {
+                    capsule.style.opacity = '0';
+                }
+            });
+
+            window.addEventListener('resize', function() {
+                if (activeElement) {
+                    moveCapsule(activeElement);
+                }
+            });
+
+            // Initialize Modo Edicion Switch State
+            const editToggle = document.getElementById('navbarModoEdicionToggle');
+            if (editToggle) {
+                editToggle.checked = window.location.pathname.includes('/edicion');
+            }
+        });
+
+        function toggleModoEdicionNavbar(container) {
+            const toggle = container.querySelector('#navbarModoEdicionToggle');
+            if (toggle) {
+                toggle.checked = !toggle.checked;
+                redirectModoEdicion(toggle);
+            }
+        }
+
+        function redirectModoEdicion(toggle) {
+            const isEditing = window.location.pathname.includes('/edicion');
+            if (toggle.checked && !isEditing) {
+                window.location.href = '/academico/curso/1/edicion';
+            } else if (!toggle.checked && isEditing) {
+                window.location.href = '/academico/curso/1';
             }
         }
     </script>

@@ -56,6 +56,15 @@ public class InicioController {
         return "pages/acercaDe";
     }
 
+    @GetMapping("/novedades")
+    public String verNovedades(Model model, Authentication auth) {
+        if (auth != null && auth.getPrincipal() instanceof Usuario) {
+            model.addAttribute("usuario", (Usuario) auth.getPrincipal());
+        }
+        model.addAttribute("titulo", "Novedades & Actualizaciones | Idóneos Online");
+        return "pages/novedades";
+    }
+
     @GetMapping("/error")
     public String verError(Model model, Authentication auth) {
         if (auth != null && auth.getPrincipal() instanceof Usuario) {

@@ -79,9 +79,13 @@
             </div>
           </div>
           <div class="d-flex align-items-center gap-3">
-            <div class="d-flex align-items-center gap-2 bg-light p-2 border rounded">
-              <span class="wf-badge status-active"><i class="fa-solid fa-pen-to-square me-1"></i> Modo Edición ACTIVO</span>
-              
+            <div class="d-flex align-items-center gap-2 p-2 border rounded" style="background: rgba(212, 160, 61, 0.08); border-color: rgba(212, 160, 61, 0.3) !important;">
+              <i class="fa-solid fa-pen-to-square text-gold"></i>
+              <span class="small fw-bold" style="color: var(--wf-gold-text);">Modo Edición</span>
+              <label class="wf-toggle-switch ms-2">
+                <input type="checkbox" checked onchange="window.location.href='/academico/curso/' + (${curso != null ? curso.id : 1})">
+                <span class="wf-toggle-slider"></span>
+              </label>
             </div>
             <div class="text-muted cursor-pointer" title="Ajustes del curso"><i class="fa-solid fa-gear" style="font-size: 18px;"></i></div>
           </div>
