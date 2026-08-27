@@ -23,7 +23,7 @@ import java.io.IOException;
 /**
  * Configuración de seguridad Spring Security para Idóneos Online.
  * Soporta autenticación por Formulario y Google OAuth 2.0 (PA-1)
- * con redirección inteligente por rol de usuario.
+ * con redirección inteligente y soporte para las rutas de los 10 módulos.
  */
 @Configuration
 @EnableWebSecurity
@@ -62,10 +62,10 @@ public class SecurityConfig {
             for (GrantedAuthority authority : authentication.getAuthorities()) {
                 String role = authority.getAuthority();
                 if ("ROLE_Administrador".equalsIgnoreCase(role) || "Administrador".equalsIgnoreCase(role)) {
-                    response.sendRedirect("/admin");
+                    response.sendRedirect("/inicio");
                     return;
                 } else if ("ROLE_Docente".equalsIgnoreCase(role) || "Docente".equalsIgnoreCase(role)) {
-                    response.sendRedirect("/docente");
+                    response.sendRedirect("/inicio");
                     return;
                 }
             }
@@ -78,29 +78,49 @@ public class SecurityConfig {
         return http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/inicio", "/login", "/registro", "/recuperar-contrasena", "/resetear-contrasena", "/cursos", "/cursos/*", "/public/**", "/css/**", "/js/**", "/img/**").permitAll()
-                        .requestMatchers("/admin", "/admin/**").hasRole("Administrador")
-                        .requestMatchers("/docente", "/docente/**").hasAnyRole("Docente", "Administrador")
+                        .requestMatchers(
+                                "/", "/inicio", "/acercaDe", 
+                                "/login", "/registro", "/recuperar-contrasena", "/resetear-contrasena",
+                                "/seguridad/login", "/seguridad/registro", "/seguridad/recuperar-contrasena",
+                                "/cursos", "/cursos/*", 
+                                "/public/**", "/css/**", "/js/**", "/img/**"
+                        ).permitAll()
+                        .requestMatchers(
+                                "/admin/**", 
+                                "/auditoria/**", 
+                                "/configuracion/**", 
+                                "/reportes/**"
+                        ).hasAnyRole("Administrador")
+                        .requestMatchers(
+                                "/docente/**", 
+                                "/academico/**", 
+                                "/evaluaciones/**", 
+                                "/clases-vivo/**", 
+                                "/ia/**"
+                        ).hasAnyRole("Docente", "Administrador", "Alumno")
                         .anyRequest().authenticated()
                 )
                 .formLogin(login -> login
-                        .loginPage("/login")
+                        .loginPage("/seguridad/login")
+                        .loginProcessingUrl("/seguridad/login")
                         .permitAll()
                         .successHandler(customAuthenticationSuccessHandler())
-                        .failureUrl("/login?error=true")
+                        .failureUrl("/seguridad/login?error=true")
                 )
                 .oauth2Login(oauth2 -> oauth2
-                        .loginPage("/login")
+                        .loginPage("/seguridad/login")
                         .successHandler(oAuth2SuccessHandler)
                 )
                 .userDetailsService(usuarioDetallesService)
                 .sessionManagement(session -> session
-                        .maximumSessions(1)
+                        .maximumSessions(2)
                         .maxSessionsPreventsLogin(false)
                 )
                 .logout(logout -> logout
                         .logoutUrl("/logout")
-                        .logoutSuccessUrl("/login?logout=true")
+                        .logoutSuccessUrl("/inicio?logout=true")
+                        .invalidateHttpSession(true)
+                        .deleteCookies("JSESSIONID")
                         .permitAll()
                 )
                 .build();
