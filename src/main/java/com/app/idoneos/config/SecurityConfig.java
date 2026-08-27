@@ -1,6 +1,6 @@
 package com.app.idoneos.config;
 
-import com.app.idoneos.service.Usuario.UsuarioDetallesService;
+import com.app.idoneos.service.modulo_usuarios.UsuarioDetallesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

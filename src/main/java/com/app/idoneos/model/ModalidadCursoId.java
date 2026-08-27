@@ -1,5 +1,5 @@
 package com.app.idoneos.model;
-import com.app.idoneos.service.Reportes.*;
+import com.app.idoneos.service.modulo_reportes.*;
 
 
 import java.io.Serializable;

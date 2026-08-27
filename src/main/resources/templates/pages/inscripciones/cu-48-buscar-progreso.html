@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${titulo != null ? titulo : 'CU-48 - Buscar progreso'}">CU-48 - Buscar progreso | Idóneos Online</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome 6 Pro / Solid Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;800&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Estilos del Sistema Centralizados -->
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body class="wf-canvas-bg">
+
+    <div class="cu-page-container" style="max-width: 1400px; margin: 20px auto 40px auto; padding: 0 15px;">
+        <!-- Barra de Metadatos del Caso de Uso -->
+        <div class="meta-strip mb-3 p-3 bg-white rounded border d-flex justify-content-between align-items-center shadow-sm">
+            <div class="d-flex align-items-center gap-2">
+                <span class="wf-badge" style="background: #081426; color: var(--wf-gold); border-color: var(--wf-gold); font-size: 11px;">CU-48</span>
+                <strong style="font-size: 14px; color: #081426;">Buscar progreso</strong>
+                <span style="color: #94A3B8;">|</span>
+                <span class="text-muted" style="font-size: 11px;"><strong>Actor(es):</strong> Docente, Administrador</span>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <span class="text-muted" style="font-size: 11px; font-weight: 700;">DSS:</span>
+                <code>buscarProgreso(curso, alumno) ➔ seleccionarPago(idProgreso, progresos)</code>
+            </div>
+        </div>
+
+        <!-- Pantalla / Screen Frame Oficial -->
+        <div class="screen-frame">
+
+                <!-- Top Navbar Oficial -->
+                <div class="wf-top-navbar">
+                    <div class="wf-brand">
+                        <div class="d-flex flex-column">
+                            <div class="wf-brand-logo"><i class="fa-solid fa-chart-line" style="color: var(--wf-gold);"></i> Idóneos <span>Online</span></div>
+                            <div class="wf-brand-sub">FINANZAS • ECONOMÍA • MERCADO DE CAPITALES</div>
+                        </div>
+                    </div>
+
+                    <div class="wf-top-nav-links">
+                        <a href="#CU-06" class="wf-top-nav-link">Inicio</a>
+                        <a href="#CU-06" class="wf-top-nav-link">Catálogo de Cursos</a>
+                        <span class="wf-top-nav-pill">Panel Administrador</span>
+                        <a href="#CU-99" class="wf-top-nav-link">Acerca de</a>
+
+                        <div class="wf-user-menu-wrapper">
+                            <div class="wf-user-trigger-pill" onclick="toggleUserDropdown(this)">
+                                <div class="user-avatar-circle">AG</div>
+                                <span style="font-size: 11px; font-weight: 700;">Admin General</span>
+                                <i class="fa-solid fa-chevron-down w-3 h-3 text-white ms-1"></i>
+                            </div>
+
+                            <div class="wf-user-floating-dropdown">
+                                <div class="wf-dropdown-user-header">
+                                    <div class="wf-dropdown-user-name">Admin General</div>
+                                    <div class="wf-dropdown-user-role">Administrador</div>
+                                    <div class="wf-dropdown-user-email">admin@idoneos.online</div>
+                                </div>
+  
+                                <div class="wf-dropdown-section">
+                                    <div class="wf-dropdown-section-title">Modo Edición</div>
+    
+                                    <div class="wf-dropdown-editing-toggle-box">
+                                        <span class="small fw-bold">Activar Edición</span>
+                                        <span class="wf-badge status-inactive">OFF</span>
+                                    </div>
+      
+                                </div>
+    
+                                <div class="wf-dropdown-section">
+                                    <div class="wf-dropdown-section-title">Administración del Sistema</div>
+    
+                                    <a href="#CU-01" class="wf-dropdown-item-btn ">
+                                        <span>Gestión de cursos</span>
+                                    </a>
+        
+                                    <a href="#CU-11" class="wf-dropdown-item-btn ">
+                                        <span>Cohortes y programas</span>
+                                    </a>
+        
+                                    <a href="#CU-82" class="wf-dropdown-item-btn ">
+                                        <span>Gestión de usuarios</span>
+                                    </a>
+        
+                                    <a href="#CU-95" class="wf-dropdown-item-btn ">
+                                        <span>Auditoría de eventos</span>
+                                    </a>
+        
+                                    <a href="#CU-96" class="wf-dropdown-item-btn ">
+                                        <span>Informe de alumnos</span>
+                                    </a>
+        
+                                    <a href="#CU-97" class="wf-dropdown-item-btn ">
+                                        <span>Informe de ingresos</span>
+                                    </a>
+        
+                                    <a href="#CU-98" class="wf-dropdown-item-btn ">
+                                        <span>Dashboard de estadísticas</span>
+                                    </a>
+        
+                                    <a href="#CU-99" class="wf-dropdown-item-btn ">
+                                        <span>Configuración general</span>
+                                    </a>
+        
+                                </div>
+    
+                                <div class="wf-dropdown-section">
+                                    <div class="wf-dropdown-section-title">Cuenta & Seguridad</div>
+    
+                                    <a href="#CU-86" class="wf-dropdown-item-btn ">
+                                        <span>Ver perfil</span>
+                                    </a>
+        
+                                    <a href="#CU-93" class="wf-dropdown-item-btn ">
+                                        <span>Seguridad y sesiones activas</span>
+                                    </a>
+        
+                                    <a href="#CU-91" class="wf-dropdown-item-btn text-danger">
+                                        <span>Cerrar sesión</span>
+                                    </a>
+        
+                                </div>
+    
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hero Banner Contextual Superior (Navy) -->
+                <div class="wf-hero-banner">
+                    <div>
+                        <div class="wf-hero-tag">
+                            <i class="fa-solid fa-graduation-cap" style="color: var(--wf-gold);"></i>
+                            <span>PANEL DE ADMINISTRACIÓN</span>
+                        </div>
+                        <h2 class="wf-hero-title">Buscar progreso</h2>
+                        <p class="wf-hero-desc">Bienvenido/a, Admin General</p>
+                    </div>
+                    
+                    <div class="d-flex align-items-center gap-2">
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    </div>
+</div>
+
+                <div class="wf-body">
+                    <div class="wf-main-content">
+                        
+      <div class="wf-card mb-4" style="background: #FFFFFF;">
+        <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
+          <div>
+            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Seguimiento y Progreso Pedagógico de Alumnos</h3>
+            <p class="small text-muted" style="margin: 3px 0 0;">Consulte el progreso académico general y el desglose de avance por unidad con fechas de completitud.</p>
+          </div>
+          <span class="wf-badge status-active">Cohorte 2026-1 (8 Semanas)</span>
+        </div>
+
+        <div class="row g-3 align-items-end mb-4">
+          <div class="col-md-5">
+            <label class="wf-label">Buscar Alumno por Nombre o DNI</label>
+            <div class="wf-input-wrap">
+              <input type="text" class="wf-input" placeholder="Buscar alumno por nombre, apellido o DNI...">
+              
+            </div>
+          </div>
+          <div class="col-md-4">
+            <label class="wf-label">Filtrar por Cohorte / Curso</label>
+            <select class="wf-input">
+              <option>Especialización en Idoneidad Bursátil (Cohorte 2026-1)</option>
+              <option>Operativa Cripto y DeFi Profesional (Cohorte 2026-1)</option>
+              <option>Mercado de Capitales Argentino (Cohorte 2025-2)</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <div class="d-flex align-items-center gap-2">
+              <button class="wf-btn wf-btn-primary w-100"><i class="fa-solid fa-magnifying-glass me-1"></i> Buscar</button>
+              
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-4">
+          <!-- Columna Izquierda: Listado de Alumnos -->
+          <div class="col-lg-7" style="border-right: 2px solid #E2E8F0; padding-right: 20px;">
+            <div class="wf-table-wrap">
+              <table class="wf-table">
+                <thead>
+                  <tr>
+                    <th>Alumno / Contacto</th>
+                    <th>Estado</th>
+                    <th style="min-width: 140px;">Progreso</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- Alumno 1: Joaquín Küster (Seleccionado) -->
+                  <tr style="background: #F0F9FF; border-left: 4px solid var(--wf-navy);">
+                    <td>
+                      <div class="d-flex align-items-center gap-2">
+                        <div class="user-avatar-circle" style="width: 32px; height: 32px; font-size: 11px; background: #2563EB; color: white;">JK</div>
+                        <div>
+                          <div class="d-flex align-items-center gap-2">
+                            <strong>Joaquín Küster</strong>
+                            
+                          </div>
+                          <div class="small text-muted">DNI: 40.123.456</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td><span class="wf-badge status-active">Al día</span></td>
+                    <td>
+                      <div class="d-flex align-items-center gap-2">
+                        <div style="flex: 1; height: 8px; background: #E2E8F0; border-radius: 4px; overflow: hidden;">
+                          <div style="width: 100%; height: 100%; background: #16A34A;"></div>
+                        </div>
+                        <span class="small fw-bold text-success">100%</span>
+                      </div>
+                    </td>
+                  </tr>
+
+                  <!-- Alumno 2: María Benítez -->
+                  <tr>
+                    <td>
+                      <div class="d-flex align-items-center gap-2">
+                        <div class="user-avatar-circle" style="width: 32px; height: 32px; font-size: 11px; background: #0D9488; color: white;">MB</div>
+                        <div>
+                          <strong>María Benítez</strong>
+                          <div class="small text-muted">DNI: 38.945.112</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td><span class="badge bg-light text-primary border">En curso</span></td>
+                    <td>
+                      <div class="d-flex align-items-center gap-2">
+                        <div style="flex: 1; height: 8px; background: #E2E8F0; border-radius: 4px; overflow: hidden;">
+                          <div style="width: 66%; height: 100%; background: #2563EB;"></div>
+                        </div>
+                        <span class="small fw-bold text-primary">66%</span>
+                      </div>
+                    </td>
+                  </tr>
+
+                  <!-- Alumno 3: Lucas Romero -->
+                  <tr>
+                    <td>
+                      <div class="d-flex align-items-center gap-2">
+                        <div class="user-avatar-circle" style="width: 32px; height: 32px; font-size: 11px; background: #E11D48; color: white;">LR</div>
+                        <div>
+                          <strong>Lucas Romero</strong>
+                          <div class="small text-muted">DNI: 42.887.654</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td><span class="badge bg-light text-warning border">Atrasado</span></td>
+                    <td>
+                      <div class="d-flex align-items-center gap-2">
+                        <div style="flex: 1; height: 8px; background: #E2E8F0; border-radius: 4px; overflow: hidden;">
+                          <div style="width: 33%; height: 100%; background: #D97706;"></div>
+                        </div>
+                        <span class="small fw-bold text-warning">33%</span>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Columna Derecha: Panel de Avance Detallado por Unidad (Badge D) -->
+          <div class="col-lg-5">
+            <div class="p-3 border rounded bg-white shadow-sm">
+              <div class="d-flex justify-content-between align-items-center pb-2 mb-3 border-bottom">
+                <div>
+                  <span class="small text-muted">Detalle Académico del Alumno</span>
+                  <h4 style="font-size: 15px; font-weight: 800; color: #081426; margin: 2px 0 0;">Joaquín Küster</h4>
+                </div>
+                
+              </div>
+
+              <div class="d-flex flex-column gap-3" style="font-size: 12px;">
+                <!-- Unidad 1 -->
+                <div class="p-2 border rounded bg-light">
+                  <div class="d-flex justify-content-between align-items-center mb-1">
+                    <strong>Unidad 1: Marco Regulatorio</strong>
+                    <span class="badge bg-success text-white">Completada</span>
+                  </div>
+                  <div class="small text-muted">Fecha de completitud: <strong>20/03/2026</strong></div>
+                  <div class="small text-muted">Autoevaluación U1: <strong>Nota 10/10</strong></div>
+                </div>
+
+                <!-- Unidad 2 -->
+                <div class="p-2 border rounded bg-light">
+                  <div class="d-flex justify-content-between align-items-center mb-1">
+                    <strong>Unidad 2: Renta Fija (Bonos y ONs)</strong>
+                    <span class="badge bg-success text-white">Completada</span>
+                  </div>
+                  <div class="small text-muted">Fecha de completitud: <strong>10/04/2026</strong></div>
+                  <div class="small text-muted">Autoevaluación U2: <strong>Nota 9/10</strong></div>
+                </div>
+
+                <!-- Unidad 3 -->
+                <div class="p-2 border rounded bg-light">
+                  <div class="d-flex justify-content-between align-items-center mb-1">
+                    <strong>Unidad 3: Renta Variable & Derivados</strong>
+                    <span class="badge bg-success text-white">Completada</span>
+                  </div>
+                  <div class="small text-muted">Fecha de completitud: <strong>02/05/2026</strong></div>
+                  <div class="small text-muted">Examen Integrador: <strong>Nota 9.5/10</strong></div>
+                </div>
+              </div>
+
+              <div class="mt-3 pt-3 border-top d-flex justify-content-between align-items-center">
+                <span class="small text-muted">Certificado Oficial Emitido:</span>
+                <span class="badge status-active"><i class="fa-solid fa-award me-1"></i> ID-2026-8812</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    
+                    </div>
+                </div>
+
+                <!-- Footer Oficial -->
+                <div class="wf-screen-footer">
+                    <div>
+                        <strong>Idóneos <span>Online</span> S.A.S.</strong> • Plataforma de Educación Financiera, Economía & Mercado de Capitales
+                    </div>
+                    <div>
+                        FCEQyN — UNaM • Proyecto Software (LSI) / Trabajo Final (ASI)
+                    </div>
+                </div>
+            
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function toggleUserDropdown(triggerEl) {
+            const wrapper = triggerEl.closest('.wf-user-menu-wrapper');
+            if (wrapper) {
+                const dropdown = wrapper.querySelector('.wf-user-floating-dropdown');
+                if (dropdown) {
+                    dropdown.style.display = (dropdown.style.display === 'none' || dropdown.style.display === '') ? 'flex' : 'none';
+                }
+            }
+        }
+    </script>
+</body>
+</html>

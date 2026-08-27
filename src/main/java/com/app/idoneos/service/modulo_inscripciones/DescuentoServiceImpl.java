@@ -1,43 +1,17 @@
 package com.app.idoneos.service.modulo_inscripciones;
-import com.app.idoneos.service.Reportes.*;
 
 import com.app.idoneos.exception.*;
-import com.app.idoneos.repository.modulo_cursos.*;
-import com.app.idoneos.repository.modulo_gestion_academica.*;
-import com.app.idoneos.repository.modulo_inscripciones.*;
-import com.app.idoneos.repository.modulo_evaluaciones.*;
-import com.app.idoneos.repository.modulo_clases_vivo.*;
-import com.app.idoneos.repository.modulo_ia.*;
-import com.app.idoneos.repository.modulo_usuarios.*;
-import com.app.idoneos.repository.modulo_auditoria.*;
-import com.app.idoneos.repository.modulo_reportes.*;
-import com.app.idoneos.repository.modulo_configuracion.*;
-import com.app.idoneos.service.modulo_configuracion.*;
-import com.app.idoneos.service.modulo_cursos.*;
-import com.app.idoneos.service.modulo_gestion_academica.*;
-import com.app.idoneos.service.modulo_inscripciones.*;
-import com.app.idoneos.service.modulo_evaluaciones.*;
-import com.app.idoneos.service.modulo_ia.*;
-import com.app.idoneos.service.modulo_usuarios.*;
-
 import com.app.idoneos.model.*;
-
+import com.app.idoneos.repository.modulo_inscripciones.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
-/**
- * TRAZABILIDAD — Implementación de servicios para la gestión comercial de Descuentos y Promociones.
- *
- * MOD-F-03: Módulo de Inscripciones y Pagos
- *   CU-49 — Buscar descuento: consulta de promociones vigentes por nombre y validez temporal.
- *   CU-50 — Registrar descuento: alta de bonificación con control de vigencia, límite y cursos requeridos.
- *   CU-51 — Modificar descuento: edición de parámetros de descuento.
- *   CU-52 — Dar de baja descuento: deshabilitación o baja lógica de la promoción.
- */
 @Service
 @Transactional
 public class DescuentoServiceImpl implements DescuentoService {
@@ -45,112 +19,98 @@ public class DescuentoServiceImpl implements DescuentoService {
     @Autowired private DescuentoRepository descuentoRepository;
 
     @Override
-    @Transactional(readOnly = true)
-    public Optional<Descuento> buscarPorId(Integer id) {
-        return descuentoRepository.findById(id).filter(d -> !d.getBaja());
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public Optional<Descuento> buscarPorCodigo(String codigo) {
-        if (codigo == null || codigo.trim().isEmpty()) return Optional.empty();
-        return descuentoRepository.findAll().stream()
-                .filter(d -> !d.getBaja() && codigo.trim().equalsIgnoreCase(d.getNombre()))
-                .findFirst();
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<Descuento> obtenerTodo() {
-        return descuentoRepository.findAll().stream().filter(d -> !d.getBaja()).toList();
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<Descuento> obtenerDescuentosVigentes() {
-        return descuentoRepository.findAll().stream()
-                .filter(d -> !d.getBaja() && d.estaVigente())
-                .toList();
-    }
-
-    /**
-     * CU-48 — Registrar descuento.
-     * Reglas de negocio:
-     * - Porcentaje entre 1% y 100% (Excepción CU-48, paso 4).
-     * - Fechas de inicio y fin obligatorias y coherentes (Excepción CU-48, paso 5).
-     */
-    @Override
-    public Descuento registrarDescuento(Descuento descuento) {
-        if (descuento.getPorcentaje() <= 0 || descuento.getPorcentaje() > 100) {
-            throw new ExcepcionValidacion("CU-48 Excepción paso 4: El porcentaje de descuento debe estar entre 1% y 100%.");
+    public Descuento registrarDescuento(String codigo, float porcentaje, String fechaInicio, String fechaFin, Integer cursoId) {
+        if (codigo == null || codigo.trim().isEmpty()) {
+            throw new ExcepcionValidacion("CU-50 Excepción: El código de descuento es obligatorio.");
         }
-        if (descuento.getVigenciaDesde() != null && descuento.getVigenciaHasta() != null &&
-            !descuento.getVigenciaHasta().isAfter(descuento.getVigenciaDesde())) {
-            throw new ExcepcionValidacion("CU-48 Excepción paso 5: La fecha de fin de vigencia debe ser posterior a la fecha inicial.");
+        if (porcentaje <= 0 || porcentaje > 100) {
+            throw new ExcepcionValidacion("CU-50 Excepción: El porcentaje debe estar entre 1% y 100%.");
         }
 
-        descuento.setBaja(false);
-        return descuentoRepository.save(descuento);
-    }
+        LocalDateTime fIni = LocalDateTime.parse(fechaInicio.contains("T") ? fechaInicio : fechaInicio + "T00:00:00");
+        LocalDateTime fFin = LocalDateTime.parse(fechaFin.contains("T") ? fechaFin : fechaFin + "T23:59:59");
 
-    /**
-     * CU-49 — Modificar descuento.
-     */
-    @Override
-    public Descuento modificarDescuento(Descuento descuento) {
-        Descuento existente = descuentoRepository.findById(descuento.getId())
-                .orElseThrow(() -> new ExcepcionRecursoNoEncontrado("Descuento", "id", descuento.getId()));
-
-        if (existente.getBaja()) {
-            throw new ExcepcionValidacion("CU-49 Precondición: No se puede modificar un descuento dado de baja.");
+        if (fFin.isBefore(fIni)) {
+            throw new ExcepcionValidacion("CU-50 Excepción: La fecha de fin debe ser posterior a la fecha de inicio.");
         }
 
-        if (descuento.getPorcentaje() <= 0 || descuento.getPorcentaje() > 100) {
-            throw new ExcepcionValidacion("CU-49 Excepción paso 4: El porcentaje de descuento debe estar entre 1% y 100%.");
+        Descuento d = new Descuento();
+        d.setNombre(codigo.trim());
+        d.setPorcentaje(porcentaje);
+        d.setVigenciaDesde(fIni);
+        d.setVigenciaHasta(fFin);
+        d.setCantidadLimite(100);
+        d.setCantidadUsada(0);
+        d.setCursosRequeridos(0);
+        d.setBaja(false);
+        d.setFechaCreacion(LocalDateTime.now());
+        return descuentoRepository.save(d);
+    }
+
+    @Override
+    public Descuento modificarDescuento(Integer id, String codigo, float porcentaje, String fechaInicio, String fechaFin, Integer cursoId) {
+        Descuento d = descuentoRepository.findById(id)
+                .orElseThrow(() -> new ExcepcionRecursoNoEncontrado("Descuento no encontrado con ID: " + id));
+
+        if (d.getBaja()) {
+            throw new ExcepcionNegocio("CU-51 Excepción: No se puede modificar un descuento dado de baja.");
         }
 
-        existente.setNombre(descuento.getNombre());
-        existente.setPorcentaje(descuento.getPorcentaje());
-        existente.setVigenciaDesde(descuento.getVigenciaDesde());
-        existente.setVigenciaHasta(descuento.getVigenciaHasta());
-        return descuentoRepository.save(existente);
-    }
-
-    /**
-     * CU-50 — Eliminar descuento (Baja Lógica).
-     */
-    @Override
-    public void darDeBajaDescuento(int descuentoId) {
-        Descuento descuento = descuentoRepository.findById(descuentoId)
-                .orElseThrow(() -> new ExcepcionRecursoNoEncontrado("Descuento", "id", descuentoId));
-
-        if (descuento.getBaja()) {
-            throw new ExcepcionValidacion("CU-50 Excepción: El descuento ya se encuentra dado de baja.");
+        if (codigo == null || codigo.trim().isEmpty()) {
+            throw new ExcepcionValidacion("CU-51 Excepción: El código de descuento no puede estar vacío.");
+        }
+        if (porcentaje <= 0 || porcentaje > 100) {
+            throw new ExcepcionValidacion("CU-51 Excepción: El porcentaje debe estar entre 1% y 100%.");
         }
 
-        descuento.setBaja(true);
-        descuentoRepository.save(descuento);
+        LocalDateTime fIni = LocalDateTime.parse(fechaInicio.contains("T") ? fechaInicio : fechaInicio + "T00:00:00");
+        LocalDateTime fFin = LocalDateTime.parse(fechaFin.contains("T") ? fechaFin : fechaFin + "T23:59:59");
+
+        if (fFin.isBefore(fIni)) {
+            throw new ExcepcionValidacion("CU-51 Excepción: La fecha de fin debe ser posterior a la de inicio.");
+        }
+
+        d.setNombre(codigo.trim());
+        d.setPorcentaje(porcentaje);
+        d.setVigenciaDesde(fIni);
+        d.setVigenciaHasta(fFin);
+        d.setUltimaModificacion(LocalDateTime.now());
+        return descuentoRepository.save(d);
     }
 
     @Override
-    public Descuento guardar(Descuento descuento) {
-        return registrarDescuento(descuento);
-    }
+    public void darDeBajaDescuento(Integer id) {
+        Descuento d = descuentoRepository.findById(id)
+                .orElseThrow(() -> new ExcepcionRecursoNoEncontrado("Descuento no encontrado con ID: " + id));
 
-    @Override
-    public Descuento modificar(Descuento descuento) {
-        return modificarDescuento(descuento);
-    }
+        if (d.getBaja()) {
+            throw new ExcepcionNegocio("El descuento ya se encuentra dado de baja.");
+        }
 
-    @Override
-    public void borrar(Descuento descuento) {
-        darDeBajaDescuento(descuento.getId());
+        d.setBaja(true);
+        d.setUltimaModificacion(LocalDateTime.now());
+        descuentoRepository.save(d);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public boolean existePorId(Integer id) {
-        return descuentoRepository.existsById(id) && buscarPorId(id).isPresent();
+    public Optional<Descuento> buscarPorId(Integer id) {
+        return descuentoRepository.findById(id);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Descuento> obtenerTodos() {
+        return descuentoRepository.findAll();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Descuento> buscarDescuentosConFiltros(String codigo, Boolean vigente) {
+        List<Descuento> todos = descuentoRepository.findAll();
+        return todos.stream()
+                .filter(d -> codigo == null || codigo.isBlank() || d.getNombre().toLowerCase().contains(codigo.toLowerCase()))
+                .filter(d -> vigente == null || (vigente ? d.estaVigente() : !d.estaVigente()))
+                .collect(Collectors.toList());
     }
 }
-

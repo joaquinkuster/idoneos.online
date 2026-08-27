@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${titulo != null ? titulo : 'CU-65 - Buscar clase en vivo'}">CU-65 - Buscar clase en vivo | Idóneos Online</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome 6 Pro / Solid Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;800&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Estilos del Sistema Centralizados -->
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body class="wf-canvas-bg">
+
+    <div class="cu-page-container" style="max-width: 1400px; margin: 20px auto 40px auto; padding: 0 15px;">
+        <!-- Barra de Metadatos del Caso de Uso -->
+        <div class="meta-strip mb-3 p-3 bg-white rounded border d-flex justify-content-between align-items-center shadow-sm">
+            <div class="d-flex align-items-center gap-2">
+                <span class="wf-badge" style="background: #081426; color: var(--wf-gold); border-color: var(--wf-gold); font-size: 11px;">CU-65</span>
+                <strong style="font-size: 14px; color: #081426;">Buscar clase en vivo</strong>
+                <span style="color: #94A3B8;">|</span>
+                <span class="text-muted" style="font-size: 11px;"><strong>Actor(es):</strong> Docente, Administrador</span>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <span class="text-muted" style="font-size: 11px; font-weight: 700;">DSS:</span>
+                <code>Operación del sistema correspondiente</code>
+            </div>
+        </div>
+
+        <!-- Pantalla / Screen Frame Oficial -->
+        <div class="screen-frame">
+
+                <!-- Top Navbar Oficial -->
+                <div class="wf-top-navbar">
+                    <div class="wf-brand">
+                        <div class="d-flex flex-column">
+                            <div class="wf-brand-logo"><i class="fa-solid fa-chart-line" style="color: var(--wf-gold);"></i> Idóneos <span>Online</span></div>
+                            <div class="wf-brand-sub">FINANZAS • ECONOMÍA • MERCADO DE CAPITALES</div>
+                        </div>
+                    </div>
+
+                    <div class="wf-top-nav-links">
+                        <a href="#CU-06" class="wf-top-nav-link">Inicio</a>
+                        <a href="#CU-06" class="wf-top-nav-link">Catálogo de Cursos</a>
+                        <span class="wf-top-nav-pill">Panel Administrador</span>
+                        <a href="#CU-99" class="wf-top-nav-link">Acerca de</a>
+
+                        <div class="wf-user-menu-wrapper">
+                            <div class="wf-user-trigger-pill" onclick="toggleUserDropdown(this)">
+                                <div class="user-avatar-circle">AG</div>
+                                <span style="font-size: 11px; font-weight: 700;">Admin General</span>
+                                <i class="fa-solid fa-chevron-down w-3 h-3 text-white ms-1"></i>
+                            </div>
+
+                            <div class="wf-user-floating-dropdown">
+                                <div class="wf-dropdown-user-header">
+                                    <div class="wf-dropdown-user-name">Admin General</div>
+                                    <div class="wf-dropdown-user-role">Administrador</div>
+                                    <div class="wf-dropdown-user-email">admin@idoneos.online</div>
+                                </div>
+  
+                                <div class="wf-dropdown-section">
+                                    <div class="wf-dropdown-section-title">Modo Edición</div>
+    
+                                    <div class="wf-dropdown-editing-toggle-box">
+                                        <span class="small fw-bold">Modo Edición Activado</span>
+                                        <span class="wf-badge status-active">ON</span>
+                                    </div>
+      
+                                </div>
+    
+                                <div class="wf-dropdown-section">
+                                    <div class="wf-dropdown-section-title">Administración del Sistema</div>
+    
+                                    <a href="#CU-01" class="wf-dropdown-item-btn ">
+                                        <span>Gestión de cursos</span>
+                                    </a>
+        
+                                    <a href="#CU-11" class="wf-dropdown-item-btn ">
+                                        <span>Cohortes y programas</span>
+                                    </a>
+        
+                                    <a href="#CU-82" class="wf-dropdown-item-btn ">
+                                        <span>Gestión de usuarios</span>
+                                    </a>
+        
+                                    <a href="#CU-95" class="wf-dropdown-item-btn ">
+                                        <span>Auditoría de eventos</span>
+                                    </a>
+        
+                                    <a href="#CU-96" class="wf-dropdown-item-btn ">
+                                        <span>Informe de alumnos</span>
+                                    </a>
+        
+                                    <a href="#CU-97" class="wf-dropdown-item-btn ">
+                                        <span>Informe de ingresos</span>
+                                    </a>
+        
+                                    <a href="#CU-98" class="wf-dropdown-item-btn ">
+                                        <span>Dashboard de estadísticas</span>
+                                    </a>
+        
+                                    <a href="#CU-99" class="wf-dropdown-item-btn ">
+                                        <span>Configuración general</span>
+                                    </a>
+        
+                                </div>
+    
+                                <div class="wf-dropdown-section">
+                                    <div class="wf-dropdown-section-title">Cuenta & Seguridad</div>
+    
+                                    <a href="#CU-86" class="wf-dropdown-item-btn ">
+                                        <span>Ver perfil</span>
+                                    </a>
+        
+                                    <a href="#CU-93" class="wf-dropdown-item-btn ">
+                                        <span>Seguridad y sesiones activas</span>
+                                    </a>
+        
+                                    <a href="#CU-91" class="wf-dropdown-item-btn text-danger">
+                                        <span>Cerrar sesión</span>
+                                    </a>
+        
+                                </div>
+    
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hero Banner Contextual Superior (Navy) -->
+                <div class="wf-hero-banner">
+                    <div>
+                        <div class="wf-hero-tag">
+                            <i class="fa-solid fa-graduation-cap" style="color: var(--wf-gold);"></i>
+                            <span>PANEL DE ADMINISTRACIÓN</span>
+                        </div>
+                        <h2 class="wf-hero-title">Buscar clase en vivo</h2>
+                        <p class="wf-hero-desc">Bienvenido/a, Admin General</p>
+                    </div>
+                    
+                    <div class="d-flex align-items-center gap-2">
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    </div>
+</div>
+
+                <div class="wf-body">
+                    <div class="wf-main-content">
+                        
+      <div class="wf-card mb-4" style="background: #FFFFFF;">
+        <div class="d-flex justify-content-between align-items-start pb-3 border-bottom">
+          <div>
+            <h2 style="font-size: 20px; font-weight: 800; color: #081426; margin: 0;">Especialización en Idoneidad Bursátil</h2>
+            <div class="small text-muted mt-1">
+              <span>Página Principal</span> <i class="fa-solid fa-chevron-right" style="font-size: 9px; margin: 0 4px;"></i> <span>Mis cursos</span> <i class="fa-solid fa-chevron-right" style="font-size: 9px; margin: 0 4px;"></i> <span>Clases en Vivo</span>
+            </div>
+          </div>
+          <div class="d-flex align-items-center gap-3">
+            <span class="wf-badge status-active">Módulo Clases en Vivo</span>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center pt-2">
+          <div class="d-flex align-items-center gap-1">
+            <a href="#CU-26b" class="wf-tab-btn">Curso & Unidades</a>
+            <a href="#CU-27" class="wf-tab-btn">Materiales</a>
+            <a href="#CU-31" class="wf-tab-btn">Glosario</a>
+            <a href="#CU-57" class="wf-tab-btn">Autoevaluaciones</a>
+            <a href="#CU-53" class="wf-tab-btn">Pools</a>
+            <a href="#CU-35" class="wf-tab-btn">Foros</a>
+            <button class="wf-tab-btn active">Clases en Vivo</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Barra de Filtros y Búsqueda -->
+      <div class="wf-card mb-4" style="background: #FFFFFF;">
+        <div class="row g-3 align-items-end">
+          <div class="col-md-5">
+            <label class="wf-label">Buscar por título o docente</label>
+            <div class="wf-input-wrap">
+              <input type="text" class="wf-input" placeholder="Ej: Taller de Renta Fija, Mg. Valenzuela...">
+            </div>
+          </div>
+          <div class="col-md-4">
+            <label class="wf-label">Filtrar por Estado de Transmisión</label>
+            <div class="wf-input-wrap">
+              <select class="wf-input">
+                <option>Todos los estados (Programada / En vivo / Finalizada)</option>
+                <option selected>En vivo / Programadas activas</option>
+                <option>Solo Finalizadas</option>
+              </select>
+              
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="d-flex align-items-center gap-2">
+              <button class="wf-btn wf-btn-primary w-100"><i class="fa-solid fa-magnifying-glass me-1"></i> Buscar</button>
+              
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="wf-table-wrap">
+        <table class="wf-table">
+          <thead>
+            <tr>
+              <th>Título de la Clase en Vivo</th>
+              <th>Docente Titular</th>
+              <th>Fecha, Hora & Duración</th>
+              <th>Estado</th>
+              <th class="text-end">Acciones Disponibles</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Fila 1: En Vivo Ahora Mismo -->
+            <tr style="background: #FEF2F2; border-left: 4px solid #DC2626;">
+              <td>
+                <div class="d-flex align-items-center gap-2">
+                  <strong style="color: #081426;">Clase Magistral: Resolución de Prácticos de Renta Fija</strong>
+                  
+                </div>
+                <div class="small text-muted">Unidad 2: Renta Fija • Cohorte 2026-1</div>
+              </td>
+              <td>Mg. Elena Valenzuela</td>
+              <td>Hoy, 19:00 hs (Duración: 90 min)</td>
+              <td><span class="wf-badge" style="background: #DC2626; color: white;">● EN VIVO</span></td>
+              <td class="text-end">
+                <div class="d-inline-flex align-items-center gap-2">
+                  <a href="#CU-71" class="wf-btn wf-btn-sm wf-btn-danger d-flex align-items-center gap-1" title="Finalizar Transmisión">
+                    <i class="fa-solid fa-stop"></i>
+                    <span>Finalizar Transmisión</span>
+                  </a>
+                  <a href="#CU-67" class="wf-btn wf-btn-sm wf-btn-outline" title="Reprogramar clase">
+                    <i class="fa-solid fa-clock-rotate-left me-1"></i>
+                    <span>Reprogramar / Editar</span>
+                  </a>
+                  <a href="#CU-68" class="wf-btn wf-btn-sm wf-btn-outline text-warning" style="color: #D97706; border-color: #FCD34D;" title="Cancelar Clase">
+                    <i class="fa-solid fa-calendar-xmark me-1"></i>
+                    <span>Cancelar Clase</span>
+                  </a>
+                  <a href="#CU-69" class="wf-btn wf-btn-sm wf-btn-outline text-danger" title="Eliminar Registro">
+                    <i class="fa-solid fa-trash me-1"></i>
+                    <span>Eliminar Registro</span>
+                  </a>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Fila 2: Programada Próxima Semana -->
+            <tr>
+              <td>
+                <strong style="color: #081426;">Taller en Vivo: Análisis Técnico con TradingView</strong>
+                <div class="small text-muted">Unidad 3: Renta Variable • Cohorte 2026-1</div>
+              </td>
+              <td>Mg. Elena Valenzuela</td>
+              <td>Jueves 30/04, 19:00 hs (60 min)</td>
+              <td><span class="wf-badge status-active">Programada</span></td>
+              <td class="text-end">
+                <div class="d-inline-flex align-items-center gap-2">
+                  <a href="#CU-70" class="wf-btn wf-btn-sm wf-btn-primary d-flex align-items-center gap-1">
+                    <i class="fa-solid fa-tower-broadcast"></i>
+                    <span>Iniciar Clase</span>
+                  </a>
+                  <a href="#CU-67" class="wf-btn wf-btn-sm wf-btn-outline">
+                    <i class="fa-solid fa-pen-to-square me-1"></i>
+                    <span>Reprogramar / Editar</span>
+                  </a>
+                  <a href="#CU-68" class="wf-btn wf-btn-sm wf-btn-outline text-warning" style="color: #D97706; border-color: #FCD34D;">
+                    <i class="fa-solid fa-calendar-xmark me-1"></i>
+                    <span>Cancelar Clase</span>
+                  </a>
+                  <a href="#CU-69" class="wf-btn wf-btn-sm wf-btn-outline text-danger">
+                    <i class="fa-solid fa-trash me-1"></i>
+                    <span>Eliminar Registro</span>
+                  </a>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Fila 3: Finalizada -->
+            <tr>
+              <td>
+                <strong style="color: #081426;">Clase Inaugural: Marco Legal CNV y Ética Profesional</strong>
+                <div class="small text-muted">Unidad 1: Marco Regulatorio • Cohorte 2026-1</div>
+              </td>
+              <td>Mg. Elena Valenzuela</td>
+              <td>Jueves 09/04, 19:00 hs (Grabación disponible)</td>
+              <td><span class="wf-badge status-inactive">Finalizada</span></td>
+              <td class="text-end">
+                <div class="d-inline-flex align-items-center gap-2">
+                  <button class="wf-btn wf-btn-sm wf-btn-outline" title="Ver Grabación"><i class="fa-solid fa-video me-1"></i> Ver Grabación</button>
+                  <a href="#CU-69" class="wf-btn wf-btn-sm wf-btn-outline text-danger">
+                    <i class="fa-solid fa-trash me-1"></i>
+                    <span>Eliminar Registro</span>
+                  </a>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    
+                    </div>
+                </div>
+
+                <!-- Footer Oficial -->
+                <div class="wf-screen-footer">
+                    <div>
+                        <strong>Idóneos <span>Online</span> S.A.S.</strong> • Plataforma de Educación Financiera, Economía & Mercado de Capitales
+                    </div>
+                    <div>
+                        FCEQyN — UNaM • Proyecto Software (LSI) / Trabajo Final (ASI)
+                    </div>
+                </div>
+            
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function toggleUserDropdown(triggerEl) {
+            const wrapper = triggerEl.closest('.wf-user-menu-wrapper');
+            if (wrapper) {
+                const dropdown = wrapper.querySelector('.wf-user-floating-dropdown');
+                if (dropdown) {
+                    dropdown.style.display = (dropdown.style.display === 'none' || dropdown.style.display === '') ? 'flex' : 'none';
+                }
+            }
+        }
+    </script>
+</body>
+</html>

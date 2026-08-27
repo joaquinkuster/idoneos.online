@@ -1,5 +1,5 @@
 package com.app.idoneos.repository.modulo_inscripciones;
-import com.app.idoneos.service.Reportes.*;
+import com.app.idoneos.service.modulo_reportes.*;
 
 import com.app.idoneos.model.*;
 

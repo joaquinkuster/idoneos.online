@@ -1,5 +1,5 @@
 package com.app.idoneos.config;
-import com.app.idoneos.service.Reportes.*;
+import com.app.idoneos.service.modulo_reportes.*;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

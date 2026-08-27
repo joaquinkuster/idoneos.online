@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${titulo != null ? titulo : 'CU-04 - Modificar curso'}">CU-04 - Modificar curso | Idóneos Online</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome 6 Pro / Solid Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;800&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Estilos del Sistema Centralizados -->
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body class="wf-canvas-bg">
+
+    <div class="cu-page-container" style="max-width: 1400px; margin: 20px auto 40px auto; padding: 0 15px;">
+        <!-- Barra de Metadatos del Caso de Uso -->
+        <div class="meta-strip mb-3 p-3 bg-white rounded border d-flex justify-content-between align-items-center shadow-sm">
+            <div class="d-flex align-items-center gap-2">
+                <span class="wf-badge" style="background: #081426; color: var(--wf-gold); border-color: var(--wf-gold); font-size: 11px;">CU-04</span>
+                <strong style="font-size: 14px; color: #081426;">Modificar curso</strong>
+                <span style="color: #94A3B8;">|</span>
+                <span class="text-muted" style="font-size: 11px;"><strong>Actor(es):</strong> Administrador</span>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <span class="text-muted" style="font-size: 11px; font-weight: 700;">DSS:</span>
+                <code>buscarCategorias() ➔ seleccionarCategoria(idCategoria, categorias) ➔ buscarNiveles() ➔ seleccionarNivel(idNivel, niveles) ➔ buscarDocentes() ➔ seleccionarDocente(idDocente, docentes) ➔ seleccionarAyudantes(idsDocentes, docentes) ➔ buscarModalidades() ➔ seleccionarModalidades(idsModalidades, listadoModalidades) ➔ modificarCurso(unCurso, nombre, descripcion, precio, imagen, unaCategoria, unNivel, emiteCertificado, modalidades, unDocenteTitular, ayudantes) ➔ modificarCursoPrecioImagen(unCurso, precio, imagen)</code>
+            </div>
+        </div>
+
+        <!-- Pantalla / Screen Frame Oficial -->
+        <div class="screen-frame">
+
+                <!-- Top Navbar Oficial -->
+                <div class="wf-top-navbar">
+                    <div class="wf-brand">
+                        <div class="d-flex flex-column">
+                            <div class="wf-brand-logo"><i class="fa-solid fa-chart-line" style="color: var(--wf-gold);"></i> Idóneos <span>Online</span></div>
+                            <div class="wf-brand-sub">FINANZAS • ECONOMÍA • MERCADO DE CAPITALES</div>
+                        </div>
+                    </div>
+
+                    <div class="wf-top-nav-links">
+                        <a href="#CU-06" class="wf-top-nav-link">Inicio</a>
+                        <a href="#CU-06" class="wf-top-nav-link">Catálogo de Cursos</a>
+                        <span class="wf-top-nav-pill">Panel Administrador</span>
+                        <a href="#CU-99" class="wf-top-nav-link">Acerca de</a>
+
+                        <div class="wf-user-menu-wrapper">
+                            <div class="wf-user-trigger-pill" onclick="toggleUserDropdown(this)">
+                                <div class="user-avatar-circle">AG</div>
+                                <span style="font-size: 11px; font-weight: 700;">Admin General</span>
+                                <i class="fa-solid fa-chevron-down w-3 h-3 text-white ms-1"></i>
+                            </div>
+
+                            <div class="wf-user-floating-dropdown">
+                                <div class="wf-dropdown-user-header">
+                                    <div class="wf-dropdown-user-name">Admin General</div>
+                                    <div class="wf-dropdown-user-role">Administrador</div>
+                                    <div class="wf-dropdown-user-email">admin@idoneos.online</div>
+                                </div>
+  
+                                <div class="wf-dropdown-section">
+                                    <div class="wf-dropdown-section-title">Modo Edición</div>
+    
+                                    <div class="wf-dropdown-editing-toggle-box">
+                                        <span class="small fw-bold">Activar Edición</span>
+                                        <span class="wf-badge status-inactive">OFF</span>
+                                    </div>
+      
+                                </div>
+    
+                                <div class="wf-dropdown-section">
+                                    <div class="wf-dropdown-section-title">Administración del Sistema</div>
+    
+                                    <a href="#CU-01" class="wf-dropdown-item-btn ">
+                                        <span>Gestión de cursos</span>
+                                    </a>
+        
+                                    <a href="#CU-11" class="wf-dropdown-item-btn ">
+                                        <span>Cohortes y programas</span>
+                                    </a>
+        
+                                    <a href="#CU-82" class="wf-dropdown-item-btn ">
+                                        <span>Gestión de usuarios</span>
+                                    </a>
+        
+                                    <a href="#CU-95" class="wf-dropdown-item-btn ">
+                                        <span>Auditoría de eventos</span>
+                                    </a>
+        
+                                    <a href="#CU-96" class="wf-dropdown-item-btn ">
+                                        <span>Informe de alumnos</span>
+                                    </a>
+        
+                                    <a href="#CU-97" class="wf-dropdown-item-btn ">
+                                        <span>Informe de ingresos</span>
+                                    </a>
+        
+                                    <a href="#CU-98" class="wf-dropdown-item-btn ">
+                                        <span>Dashboard de estadísticas</span>
+                                    </a>
+        
+                                    <a href="#CU-99" class="wf-dropdown-item-btn ">
+                                        <span>Configuración general</span>
+                                    </a>
+        
+                                </div>
+    
+                                <div class="wf-dropdown-section">
+                                    <div class="wf-dropdown-section-title">Cuenta & Seguridad</div>
+    
+                                    <a href="#CU-86" class="wf-dropdown-item-btn ">
+                                        <span>Ver perfil</span>
+                                    </a>
+        
+                                    <a href="#CU-93" class="wf-dropdown-item-btn ">
+                                        <span>Seguridad y sesiones activas</span>
+                                    </a>
+        
+                                    <a href="#CU-91" class="wf-dropdown-item-btn text-danger">
+                                        <span>Cerrar sesión</span>
+                                    </a>
+        
+                                </div>
+    
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hero Banner Contextual Superior (Navy) -->
+                <div class="wf-hero-banner">
+                    <div>
+                        <div class="wf-hero-tag">
+                            <i class="fa-solid fa-graduation-cap" style="color: var(--wf-gold);"></i>
+                            <span>PANEL DE ADMINISTRACIÓN</span>
+                        </div>
+                        <h2 class="wf-hero-title">Modificar curso</h2>
+                        <p class="wf-hero-desc">Bienvenido/a, Admin General</p>
+                    </div>
+                    
+                    <div class="d-flex align-items-center gap-2">
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    </div>
+</div>
+
+                <div class="wf-body">
+                    <div class="wf-main-content">
+                        
+      <div class="wf-card" style="max-width: 900px; margin: 0 auto; background: #FFFFFF;">
+        <div class="wf-card-header mb-4 pb-3 border-bottom d-flex justify-content-between align-items-center">
+          <div>
+            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Modificar Curso</h3>
+            <p class="small text-muted" style="margin: 3px 0 0;">Defina los parámetros académicos, docentes y comerciales del programa de capacitación.</p>
+          </div>
+          <div>
+            <span class="wf-badge status-active">Modo Edición</span>
+          </div>
+        </div>
+
+        <div class="row g-3">
+          <!-- Nombre [B] -->
+          <div class="col-md-8">
+            <label class="wf-label">Nombre del Curso</label>
+            <div class="wf-input-wrap">
+              <input type="text" class="wf-input" value="Especialización en Idoneidad Bursátil CNV">
+              
+            </div>
+          </div>
+
+          <!-- Categoría [C] -->
+          <div class="col-md-4">
+            <label class="wf-label">Categoría Temática</label>
+            <div class="wf-input-wrap">
+              <select class="wf-input">
+                <option selected>Mercado de Capitales & Finanzas</option>
+                <option>Impuestos & Contabilidad</option>
+                <option>Cripto & DeFi</option>
+              </select>
+              
+            </div>
+          </div>
+
+          <!-- Nivel [D] -->
+          <div class="col-md-4">
+            <label class="wf-label">Nivel de Dificultad</label>
+            <div class="wf-input-wrap">
+              <select class="wf-input">
+                <option selected>Intermedio / Profesional</option>
+                <option>Inicial / Básico</option>
+                <option>Avanzado</option>
+              </select>
+              
+            </div>
+          </div>
+
+          <!-- Precio [E] -->
+          <div class="col-md-4">
+            <label class="wf-label">Precio / Arancel de Inscripción</label>
+            <div class="wf-input-wrap">
+              <input type="text" class="wf-input" value="$120.000 ARS">
+              
+            </div>
+          </div>
+
+          <!-- Modalidades [F] (Checkbox interactivos) -->
+          <div class="col-md-4">
+            <label class="wf-label">Modalidades de Dictado</label>
+            <div class="wf-input-wrap">
+              <div class="wf-input d-flex align-items-center gap-3" style="padding: 8px 14px; font-size: 12px; background: #FFFFFF;">
+                <label class="d-flex align-items-center gap-1 cursor-pointer mb-0" style="font-weight: 600; color: #081426;">
+                  <input type="checkbox" checked style="width: 16px; height: 16px; accent-color: var(--wf-gold);">
+                  <span>Online Asincrónico</span>
+                </label>
+                <label class="d-flex align-items-center gap-1 cursor-pointer mb-0" style="font-weight: 600; color: #081426;">
+                  <input type="checkbox" checked style="width: 16px; height: 16px; accent-color: var(--wf-gold);">
+                  <span>En Vivo</span>
+                </label>
+              </div>
+              
+            </div>
+          </div>
+
+          <!-- Docente Titular [G] -->
+          <div class="col-md-6">
+            <label class="wf-label">Docente Titular Responsable</label>
+            <div class="wf-input-wrap">
+              <select class="wf-input">
+                <option selected>Mg. Elena Valenzuela (Economista & Consultor)</option>
+                <option>Dr. Roberto Cachanosky</option>
+              </select>
+              
+            </div>
+          </div>
+
+          <!-- Docentes Ayudantes [H] -->
+          <div class="col-md-6">
+            <label class="wf-label">Equipo de Docentes Ayudantes</label>
+            <div class="wf-input-wrap">
+              <input type="text" class="wf-input" value="Lic. Joaquín Küster, Mg. Elena Valenzuela">
+              
+            </div>
+          </div>
+
+          <!-- Emite Certificado [I] -->
+          <div class="col-12">
+            <div class="p-3 bg-light rounded border d-flex justify-content-between align-items-center">
+              <div>
+                <strong>Emisión Automática de Certificado Oficial</strong>
+                <p class="small text-muted m-0">Generar credencial digital verificable con código QR al aprobar el 100% de autoevaluaciones.</p>
+              </div>
+              <div class="d-flex align-items-center gap-2">
+                <input type="checkbox" checked style="width: 18px; height: 18px; accent-color: var(--wf-gold);">
+                
+              </div>
+            </div>
+          </div>
+
+          <!-- Descripción [J] -->
+          <div class="col-12">
+            <label class="wf-label">Descripción Académica y Objetivos</label>
+            <div class="wf-input-wrap">
+              <textarea class="wf-input" rows="3">Programa intensivo diseñado para brindar los conocimientos teóricos, regulatorios y prácticos requeridos para rendir y aprobar el examen de Idóneo en Mercado de Capitales ante la Comisión Nacional de Valores (CNV).</textarea>
+              
+            </div>
+          </div>
+
+          <!-- Portada [K] y Examinar [L] -->
+          <div class="col-12">
+            <label class="wf-label">Imagen de Portada / Banner del Curso</label>
+            <div class="d-flex align-items-center gap-2">
+              <div class="wf-input-wrap flex-grow-1">
+                <input type="text" class="wf-input" value="portada_idoneidad_bursatil_2026.png">
+                
+              </div>
+              <div class="d-flex align-items-center gap-2">
+                <button class="wf-btn wf-btn-outline"><i class="fa-solid fa-folder-open me-1"></i> Examinar...</button>
+                
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer con Guardar [M] -->
+        <div class="wf-card-footer d-flex justify-content-end gap-3 mt-4 pt-3 border-top">
+          <button class="wf-btn wf-btn-outline">Cancelar / Volver</button>
+          <div class="d-flex align-items-center gap-2">
+            <button class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Guardar Cambios</button>
+            
+          </div>
+        </div>
+      </div>
+    
+                    </div>
+                </div>
+
+                <!-- Footer Oficial -->
+                <div class="wf-screen-footer">
+                    <div>
+                        <strong>Idóneos <span>Online</span> S.A.S.</strong> • Plataforma de Educación Financiera, Economía & Mercado de Capitales
+                    </div>
+                    <div>
+                        FCEQyN — UNaM • Proyecto Software (LSI) / Trabajo Final (ASI)
+                    </div>
+                </div>
+            
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function toggleUserDropdown(triggerEl) {
+            const wrapper = triggerEl.closest('.wf-user-menu-wrapper');
+            if (wrapper) {
+                const dropdown = wrapper.querySelector('.wf-user-floating-dropdown');
+                if (dropdown) {
+                    dropdown.style.display = (dropdown.style.display === 'none' || dropdown.style.display === '') ? 'flex' : 'none';
+                }
+            }
+        }
+    </script>
+</body>
+</html>

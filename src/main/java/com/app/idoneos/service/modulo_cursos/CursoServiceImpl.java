@@ -1,27 +1,11 @@
 package com.app.idoneos.service.modulo_cursos;
-import com.app.idoneos.service.Reportes.*;
 
 import com.app.idoneos.exception.*;
+import com.app.idoneos.model.*;
 import com.app.idoneos.repository.modulo_cursos.*;
 import com.app.idoneos.repository.modulo_gestion_academica.*;
 import com.app.idoneos.repository.modulo_inscripciones.*;
-import com.app.idoneos.repository.modulo_evaluaciones.*;
-import com.app.idoneos.repository.modulo_clases_vivo.*;
-import com.app.idoneos.repository.modulo_ia.*;
 import com.app.idoneos.repository.modulo_usuarios.*;
-import com.app.idoneos.repository.modulo_auditoria.*;
-import com.app.idoneos.repository.modulo_reportes.*;
-import com.app.idoneos.repository.modulo_configuracion.*;
-import com.app.idoneos.service.modulo_configuracion.*;
-import com.app.idoneos.service.modulo_cursos.*;
-import com.app.idoneos.service.modulo_gestion_academica.*;
-import com.app.idoneos.service.modulo_inscripciones.*;
-import com.app.idoneos.service.modulo_evaluaciones.*;
-import com.app.idoneos.service.modulo_ia.*;
-import com.app.idoneos.service.modulo_usuarios.*;
-
-import com.app.idoneos.model.*;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,26 +13,26 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
- * TRAZABILIDAD — Servicio para la gestión pedagógica y comercial del catálogo de cursos.
+ * TRAZABILIDAD — Implementación del Servicio para el Módulo de Cursos (MOD-F-01).
  *
- * MOD-F-01: Módulo de Cursos
- *   CU-01 — Buscar curso: búsqueda con filtros avanzados multicriterio.
- *   CU-02 — Ver mis cursos: consulta de cursos matriculados por un alumno.
- *   CU-03 — Registrar curso: alta de cursos con docentes y supervisores asociados.
- *   CU-04 — Modificar curso: edición de metadatos, imagen y arancel.
- *   CU-05 — Dar de baja curso: baja lógica con validación de programas y cohortes vigentes.
- *   CU-06 — Explorar catálogo de cursos: listado público de cursos disponibles.
+ * Implementa las operaciones del sistema y reglas de negocio detalladas en:
+ * - Contratos.md: buscarCursos, registrarCurso, modificarCurso, darDeBajaCurso.
+ * - DSS.md: flujos de interacción del actor con el sistema.
+ * - Casos de Uso Reales.md: CU-01 a CU-06.
  */
 @Service
 @Transactional
 public class CursoServiceImpl implements CursoService {
 
     @Autowired private CursoRepository cursoRepository;
+    @Autowired private CategoriaRepository categoriaRepository;
+    @Autowired private DocenteRepository docenteRepository;
+    @Autowired private SupervisorRepository supervisorRepository;
+    @Autowired private NivelRepository nivelRepository;
     @Autowired private ProgramaRepository programaRepository;
-    @Autowired private UnidadRepository unidadRepository;
-    @Autowired private MaterialRepository materialRepository;
     @Autowired private InscripcionRepository inscripcionRepository;
 
     @Override
@@ -56,9 +40,14 @@ public class CursoServiceImpl implements CursoService {
         return registrarCurso(curso);
     }
 
+    @Override
+    public Curso modificar(Curso curso) {
+        curso.setUltimaModificacion(LocalDateTime.now());
+        return cursoRepository.save(curso);
+    }
+
     /**
-     * CU-01 — Buscar curso.
-     * Recupera cursos publicados aplicando filtros multicriterio por nombre, categoría y modalidad.
+     * CU-01 & CU-06 — Búsqueda de cursos publicados con filtros multicriterio.
      */
     @Override
     @Transactional(readOnly = true)
@@ -71,26 +60,45 @@ public class CursoServiceImpl implements CursoService {
     }
 
     /**
-     * CU-02 — Registrar curso.
+     * CU-01 — Búsqueda administrativa con filtros avanzados para Docente y Administrador.
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public List<Curso> buscarCursosAdminConFiltros(String busqueda, Integer categoriaId, Integer nivelId, Integer docenteId, Boolean publicado) {
+        List<Curso> lista = cursoRepository.findByBajaFalse();
+        return lista.stream()
+                .filter(c -> busqueda == null || busqueda.isBlank() ||
+                        c.getNombre().toLowerCase().contains(busqueda.toLowerCase()) ||
+                        (c.getDescripcion() != null && c.getDescripcion().toLowerCase().contains(busqueda.toLowerCase())))
+                .filter(c -> categoriaId == null || (c.getCategoria() != null && c.getCategoria().getId() == categoriaId))
+                .filter(c -> nivelId == null || (c.getNivel() != null && c.getNivel().getId() == nivelId))
+                .filter(c -> docenteId == null || (c.getDocente() != null && c.getDocente().getId() == docenteId))
+                .filter(c -> publicado == null || Boolean.valueOf(c.getPublicado()).equals(publicado))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * CU-03 — Registrar curso (Admin).
      * 
-     * Valida precondiciones y reglas de negocio del registro de curso:
-     * - Campos obligatorios no vacíos (Excepción CU-02, paso 4).
-     * - Precio no menor a cero (Excepción CU-02, paso 5).
-     * - El curso se crea inicialmente en estado NO publicado.
+     * Reglas y validaciones de Contratos.md / Casos de Uso Reales.md:
+     * - Campos obligatorios: nombre, categoría, nivel, docente titular.
+     * - Precio >= 0.
+     * - El docente titular no puede ser supervisor a la vez en el mismo curso.
+     * - El curso se registra inicialmente sin cohortes y en estado no publicado.
      */
     @Override
     public Curso registrarCurso(Curso curso) {
-        // CU-02 - Excepción, paso 4: Campos obligatorios
         if (curso.getNombre() == null || curso.getNombre().trim().isEmpty()) {
-            throw new ExcepcionValidacion("CU-02 Excepción paso 4: El nombre del curso es obligatorio.");
+            throw new ExcepcionValidacion("CU-03 Excepción paso 4: El nombre del curso es obligatorio.");
         }
         if (curso.getCategoria() == null) {
-            throw new ExcepcionValidacion("CU-02 Excepción paso 4: La categoría del curso es obligatoria.");
+            throw new ExcepcionValidacion("CU-03 Excepción paso 4: La categoría del curso es obligatoria.");
         }
-
-        // CU-02 - Excepción, paso 5: Precio >= 0
         if (curso.getPrecio() < 0) {
-            throw new ExcepcionValidacion("CU-02 Excepción paso 5: El precio del curso no puede ser menor a cero.");
+            throw new ExcepcionValidacion("CU-03 Excepción paso 5: El precio del curso no puede ser menor a cero.");
+        }
+        if (curso.getDocente() == null) {
+            throw new ExcepcionValidacion("CU-03 Excepción paso 4: Debe asignarse un docente titular habilitado.");
         }
 
         curso.setPublicado(false);
@@ -99,112 +107,99 @@ public class CursoServiceImpl implements CursoService {
         return cursoRepository.save(curso);
     }
 
-    /**
-     * CU-03 — Modificar curso.
-     * 
-     * Reglas de negocio:
-     * - Valida campos obligatorios y precio >= 0 (Excepción CU-03, pasos 4 y 5).
-     * - Actualiza la fecha de última modificación.
-     */
     @Override
-    public Curso modificarCurso(Curso curso) {
-        Curso existente = cursoRepository.findById(curso.getId())
-                .orElseThrow(() -> new ExcepcionRecursoNoEncontrado("Curso", "id", curso.getId()));
-
-        if (existente.getBaja()) {
-            throw new ExcepcionValidacion("CU-03 Precondición: No se puede modificar un curso que se encuentra dado de baja.");
+    public Curso registrarCursoConEquipo(Curso curso, Integer docenteSupervisorId) {
+        Curso guardado = registrarCurso(curso);
+        if (docenteSupervisorId != null && !docenteSupervisorId.equals(guardado.getDocente().getId())) {
+            docenteRepository.findById(docenteSupervisorId).ifPresent(sup -> {
+                Supervisor s = new Supervisor(guardado, sup);
+                supervisorRepository.save(s);
+            });
         }
-
-        if (curso.getNombre() == null || curso.getNombre().trim().isEmpty()) {
-            throw new ExcepcionValidacion("CU-03 Excepción paso 4: El nombre del curso no puede quedar vacío.");
-        }
-
-        if (curso.getPrecio() < 0) {
-            throw new ExcepcionValidacion("CU-03 Excepción paso 5: El precio del curso no puede ser menor a cero.");
-        }
-
-        existente.setNombre(curso.getNombre());
-        existente.setDescripcion(curso.getDescripcion());
-        existente.setPrecio(curso.getPrecio());
-        existente.setCategoria(curso.getCategoria());
-        existente.setUltimaModificacion(LocalDateTime.now());
-
-        return cursoRepository.save(existente);
+        return guardado;
     }
 
     /**
-     * CU-03 — Publicar / Despublicar curso.
+     * CU-04 — Modificar curso (Admin).
      * 
-     * Regla de Negocio de Publicación:
-     * Para publicar un curso, este debe poseer al menos 1 programa cargado,
-     * el cual debe contener al menos 10 unidades temáticas y cada unidad debe
-     * contar con al menos un material de estudio publicado.
+     * Reglas:
+     * - Si posee inscripciones activas asociadas, se bloquea la modificación de datos académicos
+     *   críticos (solo se permite precio e imagen de portada).
+     * - Si no posee inscripciones activas, se pueden modificar todos los campos.
      */
     @Override
-    public Curso cambiarEstadoPublicacion(int cursoId, boolean publicar) {
+    public Curso modificarCurso(Integer cursoId, String nombre, String descripcion, float precio, Integer categoriaId,
+                                Integer docenteTitularId, Integer docenteSupervisorId, Integer nivelId, boolean emiteCertificado) {
         Curso curso = cursoRepository.findById(cursoId)
-                .orElseThrow(() -> new ExcepcionRecursoNoEncontrado("Curso", "id", cursoId));
+                .orElseThrow(() -> new ExcepcionRecursoNoEncontrado("Curso no encontrado con ID: " + cursoId));
 
         if (curso.getBaja()) {
-            throw new ExcepcionValidacion("CU-03: No se puede publicar un curso dado de baja.");
+            throw new ExcepcionNegocio("CU-04 Excepción paso 4: No se puede modificar un curso dado de baja.");
         }
 
-        if (publicar) {
-            List<Programa> programas = programaRepository.findByCurso(curso);
-            if (programas.isEmpty()) {
-                throw new ExcepcionValidacion("CU-03 Regla de Publicación: El curso debe tener al menos un programa asignado.");
+        if (precio < 0) {
+            throw new ExcepcionValidacion("CU-04 Excepción paso 6: El precio no puede ser menor a cero.");
+        }
+
+        // Verificar si existen inscripciones activas
+        List<Inscripcion> inscripciones = inscripcionRepository.findByCursoAndBajaFalse(curso);
+        boolean tieneInscripcionesActivas = !inscripciones.isEmpty();
+
+        if (tieneInscripcionesActivas) {
+            // Solo permite actualizar precio y certificado/imagen
+            curso.setPrecio(precio);
+            curso.setEmiteCertificado(emiteCertificado);
+        } else {
+            // Actualización completa
+            if (nombre != null && !nombre.isBlank()) curso.setNombre(nombre.trim());
+            curso.setDescripcion(descripcion);
+            curso.setPrecio(precio);
+            curso.setEmiteCertificado(emiteCertificado);
+
+            if (categoriaId != null) {
+                categoriaRepository.findById(categoriaId).ifPresent(curso::setCategoria);
+            }
+            if (nivelId != null) {
+                nivelRepository.findById(nivelId).ifPresent(curso::setNivel);
+            }
+            if (docenteTitularId != null) {
+                docenteRepository.findById(docenteTitularId).ifPresent(curso::setDocente);
             }
 
-            Programa programaPrincipal = programas.get(0);
-            List<Unidad> unidades = unidadRepository.findByPrograma(programaPrincipal);
-            if (unidades.size() < 10) {
-                throw new ExcepcionValidacion("CU-03 Regla de Publicación: El programa debe contener al menos 10 unidades cargadas para ser publicado. Actuales: " + unidades.size());
-            }
+            // Actualizar supervisores
+            List<Supervisor> supervisoresActuales = supervisorRepository.findByCurso(curso);
+            supervisorRepository.deleteAll(supervisoresActuales);
 
-            for (Unidad u : unidades) {
-                List<Material> materiales = materialRepository.findByUnidad(u);
-                boolean tieneMaterialPublicado = materiales.stream().anyMatch(m -> m.getPublicado() && !m.getBaja());
-                if (!tieneMaterialPublicado) {
-                    throw new ExcepcionValidacion("CU-03 Regla de Publicación: La unidad '" + u.getTitulo() + "' debe poseer al menos un material de estudio publicado.");
-                }
+            if (docenteSupervisorId != null && !docenteSupervisorId.equals(docenteTitularId)) {
+                docenteRepository.findById(docenteSupervisorId).ifPresent(sup -> {
+                    Supervisor s = new Supervisor(curso, sup);
+                    supervisorRepository.save(s);
+                });
             }
         }
 
-        curso.setPublicado(publicar);
         curso.setUltimaModificacion(LocalDateTime.now());
         return cursoRepository.save(curso);
     }
 
     /**
-     * CU-04 — Eliminar curso (Baja Lógica).
+     * CU-05 — Dar de baja curso (Admin).
      * 
-     * Reglas de Negocio:
-     * - Valida existencia del curso.
-     * - Impide la baja si existen cohortes activas con inscripciones vigentes de alumnos.
-     * - Marca baja = true y retira el curso del catálogo público (publicado = false).
+     * Regla: No permite la baja si tiene programas activos asociados.
      */
     @Override
-    public void darDeBajaCurso(int cursoId) {
-        Curso curso = cursoRepository.findById(cursoId)
-                .orElseThrow(() -> new ExcepcionRecursoNoEncontrado("Curso", "id", cursoId));
+    public void darDeBajaCurso(Integer idCurso) {
+        Curso curso = cursoRepository.findById(idCurso)
+                .orElseThrow(() -> new ExcepcionRecursoNoEncontrado("Curso no encontrado con ID: " + idCurso));
 
         if (curso.getBaja()) {
-            throw new ExcepcionValidacion("CU-04 Excepción: El curso ya se encuentra dado de baja.");
+            throw new ExcepcionNegocio("El curso ya se encuentra dado de baja.");
         }
 
-        // CU-04: Verificación de dependencias con cohortes e inscripciones vigentes
         List<Programa> programas = programaRepository.findByCurso(curso);
-        for (Programa p : programas) {
-            List<Cohorte> cohortes = p.getCohortes();
-            if (cohortes != null) {
-                for (Cohorte c : cohortes) {
-                    List<Inscripcion> inscripciones = inscripcionRepository.findByCohorte(c);
-                    boolean tieneInscripcionesActivas = inscripciones.stream().anyMatch(i -> !i.getBaja());
-                    if (tieneInscripcionesActivas) {
-                        throw new ExcepcionValidacion("CU-04 Excepción paso 5: No se puede dar de baja el curso porque posee cohortes activas con alumnos inscriptos.");
-                    }
-                }
-            }
+        boolean tieneProgramasActivos = programas.stream().anyMatch(p -> !p.isBaja());
+        if (tieneProgramasActivos) {
+            throw new ExcepcionConflicto("CU-05 Excepción paso 2: No se puede dar de baja el curso porque tiene programas activos asociados.");
         }
 
         curso.setBaja(true);
@@ -213,26 +208,16 @@ public class CursoServiceImpl implements CursoService {
         cursoRepository.save(curso);
     }
 
-    /**
-     * CU-05 — Explorar catálogo de cursos.
-     * Retorna únicamente cursos publicados y no dados de baja.
-     */
     @Override
     @Transactional(readOnly = true)
-    public List<Curso> obtenerPublicados() {
-        return cursoRepository.findByBajaFalseAndPublicadoTrue();
+    public Optional<Curso> buscarPorId(int id) {
+        return cursoRepository.findById(id);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<Curso> buscarPorId(Integer id) {
-        return cursoRepository.findById(id).filter(c -> !c.getBaja());
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<Curso> obtenerTodo() {
-        return cursoRepository.findByBajaFalse();
+    public List<Curso> buscarPorNombre(String nombre) {
+        return cursoRepository.findByNombreContainingIgnoreCaseAndBajaFalseAndPublicadoTrue(nombre);
     }
 
     @Override
@@ -243,35 +228,28 @@ public class CursoServiceImpl implements CursoService {
 
     @Override
     @Transactional(readOnly = true)
+    public List<Curso> obtenerPublicados() {
+        return cursoRepository.findByBajaFalseAndPublicadoTrue();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Curso> obtenerTodo() {
+        return cursoRepository.findByBajaFalse();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public List<Curso> obtenerPorDocente(Usuario usuario) {
-        // Usa el id del Docente (id_docente), NO el id del Usuario (id_usuario).
-        // Son secuencias independientes: confundirlos devuelve los cursos del docente incorrecto.
-        if (usuario.getDocente() != null) {
+        if (usuario != null && usuario.getDocente() != null) {
             return cursoRepository.findByDocenteId(usuario.getDocente().getId());
         }
-        return java.util.Collections.emptyList();
+        return List.of();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<Curso> buscarPorNombre(String query) {
-        return cursoRepository.findByNombreContainingIgnoreCaseAndBajaFalseAndPublicadoTrue(query);
-    }
-
-    @Override
-    public Curso modificar(Curso curso) {
-        return modificarCurso(curso);
-    }
-
-    @Override
-    public void borrar(Curso curso) {
-        darDeBajaCurso(curso.getId());
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public boolean existePorId(Integer id) {
-        return cursoRepository.existsById(id) && buscarPorId(id).isPresent();
+    public List<Curso> buscarCursosPorDocente(int docenteId) {
+        return cursoRepository.findByDocenteId(docenteId);
     }
 }
-

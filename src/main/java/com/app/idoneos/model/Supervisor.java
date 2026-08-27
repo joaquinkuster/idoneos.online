@@ -1,30 +1,29 @@
 package com.app.idoneos.model;
-import com.app.idoneos.service.Reportes.*;
-
+import com.app.idoneos.service.modulo_reportes.*;
 
 import jakarta.persistence.*;
 
 /**
- * Entidad Supervisor: Asociación entre un Docente y un Curso en el que actúa como supervisor.
- * Mapea directamente a la tabla "Supervisor" en base_datos.sql.
+ * Entidad Supervisor / Ayudante: Asociación entre un Docente y un Curso en el que actúa como ayudante/supervisor.
+ * Mapea directamente a la tabla "Ayudante" en diseño_base_datos.sql.
  */
 @Entity
-@Table(name = "Supervisor")
+@Table(name = "Ayudante")
 public class Supervisor {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
+    @Column(name = "idAyudante")
     private int id;
 
-    /** Curso supervisado. */
+    /** Curso supervisado / asistido. */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_curso", nullable = false)
+    @JoinColumn(name = "idCurso", nullable = false)
     private Curso curso;
 
-    /** Docente que actúa como supervisor del curso. */
+    /** Docente que actúa como supervisor / ayudante del curso. */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_docente", nullable = false)
+    @JoinColumn(name = "idDocente", nullable = false)
     private Docente docente;
 
     public Supervisor() {
@@ -39,7 +38,15 @@ public class Supervisor {
         return id;
     }
 
+    public int getIdAyudante() {
+        return id;
+    }
+
     public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setIdAyudante(int id) {
         this.id = id;
     }
 
@@ -59,4 +66,3 @@ public class Supervisor {
         this.docente = docente;
     }
 }
-

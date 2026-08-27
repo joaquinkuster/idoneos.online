@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${titulo != null ? titulo : 'CU-25 - Ver participantes'}">CU-25 - Ver participantes | Idóneos Online</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome 6 Pro / Solid Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;800&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Estilos del Sistema Centralizados -->
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body class="wf-canvas-bg">
+
+    <div class="cu-page-container" style="max-width: 1400px; margin: 20px auto 40px auto; padding: 0 15px;">
+        <!-- Barra de Metadatos del Caso de Uso -->
+        <div class="meta-strip mb-3 p-3 bg-white rounded border d-flex justify-content-between align-items-center shadow-sm">
+            <div class="d-flex align-items-center gap-2">
+                <span class="wf-badge" style="background: #081426; color: var(--wf-gold); border-color: var(--wf-gold); font-size: 11px;">CU-25</span>
+                <strong style="font-size: 14px; color: #081426;">Ver participantes</strong>
+                <span style="color: #94A3B8;">|</span>
+                <span class="text-muted" style="font-size: 11px;"><strong>Actor(es):</strong> Docente, Administrador</span>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <span class="text-muted" style="font-size: 11px; font-weight: 700;">DSS:</span>
+                <code>buscarParticipantes(curso, nombreCompleto, rol)</code>
+            </div>
+        </div>
+
+        <!-- Pantalla / Screen Frame Oficial -->
+        <div class="screen-frame">
+
+                <!-- Top Navbar Oficial -->
+                <div class="wf-top-navbar">
+                    <div class="wf-brand">
+                        <div class="d-flex flex-column">
+                            <div class="wf-brand-logo"><i class="fa-solid fa-chart-line" style="color: var(--wf-gold);"></i> Idóneos <span>Online</span></div>
+                            <div class="wf-brand-sub">FINANZAS • ECONOMÍA • MERCADO DE CAPITALES</div>
+                        </div>
+                    </div>
+
+                    <div class="wf-top-nav-links">
+                        <a href="#CU-06" class="wf-top-nav-link">Inicio</a>
+                        <a href="#CU-06" class="wf-top-nav-link">Catálogo de Cursos</a>
+                        <span class="wf-top-nav-pill">Panel Administrador</span>
+                        <a href="#CU-99" class="wf-top-nav-link">Acerca de</a>
+
+                        <div class="wf-user-menu-wrapper">
+                            <div class="wf-user-trigger-pill" onclick="toggleUserDropdown(this)">
+                                <div class="user-avatar-circle">AG</div>
+                                <span style="font-size: 11px; font-weight: 700;">Admin General</span>
+                                <i class="fa-solid fa-chevron-down w-3 h-3 text-white ms-1"></i>
+                            </div>
+
+                            <div class="wf-user-floating-dropdown">
+                                <div class="wf-dropdown-user-header">
+                                    <div class="wf-dropdown-user-name">Admin General</div>
+                                    <div class="wf-dropdown-user-role">Administrador</div>
+                                    <div class="wf-dropdown-user-email">admin@idoneos.online</div>
+                                </div>
+  
+                                <div class="wf-dropdown-section">
+                                    <div class="wf-dropdown-section-title">Modo Edición</div>
+    
+                                    <div class="wf-dropdown-editing-toggle-box">
+                                        <span class="small fw-bold">Activar Edición</span>
+                                        <span class="wf-badge status-inactive">OFF</span>
+                                    </div>
+      
+                                </div>
+    
+                                <div class="wf-dropdown-section">
+                                    <div class="wf-dropdown-section-title">Administración del Sistema</div>
+    
+                                    <a href="#CU-01" class="wf-dropdown-item-btn ">
+                                        <span>Gestión de cursos</span>
+                                    </a>
+        
+                                    <a href="#CU-11" class="wf-dropdown-item-btn ">
+                                        <span>Cohortes y programas</span>
+                                    </a>
+        
+                                    <a href="#CU-82" class="wf-dropdown-item-btn ">
+                                        <span>Gestión de usuarios</span>
+                                    </a>
+        
+                                    <a href="#CU-95" class="wf-dropdown-item-btn ">
+                                        <span>Auditoría de eventos</span>
+                                    </a>
+        
+                                    <a href="#CU-96" class="wf-dropdown-item-btn ">
+                                        <span>Informe de alumnos</span>
+                                    </a>
+        
+                                    <a href="#CU-97" class="wf-dropdown-item-btn ">
+                                        <span>Informe de ingresos</span>
+                                    </a>
+        
+                                    <a href="#CU-98" class="wf-dropdown-item-btn ">
+                                        <span>Dashboard de estadísticas</span>
+                                    </a>
+        
+                                    <a href="#CU-99" class="wf-dropdown-item-btn ">
+                                        <span>Configuración general</span>
+                                    </a>
+        
+                                </div>
+    
+                                <div class="wf-dropdown-section">
+                                    <div class="wf-dropdown-section-title">Cuenta & Seguridad</div>
+    
+                                    <a href="#CU-86" class="wf-dropdown-item-btn ">
+                                        <span>Ver perfil</span>
+                                    </a>
+        
+                                    <a href="#CU-93" class="wf-dropdown-item-btn ">
+                                        <span>Seguridad y sesiones activas</span>
+                                    </a>
+        
+                                    <a href="#CU-91" class="wf-dropdown-item-btn text-danger">
+                                        <span>Cerrar sesión</span>
+                                    </a>
+        
+                                </div>
+    
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hero Banner Contextual Superior (Navy) -->
+                <div class="wf-hero-banner">
+                    <div>
+                        <div class="wf-hero-tag">
+                            <i class="fa-solid fa-graduation-cap" style="color: var(--wf-gold);"></i>
+                            <span>PANEL DE ADMINISTRACIÓN</span>
+                        </div>
+                        <h2 class="wf-hero-title">Ver participantes</h2>
+                        <p class="wf-hero-desc">Bienvenido/a, Admin General</p>
+                    </div>
+                    
+                    <div class="d-flex align-items-center gap-2">
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    </div>
+</div>
+
+                <div class="wf-body">
+                    <div class="wf-main-content">
+                        
+      <div class="wf-card mb-4" style="background: #FFFFFF;">
+        <div class="d-flex justify-content-between align-items-start pb-3 border-bottom">
+          <div>
+            <h2 style="font-size: 20px; font-weight: 800; color: #081426; margin: 0;">Especialización en Idoneidad Bursátil</h2>
+            <div class="small text-muted mt-1">
+              <span>Página Principal</span> <i class="fa-solid fa-chevron-right" style="font-size: 9px; margin: 0 4px;"></i> <span>Mis cursos</span> <i class="fa-solid fa-chevron-right" style="font-size: 9px; margin: 0 4px;"></i> <span>Participantes</span>
+            </div>
+          </div>
+          <span class="wf-badge status-active">146 participantes encontrados</span>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center pt-2">
+          <div class="d-flex align-items-center gap-1">
+            <a href="#CU-26b" class="wf-tab-btn">Curso</a>
+            <a href="#CU-23" class="wf-tab-btn">Cronograma</a>
+            <a href="#CU-25" class="wf-tab-btn active">Participantes</a>
+            <a href="#CU-62" class="wf-tab-btn">Calificaciones</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filtros de Iniciales A-Z Moodle FCEQyN Virtual -->
+      <div class="wf-card mb-3 p-3 bg-light border">
+        <div class="d-flex flex-column gap-2" style="font-size: 11px;">
+          <!-- Nombre A-Z -->
+          <div class="d-flex flex-wrap align-items-center gap-1">
+            <strong style="width: 70px; color: #081426;">Nombre:</strong>
+            <span class="badge bg-dark text-white px-2 py-1 cursor-pointer">Todos</span>
+            <span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">A</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">B</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">C</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">D</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">E</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">F</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">G</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">H</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">I</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">J</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">K</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">L</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">M</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">N</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">Ñ</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">O</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">P</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">Q</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">R</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">S</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">T</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">U</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">V</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">W</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">X</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">Y</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">Z</span>
+          </div>
+          <!-- Apellido A-Z -->
+          <div class="d-flex flex-wrap align-items-center gap-1">
+            <strong style="width: 70px; color: #081426;">Apellido:</strong>
+            <span class="badge bg-dark text-white px-2 py-1 cursor-pointer">Todos</span>
+            <span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">A</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">B</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">C</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">D</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">E</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">F</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">G</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">H</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">I</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">J</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">K</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">L</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">M</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">N</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">Ñ</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">O</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">P</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">Q</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">R</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">S</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">T</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">U</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">V</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">W</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">X</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">Y</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">Z</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Barra de Filtros Principales -->
+      <div class="wf-card mb-4" style="background: #FFFFFF;">
+        <div class="row g-3 align-items-end">
+          <div class="col-md-5">
+            <label class="wf-label">Buscar por nombre, apellido o email</label>
+            <div class="wf-input-wrap">
+              <input type="text" class="wf-input" placeholder="Ej: Joaquín Küster, Elena Valenzuela...">
+              
+            </div>
+          </div>
+          <div class="col-md-4">
+            <label class="wf-label">Filtrar por Rol o Cohorte</label>
+            <div class="wf-input-wrap">
+              <select class="wf-input">
+                <option selected>Todos los participantes (Estudiantes y Docentes)</option>
+                <option>Estudiantes (Cohorte 2026-1)</option>
+                <option>Equipo Docente (Titulares y Ayudantes)</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="d-flex align-items-center gap-2">
+              <button class="wf-btn wf-btn-primary w-100"><i class="fa-solid fa-filter me-1"></i> Filtrar</button>
+              
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabla de Participantes Estilo Moodle -->
+      <div class="wf-table-wrap">
+        <table class="wf-table">
+          <thead>
+            <tr>
+              <th style="width: 36px;"><input type="checkbox" style="width: 16px; height: 16px;"></th>
+              <th>Nombre / Apellidos</th>
+              <th>Roles</th>
+              <th>Grupos / Cohorte</th>
+              <th>Último acceso al curso</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Docente Titular -->
+            <tr>
+              <td><input type="checkbox" style="width: 16px; height: 16px;"></td>
+              <td>
+                <div class="d-flex align-items-center gap-2">
+                  <div class="user-avatar-circle" style="width: 34px; height: 34px; font-size: 12px; background: #081426; color: white;">FS</div>
+                  <div>
+                    <a href="#" class="wf-link fw-bold" style="color: #081426; text-decoration: none;">Elena Valenzuela</a>
+                    <div class="small text-muted">elena.valenzuela@idoneos.online</div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="badge bg-primary text-white">Profesor</span></td>
+              <td>Sin grupos</td>
+              <td><span class="small text-success fw-bold">hace 18 minutos</span></td>
+            </tr>
+
+            <!-- Alumno 1 -->
+            <tr>
+              <td><input type="checkbox" style="width: 16px; height: 16px;"></td>
+              <td>
+                <div class="d-flex align-items-center gap-2">
+                  <div class="user-avatar-circle" style="width: 34px; height: 34px; font-size: 12px; background: #2563EB; color: white;">JK</div>
+                  <div>
+                    <a href="#" class="wf-link fw-bold" style="color: #081426; text-decoration: none;">Joaquín Küster</a>
+                    <div class="small text-muted">joaquin.kuster@idoneos.online</div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="badge bg-light text-dark border">Estudiante</span></td>
+              <td>Cohorte 2026-1</td>
+              <td><span class="small text-muted">hace 2 horas</span></td>
+            </tr>
+
+            <!-- Alumno 2 -->
+            <tr>
+              <td><input type="checkbox" style="width: 16px; height: 16px;"></td>
+              <td>
+                <div class="d-flex align-items-center gap-2">
+                  <div class="user-avatar-circle" style="width: 34px; height: 34px; font-size: 12px; background: #0D9488; color: white;">MB</div>
+                  <div>
+                    <a href="#" class="wf-link fw-bold" style="color: #081426; text-decoration: none;">María Benítez</a>
+                    <div class="small text-muted">maria.benitez@idoneos.online</div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="badge bg-light text-dark border">Estudiante</span></td>
+              <td>Cohorte 2026-1</td>
+              <td><span class="small text-muted">126 días 21 horas</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Paginación Moodle -->
+      <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
+        <div class="small text-muted">Mostrando 1 - 20 de 146 participantes</div>
+        <div class="d-flex gap-1" style="font-size: 12px;">
+          <span class="badge bg-dark text-white px-2 py-1">1</span>
+          <span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">2</span>
+          <span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">3</span>
+          <span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">4</span>
+          <span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">5</span>
+          <span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">»</span>
+        </div>
+      </div>
+    
+                    </div>
+                </div>
+
+                <!-- Footer Oficial -->
+                <div class="wf-screen-footer">
+                    <div>
+                        <strong>Idóneos <span>Online</span> S.A.S.</strong> • Plataforma de Educación Financiera, Economía & Mercado de Capitales
+                    </div>
+                    <div>
+                        FCEQyN — UNaM • Proyecto Software (LSI) / Trabajo Final (ASI)
+                    </div>
+                </div>
+            
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function toggleUserDropdown(triggerEl) {
+            const wrapper = triggerEl.closest('.wf-user-menu-wrapper');
+            if (wrapper) {
+                const dropdown = wrapper.querySelector('.wf-user-floating-dropdown');
+                if (dropdown) {
+                    dropdown.style.display = (dropdown.style.display === 'none' || dropdown.style.display === '') ? 'flex' : 'none';
+                }
+            }
+        }
+    </script>
+</body>
+</html>

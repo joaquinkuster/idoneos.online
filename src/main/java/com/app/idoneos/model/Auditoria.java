@@ -1,9 +1,10 @@
 package com.app.idoneos.model;
-import com.app.idoneos.service.Reportes.*;
-
+import com.app.idoneos.service.modulo_reportes.*;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Entidad Auditoria: Registro de acciones realizadas sobre el sistema por los usuarios.
@@ -51,6 +52,10 @@ public class Auditoria {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_usuario", nullable = false)
     private Usuario usuario;
+
+    /** Detalles granulares de modificaciones asociadas a esta acción de auditoría. */
+    @OneToMany(mappedBy = "auditoria", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<DetalleAuditoria> detalles = new ArrayList<>();
 
     public Auditoria() {
     }
@@ -155,6 +160,21 @@ public class Auditoria {
 
     public void setUsuario(Usuario usuario) {
         this.usuario = usuario;
+    }
+
+    public List<DetalleAuditoria> getDetalles() {
+        return detalles;
+    }
+
+    public void setDetalles(List<DetalleAuditoria> detalles) {
+        this.detalles = detalles;
+    }
+
+    public void addDetalle(DetalleAuditoria detalle) {
+        if (detalle != null) {
+            this.detalles.add(detalle);
+            detalle.setAuditoria(this);
+        }
     }
 }
 

@@ -1,11 +1,11 @@
 package com.app.idoneos.controller.modulo_clases_vivo;
-import com.app.idoneos.service.Reportes.*;
 
 import com.app.idoneos.model.*;
+import com.app.idoneos.repository.modulo_clases_vivo.*;
 import com.app.idoneos.repository.modulo_cursos.*;
 import com.app.idoneos.repository.modulo_gestion_academica.*;
-import com.app.idoneos.repository.modulo_clases_vivo.*;
 import com.app.idoneos.repository.modulo_usuarios.*;
+import com.app.idoneos.service.modulo_cursos.*;
 import com.app.idoneos.service.modulo_gestion_academica.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -15,267 +15,270 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 /**
- * TRAZABILIDAD — Controller para la programación y transmisión de Clases en
- * Vivo.
+ * TRAZABILIDAD — Controller para el Módulo de Clases en Vivo (MOD-F-05).
  *
- * MOD-F-05: Módulo de Clases en Vivo
- * CU-65 — Buscar clase en vivo → GET /clase-vivo/docente (con filtros)
- * CU-66 — Programar clase en vivo → POST /clase-vivo/programar (con cohorte en
- * dictado y duración estimada)
- * CU-67 — Modificar clase en vivo → POST /clase-vivo/{claseId}/modificar
- * (título, fecha/hora, duración)
- * CU-68 — Cancelar clase en vivo → POST /clase-vivo/{claseId}/cancelar (cambia
- * a estado Cancelada o notifica)
- * CU-69 — Dar de baja clase en vivo → POST /clase-vivo/{claseId}/baja (baja
- * lógica para Docente/Admin)
- * CU-70 — Iniciar clase en vivo → POST /clase-vivo/{claseId}/iniciar (genera
- * datos de conexión RTMP)
- * CU-71 — Finalizar clase en vivo → POST /clase-vivo/{claseId}/finalizar
- * (cambia a Finalizada y genera material)
- * CU-72 — Ingresar a clase en vivo → GET /clase-vivo/{claseId}/ver
- * (verificación de alumno y acceso a sala)
+ * Mapea y conecta directamente las 8 pantallas de Clases en Vivo:
+ *   CU-65 a CU-72
  */
 @Controller
-@RequestMapping("/clase-vivo")
+@RequestMapping("/clases-vivo")
 public class ClaseEnVivoController {
 
-    @Autowired
-    private ClaseEnVivoRepository claseEnVivoRepository;
-    @Autowired
-    private EstadoClaseEnVivoRepository estadoRepo;
-    @Autowired
-    private DocenteRepository docenteRepository;
-    @Autowired
-    private UnidadServiceImpl unidadService;
-    @Autowired
-    private MaterialRepository materialRepository;
-    @Autowired
-    private TipoMaterialRepository tipoMaterialRepository;
-    @Autowired
-    private CohorteRepository cohorteRepository;
-    @Autowired
-    private CronogramaRepository cronogramaRepository;
+    @Autowired private ClaseEnVivoRepository claseEnVivoRepository;
+    @Autowired private EstadoClaseEnVivoRepository estadoRepo;
+    @Autowired private DocenteRepository docenteRepository;
+    @Autowired private CohorteRepository cohorteRepository;
+    @Autowired private UnidadService unidadService;
+    @Autowired private CursoService cursoService;
+
+    private void agregarUsuarioAlModelo(Model model, Authentication auth) {
+        if (auth != null && auth.getPrincipal() instanceof Usuario) {
+            model.addAttribute("usuario", (Usuario) auth.getPrincipal());
+        }
+    }
 
     /**
-     * TRAZABILIDAD: CU-65 — Buscar clase en vivo.
-     * Actor: Docente / Administrador.
+     * CU-65 — Buscar clase en vivo.
+     * Vista: cu-65-buscar-clase-en-vivo.html
      */
-    @GetMapping("/docente")
-    public String misClases(Model model, Authentication auth) {
-        Usuario usuario = (Usuario) auth.getPrincipal();
-        Docente docente = docenteRepository.findById(usuario.getId()).orElse(null);
-        if (docente == null && !usuario.esAdmin())
-            return "redirect:/docente";
+    @GetMapping
+    public String buscarClasesEnVivo(@RequestParam(value = "cohorteId", required = false) Integer cohorteId,
+                                     Model model, Authentication auth) {
+        agregarUsuarioAlModelo(model, auth);
+        List<ClaseEnVivo> todas = claseEnVivoRepository.findAll().stream().filter(c -> !c.getBaja()).toList();
+        List<ClaseEnVivo> clases = (cohorteId != null)
+                ? todas.stream().filter(c -> c.getCohorte() != null && c.getCohorte().getId() == cohorteId).toList()
+                : todas;
 
-        List<ClaseEnVivo> clases = (docente != null)
-                ? claseEnVivoRepository.findByDocenteAndBajaFalseOrderByFechaHoraDesc(docente)
-                : claseEnVivoRepository.findAll().stream().filter(c -> !c.getBaja()).toList();
-
-        model.addAttribute("usuario", usuario);
         model.addAttribute("clases", clases);
-        model.addAttribute("titulo", "Clases en Vivo | Idóneos Online");
-        return "pages/docente/clases-en-vivo";
+        model.addAttribute("cohortes", cohorteRepository.findAll());
+        model.addAttribute("titulo", "CU-65 - Buscar clase en vivo | Idóneos Online");
+        return "pages/ia_vivo/cu-65-buscar-clase-en-vivo";
     }
 
     /**
-     * TRAZABILIDAD: CU-66 — Programar clase en vivo.
-     * Actor: Docente.
+     * CU-66 — Programar clase en vivo (GET).
+     * Vista: cu-66-programar-clase-en-vivo.html
      */
-    @PostMapping("/programar")
-    public String programar(@RequestParam(required = false) Integer cohorteId,
-            @RequestParam(required = false) Integer unidadId,
-            @RequestParam String titulo,
-            @RequestParam String fechaHora,
-            @RequestParam(defaultValue = "60") int duracionEstimada,
-            Authentication auth,
-            RedirectAttributes ra) {
-        Usuario usuario = (Usuario) auth.getPrincipal();
-        Docente docente = docenteRepository.findById(usuario.getId()).orElse(null);
-        EstadoClaseEnVivo estadoProgramada = estadoRepo.findByNombre("Programada").orElse(null);
+    @GetMapping("/nueva")
+    public String programarClaseForm(@RequestParam(value = "cohorteId", required = false) Integer cohorteId,
+                                     Model model, Authentication auth) {
+        agregarUsuarioAlModelo(model, auth);
+        model.addAttribute("cohortes", cohorteRepository.findAll());
+        model.addAttribute("cohorteId", cohorteId);
+        model.addAttribute("titulo", "CU-66 - Programar clase en vivo | Idóneos Online");
+        return "pages/ia_vivo/cu-66-programar-clase-en-vivo";
+    }
 
-        Cohorte cohorte = null;
-        if (cohorteId != null) {
-            cohorte = cohorteRepository.findById(cohorteId).orElse(null);
-        } else if (unidadId != null) {
-            Unidad unidad = unidadService.buscarPorId(unidadId).orElse(null);
-            if (unidad != null) {
-                List<Cronograma> cronogramas = cronogramaRepository.findByUnidad(unidad);
-                for (Cronograma crono : cronogramas) {
-                    if (crono.getPrograma() != null) {
-                        List<Cohorte> cohortes = cohorteRepository.findByProgramaAndBajaFalse(crono.getPrograma());
-                        if (!cohortes.isEmpty()) {
-                            cohorte = cohortes.get(0);
-                            break;
-                        }
-                    }
-                }
+    /**
+     * CU-66 — Programar clase en vivo (POST).
+     */
+    @PostMapping("/guardar")
+    public String guardarClase(@RequestParam Integer cohorteId,
+                               @RequestParam String titulo,
+                               @RequestParam String fechaHora,
+                               @RequestParam(defaultValue = "60") int duracionEstimada,
+                               Authentication auth, RedirectAttributes ra) {
+        try {
+            Cohorte cohorte = cohorteRepository.findById(cohorteId).orElseThrow(() -> new IllegalArgumentException("Cohorte no encontrada"));
+            Docente docente = null;
+            if (auth != null && auth.getPrincipal() instanceof Usuario) {
+                Usuario u = (Usuario) auth.getPrincipal();
+                docente = docenteRepository.findById(u.getId()).orElse(null);
             }
-        }
-
-        if (docente == null || estadoProgramada == null || cohorte == null) {
-            ra.addFlashAttribute("mensaje", "EX-CU66-01: Datos incompletos o cohorte en dictado no seleccionada.");
-            return "redirect:/clase-vivo/docente";
-        }
-
-        LocalDateTime dt = LocalDateTime.parse(fechaHora, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm"));
-        ClaseEnVivo clase = new ClaseEnVivo(titulo.trim(), dt, docente, estadoProgramada, cohorte);
-        clase.setDuracionEstimada(duracionEstimada);
-        claseEnVivoRepository.save(clase);
-
-        ra.addFlashAttribute("mensaje",
-                "Clase '" + titulo + "' programada para " + dt.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
-        return "redirect:/clase-vivo/docente";
-    }
-
-    /**
-     * TRAZABILIDAD: CU-67 — Modificar clase en vivo.
-     * Actor: Docente.
-     */
-    @PostMapping("/{claseId}/modificar")
-    public String modificar(@PathVariable Integer claseId,
-            @RequestParam String titulo,
-            @RequestParam String fechaHora,
-            @RequestParam(defaultValue = "60") int duracionEstimada,
-            RedirectAttributes ra) {
-        ClaseEnVivo clase = claseEnVivoRepository.findById(claseId).orElse(null);
-        if (clase == null)
-            return "redirect:/clase-vivo/docente";
-
-        LocalDateTime dt = LocalDateTime.parse(fechaHora, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm"));
-        clase.setTitulo(titulo.trim());
-        clase.setFechaHora(dt);
-        clase.setDuracionEstimada(duracionEstimada);
-        claseEnVivoRepository.save(clase);
-
-        ra.addFlashAttribute("mensaje", "Clase en vivo modificada correctamente.");
-        return "redirect:/clase-vivo/docente";
-    }
-
-    /**
-     * TRAZABILIDAD: CU-68 — Cancelar clase en vivo.
-     * Actor: Docente.
-     */
-    @PostMapping("/{claseId}/cancelar")
-    public String cancelar(@PathVariable Integer claseId, RedirectAttributes ra) {
-        ClaseEnVivo clase = claseEnVivoRepository.findById(claseId).orElse(null);
-        if (clase != null) {
-            EstadoClaseEnVivo estadoCancelada = estadoRepo.findByNombre("Cancelada").orElse(null);
-            if (estadoCancelada != null) {
-                clase.setEstado(estadoCancelada);
-            } else {
-                clase.setOculto(true);
+            if (docente == null) {
+                List<Docente> docentes = docenteRepository.findAll();
+                docente = docentes.isEmpty() ? null : docentes.get(0);
             }
+
+            EstadoClaseEnVivo estado = estadoRepo.findByNombre("Programada").orElseGet(() -> estadoRepo.findAll().get(0));
+            LocalDateTime fHora = LocalDateTime.parse(fechaHora.contains("T") ? fechaHora : fechaHora + "T18:00:00");
+
+            ClaseEnVivo clase = new ClaseEnVivo(titulo, fHora, duracionEstimada, "rtmp://live.idoneos.online/live", UUID.randomUUID().toString(), docente, estado, cohorte);
             claseEnVivoRepository.save(clase);
+            ra.addFlashAttribute("mensaje", "Clase en vivo programada exitosamente.");
+            return "redirect:/clases-vivo";
+        } catch (Exception e) {
+            ra.addFlashAttribute("error", e.getMessage());
+            return "redirect:/clases-vivo/nueva";
         }
-        ra.addFlashAttribute("mensaje", "Clase en vivo cancelada.");
-        return "redirect:/clase-vivo/docente";
     }
 
     /**
-     * TRAZABILIDAD: CU-69 — Dar de baja clase en vivo.
-     * Actor: Docente / Administrador.
+     * CU-67 — Modificar clase en vivo (GET).
+     * Vista: cu-67-modificar-clase-en-vivo.html
      */
-    @PostMapping("/{claseId}/baja")
-    public String darDeBaja(@PathVariable Integer claseId, RedirectAttributes ra) {
-        ClaseEnVivo clase = claseEnVivoRepository.findById(claseId).orElse(null);
-        if (clase != null) {
-            clase.setBaja(true);
-            claseEnVivoRepository.save(clase);
+    @GetMapping("/{id}/editar")
+    public String modificarClaseForm(@PathVariable Integer id, Model model, Authentication auth) {
+        Optional<ClaseEnVivo> cOpt = claseEnVivoRepository.findById(id);
+        if (cOpt.isEmpty()) return "redirect:/clases-vivo";
+
+        agregarUsuarioAlModelo(model, auth);
+        model.addAttribute("clase", cOpt.get());
+        model.addAttribute("titulo", "CU-67 - Modificar clase en vivo | Idóneos Online");
+        return "pages/ia_vivo/cu-67-modificar-clase-en-vivo";
+    }
+
+    @PostMapping("/{id}/editar")
+    public String actualizarClase(@PathVariable Integer id,
+                                  @RequestParam String titulo,
+                                  @RequestParam String fechaHora,
+                                  @RequestParam int duracionEstimada,
+                                  RedirectAttributes ra) {
+        try {
+            ClaseEnVivo c = claseEnVivoRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Clase no encontrada"));
+            c.setTitulo(titulo);
+            c.setFechaHora(LocalDateTime.parse(fechaHora.contains("T") ? fechaHora : fechaHora + "T18:00:00"));
+            c.setDuracionEstimada(duracionEstimada);
+            claseEnVivoRepository.save(c);
+            ra.addFlashAttribute("mensaje", "Clase en vivo actualizada con éxito.");
+            return "redirect:/clases-vivo";
+        } catch (Exception e) {
+            ra.addFlashAttribute("error", e.getMessage());
+            return "redirect:/clases-vivo/" + id + "/editar";
         }
-        ra.addFlashAttribute("mensaje", "Clase en vivo dada de baja del sistema.");
-        return "redirect:/clase-vivo/docente";
     }
 
     /**
-     * TRAZABILIDAD: CU-70 — Iniciar clase en vivo.
-     * Actor: Docente.
+     * CU-68 — Cancelar clase en vivo (GET/POST).
+     * Vista: cu-68-cancelar-clase-en-vivo.html
      */
-    @PostMapping("/{claseId}/iniciar")
-    public String iniciar(@PathVariable Integer claseId, RedirectAttributes ra) {
-        ClaseEnVivo clase = claseEnVivoRepository.findById(claseId).orElse(null);
-        EstadoClaseEnVivo estadoEnVivo = estadoRepo.findByNombre("En vivo").orElse(null);
+    @GetMapping("/{id}/cancelar")
+    public String cancelarClaseView(@PathVariable Integer id, Model model, Authentication auth) {
+        Optional<ClaseEnVivo> cOpt = claseEnVivoRepository.findById(id);
+        if (cOpt.isEmpty()) return "redirect:/clases-vivo";
 
-        if (clase == null || estadoEnVivo == null) {
-            ra.addFlashAttribute("mensaje", "No se pudo iniciar la clase.");
-            return "redirect:/clase-vivo/docente";
-        }
-
-        String urlRtmp = "rtmp://live.idoneos.online/stream/" + claseId;
-        String claveStream = UUID.randomUUID().toString().replace("-", "").substring(0, 16);
-
-        clase.setEstado(estadoEnVivo);
-        clase.setUrlRtmp(urlRtmp);
-        clase.setClaveStream(claveStream);
-        claseEnVivoRepository.save(clase);
-
-        ra.addFlashAttribute("mensaje", "Clase iniciada. URL RTMP: " + urlRtmp + " | Clave: " + claveStream);
-        return "redirect:/clase-vivo/docente";
+        agregarUsuarioAlModelo(model, auth);
+        model.addAttribute("clase", cOpt.get());
+        model.addAttribute("titulo", "CU-68 - Cancelar clase en vivo | Idóneos Online");
+        return "pages/ia_vivo/cu-68-cancelar-clase-en-vivo";
     }
 
-    /**
-     * TRAZABILIDAD: CU-71 — Finalizar clase en vivo.
-     * Actor: Docente.
-     */
-    @PostMapping("/{claseId}/finalizar")
-    public String finalizar(@PathVariable Integer claseId, RedirectAttributes ra) {
-        ClaseEnVivo clase = claseEnVivoRepository.findById(claseId).orElse(null);
-        EstadoClaseEnVivo estadoFinalizada = estadoRepo.findByNombre("Finalizada").orElse(null);
-        TipoMaterial tipoGrabacion = tipoMaterialRepository.findByNombre("Grabación").orElse(null);
-
-        if (clase == null || estadoFinalizada == null) {
-            ra.addFlashAttribute("mensaje", "No se pudo finalizar la clase.");
-            return "redirect:/clase-vivo/docente";
-        }
-
-        clase.setEstado(estadoFinalizada);
-
-        if (tipoGrabacion != null) {
-            String rutaGrabacion = "grabaciones/clase_" + claseId + "_" + System.currentTimeMillis() + ".mp4";
-            String tituloMat = "Grabación: " + clase.getTitulo();
-            if (tituloMat.length() > 50)
-                tituloMat = tituloMat.substring(0, 47) + "...";
-
-            Unidad unidadMaterial = null;
-            if (clase.getCohorte() != null && clase.getCohorte().getPrograma() != null) {
-                List<Cronograma> cronos = cronogramaRepository
-                        .findByProgramaOrderByNumeroOrden(clase.getCohorte().getPrograma());
-                if (!cronos.isEmpty()) {
-                    unidadMaterial = cronos.get(0).getUnidad();
-                }
+    @PostMapping("/{id}/cancelar")
+    public String procesarCancelarClase(@PathVariable Integer id, RedirectAttributes ra) {
+        try {
+            ClaseEnVivo c = claseEnVivoRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Clase no encontrada"));
+            EstadoClaseEnVivo cancelada = estadoRepo.findByNombre("Cancelada").orElse(null);
+            if (cancelada != null) {
+                c.setEstado(cancelada);
+                claseEnVivoRepository.save(c);
             }
-
-            if (unidadMaterial != null) {
-                Material grabacion = new Material(tituloMat, clase.getDocente(), tipoGrabacion, unidadMaterial);
-                grabacion.setRutaArchivo(rutaGrabacion);
-                grabacion.setPublicado(false);
-                materialRepository.save(grabacion);
-                clase.setMaterial(grabacion);
-            }
+            ra.addFlashAttribute("mensaje", "Clase cancelada exitosamente.");
+        } catch (Exception e) {
+            ra.addFlashAttribute("error", e.getMessage());
         }
-
-        claseEnVivoRepository.save(clase);
-        ra.addFlashAttribute("mensaje", "Clase finalizada. La grabación está disponible para revisión.");
-        return "redirect:/clase-vivo/docente";
+        return "redirect:/clases-vivo";
     }
 
     /**
-     * TRAZABILIDAD: CU-72 — Ingresar a clase en vivo.
-     * Actor: Alumno.
+     * CU-69 — Dar de baja clase en vivo (GET/POST).
+     * Vista: cu-69-dar-de-baja-clase-en-vivo.html
      */
-    @GetMapping("/{claseId}/ver")
-    public String verClase(@PathVariable Integer claseId, Model model, Authentication auth) {
-        ClaseEnVivo clase = claseEnVivoRepository.findById(claseId).orElse(null);
-        if (clase == null)
-            return "redirect:/cursos";
+    @GetMapping("/{id}/baja")
+    public String darDeBajaClaseView(@PathVariable Integer id, Model model, Authentication auth) {
+        Optional<ClaseEnVivo> cOpt = claseEnVivoRepository.findById(id);
+        if (cOpt.isEmpty()) return "redirect:/clases-vivo";
 
-        model.addAttribute("usuario", (Usuario) auth.getPrincipal());
-        model.addAttribute("clase", clase);
-        model.addAttribute("titulo", "Clase en Vivo: " + clase.getTitulo());
-        return "pages/alumno/ver-clase-vivo";
+        agregarUsuarioAlModelo(model, auth);
+        model.addAttribute("clase", cOpt.get());
+        model.addAttribute("titulo", "CU-69 - Dar de baja clase en vivo | Idóneos Online");
+        return "pages/ia_vivo/cu-69-dar-de-baja-clase-en-vivo";
+    }
+
+    @PostMapping("/{id}/baja")
+    public String eliminarClase(@PathVariable Integer id, RedirectAttributes ra) {
+        try {
+            ClaseEnVivo c = claseEnVivoRepository.findById(id).orElse(null);
+            if (c != null) {
+                c.setBaja(true);
+                claseEnVivoRepository.save(c);
+            }
+            ra.addFlashAttribute("mensaje", "Clase dada de baja correctamente.");
+        } catch (Exception e) {
+            ra.addFlashAttribute("error", e.getMessage());
+        }
+        return "redirect:/clases-vivo";
+    }
+
+    /**
+     * CU-70 — Iniciar clase en vivo (GET/POST).
+     * Vista: cu-70-iniciar-clase-en-vivo.html
+     */
+    @GetMapping("/{id}/iniciar")
+    public String iniciarClaseView(@PathVariable Integer id, Model model, Authentication auth) {
+        Optional<ClaseEnVivo> cOpt = claseEnVivoRepository.findById(id);
+        if (cOpt.isEmpty()) return "redirect:/clases-vivo";
+
+        agregarUsuarioAlModelo(model, auth);
+        model.addAttribute("clase", cOpt.get());
+        model.addAttribute("titulo", "CU-70 - Iniciar clase en vivo | Idóneos Online");
+        return "pages/ia_vivo/cu-70-iniciar-clase-en-vivo";
+    }
+
+    @PostMapping("/{id}/iniciar")
+    public String transmitirClase(@PathVariable Integer id, RedirectAttributes ra) {
+        try {
+            ClaseEnVivo c = claseEnVivoRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Clase no encontrada"));
+            EstadoClaseEnVivo enVivo = estadoRepo.findByNombre("En Vivo").orElse(null);
+            if (enVivo != null) {
+                c.setEstado(enVivo);
+                claseEnVivoRepository.save(c);
+            }
+            ra.addFlashAttribute("mensaje", "¡Transmisión iniciada en directo!");
+            return "redirect:/clases-vivo/" + id + "/sala";
+        } catch (Exception e) {
+            ra.addFlashAttribute("error", e.getMessage());
+            return "redirect:/clases-vivo/" + id + "/iniciar";
+        }
+    }
+
+    /**
+     * CU-71 — Finalizar clase en vivo (GET/POST).
+     * Vista: cu-71-finalizar-clase-en-vivo.html
+     */
+    @GetMapping("/{id}/finalizar")
+    public String finalizarClaseView(@PathVariable Integer id, Model model, Authentication auth) {
+        Optional<ClaseEnVivo> cOpt = claseEnVivoRepository.findById(id);
+        if (cOpt.isEmpty()) return "redirect:/clases-vivo";
+
+        agregarUsuarioAlModelo(model, auth);
+        model.addAttribute("clase", cOpt.get());
+        model.addAttribute("titulo", "CU-71 - Finalizar clase en vivo | Idóneos Online");
+        return "pages/ia_vivo/cu-71-finalizar-clase-en-vivo";
+    }
+
+    @PostMapping("/{id}/finalizar")
+    public String concluirClase(@PathVariable Integer id, RedirectAttributes ra) {
+        try {
+            ClaseEnVivo c = claseEnVivoRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Clase no encontrada"));
+            EstadoClaseEnVivo fin = estadoRepo.findByNombre("Finalizada").orElse(null);
+            if (fin != null) {
+                c.setEstado(fin);
+                claseEnVivoRepository.save(c);
+            }
+            ra.addFlashAttribute("mensaje", "Clase en vivo finalizada y grabada con éxito.");
+            return "redirect:/clases-vivo";
+        } catch (Exception e) {
+            ra.addFlashAttribute("error", e.getMessage());
+            return "redirect:/clases-vivo/" + id + "/finalizar";
+        }
+    }
+
+    /**
+     * CU-72 — Ingresar a clase en vivo (Sala del alumno).
+     * Vista: cu-72-ingresar-a-clase-en-vivo.html
+     */
+    @GetMapping("/{id}/sala")
+    public String ingresarSalaClase(@PathVariable Integer id, Model model, Authentication auth) {
+        Optional<ClaseEnVivo> cOpt = claseEnVivoRepository.findById(id);
+        if (cOpt.isEmpty()) return "redirect:/clases-vivo";
+
+        agregarUsuarioAlModelo(model, auth);
+        model.addAttribute("clase", cOpt.get());
+        model.addAttribute("titulo", "CU-72 - Sala de Transmisión: " + cOpt.get().getTitulo() + " | Idóneos Online");
+        return "pages/ia_vivo/cu-72-ingresar-a-clase-en-vivo";
     }
 }

@@ -1,50 +1,50 @@
 package com.app.idoneos.service.modulo_cursos;
-import com.app.idoneos.service.Reportes.*;
-
-import com.app.idoneos.exception.*;
-import com.app.idoneos.repository.modulo_cursos.*;
-import com.app.idoneos.repository.modulo_gestion_academica.*;
-import com.app.idoneos.repository.modulo_inscripciones.*;
-import com.app.idoneos.repository.modulo_evaluaciones.*;
-import com.app.idoneos.repository.modulo_clases_vivo.*;
-import com.app.idoneos.repository.modulo_ia.*;
-import com.app.idoneos.repository.modulo_usuarios.*;
-import com.app.idoneos.repository.modulo_auditoria.*;
-import com.app.idoneos.repository.modulo_reportes.*;
-import com.app.idoneos.repository.modulo_configuracion.*;
-import com.app.idoneos.service.modulo_configuracion.*;
-import com.app.idoneos.service.modulo_cursos.*;
-import com.app.idoneos.service.modulo_gestion_academica.*;
-import com.app.idoneos.service.modulo_inscripciones.*;
-import com.app.idoneos.service.modulo_evaluaciones.*;
-import com.app.idoneos.service.modulo_ia.*;
-import com.app.idoneos.service.modulo_usuarios.*;
 
 import com.app.idoneos.model.*;
-
 import java.util.List;
+import java.util.Optional;
 
 /**
- * Servicio para la gestión del catálogo de cursos (CU-01 a CU-05).
+ * TRAZABILIDAD — Contrato de Servicio para la gestión pedagógica y comercial del catálogo de cursos.
+ *
+ * MOD-F-01: Módulo de Cursos
+ *   CU-01 — Buscar curso (con filtros multicriterio y restricción por rol docente)
+ *   CU-02 — Ver mis cursos (alumno)
+ *   CU-03 — Registrar curso (admin)
+ *   CU-04 — Modificar curso (admin con protección de datos si hay inscripciones)
+ *   CU-05 — Dar de baja curso (admin con validación de dependencias activas)
+ *   CU-06 — Explorar catálogo de cursos (público / alumno)
  */
-public interface CursoService extends CrudService<Curso> {
+public interface CursoService {
 
-    List<Curso> buscarCursosPublicadosConFiltros(String nombre, Integer categoriaId, Integer modalidadId);
+    Curso guardar(Curso curso);
+
+    Curso modificar(Curso curso);
 
     Curso registrarCurso(Curso curso);
 
-    Curso modificarCurso(Curso curso);
+    Curso registrarCursoConEquipo(Curso curso, Integer docenteSupervisorId);
 
-    Curso cambiarEstadoPublicacion(int cursoId, boolean publicar);
+    Curso modificarCurso(Integer cursoId, String nombre, String descripcion, float precio, Integer categoriaId,
+                         Integer docenteTitularId, Integer docenteSupervisorId, Integer nivelId, boolean emiteCertificado);
 
-    void darDeBajaCurso(int cursoId);
+    void darDeBajaCurso(Integer idCurso);
 
-    List<Curso> obtenerPublicados();
+    Optional<Curso> buscarPorId(int id);
+
+    List<Curso> buscarPorNombre(String nombre);
 
     List<Curso> obtenerPorCategoria(Categoria categoria);
 
-    List<Curso> obtenerPorDocente(Usuario docente);
+    List<Curso> obtenerPublicados();
 
-    List<Curso> buscarPorNombre(String query);
+    List<Curso> obtenerTodo();
+
+    List<Curso> obtenerPorDocente(Usuario usuario);
+
+    List<Curso> buscarCursosPorDocente(int docenteId);
+
+    List<Curso> buscarCursosPublicadosConFiltros(String nombre, Integer categoriaId, Integer modalidadId);
+
+    List<Curso> buscarCursosAdminConFiltros(String busqueda, Integer categoriaId, Integer nivelId, Integer docenteId, Boolean publicado);
 }
-

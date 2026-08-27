@@ -555,3 +555,1193 @@ a:hover {
     font-size: 1.3rem;
   }
 }
+
+
+        /* ==========================================================================
+           ESTILO OFICIAL DEFINITIVO — IDÓNEOS ONLINE
+           Paleta: Deep Navy (#081426, #0F233D), Acento Oro (#D4A03D, #C59030), Blanco (#FFFFFF)
+           Bordes suaves, tarjetas con pill badges de categoría/aranceles y botones dorados.
+           ========================================================================== */
+        :root {
+            --wf-navy-dark: #081426;
+            --wf-navy-header: #071324;
+            --wf-navy-card-top: #132A4A;
+            --wf-gold: #D4A03D;
+            --wf-gold-hover: #C59030;
+            --wf-gold-light: #FEF3C7;
+            --wf-gold-text: #92400E;
+            --wf-bg: #F4F6F9;
+            --wf-canvas: #E9ECEF;
+            --wf-border: #DDE2E8;
+            --wf-text: #0F172A;
+            --wf-text-muted: #64748B;
+            --wf-surface: #FFFFFF;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            background-color: var(--wf-canvas);
+            color: var(--wf-text);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        i {
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        /* Navegación Lateral */
+        #nav-sidebar {
+            width: 310px;
+            background: #081426;
+            color: #FFFFFF;
+            overflow-y: auto;
+            border-right: 1px solid #142844;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .nav-header {
+            padding: 20px;
+            border-bottom: 1px solid #142844;
+            background: #050E1B;
+        }
+
+        .nav-header h2 {
+            font-size: 14px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            color: #FFFFFF;
+        }
+
+        .nav-header p {
+            font-size: 11px;
+            color: #94A3B8;
+            margin-top: 3px;
+        }
+
+        .nav-search {
+            padding: 12px 16px;
+            border-bottom: 1px solid #142844;
+        }
+
+        .nav-search input {
+            width: 100%;
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid #1E3A5F;
+            background: #0F233D;
+            color: #FFFFFF;
+            font-size: 12px;
+            outline: none;
+            transition: all 0.15s;
+        }
+
+        .nav-search input:focus {
+            border-color: var(--wf-gold);
+        }
+
+        .module-group {
+            border-bottom: 1px solid #142844;
+        }
+
+        .module-header {
+            padding: 10px 16px;
+            background: #0D2038;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--wf-gold);
+            letter-spacing: 0.3px;
+            border-left: 3px solid var(--wf-gold);
+        }
+
+        .module-list {
+            list-style: none;
+        }
+
+        .nav-item a {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 16px;
+            color: #94A3B8;
+            text-decoration: none;
+            font-size: 12px;
+            transition: all 0.15s;
+        }
+
+        .nav-item a:hover {
+            background: #132A4A;
+            color: #FFFFFF;
+            padding-left: 20px;
+        }
+
+        .nav-item .cu-tag {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: rgba(255,255,255,0.08);
+            color: #E2E8F0;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        /* Viewport Central (Canvas de Figma) */
+        #viewport {
+            flex: 1;
+            overflow-y: auto;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            gap: 64px;
+            align-items: center;
+        }
+
+        .figure-wrapper {
+            width: 100%;
+            max-width: 1160px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .figure-caption {
+            font-size: 13px;
+            font-weight: 600;
+            color: #475569;
+            text-align: left;
+            padding-left: 2px;
+        }
+
+        /* Marco de Pantalla / Screen Frame Oficial */
+        .screen-frame {
+            width: 100%;
+            min-height: 680px;
+            background: #F8FAFC;
+            border-radius: 8px;
+            border: 1px solid #CBD5E1;
+            box-shadow: 0 10px 30px rgba(8, 20, 38, 0.08);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Top Navbar Oficial (Navy Header) */
+        .wf-top-navbar {
+            height: 58px;
+            background: var(--wf-navy-header);
+            padding: 0 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            z-index: 100;
+            border-bottom: 1px solid #142844;
+        }
+
+        .wf-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .wf-brand-logo {
+            font-size: 16px;
+            font-weight: 800;
+            color: #FFFFFF;
+            letter-spacing: -0.3px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .wf-brand-logo span {
+            color: var(--wf-gold);
+        }
+
+        .wf-brand-sub {
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+            color: #94A3B8;
+            text-transform: uppercase;
+        }
+
+        .wf-top-nav-links {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .wf-top-nav-link {
+            color: #CBD5E1;
+            font-size: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: color 0.15s;
+        }
+
+        .wf-top-nav-link:hover {
+            color: #FFFFFF;
+        }
+
+        .wf-top-nav-pill {
+            padding: 5px 12px;
+            border-radius: 20px;
+            border: 1px solid rgba(212, 160, 61, 0.4);
+            color: var(--wf-gold);
+            font-size: 11px;
+            font-weight: 700;
+            background: rgba(212, 160, 61, 0.08);
+        }
+
+        .wf-user-trigger-pill {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 3px 12px 3px 4px;
+            border-radius: 20px;
+            border: 1px solid #1E3A5F;
+            background: #0F233D;
+            cursor: pointer;
+            color: #FFFFFF;
+        }
+
+        .user-avatar-circle {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--wf-gold);
+            color: #081426;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        /* Hero Banner del Cuerpo Docente */
+        .wf-hero-banner {
+            background: var(--wf-navy-header);
+            padding: 24px 32px 28px;
+            color: #FFFFFF;
+            border-bottom: 1px solid #142844;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .wf-hero-tag {
+            font-size: 10px;
+            font-weight: 800;
+            color: var(--wf-gold);
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .wf-hero-title {
+            font-size: 22px;
+            font-weight: 800;
+            color: #FFFFFF;
+            letter-spacing: -0.3px;
+        }
+
+        .wf-hero-desc {
+            font-size: 12px;
+            color: #94A3B8;
+            margin-top: 2px;
+        }
+
+        .wf-btn-gold {
+            background: var(--wf-gold);
+            color: #081426;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 8px 18px;
+            border-radius: 20px;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(212, 160, 61, 0.25);
+            transition: all 0.15s;
+            text-decoration: none;
+        }
+
+        .wf-btn-gold:hover {
+            background: var(--wf-gold-hover);
+        }
+
+        /* Main Content */
+        .wf-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #F4F6F9;
+            position: relative;
+        }
+
+        .wf-main-content {
+            flex: 1;
+            padding: 28px 32px;
+            overflow-y: auto;
+        }
+
+        /* Footer Inferior Oficial */
+        .wf-screen-footer {
+            height: 48px;
+            background: var(--wf-navy-header);
+            border-top: 1px solid #142844;
+            padding: 0 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 11px;
+            color: #94A3B8;
+        }
+
+        .wf-screen-footer strong {
+            color: #FFFFFF;
+        }
+
+        .wf-screen-footer strong span {
+            color: var(--wf-gold);
+        }
+
+        /* Tarjetas de Cursos Oficiales */
+        .wf-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .wf-course-card {
+            background: #FFFFFF;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #E2E8F0;
+            box-shadow: 0 6px 16px rgba(8, 20, 38, 0.05);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+
+        .wf-course-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 24px rgba(8, 20, 38, 0.08);
+        }
+
+        .wf-course-card-thumb {
+            height: 120px;
+            background: var(--wf-navy-card-top);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+        }
+
+        .wf-course-thumb-icon {
+            color: rgba(255,255,255,0.25);
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .wf-course-pills-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            width: 100%;
+            justify-content: flex-start;
+        }
+
+        .wf-pill-tag {
+            background: var(--wf-gold);
+            color: #081426;
+            font-size: 9px;
+            font-weight: 800;
+            padding: 3px 8px;
+            border-radius: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .wf-pill-status {
+            background: var(--wf-gold);
+            color: #081426;
+            font-size: 9px;
+            font-weight: 800;
+            padding: 3px 8px;
+            border-radius: 12px;
+            letter-spacing: 0.3px;
+        }
+
+        .wf-course-card-body {
+            padding: 18px 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .wf-course-title {
+            font-size: 15px;
+            font-weight: 800;
+            color: #081426;
+            margin-bottom: 6px;
+            line-height: 1.3;
+        }
+
+        .wf-course-desc {
+            font-size: 11px;
+            color: #64748B;
+            margin-bottom: 14px;
+            line-height: 1.4;
+            flex: 1;
+        }
+
+        .wf-course-info-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 11px;
+            color: #64748B;
+            font-weight: 600;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #F1F5F9;
+        }
+
+        .wf-course-price {
+            font-size: 13px;
+            font-weight: 800;
+            color: #081426;
+        }
+
+        .wf-course-card-footer {
+            padding: 12px 20px 16px;
+            background: #FFFFFF;
+        }
+
+        .wf-btn-manage-course {
+            width: 100%;
+            background: var(--wf-gold);
+            color: #081426;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 9px 0;
+            border-radius: 8px;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: background 0.15s;
+            text-decoration: none;
+        }
+
+        .wf-btn-manage-course:hover {
+            background: var(--wf-gold-hover);
+        }
+
+        /* Pin Badges */
+        .pin-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 26px;
+            height: 26px;
+            min-width: 26px;
+            border-radius: 50%;
+            background: #081426;
+            color: #FFFFFF;
+            font-size: 12px;
+            font-weight: 800;
+            border: 2px solid var(--wf-gold);
+            box-shadow: 0 2px 6px rgba(8, 20, 38, 0.3);
+            flex-shrink: 0;
+            user-select: none;
+        }
+
+        /* Modal Box Modern 2-Columns */
+        .wf-modal-box {
+            background: #FFFFFF;
+            border-radius: 12px;
+            box-shadow: 0 20px 50px rgba(8, 20, 38, 0.15);
+            border: 1px solid #CBD5E1;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .wf-modal-header {
+            padding: 18px 24px;
+            background: #FFFFFF;
+            border-bottom: 1px solid #E2E8F0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .wf-modal-title {
+            font-size: 17px;
+            font-weight: 800;
+            color: #081426;
+        }
+
+        .wf-modal-grid {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            min-height: 420px;
+        }
+
+        .wf-modal-sidebar {
+            background: #F8FAFC;
+            border-right: 1px solid #E2E8F0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .wf-modal-option {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1.5px solid transparent;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            color: #334155;
+            transition: all 0.15s;
+            margin-bottom: 6px;
+        }
+
+        .wf-modal-option:hover {
+            background: #FFFFFF;
+            border-color: #CBD5E1;
+        }
+
+        .wf-modal-option.active {
+            background: #FFFFFF;
+            border-color: var(--wf-gold);
+            color: #081426;
+            font-weight: 700;
+            box-shadow: 0 2px 8px rgba(8, 20, 38, 0.04);
+        }
+
+        .wf-modal-content {
+            padding: 28px 32px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        /* Inputs y Formularios Oficiales */
+        .wf-card {
+            background: #FFFFFF;
+            border: 1px solid var(--wf-border);
+            border-radius: 10px;
+            padding: 28px 32px;
+            box-shadow: 0 4px 14px rgba(8, 20, 38, 0.04);
+        }
+
+        .wf-label {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            color: #475569;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 9px;
+            margin-top: 4px;
+        }
+
+        .wf-input {
+            width: 100%;
+            height: 44px;
+            padding: 10px 16px;
+            border: 1.5px solid #CBD5E1;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #081426;
+            outline: none;
+            background: #FFFFFF;
+            transition: all 0.15s;
+        }
+
+        .wf-input:focus {
+            border-color: #081426;
+            box-shadow: 0 0 0 3px rgba(8, 20, 38, 0.08);
+        }
+
+        textarea.wf-input {
+            height: auto;
+            min-height: 90px;
+            line-height: 1.5;
+        }
+
+        .bg-disabled {
+            background: #F8FAFC !important;
+            color: #64748B !important;
+            border-style: dashed !important;
+        }
+
+        .wf-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 42px;
+            padding: 0 20px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            border: 1.5px solid transparent;
+            text-decoration: none;
+            white-space: nowrap;
+            transition: all 0.15s;
+            gap: 6px;
+        }
+
+        .wf-btn-primary {
+            background: #081426;
+            color: #FFFFFF;
+            border-color: #081426;
+        }
+
+        .wf-btn-primary:hover {
+            background: #102540;
+        }
+
+        .wf-btn-outline {
+            background: #FFFFFF;
+            border-color: #CBD5E1;
+            color: #334155;
+        }
+
+        .wf-btn-outline:hover {
+            background: #F8FAFC;
+            border-color: #081426;
+            color: #081426;
+        }
+
+        .wf-btn-danger {
+            background: #DC2626;
+            border-color: #DC2626;
+            color: #FFFFFF;
+        }
+
+        .wf-btn-sm {
+            height: 34px;
+            padding: 0 14px;
+            font-size: 11px;
+            border-radius: 6px;
+        }
+
+        .wf-link {
+            font-size: 13px;
+            color: #081426;
+            font-weight: 700;
+            text-decoration: underline;
+            text-underline-offset: 2px;
+            cursor: pointer;
+        }
+
+        /* Moodle Style Activities & Resources */
+        .moodle-activity-card {
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-radius: 8px;
+            padding: 14px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.15s ease;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .moodle-activity-card:hover {
+            border-color: var(--wf-gold);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(8, 20, 38, 0.06);
+        }
+
+        .moodle-activity-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .moodle-icon-box {
+            width: 42px;
+            height: 42px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .moodle-icon-pdf { background: #FEE2E2; color: #DC2626; }
+        .moodle-icon-video { background: #DBEAFE; color: #2563EB; }
+        .moodle-icon-quiz { background: #DCFCE7; color: #16A34A; }
+        .moodle-icon-forum { background: #FFEDD5; color: #EA580C; }
+        .moodle-icon-glossary { background: #FEF3C7; color: #D97706; }
+        .moodle-icon-live { background: #FCE7F3; color: #DB2777; }
+
+        .moodle-activity-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #081426;
+            line-height: 1.3;
+        }
+
+        .moodle-activity-desc {
+            font-size: 11px;
+            color: #64748B;
+            margin-top: 2px;
+        }
+
+        .moodle-btn-check {
+            border: 1px solid #CBD5E1;
+            background: #F8FAFC;
+            color: #475569;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 6px 14px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .moodle-btn-check:hover {
+            background: #E2E8F0;
+            color: #081426;
+        }
+
+        .moodle-btn-check.completed {
+            background: #DCFCE7;
+            border-color: #86EFAC;
+            color: #166534;
+        }
+
+        /* Tablas */
+        .wf-table-wrap {
+            background: #FFFFFF;
+            border: 1px solid var(--wf-border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .wf-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+
+        .wf-table th, .wf-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--wf-border);
+            text-align: left;
+            vertical-align: middle;
+        }
+
+        .wf-table th {
+            background: #F8FAFC;
+            font-weight: 700;
+            color: #475569;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Badges de Estado */
+        .wf-badge {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 4px;
+            border: 1px solid #CBD5E1;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .status-active {
+            background: #FEF3C7;
+            color: #92400E;
+            border-color: #FCD34D;
+        }
+
+        .status-inactive {
+            background: #FFFFFF;
+            color: #94A3B8;
+            border-color: #E2E8F0;
+        }
+
+        .wf-icon-danger {
+            width: 48px;
+            height: 48px;
+            background: #FEE2E2;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+        }
+
+        /* Meta-Strip Superior */
+        .meta-strip {
+            padding: 8px 16px;
+            background: #FFFFFF;
+            border: 1px solid #CBD5E1;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 11px;
+            color: #64748B;
+        }
+
+        .meta-strip strong {
+            color: #081426;
+        }
+
+        .meta-strip code {
+            background: #F1F5F9;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 11px;
+            color: #081426;
+            border: 1px solid #E2E8F0;
+        }
+
+        /* Dropdown Flotante */
+        .wf-user-menu-wrapper {
+            position: relative;
+        }
+
+        .wf-user-floating-dropdown {
+            position: absolute;
+            top: 44px;
+            right: 0;
+            width: 250px;
+            background: #FFFFFF;
+            border: 1px solid #CBD5E1;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            z-index: 200;
+            overflow: hidden;
+            display: none;
+            flex-direction: column;
+        }
+
+        .wf-dropdown-user-header {
+            padding: 12px 14px;
+            background: #F8FAFC;
+            border-bottom: 1px solid #CBD5E1;
+        }
+
+        .wf-dropdown-user-name {
+            font-size: 12px;
+            font-weight: 700;
+            color: #081426;
+        }
+
+        .wf-dropdown-user-role {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--wf-gold);
+            text-transform: uppercase;
+        }
+
+        .wf-dropdown-user-email {
+            font-size: 11px;
+            color: #64748B;
+            margin-top: 2px;
+        }
+
+        .wf-dropdown-section {
+            padding: 6px 8px;
+            border-bottom: 1px solid #F1F5F9;
+        }
+
+        .wf-dropdown-section:last-child {
+            border-bottom: none;
+        }
+
+        .wf-dropdown-section-title {
+            font-size: 9px;
+            font-weight: 700;
+            color: #94A3B8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 2px;
+            padding-left: 6px;
+        }
+
+        .wf-dropdown-item-btn {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 7px 10px;
+            font-size: 12px;
+            color: #334155;
+            border-radius: 4px;
+            text-decoration: none;
+            transition: all 0.1s;
+        }
+
+        .wf-dropdown-item-btn:hover {
+            background: #F1F5F9;
+            color: #081426;
+        }
+
+        .wf-dropdown-item-btn.text-danger {
+            color: #DC2626;
+            font-weight: 600;
+        }
+
+        .wf-dropdown-editing-toggle-box {
+            background: #F8FAFC;
+            border: 1px solid #CBD5E1;
+            border-radius: 4px;
+            padding: 6px 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .wf-tab-btn {
+            padding: 8px 14px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #64748B;
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .wf-tab-btn.active {
+            color: #081426;
+            border-bottom-color: var(--wf-gold);
+            font-weight: 800;
+        }
+
+        .wf-unit-box {
+            background: #FFFFFF;
+            border: 1px solid var(--wf-border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .wf-unit-header {
+            padding: 14px 18px;
+            background: #F8FAFC;
+            border-bottom: 1px solid var(--wf-border);
+        }
+
+        .wf-unit-body {
+            padding: 18px;
+        }
+
+        .wf-content-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .wf-subcontent-title {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #64748B;
+            margin-bottom: 6px;
+        }
+
+        .wf-input-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .wf-input-wrap input, .wf-input-wrap textarea, .wf-input-wrap .wf-select-trigger, .wf-input-wrap select {
+            flex: 1;
+        }
+
+        .wf-select-container {
+            position: relative;
+            width: 100%;
+        }
+
+        .wf-select-trigger {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #FFFFFF;
+            cursor: pointer;
+        }
+
+        .wf-dropdown-menu {
+            position: absolute;
+            top: 44px;
+            left: 0;
+            width: 100%;
+            background: #FFFFFF;
+            border: 1px solid var(--wf-border);
+            border-radius: 6px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+            z-index: 50;
+            overflow: hidden;
+        }
+
+        .wf-dropdown-item {
+            padding: 8px 12px;
+            font-size: 12px;
+            color: #334155;
+            border-bottom: 1px solid #F1F5F9;
+            cursor: pointer;
+        }
+
+        .wf-dropdown-item.active {
+            background: #FEF3C7;
+            font-weight: 700;
+            color: #92400E;
+        }
+
+        /* Helper Grid Classes (Bootstrap-like) */
+        .row { display: flex; flex-wrap: wrap; margin-right: -12px; margin-left: -12px; }
+        .g-0 { margin-right: 0; margin-left: 0; }
+        .g-0 > [class*="col-"] { padding-right: 0; padding-left: 0; }
+        .g-2 { margin-right: -6px; margin-left: -6px; }
+        .g-2 > [class*="col-"] { padding-right: 6px; padding-left: 6px; padding-bottom: 12px; }
+        .g-3 { margin-right: -10px; margin-left: -10px; }
+        .g-3 > [class*="col-"] { padding-right: 10px; padding-left: 10px; padding-bottom: 18px; }
+        .g-4 { margin-right: -14px; margin-left: -14px; }
+        .g-4 > [class*="col-"] { padding-right: 14px; padding-left: 14px; padding-bottom: 24px; }
+        
+        .col-12 { flex: 0 0 100%; max-width: 100%; padding: 0 12px; }
+        .col { flex: 1 0 0%; min-width: 0; padding: 0 12px; }
+        .col-auto { flex: 0 0 auto; width: auto; }
+        .col-md-3 { flex: 0 0 25%; max-width: 25%; padding: 0 12px; }
+        .col-md-4 { flex: 0 0 33.3333%; max-width: 33.3333%; padding: 0 12px; }
+        .col-md-5 { flex: 0 0 41.6666%; max-width: 41.6666%; padding: 0 12px; }
+        .col-md-6 { flex: 0 0 50%; max-width: 50%; padding: 0 12px; }
+        .col-md-7 { flex: 0 0 58.3333%; max-width: 58.3333%; padding: 0 12px; }
+        .col-md-8 { flex: 0 0 66.6666%; max-width: 66.6666%; padding: 0 12px; }
+
+        .col-lg-auto { flex: 0 0 auto; width: auto; }
+        .col-lg-5 { flex: 0 0 41.6666%; max-width: 41.6666%; padding: 0 12px; }
+        .col-lg-6 { flex: 0 0 50%; max-width: 50%; padding: 0 12px; }
+        .col-lg-7 { flex: 0 0 58.3333%; max-width: 58.3333%; padding: 0 12px; }
+        .pe-lg-4 { padding-right: 20px; }
+        .ps-lg-4 { padding-left: 20px; }
+        .position-relative { position: relative; }
+        .position-absolute { position: absolute; }
+
+        .d-flex { display: flex; }
+        .d-inline-flex { display: inline-flex; }
+        .flex-column { flex-direction: column; }
+        .align-items-center { align-items: center; }
+        .align-items-start { align-items: flex-start; }
+        .align-items-end { align-items: flex-end; }
+        .justify-content-between { justify-content: space-between; }
+        .justify-content-end { justify-content: flex-end; }
+        .justify-content-center { justify-content: center; }
+        
+        .gap-1 { gap: 4px; }
+        .gap-2 { gap: 8px; }
+        .gap-3 { gap: 12px; }
+        .gap-4 { gap: 16px; }
+
+        .mb-1 { margin-bottom: 4px; }
+        .mb-2 { margin-bottom: 8px; }
+        .mb-3 { margin-bottom: 12px; }
+        .mb-4 { margin-bottom: 16px; }
+        .mt-1 { margin-top: 4px; }
+        .mt-2 { margin-top: 8px; }
+        .mt-3 { margin-top: 12px; }
+        .mt-4 { margin-top: 16px; }
+        .me-1 { margin-right: 4px; }
+        .me-2 { margin-right: 8px; }
+        .ms-1 { margin-left: 4px; }
+        .ms-2 { margin-left: 8px; }
+        
+        .p-2 { padding: 8px; }
+        .p-3 { padding: 12px; }
+        .p-4 { padding: 16px; }
+        .px-3 { padding-left: 12px; padding-right: 12px; }
+        .py-2 { padding-top: 8px; padding-bottom: 8px; }
+        .pt-2 { padding-top: 8px; }
+        .pt-3 { padding-top: 12px; }
+        .pt-4 { padding-top: 16px; }
+        .pb-1 { padding-bottom: 4px; }
+        .pb-2 { padding-bottom: 8px; }
+        .pb-3 { padding-bottom: 12px; }
+        
+        .flex-row { flex-direction: row !important; }
+        .flex-column { flex-direction: column !important; }
+        .flex-wrap { flex-wrap: wrap !important; }
+        .flex-nowrap { flex-wrap: nowrap !important; }
+        .flex-grow-1 { flex-grow: 1 !important; }
+        .flex-shrink-0 { flex-shrink: 0 !important; }
+
+        @media (min-width: 900px) {
+            .flex-lg-row { flex-direction: row !important; }
+            .flex-lg-column { flex-direction: column !important; }
+            .d-lg-block { display: block !important; }
+            .d-lg-none { display: none !important; }
+            .d-lg-flex { display: flex !important; }
+        }
+
+        .border-top { border-top: 1px solid #E2E8F0; }
+        .border-bottom { border-bottom: 1px solid #E2E8F0; }
+        .border-end { border-right: 1px solid #E2E8F0; }
+        .border { border: 1px solid #E2E8F0; }
+        .rounded { border-radius: 6px; }
+        .w-100 { width: 100%; }
+        .h-100 { height: 100%; }
+        .text-muted { color: #64748B; }
+        .text-danger { color: #DC2626; }
+        .text-success { color: #16A34A; }
+        .text-primary { color: #2563EB; }
+        .text-warning { color: #D97706; }
+        .text-info { color: #0284C7; }
+        .text-end { text-align: right; }
+        .text-center { text-align: center; }
+        .fw-bold { font-weight: 700; }
+        .small { font-size: 11px; }
+        .cursor-pointer { cursor: pointer; }
+        .bg-white { background: #FFFFFF; }
+        .bg-light { background: #F8FAFC; }
+        .shadow-sm { box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    

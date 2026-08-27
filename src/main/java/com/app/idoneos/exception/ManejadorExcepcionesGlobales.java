@@ -1,5 +1,5 @@
 package com.app.idoneos.exception;
-import com.app.idoneos.service.Reportes.*;
+import com.app.idoneos.service.modulo_reportes.*;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

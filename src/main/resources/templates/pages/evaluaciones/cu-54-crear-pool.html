@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${titulo != null ? titulo : 'CU-54 - Crear pool'}">CU-54 - Crear pool | Idóneos Online</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome 6 Pro / Solid Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;800&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Estilos del Sistema Centralizados -->
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body class="wf-canvas-bg">
+
+    <div class="cu-page-container" style="max-width: 1400px; margin: 20px auto 40px auto; padding: 0 15px;">
+        <!-- Barra de Metadatos del Caso de Uso -->
+        <div class="meta-strip mb-3 p-3 bg-white rounded border d-flex justify-content-between align-items-center shadow-sm">
+            <div class="d-flex align-items-center gap-2">
+                <span class="wf-badge" style="background: #081426; color: var(--wf-gold); border-color: var(--wf-gold); font-size: 11px;">CU-54</span>
+                <strong style="font-size: 14px; color: #081426;">Crear pool</strong>
+                <span style="color: #94A3B8;">|</span>
+                <span class="text-muted" style="font-size: 11px;"><strong>Actor(es):</strong> Docente</span>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <span class="text-muted" style="font-size: 11px; font-weight: 700;">DSS:</span>
+                <code>agregarOpcion(unaPregunta, texto, esCorrecta)</code>
+            </div>
+        </div>
+
+        <!-- Pantalla / Screen Frame Oficial -->
+        <div class="screen-frame">
+
+                <!-- Top Navbar Oficial -->
+                <div class="wf-top-navbar">
+                    <div class="wf-brand">
+                        <div class="d-flex flex-column">
+                            <div class="wf-brand-logo"><i class="fa-solid fa-chart-line" style="color: var(--wf-gold);"></i> Idóneos <span>Online</span></div>
+                            <div class="wf-brand-sub">FINANZAS • ECONOMÍA • MERCADO DE CAPITALES</div>
+                        </div>
+                    </div>
+
+                    <div class="wf-top-nav-links">
+                        <a href="#CU-06" class="wf-top-nav-link">Inicio</a>
+                        <a href="#CU-06" class="wf-top-nav-link">Catálogo de Cursos</a>
+                        <span class="wf-top-nav-pill">Panel Docente</span>
+                        <a href="#CU-99" class="wf-top-nav-link">Acerca de</a>
+
+                        <div class="wf-user-menu-wrapper">
+                            <div class="wf-user-trigger-pill" onclick="toggleUserDropdown(this)">
+                                <div class="user-avatar-circle">EV</div>
+                                <span style="font-size: 11px; font-weight: 700;">Mg. Elena Valenzuela</span>
+                                <i class="fa-solid fa-chevron-down w-3 h-3 text-white ms-1"></i>
+                            </div>
+
+                            <div class="wf-user-floating-dropdown">
+                                <div class="wf-dropdown-user-header">
+                                    <div class="wf-dropdown-user-name">Mg. Elena Valenzuela</div>
+                                    <div class="wf-dropdown-user-role">Docente Titular</div>
+                                    <div class="wf-dropdown-user-email">elena.valenzuela@idoneos.online</div>
+                                </div>
+  
+                                <div class="wf-dropdown-section">
+                                    <div class="wf-dropdown-section-title">Modo Edición</div>
+    
+                                    <div class="wf-dropdown-editing-toggle-box">
+                                        <span class="small fw-bold">Modo Edición Activado</span>
+                                        <span class="wf-badge status-active">ON</span>
+                                    </div>
+      
+                                </div>
+    
+                                <div class="wf-dropdown-section">
+                                    <div class="wf-dropdown-section-title">Gestión de Cursos</div>
+    
+                                    <a href="#CU-01" class="wf-dropdown-item-btn ">
+                                        <span>Mis cursos a cargo</span>
+                                    </a>
+        
+                                    <a href="#CU-19" class="wf-dropdown-item-btn ">
+                                        <span>Estructura de unidades</span>
+                                    </a>
+        
+                                    <a href="#CU-23" class="wf-dropdown-item-btn ">
+                                        <span>Cronograma y avance</span>
+                                    </a>
+        
+                                    <a href="#CU-25" class="wf-dropdown-item-btn ">
+                                        <span>Lista de participantes</span>
+                                    </a>
+        
+                                    <a href="#CU-76" class="wf-dropdown-item-btn ">
+                                        <span>Estudio de Clon IA (HeyGen)</span>
+                                    </a>
+        
+                                </div>
+    
+                                <div class="wf-dropdown-section">
+                                    <div class="wf-dropdown-section-title">Cuenta & Seguridad</div>
+    
+                                    <a href="#CU-86" class="wf-dropdown-item-btn ">
+                                        <span>Ver perfil</span>
+                                    </a>
+        
+                                    <a href="#CU-87" class="wf-dropdown-item-btn ">
+                                        <span>Editar perfil</span>
+                                    </a>
+        
+                                    <a href="#CU-93" class="wf-dropdown-item-btn ">
+                                        <span>Seguridad y sesiones activas</span>
+                                    </a>
+        
+                                    <a href="#CU-91" class="wf-dropdown-item-btn text-danger">
+                                        <span>Cerrar sesión</span>
+                                    </a>
+        
+                                </div>
+    
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hero Banner Contextual Superior (Navy) -->
+                <div class="wf-hero-banner">
+                    <div>
+                        <div class="wf-hero-tag">
+                            <i class="fa-solid fa-graduation-cap" style="color: var(--wf-gold);"></i>
+                            <span>CUERPO DOCENTE • IDÓNEOS ONLINE</span>
+                        </div>
+                        <h2 class="wf-hero-title">Crear pool</h2>
+                        <p class="wf-hero-desc">Bienvenido/a, Mg. Elena Valenzuela</p>
+                    </div>
+                    
+                    <div class="d-flex align-items-center gap-2">
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    </div>
+</div>
+
+                <div class="wf-body">
+                    <div class="wf-main-content">
+                        
+      <div class="wf-card" style="max-width: 1040px; margin: 0 auto; background: #FFFFFF;">
+        <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
+          <div>
+            <div class="small text-muted mb-1" style="font-size: 11px;">
+              <span>Unidad 1: Marco Regulatorio</span> <i class="fa-solid fa-chevron-right" style="font-size: 9px; margin: 0 4px;"></i> 
+              <strong style="color: #081426;">Nuevo Pool de Preguntas</strong>
+            </div>
+            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Crear Pool de Preguntas</h3>
+            <p class="small text-muted" style="margin: 3px 0 0;">Defina el banco de ítems evaluativos, agregando preguntas con sus enunciados, tipos y opciones de respuesta.</p>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <span class="wf-badge status-active">Docente Titular</span>
+            
+          </div>
+        </div>
+
+        <!-- Datos del Pool -->
+        <div class="row g-3 mb-4">
+          <div class="col-md-6">
+            <label class="wf-label">Nombre del Pool de Preguntas</label>
+            <div class="wf-input-wrap">
+              <input type="text" class="wf-input" placeholder="Ej: Pool Unidad 1: Marco Regulatorio y CNV" value="Pool Unidad 1: Marco Regulatorio y CNV">
+              
+            </div>
+          </div>
+          <div class="col-md-6">
+            <label class="wf-label">Descripción Temática</label>
+            <div class="wf-input-wrap">
+              <input type="text" class="wf-input" placeholder="Ej: Banco evaluativo de preguntas sobre la Ley 26.831" value="Banco evaluativo de preguntas sobre la Ley 26.831 y ALyCs">
+              
+            </div>
+          </div>
+        </div>
+
+        <!-- Editor de Preguntas y Opciones (DSS Loop de Preguntas y Opciones) -->
+        <div class="p-4 bg-light rounded border mb-4">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <strong style="font-size: 15px; color: #081426;"><i class="fa-solid fa-list-check me-2 text-primary"></i>Editor de Preguntas del Pool</strong>
+            <button class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-plus me-1"></i> Añadir Pregunta</button>
+          </div>
+
+          <!-- Pregunta 1: Opción Múltiple -->
+          <div class="p-3 bg-white rounded border mb-3 shadow-sm">
+            <div class="row g-3 align-items-center mb-3">
+              <div class="col-md-8">
+                <label class="wf-label mb-1">Enunciado de la Pregunta 1</label>
+                <input type="text" class="wf-input" style="width: 100%;" value="¿Cuál es la función principal de la Comisión Nacional de Valores (CNV) según la Ley 26.831?">
+              </div>
+              <div class="col-md-4">
+                <label class="wf-label mb-1">Tipo de Pregunta</label>
+                <select class="wf-input" style="width: 100%;">
+                  <option selected>Opción Múltiple (Múltiple Choice)</option>
+                  <option>Verdadero / Falso</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="small fw-bold text-muted mb-2">Opciones de Respuesta (Marque la opción correcta):</div>
+            <div class="d-flex flex-column gap-2 mb-2" style="font-size: 12px;">
+              <div class="p-2 border rounded d-flex align-items-center justify-content-between bg-light" style="border-left: 4px solid #16A34A !important;">
+                <div class="d-flex align-items-center gap-2 flex-grow-1 me-3">
+                  <input type="radio" name="p1_opt" checked style="width: 16px; height: 16px; flex-shrink: 0;">
+                  <input type="text" class="wf-input" style="flex: 1;" value="Supervisar, regular y fiscalizar a los agentes y los mercados de capitales en Argentina.">
+                </div>
+                <span class="badge bg-success text-white" style="flex-shrink: 0; padding: 5px 8px;">Opción Correcta</span>
+              </div>
+              <div class="p-2 border rounded d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center gap-2 flex-grow-1 me-3">
+                  <input type="radio" name="p1_opt" style="width: 16px; height: 16px; flex-shrink: 0;">
+                  <input type="text" class="wf-input" style="flex: 1;" value="Emitir moneda y fijar la tasa de política monetaria en el sistema financiero.">
+                </div>
+                <span class="badge bg-light text-muted border" style="flex-shrink: 0; padding: 5px 8px;">Incorrecta</span>
+              </div>
+              <div class="p-2 border rounded d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center gap-2 flex-grow-1 me-3">
+                  <input type="radio" name="p1_opt" style="width: 16px; height: 16px; flex-shrink: 0;">
+                  <input type="text" class="wf-input" style="flex: 1;" value="Garantizar la rentabilidad de las inversiones bursátiles de los inversores minoristas.">
+                </div>
+                <span class="badge bg-light text-muted border" style="flex-shrink: 0; padding: 5px 8px;">Incorrecta</span>
+              </div>
+            </div>
+            <button class="btn btn-link btn-sm p-0 text-decoration-none mt-1" style="font-size: 11px;"><i class="fa-solid fa-plus me-1"></i> Añadir otra opción</button>
+          </div>
+
+          <!-- Pregunta 2: Verdadero o Falso -->
+          <div class="p-3 bg-white rounded border shadow-sm">
+            <div class="row g-3 align-items-center mb-3">
+              <div class="col-md-8">
+                <label class="wf-label mb-1">Enunciado de la Pregunta 2</label>
+                <input type="text" class="wf-input" style="width: 100%;" value="Un Agente de Liquidación y Compensación Propio (ALyC Propio) puede liquidar operaciones de terceros sin límite.">
+              </div>
+              <div class="col-md-4">
+                <label class="wf-label mb-1">Tipo de Pregunta</label>
+                <select class="wf-input" style="width: 100%;">
+                  <option>Opción Múltiple (Múltiple Choice)</option>
+                  <option selected>Verdadero / Falso</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="small fw-bold text-muted mb-2">Opciones de Respuesta:</div>
+            <div class="d-flex gap-3" style="font-size: 12px;">
+              <label class="p-2 border rounded d-flex align-items-center gap-2 flex-grow-1 cursor-pointer">
+                <input type="radio" name="p2_opt" style="width: 16px; height: 16px;">
+                <span>Verdadero</span>
+              </label>
+              <label class="p-2 border rounded d-flex align-items-center justify-content-between flex-grow-1 bg-light cursor-pointer" style="border-left: 4px solid #16A34A !important;">
+                <div class="d-flex align-items-center gap-2">
+                  <input type="radio" name="p2_opt" checked style="width: 16px; height: 16px;">
+                  <span>Falso (Solo puede liquidar operaciones propias)</span>
+                </div>
+                <span class="badge bg-success text-white" style="padding: 5px 8px;">Opción Correcta</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-end align-items-center gap-3 pt-3 border-top">
+          <a href="#CU-19" class="wf-btn wf-btn-outline">Cancelar</a>
+          <div class="d-flex align-items-center gap-2">
+            <button class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Guardar y Crear Pool</button>
+            
+          </div>
+        </div>
+      </div>
+    
+                    </div>
+                </div>
+
+                <!-- Footer Oficial -->
+                <div class="wf-screen-footer">
+                    <div>
+                        <strong>Idóneos <span>Online</span> S.A.S.</strong> • Plataforma de Educación Financiera, Economía & Mercado de Capitales
+                    </div>
+                    <div>
+                        FCEQyN — UNaM • Proyecto Software (LSI) / Trabajo Final (ASI)
+                    </div>
+                </div>
+            
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function toggleUserDropdown(triggerEl) {
+            const wrapper = triggerEl.closest('.wf-user-menu-wrapper');
+            if (wrapper) {
+                const dropdown = wrapper.querySelector('.wf-user-floating-dropdown');
+                if (dropdown) {
+                    dropdown.style.display = (dropdown.style.display === 'none' || dropdown.style.display === '') ? 'flex' : 'none';
+                }
+            }
+        }
+    </script>
+</body>
+</html>

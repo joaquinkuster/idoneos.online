@@ -1,27 +1,12 @@
 package com.app.idoneos.controller.modulo_evaluaciones;
-import com.app.idoneos.service.Reportes.*;
 
 import com.app.idoneos.model.*;
-import com.app.idoneos.exception.*;
 import com.app.idoneos.repository.modulo_cursos.*;
-import com.app.idoneos.repository.modulo_gestion_academica.*;
-import com.app.idoneos.repository.modulo_inscripciones.*;
 import com.app.idoneos.repository.modulo_evaluaciones.*;
-import com.app.idoneos.repository.modulo_clases_vivo.*;
-import com.app.idoneos.repository.modulo_ia.*;
-import com.app.idoneos.repository.modulo_usuarios.*;
-import com.app.idoneos.repository.modulo_auditoria.*;
-import com.app.idoneos.repository.modulo_reportes.*;
-import com.app.idoneos.repository.modulo_configuracion.*;
-
+import com.app.idoneos.repository.modulo_gestion_academica.*;
 import com.app.idoneos.service.modulo_cursos.*;
-import com.app.idoneos.service.modulo_gestion_academica.*;
-import com.app.idoneos.service.modulo_inscripciones.*;
 import com.app.idoneos.service.modulo_evaluaciones.*;
-import com.app.idoneos.service.Evaluacion.EvaluacionService;
-import com.app.idoneos.service.modulo_ia.*;
-import com.app.idoneos.service.modulo_usuarios.*;
-import com.app.idoneos.service.modulo_configuracion.*;
+import com.app.idoneos.service.modulo_gestion_academica.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -33,405 +18,318 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 /**
- * TRAZABILIDAD — Controller para la gestión de Pools de Preguntas, Autoevaluaciones e Intentos.
+ * TRAZABILIDAD — Controller para el Módulo de Evaluación y Progreso (MOD-F-04).
  *
- * MOD-F-04: Módulo de Evaluación y Progreso
- *   CU-53 — Buscar pool              → GET /docente/unidad/{unidadId}/pool
- *   CU-54 — Crear pool               → POST /docente/unidad/{unidadId}/pool/crear y POST /docente/pool/{poolId}/pregunta/agregar
- *   CU-55 — Modificar pool           → POST /docente/pool/{poolId}/modificar, POST /docente/pregunta/{id}/modificar,
- *                                       POST /docente/opcion/{id}/modificar, POST /docente/opcion/{id}/borrar,
- *                                       POST /docente/pregunta/{id}/borrar
- *   CU-56 — Dar de baja pool         → POST /docente/pool/{poolId}/baja (y POST /docente/pregunta/{id}/borrar)
- *   CU-57 — Buscar autoevaluación    → GET /docente/curso/{cursoId}/gestionar
- *   CU-61 — Buscar intento           → GET /evaluacion/{autoevaluacionId}/resultado
- *   CU-62 — Realizar intento         → GET /evaluacion/{autoevaluacionId}/rendir  (vista)
- *                                       POST /evaluacion/{autoevaluacionId}/enviar (envío y corrección)
+ * Mapea y conecta directamente las 12 pantallas de Evaluaciones:
+ *   CU-53 — Buscar pool                                  → GET /evaluaciones/pools
+ *   CU-54 — Crear pool                                   → GET /evaluaciones/pools/nuevo, POST /evaluaciones/pools/guardar
+ *   CU-55 — Modificar pool                               → GET /evaluaciones/pools/{id}/editar, POST /evaluaciones/pools/{id}/editar
+ *   CU-56 — Dar de baja pool                             → GET/POST /evaluaciones/pools/{id}/baja
+ *   CU-57 — Buscar autoevaluación                        → GET /evaluaciones/autoevaluaciones
+ *   CU-58 — Crear autoevaluación                         → GET /evaluaciones/autoevaluaciones/nueva, POST /evaluaciones/autoevaluaciones/guardar
+ *   CU-59 — Modificar autoevaluación                     → GET /evaluaciones/autoevaluaciones/{id}/editar, POST /evaluaciones/autoevaluaciones/{id}/editar
+ *   CU-60 — Dar de baja autoevaluación                   → GET/POST /evaluaciones/autoevaluaciones/{id}/baja
+ *   CU-61 — Buscar intento de autoevaluación             → GET /evaluaciones/intentos
+ *   CU-62 — Ver calificaciones                           → GET /evaluaciones/calificaciones
+ *   CU-63 — Realizar intento de autoevaluación           → GET /evaluaciones/autoevaluaciones/{id}/rendir, POST /evaluaciones/autoevaluaciones/{id}/enviar
+ *   CU-64 — Dar de baja intento de autoevaluación        → GET/POST /evaluaciones/intentos/{id}/baja
  */
 @Controller
+@RequestMapping("/evaluaciones")
 public class EvaluacionController {
 
     @Autowired private EvaluacionService evaluacionService;
     @Autowired private IntentoService intentoService;
-    @Autowired private UnidadServiceImpl unidadService;
+    @Autowired private UnidadService unidadService;
+    @Autowired private CursoService cursoService;
+    @Autowired private PoolRepository poolRepository;
+    @Autowired private PreguntaRepository preguntaRepository;
+    @Autowired private OpcionRespuestaRepository opcionRespuestaRepository;
+    @Autowired private AutoevaluacionRepository autoevaluacionRepository;
     @Autowired private IntentoAutoevaluacionRepository intentoRepository;
 
-    // ─── DOCENTE — Pools de Preguntas (CU-53 a CU-56) ─────────────────────────
-
-    /**
-     * TRAZABILIDAD: CU-53 — Buscar pool.
-     * Actor: Docente.
-     * Precondición: sesión con rol Docente. La unidad existe.
-     * Flujo paso 4: recupera el pool de preguntas de la unidad (si existe) con todas sus preguntas.
-     * NOTA PARCIAL: CU-53 especifica filtro por nombre. No implementado.
-     */
-    @GetMapping("/docente/unidad/{unidadId}/pool")
-    public String verPool(@PathVariable Integer unidadId, Model model, Authentication auth) {
-        Unidad unidad = unidadService.buscarPorId(unidadId).orElse(null);
-        if (unidad == null) return "redirect:/docente";
-
-        model.addAttribute("usuario", (Usuario) auth.getPrincipal());
-        model.addAttribute("unidad", unidad);
-        // CU-53 paso 4: recupera el pool de la unidad. Si no existe, devuelve null (la vista mostrará el formulario de creación).
-        model.addAttribute("pool", evaluacionService.buscarPoolPorUnidad(unidad).orElse(null));
-        model.addAttribute("titulo", "Pool de Preguntas | " + unidad.getTitulo());
-        return "pages/docente/gestionar-pool";
-    }
-
-    /**
-     * TRAZABILIDAD: CU-54 — Crear pool.
-     * Actor: Docente.
-     * Precondición: sesión con rol Docente. La unidad existe. No existe un pool previo para la unidad.
-     * Flujo paso 3: valida que no exista ya un pool para la unidad (RN-CU52-01).
-     * Flujo paso 4: registra el pool con el nombre dado.
-     * Postcondición: pool creado y asociado a la unidad.
-     * EX-CU54-01 (RN-CU52-01): ya existe un pool → redirect con mensaje de excepción.
-     */
-    @PostMapping("/docente/unidad/{unidadId}/pool/crear")
-    public String crearPool(@PathVariable Integer unidadId,
-                            @RequestParam String nombre,
-                            RedirectAttributes ra) {
-        Unidad unidad = unidadService.buscarPorId(unidadId).orElse(null);
-        if (unidad == null) return "redirect:/docente";
-
-        // CU-54 paso 3: verificar unicidad del pool por unidad.
-        if (evaluacionService.buscarPoolPorUnidad(unidad).isPresent()) {
-            ra.addFlashAttribute("mensaje", "EX-CU54-01: Esta unidad ya cuenta con un pool de preguntas registrado.");
-            return "redirect:/docente/unidad/" + unidadId + "/pool";
+    private void agregarUsuarioAlModelo(Model model, Authentication auth) {
+        if (auth != null && auth.getPrincipal() instanceof Usuario) {
+            model.addAttribute("usuario", (Usuario) auth.getPrincipal());
         }
-        Pool pool = new Pool(nombre, unidad);
-        evaluacionService.guardarPool(pool);
-        ra.addFlashAttribute("mensaje", "Pool creado correctamente.");
-        return "redirect:/docente/unidad/" + unidadId + "/pool";
     }
 
-    /**
-     * TRAZABILIDAD: CU-54 — Crear pool (Cargar preguntas de opción múltiple / Verdadero-Falso).
-     * Actor: Docente.
-     * Precondición: el pool existe. El docente accede al formulario de carga de preguntas.
-     * Flujo paso 5-8: registra la pregunta con su texto, tipo (opción múltiple/V-F) y opciones de respuesta,
-     *   marcando la opción correcta.
-     * Postcondición: pregunta registrada con sus opciones.
-     */
-    @PostMapping("/docente/pool/{poolId}/pregunta/agregar")
-    public String agregarPregunta(@PathVariable Integer poolId,
-                                  @RequestParam String texto,
-                                  @RequestParam(defaultValue = "true") Boolean esOpcionMultiple,
-                                  @RequestParam List<String> opciones,
-                                  @RequestParam Integer correcta,
-                                  RedirectAttributes ra) {
-        Pool pool = evaluacionService.buscarPoolPorId(poolId).orElse(null);
-        if (pool == null) return "redirect:/docente";
+    // ─────────────────────────────────────────────────────────────
+    // CU-53 a CU-56: POOLS DE PREGUNTAS
+    // ─────────────────────────────────────────────────────────────
 
-        Pregunta pregunta = new Pregunta(texto, esOpcionMultiple, pool);
-        pregunta = evaluacionService.guardarPregunta(pregunta);
+    @GetMapping("/pools")
+    public String buscarPools(@RequestParam(value = "unidadId", required = false) Integer unidadId,
+                              Model model, Authentication auth) {
+        agregarUsuarioAlModelo(model, auth);
+        List<Unidad> unidades = unidadService.obtenerTodo();
+        Unidad unidad = (unidadId != null) ? unidadService.buscarPorId(unidadId).orElse(null) : (unidades.isEmpty() ? null : unidades.get(0));
 
-        for (int i = 0; i < opciones.size(); i++) {
-            OpcionRespuesta opcion = new OpcionRespuesta(opciones.get(i), i == correcta, pregunta);
-            evaluacionService.guardarOpcion(opcion);
-        }
-
-        ra.addFlashAttribute("mensaje", "Pregunta agregada.");
-        return "redirect:/docente/unidad/" + pool.getUnidad().getId() + "/pool";
+        Pool pool = (unidad != null) ? evaluacionService.buscarPoolPorUnidad(unidad).orElse(null) : null;
+        model.addAttribute("unidades", unidades);
+        model.addAttribute("unidadSeleccionada", unidad);
+        model.addAttribute("pool", pool);
+        model.addAttribute("pools", poolRepository.findAll());
+        model.addAttribute("titulo", "CU-53 - Buscar pool | Idóneos Online");
+        return "pages/evaluaciones/cu-53-buscar-pool";
     }
 
-    /**
-     * TRAZABILIDAD: CU-55 — Modificar pool (nombre del pool).
-     * Actor: Docente.
-     */
-    @PostMapping("/docente/pool/{poolId}/modificar")
-    public String modificarPool(@PathVariable Integer poolId,
-                                @RequestParam String nombre,
-                                RedirectAttributes ra) {
-        Pool pool = evaluacionService.buscarPoolPorId(poolId).orElse(null);
-        if (pool == null) return "redirect:/docente";
-
-        if (nombre == null || nombre.isBlank()) {
-            ra.addFlashAttribute("mensaje", "El nombre del pool no puede estar vacío.");
-            return "redirect:/docente/unidad/" + pool.getUnidad().getId() + "/pool";
-        }
-
-        pool.setNombre(nombre.trim());
-        evaluacionService.guardarPool(pool);
-        ra.addFlashAttribute("mensaje", "Nombre del pool actualizado.");
-        return "redirect:/docente/unidad/" + pool.getUnidad().getId() + "/pool";
+    @GetMapping("/pools/nuevo")
+    public String crearPoolForm(@RequestParam(value = "unidadId", required = false) Integer unidadId,
+                                Model model, Authentication auth) {
+        agregarUsuarioAlModelo(model, auth);
+        model.addAttribute("unidades", unidadService.obtenerTodo());
+        model.addAttribute("unidadId", unidadId);
+        model.addAttribute("titulo", "CU-54 - Crear pool | Idóneos Online");
+        return "pages/evaluaciones/cu-54-crear-pool";
     }
 
-    /**
-     * TRAZABILIDAD: CU-55 — Modificar pregunta del pool.
-     * Actor: Docente.
-     */
-    @PostMapping("/docente/pregunta/{preguntaId}/modificar")
-    public String modificarPregunta(@PathVariable Integer preguntaId,
-                                    @RequestParam String texto,
-                                    @RequestParam(defaultValue = "true") Boolean esOpcionMultiple,
-                                    RedirectAttributes ra) {
-        Pregunta p = evaluacionService.buscarPreguntaPorId(preguntaId).orElse(null);
-        if (p == null) return "redirect:/docente";
-
-        p.setTexto(texto.trim());
-        p.setEsOpcionMultiple(esOpcionMultiple);
-        evaluacionService.guardarPregunta(p);
-
-        ra.addFlashAttribute("mensaje", "Pregunta modificada.");
-        return "redirect:/docente/unidad/" + p.getPool().getUnidad().getId() + "/pool";
-    }
-
-    /**
-     * TRAZABILIDAD: CU-55 — Modificar opción de respuesta de una pregunta.
-     * Actor: Docente.
-     */
-    @PostMapping("/docente/opcion/{opcionId}/modificar")
-    public String modificarOpcion(@PathVariable Integer opcionId,
-                                  @RequestParam String texto,
-                                  @RequestParam(defaultValue = "false") boolean esCorrecta,
-                                  RedirectAttributes ra) {
-        Optional<OpcionRespuesta> oOpt = evaluacionService.buscarOpcionPorId(opcionId);
-        if (oOpt.isEmpty()) return "redirect:/docente";
-
-        OpcionRespuesta op = oOpt.get();
-        op.setTexto(texto.trim());
-        op.setEsCorrecta(esCorrecta);
-        evaluacionService.guardarOpcion(op);
-
-        ra.addFlashAttribute("mensaje", "Opción actualizada.");
-        return "redirect:/docente/unidad/" + op.getPregunta().getPool().getUnidad().getId() + "/pool";
-    }
-
-    /**
-     * TRAZABILIDAD: CU-55 — Eliminar opción de respuesta.
-     * Actor: Docente.
-     */
-    @PostMapping("/docente/opcion/{opcionId}/borrar")
-    public String borrarOpcion(@PathVariable Integer opcionId, RedirectAttributes ra) {
-        Optional<OpcionRespuesta> oOpt = evaluacionService.buscarOpcionPorId(opcionId);
-        if (oOpt.isEmpty()) return "redirect:/docente";
-
-        OpcionRespuesta op = oOpt.get();
-        Integer unidadId = op.getPregunta().getPool().getUnidad().getId();
-        evaluacionService.borrarOpcion(op);
-
-        ra.addFlashAttribute("mensaje", "Opción eliminada.");
-        return "redirect:/docente/unidad/" + unidadId + "/pool";
-    }
-
-    /**
-     * TRAZABILIDAD: CU-55 — Eliminar pregunta individual del pool (Caso C).
-     * Actor: Docente.
-     */
-    @PostMapping("/docente/pregunta/{preguntaId}/borrar")
-    public String borrarPregunta(@PathVariable Integer preguntaId, RedirectAttributes ra) {
-        Pregunta p = evaluacionService.buscarPreguntaPorId(preguntaId).orElse(null);
-        if (p == null) return "redirect:/docente";
-        Integer unidadId = p.getPool().getUnidad().getId();
-        evaluacionService.borrarPregunta(p);
-        ra.addFlashAttribute("mensaje", "Pregunta eliminada del pool.");
-        return "redirect:/docente/unidad/" + unidadId + "/pool";
-    }
-
-    /**
-     * TRAZABILIDAD: CU-56 — Dar de baja pool completo.
-     * Actor: Administrador / Docente.
-     */
-    @PostMapping("/docente/pool/{poolId}/baja")
-    public String darBajaPool(@PathVariable Integer poolId, RedirectAttributes ra) {
-        Pool pool = evaluacionService.buscarPoolPorId(poolId).orElse(null);
-        if (pool == null) return "redirect:/docente";
-
-        Integer unidadId = pool.getUnidad().getId();
-        evaluacionService.borrarPool(pool);
-        ra.addFlashAttribute("mensaje", "Pool de preguntas dado de baja correctamente.");
-        return "redirect:/docente/unidad/" + unidadId + "/pool";
-    }
-
-    // ─── DOCENTE — Autoevaluaciones (CU-57 a CU-60) ───────────────────────────
-
-    /**
-     * TRAZABILIDAD: CU-57 — Buscar autoevaluación.
-     * Actor: Administrador / Docente.
-     */
-    @GetMapping("/docente/unidad/{unidadId}/autoevaluaciones")
-    public String listarAutoevaluaciones(@PathVariable Integer unidadId, Model model, Authentication auth) {
-        Unidad unidad = unidadService.buscarPorId(unidadId).orElse(null);
-        if (unidad == null) return "redirect:/docente";
-
-        List<Autoevaluacion> autoevaluaciones = evaluacionService.buscarAutoevaluacionesPorUnidad(unidad);
-
-        model.addAttribute("usuario", (Usuario) auth.getPrincipal());
-        model.addAttribute("unidad", unidad);
-        model.addAttribute("autoevaluaciones", autoevaluaciones);
-        model.addAttribute("pools", evaluacionService.buscarPoolPorUnidad(unidad).map(List::of).orElse(List.of()));
-        model.addAttribute("titulo", "Autoevaluaciones | " + unidad.getTitulo());
-        return "pages/docente/autoevaluaciones";
-    }
-
-    /**
-     * TRAZABILIDAD: CU-58 — Crear autoevaluación.
-     * Actor: Docente.
-     */
-    @PostMapping("/docente/unidad/{unidadId}/autoevaluacion/crear")
-    public String crearAutoevaluacion(@PathVariable Integer unidadId,
-                                      @RequestParam String nombre,
-                                      @RequestParam(defaultValue = "30") int tiempoLimite,
-                                      @RequestParam(defaultValue = "3") int intentosPermitidos,
-                                      @RequestParam String fechaApertura,
-                                      @RequestParam(required = false) String fechaCierre,
-                                      @RequestParam(defaultValue = "false") boolean oculto,
-                                      RedirectAttributes ra) {
-        Unidad unidad = unidadService.buscarPorId(unidadId).orElse(null);
-        if (unidad == null) return "redirect:/docente";
-
+    @PostMapping("/pools/guardar")
+    public String guardarPool(@RequestParam Integer unidadId,
+                              @RequestParam String nombre,
+                              RedirectAttributes ra) {
         try {
-            LocalDateTime fApertura = LocalDateTime.parse(fechaApertura + "T00:00:00");
-            LocalDateTime fCierre = (fechaCierre != null && !fechaCierre.isBlank()) ? LocalDateTime.parse(fechaCierre + "T23:59:59") : null;
-
-            Autoevaluacion ae = new Autoevaluacion(nombre.trim(), tiempoLimite, fApertura, unidad);
-            ae.setIntentosPermitidos(intentosPermitidos);
-            ae.setFechaCierre(fCierre);
-            ae.setOculto(oculto);
-            ae.setBaja(false);
-
-            evaluacionService.guardarAutoevaluacion(ae);
-            ra.addFlashAttribute("mensaje", "Autoevaluación '" + nombre + "' creada correctamente.");
+            Unidad unidad = unidadService.buscarPorId(unidadId).orElseThrow(() -> new IllegalArgumentException("Unidad no encontrada"));
+            if (evaluacionService.buscarPoolPorUnidad(unidad).isPresent()) {
+                ra.addFlashAttribute("error", "Esta unidad ya cuenta con un pool de preguntas registrado.");
+                return "redirect:/evaluaciones/pools?unidadId=" + unidadId;
+            }
+            Pool pool = new Pool(nombre, unidad);
+            poolRepository.save(pool);
+            ra.addFlashAttribute("mensaje", "Pool creado exitosamente.");
+            return "redirect:/evaluaciones/pools?unidadId=" + unidadId;
         } catch (Exception e) {
-            ra.addFlashAttribute("mensaje", "Error al crear autoevaluación: " + e.getMessage());
+            ra.addFlashAttribute("error", e.getMessage());
+            return "redirect:/evaluaciones/pools/nuevo?unidadId=" + unidadId;
         }
-
-        return "redirect:/docente/unidad/" + unidadId + "/autoevaluaciones";
     }
 
-    /**
-     * TRAZABILIDAD: CU-59 — Modificar autoevaluación (Caso A y Caso B).
-     * Actor: Docente.
-     */
-    @PostMapping("/docente/autoevaluacion/{id}/modificar")
-    public String modificarAutoevaluacion(@PathVariable Integer id,
-                                          @RequestParam String nombre,
-                                          @RequestParam int tiempoLimite,
-                                          @RequestParam int intentosPermitidos,
-                                          @RequestParam(required = false) String fechaCierre,
-                                          @RequestParam(defaultValue = "false") boolean oculto,
-                                          RedirectAttributes ra) {
-        Optional<Autoevaluacion> aeOpt = evaluacionService.buscarAutoevaluacionPorId(id);
-        if (aeOpt.isEmpty()) return "redirect:/docente";
+    @GetMapping("/pools/{id}/editar")
+    public String modificarPoolForm(@PathVariable Integer id, Model model, Authentication auth) {
+        Optional<Pool> pOpt = poolRepository.findById(id);
+        if (pOpt.isEmpty()) return "redirect:/evaluaciones/pools";
 
-        Autoevaluacion ae = aeOpt.get();
+        agregarUsuarioAlModelo(model, auth);
+        model.addAttribute("pool", pOpt.get());
+        model.addAttribute("titulo", "CU-55 - Modificar pool | Idóneos Online");
+        return "pages/evaluaciones/cu-55-modificar-pool";
+    }
+
+    @PostMapping("/pools/{id}/editar")
+    public String actualizarPool(@PathVariable Integer id,
+                                 @RequestParam String nombre,
+                                 RedirectAttributes ra) {
         try {
-            ae.setNombre(nombre.trim());
+            Pool p = poolRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Pool no encontrado"));
+            p.setNombre(nombre);
+            poolRepository.save(p);
+            ra.addFlashAttribute("mensaje", "Pool modificado exitosamente.");
+            return "redirect:/evaluaciones/pools?unidadId=" + p.getUnidad().getId();
+        } catch (Exception e) {
+            ra.addFlashAttribute("error", e.getMessage());
+            return "redirect:/evaluaciones/pools/" + id + "/editar";
+        }
+    }
+
+    @GetMapping("/pools/{id}/baja")
+    public String darDeBajaPoolView(@PathVariable Integer id, Model model, Authentication auth) {
+        Optional<Pool> pOpt = poolRepository.findById(id);
+        if (pOpt.isEmpty()) return "redirect:/evaluaciones/pools";
+
+        agregarUsuarioAlModelo(model, auth);
+        model.addAttribute("pool", pOpt.get());
+        model.addAttribute("titulo", "CU-56 - Dar de baja pool | Idóneos Online");
+        return "pages/evaluaciones/cu-56-dar-de-baja-pool";
+    }
+
+    @PostMapping("/pools/{id}/baja")
+    public String eliminarPool(@PathVariable Integer id, RedirectAttributes ra) {
+        try {
+            Pool p = poolRepository.findById(id).orElse(null);
+            Integer uId = (p != null && p.getUnidad() != null) ? p.getUnidad().getId() : null;
+            if (p != null) {
+                p.setBaja(true);
+                poolRepository.save(p);
+            }
+            ra.addFlashAttribute("mensaje", "Pool dado de baja correctamente.");
+            return uId != null ? "redirect:/evaluaciones/pools?unidadId=" + uId : "redirect:/evaluaciones/pools";
+        } catch (Exception e) {
+            ra.addFlashAttribute("error", e.getMessage());
+            return "redirect:/evaluaciones/pools/" + id + "/baja";
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // CU-57 a CU-60: AUTOEVALUACIONES
+    // ─────────────────────────────────────────────────────────────
+
+    @GetMapping("/autoevaluaciones")
+    public String buscarAutoevaluaciones(@RequestParam(value = "unidadId", required = false) Integer unidadId,
+                                         Model model, Authentication auth) {
+        agregarUsuarioAlModelo(model, auth);
+        List<Unidad> unidades = unidadService.obtenerTodo();
+        Unidad unidad = (unidadId != null) ? unidadService.buscarPorId(unidadId).orElse(null) : (unidades.isEmpty() ? null : unidades.get(0));
+
+        List<Autoevaluacion> autoevaluaciones = (unidad != null) ? evaluacionService.buscarAutoevaluacionesPorUnidad(unidad) : autoevaluacionRepository.findAll();
+        model.addAttribute("unidades", unidades);
+        model.addAttribute("unidadSeleccionada", unidad);
+        model.addAttribute("autoevaluaciones", autoevaluaciones);
+        model.addAttribute("titulo", "CU-57 - Buscar autoevaluación | Idóneos Online");
+        return "pages/evaluaciones/cu-57-buscar-autoevaluacion";
+    }
+
+    @GetMapping("/autoevaluaciones/nueva")
+    public String crearAutoevaluacionForm(@RequestParam(value = "unidadId", required = false) Integer unidadId,
+                                          Model model, Authentication auth) {
+        agregarUsuarioAlModelo(model, auth);
+        model.addAttribute("unidades", unidadService.obtenerTodo());
+        model.addAttribute("unidadId", unidadId);
+        model.addAttribute("titulo", "CU-58 - Crear autoevaluación | Idóneos Online");
+        return "pages/evaluaciones/cu-58-crear-autoevaluacion";
+    }
+
+    @PostMapping("/autoevaluaciones/guardar")
+    public String guardarAutoevaluacion(@RequestParam Integer unidadId,
+                                        @RequestParam String nombre,
+                                        @RequestParam(defaultValue = "30") int tiempoLimite,
+                                        @RequestParam(required = false) Integer intentosPermitidos,
+                                        RedirectAttributes ra) {
+        try {
+            Unidad unidad = unidadService.buscarPorId(unidadId).orElseThrow(() -> new IllegalArgumentException("Unidad no encontrada"));
+            Autoevaluacion ae = new Autoevaluacion(nombre, tiempoLimite, LocalDateTime.now(), unidad);
+            ae.setIntentosPermitidos(intentosPermitidos);
+            evaluacionService.guardarAutoevaluacion(ae);
+            ra.addFlashAttribute("mensaje", "Autoevaluación creada exitosamente.");
+            return "redirect:/evaluaciones/autoevaluaciones?unidadId=" + unidadId;
+        } catch (Exception e) {
+            ra.addFlashAttribute("error", e.getMessage());
+            return "redirect:/evaluaciones/autoevaluaciones/nueva?unidadId=" + unidadId;
+        }
+    }
+
+    @GetMapping("/autoevaluaciones/{id}/editar")
+    public String modificarAutoevaluacionForm(@PathVariable Integer id, Model model, Authentication auth) {
+        Optional<Autoevaluacion> aeOpt = evaluacionService.buscarAutoevaluacionPorId(id);
+        if (aeOpt.isEmpty()) return "redirect:/evaluaciones/autoevaluaciones";
+
+        agregarUsuarioAlModelo(model, auth);
+        model.addAttribute("autoevaluacion", aeOpt.get());
+        model.addAttribute("titulo", "CU-59 - Modificar autoevaluación | Idóneos Online");
+        return "pages/evaluaciones/cu-59-modificar-autoevaluacion";
+    }
+
+    @PostMapping("/autoevaluaciones/{id}/editar")
+    public String actualizarAutoevaluacion(@PathVariable Integer id,
+                                           @RequestParam String nombre,
+                                           @RequestParam int tiempoLimite,
+                                           @RequestParam(required = false) Integer intentosPermitidos,
+                                           RedirectAttributes ra) {
+        try {
+            Autoevaluacion ae = evaluacionService.buscarAutoevaluacionPorId(id).orElseThrow(() -> new IllegalArgumentException("Autoevaluación no encontrada"));
+            ae.setNombre(nombre);
             ae.setTiempoLimite(tiempoLimite);
             ae.setIntentosPermitidos(intentosPermitidos);
-            ae.setOculto(oculto);
-            if (fechaCierre != null && !fechaCierre.isBlank()) {
-                ae.setFechaCierre(LocalDateTime.parse(fechaCierre + "T23:59:59"));
-            }
-            ae.setUltimaModificacion(LocalDateTime.now());
             evaluacionService.guardarAutoevaluacion(ae);
-            ra.addFlashAttribute("mensaje", "Autoevaluación modificada exitosamente.");
+            ra.addFlashAttribute("mensaje", "Autoevaluación modificada correctamente.");
+            return "redirect:/evaluaciones/autoevaluaciones?unidadId=" + ae.getUnidad().getId();
         } catch (Exception e) {
-            ra.addFlashAttribute("mensaje", "Error al modificar autoevaluación: " + e.getMessage());
+            ra.addFlashAttribute("error", e.getMessage());
+            return "redirect:/evaluaciones/autoevaluaciones/" + id + "/editar";
+        }
+    }
+
+    @GetMapping("/autoevaluaciones/{id}/baja")
+    public String darDeBajaAutoevaluacionView(@PathVariable Integer id, Model model, Authentication auth) {
+        Optional<Autoevaluacion> aeOpt = evaluacionService.buscarAutoevaluacionPorId(id);
+        if (aeOpt.isEmpty()) return "redirect:/evaluaciones/autoevaluaciones";
+
+        agregarUsuarioAlModelo(model, auth);
+        model.addAttribute("autoevaluacion", aeOpt.get());
+        model.addAttribute("titulo", "CU-60 - Dar de baja autoevaluación | Idóneos Online");
+        return "pages/evaluaciones/cu-60-dar-de-baja-autoevaluacion";
+    }
+
+    @PostMapping("/autoevaluaciones/{id}/baja")
+    public String eliminarAutoevaluacion(@PathVariable Integer id, RedirectAttributes ra) {
+        try {
+            Autoevaluacion ae = evaluacionService.buscarAutoevaluacionPorId(id).orElse(null);
+            Integer uId = (ae != null && ae.getUnidad() != null) ? ae.getUnidad().getId() : null;
+            if (ae != null) {
+                evaluacionService.borrarAutoevaluacion(ae);
+            }
+            ra.addFlashAttribute("mensaje", "Autoevaluación dada de baja correctamente.");
+            return uId != null ? "redirect:/evaluaciones/autoevaluaciones?unidadId=" + uId : "redirect:/evaluaciones/autoevaluaciones";
+        } catch (Exception e) {
+            ra.addFlashAttribute("error", e.getMessage());
+            return "redirect:/evaluaciones/autoevaluaciones/" + id + "/baja";
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // CU-61, CU-62, CU-63, CU-64: INTENTOS Y CALIFICACIONES
+    // ─────────────────────────────────────────────────────────────
+
+    @GetMapping("/intentos")
+    public String buscarIntentos(@RequestParam(value = "autoevaluacionId", required = false) Integer autoevaluacionId,
+                                 Model model, Authentication auth) {
+        agregarUsuarioAlModelo(model, auth);
+        List<IntentoAutoevaluacion> intentos;
+        if (autoevaluacionId != null) {
+            Autoevaluacion ae = evaluacionService.buscarAutoevaluacionPorId(autoevaluacionId).orElse(null);
+            intentos = (ae != null) ? intentoRepository.findByAutoevaluacionOrderByFechaDesc(ae) : List.of();
+        } else {
+            intentos = intentoRepository.findAll();
         }
 
-        return "redirect:/docente/unidad/" + ae.getUnidad().getId() + "/autoevaluaciones";
-    }
-
-    /**
-     * TRAZABILIDAD: CU-60 — Dar de baja autoevaluación.
-     * Actor: Administrador / Docente.
-     */
-    @PostMapping("/docente/autoevaluacion/{id}/baja")
-    public String darBajaAutoevaluacion(@PathVariable Integer id, RedirectAttributes ra) {
-        Optional<Autoevaluacion> aeOpt = evaluacionService.buscarAutoevaluacionPorId(id);
-        if (aeOpt.isEmpty()) return "redirect:/docente";
-
-        Autoevaluacion ae = aeOpt.get();
-        Integer unidadId = ae.getUnidad().getId();
-        evaluacionService.borrarAutoevaluacion(ae);
-        ra.addFlashAttribute("mensaje", "Autoevaluación dada de baja correctamente.");
-        return "redirect:/docente/unidad/" + unidadId + "/autoevaluaciones";
-    }
-
-    // ─── ALUMNO / DOCENTE / ADMIN — Intentos y Calificaciones (CU-61 a CU-64) ────
-
-    /**
-     * TRAZABILIDAD: CU-61 — Buscar intento de autoevaluación (Docente / Administrador).
-     * Actor: Administrador / Docente.
-     */
-    @GetMapping("/docente/autoevaluacion/{autoevaluacionId}/intentos")
-    public String listarIntentosDocente(@PathVariable Integer autoevaluacionId, Model model, Authentication auth) {
-        Autoevaluacion ae = evaluacionService.buscarAutoevaluacionPorId(autoevaluacionId).orElse(null);
-        if (ae == null) return "redirect:/docente";
-
-        List<IntentoAutoevaluacion> intentos = intentoRepository.findByAutoevaluacionOrderByFechaDesc(ae);
-
-        model.addAttribute("usuario", (Usuario) auth.getPrincipal());
-        model.addAttribute("autoevaluacion", ae);
         model.addAttribute("intentos", intentos);
-        model.addAttribute("titulo", "Intentos | " + ae.getNombre());
-        return "pages/docente/intentos-autoevaluacion";
+        model.addAttribute("autoevaluaciones", autoevaluacionRepository.findAll());
+        model.addAttribute("titulo", "CU-61 - Buscar intento de autoevaluación | Idóneos Online");
+        return "pages/evaluaciones/cu-61-buscar-intento-de-autoevaluacion";
     }
 
-    /**
-     * TRAZABILIDAD: CU-62 — Ver calificaciones (Docente / Administrador).
-     * Actor: Docente / Administrador.
-     */
-    @GetMapping("/docente/unidad/{unidadId}/calificaciones")
-    public String verCalificacionesUnidad(@PathVariable Integer unidadId, Model model, Authentication auth) {
-        Unidad unidad = unidadService.buscarPorId(unidadId).orElse(null);
-        if (unidad == null) return "redirect:/docente";
+    @GetMapping("/calificaciones")
+    public String verCalificaciones(@RequestParam(value = "unidadId", required = false) Integer unidadId,
+                                    Model model, Authentication auth) {
+        agregarUsuarioAlModelo(model, auth);
+        List<Unidad> unidades = unidadService.obtenerTodo();
+        Unidad unidad = (unidadId != null) ? unidadService.buscarPorId(unidadId).orElse(null) : (unidades.isEmpty() ? null : unidades.get(0));
 
-        List<Autoevaluacion> autoevaluaciones = evaluacionService.buscarAutoevaluacionesPorUnidad(unidad);
-        List<IntentoAutoevaluacion> todosIntentos = autoevaluaciones.stream()
+        List<Autoevaluacion> autoevaluaciones = (unidad != null) ? evaluacionService.buscarAutoevaluacionesPorUnidad(unidad) : List.of();
+        List<IntentoAutoevaluacion> intentos = autoevaluaciones.stream()
                 .flatMap(ae -> intentoRepository.findByAutoevaluacionOrderByFechaDesc(ae).stream())
                 .toList();
 
-        model.addAttribute("usuario", (Usuario) auth.getPrincipal());
-        model.addAttribute("unidad", unidad);
+        model.addAttribute("unidades", unidades);
+        model.addAttribute("unidadSeleccionada", unidad);
         model.addAttribute("autoevaluaciones", autoevaluaciones);
-        model.addAttribute("intentos", todosIntentos);
-        model.addAttribute("titulo", "Calificaciones | " + unidad.getTitulo());
-        return "pages/docente/calificaciones";
+        model.addAttribute("intentos", intentos);
+        model.addAttribute("titulo", "CU-62 - Ver calificaciones | Idóneos Online");
+        return "pages/evaluaciones/cu-62-ver-calificaciones";
     }
 
-    /**
-     * TRAZABILIDAD: CU-63 — Realizar intento de autoevaluación (vista del examen con carga secuencial de preguntas).
-     * Actor: Alumno.
-     * Precondición: sesión con rol Alumno. La autoevaluación existe y está activa.
-     * Flujo: sortea aleatoriamente preguntas del pool y presenta opciones.
-     */
-    @GetMapping("/evaluacion/{autoevaluacionId}/rendir")
-    public String verExamen(@PathVariable Integer autoevaluacionId, Model model, Authentication auth) {
-        Autoevaluacion ae = evaluacionService.buscarAutoevaluacionPorId(autoevaluacionId).orElse(null);
-        if (ae == null) return "redirect:/cursos";
+    @GetMapping("/autoevaluaciones/{id}/rendir")
+    public String realizarIntentoView(@PathVariable Integer id, Model model, Authentication auth) {
+        Optional<Autoevaluacion> aeOpt = evaluacionService.buscarAutoevaluacionPorId(id);
+        if (aeOpt.isEmpty()) return "redirect:/evaluaciones/autoevaluaciones";
 
-        Usuario usuario = (Usuario) auth.getPrincipal();
-
-        try {
-            intentoService.iniciarIntento(ae, usuario);
-        } catch (Exception e) {
-            model.addAttribute("error", e.getMessage());
-        }
-
+        agregarUsuarioAlModelo(model, auth);
+        Autoevaluacion ae = aeOpt.get();
         List<Pregunta> preguntas = intentoService.sortearPreguntas(ae);
 
-        model.addAttribute("usuario", usuario);
         model.addAttribute("autoevaluacion", ae);
         model.addAttribute("preguntas", preguntas);
-        model.addAttribute("titulo", "Autoevaluación: " + ae.getNombre());
-        return "pages/alumno/rendir-examen";
+        model.addAttribute("titulo", "CU-63 - Realizar intento de autoevaluación | Idóneos Online");
+        return "pages/evaluaciones/cu-63-realizar-intento-de-autoevaluacion";
     }
 
-    /**
-     * TRAZABILIDAD: CU-63 — Realizar intento de autoevaluación (Entregar intento, calcular nota y validar aprobación).
-     * Actor: Alumno.
-     */
-    @PostMapping("/evaluacion/{autoevaluacionId}/enviar")
-    public String enviarExamen(@PathVariable Integer autoevaluacionId,
-                               @RequestParam Map<String, String> form,
-                               Authentication auth,
-                               RedirectAttributes ra) {
-        Autoevaluacion ae = evaluacionService.buscarAutoevaluacionPorId(autoevaluacionId).orElse(null);
-        if (ae == null) return "redirect:/cursos";
+    @PostMapping("/autoevaluaciones/{id}/enviar")
+    public String enviarIntento(@PathVariable Integer id,
+                                @RequestParam Map<String, String> form,
+                                Authentication auth, RedirectAttributes ra) {
+        Optional<Autoevaluacion> aeOpt = evaluacionService.buscarAutoevaluacionPorId(id);
+        if (aeOpt.isEmpty()) return "redirect:/evaluaciones/autoevaluaciones";
 
-        Usuario usuario = (Usuario) auth.getPrincipal();
+        Autoevaluacion ae = aeOpt.get();
         IntentoAutoevaluacion intento = new IntentoAutoevaluacion(ae);
 
         Map<Integer, Integer> respuestas = new HashMap<>();
@@ -446,55 +344,34 @@ public class EvaluacionController {
         }
 
         IntentoAutoevaluacion resultado = intentoService.corregirYGuardar(intento, respuestas);
-        ra.addFlashAttribute("intentoId", resultado.getId());
-        ra.addFlashAttribute("nota", resultado.getNota());
-        ra.addFlashAttribute("aprobado", intentoService.estaAprobado(resultado));
-        return "redirect:/evaluacion/" + autoevaluacionId + "/resultado";
+        ra.addFlashAttribute("mensaje", "Examen finalizado. Calificación obtenida: " + resultado.getNota() + "%");
+        return "redirect:/evaluaciones/intentos?autoevaluacionId=" + id;
     }
 
-    /**
-     * TRAZABILIDAD: CU-61 — Buscar intento de autoevaluación (Historial del alumno).
-     * Actor: Alumno.
-     */
-    @GetMapping("/evaluacion/{autoevaluacionId}/resultado")
-    public String verResultado(@PathVariable Integer autoevaluacionId, Model model, Authentication auth) {
-        Autoevaluacion ae = evaluacionService.buscarAutoevaluacionPorId(autoevaluacionId).orElse(null);
-        if (ae == null) return "redirect:/cursos";
+    @GetMapping("/intentos/{id}/baja")
+    public String darDeBajaIntentoView(@PathVariable Integer id, Model model, Authentication auth) {
+        Optional<IntentoAutoevaluacion> iOpt = intentoRepository.findById(id);
+        if (iOpt.isEmpty()) return "redirect:/evaluaciones/intentos";
 
-        Usuario usuario = (Usuario) auth.getPrincipal();
-        List<IntentoAutoevaluacion> historial = intentoService.historialPorAlumno(ae, usuario);
-
-        model.addAttribute("usuario", usuario);
-        model.addAttribute("autoevaluacion", ae);
-        model.addAttribute("historial", historial);
-        model.addAttribute("titulo", "Resultado | " + ae.getNombre());
-        return "pages/alumno/resultado-examen";
+        agregarUsuarioAlModelo(model, auth);
+        model.addAttribute("intento", iOpt.get());
+        model.addAttribute("titulo", "CU-64 - Dar de baja intento de autoevaluación | Idóneos Online");
+        return "pages/evaluaciones/cu-64-dar-de-baja-intento-de-autoevaluacion";
     }
 
-    /**
-     * TRAZABILIDAD: CU-64 — Dar de baja intento de autoevaluación.
-     * Actor: Administrador.
-     */
-    @PostMapping("/evaluacion/intento/{intentoId}/baja")
-    public String darBajaIntento(@PathVariable Integer intentoId, Authentication auth, RedirectAttributes ra) {
-        Usuario usuario = (Usuario) auth.getPrincipal();
-        if (!usuario.esAdmin()) {
-            ra.addFlashAttribute("mensaje", "Solo los administradores pueden anular intentos.");
-            return "redirect:/admin";
+    @PostMapping("/intentos/{id}/baja")
+    public String eliminarIntento(@PathVariable Integer id, RedirectAttributes ra) {
+        try {
+            Optional<IntentoAutoevaluacion> iOpt = intentoRepository.findById(id);
+            if (iOpt.isPresent()) {
+                IntentoAutoevaluacion i = iOpt.get();
+                i.setBaja(true);
+                intentoRepository.save(i);
+            }
+            ra.addFlashAttribute("mensaje", "Intento de autoevaluación anulado exitosamente.");
+        } catch (Exception e) {
+            ra.addFlashAttribute("error", e.getMessage());
         }
-
-        Optional<IntentoAutoevaluacion> iOpt = intentoRepository.findById(intentoId);
-        if (iOpt.isEmpty()) {
-            ra.addFlashAttribute("mensaje", "Intento no encontrado.");
-            return "redirect:/admin";
-        }
-
-        IntentoAutoevaluacion intento = iOpt.get();
-        intento.setBaja(true);
-        intentoRepository.save(intento);
-
-        ra.addFlashAttribute("mensaje", "Intento anulado correctamente.");
-        return "redirect:/docente/autoevaluacion/" + intento.getAutoevaluacion().getId() + "/intentos";
+        return "redirect:/evaluaciones/intentos";
     }
 }
-

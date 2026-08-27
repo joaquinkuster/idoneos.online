@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${titulo != null ? titulo : 'CU-39 - Buscar respuesta de foro'}">CU-39 - Buscar respuesta de foro | Idóneos Online</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome 6 Pro / Solid Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;800&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Estilos del Sistema Centralizados -->
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body class="wf-canvas-bg">
+
+    <div class="cu-page-container" style="max-width: 1400px; margin: 20px auto 40px auto; padding: 0 15px;">
+        <!-- Barra de Metadatos del Caso de Uso -->
+        <div class="meta-strip mb-3 p-3 bg-white rounded border d-flex justify-content-between align-items-center shadow-sm">
+            <div class="d-flex align-items-center gap-2">
+                <span class="wf-badge" style="background: #081426; color: var(--wf-gold); border-color: var(--wf-gold); font-size: 11px;">CU-39</span>
+                <strong style="font-size: 14px; color: #081426;">Buscar respuesta de foro</strong>
+                <span style="color: #94A3B8;">|</span>
+                <span class="text-muted" style="font-size: 11px;"><strong>Actor(es):</strong> Docente, Administrador</span>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <span class="text-muted" style="font-size: 11px; font-weight: 700;">DSS:</span>
+                <code>buscarRespuestasForo(consulta) ➔ seleccionarRespuestaForo(idRespuestas, respuestas)</code>
+            </div>
+        </div>
+
+        <!-- Pantalla / Screen Frame Oficial -->
+        <div class="screen-frame">
+
+                <!-- Top Navbar Oficial -->
+                <div class="wf-top-navbar">
+                    <div class="wf-brand">
+                        <div class="d-flex flex-column">
+                            <div class="wf-brand-logo"><i class="fa-solid fa-chart-line" style="color: var(--wf-gold);"></i> Idóneos <span>Online</span></div>
+                            <div class="wf-brand-sub">FINANZAS • ECONOMÍA • MERCADO DE CAPITALES</div>
+                        </div>
+                    </div>
+
+                    <div class="wf-top-nav-links">
+                        <a href="#CU-06" class="wf-top-nav-link">Inicio</a>
+                        <a href="#CU-06" class="wf-top-nav-link">Catálogo de Cursos</a>
+                        <span class="wf-top-nav-pill">Panel Administrador</span>
+                        <a href="#CU-99" class="wf-top-nav-link">Acerca de</a>
+
+                        <div class="wf-user-menu-wrapper">
+                            <div class="wf-user-trigger-pill" onclick="toggleUserDropdown(this)">
+                                <div class="user-avatar-circle">AG</div>
+                                <span style="font-size: 11px; font-weight: 700;">Admin General</span>
+                                <i class="fa-solid fa-chevron-down w-3 h-3 text-white ms-1"></i>
+                            </div>
+
+                            <div class="wf-user-floating-dropdown">
+                                <div class="wf-dropdown-user-header">
+                                    <div class="wf-dropdown-user-name">Admin General</div>
+                                    <div class="wf-dropdown-user-role">Administrador</div>
+                                    <div class="wf-dropdown-user-email">admin@idoneos.online</div>
+                                </div>
+  
+                                <div class="wf-dropdown-section">
+                                    <div class="wf-dropdown-section-title">Modo Edición</div>
+    
+                                    <div class="wf-dropdown-editing-toggle-box">
+                                        <span class="small fw-bold">Activar Edición</span>
+                                        <span class="wf-badge status-inactive">OFF</span>
+                                    </div>
+      
+                                </div>
+    
+                                <div class="wf-dropdown-section">
+                                    <div class="wf-dropdown-section-title">Administración del Sistema</div>
+    
+                                    <a href="#CU-01" class="wf-dropdown-item-btn ">
+                                        <span>Gestión de cursos</span>
+                                    </a>
+        
+                                    <a href="#CU-11" class="wf-dropdown-item-btn ">
+                                        <span>Cohortes y programas</span>
+                                    </a>
+        
+                                    <a href="#CU-82" class="wf-dropdown-item-btn ">
+                                        <span>Gestión de usuarios</span>
+                                    </a>
+        
+                                    <a href="#CU-95" class="wf-dropdown-item-btn ">
+                                        <span>Auditoría de eventos</span>
+                                    </a>
+        
+                                    <a href="#CU-96" class="wf-dropdown-item-btn ">
+                                        <span>Informe de alumnos</span>
+                                    </a>
+        
+                                    <a href="#CU-97" class="wf-dropdown-item-btn ">
+                                        <span>Informe de ingresos</span>
+                                    </a>
+        
+                                    <a href="#CU-98" class="wf-dropdown-item-btn ">
+                                        <span>Dashboard de estadísticas</span>
+                                    </a>
+        
+                                    <a href="#CU-99" class="wf-dropdown-item-btn ">
+                                        <span>Configuración general</span>
+                                    </a>
+        
+                                </div>
+    
+                                <div class="wf-dropdown-section">
+                                    <div class="wf-dropdown-section-title">Cuenta & Seguridad</div>
+    
+                                    <a href="#CU-86" class="wf-dropdown-item-btn ">
+                                        <span>Ver perfil</span>
+                                    </a>
+        
+                                    <a href="#CU-93" class="wf-dropdown-item-btn ">
+                                        <span>Seguridad y sesiones activas</span>
+                                    </a>
+        
+                                    <a href="#CU-91" class="wf-dropdown-item-btn text-danger">
+                                        <span>Cerrar sesión</span>
+                                    </a>
+        
+                                </div>
+    
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hero Banner Contextual Superior (Navy) -->
+                <div class="wf-hero-banner">
+                    <div>
+                        <div class="wf-hero-tag">
+                            <i class="fa-solid fa-graduation-cap" style="color: var(--wf-gold);"></i>
+                            <span>PANEL DE ADMINISTRACIÓN</span>
+                        </div>
+                        <h2 class="wf-hero-title">Buscar respuesta de foro</h2>
+                        <p class="wf-hero-desc">Bienvenido/a, Admin General</p>
+                    </div>
+                    
+                    <div class="d-flex align-items-center gap-2">
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    </div>
+</div>
+
+                <div class="wf-body">
+                    <div class="wf-main-content">
+                        
+      <div class="wf-card mb-4" style="background: #FFFFFF;">
+        <div class="d-flex justify-content-between align-items-start pb-3 border-bottom">
+          <div>
+            <div class="small text-muted mb-1" style="font-size: 11px;">
+              <span>Página Principal</span> <i class="fa-solid fa-chevron-right" style="font-size: 9px; margin: 0 4px;"></i> 
+              <a href="#CU-35" class="text-muted" style="text-decoration: none;">Foro PostgreSQL</a> <i class="fa-solid fa-chevron-right" style="font-size: 9px; margin: 0 4px;"></i> 
+              <strong style="color: #081426;">Duda con TP N° 1: Punto 4</strong>
+            </div>
+            <h2 style="font-size: 20px; font-weight: 800; color: #081426; margin: 6px 0 0;">Duda con TP N° 1: Punto 4 - Cálculo de TIR y Duración de Bonos</h2>
+            <div class="small text-muted mt-1">
+              <span class="text-muted">◄ Tema anterior: <a href="#" class="text-primary" style="text-decoration: none;">Régimen Informativo CNV</a></span>
+              <span class="mx-2">•</span>
+              <span class="text-muted">Tema siguiente: <a href="#" class="text-primary" style="text-decoration: none;">Diferencia entre ALyC Propio e Integral</a> ►</span>
+            </div>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <a href="#CU-35" class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-arrow-left me-1"></i> Volver al Foro</a>
+            
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center py-2 border-bottom mb-4 bg-light px-3 rounded">
+          <span class="small text-muted">Modo de visualización: <strong>Mostrar respuestas anidadas</strong></span>
+          <div class="dropdown">
+            <button class="wf-btn wf-btn-sm wf-btn-outline" style="font-size: 11px;">Configuraciones <i class="fa-solid fa-chevron-down ms-1"></i></button>
+          </div>
+        </div>
+
+        <!-- Mensaje Raíz de la Consulta (Alumno) -->
+        <div class="p-3 border rounded bg-white mb-4 shadow-sm" style="border-left: 4px solid #2563EB !important;">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <div class="d-flex align-items-center gap-3">
+              <div class="user-avatar-circle" style="width: 38px; height: 38px; font-size: 13px; background: #2563EB; color: white;">JK</div>
+              <div>
+                <strong style="font-size: 13px; color: #081426;">Duda con TP N° 1: Punto 4 - Cálculo de TIR y Duración</strong>
+                <div class="small text-muted">de <strong style="color: #081426;">Joaquín Küster</strong> - miércoles, 11 de abril de 2026, 14:20</div>
+              </div>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              <a href="#CU-37" class="wf-btn wf-btn-sm wf-btn-outline" style="font-size: 10px; height: 28px; padding: 0 8px;"><i class="fa-solid fa-pen-to-square me-1"></i> Editar</a>
+              <a href="#CU-38" class="wf-btn wf-btn-sm wf-btn-outline text-danger" style="font-size: 10px; height: 28px; padding: 0 8px;"><i class="fa-solid fa-trash me-1"></i> Borrar</a>
+            </div>
+          </div>
+          <div style="font-size: 13px; color: #1E293B; line-height: 1.6; padding-left: 48px;">
+            <p>Buenas tardes profesor,</p>
+            <p>Estoy intentando calcular la duración modificada y la TIR para el bono soberano AL30 según el enunciado del TP 1. Al descontar los cupones semestrales me surge una discrepancia con el valor de la guía teórica.</p>
+            <p class="mb-0">¿Debemos considerar la convención 30/360 o Actual/Actual para el devengamiento de intereses?</p>
+          </div>
+          <div class="d-flex justify-content-end gap-3 mt-3 pt-2 border-top" style="font-size: 11px;">
+            <a href="#" class="text-muted" style="text-decoration: none;">Enlace permanente</a>
+            <a href="#CU-40" class="text-primary fw-bold" style="text-decoration: none;"><i class="fa-solid fa-reply me-1"></i> Responder</a>
+          </div>
+        </div>
+
+        <!-- Respuesta 1 Anidada (Docente Titular) -->
+        <div class="p-3 border rounded bg-light mb-3 shadow-sm" style="margin-left: 48px; border-left: 4px solid var(--wf-navy) !important;">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <div class="d-flex align-items-center gap-3">
+              <div class="user-avatar-circle" style="width: 36px; height: 36px; font-size: 12px; background: #081426; color: white;">FS</div>
+              <div>
+                <div class="d-flex align-items-center gap-2">
+                  <strong style="font-size: 13px; color: #081426;">Re: Duda con TP N° 1: Punto 4</strong>
+                  
+                </div>
+                <div class="small text-muted">de <strong style="color: #081426;">Mg. Elena Valenzuela</strong> (Docente Titular) - jueves, 12 de abril de 2026, 10:15</div>
+              </div>
+            </div>
+            <span class="badge bg-primary text-white">Profesor</span>
+          </div>
+          <div style="font-size: 13px; color: #1E293B; line-height: 1.6; padding-left: 46px;">
+            <p>Estimado Joaquín,</p>
+            <p>Para los bonos soberanos emitidos bajo ley argentina (como el AL30) la convención estándar de mercado utilizada por el MAE y BYMA es <strong>Actual/Actual</strong> para el cálculo del cupón corrido y TIR.</p>
+            <p class="mb-0">Revisa también que estés tomando el precio Clean para calcular el rendimiento hasta el vencimiento.</p>
+          </div>
+          <div class="d-flex justify-content-end gap-3 mt-3 pt-2 border-top" style="font-size: 11px;">
+            <a href="#" class="text-muted" style="text-decoration: none;">Enlace permanente</a>
+            <a href="#CU-40" class="text-primary fw-bold" style="text-decoration: none;"><i class="fa-solid fa-reply me-1"></i> Responder</a>
+          </div>
+        </div>
+
+        <!-- Respuesta 2 Anidada de Agradecimiento (Alumno) -->
+        <div class="p-3 border rounded bg-white mb-3 shadow-sm" style="margin-left: 96px; border-left: 4px solid #10B981 !important;">
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <div class="d-flex align-items-center gap-3">
+              <div class="user-avatar-circle" style="width: 32px; height: 32px; font-size: 11px; background: #2563EB; color: white;">JK</div>
+              <div>
+                <strong style="font-size: 12px; color: #081426;">Solucionado, muchas gracias</strong>
+                <div class="small text-muted">de <strong style="color: #081426;">Joaquín Küster</strong> - viernes, 13 de abril de 2026, 09:05</div>
+              </div>
+            </div>
+            <span class="badge bg-success text-white" style="font-size: 10px;">Solucionado</span>
+          </div>
+          <div style="font-size: 12px; color: #334155; line-height: 1.5; padding-left: 42px;">
+            <p class="mb-0">Excelente profesor, al cambiar a convención Actual/Actual la duración me dio exactamente 3.12 años. Ya pude subir la entrega del práctico.</p>
+          </div>
+          <div class="d-flex justify-content-end gap-3 mt-2 pt-2 border-top" style="font-size: 11px;">
+            <a href="#" class="text-muted" style="text-decoration: none;">Enlace permanente</a>
+          </div>
+        </div>
+      </div>
+    
+                    </div>
+                </div>
+
+                <!-- Footer Oficial -->
+                <div class="wf-screen-footer">
+                    <div>
+                        <strong>Idóneos <span>Online</span> S.A.S.</strong> • Plataforma de Educación Financiera, Economía & Mercado de Capitales
+                    </div>
+                    <div>
+                        FCEQyN — UNaM • Proyecto Software (LSI) / Trabajo Final (ASI)
+                    </div>
+                </div>
+            
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function toggleUserDropdown(triggerEl) {
+            const wrapper = triggerEl.closest('.wf-user-menu-wrapper');
+            if (wrapper) {
+                const dropdown = wrapper.querySelector('.wf-user-floating-dropdown');
+                if (dropdown) {
+                    dropdown.style.display = (dropdown.style.display === 'none' || dropdown.style.display === '') ? 'flex' : 'none';
+                }
+            }
+        }
+    </script>
+</body>
+</html>

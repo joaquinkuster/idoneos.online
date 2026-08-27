@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${titulo != null ? titulo : 'CU-73 - Generar banco de preguntas'}">CU-73 - Generar banco de preguntas | Idóneos Online</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome 6 Pro / Solid Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;800&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Estilos del Sistema Centralizados -->
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body class="wf-canvas-bg">
+
+    <div class="cu-page-container" style="max-width: 1400px; margin: 20px auto 40px auto; padding: 0 15px;">
+        <!-- Barra de Metadatos del Caso de Uso -->
+        <div class="meta-strip mb-3 p-3 bg-white rounded border d-flex justify-content-between align-items-center shadow-sm">
+            <div class="d-flex align-items-center gap-2">
+                <span class="wf-badge" style="background: #081426; color: var(--wf-gold); border-color: var(--wf-gold); font-size: 11px;">CU-73</span>
+                <strong style="font-size: 14px; color: #081426;">Generar banco de preguntas</strong>
+                <span style="color: #94A3B8;">|</span>
+                <span class="text-muted" style="font-size: 11px;"><strong>Actor(es):</strong> Docente</span>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <span class="text-muted" style="font-size: 11px; font-weight: 700;">DSS:</span>
+                <code>Operación del sistema correspondiente</code>
+            </div>
+        </div>
+
+        <!-- Pantalla / Screen Frame Oficial -->
+        <div class="screen-frame">
+
+                <!-- Top Navbar Oficial -->
+                <div class="wf-top-navbar">
+                    <div class="wf-brand">
+                        <div class="d-flex flex-column">
+                            <div class="wf-brand-logo"><i class="fa-solid fa-chart-line" style="color: var(--wf-gold);"></i> Idóneos <span>Online</span></div>
+                            <div class="wf-brand-sub">FINANZAS • ECONOMÍA • MERCADO DE CAPITALES</div>
+                        </div>
+                    </div>
+
+                    <div class="wf-top-nav-links">
+                        <a href="#CU-06" class="wf-top-nav-link">Inicio</a>
+                        <a href="#CU-06" class="wf-top-nav-link">Catálogo de Cursos</a>
+                        <span class="wf-top-nav-pill">Panel Docente</span>
+                        <a href="#CU-99" class="wf-top-nav-link">Acerca de</a>
+
+                        <div class="wf-user-menu-wrapper">
+                            <div class="wf-user-trigger-pill" onclick="toggleUserDropdown(this)">
+                                <div class="user-avatar-circle">EV</div>
+                                <span style="font-size: 11px; font-weight: 700;">Mg. Elena Valenzuela</span>
+                                <i class="fa-solid fa-chevron-down w-3 h-3 text-white ms-1"></i>
+                            </div>
+
+                            <div class="wf-user-floating-dropdown">
+                                <div class="wf-dropdown-user-header">
+                                    <div class="wf-dropdown-user-name">Mg. Elena Valenzuela</div>
+                                    <div class="wf-dropdown-user-role">Docente Titular</div>
+                                    <div class="wf-dropdown-user-email">elena.valenzuela@idoneos.online</div>
+                                </div>
+  
+                                <div class="wf-dropdown-section">
+                                    <div class="wf-dropdown-section-title">Modo Edición</div>
+    
+                                    <div class="wf-dropdown-editing-toggle-box">
+                                        <span class="small fw-bold">Activar Edición</span>
+                                        <span class="wf-badge status-inactive">OFF</span>
+                                    </div>
+      
+                                </div>
+    
+                                <div class="wf-dropdown-section">
+                                    <div class="wf-dropdown-section-title">Gestión de Cursos</div>
+    
+                                    <a href="#CU-01" class="wf-dropdown-item-btn ">
+                                        <span>Mis cursos a cargo</span>
+                                    </a>
+        
+                                    <a href="#CU-19" class="wf-dropdown-item-btn ">
+                                        <span>Estructura de unidades</span>
+                                    </a>
+        
+                                    <a href="#CU-23" class="wf-dropdown-item-btn ">
+                                        <span>Cronograma y avance</span>
+                                    </a>
+        
+                                    <a href="#CU-25" class="wf-dropdown-item-btn ">
+                                        <span>Lista de participantes</span>
+                                    </a>
+        
+                                    <a href="#CU-76" class="wf-dropdown-item-btn ">
+                                        <span>Estudio de Clon IA (HeyGen)</span>
+                                    </a>
+        
+                                </div>
+    
+                                <div class="wf-dropdown-section">
+                                    <div class="wf-dropdown-section-title">Cuenta & Seguridad</div>
+    
+                                    <a href="#CU-86" class="wf-dropdown-item-btn ">
+                                        <span>Ver perfil</span>
+                                    </a>
+        
+                                    <a href="#CU-87" class="wf-dropdown-item-btn ">
+                                        <span>Editar perfil</span>
+                                    </a>
+        
+                                    <a href="#CU-93" class="wf-dropdown-item-btn ">
+                                        <span>Seguridad y sesiones activas</span>
+                                    </a>
+        
+                                    <a href="#CU-91" class="wf-dropdown-item-btn text-danger">
+                                        <span>Cerrar sesión</span>
+                                    </a>
+        
+                                </div>
+    
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hero Banner Contextual Superior (Navy) -->
+                <div class="wf-hero-banner">
+                    <div>
+                        <div class="wf-hero-tag">
+                            <i class="fa-solid fa-graduation-cap" style="color: var(--wf-gold);"></i>
+                            <span>CUERPO DOCENTE • IDÓNEOS ONLINE</span>
+                        </div>
+                        <h2 class="wf-hero-title">Generar banco de preguntas</h2>
+                        <p class="wf-hero-desc">Bienvenido/a, Mg. Elena Valenzuela</p>
+                    </div>
+                    
+                    <div class="d-flex align-items-center gap-2">
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    </div>
+</div>
+
+                <div class="wf-body">
+                    <div class="wf-main-content">
+                        
+      <div class="wf-card" style="max-width: 1080px; margin: 0 auto; background: #FFFFFF;">
+        <!-- Cabecera Limpia sin badge A -->
+        <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
+          <div class="d-flex align-items-center gap-3">
+            <div style="width: 44px; height: 44px; border-radius: 10px; background: #081426; display: flex; align-items: center; justify-content: center; color: var(--wf-gold);">
+              <i class="fa-solid fa-list-check" style="font-size: 20px;"></i>
+            </div>
+            <div>
+              <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Generar Banco de Preguntas con IA (Ollama)</h3>
+              <p class="small text-muted" style="margin: 2px 0 0;">Generación automatizada de preguntas cerradas de opción múltiple y V/F a partir de la bibliografía cargada.</p>
+            </div>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <span class="wf-badge status-active">Ollama Local (LLaMA-3 8B)</span>
+          </div>
+        </div>
+
+        <div class="d-flex flex-column flex-lg-row align-items-stretch justify-content-between gap-4">
+          <!-- Columna Izquierda: Configuración y Parámetros de Entrada -->
+          <div style="flex: 1 1 50%; min-width: 320px;" class="d-flex flex-column justify-content-between">
+            <div>
+              <div class="mb-3">
+                <label class="wf-label">Unidad Académica de Origen</label>
+                <div class="wf-input-wrap">
+                  <select class="wf-input">
+                    <option selected>Unidad 2: Instrumentos de Renta Fija (Bonos y Obligaciones Negociables)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label class="wf-label">Fuentes de Contenido (Bibliografía & Glosario)</label>
+                <div class="p-2 border rounded bg-light d-flex flex-column gap-1" style="font-size: 12px;">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <span><i class="fa-solid fa-file-pdf text-danger me-1"></i> Guía Teórica de Renta Fija v2.0.pdf</span>
+                    <span class="badge bg-success text-white" style="font-size: 9px;">Cargado</span>
+                  </div>
+                  <div class="d-flex justify-content-between align-items-center">
+                    <span><i class="fa-solid fa-book-open text-warning me-1"></i> Glosario de Unidad (8 términos técnicos)</span>
+                    <span class="badge bg-success text-white" style="font-size: 9px;">Cargado</span>
+                  </div>
+                </div>
+              </div>
+
+              
+                <div class="mb-3">
+                  <label class="wf-label">Guión Adicional / Prompt de Orientación (Opcional)</label>
+                  <div class="wf-input-wrap">
+                    <textarea class="wf-input" rows="4" placeholder="Ej: Enfatizar preguntas sobre cálculo de TIR, duration de Macaulay y convexidad de bonos soberanos...">Enfatizar preguntas sobre cálculo de TIR, duration de Macaulay y convexidad de bonos soberanos con casos prácticos.</textarea>
+                    
+                  </div>
+                  <div class="small text-muted mt-1" style="font-size: 11px;">El modelo Ollama utilizará este guión junto con la bibliografía de la unidad para generar los enunciados.</div>
+                </div>
+              
+
+              
+
+              
+            </div>
+
+            <div class="p-2 border rounded bg-white shadow-sm d-flex align-items-center justify-content-between mt-2">
+              <span class="small text-muted"><i class="fa-solid fa-server me-1 text-primary"></i> Estado de Inferencia: <strong>Local Ollama API</strong></span>
+              <span class="badge bg-success text-white" style="font-size: 10px;">En Línea</span>
+            </div>
+          </div>
+
+          <!-- Barra Divisoria Vertical en el medio -->
+          <div class="d-none d-lg-block" style="width: 1px; background: #CBD5E1; min-height: 100%;"></div>
+
+          <!-- Columna Derecha: Previsualización del Resultado IA -->
+          <div style="flex: 1 1 50%; min-width: 320px;">
+            <div class="p-4 border rounded bg-white shadow-sm h-100 d-flex flex-column justify-content-between" style="border-top: 4px solid #059669 !important;">
+              <div>
+                <div class="d-flex justify-content-between align-items-center pb-2 mb-3 border-bottom">
+                  <strong style="font-size: 14px; color: #081426;"><i class="fa-solid fa-eye me-1 text-primary"></i>Previsualización del Resultado IA</strong>
+                  <span class="badge bg-light text-muted border">Estado: No Publicado</span>
+                </div>
+
+                
+                  <div class="d-flex flex-column gap-2" style="font-size: 12px;">
+                    <div class="p-3 border rounded bg-light">
+                      <div class="fw-bold text-dark mb-1">1. ¿Qué mide la modified duration en un título de renta fija?</div>
+                      <div class="text-success small"><i class="fa-solid fa-circle-check me-1"></i> A) La sensibilidad porcentual del precio ante variaciones en la TIR. (Correcta)</div>
+                      <div class="text-muted small ms-3">B) El plazo promedio ponderado de los flujos de fondos.</div>
+                      <div class="text-muted small ms-3">C) El cupón de interés nominal anual.</div>
+                    </div>
+                    <div class="p-3 border rounded bg-light">
+                      <div class="fw-bold text-dark mb-1">2. Ante una suba en la tasa de interés, el precio de un bono con alta convexidad cae más que uno de baja convexidad.</div>
+                      <div class="text-success small"><i class="fa-solid fa-circle-check me-1"></i> Falso (La convexidad amortigua la caída de precio). (Correcta)</div>
+                    </div>
+                  </div>
+                
+
+                
+
+                
+              </div>
+
+              <div class="pt-3 mt-4 border-top d-flex justify-content-end align-items-center gap-3">
+                <a href="#CU-19" class="wf-btn wf-btn-sm wf-btn-outline">Cancelar</a>
+                <div class="d-flex align-items-center gap-2">
+                  <button class="wf-btn wf-btn-sm wf-btn-primary d-flex align-items-center gap-2" style="background: #059669; border-color: #047857; font-weight: 700;">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    <span>Generar Preguntas con IA</span>
+                  </button>
+                  
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    
+                    </div>
+                </div>
+
+                <!-- Footer Oficial -->
+                <div class="wf-screen-footer">
+                    <div>
+                        <strong>Idóneos <span>Online</span> S.A.S.</strong> • Plataforma de Educación Financiera, Economía & Mercado de Capitales
+                    </div>
+                    <div>
+                        FCEQyN — UNaM • Proyecto Software (LSI) / Trabajo Final (ASI)
+                    </div>
+                </div>
+            
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function toggleUserDropdown(triggerEl) {
+            const wrapper = triggerEl.closest('.wf-user-menu-wrapper');
+            if (wrapper) {
+                const dropdown = wrapper.querySelector('.wf-user-floating-dropdown');
+                if (dropdown) {
+                    dropdown.style.display = (dropdown.style.display === 'none' || dropdown.style.display === '') ? 'flex' : 'none';
+                }
+            }
+        }
+    </script>
+</body>
+</html>

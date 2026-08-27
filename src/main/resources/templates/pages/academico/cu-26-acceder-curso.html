@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${titulo != null ? titulo : 'CU-26 - Acceder curso'}">CU-26 - Acceder curso | Idóneos Online</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome 6 Pro / Solid Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;800&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Estilos del Sistema Centralizados -->
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body class="wf-canvas-bg">
+
+    <div class="cu-page-container" style="max-width: 1400px; margin: 20px auto 40px auto; padding: 0 15px;">
+        <!-- Barra de Metadatos del Caso de Uso -->
+        <div class="meta-strip mb-3 p-3 bg-white rounded border d-flex justify-content-between align-items-center shadow-sm">
+            <div class="d-flex align-items-center gap-2">
+                <span class="wf-badge" style="background: #081426; color: var(--wf-gold); border-color: var(--wf-gold); font-size: 11px;">CU-26</span>
+                <strong style="font-size: 14px; color: #081426;">Acceder curso</strong>
+                <span style="color: #94A3B8;">|</span>
+                <span class="text-muted" style="font-size: 11px;"><strong>Actor(es):</strong> Alumno</span>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <span class="text-muted" style="font-size: 11px; font-weight: 700;">DSS:</span>
+                <code>buscarUnidades(programa) ➔ seleccionarUnidad(idUnidad, unidades) ➔ verContenidoUnidad(unaUnidad) ➔ seleccionarAutoevaluacion(idAutoevaluacion, autoevaluaciones) ➔ buscarIntentos(unaAutoevaluacion) ➔ seleccionarClaseEnVivo(idClase, clases) ➔ buscarParticipantesPorCohorte(cohorte, nombreCompleto, rol) ➔ buscarCalificacionesAlumno(inscripcion) ➔ buscarCronogramaAlumno(inscripcion)</code>
+            </div>
+        </div>
+
+        <!-- Pantalla / Screen Frame Oficial -->
+        <div class="screen-frame">
+
+                <!-- Top Navbar Oficial -->
+                <div class="wf-top-navbar">
+                    <div class="wf-brand">
+                        <div class="d-flex flex-column">
+                            <div class="wf-brand-logo"><i class="fa-solid fa-chart-line" style="color: var(--wf-gold);"></i> Idóneos <span>Online</span></div>
+                            <div class="wf-brand-sub">FINANZAS • ECONOMÍA • MERCADO DE CAPITALES</div>
+                        </div>
+                    </div>
+
+                    <div class="wf-top-nav-links">
+                        <a href="#CU-06" class="wf-top-nav-link">Inicio</a>
+                        <a href="#CU-06" class="wf-top-nav-link">Catálogo de Cursos</a>
+                        <span class="wf-top-nav-pill">Panel Alumno</span>
+                        <a href="#CU-99" class="wf-top-nav-link">Acerca de</a>
+
+                        <div class="wf-user-menu-wrapper">
+                            <div class="wf-user-trigger-pill" onclick="toggleUserDropdown(this)">
+                                <div class="user-avatar-circle">JK</div>
+                                <span style="font-size: 11px; font-weight: 700;">Joaquín Küster</span>
+                                <i class="fa-solid fa-chevron-down w-3 h-3 text-white ms-1"></i>
+                            </div>
+
+                            <div class="wf-user-floating-dropdown">
+                                <div class="wf-dropdown-user-header">
+                                    <div class="wf-dropdown-user-name">Joaquín Küster</div>
+                                    <div class="wf-dropdown-user-role">Alumno</div>
+                                    <div class="wf-dropdown-user-email">joaquin.kuster@idoneos.online</div>
+                                </div>
+  
+                                <div class="wf-dropdown-section">
+                                    <div class="wf-dropdown-section-title">Navegación</div>
+    
+                                    <a href="#CU-02" class="wf-dropdown-item-btn ">
+                                        <span>Mis cursos matriculados</span>
+                                    </a>
+        
+                                    <a href="#CU-06" class="wf-dropdown-item-btn ">
+                                        <span>Explorar catálogo abierto</span>
+                                    </a>
+        
+                                    <a href="#CU-46" class="wf-dropdown-item-btn ">
+                                        <span>Historial de pagos e inscripciones</span>
+                                    </a>
+        
+                                    <a href="#CU-62" class="wf-dropdown-item-btn ">
+                                        <span>Mis calificaciones obtenidas</span>
+                                    </a>
+        
+                                </div>
+    
+                                <div class="wf-dropdown-section">
+                                    <div class="wf-dropdown-section-title">Cuenta</div>
+    
+                                    <a href="#CU-86" class="wf-dropdown-item-btn ">
+                                        <span>Ver perfil</span>
+                                    </a>
+        
+                                    <a href="#CU-87" class="wf-dropdown-item-btn ">
+                                        <span>Editar datos de perfil</span>
+                                    </a>
+        
+                                    <a href="#CU-93" class="wf-dropdown-item-btn ">
+                                        <span>Seguridad y sesiones activas</span>
+                                    </a>
+        
+                                    <a href="#CU-91" class="wf-dropdown-item-btn text-danger">
+                                        <span>Cerrar sesión</span>
+                                    </a>
+        
+                                </div>
+    
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hero Banner Contextual Superior (Navy) -->
+                <div class="wf-hero-banner">
+                    <div>
+                        <div class="wf-hero-tag">
+                            <i class="fa-solid fa-graduation-cap" style="color: var(--wf-gold);"></i>
+                            <span>PORTAL DEL ALUMNO</span>
+                        </div>
+                        <h2 class="wf-hero-title">Acceder curso</h2>
+                        <p class="wf-hero-desc">Bienvenido/a, Joaquín Küster</p>
+                    </div>
+                    
+                    <div class="d-flex align-items-center gap-2">
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    </div>
+</div>
+
+                <div class="wf-body">
+                    <div class="wf-main-content">
+                        
+      <div class="wf-card mb-4" style="background: #FFFFFF;">
+        <div class="d-flex justify-content-between align-items-start pb-3 border-bottom">
+          <div>
+            <div class="small text-muted mb-1" style="font-size: 11px;">
+              <span>Mis cursos</span> <i class="fa-solid fa-chevron-right" style="font-size: 9px; margin: 0 4px;"></i> <span>Mercado de Capitales</span> <i class="fa-solid fa-chevron-right" style="font-size: 9px; margin: 0 4px;"></i> <strong>Especialización en Idoneidad Bursátil</strong>
+            </div>
+            <h3 style="font-size: 19px; font-weight: 800; color: #081426; margin: 4px 0;">Especialización en Idoneidad Bursátil (Cohorte 2026-1)</h3>
+            <p class="small text-muted" style="margin: 0;">Docente Titular: Mg. Elena Valenzuela | Duración: 8 Semanas | Programa Vigente</p>
+          </div>
+          <div class="text-end">
+            <span class="wf-badge status-active">Inscripción Vigente</span>
+            <div class="small text-muted mt-1">Progreso general: <strong>65%</strong></div>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center pt-2">
+          <div class="d-flex align-items-center gap-2">
+            <button class="wf-tab-btn active"> Curso</button>
+            <button class="wf-tab-btn"> Cronograma</button>
+            <button class="wf-tab-btn"> Participantes</button>
+            <button class="wf-tab-btn"> Calificaciones</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Banner de Transmisión en Vivo Ahora Mismo -->
+      <div class="p-3 mb-4 rounded border shadow-sm d-flex justify-content-between align-items-center" style="background: linear-gradient(135deg, #0F172A, #1E293B); color: #FFFFFF; border-left: 5px solid #DC2626 !important;">
+        <div class="d-flex align-items-center gap-3">
+          <div style="width: 44px; height: 44px; border-radius: 50%; background: #DC2626; display: flex; align-items: center; justify-content: center; color: white; animation: pulse 1.8s infinite;">
+            <i class="fa-solid fa-broadcast-tower" style="font-size: 18px;"></i>
+          </div>
+          <div>
+            <div class="d-flex align-items-center gap-2">
+              <span class="badge" style="background: #DC2626; color: white; font-size: 10px; font-weight: 700; letter-spacing: 0.5px;">● EN DIRECTO AHORA</span>
+              <span class="small text-muted" style="color: #94A3B8 !important;">Unidad 2 • Mg. Elena Valenzuela</span>
+            </div>
+            <h4 style="font-size: 15px; font-weight: 700; color: #FFFFFF; margin: 3px 0 0;">Clase Magistral: Resolución de Prácticos de Renta Fija y Valuación de Bonos</h4>
+          </div>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+          <a href="#CU-72" class="wf-btn wf-btn-sm d-flex align-items-center gap-2" style="background: #DC2626; border-color: #DC2626; color: #FFFFFF; font-weight: 700; border-radius: 20px; padding: 8px 18px; text-decoration: none; box-shadow: 0 4px 12px rgba(220,38,38,0.4);">
+            <i class="fa-solid fa-video"></i>
+            <span>Ingresar a la Sala en Vivo</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="d-flex flex-column gap-4">
+        <!-- Unidad 1 -->
+        <div class="wf-unit-box">
+          <div class="wf-unit-header d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-2">
+              <i class="fa-solid fa-circle-check text-success" style="font-size: 16px;"></i>
+              <strong style="font-size: 14px; color: #081426;">Unidad 1: Marco Regulatorio y Ley de Mercado de Capitales</strong>
+            </div>
+            <span class="wf-badge status-active">Aprobada (Nota: 9/10)</span>
+          </div>
+          <div class="wf-unit-body d-flex flex-column gap-2">
+            <!-- Item 1: PDF -->
+            <div class="moodle-activity-card">
+              <div class="moodle-activity-left">
+                <div class="moodle-icon-box moodle-icon-pdf">
+                  <i class="fa-solid fa-file-pdf"></i>
+                </div>
+                <div>
+                  <a href="#" class="moodle-activity-title wf-link">Ley 26.831 y modificatorias CNV</a>
+                  <div class="moodle-activity-desc">Documento PDF oficial descargable • 2.4 MB</div>
+                </div>
+              </div>
+              <button class="moodle-btn-check completed"><i class="fa-solid fa-check"></i> Hecho</button>
+            </div>
+
+            <!-- Item 2: Video -->
+            <div class="moodle-activity-card">
+              <div class="moodle-activity-left">
+                <div class="moodle-icon-box moodle-icon-video">
+                  <i class="fa-solid fa-circle-play"></i>
+                </div>
+                <div>
+                  <a href="#" class="moodle-activity-title wf-link">Grabación: Estructura del Mercado Argentino</a>
+                  <div class="moodle-activity-desc">Video clase dictada por Mg. Elena Valenzuela • 45 min</div>
+                </div>
+              </div>
+              <button class="moodle-btn-check completed"><i class="fa-solid fa-check"></i> Hecho</button>
+            </div>
+
+            <!-- Item 3: Glosario -->
+            <div class="moodle-activity-card">
+              <div class="moodle-activity-left">
+                <div class="moodle-icon-box moodle-icon-glossary">
+                  <i class="fa-solid fa-book-open"></i>
+                </div>
+                <div>
+                  <a href="#" class="moodle-activity-title wf-link">Glosario de Términos CNV</a>
+                  <div class="moodle-activity-desc">Diccionario con 12 conceptos normativos clave</div>
+                </div>
+              </div>
+              <button class="moodle-btn-check completed"><i class="fa-solid fa-check"></i> Hecho</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Unidad 2 -->
+        <div class="wf-unit-box">
+          <div class="wf-unit-header d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-2">
+              <i class="fa-solid fa-book-open" style="color: var(--wf-gold); font-size: 16px;"></i>
+              <strong style="font-size: 14px; color: #081426;">Unidad 2: Instrumentos de Renta Fija (Bonos y Obligaciones Negociables)</strong>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              <span class="wf-badge status-active">En Curso</span>
+              
+            </div>
+          </div>
+          <div class="wf-unit-body d-flex flex-column gap-3">
+            <p class="small text-muted" style="margin: 0;">Conceptos de TIR, Duration, Modified Duration y curvas de rendimiento soberanas.</p>
+            
+            <div class="d-flex flex-column gap-2">
+              <div class="wf-subcontent-title">Materiales de Estudio</div>
+              
+              <div class="moodle-activity-card">
+                <div class="moodle-activity-left">
+                  <div class="moodle-icon-box moodle-icon-pdf">
+                    <i class="fa-solid fa-file-pdf"></i>
+                  </div>
+                  <div>
+                    <a href="#" class="moodle-activity-title wf-link">Guía Teórica de Renta Fija v2.1</a>
+                    <div class="moodle-activity-desc">Material principal de lectura (PDF - 4.1 MB)</div>
+                  </div>
+                </div>
+                <button class="moodle-btn-check completed"><i class="fa-solid fa-check"></i> Hecho</button>
+              </div>
+
+              <div class="moodle-activity-card">
+                <div class="moodle-activity-left">
+                  <div class="moodle-icon-box moodle-icon-video">
+                    <i class="fa-solid fa-file-excel" style="color: #16A34A;"></i>
+                  </div>
+                  <div>
+                    <a href="#" class="moodle-activity-title wf-link">Planilla Excel: Cálculo de TIR y Flujos de Fondos</a>
+                    <div class="moodle-activity-desc">Plantilla de ejercicios prácticos (.xlsx - 850 KB)</div>
+                  </div>
+                </div>
+                <button class="moodle-btn-check">Marcar como hecha</button>
+              </div>
+            </div>
+
+            <div class="d-flex flex-column gap-2 mt-2">
+              <div class="wf-subcontent-title">Actividades & Evaluaciones</div>
+              
+              <!-- Autoevaluación -->
+              <div class="moodle-activity-card">
+                <div class="moodle-activity-left">
+                  <div class="moodle-icon-box moodle-icon-quiz">
+                    <i class="fa-solid fa-clipboard-check"></i>
+                  </div>
+                  <div>
+                    <a href="#CU-63" class="moodle-activity-title wf-link">Autoevaluación Unidad 2: Ejercicios de Rendimiento</a>
+                    <div class="moodle-activity-desc">10 preguntas aleatorias • 3 intentos máximos permitidos • Aprobación: 70%</div>
+                  </div>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                  <a href="#CU-63" class="wf-btn wf-btn-sm wf-btn-primary d-flex align-items-center gap-1" style="font-weight: 700; text-decoration: none;">
+                    <i class="fa-solid fa-play"></i>
+                    <span>Comenzar Intento</span>
+                  </a>
+                  
+                </div>
+              </div>
+
+              <!-- Foro de Consultas -->
+              <div class="moodle-activity-card">
+                <div class="moodle-activity-left">
+                  <div class="moodle-icon-box moodle-icon-forum">
+                    <i class="fa-solid fa-comments"></i>
+                  </div>
+                  <div>
+                    <a href="#CU-35" class="moodle-activity-title wf-link">Foro de Consultas: Dudas sobre Duración Modificada</a>
+                    <div class="moodle-activity-desc">Espacio de debate e interacción con el docente titular (4 consultas activas)</div>
+                  </div>
+                </div>
+                <a href="#CU-35" class="moodle-btn-check" style="text-decoration: none;">Ver debates</a>
+              </div>
+
+              <!-- Clase en Vivo -->
+              <div class="moodle-activity-card">
+                <div class="moodle-activity-left">
+                  <div class="moodle-icon-box moodle-icon-live">
+                    <i class="fa-solid fa-video"></i>
+                  </div>
+                  <div>
+                    <a href="#CU-72" class="moodle-activity-title wf-link">Clase en Vivo: Streaming Interactivo con OBS</a>
+                    <div class="moodle-activity-desc">Sesión sincrónica semanal • Jueves 19:00 hs</div>
+                  </div>
+                </div>
+                <a href="#CU-72" class="moodle-btn-check" style="background: #FEF3C7; color: #92400E; border-color: #FCD34D; text-decoration: none;"><i class="fa-solid fa-broadcast-tower"></i> Sala en Vivo</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    
+                    </div>
+                </div>
+
+                <!-- Footer Oficial -->
+                <div class="wf-screen-footer">
+                    <div>
+                        <strong>Idóneos <span>Online</span> S.A.S.</strong> • Plataforma de Educación Financiera, Economía & Mercado de Capitales
+                    </div>
+                    <div>
+                        FCEQyN — UNaM • Proyecto Software (LSI) / Trabajo Final (ASI)
+                    </div>
+                </div>
+            
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function toggleUserDropdown(triggerEl) {
+            const wrapper = triggerEl.closest('.wf-user-menu-wrapper');
+            if (wrapper) {
+                const dropdown = wrapper.querySelector('.wf-user-floating-dropdown');
+                if (dropdown) {
+                    dropdown.style.display = (dropdown.style.display === 'none' || dropdown.style.display === '') ? 'flex' : 'none';
+                }
+            }
+        }
+    </script>
+</body>
+</html>

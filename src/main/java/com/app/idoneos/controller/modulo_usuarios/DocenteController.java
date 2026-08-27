@@ -1,5 +1,5 @@
 package com.app.idoneos.controller.modulo_usuarios;
-import com.app.idoneos.service.Reportes.*;
+import com.app.idoneos.service.modulo_reportes.*;
 
 import com.app.idoneos.model.*;
 import com.app.idoneos.repository.modulo_cursos.*;
@@ -10,7 +10,7 @@ import com.app.idoneos.repository.modulo_usuarios.*;
 
 import com.app.idoneos.service.modulo_cursos.*;
 import com.app.idoneos.service.modulo_gestion_academica.*;
-import com.app.idoneos.service.Evaluacion.EvaluacionService;
+import com.app.idoneos.service.modulo_evaluaciones.EvaluacionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;

@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${titulo != null ? titulo : 'CU-93 - Buscar sesión'}">CU-93 - Buscar sesión | Idóneos Online</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome 6 Pro / Solid Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;800&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Estilos del Sistema Centralizados -->
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body class="wf-canvas-bg">
+
+    <div class="cu-page-container" style="max-width: 1400px; margin: 20px auto 40px auto; padding: 0 15px;">
+        <!-- Barra de Metadatos del Caso de Uso -->
+        <div class="meta-strip mb-3 p-3 bg-white rounded border d-flex justify-content-between align-items-center shadow-sm">
+            <div class="d-flex align-items-center gap-2">
+                <span class="wf-badge" style="background: #081426; color: var(--wf-gold); border-color: var(--wf-gold); font-size: 11px;">CU-93</span>
+                <strong style="font-size: 14px; color: #081426;">Buscar sesión</strong>
+                <span style="color: #94A3B8;">|</span>
+                <span class="text-muted" style="font-size: 11px;"><strong>Actor(es):</strong> Alumno, Docente, Administrador</span>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <span class="text-muted" style="font-size: 11px; font-weight: 700;">DSS:</span>
+                <code>Operación del sistema correspondiente</code>
+            </div>
+        </div>
+
+        <!-- Pantalla / Screen Frame Oficial -->
+        <div class="screen-frame">
+
+                <!-- Top Navbar Oficial -->
+                <div class="wf-top-navbar">
+                    <div class="wf-brand">
+                        <div class="d-flex flex-column">
+                            <div class="wf-brand-logo"><i class="fa-solid fa-chart-line" style="color: var(--wf-gold);"></i> Idóneos <span>Online</span></div>
+                            <div class="wf-brand-sub">FINANZAS • ECONOMÍA • MERCADO DE CAPITALES</div>
+                        </div>
+                    </div>
+
+                    <div class="wf-top-nav-links">
+                        <a href="#CU-06" class="wf-top-nav-link">Inicio</a>
+                        <a href="#CU-06" class="wf-top-nav-link">Catálogo de Cursos</a>
+                        <span class="wf-top-nav-pill">Panel Administrador</span>
+                        <a href="#CU-99" class="wf-top-nav-link">Acerca de</a>
+
+                        <div class="wf-user-menu-wrapper">
+                            <div class="wf-user-trigger-pill" onclick="toggleUserDropdown(this)">
+                                <div class="user-avatar-circle">AG</div>
+                                <span style="font-size: 11px; font-weight: 700;">Admin General</span>
+                                <i class="fa-solid fa-chevron-down w-3 h-3 text-white ms-1"></i>
+                            </div>
+
+                            <div class="wf-user-floating-dropdown">
+                                <div class="wf-dropdown-user-header">
+                                    <div class="wf-dropdown-user-name">Admin General</div>
+                                    <div class="wf-dropdown-user-role">Administrador</div>
+                                    <div class="wf-dropdown-user-email">admin@idoneos.online</div>
+                                </div>
+  
+                                <div class="wf-dropdown-section">
+                                    <div class="wf-dropdown-section-title">Modo Edición</div>
+    
+                                    <div class="wf-dropdown-editing-toggle-box">
+                                        <span class="small fw-bold">Activar Edición</span>
+                                        <span class="wf-badge status-inactive">OFF</span>
+                                    </div>
+      
+                                </div>
+    
+                                <div class="wf-dropdown-section">
+                                    <div class="wf-dropdown-section-title">Administración del Sistema</div>
+    
+                                    <a href="#CU-01" class="wf-dropdown-item-btn ">
+                                        <span>Gestión de cursos</span>
+                                    </a>
+        
+                                    <a href="#CU-11" class="wf-dropdown-item-btn ">
+                                        <span>Cohortes y programas</span>
+                                    </a>
+        
+                                    <a href="#CU-82" class="wf-dropdown-item-btn ">
+                                        <span>Gestión de usuarios</span>
+                                    </a>
+        
+                                    <a href="#CU-95" class="wf-dropdown-item-btn ">
+                                        <span>Auditoría de eventos</span>
+                                    </a>
+        
+                                    <a href="#CU-96" class="wf-dropdown-item-btn ">
+                                        <span>Informe de alumnos</span>
+                                    </a>
+        
+                                    <a href="#CU-97" class="wf-dropdown-item-btn ">
+                                        <span>Informe de ingresos</span>
+                                    </a>
+        
+                                    <a href="#CU-98" class="wf-dropdown-item-btn ">
+                                        <span>Dashboard de estadísticas</span>
+                                    </a>
+        
+                                    <a href="#CU-99" class="wf-dropdown-item-btn ">
+                                        <span>Configuración general</span>
+                                    </a>
+        
+                                </div>
+    
+                                <div class="wf-dropdown-section">
+                                    <div class="wf-dropdown-section-title">Cuenta & Seguridad</div>
+    
+                                    <a href="#CU-86" class="wf-dropdown-item-btn ">
+                                        <span>Ver perfil</span>
+                                    </a>
+        
+                                    <a href="#CU-93" class="wf-dropdown-item-btn ">
+                                        <span>Seguridad y sesiones activas</span>
+                                    </a>
+        
+                                    <a href="#CU-91" class="wf-dropdown-item-btn text-danger">
+                                        <span>Cerrar sesión</span>
+                                    </a>
+        
+                                </div>
+    
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hero Banner Contextual Superior (Navy) -->
+                <div class="wf-hero-banner">
+                    <div>
+                        <div class="wf-hero-tag">
+                            <i class="fa-solid fa-graduation-cap" style="color: var(--wf-gold);"></i>
+                            <span>PANEL DE ADMINISTRACIÓN</span>
+                        </div>
+                        <h2 class="wf-hero-title">Buscar sesión</h2>
+                        <p class="wf-hero-desc">Bienvenido/a, Admin General</p>
+                    </div>
+                    
+                    <div class="d-flex align-items-center gap-2">
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    </div>
+</div>
+
+                <div class="wf-body">
+                    <div class="wf-main-content">
+                        
+      <div class="wf-card mb-4" style="background: #FFFFFF;">
+        <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
+          <div>
+            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Sesiones Activas y Seguridad de Cuenta</h3>
+            <p class="small text-muted" style="margin: 3px 0 0;">Consulte los dispositivos conectados y el registro de sesiones activas en la plataforma.</p>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <span class="wf-badge status-active"><i class="fa-solid fa-shield-halved me-1"></i> Control de Acceso</span>
+          </div>
+        </div>
+
+        <!-- Filtros de Búsqueda [B] y Botón Buscar [C] -->
+        <div class="p-3 bg-light rounded border mb-4">
+          <div class="row g-3 align-items-end">
+            <div class="col" style="flex: 1 1 25%; min-width: 180px;">
+              <label class="wf-label">Filtrar por Usuario (Admin)</label>
+              <div class="wf-input-wrap">
+                <input type="text" class="wf-input" placeholder="Todos los usuarios o email..." value="Mg. Elena Valenzuela">
+                
+              </div>
+            </div>
+            <div class="col" style="flex: 1 1 20%; min-width: 150px;">
+              <label class="wf-label">Rango de Fechas</label>
+              <div class="wf-input-wrap">
+                <select class="wf-input">
+                  <option selected>Últimos 7 días</option>
+                  <option>Últimos 30 días</option>
+                  <option>Todo el historial</option>
+                </select>
+              </div>
+            </div>
+            <div class="col" style="flex: 1 1 20%; min-width: 150px;">
+              <label class="wf-label">Dispositivo / Navegador</label>
+              <div class="wf-input-wrap">
+                <input type="text" class="wf-input" placeholder="Ej: Chrome, Firefox, Safari...">
+              </div>
+            </div>
+            <div class="col" style="flex: 1 1 15%; min-width: 130px;">
+              <label class="wf-label">Dirección IP</label>
+              <div class="wf-input-wrap">
+                <input type="text" class="wf-input" placeholder="181.44.xxx.xxx">
+              </div>
+            </div>
+            <div class="col-auto" style="min-width: 120px;">
+              <div class="d-flex align-items-center gap-2">
+                <button class="wf-btn wf-btn-primary w-100"><i class="fa-solid fa-magnifying-glass me-1"></i> Buscar</button>
+                
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Listado de Sesiones con Selección [D] y Cierre Remoto [A] -->
+        <div class="wf-table-wrap">
+          <table class="wf-table">
+            <thead>
+              <tr>
+                <th>Dispositivo y Navegador</th>
+                <th>Usuario Responsable</th>
+                <th>Fecha y Hora de Inicio</th>
+                <th>Dirección IP</th>
+                <th>Estado</th>
+                <th class="text-end">Acción de Seguridad</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Sesión 1: Actual -->
+              <tr style="background: #F0FDF4; border-left: 4px solid #16A34A;">
+                <td>
+                  <div class="d-flex align-items-center gap-2">
+                    <div style="width: 34px; height: 34px; border-radius: 8px; background: #DCFCE7; color: #16A34A; display: flex; align-items: center; justify-content: center; font-size: 16px;">
+                      <i class="fa-solid fa-laptop"></i>
+                    </div>
+                    <div>
+                      <strong style="color: #081426;">Chrome 122 on Windows 11</strong>
+                      <div class="small text-success fw-bold">Sesión Actual (Este Dispositivo)</div>
+                    </div>
+                  </div>
+                </td>
+                <td>elena.valenzuela@idoneos.online</td>
+                <td>27/08/2026 • 08:14 hs</td>
+                <td><code>181.44.120.45</code></td>
+                <td><span class="wf-badge status-active">Activa</span></td>
+                <td class="text-end">
+                  <span class="badge bg-light text-muted border">En Uso</span>
+                </td>
+              </tr>
+
+              <!-- Sesión 2: Remota (Seleccionada para CU-94) -->
+              <tr style="background: #FEF2F2; border-left: 4px solid #DC2626;">
+                <td>
+                  <div class="d-flex align-items-center gap-2">
+                    <div style="width: 34px; height: 34px; border-radius: 8px; background: #FEE2E2; color: #DC2626; display: flex; align-items: center; justify-content: center; font-size: 16px;">
+                      <i class="fa-solid fa-mobile-screen"></i>
+                    </div>
+                    <div>
+                      <strong style="color: #081426;">Safari Mobile on iOS 17 (iPhone 15)</strong>
+                      <div class="small text-muted">Última actividad: hace 42 minutos</div>
+                    </div>
+                  </div>
+                </td>
+                <td>elena.valenzuela@idoneos.online</td>
+                <td>26/08/2026 • 21:30 hs</td>
+                <td><code>190.183.45.12</code></td>
+                <td><span class="wf-badge status-active">Activa</span></td>
+                <td class="text-end">
+                  <div class="d-inline-flex align-items-center gap-2">
+                    <button class="wf-btn wf-btn-xs wf-btn-outline" title="Ver detalles de IP y dispositivo">
+                      <i class="fa-solid fa-circle-info me-1"></i> Detalles
+                    </button>
+                    
+                    <a href="#CU-94" class="wf-btn wf-btn-xs wf-btn-danger" title="Cerrar forzadamente esta sesión">
+                      <i class="fa-solid fa-power-off me-1"></i> Cerrar Sesión Remota
+                    </a>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Sesión 3: Remota Tablet -->
+              <tr>
+                <td>
+                  <div class="d-flex align-items-center gap-2">
+                    <div style="width: 34px; height: 34px; border-radius: 8px; background: #F1F5F9; color: #475569; display: flex; align-items: center; justify-content: center; font-size: 16px;">
+                      <i class="fa-solid fa-tablet-screen-button"></i>
+                    </div>
+                    <div>
+                      <strong style="color: #081426;">Firefox 120 on iPad OS</strong>
+                      <div class="small text-muted">Última actividad: ayer 18:05 hs</div>
+                    </div>
+                  </div>
+                </td>
+                <td>joaquin.kuster@idoneos.online</td>
+                <td>25/08/2026 • 15:20 hs</td>
+                <td><code>186.137.90.11</code></td>
+                <td><span class="wf-badge status-active">Activa</span></td>
+                <td class="text-end">
+                  <a href="#CU-94" class="wf-btn wf-btn-xs wf-btn-outline text-danger">
+                    <i class="fa-solid fa-power-off me-1"></i> Cerrar Sesión Remota
+                  </a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    
+                    </div>
+                </div>
+
+                <!-- Footer Oficial -->
+                <div class="wf-screen-footer">
+                    <div>
+                        <strong>Idóneos <span>Online</span> S.A.S.</strong> • Plataforma de Educación Financiera, Economía & Mercado de Capitales
+                    </div>
+                    <div>
+                        FCEQyN — UNaM • Proyecto Software (LSI) / Trabajo Final (ASI)
+                    </div>
+                </div>
+            
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function toggleUserDropdown(triggerEl) {
+            const wrapper = triggerEl.closest('.wf-user-menu-wrapper');
+            if (wrapper) {
+                const dropdown = wrapper.querySelector('.wf-user-floating-dropdown');
+                if (dropdown) {
+                    dropdown.style.display = (dropdown.style.display === 'none' || dropdown.style.display === '') ? 'flex' : 'none';
+                }
+            }
+        }
+    </script>
+</body>
+</html>
