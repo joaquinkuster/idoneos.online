@@ -587,11 +587,28 @@ a:hover {
         }
 
         body {
-            background-color: var(--wf-canvas);
+            background-color: var(--wf-bg);
             color: var(--wf-text);
+            min-height: 100vh;
             display: flex;
-            height: 100vh;
-            overflow: hidden;
+            flex-direction: column;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
+        .cu-page-container {
+            max-width: 1320px;
+            width: 100%;
+            margin: 20px auto 40px auto;
+            padding: 0 20px;
+            flex: 1;
+        }
+
+        @media (max-width: 768px) {
+            .cu-page-container {
+                padding: 0 10px;
+                margin: 10px auto 25px auto;
+            }
         }
 
         i {
@@ -726,27 +743,43 @@ a:hover {
         /* Marco de Pantalla / Screen Frame Oficial */
         .screen-frame {
             width: 100%;
-            min-height: 680px;
-            background: #F8FAFC;
-            border-radius: 8px;
+            min-height: calc(100vh - 80px);
+            background: #FFFFFF;
+            border-radius: 12px;
             border: 1px solid #CBD5E1;
-            box-shadow: 0 10px 30px rgba(8, 20, 38, 0.08);
+            box-shadow: 0 10px 30px rgba(8, 20, 38, 0.06);
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            margin-bottom: 20px;
         }
 
         /* Top Navbar Oficial (Navy Header) */
         .wf-top-navbar {
-            height: 58px;
+            min-height: 60px;
             background: var(--wf-navy-header);
-            padding: 0 28px;
+            padding: 10px 24px;
             display: flex;
+            flex-wrap: wrap;
             align-items: center;
             justify-content: space-between;
             position: relative;
             z-index: 100;
             border-bottom: 1px solid #142844;
+            gap: 12px;
+        }
+
+        @media (max-width: 768px) {
+            .screen-frame {
+                border-radius: 8px;
+                min-height: auto;
+            }
+            .wf-top-navbar {
+                padding: 10px 14px;
+            }
+            .wf-top-nav-links {
+                display: none !important;
+            }
         }
 
         .wf-brand {

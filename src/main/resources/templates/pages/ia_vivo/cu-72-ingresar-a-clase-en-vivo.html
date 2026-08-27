@@ -20,20 +20,6 @@
 <body class="wf-canvas-bg">
 
     <div class="cu-page-container" style="max-width: 1400px; margin: 20px auto 40px auto; padding: 0 15px;">
-        <!-- Barra de Metadatos del Caso de Uso -->
-        <div class="meta-strip mb-3 p-3 bg-white rounded border d-flex justify-content-between align-items-center shadow-sm">
-            <div class="d-flex align-items-center gap-2">
-                <span class="wf-badge" style="background: #081426; color: var(--wf-gold); border-color: var(--wf-gold); font-size: 11px;">CU-72</span>
-                <strong style="font-size: 14px; color: #081426;">Ingresar a clase en vivo</strong>
-                <span style="color: #94A3B8;">|</span>
-                <span class="text-muted" style="font-size: 11px;"><strong>Actor(es):</strong> Alumno</span>
-            </div>
-            <div class="d-flex align-items-center gap-2">
-                <span class="text-muted" style="font-size: 11px; font-weight: 700;">DSS:</span>
-                <code>ingresarClaseEnVivo(unaClase)</code>
-            </div>
-        </div>
-
         <!-- Pantalla / Screen Frame Oficial -->
         <div class="screen-frame">
 
@@ -229,6 +215,33 @@
                 }
             }
         }
+    </script>
+
+    <!-- DSS & Case of Use Console Logger -->
+    <script>
+        (function() {
+            const cuId = 'CU-72';
+            const cuNombre = 'Ingresar a clase en vivo';
+            const cuActores = 'Alumno';
+            const cuDss = 'ingresarClaseEnVivo(unaClase)';
+
+            console.log(
+                '%c[IDÓNEOS ONLINE] %c ' + cuId + ' %c ' + cuNombre + ' ',
+                'color: #C9982F; font-weight: 800; font-size: 13px;',
+                'background: #081426; color: #E4BE6C; padding: 3px 8px; border-radius: 4px; font-weight: 700; font-size: 12px; border: 1px solid #C9982F;',
+                'color: #081426; font-weight: 800; font-size: 13px;'
+            );
+            console.log(
+                '%c👤 Actor(es): %c' + cuActores,
+                'color: #64748B; font-weight: 700; font-size: 11px;',
+                'color: #0F172A; font-weight: 600; font-size: 11px;'
+            );
+            console.log(
+                '%c⚡ DSS: %c' + cuDss,
+                'color: #64748B; font-weight: 700; font-size: 11px;',
+                'color: #0284C7; font-family: monospace; font-size: 11px; font-weight: 600;'
+            );
+        })();
     </script>
 </body>
 </html>
