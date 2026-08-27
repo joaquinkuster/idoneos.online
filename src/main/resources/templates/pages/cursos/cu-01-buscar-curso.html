@@ -152,7 +152,7 @@
                             <i class="fa-solid fa-plus"></i>
                             <span>Nuevo Curso</span>
                         </a>
-                        
+                        <span class="pin-badge">A</span>
                     
                     
                     
@@ -171,186 +171,114 @@
                 <div class="wf-body">
                     <div class="wf-main-content">
                         
-      <div class="wf-card mb-4">
+      
+      <form th:action="@{/cursos}" method="get" class="wf-card mb-4">
         <div class="row align-items-end">
           <div class="col-md-5">
             <label class="wf-label">Buscar cursos por título o palabra clave</label>
             <div class="wf-input-wrap">
-              <input type="text" class="wf-input" placeholder="Ej: Planificación Fiscal, Cripto, Mercado de Capitales...">
-              
+              <input type="text" name="busqueda" th:value="${busqueda}" class="wf-input" placeholder="Ej: Planificación Fiscal, Cripto, Mercado de Capitales...">
+              <span class="pin-badge">A</span>
             </div>
           </div>
           <div class="col-md-4">
-            <label class="wf-label">Filtrar por Categoría / Estado</label>
-            <div class="wf-select-container">
-              <div class="wf-input-wrap">
-                <div class="wf-input wf-select-trigger">
-                  <span>Todas las categorías</span>
-                  <i class="fa-solid fa-chevron-down "></i>
-                </div>
-                
-              </div>
-              <div class="wf-dropdown-menu">
-                <div class="wf-dropdown-item active">☑ Todas las categorías</div>
-                <div class="wf-dropdown-item">☐ Impuestos y Contabilidad</div>
-                <div class="wf-dropdown-item">☐ Mercado de Capitales</div>
-                <div class="wf-dropdown-item">☐ Finanzas y Cripto</div>
-              </div>
+            <label class="wf-label">Filtrar por Categoría</label>
+            <select name="categoriaId" class="wf-input">
+              <option value="">Todas las categorías</option>
+              <option th:each="cat : ${categorias}" th:value="${cat.id}" th:text="${cat.nombre}" th:selected="${categoriaSeleccionada == cat.id}">Categoría</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <div class="d-flex align-items-center gap-2">
+              <button type="submit" class="wf-btn wf-btn-primary w-100">Buscar Cursos</button>
+              <span class="pin-badge">C</span>
             </div>
+          </div>
+        </div>
+      </form>
           </div>
           <div class="col-md-3">
             <div class="d-flex align-items-center gap-2">
               <button class="wf-btn wf-btn-primary w-100">Buscar Cursos</button>
-              
+              <span class="pin-badge">C</span>
             </div>
           </div>
         </div>
       </div>
 
+      
       <div class="wf-cards-grid">
-        <!-- Curso 1: Planificación Fiscal -->
-        <div class="wf-course-card">
+        <div th:each="curso : ${cursos}" class="wf-course-card">
           <div class="wf-course-card-thumb">
             <div class="wf-course-thumb-icon"><i class="fa-solid fa-graduation-cap w-8 h-8 text-white"></i></div>
             <div class="wf-course-pills-row">
-              <span class="wf-pill-tag">Impuestos y Contabilidad</span>
-              <span class="wf-pill-status">Sin cohortes abiertas</span>
+              <span class="wf-pill-tag" th:text="${curso.categoria != null ? curso.categoria.nombre : 'Finanzas'}">Categoría</span>
+              <span class="wf-pill-status" th:text="${curso.nivel != null ? curso.nivel.nombre : 'General'}">Nivel</span>
             </div>
           </div>
           <div class="wf-course-card-body">
-            <h4 class="wf-course-title">Planificación Fiscal y Tributaria</h4>
-            <p class="wf-course-desc">Estrategias impositivas para pymes y profesionales.</p>
+            <h4 class="wf-course-title" th:text="${curso.nombre}">Nombre Curso</h4>
+            <p class="wf-course-desc" th:text="${curso.descripcion}">Descripción</p>
             <div class="wf-course-info-row">
-              <span>📄 1 Programas</span>
-              <span class="wf-course-price">$220.000</span>
-            </div>
-          </div>
-          <div class="wf-course-card-footer">
-            
-              <div class="d-flex flex-column gap-2 w-100">
-                <div class="d-flex align-items-center gap-2 w-100">
-                  <a href="#CU-26b" class="wf-btn wf-btn-sm wf-btn-primary w-100 d-flex align-items-center justify-content-center gap-2" style="background: #2563EB; border-color: #2563EB; color: #FFFFFF; font-weight: 700; height: 38px;">
-                    <i class="fa-solid fa-arrow-right-to-bracket"></i>
-                    <span>Ingresar al Curso</span>
-                  </a>
-                  
-                </div>
-                <div class="d-flex align-items-center gap-2 w-100">
-                  <a href="#CU-62" class="wf-btn wf-btn-sm wf-btn-outline flex-grow-1 d-flex align-items-center justify-content-center gap-1" style="font-weight: 600; color: #081426;">
-                    <i class="fa-solid fa-chart-simple text-primary"></i>
-                    <span>Ver Calificaciones</span>
-                  </a>
-                </div>
-                <div class="d-flex align-items-center gap-2 w-100">
-                  <a href="#CU-04" class="wf-btn wf-btn-sm wf-btn-outline flex-grow-1 d-flex align-items-center justify-content-center gap-1">
-                    <i class="fa-solid fa-pen-to-square"></i>
-                    <span>Editar Curso</span>
-                  </a>
-                  <a href="#CU-05" class="wf-btn wf-btn-sm wf-btn-outline text-danger flex-grow-1 d-flex align-items-center justify-content-center gap-1" title="Dar de baja curso">
-                    <i class="fa-solid fa-trash me-1"></i>
-                    <span>Dar de baja</span>
-                  </a>
-                </div>
-              </div>
-            
-          </div>
-        </div>
-
-        <!-- Curso 2: Operativa Cripto -->
-        <div class="wf-course-card">
-          <div class="wf-course-card-thumb">
-            <div class="wf-course-thumb-icon"><i class="fa-solid fa-graduation-cap w-8 h-8 text-white"></i></div>
-            <div class="wf-course-pills-row">
-              <span class="wf-pill-tag">Mercado de Capitales</span>
-              <span class="wf-pill-status">Sin cohortes abiertas</span>
-            </div>
-          </div>
-          <div class="wf-course-card-body">
-            <h4 class="wf-course-title">Operativa Cripto y DeFi</h4>
-            <p class="wf-course-desc">Trading, DeFi y custodia institucional.</p>
-            <div class="wf-course-info-row">
-              <span>📄 1 Programas</span>
-              <span class="wf-course-price">$120.000</span>
-            </div>
-          </div>
-          <div class="wf-course-card-footer">
-            
-              <div class="d-flex flex-column gap-2 w-100">
-                <a href="#CU-26b" class="wf-btn wf-btn-sm wf-btn-primary w-100 d-flex align-items-center justify-content-center gap-2" style="background: #2563EB; border-color: #2563EB; color: #FFFFFF; font-weight: 700; height: 38px;">
-                  <i class="fa-solid fa-arrow-right-to-bracket"></i>
-                  <span>Ingresar al Curso</span>
-                </a>
-                <div class="d-flex align-items-center gap-2 w-100">
-                  <a href="#CU-62" class="wf-btn wf-btn-sm wf-btn-outline flex-grow-1 d-flex align-items-center justify-content-center gap-1" style="font-weight: 600; color: #081426;">
-                    <i class="fa-solid fa-chart-simple text-primary"></i>
-                    <span>Ver Calificaciones</span>
-                  </a>
-                </div>
-                <div class="d-flex align-items-center gap-2 w-100">
-                  <a href="#CU-04" class="wf-btn wf-btn-sm wf-btn-outline flex-grow-1 d-flex align-items-center justify-content-center gap-1">
-                    <i class="fa-solid fa-pen-to-square"></i>
-                    <span>Editar Curso</span>
-                  </a>
-                  <a href="#CU-05" class="wf-btn wf-btn-sm wf-btn-outline text-danger flex-grow-1 d-flex align-items-center justify-content-center gap-1" title="Dar de baja curso">
-                    <i class="fa-solid fa-trash me-1"></i>
-                    <span>Dar de baja</span>
-                  </a>
-                </div>
-              </div>
-            
-          </div>
-        </div>
-
-        <!-- Curso 3: Mercado de Capitales Argentino -->
-        <div class="wf-course-card">
-          <div class="wf-course-card-thumb">
-            <div class="wf-course-thumb-icon"><i class="fa-solid fa-graduation-cap w-8 h-8 text-white"></i></div>
-            <div class="wf-course-pills-row">
-              <span class="wf-pill-tag">Mercado de Capitales</span>
-              <span class="wf-pill-status">Sin cohortes abiertas</span>
-            </div>
-          </div>
-          <div class="wf-course-card-body">
-            <h4 class="wf-course-title">Mercado de Capitales Argentino</h4>
-            <p class="wf-course-desc">Análisis de bonos, acciones y estructura de la CNV.</p>
-            <div class="wf-course-info-row">
-              <span>📄 2 Programas</span>
-              <span class="wf-course-price">$45.000</span>
-            </div>
-          </div>
-          <div class="wf-course-card-footer">
-            
-              <div class="d-flex flex-column gap-2 w-100">
-                <a href="#CU-26b" class="wf-btn wf-btn-sm wf-btn-primary w-100 d-flex align-items-center justify-content-center gap-2" style="background: #2563EB; border-color: #2563EB; color: #FFFFFF; font-weight: 700; height: 38px;">
-                  <i class="fa-solid fa-arrow-right-to-bracket"></i>
-                  <span>Ingresar al Curso</span>
-                </a>
-                <div class="d-flex align-items-center gap-2 w-100">
-                  <a href="#CU-62" class="wf-btn wf-btn-sm wf-btn-outline flex-grow-1 d-flex align-items-center justify-content-center gap-1" style="font-weight: 600; color: #081426;">
-                    <i class="fa-solid fa-chart-simple text-primary"></i>
-                    <span>Ver Calificaciones</span>
-                  </a>
-                </div>
-                <div class="d-flex align-items-center gap-2 w-100">
-                  <a href="#CU-04" class="wf-btn wf-btn-sm wf-btn-outline flex-grow-1 d-flex align-items-center justify-content-center gap-1">
-                    <i class="fa-solid fa-pen-to-square"></i>
-                    <span>Editar Curso</span>
-                  </a>
-                  <a href="#CU-05" class="wf-btn wf-btn-sm wf-btn-outline text-danger flex-grow-1 d-flex align-items-center justify-content-center gap-1" title="Dar de baja curso">
-                    <i class="fa-solid fa-trash me-1"></i>
-                    <span>Dar de baja</span>
-                  </a>
-                </div>
-              </div>
-            
-          </div>
-        </div>
-      </div>
-    
+              <span>📄 <strong th:text="${curso.docente != null and curso.docente.usuario != null ? curso.docente.usuario.nombreCompleto : 'Equipo Académico'}">Docente</strong></span>
+              <span class="wf-course-price" th:text="${curso.precio <= 0 ? 'GRATIS' : ' -->
+                <div class="wf-screen-footer">
+                    <div>
+                        <strong>Idóneos <span>Online</span> S.A.S.</strong> • Plataforma de Educación Financiera, Economía & Mercado de Capitales
+                    </div>
+                    <div>
+                        FCEQyN — UNaM • Proyecto Software (LSI) / Trabajo Final (ASI)
                     </div>
                 </div>
+            
+        </div>
+    </div>
 
-                <!-- Footer Oficial -->
+    <!-- Bootstrap Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function toggleUserDropdown(triggerEl) {
+            const wrapper = triggerEl.closest('.wf-user-menu-wrapper');
+            if (wrapper) {
+                const dropdown = wrapper.querySelector('.wf-user-floating-dropdown');
+                if (dropdown) {
+                    dropdown.style.display = (dropdown.style.display === 'none' || dropdown.style.display === '') ? 'flex' : 'none';
+                }
+            }
+        }
+    </script>
+</body>
+</html>
+ + #numbers.formatDecimal(curso.precio, 1, 'POINT', 0, 'COMMA')}">$0</span>
+            </div>
+          </div>
+          <div class="wf-course-card-footer">
+            <div class="d-flex flex-column gap-2 w-100">
+              <a th:href="@{'/academico/aula?cursoId=' + ${curso.id}}" class="wf-btn wf-btn-sm wf-btn-primary w-100 d-flex align-items-center justify-content-center gap-2" style="background: #2563EB; border-color: #2563EB; color: #FFFFFF; font-weight: 700; height: 38px;">
+                <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                <span>Ingresar al Curso</span>
+              </a>
+              <div class="d-flex align-items-center gap-2 w-100">
+                <a th:href="@{/evaluaciones/calificaciones}" class="wf-btn wf-btn-sm wf-btn-outline flex-grow-1 d-flex align-items-center justify-content-center gap-1" style="font-weight: 600; color: #081426;">
+                  <i class="fa-solid fa-chart-simple text-primary"></i>
+                  <span>Calificaciones</span>
+                </a>
+                <a th:href="@{'/cursos/' + ${curso.id} + '/editar'}" class="wf-btn wf-btn-sm wf-btn-outline flex-grow-1 d-flex align-items-center justify-content-center gap-1">
+                  <i class="fa-solid fa-pen-to-square"></i>
+                  <span>Editar</span>
+                </a>
+                <a th:href="@{'/cursos/' + ${curso.id} + '/baja'}" class="wf-btn wf-btn-sm wf-btn-outline text-danger flex-grow-1 d-flex align-items-center justify-content-center gap-1" title="Dar de baja curso">
+                  <i class="fa-solid fa-trash me-1"></i>
+                  <span>Baja</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Footer Oficial -->
                 <div class="wf-screen-footer">
                     <div>
                         <strong>Idóneos <span>Online</span> S.A.S.</strong> • Plataforma de Educación Financiera, Economía & Mercado de Capitales

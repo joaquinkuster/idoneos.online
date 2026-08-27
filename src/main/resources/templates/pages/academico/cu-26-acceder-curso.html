@@ -143,27 +143,27 @@
                 <div class="wf-body">
                     <div class="wf-main-content">
                         
+      
       <div class="wf-card mb-4" style="background: #FFFFFF;">
-        <div class="d-flex justify-content-between align-items-start pb-3 border-bottom">
+        <div class="d-flex justify-content-between align-items-start pb-3 mb-2 border-bottom">
           <div>
-            <div class="small text-muted mb-1" style="font-size: 11px;">
-              <span>Mis cursos</span> <i class="fa-solid fa-chevron-right" style="font-size: 9px; margin: 0 4px;"></i> <span>Mercado de Capitales</span> <i class="fa-solid fa-chevron-right" style="font-size: 9px; margin: 0 4px;"></i> <strong>Especialización en Idoneidad Bursátil</strong>
+            <div class="small text-muted mb-1">
+              <span>Mis cursos</span> <i class="fa-solid fa-chevron-right" style="font-size: 9px; margin: 0 4px;"></i> <strong th:text="${curso != null ? curso.nombre : 'Mercado de Capitales'}">Curso</strong>
             </div>
-            <h3 style="font-size: 19px; font-weight: 800; color: #081426; margin: 4px 0;">Especialización en Idoneidad Bursátil (Cohorte 2026-1)</h3>
-            <p class="small text-muted" style="margin: 0;">Docente Titular: Mg. Elena Valenzuela | Duración: 8 Semanas | Programa Vigente</p>
+            <h3 style="font-size: 19px; font-weight: 800; color: #081426; margin: 4px 0;" th:text="${curso != null ? curso.nombre : 'Curso'}">Curso Nombre</h3>
+            <p class="small text-muted" style="margin: 0;" th:text="${curso != null and curso.docente != null and curso.docente.usuario != null ? 'Docente Titular: ' + curso.docente.usuario.nombreCompleto : 'Equipo Académico'}">Docente</p>
           </div>
           <div class="text-end">
-            <span class="wf-badge status-active">Inscripción Vigente</span>
-            <div class="small text-muted mt-1">Progreso general: <strong>65%</strong></div>
+            <span class="wf-badge status-active">Acceso Habilitado</span>
           </div>
         </div>
 
         <div class="d-flex justify-content-between align-items-center pt-2">
           <div class="d-flex align-items-center gap-2">
-            <button class="wf-tab-btn active"> Curso</button>
-            <button class="wf-tab-btn"> Cronograma</button>
-            <button class="wf-tab-btn"> Participantes</button>
-            <button class="wf-tab-btn"> Calificaciones</button>
+            <button class="wf-tab-btn active"><span class="pin-badge me-1">A</span> Curso</button>
+            <button class="wf-tab-btn"><span class="pin-badge me-1">B</span> Cronograma</button>
+            <button class="wf-tab-btn"><span class="pin-badge me-1">C</span> Participantes</button>
+            <button class="wf-tab-btn"><span class="pin-badge me-1">D</span> Calificaciones</button>
           </div>
         </div>
       </div>
@@ -190,165 +190,28 @@
         </div>
       </div>
 
+      
       <div class="d-flex flex-column gap-4">
-        <!-- Unidad 1 -->
-        <div class="wf-unit-box">
+        <div th:each="unidad : ${unidades}" class="wf-unit-box">
           <div class="wf-unit-header d-flex justify-content-between align-items-center">
             <div class="d-flex align-items-center gap-2">
-              <i class="fa-solid fa-circle-check text-success" style="font-size: 16px;"></i>
-              <strong style="font-size: 14px; color: #081426;">Unidad 1: Marco Regulatorio y Ley de Mercado de Capitales</strong>
+              <i class="fa-solid fa-book-open text-primary" style="font-size: 16px;"></i>
+              <strong style="font-size: 14px; color: #081426;" th:text="${unidad.titulo}">Unidad</strong>
             </div>
-            <span class="wf-badge status-active">Aprobada (Nota: 9/10)</span>
+            <a th:href="@{'/evaluaciones/autoevaluaciones?unidadId=' + ${unidad.id}}" class="wf-btn wf-btn-sm wf-btn-gold">Rendir Evaluación</a>
           </div>
           <div class="wf-unit-body d-flex flex-column gap-2">
-            <!-- Item 1: PDF -->
-            <div class="moodle-activity-card">
-              <div class="moodle-activity-left">
-                <div class="moodle-icon-box moodle-icon-pdf">
-                  <i class="fa-solid fa-file-pdf"></i>
-                </div>
-                <div>
-                  <a href="#" class="moodle-activity-title wf-link">Ley 26.831 y modificatorias CNV</a>
-                  <div class="moodle-activity-desc">Documento PDF oficial descargable • 2.4 MB</div>
-                </div>
-              </div>
-              <button class="moodle-btn-check completed"><i class="fa-solid fa-check"></i> Hecho</button>
-            </div>
-
-            <!-- Item 2: Video -->
-            <div class="moodle-activity-card">
-              <div class="moodle-activity-left">
-                <div class="moodle-icon-box moodle-icon-video">
-                  <i class="fa-solid fa-circle-play"></i>
-                </div>
-                <div>
-                  <a href="#" class="moodle-activity-title wf-link">Grabación: Estructura del Mercado Argentino</a>
-                  <div class="moodle-activity-desc">Video clase dictada por Mg. Elena Valenzuela • 45 min</div>
-                </div>
-              </div>
-              <button class="moodle-btn-check completed"><i class="fa-solid fa-check"></i> Hecho</button>
-            </div>
-
-            <!-- Item 3: Glosario -->
-            <div class="moodle-activity-card">
-              <div class="moodle-activity-left">
-                <div class="moodle-icon-box moodle-icon-glossary">
-                  <i class="fa-solid fa-book-open"></i>
-                </div>
-                <div>
-                  <a href="#" class="moodle-activity-title wf-link">Glosario de Términos CNV</a>
-                  <div class="moodle-activity-desc">Diccionario con 12 conceptos normativos clave</div>
-                </div>
-              </div>
-              <button class="moodle-btn-check completed"><i class="fa-solid fa-check"></i> Hecho</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Unidad 2 -->
-        <div class="wf-unit-box">
-          <div class="wf-unit-header d-flex justify-content-between align-items-center">
-            <div class="d-flex align-items-center gap-2">
-              <i class="fa-solid fa-book-open" style="color: var(--wf-gold); font-size: 16px;"></i>
-              <strong style="font-size: 14px; color: #081426;">Unidad 2: Instrumentos de Renta Fija (Bonos y Obligaciones Negociables)</strong>
-            </div>
-            <div class="d-flex align-items-center gap-2">
-              <span class="wf-badge status-active">En Curso</span>
-              
-            </div>
-          </div>
-          <div class="wf-unit-body d-flex flex-column gap-3">
-            <p class="small text-muted" style="margin: 0;">Conceptos de TIR, Duration, Modified Duration y curvas de rendimiento soberanas.</p>
-            
-            <div class="d-flex flex-column gap-2">
-              <div class="wf-subcontent-title">Materiales de Estudio</div>
-              
-              <div class="moodle-activity-card">
-                <div class="moodle-activity-left">
-                  <div class="moodle-icon-box moodle-icon-pdf">
-                    <i class="fa-solid fa-file-pdf"></i>
-                  </div>
-                  <div>
-                    <a href="#" class="moodle-activity-title wf-link">Guía Teórica de Renta Fija v2.1</a>
-                    <div class="moodle-activity-desc">Material principal de lectura (PDF - 4.1 MB)</div>
-                  </div>
-                </div>
-                <button class="moodle-btn-check completed"><i class="fa-solid fa-check"></i> Hecho</button>
-              </div>
-
-              <div class="moodle-activity-card">
-                <div class="moodle-activity-left">
-                  <div class="moodle-icon-box moodle-icon-video">
-                    <i class="fa-solid fa-file-excel" style="color: #16A34A;"></i>
-                  </div>
-                  <div>
-                    <a href="#" class="moodle-activity-title wf-link">Planilla Excel: Cálculo de TIR y Flujos de Fondos</a>
-                    <div class="moodle-activity-desc">Plantilla de ejercicios prácticos (.xlsx - 850 KB)</div>
-                  </div>
-                </div>
-                <button class="moodle-btn-check">Marcar como hecha</button>
-              </div>
-            </div>
-
-            <div class="d-flex flex-column gap-2 mt-2">
-              <div class="wf-subcontent-title">Actividades & Evaluaciones</div>
-              
-              <!-- Autoevaluación -->
-              <div class="moodle-activity-card">
-                <div class="moodle-activity-left">
-                  <div class="moodle-icon-box moodle-icon-quiz">
-                    <i class="fa-solid fa-clipboard-check"></i>
-                  </div>
-                  <div>
-                    <a href="#CU-63" class="moodle-activity-title wf-link">Autoevaluación Unidad 2: Ejercicios de Rendimiento</a>
-                    <div class="moodle-activity-desc">10 preguntas aleatorias • 3 intentos máximos permitidos • Aprobación: 70%</div>
-                  </div>
-                </div>
-                <div class="d-flex align-items-center gap-2">
-                  <a href="#CU-63" class="wf-btn wf-btn-sm wf-btn-primary d-flex align-items-center gap-1" style="font-weight: 700; text-decoration: none;">
-                    <i class="fa-solid fa-play"></i>
-                    <span>Comenzar Intento</span>
-                  </a>
-                  
-                </div>
-              </div>
-
-              <!-- Foro de Consultas -->
-              <div class="moodle-activity-card">
-                <div class="moodle-activity-left">
-                  <div class="moodle-icon-box moodle-icon-forum">
-                    <i class="fa-solid fa-comments"></i>
-                  </div>
-                  <div>
-                    <a href="#CU-35" class="moodle-activity-title wf-link">Foro de Consultas: Dudas sobre Duración Modificada</a>
-                    <div class="moodle-activity-desc">Espacio de debate e interacción con el docente titular (4 consultas activas)</div>
-                  </div>
-                </div>
-                <a href="#CU-35" class="moodle-btn-check" style="text-decoration: none;">Ver debates</a>
-              </div>
-
-              <!-- Clase en Vivo -->
-              <div class="moodle-activity-card">
-                <div class="moodle-activity-left">
-                  <div class="moodle-icon-box moodle-icon-live">
-                    <i class="fa-solid fa-video"></i>
-                  </div>
-                  <div>
-                    <a href="#CU-72" class="moodle-activity-title wf-link">Clase en Vivo: Streaming Interactivo con OBS</a>
-                    <div class="moodle-activity-desc">Sesión sincrónica semanal • Jueves 19:00 hs</div>
-                  </div>
-                </div>
-                <a href="#CU-72" class="moodle-btn-check" style="background: #FEF3C7; color: #92400E; border-color: #FCD34D; text-decoration: none;"><i class="fa-solid fa-broadcast-tower"></i> Sala en Vivo</a>
-              </div>
+            <p class="small text-muted m-0" th:text="${unidad.descripcion}">Descripción de la unidad...</p>
+            <div class="d-flex align-items-center gap-3 pt-2">
+              <a th:href="@{'/academico/consultas?unidadId=' + ${unidad.id}}" class="btn btn-sm btn-outline-secondary rounded-pill"><i class="fa-solid fa-comments me-1"></i> Foro de Consultas</a>
+              <a th:href="@{'/academico/glosario?unidadId=' + ${unidad.id}}" class="btn btn-sm btn-outline-secondary rounded-pill"><i class="fa-solid fa-book me-1"></i> Glosario</a>
             </div>
           </div>
         </div>
       </div>
-    
-                    </div>
-                </div>
-
-                <!-- Footer Oficial -->
+    </div>
+  </div>
+  <!-- Footer Oficial -->
                 <div class="wf-screen-footer">
                     <div>
                         <strong>Idóneos <span>Online</span> S.A.S.</strong> • Plataforma de Educación Financiera, Economía & Mercado de Capitales

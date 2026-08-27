@@ -186,7 +186,7 @@
             <a href="#CU-57" class="wf-tab-btn">Autoevaluaciones</a>
             <a href="#CU-53" class="wf-tab-btn">Pools</a>
             <a href="#CU-35" class="wf-tab-btn">Foros</a>
-            <button class="wf-tab-btn active">Clases en Vivo</button>
+            <button class="wf-tab-btn active"><span class="pin-badge me-1">A</span>Clases en Vivo</button>
           </div>
         </div>
       </div>
@@ -208,112 +208,40 @@
                 <option selected>En vivo / Programadas activas</option>
                 <option>Solo Finalizadas</option>
               </select>
-              
+              <span class="pin-badge">B</span>
             </div>
           </div>
           <div class="col-md-3">
             <div class="d-flex align-items-center gap-2">
               <button class="wf-btn wf-btn-primary w-100"><i class="fa-solid fa-magnifying-glass me-1"></i> Buscar</button>
-              
+              <span class="pin-badge">C</span>
             </div>
           </div>
         </div>
       </div>
 
+      
       <div class="wf-table-wrap">
         <table class="wf-table">
           <thead>
             <tr>
-              <th>Título de la Clase en Vivo</th>
-              <th>Docente Titular</th>
-              <th>Fecha, Hora & Duración</th>
+              <th>ID</th>
+              <th>Título de la Clase</th>
+              <th>Docente</th>
+              <th>Fecha y Hora</th>
               <th>Estado</th>
-              <th class="text-end">Acciones Disponibles</th>
+              <th class="text-end">Transmisión / Acceso</th>
             </tr>
           </thead>
           <tbody>
-            <!-- Fila 1: En Vivo Ahora Mismo -->
-            <tr style="background: #FEF2F2; border-left: 4px solid #DC2626;">
-              <td>
-                <div class="d-flex align-items-center gap-2">
-                  <strong style="color: #081426;">Clase Magistral: Resolución de Prácticos de Renta Fija</strong>
-                  
-                </div>
-                <div class="small text-muted">Unidad 2: Renta Fija • Cohorte 2026-1</div>
-              </td>
-              <td>Mg. Elena Valenzuela</td>
-              <td>Hoy, 19:00 hs (Duración: 90 min)</td>
-              <td><span class="wf-badge" style="background: #DC2626; color: white;">● EN VIVO</span></td>
+            <tr th:each="c : ${clases}">
+              <td><strong th:text="'#' + ${c.id}">#1</strong></td>
+              <td><strong th:text="${c.titulo}">Título</strong></td>
+              <td th:text="${c.docente != null and c.docente.usuario != null ? c.docente.usuario.nombreCompleto : 'Docente'}">Docente</td>
+              <td th:text="${c.fechaHora != null ? #temporals.format(c.fechaHora, 'dd/MM/yyyy HH:mm') : '-'}">Fecha</td>
+              <td><span class="wf-badge status-active" th:text="${c.estadoClaseEnVivo != null ? c.estadoClaseEnVivo.nombre : 'Programada'}">Programada</span></td>
               <td class="text-end">
-                <div class="d-inline-flex align-items-center gap-2">
-                  <a href="#CU-71" class="wf-btn wf-btn-sm wf-btn-danger d-flex align-items-center gap-1" title="Finalizar Transmisión">
-                    <i class="fa-solid fa-stop"></i>
-                    <span>Finalizar Transmisión</span>
-                  </a>
-                  <a href="#CU-67" class="wf-btn wf-btn-sm wf-btn-outline" title="Reprogramar clase">
-                    <i class="fa-solid fa-clock-rotate-left me-1"></i>
-                    <span>Reprogramar / Editar</span>
-                  </a>
-                  <a href="#CU-68" class="wf-btn wf-btn-sm wf-btn-outline text-warning" style="color: #D97706; border-color: #FCD34D;" title="Cancelar Clase">
-                    <i class="fa-solid fa-calendar-xmark me-1"></i>
-                    <span>Cancelar Clase</span>
-                  </a>
-                  <a href="#CU-69" class="wf-btn wf-btn-sm wf-btn-outline text-danger" title="Eliminar Registro">
-                    <i class="fa-solid fa-trash me-1"></i>
-                    <span>Eliminar Registro</span>
-                  </a>
-                </div>
-              </td>
-            </tr>
-
-            <!-- Fila 2: Programada Próxima Semana -->
-            <tr>
-              <td>
-                <strong style="color: #081426;">Taller en Vivo: Análisis Técnico con TradingView</strong>
-                <div class="small text-muted">Unidad 3: Renta Variable • Cohorte 2026-1</div>
-              </td>
-              <td>Mg. Elena Valenzuela</td>
-              <td>Jueves 30/04, 19:00 hs (60 min)</td>
-              <td><span class="wf-badge status-active">Programada</span></td>
-              <td class="text-end">
-                <div class="d-inline-flex align-items-center gap-2">
-                  <a href="#CU-70" class="wf-btn wf-btn-sm wf-btn-primary d-flex align-items-center gap-1">
-                    <i class="fa-solid fa-tower-broadcast"></i>
-                    <span>Iniciar Clase</span>
-                  </a>
-                  <a href="#CU-67" class="wf-btn wf-btn-sm wf-btn-outline">
-                    <i class="fa-solid fa-pen-to-square me-1"></i>
-                    <span>Reprogramar / Editar</span>
-                  </a>
-                  <a href="#CU-68" class="wf-btn wf-btn-sm wf-btn-outline text-warning" style="color: #D97706; border-color: #FCD34D;">
-                    <i class="fa-solid fa-calendar-xmark me-1"></i>
-                    <span>Cancelar Clase</span>
-                  </a>
-                  <a href="#CU-69" class="wf-btn wf-btn-sm wf-btn-outline text-danger">
-                    <i class="fa-solid fa-trash me-1"></i>
-                    <span>Eliminar Registro</span>
-                  </a>
-                </div>
-              </td>
-            </tr>
-
-            <!-- Fila 3: Finalizada -->
-            <tr>
-              <td>
-                <strong style="color: #081426;">Clase Inaugural: Marco Legal CNV y Ética Profesional</strong>
-                <div class="small text-muted">Unidad 1: Marco Regulatorio • Cohorte 2026-1</div>
-              </td>
-              <td>Mg. Elena Valenzuela</td>
-              <td>Jueves 09/04, 19:00 hs (Grabación disponible)</td>
-              <td><span class="wf-badge status-inactive">Finalizada</span></td>
-              <td class="text-end">
-                <div class="d-inline-flex align-items-center gap-2">
-                  <button class="wf-btn wf-btn-sm wf-btn-outline" title="Ver Grabación"><i class="fa-solid fa-video me-1"></i> Ver Grabación</button>
-                  <a href="#CU-69" class="wf-btn wf-btn-sm wf-btn-outline text-danger">
-                    <i class="fa-solid fa-trash me-1"></i>
-                    <span>Eliminar Registro</span>
-                  </a>
-                </div>
+                <a th:href="@{'/clases-vivo/' + ${c.id} + '/iniciar'}" class="wf-btn wf-btn-sm wf-btn-primary">Iniciar / Entrar</a>
               </td>
             </tr>
           </tbody>

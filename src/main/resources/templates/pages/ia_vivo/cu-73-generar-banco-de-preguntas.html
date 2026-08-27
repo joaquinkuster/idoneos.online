@@ -157,123 +157,46 @@
                 <div class="wf-body">
                     <div class="wf-main-content">
                         
-      <div class="wf-card" style="max-width: 1080px; margin: 0 auto; background: #FFFFFF;">
-        <!-- Cabecera Limpia sin badge A -->
-        <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
-          <div class="d-flex align-items-center gap-3">
-            <div style="width: 44px; height: 44px; border-radius: 10px; background: #081426; display: flex; align-items: center; justify-content: center; color: var(--wf-gold);">
-              <i class="fa-solid fa-list-check" style="font-size: 20px;"></i>
-            </div>
-            <div>
-              <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Generar Banco de Preguntas con IA (Ollama)</h3>
-              <p class="small text-muted" style="margin: 2px 0 0;">Generación automatizada de preguntas cerradas de opción múltiple y V/F a partir de la bibliografía cargada.</p>
-            </div>
+      
+    <div class="wf-card" style="max-width: 1080px; margin: 0 auto; background: #FFFFFF;">
+      <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
+        <div class="d-flex align-items-center gap-3">
+          <div style="width: 44px; height: 44px; border-radius: 10px; background: #081426; display: flex; align-items: center; justify-content: center; color: var(--wf-gold);">
+            <i class="fa-solid fa-list-check" style="font-size: 20px;"></i>
           </div>
-          <div class="d-flex align-items-center gap-2">
-            <span class="wf-badge status-active">Ollama Local (LLaMA-3 8B)</span>
+          <div>
+            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Generar Banco de Preguntas con IA (Ollama)</h3>
+            <p class="small text-muted" style="margin: 2px 0 0;">Generación automatizada de preguntas a partir de la bibliografía de la unidad.</p>
           </div>
         </div>
-
-        <div class="d-flex flex-column flex-lg-row align-items-stretch justify-content-between gap-4">
-          <!-- Columna Izquierda: Configuración y Parámetros de Entrada -->
-          <div style="flex: 1 1 50%; min-width: 320px;" class="d-flex flex-column justify-content-between">
-            <div>
-              <div class="mb-3">
-                <label class="wf-label">Unidad Académica de Origen</label>
-                <div class="wf-input-wrap">
-                  <select class="wf-input">
-                    <option selected>Unidad 2: Instrumentos de Renta Fija (Bonos y Obligaciones Negociables)</option>
-                  </select>
-                </div>
-              </div>
-
-              <div class="mb-3">
-                <label class="wf-label">Fuentes de Contenido (Bibliografía & Glosario)</label>
-                <div class="p-2 border rounded bg-light d-flex flex-column gap-1" style="font-size: 12px;">
-                  <div class="d-flex justify-content-between align-items-center">
-                    <span><i class="fa-solid fa-file-pdf text-danger me-1"></i> Guía Teórica de Renta Fija v2.0.pdf</span>
-                    <span class="badge bg-success text-white" style="font-size: 9px;">Cargado</span>
-                  </div>
-                  <div class="d-flex justify-content-between align-items-center">
-                    <span><i class="fa-solid fa-book-open text-warning me-1"></i> Glosario de Unidad (8 términos técnicos)</span>
-                    <span class="badge bg-success text-white" style="font-size: 9px;">Cargado</span>
-                  </div>
-                </div>
-              </div>
-
-              
-                <div class="mb-3">
-                  <label class="wf-label">Guión Adicional / Prompt de Orientación (Opcional)</label>
-                  <div class="wf-input-wrap">
-                    <textarea class="wf-input" rows="4" placeholder="Ej: Enfatizar preguntas sobre cálculo de TIR, duration de Macaulay y convexidad de bonos soberanos...">Enfatizar preguntas sobre cálculo de TIR, duration de Macaulay y convexidad de bonos soberanos con casos prácticos.</textarea>
-                    
-                  </div>
-                  <div class="small text-muted mt-1" style="font-size: 11px;">El modelo Ollama utilizará este guión junto con la bibliografía de la unidad para generar los enunciados.</div>
-                </div>
-              
-
-              
-
-              
-            </div>
-
-            <div class="p-2 border rounded bg-white shadow-sm d-flex align-items-center justify-content-between mt-2">
-              <span class="small text-muted"><i class="fa-solid fa-server me-1 text-primary"></i> Estado de Inferencia: <strong>Local Ollama API</strong></span>
-              <span class="badge bg-success text-white" style="font-size: 10px;">En Línea</span>
-            </div>
-          </div>
-
-          <!-- Barra Divisoria Vertical en el medio -->
-          <div class="d-none d-lg-block" style="width: 1px; background: #CBD5E1; min-height: 100%;"></div>
-
-          <!-- Columna Derecha: Previsualización del Resultado IA -->
-          <div style="flex: 1 1 50%; min-width: 320px;">
-            <div class="p-4 border rounded bg-white shadow-sm h-100 d-flex flex-column justify-content-between" style="border-top: 4px solid #059669 !important;">
-              <div>
-                <div class="d-flex justify-content-between align-items-center pb-2 mb-3 border-bottom">
-                  <strong style="font-size: 14px; color: #081426;"><i class="fa-solid fa-eye me-1 text-primary"></i>Previsualización del Resultado IA</strong>
-                  <span class="badge bg-light text-muted border">Estado: No Publicado</span>
-                </div>
-
-                
-                  <div class="d-flex flex-column gap-2" style="font-size: 12px;">
-                    <div class="p-3 border rounded bg-light">
-                      <div class="fw-bold text-dark mb-1">1. ¿Qué mide la modified duration en un título de renta fija?</div>
-                      <div class="text-success small"><i class="fa-solid fa-circle-check me-1"></i> A) La sensibilidad porcentual del precio ante variaciones en la TIR. (Correcta)</div>
-                      <div class="text-muted small ms-3">B) El plazo promedio ponderado de los flujos de fondos.</div>
-                      <div class="text-muted small ms-3">C) El cupón de interés nominal anual.</div>
-                    </div>
-                    <div class="p-3 border rounded bg-light">
-                      <div class="fw-bold text-dark mb-1">2. Ante una suba en la tasa de interés, el precio de un bono con alta convexidad cae más que uno de baja convexidad.</div>
-                      <div class="text-success small"><i class="fa-solid fa-circle-check me-1"></i> Falso (La convexidad amortigua la caída de precio). (Correcta)</div>
-                    </div>
-                  </div>
-                
-
-                
-
-                
-              </div>
-
-              <div class="pt-3 mt-4 border-top d-flex justify-content-end align-items-center gap-3">
-                <a href="#CU-19" class="wf-btn wf-btn-sm wf-btn-outline">Cancelar</a>
-                <div class="d-flex align-items-center gap-2">
-                  <button class="wf-btn wf-btn-sm wf-btn-primary d-flex align-items-center gap-2" style="background: #059669; border-color: #047857; font-weight: 700;">
-                    <i class="fa-solid fa-wand-magic-sparkles"></i>
-                    <span>Generar Preguntas con IA</span>
-                  </button>
-                  
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <span class="wf-badge status-active">Ollama (Llama 3.1 8B)</span>
       </div>
-    
-                    </div>
-                </div>
 
-                <!-- Footer Oficial -->
+      <div th:if="${mensaje}" class="alert alert-success p-2 small mb-3" th:text="${mensaje}">Mensaje</div>
+
+      <form th:action="@{/ia/banco-preguntas/generar}" method="post">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="wf-label">Unidad Académica de Origen</label>
+            <select name="unidadId" class="wf-input" required>
+              <option th:each="u : ${unidades}" th:value="${u.id}" th:text="${u.titulo}">Unidad</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label class="wf-label">Prompt de Orientación Adicional</label>
+            <input type="text" name="promptInput" class="wf-input" placeholder="Ej: Enfatizar preguntas de opción múltiple sobre bonos...">
+          </div>
+        </div>
+        <div class="pt-3 mt-4 border-top d-flex justify-content-end align-items-center gap-3">
+          <button type="submit" class="wf-btn wf-btn-primary" style="background: #059669; border-color: #047857;">
+            <i class="fa-solid fa-wand-magic-sparkles me-1"></i> Generar Preguntas con IA
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+  </div>
+  <!-- Footer Oficial -->
                 <div class="wf-screen-footer">
                     <div>
                         <strong>Idóneos <span>Online</span> S.A.S.</strong> • Plataforma de Educación Financiera, Economía & Mercado de Capitales

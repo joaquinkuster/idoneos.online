@@ -181,7 +181,7 @@
               <label class="wf-label">Usuario Responsable</label>
               <div class="wf-input-wrap">
                 <input type="text" class="wf-input" placeholder="Todos los usuarios..." value="Admin General">
-                
+                <span class="pin-badge">A</span>
               </div>
             </div>
             <div class="col" style="flex: 1 1 20%; min-width: 150px;">
@@ -222,80 +222,38 @@
             <div class="col-auto" style="min-width: 130px;">
               <div class="d-flex align-items-center gap-2">
                 <button class="wf-btn wf-btn-primary w-100"><i class="fa-solid fa-filter me-1"></i> Filtrar Eventos</button>
-                
+                <span class="pin-badge">B</span>
               </div>
             </div>
           </div>
         </div>
 
         <!-- Tabla Completa con Datos de Auditoría -->
-        <div class="wf-table-wrap">
-          <table class="wf-table">
-            <thead>
-              <tr>
-                <th>Fecha y Hora</th>
-                <th>Usuario Responsable</th>
-                <th>Acción</th>
-                <th>Entidad / ID Registro</th>
-                <th>Valor Anterior</th>
-                <th>Valor Nuevo</th>
-                <th>Dirección IP</th>
-              </tr>
-            </thead>
-            <tbody>
-              <!-- Log 1: Modificación de Curso -->
-              <tr>
-                <td><strong>27/08/2026 • 08:35:12</strong></td>
-                <td>
-                  <strong>Admin General</strong>
-                  <div class="small text-muted">admin@idoneos.online</div>
-                </td>
-                <td><span class="badge bg-warning text-dark">MODIFICAR</span></td>
-                <td>
-                  <strong>CURSO #102</strong>
-                  <div class="small text-muted">Especialización Idoneidad</div>
-                </td>
-                <td><code>precio: 100000</code></td>
-                <td><code>precio: 120000</code></td>
-                <td><code>181.44.120.45</code></td>
-              </tr>
-
-              <!-- Log 2: Acreditación de Pago -->
-              <tr style="background: #F8FAFC;">
-                <td><strong>27/08/2026 • 07:15:40</strong></td>
-                <td>
-                  <strong>Sistema MODO API</strong>
-                  <div class="small text-muted">gateway@modo.com.ar</div>
-                </td>
-                <td><span class="badge bg-success text-white">CREAR</span></td>
-                <td>
-                  <strong>PAGO #PAY-2026-8841</strong>
-                  <div class="small text-muted">Joaquín Küster</div>
-                </td>
-                <td><code>estado: PENDIENTE</code></td>
-                <td><code>estado: ACREDITADO</code></td>
-                <td><code>190.220.14.88</code></td>
-              </tr>
-
-              <!-- Log 3: Alta de Clon IA -->
-              <tr>
-                <td><strong>26/08/2026 • 19:40:22</strong></td>
-                <td>
-                  <strong>Mg. Elena Valenzuela</strong>
-                  <div class="small text-muted">elena.valenzuela@idoneos.online</div>
-                </td>
-                <td><span class="badge bg-primary text-white">CREAR</span></td>
-                <td>
-                  <strong>CLON_IA #avatar_valenzuela_v2</strong>
-                  <div class="small text-muted">HeyGen AI Studio</div>
-                </td>
-                <td><code>-</code></td>
-                <td><code>calibracion: OK</code></td>
-                <td><code>181.44.120.45</code></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        
+      <div class="wf-table-wrap">
+        <table class="wf-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Fecha y Hora</th>
+              <th>Usuario Responsable</th>
+              <th>Acción</th>
+              <th>Entidad Afectada</th>
+              <th>Detalle / Operación</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="log : ${registros}">
+              <td><strong th:text="'#' + ${log.id}">#1</strong></td>
+              <td><strong th:text="${#temporals.format(log.fechaHora, 'dd/MM/yyyy HH:mm:ss')}">27/08/2026</strong></td>
+              <td th:text="${log.usuario != null ? log.usuario.nombreCompleto : 'Sistema'}">Admin</td>
+              <td><span class="wf-badge status-active" th:text="${log.tipoAccion != null ? log.tipoAccion.nombre : 'Operación'}">Crear</span></td>
+              <td th:text="${log.entidadAfectada != null ? log.entidadAfectada : '-'}">Curso</td>
+              <td th:text="${log.detalleOperacion != null ? log.detalleOperacion : '-'}">Detalle</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
       </div>
     
                     </div>

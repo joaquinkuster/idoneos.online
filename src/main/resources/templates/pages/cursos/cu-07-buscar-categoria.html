@@ -153,7 +153,7 @@
                             <i class="fa-solid fa-plus"></i>
                             <span>Nueva Categoría</span>
                         </a>
-                        
+                        <span class="pin-badge">A</span>
                     
                     
                     
@@ -185,7 +185,7 @@
             <label class="wf-label">Criterio de búsqueda / Filtro principal</label>
             <div class="wf-input-wrap">
               <input type="text" class="wf-input" placeholder="Buscar en Buscar categoría...">
-              
+              <span class="pin-badge">A</span>
             </div>
           </div>
           <div class="col-md-4">
@@ -196,7 +196,7 @@
                   <span>Todos los registros</span>
                   <i class="fa-solid fa-chevron-down" style="font-size: 11px;"></i>
                 </div>
-                
+                <span class="pin-badge">B</span>
               </div>
               <div class="wf-dropdown-menu">
                 <div class="wf-dropdown-item active">☑ Todos los registros</div>
@@ -208,50 +208,32 @@
           <div class="col-md-3">
             <div class="d-flex align-items-center gap-2">
               <button class="wf-btn wf-btn-primary w-100"><i class="fa-solid fa-magnifying-glass me-1"></i> Buscar</button>
-              
+              <span class="pin-badge">C</span>
             </div>
           </div>
         </div>
       </div>
 
+      
       <div class="wf-table-wrap">
         <table class="wf-table">
           <thead>
             <tr>
-              <th>Identificador / Nombre</th>
-              <th>Detalle / Contexto</th>
-              <th>Registro</th>
-              <th>Estado</th>
+              <th>ID</th>
+              <th>Nombre de Categoría</th>
+              <th>Descripción</th>
               <th class="text-end">Acciones</th>
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td><strong>Elemento Principal #07A</strong></td>
-              <td>Mercado de Capitales & Finanzas</td>
-              <td>2026-08-25</td>
-              <td><span class="wf-badge status-active">Activo</span></td>
+            <tr th:each="cat : ${categorias}">
+              <td><strong th:text="'#' + ${cat.id}">#1</strong></td>
+              <td><strong th:text="${cat.nombre}">Nombre</strong></td>
+              <td th:text="${cat.descripcion}">Descripción</td>
               <td class="text-end">
                 <div class="d-inline-flex align-items-center gap-2">
-                  <button class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-pen-to-square me-1"></i> Editar</button>
-                  
-                  
-                    <button class="wf-btn wf-btn-sm wf-btn-outline text-danger" title="Dar de baja"><i class="fa-solid fa-trash"></i></button>
-                  
-                </div>
-              </td>
-            </tr>
-            <tr>
-              <td><strong>Elemento Secundario #07B</strong></td>
-              <td>Valuación & Finanzas Corporativas</td>
-              <td>2026-08-20</td>
-              <td><span class="wf-badge status-active">Activo</span></td>
-              <td class="text-end">
-                <div class="d-inline-flex align-items-center gap-2">
-                  <button class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-pen-to-square me-1"></i> Editar</button>
-                  
-                    <button class="wf-btn wf-btn-sm wf-btn-outline text-danger" title="Dar de baja"><i class="fa-solid fa-trash"></i></button>
-                  
+                  <a th:href="@{'/cursos/categorias/' + ${cat.id} + '/editar'}" class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-pen-to-square me-1"></i> Editar</a>
+                  <a th:href="@{'/cursos/categorias/' + ${cat.id} + '/baja'}" class="wf-btn wf-btn-sm wf-btn-outline text-danger" title="Dar de baja"><i class="fa-solid fa-trash"></i></a>
                 </div>
               </td>
             </tr>

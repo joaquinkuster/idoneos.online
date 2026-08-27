@@ -179,7 +179,7 @@
             <label class="wf-label">Buscar por Alumno o DNI</label>
             <div class="wf-input-wrap">
               <input type="text" class="wf-input" placeholder="Ej: Joaquín Küster, 40.123.456, María Benítez...">
-              
+              <span class="pin-badge">A</span>
             </div>
           </div>
           <div class="col-md-4">
@@ -194,129 +194,41 @@
           <div class="col-md-3">
             <div class="d-flex align-items-center gap-2">
               <button class="wf-btn wf-btn-primary w-100"><i class="fa-solid fa-magnifying-glass me-1"></i> Buscar</button>
-              
+              <span class="pin-badge">B</span>
             </div>
           </div>
         </div>
 
-        <div class="wf-table-wrap">
-          <table class="wf-table">
-            <thead>
-              <tr>
-                <th>Alumno / DNI</th>
-                <th>Curso & Cohorte</th>
-                <th>Fecha Matrícula</th>
-                <th>Vencimiento Acceso</th>
-                <th>Estado</th>
-                <th class="text-end">Acciones / Certificado</th>
-              </tr>
-            </thead>
-            <tbody>
-              <!-- Alumno 1: Joaquín Küster (Aprobado con Certificado) -->
-              <tr>
-                <td>
-                  <strong>Joaquín Küster</strong>
-                  <div class="small text-muted">DNI: 40.123.456 • joaquin@idoneos.online</div>
-                </td>
-                <td>
-                  <div class="d-flex align-items-center gap-2">
-                    <span class="fw-bold" style="color: #081426;">Especialización en Idoneidad Bursátil</span>
-                    
-                  </div>
-                  <div class="small text-muted">Cohorte 2026-1 (Programa 2026-A)</div>
-                </td>
-                <td>15/03/2026</td>
-                <td>15/07/2026</td>
-                <td><span class="wf-badge status-active">Vigente (Aprobado)</span></td>
-                <td class="text-end">
-                  <div class="d-inline-flex align-items-center gap-2">
-                    <button class="wf-btn wf-btn-sm wf-btn-outline" title="Descargar Certificado Oficial">
-                      <i class="fa-solid fa-award me-1" style="color: var(--wf-gold);"></i>
-                      <span>Descargar Certificado</span>
-                    </button>
-                    
-                    <a href="#CU-45" class="wf-btn wf-btn-sm wf-btn-outline text-danger" title="Dar de baja inscripción">
-                      <i class="fa-solid fa-user-xmark me-1"></i>
-                      <span>Dar de baja</span>
-                    </a>
-                  </div>
-                </td>
-              </tr>
-
-              <!-- Alumno 2: María Benítez (En Curso) -->
-              <tr>
-                <td>
-                  <strong>María Benítez</strong>
-                  <div class="small text-muted">DNI: 38.945.112 • maria.benitez@idoneos.online</div>
-                </td>
-                <td>
-                  <span class="fw-bold" style="color: #081426;">Especialización en Idoneidad Bursátil</span>
-                  <div class="small text-muted">Cohorte 2026-1 (Programa 2026-A)</div>
-                </td>
-                <td>18/03/2026</td>
-                <td>18/07/2026</td>
-                <td><span class="wf-badge status-active">Vigente (En curso)</span></td>
-                <td class="text-end">
-                  <div class="d-inline-flex align-items-center gap-2">
-                    <button class="wf-btn wf-btn-sm wf-btn-outline" disabled title="Certificado no emitido aún (Requiere aprobar todas las unidades)">
-                      <i class="fa-solid fa-award me-1 text-muted"></i>
-                      <span class="text-muted">Certificado Pendiente</span>
-                    </button>
-                    <a href="#CU-45" class="wf-btn wf-btn-sm wf-btn-outline text-danger" title="Dar de baja inscripción">
-                      <i class="fa-solid fa-user-xmark me-1"></i>
-                      <span>Dar de baja</span>
-                    </a>
-                  </div>
-                </td>
-              </tr>
-
-              <!-- Alumno 3: Lucas Romero (Operativa Cripto) -->
-              <tr>
-                <td>
-                  <strong>Lucas Romero</strong>
-                  <div class="small text-muted">DNI: 42.887.654 • lucas.romero@idoneos.online</div>
-                </td>
-                <td>
-                  <span class="fw-bold" style="color: #081426;">Operativa Cripto y DeFi Profesional</span>
-                  <div class="small text-muted">Cohorte 2026-1 (Programa 2026-C)</div>
-                </td>
-                <td>01/04/2026</td>
-                <td>01/08/2026</td>
-                <td><span class="wf-badge status-active">Vigente (En curso)</span></td>
-                <td class="text-end">
-                  <div class="d-inline-flex align-items-center gap-2">
-                    <button class="wf-btn wf-btn-sm wf-btn-outline" disabled>
-                      <i class="fa-solid fa-award me-1 text-muted"></i>
-                      <span class="text-muted">Certificado Pendiente</span>
-                    </button>
-                    <a href="#CU-45" class="wf-btn wf-btn-sm wf-btn-outline text-danger" title="Dar de baja inscripción">
-                      <i class="fa-solid fa-user-xmark me-1"></i>
-                      <span>Dar de baja</span>
-                    </a>
-                  </div>
-                </td>
-              </tr>
-
-              <!-- Alumno 4: Carlos Fernández (Baja por Abandono) -->
-              <tr>
-                <td>
-                  <strong>Carlos Fernández</strong>
-                  <div class="small text-muted">DNI: 35.612.890 • carlos.f@idoneos.online</div>
-                </td>
-                <td>
-                  <span class="fw-bold" style="color: #081426;">Mercado de Capitales Argentino</span>
-                  <div class="small text-muted">Cohorte 2025-2 (Programa 2025-B)</div>
-                </td>
-                <td>10/11/2025</td>
-                <td>10/03/2026</td>
-                <td><span class="wf-badge status-inactive" style="color: #DC2626; border-color: #FCA5A5; background: #FEF2F2;">Dada de baja</span></td>
-                <td class="text-end">
-                  <span class="small text-muted fst-italic">Baja registrada el 22/12/2025</span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        
+      <div class="wf-table-wrap">
+        <table class="wf-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Alumno</th>
+              <th>Curso & Cohorte</th>
+              <th>Fecha Matrícula</th>
+              <th>Vencimiento</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="insc : ${inscripciones}">
+              <td><strong th:text="'#' + ${insc.id}">#1</strong></td>
+              <td>
+                <strong th:text="${insc.alumno != null and insc.alumno.usuario != null ? insc.alumno.usuario.nombreCompleto : 'Alumno'}">Nombre</strong>
+                <div class="small text-muted" th:text="${insc.alumno != null and insc.alumno.usuario != null ? insc.alumno.usuario.correo : ''}">correo</div>
+              </td>
+              <td>
+                <strong th:text="${insc.cohorte != null and insc.cohorte.programa != null and insc.cohorte.programa.curso != null ? insc.cohorte.programa.curso.nombre : 'Curso'}">Curso</strong>
+              </td>
+              <td th:text="${insc.fecha != null ? #temporals.format(insc.fecha, 'dd/MM/yyyy') : '-'}">01/01/2026</td>
+              <td th:text="${insc.fechaVencimientoAcceso != null ? #temporals.format(insc.fechaVencimientoAcceso, 'dd/MM/yyyy') : '-'}">01/06/2026</td>
+              <td><span class="wf-badge status-active" th:text="${insc.baja ? 'Dada de Baja' : 'Vigente'}">Vigente</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
       </div>
     
                     </div>

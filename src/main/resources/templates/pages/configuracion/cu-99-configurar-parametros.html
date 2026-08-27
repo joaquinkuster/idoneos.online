@@ -175,42 +175,26 @@
       </div>
 
       <!-- Tabla de Configuración (Badge A) -->
+      
       <div class="wf-table-wrap mb-4">
         <table class="wf-table">
           <thead>
             <tr>
-              <th>Parámetro / Variable</th>
-              <th>Descripción y Alcance</th>
+              <th>ID</th>
+              <th>Clave / Parámetro</th>
               <th>Valor Configurado</th>
               <th class="text-end">Acción</th>
             </tr>
           </thead>
           <tbody>
-            <tr class="table-active" style="background: #FEF3C7; border-left: 3px solid var(--wf-gold);">
-              <td><strong>LIMITE_SESIONES_CONCURRENTES</strong></td>
-              <td>Cantidad máxima de sesiones simultáneas por usuario</td>
-              <td><code>2 sesiones</code></td>
+            <tr th:each="param : ${parametros}">
+              <td><strong th:text="'#' + ${param.id}">#1</strong></td>
+              <td><strong th:text="${param.clave}">CLAVE</strong></td>
+              <td><code th:text="${param.valor}">VALOR</code></td>
               <td class="text-end">
-                <div class="d-inline-flex align-items-center gap-2">
-                  <button class="wf-btn wf-btn-sm wf-btn-primary"><i class="fa-solid fa-pen-to-square me-1"></i> Editar Valor</button>
-                  
-                </div>
-              </td>
-            </tr>
-            <tr>
-              <td><strong>PLAZO_EDICION_FORO_MIN</strong></td>
-              <td>Tiempo límite de edición para consultas y respuestas de foros</td>
-              <td><code>15 minutos</code></td>
-              <td class="text-end">
-                <button class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-pen-to-square me-1"></i> Editar Valor</button>
-              </td>
-            </tr>
-            <tr>
-              <td><strong>HEYGEN_MAX_VIDEOS_DOCENTE_SEMANAL</strong></td>
-              <td>Cantidad máxima semanal de videos sintéticos generables por docente</td>
-              <td><code>10 videos / semana</code></td>
-              <td class="text-end">
-                <button class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-pen-to-square me-1"></i> Editar Valor</button>
+                <form th:action="@{'/configuracion/borrar/' + ${param.id}}" method="post" class="d-inline">
+                  <button type="submit" class="wf-btn wf-btn-sm wf-btn-outline text-danger" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
+                </form>
               </td>
             </tr>
           </tbody>
@@ -218,36 +202,27 @@
       </div>
 
       <!-- Formulario de Edición del Parámetro Seleccionado (Badges C y D) -->
-      <div class="p-4 bg-light rounded border">
-        <h4 style="font-size: 15px; font-weight: 800; color: #081426; margin-bottom: 12px;">Editar Parámetro: LIMITE_SESIONES_CONCURRENTES</h4>
+      
+      <form th:action="@{/configuracion/guardar}" method="post" class="p-4 bg-light rounded border">
+        <h4 style="font-size: 15px; font-weight: 800; color: #081426; margin-bottom: 12px;">Crear o Actualizar Parámetro</h4>
         <div class="row g-3">
           <div class="col-md-6">
-            <label class="wf-label">Nuevo Valor Numérico</label>
-            <div class="wf-input-wrap">
-              <input type="number" class="wf-input" value="2" min="1" max="10">
-              
-            </div>
+            <label class="wf-label">Clave del Parámetro</label>
+            <input type="text" name="clave" class="wf-input" placeholder="Ej: heygen.api_key, sesiones.max" required>
           </div>
           <div class="col-md-6">
-            <label class="wf-label">Impacto Operativo</label>
-            <input type="text" class="wf-input bg-disabled" value="Cierra automáticamente la sesión más antigua si excede el límite" disabled>
+            <label class="wf-label">Valor</label>
+            <input type="text" name="valor" class="wf-input" placeholder="Valor asignado" required>
           </div>
         </div>
 
         <div class="d-flex justify-content-end align-items-center gap-3 pt-3 mt-3 border-top">
-          <button class="wf-btn wf-btn-outline">Cancelar</button>
-          <div class="d-flex align-items-center gap-2">
-            <button class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Guardar Parámetro</button>
-            
-          </div>
+          <button type="submit" class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Guardar Parámetro</button>
         </div>
-      </div>
+      </form>
     </div>
-  
-                    </div>
-                </div>
-
-                <!-- Footer Oficial -->
+  </div>
+  <!-- Footer Oficial -->
                 <div class="wf-screen-footer">
                     <div>
                         <strong>Idóneos <span>Online</span> S.A.S.</strong> • Plataforma de Educación Financiera, Economía & Mercado de Capitales

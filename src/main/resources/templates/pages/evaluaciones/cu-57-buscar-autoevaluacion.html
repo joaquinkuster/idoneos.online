@@ -161,7 +161,7 @@
                             <i class="fa-solid fa-plus"></i>
                             <span>Nueva Autoevaluación</span>
                         </a>
-                        
+                        <span class="pin-badge">A</span>
                     
                     
                     
@@ -189,7 +189,7 @@
             <a href="#CU-26b" class="wf-tab-btn">Curso & Unidades</a>
             <a href="#CU-27" class="wf-tab-btn">Materiales</a>
             <a href="#CU-31" class="wf-tab-btn">Glosario</a>
-            <button class="wf-tab-btn active">Autoevaluaciones</button>
+            <button class="wf-tab-btn active"><span class="pin-badge me-1">A</span>Autoevaluaciones</button>
             <a href="#CU-53" class="wf-tab-btn">Pools</a>
             <a href="#CU-35" class="wf-tab-btn">Foros</a>
             <a href="#CU-65" class="wf-tab-btn">Clases en Vivo</a>
@@ -204,7 +204,7 @@
             <label class="wf-label">Buscar por nombre de autoevaluación</label>
             <div class="wf-input-wrap">
               <input type="text" class="wf-input" placeholder="Ej: Autoevaluación Unidad 2: Renta Fija...">
-              
+              <span class="pin-badge">B</span>
             </div>
           </div>
           <div class="col-md-4">
@@ -218,7 +218,7 @@
           <div class="col-md-3">
             <div class="d-flex align-items-center gap-2">
               <button class="wf-btn wf-btn-primary w-100"><i class="fa-solid fa-magnifying-glass me-1"></i> Buscar</button>
-              
+              <span class="pin-badge">C</span>
             </div>
           </div>
         </div>
@@ -227,88 +227,33 @@
       <div class="d-flex flex-column flex-lg-row align-items-stretch justify-content-between gap-4">
         <!-- Columna Izquierda: Listado de Autoevaluaciones -->
         <div style="flex: 1 1 56%; min-width: 320px;">
-          <div class="wf-table-wrap">
-            <table class="wf-table">
-              <thead>
-                <tr>
-                  <th>Cuestionario / Unidad</th>
-                  <th>Preguntas & Tiempo</th>
-                  <th>Estado</th>
-                  <th class="text-end">Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                <!-- Autoevaluación Seleccionada -->
-                <tr class="table-active" style="background: #F0FDF4; border-left: 4px solid #16A34A;">
-                  <td>
-                    <div class="d-flex align-items-center gap-2">
-                      <strong style="color: #081426;">Autoevaluación Unidad 2: Renta Fija</strong>
-                      
-                    </div>
-                    <div class="small text-muted">Unidad 2: Instrumentos de Renta Fija</div>
-                  </td>
-                  <td>10 preguntas • 20 min</td>
-                  <td><span class="wf-badge status-active">Activa</span></td>
-                  <td class="text-end">
-                    <div class="d-inline-flex align-items-center gap-1">
-                      <a href="#CU-59" class="wf-btn wf-btn-sm wf-btn-outline d-inline-flex align-items-center gap-1" title="Editar Cuestionario">
-                        <i class="fa-solid fa-pen-to-square"></i>
-                        <span>Editar cuestionario</span>
-                      </a>
-                      <a href="#CU-60" class="wf-btn wf-btn-sm wf-btn-outline text-danger d-inline-flex align-items-center gap-1" title="Eliminar">
-                        <i class="fa-solid fa-trash"></i>
-                        <span>Eliminar</span>
-                      </a>
-                    </div>
-                  </td>
-                </tr>
-
-                <!-- Autoevaluación 1 -->
-                <tr>
-                  <td>
-                    <strong style="color: #081426;">Autoevaluación Unidad 1: Marco Regulatorio</strong>
-                    <div class="small text-muted">Unidad 1: Marco Regulatorio CNV</div>
-                  </td>
-                  <td>10 preguntas • 15 min</td>
-                  <td><span class="wf-badge status-active">Activa</span></td>
-                  <td class="text-end">
-                    <div class="d-inline-flex align-items-center gap-1">
-                      <a href="#CU-59" class="wf-btn wf-btn-sm wf-btn-outline d-inline-flex align-items-center gap-1">
-                        <i class="fa-solid fa-pen-to-square"></i>
-                        <span>Editar cuestionario</span>
-                      </a>
-                      <a href="#CU-60" class="wf-btn wf-btn-sm wf-btn-outline text-danger d-inline-flex align-items-center gap-1">
-                        <i class="fa-solid fa-trash"></i>
-                        <span>Eliminar</span>
-                      </a>
-                    </div>
-                  </td>
-                </tr>
-
-                <!-- Examen Final -->
-                <tr>
-                  <td>
-                    <strong style="color: #081426;">Evaluación Final Integradora (Certificación)</strong>
-                    <div class="small text-muted">Unidad 3: Multi-pool Integrador</div>
-                  </td>
-                  <td>30 preguntas • 60 min</td>
-                  <td><span class="wf-badge" style="background: #E0E7FF; color: #3730A3;">Examen Final</span></td>
-                  <td class="text-end">
-                    <div class="d-inline-flex align-items-center gap-1">
-                      <a href="#CU-59" class="wf-btn wf-btn-sm wf-btn-outline d-inline-flex align-items-center gap-1">
-                        <i class="fa-solid fa-pen-to-square"></i>
-                        <span>Editar cuestionario</span>
-                      </a>
-                      <a href="#CU-60" class="wf-btn wf-btn-sm wf-btn-outline text-danger d-inline-flex align-items-center gap-1">
-                        <i class="fa-solid fa-trash"></i>
-                        <span>Eliminar</span>
-                      </a>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          
+      <div class="wf-table-wrap">
+        <table class="wf-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nombre Autoevaluación</th>
+              <th>Unidad</th>
+              <th>Tiempo Límite</th>
+              <th>Intentos</th>
+              <th class="text-end">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="a : ${autoevaluaciones}">
+              <td><strong th:text="'#' + ${a.id}">#1</strong></td>
+              <td><strong th:text="${a.nombre}">Nombre</strong></td>
+              <td th:text="${a.unidad != null ? a.unidad.titulo : 'General'}">Unidad</td>
+              <td th:text="${a.tiempoLimiteMinutos + ' min'}">20 min</td>
+              <td th:text="${a.intentosPermitidos}">3</td>
+              <td class="text-end">
+                <a th:href="@{'/evaluaciones/autoevaluaciones/' + ${a.id} + '/rendir'}" class="wf-btn wf-btn-sm wf-btn-gold">Rendir Examen</a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
         </div>
 
         <!-- Barra Divisoria Vertical en el medio -->

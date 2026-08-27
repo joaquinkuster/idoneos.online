@@ -144,31 +144,29 @@
                     <div class="wf-main-content">
                         
         <!-- Filtros del Catálogo de Cursos -->
-        <div class="wf-card mb-4">
-          <div class="row align-items-end">
-            <div class="col-md-5">
-              <label class="wf-label">Buscar cursos por temática o palabra clave</label>
-              <div class="wf-input-wrap">
-                <input type="text" class="wf-input" placeholder="Ej: Bonos, Futuros, Renta Fija, Criptomonedas...">
-                
-              </div>
+        
+      <form th:action="@{/cursos/catalogo}" method="get" class="wf-card mb-4">
+        <div class="row align-items-end">
+          <div class="col-md-5">
+            <label class="wf-label">Buscar cursos por temática o palabra clave</label>
+            <div class="wf-input-wrap">
+              <input type="text" name="busqueda" th:value="${busqueda}" class="wf-input" placeholder="Ej: Bonos, Futuros, Renta Fija, Criptomonedas...">
             </div>
-            <div class="col-md-4">
-              <label class="wf-label">Filtrar por Categoría / Nivel</label>
-              <div class="wf-select-container">
-                <div class="wf-input-wrap">
-                  <div class="wf-input wf-select-trigger">
-                    <span>Todas las categorías</span>
-                    <i class="fa-solid fa-chevron-down "></i>
-                  </div>
-                </div>
-                <div class="wf-dropdown-menu">
-                  <div class="wf-dropdown-item active">☑ Todas las categorías</div>
-                  <div class="wf-dropdown-item">☐ Mercado de Capitales & Finanzas</div>
-                  <div class="wf-dropdown-item">☐ Impuestos & Contabilidad</div>
-                  <div class="wf-dropdown-item">☐ Finanzas Cuantitativas & Cripto</div>
-                </div>
-              </div>
+          </div>
+          <div class="col-md-4">
+            <label class="wf-label">Filtrar por Categoría</label>
+            <select name="categoriaId" class="wf-input">
+              <option value="">Todas las categorías</option>
+              <option th:each="cat : ${categorias}" th:value="${cat.id}" th:text="${cat.nombre}" th:selected="${categoriaSeleccionada == cat.id}">Categoría</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <div class="d-flex align-items-center gap-2">
+              <button type="submit" class="wf-btn wf-btn-primary w-100"><i class="fa-solid fa-magnifying-glass me-1"></i> Explorar Catálogo</button>
+            </div>
+          </div>
+        </div>
+      </form>
             </div>
             <div class="col-md-3">
               <div class="d-flex align-items-center gap-2">
@@ -179,147 +177,98 @@
         </div>
 
         <!-- Layout de Catálogo con Panel Lateral de Detalle Público (Paso 4) -->
-        <div class="row g-4">
-          <!-- Columna Izquierda: Grid de Cursos del Catálogo -->
-          <div class="col-lg-6" style="border-right: 2px solid #E2E8F0; padding-right: 24px;">
-            <div class="d-flex flex-column gap-3">
-              <!-- Curso 1: Especialización en Idoneidad Bursátil (Seleccionado) -->
-              <div class="wf-course-card border-primary" style="box-shadow: 0 4px 12px rgba(212,175,55,0.15); border: 2px solid var(--wf-gold);">
-                <div class="wf-course-card-thumb">
-                  <div class="wf-course-thumb-icon"><i class="fa-solid fa-graduation-cap w-8 h-8 text-white"></i></div>
-                  <div class="wf-course-pills-row">
-                    <span class="wf-pill-tag">Mercado de Capitales</span>
-                    <span class="wf-pill-status" style="background: #ECFDF5; color: #047857; font-weight: 700;">● Inscripción Abierta</span>
-                  </div>
-                </div>
-                <div class="wf-course-card-body">
-                  <h4 class="wf-course-title">Especialización en Idoneidad Bursátil CNV</h4>
-                  <p class="wf-course-desc">Preparación integral para el examen de Idóneo en Mercado de Capitales.</p>
-                  <div class="wf-course-info-row">
-                    <span>📄 4 Unidades temáticas</span>
-                    <span class="wf-course-price">$120.000 ARS</span>
-                  </div>
-                </div>
-                <div class="wf-course-card-footer">
-                  <div class="d-flex align-items-center justify-content-between gap-2">
-                    <button class="wf-btn wf-btn-primary w-100 d-flex align-items-center justify-content-center gap-2">
-                      <i class="fa-solid fa-ticket"></i>
-                      <span>Ver Ficha / Inscribirme</span>
-                    </button>
-                    
-                  </div>
+        
+      <div class="row g-4">
+        <div class="col-lg-7" style="border-right: 2px solid #E2E8F0; padding-right: 24px;">
+          <div class="d-flex flex-column gap-3">
+            <div th:each="curso : ${cursos}" class="wf-course-card border-primary mb-2" style="border: 2px solid var(--wf-gold);">
+              <div class="wf-course-card-thumb">
+                <div class="wf-course-thumb-icon"><i class="fa-solid fa-graduation-cap w-8 h-8 text-white"></i></div>
+                <div class="wf-course-pills-row">
+                  <span class="wf-pill-tag" th:text="${curso.categoria != null ? curso.categoria.nombre : 'Mercado de Capitales'}">Categoría</span>
+                  <span class="wf-pill-status" style="background: #ECFDF5; color: #047857; font-weight: 700;">● Inscripción Abierta</span>
                 </div>
               </div>
+              <div class="wf-course-card-body">
+                <h4 class="wf-course-title" th:text="${curso.nombre}">Nombre Curso</h4>
+                <p class="wf-course-desc" th:text="${curso.descripcion}">Descripción</p>
+                <div class="wf-course-info-row">
+                  <span>👨‍🏫 <strong th:text="${curso.docente != null and curso.docente.usuario != null ? curso.docente.usuario.nombreCompleto : 'Docente'}">Docente</strong></span>
+                  <span class="wf-course-price" th:text="${curso.precio <= 0 ? 'GRATIS' : ' -->
+                <div class="wf-screen-footer">
+                    <div>
+                        <strong>Idóneos <span>Online</span> S.A.S.</strong> • Plataforma de Educación Financiera, Economía & Mercado de Capitales
+                    </div>
+                    <div>
+                        FCEQyN — UNaM • Proyecto Software (LSI) / Trabajo Final (ASI)
+                    </div>
+                </div>
+            
+        </div>
+    </div>
 
-              <!-- Curso 2: Operativa Cripto y DeFi -->
-              <div class="wf-course-card">
-                <div class="wf-course-card-thumb">
-                  <div class="wf-course-thumb-icon"><i class="fa-solid fa-graduation-cap w-8 h-8 text-white"></i></div>
-                  <div class="wf-course-pills-row">
-                    <span class="wf-pill-tag">Finanzas & Cripto</span>
-                    <span class="wf-pill-status">● Inscripción Abierta</span>
-                  </div>
-                </div>
-                <div class="wf-course-card-body">
-                  <h4 class="wf-course-title">Operativa Cripto y DeFi Profesional</h4>
-                  <p class="wf-course-desc">Trading algorítmico, finanzas descentralizadas y custodia institucional.</p>
-                  <div class="wf-course-info-row">
-                    <span>📄 3 Unidades</span>
-                    <span class="wf-course-price">$95.000 ARS</span>
-                  </div>
-                </div>
-                <div class="wf-course-card-footer">
-                  <button class="wf-btn wf-btn-outline w-100 d-flex align-items-center justify-content-center gap-2">
-                    <i class="fa-solid fa-ticket"></i>
-                    <span>Ver Ficha / Inscribirme</span>
-                  </button>
+    <!-- Bootstrap Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function toggleUserDropdown(triggerEl) {
+            const wrapper = triggerEl.closest('.wf-user-menu-wrapper');
+            if (wrapper) {
+                const dropdown = wrapper.querySelector('.wf-user-floating-dropdown');
+                if (dropdown) {
+                    dropdown.style.display = (dropdown.style.display === 'none' || dropdown.style.display === '') ? 'flex' : 'none';
+                }
+            }
+        }
+    </script>
+</body>
+</html>
+ + #numbers.formatDecimal(curso.precio, 1, 'POINT', 0, 'COMMA')}">$0</span>
                 </div>
               </div>
-            </div>
-          </div>
-
-          <!-- Columna Derecha: Vista Previa y Ficha Pública del Curso Seleccionado (Paso 4) -->
-          <div class="col-lg-6" style="padding-left: 20px;">
-            <div class="wf-card shadow-sm" style="background: #FFFFFF; border: 1px solid #CBD5E1; border-radius: 10px; position: sticky; top: 20px;">
-              <div class="pb-3 mb-3 border-bottom d-flex justify-content-between align-items-center">
-                <div>
-                  <span class="wf-badge status-active mb-1">Ficha Informativa</span>
-                  <h3 style="font-size: 17px; font-weight: 800; color: #081426; margin: 0;">Especialización en Idoneidad Bursátil</h3>
-                </div>
-                <div class="text-end">
-                  <strong style="font-size: 18px; color: var(--wf-gold);">$120.000</strong>
-                  <div class="small text-muted">Arancel único</div>
-                </div>
-              </div>
-
-              <!-- Metadatos del Curso -->
-              <div class="p-3 bg-light rounded mb-3" style="font-size: 12px;">
-                <div class="d-flex justify-content-between mb-1">
-                  <span class="text-muted">Nivel:</span>
-                  <strong>Intermedio / Profesional</strong>
-                </div>
-                <div class="d-flex justify-content-between mb-1">
-                  <span class="text-muted">Modalidad:</span>
-                  <strong>Online Asincrónico + Clases en Vivo</strong>
-                </div>
-                <div class="d-flex justify-content-between">
-                  <span class="text-muted">Certificación:</span>
-                  <strong class="text-success"><i class="fa-solid fa-circle-check me-1"></i> Certificado de Idoneidad</strong>
-                </div>
-              </div>
-
-              <!-- Contenidos por Unidad (Paso 4 - Badge C) -->
-              <div class="mb-3">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                  <label class="wf-label m-0" style="font-size: 12px;">Estructura de Contenidos por Unidad</label>
-                  
-                </div>
-                <div class="d-flex flex-column gap-2" style="font-size: 12px;">
-                  <div class="p-2 border rounded bg-white d-flex justify-content-between align-items-center">
-                    <span><strong>Unidad 1:</strong> Marco Regulatorio & Ley de Mercado de Capitales</span>
-                    <span class="badge bg-secondary">Muestra Gratis</span>
-                  </div>
-                  <div class="p-2 border rounded bg-white">
-                    <strong>Unidad 2:</strong> Instrumentos de Renta Fija (Bonos y ONs)
-                  </div>
-                  <div class="p-2 border rounded bg-white">
-                    <strong>Unidad 3:</strong> Renta Variable y Valuación de Acciones
-                  </div>
-                  <div class="p-2 border rounded bg-white">
-                    <strong>Unidad 4:</strong> Derivados Financieros (Opciones y Futuros)
-                  </div>
-                </div>
-              </div>
-
-              <!-- Cohortes Abiertas y Docente (Paso 4 - Badge D) -->
-              <div>
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                  <label class="wf-label m-0" style="font-size: 12px;">Cohortes Abiertas Disponibles</label>
-                  
-                </div>
-                <div class="p-3 border rounded" style="background: #F8FAFC; font-size: 12px;">
-                  <div class="d-flex justify-content-between align-items-center mb-2">
-                    <strong>Cohorte 2026-1 (Inicio 01/03/2026)</strong>
-                    <span class="wf-badge status-active">15 cupos libres</span>
-                  </div>
-                  <div class="d-flex align-items-center gap-2 text-muted mb-3">
-                    <i class="fa-solid fa-chalkboard-user"></i>
-                    <span>Docente Titular: <strong>Mg. Elena Valenzuela</strong></span>
-                  </div>
-                  <a href="#CU-44" class="wf-btn wf-btn-primary w-100 d-flex align-items-center justify-content-center gap-2" style="font-weight: 700; text-decoration: none;">
-                    <i class="fa-solid fa-ticket"></i>
-                    <span>Inscribirme Ahora</span>
-                  </a>
-                </div>
+              <div class="wf-course-card-footer">
+                <a th:href="@{'/inscripciones/nueva?cursoId=' + ${curso.id}}" class="wf-btn wf-btn-primary w-100 d-flex align-items-center justify-content-center gap-2" style="text-decoration: none;">
+                  <i class="fa-solid fa-ticket"></i>
+                  <span>Inscribirme a este Curso</span>
+                </a>
               </div>
             </div>
           </div>
         </div>
-      
-                    </div>
-                </div>
 
-                <!-- Footer Oficial -->
+        <div class="col-lg-5" style="padding-left: 20px;">
+          <div class="wf-card shadow-sm" style="background: #FFFFFF; border: 1px solid #CBD5E1; border-radius: 10px; position: sticky; top: 20px;">
+            <div class="pb-3 mb-3 border-bottom d-flex justify-content-between align-items-center">
+              <div>
+                <span class="wf-badge status-active mb-1">Ficha Informativa</span>
+                <h3 style="font-size: 17px; font-weight: 800; color: #081426; margin: 0;">Metodología Idóneos</h3>
+              </div>
+            </div>
+            <div class="p-3 bg-light rounded mb-3" style="font-size: 12px;">
+              <div class="d-flex justify-content-between mb-1">
+                <span class="text-muted">Modalidades:</span>
+                <strong>En Vivo, Grabada y Clon IA</strong>
+              </div>
+              <div class="d-flex justify-content-between mb-1">
+                <span class="text-muted">Certificación:</span>
+                <strong class="text-success"><i class="fa-solid fa-circle-check me-1"></i> Oficial con Código QR</strong>
+              </div>
+            </div>
+            <div class="p-3 border rounded" style="background: #F8FAFC; font-size: 12px;">
+              <div class="d-flex align-items-center gap-2 text-muted mb-3">
+                <i class="fa-solid fa-chalkboard-user"></i>
+                <span>Cuerpo Docente de Directores y Especialistas</span>
+              </div>
+              <a th:href="@{/seguridad/registro}" class="wf-btn wf-btn-primary w-100 d-flex align-items-center justify-content-center gap-2" style="font-weight: 700; text-decoration: none;">
+                <i class="fa-solid fa-user-plus"></i>
+                <span>Crear Cuenta Gratuita</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Footer Oficial -->
                 <div class="wf-screen-footer">
                     <div>
                         <strong>Idóneos <span>Online</span> S.A.S.</strong> • Plataforma de Educación Financiera, Economía & Mercado de Capitales

@@ -177,29 +177,137 @@
         </div>
 
         <!-- KPIs Principales del CU Real -->
-        <div class="row g-3 mb-4">
-          <div class="col-md-4">
-            <div class="p-3 border rounded bg-white shadow-sm" style="border-left: 4px solid #2563EB !important;">
-              <div class="small text-muted fw-bold">Alumnos Activos en Plataforma</div>
-              <h2 style="font-size: 26px; font-weight: 800; color: #081426; margin: 4px 0;">1.240</h2>
-              <div class="small text-success"><i class="fa-solid fa-arrow-up me-1"></i> +14% vs mes anterior</div>
+        
+      <div class="row g-3 mb-4">
+        <div class="col-md-3">
+          <div class="p-3 bg-white border rounded shadow-sm">
+            <div class="text-muted small">Alumnos Activos</div>
+            <h3 class="font-serif fw-bold text-navy my-1" th:text="${stats != null ? stats.totalAlumnosActivos : '15'}">15</h3>
+            <span class="badge bg-success-subtle text-success">En plataforma</span>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="p-3 bg-white border rounded shadow-sm">
+            <div class="text-muted small">Inscripciones Vigentes</div>
+            <h3 class="font-serif fw-bold text-navy my-1" th:text="${stats != null ? stats.totalInscripcionesVigentes : '24'}">24</h3>
+            <span class="badge bg-primary-subtle text-primary">Cursos activos</span>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="p-3 bg-white border rounded shadow-sm">
+            <div class="text-muted small">Ingresos del Mes</div>
+            <h3 class="font-serif fw-bold text-gold my-1" th:text="${stats != null ? '
+
+        <!-- Gráficos de Indicadores Clave -->
+        <div class="row g-4">
+          <!-- Gráfico 1: Inscripciones de los últimos 30 días (Línea) -->
+          <div class="col-md-6">
+            <div class="p-3 border rounded bg-white shadow-sm h-100">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <strong style="font-size: 13px; color: #081426;">Inscripciones (Últimos 30 días)</strong>
+                <span class="badge bg-light text-primary border" style="font-size: 9px;">Gráfico de Línea</span>
+              </div>
+              <div class="p-4 rounded border bg-light text-center d-flex flex-column align-items-center justify-content-center" style="height: 140px;">
+                <i class="fa-solid fa-chart-line text-primary" style="font-size: 32px; margin-bottom: 8px;"></i>
+                <strong style="color: #081426;">Promedio Diario: 48 nuevas matrículas</strong>
+                <span class="small text-muted">Pico máximo: 92 matrículas el 15/08/2026</span>
+              </div>
             </div>
           </div>
-          <div class="col-md-4">
-            <div class="p-3 border rounded bg-white shadow-sm" style="border-left: 4px solid var(--wf-gold) !important;">
-              <div class="small text-muted fw-bold">Inscripciones Vigentes Totales</div>
-              <h2 style="font-size: 26px; font-weight: 800; color: #081426; margin: 4px 0;">1.420</h2>
-              <div class="small text-muted">En 3 cursos activos</div>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="p-3 border rounded bg-white shadow-sm" style="border-left: 4px solid #059669 !important;">
-              <div class="small text-muted fw-bold">Ingresos del Mes Facturados</div>
-              <h2 style="font-size: 26px; font-weight: 800; color: #059669; margin: 4px 0;">$17.4M ARS</h2>
-              <div class="small text-success"><i class="fa-solid fa-arrow-up me-1"></i> +22% vs mes anterior</div>
+
+          <!-- Gráfico 2: Ranking Top 5 Cursos con Más Inscriptos (Barras) -->
+          <div class="col-md-6">
+            <div class="p-3 border rounded bg-white shadow-sm h-100">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <strong style="font-size: 13px; color: #081426;">Top 5 Cursos con Más Inscriptos</strong>
+                <span class="badge bg-light text-primary border" style="font-size: 9px;">Barras Horizontales</span>
+              </div>
+              <div class="d-flex flex-column gap-2" style="font-size: 11px;">
+                <div>
+                  <div class="d-flex justify-content-between mb-1">
+                    <span>1. Especialización Idoneidad Bursátil</span>
+                    <strong>840 inscriptos</strong>
+                  </div>
+                  <div style="height: 8px; background: #E2E8F0; border-radius: 4px; overflow: hidden;">
+                    <div style="width: 85%; height: 100%; background: #2563EB; border-radius: 4px;"></div>
+                  </div>
+                </div>
+                <div>
+                  <div class="d-flex justify-content-between mb-1">
+                    <span>2. Operativa Cripto y DeFi</span>
+                    <strong>380 inscriptos</strong>
+                  </div>
+                  <div style="height: 8px; background: #E2E8F0; border-radius: 4px; overflow: hidden;">
+                    <div style="width: 45%; height: 100%; background: #0D9488; border-radius: 4px;"></div>
+                  </div>
+                </div>
+                <div>
+                  <div class="d-flex justify-content-between mb-1">
+                    <span>3. Mercado de Capitales Argentino</span>
+                    <strong>180 inscriptos</strong>
+                  </div>
+                  <div style="height: 8px; background: #E2E8F0; border-radius: 4px; overflow: hidden;">
+                    <div style="width: 25%; height: 100%; background: #64748B; border-radius: 4px;"></div>
+                  </div>
+                </div>
+                <div>
+                  <div class="d-flex justify-content-between mb-1">
+                    <span>4. Valuación de Bonos y Renta Fija</span>
+                    <strong>95 inscriptos</strong>
+                  </div>
+                  <div style="height: 8px; background: #E2E8F0; border-radius: 4px; overflow: hidden;">
+                    <div style="width: 15%; height: 100%; background: #D97706; border-radius: 4px;"></div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
+      </div>
+    
+                    </div>
+                </div>
+
+                <!-- Footer Oficial -->
+                <div class="wf-screen-footer">
+                    <div>
+                        <strong>Idóneos <span>Online</span> S.A.S.</strong> • Plataforma de Educación Financiera, Economía & Mercado de Capitales
+                    </div>
+                    <div>
+                        FCEQyN — UNaM • Proyecto Software (LSI) / Trabajo Final (ASI)
+                    </div>
+                </div>
+            
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function toggleUserDropdown(triggerEl) {
+            const wrapper = triggerEl.closest('.wf-user-menu-wrapper');
+            if (wrapper) {
+                const dropdown = wrapper.querySelector('.wf-user-floating-dropdown');
+                if (dropdown) {
+                    dropdown.style.display = (dropdown.style.display === 'none' || dropdown.style.display === '') ? 'flex' : 'none';
+                }
+            }
+        }
+    </script>
+</body>
+</html>
+ + #numbers.formatDecimal(stats.ingresosMesActual, 1, 'POINT', 0, 'COMMA') : '$1.850.000'}">$1.850.000</h3>
+            <span class="badge bg-gold-soft text-navy">Acreditados</span>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="p-3 bg-white border rounded shadow-sm">
+            <div class="text-muted small">Inscripciones 30 Días</div>
+            <h3 class="font-serif fw-bold text-navy my-1" th:text="${stats != null ? stats.inscripcionesUltimos30Dias : '12'}">12</h3>
+            <span class="badge bg-info-subtle text-info">Último mes</span>
+          </div>
+        </div>
+      </div>
 
         <!-- Gráficos de Indicadores Clave -->
         <div class="row g-4">

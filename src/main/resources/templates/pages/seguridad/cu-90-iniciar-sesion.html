@@ -165,55 +165,38 @@
                 <div class="wf-body">
                     <div class="wf-main-content">
                         
-        <div class="wf-card" style="max-width: 480px; margin: 40px auto; box-shadow: 0 12px 32px rgba(0,0,0,0.08); background: #FFFFFF;">
-          <div class="text-center mb-4">
-            <h3 style="font-size: 20px; font-weight: 800; color: #081426;">Iniciar Sesión en Idóneos Online</h3>
-            <p class="small text-muted">Ingrese sus credenciales académicas para acceder</p>
-          </div>
+        
+    <form th:action="@{/seguridad/login}" method="post" class="wf-card" style="max-width: 480px; margin: 40px auto; box-shadow: 0 12px 32px rgba(0,0,0,0.08); background: #FFFFFF;">
+      <div class="text-center mb-4">
+        <h3 style="font-size: 20px; font-weight: 800; color: #081426;">Iniciar Sesión en Idóneos Online</h3>
+        <p class="small text-muted">Ingrese sus credenciales académicas para acceder</p>
+      </div>
 
-          <div class="mb-3">
-            <label class="wf-label">Correo Electrónico Institucional</label>
-            <div class="wf-input-wrap">
-              <input type="email" class="wf-input" value="elena.valenzuela@idoneos.online">
-              
-            </div>
-          </div>
+      <div th:if="${error}" class="alert alert-danger p-2 small mb-3" th:text="${error}">Error</div>
+      <div th:if="${mensaje}" class="alert alert-success p-2 small mb-3" th:text="${mensaje}">Mensaje</div>
 
-          <div class="mb-2">
-            <div class="d-flex justify-content-between align-items-center mb-1">
-              <label class="wf-label mb-0">Contraseña</label>
-              
-                <a href="#CU-92" class="small text-primary fw-bold text-decoration-none" style="font-size: 11px;">
-                  ¿Olvidaste tu contraseña?
-                </a>
-              
-            </div>
-            <div class="wf-input-wrap">
-              <input type="password" class="wf-input" value="••••••••••••">
-              
-            </div>
-          </div>
+      <div class="mb-3">
+        <label class="wf-label">Correo Electrónico</label>
+        <input type="email" name="username" class="wf-input" placeholder="correo@ejemplo.com" required>
+      </div>
 
-          <div class="d-flex flex-column gap-2 mt-4">
-            <div class="d-flex align-items-center gap-2 w-100">
-              <button class="wf-btn wf-btn-primary w-100">Iniciar Sesión</button>
-              
-            </div>
-            
-            
-              <div class="text-center my-2 text-muted small">o continúe con</div>
-              <div class="d-flex align-items-center gap-2 w-100">
-                <button class="wf-btn wf-btn-outline w-100"><i class="fa-brands fa-google me-1"></i> Continuar con Google</button>
-                
-              </div>
-            
-          </div>
-        </div>
-      
-                    </div>
-                </div>
+      <div class="mb-2">
+        <label class="wf-label mb-0">Contraseña</label>
+        <input type="password" name="password" class="wf-input" placeholder="••••••••••••" required>
+      </div>
 
-                <!-- Footer Oficial -->
+      <div class="d-flex flex-column gap-2 mt-4">
+        <button type="submit" class="wf-btn wf-btn-primary w-100">Iniciar Sesión</button>
+        <div class="text-center my-2 text-muted small">o continúe con</div>
+        <a th:href="@{/oauth2/authorization/google}" class="wf-btn wf-btn-outline w-100 text-center text-decoration-none"><i class="fa-brands fa-google me-1"></i> Continuar con Google</a>
+      </div>
+      <div class="text-center mt-3">
+        <a th:href="@{/seguridad/registro}" class="small text-primary fw-bold text-decoration-none">¿No tenés cuenta? Registrate gratis</a>
+      </div>
+    </form>
+  </div>
+  </div>
+  <!-- Footer Oficial -->
                 <div class="wf-screen-footer">
                     <div>
                         <strong>Idóneos <span>Online</span> S.A.S.</strong> • Plataforma de Educación Financiera, Economía & Mercado de Capitales

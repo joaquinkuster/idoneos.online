@@ -165,47 +165,35 @@
                 <div class="wf-body">
                     <div class="wf-main-content">
                         
-    <div class="wf-card" style="max-width: 760px; margin: 0 auto; background: #FFFFFF;">
+    
+    <form th:action="@{/cursos/categorias/guardar}" method="post" class="wf-card" style="max-width: 760px; margin: 0 auto; background: #FFFFFF;">
       <div class="wf-card-header mb-4 pb-3 border-bottom d-flex justify-content-between align-items-center">
         <div>
           <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Registrar Nueva Categoría</h3>
           <p class="small text-muted" style="margin: 3px 0 0;">Defina una nueva categoría temática para la clasificación del catálogo.</p>
         </div>
-        <div>
-          <span class="wf-badge status-active">Formulario de Alta</span>
-        </div>
+        <span class="wf-badge status-active">Formulario de Alta</span>
       </div>
 
       <div class="row g-3">
         <div class="col-12">
           <label class="wf-label">Nombre de la Categoría</label>
-          <div class="wf-input-wrap">
-            <input type="text" class="wf-input" placeholder="Ej: Finanzas Corporativas, Mercado de Capitales...">
-            
-          </div>
+          <input type="text" name="nombre" class="wf-input" placeholder="Ej: Finanzas Corporativas, Mercado de Capitales..." required>
         </div>
         <div class="col-12">
           <label class="wf-label">Descripción Temática y Alcance</label>
-          <div class="wf-input-wrap">
-            <textarea class="wf-input" rows="4" placeholder="Describa el alcance de los cursos comprendidos en esta categoría..."></textarea>
-            
-          </div>
+          <textarea name="descripcion" class="wf-input" rows="4" placeholder="Describa el alcance de los cursos comprendidos en esta categoría..."></textarea>
         </div>
       </div>
 
       <div class="wf-card-footer d-flex justify-content-end gap-3 mt-4 pt-3 border-top">
-        <a href="#CU-07" class="wf-btn wf-btn-outline">Cancelar / Volver</a>
-        <div class="d-flex align-items-center gap-2">
-          <button class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Guardar Categoría</button>
-          
-        </div>
+        <a th:href="@{/cursos/categorias}" class="wf-btn wf-btn-outline">Cancelar / Volver</a>
+        <button type="submit" class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Guardar Categoría</button>
       </div>
-    </div>
-  
-                    </div>
-                </div>
-
-                <!-- Footer Oficial -->
+    </form>
+  </div>
+  </div>
+  <!-- Footer Oficial -->
                 <div class="wf-screen-footer">
                     <div>
                         <strong>Idóneos <span>Online</span> S.A.S.</strong> • Plataforma de Educación Financiera, Economía & Mercado de Capitales
