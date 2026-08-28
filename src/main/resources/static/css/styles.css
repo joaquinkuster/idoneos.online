@@ -662,6 +662,25 @@ i {
     justify-content: space-between;
 }
 
+/* Pin Badges */
+.pin-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    min-width: 26px;
+    border-radius: 50%;
+    background: #081426;
+    color: #FFFFFF;
+    font-size: 12px;
+    font-weight: 800;
+    border: 2px solid var(--wf-gold);
+    box-shadow: 0 2px 6px rgba(8, 20, 38, 0.3);
+    flex-shrink: 0;
+    user-select: none;
+}
+
 /* Inputs y Formularios Oficiales */
 .wf-card {
     background: #FFFFFF;
