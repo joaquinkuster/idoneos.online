@@ -75,7 +75,7 @@ public class CategoriaServiceImpl implements CategoriaService {
             throw new ExcepcionNegocio("La categoría ya se encuentra dada de baja.");
         }
 
-        List<Curso> cursosAsociados = cursoRepository.findByCategoriaAndBajaFalseAndPublicadoTrue(categoria);
+        List<Curso> cursosAsociados = cursoRepository.findByCategoriaAndBajaFalse(categoria);
         if (!cursosAsociados.isEmpty()) {
             throw new ExcepcionConflicto("CU-10 Excepción paso 2: No es posible eliminar la categoría porque tiene " + cursosAsociados.size() + " cursos activos asociados.");
         }

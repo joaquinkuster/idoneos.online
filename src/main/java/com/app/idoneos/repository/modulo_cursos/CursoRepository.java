@@ -16,6 +16,8 @@ public interface CursoRepository extends JpaRepository<Curso, Integer> {
 
     java.util.Optional<Curso> findByNombre(String nombre);
 
+    List<Curso> findByCategoriaAndBajaFalse(Categoria categoria);
+
     List<Curso> findByCategoriaAndBajaFalseAndPublicadoTrue(Categoria categoria);
 
     List<Curso> findByNombreContainingIgnoreCaseAndBajaFalseAndPublicadoTrue(String query);

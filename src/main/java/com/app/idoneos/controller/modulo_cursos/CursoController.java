@@ -385,10 +385,10 @@ public class CursoController {
         agregarUsuarioAlModelo(model, auth);
         List<Categoria> categorias = categoriaService.buscarCategoriasConFiltros(nombre, baja);
         
-        // Mapeo dinámico de cursos asociados activos por categoría para CU-10
+        // Mapeo dinámico de cursos asociados activos por categoría para CU-10 (Regla de dependencia)
         java.util.Map<Integer, List<Curso>> cursosPorCategoria = new java.util.HashMap<>();
         for (Categoria cat : categorias) {
-            cursosPorCategoria.put(cat.getId(), cursoRepository.findByCategoriaAndBajaFalseAndPublicadoTrue(cat));
+            cursosPorCategoria.put(cat.getId(), cursoRepository.findByCategoriaAndBajaFalse(cat));
         }
 
         model.addAttribute("categorias", categorias);
