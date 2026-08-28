@@ -12,7 +12,7 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;800&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     
     <!-- Estilos del Sistema Centralizados -->
     <link rel="stylesheet" th:href="@{/css/styles.css}">
@@ -34,143 +34,67 @@
                             <span>PORTAL DEL ALUMNO</span>
                         </div>
                         <h2 class="wf-hero-title">Mis Cursos Asignados</h2>
-                        <p class="wf-hero-desc">Bienvenido/a, Joaquín Küster</p>
+                        <p class="wf-hero-desc">Bienvenido/a, <span th:text="${usuario != null ? usuario.nombreCompleto : 'Alumno'}">Juan Pérez</span></p>
                     </div>
-                    
-                    <div class="d-flex align-items-center gap-2">
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    </div>
-</div>
+                </div>
 
                 <div class="wf-body">
                     <div class="wf-main-content">
                         
-      <div class="wf-card mb-4">
-        <div class="row align-items-end">
+      <!-- Barra de Filtros Normal con Select Nativo -->
+      <div class="wf-card mb-4" style="background: #FFFFFF;">
+        <form th:action="@{/cursos/mis-cursos}" method="get" class="row align-items-end g-3">
           <div class="col-md-5">
             <label class="wf-label">Buscar cursos por título o palabra clave</label>
             <div class="wf-input-wrap">
-              <input type="text" class="wf-input" placeholder="Ej: Planificación Fiscal, Cripto, Mercado de Capitales...">
-              
+              <input type="text" name="busqueda" th:value="${busqueda}" class="wf-input" placeholder="Ej: Planificación Fiscal, Cripto, Mercado de Capitales...">
             </div>
           </div>
           <div class="col-md-4">
-            <label class="wf-label">Filtrar por Categoría / Estado</label>
-            <div class="wf-select-container">
-              <div class="wf-input-wrap">
-                <div class="wf-input wf-select-trigger">
-                  <span>Todas las categorías</span>
-                  <i class="fa-solid fa-chevron-down "></i>
-                </div>
-                
-              </div>
-              <div class="wf-dropdown-menu">
-                <div class="wf-dropdown-item active">☑ Todas las categorías</div>
-                <div class="wf-dropdown-item">☐ Impuestos y Contabilidad</div>
-                <div class="wf-dropdown-item">☐ Mercado de Capitales</div>
-                <div class="wf-dropdown-item">☐ Finanzas y Cripto</div>
-              </div>
-            </div>
+            <label class="wf-label">Filtrar por Categoría</label>
+            <select name="categoriaId" class="wf-input">
+              <option value="">Todas las categorías</option>
+              <option th:each="cat : ${categorias}" th:value="${cat.id}" th:text="${cat.nombre}" th:selected="${categoriaSeleccionada != null and categoriaSeleccionada == cat.id}">Categoría</option>
+            </select>
           </div>
           <div class="col-md-3">
-            <div class="d-flex align-items-center gap-2">
-              <button class="wf-btn wf-btn-primary w-100">Filtrar</button>
-              
-            </div>
+            <button type="submit" class="wf-btn wf-btn-primary w-100">
+              <i class="fa-solid fa-magnifying-glass me-1"></i> Filtrar
+            </button>
           </div>
-        </div>
+        </form>
       </div>
 
+      <!-- Grilla Dinámica de Cursos del Alumno -->
       <div class="wf-cards-grid">
-        <!-- Curso 1: Planificación Fiscal -->
-        <div class="wf-course-card">
-          <div class="wf-course-card-thumb">
-            <div class="wf-course-thumb-icon"><i class="fa-solid fa-graduation-cap w-8 h-8 text-white"></i></div>
-            <div class="wf-course-pills-row">
-              <span class="wf-pill-tag">Impuestos y Contabilidad</span>
-              <span class="wf-pill-status">Sin cohortes abiertas</span>
-            </div>
-          </div>
-          <div class="wf-course-card-body">
-            <h4 class="wf-course-title">Planificación Fiscal y Tributaria</h4>
-            <p class="wf-course-desc">Estrategias impositivas para pymes y profesionales.</p>
-            <div class="wf-course-info-row">
-              <span>📄 1 Programas</span>
-              <span class="wf-course-price">$220.000</span>
-            </div>
-          </div>
-          <div class="wf-course-card-footer">
-            
-              <a th:href="@{/academico/aula}" class="wf-btn-manage-course" style="text-decoration: none;">
-                <i class="fa-solid fa-arrow-right-to-bracket"></i>
-                <span>Ingresar al Curso</span>
-              </a>
-            
+        <div th:if="${inscripciones == null or #lists.isEmpty(inscripciones)}" class="alert alert-info w-100 p-4 rounded-3 text-center">
+          <i class="fa-solid fa-circle-info me-2 fa-lg"></i> Actualmente no tienes inscripciones registradas. ¡Te invitamos a explorar nuestro catálogo de cursos!
+          <div class="mt-3">
+            <a th:href="@{/cursos/catalogo}" class="btn btn-dark rounded-pill px-4 fw-bold">Explorar Catálogo</a>
           </div>
         </div>
 
-        <!-- Curso 2: Operativa Cripto -->
-        <div class="wf-course-card">
+        <div th:each="insc : ${inscripciones}" class="wf-course-card" th:if="${insc.cohorte != null and insc.cohorte.programa != null and insc.cohorte.programa.curso != null}">
           <div class="wf-course-card-thumb">
             <div class="wf-course-thumb-icon"><i class="fa-solid fa-graduation-cap w-8 h-8 text-white"></i></div>
             <div class="wf-course-pills-row">
-              <span class="wf-pill-tag">Mercado de Capitales</span>
-              <span class="wf-pill-status">Sin cohortes abiertas</span>
+              <span class="wf-pill-tag" th:text="${insc.cohorte.programa.curso.categoria != null ? insc.cohorte.programa.curso.categoria.nombre : 'Mercado de Capitales'}">Categoría</span>
+              <span class="wf-pill-status">Inscripción Activa</span>
             </div>
           </div>
           <div class="wf-course-card-body">
-            <h4 class="wf-course-title">Operativa Cripto y DeFi</h4>
-            <p class="wf-course-desc">Trading, DeFi y custodia institucional.</p>
+            <h4 class="wf-course-title" th:text="${insc.cohorte.programa.curso.nombre}">Nombre Curso</h4>
+            <p class="wf-course-desc" th:text="${insc.cohorte.programa.curso.descripcion}">Descripción</p>
             <div class="wf-course-info-row">
-              <span>📄 1 Programas</span>
-              <span class="wf-course-price">$120.000</span>
+              <span>📄 <span th:text="${insc.cohorte.programa.nombre}">Programa 2026</span></span>
+              <span class="wf-course-price" th:text="${insc.cohorte.programa.curso.precio != null && insc.cohorte.programa.curso.precio <= 0 ? 'GRATIS' : '$ ' + #numbers.formatDecimal(insc.cohorte.programa.curso.precio, 1, 'POINT', 0, 'COMMA')}">$120.000</span>
             </div>
           </div>
           <div class="wf-course-card-footer">
-            
-              <a th:href="@{/academico/aula}" class="wf-btn-manage-course" style="text-decoration: none;">
-                <i class="fa-solid fa-arrow-right-to-bracket"></i>
-                <span>Ingresar al Curso</span>
-              </a>
-            
-          </div>
-        </div>
-
-        <!-- Curso 3: Mercado de Capitales Argentino -->
-        <div class="wf-course-card">
-          <div class="wf-course-card-thumb">
-            <div class="wf-course-thumb-icon"><i class="fa-solid fa-graduation-cap w-8 h-8 text-white"></i></div>
-            <div class="wf-course-pills-row">
-              <span class="wf-pill-tag">Mercado de Capitales</span>
-              <span class="wf-pill-status">Sin cohortes abiertas</span>
-            </div>
-          </div>
-          <div class="wf-course-card-body">
-            <h4 class="wf-course-title">Mercado de Capitales Argentino</h4>
-            <p class="wf-course-desc">Análisis de bonos, acciones y estructura de la CNV.</p>
-            <div class="wf-course-info-row">
-              <span>📄 2 Programas</span>
-              <span class="wf-course-price">$45.000</span>
-            </div>
-          </div>
-          <div class="wf-course-card-footer">
-            
-              <a th:href="@{/academico/aula}" class="wf-btn-manage-course" style="text-decoration: none;">
-                <i class="fa-solid fa-arrow-right-to-bracket"></i>
-                <span>Ingresar al Curso</span>
-              </a>
-            
+            <a th:href="@{'/academico/curso/' + ${insc.cohorte.programa.curso.id}}" class="wf-btn-manage-course" style="text-decoration: none;">
+              <i class="fa-solid fa-arrow-right-to-bracket me-1"></i>
+              <span>Ingresar al Curso</span>
+            </a>
           </div>
         </div>
       </div>
@@ -203,33 +127,6 @@
                 }
             }
         }
-    </script>
-
-    <!-- DSS & Case of Use Console Logger -->
-    <script>
-        (function() {
-            const cuId = 'CU-02';
-            const cuNombre = 'Ver mis cursos';
-            const cuActores = 'Alumno';
-            const cuDss = 'buscarInscripcionesAlumno(nombreCurso, estadoInscripcion) ➔ seleccionarInscripcion(idInscripcion, inscripciones)';
-
-            console.log(
-                '%c[IDÓNEOS ONLINE] %c ' + cuId + ' %c ' + cuNombre + ' ',
-                'color: #C9982F; font-weight: 800; font-size: 13px;',
-                'background: #081426; color: #E4BE6C; padding: 3px 8px; border-radius: 4px; font-weight: 700; font-size: 12px; border: 1px solid #C9982F;',
-                'color: #081426; font-weight: 800; font-size: 13px;'
-            );
-            console.log(
-                '%c👤 Actor(es): %c' + cuActores,
-                'color: #64748B; font-weight: 700; font-size: 11px;',
-                'color: #0F172A; font-weight: 600; font-size: 11px;'
-            );
-            console.log(
-                '%c⚡ DSS: %c' + cuDss,
-                'color: #64748B; font-weight: 700; font-size: 11px;',
-                'color: #0284C7; font-family: monospace; font-size: 11px; font-weight: 600;'
-            );
-        })();
     </script>
 </body>
 </html>

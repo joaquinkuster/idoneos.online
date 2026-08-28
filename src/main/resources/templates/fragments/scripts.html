@@ -5,70 +5,36 @@
     <!-- SweetAlert2 JS CDN -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <!-- Manejador Global Inteligente de Alertas SweetAlert2 -->
+    <!-- Toast lateral delegador si wf_navbar no está presente -->
     <script th:if="${mensaje != null and !#strings.isEmpty(mensaje)}" th:inline="javascript">
         document.addEventListener('DOMContentLoaded', function() {
-            var msg = /*[[${mensaje}]]*/ 'Operación exitosa.';
+            var msg = /*[[${mensaje}]]*/ '';
             var title = '¡Operación Exitosa!';
-            var icon = 'success';
-
             if (msg.toLowerCase().includes('sesión') || msg.toLowerCase().includes('sesion')) {
                 if (msg.toLowerCase().includes('cerrado') || msg.toLowerCase().includes('cerrar')) {
                     title = 'Sesión Finalizada';
-                    icon = 'info';
                 } else if (msg.toLowerCase().includes('bienvenido') || msg.toLowerCase().includes('iniciado') || msg.toLowerCase().includes('ingreso')) {
-                    title = '¡Bienvenido a Idóneos Online!';
-                    icon = 'success';
+                    title = '¡Bienvenido de vuelta!';
                 }
             } else if (msg.toLowerCase().includes('registrad') || msg.toLowerCase().includes('cread') || msg.toLowerCase().includes('guardad')) {
-                title = '¡Registro Guardado!';
+                title = 'Guardado Exitoso';
             } else if (msg.toLowerCase().includes('actualizad') || msg.toLowerCase().includes('modificad') || msg.toLowerCase().includes('editad')) {
-                title = '¡Actualización Exitosa!';
+                title = 'Actualización Exitosa';
             } else if (msg.toLowerCase().includes('eliminad') || msg.toLowerCase().includes('baja') || msg.toLowerCase().includes('anulad')) {
-                title = '¡Eliminado Correctamente!';
-                icon = 'success';
-            } else if (msg.toLowerCase().includes('pago') || msg.toLowerCase().includes('acreditad')) {
-                title = '¡Pago Procesado!';
-            } else if (msg.toLowerCase().includes('certificado')) {
-                title = '¡Certificado Emitido!';
+                title = 'Eliminación Exitosa';
             }
-
-            Swal.fire({
-                title: title,
-                text: msg,
-                icon: icon,
-                confirmButtonText: 'Aceptar',
-                confirmButtonColor: '#081426',
-                background: '#FFFFFF',
-                customClass: {
-                    popup: 'rounded-4 shadow-lg border-0',
-                    confirmButton: 'rounded-pill px-4 fw-bold'
-                }
-            });
+            if (window.showIdoneosToast) {
+                window.showIdoneosToast('success', title, msg);
+            }
         });
     </script>
 
     <script th:if="${error != null and !#strings.isEmpty(error)}" th:inline="javascript">
         document.addEventListener('DOMContentLoaded', function() {
-            var err = /*[[${error}]]*/ 'Ha ocurrido un error.';
-            var title = 'Atención';
-
-            if (err.toLowerCase().includes('contraseña') || err.toLowerCase().includes('credenciales') || err.toLowerCase().includes('correo')) {
-                title = 'Error de Acceso';
+            var err = /*[[${error}]]*/ '';
+            if (window.showIdoneosToast) {
+                window.showIdoneosToast('error', 'Atención', err);
             }
-
-            Swal.fire({
-                title: title,
-                text: err,
-                icon: 'warning',
-                confirmButtonText: 'Entendido',
-                confirmButtonColor: '#081426',
-                background: '#FFFFFF',
-                customClass: {
-                    popup: 'rounded-4 shadow-lg border-0',
-                    confirmButton: 'rounded-pill px-4 fw-bold'
-                }
-            });
         });
     </script>
 </div>

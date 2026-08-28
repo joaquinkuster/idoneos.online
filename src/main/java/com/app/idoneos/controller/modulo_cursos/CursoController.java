@@ -209,6 +209,7 @@ public class CursoController {
         model.addAttribute("usuario", usuario);
         model.addAttribute("inscripciones", inscripciones != null ? inscripciones : Collections.emptyList());
         model.addAttribute("misCursos", misCursos);
+        model.addAttribute("categorias", categoriaService.obtenerTodo());
         model.addAttribute("titulo", "CU-02 - Mis Cursos | Idóneos Online");
 
         return "pages/cursos/cu-02-ver-mis-cursos";
