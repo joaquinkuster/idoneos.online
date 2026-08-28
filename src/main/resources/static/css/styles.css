@@ -1730,3 +1730,37 @@ textarea.wf-input {
     transform: none !important;
     pointer-events: none !important;
 }
+
+/* Botones interactivos de ordenamiento en cabeceras de tabla */
+.table-sort-btn {
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    background: #F1F5F9;
+    border: 1px solid #CBD5E1;
+    color: #64748B;
+    font-size: 10px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    margin-left: 6px;
+    vertical-align: middle;
+}
+
+.table-sort-btn:hover {
+    background: #081426;
+    border-color: #081426;
+    color: #FFFFFF;
+    transform: translateY(-1px);
+}
+
+.table-sort-btn.active-asc,
+.table-sort-btn.active-desc {
+    background: var(--wf-navy-dark, #081426);
+    border-color: var(--wf-navy-dark, #081426);
+    color: var(--wf-gold, #D4A03D);
+    font-weight: 700;
+}

@@ -84,13 +84,33 @@
       <!-- Grilla / Tabla de Cohortes Fiel a Figura 11 -->
       <div class="wf-card" style="background: #FFFFFF;">
         <div class="table-responsive">
-          <table class="table table-hover align-middle mb-0">
+          <table id="tablaCohortes" class="table table-hover align-middle mb-0">
             <thead class="table-light">
               <tr>
-                <th style="font-size: 12px; font-weight: 700; color: #081426;">IDENTIFICADOR / NOMBRE</th>
-                <th style="font-size: 12px; font-weight: 700; color: #081426;">DETALLE / CONTEXTO</th>
-                <th style="font-size: 12px; font-weight: 700; color: #081426;">REGISTRO</th>
-                <th style="font-size: 12px; font-weight: 700; color: #081426;">ESTADO</th>
+                <th style="font-size: 12px; font-weight: 700; color: #081426; white-space: nowrap;">
+                  <span>IDENTIFICADOR / NOMBRE</span>
+                  <button type="button" class="table-sort-btn" onclick="sortTable('tablaCohortes', 0, 'text', this)" title="Ordenar por Nombre de Cohorte / Curso">
+                    <i class="fa-solid fa-arrow-down-a-z"></i>
+                  </button>
+                </th>
+                <th style="font-size: 12px; font-weight: 700; color: #081426; white-space: nowrap;">
+                  <span>DETALLE / CONTEXTO</span>
+                  <button type="button" class="table-sort-btn" onclick="sortTable('tablaCohortes', 1, 'text', this)" title="Ordenar por Categoría / Contexto">
+                    <i class="fa-solid fa-arrow-down-a-z"></i>
+                  </button>
+                </th>
+                <th style="font-size: 12px; font-weight: 700; color: #081426; white-space: nowrap;">
+                  <span>REGISTRO</span>
+                  <button type="button" class="table-sort-btn" onclick="sortTable('tablaCohortes', 2, 'date', this)" title="Ordenar por Fecha de Inscripción">
+                    <i class="fa-solid fa-calendar-days"></i>
+                  </button>
+                </th>
+                <th style="font-size: 12px; font-weight: 700; color: #081426; white-space: nowrap;">
+                  <span>ESTADO</span>
+                  <button type="button" class="table-sort-btn" onclick="sortTable('tablaCohortes', 3, 'text', this)" title="Ordenar por Estado">
+                    <i class="fa-solid fa-filter"></i>
+                  </button>
+                </th>
                 <th style="font-size: 12px; font-weight: 700; color: #081426; text-align: right;">ACCIONES</th>
               </tr>
             </thead>
@@ -398,6 +418,57 @@
                     dropdown.style.display = (dropdown.style.display === 'none' || dropdown.style.display === '') ? 'flex' : 'none';
                 }
             }
+        }
+
+        // ==========================================
+        // ORDENAMIENTO DINÁMICO DE TABLAS
+        // ==========================================
+        function sortTable(tableId, colIndex, type, btn) {
+            const table = document.getElementById(tableId);
+            if (!table) return;
+            const tbody = table.querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            
+            // Determinar dirección
+            const isAsc = !btn.classList.contains('active-asc');
+            
+            // Limpiar otros botones activos en la tabla
+            table.querySelectorAll('.table-sort-btn').forEach(b => {
+                b.classList.remove('active-asc', 'active-desc');
+            });
+
+            if (isAsc) {
+                btn.classList.add('active-asc');
+            } else {
+                btn.classList.add('active-desc');
+            }
+
+            rows.sort((a, b) => {
+                const cellA = a.children[colIndex] ? a.children[colIndex].innerText.trim() : '';
+                const cellB = b.children[colIndex] ? b.children[colIndex].innerText.trim() : '';
+
+                if (type === 'num') {
+                    const numA = parseFloat(cellA.replace(/[^0-9.-]+/g, '')) || 0;
+                    const numB = parseFloat(cellB.replace(/[^0-9.-]+/g, '')) || 0;
+                    return isAsc ? numA - numB : numB - numA;
+                } else if (type === 'date') {
+                    // Interpretar formato yyyy-MM-dd o dd/MM/yyyy
+                    const parseDate = (s) => {
+                        if (s.includes('/')) {
+                            const parts = s.split(' ')[0].split('/');
+                            return new Date(parts[2], parts[1] - 1, parts[0]).getTime() || 0;
+                        }
+                        return new Date(s).getTime() || 0;
+                    };
+                    const dateA = parseDate(cellA);
+                    const dateB = parseDate(cellB);
+                    return isAsc ? dateA - dateB : dateB - dateA;
+                } else {
+                    return isAsc ? cellA.localeCompare(cellB, 'es', { sensitivity: 'base' }) : cellB.localeCompare(cellA, 'es', { sensitivity: 'base' });
+                }
+            });
+
+            rows.forEach(r => tbody.appendChild(r));
         }
 
         // ==========================================
