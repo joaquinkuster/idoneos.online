@@ -106,7 +106,16 @@ public class CategoriaServiceImpl implements CategoriaService {
     @Override
     @Transactional(readOnly = true)
     public List<Categoria> buscarCategoriasConFiltros(String nombre, Boolean baja) {
-        List<Categoria> todas = (baja != null && baja) ? categoriaRepository.findAll() : categoriaRepository.findByBajaFalse();
+        List<Categoria> todas;
+        if (baja != null && !baja) {
+            todas = categoriaRepository.findByBajaFalse();
+        } else if (baja != null && baja) {
+            todas = categoriaRepository.findAll().stream().filter(c -> Boolean.TRUE.equals(c.getBaja())).collect(Collectors.toList());
+        } else {
+            // Por defecto: mostrar todas (activas y dadas de baja) para auditoría
+            todas = categoriaRepository.findAll();
+        }
+
         if (nombre == null || nombre.isBlank()) return todas;
         return todas.stream()
                 .filter(c -> c.getNombre().toLowerCase().contains(nombre.toLowerCase()))

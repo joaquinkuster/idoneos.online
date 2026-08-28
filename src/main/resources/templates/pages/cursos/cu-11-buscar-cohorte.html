@@ -124,7 +124,7 @@
                 </td>
                 <td class="small text-secondary" th:text="${coh.fechaInicioInscripcion != null ? #temporals.format(coh.fechaInicioInscripcion, 'yyyy-MM-dd') : '2026-08-25'}">2026-08-25</td>
                 <td>
-                  <span class="wf-badge" th:classappend="${coh.baja} ? 'status-inactive' : 'status-active'" th:text="${coh.baja} ? 'CANCELADA' : 'ACTIVA'">ACTIVA</span>
+                  <span class="wf-badge" th:classappend="${coh.baja} ? 'status-inactive' : 'status-active'" th:text="${coh.baja} ? 'Cohorte cancelado' : 'ACTIVA'">ACTIVA</span>
                 </td>
                 <td style="text-align: right;">
                   <div class="d-inline-flex align-items-center gap-2" th:if="${usuario != null and usuario.esAdmin() and !coh.baja}">

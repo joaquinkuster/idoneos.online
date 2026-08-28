@@ -128,7 +128,7 @@
                 <td class="small text-muted" th:text="${cat.descripcion}">Instrumentos bursátiles, bonos y acciones...</td>
                 <td class="small text-secondary" th:text="${cat.fechaCreacion != null ? #temporals.format(cat.fechaCreacion, 'dd/MM/yyyy HH:mm') : '28/08/2026 09:00'}">28/08/2026</td>
                 <td>
-                  <span class="wf-badge" th:classappend="${cat.baja} ? 'status-inactive' : 'status-active'" th:text="${cat.baja} ? 'Inactiva' : 'Activa'">Activa</span>
+                  <span class="wf-badge" th:classappend="${cat.baja} ? 'status-inactive' : 'status-active'" th:text="${cat.baja} ? 'Dado de baja' : 'Activa'">Activa</span>
                 </td>
                 <td style="text-align: right;">
                   <div class="d-inline-flex align-items-center gap-1" th:if="${!cat.baja}">

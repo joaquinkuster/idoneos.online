@@ -163,12 +163,15 @@ public class CohorteServiceImpl implements CohorteService {
         if (programaId != null) {
             Programa programa = programaRepository.findById(programaId).orElse(null);
             if (programa == null) return List.of();
-            lista = cohorteRepository.findByProgramaAndBajaFalse(programa);
+            lista = "activas".equalsIgnoreCase(estado) ? cohorteRepository.findByProgramaAndBajaFalse(programa) : cohorteRepository.findByPrograma(programa);
         } else {
-            if ("historicos".equalsIgnoreCase(estado) || "inactivas".equalsIgnoreCase(estado)) {
-                lista = cohorteRepository.findAll();
-            } else {
+            if ("activas".equalsIgnoreCase(estado)) {
                 lista = cohorteRepository.findByBajaFalse();
+            } else if ("canceladas".equalsIgnoreCase(estado) || "historicos".equalsIgnoreCase(estado) || "inactivas".equalsIgnoreCase(estado)) {
+                lista = cohorteRepository.findAll().stream().filter(c -> Boolean.TRUE.equals(c.getBaja())).collect(Collectors.toList());
+            } else {
+                // Por defecto: mostrar todas las cohortes para auditoría histórica
+                lista = cohorteRepository.findAll();
             }
         }
         return lista.stream()
