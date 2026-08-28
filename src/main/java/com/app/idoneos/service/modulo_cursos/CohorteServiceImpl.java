@@ -171,6 +171,8 @@ public class CohorteServiceImpl implements CohorteService {
                 lista = cohorteRepository.findByBajaFalse();
             }
         }
-        return lista;
+        return lista.stream()
+                .sorted((c1, c2) -> Integer.compare(c2.getId(), c1.getId()))
+                .collect(Collectors.toList());
     }
 }

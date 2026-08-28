@@ -52,6 +52,8 @@ public class CursoController {
     @Autowired private com.app.idoneos.repository.modulo_gestion_academica.ProgramaRepository programaRepository;
     @Autowired private com.app.idoneos.repository.modulo_gestion_academica.CronogramaRepository cronogramaRepository;
     @Autowired private CohorteRepository cohorteRepository;
+    @Autowired private CursoRepository cursoRepository;
+    @Autowired private com.app.idoneos.repository.modulo_inscripciones.InscripcionRepository inscripcionRepository;
 
     private Usuario obtenerUsuarioActual(Authentication auth) {
         if (auth == null) return null;
@@ -374,7 +376,16 @@ public class CursoController {
                                    @RequestParam(value = "baja", required = false) Boolean baja,
                                    Model model, Authentication auth) {
         agregarUsuarioAlModelo(model, auth);
-        model.addAttribute("categorias", categoriaService.buscarCategoriasConFiltros(nombre, baja));
+        List<Categoria> categorias = categoriaService.buscarCategoriasConFiltros(nombre, baja);
+        
+        // Mapeo dinámico de cursos asociados activos por categoría para CU-10
+        java.util.Map<Integer, List<Curso>> cursosPorCategoria = new java.util.HashMap<>();
+        for (Categoria cat : categorias) {
+            cursosPorCategoria.put(cat.getId(), cursoRepository.findByCategoriaAndBajaFalseAndPublicadoTrue(cat));
+        }
+
+        model.addAttribute("categorias", categorias);
+        model.addAttribute("cursosPorCategoria", cursosPorCategoria);
         model.addAttribute("nombreBusqueda", nombre);
         model.addAttribute("titulo", "CU-07 - Buscar categoría | Idóneos Online");
         return "pages/cursos/cu-07-buscar-categoria";
@@ -494,7 +505,15 @@ public class CursoController {
                 return cNombre.toLowerCase().contains(q) || pNombre.toLowerCase().contains(q);
             }).toList();
         }
+        
+        // Mapeo dinámico de inscripciones activas por cohorte para CU-14
+        java.util.Map<Integer, List<Inscripcion>> inscripcionesPorCohorte = new java.util.HashMap<>();
+        for (Cohorte coh : cohortes) {
+            inscripcionesPorCohorte.put(coh.getId(), inscripcionRepository.findByCohorteAndBajaFalse(coh));
+        }
+
         model.addAttribute("cohortes", cohortes);
+        model.addAttribute("inscripcionesPorCohorte", inscripcionesPorCohorte);
         model.addAttribute("cursos", cursoService.obtenerTodo());
         model.addAttribute("busqueda", busqueda);
         model.addAttribute("estadoSeleccionado", estado);

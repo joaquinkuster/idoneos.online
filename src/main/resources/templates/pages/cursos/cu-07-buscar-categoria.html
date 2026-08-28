@@ -31,13 +31,13 @@
                     <div>
                         <div class="wf-hero-tag">
                             <i class="fa-solid fa-graduation-cap" style="color: var(--wf-gold);"></i>
-                            <span>PANEL DE ADMINISTRACIÓN</span>
+                            <span th:text="${usuario != null and usuario.esAdmin() ? 'PANEL DE ADMINISTRACIÓN' : 'PANEL DOCENTE'}">PANEL DE GESTIÓN</span>
                         </div>
                         <h2 class="wf-hero-title">Buscar categoría</h2>
                         <p class="wf-hero-desc">Bienvenido/a, <span th:text="${usuario != null ? usuario.nombreCompleto : 'Admin General'}">Admin General</span></p>
                     </div>
                     
-                    <div class="d-flex align-items-center gap-2">
+                    <div class="d-flex align-items-center gap-2" th:if="${usuario != null and usuario.esAdmin()}">
                         <button type="button" class="wf-btn-gold border-0" data-bs-toggle="modal" data-bs-target="#modalNuevaCategoria">
                             <i class="fa-solid fa-plus"></i>
                             <span>Nueva Categoría</span>
@@ -51,17 +51,18 @@
       <!-- Cabecera de Gestión -->
       <div class="d-flex justify-content-between align-items-center mb-3">
         <div>
-          <h3 style="font-size: 19px; font-weight: 800; color: #081426; margin: 0;">Gestión de Categorías</h3>
-          <p class="small text-muted m-0">Consulte, filtre y gestione las categorías temáticas activas del sistema.</p>
+          <h3 style="font-size: 19px; font-weight: 800; color: #081426; margin: 0;">Buscar categoría</h3>
+          <p class="small text-muted m-0">Consulte, filtre y gestione los registros activos del sistema</p>
         </div>
       </div>
 
+      <!-- Barra de Filtros Nativa -->
       <div class="wf-card mb-4" style="background: #FFFFFF;">
         <form th:action="@{/cursos/categorias}" method="get" class="row g-3 align-items-end">
           <div class="col-md-8">
             <label class="wf-label">Buscar categoría por nombre o descripción</label>
             <div class="wf-input-wrap">
-              <input type="text" name="busqueda" th:value="${busqueda}" class="wf-input" placeholder="Ej: Mercado de Capitales, Finanzas, Cripto...">
+              <input type="text" name="nombre" th:value="${nombreBusqueda}" class="wf-input" placeholder="Ej: Mercado de Capitales, Finanzas, Cripto...">
             </div>
           </div>
           <div class="col-md-4">
@@ -95,7 +96,7 @@
                 <td class="small text-muted" th:text="${cat.descripcion}">Instrumentos bursátiles, bonos y acciones...</td>
                 <td class="small text-secondary" th:text="${cat.fechaCreacion != null ? #temporals.format(cat.fechaCreacion, 'dd/MM/yyyy HH:mm') : '28/08/2026 09:00'}">28/08/2026</td>
                 <td>
-                  <span class="wf-badge status-active">Activa</span>
+                  <span class="wf-badge" th:classappend="${cat.baja} ? 'status-inactive' : 'status-active'" th:text="${cat.baja} ? 'Inactiva' : 'Activa'">Activa</span>
                 </td>
                 <td style="text-align: right;">
                   <div class="d-inline-flex align-items-center gap-1">
@@ -106,95 +107,14 @@
                     </button>
                     <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3" 
                             data-bs-toggle="modal" 
-                            th:data-bs-target="'#modalBajaCategoria' + ${cat.id}" title="Dar de baja">
+                            th:data-bs-target="'#modalBajaCategoria' + ${cat.id}" title="Dar de baja categoría">
                       <i class="fa-solid fa-trash me-1"></i> Baja
                     </button>
                   </div>
-
-                  <!-- Modal CU-09: Modificar Categoría (Fiel al Wireframe Figura 9) -->
-                  <div class="modal fade text-start" th:id="'modalEditarCategoria' + ${cat.id}" tabindex="-1" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered modal-lg">
-                      <div class="modal-content" style="border-radius: 12px; border: 1px solid #CBD5E1; box-shadow: 0 20px 50px rgba(8, 20, 38, 0.15); overflow: hidden;">
-                        <div class="p-4 bg-white">
-                          <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
-                            <div>
-                              <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Modificar Categoría</h3>
-                              <p class="small text-muted" style="margin: 3px 0 0;">Actualice la denominación y alcance de la categoría seleccionada.</p>
-                            </div>
-                            <div class="d-flex align-items-center gap-2">
-                              <span class="wf-badge status-active">Modo Edición</span>
-                              <button type="button" class="btn-close ms-2" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                            </div>
-                          </div>
-
-                          <form th:action="@{'/cursos/categorias/' + ${cat.id} + '/editar'}" method="post">
-                            <div class="row g-3">
-                              <div class="col-12">
-                                <label class="wf-label">Nombre de la Categoría</label>
-                                <div class="wf-input-wrap">
-                                  <input type="text" name="nombre" class="wf-input" th:value="${cat.nombre}" required>
-                                </div>
-                              </div>
-                              <div class="col-12">
-                                <label class="wf-label">Descripción Temática y Alcance</label>
-                                <div class="wf-input-wrap">
-                                  <textarea name="descripcion" class="wf-input" rows="4" th:text="${cat.descripcion}" required></textarea>
-                                </div>
-                              </div>
-                            </div>
-                            <div class="d-flex justify-content-end gap-3 mt-4 pt-3 border-top">
-                              <button type="button" class="wf-btn wf-btn-outline" data-bs-dismiss="modal">Cancelar / Volver</button>
-                              <button type="submit" class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Guardar Cambios</button>
-                            </div>
-                          </form>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Modal CU-10: Dar de Baja Categoría (Fiel al Wireframe Figura 10) -->
-                  <div class="modal fade text-start" th:id="'modalBajaCategoria' + ${cat.id}" tabindex="-1" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered" style="max-width: 600px;">
-                      <div class="modal-content" style="border-radius: 12px; border: 1px solid #CBD5E1; box-shadow: 0 20px 50px rgba(8, 20, 38, 0.15); overflow: hidden;">
-                        <div class="p-3 border-bottom d-flex justify-content-between align-items-center" style="background: #F8FAFC;">
-                          <div class="d-flex align-items-center gap-2">
-                            <i class="fa-solid fa-triangle-exclamation text-danger"></i>
-                            <strong style="font-size: 14px; color: #081426;">Dar de baja categoría</strong>
-                          </div>
-                          <span class="wf-badge status-active">Confirmación Requerida</span>
-                        </div>
-                        <div class="p-4 text-center">
-                          <div class="mb-3" style="width: 56px; height: 56px; border-radius: 50%; background: #FEE2E2; color: #DC2626; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 24px;">
-                            <i class="fa-solid fa-triangle-exclamation"></i>
-                          </div>
-                          <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin-bottom: 6px;">¿Confirma la operación de dar de baja categoría?</h3>
-                          <p class="small text-muted mb-4" style="line-height: 1.5;">Esta acción procesará el cambio de estado en la base de datos y afectará la disponibilidad del elemento en el sistema.</p>
-
-                          <div class="p-3 mb-4 bg-light border rounded text-start" style="font-size: 13px;">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                              <span class="text-muted">Registro afectado:</span>
-                              <strong style="color: #081426;" th:text="'Categoría: ' + ${cat.nombre}">Categoría: Mercado de Capitales</strong>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                              <span class="text-muted">Estado actual:</span>
-                              <span class="wf-badge status-active">Activo / Vigente</span>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center">
-                              <span class="text-muted">Validación de dependencias:</span>
-                              <span class="small text-success fw-bold"><i class="fa-solid fa-circle-check me-1"></i> Verificación de cursos activos</span>
-                            </div>
-                          </div>
-
-                          <form th:action="@{'/cursos/categorias/' + ${cat.id} + '/baja'}" method="post" class="d-flex justify-content-end align-items-center gap-3 pt-3 border-top">
-                            <button type="button" class="wf-btn wf-btn-outline" data-bs-dismiss="modal">Cancelar / Volver</button>
-                            <button type="submit" class="wf-btn wf-btn-danger"><i class="fa-solid fa-trash me-1"></i> Confirmar Eliminación</button>
-                          </form>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
                 </td>
+              </tr>
+              <tr th:if="${categorias == null or #lists.isEmpty(categorias)}">
+                <td colspan="6" class="text-center py-4 text-muted">No se encontraron categorías registradas.</td>
               </tr>
             </tbody>
           </table>
@@ -217,8 +137,132 @@
         </div>
     </div>
 
+    <!-- MODALES DE EDICIÓN Y BAJA FUERA DE LA TABLA -->
+    <th:block th:if="${usuario != null and usuario.esAdmin()}">
+      <div th:each="cat : ${categorias}">
+        <!-- Modal CU-09: Modificar Categoría (Fiel al Wireframe Figura 9) -->
+        <div class="modal fade" th:id="'modalEditarCategoria' + ${cat.id}" tabindex="-1" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content" style="border-radius: 12px; border: 1px solid #CBD5E1; box-shadow: 0 20px 50px rgba(8, 20, 38, 0.15); overflow: hidden;">
+              <div class="p-4 bg-white">
+                <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+                  <div>
+                    <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Modificar Categoría</h3>
+                    <p class="small text-muted" style="margin: 3px 0 0;">Actualice la denominación y alcance de la categoría seleccionada.</p>
+                  </div>
+                  <div class="d-flex align-items-center gap-2">
+                    <span class="wf-badge status-active">Modo Edición</span>
+                    <button type="button" class="btn-close ms-2" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                  </div>
+                </div>
+
+                <form th:action="@{'/cursos/categorias/' + ${cat.id} + '/editar'}" method="post">
+                  <div class="row g-3">
+                    <div class="col-12">
+                      <label class="wf-label">Nombre de la Categoría</label>
+                      <div class="wf-input-wrap">
+                        <input type="text" name="nombre" class="wf-input" th:value="${cat.nombre}" required>
+                      </div>
+                    </div>
+                    <div class="col-12">
+                      <label class="wf-label">Descripción Temática y Alcance</label>
+                      <div class="wf-input-wrap">
+                        <textarea name="descripcion" class="wf-input" rows="4" th:text="${cat.descripcion}" required></textarea>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="d-flex justify-content-end gap-3 mt-4 pt-3 border-top">
+                    <button type="button" class="wf-btn wf-btn-outline" data-bs-dismiss="modal">Cancelar / Volver</button>
+                    <button type="submit" class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Guardar Cambios</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modal CU-10: Dar de Baja Categoría (Validación Dinámica y Detallada) -->
+        <div class="modal fade" th:id="'modalBajaCategoria' + ${cat.id}" tabindex="-1" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered" style="max-width: 620px;">
+            <div class="modal-content" style="border-radius: 12px; border: 1px solid #CBD5E1; box-shadow: 0 20px 50px rgba(8, 20, 38, 0.15); overflow: hidden;">
+              <div class="p-3 border-bottom d-flex justify-content-between align-items-center" style="background: #F8FAFC;">
+                <div class="d-flex align-items-center gap-2">
+                  <i class="fa-solid fa-triangle-exclamation text-danger"></i>
+                  <strong style="font-size: 14px; color: #081426;">Dar de baja categoría</strong>
+                </div>
+                <span class="wf-badge status-active">Confirmación Requerida</span>
+              </div>
+              <div class="p-4 text-center">
+                <div class="mb-3" style="width: 56px; height: 56px; border-radius: 50%; background: #FEE2E2; color: #DC2626; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 24px;">
+                  <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+                <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin-bottom: 6px;">¿Confirma la operación de dar de baja categoría?</h3>
+                <p class="small text-muted mb-4" style="line-height: 1.5;">Esta acción procesará el cambio de estado en la base de datos y afectará la disponibilidad del elemento en el sistema.</p>
+
+                <!-- Evaluación de dependencias activas -->
+                <th:block th:with="cursosAsoc=${cursosPorCategoria != null and cursosPorCategoria.containsKey(cat.id) ? cursosPorCategoria.get(cat.id) : null}">
+                  <th:block th:with="tieneCursosActivos=${cursosAsoc != null and !cursosAsoc.isEmpty()}">
+                    
+                    <div class="p-3 mb-4 bg-light border rounded text-start" style="font-size: 13px;">
+                      <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-muted">Registro afectado:</span>
+                        <strong style="color: #081426;" th:text="'Categoría: ' + ${cat.nombre}">Categoría: Mercado de Capitales</strong>
+                      </div>
+                      <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-muted">Estado actual:</span>
+                        <span class="wf-badge status-active">Activo / Vigente</span>
+                      </div>
+                      <div class="d-flex justify-content-between align-items-start">
+                        <span class="text-muted">Validación de dependencias:</span>
+                        <div class="text-end">
+                          <span th:if="${!tieneCursosActivos}" class="small text-success fw-bold">
+                            <i class="fa-solid fa-circle-check me-1"></i> Sin cursos activos asociados (Apto para baja)
+                          </span>
+                          <span th:if="${tieneCursosActivos}" class="small text-danger fw-bold">
+                            <i class="fa-solid fa-circle-xmark me-1"></i> Bloqueado: Posee <span th:text="${cursosAsoc.size()}">2</span> curso(s) activo(s)
+                          </span>
+                        </div>
+                      </div>
+
+                      <!-- Detalle expandido de los cursos dependientes -->
+                      <div th:if="${tieneCursosActivos}" class="mt-3 pt-2 border-top">
+                        <div class="small fw-bold text-danger mb-2">
+                          <i class="fa-solid fa-list-ul me-1"></i> Cursos dependientes activos:
+                        </div>
+                        <ul class="list-unstyled mb-0 small text-secondary">
+                          <li th:each="cur : ${cursosAsoc}" class="mb-1 d-flex align-items-center justify-content-between bg-white p-2 rounded border">
+                            <span>
+                              <i class="fa-solid fa-book-open me-1 text-primary"></i>
+                              <strong th:text="${cur.nombre}">Curso Nombre</strong>
+                            </span>
+                            <span class="badge bg-danger">Activo</span>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+
+                    <form th:action="@{'/cursos/categorias/' + ${cat.id} + '/baja'}" method="post" class="d-flex justify-content-end align-items-center gap-3 pt-3 border-top">
+                      <button type="button" class="wf-btn wf-btn-outline" data-bs-dismiss="modal">Cancelar / Volver</button>
+                      <button type="submit" 
+                              class="wf-btn wf-btn-danger" 
+                              th:disabled="${tieneCursosActivos}" 
+                              th:title="${tieneCursosActivos ? 'No se puede dar de baja porque posee cursos activos asociados' : 'Confirmar baja'}">
+                        <i class="fa-solid fa-trash me-1"></i> Confirmar Baja
+                      </button>
+                    </form>
+
+                  </th:block>
+                </th:block>
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </th:block>
+
     <!-- Modal Dinámico: Registrar Categoría (CU-08 - 100% Fiel al Wireframe Oficial) -->
-    <div class="modal fade" id="modalNuevaCategoria" tabindex="-1" aria-labelledby="modalNuevaCategoriaLabel" aria-hidden="true">
+    <div class="modal fade" id="modalNuevaCategoria" tabindex="-1" aria-labelledby="modalNuevaCategoriaLabel" aria-hidden="true" th:if="${usuario != null and usuario.esAdmin()}">
       <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content" style="border-radius: 12px; border: 1px solid #CBD5E1; box-shadow: 0 20px 50px rgba(8, 20, 38, 0.15); overflow: hidden;">
           <div class="p-4 bg-white">

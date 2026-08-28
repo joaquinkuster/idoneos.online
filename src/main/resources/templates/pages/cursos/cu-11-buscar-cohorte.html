@@ -115,7 +115,7 @@
                     </button>
                     <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3"
                             data-bs-toggle="modal"
-                            th:data-bs-target="'#modalBajaCohorte' + ${coh.id}" title="Dar de baja">
+                            th:data-bs-target="'#modalBajaCohorte' + ${coh.id}" title="Dar de baja cohorte">
                       <i class="fa-solid fa-trash"></i>
                     </button>
                   </div>
@@ -215,7 +215,7 @@
           </div>
         </div>
 
-        <!-- Modal CU-14: Dar de Baja Cohorte (100% Fiel a Figura 14) -->
+        <!-- Modal CU-14: Dar de Baja Cohorte (Validación Dinámica y Detallada) -->
         <div class="modal fade" th:id="'modalBajaCohorte' + ${coh.id}" tabindex="-1" aria-hidden="true">
           <div class="modal-dialog modal-dialog-centered" style="max-width: 620px;">
             <div class="modal-content" style="border-radius: 12px; border: 1px solid #CBD5E1; box-shadow: 0 20px 50px rgba(8, 20, 38, 0.15); overflow: hidden;">
@@ -234,25 +234,62 @@
                 <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin-bottom: 6px;">¿Confirma la operación de dar de baja cohorte?</h3>
                 <p class="small text-muted mb-4" style="line-height: 1.5;">Esta acción procesará el cambio de estado en la base de datos y afectará la disponibilidad del elemento en el sistema.</p>
 
-                <div class="p-3 mb-4 bg-light border rounded text-start" style="font-size: 13px;">
-                  <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span class="text-muted">Registro afectado:</span>
-                    <strong style="color: #081426;" th:text="${coh.programa != null and coh.programa.curso != null ? 'Cohorte #' + coh.id + ' — ' + coh.programa.curso.nombre : 'Cohorte #' + coh.id}">Cohorte #01</strong>
-                  </div>
-                  <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span class="text-muted">Estado actual:</span>
-                    <span class="wf-badge status-active">Activo / Vigente</span>
-                  </div>
-                  <div class="d-flex justify-content-between align-items-center">
-                    <span class="text-muted">Validación de dependencias:</span>
-                    <span class="small text-success fw-bold"><i class="fa-solid fa-circle-check me-1"></i> Sin dependencias bloqueantes</span>
-                  </div>
-                </div>
+                <!-- Evaluación de alumnos inscriptos activos -->
+                <th:block th:with="inscriptos=${inscripcionesPorCohorte != null and inscripcionesPorCohorte.containsKey(coh.id) ? inscripcionesPorCohorte.get(coh.id) : null}">
+                  <th:block th:with="tieneInscriptos=${inscriptos != null and !inscriptos.isEmpty()}">
 
-                <form th:action="@{'/cursos/cohortes/' + ${coh.id} + '/baja'}" method="post" class="d-flex justify-content-end align-items-center gap-3 pt-3 border-top">
-                  <button type="button" class="wf-btn wf-btn-outline" data-bs-dismiss="modal">Cancelar / Volver</button>
-                  <button type="submit" class="wf-btn wf-btn-danger"><i class="fa-solid fa-trash me-1"></i> Confirmar Cancelación</button>
-                </form>
+                    <div class="p-3 mb-4 bg-light border rounded text-start" style="font-size: 13px;">
+                      <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-muted">Registro afectado:</span>
+                        <strong style="color: #081426;" th:text="${coh.programa != null and coh.programa.curso != null ? 'Cohorte #' + coh.id + ' — ' + coh.programa.curso.nombre : 'Cohorte #' + coh.id}">Cohorte #01</strong>
+                      </div>
+                      <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-muted">Estado actual:</span>
+                        <span class="wf-badge status-active">Activo / Vigente</span>
+                      </div>
+                      <div class="d-flex justify-content-between align-items-start">
+                        <span class="text-muted">Validación de dependencias:</span>
+                        <div class="text-end">
+                          <span th:if="${!tieneInscriptos}" class="small text-success fw-bold">
+                            <i class="fa-solid fa-circle-check me-1"></i> Sin inscripciones activas (Apto para baja)
+                          </span>
+                          <span th:if="${tieneInscriptos}" class="small text-danger fw-bold">
+                            <i class="fa-solid fa-circle-xmark me-1"></i> Bloqueado: Posee <span th:text="${inscriptos.size()}">1</span> alumno(s) inscripto(s)
+                          </span>
+                        </div>
+                      </div>
+
+                      <!-- Detalle expandido de los alumnos inscriptos -->
+                      <div th:if="${tieneInscriptos}" class="mt-3 pt-2 border-top">
+                        <div class="small fw-bold text-danger mb-2">
+                          <i class="fa-solid fa-users me-1"></i> Alumnos inscriptos activos en la cohorte:
+                        </div>
+                        <ul class="list-unstyled mb-0 small text-secondary">
+                          <li th:each="ins : ${inscriptos}" class="mb-1 d-flex align-items-center justify-content-between bg-white p-2 rounded border">
+                            <div>
+                              <i class="fa-solid fa-user-graduate me-1 text-primary"></i>
+                              <strong th:text="${ins.nombreAlumno != null ? ins.nombreAlumno : (ins.alumno != null and ins.alumno.usuario != null ? ins.alumno.usuario.nombreCompleto : 'Alumno')}">Juan Pérez</strong>
+                              <span class="text-muted" th:text="${' (DNI: ' + (ins.dniAlumno != null ? ins.dniAlumno : (ins.alumno != null and ins.alumno.usuario != null ? ins.alumno.usuario.dni : '')) + ')'}">(DNI: 12345678)</span>
+                            </div>
+                            <span class="small text-muted" th:text="${#temporals.format(ins.fecha, 'dd/MM/yyyy')}">25/08/2026</span>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+
+                    <form th:action="@{'/cursos/cohortes/' + ${coh.id} + '/baja'}" method="post" class="d-flex justify-content-end align-items-center gap-3 pt-3 border-top">
+                      <button type="button" class="wf-btn wf-btn-outline" data-bs-dismiss="modal">Cancelar / Volver</button>
+                      <button type="submit" 
+                              class="wf-btn wf-btn-danger" 
+                              th:disabled="${tieneInscriptos}" 
+                              th:title="${tieneInscriptos ? 'No se puede cancelar porque posee alumnos inscriptos activos' : 'Confirmar cancelación'}">
+                        <i class="fa-solid fa-trash me-1"></i> Confirmar Cancelación
+                      </button>
+                    </form>
+
+                  </th:block>
+                </th:block>
+
               </div>
             </div>
           </div>
