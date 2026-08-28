@@ -51,6 +51,7 @@
       <!-- Barra de Filtros -->
       <div class="wf-card mb-4" style="background: #FFFFFF;">
         <form th:action="@{/cursos}" method="get" class="row align-items-end g-3">
+          <input type="hidden" name="ordenBajasPrimero" th:value="${ordenBajasPrimero != null and ordenBajasPrimero ? 'true' : 'false'}">
           <div class="col-md-5">
             <label class="wf-label">Buscar cursos por nombre o descripción</label>
             <div class="wf-input-wrap">
@@ -64,10 +65,17 @@
               <option th:each="cat : ${categorias}" th:value="${cat.id}" th:text="${cat.nombre}" th:selected="${categoriaSeleccionada != null and categoriaSeleccionada == cat.id}">Categoría</option>
             </select>
           </div>
-          <div class="col-md-3">
-            <button type="submit" class="wf-btn wf-btn-primary w-100">
+          <div class="col-md-3 d-flex gap-2">
+            <button type="submit" class="wf-btn wf-btn-primary flex-grow-1" style="height: 38px;">
               <i class="fa-solid fa-magnifying-glass me-1"></i> Filtrar
             </button>
+            <a th:href="@{/cursos(busqueda=${busqueda}, categoriaId=${categoriaSeleccionada}, ordenBajasPrimero=${ordenBajasPrimero != null and ordenBajasPrimero ? 'false' : 'true'})}" 
+               class="btn d-inline-flex align-items-center justify-content-center"
+               th:classappend="${ordenBajasPrimero != null and ordenBajasPrimero ? 'btn-dark text-warning border-warning' : 'btn-outline-secondary border'}"
+               style="height: 38px; width: 42px; border-radius: 8px; font-size: 14px;"
+               th:title="${ordenBajasPrimero != null and ordenBajasPrimero ? 'Viendo cursos dados de baja primero (Clic para orden por defecto)' : 'Ordenar cursos dados de baja primero'}">
+              <i class="fa-solid" th:classappend="${ordenBajasPrimero != null and ordenBajasPrimero ? 'fa-arrow-down-wide-short' : 'fa-arrow-up-wide-short'}"></i>
+            </a>
           </div>
         </form>
       </div>
@@ -128,7 +136,7 @@
 
       <!-- Paginación de Cursos -->
       <div class="d-flex justify-content-center align-items-center gap-2 mt-4 pt-3" th:if="${totalPages != null and totalPages > 1}">
-        <a th:href="@{/cursos(page=${currentPage - 1}, busqueda=${busqueda}, categoriaId=${categoriaSeleccionada})}" 
+        <a th:href="@{/cursos(page=${currentPage - 1}, busqueda=${busqueda}, categoriaId=${categoriaSeleccionada}, ordenBajasPrimero=${ordenBajasPrimero})}" 
            class="btn btn-sm btn-outline-secondary rounded-pill px-3"
            th:classappend="${currentPage == 0} ? ' disabled' : ''">
           <i class="fa-solid fa-chevron-left me-1"></i> Anterior
@@ -136,7 +144,7 @@
 
         <div class="d-inline-flex gap-1">
           <span th:each="pageNum : ${#numbers.sequence(0, totalPages - 1)}">
-            <a th:href="@{/cursos(page=${pageNum}, busqueda=${busqueda}, categoriaId=${categoriaSeleccionada})}" 
+            <a th:href="@{/cursos(page=${pageNum}, busqueda=${busqueda}, categoriaId=${categoriaSeleccionada}, ordenBajasPrimero=${ordenBajasPrimero})}" 
                th:text="${pageNum + 1}"
                class="btn btn-sm rounded-circle"
                th:classappend="${pageNum == currentPage} ? ' btn-primary fw-bold' : ' btn-outline-light text-dark'"
@@ -144,7 +152,7 @@
           </span>
         </div>
 
-        <a th:href="@{/cursos(page=${currentPage + 1}, busqueda=${busqueda}, categoriaId=${categoriaSeleccionada})}" 
+        <a th:href="@{/cursos(page=${currentPage + 1}, busqueda=${busqueda}, categoriaId=${categoriaSeleccionada}, ordenBajasPrimero=${ordenBajasPrimero})}" 
            class="btn btn-sm btn-outline-secondary rounded-pill px-3"
            th:classappend="${currentPage >= totalPages - 1} ? ' disabled' : ''">
           Siguiente <i class="fa-solid fa-chevron-right ms-1"></i>

@@ -47,4 +47,6 @@ public interface CursoService {
     List<Curso> buscarCursosPublicadosConFiltros(String nombre, Integer categoriaId, Integer modalidadId);
 
     List<Curso> buscarCursosAdminConFiltros(String busqueda, Integer categoriaId, Integer nivelId, Integer docenteId, Boolean publicado);
+
+    List<Curso> buscarCursosAdminConFiltros(String busqueda, Integer categoriaId, Integer nivelId, Integer docenteId, Boolean publicado, Boolean ordenBajasPrimero);
 }

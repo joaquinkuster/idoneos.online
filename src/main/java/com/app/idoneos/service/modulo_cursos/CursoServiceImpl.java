@@ -67,7 +67,15 @@ public class CursoServiceImpl implements CursoService {
     @Override
     @Transactional(readOnly = true)
     public List<Curso> buscarCursosAdminConFiltros(String busqueda, Integer categoriaId, Integer nivelId, Integer docenteId, Boolean publicado) {
+        return buscarCursosAdminConFiltros(busqueda, categoriaId, nivelId, docenteId, publicado, false);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Curso> buscarCursosAdminConFiltros(String busqueda, Integer categoriaId, Integer nivelId, Integer docenteId, Boolean publicado, Boolean ordenBajasPrimero) {
         List<Curso> lista = cursoRepository.findAll();
+        boolean bajasPrimero = Boolean.TRUE.equals(ordenBajasPrimero);
+
         return lista.stream()
                 .filter(c -> busqueda == null || busqueda.isBlank() ||
                         c.getNombre().toLowerCase().contains(busqueda.toLowerCase()) ||
@@ -76,7 +84,18 @@ public class CursoServiceImpl implements CursoService {
                 .filter(c -> nivelId == null || (c.getNivel() != null && c.getNivel().getId() == nivelId))
                 .filter(c -> docenteId == null || (c.getDocente() != null && c.getDocente().getId() == docenteId))
                 .filter(c -> publicado == null || Boolean.valueOf(c.getPublicado()).equals(publicado))
-                .sorted((c1, c2) -> Integer.compare(c2.getId(), c1.getId()))
+                .sorted((c1, c2) -> {
+                    boolean b1 = Boolean.TRUE.equals(c1.getBaja());
+                    boolean b2 = Boolean.TRUE.equals(c2.getBaja());
+                    if (bajasPrimero) {
+                        // Si bajasPrimero es true: los dados de baja van primero
+                        if (b1 != b2) return b1 ? -1 : 1;
+                    } else {
+                        // Por defecto: los activos van primero y los dados de baja van al final de la cola
+                        if (b1 != b2) return b1 ? 1 : -1;
+                    }
+                    return Integer.compare(c2.getId(), c1.getId());
+                })
                 .collect(Collectors.toList());
     }
 

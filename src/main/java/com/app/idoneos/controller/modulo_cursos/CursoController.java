@@ -86,6 +86,7 @@ public class CursoController {
                                @RequestParam(value = "nivelId", required = false) Integer nivelId,
                                @RequestParam(value = "docenteId", required = false) Integer docenteId,
                                @RequestParam(value = "modalidadId", required = false) Integer modalidadId,
+                               @RequestParam(value = "ordenBajasPrimero", defaultValue = "false") Boolean ordenBajasPrimero,
                                @RequestParam(value = "page", defaultValue = "0") Integer page,
                                Model model, Authentication auth) {
         agregarUsuarioAlModelo(model, auth);
@@ -97,7 +98,7 @@ public class CursoController {
                 // Restricción por rol docente titular / ayudante
                 cursos = cursoService.buscarCursosPorDocente(u.getDocente().getId());
             } else {
-                cursos = cursoService.buscarCursosAdminConFiltros(busqueda, categoriaId, nivelId, docenteId, null);
+                cursos = cursoService.buscarCursosAdminConFiltros(busqueda, categoriaId, nivelId, docenteId, null, ordenBajasPrimero);
             }
         } else {
             cursos = cursoService.buscarCursosPublicadosConFiltros(busqueda, categoriaId, modalidadId);
@@ -135,6 +136,7 @@ public class CursoController {
         model.addAttribute("docentes", docenteRepository.findActivos());
         model.addAttribute("busqueda", busqueda);
         model.addAttribute("categoriaSeleccionada", categoriaId);
+        model.addAttribute("ordenBajasPrimero", ordenBajasPrimero);
         model.addAttribute("titulo", "CU-01 - Buscar curso | Idóneos Online");
 
         return "pages/cursos/cu-01-buscar-curso";
