@@ -1792,3 +1792,43 @@ textarea.wf-input {
     color: #64748B !important;
     border: 1px solid #CBD5E1 !important;
 }
+
+/* ==========================================================================
+   FORM CONTROLS Y ALINEACIÓN DE FILTROS DEL SISTEMA
+   ========================================================================== */
+.wf-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--wf-navy-dark, #081426);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+}
+
+.wf-input-wrap {
+    position: relative;
+    width: 100%;
+}
+
+.wf-input {
+    width: 100%;
+    height: 42px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: 1.5px solid #CBD5E1;
+    background: #FFFFFF;
+    color: #081426;
+    font-size: 13px;
+    font-weight: 500;
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+}
+
+.wf-input:focus {
+    border-color: var(--wf-navy-dark, #081426);
+    box-shadow: 0 0 0 3px rgba(8, 20, 38, 0.08);
+}

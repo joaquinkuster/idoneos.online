@@ -60,22 +60,26 @@
           </div>
           <div class="col-md-4">
             <label class="wf-label">Filtrar por Categoría</label>
-            <select name="categoriaId" class="wf-input">
-              <option value="">Todas las categorías</option>
-              <option th:each="cat : ${categorias}" th:value="${cat.id}" th:text="${cat.nombre}" th:selected="${categoriaSeleccionada != null and categoriaSeleccionada == cat.id}">Categoría</option>
-            </select>
+            <div class="wf-input-wrap">
+              <select name="categoriaId" class="wf-input">
+                <option value="">Todas las categorías</option>
+                <option th:each="cat : ${categorias}" th:value="${cat.id}" th:text="${cat.nombre}" th:selected="${categoriaSeleccionada != null and categoriaSeleccionada == cat.id}">Categoría</option>
+              </select>
+            </div>
           </div>
-          <div class="col-md-3 d-flex gap-2">
-            <button type="submit" class="wf-btn wf-btn-primary flex-grow-1" style="height: 38px;">
-              <i class="fa-solid fa-magnifying-glass me-1"></i> Filtrar
-            </button>
-            <a th:href="@{/cursos(busqueda=${busqueda}, categoriaId=${categoriaSeleccionada}, ordenBajasPrimero=${ordenBajasPrimero != null and ordenBajasPrimero ? 'false' : 'true'})}" 
-               class="btn d-inline-flex align-items-center justify-content-center"
-               th:classappend="${ordenBajasPrimero != null and ordenBajasPrimero ? 'btn-dark text-warning border-warning' : 'btn-outline-secondary border'}"
-               style="height: 38px; width: 42px; border-radius: 8px; font-size: 14px;"
-               th:title="${ordenBajasPrimero != null and ordenBajasPrimero ? 'Viendo cursos dados de baja primero (Clic para orden por defecto)' : 'Ordenar cursos dados de baja primero'}">
-              <i class="fa-solid" th:classappend="${ordenBajasPrimero != null and ordenBajasPrimero ? 'fa-arrow-down-wide-short' : 'fa-arrow-up-wide-short'}"></i>
-            </a>
+          <div class="col-md-3">
+            <div class="d-flex align-items-center gap-2">
+              <button type="submit" class="wf-btn wf-btn-primary flex-grow-1" style="height: 42px; border-radius: 8px;">
+                <i class="fa-solid fa-magnifying-glass me-1"></i> Filtrar
+              </button>
+              <a th:href="@{/cursos(busqueda=${busqueda}, categoriaId=${categoriaSeleccionada}, ordenBajasPrimero=${ordenBajasPrimero != null and ordenBajasPrimero ? 'false' : 'true'})}" 
+                 class="btn d-inline-flex align-items-center justify-content-center"
+                 th:classappend="${ordenBajasPrimero != null and ordenBajasPrimero ? 'btn-dark text-warning border-dark' : 'btn-outline-secondary border'}"
+                 style="height: 42px; width: 44px; min-width: 44px; border-radius: 8px; font-size: 15px;"
+                 th:title="${ordenBajasPrimero != null and ordenBajasPrimero ? 'Viendo cursos dados de baja primero (Clic para orden por defecto)' : 'Ordenar cursos dados de baja primero'}">
+                <i class="fa-solid" th:classappend="${ordenBajasPrimero != null and ordenBajasPrimero ? 'fa-arrow-down-wide-short' : 'fa-arrow-up-wide-short'}"></i>
+              </a>
+            </div>
           </div>
         </form>
       </div>
