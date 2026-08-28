@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${titulo != null ? titulo : 'Resultado de Evaluación | Idóneos Online'}">Resultado de Evaluación | Idóneos Online</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome 6 Pro / Solid Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;800&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Estilos del Sistema Centralizados -->
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body class="wf-canvas-bg">
+
+    <div class="cu-page-container">
+        <div class="screen-frame">
+
+            <!-- Top Navbar Oficial Dinámica -->
+            <div th:replace="~{fragments/wf_navbar :: wf-top-navbar}"></div>
+
+            <!-- Hero Banner Contextual Superior (Navy) -->
+            <div class="wf-hero-banner">
+                <div>
+                    <div class="wf-hero-tag">
+                        <i class="fa-solid fa-square-poll-vertical" style="color: var(--wf-gold);"></i>
+                        <span>RESULTADOS DE EVALUACIÓN</span>
+                    </div>
+                    <h2 class="wf-hero-title" th:text="${intento.autoevaluacion != null ? intento.autoevaluacion.nombre : 'Autoevaluación'}">Autoevaluación</h2>
+                    <p class="wf-hero-desc">Revisión detallada de calificación y respuestas registradas.</p>
+                </div>
+            </div>
+
+            <div class="wf-body">
+                <div class="wf-main-content">
+                    <div class="wf-card" style="max-width: 850px; margin: 0 auto;">
+                        
+                        <!-- CARD DE CALIFICACIÓN -->
+                        <div class="text-center py-4 border-bottom mb-4">
+                            <div th:if="${aprobado}" class="mb-3">
+                                <span class="badge rounded-circle p-3" style="background-color: #d1e7dd; color: #0f5132; font-size: 2.5rem;">
+                                    <i class="fa-solid fa-trophy"></i>
+                                </span>
+                                <h3 class="fw-bold text-success mt-2 mb-1">¡Felicitaciones! Aprobaste la Evaluación</h3>
+                                <p class="text-muted">Has completado satisfactoriamente los objetivos pedagógicos de esta unidad.</p>
+                            </div>
+                            
+                            <div th:unless="${aprobado}" class="mb-3">
+                                <span class="badge rounded-circle p-3" style="background-color: #f8d7da; color: #842029; font-size: 2.5rem;">
+                                    <i class="fa-solid fa-circle-xmark"></i>
+                                </span>
+                                <h3 class="fw-bold text-danger mt-2 mb-1">Evaluación No Aprobada</h3>
+                                <p class="text-muted">Se requiere el 100% de aciertos para completar la unidad. Podés repasar el material y volver a intentarlo.</p>
+                            </div>
+
+                            <div class="d-inline-flex align-items-baseline gap-2 p-3 bg-light rounded-3 border">
+                                <span class="fs-6 text-muted">Calificación Obtenida:</span>
+                                <span class="display-6 fw-bold" th:classappend="${aprobado ? 'text-success' : 'text-danger'}" 
+                                      th:text="${#numbers.formatDecimal(intento.nota, 1, 0)} + '%'">100%</span>
+                            </div>
+                        </div>
+
+                        <!-- MENSAJE DE DIPLOMA EMITIDO SI ES APROBADO Y EXISTE CERTIFICADO -->
+                        <div th:if="${intento.inscripcion != null && intento.inscripcion.numeroCertificado != null}" 
+                             class="alert alert-success d-flex align-items-center justify-content-between p-3 mb-4">
+                            <div class="d-flex align-items-center gap-3">
+                                <i class="fa-solid fa-graduation-cap fs-2 text-success"></i>
+                                <div>
+                                    <strong class="d-block">¡Completaste todo el curso! Tu certificado digital ya fue emitido.</strong>
+                                    <small class="text-muted" th:text="'Certificado oficial N° ' + ${intento.inscripcion.numeroCertificado}">CERT-2026-000001</small>
+                                </div>
+                            </div>
+                            <a th:href="@{'/certificado/descargar/' + ${intento.inscripcion.id}}" class="btn btn-sm btn-success">
+                                <i class="fa-solid fa-file-pdf me-1"></i>Descargar PDF
+                            </a>
+                        </div>
+
+                        <!-- DETALLE DE RESPUESTAS REGISTRADAS -->
+                        <h5 class="fw-bold text-dark mb-3">
+                            <i class="fa-solid fa-list-check me-2 text-primary"></i>Respuestas Registradas (<span th:text="${#lists.size(respuestas)}">4</span>)
+                        </h5>
+
+                        <div class="d-flex flex-column gap-3 mb-4">
+                            <div th:each="r, iter : ${respuestas}" class="p-3 rounded-3 border"
+                                 th:classappend="${r.opcionRespuesta != null && r.opcionRespuesta.esCorrecta ? 'bg-success-subtle border-success' : 'bg-danger-subtle border-danger'}">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <strong class="text-dark" th:text="'Pregunta ' + ${iter.count} + ': ' + (${r.opcionRespuesta != null && r.opcionRespuesta.pregunta != null ? r.opcionRespuesta.pregunta.enunciado : 'Enunciado'})">
+                                        ¿Cuál es la tasa de interés?
+                                    </strong>
+                                    <span class="badge" th:classappend="${r.opcionRespuesta != null && r.opcionRespuesta.esCorrecta ? 'bg-success text-white' : 'bg-danger text-white'}"
+                                          th:text="${r.opcionRespuesta != null && r.opcionRespuesta.esCorrecta ? 'Correcta' : 'Incorrecta'}">
+                                        Correcta
+                                    </span>
+                                </div>
+                                <p class="mb-0 small" th:classappend="${r.opcionRespuesta != null && r.opcionRespuesta.esCorrecta ? 'text-success' : 'text-danger'}">
+                                    <i class="fa-solid me-1" th:classappend="${r.opcionRespuesta != null && r.opcionRespuesta.esCorrecta ? 'fa-check' : 'fa-xmark'}"></i>
+                                    Tu respuesta: <span class="fw-semibold" th:text="${r.opcionRespuesta != null ? r.opcionRespuesta.texto : 'Opción elegida'}">Opción A</span>
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- BOTONES DE ACCIÓN -->
+                        <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                            <a th:href="@{/cursos}" class="btn btn-outline-secondary">
+                                <i class="fa-solid fa-arrow-left me-2"></i>Mis Cursos
+                            </a>
+                            <div class="d-flex gap-2">
+                                <a th:if="${!aprobado}" th:href="@{'/evaluaciones/autoevaluaciones/' + ${intento.autoevaluacion.id} + '/rendir'}" class="btn btn-warning">
+                                    <i class="fa-solid fa-rotate-right me-2"></i>Reintentar Examen
+                                </a>
+                                <a th:href="@{'/evaluaciones/intentos?autoevaluacionId=' + ${intento.autoevaluacion.id}}" class="btn btn-primary">
+                                    <i class="fa-solid fa-clock-rotate-left me-2"></i>Historial de Intentos
+                                </a>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

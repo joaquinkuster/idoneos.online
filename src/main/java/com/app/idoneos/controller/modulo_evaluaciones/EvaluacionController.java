@@ -4,6 +4,7 @@ import com.app.idoneos.model.*;
 import com.app.idoneos.repository.modulo_cursos.*;
 import com.app.idoneos.repository.modulo_evaluaciones.*;
 import com.app.idoneos.repository.modulo_gestion_academica.*;
+import com.app.idoneos.repository.modulo_inscripciones.*;
 import com.app.idoneos.service.modulo_cursos.*;
 import com.app.idoneos.service.modulo_evaluaciones.*;
 import com.app.idoneos.service.modulo_gestion_academica.*;
@@ -47,6 +48,8 @@ public class EvaluacionController {
     @Autowired private OpcionRespuestaRepository opcionRespuestaRepository;
     @Autowired private AutoevaluacionRepository autoevaluacionRepository;
     @Autowired private IntentoAutoevaluacionRepository intentoRepository;
+    @Autowired private InscripcionRepository inscripcionRepository;
+    @Autowired private RespuestaIntentoRepository respuestaIntentoRepository;
 
     private void agregarUsuarioAlModelo(Model model, Authentication auth) {
         if (auth != null && auth.getPrincipal() instanceof Usuario) {
@@ -106,25 +109,23 @@ public class EvaluacionController {
 
     @GetMapping("/pools/{id}/editar")
     public String modificarPoolForm(@PathVariable Integer id, Model model, Authentication auth) {
-        Optional<Pool> pOpt = poolRepository.findById(id);
-        if (pOpt.isEmpty()) return "redirect:/evaluaciones/pools";
+        Optional<Pool> poolOpt = evaluacionService.buscarPoolPorId(id);
+        if (poolOpt.isEmpty()) return "redirect:/evaluaciones/pools";
 
         agregarUsuarioAlModelo(model, auth);
-        model.addAttribute("pool", pOpt.get());
+        model.addAttribute("pool", poolOpt.get());
         model.addAttribute("titulo", "CU-55 - Modificar pool | Idóneos Online");
         return "pages/evaluaciones/cu-55-modificar-pool";
     }
 
     @PostMapping("/pools/{id}/editar")
-    public String actualizarPool(@PathVariable Integer id,
-                                 @RequestParam String nombre,
-                                 RedirectAttributes ra) {
+    public String actualizarPool(@PathVariable Integer id, @RequestParam String nombre, RedirectAttributes ra) {
         try {
-            Pool p = poolRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Pool no encontrado"));
-            p.setNombre(nombre);
-            poolRepository.save(p);
-            ra.addFlashAttribute("mensaje", "Pool modificado exitosamente.");
-            return "redirect:/evaluaciones/pools?unidadId=" + p.getUnidad().getId();
+            Pool pool = evaluacionService.buscarPoolPorId(id).orElseThrow(() -> new IllegalArgumentException("Pool no encontrado"));
+            pool.setNombre(nombre);
+            evaluacionService.guardarPool(pool);
+            ra.addFlashAttribute("mensaje", "Pool modificado correctamente.");
+            return "redirect:/evaluaciones/pools?unidadId=" + pool.getUnidad().getId();
         } catch (Exception e) {
             ra.addFlashAttribute("error", e.getMessage());
             return "redirect:/evaluaciones/pools/" + id + "/editar";
@@ -133,11 +134,11 @@ public class EvaluacionController {
 
     @GetMapping("/pools/{id}/baja")
     public String darDeBajaPoolView(@PathVariable Integer id, Model model, Authentication auth) {
-        Optional<Pool> pOpt = poolRepository.findById(id);
-        if (pOpt.isEmpty()) return "redirect:/evaluaciones/pools";
+        Optional<Pool> poolOpt = evaluacionService.buscarPoolPorId(id);
+        if (poolOpt.isEmpty()) return "redirect:/evaluaciones/pools";
 
         agregarUsuarioAlModelo(model, auth);
-        model.addAttribute("pool", pOpt.get());
+        model.addAttribute("pool", poolOpt.get());
         model.addAttribute("titulo", "CU-56 - Dar de baja pool | Idóneos Online");
         return "pages/evaluaciones/cu-56-dar-de-baja-pool";
     }
@@ -145,11 +146,10 @@ public class EvaluacionController {
     @PostMapping("/pools/{id}/baja")
     public String eliminarPool(@PathVariable Integer id, RedirectAttributes ra) {
         try {
-            Pool p = poolRepository.findById(id).orElse(null);
-            Integer uId = (p != null && p.getUnidad() != null) ? p.getUnidad().getId() : null;
-            if (p != null) {
-                p.setBaja(true);
-                poolRepository.save(p);
+            Pool pool = evaluacionService.buscarPoolPorId(id).orElse(null);
+            Integer uId = (pool != null && pool.getUnidad() != null) ? pool.getUnidad().getId() : null;
+            if (pool != null) {
+                evaluacionService.borrarPool(pool);
             }
             ra.addFlashAttribute("mensaje", "Pool dado de baja correctamente.");
             return uId != null ? "redirect:/evaluaciones/pools?unidadId=" + uId : "redirect:/evaluaciones/pools";
@@ -170,7 +170,7 @@ public class EvaluacionController {
         List<Unidad> unidades = unidadService.obtenerTodo();
         Unidad unidad = (unidadId != null) ? unidadService.buscarPorId(unidadId).orElse(null) : (unidades.isEmpty() ? null : unidades.get(0));
 
-        List<Autoevaluacion> autoevaluaciones = (unidad != null) ? evaluacionService.buscarAutoevaluacionesPorUnidad(unidad) : autoevaluacionRepository.findAll();
+        List<Autoevaluacion> autoevaluaciones = (unidad != null) ? evaluacionService.buscarAutoevaluacionesPorUnidad(unidad) : List.of();
         model.addAttribute("unidades", unidades);
         model.addAttribute("unidadSeleccionada", unidad);
         model.addAttribute("autoevaluaciones", autoevaluaciones);
@@ -332,6 +332,15 @@ public class EvaluacionController {
         Autoevaluacion ae = aeOpt.get();
         IntentoAutoevaluacion intento = new IntentoAutoevaluacion(ae);
 
+        // Asociar la inscripción activa del usuario logueado si es Alumno
+        if (auth != null && auth.getPrincipal() instanceof Usuario) {
+            Usuario usuario = (Usuario) auth.getPrincipal();
+            List<Inscripcion> inscripciones = inscripcionRepository.findByUsuarioAndBajaFalse(usuario);
+            if (!inscripciones.isEmpty()) {
+                intento.setInscripcion(inscripciones.get(0));
+            }
+        }
+
         Map<Integer, Integer> respuestas = new HashMap<>();
         for (Map.Entry<String, String> entry : form.entrySet()) {
             if (entry.getKey().startsWith("pregunta_")) {
@@ -344,8 +353,27 @@ public class EvaluacionController {
         }
 
         IntentoAutoevaluacion resultado = intentoService.corregirYGuardar(intento, respuestas);
-        ra.addFlashAttribute("mensaje", "Examen finalizado. Calificación obtenida: " + resultado.getNota() + "%");
-        return "redirect:/evaluaciones/intentos?autoevaluacionId=" + id;
+        return "redirect:/evaluaciones/intento/" + resultado.getId() + "/resultado";
+    }
+
+    /**
+     * CU-63 — Pantalla de resultado del intento de autoevaluación con nota y desglose de respuestas.
+     */
+    @GetMapping("/intento/{intentoId}/resultado")
+    public String verResultadoIntento(@PathVariable Integer intentoId, Model model, Authentication auth) {
+        Optional<IntentoAutoevaluacion> iOpt = intentoRepository.findById(intentoId);
+        if (iOpt.isEmpty()) return "redirect:/evaluaciones/intentos";
+
+        agregarUsuarioAlModelo(model, auth);
+        IntentoAutoevaluacion intento = iOpt.get();
+        List<RespuestaIntento> respuestas = respuestaIntentoRepository.findByIntentoAutoevaluacion(intento);
+
+        boolean aprobado = intentoService.estaAprobado(intento);
+        model.addAttribute("intento", intento);
+        model.addAttribute("aprobado", aprobado);
+        model.addAttribute("respuestas", respuestas);
+        model.addAttribute("titulo", "Resultado de Evaluación | Idóneos Online");
+        return "pages/evaluaciones/resultado-intento";
     }
 
     @GetMapping("/intentos/{id}/baja")

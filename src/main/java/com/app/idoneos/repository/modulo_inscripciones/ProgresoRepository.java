@@ -15,5 +15,8 @@ public interface ProgresoRepository extends JpaRepository<Progreso, Integer> {
     List<Progreso> findByInscripcion(Inscripcion inscripcion);
 
     Optional<Progreso> findByInscripcionAndUnidad(Inscripcion inscripcion, Unidad unidad);
-}
 
+    List<Progreso> findByInscripcionAndCompletadaTrue(Inscripcion inscripcion);
+
+    int countByInscripcionAndCompletadaTrue(Inscripcion inscripcion);
+}

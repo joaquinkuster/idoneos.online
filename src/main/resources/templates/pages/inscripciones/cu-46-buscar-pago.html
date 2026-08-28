@@ -83,9 +83,14 @@
                 <td><strong class="text-success" th:text="${p.monto != null ? '$ ' + #numbers.formatDecimal(p.monto, 1, 'POINT', 0, 'COMMA') : '$ 0'}">$0</strong></td>
                 <td><span class="wf-pill-tag" th:text="${p.estadoPago != null ? p.estadoPago.nombre : 'Acreditado'}">Acreditado</span></td>
                 <td class="text-end">
-                  <a th:href="@{'/pago/resultado/' + ${p.id}}" class="wf-btn wf-btn-sm wf-btn-outline text-decoration-none">
-                    <i class="fa-solid fa-file-invoice"></i> Ver Recibo
-                  </a>
+                  <div class="d-inline-flex gap-1">
+                    <a th:href="@{'/pago/resultado/' + ${p.id}}" class="wf-btn wf-btn-sm wf-btn-outline text-decoration-none">
+                      <i class="fa-solid fa-file-invoice"></i> Ver Recibo
+                    </a>
+                    <a th:href="@{'/pago/descargar-comprobante/' + ${p.id}}" class="btn btn-sm btn-outline-primary text-decoration-none" title="Descargar PDF">
+                      <i class="fa-solid fa-download"></i> PDF
+                    </a>
+                  </div>
                 </td>
               </tr>
               <tr th:if="${#lists.isEmpty(pagos)}">

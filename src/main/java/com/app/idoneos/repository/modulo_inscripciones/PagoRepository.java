@@ -10,9 +10,24 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface PagoRepository extends JpaRepository<Pago, Integer> {
+
+    List<Pago> findByInscripcion(Inscripcion inscripcion);
+
+    Optional<Pago> findByExternalIntentionId(String externalIntentionId);
+
+    Optional<Pago> findByReferenceCode(String referenceCode);
+
+    Optional<Pago> findByPaymentRequestId(String paymentRequestId);
+
+    @Query("SELECT p FROM Pago p WHERE p.inscripcion.alumno = :alumno")
+    List<Pago> findByAlumno(@Param("alumno") Alumno alumno);
+
+    @Query("SELECT p FROM Pago p WHERE p.inscripcion.alumno = :alumno AND p.estadoPago.nombre = :estado")
+    List<Pago> findByAlumnoAndEstado(@Param("alumno") Alumno alumno, @Param("estado") String estado);
 
     /**
      * CU-88 — Generar informe de ingresos de un curso.
@@ -57,4 +72,3 @@ public interface PagoRepository extends JpaRepository<Pago, Integer> {
             @Param("desde") LocalDateTime desde,
             @Param("hasta") LocalDateTime hasta);
 }
-

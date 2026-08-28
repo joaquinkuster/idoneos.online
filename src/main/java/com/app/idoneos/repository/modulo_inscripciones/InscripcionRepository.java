@@ -20,6 +20,12 @@ public interface InscripcionRepository extends JpaRepository<Inscripcion, Intege
 
     List<Inscripcion> findByAlumno(com.app.idoneos.model.Alumno alumno);
 
+    List<Inscripcion> findByAlumnoAndBajaFalse(com.app.idoneos.model.Alumno alumno);
+
+    Optional<Inscripcion> findByAlumnoAndCohorte(com.app.idoneos.model.Alumno alumno, com.app.idoneos.model.Cohorte cohorte);
+
+    Optional<Inscripcion> findByAlumnoAndCohorteAndBajaFalse(com.app.idoneos.model.Alumno alumno, com.app.idoneos.model.Cohorte cohorte);
+
     @Query("SELECT i FROM Inscripcion i WHERE i.alumno.usuario = :usuario AND i.cohorte.programa.curso = :curso AND i.baja = false")
     Optional<Inscripcion> findByUsuarioAndCursoAndBajaFalse(@Param("usuario") Usuario usuario, @Param("curso") Curso curso);
 
@@ -35,6 +41,11 @@ public interface InscripcionRepository extends JpaRepository<Inscripcion, Intege
 
     /** Inscriptos de una cohorte específica — CU-18. */
     List<Inscripcion> findByCohorte(com.app.idoneos.model.Cohorte cohorte);
+
+    List<Inscripcion> findByCohorteAndBajaFalse(com.app.idoneos.model.Cohorte cohorte);
+
+    /** Búsqueda por número de certificado digital — CU-43 / CU-91. */
+    Optional<Inscripcion> findByNumeroCertificado(String numeroCertificado);
 
     /**
      * CU-87 — Generar informe de alumnos de un curso.
@@ -71,4 +82,3 @@ public interface InscripcionRepository extends JpaRepository<Inscripcion, Intege
     @Query("SELECT i.cohorte.programa.curso.nombre, COUNT(i) FROM Inscripcion i WHERE i.baja = false GROUP BY i.cohorte.programa.curso.nombre ORDER BY COUNT(i) DESC")
     List<Object[]> top5CursosPorInscriptos();
 }
-

@@ -22,6 +22,7 @@ public class InscripcionServiceImpl implements InscripcionService {
     @Autowired private CohorteRepository cohorteRepository;
     @Autowired private AlumnoRepository alumnoRepository;
     @Autowired private ProgramaRepository programaRepository;
+    @Autowired private ProgresoService progresoService;
 
     @Override
     @Transactional(readOnly = true)
@@ -112,7 +113,12 @@ public class InscripcionServiceImpl implements InscripcionService {
         inscripcion.setBaja(false);
         inscripcion.setFecha(LocalDateTime.now());
         inscripcion.setFechaVencimientoAcceso(LocalDateTime.now().plusWeeks(cohorte.getSemanasAcceso()));
-        return inscripcionRepository.save(inscripcion);
+        Inscripcion guardada = inscripcionRepository.save(inscripcion);
+
+        // CU-44 paso 6: Registrar progreso inicial para la primera unidad del cronograma
+        progresoService.registrarProgresoInicial(guardada);
+
+        return guardada;
     }
 
     @Override

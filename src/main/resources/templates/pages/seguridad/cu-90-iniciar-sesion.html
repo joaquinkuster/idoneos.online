@@ -100,8 +100,8 @@
         </div>
     </div>
 
-    <!-- Bootstrap Bundle JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Inclusión de Scripts y SweetAlert2 Global -->
+    <div th:replace="~{fragments/scripts :: scripts}"></div>
     <script>
         function toggleUserDropdown(triggerEl) {
             const wrapper = triggerEl.closest('.wf-user-menu-wrapper');

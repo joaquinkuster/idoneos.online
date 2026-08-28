@@ -33,6 +33,7 @@ public class AcademicoController {
     @Autowired private GlosarioService glosarioService;
     @Autowired private ForoService foroService;
     @Autowired private InscripcionService inscripcionService;
+    @Autowired private ProgresoService progresoService;
     @Autowired private CohorteRepository cohorteRepository;
     @Autowired private TipoMaterialRepository tipoMaterialRepository;
     @Autowired private DocenteRepository docenteRepository;
@@ -291,10 +292,10 @@ public class AcademicoController {
     // CU-26 & CU-26b: AULA VIRTUAL Y MODO EDICIÓN
     // ─────────────────────────────────────────────────────────────
 
-    @GetMapping({"/aula", "/curso/{id}", "/curso/{id}/aula"})
-    public String accederCurso(@PathVariable(value = "id", required = false) Integer id,
+    @GetMapping({"/curso", "/curso/{id}"})
+    public String accederCurso(@PathVariable(required = false) Integer id,
                                @RequestParam(value = "cursoId", required = false) Integer cursoIdParam,
-                               Model model, Authentication auth, RedirectAttributes ra) {
+                               Model model, Authentication auth) {
         if (auth == null || !(auth.getPrincipal() instanceof Usuario)) return "redirect:/login";
         Usuario usuario = (Usuario) auth.getPrincipal();
 
@@ -317,9 +318,37 @@ public class AcademicoController {
 
         List<Unidad> unidades = unidadService.obtenerPorCurso(curso);
 
+        // Datos de progreso del alumno
+        Optional<Inscripcion> inscripcionOpt = inscripcionService.obtenerPorAlumnoYCurso(usuario, curso);
+        Map<Integer, Boolean> unidadHabilitadaMap = new HashMap<>();
+        Map<Integer, Boolean> unidadCompletadaMap = new HashMap<>();
+        int porcentajeAvance = 0;
+        boolean atrasado = false;
+
+        if (inscripcionOpt.isPresent()) {
+            Inscripcion inscripcion = inscripcionOpt.get();
+            porcentajeAvance = progresoService.calcularPorcentajeAvance(inscripcion);
+            atrasado = progresoService.detectarAtraso(inscripcion);
+            for (Unidad u : unidades) {
+                unidadHabilitadaMap.put(u.getId(), progresoService.esUnidadHabilitada(inscripcion, u));
+                unidadCompletadaMap.put(u.getId(), progresoService.unidadCompletada(inscripcion, u));
+            }
+            model.addAttribute("inscripcion", inscripcion);
+        } else {
+            // Si es docente o admin, todas las unidades están habilitadas
+            for (Unidad u : unidades) {
+                unidadHabilitadaMap.put(u.getId(), true);
+                unidadCompletadaMap.put(u.getId(), false);
+            }
+        }
+
         model.addAttribute("usuario", usuario);
         model.addAttribute("curso", curso);
         model.addAttribute("unidades", unidades);
+        model.addAttribute("unidadHabilitadaMap", unidadHabilitadaMap);
+        model.addAttribute("unidadCompletadaMap", unidadCompletadaMap);
+        model.addAttribute("porcentajeAvance", porcentajeAvance);
+        model.addAttribute("atrasado", atrasado);
         model.addAttribute("titulo", "CU-26 - Aula Virtual: " + curso.getNombre() + " | Idóneos Online");
         return "pages/academico/cu-26-acceder-curso";
     }

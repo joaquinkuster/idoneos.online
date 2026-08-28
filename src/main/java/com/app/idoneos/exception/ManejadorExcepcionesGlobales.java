@@ -44,6 +44,36 @@ public class ManejadorExcepcionesGlobales {
         return new ResponseEntity<>(cuerpo, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(ExcepcionValidacion.class)
+    public ResponseEntity<Map<String, Object>> manejarExcepcionValidacion(ExcepcionValidacion ex) {
+        Map<String, Object> cuerpo = new HashMap<>();
+        cuerpo.put("fechaHora", LocalDateTime.now());
+        cuerpo.put("codigoEstado", HttpStatus.BAD_REQUEST.value());
+        cuerpo.put("error", "Error de Validación de Reglas de Negocio");
+        cuerpo.put("mensaje", ex.getMessage());
+        return new ResponseEntity<>(cuerpo, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(org.springframework.dao.DataIntegrityViolationException.class)
+    public ResponseEntity<Map<String, Object>> manejarIntegridadDatos(org.springframework.dao.DataIntegrityViolationException ex) {
+        Map<String, Object> cuerpo = new HashMap<>();
+        cuerpo.put("fechaHora", LocalDateTime.now());
+        cuerpo.put("codigoEstado", HttpStatus.CONFLICT.value());
+        cuerpo.put("error", "Conflicto de Integridad de Datos");
+        cuerpo.put("mensaje", "La operación no puede completarse debido a restricciones de integridad (registro duplicado o referencias existentes).");
+        return new ResponseEntity<>(cuerpo, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(jakarta.validation.ConstraintViolationException.class)
+    public ResponseEntity<Map<String, Object>> manejarRestricciones(jakarta.validation.ConstraintViolationException ex) {
+        Map<String, Object> cuerpo = new HashMap<>();
+        cuerpo.put("fechaHora", LocalDateTime.now());
+        cuerpo.put("codigoEstado", HttpStatus.BAD_REQUEST.value());
+        cuerpo.put("error", "Violación de Restricción de Datos");
+        cuerpo.put("mensaje", ex.getMessage());
+        return new ResponseEntity<>(cuerpo, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> manejarExcepcionGenerica(Exception ex) {
         Map<String, Object> cuerpo = new HashMap<>();

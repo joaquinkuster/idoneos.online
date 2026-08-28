@@ -23,112 +23,89 @@
         <!-- Pantalla / Screen Frame Oficial -->
         <div class="screen-frame">
 
-                <!-- Top Navbar Oficial Dinámica -->
-                <div th:replace="~{fragments/wf_navbar :: wf-top-navbar}"></div>
+            <!-- Top Navbar Oficial Dinámica -->
+            <div th:replace="~{fragments/wf_navbar :: wf-top-navbar}"></div>
 
-                <!-- Hero Banner Contextual Superior (Navy) -->
-                <div class="wf-hero-banner">
-                    <div>
-                        <div class="wf-hero-tag">
-                            <i class="fa-solid fa-graduation-cap" style="color: var(--wf-gold);"></i>
-                            <span>PORTAL DEL ALUMNO</span>
+            <!-- Hero Banner Contextual Superior (Navy) -->
+            <div class="wf-hero-banner">
+                <div>
+                    <div class="wf-hero-tag">
+                        <i class="fa-solid fa-graduation-cap" style="color: var(--wf-gold);"></i>
+                        <span>PORTAL DEL ALUMNO</span>
+                    </div>
+                    <h2 class="wf-hero-title">Registrarse</h2>
+                    <p class="wf-hero-desc">Crea tu cuenta de alumno para acceder a los cursos y certificaciones</p>
+                </div>
+            </div>
+
+            <div class="wf-body">
+                <div class="wf-main-content">
+                    
+                    <form th:action="@{/seguridad/registro}" method="post" class="wf-card" style="max-width: 620px; margin: 30px auto; background: #FFFFFF;">
+                        <div class="wf-card-header mb-4 pb-3 border-bottom text-center">
+                            <h3 style="font-size: 20px; font-weight: 800; color: #081426; margin: 0;">Crear Cuenta de Usuario</h3>
+                            <p class="small text-muted" style="margin: 4px 0 0;">Regístrese en Idóneos Online para acceder a la plataforma y cursos.</p>
                         </div>
-                        <h2 class="wf-hero-title">Registrarse</h2>
-                        <p class="wf-hero-desc">Bienvenido/a, Joaquín Küster</p>
-                    </div>
-                    
-                    <div class="d-flex align-items-center gap-2">
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    </div>
-</div>
 
-                <div class="wf-body">
-                    <div class="wf-main-content">
-                        
-    <div class="wf-card" style="max-width: 620px; margin: 30px auto; background: #FFFFFF;">
-      <div class="wf-card-header mb-4 pb-3 border-bottom text-center">
-        <h3 style="font-size: 20px; font-weight: 800; color: #081426; margin: 0;">Crear Cuenta de Usuario</h3>
-        <p class="small text-muted" style="margin: 4px 0 0;">Regístrese en Idóneos Online para acceder a la plataforma y cursos.</p>
-      </div>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="wf-label">Nombre</label>
+                                <div class="wf-input-wrap">
+                                    <input type="text" name="nombre" class="wf-input" placeholder="Tu nombre" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="wf-label">Apellido</label>
+                                <div class="wf-input-wrap">
+                                    <input type="text" name="apellido" class="wf-input" placeholder="Tu apellido" required>
+                                </div>
+                            </div>
 
-      <div class="row g-3">
-        <div class="col-md-6">
-          <label class="wf-label">Nombre</label>
-          <div class="wf-input-wrap">
-            <input type="text" class="wf-input" value="Joaquín">
-            
-          </div>
-        </div>
-        <div class="col-md-6">
-          <label class="wf-label">Apellido</label>
-          <div class="wf-input-wrap">
-            <input type="text" class="wf-input" value="Küster">
-            
-          </div>
-        </div>
+                            <div class="col-md-7">
+                                <label class="wf-label">Correo Electrónico</label>
+                                <div class="wf-input-wrap">
+                                    <input type="email" name="email" class="wf-input" placeholder="correo@ejemplo.com" required>
+                                </div>
+                            </div>
+                            <div class="col-md-5">
+                                <label class="wf-label">DNI / Documento</label>
+                                <div class="wf-input-wrap">
+                                    <input type="text" name="dni" class="wf-input" placeholder="38123456" required>
+                                </div>
+                            </div>
 
-        <div class="col-md-7">
-          <label class="wf-label">Correo Electrónico</label>
-          <div class="wf-input-wrap">
-            <input type="email" class="wf-input" value="joaquin.kuster@gmail.com">
-            
-          </div>
-        </div>
-        <div class="col-md-5">
-          <label class="wf-label">DNI / Documento</label>
-          <div class="wf-input-wrap">
-            <input type="text" class="wf-input" value="42.890.123">
-            
-          </div>
-        </div>
+                            <div class="col-12">
+                                <label class="wf-label">Contraseña Segura</label>
+                                <div class="wf-input-wrap">
+                                    <input type="password" name="contrasena" class="wf-input" placeholder="••••••••••••" required>
+                                </div>
+                            </div>
+                        </div>
 
-        <div class="col-12">
-          <label class="wf-label">Contraseña Segura</label>
-          <div class="wf-input-wrap">
-            <input type="password" class="wf-input" value="••••••••••••">
-            
-          </div>
-        </div>
-      </div>
+                        <div class="wf-card-footer d-flex justify-content-end gap-3 mt-4 pt-3 border-top">
+                            <a th:href="@{/seguridad/login}" class="wf-btn wf-btn-outline">Ya tengo cuenta (Login)</a>
+                            <button type="submit" class="wf-btn wf-btn-primary"><i class="fa-solid fa-user-plus me-1"></i> Crear Cuenta</button>
+                        </div>
+                    </form>
 
-      <div class="wf-card-footer d-flex justify-content-end gap-3 mt-4 pt-3 border-top">
-        <a th:href="@{/seguridad/login}" class="wf-btn wf-btn-outline">Ya tengo cuenta (Login)</a>
-        <div class="d-flex align-items-center gap-2">
-          <button class="wf-btn wf-btn-primary"><i class="fa-solid fa-user-plus me-1"></i> Crear Cuenta</button>
-          
-        </div>
-      </div>
-    </div>
-  
-                    </div>
                 </div>
+            </div>
 
-                <!-- Footer Oficial -->
-                <div class="wf-screen-footer">
-                    <div>
-                        <strong>Idóneos <span>Online</span> S.A.S.</strong> • Plataforma de Educación Financiera, Economía & Mercado de Capitales
-                    </div>
-                    <div>
-                        FCEQyN — UNaM • Proyecto Software (LSI) / Trabajo Final (ASI)
-                    </div>
+            <!-- Footer Oficial -->
+            <div class="wf-screen-footer">
+                <div>
+                    <strong>Idóneos <span>Online</span> S.A.S.</strong> • Plataforma de Educación Financiera, Economía & Mercado de Capitales
                 </div>
+                <div>
+                    FCEQyN — UNaM • Proyecto Software (LSI) / Trabajo Final (ASI)
+                </div>
+            </div>
             
         </div>
     </div>
 
-    <!-- Bootstrap Bundle JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Inclusión de Scripts y SweetAlert2 Global -->
+    <div th:replace="~{fragments/scripts :: scripts}"></div>
     <script>
         function toggleUserDropdown(triggerEl) {
             const wrapper = triggerEl.closest('.wf-user-menu-wrapper');

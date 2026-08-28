@@ -31,13 +31,13 @@
                     <div>
                         <div class="wf-hero-tag">
                             <i class="fa-solid fa-graduation-cap" style="color: var(--wf-gold);"></i>
-                            <span>PANEL DE ADMINISTRACIÓN</span>
+                            <span th:text="${usuario != null and usuario.esAdmin() ? 'PANEL DE ADMINISTRACIÓN' : 'PANEL DOCENTE'}">PANEL DE GESTIÓN</span>
                         </div>
                         <h2 class="wf-hero-title">Gestión de Cursos</h2>
                         <p class="wf-hero-desc">Bienvenido/a, <span th:text="${usuario != null ? usuario.nombreCompleto : 'Docente'}">Docente</span></p>
                     </div>
                     
-                    <div class="d-flex align-items-center gap-2">
+                    <div class="d-flex align-items-center gap-2" th:if="${usuario != null and usuario.esAdmin()}">
                         <a th:href="@{/cursos/categorias}" class="wf-btn wf-btn-outline text-white" style="border-color: rgba(255,255,255,0.3); text-decoration: none;">
                             <i class="fa-solid fa-tags me-1" style="color: var(--wf-gold);"></i>
                             <span>Ver Categorías</span>
@@ -108,7 +108,7 @@
                   <span>Ver Calificaciones</span>
                 </a>
               </div>
-              <div class="d-flex align-items-center gap-2 w-100">
+              <div class="d-flex align-items-center gap-2 w-100" th:if="${usuario != null and usuario.esAdmin()}">
                 <a th:href="@{'/cursos/' + ${curso.id} + '/editar'}" class="wf-btn wf-btn-sm wf-btn-outline flex-grow-1 d-flex align-items-center justify-content-center gap-1" style="text-decoration: none;">
                   <i class="fa-solid fa-pen-to-square"></i>
                   <span>Editar Curso</span>

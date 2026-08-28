@@ -62,14 +62,14 @@ public class SecurityConfig {
             for (GrantedAuthority authority : authentication.getAuthorities()) {
                 String role = authority.getAuthority();
                 if ("ROLE_Administrador".equalsIgnoreCase(role) || "Administrador".equalsIgnoreCase(role)) {
-                    response.sendRedirect("/inicio");
+                    response.sendRedirect("/inicio?login=true");
                     return;
                 } else if ("ROLE_Docente".equalsIgnoreCase(role) || "Docente".equalsIgnoreCase(role)) {
-                    response.sendRedirect("/inicio");
+                    response.sendRedirect("/inicio?login=true");
                     return;
                 }
             }
-            response.sendRedirect("/cursos");
+            response.sendRedirect("/cursos?login=true");
         };
     }
 
@@ -82,6 +82,7 @@ public class SecurityConfig {
                                 "/", "/inicio", "/acercaDe", "/novedades", "/error",
                                 "/login", "/registro", "/recuperar-contrasena", "/resetear-contrasena",
                                 "/seguridad/**",
+                                "/certificado/validar/**", "/certificado/descargar/**",
                                 "/cursos", "/cursos/**", 
                                 "/inscripciones/**",
                                 "/pago/**",

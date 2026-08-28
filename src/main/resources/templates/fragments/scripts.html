@@ -5,15 +5,40 @@
     <!-- SweetAlert2 JS CDN -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <!-- Manejador Global de Alertas SweetAlert2 -->
-    <script th:if="${mensaje != null}" th:inline="javascript">
+    <!-- Manejador Global Inteligente de Alertas SweetAlert2 -->
+    <script th:if="${mensaje != null and !#strings.isEmpty(mensaje)}" th:inline="javascript">
         document.addEventListener('DOMContentLoaded', function() {
+            var msg = /*[[${mensaje}]]*/ 'Operación exitosa.';
+            var title = '¡Operación Exitosa!';
+            var icon = 'success';
+
+            if (msg.toLowerCase().includes('sesión') || msg.toLowerCase().includes('sesion')) {
+                if (msg.toLowerCase().includes('cerrado') || msg.toLowerCase().includes('cerrar')) {
+                    title = 'Sesión Finalizada';
+                    icon = 'info';
+                } else if (msg.toLowerCase().includes('bienvenido') || msg.toLowerCase().includes('iniciado') || msg.toLowerCase().includes('ingreso')) {
+                    title = '¡Bienvenido a Idóneos Online!';
+                    icon = 'success';
+                }
+            } else if (msg.toLowerCase().includes('registrad') || msg.toLowerCase().includes('cread') || msg.toLowerCase().includes('guardad')) {
+                title = '¡Registro Guardado!';
+            } else if (msg.toLowerCase().includes('actualizad') || msg.toLowerCase().includes('modificad') || msg.toLowerCase().includes('editad')) {
+                title = '¡Actualización Exitosa!';
+            } else if (msg.toLowerCase().includes('eliminad') || msg.toLowerCase().includes('baja') || msg.toLowerCase().includes('anulad')) {
+                title = '¡Eliminado Correctamente!';
+                icon = 'success';
+            } else if (msg.toLowerCase().includes('pago') || msg.toLowerCase().includes('acreditad')) {
+                title = '¡Pago Procesado!';
+            } else if (msg.toLowerCase().includes('certificado')) {
+                title = '¡Certificado Emitido!';
+            }
+
             Swal.fire({
-                title: 'Curso registrado',
-                text: /*[[${mensaje}]]*/ 'Curso registrado con éxito.',
-                icon: 'success',
-                confirmButtonText: 'OK',
-                confirmButtonColor: '#0B1F3A',
+                title: title,
+                text: msg,
+                icon: icon,
+                confirmButtonText: 'Aceptar',
+                confirmButtonColor: '#081426',
                 background: '#FFFFFF',
                 customClass: {
                     popup: 'rounded-4 shadow-lg border-0',
@@ -23,14 +48,21 @@
         });
     </script>
 
-    <script th:if="${error != null}" th:inline="javascript">
+    <script th:if="${error != null and !#strings.isEmpty(error)}" th:inline="javascript">
         document.addEventListener('DOMContentLoaded', function() {
+            var err = /*[[${error}]]*/ 'Ha ocurrido un error.';
+            var title = 'Atención';
+
+            if (err.toLowerCase().includes('contraseña') || err.toLowerCase().includes('credenciales') || err.toLowerCase().includes('correo')) {
+                title = 'Error de Acceso';
+            }
+
             Swal.fire({
-                title: 'Atención',
-                text: /*[[${error}]]*/ 'Ha ocurrido un error.',
+                title: title,
+                text: err,
                 icon: 'warning',
-                confirmButtonText: 'OK',
-                confirmButtonColor: '#0B1F3A',
+                confirmButtonText: 'Entendido',
+                confirmButtonColor: '#081426',
                 background: '#FFFFFF',
                 customClass: {
                     popup: 'rounded-4 shadow-lg border-0',

@@ -1,12 +1,11 @@
 package com.app.idoneos.config;
-import com.app.idoneos.service.modulo_reportes.*;
 
 import com.app.idoneos.model.Auditoria;
 import com.app.idoneos.model.TipoAccionAuditoria;
 import com.app.idoneos.model.Usuario;
 import com.app.idoneos.repository.modulo_auditoria.AuditoriaRepository;
 import com.app.idoneos.repository.modulo_auditoria.TipoAccionAuditoriaRepository;
-
+import com.app.idoneos.repository.modulo_usuarios.UsuarioRepository;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
@@ -27,6 +26,7 @@ public class AuditoriaAspect {
 
     @Autowired private AuditoriaRepository auditoriaRepository;
     @Autowired private TipoAccionAuditoriaRepository tipoAccionRepository;
+    @Autowired private UsuarioRepository usuarioRepository;
 
     @AfterReturning(pointcut = "execution(* com.app.idoneos.service..*.guardar*(..))", returning = "result")
     public void auditarGuardar(JoinPoint joinPoint, Object result) {
@@ -63,17 +63,26 @@ public class AuditoriaAspect {
 
             Usuario usuarioActual = null;
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            if (auth != null && auth.getPrincipal() instanceof Usuario) {
-                usuarioActual = (Usuario) auth.getPrincipal();
+            if (auth != null) {
+                if (auth.getPrincipal() instanceof Usuario) {
+                    usuarioActual = (Usuario) auth.getPrincipal();
+                } else if (auth.getName() != null) {
+                    usuarioActual = usuarioRepository.findByCorreo(auth.getName()).orElse(null);
+                }
             }
 
-            Auditoria audit = new Auditoria(nombreEntidad, idAfectado, usuarioActual, tipo);
-            audit.setFechaHora(LocalDateTime.now());
-            auditoriaRepository.save(audit);
+            if (usuarioActual == null) {
+                usuarioActual = usuarioRepository.findByCorreo("admin@idoneos.online").orElse(null);
+            }
+
+            if (usuarioActual != null) {
+                Auditoria audit = new Auditoria(nombreEntidad, idAfectado, usuarioActual, tipo);
+                audit.setFechaHora(LocalDateTime.now());
+                auditoriaRepository.save(audit);
+            }
 
         } catch (Exception e) {
             // Silencioso para no romper la ejecución principal
         }
     }
 }
-

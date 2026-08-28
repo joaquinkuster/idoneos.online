@@ -1,18 +1,27 @@
 package com.app.idoneos.service.modulo_inscripciones;
 
+import com.app.idoneos.exception.ExcepcionNegocio;
+import com.app.idoneos.exception.ExcepcionValidacion;
 import com.app.idoneos.model.*;
 import com.app.idoneos.repository.modulo_configuracion.ConfiguracionRepository;
 import com.app.idoneos.repository.modulo_cursos.*;
 import com.app.idoneos.repository.modulo_inscripciones.*;
 import com.app.idoneos.service.modulo_usuarios.EmailService;
+import com.lowagie.text.*;
+import com.lowagie.text.Font;
+import com.lowagie.text.pdf.PdfWriter;
+import com.lowagie.text.pdf.draw.LineSeparator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
+import java.awt.Color;
+import java.io.ByteArrayOutputStream;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 /**
@@ -21,7 +30,7 @@ import java.util.*;
  * MOD-F-03: Módulo de Inscripciones y Pagos
  *   CU-46 — Buscar pago: consulta de transacciones registradas y emisión de comprobantes de pago digitales.
  *   CU-47 — Realizar pago: cálculo del monto final, evaluación de promociones vigentes, integración
- *           con la API de Mercado Pago y activación inmediata de la matrícula del alumno.
+ *           con la API de Mercado Pago / MODO y activación inmediata de la matrícula del alumno.
  *   CU-49 — Buscar/Aplicar descuento: cálculo de bonificaciones automáticas sobre el arancel base del curso.
  *
  * Aplica reglas de negocio:
@@ -41,6 +50,7 @@ public class PagoService {
     private String mpTokenEnv;
 
     private final RestTemplate restTemplate = new RestTemplate();
+    private static final DateTimeFormatter FORMATO_FECHA = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
     private String getMercadoPagoAccessToken() {
         Optional<Configuracion> configOpt = configRepo.findByClave("mercadopago.access_token");
@@ -80,7 +90,7 @@ public class PagoService {
                     if (idObj != null) return idObj.toString();
                 }
             } catch (Exception e) {
-                System.err.println("Mercado Pago API real retornó aviso de Sandbox/Token (" + e.getMessage() + "). Se usa ID correlativo oficial.");
+                System.err.println("Mercado Pago API retorno aviso (" + e.getMessage() + "). Se usa ID correlativo.");
             }
         }
         return "MP-" + System.currentTimeMillis();
@@ -95,7 +105,7 @@ public class PagoService {
         List<Inscripcion> previas = inscripcionRepository.findByUsuarioAndBajaFalse(alumno);
         int cursosComprados = previas.size();
 
-        List<Descuento> descuentos = descuentoRepository.findAll();
+        List<Descuento> descuentos = descuentoRepository.findByBajaFalse();
         for (Descuento d : descuentos) {
             if (d.estaVigente() && cursosComprados >= d.getCursosRequeridos()) {
                 montoFinal = montoFinal * (1 - (d.getPorcentaje() / 100.0));
@@ -108,7 +118,7 @@ public class PagoService {
     }
 
     /**
-     * PA-2: Procesa el pago con la Checkout API de Mercado Pago y habilita la inscripción.
+     * PA-2: Procesa el pago con tarjeta / pasarela y habilita la inscripción.
      */
     @Transactional
     public Pago procesarPagoTarjeta(Inscripcion inscripcion, Double monto, String emailPagador,
@@ -128,6 +138,9 @@ public class PagoService {
         pago.setMetodoPago(metodo);
         pago.setUltimosDigitosTarjeta(ultimos4);
         pago.setPaymentId(paymentId);
+        pago.setPaymentRequestId(paymentId);
+        pago.setExternalIntentionId("INT-" + System.currentTimeMillis());
+        pago.setReferenceCode("REF-" + System.currentTimeMillis());
         pago.setPreferenceId("PREF-" + System.currentTimeMillis());
         pago.setDetalleEstado("accredited");
         pago.setFechaAprobacion(LocalDateTime.now());
@@ -145,7 +158,7 @@ public class PagoService {
         guardado.setComprobanteEnviado(true);
         guardado = pagoRepository.save(guardado);
 
-        // PA-2 / CU-35: Notificar confirmación de pago y comprobante al alumno
+        // Notificar confirmación de pago y comprobante al alumno
         Usuario alumno = (inscripcion.getAlumno() != null) ? inscripcion.getAlumno().getUsuario() : null;
         Curso curso = inscripcion.getCurso();
         if (alumno != null) {
@@ -154,6 +167,82 @@ public class PagoService {
         }
 
         return guardado;
+    }
+
+    /**
+     * CU-46 — Genera el PDF del comprobante oficial de pago para descarga.
+     */
+    public byte[] generarComprobantePdf(Pago pago) {
+        if (pago == null) throw new ExcepcionValidacion("El pago no puede ser nulo.");
+
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            Document doc = new Document(PageSize.A4, 40, 40, 40, 40);
+            PdfWriter.getInstance(doc, baos);
+            doc.open();
+
+            Font fuenteTitulo = new Font(Font.HELVETICA, 20, Font.BOLD, new Color(0x1a, 0x2b, 0x5e));
+            Font fuenteSubtitulo = new Font(Font.HELVETICA, 12, Font.NORMAL, new Color(0x4a, 0x5a, 0x8a));
+            Font fuenteTexto = new Font(Font.HELVETICA, 10, Font.NORMAL, Color.DARK_GRAY);
+            Font fuenteNegrita = new Font(Font.HELVETICA, 10, Font.BOLD, Color.BLACK);
+
+            Paragraph titulo = new Paragraph("COMPROBANTE OFICIAL DE PAGO", fuenteTitulo);
+            titulo.setAlignment(Element.ALIGN_CENTER);
+            titulo.setSpacingAfter(4);
+            doc.add(titulo);
+
+            Paragraph subtitulo = new Paragraph("Idóneos Online S.A.S. — CUIT 30-71829384-9", fuenteSubtitulo);
+            subtitulo.setAlignment(Element.ALIGN_CENTER);
+            subtitulo.setSpacingAfter(20);
+            doc.add(subtitulo);
+
+            LineSeparator linea = new LineSeparator(1f, 100f, new Color(0x1a, 0x2b, 0x5e), Element.ALIGN_CENTER, -5);
+            doc.add(linea);
+            doc.add(Chunk.NEWLINE);
+
+            String numComprobante = pago.getNumeroComprobante() != null ? pago.getNumeroComprobante() : ("COMP-" + pago.getId());
+            doc.add(new Paragraph("Número de Comprobante: " + numComprobante, fuenteNegrita));
+            doc.add(new Paragraph("Fecha de Operación: " + (pago.getFecha() != null ? pago.getFecha().format(FORMATO_FECHA) : "N/A"), fuenteTexto));
+            doc.add(new Paragraph("Estado de Pago: " + (pago.getEstadoPago() != null ? pago.getEstadoPago().getNombre() : "Acreditado"), fuenteNegrita));
+            doc.add(new Paragraph("Método de Pago: " + (pago.getMetodoPago() != null ? pago.getMetodoPago().getNombre() : "Tarjeta"), fuenteTexto));
+
+            doc.add(Chunk.NEWLINE);
+            doc.add(linea);
+            doc.add(Chunk.NEWLINE);
+
+            String nombreAlumno = pago.getNombrePagador() != null ? pago.getNombrePagador() : "Estudiante";
+            doc.add(new Paragraph("Titular / Pagador: " + nombreAlumno, fuenteTexto));
+            if (pago.getEmailPagador() != null) {
+                doc.add(new Paragraph("Email: " + pago.getEmailPagador(), fuenteTexto));
+            }
+            if (pago.getUltimosDigitosTarjeta() != null) {
+                doc.add(new Paragraph("Tarjeta: **** **** **** " + pago.getUltimosDigitosTarjeta(), fuenteTexto));
+            }
+
+            doc.add(Chunk.NEWLINE);
+
+            String nombreCurso = (pago.getInscripcion() != null && pago.getInscripcion().getCurso() != null)
+                    ? pago.getInscripcion().getCurso().getNombre() : "Curso de Capacitación";
+
+            doc.add(new Paragraph("Concepto: Inscripción a \"" + nombreCurso + "\"", fuenteNegrita));
+            doc.add(new Paragraph("Total Abonado: $ " + String.format("%.2f", pago.getMonto()), fuenteTitulo));
+
+            doc.add(Chunk.NEWLINE);
+            doc.add(linea);
+            doc.add(Chunk.NEWLINE);
+
+            Paragraph pie = new Paragraph("Este documento constituye un comprobante digital válido de pago emitido por Idóneos Online.", fuenteTexto);
+            pie.setAlignment(Element.ALIGN_CENTER);
+            doc.add(pie);
+
+            doc.close();
+            return baos.toByteArray();
+        } catch (Exception e) {
+            throw new ExcepcionNegocio("Error al generar PDF del comprobante: " + e.getMessage());
+        }
+    }
+
+    public List<Pago> buscarPagosAlumno(Alumno alumno) {
+        return pagoRepository.findByAlumno(alumno);
     }
 
     public Optional<Pago> buscarPorId(Integer id) {

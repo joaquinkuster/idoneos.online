@@ -48,10 +48,25 @@ public class CursoController {
     @Autowired private NivelRepository nivelRepository;
     @Autowired private ModalidadRepository modalidadRepository;
     @Autowired private SupervisorRepository supervisorRepository;
+    @Autowired private com.app.idoneos.repository.modulo_usuarios.UsuarioRepository usuarioRepository;
+    @Autowired private com.app.idoneos.repository.modulo_gestion_academica.ProgramaRepository programaRepository;
+    @Autowired private com.app.idoneos.repository.modulo_gestion_academica.CronogramaRepository cronogramaRepository;
+    @Autowired private CohorteRepository cohorteRepository;
+
+    private Usuario obtenerUsuarioActual(Authentication auth) {
+        if (auth == null) return null;
+        if (auth.getPrincipal() instanceof Usuario) {
+            return (Usuario) auth.getPrincipal();
+        } else if (auth.getName() != null) {
+            return usuarioRepository.findByCorreo(auth.getName()).orElse(null);
+        }
+        return null;
+    }
 
     private void agregarUsuarioAlModelo(Model model, Authentication auth) {
-        if (auth != null && auth.getPrincipal() instanceof Usuario) {
-            model.addAttribute("usuario", (Usuario) auth.getPrincipal());
+        Usuario u = obtenerUsuarioActual(auth);
+        if (u != null) {
+            model.addAttribute("usuario", u);
         }
     }
 
@@ -105,16 +120,69 @@ public class CursoController {
     public String explorarCatalogo(@RequestParam(value = "busqueda", required = false) String busqueda,
                                    @RequestParam(value = "categoriaId", required = false) Integer categoriaId,
                                    @RequestParam(value = "modalidadId", required = false) Integer modalidadId,
+                                   @RequestParam(value = "cursoId", required = false) Integer cursoId,
+                                   @RequestParam(value = "page", defaultValue = "0") int page,
                                    Model model, Authentication auth) {
         agregarUsuarioAlModelo(model, auth);
 
-        List<Curso> cursos = cursoService.buscarCursosPublicadosConFiltros(busqueda, categoriaId, modalidadId);
-        model.addAttribute("cursos", cursos);
+        List<Curso> todosLosCursos = cursoService.buscarCursosPublicadosConFiltros(busqueda, categoriaId, modalidadId);
+        
+        // Paginación en memoria de 4 cursos por página para catálogo
+        int pageSize = 4;
+        int totalCursos = todosLosCursos.size();
+        int totalPages = (int) Math.ceil((double) totalCursos / pageSize);
+        if (totalPages == 0) totalPages = 1;
+        if (page < 0) page = 0;
+        if (page >= totalPages) page = totalPages - 1;
+
+        int fromIndex = page * pageSize;
+        int toIndex = Math.min(fromIndex + pageSize, totalCursos);
+        List<Curso> cursosPaginados = (fromIndex <= toIndex && fromIndex < totalCursos) ? todosLosCursos.subList(fromIndex, toIndex) : Collections.emptyList();
+
+        model.addAttribute("cursos", cursosPaginados);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", totalPages);
+        model.addAttribute("totalCursos", totalCursos);
         model.addAttribute("categorias", categoriaService.obtenerTodo());
         model.addAttribute("modalidades", modalidadRepository.findAll());
+        model.addAttribute("niveles", nivelRepository.findAll());
         model.addAttribute("busqueda", busqueda);
         model.addAttribute("categoriaSeleccionada", categoriaId);
         model.addAttribute("titulo", "CU-06 - Catálogo de Cursos | Idóneos Online");
+
+        // Calcular cantidad de unidades temáticas por curso
+        java.util.Map<Integer, Integer> cantUnidadesPorCurso = new java.util.HashMap<>();
+        for (Curso c : todosLosCursos) {
+            List<Programa> progs = programaRepository.findByCursoAndBajaFalse(c);
+            int cant = 0;
+            if (!progs.isEmpty()) {
+                cant = cronogramaRepository.countByPrograma(progs.get(0));
+            }
+            cantUnidadesPorCurso.put(c.getId(), cant > 0 ? cant : 3);
+        }
+        model.addAttribute("cantUnidadesPorCurso", cantUnidadesPorCurso);
+
+        // Si se selecciona un curso o por defecto el primero de la página actual
+        Curso cursoSeleccionado = null;
+        if (cursoId != null) {
+            cursoSeleccionado = cursoService.buscarPorId(cursoId).orElse(null);
+        }
+        if (cursoSeleccionado == null && !cursosPaginados.isEmpty()) {
+            cursoSeleccionado = cursosPaginados.get(0);
+        } else if (cursoSeleccionado == null && !todosLosCursos.isEmpty()) {
+            cursoSeleccionado = todosLosCursos.get(0);
+        }
+
+        if (cursoSeleccionado != null) {
+            model.addAttribute("cursoSeleccionado", cursoSeleccionado);
+            List<Programa> programas = programaRepository.findByCursoAndBajaFalse(cursoSeleccionado);
+            if (!programas.isEmpty()) {
+                Programa primerProg = programas.get(0);
+                model.addAttribute("programaSeleccionado", primerProg);
+                model.addAttribute("cronogramas", cronogramaRepository.findByProgramaOrderByNumeroOrdenAsc(primerProg));
+                model.addAttribute("cohortesAbiertas", cohorteRepository.findByProgramaAndBajaFalse(primerProg));
+            }
+        }
 
         return "pages/cursos/cu-06-explorar-catalogo-de-cursos";
     }
@@ -125,23 +193,30 @@ public class CursoController {
      */
     @GetMapping("/mis-cursos")
     public String verMisCursos(Authentication auth, Model model) {
-        if (auth == null || !(auth.getPrincipal() instanceof Usuario)) return "redirect:/login";
-        Usuario usuario = (Usuario) auth.getPrincipal();
+        Usuario usuario = obtenerUsuarioActual(auth);
+        if (usuario == null) return "redirect:/login";
 
         List<Inscripcion> inscripciones = inscripcionService.obtenerPorAlumno(usuario);
         List<Curso> misCursos = new ArrayList<>();
-        for (Inscripcion i : inscripciones) {
-            if (!i.getBaja() && i.getCohorte() != null && i.getCohorte().getPrograma() != null) {
-                misCursos.add(i.getCohorte().getPrograma().getCurso());
+        if (inscripciones != null) {
+            for (Inscripcion i : inscripciones) {
+                if (!i.getBaja() && i.getCohorte() != null && i.getCohorte().getPrograma() != null) {
+                    misCursos.add(i.getCohorte().getPrograma().getCurso());
+                }
             }
         }
 
         model.addAttribute("usuario", usuario);
-        model.addAttribute("inscripciones", inscripciones);
+        model.addAttribute("inscripciones", inscripciones != null ? inscripciones : Collections.emptyList());
         model.addAttribute("misCursos", misCursos);
         model.addAttribute("titulo", "CU-02 - Mis Cursos | Idóneos Online");
 
         return "pages/cursos/cu-02-ver-mis-cursos";
+    }
+
+    @GetMapping("/{id}/ficha")
+    public String verFichaCurso(@PathVariable Integer id) {
+        return "redirect:/cursos/catalogo?cursoId=" + id;
     }
 
     // ─────────────────────────────────────────────────────────────

@@ -36,5 +36,35 @@ public interface ProgresoService extends CrudService<Progreso> {
     int contarCompletadas(Inscripcion inscripcion);
 
     boolean unidadCompletada(Inscripcion inscripcion, Unidad unidad);
-}
 
+    /**
+     * CU-44 paso 6 — Crea el primer Progreso para la inscripcion (primera unidad del cronograma).
+     * Llamado automaticamente al completar la inscripcion de un alumno.
+     */
+    void registrarProgresoInicial(Inscripcion inscripcion);
+
+    /**
+     * CU-63 — Verifica si el alumno puede acceder a la unidad segun su progreso secuencial.
+     * La primera unidad del cronograma siempre esta habilitada.
+     * Las siguientes requieren que la unidad anterior este completada.
+     */
+    boolean esUnidadHabilitada(Inscripcion inscripcion, Unidad unidad);
+
+    /**
+     * CU-63 paso 10 — Crea el Progreso para la siguiente unidad del cronograma
+     * tras que el alumno aprueba la actual.
+     */
+    void habilitarSiguienteUnidad(Inscripcion inscripcion, Unidad unidadAprobada);
+
+    /**
+     * CU-48 — Calcula el porcentaje de avance del alumno en el curso (0 a 100).
+     * Se basa en las unidades completadas vs el total del cronograma del programa.
+     */
+    int calcularPorcentajeAvance(Inscripcion inscripcion);
+
+    /**
+     * CU-26 — Detecta si el alumno esta atrasado respecto al cronograma esperado.
+     * Compara la semana actual de dictado con la ultima unidad completada del alumno.
+     */
+    boolean detectarAtraso(Inscripcion inscripcion);
+}

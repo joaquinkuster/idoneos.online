@@ -152,7 +152,17 @@ public class InscripcionController {
         agregarUsuarioAlModelo(model, auth);
         if (auth != null && auth.getPrincipal() instanceof Usuario) {
             Usuario u = (Usuario) auth.getPrincipal();
-            model.addAttribute("inscripciones", inscripcionService.obtenerPorAlumno(u));
+            List<Inscripcion> inscripciones = inscripcionService.obtenerPorAlumno(u);
+            model.addAttribute("inscripciones", inscripciones);
+
+            Map<Integer, Integer> porcentajes = new HashMap<>();
+            Map<Integer, Boolean> atrasos = new HashMap<>();
+            for (Inscripcion i : inscripciones) {
+                porcentajes.put(i.getId(), progresoService.calcularPorcentajeAvance(i));
+                atrasos.put(i.getId(), progresoService.detectarAtraso(i));
+            }
+            model.addAttribute("porcentajes", porcentajes);
+            model.addAttribute("atrasos", atrasos);
         }
         model.addAttribute("titulo", "CU-48 - Buscar progreso | Idóneos Online");
         return "pages/inscripciones/cu-48-buscar-progreso";

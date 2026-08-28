@@ -28,9 +28,15 @@ public class InicioController {
      * CU-01 — Página principal con catálogo público de cursos destacados y categorías de finanzas.
      */
     @GetMapping({"/", "/inicio"})
-    public String verInicio(@RequestParam(value = "login", required = false) String login, Model model, Authentication auth) {
+    public String verInicio(
+            @RequestParam(value = "login", required = false) String login,
+            @RequestParam(value = "logout", required = false) String logout,
+            Model model, Authentication auth) {
         if (login != null) {
             model.addAttribute("mensaje", "¡Bienvenido a Idóneos Online! Has iniciado sesión correctamente.");
+        }
+        if (logout != null) {
+            model.addAttribute("mensaje", "Has cerrado sesión correctamente. ¡Hasta pronto!");
         }
 
         if (auth != null && auth.getPrincipal() instanceof Usuario) {

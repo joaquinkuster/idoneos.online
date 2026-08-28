@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${titulo != null ? titulo : 'Validación de Certificado | Idóneos Online'}">Validación de Certificado | Idóneos Online</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome 6 Pro / Solid Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;800&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Estilos del Sistema Centralizados -->
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body class="wf-canvas-bg">
+
+    <div class="cu-page-container">
+        <div class="screen-frame">
+
+            <!-- Top Navbar Oficial Dinámica -->
+            <div th:replace="~{fragments/wf_navbar :: wf-top-navbar}"></div>
+
+            <!-- Hero Banner Contextual Superior (Navy) -->
+            <div class="wf-hero-banner">
+                <div>
+                    <div class="wf-hero-tag">
+                        <i class="fa-solid fa-shield-halved" style="color: var(--wf-gold);"></i>
+                        <span>VERIFICACIÓN PÚBLICA DE DIPLOMAS</span>
+                    </div>
+                    <h2 class="wf-hero-title">Validación de Certificado Académico</h2>
+                    <p class="wf-hero-desc">Consulta de autenticidad en el registro central de certificaciones de Idóneos Online.</p>
+                </div>
+            </div>
+
+            <div class="wf-body">
+                <div class="wf-main-content">
+                    <div class="wf-card" style="max-width: 750px; margin: 0 auto;">
+                        
+                        <!-- ESTADO: CERTIFICADO VÁLIDO -->
+                        <div th:if="${valido}" class="text-center py-4">
+                            <div class="mb-3">
+                                <span class="badge rounded-circle p-3" style="background-color: #d1e7dd; color: #0f5132; font-size: 2rem;">
+                                    <i class="fa-solid fa-circle-check"></i>
+                                </span>
+                            </div>
+                            <h3 class="fw-bold text-success mb-1">Certificado Oficial y Auténtico</h3>
+                            <p class="text-muted mb-4">El documento consultado coincide con nuestros registros oficiales de emisión.</p>
+
+                            <div class="text-start bg-light p-4 rounded-3 border mb-4">
+                                <div class="row g-3">
+                                    <div class="col-12 col-md-6">
+                                        <small class="text-muted d-block">Número de Certificado</small>
+                                        <strong class="fs-6 text-primary" th:text="${inscripcion.numeroCertificado}">CERT-2026-000001</strong>
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <small class="text-muted d-block">Fecha de Emisión</small>
+                                        <strong class="fs-6" th:text="${#temporals.format(inscripcion.fechaEmisionCertificado, 'dd/MM/yyyy')}">28/08/2026</strong>
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <small class="text-muted d-block">Estudiante Certificado/a</small>
+                                        <strong class="fs-6" th:text="${inscripcion.nombreAlumno != null ? inscripcion.nombreAlumno : (inscripcion.alumno != null && inscripcion.alumno.usuario != null ? inscripcion.alumno.usuario.nombre + ' ' + inscripcion.alumno.usuario.apellido : 'Estudiante')}">Juan Pérez</strong>
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <small class="text-muted d-block">DNI / Identificación</small>
+                                        <strong class="fs-6" th:text="${inscripcion.dniAlumno != null ? inscripcion.dniAlumno : (inscripcion.alumno != null && inscripcion.alumno.usuario != null ? inscripcion.alumno.usuario.dni : 'N/A')}">12345678</strong>
+                                    </div>
+                                    <div class="col-12">
+                                        <small class="text-muted d-block">Curso Aprobado</small>
+                                        <strong class="fs-5 text-dark" th:text="${inscripcion.cohorte != null && inscripcion.cohorte.programa != null && inscripcion.cohorte.programa.curso != null ? inscripcion.cohorte.programa.curso.nombre : 'Curso Académico'}">Especialización en Finanzas</strong>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-center gap-3">
+                                <a th:href="@{'/certificado/descargar/' + ${inscripcion.id}}" class="btn btn-primary px-4 py-2">
+                                    <i class="fa-solid fa-file-pdf me-2"></i>Descargar Certificado Oficial en PDF
+                                </a>
+                                <a th:href="@{/cursos}" class="btn btn-outline-secondary px-4 py-2">
+                                    Explorar Otros Cursos
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- ESTADO: CERTIFICADO NO ENCONTRADO O INVÁLIDO -->
+                        <div th:unless="${valido}" class="text-center py-4">
+                            <div class="mb-3">
+                                <span class="badge rounded-circle p-3" style="background-color: #f8d7da; color: #842029; font-size: 2rem;">
+                                    <i class="fa-solid fa-triangle-exclamation"></i>
+                                </span>
+                            </div>
+                            <h3 class="fw-bold text-danger mb-1">Certificado No Encontrado</h3>
+                            <p class="text-muted mb-4">No se encontró ninguna certificación registrada con el código proporcionado:</p>
+                            
+                            <div class="alert alert-warning d-inline-block px-4 py-2 fw-bold" th:text="${numeroBuscado}">
+                                CERT-XXXX-XXXXXX
+                            </div>
+
+                            <p class="small text-muted mt-3 mb-4">
+                                Verifique que el código alfanumérico haya sido ingresado exactamente como figura en el documento.
+                            </p>
+
+                            <a th:href="@{/}" class="btn btn-primary px-4">
+                                <i class="fa-solid fa-house me-2"></i>Volver al Inicio
+                            </a>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

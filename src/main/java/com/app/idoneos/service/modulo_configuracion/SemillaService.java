@@ -75,8 +75,16 @@ public class SemillaService {
 
     @Transactional
     public void insertarSemilla() {
+        // Asegurar que los cursos activos tengan publicado=true para el catálogo público (CU-06)
+        cursoRepository.findByBajaFalse().forEach(c -> {
+            if (!c.isPublicado()) {
+                c.setPublicado(true);
+                cursoRepository.save(c);
+            }
+        });
+
         String adminEmail = "admin@idoneos.online";
-        if (usuarioRepository.findByCorreoAndBajaFalse(adminEmail).isPresent() && inscripcionRepository.count() > 10) {
+        if (usuarioRepository.findByCorreoAndBajaFalse(adminEmail).isPresent() && cursoRepository.count() >= 8 && inscripcionRepository.count() > 10) {
             System.out.println("✅ Idóneos Online: Base de datos ya poblada con semilla maestra.");
             return;
         }
@@ -233,6 +241,7 @@ public class SemillaService {
                     "Aprende a operar Acciones, Bonos Soberanos, Obligaciones Negociables y Opciones en BYMA.",
                     150000f, catMercado, nivelIntermedio, docenteFausto);
             c.setEmiteCertificado(true);
+            c.setPublicado(true);
             return cursoRepository.save(c);
         });
 
@@ -252,6 +261,7 @@ public class SemillaService {
                     "Variables macroeconómicas fundamentales: tipo de cambio, inflación, tasas y reservas del BCRA.",
                     0f, catEconomia, nivelBasico, docenteFausto);
             c.setEmiteCertificado(false);
+            c.setPublicado(true);
             return cursoRepository.save(c);
         });
 
@@ -270,6 +280,7 @@ public class SemillaService {
                     "Estrategias tributarias legales para pymes, régimen ganancias e IVA.",
                     220000f, catImpuestos, nivelAvanzado, docenteSebas);
             c.setEmiteCertificado(true);
+            c.setPublicado(true);
             return cursoRepository.save(c);
         });
 
@@ -282,6 +293,96 @@ public class SemillaService {
                         LocalDateTime.now().minusWeeks(2),
                         LocalDateTime.now().plusMonths(4),
                         25, prog3)));
+
+        // Curso 4: Valuación de Empresas y Finanzas Corporativas
+        Curso curso4 = cursoRepository.findByNombre("Valuación de Empresas y M&A").orElseGet(() -> {
+            Curso c = new Curso("Valuación de Empresas y M&A",
+                    "Modelos de Descuento de Flujos de Fondos (DCF), Múltiplos comparables y fusiones.",
+                    195000f, catFinanzas, nivelAvanzado, docenteFausto);
+            c.setEmiteCertificado(true);
+            c.setPublicado(true);
+            return cursoRepository.save(c);
+        });
+        Programa prog4 = programaRepository.findByCurso(curso4).stream().findFirst().orElseGet(() ->
+                programaRepository.save(new Programa("Programa Valuación 2026", "Modelado financiero aplicado",
+                        "Construir modelos de valuación corporativa profesional.", "Damodaran on Valuation.", curso4)));
+        Cohorte cohorte4 = cohorteRepository.findByPrograma(prog4).stream().findFirst().orElseGet(() ->
+                cohorteRepository.save(new Cohorte(
+                        LocalDateTime.now().minusDays(5),
+                        LocalDateTime.now().plusMonths(3),
+                        35, prog4)));
+
+        // Curso 5: Futuros, Opciones y Derivados Financieros
+        Curso curso5 = cursoRepository.findByNombre("Derivados Financieros: Futuros y Opciones").orElseGet(() -> {
+            Curso c = new Curso("Derivados Financieros: Futuros y Opciones",
+                    "Estrategias de cobertura y especulación con Futuros de Dólar e Índice ROFEX y Opciones sobre Acciones.",
+                    175000f, catMercado, nivelIntermedio, docenteFausto);
+            c.setEmiteCertificado(true);
+            c.setPublicado(true);
+            return cursoRepository.save(c);
+        });
+        Programa prog5 = programaRepository.findByCurso(curso5).stream().findFirst().orElseGet(() ->
+                programaRepository.save(new Programa("Programa Derivados 2026", "Derivados en Matba Rofex",
+                        "Dominar las estrategias con griegas y futuros financieros.", "Hull - Options, Futures and Other Derivatives.", curso5)));
+        Cohorte cohorte5 = cohorteRepository.findByPrograma(prog5).stream().findFirst().orElseGet(() ->
+                cohorteRepository.save(new Cohorte(
+                        LocalDateTime.now().minusWeeks(1),
+                        LocalDateTime.now().plusMonths(3),
+                        40, prog5)));
+
+        // Curso 6: Finanzas Cuantitativas y Algoritmos con Python
+        Curso curso6 = cursoRepository.findByNombre("Finanzas Cuantitativas con Python").orElseGet(() -> {
+            Curso c = new Curso("Finanzas Cuantitativas con Python",
+                    "Backtesting de estrategias, optimización de carteras de Markowitz y Machine Learning aplicado al mercado.",
+                    210000f, catMercado, nivelAvanzado, docenteFausto);
+            c.setEmiteCertificado(true);
+            c.setPublicado(true);
+            return cursoRepository.save(c);
+        });
+        Programa prog6 = programaRepository.findByCurso(curso6).stream().findFirst().orElseGet(() ->
+                programaRepository.save(new Programa("Programa Python Finance 2026", "Programación financiera cuantitativa",
+                        "Desarrollar algoritmos de trading y análisis de riesgo.", "Hilpisch - Python for Finance.", curso6)));
+        Cohorte cohorte6 = cohorteRepository.findByPrograma(prog6).stream().findFirst().orElseGet(() ->
+                cohorteRepository.save(new Cohorte(
+                        LocalDateTime.now().minusDays(10),
+                        LocalDateTime.now().plusMonths(4),
+                        30, prog6)));
+
+        // Curso 7: Criptoactivos, Blockchain y DeFi Profesional
+        Curso curso7 = cursoRepository.findByNombre("Criptoactivos, Blockchain y DeFi").orElseGet(() -> {
+            Curso c = new Curso("Criptoactivos, Blockchain y DeFi",
+                    "Fundamentos de Bitcoin, Ethereum, contratos inteligentes, finanzas descentralizadas y custodia institucional.",
+                    130000f, catMercado, nivelIntermedio, docenteSebas);
+            c.setEmiteCertificado(true);
+            c.setPublicado(true);
+            return cursoRepository.save(c);
+        });
+        Programa prog7 = programaRepository.findByCurso(curso7).stream().findFirst().orElseGet(() ->
+                programaRepository.save(new Programa("Programa DeFi 2026", "Ecosistema cripto y descentralizado",
+                        "Comprender el funcionamiento de protocolos descentralizados.", "Mastering Ethereum; Whitepapers.", curso7)));
+        Cohorte cohorte7 = cohorteRepository.findByPrograma(prog7).stream().findFirst().orElseGet(() ->
+                cohorteRepository.save(new Cohorte(
+                        LocalDateTime.now().minusWeeks(1),
+                        LocalDateTime.now().plusMonths(2),
+                        50, prog7)));
+
+        // Curso 8: Análisis de Renta Fija y Bonos Soberanos
+        Curso curso8 = cursoRepository.findByNombre("Análisis Integral de Bonos y Renta Fija").orElseGet(() -> {
+            Curso c = new Curso("Análisis Integral de Bonos y Renta Fija",
+                    "Cálculo de TIR, Paridad, Modified Duration, Convexidad y estructuración de deuda soberana y corporativa.",
+                    160000f, catMercado, nivelIntermedio, docenteFausto);
+            c.setEmiteCertificado(true);
+            c.setPublicado(true);
+            return cursoRepository.save(c);
+        });
+        Programa prog8 = programaRepository.findByCurso(curso8).stream().findFirst().orElseGet(() ->
+                programaRepository.save(new Programa("Programa Bonos 2026", "Especialización en Renta Fija",
+                        "Dominar el análisis cuantitativo y cualitativo de bonos.", "Fabozzi - Bond Markets, Analysis and Strategies.", curso8)));
+        Cohorte cohorte8 = cohorteRepository.findByPrograma(prog8).stream().findFirst().orElseGet(() ->
+                cohorteRepository.save(new Cohorte(
+                        LocalDateTime.now().minusDays(3),
+                        LocalDateTime.now().plusMonths(3),
+                        45, prog8)));
 
         // Unidades del Curso 1
         Unidad u1 = unidadRepository.save(new Unidad("Introducción al Mercado Financiero y CNV",
@@ -423,12 +524,15 @@ public class SemillaService {
             String mail = alumnosDatos[i][2];
             String dniVal = alumnosDatos[i][3];
 
-            Usuario usu = new Usuario(nom, ape, mail, passwordEncoder.encode("123456"), rolAlumno);
-            usu.setDni(dniVal);
-            usu.setEmailValidado(true);
-            Alumno alu = new Alumno(usu);
-            usu.setAlumno(alu);
-            usuarioRepository.save(usu);
+            Usuario usu = usuarioRepository.findByCorreo(mail).orElseGet(() -> {
+                Usuario u = new Usuario(nom, ape, mail, passwordEncoder.encode("123456"), rolAlumno);
+                u.setDni(dniVal);
+                u.setEmailValidado(true);
+                Alumno a = new Alumno(u);
+                u.setAlumno(a);
+                return usuarioRepository.save(u);
+            });
+            Alumno alu = usu.getAlumno() != null ? usu.getAlumno() : new Alumno(usu);
 
             Cohorte coh = cohortes[i % cohortes.length];
             Inscripcion insc = new Inscripcion(coh, alu);

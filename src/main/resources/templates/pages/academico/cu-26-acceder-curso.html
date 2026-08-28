@@ -101,18 +101,52 @@
         </div>
       </div>
 
+      <!-- Barra de Progreso del Curso -->
+      <div th:if="${inscripcion != null}" class="p-3 mb-4 rounded border bg-white shadow-sm">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <div>
+            <strong class="text-dark"><i class="fa-solid fa-chart-line text-primary me-2"></i>Tu Progreso en el Curso</strong>
+            <span th:if="${atrasado}" class="badge bg-warning text-dark ms-2">
+              <i class="fa-solid fa-triangle-exclamation me-1"></i>Atraso detectado vs cronograma
+            </span>
+          </div>
+          <strong class="text-primary fs-5" th:text="${porcentajeAvance + '%'}">0%</strong>
+        </div>
+        <div class="progress" style="height: 10px;">
+          <div class="progress-bar bg-primary progress-bar-striped" role="progressbar" 
+               th:style="'width: ' + ${porcentajeAvance} + '%;'" 
+               th:aria-valuenow="${porcentajeAvance}" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+      </div>
+
       <div class="d-flex flex-column gap-4">
-        <div th:each="unidad : ${unidades}" class="wf-unit-box">
+        <div th:each="unidad : ${unidades}" class="wf-unit-box"
+             th:classappend="${unidadHabilitadaMap[unidad.id] == false ? 'opacity-75 bg-light' : ''}">
           <div class="wf-unit-header d-flex justify-content-between align-items-center">
             <div class="d-flex align-items-center gap-2">
-              <i class="fa-solid fa-book-open text-primary" style="font-size: 16px;"></i>
+              <i class="fa-solid" 
+                 th:classappend="${unidadCompletadaMap[unidad.id] ? 'fa-circle-check text-success' : (unidadHabilitadaMap[unidad.id] ? 'fa-book-open text-primary' : 'fa-lock text-muted')}" 
+                 style="font-size: 16px;"></i>
               <strong style="font-size: 14px; color: #081426;" th:text="${unidad.titulo}">Unidad</strong>
+              <span th:if="${unidadCompletadaMap[unidad.id]}" class="badge bg-success-subtle text-success border border-success-subtle ms-2">Completada</span>
+              <span th:if="${!unidadCompletadaMap[unidad.id] and !unidadHabilitadaMap[unidad.id]}" class="badge bg-secondary-subtle text-secondary ms-2">Bloqueada (completar anterior)</span>
             </div>
-            <a th:href="@{'/evaluaciones/autoevaluaciones?unidadId=' + ${unidad.id}}" class="wf-btn wf-btn-sm wf-btn-gold">Rendir Evaluación</a>
+            
+            <div th:if="${unidadHabilitadaMap[unidad.id]}">
+              <a th:href="@{'/evaluaciones/autoevaluaciones?unidadId=' + ${unidad.id}}" class="wf-btn wf-btn-sm wf-btn-gold">
+                <i class="fa-solid fa-pen-to-square me-1"></i>
+                <span th:text="${unidadCompletadaMap[unidad.id] ? 'Revisar Evaluación' : 'Rendir Evaluación'}">Rendir Evaluación</span>
+              </a>
+            </div>
+            <div th:unless="${unidadHabilitadaMap[unidad.id]}">
+              <button class="btn btn-sm btn-secondary disabled" disabled>
+                <i class="fa-solid fa-lock me-1"></i>Bloqueada
+              </button>
+            </div>
           </div>
           <div class="wf-unit-body d-flex flex-column gap-2">
             <p class="small text-muted m-0" th:text="${unidad.descripcion}">Descripción de la unidad...</p>
-            <div class="d-flex align-items-center gap-3 pt-2">
+            <div class="d-flex align-items-center gap-3 pt-2" th:if="${unidadHabilitadaMap[unidad.id]}">
               <a th:href="@{'/academico/consultas?unidadId=' + ${unidad.id}}" class="btn btn-sm btn-outline-secondary rounded-pill"><i class="fa-solid fa-comments me-1"></i> Foro de Consultas</a>
               <a th:href="@{'/academico/glosario?unidadId=' + ${unidad.id}}" class="btn btn-sm btn-outline-secondary rounded-pill"><i class="fa-solid fa-book me-1"></i> Glosario</a>
             </div>

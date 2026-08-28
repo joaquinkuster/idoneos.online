@@ -154,6 +154,24 @@ public class PagoController {
         return "pages/alumno/pago-resultado";
     }
 
+    /**
+     * CU-46 — Descarga del comprobante oficial de pago en PDF.
+     */
+    @GetMapping("/descargar-comprobante/{pagoId}")
+    public org.springframework.http.ResponseEntity<byte[]> descargarComprobantePdf(@PathVariable Integer pagoId) {
+        Pago pago = pagoService.buscarPorId(pagoId).orElse(null);
+        if (pago == null) return org.springframework.http.ResponseEntity.notFound().build();
+
+        byte[] pdfBytes = pagoService.generarComprobantePdf(pago);
+        String num = (pago.getNumeroComprobante() != null) ? pago.getNumeroComprobante() : ("COMP-" + pago.getId());
+        String filename = "Comprobante-" + num + ".pdf";
+
+        return org.springframework.http.ResponseEntity.ok()
+                .header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
+                .contentType(org.springframework.http.MediaType.APPLICATION_PDF)
+                .body(pdfBytes);
+    }
+
     @GetMapping({"", "/historial"})
     public String verHistorialPagos(Model model, Authentication auth) {
         if (auth != null && auth.getPrincipal() instanceof Usuario) {

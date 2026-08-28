@@ -96,6 +96,12 @@ public class ClaseEnVivoController {
 
             EstadoClaseEnVivo estado = estadoRepo.findByNombre("Programada").orElseGet(() -> estadoRepo.findAll().get(0));
             LocalDateTime fHora = LocalDateTime.parse(fechaHora.contains("T") ? fechaHora : fechaHora + "T18:00:00");
+            LocalDateTime fFin = fHora.plusMinutes(duracionEstimada);
+
+            if (docente != null && claseEnVivoRepository.existsByDocenteAndFechaHoraBetweenAndBajaFalse(docente, fHora.minusMinutes(30), fFin)) {
+                ra.addFlashAttribute("error", "El docente seleccionado ya tiene una clase programada en ese rango horario.");
+                return "redirect:/clases-vivo/nueva?cohorteId=" + cohorteId;
+            }
 
             ClaseEnVivo clase = new ClaseEnVivo(titulo, fHora, duracionEstimada, "rtmp://live.idoneos.online/live", UUID.randomUUID().toString(), docente, estado, cohorte);
             claseEnVivoRepository.save(clase);

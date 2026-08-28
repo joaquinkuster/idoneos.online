@@ -4,6 +4,7 @@ import com.app.idoneos.model.*;
 import com.app.idoneos.repository.modulo_usuarios.*;
 import com.app.idoneos.service.modulo_usuarios.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -93,6 +94,11 @@ public class SeguridadController {
         return "pages/seguridad/cu-91-cerrar-sesion";
     }
 
+    @Autowired private EmailService emailService;
+
+    @Value("${idoneos.app.base-url:http://localhost:8080}")
+    private String baseUrl;
+
     @GetMapping("/recuperar-contrasena")
     public String recuperarContrasenaForm(Model model) {
         model.addAttribute("titulo", "CU-92 - Recuperar contraseña | Idóneos Online");
@@ -104,13 +110,58 @@ public class SeguridadController {
         Optional<Usuario> uOpt = usuarioRepository.findByCorreoAndBajaFalse(email);
         if (uOpt.isPresent()) {
             Usuario u = uOpt.get();
-            u.setTokenRecuperacion(UUID.randomUUID().toString());
+            String token = UUID.randomUUID().toString();
+            u.setTokenRecuperacion(token);
             u.setExpiracionToken(LocalDateTime.now().plusHours(2));
             usuarioRepository.save(u);
+
+            String linkReset = baseUrl + "/seguridad/reset-contrasena?token=" + token;
+            String htmlBody = "<html><body style=\"font-family: Arial, sans-serif; padding: 20px;\">"
+                    + "<h3>Recuperación de Contraseña — Idóneos Online</h3>"
+                    + "<p>Hola <strong>" + u.getNombre() + "</strong>,</p>"
+                    + "<p>Recibimos una solicitud para restablecer tu contraseña. Para crear una nueva clave, hacé clic en el botón:</p>"
+                    + "<p><a href=\"" + linkReset + "\" style=\"background:#1a56db;color:#fff;padding:12px 24px;text-decoration:none;border-radius:6px;font-weight:bold;display:inline-block;\">Restablecer Contraseña</a></p>"
+                    + "<p style=\"color:#666;font-size:13px;\">Este enlace tiene una validez de 2 horas. Si no solicitaste este cambio, podés ignorar este correo.</p>"
+                    + "</body></html>";
+
+            emailService.enviar(u.getCorreo(), "Recuperá tu contraseña — Idóneos Online", htmlBody);
             ra.addFlashAttribute("mensaje", "Se ha enviado un enlace de recuperación a tu casilla de correo.");
         } else {
             ra.addFlashAttribute("mensaje", "Si el correo existe en el sistema, recibirás instrucciones para restablecer tu contraseña.");
         }
+        return "redirect:/seguridad/login";
+    }
+
+    @GetMapping("/reset-contrasena")
+    public String resetContrasenaForm(@RequestParam String token, Model model) {
+        Optional<Usuario> uOpt = usuarioRepository.findByTokenRecuperacion(token);
+        if (uOpt.isEmpty() || uOpt.get().getExpiracionToken() == null || uOpt.get().getExpiracionToken().isBefore(LocalDateTime.now())) {
+            model.addAttribute("tokenInvalido", true);
+        } else {
+            model.addAttribute("token", token);
+            model.addAttribute("tokenInvalido", false);
+        }
+        model.addAttribute("titulo", "Restablecer Contraseña | Idóneos Online");
+        return "pages/seguridad/reset-contrasena";
+    }
+
+    @PostMapping("/reset-contrasena")
+    public String procesarResetContrasena(@RequestParam String token,
+                                          @RequestParam String contrasena,
+                                          RedirectAttributes ra) {
+        Optional<Usuario> uOpt = usuarioRepository.findByTokenRecuperacion(token);
+        if (uOpt.isEmpty() || uOpt.get().getExpiracionToken() == null || uOpt.get().getExpiracionToken().isBefore(LocalDateTime.now())) {
+            ra.addFlashAttribute("error", "El enlace de recuperación es inválido o ha expirado.");
+            return "redirect:/seguridad/recuperar-contrasena";
+        }
+
+        Usuario u = uOpt.get();
+        u.setContrasena(passwordEncoder.encode(contrasena));
+        u.setTokenRecuperacion(null);
+        u.setExpiracionToken(null);
+        usuarioRepository.save(u);
+
+        ra.addFlashAttribute("mensaje", "¡Tu contraseña se actualizó correctamente! Ya podés iniciar sesión.");
         return "redirect:/seguridad/login";
     }
 

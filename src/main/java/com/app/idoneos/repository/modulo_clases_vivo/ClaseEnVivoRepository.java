@@ -6,10 +6,13 @@ import com.app.idoneos.model.*;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
 public interface ClaseEnVivoRepository extends JpaRepository<ClaseEnVivo, Integer> {
     List<ClaseEnVivo> findByDocenteAndBajaFalseOrderByFechaHoraDesc(Docente docente);
+    List<ClaseEnVivo> findByCohorteAndBajaFalse(Cohorte cohorte);
+    List<ClaseEnVivo> findByCohorteAndBajaFalseOrderByFechaHoraAsc(Cohorte cohorte);
+    boolean existsByDocenteAndFechaHoraBetweenAndBajaFalse(Docente docente, LocalDateTime inicio, LocalDateTime fin);
 }
-
