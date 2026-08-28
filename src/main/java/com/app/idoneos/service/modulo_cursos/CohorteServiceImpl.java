@@ -159,9 +159,18 @@ public class CohorteServiceImpl implements CohorteService {
     @Override
     @Transactional(readOnly = true)
     public List<Cohorte> buscarCohortesConFiltros(Integer programaId, String estado, String fechaDesde, String fechaHasta) {
-        Programa programa = programaRepository.findById(programaId).orElse(null);
-        if (programa == null) return List.of();
-        List<Cohorte> lista = cohorteRepository.findByProgramaAndBajaFalse(programa);
+        List<Cohorte> lista;
+        if (programaId != null) {
+            Programa programa = programaRepository.findById(programaId).orElse(null);
+            if (programa == null) return List.of();
+            lista = cohorteRepository.findByProgramaAndBajaFalse(programa);
+        } else {
+            if ("historicos".equalsIgnoreCase(estado) || "inactivas".equalsIgnoreCase(estado)) {
+                lista = cohorteRepository.findAll();
+            } else {
+                lista = cohorteRepository.findByBajaFalse();
+            }
+        }
         return lista;
     }
 }

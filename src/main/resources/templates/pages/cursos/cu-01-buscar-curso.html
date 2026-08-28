@@ -12,7 +12,7 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;800&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     
     <!-- Estilos del Sistema Centralizados -->
     <link rel="stylesheet" th:href="@{/css/styles.css}">
@@ -38,14 +38,6 @@
                     </div>
                     
                     <div class="d-flex align-items-center gap-2" th:if="${usuario != null and usuario.esAdmin()}">
-                        <a th:href="@{/cursos/categorias}" class="wf-btn wf-btn-outline text-white" style="border-color: rgba(255,255,255,0.3); text-decoration: none;">
-                            <i class="fa-solid fa-tags me-1" style="color: var(--wf-gold);"></i>
-                            <span>Ver Categorías</span>
-                        </a>
-                        <a th:href="@{/cursos/cohortes}" class="wf-btn wf-btn-outline text-white" style="border-color: rgba(255,255,255,0.3); text-decoration: none;">
-                            <i class="fa-solid fa-calendar-days me-1" style="color: var(--wf-gold);"></i>
-                            <span>Ver Cohortes</span>
-                        </a>
                         <button type="button" class="wf-btn-gold border-0" data-bs-toggle="modal" data-bs-target="#modalNuevoCurso">
                             <i class="fa-solid fa-plus"></i>
                             <span>Nuevo Curso</span>
@@ -56,6 +48,7 @@
                 <div class="wf-body">
                     <div class="wf-main-content">
                         
+      <!-- Barra de Filtros -->
       <div class="wf-card mb-4" style="background: #FFFFFF;">
         <form th:action="@{/cursos}" method="get" class="row align-items-end g-3">
           <div class="col-md-5">
@@ -79,6 +72,7 @@
         </form>
       </div>
 
+      <!-- Grilla de Tarjetas -->
       <div class="wf-cards-grid">
         <div th:each="curso : ${cursos}" class="wf-course-card">
           <div class="wf-course-card-thumb">
@@ -122,146 +116,188 @@
                   <span>Dar de baja</span>
                 </button>
               </div>
-
-              <!-- Modal CU-04: Modificar Curso (100% Fiel al Wireframe Figura 4) -->
-              <div class="modal fade text-start" th:id="'modalEditarCurso' + ${curso.id}" tabindex="-1" aria-hidden="true" th:if="${usuario != null and usuario.esAdmin()}">
-                <div class="modal-dialog modal-dialog-centered modal-xl">
-                  <div class="modal-content" style="border-radius: 12px; border: 1px solid #CBD5E1; box-shadow: 0 20px 50px rgba(8, 20, 38, 0.15); overflow: hidden;">
-                    <div class="p-4 bg-white">
-                      <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
-                        <div>
-                          <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Modificar Curso</h3>
-                          <p class="small text-muted" style="margin: 3px 0 0;">Defina los parámetros académicos, docentes y comerciales del programa de capacitación.</p>
-                        </div>
-                        <div class="d-flex align-items-center gap-2">
-                          <span class="wf-badge status-active">Modo Edición</span>
-                          <button type="button" class="btn-close ms-2" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                        </div>
-                      </div>
-
-                      <form th:action="@{'/cursos/' + ${curso.id} + '/editar'}" method="post">
-                        <div class="row g-3">
-                          <div class="col-md-8">
-                            <label class="wf-label">Nombre del Curso</label>
-                            <div class="wf-input-wrap">
-                              <input type="text" name="nombre" class="wf-input" th:value="${curso.nombre}" required>
-                            </div>
-                          </div>
-                          <div class="col-md-4">
-                            <label class="wf-label">Categoría Temática</label>
-                            <div class="wf-input-wrap">
-                              <select name="categoriaId" class="wf-input" required>
-                                <option th:each="cat : ${categorias}" th:value="${cat.id}" th:text="${cat.nombre}" th:selected="${curso.categoria != null and curso.categoria.id == cat.id}">Categoría</option>
-                              </select>
-                            </div>
-                          </div>
-                          <div class="col-md-4">
-                            <label class="wf-label">Nivel de Dificultad</label>
-                            <div class="wf-input-wrap">
-                              <select name="nivelId" class="wf-input">
-                                <option th:each="n : ${niveles}" th:value="${n.id}" th:text="${n.nombre}" th:selected="${curso.nivel != null and curso.nivel.id == n.id}">Nivel</option>
-                              </select>
-                            </div>
-                          </div>
-                          <div class="col-md-4">
-                            <label class="wf-label">Precio / Arancel de Inscripción (ARS)</label>
-                            <div class="wf-input-wrap">
-                              <input type="number" step="0.01" min="0" name="precio" class="wf-input" th:value="${curso.precio}" required>
-                            </div>
-                          </div>
-                          <div class="col-md-4">
-                            <label class="wf-label">Docente Titular Responsable</label>
-                            <div class="wf-input-wrap">
-                              <select name="docenteTitularId" class="wf-input" required>
-                                <option th:each="d : ${docentes}" th:value="${d.id}" th:text="${d.usuario.nombreCompleto}" th:selected="${curso.docente != null and curso.docente.id == d.id}">Docente</option>
-                              </select>
-                            </div>
-                          </div>
-                          <div class="col-12">
-                            <label class="wf-label">Descripción Académica y Objetivos</label>
-                            <div class="wf-input-wrap">
-                              <textarea name="descripcion" class="wf-input" rows="3" th:text="${curso.descripcion}" required></textarea>
-                            </div>
-                          </div>
-                          <div class="col-md-6">
-                            <label class="wf-label">Imagen de Portada / Banner del Curso</label>
-                            <div class="wf-input-wrap">
-                              <input type="text" name="imagen" class="wf-input" th:value="${curso.imagen != null ? curso.imagen : 'portada_idoneidad_bursatil_2026.png'}">
-                            </div>
-                          </div>
-                          <div class="col-md-6 d-flex align-items-center">
-                            <div class="p-3 bg-light rounded border d-flex justify-content-between align-items-center w-100">
-                              <div>
-                                <strong style="font-size: 13px;">Emisión de Certificado Oficial</strong>
-                                <p class="small text-muted m-0">Generar credencial digital verificable con código QR.</p>
-                              </div>
-                              <input type="checkbox" name="emiteCertificado" value="true" th:checked="${curso.emiteCertificado}" style="width: 18px; height: 18px; accent-color: var(--wf-gold);">
-                            </div>
-                          </div>
-                        </div>
-
-                        <div class="d-flex justify-content-end gap-3 mt-4 pt-3 border-top">
-                          <button type="button" class="wf-btn wf-btn-outline" data-bs-dismiss="modal">Cancelar / Volver</button>
-                          <button type="submit" class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Guardar Cambios</button>
-                        </div>
-                      </form>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Modal CU-05: Dar de Baja Curso (100% Fiel al Wireframe Figura 5) -->
-              <div class="modal fade text-start" th:id="'modalBajaCurso' + ${curso.id}" tabindex="-1" aria-hidden="true" th:if="${usuario != null and usuario.esAdmin()}">
-                <div class="modal-dialog modal-dialog-centered" style="max-width: 620px;">
-                  <div class="modal-content" style="border-radius: 12px; border: 1px solid #CBD5E1; box-shadow: 0 20px 50px rgba(8, 20, 38, 0.15); overflow: hidden;">
-                    <div class="p-3 border-bottom d-flex justify-content-between align-items-center" style="background: #F8FAFC;">
-                      <div class="d-flex align-items-center gap-2">
-                        <i class="fa-solid fa-triangle-exclamation text-danger"></i>
-                        <strong style="font-size: 14px; color: #081426;">Dar de baja curso</strong>
-                      </div>
-                      <span class="wf-badge status-active">Confirmación Requerida</span>
-                    </div>
-                    <div class="p-4 text-center">
-                      <div class="mb-3" style="width: 56px; height: 56px; border-radius: 50%; background: #FEE2E2; color: #DC2626; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 24px;">
-                        <i class="fa-solid fa-triangle-exclamation"></i>
-                      </div>
-                      <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin-bottom: 6px;">¿Confirma la operación de dar de baja curso?</h3>
-                      <p class="small text-muted mb-4" style="line-height: 1.5;">Esta acción procesará el cambio de estado en la base de datos y afectará la disponibilidad del elemento en el sistema.</p>
-
-                      <div class="p-3 mb-4 bg-light border rounded text-start" style="font-size: 13px;">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                          <span class="text-muted">Registro afectado:</span>
-                          <strong style="color: #081426;" th:text="${curso.nombre}">Curso Nombre</strong>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                          <span class="text-muted">Estado actual:</span>
-                          <span class="wf-badge status-active">Activo / Vigente</span>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center">
-                          <span class="text-muted">Validación de dependencias:</span>
-                          <span class="small text-success fw-bold"><i class="fa-solid fa-circle-check me-1"></i> Sin dependencias bloqueantes</span>
-                        </div>
-                      </div>
-
-                      <form th:action="@{'/cursos/' + ${curso.id} + '/baja'}" method="post" class="d-flex justify-content-end align-items-center gap-3 pt-3 border-top">
-                        <button type="button" class="wf-btn wf-btn-outline" data-bs-dismiss="modal">Cancelar / Volver</button>
-                        <button type="submit" class="wf-btn wf-btn-danger"><i class="fa-solid fa-trash me-1"></i> Confirmar Baja</button>
-                      </form>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
             </div>
           </div>
         </div>
       </div>
 
+      <!-- Paginación de Cursos -->
+      <div class="d-flex justify-content-center align-items-center gap-2 mt-4 pt-3" th:if="${totalPages != null and totalPages > 1}">
+        <a th:href="@{/cursos(page=${currentPage - 1}, busqueda=${busqueda}, categoriaId=${categoriaSeleccionada})}" 
+           class="btn btn-sm btn-outline-secondary rounded-pill px-3"
+           th:classappend="${currentPage == 0} ? ' disabled' : ''">
+          <i class="fa-solid fa-chevron-left me-1"></i> Anterior
+        </a>
+
+        <div class="d-inline-flex gap-1">
+          <span th:each="pageNum : ${#numbers.sequence(0, totalPages - 1)}">
+            <a th:href="@{/cursos(page=${pageNum}, busqueda=${busqueda}, categoriaId=${categoriaSeleccionada})}" 
+               th:text="${pageNum + 1}"
+               class="btn btn-sm rounded-circle"
+               th:classappend="${pageNum == currentPage} ? ' btn-primary fw-bold' : ' btn-outline-light text-dark'"
+               style="width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center;">1</a>
+          </span>
+        </div>
+
+        <a th:href="@{/cursos(page=${currentPage + 1}, busqueda=${busqueda}, categoriaId=${categoriaSeleccionada})}" 
+           class="btn btn-sm btn-outline-secondary rounded-pill px-3"
+           th:classappend="${currentPage >= totalPages - 1} ? ' disabled' : ''">
+          Siguiente <i class="fa-solid fa-chevron-right ms-1"></i>
+        </a>
+      </div>
+
+                    </div>
+                </div>
+
+                <!-- Footer Oficial -->
+                <div class="wf-screen-footer">
+                    <div>
+                        <strong>Idóneos <span>Online</span> S.A.S.</strong> • Plataforma de Educación Financiera, Economía & Mercado de Capitales
+                    </div>
+                    <div>
+                        FCEQyN — UNaM • Proyecto Software (LSI) / Trabajo Final (ASI)
+                    </div>
+                </div>
+
+        </div>
     </div>
-  </div>
+
+  <!-- MODALES DE EDICIÓN Y BAJA FUERA DEL GRID PARA EVITAR CONFLICTOS DE Z-INDEX / CSS TRANSFORMS -->
+  <th:block th:if="${usuario != null and usuario.esAdmin()}">
+    <div th:each="curso : ${cursos}">
+      <!-- Modal CU-04: Modificar Curso (100% Fiel al Wireframe Figura 4) -->
+      <div class="modal fade" th:id="'modalEditarCurso' + ${curso.id}" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl">
+          <div class="modal-content" style="border-radius: 12px; border: 1px solid #CBD5E1; box-shadow: 0 20px 50px rgba(8, 20, 38, 0.15); overflow: hidden;">
+            <div class="p-4 bg-white">
+              <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+                <div>
+                  <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Modificar Curso</h3>
+                  <p class="small text-muted" style="margin: 3px 0 0;">Defina los parámetros académicos, docentes y comerciales del programa de capacitación.</p>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                  <span class="wf-badge status-active">Modo Edición</span>
+                  <button type="button" class="btn-close ms-2" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+              </div>
+
+              <form th:action="@{'/cursos/' + ${curso.id} + '/editar'}" method="post">
+                <div class="row g-3">
+                  <div class="col-md-8">
+                    <label class="wf-label">Nombre del Curso</label>
+                    <div class="wf-input-wrap">
+                      <input type="text" name="nombre" class="wf-input" th:value="${curso.nombre}" required>
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <label class="wf-label">Categoría Temática</label>
+                    <div class="wf-input-wrap">
+                      <select name="categoriaId" class="wf-input" required>
+                        <option th:each="cat : ${categorias}" th:value="${cat.id}" th:text="${cat.nombre}" th:selected="${curso.categoria != null and curso.categoria.id == cat.id}">Categoría</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <label class="wf-label">Nivel de Dificultad</label>
+                    <div class="wf-input-wrap">
+                      <select name="nivelId" class="wf-input">
+                        <option th:each="n : ${niveles}" th:value="${n.id}" th:text="${n.nombre}" th:selected="${curso.nivel != null and curso.nivel.id == n.id}">Nivel</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <label class="wf-label">Precio / Arancel de Inscripción (ARS)</label>
+                    <div class="wf-input-wrap">
+                      <input type="number" step="0.01" min="0" name="precio" class="wf-input" th:value="${curso.precio}" required>
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <label class="wf-label">Docente Titular Responsable</label>
+                    <div class="wf-input-wrap">
+                      <select name="docenteTitularId" class="wf-input" required>
+                        <option th:each="d : ${docentes}" th:value="${d.id}" th:text="${d.usuario.nombreCompleto}" th:selected="${curso.docente != null and curso.docente.id == d.id}">Docente</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-12">
+                    <label class="wf-label">Descripción Académica y Objetivos</label>
+                    <div class="wf-input-wrap">
+                      <textarea name="descripcion" class="wf-input" rows="3" th:text="${curso.descripcion}" required></textarea>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="wf-label">Imagen de Portada / Banner del Curso</label>
+                    <div class="wf-input-wrap">
+                      <input type="text" name="imagen" class="wf-input" th:value="${curso.imagen != null ? curso.imagen : 'portada_idoneidad_bursatil_2026.png'}">
+                    </div>
+                  </div>
+                  <div class="col-md-6 d-flex align-items-center">
+                    <div class="p-3 bg-light rounded border d-flex justify-content-between align-items-center w-100">
+                      <div>
+                        <strong style="font-size: 13px;">Emisión de Certificado Oficial</strong>
+                        <p class="small text-muted m-0">Generar credencial digital verificable con código QR.</p>
+                      </div>
+                      <input type="checkbox" name="emiteCertificado" value="true" th:checked="${curso.emiteCertificado}" style="width: 18px; height: 18px; accent-color: var(--wf-gold);">
+                    </div>
+                  </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-3 mt-4 pt-3 border-top">
+                  <button type="button" class="wf-btn wf-btn-outline" data-bs-dismiss="modal">Cancelar / Volver</button>
+                  <button type="submit" class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Guardar Cambios</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal CU-05: Dar de Baja Curso (100% Fiel al Wireframe Figura 5) -->
+      <div class="modal fade" th:id="'modalBajaCurso' + ${curso.id}" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: 620px;">
+          <div class="modal-content" style="border-radius: 12px; border: 1px solid #CBD5E1; box-shadow: 0 20px 50px rgba(8, 20, 38, 0.15); overflow: hidden;">
+            <div class="p-3 border-bottom d-flex justify-content-between align-items-center" style="background: #F8FAFC;">
+              <div class="d-flex align-items-center gap-2">
+                <i class="fa-solid fa-triangle-exclamation text-danger"></i>
+                <strong style="font-size: 14px; color: #081426;">Dar de baja curso</strong>
+              </div>
+              <span class="wf-badge status-active">Confirmación Requerida</span>
+            </div>
+            <div class="p-4 text-center">
+              <div class="mb-3" style="width: 56px; height: 56px; border-radius: 50%; background: #FEE2E2; color: #DC2626; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 24px;">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+              </div>
+              <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin-bottom: 6px;">¿Confirma la operación de dar de baja curso?</h3>
+              <p class="small text-muted mb-4" style="line-height: 1.5;">Esta acción procesará el cambio de estado en la base de datos y afectará la disponibilidad del elemento en el sistema.</p>
+
+              <div class="p-3 mb-4 bg-light border rounded text-start" style="font-size: 13px;">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <span class="text-muted">Registro afectado:</span>
+                  <strong style="color: #081426;" th:text="${curso.nombre}">Curso Nombre</strong>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <span class="text-muted">Estado actual:</span>
+                  <span class="wf-badge status-active">Activo / Vigente</span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                  <span class="text-muted">Validación de dependencias:</span>
+                  <span class="small text-success fw-bold"><i class="fa-solid fa-circle-check me-1"></i> Sin dependencias bloqueantes</span>
+                </div>
+              </div>
+
+              <form th:action="@{'/cursos/' + ${curso.id} + '/baja'}" method="post" class="d-flex justify-content-end align-items-center gap-3 pt-3 border-top">
+                <button type="button" class="wf-btn wf-btn-outline" data-bs-dismiss="modal">Cancelar / Volver</button>
+                <button type="submit" class="wf-btn wf-btn-danger"><i class="fa-solid fa-trash me-1"></i> Confirmar Baja</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </th:block>
 
   <!-- Modal CU-03: Registrar Nuevo Curso (100% Fiel al Wireframe Figura 3) -->
-  <div class="modal fade text-start" id="modalNuevoCurso" tabindex="-1" aria-hidden="true" th:if="${usuario != null and usuario.esAdmin()}">
+  <div class="modal fade" id="modalNuevoCurso" tabindex="-1" aria-hidden="true" th:if="${usuario != null and usuario.esAdmin()}">
     <div class="modal-dialog modal-dialog-centered modal-xl">
       <div class="modal-content" style="border-radius: 12px; border: 1px solid #CBD5E1; box-shadow: 0 20px 50px rgba(8, 20, 38, 0.15); overflow: hidden;">
         <div class="p-4 bg-white">
@@ -349,19 +385,6 @@
       </div>
     </div>
   </div>
-
-                <!-- Footer Oficial -->
-                <div class="wf-screen-footer">
-                    <div>
-                        <strong>Idóneos <span>Online</span> S.A.S.</strong> • Plataforma de Educación Financiera, Economía & Mercado de Capitales
-                    </div>
-                    <div>
-                        FCEQyN — UNaM • Proyecto Software (LSI) / Trabajo Final (ASI)
-                    </div>
-                </div>
-
-        </div>
-    </div>
 
     <!-- Bootstrap Bundle JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

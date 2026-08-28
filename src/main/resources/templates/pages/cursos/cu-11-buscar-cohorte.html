@@ -12,7 +12,7 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;800&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     
     <!-- Estilos del Sistema Centralizados -->
     <link rel="stylesheet" th:href="@{/css/styles.css}">
@@ -31,33 +31,19 @@
                     <div>
                         <div class="wf-hero-tag">
                             <i class="fa-solid fa-graduation-cap" style="color: var(--wf-gold);"></i>
-                            <span>PANEL DE ADMINISTRACIÓN</span>
+                            <span th:text="${usuario != null and usuario.esAdmin() ? 'PANEL DE ADMINISTRACIÓN' : 'PANEL DOCENTE'}">PANEL DE GESTIÓN</span>
                         </div>
                         <h2 class="wf-hero-title">Buscar cohorte</h2>
-                        <p class="wf-hero-desc">Bienvenido/a, Admin General</p>
+                        <p class="wf-hero-desc">Bienvenido/a, <span th:text="${usuario != null ? usuario.nombreCompleto : 'Admin General'}">Admin General</span></p>
                     </div>
                     
-                    <div class="d-flex align-items-center gap-2">
-                    
-                    
-                    
+                    <div class="d-flex align-items-center gap-2" th:if="${usuario != null and usuario.esAdmin()}">
                         <button type="button" class="wf-btn-gold border-0" data-bs-toggle="modal" data-bs-target="#modalNuevaCohorte">
                             <i class="fa-solid fa-plus"></i>
                             <span>Nueva Cohorte</span>
                         </button>
-                        
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
                     </div>
-</div>
+                </div>
 
                 <div class="wf-body">
                     <div class="wf-main-content">
@@ -70,73 +56,77 @@
         </div>
       </div>
 
+      <!-- Barra de Filtros Nativa y Limpia (Figura 11) -->
       <div class="wf-card mb-4" style="background: #FFFFFF;">
-        <div class="row g-3 align-items-end">
+        <form th:action="@{/cursos/cohortes}" method="get" class="row g-3 align-items-end">
           <div class="col-md-5">
-            <label class="wf-label">Criterio de búsqueda / Filtro principal</label>
+            <label class="wf-label">CRITERIO DE BÚSQUEDA / FILTRO PRINCIPAL</label>
             <div class="wf-input-wrap">
-              <input type="text" class="wf-input" placeholder="Buscar en Buscar cohorte...">
-              
+              <input type="text" name="busqueda" th:value="${busqueda}" class="wf-input" placeholder="Buscar en Buscar cohorte...">
             </div>
           </div>
           <div class="col-md-4">
-            <label class="wf-label">Filtro Secundario / Estado</label>
-            <div class="wf-select-container">
-              <div class="wf-input-wrap">
-                <div class="wf-input wf-select-trigger">
-                  <span>Todos los registros</span>
-                  <i class="fa-solid fa-chevron-down" style="font-size: 11px;"></i>
-                </div>
-                
-              </div>
-              <div class="wf-dropdown-menu">
-                <div class="wf-dropdown-item active">☑ Todos los registros</div>
-                <div class="wf-dropdown-item">☐ Activos / Vigentes</div>
-                <div class="wf-dropdown-item">☐ Históricos</div>
-              </div>
-            </div>
+            <label class="wf-label">FILTRO SECUNDARIO / ESTADO</label>
+            <select name="estado" class="wf-input">
+              <option value="" th:selected="${estadoSeleccionado == null or estadoSeleccionado == ''}">Todos los registros</option>
+              <option value="activas" th:selected="${estadoSeleccionado == 'activas'}">Activos / Vigentes</option>
+              <option value="historicos" th:selected="${estadoSeleccionado == 'historicos'}">Históricos</option>
+            </select>
           </div>
           <div class="col-md-3">
-            <div class="d-flex align-items-center gap-2">
-              <button class="wf-btn wf-btn-primary w-100"><i class="fa-solid fa-magnifying-glass me-1"></i> Buscar</button>
-              
-            </div>
+            <button type="submit" class="wf-btn wf-btn-primary w-100">
+              <i class="fa-solid fa-magnifying-glass me-1"></i> Buscar
+            </button>
           </div>
-        </div>
-      </div>
-
-      <div class="wf-table-wrap">
-        <table class="wf-table">
-          <thead>
-            <tr>
-              <th>Identificador / Nombre</th>
-              <th>Detalle / Contexto</th>
-              <th>Registro</th>
-              <th>Estado</th>
-              <th class="text-end">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-  <tr th:each="coh : ${cohortes}">
-    <td><strong style="color: #081426;" th:text="${coh.programa != null ? coh.programa.curso.nombre : 'Curso'}">Curso</strong></td>
-    <td th:text="${#temporals.format(coh.fechaInicioInscripcion, 'dd/MM/yyyy') + ' al ' + #temporals.format(coh.fechaFinInscripcion, 'dd/MM/yyyy')}">Inscripción</td>
-    <td th:text="${coh.fechaInicioDictado != null ? #temporals.format(coh.fechaInicioDictado, 'dd/MM/yyyy') + ' al ' + #temporals.format(coh.fechaFinDictado, 'dd/MM/yyyy') : 'Modalidad Asincrónica'}">Dictado</td>
-    <td th:text="${coh.cupoMaximo != null ? coh.cupoMaximo : 'Ilimitado'}">50</td>
-    <td><span class="wf-badge status-active" th:text="${coh.baja ? 'Inactiva' : 'Activa'}">Activa</span></td>
-    <td class="text-end">
-      <div class="d-inline-flex gap-2">
-        <a th:href="@{'/cursos/cohortes/' + ${coh.id} + '/editar'}" class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-pen-to-square"></i></a>
-        <form th:action="@{'/cursos/cohortes/' + ${coh.id} + '/baja'}" method="post" class="d-inline">
-          <button type="submit" class="wf-btn wf-btn-sm wf-btn-outline text-danger" onclick="return confirm('¿Dar de baja esta cohorte?');"><i class="fa-solid fa-trash"></i></button>
         </form>
       </div>
-    </td>
-  </tr>
-  <tr th:if="${#lists.isEmpty(cohortes)}">
-    <td colspan="6" class="text-center py-4 text-muted">No se encontraron cohortes registradas.</td>
-  </tr>
-</tbody>
-        </table>
+
+      <!-- Grilla / Tabla de Cohortes Fiel a Figura 11 -->
+      <div class="wf-card" style="background: #FFFFFF;">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th style="font-size: 12px; font-weight: 700; color: #081426;">IDENTIFICADOR / NOMBRE</th>
+                <th style="font-size: 12px; font-weight: 700; color: #081426;">DETALLE / CONTEXTO</th>
+                <th style="font-size: 12px; font-weight: 700; color: #081426;">REGISTRO</th>
+                <th style="font-size: 12px; font-weight: 700; color: #081426;">ESTADO</th>
+                <th style="font-size: 12px; font-weight: 700; color: #081426; text-align: right;">ACCIONES</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="coh : ${cohortes}">
+                <td>
+                  <strong style="color: #081426;" th:text="${coh.programa != null and coh.programa.curso != null ? coh.programa.curso.nombre + ' (' + coh.programa.nombre + ')' : 'Cohorte #' + coh.id}">Cohorte 2026-1</strong>
+                </td>
+                <td class="small text-muted">
+                  <span th:text="${coh.programa != null and coh.programa.curso != null and coh.programa.curso.categoria != null ? coh.programa.curso.categoria.nombre : 'Mercado de Capitales & Finanzas'}">Mercado de Capitales & Finanzas</span>
+                </td>
+                <td class="small text-secondary" th:text="${coh.fechaInicioInscripcion != null ? #temporals.format(coh.fechaInicioInscripcion, 'yyyy-MM-dd') : '2026-08-25'}">2026-08-25</td>
+                <td>
+                  <span class="wf-badge" th:classappend="${coh.baja} ? 'status-inactive' : 'status-active'" th:text="${coh.baja} ? 'INACTIVO' : 'ACTIVO'">ACTIVO</span>
+                </td>
+                <td style="text-align: right;">
+                  <div class="d-inline-flex align-items-center gap-2" th:if="${usuario != null and usuario.esAdmin()}">
+                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3"
+                            data-bs-toggle="modal"
+                            th:data-bs-target="'#modalEditarCohorte' + ${coh.id}">
+                      <i class="fa-solid fa-pen-to-square me-1"></i> Editar Cohorte
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3"
+                            data-bs-toggle="modal"
+                            th:data-bs-target="'#modalBajaCohorte' + ${coh.id}" title="Dar de baja">
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr th:if="${cohortes == null or #lists.isEmpty(cohortes)}">
+                <td colspan="5" class="text-center py-4 text-muted">No se encontraron cohortes registradas.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     
                     </div>
@@ -155,61 +145,191 @@
         </div>
     </div>
 
-    <!-- Modal Dinámico: Registrar Cohorte (CU-12 - 100% Fiel al Wireframe Oficial) -->
-    <div class="modal fade" id="modalNuevaCohorte" tabindex="-1" aria-labelledby="modalNuevaCohorteLabel" aria-hidden="true">
+    <!-- MODALES DE EDICIÓN Y BAJA FUERA DE LA TABLA (FIGURAS 13 Y 14) -->
+    <th:block th:if="${usuario != null and usuario.esAdmin()}">
+      <div th:each="coh : ${cohortes}">
+        <!-- Modal CU-13: Modificar Cohorte (100% Fiel a Figura 13) -->
+        <div class="modal fade" th:id="'modalEditarCohorte' + ${coh.id}" tabindex="-1" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content" style="border-radius: 12px; border: 1px solid #CBD5E1; box-shadow: 0 20px 50px rgba(8, 20, 38, 0.15); overflow: hidden;">
+              <div class="p-4 bg-white">
+                <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+                  <div>
+                    <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;" th:text="'Modificar Cohorte #' + ${coh.id}">Modificar Cohorte</h3>
+                    <p class="small text-muted" style="margin: 3px 0 0;">Ajuste los plazos de inscripción, cupos y semanas lectivas de la cohorte.</p>
+                  </div>
+                  <div class="d-flex align-items-center gap-2">
+                    <span class="wf-badge status-active">Modo Edición</span>
+                    <button type="button" class="btn-close ms-2" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                  </div>
+                </div>
+
+                <form th:action="@{'/cursos/cohortes/' + ${coh.id} + '/editar'}" method="post">
+                  <div class="row g-3">
+                    <div class="col-md-6">
+                      <label class="wf-label">Fecha Inicio de Inscripción</label>
+                      <div class="wf-input-wrap">
+                        <input type="date" name="fechaInicioInscripcion" class="wf-input" th:value="${coh.fechaInicioInscripcion != null ? #temporals.format(coh.fechaInicioInscripcion, 'yyyy-MM-dd') : '2026-03-01'}" required>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="wf-label">Fecha Fin de Inscripción</label>
+                      <div class="wf-input-wrap">
+                        <input type="date" name="fechaFinInscripcion" class="wf-input" th:value="${coh.fechaFinInscripcion != null ? #temporals.format(coh.fechaFinInscripcion, 'yyyy-MM-dd') : '2026-03-31'}" required>
+                      </div>
+                    </div>
+
+                    <div class="col-md-4">
+                      <label class="wf-label">Cupo Máximo</label>
+                      <div class="wf-input-wrap">
+                        <input type="number" name="cupoMaximo" class="wf-input" th:value="${coh.cupoMaximo != null ? coh.cupoMaximo : 35}" min="1">
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <label class="wf-label">Semanas de Acceso</label>
+                      <div class="wf-input-wrap">
+                        <input type="number" name="semanasAcceso" class="wf-input" th:value="${coh.semanasAcceso != null ? coh.semanasAcceso : 18}" min="1" required>
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <label class="wf-label">Fecha Inicio de Dictado</label>
+                      <div class="wf-input-wrap">
+                        <input type="date" name="fechaInicioDictado" class="wf-input" th:value="${coh.fechaInicioDictado != null ? #temporals.format(coh.fechaInicioDictado, 'yyyy-MM-dd') : '2026-04-05'}">
+                      </div>
+                    </div>
+                    <div class="col-md-12">
+                      <label class="wf-label">Fecha Fin de Dictado</label>
+                      <div class="wf-input-wrap">
+                        <input type="date" name="fechaFinDictado" class="wf-input" th:value="${coh.fechaFinDictado != null ? #temporals.format(coh.fechaFinDictado, 'yyyy-MM-dd') : '2026-06-30'}">
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="d-flex justify-content-end gap-3 mt-4 pt-3 border-top">
+                    <button type="button" class="wf-btn wf-btn-outline" data-bs-dismiss="modal">Cancelar / Volver</button>
+                    <button type="submit" class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Guardar Cambios</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modal CU-14: Dar de Baja Cohorte (100% Fiel a Figura 14) -->
+        <div class="modal fade" th:id="'modalBajaCohorte' + ${coh.id}" tabindex="-1" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered" style="max-width: 620px;">
+            <div class="modal-content" style="border-radius: 12px; border: 1px solid #CBD5E1; box-shadow: 0 20px 50px rgba(8, 20, 38, 0.15); overflow: hidden;">
+              <div class="p-3 border-bottom d-flex justify-content-between align-items-center" style="background: #F8FAFC;">
+                <div class="d-flex align-items-center gap-2">
+                  <i class="fa-solid fa-triangle-exclamation text-danger"></i>
+                  <strong style="font-size: 14px; color: #081426;">Dar de baja cohorte</strong>
+                </div>
+                <span class="wf-badge status-active">Confirmación Requerida</span>
+              </div>
+
+              <div class="p-4 text-center">
+                <div class="mb-3" style="width: 56px; height: 56px; border-radius: 50%; background: #FEE2E2; color: #DC2626; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 24px;">
+                  <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+                <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin-bottom: 6px;">¿Confirma la operación de dar de baja cohorte?</h3>
+                <p class="small text-muted mb-4" style="line-height: 1.5;">Esta acción procesará el cambio de estado en la base de datos y afectará la disponibilidad del elemento en el sistema.</p>
+
+                <div class="p-3 mb-4 bg-light border rounded text-start" style="font-size: 13px;">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="text-muted">Registro afectado:</span>
+                    <strong style="color: #081426;" th:text="${coh.programa != null and coh.programa.curso != null ? 'Cohorte #' + coh.id + ' — ' + coh.programa.curso.nombre : 'Cohorte #' + coh.id}">Cohorte #01</strong>
+                  </div>
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="text-muted">Estado actual:</span>
+                    <span class="wf-badge status-active">Activo / Vigente</span>
+                  </div>
+                  <div class="d-flex justify-content-between align-items-center">
+                    <span class="text-muted">Validación de dependencias:</span>
+                    <span class="small text-success fw-bold"><i class="fa-solid fa-circle-check me-1"></i> Sin dependencias bloqueantes</span>
+                  </div>
+                </div>
+
+                <form th:action="@{'/cursos/cohortes/' + ${coh.id} + '/baja'}" method="post" class="d-flex justify-content-end align-items-center gap-3 pt-3 border-top">
+                  <button type="button" class="wf-btn wf-btn-outline" data-bs-dismiss="modal">Cancelar / Volver</button>
+                  <button type="submit" class="wf-btn wf-btn-danger"><i class="fa-solid fa-trash me-1"></i> Confirmar Cancelación</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </th:block>
+
+    <!-- Modal CU-12: Registrar Nueva Cohorte (100% Fiel a Figura 12) -->
+    <div class="modal fade" id="modalNuevaCohorte" tabindex="-1" aria-labelledby="modalNuevaCohorteLabel" aria-hidden="true" th:if="${usuario != null and usuario.esAdmin()}">
       <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content" style="border-radius: 12px; border: 1px solid #CBD5E1; box-shadow: 0 20px 50px rgba(8, 20, 38, 0.15); overflow: hidden;">
           <div class="p-4 bg-white">
             <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
               <div>
                 <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Registrar Nueva Cohorte</h3>
-                <p class="small text-muted" style="margin: 3px 0 0;">Programa: Especialización en Idoneidad Bursátil (Programa 2026-A)</p>
+                <p class="small text-muted" style="margin: 3px 0 0;">Defina los plazos de inscripción, cupo y semanas lectivas del programa.</p>
               </div>
               <div class="d-flex align-items-center gap-2">
-                <span class="wf-badge status-active" style="background: rgba(212, 160, 61, 0.15); color: var(--wf-gold-text); border: 1px solid var(--wf-gold); font-size: 11px; font-weight: 700;">FORMULARIO DE ALTA</span>
+                <span class="wf-badge status-active">Formulario de Alta</span>
                 <button type="button" class="btn-close ms-2" data-bs-dismiss="modal" aria-label="Cerrar"></button>
               </div>
             </div>
 
             <form th:action="@{/cursos/cohortes/guardar}" method="post">
               <div class="row g-3">
+                <div class="col-md-12">
+                  <label class="wf-label">SELECCIONAR CURSO / PROGRAMA ACADÉMICO</label>
+                  <select name="programaId" class="wf-input" required>
+                    <option value="">Seleccionar Curso y Programa...</option>
+                    <th:block th:each="cur : ${cursos}">
+                      <option th:each="prog : ${cur.programas}" th:value="${prog.id}" th:text="${cur.nombre + ' — ' + prog.nombre}">Curso — Programa</option>
+                    </th:block>
+                  </select>
+                </div>
                 <div class="col-md-6">
-                  <label class="wf-label">DENOMINACIÓN / CÓDIGO DE COHORTE</label>
-                  <input type="text" name="nombre" class="wf-input" placeholder="Cohorte 2026-1" required>
-                </div>
-                <div class="col-md-3">
                   <label class="wf-label">INICIO DE INSCRIPCIÓN</label>
-                  <input type="date" name="fechaInicioInscripcion" class="wf-input" value="2026-03-01" required>
+                  <div class="wf-input-wrap">
+                    <input type="date" name="fechaInicioInscripcion" class="wf-input" value="2026-03-01" required>
+                  </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-6">
                   <label class="wf-label">FIN DE INSCRIPCIÓN</label>
-                  <input type="date" name="fechaFinInscripcion" class="wf-input" value="2026-03-31" required>
+                  <div class="wf-input-wrap">
+                    <input type="date" name="fechaFinInscripcion" class="wf-input" value="2026-03-31" required>
+                  </div>
                 </div>
 
                 <div class="col-md-6">
                   <label class="wf-label">CUPO MÁXIMO DE ALUMNOS</label>
-                  <input type="number" name="cupoMaximo" class="wf-input" placeholder="Ilimitado si se deja en blanco" min="1">
+                  <div class="wf-input-wrap">
+                    <input type="number" name="cupoMaximo" class="wf-input" value="30" placeholder="Ilimitado si se deja en blanco" min="1">
+                  </div>
                 </div>
                 <div class="col-md-6">
                   <label class="wf-label">SEMANAS DE ACCESO AL CONTENIDO</label>
-                  <input type="number" name="semanasAcceso" class="wf-input" value="16">
+                  <div class="wf-input-wrap">
+                    <input type="number" name="semanasAcceso" class="wf-input" value="16" min="1" required>
+                  </div>
                 </div>
 
                 <div class="col-md-6">
                   <label class="wf-label">FECHA INICIO DE DICTADO (CLASES EN VIVO)</label>
-                  <input type="date" name="fechaInicioDictado" class="wf-input" value="2026-04-05" required>
+                  <div class="wf-input-wrap">
+                    <input type="date" name="fechaInicioDictado" class="wf-input" value="2026-04-05">
+                  </div>
                 </div>
                 <div class="col-md-6">
                   <label class="wf-label">FECHA FIN DE DICTADO (CLASES EN VIVO)</label>
-                  <input type="date" name="fechaFinDictado" class="wf-input" value="2026-06-30" required>
+                  <div class="wf-input-wrap">
+                    <input type="date" name="fechaFinDictado" class="wf-input" value="2026-06-30">
+                  </div>
                 </div>
               </div>
 
               <div class="d-flex justify-content-end gap-3 mt-4 pt-3 border-top">
-                <button type="button" class="wf-btn wf-btn-outline" data-bs-dismiss="modal"><i class="fa-solid fa-arrow-left me-1"></i> <span>Cancelar / Volver</span></button>
-                <button type="submit" class="wf-btn wf-btn-primary" style="background: #081426; color: #FFFFFF; border-color: #081426; font-weight: 700;">
-                  <i class="fa-solid fa-check me-1"></i> Guardar Cohorte
-                </button>
+                <button type="button" class="wf-btn wf-btn-outline" data-bs-dismiss="modal">Cancelar / Volver</button>
+                <button type="submit" class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Guardar Cohorte</button>
               </div>
             </form>
           </div>
@@ -229,33 +349,6 @@
                 }
             }
         }
-    </script>
-
-    <!-- DSS & Case of Use Console Logger -->
-    <script>
-        (function() {
-            const cuId = 'CU-11';
-            const cuNombre = 'Buscar cohorte';
-            const cuActores = 'Administrador / Docente';
-            const cuDss = 'buscarCohortes(programa, estado, fechaInicioInscripcion, fechaFinInscripcion) ➔ seleccionarCohorte(idCohorte, cohortes)';
-
-            console.log(
-                '%c[IDÓNEOS ONLINE] %c ' + cuId + ' %c ' + cuNombre + ' ',
-                'color: #C9982F; font-weight: 800; font-size: 13px;',
-                'background: #081426; color: #E4BE6C; padding: 3px 8px; border-radius: 4px; font-weight: 700; font-size: 12px; border: 1px solid #C9982F;',
-                'color: #081426; font-weight: 800; font-size: 13px;'
-            );
-            console.log(
-                '%c👤 Actor(es): %c' + cuActores,
-                'color: #64748B; font-weight: 700; font-size: 11px;',
-                'color: #0F172A; font-weight: 600; font-size: 11px;'
-            );
-            console.log(
-                '%c⚡ DSS: %c' + cuDss,
-                'color: #64748B; font-weight: 700; font-size: 11px;',
-                'color: #0284C7; font-family: monospace; font-size: 11px; font-weight: 600;'
-            );
-        })();
     </script>
 </body>
 </html>

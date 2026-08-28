@@ -84,6 +84,7 @@ public class CursoController {
                                @RequestParam(value = "nivelId", required = false) Integer nivelId,
                                @RequestParam(value = "docenteId", required = false) Integer docenteId,
                                @RequestParam(value = "modalidadId", required = false) Integer modalidadId,
+                               @RequestParam(value = "page", defaultValue = "0") Integer page,
                                Model model, Authentication auth) {
         agregarUsuarioAlModelo(model, auth);
 
@@ -100,7 +101,21 @@ public class CursoController {
             cursos = cursoService.buscarCursosPublicadosConFiltros(busqueda, categoriaId, modalidadId);
         }
 
-        model.addAttribute("cursos", cursos);
+        int pageSize = 8;
+        int totalCursos = cursos.size();
+        int totalPages = (int) Math.ceil((double) totalCursos / pageSize);
+        if (totalPages == 0) totalPages = 1;
+        int currentPage = (page != null && page >= 0) ? page : 0;
+        if (currentPage >= totalPages) currentPage = totalPages - 1;
+
+        int fromIndex = currentPage * pageSize;
+        int toIndex = Math.min(fromIndex + pageSize, totalCursos);
+        List<Curso> cursosPaginados = (fromIndex <= toIndex && fromIndex < totalCursos) ? cursos.subList(fromIndex, toIndex) : Collections.emptyList();
+
+        model.addAttribute("cursos", cursosPaginados);
+        model.addAttribute("totalCursos", totalCursos);
+        model.addAttribute("currentPage", currentPage);
+        model.addAttribute("totalPages", totalPages);
         model.addAttribute("categorias", categoriaService.obtenerTodo());
         model.addAttribute("niveles", nivelRepository.findAll());
         model.addAttribute("modalidades", modalidadRepository.findAll());
@@ -467,12 +482,22 @@ public class CursoController {
     @GetMapping("/cohortes")
     public String buscarCohortes(@RequestParam(value = "programaId", required = false) Integer programaId,
                                  @RequestParam(value = "estado", required = false) String estado,
+                                 @RequestParam(value = "busqueda", required = false) String busqueda,
                                  Model model, Authentication auth) {
         agregarUsuarioAlModelo(model, auth);
-        if (programaId != null) {
-            model.addAttribute("cohortes", cohorteService.buscarCohortesConFiltros(programaId, estado, null, null));
+        List<Cohorte> cohortes = cohorteService.buscarCohortesConFiltros(programaId, estado, null, null);
+        if (busqueda != null && !busqueda.isBlank()) {
+            String q = busqueda.toLowerCase().trim();
+            cohortes = cohortes.stream().filter(c -> {
+                String cNombre = (c.getPrograma() != null && c.getPrograma().getCurso() != null) ? c.getPrograma().getCurso().getNombre() : "";
+                String pNombre = (c.getPrograma() != null) ? c.getPrograma().getNombre() : "";
+                return cNombre.toLowerCase().contains(q) || pNombre.toLowerCase().contains(q);
+            }).toList();
         }
+        model.addAttribute("cohortes", cohortes);
         model.addAttribute("cursos", cursoService.obtenerTodo());
+        model.addAttribute("busqueda", busqueda);
+        model.addAttribute("estadoSeleccionado", estado);
         model.addAttribute("titulo", "CU-11 - Buscar cohorte | Idóneos Online");
         return "pages/cursos/cu-11-buscar-cohorte";
     }
@@ -548,10 +573,10 @@ public class CursoController {
             Cohorte c = cohorteService.modificarCohorte(id, fechaInicioInscripcion, fechaFinInscripcion,
                     fechaInicioDictado, fechaFinDictado, semanasAcceso, cupoMaximo);
             ra.addFlashAttribute("mensaje", "Cohorte modificada correctamente.");
-            return "redirect:/cursos/cohortes?programaId=" + c.getPrograma().getId();
+            return "redirect:/cursos/cohortes";
         } catch (Exception e) {
             ra.addFlashAttribute("error", e.getMessage());
-            return "redirect:/cursos/cohortes/" + id + "/editar";
+            return "redirect:/cursos/cohortes";
         }
     }
 
@@ -573,14 +598,11 @@ public class CursoController {
     @PostMapping("/cohortes/{id}/baja")
     public String eliminarCohorte(@PathVariable Integer id, RedirectAttributes ra) {
         try {
-            Cohorte c = cohorteService.buscarPorId(id).orElse(null);
-            Integer pId = (c != null && c.getPrograma() != null) ? c.getPrograma().getId() : null;
             cohorteService.darDeBajaCohorte(id);
             ra.addFlashAttribute("mensaje", "Cohorte cancelada / dada de baja correctamente.");
-            return pId != null ? "redirect:/cursos/cohortes?programaId=" + pId : "redirect:/cursos";
         } catch (Exception e) {
             ra.addFlashAttribute("error", e.getMessage());
-            return "redirect:/cursos/cohortes/" + id + "/baja";
         }
+        return "redirect:/cursos/cohortes";
     }
 }
