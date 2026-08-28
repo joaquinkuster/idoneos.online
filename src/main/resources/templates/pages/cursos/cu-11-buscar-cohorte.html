@@ -115,7 +115,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr th:each="coh : ${cohortes}">
+              <tr th:each="coh : ${cohortes}" th:style="${coh.baja} ? 'background: #F8FAFC; opacity: 0.65;' : ''">
                 <td>
                   <strong style="color: #081426;" th:text="${coh.programa != null and coh.programa.curso != null ? coh.programa.curso.nombre + ' (' + coh.programa.nombre + ')' : 'Cohorte #' + coh.id}">Cohorte 2026-1</strong>
                 </td>
@@ -124,10 +124,10 @@
                 </td>
                 <td class="small text-secondary" th:text="${coh.fechaInicioInscripcion != null ? #temporals.format(coh.fechaInicioInscripcion, 'yyyy-MM-dd') : '2026-08-25'}">2026-08-25</td>
                 <td>
-                  <span class="wf-badge" th:classappend="${coh.baja} ? 'status-inactive' : 'status-active'" th:text="${coh.baja} ? 'INACTIVO' : 'ACTIVO'">ACTIVO</span>
+                  <span class="wf-badge" th:classappend="${coh.baja} ? 'status-inactive' : 'status-active'" th:text="${coh.baja} ? 'CANCELADA' : 'ACTIVA'">ACTIVA</span>
                 </td>
                 <td style="text-align: right;">
-                  <div class="d-inline-flex align-items-center gap-2" th:if="${usuario != null and usuario.esAdmin()}">
+                  <div class="d-inline-flex align-items-center gap-2" th:if="${usuario != null and usuario.esAdmin() and !coh.baja}">
                     <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3"
                             data-bs-toggle="modal"
                             th:data-bs-target="'#modalEditarCohorte' + ${coh.id}">
@@ -136,8 +136,11 @@
                     <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3"
                             data-bs-toggle="modal"
                             th:data-bs-target="'#modalBajaCohorte' + ${coh.id}" title="Dar de baja cohorte">
-                      <i class="fa-solid fa-trash"></i>
+                      <i class="fa-solid fa-ban me-1"></i> Cancelar Cohorte
                     </button>
+                  </div>
+                  <div class="d-inline-flex align-items-center" th:if="${coh.baja}">
+                    <span class="text-muted small fst-italic"><i class="fa-solid fa-lock me-1"></i> Cancelada</span>
                   </div>
                 </td>
               </tr>

@@ -59,13 +59,20 @@
       <!-- Barra de Filtros Nativa -->
       <div class="wf-card mb-4" style="background: #FFFFFF;">
         <form th:action="@{/cursos/categorias}" method="get" class="row g-3 align-items-end">
-          <div class="col-md-8">
+          <div class="col-md-5">
             <label class="wf-label">Buscar categoría por nombre o descripción</label>
             <div class="wf-input-wrap">
               <input type="text" name="nombre" th:value="${nombreBusqueda}" class="wf-input" placeholder="Ej: Mercado de Capitales, Finanzas, Cripto...">
             </div>
           </div>
           <div class="col-md-4">
+            <label class="wf-label">FILTRO SECUNDARIO / ESTADO</label>
+            <select name="baja" class="wf-input">
+              <option value="false" th:selected="${bajaSeleccionada == null or !bajaSeleccionada}">Solo Activas / Vigentes</option>
+              <option value="true" th:selected="${bajaSeleccionada != null and bajaSeleccionada}">Todas (Incluir Dadas de Baja)</option>
+            </select>
+          </div>
+          <div class="col-md-3">
             <button type="submit" class="wf-btn wf-btn-primary w-100">
               <i class="fa-solid fa-magnifying-glass me-1"></i> Buscar
             </button>
@@ -113,7 +120,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr th:each="cat : ${categorias}">
+              <tr th:each="cat : ${categorias}" th:style="${cat.baja} ? 'background: #F8FAFC; opacity: 0.65;' : ''">
                 <td class="fw-bold" style="color: var(--wf-navy-dark);" th:text="${cat.id}">1</td>
                 <td>
                   <strong style="color: #081426;" th:text="${cat.nombre}">Mercado de Capitales</strong>
@@ -124,7 +131,7 @@
                   <span class="wf-badge" th:classappend="${cat.baja} ? 'status-inactive' : 'status-active'" th:text="${cat.baja} ? 'Inactiva' : 'Activa'">Activa</span>
                 </td>
                 <td style="text-align: right;">
-                  <div class="d-inline-flex align-items-center gap-1">
+                  <div class="d-inline-flex align-items-center gap-1" th:if="${!cat.baja}">
                     <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" 
                             data-bs-toggle="modal" 
                             th:data-bs-target="'#modalEditarCategoria' + ${cat.id}">
@@ -133,8 +140,11 @@
                     <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3" 
                             data-bs-toggle="modal" 
                             th:data-bs-target="'#modalBajaCategoria' + ${cat.id}" title="Dar de baja categoría">
-                      <i class="fa-solid fa-trash me-1"></i> Baja
+                      <i class="fa-solid fa-trash me-1"></i> Eliminar
                     </button>
+                  </div>
+                  <div class="d-inline-flex align-items-center" th:if="${cat.baja}">
+                    <span class="text-muted small fst-italic"><i class="fa-solid fa-lock me-1"></i> Dada de baja</span>
                   </div>
                 </td>
               </tr>
@@ -281,8 +291,8 @@
                       <button type="submit" 
                               class="wf-btn wf-btn-danger" 
                               th:disabled="${tieneCursosActivos}" 
-                              th:title="${tieneCursosActivos ? 'No se puede dar de baja porque posee cursos activos asociados' : 'Confirmar baja'}">
-                        <i class="fa-solid fa-trash me-1"></i> Confirmar Baja
+                              th:title="${tieneCursosActivos ? 'No se puede eliminar porque posee cursos activos asociados' : 'Confirmar eliminación'}">
+                        <i class="fa-solid fa-trash me-1"></i> Confirmar Eliminación
                       </button>
                     </form>
 
