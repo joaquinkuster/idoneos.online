@@ -114,7 +114,14 @@ public class CursoController {
         int toIndex = Math.min(fromIndex + pageSize, totalCursos);
         List<Curso> cursosPaginados = (fromIndex <= toIndex && fromIndex < totalCursos) ? cursos.subList(fromIndex, toIndex) : Collections.emptyList();
 
+        // Mapeo dinámico de inscripciones activas por curso para validación en CU-05
+        java.util.Map<Integer, List<Inscripcion>> inscripcionesPorCurso = new java.util.HashMap<>();
+        for (Curso c : cursosPaginados) {
+            inscripcionesPorCurso.put(c.getId(), inscripcionRepository.findByCursoAndBajaFalse(c));
+        }
+
         model.addAttribute("cursos", cursosPaginados);
+        model.addAttribute("inscripcionesPorCurso", inscripcionesPorCurso);
         model.addAttribute("totalCursos", totalCursos);
         model.addAttribute("currentPage", currentPage);
         model.addAttribute("totalPages", totalPages);

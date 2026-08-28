@@ -109,7 +109,8 @@
                   <i class="fa-solid fa-pen-to-square"></i>
                   <span>Editar Curso</span>
                 </button>
-                <button type="button" class="wf-btn wf-btn-sm wf-btn-outline text-danger flex-grow-1 d-flex align-items-center justify-content-center gap-1" 
+                <button type="button" class="btn btn-sm btn-outline-danger flex-grow-1 d-flex align-items-center justify-content-center gap-1" 
+                        style="background: rgba(220, 38, 38, 0.05); border-color: #F87171; color: #DC2626; font-weight: 600;"
                         data-bs-toggle="modal" 
                         th:data-bs-target="'#modalBajaCurso' + ${curso.id}" title="Dar de baja curso">
                   <i class="fa-solid fa-trash me-1"></i>
@@ -162,10 +163,10 @@
         </div>
     </div>
 
-  <!-- MODALES DE EDICIÓN Y BAJA FUERA DEL GRID PARA EVITAR CONFLICTOS DE Z-INDEX / CSS TRANSFORMS -->
+  <!-- MODALES DE EDICIÓN Y BAJA FUERA DEL GRID -->
   <th:block th:if="${usuario != null and usuario.esAdmin()}">
     <div th:each="curso : ${cursos}">
-      <!-- Modal CU-04: Modificar Curso (100% Fiel al Wireframe Figura 4) -->
+      <!-- Modal CU-04: Modificar Curso (100% Fiel a Figura 4) -->
       <div class="modal fade" th:id="'modalEditarCurso' + ${curso.id}" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-xl">
           <div class="modal-content" style="border-radius: 12px; border: 1px solid #CBD5E1; box-shadow: 0 20px 50px rgba(8, 20, 38, 0.15); overflow: hidden;">
@@ -183,12 +184,14 @@
 
               <form th:action="@{'/cursos/' + ${curso.id} + '/editar'}" method="post">
                 <div class="row g-3">
+                  <!-- Nombre -->
                   <div class="col-md-8">
                     <label class="wf-label">Nombre del Curso</label>
                     <div class="wf-input-wrap">
                       <input type="text" name="nombre" class="wf-input" th:value="${curso.nombre}" required>
                     </div>
                   </div>
+                  <!-- Categoría -->
                   <div class="col-md-4">
                     <label class="wf-label">Categoría Temática</label>
                     <div class="wf-input-wrap">
@@ -197,6 +200,8 @@
                       </select>
                     </div>
                   </div>
+
+                  <!-- Nivel -->
                   <div class="col-md-4">
                     <label class="wf-label">Nivel de Dificultad</label>
                     <div class="wf-input-wrap">
@@ -205,13 +210,32 @@
                       </select>
                     </div>
                   </div>
+                  <!-- Precio -->
                   <div class="col-md-4">
                     <label class="wf-label">Precio / Arancel de Inscripción (ARS)</label>
                     <div class="wf-input-wrap">
                       <input type="number" step="0.01" min="0" name="precio" class="wf-input" th:value="${curso.precio}" required>
                     </div>
                   </div>
+                  <!-- Modalidades de Dictado (Figura 4) -->
                   <div class="col-md-4">
+                    <label class="wf-label">Modalidades de Dictado</label>
+                    <div class="wf-input-wrap">
+                      <div class="wf-input d-flex align-items-center gap-3" style="padding: 8px 14px; font-size: 12px; background: #FFFFFF;">
+                        <label class="d-flex align-items-center gap-1 cursor-pointer mb-0" style="font-weight: 600; color: #081426;">
+                          <input type="checkbox" name="modalidadAsincronica" value="true" checked style="width: 16px; height: 16px; accent-color: var(--wf-gold);">
+                          <span>Online Asincrónico</span>
+                        </label>
+                        <label class="d-flex align-items-center gap-1 cursor-pointer mb-0" style="font-weight: 600; color: #081426;">
+                          <input type="checkbox" name="modalidadEnVivo" value="true" checked style="width: 16px; height: 16px; accent-color: var(--wf-gold);">
+                          <span>En Vivo</span>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Docente Titular -->
+                  <div class="col-md-6">
                     <label class="wf-label">Docente Titular Responsable</label>
                     <div class="wf-input-wrap">
                       <select name="docenteTitularId" class="wf-input" required>
@@ -219,25 +243,40 @@
                       </select>
                     </div>
                   </div>
+                  <!-- Docentes Ayudantes (Figura 4) -->
+                  <div class="col-md-6">
+                    <label class="wf-label">Equipo de Docentes Ayudantes</label>
+                    <div class="wf-input-wrap">
+                      <input type="text" class="wf-input" value="Lic. Joaquín Küster, Mg. Elena Valenzuela" placeholder="Docentes colaboradores">
+                    </div>
+                  </div>
+
+                  <!-- Emite Certificado -->
+                  <div class="col-12">
+                    <div class="p-3 bg-light rounded border d-flex justify-content-between align-items-center">
+                      <div>
+                        <strong>Emisión Automática de Certificado Oficial</strong>
+                        <p class="small text-muted m-0">Generar credencial digital verificable con código QR al aprobar el 100% de autoevaluaciones.</p>
+                      </div>
+                      <input type="checkbox" name="emiteCertificado" value="true" th:checked="${curso.emiteCertificado}" style="width: 18px; height: 18px; accent-color: var(--wf-gold);">
+                    </div>
+                  </div>
+
+                  <!-- Descripción -->
                   <div class="col-12">
                     <label class="wf-label">Descripción Académica y Objetivos</label>
                     <div class="wf-input-wrap">
                       <textarea name="descripcion" class="wf-input" rows="3" th:text="${curso.descripcion}" required></textarea>
                     </div>
                   </div>
-                  <div class="col-md-6">
+                  <!-- Imagen de Portada -->
+                  <div class="col-12">
                     <label class="wf-label">Imagen de Portada / Banner del Curso</label>
-                    <div class="wf-input-wrap">
-                      <input type="text" name="imagen" class="wf-input" th:value="${curso.imagen != null ? curso.imagen : 'portada_idoneidad_bursatil_2026.png'}">
-                    </div>
-                  </div>
-                  <div class="col-md-6 d-flex align-items-center">
-                    <div class="p-3 bg-light rounded border d-flex justify-content-between align-items-center w-100">
-                      <div>
-                        <strong style="font-size: 13px;">Emisión de Certificado Oficial</strong>
-                        <p class="small text-muted m-0">Generar credencial digital verificable con código QR.</p>
+                    <div class="d-flex align-items-center gap-2">
+                      <div class="wf-input-wrap flex-grow-1">
+                        <input type="text" name="imagen" class="wf-input" th:value="${curso.imagen != null ? curso.imagen : 'portada_idoneidad_bursatil_2026.png'}">
                       </div>
-                      <input type="checkbox" name="emiteCertificado" value="true" th:checked="${curso.emiteCertificado}" style="width: 18px; height: 18px; accent-color: var(--wf-gold);">
+                      <button type="button" class="wf-btn wf-btn-outline"><i class="fa-solid fa-folder-open me-1"></i> Examinar...</button>
                     </div>
                   </div>
                 </div>
@@ -252,7 +291,7 @@
         </div>
       </div>
 
-      <!-- Modal CU-05: Dar de Baja Curso (100% Fiel al Wireframe Figura 5) -->
+      <!-- Modal CU-05: Dar de Baja Curso (Validación Dinámica y Visual) -->
       <div class="modal fade" th:id="'modalBajaCurso' + ${curso.id}" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" style="max-width: 620px;">
           <div class="modal-content" style="border-radius: 12px; border: 1px solid #CBD5E1; box-shadow: 0 20px 50px rgba(8, 20, 38, 0.15); overflow: hidden;">
@@ -270,25 +309,62 @@
               <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin-bottom: 6px;">¿Confirma la operación de dar de baja curso?</h3>
               <p class="small text-muted mb-4" style="line-height: 1.5;">Esta acción procesará el cambio de estado en la base de datos y afectará la disponibilidad del elemento en el sistema.</p>
 
-              <div class="p-3 mb-4 bg-light border rounded text-start" style="font-size: 13px;">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                  <span class="text-muted">Registro afectado:</span>
-                  <strong style="color: #081426;" th:text="${curso.nombre}">Curso Nombre</strong>
-                </div>
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                  <span class="text-muted">Estado actual:</span>
-                  <span class="wf-badge status-active">Activo / Vigente</span>
-                </div>
-                <div class="d-flex justify-content-between align-items-center">
-                  <span class="text-muted">Validación de dependencias:</span>
-                  <span class="small text-success fw-bold"><i class="fa-solid fa-circle-check me-1"></i> Sin dependencias bloqueantes</span>
-                </div>
-              </div>
+              <!-- Evaluación de dependencias activas del curso -->
+              <th:block th:with="inscriptosCurso=${inscripcionesPorCurso != null and inscripcionesPorCurso.containsKey(curso.id) ? inscripcionesPorCurso.get(curso.id) : null}">
+                <th:block th:with="tieneInscriptosCurso=${inscriptosCurso != null and !inscriptosCurso.isEmpty()}">
 
-              <form th:action="@{'/cursos/' + ${curso.id} + '/baja'}" method="post" class="d-flex justify-content-end align-items-center gap-3 pt-3 border-top">
-                <button type="button" class="wf-btn wf-btn-outline" data-bs-dismiss="modal">Cancelar / Volver</button>
-                <button type="submit" class="wf-btn wf-btn-danger"><i class="fa-solid fa-trash me-1"></i> Confirmar Baja</button>
-              </form>
+                  <div class="p-3 mb-4 bg-light border rounded text-start" style="font-size: 13px;">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                      <span class="text-muted">Registro afectado:</span>
+                      <strong style="color: #081426;" th:text="${curso.nombre}">Curso Nombre</strong>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                      <span class="text-muted">Estado actual:</span>
+                      <span class="wf-badge status-active">Activo / Vigente</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-start">
+                      <span class="text-muted">Validación de dependencias:</span>
+                      <div class="text-end">
+                        <span th:if="${!tieneInscriptosCurso}" class="small text-success fw-bold">
+                          <i class="fa-solid fa-circle-check me-1"></i> Sin dependencias bloqueantes (Apto para baja)
+                        </span>
+                        <span th:if="${tieneInscriptosCurso}" class="small text-danger fw-bold">
+                          <i class="fa-solid fa-circle-xmark me-1"></i> Bloqueado: Posee <span th:text="${inscriptosCurso.size()}">1</span> alumno(s) inscripto(s)
+                        </span>
+                      </div>
+                    </div>
+
+                    <!-- Detalle de alumnos inscriptos -->
+                    <div th:if="${tieneInscriptosCurso}" class="mt-3 pt-2 border-top">
+                      <div class="small fw-bold text-danger mb-2">
+                        <i class="fa-solid fa-users me-1"></i> Alumnos inscriptos activos:
+                      </div>
+                      <ul class="list-unstyled mb-0 small text-secondary">
+                        <li th:each="ins : ${inscriptosCurso}" class="mb-1 d-flex align-items-center justify-content-between bg-white p-2 rounded border">
+                          <div>
+                            <i class="fa-solid fa-user-graduate me-1 text-primary"></i>
+                            <strong th:text="${ins.nombreAlumno != null ? ins.nombreAlumno : (ins.alumno != null and ins.alumno.usuario != null ? ins.alumno.usuario.nombreCompleto : 'Alumno')}">Alumno</strong>
+                            <span class="text-muted" th:text="${' (Cohorte #' + ins.cohorte.id + ')'}">Cohorte #1</span>
+                          </div>
+                          <span class="badge bg-danger">Inscripción Activa</span>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+
+                  <form th:action="@{'/cursos/' + ${curso.id} + '/baja'}" method="post" class="d-flex justify-content-end align-items-center gap-3 pt-3 border-top">
+                    <button type="button" class="wf-btn wf-btn-outline" data-bs-dismiss="modal">Cancelar / Volver</button>
+                    <button type="submit" 
+                            class="wf-btn wf-btn-danger" 
+                            th:disabled="${tieneInscriptosCurso}" 
+                            th:title="${tieneInscriptosCurso ? 'No se puede dar de baja porque posee alumnos inscriptos activos' : 'Confirmar baja'}">
+                      <i class="fa-solid fa-trash me-1"></i> Confirmar Baja
+                    </button>
+                  </form>
+
+                </th:block>
+              </th:block>
+
             </div>
           </div>
         </div>
@@ -314,12 +390,14 @@
 
           <form th:action="@{/cursos/guardar}" method="post">
             <div class="row g-3">
+              <!-- Nombre [B] -->
               <div class="col-md-8">
                 <label class="wf-label">Nombre del Curso</label>
                 <div class="wf-input-wrap">
                   <input type="text" name="nombre" class="wf-input" placeholder="Ej: Especialización en Idoneidad Bursátil CNV" required>
                 </div>
               </div>
+              <!-- Categoría [C] -->
               <div class="col-md-4">
                 <label class="wf-label">Categoría Temática</label>
                 <div class="wf-input-wrap">
@@ -329,6 +407,8 @@
                   </select>
                 </div>
               </div>
+
+              <!-- Nivel [D] -->
               <div class="col-md-4">
                 <label class="wf-label">Nivel de Dificultad</label>
                 <div class="wf-input-wrap">
@@ -338,13 +418,32 @@
                   </select>
                 </div>
               </div>
+              <!-- Precio [E] -->
               <div class="col-md-4">
                 <label class="wf-label">Precio / Arancel de Inscripción (ARS)</label>
                 <div class="wf-input-wrap">
                   <input type="number" step="0.01" min="0" name="precio" class="wf-input" placeholder="Ej: 120000" required>
                 </div>
               </div>
+              <!-- Modalidades de Dictado [F] (100% Wireframe Figura 3) -->
               <div class="col-md-4">
+                <label class="wf-label">Modalidades de Dictado</label>
+                <div class="wf-input-wrap">
+                  <div class="wf-input d-flex align-items-center gap-3" style="padding: 8px 14px; font-size: 12px; background: #FFFFFF;">
+                    <label class="d-flex align-items-center gap-1 cursor-pointer mb-0" style="font-weight: 600; color: #081426;">
+                      <input type="checkbox" name="modalidadAsincronica" value="true" checked style="width: 16px; height: 16px; accent-color: var(--wf-gold);">
+                      <span>Online Asincrónico</span>
+                    </label>
+                    <label class="d-flex align-items-center gap-1 cursor-pointer mb-0" style="font-weight: 600; color: #081426;">
+                      <input type="checkbox" name="modalidadEnVivo" value="true" checked style="width: 16px; height: 16px; accent-color: var(--wf-gold);">
+                      <span>En Vivo</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Docente Titular [G] -->
+              <div class="col-md-6">
                 <label class="wf-label">Docente Titular Responsable</label>
                 <div class="wf-input-wrap">
                   <select name="docenteTitularId" class="wf-input" required>
@@ -353,29 +452,46 @@
                   </select>
                 </div>
               </div>
-              <div class="col-12">
-                <label class="wf-label">Descripción Académica y Objetivos</label>
-                <div class="wf-input-wrap">
-                  <textarea name="descripcion" class="wf-input" rows="3" placeholder="Programa intensivo diseñado para brindar los conocimientos requeridos..." required></textarea>
-                </div>
-              </div>
+              <!-- Docentes Ayudantes [H] -->
               <div class="col-md-6">
-                <label class="wf-label">Imagen de Portada / Banner del Curso</label>
+                <label class="wf-label">Equipo de Docentes Ayudantes</label>
                 <div class="wf-input-wrap">
-                  <input type="text" name="imagen" class="wf-input" placeholder="portada_curso_2026.png">
+                  <input type="text" class="wf-input" value="Lic. Joaquín Küster, Mg. Elena Valenzuela" placeholder="Docentes ayudantes o colaboradores">
                 </div>
               </div>
-              <div class="col-md-6 d-flex align-items-center">
-                <div class="p-3 bg-light rounded border d-flex justify-content-between align-items-center w-100">
+
+              <!-- Emite Certificado [I] -->
+              <div class="col-12">
+                <div class="p-3 bg-light rounded border d-flex justify-content-between align-items-center">
                   <div>
-                    <strong style="font-size: 13px;">Emisión Automática de Certificado Oficial</strong>
-                    <p class="small text-muted m-0">Generar credencial digital verificable con código QR.</p>
+                    <strong>Emisión Automática de Certificado Oficial</strong>
+                    <p class="small text-muted m-0">Generar credencial digital verificable con código QR al aprobar el 100% de autoevaluaciones.</p>
                   </div>
                   <input type="checkbox" name="emiteCertificado" value="true" checked style="width: 18px; height: 18px; accent-color: var(--wf-gold);">
                 </div>
               </div>
+
+              <!-- Descripción [J] -->
+              <div class="col-12">
+                <label class="wf-label">Descripción Académica y Objetivos</label>
+                <div class="wf-input-wrap">
+                  <textarea name="descripcion" class="wf-input" rows="3" placeholder="Programa intensivo diseñado para brindar los conocimientos teóricos, regulatorios y prácticos requeridos para rendir y aprobar el examen de Idóneo en Mercado de Capitales ante la Comisión Nacional de Valores (CNV)." required></textarea>
+                </div>
+              </div>
+
+              <!-- Portada [K] y Examinar [L] -->
+              <div class="col-12">
+                <label class="wf-label">Imagen de Portada / Banner del Curso</label>
+                <div class="d-flex align-items-center gap-2">
+                  <div class="wf-input-wrap flex-grow-1">
+                    <input type="text" name="imagen" class="wf-input" placeholder="portada_curso_2026.png" value="portada_curso_2026.png">
+                  </div>
+                  <button type="button" class="wf-btn wf-btn-outline"><i class="fa-solid fa-folder-open me-1"></i> Examinar...</button>
+                </div>
+              </div>
             </div>
 
+            <!-- Footer con Guardar [M] -->
             <div class="d-flex justify-content-end gap-3 mt-4 pt-3 border-top">
               <button type="button" class="wf-btn wf-btn-outline" data-bs-dismiss="modal">Cancelar / Volver</button>
               <button type="submit" class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Guardar Curso</button>
