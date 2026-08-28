@@ -74,12 +74,13 @@
 
       <!-- Grilla de Tarjetas -->
       <div class="wf-cards-grid">
-        <div th:each="curso : ${cursos}" class="wf-course-card">
-          <div class="wf-course-card-thumb">
+        <div th:each="curso : ${cursos}" class="wf-course-card" th:style="${curso.baja} ? 'background: #F8FAFC; opacity: 0.7; filter: grayscale(0.85); border-color: #CBD5E1;' : ''">
+          <div class="wf-course-card-thumb" th:style="${curso.baja} ? 'background: #475569;' : ''">
             <div class="wf-course-thumb-icon"><i class="fa-solid fa-graduation-cap w-8 h-8 text-white"></i></div>
             <div class="wf-course-pills-row">
               <span class="wf-pill-tag" th:text="${curso.categoria != null ? curso.categoria.nombre : 'Mercado de Capitales'}">Categoría</span>
-              <span class="wf-pill-status">Inscripción Abierta</span>
+              <span class="wf-badge" th:if="${curso.baja}" style="background: #E2E8F0; color: #475569; font-weight: 800; border: 1px solid #CBD5E1; padding: 4px 10px;">Dado de baja</span>
+              <span class="wf-pill-status" th:if="${!curso.baja}">Inscripción Abierta</span>
             </div>
           </div>
           <div class="wf-course-card-body">
@@ -92,17 +93,17 @@
           </div>
           <div class="wf-course-card-footer">
             <div class="d-flex flex-column gap-2 w-100">
-              <a th:href="@{'/academico/curso/' + ${curso.id}}" class="wf-btn wf-btn-sm wf-btn-primary w-100 d-flex align-items-center justify-content-center gap-2" style="background: #2563EB; border-color: #2563EB; color: #FFFFFF; font-weight: 700; height: 38px; text-decoration: none;">
+              <a th:if="${!curso.baja}" th:href="@{'/academico/curso/' + ${curso.id}}" class="wf-btn wf-btn-sm wf-btn-primary w-100 d-flex align-items-center justify-content-center gap-2" style="background: #2563EB; border-color: #2563EB; color: #FFFFFF; font-weight: 700; height: 38px; text-decoration: none;">
                 <i class="fa-solid fa-arrow-right-to-bracket"></i>
                 <span>Ingresar al Curso</span>
               </a>
-              <div class="d-flex align-items-center gap-2 w-100">
+              <div class="d-flex align-items-center gap-2 w-100" th:if="${!curso.baja}">
                 <a th:href="@{/evaluaciones/calificaciones}" class="wf-btn wf-btn-sm wf-btn-outline flex-grow-1 d-flex align-items-center justify-content-center gap-1" style="font-weight: 600; color: #081426; text-decoration: none;">
                   <i class="fa-solid fa-chart-simple text-primary"></i>
                   <span>Ver Calificaciones</span>
                 </a>
               </div>
-              <div class="d-flex align-items-center gap-2 w-100" th:if="${usuario != null and usuario.esAdmin()}">
+              <div class="d-flex align-items-center gap-2 w-100" th:if="${usuario != null and usuario.esAdmin() and !curso.baja}">
                 <button type="button" class="wf-btn wf-btn-sm wf-btn-outline flex-grow-1 d-flex align-items-center justify-content-center gap-1" 
                         data-bs-toggle="modal" 
                         th:data-bs-target="'#modalEditarCurso' + ${curso.id}">
@@ -116,6 +117,9 @@
                   <i class="fa-solid fa-trash me-1"></i>
                   <span>Dar de baja</span>
                 </button>
+              </div>
+              <div class="d-flex align-items-center justify-content-center p-2 bg-light rounded text-muted small fst-italic" th:if="${curso.baja}">
+                <i class="fa-solid fa-lock me-1"></i> Curso dado de baja (Inactivo)
               </div>
             </div>
           </div>
@@ -309,9 +313,10 @@
               <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin-bottom: 6px;">¿Confirma la operación de dar de baja curso?</h3>
               <p class="small text-muted mb-4" style="line-height: 1.5;">Esta acción procesará el cambio de estado en la base de datos y afectará la disponibilidad del elemento en el sistema.</p>
 
-              <!-- Evaluación de dependencias activas del curso -->
-              <th:block th:with="inscriptosCurso=${inscripcionesPorCurso != null and inscripcionesPorCurso.containsKey(curso.id) ? inscripcionesPorCurso.get(curso.id) : null}">
-                <th:block th:with="tieneInscriptosCurso=${inscriptosCurso != null and !inscriptosCurso.isEmpty()}">
+              <!-- Evaluación de dependencias activas del curso (Programas activos e Inscripciones) -->
+              <th:block th:with="progsCurso=${programasPorCurso != null and programasPorCurso.containsKey(curso.id) ? programasPorCurso.get(curso.id) : null}, inscriptosCurso=${inscripcionesPorCurso != null and inscripcionesPorCurso.containsKey(curso.id) ? inscripcionesPorCurso.get(curso.id) : null}">
+                <th:block th:with="tieneProgsCurso=${progsCurso != null and !progsCurso.isEmpty()}, tieneInscriptosCurso=${inscriptosCurso != null and !inscriptosCurso.isEmpty()}">
+                  <th:block th:with="bloqueadoBaja=${tieneProgsCurso or tieneInscriptosCurso}">
 
                   <div class="p-3 mb-4 bg-light border rounded text-start" style="font-size: 13px;">
                     <div class="d-flex justify-content-between align-items-center mb-2">
@@ -325,13 +330,33 @@
                     <div class="d-flex justify-content-between align-items-start">
                       <span class="text-muted">Validación de dependencias:</span>
                       <div class="text-end">
-                        <span th:if="${!tieneInscriptosCurso}" class="small text-success fw-bold">
+                        <span th:if="${!bloqueadoBaja}" class="small text-success fw-bold">
                           <i class="fa-solid fa-circle-check me-1"></i> Sin dependencias bloqueantes (Apto para baja)
                         </span>
-                        <span th:if="${tieneInscriptosCurso}" class="small text-danger fw-bold">
+                        <span th:if="${tieneProgsCurso}" class="small text-danger fw-bold d-block">
+                          <i class="fa-solid fa-circle-xmark me-1"></i> Bloqueado: Posee <span th:text="${progsCurso.size()}">1</span> programa(s) activo(s)
+                        </span>
+                        <span th:if="${tieneInscriptosCurso}" class="small text-danger fw-bold d-block">
                           <i class="fa-solid fa-circle-xmark me-1"></i> Bloqueado: Posee <span th:text="${inscriptosCurso.size()}">1</span> alumno(s) inscripto(s)
                         </span>
                       </div>
+                    </div>
+
+                    <!-- Detalle de Programas Activos -->
+                    <div th:if="${tieneProgsCurso}" class="mt-3 pt-2 border-top">
+                      <div class="small fw-bold text-danger mb-2">
+                        <i class="fa-solid fa-layer-group me-1"></i> Programas académicos activos asociados (CU-05):
+                      </div>
+                      <ul class="list-unstyled mb-0 small text-secondary">
+                        <li th:each="p : ${progsCurso}" class="mb-1 d-flex align-items-center justify-content-between bg-white p-2 rounded border">
+                          <div>
+                            <i class="fa-solid fa-file-lines me-1 text-primary"></i>
+                            <strong th:text="${p.nombre}">Programa Principal</strong>
+                            <span class="text-muted" th:text="${' (ID: #' + p.id + ')'}"></span>
+                          </div>
+                          <span class="badge bg-danger">Programa Activo</span>
+                        </li>
+                      </ul>
                     </div>
 
                     <!-- Detalle de alumnos inscriptos -->
@@ -356,12 +381,13 @@
                     <button type="button" class="wf-btn wf-btn-outline" data-bs-dismiss="modal">Cancelar / Volver</button>
                     <button type="submit" 
                             class="wf-btn wf-btn-danger" 
-                            th:disabled="${tieneInscriptosCurso}" 
-                            th:title="${tieneInscriptosCurso ? 'No se puede dar de baja porque posee alumnos inscriptos activos' : 'Confirmar baja'}">
+                            th:disabled="${bloqueadoBaja}" 
+                            th:title="${bloqueadoBaja ? 'No se puede dar de baja porque posee programas o alumnos activos asociados' : 'Confirmar baja'}">
                       <i class="fa-solid fa-trash me-1"></i> Confirmar Baja
                     </button>
                   </form>
 
+                  </th:block>
                 </th:block>
               </th:block>
 

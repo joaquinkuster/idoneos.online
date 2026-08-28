@@ -67,7 +67,7 @@ public class CursoServiceImpl implements CursoService {
     @Override
     @Transactional(readOnly = true)
     public List<Curso> buscarCursosAdminConFiltros(String busqueda, Integer categoriaId, Integer nivelId, Integer docenteId, Boolean publicado) {
-        List<Curso> lista = cursoRepository.findByBajaFalse();
+        List<Curso> lista = cursoRepository.findAll();
         return lista.stream()
                 .filter(c -> busqueda == null || busqueda.isBlank() ||
                         c.getNombre().toLowerCase().contains(busqueda.toLowerCase()) ||
@@ -76,6 +76,7 @@ public class CursoServiceImpl implements CursoService {
                 .filter(c -> nivelId == null || (c.getNivel() != null && c.getNivel().getId() == nivelId))
                 .filter(c -> docenteId == null || (c.getDocente() != null && c.getDocente().getId() == docenteId))
                 .filter(c -> publicado == null || Boolean.valueOf(c.getPublicado()).equals(publicado))
+                .sorted((c1, c2) -> Integer.compare(c2.getId(), c1.getId()))
                 .collect(Collectors.toList());
     }
 

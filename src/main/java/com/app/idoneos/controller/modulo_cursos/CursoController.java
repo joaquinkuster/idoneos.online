@@ -116,12 +116,16 @@ public class CursoController {
 
         // Mapeo dinámico de inscripciones activas por curso para validación en CU-05
         java.util.Map<Integer, List<Inscripcion>> inscripcionesPorCurso = new java.util.HashMap<>();
+        // Mapeo dinámico de programas activos por curso para validación bloqueante en CU-05
+        java.util.Map<Integer, List<Programa>> programasPorCurso = new java.util.HashMap<>();
         for (Curso c : cursosPaginados) {
             inscripcionesPorCurso.put(c.getId(), inscripcionRepository.findByCursoAndBajaFalse(c));
+            programasPorCurso.put(c.getId(), programaRepository.findByCursoAndBajaFalse(c));
         }
 
         model.addAttribute("cursos", cursosPaginados);
         model.addAttribute("inscripcionesPorCurso", inscripcionesPorCurso);
+        model.addAttribute("programasPorCurso", programasPorCurso);
         model.addAttribute("totalCursos", totalCursos);
         model.addAttribute("currentPage", currentPage);
         model.addAttribute("totalPages", totalPages);
