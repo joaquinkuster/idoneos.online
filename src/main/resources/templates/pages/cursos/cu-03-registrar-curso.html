@@ -36,93 +36,146 @@
                         <h2 class="wf-hero-title">Registrar curso</h2>
                         <p class="wf-hero-desc">Bienvenido/a, Admin General</p>
                     </div>
-                    
-                    <div class="d-flex align-items-center gap-2">
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    </div>
-</div>
+                </div>
 
                 <div class="wf-body">
                     <div class="wf-main-content">
-                        
-      <form th:action="@{/cursos/guardar}" method="post" class="wf-card" style="max-width: 900px; margin: 0 auto; background: #FFFFFF;">
+                             <form id="formNuevoCursoPage" th:action="@{/cursos/guardar}" method="post" class="wf-card" style="max-width: 900px; margin: 0 auto; background: #FFFFFF;" novalidate>
   <div class="pb-3 mb-4 border-bottom">
     <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Registrar Nuevo Curso</h3>
     <p class="small text-muted" style="margin: 2px 0 0;">Complete los datos comerciales y académicos para dar de alta un nuevo curso en la plataforma.</p>
   </div>
+
+  <div id="pageCursoAlert" class="alert alert-danger d-none py-2 px-3 small mb-3"></div>
+
   <div class="row g-3 mb-4">
+    <!-- Nombre -->
     <div class="col-md-8">
-      <label class="wf-label">Nombre del Curso <span class="text-danger">*</span></label>
-      <div class="wf-input-wrap">
-        <input type="text" name="nombre" class="wf-input" placeholder="Ej: Especialización en Renta Fija y Bonos Soberanos" required>
+      <div class="d-flex justify-content-between align-items-center mb-1">
+        <label class="wf-label m-0">Nombre del Curso <span class="text-danger">*</span></label>
+        <span id="pageNombreCount" class="text-muted" style="font-size: 11px; font-weight: 600;">0 / 50</span>
       </div>
+      <div class="wf-input-wrap">
+        <input type="text" id="pageNombre" name="nombre" class="wf-input" maxlength="50" placeholder="Ej: Especialización en Renta Fija y Bonos" required>
+      </div>
+      <div id="pageNombreFeedback" class="small text-danger mt-1 d-none"></div>
     </div>
+
+    <!-- Categoría -->
     <div class="col-md-4">
       <label class="wf-label">Categoría Temática <span class="text-danger">*</span></label>
       <div class="wf-input-wrap">
-        <select name="categoriaId" class="wf-input" required>
+        <select id="pageCategoria" name="categoriaId" class="wf-input" required>
           <option value="">Seleccionar Categoría...</option>
           <option th:each="cat : ${categorias}" th:value="${cat.id}" th:text="${cat.nombre}">Categoría</option>
         </select>
       </div>
+      <div id="pageCategoriaFeedback" class="small text-danger mt-1 d-none"></div>
     </div>
+
+    <!-- Nivel -->
     <div class="col-md-4">
       <label class="wf-label">Nivel de Dificultad <span class="text-danger">*</span></label>
       <div class="wf-input-wrap">
-        <select name="nivelId" class="wf-input" required>
+        <select id="pageNivel" name="nivelId" class="wf-input" required>
           <option value="">Seleccionar Nivel...</option>
           <option th:each="n : ${niveles}" th:value="${n.id}" th:text="${n.nombre}">Nivel</option>
         </select>
       </div>
+      <div id="pageNivelFeedback" class="small text-danger mt-1 d-none"></div>
     </div>
+
+    <!-- Precio -->
     <div class="col-md-4">
       <label class="wf-label">Precio de Arancel (ARS) <span class="text-danger">*</span></label>
       <div class="wf-input-wrap">
-        <input type="number" step="0.01" min="0" name="precio" class="wf-input" placeholder="Ej: 45000" required>
+        <input type="number" id="pagePrecio" step="0.01" min="0" name="precio" class="wf-input" placeholder="Ej: 45000" required>
       </div>
+      <div id="pagePrecioFeedback" class="small text-danger mt-1 d-none"></div>
     </div>
+
+    <!-- Modalidades de Dictado -->
     <div class="col-md-4">
-      <label class="wf-label">Docente Titular <span class="text-danger">*</span></label>
+      <label class="wf-label">Modalidades de Dictado <span class="text-danger">*</span></label>
       <div class="wf-input-wrap">
-        <select name="docenteTitularId" class="wf-input" required>
+        <div class="wf-input d-flex align-items-center gap-3" style="padding: 8px 14px; font-size: 12px; background: #FFFFFF;" id="pageWrapModalidades">
+          <label class="d-flex align-items-center gap-1 cursor-pointer mb-0" style="font-weight: 600; color: #081426;">
+            <input type="checkbox" name="modalidadAsincronica" class="page-modalidad-check" value="true" checked style="width: 16px; height: 16px; accent-color: var(--wf-gold);">
+            <span>Online Asincrónico</span>
+          </label>
+          <label class="d-flex align-items-center gap-1 cursor-pointer mb-0" style="font-weight: 600; color: #081426;">
+            <input type="checkbox" name="modalidadEnVivo" class="page-modalidad-check" value="true" checked style="width: 16px; height: 16px; accent-color: var(--wf-gold);">
+            <span>En Vivo</span>
+          </label>
+        </div>
+      </div>
+      <div id="pageModalidadFeedback" class="small text-danger mt-1 d-none"></div>
+    </div>
+
+    <!-- Docente Titular -->
+    <div class="col-md-6">
+      <label class="wf-label">Docente Titular Responsable <span class="text-danger">*</span></label>
+      <div class="wf-input-wrap">
+        <select id="pageDocenteTitular" name="docenteTitularId" class="wf-input" required>
           <option value="">Seleccionar Docente...</option>
           <option th:each="d : ${docentes}" th:value="${d.id}" th:text="${d.usuario.nombreCompleto}">Docente</option>
         </select>
       </div>
+      <div id="pageDocenteFeedback" class="small text-danger mt-1 d-none"></div>
     </div>
-    <div class="col-12">
-      <label class="wf-label">Descripción del Curso <span class="text-danger">*</span></label>
-      <div class="wf-input-wrap">
-        <textarea name="descripcion" rows="3" class="wf-input" placeholder="Descripción detallada del contenido del curso..." required></textarea>
-      </div>
-    </div>
+
+    <!-- Docentes Ayudantes -->
     <div class="col-md-6">
-      <label class="wf-label">URL de Imagen de Portada</label>
+      <label class="wf-label">Equipo de Docentes Ayudantes (Opcional)</label>
       <div class="wf-input-wrap">
-        <input type="text" name="imagen" class="wf-input" placeholder="https://ejemplo.com/portada.jpg">
+        <select id="pageDocenteAyudante" name="docenteSupervisorId" class="wf-input">
+          <option value="">Sin docente ayudante asignado</option>
+          <option th:each="d : ${docentes}" th:value="${d.id}" th:text="${d.usuario.nombreCompleto}">Docente</option>
+        </select>
       </div>
+      <div id="pageDocenteAyudanteFeedback" class="small text-danger mt-1 d-none"></div>
+      <div class="text-muted" style="font-size: 11px; margin-top: 3px;">Docente colaborador / ayudante del curso</div>
     </div>
+
+    <!-- Descripción -->
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center mb-1">
+        <label class="wf-label m-0">Descripción del Curso <span class="text-danger">*</span></label>
+        <span id="pageDescripcionCount" class="text-muted" style="font-size: 11px; font-weight: 600;">0 / 150</span>
+      </div>
+      <div class="wf-input-wrap">
+        <textarea id="pageDescripcion" name="descripcion" rows="3" class="wf-input" maxlength="150" placeholder="Descripción resumida del contenido del curso..." required></textarea>
+      </div>
+      <div id="pageDescripcionFeedback" class="small text-danger mt-1 d-none"></div>
+    </div>
+
+    <!-- Imagen de Portada -->
+    <div class="col-md-6">
+      <div class="d-flex justify-content-between align-items-center mb-1">
+        <label class="wf-label m-0">URL / Archivo de Portada</label>
+        <span id="pageImagenCount" class="text-muted" style="font-size: 11px; font-weight: 600;">0 / 150</span>
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <div class="wf-input-wrap flex-grow-1">
+          <input type="text" id="pageImagen" name="imagen" class="wf-input" maxlength="150" placeholder="portada_curso_2026.png" value="portada_curso_2026.png">
+        </div>
+        <button type="button" class="wf-btn wf-btn-outline" onclick="document.getElementById('pageImagen').value='portada_curso_' + Date.now() + '.png'; document.getElementById('pageImagen').dispatchEvent(new Event('input'));"><i class="fa-solid fa-folder-open me-1"></i> Examinar...</button>
+      </div>
+      <div id="pageImagenFeedback" class="small text-danger mt-1 d-none"></div>
+    </div>
+
+    <!-- Emite Certificado -->
     <div class="col-md-6 d-flex align-items-center">
       <div class="form-check mt-3">
-        <input class="form-check-input" type="checkbox" name="emiteCertificado" value="true" id="certCheck" checked>
+        <input class="form-check-input" type="checkbox" name="emiteCertificado" value="true" id="certCheck" checked style="accent-color: var(--wf-gold);">
         <label class="form-check-label fw-bold small text-dark" for="certCheck">Emite Certificado Oficial al Aprobar</label>
       </div>
     </div>
   </div>
+
   <div class="pt-3 border-top d-flex justify-content-end gap-3">
-    <a th:href="@{/cursos}" class="wf-btn wf-btn-outline"><i class="fa-solid fa-arrow-left me-1"></i> <span>Cancelar</span></a>
-    <button type="submit" class="wf-btn wf-btn-primary"><i class="fa-solid fa-floppy-disk me-1"></i> Guardar Curso</button>
+    <a th:href="@{/cursos}" class="wf-btn wf-btn-outline"><i class="fa-solid fa-arrow-left me-1"></i> <span>Cancelar / Volver</span></a>
+    <button type="submit" id="pageBtnGuardar" class="wf-btn wf-btn-primary"><i class="fa-solid fa-floppy-disk me-1"></i> Guardar Curso</button>
   </div>
 </form>
 </div>
@@ -156,6 +209,210 @@
                 }
             }
         }
+
+        // Validación en tiempo real para la pantalla independiente CU-03
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('formNuevoCursoPage');
+            if (!form) return;
+
+            const inputNombre = document.getElementById('pageNombre');
+            const countNombre = document.getElementById('pageNombreCount');
+            const fbNombre = document.getElementById('pageNombreFeedback');
+
+            const selectCat = document.getElementById('pageCategoria');
+            const fbCat = document.getElementById('pageCategoriaFeedback');
+
+            const selectNivel = document.getElementById('pageNivel');
+            const fbNivel = document.getElementById('pageNivelFeedback');
+
+            const inputPrecio = document.getElementById('pagePrecio');
+            const fbPrecio = document.getElementById('pagePrecioFeedback');
+
+            const selectDocente = document.getElementById('pageDocenteTitular');
+            const fbDocente = document.getElementById('pageDocenteFeedback');
+
+            const selectAyudante = document.getElementById('pageDocenteAyudante');
+            const fbAyudante = document.getElementById('pageDocenteAyudanteFeedback');
+
+            const txtDesc = document.getElementById('pageDescripcion');
+            const countDesc = document.getElementById('pageDescripcionCount');
+            const fbDesc = document.getElementById('pageDescripcionFeedback');
+
+            const txtImg = document.getElementById('pageImagen');
+            const countImg = document.getElementById('pageImagenCount');
+            const fbImg = document.getElementById('pageImagenFeedback');
+
+            const modalChecks = document.querySelectorAll('#pageWrapModalidades .page-modalidad-check');
+            const fbMod = document.getElementById('pageModalidadFeedback');
+
+            function setStatus(input, fbEl, isValid, message) {
+                if (!input || !fbEl) return;
+                if (!isValid) {
+                    input.classList.add('is-invalid');
+                    input.classList.remove('is-valid');
+                    input.style.borderColor = '#DC2626';
+                    fbEl.textContent = message;
+                    fbEl.classList.remove('d-none');
+                } else {
+                    input.classList.remove('is-invalid');
+                    input.classList.add('is-valid');
+                    input.style.borderColor = '#16A34A';
+                    fbEl.textContent = '';
+                    fbEl.classList.add('d-none');
+                }
+            }
+
+            function validarNombre() {
+                const val = inputNombre.value.trim();
+                const len = inputNombre.value.length;
+                countNombre.textContent = `${len} / 50`;
+                countNombre.className = len >= 50 ? 'text-danger fw-bold' : (len > 45 ? 'text-warning fw-bold' : 'text-muted');
+
+                if (!val) {
+                    setStatus(inputNombre, fbNombre, false, 'El nombre del curso es obligatorio.');
+                    return false;
+                } else if (val.length > 50) {
+                    setStatus(inputNombre, fbNombre, false, 'El nombre no puede superar los 50 caracteres permitidos.');
+                    return false;
+                } else {
+                    setStatus(inputNombre, fbNombre, true);
+                    return true;
+                }
+            }
+
+            function validarCategoria() {
+                if (!selectCat.value) {
+                    setStatus(selectCat, fbCat, false, 'Debe seleccionar una categoría temática.');
+                    return false;
+                }
+                setStatus(selectCat, fbCat, true);
+                return true;
+            }
+
+            function validarNivel() {
+                if (!selectNivel.value) {
+                    setStatus(selectNivel, fbNivel, false, 'Debe seleccionar un nivel de dificultad.');
+                    return false;
+                }
+                setStatus(selectNivel, fbNivel, true);
+                return true;
+            }
+
+            function validarPrecio() {
+                const val = inputPrecio.value;
+                if (val === '' || isNaN(val)) {
+                    setStatus(inputPrecio, fbPrecio, false, 'Debe ingresar un precio válido.');
+                    return false;
+                }
+                const num = parseFloat(val);
+                if (num < 0) {
+                    setStatus(inputPrecio, fbPrecio, false, 'El precio debe ser mayor o igual a 0.');
+                    return false;
+                }
+                setStatus(inputPrecio, fbPrecio, true);
+                return true;
+            }
+
+            function validarDocentes() {
+                let okTitular = true;
+                let okAyudante = true;
+
+                if (!selectDocente.value) {
+                    setStatus(selectDocente, fbDocente, false, 'Debe asignar un docente titular responsable.');
+                    okTitular = false;
+                } else {
+                    setStatus(selectDocente, fbDocente, true);
+                }
+
+                if (selectDocente.value && selectAyudante && selectAyudante.value) {
+                    if (selectDocente.value === selectAyudante.value) {
+                        setStatus(selectAyudante, fbAyudante, false, 'El docente titular no puede ser a la vez ayudante del mismo curso.');
+                        okAyudante = false;
+                    } else {
+                        setStatus(selectAyudante, fbAyudante, true);
+                    }
+                } else if (selectAyudante) {
+                    setStatus(selectAyudante, fbAyudante, true);
+                }
+
+                return okTitular && okAyudante;
+            }
+
+            function validarModalidades() {
+                const checked = Array.from(modalChecks).some(c => c.checked);
+                const wrap = document.getElementById('pageWrapModalidades');
+                if (!checked) {
+                    wrap.style.borderColor = '#DC2626';
+                    fbMod.textContent = 'Debe seleccionar al menos una modalidad de dictado.';
+                    fbMod.classList.remove('d-none');
+                    return false;
+                } else {
+                    wrap.style.borderColor = '#16A34A';
+                    fbMod.textContent = '';
+                    fbMod.classList.add('d-none');
+                    return true;
+                }
+            }
+
+            function validarDescripcion() {
+                const val = txtDesc.value.trim();
+                const len = txtDesc.value.length;
+                countDesc.textContent = `${len} / 150`;
+                countDesc.className = len >= 150 ? 'text-danger fw-bold' : (len > 135 ? 'text-warning fw-bold' : 'text-muted');
+
+                if (!val) {
+                    setStatus(txtDesc, fbDesc, false, 'La descripción detallada es obligatoria.');
+                    return false;
+                } else if (val.length > 150) {
+                    setStatus(txtDesc, fbDesc, false, 'La descripción no puede superar 150 caracteres.');
+                    return false;
+                } else {
+                    setStatus(txtDesc, fbDesc, true);
+                    return true;
+                }
+            }
+
+            function validarImagen() {
+                const len = txtImg.value.length;
+                countImg.textContent = `${len} / 150`;
+                if (len > 150) {
+                    setStatus(txtImg, fbImg, false, 'El nombre del archivo no puede superar los 150 caracteres.');
+                    return false;
+                } else {
+                    setStatus(txtImg, fbImg, true);
+                    return true;
+                }
+            }
+
+            inputNombre.addEventListener('input', validarNombre);
+            selectCat.addEventListener('change', validarCategoria);
+            selectNivel.addEventListener('change', validarNivel);
+            inputPrecio.addEventListener('input', validarPrecio);
+            selectDocente.addEventListener('change', validarDocentes);
+            if (selectAyudante) selectAyudante.addEventListener('change', validarDocentes);
+            txtDesc.addEventListener('input', validarDescripcion);
+            txtImg.addEventListener('input', validarImagen);
+            modalChecks.forEach(c => c.addEventListener('change', validarModalidades));
+
+            form.addEventListener('submit', function(e) {
+                const okNombre = validarNombre();
+                const okCat = validarCategoria();
+                const okNivel = validarNivel();
+                const okPrecio = validarPrecio();
+                const okDocentes = validarDocentes();
+                const okMod = validarModalidades();
+                const okDesc = validarDescripcion();
+                const okImg = validarImagen();
+
+                if (!okNombre || !okCat || !okNivel || !okPrecio || !okDocentes || !okMod || !okDesc || !okImg) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const alertBox = document.getElementById('pageCursoAlert');
+                    alertBox.textContent = 'Por favor complete todos los campos obligatorios respetando los límites y reglas del curso.';
+                    alertBox.classList.remove('d-none');
+                }
+            });
+        });
     </script>
 
     <!-- DSS & Case of Use Console Logger -->

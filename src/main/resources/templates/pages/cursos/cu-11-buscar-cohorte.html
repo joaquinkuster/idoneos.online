@@ -313,60 +313,73 @@
               </div>
             </div>
 
-            <form th:action="@{/cursos/cohortes/guardar}" method="post">
+            <div id="nuevaCohorteAlert" class="alert alert-danger d-none py-2 px-3 small mb-3"></div>
+
+            <form id="formNuevaCohorte" th:action="@{/cursos/cohortes/guardar}" method="post" novalidate>
               <div class="row g-3">
                 <div class="col-md-12">
-                  <label class="wf-label">SELECCIONAR CURSO / PROGRAMA ACADÉMICO</label>
-                  <select name="programaId" class="wf-input" required>
+                  <label class="wf-label">SELECCIONAR CURSO / PROGRAMA ACADÉMICO <span class="text-danger">*</span></label>
+                  <select id="cohPrograma" name="programaId" class="wf-input" required>
                     <option value="">Seleccionar Curso y Programa...</option>
                     <th:block th:each="cur : ${cursos}">
                       <option th:each="prog : ${cur.programas}" th:value="${prog.id}" th:text="${cur.nombre + ' — ' + prog.nombre}">Curso — Programa</option>
                     </th:block>
                   </select>
-                </div>
-                <div class="col-md-6">
-                  <label class="wf-label">INICIO DE INSCRIPCIÓN</label>
-                  <div class="wf-input-wrap">
-                    <input type="date" name="fechaInicioInscripcion" class="wf-input" value="2026-03-01" required>
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <label class="wf-label">FIN DE INSCRIPCIÓN</label>
-                  <div class="wf-input-wrap">
-                    <input type="date" name="fechaFinInscripcion" class="wf-input" value="2026-03-31" required>
-                  </div>
+                  <div id="cohProgramaFeedback" class="small text-danger mt-1 d-none"></div>
                 </div>
 
                 <div class="col-md-6">
-                  <label class="wf-label">CUPO MÁXIMO DE ALUMNOS</label>
+                  <label class="wf-label">INICIO DE INSCRIPCIÓN <span class="text-danger">*</span></label>
                   <div class="wf-input-wrap">
-                    <input type="number" name="cupoMaximo" class="wf-input" value="30" placeholder="Ilimitado si se deja en blanco" min="1">
+                    <input type="date" id="cohFechaIniIns" name="fechaInicioInscripcion" class="wf-input" value="2026-03-01" required>
                   </div>
+                  <div id="cohFechaIniInsFeedback" class="small text-danger mt-1 d-none"></div>
                 </div>
+
                 <div class="col-md-6">
-                  <label class="wf-label">SEMANAS DE ACCESO AL CONTENIDO</label>
+                  <label class="wf-label">FIN DE INSCRIPCIÓN <span class="text-danger">*</span></label>
                   <div class="wf-input-wrap">
-                    <input type="number" name="semanasAcceso" class="wf-input" value="16" min="1" required>
+                    <input type="date" id="cohFechaFinIns" name="fechaFinInscripcion" class="wf-input" value="2026-03-31" required>
                   </div>
+                  <div id="cohFechaFinInsFeedback" class="small text-danger mt-1 d-none"></div>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="wf-label">CUPO MÁXIMO DE ALUMNOS (Opcional)</label>
+                  <div class="wf-input-wrap">
+                    <input type="number" id="cohCupo" name="cupoMaximo" class="wf-input" value="30" placeholder="Ilimitado si se deja en blanco" min="1">
+                  </div>
+                  <div id="cohCupoFeedback" class="small text-danger mt-1 d-none"></div>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="wf-label">SEMANAS DE ACCESO AL CONTENIDO <span class="text-danger">*</span></label>
+                  <div class="wf-input-wrap">
+                    <input type="number" id="cohSemanas" name="semanasAcceso" class="wf-input" value="16" min="1" required>
+                  </div>
+                  <div id="cohSemanasFeedback" class="small text-danger mt-1 d-none"></div>
                 </div>
 
                 <div class="col-md-6">
                   <label class="wf-label">FECHA INICIO DE DICTADO (CLASES EN VIVO)</label>
                   <div class="wf-input-wrap">
-                    <input type="date" name="fechaInicioDictado" class="wf-input" value="2026-04-05">
+                    <input type="date" id="cohFechaIniDic" name="fechaInicioDictado" class="wf-input" value="2026-04-05">
                   </div>
+                  <div id="cohFechaIniDicFeedback" class="small text-danger mt-1 d-none"></div>
                 </div>
+
                 <div class="col-md-6">
                   <label class="wf-label">FECHA FIN DE DICTADO (CLASES EN VIVO)</label>
                   <div class="wf-input-wrap">
-                    <input type="date" name="fechaFinDictado" class="wf-input" value="2026-06-30">
+                    <input type="date" id="cohFechaFinDic" name="fechaFinDictado" class="wf-input" value="2026-06-30">
                   </div>
+                  <div id="cohFechaFinDicFeedback" class="small text-danger mt-1 d-none"></div>
                 </div>
               </div>
 
               <div class="d-flex justify-content-end gap-3 mt-4 pt-3 border-top">
                 <button type="button" class="wf-btn wf-btn-outline" data-bs-dismiss="modal">Cancelar / Volver</button>
-                <button type="submit" class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Guardar Cohorte</button>
+                <button type="submit" id="btnGuardarCohorte" class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Guardar Cohorte</button>
               </div>
             </form>
           </div>
@@ -386,6 +399,145 @@
                 }
             }
         }
+
+        // ==========================================
+        // VALIDACIÓN EN TIEMPO REAL — CU-12 REGISTRAR COHORTE
+        // ==========================================
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('formNuevaCohorte');
+            if (!form) return;
+
+            const selProg = document.getElementById('cohPrograma');
+            const fbProg = document.getElementById('cohProgramaFeedback');
+
+            const fIniIns = document.getElementById('cohFechaIniIns');
+            const fbIniIns = document.getElementById('cohFechaIniInsFeedback');
+
+            const fFinIns = document.getElementById('cohFechaFinIns');
+            const fbFinIns = document.getElementById('cohFechaFinInsFeedback');
+
+            const inCupo = document.getElementById('cohCupo');
+            const fbCupo = document.getElementById('cohCupoFeedback');
+
+            const inSem = document.getElementById('cohSemanas');
+            const fbSem = document.getElementById('cohSemanasFeedback');
+
+            const fIniDic = document.getElementById('cohFechaIniDic');
+            const fbIniDic = document.getElementById('cohFechaIniDicFeedback');
+
+            const fFinDic = document.getElementById('cohFechaFinDic');
+            const fbFinDic = document.getElementById('cohFechaFinDicFeedback');
+
+            function setValStatus(input, fbEl, isValid, message) {
+                if (!input || !fbEl) return;
+                if (!isValid) {
+                    input.classList.add('is-invalid');
+                    input.classList.remove('is-valid');
+                    input.style.borderColor = '#DC2626';
+                    fbEl.textContent = message;
+                    fbEl.classList.remove('d-none');
+                } else {
+                    input.classList.remove('is-invalid');
+                    input.classList.add('is-valid');
+                    input.style.borderColor = '#16A34A';
+                    fbEl.textContent = '';
+                    fbEl.classList.add('d-none');
+                }
+            }
+
+            function validarPrograma() {
+                if (!selProg.value) {
+                    setValStatus(selProg, fbProg, false, 'Debe seleccionar un programa asociado.');
+                    return false;
+                }
+                setValStatus(selProg, fbProg, true);
+                return true;
+            }
+
+            function validarFechasInscripcion() {
+                let okIni = true;
+                let okFin = true;
+
+                if (!fIniIns.value) {
+                    setValStatus(fIniIns, fbIniIns, false, 'La fecha de inicio de inscripción es obligatoria.');
+                    okIni = false;
+                } else {
+                    setValStatus(fIniIns, fbIniIns, true);
+                }
+
+                if (!fFinIns.value) {
+                    setValStatus(fFinIns, fbFinIns, false, 'La fecha de fin de inscripción es obligatoria.');
+                    okFin = false;
+                } else {
+                    setValStatus(fFinIns, fbFinIns, true);
+                }
+
+                if (okIni && okFin && fIniIns.value > fFinIns.value) {
+                    setValStatus(fFinIns, fbFinIns, false, 'La fecha de fin debe ser posterior o igual a la de inicio.');
+                    okFin = false;
+                }
+
+                return okIni && okFin;
+            }
+
+            function validarSemanas() {
+                const val = parseInt(inSem.value, 10);
+                if (isNaN(val) || val <= 0) {
+                    setValStatus(inSem, fbSem, false, 'Las semanas de acceso deben ser al menos 1.');
+                    return false;
+                }
+                setValStatus(inSem, fbSem, true);
+                return true;
+            }
+
+            function validarCupo() {
+                if (inCupo.value !== '') {
+                    const val = parseInt(inCupo.value, 10);
+                    if (isNaN(val) || val <= 0) {
+                        setValStatus(inCupo, fbCupo, false, 'El cupo debe ser mayor a cero.');
+                        return false;
+                    }
+                }
+                setValStatus(inCupo, fbCupo, true);
+                return true;
+            }
+
+            function validarFechasDictado() {
+                if (fIniDic.value && fFinDic.value) {
+                    if (fIniDic.value > fFinDic.value) {
+                        setValStatus(fFinDic, fbFinDic, false, 'El fin de dictado debe ser posterior al inicio.');
+                        return false;
+                    }
+                }
+                if (fFinDic.value) setValStatus(fFinDic, fbFinDic, true);
+                if (fIniDic.value) setValStatus(fIniDic, fbIniDic, true);
+                return true;
+            }
+
+            selProg.addEventListener('change', validarPrograma);
+            fIniIns.addEventListener('change', validarFechasInscripcion);
+            fFinIns.addEventListener('change', validarFechasInscripcion);
+            inSem.addEventListener('input', validarSemanas);
+            inCupo.addEventListener('input', validarCupo);
+            fIniDic.addEventListener('change', validarFechasDictado);
+            fFinDic.addEventListener('change', validarFechasDictado);
+
+            form.addEventListener('submit', function(e) {
+                const okProg = validarPrograma();
+                const okIns = validarFechasInscripcion();
+                const okSem = validarSemanas();
+                const okCup = validarCupo();
+                const okDic = validarFechasDictado();
+
+                if (!okProg || !okIns || !okSem || !okCup || !okDic) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const alertBox = document.getElementById('nuevaCohorteAlert');
+                    alertBox.textContent = 'Por favor complete correctamente los datos obligatorios de la cohorte.';
+                    alertBox.classList.remove('d-none');
+                }
+            });
+        });
     </script>
 </body>
 </html>

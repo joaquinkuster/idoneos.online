@@ -1665,3 +1665,68 @@ textarea.wf-input {
 .wf-toast-close:hover {
     color: #081426;
 }
+
+/* ==========================================================================
+   BOTONES DEL SISTEMA Y ESTADOS DESHABILITADOS
+   ========================================================================== */
+.wf-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 8px 18px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+}
+
+.wf-btn-primary {
+    background: var(--wf-navy-dark);
+    color: #FFFFFF;
+    border-color: var(--wf-navy-dark);
+}
+.wf-btn-primary:hover {
+    background: #0F233D;
+    color: #FFFFFF;
+}
+
+.wf-btn-outline {
+    background: #FFFFFF;
+    color: #081426;
+    border-color: #CBD5E1;
+}
+.wf-btn-outline:hover {
+    background: #F1F5F9;
+    border-color: #94A3B8;
+    color: #081426;
+}
+
+.wf-btn-danger {
+    background: #DC2626;
+    color: #FFFFFF;
+    border-color: #DC2626;
+}
+.wf-btn-danger:hover {
+    background: #B91C1C;
+    border-color: #B91C1C;
+    color: #FFFFFF;
+}
+
+/* Estilo Deshabilitado / Bloqueado por Dependencias */
+.wf-btn-danger:disabled,
+.wf-btn-danger[disabled],
+.wf-btn:disabled,
+.wf-btn[disabled] {
+    background: #F1F5F9 !important;
+    border-color: #E2E8F0 !important;
+    color: #94A3B8 !important;
+    cursor: not-allowed !important;
+    opacity: 0.65 !important;
+    box-shadow: none !important;
+    transform: none !important;
+    pointer-events: none !important;
+}
