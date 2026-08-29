@@ -843,7 +843,7 @@ public class AcademicoController {
             if (!todos.isEmpty()) curso = todos.get(0);
         }
 
-        List<ConsultaForo> consultas = (unidad != null) ? foroService.obtenerPorUnidad(unidad) : List.of();
+        List<ConsultaForo> consultas = (unidad != null) ? foroService.obtenerConsultasPorUnidad(unidad) : List.of();
         model.addAttribute("curso", curso);
         model.addAttribute("cursoSeleccionado", curso);
         model.addAttribute("unidades", unidades);
