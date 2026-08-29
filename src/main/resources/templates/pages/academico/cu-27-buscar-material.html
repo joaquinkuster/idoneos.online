@@ -122,11 +122,10 @@
                             </table>
                         </div>
 
-                        <div id="paginacionMateriales" class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top px-3 pb-3">
-                            <div class="text-secondary small fw-semibold">
-                                Mostrando <span id="matPaginaActual" class="text-dark fw-bold">1</span> de <span id="matTotalPaginas" class="text-dark fw-bold">1</span> (<span id="matTotalRegistros" th:text="${materiales != null ? #lists.size(materiales) : 0}">0</span> materiales)
-                            </div>
-                            <div class="d-flex gap-1" id="matBotonesPaginacion"></div>
+                        <!-- Paginación Premium — Sistema wf-pagination (CU-27) -->
+                        <div id="paginacionMateriales" class="wf-pagination-wrap">
+                            <div class="wf-pagination-info" id="matPaginaInfo"></div>
+                            <div class="wf-pagination-controls" id="matBotonesPaginacion"></div>
                         </div>
                     </div>
 
@@ -351,48 +350,16 @@
         const matRowsPerPage = 8;
 
         function renderMatPagination() {
-            const table = document.getElementById('tablaMateriales');
-            if (!table) return;
-            const tbody = table.querySelector('tbody');
-            const rows = Array.from(tbody.querySelectorAll('tr'));
-            const totalRows = rows.length;
-            const totalPages = Math.ceil(totalRows / matRowsPerPage) || 1;
-            if (matCurrentPage > totalPages) matCurrentPage = totalPages;
-            if (matCurrentPage < 1) matCurrentPage = 1;
-            rows.forEach((row, index) => {
-                const start = (matCurrentPage - 1) * matRowsPerPage;
-                row.style.display = (index >= start && index < start + matRowsPerPage) ? '' : 'none';
+            window.renderWfPagination({
+                tableId: 'tablaMateriales',
+                wrapId: 'paginacionMateriales',
+                infoId: 'matPaginaInfo',
+                controlsId: 'matBotonesPaginacion',
+                currentPage: matCurrentPage,
+                rowsPerPage: matRowsPerPage,
+                entityLabel: 'materiales',
+                onPageChange: (p) => { matCurrentPage = p; renderMatPagination(); }
             });
-            const lblActual = document.getElementById('matPaginaActual');
-            const lblTotal = document.getElementById('matTotalPaginas');
-            const lblRegs = document.getElementById('matTotalRegistros');
-            if (lblActual) lblActual.textContent = matCurrentPage;
-            if (lblTotal) lblTotal.textContent = totalPages;
-            if (lblRegs) lblRegs.textContent = totalRows;
-            const btnContainer = document.getElementById('matBotonesPaginacion');
-            if (!btnContainer) return;
-            btnContainer.innerHTML = '';
-            if (totalPages <= 1) { document.getElementById('paginacionMateriales').style.display = totalRows === 0 ? 'none' : 'flex'; return; }
-            document.getElementById('paginacionMateriales').style.display = 'flex';
-            const prevBtn = document.createElement('button'); prevBtn.type = 'button';
-            prevBtn.className = `btn btn-sm ${matCurrentPage === 1 ? 'btn-light disabled border' : 'btn-dark text-white'}`;
-            prevBtn.style.cssText = 'border-radius: 8px; font-weight: 600; padding: 6px 12px;';
-            prevBtn.innerHTML = '<i class="fa-solid fa-chevron-left"></i>';
-            prevBtn.onclick = () => { if (matCurrentPage > 1) { matCurrentPage--; renderMatPagination(); } };
-            btnContainer.appendChild(prevBtn);
-            for (let i = 1; i <= totalPages; i++) {
-                const numBtn = document.createElement('button'); numBtn.type = 'button'; numBtn.textContent = i;
-                numBtn.className = i === matCurrentPage ? 'btn btn-sm btn-warning text-dark fw-bold' : 'btn btn-sm btn-light border text-secondary';
-                numBtn.style.cssText = `border-radius: 8px; min-width: 34px; font-weight: ${i === matCurrentPage ? '800' : '700'};`;
-                numBtn.onclick = () => { matCurrentPage = i; renderMatPagination(); };
-                btnContainer.appendChild(numBtn);
-            }
-            const nextBtn = document.createElement('button'); nextBtn.type = 'button';
-            nextBtn.className = `btn btn-sm ${matCurrentPage >= totalPages ? 'btn-light disabled border' : 'btn-dark text-white'}`;
-            nextBtn.style.cssText = 'border-radius: 8px; font-weight: 600; padding: 6px 12px;';
-            nextBtn.innerHTML = '<i class="fa-solid fa-chevron-right"></i>';
-            nextBtn.onclick = () => { if (matCurrentPage < totalPages) { matCurrentPage++; renderMatPagination(); } };
-            btnContainer.appendChild(nextBtn);
         }
 
         function sortTable(tableId, colIndex, type, btn) {

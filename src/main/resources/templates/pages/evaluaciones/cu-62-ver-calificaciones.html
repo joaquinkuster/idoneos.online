@@ -91,7 +91,7 @@
         </div>
 
         <div class="wf-table-wrap">
-          <table class="wf-table align-middle">
+          <table id="tablaCalificaciones" class="wf-table align-middle">
             <thead>
               <tr>
                 <th>Unidad Temática</th>
@@ -150,6 +150,12 @@
               </tr>
             </tbody>
           </table>
+
+          <!-- Paginación Estilo Catálogo -->
+          <div id="paginacionCalificaciones" class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top px-3 pb-3">
+            <div class="text-secondary small fw-semibold" id="califPaginaInfo"></div>
+            <div class="d-flex gap-1" id="califBotonesPaginacion"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -182,6 +188,28 @@
                 }
             }
         }
+
+        let califCurrentPage = 1;
+        const califRowsPerPage = 6;
+
+        function renderCalifPagination() {
+            if (window.renderWfPagination) {
+                window.renderWfPagination({
+                    tableId: 'tablaCalificaciones',
+                    wrapId: 'paginacionCalificaciones',
+                    infoId: 'califPaginaInfo',
+                    controlsId: 'califBotonesPaginacion',
+                    currentPage: califCurrentPage,
+                    rowsPerPage: califRowsPerPage,
+                    entityLabel: 'calificaciones',
+                    onPageChange: function(p) { califCurrentPage = p; renderCalifPagination(); }
+                });
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            renderCalifPagination();
+        });
     </script>
 
     <!-- DSS & Case of Use Console Logger -->

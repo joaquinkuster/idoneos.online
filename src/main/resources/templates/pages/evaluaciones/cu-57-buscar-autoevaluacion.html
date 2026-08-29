@@ -96,7 +96,7 @@
         <div style="flex: 1 1 56%; min-width: 320px;">
           
       <div class="wf-table-wrap">
-        <table class="wf-table">
+        <table id="tablaAutoevaluaciones" class="wf-table">
           <thead>
             <tr>
               <th>Nombre Autoevaluación</th>
@@ -126,6 +126,12 @@
             </tr>
           </tbody>
         </table>
+
+        <!-- Paginación Estilo Catálogo -->
+        <div id="paginacionAutoevaluaciones" class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top px-3 pb-3">
+          <div class="text-secondary small fw-semibold" id="autoPaginaInfo"></div>
+          <div class="d-flex gap-1" id="autoBotonesPaginacion"></div>
+        </div>
       </div>
         </div>
 
@@ -217,6 +223,28 @@
                 }
             }
         }
+
+        let autoCurrentPage = 1;
+        const autoRowsPerPage = 6;
+
+        function renderAutoPagination() {
+            if (window.renderWfPagination) {
+                window.renderWfPagination({
+                    tableId: 'tablaAutoevaluaciones',
+                    wrapId: 'paginacionAutoevaluaciones',
+                    infoId: 'autoPaginaInfo',
+                    controlsId: 'autoBotonesPaginacion',
+                    currentPage: autoCurrentPage,
+                    rowsPerPage: autoRowsPerPage,
+                    entityLabel: 'autoevaluaciones',
+                    onPageChange: function(p) { autoCurrentPage = p; renderAutoPagination(); }
+                });
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            renderAutoPagination();
+        });
     </script>
 
     <!-- DSS & Case of Use Console Logger -->

@@ -92,7 +92,7 @@
 
       <!-- Tabla de Participantes Estilo Moodle Exacta a Wireframe -->
       <div class="wf-table-wrap">
-        <table class="wf-table align-middle">
+        <table id="tablaParticipantes" class="wf-table align-middle">
           <thead>
             <tr>
               <th style="width: 44px;"><input type="checkbox" style="width: 16px; height: 16px;"></th>
@@ -164,18 +164,11 @@
             </tr>
           </tbody>
         </table>
-      </div>
 
-      <!-- Paginación Moodle -->
-      <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
-        <div class="small text-muted">Mostrando 1 - 20 de 146 participantes</div>
-        <div class="d-flex gap-1" style="font-size: 12px;">
-          <span class="badge bg-dark text-white px-2 py-1">1</span>
-          <span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">2</span>
-          <span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">3</span>
-          <span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">4</span>
-          <span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">5</span>
-          <span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">&raquo;</span>
+        <!-- Paginación Estilo Catálogo -->
+        <div id="paginacionParticipantes" class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top px-3 pb-3">
+          <div class="text-secondary small fw-semibold" id="partPaginaInfo"></div>
+          <div class="d-flex gap-1" id="partBotonesPaginacion"></div>
         </div>
       </div>
     </div>
@@ -208,6 +201,28 @@
                 }
             }
         }
+
+        let partCurrentPage = 1;
+        const partRowsPerPage = 8;
+
+        function renderPartPagination() {
+            if (window.renderWfPagination) {
+                window.renderWfPagination({
+                    tableId: 'tablaParticipantes',
+                    wrapId: 'paginacionParticipantes',
+                    infoId: 'partPaginaInfo',
+                    controlsId: 'partBotonesPaginacion',
+                    currentPage: partCurrentPage,
+                    rowsPerPage: partRowsPerPage,
+                    entityLabel: 'participantes',
+                    onPageChange: function(p) { partCurrentPage = p; renderPartPagination(); }
+                });
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            renderPartPagination();
+        });
     </script>
 
     <!-- DSS & Case of Use Console Logger -->

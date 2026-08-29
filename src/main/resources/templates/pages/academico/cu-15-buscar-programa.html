@@ -1,16 +1,21 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${titulo != null ? titulo : 'CU-15 - Buscar programa'}">CU-15 - Buscar programa | Idóneos Online</title>
+    <title th:text="${titulo != null ? titulo : 'CU-15 - Buscar programa'}">CU-15 - Buscar programa | Idóneos Online
+    </title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/styles.css}">
 </head>
+
 <body class="wf-canvas-bg">
 
     <div class="cu-page-container">
@@ -24,13 +29,18 @@
                 <div>
                     <div class="wf-hero-tag">
                         <i class="fa-solid fa-graduation-cap" style="color: var(--wf-gold);"></i>
-                        <span th:text="${usuario != null and usuario.esAdmin() ? 'PANEL DE ADMINISTRACIÓN' : 'CUERPO DOCENTE • IDÓNEOS ONLINE'}">PANEL DE ADMINISTRACIÓN</span>
+                        <span
+                            th:text="${usuario != null and usuario.esAdmin() ? 'PANEL DE ADMINISTRACIÓN' : 'CUERPO DOCENTE • IDÓNEOS ONLINE'}">PANEL
+                            DE ADMINISTRACIÓN</span>
                     </div>
                     <h2 class="wf-hero-title">Gestión de Programas</h2>
-                    <p class="wf-hero-desc">Bienvenido/a, <span th:text="${usuario != null ? usuario.nombreCompleto : 'Admin General'}">Admin General</span></p>
+                    <p class="wf-hero-desc">Bienvenido/a, <span
+                            th:text="${usuario != null ? usuario.nombreCompleto : 'Admin General'}">Admin General</span>
+                    </p>
                 </div>
                 <div class="d-flex align-items-center gap-2">
-                    <button type="button" class="wf-btn-gold border-0" data-bs-toggle="modal" data-bs-target="#modalNuevoPrograma">
+                    <button type="button" class="wf-btn-gold border-0" data-bs-toggle="modal"
+                        data-bs-target="#modalNuevoPrograma">
                         <i class="fa-solid fa-plus"></i>
                         <span>Nuevo Programa</span>
                     </button>
@@ -43,8 +53,10 @@
                     <!-- Cabecera -->
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <div>
-                            <h3 style="font-size: 19px; font-weight: 800; color: #081426; margin: 0;">Buscar programa</h3>
-                            <p class="small text-muted m-0">Consulte, filtre y gestione los programas académicos del sistema</p>
+                            <h3 style="font-size: 19px; font-weight: 800; color: #081426; margin: 0;">Buscar programa
+                            </h3>
+                            <p class="small text-muted m-0">Consulte, filtre y gestione los programas académicos del
+                                sistema</p>
                         </div>
                     </div>
 
@@ -54,14 +66,15 @@
                             <div class="col-md-5">
                                 <label class="wf-label">Buscar por nombre o descripción</label>
                                 <div class="wf-input-wrap">
-                                    <input type="text" name="nombre" th:value="${nombreBusqueda}" class="wf-input" placeholder="Ej: Programa 2026, Idoneidad Bursátil...">
+                                    <input type="text" name="busqueda" th:value="${busqueda}" class="wf-input"
+                                        placeholder="Ej: Programa 2026, Idoneidad Bursátil...">
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <label class="wf-label">Estado</label>
                                 <select name="baja" class="wf-input">
-                                    <option value="false" th:selected="${bajaSeleccionada == null or !bajaSeleccionada}">Solo Activos / Vigentes</option>
-                                    <option value="true" th:selected="${bajaSeleccionada != null and bajaSeleccionada}">Todos (Incluir Dados de Baja)</option>
+                                    <option value="true" th:selected="${bajaSeleccionada == null or bajaSeleccionada}">Todos (Incluir Dados de Baja)</option>
+                                    <option value="false" th:selected="${bajaSeleccionada != null and !bajaSeleccionada}">Solo Activos / Vigentes</option>
                                 </select>
                             </div>
                             <div class="col-md-3">
@@ -78,72 +91,99 @@
                             <table id="tablaProgramas" class="table table-hover align-middle mb-0">
                                 <thead class="table-light">
                                     <tr>
-                                        <th style="font-size: 12px; font-weight: 700; color: #081426; white-space: nowrap;">
+                                        <th
+                                            style="font-size: 12px; font-weight: 700; color: #081426; white-space: nowrap;">
                                             <span>ID</span>
-                                            <button type="button" class="table-sort-btn" onclick="sortTable('tablaProgramas', 0, 'num', this)" title="Ordenar por ID"><i class="fa-solid fa-arrow-down-1-9"></i></button>
+                                            <button type="button" class="table-sort-btn"
+                                                onclick="sortTable('tablaProgramas', 0, 'num', this)"
+                                                title="Ordenar por ID"><i
+                                                    class="fa-solid fa-arrow-down-1-9"></i></button>
                                         </th>
-                                        <th style="font-size: 12px; font-weight: 700; color: #081426; white-space: nowrap;">
+                                        <th
+                                            style="font-size: 12px; font-weight: 700; color: #081426; white-space: nowrap;">
                                             <span>Nombre del Programa</span>
-                                            <button type="button" class="table-sort-btn" onclick="sortTable('tablaProgramas', 1, 'text', this)"><i class="fa-solid fa-arrow-down-a-z"></i></button>
+                                            <button type="button" class="table-sort-btn"
+                                                onclick="sortTable('tablaProgramas', 1, 'text', this)"><i
+                                                    class="fa-solid fa-arrow-down-a-z"></i></button>
                                         </th>
-                                        <th style="font-size: 12px; font-weight: 700; color: #081426; white-space: nowrap;">
+                                        <th
+                                            style="font-size: 12px; font-weight: 700; color: #081426; white-space: nowrap;">
                                             <span>Curso Asociado</span>
                                         </th>
-                                        <th style="font-size: 12px; font-weight: 700; color: #081426; white-space: nowrap;">
+                                        <th
+                                            style="font-size: 12px; font-weight: 700; color: #081426; white-space: nowrap;">
                                             <span>Carga Horaria</span>
                                         </th>
-                                        <th style="font-size: 12px; font-weight: 700; color: #081426; white-space: nowrap;">
+                                        <th
+                                            style="font-size: 12px; font-weight: 700; color: #081426; white-space: nowrap;">
                                             <span>Estado</span>
-                                            <button type="button" class="table-sort-btn" onclick="sortTable('tablaProgramas', 4, 'text', this)"><i class="fa-solid fa-filter"></i></button>
+                                            <button type="button" class="table-sort-btn"
+                                                onclick="sortTable('tablaProgramas', 4, 'text', this)"><i
+                                                    class="fa-solid fa-filter"></i></button>
                                         </th>
-                                        <th style="font-size: 12px; font-weight: 700; color: #081426; text-align: right;">Acciones</th>
+                                        <th
+                                            style="font-size: 12px; font-weight: 700; color: #081426; text-align: right;">
+                                            Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr th:each="prog : ${programas}" th:style="${prog.baja} ? 'background: #F8FAFC; opacity: 0.65;' : ''">
-                                        <td class="fw-bold" style="color: var(--wf-navy-dark);" th:text="${prog.id}">1</td>
-                                        <td>
-                                            <strong style="color: #081426;" th:text="${prog.nombre}">Programa Oficial 2026-A</strong>
-                                            <div class="small text-muted" th:text="${#strings.abbreviate(prog.descripcion != null ? prog.descripcion : '', 60)}">Descripción...</div>
+                                    <tr th:each="prog : ${programas}"
+                                        th:style="${prog.baja} ? 'background: #F8FAFC; opacity: 0.65;' : ''">
+                                        <td class="fw-bold" style="color: var(--wf-navy-dark);" th:text="${prog.id}">1
                                         </td>
                                         <td>
-                                            <span class="badge bg-light text-dark border" th:text="${prog.curso != null ? prog.curso.nombre : 'General'}">Curso</span>
+                                            <strong style="color: #081426;" th:text="${prog.nombre}">Programa Oficial
+                                                2026-A</strong>
+                                            <div class="small text-muted"
+                                                th:text="${#strings.abbreviate(prog.descripcion != null ? prog.descripcion : '', 60)}">
+                                                Descripción...</div>
                                         </td>
-                                        <td class="small text-secondary" th:text="${prog.cargaHorariaTotal != null ? prog.cargaHorariaTotal + ' hs' : '—'}">40 hs</td>
                                         <td>
-                                            <span class="wf-badge" th:classappend="${prog.baja} ? 'status-inactive' : 'status-active'" th:text="${prog.baja} ? 'Dado de baja' : 'Activo'">Activo</span>
+                                            <span class="badge bg-light text-dark border"
+                                                th:text="${prog.curso != null ? prog.curso.nombre : 'General'}">Curso</span>
+                                        </td>
+                                        <td class="small text-secondary"
+                                            th:text="${prog.cargaHorariaTotal != null ? prog.cargaHorariaTotal + ' hs' : '—'}">
+                                            40 hs</td>
+                                        <td>
+                                            <span class="wf-badge"
+                                                th:classappend="${prog.baja} ? 'status-inactive' : 'status-active'"
+                                                th:text="${prog.baja} ? 'Dado de baja' : 'Activo'">Activo</span>
                                         </td>
                                         <td style="text-align: right;">
                                             <div class="d-inline-flex align-items-center gap-1" th:if="${!prog.baja}">
-                                                <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3"
-                                                        data-bs-toggle="modal"
-                                                        th:data-bs-target="'#modalEditarPrograma' + ${prog.id}">
+                                                <button type="button"
+                                                    class="btn btn-sm btn-outline-secondary rounded-pill px-3"
+                                                    data-bs-toggle="modal"
+                                                    th:data-bs-target="'#modalEditarPrograma' + ${prog.id}">
                                                     <i class="fa-solid fa-pen-to-square me-1"></i> Editar
                                                 </button>
-                                                <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3"
-                                                        data-bs-toggle="modal"
-                                                        th:data-bs-target="'#modalBajaPrograma' + ${prog.id}" title="Dar de baja programa">
+                                                <button type="button"
+                                                    class="btn btn-sm btn-outline-danger rounded-pill px-3"
+                                                    data-bs-toggle="modal"
+                                                    th:data-bs-target="'#modalBajaPrograma' + ${prog.id}"
+                                                    title="Dar de baja programa">
                                                     <i class="fa-solid fa-trash me-1"></i> Baja
                                                 </button>
                                             </div>
                                             <div class="d-inline-flex align-items-center" th:if="${prog.baja}">
-                                                <span class="text-muted small fst-italic"><i class="fa-solid fa-lock me-1"></i> Dado de baja</span>
+                                                <span class="text-muted small fst-italic"><i
+                                                        class="fa-solid fa-lock me-1"></i> Dado de baja</span>
                                             </div>
                                         </td>
                                     </tr>
                                     <tr th:if="${programas == null or #lists.isEmpty(programas)}">
-                                        <td colspan="6" class="text-center py-4 text-muted">No se encontraron programas registrados.</td>
+                                        <td colspan="6" class="text-center py-4 text-muted">No se encontraron programas
+                                            registrados.</td>
                                     </tr>
                                 </tbody>
                             </table>
                         </div>
 
-                        <!-- Paginación -->
-                        <div id="paginacionProgramas" class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top px-3 pb-3">
-                            <div class="text-secondary small fw-semibold">
-                                Mostrando <span id="progPaginaActual" class="text-dark fw-bold">1</span> de <span id="progTotalPaginas" class="text-dark fw-bold">1</span> (<span id="progTotalRegistros" th:text="${programas != null ? #lists.size(programas) : 0}">0</span> programas)
-                            </div>
-                            <div class="d-flex gap-1" id="progBotonesPaginacion"></div>
+                        <!-- Paginación Premium — Sistema wf-pagination (CU-15) -->
+                        <div id="paginacionProgramas" class="wf-pagination-wrap">
+                            <div class="wf-pagination-info" id="progPaginaInfo"></div>
+                            <div class="wf-pagination-controls" id="progBotonesPaginacion"></div>
                         </div>
                     </div>
 
@@ -152,7 +192,8 @@
 
             <!-- Footer -->
             <div class="wf-screen-footer">
-                <div><strong>Idóneos <span>Online</span> S.A.S.</strong> • Plataforma de Educación Financiera, Economía &amp; Mercado de Capitales</div>
+                <div><strong>Idóneos <span>Online</span> S.A.S.</strong> • Plataforma de Educación Financiera, Economía
+                    &amp; Mercado de Capitales</div>
                 <div>FCEQyN — UNaM • Proyecto Software (LSI) / Trabajo Final (ASI)</div>
             </div>
         </div>
@@ -166,15 +207,16 @@
         <!-- Modal CU-17: Modificar Programa -->
         <div class="modal fade" th:id="'modalEditarPrograma' + ${prog.id}" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-lg">
-                <div class="modal-content" style="border-radius: 12px; border: 1px solid #CBD5E1; box-shadow: 0 20px 50px rgba(8,20,38,0.15); overflow: hidden;">
+                <div class="modal-content"
+                    style="border-radius: 12px; border: 1px solid #CBD5E1; box-shadow: 0 20px 50px rgba(8,20,38,0.15); overflow: hidden;">
                     <div class="p-4 bg-white">
                         <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
                             <div>
-                                <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Modificar Programa</h3>
-                                <p class="small text-muted" style="margin: 3px 0 0;" th:text="'Actualizando: ' + ${prog.nombre}">Actualizando programa...</p>
+                                <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;" th:text="'Modificar Programa: ' + ${prog.nombre}">Modificar Programa: 2026-A</h3>
+                                <p class="small text-muted" style="margin: 3px 0 0;">Actualice las especificaciones académicas del programa seleccionado.</p>
                             </div>
                             <div class="d-flex align-items-center gap-2">
-                                <span class="wf-badge status-active">Modo Edición</span>
+                                <span class="wf-badge status-active" style="background: #FEF3C7; color: #92400E; border: 1px solid #FDE68A; font-size: 11px; font-weight: 800; text-transform: uppercase;">MODO EDICIÓN</span>
                                 <button type="button" class="btn-close ms-2" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                             </div>
                         </div>
@@ -182,31 +224,31 @@
                         <form th:action="@{'/academico/programas/' + ${prog.id} + '/editar'}" method="post">
                             <div class="row g-3">
                                 <div class="col-md-8">
-                                    <label class="wf-label">Nombre del Programa <span class="text-danger">*</span></label>
+                                    <label class="wf-label">NOMBRE DEL PROGRAMA <span class="text-danger">*</span></label>
                                     <div class="wf-input-wrap">
                                         <input type="text" name="nombre" class="wf-input" th:value="${prog.nombre}" required maxlength="150">
                                     </div>
                                 </div>
                                 <div class="col-md-4">
-                                    <label class="wf-label">Carga Horaria Total (Horas)</label>
+                                    <label class="wf-label">CARGA HORARIA TOTAL (HORAS)</label>
                                     <div class="wf-input-wrap">
                                         <input type="number" name="cargaHorariaTotal" class="wf-input" th:value="${prog.cargaHorariaTotal}" min="1" max="999">
                                     </div>
                                 </div>
                                 <div class="col-12">
-                                    <label class="wf-label">Descripción Académica y Alcance</label>
+                                    <label class="wf-label">DESCRIPCIÓN ACADÉMICA</label>
                                     <div class="wf-input-wrap">
                                         <textarea name="descripcion" class="wf-input" rows="3" maxlength="500" th:text="${prog.descripcion}"></textarea>
                                     </div>
                                 </div>
                                 <div class="col-12">
-                                    <label class="wf-label">Objetivos Formativos y Competencias</label>
+                                    <label class="wf-label">OBJETIVOS FORMATIVOS</label>
                                     <div class="wf-input-wrap">
-                                        <textarea name="objetivos" class="wf-input" rows="2" maxlength="500" th:text="${prog.objetivos}"></textarea>
+                                        <textarea name="objetivos" class="wf-input" rows="3" maxlength="500" th:text="${prog.objetivos}"></textarea>
                                     </div>
                                 </div>
                                 <div class="col-12">
-                                    <label class="wf-label">Bibliografía Obligatoria y Complementaria</label>
+                                    <label class="wf-label">BIBLIOGRAFÍA OBLIGATORIA</label>
                                     <div class="wf-input-wrap">
                                         <input type="text" name="bibliografia" class="wf-input" th:value="${prog.bibliografia}" maxlength="300">
                                     </div>
@@ -214,7 +256,9 @@
                             </div>
                             <div class="d-flex justify-content-end gap-3 mt-4 pt-3 border-top">
                                 <button type="button" class="wf-btn wf-btn-outline" data-bs-dismiss="modal">Cancelar / Volver</button>
-                                <button type="submit" class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Guardar Cambios</button>
+                                <button type="submit" class="wf-btn wf-btn-primary" style="background: #081426; color: #FFFFFF; border-color: #081426; font-weight: 700;">
+                                    <i class="fa-solid fa-check me-1"></i> Guardar Cambios
+                                </button>
                             </div>
                         </form>
                     </div>
@@ -225,8 +269,10 @@
         <!-- Modal CU-18: Dar de Baja Programa -->
         <div class="modal fade" th:id="'modalBajaPrograma' + ${prog.id}" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered" style="max-width: 620px;">
-                <div class="modal-content" style="border-radius: 12px; border: 1px solid #CBD5E1; box-shadow: 0 20px 50px rgba(8,20,38,0.15); overflow: hidden;">
-                    <div class="p-3 border-bottom d-flex justify-content-between align-items-center" style="background: #F8FAFC;">
+                <div class="modal-content"
+                    style="border-radius: 12px; border: 1px solid #CBD5E1; box-shadow: 0 20px 50px rgba(8,20,38,0.15); overflow: hidden;">
+                    <div class="p-3 border-bottom d-flex justify-content-between align-items-center"
+                        style="background: #F8FAFC;">
                         <div class="d-flex align-items-center gap-2">
                             <i class="fa-solid fa-triangle-exclamation text-danger"></i>
                             <strong style="font-size: 14px; color: #081426;">Dar de baja programa</strong>
@@ -234,19 +280,26 @@
                         <span class="wf-badge status-active">Confirmación Requerida</span>
                     </div>
                     <div class="p-4 text-center">
-                        <div class="mb-3" style="width: 56px; height: 56px; border-radius: 50%; background: #FEE2E2; color: #DC2626; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 24px;">
+                        <div class="mb-3"
+                            style="width: 56px; height: 56px; border-radius: 50%; background: #FEE2E2; color: #DC2626; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 24px;">
                             <i class="fa-solid fa-triangle-exclamation"></i>
                         </div>
-                        <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin-bottom: 6px;">¿Confirma la baja del programa?</h3>
-                        <p class="small text-muted mb-4" style="line-height: 1.5;">Esta acción procesará el cambio de estado en la base de datos. El programa quedará inhabilitado pero los registros históricos se conservan.</p>
+                        <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin-bottom: 6px;">¿Confirma la
+                            baja del programa?</h3>
+                        <p class="small text-muted mb-4" style="line-height: 1.5;">Esta acción procesará el cambio de
+                            estado en la base de datos. El programa quedará inhabilitado pero los registros históricos
+                            se conservan.</p>
 
-                        <th:block th:with="cohortesAsoc=${cohortesPorPrograma != null and cohortesPorPrograma.containsKey(prog.id) ? cohortesPorPrograma.get(prog.id) : null}">
-                            <th:block th:with="tieneCohortesActivas=${cohortesAsoc != null and !cohortesAsoc.isEmpty()}">
+                        <th:block
+                            th:with="cohortesAsoc=${cohortesPorPrograma != null and cohortesPorPrograma.containsKey(prog.id) ? cohortesPorPrograma.get(prog.id) : null}">
+                            <th:block
+                                th:with="tieneCohortesActivas=${cohortesAsoc != null and !cohortesAsoc.isEmpty()}">
 
                                 <div class="p-3 mb-4 bg-light border rounded text-start" style="font-size: 13px;">
                                     <div class="d-flex justify-content-between align-items-center mb-2">
                                         <span class="text-muted">Registro afectado:</span>
-                                        <strong style="color: #081426;" th:text="'Programa: ' + ${prog.nombre}">Programa: Nombre</strong>
+                                        <strong style="color: #081426;"
+                                            th:text="'Programa: ' + ${prog.nombre}">Programa: Nombre</strong>
                                     </div>
                                     <div class="d-flex justify-content-between align-items-center mb-2">
                                         <span class="text-muted">Estado actual:</span>
@@ -256,30 +309,38 @@
                                         <span class="text-muted">Validación de dependencias:</span>
                                         <div class="text-end">
                                             <span th:if="${!tieneCohortesActivas}" class="small text-success fw-bold">
-                                                <i class="fa-solid fa-circle-check me-1"></i> Sin cohortes activas (Apto para baja)
+                                                <i class="fa-solid fa-circle-check me-1"></i> Sin cohortes activas (Apto
+                                                para baja)
                                             </span>
                                             <span th:if="${tieneCohortesActivas}" class="small text-danger fw-bold">
-                                                <i class="fa-solid fa-circle-xmark me-1"></i> Bloqueado: Posee <span th:text="${cohortesAsoc.size()}">1</span> cohorte(s) activa(s)
+                                                <i class="fa-solid fa-circle-xmark me-1"></i> Bloqueado: Posee <span
+                                                    th:text="${cohortesAsoc.size()}">1</span> cohorte(s) activa(s)
                                             </span>
                                         </div>
                                     </div>
                                     <div th:if="${tieneCohortesActivas}" class="mt-3 pt-2 border-top">
-                                        <div class="small fw-bold text-danger mb-2"><i class="fa-solid fa-list-ul me-1"></i> Cohortes dependientes activas:</div>
+                                        <div class="small fw-bold text-danger mb-2"><i
+                                                class="fa-solid fa-list-ul me-1"></i> Cohortes dependientes activas:
+                                        </div>
                                         <ul class="list-unstyled mb-0 small text-secondary">
-                                            <li th:each="coh : ${cohortesAsoc}" class="mb-1 d-flex align-items-center justify-content-between bg-white p-2 rounded border">
-                                                <span><i class="fa-solid fa-users me-1 text-primary"></i><strong th:text="${'Cohorte #' + coh.idCohorte}">Cohorte #1</strong></span>
+                                            <li th:each="coh : ${cohortesAsoc}"
+                                                class="mb-1 d-flex align-items-center justify-content-between bg-white p-2 rounded border">
+                                                <span><i class="fa-solid fa-users me-1 text-primary"></i><strong
+                                                        th:text="${'Cohorte #' + coh.idCohorte}">Cohorte
+                                                        #1</strong></span>
                                                 <span class="badge bg-danger">Activa</span>
                                             </li>
                                         </ul>
                                     </div>
                                 </div>
 
-                                <form th:action="@{'/academico/programas/' + ${prog.id} + '/baja'}" method="post" class="d-flex justify-content-end align-items-center gap-3 pt-3 border-top">
-                                    <button type="button" class="wf-btn wf-btn-outline" data-bs-dismiss="modal">Cancelar / Volver</button>
-                                    <button type="submit"
-                                            class="wf-btn wf-btn-danger"
-                                            th:disabled="${tieneCohortesActivas}"
-                                            th:title="${tieneCohortesActivas ? 'No se puede dar de baja: posee cohortes activas asociadas' : 'Confirmar baja del programa'}">
+                                <form th:action="@{'/academico/programas/' + ${prog.id} + '/baja'}" method="post"
+                                    class="d-flex justify-content-end align-items-center gap-3 pt-3 border-top">
+                                    <button type="button" class="wf-btn wf-btn-outline" data-bs-dismiss="modal">Cancelar
+                                        / Volver</button>
+                                    <button type="submit" class="wf-btn wf-btn-danger"
+                                        th:disabled="${tieneCohortesActivas}"
+                                        th:title="${tieneCohortesActivas ? 'No se puede dar de baja: posee cohortes activas asociadas' : 'Confirmar baja del programa'}">
                                         <i class="fa-solid fa-trash me-1"></i> Confirmar Baja
                                     </button>
                                 </form>
@@ -294,27 +355,37 @@
     </div>
 
     <!-- Modal CU-16: Registrar Nuevo Programa -->
-    <div class="modal fade" id="modalNuevoPrograma" tabindex="-1" aria-labelledby="modalNuevoProgramaLabel" aria-hidden="true">
+    <div class="modal fade" id="modalNuevoPrograma" tabindex="-1" aria-labelledby="modalNuevoProgramaLabel"
+        aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content" style="border-radius: 12px; border: 1px solid #CBD5E1; box-shadow: 0 20px 50px rgba(8,20,38,0.15); overflow: hidden;">
+            <div class="modal-content"
+                style="border-radius: 12px; border: 1px solid #CBD5E1; box-shadow: 0 20px 50px rgba(8,20,38,0.15); overflow: hidden;">
                 <div class="p-4 bg-white">
                     <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
                         <div>
-                            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Registrar Nuevo Programa Académico</h3>
-                            <p class="small text-muted" style="margin: 3px 0 0;">Defina la estructura curricular, objetivos y bibliografía del programa.</p>
+                            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Registrar Nuevo
+                                Programa Académico</h3>
+                            <p class="small text-muted" style="margin: 3px 0 0;">Defina la estructura curricular,
+                                objetivos y bibliografía del programa.</p>
                         </div>
                         <div class="d-flex align-items-center gap-2">
-                            <span class="wf-badge status-active" style="background: rgba(212,160,61,0.15); color: var(--wf-gold-text); border: 1px solid var(--wf-gold); font-size: 11px; font-weight: 700;">FORMULARIO DE ALTA</span>
-                            <button type="button" class="btn-close ms-2" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                            <span class="wf-badge status-active"
+                                style="background: rgba(212,160,61,0.15); color: var(--wf-gold-text); border: 1px solid var(--wf-gold); font-size: 11px; font-weight: 700;">FORMULARIO
+                                DE ALTA</span>
+                            <button type="button" class="btn-close ms-2" data-bs-dismiss="modal"
+                                aria-label="Cerrar"></button>
                         </div>
                     </div>
 
                     <div id="nuevoProgramaAlert" class="alert alert-danger d-none py-2 px-3 small mb-3"></div>
 
                     <form id="formNuevoPrograma" th:action="@{/academico/programas/guardar}" method="post" novalidate>
+                        <!-- Selector de curso en input hidden contextual -->
+                        <input type="hidden" name="cursoId" th:value="${cursoSeleccionado != null ? cursoSeleccionado : (cursos != null and !#lists.isEmpty(cursos) ? cursos[0].id : 1)}">
+
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <label class="wf-label">Partir de Programa Anterior <span class="text-muted">(Opcional)</span></label>
+                                <label class="wf-label">PARTIR DE PROGRAMA ANTERIOR (OPCIONAL)</label>
                                 <div class="wf-input-wrap">
                                     <select name="programaAnteriorId" class="wf-input">
                                         <option value="">Crear programa desde cero</option>
@@ -324,37 +395,37 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="d-flex justify-content-between align-items-center mb-1">
-                                    <label class="wf-label m-0">Nombre del Programa <span class="text-danger">*</span></label>
+                                    <label class="wf-label m-0">NOMBRE DEL PROGRAMA <span class="text-danger">*</span></label>
                                     <span id="progNombreCount" class="text-muted" style="font-size: 11px; font-weight: 600;">0 / 150</span>
                                 </div>
                                 <div class="wf-input-wrap">
-                                    <input type="text" id="progNombre" name="nombre" class="wf-input" maxlength="150" placeholder="Ej: Programa Oficial 2026-A" required>
+                                    <input type="text" id="progNombre" name="nombre" class="wf-input" maxlength="150" placeholder="Programa Oficial 2026-A" required>
                                 </div>
                                 <div id="progNombreFeedback" class="small text-danger mt-1 d-none"></div>
                             </div>
                             <div class="col-12">
                                 <div class="d-flex justify-content-between align-items-center mb-1">
-                                    <label class="wf-label m-0">Descripción Académica y Alcance</label>
+                                    <label class="wf-label m-0">DESCRIPCIÓN ACADÉMICA Y ALCANCE</label>
                                     <span id="progDescCount" class="text-muted" style="font-size: 11px; font-weight: 600;">0 / 500</span>
                                 </div>
                                 <div class="wf-input-wrap">
-                                    <textarea id="progDesc" name="descripcion" class="wf-input" rows="2" maxlength="500" placeholder="Estructura curricular alineada con el examen de certificación CNV 2026."></textarea>
+                                    <textarea id="progDesc" name="descripcion" class="wf-input" rows="3" maxlength="500" placeholder="Estructura curricular alineada con el examen de certificación CNV 2026."></textarea>
                                 </div>
                             </div>
                             <div class="col-12">
-                                <label class="wf-label">Objetivos Formativos y Competencias</label>
+                                <label class="wf-label">OBJETIVOS FORMATIVOS Y COMPETENCIAS</label>
                                 <div class="wf-input-wrap">
-                                    <textarea name="objetivos" class="wf-input" rows="2" maxlength="500" placeholder="Capacitar en valuación de bonos, acciones, derivados y marco normativo bursátil."></textarea>
+                                    <textarea name="objetivos" class="wf-input" rows="3" maxlength="500" placeholder="Capacitar en valuación de bonos, acciones, derivados y marco normativo bursátil."></textarea>
                                 </div>
                             </div>
                             <div class="col-md-4">
-                                <label class="wf-label">Carga Horaria Total (Horas)</label>
+                                <label class="wf-label">CARGA HORARIA TOTAL (HORAS)</label>
                                 <div class="wf-input-wrap">
                                     <input type="number" name="cargaHorariaTotal" class="wf-input" placeholder="40" min="1" max="999">
                                 </div>
                             </div>
                             <div class="col-md-8">
-                                <label class="wf-label">Bibliografía Obligatoria y Complementaria</label>
+                                <label class="wf-label">BIBLIOGRAFÍA OBLIGATORIA Y COMPLEMENTARIA</label>
                                 <div class="wf-input-wrap">
                                     <input type="text" name="bibliografia" class="wf-input" maxlength="300" placeholder="Ley 26.831, Normas CNV TO 2013, Guía IAMC 2026">
                                 </div>
@@ -393,70 +464,16 @@
         const progRowsPerPage = 6;
 
         function renderProgPagination() {
-            const table = document.getElementById('tablaProgramas');
-            if (!table) return;
-            const tbody = table.querySelector('tbody');
-            const rows = Array.from(tbody.querySelectorAll('tr'));
-            const totalRows = rows.length;
-            const totalPages = Math.ceil(totalRows / progRowsPerPage) || 1;
-
-            if (progCurrentPage > totalPages) progCurrentPage = totalPages;
-            if (progCurrentPage < 1) progCurrentPage = 1;
-
-            rows.forEach((row, index) => {
-                const start = (progCurrentPage - 1) * progRowsPerPage;
-                const end = start + progRowsPerPage;
-                row.style.display = (index >= start && index < end) ? '' : 'none';
+            window.renderWfPagination({
+                tableId: 'tablaProgramas',
+                wrapId: 'paginacionProgramas',
+                infoId: 'progPaginaInfo',
+                controlsId: 'progBotonesPaginacion',
+                currentPage: progCurrentPage,
+                rowsPerPage: progRowsPerPage,
+                entityLabel: 'programas',
+                onPageChange: (p) => { progCurrentPage = p; renderProgPagination(); }
             });
-
-            const lblActual = document.getElementById('progPaginaActual');
-            const lblTotal = document.getElementById('progTotalPaginas');
-            const lblRegs = document.getElementById('progTotalRegistros');
-            if (lblActual) lblActual.textContent = progCurrentPage;
-            if (lblTotal) lblTotal.textContent = totalPages;
-            if (lblRegs) lblRegs.textContent = totalRows;
-
-            const btnContainer = document.getElementById('progBotonesPaginacion');
-            if (!btnContainer) return;
-            btnContainer.innerHTML = '';
-
-            if (totalPages <= 1) {
-                document.getElementById('paginacionProgramas').style.display = totalRows === 0 ? 'none' : 'flex';
-                return;
-            } else {
-                document.getElementById('paginacionProgramas').style.display = 'flex';
-            }
-
-            const prevBtn = document.createElement('button');
-            prevBtn.type = 'button';
-            prevBtn.className = `btn btn-sm ${progCurrentPage === 1 ? 'btn-light disabled border' : 'btn-dark text-white'}`;
-            prevBtn.style.cssText = 'border-radius: 8px; font-weight: 600; padding: 6px 12px;';
-            prevBtn.innerHTML = '<i class="fa-solid fa-chevron-left"></i>';
-            prevBtn.onclick = () => { if (progCurrentPage > 1) { progCurrentPage--; renderProgPagination(); } };
-            btnContainer.appendChild(prevBtn);
-
-            for (let i = 1; i <= totalPages; i++) {
-                const numBtn = document.createElement('button');
-                numBtn.type = 'button';
-                numBtn.textContent = i;
-                if (i === progCurrentPage) {
-                    numBtn.className = 'btn btn-sm btn-warning text-dark fw-bold';
-                    numBtn.style.cssText = 'border-radius: 8px; min-width: 34px; font-weight: 800; background: var(--wf-gold, #D4A03D); border-color: var(--wf-gold, #D4A03D);';
-                } else {
-                    numBtn.className = 'btn btn-sm btn-light border text-secondary';
-                    numBtn.style.cssText = 'border-radius: 8px; min-width: 34px; font-weight: 700;';
-                }
-                numBtn.onclick = () => { progCurrentPage = i; renderProgPagination(); };
-                btnContainer.appendChild(numBtn);
-            }
-
-            const nextBtn = document.createElement('button');
-            nextBtn.type = 'button';
-            nextBtn.className = `btn btn-sm ${progCurrentPage >= totalPages ? 'btn-light disabled border' : 'btn-dark text-white'}`;
-            nextBtn.style.cssText = 'border-radius: 8px; font-weight: 600; padding: 6px 12px;';
-            nextBtn.innerHTML = '<i class="fa-solid fa-chevron-right"></i>';
-            nextBtn.onclick = () => { if (progCurrentPage < totalPages) { progCurrentPage++; renderProgPagination(); } };
-            btnContainer.appendChild(nextBtn);
         }
 
         function sortTable(tableId, colIndex, type, btn) {
@@ -482,7 +499,7 @@
         // ==========================================
         // VALIDACIÓN EN TIEMPO REAL — CU-16 REGISTRAR PROGRAMA
         // ==========================================
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             renderProgPagination();
             const form = document.getElementById('formNuevoPrograma');
             if (!form) return;
@@ -522,7 +539,7 @@
                 countDesc.className = len >= 500 ? 'text-danger fw-bold' : (len > 475 ? 'text-warning fw-bold' : 'text-muted');
             });
 
-            form.addEventListener('submit', function(e) {
+            form.addEventListener('submit', function (e) {
                 if (!validarNombre()) {
                     e.preventDefault(); e.stopPropagation();
                     const alertBox = document.getElementById('nuevoProgramaAlert');
@@ -534,7 +551,7 @@
     </script>
 
     <script>
-        (function() {
+        (function () {
             const cuId = 'CU-15'; const cuNombre = 'Buscar programa';
             const cuActores = 'Administrador / Docente';
             const cuDss = 'obtenerProgramaVigente(curso) ➔ buscarProgramas(curso, nombre, estado) ➔ seleccionarPrograma(idPrograma, programas)';
@@ -544,4 +561,5 @@
         })();
     </script>
 </body>
+
 </html>

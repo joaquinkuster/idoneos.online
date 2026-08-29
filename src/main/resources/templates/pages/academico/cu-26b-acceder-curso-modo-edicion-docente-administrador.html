@@ -75,9 +75,9 @@
 
       <div class="d-flex flex-column gap-4">
         <!-- Iteración Dinámica de Unidades en Modo Edición -->
-        <div th:each="unidad, iterStat : ${unidades}" class="wf-unit-box" style="border: 1px solid #E2E8F0; border-radius: 8px; overflow: hidden; background: #FFFFFF; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+        <div th:each="unidad, iterStat : ${unidades}" class="wf-unit-box">
           <!-- Cabecera de la Unidad: Título dinámico + Toolbar de IA y Acciones -->
-          <div class="wf-unit-header p-3 border-bottom" style="background: #F8FAFC;">
+          <div class="wf-unit-header border-bottom">
             <div class="d-flex justify-content-between align-items-center mb-3">
               <div class="d-flex align-items-center gap-2">
                 <i class="fa-solid fa-bars text-muted" style="cursor: grab; font-size: 16px;"></i>

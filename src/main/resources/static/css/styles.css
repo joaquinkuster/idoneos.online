@@ -1297,21 +1297,65 @@ textarea.wf-input {
     font-weight: 800;
 }
 
+/* ══════════════════════════════════════════
+   UNIT BOX — Glassmorphism Premium
+   ══════════════════════════════════════════ */
 .wf-unit-box {
-    background: #FFFFFF;
-    border: 1px solid #E2E8F0;
-    border-radius: 10px;
+    position: relative;
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: blur(18px) saturate(1.6);
+    -webkit-backdrop-filter: blur(18px) saturate(1.6);
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    border-radius: 16px;
     overflow: hidden;
+    box-shadow:
+        0 2px 8px rgba(8, 20, 38, 0.06),
+        0 8px 32px rgba(8, 20, 38, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    transition: transform 0.22s ease, box-shadow 0.22s ease;
 }
 
+.wf-unit-box:hover {
+    transform: translateY(-2px);
+    box-shadow:
+        0 4px 16px rgba(8, 20, 38, 0.10),
+        0 16px 48px rgba(8, 20, 38, 0.12),
+        inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+/* Borde de acento de color en la parte izquierda, rotativo por unidad */
+.wf-unit-box::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    border-radius: 16px 0 0 16px;
+    background: linear-gradient(180deg, #6366F1, #8B5CF6);
+    opacity: 0.85;
+}
+
+.wf-unit-box:nth-child(1)::before { background: linear-gradient(180deg, #6366F1, #8B5CF6); }
+.wf-unit-box:nth-child(2)::before { background: linear-gradient(180deg, #0EA5E9, #06B6D4); }
+.wf-unit-box:nth-child(3)::before { background: linear-gradient(180deg, #F59E0B, #F97316); }
+.wf-unit-box:nth-child(4)::before { background: linear-gradient(180deg, #10B981, #059669); }
+.wf-unit-box:nth-child(5)::before { background: linear-gradient(180deg, #EC4899, #F43F5E); }
+.wf-unit-box:nth-child(6)::before { background: linear-gradient(180deg, #8B5CF6, #6366F1); }
+.wf-unit-box:nth-child(7)::before { background: linear-gradient(180deg, #06B6D4, #0EA5E9); }
+.wf-unit-box:nth-child(8)::before { background: linear-gradient(180deg, #F97316, #F59E0B); }
+.wf-unit-box:nth-child(9)::before { background: linear-gradient(180deg, #059669, #10B981); }
+.wf-unit-box:nth-child(10)::before { background: linear-gradient(180deg, #F43F5E, #EC4899); }
+
 .wf-unit-header {
-    padding: 16px 20px;
-    background: #F8FAFC;
-    border-bottom: 1px solid #E2E8F0;
+    padding: 18px 20px 16px 24px;
+    background: linear-gradient(135deg, rgba(248, 250, 252, 0.95) 0%, rgba(241, 245, 249, 0.85) 100%);
+    border-bottom: 1px solid rgba(226, 232, 240, 0.7);
 }
 
 .wf-unit-body {
-    padding: 20px;
+    padding: 16px 20px 20px 24px;
+    background: rgba(255, 255, 255, 0.5);
 }
 
 .wf-content-list {
@@ -2000,4 +2044,111 @@ textarea.wf-input {
 
 .unit-drag-handle:active, .material-drag-handle:active {
     cursor: grabbing;
+}
+
+/* ==========================================================================
+   PAGINACIÓN PREMIUM — wf-pagination
+   Sistema unificado de paginación para todas las vistas
+   ========================================================================== */
+
+.wf-pagination-wrap {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 20px;
+    margin-top: 12px;
+    border-top: 1px solid rgba(226, 232, 240, 0.8);
+    background: linear-gradient(135deg, rgba(248, 250, 252, 0.9) 0%, rgba(241, 245, 249, 0.7) 100%);
+    border-radius: 0 0 12px 12px;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.wf-pagination-info {
+    font-size: 12px;
+    font-weight: 600;
+    color: #64748B;
+    letter-spacing: 0.1px;
+}
+
+.wf-pagination-info strong {
+    color: #081426;
+    font-weight: 800;
+}
+
+.wf-pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* Botón base */
+.wf-page-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 32px;
+    min-width: 32px;
+    padding: 0 10px;
+    font-size: 12px;
+    font-weight: 700;
+    border-radius: 8px;
+    border: 1px solid #E2E8F0;
+    background: rgba(255, 255, 255, 0.85);
+    color: #475569;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    text-decoration: none;
+    box-shadow: 0 1px 3px rgba(8, 20, 38, 0.06);
+    user-select: none;
+}
+
+.wf-page-btn:hover:not(.disabled):not(.active) {
+    background: #081426;
+    border-color: #081426;
+    color: #FFFFFF;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(8, 20, 38, 0.18);
+    text-decoration: none;
+}
+
+/* Página activa — gold accent */
+.wf-page-btn.active {
+    background: linear-gradient(135deg, #D4A03D, #F0C060);
+    border-color: #D4A03D;
+    color: #081426;
+    font-weight: 900;
+    box-shadow: 0 3px 10px rgba(212, 160, 61, 0.35);
+    pointer-events: none;
+}
+
+/* Disabled */
+.wf-page-btn.disabled,
+.wf-page-btn:disabled {
+    opacity: 0.38;
+    cursor: not-allowed;
+    pointer-events: none;
+    transform: none;
+}
+
+/* Botones Prev/Next más anchos */
+.wf-page-btn.wf-page-nav {
+    padding: 0 14px;
+    gap: 5px;
+    font-size: 11px;
+    border-radius: 20px;
+    font-weight: 700;
+}
+
+/* Puntos suspensivos */
+.wf-page-ellipsis {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 32px;
+    padding: 0 6px;
+    font-size: 12px;
+    color: #94A3B8;
+    font-weight: 700;
+    user-select: none;
 }

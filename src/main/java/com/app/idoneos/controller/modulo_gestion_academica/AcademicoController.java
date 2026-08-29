@@ -69,13 +69,15 @@ public class AcademicoController {
     @GetMapping("/programas")
     public String buscarProgramas(@RequestParam(value = "cursoId", required = false) Integer cursoId,
                                   @RequestParam(value = "busqueda", required = false) String busqueda,
+                                  @RequestParam(value = "baja", required = false, defaultValue = "true") Boolean baja,
                                   Model model, Authentication auth) {
         agregarUsuarioAlModelo(model, auth);
-        List<Programa> programas = programaService.buscarProgramasConFiltros(cursoId, busqueda, false);
+        List<Programa> programas = programaService.buscarProgramasConFiltros(cursoId, busqueda, baja);
         model.addAttribute("programas", programas);
         model.addAttribute("cursos", cursoService.obtenerTodo());
         model.addAttribute("cursoSeleccionado", cursoId);
         model.addAttribute("busqueda", busqueda);
+        model.addAttribute("bajaSeleccionada", baja);
 
         // Mapeo de cohortes activas por programa para validación de dependencias en frontend (CU-18)
         Map<Integer, List<Cohorte>> cohortesPorPrograma = new HashMap<>();
@@ -100,7 +102,7 @@ public class AcademicoController {
     }
 
     @PostMapping("/programas/guardar")
-    public String guardarPrograma(@RequestParam Integer cursoId,
+    public String guardarPrograma(@RequestParam(required = false) Integer cursoId,
                                   @RequestParam String nombre,
                                   @RequestParam(required = false) String descripcion,
                                   @RequestParam(required = false) String objetivos,
@@ -109,16 +111,24 @@ public class AcademicoController {
                                   @RequestParam(required = false) Integer idProgramaAnterior,
                                   RedirectAttributes ra) {
         try {
+            if (cursoId == null) {
+                var primerCurso = cursoService.obtenerTodo().stream().findFirst();
+                if (primerCurso.isPresent()) {
+                    cursoId = primerCurso.get().getId();
+                } else {
+                    throw new IllegalArgumentException("Debe seleccionar un curso válido.");
+                }
+            }
             Programa p = programaService.registrarPrograma(cursoId, nombre, descripcion, "1.0", idProgramaAnterior);
             if (objetivos != null && !objetivos.isBlank()) p.setObjetivos(objetivos);
             if (bibliografia != null && !bibliografia.isBlank()) p.setBibliografia(bibliografia);
             if (cargaHorariaTotal != null && cargaHorariaTotal > 0) p.setCargaHorariaTotal(cargaHorariaTotal);
             programaRepository.save(p);
             ra.addFlashAttribute("mensaje", "Programa registrado con éxito.");
-            return "redirect:/academico/programas?cursoId=" + cursoId;
+            return "redirect:/academico/programas";
         } catch (Exception e) {
             ra.addFlashAttribute("error", e.getMessage());
-            return "redirect:/academico/programas/nuevo?cursoId=" + cursoId;
+            return "redirect:/academico/programas";
         }
     }
 
@@ -148,10 +158,10 @@ public class AcademicoController {
             if (cargaHorariaTotal != null) p.setCargaHorariaTotal(cargaHorariaTotal);
             programaRepository.save(p);
             ra.addFlashAttribute("mensaje", "Programa modificado con éxito.");
-            return "redirect:/academico/programas?cursoId=" + p.getCurso().getIdCurso();
+            return "redirect:/academico/programas";
         } catch (Exception e) {
             ra.addFlashAttribute("error", e.getMessage());
-            return "redirect:/academico/programas/" + id + "/editar";
+            return "redirect:/academico/programas";
         }
     }
 
@@ -169,14 +179,12 @@ public class AcademicoController {
     @PostMapping("/programas/{id}/baja")
     public String eliminarPrograma(@PathVariable Integer id, RedirectAttributes ra) {
         try {
-            Programa p = programaService.buscarPorId(id).orElse(null);
-            Integer cId = (p != null && p.getCurso() != null) ? p.getCurso().getIdCurso() : null;
             programaService.darDeBajaPrograma(id);
             ra.addFlashAttribute("mensaje", "Programa dado de baja correctamente.");
-            return cId != null ? "redirect:/academico/programas?cursoId=" + cId : "redirect:/academico/programas";
+            return "redirect:/academico/programas";
         } catch (Exception e) {
             ra.addFlashAttribute("error", e.getMessage());
-            return "redirect:/academico/programas/" + id + "/baja";
+            return "redirect:/academico/programas";
         }
     }
 

@@ -37,4 +37,100 @@
             }
         });
     </script>
+
+    <!-- 
+        renderWfPagination — Sistema de paginación premium unificado.
+        Uso: renderWfPagination(config) donde config = {
+            tableId, wrapId, infoId, controlsId,
+            currentPage (ref), rowsPerPage, entityLabel,
+            onPageChange: (newPage) => void
+        }
+    -->
+    <script>
+        /**
+         * Renderiza una paginación premium wf-pagination sobre una tabla.
+         * @param {object} cfg
+         * @param {string}   cfg.tableId        - ID del <table>
+         * @param {string}   cfg.wrapId         - ID del contenedor .wf-pagination-wrap
+         * @param {string}   cfg.infoId         - ID del span de info (dentro del wrap)
+         * @param {string}   cfg.controlsId     - ID del div de botones (dentro del wrap)
+         * @param {number}   cfg.currentPage    - Página actual (1-indexed)
+         * @param {number}   cfg.rowsPerPage    - Filas por página
+         * @param {string}   cfg.entityLabel    - Etiqueta plural (ej: "cohortes")
+         * @param {function} cfg.onPageChange   - Callback (newPage:number) => void
+         */
+        window.renderWfPagination = function(cfg) {
+            const table = document.getElementById(cfg.tableId);
+            if (!table) return;
+            const tbody = table.querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            const totalRows = rows.length;
+            const totalPages = Math.ceil(totalRows / cfg.rowsPerPage) || 1;
+            let page = Math.max(1, Math.min(cfg.currentPage, totalPages));
+
+            // Mostrar/ocultar filas
+            rows.forEach((row, idx) => {
+                const start = (page - 1) * cfg.rowsPerPage;
+                row.style.display = (idx >= start && idx < start + cfg.rowsPerPage) ? '' : 'none';
+            });
+
+            // Ocultar wrap si no hay páginas
+            const wrap = document.getElementById(cfg.wrapId);
+            if (!wrap) return;
+            if (totalPages <= 1 && totalRows <= cfg.rowsPerPage) {
+                wrap.style.display = totalRows === 0 ? 'none' : 'flex';
+                // Si solo 1 página, no mostrar controles pero sí info
+                const ctrl = document.getElementById(cfg.controlsId);
+                if (ctrl) ctrl.innerHTML = '';
+                const info = document.getElementById(cfg.infoId);
+                if (info) info.innerHTML = '<strong>' + totalRows + '</strong> ' + cfg.entityLabel;
+                return;
+            }
+            wrap.style.display = 'flex';
+
+            // Info
+            const info = document.getElementById(cfg.infoId);
+            if (info) {
+                info.innerHTML = 'Página <strong>' + page + '</strong> de <strong>' + totalPages + '</strong> &nbsp;·&nbsp; <strong>' + totalRows + '</strong> ' + cfg.entityLabel;
+            }
+
+            // Controles
+            const ctrl = document.getElementById(cfg.controlsId);
+            if (!ctrl) return;
+            ctrl.innerHTML = '';
+
+            function makeBtn(label, cls, disabled, onClick) {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'wf-page-btn ' + cls + (disabled ? ' disabled' : '');
+                btn.innerHTML = label;
+                if (!disabled) btn.addEventListener('click', onClick);
+                return btn;
+            }
+
+            // Prev
+            ctrl.appendChild(makeBtn('<i class="fa-solid fa-chevron-left"></i> Anterior', 'wf-page-nav', page === 1, () => cfg.onPageChange(page - 1)));
+
+            // Números con elipsis inteligente
+            const delta = 1;
+            let pages = new Set([1, totalPages]);
+            for (let i = Math.max(2, page - delta); i <= Math.min(totalPages - 1, page + delta); i++) pages.add(i);
+            let sorted = Array.from(pages).sort((a, b) => a - b);
+            let prev = 0;
+            sorted.forEach(p => {
+                if (p - prev > 1) {
+                    const ellipsis = document.createElement('span');
+                    ellipsis.className = 'wf-page-ellipsis';
+                    ellipsis.textContent = '…';
+                    ctrl.appendChild(ellipsis);
+                }
+                const isActive = p === page;
+                ctrl.appendChild(makeBtn(p, isActive ? 'active' : '', isActive, () => cfg.onPageChange(p)));
+                prev = p;
+            });
+
+            // Next
+            ctrl.appendChild(makeBtn('Siguiente <i class="fa-solid fa-chevron-right"></i>', 'wf-page-nav', page >= totalPages, () => cfg.onPageChange(page + 1)));
+        };
+    </script>
 </div>

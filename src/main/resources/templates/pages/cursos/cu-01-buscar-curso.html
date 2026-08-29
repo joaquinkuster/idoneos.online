@@ -142,30 +142,34 @@
         </div>
       </div>
 
-      <!-- Paginación de Cursos -->
-      <div class="d-flex justify-content-center align-items-center gap-2 mt-4 pt-3" th:if="${totalPages != null and totalPages > 1}">
-        <a th:href="@{/cursos(page=${currentPage - 1}, busqueda=${busqueda}, categoriaId=${categoriaSeleccionada}, ordenBajasPrimero=${ordenBajasPrimero})}" 
-           class="btn btn-sm btn-outline-secondary rounded-pill px-3"
-           th:classappend="${currentPage == 0} ? ' disabled' : ''">
-          <i class="fa-solid fa-chevron-left me-1"></i> Anterior
-        </a>
-
-        <div class="d-inline-flex gap-1">
-          <span th:each="pageNum : ${#numbers.sequence(0, totalPages - 1)}">
-            <a th:href="@{/cursos(page=${pageNum}, busqueda=${busqueda}, categoriaId=${categoriaSeleccionada}, ordenBajasPrimero=${ordenBajasPrimero})}" 
-               th:text="${pageNum + 1}"
-               class="btn btn-sm rounded-circle"
-               th:classappend="${pageNum == currentPage} ? ' btn-primary fw-bold' : ' btn-outline-light text-dark'"
-               style="width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center;">1</a>
-          </span>
+      <!-- Paginación Premium — Sistema wf-pagination -->
+      <div class="wf-pagination-wrap" th:if="${totalPages != null and totalPages > 1}">
+        <div class="wf-pagination-info">
+          Página <strong th:text="${currentPage + 1}">1</strong> de <strong th:text="${totalPages}">1</strong>
         </div>
-
-        <a th:href="@{/cursos(page=${currentPage + 1}, busqueda=${busqueda}, categoriaId=${categoriaSeleccionada}, ordenBajasPrimero=${ordenBajasPrimero})}" 
-           class="btn btn-sm btn-outline-secondary rounded-pill px-3"
-           th:classappend="${currentPage >= totalPages - 1} ? ' disabled' : ''">
-          Siguiente <i class="fa-solid fa-chevron-right ms-1"></i>
-        </a>
+        <div class="wf-pagination-controls">
+          <!-- Anterior -->
+          <a th:href="@{/cursos(page=${currentPage - 1}, busqueda=${busqueda}, categoriaId=${categoriaSeleccionada}, ordenBajasPrimero=${ordenBajasPrimero})}"
+             class="wf-page-btn wf-page-nav"
+             th:classappend="${currentPage == 0} ? ' disabled' : ''">
+            <i class="fa-solid fa-chevron-left"></i> Anterior
+          </a>
+          <!-- Números de página -->
+          <span th:each="pageNum : ${#numbers.sequence(0, totalPages - 1)}">
+            <a th:href="@{/cursos(page=${pageNum}, busqueda=${busqueda}, categoriaId=${categoriaSeleccionada}, ordenBajasPrimero=${ordenBajasPrimero})}"
+               th:text="${pageNum + 1}"
+               class="wf-page-btn"
+               th:classappend="${pageNum == currentPage} ? ' active' : ''">1</a>
+          </span>
+          <!-- Siguiente -->
+          <a th:href="@{/cursos(page=${currentPage + 1}, busqueda=${busqueda}, categoriaId=${categoriaSeleccionada}, ordenBajasPrimero=${ordenBajasPrimero})}"
+             class="wf-page-btn wf-page-nav"
+             th:classappend="${currentPage >= totalPages - 1} ? ' disabled' : ''">
+            Siguiente <i class="fa-solid fa-chevron-right"></i>
+          </a>
+        </div>
       </div>
+
 
                     </div>
                 </div>

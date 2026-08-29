@@ -151,14 +151,10 @@
           </table>
         </div>
 
-        <!-- Paginación Estilizada y Moderna (CU-11) -->
-        <div id="paginacionCohortes" class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top px-3 pb-3">
-          <div class="text-secondary small fw-semibold">
-            Mostrando <span id="cohPaginaActual" class="text-dark fw-bold">1</span> de <span id="cohTotalPaginas" class="text-dark fw-bold">1</span> (<span id="cohTotalRegistros" th:text="${cohortes != null ? #lists.size(cohortes) : 0}">0</span> cohortes)
-          </div>
-          <div class="d-flex gap-1" id="cohBotonesPaginacion">
-            <!-- Botones de paginación inyectados por JS -->
-          </div>
+        <!-- Paginación Premium — Sistema wf-pagination (CU-11) -->
+        <div id="paginacionCohortes" class="wf-pagination-wrap">
+          <div class="wf-pagination-info" id="cohPaginaInfo"></div>
+          <div class="wf-pagination-controls" id="cohBotonesPaginacion"></div>
         </div>
       </div>
     
@@ -440,89 +436,16 @@
         const cohRowsPerPage = 6;
 
         function renderCohPagination() {
-            const table = document.getElementById('tablaCohortes');
-            if (!table) return;
-            const tbody = table.querySelector('tbody');
-            const rows = Array.from(tbody.querySelectorAll('tr'));
-            const totalRows = rows.length;
-            const totalPages = Math.ceil(totalRows / cohRowsPerPage) || 1;
-
-            if (cohCurrentPage > totalPages) cohCurrentPage = totalPages;
-            if (cohCurrentPage < 1) cohCurrentPage = 1;
-
-            // Mostrar/ocultar filas
-            rows.forEach((row, index) => {
-                const start = (cohCurrentPage - 1) * cohRowsPerPage;
-                const end = start + cohRowsPerPage;
-                row.style.display = (index >= start && index < end) ? '' : 'none';
+            window.renderWfPagination({
+                tableId: 'tablaCohortes',
+                wrapId: 'paginacionCohortes',
+                infoId: 'cohPaginaInfo',
+                controlsId: 'cohBotonesPaginacion',
+                currentPage: cohCurrentPage,
+                rowsPerPage: cohRowsPerPage,
+                entityLabel: 'cohortes',
+                onPageChange: (p) => { cohCurrentPage = p; renderCohPagination(); }
             });
-
-            // Actualizar etiquetas
-            const lblActual = document.getElementById('cohPaginaActual');
-            const lblTotal = document.getElementById('cohTotalPaginas');
-            const lblRegs = document.getElementById('cohTotalRegistros');
-            if (lblActual) lblActual.textContent = cohCurrentPage;
-            if (lblTotal) lblTotal.textContent = totalPages;
-            if (lblRegs) lblRegs.textContent = totalRows;
-
-            // Renderizar botones
-            const btnContainer = document.getElementById('cohBotonesPaginacion');
-            if (!btnContainer) return;
-            btnContainer.innerHTML = '';
-
-            if (totalPages <= 1) {
-                document.getElementById('paginacionCohortes').style.display = totalRows === 0 ? 'none' : 'flex';
-                return;
-            } else {
-                document.getElementById('paginacionCohortes').style.display = 'flex';
-            }
-
-            // Botón Anterior
-            const prevBtn = document.createElement('button');
-            prevBtn.type = 'button';
-            prevBtn.className = `btn btn-sm ${cohCurrentPage === 1 ? 'btn-light disabled border' : 'btn-dark text-white'}`;
-            prevBtn.style.cssText = 'border-radius: 8px; font-weight: 600; padding: 6px 12px;';
-            prevBtn.innerHTML = '<i class="fa-solid fa-chevron-left"></i>';
-            prevBtn.onclick = () => {
-                if (cohCurrentPage > 1) {
-                    cohCurrentPage--;
-                    renderCohPagination();
-                }
-            };
-            btnContainer.appendChild(prevBtn);
-
-            // Números
-            for (let i = 1; i <= totalPages; i++) {
-                const numBtn = document.createElement('button');
-                numBtn.type = 'button';
-                numBtn.textContent = i;
-                if (i === cohCurrentPage) {
-                    numBtn.className = 'btn btn-sm btn-warning text-dark fw-bold';
-                    numBtn.style.cssText = 'border-radius: 8px; min-width: 34px; font-weight: 800; background: var(--wf-gold, #D4A03D); border-color: var(--wf-gold, #D4A03D);';
-                } else {
-                    numBtn.className = 'btn btn-sm btn-light border text-secondary';
-                    numBtn.style.cssText = 'border-radius: 8px; min-width: 34px; font-weight: 700;';
-                }
-                numBtn.onclick = () => {
-                    cohCurrentPage = i;
-                    renderCohPagination();
-                };
-                btnContainer.appendChild(numBtn);
-            }
-
-            // Botón Siguiente
-            const nextBtn = document.createElement('button');
-            nextBtn.type = 'button';
-            nextBtn.className = `btn btn-sm ${cohCurrentPage >= totalPages ? 'btn-light disabled border' : 'btn-dark text-white'}`;
-            nextBtn.style.cssText = 'border-radius: 8px; font-weight: 600; padding: 6px 12px;';
-            nextBtn.innerHTML = '<i class="fa-solid fa-chevron-right"></i>';
-            nextBtn.onclick = () => {
-                if (cohCurrentPage < totalPages) {
-                    cohCurrentPage++;
-                    renderCohPagination();
-                }
-            };
-            btnContainer.appendChild(nextBtn);
         }
 
         function sortTable(tableId, colIndex, type, btn) {
