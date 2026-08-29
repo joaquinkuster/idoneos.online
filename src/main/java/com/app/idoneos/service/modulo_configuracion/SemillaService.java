@@ -18,14 +18,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Servicio Maestro para el semillado de datos iniciales completos del sistema.
- * Puebla catálogos, usuarios por rol (Admin, Docentes de Élite, Alumnos),
- * cursos, programas, unidades, cronogramas, materiales, glosarios, foros,
- * pools de preguntas, opciones, autoevaluaciones, clases en vivo, clases clon IA,
- * inscripciones, pagos, progresos, descuentos, reportes y registros de auditoría.
+ * SERVICIO MAESTRO ULTRA-MASIVO DE POBLACIÓN DE DATOS (SEMILLA MASTER PRO 2026)
+ * Contiene la arquitectura completa de datos realistas para todos los módulos de Idóneos Online.
  */
 @Service
 public class SemillaService {
@@ -40,7 +38,6 @@ public class SemillaService {
     @Autowired private ProgramaRepository programaRepository;
     @Autowired private CohorteRepository cohorteRepository;
     @Autowired private CronogramaRepository cronogramaRepository;
-
     @Autowired private TipoMaterialRepository tipoMaterialRepository;
     @Autowired private ModalidadRepository modalidadRepository;
     @Autowired private EstadoClaseEnVivoRepository estadoClaseEnVivoRepository;
@@ -75,139 +72,502 @@ public class SemillaService {
 
     @Transactional
     public void insertarSemilla() {
-        // Asegurar que los cursos activos tengan publicado=true para el catálogo público (CU-06)
-        cursoRepository.findByBajaFalse().forEach(c -> {
-            if (!c.isPublicado()) {
-                c.setPublicado(true);
-                cursoRepository.save(c);
-            }
-        });
-
         String adminEmail = "admin@idoneos.online";
-        if (usuarioRepository.findByCorreoAndBajaFalse(adminEmail).isPresent() && cursoRepository.count() >= 8 && inscripcionRepository.count() > 10) {
-            System.out.println("✅ Idóneos Online: Base de datos ya poblada con semilla maestra.");
+        if (usuarioRepository.findByCorreoAndBajaFalse(adminEmail).isPresent() && cursoRepository.count() >= 12 && inscripcionRepository.count() > 50) {
+            System.out.println("✅ Idóneos Online: Base de datos ya poblada con semilla masiva.");
             return;
         }
 
-        // ===============================================================
-        // 1. ROLES DEL SISTEMA
-        // ===============================================================
-        Rol rolAdmin = rolRepository.findByNombre("Administrador")
-                .orElseGet(() -> rolRepository.save(new Rol("Administrador")));
-        Rol rolDocente = rolRepository.findByNombre("Docente")
-                .orElseGet(() -> rolRepository.save(new Rol("Docente")));
-        Rol rolAlumno = rolRepository.findByNombre("Alumno")
-                .orElseGet(() -> rolRepository.save(new Rol("Alumno")));
+        System.out.println("🚀 [SEMILLA MASIVA] Iniciando población exhaustiva de datos del sistema...");
+        poblarCatalogosBase();
+        poblarUsuariosYDocentes();
+        poblarCursosYProgramas();
+        poblarBancosEvaluaciones();
+        poblarAlumnosEInscripciones();
+        poblarGlosariosYForos();
+        poblarClasesVivoYClonIA();
+        poblarAuditoriaYReportes();
+        System.out.println("🎉 [SEMILLA MASIVA] ¡Población de cientos de miles de registros completada con éxito!");
+    }
 
-        // ===============================================================
-        // 2. CATÁLOGOS BASE
-        // ===============================================================
-        TipoMaterial tmGrabacion = tipoMaterialRepository.save(new TipoMaterial("Grabación"));
-        TipoMaterial tmBibliografia = tipoMaterialRepository.save(new TipoMaterial("Bibliografía"));
-        TipoMaterial tmPresentacion = tipoMaterialRepository.save(new TipoMaterial("Presentación"));
-        TipoMaterial tmResumen = tipoMaterialRepository.save(new TipoMaterial("Resumen"));
+    private void poblarCatalogosBase() {
+        rolRepository.findByNombre("Administrador").orElseGet(() -> rolRepository.save(new Rol("Administrador")));
+        rolRepository.findByNombre("Docente").orElseGet(() -> rolRepository.save(new Rol("Docente")));
+        rolRepository.findByNombre("Alumno").orElseGet(() -> rolRepository.save(new Rol("Alumno")));
 
-        modalidadRepository.save(new Modalidad("En vivo"));
-        modalidadRepository.save(new Modalidad("Grabada"));
-        modalidadRepository.save(new Modalidad("Clon IA"));
+        if (tipoMaterialRepository.count() == 0) {
+            tipoMaterialRepository.save(new TipoMaterial("Grabación"));
+            tipoMaterialRepository.save(new TipoMaterial("Bibliografía"));
+            tipoMaterialRepository.save(new TipoMaterial("Presentación"));
+            tipoMaterialRepository.save(new TipoMaterial("Resumen"));
+            tipoMaterialRepository.save(new TipoMaterial("Hoja de Cálculo"));
+            tipoMaterialRepository.save(new TipoMaterial("Código Python"));
+        }
 
-        EstadoClaseEnVivo estProg = estadoClaseEnVivoRepository.save(new EstadoClaseEnVivo("Programada"));
-        EstadoClaseEnVivo estEnVivo = estadoClaseEnVivoRepository.save(new EstadoClaseEnVivo("En vivo"));
-        EstadoClaseEnVivo estFin = estadoClaseEnVivoRepository.save(new EstadoClaseEnVivo("Finalizada"));
+        if (modalidadRepository.count() == 0) {
+            modalidadRepository.save(new Modalidad("En vivo"));
+            modalidadRepository.save(new Modalidad("Grabada"));
+            modalidadRepository.save(new Modalidad("Clon IA"));
+            modalidadRepository.save(new Modalidad("Híbrida"));
+        }
 
-        EstadoClaseClonIA estClonPend = estadoClaseClonIARepository.save(new EstadoClaseClonIA("Pendiente"));
-        EstadoClaseClonIA estClonGen = estadoClaseClonIARepository.save(new EstadoClaseClonIA("Generada"));
-        EstadoClaseClonIA estClonErr = estadoClaseClonIARepository.save(new EstadoClaseClonIA("Error"));
+        if (estadoClaseEnVivoRepository.count() == 0) {
+            estadoClaseEnVivoRepository.save(new EstadoClaseEnVivo("Programada"));
+            estadoClaseEnVivoRepository.save(new EstadoClaseEnVivo("En vivo"));
+            estadoClaseEnVivoRepository.save(new EstadoClaseEnVivo("Finalizada"));
+            estadoClaseEnVivoRepository.save(new EstadoClaseEnVivo("Cancelada"));
+        }
 
-        EstadoPago estPagoPend = estadoPagoRepository.save(new EstadoPago("Pendiente"));
-        EstadoPago estPagoAcred = estadoPagoRepository.save(new EstadoPago("Acreditado"));
-        EstadoPago estPagoRech = estadoPagoRepository.save(new EstadoPago("Rechazado"));
+        if (estadoClaseClonIARepository.count() == 0) {
+            estadoClaseClonIARepository.save(new EstadoClaseClonIA("Pendiente"));
+            estadoClaseClonIARepository.save(new EstadoClaseClonIA("Generando Avatar"));
+            estadoClaseClonIARepository.save(new EstadoClaseClonIA("Generada"));
+            estadoClaseClonIARepository.save(new EstadoClaseClonIA("Error"));
+        }
 
-        MetodoPago metodoTarjeta = metodoPagoRepository.save(new MetodoPago("Tarjeta de crédito"));
-        MetodoPago metodoDebito = metodoPagoRepository.save(new MetodoPago("Tarjeta de débito"));
-        MetodoPago metodoModo = metodoPagoRepository.save(new MetodoPago("MODO / Billetera Virtual"));
+        if (estadoPagoRepository.count() == 0) {
+            estadoPagoRepository.save(new EstadoPago("Pendiente"));
+            estadoPagoRepository.save(new EstadoPago("Acreditado"));
+            estadoPagoRepository.save(new EstadoPago("Rechazado"));
+            estadoPagoRepository.save(new EstadoPago("Reembolsado"));
+        }
 
-        TipoAccionAuditoria accionCrear = tipoAccionAuditoriaRepository.save(new TipoAccionAuditoria("Crear"));
-        TipoAccionAuditoria accionModif = tipoAccionAuditoriaRepository.save(new TipoAccionAuditoria("Modificar"));
-        TipoAccionAuditoria accionElim = tipoAccionAuditoriaRepository.save(new TipoAccionAuditoria("Eliminar"));
-        TipoAccionAuditoria accionCons = tipoAccionAuditoriaRepository.save(new TipoAccionAuditoria("Consultar"));
+        if (metodoPagoRepository.count() == 0) {
+            metodoPagoRepository.save(new MetodoPago("Tarjeta de crédito"));
+            metodoPagoRepository.save(new MetodoPago("Tarjeta de débito"));
+            metodoPagoRepository.save(new MetodoPago("MODO / Billetera Virtual"));
+            metodoPagoRepository.save(new MetodoPago("Transferencia Bancaria"));
+            metodoPagoRepository.save(new MetodoPago("Mercado Pago"));
+        }
 
-        TipoReporte trAlumnos = tipoReporteRepository.save(new TipoReporte("Alumnos inscriptos"));
-        TipoReporte trIngresos = tipoReporteRepository.save(new TipoReporte("Ingresos"));
+        if (tipoAccionAuditoriaRepository.count() == 0) {
+            tipoAccionAuditoriaRepository.save(new TipoAccionAuditoria("Crear"));
+            tipoAccionAuditoriaRepository.save(new TipoAccionAuditoria("Modificar"));
+            tipoAccionAuditoriaRepository.save(new TipoAccionAuditoria("Eliminar"));
+            tipoAccionAuditoriaRepository.save(new TipoAccionAuditoria("Consultar"));
+            tipoAccionAuditoriaRepository.save(new TipoAccionAuditoria("Login"));
+            tipoAccionAuditoriaRepository.save(new TipoAccionAuditoria("Logout"));
+        }
 
-        Nivel nivelBasico = nivelRepository.findByNombre("Básico")
-                .orElseGet(() -> nivelRepository.save(new Nivel("Básico")));
-        Nivel nivelIntermedio = nivelRepository.findByNombre("Intermedio")
-                .orElseGet(() -> nivelRepository.save(new Nivel("Intermedio")));
-        Nivel nivelAvanzado = nivelRepository.findByNombre("Avanzado")
-                .orElseGet(() -> nivelRepository.save(new Nivel("Avanzado")));
+        if (tipoReporteRepository.count() == 0) {
+            tipoReporteRepository.save(new TipoReporte("Alumnos inscriptos"));
+            tipoReporteRepository.save(new TipoReporte("Ingresos"));
+            tipoReporteRepository.save(new TipoReporte("Rendimiento Académico"));
+            tipoReporteRepository.save(new TipoReporte("Auditoría de Accesos"));
+        }
 
-        // ===============================================================
-        // 3. USUARIOS (ADMINISTRADORES, DOCENTES, ALUMNOS)
-        // ===============================================================
-        Usuario adminUsuario = usuarioRepository.findByCorreoAndBajaFalse(adminEmail).orElseGet(() -> {
-            Usuario u = new Usuario("Admin", "Idóneos", adminEmail, passwordEncoder.encode("123456"), rolAdmin);
+        nivelRepository.findByNombre("Básico").orElseGet(() -> nivelRepository.save(new Nivel("Básico")));
+        nivelRepository.findByNombre("Intermedio").orElseGet(() -> nivelRepository.save(new Nivel("Intermedio")));
+        nivelRepository.findByNombre("Avanzado").orElseGet(() -> nivelRepository.save(new Nivel("Avanzado")));
+        nivelRepository.findByNombre("Experto").orElseGet(() -> nivelRepository.save(new Nivel("Experto")));
+    }
+
+    private void poblarUsuariosYDocentes() {
+        Rol rolAdmin = rolRepository.findByNombre("Administrador").get();
+        Rol rolDocente = rolRepository.findByNombre("Docente").get();
+
+        Usuario admin = usuarioRepository.findByCorreo("admin@idoneos.online").orElseGet(() -> {
+            Usuario u = new Usuario("Admin", "Idóneos", "admin@idoneos.online", passwordEncoder.encode("123456"), rolAdmin);
             u.setDni("20111222");
             u.setEmailValidado(true);
             Administrador adm = new Administrador(u);
             u.setAdministrador(adm);
             return usuarioRepository.save(u);
         });
-        Administrador adminActual = adminUsuario.getAdministrador();
 
-        // Parámetros operativos (CU-99)
-        if (configuracionRepository.count() == 0 && adminActual != null) {
-            configuracionRepository.save(new Configuracion("autoevaluacion.intentos_maximos", "3", adminActual));
-            configuracionRepository.save(new Configuracion("autoevaluacion.tiempo_limite_minutos", "30", adminActual));
-            configuracionRepository.save(new Configuracion("autoevaluacion.nota_aprobacion", "6.0", adminActual));
-            configuracionRepository.save(new Configuracion("evaluacion.preguntas_por_intento", "10", adminActual));
-            configuracionRepository.save(new Configuracion("evaluacion.proporcion_opcion_multiple", "70", adminActual));
-            configuracionRepository.save(new Configuracion("evaluacion.proporcion_verdadero_falso", "30", adminActual));
-            configuracionRepository.save(new Configuracion("grabaciones.plazo_disponibilidad_meses", "4", adminActual));
-            configuracionRepository.save(new Configuracion("grabaciones.aviso_previo_dias", "7", adminActual));
-            configuracionRepository.save(new Configuracion("sesiones.max_concurrentes", "2", adminActual));
-            configuracionRepository.save(new Configuracion("foro.tiempo_limite_edicion_minutos", "30", adminActual));
-            configuracionRepository.save(new Configuracion("ollama.model", "llama3.1", adminActual));
-            configuracionRepository.save(new Configuracion("ollama.url", "http://localhost:11434/api/generate", adminActual));
-            configuracionRepository.save(new Configuracion("heygen.api_key", "hg_mock_live_key_9921", adminActual));
-            configuracionRepository.save(new Configuracion("mercadopago.access_token", "APP_USR-mock-token", adminActual));
+        Administrador adm = admin.getAdministrador();
+        if (configuracionRepository.count() == 0 && adm != null) {
+            configuracionRepository.save(new Configuracion("autoevaluacion.intentos_maximos", "3", adm));
+            configuracionRepository.save(new Configuracion("autoevaluacion.tiempo_limite_minutos", "30", adm));
+            configuracionRepository.save(new Configuracion("autoevaluacion.nota_aprobacion", "6.0", adm));
+            configuracionRepository.save(new Configuracion("evaluacion.preguntas_por_intento", "10", adm));
+            configuracionRepository.save(new Configuracion("evaluacion.proporcion_opcion_multiple", "70", adm));
+            configuracionRepository.save(new Configuracion("evaluacion.proporcion_verdadero_falso", "30", adm));
+            configuracionRepository.save(new Configuracion("grabaciones.plazo_disponibilidad_meses", "4", adm));
+            configuracionRepository.save(new Configuracion("grabaciones.aviso_previo_dias", "7", adm));
+            configuracionRepository.save(new Configuracion("sesiones.max_concurrentes", "2", adm));
+            configuracionRepository.save(new Configuracion("foro.tiempo_limite_edicion_minutos", "30", adm));
+            configuracionRepository.save(new Configuracion("ollama.model", "llama3.1", adm));
+            configuracionRepository.save(new Configuracion("ollama.url", "http://localhost:11434/api/generate", adm));
+            configuracionRepository.save(new Configuracion("heygen.api_key", "hg_mock_live_key_9921", adm));
+            configuracionRepository.save(new Configuracion("mercadopago.access_token", "APP_USR-mock-token", adm));
         }
 
-        // Docentes de élite
-        Usuario usuFausto = usuarioRepository.findByCorreoAndBajaFalse("fausto.spotorno@idoneos.online").orElseGet(() -> {
+        usuarioRepository.findByCorreo("fausto.spotorno@idoneos.online").orElseGet(() -> {
             Usuario u = new Usuario("Fausto", "Spotorno", "fausto.spotorno@idoneos.online", passwordEncoder.encode("123456"), rolDocente);
             u.setDni("23456789");
             u.setEmailValidado(true);
-            Docente d = new Docente(u, 20);
-            d.setBiografia("Economista UCA, Director de Maestría en UADE y Socio de Orlando J. Ferreres & Asoc.");
-            d.setMatriculaCnv("12845");
-            d.setAvatarId("avatar_fausto_v2");
-            d.setVoiceId("voice_spotorno_es_ar");
-            d.setFechaConsentimientoClon(LocalDateTime.now());
-            d.setHabilitado(true);
-            u.setDocente(d);
+            Docente doc = new Docente(u, 20);
+            doc.setBiografia("Economista UCA, Director de Maestría en UADE y Socio de Orlando J. Ferreres & Asoc.");
+            doc.setMatriculaCnv("12845");
+            doc.setAvatarId("avatar_fausto_v2");
+            doc.setVoiceId("voice_spotorno_es_ar");
+            doc.setFechaConsentimientoClon(LocalDateTime.now());
+            doc.setHabilitado(true);
+            u.setDocente(doc);
             return usuarioRepository.save(u);
         });
-        Docente docenteFausto = usuFausto.getDocente();
-
-        Usuario usuSebas = usuarioRepository.findByCorreoAndBajaFalse("sebastian.bordato@idoneos.online").orElseGet(() -> {
+        usuarioRepository.findByCorreo("sebastian.bordato@idoneos.online").orElseGet(() -> {
             Usuario u = new Usuario("Sebastián", "Bordato", "sebastian.bordato@idoneos.online", passwordEncoder.encode("123456"), rolDocente);
             u.setDni("24567890");
             u.setEmailValidado(true);
-            Docente d = new Docente(u, 15);
-            d.setBiografia("Contador Público UBA. Experto en Planificación Fiscal Corporativa y Mercado de Capitales.");
-            d.setMatriculaCnv("15932");
-            d.setAvatarId("avatar_sebas_v1");
-            d.setVoiceId("voice_bordato_es_ar");
-            d.setFechaConsentimientoClon(LocalDateTime.now());
-            d.setHabilitado(true);
-            u.setDocente(d);
+            Docente doc = new Docente(u, 15);
+            doc.setBiografia("Contador Público UBA. Experto en Planificación Fiscal Corporativa y Mercado de Capitales.");
+            doc.setMatriculaCnv("15932");
+            doc.setAvatarId("avatar_sebas_v1");
+            doc.setVoiceId("voice_bordato_es_ar");
+            doc.setFechaConsentimientoClon(LocalDateTime.now());
+            doc.setHabilitado(true);
+            u.setDocente(doc);
             return usuarioRepository.save(u);
         });
-        Docente docenteSebas = usuSebas.getDocente();
+        usuarioRepository.findByCorreo("mariano.otalora@idoneos.online").orElseGet(() -> {
+            Usuario u = new Usuario("Mariano", "Otálora", "mariano.otalora@idoneos.online", passwordEncoder.encode("123456"), rolDocente);
+            u.setDni("25678901");
+            u.setEmailValidado(true);
+            Docente doc = new Docente(u, 18);
+            doc.setBiografia("Especialista en Planificación Patrimonial, Inversiones Inmobiliarias y Finanzas Personales.");
+            doc.setMatriculaCnv("18451");
+            doc.setAvatarId("avatar_mariano_v1");
+            doc.setVoiceId("voice_otalora_es_ar");
+            doc.setFechaConsentimientoClon(LocalDateTime.now());
+            doc.setHabilitado(true);
+            u.setDocente(doc);
+            return usuarioRepository.save(u);
+        });
+        usuarioRepository.findByCorreo("claudio.zuchovicki@idoneos.online").orElseGet(() -> {
+            Usuario u = new Usuario("Claudio", "Zuchovicki", "claudio.zuchovicki@idoneos.online", passwordEncoder.encode("123456"), rolDocente);
+            u.setDni("21345678");
+            u.setEmailValidado(true);
+            Docente doc = new Docente(u, 28);
+            doc.setBiografia("Gerente de Desarrollo de Mercado de Capitales de la Bolsa de Comercio de Buenos Aires.");
+            doc.setMatriculaCnv("10234");
+            doc.setAvatarId("avatar_zucho_v1");
+            doc.setVoiceId("voice_zucho_es_ar");
+            doc.setFechaConsentimientoClon(LocalDateTime.now());
+            doc.setHabilitado(true);
+            u.setDocente(doc);
+            return usuarioRepository.save(u);
+        });
+        usuarioRepository.findByCorreo("ramiro.marra@idoneos.online").orElseGet(() -> {
+            Usuario u = new Usuario("Ramiro", "Marra", "ramiro.marra@idoneos.online", passwordEncoder.encode("123456"), rolDocente);
+            u.setDni("29876543");
+            u.setEmailValidado(true);
+            Docente doc = new Docente(u, 16);
+            doc.setBiografia("Broker de Bolsa, Asesor Financiero Certificado CNV y Director de Bull Market Brokers.");
+            doc.setMatriculaCnv("19876");
+            doc.setAvatarId("avatar_ramiro_v1");
+            doc.setVoiceId("voice_marra_es_ar");
+            doc.setFechaConsentimientoClon(LocalDateTime.now());
+            doc.setHabilitado(true);
+            u.setDocente(doc);
+            return usuarioRepository.save(u);
+        });
+        usuarioRepository.findByCorreo("giselle.colasurdo@idoneos.online").orElseGet(() -> {
+            Usuario u = new Usuario("Giselle", "Colasurdo", "giselle.colasurdo@idoneos.online", passwordEncoder.encode("123456"), rolDocente);
+            u.setDni("32123456");
+            u.setEmailValidado(true);
+            Docente doc = new Docente(u, 12);
+            doc.setBiografia("Especialista en Finanzas, Criptomonedas, Derivados Financieros y Análisis Técnico Bursátil.");
+            doc.setMatriculaCnv("22145");
+            doc.setAvatarId("avatar_giselle_v1");
+            doc.setVoiceId("voice_colasurdo_es_ar");
+            doc.setFechaConsentimientoClon(LocalDateTime.now());
+            doc.setHabilitado(true);
+            u.setDocente(doc);
+            return usuarioRepository.save(u);
+        });
+    }
 
-        // Alumno Principal para pruebas
-        Usuario usuAlumnoPrincipal = usuarioRepository.findByCorreoAndBajaFalse("alumno@correo.com").orElseGet(() -> {
+    private void poblarCursosYProgramas() {
+        Docente docFausto = docenteRepository.findAll().stream().findFirst().orElse(null);
+        Docente docSebas = docenteRepository.findAll().stream().skip(1).findFirst().orElse(docFausto);
+        Nivel nivBas = nivelRepository.findByNombre("Básico").get();
+        Nivel nivInt = nivelRepository.findByNombre("Intermedio").get();
+        Nivel nivAv = nivelRepository.findByNombre("Avanzado").get();
+
+        Categoria catMercado = categoriaRepository.findAll().stream().filter(c -> "Mercado de Capitales".equals(c.getNombre())).findFirst().orElseGet(() -> categoriaRepository.save(new Categoria("Mercado de Capitales", "Instrumentos bursátiles, renta fija y variable.")));
+        Categoria catMacro = categoriaRepository.findAll().stream().filter(c -> "Macroeconomía".equals(c.getNombre())).findFirst().orElseGet(() -> categoriaRepository.save(new Categoria("Macroeconomía", "Análisis macroeconómico, coyuntura e inflación.")));
+        Categoria catFiscal = categoriaRepository.findAll().stream().filter(c -> "Impuestos y Finanzas".equals(c.getNombre())).findFirst().orElseGet(() -> categoriaRepository.save(new Categoria("Impuestos y Finanzas", "Planificación impositiva y corporativa.")));
+        Categoria catQuant = categoriaRepository.findAll().stream().filter(c -> "Finanzas Cuantitativas".equals(c.getNombre())).findFirst().orElseGet(() -> categoriaRepository.save(new Categoria("Finanzas Cuantitativas", "Algoritmos, Python y Machine Learning.")));
+
+        Curso curso1 = cursoRepository.findByNombre("Mercado de Capitales Argentino").orElseGet(() -> {
+            Curso crs = new Curso("Mercado de Capitales Argentino", "Aprende a operar Acciones, Bonos, ONs y Opciones en BYMA.", 150000f, catMercado, nivInt, docFausto);
+            crs.setEmiteCertificado(true);
+            crs.setPublicado(true);
+            return cursoRepository.save(crs);
+        });
+
+        Programa prog1 = programaRepository.findByCurso(curso1).stream().findFirst().orElseGet(() ->
+            programaRepository.save(new Programa("Prog. 1: Mercado de Capitales Argentino", "Plan de formación integral", "Dominio completo y práctico del temario.", "Bibliografía y Marco Normativo CNV.", curso1)));
+
+        Cohorte cohorte1 = cohorteRepository.findByPrograma(prog1).stream().findFirst().orElseGet(() ->
+            cohorteRepository.save(new Cohorte(LocalDateTime.now().minusMonths(1), LocalDateTime.now().plusMonths(4), 50, prog1)));
+
+        Unidad u1_1 = unidadRepository.save(new Unidad("Unidad 1: Módulo 1 - Mercado de Capitales Argenti", "Desarrollo del módulo 1 de Mercado de Capitales Argentino", "Contenido académico exhaustivo para la unidad 1"));
+        cronogramaRepository.save(new Cronograma(1, 2, prog1, u1_1));
+        Unidad u1_2 = unidadRepository.save(new Unidad("Unidad 2: Módulo 2 - Mercado de Capitales Argenti", "Desarrollo del módulo 2 de Mercado de Capitales Argentino", "Contenido académico exhaustivo para la unidad 2"));
+        cronogramaRepository.save(new Cronograma(2, 3, prog1, u1_2));
+        Unidad u1_3 = unidadRepository.save(new Unidad("Unidad 3: Módulo 3 - Mercado de Capitales Argenti", "Desarrollo del módulo 3 de Mercado de Capitales Argentino", "Contenido académico exhaustivo para la unidad 3"));
+        cronogramaRepository.save(new Cronograma(3, 4, prog1, u1_3));
+
+        Curso curso2 = cursoRepository.findByNombre("Macroeconomía de Coyuntura").orElseGet(() -> {
+            Curso crs = new Curso("Macroeconomía de Coyuntura", "Variables macroeconómicas fundamentales: tipo de cambio, inflación y tasas.", 0f, catMacro, nivBas, docFausto);
+            crs.setEmiteCertificado(true);
+            crs.setPublicado(true);
+            return cursoRepository.save(crs);
+        });
+
+        Programa prog2 = programaRepository.findByCurso(curso2).stream().findFirst().orElseGet(() ->
+            programaRepository.save(new Programa("Prog. 2: Macroeconomía de Coyuntura", "Plan de formación integral", "Dominio completo y práctico del temario.", "Bibliografía y Marco Normativo CNV.", curso2)));
+
+        Cohorte cohorte2 = cohorteRepository.findByPrograma(prog2).stream().findFirst().orElseGet(() ->
+            cohorteRepository.save(new Cohorte(LocalDateTime.now().minusMonths(1), LocalDateTime.now().plusMonths(4), 50, prog2)));
+
+        Unidad u2_1 = unidadRepository.save(new Unidad("Unidad 1: Módulo 1 - Macroeconomía de Coyuntura", "Desarrollo del módulo 1 de Macroeconomía de Coyuntura", "Contenido académico exhaustivo para la unidad 1"));
+        cronogramaRepository.save(new Cronograma(1, 2, prog2, u2_1));
+        Unidad u2_2 = unidadRepository.save(new Unidad("Unidad 2: Módulo 2 - Macroeconomía de Coyuntura", "Desarrollo del módulo 2 de Macroeconomía de Coyuntura", "Contenido académico exhaustivo para la unidad 2"));
+        cronogramaRepository.save(new Cronograma(2, 3, prog2, u2_2));
+        Unidad u2_3 = unidadRepository.save(new Unidad("Unidad 3: Módulo 3 - Macroeconomía de Coyuntura", "Desarrollo del módulo 3 de Macroeconomía de Coyuntura", "Contenido académico exhaustivo para la unidad 3"));
+        cronogramaRepository.save(new Cronograma(3, 4, prog2, u2_3));
+
+        Curso curso3 = cursoRepository.findByNombre("Planificación Fiscal para Empresas").orElseGet(() -> {
+            Curso crs = new Curso("Planificación Fiscal para Empresas", "Estrategias tributarias legales para pymes, ganancias e IVA.", 220000f, catFiscal, nivAv, docSebas);
+            crs.setEmiteCertificado(true);
+            crs.setPublicado(true);
+            return cursoRepository.save(crs);
+        });
+
+        Programa prog3 = programaRepository.findByCurso(curso3).stream().findFirst().orElseGet(() ->
+            programaRepository.save(new Programa("Prog. 3: Planificación Fiscal para Empresas", "Plan de formación integral", "Dominio completo y práctico del temario.", "Bibliografía y Marco Normativo CNV.", curso3)));
+
+        Cohorte cohorte3 = cohorteRepository.findByPrograma(prog3).stream().findFirst().orElseGet(() ->
+            cohorteRepository.save(new Cohorte(LocalDateTime.now().minusMonths(1), LocalDateTime.now().plusMonths(4), 50, prog3)));
+
+        Unidad u3_1 = unidadRepository.save(new Unidad("Unidad 1: Módulo 1 - Planificación Fiscal para Em", "Desarrollo del módulo 1 de Planificación Fiscal para Empr", "Contenido académico exhaustivo para la unidad 1"));
+        cronogramaRepository.save(new Cronograma(1, 2, prog3, u3_1));
+        Unidad u3_2 = unidadRepository.save(new Unidad("Unidad 2: Módulo 2 - Planificación Fiscal para Em", "Desarrollo del módulo 2 de Planificación Fiscal para Empr", "Contenido académico exhaustivo para la unidad 2"));
+        cronogramaRepository.save(new Cronograma(2, 3, prog3, u3_2));
+        Unidad u3_3 = unidadRepository.save(new Unidad("Unidad 3: Módulo 3 - Planificación Fiscal para Em", "Desarrollo del módulo 3 de Planificación Fiscal para Empr", "Contenido académico exhaustivo para la unidad 3"));
+        cronogramaRepository.save(new Cronograma(3, 4, prog3, u3_3));
+
+        Curso curso4 = cursoRepository.findByNombre("Valuación de Empresas y M&A").orElseGet(() -> {
+            Curso crs = new Curso("Valuación de Empresas y M&A", "Modelos de Descuento de Flujos (DCF), Múltiplos y fusiones.", 195000f, catFiscal, nivAv, docFausto);
+            crs.setEmiteCertificado(true);
+            crs.setPublicado(true);
+            return cursoRepository.save(crs);
+        });
+
+        Programa prog4 = programaRepository.findByCurso(curso4).stream().findFirst().orElseGet(() ->
+            programaRepository.save(new Programa("Prog. 4: Valuación de Empresas y M&A", "Plan de formación integral", "Dominio completo y práctico del temario.", "Bibliografía y Marco Normativo CNV.", curso4)));
+
+        Cohorte cohorte4 = cohorteRepository.findByPrograma(prog4).stream().findFirst().orElseGet(() ->
+            cohorteRepository.save(new Cohorte(LocalDateTime.now().minusMonths(1), LocalDateTime.now().plusMonths(4), 50, prog4)));
+
+        Unidad u4_1 = unidadRepository.save(new Unidad("Unidad 1: Módulo 1 - Valuación de Empresas y M&A", "Desarrollo del módulo 1 de Valuación de Empresas y M&A", "Contenido académico exhaustivo para la unidad 1"));
+        cronogramaRepository.save(new Cronograma(1, 2, prog4, u4_1));
+        Unidad u4_2 = unidadRepository.save(new Unidad("Unidad 2: Módulo 2 - Valuación de Empresas y M&A", "Desarrollo del módulo 2 de Valuación de Empresas y M&A", "Contenido académico exhaustivo para la unidad 2"));
+        cronogramaRepository.save(new Cronograma(2, 3, prog4, u4_2));
+        Unidad u4_3 = unidadRepository.save(new Unidad("Unidad 3: Módulo 3 - Valuación de Empresas y M&A", "Desarrollo del módulo 3 de Valuación de Empresas y M&A", "Contenido académico exhaustivo para la unidad 3"));
+        cronogramaRepository.save(new Cronograma(3, 4, prog4, u4_3));
+
+        Curso curso5 = cursoRepository.findByNombre("Futuros y Opciones Financieras").orElseGet(() -> {
+            Curso crs = new Curso("Futuros y Opciones Financieras", "Estrategias de cobertura y especulación con Futuros y Opciones.", 175000f, catMercado, nivInt, docFausto);
+            crs.setEmiteCertificado(true);
+            crs.setPublicado(true);
+            return cursoRepository.save(crs);
+        });
+
+        Programa prog5 = programaRepository.findByCurso(curso5).stream().findFirst().orElseGet(() ->
+            programaRepository.save(new Programa("Prog. 5: Futuros y Opciones Financieras", "Plan de formación integral", "Dominio completo y práctico del temario.", "Bibliografía y Marco Normativo CNV.", curso5)));
+
+        Cohorte cohorte5 = cohorteRepository.findByPrograma(prog5).stream().findFirst().orElseGet(() ->
+            cohorteRepository.save(new Cohorte(LocalDateTime.now().minusMonths(1), LocalDateTime.now().plusMonths(4), 50, prog5)));
+
+        Unidad u5_1 = unidadRepository.save(new Unidad("Unidad 1: Módulo 1 - Futuros y Opciones Financier", "Desarrollo del módulo 1 de Futuros y Opciones Financieras", "Contenido académico exhaustivo para la unidad 1"));
+        cronogramaRepository.save(new Cronograma(1, 2, prog5, u5_1));
+        Unidad u5_2 = unidadRepository.save(new Unidad("Unidad 2: Módulo 2 - Futuros y Opciones Financier", "Desarrollo del módulo 2 de Futuros y Opciones Financieras", "Contenido académico exhaustivo para la unidad 2"));
+        cronogramaRepository.save(new Cronograma(2, 3, prog5, u5_2));
+        Unidad u5_3 = unidadRepository.save(new Unidad("Unidad 3: Módulo 3 - Futuros y Opciones Financier", "Desarrollo del módulo 3 de Futuros y Opciones Financieras", "Contenido académico exhaustivo para la unidad 3"));
+        cronogramaRepository.save(new Cronograma(3, 4, prog5, u5_3));
+
+        Curso curso6 = cursoRepository.findByNombre("Finanzas Cuantitativas Python").orElseGet(() -> {
+            Curso crs = new Curso("Finanzas Cuantitativas Python", "Backtesting de estrategias y optimización de carteras de Markowitz.", 210000f, catQuant, nivAv, docFausto);
+            crs.setEmiteCertificado(true);
+            crs.setPublicado(true);
+            return cursoRepository.save(crs);
+        });
+
+        Programa prog6 = programaRepository.findByCurso(curso6).stream().findFirst().orElseGet(() ->
+            programaRepository.save(new Programa("Prog. 6: Finanzas Cuantitativas Python", "Plan de formación integral", "Dominio completo y práctico del temario.", "Bibliografía y Marco Normativo CNV.", curso6)));
+
+        Cohorte cohorte6 = cohorteRepository.findByPrograma(prog6).stream().findFirst().orElseGet(() ->
+            cohorteRepository.save(new Cohorte(LocalDateTime.now().minusMonths(1), LocalDateTime.now().plusMonths(4), 50, prog6)));
+
+        Unidad u6_1 = unidadRepository.save(new Unidad("Unidad 1: Módulo 1 - Finanzas Cuantitativas Pytho", "Desarrollo del módulo 1 de Finanzas Cuantitativas Python", "Contenido académico exhaustivo para la unidad 1"));
+        cronogramaRepository.save(new Cronograma(1, 2, prog6, u6_1));
+        Unidad u6_2 = unidadRepository.save(new Unidad("Unidad 2: Módulo 2 - Finanzas Cuantitativas Pytho", "Desarrollo del módulo 2 de Finanzas Cuantitativas Python", "Contenido académico exhaustivo para la unidad 2"));
+        cronogramaRepository.save(new Cronograma(2, 3, prog6, u6_2));
+        Unidad u6_3 = unidadRepository.save(new Unidad("Unidad 3: Módulo 3 - Finanzas Cuantitativas Pytho", "Desarrollo del módulo 3 de Finanzas Cuantitativas Python", "Contenido académico exhaustivo para la unidad 3"));
+        cronogramaRepository.save(new Cronograma(3, 4, prog6, u6_3));
+
+        Curso curso7 = cursoRepository.findByNombre("Criptoactivos, Blockchain y DeFi").orElseGet(() -> {
+            Curso crs = new Curso("Criptoactivos, Blockchain y DeFi", "Bitcoin, Ethereum, contratos inteligentes y finanzas descentralizadas.", 130000f, catMercado, nivInt, docSebas);
+            crs.setEmiteCertificado(true);
+            crs.setPublicado(true);
+            return cursoRepository.save(crs);
+        });
+
+        Programa prog7 = programaRepository.findByCurso(curso7).stream().findFirst().orElseGet(() ->
+            programaRepository.save(new Programa("Prog. 7: Criptoactivos, Blockchain y DeFi", "Plan de formación integral", "Dominio completo y práctico del temario.", "Bibliografía y Marco Normativo CNV.", curso7)));
+
+        Cohorte cohorte7 = cohorteRepository.findByPrograma(prog7).stream().findFirst().orElseGet(() ->
+            cohorteRepository.save(new Cohorte(LocalDateTime.now().minusMonths(1), LocalDateTime.now().plusMonths(4), 50, prog7)));
+
+        Unidad u7_1 = unidadRepository.save(new Unidad("Unidad 1: Módulo 1 - Criptoactivos, Blockchain y ", "Desarrollo del módulo 1 de Criptoactivos, Blockchain y De", "Contenido académico exhaustivo para la unidad 1"));
+        cronogramaRepository.save(new Cronograma(1, 2, prog7, u7_1));
+        Unidad u7_2 = unidadRepository.save(new Unidad("Unidad 2: Módulo 2 - Criptoactivos, Blockchain y ", "Desarrollo del módulo 2 de Criptoactivos, Blockchain y De", "Contenido académico exhaustivo para la unidad 2"));
+        cronogramaRepository.save(new Cronograma(2, 3, prog7, u7_2));
+        Unidad u7_3 = unidadRepository.save(new Unidad("Unidad 3: Módulo 3 - Criptoactivos, Blockchain y ", "Desarrollo del módulo 3 de Criptoactivos, Blockchain y De", "Contenido académico exhaustivo para la unidad 3"));
+        cronogramaRepository.save(new Cronograma(3, 4, prog7, u7_3));
+
+        Curso curso8 = cursoRepository.findByNombre("Análisis Integral de Bonos").orElseGet(() -> {
+            Curso crs = new Curso("Análisis Integral de Bonos", "Cálculo de TIR, Paridad, Duration y deuda soberana y corporativa.", 160000f, catMercado, nivInt, docFausto);
+            crs.setEmiteCertificado(true);
+            crs.setPublicado(true);
+            return cursoRepository.save(crs);
+        });
+
+        Programa prog8 = programaRepository.findByCurso(curso8).stream().findFirst().orElseGet(() ->
+            programaRepository.save(new Programa("Prog. 8: Análisis Integral de Bonos", "Plan de formación integral", "Dominio completo y práctico del temario.", "Bibliografía y Marco Normativo CNV.", curso8)));
+
+        Cohorte cohorte8 = cohorteRepository.findByPrograma(prog8).stream().findFirst().orElseGet(() ->
+            cohorteRepository.save(new Cohorte(LocalDateTime.now().minusMonths(1), LocalDateTime.now().plusMonths(4), 50, prog8)));
+
+        Unidad u8_1 = unidadRepository.save(new Unidad("Unidad 1: Módulo 1 - Análisis Integral de Bonos", "Desarrollo del módulo 1 de Análisis Integral de Bonos", "Contenido académico exhaustivo para la unidad 1"));
+        cronogramaRepository.save(new Cronograma(1, 2, prog8, u8_1));
+        Unidad u8_2 = unidadRepository.save(new Unidad("Unidad 2: Módulo 2 - Análisis Integral de Bonos", "Desarrollo del módulo 2 de Análisis Integral de Bonos", "Contenido académico exhaustivo para la unidad 2"));
+        cronogramaRepository.save(new Cronograma(2, 3, prog8, u8_2));
+        Unidad u8_3 = unidadRepository.save(new Unidad("Unidad 3: Módulo 3 - Análisis Integral de Bonos", "Desarrollo del módulo 3 de Análisis Integral de Bonos", "Contenido académico exhaustivo para la unidad 3"));
+        cronogramaRepository.save(new Cronograma(3, 4, prog8, u8_3));
+
+        Curso curso9 = cursoRepository.findByNombre("Gestión de Portafolios").orElseGet(() -> {
+            Curso crs = new Curso("Gestión de Portafolios", "Teoría de carteras y asignación de activos estratégicos.", 185000f, catMercado, nivAv, docFausto);
+            crs.setEmiteCertificado(true);
+            crs.setPublicado(true);
+            return cursoRepository.save(crs);
+        });
+
+        Programa prog9 = programaRepository.findByCurso(curso9).stream().findFirst().orElseGet(() ->
+            programaRepository.save(new Programa("Prog. 9: Gestión de Portafolios", "Plan de formación integral", "Dominio completo y práctico del temario.", "Bibliografía y Marco Normativo CNV.", curso9)));
+
+        Cohorte cohorte9 = cohorteRepository.findByPrograma(prog9).stream().findFirst().orElseGet(() ->
+            cohorteRepository.save(new Cohorte(LocalDateTime.now().minusMonths(1), LocalDateTime.now().plusMonths(4), 50, prog9)));
+
+        Unidad u9_1 = unidadRepository.save(new Unidad("Unidad 1: Módulo 1 - Gestión de Portafolios", "Desarrollo del módulo 1 de Gestión de Portafolios", "Contenido académico exhaustivo para la unidad 1"));
+        cronogramaRepository.save(new Cronograma(1, 2, prog9, u9_1));
+        Unidad u9_2 = unidadRepository.save(new Unidad("Unidad 2: Módulo 2 - Gestión de Portafolios", "Desarrollo del módulo 2 de Gestión de Portafolios", "Contenido académico exhaustivo para la unidad 2"));
+        cronogramaRepository.save(new Cronograma(2, 3, prog9, u9_2));
+        Unidad u9_3 = unidadRepository.save(new Unidad("Unidad 3: Módulo 3 - Gestión de Portafolios", "Desarrollo del módulo 3 de Gestión de Portafolios", "Contenido académico exhaustivo para la unidad 3"));
+        cronogramaRepository.save(new Cronograma(3, 4, prog9, u9_3));
+
+        Curso curso10 = cursoRepository.findByNombre("Comercio Exterior y Cambios").orElseGet(() -> {
+            Curso crs = new Curso("Comercio Exterior y Cambios", "Normativa cambiaria del BCRA para importaciones y exportaciones.", 140000f, catFiscal, nivInt, docSebas);
+            crs.setEmiteCertificado(true);
+            crs.setPublicado(true);
+            return cursoRepository.save(crs);
+        });
+
+        Programa prog10 = programaRepository.findByCurso(curso10).stream().findFirst().orElseGet(() ->
+            programaRepository.save(new Programa("Prog. 10: Comercio Exterior y Cambios", "Plan de formación integral", "Dominio completo y práctico del temario.", "Bibliografía y Marco Normativo CNV.", curso10)));
+
+        Cohorte cohorte10 = cohorteRepository.findByPrograma(prog10).stream().findFirst().orElseGet(() ->
+            cohorteRepository.save(new Cohorte(LocalDateTime.now().minusMonths(1), LocalDateTime.now().plusMonths(4), 50, prog10)));
+
+        Unidad u10_1 = unidadRepository.save(new Unidad("Unidad 1: Módulo 1 - Comercio Exterior y Cambios", "Desarrollo del módulo 1 de Comercio Exterior y Cambios", "Contenido académico exhaustivo para la unidad 1"));
+        cronogramaRepository.save(new Cronograma(1, 2, prog10, u10_1));
+        Unidad u10_2 = unidadRepository.save(new Unidad("Unidad 2: Módulo 2 - Comercio Exterior y Cambios", "Desarrollo del módulo 2 de Comercio Exterior y Cambios", "Contenido académico exhaustivo para la unidad 2"));
+        cronogramaRepository.save(new Cronograma(2, 3, prog10, u10_2));
+        Unidad u10_3 = unidadRepository.save(new Unidad("Unidad 3: Módulo 3 - Comercio Exterior y Cambios", "Desarrollo del módulo 3 de Comercio Exterior y Cambios", "Contenido académico exhaustivo para la unidad 3"));
+        cronogramaRepository.save(new Cronograma(3, 4, prog10, u10_3));
+
+        Curso curso11 = cursoRepository.findByNombre("Fideicomisos Financieros").orElseGet(() -> {
+            Curso crs = new Curso("Fideicomisos Financieros", "Estructuración de fideicomisos públicos y securitización.", 165000f, catMercado, nivAv, docSebas);
+            crs.setEmiteCertificado(true);
+            crs.setPublicado(true);
+            return cursoRepository.save(crs);
+        });
+
+        Programa prog11 = programaRepository.findByCurso(curso11).stream().findFirst().orElseGet(() ->
+            programaRepository.save(new Programa("Prog. 11: Fideicomisos Financieros", "Plan de formación integral", "Dominio completo y práctico del temario.", "Bibliografía y Marco Normativo CNV.", curso11)));
+
+        Cohorte cohorte11 = cohorteRepository.findByPrograma(prog11).stream().findFirst().orElseGet(() ->
+            cohorteRepository.save(new Cohorte(LocalDateTime.now().minusMonths(1), LocalDateTime.now().plusMonths(4), 50, prog11)));
+
+        Unidad u11_1 = unidadRepository.save(new Unidad("Unidad 1: Módulo 1 - Fideicomisos Financieros", "Desarrollo del módulo 1 de Fideicomisos Financieros", "Contenido académico exhaustivo para la unidad 1"));
+        cronogramaRepository.save(new Cronograma(1, 2, prog11, u11_1));
+        Unidad u11_2 = unidadRepository.save(new Unidad("Unidad 2: Módulo 2 - Fideicomisos Financieros", "Desarrollo del módulo 2 de Fideicomisos Financieros", "Contenido académico exhaustivo para la unidad 2"));
+        cronogramaRepository.save(new Cronograma(2, 3, prog11, u11_2));
+        Unidad u11_3 = unidadRepository.save(new Unidad("Unidad 3: Módulo 3 - Fideicomisos Financieros", "Desarrollo del módulo 3 de Fideicomisos Financieros", "Contenido académico exhaustivo para la unidad 3"));
+        cronogramaRepository.save(new Cronograma(3, 4, prog11, u11_3));
+
+        Curso curso12 = cursoRepository.findByNombre("Preparación Examen Idóneos CNV").orElseGet(() -> {
+            Curso crs = new Curso("Preparación Examen Idóneos CNV", "Programa intensivo con simulacros para rendir el examen CNV.", 250000f, catMercado, nivAv, docFausto);
+            crs.setEmiteCertificado(true);
+            crs.setPublicado(true);
+            return cursoRepository.save(crs);
+        });
+
+        Programa prog12 = programaRepository.findByCurso(curso12).stream().findFirst().orElseGet(() ->
+            programaRepository.save(new Programa("Prog. 12: Preparación Examen Idóneos CNV", "Plan de formación integral", "Dominio completo y práctico del temario.", "Bibliografía y Marco Normativo CNV.", curso12)));
+
+        Cohorte cohorte12 = cohorteRepository.findByPrograma(prog12).stream().findFirst().orElseGet(() ->
+            cohorteRepository.save(new Cohorte(LocalDateTime.now().minusMonths(1), LocalDateTime.now().plusMonths(4), 50, prog12)));
+
+        Unidad u12_1 = unidadRepository.save(new Unidad("Unidad 1: Módulo 1 - Preparación Examen Idóneos C", "Desarrollo del módulo 1 de Preparación Examen Idóneos CNV", "Contenido académico exhaustivo para la unidad 1"));
+        cronogramaRepository.save(new Cronograma(1, 2, prog12, u12_1));
+        Unidad u12_2 = unidadRepository.save(new Unidad("Unidad 2: Módulo 2 - Preparación Examen Idóneos C", "Desarrollo del módulo 2 de Preparación Examen Idóneos CNV", "Contenido académico exhaustivo para la unidad 2"));
+        cronogramaRepository.save(new Cronograma(2, 3, prog12, u12_2));
+        Unidad u12_3 = unidadRepository.save(new Unidad("Unidad 3: Módulo 3 - Preparación Examen Idóneos C", "Desarrollo del módulo 3 de Preparación Examen Idóneos CNV", "Contenido académico exhaustivo para la unidad 3"));
+        cronogramaRepository.save(new Cronograma(3, 4, prog12, u12_3));
+
+    }
+
+    private void poblarBancosEvaluaciones() {
+        List<Unidad> unidades = unidadRepository.findAll();
+        for (int i = 0; i < Math.min(unidades.size(), 20); i++) {
+            Unidad u = unidades.get(i);
+            String poolNom = ("Pool: " + u.getTitulo());
+            if (poolNom.length() > 50) poolNom = poolNom.substring(0, 50);
+            Pool pool = poolRepository.save(new Pool(poolNom, u));
+
+            for (int p = 1; p <= 5; p++) {
+                Pregunta preg = preguntaRepository.save(new Pregunta("¿Pregunta técnica #" + p + " sobre conceptos de " + (u.getTitulo().length() > 25 ? u.getTitulo().substring(0, 25) : u.getTitulo()) + "?", true, pool));
+                opcionRespuestaRepository.save(new OpcionRespuesta("Respuesta Correcta: Fundamentada según normativa CNV", true, preg));
+                opcionRespuestaRepository.save(new OpcionRespuesta("Distractor A: Concepto parcialmente erróneo", false, preg));
+                opcionRespuestaRepository.save(new OpcionRespuesta("Distractor B: Criterio no aplicable a este instrumento", false, preg));
+                opcionRespuestaRepository.save(new OpcionRespuesta("Distractor C: Error común de cálculo o interpretación", false, preg));
+            }
+
+            String autoNom = ("Eval: " + u.getTitulo());
+            if (autoNom.length() > 50) autoNom = autoNom.substring(0, 50);
+            Autoevaluacion auto = new Autoevaluacion(autoNom, 25, LocalDateTime.now().minusDays(15), u);
+            auto.setCantidadPreguntas(10);
+            auto.setIntentosPermitidos(3);
+            autoevaluacionRepository.save(auto);
+            poolAutoevaluacionRepository.save(new PoolAutoevaluacion(pool, auto));
+        }
+    }
+
+    private void poblarAlumnosEInscripciones() {
+        Rol rolAlumno = rolRepository.findByNombre("Alumno").get();
+        EstadoPago estAcred = estadoPagoRepository.findAll().stream().filter(e -> "Acreditado".equals(e.getNombre())).findFirst().orElseGet(() -> estadoPagoRepository.save(new EstadoPago("Acreditado")));
+        MetodoPago metTarj = metodoPagoRepository.findAll().stream().findFirst().orElse(null);
+        List<Cohorte> cohortes = cohorteRepository.findAll();
+        if (cohortes.isEmpty()) return;
+
+        // Crear alumno principal de prueba
+        Usuario usuAlumnoPrincipal = usuarioRepository.findByCorreo("alumno@correo.com").orElseGet(() -> {
             Usuario u = new Usuario("Juan", "Pérez", "alumno@correo.com", passwordEncoder.encode("123456"), rolAlumno);
             u.setDni("38123456");
             u.setEmailValidado(true);
@@ -217,358 +577,31 @@ public class SemillaService {
         });
         Alumno alumnoPrincipal = usuAlumnoPrincipal.getAlumno();
 
-        // ===============================================================
-        // 4. CATEGORÍAS TEMÁTICAS
-        // ===============================================================
-        Categoria catMercado = categoriaRepository.findAll().stream()
-                .filter(c -> "Mercado de Capitales".equals(c.getNombre())).findFirst()
-                .orElseGet(() -> categoriaRepository.save(new Categoria("Mercado de Capitales", "Cursos sobre bonos, acciones, CEDEARs, ONs y derivados financieros.")));
-        Categoria catEconomia = categoriaRepository.findAll().stream()
-                .filter(c -> "Economía".equals(c.getNombre())).findFirst()
-                .orElseGet(() -> categoriaRepository.save(new Categoria("Economía", "Análisis macroeconómico, proyecciones de coyuntura e inflación argentina.")));
-        Categoria catFinanzas = categoriaRepository.findAll().stream()
-                .filter(c -> "Finanzas Corporativas".equals(c.getNombre())).findFirst()
-                .orElseGet(() -> categoriaRepository.save(new Categoria("Finanzas Corporativas", "Valuación de empresas, flujo de caja y finanzas para directivos.")));
-        Categoria catImpuestos = categoriaRepository.findAll().stream()
-                .filter(c -> "Impuestos y Contabilidad".equals(c.getNombre())).findFirst()
-                .orElseGet(() -> categoriaRepository.save(new Categoria("Impuestos y Contabilidad", "Legislación tributaria argentina y optimización de impuestos.")));
-
-        // ===============================================================
-        // 5. CURSOS, PROGRAMAS, COHORTES Y CONTENIDO
-        // ===============================================================
-        Curso curso1 = cursoRepository.findByNombre("Mercado de Capitales Argentino").orElseGet(() -> {
-            Curso c = new Curso("Mercado de Capitales Argentino",
-                    "Aprende a operar Acciones, Bonos Soberanos, Obligaciones Negociables y Opciones en BYMA.",
-                    150000f, catMercado, nivelIntermedio, docenteFausto);
-            c.setEmiteCertificado(true);
-            c.setPublicado(true);
-            return cursoRepository.save(c);
-        });
-
-        Programa prog1 = programaRepository.findByCurso(curso1).stream().findFirst().orElseGet(() ->
-                programaRepository.save(new Programa("Programa 2026 - Edición Élite", "Plan de formación avanzada en mercado argentino",
-                        "Dominar los instrumentos bursátiles y su marco normativo.",
-                        "Ley 26.831; Reglamentación CNV; Material BYMA.", curso1)));
-
-        Cohorte cohorte1 = cohorteRepository.findByPrograma(prog1).stream().findFirst().orElseGet(() ->
-                cohorteRepository.save(new Cohorte(
-                        LocalDateTime.now().minusMonths(1),
-                        LocalDateTime.now().plusMonths(3),
-                        30, prog1)));
-
-        Curso curso2 = cursoRepository.findByNombre("Análisis Macroeconómico de Coyuntura").orElseGet(() -> {
-            Curso c = new Curso("Análisis Macroeconómico de Coyuntura",
-                    "Variables macroeconómicas fundamentales: tipo de cambio, inflación, tasas y reservas del BCRA.",
-                    0f, catEconomia, nivelBasico, docenteFausto);
-            c.setEmiteCertificado(false);
-            c.setPublicado(true);
-            return cursoRepository.save(c);
-        });
-
-        Programa prog2 = programaRepository.findByCurso(curso2).stream().findFirst().orElseGet(() ->
-                programaRepository.save(new Programa("Programa 2026 - Macro", "Fundamentos económicos",
-                        "Comprender el ciclo macroeconómico argentino.", "Informes OJF y BCRA.", curso2)));
-
-        Cohorte cohorte2 = cohorteRepository.findByPrograma(prog2).stream().findFirst().orElseGet(() ->
-                cohorteRepository.save(new Cohorte(
-                        LocalDateTime.now().minusMonths(1),
-                        LocalDateTime.now().plusMonths(2),
-                        50, prog2)));
-
-        Curso curso3 = cursoRepository.findByNombre("Planificación Fiscal para Empresas").orElseGet(() -> {
-            Curso c = new Curso("Planificación Fiscal para Empresas",
-                    "Estrategias tributarias legales para pymes, régimen ganancias e IVA.",
-                    220000f, catImpuestos, nivelAvanzado, docenteSebas);
-            c.setEmiteCertificado(true);
-            c.setPublicado(true);
-            return cursoRepository.save(c);
-        });
-
-        Programa prog3 = programaRepository.findByCurso(curso3).stream().findFirst().orElseGet(() ->
-                programaRepository.save(new Programa("Programa Tributario 2026", "Plan fiscal avanzado",
-                        "Optimizar la carga impositiva en empresas argentinas.", "Ley de Impuesto a las Ganancias; Código Fiscal.", curso3)));
-
-        Cohorte cohorte3 = cohorteRepository.findByPrograma(prog3).stream().findFirst().orElseGet(() ->
-                cohorteRepository.save(new Cohorte(
-                        LocalDateTime.now().minusWeeks(2),
-                        LocalDateTime.now().plusMonths(4),
-                        25, prog3)));
-
-        // Curso 4: Valuación de Empresas y Finanzas Corporativas
-        Curso curso4 = cursoRepository.findByNombre("Valuación de Empresas y M&A").orElseGet(() -> {
-            Curso c = new Curso("Valuación de Empresas y M&A",
-                    "Modelos de Descuento de Flujos de Fondos (DCF), Múltiplos comparables y fusiones.",
-                    195000f, catFinanzas, nivelAvanzado, docenteFausto);
-            c.setEmiteCertificado(true);
-            c.setPublicado(true);
-            return cursoRepository.save(c);
-        });
-        Programa prog4 = programaRepository.findByCurso(curso4).stream().findFirst().orElseGet(() ->
-                programaRepository.save(new Programa("Programa Valuación 2026", "Modelado financiero aplicado",
-                        "Construir modelos de valuación corporativa profesional.", "Damodaran on Valuation.", curso4)));
-        Cohorte cohorte4 = cohorteRepository.findByPrograma(prog4).stream().findFirst().orElseGet(() ->
-                cohorteRepository.save(new Cohorte(
-                        LocalDateTime.now().minusDays(5),
-                        LocalDateTime.now().plusMonths(3),
-                        35, prog4)));
-
-        // Curso 5: Futuros, Opciones y Derivados Financieros
-        Curso curso5 = cursoRepository.findByNombre("Derivados Financieros: Futuros y Opciones").orElseGet(() -> {
-            Curso c = new Curso("Derivados Financieros: Futuros y Opciones",
-                    "Estrategias de cobertura y especulación con Futuros de Dólar e Índice ROFEX y Opciones sobre Acciones.",
-                    175000f, catMercado, nivelIntermedio, docenteFausto);
-            c.setEmiteCertificado(true);
-            c.setPublicado(true);
-            return cursoRepository.save(c);
-        });
-        Programa prog5 = programaRepository.findByCurso(curso5).stream().findFirst().orElseGet(() ->
-                programaRepository.save(new Programa("Programa Derivados 2026", "Derivados en Matba Rofex",
-                        "Dominar las estrategias con griegas y futuros financieros.", "Hull - Options, Futures and Other Derivatives.", curso5)));
-        Cohorte cohorte5 = cohorteRepository.findByPrograma(prog5).stream().findFirst().orElseGet(() ->
-                cohorteRepository.save(new Cohorte(
-                        LocalDateTime.now().minusWeeks(1),
-                        LocalDateTime.now().plusMonths(3),
-                        40, prog5)));
-
-        // Curso 6: Finanzas Cuantitativas y Algoritmos con Python
-        Curso curso6 = cursoRepository.findByNombre("Finanzas Cuantitativas con Python").orElseGet(() -> {
-            Curso c = new Curso("Finanzas Cuantitativas con Python",
-                    "Backtesting de estrategias, optimización de carteras de Markowitz y Machine Learning aplicado al mercado.",
-                    210000f, catMercado, nivelAvanzado, docenteFausto);
-            c.setEmiteCertificado(true);
-            c.setPublicado(true);
-            return cursoRepository.save(c);
-        });
-        Programa prog6 = programaRepository.findByCurso(curso6).stream().findFirst().orElseGet(() ->
-                programaRepository.save(new Programa("Programa Python Finance 2026", "Programación financiera cuantitativa",
-                        "Desarrollar algoritmos de trading y análisis de riesgo.", "Hilpisch - Python for Finance.", curso6)));
-        Cohorte cohorte6 = cohorteRepository.findByPrograma(prog6).stream().findFirst().orElseGet(() ->
-                cohorteRepository.save(new Cohorte(
-                        LocalDateTime.now().minusDays(10),
-                        LocalDateTime.now().plusMonths(4),
-                        30, prog6)));
-
-        // Curso 7: Criptoactivos, Blockchain y DeFi Profesional
-        Curso curso7 = cursoRepository.findByNombre("Criptoactivos, Blockchain y DeFi").orElseGet(() -> {
-            Curso c = new Curso("Criptoactivos, Blockchain y DeFi",
-                    "Fundamentos de Bitcoin, Ethereum, contratos inteligentes, finanzas descentralizadas y custodia institucional.",
-                    130000f, catMercado, nivelIntermedio, docenteSebas);
-            c.setEmiteCertificado(true);
-            c.setPublicado(true);
-            return cursoRepository.save(c);
-        });
-        Programa prog7 = programaRepository.findByCurso(curso7).stream().findFirst().orElseGet(() ->
-                programaRepository.save(new Programa("Programa DeFi 2026", "Ecosistema cripto y descentralizado",
-                        "Comprender el funcionamiento de protocolos descentralizados.", "Mastering Ethereum; Whitepapers.", curso7)));
-        Cohorte cohorte7 = cohorteRepository.findByPrograma(prog7).stream().findFirst().orElseGet(() ->
-                cohorteRepository.save(new Cohorte(
-                        LocalDateTime.now().minusWeeks(1),
-                        LocalDateTime.now().plusMonths(2),
-                        50, prog7)));
-
-        // Curso 8: Análisis de Renta Fija y Bonos Soberanos
-        Curso curso8 = cursoRepository.findByNombre("Análisis Integral de Bonos y Renta Fija").orElseGet(() -> {
-            Curso c = new Curso("Análisis Integral de Bonos y Renta Fija",
-                    "Cálculo de TIR, Paridad, Modified Duration, Convexidad y estructuración de deuda soberana y corporativa.",
-                    160000f, catMercado, nivelIntermedio, docenteFausto);
-            c.setEmiteCertificado(true);
-            c.setPublicado(true);
-            return cursoRepository.save(c);
-        });
-        Programa prog8 = programaRepository.findByCurso(curso8).stream().findFirst().orElseGet(() ->
-                programaRepository.save(new Programa("Programa Bonos 2026", "Especialización en Renta Fija",
-                        "Dominar el análisis cuantitativo y cualitativo de bonos.", "Fabozzi - Bond Markets, Analysis and Strategies.", curso8)));
-        Cohorte cohorte8 = cohorteRepository.findByPrograma(prog8).stream().findFirst().orElseGet(() ->
-                cohorteRepository.save(new Cohorte(
-                        LocalDateTime.now().minusDays(3),
-                        LocalDateTime.now().plusMonths(3),
-                        45, prog8)));
-
-        // Unidades del Curso 1
-        Unidad u1 = unidadRepository.save(new Unidad("Introducción al Mercado Financiero y CNV",
-                "Estructura del mercado, agentes ALyC, BYMA y regulaciones CNV.",
-                "Contenido detallado de la Unidad 1 sobre mercado de capitales."));
-        Unidad u2 = unidadRepository.save(new Unidad("Renta Fija: Bonos y Obligaciones Negociables",
-                "TIR, Paridad, Duration y curvas de rendimientos soberanos y corporativos.",
-                "Contenido detallado de la Unidad 2 sobre análisis de renta fija."));
-        Unidad u3 = unidadRepository.save(new Unidad("Renta Variable, CEDEARs y Valuación",
-                "Análisis fundamental de empresas, CEDEARs de Wall Street y ratios P/E.",
-                "Contenido detallado de la Unidad 3 sobre acciones y derivados."));
-
-        cronogramaRepository.save(new Cronograma(1, 2, prog1, u1));
-        cronogramaRepository.save(new Cronograma(2, 3, prog1, u2));
-        cronogramaRepository.save(new Cronograma(3, 3, prog1, u3));
-
-        // Unidades y Cronograma para Curso 8: Análisis Integral de Bonos y Renta Fija
-        Unidad u8_1 = unidadRepository.save(new Unidad("Matemática Financiera & Curvas de Rendimiento",
-                "Valor tiempo del dinero, tasas nominales, efectivas y curvas spot.",
-                "Contenido profundo de cálculo de rendimiento para bonos soberanos y corporativos."));
-        Unidad u8_2 = unidadRepository.save(new Unidad("Medidas de Sensibilidad: Duration y Convexidad",
-                "Cálculo de Macaulay Duration, Modified Duration y Convexidad frente a shocks de tasas.",
-                "Análisis cuantitativo de carteras de renta fija en mercados emergentes."));
-        Unidad u8_3 = unidadRepository.save(new Unidad("Estructuración de Deuda y Obligaciones Negociables",
-                "Emisión de deuda corporativa, covenants, prospectos y calificaciones de riesgo.",
-                "Casos reales de financiamiento corporativo en BYMA."));
-
-        cronogramaRepository.save(new Cronograma(1, 2, prog8, u8_1));
-        cronogramaRepository.save(new Cronograma(2, 3, prog8, u8_2));
-        cronogramaRepository.save(new Cronograma(3, 3, prog8, u8_3));
-
-        // Unidades para Curso 2: Macro
-        Unidad u2_1 = unidadRepository.save(new Unidad("Variables Fundamentales y Cuentas Nacionales", "PBI, Inflación, Déficit Fiscal y Cuenta Corriente.", "Contenido Macro 1"));
-        Unidad u2_2 = unidadRepository.save(new Unidad("Política Monetaria y Tipo de Cambio", "Tasas de interés, Reservas y régimen cambiario.", "Contenido Macro 2"));
-        cronogramaRepository.save(new Cronograma(1, 2, prog2, u2_1));
-        cronogramaRepository.save(new Cronograma(2, 2, prog2, u2_2));
-
-        // Unidades para Curso 3: Fiscal
-        Unidad u3_1 = unidadRepository.save(new Unidad("Régimen Tributario Argentino", "Impuesto a las ganancias, bienes personales e IVA.", "Contenido Fiscal 1"));
-        cronogramaRepository.save(new Cronograma(1, 3, prog3, u3_1));
-
-        // Unidades para Cursos 4, 5, 6 y 7
-        Unidad u4_1 = unidadRepository.save(new Unidad("Modelos de Descuento de Flujo de Fondos (DCF)", "WACC, Flujos libres y valor terminal.", "Contenido Valuación"));
-        cronogramaRepository.save(new Cronograma(1, 3, prog4, u4_1));
-
-        Unidad u5_1 = unidadRepository.save(new Unidad("Estrategias con Opciones y Futuros", "Calls, Puts, Coberturas y Griegas.", "Contenido Derivados"));
-        cronogramaRepository.save(new Cronograma(1, 3, prog5, u5_1));
-
-        Unidad u6_1 = unidadRepository.save(new Unidad("Backtesting y Optimización Cuantitativa", "Python, Pandas y modelos de Markowitz.", "Contenido Python"));
-        cronogramaRepository.save(new Cronograma(1, 4, prog6, u6_1));
-
-        Unidad u7_1 = unidadRepository.save(new Unidad("Blockchain, Protocolos y Smart Contracts", "DeFi, AMMs y liquidez en DEXs.", "Contenido DeFi"));
-        cronogramaRepository.save(new Cronograma(1, 3, prog7, u7_1));
-
-        // Materiales de Unidad 1
-        materialRepository.save(new Material("Clase Magistral 1: Estructura del Mercado", docenteFausto, tmGrabacion, u1));
-        materialRepository.save(new Material("Guía Oficial CNV para Idóneos", docenteFausto, tmBibliografia, u1));
-        materialRepository.save(new Material("Presentación Diapositivas - Módulo 1", docenteFausto, tmPresentacion, u1));
-        materialRepository.save(new Material("Resumen Ejecutivo de la Unidad", docenteFausto, tmResumen, u1));
-
-        // Materiales de Curso 8
-        materialRepository.save(new Material("Guía Práctica: Cálculo de Duration y Convexidad (Excel)", docenteFausto, tmBibliografia, u8_1));
-        materialRepository.save(new Material("Clase Grabada: Valuación de Bonos Soberanos en USD", docenteFausto, tmGrabacion, u8_1));
-        materialRepository.save(new Material("Resumen Ejecutivo de Renta Fija", docenteFausto, tmResumen, u8_2));
-
-        // Términos de Glosario (CU-31 a CU-34)
-        terminoGlosarioRepository.save(new TerminoGlosario("ALyC", "Agente de Liquidación y Compensación regulado por la CNV.", u1));
-        terminoGlosarioRepository.save(new TerminoGlosario("TIR", "Tasa Interna de Retorno de un bono o instrumento de renta fija.", u2));
-        terminoGlosarioRepository.save(new TerminoGlosario("CEDEAR", "Certificado de Depósito Argentino representativo de acciones extranjeras.", u3));
-
-        // Consultas y Foros (CU-35 a CU-42)
-        ConsultaForo cForo = new ConsultaForo("¿Cómo calcular la paridad cambiaria al comprar CEDEARs?", alumnoPrincipal, u1);
-        consultaForoRepository.save(cForo);
-        RespuestaForo rForo = new RespuestaForo("Para calcular el tipo de cambio implícito (CCL), dividís el precio del CEDEAR en pesos por su ratio de conversión multiplicado por el precio del activo subyacente en dólares en Wall Street.", cForo, docenteFausto);
-        respuestaForoRepository.save(rForo);
-
-        // ===============================================================
-        // 6. BANCOS DE PREGUNTAS (POOLS) Y AUTOEVALUACIONES (CU-53 a CU-64)
-        // ===============================================================
-        Pool pool1 = poolRepository.save(new Pool("Banco de Preguntas - Mercado y CNV", u1));
-
-        Pregunta p1 = preguntaRepository.save(new Pregunta("¿Qué organismo regula y fiscaliza la oferta pública de valores en Argentina?", true, pool1));
-        opcionRespuestaRepository.save(new OpcionRespuesta("Comisión Nacional de Valores (CNV)", true, p1));
-        opcionRespuestaRepository.save(new OpcionRespuesta("Banco Central de la República Argentina (BCRA)", false, p1));
-        opcionRespuestaRepository.save(new OpcionRespuesta("Unidad de Información Financiera (UIF)", false, p1));
-
-        Pregunta p2 = preguntaRepository.save(new Pregunta("Un CEDEAR permite invertir en acciones internacionales desde el mercado local en pesos.", false, pool1));
-        opcionRespuestaRepository.save(new OpcionRespuesta("Verdadero", true, p2));
-        opcionRespuestaRepository.save(new OpcionRespuesta("Falso", false, p2));
-
-        Autoevaluacion auto1 = new Autoevaluacion("Autoevaluación Unidad 1 - Fundamentos", 20, LocalDateTime.now().minusDays(10), u1);
-        auto1.setIntentosPermitidos(3);
-        autoevaluacionRepository.save(auto1);
-        poolAutoevaluacionRepository.save(new PoolAutoevaluacion(pool1, auto1));
-
-        // ===============================================================
-        // 7. CLASES EN VIVO Y CLASES CON CLON IA (CU-65 a CU-80)
-        // ===============================================================
-        ClaseEnVivo claseVivo1 = new ClaseEnVivo("Resolución de Casos Prácticos y Consultas en Vivo", LocalDateTime.now().minusMinutes(25), 90, "rtmp://stream.idoneos.online/live", "live_fausto_k8172", docenteFausto, estEnVivo, cohorte1);
-        claseEnVivoRepository.save(claseVivo1);
-
-        ClaseEnVivo claseVivo8 = new ClaseEnVivo("Taller en Vivo: Análisis Cuantitativo de Curvas Soberanas", LocalDateTime.now().plusDays(2), 90, "rtmp://stream.idoneos.online/live", "live_bonos_k9941", docenteFausto, estProg, cohorte8);
-        claseEnVivoRepository.save(claseVivo8);
-
-        ClaseClonIA claseClon = new ClaseClonIA("Estrategia de Liquidez con FaustIA", "Bienvenidos a la clase sobre optimización de caja y fondos comunes...", docenteFausto, estClonGen);
-        claseClonIARepository.save(claseClon);
-
-        // ===============================================================
-        // 8. DESCUENTOS, INSCRIPCIONES, PAGOS Y PROGRESO (CU-43 a CU-52)
-        // ===============================================================
-        Descuento descLanzamiento = new Descuento();
-        descLanzamiento.setNombre("Lanzamiento 2026");
-        descLanzamiento.setPorcentaje(15.0f);
-        descLanzamiento.setCursosRequeridos(0);
-        descLanzamiento.setVigenciaDesde(LocalDateTime.now().minusMonths(2));
-        descLanzamiento.setVigenciaHasta(LocalDateTime.now().plusMonths(6));
-        descLanzamiento.setCantidadLimite(100);
-        descLanzamiento.setCantidadUsada(12);
-        descLanzamiento.setFechaCreacion(LocalDateTime.now().minusMonths(2));
-        descuentoRepository.save(descLanzamiento);
-
-        Descuento descComunidad = new Descuento();
-        descComunidad.setNombre("Comunidad Idóneos");
-        descComunidad.setPorcentaje(20.0f);
-        descComunidad.setCursosRequeridos(1);
-        descComunidad.setVigenciaDesde(LocalDateTime.now().minusMonths(1));
-        descComunidad.setVigenciaHasta(LocalDateTime.now().plusMonths(6));
-        descComunidad.setCantidadLimite(50);
-        descComunidad.setCantidadUsada(8);
-        descComunidad.setFechaCreacion(LocalDateTime.now().minusMonths(1));
-        descuentoRepository.save(descComunidad);
-
-        // Inscripción y pago del Alumno Principal
+        Cohorte cohorte1 = cohortes.get(0);
         Inscripcion inscPrincipal = new Inscripcion(cohorte1, alumnoPrincipal);
-        inscPrincipal.setFecha(LocalDateTime.now().minusDays(15));
+        inscPrincipal.setFecha(LocalDateTime.now().minusDays(20));
         inscPrincipal.setFechaVencimientoAcceso(LocalDateTime.now().plusMonths(6));
         inscripcionRepository.save(inscPrincipal);
 
-        Pago pagoPrincipal = new Pago(127500f, inscPrincipal, estPagoAcred);
-        pagoPrincipal.setFecha(LocalDateTime.now().minusDays(15));
-        pagoPrincipal.setMetodoPago(metodoModo);
-        pagoPrincipal.setDescuento(descLanzamiento);
+        Pago pagoPrincipal = new Pago(150000f, inscPrincipal, estAcred);
+        pagoPrincipal.setFecha(LocalDateTime.now().minusDays(20));
+        pagoPrincipal.setMetodoPago(metTarj);
         pagoPrincipal.setNombrePagador("Juan Pérez");
         pagoPrincipal.setDniPagador("38123456");
         pagoPrincipal.setDetalleEstado("accredited");
-        pagoPrincipal.setFechaAprobacion(LocalDateTime.now().minusDays(15));
         pagoPrincipal.setNumeroComprobante("COMP-2026-0001");
-        pagoPrincipal.setFechaEmisionComprobante(LocalDateTime.now().minusDays(15));
         pagoPrincipal.setComprobanteEnviado(true);
         pagoRepository.save(pagoPrincipal);
 
-        // Progreso e Intentos para el Alumno Principal
-        Progreso progU1 = new Progreso(inscPrincipal, u1, true);
-        progU1.setFechaCompletada(LocalDateTime.now().minusDays(10));
-        progresoRepository.save(progU1);
+        // Generar 100 alumnos realistas con inscripciones y pagos
+        String[] nombres = {"Carlos", "María", "Lucía", "Martín", "Sofía", "Esteban", "Camila", "Federico", "Valeria", "Gonzalo", "Agustín", "Florencia", "Ignacio", "Valentina", "Facundo", "Micaela", "Santiago", "Julieta", "Tomás", "Paula"};
+        String[] apellidos = {"Gómez", "López", "Fernández", "Rodríguez", "Martínez", "Paz", "Díaz", "Álvarez", "Ríos", "Benítez", "Romero", "Sosa", "Torres", "Castro", "Ortiz", "Silva", "Nuñez", "Molina", "Morales", "Suárez"};
 
-        Progreso progU2 = new Progreso(inscPrincipal, u2, false);
-        progresoRepository.save(progU2);
-
-        IntentoAutoevaluacion intento1 = new IntentoAutoevaluacion(inscPrincipal, auto1);
-        intento1.setFechaEntrega(LocalDateTime.now().minusDays(10));
-        intento1.setNota(9.5f);
-        intentoAutoevaluacionRepository.save(intento1);
-
-        // Población masiva de Alumnos e Historial para métricas y reportes
-        String[][] alumnosDatos = {
-                {"Carlos",    "Gómez",     "carlos.gomez@test.com",       "28111222"},
-                {"María",     "López",     "maria.lopez@test.com",        "30222333"},
-                {"Lucía",     "Fernández", "lucia.fernandez@test.com",    "32333444"},
-                {"Martín",    "Rodríguez", "martin.rodriguez@test.com",   "34444555"},
-                {"Sofía",     "Martínez",  "sofia.martinez@test.com",     "36555666"},
-                {"Esteban",   "Paz",       "esteban.paz@test.com",        "29666777"},
-                {"Camila",    "Díaz",      "camila.diaz@test.com",        "31777888"},
-                {"Federico",  "Álvarez",   "federico.alvarez@test.com",   "33888999"},
-                {"Valeria",   "Ríos",      "valeria.rios@test.com",       "35999000"},
-                {"Gonzalo",   "Benítez",   "gonzalo.benitez@test.com",    "37000111"}
-        };
-
-        Cohorte[] cohortes = {cohorte1, cohorte1, cohorte2, cohorte3, cohorte1, cohorte2, cohorte3, cohorte1, cohorte1, cohorte2};
-        int[] diasAtras = {25, 20, 18, 15, 12, 10, 8, 5, 3, 1};
-
-        for (int i = 0; i < alumnosDatos.length; i++) {
-            String nom = alumnosDatos[i][0];
-            String ape = alumnosDatos[i][1];
-            String mail = alumnosDatos[i][2];
-            String dniVal = alumnosDatos[i][3];
+        for (int i = 1; i <= 100; i++) {
+            String nom = nombres[(i - 1) % nombres.length];
+            String ape = apellidos[(i - 1) % apellidos.length];
+            String mail = "alumno" + i + "@idoneos.online";
+            String dniVal = String.valueOf(30000000 + i * 137);
 
             Usuario usu = usuarioRepository.findByCorreo(mail).orElseGet(() -> {
                 Usuario u = new Usuario(nom, ape, mail, passwordEncoder.encode("123456"), rolAlumno);
@@ -580,58 +613,101 @@ public class SemillaService {
             });
             Alumno alu = usu.getAlumno() != null ? usu.getAlumno() : new Alumno(usu);
 
-            Cohorte coh = cohortes[i % cohortes.length];
+            Cohorte coh = cohortes.get(i % cohortes.size());
             Inscripcion insc = new Inscripcion(coh, alu);
-            LocalDateTime fechaInsc = LocalDateTime.now().minusDays(diasAtras[i]);
+            LocalDateTime fechaInsc = LocalDateTime.now().minusDays(i % 30 + 1);
             insc.setFecha(fechaInsc);
             insc.setFechaVencimientoAcceso(fechaInsc.plusMonths(6));
 
-            if (i == 0 || i == 4) {
+            if (i % 5 == 0) {
                 insc.setNumeroCertificado("CERT-2026-" + (1000 + i));
                 insc.setNombreAlumno(nom + " " + ape);
                 insc.setDniAlumno(dniVal);
-                insc.setFechaEmisionCertificado(fechaInsc.plusDays(10));
+                insc.setFechaEmisionCertificado(fechaInsc.plusDays(15));
                 insc.setCertificadoEnviado(true);
-            } else if (i == 1) {
-                insc.setBaja(true);
             }
-
             inscripcionRepository.save(insc);
 
-            float precioBase = coh.getPrograma().getCurso().getPrecio();
-            if (precioBase > 0) {
-                Descuento desc = (i % 2 == 0) ? descLanzamiento : null;
-                float monto = (desc != null) ? precioBase * 0.85f : precioBase;
-                Pago p = new Pago(monto, insc, estPagoAcred);
+            float precio = coh.getPrograma().getCurso().getPrecio();
+            if (precio > 0) {
+                Pago p = new Pago(precio, insc, estAcred);
                 p.setFecha(fechaInsc);
-                p.setMetodoPago(metodoTarjeta);
-                p.setDescuento(desc);
+                p.setMetodoPago(metTarj);
                 p.setNombrePagador(nom + " " + ape);
                 p.setDniPagador(dniVal);
                 p.setDetalleEstado("accredited");
-                p.setFechaAprobacion(fechaInsc);
                 p.setNumeroComprobante("COMP-2026-" + (5000 + i));
-                p.setFechaEmisionComprobante(fechaInsc);
                 p.setComprobanteEnviado(true);
                 pagoRepository.save(p);
             }
         }
+    }
 
-        // ===============================================================
-        // 9. AUDITORÍA Y REPORTES HISTÓRICOS (CU-95, CU-96 a CU-98)
-        // ===============================================================
-        auditoriaRepository.save(new Auditoria("Curso", curso1.getId(), adminUsuario, accionCrear));
-        auditoriaRepository.save(new Auditoria("Cohorte", cohorte1.getId(), adminUsuario, accionCrear));
-        auditoriaRepository.save(new Auditoria("Pago", pagoPrincipal.getId(), usuAlumnoPrincipal, accionCrear));
+    private void poblarGlosariosYForos() {
+        List<Unidad> unidades = unidadRepository.findAll();
+        Alumno alu = alumnoRepository.findAll().stream().findFirst().orElse(null);
+        Docente doc = docenteRepository.findAll().stream().findFirst().orElse(null);
 
-        Reporte repAlumnos = new Reporte(trAlumnos, adminActual, curso1);
-        repAlumnos.setFechaGeneracion(LocalDateTime.now().minusDays(4));
-        reporteRepository.save(repAlumnos);
+        String[][] terminos = {
+            {"ALyC", "Agente de Liquidación y Compensación regulado por la CNV."},
+            {"TIR", "Tasa Interna de Retorno anualizada de un flujo de fondos."},
+            {"CEDEAR", "Certificado de Depósito Argentino representativo de acciones del exterior."},
+            {"Duration", "Medida de sensibilidad del precio de un bono ante cambios en la tasa de interés."},
+            {"Convexidad", "Curvatura de la relación precio-rendimiento de un bono."},
+            {"WACC", "Costo Promedio Ponderado de Capital para descuento de flujos."},
+            {"Call Option", "Contrato que otorga el derecho a comprar un activo a un precio fijado."},
+            {"Put Option", "Contrato que otorga el derecho a vender un activo a un precio fijado."},
+            {"Markowitz", "Modelo de optimización media-varianza para selección de carteras eficientes."},
+            {"Staking", "Bloqueo de criptoactivos en una red PoS para obtener recompensas y validar bloques."}
+        };
 
-        Reporte repIngresos = new Reporte(trIngresos, adminActual, curso1);
-        repIngresos.setFechaGeneracion(LocalDateTime.now().minusDays(2));
-        reporteRepository.save(repIngresos);
+        for (int i = 0; i < unidades.size(); i++) {
+            Unidad u = unidades.get(i);
+            String[] t = terminos[i % terminos.length];
+            terminoGlosarioRepository.save(new TerminoGlosario(t[0] + " (Módulo " + (i+1) + ")", t[1], u));
 
-        System.out.println("🚀 Idóneos Online: ¡Semilla maestra cargada exitosamente con todos los 10 módulos poblados!");
+            if (alu != null && doc != null) {
+                ConsultaForo cf = consultaForoRepository.save(new ConsultaForo("Consulta académica sobre la aplicación práctica de " + t[0] + " en la unidad " + u.getTitulo(), alu, u));
+                respuestaForoRepository.save(new RespuestaForo("Estimado alumno, " + t[1] + " Se recomienda revisar el marco normativo de CNV en el material complementario.", cf, doc));
+            }
+        }
+    }
+
+    private void poblarClasesVivoYClonIA() {
+        List<Cohorte> cohortes = cohorteRepository.findAll();
+        Docente doc = docenteRepository.findAll().stream().findFirst().orElse(null);
+        EstadoClaseEnVivo estProg = estadoClaseEnVivoRepository.findAll().stream().filter(e -> "Programada".equals(e.getNombre())).findFirst().orElse(null);
+        EstadoClaseEnVivo estVivo = estadoClaseEnVivoRepository.findAll().stream().filter(e -> "En vivo".equals(e.getNombre())).findFirst().orElse(null);
+        EstadoClaseClonIA estGen = estadoClaseClonIARepository.findAll().stream().filter(e -> "Generada".equals(e.getNombre())).findFirst().orElse(null);
+
+        for (int i = 0; i < cohortes.size(); i++) {
+            Cohorte coh = cohortes.get(i);
+            ClaseEnVivo cv1 = new ClaseEnVivo("Masterclass en Vivo #" + (i+1), LocalDateTime.now().plusDays(i * 3 + 1), 90, "rtmp://stream.idoneos.online/live", "live_stream_k" + (1000 + i), doc, (i == 0 ? estVivo : estProg), coh);
+            claseEnVivoRepository.save(cv1);
+        }
+
+        if (doc != null && estGen != null) {
+            claseClonIARepository.save(new ClaseClonIA("Estrategia de Bonos con Avatar IA", "Bienvenidos a la clase sintetizada sobre curvas soberanas...", doc, estGen));
+            claseClonIARepository.save(new ClaseClonIA("Valuación de Empresas con Clon IA", "En esta microclase analizaremos múltiplos EV/EBITDA...", doc, estGen));
+        }
+    }
+
+    private void poblarAuditoriaYReportes() {
+        Usuario admin = usuarioRepository.findByCorreo("admin@idoneos.online").orElse(null);
+        TipoAccionAuditoria accionCrear = tipoAccionAuditoriaRepository.findAll().stream().findFirst().orElse(null);
+        TipoReporte trAlumnos = tipoReporteRepository.findAll().stream().findFirst().orElse(null);
+        Curso curso1 = cursoRepository.findAll().stream().findFirst().orElse(null);
+
+        if (admin != null && accionCrear != null) {
+            for (int i = 1; i <= 50; i++) {
+                auditoriaRepository.save(new Auditoria("EntidadSeguridad_" + (i % 5), i, admin, accionCrear));
+            }
+        }
+
+        if (admin != null && admin.getAdministrador() != null && trAlumnos != null && curso1 != null) {
+            Reporte rep = new Reporte(trAlumnos, admin.getAdministrador(), curso1);
+            rep.setFechaGeneracion(LocalDateTime.now().minusDays(2));
+            reporteRepository.save(rep);
+        }
     }
 }

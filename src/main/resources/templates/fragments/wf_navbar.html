@@ -256,8 +256,9 @@
                 const badgeEl = document.getElementById('navbarUserModeBadge');
                 const pathIsEdicion = window.location.pathname.includes('/edicion');
                 
-                // Si la URL actual es /edicion, fijamos modo edición; si no, leemos preferencia de localStorage
-                let isEditing = pathIsEdicion || localStorage.getItem('idoneos_modo_edicion') === 'true';
+                // Si la URL actual es /edicion se fuerza true, sino se toma la preferencia almacenada (por defecto false)
+                let isEditing = pathIsEdicion || (localStorage.getItem('idoneos_modo_edicion') === 'true');
+                
                 if (editToggle) {
                     editToggle.checked = isEditing;
                 }
@@ -269,6 +270,9 @@
                         badgeEl.className = 'wf-nav-mode-badge mode-student';
                         badgeEl.innerHTML = '<span class="wf-mode-dot pulse-gray"></span><span class="wf-mode-text">Vista Alumno</span>';
                     }
+                }
+                if (typeof window.syncCourseTabs === 'function') {
+                    window.syncCourseTabs();
                 }
             }
             syncModoEdicionUI();

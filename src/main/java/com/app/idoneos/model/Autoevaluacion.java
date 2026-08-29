@@ -1,13 +1,14 @@
 package com.app.idoneos.model;
-import com.app.idoneos.service.modulo_reportes.*;
 
+import com.app.idoneos.service.modulo_reportes.*;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * Entidad Autoevaluacion: Instrumento de evaluación de conocimientos asociado a una Unidad.
+ * Entidad Autoevaluacion: Instrumento de evaluación de conocimientos asociado a
+ * una Unidad.
  * Mapea directamente a la tabla "Autoevaluacion" en base_datos.sql.
  */
 @Entity
@@ -26,6 +27,10 @@ public class Autoevaluacion {
     /** Tiempo límite para completar la evaluación (en minutos). */
     @Column(name = "tiempo_limite", nullable = false)
     private int tiempoLimite;
+
+    /** Cantidad de preguntas que compone la autoevaluación. */
+    @Column(name = "cantidad_preguntas", nullable = false)
+    private int cantidadPreguntas = 10;
 
     /** Cantidad máxima de intentos permitidos (null = ilimitados). */
     @Column(name = "intentos_permitidos")
@@ -64,7 +69,7 @@ public class Autoevaluacion {
     }
 
     public Autoevaluacion(String nombre, int tiempoLimite, LocalDateTime fechaApertura,
-                          Unidad unidad) {
+            Unidad unidad) {
         this.nombre = nombre;
         this.tiempoLimite = tiempoLimite;
         this.fechaApertura = fechaApertura;
@@ -102,6 +107,14 @@ public class Autoevaluacion {
 
     public void setTiempoLimite(int tiempoLimite) {
         this.tiempoLimite = tiempoLimite;
+    }
+
+    public int getCantidadPreguntas() {
+        return cantidadPreguntas;
+    }
+
+    public void setCantidadPreguntas(int cantidadPreguntas) {
+        this.cantidadPreguntas = cantidadPreguntas;
     }
 
     public Integer getIntentosPermitidos() {
@@ -177,7 +190,8 @@ public class Autoevaluacion {
     }
 
     /**
-     * Helper para obtener los pools asociados a la autoevaluación (de la unidad a la que pertenece).
+     * Helper para obtener los pools asociados a la autoevaluación (de la unidad a
+     * la que pertenece).
      */
     public List<PoolAutoevaluacion> getPools() {
         if (this.unidad != null && this.unidad.getPools() != null) {
@@ -188,4 +202,3 @@ public class Autoevaluacion {
         return List.of();
     }
 }
-

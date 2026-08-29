@@ -59,26 +59,12 @@
         </div>
 
         <div class="d-flex align-items-center gap-2">
-            <!-- Badge o Botón de Modo Edición para Docente o Administrador -->
-            <a th:if="${modoEdicion == true}"
-               th:href="@{'/academico/curso/' + ${(curso != null ? curso.idCurso : (cursoSeleccionado != null ? cursoSeleccionado.idCurso : 1))}}"
-               class="wf-btn wf-btn-sm d-flex align-items-center gap-2"
-               style="background: #081426; color: #FFFFFF; border: 1px solid #081426; font-weight: 700; border-radius: 6px; padding: 6px 14px; text-decoration: none;">
-                <i class="fa-solid fa-graduation-cap" style="color: var(--wf-gold);"></i>
-                <span>Ver Modo Alumno</span>
-            </a>
-
-            <a th:if="${modoEdicion != true and (usuario != null and (usuario.rol != null and (usuario.rol.nombre == 'Docente' or usuario.rol.nombre == 'Administrador') or #authorization.expression('hasAnyRole(''DOCENTE'', ''ADMINISTRADOR'')')))}"
-               th:href="@{'/academico/curso/' + ${(curso != null ? curso.idCurso : (cursoSeleccionado != null ? cursoSeleccionado.idCurso : 1))} + '/edicion'}"
-               class="wf-btn wf-btn-sm d-flex align-items-center gap-2"
-               style="background: #FEF3C7; color: #B45309; border: 1px solid #FDE68A; font-weight: 700; border-radius: 6px; padding: 6px 14px; text-decoration: none;">
-                <i class="fa-solid fa-pen-to-square"></i>
-                <span>Activar Modo Edición</span>
-            </a>
-
-            <!-- Badge de Estado o Acceso -->
+            <!-- Badge de Estado o Acceso Contextual -->
             <span class="wf-badge status-active" th:if="${tabActiva == 'curso' and modoEdicion != true}">
                 <i class="fa-solid fa-circle-check me-1"></i>Acceso Habilitado
+            </span>
+            <span class="wf-badge status-active" th:if="${tabActiva == 'curso' and modoEdicion == true}" style="background: #FEF3C7; color: #B45309; border: 1px solid #FDE68A;">
+                <i class="fa-solid fa-pen-to-square me-1"></i>Modo Edición Activado
             </span>
             <span class="wf-badge status-active" th:if="${tabActiva == 'participantes'}" th:text="${(inscripciones != null ? #lists.size(inscripciones) : 0) + ' Participantes'}">
                 Participantes
@@ -95,61 +81,80 @@
     <!-- Pestañas Horizontales Estilo Moodle Dinámicas según Curso y Rol -->
     <div class="d-flex justify-content-between align-items-center pt-2 flex-wrap gap-2">
         <div class="d-flex align-items-center gap-1 wf-curso-tabs-nav flex-wrap" id="wfCursoTabsContainer">
-            <!-- Pestañas Base del Curso (Accesibles siempre y preservando cursoId) -->
+            
+            <!-- PESTAÑAS VISTA ALUMNO (CU-26): Siempre visibles para Alumno y en Vista Alumno -->
+            <!-- 1. Curso & Unidades -->
             <a th:href="@{'/academico/curso/' + ${(curso != null ? curso.idCurso : (cursoSeleccionado != null ? cursoSeleccionado.idCurso : 1))}}"
+               id="wfTabCursoLink"
                class="wf-curso-tab-link"
                th:classappend="${tabActiva == 'curso' ? 'active' : ''}">
                 <i class="fa-solid fa-book-open me-1"></i> Curso &amp; Unidades
             </a>
 
+            <!-- 2. Cronograma -->
             <a th:href="@{/academico/cronograma(cursoId=${curso != null ? curso.idCurso : (cursoSeleccionado != null ? cursoSeleccionado.idCurso : 1)})}"
                class="wf-curso-tab-link"
                th:classappend="${tabActiva == 'cronograma' ? 'active' : ''}">
                 <i class="fa-solid fa-calendar-days me-1"></i> Cronograma
             </a>
 
-            <a th:href="@{/academico/materiales(cursoId=${curso != null ? curso.idCurso : (cursoSeleccionado != null ? cursoSeleccionado.idCurso : 1)})}"
-               class="wf-curso-tab-link"
+            <!-- PESTAÑAS EXCLUSIVAS DE GESTIÓN Y MODO EDICIÓN (Docente / Administrador) -->
+            <!-- 3. Materiales -->
+            <a th:if="${usuario == null or usuario.rol == null or (usuario.rol.nombre == 'Docente' or usuario.rol.nombre == 'Administrador')}"
+               th:href="@{/academico/materiales(cursoId=${curso != null ? curso.idCurso : (cursoSeleccionado != null ? cursoSeleccionado.idCurso : 1)})}"
+               class="wf-curso-tab-link wf-tab-edicion"
                th:classappend="${tabActiva == 'materiales' ? 'active' : ''}">
                 <i class="fa-solid fa-file-lines me-1"></i> Materiales
             </a>
 
-            <a th:href="@{/academico/glosario(cursoId=${curso != null ? curso.idCurso : (cursoSeleccionado != null ? cursoSeleccionado.idCurso : 1)})}"
-               class="wf-curso-tab-link"
+            <!-- 4. Glosario -->
+            <a th:if="${usuario == null or usuario.rol == null or (usuario.rol.nombre == 'Docente' or usuario.rol.nombre == 'Administrador')}"
+               th:href="@{/academico/glosario(cursoId=${curso != null ? curso.idCurso : (cursoSeleccionado != null ? cursoSeleccionado.idCurso : 1)})}"
+               class="wf-curso-tab-link wf-tab-edicion"
                th:classappend="${tabActiva == 'glosario' ? 'active' : ''}">
                 <i class="fa-solid fa-book me-1"></i> Glosario
             </a>
 
-            <a th:href="@{/evaluaciones/autoevaluaciones(cursoId=${curso != null ? curso.idCurso : (cursoSeleccionado != null ? cursoSeleccionado.idCurso : 1)})}"
-               class="wf-curso-tab-link"
+            <!-- 5. Autoevaluaciones -->
+            <a th:if="${usuario == null or usuario.rol == null or (usuario.rol.nombre == 'Docente' or usuario.rol.nombre == 'Administrador')}"
+               th:href="@{/evaluaciones/autoevaluaciones(cursoId=${curso != null ? curso.idCurso : (cursoSeleccionado != null ? cursoSeleccionado.idCurso : 1)})}"
+               class="wf-curso-tab-link wf-tab-edicion"
                th:classappend="${tabActiva == 'autoevaluaciones' ? 'active' : ''}">
                 <i class="fa-solid fa-clipboard-check me-1"></i> Autoevaluaciones
             </a>
 
-            <a th:href="@{/evaluaciones/pools(cursoId=${curso != null ? curso.idCurso : (cursoSeleccionado != null ? cursoSeleccionado.idCurso : 1)})}"
-               class="wf-curso-tab-link"
+            <!-- 6. Pools -->
+            <a th:if="${usuario == null or usuario.rol == null or (usuario.rol.nombre == 'Docente' or usuario.rol.nombre == 'Administrador')}"
+               th:href="@{/evaluaciones/pools(cursoId=${curso != null ? curso.idCurso : (cursoSeleccionado != null ? cursoSeleccionado.idCurso : 1)})}"
+               class="wf-curso-tab-link wf-tab-edicion"
                th:classappend="${tabActiva == 'pools' ? 'active' : ''}">
                 <i class="fa-solid fa-list-check me-1"></i> Pools
             </a>
 
-            <a th:href="@{/academico/consultas(cursoId=${curso != null ? curso.idCurso : (cursoSeleccionado != null ? cursoSeleccionado.idCurso : 1)})}"
-               class="wf-curso-tab-link"
+            <!-- 7. Foros -->
+            <a th:if="${usuario == null or usuario.rol == null or (usuario.rol.nombre == 'Docente' or usuario.rol.nombre == 'Administrador')}"
+               th:href="@{/academico/consultas(cursoId=${curso != null ? curso.idCurso : (cursoSeleccionado != null ? cursoSeleccionado.idCurso : 1)})}"
+               class="wf-curso-tab-link wf-tab-edicion"
                th:classappend="${tabActiva == 'foros' ? 'active' : ''}">
                 <i class="fa-solid fa-comments me-1"></i> Foros
             </a>
 
-            <a th:href="@{/clases-vivo(cursoId=${curso != null ? curso.idCurso : (cursoSeleccionado != null ? cursoSeleccionado.idCurso : 1)})}"
-               class="wf-curso-tab-link"
+            <!-- 8. Clases en Vivo -->
+            <a th:if="${usuario == null or usuario.rol == null or (usuario.rol.nombre == 'Docente' or usuario.rol.nombre == 'Administrador')}"
+               th:href="@{/clases-vivo(cursoId=${curso != null ? curso.idCurso : (cursoSeleccionado != null ? cursoSeleccionado.idCurso : 1)})}"
+               class="wf-curso-tab-link wf-tab-edicion"
                th:classappend="${tabActiva == 'clases-vivo' ? 'active' : ''}">
                 <i class="fa-solid fa-video me-1"></i> Clases en Vivo
             </a>
 
+            <!-- 9. Participantes (Visible en ambas vistas) -->
             <a th:href="@{/academico/participantes(cursoId=${curso != null ? curso.idCurso : (cursoSeleccionado != null ? cursoSeleccionado.idCurso : 1)})}"
                class="wf-curso-tab-link"
                th:classappend="${tabActiva == 'participantes' ? 'active' : ''}">
                 <i class="fa-solid fa-users me-1"></i> Participantes
             </a>
 
+            <!-- 10. Calificaciones (Visible en ambas vistas) -->
             <a th:href="@{/evaluaciones/calificaciones(cursoId=${curso != null ? curso.idCurso : (cursoSeleccionado != null ? cursoSeleccionado.idCurso : 1)})}"
                class="wf-curso-tab-link"
                th:classappend="${tabActiva == 'calificaciones' ? 'active' : ''}">
@@ -157,6 +162,34 @@
             </a>
         </div>
     </div>
+    <script>
+        window.syncCourseTabs = function() {
+            const isEditing = localStorage.getItem('idoneos_modo_edicion') === 'true' || window.location.pathname.includes('/edicion');
+            
+            // Actualizar URL de la pestaña Curso & Unidades para dirigir a /edicion o a vista normal según el modo
+            const tabCurso = document.getElementById('wfTabCursoLink');
+            if (tabCurso) {
+                let href = tabCurso.getAttribute('href');
+                if (isEditing && !href.includes('/edicion')) {
+                    tabCurso.setAttribute('href', href.replace(/\/academico\/curso\/(\d+)/, '/academico/curso/$1/edicion'));
+                } else if (!isEditing && href.includes('/edicion')) {
+                    tabCurso.setAttribute('href', href.replace(/\/edicion$/, ''));
+                }
+            }
+
+            const editTabs = document.querySelectorAll('.wf-tab-edicion');
+            editTabs.forEach(tab => {
+                if (isEditing) {
+                    tab.style.display = 'inline-flex';
+                } else {
+                    tab.style.display = 'none';
+                }
+            });
+        };
+        document.addEventListener('DOMContentLoaded', function() {
+            window.syncCourseTabs();
+        });
+    </script>
 </div>
 
 </body>
