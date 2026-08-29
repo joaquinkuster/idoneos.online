@@ -36,51 +36,18 @@
                         <h2 class="wf-hero-title" th:text="${curso != null ? curso.nombre : 'Acceder curso'}">Acceder curso</h2>
                         <p class="wf-hero-desc">Bienvenido/a, <span th:text="${usuario != null ? usuario.nombreCompleto : 'Alumno'}">Alumno</span></p>
                     </div>
-                    
-                    <div class="d-flex align-items-center gap-2" th:if="${usuario != null and usuario.rol != null and (usuario.rol.nombre == 'Administrador' or usuario.rol.nombre == 'Docente')}">
-                        <a th:href="@{'/academico/curso/' + ${curso != null ? curso.id : 1} + '/edicion'}" class="wf-btn-gold text-decoration-none">
-                            <i class="fa-solid fa-pen-to-square"></i>
-                            <span>Activar Modo Edición</span>
-                        </a>
-                    </div>
                 </div>
 
                 <div class="wf-body">
                     <div class="wf-main-content">
                         
-      <div class="wf-card mb-4" style="background: #FFFFFF;">
-        <div class="d-flex justify-content-between align-items-start pb-3 mb-2 border-bottom">
-          <div>
-            <div class="small text-muted mb-1">
-              <span>Mis cursos</span> <i class="fa-solid fa-chevron-right" style="font-size: 9px; margin: 0 4px;"></i> <strong th:text="${curso != null ? curso.nombre : 'Mercado de Capitales'}">Curso</strong>
-            </div>
-            <h3 style="font-size: 19px; font-weight: 800; color: #081426; margin: 4px 0;" th:text="${curso != null ? curso.nombre : 'Curso'}">Curso Nombre</h3>
-            <p class="small text-muted" style="margin: 0;" th:text="${curso != null and curso.docente != null and curso.docente.usuario != null ? 'Docente Titular: ' + curso.docente.usuario.nombreCompleto : 'Equipo Académico'}">Docente</p>
-          </div>
-          <div class="text-end">
-            <span class="wf-badge status-active">Acceso Habilitado</span>
-          </div>
-        </div>
+                        <!-- Header y Pestañas Permanentes del Curso (Moodle Style) -->
+                        <div th:replace="~{fragments/curso_header :: curso-header('curso')}"></div>
 
-        <div class="d-flex justify-content-between align-items-center pt-2">
-          <div class="d-flex align-items-center gap-2">
-            <a th:href="@{'/academico/curso/' + ${curso != null ? curso.id : 1}}" class="wf-tab-btn active text-decoration-none"> Curso</a>
-            <a th:href="@{/academico/cronograma}" class="wf-tab-btn text-decoration-none"> Cronograma</a>
-            <a th:href="@{/academico/participantes}" class="wf-tab-btn text-decoration-none"> Participantes</a>
-            <a th:href="@{/evaluaciones/calificaciones}" class="wf-tab-btn text-decoration-none"> Calificaciones</a>
-          </div>
-          
-          <div th:if="${usuario != null and usuario.rol != null and (usuario.rol.nombre == 'Administrador' or usuario.rol.nombre == 'Docente')}">
-            <a th:href="@{'/academico/curso/' + ${curso != null ? curso.id : 1} + '/edicion'}" class="wf-btn wf-btn-sm wf-btn-outline" style="border-color: var(--wf-gold); color: var(--wf-gold-text) !important; font-weight: 700;">
-              <i class="fa-solid fa-pen-to-square me-1" style="color: var(--wf-gold);"></i>
-              <span>Activar Modo Edición</span>
-            </a>
-          </div>
-        </div>
-      </div>
+                        <div class="wf-animate-slide-up">
 
-      <!-- Banner de Transmisión en Vivo -->
-      <div class="p-3 mb-4 rounded border shadow-sm d-flex justify-content-between align-items-center" style="background: linear-gradient(135deg, #0F172A, #1E293B); color: #FFFFFF; border-left: 5px solid #DC2626 !important;">
+      <!-- Banner de Transmisión en Vivo (Solo si hay sesión activa o programada) -->
+      <div th:if="${claseEnVivo != null}" class="p-3 mb-4 rounded border shadow-sm d-flex justify-content-between align-items-center" style="background: linear-gradient(135deg, #0F172A, #1E293B); color: #FFFFFF; border-left: 5px solid #DC2626 !important;">
         <div class="d-flex align-items-center gap-3">
           <div style="width: 44px; height: 44px; border-radius: 50%; background: #DC2626; display: flex; align-items: center; justify-content: center; color: white;">
             <i class="fa-solid fa-broadcast-tower" style="font-size: 18px;"></i>
@@ -90,11 +57,11 @@
               <span class="badge" style="background: #DC2626; color: white; font-size: 10px; font-weight: 700; letter-spacing: 0.5px;">● EN DIRECTO AHORA</span>
               <span class="small text-muted" style="color: #94A3B8 !important;">Clase Especial • Docente Titular</span>
             </div>
-            <h4 style="font-size: 15px; font-weight: 700; color: #FFFFFF; margin: 3px 0 0;">Resolución de Casos Prácticos y Consultas en Vivo</h4>
+            <h4 style="font-size: 15px; font-weight: 700; color: #FFFFFF; margin: 3px 0 0;" th:text="${claseEnVivo.titulo}">Resolución de Casos Prácticos y Consultas en Vivo</h4>
           </div>
         </div>
         <div class="d-flex align-items-center gap-2">
-          <a th:href="@{/clases-vivo}" class="wf-btn wf-btn-sm d-flex align-items-center gap-2" style="background: #DC2626; border-color: #DC2626; color: #FFFFFF; font-weight: 700; border-radius: 20px; padding: 8px 18px; text-decoration: none; box-shadow: 0 4px 12px rgba(220,38,38,0.4);">
+          <a th:href="@{'/clases-vivo/' + ${claseEnVivo.id} + '/sala'}" class="wf-btn wf-btn-sm d-flex align-items-center gap-2" style="background: #DC2626; border-color: #DC2626; color: #FFFFFF; font-weight: 700; border-radius: 20px; padding: 8px 18px; text-decoration: none; box-shadow: 0 4px 12px rgba(220,38,38,0.4);">
             <i class="fa-solid fa-video"></i>
             <span>Ingresar a la Sala en Vivo</span>
           </a>
@@ -121,24 +88,24 @@
 
       <div class="d-flex flex-column gap-4">
         <div th:each="unidad : ${unidades}" class="wf-unit-box"
-             th:classappend="${unidadHabilitadaMap[unidad.id] == false ? 'opacity-75 bg-light' : ''}">
+             th:classappend="${unidadHabilitadaMap != null and unidadHabilitadaMap[unidad.id] == false ? 'opacity-75 bg-light' : ''}">
           <div class="wf-unit-header d-flex justify-content-between align-items-center">
             <div class="d-flex align-items-center gap-2">
               <i class="fa-solid" 
-                 th:classappend="${unidadCompletadaMap[unidad.id] ? 'fa-circle-check text-success' : (unidadHabilitadaMap[unidad.id] ? 'fa-book-open text-primary' : 'fa-lock text-muted')}" 
+                 th:classappend="${unidadCompletadaMap != null and unidadCompletadaMap[unidad.id] ? 'fa-circle-check text-success' : (unidadHabilitadaMap != null and unidadHabilitadaMap[unidad.id] ? 'fa-book-open text-primary' : 'fa-lock text-muted')}" 
                  style="font-size: 16px;"></i>
               <strong style="font-size: 14px; color: #081426;" th:text="${unidad.titulo}">Unidad</strong>
-              <span th:if="${unidadCompletadaMap[unidad.id]}" class="badge bg-success-subtle text-success border border-success-subtle ms-2">Completada</span>
-              <span th:if="${!unidadCompletadaMap[unidad.id] and !unidadHabilitadaMap[unidad.id]}" class="badge bg-secondary-subtle text-secondary ms-2">Bloqueada (completar anterior)</span>
+              <span th:if="${unidadCompletadaMap != null and unidadCompletadaMap[unidad.id]}" class="badge bg-success-subtle text-success border border-success-subtle ms-2">Completada</span>
+              <span th:if="${(unidadCompletadaMap == null or !unidadCompletadaMap[unidad.id]) and (unidadHabilitadaMap != null and !unidadHabilitadaMap[unidad.id])}" class="badge bg-secondary-subtle text-secondary ms-2">Bloqueada (completar anterior)</span>
             </div>
             
-            <div th:if="${unidadHabilitadaMap[unidad.id]}">
+            <div th:if="${unidadHabilitadaMap == null or unidadHabilitadaMap[unidad.id]}">
               <a th:href="@{'/evaluaciones/autoevaluaciones?unidadId=' + ${unidad.id}}" class="wf-btn wf-btn-sm wf-btn-gold">
                 <i class="fa-solid fa-pen-to-square me-1"></i>
-                <span th:text="${unidadCompletadaMap[unidad.id] ? 'Revisar Evaluación' : 'Rendir Evaluación'}">Rendir Evaluación</span>
+                <span th:text="${unidadCompletadaMap != null and unidadCompletadaMap[unidad.id] ? 'Revisar Evaluación' : 'Rendir Evaluación'}">Rendir Evaluación</span>
               </a>
             </div>
-            <div th:unless="${unidadHabilitadaMap[unidad.id]}">
+            <div th:unless="${unidadHabilitadaMap == null or unidadHabilitadaMap[unidad.id]}">
               <button class="btn btn-sm btn-secondary disabled" disabled>
                 <i class="fa-solid fa-lock me-1"></i>Bloqueada
               </button>
@@ -146,7 +113,7 @@
           </div>
           <div class="wf-unit-body d-flex flex-column gap-2">
             <p class="small text-muted m-0" th:text="${unidad.descripcion}">Descripción de la unidad...</p>
-            <div class="d-flex align-items-center gap-3 pt-2" th:if="${unidadHabilitadaMap[unidad.id]}">
+            <div class="d-flex align-items-center gap-3 pt-2" th:if="${unidadHabilitadaMap == null or unidadHabilitadaMap[unidad.id]}">
               <a th:href="@{'/academico/consultas?unidadId=' + ${unidad.id}}" class="btn btn-sm btn-outline-secondary rounded-pill"><i class="fa-solid fa-comments me-1"></i> Foro de Consultas</a>
               <a th:href="@{'/academico/glosario?unidadId=' + ${unidad.id}}" class="btn btn-sm btn-outline-secondary rounded-pill"><i class="fa-solid fa-book me-1"></i> Glosario</a>
             </div>

@@ -23,17 +23,31 @@ import java.util.Optional;
  *   CU-42 — Dar de baja respuesta de foro → GET/POST /foro/respuestas/{id}/baja
  */
 @Controller
-@RequestMapping("/foro")
+@RequestMapping({"/foro", "/academico"})
 public class ForoController {
 
     @Autowired private ForoService foroService;
     @Autowired private ConsultaForoRepository consultaRepo;
     @Autowired private RespuestaForoRepository respuestaRepo;
     @Autowired private UnidadService unidadService;
+    @Autowired private com.app.idoneos.repository.modulo_usuarios.UsuarioRepository usuarioRepository;
+
+    private Usuario obtenerUsuarioAutenticado(Authentication auth) {
+        if (auth == null) return null;
+        if (auth.getPrincipal() instanceof Usuario) {
+            return (Usuario) auth.getPrincipal();
+        }
+        String email = auth.getName();
+        if (email != null) {
+            return usuarioRepository.findByCorreo(email).orElse(null);
+        }
+        return null;
+    }
 
     private void agregarUsuarioAlModelo(Model model, Authentication auth) {
-        if (auth != null && auth.getPrincipal() instanceof Usuario) {
-            model.addAttribute("usuario", (Usuario) auth.getPrincipal());
+        Usuario u = obtenerUsuarioAutenticado(auth);
+        if (u != null) {
+            model.addAttribute("usuario", u);
         }
     }
 
@@ -45,7 +59,7 @@ public class ForoController {
     public String buscarRespuestas(@PathVariable Integer consultaId, Model model, Authentication auth) {
         agregarUsuarioAlModelo(model, auth);
         Optional<ConsultaForo> cOpt = foroService.buscarConsultaPorId(consultaId);
-        if (cOpt.isEmpty()) return "redirect:/academico/foro";
+        if (cOpt.isEmpty()) return "redirect:/academico/consultas";
 
         ConsultaForo consulta = cOpt.get();
         List<RespuestaForo> respuestas = foroService.obtenerRespuestasPorConsulta(consulta);
@@ -64,7 +78,7 @@ public class ForoController {
     public String responderConsultaForm(@PathVariable Integer consultaId, Model model, Authentication auth) {
         agregarUsuarioAlModelo(model, auth);
         Optional<ConsultaForo> cOpt = foroService.buscarConsultaPorId(consultaId);
-        if (cOpt.isEmpty()) return "redirect:/academico/foro";
+        if (cOpt.isEmpty()) return "redirect:/academico/consultas";
 
         model.addAttribute("consulta", cOpt.get());
         model.addAttribute("titulo", "CU-40 - Responder consulta de foro | Idóneos Online");
@@ -74,22 +88,26 @@ public class ForoController {
     /**
      * CU-40 — Registrar respuesta de foro (POST).
      */
-    @PostMapping("/consultas/{consultaId}/responder")
-    public String guardarRespuesta(@PathVariable Integer consultaId,
+    @PostMapping({"/consultas/{consultaId}/responder", "/respuestas/guardar"})
+    public String guardarRespuesta(@PathVariable(required = false) Integer consultaId,
+                                   @RequestParam(required = false) Integer consultaIdParam,
+                                   @RequestParam(value = "consultaId", required = false) Integer consultaIdBody,
                                    @RequestParam String texto,
                                    Authentication auth, RedirectAttributes ra) {
-        if (auth == null || !(auth.getPrincipal() instanceof Usuario)) return "redirect:/login";
-        Usuario usuario = (Usuario) auth.getPrincipal();
+        Usuario usuario = obtenerUsuarioAutenticado(auth);
+        if (usuario == null) return "redirect:/login";
+        Integer targetConsultaId = (consultaId != null) ? consultaId : (consultaIdParam != null ? consultaIdParam : consultaIdBody);
 
         try {
-            ConsultaForo consulta = foroService.buscarConsultaPorId(consultaId)
+            if (targetConsultaId == null) throw new IllegalArgumentException("Consulta ID requerido");
+            ConsultaForo consulta = foroService.buscarConsultaPorId(targetConsultaId)
                     .orElseThrow(() -> new IllegalArgumentException("Consulta no encontrada"));
             foroService.crearRespuesta(texto, usuario, consulta);
             ra.addFlashAttribute("mensaje", "Respuesta publicada exitosamente.");
-            return "redirect:/foro/consultas/" + consultaId + "/respuestas";
+            return "redirect:/academico/consultas/" + targetConsultaId + "/respuestas";
         } catch (Exception e) {
             ra.addFlashAttribute("error", e.getMessage());
-            return "redirect:/foro/consultas/" + consultaId + "/responder";
+            return targetConsultaId != null ? "redirect:/academico/consultas/" + targetConsultaId + "/respuestas" : "redirect:/academico/consultas";
         }
     }
 
@@ -100,7 +118,7 @@ public class ForoController {
     @GetMapping("/respuestas/{id}/editar")
     public String modificarRespuestaForm(@PathVariable Integer id, Model model, Authentication auth) {
         Optional<RespuestaForo> rOpt = foroService.buscarRespuestaPorId(id);
-        if (rOpt.isEmpty()) return "redirect:/academico/foro";
+        if (rOpt.isEmpty()) return "redirect:/academico/consultas";
 
         agregarUsuarioAlModelo(model, auth);
         model.addAttribute("respuesta", rOpt.get());
@@ -121,10 +139,10 @@ public class ForoController {
             r.setTexto(texto);
             foroService.modificarRespuesta(r);
             ra.addFlashAttribute("mensaje", "Respuesta modificada con éxito.");
-            return "redirect:/foro/consultas/" + r.getConsulta().getId() + "/respuestas";
+            return "redirect:/academico/consultas/" + r.getConsulta().getId() + "/respuestas";
         } catch (Exception e) {
             ra.addFlashAttribute("error", e.getMessage());
-            return "redirect:/foro/respuestas/" + id + "/editar";
+            return "redirect:/academico/respuestas/" + id + "/editar";
         }
     }
 
@@ -135,7 +153,7 @@ public class ForoController {
     @GetMapping("/respuestas/{id}/baja")
     public String darDeBajaRespuestaView(@PathVariable Integer id, Model model, Authentication auth) {
         Optional<RespuestaForo> rOpt = foroService.buscarRespuestaPorId(id);
-        if (rOpt.isEmpty()) return "redirect:/academico/foro";
+        if (rOpt.isEmpty()) return "redirect:/academico/consultas";
 
         agregarUsuarioAlModelo(model, auth);
         model.addAttribute("respuesta", rOpt.get());
@@ -150,7 +168,7 @@ public class ForoController {
             Integer cId = (r != null && r.getConsulta() != null) ? r.getConsulta().getId() : null;
             foroService.darDeBajaRespuesta(id);
             ra.addFlashAttribute("mensaje", "Respuesta dada de baja correctamente.");
-            return cId != null ? "redirect:/foro/consultas/" + cId + "/respuestas" : "redirect:/academico/foro";
+            return cId != null ? "redirect:/academico/consultas/" + cId + "/respuestas" : "redirect:/academico/consultas";
         } catch (Exception e) {
             ra.addFlashAttribute("error", e.getMessage());
             return "redirect:/foro/respuestas/" + id + "/baja";

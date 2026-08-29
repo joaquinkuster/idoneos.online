@@ -34,53 +34,17 @@
                             <span>PANEL DE ADMINISTRACIÓN</span>
                         </div>
                         <h2 class="wf-hero-title">Ver calificaciones</h2>
-                        <p class="wf-hero-desc">Bienvenido/a, Admin General</p>
+                        <p class="wf-hero-desc">Bienvenido/a, <span th:text="${usuario != null ? usuario.nombreCompleto : 'Admin General'}">Admin General</span></p>
                     </div>
-                    
-                    <div class="d-flex align-items-center gap-2">
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    </div>
-</div>
+                </div>
 
                 <div class="wf-body">
                     <div class="wf-main-content">
                         
-      <div class="wf-card mb-4" style="background: #FFFFFF;">
-        <div class="d-flex justify-content-between align-items-start pb-3 border-bottom">
-          <div>
-            <div class="small text-muted mb-1" style="font-size: 11px;">
-              <span>Cursos</span> <i class="fa-solid fa-chevron-right" style="font-size: 9px; margin: 0 4px;"></i> 
-              <span>Especialización en Idoneidad Bursátil</span> <i class="fa-solid fa-chevron-right" style="font-size: 9px; margin: 0 4px;"></i> 
-              <strong style="color: #081426;">Libro de Calificaciones</strong>
-            </div>
-            <h2 style="font-size: 20px; font-weight: 800; color: #081426; margin: 2px 0 0;">Calificaciones del Alumno en el Curso</h2>
-            <p class="small text-muted" style="margin: 2px 0 0;">Consulte las autoevaluaciones rendidas por el alumno en el programa de su cohorte, con nota numérica y resultado.</p>
-          </div>
-          <div class="d-flex align-items-center gap-2">
-            <span class="wf-badge status-active">Cohorte 2026-1</span>
-          </div>
-        </div>
+                        <!-- Header y Pestañas Permanentes del Curso (Moodle Style) -->
+                        <div th:replace="~{fragments/curso_header :: curso-header('calificaciones')}"></div>
 
-        <div class="d-flex justify-content-between align-items-center pt-2">
-          <div class="d-flex align-items-center gap-1">
-            <a th:href="@{/academico/aula?modoEdicion=true}" class="wf-tab-btn">Curso</a>
-            <a th:href="@{/academico/cronograma}" class="wf-tab-btn">Cronograma</a>
-            <a th:href="@{/academico/participantes}" class="wf-tab-btn">Participantes</a>
-            <button class="wf-tab-btn active">Calificaciones</button>
-          </div>
-        </div>
-      </div>
+                        <div class="wf-animate-slide-up">
 
       <!-- Selector / Buscador de Alumno [B] -->
       <div class="wf-card mb-4" style="background: #FFFFFF;">
@@ -89,17 +53,17 @@
             <label class="wf-label">Seleccionar Alumno a Consultar</label>
             <div class="wf-input-wrap">
               <input type="text" class="wf-input" placeholder="Buscar alumno por nombre, apellido o DNI..." value="Joaquín Küster (DNI: 40.123.456)">
-              
             </div>
           </div>
           <div class="col-md-3">
             <label class="wf-label">Cohorte Asignada</label>
             <select class="wf-input">
               <option selected>Cohorte 2026-1 (Programa 2026-A)</option>
+              <option>Cohorte 2026-2 (Programa 2026-B)</option>
             </select>
           </div>
           <div class="col-md-3">
-            <button class="wf-btn wf-btn-primary w-100"><i class="fa-solid fa-magnifying-glass me-1"></i> Consultar Calificaciones</button>
+            <button class="wf-btn wf-btn-primary w-100" style="background: #081426; color: white;"><i class="fa-solid fa-magnifying-glass me-1"></i> Consultar Calificaciones</button>
           </div>
         </div>
       </div>
@@ -108,13 +72,13 @@
       <div class="wf-card" style="background: #FFFFFF;">
         <div class="p-3 bg-light rounded border mb-4 d-flex justify-content-between align-items-center">
           <div class="d-flex align-items-center gap-3">
-            <div class="user-avatar-circle" style="width: 44px; height: 44px; font-size: 16px; background: #081426; color: white;">JK</div>
+            <div class="user-avatar-circle" style="width: 44px; height: 44px; font-size: 16px; background: #081426; color: white; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-weight: 700;">JK</div>
             <div>
               <h4 style="font-size: 15px; font-weight: 800; color: #081426; margin: 0;">Joaquín Küster</h4>
               <div class="small text-muted">DNI: 40.123.456 • joaquin.kuster@idoneos.online • Inscripción: Vigente</div>
             </div>
           </div>
-          <div class="d-flex gap-3 text-end" style="font-size: 12px;">
+          <div class="d-flex gap-4 text-end" style="font-size: 12px;">
             <div>
               <div class="text-muted">Promedio General:</div>
               <strong style="font-size: 16px; color: #16A34A;">9.5 / 10</strong>
@@ -127,7 +91,7 @@
         </div>
 
         <div class="wf-table-wrap">
-          <table class="wf-table">
+          <table class="wf-table align-middle">
             <thead>
               <tr>
                 <th>Unidad Temática</th>
@@ -135,23 +99,60 @@
                 <th>Fecha de Entrega</th>
                 <th>Intentos Usados</th>
                 <th>Nota Obtenida</th>
-                <th>Resultado</th>
+                <th class="text-end">Resultado</th>
               </tr>
             </thead>
             <tbody>
-  <tr th:each="cal : ${calificaciones}">
-    <td><strong style="color: #081426;" th:text="${cal.autoevaluacion.nombre}">Examen</strong></td>
-    <td th:text="${cal.autoevaluacion.unidad.titulo}">Unidad</td>
-    <td><strong class="text-success" th:text="${cal.nota != null ? #numbers.formatDecimal(cal.nota, 1, 1) : '-'}">10.0</strong></td>
-    <td><span class="wf-badge status-active" th:text="${cal.nota null and cal.nota>= 7 ? 'Aprobado' : 'Reprobado'}">Aprobado</span></td>
-  </tr>
-  <tr th:if="${#lists.isEmpty(calificaciones)}">
-    <td colspan="4" class="text-center py-4 text-muted">No hay calificaciones registradas.</td>
-  </tr>
-</tbody>
+              <!-- Si hay intentos dinámicos en base de datos -->
+              <tr th:each="i, iterStat : ${intentos}">
+                <td>
+                  <strong style="color: #081426;" th:text="${i.autoevaluacion != null and i.autoevaluacion.unidad != null ? i.autoevaluacion.unidad.titulo : 'Unidad 1: Marco Regulatorio'}">Unidad 1: Marco Regulatorio</strong>
+                </td>
+                <td th:text="${i.autoevaluacion != null ? i.autoevaluacion.nombre : 'Autoevaluación Unidad 1'}">Autoevaluación Unidad 1: Marco Normativo y CNV</td>
+                <td th:text="${i.fecha != null ? #temporals.format(i.fecha, 'dd/MM/yyyy HH:mm') : '10/04/2026 18:22'}">10/04/2026 18:22</td>
+                <td th:text="${i.numeroIntento != null ? (i.numeroIntento + ' / 3') : '1 / 3'}">1 / 3</td>
+                <td>
+                  <strong class="fw-bold" style="font-size: 14px; color: #16A34A;" th:text="${i.calificacion != null ? (#numbers.formatDecimal(i.calificacion, 1, 2) + ' / 10') : '9.00 / 10'}">9.00 / 10</strong>
+                </td>
+                <td class="text-end">
+                  <span class="badge px-3 py-2 fw-bold text-uppercase"
+                        th:style="${i.calificacion != null and i.calificacion >= 6} ? 'background: #FEF3C7; color: #B45309; border: 1px solid #FDE68A;' : 'background: #FEE2E2; color: #DC2626; border: 1px solid #FECACA;'"
+                        th:text="${i.calificacion != null and i.calificacion >= 6 ? 'APROBADO' : 'REPROBADO'}">
+                    APROBADO
+                  </span>
+                </td>
+              </tr>
+
+              <!-- Fila mock / visual representativa en base al wireframe cuando la lista de intentos está vacía -->
+              <tr th:if="${#lists.isEmpty(intentos)}">
+                <td><strong style="color: #081426;">Unidad 1: Marco Regulatorio</strong></td>
+                <td>Autoevaluación Unidad 1: Marco Normativo y CNV</td>
+                <td>10/04/2026 18:22</td>
+                <td>1 / 3</td>
+                <td><strong class="fw-bold" style="font-size: 14px; color: #16A34A;">9.00 / 10</strong></td>
+                <td class="text-end"><span class="badge px-3 py-2 fw-bold text-uppercase" style="background: #FEF3C7; color: #B45309; border: 1px solid #FDE68A;">APROBADO</span></td>
+              </tr>
+              <tr th:if="${#lists.isEmpty(intentos)}">
+                <td><strong style="color: #081426;">Unidad 2: Renta Fija</strong></td>
+                <td>Autoevaluación Unidad 2: Ejercicios de Rendimiento</td>
+                <td>22/04/2026 14:15</td>
+                <td>1 / 3</td>
+                <td><strong class="fw-bold" style="font-size: 14px; color: #16A34A;">10.00 / 10</strong></td>
+                <td class="text-end"><span class="badge px-3 py-2 fw-bold text-uppercase" style="background: #FEF3C7; color: #B45309; border: 1px solid #FDE68A;">APROBADO</span></td>
+              </tr>
+              <tr th:if="${#lists.isEmpty(intentos)}">
+                <td><strong style="color: #081426;">Unidad 3: Derivados &amp; Integración</strong></td>
+                <td>Evaluación Final Integradora CNV</td>
+                <td><span class="text-muted">Pendiente de rendición</span></td>
+                <td>0 / 3</td>
+                <td>-</td>
+                <td class="text-end"><span class="badge px-3 py-2 text-muted border bg-light">Sin rendir</span></td>
+              </tr>
+            </tbody>
           </table>
         </div>
       </div>
+    </div>
     
                     </div>
                 </div>

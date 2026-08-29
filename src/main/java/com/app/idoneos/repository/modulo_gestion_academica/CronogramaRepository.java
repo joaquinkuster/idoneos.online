@@ -14,6 +14,7 @@ public interface CronogramaRepository extends JpaRepository<Cronograma, Integer>
     List<Cronograma> findByProgramaOrderByNumeroOrden(Programa programa);
     List<Cronograma> findByProgramaOrderByNumeroOrdenAsc(Programa programa);
     Optional<Cronograma> findByProgramaAndUnidad(Programa programa, Unidad unidad);
+    boolean existsByProgramaAndUnidad(Programa programa, Unidad unidad);
     int countByPrograma(Programa programa);
     List<Cronograma> findByUnidad(Unidad unidad);
 }

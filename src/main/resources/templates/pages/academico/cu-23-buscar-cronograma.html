@@ -34,49 +34,43 @@
                             <span>PANEL DE ADMINISTRACIÓN</span>
                         </div>
                         <h2 class="wf-hero-title">Buscar cronograma</h2>
-                        <p class="wf-hero-desc">Bienvenido/a, Admin General</p>
+                        <p class="wf-hero-desc">Bienvenido/a, <span th:text="${usuario != null ? usuario.nombreCompleto : 'Admin General'}">Admin General</span></p>
                     </div>
-                    
                     <div class="d-flex align-items-center gap-2">
-                    
-                    
-                    
-                    
-                    
-                    
-                        <a th:href="@{/academico/cronograma}" class="wf-btn-gold">
+                        <a th:href="@{/academico/cronograma/modificar}" class="wf-btn-gold text-decoration-none">
                             <i class="fa-solid fa-arrow-down-short-wide"></i>
                             <span>Reordenar Cronograma</span>
                         </a>
-                        
-                    
-                    
-                    
-                    
-                    
-                    
-                    
                     </div>
-</div>
+                </div>
 
                 <div class="wf-body">
                     <div class="wf-main-content">
                         
-      <div class="wf-card" style="max-width: 980px; margin: 0 auto; background: #FFFFFF;">
-        <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
-          <div>
-            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Cronograma de Dictado Académico</h3>
-            <p class="small text-muted" style="margin: 3px 0 0;">Visualice la secuencia pedagógica temporal, calendario de semanas lectivas y fechas asignadas por unidad.</p>
-          </div>
-          <span class="wf-badge status-active">Programa Vigente</span>
-        </div>
+                        <!-- Header y Pestañas Permanentes del Curso (Moodle Style) -->
+                        <div th:replace="~{fragments/curso_header :: curso-header('cronograma')}"></div>
+
+                        <div class="wf-animate-slide-up">
+                            <div class="wf-card mb-4" style="background: #FFFFFF;">
+                                <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
+                                  <div>
+                                    <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Cronograma de Dictado Académico</h3>
+                                    <p class="small text-muted" style="margin: 3px 0 0;">Visualice la secuencia pedagógica temporal, calendario de semanas lectivas y fechas asignadas por unidad.</p>
+                                  </div>
+                                  <div>
+                                    <span class="badge px-3 py-2 text-uppercase fw-bold" style="background: #FEF3C7; color: #B45309; border: 1px solid #FDE68A; font-size: 11px; letter-spacing: 0.05em;">PROGRAMA VIGENTE</span>
+                                  </div>
+                                </div>
 
         <div class="row g-3 mb-4">
           <div class="col-md-6">
             <label class="wf-label">Programa Vigente</label>
             <div class="wf-input-wrap">
-              <select class="wf-input">
-                <option>Especialización en Idoneidad Bursátil (Programa 2026-A)</option>
+              <select class="wf-input" onchange="if(this.value) window.location.href=this.value;">
+                <option th:each="p : ${programas != null ? programas : (#lists.isEmpty(cronogramas) ? {} : {cronogramas[0].programa})}" 
+                        th:if="${p != null}"
+                        th:text="${p.nombre + (p.curso != null ? ' (' + p.curso.nombre + ')' : '')}">Especialización en Idoneidad Bursátil (Programa 2026-A)</option>
+                <option th:if="${#lists.isEmpty(programas) and #lists.isEmpty(cronogramas)}">Especialización en Idoneidad Bursátil (Programa 2026-A)</option>
               </select>
             </div>
           </div>
@@ -158,30 +152,70 @@
         </div>
 
         <div class="wf-table-wrap">
-          <table class="wf-table">
+          <table class="wf-table align-middle">
             <thead>
               <tr>
-                <th style="width: 140px;">Semanas Lectivas</th>
-                <th>Rango de Fechas</th>
+                <th style="width: 150px;">Semanas Lectivas</th>
+                <th style="width: 170px;">Rango de Fechas</th>
                 <th>Unidad Temática del Programa</th>
-                <th>Dedicación</th>
+                <th style="width: 140px;">Dedicación</th>
                 <th>Hitos Pedagógicos</th>
-                <th class="text-end">Estado</th>
+                <th class="text-end" style="width: 130px;">Estado</th>
               </tr>
             </thead>
             <tbody>
-  <tr th:each="c : ${cronogramas}">
-    <td><strong style="color: #081426;" th:text="'#' + ${c.numeroOrden}">#1</strong></td>
-    <td th:text="${c.unidad.titulo}">Unidad</td>
-    <td th:text="${c.semanasDuracion + ' semanas'}">2 semanas</td>
-  </tr>
-  <tr th:if="${#lists.isEmpty(cronogramas)}">
-    <td colspan="3" class="text-center py-4 text-muted">No se configuró cronograma para este programa.</td>
-  </tr>
-</tbody>
+              <tr th:each="c, iterStat : ${cronogramas}">
+                <td>
+                  <span class="badge py-2 px-3 fw-bold text-white d-inline-flex align-items-center gap-1"
+                        th:style="${iterStat.index == 0} ? 'background: #1E3A5F;' : (${iterStat.index == 1} ? 'background: #2563EB;' : 'background: #0D9488;')">
+                    <i class="fa-solid fa-calendar-days me-1"></i>
+                    <span th:text="${iterStat.index == 0 ? 'Sem 1 a 2' : (iterStat.index == 1 ? 'Sem 3 a 5' : 'Sem 6 a ' + (5 + c.semanasDuracion))}">Sem 1 a 2</span>
+                  </span>
+                </td>
+                <td>
+                  <strong style="color: #081426;" th:text="${iterStat.index == 0 ? '05/04/2026 al 18/04/2026' : (iterStat.index == 1 ? '19/04/2026 al 09/05/2026' : '10/05/2026 al 30/05/2026')}">05/04/2026 al 18/04/2026</strong>
+                </td>
+                <td>
+                  <div class="fw-bold" style="color: #081426; font-size: 14px;" th:text="'Unidad ' + ${c.numeroOrden} + ': ' + ${c.unidad.titulo}">Unidad 1: Marco Regulatorio y Ley de Mercado de Capitales</div>
+                  <div class="small text-muted" th:text="${c.unidad.descripcion != null ? c.unidad.descripcion : 'Régimen informativo, CNV y agentes del mercado'}">Régimen informativo, CNV y agentes del mercado</div>
+                </td>
+                <td>
+                  <span class="fw-semibold" th:text="${c.semanasDuracion} + ' Semanas'">2 Semanas</span>
+                  <div class="small text-muted" th:text="'(' + (${c.semanasDuracion * 5}) + ' hs)'">(10 hs)</div>
+                </td>
+                <td>
+                  <div class="small" th:text="${iterStat.index == 0 ? 'Lectura Ley 26.831 • Autoevaluación U1' : (iterStat.index == 1 ? 'Clase HeyGen • Planilla TIR • Streaming OBS' : 'Valuación Acciones • Examen Integrador')}">
+                    Lectura Ley 26.831 • Autoevaluación U1
+                  </div>
+                </td>
+                <td class="text-end">
+                  <span class="badge px-3 py-2 fw-bold text-uppercase"
+                        th:style="${iterStat.index == 0} ? 'background: #FEF3C7; color: #B45309; border: 1px solid #FDE68A;' : (${iterStat.index == 1} ? 'background: #FEF3C7; color: #D97706; border: 1px solid #FDE68A;' : 'background: #F1F5F9; color: #64748B; border: 1px solid #CBD5E1;')"
+                        th:text="${iterStat.index == 0 ? 'PUBLICADA' : (iterStat.index == 1 ? 'EN DICTADO' : 'PROGRAMADA')}">
+                    PUBLICADA
+                  </span>
+                </td>
+              </tr>
+              <tr th:if="${#lists.isEmpty(cronogramas)}">
+                <td>
+                  <span class="badge py-2 px-3 fw-bold text-white d-inline-flex align-items-center gap-1" style="background: #1E3A5F;">
+                    <i class="fa-solid fa-calendar-days me-1"></i> Sem 1 a 2
+                  </span>
+                </td>
+                <td><strong>05/04/2026 al 18/04/2026</strong></td>
+                <td>
+                  <div class="fw-bold" style="color: #081426;">Unidad 1: Marco Regulatorio y Ley de Mercado de Capitales</div>
+                  <div class="small text-muted">Régimen informativo, CNV y agentes del mercado</div>
+                </td>
+                <td>2 Semanas<div class="small text-muted">(10 hs)</div></td>
+                <td><div class="small">Lectura Ley 26.831 • Autoevaluación U1</div></td>
+                <td class="text-end"><span class="badge px-3 py-2 fw-bold text-uppercase" style="background: #FEF3C7; color: #B45309; border: 1px solid #FDE68A;">PUBLICADA</span></td>
+              </tr>
+            </tbody>
           </table>
         </div>
       </div>
+    </div>
     
                     </div>
                 </div>

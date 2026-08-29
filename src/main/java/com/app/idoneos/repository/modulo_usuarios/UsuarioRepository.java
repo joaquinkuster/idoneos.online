@@ -16,6 +16,8 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
 
     Optional<Usuario> findByCorreoAndBajaFalse(String correo);
 
+    Optional<Usuario> findByTokenRecuperacion(String tokenRecuperacion);
+
     /**
      * Buscar usuarios por rol derivado del subtipo JPA.
      * Como 'rol' es @Transient (se infiere del subtipo Alumno/Docente/Administrador),

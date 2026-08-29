@@ -61,32 +61,8 @@
 
                 <div class="wf-body">
                     <div class="wf-main-content">
-                        
-      <div class="wf-card mb-4" style="background: #FFFFFF;">
-        <div class="d-flex justify-content-between align-items-start pb-3 border-bottom">
-          <div>
-            <h2 style="font-size: 20px; font-weight: 800; color: #081426; margin: 0;">Especialización en Idoneidad Bursátil</h2>
-            <div class="small text-muted mt-1">
-              <span>Página Principal</span> <i class="fa-solid fa-chevron-right" style="font-size: 9px; margin: 0 4px;"></i> <span>Mis cursos</span> <i class="fa-solid fa-chevron-right" style="font-size: 9px; margin: 0 4px;"></i> <span>Autoevaluaciones</span>
-            </div>
-          </div>
-          <div class="d-flex align-items-center gap-3">
-            <span class="wf-badge status-active">Módulo Evaluaciones</span>
-          </div>
-        </div>
-
-        <div class="d-flex justify-content-between align-items-center pt-2">
-          <div class="d-flex align-items-center gap-1">
-            <a th:href="@{/academico/aula?modoEdicion=true}" class="wf-tab-btn">Curso & Unidades</a>
-            <a th:href="@{/academico/materiales}" class="wf-tab-btn">Materiales</a>
-            <a th:href="@{/academico/glosario}" class="wf-tab-btn">Glosario</a>
-            <button class="wf-tab-btn active">Autoevaluaciones</button>
-            <a th:href="@{/evaluaciones/pools}" class="wf-tab-btn">Pools</a>
-            <a th:href="@{/academico/consultas}" class="wf-tab-btn">Foros</a>
-            <a th:href="@{/clases-vivo}" class="wf-tab-btn">Clases en Vivo</a>
-          </div>
-        </div>
-      </div>
+                       <!-- Cabecera y Tabs Unificadas del Curso -->
+      <div th:replace="~{fragments/curso_header :: curso-header('autoevaluaciones')}"></div>
 
       <!-- Barra de Filtros y Búsqueda -->
       <div class="wf-card mb-4" style="background: #FFFFFF;">
@@ -123,32 +99,32 @@
         <table class="wf-table">
           <thead>
             <tr>
-              <th>ID</th>
               <th>Nombre Autoevaluación</th>
-              <th>Unidad</th>
               <th>Tiempo Límite</th>
-              <th>Intentos</th>
+              <th>Intentos Permitidos</th>
+              <th>Período de Apertura</th>
+              <th>Estado</th>
               <th class="text-end">Acciones</th>
             </tr>
           </thead>
           <tbody>
-  <tr th:each="a : ${autoevaluaciones}">
-    <td><strong style="color: #081426;" th:text="${a.nombre}">Autoevaluación</strong></td>
-    <td th:text="${a.tiempoLimite + ' minutos'}">30 minutos</td>
-    <td th:text="${a.cantidadPreguntas}">10</td>
-    <td th:text="${#temporals.format(a.fechaApertura, 'dd/MM/yyyy') + ' - ' + (a.fechaCierre != null ? #temporals.format(a.fechaCierre, 'dd/MM/yyyy') : 'Sin cierre')}">Período</td>
-    <td><span class="wf-badge status-active" th:text="${a.baja ? 'Inactiva' : 'Activa'}">Activa</span></td>
-    <td class="text-end">
-      <div class="d-inline-flex gap-2">
-        <a th:href="@{'/evaluaciones/autoevaluaciones/' + ${a.id} + '/editar'}" class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-pen-to-square"></i></a>
-        <a th:href="@{'/evaluaciones/rendir/' + ${a.id}}" class="wf-btn wf-btn-sm wf-btn-primary"><i class="fa-solid fa-play me-1"></i> Rendir</a>
-      </div>
-    </td>
-  </tr>
-  <tr th:if="${#lists.isEmpty(autoevaluaciones)}">
-    <td colspan="6" class="text-center py-4 text-muted">No se encontraron autoevaluaciones configuradas.</td>
-  </tr>
-</tbody>
+            <tr th:each="a : ${autoevaluaciones}">
+              <td><strong style="color: #081426;" th:text="${a.nombre}">Autoevaluación</strong></td>
+              <td th:text="${a.tiempoLimite + ' minutos'}">30 minutos</td>
+              <td th:text="${a.intentosPermitidos != null ? a.intentosPermitidos : 'Ilimitados'}">3</td>
+              <td th:text="${a.fechaApertura != null ? #temporals.format(a.fechaApertura, 'dd/MM/yyyy') : 'Disponible'}">01/01/2026</td>
+              <td><span class="wf-badge status-active" th:text="${a.baja ? 'Inactiva' : 'Activa'}">Activa</span></td>
+              <td class="text-end">
+                <div class="d-inline-flex gap-2">
+                  <a th:href="@{'/evaluaciones/autoevaluaciones/' + ${a.idAutoevaluacion} + '/editar'}" class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-pen-to-square"></i></a>
+                  <a th:href="@{'/evaluaciones/autoevaluaciones/' + ${a.idAutoevaluacion} + '/rendir'}" class="wf-btn wf-btn-sm wf-btn-primary"><i class="fa-solid fa-play me-1"></i> Rendir</a>
+                </div>
+              </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(autoevaluaciones)}">
+              <td colspan="6" class="text-center py-4 text-muted">No se encontraron autoevaluaciones configuradas para esta unidad.</td>
+            </tr>
+          </tbody>
         </table>
       </div>
         </div>

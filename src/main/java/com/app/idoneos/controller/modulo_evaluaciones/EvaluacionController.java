@@ -50,10 +50,24 @@ public class EvaluacionController {
     @Autowired private IntentoAutoevaluacionRepository intentoRepository;
     @Autowired private InscripcionRepository inscripcionRepository;
     @Autowired private RespuestaIntentoRepository respuestaIntentoRepository;
+    @Autowired private com.app.idoneos.repository.modulo_usuarios.UsuarioRepository usuarioRepository;
+
+    private Usuario obtenerUsuarioAutenticado(Authentication auth) {
+        if (auth == null) return null;
+        if (auth.getPrincipal() instanceof Usuario) {
+            return (Usuario) auth.getPrincipal();
+        }
+        String email = auth.getName();
+        if (email != null && usuarioRepository != null) {
+            return usuarioRepository.findByCorreo(email).orElse(null);
+        }
+        return null;
+    }
 
     private void agregarUsuarioAlModelo(Model model, Authentication auth) {
-        if (auth != null && auth.getPrincipal() instanceof Usuario) {
-            model.addAttribute("usuario", (Usuario) auth.getPrincipal());
+        Usuario u = obtenerUsuarioAutenticado(auth);
+        if (u != null) {
+            model.addAttribute("usuario", u);
         }
     }
 
@@ -62,17 +76,30 @@ public class EvaluacionController {
     // ─────────────────────────────────────────────────────────────
 
     @GetMapping("/pools")
-    public String buscarPools(@RequestParam(value = "unidadId", required = false) Integer unidadId,
+    public String buscarPools(@RequestParam(value = "cursoId", required = false) Integer cursoId,
+                              @RequestParam(value = "unidadId", required = false) Integer unidadId,
                               Model model, Authentication auth) {
         agregarUsuarioAlModelo(model, auth);
-        List<Unidad> unidades = unidadService.obtenerTodo();
+        Curso curso = (cursoId != null) ? cursoService.buscarPorId(cursoId).orElse(null) : null;
+        List<Unidad> unidades = (curso != null) ? unidadService.obtenerPorCurso(curso) : unidadService.obtenerTodo();
         Unidad unidad = (unidadId != null) ? unidadService.buscarPorId(unidadId).orElse(null) : (unidades.isEmpty() ? null : unidades.get(0));
 
+        if (curso == null && unidad != null && unidad.getCurso() != null) {
+            curso = unidad.getCurso();
+        }
+        if (curso == null) {
+            List<Curso> todos = cursoService.obtenerTodo();
+            if (!todos.isEmpty()) curso = todos.get(0);
+        }
+
+        final Curso cursoFinal = curso;
         Pool pool = (unidad != null) ? evaluacionService.buscarPoolPorUnidad(unidad).orElse(null) : null;
+        model.addAttribute("curso", cursoFinal);
+        model.addAttribute("cursoSeleccionado", cursoFinal);
         model.addAttribute("unidades", unidades);
         model.addAttribute("unidadSeleccionada", unidad);
         model.addAttribute("pool", pool);
-        model.addAttribute("pools", poolRepository.findAll());
+        model.addAttribute("pools", (cursoFinal != null) ? poolRepository.findAll().stream().filter(p -> p.getUnidad() != null && unidades.contains(p.getUnidad())).toList() : poolRepository.findAll());
         model.addAttribute("titulo", "CU-53 - Buscar pool | Idóneos Online");
         return "pages/evaluaciones/cu-53-buscar-pool";
     }
@@ -164,13 +191,25 @@ public class EvaluacionController {
     // ─────────────────────────────────────────────────────────────
 
     @GetMapping("/autoevaluaciones")
-    public String buscarAutoevaluaciones(@RequestParam(value = "unidadId", required = false) Integer unidadId,
+    public String buscarAutoevaluaciones(@RequestParam(value = "cursoId", required = false) Integer cursoId,
+                                         @RequestParam(value = "unidadId", required = false) Integer unidadId,
                                          Model model, Authentication auth) {
         agregarUsuarioAlModelo(model, auth);
-        List<Unidad> unidades = unidadService.obtenerTodo();
+        Curso curso = (cursoId != null) ? cursoService.buscarPorId(cursoId).orElse(null) : null;
+        List<Unidad> unidades = (curso != null) ? unidadService.obtenerPorCurso(curso) : unidadService.obtenerTodo();
         Unidad unidad = (unidadId != null) ? unidadService.buscarPorId(unidadId).orElse(null) : (unidades.isEmpty() ? null : unidades.get(0));
 
+        if (curso == null && unidad != null && unidad.getCurso() != null) {
+            curso = unidad.getCurso();
+        }
+        if (curso == null) {
+            List<Curso> todos = cursoService.obtenerTodo();
+            if (!todos.isEmpty()) curso = todos.get(0);
+        }
+
         List<Autoevaluacion> autoevaluaciones = (unidad != null) ? evaluacionService.buscarAutoevaluacionesPorUnidad(unidad) : List.of();
+        model.addAttribute("curso", curso);
+        model.addAttribute("cursoSeleccionado", curso);
         model.addAttribute("unidades", unidades);
         model.addAttribute("unidadSeleccionada", unidad);
         model.addAttribute("autoevaluaciones", autoevaluaciones);
@@ -288,17 +327,29 @@ public class EvaluacionController {
     }
 
     @GetMapping("/calificaciones")
-    public String verCalificaciones(@RequestParam(value = "unidadId", required = false) Integer unidadId,
+    public String verCalificaciones(@RequestParam(value = "cursoId", required = false) Integer cursoId,
+                                    @RequestParam(value = "unidadId", required = false) Integer unidadId,
                                     Model model, Authentication auth) {
         agregarUsuarioAlModelo(model, auth);
-        List<Unidad> unidades = unidadService.obtenerTodo();
+        Curso curso = (cursoId != null) ? cursoService.buscarPorId(cursoId).orElse(null) : null;
+        List<Unidad> unidades = (curso != null) ? unidadService.obtenerPorCurso(curso) : unidadService.obtenerTodo();
         Unidad unidad = (unidadId != null) ? unidadService.buscarPorId(unidadId).orElse(null) : (unidades.isEmpty() ? null : unidades.get(0));
+
+        if (curso == null && unidad != null && unidad.getCurso() != null) {
+            curso = unidad.getCurso();
+        }
+        if (curso == null) {
+            List<Curso> todos = cursoService.obtenerTodo();
+            if (!todos.isEmpty()) curso = todos.get(0);
+        }
 
         List<Autoevaluacion> autoevaluaciones = (unidad != null) ? evaluacionService.buscarAutoevaluacionesPorUnidad(unidad) : List.of();
         List<IntentoAutoevaluacion> intentos = autoevaluaciones.stream()
                 .flatMap(ae -> intentoRepository.findByAutoevaluacionOrderByFechaDesc(ae).stream())
                 .toList();
 
+        model.addAttribute("curso", curso);
+        model.addAttribute("cursoSeleccionado", curso);
         model.addAttribute("unidades", unidades);
         model.addAttribute("unidadSeleccionada", unidad);
         model.addAttribute("autoevaluaciones", autoevaluaciones);

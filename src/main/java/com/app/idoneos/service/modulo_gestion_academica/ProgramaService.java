@@ -16,6 +16,7 @@ import java.util.Optional;
 public interface ProgramaService {
 
     Programa registrarPrograma(Integer cursoId, String nombre, String descripcion, String version);
+    Programa registrarPrograma(Integer cursoId, String nombre, String descripcion, String version, Integer idProgramaAnterior);
 
     Programa modificarPrograma(Integer programaId, String nombre, String descripcion, String version);
 

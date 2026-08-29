@@ -399,11 +399,54 @@ public class SemillaService {
         cronogramaRepository.save(new Cronograma(2, 3, prog1, u2));
         cronogramaRepository.save(new Cronograma(3, 3, prog1, u3));
 
+        // Unidades y Cronograma para Curso 8: Análisis Integral de Bonos y Renta Fija
+        Unidad u8_1 = unidadRepository.save(new Unidad("Matemática Financiera & Curvas de Rendimiento",
+                "Valor tiempo del dinero, tasas nominales, efectivas y curvas spot.",
+                "Contenido profundo de cálculo de rendimiento para bonos soberanos y corporativos."));
+        Unidad u8_2 = unidadRepository.save(new Unidad("Medidas de Sensibilidad: Duration y Convexidad",
+                "Cálculo de Macaulay Duration, Modified Duration y Convexidad frente a shocks de tasas.",
+                "Análisis cuantitativo de carteras de renta fija en mercados emergentes."));
+        Unidad u8_3 = unidadRepository.save(new Unidad("Estructuración de Deuda y Obligaciones Negociables",
+                "Emisión de deuda corporativa, covenants, prospectos y calificaciones de riesgo.",
+                "Casos reales de financiamiento corporativo en BYMA."));
+
+        cronogramaRepository.save(new Cronograma(1, 2, prog8, u8_1));
+        cronogramaRepository.save(new Cronograma(2, 3, prog8, u8_2));
+        cronogramaRepository.save(new Cronograma(3, 3, prog8, u8_3));
+
+        // Unidades para Curso 2: Macro
+        Unidad u2_1 = unidadRepository.save(new Unidad("Variables Fundamentales y Cuentas Nacionales", "PBI, Inflación, Déficit Fiscal y Cuenta Corriente.", "Contenido Macro 1"));
+        Unidad u2_2 = unidadRepository.save(new Unidad("Política Monetaria y Tipo de Cambio", "Tasas de interés, Reservas y régimen cambiario.", "Contenido Macro 2"));
+        cronogramaRepository.save(new Cronograma(1, 2, prog2, u2_1));
+        cronogramaRepository.save(new Cronograma(2, 2, prog2, u2_2));
+
+        // Unidades para Curso 3: Fiscal
+        Unidad u3_1 = unidadRepository.save(new Unidad("Régimen Tributario Argentino", "Impuesto a las ganancias, bienes personales e IVA.", "Contenido Fiscal 1"));
+        cronogramaRepository.save(new Cronograma(1, 3, prog3, u3_1));
+
+        // Unidades para Cursos 4, 5, 6 y 7
+        Unidad u4_1 = unidadRepository.save(new Unidad("Modelos de Descuento de Flujo de Fondos (DCF)", "WACC, Flujos libres y valor terminal.", "Contenido Valuación"));
+        cronogramaRepository.save(new Cronograma(1, 3, prog4, u4_1));
+
+        Unidad u5_1 = unidadRepository.save(new Unidad("Estrategias con Opciones y Futuros", "Calls, Puts, Coberturas y Griegas.", "Contenido Derivados"));
+        cronogramaRepository.save(new Cronograma(1, 3, prog5, u5_1));
+
+        Unidad u6_1 = unidadRepository.save(new Unidad("Backtesting y Optimización Cuantitativa", "Python, Pandas y modelos de Markowitz.", "Contenido Python"));
+        cronogramaRepository.save(new Cronograma(1, 4, prog6, u6_1));
+
+        Unidad u7_1 = unidadRepository.save(new Unidad("Blockchain, Protocolos y Smart Contracts", "DeFi, AMMs y liquidez en DEXs.", "Contenido DeFi"));
+        cronogramaRepository.save(new Cronograma(1, 3, prog7, u7_1));
+
         // Materiales de Unidad 1
         materialRepository.save(new Material("Clase Magistral 1: Estructura del Mercado", docenteFausto, tmGrabacion, u1));
         materialRepository.save(new Material("Guía Oficial CNV para Idóneos", docenteFausto, tmBibliografia, u1));
         materialRepository.save(new Material("Presentación Diapositivas - Módulo 1", docenteFausto, tmPresentacion, u1));
         materialRepository.save(new Material("Resumen Ejecutivo de la Unidad", docenteFausto, tmResumen, u1));
+
+        // Materiales de Curso 8
+        materialRepository.save(new Material("Guía Práctica: Cálculo de Duration y Convexidad (Excel)", docenteFausto, tmBibliografia, u8_1));
+        materialRepository.save(new Material("Clase Grabada: Valuación de Bonos Soberanos en USD", docenteFausto, tmGrabacion, u8_1));
+        materialRepository.save(new Material("Resumen Ejecutivo de Renta Fija", docenteFausto, tmResumen, u8_2));
 
         // Términos de Glosario (CU-31 a CU-34)
         terminoGlosarioRepository.save(new TerminoGlosario("ALyC", "Agente de Liquidación y Compensación regulado por la CNV.", u1));
@@ -438,8 +481,11 @@ public class SemillaService {
         // ===============================================================
         // 7. CLASES EN VIVO Y CLASES CON CLON IA (CU-65 a CU-80)
         // ===============================================================
-        ClaseEnVivo claseVivo = new ClaseEnVivo("Taller en Vivo: Análisis de Tasas y Bonos", LocalDateTime.now().plusDays(3), 90, "rtmp://stream.idoneos.online/live", "live_fausto_k8172", docenteFausto, estProg, cohorte1);
-        claseEnVivoRepository.save(claseVivo);
+        ClaseEnVivo claseVivo1 = new ClaseEnVivo("Resolución de Casos Prácticos y Consultas en Vivo", LocalDateTime.now().minusMinutes(25), 90, "rtmp://stream.idoneos.online/live", "live_fausto_k8172", docenteFausto, estEnVivo, cohorte1);
+        claseEnVivoRepository.save(claseVivo1);
+
+        ClaseEnVivo claseVivo8 = new ClaseEnVivo("Taller en Vivo: Análisis Cuantitativo de Curvas Soberanas", LocalDateTime.now().plusDays(2), 90, "rtmp://stream.idoneos.online/live", "live_bonos_k9941", docenteFausto, estProg, cohorte8);
+        claseEnVivoRepository.save(claseVivo8);
 
         ClaseClonIA claseClon = new ClaseClonIA("Estrategia de Liquidez con FaustIA", "Bienvenidos a la clase sobre optimización de caja y fondos comunes...", docenteFausto, estClonGen);
         claseClonIARepository.save(claseClon);

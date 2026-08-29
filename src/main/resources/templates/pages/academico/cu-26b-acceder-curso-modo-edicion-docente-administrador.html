@@ -30,11 +30,11 @@
                 <div class="wf-hero-banner">
                     <div>
                         <div class="wf-hero-tag">
-                            <i class="fa-solid fa-graduation-cap" style="color: var(--wf-gold);"></i>
-                            <span>PANEL DE ADMINISTRACIÓN</span>
+                            <i class="fa-solid fa-pen-to-square" style="color: var(--wf-gold);"></i>
+                            <span>AULA VIRTUAL • MODO EDICIÓN</span>
                         </div>
-                        <h2 class="wf-hero-title">Acceder curso — Modo Edición (Docente / Administrador)</h2>
-                        <p class="wf-hero-desc">Bienvenido/a, Admin General</p>
+                        <h2 class="wf-hero-title" th:text="${curso != null ? curso.nombre : 'Acceder curso — Modo Edición'}">Acceder curso — Modo Edición</h2>
+                        <p class="wf-hero-desc">Bienvenido/a, <span th:text="${usuario != null ? usuario.nombreCompleto : 'Docente / Administrador'}">Docente / Administrador</span></p>
                     </div>
                     
                     <div class="d-flex align-items-center gap-2">
@@ -70,96 +70,61 @@
                 <div class="wf-body">
                     <div class="wf-main-content">
                         
-      <div class="wf-card mb-4" style="background: #FFFFFF;">
-        <div class="d-flex justify-content-between align-items-start pb-3 border-bottom">
-          <div>
-            <h2 style="font-size: 20px; font-weight: 800; color: #081426; margin: 0;">Especialización en Idoneidad Bursátil</h2>
-            <div class="small text-muted mt-1">
-              <span>Página Principal</span> <i class="fa-solid fa-chevron-right" style="font-size: 9px; margin: 0 4px;"></i> <span>Mis cursos</span> <i class="fa-solid fa-chevron-right" style="font-size: 9px; margin: 0 4px;"></i> <span>Idoneidad Bursátil</span>
-            </div>
-          </div>
-          <div class="d-flex align-items-center gap-3">
-            <div class="d-flex align-items-center gap-2 p-2 border rounded" style="background: rgba(212, 160, 61, 0.08); border-color: rgba(212, 160, 61, 0.3) !important;">
-              <i class="fa-solid fa-pen-to-square text-gold"></i>
-              <span class="small fw-bold" style="color: var(--wf-gold-text);">Modo Edición</span>
-              <label class="wf-toggle-switch ms-2">
-                <input type="checkbox" checked onchange="window.location.href='/academico/curso/' + (${curso != null ? curso.id : 1})">
-                <span class="wf-toggle-slider"></span>
-              </label>
-            </div>
-            <div class="text-muted cursor-pointer" title="Ajustes del curso"><i class="fa-solid fa-gear" style="font-size: 18px;"></i></div>
-          </div>
-        </div>
-
-        <div class="d-flex justify-content-between align-items-center pt-2">
-          <div class="d-flex align-items-center gap-1">
-            <button class="wf-tab-btn active">Curso & Unidades</button>
-            <a th:href="@{/academico/materiales}" class="wf-tab-btn">Materiales</a>
-            <a th:href="@{/academico/glosario}" class="wf-tab-btn">Glosario</a>
-            <a th:href="@{/evaluaciones/autoevaluaciones}" class="wf-tab-btn">Autoevaluaciones</a>
-            <a th:href="@{/evaluaciones/pools}" class="wf-tab-btn">Pools</a>
-            <a th:href="@{/academico/consultas}" class="wf-tab-btn">Foros</a>
-            <a th:href="@{/clases-vivo}" class="wf-tab-btn">Clases en Vivo</a>
-          </div>
-        </div>
-      </div>
+                    <!-- Cabecera y Tabs Unificadas del Curso (Moodle Style) -->
+                    <div th:replace="~{fragments/curso_header :: curso-header('curso')}"></div>
 
       <div class="d-flex flex-column gap-4">
-        <!-- Unidad 1 en Modo Edición con desglose completo del CU Real -->
-        <div class="wf-unit-box" style="border: 1px solid #E2E8F0; border-radius: 8px; overflow: hidden; background: #FFFFFF; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
-          <!-- Cabecera de la Unidad: Título completo arriba + Toolbar organizada abajo -->
+        <!-- Iteración Dinámica de Unidades en Modo Edición -->
+        <div th:each="unidad, iterStat : ${unidades}" class="wf-unit-box" style="border: 1px solid #E2E8F0; border-radius: 8px; overflow: hidden; background: #FFFFFF; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+          <!-- Cabecera de la Unidad: Título dinámico + Toolbar de IA y Acciones -->
           <div class="wf-unit-header p-3 border-bottom" style="background: #F8FAFC;">
             <div class="d-flex justify-content-between align-items-center mb-3">
               <div class="d-flex align-items-center gap-2">
                 <i class="fa-solid fa-bars text-muted" style="cursor: grab; font-size: 16px;"></i>
-                <h3 style="font-size: 16px; font-weight: 800; color: #081426; margin: 0;">Unidad 1: Marco Regulatorio y Ley de Mercado de Capitales</h3>
-                
+                <h3 style="font-size: 16px; font-weight: 800; color: #081426; margin: 0;" th:text="${'Unidad ' + (iterStat.index + 1) + ': ' + unidad.titulo}">Unidad 1: Marco Regulatorio</h3>
               </div>
               <div class="d-flex align-items-center gap-2">
                 <span class="wf-badge status-active"><i class="fa-solid fa-circle-check me-1"></i> Unidad Activa</span>
-                
               </div>
             </div>
 
             <!-- Barra de Acciones y Herramientas con IA -->
             <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 pt-3 border-top">
-              <!-- Herramientas de Inteligencia Artificial (Izquierda en 2 filas limpias con fondo relleno) -->
               <div class="d-flex flex-column gap-2" style="flex: 1; min-width: 320px;">
                 <div class="d-flex flex-wrap align-items-center gap-2">
-                  <a th:href="@{/ia/banco-preguntas}" class="wf-btn wf-btn-sm d-inline-flex align-items-center gap-1 shadow-sm" style="background: #059669; border-color: #059669; color: #FFFFFF; font-weight: 700;">
+                  <a th:href="@{/ia/banco-preguntas(unidadId=${unidad.id})}" class="wf-btn wf-btn-sm d-inline-flex align-items-center gap-1 shadow-sm" style="background: #059669; border-color: #059669; color: #FFFFFF; font-weight: 700;">
                     <i class="fa-solid fa-list-check"></i>
                     <span>Generar Banco con IA (Ollama)</span>
                   </a>
-                  <a th:href="@{/ia/resumen-unidad}" class="wf-btn wf-btn-sm d-inline-flex align-items-center gap-1 shadow-sm" style="background: #0D9488; border-color: #0D9488; color: #FFFFFF; font-weight: 700;">
+                  <a th:href="@{/ia/resumen-unidad(unidadId=${unidad.id})}" class="wf-btn wf-btn-sm d-inline-flex align-items-center gap-1 shadow-sm" style="background: #0D9488; border-color: #0D9488; color: #FFFFFF; font-weight: 700;">
                     <i class="fa-solid fa-file-lines"></i>
                     <span>Generar Resumen de Unidad con IA</span>
                   </a>
-                  <a th:href="@{/ia/presentacion-unidad}" class="wf-btn wf-btn-sm d-inline-flex align-items-center gap-1 shadow-sm" style="background: #0284C7; border-color: #0284C7; color: #FFFFFF; font-weight: 700;">
+                  <a th:href="@{/ia/presentacion-unidad(unidadId=${unidad.id})}" class="wf-btn wf-btn-sm d-inline-flex align-items-center gap-1 shadow-sm" style="background: #0284C7; border-color: #0284C7; color: #FFFFFF; font-weight: 700;">
                     <i class="fa-solid fa-person-chalkboard"></i>
                     <span>Generar Presentación con IA</span>
                   </a>
                 </div>
                 <div class="d-flex flex-wrap align-items-center gap-2">
-                  <a th:href="@{/ia/clon/generar-clase}" class="wf-btn wf-btn-sm d-inline-flex align-items-center gap-1 shadow-sm" style="background: #7C3AED; border-color: #7C3AED; color: #FFFFFF; font-weight: 700;">
+                  <a th:href="@{/ia/clon/generar-clase(unidadId=${unidad.id})}" class="wf-btn wf-btn-sm d-inline-flex align-items-center gap-1 shadow-sm" style="background: #7C3AED; border-color: #7C3AED; color: #FFFFFF; font-weight: 700;">
                     <i class="fa-solid fa-video"></i>
                     <span>Generar Video con Avatar Clon</span>
                   </a>
-                  <a th:href="@{/ia/clon/clases}" class="wf-btn wf-btn-sm d-inline-flex align-items-center gap-1 shadow-sm" style="background: #4F46E5; border-color: #4F46E5; color: #FFFFFF; font-weight: 700;">
+                  <a th:href="@{/ia/clon/clases(unidadId=${unidad.id})}" class="wf-btn wf-btn-sm d-inline-flex align-items-center gap-1 shadow-sm" style="background: #4F46E5; border-color: #4F46E5; color: #FFFFFF; font-weight: 700;">
                     <i class="fa-solid fa-film"></i>
                     <span>Buscar clases con Clon de IA</span>
                   </a>
                 </div>
               </div>
 
-              <!-- Barra Divisoria Vertical + Bloque Derecho de Acciones de Unidad -->
               <div class="d-flex align-items-center gap-3">
                 <div class="d-none d-md-block" style="width: 1px; height: 60px; background: #CBD5E1;"></div>
                 <div class="d-flex flex-column gap-2">
-                  <a th:href="@{/academico/unidades}" class="wf-btn wf-btn-sm d-inline-flex align-items-center justify-content-center gap-1 shadow-sm" style="background: #2563EB; border-color: #2563EB; color: #FFFFFF; font-weight: 700; min-width: 170px;">
+                  <a th:href="@{'/academico/unidades/' + ${unidad.id} + '/editar'}" class="wf-btn wf-btn-sm d-inline-flex align-items-center justify-content-center gap-1 shadow-sm" style="background: #2563EB; border-color: #2563EB; color: #FFFFFF; font-weight: 700; min-width: 170px;">
                     <i class="fa-solid fa-pen-to-square me-1"></i>
                     <span>Editar</span>
                   </a>
-                  <a th:href="@{/academico/unidades}" class="wf-btn wf-btn-sm text-white d-inline-flex align-items-center justify-content-center gap-1 shadow-sm" style="background: #DC2626; border-color: #DC2626; color: #FFFFFF; font-weight: 700; min-width: 170px;" title="Quitar de este programa">
+                  <a th:href="@{'/academico/unidades/' + ${unidad.id} + '/quitar'}" class="wf-btn wf-btn-sm text-white d-inline-flex align-items-center justify-content-center gap-1 shadow-sm" style="background: #DC2626; border-color: #DC2626; color: #FFFFFF; font-weight: 700; min-width: 170px;" title="Quitar de este programa">
                     <i class="fa-solid fa-trash me-1"></i>
                     <span>Quitar de este programa</span>
                   </a>
@@ -167,100 +132,58 @@
               </div>
             </div>
           </div>
+
           <div class="wf-unit-body p-3 d-flex flex-column gap-2">
-            <!-- 1. Material de Estudio (PDF) -->
-            <div class="moodle-activity-card">
+            <!-- Materiales dinámicos de la unidad -->
+            <div th:each="mat : ${unidad.materiales}" class="moodle-activity-card">
               <div class="moodle-activity-left">
                 <i class="fa-solid fa-bars text-muted" style="cursor: grab;"></i>
                 <div class="moodle-icon-box moodle-icon-pdf">
                   <i class="fa-solid fa-file-pdf"></i>
                 </div>
                 <div>
-                  <span class="moodle-activity-title">Ley 26.831 de Mercado de Capitales y Resoluciones CNV (PDF - 2.4 MB)</span>
-                  <div class="moodle-activity-desc">Material bibliográfico de estudio • Estado: Publicado</div>
+                  <span class="moodle-activity-title" th:text="${mat.titulo}">Material de Estudio</span>
+                  <div class="moodle-activity-desc" th:text="${mat.tipoMaterial != null ? mat.tipoMaterial.nombre + ' • Estado: Publicado' : 'Material de estudio • Publicado'}">Material bibliográfico de estudio</div>
                 </div>
               </div>
               <div class="d-flex align-items-center gap-2">
-                <a th:href="@{/academico/materiales}" class="wf-btn wf-btn-sm wf-btn-outline">Editar <i class="fa-solid fa-chevron-down ms-1" style="font-size: 10px;"></i></a>
+                <a th:href="@{'/academico/materiales/' + ${mat.id} + '/editar'}" class="wf-btn wf-btn-sm wf-btn-outline">Editar <i class="fa-solid fa-chevron-down ms-1" style="font-size: 10px;"></i></a>
               </div>
             </div>
 
-            <!-- 2. Término de Glosario -->
-            <div class="moodle-activity-card">
+            <!-- Términos de glosario vinculados a la unidad -->
+            <div th:each="tg : ${unidad.glosario}" class="moodle-activity-card">
               <div class="moodle-activity-left">
                 <i class="fa-solid fa-bars text-muted" style="cursor: grab;"></i>
                 <div class="moodle-icon-box moodle-icon-glossary">
                   <i class="fa-solid fa-book-open"></i>
                 </div>
                 <div>
-                  <span class="moodle-activity-title">Glosario de la Unidad: Agente de Liquidación y Compensación (ALyC)</span>
-                  <div class="moodle-activity-desc">Término técnico con definición normativa CNV</div>
+                  <span class="moodle-activity-title" th:text="${'Glosario: ' + tg.termino}">Glosario de la Unidad</span>
+                  <div class="moodle-activity-desc" th:text="${tg.definicion}">Definición técnica normativa</div>
                 </div>
               </div>
-              <a th:href="@{/academico/glosario}" class="wf-btn wf-btn-sm wf-btn-outline">Editar <i class="fa-solid fa-chevron-down ms-1" style="font-size: 10px;"></i></a>
+              <a th:href="@{'/academico/glosario/' + ${tg.id} + '/editar'}" class="wf-btn wf-btn-sm wf-btn-outline">Editar <i class="fa-solid fa-chevron-down ms-1" style="font-size: 10px;"></i></a>
             </div>
 
-            <!-- 3. Pool de Preguntas -->
-            <div class="moodle-activity-card">
-              <div class="moodle-activity-left">
-                <i class="fa-solid fa-bars text-muted" style="cursor: grab;"></i>
-                <div class="moodle-icon-box moodle-icon-quiz" style="background: #E0F2FE; color: #0284C7;">
-                  <i class="fa-solid fa-list-check"></i>
-                </div>
-                <div>
-                  <span class="moodle-activity-title">Pool de Preguntas: Marco Regulatorio Bursátil (25 preguntas cargadas)</span>
-                  <div class="moodle-activity-desc">Banco de reactivos teóricos con retroalimentación automática</div>
-                </div>
-              </div>
-              <a th:href="@{/evaluaciones/pools}" class="wf-btn wf-btn-sm wf-btn-outline">Editar <i class="fa-solid fa-chevron-down ms-1" style="font-size: 10px;"></i></a>
-            </div>
-
-            <!-- 4. Autoevaluación -->
-            <div class="moodle-activity-card">
+            <!-- Autoevaluaciones vinculadas a la unidad -->
+            <div th:each="ae : ${unidad.autoevaluaciones}" class="moodle-activity-card">
               <div class="moodle-activity-left">
                 <i class="fa-solid fa-bars text-muted" style="cursor: grab;"></i>
                 <div class="moodle-icon-box moodle-icon-quiz">
                   <i class="fa-solid fa-clipboard-check"></i>
                 </div>
                 <div>
-                  <span class="moodle-activity-title">Autoevaluación Unidad 1: Examen Formativo de Régimen Normativo</span>
-                  <div class="moodle-activity-desc">Cuestionario aleatorio (10 preguntas) • 3 intentos máximos</div>
+                  <span class="moodle-activity-title" th:text="${ae.nombre}">Autoevaluación de la Unidad</span>
+                  <div class="moodle-activity-desc" th:text="${'Límite: ' + ae.tiempoLimite + ' min • ' + (ae.intentosPermitidos != null ? ae.intentosPermitidos + ' intentos' : 'Sin límite')}">Cuestionario con retroalimentación</div>
                 </div>
               </div>
-              <a th:href="@{/evaluaciones/autoevaluaciones}" class="wf-btn wf-btn-sm wf-btn-outline">Editar <i class="fa-solid fa-chevron-down ms-1" style="font-size: 10px;"></i></a>
+              <a th:href="@{'/evaluaciones/autoevaluaciones/' + ${ae.id} + '/editar'}" class="wf-btn wf-btn-sm wf-btn-outline">Editar <i class="fa-solid fa-chevron-down ms-1" style="font-size: 10px;"></i></a>
             </div>
 
-            <!-- 5. Clase en Vivo (Streaming) -->
-            <div class="moodle-activity-card">
-              <div class="moodle-activity-left">
-                <i class="fa-solid fa-bars text-muted" style="cursor: grab;"></i>
-                <div class="moodle-icon-box moodle-icon-live">
-                  <i class="fa-solid fa-video"></i>
-                </div>
-                <div>
-                  <span class="moodle-activity-title">Clase en Vivo: Taller de Análisis Práctico de Casos CNV</span>
-                  <div class="moodle-activity-desc">Transmisión sincrónica programada con docente titular</div>
-                </div>
-              </div>
-              <a th:href="@{/clases-vivo}" class="wf-btn wf-btn-sm wf-btn-outline">Editar <i class="fa-solid fa-chevron-down ms-1" style="font-size: 10px;"></i></a>
-            </div>
-
-            <!-- 6. Clase con Clon de IA (HeyGen) -->
-            <div class="moodle-activity-card">
-              <div class="moodle-activity-left">
-                <i class="fa-solid fa-bars text-muted" style="cursor: grab;"></i>
-                <div class="moodle-icon-box" style="background: #F3E8FF; color: #7C3AED;">
-                  <i class="fa-solid fa-wand-magic-sparkles"></i>
-                </div>
-                <div>
-                  <span class="moodle-activity-title">Clase con Clon de IA: Explicación de Órganos del Mercado (Avatar Mg. Valenzuela)</span>
-                  <div class="moodle-activity-desc">Video generado mediante HeyGen API (05:12 min • 1080p)</div>
-                </div>
-              </div>
-              <div class="d-flex align-items-center gap-2">
-                <a th:href="@{/ia/clon/clases}" class="wf-btn wf-btn-sm wf-btn-outline" title="Buscar clases con Clon de IA"><i class="fa-solid fa-magnifying-glass me-1"></i> Ver Clones</a>
-                <a th:href="@{/ia/clon/clases}" class="wf-btn wf-btn-sm wf-btn-outline">Editar <i class="fa-solid fa-chevron-down ms-1" style="font-size: 10px;"></i></a>
-              </div>
+            <!-- Si no tiene materiales cargados aún -->
+            <div th:if="${#lists.isEmpty(unidad.materiales) and #lists.isEmpty(unidad.glosario) and #lists.isEmpty(unidad.autoevaluaciones)}" class="p-3 bg-light rounded text-center text-muted small">
+              <i class="fa-solid fa-circle-info me-1"></i> Esta unidad no tiene actividades aún. Añada una actividad o recurso a continuación.
             </div>
 
             <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
@@ -272,6 +195,12 @@
               </div>
             </div>
           </div>
+        </div>
+
+        <div th:if="${#lists.isEmpty(unidades)}" class="p-4 bg-white rounded border text-center text-muted">
+          <i class="fa-solid fa-folder-open mb-2 text-gold" style="font-size: 32px;"></i>
+          <h5>No hay unidades registradas en este curso</h5>
+          <p class="small">Utilice el botón "Nueva Unidad" superior para agregar el primer módulo temático.</p>
         </div>
       </div>
 

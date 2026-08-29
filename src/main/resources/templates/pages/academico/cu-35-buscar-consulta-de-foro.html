@@ -4,214 +4,337 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="${titulo != null ? titulo : 'CU-35 - Buscar consulta de foro'}">CU-35 - Buscar consulta de foro | Idóneos Online</title>
-    
-    <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- FontAwesome 6 Pro / Solid Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;800&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    
-    <!-- Estilos del Sistema Centralizados -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/styles.css}">
 </head>
 <body class="wf-canvas-bg">
 
     <div class="cu-page-container">
-        <!-- Pantalla / Screen Frame Oficial -->
         <div class="screen-frame">
 
-                <!-- Top Navbar Oficial Dinámica -->
-                <div th:replace="~{fragments/wf_navbar :: wf-top-navbar}"></div>
+            <div th:replace="~{fragments/wf_navbar :: wf-top-navbar}"></div>
 
-                <!-- Hero Banner Contextual Superior (Navy) -->
-                <div class="wf-hero-banner">
-                    <div>
-                        <div class="wf-hero-tag">
-                            <i class="fa-solid fa-graduation-cap" style="color: var(--wf-gold);"></i>
-                            <span>PANEL DE ADMINISTRACIÓN</span>
+            <div class="wf-hero-banner">
+                <div>
+                    <div class="wf-hero-tag">
+                        <i class="fa-solid fa-comments" style="color: var(--wf-gold);"></i>
+                        <span>FORO DE CONSULTAS</span>
+                    </div>
+                    <h2 class="wf-hero-title">Buscar consulta de foro</h2>
+                    <p class="wf-hero-desc">Bienvenido/a, <span th:text="${usuario != null ? usuario.nombreCompleto : 'Admin General'}">Admin General</span></p>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <button type="button" class="wf-btn-gold border-0" data-bs-toggle="modal" data-bs-target="#modalNuevaConsulta">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>Nueva Consulta</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="wf-body">
+                <div class="wf-main-content">
+
+                    <!-- Cabecera y Tabs Unificadas del Curso -->
+                    <div th:replace="~{fragments/curso_header :: curso-header('foros')}"></div>
+
+                    <!-- Filtros -->
+                    <div class="wf-card mb-4" style="background: #FFFFFF;">
+                        <form th:action="@{/academico/consultas}" method="get" class="row g-3 align-items-end">
+                            <div class="col-md-5">
+                                <label class="wf-label">Buscar por asunto o contenido</label>
+                                <div class="wf-input-wrap">
+                                    <input type="text" name="asunto" th:value="${asuntoBusqueda}" class="wf-input" placeholder="Ej: TIR, Duration, bono soberano...">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="wf-label">Estado</label>
+                                <select name="baja" class="wf-input">
+                                    <option value="false" th:selected="${bajaSeleccionada == null or !bajaSeleccionada}">Solo Activas</option>
+                                    <option value="true" th:selected="${bajaSeleccionada != null and bajaSeleccionada}">Todas (Incluir Dadas de Baja)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <button type="submit" class="wf-btn wf-btn-primary w-100">
+                                    <i class="fa-solid fa-magnifying-glass me-1"></i> Buscar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Lista de consultas en estilo foro -->
+                    <div class="wf-card" style="background: #FFFFFF;">
+                        <div th:each="c : ${consultas}" th:style="${c.baja} ? 'opacity: 0.6;' : ''">
+                            <div class="d-flex justify-content-between align-items-start p-3 border-bottom" style="transition: background 0.2s;" onmouseover="this.style.background='#F8FAFC'" onmouseout="this.style.background='transparent'">
+                                <div class="d-flex gap-3">
+                                    <!-- Avatar autor -->
+                                    <div style="flex-shrink: 0;">
+                                        <div class="user-avatar-circle" style="width: 40px; height: 40px; font-size: 13px; background: #081426; color: white;"
+                                             th:text="${c.alumno != null and c.alumno.usuario != null ? #strings.substring(c.alumno.usuario.nombreCompleto, 0, 2).toUpperCase() : 'AL'}">AL</div>
+                                    </div>
+                                    <div>
+                                        <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
+                                            <strong style="color: #081426; font-size: 14px;" th:text="${c.texto}">Consulta</strong>
+                                            <span class="wf-badge" th:classappend="${c.baja} ? 'status-inactive' : 'status-active'" th:text="${c.baja} ? 'Dada de baja' : 'Activa'">Activa</span>
+                                        </div>
+                                        <div class="small text-muted" style="font-size: 11px;">
+                                            <span th:text="${c.alumno != null and c.alumno.usuario != null ? c.alumno.usuario.nombreCompleto : 'Alumno'}">Alumno</span>
+                                            <span class="mx-1">•</span>
+                                            <span th:text="${c.fecha != null ? #temporals.format(c.fecha, 'dd/MM/yyyy HH:mm') : 'Fecha'}">Fecha</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-center gap-1 ms-3 flex-shrink-0" th:if="${!c.baja}">
+                                    <!-- Ver respuestas -->
+                                    <a th:href="@{'/academico/consultas/' + ${c.id} + '/respuestas'}" class="btn btn-sm btn-outline-primary rounded-pill px-3" title="Ver respuestas">
+                                        <i class="fa-regular fa-comment me-1"></i> Respuestas
+                                    </a>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3"
+                                            data-bs-toggle="modal"
+                                            th:data-bs-target="'#modalEditarConsulta' + ${c.id}">
+                                        <i class="fa-solid fa-pen-to-square me-1"></i> Editar
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3"
+                                            data-bs-toggle="modal"
+                                            th:data-bs-target="'#modalBajaConsulta' + ${c.id}" title="Dar de baja consulta">
+                                        <i class="fa-solid fa-trash me-1"></i> Baja
+                                    </button>
+                                </div>
+                                <div class="d-flex align-items-center ms-3" th:if="${c.baja}">
+                                    <span class="text-muted small fst-italic"><i class="fa-solid fa-lock me-1"></i> Dada de baja</span>
+                                </div>
+                            </div>
                         </div>
-                        <h2 class="wf-hero-title">Buscar consulta de foro</h2>
-                        <p class="wf-hero-desc">Bienvenido/a, Admin General</p>
+
+                        <div th:if="${consultas == null or #lists.isEmpty(consultas)}" class="text-center py-5 text-muted">
+                            <i class="fa-regular fa-comment-dots" style="font-size: 32px; opacity: 0.3;"></i>
+                            <p class="mt-2 small">No se encontraron consultas en el foro.</p>
+                        </div>
+
+                        <!-- Paginación -->
+                        <div id="paginacionConsultas" class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top px-3 pb-3">
+                            <div class="text-secondary small fw-semibold">
+                                Mostrando <span id="consPaginaActual" class="text-dark fw-bold">1</span> de <span id="consTotalPaginas" class="text-dark fw-bold">1</span> (<span id="consTotalRegistros" th:text="${consultas != null ? #lists.size(consultas) : 0}">0</span> consultas)
+                            </div>
+                            <div class="d-flex gap-1" id="consBotonesPaginacion"></div>
+                        </div>
                     </div>
-                    
-                    <div class="d-flex align-items-center gap-2">
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                        <a th:href="@{/academico/consultas/nueva}" class="wf-btn-gold">
-                            <i class="fa-solid fa-plus"></i>
-                            <span>Nueva Consulta</span>
-                        </a>
-                        
-                    
-                    
-                    
-                    
-                    </div>
-</div>
 
-                <div class="wf-body">
-                    <div class="wf-main-content">
-                        
-      <div class="wf-card mb-4" style="background: #FFFFFF;">
-        <div class="d-flex justify-content-between align-items-start pb-3 border-bottom">
-          <div>
-            <div class="small text-muted mb-1" style="font-size: 11px;">
-              <span>Página Principal</span> <i class="fa-solid fa-chevron-right" style="font-size: 9px; margin: 0 4px;"></i> 
-              <span>Mis cursos</span> <i class="fa-solid fa-chevron-right" style="font-size: 9px; margin: 0 4px;"></i> 
-              <span>Idoneidad Bursátil</span> <i class="fa-solid fa-chevron-right" style="font-size: 9px; margin: 0 4px;"></i> 
-              <strong style="color: #081426;">Foro de Consultas Académicas</strong>
-            </div>
-            <div class="d-flex align-items-center gap-3 mt-2">
-              <div class="moodle-icon-box moodle-icon-forum" style="width: 44px; height: 44px; font-size: 20px;">
-                <i class="fa-solid fa-comments"></i>
-              </div>
-              <div>
-                <h2 style="font-size: 20px; font-weight: 800; color: #081426; margin: 0;">Foro: Consultas sobre Mercado de Capitales & Renta Fija</h2>
-                <p class="small text-muted mb-0 mt-1">Espacio de debate e intercambio académico para resolver dudas sobre ejercicios y normativas CNV.</p>
-              </div>
-            </div>
-          </div>
-          <div class="d-flex align-items-center gap-3">
-            <span class="wf-badge status-active">Cohorte 2026-1</span>
-            <div class="text-muted cursor-pointer" title="Ajustes del foro"><i class="fa-solid fa-gear" style="font-size: 18px;"></i></div>
-          </div>
-        </div>
-
-        <div class="d-flex justify-content-between align-items-center pt-2">
-          <div class="d-flex align-items-center gap-1">
-            <a th:href="@{/academico/aula?modoEdicion=true}" class="wf-tab-btn">Curso & Unidades</a>
-            <a th:href="@{/academico/materiales}" class="wf-tab-btn">Materiales</a>
-            <a th:href="@{/academico/glosario}" class="wf-tab-btn">Glosario</a>
-            <a th:href="@{/evaluaciones/autoevaluaciones}" class="wf-tab-btn">Autoevaluaciones</a>
-            <a th:href="@{/evaluaciones/pools}" class="wf-tab-btn">Pools</a>
-            <button class="wf-tab-btn active">Foros</button>
-            <a th:href="@{/clases-vivo}" class="wf-tab-btn">Clases en Vivo</a>
-          </div>
-        </div>
-      </div>
-
-      <!-- Barra de Filtros y Búsqueda Moodle -->
-      <div class="wf-card mb-4" style="background: #FFFFFF;">
-        <div class="row g-3 align-items-center">
-          <div class="col-12">
-            <label class="wf-label mb-1">Buscar consultas en el foro</label>
-            <div class="wf-input-wrap">
-              <input type="text" class="wf-input" placeholder="Buscar consultas por palabra clave, contenido, tema o autor en este foro...">
-              
-              <button class="wf-btn wf-btn-primary" style="height: 44px; padding: 0 20px;"><i class="fa-solid fa-magnifying-glass me-1"></i> Buscar</button>
-              
-            </div>
-          </div>
-        </div>
-        <div class="small text-muted mt-2">
-          <span>Grupos separados: <strong>Cohorte 2026-1 (Grupo 4)</strong></span>
-        </div>
-      </div>
-
-      <!-- Tabla de Debates y Consultas estilo Moodle FCEQyN -->
-      <div class="wf-table-wrap">
-        <table class="wf-table">
-          <thead>
-            <tr>
-              <th style="width: 40px;"><i class="fa-regular fa-star text-muted"></i></th>
-              <th>Debate / Asunto</th>
-              <th>Grupo / Cohorte</th>
-              <th>Comenzado por</th>
-              <th>Último mensaje <i class="fa-solid fa-arrow-down-long ms-1"></i></th>
-              <th class="text-center">Réplicas</th>
-              <th class="text-end">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-  <tr th:each="c : ${consultas}">
-    <td><strong style="color: #081426;" th:text="${c.texto}">Texto de la consulta</strong></td>
-    <td th:text="${c.alumno != null ? c.alumno.usuario.nombreCompleto : 'Alumno'}">Alumno</td>
-    <td th:text="${#temporals.format(c.fecha, 'dd/MM/yyyy HH:mm')}">01/01/2026</td>
-    <td class="text-end">
-      <a th:href="@{'/academico/foro/' + ${c.id} + '/respuestas'}" class="wf-btn wf-btn-sm wf-btn-primary"><i class="fa-solid fa-comments me-1"></i> Ver Respuestas</a>
-    </td>
-  </tr>
-  <tr th:if="${#lists.isEmpty(consultas)}">
-    <td colspan="4" class="text-center py-4 text-muted">No hay consultas de foro registradas en esta unidad.</td>
-  </tr>
-</tbody>
-        </table>
-      </div>
-
-      <!-- Paginación Moodle -->
-      <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
-        <div class="small text-muted">Mostrando 1 - 3 de 14 consultas registradas en este foro</div>
-        <div class="d-flex gap-1" style="font-size: 12px;">
-          <span class="badge bg-dark text-white px-2 py-1">1</span>
-          <span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">2</span>
-          <span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">»</span>
-        </div>
-      </div>
-    
-                    </div>
                 </div>
+            </div>
 
-                <!-- Footer Oficial -->
-                <div class="wf-screen-footer">
-                    <div>
-                        <strong>Idóneos <span>Online</span> S.A.S.</strong> • Plataforma de Educación Financiera, Economía & Mercado de Capitales
-                    </div>
-                    <div>
-                        FCEQyN — UNaM • Proyecto Software (LSI) / Trabajo Final (ASI)
-                    </div>
-                </div>
-            
+            <div class="wf-screen-footer">
+                <div><strong>Idóneos <span>Online</span> S.A.S.</strong> • Plataforma de Educación Financiera, Economía &amp; Mercado de Capitales</div>
+                <div>FCEQyN — UNaM • Proyecto Software (LSI) / Trabajo Final (ASI)</div>
+            </div>
         </div>
     </div>
 
-    <!-- Bootstrap Bundle JS -->
+    <!-- MODALES: EDITAR Y BAJA por consulta -->
+    <div th:each="c : ${consultas}">
+
+        <!-- Modal CU-37: Modificar Consulta de Foro -->
+        <div class="modal fade" th:id="'modalEditarConsulta' + ${c.id}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content" style="border-radius: 12px; border: 1px solid #CBD5E1; box-shadow: 0 20px 50px rgba(8,20,38,0.15); overflow: hidden;">
+                    <div class="p-4 bg-white">
+                        <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+                            <div>
+                                <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Modificar Consulta de Foro</h3>
+                                <p class="small text-muted" style="margin: 3px 0 0;">Actualice el texto de su consulta.</p>
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="wf-badge status-active">Modo Edición</span>
+                                <button type="button" class="btn-close ms-2" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                            </div>
+                        </div>
+                        <form th:action="@{'/academico/consultas/' + ${c.id} + '/editar'}" method="post">
+                            <div class="row g-3">
+                                <div class="col-12">
+                                     <label class="wf-label">Texto / Contenido de la Consulta <span class="text-danger">*</span></label>
+                                     <div class="wf-input-wrap">
+                                         <textarea name="texto" class="wf-input" rows="5" maxlength="500" th:text="${c.texto}" required></textarea>
+                                     </div>
+                                 </div>
+                            </div>
+                            <div class="d-flex justify-content-end gap-3 mt-4 pt-3 border-top">
+                                <button type="button" class="wf-btn wf-btn-outline" data-bs-dismiss="modal">Cancelar / Volver</button>
+                                <button type="submit" class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Guardar Cambios</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal CU-38: Dar de Baja Consulta de Foro -->
+        <div class="modal fade" th:id="'modalBajaConsulta' + ${c.id}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" style="max-width: 580px;">
+                <div class="modal-content" style="border-radius: 12px; border: 1px solid #CBD5E1; box-shadow: 0 20px 50px rgba(8,20,38,0.15); overflow: hidden;">
+                    <div class="p-3 border-bottom d-flex justify-content-between align-items-center" style="background: #F8FAFC;">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="fa-solid fa-triangle-exclamation text-danger"></i>
+                            <strong style="font-size: 14px; color: #081426;">Dar de baja consulta de foro</strong>
+                        </div>
+                        <span class="wf-badge status-active">Confirmación Requerida</span>
+                    </div>
+                    <div class="p-4 text-center">
+                        <div class="mb-3" style="width: 56px; height: 56px; border-radius: 50%; background: #FEE2E2; color: #DC2626; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 24px;">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                        </div>
+                        <h3 style="font-size: 17px; font-weight: 800; color: #081426; margin-bottom: 6px;">¿Confirma la baja de la consulta?</h3>
+                        <p class="small text-muted mb-4">La consulta y sus respuestas quedarán inhabilitadas. El historial se conserva.</p>
+
+                        <div class="p-3 mb-4 bg-light border rounded text-start" style="font-size: 13px;">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-muted">Consulta afectada:</span>
+                                <strong style="color: #081426;" th:text="${#strings.abbreviate(c.texto, 60)}">Consulta</strong>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-muted">Autor:</span>
+                                <span th:text="${c.alumno != null and c.alumno.usuario != null ? c.alumno.usuario.nombreCompleto : 'Alumno'}">Alumno</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="text-muted">Estado:</span>
+                                <span class="badge bg-warning text-dark">Activa</span>
+                            </div>
+                        </div>
+
+                        <form th:action="@{'/academico/consultas/' + ${c.id} + '/baja'}" method="post" class="d-flex justify-content-end align-items-center gap-3 pt-3 border-top">
+                            <button type="button" class="wf-btn wf-btn-outline" data-bs-dismiss="modal">Cancelar / Volver</button>
+                            <button type="submit" class="wf-btn wf-btn-danger">
+                                <i class="fa-solid fa-trash me-1"></i> Confirmar Baja
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal CU-36: Registrar Nueva Consulta de Foro -->
+    <div class="modal fade" id="modalNuevaConsulta" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content" style="border-radius: 12px; border: 1px solid #CBD5E1; box-shadow: 0 20px 50px rgba(8,20,38,0.15); overflow: hidden;">
+                <div class="p-4 bg-white">
+                    <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+                        <div>
+                            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Registrar Nueva Consulta de Foro</h3>
+                            <p class="small text-muted" style="margin: 3px 0 0;">Plantee su duda o consulta académica en el foro del curso.</p>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="wf-badge status-active" style="background: rgba(212,160,61,0.15); color: var(--wf-gold-text); border: 1px solid var(--wf-gold); font-size: 11px; font-weight: 700;">NUEVA CONSULTA</span>
+                            <button type="button" class="btn-close ms-2" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                        </div>
+                    </div>
+
+                    <div id="nuevaConsultaAlert" class="alert alert-danger d-none py-2 px-3 small mb-3"></div>
+
+                    <form id="formNuevaConsulta" th:action="@{/academico/consultas/guardar}" method="post" novalidate>
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <label class="wf-label m-0">Asunto / Título de la Consulta <span class="text-danger">*</span></label>
+                                    <span id="consAsuntoCount" class="text-muted" style="font-size: 11px; font-weight: 600;">0 / 200</span>
+                                </div>
+                                <div class="wf-input-wrap">
+                                    <input type="text" id="consAsunto" name="asunto" class="wf-input" maxlength="200" placeholder="Ej: Duda con la valuación de bonos CER en Unidad 2" required>
+                                </div>
+                                <div id="consAsuntoFeedback" class="small text-danger mt-1 d-none"></div>
+                            </div>
+                            <div class="col-12">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <label class="wf-label m-0">Descripción detallada de la consulta <span class="text-danger">*</span></label>
+                                    <span id="consTextoCount" class="text-muted" style="font-size: 11px; font-weight: 600;">0 / 2000</span>
+                                </div>
+                                <div class="wf-input-wrap">
+                                    <textarea id="consTexto" name="texto" class="wf-input" rows="5" maxlength="2000" placeholder="Describa su consulta con detalle para facilitar la respuesta del docente..." required></textarea>
+                                </div>
+                                <div id="consTextoFeedback" class="small text-danger mt-1 d-none"></div>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-end gap-3 mt-4 pt-3 border-top">
+                            <button type="button" class="wf-btn wf-btn-outline" data-bs-dismiss="modal"><i class="fa-solid fa-arrow-left me-1"></i> Cancelar / Volver</button>
+                            <button type="submit" class="wf-btn wf-btn-primary" style="background: #081426; color: #FFFFFF; border-color: #081426; font-weight: 700;">
+                                <i class="fa-solid fa-paper-plane me-1"></i> Publicar Consulta
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         function toggleUserDropdown(triggerEl) {
             const wrapper = triggerEl.closest('.wf-user-menu-wrapper');
             if (wrapper) {
                 const dropdown = wrapper.querySelector('.wf-user-floating-dropdown');
-                if (dropdown) {
-                    dropdown.style.display = (dropdown.style.display === 'none' || dropdown.style.display === '') ? 'flex' : 'none';
-                }
+                if (dropdown) dropdown.style.display = (dropdown.style.display === 'none' || dropdown.style.display === '') ? 'flex' : 'none';
             }
         }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Paginación simple para lista de foro
+            const wfCard = document.getElementById('paginacionConsultas');
+            const items = document.querySelectorAll('.wf-card .border-bottom[th\\:each], .wf-card > div[th\\:each]');
+            // El foro usa divs, no tabla, la paginación se maneja con el contador de texto
+            const lblRegs = document.getElementById('consTotalRegistros');
+            if (lblRegs) {
+                const rows = document.querySelectorAll('.wf-card .border-bottom');
+                lblRegs.textContent = rows.length;
+            }
+
+            // Validación del formulario de nueva consulta
+            const inputAsunto = document.getElementById('consAsunto');
+            const countAsunto = document.getElementById('consAsuntoCount');
+            const fbAsunto = document.getElementById('consAsuntoFeedback');
+            const txtTexto = document.getElementById('consTexto');
+            const countTexto = document.getElementById('consTextoCount');
+            const fbTexto = document.getElementById('consTextoFeedback');
+
+            function setV(input, fb, isValid, msg) {
+                if (!input || !fb) return;
+                if (!isValid) { input.classList.add('is-invalid'); input.classList.remove('is-valid'); input.style.borderColor = '#DC2626'; fb.textContent = msg; fb.classList.remove('d-none'); }
+                else { input.classList.remove('is-invalid'); input.classList.add('is-valid'); input.style.borderColor = '#16A34A'; fb.textContent = ''; fb.classList.add('d-none'); }
+            }
+
+            if (inputAsunto) inputAsunto.addEventListener('input', () => {
+                const len = inputAsunto.value.length;
+                countAsunto.textContent = `${len} / 200`;
+                countAsunto.className = len >= 200 ? 'text-danger fw-bold' : 'text-muted';
+                setV(inputAsunto, fbAsunto, inputAsunto.value.trim().length > 0, 'El asunto es obligatorio.');
+            });
+            if (txtTexto) txtTexto.addEventListener('input', () => {
+                const len = txtTexto.value.length;
+                countTexto.textContent = `${len} / 2000`;
+                countTexto.className = len >= 2000 ? 'text-danger fw-bold' : 'text-muted';
+                setV(txtTexto, fbTexto, txtTexto.value.trim().length > 0, 'La descripción de la consulta es obligatoria.');
+            });
+
+            const form = document.getElementById('formNuevaConsulta');
+            if (form) form.addEventListener('submit', function(e) {
+                const okA = inputAsunto && inputAsunto.value.trim();
+                const okT = txtTexto && txtTexto.value.trim();
+                if (!okA) setV(inputAsunto, fbAsunto, false, 'El asunto es obligatorio.');
+                if (!okT) setV(txtTexto, fbTexto, false, 'La descripción es obligatoria.');
+                if (!okA || !okT) {
+                    e.preventDefault(); e.stopPropagation();
+                    document.getElementById('nuevaConsultaAlert').textContent = 'Complete todos los campos obligatorios.';
+                    document.getElementById('nuevaConsultaAlert').classList.remove('d-none');
+                }
+            });
+        });
     </script>
 
-    <!-- DSS & Case of Use Console Logger -->
     <script>
         (function() {
-            const cuId = 'CU-35';
-            const cuNombre = 'Buscar consulta de foro';
-            const cuActores = 'Docente / Administrador';
-            const cuDss = 'buscarConsultasForo(unidad, texto, rangoFechas) ➔ seleccionarConsultaForo(idConsulta, consultas)';
-
-            console.log(
-                '%c[IDÓNEOS ONLINE] %c ' + cuId + ' %c ' + cuNombre + ' ',
-                'color: #C9982F; font-weight: 800; font-size: 13px;',
-                'background: #081426; color: #E4BE6C; padding: 3px 8px; border-radius: 4px; font-weight: 700; font-size: 12px; border: 1px solid #C9982F;',
-                'color: #081426; font-weight: 800; font-size: 13px;'
-            );
-            console.log(
-                '%c👤 Actor(es): %c' + cuActores,
-                'color: #64748B; font-weight: 700; font-size: 11px;',
-                'color: #0F172A; font-weight: 600; font-size: 11px;'
-            );
-            console.log(
-                '%c⚡ DSS: %c' + cuDss,
-                'color: #64748B; font-weight: 700; font-size: 11px;',
-                'color: #0284C7; font-family: monospace; font-size: 11px; font-weight: 600;'
-            );
+            console.log('%c[IDÓNEOS ONLINE] %c CU-35 %c Buscar consulta de foro ', 'color: #C9982F; font-weight: 800; font-size: 13px;', 'background: #081426; color: #E4BE6C; padding: 3px 8px; border-radius: 4px; font-weight: 700; font-size: 12px; border: 1px solid #C9982F;', 'color: #081426; font-weight: 800; font-size: 13px;');
+            console.log('%c⚡ DSS: %cbuscarConsultasForo(unidad, asunto, baja) ➔ seleccionarConsulta(idConsulta, consultas)', 'color: #64748B; font-weight: 700;', 'color: #0284C7; font-family: monospace; font-size: 11px;');
         })();
     </script>
 </body>

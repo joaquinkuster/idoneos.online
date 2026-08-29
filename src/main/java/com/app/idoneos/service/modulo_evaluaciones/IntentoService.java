@@ -129,9 +129,7 @@ public class IntentoService {
         }
 
         Collections.shuffle(todas);
-        int limite = (autoevaluacion.getCantidadPreguntas() != null && autoevaluacion.getCantidadPreguntas() > 0)
-                ? autoevaluacion.getCantidadPreguntas()
-                : PREGUNTAS_POR_DEFECTO;
+        int limite = PREGUNTAS_POR_DEFECTO;
 
         return todas.stream()
                 .limit(Math.min(limite, todas.size()))

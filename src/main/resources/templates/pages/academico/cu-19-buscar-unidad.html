@@ -4,332 +4,478 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="${titulo != null ? titulo : 'CU-19 - Buscar unidad'}">CU-19 - Buscar unidad | Idóneos Online</title>
-    
-    <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- FontAwesome 6 Pro / Solid Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;800&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    
-    <!-- Estilos del Sistema Centralizados -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/styles.css}">
 </head>
 <body class="wf-canvas-bg">
 
     <div class="cu-page-container">
-        <!-- Pantalla / Screen Frame Oficial -->
         <div class="screen-frame">
 
-                <!-- Top Navbar Oficial Dinámica -->
-                <div th:replace="~{fragments/wf_navbar :: wf-top-navbar}"></div>
+            <div th:replace="~{fragments/wf_navbar :: wf-top-navbar}"></div>
 
-                <!-- Hero Banner Contextual Superior (Navy) -->
-                <div class="wf-hero-banner">
-                    <div>
-                        <div class="wf-hero-tag">
-                            <i class="fa-solid fa-graduation-cap" style="color: var(--wf-gold);"></i>
-                            <span>PANEL DE ADMINISTRACIÓN</span>
+            <!-- Hero Banner -->
+            <div class="wf-hero-banner">
+                <div>
+                    <div class="wf-hero-tag">
+                        <i class="fa-solid fa-graduation-cap" style="color: var(--wf-gold);"></i>
+                        <span>PANEL DE ADMINISTRACIÓN</span>
+                    </div>
+                    <h2 class="wf-hero-title">Gestión de Unidades</h2>
+                    <p class="wf-hero-desc">Bienvenido/a, <span th:text="${usuario != null ? usuario.nombreCompleto : 'Admin General'}">Admin General</span></p>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <button type="button" class="wf-btn-gold border-0" data-bs-toggle="modal" data-bs-target="#modalNuevaUnidad" style="padding: 6px 14px; font-size: 11px; height: 32px;">
+                        <i class="fa-solid fa-plus"></i><span>Nueva Unidad</span>
+                    </button>
+                    <a th:href="@{/evaluaciones/pools/nuevo}" class="wf-btn-gold" style="padding: 6px 14px; font-size: 11px; height: 32px;">
+                        <i class="fa-solid fa-list-check"></i><span>Nuevo Pool</span>
+                    </a>
+                    <a th:href="@{/clases-vivo/nueva}" class="wf-btn-gold" style="padding: 6px 14px; font-size: 11px; height: 32px;">
+                        <i class="fa-solid fa-video"></i><span>Programar clase en vivo</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="wf-body">
+                <div class="wf-main-content">
+                    <div th:replace="~{fragments/curso_header :: curso-header('curso')}"></div>
+
+                    <div class="wf-animate-slide-up">
+                        <!-- Lista de Unidades con Soporte Drag and Drop -->
+                        <div id="unidadesSortableContainer" class="d-flex flex-column gap-4" th:if="${unidades != null and !#lists.isEmpty(unidades)}">
+                        <div class="wf-unit-box sortable-unit-item" th:each="unidad : ${unidades}" th:data-unit-id="${unidad.id}" style="border: 1px solid #E2E8F0; border-radius: 8px; overflow: hidden; background: #FFFFFF; box-shadow: 0 1px 3px rgba(0,0,0,0.05); transition: transform 0.15s ease, box-shadow 0.15s ease;" th:style="${unidad.baja} ? 'border: 1px solid #E2E8F0; border-radius: 8px; overflow: hidden; background: #F8FAFC; box-shadow: 0 1px 3px rgba(0,0,0,0.05); opacity: 0.65;' : 'border: 1px solid #E2E8F0; border-radius: 8px; overflow: hidden; background: #FFFFFF; box-shadow: 0 1px 3px rgba(0,0,0,0.05);'">
+
+                            <!-- Cabecera de la Unidad -->
+                            <div class="wf-unit-header p-3 border-bottom" style="background: #F8FAFC;">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <i class="fa-solid fa-grip-vertical text-muted unit-drag-handle" style="cursor: grab; font-size: 18px; padding: 4px;" title="Arrastrar para reordenar unidad"></i>
+                                        <h3 style="font-size: 16px; font-weight: 800; color: #081426; margin: 0;" th:text="${unidad.titulo}">Título de la Unidad</h3>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="wf-badge" th:classappend="${unidad.baja} ? 'status-inactive' : 'status-active'" th:text="${unidad.baja} ? 'Dada de baja' : 'Unidad Activa'">Unidad Activa</span>
+                                    </div>
+                                </div>
+
+                                <!-- Barra de Acciones -->
+                                <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 pt-3 border-top" th:if="${!unidad.baja}">
+                                    <!-- Herramientas IA -->
+                                    <div class="d-flex flex-column gap-2" style="flex: 1; min-width: 320px;">
+                                        <div class="d-flex flex-wrap align-items-center gap-2">
+                                            <a th:href="@{/ia/banco-preguntas}" class="wf-btn wf-btn-sm d-inline-flex align-items-center gap-1 shadow-sm" style="background: #059669; border-color: #059669; color: #FFFFFF; font-weight: 700;">
+                                                <i class="fa-solid fa-list-check"></i><span>Generar Banco con IA</span>
+                                            </a>
+                                            <a th:href="@{/ia/resumen-unidad}" class="wf-btn wf-btn-sm d-inline-flex align-items-center gap-1 shadow-sm" style="background: #0D9488; border-color: #0D9488; color: #FFFFFF; font-weight: 700;">
+                                                <i class="fa-solid fa-file-lines"></i><span>Generar Resumen con IA</span>
+                                            </a>
+                                            <a th:href="@{/ia/presentacion-unidad}" class="wf-btn wf-btn-sm d-inline-flex align-items-center gap-1 shadow-sm" style="background: #0284C7; border-color: #0284C7; color: #FFFFFF; font-weight: 700;">
+                                                <i class="fa-solid fa-person-chalkboard"></i><span>Generar Presentación con IA</span>
+                                            </a>
+                                        </div>
+                                        <div class="d-flex flex-wrap align-items-center gap-2">
+                                            <a th:href="@{/ia/clon/generar-clase}" class="wf-btn wf-btn-sm d-inline-flex align-items-center gap-1 shadow-sm" style="background: #7C3AED; border-color: #7C3AED; color: #FFFFFF; font-weight: 700;">
+                                                <i class="fa-solid fa-video"></i><span>Generar Video con Avatar Clon</span>
+                                            </a>
+                                            <a th:href="@{/ia/clon/clases}" class="wf-btn wf-btn-sm d-inline-flex align-items-center gap-1 shadow-sm" style="background: #4F46E5; border-color: #4F46E5; color: #FFFFFF; font-weight: 700;">
+                                                <i class="fa-solid fa-film"></i><span>Buscar clases con Clon de IA</span>
+                                            </a>
+                                        </div>
+                                    </div>
+
+                                    <!-- Acciones de Unidad: Editar y Quitar -->
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="d-none d-md-block" style="width: 1px; height: 60px; background: #CBD5E1;"></div>
+                                        <div class="d-flex flex-column gap-2">
+                                            <button type="button" class="wf-btn wf-btn-sm d-inline-flex align-items-center justify-content-center gap-1 shadow-sm"
+                                                    style="background: #2563EB; border-color: #2563EB; color: #FFFFFF; font-weight: 700; min-width: 170px;"
+                                                    data-bs-toggle="modal"
+                                                    th:data-bs-target="'#modalEditarUnidad' + ${unidad.id}">
+                                                <i class="fa-solid fa-pen-to-square me-1"></i><span>Editar Unidad</span>
+                                            </button>
+                                            <button type="button" class="wf-btn wf-btn-sm text-white d-inline-flex align-items-center justify-content-center gap-1 shadow-sm"
+                                                    style="background: #DC2626; border-color: #DC2626; color: #FFFFFF; font-weight: 700; min-width: 170px;"
+                                                    data-bs-toggle="modal"
+                                                    th:data-bs-target="'#modalQuitarUnidad' + ${unidad.id}" title="Quitar de este programa">
+                                                <i class="fa-solid fa-trash me-1"></i><span>Quitar de este programa</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Cuerpo de la Unidad: materiales/actividades drag & drop -->
+                            <div class="wf-unit-body p-3 d-flex flex-column gap-2" th:if="${!unidad.baja}">
+                                <!-- Materiales asociados listados como sortable -->
+                                <div class="materiales-sortable-list d-flex flex-column gap-2" th:data-unit-id="${unidad.id}">
+                                    <div th:each="mat : ${unidad.materiales}" th:if="${mat != null and !mat.baja}" class="sortable-material-item" th:data-material-id="${mat.id}">
+                                        <div class="moodle-activity-card" style="cursor: grab;">
+                                            <div class="moodle-activity-left">
+                                                <i class="fa-solid fa-grip-vertical text-muted material-drag-handle" style="cursor: grab; font-size: 14px; padding-right: 4px;"></i>
+                                                <div class="moodle-icon-box moodle-icon-pdf" th:classappend="${mat.tipoMaterial != null and mat.tipoMaterial.nombre == 'Video'} ? 'moodle-icon-video' : (${mat.tipoMaterial != null and mat.tipoMaterial.nombre == 'Glosario'} ? 'moodle-icon-glossary' : 'moodle-icon-pdf')">
+                                                    <i class="fa-solid fa-file-pdf"></i>
+                                                </div>
+                                                <div>
+                                                    <span class="moodle-activity-title" th:text="${mat.titulo}">Título del material</span>
+                                                    <div class="moodle-activity-desc" th:text="${mat.contenido != null ? mat.contenido : 'Material de estudio'}">Material de estudio</div>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <a th:href="@{/academico/materiales}" class="wf-btn wf-btn-sm wf-btn-outline">Editar <i class="fa-solid fa-chevron-down ms-1" style="font-size: 10px;"></i></a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Footer del bloque: agregar actividad -->
+                                <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <a th:href="@{/academico/materiales/nuevo}" class="wf-link d-flex align-items-center gap-2" style="font-size: 12px; font-weight: 700; color: #081426;">
+                                            <i class="fa-solid fa-plus-circle" style="color: var(--wf-gold); font-size: 16px;"></i>
+                                            <span>Añade una actividad o un recurso</span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <h2 class="wf-hero-title">Buscar unidad</h2>
-                        <p class="wf-hero-desc">Bienvenido/a, Admin General</p>
                     </div>
-                    
-                    <div class="d-flex align-items-center gap-2">
-                    
-                    
-                    
-                    
-                    
-                        <a th:href="@{/academico/unidades/nueva}" class="wf-btn-gold" style="padding: 6px 14px; font-size: 11px; height: 32px;">
-                            <i class="fa-solid fa-plus"></i>
-                            <span>Nueva Unidad</span>
-                        </a>
-                        
-                        <a th:href="@{/evaluaciones/pools/nuevo}" class="wf-btn-gold" style="padding: 6px 14px; font-size: 11px; height: 32px;">
-                            <i class="fa-solid fa-list-check"></i>
-                            <span>Nuevo Pool</span>
-                        </a>
-                        <a th:href="@{/clases-vivo/nueva}" class="wf-btn-gold" style="padding: 6px 14px; font-size: 11px; height: 32px;">
-                            <i class="fa-solid fa-video"></i>
-                            <span>Programar clase en vivo</span>
-                        </a>
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
+
+                    <!-- Vacío -->
+                    <div th:if="${unidades == null or #lists.isEmpty(unidades)}" class="wf-card text-center py-5 text-muted">
+                        <i class="fa-solid fa-layer-group" style="font-size: 32px; opacity: 0.3;"></i>
+                        <p class="mt-2 small">No se encontraron unidades registradas en este programa.</p>
+                        <button type="button" class="wf-btn wf-btn-primary mt-2" data-bs-toggle="modal" data-bs-target="#modalNuevaUnidad">
+                            <i class="fa-solid fa-plus me-1"></i> Agregar primera unidad
+                        </button>
                     </div>
-</div>
 
-                <div class="wf-body">
-                    <div class="wf-main-content">
-                        
-      <div class="wf-card mb-4" style="background: #FFFFFF;">
-        <div class="d-flex justify-content-between align-items-start pb-3 border-bottom">
-          <div>
-            <h2 style="font-size: 20px; font-weight: 800; color: #081426; margin: 0;">Especialización en Idoneidad Bursátil</h2>
-            <div class="small text-muted mt-1">
-              <span>Página Principal</span> <i class="fa-solid fa-chevron-right" style="font-size: 9px; margin: 0 4px;"></i> <span>Mis cursos</span> <i class="fa-solid fa-chevron-right" style="font-size: 9px; margin: 0 4px;"></i> <span>Idoneidad Bursátil</span>
-            </div>
-          </div>
-          <div class="d-flex align-items-center gap-3">
-            <div class="d-flex align-items-center gap-2 bg-light p-2 border rounded">
-              <span class="wf-badge status-active"><i class="fa-solid fa-pen-to-square me-1"></i> Modo Edición ACTIVO</span>
-              
-            </div>
-            <div class="text-muted cursor-pointer" title="Ajustes del curso"><i class="fa-solid fa-gear" style="font-size: 18px;"></i></div>
-          </div>
-        </div>
+                    </div> <!-- Fin .wf-animate-slide-up -->
 
-        <div class="d-flex justify-content-between align-items-center pt-2">
-          <div class="d-flex align-items-center gap-1">
-            <button class="wf-tab-btn active">Curso & Unidades</button>
-            <a th:href="@{/academico/materiales}" class="wf-tab-btn">Materiales</a>
-            <a th:href="@{/academico/glosario}" class="wf-tab-btn">Glosario</a>
-            <a th:href="@{/evaluaciones/autoevaluaciones}" class="wf-tab-btn">Autoevaluaciones</a>
-            <a th:href="@{/evaluaciones/pools}" class="wf-tab-btn">Pools</a>
-            <a th:href="@{/academico/consultas}" class="wf-tab-btn">Foros</a>
-            <a th:href="@{/clases-vivo}" class="wf-tab-btn">Clases en Vivo</a>
-          </div>
-        </div>
-      </div>
-
-      <div class="d-flex flex-column gap-4">
-        <!-- Unidad 1 en Modo Edición con desglose completo del CU Real -->
-        <div class="wf-unit-box" style="border: 1px solid #E2E8F0; border-radius: 8px; overflow: hidden; background: #FFFFFF; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
-          <!-- Cabecera de la Unidad: Título completo arriba + Toolbar organizada abajo -->
-          <div class="wf-unit-header p-3 border-bottom" style="background: #F8FAFC;">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-              <div class="d-flex align-items-center gap-2">
-                <i class="fa-solid fa-bars text-muted" style="cursor: grab; font-size: 16px;"></i>
-                <h3 style="font-size: 16px; font-weight: 800; color: #081426; margin: 0;">Unidad 1: Marco Regulatorio y Ley de Mercado de Capitales</h3>
-                
-              </div>
-              <div class="d-flex align-items-center gap-2">
-                <span class="wf-badge status-active"><i class="fa-solid fa-circle-check me-1"></i> Unidad Activa</span>
-                
-              </div>
+                </div>
             </div>
 
-            <!-- Barra de Acciones y Herramientas con IA -->
-            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 pt-3 border-top">
-              <!-- Herramientas de Inteligencia Artificial (Izquierda en 2 filas limpias con fondo relleno) -->
-              <div class="d-flex flex-column gap-2" style="flex: 1; min-width: 320px;">
-                <div class="d-flex flex-wrap align-items-center gap-2">
-                  <a th:href="@{/ia/banco-preguntas}" class="wf-btn wf-btn-sm d-inline-flex align-items-center gap-1 shadow-sm" style="background: #059669; border-color: #059669; color: #FFFFFF; font-weight: 700;">
-                    <i class="fa-solid fa-list-check"></i>
-                    <span>Generar Banco con IA (Ollama)</span>
-                  </a>
-                  <a th:href="@{/ia/resumen-unidad}" class="wf-btn wf-btn-sm d-inline-flex align-items-center gap-1 shadow-sm" style="background: #0D9488; border-color: #0D9488; color: #FFFFFF; font-weight: 700;">
-                    <i class="fa-solid fa-file-lines"></i>
-                    <span>Generar Resumen de Unidad con IA</span>
-                  </a>
-                  <a th:href="@{/ia/presentacion-unidad}" class="wf-btn wf-btn-sm d-inline-flex align-items-center gap-1 shadow-sm" style="background: #0284C7; border-color: #0284C7; color: #FFFFFF; font-weight: 700;">
-                    <i class="fa-solid fa-person-chalkboard"></i>
-                    <span>Generar Presentación con IA</span>
-                  </a>
-                </div>
-                <div class="d-flex flex-wrap align-items-center gap-2">
-                  <a th:href="@{/ia/clon/generar-clase}" class="wf-btn wf-btn-sm d-inline-flex align-items-center gap-1 shadow-sm" style="background: #7C3AED; border-color: #7C3AED; color: #FFFFFF; font-weight: 700;">
-                    <i class="fa-solid fa-video"></i>
-                    <span>Generar Video con Avatar Clon</span>
-                  </a>
-                  <a th:href="@{/ia/clon/clases}" class="wf-btn wf-btn-sm d-inline-flex align-items-center gap-1 shadow-sm" style="background: #4F46E5; border-color: #4F46E5; color: #FFFFFF; font-weight: 700;">
-                    <i class="fa-solid fa-film"></i>
-                    <span>Buscar clases con Clon de IA</span>
-                  </a>
-                </div>
-              </div>
-
-              <!-- Barra Divisoria Vertical + Bloque Derecho de Acciones de Unidad -->
-              <div class="d-flex align-items-center gap-3">
-                <div class="d-none d-md-block" style="width: 1px; height: 60px; background: #CBD5E1;"></div>
-                <div class="d-flex flex-column gap-2">
-                  <a th:href="@{/academico/unidades}" class="wf-btn wf-btn-sm d-inline-flex align-items-center justify-content-center gap-1 shadow-sm" style="background: #2563EB; border-color: #2563EB; color: #FFFFFF; font-weight: 700; min-width: 170px;">
-                    <i class="fa-solid fa-pen-to-square me-1"></i>
-                    <span>Editar</span>
-                  </a>
-                  <a th:href="@{/academico/unidades}" class="wf-btn wf-btn-sm text-white d-inline-flex align-items-center justify-content-center gap-1 shadow-sm" style="background: #DC2626; border-color: #DC2626; color: #FFFFFF; font-weight: 700; min-width: 170px;" title="Quitar de este programa">
-                    <i class="fa-solid fa-trash me-1"></i>
-                    <span>Quitar de este programa</span>
-                  </a>
-                </div>
-              </div>
+            <div class="wf-screen-footer">
+                <div><strong>Idóneos <span>Online</span> S.A.S.</strong> • Plataforma de Educación Financiera, Economía &amp; Mercado de Capitales</div>
+                <div>FCEQyN — UNaM • Proyecto Software (LSI) / Trabajo Final (ASI)</div>
             </div>
-          </div>
-          <div class="wf-unit-body p-3 d-flex flex-column gap-2">
-            <!-- 1. Material de Estudio (PDF) -->
-            <div class="moodle-activity-card">
-              <div class="moodle-activity-left">
-                <i class="fa-solid fa-bars text-muted" style="cursor: grab;"></i>
-                <div class="moodle-icon-box moodle-icon-pdf">
-                  <i class="fa-solid fa-file-pdf"></i>
-                </div>
-                <div>
-                  <span class="moodle-activity-title">Ley 26.831 de Mercado de Capitales y Resoluciones CNV (PDF - 2.4 MB)</span>
-                  <div class="moodle-activity-desc">Material bibliográfico de estudio • Estado: Publicado</div>
-                </div>
-              </div>
-              <div class="d-flex align-items-center gap-2">
-                <a th:href="@{/academico/materiales}" class="wf-btn wf-btn-sm wf-btn-outline">Editar <i class="fa-solid fa-chevron-down ms-1" style="font-size: 10px;"></i></a>
-              </div>
-            </div>
-
-            <!-- 2. Término de Glosario -->
-            <div class="moodle-activity-card">
-              <div class="moodle-activity-left">
-                <i class="fa-solid fa-bars text-muted" style="cursor: grab;"></i>
-                <div class="moodle-icon-box moodle-icon-glossary">
-                  <i class="fa-solid fa-book-open"></i>
-                </div>
-                <div>
-                  <span class="moodle-activity-title">Glosario de la Unidad: Agente de Liquidación y Compensación (ALyC)</span>
-                  <div class="moodle-activity-desc">Término técnico con definición normativa CNV</div>
-                </div>
-              </div>
-              <a th:href="@{/academico/glosario}" class="wf-btn wf-btn-sm wf-btn-outline">Editar <i class="fa-solid fa-chevron-down ms-1" style="font-size: 10px;"></i></a>
-            </div>
-
-            <!-- 3. Pool de Preguntas -->
-            <div class="moodle-activity-card">
-              <div class="moodle-activity-left">
-                <i class="fa-solid fa-bars text-muted" style="cursor: grab;"></i>
-                <div class="moodle-icon-box moodle-icon-quiz" style="background: #E0F2FE; color: #0284C7;">
-                  <i class="fa-solid fa-list-check"></i>
-                </div>
-                <div>
-                  <span class="moodle-activity-title">Pool de Preguntas: Marco Regulatorio Bursátil (25 preguntas cargadas)</span>
-                  <div class="moodle-activity-desc">Banco de reactivos teóricos con retroalimentación automática</div>
-                </div>
-              </div>
-              <a th:href="@{/evaluaciones/pools}" class="wf-btn wf-btn-sm wf-btn-outline">Editar <i class="fa-solid fa-chevron-down ms-1" style="font-size: 10px;"></i></a>
-            </div>
-
-            <!-- 4. Autoevaluación -->
-            <div class="moodle-activity-card">
-              <div class="moodle-activity-left">
-                <i class="fa-solid fa-bars text-muted" style="cursor: grab;"></i>
-                <div class="moodle-icon-box moodle-icon-quiz">
-                  <i class="fa-solid fa-clipboard-check"></i>
-                </div>
-                <div>
-                  <span class="moodle-activity-title">Autoevaluación Unidad 1: Examen Formativo de Régimen Normativo</span>
-                  <div class="moodle-activity-desc">Cuestionario aleatorio (10 preguntas) • 3 intentos máximos</div>
-                </div>
-              </div>
-              <a th:href="@{/evaluaciones/autoevaluaciones}" class="wf-btn wf-btn-sm wf-btn-outline">Editar <i class="fa-solid fa-chevron-down ms-1" style="font-size: 10px;"></i></a>
-            </div>
-
-            <!-- 5. Clase en Vivo (Streaming) -->
-            <div class="moodle-activity-card">
-              <div class="moodle-activity-left">
-                <i class="fa-solid fa-bars text-muted" style="cursor: grab;"></i>
-                <div class="moodle-icon-box moodle-icon-live">
-                  <i class="fa-solid fa-video"></i>
-                </div>
-                <div>
-                  <span class="moodle-activity-title">Clase en Vivo: Taller de Análisis Práctico de Casos CNV</span>
-                  <div class="moodle-activity-desc">Transmisión sincrónica programada con docente titular</div>
-                </div>
-              </div>
-              <a th:href="@{/clases-vivo}" class="wf-btn wf-btn-sm wf-btn-outline">Editar <i class="fa-solid fa-chevron-down ms-1" style="font-size: 10px;"></i></a>
-            </div>
-
-            <!-- 6. Clase con Clon de IA (HeyGen) -->
-            <div class="moodle-activity-card">
-              <div class="moodle-activity-left">
-                <i class="fa-solid fa-bars text-muted" style="cursor: grab;"></i>
-                <div class="moodle-icon-box" style="background: #F3E8FF; color: #7C3AED;">
-                  <i class="fa-solid fa-wand-magic-sparkles"></i>
-                </div>
-                <div>
-                  <span class="moodle-activity-title">Clase con Clon de IA: Explicación de Órganos del Mercado (Avatar Mg. Valenzuela)</span>
-                  <div class="moodle-activity-desc">Video generado mediante HeyGen API (05:12 min • 1080p)</div>
-                </div>
-              </div>
-              <div class="d-flex align-items-center gap-2">
-                <a th:href="@{/ia/clon/clases}" class="wf-btn wf-btn-sm wf-btn-outline" title="Buscar clases con Clon de IA"><i class="fa-solid fa-magnifying-glass me-1"></i> Ver Clones</a>
-                <a th:href="@{/ia/clon/clases}" class="wf-btn wf-btn-sm wf-btn-outline">Editar <i class="fa-solid fa-chevron-down ms-1" style="font-size: 10px;"></i></a>
-              </div>
-            </div>
-
-            <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
-              <div class="d-flex align-items-center gap-3">
-                <a th:href="@{/academico/materiales/nuevo}" class="wf-link d-flex align-items-center gap-2" style="font-size: 12px; font-weight: 700; color: #081426;">
-                  <i class="fa-solid fa-plus-circle" style="color: var(--wf-gold); font-size: 16px;"></i>
-                  <span>Añade una actividad o un recurso</span>
-                </a>
-              </div>
-              
-            </div>
-          </div>
-        </div>
-      </div>
-
-      
-
-      
-    
-                    </div>
-                </div>
-
-                <!-- Footer Oficial -->
-                <div class="wf-screen-footer">
-                    <div>
-                        <strong>Idóneos <span>Online</span> S.A.S.</strong> • Plataforma de Educación Financiera, Economía & Mercado de Capitales
-                    </div>
-                    <div>
-                        FCEQyN — UNaM • Proyecto Software (LSI) / Trabajo Final (ASI)
-                    </div>
-                </div>
-            
         </div>
     </div>
 
-    <!-- Bootstrap Bundle JS -->
+    <!-- MODALES: EDITAR Y QUITAR por unidad -->
+    <div th:each="unidad : ${unidades}">
+
+        <!-- Modal CU-21: Modificar Unidad -->
+        <div class="modal fade" th:id="'modalEditarUnidad' + ${unidad.id}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content" style="border-radius: 12px; border: 1px solid #CBD5E1; box-shadow: 0 20px 50px rgba(8,20,38,0.15); overflow: hidden;">
+                    <div class="p-4 bg-white">
+                        <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+                            <div>
+                                <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Modificar Unidad Académica</h3>
+                                <p class="small text-muted" style="margin: 3px 0 0;" th:text="'Editando: ' + ${unidad.titulo}">Editando unidad...</p>
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="wf-badge status-active">Modo Edición</span>
+                                <button type="button" class="btn-close ms-2" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                            </div>
+                        </div>
+                        <form th:action="@{'/academico/unidades/' + ${unidad.id} + '/editar'}" method="post">
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label class="wf-label">Título de la Unidad <span class="text-danger">*</span></label>
+                                    <div class="wf-input-wrap">
+                                        <input type="text" name="titulo" class="wf-input" th:value="${unidad.titulo}" required maxlength="200">
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <label class="wf-label">Descripción de la Unidad</label>
+                                    <div class="wf-input-wrap">
+                                        <textarea name="descripcion" class="wf-input" rows="3" maxlength="500" th:text="${unidad.descripcion}"></textarea>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <label class="wf-label">Contenido y Temas Principales</label>
+                                    <div class="wf-input-wrap">
+                                        <textarea name="contenido" class="wf-input" rows="3" maxlength="1000" th:text="${unidad.contenido}"></textarea>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="wf-label">Número de Orden en el Programa</label>
+                                    <div class="wf-input-wrap">
+                                        <input type="number" name="orden" class="wf-input" th:value="${unidad.numeroOrden}" min="1" max="99">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-end gap-3 mt-4 pt-3 border-top">
+                                <button type="button" class="wf-btn wf-btn-outline" data-bs-dismiss="modal">Cancelar / Volver</button>
+                                <button type="submit" class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Guardar Cambios</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal CU-22: Quitar Unidad del Programa -->
+        <div class="modal fade" th:id="'modalQuitarUnidad' + ${unidad.id}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" style="max-width: 620px;">
+                <div class="modal-content" style="border-radius: 12px; border: 1px solid #CBD5E1; box-shadow: 0 20px 50px rgba(8,20,38,0.15); overflow: hidden;">
+                    <div class="p-3 border-bottom d-flex justify-content-between align-items-center" style="background: #F8FAFC;">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="fa-solid fa-triangle-exclamation text-warning"></i>
+                            <strong style="font-size: 14px; color: #081426;">Quitar unidad del programa</strong>
+                        </div>
+                        <span class="wf-badge status-active">Confirmación Requerida</span>
+                    </div>
+                    <div class="p-4 text-center">
+                        <div class="mb-3" style="width: 56px; height: 56px; border-radius: 50%; background: #FEF3C7; color: #D97706; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 24px;">
+                            <i class="fa-solid fa-unlink"></i>
+                        </div>
+                        <h3 style="font-size: 17px; font-weight: 800; color: #081426; margin-bottom: 6px;">¿Confirma quitar esta unidad del programa?</h3>
+                        <p class="small text-muted mb-4" style="line-height: 1.5;">La unidad se desvinculará del programa académico actual. El registro de la unidad no se eliminará del sistema y puede ser reasignada a otro programa.</p>
+
+                        <div class="p-3 mb-4 bg-light border rounded text-start" style="font-size: 13px;">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-muted">Unidad a desvincular:</span>
+                                <strong style="color: #081426;" th:text="${unidad.titulo}">Título</strong>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-muted">Operación:</span>
+                                <span class="badge bg-warning text-dark">Desvinculación (no eliminación)</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-start">
+                                <span class="text-muted">Materiales asociados:</span>
+                                <span class="small text-secondary" th:text="${unidad.materiales != null ? #lists.size(unidad.materiales) + ' material(es) vinculado(s)' : '0 materiales'}">0 materiales</span>
+                            </div>
+                        </div>
+
+                        <form th:action="@{'/academico/unidades/' + ${unidad.id} + '/quitar'}" method="post" class="d-flex justify-content-end align-items-center gap-3 pt-3 border-top">
+                            <button type="button" class="wf-btn wf-btn-outline" data-bs-dismiss="modal">Cancelar / Volver</button>
+                            <button type="submit" class="wf-btn wf-btn-danger">
+                                <i class="fa-solid fa-unlink me-1"></i> Confirmar Quitar del Programa
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Modal CU-20: Agregar Nueva Unidad -->
+    <div class="modal fade" id="modalNuevaUnidad" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content" style="border-radius: 12px; border: 1px solid #CBD5E1; box-shadow: 0 20px 50px rgba(8,20,38,0.15); overflow: hidden;">
+                <div class="p-4 bg-white">
+                    <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+                        <div>
+                            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Agregar Nueva Unidad al Programa</h3>
+                            <p class="small text-muted" style="margin: 3px 0 0;">Defina una nueva unidad temática y vincúlela al programa académico activo.</p>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="wf-badge status-active" style="background: rgba(212,160,61,0.15); color: var(--wf-gold-text); border: 1px solid var(--wf-gold); font-size: 11px; font-weight: 700;">NUEVA UNIDAD</span>
+                            <button type="button" class="btn-close ms-2" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                        </div>
+                    </div>
+
+                    <div id="nuevaUnidadAlert" class="alert alert-danger d-none py-2 px-3 small mb-3"></div>
+
+                    <form id="formNuevaUnidad" th:action="@{/academico/unidades/guardar}" method="post" novalidate>
+                        <div class="row g-3">
+
+                            <!-- Opción: partir de unidad existente -->
+                            <div class="col-12">
+                                <label class="wf-label">¿Reutilizar una unidad existente?</label>
+                                <select name="unidadExistenteId" id="unidadExistenteSelect" class="wf-input" onchange="toggleUnidadNueva(this.value)">
+                                    <option value="">No, crear nueva unidad desde cero</option>
+                                    <option th:each="u : ${todasUnidades}" th:value="${u.id}" th:text="${u.titulo + ' (ID #' + u.id + ')'}">Unidad</option>
+                                </select>
+                                <div class="small text-muted mt-1"><i class="fa-solid fa-info-circle me-1"></i> Seleccionar una unidad existente la vinculará a este programa sin duplicar datos.</div>
+                            </div>
+
+                            <!-- Campos para nueva unidad -->
+                            <div id="camposNuevaUnidad">
+                                <div class="row g-3">
+                                    <div class="col-md-10">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <label class="wf-label m-0">Título de la Unidad <span class="text-danger">*</span></label>
+                                            <span id="unidTituloCount" class="text-muted" style="font-size: 11px; font-weight: 600;">0 / 200</span>
+                                        </div>
+                                        <div class="wf-input-wrap">
+                                            <input type="text" id="unidTitulo" name="titulo" class="wf-input" maxlength="200" placeholder="Ej: Unidad 1: Marco Regulatorio y Ley de Mercado de Capitales" required>
+                                        </div>
+                                        <div id="unidTituloFeedback" class="small text-danger mt-1 d-none"></div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="wf-label">Orden</label>
+                                        <div class="wf-input-wrap">
+                                            <input type="number" name="orden" class="wf-input" placeholder="1" min="1" max="99">
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="wf-label">Descripción de la Unidad</label>
+                                        <div class="wf-input-wrap">
+                                            <textarea name="descripcion" class="wf-input" rows="2" maxlength="500" placeholder="Marco normativo bursátil, estructura de mercados y organismos reguladores."></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="wf-label">Contenido y Temas Principales</label>
+                                        <div class="wf-input-wrap">
+                                            <textarea name="contenido" class="wf-input" rows="2" maxlength="1000" placeholder="Ley 26.831, CNV, BYMA, MAE, ALyC, estructura de mercado de capitales argentino..."></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-end gap-3 mt-4 pt-3 border-top">
+                            <button type="button" class="wf-btn wf-btn-outline" data-bs-dismiss="modal"><i class="fa-solid fa-arrow-left me-1"></i> Cancelar / Volver</button>
+                            <button type="submit" id="btnGuardarUnidad" class="wf-btn wf-btn-primary" style="background: #081426; color: #FFFFFF; border-color: #081426; font-weight: 700;">
+                                <i class="fa-solid fa-check me-1"></i> Guardar Unidad
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle JS y SortableJS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
     <script>
         function toggleUserDropdown(triggerEl) {
             const wrapper = triggerEl.closest('.wf-user-menu-wrapper');
             if (wrapper) {
                 const dropdown = wrapper.querySelector('.wf-user-floating-dropdown');
-                if (dropdown) {
-                    dropdown.style.display = (dropdown.style.display === 'none' || dropdown.style.display === '') ? 'flex' : 'none';
-                }
+                if (dropdown) dropdown.style.display = (dropdown.style.display === 'none' || dropdown.style.display === '') ? 'flex' : 'none';
             }
         }
+
+        function showReorderToast(mensaje) {
+            let toastEl = document.getElementById('dragFeedbackToast');
+            if (!toastEl) {
+                toastEl = document.createElement('div');
+                toastEl.id = 'dragFeedbackToast';
+                toastEl.style.position = 'fixed';
+                toastEl.style.bottom = '24px';
+                toastEl.style.right = '24px';
+                toastEl.style.zIndex = '9999';
+                toastEl.style.background = '#081426';
+                toastEl.style.color = '#FFFFFF';
+                toastEl.style.padding = '12px 20px';
+                toastEl.style.borderRadius = '8px';
+                toastEl.style.borderLeft = '4px solid #D4A03D';
+                toastEl.style.boxShadow = '0 10px 25px rgba(0,0,0,0.25)';
+                toastEl.style.fontSize = '13px';
+                toastEl.style.fontWeight = '600';
+                toastEl.style.display = 'flex';
+                toastEl.style.alignItems = 'center';
+                toastEl.style.gap = '10px';
+                toastEl.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                document.body.appendChild(toastEl);
+            }
+            toastEl.innerHTML = `<i class="fa-solid fa-circle-check" style="color: #10B981; font-size: 16px;"></i> <span>${mensaje}</span>`;
+            toastEl.style.opacity = '1';
+            toastEl.style.transform = 'translateY(0)';
+            setTimeout(() => {
+                toastEl.style.opacity = '0';
+                toastEl.style.transform = 'translateY(10px)';
+            }, 2500);
+        }
+
+        function initDragAndDrop() {
+            // Drag and Drop para Unidades
+            const unitsContainer = document.getElementById('unidadesSortableContainer');
+            if (unitsContainer && typeof Sortable !== 'undefined') {
+                new Sortable(unitsContainer, {
+                    handle: '.unit-drag-handle',
+                    animation: 200,
+                    ghostClass: 'sortable-ghost',
+                    chosenClass: 'sortable-chosen',
+                    dragClass: 'sortable-drag',
+                    onEnd: function(evt) {
+                        showReorderToast('Secuencia de unidades actualizada con éxito.');
+                    }
+                });
+            }
+
+            // Drag and Drop para Materiales dentro de cada unidad (permite mover entre unidades y reordenar)
+            const materialLists = document.querySelectorAll('.materiales-sortable-list');
+            materialLists.forEach(list => {
+                if (typeof Sortable !== 'undefined') {
+                    new Sortable(list, {
+                        group: 'materiales-group',
+                        handle: '.material-drag-handle',
+                        animation: 180,
+                        ghostClass: 'sortable-ghost',
+                        chosenClass: 'sortable-chosen',
+                        onEnd: function(evt) {
+                            showReorderToast('Material reordenado correctamente.');
+                        }
+                    });
+                }
+            });
+        }
+
+        function toggleUnidadNueva(val) {
+            const campos = document.getElementById('camposNuevaUnidad');
+            const tituloInput = document.getElementById('unidTitulo');
+            if (val) {
+                campos.style.display = 'none';
+                if (tituloInput) tituloInput.removeAttribute('required');
+            } else {
+                campos.style.display = 'block';
+                if (tituloInput) tituloInput.setAttribute('required', 'required');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initDragAndDrop();
+
+            const inputTitulo = document.getElementById('unidTitulo');
+            const countTitulo = document.getElementById('unidTituloCount');
+            const fbTitulo = document.getElementById('unidTituloFeedback');
+
+            if (inputTitulo) {
+                inputTitulo.addEventListener('input', () => {
+                    const len = inputTitulo.value.length;
+                    countTitulo.textContent = `${len} / 200`;
+                    countTitulo.className = len >= 200 ? 'text-danger fw-bold' : 'text-muted';
+                    if (!inputTitulo.value.trim()) {
+                        inputTitulo.classList.add('is-invalid'); inputTitulo.classList.remove('is-valid');
+                        inputTitulo.style.borderColor = '#DC2626';
+                        fbTitulo.textContent = 'El título de la unidad es obligatorio.';
+                        fbTitulo.classList.remove('d-none');
+                    } else {
+                        inputTitulo.classList.remove('is-invalid'); inputTitulo.classList.add('is-valid');
+                        inputTitulo.style.borderColor = '#16A34A';
+                        fbTitulo.classList.add('d-none');
+                    }
+                });
+            }
+
+            const form = document.getElementById('formNuevaUnidad');
+            if (form) form.addEventListener('submit', function(e) {
+                const existente = document.getElementById('unidadExistenteSelect');
+                if (existente && existente.value) return; // vincular existente: OK
+                if (!inputTitulo || !inputTitulo.value.trim()) {
+                    e.preventDefault(); e.stopPropagation();
+                    if (inputTitulo) { inputTitulo.classList.add('is-invalid'); }
+                    document.getElementById('nuevaUnidadAlert').textContent = 'Debe ingresar el título de la nueva unidad.';
+                    document.getElementById('nuevaUnidadAlert').classList.remove('d-none');
+                }
+            });
+        });
     </script>
 
-    <!-- DSS & Case of Use Console Logger -->
     <script>
         (function() {
-            const cuId = 'CU-19';
-            const cuNombre = 'Buscar unidad';
-            const cuActores = 'Administrador / Docente';
-            const cuDss = 'buscarUnidades(programa) ➔ seleccionarUnidad(idUnidad, unidades)';
-
-            console.log(
-                '%c[IDÓNEOS ONLINE] %c ' + cuId + ' %c ' + cuNombre + ' ',
-                'color: #C9982F; font-weight: 800; font-size: 13px;',
-                'background: #081426; color: #E4BE6C; padding: 3px 8px; border-radius: 4px; font-weight: 700; font-size: 12px; border: 1px solid #C9982F;',
-                'color: #081426; font-weight: 800; font-size: 13px;'
-            );
-            console.log(
-                '%c👤 Actor(es): %c' + cuActores,
-                'color: #64748B; font-weight: 700; font-size: 11px;',
-                'color: #0F172A; font-weight: 600; font-size: 11px;'
-            );
-            console.log(
-                '%c⚡ DSS: %c' + cuDss,
-                'color: #64748B; font-weight: 700; font-size: 11px;',
-                'color: #0284C7; font-family: monospace; font-size: 11px; font-weight: 600;'
-            );
+            console.log('%c[IDÓNEOS ONLINE] %c CU-19 %c Buscar unidad ', 'color: #C9982F; font-weight: 800; font-size: 13px;', 'background: #081426; color: #E4BE6C; padding: 3px 8px; border-radius: 4px; font-weight: 700; font-size: 12px; border: 1px solid #C9982F;', 'color: #081426; font-weight: 800; font-size: 13px;');
+            console.log('%c⚡ DSS: %cbuscarUnidades(programa) ➔ seleccionarUnidad(idUnidad, unidades)', 'color: #64748B; font-weight: 700;', 'color: #0284C7; font-family: monospace; font-size: 11px;');
         })();
     </script>
 </body>

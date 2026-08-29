@@ -4,205 +4,441 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="${titulo != null ? titulo : 'CU-27 - Buscar material'}">CU-27 - Buscar material | Idóneos Online</title>
-    
-    <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- FontAwesome 6 Pro / Solid Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;800&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    
-    <!-- Estilos del Sistema Centralizados -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/styles.css}">
 </head>
 <body class="wf-canvas-bg">
 
     <div class="cu-page-container">
-        <!-- Pantalla / Screen Frame Oficial -->
         <div class="screen-frame">
 
-                <!-- Top Navbar Oficial Dinámica -->
-                <div th:replace="~{fragments/wf_navbar :: wf-top-navbar}"></div>
+            <div th:replace="~{fragments/wf_navbar :: wf-top-navbar}"></div>
 
-                <!-- Hero Banner Contextual Superior (Navy) -->
-                <div class="wf-hero-banner">
-                    <div>
-                        <div class="wf-hero-tag">
-                            <i class="fa-solid fa-graduation-cap" style="color: var(--wf-gold);"></i>
-                            <span>PANEL DE ADMINISTRACIÓN</span>
+            <div class="wf-hero-banner">
+                <div>
+                    <div class="wf-hero-tag">
+                        <i class="fa-solid fa-graduation-cap" style="color: var(--wf-gold);"></i>
+                        <span>PANEL DE ADMINISTRACIÓN</span>
+                    </div>
+                    <h2 class="wf-hero-title">Buscar material</h2>
+                    <p class="wf-hero-desc">Bienvenido/a, <span th:text="${usuario != null ? usuario.nombreCompleto : 'Admin General'}">Admin General</span></p>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <button type="button" class="wf-btn-gold border-0" data-bs-toggle="modal" data-bs-target="#modalNuevoMaterial">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>Nuevo Material</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="wf-body">
+                <div class="wf-main-content">
+
+                    <!-- Cabecera y Tabs Unificadas del Curso -->
+                    <div th:replace="~{fragments/curso_header :: curso-header('materiales')}"></div>
+
+                    <!-- Filtros -->
+                    <div class="wf-card mb-4" style="background: #FFFFFF;">
+                        <form th:action="@{/academico/materiales}" method="get" class="row g-3 align-items-end">
+                            <div class="col-md-5">
+                                <label class="wf-label">Buscar por título o palabra clave</label>
+                                <div class="wf-input-wrap">
+                                    <input type="text" name="titulo" th:value="${tituloBusqueda}" class="wf-input" placeholder="Buscar en materiales...">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="wf-label">Estado</label>
+                                <select name="baja" class="wf-input">
+                                    <option value="false" th:selected="${bajaSeleccionada == null or !bajaSeleccionada}">Solo Activos / Publicados</option>
+                                    <option value="true" th:selected="${bajaSeleccionada != null and bajaSeleccionada}">Todos (Incluir Dados de Baja)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <button type="submit" class="wf-btn wf-btn-primary w-100">
+                                    <i class="fa-solid fa-magnifying-glass me-1"></i> Buscar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Tabla -->
+                    <div class="wf-card" style="background: #FFFFFF;">
+                        <div class="table-responsive">
+                            <table id="tablaMateriales" class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th style="font-size: 12px; font-weight: 700; color: #081426; white-space: nowrap;">
+                                            <span>ID</span>
+                                            <button type="button" class="table-sort-btn" onclick="sortTable('tablaMateriales', 0, 'num', this)"><i class="fa-solid fa-arrow-down-1-9"></i></button>
+                                        </th>
+                                        <th style="font-size: 12px; font-weight: 700; color: #081426; white-space: nowrap;">
+                                            <span>Título / Recurso</span>
+                                            <button type="button" class="table-sort-btn" onclick="sortTable('tablaMateriales', 1, 'text', this)"><i class="fa-solid fa-arrow-down-a-z"></i></button>
+                                        </th>
+                                        <th style="font-size: 12px; font-weight: 700; color: #081426; white-space: nowrap;">Tipo</th>
+                                        <th style="font-size: 12px; font-weight: 700; color: #081426; white-space: nowrap;">Unidad</th>
+                                        <th style="font-size: 12px; font-weight: 700; color: #081426; white-space: nowrap;">Estado</th>
+                                        <th style="font-size: 12px; font-weight: 700; color: #081426; text-align: right;">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="m : ${materiales}" th:style="${m.baja} ? 'background: #F8FAFC; opacity: 0.65;' : ''">
+                                        <td class="fw-bold" style="color: var(--wf-navy-dark);" th:text="${m.id}">1</td>
+                                        <td>
+                                            <strong style="color: #081426;" th:text="${m.titulo}">Título del Material</strong>
+                                            <div class="small text-muted" th:text="${m.contenido != null ? #strings.abbreviate(m.contenido, 50) : ''}"></div>
+                                        </td>
+                                        <td><span class="badge bg-light text-dark border" th:text="${m.tipoMaterial != null ? m.tipoMaterial.nombre : 'General'}">Tipo</span></td>
+                                        <td class="small text-muted" th:text="${m.unidad != null ? m.unidad.titulo : '—'}">Unidad</td>
+                                        <td>
+                                            <span class="wf-badge" th:classappend="${m.baja} ? 'status-inactive' : 'status-active'" th:text="${m.baja} ? 'Dado de baja' : (m.oculto ? 'Oculto' : 'Publicado')">Publicado</span>
+                                        </td>
+                                        <td style="text-align: right;">
+                                            <div class="d-inline-flex align-items-center gap-1" th:if="${!m.baja}">
+                                                <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3"
+                                                        data-bs-toggle="modal"
+                                                        th:data-bs-target="'#modalEditarMaterial' + ${m.id}">
+                                                    <i class="fa-solid fa-pen-to-square me-1"></i> Editar
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3"
+                                                        data-bs-toggle="modal"
+                                                        th:data-bs-target="'#modalBajaMaterial' + ${m.id}" title="Dar de baja material">
+                                                    <i class="fa-solid fa-trash me-1"></i> Baja
+                                                </button>
+                                            </div>
+                                            <div class="d-inline-flex align-items-center" th:if="${m.baja}">
+                                                <span class="text-muted small fst-italic"><i class="fa-solid fa-lock me-1"></i> Dado de baja</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr th:if="${materiales == null or #lists.isEmpty(materiales)}">
+                                        <td colspan="6" class="text-center py-4 text-muted">No se encontraron materiales registrados.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
-                        <h2 class="wf-hero-title">Buscar material</h2>
-                        <p class="wf-hero-desc">Bienvenido/a, Admin General</p>
+
+                        <div id="paginacionMateriales" class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top px-3 pb-3">
+                            <div class="text-secondary small fw-semibold">
+                                Mostrando <span id="matPaginaActual" class="text-dark fw-bold">1</span> de <span id="matTotalPaginas" class="text-dark fw-bold">1</span> (<span id="matTotalRegistros" th:text="${materiales != null ? #lists.size(materiales) : 0}">0</span> materiales)
+                            </div>
+                            <div class="d-flex gap-1" id="matBotonesPaginacion"></div>
+                        </div>
                     </div>
-                    
-                    <div class="d-flex align-items-center gap-2">
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                        <a th:href="@{/academico/materiales/nuevo}" class="wf-btn-gold">
-                            <i class="fa-solid fa-plus"></i>
-                            <span>Nuevo Material</span>
-                        </a>
-                        
-                    
-                    
-                    
-                    
-                    
-                    
-                    </div>
-</div>
 
-                <div class="wf-body">
-                    <div class="wf-main-content">
-                        
-      <div class="wf-card mb-4" style="background: #FFFFFF;">
-        <div class="d-flex justify-content-between align-items-start pb-3 border-bottom">
-          <div>
-            <h2 style="font-size: 20px; font-weight: 800; color: #081426; margin: 0;">Especialización en Idoneidad Bursátil</h2>
-            <div class="small text-muted mt-1">
-              <span>Página Principal</span> <i class="fa-solid fa-chevron-right" style="font-size: 9px; margin: 0 4px;"></i> <span>Mis cursos</span> <i class="fa-solid fa-chevron-right" style="font-size: 9px; margin: 0 4px;"></i> <span>Buscar material</span>
-            </div>
-          </div>
-          <div class="d-flex align-items-center gap-3">
-            <span class="wf-badge status-active">Curso Seleccionado</span>
-            <div class="text-muted cursor-pointer" title="Ajustes del curso"><i class="fa-solid fa-gear" style="font-size: 18px;"></i></div>
-          </div>
-        </div>
-
-        <div class="d-flex justify-content-between align-items-center pt-2">
-          <div class="d-flex align-items-center gap-1">
-            <a th:href="@{/academico/aula?modoEdicion=true}" class="wf-tab-btn">Curso & Unidades</a>
-            <a th:href="@{/academico/materiales}" class="wf-tab-btn active">Materiales</a>
-            <a th:href="@{/academico/glosario}" class="wf-tab-btn ">Glosario</a>
-            <a th:href="@{/evaluaciones/autoevaluaciones}" class="wf-tab-btn">Autoevaluaciones</a>
-            <a th:href="@{/evaluaciones/pools}" class="wf-tab-btn ">Pools</a>
-            <a th:href="@{/academico/consultas}" class="wf-tab-btn">Foros</a>
-            <a th:href="@{/clases-vivo}" class="wf-tab-btn">Clases en Vivo</a>
-          </div>
-        </div>
-      </div>
-
-      <!-- Barra de Filtros y Búsqueda -->
-      <div class="wf-card mb-4" style="background: #FFFFFF;">
-        <div class="row g-3 align-items-end">
-          <div class="col-md-5">
-            <label class="wf-label">Buscar por título o palabra clave</label>
-            <div class="wf-input-wrap">
-              <input type="text" class="wf-input" placeholder="Buscar en materiales...">
-              
-            </div>
-          </div>
-          <div class="col-md-4">
-            <label class="wf-label">Filtrar por Unidad</label>
-            <select class="wf-input">
-              <option>Todas las unidades temáticas</option>
-              <option>Unidad 1: Marco Regulatorio</option>
-              <option>Unidad 2: Renta Fija</option>
-            </select>
-          </div>
-          <div class="col-md-3">
-            <div class="d-flex align-items-center gap-2">
-              <button class="wf-btn wf-btn-primary w-100"><i class="fa-solid fa-magnifying-glass me-1"></i> Buscar</button>
-              
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="wf-table-wrap">
-        <table class="wf-table">
-          <thead>
-            <tr>
-              <th>Título / Recurso</th>
-              <th>Tipo</th>
-              <th>Pertenencia</th>
-              <th>Estado & IA</th>
-              <th class="text-end">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-  <tr th:each="m : ${materiales}">
-    <td><strong style="color: #081426;" th:text="${m.titulo}">Título del Material</strong></td>
-    <td><span class="badge bg-light text-dark border" th:text="${m.tipoMaterial != null ? m.tipoMaterial.nombre : 'General'}">Tipo</span></td>
-    <td th:text="${m.autor != null ? m.autor : 'Idóneos Online'}">Autor</td>
-    <td><span th:class="${m.oculto ? 'wf-badge status-inactive' : 'wf-badge status-active'}" th:text="${m.oculto ? 'Oculto' : 'Publicado'}">Publicado</span></td>
-    <td class="text-end">
-      <div class="d-inline-flex gap-2">
-        <a th:href="@{'/academico/materiales/' + ${m.id} + '/editar'}" class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-pen-to-square"></i></a>
-        <form th:action="@{'/academico/materiales/' + ${m.id} + '/baja'}" method="post" class="d-inline">
-          <button type="submit" class="wf-btn wf-btn-sm wf-btn-outline text-danger" onclick="return confirm('¿Dar de baja este material?');"><i class="fa-solid fa-trash"></i></button>
-        </form>
-      </div>
-    </td>
-  </tr>
-  <tr th:if="${#lists.isEmpty(materiales)}">
-    <td colspan="5" class="text-center py-4 text-muted">No se encontraron materiales cargados en esta unidad.</td>
-  </tr>
-</tbody>
-        </table>
-      </div>
-    
-                    </div>
                 </div>
+            </div>
 
-                <!-- Footer Oficial -->
-                <div class="wf-screen-footer">
-                    <div>
-                        <strong>Idóneos <span>Online</span> S.A.S.</strong> • Plataforma de Educación Financiera, Economía & Mercado de Capitales
-                    </div>
-                    <div>
-                        FCEQyN — UNaM • Proyecto Software (LSI) / Trabajo Final (ASI)
-                    </div>
-                </div>
-            
+            <div class="wf-screen-footer">
+                <div><strong>Idóneos <span>Online</span> S.A.S.</strong> • Plataforma de Educación Financiera, Economía &amp; Mercado de Capitales</div>
+                <div>FCEQyN — UNaM • Proyecto Software (LSI) / Trabajo Final (ASI)</div>
+            </div>
         </div>
     </div>
 
-    <!-- Bootstrap Bundle JS -->
+    <!-- MODALES: EDITAR Y BAJA por cada material -->
+    <div th:each="m : ${materiales}">
+
+        <!-- Modal CU-29: Modificar Material -->
+        <div class="modal fade" th:id="'modalEditarMaterial' + ${m.id}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content" style="border-radius: 12px; border: 1px solid #CBD5E1; box-shadow: 0 20px 50px rgba(8,20,38,0.15); overflow: hidden;">
+                    <div class="p-4 bg-white">
+                        <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+                            <div>
+                                <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Modificar Material</h3>
+                                <p class="small text-muted" style="margin: 3px 0 0;" th:text="'Actualizando: ' + ${m.titulo}">Actualizando material...</p>
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="wf-badge status-active">Modo Edición</span>
+                                <button type="button" class="btn-close ms-2" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                            </div>
+                        </div>
+                        <form th:action="@{'/academico/materiales/' + ${m.id} + '/editar'}" method="post">
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label class="wf-label">Título del Material <span class="text-danger">*</span></label>
+                                    <div class="wf-input-wrap">
+                                        <input type="text" name="titulo" class="wf-input" th:value="${m.titulo}" required maxlength="200">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="wf-label">Tipo de Material</label>
+                                    <select name="tipoMaterialId" class="wf-input">
+                                        <option th:each="tipo : ${tiposMaterial}" th:value="${tipo.id}" th:text="${tipo.nombre}" th:selected="${m.tipoMaterial != null and m.tipoMaterial.id == tipo.id}">Tipo</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="wf-label">Unidad Asociada</label>
+                                    <select name="unidadId" class="wf-input">
+                                        <option value="">Sin unidad específica</option>
+                                        <option th:each="u : ${unidades}" th:value="${u.id}" th:text="${u.titulo}" th:selected="${m.unidad != null and m.unidad.id == u.id}">Unidad</option>
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <label class="wf-label">Descripción</label>
+                                    <div class="wf-input-wrap">
+                                        <textarea name="descripcion" class="wf-input" rows="2" maxlength="300" th:text="${m.contenido}"></textarea>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <label class="wf-label">URL / Enlace al Recurso</label>
+                                    <div class="wf-input-wrap">
+                                        <input type="text" name="url" class="wf-input" th:value="${m.rutaArchivo}" maxlength="500" placeholder="https://...">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="wf-label">Visibilidad</label>
+                                    <select name="oculto" class="wf-input">
+                                        <option value="false" th:selected="${!m.oculto}">Publicado (Visible)</option>
+                                        <option value="true" th:selected="${m.oculto}">Oculto (Solo docentes)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-end gap-3 mt-4 pt-3 border-top">
+                                <button type="button" class="wf-btn wf-btn-outline" data-bs-dismiss="modal">Cancelar / Volver</button>
+                                <button type="submit" class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Guardar Cambios</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal CU-30: Dar de Baja Material -->
+        <div class="modal fade" th:id="'modalBajaMaterial' + ${m.id}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" style="max-width: 580px;">
+                <div class="modal-content" style="border-radius: 12px; border: 1px solid #CBD5E1; box-shadow: 0 20px 50px rgba(8,20,38,0.15); overflow: hidden;">
+                    <div class="p-3 border-bottom d-flex justify-content-between align-items-center" style="background: #F8FAFC;">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="fa-solid fa-triangle-exclamation text-danger"></i>
+                            <strong style="font-size: 14px; color: #081426;">Dar de baja material</strong>
+                        </div>
+                        <span class="wf-badge status-active">Confirmación Requerida</span>
+                    </div>
+                    <div class="p-4 text-center">
+                        <div class="mb-3" style="width: 56px; height: 56px; border-radius: 50%; background: #FEE2E2; color: #DC2626; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 24px;">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                        </div>
+                        <h3 style="font-size: 17px; font-weight: 800; color: #081426; margin-bottom: 6px;">¿Confirma la baja del material?</h3>
+                        <p class="small text-muted mb-4" style="line-height: 1.5;">El material quedará inhabilitado (borrado lógico). Los registros históricos se conservan.</p>
+
+                        <div class="p-3 mb-4 bg-light border rounded text-start" style="font-size: 13px;">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-muted">Registro afectado:</span>
+                                <strong style="color: #081426;" th:text="${m.titulo}">Título</strong>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-muted">Tipo:</span>
+                                <span th:text="${m.tipoMaterial != null ? m.tipoMaterial.nombre : 'General'}">Tipo</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="text-muted">Estado actual:</span>
+                                <span class="wf-badge status-active">Activo / Publicado</span>
+                            </div>
+                        </div>
+
+                        <form th:action="@{'/academico/materiales/' + ${m.id} + '/baja'}" method="post" class="d-flex justify-content-end align-items-center gap-3 pt-3 border-top">
+                            <button type="button" class="wf-btn wf-btn-outline" data-bs-dismiss="modal">Cancelar / Volver</button>
+                            <button type="submit" class="wf-btn wf-btn-danger">
+                                <i class="fa-solid fa-trash me-1"></i> Confirmar Baja
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal CU-28: Subir / Registrar Nuevo Material -->
+    <div class="modal fade" id="modalNuevoMaterial" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content" style="border-radius: 12px; border: 1px solid #CBD5E1; box-shadow: 0 20px 50px rgba(8,20,38,0.15); overflow: hidden;">
+                <div class="p-4 bg-white">
+                    <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+                        <div>
+                            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Subir Nuevo Material</h3>
+                            <p class="small text-muted" style="margin: 3px 0 0;">Registre un nuevo recurso de estudio para este curso.</p>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="wf-badge status-active" style="background: rgba(212,160,61,0.15); color: var(--wf-gold-text); border: 1px solid var(--wf-gold); font-size: 11px; font-weight: 700;">FORMULARIO DE ALTA</span>
+                            <button type="button" class="btn-close ms-2" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                        </div>
+                    </div>
+
+                    <div id="nuevoMaterialAlert" class="alert alert-danger d-none py-2 px-3 small mb-3"></div>
+
+                    <form id="formNuevoMaterial" th:action="@{/academico/materiales/guardar}" method="post" enctype="multipart/form-data" novalidate>
+                        <div class="row g-3">
+                            <div class="col-md-8">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <label class="wf-label m-0">Título del Material <span class="text-danger">*</span></label>
+                                    <span id="matTituloCount" class="text-muted" style="font-size: 11px; font-weight: 600;">0 / 200</span>
+                                </div>
+                                <div class="wf-input-wrap">
+                                    <input type="text" id="matTitulo" name="titulo" class="wf-input" maxlength="200" placeholder="Ej: Ley 26.831 de Mercado de Capitales" required>
+                                </div>
+                                <div id="matTituloFeedback" class="small text-danger mt-1 d-none"></div>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="wf-label">Tipo de Material <span class="text-danger">*</span></label>
+                                <select name="tipoMaterialId" class="wf-input" required>
+                                    <option value="">Seleccionar tipo...</option>
+                                    <option th:each="tipo : ${tiposMaterial}" th:value="${tipo.id}" th:text="${tipo.nombre}">Tipo</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="wf-label">Unidad Asociada</label>
+                                <select name="unidadId" class="wf-input">
+                                    <option value="">Sin unidad específica</option>
+                                    <option th:each="u : ${unidades}" th:value="${u.id}" th:text="${u.titulo}">Unidad</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="wf-label">Visibilidad</label>
+                                <select name="oculto" class="wf-input">
+                                    <option value="false">Publicado (Visible para alumnos)</option>
+                                    <option value="true">Oculto (Solo docentes)</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label class="wf-label">Descripción del Recurso</label>
+                                <div class="wf-input-wrap">
+                                    <textarea name="descripcion" class="wf-input" rows="2" maxlength="300" placeholder="Breve descripción del material..."></textarea>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <label class="wf-label">URL / Enlace al Recurso</label>
+                                <div class="wf-input-wrap">
+                                    <input type="text" name="url" class="wf-input" maxlength="500" placeholder="https:// o ruta interna al archivo">
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <label class="wf-label">Subir Archivo (Opcional)</label>
+                                <div class="wf-input-wrap">
+                                    <input type="file" name="archivo" class="wf-input" accept=".pdf,.docx,.xlsx,.pptx,.mp4,.zip">
+                                </div>
+                                <div class="small text-muted mt-1">Formatos admitidos: PDF, Word, Excel, PowerPoint, MP4, ZIP (máx. 50MB)</div>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-end gap-3 mt-4 pt-3 border-top">
+                            <button type="button" class="wf-btn wf-btn-outline" data-bs-dismiss="modal"><i class="fa-solid fa-arrow-left me-1"></i> Cancelar / Volver</button>
+                            <button type="submit" id="btnGuardarMaterial" class="wf-btn wf-btn-primary" style="background: #081426; color: #FFFFFF; border-color: #081426; font-weight: 700;">
+                                <i class="fa-solid fa-upload me-1"></i> Subir Material
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         function toggleUserDropdown(triggerEl) {
             const wrapper = triggerEl.closest('.wf-user-menu-wrapper');
             if (wrapper) {
                 const dropdown = wrapper.querySelector('.wf-user-floating-dropdown');
-                if (dropdown) {
-                    dropdown.style.display = (dropdown.style.display === 'none' || dropdown.style.display === '') ? 'flex' : 'none';
-                }
+                if (dropdown) dropdown.style.display = (dropdown.style.display === 'none' || dropdown.style.display === '') ? 'flex' : 'none';
             }
         }
+
+        let matCurrentPage = 1;
+        const matRowsPerPage = 8;
+
+        function renderMatPagination() {
+            const table = document.getElementById('tablaMateriales');
+            if (!table) return;
+            const tbody = table.querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            const totalRows = rows.length;
+            const totalPages = Math.ceil(totalRows / matRowsPerPage) || 1;
+            if (matCurrentPage > totalPages) matCurrentPage = totalPages;
+            if (matCurrentPage < 1) matCurrentPage = 1;
+            rows.forEach((row, index) => {
+                const start = (matCurrentPage - 1) * matRowsPerPage;
+                row.style.display = (index >= start && index < start + matRowsPerPage) ? '' : 'none';
+            });
+            const lblActual = document.getElementById('matPaginaActual');
+            const lblTotal = document.getElementById('matTotalPaginas');
+            const lblRegs = document.getElementById('matTotalRegistros');
+            if (lblActual) lblActual.textContent = matCurrentPage;
+            if (lblTotal) lblTotal.textContent = totalPages;
+            if (lblRegs) lblRegs.textContent = totalRows;
+            const btnContainer = document.getElementById('matBotonesPaginacion');
+            if (!btnContainer) return;
+            btnContainer.innerHTML = '';
+            if (totalPages <= 1) { document.getElementById('paginacionMateriales').style.display = totalRows === 0 ? 'none' : 'flex'; return; }
+            document.getElementById('paginacionMateriales').style.display = 'flex';
+            const prevBtn = document.createElement('button'); prevBtn.type = 'button';
+            prevBtn.className = `btn btn-sm ${matCurrentPage === 1 ? 'btn-light disabled border' : 'btn-dark text-white'}`;
+            prevBtn.style.cssText = 'border-radius: 8px; font-weight: 600; padding: 6px 12px;';
+            prevBtn.innerHTML = '<i class="fa-solid fa-chevron-left"></i>';
+            prevBtn.onclick = () => { if (matCurrentPage > 1) { matCurrentPage--; renderMatPagination(); } };
+            btnContainer.appendChild(prevBtn);
+            for (let i = 1; i <= totalPages; i++) {
+                const numBtn = document.createElement('button'); numBtn.type = 'button'; numBtn.textContent = i;
+                numBtn.className = i === matCurrentPage ? 'btn btn-sm btn-warning text-dark fw-bold' : 'btn btn-sm btn-light border text-secondary';
+                numBtn.style.cssText = `border-radius: 8px; min-width: 34px; font-weight: ${i === matCurrentPage ? '800' : '700'};`;
+                numBtn.onclick = () => { matCurrentPage = i; renderMatPagination(); };
+                btnContainer.appendChild(numBtn);
+            }
+            const nextBtn = document.createElement('button'); nextBtn.type = 'button';
+            nextBtn.className = `btn btn-sm ${matCurrentPage >= totalPages ? 'btn-light disabled border' : 'btn-dark text-white'}`;
+            nextBtn.style.cssText = 'border-radius: 8px; font-weight: 600; padding: 6px 12px;';
+            nextBtn.innerHTML = '<i class="fa-solid fa-chevron-right"></i>';
+            nextBtn.onclick = () => { if (matCurrentPage < totalPages) { matCurrentPage++; renderMatPagination(); } };
+            btnContainer.appendChild(nextBtn);
+        }
+
+        function sortTable(tableId, colIndex, type, btn) {
+            const table = document.getElementById(tableId);
+            if (!table) return;
+            const tbody = table.querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            const isAsc = !btn.classList.contains('active-asc');
+            table.querySelectorAll('.table-sort-btn').forEach(b => b.classList.remove('active-asc', 'active-desc'));
+            if (isAsc) btn.classList.add('active-asc'); else btn.classList.add('active-desc');
+            rows.sort((a, b) => {
+                const cellA = a.children[colIndex] ? a.children[colIndex].innerText.trim() : '';
+                const cellB = b.children[colIndex] ? b.children[colIndex].innerText.trim() : '';
+                if (type === 'num') return isAsc ? (parseFloat(cellA)||0)-(parseFloat(cellB)||0) : (parseFloat(cellB)||0)-(parseFloat(cellA)||0);
+                return isAsc ? cellA.localeCompare(cellB,'es',{sensitivity:'base'}) : cellB.localeCompare(cellA,'es',{sensitivity:'base'});
+            });
+            rows.forEach(r => tbody.appendChild(r));
+            renderMatPagination();
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            renderMatPagination();
+            const inputTitulo = document.getElementById('matTitulo');
+            const countTitulo = document.getElementById('matTituloCount');
+            const fbTitulo = document.getElementById('matTituloFeedback');
+            if (inputTitulo) {
+                inputTitulo.addEventListener('input', () => {
+                    const len = inputTitulo.value.length;
+                    countTitulo.textContent = `${len} / 200`;
+                    countTitulo.className = len >= 200 ? 'text-danger fw-bold' : 'text-muted';
+                    if (!inputTitulo.value.trim()) {
+                        inputTitulo.classList.add('is-invalid'); inputTitulo.classList.remove('is-valid');
+                        fbTitulo.textContent = 'El título es obligatorio.'; fbTitulo.classList.remove('d-none');
+                    } else {
+                        inputTitulo.classList.remove('is-invalid'); inputTitulo.classList.add('is-valid');
+                        fbTitulo.classList.add('d-none');
+                    }
+                });
+            }
+        });
     </script>
 
-    <!-- DSS & Case of Use Console Logger -->
     <script>
         (function() {
-            const cuId = 'CU-27';
-            const cuNombre = 'Buscar material';
-            const cuActores = 'Administrador / Docente';
-            const cuDss = 'buscarMateriales(unidad, tipo, titulo, generadoIA) ➔ seleccionarMaterial(idMaterial, materiales)';
-
-            console.log(
-                '%c[IDÓNEOS ONLINE] %c ' + cuId + ' %c ' + cuNombre + ' ',
-                'color: #C9982F; font-weight: 800; font-size: 13px;',
-                'background: #081426; color: #E4BE6C; padding: 3px 8px; border-radius: 4px; font-weight: 700; font-size: 12px; border: 1px solid #C9982F;',
-                'color: #081426; font-weight: 800; font-size: 13px;'
-            );
-            console.log(
-                '%c👤 Actor(es): %c' + cuActores,
-                'color: #64748B; font-weight: 700; font-size: 11px;',
-                'color: #0F172A; font-weight: 600; font-size: 11px;'
-            );
-            console.log(
-                '%c⚡ DSS: %c' + cuDss,
-                'color: #64748B; font-weight: 700; font-size: 11px;',
-                'color: #0284C7; font-family: monospace; font-size: 11px; font-weight: 600;'
-            );
+            console.log('%c[IDÓNEOS ONLINE] %c CU-27 %c Buscar material ', 'color: #C9982F; font-weight: 800; font-size: 13px;', 'background: #081426; color: #E4BE6C; padding: 3px 8px; border-radius: 4px; font-weight: 700; font-size: 12px; border: 1px solid #C9982F;', 'color: #081426; font-weight: 800; font-size: 13px;');
+            console.log('%c⚡ DSS: %cbuscarMateriales(unidad, tipo, titulo, generadoIA) ➔ seleccionarMaterial(idMaterial, materiales)', 'color: #64748B; font-weight: 700;', 'color: #0284C7; font-family: monospace; font-size: 11px;');
         })();
     </script>
 </body>

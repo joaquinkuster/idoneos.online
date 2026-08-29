@@ -95,6 +95,22 @@ public class SecurityConfig {
                                 "/reportes/**"
                         ).hasAnyRole("Administrador")
                         .requestMatchers(
+                                "/academico/curso/*/edicion",
+                                "/academico/programas/**",
+                                "/academico/unidades/nueva",
+                                "/academico/unidades/guardar",
+                                "/academico/unidades/*/editar",
+                                "/academico/unidades/*/baja",
+                                "/academico/unidades/*/quitar",
+                                "/academico/unidades/asociar",
+                                "/academico/cronogramas/**",
+                                "/academico/materiales/**",
+                                "/academico/glosario/nuevo",
+                                "/academico/glosario/guardar",
+                                "/academico/glosario/*/editar",
+                                "/academico/glosario/*/baja"
+                        ).hasAnyRole("Docente", "Administrador")
+                        .requestMatchers(
                                 "/docente/**", 
                                 "/academico/**", 
                                 "/evaluaciones/**", 

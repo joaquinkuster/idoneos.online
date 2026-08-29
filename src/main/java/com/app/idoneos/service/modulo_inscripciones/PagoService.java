@@ -7,7 +7,12 @@ import com.app.idoneos.repository.modulo_configuracion.ConfiguracionRepository;
 import com.app.idoneos.repository.modulo_cursos.*;
 import com.app.idoneos.repository.modulo_inscripciones.*;
 import com.app.idoneos.service.modulo_usuarios.EmailService;
-import com.lowagie.text.*;
+import com.app.idoneos.service.modulo_usuarios.EmailService;
+import com.lowagie.text.Document;
+import com.lowagie.text.Element;
+import com.lowagie.text.Paragraph;
+import com.lowagie.text.Chunk;
+import com.lowagie.text.PageSize;
 import com.lowagie.text.Font;
 import com.lowagie.text.pdf.PdfWriter;
 import com.lowagie.text.pdf.draw.LineSeparator;
@@ -22,7 +27,9 @@ import java.io.ByteArrayOutputStream;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * TRAZABILIDAD — Servicio para la gestión y procesamiento de transacciones financieras y pasarelas de pago.
@@ -211,8 +218,8 @@ public class PagoService {
 
             String nombreAlumno = pago.getNombrePagador() != null ? pago.getNombrePagador() : "Estudiante";
             doc.add(new Paragraph("Titular / Pagador: " + nombreAlumno, fuenteTexto));
-            if (pago.getEmailPagador() != null) {
-                doc.add(new Paragraph("Email: " + pago.getEmailPagador(), fuenteTexto));
+            if (pago.getInscripcion() != null && pago.getInscripcion().getAlumno() != null && pago.getInscripcion().getAlumno().getUsuario() != null) {
+                doc.add(new Paragraph("Email: " + pago.getInscripcion().getAlumno().getUsuario().getCorreo(), fuenteTexto));
             }
             if (pago.getUltimosDigitosTarjeta() != null) {
                 doc.add(new Paragraph("Tarjeta: **** **** **** " + pago.getUltimosDigitosTarjeta(), fuenteTexto));

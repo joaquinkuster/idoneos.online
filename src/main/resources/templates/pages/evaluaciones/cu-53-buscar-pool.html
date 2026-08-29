@@ -56,32 +56,8 @@
                 <div class="wf-body">
                     <div class="wf-main-content">
                         
-      <div class="wf-card mb-4" style="background: #FFFFFF;">
-        <div class="d-flex justify-content-between align-items-start pb-3 border-bottom">
-          <div>
-            <h2 style="font-size: 20px; font-weight: 800; color: #081426; margin: 0;">Especialización en Idoneidad Bursátil</h2>
-            <div class="small text-muted mt-1">
-              <span>Página Principal</span> <i class="fa-solid fa-chevron-right" style="font-size: 9px; margin: 0 4px;"></i> <span>Mis cursos</span> <i class="fa-solid fa-chevron-right" style="font-size: 9px; margin: 0 4px;"></i> <span>Buscar pool</span>
-            </div>
-          </div>
-          <div class="d-flex align-items-center gap-3">
-            <span class="wf-badge status-active">Curso Seleccionado</span>
-            <div class="text-muted cursor-pointer" title="Ajustes del curso"><i class="fa-solid fa-gear" style="font-size: 18px;"></i></div>
-          </div>
-        </div>
-
-        <div class="d-flex justify-content-between align-items-center pt-2">
-          <div class="d-flex align-items-center gap-1">
-            <a th:href="@{/academico/aula?modoEdicion=true}" class="wf-tab-btn">Curso & Unidades</a>
-            <a th:href="@{/academico/materiales}" class="wf-tab-btn ">Materiales</a>
-            <a th:href="@{/academico/glosario}" class="wf-tab-btn ">Glosario</a>
-            <a th:href="@{/evaluaciones/autoevaluaciones}" class="wf-tab-btn">Autoevaluaciones</a>
-            <a th:href="@{/evaluaciones/pools}" class="wf-tab-btn active">Pools</a>
-            <a th:href="@{/academico/consultas}" class="wf-tab-btn">Foros</a>
-            <a th:href="@{/clases-vivo}" class="wf-tab-btn">Clases en Vivo</a>
-          </div>
-        </div>
-      </div>
+      <!-- Cabecera y Tabs Unificadas del Curso -->
+      <div th:replace="~{fragments/curso_header :: curso-header('pools')}"></div>
 
       <!-- Barra de Filtros y Búsqueda -->
       <div class="wf-card mb-4" style="background: #FFFFFF;">

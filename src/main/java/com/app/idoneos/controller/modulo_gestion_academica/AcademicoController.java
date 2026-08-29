@@ -27,20 +27,38 @@ import java.util.*;
 public class AcademicoController {
 
     @Autowired private ProgramaService programaService;
+    @Autowired private ProgramaRepository programaRepository;
     @Autowired private CursoService cursoService;
     @Autowired private UnidadService unidadService;
     @Autowired private MaterialService materialService;
     @Autowired private GlosarioService glosarioService;
     @Autowired private ForoService foroService;
+    @Autowired private ConsultaForoRepository consultaForoRepository;
     @Autowired private InscripcionService inscripcionService;
     @Autowired private ProgresoService progresoService;
     @Autowired private CohorteRepository cohorteRepository;
+    @Autowired private CronogramaRepository cronogramaRepository;
     @Autowired private TipoMaterialRepository tipoMaterialRepository;
     @Autowired private DocenteRepository docenteRepository;
+    @Autowired private UsuarioRepository usuarioRepository;
+    @Autowired private com.app.idoneos.repository.modulo_clases_vivo.ClaseEnVivoRepository claseEnVivoRepository;
+
+    private Usuario obtenerUsuarioAutenticado(Authentication auth) {
+        if (auth == null) return null;
+        if (auth.getPrincipal() instanceof Usuario) {
+            return (Usuario) auth.getPrincipal();
+        }
+        String email = auth.getName();
+        if (email != null) {
+            return usuarioRepository.findByCorreo(email).orElse(null);
+        }
+        return null;
+    }
 
     private void agregarUsuarioAlModelo(Model model, Authentication auth) {
-        if (auth != null && auth.getPrincipal() instanceof Usuario) {
-            model.addAttribute("usuario", (Usuario) auth.getPrincipal());
+        Usuario u = obtenerUsuarioAutenticado(auth);
+        if (u != null) {
+            model.addAttribute("usuario", u);
         }
     }
 
@@ -53,10 +71,20 @@ public class AcademicoController {
                                   @RequestParam(value = "busqueda", required = false) String busqueda,
                                   Model model, Authentication auth) {
         agregarUsuarioAlModelo(model, auth);
-        model.addAttribute("programas", programaService.buscarProgramasConFiltros(cursoId, busqueda, false));
+        List<Programa> programas = programaService.buscarProgramasConFiltros(cursoId, busqueda, false);
+        model.addAttribute("programas", programas);
         model.addAttribute("cursos", cursoService.obtenerTodo());
         model.addAttribute("cursoSeleccionado", cursoId);
         model.addAttribute("busqueda", busqueda);
+
+        // Mapeo de cohortes activas por programa para validación de dependencias en frontend (CU-18)
+        Map<Integer, List<Cohorte>> cohortesPorPrograma = new HashMap<>();
+        for (Programa p : programas) {
+            List<Cohorte> coh = cohorteRepository.findByPrograma(p);
+            cohortesPorPrograma.put(p.getId(), coh != null ? coh : List.of());
+        }
+        model.addAttribute("cohortesPorPrograma", cohortesPorPrograma);
+
         model.addAttribute("titulo", "CU-15 - Buscar programa | Idóneos Online");
         return "pages/academico/cu-15-buscar-programa";
     }
@@ -75,9 +103,17 @@ public class AcademicoController {
     public String guardarPrograma(@RequestParam Integer cursoId,
                                   @RequestParam String nombre,
                                   @RequestParam(required = false) String descripcion,
+                                  @RequestParam(required = false) String objetivos,
+                                  @RequestParam(required = false) String bibliografia,
+                                  @RequestParam(required = false) Integer cargaHorariaTotal,
+                                  @RequestParam(required = false) Integer idProgramaAnterior,
                                   RedirectAttributes ra) {
         try {
-            programaService.registrarPrograma(cursoId, nombre, descripcion, "1.0");
+            Programa p = programaService.registrarPrograma(cursoId, nombre, descripcion, "1.0", idProgramaAnterior);
+            if (objetivos != null && !objetivos.isBlank()) p.setObjetivos(objetivos);
+            if (bibliografia != null && !bibliografia.isBlank()) p.setBibliografia(bibliografia);
+            if (cargaHorariaTotal != null && cargaHorariaTotal > 0) p.setCargaHorariaTotal(cargaHorariaTotal);
+            programaRepository.save(p);
             ra.addFlashAttribute("mensaje", "Programa registrado con éxito.");
             return "redirect:/academico/programas?cursoId=" + cursoId;
         } catch (Exception e) {
@@ -101,9 +137,16 @@ public class AcademicoController {
     public String actualizarPrograma(@PathVariable Integer id,
                                      @RequestParam String nombre,
                                      @RequestParam(required = false) String descripcion,
+                                     @RequestParam(required = false) String objetivos,
+                                     @RequestParam(required = false) String bibliografia,
+                                     @RequestParam(required = false) Integer cargaHorariaTotal,
                                      RedirectAttributes ra) {
         try {
             Programa p = programaService.modificarPrograma(id, nombre, descripcion, "1.0");
+            if (objetivos != null && !objetivos.isBlank()) p.setObjetivos(objetivos);
+            if (bibliografia != null && !bibliografia.isBlank()) p.setBibliografia(bibliografia);
+            if (cargaHorariaTotal != null) p.setCargaHorariaTotal(cargaHorariaTotal);
+            programaRepository.save(p);
             ra.addFlashAttribute("mensaje", "Programa modificado con éxito.");
             return "redirect:/academico/programas?cursoId=" + p.getCurso().getIdCurso();
         } catch (Exception e) {
@@ -148,10 +191,15 @@ public class AcademicoController {
         List<Curso> cursos = cursoService.obtenerTodo();
         Curso curso = (cursoId != null) ? cursoService.buscarPorId(cursoId).orElse(null) : (cursos.isEmpty() ? null : cursos.get(0));
 
-        List<Unidad> unidades = (curso != null) ? unidadService.obtenerPorCurso(curso) : List.of();
+        List<Unidad> unidades = (curso != null) ? unidadService.obtenerPorCurso(curso) : unidadService.obtenerTodo();
+        List<Unidad> todasUnidades = unidadService.obtenerTodo();
+
         model.addAttribute("cursos", cursos);
+        model.addAttribute("curso", curso);
         model.addAttribute("cursoSeleccionado", curso);
+        model.addAttribute("cursoNombre", curso != null ? curso.getNombre() : "Mercado de Capitales Argentino");
         model.addAttribute("unidades", unidades);
+        model.addAttribute("todasUnidades", todasUnidades);
         model.addAttribute("titulo", "CU-19 - Buscar unidad | Idóneos Online");
         return "pages/academico/cu-19-buscar-unidad";
     }
@@ -167,19 +215,79 @@ public class AcademicoController {
     }
 
     @PostMapping("/unidades/guardar")
-    public String guardarUnidad(@RequestParam Integer cursoId,
-                                @RequestParam String titulo,
+    public String guardarUnidad(@RequestParam(required = false) Integer cursoId,
+                                @RequestParam(required = false) Integer programaId,
+                                @RequestParam(required = false) Integer unidadExistenteId,
+                                @RequestParam(required = false) String titulo,
                                 @RequestParam(required = false) String descripcion,
                                 @RequestParam(required = false) String contenido,
+                                @RequestParam(required = false) Integer numeroOrden,
+                                @RequestParam(required = false) Integer semanasDuracion,
                                 RedirectAttributes ra) {
         try {
-            Unidad u = new Unidad(titulo, descripcion, (contenido != null && !contenido.isBlank()) ? contenido : "Contenido de la unidad");
-            unidadService.guardar(u);
-            ra.addFlashAttribute("mensaje", "Unidad agregada correctamente.");
-            return "redirect:/academico/unidades?cursoId=" + cursoId;
+            Unidad unidad;
+            Programa programa = null;
+            if (programaId != null) {
+                programa = programaService.buscarPorId(programaId).orElse(null);
+            } else if (cursoId != null) {
+                Curso c = cursoService.buscarPorId(cursoId).orElse(null);
+                if (c != null) {
+                    List<Programa> progs = programaService.buscarPorCurso(c);
+                    if (!progs.isEmpty()) programa = progs.get(0);
+                }
+            }
+
+            if (unidadExistenteId != null) {
+                unidad = unidadService.buscarPorId(unidadExistenteId).orElseThrow(() -> new IllegalArgumentException("Unidad existente no encontrada"));
+                ra.addFlashAttribute("mensaje", "Unidad vinculada al programa correctamente.");
+            } else {
+                unidad = new Unidad(titulo, descripcion, (contenido != null && !contenido.isBlank()) ? contenido : "Contenido temático de la unidad");
+                unidadService.guardar(unidad);
+                ra.addFlashAttribute("mensaje", "Unidad agregada correctamente.");
+            }
+
+            if (programa != null) {
+                int orden = (numeroOrden != null && numeroOrden > 0) ? numeroOrden : (cronogramaRepository.countByPrograma(programa) + 1);
+                int dur = (semanasDuracion != null && semanasDuracion > 0) ? semanasDuracion : 1;
+                if (!cronogramaRepository.existsByProgramaAndUnidad(programa, unidad)) {
+                    Cronograma cron = new Cronograma(orden, dur, programa, unidad);
+                    cronogramaRepository.save(cron);
+                }
+            }
+
+            return cursoId != null ? "redirect:/academico/unidades?cursoId=" + cursoId : "redirect:/academico/unidades";
         } catch (Exception e) {
             ra.addFlashAttribute("error", e.getMessage());
-            return "redirect:/academico/unidades/nueva?cursoId=" + cursoId;
+            return "redirect:/academico/unidades";
+        }
+    }
+
+    @PostMapping("/unidades/asociar")
+    public String asociarUnidadExistente(@RequestParam Integer programaId,
+                                         @RequestParam Integer unidadId,
+                                         @RequestParam(required = false) Integer numeroOrden,
+                                         @RequestParam(required = false) Integer semanasDuracion,
+                                         RedirectAttributes ra) {
+        try {
+            Programa programa = programaService.buscarPorId(programaId)
+                    .orElseThrow(() -> new IllegalArgumentException("Programa no encontrado con ID: " + programaId));
+            Unidad unidad = unidadService.buscarPorId(unidadId)
+                    .orElseThrow(() -> new IllegalArgumentException("Unidad no encontrada con ID: " + unidadId));
+
+            int orden = (numeroOrden != null && numeroOrden > 0) ? numeroOrden : (cronogramaRepository.countByPrograma(programa) + 1);
+            int dur = (semanasDuracion != null && semanasDuracion > 0) ? semanasDuracion : 1;
+
+            if (!cronogramaRepository.existsByProgramaAndUnidad(programa, unidad)) {
+                Cronograma cron = new Cronograma(orden, dur, programa, unidad);
+                cronogramaRepository.save(cron);
+            }
+
+            ra.addFlashAttribute("mensaje", "Unidad asociada al cronograma del programa exitosamente.");
+            Integer cId = (programa.getCurso() != null) ? programa.getCurso().getIdCurso() : null;
+            return cId != null ? "redirect:/academico/unidades?cursoId=" + cId : "redirect:/academico/unidades";
+        } catch (Exception e) {
+            ra.addFlashAttribute("error", e.getMessage());
+            return "redirect:/academico/unidades";
         }
     }
 
@@ -228,17 +336,17 @@ public class AcademicoController {
         return "pages/academico/cu-22-quitar-unidad";
     }
 
-    @PostMapping("/unidades/{id}/quitar")
+    @PostMapping({"/unidades/{id}/quitar", "/unidades/{id}/baja"})
     public String eliminarUnidad(@PathVariable Integer id, RedirectAttributes ra) {
         try {
             Unidad u = unidadService.buscarPorId(id).orElse(null);
             Integer cId = (u != null && u.getCurso() != null) ? u.getCurso().getIdCurso() : null;
             unidadService.darDeBaja(id);
-            ra.addFlashAttribute("mensaje", "Unidad eliminada con éxito.");
+            ra.addFlashAttribute("mensaje", "Unidad desvinculada con éxito.");
             return cId != null ? "redirect:/academico/unidades?cursoId=" + cId : "redirect:/academico/unidades";
         } catch (Exception e) {
             ra.addFlashAttribute("error", e.getMessage());
-            return "redirect:/academico/unidades/" + id + "/quitar";
+            return "redirect:/academico/unidades";
         }
     }
 
@@ -248,42 +356,118 @@ public class AcademicoController {
 
     @GetMapping({"/cronogramas", "/cronograma"})
     public String buscarCronograma(@RequestParam(value = "cohorteId", required = false) Integer cohorteId,
+                                   @RequestParam(value = "cursoId", required = false) Integer cursoId,
                                    Model model, Authentication auth) {
         agregarUsuarioAlModelo(model, auth);
         List<Cohorte> cohortes = cohorteRepository.findAll();
         Cohorte cohorte = (cohorteId != null) ? cohorteRepository.findById(cohorteId).orElse(null) : (cohortes.isEmpty() ? null : cohortes.get(0));
 
+        Curso curso = null;
+        if (cursoId != null) {
+            curso = cursoService.buscarPorId(cursoId).orElse(null);
+        } else if (cohorte != null && cohorte.getPrograma() != null && cohorte.getPrograma().getCurso() != null) {
+            curso = cohorte.getPrograma().getCurso();
+        } else {
+            List<Curso> todos = cursoService.obtenerTodo();
+            if (!todos.isEmpty()) curso = todos.get(0);
+        }
+
+        List<Cronograma> cronogramasList = (cohorte != null && cohorte.getPrograma() != null) ? cohorte.getPrograma().getCronogramas() : List.of();
+        model.addAttribute("cronogramas", cronogramasList);
         model.addAttribute("cohortes", cohortes);
         model.addAttribute("cohorteSeleccionada", cohorte);
-        if (cohorte != null && cohorte.getPrograma() != null && cohorte.getPrograma().getCurso() != null) {
-            model.addAttribute("unidades", unidadService.obtenerPorCurso(cohorte.getPrograma().getCurso()));
+        model.addAttribute("cohorte", cohorte);
+        model.addAttribute("curso", curso);
+        model.addAttribute("cursoSeleccionado", curso);
+        if (curso != null) {
+            model.addAttribute("unidades", unidadService.obtenerPorCurso(curso));
+        } else {
+            model.addAttribute("unidades", unidadService.obtenerTodo());
         }
         model.addAttribute("titulo", "CU-23 - Buscar cronograma | Idóneos Online");
         return "pages/academico/cu-23-buscar-cronograma";
     }
 
-    @GetMapping("/cronogramas/{id}/editar")
-    public String modificarCronogramaForm(@PathVariable Integer id, Model model, Authentication auth) {
-        Optional<Cohorte> cOpt = cohorteRepository.findById(id);
-        if (cOpt.isEmpty()) return "redirect:/academico/cronogramas";
-
+    @GetMapping({"/cronogramas/modificar", "/cronograma/modificar", "/cronogramas/{id}/editar"})
+    public String modificarCronogramaForm(@PathVariable(required = false) Integer id,
+                                          @RequestParam(value = "cohorteId", required = false) Integer cohorteId,
+                                          Model model, Authentication auth) {
         agregarUsuarioAlModelo(model, auth);
-        model.addAttribute("cohorte", cOpt.get());
+        Integer targetId = (id != null) ? id : cohorteId;
+        Cohorte cohorte = null;
+        if (targetId != null) {
+            cohorte = cohorteRepository.findById(targetId).orElse(null);
+        }
+        if (cohorte == null) {
+            List<Cohorte> cohortes = cohorteRepository.findAll();
+            if (!cohortes.isEmpty()) cohorte = cohortes.get(0);
+        }
+
+        Curso curso = (cohorte != null && cohorte.getPrograma() != null) ? cohorte.getPrograma().getCurso() : null;
+        if (curso == null) {
+            List<Curso> todos = cursoService.obtenerTodo();
+            if (!todos.isEmpty()) curso = todos.get(0);
+        }
+
+        List<Cronograma> cronogramasList = (cohorte != null && cohorte.getPrograma() != null) ? cohorte.getPrograma().getCronogramas() : List.of();
+        model.addAttribute("cronogramas", cronogramasList);
+        model.addAttribute("cohorte", cohorte);
+        model.addAttribute("cohorteSeleccionada", cohorte);
+        model.addAttribute("curso", curso);
+        model.addAttribute("cursoSeleccionado", curso);
+        model.addAttribute("unidades", (curso != null) ? unidadService.obtenerPorCurso(curso) : unidadService.obtenerTodo());
         model.addAttribute("titulo", "CU-24 - Modificar cronograma | Idóneos Online");
         return "pages/academico/cu-24-modificar-cronograma";
     }
 
+    @PostMapping({"/cronograma/guardar", "/cronogramas/guardar", "/cronogramas/modificar"})
+    public String guardarModificacionesCronograma(@RequestParam(required = false) Integer cronogramaId,
+                                                  @RequestParam(required = false) Integer cohorteId,
+                                                  @RequestParam(required = false) Integer semanasDuracion,
+                                                  @RequestParam(required = false) Integer numeroOrden,
+                                                  RedirectAttributes ra) {
+        try {
+            if (cronogramaId != null && cronogramaRepository != null) {
+                cronogramaRepository.findById(cronogramaId).ifPresent(c -> {
+                    if (semanasDuracion != null) c.setSemanasDuracion(semanasDuracion);
+                    if (numeroOrden != null) c.setNumeroOrden(numeroOrden);
+                    cronogramaRepository.save(c);
+                });
+            }
+            ra.addFlashAttribute("mensaje", "Cronograma actualizado con éxito.");
+            return (cohorteId != null) ? "redirect:/academico/cronograma?cohorteId=" + cohorteId : "redirect:/academico/cronograma";
+        } catch (Exception e) {
+            ra.addFlashAttribute("error", e.getMessage());
+            return "redirect:/academico/cronograma";
+        }
+    }
+
     @GetMapping("/participantes")
     public String verParticipantes(@RequestParam(value = "cohorteId", required = false) Integer cohorteId,
+                                   @RequestParam(value = "cursoId", required = false) Integer cursoId,
                                    Model model, Authentication auth) {
         agregarUsuarioAlModelo(model, auth);
         List<Cohorte> cohortes = cohorteRepository.findAll();
         Cohorte cohorte = (cohorteId != null) ? cohorteRepository.findById(cohorteId).orElse(null) : (cohortes.isEmpty() ? null : cohortes.get(0));
 
-        List<Inscripcion> inscripciones = (cohorte != null) ? inscripcionService.obtenerPorCohorte(cohorte) : List.of();
+        Curso curso = null;
+        if (cursoId != null) {
+            curso = cursoService.buscarPorId(cursoId).orElse(null);
+        } else if (cohorte != null && cohorte.getPrograma() != null && cohorte.getPrograma().getCurso() != null) {
+            curso = cohorte.getPrograma().getCurso();
+        } else {
+            List<Curso> todos = cursoService.obtenerTodo();
+            if (!todos.isEmpty()) curso = todos.get(0);
+        }
+
+        List<Inscripcion> inscripciones = (cohorte != null) ? inscripcionService.obtenerPorCohorte(cohorte) : inscripcionService.obtenerTodo();
         model.addAttribute("cohortes", cohortes);
         model.addAttribute("cohorteSeleccionada", cohorte);
+        model.addAttribute("cohorte", cohorte);
+        model.addAttribute("curso", curso);
+        model.addAttribute("cursoSeleccionado", curso);
         model.addAttribute("inscripciones", inscripciones);
+        model.addAttribute("participantes", inscripciones);
         model.addAttribute("titulo", "CU-25 - Ver participantes | Idóneos Online");
         return "pages/academico/cu-25-ver-participantes";
     }
@@ -296,8 +480,8 @@ public class AcademicoController {
     public String accederCurso(@PathVariable(required = false) Integer id,
                                @RequestParam(value = "cursoId", required = false) Integer cursoIdParam,
                                Model model, Authentication auth) {
-        if (auth == null || !(auth.getPrincipal() instanceof Usuario)) return "redirect:/login";
-        Usuario usuario = (Usuario) auth.getPrincipal();
+        Usuario usuario = obtenerUsuarioAutenticado(auth);
+        if (usuario == null) return "redirect:/login";
 
         Integer targetId = (id != null) ? id : (cursoIdParam != null ? cursoIdParam : null);
         Curso curso = null;
@@ -342,8 +526,18 @@ public class AcademicoController {
             }
         }
 
+        // Clase en vivo activa / programada del curso
+        final Curso cursoFinal = curso;
+        ClaseEnVivo claseVivoActiva = null;
+        if (cursoFinal != null && claseEnVivoRepository != null) {
+            claseVivoActiva = claseEnVivoRepository.findAll().stream()
+                    .filter(c -> !c.getBaja() && c.getCohorte() != null && c.getCohorte().getPrograma() != null && cursoFinal.equals(c.getCohorte().getPrograma().getCurso()))
+                    .findFirst().orElse(null);
+        }
+
         model.addAttribute("usuario", usuario);
         model.addAttribute("curso", curso);
+        model.addAttribute("claseEnVivo", claseVivoActiva);
         model.addAttribute("unidades", unidades);
         model.addAttribute("unidadHabilitadaMap", unidadHabilitadaMap);
         model.addAttribute("unidadCompletadaMap", unidadCompletadaMap);
@@ -355,8 +549,8 @@ public class AcademicoController {
 
     @GetMapping("/curso/{id}/edicion")
     public String accederCursoModoEdicion(@PathVariable Integer id, Model model, Authentication auth) {
-        if (auth == null || !(auth.getPrincipal() instanceof Usuario)) return "redirect:/login";
-        Usuario usuario = (Usuario) auth.getPrincipal();
+        Usuario usuario = obtenerUsuarioAutenticado(auth);
+        if (usuario == null) return "redirect:/login";
 
         Optional<Curso> cOpt = cursoService.buscarPorId(id);
         if (cOpt.isEmpty()) return "redirect:/cursos";
@@ -367,6 +561,7 @@ public class AcademicoController {
         model.addAttribute("usuario", usuario);
         model.addAttribute("curso", curso);
         model.addAttribute("unidades", unidades);
+        model.addAttribute("modoEdicion", true);
         model.addAttribute("tiposMaterial", tipoMaterialRepository.findAll());
         model.addAttribute("titulo", "CU-26b - Modo Edición: " + curso.getNombre() + " | Idóneos Online");
         return "pages/academico/cu-26b-acceder-curso-modo-edicion-docente-administrador";
@@ -377,13 +572,25 @@ public class AcademicoController {
     // ─────────────────────────────────────────────────────────────
 
     @GetMapping("/materiales")
-    public String buscarMateriales(@RequestParam(value = "unidadId", required = false) Integer unidadId,
+    public String buscarMateriales(@RequestParam(value = "cursoId", required = false) Integer cursoId,
+                                   @RequestParam(value = "unidadId", required = false) Integer unidadId,
                                    Model model, Authentication auth) {
         agregarUsuarioAlModelo(model, auth);
-        List<Unidad> unidades = unidadService.obtenerTodo();
+        Curso curso = (cursoId != null) ? cursoService.buscarPorId(cursoId).orElse(null) : null;
+        List<Unidad> unidades = (curso != null) ? unidadService.obtenerPorCurso(curso) : unidadService.obtenerTodo();
         Unidad unidad = (unidadId != null) ? unidadService.buscarPorId(unidadId).orElse(null) : (unidades.isEmpty() ? null : unidades.get(0));
 
+        if (curso == null && unidad != null && unidad.getCurso() != null) {
+            curso = unidad.getCurso();
+        }
+        if (curso == null) {
+            List<Curso> todos = cursoService.obtenerTodo();
+            if (!todos.isEmpty()) curso = todos.get(0);
+        }
+
         List<Material> materiales = (unidad != null) ? materialService.obtenerPorUnidad(unidad) : List.of();
+        model.addAttribute("curso", curso);
+        model.addAttribute("cursoSeleccionado", curso);
         model.addAttribute("unidades", unidades);
         model.addAttribute("unidadSeleccionada", unidad);
         model.addAttribute("materiales", materiales);
@@ -404,18 +611,24 @@ public class AcademicoController {
 
     @PostMapping("/materiales/guardar")
     public String guardarMaterial(@RequestParam Integer unidadId,
-                                  @RequestParam String nombre,
+                                  @RequestParam(required = false) String nombre,
+                                  @RequestParam(value = "titulo", required = false) String titulo,
                                   @RequestParam(required = false) String descripcion,
                                   @RequestParam String url,
-                                  @RequestParam Integer tipoMaterialId,
+                                  @RequestParam(required = false) Integer tipoMaterialId,
+                                  @RequestParam(required = false) Boolean oculto,
                                   Authentication auth,
                                   RedirectAttributes ra) {
         try {
             Unidad unidad = unidadService.buscarPorId(unidadId).orElseThrow(() -> new IllegalArgumentException("Unidad inválida"));
-            TipoMaterial tipo = tipoMaterialRepository.findById(tipoMaterialId).orElse(null);
+            TipoMaterial tipo = (tipoMaterialId != null) ? tipoMaterialRepository.findById(tipoMaterialId).orElse(null) : null;
+            if (tipo == null) {
+                List<TipoMaterial> tipos = tipoMaterialRepository.findAll();
+                if (!tipos.isEmpty()) tipo = tipos.get(0);
+            }
             Docente docente = null;
-            if (auth != null && auth.getPrincipal() instanceof Usuario) {
-                Usuario u = (Usuario) auth.getPrincipal();
+            Usuario u = obtenerUsuarioAutenticado(auth);
+            if (u != null) {
                 docente = docenteRepository.findById(u.getId()).orElse(null);
             }
             if (docente == null) {
@@ -423,9 +636,11 @@ public class AcademicoController {
                 docente = docentes.isEmpty() ? null : docentes.get(0);
             }
 
-            Material m = new Material(nombre, docente, tipo, unidad);
+            String tituloFinal = (titulo != null && !titulo.isBlank()) ? titulo : nombre;
+            Material m = new Material(tituloFinal, docente, tipo, unidad);
             m.setRutaArchivo(url);
             m.setContenido(descripcion);
+            if (oculto != null) m.setOculto(oculto);
             materialService.guardar(m);
             ra.addFlashAttribute("mensaje", "Material subido exitosamente.");
             return "redirect:/academico/materiales?unidadId=" + unidadId;
@@ -449,15 +664,19 @@ public class AcademicoController {
 
     @PostMapping("/materiales/{id}/editar")
     public String actualizarMaterial(@PathVariable Integer id,
-                                     @RequestParam String nombre,
+                                     @RequestParam(required = false) String nombre,
+                                     @RequestParam(value = "titulo", required = false) String titulo,
                                      @RequestParam(required = false) String descripcion,
                                      @RequestParam String url,
+                                     @RequestParam(required = false) Boolean oculto,
                                      RedirectAttributes ra) {
         try {
             Material m = materialService.buscarPorId(id).orElseThrow(() -> new IllegalArgumentException("Material no encontrado"));
-            m.setTitulo(nombre);
+            String tituloFinal = (titulo != null && !titulo.isBlank()) ? titulo : nombre;
+            if (tituloFinal != null) m.setTitulo(tituloFinal);
             m.setContenido(descripcion);
             m.setRutaArchivo(url);
+            if (oculto != null) m.setOculto(oculto);
             materialService.modificar(m);
             ra.addFlashAttribute("mensaje", "Material actualizado con éxito.");
             return "redirect:/academico/materiales?unidadId=" + m.getUnidad().getId();
@@ -497,13 +716,25 @@ public class AcademicoController {
     // ─────────────────────────────────────────────────────────────
 
     @GetMapping("/glosario")
-    public String buscarGlosario(@RequestParam(value = "unidadId", required = false) Integer unidadId,
+    public String buscarGlosario(@RequestParam(value = "cursoId", required = false) Integer cursoId,
+                                 @RequestParam(value = "unidadId", required = false) Integer unidadId,
                                  Model model, Authentication auth) {
         agregarUsuarioAlModelo(model, auth);
-        List<Unidad> unidades = unidadService.obtenerTodo();
+        Curso curso = (cursoId != null) ? cursoService.buscarPorId(cursoId).orElse(null) : null;
+        List<Unidad> unidades = (curso != null) ? unidadService.obtenerPorCurso(curso) : unidadService.obtenerTodo();
         Unidad unidad = (unidadId != null) ? unidadService.buscarPorId(unidadId).orElse(null) : (unidades.isEmpty() ? null : unidades.get(0));
 
+        if (curso == null && unidad != null && unidad.getCurso() != null) {
+            curso = unidad.getCurso();
+        }
+        if (curso == null) {
+            List<Curso> todos = cursoService.obtenerTodo();
+            if (!todos.isEmpty()) curso = todos.get(0);
+        }
+
         List<TerminoGlosario> terminos = (unidad != null) ? glosarioService.obtenerPorUnidad(unidad) : List.of();
+        model.addAttribute("curso", curso);
+        model.addAttribute("cursoSeleccionado", curso);
         model.addAttribute("unidades", unidades);
         model.addAttribute("unidadSeleccionada", unidad);
         model.addAttribute("terminos", terminos);
@@ -595,14 +826,26 @@ public class AcademicoController {
     // CU-35 a CU-38: FORO DE CONSULTAS
     // ─────────────────────────────────────────────────────────────
 
-    @GetMapping("/foro")
-    public String buscarForo(@RequestParam(value = "unidadId", required = false) Integer unidadId,
+    @GetMapping({"/foro", "/consultas"})
+    public String buscarForo(@RequestParam(value = "cursoId", required = false) Integer cursoId,
+                             @RequestParam(value = "unidadId", required = false) Integer unidadId,
                              Model model, Authentication auth) {
         agregarUsuarioAlModelo(model, auth);
-        List<Unidad> unidades = unidadService.obtenerTodo();
+        Curso curso = (cursoId != null) ? cursoService.buscarPorId(cursoId).orElse(null) : null;
+        List<Unidad> unidades = (curso != null) ? unidadService.obtenerPorCurso(curso) : unidadService.obtenerTodo();
         Unidad unidad = (unidadId != null) ? unidadService.buscarPorId(unidadId).orElse(null) : (unidades.isEmpty() ? null : unidades.get(0));
 
-        List<ConsultaForo> consultas = (unidad != null) ? foroService.obtenerConsultasPorUnidad(unidad) : List.of();
+        if (curso == null && unidad != null && unidad.getCurso() != null) {
+            curso = unidad.getCurso();
+        }
+        if (curso == null) {
+            List<Curso> todos = cursoService.obtenerTodo();
+            if (!todos.isEmpty()) curso = todos.get(0);
+        }
+
+        List<ConsultaForo> consultas = (unidad != null) ? foroService.obtenerPorUnidad(unidad) : List.of();
+        model.addAttribute("curso", curso);
+        model.addAttribute("cursoSeleccionado", curso);
         model.addAttribute("unidades", unidades);
         model.addAttribute("unidadSeleccionada", unidad);
         model.addAttribute("consultas", consultas);
@@ -610,7 +853,7 @@ public class AcademicoController {
         return "pages/academico/cu-35-buscar-consulta-de-foro";
     }
 
-    @GetMapping("/foro/nueva")
+    @GetMapping({"/foro/nueva", "/consultas/nueva"})
     public String registrarConsultaForm(@RequestParam(value = "unidadId", required = false) Integer unidadId,
                                         Model model, Authentication auth) {
         agregarUsuarioAlModelo(model, auth);
@@ -620,27 +863,36 @@ public class AcademicoController {
         return "pages/academico/cu-36-registrar-consulta-de-foro";
     }
 
-    @PostMapping("/foro/guardar")
-    public String guardarConsulta(@RequestParam Integer unidadId,
+    @PostMapping({"/foro/guardar", "/consultas/guardar"})
+    public String guardarConsulta(@RequestParam(required = false) Integer unidadId,
                                   @RequestParam String texto,
                                   Authentication auth, RedirectAttributes ra) {
-        if (auth == null || !(auth.getPrincipal() instanceof Usuario)) return "redirect:/login";
-        Usuario u = (Usuario) auth.getPrincipal();
+        Usuario u = obtenerUsuarioAutenticado(auth);
+        if (u == null) return "redirect:/login";
         try {
-            Unidad unidad = unidadService.buscarPorId(unidadId).orElseThrow(() -> new IllegalArgumentException("Unidad no encontrada"));
+            Unidad unidad = null;
+            if (unidadId != null) {
+                unidad = unidadService.buscarPorId(unidadId).orElse(null);
+            }
+            if (unidad == null) {
+                List<Unidad> unidades = unidadService.obtenerTodo();
+                if (!unidades.isEmpty()) unidad = unidades.get(0);
+            }
+            if (unidad == null) throw new IllegalArgumentException("No hay unidades disponibles para registrar la consulta");
+            
             foroService.crearConsulta(texto, u, unidad);
             ra.addFlashAttribute("mensaje", "Consulta publicada en el foro.");
-            return "redirect:/academico/foro?unidadId=" + unidadId;
+            return "redirect:/academico/consultas?unidadId=" + unidad.getId();
         } catch (Exception e) {
             ra.addFlashAttribute("error", e.getMessage());
-            return "redirect:/academico/foro/nueva?unidadId=" + unidadId;
+            return unidadId != null ? "redirect:/academico/consultas/nueva?unidadId=" + unidadId : "redirect:/academico/consultas";
         }
     }
 
-    @GetMapping("/foro/{id}/editar")
+    @GetMapping({"/foro/{id}/editar", "/consultas/{id}/editar"})
     public String modificarConsultaForm(@PathVariable Integer id, Model model, Authentication auth) {
         Optional<ConsultaForo> cOpt = foroService.buscarConsultaPorId(id);
-        if (cOpt.isEmpty()) return "redirect:/academico/foro";
+        if (cOpt.isEmpty()) return "redirect:/academico/consultas";
 
         agregarUsuarioAlModelo(model, auth);
         model.addAttribute("consulta", cOpt.get());
@@ -648,7 +900,7 @@ public class AcademicoController {
         return "pages/academico/cu-37-modificar-consulta-de-foro";
     }
 
-    @PostMapping("/foro/{id}/editar")
+    @PostMapping({"/foro/{id}/editar", "/consultas/{id}/editar"})
     public String actualizarConsulta(@PathVariable Integer id,
                                      @RequestParam String texto,
                                      RedirectAttributes ra) {
@@ -657,17 +909,17 @@ public class AcademicoController {
             c.setTexto(texto);
             foroService.modificarConsulta(c);
             ra.addFlashAttribute("mensaje", "Consulta modificada con éxito.");
-            return "redirect:/academico/foro?unidadId=" + c.getUnidad().getId();
+            return "redirect:/academico/consultas?unidadId=" + c.getUnidad().getId();
         } catch (Exception e) {
             ra.addFlashAttribute("error", e.getMessage());
-            return "redirect:/academico/foro/" + id + "/editar";
+            return "redirect:/academico/consultas/" + id + "/editar";
         }
     }
 
-    @GetMapping("/foro/{id}/baja")
+    @GetMapping({"/foro/{id}/baja", "/consultas/{id}/baja"})
     public String darDeBajaConsultaView(@PathVariable Integer id, Model model, Authentication auth) {
         Optional<ConsultaForo> cOpt = foroService.buscarConsultaPorId(id);
-        if (cOpt.isEmpty()) return "redirect:/academico/foro";
+        if (cOpt.isEmpty()) return "redirect:/academico/consultas";
 
         agregarUsuarioAlModelo(model, auth);
         model.addAttribute("consulta", cOpt.get());
@@ -675,17 +927,17 @@ public class AcademicoController {
         return "pages/academico/cu-38-dar-de-baja-consulta-de-foro";
     }
 
-    @PostMapping("/foro/{id}/baja")
+    @PostMapping({"/foro/{id}/baja", "/consultas/{id}/baja"})
     public String eliminarConsulta(@PathVariable Integer id, RedirectAttributes ra) {
         try {
             ConsultaForo c = foroService.buscarConsultaPorId(id).orElse(null);
             Integer uId = (c != null && c.getUnidad() != null) ? c.getUnidad().getId() : null;
             foroService.darDeBajaConsulta(id);
             ra.addFlashAttribute("mensaje", "Consulta dada de baja correctamente.");
-            return uId != null ? "redirect:/academico/foro?unidadId=" + uId : "redirect:/academico/foro";
+            return uId != null ? "redirect:/academico/consultas?unidadId=" + uId : "redirect:/academico/consultas";
         } catch (Exception e) {
             ra.addFlashAttribute("error", e.getMessage());
-            return "redirect:/academico/foro/" + id + "/baja";
+            return "redirect:/academico/consultas/" + id + "/baja";
         }
     }
 }

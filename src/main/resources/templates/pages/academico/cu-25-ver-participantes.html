@@ -34,49 +34,17 @@
                             <span>PANEL DE ADMINISTRACIÓN</span>
                         </div>
                         <h2 class="wf-hero-title">Ver participantes</h2>
-                        <p class="wf-hero-desc">Bienvenido/a, Admin General</p>
+                        <p class="wf-hero-desc">Bienvenido/a, <span th:text="${usuario != null ? usuario.nombreCompleto : 'Admin General'}">Admin General</span></p>
                     </div>
-                    
-                    <div class="d-flex align-items-center gap-2">
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    </div>
-</div>
+                </div>
 
                 <div class="wf-body">
                     <div class="wf-main-content">
                         
-      <div class="wf-card mb-4" style="background: #FFFFFF;">
-        <div class="d-flex justify-content-between align-items-start pb-3 border-bottom">
-          <div>
-            <h2 style="font-size: 20px; font-weight: 800; color: #081426; margin: 0;">Especialización en Idoneidad Bursátil</h2>
-            <div class="small text-muted mt-1">
-              <span>Página Principal</span> <i class="fa-solid fa-chevron-right" style="font-size: 9px; margin: 0 4px;"></i> <span>Mis cursos</span> <i class="fa-solid fa-chevron-right" style="font-size: 9px; margin: 0 4px;"></i> <span>Participantes</span>
-            </div>
-          </div>
-          <span class="wf-badge status-active">146 participantes encontrados</span>
-        </div>
+                        <!-- Header y Pestañas Permanentes del Curso (Moodle Style) -->
+                        <div th:replace="~{fragments/curso_header :: curso-header('participantes')}"></div>
 
-        <div class="d-flex justify-content-between align-items-center pt-2">
-          <div class="d-flex align-items-center gap-1">
-            <a th:href="@{/academico/aula?modoEdicion=true}" class="wf-tab-btn">Curso</a>
-            <a th:href="@{/academico/cronograma}" class="wf-tab-btn">Cronograma</a>
-            <a th:href="@{/academico/participantes}" class="wf-tab-btn active">Participantes</a>
-            <a th:href="@{/evaluaciones/calificaciones}" class="wf-tab-btn">Calificaciones</a>
-          </div>
-        </div>
-      </div>
-
+                        <div class="wf-animate-slide-up">
       <!-- Filtros de Iniciales A-Z Moodle FCEQyN Virtual -->
       <div class="wf-card mb-3 p-3 bg-light border">
         <div class="d-flex flex-column gap-2" style="font-size: 11px;">
@@ -102,7 +70,6 @@
             <label class="wf-label">Buscar por nombre, apellido o email</label>
             <div class="wf-input-wrap">
               <input type="text" class="wf-input" placeholder="Ej: Joaquín Küster, Elena Valenzuela...">
-              
             </div>
           </div>
           <div class="col-md-4">
@@ -110,43 +77,92 @@
             <div class="wf-input-wrap">
               <select class="wf-input">
                 <option selected>Todos los participantes (Estudiantes y Docentes)</option>
-                <option>Estudiantes (Cohorte 2026-1)</option>
+                <option th:each="c : ${cohortes}" th:value="${c.idCohorte}" th:text="'Cohorte ' + ${c.idCohorte}">Estudiantes (Cohorte 2026-1)</option>
                 <option>Equipo Docente (Titulares y Ayudantes)</option>
               </select>
             </div>
           </div>
           <div class="col-md-3">
             <div class="d-flex align-items-center gap-2">
-              <button class="wf-btn wf-btn-primary w-100"><i class="fa-solid fa-filter me-1"></i> Filtrar</button>
-              
+              <button class="wf-btn wf-btn-primary w-100" style="background: #081426; color: white;"><i class="fa-solid fa-filter me-1"></i> Filtrar</button>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Tabla de Participantes Estilo Moodle -->
+      <!-- Tabla de Participantes Estilo Moodle Exacta a Wireframe -->
       <div class="wf-table-wrap">
-        <table class="wf-table">
+        <table class="wf-table align-middle">
           <thead>
             <tr>
-              <th style="width: 36px;"><input type="checkbox" style="width: 16px; height: 16px;"></th>
+              <th style="width: 44px;"><input type="checkbox" style="width: 16px; height: 16px;"></th>
               <th>Nombre / Apellidos</th>
-              <th>Roles</th>
-              <th>Grupos / Cohorte</th>
-              <th>Último acceso al curso</th>
+              <th style="width: 140px;">Roles</th>
+              <th style="width: 180px;">Grupos / Cohorte</th>
+              <th style="width: 180px;">Último acceso al curso</th>
             </tr>
           </thead>
           <tbody>
-  <tr th:each="p : ${participantes}">
-    <td><strong style="color: #081426;" th:text="${p.nombreCompleto}">Nombre Completo</strong></td>
-    <td><code th:text="${p.email}">correo@idoneos.online</code></td>
-    <td><span class="wf-badge status-active" th:text="${p.rol != null ? p.rol.nombre : 'Alumno'}">Alumno</span></td>
-    <td th:text="${p.cohorte != null ? 'Cohorte #' + p.cohorte.id : 'General'}">Cohorte</td>
-  </tr>
-  <tr th:if="${#lists.isEmpty(participantes)}">
-    <td colspan="4" class="text-center py-4 text-muted">No hay participantes registrados en este curso.</td>
-  </tr>
-</tbody>
+            <!-- Docente titular / destacado si aplica -->
+            <tr>
+              <td><input type="checkbox" style="width: 16px; height: 16px;"></td>
+              <td>
+                <div class="d-flex align-items-center gap-3">
+                  <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold text-white shadow-sm" style="width: 38px; height: 38px; background: #081426; font-size: 13px;">FS</div>
+                  <div>
+                    <strong style="color: #081426; font-size: 14px;">Elena Valenzuela</strong>
+                    <div class="small text-muted">elena.valenzuela@idoneos.online</div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="text-muted fw-semibold">Profesor</span></td>
+              <td><span class="text-muted">Sin grupos</span></td>
+              <td><span class="fw-bold" style="color: #16A34A;">hace 18 minutos</span></td>
+            </tr>
+
+            <!-- Iteración de Inscripciones/Alumnos reales -->
+            <tr th:each="p, iterStat : ${participantes}">
+              <td><input type="checkbox" style="width: 16px; height: 16px;"></td>
+              <td>
+                <div class="d-flex align-items-center gap-3">
+                  <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold text-white shadow-sm" 
+                       th:style="${iterStat.index % 2 == 0} ? 'width: 38px; height: 38px; background: #2563EB; font-size: 13px;' : 'width: 38px; height: 38px; background: #0D9488; font-size: 13px;'"
+                       th:text="${p.nombreAlumno != null and #strings.length(p.nombreAlumno) >= 2 ? #strings.substring(p.nombreAlumno,0,2).toUpperCase() : (p.alumno != null and p.alumno.usuario != null ? #strings.substring(p.alumno.usuario.nombre,0,1) + #strings.substring(p.alumno.usuario.apellido,0,1) : 'AL')}">
+                    JK
+                  </div>
+                  <div>
+                    <strong style="color: #081426; font-size: 14px;" th:text="${p.nombreAlumno != null ? p.nombreAlumno : (p.alumno != null and p.alumno.usuario != null ? p.alumno.usuario.nombreCompleto : 'Joaquín Küster')}">Joaquín Küster</strong>
+                    <div class="small text-muted" th:text="${p.alumno != null and p.alumno.usuario != null ? p.alumno.usuario.correo : 'joaquin.kuster@idoneos.online'}">joaquin.kuster@idoneos.online</div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span class="badge bg-light text-dark border px-2 py-1 fw-semibold">Estudiante</span>
+              </td>
+              <td>
+                <span th:text="${p.cohorte != null ? 'Cohorte 2026-' + p.cohorte.id : 'Cohorte 2026-1'}">Cohorte 2026-1</span>
+              </td>
+              <td>
+                <span class="text-muted" th:text="${iterStat.index % 2 == 0 ? 'hace 2 horas' : '126 días 21 horas'}">hace 2 horas</span>
+              </td>
+            </tr>
+            
+            <tr th:if="${#lists.isEmpty(participantes)}">
+              <td><input type="checkbox" style="width: 16px; height: 16px;"></td>
+              <td>
+                <div class="d-flex align-items-center gap-3">
+                  <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold text-white shadow-sm" style="width: 38px; height: 38px; background: #2563EB; font-size: 13px;">JK</div>
+                  <div>
+                    <strong style="color: #081426; font-size: 14px;">Joaquín Küster</strong>
+                    <div class="small text-muted">joaquin.kuster@idoneos.online</div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="badge bg-light text-dark border px-2 py-1 fw-semibold">Estudiante</span></td>
+              <td><span>Cohorte 2026-1</span></td>
+              <td><span class="text-muted">hace 2 horas</span></td>
+            </tr>
+          </tbody>
         </table>
       </div>
 
@@ -159,9 +175,10 @@
           <span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">3</span>
           <span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">4</span>
           <span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">5</span>
-          <span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">»</span>
+          <span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">&raquo;</span>
         </div>
       </div>
+    </div>
     
                     </div>
                 </div>

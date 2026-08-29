@@ -33,10 +33,24 @@ public class ClaseEnVivoController {
     @Autowired private CohorteRepository cohorteRepository;
     @Autowired private UnidadService unidadService;
     @Autowired private CursoService cursoService;
+    @Autowired private UsuarioRepository usuarioRepository;
+
+    private Usuario obtenerUsuarioAutenticado(Authentication auth) {
+        if (auth == null) return null;
+        if (auth.getPrincipal() instanceof Usuario) {
+            return (Usuario) auth.getPrincipal();
+        }
+        String email = auth.getName();
+        if (email != null && usuarioRepository != null) {
+            return usuarioRepository.findByCorreo(email).orElse(null);
+        }
+        return null;
+    }
 
     private void agregarUsuarioAlModelo(Model model, Authentication auth) {
-        if (auth != null && auth.getPrincipal() instanceof Usuario) {
-            model.addAttribute("usuario", (Usuario) auth.getPrincipal());
+        Usuario u = obtenerUsuarioAutenticado(auth);
+        if (u != null) {
+            model.addAttribute("usuario", u);
         }
     }
 
@@ -45,16 +59,35 @@ public class ClaseEnVivoController {
      * Vista: cu-65-buscar-clase-en-vivo.html
      */
     @GetMapping
-    public String buscarClasesEnVivo(@RequestParam(value = "cohorteId", required = false) Integer cohorteId,
+    public String buscarClasesEnVivo(@RequestParam(value = "cursoId", required = false) Integer cursoId,
+                                     @RequestParam(value = "cohorteId", required = false) Integer cohorteId,
                                      Model model, Authentication auth) {
         agregarUsuarioAlModelo(model, auth);
-        List<ClaseEnVivo> todas = claseEnVivoRepository.findAll().stream().filter(c -> !c.getBaja()).toList();
-        List<ClaseEnVivo> clases = (cohorteId != null)
-                ? todas.stream().filter(c -> c.getCohorte() != null && c.getCohorte().getId() == cohorteId).toList()
-                : todas;
+        Curso curso = (cursoId != null) ? cursoService.buscarPorId(cursoId).orElse(null) : null;
+        List<Cohorte> cohortes = cohorteRepository.findAll();
+        Cohorte cohorte = (cohorteId != null) ? cohorteRepository.findById(cohorteId).orElse(null) : null;
 
+        if (curso == null && cohorte != null && cohorte.getPrograma() != null && cohorte.getPrograma().getCurso() != null) {
+            curso = cohorte.getPrograma().getCurso();
+        }
+        if (curso == null) {
+            List<Curso> todos = cursoService.obtenerTodo();
+            if (!todos.isEmpty()) curso = todos.get(0);
+        }
+
+        final Curso cursoFinal = curso;
+        List<ClaseEnVivo> todas = claseEnVivoRepository.findAll().stream().filter(c -> !c.getBaja()).toList();
+        List<ClaseEnVivo> clases = (cohorte != null)
+                ? todas.stream().filter(c -> c.getCohorte() != null && c.getCohorte().getId() == cohorte.getId()).toList()
+                : ((cursoFinal != null)
+                    ? todas.stream().filter(c -> c.getCohorte() != null && c.getCohorte().getPrograma() != null && cursoFinal.equals(c.getCohorte().getPrograma().getCurso())).toList()
+                    : todas);
+
+        model.addAttribute("curso", cursoFinal);
+        model.addAttribute("cursoSeleccionado", cursoFinal);
         model.addAttribute("clases", clases);
-        model.addAttribute("cohortes", cohorteRepository.findAll());
+        model.addAttribute("cohortes", cohortes);
+        model.addAttribute("cohorteSeleccionada", cohorte);
         model.addAttribute("titulo", "CU-65 - Buscar clase en vivo | Idóneos Online");
         return "pages/ia_vivo/cu-65-buscar-clase-en-vivo";
     }
@@ -85,9 +118,13 @@ public class ClaseEnVivoController {
         try {
             Cohorte cohorte = cohorteRepository.findById(cohorteId).orElseThrow(() -> new IllegalArgumentException("Cohorte no encontrada"));
             Docente docente = null;
-            if (auth != null && auth.getPrincipal() instanceof Usuario) {
-                Usuario u = (Usuario) auth.getPrincipal();
-                docente = docenteRepository.findById(u.getId()).orElse(null);
+            Usuario u = obtenerUsuarioAutenticado(auth);
+            if (u != null) {
+                if (u.getDocente() != null) {
+                    docente = u.getDocente();
+                } else {
+                    docente = docenteRepository.findById(u.getId()).orElse(null);
+                }
             }
             if (docente == null) {
                 List<Docente> docentes = docenteRepository.findAll();

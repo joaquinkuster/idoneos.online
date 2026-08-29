@@ -4,213 +4,320 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="${titulo != null ? titulo : 'CU-39 - Buscar respuesta de foro'}">CU-39 - Buscar respuesta de foro | Idóneos Online</title>
-    
-    <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- FontAwesome 6 Pro / Solid Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;800&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    
-    <!-- Estilos del Sistema Centralizados -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/styles.css}">
 </head>
 <body class="wf-canvas-bg">
 
     <div class="cu-page-container">
-        <!-- Pantalla / Screen Frame Oficial -->
         <div class="screen-frame">
 
-                <!-- Top Navbar Oficial Dinámica -->
-                <div th:replace="~{fragments/wf_navbar :: wf-top-navbar}"></div>
+            <div th:replace="~{fragments/wf_navbar :: wf-top-navbar}"></div>
 
-                <!-- Hero Banner Contextual Superior (Navy) -->
-                <div class="wf-hero-banner">
-                    <div>
-                        <div class="wf-hero-tag">
-                            <i class="fa-solid fa-graduation-cap" style="color: var(--wf-gold);"></i>
-                            <span>PANEL DE ADMINISTRACIÓN</span>
-                        </div>
-                        <h2 class="wf-hero-title">Buscar respuesta de foro</h2>
-                        <p class="wf-hero-desc">Bienvenido/a, Admin General</p>
+            <div class="wf-hero-banner">
+                <div>
+                    <div class="wf-hero-tag">
+                        <i class="fa-solid fa-reply" style="color: var(--wf-gold);"></i>
+                        <span>FORO DE CONSULTAS</span>
                     </div>
-                    
-                    <div class="d-flex align-items-center gap-2">
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    </div>
-</div>
-
-                <div class="wf-body">
-                    <div class="wf-main-content">
-                        
-      <div class="wf-card mb-4" style="background: #FFFFFF;">
-        <div class="d-flex justify-content-between align-items-start pb-3 border-bottom">
-          <div>
-            <div class="small text-muted mb-1" style="font-size: 11px;">
-              <span>Página Principal</span> <i class="fa-solid fa-chevron-right" style="font-size: 9px; margin: 0 4px;"></i> 
-              <a th:href="@{/academico/consultas}" class="text-muted" style="text-decoration: none;">Foro PostgreSQL</a> <i class="fa-solid fa-chevron-right" style="font-size: 9px; margin: 0 4px;"></i> 
-              <strong style="color: #081426;">Duda con TP N° 1: Punto 4</strong>
-            </div>
-            <h2 style="font-size: 20px; font-weight: 800; color: #081426; margin: 6px 0 0;">Duda con TP N° 1: Punto 4 - Cálculo de TIR y Duración de Bonos</h2>
-            <div class="small text-muted mt-1">
-              <span class="text-muted">◄ Tema anterior: <a th:href="@{/cursos}" class="text-primary" style="text-decoration: none;">Régimen Informativo CNV</a></span>
-              <span class="mx-2">•</span>
-              <span class="text-muted">Tema siguiente: <a th:href="@{/cursos}" class="text-primary" style="text-decoration: none;">Diferencia entre ALyC Propio e Integral</a> ►</span>
-            </div>
-          </div>
-          <div class="d-flex align-items-center gap-2">
-            <a th:href="@{/academico/consultas}" class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-arrow-left me-1"></i> Volver al Foro</a>
-            
-          </div>
-        </div>
-
-        <div class="d-flex justify-content-between align-items-center py-2 border-bottom mb-4 bg-light px-3 rounded">
-          <span class="small text-muted">Modo de visualización: <strong>Mostrar respuestas anidadas</strong></span>
-          <div class="dropdown">
-            <button class="wf-btn wf-btn-sm wf-btn-outline" style="font-size: 11px;">Configuraciones <i class="fa-solid fa-chevron-down ms-1"></i></button>
-          </div>
-        </div>
-
-        <!-- Mensaje Raíz de la Consulta (Alumno) -->
-        <div class="p-3 border rounded bg-white mb-4 shadow-sm" style="border-left: 4px solid #2563EB !important;">
-          <div class="d-flex justify-content-between align-items-start mb-3">
-            <div class="d-flex align-items-center gap-3">
-              <div class="user-avatar-circle" style="width: 38px; height: 38px; font-size: 13px; background: #2563EB; color: white;">JK</div>
-              <div>
-                <strong style="font-size: 13px; color: #081426;">Duda con TP N° 1: Punto 4 - Cálculo de TIR y Duración</strong>
-                <div class="small text-muted">de <strong style="color: #081426;">Joaquín Küster</strong> - miércoles, 11 de abril de 2026, 14:20</div>
-              </div>
-            </div>
-            <div class="d-flex align-items-center gap-2">
-              <a th:href="@{/academico/consultas}" class="wf-btn wf-btn-sm wf-btn-outline" style="font-size: 10px; height: 28px; padding: 0 8px;"><i class="fa-solid fa-pen-to-square me-1"></i> Editar</a>
-              <a th:href="@{/academico/consultas}" class="wf-btn wf-btn-sm wf-btn-outline text-danger" style="font-size: 10px; height: 28px; padding: 0 8px;"><i class="fa-solid fa-trash me-1"></i> Borrar</a>
-            </div>
-          </div>
-          <div style="font-size: 13px; color: #1E293B; line-height: 1.6; padding-left: 48px;">
-            <p>Buenas tardes profesor,</p>
-            <p>Estoy intentando calcular la duración modificada y la TIR para el bono soberano AL30 según el enunciado del TP 1. Al descontar los cupones semestrales me surge una discrepancia con el valor de la guía teórica.</p>
-            <p class="mb-0">¿Debemos considerar la convención 30/360 o Actual/Actual para el devengamiento de intereses?</p>
-          </div>
-          <div class="d-flex justify-content-end gap-3 mt-3 pt-2 border-top" style="font-size: 11px;">
-            <a th:href="@{/cursos}" class="text-muted" style="text-decoration: none;">Enlace permanente</a>
-            <a th:href="@{/academico/respuestas/nueva}" class="text-primary fw-bold" style="text-decoration: none;"><i class="fa-solid fa-reply me-1"></i> Responder</a>
-          </div>
-        </div>
-
-        <!-- Respuesta 1 Anidada (Docente Titular) -->
-        <div class="p-3 border rounded bg-light mb-3 shadow-sm" style="margin-left: 48px; border-left: 4px solid var(--wf-navy) !important;">
-          <div class="d-flex justify-content-between align-items-start mb-3">
-            <div class="d-flex align-items-center gap-3">
-              <div class="user-avatar-circle" style="width: 36px; height: 36px; font-size: 12px; background: #081426; color: white;">FS</div>
-              <div>
+                    <h2 class="wf-hero-title">Respuestas del hilo de consulta</h2>
+                    <p class="wf-hero-desc">Bienvenido/a, <span th:text="${usuario != null ? usuario.nombreCompleto : 'Admin General'}">Admin General</span></p>
+                </div>
                 <div class="d-flex align-items-center gap-2">
-                  <strong style="font-size: 13px; color: #081426;">Re: Duda con TP N° 1: Punto 4</strong>
-                  
+                    <a th:href="@{/academico/consultas}" class="wf-btn wf-btn-sm wf-btn-outline" style="border-color: rgba(255,255,255,0.4); color: white;">
+                        <i class="fa-solid fa-arrow-left me-1"></i> Volver al Foro
+                    </a>
+                    <button type="button" class="wf-btn-gold border-0" data-bs-toggle="modal" data-bs-target="#modalNuevaRespuesta">
+                        <i class="fa-solid fa-reply"></i>
+                        <span>Responder</span>
+                    </button>
                 </div>
-                <div class="small text-muted">de <strong style="color: #081426;">Mg. Elena Valenzuela</strong> (Docente Titular) - jueves, 12 de abril de 2026, 10:15</div>
-              </div>
             </div>
-            <span class="badge bg-primary text-white">Profesor</span>
-          </div>
-          <div style="font-size: 13px; color: #1E293B; line-height: 1.6; padding-left: 46px;">
-            <p>Estimado Joaquín,</p>
-            <p>Para los bonos soberanos emitidos bajo ley argentina (como el AL30) la convención estándar de mercado utilizada por el MAE y BYMA es <strong>Actual/Actual</strong> para el cálculo del cupón corrido y TIR.</p>
-            <p class="mb-0">Revisa también que estés tomando el precio Clean para calcular el rendimiento hasta el vencimiento.</p>
-          </div>
-          <div class="d-flex justify-content-end gap-3 mt-3 pt-2 border-top" style="font-size: 11px;">
-            <a th:href="@{/cursos}" class="text-muted" style="text-decoration: none;">Enlace permanente</a>
-            <a th:href="@{/academico/respuestas/nueva}" class="text-primary fw-bold" style="text-decoration: none;"><i class="fa-solid fa-reply me-1"></i> Responder</a>
-          </div>
-        </div>
 
-        <!-- Respuesta 2 Anidada de Agradecimiento (Alumno) -->
-        <div class="p-3 border rounded bg-white mb-3 shadow-sm" style="margin-left: 96px; border-left: 4px solid #10B981 !important;">
-          <div class="d-flex justify-content-between align-items-start mb-2">
-            <div class="d-flex align-items-center gap-3">
-              <div class="user-avatar-circle" style="width: 32px; height: 32px; font-size: 11px; background: #2563EB; color: white;">JK</div>
-              <div>
-                <strong style="font-size: 12px; color: #081426;">Solucionado, muchas gracias</strong>
-                <div class="small text-muted">de <strong style="color: #081426;">Joaquín Küster</strong> - viernes, 13 de abril de 2026, 09:05</div>
-              </div>
+            <div class="wf-body">
+                <div class="wf-main-content">
+
+                    <!-- Header de la consulta raíz -->
+                    <div class="wf-card mb-4" style="background: #FFFFFF;">
+                        <div class="d-flex justify-content-between align-items-start pb-3 border-bottom">
+                            <div>
+                                <div class="small text-muted mb-1" style="font-size: 11px;">
+                                    <a th:href="@{/academico/consultas}" class="text-muted" style="text-decoration: none;">Foro del Curso</a>
+                                    <i class="fa-solid fa-chevron-right" style="font-size: 9px; margin: 0 4px;"></i>
+                                    <strong style="color: #081426;" th:text="${consulta != null ? #strings.abbreviate(consulta.texto, 40) : 'Consulta'}">Consulta</strong>
+                                </div>
+                                <h2 style="font-size: 20px; font-weight: 800; color: #081426; margin: 6px 0 0;" th:text="${consulta != null ? consulta.texto : 'Consulta del Foro'}">Consulta del Foro</h2>
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="wf-badge status-active"><span th:text="${respuestas != null ? #lists.size(respuestas) : 0}">0</span> respuesta(s)</span>
+                            </div>
+                        </div>
+
+                        <!-- Configuración de vista -->
+                        <div class="d-flex justify-content-between align-items-center py-2 mt-1 bg-light px-3 rounded" style="font-size: 12px;">
+                            <span class="text-muted">Modo de visualización: <strong>Mostrar respuestas anidadas</strong></span>
+                            <button class="wf-btn wf-btn-sm wf-btn-outline" style="font-size: 11px;">Configuraciones <i class="fa-solid fa-chevron-down ms-1"></i></button>
+                        </div>
+                    </div>
+
+                    <!-- Mensaje Raíz (Consulta original) -->
+                    <div class="wf-card mb-4" style="background: #FFFFFF; border-left: 4px solid #2563EB !important;">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="user-avatar-circle" style="width: 38px; height: 38px; font-size: 13px; background: #2563EB; color: white;"
+                                     th:text="${consulta != null and consulta.alumno != null and consulta.alumno.usuario != null ? #strings.substring(consulta.alumno.usuario.nombreCompleto, 0, 2).toUpperCase() : 'AL'}">AL</div>
+                                <div>
+                                    <strong style="font-size: 13px; color: #081426;" th:text="${consulta != null ? consulta.texto : 'Consulta'}">Consulta</strong>
+                                    <div class="small text-muted">de <strong style="color: #081426;" th:text="${consulta != null and consulta.alumno != null and consulta.alumno.usuario != null ? consulta.alumno.usuario.nombreCompleto : 'Alumno'}">Autor</strong>
+                                        · <span th:text="${consulta != null and consulta.fecha != null ? #temporals.format(consulta.fecha, 'dd/MM/yyyy HH:mm') : ''}">Fecha</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <span class="badge bg-light text-dark border">Consulta Original</span>
+                        </div>
+                        <div style="font-size: 13px; color: #1E293B; line-height: 1.6; padding-left: 52px;" th:text="${consulta != null ? consulta.texto : ''}">Texto de la consulta...</div>
+                        <div class="d-flex justify-content-end gap-3 mt-3 pt-2 border-top" style="font-size: 11px;">
+                            <button type="button" class="text-primary fw-bold border-0 bg-transparent" data-bs-toggle="modal" data-bs-target="#modalNuevaRespuesta">
+                                <i class="fa-solid fa-reply me-1"></i> Responder
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Respuestas en hilo -->
+                    <div th:each="r : ${respuestas}">
+                        <div class="wf-card mb-3" th:style="'margin-left: 48px; border-left: 4px solid var(--wf-navy) !important; ' + (${r.baja} ? 'opacity: 0.6;' : '')">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="user-avatar-circle" style="width: 36px; height: 36px; font-size: 12px; background: #081426; color: white;"
+                                         th:text="${r.docente != null and r.docente.usuario != null ? #strings.substring(r.docente.usuario.nombreCompleto, 0, 2).toUpperCase() : 'DC'}">DC</div>
+                                    <div>
+                                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                                            <strong style="font-size: 13px; color: #081426;" th:text="${r.texto != null ? ('Re: ' + #strings.abbreviate(r.texto, 50)) : 'Respuesta'}">Re: Respuesta</strong>
+                                            <span class="wf-badge" th:classappend="${r.baja} ? 'status-inactive' : 'status-active'" th:text="${r.baja} ? 'Dada de baja' : 'Activa'">Activa</span>
+                                        </div>
+                                        <div class="small text-muted">de <strong style="color: #081426;" th:text="${r.docente != null and r.docente.usuario != null ? r.docente.usuario.nombreCompleto : 'Docente'}">Docente</strong>
+                                            <span class="badge bg-primary ms-1" style="font-size: 10px;">Docente</span>
+                                            · <span th:text="${r.fecha != null ? #temporals.format(r.fecha, 'dd/MM/yyyy HH:mm') : ''}">Fecha</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-center gap-1" th:if="${!r.baja}">
+                                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-2"
+                                            data-bs-toggle="modal"
+                                            th:data-bs-target="'#modalEditarRespuesta' + ${r.id}" title="Editar respuesta">
+                                        <i class="fa-solid fa-pen-to-square"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-2"
+                                            data-bs-toggle="modal"
+                                            th:data-bs-target="'#modalBajaRespuesta' + ${r.id}" title="Dar de baja respuesta">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div style="font-size: 13px; color: #1E293B; line-height: 1.6; padding-left: 52px;" th:text="${r.texto}">Texto de la respuesta...</div>
+                            <div class="d-flex justify-content-end gap-3 mt-2 pt-2 border-top" style="font-size: 11px;" th:if="${!r.baja}">
+                                <button type="button" class="text-primary fw-bold border-0 bg-transparent"
+                                        data-bs-toggle="modal" data-bs-target="#modalNuevaRespuesta">
+                                    <i class="fa-solid fa-reply me-1"></i> Responder
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Vacío -->
+                    <div th:if="${respuestas == null or #lists.isEmpty(respuestas)}" class="wf-card text-center py-5 text-muted">
+                        <i class="fa-regular fa-comment-dots" style="font-size: 32px; opacity: 0.3;"></i>
+                        <p class="mt-2 small">Aún no hay respuestas en este hilo. ¡Sea el primero en responder!</p>
+                    </div>
+
+                </div>
             </div>
-            <span class="badge bg-success text-white" style="font-size: 10px;">Solucionado</span>
-          </div>
-          <div style="font-size: 12px; color: #334155; line-height: 1.5; padding-left: 42px;">
-            <p class="mb-0">Excelente profesor, al cambiar a convención Actual/Actual la duración me dio exactamente 3.12 años. Ya pude subir la entrega del práctico.</p>
-          </div>
-          <div class="d-flex justify-content-end gap-3 mt-2 pt-2 border-top" style="font-size: 11px;">
-            <a th:href="@{/cursos}" class="text-muted" style="text-decoration: none;">Enlace permanente</a>
-          </div>
-        </div>
-      </div>
-    
-                    </div>
-                </div>
 
-                <!-- Footer Oficial -->
-                <div class="wf-screen-footer">
-                    <div>
-                        <strong>Idóneos <span>Online</span> S.A.S.</strong> • Plataforma de Educación Financiera, Economía & Mercado de Capitales
-                    </div>
-                    <div>
-                        FCEQyN — UNaM • Proyecto Software (LSI) / Trabajo Final (ASI)
-                    </div>
-                </div>
-            
+            <div class="wf-screen-footer">
+                <div><strong>Idóneos <span>Online</span> S.A.S.</strong> • Plataforma de Educación Financiera, Economía &amp; Mercado de Capitales</div>
+                <div>FCEQyN — UNaM • Proyecto Software (LSI) / Trabajo Final (ASI)</div>
+            </div>
         </div>
     </div>
 
-    <!-- Bootstrap Bundle JS -->
+    <!-- MODALES: EDITAR Y BAJA por respuesta -->
+    <div th:each="r : ${respuestas}">
+
+        <!-- Modal CU-41: Modificar Respuesta -->
+        <div class="modal fade" th:id="'modalEditarRespuesta' + ${r.id}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content" style="border-radius: 12px; border: 1px solid #CBD5E1; box-shadow: 0 20px 50px rgba(8,20,38,0.15); overflow: hidden;">
+                    <div class="p-4 bg-white">
+                        <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+                            <div>
+                                <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Modificar Respuesta de Foro</h3>
+                                <p class="small text-muted" style="margin: 3px 0 0;">Edite el contenido de su respuesta en el hilo.</p>
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="wf-badge status-active">Modo Edición</span>
+                                <button type="button" class="btn-close ms-2" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                            </div>
+                        </div>
+                        <form th:action="@{'/foro/respuestas/' + ${r.id} + '/editar'}" method="post">
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label class="wf-label">Texto de la Respuesta <span class="text-danger">*</span></label>
+                                    <div class="wf-input-wrap">
+                                        <textarea name="texto" class="wf-input" rows="6" maxlength="2000" th:text="${r.texto}" required></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-end gap-3 mt-4 pt-3 border-top">
+                                <button type="button" class="wf-btn wf-btn-outline" data-bs-dismiss="modal">Cancelar / Volver</button>
+                                <button type="submit" class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Guardar Cambios</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal CU-42: Dar de Baja Respuesta -->
+        <div class="modal fade" th:id="'modalBajaRespuesta' + ${r.id}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" style="max-width: 560px;">
+                <div class="modal-content" style="border-radius: 12px; border: 1px solid #CBD5E1; box-shadow: 0 20px 50px rgba(8,20,38,0.15); overflow: hidden;">
+                    <div class="p-3 border-bottom d-flex justify-content-between align-items-center" style="background: #F8FAFC;">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="fa-solid fa-triangle-exclamation text-danger"></i>
+                            <strong style="font-size: 14px; color: #081426;">Dar de baja respuesta</strong>
+                        </div>
+                        <span class="wf-badge status-active">Confirmación Requerida</span>
+                    </div>
+                    <div class="p-4 text-center">
+                        <div class="mb-3" style="width: 56px; height: 56px; border-radius: 50%; background: #FEE2E2; color: #DC2626; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 24px;">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                        </div>
+                        <h3 style="font-size: 17px; font-weight: 800; color: #081426; margin-bottom: 6px;">¿Confirma la baja de esta respuesta?</h3>
+                        <p class="small text-muted mb-4">La respuesta quedará inhabilitada. El hilo de conversación se conserva.</p>
+
+                        <div class="p-3 mb-4 bg-light border rounded text-start" style="font-size: 13px;">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-muted">Autor:</span>
+                                <strong th:text="${r.docente != null and r.docente.usuario != null ? r.docente.usuario.nombreCompleto : 'Docente'}">Docente</strong>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-muted">Respuesta:</span>
+                                <span class="text-secondary" th:text="${#strings.abbreviate(r.texto != null ? r.texto : '', 60)}">Texto...</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="text-muted">Estado actual:</span>
+                                <span class="wf-badge status-active">Activa</span>
+                            </div>
+                        </div>
+
+                        <form th:action="@{'/foro/respuestas/' + ${r.id} + '/baja'}" method="post" class="d-flex justify-content-end align-items-center gap-3 pt-3 border-top">
+                            <button type="button" class="wf-btn wf-btn-outline" data-bs-dismiss="modal">Cancelar / Volver</button>
+                            <button type="submit" class="wf-btn wf-btn-danger">
+                                <i class="fa-solid fa-trash me-1"></i> Confirmar Baja
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal CU-40: Registrar Nueva Respuesta -->
+    <div class="modal fade" id="modalNuevaRespuesta" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content" style="border-radius: 12px; border: 1px solid #CBD5E1; box-shadow: 0 20px 50px rgba(8,20,38,0.15); overflow: hidden;">
+                <div class="p-4 bg-white">
+                    <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+                        <div>
+                            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Registrar Respuesta de Foro</h3>
+                            <p class="small text-muted" style="margin: 3px 0 0;" th:text="${consulta != null ? 'Respondiendo: ' + #strings.abbreviate(consulta.texto, 60) : 'Responda la consulta del alumno'}">Respondiendo...</p>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="wf-badge status-active" style="background: rgba(212,160,61,0.15); color: var(--wf-gold-text); border: 1px solid var(--wf-gold); font-size: 11px; font-weight: 700;">NUEVA RESPUESTA</span>
+                            <button type="button" class="btn-close ms-2" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                        </div>
+                    </div>
+
+                    <div id="nuevaRespuestaAlert" class="alert alert-danger d-none py-2 px-3 small mb-3"></div>
+
+                    <form id="formNuevaRespuesta" th:action="@{'/foro/respuestas/guardar'}" method="post" novalidate>
+                        <input type="hidden" name="consultaId" th:value="${consulta != null ? consulta.id : ''}">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <label class="wf-label m-0">Texto de la Respuesta <span class="text-danger">*</span></label>
+                                    <span id="respTextoCount" class="text-muted" style="font-size: 11px; font-weight: 600;">0 / 2000</span>
+                                </div>
+                                <div class="wf-input-wrap">
+                                    <textarea id="respTexto" name="texto" class="wf-input" rows="6" maxlength="2000" placeholder="Escriba su respuesta detallada aquí. Puede incluir fórmulas, referencias a la normativa o material del curso..." required></textarea>
+                                </div>
+                                <div id="respTextoFeedback" class="small text-danger mt-1 d-none"></div>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-end gap-3 mt-4 pt-3 border-top">
+                            <button type="button" class="wf-btn wf-btn-outline" data-bs-dismiss="modal"><i class="fa-solid fa-arrow-left me-1"></i> Cancelar / Volver</button>
+                            <button type="submit" class="wf-btn wf-btn-primary" style="background: #081426; color: #FFFFFF; border-color: #081426; font-weight: 700;">
+                                <i class="fa-solid fa-paper-plane me-1"></i> Publicar Respuesta
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         function toggleUserDropdown(triggerEl) {
             const wrapper = triggerEl.closest('.wf-user-menu-wrapper');
             if (wrapper) {
                 const dropdown = wrapper.querySelector('.wf-user-floating-dropdown');
-                if (dropdown) {
-                    dropdown.style.display = (dropdown.style.display === 'none' || dropdown.style.display === '') ? 'flex' : 'none';
-                }
+                if (dropdown) dropdown.style.display = (dropdown.style.display === 'none' || dropdown.style.display === '') ? 'flex' : 'none';
             }
         }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const txtTexto = document.getElementById('respTexto');
+            const countTexto = document.getElementById('respTextoCount');
+            const fbTexto = document.getElementById('respTextoFeedback');
+
+            if (txtTexto) {
+                txtTexto.addEventListener('input', () => {
+                    const len = txtTexto.value.length;
+                    countTexto.textContent = `${len} / 2000`;
+                    countTexto.className = len >= 2000 ? 'text-danger fw-bold' : 'text-muted';
+                    if (!txtTexto.value.trim()) {
+                        txtTexto.classList.add('is-invalid'); txtTexto.classList.remove('is-valid');
+                        txtTexto.style.borderColor = '#DC2626';
+                        fbTexto.textContent = 'La respuesta no puede estar vacía.';
+                        fbTexto.classList.remove('d-none');
+                    } else {
+                        txtTexto.classList.remove('is-invalid'); txtTexto.classList.add('is-valid');
+                        txtTexto.style.borderColor = '#16A34A';
+                        fbTexto.classList.add('d-none');
+                    }
+                });
+            }
+
+            const form = document.getElementById('formNuevaRespuesta');
+            if (form) form.addEventListener('submit', function(e) {
+                if (!txtTexto || !txtTexto.value.trim()) {
+                    e.preventDefault(); e.stopPropagation();
+                    document.getElementById('nuevaRespuestaAlert').textContent = 'Debe escribir una respuesta antes de publicar.';
+                    document.getElementById('nuevaRespuestaAlert').classList.remove('d-none');
+                }
+            });
+        });
     </script>
 
-    <!-- DSS & Case of Use Console Logger -->
     <script>
         (function() {
-            const cuId = 'CU-39';
-            const cuNombre = 'Buscar respuesta de foro';
-            const cuActores = 'Docente / Administrador';
-            const cuDss = 'buscarRespuestasForo(consulta) ➔ seleccionarRespuestaForo(idRespuestas, respuestas)';
-
-            console.log(
-                '%c[IDÓNEOS ONLINE] %c ' + cuId + ' %c ' + cuNombre + ' ',
-                'color: #C9982F; font-weight: 800; font-size: 13px;',
-                'background: #081426; color: #E4BE6C; padding: 3px 8px; border-radius: 4px; font-weight: 700; font-size: 12px; border: 1px solid #C9982F;',
-                'color: #081426; font-weight: 800; font-size: 13px;'
-            );
-            console.log(
-                '%c👤 Actor(es): %c' + cuActores,
-                'color: #64748B; font-weight: 700; font-size: 11px;',
-                'color: #0F172A; font-weight: 600; font-size: 11px;'
-            );
-            console.log(
-                '%c⚡ DSS: %c' + cuDss,
-                'color: #64748B; font-weight: 700; font-size: 11px;',
-                'color: #0284C7; font-family: monospace; font-size: 11px; font-weight: 600;'
-            );
+            console.log('%c[IDÓNEOS ONLINE] %c CU-39 %c Buscar respuesta de foro ', 'color: #C9982F; font-weight: 800; font-size: 13px;', 'background: #081426; color: #E4BE6C; padding: 3px 8px; border-radius: 4px; font-weight: 700; font-size: 12px; border: 1px solid #C9982F;', 'color: #081426; font-weight: 800; font-size: 13px;');
+            console.log('%c⚡ DSS: %cbuscarRespuestasForo(consulta) ➔ seleccionarRespuestaForo(idRespuestas, respuestas)', 'color: #64748B; font-weight: 700;', 'color: #0284C7; font-family: monospace; font-size: 11px;');
         })();
     </script>
 </body>

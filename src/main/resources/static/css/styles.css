@@ -243,8 +243,8 @@ i {
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 4px 16px 4px 5px;
-    border-radius: 24px;
+    padding: 6px 14px 6px 6px;
+    border-radius: 26px;
     border: 1.5px solid #1E3A5F;
     background: #0F233D;
     cursor: pointer;
@@ -260,6 +260,83 @@ i {
     border-color: var(--wf-gold);
     transform: translateY(-2px);
     box-shadow: 0 6px 16px rgba(212, 160, 61, 0.25);
+}
+
+/* Badge Dinámico y Elegante de Modo Edición / Vista Alumno en Navbar */
+.wf-nav-mode-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 9.5px;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    margin-top: 1px;
+    transition: all 0.25s ease;
+}
+
+.wf-nav-mode-badge.mode-active {
+    color: #E4BE6C;
+}
+
+.wf-nav-mode-badge.mode-student {
+    color: #94A3B8;
+}
+
+.wf-nav-mode-badge-student {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 9.5px;
+    font-weight: 700;
+    color: #38BDF8;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    margin-top: 1px;
+}
+
+.wf-mode-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.wf-mode-dot.pulse-gold {
+    background: #D4A03D;
+    box-shadow: 0 0 8px #D4A03D;
+    animation: goldPulse 1.8s infinite ease-in-out;
+}
+
+.wf-mode-dot.pulse-gray {
+    background: #64748B;
+}
+
+.wf-mode-dot-student {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #38BDF8;
+    box-shadow: 0 0 6px #38BDF8;
+    animation: cyanPulse 2s infinite ease-in-out;
+}
+
+@keyframes goldPulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 0.85;
+        box-shadow: 0 0 4px #D4A03D;
+    }
+    50% {
+        transform: scale(1.35);
+        opacity: 1;
+        box-shadow: 0 0 10px #F59E0B, 0 0 14px rgba(245, 158, 11, 0.6);
+    }
+}
+
+@keyframes cyanPulse {
+    0%, 100% { transform: scale(1); opacity: 0.8; }
+    50% { transform: scale(1.3); opacity: 1; box-shadow: 0 0 8px #38BDF8; }
 }
 
 .wf-user-trigger-pill:active,
@@ -1831,4 +1908,96 @@ textarea.wf-input {
 .wf-input:focus {
     border-color: var(--wf-navy-dark, #081426);
     box-shadow: 0 0 0 3px rgba(8, 20, 38, 0.08);
+}
+
+/* ==========================================================================
+   COMPONENTES DE CURSO (BREADCRUMB, TABS FIJAS & ANIMACIÓN SLIDE VERTICAL)
+   ========================================================================== */
+.wf-breadcrumb-link {
+    color: #64748B;
+    transition: color 0.15s ease, transform 0.15s ease;
+}
+.wf-breadcrumb-link:hover {
+    color: var(--wf-gold, #D4A03D) !important;
+    text-decoration: underline !important;
+}
+
+.wf-curso-tabs-nav {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.wf-curso-tab-link {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #475569;
+    text-decoration: none;
+    border-radius: 8px 8px 0 0;
+    position: relative;
+    transition: all 0.15s ease-in-out;
+    background: transparent;
+    border-bottom: 2px solid transparent;
+}
+
+.wf-curso-tab-link:hover {
+    color: var(--wf-navy-dark, #081426);
+    background: #F8FAFC;
+}
+
+.wf-curso-tab-link.active {
+    color: var(--wf-navy-dark, #081426);
+    font-weight: 800;
+    background: #F8FAFC;
+    border-bottom: 3px solid var(--wf-gold, #D4A03D);
+    border-radius: 8px 8px 0 0;
+}
+
+/* Animación de Entrada Vertical Suave y Fluida (Slide Up Fade) */
+.wf-animate-slide-up {
+    animation: wfSlideUpFade 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes wfSlideUpFade {
+    0% {
+        opacity: 0;
+        transform: translateY(18px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ==========================================================================
+   ESTILOS DE DRAG & DROP Y REORDENAMIENTO (SORTABLEJS)
+   ========================================================================== */
+.sortable-ghost {
+    opacity: 0.4;
+    background: #FEF3C7 !important;
+    border: 2px dashed #D4A03D !important;
+    box-shadow: 0 10px 25px rgba(212, 160, 61, 0.15) !important;
+}
+
+.sortable-chosen {
+    background: #F8FAFC !important;
+    box-shadow: 0 14px 30px rgba(8, 20, 38, 0.12) !important;
+    transform: scale(1.01);
+}
+
+.unit-drag-handle, .material-drag-handle {
+    cursor: grab;
+    transition: color 0.15s ease, transform 0.15s ease;
+}
+
+.unit-drag-handle:hover, .material-drag-handle:hover {
+    color: var(--wf-gold, #D4A03D) !important;
+    transform: scale(1.15);
+}
+
+.unit-drag-handle:active, .material-drag-handle:active {
+    cursor: grabbing;
 }

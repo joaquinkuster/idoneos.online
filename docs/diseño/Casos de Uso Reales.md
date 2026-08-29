@@ -1,6 +1,53 @@
-# 4.8. Casos de Uso Reales
+# 4.8. Casos de Uso Reales — Sistema Idóneos Online
 
-En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos Online, derivados de los casos de uso extendidos y complementados con la información funcional y de interacción disponible en las pantallas y prototipos de interfaz de usuario. Cada caso de uso se referencia mediante un código correlativo (CU-01 a CU-99, incluyendo CU-26b).
+En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos Online (CU-01 a CU-99, incluyendo CU-26b), derivados de los casos de uso extendidos y complementados con las interacciones de interfaz de usuario Moodle-Style y la arquitectura de navegación dinámica por roles.
+
+---
+
+## 4.8.0. Esquema de Navegación del Sistema
+
+### A. Pestañas Horizontales Contextuales del Curso (`curso_header`)
+Al ingresar a un curso (`/academico/curso/{id}`), la cabecera interactiva unificada permite al usuario alternar entre todas las dimensiones pedagógicas manteniendo el parámetro `cursoId`:
+
+| Pestaña | Caso(s) de Uso Asociado(s) | Rol Habilitado | Descripción Funcional |
+| :--- | :--- | :--- | :--- |
+| **📖 Curso & Unidades** | **CU-19**, **CU-20**, **CU-21**, **CU-22**, **CU-26**, **CU-26b** | Alumno, Docente, Admin | Vista Moodle por secciones con toggle de *Modo Edición*. |
+| **📅 Cronograma** | **CU-23**, **CU-24**, **CU-26 (Rama 4)** | Alumno, Docente, Admin | Calendario temporal, duración en semanas y reordenamiento. |
+| **📄 Materiales** | **CU-27**, **CU-28**, **CU-29**, **CU-30** | Docente, Admin | Repositorio de lecturas, presentaciones y grabaciones. |
+| **📚 Glosario** | **CU-31**, **CU-32**, **CU-33**, **CU-34** | Alumno, Docente, Admin | Catálogo de conceptos técnicos por unidad. |
+| **📝 Autoevaluaciones** | **CU-57**, **CU-58**, **CU-59**, **CU-60**, **CU-61**, **CU-63** | Alumno, Docente, Admin | Cuestionarios, exámenes finales e historial de intentos. |
+| **📋 Pools de Preguntas** | **CU-53**, **CU-54**, **CU-55**, **CU-56**, **CU-73** | Docente, Admin | Bancos de preguntas categorizadas por unidad. |
+| **💬 Foros** | **CU-35**, **CU-36**, **CU-37**, **CU-38**, **CU-39**, **CU-40**, **CU-41**, **CU-42** | Alumno, Docente, Admin | Hilos de consultas y respuestas por tema. |
+| **🎥 Clases en Vivo & IA** | **CU-65..72**, **CU-77..80** | Alumno, Docente, Admin | Streaming OBS y generación de video con avatares HeyGen. |
+| **👥 Participantes** | **CU-25**, **CU-26 (Rama 2)** | Alumno, Docente, Admin | Nómina de docentes y alumnos de la cohorte. |
+| **📊 Calificaciones** | **CU-62**, **CU-26 (Rama 3)** | Alumno, Docente, Admin | Libreta de notas individual y matriz general del curso. |
+
+---
+
+### B. Menú Desplegable de Usuario (`wf_navbar`)
+Accesos transversales a nivel de plataforma según el rol autenticado:
+
+* **👤 Alumno**:
+  * `Mis Cursos (CU-02)` $\rightarrow$ `/cursos/mis-cursos`
+  * `Mis Inscripciones & Certificados (CU-43)` $\rightarrow$ `/inscripciones/mis-inscripciones`
+  * `Mis Pagos & Comprobantes (CU-46)` $\rightarrow$ `/pago/mis-pagos`
+  * `Mi Perfil (CU-86, CU-87)` $\rightarrow$ `/seguridad/perfil`
+* **👨‍🏫 Docente**:
+  * `Gestión de Cursos Asignados (CU-01)` $\rightarrow$ `/cursos`
+  * `Programas Académicos (CU-15, CU-16)` $\rightarrow$ `/academico/programas`
+  * `Cronogramas & Cohortes (CU-11, CU-23)` $\rightarrow$ `/academico/cronogramas`
+  * `Bancos de Pools Globales (CU-53, CU-54)` $\rightarrow$ `/evaluaciones/pools`
+  * `Asistente IA & Clones (CU-73 a CU-80)` $\rightarrow$ `/ia/banco-preguntas`
+  * `Seguimiento de Progreso (CU-48)` $\rightarrow$ `/academico/progreso`
+* **🛡️ Administrador**:
+  * `Gestión Integral de Cursos (CU-01, CU-03, CU-04, CU-05)` $\rightarrow$ `/cursos`
+  * `Categorías Temáticas (CU-07, CU-08, CU-09, CU-10)` $\rightarrow$ `/cursos/categorias`
+  * `Cohortes y Períodos (CU-11, CU-12, CU-13, CU-14)` $\rightarrow$ `/cursos/cohortes`
+  * `Cupones y Descuentos (CU-49, CU-50, CU-51, CU-52)` $\rightarrow$ `/inscripciones/descuentos`
+  * `Gestión de Usuarios y Roles (CU-82, CU-83, CU-84, CU-85, CU-88, CU-89)` $\rightarrow$ `/seguridad/usuarios`
+  * `Auditoría del Sistema (CU-95)` $\rightarrow$ `/auditoria`
+  * `Estadísticas e Informes (CU-96, CU-97, CU-98)` $\rightarrow$ `/reportes/estadisticas`
+  * `Parámetros Operativos (CU-99)` $\rightarrow$ `/configuracion`
 
 ---
 
@@ -20,7 +67,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor solicita buscar uno o más cursos mediante los campos de búsqueda [A] y filtros por categoría / estado [B]. |
+| 1 | El caso de uso inicia cuando el actor accede desde el menú desplegable de usuario seleccionando "Gestión de cursos" (/cursos) o la barra de navegación.|
 | 2 | El sistema solicita los criterios de búsqueda: nombre, categoría, nivel, equipo docente y modalidad. |
 | 3 | El actor ingresa los criterios de búsqueda que desea y confirma la búsqueda mediante el botón "Buscar Cursos" [C]. |
 | 4 | El sistema recupera y filtra los cursos que coincidan con los criterios ingresados. Si el actor es Docente, el sistema restringe el resultado a los cursos en los que participa como titular o ayudante. |
@@ -50,7 +97,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor solicita buscar sus inscripciones mediante el buscador [A] y selector de estado [B]. |
+| 1 | El caso de uso inicia cuando el actor accede desde el menú desplegable de usuario o el acceso directo "Mis Cursos" (/cursos/mis-cursos).|
 | 2 | El sistema solicita los criterios de búsqueda: nombre del curso y estado de la inscripción (Pendiente, En Progreso, Finalizado). |
 | 3 | El actor ingresa los criterios de búsqueda que desea y confirma mediante el botón "Filtrar" [C]. |
 | 4 | El sistema recupera y filtra las inscripciones que coincidan con los criterios ingresados. |
@@ -81,7 +128,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor solicita registrar un nuevo curso mediante el botón "Nuevo Curso" [A] ubicado en la barra de gestión de cursos (ver CU-01: Buscar curso). |
+| 1 | El caso de uso inicia cuando el actor accede mediante el botón "+ Nuevo Curso" [A] ubicado en la barra de gestión de cursos (/cursos).|
 | 2 | El sistema solicita los datos del curso: nombre [B], categoría temática [C], nivel de dificultad [D], precio de inscripción [E], modalidades de dictado [F], docente titular [G], docentes ayudantes [H], si emite certificado oficial [I], descripción detallada [J], y archivo de portada [K] mediante el botón "Examinar..." [L]. |
 | 3 | El actor completa los campos solicitados y confirma el registro mediante el botón "Guardar Curso" [M]. |
 | 4 | El sistema valida que se hayan completado los campos obligatorios (nombre, descripción, precio, categoría, nivel, al menos una modalidad y docente titular). |
@@ -118,7 +165,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor busca y selecciona el curso a modificar mediante el botón "Editar Curso" [A] (ver CU-01: Buscar curso). |
+| 1 | El caso de uso inicia cuando el actor accede mediante el botón "Editar Curso" [A] en la tarjeta del curso deseado (/cursos).|
 | 2 | El sistema muestra los datos actuales del curso en el formulario de edición: nombre [B], categoría temática [C], nivel de dificultad [D], precio de arancel [E], modalidades de dictado [F], docente titular [G], docentes ayudantes [H], emisión de certificado [I], descripción detallada [J], y archivo de portada [K] mediante el botón "Examinar..." [L]. |
 | 3 | El actor modifica los datos habilitados y confirma la actualización mediante el botón "Guardar Cambios" [M]. |
 | 4 | El sistema valida que el curso esté activo, y sólo si posee alguna inscripción activa asociada, el actor no haya modificado datos distintos al precio o la imagen. |
@@ -159,7 +206,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor busca y selecciona el curso a dar de baja mediante el botón "Dar de baja" [A] (ver CU-01: Buscar curso). |
+| 1 | El caso de uso inicia cuando el actor accede mediante el botón "Dar de baja" [A] en la tarjeta del curso deseado (/cursos).|
 | 2 | El sistema valida que el curso esté activo y que no existan programas activos asociados al curso. |
 | 3 | El actor confirma la baja mediante el botón "Confirmar Baja" [B] del modal de confirmación. |
 | 4 | El sistema marca el curso como dado de baja y lo retira del catálogo público. |
@@ -190,7 +237,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor accede al catálogo público de cursos y aplica filtros de búsqueda [A]. |
+| 1 | El caso de uso inicia cuando el actor accede desde la barra de navegación pública seleccionando "Catálogo de Cursos" (/cursos/catalogo).|
 | 2 | El sistema lista los cursos con cohortes abiertas, pudiendo filtrar por nombre, categoría, nivel, docente o modalidad del curso. |
 | 3 | El actor selecciona un curso mediante la tarjeta y el botón "Ver Ficha / Inscribirme" [B]. |
 | 4 | El sistema muestra el detalle público del curso: descripción, nivel, modalidades, precio, contenidos por unidad [C], y las cohortes con inscripción abierta, con su docente titular y cupo disponible [D]. |
@@ -218,7 +265,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor solicita buscar una o más categorías mediante la barra de búsqueda [A] y selector de estado [B]. |
+| 1 | El caso de uso inicia cuando el actor accede desde el menú desplegable de administración seleccionando "Categorías de Cursos" (/cursos/categorias).|
 | 2 | El sistema solicita el criterio de búsqueda: nombre y estado de vigencia. |
 | 3 | El actor ingresa el criterio que desea y presiona el botón "Buscar" [C]. |
 | 4 | El sistema recupera y filtra las categorías que coincidan con el criterio ingresado. |
@@ -247,7 +294,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor solicita registrar una nueva categoría mediante el botón "Nueva Categoría" [A] ubicado en la barra de gestión de categorías (ver CU-07: Buscar categoría). |
+| 1 | El caso de uso inicia cuando el actor accede mediante el botón "+ Nueva Categoría" [A] en la barra de gestión de categorías (/cursos/categorias).|
 | 2 | El sistema solicita los datos de la categoría: nombre [B] y descripción temática [C]. |
 | 3 | El actor completa los datos solicitados en el formulario y confirma el alta mediante el botón "Guardar Categoría" [D]. |
 | 4 | El sistema valida que el nombre haya sido completado y que no exista otra categoría activa con el mismo nombre. |
@@ -282,7 +329,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor busca y selecciona la categoría a modificar mediante el botón "Editar" [A] (ver CU-07: Buscar categoría). |
+| 1 | El caso de uso inicia cuando el actor accede mediante el botón "Editar" [A] en la fila de la categoría seleccionada (/cursos/categorias).|
 | 2 | El sistema muestra los datos actuales en el formulario: nombre de la categoría [B] y descripción temática [C]. |
 | 3 | El actor actualiza los campos habilitados y confirma mediante el botón "Guardar Cambios" [D]. |
 | 4 | El sistema valida que la categoría esté activa y no tenga inscripciones activas asociadas. |
@@ -318,7 +365,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor busca y selecciona la categoría a dar de baja mediante el botón "Eliminar" [A] (ver CU-07: Buscar categoría). |
+| 1 | El caso de uso inicia cuando el actor accede mediante el botón "Eliminar" [A] en la fila de la categoría seleccionada (/cursos/categorias).|
 | 2 | El sistema valida que la categoría esté activa y que no existan cursos activos asociados a la categoría. |
 | 3 | El actor confirma la baja mediante el botón "Confirmar Eliminación" [B] del modal. |
 | 4 | El sistema marca la categoría como dada de baja. |
@@ -351,7 +398,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor solicita buscar las cohortes de un programa mediante el selector de programa [A]. |
+| 1 | El caso de uso inicia cuando el actor accede desde el menú desplegable de administración o docencia seleccionando "Cohortes y Períodos" (/cursos/cohortes).|
 | 2 | El sistema solicita, opcionalmente, el estado (Abierta / En dictado / Finalizada) y el rango de fechas de inscripción. |
 | 3 | El actor ingresa los criterios de búsqueda que desea mediante los filtros [B] y presiona "Buscar" [C]. |
 | 4 | El sistema recupera y filtra las cohortes del programa que coincidan con los criterios ingresados, con sus fechas de inscripción, fechas de dictado si corresponde, cupo máximo y semanas de acceso. |
@@ -382,7 +429,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor busca y selecciona el programa mediante el botón "Nueva Cohorte" [A] (ver CU-15: Buscar programa). |
+| 1 | El caso de uso inicia cuando el actor accede mediante el botón "+ Nueva Cohorte" [A] en la barra de gestión de cohortes (/cursos/cohortes) o desde la gestión de programas.|
 | 2 | El sistema solicita los datos de la cohorte: nombre [B], fecha de inicio de inscripción [C], fecha de fin de inscripción [D], cupo máximo de alumnos [E], semanas de acceso al contenido [F] y, si incluye modalidad en vivo, fecha de inicio [G] y fecha de fin de dictado [H]. |
 | 3 | El actor completa los campos del formulario y confirma el alta mediante el botón "Guardar Cohorte" [I]. |
 | 4 | El sistema valida que el programa esté activo y cuente con el mínimo de unidades establecido con material publicado en su cronograma. |
@@ -430,7 +477,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor busca y selecciona la cohorte a modificar mediante el botón "Editar Cohorte" [A] (ver CU-11: Buscar cohorte). |
+| 1 | El caso de uso inicia cuando el actor accede mediante el botón "Editar Cohorte" [A] en la tarjeta o fila de la cohorte seleccionada (/cursos/cohortes).|
 | 2 | El sistema muestra los datos actuales en el formulario de edición: fecha de inicio de inscripción [B], fecha de fin de inscripción [C], cupo máximo [D], semanas de acceso [E] y fechas de dictado en vivo [F]. |
 | 3 | El actor modifica los parámetros habilitados y confirma la actualización mediante el botón "Guardar Cambios" [G]. |
 | 4 | El sistema valida que la cohorte esté activa, pertenezca al programa vigente y no posea inscripciones activas asociadas. |
@@ -475,7 +522,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor busca y selecciona la cohorte a dar de baja mediante el botón "Cancelar Cohorte" [A] (ver CU-11: Buscar cohorte). |
+| 1 | El caso de uso inicia cuando el actor accede mediante el botón "Cancelar Cohorte" [A] en la tarjeta o fila de la cohorte seleccionada (/cursos/cohortes).|
 | 2 | El sistema valida que la cohorte esté activa y que no posea inscripciones activas. |
 | 3 | El actor confirma la baja mediante el botón "Confirmar Cancelación" [B] del diálogo modal. |
 | 4 | El sistema marca la cohorte como dada de baja (Cancelada). |
@@ -512,7 +559,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso se invoca, ya sea directamente por el actor o indirectamente desde otro caso de uso, para resolver el programa de un curso sobre el cual actuar. |
+| 1 | El caso de uso inicia cuando el actor accede desde el menú desplegable de docencia/administración seleccionando "Programas Académicos" (/academico/programas).|
 | 2 | Por defecto, el sistema resuelve al programa vigente del curso, o al último programa al que el actor lo haya cambiado previamente. |
 | 3 | Si el actor desea actuar sobre un programa distinto, solicita buscarlo mediante el desplegable de versiones de programa [A]. |
 | 4 | El sistema solicita, opcionalmente, el nombre y el estado (Vigente / Anterior / Dado de baja). |
@@ -545,7 +592,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor busca y selecciona el curso mediante el botón "Nuevo Programa" [A] (ver CU-01: Buscar curso). |
+| 1 | El caso de uso inicia cuando el actor accede mediante el botón "+ Nuevo Programa" [A] en la vista de programas académicos (/academico/programas).|
 | 2 | El sistema permite seleccionar opcionalmente un programa base [B] y solicita: nombre del programa [C], descripción académica [D], objetivos formativos [E], carga horaria total en horas [F] y bibliografía obligatoria [G]. |
 | 3 | El actor completa los campos solicitados y confirma el registro mediante el botón "Guardar Programa" [H]. |
 | 4 | El sistema valida que el curso esté activo, el docente participa en el curso como titular o ayudante, y el nombre, los objetivos y la bibliografía hayan sido completados. |
@@ -584,7 +631,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor busca y selecciona el programa a modificar mediante el botón "Editar Programa" [A] (ver CU-15: Buscar programa). |
+| 1 | El caso de uso inicia cuando el actor accede mediante el botón "Editar Programa" [A] en la versión del programa seleccionada (/academico/programas).|
 | 2 | El sistema muestra los datos actuales en el formulario: nombre [B], descripción [C], objetivos [D], carga horaria [E] y bibliografía [F]. |
 | 3 | El actor modifica los campos habilitados y confirma la actualización mediante el botón "Guardar Cambios" [G]. |
 | 4 | El sistema valida que el programa esté activo, no existan inscripciones activas asociadas y el docente participa en el curso como titular o ayudante. |
@@ -621,7 +668,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor busca y selecciona el programa a dar de baja mediante el botón "Dar de baja" [A] (ver CU-15: Buscar programa). |
+| 1 | El caso de uso inicia cuando el actor accede mediante el botón "Dar de baja" [A] en la versión del programa seleccionada (/academico/programas).|
 | 2 | El sistema valida que el programa esté activo, que el docente participe en el curso como titular o ayudante (si corresponde), y que no tenga ninguna cohorte asociada. |
 | 3 | El actor confirma la baja mediante el botón "Confirmar Baja" [B] del cuadro de confirmación. |
 | 4 | El sistema marca el programa como dado de baja. |
@@ -656,7 +703,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor solicita buscar las unidades de un programa desde la pestaña "Curso & Unidades" [A]. |
+| 1 | El caso de uso inicia cuando el actor accede desde la pestaña contextual "Curso & Unidades" [A] en la cabecera del curso (/academico/unidades).|
 | 2 | El sistema recupera y lista las unidades incluidas en el cronograma del programa, mostrando el título y la descripción de cada unidad. |
 | 3 | El actor puede seleccionar una unidad mediante el encabezado del acordeón Moodle [B] para gestionar su contenido. |
 | 4 | El sistema despliega el contenido de la unidad seleccionada: su material, sus términos de glosario, sus pools de preguntas, sus autoevaluaciones y sus clases (en vivo y con Clon de IA), con las opciones para darlo de alta, modificarlo o eliminarlo. |
@@ -685,7 +732,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor solicita añadir una nueva unidad mediante el botón "Nueva Unidad" [A] (ver CU-19: Buscar unidad). |
+| 1 | El caso de uso inicia cuando el actor accede mediante el botón "+ Nueva Unidad" [A] desde la pestaña "Curso & Unidades" o en el Modo Edición del curso.|
 | 2 | El sistema solicita los datos de la unidad temática: título de la sección [B], descripción de objetivos [C] y contenido temático [D], o permite seleccionar una unidad existente [E]. |
 | 3 | El actor ingresa los datos de la unidad y confirma la creación mediante el botón "Agregar Unidad" [F]. |
 | 4 | El sistema valida que, el programa esté activo, el docente participa en el curso como titular o ayudante, y si se creó una unidad nueva, que el título y el contenido hayan sido completados. |
@@ -723,7 +770,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor busca y selecciona la unidad a modificar mediante el menú "Editar" [A] (ver CU-19: Buscar unidad). |
+| 1 | El caso de uso inicia cuando el actor accede mediante la opción "Editar" [A] en el menú de la unidad temática seleccionada.|
 | 2 | El sistema muestra los datos actuales de la unidad en el formulario: título [B], descripción [C] y contenido temático [D]. |
 | 3 | El actor actualiza los campos habilitados y confirma mediante el botón "Guardar Cambios" [E]. |
 | 4 | El sistema valida que el docente participe en el curso como titular o ayudante, que la unidad esté activa, y que no existan inscripciones activas asociadas. |
@@ -763,7 +810,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor busca y selecciona la unidad a quitar mediante la opción "Quitar de este programa" [A] del menú de la unidad (ver CU-19: Buscar unidad). |
+| 1 | El caso de uso inicia cuando el actor accede mediante la opción "Quitar de este programa" [A] en el menú de la unidad temática seleccionada.|
 | 2 | El sistema valida que, si el actor es Docente, participe en el curso como titular o ayudante, que el programa y la unidad estén activos, y que la unidad pertenezca al cronograma del programa indicado. |
 | 3 | El sistema valida que el programa no tenga inscripciones activas asociadas. |
 | 4 | El actor confirma la operación mediante el botón "Confirmar y Quitar" [B] del diálogo de confirmación. |
@@ -802,7 +849,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor busca y selecciona el programa cuyo cronograma desea consultar desde la pestaña "Cronograma" [A]. |
+| 1 | El caso de uso inicia cuando el actor accede desde la pestaña contextual "Cronograma" [A] en la cabecera del curso (/academico/cronograma).|
 | 2 | El sistema recupera y lista las unidades del cronograma del programa, ordenadas por su número de orden, con su duración en semanas y carga horaria estimada. |
 | 3 | El actor puede seleccionar la opción de reordenamiento temporal mediante el botón "Reordenar Cronograma" [B] (ver CU-24: Modificar cronograma). |
 | 4 | Fin del caso de uso. |
@@ -831,7 +878,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor busca y selecciona el programa cuyo cronograma desea modificar mediante el botón "Reordenar Cronograma" [A] (ver CU-23: Buscar cronograma). |
+| 1 | El caso de uso inicia cuando el actor accede mediante el botón "Reordenar Cronograma" [A] desde la pestaña de cronograma (/academico/cronograma/modificar).|
 | 2 | El sistema muestra las unidades del cronograma actual, en su orden y con su duración. |
 | 3 | El actor reordena las unidades arrastrándolas mediante el tirador [B], ajusta la duración en semanas [C] y confirma mediante el botón "Guardar Cronograma" [D]. |
 | 4 | El sistema valida que el docente participe en el curso como titular o ayudante, que el programa esté activo, y que no existan inscripciones activas asociadas. |
@@ -867,7 +914,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor solicita ver los participantes desde la pestaña "Participantes" [A]. |
+| 1 | El caso de uso inicia cuando el actor accede desde la pestaña contextual "Participantes" [A] en la cabecera del curso (/academico/participantes).|
 | 2 | El sistema solicita, opcionalmente, nombre o apellido y el rol (Alumno / Docente). |
 | 3 | El actor ingresa los criterios que desea mediante los filtros [B] y confirma la búsqueda con el botón "Filtrar" [C]. |
 | 4 | El sistema recupera y lista el equipo docente y los alumnos de todas las cohortes del curso, filtrados por los criterios. |
@@ -896,7 +943,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el alumno solicita acceder a las unidades de un curso matriculado desde la pestaña "Curso" [A]. |
+| 1 | El caso de uso inicia cuando el actor accede al ingresar al Aula Virtual del curso matriculado (/academico/curso/{id}) desde "Mis Cursos".|
 | 2 | El sistema valida que el alumno posea una inscripción vigente al curso. |
 | 3 | El alumno puede seleccionar alternativamente la pestaña "Cronograma" [B], "Participantes" [E] o "Calificaciones" [F]. |
 | 4 | Si el alumno solicitó el cronograma, el sistema recupera y lista las unidades del programa de su cohorte, con título, número de orden y duración en semanas, y calcula la semana esperada de avance según la fecha de inicio de dictado o de inscripción de la cohorte y la duración acumulada de las unidades; si el alumno va por detrás de lo esperado respecto de la última unidad con progreso completado, el sistema lo indica. |
@@ -931,7 +978,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor busca y selecciona un curso desde su listado de cursos asignados mediante el botón "Ingresar al Curso" [A] (ver CU-01: Buscar curso). |
+| 1 | El caso de uso inicia cuando el actor accede al activar el switch "Modo Edición" [C] en la cabecera contextual del curso (/academico/curso/{id}).|
 | 2 | El sistema muestra la vista del curso con sus unidades pedagógicas en acordeón y las pestañas contextuales de navegación [B]. |
 | 3 | El actor activa el switch "Modo Edición" [C] ubicado en la cabecera superior del curso. |
 | 4 | El sistema habilita los controles de edición inline: botón "Nueva Unidad" [D], menú "Editar" por unidad y botones "Añade una actividad o un recurso" [E] al pie de cada tema. |
@@ -963,7 +1010,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor solicita buscar material desde la pestaña "Materiales" [A]. |
+| 1 | El caso de uso inicia cuando el actor accede desde la pestaña contextual "Materiales" [A] en la cabecera del curso (/academico/materiales).|
 | 2 | El sistema solicita la unidad sobre la que se desea consultar y, opcionalmente, el tipo de material, el título y si fue generado por IA. |
 | 3 | El actor ingresa los criterios de búsqueda que desea mediante el formulario de filtros [B] y presiona "Buscar" [C]. |
 | 4 | El sistema recupera y lista el material que coincide con los criterios, incluyendo el no publicado. |
@@ -993,7 +1040,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor hace clic en "Añade una actividad o un recurso" [A] en el Modo Edición (ver CU-19: Buscar unidad). |
+| 1 | El caso de uso inicia cuando el actor accede mediante el botón "Añade una actividad o recurso" [A] en el Modo Edición de la unidad o desde la pestaña Materiales.|
 | 2 | El sistema solicita el tipo de material (Grabación, Bibliografía o Presentación) y el título. |
 | 3 | El actor selecciona el tipo de material e ingresa el título en el formulario [B]. |
 | 4 | Según el tipo elegido, el sistema solicita: el archivo de video (Grabación); el archivo o enlace externo y el autor (Bibliografía); o el archivo de la presentación (Presentación). |
@@ -1030,7 +1077,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor busca y selecciona el material a modificar mediante el menú "Editar" [A] (ver CU-27: Buscar material). |
+| 1 | El caso de uso inicia cuando el actor accede mediante el botón "Editar" [A] en la fila o tarjeta del material seleccionado.|
 | 2 | El sistema muestra los datos actuales en el formulario: título [B], archivo o documento adjunto [C] mediante "Examinar..." [D], y estado de visibilidad [E]. |
 | 3 | El actor modifica los datos y confirma la actualización mediante el botón "Guardar Cambios" [F]. |
 | 4 | El sistema valida que el docente participe en el curso como titular o ayudante, que el material esté activo, y que el título no quede vacío. |
@@ -1067,7 +1114,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor busca y selecciona el material a dar de baja mediante la opción "Eliminar" [A] (ver CU-27: Buscar material). |
+| 1 | El caso de uso inicia cuando el actor accede mediante la opción "Eliminar" [A] en el menú del material didáctico seleccionado.|
 | 2 | El sistema valida que, si el actor es Docente, participe en el curso como titular o ayudante, y que el material esté activo. |
 | 3 | El actor confirma la baja mediante el botón "Confirmar Eliminación" [B] del modal. |
 | 4 | El sistema marca el material como dado de baja y deja de mostrarlo a los alumnos. |
@@ -1101,7 +1148,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor solicita buscar términos desde la pestaña "Glosario" [A]. |
+| 1 | El caso de uso inicia cuando el actor accede desde la pestaña contextual "Glosario" [A] en la cabecera del curso (/academico/glosario).|
 | 2 | El sistema solicita opcionalmente el término o la definición. |
 | 3 | El actor ingresa los criterios de búsqueda mediante la barra de búsqueda de términos [B] y presiona "Buscar" [C]. |
 | 4 | El sistema recupera y lista los términos de glosario que coinciden con los criterios ingresados. |
@@ -1131,7 +1178,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor selecciona "Añade una actividad o un recurso" [A] en la unidad (ver CU-19: Buscar unidad). |
+| 1 | El caso de uso inicia cuando el actor accede mediante el botón "+ Nuevo Término" o "Añadir recurso: Glosario" [A] en la unidad.|
 | 2 | El sistema solicita los datos del término: concepto / término [B] y definición técnica [C]. |
 | 3 | El actor completa el concepto y su definición y confirma mediante el botón "Agregar" [D]. |
 | 4 | El sistema valida que el docente participe en el curso como titular o ayudante, que la unidad esté activa, que el término y la definición hayan sido completados, y que el término no esté ya registrado en el glosario de esa unidad. |
@@ -1166,7 +1213,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor busca y selecciona el término a modificar mediante el botón "Editar" [A] (ver CU-31: Buscar término de glosario). |
+| 1 | El caso de uso inicia cuando el actor accede mediante el botón "Editar" [A] en la tarjeta o fila del término de glosario seleccionado.|
 | 2 | El sistema muestra los datos actuales en el formulario: concepto / término [B] y definición técnica [C]. |
 | 3 | El actor actualiza los campos habilitados y confirma mediante el botón "Guardar Cambios" [D]. |
 | 4 | El sistema valida que el docente participe en el curso como titular o ayudante, que el término esté activo, y que ninguno de los dos campos quede vacío. |
@@ -1202,7 +1249,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor busca y selecciona el término a dar de baja mediante el botón "Eliminar" [A] (ver CU-31: Buscar término de glosario). |
+| 1 | El caso de uso inicia cuando el actor accede mediante el botón "Eliminar" [A] en la tarjeta o fila del término de glosario seleccionado.|
 | 2 | El sistema valida que el docente participe en el curso como titular o ayudante y que el término esté activo. |
 | 3 | El actor confirma la baja mediante el botón "Confirmar Baja" [B] del modal. |
 | 4 | El sistema marca el término de glosario como dado de baja. |
@@ -1236,7 +1283,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor solicita buscar consultas desde la pestaña "Foros" [A]. |
+| 1 | El caso de uso inicia cuando el actor accede desde la pestaña contextual "Foros" [A] en la cabecera del curso (/academico/consultas).|
 | 2 | El sistema solicita opcionalmente el texto o el rango de fechas. |
 | 3 | El actor ingresa los criterios de búsqueda mediante el buscador de temas [B] y presiona "Buscar" [C]. |
 | 4 | El sistema recupera y lista las consultas de foro que coinciden con los criterios, con sus respuestas asociadas si existen. |
@@ -1267,7 +1314,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el alumno solicita hacer una pregunta mediante el botón "Nueva Consulta" [A] en el foro de la unidad. |
+| 1 | El caso de uso inicia cuando el actor accede mediante el botón "Nueva Consulta" [A] dentro del foro de la unidad temática.|
 | 2 | El sistema valida que el alumno posea una inscripción vigente al curso, que la unidad se encuentre activa y habilitada según su avance secuencial. |
 | 3 | El sistema solicita los datos de la consulta: asunto / título [B] y texto del mensaje [C]. |
 | 4 | El actor ingresa el asunto y redacta el mensaje en el editor y confirma la publicación mediante el botón "Publicar Consulta" [D]. |
@@ -1305,7 +1352,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor selecciona su consulta mediante la opción "Editar Mensaje" [A] (ver CU-35: Buscar consulta de foro). |
+| 1 | El caso de uso inicia cuando el actor accede mediante la opción "Editar Mensaje" [A] en la consulta de foro propia seleccionada.|
 | 2 | El sistema verifica que la consulta haya sido registrada por el actor, que esté activa, y que no se haya superado el plazo límite de edición desde su registro. |
 | 3 | El sistema muestra el texto actual de la consulta. |
 | 4 | El actor modifica el texto en el editor [B] y confirma mediante el botón "Guardar Cambios" [C]. |
@@ -1340,7 +1387,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el administrador selecciona la consulta indebida mediante el botón "Moderar / Eliminar" [A] (ver CU-35: Buscar consulta de foro). |
+| 1 | El caso de uso inicia cuando el actor accede mediante el botón "Moderar / Eliminar" [A] en la consulta de foro seleccionada por el administrador.|
 | 2 | El sistema valida que la consulta esté activa. |
 | 3 | El actor confirma la baja mediante el botón "Confirmar Eliminación" [B] del cuadro de moderación. |
 | 4 | El sistema marca la consulta como dada de baja, junto con las respuestas asociadas si existen. |
@@ -1373,7 +1420,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor selecciona un hilo de consulta para ver las respuestas mediante el enlace del tema [A]. |
+| 1 | El caso de uso inicia cuando el actor accede al hacer clic sobre el hilo de consulta de foro [A] para acceder a sus respuestas.|
 | 2 | El sistema recupera y lista las respuestas asociadas a la consulta. |
 | 3 | El actor puede seleccionar una respuesta en específico [B] para leerla o moderarla. |
 | 4 | Fin del caso de uso. |
@@ -1401,7 +1448,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el docente selecciona el botón "Responder" [A] en la consulta del foro (ver CU-35: Buscar consulta de foro). |
+| 1 | El caso de uso inicia cuando el actor accede mediante el botón "Responder" [A] al pie del hilo de consulta de foro.|
 | 2 | El sistema solicita el texto de la respuesta. |
 | 3 | El actor redacta la respuesta en el área de texto [B] y confirma mediante el botón "Enviar Respuesta" [C]. |
 | 4 | El sistema valida que el docente participe en el curso como titular o ayudante, que la consulta esté activa, y que el texto haya sido completado. |
@@ -1438,7 +1485,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el docente selecciona su respuesta mediante la opción "Editar Respuesta" [A] (ver CU-39: Buscar respuesta de foro). |
+| 1 | El caso de uso inicia cuando el actor accede mediante la opción "Editar Respuesta" [A] en la respuesta de foro propia seleccionada.|
 | 2 | El sistema verifica que el docente participe en el curso como titular o ayudante, que la respuesta haya sido registrada por el actor, que esté activa, y que no se haya superado el plazo límite de edición desde su registro. |
 | 3 | El sistema muestra el texto actual de la respuesta. |
 | 4 | El actor modifica el texto en el editor [B] y confirma mediante el botón "Guardar Cambios" [C]. |
@@ -1474,7 +1521,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el administrador selecciona la respuesta a moderar mediante el botón "Eliminar Respuesta" [A] (ver CU-39: Buscar respuesta de foro). |
+| 1 | El caso de uso inicia cuando el actor accede mediante el botón "Eliminar Respuesta" [A] en la respuesta de foro seleccionada por el administrador.|
 | 2 | El sistema valida que la respuesta esté activa. |
 | 3 | El actor confirma la baja mediante el botón "Confirmar Eliminación" [B] del modal. |
 | 4 | El sistema marca la respuesta como dada de baja. |
@@ -1508,7 +1555,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor solicita buscar inscripciones mediante la barra de filtros [A]. |
+| 1 | El caso de uso inicia cuando el actor accede desde el menú desplegable seleccionando "Inscripciones y Pagos" (/inscripciones) o "Mis Inscripciones".|
 | 2 | El sistema solicita los criterios de búsqueda: curso, alumno (solo para Administrador) y estado (Vigente / Vencida / Dada de baja). |
 | 3 | El actor ingresa los criterios de búsqueda que desea y presiona "Buscar" [B]. |
 | 4 | El sistema recupera y filtra las inscripciones que coincidan con los criterios ingresados, restringidas a las propias si el actor es Alumno. |
@@ -1539,7 +1586,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el alumno selecciona una cohorte con inscripción abierta y presiona el botón "Inscribirme Ahora" [A] (ver CU-06: Explorar catálogo de cursos). |
+| 1 | El caso de uso inicia cuando el actor accede mediante el botón "Inscribirme Ahora" [A] en la ficha pública del curso (/cursos/catalogo).|
 | 2 | El sistema valida que la fecha actual se encuentre dentro de la ventana de inscripción de la cohorte seleccionada. |
 | 3 | El sistema valida que la cohorte no haya alcanzado su cupo máximo, si tiene uno definido. |
 | 4 | El sistema valida que el alumno no posea ya una inscripción vigente a esa cohorte. |
@@ -1575,7 +1622,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor busca y selecciona la inscripción a dar de baja mediante el botón "Dar de baja inscripción" [A] (ver CU-43: Buscar inscripción). |
+| 1 | El caso de uso inicia cuando el actor accede mediante el botón "Dar de baja inscripción" [A] en la lista de inscripciones (/inscripciones).|
 | 2 | El sistema valida que la inscripción esté activa y que, si el actor es Alumno, le pertenezca. |
 | 3 | El sistema solicita confirmación y, opcionalmente, un motivo u observación de la baja. |
 | 4 | El actor confirma la baja y, si lo desea, ingresa el motivo en el cuadro de texto [B]. |
@@ -1612,7 +1659,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor solicita buscar pagos mediante los filtros de estado y fechas [A]. |
+| 1 | El caso de uso inicia cuando el actor accede desde el menú desplegable seleccionando "Mis Pagos" (/pago/mis-pagos) o la gestión de pagos.|
 | 2 | El sistema solicita los criterios de búsqueda: curso, alumno (solo para Administrador), estado (Pendiente / Acreditado / Rechazado) y rango de fecha. |
 | 3 | El actor ingresa los criterios de búsqueda que desea y presiona "Buscar" [B]. |
 | 4 | El sistema recupera y filtra los pagos que coincidan con los criterios ingresados, restringidos a los propios si el actor es Alumno. |
@@ -1643,7 +1690,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el alumno solicita pagar el curso mediante el botón "Proceder al Pago" [A]. |
+| 1 | El caso de uso inicia cuando el actor accede al presionar "Proceder al Pago" [A] durante el proceso de matriculación o desde pagos pendientes.|
 | 2 | El sistema valida que el alumno tenga al menos una inscripción registrada para el curso, sin el pago realizado. |
 | 3 | El sistema evalúa si el alumno cumple alguna condición de descuento vigente y, de ser así, calcula el monto a pagar con el descuento aplicado (ver PA-3: Aplicación automática de descuentos), y muestra al alumno el monto a pagar. |
 | 4 | El sistema recupera y muestra los medios de pago disponibles. |
@@ -1685,7 +1732,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor solicita consultar los progresos mediante el buscador de alumnos [A]. |
+| 1 | El caso de uso inicia cuando el actor accede desde el menú desplegable seleccionando "Seguimiento de Progreso" (/academico/progreso).|
 | 2 | El sistema solicita opcionalmente los criterios de búsqueda: alumno. |
 | 3 | El actor ingresa los criterios de búsqueda que desea y presiona "Buscar" [B]. |
 | 4 | El sistema recupera los progresos de los alumnos en el curso. |
@@ -1715,7 +1762,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor solicita buscar descuentos mediante el filtro de vigencia [A]. |
+| 1 | El caso de uso inicia cuando el actor accede desde el menú desplegable de administración seleccionando "Cupones y Descuentos" (/inscripciones/descuentos).|
 | 2 | El sistema solicita los criterios de búsqueda: nombre y vigencia (Vigente / Vencido / Agotado). |
 | 3 | El actor ingresa los criterios de búsqueda que desea y presiona "Buscar" [B]. |
 | 4 | El sistema recupera y filtra los descuentos que coincidan con los criterios ingresados. |
@@ -1744,7 +1791,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor solicita registrar un nuevo descuento mediante el botón "Nuevo Descuento" [A] (ver CU-49: Buscar descuento). |
+| 1 | El caso de uso inicia cuando el actor accede mediante el botón "+ Nuevo Descuento" [A] en la vista de cupones y descuentos (/inscripciones/descuentos).|
 | 2 | El sistema solicita los parámetros del beneficio: nombre del descuento [B], porcentaje aplicable [C], vigencia desde [D], vigencia hasta [E], cantidad límite de usos [F] y cantidad de cursos requeridos [G]. |
 | 3 | El actor completa los campos solicitados y confirma el registro mediante el botón "Guardar Descuento" [H]. |
 | 4 | El sistema valida que se hayan completado los campos obligatorios (nombre, porcentaje, vigencia desde, vigencia hasta, cantidad límite). |
@@ -1784,7 +1831,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor busca y selecciona el descuento a modificar mediante el botón "Editar" [A] (ver CU-49: Buscar descuento). |
+| 1 | El caso de uso inicia cuando el actor accede mediante el botón "Editar" [A] en la fila del descuento seleccionado (/inscripciones/descuentos).|
 | 2 | El sistema muestra los datos actuales en el formulario: nombre [B], porcentaje [C], vigencia desde [D], vigencia hasta [E], cantidad límite [F] y cursos requeridos [G]. |
 | 3 | El actor actualiza los datos habilitados y confirma la modificación mediante el botón "Guardar Cambios" [H]. |
 | 4 | El sistema valida que el descuento esté activo y que se mantengan completos los campos obligatorios. |
@@ -1826,7 +1873,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor busca y selecciona el descuento a dar de baja mediante el botón "Eliminar" [A] (ver CU-49: Buscar descuento). |
+| 1 | El caso de uso inicia cuando el actor accede mediante el botón "Eliminar" [A] en la fila del descuento seleccionado (/inscripciones/descuentos).|
 | 2 | El sistema verifica que el descuento esté activo y que la cantidad usada sea cero. |
 | 3 | El actor confirma la baja mediante el botón "Confirmar Baja" [B] del modal. |
 | 4 | El sistema marca el descuento como dado de baja, y ya no poder aplicarlo en inscripciones. |
@@ -1863,7 +1910,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor solicita buscar pools desde la pestaña "Pools" [A]. |
+| 1 | El caso de uso inicia cuando el actor accede desde la pestaña contextual "Pools" [A] en la cabecera del curso o desde el menú "Evaluaciones & Pools" (/evaluaciones/pools).|
 | 2 | El sistema solicita la unidad sobre la que se desea consultar y, opcionalmente, el nombre del pool. |
 | 3 | El actor ingresa los criterios de búsqueda mediante la barra de filtros [B] y presiona "Buscar" [C]. |
 | 4 | El sistema recupera y lista los pools que coinciden con los criterios, con su cantidad de preguntas cargadas. |
@@ -1893,7 +1940,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el docente selecciona el botón "Nuevo Pool" [A] en la unidad (ver CU-19: Buscar unidad). |
+| 1 | El caso de uso inicia cuando el actor accede mediante el botón "+ Nuevo Pool" [A] en la pestaña de pools o en el Modo Edición de la unidad.|
 | 2 | El sistema solicita los datos del banco de preguntas: nombre del pool [B], descripción temática [C] y el editor de preguntas. |
 | 3 | El actor ingresa el nombre, la descripción y comienza a cargar preguntas con su tipo (opción múltiple o verdadero/falso), enunciado y opciones de respuesta marcando la correcta, y confirma la creación mediante el botón "Guardar y Crear Pool" [D]. |
 | 4 | El sistema valida que el docente participe en el curso como titular o ayudante, que la unidad esté activa, que el nombre del pool haya sido completado y que se haya cargado al menos una pregunta. |
@@ -1931,7 +1978,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor busca y selecciona el pool a modificar mediante el botón "Editar Pool" [A] (ver CU-53: Buscar pool). |
+| 1 | El caso de uso inicia cuando el actor accede mediante el botón "Editar Pool" [A] en la tarjeta del pool de preguntas seleccionado.|
 | 2 | El sistema muestra los datos actuales en el panel: nombre del pool [B], descripción [C] y editor de preguntas y opciones [D]. |
 | 3 | El actor actualiza los campos habilitados y confirma mediante el botón "Guardar Cambios" [E]. |
 | 4 | El sistema valida que el docente participe en el curso como titular o ayudante, que el pool esté activo, y que no esté asociado a ninguna autoevaluación con intentos registrados. |
@@ -1970,7 +2017,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor busca y selecciona el pool a dar de baja mediante el botón "Eliminar Pool" [A] (ver CU-53: Buscar pool). |
+| 1 | El caso de uso inicia cuando el actor accede mediante el botón "Eliminar Pool" [A] en la tarjeta del pool de preguntas seleccionado.|
 | 2 | El sistema verifica que, si el actor es Docente, participe en el curso como titular o ayudante, que el pool esté activo, y que no esté asociado a ninguna autoevaluación activa. |
 | 3 | El actor confirma la baja mediante el botón "Confirmar Baja" [B] del cuadro de confirmación. |
 | 4 | El sistema marca el pool como dado de baja. |
@@ -2004,7 +2051,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor solicita buscar autoevaluaciones desde la pestaña "Autoevaluaciones" [A]. |
+| 1 | El caso de uso inicia cuando el actor accede desde la pestaña contextual "Autoevaluaciones" [A] en la cabecera del curso (/evaluaciones/autoevaluaciones).|
 | 2 | El sistema solicita la unidad sobre la que se desea consultar y, opcionalmente, el nombre de la autoevaluación. |
 | 3 | El actor ingresa los criterios de búsqueda mediante el buscador [B] y presiona "Buscar" [C]. |
 | 4 | El sistema recupera y lista las autoevaluaciones que coinciden con los criterios. |
@@ -2035,7 +2082,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el docente selecciona el botón "Nueva Autoevaluación" [A] en la unidad (ver CU-19: Buscar unidad). |
+| 1 | El caso de uso inicia cuando el actor accede mediante el botón "+ Nueva Autoevaluación" [A] en la unidad o en la pestaña de autoevaluaciones.|
 | 2 | El sistema solicita los parámetros del cuestionario: nombre de la autoevaluación [B], tiempo límite en minutos [C], cantidad de preguntas sorteables [D], fecha de apertura [E], fecha de cierre [F], intentos permitidos [G] y pools asociados [H]. |
 | 3 | El actor completa los parámetros solicitados y confirma la creación mediante el botón "Agregar" [I]. |
 | 4 | El sistema valida que el docente participe en el curso como titular o ayudante, que la unidad esté activa, que se hayan completado los campos obligatorios y que se haya seleccionado al menos un pool activo. |
@@ -2077,7 +2124,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor busca y selecciona la autoevaluación a modificar mediante el botón "Editar Cuestionario" [A] (ver CU-57: Buscar autoevaluación). |
+| 1 | El caso de uso inicia cuando el actor accede mediante el botón "Editar Cuestionario" [A] en la autoevaluación seleccionada.|
 | 2 | El sistema muestra los datos actuales en el formulario de edición: nombre del cuestionario [B], tiempo límite [C], cantidad de preguntas [D], fecha de apertura [E], fecha de cierre [F], intentos permitidos [G], y pools asociados [H]. |
 | 3 | El actor modifica los campos habilitados y confirma la actualización mediante el botón "Guardar Cambios" [I]. |
 | 4 | El sistema valida que el docente participe en el curso como titular o ayudante, que la autoevaluación esté activa, y que, si registra intentos, el actor no haya modificado el nombre, el tiempo límite, la fecha de apertura ni los pools asociados. |
@@ -2120,7 +2167,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor busca y selecciona la autoevaluación a dar de baja mediante el botón "Eliminar" [A] (ver CU-57: Buscar autoevaluación). |
+| 1 | El caso de uso inicia cuando el actor accede mediante el botón "Eliminar" [A] en la tarjeta de la autoevaluación seleccionada.|
 | 2 | El sistema verifica que, si el actor es Docente, participe en el curso como titular o ayudante, que la autoevaluación esté activa, y que ningún alumno registre intentos sobre ella. |
 | 3 | El actor confirma la baja mediante el botón "Confirmar Eliminación" [B] del modal. |
 | 4 | El sistema marca la autoevaluación como dada de baja. |
@@ -2155,7 +2202,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor solicita buscar intentos desde la tabla de intentos de la autoevaluación [A]. |
+| 1 | El caso de uso inicia cuando el actor accede mediante el botón "Ver Intentos" [A] en la autoevaluación seleccionada para seguimiento.|
 | 2 | El sistema solicita la autoevaluación sobre la que se desea consultar y, opcionalmente, el alumno, el rango de fechas y el resultado (aprobado / no aprobado). |
 | 3 | El actor ingresa los criterios de búsqueda mediante los filtros [B] y presiona "Buscar" [C]. |
 | 4 | El sistema recupera y lista los intentos que coinciden con los criterios. |
@@ -2184,7 +2231,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor solicita consultar las calificaciones de un alumno en un curso mediante el botón "Ver Calificaciones" [A] (ver CU-01: Buscar curso). |
+| 1 | El caso de uso inicia cuando el actor accede desde la pestaña contextual "Calificaciones" [A] en la cabecera del curso (/evaluaciones/calificaciones).|
 | 2 | El sistema solicita el alumno a consultar. |
 | 3 | El actor ingresa el alumno a consultar mediante el selector o buscador [B]. |
 | 4 | El sistema recupera, para cada autoevaluación rendida por el alumno en el programa de su cohorte, la nota y el resultado. |
@@ -2217,7 +2264,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el alumno, viendo el contenido de la unidad (ver CU-26: Acceder curso), selecciona el enlace de la autoevaluación y presiona "Comenzar Intento" [A]. |
+| 1 | El caso de uso inicia cuando el actor accede al presionar "Comenzar Intento" [A] en la autoevaluación activa dentro del Aula Virtual.|
 | 2 | El sistema valida que el alumno posea una inscripción vigente al curso, que la autoevaluación se encuentre activa, que la unidad se encuentre habilitada según el avance secuencial del alumno, que la fecha y hora actual se encuentren dentro del período habilitado de la autoevaluación, y que, si tiene un límite de intentos, el alumno no lo haya superado. |
 | 3 | El sistema sortea la cantidad de preguntas cerradas de la autoevaluación de los pools asociados, con sus opciones de respuesta. |
 | 4 | El sistema presenta el cuestionario al alumno, dentro del tiempo límite configurado. |
@@ -2259,7 +2306,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor busca y selecciona el intento a anular mediante el botón "Anular Intento por Fraude" [A] (ver CU-61: Buscar intento de autoevaluación). |
+| 1 | El caso de uso inicia cuando el actor accede mediante el botón "Anular Intento por Fraude" [A] en la lista de intentos registrados.|
 | 2 | El sistema valida que el intento esté activo. |
 | 3 | El sistema solicita confirmación de la baja. |
 | 4 | El actor confirma la baja mediante el botón "Confirmar Anulación" [B] del modal de moderación. |
@@ -2299,7 +2346,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor solicita buscar clases en vivo desde la pestaña "Clases en Vivo" [A]. |
+| 1 | El caso de uso inicia cuando el actor accede desde la pestaña contextual "Clases en Vivo & IA" [A] en la cabecera del curso (/clases-vivo).|
 | 2 | El sistema solicita la unidad sobre la que se desea consultar y, opcionalmente, el título, el docente, el rango de fechas y el estado (Programada / En vivo / Finalizada). |
 | 3 | El actor ingresa los criterios de búsqueda mediante los filtros de estado [B] y presiona "Buscar" [C]. |
 | 4 | El sistema recupera y lista las clases en vivo que coinciden con los criterios ingresados. |
@@ -2331,7 +2378,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el docente selecciona el botón "Programar clase en vivo" [A] en la unidad (ver CU-19: Buscar unidad). |
+| 1 | El caso de uso inicia cuando el actor accede mediante el botón "Programar Clase en Vivo" [A] en la unidad o en la pestaña de clases en vivo.|
 | 2 | El sistema solicita los datos de la transmisión: título de la clase [B], cohorte destinataria [C], fecha y hora de inicio [D], duración estimada en minutos [E] y enlace a la sala de streaming [F]. |
 | 3 | El actor completa los datos de la sesión y confirma la programación mediante el botón "Agregar" [G]. |
 | 4 | El sistema valida que el docente participe en el curso como titular o ayudante, que la unidad y la cohorte estén activas, y que se hayan completado los campos obligatorios. |
@@ -2376,7 +2423,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor busca y selecciona la clase programada mediante el botón "Reprogramar / Editar" [A] (ver CU-65: Buscar clase en vivo). |
+| 1 | El caso de uso inicia cuando el actor accede mediante el botón "Reprogramar / Editar" [A] en la clase en vivo programada.|
 | 2 | El sistema valida que el docente participe en el curso como titular o ayudante, que la clase esté activa, que haya sido registrada por el actor, y que se encuentre programada. |
 | 3 | El sistema muestra los datos actuales en el formulario: título de la clase [B], fecha y hora [C], duración estimada [D] y enlace a la sala [E]. |
 | 4 | El actor reprograma los datos y confirma mediante el botón "Guardar Cambios" [F]. |
@@ -2421,7 +2468,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor busca y selecciona la clase programada a cancelar mediante el botón "Cancelar Clase" [A] (ver CU-65: Buscar clase en vivo). |
+| 1 | El caso de uso inicia cuando el actor accede mediante el botón "Cancelar Clase" [A] en la clase en vivo programada.|
 | 2 | El sistema valida que el docente participe en el curso como titular o ayudante, que la clase esté activa, que haya sido registrada por el actor, y que se encuentre programada. |
 | 3 | El actor confirma la cancelación mediante el botón "Confirmar Cancelación" [B] del modal. |
 | 4 | El sistema marca la clase como dada de baja. |
@@ -2458,7 +2505,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor busca y selecciona la clase finalizada a dar de baja mediante el botón "Eliminar Registro" [A] (ver CU-65: Buscar clase en vivo). |
+| 1 | El caso de uso inicia cuando el actor accede mediante el botón "Eliminar Registro" [A] en la clase en vivo finalizada seleccionada por el administrador.|
 | 2 | El sistema valida que la clase esté activa. |
 | 3 | El actor confirma la baja mediante el botón "Confirmar Eliminación" [B] del cuadro modal. |
 | 4 | El sistema marca la clase como dada de baja. |
@@ -2495,7 +2542,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el docente busca y selecciona la clase programada y presiona el botón "Transmitir en Vivo" [A] (ver CU-65: Buscar clase en vivo). |
+| 1 | El caso de uso inicia cuando el actor accede mediante el botón "Transmitir en Vivo" [A] en el panel de control de la sesión programada.|
 | 2 | El sistema valida que el docente participe en el curso como titular o ayudante, que la clase esté activa, que haya sido registrada por el actor, que se encuentre programada, y que se haya alcanzado el horario programado. |
 | 3 | El sistema genera los datos de conexión de la transmisión (URL de streaming y clave privada de transmisión). |
 | 4 | El sistema pasa la clase al estado En vivo. |
@@ -2534,7 +2581,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el docente presiona el botón "Finalizar Transmisión" [A] en el panel de control de la clase en vivo (ver CU-65: Buscar clase en vivo). |
+| 1 | El caso de uso inicia cuando el actor accede mediante el botón "Finalizar Transmisión" [A] en la sala de transmisión en vivo activa.|
 | 2 | El sistema valida que el docente participe en el curso como titular o ayudante, que la clase esté activa, que haya sido registrada por el actor, y que se encuentre en estado En vivo. |
 | 3 | El sistema envía la orden de corte de transmisión y grabación al OBS del docente. |
 | 4 | El sistema pasa la clase al estado Finalizada. |
@@ -2572,7 +2619,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el alumno, viendo el contenido de la unidad (ver CU-26: Acceder curso), presiona el botón "Ingresar a la Sala en Vivo" [A]. |
+| 1 | El caso de uso inicia cuando el actor accede mediante el botón "Ingresar a la Sala en Vivo" [A] desde la vista del curso o cronograma.|
 | 2 | El sistema verifica que la clase se encuentre en estado En vivo y que el alumno posea inscripción vigente al curso. |
 | 3 | El sistema conecta al alumno a la transmisión en curso. |
 | 4 | Fin del caso de uso. |
@@ -2605,7 +2652,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el docente selecciona la opción "Generar Banco con IA (Ollama)" [A] dentro de la unidad (ver CU-19: Buscar unidad). |
+| 1 | El caso de uso inicia cuando el actor accede desde el menú desplegable "Asistente IA" (/ia/banco-preguntas) o la opción "Generar Banco con IA" [A] en la unidad.|
 | 2 | El sistema valida que el docente participe en el curso como titular o ayudante, que la unidad esté activa, y que tenga al menos un material de tipo bibliográfico o un término de glosario cargado. |
 | 3 | El sistema solicita, opcionalmente, un guión adicional ingresado como prompt de texto para orientar la generación. |
 | 4 | El actor ingresa opcionalmente un guión en el prompt [B] y confirma la generación mediante el botón "Generar Preguntas con IA" [C]. |
@@ -2645,7 +2692,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el docente selecciona la opción "Generar Resumen de Unidad con IA" [A] (ver CU-19: Buscar unidad). |
+| 1 | El caso de uso inicia cuando el actor accede mediante la opción "Generar Resumen de Unidad con IA" [A] en el Modo Edición de la unidad.|
 | 2 | El sistema valida que el docente participe en el curso como titular o ayudante, que la unidad esté activa, y que tenga al menos un material de tipo bibliográfico cargado. |
 | 3 | El actor confirma la generación mediante el botón "Crear Resumen Automático" [B]. |
 | 4 | El sistema envía la bibliografía cargada de la unidad al modelo de inteligencia artificial local. |
@@ -2682,7 +2729,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el docente selecciona la opción "Generar Presentación con IA" [A] (ver CU-19: Buscar unidad). |
+| 1 | El caso de uso inicia cuando el actor accede mediante la opción "Generar Presentación con IA" [A] en el Modo Edición de la unidad.|
 | 2 | El sistema valida que el docente participe en el curso como titular o ayudante, que la unidad esté activa, y que tenga al menos un material de tipo bibliográfico cargado. |
 | 3 | El actor confirma la generación mediante el botón "Generar Diapositivas" [B]. |
 | 4 | El sistema envía la bibliografía cargada de la unidad al modelo de inteligencia artificial local. |
@@ -2718,7 +2765,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el docente solicita crear su clon mediante el botón "Configurar Clon de IA" [A] en su perfil. |
+| 1 | El caso de uso inicia cuando el actor accede desde el menú desplegable seleccionando "Crear Clon de Docente" (/ia/clon/crear) en el perfil.|
 | 2 | El sistema valida que el docente esté activo y habilitado para dictar clases, y que no tenga ya un avatar y voz clonada registrados. |
 | 3 | El sistema solicita una imagen con el rostro del docente (adjunta o tomada con la cámara web) y un guión de ejemplo para grabar el audio. |
 | 4 | El actor adjunta o toma su foto facial [B] y graba el audio de calibración de voz mediante el botón "Grabar Muestra" [C]. |
@@ -2759,7 +2806,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor solicita buscar clases con Clon de IA desde la sección de contenidos generados [A] (ver CU-19: Buscar unidad). |
+| 1 | El caso de uso inicia cuando el actor accede desde la sección de clases con clon en la pestaña "Clases en Vivo & IA" o en el menú de IA.|
 | 2 | El sistema solicita la unidad sobre la que se desea consultar y, opcionalmente, el título y el estado (Pendiente / Generada / Error). |
 | 3 | El actor ingresa los criterios de búsqueda en los filtros [B] y presiona "Buscar" [C]. |
 | 4 | El sistema recupera y lista las clases con Clon de IA que coinciden con los criterios. |
@@ -2791,7 +2838,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el docente selecciona "Generar Video con Avatar Clon" [A] en la unidad (ver CU-19: Buscar unidad). |
+| 1 | El caso de uso inicia cuando el actor accede mediante la opción "Generar Video con Avatar Clon" [A] en el Modo Edición de la unidad.|
 | 2 | El sistema solicita el título de la clase y el guión, ingresado como un prompt de texto. |
 | 3 | El actor ingresa el título [B], redacta el guión en el prompt [C] y confirma la generación mediante el botón "Sintetizar Video con IA" [D]. |
 | 4 | El sistema valida que el docente participe en el curso como titular o ayudante, que se encuentre activo y habilitado para dictar clases, que tenga registrado su avatar y voz clonada, que la unidad esté activa, y que el título y el guión hayan sido completados. |
@@ -2835,7 +2882,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el docente busca y selecciona la clase con clon mediante el botón "Editar Guión" [A] (ver CU-77: Buscar clase con clon). |
+| 1 | El caso de uso inicia cuando el actor accede mediante el botón "Editar Guión" [A] en la clase con Clon de IA seleccionada.|
 | 2 | El sistema muestra los datos actuales en el editor: título de la clase [B], guión textual [C], avatar [D] y voz [E]. |
 | 3 | El actor actualiza el guión y confirma mediante el botón "Actualizar y Regenerar Video" [F]. |
 | 4 | El sistema valida que el docente participe en el curso como titular o ayudante, que la clase esté activa, que se encuentre en estado Generada o Error, y que el título y el guión se mantengan completos. |
@@ -2875,7 +2922,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor busca y selecciona la clase con clon a dar de baja mediante el botón "Eliminar Video" [A] (ver CU-77: Buscar clase con clon). |
+| 1 | El caso de uso inicia cuando el actor accede mediante el botón "Eliminar Video" [A] en la clase con Clon de IA seleccionada.|
 | 2 | El sistema valida que, si el actor es Docente, participe en el curso como titular o ayudante, y que la clase esté activa. |
 | 3 | El actor confirma la baja mediante el botón "Confirmar Eliminación" [B] del modal. |
 | 4 | El sistema marca la clase y su material asociado como dados de baja. |
@@ -2909,7 +2956,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el interesado solicita crear una cuenta mediante el botón "Registrarse" [A] en la barra de navegación. |
+| 1 | El caso de uso inicia cuando el actor accede desde el enlace "Registrarse" [A] en la barra de navegación pública (/seguridad/registro).|
 | 2 | El sistema solicita los datos de la cuenta de alumno: nombre [B], apellido [C], correo electrónico [D], DNI [E] y contraseña de seguridad [F]. |
 | 3 | El actor completa los datos de registro y confirma la creación mediante el botón "Crear Cuenta" [G]. |
 | 4 | El sistema valida que se hayan completado los campos obligatorios y que el correo electrónico no esté ya registrado. |
@@ -2945,7 +2992,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor solicita buscar usuarios mediante la barra de filtros [A]. |
+| 1 | El caso de uso inicia cuando el actor accede desde el menú desplegable de administración seleccionando "Gestión de usuarios" (/seguridad/usuarios).|
 | 2 | El sistema solicita los criterios de búsqueda: nombre, apellido, correo electrónico, DNI y rol (Alumno / Docente / Administrador). |
 | 3 | El actor ingresa los criterios de búsqueda que desea y presiona "Buscar" [B]. |
 | 4 | El sistema recupera y filtra los usuarios que coincidan con los criterios ingresados. |
@@ -2974,7 +3021,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor solicita registrar manualmente un usuario mediante el botón "Nuevo Usuario" [A] (ver CU-82: Buscar usuario). |
+| 1 | El caso de uso inicia cuando el actor accede mediante el botón "+ Nuevo Usuario" [A] en la vista de gestión de usuarios (/seguridad/usuarios).|
 | 2 | El sistema solicita los datos de la cuenta: nombre [B], apellido [C], correo electrónico [D], DNI [E], contraseña de acceso [F], teléfono [G] y rol del sistema [H]. |
 | 3 | El actor completa los datos personales y de acceso y confirma el alta mediante el botón "Guardar Usuario" [I]. |
 | 4 | Si el rol seleccionado es Docente, se ejecuta el CU-89: Registrar docente, para solicitar los datos adicionales del perfil docente (biografía, años de experiencia, títulos y matrículas). |
@@ -3007,7 +3054,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor busca y selecciona la cuenta a modificar mediante el botón "Editar Usuario" [A] (ver CU-82: Buscar usuario). |
+| 1 | El caso de uso inicia cuando el actor accede mediante el botón "Editar" [A] en la fila del usuario seleccionado (/seguridad/usuarios).|
 | 2 | El sistema muestra los datos actuales en el formulario: nombre [B], apellido [C], correo electrónico [D], DNI [E], teléfono [F] y foto de perfil [G]. |
 | 3 | El actor actualiza los campos habilitados y confirma mediante el botón "Guardar Cambios" [H]. |
 | 4 | El sistema valida que el usuario esté activo, que se mantengan completos los campos obligatorios y que el correo electrónico, si fue modificado, no esté ya registrado por otra cuenta. |
@@ -3040,7 +3087,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor busca y selecciona la cuenta a dar de baja mediante el botón "Desactivar Cuenta" [A] (ver CU-82: Buscar usuario). |
+| 1 | El caso de uso inicia cuando el actor accede mediante el botón "Dar de baja" [A] en la fila del usuario seleccionado (/seguridad/usuarios).|
 | 2 | El sistema valida que el usuario esté activo. |
 | 3 | Si el usuario posee rol Administrador, el sistema valida que existan otros administradores activos en el sistema además de él. |
 | 4 | Si el usuario posee rol Docente, el sistema verifica que no sea titular ni ayudante de ninguna cohorte vigente. |
@@ -3076,7 +3123,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor despliega el menú de usuario [A] en la barra superior y selecciona la opción "Ver Perfil" [B]. |
+| 1 | El caso de uso inicia cuando el actor accede desde el menú desplegable de usuario seleccionando "Ver mi perfil" (/seguridad/perfil).|
 | 2 | El sistema recupera los datos de la cuenta del actor. |
 | 3 | El sistema muestra los datos al actor. |
 | 4 | Fin del caso de uso. |
@@ -3102,7 +3149,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor selecciona la opción "Editar Perfil" [A] desde el menú de usuario o su ficha de perfil. |
+| 1 | El caso de uso inicia cuando el actor accede mediante el botón "Editar Perfil" [A] en la vista de perfil de usuario (/seguridad/perfil).|
 | 2 | El sistema muestra los datos actuales de la cuenta del actor. |
 | 3 | El actor modifica sus datos personales en el formulario [B] y confirma mediante el botón "Guardar Cambios" [C]. |
 | 4 | El sistema valida que se mantengan completos los campos obligatorios. |
@@ -3132,7 +3179,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor solicita registrar un nuevo docente mediante el botón "Nuevo Docente" [A] (ver CU-82: Buscar usuario). |
+| 1 | El caso de uso inicia cuando el actor accede al registrar un usuario con rol Docente o mediante el botón "+ Asignar Datos Docente" [A].|
 | 2 | El sistema solicita los antecedentes del docente: nombre y apellido [B], correo electrónico [C], DNI y teléfono [D], biografía profesional [E], años de experiencia [F], títulos universitarios [G] y matrícula CNV / profesional [H]. |
 | 3 | El actor completa los datos profesionales y confirma mediante el botón "Guardar Docente" [I]. |
 | 4 | El actor verifica el título declarado contra el Registro Público de Graduados Universitarios, o bien la matrícula profesional o de la Comisión Nacional de Valores informada. |
@@ -3169,7 +3216,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor busca y selecciona el docente a modificar mediante el botón "Editar Perfil Docente" [A] (ver CU-82: Buscar usuario). |
+| 1 | El caso de uso inicia cuando el actor accede mediante el botón "Editar Perfil Académico" [A] en la ficha del docente seleccionado.|
 | 2 | El sistema muestra los antecedentes actuales: biografía profesional [B], años de experiencia [C], títulos universitarios [D], matrícula CNV [E] y estado de habilitación docente [F]. |
 | 3 | El actor actualiza los antecedentes habilitados y confirma mediante el botón "Guardar Cambios" [G]. |
 | 4 | El sistema valida que el docente esté activo y que se mantengan completos los campos obligatorios. |
@@ -3209,7 +3256,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor accede a la pantalla de autenticación y solicita iniciar sesión [A]. |
+| 1 | El caso de uso inicia cuando el actor accede desde el botón "Iniciar Sesión" [A] en la barra de navegación superior (/seguridad/login).|
 | 2 | El sistema solicita el correo electrónico y la contraseña, u ofrece la opción de ingresar con Google. |
 | 3 | El actor ingresa sus credenciales en el formulario [B] y presiona "Iniciar Sesión" [C], o selecciona el botón "Continuar con Google" [D]. |
 | 4 | El sistema valida que la cuenta esté activa, y valida las credenciales ingresadas, o el token devuelto por Google, según el método elegido. |
@@ -3243,7 +3290,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor hace clic en el trigger del usuario [A] y selecciona la opción "Cerrar sesión" [B]. |
+| 1 | El caso de uso inicia cuando el actor accede desde el menú desplegable de usuario seleccionando "Cerrar sesión" (/seguridad/logout).|
 | 2 | El sistema registra la fecha de fin de la sesión activa. |
 | 3 | El sistema redirige al actor a la pantalla de inicio de sesión. |
 | 4 | Fin del caso de uso. |
@@ -3271,7 +3318,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor presiona el enlace "¿Olvidaste tu contraseña?" [A] en la pantalla de inicio de sesión. |
+| 1 | El caso de uso inicia cuando el actor accede desde el enlace "¿Olvidaste tu contraseña?" [A] en la pantalla de login (/seguridad/recuperar-contrasena).|
 | 2 | El sistema solicita el correo electrónico asociado a la cuenta. |
 | 3 | El actor ingresa su correo en el campo de recuperación [B] y presiona el botón "Enviar Enlace" [C]. |
 | 4 | El sistema valida que el correo esté registrado y que la cuenta esté activa. |
@@ -3307,7 +3354,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor solicita ver las sesiones activas desde la sección de seguridad [A]. |
+| 1 | El caso de uso inicia cuando el actor accede desde el menú desplegable seleccionando "Sesiones activas" (/seguridad/sesiones).|
 | 2 | El sistema solicita, opcionalmente, el usuario (solo para Administrador), el rango de fechas y la IP o el dispositivo. |
 | 3 | El actor ingresa los criterios de búsqueda en los filtros [B] y presiona "Buscar" [C]. |
 | 4 | El sistema recupera y filtra las sesiones del actor (o del usuario indicado si es Administrador) que coincidan con los criterios ingresados. |
@@ -3337,7 +3384,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor busca y selecciona la sesión activa a cerrar mediante el botón "Cerrar Sesión Remota" [A] (ver CU-93: Buscar sesión). |
+| 1 | El caso de uso inicia cuando el actor accede mediante el botón "Cerrar esta sesión" [A] en la lista de sesiones activas (/seguridad/sesiones).|
 | 2 | El actor confirma el cierre mediante el botón "Confirmar Cierre de Sesión" [B] del diálogo modal. |
 | 3 | El sistema registra la fecha de fin de esa sesión. |
 | 4 | El sistema informa el éxito de la operación. |
@@ -3369,7 +3416,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor solicita consultar el registro de auditoría desde el menú administrativo [A]. |
+| 1 | El caso de uso inicia cuando el actor accede desde el menú desplegable de administración seleccionando "Auditoría de eventos" (/auditoria).|
 | 2 | El sistema solicita los criterios de búsqueda: usuario responsable, tipo de acción (Crear / Modificar / Eliminar / Consultar), entidad afectada y rango de fecha. |
 | 3 | El actor ingresa los criterios de búsqueda mediante los filtros de eventos [B] y presiona "Filtrar Eventos" [C]. |
 | 4 | El sistema recupera y filtra los registros de auditoría que coincidan con los criterios ingresados. |
@@ -3400,7 +3447,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor solicita generar un informe de alumnos desde el módulo de reportes [A]. |
+| 1 | El caso de uso inicia cuando el actor accede desde el menú desplegable seleccionando "Informes y Reportes" $\rightarrow$ "Reporte de Alumnos" (/reportes/alumnos).|
 | 2 | El sistema solicita el rango de fecha y el curso sobre el que se desea informar. |
 | 3 | El actor selecciona el curso y el rango de fechas en los controles [B] y presiona el botón "Generar Informe" [C]. |
 | 4 | El sistema recopila los datos de alumnos inscriptos al curso seleccionado (agrupados por programa para la evolución temporal y la comparación de inscripciones), junto con los del resto de los cursos para la comparación general, y genera el informe. |
@@ -3431,7 +3478,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor solicita generar un informe de ingresos desde el módulo de reportes [A]. |
+| 1 | El caso de uso inicia cuando el actor accede desde el menú desplegable seleccionando "Informes y Reportes" $\rightarrow$ "Reporte de Ingresos" (/reportes/ingresos).|
 | 2 | El sistema solicita el rango de fecha y el curso sobre el que se desea informar. |
 | 3 | El actor selecciona el curso y el período en el panel de parámetros [B] y presiona el botón "Generar Reporte de Ingresos" [C]. |
 | 4 | El sistema recopila los pagos acreditados del curso seleccionado (agrupados por programa para la evolución temporal y la comparación de facturación), junto con los del resto de los cursos para las comparaciones generales, y genera el informe. |
@@ -3462,7 +3509,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor accede al dashboard de estadísticas e indicadores clave [A]. |
+| 1 | El caso de uso inicia cuando el actor accede desde el menú desplegable de administración seleccionando "Estadísticas y Reportes" (/reportes/estadisticas).|
 | 2 | El sistema recupera y muestra en pantalla los indicadores de alumnos inscriptos e ingresos. |
 | 3 | Fin del caso de uso. |
 
@@ -3490,7 +3537,7 @@ En esta sección se detallan los 100 casos de uso reales del Sistema Idóneos On
 
 | Paso | Acción |
 |------|--------|
-| 1 | El caso de uso inicia cuando el actor solicita configurar los parámetros del sistema listados en la tabla de configuración [A]. |
+| 1 | El caso de uso inicia cuando el actor accede desde el menú desplegable de administración seleccionando "Configuración general" (/configuracion).|
 | 2 | El actor selecciona el parámetro a modificar mediante el botón "Editar Valor" [B]. |
 | 3 | El sistema solicita el nuevo valor y muestra la descripción del impacto [C]. |
 | 4 | El actor ingresa el nuevo valor del parámetro y confirma la actualización mediante el botón "Guardar Parámetro" [D]. |

@@ -23,6 +23,11 @@ public class ProgramaServiceImpl implements ProgramaService {
 
     @Override
     public Programa registrarPrograma(Integer cursoId, String nombre, String descripcion, String version) {
+        return registrarPrograma(cursoId, nombre, descripcion, version, null);
+    }
+
+    @Override
+    public Programa registrarPrograma(Integer cursoId, String nombre, String descripcion, String version, Integer idProgramaAnterior) {
         Curso curso = cursoRepository.findById(cursoId)
                 .orElseThrow(() -> new ExcepcionRecursoNoEncontrado("Curso no encontrado con ID: " + cursoId));
 
@@ -34,7 +39,25 @@ public class ProgramaServiceImpl implements ProgramaService {
             throw new ExcepcionValidacion("CU-16 Excepción: El nombre del programa es obligatorio.");
         }
 
-        Programa p = new Programa(nombre.trim(), descripcion, "Objetivos generales", "Bibliografía general", curso);
+        String objetivos = "Objetivos generales";
+        String bibliografia = "Bibliografía general";
+        Integer cargaHoraria = 0;
+
+        if (idProgramaAnterior != null) {
+            Optional<Programa> anteriorOpt = programaRepository.findById(idProgramaAnterior);
+            if (anteriorOpt.isPresent()) {
+                Programa ant = anteriorOpt.get();
+                if (ant.getObjetivos() != null) objetivos = ant.getObjetivos();
+                if (ant.getBibliografia() != null) bibliografia = ant.getBibliografia();
+                if (ant.getCargaHorariaTotal() != null) cargaHoraria = ant.getCargaHorariaTotal();
+                if (descripcion == null || descripcion.isBlank()) descripcion = ant.getDescripcion();
+            }
+        }
+
+        Programa p = new Programa(nombre.trim(), descripcion, objetivos, bibliografia, curso);
+        if (cargaHoraria != null && cargaHoraria > 0) {
+            p.setCargaHorariaTotal(cargaHoraria);
+        }
         p.setBaja(false);
         p.setFechaCreacion(LocalDateTime.now());
         return programaRepository.save(p);
