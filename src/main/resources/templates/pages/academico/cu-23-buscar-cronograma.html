@@ -37,16 +37,26 @@
                         <p class="wf-hero-desc">Bienvenido/a, <span th:text="${usuario != null ? usuario.nombreCompleto : 'Admin General'}">Admin General</span></p>
                     </div>
                     <div class="d-flex align-items-center gap-2">
-                        <a th:href="@{/academico/cronograma/modificar}" class="wf-btn-gold text-decoration-none">
-                            <i class="fa-solid fa-arrow-down-short-wide"></i>
-                            <span>Reordenar Cronograma</span>
-                        </a>
+                        <button type="button" class="wf-btn-gold" data-bs-toggle="modal" data-bs-target="#modalModificarCronograma">
+                            <i class="fa-solid fa-arrow-down-short-wide me-1"></i>
+                            <span>Modificar Cronograma</span>
+                        </button>
                     </div>
                 </div>
 
                 <div class="wf-body">
                     <div class="wf-main-content">
                         
+                        <!-- Mensajes Flash -->
+                        <div th:if="${mensaje}" class="alert alert-success alert-dismissible fade show" role="alert">
+                          <i class="fa-solid fa-circle-check me-2"></i> <span th:text="${mensaje}"></span>
+                          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                          <i class="fa-solid fa-triangle-exclamation me-2"></i> <span th:text="${error}"></span>
+                          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+
                         <!-- Header y Pestañas Permanentes del Curso (Moodle Style) -->
                         <div th:replace="~{fragments/curso_header :: curso-header('cronograma')}"></div>
 
@@ -64,89 +74,69 @@
 
         <div class="row g-3 mb-4">
           <div class="col-md-6">
-            <label class="wf-label">Programa Vigente</label>
+            <label class="wf-label">Cohorte / Programa</label>
             <div class="wf-input-wrap">
-              <select class="wf-input" onchange="if(this.value) window.location.href=this.value;">
-                <option th:each="p : ${programas != null ? programas : (#lists.isEmpty(cronogramas) ? {} : {cronogramas[0].programa})}" 
-                        th:if="${p != null}"
-                        th:text="${p.nombre + (p.curso != null ? ' (' + p.curso.nombre + ')' : '')}">Especialización en Idoneidad Bursátil (Programa 2026-A)</option>
-                <option th:if="${#lists.isEmpty(programas) and #lists.isEmpty(cronogramas)}">Especialización en Idoneidad Bursátil (Programa 2026-A)</option>
+              <select class="wf-input" onchange="if(this.value) window.location.href='/academico/cronograma?cohorteId=' + this.value;">
+                <option th:each="coh : ${cohortes}" 
+                        th:value="${coh.idCohorte}"
+                        th:text="${'Cohorte #' + coh.idCohorte + (coh.programa != null ? ' - ' + coh.programa.nombre : '')}"
+                        th:selected="${cohorteSeleccionada != null && cohorteSeleccionada.idCohorte == coh.idCohorte}">Especialización en Idoneidad Bursátil (Programa 2026-A)</option>
               </select>
             </div>
           </div>
           <div class="col-md-6">
             <label class="wf-label">Duración Total Estimada</label>
-            <input type="text" class="wf-input bg-disabled" value="8 Semanas Lectivas (40 Horas Cátedra)" disabled>
+            <input type="text" class="wf-input bg-disabled" th:value="${#lists.size(cronogramas) > 0 ? '8 Semanas Lectivas (40 Horas Cátedra)' : 'Sin cronograma activo'}" disabled>
           </div>
         </div>
 
-        <!-- Calendario Minimalista de Celdas y Semanas Interactivas -->
-        <div class="mb-4 p-3 bg-white rounded border shadow-sm">
+        <!-- Barra Horizontal Dinámica de Cursado y Semanas (Estilo Timeline Segmentado) -->
+        <div class="mb-4 p-4 bg-white rounded-3 border shadow-sm" id="boxTimelineCronograma">
           <div class="d-flex justify-content-between align-items-center mb-3">
             <div class="d-flex align-items-center gap-2">
-              <i class="fa-regular fa-calendar-days text-primary" style="font-size: 16px;"></i>
-              <span class="small fw-bold text-dark text-uppercase">Calendario Secuencial de Cursado (Semanas 1 a 8)</span>
+              <div class="p-2 rounded-2 bg-primary-subtle text-primary d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                <i class="fa-regular fa-calendar-days" style="font-size: 15px;"></i>
+              </div>
+              <div>
+                <span class="small fw-bold text-dark text-uppercase d-block" style="letter-spacing: 0.03em;">Línea Temporal Secuencial del Cursado</span>
+                <span class="text-muted" style="font-size: 11px;">Distribución proporcional de semanas lectivas por unidad temática</span>
+              </div>
             </div>
-            <span class="small text-muted">Período de Dictado: <strong>05/04/2026 al 30/05/2026</strong></span>
+            <div class="text-end">
+              <span class="small text-muted d-block" style="font-size: 11px;">Período General de Dictado</span>
+              <strong class="text-dark" style="font-size: 12px;"><i class="fa-solid fa-clock text-primary me-1"></i> 05/04/2026 al 30/05/2026</strong>
+            </div>
           </div>
 
-          <!-- Matriz de Celdas Semanales -->
-          <div class="row g-2 mb-3 text-center" style="font-size: 11px;">
-            <div class="col">
-              <div class="p-2 rounded border" style="background: #1E3A5F; color: white;">
-                <div class="fw-bold">SEM 1</div>
-                <div style="font-size: 9px; opacity: 0.85;">05/04 - 11/04</div>
-                <div class="mt-1 badge bg-light text-dark" style="font-size: 9px;">Unidad 1</div>
+          <!-- Barra de Segmentos Proporcionales Horizontal -->
+          <div class="progress mb-3 p-1 bg-light border" style="height: 48px; border-radius: 10px; display: flex; gap: 4px;" id="barraProgresoCronograma">
+            <div th:each="c, iterStat : ${cronogramas}"
+                 class="progress-bar d-flex flex-column justify-content-center align-items-center text-white px-2 shadow-sm"
+                 role="progressbar"
+                 th:style="'width: ' + (${c.semanasDuracion != null ? c.semanasDuracion : 2} * 12.5) + '%; background: ' + (${iterStat.index == 0} ? '#1E3A5F' : (${iterStat.index == 1} ? '#2563EB' : '#0D9488')) + '; border-radius: 6px; cursor: default; transition: all 0.3s ease;'"
+                 th:title="${'Unidad ' + c.numeroOrden + ': ' + (c.unidad != null ? c.unidad.titulo : '') + ' (' + c.semanasDuracion + ' Semanas)'}">
+              <span class="fw-bold" style="font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;" th:text="${'U' + c.numeroOrden + ' • ' + (c.unidad != null ? c.unidad.titulo : 'Unidad')}">U1 • Marco Regulatorio</span>
+              <span style="font-size: 9px; opacity: 0.9;" th:text="${c.semanasDuracion + ' Sem.'}">2 Sem.</span>
+            </div>
+            <div th:if="${#lists.isEmpty(cronogramas)}" class="w-100 d-flex align-items-center justify-content-center text-muted small">
+              Sin semanas configuradas en el cronograma
+            </div>
+          </div>
+
+          <!-- Fila de Bloques / Celdas Semanales detalladas -->
+          <div class="d-flex flex-wrap gap-2 justify-content-between text-center" id="gridCeldasSemanales" style="font-size: 11px;">
+            <!-- Generado o renderizado dinámicamente -->
+            <div th:each="c, iterStat : ${cronogramas}" 
+                 class="d-flex gap-2 flex-grow-1" style="min-width: 140px;">
+              <div th:each="semIdx : ${#numbers.sequence(1, c.semanasDuracion > 0 ? c.semanasDuracion : 1)}"
+                   class="p-2 rounded border flex-fill d-flex flex-column justify-content-center align-items-center shadow-xs"
+                   th:style="'background: ' + (${iterStat.index == 0} ? '#1E3A5F' : (${iterStat.index == 1} ? '#2563EB' : '#0D9488')) + '; color: white; border-radius: 8px;'">
+                <div class="fw-bold" style="font-size: 11px;">SEM <span th:text="${semIdx}">1</span></div>
+                <div class="mt-1 badge bg-white text-dark py-1 px-2 fw-semibold" style="font-size: 9px; border-radius: 4px;" th:text="${'Unidad ' + c.numeroOrden}">Unidad 1</div>
               </div>
             </div>
-            <div class="col">
-              <div class="p-2 rounded border" style="background: #1E3A5F; color: white;">
-                <div class="fw-bold">SEM 2</div>
-                <div style="font-size: 9px; opacity: 0.85;">12/04 - 18/04</div>
-                <div class="mt-1 badge bg-light text-dark" style="font-size: 9px;">Unidad 1</div>
-              </div>
-            </div>
-            <div class="col">
-              <div class="p-2 rounded border" style="background: #2563EB; color: white;">
-                <div class="fw-bold">SEM 3</div>
-                <div style="font-size: 9px; opacity: 0.85;">19/04 - 25/04</div>
-                <div class="mt-1 badge bg-light text-dark" style="font-size: 9px;">Unidad 2</div>
-              </div>
-            </div>
-            <div class="col">
-              <div class="p-2 rounded border" style="background: #2563EB; color: white;">
-                <div class="fw-bold">SEM 4</div>
-                <div style="font-size: 9px; opacity: 0.85;">26/04 - 02/05</div>
-                <div class="mt-1 badge bg-light text-dark" style="font-size: 9px;">Unidad 2</div>
-              </div>
-            </div>
-            <div class="col">
-              <div class="p-2 rounded border" style="background: #2563EB; color: white;">
-                <div class="fw-bold">SEM 5</div>
-                <div style="font-size: 9px; opacity: 0.85;">03/05 - 09/05</div>
-                <div class="mt-1 badge bg-light text-dark" style="font-size: 9px;">Unidad 2</div>
-              </div>
-            </div>
-            <div class="col">
-              <div class="p-2 rounded border" style="background: #0D9488; color: white;">
-                <div class="fw-bold">SEM 6</div>
-                <div style="font-size: 9px; opacity: 0.85;">10/05 - 16/05</div>
-                <div class="mt-1 badge bg-light text-dark" style="font-size: 9px;">Unidad 3</div>
-              </div>
-            </div>
-            <div class="col">
-              <div class="p-2 rounded border" style="background: #0D9488; color: white;">
-                <div class="fw-bold">SEM 7</div>
-                <div style="font-size: 9px; opacity: 0.85;">17/05 - 23/05</div>
-                <div class="mt-1 badge bg-light text-dark" style="font-size: 9px;">Unidad 3</div>
-              </div>
-            </div>
-            <div class="col">
-              <div class="p-2 rounded border" style="background: #0D9488; color: white;">
-                <div class="fw-bold">SEM 8</div>
-                <div style="font-size: 9px; opacity: 0.85;">24/05 - 30/05</div>
-                <div class="mt-1 badge bg-light text-dark" style="font-size: 9px;">Unidad 3</div>
-              </div>
+            <div th:if="${#lists.isEmpty(cronogramas)}" class="w-100 text-center text-muted small py-2">
+              No hay distribución semanal disponible.
             </div>
           </div>
         </div>
@@ -169,15 +159,15 @@
                   <span class="badge py-2 px-3 fw-bold text-white d-inline-flex align-items-center gap-1"
                         th:style="${iterStat.index == 0} ? 'background: #1E3A5F;' : (${iterStat.index == 1} ? 'background: #2563EB;' : 'background: #0D9488;')">
                     <i class="fa-solid fa-calendar-days me-1"></i>
-                    <span th:text="${iterStat.index == 0 ? 'Sem 1 a 2' : (iterStat.index == 1 ? 'Sem 3 a 5' : 'Sem 6 a ' + (5 + c.semanasDuracion))}">Sem 1 a 2</span>
+                    <span th:text="${'Semana ' + c.numeroOrden}">Sem 1 a 2</span>
                   </span>
                 </td>
                 <td>
                   <strong style="color: #081426;" th:text="${iterStat.index == 0 ? '05/04/2026 al 18/04/2026' : (iterStat.index == 1 ? '19/04/2026 al 09/05/2026' : '10/05/2026 al 30/05/2026')}">05/04/2026 al 18/04/2026</strong>
                 </td>
                 <td>
-                  <div class="fw-bold" style="color: #081426; font-size: 14px;" th:text="'Unidad ' + ${c.numeroOrden} + ': ' + ${c.unidad.titulo}">Unidad 1: Marco Regulatorio y Ley de Mercado de Capitales</div>
-                  <div class="small text-muted" th:text="${c.unidad.descripcion != null ? c.unidad.descripcion : 'Régimen informativo, CNV y agentes del mercado'}">Régimen informativo, CNV y agentes del mercado</div>
+                  <div class="fw-bold" style="color: #081426; font-size: 14px;" th:text="'Unidad ' + ${c.numeroOrden} + ': ' + (${c.unidad != null ? c.unidad.titulo : 'Unidad'})">Unidad 1: Marco Regulatorio y Ley de Mercado de Capitales</div>
+                  <div class="small text-muted" th:text="${c.unidad != null && c.unidad.descripcion != null ? c.unidad.descripcion : 'Régimen informativo, CNV y agentes del mercado'}">Régimen informativo, CNV y agentes del mercado</div>
                 </td>
                 <td>
                   <span class="fw-semibold" th:text="${c.semanasDuracion} + ' Semanas'">2 Semanas</span>
@@ -197,19 +187,7 @@
                 </td>
               </tr>
               <tr th:if="${#lists.isEmpty(cronogramas)}">
-                <td>
-                  <span class="badge py-2 px-3 fw-bold text-white d-inline-flex align-items-center gap-1" style="background: #1E3A5F;">
-                    <i class="fa-solid fa-calendar-days me-1"></i> Sem 1 a 2
-                  </span>
-                </td>
-                <td><strong>05/04/2026 al 18/04/2026</strong></td>
-                <td>
-                  <div class="fw-bold" style="color: #081426;">Unidad 1: Marco Regulatorio y Ley de Mercado de Capitales</div>
-                  <div class="small text-muted">Régimen informativo, CNV y agentes del mercado</div>
-                </td>
-                <td>2 Semanas<div class="small text-muted">(10 hs)</div></td>
-                <td><div class="small">Lectura Ley 26.831 • Autoevaluación U1</div></td>
-                <td class="text-end"><span class="badge px-3 py-2 fw-bold text-uppercase" style="background: #FEF3C7; color: #B45309; border: 1px solid #FDE68A;">PUBLICADA</span></td>
+                <td colspan="6" class="text-center py-4 text-muted">No se registran unidades en el cronograma de este programa.</td>
               </tr>
             </tbody>
           </table>
@@ -233,45 +211,163 @@
         </div>
     </div>
 
+    <!-- MODAL CU-24: Modificar Cronograma (Fiel al Wireframe y DSS) -->
+    <div class="modal fade" id="modalModificarCronograma" tabindex="-1" aria-labelledby="modalModificarCronogramaLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content" style="border-radius: 12px; border: 1px solid #CBD5E1; box-shadow: 0 20px 50px rgba(8, 20, 38, 0.15); overflow: hidden;">
+          <form th:action="@{/academico/cronogramas/modificar}" method="post">
+            <input type="hidden" name="cohorteId" th:if="${cohorteSeleccionada != null}" th:value="${cohorteSeleccionada.idCohorte}">
+            <div class="p-4 bg-white">
+              <!-- Cabecera del Modal CU-24 -->
+              <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
+                <div>
+                  <div class="small text-muted mb-1" style="font-size: 11px;">
+                    <span>Gestión Académica</span> <i class="fa-solid fa-chevron-right" style="font-size: 9px; margin: 0 4px;"></i>
+                    <strong style="color: #081426;">Modificar Cronograma (CU-24)</strong>
+                  </div>
+                  <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Reordenar y Modificar Cronograma</h3>
+                  <p class="small text-muted" style="margin: 3px 0 0;">Ajuste el orden correlativo y la cantidad de semanas lectivas asignadas a cada unidad temática.</p>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                  <span class="wf-badge status-active">Docente Titular</span>
+                  <button type="button" class="btn-close ms-2" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+              </div>
+
+              <!-- Vista Previa Semanal Rápida: Barra Horizontal Dinámica -->
+              <div class="mb-4 p-3 bg-light rounded border">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <span class="small fw-bold text-dark text-uppercase"><i class="fa-solid fa-chart-gantt me-1 text-primary"></i> Simulación Proporcional de la Línea Temporal</span>
+                  <span class="small text-muted">Duración Total: <strong id="lblTotalSemanas" class="text-primary fw-bold">8 Semanas</strong></span>
+                </div>
+                
+                <!-- Barra Segmentada Modal -->
+                <div class="progress mb-2 p-1 bg-white border" style="height: 38px; border-radius: 8px; display: flex; gap: 4px;" id="modalBarraProgreso">
+                  <!-- Renderizado dinámicamente con JS -->
+                </div>
+
+                <div class="d-flex flex-wrap gap-2 text-center" id="gridSemanasSimulacion" style="font-size: 11px;">
+                  <!-- Renderizado dinámicamente con JS -->
+                </div>
+              </div>
+
+              <!-- Lista de Unidades del Cronograma Reordenables -->
+              <div class="d-flex flex-column gap-3 mb-4" id="contenedorUnidadesCronograma">
+                <div th:each="c, iterStat : ${cronogramas}" class="p-3 border rounded bg-white d-flex justify-content-between align-items-center shadow-sm"
+                     th:style="'border-left: 5px solid ' + (${iterStat.index == 0} ? '#1E3A5F' : (${iterStat.index == 1} ? '#2563EB' : '#0D9488')) + ' !important;'">
+                  <input type="hidden" name="cronogramaIds" th:value="${c.id}">
+                  <div class="d-flex align-items-center gap-3">
+                    <div class="d-flex align-items-center gap-2">
+                      <i class="fa-solid fa-grip-vertical text-muted" style="font-size: 18px;"></i>
+                    </div>
+                    <div>
+                      <strong style="font-size: 14px; color: #081426;" th:text="${'Unidad ' + c.numeroOrden + ': ' + (c.unidad != null ? c.unidad.titulo : 'Unidad')}">Unidad</strong>
+                      <div class="small text-muted" th:text="${c.unidad != null && c.unidad.descripcion != null ? c.unidad.descripcion : 'Contenidos temáticos'}">Descripción</div>
+                    </div>
+                  </div>
+
+                  <div class="d-flex align-items-center gap-4">
+                    <div class="d-flex align-items-center gap-2">
+                      <label class="wf-label mb-0" style="font-size: 11px; font-weight: 700;">Orden:</label>
+                      <input type="number" name="ordenes" class="wf-input text-center" th:value="${c.numeroOrden}" min="1" style="width: 60px; height: 36px; padding: 4px; font-weight: 700;">
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                      <label class="wf-label mb-0" style="font-size: 11px; font-weight: 700;">Duración:</label>
+                      <div class="d-flex align-items-center gap-1">
+                        <input type="number" name="duraciones" class="wf-input text-center input-duracion-semana" th:value="${c.semanasDuracion}" min="1" max="20" style="width: 65px; height: 36px; padding: 4px 8px; font-weight: 700;">
+                        <span class="small text-muted">sem</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div th:if="${#lists.isEmpty(cronogramas)}" class="text-center py-4 text-muted bg-light rounded border">
+                  No hay unidades asignadas en el cronograma actual para modificar.
+                </div>
+              </div>
+
+              <div class="d-flex justify-content-end align-items-center gap-3 pt-3 border-top">
+                <button type="button" class="wf-btn wf-btn-outline" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Guardar Cronograma</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
     <!-- Bootstrap Bundle JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        function toggleUserDropdown(triggerEl) {
-            const wrapper = triggerEl.closest('.wf-user-menu-wrapper');
-            if (wrapper) {
-                const dropdown = wrapper.querySelector('.wf-user-floating-dropdown');
-                if (dropdown) {
-                    dropdown.style.display = (dropdown.style.display === 'none' || dropdown.style.display === '') ? 'flex' : 'none';
+        // Cálculo automático de semanas totales y redibujado de la barra horizontal en el modal
+        document.addEventListener('DOMContentLoaded', function() {
+            const colores = ['#1E3A5F', '#2563EB', '#0D9488', '#D97706', '#7C3AED', '#DB2777'];
+
+            function redibujarBarraModal() {
+                const inputs = document.querySelectorAll('.input-duracion-semana');
+                let total = 0;
+                let data = [];
+
+                inputs.forEach((input, idx) => {
+                    const val = parseInt(input.value || 0, 10);
+                    total += val;
+                    const card = input.closest('.p-3');
+                    const titulo = card ? card.querySelector('strong').textContent : ('Unidad ' + (idx + 1));
+                    data.push({
+                        unidadIdx: idx + 1,
+                        titulo: titulo,
+                        semanas: val,
+                        color: colores[idx % colores.length]
+                    });
+                });
+
+                const lbl = document.getElementById('lblTotalSemanas');
+                if (lbl) lbl.textContent = total + ' Semanas Lectivas';
+
+                const modalBarra = document.getElementById('modalBarraProgreso');
+                const gridSemanas = document.getElementById('gridSemanasSimulacion');
+
+                if (modalBarra) {
+                    if (total === 0) {
+                        modalBarra.innerHTML = '<div class="w-100 text-center text-muted small py-1">Sin semanas</div>';
+                    } else {
+                        let htmlBarra = '';
+                        data.forEach(item => {
+                            if (item.semanas > 0) {
+                                const pct = ((item.semanas / total) * 100).toFixed(1);
+                                htmlBarra += `
+                                    <div class="progress-bar d-flex flex-column justify-content-center align-items-center text-white px-2 shadow-xs"
+                                         style="width: ${pct}%; background: ${item.color}; border-radius: 6px; transition: width 0.3s ease;">
+                                      <span class="fw-bold" style="font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;">U${item.unidadIdx} (${pct}%)</span>
+                                    </div>
+                                `;
+                            }
+                        });
+                        modalBarra.innerHTML = htmlBarra;
+                    }
+                }
+
+                if (gridSemanas) {
+                    let htmlGrid = '';
+                    data.forEach(item => {
+                        for (let s = 1; s <= item.semanas; s++) {
+                            htmlGrid += `
+                                <div class="p-2 rounded border flex-fill text-white shadow-xs" style="background: ${item.color}; min-width: 70px;">
+                                  <div class="fw-bold" style="font-size: 10px;">SEM ${s}</div>
+                                  <div class="badge bg-white text-dark py-0 px-1 mt-1" style="font-size: 8px;">U${item.unidadIdx}</div>
+                                </div>
+                            `;
+                        }
+                    });
+                    gridSemanas.innerHTML = htmlGrid || '<div class="w-100 text-muted small">Sin semanas seleccionadas</div>';
                 }
             }
-        }
-    </script>
 
-    <!-- DSS & Case of Use Console Logger -->
-    <script>
-        (function() {
-            const cuId = 'CU-23';
-            const cuNombre = 'Buscar cronograma';
-            const cuActores = 'Administrador / Docente';
-            const cuDss = 'buscarCronograma(programa)';
-
-            console.log(
-                '%c[IDÓNEOS ONLINE] %c ' + cuId + ' %c ' + cuNombre + ' ',
-                'color: #C9982F; font-weight: 800; font-size: 13px;',
-                'background: #081426; color: #E4BE6C; padding: 3px 8px; border-radius: 4px; font-weight: 700; font-size: 12px; border: 1px solid #C9982F;',
-                'color: #081426; font-weight: 800; font-size: 13px;'
-            );
-            console.log(
-                '%c👤 Actor(es): %c' + cuActores,
-                'color: #64748B; font-weight: 700; font-size: 11px;',
-                'color: #0F172A; font-weight: 600; font-size: 11px;'
-            );
-            console.log(
-                '%c⚡ DSS: %c' + cuDss,
-                'color: #64748B; font-weight: 700; font-size: 11px;',
-                'color: #0284C7; font-family: monospace; font-size: 11px; font-weight: 600;'
-            );
-        })();
+            document.querySelectorAll('.input-duracion-semana').forEach(input => {
+                input.addEventListener('input', redibujarBarraModal);
+            });
+            redibujarBarraModal();
+        });
     </script>
 </body>
 </html>

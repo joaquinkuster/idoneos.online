@@ -431,19 +431,39 @@ public class AcademicoController {
     @PostMapping({"/cronograma/guardar", "/cronogramas/guardar", "/cronogramas/modificar"})
     public String guardarModificacionesCronograma(@RequestParam(required = false) Integer cronogramaId,
                                                   @RequestParam(required = false) Integer cohorteId,
+                                                  @RequestParam(required = false) Integer programaId,
+                                                  @RequestParam(required = false) List<Integer> cronogramaIds,
+                                                  @RequestParam(required = false) List<Integer> duraciones,
+                                                  @RequestParam(required = false) List<Integer> ordenes,
                                                   @RequestParam(required = false) Integer semanasDuracion,
                                                   @RequestParam(required = false) Integer numeroOrden,
                                                   RedirectAttributes ra) {
         try {
-            if (cronogramaId != null && cronogramaRepository != null) {
+            // Soporte DSS CU-24: modificarCronograma(unPrograma, ordenUnidades, duraciones)
+            if (cronogramaIds != null && !cronogramaIds.isEmpty()) {
+                for (int i = 0; i < cronogramaIds.size(); i++) {
+                    Integer cId = cronogramaIds.get(i);
+                    Integer dur = (duraciones != null && duraciones.size() > i) ? duraciones.get(i) : null;
+                    Integer ord = (ordenes != null && ordenes.size() > i) ? ordenes.get(i) : (i + 1);
+
+                    if (cId != null) {
+                        cronogramaRepository.findById(cId).ifPresent(c -> {
+                            if (dur != null && dur > 0) c.setSemanasDuracion(dur);
+                            if (ord != null && ord > 0) c.setNumeroOrden(ord);
+                            cronogramaRepository.save(c);
+                        });
+                    }
+                }
+            } else if (cronogramaId != null) {
                 cronogramaRepository.findById(cronogramaId).ifPresent(c -> {
                     if (semanasDuracion != null) c.setSemanasDuracion(semanasDuracion);
                     if (numeroOrden != null) c.setNumeroOrden(numeroOrden);
                     cronogramaRepository.save(c);
                 });
             }
-            ra.addFlashAttribute("mensaje", "Cronograma actualizado con éxito.");
-            return (cohorteId != null) ? "redirect:/academico/cronograma?cohorteId=" + cohorteId : "redirect:/academico/cronograma";
+
+            if (cohorteId != null) return "redirect:/academico/cronograma?cohorteId=" + cohorteId;
+            return "redirect:/academico/cronograma";
         } catch (Exception e) {
             ra.addFlashAttribute("error", e.getMessage());
             return "redirect:/academico/cronograma";

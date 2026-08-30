@@ -1,5 +1,6 @@
 package com.app.idoneos.repository.modulo_evaluaciones;
 import com.app.idoneos.service.modulo_reportes.*;
+import com.app.idoneos.service.modulo_reportes.*;
 
 import com.app.idoneos.model.*;
 
@@ -8,5 +9,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface OpcionRespuestaRepository extends JpaRepository<OpcionRespuesta, Integer> {
+    java.util.List<OpcionRespuesta> findByPreguntaAndBajaFalse(Pregunta pregunta);
 }
-

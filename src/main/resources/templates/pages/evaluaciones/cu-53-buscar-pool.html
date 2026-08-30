@@ -16,6 +16,68 @@
     
     <!-- Estilos del Sistema Centralizados -->
     <link rel="stylesheet" th:href="@{/css/styles.css}">
+    
+    <!-- Estilos específicos para el Editor de Preguntas y Opciones -->
+    <style>
+      .fila-opcion {
+        transition: all 0.2s ease;
+        background: #FFFFFF;
+        border: 1px solid #E2E8F0;
+        border-radius: 8px;
+      }
+      .fila-opcion:hover {
+        border-color: #CBD5E1;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+      }
+      .fila-opcion.opcion-seleccionada {
+        background: #F0FDF4 !important;
+        border-color: #86EFAC !important;
+        border-left: 5px solid #16A34A !important;
+      }
+      .badge-estado-opcion {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+      }
+      .cursor-pointer {
+        cursor: pointer;
+      }
+      .btn-borrar-opcion {
+        color: #94A3B8;
+        border: 1px solid #E2E8F0;
+        background: #FFFFFF;
+        transition: all 0.15s ease;
+      }
+      .btn-borrar-opcion:hover {
+        color: #DC2626;
+        border-color: #FCA5A5;
+        background: #FEF2F2;
+      }
+      .wf-btn-pool-edit {
+        background: #EFF6FF;
+        color: #1D4ED8;
+        border: 1px solid #BFDBFE;
+        font-weight: 600;
+        transition: all 0.2s ease;
+      }
+      .wf-btn-pool-edit:hover {
+        background: #DBEAFE;
+        color: #1E40AF;
+        border-color: #93C5FD;
+      }
+      .wf-btn-pool-delete {
+        background: #FEF2F2;
+        color: #DC2626;
+        border: 1px solid #FECACA;
+        font-weight: 600;
+        transition: all 0.2s ease;
+      }
+      .wf-btn-pool-delete:hover {
+        background: #FEE2E2;
+        color: #B91C1C;
+        border-color: #FCA5A5;
+      }
+    </style>
 </head>
 <body class="wf-canvas-bg">
 
@@ -34,95 +96,128 @@
                             <span>PANEL DE ADMINISTRACIÓN</span>
                         </div>
                         <h2 class="wf-hero-title">Buscar pool</h2>
-                        <p class="wf-hero-desc">Bienvenido/a, Admin General</p>
+                        <p class="wf-hero-desc">Bienvenido/a, <span th:text="${usuario != null ? usuario.nombreCompleto : 'Admin General'}">Admin General</span></p>
                     </div>
                     
                     <div class="d-flex align-items-center gap-2">
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
+                        <button type="button" class="wf-btn-gold" data-bs-toggle="modal" data-bs-target="#modalCrearPool">
+                            <span>Nuevo Pool</span>
+                        </button>
                     </div>
-</div>
+                </div>
 
                 <div class="wf-body">
                     <div class="wf-main-content">
                         
+      <!-- Mensajes Flash -->
+      <div th:if="${mensaje}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fa-solid fa-circle-check me-2"></i> <span th:text="${mensaje}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+      <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fa-solid fa-triangle-exclamation me-2"></i> <span th:text="${error}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+
       <!-- Cabecera y Tabs Unificadas del Curso -->
       <div th:replace="~{fragments/curso_header :: curso-header('pools')}"></div>
 
       <!-- Barra de Filtros y Búsqueda -->
       <div class="wf-card mb-4" style="background: #FFFFFF;">
-        <div class="row g-3 align-items-end">
+        <form method="get" th:action="@{/evaluaciones/pools}" class="row g-3 align-items-end">
+          <input type="hidden" name="cursoId" th:if="${curso != null}" th:value="${curso.id}">
           <div class="col-md-5">
             <label class="wf-label">Buscar por título o palabra clave</label>
             <div class="wf-input-wrap">
-              <input type="text" class="wf-input" placeholder="Buscar en pools...">
-              
+              <input type="text" name="q" class="wf-input" placeholder="Buscar en pools..." th:value="${query}">
             </div>
           </div>
           <div class="col-md-4">
             <label class="wf-label">Filtrar por Unidad</label>
-            <select class="wf-input">
-              <option>Todas las unidades temáticas</option>
-              <option>Unidad 1: Marco Regulatorio</option>
-              <option>Unidad 2: Renta Fija</option>
+            <select name="unidadId" class="wf-input" onchange="this.form.submit()">
+              <option value="">Todas las unidades temáticas</option>
+              <option th:each="u : ${unidades}" th:value="${u.id}" th:text="${u.titulo}" th:selected="${unidadSeleccionada != null && unidadSeleccionada.id == u.id}">Unidad</option>
             </select>
           </div>
           <div class="col-md-3">
             <div class="d-flex align-items-center gap-2">
-              <button class="wf-btn wf-btn-primary w-100"><i class="fa-solid fa-magnifying-glass me-1"></i> Buscar</button>
-              
+              <button type="submit" class="wf-btn wf-btn-primary w-100"><i class="fa-solid fa-magnifying-glass me-1"></i> Buscar</button>
             </div>
           </div>
-        </div>
+        </form>
       </div>
 
-      
       <div class="wf-table-wrap">
         <table id="tablaPools" class="wf-table">
           <thead>
             <tr>
-              <th>ID</th>
-              <th>Nombre del Pool</th>
-              <th>Unidad Asociada</th>
-              <th>Fecha Creación</th>
-              <th>Estado</th>
+              <th>Título / Recurso</th>
+              <th>Tipo</th>
+              <th>Pertenencia</th>
+              <th>Estado &amp; IA</th>
               <th class="text-end">Acciones</th>
             </tr>
           </thead>
           <tbody>
             <tr th:each="p : ${pools}">
               <td><strong style="color: #081426;" th:text="${p.nombre}">Nombre del Pool</strong></td>
-              <td th:text="${p.unidad != null ? p.unidad.titulo : 'Unidad General'}">Unidad</td>
-              <td th:text="${#temporals.format(p.fechaCreacion, 'dd/MM/yyyy')}">01/01/2026</td>
-              <td><span class="wf-badge status-active" th:text="${p.baja ? 'Inactivo' : 'Activo'}">Activo</span></td>
+              <td><span>Banco de Preguntas</span></td>
+              <td th:text="${p.unidad != null ? p.unidad.titulo : 'Unidad General'}">Unidad 1: Marco Regulatorio</td>
+              <td>
+                <span th:if="${!p.baja}" class="wf-badge status-active">Publicado</span>
+                <span th:if="${p.baja}" class="wf-badge status-inactive">Inactivo</span>
+              </td>
               <td class="text-end">
-                <div class="d-inline-flex gap-2">
-                  <a th:href="@{'/evaluaciones/pools/' + ${p.id} + '/preguntas'}" class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-list-check me-1"></i> Preguntas</a>
-                  <a th:href="@{'/evaluaciones/pools/' + ${p.id} + '/editar'}" class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-pen-to-square"></i></a>
+                <div class="d-inline-flex align-items-center gap-2">
+                  <button type="button" class="wf-btn wf-btn-sm wf-btn-pool-edit btn-editar-pool"
+                          th:data-id="${p.id}"
+                          th:data-nombre="${p.nombre}"
+                          th:data-unidad="${p.unidad != null ? p.unidad.titulo : ''}"
+                          title="Editar Pool (CU-55)">
+                    <i class="fa-solid fa-pen-to-square me-1"></i>
+                    <span>Editar Pool</span>
+                  </button>
+
+                  <button type="button" class="wf-btn wf-btn-sm wf-btn-pool-delete btn-baja-pool"
+                          th:data-id="${p.id}"
+                          th:data-nombre="${p.nombre}"
+                          th:data-unidad="${p.unidad != null ? p.unidad.titulo : ''}"
+                          title="Dar de baja Pool (CU-56)">
+                    <i class="fa-solid fa-trash-can me-1"></i>
+                    <span>Eliminar</span>
+                  </button>
                 </div>
               </td>
             </tr>
             <tr th:if="${#lists.isEmpty(pools)}">
-              <td colspan="6" class="text-center py-4 text-muted">No se encontraron pools de preguntas registrados.</td>
+              <td colspan="5" class="text-center py-4 text-muted">No se encontraron pools de preguntas registrados.</td>
             </tr>
           </tbody>
         </table>
+      </div>
 
-        <!-- Paginación Estilo Catálogo -->
-        <div id="paginacionPools" class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top px-3 pb-3">
-          <div class="text-secondary small fw-semibold" id="poolPaginaInfo"></div>
-          <div class="d-flex gap-1" id="poolBotonesPaginacion"></div>
+      <!-- Barra de Paginación Centralizada -->
+      <div th:if="${totalElements > 0}" class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-3 pt-3 border-top" style="font-size: 13px;">
+        <div class="text-muted">
+          Mostrando <strong class="text-dark" th:text="${fromIndex}">1</strong> a <strong class="text-dark" th:text="${toIndex}">10</strong> de <strong class="text-dark" th:text="${totalElements}">50</strong> pools de preguntas
         </div>
+        <nav th:if="${totalPages > 1}" aria-label="Navegación de páginas">
+          <ul class="pagination pagination-sm mb-0">
+            <li class="page-item" th:classappend="${currentPage <= 1} ? 'disabled'">
+              <a class="page-link" th:href="@{/evaluaciones/pools(cursoId=${curso != null ? curso.id : null}, unidadId=${unidadSeleccionada != null ? unidadSeleccionada.id : null}, q=${query}, page=${currentPage - 1})}" aria-label="Anterior">
+                <i class="fa-solid fa-chevron-left" style="font-size: 10px;"></i> Anterior
+              </a>
+            </li>
+            <li class="page-item" th:each="i : ${#numbers.sequence(1, totalPages)}" th:classappend="${i == currentPage} ? 'active'">
+              <a class="page-link" th:text="${i}" th:href="@{/evaluaciones/pools(cursoId=${curso != null ? curso.id : null}, unidadId=${unidadSeleccionada != null ? unidadSeleccionada.id : null}, q=${query}, page=${i})}">1</a>
+            </li>
+            <li class="page-item" th:classappend="${currentPage >= totalPages} ? 'disabled'">
+              <a class="page-link" th:href="@{/evaluaciones/pools(cursoId=${curso != null ? curso.id : null}, unidadId=${unidadSeleccionada != null ? unidadSeleccionada.id : null}, q=${query}, page=${currentPage + 1})}" aria-label="Siguiente">
+                Siguiente <i class="fa-solid fa-chevron-right" style="font-size: 10px;"></i>
+              </a>
+            </li>
+          </ul>
+        </nav>
       </div>
     
                     </div>
@@ -141,67 +236,972 @@
         </div>
     </div>
 
-    <!-- Bootstrap Bundle JS -->
+    <!-- MODAL CU-54: Crear Pool (Dinámico y reactivo) -->
+    <div class="modal fade" id="modalCrearPool" tabindex="-1" aria-labelledby="modalCrearPoolLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content" style="border-radius: 12px; border: 1px solid #CBD5E1; box-shadow: 0 20px 50px rgba(8, 20, 38, 0.15); overflow: hidden;">
+          <form th:action="@{/evaluaciones/pools/guardar}" method="post">
+            <div class="p-4 bg-white">
+              <!-- Cabecera del Modal CU-54 -->
+              <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
+                <div>
+                  <div class="small text-muted mb-1" style="font-size: 11px;">
+                    <span>Unidad Temática</span> <i class="fa-solid fa-chevron-right" style="font-size: 9px; margin: 0 4px;"></i>
+                    <strong style="color: #081426;">Nuevo Pool de Preguntas</strong>
+                  </div>
+                  <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Crear Pool de Preguntas</h3>
+                  <p class="small text-muted" style="margin: 3px 0 0;">Defina el banco de ítems evaluativos, agregando preguntas con sus enunciados, tipos y opciones de respuesta.</p>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                  <span class="wf-badge status-active">Docente Titular</span>
+                  <button type="button" class="btn-close ms-2" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+              </div>
+
+              <!-- Datos del Pool -->
+              <div class="row g-3 mb-4">
+                <div class="col-md-4">
+                  <label class="wf-label">Unidad Temática Asociada <span class="text-danger">*</span></label>
+                  <select name="unidadId" class="wf-input" required>
+                    <option value="" disabled selected>Seleccione una unidad...</option>
+                    <option th:each="u : ${todasLasUnidades}" th:value="${u.id}" th:text="${u.titulo}">Unidad</option>
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <label class="wf-label">Nombre del Pool de Preguntas <span class="text-danger">*</span></label>
+                  <div class="wf-input-wrap">
+                    <input type="text" name="nombre" class="wf-input" placeholder="Ej: Pool Unidad 1: Marco Regulatorio y CNV" required>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <label class="wf-label">Descripción Temática</label>
+                  <div class="wf-input-wrap">
+                    <input type="text" name="descripcion" class="wf-input" placeholder="Ej: Banco evaluativo de preguntas sobre la Ley 26.831">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Editor Dinámico de Preguntas y Opciones -->
+              <div class="p-4 bg-light rounded border mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <div>
+                    <strong style="font-size: 15px; color: #081426;">
+                      <i class="fa-solid fa-list-check me-2 text-primary"></i>Editor de Preguntas del Pool
+                    </strong>
+                    <p class="small text-muted mb-0">Agregue preguntas con sus enunciados, tipo y opciones de respuesta.</p>
+                  </div>
+                  <button type="button" class="wf-btn wf-btn-sm wf-btn-outline" id="btnAgregarPreguntaGeneral">
+                    <i class="fa-solid fa-plus me-1 text-primary"></i> + Añadir Otra Pregunta
+                  </button>
+                </div>
+
+                <!-- Contenedor dinámico de preguntas añadidas en el Pool -->
+                <div id="contenedorPreguntasPool" class="d-flex flex-column gap-3">
+                  <!-- Pregunta 1 inicial -->
+                  <div class="p-3 bg-white rounded border shadow-sm bloque-pregunta-card" data-preg-index="1">
+                    <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                      <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-primary px-2 py-1 badge-num-preg">Pregunta #1</span>
+                      </div>
+                      <button type="button" class="btn btn-sm btn-outline-danger py-0 px-2 btn-eliminar-pregunta-card" onclick="eliminarCardPregunta(this)" title="Eliminar pregunta"><i class="fa-solid fa-trash me-1"></i> Quitar</button>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                      <div class="col-md-6">
+                        <label class="wf-label mb-1">Enunciado de la Pregunta <span class="text-danger">*</span></label>
+                        <input type="text" name="p1_texto" class="wf-input" style="width: 100%;" placeholder="Ej: ¿Cuál es la función principal de la Comisión Nacional de Valores (CNV)?" required>
+                      </div>
+                      <div class="col-md-3">
+                        <label class="wf-label mb-1">Tipo de Pregunta</label>
+                        <select name="p1_tipo" class="wf-input select-tipo-preg" style="width: 100%;" onchange="cambiarTipoPregunta(1, this.value)">
+                          <option value="multiple" selected>Opción Múltiple</option>
+                          <option value="vf">Verdadero / Falso</option>
+                        </select>
+                      </div>
+                      <div class="col-md-3 d-flex flex-column justify-content-end bloque-switch-multiple">
+                        <div class="form-check form-switch pt-2">
+                          <input class="form-check-input cursor-pointer switch-modo-resp" type="checkbox" id="switchModoP1" onchange="toggleSwitchModo(1, this.checked)">
+                          <label class="form-check-label small fw-semibold cursor-pointer text-dark" for="switchModoP1" id="lblSwitchP1">Múltiples correctas</label>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Contenedor de Opciones de la Pregunta 1 -->
+                    <div class="opciones-wrapper" id="opcionesWrapperP1">
+                      <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div class="small fw-bold text-muted">Opciones de Respuesta (Marque la/s opción/es correcta/s):</div>
+                        <button type="button" class="btn btn-outline-primary btn-sm py-0 px-2 btn-add-opt" onclick="agregarOpcionAPregunta(1)" style="font-size: 11px;">
+                          <i class="fa-solid fa-plus me-1"></i> Añadir Opción
+                        </button>
+                      </div>
+                      <div id="listaOpcionesP1" class="d-flex flex-column gap-2 mb-2" style="font-size: 12px;">
+                        <div class="fila-opcion opcion-seleccionada p-2 border rounded d-flex align-items-center justify-content-between bg-light" style="border-left: 5px solid #16A34A !important;">
+                          <div class="d-flex align-items-center gap-2 flex-grow-1 me-2">
+                            <input type="radio" name="p1_correctas" value="1" checked class="input-correcta" style="width: 16px; height: 16px; flex-shrink: 0;" onchange="actualizarBadgesPregunta(1)">
+                            <input type="text" name="p1_opt1" class="wf-input" style="flex: 1;" placeholder="Supervisar, regular y fiscalizar a los agentes y mercados..." required>
+                          </div>
+                          <div class="d-flex align-items-center gap-2">
+                            <span class="badge badge-estado-opcion bg-success text-white px-2 py-1"><i class="fa-solid fa-check me-1"></i> Opción Correcta</span>
+                            <button type="button" class="btn btn-sm btn-borrar-opcion p-1 py-0" title="Borrar opción" onclick="borrarOpcionDePregunta(this, 1)"><i class="fa-solid fa-xmark"></i></button>
+                          </div>
+                        </div>
+                        <div class="fila-opcion p-2 border rounded d-flex align-items-center justify-content-between">
+                          <div class="d-flex align-items-center gap-2 flex-grow-1 me-2">
+                            <input type="radio" name="p1_correctas" value="2" class="input-correcta" style="width: 16px; height: 16px; flex-shrink: 0;" onchange="actualizarBadgesPregunta(1)">
+                            <input type="text" name="p1_opt2" class="wf-input" style="flex: 1;" placeholder="Emitir moneda y fijar la tasa de política monetaria..." required>
+                          </div>
+                          <div class="d-flex align-items-center gap-2">
+                            <span class="badge badge-estado-opcion bg-light text-muted border px-2 py-1">Incorrecta</span>
+                            <button type="button" class="btn btn-sm btn-borrar-opcion p-1 py-0" title="Borrar opción" onclick="borrarOpcionDePregunta(this, 1)"><i class="fa-solid fa-xmark"></i></button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="d-flex justify-content-end align-items-center gap-3 pt-3 border-top">
+                <button type="button" class="wf-btn wf-btn-outline" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Guardar y Crear Pool</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL CU-55: Modificar Pool (Completamente Reactivo) -->
+    <div class="modal fade" id="modalEditarPool" tabindex="-1" aria-labelledby="modalEditarPoolLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content" style="border-radius: 12px; border: 1px solid #CBD5E1; box-shadow: 0 20px 50px rgba(8, 20, 38, 0.15); overflow: hidden;">
+          <form id="formEditarPool" method="post">
+            <div class="p-4 bg-white">
+              <!-- Cabecera del Modal CU-55 -->
+              <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
+                <div>
+                  <div class="small text-muted mb-1" style="font-size: 11px;">
+                    <span>Pools de Preguntas</span> <i class="fa-solid fa-chevron-right" style="font-size: 9px; margin: 0 4px;"></i>
+                    <strong style="color: #081426;">Modificar Pool</strong>
+                  </div>
+                  <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Modificar Pool de Preguntas</h3>
+                  <p class="small text-muted" style="margin: 3px 0 0;" id="editModalSubtitulo">Actualice el nombre, descripción y administre las preguntas y opciones del banco evaluativo.</p>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                  <span class="wf-badge status-active" id="editModalBadge">Cargando preguntas...</span>
+                  <button type="button" class="btn-close ms-2" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+              </div>
+
+              <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                  <label class="wf-label">Nombre del Pool <span class="text-danger">*</span></label>
+                  <div class="wf-input-wrap">
+                    <input type="text" name="nombre" id="editPoolNombre" class="wf-input" required>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <label class="wf-label">Descripción Temática</label>
+                  <div class="wf-input-wrap">
+                    <input type="text" name="descripcion" id="editPoolDescripcion" class="wf-input" placeholder="Banco evaluativo sobre temas de la unidad...">
+                  </div>
+                </div>
+              </div>
+
+              <div class="p-4 bg-light rounded border mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <strong style="font-size: 15px; color: #081426;">
+                    <i class="fa-solid fa-list-check me-2 text-primary"></i>Preguntas y Opciones Registradas
+                  </strong>
+                  <button type="button" class="wf-btn wf-btn-sm wf-btn-outline" id="btnToggleNuevaPreguntaEdit">
+                    <i class="fa-solid fa-plus me-1"></i> Añadir Pregunta a este Pool
+                  </button>
+                </div>
+
+                <!-- Formulario Dinámico para añadir pregunta dentro del pool en edición -->
+                <div id="bloqueNuevaPreguntaEdit" class="p-3 bg-white rounded border mb-3 shadow-sm d-none" style="border-left: 4px solid #2563EB !important;">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <strong class="text-primary small"><i class="fa-solid fa-plus-circle me-1"></i> Nueva Pregunta para el Pool</strong>
+                    <button type="button" class="btn btn-sm text-secondary" id="btnCerrarNuevaPreguntaEdit"><i class="fa-solid fa-times"></i></button>
+                  </div>
+                  <div class="row g-2 mb-2">
+                    <div class="col-md-8">
+                      <input type="text" name="p_edit_nueva_texto" id="inputEditNuevaPregunta" class="wf-input" placeholder="Enunciado de la nueva pregunta..." style="width: 100%;">
+                    </div>
+                    <div class="col-md-4">
+                      <select name="p_edit_nueva_tipo" class="wf-input" style="width: 100%;">
+                        <option value="multiple">Opción Múltiple</option>
+                        <option value="vf">Verdadero / Falso</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div class="small fw-bold text-muted">Opciones de Respuesta:</div>
+                    <button type="button" class="btn btn-outline-primary btn-sm py-0 px-2" id="btnAgregarOpcionEdit" style="font-size: 11px;">
+                      <i class="fa-solid fa-plus me-1"></i> Añadir Opción
+                    </button>
+                  </div>
+                  <div id="listaOpcionesEdit" class="d-flex flex-column gap-2 mb-2" style="font-size: 12px;">
+                    <div class="fila-opcion opcion-seleccionada p-2 border rounded d-flex align-items-center justify-content-between bg-light" style="border-left: 5px solid #16A34A !important;">
+                      <div class="d-flex align-items-center gap-2 flex-grow-1 me-2">
+                        <input type="radio" name="p_edit_nueva_correctas" value="1" checked class="input-correcta" style="width: 16px; height: 16px;" onchange="actualizarBadgesPreguntaEditNueva()">
+                        <input type="text" name="p_edit_nueva_opt1" class="wf-input" style="flex: 1;" placeholder="Opción 1 (Correcta por defecto)">
+                      </div>
+                      <div class="d-flex align-items-center gap-2">
+                        <span class="badge badge-estado-opcion bg-success text-white px-2 py-1"><i class="fa-solid fa-check me-1"></i> Opción Correcta</span>
+                        <button type="button" class="btn btn-sm btn-borrar-opcion p-1 py-0" title="Borrar opción" onclick="borrarFilaOpcionGenerica(this, 'listaOpcionesEdit')"><i class="fa-solid fa-xmark"></i></button>
+                      </div>
+                    </div>
+                    <div class="fila-opcion p-2 border rounded d-flex align-items-center justify-content-between">
+                      <div class="d-flex align-items-center gap-2 flex-grow-1 me-2">
+                        <input type="radio" name="p_edit_nueva_correctas" value="2" class="input-correcta" style="width: 16px; height: 16px;" onchange="actualizarBadgesPreguntaEditNueva()">
+                        <input type="text" name="p_edit_nueva_opt2" class="wf-input" style="flex: 1;" placeholder="Opción 2">
+                      </div>
+                      <div class="d-flex align-items-center gap-2">
+                        <span class="badge badge-estado-opcion bg-light text-muted border px-2 py-1">Incorrecta</span>
+                        <button type="button" class="btn btn-sm btn-borrar-opcion p-1 py-0" title="Borrar opción" onclick="borrarFilaOpcionGenerica(this, 'listaOpcionesEdit')"><i class="fa-solid fa-xmark"></i></button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Contenedor dinámico de preguntas existentes -->
+                <div id="contenedorPreguntasExistentes" class="d-flex flex-column gap-3">
+                  <!-- Inyectado vía JavaScript -->
+                </div>
+              </div>
+
+              <div class="d-flex justify-content-end align-items-center gap-3 pt-3 border-top">
+                <button type="button" class="wf-btn wf-btn-outline" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Guardar Cambios</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL AUXILIAR: Editar Pregunta Existente Individualmente -->
+    <div class="modal fade" id="modalEditarPreguntaIndividual" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content" style="border-radius: 12px; border: 1px solid #CBD5E1; box-shadow: 0 20px 50px rgba(8, 20, 38, 0.15); overflow: hidden;">
+          <div class="p-3 border-bottom d-flex justify-content-between align-items-center" style="background: #F8FAFC;">
+            <strong style="font-size: 15px; color: #081426;"><i class="fa-solid fa-pen-to-square me-2 text-primary"></i>Editar Pregunta y Opciones</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="p-4 bg-white">
+            <input type="hidden" id="editIndivPregId">
+            <div class="mb-3">
+              <label class="wf-label mb-1">Enunciado de la Pregunta <span class="text-danger">*</span></label>
+              <input type="text" id="editIndivTexto" class="wf-input" style="width: 100%;" required>
+            </div>
+            <div class="row g-3 mb-3">
+              <div class="col-md-6">
+                <label class="wf-label mb-1">Tipo de Pregunta</label>
+                <select id="editIndivTipo" class="wf-input" style="width: 100%;" onchange="cambiarTipoIndiv(this.value)">
+                  <option value="multiple">Opción Múltiple</option>
+                  <option value="vf">Verdadero / Falso</option>
+                </select>
+              </div>
+              <div class="col-md-6 d-flex flex-column justify-content-end" id="colSwitchIndiv">
+                <div class="form-check form-switch pt-2">
+                  <input class="form-check-input cursor-pointer" type="checkbox" id="switchIndivModo" onchange="toggleSwitchIndiv(this.checked)">
+                  <label class="form-check-label small fw-semibold cursor-pointer" for="switchIndivModo">Múltiples correctas</label>
+                </div>
+              </div>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <div class="small fw-bold text-muted">Opciones de Respuesta:</div>
+              <button type="button" class="btn btn-outline-primary btn-sm py-0 px-2" id="btnAddOptIndiv" onclick="agregarOpcionIndiv()" style="font-size: 11px;">
+                <i class="fa-solid fa-plus me-1"></i> Añadir Opción
+              </button>
+            </div>
+            <div id="listaOpcionesIndiv" class="d-flex flex-column gap-2 mb-4" style="font-size: 12px;">
+              <!-- Inyectado por JS -->
+            </div>
+
+            <div class="d-flex justify-content-end align-items-center gap-3 pt-3 border-top">
+              <button type="button" class="wf-btn wf-btn-outline" data-bs-dismiss="modal">Cancelar</button>
+              <button type="button" class="wf-btn wf-btn-primary" onclick="guardarEdicionPreguntaIndividual()"><i class="fa-solid fa-check me-1"></i> Guardar Pregunta</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL CU-56: Dar de baja Pool -->
+    <div class="modal fade" id="modalBajaPool" tabindex="-1" aria-labelledby="modalBajaPoolLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered" style="max-width: 620px;">
+        <div class="modal-content" style="border-radius: 12px; border: 1px solid #CBD5E1; box-shadow: 0 20px 50px rgba(8, 20, 38, 0.15); overflow: hidden;">
+          <form id="formBajaPool" method="post">
+            <div class="p-3 border-bottom d-flex justify-content-between align-items-center" style="background: #F8FAFC;">
+              <div class="d-flex align-items-center gap-2">
+                <i class="fa-solid fa-triangle-exclamation text-danger"></i>
+                <strong style="font-size: 14px; color: #081426;">Dar de baja pool</strong>
+              </div>
+              <span class="wf-badge status-active">Confirmación Requerida</span>
+            </div>
+            <div class="p-4 bg-white">
+              <div class="text-center mb-3">
+                <i class="fa-solid fa-circle-exclamation text-warning" style="font-size: 44px;"></i>
+              </div>
+              <p class="text-center text-dark fw-bold mb-1" style="font-size: 15px;">¿Está seguro de que desea dar de baja este pool de preguntas?</p>
+              <p class="text-center text-muted small mb-4">Esta acción marcará el pool como inactivo y no podrá ser utilizado para nuevas autoevaluaciones.</p>
+              
+              <div class="p-3 bg-light rounded border mb-4">
+                <div class="d-flex justify-content-between mb-2">
+                  <span class="text-muted small">Nombre del Pool:</span>
+                  <strong class="text-dark small" id="bajaPoolNombre">Pool de Ejemplo</strong>
+                </div>
+                <div class="d-flex justify-content-between">
+                  <span class="text-muted small">Unidad Temática:</span>
+                  <strong class="text-dark small" id="bajaPoolUnidad">Unidad 1</strong>
+                </div>
+              </div>
+
+              <div class="d-flex justify-content-end align-items-center gap-3 pt-3 border-top">
+                <button type="button" class="wf-btn wf-btn-outline" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="wf-btn wf-btn-danger"><i class="fa-solid fa-trash me-1"></i> Confirmar Baja</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap 5 JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        function toggleUserDropdown(triggerEl) {
-            const wrapper = triggerEl.closest('.wf-user-menu-wrapper');
-            if (wrapper) {
-                const dropdown = wrapper.querySelector('.wf-user-floating-dropdown');
-                if (dropdown) {
-                    dropdown.style.display = (dropdown.style.display === 'none' || dropdown.style.display === '') ? 'flex' : 'none';
-                }
-            }
-        }
-
-        let poolCurrentPage = 1;
-        const poolRowsPerPage = 6;
-
-        function renderPoolPagination() {
-            if (window.renderWfPagination) {
-                window.renderWfPagination({
-                    tableId: 'tablaPools',
-                    wrapId: 'paginacionPools',
-                    infoId: 'poolPaginaInfo',
-                    controlsId: 'poolBotonesPaginacion',
-                    currentPage: poolCurrentPage,
-                    rowsPerPage: poolRowsPerPage,
-                    entityLabel: 'pools',
-                    onPageChange: function(p) { poolCurrentPage = p; renderPoolPagination(); }
-                });
-            }
-        }
+        let contadorPreguntas = 1;
+        let poolIdActualEnEdicion = null;
+        let preguntasCargadasEnEdicion = [];
 
         document.addEventListener('DOMContentLoaded', function() {
-            renderPoolPagination();
+            // Botón '+ Añadir Otra Pregunta'
+            const btnAgregarGeneral = document.getElementById('btnAgregarPreguntaGeneral');
+            if (btnAgregarGeneral) {
+                btnAgregarGeneral.addEventListener('click', function() {
+                    contadorPreguntas++;
+                    const idx = contadorPreguntas;
+                    const card = document.createElement('div');
+                    card.className = 'p-3 bg-white rounded border shadow-sm bloque-pregunta-card';
+                    card.setAttribute('data-preg-index', idx);
+                    card.innerHTML = `
+                      <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                        <div class="d-flex align-items-center gap-2">
+                          <span class="badge bg-primary px-2 py-1 badge-num-preg">Pregunta #${idx}</span>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-danger py-0 px-2 btn-eliminar-pregunta-card" onclick="eliminarCardPregunta(this)" title="Eliminar pregunta"><i class="fa-solid fa-trash me-1"></i> Quitar</button>
+                      </div>
+
+                      <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                          <label class="wf-label mb-1">Enunciado de la Pregunta <span class="text-danger">*</span></label>
+                          <input type="text" name="p${idx}_texto" class="wf-input" style="width: 100%;" placeholder="Enunciado de la pregunta evaluativa..." required>
+                        </div>
+                        <div class="col-md-3">
+                          <label class="wf-label mb-1">Tipo de Pregunta</label>
+                          <select name="p${idx}_tipo" class="wf-input select-tipo-preg" style="width: 100%;" onchange="cambiarTipoPregunta(${idx}, this.value)">
+                            <option value="multiple" selected>Opción Múltiple</option>
+                            <option value="vf">Verdadero / Falso</option>
+                          </select>
+                        </div>
+                        <div class="col-md-3 d-flex flex-column justify-content-end bloque-switch-multiple">
+                          <div class="form-check form-switch pt-2">
+                            <input class="form-check-input cursor-pointer switch-modo-resp" type="checkbox" id="switchModoP${idx}" onchange="toggleSwitchModo(${idx}, this.checked)">
+                            <label class="form-check-label small fw-semibold cursor-pointer text-dark" for="switchModoP${idx}">Múltiples correctas</label>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="opciones-wrapper" id="opcionesWrapperP${idx}">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                          <div class="small fw-bold text-muted">Opciones de Respuesta (Marque la/s opción/es correcta/s):</div>
+                          <button type="button" class="btn btn-outline-primary btn-sm py-0 px-2 btn-add-opt" onclick="agregarOpcionAPregunta(${idx})" style="font-size: 11px;">
+                            <i class="fa-solid fa-plus me-1"></i> Añadir Opción
+                          </button>
+                        </div>
+                        <div id="listaOpcionesP${idx}" class="d-flex flex-column gap-2 mb-2" style="font-size: 12px;">
+                          <div class="fila-opcion opcion-seleccionada p-2 border rounded d-flex align-items-center justify-content-between bg-light" style="border-left: 5px solid #16A34A !important;">
+                            <div class="d-flex align-items-center gap-2 flex-grow-1 me-2">
+                              <input type="radio" name="p${idx}_correctas" value="1" checked class="input-correcta" style="width: 16px; height: 16px; flex-shrink: 0;" onchange="actualizarBadgesPregunta(${idx})">
+                              <input type="text" name="p${idx}_opt1" class="wf-input" style="flex: 1;" placeholder="Opción 1" required>
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                              <span class="badge badge-estado-opcion bg-success text-white px-2 py-1"><i class="fa-solid fa-check me-1"></i> Opción Correcta</span>
+                              <button type="button" class="btn btn-sm btn-borrar-opcion p-1 py-0" title="Borrar opción" onclick="borrarOpcionDePregunta(this, ${idx})"><i class="fa-solid fa-xmark"></i></button>
+                            </div>
+                          </div>
+                          <div class="fila-opcion p-2 border rounded d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center gap-2 flex-grow-1 me-2">
+                              <input type="radio" name="p${idx}_correctas" value="2" class="input-correcta" style="width: 16px; height: 16px; flex-shrink: 0;" onchange="actualizarBadgesPregunta(${idx})">
+                              <input type="text" name="p${idx}_opt2" class="wf-input" style="flex: 1;" placeholder="Opción 2" required>
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                              <span class="badge badge-estado-opcion bg-light text-muted border px-2 py-1">Incorrecta</span>
+                              <button type="button" class="btn btn-sm btn-borrar-opcion p-1 py-0" title="Borrar opción" onclick="borrarOpcionDePregunta(this, ${idx})"><i class="fa-solid fa-xmark"></i></button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    `;
+                    document.getElementById('contenedorPreguntasPool').appendChild(card);
+                });
+            }
+
+            // Interactividad en CU-55: Toggle Nueva Pregunta en Edición
+            const btnToggleNuevaPreguntaEdit = document.getElementById('btnToggleNuevaPreguntaEdit');
+            const bloqueNuevaPreguntaEdit = document.getElementById('bloqueNuevaPreguntaEdit');
+            const btnCerrarNuevaPreguntaEdit = document.getElementById('btnCerrarNuevaPreguntaEdit');
+            if (btnToggleNuevaPreguntaEdit && bloqueNuevaPreguntaEdit) {
+                btnToggleNuevaPreguntaEdit.addEventListener('click', function() {
+                    bloqueNuevaPreguntaEdit.classList.toggle('d-none');
+                });
+            }
+            if (btnCerrarNuevaPreguntaEdit && bloqueNuevaPreguntaEdit) {
+                btnCerrarNuevaPreguntaEdit.addEventListener('click', function() {
+                    bloqueNuevaPreguntaEdit.classList.add('d-none');
+                });
+            }
+
+            // Modal CU-55: Cargar dinámicamente las preguntas del pool desde el backend
+            const modalEditar = new bootstrap.Modal(document.getElementById('modalEditarPool'));
+
+            document.querySelectorAll('.btn-editar-pool').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const id = this.getAttribute('data-id');
+                    const nombre = this.getAttribute('data-nombre');
+                    poolIdActualEnEdicion = id;
+
+                    document.getElementById('formEditarPool').action = '/evaluaciones/pools/' + id + '/editar';
+                    document.getElementById('editPoolNombre').value = nombre;
+                    if (bloqueNuevaPreguntaEdit) bloqueNuevaPreguntaEdit.classList.add('d-none');
+
+                    cargarPreguntasPoolEdicion(id);
+                    modalEditar.show();
+                });
+            });
+
+            // Modal Baja Pool
+            const modalBaja = new bootstrap.Modal(document.getElementById('modalBajaPool'));
+            document.querySelectorAll('.btn-baja-pool').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const id = this.getAttribute('data-id');
+                    const nombre = this.getAttribute('data-nombre');
+                    const unidad = this.getAttribute('data-unidad');
+
+                    document.getElementById('formBajaPool').action = '/evaluaciones/pools/' + id + '/baja';
+                    document.getElementById('bajaPoolNombre').textContent = nombre;
+                    document.getElementById('bajaPoolUnidad').textContent = unidad || 'General';
+                    modalBaja.show();
+                });
+            });
         });
-    </script>
 
-    <!-- DSS & Case of Use Console Logger -->
-    <script>
-        (function() {
-            const cuId = 'CU-53';
-            const cuNombre = 'Buscar pool';
-            const cuActores = 'Administrador / Docente';
-            const cuDss = 'pools = buscarPools(unidad, nombre) ➔ unPool = seleccionarPool(idPool, pools)';
+        // Cargar preguntas en el modal de edición CU-55
+        function cargarPreguntasPoolEdicion(id) {
+            const contenedorPreguntas = document.getElementById('contenedorPreguntasExistentes');
+            const editBadge = document.getElementById('editModalBadge');
+            contenedorPreguntas.innerHTML = '<div class="text-center py-4 text-muted"><i class="fa-solid fa-spinner fa-spin me-2 text-primary"></i>Cargando preguntas y opciones del pool...</div>';
+            editBadge.textContent = 'Consultando...';
 
-            console.log(
-                '%c[IDÓNEOS ONLINE] %c ' + cuId + ' %c ' + cuNombre + ' ',
-                'color: #C9982F; font-weight: 800; font-size: 13px;',
-                'background: #081426; color: #E4BE6C; padding: 3px 8px; border-radius: 4px; font-weight: 700; font-size: 12px; border: 1px solid #C9982F;',
-                'color: #081426; font-weight: 800; font-size: 13px;'
-            );
-            console.log(
-                '%c👤 Actor(es): %c' + cuActores,
-                'color: #64748B; font-weight: 700; font-size: 11px;',
-                'color: #0F172A; font-weight: 600; font-size: 11px;'
-            );
-            console.log(
-                '%c⚡ DSS: %c' + cuDss,
-                'color: #64748B; font-weight: 700; font-size: 11px;',
-                'color: #0284C7; font-family: monospace; font-size: 11px; font-weight: 600;'
-            );
-        })();
+            fetch('/evaluaciones/pools/' + id + '/detalles')
+                .then(r => r.json())
+                .then(data => {
+                    preguntasCargadasEnEdicion = data.preguntas || [];
+                    editBadge.textContent = preguntasCargadasEnEdicion.length + ' preguntas registradas';
+                    if (preguntasCargadasEnEdicion.length === 0) {
+                        contenedorPreguntas.innerHTML = '<div class="text-center py-4 text-muted bg-white border rounded">Este pool no posee preguntas registradas aún. Utilice el botón superior para agregar una nueva pregunta.</div>';
+                        return;
+                    }
+
+                    let html = '';
+                    preguntasCargadasEnEdicion.forEach((preg, idx) => {
+                        html += `
+                        <div class="p-3 bg-white rounded border shadow-sm" id="preg-card-${preg.id}">
+                          <div class="d-flex justify-content-between align-items-start mb-3 pb-2 border-bottom">
+                            <div class="flex-grow-1 me-3">
+                              <span class="badge ${preg.esOpcionMultiple ? 'bg-primary' : 'bg-success'} mb-1" style="font-size: 10.5px;">
+                                <i class="fa-solid ${preg.esOpcionMultiple ? 'fa-list-ul' : 'fa-check-double'} me-1"></i>Pregunta #${idx + 1} • ${preg.esOpcionMultiple ? 'Opción Múltiple' : 'Verdadero / Falso'}
+                              </span>
+                              <div class="fw-bold text-dark mt-1" style="font-size: 14px;">${preg.texto}</div>
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                              <button type="button" class="btn btn-outline-primary btn-sm px-2 py-1" onclick="abrirModalEditarPreguntaIndividual(${preg.id})" title="Editar pregunta y opciones">
+                                <i class="fa-solid fa-pen-to-square me-1"></i> <span style="font-size: 11.5px;">Editar</span>
+                              </button>
+                              <button type="button" class="btn btn-outline-danger btn-sm px-2 py-1" onclick="eliminarPreguntaPool(${preg.id})" title="Eliminar pregunta del pool">
+                                <i class="fa-solid fa-trash me-1"></i> <span style="font-size: 11.5px;">Eliminar</span>
+                              </button>
+                            </div>
+                          </div>
+                          <div class="d-flex flex-column gap-2" style="font-size: 12px;">
+                        `;
+                        if (preg.opciones && preg.opciones.length > 0) {
+                            preg.opciones.forEach((opt) => {
+                                if (opt.esCorrecta) {
+                                    html += `
+                                    <div class="fila-opcion opcion-seleccionada p-2 border rounded d-flex align-items-center justify-content-between bg-light" style="border-left: 5px solid #16A34A !important;">
+                                      <div class="d-flex align-items-center gap-2">
+                                        <i class="fa-solid fa-circle-dot text-success" style="font-size: 14px;"></i>
+                                        <strong class="text-dark">${opt.texto}</strong>
+                                      </div>
+                                      <span class="badge bg-success text-white px-2 py-1"><i class="fa-solid fa-check me-1"></i> Opción Correcta</span>
+                                    </div>`;
+                                } else {
+                                    html += `
+                                    <div class="fila-opcion p-2 border rounded d-flex align-items-center justify-content-between">
+                                      <div class="d-flex align-items-center gap-2">
+                                        <i class="fa-regular fa-circle text-muted" style="font-size: 14px;"></i>
+                                        <span class="text-muted">${opt.texto}</span>
+                                      </div>
+                                      <span class="badge bg-light text-muted border px-2 py-1">Incorrecta</span>
+                                    </div>`;
+                                }
+                            });
+                        } else {
+                            html += `<div class="text-muted small italic">Sin opciones registradas.</div>`;
+                        }
+                        html += `</div></div>`;
+                    });
+                    contenedorPreguntas.innerHTML = html;
+                })
+                .catch(err => {
+                    contenedorPreguntas.innerHTML = '<div class="text-danger py-2">Error al cargar preguntas: ' + err + '</div>';
+                });
+        }
+
+        // Abrir Modal de Edición Individual de Pregunta
+        function abrirModalEditarPreguntaIndividual(preguntaId) {
+            const preg = preguntasCargadasEnEdicion.find(p => p.id === preguntaId);
+            if (!preg) return;
+
+            document.getElementById('editIndivPregId').value = preg.id;
+            document.getElementById('editIndivTexto').value = preg.texto;
+            document.getElementById('editIndivTipo').value = preg.esOpcionMultiple ? 'multiple' : 'vf';
+
+            const numCorrectas = (preg.opciones || []).filter(o => o.esCorrecta).length;
+            const switchModo = document.getElementById('switchIndivModo');
+            if (switchModo) switchModo.checked = numCorrectas > 1;
+
+            cambiarTipoIndiv(preg.esOpcionMultiple ? 'multiple' : 'vf');
+
+            const lista = document.getElementById('listaOpcionesIndiv');
+            lista.innerHTML = '';
+
+            if (preg.esOpcionMultiple) {
+                const inputType = (switchModo && switchModo.checked) ? 'checkbox' : 'radio';
+                (preg.opciones || []).forEach((opt, idx) => {
+                    const optIdx = idx + 1;
+                    const div = document.createElement('div');
+                    div.className = 'fila-opcion p-2 border rounded d-flex align-items-center justify-content-between ' + (opt.esCorrecta ? 'opcion-seleccionada bg-light' : '');
+                    if (opt.esCorrecta) div.style.setProperty('border-left', '5px solid #16A34A', 'important');
+                    div.innerHTML = `
+                      <div class="d-flex align-items-center gap-2 flex-grow-1 me-2">
+                        <input type="${inputType}" name="indiv_correctas" value="${optIdx}" ${opt.esCorrecta ? 'checked' : ''} class="input-correcta-indiv" style="width: 16px; height: 16px; flex-shrink: 0;" onchange="actualizarBadgesIndiv()">
+                        <input type="text" name="indiv_opt${optIdx}" value="${opt.texto}" class="wf-input input-texto-indiv" style="flex: 1;" required>
+                      </div>
+                      <div class="d-flex align-items-center gap-2">
+                        <span class="badge badge-estado-opcion ${opt.esCorrecta ? 'bg-success text-white' : 'bg-light text-muted border'} px-2 py-1">${opt.esCorrecta ? '<i class="fa-solid fa-check me-1"></i> Opción Correcta' : 'Incorrecta'}</span>
+                        <button type="button" class="btn btn-sm btn-borrar-opcion p-1 py-0" onclick="borrarOpcionIndiv(this)"><i class="fa-solid fa-xmark"></i></button>
+                      </div>
+                    `;
+                    lista.appendChild(div);
+                });
+            } else {
+                const esVerdaderoCorrecto = preg.opciones && preg.opciones.find(o => o.texto.toLowerCase().includes('verdadero'))?.esCorrecta;
+                lista.innerHTML = `
+                  <div class="d-flex gap-3">
+                    <label class="fila-opcion p-2 border rounded d-flex align-items-center justify-content-between flex-grow-1 ${esVerdaderoCorrecto ? 'opcion-seleccionada bg-light' : ''}" ${esVerdaderoCorrecto ? 'style="border-left: 5px solid #16A34A !important;"' : ''}>
+                      <div class="d-flex align-items-center gap-2">
+                        <input type="radio" name="indiv_vf_opt" value="true" ${esVerdaderoCorrecto ? 'checked' : ''} style="width: 16px; height: 16px;" onchange="actualizarBadgesIndivVF(this)">
+                        <strong class="text-dark">Verdadero</strong>
+                      </div>
+                      <span class="badge badge-estado-opcion ${esVerdaderoCorrecto ? 'bg-success text-white' : 'bg-light text-muted border'} px-2 py-1">${esVerdaderoCorrecto ? '<i class="fa-solid fa-check me-1"></i> Correcta' : 'Incorrecta'}</span>
+                    </label>
+                    <label class="fila-opcion p-2 border rounded d-flex align-items-center justify-content-between flex-grow-1 ${!esVerdaderoCorrecto ? 'opcion-seleccionada bg-light' : ''}" ${!esVerdaderoCorrecto ? 'style="border-left: 5px solid #16A34A !important;"' : ''}>
+                      <div class="d-flex align-items-center gap-2">
+                        <input type="radio" name="indiv_vf_opt" value="false" ${!esVerdaderoCorrecto ? 'checked' : ''} style="width: 16px; height: 16px;" onchange="actualizarBadgesIndivVF(this)">
+                        <span class="text-muted">Falso</span>
+                      </div>
+                      <span class="badge badge-estado-opcion ${!esVerdaderoCorrecto ? 'bg-success text-white' : 'bg-light text-muted border'} px-2 py-1">${!esVerdaderoCorrecto ? '<i class="fa-solid fa-check me-1"></i> Correcta' : 'Incorrecta'}</span>
+                    </label>
+                  </div>
+                `;
+            }
+
+            const modalIndiv = new bootstrap.Modal(document.getElementById('modalEditarPreguntaIndividual'));
+            modalIndiv.show();
+        }
+
+        // Guardar edición de pregunta individual vía AJAX
+        function guardarEdicionPreguntaIndividual() {
+            const pregId = document.getElementById('editIndivPregId').value;
+            const texto = document.getElementById('editIndivTexto').value;
+            const tipo = document.getElementById('editIndivTipo').value;
+
+            if (!texto || texto.trim() === '') {
+                alert('El enunciado de la pregunta es obligatorio.');
+                return;
+            }
+
+            const formData = new URLSearchParams();
+            formData.append('texto', texto);
+            formData.append('tipo', tipo);
+
+            if (tipo === 'vf') {
+                const vfChecked = document.querySelector('input[name="indiv_vf_opt"]:checked')?.value || 'true';
+                formData.append('vf_opt', vfChecked);
+            } else {
+                const inputs = document.querySelectorAll('#listaOpcionesIndiv .input-texto-indiv');
+                inputs.forEach((inp, idx) => {
+                    formData.append('opt' + (idx + 1), inp.value);
+                });
+                const correctas = document.querySelectorAll('#listaOpcionesIndiv .input-correcta-indiv:checked');
+                correctas.forEach(c => {
+                    formData.append('correctas', c.value);
+                });
+            }
+
+            fetch('/evaluaciones/pools/pregunta/' + pregId + '/editar', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: formData.toString()
+            })
+            .then(r => r.json())
+            .then(res => {
+                if (res.success) {
+                    bootstrap.Modal.getInstance(document.getElementById('modalEditarPreguntaIndividual')).hide();
+                    cargarPreguntasPoolEdicion(poolIdActualEnEdicion);
+                } else {
+                    alert(res.error || 'Error al guardar la pregunta');
+                }
+            })
+            .catch(e => alert('Error de conexión'));
+        }
+
+        // Conmutar tipo de pregunta (Opción Múltiple vs Verdadero/Falso)
+        function cambiarTipoPregunta(idx, tipo) {
+            const card = document.querySelector(`.bloque-pregunta-card[data-preg-index="${idx}"]`);
+            if (!card) return;
+            const wrapper = card.querySelector('.opciones-wrapper');
+            const switchCol = card.querySelector('.bloque-switch-multiple');
+
+            if (tipo === 'vf') {
+                if (switchCol) switchCol.classList.add('d-none');
+                wrapper.innerHTML = `
+                  <div class="small fw-bold text-muted mb-2">Seleccione la Respuesta Correcta:</div>
+                  <div class="d-flex gap-3" style="font-size: 12px;">
+                    <label class="fila-opcion opcion-seleccionada p-2 border rounded d-flex align-items-center justify-content-between flex-grow-1 bg-light cursor-pointer" style="border-left: 5px solid #16A34A !important;">
+                      <div class="d-flex align-items-center gap-2">
+                        <input type="radio" name="p${idx}_opt" value="true" checked style="width: 16px; height: 16px;" onchange="actualizarBadgesVF(this)">
+                        <strong class="text-dark">Verdadero</strong>
+                      </div>
+                      <span class="badge badge-estado-opcion bg-success text-white px-2 py-1"><i class="fa-solid fa-check me-1"></i> Correcta</span>
+                    </label>
+                    <label class="fila-opcion p-2 border rounded d-flex align-items-center justify-content-between flex-grow-1 cursor-pointer">
+                      <div class="d-flex align-items-center gap-2">
+                        <input type="radio" name="p${idx}_opt" value="false" style="width: 16px; height: 16px;" onchange="actualizarBadgesVF(this)">
+                        <span class="text-muted">Falso</span>
+                      </div>
+                      <span class="badge badge-estado-opcion bg-light text-muted border px-2 py-1">Incorrecta</span>
+                    </label>
+                  </div>
+                `;
+            } else {
+                if (switchCol) switchCol.classList.remove('d-none');
+                wrapper.innerHTML = `
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div class="small fw-bold text-muted">Opciones de Respuesta (Marque la/s opción/es correcta/s):</div>
+                    <button type="button" class="btn btn-outline-primary btn-sm py-0 px-2 btn-add-opt" onclick="agregarOpcionAPregunta(${idx})" style="font-size: 11px;">
+                      <i class="fa-solid fa-plus me-1"></i> Añadir Opción
+                    </button>
+                  </div>
+                  <div id="listaOpcionesP${idx}" class="d-flex flex-column gap-2 mb-2" style="font-size: 12px;">
+                    <div class="fila-opcion opcion-seleccionada p-2 border rounded d-flex align-items-center justify-content-between bg-light" style="border-left: 5px solid #16A34A !important;">
+                      <div class="d-flex align-items-center gap-2 flex-grow-1 me-2">
+                        <input type="radio" name="p${idx}_correctas" value="1" checked class="input-correcta" style="width: 16px; height: 16px; flex-shrink: 0;" onchange="actualizarBadgesPregunta(${idx})">
+                        <input type="text" name="p${idx}_opt1" class="wf-input" style="flex: 1;" placeholder="Opción 1" required>
+                      </div>
+                      <div class="d-flex align-items-center gap-2">
+                        <span class="badge badge-estado-opcion bg-success text-white px-2 py-1"><i class="fa-solid fa-check me-1"></i> Opción Correcta</span>
+                        <button type="button" class="btn btn-sm btn-borrar-opcion p-1 py-0" title="Borrar opción" onclick="borrarOpcionDePregunta(this, ${idx})"><i class="fa-solid fa-xmark"></i></button>
+                      </div>
+                    </div>
+                    <div class="fila-opcion p-2 border rounded d-flex align-items-center justify-content-between">
+                      <div class="d-flex align-items-center gap-2 flex-grow-1 me-2">
+                        <input type="radio" name="p${idx}_correctas" value="2" class="input-correcta" style="width: 16px; height: 16px; flex-shrink: 0;" onchange="actualizarBadgesPregunta(${idx})">
+                        <input type="text" name="p${idx}_opt2" class="wf-input" style="flex: 1;" placeholder="Opción 2" required>
+                      </div>
+                      <div class="d-flex align-items-center gap-2">
+                        <span class="badge badge-estado-opcion bg-light text-muted border px-2 py-1">Incorrecta</span>
+                        <button type="button" class="btn btn-sm btn-borrar-opcion p-1 py-0" title="Borrar opción" onclick="borrarOpcionDePregunta(this, ${idx})"><i class="fa-solid fa-xmark"></i></button>
+                      </div>
+                    </div>
+                  </div>
+                `;
+            }
+        }
+
+        // Switch de selección única vs múltiple
+        function toggleSwitchModo(idx, esMultiple) {
+            const cont = document.getElementById('listaOpcionesP' + idx);
+            if (!cont) return;
+            const inputs = cont.querySelectorAll('.input-correcta');
+            inputs.forEach(inp => {
+                inp.type = esMultiple ? 'checkbox' : 'radio';
+            });
+            actualizarBadgesPregunta(idx);
+        }
+
+        // Eliminar tarjeta de pregunta
+        function eliminarCardPregunta(btn) {
+            const cards = document.querySelectorAll('.bloque-pregunta-card');
+            if (cards.length <= 1) {
+                alert('El pool debe poseer al menos 1 pregunta.');
+                return;
+            }
+            btn.closest('.bloque-pregunta-card').remove();
+            // Reindexar visualmente
+            document.querySelectorAll('.bloque-pregunta-card').forEach((c, i) => {
+                const b = c.querySelector('.badge-num-preg');
+                if (b) b.textContent = 'Pregunta #' + (i + 1);
+            });
+        }
+
+        // Agregar opción a una pregunta específica
+        function agregarOpcionAPregunta(pregIdx) {
+            const container = document.getElementById('listaOpcionesP' + pregIdx);
+            if (!container) return;
+            const count = container.querySelectorAll('.fila-opcion').length + 1;
+            const card = container.closest('.bloque-pregunta-card');
+            const switchEl = card ? card.querySelector('.switch-modo-resp') : null;
+            const inputType = (switchEl && switchEl.checked) ? 'checkbox' : 'radio';
+
+            const div = document.createElement('div');
+            div.className = 'fila-opcion p-2 border rounded d-flex align-items-center justify-content-between';
+            div.innerHTML = `
+              <div class="d-flex align-items-center gap-2 flex-grow-1 me-2">
+                <input type="${inputType}" name="p${pregIdx}_correctas" value="${count}" class="input-correcta" style="width: 16px; height: 16px; flex-shrink: 0;" onchange="actualizarBadgesPregunta(${pregIdx})">
+                <input type="text" name="p${pregIdx}_opt${count}" class="wf-input" style="flex: 1;" placeholder="Nueva Opción ${count}">
+              </div>
+              <div class="d-flex align-items-center gap-2">
+                <span class="badge badge-estado-opcion bg-light text-muted border px-2 py-1">Incorrecta</span>
+                <button type="button" class="btn btn-sm btn-borrar-opcion p-1 py-0" title="Borrar esta opción" onclick="borrarOpcionDePregunta(this, ${pregIdx})"><i class="fa-solid fa-xmark"></i></button>
+              </div>
+            `;
+            container.appendChild(div);
+        }
+
+        // Borrar opción de una pregunta específica
+        function borrarOpcionDePregunta(btn, pregIdx) {
+            const container = document.getElementById('listaOpcionesP' + pregIdx);
+            if (!container) return;
+            const filas = container.querySelectorAll('.fila-opcion');
+            if (filas.length <= 2) {
+                alert('Una pregunta debe tener al menos 2 opciones de respuesta.');
+                return;
+            }
+            const fila = btn.closest('.fila-opcion');
+            const input = fila.querySelector('.input-correcta');
+            const estabaCheckeada = input ? input.checked : false;
+            fila.remove();
+
+            if (estabaCheckeada) {
+                const primerInput = container.querySelector('.input-correcta');
+                if (primerInput) primerInput.checked = true;
+            }
+            actualizarBadgesPregunta(pregIdx);
+        }
+
+        // Actualizar badges visuales para pregunta de Opción Múltiple
+        function actualizarBadgesPregunta(pregIdx) {
+            const container = document.getElementById('listaOpcionesP' + pregIdx);
+            if (!container) return;
+            const filas = container.querySelectorAll('.fila-opcion');
+            filas.forEach(f => {
+                const inp = f.querySelector('.input-correcta');
+                const badge = f.querySelector('.badge-estado-opcion');
+                if (inp && inp.checked) {
+                    f.classList.add('opcion-seleccionada', 'bg-light');
+                    f.style.setProperty('border-left', '5px solid #16A34A', 'important');
+                    if (badge) {
+                        badge.className = 'badge badge-estado-opcion bg-success text-white px-2 py-1';
+                        badge.innerHTML = '<i class="fa-solid fa-check me-1"></i> Opción Correcta';
+                    }
+                } else {
+                    f.classList.remove('opcion-seleccionada', 'bg-light');
+                    f.style.removeProperty('border-left');
+                    if (badge) {
+                        badge.className = 'badge badge-estado-opcion bg-light text-muted border px-2 py-1';
+                        badge.textContent = 'Incorrecta';
+                    }
+                }
+            });
+        }
+
+        // Actualizar badges para preguntas de Verdadero/Falso
+        function actualizarBadgesVF(radio) {
+            const wrapper = radio.closest('.d-flex');
+            if (!wrapper) return;
+            const labels = wrapper.querySelectorAll('label.fila-opcion');
+            labels.forEach(lbl => {
+                const r = lbl.querySelector('input[type="radio"]');
+                const badge = lbl.querySelector('.badge-estado-opcion');
+                if (r && r.checked) {
+                    lbl.classList.add('opcion-seleccionada', 'bg-light');
+                    lbl.style.setProperty('border-left', '5px solid #16A34A', 'important');
+                    if (badge) {
+                        badge.className = 'badge badge-estado-opcion bg-success text-white px-2 py-1';
+                        badge.innerHTML = '<i class="fa-solid fa-check me-1"></i> Correcta';
+                    }
+                } else {
+                    lbl.classList.remove('opcion-seleccionada', 'bg-light');
+                    lbl.style.removeProperty('border-left');
+                    if (badge) {
+                        badge.className = 'badge badge-estado-opcion bg-light text-muted border px-2 py-1';
+                        badge.textContent = 'Incorrecta';
+                    }
+                }
+            });
+        }
+
+        // Funciones auxiliares para modal de edición individual
+        function cambiarTipoIndiv(tipo) {
+            const colSwitch = document.getElementById('colSwitchIndiv');
+            const btnAdd = document.getElementById('btnAddOptIndiv');
+            if (tipo === 'vf') {
+                if (colSwitch) colSwitch.classList.add('d-none');
+                if (btnAdd) btnAdd.classList.add('d-none');
+            } else {
+                if (colSwitch) colSwitch.classList.remove('d-none');
+                if (btnAdd) btnAdd.classList.remove('d-none');
+            }
+        }
+
+        function toggleSwitchIndiv(checked) {
+            const inputs = document.querySelectorAll('#listaOpcionesIndiv .input-correcta-indiv');
+            inputs.forEach(inp => {
+                inp.type = checked ? 'checkbox' : 'radio';
+            });
+            actualizarBadgesIndiv();
+        }
+
+        function agregarOpcionIndiv() {
+            const lista = document.getElementById('listaOpcionesIndiv');
+            const count = lista.querySelectorAll('.fila-opcion').length + 1;
+            const switchEl = document.getElementById('switchIndivModo');
+            const inputType = (switchEl && switchEl.checked) ? 'checkbox' : 'radio';
+
+            const div = document.createElement('div');
+            div.className = 'fila-opcion p-2 border rounded d-flex align-items-center justify-content-between';
+            div.innerHTML = `
+              <div class="d-flex align-items-center gap-2 flex-grow-1 me-2">
+                <input type="${inputType}" name="indiv_correctas" value="${count}" class="input-correcta-indiv" style="width: 16px; height: 16px; flex-shrink: 0;" onchange="actualizarBadgesIndiv()">
+                <input type="text" name="indiv_opt${count}" class="wf-input input-texto-indiv" style="flex: 1;" placeholder="Nueva Opción ${count}" required>
+              </div>
+              <div class="d-flex align-items-center gap-2">
+                <span class="badge badge-estado-opcion bg-light text-muted border px-2 py-1">Incorrecta</span>
+                <button type="button" class="btn btn-sm btn-borrar-opcion p-1 py-0" onclick="borrarOpcionIndiv(this)"><i class="fa-solid fa-xmark"></i></button>
+              </div>
+            `;
+            lista.appendChild(div);
+        }
+
+        function borrarOpcionIndiv(btn) {
+            const lista = document.getElementById('listaOpcionesIndiv');
+            if (lista.querySelectorAll('.fila-opcion').length <= 2) {
+                alert('Debe conservar al menos 2 opciones.');
+                return;
+            }
+            btn.closest('.fila-opcion').remove();
+            actualizarBadgesIndiv();
+        }
+
+        function actualizarBadgesIndiv() {
+            const filas = document.querySelectorAll('#listaOpcionesIndiv .fila-opcion');
+            filas.forEach(f => {
+                const inp = f.querySelector('.input-correcta-indiv');
+                const badge = f.querySelector('.badge-estado-opcion');
+                if (inp && inp.checked) {
+                    f.classList.add('opcion-seleccionada', 'bg-light');
+                    f.style.setProperty('border-left', '5px solid #16A34A', 'important');
+                    if (badge) {
+                        badge.className = 'badge badge-estado-opcion bg-success text-white px-2 py-1';
+                        badge.innerHTML = '<i class="fa-solid fa-check me-1"></i> Opción Correcta';
+                    }
+                } else {
+                    f.classList.remove('opcion-seleccionada', 'bg-light');
+                    f.style.removeProperty('border-left');
+                    if (badge) {
+                        badge.className = 'badge badge-estado-opcion bg-light text-muted border px-2 py-1';
+                        badge.textContent = 'Incorrecta';
+                    }
+                }
+            });
+        }
+
+        function actualizarBadgesIndivVF(radio) {
+            actualizarBadgesVF(radio);
+        }
+
+        function borrarFilaOpcionGenerica(btn, containerId) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            if (container.querySelectorAll('.fila-opcion').length <= 2) {
+                alert('Debe conservar al menos 2 opciones.');
+                return;
+            }
+            btn.closest('.fila-opcion').remove();
+        }
+
+        function actualizarBadgesPreguntaEditNueva() {
+            const filas = document.querySelectorAll('#listaOpcionesEdit .fila-opcion');
+            filas.forEach(f => {
+                const inp = f.querySelector('.input-correcta');
+                const badge = f.querySelector('.badge-estado-opcion');
+                if (inp && inp.checked) {
+                    f.classList.add('opcion-seleccionada', 'bg-light');
+                    f.style.setProperty('border-left', '5px solid #16A34A', 'important');
+                    if (badge) {
+                        badge.className = 'badge badge-estado-opcion bg-success text-white px-2 py-1';
+                        badge.innerHTML = '<i class="fa-solid fa-check me-1"></i> Opción Correcta';
+                    }
+                } else {
+                    f.classList.remove('opcion-seleccionada', 'bg-light');
+                    f.style.removeProperty('border-left');
+                    if (badge) {
+                        badge.className = 'badge badge-estado-opcion bg-light text-muted border px-2 py-1';
+                        badge.textContent = 'Incorrecta';
+                    }
+                }
+            });
+        }
+
+        // Función Ajax para eliminar pregunta reactivamente
+        function eliminarPreguntaPool(preguntaId) {
+            if (!confirm('¿Confirma que desea eliminar esta pregunta del pool de evaluación?')) return;
+            fetch('/evaluaciones/pools/pregunta/' + preguntaId + '/eliminar', { method: 'POST' })
+                .then(r => r.json())
+                .then(res => {
+                    if (res.success) {
+                        const card = document.getElementById('preg-card-' + preguntaId);
+                        if (card) {
+                            card.style.transition = 'all 0.3s ease';
+                            card.style.opacity = '0';
+                            card.style.transform = 'translateY(-10px)';
+                            setTimeout(() => {
+                                card.remove();
+                                cargarPreguntasPoolEdicion(poolIdActualEnEdicion);
+                            }, 300);
+                        }
+                    } else {
+                        alert(res.error || 'Error al eliminar la pregunta');
+                    }
+                })
+                .catch(e => alert('Error de conexión con el servidor'));
+        }
     </script>
 </body>
 </html>

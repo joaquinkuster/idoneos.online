@@ -12,140 +12,375 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;800&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     
     <!-- Estilos del Sistema Centralizados -->
     <link rel="stylesheet" th:href="@{/css/styles.css}">
 </head>
-<body class="wf-canvas-bg">
+<body style="background: #111827; margin: 0; padding: 0; overflow: hidden;">
 
-    <div class="cu-page-container">
-        <!-- Pantalla / Screen Frame Oficial -->
-        <div class="screen-frame">
-
-                <!-- Top Navbar Oficial Dinámica -->
-                <div th:replace="~{fragments/wf_navbar :: wf-top-navbar}"></div>
-
-                <!-- Hero Banner Contextual Superior (Navy) -->
-                <div class="wf-hero-banner">
-                    <div>
-                        <div class="wf-hero-tag">
-                            <i class="fa-solid fa-graduation-cap" style="color: var(--wf-gold);"></i>
-                            <span>CUERPO DOCENTE • IDÓNEOS ONLINE</span>
-                        </div>
-                        <h2 class="wf-hero-title">Iniciar clase en vivo</h2>
-                        <p class="wf-hero-desc">Bienvenido/a, Mg. Elena Valenzuela</p>
-                    </div>
-                    
-                    <div class="d-flex align-items-center gap-2">
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    </div>
-</div>
-
-                <div class="wf-body">
-                    <div class="wf-main-content">
-                        
-      <div class="wf-card" style="max-width: 1050px; margin: 0 auto; background: #0F172A; color: #FFFFFF; border-color: #1E293B;">
-        <div class="d-flex justify-content-between align-items-center pb-3 mb-3 border-bottom border-secondary">
-          <div class="d-flex align-items-center gap-3">
-            <span class="wf-badge" style="background: #DC2626; color: white; animation: pulse 2s infinite;">● EN VIVO</span>
-            <div>
-              <h3 style="font-size: 16px; font-weight: 700; color: #FFFFFF; margin: 0;">Clase Magistral: Resolución de Prácticos de Renta Fija</h3>
-              <p class="small text-muted" style="margin: 0; color: #94A3B8;">Docente: Mg. Elena Valenzuela | Alumnos Conectados: 48</p>
+    <!-- Sala Meet Immersiva Fullscreen -->
+    <div class="wf-meet-room" id="meetRoomContainer">
+        
+        <!-- Meet Topbar -->
+        <div class="wf-meet-topbar">
+            <div class="d-flex align-items-center gap-3">
+                <a th:href="@{/clases-vivo}" class="text-secondary text-decoration-none d-flex align-items-center gap-2" title="Volver al panel">
+                    <img th:src="@{/img/logos/image.png}" src="/img/logos/image.png" alt="Idóneos Online Logo" style="height: 28px; width: auto;">
+                    <span class="d-none d-md-inline fw-bold text-white" style="font-size: 14px;">Idóneos <span style="color: var(--wf-gold);">Online</span></span>
+                </a>
+                <div class="vr bg-secondary d-none d-md-block" style="height: 20px;"></div>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="live-radar-ping"></span>
+                    <span class="badge bg-danger text-white fw-bold px-2 py-1" style="font-size: 11px;">EMITIENDO</span>
+                    <span class="fw-bold text-white text-truncate" style="max-width: 450px; font-size: 13.5px;" th:text="${clase != null ? clase.titulo : 'Clase Magistral'}">Resolución de Prácticos de Renta Fija</span>
+                </div>
             </div>
-          </div>
-          <div class="d-flex align-items-center gap-3">
-            
-              <div class="d-flex align-items-center gap-2">
-                <button class="wf-btn wf-btn-sm wf-btn-primary d-flex align-items-center gap-2" style="background: #2563EB; font-weight: 700;">
-                  <i class="fa-solid fa-key text-warning"></i>
-                  <span>Copiar clave para transmitir en vivo por OBS</span>
-                  <i class="fa-solid fa-copy ms-1"></i>
+
+            <div class="d-flex align-items-center gap-2">
+                <button type="button" class="btn btn-sm btn-outline-light d-flex align-items-center gap-2 px-3 py-1 rounded-pill"
+                        th:data-streamkey="${clase != null ? clase.claveStream : 'live_key_stream_8819'}"
+                        onclick="navigator.clipboard.writeText(this.getAttribute('data-streamkey')); alert('¡Clave RTMP/OBS copiada con éxito!');"
+                        style="font-size: 12px; border-color: rgba(255,255,255,0.2);">
+                    <i class="fa-solid fa-key text-warning"></i>
+                    <span class="d-none d-sm-inline">Copiar Clave OBS</span>
                 </button>
+                <div class="text-muted small d-none d-lg-block ms-2" id="meetLiveClock">13:30</div>
+            </div>
+        </div>
+
+        <!-- Meet Workspace (Video Stage + Right Sidebar) -->
+        <div class="wf-meet-workspace">
+            
+            <!-- Video Stage Area -->
+            <div class="wf-meet-stage">
+                <div class="wf-meet-video-screen">
+                    <div class="text-center p-4">
+                        <div style="width: 88px; height: 88px; border-radius: 50%; background: rgba(30, 41, 59, 0.9); border: 2px solid rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; box-shadow: 0 0 40px rgba(56, 189, 248, 0.25);">
+                            <i class="fa-solid fa-tower-broadcast text-info fa-2x"></i>
+                        </div>
+                        <h4 class="text-white fw-bold mb-2" style="font-size: 19px;" th:text="${clase != null ? clase.titulo : 'Transmisión Sincrónica'}">Clase Magistral: Renta Fija</h4>
+                        <p class="text-muted small mb-0">Emisión en Directo • 1080p a 60 FPS • Latencia: 380 ms</p>
+                    </div>
+
+                    <!-- Miniatura PiP del Docente (Estilo Google Meet) -->
+                    <div class="wf-meet-pip-overlay">
+                        <div class="w-100 h-100 d-flex flex-column align-items-center justify-content-center bg-dark position-relative">
+                            <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold" style="width: 42px; height: 42px; font-size: 15px;">
+                                EV
+                            </div>
+                            <div class="position-absolute bottom-0 start-0 end-0 p-1 px-2 text-truncate text-white" style="font-size: 10.5px; background: rgba(0,0,0,0.7);">
+                                <i class="fa-solid fa-microphone text-success me-1"></i> Elena Valenzuela (Tú)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Meet Right Sidebar (Personas & Chat) -->
+            <div class="wf-meet-sidebar" id="meetSidebar">
                 
-              </div>
-            
-            
-            
-          </div>
-        </div>
-
-        <div class="row g-3">
-          <div class="col-md-8">
-            <div style="height: 380px; background: #020617; border-radius: 8px; display: flex; align-items: center; justify-content: center; position: relative; border: 1px solid #334155;">
-              <div class="text-center text-muted">
-                <div style="width: 64px; height: 64px; border-radius: 50%; background: #1E293B; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center;">
-                  <i class="fa-solid fa-tower-broadcast w-8 h-8 text-white"></i>
+                <!-- Sidebar Header & Tabs -->
+                <div class="wf-meet-sidebar-header">
+                    <div class="wf-meet-tab-pills">
+                        <button type="button" class="wf-meet-tab-btn active" id="tabPeopleBtn" onclick="switchMeetTab('people')">
+                            <i class="fa-solid fa-user-group me-1"></i> Personas (<span id="peopleCount">48</span>)
+                        </button>
+                        <button type="button" class="wf-meet-tab-btn" id="tabChatBtn" onclick="switchMeetTab('chat')">
+                            <i class="fa-solid fa-comments me-1"></i> Chat
+                        </button>
+                    </div>
+                    <button type="button" class="btn btn-sm text-secondary" onclick="toggleMeetSidebar()" title="Cerrar panel">
+                        <i class="fa-solid fa-xmark fa-lg"></i>
+                    </button>
                 </div>
-                <div class="small fw-bold text-light">Transmisión RTMP / WebRTC en Directo (1080p 60fps)</div>
-                <div style="font-size: 11px; color: #64748B;">Latencia ultra-baja: 420 ms</div>
-              </div>
-              <div style="position: absolute; bottom: 12px; left: 12px; display: flex; gap: 8px;">
-                <span class="badge bg-dark border border-secondary text-light">Micro: ON</span>
-                <span class="badge bg-dark border border-secondary text-light">Cámara: ON</span>
-                <span class="badge bg-dark border border-secondary text-light">Grabando automático</span>
-              </div>
+
+                <!-- Tab 1: Personas Conectadas -->
+                <div class="wf-meet-participant-list" id="tabPeopleView">
+                    
+                    <!-- Docente -->
+                    <div class="wf-meet-participant-item" style="border-left: 3px solid var(--wf-gold);">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="wf-meet-participant-avatar" style="background: var(--wf-gold); color: #081426;">EV</div>
+                            <div>
+                                <div class="text-white fw-bold" style="font-size: 12.5px;" th:text="${clase != null and clase.docente != null and clase.docente.usuario != null ? clase.docente.usuario.nombreCompleto : 'Elena Valenzuela'}">Elena Valenzuela</div>
+                                <div class="badge px-1 py-0" style="background: rgba(212, 160, 61, 0.2); color: var(--wf-gold); font-size: 10px;">Docente / Anfitrión</div>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center gap-2 text-secondary">
+                            <i class="fa-solid fa-microphone text-success"></i>
+                            <i class="fa-solid fa-video text-success"></i>
+                            <i class="fa-solid fa-thumbtack text-warning"></i>
+                        </div>
+                    </div>
+
+                    <!-- Alumnos Conectados -->
+                    <div class="wf-meet-participant-item">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="wf-meet-participant-avatar" style="background: #2563EB;">JK</div>
+                            <div>
+                                <div class="text-white fw-bold" style="font-size: 12.5px;">Joaquín Küster</div>
+                                <div class="text-muted" style="font-size: 10.5px;">Alumno • En línea</div>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center gap-2 text-secondary">
+                            <i class="fa-solid fa-microphone-slash text-danger"></i>
+                            <i class="fa-solid fa-hand text-warning"></i>
+                        </div>
+                    </div>
+
+                    <div class="wf-meet-participant-item">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="wf-meet-participant-avatar" style="background: #10B981;">MB</div>
+                            <div>
+                                <div class="text-white fw-bold" style="font-size: 12.5px;">María Benítez</div>
+                                <div class="text-muted" style="font-size: 10.5px;">Alumno • En línea</div>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center gap-2 text-secondary">
+                            <i class="fa-solid fa-microphone-slash text-danger"></i>
+                        </div>
+                    </div>
+
+                    <div class="wf-meet-participant-item">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="wf-meet-participant-avatar" style="background: #8B5CF6;">LR</div>
+                            <div>
+                                <div class="text-white fw-bold" style="font-size: 12.5px;">Lucas Rodríguez</div>
+                                <div class="text-muted" style="font-size: 10.5px;">Alumno • En línea</div>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center gap-2 text-secondary">
+                            <i class="fa-solid fa-microphone-slash text-danger"></i>
+                        </div>
+                    </div>
+
+                    <div class="wf-meet-participant-item">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="wf-meet-participant-avatar" style="background: #EC4899;">SO</div>
+                            <div>
+                                <div class="text-white fw-bold" style="font-size: 12.5px;">Sofía Ortiz</div>
+                                <div class="text-muted" style="font-size: 10.5px;">Alumno • En línea</div>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center gap-2 text-secondary">
+                            <i class="fa-solid fa-microphone-slash text-danger"></i>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Tab 2: Chat en Vivo -->
+                <div class="wf-meet-chat-view" id="tabChatView" style="display: none;">
+                    <div class="wf-meet-chat-history" id="meetChatHistory">
+                        <div class="wf-chat-msg">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <strong class="text-info">Joaquín Küster</strong>
+                                <span class="text-muted" style="font-size: 10px;">19:04</span>
+                            </div>
+                            <div>¿La modified duration considera cupones devengados en el precio dirty?</div>
+                        </div>
+
+                        <div class="wf-chat-msg msg-docente">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <strong style="color: var(--wf-gold);"><i class="fa-solid fa-chalkboard-user me-1"></i> Elena Valenzuela (Tú)</strong>
+                                <span class="text-muted" style="font-size: 10px;">19:05</span>
+                            </div>
+                            <div>Exacto Joaquín, se computa sobre el precio sucio ya que incluye el cupón corrido.</div>
+                        </div>
+
+                        <div class="wf-chat-msg">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <strong class="text-info">María Benítez</strong>
+                                <span class="text-muted" style="font-size: 10px;">19:06</span>
+                            </div>
+                            <div>¡Muchas gracias por la aclaración profe!</div>
+                        </div>
+                    </div>
+
+                    <div class="wf-meet-chat-input-wrapper">
+                        <div class="input-group">
+                            <input type="text" id="meetChatInput" class="form-control" placeholder="Escribir mensaje a todos..." 
+                                   style="background: #1E293B; border-color: #334155; color: #FFFFFF; font-size: 13px; border-radius: 20px 0 0 20px;">
+                            <button class="btn btn-primary" type="button" onclick="sendMeetChatMessage(true)" style="background: #2563EB; font-weight: 700; border-radius: 0 20px 20px 0;">
+                                <i class="fa-solid fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
             </div>
-          </div>
 
-          <div class="col-md-4">
-            <div style="height: 380px; background: #1E293B; border-radius: 8px; display: flex; flex-direction: column; border: 1px solid #334155;">
-              <div class="p-3 border-bottom border-secondary small fw-bold text-light d-flex justify-content-between">
-                <span>Chat en Vivo</span>
-                <span class="text-muted">48 participantes</span>
-              </div>
-              <div class="p-3 flex-1 overflow-y-auto small" style="font-size: 12px; display: flex; flex-direction: column; gap: 8px; color: #CBD5E1;">
-                <div><strong class="text-info">Joaquín Küster:</strong> ¿La modified duration incluye cupones corridos?</div>
-                <div><strong class="text-warning">Docente:</strong> Sí Joaquín, se calcula sobre el precio dirty.</div>
-                <div><strong class="text-info">María Benítez:</strong> ¡Excelente explicación profe!</div>
-              </div>
-              <div class="p-2 border-top border-secondary">
-                <input type="text" class="wf-input" placeholder="Escribir mensaje en el chat..." style="background: #0F172A; border-color: #475569; color: white;">
-              </div>
-            </div>
-          </div>
         </div>
-      </div>
-    
-                    </div>
-                </div>
 
-                <!-- Footer Oficial -->
-                <div class="wf-screen-footer">
-                    <div>
-                        <strong>Idóneos <span>Online</span> S.A.S.</strong> • Plataforma de Educación Financiera, Economía & Mercado de Capitales
-                    </div>
-                    <div>
-                        FCEQyN — UNaM • Proyecto Software (LSI) / Trabajo Final (ASI)
-                    </div>
-                </div>
+        <!-- Meet Bottom Bar (Google Meet Controls) -->
+        <div class="wf-meet-bottombar">
             
+            <!-- Left Info (Hora y Nombre) -->
+            <div class="d-flex align-items-center gap-3 text-secondary d-none d-md-flex" style="font-size: 13px;">
+                <span class="text-white fw-bold" id="meetBottomTime">13:30</span>
+                <span>|</span>
+                <span class="text-light text-truncate" style="max-width: 250px;" th:text="${clase != null ? clase.titulo : 'Clase en Vivo'}">Resolución de Prácticos</span>
+            </div>
+
+            <!-- Center Buttons Toolbar -->
+            <div class="wf-meet-controls-center">
+                <!-- Toggle Mic -->
+                <button type="button" class="wf-meet-btn" id="btnToggleMic" onclick="toggleMediaButton(this, 'fa-microphone', 'fa-microphone-slash')" title="Silenciar / Activar micrófono">
+                    <i class="fa-solid fa-microphone"></i>
+                </button>
+
+                <!-- Toggle Cam -->
+                <button type="button" class="wf-meet-btn" id="btnToggleCam" onclick="toggleMediaButton(this, 'fa-video', 'fa-video-slash')" title="Activar / Desactivar cámara">
+                    <i class="fa-solid fa-video"></i>
+                </button>
+
+                <!-- Compartir Pantalla -->
+                <button type="button" class="wf-meet-btn" onclick="this.classList.toggle('btn-active'); alert('Compartiendo pantalla simulado');" title="Compartir pantalla">
+                    <i class="fa-solid fa-arrow-up-from-bracket"></i>
+                </button>
+
+                <!-- Levantar Mano -->
+                <button type="button" class="wf-meet-btn" onclick="this.classList.toggle('btn-active');" title="Levantar la mano">
+                    <i class="fa-solid fa-hand"></i>
+                </button>
+
+                <!-- Pantalla Completa (Fullscreen Toggle) -->
+                <button type="button" class="wf-meet-btn" onclick="toggleFullScreenMode()" title="Pantalla completa">
+                    <i class="fa-solid fa-expand" id="fullscreenIcon"></i>
+                </button>
+
+                <!-- Finalizar / Salir de la Clase -->
+                <form th:if="${clase != null}" th:action="@{/clases-vivo/{id}/finalizar(id=${clase.idClaseEnVivo})}" method="post" style="display: inline;" onsubmit="return confirm('¿Desea concluir la transmisión y cerrar la sala?');">
+                    <button type="submit" class="wf-meet-btn btn-danger-leave" title="Finalizar llamada">
+                        <i class="fa-solid fa-phone-slash"></i>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Right Controls (Personas, Chat, Info) -->
+            <div class="d-flex align-items-center gap-2">
+                <button type="button" class="wf-meet-btn" onclick="openSidebarTab('people')" title="Ver participantes">
+                    <i class="fa-solid fa-user-group"></i>
+                </button>
+                <button type="button" class="wf-meet-btn" onclick="openSidebarTab('chat')" title="Abrir chat">
+                    <i class="fa-solid fa-comment-dots"></i>
+                </button>
+            </div>
+
         </div>
+
     </div>
 
     <!-- Bootstrap Bundle JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    
     <script>
-        function toggleUserDropdown(triggerEl) {
-            const wrapper = triggerEl.closest('.wf-user-menu-wrapper');
-            if (wrapper) {
-                const dropdown = wrapper.querySelector('.wf-user-floating-dropdown');
-                if (dropdown) {
-                    dropdown.style.display = (dropdown.style.display === 'none' || dropdown.style.display === '') ? 'flex' : 'none';
+        function updateMeetTime() {
+            const now = new Date();
+            const h = String(now.getHours()).padStart(2, '0');
+            const m = String(now.getMinutes()).padStart(2, '0');
+            const str = `${h}:${m}`;
+            const topEl = document.getElementById('meetLiveClock');
+            const btmEl = document.getElementById('meetBottomTime');
+            if (topEl) topEl.innerText = str;
+            if (btmEl) btmEl.innerText = str;
+        }
+        setInterval(updateMeetTime, 1000);
+        updateMeetTime();
+
+        function switchMeetTab(tab) {
+            const tabPeopleBtn = document.getElementById('tabPeopleBtn');
+            const tabChatBtn = document.getElementById('tabChatBtn');
+            const tabPeopleView = document.getElementById('tabPeopleView');
+            const tabChatView = document.getElementById('tabChatView');
+
+            if (tab === 'people') {
+                tabPeopleBtn.classList.add('active');
+                tabChatBtn.classList.remove('active');
+                tabPeopleView.style.display = 'flex';
+                tabChatView.style.display = 'none';
+            } else {
+                tabChatBtn.classList.add('active');
+                tabPeopleBtn.classList.remove('active');
+                tabChatView.style.display = 'flex';
+                tabPeopleView.style.display = 'none';
+            }
+        }
+
+        function toggleMeetSidebar() {
+            const sidebar = document.getElementById('meetSidebar');
+            sidebar.classList.toggle('sidebar-collapsed');
+        }
+
+        function openSidebarTab(tab) {
+            const sidebar = document.getElementById('meetSidebar');
+            if (sidebar.classList.contains('sidebar-collapsed')) {
+                sidebar.classList.remove('sidebar-collapsed');
+            }
+            switchMeetTab(tab);
+        }
+
+        function toggleMediaButton(btn, iconOn, iconOff) {
+            const icon = btn.querySelector('i');
+            if (icon.classList.contains(iconOn)) {
+                icon.classList.remove(iconOn);
+                icon.classList.add(iconOff);
+                btn.classList.add('btn-toggle-off');
+            } else {
+                icon.classList.remove(iconOff);
+                icon.classList.add(iconOn);
+                btn.classList.remove('btn-toggle-off');
+            }
+        }
+
+        function toggleFullScreenMode() {
+            const icon = document.getElementById('fullscreenIcon');
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => console.log(err));
+                if (icon) {
+                    icon.classList.remove('fa-expand');
+                    icon.classList.add('fa-compress');
+                }
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+                if (icon) {
+                    icon.classList.remove('fa-compress');
+                    icon.classList.add('fa-expand');
                 }
             }
         }
+
+        function sendMeetChatMessage(isDocente) {
+            const input = document.getElementById('meetChatInput');
+            const history = document.getElementById('meetChatHistory');
+            if (input && input.value.trim() !== '' && history) {
+                const now = new Date();
+                const hora = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+                const div = document.createElement('div');
+                div.className = isDocente ? 'wf-chat-msg msg-docente' : 'wf-chat-msg';
+                div.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <strong style="color: ${isDocente ? 'var(--wf-gold)' : '#38BDF8'};">
+                            <i class="fa-solid ${isDocente ? 'fa-chalkboard-user' : 'fa-user-graduate'} me-1"></i> ${isDocente ? 'Elena Valenzuela (Tú)' : 'Mi Pregunta'}
+                        </strong>
+                        <span class="text-muted" style="font-size: 10px;">${hora}</span>
+                    </div>
+                    <div>${input.value.trim()}</div>
+                `;
+                history.appendChild(div);
+                history.scrollTop = history.scrollHeight;
+                input.value = '';
+            }
+        }
+
+        document.getElementById('meetChatInput')?.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMeetChatMessage(true);
+            }
+        });
     </script>
 
     <!-- DSS & Case of Use Console Logger -->

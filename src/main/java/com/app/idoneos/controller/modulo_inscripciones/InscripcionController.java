@@ -148,22 +148,54 @@ public class InscripcionController {
     }
 
     @GetMapping("/progreso")
-    public String buscarProgreso(Model model, Authentication auth) {
+    public String buscarProgreso(@RequestParam(value = "cohorteId", required = false) Integer cohorteId,
+                                 @RequestParam(value = "busqueda", required = false) String busqueda,
+                                 Model model, Authentication auth) {
         agregarUsuarioAlModelo(model, auth);
-        if (auth != null && auth.getPrincipal() instanceof Usuario) {
-            Usuario u = (Usuario) auth.getPrincipal();
-            List<Inscripcion> inscripciones = inscripcionService.obtenerPorAlumno(u);
-            model.addAttribute("inscripciones", inscripciones);
+        List<Cohorte> cohortes = cohorteRepository.findAll();
+        model.addAttribute("cohortes", cohortes);
+        model.addAttribute("cohorteId", cohorteId);
+        model.addAttribute("busqueda", busqueda);
 
-            Map<Integer, Integer> porcentajes = new HashMap<>();
-            Map<Integer, Boolean> atrasos = new HashMap<>();
-            for (Inscripcion i : inscripciones) {
-                porcentajes.put(i.getId(), progresoService.calcularPorcentajeAvance(i));
-                atrasos.put(i.getId(), progresoService.detectarAtraso(i));
+        List<Inscripcion> inscripciones;
+        Usuario u = (auth != null && auth.getPrincipal() instanceof Usuario) ? (Usuario) auth.getPrincipal() : null;
+
+        if (u != null && (u.esAdmin() || u.esDocente())) {
+            if (cohorteId != null) {
+                Cohorte cohorte = cohorteRepository.findById(cohorteId).orElse(null);
+                inscripciones = (cohorte != null) ? inscripcionService.obtenerPorCohorte(cohorte) : inscripcionService.obtenerTodo();
+            } else {
+                inscripciones = inscripcionService.obtenerTodo();
             }
-            model.addAttribute("porcentajes", porcentajes);
-            model.addAttribute("atrasos", atrasos);
+            if (busqueda != null && !busqueda.isBlank()) {
+                String term = busqueda.toLowerCase().trim();
+                inscripciones = inscripciones.stream().filter(i -> {
+                    String nom = (i.getAlumno() != null && i.getAlumno().getUsuario() != null) ? i.getAlumno().getUsuario().getNombreCompleto().toLowerCase() : "";
+                    String dni = (i.getAlumno() != null && i.getAlumno().getUsuario() != null && i.getAlumno().getUsuario().getDni() != null) ? i.getAlumno().getUsuario().getDni() : "";
+                    return nom.contains(term) || dni.contains(term);
+                }).toList();
+            }
+        } else if (u != null) {
+            inscripciones = inscripcionService.obtenerPorAlumno(u);
+        } else {
+            inscripciones = Collections.emptyList();
         }
+
+        model.addAttribute("inscripciones", inscripciones);
+
+        Map<Integer, Integer> porcentajes = new HashMap<>();
+        Map<Integer, Boolean> atrasos = new HashMap<>();
+        Map<Integer, List<Progreso>> detalleProgresos = new HashMap<>();
+
+        for (Inscripcion i : inscripciones) {
+            porcentajes.put(i.getId(), progresoService.calcularPorcentajeAvance(i));
+            atrasos.put(i.getId(), progresoService.detectarAtraso(i));
+            detalleProgresos.put(i.getId(), progresoService.obtenerPorInscripcion(i));
+        }
+
+        model.addAttribute("porcentajes", porcentajes);
+        model.addAttribute("atrasos", atrasos);
+        model.addAttribute("detalleProgresos", detalleProgresos);
         model.addAttribute("titulo", "CU-48 - Buscar progreso | Idóneos Online");
         return "pages/inscripciones/cu-48-buscar-progreso";
     }

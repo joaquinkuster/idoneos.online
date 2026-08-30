@@ -78,11 +78,14 @@ public class EvaluacionController {
     @GetMapping("/pools")
     public String buscarPools(@RequestParam(value = "cursoId", required = false) Integer cursoId,
                               @RequestParam(value = "unidadId", required = false) Integer unidadId,
+                              @RequestParam(value = "q", required = false) String query,
+                              @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+                              @RequestParam(value = "size", required = false, defaultValue = "10") int size,
                               Model model, Authentication auth) {
         agregarUsuarioAlModelo(model, auth);
         Curso curso = (cursoId != null) ? cursoService.buscarPorId(cursoId).orElse(null) : null;
         List<Unidad> unidades = (curso != null) ? unidadService.obtenerPorCurso(curso) : unidadService.obtenerTodo();
-        Unidad unidad = (unidadId != null) ? unidadService.buscarPorId(unidadId).orElse(null) : (unidades.isEmpty() ? null : unidades.get(0));
+        Unidad unidad = (unidadId != null) ? unidadService.buscarPorId(unidadId).orElse(null) : null;
 
         if (curso == null && unidad != null && unidad.getCurso() != null) {
             curso = unidad.getCurso();
@@ -93,81 +96,303 @@ public class EvaluacionController {
         }
 
         final Curso cursoFinal = curso;
-        Pool pool = (unidad != null) ? evaluacionService.buscarPoolPorUnidad(unidad).orElse(null) : null;
+        List<Pool> todosPools = poolRepository.findAll().stream()
+                .filter(p -> !p.isBaja())
+                .filter(p -> unidadId == null || (p.getUnidad() != null && Objects.equals(p.getUnidad().getId(), unidadId)))
+                .filter(p -> {
+                    if (cursoId == null) return true;
+                    if (p.getUnidad() == null) return true;
+                    return p.getUnidad().getCurso() != null && Objects.equals(p.getUnidad().getCurso().getId(), cursoId);
+                })
+                .filter(p -> query == null || query.isBlank() || p.getNombre().toLowerCase().contains(query.toLowerCase()))
+                .toList();
+
+        // Si el filtro por curso puntual no tiene pools creados en esa unidad pero hay pools en el sistema, mostrar pools vigentes para que la tabla nunca aparezca vacía sin razón
+        if (todosPools.isEmpty() && (query == null || query.isBlank()) && unidadId == null) {
+            todosPools = poolRepository.findAll().stream().filter(p -> !p.isBaja()).toList();
+        }
+
+        // Paginación
+        int totalElements = todosPools.size();
+        int totalPages = Math.max(1, (int) Math.ceil((double) totalElements / size));
+        if (page < 1) page = 1;
+        if (page > totalPages) page = totalPages;
+
+        int fromIndex = (page - 1) * size;
+        int toIndex = Math.min(fromIndex + size, totalElements);
+        List<Pool> poolsPaginados = (fromIndex < totalElements) ? todosPools.subList(fromIndex, toIndex) : Collections.emptyList();
+
         model.addAttribute("curso", cursoFinal);
         model.addAttribute("cursoSeleccionado", cursoFinal);
         model.addAttribute("unidades", unidades);
+        model.addAttribute("todasLasUnidades", unidadService.obtenerTodo().stream().filter(u -> !u.isBaja()).toList());
         model.addAttribute("unidadSeleccionada", unidad);
-        model.addAttribute("pool", pool);
-        model.addAttribute("pools", (cursoFinal != null) ? poolRepository.findAll().stream().filter(p -> p.getUnidad() != null && unidades.contains(p.getUnidad())).toList() : poolRepository.findAll());
+        model.addAttribute("pool", (poolsPaginados.isEmpty() ? null : poolsPaginados.get(0)));
+        model.addAttribute("pools", poolsPaginados);
+        model.addAttribute("query", query);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", totalPages);
+        model.addAttribute("totalElements", totalElements);
+        model.addAttribute("size", size);
+        model.addAttribute("fromIndex", (totalElements > 0 ? fromIndex + 1 : 0));
+        model.addAttribute("toIndex", toIndex);
         model.addAttribute("titulo", "CU-53 - Buscar pool | Idóneos Online");
         return "pages/evaluaciones/cu-53-buscar-pool";
-    }
-
-    @GetMapping("/pools/nuevo")
-    public String crearPoolForm(@RequestParam(value = "unidadId", required = false) Integer unidadId,
-                                Model model, Authentication auth) {
-        agregarUsuarioAlModelo(model, auth);
-        model.addAttribute("unidades", unidadService.obtenerTodo());
-        model.addAttribute("unidadId", unidadId);
-        model.addAttribute("titulo", "CU-54 - Crear pool | Idóneos Online");
-        return "pages/evaluaciones/cu-54-crear-pool";
     }
 
     @PostMapping("/pools/guardar")
     public String guardarPool(@RequestParam Integer unidadId,
                               @RequestParam String nombre,
+                              @RequestParam(required = false) String descripcion,
+                              jakarta.servlet.http.HttpServletRequest request,
                               RedirectAttributes ra) {
         try {
             Unidad unidad = unidadService.buscarPorId(unidadId).orElseThrow(() -> new IllegalArgumentException("Unidad no encontrada"));
-            if (evaluacionService.buscarPoolPorUnidad(unidad).isPresent()) {
-                ra.addFlashAttribute("error", "Esta unidad ya cuenta con un pool de preguntas registrado.");
-                return "redirect:/evaluaciones/pools?unidadId=" + unidadId;
-            }
             Pool pool = new Pool(nombre, unidad);
-            poolRepository.save(pool);
-            ra.addFlashAttribute("mensaje", "Pool creado exitosamente.");
+            pool = poolRepository.save(pool);
+
+            // Procesar preguntas dinámicas p1, p2, p3... pn
+            java.util.Enumeration<String> paramNames = request.getParameterNames();
+            java.util.Set<String> preguntaPrefixes = new java.util.TreeSet<>();
+            
+            while (paramNames.hasMoreElements()) {
+                String p = paramNames.nextElement();
+                if (p.endsWith("_texto")) {
+                    preguntaPrefixes.add(p.substring(0, p.indexOf("_texto")));
+                }
+            }
+
+            for (String prefix : preguntaPrefixes) {
+                String texto = request.getParameter(prefix + "_texto");
+                String tipo = request.getParameter(prefix + "_tipo");
+                if (texto != null && !texto.isBlank()) {
+                    boolean esMultiple = !"vf".equalsIgnoreCase(tipo);
+                    Pregunta pregunta = new Pregunta(texto, esMultiple, pool);
+                    pregunta = preguntaRepository.save(pregunta);
+
+                    if (!esMultiple) {
+                        // Pregunta Verdadero / Falso
+                        String vfOpt = request.getParameter(prefix + "_opt");
+                        boolean esVerdaderoCorrecto = "true".equalsIgnoreCase(vfOpt) || "1".equals(vfOpt);
+                        opcionRespuestaRepository.save(new OpcionRespuesta("Verdadero", esVerdaderoCorrecto, pregunta));
+                        opcionRespuestaRepository.save(new OpcionRespuesta("Falso", !esVerdaderoCorrecto, pregunta));
+                    } else {
+                        // Pregunta Opción Múltiple (1 o varias opciones correctas)
+                        String[] correctas = request.getParameterValues(prefix + "_correctas");
+                        if (correctas == null || correctas.length == 0) {
+                            String cSingle = request.getParameter(prefix + "_correcta");
+                            if (cSingle != null) correctas = new String[]{cSingle};
+                            else correctas = new String[]{"1"};
+                        }
+                        java.util.Set<String> setCorrectas = new java.util.HashSet<>(java.util.Arrays.asList(correctas));
+
+                        // Buscar todas las opciones enviadas para esta pregunta: prefix_opt1, prefix_opt2...
+                        int optIdx = 1;
+                        while (true) {
+                            String optTexto = request.getParameter(prefix + "_opt" + optIdx);
+                            if (optTexto == null) {
+                                if (optIdx > 20) break;
+                                optIdx++;
+                                continue;
+                            }
+                            if (!optTexto.isBlank()) {
+                                boolean esCorrecta = setCorrectas.contains(String.valueOf(optIdx));
+                                opcionRespuestaRepository.save(new OpcionRespuesta(optTexto, esCorrecta, pregunta));
+                            }
+                            optIdx++;
+                        }
+                    }
+                }
+            }
+
+            ra.addFlashAttribute("mensaje", "Pool '" + nombre + "' creado exitosamente con sus preguntas y opciones.");
             return "redirect:/evaluaciones/pools?unidadId=" + unidadId;
         } catch (Exception e) {
             ra.addFlashAttribute("error", e.getMessage());
-            return "redirect:/evaluaciones/pools/nuevo?unidadId=" + unidadId;
+            return "redirect:/evaluaciones/pools?unidadId=" + unidadId;
         }
     }
 
-    @GetMapping("/pools/{id}/editar")
-    public String modificarPoolForm(@PathVariable Integer id, Model model, Authentication auth) {
-        Optional<Pool> poolOpt = evaluacionService.buscarPoolPorId(id);
-        if (poolOpt.isEmpty()) return "redirect:/evaluaciones/pools";
+    @GetMapping("/pools/{id}/detalles")
+    @ResponseBody
+    public org.springframework.http.ResponseEntity<?> obtenerDetallesPool(@PathVariable Integer id) {
+        Optional<Pool> pOpt = evaluacionService.buscarPoolPorId(id);
+        if (pOpt.isEmpty()) return org.springframework.http.ResponseEntity.notFound().build();
 
-        agregarUsuarioAlModelo(model, auth);
-        model.addAttribute("pool", poolOpt.get());
-        model.addAttribute("titulo", "CU-55 - Modificar pool | Idóneos Online");
-        return "pages/evaluaciones/cu-55-modificar-pool";
+        Pool pool = pOpt.get();
+        List<Pregunta> preguntas = evaluacionService.preguntasPorPool(pool);
+        List<Map<String, Object>> listaPreguntas = new java.util.ArrayList<>();
+
+        for (Pregunta preg : preguntas) {
+            List<OpcionRespuesta> opciones = opcionRespuestaRepository.findByPreguntaAndBajaFalse(preg);
+            Map<String, Object> pregMap = new HashMap<>();
+            pregMap.put("id", preg.getId());
+            pregMap.put("texto", preg.getTexto());
+            pregMap.put("esOpcionMultiple", preg.isEsOpcionMultiple());
+
+            List<Map<String, Object>> opcionesList = new java.util.ArrayList<>();
+            for (OpcionRespuesta opt : opciones) {
+                Map<String, Object> optMap = new HashMap<>();
+                optMap.put("id", opt.getId());
+                optMap.put("texto", opt.getTexto());
+                optMap.put("esCorrecta", opt.isEsCorrecta());
+                opcionesList.add(optMap);
+            }
+            pregMap.put("opciones", opcionesList);
+            listaPreguntas.add(pregMap);
+        }
+
+        Map<String, Object> resp = new HashMap<>();
+        resp.put("id", pool.getId());
+        resp.put("nombre", pool.getNombre());
+        resp.put("unidad", (pool.getUnidad() != null ? pool.getUnidad().getTitulo() : "General"));
+        resp.put("preguntas", listaPreguntas);
+
+        return org.springframework.http.ResponseEntity.ok(resp);
     }
 
     @PostMapping("/pools/{id}/editar")
-    public String actualizarPool(@PathVariable Integer id, @RequestParam String nombre, RedirectAttributes ra) {
+    public String actualizarPool(@PathVariable Integer id,
+                                 @RequestParam String nombre,
+                                 jakarta.servlet.http.HttpServletRequest request,
+                                 RedirectAttributes ra) {
         try {
             Pool pool = evaluacionService.buscarPoolPorId(id).orElseThrow(() -> new IllegalArgumentException("Pool no encontrado"));
             pool.setNombre(nombre);
+            pool.setUltimaModificacion(LocalDateTime.now());
             evaluacionService.guardarPool(pool);
-            ra.addFlashAttribute("mensaje", "Pool modificado correctamente.");
-            return "redirect:/evaluaciones/pools?unidadId=" + pool.getUnidad().getId();
+
+            // Procesar nuevas preguntas añadidas en el formulario de edición
+            java.util.Enumeration<String> paramNames = request.getParameterNames();
+            java.util.Set<String> preguntaPrefixes = new java.util.TreeSet<>();
+            
+            while (paramNames.hasMoreElements()) {
+                String p = paramNames.nextElement();
+                if (p.endsWith("_texto")) {
+                    preguntaPrefixes.add(p.substring(0, p.indexOf("_texto")));
+                }
+            }
+
+            for (String prefix : preguntaPrefixes) {
+                String texto = request.getParameter(prefix + "_texto");
+                String tipo = request.getParameter(prefix + "_tipo");
+                if (texto != null && !texto.isBlank()) {
+                    boolean esMultiple = !"vf".equalsIgnoreCase(tipo);
+                    Pregunta pregunta = new Pregunta(texto, esMultiple, pool);
+                    pregunta = preguntaRepository.save(pregunta);
+
+                    if (!esMultiple) {
+                        String vfOpt = request.getParameter(prefix + "_opt");
+                        boolean esVerdaderoCorrecto = "true".equalsIgnoreCase(vfOpt) || "1".equals(vfOpt);
+                        opcionRespuestaRepository.save(new OpcionRespuesta("Verdadero", esVerdaderoCorrecto, pregunta));
+                        opcionRespuestaRepository.save(new OpcionRespuesta("Falso", !esVerdaderoCorrecto, pregunta));
+                    } else {
+                        String[] correctas = request.getParameterValues(prefix + "_correctas");
+                        if (correctas == null || correctas.length == 0) {
+                            String cSingle = request.getParameter(prefix + "_correcta");
+                            if (cSingle != null) correctas = new String[]{cSingle};
+                            else correctas = new String[]{"1"};
+                        }
+                        java.util.Set<String> setCorrectas = new java.util.HashSet<>(java.util.Arrays.asList(correctas));
+
+                        int optIdx = 1;
+                        while (true) {
+                            String optTexto = request.getParameter(prefix + "_opt" + optIdx);
+                            if (optTexto == null) {
+                                if (optIdx > 20) break;
+                                optIdx++;
+                                continue;
+                            }
+                            if (!optTexto.isBlank()) {
+                                boolean esCorrecta = setCorrectas.contains(String.valueOf(optIdx));
+                                opcionRespuestaRepository.save(new OpcionRespuesta(optTexto, esCorrecta, pregunta));
+                            }
+                            optIdx++;
+                        }
+                    }
+                }
+            }
+
+            ra.addFlashAttribute("mensaje", "Pool modificado y actualizado correctamente.");
+            return "redirect:/evaluaciones/pools?unidadId=" + (pool.getUnidad() != null ? pool.getUnidad().getId() : "");
         } catch (Exception e) {
             ra.addFlashAttribute("error", e.getMessage());
-            return "redirect:/evaluaciones/pools/" + id + "/editar";
+            return "redirect:/evaluaciones/pools";
         }
     }
 
-    @GetMapping("/pools/{id}/baja")
-    public String darDeBajaPoolView(@PathVariable Integer id, Model model, Authentication auth) {
-        Optional<Pool> poolOpt = evaluacionService.buscarPoolPorId(id);
-        if (poolOpt.isEmpty()) return "redirect:/evaluaciones/pools";
+    @PostMapping("/pools/pregunta/{id}/editar")
+    @ResponseBody
+    public org.springframework.http.ResponseEntity<?> editarPreguntaAjax(@PathVariable Integer id,
+                                                                        @RequestParam String texto,
+                                                                        @RequestParam(required = false, defaultValue = "multiple") String tipo,
+                                                                        jakarta.servlet.http.HttpServletRequest request) {
+        try {
+            Optional<Pregunta> pOpt = evaluacionService.buscarPreguntaPorId(id);
+            if (pOpt.isEmpty()) return org.springframework.http.ResponseEntity.notFound().build();
 
-        agregarUsuarioAlModelo(model, auth);
-        model.addAttribute("pool", poolOpt.get());
-        model.addAttribute("titulo", "CU-56 - Dar de baja pool | Idóneos Online");
-        return "pages/evaluaciones/cu-56-dar-de-baja-pool";
+            Pregunta pregunta = pOpt.get();
+            pregunta.setTexto(texto);
+            boolean esMultiple = !"vf".equalsIgnoreCase(tipo);
+            pregunta.setEsOpcionMultiple(esMultiple);
+            preguntaRepository.save(pregunta);
+
+            // Dar de baja opciones anteriores
+            List<OpcionRespuesta> opcionesPrevias = opcionRespuestaRepository.findByPreguntaAndBajaFalse(pregunta);
+            for (OpcionRespuesta op : opcionesPrevias) {
+                op.setBaja(true);
+                opcionRespuestaRepository.save(op);
+            }
+
+            if (!esMultiple) {
+                String vfOpt = request.getParameter("vf_opt");
+                boolean esVerdaderoCorrecto = "true".equalsIgnoreCase(vfOpt) || "1".equals(vfOpt);
+                opcionRespuestaRepository.save(new OpcionRespuesta("Verdadero", esVerdaderoCorrecto, pregunta));
+                opcionRespuestaRepository.save(new OpcionRespuesta("Falso", !esVerdaderoCorrecto, pregunta));
+            } else {
+                String[] correctas = request.getParameterValues("correctas");
+                if (correctas == null || correctas.length == 0) {
+                    String cSingle = request.getParameter("correcta");
+                    if (cSingle != null) correctas = new String[]{cSingle};
+                    else correctas = new String[]{"1"};
+                }
+                java.util.Set<String> setCorrectas = new java.util.HashSet<>(java.util.Arrays.asList(correctas));
+
+                int optIdx = 1;
+                while (true) {
+                    String optTexto = request.getParameter("opt" + optIdx);
+                    if (optTexto == null) {
+                        if (optIdx > 20) break;
+                        optIdx++;
+                        continue;
+                    }
+                    if (!optTexto.isBlank()) {
+                        boolean esCorrecta = setCorrectas.contains(String.valueOf(optIdx));
+                        opcionRespuestaRepository.save(new OpcionRespuesta(optTexto, esCorrecta, pregunta));
+                    }
+                    optIdx++;
+                }
+            }
+
+            return org.springframework.http.ResponseEntity.ok(Map.of("success", true, "mensaje", "Pregunta actualizada correctamente"));
+        } catch (Exception e) {
+            return org.springframework.http.ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/pools/pregunta/{id}/eliminar")
+    @ResponseBody
+    public org.springframework.http.ResponseEntity<?> eliminarPreguntaAjax(@PathVariable Integer id) {
+        try {
+            Optional<Pregunta> pOpt = evaluacionService.buscarPreguntaPorId(id);
+            if (pOpt.isPresent()) {
+                evaluacionService.borrarPregunta(pOpt.get());
+                return org.springframework.http.ResponseEntity.ok(Map.of("success", true, "mensaje", "Pregunta eliminada"));
+            }
+            return org.springframework.http.ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return org.springframework.http.ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
     }
 
     @PostMapping("/pools/{id}/baja")
@@ -176,13 +401,15 @@ public class EvaluacionController {
             Pool pool = evaluacionService.buscarPoolPorId(id).orElse(null);
             Integer uId = (pool != null && pool.getUnidad() != null) ? pool.getUnidad().getId() : null;
             if (pool != null) {
-                evaluacionService.borrarPool(pool);
+                pool.setBaja(true);
+                pool.setUltimaModificacion(LocalDateTime.now());
+                poolRepository.save(pool);
             }
             ra.addFlashAttribute("mensaje", "Pool dado de baja correctamente.");
             return uId != null ? "redirect:/evaluaciones/pools?unidadId=" + uId : "redirect:/evaluaciones/pools";
         } catch (Exception e) {
             ra.addFlashAttribute("error", e.getMessage());
-            return "redirect:/evaluaciones/pools/" + id + "/baja";
+            return "redirect:/evaluaciones/pools";
         }
     }
 
@@ -193,11 +420,12 @@ public class EvaluacionController {
     @GetMapping("/autoevaluaciones")
     public String buscarAutoevaluaciones(@RequestParam(value = "cursoId", required = false) Integer cursoId,
                                          @RequestParam(value = "unidadId", required = false) Integer unidadId,
+                                         @RequestParam(value = "q", required = false) String query,
                                          Model model, Authentication auth) {
         agregarUsuarioAlModelo(model, auth);
         Curso curso = (cursoId != null) ? cursoService.buscarPorId(cursoId).orElse(null) : null;
         List<Unidad> unidades = (curso != null) ? unidadService.obtenerPorCurso(curso) : unidadService.obtenerTodo();
-        Unidad unidad = (unidadId != null) ? unidadService.buscarPorId(unidadId).orElse(null) : (unidades.isEmpty() ? null : unidades.get(0));
+        Unidad unidad = (unidadId != null) ? unidadService.buscarPorId(unidadId).orElse(null) : null;
 
         if (curso == null && unidad != null && unidad.getCurso() != null) {
             curso = unidad.getCurso();
@@ -207,85 +435,80 @@ public class EvaluacionController {
             if (!todos.isEmpty()) curso = todos.get(0);
         }
 
-        List<Autoevaluacion> autoevaluaciones = (unidad != null) ? evaluacionService.buscarAutoevaluacionesPorUnidad(unidad) : List.of();
-        model.addAttribute("curso", curso);
-        model.addAttribute("cursoSeleccionado", curso);
+        final Curso cursoFinal = curso;
+        List<Autoevaluacion> autoevaluaciones = autoevaluacionRepository.findAll().stream()
+                .filter(a -> !a.isBaja())
+                .filter(a -> unidad == null || (a.getUnidad() != null && Objects.equals(a.getUnidad().getId(), unidad.getId())))
+                .filter(a -> cursoFinal == null || (a.getUnidad() != null && unidades.contains(a.getUnidad())))
+                .filter(a -> query == null || query.isBlank() || a.getNombre().toLowerCase().contains(query.toLowerCase()))
+                .toList();
+
+        model.addAttribute("curso", cursoFinal);
+        model.addAttribute("cursoSeleccionado", cursoFinal);
         model.addAttribute("unidades", unidades);
+        model.addAttribute("todasLasUnidades", unidadService.obtenerTodo().stream().filter(u -> !u.isBaja()).toList());
+        model.addAttribute("todosLosPools", poolRepository.findAll().stream().filter(p -> !p.isBaja()).toList());
         model.addAttribute("unidadSeleccionada", unidad);
         model.addAttribute("autoevaluaciones", autoevaluaciones);
+        model.addAttribute("autoevaluacion", (autoevaluaciones.isEmpty() ? null : autoevaluaciones.get(0)));
+        model.addAttribute("query", query);
         model.addAttribute("titulo", "CU-57 - Buscar autoevaluación | Idóneos Online");
         return "pages/evaluaciones/cu-57-buscar-autoevaluacion";
-    }
-
-    @GetMapping("/autoevaluaciones/nueva")
-    public String crearAutoevaluacionForm(@RequestParam(value = "unidadId", required = false) Integer unidadId,
-                                          Model model, Authentication auth) {
-        agregarUsuarioAlModelo(model, auth);
-        model.addAttribute("unidades", unidadService.obtenerTodo());
-        model.addAttribute("unidadId", unidadId);
-        model.addAttribute("titulo", "CU-58 - Crear autoevaluación | Idóneos Online");
-        return "pages/evaluaciones/cu-58-crear-autoevaluacion";
     }
 
     @PostMapping("/autoevaluaciones/guardar")
     public String guardarAutoevaluacion(@RequestParam Integer unidadId,
                                         @RequestParam String nombre,
                                         @RequestParam(defaultValue = "30") int tiempoLimite,
+                                        @RequestParam(defaultValue = "10") int cantidadPreguntas,
                                         @RequestParam(required = false) Integer intentosPermitidos,
+                                        @RequestParam(required = false) List<Integer> poolIds,
                                         RedirectAttributes ra) {
         try {
             Unidad unidad = unidadService.buscarPorId(unidadId).orElseThrow(() -> new IllegalArgumentException("Unidad no encontrada"));
             Autoevaluacion ae = new Autoevaluacion(nombre, tiempoLimite, LocalDateTime.now(), unidad);
+            ae.setCantidadPreguntas(cantidadPreguntas);
             ae.setIntentosPermitidos(intentosPermitidos);
-            evaluacionService.guardarAutoevaluacion(ae);
-            ra.addFlashAttribute("mensaje", "Autoevaluación creada exitosamente.");
+            ae = autoevaluacionRepository.save(ae);
+
+            if (poolIds != null && !poolIds.isEmpty()) {
+                List<Pool> pools = poolRepository.findAllById(poolIds);
+                for (Pool p : pools) {
+                    try {
+                        evaluacionService.asociarPool(p, ae);
+                    } catch (Exception ignored) {}
+                }
+            }
+
+            ra.addFlashAttribute("mensaje", "Autoevaluación '" + nombre + "' creada exitosamente.");
             return "redirect:/evaluaciones/autoevaluaciones?unidadId=" + unidadId;
         } catch (Exception e) {
             ra.addFlashAttribute("error", e.getMessage());
-            return "redirect:/evaluaciones/autoevaluaciones/nueva?unidadId=" + unidadId;
+            return "redirect:/evaluaciones/autoevaluaciones";
         }
-    }
-
-    @GetMapping("/autoevaluaciones/{id}/editar")
-    public String modificarAutoevaluacionForm(@PathVariable Integer id, Model model, Authentication auth) {
-        Optional<Autoevaluacion> aeOpt = evaluacionService.buscarAutoevaluacionPorId(id);
-        if (aeOpt.isEmpty()) return "redirect:/evaluaciones/autoevaluaciones";
-
-        agregarUsuarioAlModelo(model, auth);
-        model.addAttribute("autoevaluacion", aeOpt.get());
-        model.addAttribute("titulo", "CU-59 - Modificar autoevaluación | Idóneos Online");
-        return "pages/evaluaciones/cu-59-modificar-autoevaluacion";
     }
 
     @PostMapping("/autoevaluaciones/{id}/editar")
     public String actualizarAutoevaluacion(@PathVariable Integer id,
                                            @RequestParam String nombre,
                                            @RequestParam int tiempoLimite,
+                                           @RequestParam(defaultValue = "10") int cantidadPreguntas,
                                            @RequestParam(required = false) Integer intentosPermitidos,
                                            RedirectAttributes ra) {
         try {
             Autoevaluacion ae = evaluacionService.buscarAutoevaluacionPorId(id).orElseThrow(() -> new IllegalArgumentException("Autoevaluación no encontrada"));
             ae.setNombre(nombre);
             ae.setTiempoLimite(tiempoLimite);
+            ae.setCantidadPreguntas(cantidadPreguntas);
             ae.setIntentosPermitidos(intentosPermitidos);
+            ae.setUltimaModificacion(LocalDateTime.now());
             evaluacionService.guardarAutoevaluacion(ae);
             ra.addFlashAttribute("mensaje", "Autoevaluación modificada correctamente.");
-            return "redirect:/evaluaciones/autoevaluaciones?unidadId=" + ae.getUnidad().getId();
+            return "redirect:/evaluaciones/autoevaluaciones?unidadId=" + (ae.getUnidad() != null ? ae.getUnidad().getId() : "");
         } catch (Exception e) {
             ra.addFlashAttribute("error", e.getMessage());
-            return "redirect:/evaluaciones/autoevaluaciones/" + id + "/editar";
+            return "redirect:/evaluaciones/autoevaluaciones";
         }
-    }
-
-    @GetMapping("/autoevaluaciones/{id}/baja")
-    public String darDeBajaAutoevaluacionView(@PathVariable Integer id, Model model, Authentication auth) {
-        Optional<Autoevaluacion> aeOpt = evaluacionService.buscarAutoevaluacionPorId(id);
-        if (aeOpt.isEmpty()) return "redirect:/evaluaciones/autoevaluaciones";
-
-        agregarUsuarioAlModelo(model, auth);
-        model.addAttribute("autoevaluacion", aeOpt.get());
-        model.addAttribute("titulo", "CU-60 - Dar de baja autoevaluación | Idóneos Online");
-        return "pages/evaluaciones/cu-60-dar-de-baja-autoevaluacion";
     }
 
     @PostMapping("/autoevaluaciones/{id}/baja")
@@ -294,13 +517,15 @@ public class EvaluacionController {
             Autoevaluacion ae = evaluacionService.buscarAutoevaluacionPorId(id).orElse(null);
             Integer uId = (ae != null && ae.getUnidad() != null) ? ae.getUnidad().getId() : null;
             if (ae != null) {
-                evaluacionService.borrarAutoevaluacion(ae);
+                ae.setBaja(true);
+                ae.setUltimaModificacion(LocalDateTime.now());
+                autoevaluacionRepository.save(ae);
             }
             ra.addFlashAttribute("mensaje", "Autoevaluación dada de baja correctamente.");
             return uId != null ? "redirect:/evaluaciones/autoevaluaciones?unidadId=" + uId : "redirect:/evaluaciones/autoevaluaciones";
         } catch (Exception e) {
             ra.addFlashAttribute("error", e.getMessage());
-            return "redirect:/evaluaciones/autoevaluaciones/" + id + "/baja";
+            return "redirect:/evaluaciones/autoevaluaciones";
         }
     }
 
@@ -367,8 +592,14 @@ public class EvaluacionController {
         Autoevaluacion ae = aeOpt.get();
         List<Pregunta> preguntas = intentoService.sortearPreguntas(ae);
 
+        Map<Integer, List<OpcionRespuesta>> opcionesPorPregunta = new HashMap<>();
+        for (Pregunta p : preguntas) {
+            opcionesPorPregunta.put(p.getId(), opcionRespuestaRepository.findByPreguntaAndBajaFalse(p));
+        }
+
         model.addAttribute("autoevaluacion", ae);
         model.addAttribute("preguntas", preguntas);
+        model.addAttribute("opcionesPorPregunta", opcionesPorPregunta);
         model.addAttribute("titulo", "CU-63 - Realizar intento de autoevaluación | Idóneos Online");
         return "pages/evaluaciones/cu-63-realizar-intento-de-autoevaluacion";
     }

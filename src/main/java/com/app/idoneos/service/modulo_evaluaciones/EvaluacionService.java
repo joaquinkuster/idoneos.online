@@ -115,4 +115,12 @@ public class EvaluacionService {
         ae.setBaja(true);
         autoevaluacionRepository.save(ae);
     }
+
+    @Autowired
+    private PoolAutoevaluacionRepository poolAutoevaluacionRepository;
+
+    public PoolAutoevaluacion asociarPool(Pool pool, Autoevaluacion autoevaluacion) {
+        PoolAutoevaluacion pa = new PoolAutoevaluacion(pool, autoevaluacion);
+        return poolAutoevaluacionRepository.save(pa);
+    }
 }

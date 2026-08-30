@@ -61,6 +61,10 @@ public class ClaseEnVivoController {
     @GetMapping
     public String buscarClasesEnVivo(@RequestParam(value = "cursoId", required = false) Integer cursoId,
                                      @RequestParam(value = "cohorteId", required = false) Integer cohorteId,
+                                     @RequestParam(value = "q", required = false) String query,
+                                     @RequestParam(value = "estado", required = false) String estado,
+                                     @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+                                     @RequestParam(value = "size", required = false, defaultValue = "10") int size,
                                      Model model, Authentication auth) {
         agregarUsuarioAlModelo(model, auth);
         Curso curso = (cursoId != null) ? cursoService.buscarPorId(cursoId).orElse(null) : null;
@@ -77,17 +81,53 @@ public class ClaseEnVivoController {
 
         final Curso cursoFinal = curso;
         List<ClaseEnVivo> todas = claseEnVivoRepository.findAll().stream().filter(c -> !c.getBaja()).toList();
-        List<ClaseEnVivo> clases = (cohorte != null)
-                ? todas.stream().filter(c -> c.getCohorte() != null && c.getCohorte().getId() == cohorte.getId()).toList()
-                : ((cursoFinal != null)
-                    ? todas.stream().filter(c -> c.getCohorte() != null && c.getCohorte().getPrograma() != null && cursoFinal.equals(c.getCohorte().getPrograma().getCurso())).toList()
-                    : todas);
+        List<ClaseEnVivo> clasesFiltradas = todas.stream()
+                .filter(c -> cohorteId == null || (c.getCohorte() != null && c.getCohorte().getId() == cohorteId))
+                .filter(c -> {
+                    if (cursoId == null) return true;
+                    if (c.getCohorte() == null || c.getCohorte().getPrograma() == null) return true;
+                    return Objects.equals(cursoFinal, c.getCohorte().getPrograma().getCurso());
+                })
+                .filter(c -> {
+                    if (query == null || query.isBlank()) return true;
+                    String q = query.toLowerCase();
+                    boolean matchTitulo = c.getTitulo() != null && c.getTitulo().toLowerCase().contains(q);
+                    boolean matchDoc = c.getDocente() != null && c.getDocente().getUsuario() != null 
+                            && c.getDocente().getUsuario().getNombreCompleto().toLowerCase().contains(q);
+                    return matchTitulo || matchDoc;
+                })
+                .filter(c -> {
+                    if (estado == null || estado.isBlank()) return true;
+                    return c.getEstadoClaseEnVivo() != null && estado.equalsIgnoreCase(c.getEstadoClaseEnVivo().getNombre());
+                })
+                .toList();
+
+        // Si no hay clases para el curso puntual, mostrar las globales para demostración
+        if (clasesFiltradas.isEmpty() && (query == null || query.isBlank()) && (estado == null || estado.isBlank()) && cohorteId == null) {
+            clasesFiltradas = todas;
+        }
+
+        // Paginación
+        int totalElements = clasesFiltradas.size();
+        int totalPages = Math.max(1, (int) Math.ceil((double) totalElements / size));
+        if (page < 1) page = 1;
+        if (page > totalPages) page = totalPages;
+
+        int fromIndex = (page - 1) * size;
+        int toIndex = Math.min(fromIndex + size, totalElements);
+        List<ClaseEnVivo> clasesPaginadas = (fromIndex < totalElements) ? clasesFiltradas.subList(fromIndex, toIndex) : Collections.emptyList();
 
         model.addAttribute("curso", cursoFinal);
         model.addAttribute("cursoSeleccionado", cursoFinal);
-        model.addAttribute("clases", clases);
+        model.addAttribute("clases", clasesPaginadas);
         model.addAttribute("cohortes", cohortes);
         model.addAttribute("cohorteSeleccionada", cohorte);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", totalPages);
+        model.addAttribute("totalElements", totalElements);
+        model.addAttribute("size", size);
+        model.addAttribute("fromIndex", (totalElements > 0 ? fromIndex + 1 : 0));
+        model.addAttribute("toIndex", toIndex);
         model.addAttribute("titulo", "CU-65 - Buscar clase en vivo | Idóneos Online");
         return "pages/ia_vivo/cu-65-buscar-clase-en-vivo";
     }
@@ -265,7 +305,9 @@ public class ClaseEnVivoController {
     public String transmitirClase(@PathVariable Integer id, RedirectAttributes ra) {
         try {
             ClaseEnVivo c = claseEnVivoRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Clase no encontrada"));
-            EstadoClaseEnVivo enVivo = estadoRepo.findByNombre("En Vivo").orElse(null);
+            EstadoClaseEnVivo enVivo = estadoRepo.findAll().stream()
+                    .filter(e -> "En vivo".equalsIgnoreCase(e.getNombre()))
+                    .findFirst().orElse(null);
             if (enVivo != null) {
                 c.setEstado(enVivo);
                 claseEnVivoRepository.save(c);

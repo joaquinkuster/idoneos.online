@@ -59,77 +59,497 @@
       <!-- Cabecera y Tabs Unificadas del Curso -->
       <div th:replace="~{fragments/curso_header :: curso-header('clases-vivo')}"></div>
 
-      <!-- Barra de Filtros y Búsqueda -->
+      <!-- Alertas de Mensaje y Error -->
+      <div th:if="${mensaje}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fa-solid fa-circle-check me-2"></i> <span th:text="${mensaje}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+      <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fa-solid fa-triangle-exclamation me-2"></i> <span th:text="${error}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+
+      <!-- Barra de Filtros, Búsqueda y Botón Programar Clase (CU-66 Modal Trigger) -->
       <div class="wf-card mb-4" style="background: #FFFFFF;">
-        <div class="row g-3 align-items-end">
-          <div class="col-md-5">
+        <form method="get" th:action="@{/clases-vivo}" class="row g-3 align-items-end">
+          <input type="hidden" name="cursoId" th:if="${curso != null}" th:value="${curso.id}">
+          <div class="col-md-4">
             <label class="wf-label">Buscar por título o docente</label>
             <div class="wf-input-wrap">
-              <input type="text" class="wf-input" placeholder="Ej: Taller de Renta Fija, Mg. Valenzuela...">
-            </div>
-          </div>
-          <div class="col-md-4">
-            <label class="wf-label">Filtrar por Estado de Transmisión</label>
-            <div class="wf-input-wrap">
-              <select class="wf-input">
-                <option>Todos los estados (Programada / En vivo / Finalizada)</option>
-                <option selected>En vivo / Programadas activas</option>
-                <option>Solo Finalizadas</option>
-              </select>
-              
+              <input type="text" name="q" class="wf-input" placeholder="Ej: Taller de Renta Fija, Mg. Valenzuela..." th:value="${param.q}">
             </div>
           </div>
           <div class="col-md-3">
-            <div class="d-flex align-items-center gap-2">
-              <button class="wf-btn wf-btn-primary w-100"><i class="fa-solid fa-magnifying-glass me-1"></i> Buscar</button>
-              
+            <label class="wf-label">Filtrar por Estado de Transmisión</label>
+            <div class="wf-input-wrap">
+              <select name="estado" class="wf-input" onchange="this.form.submit()">
+                <option value="" th:selected="${param.estado == null or param.estado == ''}">Todos los estados</option>
+                <option value="En vivo" th:selected="${param.estado != null and param.estado[0] == 'En vivo'}">En vivo</option>
+                <option value="Programada" th:selected="${param.estado != null and param.estado[0] == 'Programada'}">Programada</option>
+                <option value="Finalizada" th:selected="${param.estado != null and param.estado[0] == 'Finalizada'}">Finalizada</option>
+                <option value="Cancelada" th:selected="${param.estado != null and param.estado[0] == 'Cancelada'}">Cancelada</option>
+              </select>
             </div>
           </div>
-        </div>
+          <div class="col-md-2">
+            <button type="submit" class="wf-btn wf-btn-primary w-100"><i class="fa-solid fa-magnifying-glass me-1"></i> Buscar</button>
+          </div>
+          <div class="col-md-3 text-end">
+            <button type="button" class="wf-btn wf-btn-primary w-100" data-bs-toggle="modal" data-bs-target="#modalProgramarClase">
+              <i class="fa-solid fa-video me-1"></i> + Programar Clase
+            </button>
+          </div>
+        </form>
       </div>
 
-      
+      <!-- Tabla de Clases en Vivo (Fiel al Wireframe CU-65) -->
       <div class="wf-table-wrap">
         <table class="wf-table">
           <thead>
             <tr>
-              <th>Título de la Clase</th>
-              <th>Docente</th>
-              <th>Fecha y Hora</th>
-              <th>Duración</th>
+              <th>Título de la Clase en Vivo</th>
+              <th>Docente Titular</th>
+              <th>Fecha, Hora &amp; Duración</th>
               <th>Estado</th>
-              <th class="text-end">Transmisión / Acceso</th>
+              <th class="text-end">Acciones Disponibles</th>
             </tr>
           </thead>
           <tbody>
-            <tr th:each="clase : ${clases}">
-              <td><strong style="color: #081426;" th:text="${clase.titulo}">Título de la Clase</strong></td>
-              <td th:text="${clase.docente != null and clase.docente.usuario != null ? clase.docente.usuario.nombreCompleto : 'Docente'}">Lic. Fausto Spotorno</td>
-              <td th:text="${#temporals.format(clase.fechaHora, 'dd/MM/yyyy HH:mm')}">01/01/2026 19:00</td>
-              <td th:text="${clase.duracionEstimada + ' min'}">90 min</td>
+            <!-- Filas dinámicas -->
+            <tr th:each="clase : ${clases}" 
+                th:style="${clase.estadoClaseEnVivo != null and clase.estadoClaseEnVivo.nombre == 'En vivo'} ? 'background: #FEF2F2; border-left: 4px solid #DC2626;' : ''">
               <td>
-                <span class="badge" 
-                      th:style="${clase.estado != null and clase.estado.nombre == 'En vivo'} ? 'background: #DC2626; color: white;' : 'background: #081426; color: white;'"
-                      th:text="${clase.estado != null ? clase.estado.nombre : 'Programada'}">
+                <div class="d-flex align-items-center gap-2">
+                  <strong style="color: #081426;" th:text="${clase.titulo}">Título de la Clase</strong>
+                </div>
+                <div class="small text-muted">
+                  <span th:text="${clase.cohorte != null ? ('Cohorte #' + clase.cohorte.idCohorte) : 'Cohorte General'}">Cohorte #1</span>
+                  <span> • </span>
+                  <span th:text="${(clase.duracionEstimada != null ? clase.duracionEstimada : 60) + ' min'}">90 min</span>
+                </div>
+              </td>
+              <td th:text="${clase.docente != null and clase.docente.usuario != null ? clase.docente.usuario.nombreCompleto : 'Docente Titular'}">
+                Mg. Elena Valenzuela
+              </td>
+              <td>
+                <span th:text="${#temporals.format(clase.fechaHora, 'dd/MM/yyyy HH:mm')} + ' hs'">Hoy, 19:00 hs</span>
+                <span class="small text-muted" th:text="'(' + ${clase.duracionEstimada} + ' min)'">(90 min)</span>
+              </td>
+              <td>
+                <span th:if="${clase.estadoClaseEnVivo != null and clase.estadoClaseEnVivo.nombre == 'En vivo'}" class="wf-badge" style="background: #DC2626; color: white;">
+                  ● EN VIVO
+                </span>
+                <span th:if="${clase.estadoClaseEnVivo != null and clase.estadoClaseEnVivo.nombre == 'Programada'}" class="wf-badge status-active">
                   Programada
+                </span>
+                <span th:if="${clase.estadoClaseEnVivo != null and clase.estadoClaseEnVivo.nombre == 'Finalizada'}" class="wf-badge status-inactive">
+                  Finalizada
+                </span>
+                <span th:if="${clase.estadoClaseEnVivo != null and clase.estadoClaseEnVivo.nombre == 'Cancelada'}" class="wf-badge" style="background: #F3F4F6; color: #6B7280; border: 1px solid #D1D5DB;">
+                  Cancelada
                 </span>
               </td>
               <td class="text-end">
-                <div class="d-inline-flex gap-2">
-                  <a th:href="@{'/clases-vivo/' + ${clase.id} + '/sala'}" class="wf-btn wf-btn-sm wf-btn-primary"><i class="fa-solid fa-video me-1"></i> Sala</a>
-                  <a th:href="@{'/clases-vivo/' + ${clase.id} + '/iniciar'}" class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-tower-broadcast me-1"></i> Transmitir</a>
+                <div class="d-inline-flex align-items-center gap-2 flex-wrap justify-content-end">
+                  
+                  <!-- Si está EN VIVO -->
+                  <th:block th:if="${clase.estadoClaseEnVivo != null and clase.estadoClaseEnVivo.nombre == 'En vivo'}">
+                    <a th:href="@{'/clases-vivo/' + ${clase.idClaseEnVivo} + '/sala'}" class="wf-btn wf-btn-sm wf-btn-primary" style="background: #2563EB;" title="Ingresar a la Sala">
+                      <i class="fa-solid fa-door-open me-1"></i> Entrar
+                    </a>
+                    <button type="button" class="wf-btn wf-btn-sm wf-btn-danger btn-finalizar-clase"
+                            th:data-id="${clase.idClaseEnVivo}"
+                            th:data-titulo="${clase.titulo}"
+                            th:data-docente="${clase.docente != null and clase.docente.usuario != null ? clase.docente.usuario.nombreCompleto : 'Docente'}"
+                            th:data-duracion="${clase.duracionEstimada}"
+                            title="Finalizar Transmisión (CU-71)">
+                      <i class="fa-solid fa-stop me-1"></i> Finalizar Transmisión
+                    </button>
+                    <button type="button" class="wf-btn wf-btn-sm wf-btn-outline btn-editar-clase"
+                            th:data-id="${clase.idClaseEnVivo}"
+                            th:data-titulo="${clase.titulo}"
+                            th:data-fechahora="${clase.fechaHora}"
+                            th:data-duracion="${clase.duracionEstimada}"
+                            th:data-url="${clase.urlRtmp}"
+                            title="Reprogramar / Editar (CU-67)">
+                      <i class="fa-solid fa-clock-rotate-left me-1"></i> Reprogramar / Editar
+                    </button>
+                    <button type="button" class="wf-btn wf-btn-sm wf-btn-outline text-warning btn-cancelar-clase"
+                            style="color: #D97706; border-color: #FCD34D;"
+                            th:data-id="${clase.idClaseEnVivo}"
+                            th:data-titulo="${clase.titulo}"
+                            title="Cancelar Clase (CU-68)">
+                      <i class="fa-solid fa-calendar-xmark me-1"></i> Cancelar Clase
+                    </button>
+                    <button type="button" class="wf-btn wf-btn-sm wf-btn-outline text-danger btn-baja-clase"
+                            th:data-id="${clase.idClaseEnVivo}"
+                            th:data-titulo="${clase.titulo}"
+                            title="Eliminar Registro (CU-69)">
+                      <i class="fa-solid fa-trash me-1"></i> Eliminar Registro
+                    </button>
+                  </th:block>
+
+                  <!-- Si está PROGRAMADA -->
+                  <th:block th:if="${clase.estadoClaseEnVivo != null and clase.estadoClaseEnVivo.nombre == 'Programada'}">
+                    <a th:href="@{'/clases-vivo/' + ${clase.idClaseEnVivo} + '/iniciar'}" class="wf-btn wf-btn-sm wf-btn-primary" style="background: #081426;">
+                      <i class="fa-solid fa-tower-broadcast me-1"></i> Transmitir en Vivo
+                    </a>
+                    <button type="button" class="wf-btn wf-btn-sm wf-btn-outline btn-editar-clase"
+                            th:data-id="${clase.idClaseEnVivo}"
+                            th:data-titulo="${clase.titulo}"
+                            th:data-fechahora="${clase.fechaHora}"
+                            th:data-duracion="${clase.duracionEstimada}"
+                            th:data-url="${clase.urlRtmp}"
+                            title="Reprogramar / Editar (CU-67)">
+                      <i class="fa-solid fa-pen-to-square me-1"></i> Reprogramar / Editar
+                    </button>
+                    <button type="button" class="wf-btn wf-btn-sm wf-btn-outline text-warning btn-cancelar-clase"
+                            style="color: #D97706; border-color: #FCD34D;"
+                            th:data-id="${clase.idClaseEnVivo}"
+                            th:data-titulo="${clase.titulo}"
+                            title="Cancelar Clase (CU-68)">
+                      <i class="fa-solid fa-calendar-xmark me-1"></i> Cancelar Clase
+                    </button>
+                    <button type="button" class="wf-btn wf-btn-sm wf-btn-outline text-danger btn-baja-clase"
+                            th:data-id="${clase.idClaseEnVivo}"
+                            th:data-titulo="${clase.titulo}"
+                            title="Eliminar Registro (CU-69)">
+                      <i class="fa-solid fa-trash me-1"></i> Eliminar Registro
+                    </button>
+                  </th:block>
+
+                  <!-- Si está FINALIZADA -->
+                  <th:block th:if="${clase.estadoClaseEnVivo != null and clase.estadoClaseEnVivo.nombre == 'Finalizada'}">
+                    <a th:href="@{'/clases-vivo/' + ${clase.idClaseEnVivo} + '/sala'}" class="wf-btn wf-btn-sm wf-btn-outline" title="Ver Grabación">
+                      <i class="fa-solid fa-video me-1"></i> Ver Grabación
+                    </a>
+                    <button type="button" class="wf-btn wf-btn-sm wf-btn-outline text-danger btn-baja-clase"
+                            th:data-id="${clase.idClaseEnVivo}"
+                            th:data-titulo="${clase.titulo}"
+                            title="Eliminar Registro (CU-69)">
+                      <i class="fa-solid fa-trash me-1"></i> Eliminar Registro
+                    </button>
+                  </th:block>
+
+                  <!-- Si está CANCELADA -->
+                  <th:block th:if="${clase.estadoClaseEnVivo != null and clase.estadoClaseEnVivo.nombre == 'Cancelada'}">
+                    <button type="button" class="wf-btn wf-btn-sm wf-btn-outline text-danger btn-baja-clase"
+                            th:data-id="${clase.idClaseEnVivo}"
+                            th:data-titulo="${clase.titulo}"
+                            title="Eliminar Registro (CU-69)">
+                      <i class="fa-solid fa-trash me-1"></i> Eliminar Registro
+                    </button>
+                  </th:block>
+
                 </div>
               </td>
             </tr>
             <tr th:if="${#lists.isEmpty(clases)}">
-              <td colspan="6" class="text-center py-4 text-muted">No hay clases en vivo programadas para este curso o cohorte.</td>
+              <td colspan="5" class="text-center py-4 text-muted">No se encontraron clases en vivo programadas o transmitidas.</td>
             </tr>
           </tbody>
         </table>
       </div>
+
+      <!-- Barra de Paginación Centralizada -->
+      <div th:if="${totalElements != null and totalElements > 0}" class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-3 pt-3 border-top" style="font-size: 13px;">
+        <div class="text-muted">
+          Mostrando <strong class="text-dark" th:text="${fromIndex}">1</strong> a <strong class="text-dark" th:text="${toIndex}">10</strong> de <strong class="text-dark" th:text="${totalElements}">50</strong> clases
+        </div>
+        <nav th:if="${totalPages > 1}" aria-label="Navegación de páginas">
+          <ul class="pagination pagination-sm mb-0">
+            <li class="page-item" th:classappend="${currentPage <= 1} ? 'disabled'">
+              <a class="page-link" th:href="@{/clases-vivo(cursoId=${curso != null ? curso.id : null}, q=${param.q}, estado=${param.estado}, page=${currentPage - 1})}">
+                <i class="fa-solid fa-chevron-left"></i> Anterior
+              </a>
+            </li>
+            <li class="page-item" th:each="i : ${#numbers.sequence(1, totalPages)}" th:classappend="${i == currentPage} ? 'active'">
+              <a class="page-link" th:text="${i}" th:href="@{/clases-vivo(cursoId=${curso != null ? curso.id : null}, q=${param.q}, estado=${param.estado}, page=${i})}">1</a>
+            </li>
+            <li class="page-item" th:classappend="${currentPage >= totalPages} ? 'disabled'">
+              <a class="page-link" th:href="@{/clases-vivo(cursoId=${curso != null ? curso.id : null}, q=${param.q}, estado=${param.estado}, page=${currentPage + 1})}">
+                Siguiente <i class="fa-solid fa-chevron-right"></i>
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </div>
     
                     </div>
                 </div>
+
+    <!-- ───────────────────────────────────────────────────────────── -->
+    <!-- MODAL CU-66: PROGRAMAR CLASE EN VIVO                         -->
+    <!-- ───────────────────────────────────────────────────────────── -->
+    <div class="modal fade" id="modalProgramarClase" tabindex="-1" aria-labelledby="modalProgramarClaseLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content" style="border-radius: 12px; border: 1px solid #CBD5E1; box-shadow: 0 20px 50px rgba(8, 20, 38, 0.15); overflow: hidden;">
+          <form th:action="@{/clases-vivo/guardar}" method="post" id="formProgramarClase">
+            <div class="p-4 bg-white">
+              <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
+                <div>
+                  <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Programar Clase en Vivo</h3>
+                  <p class="small text-muted mb-0">Defina la sesión sincrónica de videoconferencia para la cohorte.</p>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                  <span class="wf-badge status-active">Nueva Sesión</span>
+                  <button type="button" class="btn-close ms-2" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+              </div>
+
+              <div class="row g-3">
+                <div class="col-md-8">
+                  <label class="wf-label">Título de la Clase <span class="text-danger">*</span></label>
+                  <div class="wf-input-wrap">
+                    <input type="text" name="titulo" class="wf-input" placeholder="Ej: Taller en Vivo: Análisis de Curvas y Duration" required>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <label class="wf-label">Cohorte Destinataria <span class="text-danger">*</span></label>
+                  <div class="wf-input-wrap">
+                    <select name="cohorteId" class="wf-input" required>
+                      <option value="" disabled selected>Seleccione cohorte...</option>
+                      <option th:each="coh : ${cohortes}" th:value="${coh.idCohorte}" th:text="'Cohorte #' + ${coh.idCohorte} + ' (' + ${#temporals.format(coh.fechaInicioDictado, 'dd/MM/yyyy')} + ')'">Cohorte #1</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <label class="wf-label">Fecha y Hora de Inicio <span class="text-danger">*</span></label>
+                  <div class="wf-input-wrap">
+                    <input type="datetime-local" name="fechaHora" id="progFechaHora" class="wf-input" required>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <label class="wf-label">Duración Estimada (Minutos) <span class="text-danger">*</span></label>
+                  <div class="wf-input-wrap">
+                    <input type="number" name="duracionEstimada" class="wf-input" value="90" min="15" max="360" required>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <label class="wf-label">Enlace a Sala de Streaming</label>
+                  <div class="wf-input-wrap">
+                    <input type="url" name="urlRtmp" class="wf-input" value="https://meet.google.com/ido-bour-cnv">
+                  </div>
+                </div>
+              </div>
+
+              <div class="d-flex justify-content-end align-items-center gap-3 pt-4 mt-4 border-top">
+                <button type="button" class="wf-btn wf-btn-outline" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="wf-btn wf-btn-primary"><i class="fa-solid fa-video me-1"></i> Programar Clase</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- ───────────────────────────────────────────────────────────── -->
+    <!-- MODAL CU-67: MODIFICAR / REPROGRAMAR CLASE EN VIVO           -->
+    <!-- ───────────────────────────────────────────────────────────── -->
+    <div class="modal fade" id="modalModificarClase" tabindex="-1" aria-labelledby="modalModificarClaseLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content" style="border-radius: 12px; border: 1px solid #CBD5E1; box-shadow: 0 20px 50px rgba(8, 20, 38, 0.15); overflow: hidden;">
+          <form id="formModificarClase" method="post">
+            <div class="p-4 bg-white">
+              <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
+                <div>
+                  <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Reprogramar Clase en Vivo</h3>
+                  <p class="small text-muted mb-0">Actualice el horario o la sala de transmisión sincrónica.</p>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                  <span class="wf-badge status-active">Modo Edición</span>
+                  <button type="button" class="btn-close ms-2" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+              </div>
+
+              <div class="row g-3">
+                <div class="col-12">
+                  <label class="wf-label">Título de la Clase <span class="text-danger">*</span></label>
+                  <div class="wf-input-wrap">
+                    <input type="text" name="titulo" id="editTitulo" class="wf-input" required>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <label class="wf-label">Nueva Fecha y Hora <span class="text-danger">*</span></label>
+                  <div class="wf-input-wrap">
+                    <input type="datetime-local" name="fechaHora" id="editFechaHora" class="wf-input" required>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <label class="wf-label">Duración Estimada (Min) <span class="text-danger">*</span></label>
+                  <div class="wf-input-wrap">
+                    <input type="number" name="duracionEstimada" id="editDuracion" class="wf-input" min="15" max="360" required>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <label class="wf-label">Enlace de Transmisión</label>
+                  <div class="wf-input-wrap">
+                    <input type="url" name="urlRtmp" id="editUrl" class="wf-input">
+                  </div>
+                </div>
+              </div>
+
+              <div class="d-flex justify-content-end align-items-center gap-3 pt-4 mt-4 border-top">
+                <button type="button" class="wf-btn wf-btn-outline" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Guardar Cambios</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- ───────────────────────────────────────────────────────────── -->
+    <!-- MODAL CU-68: CANCELAR CLASE EN VIVO                          -->
+    <!-- ───────────────────────────────────────────────────────────── -->
+    <div class="modal fade" id="modalCancelarClase" tabindex="-1" aria-labelledby="modalCancelarClaseLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 12px; border: 1px solid #CBD5E1; box-shadow: 0 20px 50px rgba(8, 20, 38, 0.15); overflow: hidden;">
+          <form id="formCancelarClase" method="post">
+            <div class="p-3 border-bottom d-flex justify-content-between align-items-center bg-light">
+              <div class="d-flex align-items-center gap-2">
+                <i class="fa-solid fa-triangle-exclamation text-danger"></i>
+                <strong style="font-size: 14px; color: #081426;">Cancelar clase en vivo</strong>
+              </div>
+              <span class="wf-badge status-active">Confirmación Requerida</span>
+            </div>
+
+            <div class="p-4 text-center">
+              <div class="mb-3" style="width: 56px; height: 56px; border-radius: 50%; background: #FEE2E2; color: #DC2626; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 24px;">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+              </div>
+              <h3 style="font-size: 17px; font-weight: 800; color: #081426; margin-bottom: 6px;">¿Confirma la operación de cancelar clase en vivo?</h3>
+              <p class="small text-muted mb-4" style="line-height: 1.5;">Esta acción procesará el cambio de estado en la base de datos y afectará la disponibilidad del elemento en el sistema.</p>
+
+              <div class="p-3 mb-4 bg-light border rounded text-start" style="font-size: 13px;">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <span class="text-muted">Registro afectado:</span>
+                  <strong style="color: #081426;" id="cancelarTitulo">Clase en Vivo</strong>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <span class="text-muted">Estado actual:</span>
+                  <span class="wf-badge status-active">Activo / Vigente</span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                  <span class="text-muted">Validación:</span>
+                  <span class="small text-success fw-bold"><i class="fa-solid fa-circle-check me-1"></i> Se enviará correo de aviso a inscriptos</span>
+                </div>
+              </div>
+
+              <div class="d-flex justify-content-end align-items-center gap-3 pt-3 border-top">
+                <button type="button" class="wf-btn wf-btn-outline" data-bs-dismiss="modal">Cancelar / Volver</button>
+                <button type="submit" class="wf-btn wf-btn-danger"><i class="fa-solid fa-calendar-xmark me-1"></i> Confirmar Cancelación</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- ───────────────────────────────────────────────────────────── -->
+    <!-- MODAL CU-69: DAR DE BAJA CLASE EN VIVO                       -->
+    <!-- ───────────────────────────────────────────────────────────── -->
+    <div class="modal fade" id="modalBajaClase" tabindex="-1" aria-labelledby="modalBajaClaseLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 12px; border: 1px solid #CBD5E1; box-shadow: 0 20px 50px rgba(8, 20, 38, 0.15); overflow: hidden;">
+          <form id="formBajaClase" method="post">
+            <div class="p-3 border-bottom d-flex justify-content-between align-items-center bg-light">
+              <div class="d-flex align-items-center gap-2">
+                <i class="fa-solid fa-trash text-danger"></i>
+                <strong style="font-size: 14px; color: #081426;">Dar de baja clase en vivo</strong>
+              </div>
+              <span class="wf-badge status-active">Confirmación Requerida</span>
+            </div>
+
+            <div class="p-4 text-center">
+              <div class="mb-3" style="width: 56px; height: 56px; border-radius: 50%; background: #FEE2E2; color: #DC2626; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 24px;">
+                <i class="fa-solid fa-trash"></i>
+              </div>
+              <h3 style="font-size: 17px; font-weight: 800; color: #081426; margin-bottom: 6px;">¿Confirma la operación de dar de baja clase en vivo?</h3>
+              <p class="small text-muted mb-4" style="line-height: 1.5;">Esta acción dará de baja lógica el registro y retirará su material/grabación si existiera.</p>
+
+              <div class="p-3 mb-4 bg-light border rounded text-start" style="font-size: 13px;">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <span class="text-muted">Registro a eliminar:</span>
+                  <strong style="color: #081426;" id="bajaTitulo">Clase en Vivo</strong>
+                </div>
+              </div>
+
+              <div class="d-flex justify-content-end align-items-center gap-3 pt-3 border-top">
+                <button type="button" class="wf-btn wf-btn-outline" data-bs-dismiss="modal">Cancelar / Volver</button>
+                <button type="submit" class="wf-btn wf-btn-danger"><i class="fa-solid fa-trash me-1"></i> Confirmar Eliminación</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- ───────────────────────────────────────────────────────────── -->
+    <!-- MODAL CU-71: FINALIZAR CLASE EN VIVO (Resultado / Proceso)   -->
+    <!-- ───────────────────────────────────────────────────────────── -->
+    <div class="modal fade" id="modalFinalizarClase" tabindex="-1" aria-labelledby="modalFinalizarClaseLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content" style="border-radius: 12px; border-top: 5px solid #16A34A; box-shadow: 0 20px 50px rgba(8, 20, 38, 0.15); overflow: hidden;">
+          <form id="formFinalizarClase" method="post">
+            <div class="d-flex justify-content-between align-items-center bg-white border-bottom p-4">
+              <div class="d-flex align-items-center gap-3">
+                <div style="width: 44px; height: 44px; border-radius: 50%; background: #DCFCE7; color: #16A34A; display: flex; align-items: center; justify-content: center; font-size: 20px;">
+                  <i class="fa-solid fa-circle-check"></i>
+                </div>
+                <div>
+                  <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Finalizar Clase en Vivo</h3>
+                  <p class="small text-muted mb-0 mt-1">Concluir transmisión sincrónica y procesar grabación.</p>
+                </div>
+              </div>
+              <div class="d-flex align-items-center gap-2">
+                <span class="wf-badge status-active" style="background: #DCFCE7; color: #166534; border-color: #86EFAC;">Transmisión en Proceso</span>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+            </div>
+
+            <div class="p-4 bg-white">
+              <div class="d-flex flex-column gap-3 mb-4" style="font-size: 13px;">
+                <div class="p-3 bg-light rounded border">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <strong style="color: #081426; font-size: 14px;" id="finTitulo">Clase Magistral</strong>
+                    <span class="badge bg-dark text-white">Transmisión Activa</span>
+                  </div>
+                  <div class="small text-muted mb-2">
+                    <i class="fa-solid fa-clock me-1 text-primary"></i> Duración registrada: <strong id="finDuracion">90 min</strong> • Docente: <strong id="finDocente">Mg. Elena Valenzuela</strong>
+                  </div>
+                  <div class="small text-muted">
+                    <i class="fa-solid fa-satellite-dish me-1 text-danger"></i> Se enviará la orden de corte de señal y grabación al OBS Studio remoto.
+                  </div>
+                </div>
+
+                <div class="d-flex flex-column gap-2" style="font-size: 12px;">
+                  <div class="p-2 border rounded d-flex align-items-center justify-content-between bg-light">
+                    <span class="text-muted"><i class="fa-solid fa-video text-primary me-2"></i>Grabación resultante:</span>
+                    <strong class="text-dark">clase_vivo_hd.mp4 (1080p 60fps)</strong>
+                  </div>
+                  <div class="p-2 border rounded d-flex align-items-center justify-content-between bg-light">
+                    <span class="text-muted"><i class="fa-solid fa-file-arrow-up text-success me-2"></i>Carga como Material:</span>
+                    <strong class="text-success"><i class="fa-solid fa-check-circle me-1"></i> Se publicará automáticamente en el curso</strong>
+                  </div>
+                  <div class="p-2 border rounded d-flex align-items-center justify-content-between bg-light">
+                    <span class="text-muted"><i class="fa-solid fa-bell text-warning me-2"></i>Notificación a Estudiantes:</span>
+                    <strong class="text-dark">Aviso por correo a la cohorte</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="p-3 bg-light border-top d-flex justify-content-end align-items-center gap-2">
+              <button type="button" class="wf-btn wf-btn-outline" data-bs-dismiss="modal">Cancelar</button>
+              <button type="submit" class="wf-btn wf-btn-danger" style="font-weight: 700;">
+                <i class="fa-solid fa-stop me-1"></i> Confirmar y Finalizar Transmisión
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
 
                 <!-- Footer Oficial -->
                 <div class="wf-screen-footer">
@@ -147,42 +567,80 @@
     <!-- Bootstrap Bundle JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        function toggleUserDropdown(triggerEl) {
-            const wrapper = triggerEl.closest('.wf-user-menu-wrapper');
-            if (wrapper) {
-                const dropdown = wrapper.querySelector('.wf-user-floating-dropdown');
-                if (dropdown) {
-                    dropdown.style.display = (dropdown.style.display === 'none' || dropdown.style.display === '') ? 'flex' : 'none';
-                }
-            }
-        }
-    </script>
-
-    <!-- DSS & Case of Use Console Logger -->
+    <!-- Scripts de Interacción y Modales Dinámicos -->
     <script>
-        (function() {
-            const cuId = 'CU-65';
-            const cuNombre = 'Buscar clase en vivo';
-            const cuActores = 'Administrador / Docente';
-            const cuDss = 'clases = buscarClasesEnVivo(unidad, titulo, docente, rangoFechas, estado) ➔ unaClase = seleccionarClaseEnVivo(idClase, clases)';
+        document.addEventListener('DOMContentLoaded', function() {
+            // Validación en Programar Clase: fecha no pasada
+            const inputFecha = document.getElementById('progFechaHora');
+            if (inputFecha) {
+                const now = new Date();
+                const year = now.getFullYear();
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const day = String(now.getDate()).padStart(2, '0');
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                inputFecha.min = `${year}-${month}-${day}T${hours}:${minutes}`;
+            }
 
-            console.log(
-                '%c[IDÓNEOS ONLINE] %c ' + cuId + ' %c ' + cuNombre + ' ',
-                'color: #C9982F; font-weight: 800; font-size: 13px;',
-                'background: #081426; color: #E4BE6C; padding: 3px 8px; border-radius: 4px; font-weight: 700; font-size: 12px; border: 1px solid #C9982F;',
-                'color: #081426; font-weight: 800; font-size: 13px;'
-            );
-            console.log(
-                '%c👤 Actor(es): %c' + cuActores,
-                'color: #64748B; font-weight: 700; font-size: 11px;',
-                'color: #0F172A; font-weight: 600; font-size: 11px;'
-            );
-            console.log(
-                '%c⚡ DSS: %c' + cuDss,
-                'color: #64748B; font-weight: 700; font-size: 11px;',
-                'color: #0284C7; font-family: monospace; font-size: 11px; font-weight: 600;'
-            );
-        })();
+            // Modal Modificar Clase (CU-67)
+            const modalModificar = new bootstrap.Modal(document.getElementById('modalModificarClase'));
+            document.querySelectorAll('.btn-editar-clase').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const id = this.getAttribute('data-id');
+                    const titulo = this.getAttribute('data-titulo');
+                    const fecha = this.getAttribute('data-fechahora');
+                    const duracion = this.getAttribute('data-duracion');
+                    const url = this.getAttribute('data-url');
+
+                    document.getElementById('formModificarClase').action = '/clases-vivo/' + id + '/editar';
+                    document.getElementById('editTitulo').value = titulo || '';
+                    document.getElementById('editFechaHora').value = fecha ? fecha.substring(0, 16) : '';
+                    document.getElementById('editDuracion').value = duracion || 60;
+                    document.getElementById('editUrl').value = url || '';
+                    modalModificar.show();
+                });
+            });
+
+            // Modal Cancelar Clase (CU-68)
+            const modalCancelar = new bootstrap.Modal(document.getElementById('modalCancelarClase'));
+            document.querySelectorAll('.btn-cancelar-clase').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const id = this.getAttribute('data-id');
+                    const titulo = this.getAttribute('data-titulo');
+                    document.getElementById('formCancelarClase').action = '/clases-vivo/' + id + '/cancelar';
+                    document.getElementById('cancelarTitulo').textContent = titulo || 'Clase en Vivo';
+                    modalCancelar.show();
+                });
+            });
+
+            // Modal Baja Clase (CU-69)
+            const modalBaja = new bootstrap.Modal(document.getElementById('modalBajaClase'));
+            document.querySelectorAll('.btn-baja-clase').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const id = this.getAttribute('data-id');
+                    const titulo = this.getAttribute('data-titulo');
+                    document.getElementById('formBajaClase').action = '/clases-vivo/' + id + '/baja';
+                    document.getElementById('bajaTitulo').textContent = titulo || 'Clase en Vivo';
+                    modalBaja.show();
+                });
+            });
+
+            // Modal Finalizar Clase (CU-71)
+            const modalFinalizar = new bootstrap.Modal(document.getElementById('modalFinalizarClase'));
+            document.querySelectorAll('.btn-finalizar-clase').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const id = this.getAttribute('data-id');
+                    const titulo = this.getAttribute('data-titulo');
+                    const docente = this.getAttribute('data-docente');
+                    const duracion = this.getAttribute('data-duracion');
+                    document.getElementById('formFinalizarClase').action = '/clases-vivo/' + id + '/finalizar';
+                    document.getElementById('finTitulo').textContent = titulo || 'Clase Magistral';
+                    document.getElementById('finDocente').textContent = docente || 'Docente Titular';
+                    document.getElementById('finDuracion').textContent = (duracion || 90) + ' min';
+                    modalFinalizar.show();
+                });
+            });
+        });
     </script>
 </body>
 </html>

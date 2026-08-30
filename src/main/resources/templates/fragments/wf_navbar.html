@@ -111,11 +111,7 @@
                             class="fa-solid fa-graduation-cap me-2 text-gold"></i><span>Buscar programa</span></a>
                     <a th:href="@{/cursos/cohortes}" class="wf-dropdown-item-btn"><i
                             class="fa-solid fa-calendar-days me-2 text-muted"></i><span>Buscar cohorte</span></a>
-                    <a th:href="@{/evaluaciones/pools}" class="wf-dropdown-item-btn"><i
-                            class="fa-solid fa-list-check me-2 text-muted"></i><span>Buscar pool de preguntas</span></a>
-                    <a th:href="@{/ia/banco-preguntas}" class="wf-dropdown-item-btn"><i
-                            class="fa-solid fa-wand-magic-sparkles me-2 text-gold"></i><span>Generar banco de preguntas</span></a>
-                    <a th:href="@{/academico/progreso}" class="wf-dropdown-item-btn"><i
+                    <a th:href="@{/inscripciones/progreso}" class="wf-dropdown-item-btn"><i
                             class="fa-solid fa-chart-line me-2 text-muted"></i><span>Buscar progreso</span></a>
                 </div>
 
@@ -123,6 +119,8 @@
                 <div class="wf-dropdown-section"
                     th:if="${usuario.rol != null and usuario.rol.nombre == 'Administrador'}">
                     <div class="wf-dropdown-section-title">Administración del Sistema</div>
+                    <a th:href="@{/inscripciones}" class="wf-dropdown-item-btn"><i
+                            class="fa-solid fa-certificate me-2 text-gold"></i><span>Buscar inscripción</span></a>
                     <a th:href="@{/cursos/categorias}" class="wf-dropdown-item-btn"><i
                             class="fa-solid fa-tags me-2 text-gold"></i><span>Buscar categoría</span></a>
                     <a th:href="@{/cursos/cohortes}" class="wf-dropdown-item-btn"><i

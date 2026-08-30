@@ -2152,3 +2152,304 @@ textarea.wf-input {
     font-weight: 700;
     user-select: none;
 }
+
+/* ==========================================================================
+   MOD-F-05: CLASES EN VIVO & GOOGLE MEET-STYLE IMMERSIVE STUDIO (CU-70 / CU-72)
+   ========================================================================== */
+
+/* Fullscreen Immersive Room */
+.wf-meet-room {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 100vw;
+    background: #111827;
+    color: #F9FAFB;
+    overflow: hidden;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1050;
+}
+
+/* Meet Top Bar */
+.wf-meet-topbar {
+    height: 56px;
+    background: rgba(17, 24, 39, 0.95);
+    backdrop-filter: blur(12px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    z-index: 10;
+    flex-shrink: 0;
+}
+
+/* Meet Main Workspace (Video View + Sidebar) */
+.wf-meet-workspace {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+    position: relative;
+    padding: 12px 16px 8px 16px;
+    gap: 14px;
+}
+
+/* Video Stage Area */
+.wf-meet-stage {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    background: #030712;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.wf-meet-video-screen {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    background: radial-gradient(circle at center, #1E293B 0%, #030712 100%);
+}
+
+.wf-meet-video-screen video, 
+.wf-meet-video-screen .wf-video-feed-mock {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Miniatura Docente PIP / Floating Pin */
+.wf-meet-pip-overlay {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    width: 220px;
+    height: 125px;
+    background: #1E293B;
+    border-radius: 12px;
+    border: 2px solid var(--wf-gold);
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+    z-index: 15;
+    transition: transform 0.2s ease;
+}
+.wf-meet-pip-overlay:hover {
+    transform: scale(1.04);
+}
+
+/* Meet Bottom Action Bar (Control Buttons Bar) */
+.wf-meet-bottombar {
+    height: 76px;
+    background: #111827;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    flex-shrink: 0;
+    z-index: 20;
+}
+
+.wf-meet-controls-center {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.wf-meet-btn {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    border: none;
+    background: #374151;
+    color: #FFFFFF;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.wf-meet-btn:hover {
+    background: #4B5563;
+    transform: scale(1.08);
+}
+
+.wf-meet-btn.btn-active {
+    background: var(--wf-gold);
+    color: #081426;
+}
+
+.wf-meet-btn.btn-danger-leave {
+    background: #DC2626;
+    color: #FFFFFF;
+    width: 58px;
+    border-radius: 28px;
+}
+.wf-meet-btn.btn-danger-leave:hover {
+    background: #B91C1C;
+    transform: scale(1.08);
+}
+
+.wf-meet-btn.btn-toggle-off {
+    background: #DC2626;
+    color: #FFFFFF;
+}
+
+/* Meet Right Sidebar (Personas & Chat) */
+.wf-meet-sidebar {
+    width: 380px;
+    background: #1E293B;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.wf-meet-sidebar.sidebar-collapsed {
+    display: none !important;
+}
+
+.wf-meet-sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    background: #0F172A;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.wf-meet-tab-pills {
+    display: flex;
+    gap: 6px;
+    background: #1E293B;
+    padding: 3px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.wf-meet-tab-btn {
+    padding: 6px 14px;
+    border-radius: 16px;
+    border: none;
+    background: transparent;
+    color: #94A3B8;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.wf-meet-tab-btn.active {
+    background: var(--wf-gold);
+    color: #081426;
+}
+
+/* Lista de Participantes */
+.wf-meet-participant-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.wf-meet-participant-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    border-radius: 10px;
+    background: rgba(15, 23, 42, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.wf-meet-participant-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 800;
+    color: #FFFFFF;
+}
+
+/* Chat Tab */
+.wf-meet-chat-view {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.wf-meet-chat-history {
+    flex: 1;
+    overflow-y: auto;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.wf-meet-chat-input-wrapper {
+    padding: 12px 14px;
+    background: #0F172A;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Animación de Radar / Ondas de Transmisión */
+@keyframes liveSignalPulse {
+    0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7);
+    }
+    70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 16px rgba(220, 38, 38, 0);
+    }
+    100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(220, 38, 38, 0);
+    }
+}
+
+@keyframes liveWaveform {
+    0%, 100% { height: 6px; }
+    50% { height: 24px; }
+}
+
+.live-radar-ping {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #EF4444;
+    animation: liveSignalPulse 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
+}
+
+.live-waveform-bar {
+    width: 3px;
+    background: #38BDF8;
+    border-radius: 2px;
+    display: inline-block;
+    animation: liveWaveform 1.2s infinite ease-in-out;
+}
+.live-waveform-bar:nth-child(2) { animation-delay: 0.2s; }
+.live-waveform-bar:nth-child(3) { animation-delay: 0.4s; }
+.live-waveform-bar:nth-child(4) { animation-delay: 0.1s; }
+.live-waveform-bar:nth-child(5) { animation-delay: 0.3s; }

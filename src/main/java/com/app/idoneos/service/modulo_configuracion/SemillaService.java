@@ -676,14 +676,58 @@ public class SemillaService {
     private void poblarClasesVivoYClonIA() {
         List<Cohorte> cohortes = cohorteRepository.findAll();
         Docente doc = docenteRepository.findAll().stream().findFirst().orElse(null);
-        EstadoClaseEnVivo estProg = estadoClaseEnVivoRepository.findAll().stream().filter(e -> "Programada".equals(e.getNombre())).findFirst().orElse(null);
-        EstadoClaseEnVivo estVivo = estadoClaseEnVivoRepository.findAll().stream().filter(e -> "En vivo".equals(e.getNombre())).findFirst().orElse(null);
-        EstadoClaseClonIA estGen = estadoClaseClonIARepository.findAll().stream().filter(e -> "Generada".equals(e.getNombre())).findFirst().orElse(null);
+        EstadoClaseEnVivo estProg = estadoClaseEnVivoRepository.findAll().stream().filter(e -> "Programada".equalsIgnoreCase(e.getNombre())).findFirst().orElse(null);
+        EstadoClaseEnVivo estVivo = estadoClaseEnVivoRepository.findAll().stream().filter(e -> "En vivo".equalsIgnoreCase(e.getNombre())).findFirst().orElse(null);
+        EstadoClaseEnVivo estFin = estadoClaseEnVivoRepository.findAll().stream().filter(e -> "Finalizada".equalsIgnoreCase(e.getNombre())).findFirst().orElse(null);
+        EstadoClaseClonIA estGen = estadoClaseClonIARepository.findAll().stream().filter(e -> "Generada".equalsIgnoreCase(e.getNombre())).findFirst().orElse(null);
 
-        for (int i = 0; i < cohortes.size(); i++) {
-            Cohorte coh = cohortes.get(i);
-            ClaseEnVivo cv1 = new ClaseEnVivo("Masterclass en Vivo #" + (i+1), LocalDateTime.now().plusDays(i * 3 + 1), 90, "rtmp://stream.idoneos.online/live", "live_stream_k" + (1000 + i), doc, (i == 0 ? estVivo : estProg), coh);
-            claseEnVivoRepository.save(cv1);
+        if (!cohortes.isEmpty()) {
+            Cohorte coh1 = cohortes.get(0);
+            // 1. Clase En Vivo activa (<= 50 chars)
+            ClaseEnVivo cvVivo = new ClaseEnVivo(
+                "Taller Vivo: Resolución Prácticos Renta Fija",
+                LocalDateTime.now().withHour(19).withMinute(0),
+                90,
+                "rtmp://stream.idoneos.online/live",
+                "live_stream_k1001",
+                doc,
+                (estVivo != null ? estVivo : estProg),
+                coh1
+            );
+            claseEnVivoRepository.save(cvVivo);
+
+            // 2. Clase Programada próxima (<= 50 chars)
+            ClaseEnVivo cvProg = new ClaseEnVivo(
+                "Taller Vivo: Análisis con TradingView",
+                LocalDateTime.now().plusDays(4).withHour(19).withMinute(0),
+                60,
+                "rtmp://stream.idoneos.online/live",
+                "live_stream_k1002",
+                doc,
+                estProg,
+                coh1
+            );
+            claseEnVivoRepository.save(cvProg);
+
+            // 3. Clase Finalizada con grabación (<= 50 chars)
+            ClaseEnVivo cvFin = new ClaseEnVivo(
+                "Clase Inaugural: Marco Legal CNV y Ética",
+                LocalDateTime.now().minusDays(7).withHour(19).withMinute(0),
+                90,
+                "rtmp://stream.idoneos.online/live",
+                "live_stream_k1003",
+                doc,
+                (estFin != null ? estFin : estProg),
+                coh1
+            );
+            claseEnVivoRepository.save(cvFin);
+
+            // Otras cohortes (<= 50 chars)
+            for (int i = 1; i < cohortes.size(); i++) {
+                Cohorte coh = cohortes.get(i);
+                ClaseEnVivo c = new ClaseEnVivo("Repaso Sincrónico Cohorte #" + (i+1), LocalDateTime.now().plusDays(i * 3 + 2).withHour(18).withMinute(30), 60, "rtmp://stream.idoneos.online/live", "live_stream_k" + (1004 + i), doc, estProg, coh);
+                claseEnVivoRepository.save(c);
+            }
         }
 
         if (doc != null && estGen != null) {

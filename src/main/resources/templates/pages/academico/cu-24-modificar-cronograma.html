@@ -65,101 +65,71 @@
           <span class="wf-badge status-active">Modo Edición Cronograma</span>
         </div>
 
-        <!-- Calendario Dinámico con Celdas Pintadas -->
-        <div class="mb-4 p-3 bg-white rounded border shadow-sm">
+        <!-- Barra Horizontal Dinámica de Cursado y Semanas (Estilo Timeline Segmentado) -->
+        <div class="mb-4 p-4 bg-white rounded-3 border shadow-sm">
           <div class="d-flex justify-content-between align-items-center mb-3">
-            <span class="small fw-bold text-dark text-uppercase">Vista Previa Dinámica del Calendario (8 Semanas)</span>
-            <span class="small text-muted">Total Acumulado: <strong>8 Semanas Lectivas</strong></span>
+            <div class="d-flex align-items-center gap-2">
+              <div class="p-2 rounded-2 bg-primary-subtle text-primary d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                <i class="fa-solid fa-chart-gantt" style="font-size: 15px;"></i>
+              </div>
+              <div>
+                <span class="small fw-bold text-dark text-uppercase d-block" style="letter-spacing: 0.03em;">Línea Temporal Secuencial del Cursado</span>
+                <span class="text-muted" style="font-size: 11px;">Ajuste proporcional interactivo en tiempo real</span>
+              </div>
+            </div>
+            <div class="text-end">
+              <span class="small text-muted d-block" style="font-size: 11px;">Total Acumulado</span>
+              <strong class="text-primary" id="lblTotalSemanasPage" style="font-size: 13px;">8 Semanas Lectivas</strong>
+            </div>
           </div>
-          <div class="row g-2 mb-2 text-center" style="font-size: 11px;">
-            <div class="col"><div class="p-2 rounded border" style="background: #1E3A5F; color: white; font-weight: 700;">SEM 1 (U1)</div></div>
-            <div class="col"><div class="p-2 rounded border" style="background: #1E3A5F; color: white; font-weight: 700;">SEM 2 (U1)</div></div>
-            <div class="col"><div class="p-2 rounded border" style="background: #2563EB; color: white; font-weight: 700;">SEM 3 (U2)</div></div>
-            <div class="col"><div class="p-2 rounded border" style="background: #2563EB; color: white; font-weight: 700;">SEM 4 (U2)</div></div>
-            <div class="col"><div class="p-2 rounded border" style="background: #2563EB; color: white; font-weight: 700;">SEM 5 (U2)</div></div>
-            <div class="col"><div class="p-2 rounded border" style="background: #0D9488; color: white; font-weight: 700;">SEM 6 (U3)</div></div>
-            <div class="col"><div class="p-2 rounded border" style="background: #0D9488; color: white; font-weight: 700;">SEM 7 (U3)</div></div>
-            <div class="col"><div class="p-2 rounded border" style="background: #0D9488; color: white; font-weight: 700;">SEM 8 (U3)</div></div>
+
+          <!-- Barra de Segmentos Proporcionales Horizontal -->
+          <div class="progress mb-3 p-1 bg-light border" style="height: 44px; border-radius: 10px; display: flex; gap: 4px;" id="barraProgresoPage">
+            <!-- Renderizado reactivamente con JS -->
+          </div>
+
+          <!-- Fila de Celdas Semanales -->
+          <div class="d-flex flex-wrap gap-2 text-center" id="gridCeldasPage" style="font-size: 11px;">
+            <!-- Renderizado reactivamente con JS -->
           </div>
         </div>
 
-        <div class="d-flex flex-column gap-3 mb-4">
-          <!-- Unidad 1 Drag Box -->
-          <div class="p-3 border rounded bg-white d-flex justify-content-between align-items-center shadow-sm" style="border-left: 5px solid #1E3A5F !important;">
-            <div class="d-flex align-items-center gap-3">
-              <div class="d-flex align-items-center gap-2">
-                <i class="fa-solid fa-grip-vertical text-muted" style="cursor: grab; font-size: 18px;"></i>
-                
+        <form th:action="@{/academico/cronogramas/modificar}" method="post">
+          <input type="hidden" name="cohorteId" th:if="${cohorteSeleccionada != null}" th:value="${cohorteSeleccionada.idCohorte}">
+          <div class="d-flex flex-column gap-3 mb-4">
+            <div th:each="c, iterStat : ${cronogramas}" class="p-3 border rounded bg-white d-flex justify-content-between align-items-center shadow-sm"
+                 th:style="'border-left: 5px solid ' + (${iterStat.index == 0} ? '#1E3A5F' : (${iterStat.index == 1} ? '#2563EB' : '#0D9488')) + ' !important;'">
+              <input type="hidden" name="cronogramaIds" th:value="${c.id}">
+              <div class="d-flex align-items-center gap-3">
+                <div class="d-flex align-items-center gap-2">
+                  <i class="fa-solid fa-grip-vertical text-muted" style="cursor: grab; font-size: 18px;"></i>
+                </div>
+                <div>
+                  <strong style="font-size: 14px; color: #081426;" th:text="${'Unidad ' + c.numeroOrden + ': ' + (c.unidad != null ? c.unidad.titulo : 'Unidad')}">Unidad</strong>
+                  <div class="small text-muted" th:text="${c.unidad != null && c.unidad.descripcion != null ? c.unidad.descripcion : 'Contenidos temáticos'}">Descripción</div>
+                </div>
               </div>
-              <div>
-                <strong style="font-size: 14px; color: #081426;">Unidad 1: Marco Regulatorio y Ley de Mercado de Capitales</strong>
-                <div class="small text-muted">Período: <strong>05/04/2026 al 18/04/2026</strong> (Semanas 1 a 2)</div>
-              </div>
-            </div>
-            <div class="d-flex align-items-center gap-3">
-              <div class="d-flex align-items-center gap-2">
-                <label class="wf-label mb-0" style="font-size: 11px; font-weight: 700;">Duración:</label>
-                <div class="d-flex align-items-center gap-1">
-                  <input type="number" class="wf-input text-center" value="2" style="width: 65px; height: 36px; padding: 4px 8px; font-weight: 700;">
-                  <span class="small text-muted">sem</span>
+              <div class="d-flex align-items-center gap-4">
+                <div class="d-flex align-items-center gap-2">
+                  <label class="wf-label mb-0" style="font-size: 11px; font-weight: 700;">Orden:</label>
+                  <input type="number" name="ordenes" class="wf-input text-center" th:value="${c.numeroOrden}" min="1" style="width: 60px; height: 36px; padding: 4px; font-weight: 700;">
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                  <label class="wf-label mb-0" style="font-size: 11px; font-weight: 700;">Duración:</label>
+                  <div class="d-flex align-items-center gap-1">
+                    <input type="number" name="duraciones" class="wf-input text-center input-duracion-semana-page" th:value="${c.semanasDuracion}" min="1" max="20" style="width: 65px; height: 36px; padding: 4px 8px; font-weight: 700;">
+                    <span class="small text-muted">sem</span>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Unidad 2 Drag Box -->
-          <div class="p-3 border rounded bg-white d-flex justify-content-between align-items-center shadow-sm" style="border-left: 5px solid #2563EB !important;">
-            <div class="d-flex align-items-center gap-3">
-              <div class="d-flex align-items-center gap-2">
-                <i class="fa-solid fa-grip-vertical text-muted" style="cursor: grab; font-size: 18px;"></i>
-              </div>
-              <div>
-                <strong style="font-size: 14px; color: #081426;">Unidad 2: Instrumentos de Renta Fija (Bonos y Obligaciones Negociables)</strong>
-                <div class="small text-muted">Período: <strong>19/04/2026 al 09/05/2026</strong> (Semanas 3 a 5)</div>
-              </div>
-            </div>
-            <div class="d-flex align-items-center gap-3">
-              <div class="d-flex align-items-center gap-2">
-                <label class="wf-label mb-0" style="font-size: 11px; font-weight: 700;">Duración:</label>
-                <div class="d-flex align-items-center gap-1">
-                  <input type="number" class="wf-input text-center" value="3" style="width: 65px; height: 36px; padding: 4px 8px; font-weight: 700;">
-                  <span class="small text-muted">sem</span>
-                  
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Unidad 3 Drag Box -->
-          <div class="p-3 border rounded bg-white d-flex justify-content-between align-items-center shadow-sm" style="border-left: 5px solid #0D9488 !important;">
-            <div class="d-flex align-items-center gap-3">
-              <div class="d-flex align-items-center gap-2">
-                <i class="fa-solid fa-grip-vertical text-muted" style="cursor: grab; font-size: 18px;"></i>
-              </div>
-              <div>
-                <strong style="font-size: 14px; color: #081426;">Unidad 3: Instrumentos de Renta Variable y Derivados Financieros</strong>
-                <div class="small text-muted">Período: <strong>10/05/2026 al 30/05/2026</strong> (Semanas 6 a 8)</div>
-              </div>
-            </div>
-            <div class="d-flex align-items-center gap-3">
-              <div class="d-flex align-items-center gap-2">
-                <label class="wf-label mb-0" style="font-size: 11px; font-weight: 700;">Duración:</label>
-                <div class="d-flex align-items-center gap-1">
-                  <input type="number" class="wf-input text-center" value="3" style="width: 65px; height: 36px; padding: 4px 8px; font-weight: 700;">
-                  <span class="small text-muted">sem</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="d-flex justify-content-end align-items-center gap-3 pt-3 border-top">
-          <a th:href="@{/academico/cronograma}" class="wf-btn wf-btn-outline"><i class="fa-solid fa-arrow-left me-1"></i> <span>Cancelar</span></a>
-          <div class="d-flex align-items-center gap-2">
+          <div class="d-flex justify-content-end align-items-center gap-3 pt-3 border-top">
+            <a th:href="@{/academico/cronograma}" class="wf-btn wf-btn-outline"><i class="fa-solid fa-arrow-left me-1"></i> <span>Cancelar</span></a>
             <button type="submit" class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Guardar Cronograma</button>
-            
           </div>
-        </div>
+        </form>
       </div>
     
                     </div>
@@ -181,42 +151,75 @@
     <!-- Bootstrap Bundle JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        function toggleUserDropdown(triggerEl) {
-            const wrapper = triggerEl.closest('.wf-user-menu-wrapper');
-            if (wrapper) {
-                const dropdown = wrapper.querySelector('.wf-user-floating-dropdown');
-                if (dropdown) {
-                    dropdown.style.display = (dropdown.style.display === 'none' || dropdown.style.display === '') ? 'flex' : 'none';
+        document.addEventListener('DOMContentLoaded', function() {
+            const colores = ['#1E3A5F', '#2563EB', '#0D9488', '#D97706', '#7C3AED', '#DB2777'];
+
+            function redibujarBarra() {
+                const inputs = document.querySelectorAll('.input-duracion-semana-page');
+                let total = 0;
+                let data = [];
+
+                inputs.forEach((input, idx) => {
+                    const val = parseInt(input.value || 0, 10);
+                    total += val;
+                    const card = input.closest('.p-3');
+                    const titulo = card ? card.querySelector('strong').textContent : ('Unidad ' + (idx + 1));
+                    data.push({
+                        unidadIdx: idx + 1,
+                        titulo: titulo,
+                        semanas: val,
+                        color: colores[idx % colores.length]
+                    });
+                });
+
+                const lbl = document.getElementById('lblTotalSemanasPage');
+                if (lbl) lbl.textContent = total + ' Semanas Lectivas';
+
+                const barra = document.getElementById('barraProgresoPage');
+                const grid = document.getElementById('gridCeldasPage');
+
+                if (barra) {
+                    if (total === 0) {
+                        barra.innerHTML = '<div class="w-100 text-center text-muted small py-1">Sin semanas</div>';
+                    } else {
+                        let htmlBarra = '';
+                        data.forEach(item => {
+                            if (item.semanas > 0) {
+                                const pct = ((item.semanas / total) * 100).toFixed(1);
+                                htmlBarra += `
+                                    <div class="progress-bar d-flex flex-column justify-content-center align-items-center text-white px-2 shadow-xs"
+                                         style="width: ${pct}%; background: ${item.color}; border-radius: 6px; transition: width 0.3s ease;">
+                                      <span class="fw-bold" style="font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;">U${item.unidadIdx} (${pct}%)</span>
+                                      <span style="font-size: 9px; opacity: 0.9;">${item.semanas} Sem.</span>
+                                    </div>
+                                `;
+                            }
+                        });
+                        barra.innerHTML = htmlBarra;
+                    }
+                }
+
+                if (grid) {
+                    let htmlGrid = '';
+                    data.forEach(item => {
+                        for (let s = 1; s <= item.semanas; s++) {
+                            htmlGrid += `
+                                <div class="p-2 rounded border flex-fill text-white shadow-xs" style="background: ${item.color}; min-width: 70px;">
+                                  <div class="fw-bold" style="font-size: 11px;">SEM ${s}</div>
+                                  <div class="badge bg-white text-dark py-0 px-1 mt-1" style="font-size: 8px;">U${item.unidadIdx}</div>
+                                </div>
+                            `;
+                        }
+                    });
+                    grid.innerHTML = htmlGrid || '<div class="w-100 text-muted small">Sin semanas seleccionadas</div>';
                 }
             }
-        }
-    </script>
 
-    <!-- DSS & Case of Use Console Logger -->
-    <script>
-        (function() {
-            const cuId = 'CU-24';
-            const cuNombre = 'Modificar cronograma';
-            const cuActores = 'Docente';
-            const cuDss = 'modificarCronograma(unPrograma, ordenUnidades, duraciones)';
-
-            console.log(
-                '%c[IDÓNEOS ONLINE] %c ' + cuId + ' %c ' + cuNombre + ' ',
-                'color: #C9982F; font-weight: 800; font-size: 13px;',
-                'background: #081426; color: #E4BE6C; padding: 3px 8px; border-radius: 4px; font-weight: 700; font-size: 12px; border: 1px solid #C9982F;',
-                'color: #081426; font-weight: 800; font-size: 13px;'
-            );
-            console.log(
-                '%c👤 Actor(es): %c' + cuActores,
-                'color: #64748B; font-weight: 700; font-size: 11px;',
-                'color: #0F172A; font-weight: 600; font-size: 11px;'
-            );
-            console.log(
-                '%c⚡ DSS: %c' + cuDss,
-                'color: #64748B; font-weight: 700; font-size: 11px;',
-                'color: #0284C7; font-family: monospace; font-size: 11px; font-weight: 600;'
-            );
-        })();
+            document.querySelectorAll('.input-duracion-semana-page').forEach(input => {
+                input.addEventListener('input', redibujarBarra);
+            });
+            redibujarBarra();
+        });
     </script>
 </body>
 </html>

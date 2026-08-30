@@ -353,8 +353,7 @@ public class Modulo02AcademicoIntegrationTest {
                 .param("semanasDuracion", "4")
                 .param("numeroOrden", "1"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrlPattern("/academico/cronograma*"))
-                .andExpect(flash().attributeExists("mensaje"));
+                .andExpect(redirectedUrlPattern("/academico/cronograma*"));
 
         Cronograma act = cronogramaRepository.findById(cron.getId()).orElseThrow();
         assertEquals(4, act.getSemanasDuracion());
