@@ -56,93 +56,69 @@
           <div class="col-md-3">
             <div class="p-3 bg-white border rounded shadow-sm">
               <div class="text-muted small">Alumnos Activos</div>
-              <h3 class="font-serif fw-bold text-navy my-1" th:text="${stats != null && stats.totalAlumnosActivos != null ? stats.totalAlumnosActivos : '15'}">15</h3>
+              <h3 class="font-serif fw-bold text-navy my-1" th:text="${stats != null ? stats.alumnosActivos : '0'}">0</h3>
               <span class="badge bg-success-subtle text-success">En plataforma</span>
             </div>
           </div>
           <div class="col-md-3">
             <div class="p-3 bg-white border rounded shadow-sm">
               <div class="text-muted small">Inscripciones Vigentes</div>
-              <h3 class="font-serif fw-bold text-navy my-1" th:text="${stats != null && stats.totalInscripcionesVigentes != null ? stats.totalInscripcionesVigentes : '24'}">24</h3>
+              <h3 class="font-serif fw-bold text-navy my-1" th:text="${stats != null ? stats.inscripcionesVigentes : '0'}">0</h3>
               <span class="badge bg-primary-subtle text-primary">Cursos activos</span>
             </div>
           </div>
           <div class="col-md-3">
             <div class="p-3 bg-white border rounded shadow-sm">
               <div class="text-muted small">Ingresos del Mes</div>
-              <h3 class="font-serif fw-bold text-gold my-1" th:text="${stats != null && stats.ingresosMes != null ? '$ ' + #numbers.formatDecimal(stats.ingresosMes, 1, 'POINT', 0, 'COMMA') : '$ 1.250.000'}">$ 1.250.000</h3>
-              <span class="badge bg-warning-subtle text-warning">Facturación</span>
+              <h3 class="font-serif fw-bold text-gold my-1" th:text="${stats != null ? '$ ' + #numbers.formatDecimal(stats.ingresosMesActual, 1, 'POINT', 0, 'COMMA') : '$ 0'}">$ 0</h3>
+              <span class="badge bg-warning-subtle text-warning" th:text="${stats != null && stats.variacionPorcentualIngresos != null ? (#numbers.formatDecimal(stats.variacionPorcentualIngresos, 1, 1) + '% vs mes ant.') : 'Mes en curso'}">Facturación</span>
             </div>
           </div>
           <div class="col-md-3">
             <div class="p-3 bg-white border rounded shadow-sm">
-              <div class="text-muted small">Tasa de Aprobación</div>
-              <h3 class="font-serif fw-bold text-success my-1" th:text="${stats != null && stats.tasaAprobacion != null ? stats.tasaAprobacion + '%' : '88.5%'}">88.5%</h3>
-              <span class="badge bg-info-subtle text-info">Exámenes</span>
+              <div class="text-muted small">Reportes Generados</div>
+              <h3 class="font-serif fw-bold text-success my-1" th:text="${reportes != null ? #lists.size(reportes) : '0'}">0</h3>
+              <span class="badge bg-info-subtle text-info">Historial</span>
             </div>
           </div>
         </div>
 
         <div class="row g-4">
-          <!-- Gráfico 1: Inscripciones de los últimos 30 días (Línea) -->
+          <!-- Gráfico 1: Inscripciones de los últimos 30 días -->
           <div class="col-md-6">
             <div class="p-3 border rounded bg-white shadow-sm h-100">
               <div class="d-flex justify-content-between align-items-center mb-3">
                 <strong style="font-size: 13px; color: #081426;">Inscripciones (Últimos 30 días)</strong>
-                <span class="badge bg-light text-primary border" style="font-size: 9px;">Gráfico de Línea</span>
+                <span class="badge bg-light text-primary border" style="font-size: 9px;">Indicador</span>
               </div>
-              <div class="p-4 rounded border bg-light text-center d-flex flex-column align-items-center justify-content-center" style="height: 140px;">
+              <div class="p-4 rounded border bg-light text-center d-flex flex-column align-items-center justify-content-center" style="min-height: 140px;">
                 <i class="fa-solid fa-chart-line text-primary" style="font-size: 32px; margin-bottom: 8px;"></i>
-                <strong style="color: #081426;">Promedio Diario: 48 nuevas matrículas</strong>
-                <span class="small text-muted">Pico máximo: 92 matrículas el 15/08/2026</span>
+                <strong style="color: #081426;" th:text="${stats != null && stats.inscripcionesUltimos30Dias != null ? 'Actividad Registrada: ' + stats.inscripcionesVigentes + ' inscripciones' : 'Métricas actualizadas'}">Métricas actualizadas</strong>
+                <span class="small text-muted">Datos procesados en tiempo real desde la base de datos</span>
               </div>
             </div>
           </div>
 
-          <!-- Gráfico 2: Ranking Top 5 Cursos con Más Inscriptos (Barras) -->
+          <!-- Gráfico 2: Ranking Top 5 Cursos con Más Inscriptos -->
           <div class="col-md-6">
             <div class="p-3 border rounded bg-white shadow-sm h-100">
               <div class="d-flex justify-content-between align-items-center mb-3">
-                <strong style="font-size: 13px; color: #081426;">Top 5 Cursos con Más Inscriptos</strong>
-                <span class="badge bg-light text-primary border" style="font-size: 9px;">Barras Horizontales</span>
+                <strong style="font-size: 13px; color: #081426;">Top Cursos con Más Inscriptos</strong>
+                <span class="badge bg-light text-primary border" style="font-size: 9px;">Ranking Real</span>
               </div>
-              <div class="d-flex flex-column gap-2" style="font-size: 11px;">
-                <div>
+              <div class="d-flex flex-column gap-2" style="font-size: 11px;" th:if="${stats != null && stats.top5CursosNombres != null && !#lists.isEmpty(stats.top5CursosNombres)}">
+                <div th:each="nombre, iterStat : ${stats.top5CursosNombres}">
                   <div class="d-flex justify-content-between mb-1">
-                    <span>1. Especialización Idoneidad Bursátil</span>
-                    <strong>840 inscriptos</strong>
+                    <span th:text="${(iterStat.index + 1) + '. ' + nombre}">1. Curso</span>
+                    <strong th:text="${stats.top5CursosCantidades[iterStat.index] + ' inscriptos'}">0 inscriptos</strong>
                   </div>
                   <div style="height: 8px; background: #E2E8F0; border-radius: 4px; overflow: hidden;">
-                    <div style="width: 85%; height: 100%; background: #2563EB; border-radius: 4px;"></div>
+                    <div th:style="'height: 100%; border-radius: 4px; background: #2563EB; width: ' + (${stats.top5CursosCantidades[iterStat.index]} * 15) + '%; max-width: 100%;'"></div>
                   </div>
                 </div>
-                <div>
-                  <div class="d-flex justify-content-between mb-1">
-                    <span>2. Operativa Cripto y DeFi</span>
-                    <strong>380 inscriptos</strong>
-                  </div>
-                  <div style="height: 8px; background: #E2E8F0; border-radius: 4px; overflow: hidden;">
-                    <div style="width: 45%; height: 100%; background: #0D9488; border-radius: 4px;"></div>
-                  </div>
-                </div>
-                <div>
-                  <div class="d-flex justify-content-between mb-1">
-                    <span>3. Mercado de Capitales Argentino</span>
-                    <strong>180 inscriptos</strong>
-                  </div>
-                  <div style="height: 8px; background: #E2E8F0; border-radius: 4px; overflow: hidden;">
-                    <div style="width: 25%; height: 100%; background: #64748B; border-radius: 4px;"></div>
-                  </div>
-                </div>
-                <div>
-                  <div class="d-flex justify-content-between mb-1">
-                    <span>4. Valuación de Bonos y Renta Fija</span>
-                    <strong>95 inscriptos</strong>
-                  </div>
-                  <div style="height: 8px; background: #E2E8F0; border-radius: 4px; overflow: hidden;">
-                    <div style="width: 15%; height: 100%; background: #D97706; border-radius: 4px;"></div>
-                  </div>
-                </div>
+              </div>
+              <div class="text-center text-muted py-4 small" th:if="${stats == null || stats.top5CursosNombres == null || #lists.isEmpty(stats.top5CursosNombres)}">
+                No hay inscripciones registradas en cursos aún.
               </div>
             </div>
           </div>

@@ -51,14 +51,22 @@
           <!-- Nombre A-Z -->
           <div class="d-flex flex-wrap align-items-center gap-1">
             <strong style="width: 70px; color: #081426;">Nombre:</strong>
-            <span class="badge bg-dark text-white px-2 py-1 cursor-pointer">Todos</span>
-            <span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">A</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">B</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">C</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">D</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">E</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">F</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">G</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">H</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">I</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">J</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">K</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">L</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">M</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">N</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">Ñ</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">O</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">P</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">Q</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">R</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">S</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">T</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">U</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">V</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">W</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">X</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">Y</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">Z</span>
+            <span class="badge bg-dark text-white px-2 py-1 cursor-pointer filtro-letra active" data-tipo="nombre" data-letra="ALL">Todos</span>
+            <span th:each="letra : ${#strings.arraySplit('A,B,C,D,E,F,G,H,I,J,K,L,M,N,Ñ,O,P,Q,R,S,T,U,V,W,X,Y,Z', ',')}"
+                  class="badge bg-white text-dark border px-2 py-1 cursor-pointer filtro-letra"
+                  data-tipo="nombre"
+                  th:data-letra="${letra}"
+                  th:text="${letra}">A</span>
           </div>
           <!-- Apellido A-Z -->
           <div class="d-flex flex-wrap align-items-center gap-1">
             <strong style="width: 70px; color: #081426;">Apellido:</strong>
-            <span class="badge bg-dark text-white px-2 py-1 cursor-pointer">Todos</span>
-            <span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">A</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">B</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">C</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">D</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">E</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">F</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">G</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">H</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">I</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">J</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">K</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">L</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">M</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">N</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">Ñ</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">O</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">P</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">Q</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">R</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">S</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">T</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">U</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">V</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">W</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">X</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">Y</span><span class="badge bg-white text-dark border px-2 py-1 cursor-pointer">Z</span>
+            <span class="badge bg-dark text-white px-2 py-1 cursor-pointer filtro-letra active" data-tipo="apellido" data-letra="ALL">Todos</span>
+            <span th:each="letra : ${#strings.arraySplit('A,B,C,D,E,F,G,H,I,J,K,L,M,N,Ñ,O,P,Q,R,S,T,U,V,W,X,Y,Z', ',')}"
+                  class="badge bg-white text-dark border px-2 py-1 cursor-pointer filtro-letra"
+                  data-tipo="apellido"
+                  th:data-letra="${letra}"
+                  th:text="${letra}">A</span>
           </div>
         </div>
       </div>
@@ -69,22 +77,23 @@
           <div class="col-md-5">
             <label class="wf-label">Buscar por nombre, apellido o email</label>
             <div class="wf-input-wrap">
-              <input type="text" class="wf-input" placeholder="Ej: Joaquín Küster, Elena Valenzuela...">
+              <input type="text" id="filtroTextoParticipante" class="wf-input" placeholder="Ej: Joaquín Küster, Elena Valenzuela...">
             </div>
           </div>
           <div class="col-md-4">
             <label class="wf-label">Filtrar por Rol o Cohorte</label>
             <div class="wf-input-wrap">
-              <select class="wf-input">
-                <option selected>Todos los participantes (Estudiantes y Docentes)</option>
-                <option th:each="c : ${cohortes}" th:value="${c.idCohorte}" th:text="'Cohorte ' + ${c.idCohorte}">Estudiantes (Cohorte 2026-1)</option>
-                <option>Equipo Docente (Titulares y Ayudantes)</option>
+              <select id="filtroRolCohorteParticipante" class="wf-input">
+                <option value="ALL" selected>Todos los participantes (Estudiantes y Docentes)</option>
+                <option value="Docente">Equipo Docente (Titulares y Ayudantes)</option>
+                <option value="Estudiante">Todos los Estudiantes</option>
+                <option th:each="c : ${cohortes}" th:value="${'Cohorte ' + c.idCohorte}" th:text="'Estudiantes (Cohorte ' + ${c.idCohorte} + ')'">Estudiantes (Cohorte 2026-1)</option>
               </select>
             </div>
           </div>
           <div class="col-md-3">
             <div class="d-flex align-items-center gap-2">
-              <button class="wf-btn wf-btn-primary w-100" style="background: #081426; color: white;"><i class="fa-solid fa-filter me-1"></i> Filtrar</button>
+              <button type="button" id="btnLimpiarFiltrosParticipantes" class="wf-btn wf-btn-outline w-100"><i class="fa-solid fa-rotate-left me-1"></i> Limpiar</button>
             </div>
           </div>
         </div>
@@ -95,7 +104,7 @@
         <table id="tablaParticipantes" class="wf-table align-middle">
           <thead>
             <tr>
-              <th style="width: 44px;"><input type="checkbox" style="width: 16px; height: 16px;"></th>
+              <th style="width: 44px;"><input type="checkbox" id="checkAllParticipantes" style="width: 16px; height: 16px;"></th>
               <th>Nombre / Apellidos</th>
               <th style="width: 140px;">Roles</th>
               <th style="width: 180px;">Grupos / Cohorte</th>
@@ -104,25 +113,31 @@
           </thead>
           <tbody>
             <!-- Docente titular / destacado si aplica -->
-            <tr>
-              <td><input type="checkbox" style="width: 16px; height: 16px;"></td>
+            <tr class="fila-participante" data-nombre="Elena" data-apellido="Valenzuela" data-correo="elena.valenzuela@idoneos.online" data-rol="Docente" data-cohorte="Sin grupos">
+              <td><input type="checkbox" class="check-participante" style="width: 16px; height: 16px;"></td>
               <td>
                 <div class="d-flex align-items-center gap-3">
-                  <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold text-white shadow-sm" style="width: 38px; height: 38px; background: #081426; font-size: 13px;">FS</div>
+                  <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold text-white shadow-sm" style="width: 38px; height: 38px; background: #081426; font-size: 13px;">EV</div>
                   <div>
                     <strong style="color: #081426; font-size: 14px;">Elena Valenzuela</strong>
                     <div class="small text-muted">elena.valenzuela@idoneos.online</div>
                   </div>
                 </div>
               </td>
-              <td><span class="text-muted fw-semibold">Profesor</span></td>
+              <td><span class="badge bg-primary-subtle text-primary border px-2 py-1 fw-semibold">Docente</span></td>
               <td><span class="text-muted">Sin grupos</span></td>
               <td><span class="fw-bold" style="color: #16A34A;">hace 18 minutos</span></td>
             </tr>
 
             <!-- Iteración de Inscripciones/Alumnos reales -->
-            <tr th:each="p, iterStat : ${participantes}">
-              <td><input type="checkbox" style="width: 16px; height: 16px;"></td>
+            <tr th:each="p, iterStat : ${participantes}"
+                class="fila-participante"
+                th:data-nombre="${p.nombreAlumno != null ? p.nombreAlumno : (p.alumno != null and p.alumno.usuario != null ? p.alumno.usuario.nombre : 'Joaquín')}"
+                th:data-apellido="${p.alumno != null and p.alumno.usuario != null ? p.alumno.usuario.apellido : 'Küster'}"
+                th:data-correo="${p.alumno != null and p.alumno.usuario != null ? p.alumno.usuario.correo : 'joaquin.kuster@idoneos.online'}"
+                data-rol="Estudiante"
+                th:data-cohorte="${p.cohorte != null ? 'Cohorte ' + p.cohorte.idCohorte : 'Cohorte 2026-1'}">
+              <td><input type="checkbox" class="check-participante" style="width: 16px; height: 16px;"></td>
               <td>
                 <div class="d-flex align-items-center gap-3">
                   <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold text-white shadow-sm" 
@@ -140,7 +155,7 @@
                 <span class="badge bg-light text-dark border px-2 py-1 fw-semibold">Estudiante</span>
               </td>
               <td>
-                <span th:text="${p.cohorte != null ? 'Cohorte 2026-' + p.cohorte.id : 'Cohorte 2026-1'}">Cohorte 2026-1</span>
+                <span th:text="${p.cohorte != null ? 'Cohorte 2026-' + p.cohorte.idCohorte : 'Cohorte 2026-1'}">Cohorte 2026-1</span>
               </td>
               <td>
                 <span class="text-muted" th:text="${iterStat.index % 2 == 0 ? 'hace 2 horas' : '126 días 21 horas'}">hace 2 horas</span>
@@ -148,28 +163,16 @@
             </tr>
             
             <tr th:if="${#lists.isEmpty(participantes)}">
-              <td><input type="checkbox" style="width: 16px; height: 16px;"></td>
-              <td>
-                <div class="d-flex align-items-center gap-3">
-                  <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold text-white shadow-sm" style="width: 38px; height: 38px; background: #2563EB; font-size: 13px;">JK</div>
-                  <div>
-                    <strong style="color: #081426; font-size: 14px;">Joaquín Küster</strong>
-                    <div class="small text-muted">joaquin.kuster@idoneos.online</div>
-                  </div>
-                </div>
-              </td>
-              <td><span class="badge bg-light text-dark border px-2 py-1 fw-semibold">Estudiante</span></td>
-              <td><span>Cohorte 2026-1</span></td>
-              <td><span class="text-muted">hace 2 horas</span></td>
+              <td colspan="5" class="text-center py-4 text-muted">No se encontraron participantes registrados en este curso.</td>
             </tr>
           </tbody>
         </table>
+      </div>
 
-        <!-- Paginación Estilo Catálogo -->
-        <div id="paginacionParticipantes" class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top px-3 pb-3">
-          <div class="text-secondary small fw-semibold" id="partPaginaInfo"></div>
-          <div class="d-flex gap-1" id="partBotonesPaginacion"></div>
-        </div>
+      <!-- Paginación Premium — Sistema wf-pagination (CU-25) -->
+      <div id="paginacionParticipantes" class="wf-pagination-wrap mt-3">
+        <div class="wf-pagination-info" id="partPaginaInfo"></div>
+        <div class="wf-pagination-controls" id="partBotonesPaginacion"></div>
       </div>
     </div>
     
@@ -189,6 +192,9 @@
         </div>
     </div>
 
+    <!-- Scripts Globales -->
+    <th:block th:replace="~{fragments/scripts :: wf-global-scripts}"></th:block>
+
     <!-- Bootstrap Bundle JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
@@ -202,26 +208,112 @@
             }
         }
 
-        let partCurrentPage = 1;
-        const partRowsPerPage = 8;
-
-        function renderPartPagination() {
-            if (window.renderWfPagination) {
-                window.renderWfPagination({
-                    tableId: 'tablaParticipantes',
-                    wrapId: 'paginacionParticipantes',
-                    infoId: 'partPaginaInfo',
-                    controlsId: 'partBotonesPaginacion',
-                    currentPage: partCurrentPage,
-                    rowsPerPage: partRowsPerPage,
-                    entityLabel: 'participantes',
-                    onPageChange: function(p) { partCurrentPage = p; renderPartPagination(); }
-                });
-            }
-        }
-
         document.addEventListener('DOMContentLoaded', function() {
-            renderPartPagination();
+            let partCurrentPage = 1;
+            const partRowsPerPage = 8;
+            let letraNombreSeleccionada = 'ALL';
+            let letraApellidoSeleccionada = 'ALL';
+
+            const filas = Array.from(document.querySelectorAll('.fila-participante'));
+
+            function aplicarFiltros() {
+                const txt = (document.getElementById('filtroTextoParticipante')?.value || '').toLowerCase().trim();
+                const rolCohorte = document.getElementById('filtroRolCohorteParticipante')?.value || 'ALL';
+
+                filas.forEach(fila => {
+                    const nom = (fila.getAttribute('data-nombre') || '').toLowerCase();
+                    const ape = (fila.getAttribute('data-apellido') || '').toLowerCase();
+                    const cor = (fila.getAttribute('data-correo') || '').toLowerCase();
+                    const rol = fila.getAttribute('data-rol') || '';
+                    const coh = fila.getAttribute('data-cohorte') || '';
+
+                    let coincideTexto = !txt || nom.includes(txt) || ape.includes(txt) || cor.includes(txt);
+                    let coincideRolCohorte = (rolCohorte === 'ALL') ||
+                                             (rolCohorte === 'Docente' && rol === 'Docente') ||
+                                             (rolCohorte === 'Estudiante' && rol === 'Estudiante') ||
+                                             (coh.includes(rolCohorte));
+
+                    let coincideLetraNom = (letraNombreSeleccionada === 'ALL') || (nom.startsWith(letraNombreSeleccionada.toLowerCase()));
+                    let coincideLetraApe = (letraApellidoSeleccionada === 'ALL') || (ape.startsWith(letraApellidoSeleccionada.toLowerCase()));
+
+                    if (coincideTexto && coincideRolCohorte && coincideLetraNom && coincideLetraApe) {
+                        fila.classList.remove('no-data');
+                        fila.dataset.visible = 'true';
+                        fila.style.display = '';
+                    } else {
+                        fila.classList.add('no-data');
+                        fila.dataset.visible = 'false';
+                        fila.style.display = 'none';
+                    }
+                });
+
+                partCurrentPage = 1;
+                renderPartPagination();
+            }
+
+            function renderPartPagination() {
+                if (window.renderWfPagination) {
+                    window.renderWfPagination({
+                        tableId: 'tablaParticipantes',
+                        wrapId: 'paginacionParticipantes',
+                        infoId: 'partPaginaInfo',
+                        controlsId: 'partBotonesPaginacion',
+                        currentPage: partCurrentPage,
+                        rowsPerPage: partRowsPerPage,
+                        entityLabel: 'participantes',
+                        onPageChange: function(p) { partCurrentPage = p; renderPartPagination(); }
+                    });
+                }
+            }
+
+            // Listeners de Filtros
+            document.getElementById('filtroTextoParticipante')?.addEventListener('input', aplicarFiltros);
+            document.getElementById('filtroRolCohorteParticipante')?.addEventListener('change', aplicarFiltros);
+
+            document.querySelectorAll('.filtro-letra').forEach(el => {
+                el.addEventListener('click', function() {
+                    const tipo = this.getAttribute('data-tipo');
+                    const letra = this.getAttribute('data-letra');
+
+                    // Desmarcar hermanos
+                    document.querySelectorAll(`.filtro-letra[data-tipo="${tipo}"]`).forEach(btn => {
+                        btn.className = 'badge bg-white text-dark border px-2 py-1 cursor-pointer filtro-letra';
+                    });
+                    this.className = 'badge bg-dark text-white px-2 py-1 cursor-pointer filtro-letra active';
+
+                    if (tipo === 'nombre') letraNombreSeleccionada = letra;
+                    if (tipo === 'apellido') letraApellidoSeleccionada = letra;
+
+                    aplicarFiltros();
+                });
+            });
+
+            document.getElementById('btnLimpiarFiltrosParticipantes')?.addEventListener('click', function() {
+                const inTxt = document.getElementById('filtroTextoParticipante');
+                if (inTxt) inTxt.value = '';
+                const inSel = document.getElementById('filtroRolCohorteParticipante');
+                if (inSel) inSel.value = 'ALL';
+
+                document.querySelectorAll('.filtro-letra[data-letra="ALL"]').forEach(btn => {
+                    const tipo = btn.getAttribute('data-tipo');
+                    document.querySelectorAll(`.filtro-letra[data-tipo="${tipo}"]`).forEach(b => {
+                        b.className = 'badge bg-white text-dark border px-2 py-1 cursor-pointer filtro-letra';
+                    });
+                    btn.className = 'badge bg-dark text-white px-2 py-1 cursor-pointer filtro-letra active';
+                });
+
+                letraNombreSeleccionada = 'ALL';
+                letraApellidoSeleccionada = 'ALL';
+                aplicarFiltros();
+            });
+
+            // Check All
+            document.getElementById('checkAllParticipantes')?.addEventListener('change', function() {
+                const checks = document.querySelectorAll('.check-participante');
+                checks.forEach(c => c.checked = this.checked);
+            });
+
+            aplicarFiltros();
         });
     </script>
 

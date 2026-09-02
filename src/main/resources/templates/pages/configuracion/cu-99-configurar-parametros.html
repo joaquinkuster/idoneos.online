@@ -56,81 +56,91 @@
                 <div class="wf-body">
                     <div class="wf-main-content">
                         
-    <div class="wf-card mb-4" style="max-width: 1080px; margin: 0 auto; background: #FFFFFF;">
+    <div class="wf-card mb-4" style="max-width: 1180px; margin: 0 auto; background: #FFFFFF;">
       <div class="wf-card-header mb-4 pb-3 border-bottom d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2">
         <div>
           <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Configuración de Parámetros Generales del Sistema</h3>
-          <p class="small text-muted" style="margin: 3px 0 0;">Ajuste de variables operativas, límites de IA y constantes institucionales.</p>
+          <p class="small text-muted" style="margin: 3px 0 0;">Ajuste de variables operativas, claves de API, límites de IA y constantes institucionales.</p>
         </div>
-        <span class="wf-badge status-active align-self-start align-self-sm-auto">Parámetros Globales</span>
+        <span class="wf-badge status-active align-self-start align-self-sm-auto"><i class="fa-solid fa-sliders me-1"></i> Parámetros Globales</span>
       </div>
 
-      <!-- Tabla de Configuración con scroll responsivo -->
-      <div class="wf-table-wrap mb-4 table-responsive" style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
-        <table class="wf-table align-middle" style="min-width: 600px;">
-          <thead>
-            <tr>
-              <th style="width: 35%;">Clave / Parámetro</th>
-              <th style="width: 50%;">Valor Configurado</th>
-              <th class="text-end" style="width: 15%;">Acción</th>
-            </tr>
-          </thead>
-          <tbody>
-  <tr th:each="p : ${parametros}">
-    <td>
-      <div class="d-flex align-items-center gap-2">
-        <i class="fa-solid fa-gear text-muted"></i>
-        <code style="font-size: 13px; font-weight: 700; color: #081426;" th:text="${p.clave}">CLAVE</code>
-      </div>
-    </td>
-    <td>
-      <form th:action="@{/configuracion/guardar}" method="post" class="d-flex flex-column flex-sm-row gap-2">
-        <input type="hidden" name="clave" th:value="${p.clave}">
-        <input type="text" name="valor" th:value="${p.valor}" class="wf-input flex-grow-1" style="min-width: 200px;">
-        <button type="submit" class="wf-btn wf-btn-sm wf-btn-primary text-nowrap"><i class="fa-solid fa-floppy-disk me-1"></i> Guardar</button>
-      </form>
-    </td>
-    <td class="text-end">
-      <span class="wf-badge status-active" style="font-size: 10px;">Activo</span>
-    </td>
-  </tr>
-  <tr th:if="${#lists.isEmpty(parametros)}">
-    <td colspan="3" class="text-center py-4 text-muted">No hay parámetros de configuración disponibles.</td>
-  </tr>
-</tbody>
-        </table>
-      </div>
-
-      <!-- Formulario de Edición del Parámetro Seleccionado -->
-      <form th:action="@{/configuracion/guardar}" method="post" class="p-3 p-md-4 bg-light rounded border">
-        <h4 style="font-size: 15px; font-weight: 800; color: #081426; margin-bottom: 12px;"><i class="fa-solid fa-plus-circle text-gold me-2"></i>Crear o Actualizar Parámetro</h4>
-        <div class="row g-3">
-          <div class="col-12 col-md-6">
-            <label class="wf-label">Clave del Parámetro</label>
-            <input type="text" name="clave" class="wf-input" placeholder="Ej: heygen.api_key, sesiones.max" required>
+      <!-- Formulario Superior de Alta Rápida de Parámetro -->
+      <form th:action="@{/configuracion/guardar}" method="post" class="p-3 p-md-4 mb-4 bg-light rounded border">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h4 style="font-size: 14px; font-weight: 800; color: #081426; margin: 0;"><i class="fa-solid fa-plus-circle text-gold me-2"></i>Registrar / Actualizar Nuevo Parámetro</h4>
+          <span class="small text-muted">ID Sistema</span>
+        </div>
+        <div class="row g-3 align-items-end">
+          <div class="col-12 col-md-5">
+            <label class="wf-label">Clave Única (Key)</label>
+            <div class="wf-input-wrap">
+              <input type="text" name="clave" class="wf-input" placeholder="Ej: heygen.api_key, max.sesiones" required>
+            </div>
           </div>
-          <div class="col-12 col-md-6">
-            <label class="wf-label">Valor Asignado</label>
-            <input type="text" name="valor" class="wf-input" placeholder="Valor asignado" required>
+          <div class="col-12 col-md-5">
+            <label class="wf-label">Valor Configurado (Value)</label>
+            <div class="wf-input-wrap">
+              <input type="text" name="valor" class="wf-input" placeholder="Ej: https://api.heygen.com/v1" required>
+            </div>
+          </div>
+          <div class="col-12 col-md-2">
+            <button type="submit" class="wf-btn wf-btn-primary w-100"><i class="fa-solid fa-floppy-disk me-1"></i> Guardar</button>
           </div>
         </div>
-
-        <div class="d-flex justify-content-end align-items-center gap-3 pt-3 mt-3 border-top">
-          <button type="submit" class="wf-btn wf-btn-primary"><i class="fa-solid fa-check me-1"></i> Guardar Parámetro</button>
-        </div>
       </form>
+
+      <!-- Grid de Parámetros en Formato Cards -->
+      <div id="contenedorCardsParametros" class="row g-3 mb-4">
+        <div th:each="p : ${parametros}" class="col-12 col-md-6 col-lg-4 item-card-parametro">
+          <div class="card h-100 border rounded-3 p-3 shadow-sm bg-white d-flex flex-column justify-content-between" style="border-top: 3px solid var(--wf-navy, #081426) !important;">
+            <div>
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <div class="d-flex align-items-center gap-2">
+                  <div style="width: 32px; height: 32px; border-radius: 8px; background: #F1F5F9; color: #081426; display: flex; align-items: center; justify-content: center; font-size: 14px;">
+                    <i class="fa-solid fa-gear"></i>
+                  </div>
+                  <strong style="font-size: 13px; color: #081426; word-break: break-all;" th:text="${p.clave}">CLAVE</strong>
+                </div>
+                <span class="wf-badge status-active" style="font-size: 9px;">Activo</span>
+              </div>
+            </div>
+
+            <form th:action="@{/configuracion/guardar}" method="post" class="mt-3 pt-2 border-top">
+              <input type="hidden" name="clave" th:value="${p.clave}">
+              <label class="wf-label" style="font-size: 11px;">Valor del Parámetro</label>
+              <div class="d-flex gap-2">
+                <input type="text" name="valor" th:value="${p.valor}" class="wf-input flex-grow-1" style="font-size: 12px;" required>
+                <button type="submit" class="wf-btn wf-btn-sm wf-btn-primary" title="Actualizar Parámetro"><i class="fa-solid fa-save"></i></button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <div th:if="${#lists.isEmpty(parametros)}" class="col-12 text-center py-5 text-muted">
+          <i class="fa-solid fa-sliders mb-2" style="font-size: 32px; color: #CBD5E1;"></i>
+          <p class="m-0">No se encontraron parámetros registrados en el sistema.</p>
+        </div>
+      </div>
+
+      <!-- Paginación de Cards -->
+      <div id="paginacionParametros" class="wf-pagination-wrap mt-3" style="display: flex; justify-content: space-between; align-items: center;">
+        <div class="wf-pagination-info" id="paramPaginaInfo"></div>
+        <div class="wf-pagination-controls" id="paramBotonesPaginacion"></div>
+      </div>
     </div>
   </div>
+
   <!-- Footer Oficial -->
-                <div class="wf-screen-footer">
-                    <div>
-                        <strong>Idóneos <span>Online</span> S.A.S.</strong> • Plataforma de Educación Financiera, Economía & Mercado de Capitales
-                    </div>
-                    <div>
-                        FCEQyN — UNaM • Proyecto Software (LSI) / Trabajo Final (ASI)
-                    </div>
-                </div>
-            
+  <div class="wf-screen-footer">
+      <div>
+          <strong>Idóneos <span>Online</span> S.A.S.</strong> • Plataforma de Educación Financiera, Economía & Mercado de Capitales
+      </div>
+      <div>
+          FCEQyN — UNaM • Proyecto Software (LSI) / Trabajo Final (ASI)
+      </div>
+  </div>
+
         </div>
     </div>
 
@@ -146,6 +156,79 @@
                 }
             }
         }
+
+        // Paginador dinámico para el grid de Cards
+        document.addEventListener('DOMContentLoaded', function () {
+            const cards = Array.from(document.querySelectorAll('.item-card-parametro'));
+            const totalCards = cards.length;
+            const cardsPorPagina = 6;
+            let paginaActual = 1;
+
+            function renderizarPaginaCards(page) {
+                paginaActual = page;
+                const totalPages = Math.ceil(totalCards / cardsPorPagina) || 1;
+                const start = (paginaActual - 1) * cardsPorPagina;
+                const end = start + cardsPorPagina;
+
+                cards.forEach((card, idx) => {
+                    card.style.display = (idx >= start && idx < end) ? '' : 'none';
+                });
+
+                const infoEl = document.getElementById('paramPaginaInfo');
+                if (infoEl) {
+                    infoEl.innerHTML = 'Página <span class="text-dark fw-bold">' + paginaActual + '</span> de <span class="text-dark fw-bold">' + totalPages + '</span> (' + totalCards + ' parámetros)';
+                }
+
+                const ctrlEl = document.getElementById('paramBotonesPaginacion');
+                if (!ctrlEl) return;
+                ctrlEl.innerHTML = '';
+
+                if (totalPages <= 1) return;
+
+                // Botón Anterior
+                const prevBtn = document.createElement('button');
+                prevBtn.type = 'button';
+                prevBtn.className = 'btn btn-sm ' + (paginaActual === 1 ? 'btn-light disabled border' : 'btn-dark text-white');
+                prevBtn.style.cssText = 'border-radius: 8px; font-weight: 600; padding: 6px 12px; margin-right: 4px;';
+                prevBtn.innerHTML = '<i class="fa-solid fa-chevron-left"></i>';
+                if (paginaActual > 1) {
+                    prevBtn.onclick = () => renderizarPaginaCards(paginaActual - 1);
+                }
+                ctrlEl.appendChild(prevBtn);
+
+                // Botones Numerados
+                for (let i = 1; i <= totalPages; i++) {
+                    const numBtn = document.createElement('button');
+                    numBtn.type = 'button';
+                    numBtn.textContent = i;
+                    numBtn.style.cssText = 'border-radius: 8px; min-width: 34px; font-weight: 700; margin: 0 2px;';
+                    if (i === paginaActual) {
+                        numBtn.className = 'btn btn-sm btn-warning text-dark fw-bold';
+                        numBtn.style.background = 'var(--wf-gold, #D4A03D)';
+                        numBtn.style.borderColor = 'var(--wf-gold, #D4A03D)';
+                    } else {
+                        numBtn.className = 'btn btn-sm btn-light border text-secondary';
+                    }
+                    numBtn.onclick = () => renderizarPaginaCards(i);
+                    ctrlEl.appendChild(numBtn);
+                }
+
+                // Botón Siguiente
+                const nextBtn = document.createElement('button');
+                nextBtn.type = 'button';
+                nextBtn.className = 'btn btn-sm ' + (paginaActual >= totalPages ? 'btn-light disabled border' : 'btn-dark text-white');
+                nextBtn.style.cssText = 'border-radius: 8px; font-weight: 600; padding: 6px 12px; margin-left: 4px;';
+                nextBtn.innerHTML = '<i class="fa-solid fa-chevron-right"></i>';
+                if (paginaActual < totalPages) {
+                    nextBtn.onclick = () => renderizarPaginaCards(paginaActual + 1);
+                }
+                ctrlEl.appendChild(nextBtn);
+            }
+
+            if (totalCards > 0) {
+                renderizarPaginaCards(1);
+            }
+        });
     </script>
 </body>
 </html>

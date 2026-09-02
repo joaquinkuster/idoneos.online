@@ -1,117 +1,58 @@
-<div th:fragment="scripts">
+<th:block th:fragment="scripts">
     <!-- Bootstrap 5 Bundle JS (Includes Popper) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <!-- SweetAlert2 JS CDN -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <!-- Toast lateral delegador si wf_navbar no está presente -->
-    <script th:if="${mensaje != null and !#strings.isEmpty(mensaje)}" th:inline="javascript">
-        document.addEventListener('DOMContentLoaded', function() {
-            var msg = /*[[${mensaje}]]*/ '';
-            var title = '¡Operación Exitosa!';
-            if (msg.toLowerCase().includes('sesión') || msg.toLowerCase().includes('sesion')) {
-                if (msg.toLowerCase().includes('cerrado') || msg.toLowerCase().includes('cerrar')) {
-                    title = 'Sesión Finalizada';
-                } else if (msg.toLowerCase().includes('bienvenido') || msg.toLowerCase().includes('iniciado') || msg.toLowerCase().includes('ingreso')) {
-                    title = '¡Bienvenido de vuelta!';
-                }
-            } else if (msg.toLowerCase().includes('registrad') || msg.toLowerCase().includes('cread') || msg.toLowerCase().includes('guardad')) {
-                title = 'Guardado Exitoso';
-            } else if (msg.toLowerCase().includes('actualizad') || msg.toLowerCase().includes('modificad') || msg.toLowerCase().includes('editad')) {
-                title = 'Actualización Exitosa';
-            } else if (msg.toLowerCase().includes('eliminad') || msg.toLowerCase().includes('baja') || msg.toLowerCase().includes('anulad')) {
-                title = 'Eliminación Exitosa';
-            }
-            if (window.showIdoneosToast) {
-                window.showIdoneosToast('success', title, msg);
-            }
-        });
-    </script>
-
-    <script th:if="${error != null and !#strings.isEmpty(error)}" th:inline="javascript">
-        document.addEventListener('DOMContentLoaded', function() {
-            var err = /*[[${error}]]*/ '';
-            if (window.showIdoneosToast) {
-                window.showIdoneosToast('error', 'Atención', err);
-            }
-        });
-    </script>
-
-    <!-- 
-        renderWfPagination — Sistema de paginación premium unificado.
-        Uso: renderWfPagination(config) donde config = {
-            tableId, wrapId, infoId, controlsId,
-            currentPage (ref), rowsPerPage, entityLabel,
-            onPageChange: (newPage) => void
-        }
-    -->
+    <!-- Paginación Global -->
     <script>
-        /**
-         * Renderiza una paginación premium wf-pagination sobre una tabla.
-         * @param {object} cfg
-         * @param {string}   cfg.tableId        - ID del <table>
-         * @param {string}   cfg.wrapId         - ID del contenedor .wf-pagination-wrap
-         * @param {string}   cfg.infoId         - ID del span de info (dentro del wrap)
-         * @param {string}   cfg.controlsId     - ID del div de botones (dentro del wrap)
-         * @param {number}   cfg.currentPage    - Página actual (1-indexed)
-         * @param {number}   cfg.rowsPerPage    - Filas por página
-         * @param {string}   cfg.entityLabel    - Etiqueta plural (ej: "cohortes")
-         * @param {function} cfg.onPageChange   - Callback (newPage:number) => void
-         */
         window.renderWfPagination = function(cfg) {
             const table = document.getElementById(cfg.tableId);
-            if (!table) return;
-            const tbody = table.querySelector('tbody');
-            const rows = Array.from(tbody.querySelectorAll('tr'));
-            const totalRows = rows.length;
-            const totalPages = Math.ceil(totalRows / cfg.rowsPerPage) || 1;
-            let page = Math.max(1, Math.min(cfg.currentPage, totalPages));
+            const wrap = document.getElementById(cfg.wrapId);
+            const info = document.getElementById(cfg.infoId);
+            const ctrl = document.getElementById(cfg.controlsId);
 
-            // Mostrar/ocultar filas
-            rows.forEach((row, idx) => {
-                const start = (page - 1) * cfg.rowsPerPage;
-                row.style.display = (idx >= start && idx < start + cfg.rowsPerPage) ? '' : 'none';
+            if (!table || !wrap || !info || !ctrl) return;
+
+            const tbody = table.querySelector('tbody');
+            if (!tbody) return;
+
+            const allRows = Array.from(tbody.querySelectorAll('tr:not(.no-data)'));
+            const totalRows = allRows.length;
+            const rowsPerPage = cfg.rowsPerPage || 8;
+            const totalPages = Math.max(1, Math.ceil(totalRows / rowsPerPage));
+            const page = Math.min(Math.max(1, cfg.currentPage || 1), totalPages);
+
+            const startIdx = (page - 1) * rowsPerPage;
+            const endIdx = Math.min(startIdx + rowsPerPage, totalRows);
+
+            allRows.forEach((row, idx) => {
+                row.style.display = (idx >= startIdx && idx < endIdx) ? '' : 'none';
             });
 
-            // Ocultar wrap si no hay páginas
-            const wrap = document.getElementById(cfg.wrapId);
-            if (!wrap) return;
-            if (totalPages <= 1 && totalRows <= cfg.rowsPerPage) {
-                wrap.style.display = totalRows === 0 ? 'none' : 'flex';
-                // Si solo 1 página, no mostrar controles pero sí info
-                const ctrl = document.getElementById(cfg.controlsId);
-                if (ctrl) ctrl.innerHTML = '';
-                const info = document.getElementById(cfg.infoId);
-                if (info) info.innerHTML = '<strong>' + totalRows + '</strong> ' + cfg.entityLabel;
-                return;
-            }
-            wrap.style.display = 'flex';
-
-            // Info
-            const info = document.getElementById(cfg.infoId);
-            if (info) {
-                info.innerHTML = 'Página <strong>' + page + '</strong> de <strong>' + totalPages + '</strong> &nbsp;·&nbsp; <strong>' + totalRows + '</strong> ' + cfg.entityLabel;
+            const entityLabel = cfg.entityLabel || 'registros';
+            if (totalRows === 0) {
+                info.textContent = 'Sin ' + entityLabel + ' para mostrar';
+            } else {
+                info.innerHTML = 'Mostrando <strong>' + (startIdx + 1) + '–' + endIdx + '</strong> de <strong>' + totalRows + '</strong> ' + entityLabel;
             }
 
-            // Controles
-            const ctrl = document.getElementById(cfg.controlsId);
-            if (!ctrl) return;
             ctrl.innerHTML = '';
+            if (totalPages <= 1) return;
 
-            function makeBtn(label, cls, disabled, onClick) {
+            function makeBtn(html, extraClass, disabled, onClick) {
                 const btn = document.createElement('button');
                 btn.type = 'button';
-                btn.className = 'wf-page-btn ' + cls + (disabled ? ' disabled' : '');
-                btn.innerHTML = label;
-                if (!disabled) btn.addEventListener('click', onClick);
+                btn.className = 'wf-page-btn' + (extraClass ? ' ' + extraClass : '');
+                btn.innerHTML = html;
+                btn.disabled = disabled;
+                if (!disabled && onClick) btn.addEventListener('click', onClick);
                 return btn;
             }
 
-            // Prev
-            ctrl.appendChild(makeBtn('<i class="fa-solid fa-chevron-left"></i> Anterior', 'wf-page-nav', page === 1, () => cfg.onPageChange(page - 1)));
+            ctrl.appendChild(makeBtn('<i class="fa-solid fa-chevron-left"></i> Anterior', 'wf-page-nav', page <= 1, () => cfg.onPageChange(page - 1)));
 
-            // Números con elipsis inteligente
             const delta = 1;
             let pages = new Set([1, totalPages]);
             for (let i = Math.max(2, page - delta); i <= Math.min(totalPages - 1, page + delta); i++) pages.add(i);
@@ -129,8 +70,9 @@
                 prev = p;
             });
 
-            // Next
             ctrl.appendChild(makeBtn('Siguiente <i class="fa-solid fa-chevron-right"></i>', 'wf-page-nav', page >= totalPages, () => cfg.onPageChange(page + 1)));
         };
     </script>
-</div>
+</th:block>
+
+<th:block th:fragment="wf-global-scripts" th:replace="~{:: scripts}"></th:block>

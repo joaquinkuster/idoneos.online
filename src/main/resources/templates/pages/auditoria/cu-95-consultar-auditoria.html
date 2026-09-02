@@ -130,19 +130,22 @@
               <th>Usuario Responsable</th>
               <th>Acción</th>
               <th>Entidad Afectada</th>
-              <th>Detalle / Operación</th>
+              <th>Dirección IP</th>
             </tr>
           </thead>
           <tbody>
   <tr th:each="a : ${registros}">
+    <td><code style="font-weight: 700; color: #081426;" th:text="${'#AUD-' + a.idAuditoria}">#AUD-1</code></td>
     <td th:text="${#temporals.format(a.fechaHora, 'dd/MM/yyyy HH:mm:ss')}">01/01/2026 12:00:00</td>
     <td><strong th:text="${a.usuario != null ? a.usuario.nombreCompleto : 'Sistema'}">Usuario</strong></td>
-    <td><span class="wf-badge status-active" th:text="${a.tipoAuditoria != null ? a.tipoAuditoria.nombre : 'ACCIÓN'}">ACCIÓN</span></td>
+    <td>
+      <span class="wf-badge status-active" th:text="${a.tipoAccionAuditoria != null ? a.tipoAccionAuditoria.nombre : (a.tipoAuditoria != null ? a.tipoAuditoria.nombre : 'ACCIÓN')}">ACCIÓN</span>
+    </td>
     <td th:text="${a.entidadAfectada + ' #' + a.idAfectado}">Entidad</td>
     <td><code th:text="${a.ipUsuario}">127.0.0.1</code></td>
   </tr>
   <tr th:if="${#lists.isEmpty(registros)}">
-    <td colspan="5" class="text-center py-4 text-muted">No hay eventos de auditoría registrados.</td>
+    <td colspan="6" class="text-center py-4 text-muted">No hay eventos de auditoría registrados.</td>
   </tr>
 </tbody>
         </table>

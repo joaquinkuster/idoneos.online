@@ -149,8 +149,9 @@
                 <!-- Menú de Cuenta para Todos -->
                 <div class="wf-dropdown-section">
                     <div class="wf-dropdown-section-title">Cuenta & Sesión</div>
-                    <a th:href="@{/seguridad/perfil}" class="wf-dropdown-item-btn"><i
-                            class="fa-solid fa-id-card me-2 text-muted"></i><span>Ver perfil</span></a>
+                    <button type="button" class="wf-dropdown-item-btn border-0 bg-transparent w-100 text-start" data-bs-toggle="modal" data-bs-target="#modalGlobalMiPerfil">
+                        <i class="fa-solid fa-id-card me-2 text-muted"></i><span>Ver perfil</span>
+                    </button>
                     <a th:href="@{/seguridad/sesiones}" class="wf-dropdown-item-btn"><i
                             class="fa-solid fa-laptop me-2 text-muted"></i><span>Seguridad y sesiones activas</span></a>
                     <button type="button" onclick="confirmarCerrarSesionNavbar()"
@@ -159,6 +160,68 @@
                     </button>
                     <form id="globalLogoutForm" th:action="@{/logout}" method="post" style="display: none;"></form>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Global de Mi Perfil y Edición Fiel al Prototipo UI -->
+    <div class="modal fade" id="modalGlobalMiPerfil" tabindex="-1" aria-labelledby="modalGlobalMiPerfilLabel" aria-hidden="true" th:if="${usuario != null}">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 12px; overflow: hidden; border: 1.5px solid var(--wf-navy, #081426);">
+                <div class="p-3 d-flex justify-content-between align-items-center text-white" style="background: #081426; border-bottom: 2px solid var(--wf-gold);">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="wf-badge" style="background: #081426; color: var(--wf-gold); border-color: var(--wf-gold); font-size: 11px;">Mi Perfil</span>
+                        <strong style="font-size: 14px; color: #FFFFFF;"><i class="fa-solid fa-user-circle text-warning me-2"></i>Perfil de Usuario</strong>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <form th:action="@{/seguridad/perfil/editar}" method="post">
+                    <div class="modal-body p-4 bg-white">
+                        <div class="d-flex align-items-center gap-3 pb-3 mb-3 border-bottom">
+                            <div style="width: 52px; height: 52px; border-radius: 50%; background: #081426; border: 2px solid var(--wf-gold); display: flex; align-items: center; justify-content: center; color: var(--wf-gold); font-size: 22px;">
+                                <i class="fa-solid fa-user-tie"></i>
+                            </div>
+                            <div>
+                                <h4 style="font-size: 16px; font-weight: 800; color: #081426; margin: 0;" th:text="${usuario.nombreCompleto}">Nombre Usuario</h4>
+                                <span class="badge bg-primary text-white" style="font-size: 10px;" th:text="${usuario.rol != null ? usuario.rol.nombre : 'Usuario'}">Rol</span>
+                            </div>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="wf-label">Nombre</label>
+                                <div class="wf-input-wrap">
+                                    <input type="text" name="nombre" th:value="${usuario.nombre}" class="wf-input" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="wf-label">Apellido</label>
+                                <div class="wf-input-wrap">
+                                    <input type="text" name="apellido" th:value="${usuario.apellido}" class="wf-input" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="wf-label">Correo Electrónico (Institucional)</label>
+                                <div class="wf-input-wrap">
+                                    <input type="email" th:value="${usuario.correo}" class="wf-input bg-light" disabled>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="wf-label">Teléfono de Contacto</label>
+                                <div class="wf-input-wrap">
+                                    <input type="tel" name="telefono" th:value="${usuario.telefono}" class="wf-input" placeholder="+54 11 4321-9876">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer d-flex justify-content-between p-3 border-top bg-light">
+                        <button type="button" class="wf-btn wf-btn-outline" data-bs-dismiss="modal">Cerrar</button>
+                        <button type="submit" class="wf-btn wf-btn-primary" style="background: var(--wf-navy); border-color: var(--wf-gold); color: #FFFFFF;">
+                            <i class="fa-solid fa-floppy-disk me-1"></i> Guardar Cambios
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

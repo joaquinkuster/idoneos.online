@@ -66,62 +66,51 @@
         </div>
 
         <!-- Panel de Parámetros [B] y Botón Generar [C] -->
-        <div class="p-3 bg-light rounded border mb-4">
+        <form th:action="@{/reportes/ingresos}" method="get" class="p-3 bg-light rounded border mb-4">
           <div class="row g-3 align-items-end">
-            <div class="col-md-6">
-              <label class="wf-label">Curso Seleccionado</label>
+            <div class="col-md-5">
+              <label class="wf-label">Seleccionar Curso</label>
               <div class="wf-input-wrap">
-                <select class="wf-input">
-                  <option selected>Especialización en Idoneidad Bursátil ($120.000 ARS)</option>
-                  <option>Operativa Cripto y DeFi Profesional ($95.000 ARS)</option>
+                <select name="cursoId" class="wf-input" required>
+                  <option th:each="c : ${cursos}" th:value="${c.id}" th:text="${c.nombre + ' ($' + #numbers.formatDecimal(c.precio, 1, 'POINT', 0, 'COMMA') + ' ARS)'}" th:selected="${c.id == cursoId}">Curso</option>
                 </select>
               </div>
             </div>
-            <div class="col-md-4">
-              <label class="wf-label">Período Fiscal</label>
+            <div class="col-md-3">
+              <label class="wf-label">Fecha Desde</label>
               <div class="wf-input-wrap">
-                <select class="wf-input">
-                  <option selected>Primer Semestre 2026 (Ene - Jun)</option>
-                  <option>Año Completo 2025</option>
-                </select>
-                
+                <input type="date" name="desde" class="wf-input" th:value="${#temporals.format(desde, 'yyyy-MM-dd')}" required>
               </div>
             </div>
-            <div class="col-md-2">
-              <div class="d-flex align-items-center gap-2">
-                <button class="wf-btn wf-btn-primary w-100"><i class="fa-solid fa-file-invoice-dollar me-1"></i> Generar Reporte de Ingresos</button>
-                
+            <div class="col-md-3">
+              <label class="wf-label">Fecha Hasta</label>
+              <div class="wf-input-wrap">
+                <input type="date" name="hasta" class="wf-input" th:value="${#temporals.format(hasta, 'yyyy-MM-dd')}" required>
               </div>
+            </div>
+            <div class="col-md-1">
+              <button type="submit" class="wf-btn wf-btn-primary w-100" title="Generar Informe"><i class="fa-solid fa-file-invoice-dollar"></i></button>
             </div>
           </div>
-        </div>
+        </form>
 
-        <!-- 4 Vistas Financieras -->
-        <div class="row g-4 mb-4">
+        <!-- 4 Vistas Financieras Reales -->
+        <div class="row g-4 mb-4" th:if="${datos != null}">
           <!-- Vista 1: Comparación del curso frente al resto en ingresos -->
           <div class="col-md-6">
             <div class="p-3 border rounded bg-white shadow-sm h-100">
               <div class="d-flex justify-content-between align-items-center mb-3">
                 <strong style="font-size: 13px; color: #081426;">1. Ingresos: Curso vs Resto</strong>
-                <span class="badge bg-light text-success border" style="font-size: 9px;">Barras Horizontales</span>
+                <span class="badge bg-light text-success border" style="font-size: 9px;">Comparativa</span>
               </div>
               <div class="d-flex flex-column gap-2" style="font-size: 11px;">
-                <div>
+                <div th:each="nom, stat : ${datos.nombresComparacion}">
                   <div class="d-flex justify-content-between mb-1">
-                    <span class="fw-bold text-success">Idoneidad Bursátil (Top 1)</span>
-                    <strong>$100.800.000 ARS (72%)</strong>
+                    <span th:text="${nom}" th:class="${nom == datos.curso.nombre} ? 'fw-bold text-success' : 'text-muted'">Curso</span>
+                    <strong th:text="${'$ ' + #numbers.formatDecimal(datos.ingresosComparacion[stat.index], 1, 'POINT', 0, 'COMMA') + ' ARS'}">$0 ARS</strong>
                   </div>
                   <div style="height: 10px; background: #E2E8F0; border-radius: 5px; overflow: hidden;">
-                    <div style="width: 72%; height: 100%; background: #059669; border-radius: 5px;"></div>
-                  </div>
-                </div>
-                <div>
-                  <div class="d-flex justify-content-between mb-1">
-                    <span>Operativa Cripto & DeFi</span>
-                    <strong>$36.100.000 ARS (26%)</strong>
-                  </div>
-                  <div style="height: 10px; background: #E2E8F0; border-radius: 5px; overflow: hidden;">
-                    <div style="width: 26%; height: 100%; background: #0284C7; border-radius: 5px;"></div>
+                    <div th:style="'height: 100%; border-radius: 5px; background: ' + (${nom == datos.curso.nombre} ? '#059669' : '#94A3B8') + '; width: ' + (${datos.ingresosComparacion[stat.index] > 0} ? 65 : 5) + '%; max-width: 100%;'"></div>
                   </div>
                 </div>
               </div>
@@ -132,60 +121,44 @@
           <div class="col-md-6">
             <div class="p-3 border rounded bg-white shadow-sm h-100">
               <div class="d-flex justify-content-between align-items-center mb-3">
-                <strong style="font-size: 13px; color: #081426;">2. Evolución de Ingresos en el Tiempo</strong>
-                <span class="badge bg-light text-success border" style="font-size: 9px;">Línea Temporal</span>
+                <strong style="font-size: 13px; color: #081426;">2. Recaudación en el Período</strong>
+                <span class="badge bg-light text-success border" style="font-size: 9px;">Período</span>
               </div>
-              <div class="p-3 rounded border bg-light text-center" style="height: 100px; display: flex; align-items: center; justify-content: center; flex-direction: column;">
-                <i class="fa-solid fa-arrow-trend-up text-success" style="font-size: 28px; margin-bottom: 6px;"></i>
-                <div class="small fw-bold text-dark">Facturación Creciente: +34% vs Mes Anterior</div>
-                <div class="small text-muted" style="font-size: 10px;">Ene: $14.4M → Feb: $40.8M → Mar: $100.8M ARS</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Vista 3: Ingresos por categoría de curso -->
-          <div class="col-md-6">
-            <div class="p-3 border rounded bg-white shadow-sm h-100">
-              <div class="d-flex justify-content-between align-items-center mb-3">
-                <strong style="font-size: 13px; color: #081426;">3. Distribución por Categoría</strong>
-                <span class="badge bg-light text-success border" style="font-size: 9px;">Gráfico Circular</span>
-              </div>
-              <div class="d-flex align-items-center justify-content-around">
-                <div style="width: 70px; height: 70px; border-radius: 50%; background: conic-gradient(#059669 0% 75%, #0284C7 75% 100%); display: flex; align-items: center; justify-content: center;">
-                  <div style="width: 44px; height: 44px; border-radius: 50%; background: white; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: #081426;">75%</div>
-                </div>
-                <div style="font-size: 11px;">
-                  <div class="mb-1"><span class="badge bg-success me-1">75%</span> <strong>Mercado de Capitales</strong> ($100.8M)</div>
-                  <div><span class="badge bg-info me-1">25%</span> <strong>Cripto & DeFi</strong> ($36.1M)</div>
-                </div>
+              <div class="p-3 rounded border bg-light text-center d-flex flex-column align-items-center justify-content-center" style="min-height: 130px;">
+                <i class="fa-solid fa-sack-dollar text-success" style="font-size: 28px; margin-bottom: 6px;"></i>
+                <div class="small fw-bold text-dark" th:text="'Total Pagos Acreditados: ' + ${datos.totalPagosAcreditados} + ' transacciones'">Total Pagos</div>
+                <div class="small text-muted" style="font-size: 11px;" th:text="'Desde ' + ${#temporals.format(desde, 'dd/MM/yyyy')} + ' hasta ' + ${#temporals.format(hasta, 'dd/MM/yyyy')}">Fechas</div>
               </div>
             </div>
           </div>
 
-          <!-- Vista 4: Comparación entre programas del curso -->
-          <div class="col-md-6">
-            <div class="p-3 border rounded bg-white shadow-sm h-100">
+          <!-- Vista 4: Bruto vs Neto (Descuentos Aplicados) -->
+          <div class="col-md-12">
+            <div class="p-3 border rounded bg-white shadow-sm">
               <div class="d-flex justify-content-between align-items-center mb-3">
-                <strong style="font-size: 13px; color: #081426;">4. Facturación Neta por Programa</strong>
-                <span class="badge bg-light text-success border" style="font-size: 9px;">Comparativa</span>
+                <strong style="font-size: 13px; color: #081426;">3. Conciliación Financiera (Bruto vs Neto)</strong>
+                <span class="badge bg-light text-success border" style="font-size: 9px;">Detalle Contable</span>
               </div>
-              <div class="d-flex flex-column gap-2" style="font-size: 11px;">
-                <div>
-                  <div class="d-flex justify-content-between mb-1">
-                    <strong>Programa 2026-A (Intensivo)</strong>
-                    <strong class="text-success">$62.400.000 ARS</strong>
-                  </div>
-                  <div style="height: 8px; background: #E2E8F0; border-radius: 4px; overflow: hidden;">
-                    <div style="width: 75%; height: 100%; background: #059669; border-radius: 4px;"></div>
+              <div class="row text-center g-3">
+                <div class="col-md-4">
+                  <div class="p-3 bg-light rounded border">
+                    <div class="text-muted small">Monto Bruto Estimado</div>
+                    <h3 class="font-serif fw-bold text-navy my-1" th:text="${'$ ' + #numbers.formatDecimal(datos.montoBruto, 1, 'POINT', 0, 'COMMA')}">$0</h3>
+                    <span class="badge bg-secondary-subtle text-secondary">Tarifa Base</span>
                   </div>
                 </div>
-                <div>
-                  <div class="d-flex justify-content-between mb-1">
-                    <strong>Programa 2026-B (Semestral)</strong>
-                    <strong class="text-primary">$38.400.000 ARS</strong>
+                <div class="col-md-4">
+                  <div class="p-3 bg-light rounded border">
+                    <div class="text-muted small">Monto Neto Acreditado</div>
+                    <h3 class="font-serif fw-bold text-success my-1" th:text="${'$ ' + #numbers.formatDecimal(datos.montoNeto, 1, 'POINT', 0, 'COMMA')}">$0</h3>
+                    <span class="badge bg-success-subtle text-success">Ingreso Real</span>
                   </div>
-                  <div style="height: 8px; background: #E2E8F0; border-radius: 4px; overflow: hidden;">
-                    <div style="width: 50%; height: 100%; background: #2563EB; border-radius: 4px;"></div>
+                </div>
+                <div class="col-md-4">
+                  <div class="p-3 bg-light rounded border">
+                    <div class="text-muted small">Descuentos & Becas</div>
+                    <h3 class="font-serif fw-bold text-warning my-1" th:text="${'$ ' + #numbers.formatDecimal(datos.descuentoAplicado, 1, 'POINT', 0, 'COMMA')}">$0</h3>
+                    <span class="badge bg-warning-subtle text-warning">Bonificaciones</span>
                   </div>
                 </div>
               </div>
@@ -193,17 +166,17 @@
           </div>
         </div>
 
-        <!-- Descarga [D] -->
-        <div class="p-3 bg-light rounded border d-flex justify-content-between align-items-center">
+        <!-- Botón Exportar Reporte [D] -->
+        <div class="p-3 bg-light rounded border d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3">
           <div class="small text-muted">
-            <i class="fa-solid fa-circle-check text-success me-1"></i> Estado: <strong>Reporte Financiero Consolidado y Validado</strong>
+            <i class="fa-solid fa-shield-halved text-success me-1"></i> Balance de ingresos respaldado con transacciones verificadas en base de datos.
           </div>
-          <div class="d-flex align-items-center gap-2">
-            <button class="wf-btn wf-btn-sm wf-btn-primary" style="background: #081426; border-color: #081426; font-weight: 700;">
-              <i class="fa-solid fa-file-pdf me-1 text-danger"></i>
-              <span>Descargar Reporte</span>
-            </button>
-            
+          <div class="d-flex align-items-center gap-2" th:if="${cursoId != null}">
+            <a th:href="@{/reportes/ingresos/descargar(cursoId=${cursoId}, desde=${#temporals.format(desde, 'yyyy-MM-dd')}, hasta=${#temporals.format(hasta, 'yyyy-MM-dd')})}"
+               class="wf-btn wf-btn-sm wf-btn-primary" style="background: #059669; border-color: #059669; font-weight: 700; text-decoration: none;">
+              <i class="fa-solid fa-file-pdf me-1"></i>
+              <span>Descargar Informe PDF</span>
+            </a>
           </div>
         </div>
       </div>

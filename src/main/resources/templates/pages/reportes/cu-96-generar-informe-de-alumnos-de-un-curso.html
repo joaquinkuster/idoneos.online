@@ -66,73 +66,51 @@
         </div>
 
         <!-- Parámetros del Reporte [B] y Botón Generar [C] -->
-        <div class="p-3 bg-light rounded border mb-4">
+        <form th:action="@{/reportes/alumnos}" method="get" class="p-3 bg-light rounded border mb-4">
           <div class="row g-3 align-items-end">
-            <div class="col-md-6">
+            <div class="col-md-5">
               <label class="wf-label">Seleccionar Curso a Analizar</label>
               <div class="wf-input-wrap">
-                <select class="wf-input">
-                  <option selected>Especialización en Idoneidad Bursátil (CNV)</option>
-                  <option>Operativa Cripto y DeFi Profesional</option>
-                  <option>Mercado de Capitales Argentino</option>
+                <select name="cursoId" class="wf-input" required>
+                  <option th:each="c : ${cursos}" th:value="${c.id}" th:text="${c.nombre}" th:selected="${c.id == cursoId}">Curso</option>
                 </select>
               </div>
             </div>
-            <div class="col-md-4">
-              <label class="wf-label">Rango de Fechas</label>
+            <div class="col-md-3">
+              <label class="wf-label">Fecha Desde</label>
               <div class="wf-input-wrap">
-                <select class="wf-input">
-                  <option selected>Año 2026 Completo (Cohortes 1 y 2)</option>
-                  <option>Últimos 6 meses</option>
-                  <option>Todo el histórico</option>
-                </select>
-                
+                <input type="date" name="desde" class="wf-input" th:value="${#temporals.format(desde, 'yyyy-MM-dd')}" required>
               </div>
             </div>
-            <div class="col-md-2">
-              <div class="d-flex align-items-center gap-2">
-                <button class="wf-btn wf-btn-primary w-100"><i class="fa-solid fa-chart-pie me-1"></i> Generar Informe</button>
-                
+            <div class="col-md-3">
+              <label class="wf-label">Fecha Hasta</label>
+              <div class="wf-input-wrap">
+                <input type="date" name="hasta" class="wf-input" th:value="${#temporals.format(hasta, 'yyyy-MM-dd')}" required>
               </div>
+            </div>
+            <div class="col-md-1">
+              <button type="submit" class="wf-btn wf-btn-primary w-100" title="Generar Informe"><i class="fa-solid fa-chart-pie"></i></button>
             </div>
           </div>
-        </div>
+        </form>
 
         <!-- 4 Vistas Visuales del Informe Real -->
-        <div class="row g-4 mb-4">
+        <div class="row g-4 mb-4" th:if="${datos != null}">
           <!-- Vista 1: Comparación del curso frente al resto en inscriptos (Barras Horizontales) -->
           <div class="col-md-6">
             <div class="p-3 border rounded bg-white shadow-sm h-100">
               <div class="d-flex justify-content-between align-items-center mb-3">
                 <strong style="font-size: 13px; color: #081426;">1. Inscriptos: Curso vs Resto de la Oferta</strong>
-                <span class="badge bg-light text-primary border" style="font-size: 9px;">Barras Horizontales</span>
+                <span class="badge bg-light text-primary border" style="font-size: 9px;">Comparativa</span>
               </div>
               <div class="d-flex flex-column gap-2" style="font-size: 11px;">
-                <div>
+                <div th:each="nom, stat : ${datos.nombresComparacion}">
                   <div class="d-flex justify-content-between mb-1">
-                    <span class="fw-bold text-primary">Idoneidad Bursátil (Seleccionado)</span>
-                    <strong>840 alumnos (60%)</strong>
+                    <span th:text="${nom}" th:class="${nom == datos.curso.nombre} ? 'fw-bold text-primary' : 'text-muted'">Curso</span>
+                    <strong th:text="${datos.cantidadesComparacion[stat.index] + ' alumnos'}">0 alumnos</strong>
                   </div>
                   <div style="height: 10px; background: #E2E8F0; border-radius: 5px; overflow: hidden;">
-                    <div style="width: 60%; height: 100%; background: #2563EB; border-radius: 5px;"></div>
-                  </div>
-                </div>
-                <div>
-                  <div class="d-flex justify-content-between mb-1">
-                    <span>Operativa Cripto & DeFi</span>
-                    <strong>380 alumnos (27%)</strong>
-                  </div>
-                  <div style="height: 10px; background: #E2E8F0; border-radius: 5px; overflow: hidden;">
-                    <div style="width: 27%; height: 100%; background: #0D9488; border-radius: 5px;"></div>
-                  </div>
-                </div>
-                <div>
-                  <div class="d-flex justify-content-between mb-1">
-                    <span>Mercado de Capitales Base</span>
-                    <strong>180 alumnos (13%)</strong>
-                  </div>
-                  <div style="height: 10px; background: #E2E8F0; border-radius: 5px; overflow: hidden;">
-                    <div style="width: 13%; height: 100%; background: #64748B; border-radius: 5px;"></div>
+                    <div th:style="'height: 100%; border-radius: 5px; background: ' + (${nom == datos.curso.nombre} ? '#2563EB' : '#94A3B8') + '; width: ' + (${datos.cantidadesComparacion[stat.index] > 0} ? (${datos.cantidadesComparacion[stat.index]} * 10) : 5) + '%; max-width: 100%;'"></div>
                   </div>
                 </div>
               </div>
@@ -144,59 +122,43 @@
             <div class="p-3 border rounded bg-white shadow-sm h-100">
               <div class="d-flex justify-content-between align-items-center mb-3">
                 <strong style="font-size: 13px; color: #081426;">2. Evolución Temporal de Inscripciones</strong>
-                <span class="badge bg-light text-primary border" style="font-size: 9px;">Gráfico de Línea</span>
+                <span class="badge bg-light text-primary border" style="font-size: 9px;">Período</span>
               </div>
-              <div class="p-3 rounded border bg-light text-center" style="height: 100px; display: flex; align-items: center; justify-content: center; flex-direction: column;">
-                <i class="fa-solid fa-chart-line text-primary" style="font-size: 28px; margin-bottom: 6px;"></i>
-                <div class="small fw-bold text-dark">Tendencia Alcista: +28% en Cohorte 2026-1</div>
-                <div class="small text-muted" style="font-size: 10px;">Ene: 120 → Feb: 340 → Mar: 840 alumnos</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Vista 3: Tasa de abandono de las inscripciones (Torta) -->
-          <div class="col-md-6">
-            <div class="p-3 border rounded bg-white shadow-sm h-100">
-              <div class="d-flex justify-content-between align-items-center mb-3">
-                <strong style="font-size: 13px; color: #081426;">3. Tasa de Retención vs Abandono</strong>
-                <span class="badge bg-light text-primary border" style="font-size: 9px;">Gráfico Circular</span>
-              </div>
-              <div class="d-flex align-items-center justify-content-around">
-                <div style="width: 70px; height: 70px; border-radius: 50%; background: conic-gradient(#16A34A 0% 92%, #DC2626 92% 100%); display: flex; align-items: center; justify-content: center;">
-                  <div style="width: 44px; height: 44px; border-radius: 50%; background: white; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: #081426;">92%</div>
-                </div>
-                <div style="font-size: 11px;">
-                  <div class="mb-1"><span class="badge bg-success me-1">92%</span> <strong>Alumnos Activos / Graduados</strong> (773)</div>
-                  <div><span class="badge bg-danger me-1">8%</span> <strong>Bajas / Abandonos</strong> (67)</div>
-                </div>
+              <div class="p-3 rounded border bg-light text-center d-flex flex-column align-items-center justify-content-center" style="min-height: 130px;">
+                <i class="fa-solid fa-users text-primary" style="font-size: 28px; margin-bottom: 6px;"></i>
+                <div class="small fw-bold text-dark" th:text="'Total Inscriptos: ' + ${datos.totalInscripcionesCurso} + ' alumnos'">Total Inscriptos</div>
+                <div class="small text-muted" style="font-size: 11px;" th:text="'Desde ' + ${#temporals.format(desde, 'dd/MM/yyyy')} + ' hasta ' + ${#temporals.format(hasta, 'dd/MM/yyyy')}">Fechas</div>
               </div>
             </div>
           </div>
 
-          <!-- Vista 4: Comparación entre programas del curso (Efectividad) -->
-          <div class="col-md-6">
-            <div class="p-3 border rounded bg-white shadow-sm h-100">
+          <!-- Vista 3: Estado de inscripciones (Graduados, Vigentes, Bajas) -->
+          <div class="col-md-12">
+            <div class="p-3 border rounded bg-white shadow-sm">
               <div class="d-flex justify-content-between align-items-center mb-3">
-                <strong style="font-size: 13px; color: #081426;">4. Efectividad por Programa del Curso</strong>
-                <span class="badge bg-light text-primary border" style="font-size: 9px;">Comparativa Programas</span>
+                <strong style="font-size: 13px; color: #081426;">3. Estado de Alumnos en el Curso Seleccionado</strong>
+                <span class="badge bg-light text-primary border" style="font-size: 9px;">Distribución</span>
               </div>
-              <div class="d-flex flex-column gap-2" style="font-size: 11px;">
-                <div>
-                  <div class="d-flex justify-content-between mb-1">
-                    <strong>Programa 2026-A (Intensivo Verano)</strong>
-                    <strong class="text-success">520 alumnos</strong>
-                  </div>
-                  <div style="height: 8px; background: #E2E8F0; border-radius: 4px; overflow: hidden;">
-                    <div style="width: 72%; height: 100%; background: #059669; border-radius: 4px;"></div>
+              <div class="row text-center g-3">
+                <div class="col-md-4">
+                  <div class="p-3 bg-light rounded border">
+                    <div class="text-muted small">Completados / Certificados</div>
+                    <h3 class="font-serif fw-bold text-success my-1" th:text="${datos.completadas}">0</h3>
+                    <span class="badge bg-success-subtle text-success">Graduados</span>
                   </div>
                 </div>
-                <div>
-                  <div class="d-flex justify-content-between mb-1">
-                    <strong>Programa 2026-B (Regular Semestral)</strong>
-                    <strong class="text-primary">320 alumnos</strong>
+                <div class="col-md-4">
+                  <div class="p-3 bg-light rounded border">
+                    <div class="text-muted small">Cursando / Vigentes</div>
+                    <h3 class="font-serif fw-bold text-primary my-1" th:text="${datos.vigentes}">0</h3>
+                    <span class="badge bg-primary-subtle text-primary">Activos</span>
                   </div>
-                  <div style="height: 8px; background: #E2E8F0; border-radius: 4px; overflow: hidden;">
-                    <div style="width: 48%; height: 100%; background: #2563EB; border-radius: 4px;"></div>
+                </div>
+                <div class="col-md-4">
+                  <div class="p-3 bg-light rounded border">
+                    <div class="text-muted small">Bajas / Canceladas</div>
+                    <h3 class="font-serif fw-bold text-danger my-1" th:text="${datos.bajas}">0</h3>
+                    <span class="badge bg-danger-subtle text-danger">Bajas</span>
                   </div>
                 </div>
               </div>
@@ -205,16 +167,16 @@
         </div>
 
         <!-- Descarga de Reporte [D] -->
-        <div class="p-3 bg-light rounded border d-flex justify-content-between align-items-center">
+        <div class="p-3 bg-light rounded border d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3">
           <div class="small text-muted">
-            <i class="fa-solid fa-clock-rotate-left me-1"></i> Reporte generado el <strong>27/08/2026</strong> por <strong>Admin General</strong>. ID: <code>#REP-ALU-9642</code>
+            <i class="fa-solid fa-shield-halved text-success me-1"></i> Reporte generado a partir de registros reales en base de datos.
           </div>
-          <div class="d-flex align-items-center gap-2">
-            <button class="wf-btn wf-btn-sm wf-btn-primary" style="background: #059669; border-color: #059669; font-weight: 700;">
-              <i class="fa-solid fa-file-excel me-1"></i>
-              <span>Descargar PDF / Excel</span>
-            </button>
-            
+          <div class="d-flex align-items-center gap-2" th:if="${cursoId != null}">
+            <a th:href="@{/reportes/alumnos/descargar(cursoId=${cursoId}, desde=${#temporals.format(desde, 'yyyy-MM-dd')}, hasta=${#temporals.format(hasta, 'yyyy-MM-dd')})}"
+               class="wf-btn wf-btn-sm wf-btn-primary" style="background: #059669; border-color: #059669; font-weight: 700; text-decoration: none;">
+              <i class="fa-solid fa-file-pdf me-1"></i>
+              <span>Descargar Informe PDF</span>
+            </a>
           </div>
         </div>
       </div>

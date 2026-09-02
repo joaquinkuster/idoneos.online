@@ -114,7 +114,7 @@
                   <i class="fa-solid fa-graduation-cap text-gold"></i>
                   <span>Programas</span>
                 </a>
-                <a th:href="@{/evaluaciones/calificaciones}" class="wf-btn wf-btn-sm wf-btn-outline flex-grow-1 d-flex align-items-center justify-content-center gap-1" style="font-weight: 600; color: #081426; text-decoration: none;">
+                <a th:href="@{'/evaluaciones/calificaciones?cursoId=' + ${curso.id}}" class="wf-btn wf-btn-sm wf-btn-outline flex-grow-1 d-flex align-items-center justify-content-center gap-1" style="font-weight: 600; color: #081426; text-decoration: none;">
                   <i class="fa-solid fa-chart-simple text-primary"></i>
                   <span>Calificaciones</span>
                 </a>
