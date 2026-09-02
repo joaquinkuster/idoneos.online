@@ -92,28 +92,34 @@
             <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 pt-3 border-top">
               <div class="d-flex flex-column gap-2" style="flex: 1; min-width: 320px;">
                 <div class="d-flex flex-wrap align-items-center gap-2">
-                  <a th:href="@{/ia/banco-preguntas(unidadId=${unidad.id})}" class="wf-btn wf-btn-sm d-inline-flex align-items-center gap-1 shadow-sm" style="background: #059669; border-color: #059669; color: #FFFFFF; font-weight: 700;">
+                  <button type="button" class="wf-btn wf-btn-sm d-inline-flex align-items-center gap-1 shadow-sm btn-abrir-modal-ia" 
+                          data-bs-toggle="modal" data-bs-target="#modalGenerarBanco"
+                          th:data-unidad-id="${unidad.id}" th:data-unidad-titulo="${unidad.titulo}"
+                          style="background: #059669; border-color: #059669; color: #FFFFFF; font-weight: 700;">
                     <i class="fa-solid fa-list-check"></i>
-                    <span>Generar Banco con IA (Ollama)</span>
-                  </a>
-                  <a th:href="@{/ia/resumen-unidad(unidadId=${unidad.id})}" class="wf-btn wf-btn-sm d-inline-flex align-items-center gap-1 shadow-sm" style="background: #0D9488; border-color: #0D9488; color: #FFFFFF; font-weight: 700;">
+                    <span>Generar banco de preguntas</span>
+                  </button>
+                  <button type="button" class="wf-btn wf-btn-sm d-inline-flex align-items-center gap-1 shadow-sm btn-abrir-modal-ia" 
+                          data-bs-toggle="modal" data-bs-target="#modalGenerarResumen"
+                          th:data-unidad-id="${unidad.id}" th:data-unidad-titulo="${unidad.titulo}"
+                          style="background: #0D9488; border-color: #0D9488; color: #FFFFFF; font-weight: 700;">
                     <i class="fa-solid fa-file-lines"></i>
-                    <span>Generar Resumen de Unidad con IA</span>
-                  </a>
-                  <a th:href="@{/ia/presentacion-unidad(unidadId=${unidad.id})}" class="wf-btn wf-btn-sm d-inline-flex align-items-center gap-1 shadow-sm" style="background: #0284C7; border-color: #0284C7; color: #FFFFFF; font-weight: 700;">
+                    <span>Generar Resumen de Unidad</span>
+                  </button>
+                  <button type="button" class="wf-btn wf-btn-sm d-inline-flex align-items-center gap-1 shadow-sm btn-abrir-modal-ia" 
+                          data-bs-toggle="modal" data-bs-target="#modalGenerarPresentacion"
+                          th:data-unidad-id="${unidad.id}" th:data-unidad-titulo="${unidad.titulo}"
+                          style="background: #0284C7; border-color: #0284C7; color: #FFFFFF; font-weight: 700;">
                     <i class="fa-solid fa-person-chalkboard"></i>
-                    <span>Generar Presentación con IA</span>
-                  </a>
-                </div>
-                <div class="d-flex flex-wrap align-items-center gap-2">
-                  <a th:href="@{/ia/clon/generar-clase(unidadId=${unidad.id})}" class="wf-btn wf-btn-sm d-inline-flex align-items-center gap-1 shadow-sm" style="background: #7C3AED; border-color: #7C3AED; color: #FFFFFF; font-weight: 700;">
+                    <span>Generar presentación de unidad</span>
+                  </button>
+                  <button type="button" class="wf-btn wf-btn-sm d-inline-flex align-items-center gap-1 shadow-sm btn-abrir-modal-ia" 
+                          data-bs-toggle="modal" data-bs-target="#modalGenerarClaseClon"
+                          th:data-unidad-id="${unidad.id}" th:data-unidad-titulo="${unidad.titulo}"
+                          style="background: #7C3AED; border-color: #7C3AED; color: #FFFFFF; font-weight: 700;">
                     <i class="fa-solid fa-video"></i>
-                    <span>Generar Video con Avatar Clon</span>
-                  </a>
-                  <a th:href="@{/ia/clon/clases(unidadId=${unidad.id})}" class="wf-btn wf-btn-sm d-inline-flex align-items-center gap-1 shadow-sm" style="background: #4F46E5; border-color: #4F46E5; color: #FFFFFF; font-weight: 700;">
-                    <i class="fa-solid fa-film"></i>
-                    <span>Buscar clases con Clon de IA</span>
-                  </a>
+                    <span>Generar clase con clon</span>
+                  </button>
                 </div>
               </div>
 
@@ -402,6 +408,432 @@
           </div>
         </div>
       </div>
+
+      <!-- =========================================================================
+           MODALES IA (MOD-F-06): CU-73, CU-74, CU-75, CU-78
+            <!-- Modal CU-73: Generar Banco de Preguntas con IA (Ollama) -->
+      <div class="modal fade" id="modalGenerarBanco" tabindex="-1" aria-labelledby="modalGenerarBancoLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl">
+          <div class="modal-content" style="border-radius: 12px; border: 1px solid #CBD5E1; box-shadow: 0 20px 50px rgba(8, 20, 38, 0.2); overflow: hidden;">
+            <div class="p-4 bg-white">
+              <!-- Cabecera Oficial -->
+              <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom flex-wrap gap-2">
+                <div class="d-flex align-items-center gap-3">
+                  <div style="width: 44px; height: 44px; border-radius: 10px; background: #081426; display: flex; align-items: center; justify-content: center; color: var(--wf-gold); font-size: 20px;">
+                    <i class="fa-solid fa-list-check"></i>
+                  </div>
+                  <div>
+                    <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Generar Banco de Preguntas con IA (Ollama)</h3>
+                    <p class="small text-muted mb-0" style="font-size: 12px;">Generación automatizada de preguntas cerradas de opción múltiple y V/F a partir de la bibliografía cargada.</p>
+                  </div>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                  <span class="wf-badge status-active">Ollama Local (LLaMA-3 8B)</span>
+                  <button type="button" class="btn-close ms-2" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+              </div>
+
+              <!-- Formulario & Preview de 2 Columnas -->
+              <form th:action="@{/ia/banco-preguntas/generar}" method="post">
+                <input type="hidden" name="unidadId" class="input-modal-unidad-id" value="">
+                <div class="d-flex flex-column flex-lg-row align-items-stretch justify-content-between gap-4">
+                  <!-- Columna Izquierda: Configuración y Parámetros -->
+                  <div style="flex: 1 1 50%; min-width: 320px;" class="d-flex flex-column justify-content-between">
+                    <div>
+                      <div class="mb-3">
+                        <label class="wf-label">Unidad Académica de Origen</label>
+                        <div class="p-2 border rounded bg-light fw-bold text-dark modal-ia-unidad-nombre" style="font-size: 13px;">
+                          Unidad seleccionada
+                        </div>
+                      </div>
+
+                      <div class="mb-3">
+                        <label class="wf-label">Fuentes de Contenido (Bibliografía & Glosario)</label>
+                        <div class="p-2 border rounded bg-light d-flex flex-column gap-1" style="font-size: 12px;">
+                          <div class="d-flex justify-content-between align-items-center">
+                            <span><i class="fa-solid fa-file-pdf text-danger me-1"></i> Guía Teórica y Práctica de Unidad.pdf</span>
+                            <span class="badge bg-success text-white" style="font-size: 9px;">Cargado</span>
+                          </div>
+                          <div class="d-flex justify-content-between align-items-center">
+                            <span><i class="fa-solid fa-book-open text-warning me-1"></i> Glosario de Unidad y Fórmulas</span>
+                            <span class="badge bg-success text-white" style="font-size: 9px;">Cargado</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="mb-3">
+                        <label class="wf-label">Guión Adicional / Prompt de Orientación (Opcional)</label>
+                        <div class="wf-input-wrap">
+                          <textarea name="promptInput" class="wf-input" rows="4" placeholder="Ej: Enfatizar preguntas sobre cálculo de TIR, duration de Macaulay y convexidad de bonos soberanos con casos prácticos...">Enfatizar preguntas sobre conceptos normativos CNV y aplicaciones prácticas de la unidad.</textarea>
+                        </div>
+                        <div class="small text-muted mt-1" style="font-size: 11px;">El modelo Ollama utilizará este guión junto con la bibliografía de la unidad para generar los enunciados.</div>
+                      </div>
+                    </div>
+
+                    <div class="p-2 border rounded bg-white shadow-sm d-flex align-items-center justify-content-between mt-2">
+                      <span class="small text-muted"><i class="fa-solid fa-server me-1 text-primary"></i> Estado de Inferencia: <strong>Local Ollama API</strong></span>
+                      <span class="badge bg-success text-white" style="font-size: 10px;">En Línea</span>
+                    </div>
+                  </div>
+
+                  <!-- Barra Divisoria Vertical -->
+                  <div class="d-none d-lg-block" style="width: 1px; background: #CBD5E1; min-height: 100%;"></div>
+
+                  <!-- Columna Derecha: Previsualización del Resultado IA -->
+                  <div style="flex: 1 1 50%; min-width: 320px;">
+                    <div class="p-4 border rounded bg-white shadow-sm h-100 d-flex flex-column justify-content-between" style="border-top: 4px solid #059669 !important;">
+                      <div>
+                        <div class="d-flex justify-content-between align-items-center pb-2 mb-3 border-bottom">
+                          <strong style="font-size: 14px; color: #081426;"><i class="fa-solid fa-eye me-1 text-primary"></i>Previsualización de Estructura de Preguntas</strong>
+                          <span class="badge bg-light text-muted border">Estado: No Publicado</span>
+                        </div>
+
+                        <div class="d-flex flex-column gap-2" style="font-size: 12px;">
+                          <div class="p-3 border rounded bg-light">
+                            <div class="fw-bold text-dark mb-1">1. ¿Qué mide la modified duration en un título de renta fija?</div>
+                            <div class="text-success small"><i class="fa-solid fa-circle-check me-1"></i> A) La sensibilidad porcentual del precio ante variaciones en la TIR. (Correcta)</div>
+                            <div class="text-muted small ms-3">B) El plazo promedio ponderado de los flujos de fondos.</div>
+                            <div class="text-muted small ms-3">C) El cupón de interés nominal anual.</div>
+                          </div>
+                          <div class="p-3 border rounded bg-light">
+                            <div class="fw-bold text-dark mb-1">2. Ante una suba en la tasa de interés, el precio de un bono con alta convexidad cae más que uno de baja convexidad.</div>
+                            <div class="text-success small"><i class="fa-solid fa-circle-check me-1"></i> Falso (La convexidad amortigua la caída de precio). (Correcta)</div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="pt-3 mt-4 border-top d-flex justify-content-end align-items-center gap-3">
+                        <button type="button" class="wf-btn wf-btn-sm wf-btn-outline" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="wf-btn wf-btn-sm wf-btn-primary d-flex align-items-center gap-2" style="background: #059669; border-color: #047857; font-weight: 700;">
+                          <i class="fa-solid fa-wand-magic-sparkles"></i>
+                          <span>Generar Preguntas con IA</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal CU-74: Generar Resumen de Unidad con IA (Ollama) -->
+      <div class="modal fade" id="modalGenerarResumen" tabindex="-1" aria-labelledby="modalGenerarResumenLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl">
+          <div class="modal-content" style="border-radius: 12px; border: 1px solid #CBD5E1; box-shadow: 0 20px 50px rgba(8, 20, 38, 0.2); overflow: hidden;">
+            <div class="p-4 bg-white">
+              <!-- Cabecera Oficial -->
+              <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom flex-wrap gap-2">
+                <div class="d-flex align-items-center gap-3">
+                  <div style="width: 44px; height: 44px; border-radius: 10px; background: #081426; display: flex; align-items: center; justify-content: center; color: var(--wf-gold); font-size: 20px;">
+                    <i class="fa-solid fa-file-lines"></i>
+                  </div>
+                  <div>
+                    <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Generar Resumen de Unidad con IA</h3>
+                    <p class="small text-muted mb-0" style="font-size: 12px;">Síntesis conceptual estructurada a partir de los documentos teóricos cargados en la unidad.</p>
+                  </div>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                  <span class="wf-badge status-active">Ollama Local (LLaMA-3 8B)</span>
+                  <button type="button" class="btn-close ms-2" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+              </div>
+
+              <!-- Formulario & Preview de 2 Columnas -->
+              <form th:action="@{/ia/resumen-unidad/generar}" method="post">
+                <input type="hidden" name="unidadId" class="input-modal-unidad-id" value="">
+                <div class="d-flex flex-column flex-lg-row align-items-stretch justify-content-between gap-4">
+                  <!-- Columna Izquierda: Parámetros de Entrada -->
+                  <div style="flex: 1 1 50%; min-width: 320px;" class="d-flex flex-column justify-content-between">
+                    <div>
+                      <div class="mb-3">
+                        <label class="wf-label">Unidad Académica de Origen</label>
+                        <div class="p-2 border rounded bg-light fw-bold text-dark modal-ia-unidad-nombre" style="font-size: 13px;">
+                          Unidad seleccionada
+                        </div>
+                      </div>
+
+                      <div class="mb-3">
+                        <label class="wf-label">Fuentes de Contenido (Bibliografía & Glosario)</label>
+                        <div class="p-2 border rounded bg-light d-flex flex-column gap-1" style="font-size: 12px;">
+                          <div class="d-flex justify-content-between align-items-center">
+                            <span><i class="fa-solid fa-file-pdf text-danger me-1"></i> Guía Teórica de Unidad v2.0.pdf</span>
+                            <span class="badge bg-success text-white" style="font-size: 9px;">Cargado</span>
+                          </div>
+                          <div class="d-flex justify-content-between align-items-center">
+                            <span><i class="fa-solid fa-book-open text-warning me-1"></i> Glosario de Unidad (Términos Técnicos)</span>
+                            <span class="badge bg-success text-white" style="font-size: 9px;">Cargado</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="p-3 bg-light rounded border mb-3">
+                        <div class="small fw-bold text-muted text-uppercase mb-2">Parámetros de Síntesis</div>
+                        <div class="d-flex justify-content-between align-items-center small text-muted">
+                          <span>Extensión estimada:</span>
+                          <strong class="text-dark">3 a 4 páginas estructuradas</strong>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center small text-muted mt-1">
+                          <span>Nivel de detalle:</span>
+                          <strong class="text-dark">Avanzado (Énfasis en conceptos CNV)</strong>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="p-2 border rounded bg-white shadow-sm d-flex align-items-center justify-content-between mt-2">
+                      <span class="small text-muted"><i class="fa-solid fa-server me-1 text-primary"></i> Estado de Inferencia: <strong>Local Ollama API</strong></span>
+                      <span class="badge bg-success text-white" style="font-size: 10px;">En Línea</span>
+                    </div>
+                  </div>
+
+                  <!-- Barra Divisoria Vertical -->
+                  <div class="d-none d-lg-block" style="width: 1px; background: #CBD5E1; min-height: 100%;"></div>
+
+                  <!-- Columna Derecha: Previsualización del Resultado IA -->
+                  <div style="flex: 1 1 50%; min-width: 320px;">
+                    <div class="p-4 border rounded bg-white shadow-sm h-100 d-flex flex-column justify-content-between" style="border-top: 4px solid #059669 !important;">
+                      <div>
+                        <div class="d-flex justify-content-between align-items-center pb-2 mb-3 border-bottom">
+                          <strong style="font-size: 14px; color: #081426;"><i class="fa-solid fa-eye me-1 text-primary"></i>Previsualización de Síntesis Conceptual</strong>
+                          <span class="badge bg-light text-muted border">Estado: No Publicado</span>
+                        </div>
+
+                        <div class="p-3 bg-light rounded border" style="font-size: 12px; line-height: 1.5;">
+                          <strong style="color: #081426; font-size: 13px;">Resumen Temático: Conceptos Clave y Normativa</strong>
+                          <hr class="my-2">
+                          <p class="mb-2"><strong>1. Conceptos Fundamentales:</strong> Síntesis teórica de los instrumentos negociables, sus características de liquidez y mecanismos de emisión bursátil.</p>
+                          <p class="mb-0"><strong>2. Medición de Rendimiento y Riesgo:</strong> Fórmulas clave de valuación, análisis de volatilidad y consideraciones regulatorias de la CNV.</p>
+                        </div>
+                      </div>
+
+                      <div class="pt-3 mt-4 border-top d-flex justify-content-end align-items-center gap-3">
+                        <button type="button" class="wf-btn wf-btn-sm wf-btn-outline" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="wf-btn wf-btn-sm wf-btn-primary d-flex align-items-center gap-2" style="background: #059669; border-color: #047857; font-weight: 700;">
+                          <i class="fa-solid fa-wand-magic-sparkles"></i>
+                          <span>Crear Resumen Automático</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal CU-75: Generar Presentación de Unidad con IA (Ollama) -->
+      <div class="modal fade" id="modalGenerarPresentacion" tabindex="-1" aria-labelledby="modalGenerarPresentacionLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl">
+          <div class="modal-content" style="border-radius: 12px; border: 1px solid #CBD5E1; box-shadow: 0 20px 50px rgba(8, 20, 38, 0.2); overflow: hidden;">
+            <div class="p-4 bg-white">
+              <!-- Cabecera Oficial -->
+              <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom flex-wrap gap-2">
+                <div class="d-flex align-items-center gap-3">
+                  <div style="width: 44px; height: 44px; border-radius: 10px; background: #081426; display: flex; align-items: center; justify-content: center; color: var(--wf-gold); font-size: 20px;">
+                    <i class="fa-solid fa-person-chalkboard"></i>
+                  </div>
+                  <div>
+                    <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Generar Presentación con IA</h3>
+                    <p class="small text-muted mb-0" style="font-size: 12px;">Estructuración de diapositivas descargables (títulos, subtítulos y conceptos clave) desde la bibliografía.</p>
+                  </div>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                  <span class="wf-badge status-active">Ollama Local (LLaMA-3 8B)</span>
+                  <button type="button" class="btn-close ms-2" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+              </div>
+
+              <!-- Formulario & Preview de 2 Columnas -->
+              <form th:action="@{/ia/presentacion-unidad/generar}" method="post">
+                <input type="hidden" name="unidadId" class="input-modal-unidad-id" value="">
+                <div class="d-flex flex-column flex-lg-row align-items-stretch justify-content-between gap-4">
+                  <!-- Columna Izquierda: Parámetros de Entrada -->
+                  <div style="flex: 1 1 50%; min-width: 320px;" class="d-flex flex-column justify-content-between">
+                    <div>
+                      <div class="mb-3">
+                        <label class="wf-label">Unidad Académica de Origen</label>
+                        <div class="p-2 border rounded bg-light fw-bold text-dark modal-ia-unidad-nombre" style="font-size: 13px;">
+                          Unidad seleccionada
+                        </div>
+                      </div>
+
+                      <div class="mb-3">
+                        <label class="wf-label">Fuentes de Contenido (Bibliografía & Glosario)</label>
+                        <div class="p-2 border rounded bg-light d-flex flex-column gap-1" style="font-size: 12px;">
+                          <div class="d-flex justify-content-between align-items-center">
+                            <span><i class="fa-solid fa-file-pdf text-danger me-1"></i> Guía Teórica de Unidad v2.0.pdf</span>
+                            <span class="badge bg-success text-white" style="font-size: 9px;">Cargado</span>
+                          </div>
+                          <div class="d-flex justify-content-between align-items-center">
+                            <span><i class="fa-solid fa-book-open text-warning me-1"></i> Glosario de Unidad (Términos Técnicos)</span>
+                            <span class="badge bg-success text-white" style="font-size: 9px;">Cargado</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="p-3 bg-light rounded border mb-3">
+                        <div class="small fw-bold text-muted text-uppercase mb-2">Formato de Presentación</div>
+                        <div class="d-flex justify-content-between align-items-center small text-muted">
+                          <span>Estructura:</span>
+                          <strong class="text-dark">12 diapositivas temáticas con puntos clave</strong>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center small text-muted mt-1">
+                          <span>Exportación:</span>
+                          <strong class="text-dark">Formato PPTX / PDF descargable</strong>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="p-2 border rounded bg-white shadow-sm d-flex align-items-center justify-content-between mt-2">
+                      <span class="small text-muted"><i class="fa-solid fa-server me-1 text-primary"></i> Estado de Inferencia: <strong>Local Ollama API</strong></span>
+                      <span class="badge bg-success text-white" style="font-size: 10px;">En Línea</span>
+                    </div>
+                  </div>
+
+                  <!-- Barra Divisoria Vertical -->
+                  <div class="d-none d-lg-block" style="width: 1px; background: #CBD5E1; min-height: 100%;"></div>
+
+                  <!-- Columna Derecha: Previsualización de Slide -->
+                  <div style="flex: 1 1 50%; min-width: 320px;">
+                    <div class="p-4 border rounded bg-white shadow-sm h-100 d-flex flex-column justify-content-between" style="border-top: 4px solid #059669 !important;">
+                      <div>
+                        <div class="d-flex justify-content-between align-items-center pb-2 mb-3 border-bottom">
+                          <strong style="font-size: 14px; color: #081426;"><i class="fa-solid fa-eye me-1 text-primary"></i>Previsualización de Diapositiva</strong>
+                          <span class="badge bg-light text-muted border">Estado: No Publicado</span>
+                        </div>
+
+                        <div class="p-3 rounded border text-white shadow-sm" style="background: #081426; font-size: 12px;">
+                          <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="badge bg-primary">Diapositiva 1 / 12</span>
+                            <span class="small text-muted" style="color: #94A3B8 !important;">Idóneos Online • Presentación Oficial</span>
+                          </div>
+                          <h5 style="color: var(--wf-gold); font-size: 15px; font-weight: 800; margin: 4px 0 8px;">
+                            Estructura de la Unidad y Puntos Clave
+                          </h5>
+                          <ul class="ps-3 mb-0" style="font-size: 11px; color: #CBD5E1;">
+                            <li>Marco conceptual y fundamentos teóricos.</li>
+                            <li>Modelos de valuación y aplicación práctica en mercado.</li>
+                            <li>Regulación CNV y examen de idoneidad profesional.</li>
+                          </ul>
+                        </div>
+                      </div>
+
+                      <div class="pt-3 mt-4 border-top d-flex justify-content-end align-items-center gap-3">
+                        <button type="button" class="wf-btn wf-btn-sm wf-btn-outline" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="wf-btn wf-btn-sm wf-btn-primary d-flex align-items-center gap-2" style="background: #059669; border-color: #047857; font-weight: 700;">
+                          <i class="fa-solid fa-wand-magic-sparkles"></i>
+                          <span>Generar Diapositivas</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal CU-78: Generar Clase con Clon IA (HeyGen) -->
+      <div class="modal fade" id="modalGenerarClaseClon" tabindex="-1" aria-labelledby="modalGenerarClaseClonLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl">
+          <div class="modal-content" style="border-radius: 12px; border: 1px solid #CBD5E1; box-shadow: 0 20px 50px rgba(8, 20, 38, 0.2); overflow: hidden;">
+            <div class="p-4 bg-white">
+              <!-- Cabecera Oficial -->
+              <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom flex-wrap gap-2">
+                <div class="d-flex align-items-center gap-3">
+                  <div style="width: 44px; height: 44px; border-radius: 10px; background: #081426; display: flex; align-items: center; justify-content: center; color: var(--wf-gold); font-size: 20px;">
+                    <i class="fa-solid fa-video"></i>
+                  </div>
+                  <div>
+                    <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Generar Clase con Clon de IA</h3>
+                    <p class="small text-muted mb-0" style="font-size: 12px;">Genere una clase audiovisual mediante síntesis en HeyGen a partir de su guión prompt.</p>
+                  </div>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                  <span class="wf-badge status-active"><i class="fa-solid fa-circle-check me-1"></i> Avatar & Voz Calibrada</span>
+                  <button type="button" class="btn-close ms-2" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+              </div>
+
+              <!-- Formulario & Preview de 2 Columnas -->
+              <form th:action="@{/ia/clon/clases/generar}" method="post">
+                <input type="hidden" name="unidadId" class="input-modal-unidad-id" value="">
+                <div class="d-flex flex-column flex-lg-row align-items-stretch justify-content-between gap-4">
+                  <!-- Columna Izquierda: Título y Guión -->
+                  <div style="flex: 1 1 50%; min-width: 320px;">
+                    <div class="mb-3">
+                      <label class="wf-label">Título de la Clase</label>
+                      <div class="wf-input-wrap">
+                        <input type="text" name="titulo" class="wf-input" placeholder="Ej: Explicación Teórica: Valuación y Curva de Rendimientos" value="Explicación Teórica: Valuación y Curva de Rendimientos en Bonos" required>
+                      </div>
+                    </div>
+
+                    <div class="mb-3">
+                      <label class="wf-label">Guión de la Clase (Prompt de Texto)</label>
+                      <div class="wf-input-wrap">
+                        <textarea name="guionPrompt" class="wf-input" rows="7" placeholder="Redacte el guión que el avatar de HeyGen sintetizará..." required>En esta clase abordaremos los conceptos esenciales de la unidad. Analizaremos las aproximaciones teóricas y los ejercicios prácticos del examen de idoneidad CNV.</textarea>
+                      </div>
+                      <div class="small text-muted mt-1" style="font-size: 11px;">El guión será enviado a HeyGen junto con el avatar_id y voice_id registrados en el perfil docente.</div>
+                    </div>
+                  </div>
+
+                  <!-- Barra Divisoria Vertical -->
+                  <div class="d-none d-lg-block" style="width: 1px; background: #CBD5E1; min-height: 100%;"></div>
+
+                  <!-- Columna Derecha: Configuración de Síntesis HeyGen -->
+                  <div style="flex: 1 1 50%; min-width: 320px;">
+                    <div class="p-4 border rounded bg-white shadow-sm h-100 d-flex flex-column justify-content-between" style="border-top: 4px solid var(--wf-gold) !important;">
+                      <div>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                          <div class="small fw-bold text-muted text-uppercase">Configuración de Síntesis HeyGen</div>
+                          <span class="badge bg-primary text-white" style="font-size: 9px;">HD 1080p</span>
+                        </div>
+
+                        <!-- Preview Visual del Avatar -->
+                        <div style="height: 200px; background: linear-gradient(180deg, #0F172A 0%, #081426 100%); border-radius: 8px; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1.5px solid #1E3A5F; margin-bottom: 12px;">
+                          <div class="d-flex flex-column align-items-center justify-content-center text-center p-3">
+                            <div style="width: 60px; height: 60px; border-radius: 50%; background: rgba(228, 190, 108, 0.2); border: 2px solid var(--wf-gold); display: flex; align-items: center; justify-content: center; color: var(--wf-gold); font-size: 24px; margin-bottom: 8px;">
+                              <i class="fa-solid fa-user-astronaut"></i>
+                            </div>
+                            <span class="badge bg-primary text-white" style="font-size: 9px; font-weight: 700;">Avatar HeyGen v2.0</span>
+                          </div>
+
+                          <div style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(0deg, rgba(8,20,38,0.9) 0%, transparent 100%); padding: 8px 12px;">
+                            <div style="font-size: 12px; font-weight: 700; color: white;">Docente Titular</div>
+                            <div style="font-size: 9px; color: #94A3B8;">#avatar_calibrado_v2</div>
+                          </div>
+                        </div>
+
+                        <div class="d-flex flex-column gap-2" style="font-size: 11px;">
+                          <div class="d-flex justify-content-between p-2 border rounded bg-light">
+                            <span class="text-muted">Voz configurada:</span>
+                            <strong class="text-dark">Docente_ES_AR_v1 (Voice Clone)</strong>
+                          </div>
+                          <div class="d-flex justify-content-between p-2 border rounded bg-light">
+                            <span class="text-muted">Destino:</span>
+                            <span class="fw-bold">Material de Grabación (No Publicado)</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="pt-3 mt-3 border-top d-flex justify-content-end align-items-center gap-3">
+                        <button type="button" class="wf-btn wf-btn-sm wf-btn-outline" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="wf-btn wf-btn-sm wf-btn-primary d-flex align-items-center gap-2" style="font-weight: 700; background: #7C3AED; border-color: #6D28D9;">
+                          <i class="fa-solid fa-wand-magic-sparkles"></i>
+                          <span>Sintetizar Video con IA</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Bootstrap Bundle JS -->
@@ -416,6 +848,25 @@
                 }
             }
         }
+
+        // Vincular dinámicamente la unidadId y título al abrir los modales de IA
+        document.addEventListener('DOMContentLoaded', function() {
+            const btnsIA = document.querySelectorAll('.btn-abrir-modal-ia');
+            btnsIA.forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    const uId = this.getAttribute('data-unidad-id');
+                    const uTitulo = this.getAttribute('data-unidad-titulo');
+                    const targetModalId = this.getAttribute('data-bs-target');
+                    const modalEl = document.querySelector(targetModalId);
+                    if (modalEl) {
+                        const inputHidden = modalEl.querySelector('.input-modal-unidad-id');
+                        if (inputHidden) inputHidden.value = uId;
+                        const labelNombre = modalEl.querySelector('.modal-ia-unidad-nombre');
+                        if (labelNombre && uTitulo) labelNombre.textContent = uTitulo;
+                    }
+                });
+            });
+        });
     </script>
 
     <!-- DSS & Case of Use Console Logger -->

@@ -56,7 +56,7 @@
                 <div class="wf-body">
                     <div class="wf-main-content">
                         
-        <div class="wf-card" style="max-width: 880px; margin: 0 auto; background: #FFFFFF;">
+        <div class="wf-card" style="max-width: 1080px; margin: 0 auto; background: #FFFFFF;">
           <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
             <div class="d-flex align-items-center gap-3">
               <div style="width: 56px; height: 56px; border-radius: 50%; background: #081426; border: 2px solid var(--wf-gold); display: flex; align-items: center; justify-content: center; color: var(--wf-gold); font-size: 24px; box-shadow: 0 4px 12px rgba(8,20,38,0.15);">
@@ -64,57 +64,147 @@
               </div>
               <div>
                 <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Perfil de Usuario: Mg. Elena Valenzuela</h3>
-                <p class="small text-muted" style="margin: 2px 0 0;"><i class="fa-solid fa-graduation-cap me-1 text-primary"></i> Docente Titular • Mercado de Capitales & Finanzas</p>
+                <p class="small text-muted" style="margin: 2px 0 0;"><i class="fa-solid fa-graduation-cap me-1 text-primary"></i> Docente Titular • Mercado de Capitales &amp; Finanzas</p>
               </div>
             </div>
             <div class="d-flex align-items-center gap-2">
               <a th:href="@{/ia/clon/nuevo}" class="wf-btn wf-btn-sm wf-btn-primary d-inline-flex align-items-center gap-2" style="background: #7C3AED; border-color: #6D28D9; font-weight: 700;">
                 <i class="fa-solid fa-wand-magic-sparkles"></i>
-                <span>Configurar Clon de IA</span>
+                <span>Crear Clon de Docente</span>
               </a>
-              
             </div>
           </div>
 
-          <div class="row g-3">
-            <div class="col-md-6">
-              <label class="wf-label">Nombre Completo</label>
-              <div class="wf-input-wrap">
-                <input type="text" class="wf-input" value="Elena Valenzuela">
-                
+          <div class="d-flex flex-column flex-lg-row align-items-stretch justify-content-between gap-4">
+            <!-- Columna Izquierda: Información de Perfil -->
+            <div style="flex: 1 1 60%;">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="wf-label">Nombre Completo</label>
+                  <div class="wf-input-wrap">
+                    <input type="text" class="wf-input" value="Elena Valenzuela">
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <label class="wf-label">Correo Electrónico Institucional</label>
+                  <input type="email" class="wf-input bg-light" value="elena.valenzuela@idoneos.online" disabled>
+                </div>
+                <div class="col-md-6">
+                  <label class="wf-label">Estado de Habilitación Docente</label>
+                  <div class="p-2 rounded border bg-light d-flex align-items-center justify-content-between">
+                    <span class="small fw-bold text-success"><i class="fa-solid fa-circle-check me-1"></i> Activo y Habilitado</span>
+                    <span class="badge bg-success text-white" style="font-size: 10px;">Vigente</span>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <label class="wf-label">Calibración de Voz Sintética</label>
+                  <div class="p-2 rounded border bg-light d-flex align-items-center justify-content-between">
+                    <span class="small text-muted"><i class="fa-solid fa-microphone-lines me-1 text-primary"></i> voice_elena_es_ar</span>
+                    <span class="badge bg-primary text-white" style="font-size: 10px;">Calibrada</span>
+                  </div>
+                </div>
               </div>
             </div>
-            <div class="col-md-6">
-              <label class="wf-label">Correo Electrónico Institucional</label>
-              <input type="email" class="wf-input bg-light" value="elena.valenzuela@idoneos.online" disabled>
-            </div>
-            <div class="col-md-6">
-              <label class="wf-label">Estado de Habilitación Docente</label>
-              <div class="p-2 rounded border bg-light d-flex align-items-center justify-content-between">
-                <span class="small fw-bold text-success"><i class="fa-solid fa-circle-check me-1"></i> Activo y Habilitado para Dictado</span>
-                <span class="badge bg-success text-white" style="font-size: 10px;">Vigente</span>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <label class="wf-label">Estado de Clon Digital (HeyGen)</label>
-              <div class="p-2 rounded border bg-light d-flex align-items-center justify-content-between">
-                <span class="small text-muted"><i class="fa-solid fa-robot me-1 text-primary"></i> Avatar vinculado: <strong>#avatar_valenzuela_v2</strong></span>
-                <a th:href="@{/ia/clon/nuevo}" class="small fw-bold text-primary text-decoration-none">Reconfigurar</a>
+
+            <!-- Divisor Vertical -->
+            <div class="d-none d-lg-block" style="width: 1px; background: #CBD5E1; min-height: 100%;"></div>
+
+            <!-- Columna Derecha: Preview del Clon Creado (Docente) -->
+            <div style="flex: 1 1 40%; min-width: 300px;">
+              <div class="p-3 border rounded shadow-sm bg-white h-100 d-flex flex-column justify-content-between" style="border-top: 3px solid #7C3AED !important;">
+                <div>
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div class="small fw-bold text-uppercase" style="color: #6D28D9; font-size: 11px;"><i class="fa-solid fa-robot me-1"></i> Avatar Clon Digital (HeyGen)</div>
+                    <span class="badge bg-success text-white" style="font-size: 9px;">Sintetizado</span>
+                  </div>
+                  
+                  <div style="height: 170px; background: linear-gradient(180deg, #0F172A 0%, #081426 100%); border-radius: 8px; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1.5px solid #1E3A5F; margin-bottom: 10px;">
+                    <div class="text-center p-3">
+                      <div style="width: 68px; height: 68px; border-radius: 50%; background: rgba(228, 190, 108, 0.2); border: 2px solid var(--wf-gold); display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; color: var(--wf-gold); font-size: 32px; box-shadow: 0 4px 14px rgba(0,0,0,0.4);">
+                        <i class="fa-solid fa-user-tie"></i>
+                      </div>
+                      <div class="text-white fw-bold small">Mg. Elena Valenzuela (AI Clone)</div>
+                      <div class="badge bg-primary text-white mt-1" style="font-size: 9px;">#avatar_valenzuela_v2 • 1080p</div>
+                    </div>
+                  </div>
+                  
+                  <div class="small text-muted d-flex justify-content-between align-items-center" style="font-size: 11px;">
+                    <span>Voz: <strong>Spanish (AR) Neutral</strong></span>
+                    <a th:href="@{/ia/clon/nuevo}" class="text-decoration-none fw-bold" style="color: #7C3AED;">Reconfigurar</a>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
           <div class="d-flex justify-content-end align-items-center gap-3 pt-3 mt-4 border-top">
-            <a th:href="@{/cursos}" class="wf-btn wf-btn-outline"><i class="fa-solid fa-arrow-left me-1"></i> <span>Cancelar</span></a>
+            <a th:href="@{/cursos}" class="wf-btn wf-btn-outline"><i class="fa-solid fa-arrow-left me-1"></i> <span>Volver a Cursos</span></a>
             <div class="d-flex align-items-center gap-2">
-              <button type="submit" class="wf-btn wf-btn-primary wf-btn-sm"><i class="fa-solid fa-floppy-disk me-1"></i> Guardar Cambios</button>
-              
+              <button type="button" class="wf-btn wf-btn-primary wf-btn-sm" data-bs-toggle="modal" data-bs-target="#modalEditarPerfil">
+                <i class="fa-solid fa-user-pen me-1"></i> Editar Datos de Perfil (CU-87)
+              </button>
             </div>
           </div>
         </div>
       
                     </div>
                 </div>
+
+      <!-- ========================================== -->
+      <!-- MODAL CU-87: EDITAR PERFIL                -->
+      <!-- ========================================== -->
+      <div class="modal fade" id="modalEditarPerfil" tabindex="-1" aria-labelledby="modalEditarPerfilLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+          <div class="modal-content" style="border-radius: 12px; overflow: hidden; border: 1.5px solid var(--wf-navy, #081426);">
+            <div class="p-3 d-flex justify-content-between align-items-center text-white" style="background: #081426; border-bottom: 2px solid var(--wf-gold);">
+              <div class="d-flex align-items-center gap-2">
+                <span class="wf-badge" style="background: #081426; color: var(--wf-gold); border-color: var(--wf-gold); font-size: 11px;">CU-87</span>
+                <strong style="font-size: 14px; color: #FFFFFF;"><i class="fa-solid fa-user-pen text-warning me-2"></i>Editar Datos de Perfil</strong>
+                <span style="color: #64748B;">|</span>
+                <span class="text-muted" style="font-size: 11px; color: #94A3B8 !important;"><strong>Actor:</strong> Alumno, Docente, Administrador</span>
+              </div>
+              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <form th:action="@{/seguridad/perfil/editar}" method="post">
+              <div class="modal-body p-4 bg-white">
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <label class="wf-label">Nombre</label>
+                    <div class="wf-input-wrap">
+                      <input type="text" name="nombre" th:value="${usuario.nombre}" class="wf-input" required>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="wf-label">Apellido</label>
+                    <div class="wf-input-wrap">
+                      <input type="text" name="apellido" th:value="${usuario.apellido}" class="wf-input" required>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="wf-label">Correo Electrónico (Institucional)</label>
+                    <div class="wf-input-wrap">
+                      <input type="email" th:value="${usuario.correo}" class="wf-input bg-light" disabled>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="wf-label">Teléfono de Contacto</label>
+                    <div class="wf-input-wrap">
+                      <input type="tel" name="telefono" th:value="${usuario.telefono}" class="wf-input" placeholder="+54 11 4321-9876">
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer d-flex justify-content-between p-3 border-top bg-light">
+                <button type="button" class="wf-btn wf-btn-outline" data-bs-dismiss="modal">Cancelar / Volver</button>
+                <button type="submit" class="wf-btn wf-btn-primary" style="background: var(--wf-navy); border-color: var(--wf-gold); color: #FFFFFF;">
+                  <i class="fa-solid fa-floppy-disk me-1"></i> Guardar Cambios
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
 
                 <!-- Footer Oficial -->
                 <div class="wf-screen-footer">

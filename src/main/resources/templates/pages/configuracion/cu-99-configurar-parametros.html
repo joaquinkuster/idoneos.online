@@ -56,56 +56,61 @@
                 <div class="wf-body">
                     <div class="wf-main-content">
                         
-    <div class="wf-card" style="max-width: 960px; margin: 0 auto; background: #FFFFFF;">
-      <div class="wf-card-header mb-4 pb-3 border-bottom d-flex justify-content-between align-items-center">
+    <div class="wf-card mb-4" style="max-width: 1080px; margin: 0 auto; background: #FFFFFF;">
+      <div class="wf-card-header mb-4 pb-3 border-bottom d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2">
         <div>
           <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Configuración de Parámetros Generales del Sistema</h3>
           <p class="small text-muted" style="margin: 3px 0 0;">Ajuste de variables operativas, límites de IA y constantes institucionales.</p>
         </div>
-        <span class="wf-badge status-active">Parámetros Globales</span>
+        <span class="wf-badge status-active align-self-start align-self-sm-auto">Parámetros Globales</span>
       </div>
 
-      <!-- Tabla de Configuración (Badge A) -->
-      
-      <div class="wf-table-wrap mb-4">
-        <table class="wf-table">
+      <!-- Tabla de Configuración con scroll responsivo -->
+      <div class="wf-table-wrap mb-4 table-responsive" style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+        <table class="wf-table align-middle" style="min-width: 600px;">
           <thead>
             <tr>
-              <th>ID</th>
-              <th>Clave / Parámetro</th>
-              <th>Valor Configurado</th>
-              <th class="text-end">Acción</th>
+              <th style="width: 35%;">Clave / Parámetro</th>
+              <th style="width: 50%;">Valor Configurado</th>
+              <th class="text-end" style="width: 15%;">Acción</th>
             </tr>
           </thead>
           <tbody>
   <tr th:each="p : ${parametros}">
-    <td><code style="font-size: 13px; font-weight: 700;" th:text="${p.clave}">CLAVE</code></td>
     <td>
-      <form th:action="@{/configuracion/guardar}" method="post" class="d-flex gap-2">
+      <div class="d-flex align-items-center gap-2">
+        <i class="fa-solid fa-gear text-muted"></i>
+        <code style="font-size: 13px; font-weight: 700; color: #081426;" th:text="${p.clave}">CLAVE</code>
+      </div>
+    </td>
+    <td>
+      <form th:action="@{/configuracion/guardar}" method="post" class="d-flex flex-column flex-sm-row gap-2">
         <input type="hidden" name="clave" th:value="${p.clave}">
-        <input type="text" name="valor" th:value="${p.valor}" class="wf-input" style="max-width: 320px;">
-        <button type="submit" class="wf-btn wf-btn-sm wf-btn-primary"><i class="fa-solid fa-save"></i> Guardar</button>
+        <input type="text" name="valor" th:value="${p.valor}" class="wf-input flex-grow-1" style="min-width: 200px;">
+        <button type="submit" class="wf-btn wf-btn-sm wf-btn-primary text-nowrap"><i class="fa-solid fa-floppy-disk me-1"></i> Guardar</button>
       </form>
+    </td>
+    <td class="text-end">
+      <span class="wf-badge status-active" style="font-size: 10px;">Activo</span>
     </td>
   </tr>
   <tr th:if="${#lists.isEmpty(parametros)}">
-    <td colspan="2" class="text-center py-4 text-muted">No hay parámetros de configuración disponibles.</td>
+    <td colspan="3" class="text-center py-4 text-muted">No hay parámetros de configuración disponibles.</td>
   </tr>
 </tbody>
         </table>
       </div>
 
-      <!-- Formulario de Edición del Parámetro Seleccionado (Badges C y D) -->
-      
-      <form th:action="@{/configuracion/guardar}" method="post" class="p-4 bg-light rounded border">
-        <h4 style="font-size: 15px; font-weight: 800; color: #081426; margin-bottom: 12px;">Crear o Actualizar Parámetro</h4>
+      <!-- Formulario de Edición del Parámetro Seleccionado -->
+      <form th:action="@{/configuracion/guardar}" method="post" class="p-3 p-md-4 bg-light rounded border">
+        <h4 style="font-size: 15px; font-weight: 800; color: #081426; margin-bottom: 12px;"><i class="fa-solid fa-plus-circle text-gold me-2"></i>Crear o Actualizar Parámetro</h4>
         <div class="row g-3">
-          <div class="col-md-6">
+          <div class="col-12 col-md-6">
             <label class="wf-label">Clave del Parámetro</label>
             <input type="text" name="clave" class="wf-input" placeholder="Ej: heygen.api_key, sesiones.max" required>
           </div>
-          <div class="col-md-6">
-            <label class="wf-label">Valor</label>
+          <div class="col-12 col-md-6">
+            <label class="wf-label">Valor Asignado</label>
             <input type="text" name="valor" class="wf-input" placeholder="Valor asignado" required>
           </div>
         </div>
@@ -141,33 +146,6 @@
                 }
             }
         }
-    </script>
-
-    <!-- DSS & Case of Use Console Logger -->
-    <script>
-        (function() {
-            const cuId = 'CU-99';
-            const cuNombre = 'Configurar parametros';
-            const cuActores = 'Administrador';
-            const cuDss = 'parametros = buscarParametros() ➔ unParametro = seleccionarParametro(idParametro, parametros) ➔ modificarParametro(unParametro, valorNuevo)';
-
-            console.log(
-                '%c[IDÓNEOS ONLINE] %c ' + cuId + ' %c ' + cuNombre + ' ',
-                'color: #C9982F; font-weight: 800; font-size: 13px;',
-                'background: #081426; color: #E4BE6C; padding: 3px 8px; border-radius: 4px; font-weight: 700; font-size: 12px; border: 1px solid #C9982F;',
-                'color: #081426; font-weight: 800; font-size: 13px;'
-            );
-            console.log(
-                '%c👤 Actor(es): %c' + cuActores,
-                'color: #64748B; font-weight: 700; font-size: 11px;',
-                'color: #0F172A; font-weight: 600; font-size: 11px;'
-            );
-            console.log(
-                '%c⚡ DSS: %c' + cuDss,
-                'color: #64748B; font-weight: 700; font-size: 11px;',
-                'color: #0284C7; font-family: monospace; font-size: 11px; font-weight: 600;'
-            );
-        })();
     </script>
 </body>
 </html>

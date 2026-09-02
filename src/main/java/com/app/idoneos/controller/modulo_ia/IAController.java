@@ -5,6 +5,7 @@ import com.app.idoneos.repository.modulo_configuracion.*;
 import com.app.idoneos.repository.modulo_gestion_academica.*;
 import com.app.idoneos.repository.modulo_ia.*;
 import com.app.idoneos.repository.modulo_usuarios.*;
+import com.app.idoneos.service.modulo_cursos.*;
 import com.app.idoneos.service.modulo_gestion_academica.*;
 import com.app.idoneos.service.modulo_ia.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,7 @@ public class IAController {
 
     @Autowired private OllamaService ollamaService;
     @Autowired private UnidadService unidadService;
+    @Autowired private CursoService cursoService;
     @Autowired private ClaseClonIARepository clonRepo;
     @Autowired private EstadoClaseClonIARepository estadoRepo;
     @Autowired private DocenteRepository docenteRepo;
@@ -153,9 +155,73 @@ public class IAController {
     }
 
     @GetMapping("/clon/clases")
-    public String buscarClasesConClon(Model model, Authentication auth) {
+    public String buscarClasesConClon(@RequestParam(value = "cursoId", required = false) Integer cursoId,
+                                      @RequestParam(value = "unidadId", required = false) Integer unidadId,
+                                      @RequestParam(value = "estadoId", required = false) Integer estadoId,
+                                      @RequestParam(value = "q", required = false) String q,
+                                      Model model, Authentication auth) {
         agregarUsuarioAlModelo(model, auth);
-        model.addAttribute("clases", clonRepo.findAll().stream().filter(c -> !c.getBaja()).toList());
+
+        Curso curso = null;
+        if (cursoId != null) {
+            curso = cursoService.buscarPorId(cursoId).orElse(null);
+        }
+        if (curso == null) {
+            List<Curso> cursos = cursoService.obtenerTodo();
+            if (!cursos.isEmpty()) curso = cursos.get(0);
+        }
+
+        if (clonRepo.count() == 0) {
+            Docente doc = docenteRepo.findAll().stream().findFirst().orElse(null);
+            EstadoClaseClonIA estGen = estadoRepo.findByNombre("Generada").orElseGet(() -> {
+                List<EstadoClaseClonIA> all = estadoRepo.findAll();
+                if (!all.isEmpty()) return all.get(0);
+                EstadoClaseClonIA nuevo = new EstadoClaseClonIA("Generada");
+                return estadoRepo.save(nuevo);
+            });
+            EstadoClaseClonIA estPend = estadoRepo.findByNombre("Pendiente").orElse(estGen);
+
+            clonRepo.save(new ClaseClonIA(
+                "Explicación Teórica: Duración Modificada",
+                "En esta clase abordaremos el concepto de modified duration. Cuando la tasa de interés se incrementa, el precio de los títulos cae en proporción inversa a su duración ponderada...",
+                doc, estGen));
+            clonRepo.save(new ClaseClonIA(
+                "Introducción a la Ley de Mercado de Capitales",
+                "Bienvenidos a la cátedra de Mercado de Capitales. Analizaremos los principios rectores de la Ley 26.831 y las facultades fiscalizadoras de la CNV...",
+                doc, estGen));
+            clonRepo.save(new ClaseClonIA(
+                "Valuación de Bonos Bullet vs Amortizables",
+                "En esta microclase aprenderemos a estructurar los flujos de fondos descontados para bonos con amortización íntegra al vencimiento y bonos con cupones periódicos...",
+                doc, estPend));
+        }
+
+        List<Unidad> unidades = (curso != null) ? unidadService.obtenerPorCurso(curso) : unidadService.obtenerTodo();
+        List<EstadoClaseClonIA> estados = estadoRepo.findAll();
+
+        List<ClaseClonIA> clases = clonRepo.findAll().stream()
+                .filter(c -> !c.getBaja())
+                .filter(c -> {
+                    if (estadoId != null && (c.getEstadoClaseClon() == null || c.getEstadoClaseClon().getIdEstadoClaseClon() != estadoId.intValue())) {
+                        return false;
+                    }
+                    if (q != null && !q.trim().isEmpty()) {
+                        String query = q.toLowerCase();
+                        boolean coincideTitulo = c.getTitulo() != null && c.getTitulo().toLowerCase().contains(query);
+                        boolean coincideGuion = c.getGuion() != null && c.getGuion().toLowerCase().contains(query);
+                        if (!coincideTitulo && !coincideGuion) return false;
+                    }
+                    return true;
+                })
+                .toList();
+
+        model.addAttribute("curso", curso);
+        model.addAttribute("unidades", unidades);
+        model.addAttribute("estados", estados);
+        model.addAttribute("unidadSeleccionadaId", unidadId);
+        model.addAttribute("estadoSeleccionadoId", estadoId);
+        model.addAttribute("busquedaTexto", q);
+        model.addAttribute("clases", clases);
+        model.addAttribute("modoEdicion", true);
         model.addAttribute("titulo", "CU-77 - Buscar clase con clon IA | Idóneos Online");
         return "pages/ia_vivo/cu-77-buscar-clase-con-clon";
     }

@@ -173,14 +173,14 @@ public class SeguridadController {
     public String buscarUsuarios(@RequestParam(value = "busqueda", required = false) String busqueda,
                                  Model model, Authentication auth) {
         agregarUsuarioAlModelo(model, auth);
-        List<Usuario> todos = usuarioRepository.findByBajaFalse();
+        List<Usuario> todos = usuarioRepository.findAll();
         List<Usuario> usuarios = (busqueda != null && !busqueda.isBlank())
                 ? todos.stream().filter(u -> u.getNombreCompleto().toLowerCase().contains(busqueda.toLowerCase()) || u.getCorreo().toLowerCase().contains(busqueda.toLowerCase())).toList()
                 : todos;
 
         model.addAttribute("usuarios", usuarios);
         model.addAttribute("busqueda", busqueda);
-        model.addAttribute("titulo", "CU-82 - Buscar usuario | Idóneos Online");
+        model.addAttribute("titulo", "Buscar usuario | Idóneos Online");
         return "pages/seguridad/cu-82-buscar-usuario";
     }
 

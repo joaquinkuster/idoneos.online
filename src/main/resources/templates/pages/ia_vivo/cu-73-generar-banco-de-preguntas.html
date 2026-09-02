@@ -1,152 +1,163 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${titulo != null ? titulo : 'CU-73 - Generar banco de preguntas'}">CU-73 - Generar banco de preguntas | Idóneos Online</title>
-    
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- FontAwesome 6 Pro / Solid Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;800&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    
-    <!-- Estilos del Sistema Centralizados -->
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${titulo != null ? titulo : 'CU-73 - Generar banco de preguntas'}">CU-73 - Generar banco de preguntas
+    | Idóneos Online</title>
+
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- FontAwesome 6 Pro / Solid Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;800&family=Inter:wght@400;500;600;700;800;900&display=swap"
+    rel="stylesheet">
+
+  <!-- Estilos del Sistema Centralizados -->
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
 </head>
+
 <body class="wf-canvas-bg">
 
-    <div class="cu-page-container">
-        <!-- Pantalla / Screen Frame Oficial -->
-        <div class="screen-frame">
+  <div class="cu-page-container">
+    <!-- Pantalla / Screen Frame Oficial -->
+    <div class="screen-frame">
 
-                <!-- Top Navbar Oficial Dinámica -->
-                <div th:replace="~{fragments/wf_navbar :: wf-top-navbar}"></div>
+      <!-- Top Navbar Oficial Dinámica -->
+      <div th:replace="~{fragments/wf_navbar :: wf-top-navbar}"></div>
 
-                <!-- Hero Banner Contextual Superior (Navy) -->
-                <div class="wf-hero-banner">
-                    <div>
-                        <div class="wf-hero-tag">
-                            <i class="fa-solid fa-graduation-cap" style="color: var(--wf-gold);"></i>
-                            <span>CUERPO DOCENTE • IDÓNEOS ONLINE</span>
-                        </div>
-                        <h2 class="wf-hero-title">Generar banco de preguntas</h2>
-                        <p class="wf-hero-desc">Bienvenido/a, Mg. Elena Valenzuela</p>
-                    </div>
-                    
-                    <div class="d-flex align-items-center gap-2">
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    </div>
-</div>
-
-                <div class="wf-body">
-                    <div class="wf-main-content">
-                        
-      
-    <div class="wf-card" style="max-width: 1080px; margin: 0 auto; background: #FFFFFF;">
-      <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
-        <div class="d-flex align-items-center gap-3">
-          <div style="width: 44px; height: 44px; border-radius: 10px; background: #081426; display: flex; align-items: center; justify-content: center; color: var(--wf-gold);">
-            <i class="fa-solid fa-list-check" style="font-size: 20px;"></i>
+      <!-- Hero Banner Contextual Superior (Navy) -->
+      <div class="wf-hero-banner">
+        <div>
+          <div class="wf-hero-tag">
+            <i class="fa-solid fa-graduation-cap" style="color: var(--wf-gold);"></i>
+            <span>CUERPO DOCENTE • IDÓNEOS ONLINE</span>
           </div>
-          <div>
-            <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Generar Banco de Preguntas con IA (Ollama)</h3>
-            <p class="small text-muted" style="margin: 2px 0 0;">Generación automatizada de preguntas a partir de la bibliografía de la unidad.</p>
-          </div>
+          <h2 class="wf-hero-title">Generar banco de preguntas</h2>
+          <p class="wf-hero-desc">Bienvenido/a, Mg. Elena Valenzuela</p>
         </div>
-        <span class="wf-badge status-active">Ollama (Llama 3.1 8B)</span>
+
+        <div class="d-flex align-items-center gap-2">
+
+
+
+
+
+
+
+
+
+
+
+
+        </div>
       </div>
 
-      <div th:if="${mensaje}" class="alert alert-success p-2 small mb-3" th:text="${mensaje}">Mensaje</div>
+      <div class="wf-body">
+        <div class="wf-main-content">
 
-      <form th:action="@{/ia/banco-preguntas/generar}" method="post">
-        <div class="row g-3">
-          <div class="col-md-6">
-            <label class="wf-label">Unidad Académica de Origen</label>
-            <select name="unidadId" class="wf-input" required>
-              <option th:each="u : ${unidades}" th:value="${u.id}" th:text="${u.titulo}">Unidad</option>
-            </select>
-          </div>
-          <div class="col-md-6">
-            <label class="wf-label">Prompt de Orientación Adicional</label>
-            <input type="text" name="promptInput" class="wf-input" placeholder="Ej: Enfatizar preguntas de opción múltiple sobre bonos...">
-          </div>
-        </div>
-        <div class="pt-3 mt-4 border-top d-flex justify-content-end align-items-center gap-3">
-          <button type="submit" class="wf-btn wf-btn-primary">
-            <i class="fa-solid fa-wand-magic-sparkles me-1"></i> Generar Preguntas con IA
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-  </div>
-  <!-- Footer Oficial -->
-                <div class="wf-screen-footer">
-                    <div>
-                        <strong>Idóneos <span>Online</span> S.A.S.</strong> • Plataforma de Educación Financiera, Economía & Mercado de Capitales
-                    </div>
-                    <div>
-                        FCEQyN — UNaM • Proyecto Software (LSI) / Trabajo Final (ASI)
-                    </div>
+
+          <div class="wf-card" style="max-width: 1080px; margin: 0 auto; background: #FFFFFF;">
+            <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
+              <div class="d-flex align-items-center gap-3">
+                <div
+                  style="width: 44px; height: 44px; border-radius: 10px; background: #081426; display: flex; align-items: center; justify-content: center; color: var(--wf-gold);">
+                  <i class="fa-solid fa-list-check" style="font-size: 20px;"></i>
                 </div>
-            
+                <div>
+                  <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Generar Banco de Preguntas
+                    con IA (Ollama)</h3>
+                  <p class="small text-muted" style="margin: 2px 0 0;">Generación automatizada de preguntas a partir de
+                    la bibliografía de la unidad.</p>
+                </div>
+              </div>
+              <span class="wf-badge status-active">Ollama (Llama 3.1 8B)</span>
+            </div>
+
+            <div th:if="${mensaje}" class="alert alert-success p-2 small mb-3" th:text="${mensaje}">Mensaje</div>
+
+            <form th:action="@{/ia/banco-preguntas/generar}" method="post">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="wf-label">Unidad Académica de Origen</label>
+                  <select name="unidadId" class="wf-input" required>
+                    <option th:each="u : ${unidades}" th:value="${u.id}" th:text="${u.titulo}">Unidad</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="wf-label">Prompt de Orientación Adicional</label>
+                  <input type="text" name="promptInput" class="wf-input"
+                    placeholder="Ej: Enfatizar preguntas de opción múltiple sobre bonos...">
+                </div>
+              </div>
+              <div class="pt-3 mt-4 border-top d-flex justify-content-end align-items-center gap-3">
+                <button type="submit" class="wf-btn wf-btn-primary">
+                  <i class="fa-solid fa-wand-magic-sparkles me-1"></i> Generar Preguntas con IA
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
+      </div>
+      <!-- Footer Oficial -->
+      <div class="wf-screen-footer">
+        <div>
+          <strong>Idóneos <span>Online</span> S.A.S.</strong> • Plataforma de Educación Financiera, Economía & Mercado
+          de Capitales
+        </div>
+        <div>
+          FCEQyN — UNaM • Proyecto Software (LSI) / Trabajo Final (ASI)
+        </div>
+      </div>
+
     </div>
+  </div>
 
-    <!-- Bootstrap Bundle JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        function toggleUserDropdown(triggerEl) {
-            const wrapper = triggerEl.closest('.wf-user-menu-wrapper');
-            if (wrapper) {
-                const dropdown = wrapper.querySelector('.wf-user-floating-dropdown');
-                if (dropdown) {
-                    dropdown.style.display = (dropdown.style.display === 'none' || dropdown.style.display === '') ? 'flex' : 'none';
-                }
-            }
+  <!-- Bootstrap Bundle JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    function toggleUserDropdown(triggerEl) {
+      const wrapper = triggerEl.closest('.wf-user-menu-wrapper');
+      if (wrapper) {
+        const dropdown = wrapper.querySelector('.wf-user-floating-dropdown');
+        if (dropdown) {
+          dropdown.style.display = (dropdown.style.display === 'none' || dropdown.style.display === '') ? 'flex' : 'none';
         }
-    </script>
+      }
+    }
+  </script>
 
-    <!-- DSS & Case of Use Console Logger -->
-    <script>
-        (function() {
-            const cuId = 'CU-73';
-            const cuNombre = 'Generar banco de preguntas';
-            const cuActores = 'Docente';
-            const cuDss = 'unPool = generarBancoPreguntas(unaUnidad, guion)';
+  <!-- DSS & Case of Use Console Logger -->
+  <script>
+    (function () {
+      const cuId = 'CU-73';
+      const cuNombre = 'Generar banco de preguntas';
+      const cuActores = 'Docente';
+      const cuDss = 'unPool = generarBancoPreguntas(unaUnidad, guion)';
 
-            console.log(
-                '%c[IDÓNEOS ONLINE] %c ' + cuId + ' %c ' + cuNombre + ' ',
-                'color: #C9982F; font-weight: 800; font-size: 13px;',
-                'background: #081426; color: #E4BE6C; padding: 3px 8px; border-radius: 4px; font-weight: 700; font-size: 12px; border: 1px solid #C9982F;',
-                'color: #081426; font-weight: 800; font-size: 13px;'
-            );
-            console.log(
-                '%c👤 Actor(es): %c' + cuActores,
-                'color: #64748B; font-weight: 700; font-size: 11px;',
-                'color: #0F172A; font-weight: 600; font-size: 11px;'
-            );
-            console.log(
-                '%c⚡ DSS: %c' + cuDss,
-                'color: #64748B; font-weight: 700; font-size: 11px;',
-                'color: #0284C7; font-family: monospace; font-size: 11px; font-weight: 600;'
-            );
-        })();
-    </script>
+      console.log(
+        '%c[IDÓNEOS ONLINE] %c ' + cuId + ' %c ' + cuNombre + ' ',
+        'color: #C9982F; font-weight: 800; font-size: 13px;',
+        'background: #081426; color: #E4BE6C; padding: 3px 8px; border-radius: 4px; font-weight: 700; font-size: 12px; border: 1px solid #C9982F;',
+        'color: #081426; font-weight: 800; font-size: 13px;'
+      );
+      console.log(
+        '%c👤 Actor(es): %c' + cuActores,
+        'color: #64748B; font-weight: 700; font-size: 11px;',
+        'color: #0F172A; font-weight: 600; font-size: 11px;'
+      );
+      console.log(
+        '%c⚡ DSS: %c' + cuDss,
+        'color: #64748B; font-weight: 700; font-size: 11px;',
+        'color: #0284C7; font-family: monospace; font-size: 11px; font-weight: 600;'
+      );
+    })();
+  </script>
 </body>
+
 </html>

@@ -38,24 +38,14 @@
                     </div>
                     
                     <div class="d-flex align-items-center gap-2">
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                        <a th:href="@{/seguridad/usuarios/nuevo}" class="wf-btn-gold">
+                        <button type="button" class="wf-btn-gold border-0" data-bs-toggle="modal" data-bs-target="#modalRegistrarUsuario">
                             <i class="fa-solid fa-plus"></i>
                             <span>Nuevo Usuario</span>
-                        </a>
-                        
-                    
+                        </button>
+                        <button type="button" class="wf-btn-gold border-0 d-none d-md-inline-flex" data-bs-toggle="modal" data-bs-target="#modalRegistrarDocente">
+                            <i class="fa-solid fa-graduation-cap"></i>
+                            <span>Nuevo Docente</span>
+                        </button>
                     </div>
 </div>
 
@@ -74,13 +64,12 @@
         </div>
 
         <!-- Barra de Filtros [A] -->
-        <div class="p-3 bg-light rounded border mb-4">
+        <form th:action="@{/seguridad/usuarios}" method="get" class="p-3 bg-light rounded border mb-4">
           <div class="row g-3 align-items-end">
             <div class="col" style="flex: 1 1 22%; min-width: 180px;">
               <label class="wf-label">Buscar por Nombre o Apellido</label>
               <div class="wf-input-wrap">
-                <input type="text" class="wf-input" placeholder="Ej: Elena, Valenzuela, Joaquín...">
-                
+                <input type="text" name="busqueda" th:value="${busqueda}" class="wf-input" placeholder="Ej: Elena, Valenzuela, Joaquín...">
               </div>
             </div>
             <div class="col" style="flex: 1 1 22%; min-width: 180px;">
@@ -108,16 +97,15 @@
             </div>
             <div class="col-auto" style="min-width: 120px;">
               <div class="d-flex align-items-center gap-2">
-                <button class="wf-btn wf-btn-primary w-100"><i class="fa-solid fa-magnifying-glass me-1"></i> Buscar</button>
-                
+                <button type="submit" class="wf-btn wf-btn-primary w-100"><i class="fa-solid fa-magnifying-glass me-1"></i> Buscar</button>
               </div>
             </div>
           </div>
-        </div>
+        </form>
 
         <!-- Listado de Usuarios Filtrados con Acción [C] -->
         <div class="wf-table-wrap">
-          <table class="wf-table">
+          <table class="wf-table" id="tablaUsuarios">
             <thead>
               <tr>
                 <th>Usuario / Datos Personales</th>
@@ -125,24 +113,59 @@
                 <th>DNI / Identificación</th>
                 <th>Rol Asignado</th>
                 <th>Estado</th>
-                <th class="text-end">Acciones / Perfil</th>
+                <th class="text-end">Acciones</th>
               </tr>
             </thead>
             <tbody>
-  <tr th:each="u : ${usuarios}">
+  <tr th:each="u : ${usuarios}" th:classappend="${u.baja} ? 'text-muted bg-light' : ''" th:style="${u.baja} ? 'opacity: 0.65; background-color: #F8FAFC !important;' : ''">
     <td>
-      <strong style="color: #081426; font-size: 13px;" th:text="${u.nombreCompleto}">Nombre</strong>
+      <div class="d-flex align-items-center gap-3">
+        <div style="width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; box-shadow: 0 2px 6px rgba(0,0,0,0.12);"
+             th:style="${u.baja} ? 'background: #94A3B8; color: #FFFFFF; border: 1.5px solid #CBD5E1;' : 'background: linear-gradient(135deg, #081426 0%, #1E3A5F 100%); color: var(--wf-gold); border: 1.5px solid var(--wf-gold);'">
+          <span th:text="${#strings.substring(u.nombre,0,1) + #strings.substring(u.apellido != null and #strings.length(u.apellido) > 0 ? u.apellido : 'U',0,1)}">EV</span>
+        </div>
+        <div>
+          <strong style="font-size: 13.5px; display: block;" th:style="${u.baja} ? 'color: #64748B;' : 'color: #081426;'" th:text="${u.nombreCompleto}">Nombre</strong>
+          <span th:if="${u.esDocente() and !u.baja}" class="badge bg-primary text-white" style="font-size: 9.5px; padding: 3px 6px;">Docente</span>
+          <span th:if="${u.esDocente() and u.baja}" class="badge bg-secondary text-white" style="font-size: 9.5px; padding: 3px 6px;">Docente</span>
+        </div>
+      </div>
     </td>
-    <td><code th:text="${u.email}">correo@idoneos.online</code></td>
-    <td th:text="${u.dni}">12345678</td>
-    <td><span class="wf-badge status-active" th:text="${u.rol != null ? u.rol.nombre : 'Usuario'}">Rol</span></td>
-    <td><span th:class="${u.baja ? 'text-danger fw-bold' : 'text-success fw-bold'}" th:text="${u.baja ? 'Baja' : 'Activo'}">Activo</span></td>
+    <td><code th:style="${u.baja} ? 'color: #94A3B8; background: transparent;' : ''" th:text="${u.correo}">correo@idoneos.online</code></td>
+    <td th:text="${u.dni}" th:style="${u.baja} ? 'color: #94A3B8;' : ''">12345678</td>
+    <td>
+      <span th:if="${!u.baja}" class="wf-badge status-active" th:text="${u.rol != null ? u.rol.nombre : 'Usuario'}">Rol</span>
+      <span th:if="${u.baja}" class="wf-badge" style="background: #E2E8F0; color: #64748B; border-color: #CBD5E1;" th:text="${u.rol != null ? u.rol.nombre : 'Usuario'}">Rol</span>
+    </td>
+    <td>
+      <span th:if="${!u.baja}" class="wf-badge status-active">Activo</span>
+      <span th:if="${u.baja}" class="wf-badge" style="background: #F1F5F9; color: #94A3B8; border-color: #E2E8F0;">Desactivado</span>
+    </td>
     <td class="text-end">
-      <div class="d-inline-flex gap-2">
-        <a th:href="@{'/seguridad/usuarios/' + ${u.id} + '/editar'}" class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-pen-to-square"></i></a>
-        <form th:action="@{'/seguridad/usuarios/' + ${u.id} + '/baja'}" method="post" class="d-inline">
-          <button type="submit" class="wf-btn wf-btn-sm wf-btn-outline text-danger" onclick="return confirm('¿Dar de baja a este usuario?');"><i class="fa-solid fa-trash"></i></button>
-        </form>
+      <div class="d-inline-flex align-items-center gap-2">
+        <a th:href="@{/seguridad/perfil}" class="wf-btn wf-btn-xs" style="background: #0284C7; border-color: #0284C7; color: #FFFFFF; font-weight: 600;" title="Ver perfil">
+          <i class="fa-solid fa-id-card me-1"></i> Ver perfil
+        </a>
+
+        <button type="button" class="wf-btn wf-btn-xs" style="background: #0F766E; border-color: #0F766E; color: #FFFFFF; font-weight: 600;"
+                th:data-id="${u.id}"
+                th:data-nombre="${u.nombre}"
+                th:data-apellido="${u.apellido}"
+                th:data-correo="${u.correo}"
+                th:data-dni="${u.dni}"
+                th:data-telefono="${u.telefono}"
+                th:data-rol="${u.rol != null ? u.rol.id : ''}"
+                data-bs-toggle="modal" data-bs-target="#modalModificarUsuario" title="Modificar Usuario">
+          <i class="fa-solid fa-pen-to-square me-1"></i> Modificar
+        </button>
+
+        <button th:if="${!u.baja}" type="button" class="wf-btn wf-btn-xs" style="background: #DC2626; border-color: #DC2626; color: #FFFFFF; font-weight: 600;"
+                th:data-id="${u.id}"
+                th:data-nombre="${u.nombreCompleto}"
+                th:data-correo="${u.correo}"
+                data-bs-toggle="modal" data-bs-target="#modalBajaUsuario" title="Desactivar cuenta">
+          <i class="fa-solid fa-ban me-1"></i> Desactivar cuenta
+        </button>
       </div>
     </td>
   </tr>
@@ -152,10 +175,258 @@
 </tbody>
           </table>
         </div>
-      </div>
+
+        <!-- Paginación Premium — Sistema wf-pagination -->
+        <div id="paginacionUsuarios" class="wf-pagination-wrap mt-3">
+          <div class="wf-pagination-info" id="usrPaginaInfo"></div>
+          <div class="wf-pagination-controls" id="usrBotonesPaginacion"></div>
+        </div>
+      </div>      </div>
     
                     </div>
                 </div>
+
+      <!-- ========================================== -->
+      <!-- MODAL: REGISTRAR USUARIO                  -->
+      <!-- ========================================== -->
+      <div class="modal fade" id="modalRegistrarUsuario" tabindex="-1" aria-labelledby="modalRegistrarUsuarioLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+          <div class="modal-content" style="border-radius: 12px; overflow: hidden; border: 1.5px solid var(--wf-navy, #081426);">
+            <div class="p-3 d-flex justify-content-between align-items-center text-white" style="background: #081426; border-bottom: 2px solid var(--wf-gold);">
+              <div class="d-flex align-items-center gap-2">
+                <strong style="font-size: 14px; color: #FFFFFF;"><i class="fa-solid fa-user-plus text-warning me-2"></i>Registrar Usuario en el Sistema</strong>
+                <span style="color: #64748B;">|</span>
+                <span class="text-muted" style="font-size: 11px; color: #94A3B8 !important;"><strong>Actor:</strong> Administrador</span>
+              </div>
+              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <form th:action="@{/seguridad/usuarios/guardar}" method="post">
+              <div class="modal-body p-4 bg-white">
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <label class="wf-label">Nombre</label>
+                    <div class="wf-input-wrap">
+                      <input type="text" name="nombre" class="wf-input" placeholder="Nombre..." required>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="wf-label">Apellido</label>
+                    <div class="wf-input-wrap">
+                      <input type="text" name="apellido" class="wf-input" placeholder="Apellido..." required>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="wf-label">Correo Electrónico Institucional</label>
+                    <div class="wf-input-wrap">
+                      <input type="email" name="email" class="wf-input" placeholder="ejemplo@idoneos.online" required>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="wf-label">DNI / Identificación</label>
+                    <div class="wf-input-wrap">
+                      <input type="text" name="dni" class="wf-input" placeholder="DNI sin puntos..." required>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="wf-label">Contraseña Inicial</label>
+                    <div class="wf-input-wrap">
+                      <input type="password" name="contrasena" class="wf-input" placeholder="Contraseña..." required>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="wf-label">Rol Asignado en el Sistema</label>
+                    <div class="wf-input-wrap">
+                      <select name="rolId" class="wf-input" required>
+                        <option value="1">Alumno</option>
+                        <option value="2">Docente</option>
+                        <option value="3">Administrador</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer d-flex justify-content-between p-3 border-top bg-light">
+                <button type="button" class="wf-btn wf-btn-outline" data-bs-dismiss="modal">Cancelar / Volver</button>
+                <button type="submit" class="wf-btn wf-btn-primary" style="background: var(--wf-navy); border-color: var(--wf-gold); color: #FFFFFF;">
+                  <i class="fa-solid fa-check me-1"></i> Guardar Usuario
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- MODAL: MODIFICAR USUARIO                  -->
+      <!-- ========================================== -->
+      <div class="modal fade" id="modalModificarUsuario" tabindex="-1" aria-labelledby="modalModificarUsuarioLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+          <div class="modal-content" style="border-radius: 12px; overflow: hidden; border: 1.5px solid var(--wf-navy, #081426);">
+            <div class="p-3 d-flex justify-content-between align-items-center text-white" style="background: #081426; border-bottom: 2px solid var(--wf-gold);">
+              <div class="d-flex align-items-center gap-2">
+                <strong style="font-size: 14px; color: #FFFFFF;"><i class="fa-solid fa-user-pen text-warning me-2"></i>Modificar Cuenta de Usuario</strong>
+                <span style="color: #64748B;">|</span>
+                <span class="text-muted" style="font-size: 11px; color: #94A3B8 !important;"><strong>Actor:</strong> Administrador</span>
+              </div>
+              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <form id="formModificarUsuario" method="post" action="/seguridad/usuarios/1/editar">
+              <div class="modal-body p-4 bg-white">
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <label class="wf-label">Nombre</label>
+                    <div class="wf-input-wrap">
+                      <input type="text" name="nombre" id="modalEditNombre" class="wf-input" required>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="wf-label">Apellido</label>
+                    <div class="wf-input-wrap">
+                      <input type="text" name="apellido" id="modalEditApellido" class="wf-input" required>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="wf-label">Correo Electrónico (No modificable por seguridad)</label>
+                    <div class="wf-input-wrap">
+                      <input type="email" id="modalEditCorreo" class="wf-input bg-light" disabled>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="wf-label">DNI / Identificación</label>
+                    <div class="wf-input-wrap">
+                      <input type="text" name="dni" id="modalEditDni" class="wf-input" required>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="wf-label">Rol Asignado</label>
+                    <div class="wf-input-wrap">
+                      <select name="rolId" id="modalEditRol" class="wf-input">
+                        <option value="1">Alumno</option>
+                        <option value="2">Docente</option>
+                        <option value="3">Administrador</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer d-flex justify-content-between p-3 border-top bg-light">
+                <button type="button" class="wf-btn wf-btn-outline" data-bs-dismiss="modal">Cancelar / Volver</button>
+                <button type="submit" class="wf-btn wf-btn-primary" style="background: var(--wf-navy); border-color: var(--wf-gold); color: #FFFFFF;">
+                  <i class="fa-solid fa-floppy-disk me-1"></i> Guardar Cambios
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- MODAL: DESACTIVAR CUENTA DE USUARIO       -->
+      <!-- ========================================== -->
+      <div class="modal fade" id="modalBajaUsuario" tabindex="-1" aria-labelledby="modalBajaUsuarioLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: 580px;">
+          <div class="modal-content" style="border-radius: 12px; overflow: hidden; border: 1px solid #E2E8F0;">
+            <div class="p-3 border-bottom d-flex justify-content-between align-items-center" style="background: #F8FAFC;">
+              <div class="d-flex align-items-center gap-2">
+                <i class="fa-solid fa-ban text-danger"></i>
+                <strong style="font-size: 14px; color: #081426;">Desactivar cuenta de usuario</strong>
+              </div>
+              <span class="wf-badge status-active">Confirmación Requerida</span>
+            </div>
+
+            <form id="formBajaUsuario" method="post" action="/seguridad/usuarios/1/baja">
+              <div class="modal-body p-4 text-center bg-white">
+                <div class="mb-3" style="width: 56px; height: 56px; border-radius: 50%; background: #FEE2E2; color: #DC2626; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 24px;">
+                  <i class="fa-solid fa-ban"></i>
+                </div>
+                <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin-bottom: 6px;">¿Confirma desactivar la cuenta de este usuario?</h3>
+                <p class="small text-muted mb-4" style="line-height: 1.5;">La cuenta quedará deshabilitada en el sistema pero su historial y registros no serán borrados de la base de datos.</p>
+
+                <div class="p-3 mb-3 bg-light border rounded text-start" style="font-size: 13px;">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="text-muted">Registro afectado:</span>
+                    <strong id="modalBajaUsuarioNombre" style="color: #081426;">Usuario</strong>
+                  </div>
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="text-muted">Correo:</span>
+                    <code id="modalBajaUsuarioCorreo">correo@idoneos.online</code>
+                  </div>
+                  <div class="d-flex justify-content-between align-items-center">
+                    <span class="text-muted">Validación de dependencias:</span>
+                    <span class="small text-success fw-bold"><i class="fa-solid fa-circle-check me-1"></i> Desactivación lógica de accesos</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="modal-footer d-flex justify-content-end gap-3 p-3 border-top bg-light">
+                <button type="button" class="wf-btn wf-btn-outline" data-bs-dismiss="modal">Cancelar / Volver</button>
+                <button type="submit" class="wf-btn wf-btn-danger">
+                  <i class="fa-solid fa-ban me-1"></i> Desactivar cuenta
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- MODAL: REGISTRAR DOCENTE                  -->
+      <!-- ========================================== -->
+      <div class="modal fade" id="modalRegistrarDocente" tabindex="-1" aria-labelledby="modalRegistrarDocenteLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+          <div class="modal-content" style="border-radius: 12px; overflow: hidden; border: 1.5px solid var(--wf-navy, #081426);">
+            <div class="p-3 d-flex justify-content-between align-items-center text-white" style="background: #081426; border-bottom: 2px solid var(--wf-gold);">
+              <div class="d-flex align-items-center gap-2">
+                <strong style="font-size: 14px; color: #FFFFFF;"><i class="fa-solid fa-graduation-cap text-warning me-2"></i>Registrar Nuevo Perfil Docente</strong>
+                <span style="color: #64748B;">|</span>
+                <span class="text-muted" style="font-size: 11px; color: #94A3B8 !important;"><strong>Actor:</strong> Administrador</span>
+              </div>
+              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <form th:action="@{/seguridad/docentes/guardar}" method="post">
+              <div class="modal-body p-4 bg-white">
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <label class="wf-label">Seleccionar Usuario a Promover</label>
+                    <div class="wf-input-wrap">
+                      <select name="usuarioId" class="wf-input" required>
+                        <option th:each="u : ${usuarios}" th:value="${u.id}" th:text="${u.nombreCompleto + ' (' + u.correo + ')'}">Usuario</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="wf-label">Años de Experiencia en Mercado</label>
+                    <div class="wf-input-wrap">
+                      <input type="number" name="aniosExperiencia" class="wf-input" value="5" min="0" required>
+                    </div>
+                  </div>
+                  <div class="col-md-12">
+                    <label class="wf-label">Matrícula CNV / Registro Profesional</label>
+                    <div class="wf-input-wrap">
+                      <input type="text" name="matriculaCnv" class="wf-input" placeholder="Ej: Matrícula CNV Idóneo #1042">
+                    </div>
+                  </div>
+                  <div class="col-12">
+                    <label class="wf-label">Biografía Profesional y Trayectoria</label>
+                    <div class="wf-input-wrap">
+                      <textarea name="biografia" class="wf-input" rows="3" placeholder="Resumen de trayectoria profesional y académica..."></textarea>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer d-flex justify-content-between p-3 border-top bg-light">
+                <button type="button" class="wf-btn wf-btn-outline" data-bs-dismiss="modal">Cancelar / Volver</button>
+                <button type="submit" class="wf-btn wf-btn-primary" style="background: var(--wf-navy); border-color: var(--wf-gold); color: #FFFFFF;">
+                  <i class="fa-solid fa-check me-1"></i> Guardar Docente
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
 
                 <!-- Footer Oficial -->
                 <div class="wf-screen-footer">
@@ -170,6 +441,9 @@
         </div>
     </div>
 
+    <!-- Scripts Globales -->
+    <th:block th:replace="~{fragments/scripts :: wf-global-scripts}"></th:block>
+
     <!-- Bootstrap Bundle JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
@@ -182,33 +456,74 @@
                 }
             }
         }
-    </script>
 
-    <!-- DSS & Case of Use Console Logger -->
-    <script>
-        (function() {
-            const cuId = 'CU-82';
-            const cuNombre = 'Buscar usuario';
-            const cuActores = 'Administrador';
-            const cuDss = 'usuarios = buscarUsuarios(nombre, apellido, correo, dni, rol) ➔ unUsuario = seleccionarUsuario(idUsuario, usuarios)';
+        // Paginación y Carga dinámica de datos en modales
+        document.addEventListener('DOMContentLoaded', function () {
+            let usrPaginaActual = 1;
+            const usrFilasPorPagina = 8;
 
-            console.log(
-                '%c[IDÓNEOS ONLINE] %c ' + cuId + ' %c ' + cuNombre + ' ',
-                'color: #C9982F; font-weight: 800; font-size: 13px;',
-                'background: #081426; color: #E4BE6C; padding: 3px 8px; border-radius: 4px; font-weight: 700; font-size: 12px; border: 1px solid #C9982F;',
-                'color: #081426; font-weight: 800; font-size: 13px;'
-            );
-            console.log(
-                '%c👤 Actor(es): %c' + cuActores,
-                'color: #64748B; font-weight: 700; font-size: 11px;',
-                'color: #0F172A; font-weight: 600; font-size: 11px;'
-            );
-            console.log(
-                '%c⚡ DSS: %c' + cuDss,
-                'color: #64748B; font-weight: 700; font-size: 11px;',
-                'color: #0284C7; font-family: monospace; font-size: 11px; font-weight: 600;'
-            );
-        })();
+            function actualizarPaginacionUsuarios(nuevaPagina) {
+                usrPaginaActual = nuevaPagina;
+                if (window.renderWfPagination) {
+                    window.renderWfPagination({
+                        tableId: 'tablaUsuarios',
+                        wrapId: 'paginacionUsuarios',
+                        infoId: 'usrPaginaInfo',
+                        controlsId: 'usrBotonesPaginacion',
+                        currentPage: usrPaginaActual,
+                        rowsPerPage: usrFilasPorPagina,
+                        entityLabel: 'usuarios registrados',
+                        onPageChange: actualizarPaginacionUsuarios
+                    });
+                }
+            }
+            actualizarPaginacionUsuarios(1);
+
+            const btnsEditar = document.querySelectorAll('.btn-editar-usuario-modal');
+            btnsEditar.forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    const id = this.getAttribute('data-id');
+                    const nom = this.getAttribute('data-nombre') || '';
+                    const ape = this.getAttribute('data-apellido') || '';
+                    const cor = this.getAttribute('data-correo') || '';
+                    const dni = this.getAttribute('data-dni') || '';
+                    const rol = this.getAttribute('data-rol') || '1';
+
+                    const form = document.getElementById('formModificarUsuario');
+                    if (form) form.action = '/seguridad/usuarios/' + id + '/editar';
+
+                    const inNom = document.getElementById('modalEditNombre');
+                    const inApe = document.getElementById('modalEditApellido');
+                    const inCor = document.getElementById('modalEditCorreo');
+                    const inDni = document.getElementById('modalEditDni');
+                    const inRol = document.getElementById('modalEditRol');
+
+                    if (inNom) inNom.value = nom;
+                    if (inApe) inApe.value = ape;
+                    if (inCor) inCor.value = cor;
+                    if (inDni) inDni.value = dni;
+                    if (inRol) inRol.value = rol;
+                });
+            });
+
+            const btnsBaja = document.querySelectorAll('.btn-baja-usuario-modal');
+            btnsBaja.forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    const id = this.getAttribute('data-id');
+                    const nom = this.getAttribute('data-nombre') || '';
+                    const cor = this.getAttribute('data-correo') || '';
+
+                    const form = document.getElementById('formBajaUsuario');
+                    if (form) form.action = '/seguridad/usuarios/' + id + '/baja';
+
+                    const txtNom = document.getElementById('modalBajaUsuarioNombre');
+                    const txtCor = document.getElementById('modalBajaUsuarioCorreo');
+
+                    if (txtNom) txtNom.textContent = nom;
+                    if (txtCor) txtCor.textContent = cor;
+                });
+            });
+        });
     </script>
 </body>
 </html>

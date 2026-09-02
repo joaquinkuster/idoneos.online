@@ -147,6 +147,14 @@
                 <i class="fa-solid fa-video me-1"></i> Clases en Vivo
             </a>
 
+            <!-- 8b. Clases con Clon (CU-77) -->
+            <a th:if="${usuario == null or usuario.rol == null or (usuario.rol.nombre == 'Docente' or usuario.rol.nombre == 'Administrador')}"
+               th:href="@{/ia/clon/clases(cursoId=${curso != null ? curso.idCurso : (cursoSeleccionado != null ? cursoSeleccionado.idCurso : 1)})}"
+               class="wf-curso-tab-link wf-tab-edicion"
+               th:classappend="${tabActiva == 'clon-clases' ? 'active' : ''}">
+                <i class="fa-solid fa-film me-1"></i> Clases con Clon
+            </a>
+
             <!-- 9. Participantes (Visible en ambas vistas) -->
             <a th:href="@{/academico/participantes(cursoId=${curso != null ? curso.idCurso : (cursoSeleccionado != null ? cursoSeleccionado.idCurso : 1)})}"
                class="wf-curso-tab-link"

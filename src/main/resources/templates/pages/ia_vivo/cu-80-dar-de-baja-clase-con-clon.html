@@ -56,14 +56,16 @@
                 <div class="wf-body">
                     <div class="wf-main-content">
                         
-      <div class="wf-modal-dialog shadow-sm" style="max-width: 620px; margin: 40px auto; background: #FFFFFF; border-radius: 12px; border: 1px solid #E2E8F0; overflow: hidden;">
+      <div class="wf-modal-dialog shadow-sm" style="max-width: 620px; margin: 40px auto; background: #FFFFFF; border-radius: 12px; border: 1px solid #CBD5E1; overflow: hidden;">
         <!-- Cabecera del Diálogo -->
-        <div class="p-3 border-bottom d-flex justify-content-between align-items-center" style="background: #F8FAFC;">
+        <div class="p-3 border-bottom d-flex justify-content-between align-items-center" style="background: #081426; color: #FFFFFF;">
           <div class="d-flex align-items-center gap-2">
-            <i class="fa-solid fa-triangle-exclamation text-danger"></i>
-            <strong style="font-size: 14px; color: #081426;">Dar de baja clase con clon</strong>
+            <div style="width: 32px; height: 32px; border-radius: 6px; background: rgba(220,38,38,0.2); display: flex; align-items: center; justify-content: center; color: #F87171;">
+              <i class="fa-solid fa-trash-can" style="font-size: 15px;"></i>
+            </div>
+            <strong style="font-size: 15px; color: #FFFFFF;">Dar de baja clase con clon (HeyGen)</strong>
           </div>
-          <span class="wf-badge status-active">Confirmación Requerida</span>
+          <span class="wf-badge status-active" style="background: #EF4444; color: #FFFFFF;">Confirmación Requerida</span>
         </div>
 
         <!-- Cuerpo del Diálogo -->
@@ -72,28 +74,27 @@
             <i class="fa-solid fa-triangle-exclamation"></i>
           </div>
           <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin-bottom: 6px;">¿Confirma la operación de dar de baja clase con clon?</h3>
-          <p class="small text-muted mb-4" style="line-height: 1.5;">Esta acción procesará el cambio de estado en la base de datos y afectará la disponibilidad del elemento en el sistema.</p>
+          <p class="small text-muted mb-4" style="line-height: 1.5;">Esta acción procesará la desvinculación y baja del video sintetizado por IA de la unidad correspondiente.</p>
 
           <div class="p-3 mb-4 bg-light border rounded text-start" style="font-size: 13px;">
             <div class="d-flex justify-content-between align-items-center mb-2">
               <span class="text-muted">Registro afectado:</span>
-              <strong style="color: #081426;">Video Clon IA: Explicación de Convexidad</strong>
+              <strong style="color: #081426;">Video Clon IA: Explicación Teórica: Duración Modificada y Convexidad</strong>
             </div>
             <div class="d-flex justify-content-between align-items-center mb-2">
               <span class="text-muted">Estado actual:</span>
               <span class="wf-badge status-active">Activo / Vigente</span>
             </div>
             <div class="d-flex justify-content-between align-items-center">
-              <span class="text-muted">Validación de dependencias:</span>
-              <span class="small text-success fw-bold"><i class="fa-solid fa-circle-check me-1"></i> Impacto: Se eliminará del repositorio de medios de la unidad</span>
+              <span class="text-muted">Impacto:</span>
+              <span class="small text-danger fw-bold"><i class="fa-solid fa-circle-xmark me-1"></i> Se despublicará de la unidad académica</span>
             </div>
           </div>
 
           <div class="d-flex justify-content-end align-items-center gap-3 pt-3 border-top">
-            <a th:href="@{/cursos}" class="wf-btn wf-btn-outline"><i class="fa-solid fa-arrow-left me-1"></i> <span>Cancelar</span></a>
+            <a th:href="@{/ia/clon/clases}" class="wf-btn wf-btn-outline"><i class="fa-solid fa-arrow-left me-1"></i> <span>Cancelar</span></a>
             <div class="d-flex align-items-center gap-2">
-              <button class="wf-btn wf-btn-danger"><i class="fa-solid fa-trash me-1"></i> Confirmar Eliminación</button>
-              
+              <a th:href="@{/ia/clon/clases}" class="wf-btn wf-btn-danger" style="background: #DC2626; border-color: #DC2626; color: #FFFFFF; font-weight: 700;"><i class="fa-solid fa-trash me-1"></i> Confirmar Eliminación</a>
             </div>
           </div>
         </div>

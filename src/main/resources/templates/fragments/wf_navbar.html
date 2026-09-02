@@ -51,12 +51,15 @@
                     th:text="${#strings.substring(usuario.nombre,0,1) + #strings.substring(usuario.apellido != null ? usuario.apellido : '',0,1)}">
                     AG</div>
                 <div class="d-flex flex-column text-start" style="line-height: 1.15;">
-                    <span style="font-size: 12px; font-weight: 800; color: #FFFFFF;" th:text="${usuario.nombreCompleto}">Admin General</span>
-                    <div id="navbarUserModeBadge" class="wf-nav-mode-badge" th:if="${usuario.rol != null and (usuario.rol.nombre == 'Administrador' or usuario.rol.nombre == 'Docente')}">
+                    <span style="font-size: 12px; font-weight: 800; color: #FFFFFF;"
+                        th:text="${usuario.nombreCompleto}">Admin General</span>
+                    <div id="navbarUserModeBadge" class="wf-nav-mode-badge"
+                        th:if="${usuario.rol != null and (usuario.rol.nombre == 'Administrador' or usuario.rol.nombre == 'Docente')}">
                         <span class="wf-mode-dot"></span>
                         <span class="wf-mode-text">Modo Edición</span>
                     </div>
-                    <div class="wf-nav-mode-badge-student" th:if="${usuario.rol != null and usuario.rol.nombre == 'Alumno'}">
+                    <div class="wf-nav-mode-badge-student"
+                        th:if="${usuario.rol != null and usuario.rol.nombre == 'Alumno'}">
                         <span class="wf-mode-dot-student"></span>
                         <span>Vista Alumno</span>
                     </div>
@@ -82,7 +85,8 @@
                     <a th:href="@{/pago/mis-pagos}" class="wf-dropdown-item-btn"><i
                             class="fa-solid fa-receipt me-2 text-muted"></i><span>Buscar pago</span></a>
                     <a th:href="@{/cursos/catalogo}" class="wf-dropdown-item-btn"><i
-                            class="fa-solid fa-magnifying-glass me-2 text-muted"></i><span>Explorar catálogo de cursos</span></a>
+                            class="fa-solid fa-magnifying-glass me-2 text-muted"></i><span>Explorar catálogo de
+                            cursos</span></a>
                 </div>
 
                 <!-- Modo Edición para Docentes y Administradores -->
@@ -92,7 +96,8 @@
                     <div class="wf-switch-container" onclick="toggleModoEdicionNavbar(this)">
                         <div class="d-flex align-items-center gap-2">
                             <i class="fa-solid fa-pen-to-square text-gold"></i>
-                            <span class="fw-bold" style="color: var(--wf-gold-text); font-size: 12px;">Modo Edición</span>
+                            <span class="fw-bold" style="color: var(--wf-gold-text); font-size: 12px;">Modo
+                                Edición</span>
                         </div>
                         <label class="wf-toggle-switch" onclick="event.stopPropagation()">
                             <input type="checkbox" id="navbarModoEdicionToggle" onchange="redirectModoEdicion(this)">
@@ -128,33 +133,79 @@
                     <a th:href="@{/inscripciones/descuentos}" class="wf-dropdown-item-btn"><i
                             class="fa-solid fa-percent me-2 text-gold"></i><span>Buscar descuento</span></a>
                     <a th:href="@{/seguridad/usuarios}" class="wf-dropdown-item-btn"><i
-                            class="fa-solid fa-users me-2 text-muted"></i><span>Buscar usuario</span></a>
+                            class="fa-solid fa-users me-2 text-muted"></i><span>Gestión de usuarios</span></a>
                     <a th:href="@{/auditoria}" class="wf-dropdown-item-btn"><i
-                            class="fa-solid fa-shield-halved me-2 text-muted"></i><span>Buscar auditoría</span></a>
+                            class="fa-solid fa-shield-halved me-2 text-muted"></i><span>Consultar auditoria</span></a>
+                    <a th:href="@{/reportes/alumnos}" class="wf-dropdown-item-btn"><i
+                            class="fa-solid fa-user-graduate me-2 text-muted"></i><span>Informe de alumnos</span></a>
+                    <a th:href="@{/reportes/ingresos}" class="wf-dropdown-item-btn"><i
+                            class="fa-solid fa-sack-dollar me-2 text-muted"></i><span>Informe de ingresos</span></a>
                     <a th:href="@{/reportes/estadisticas}" class="wf-dropdown-item-btn"><i
-                            class="fa-solid fa-chart-pie me-2 text-muted"></i><span>Generar informe estadístico</span></a>
+                            class="fa-solid fa-chart-pie me-2 text-muted"></i><span>Consultar estadisticas</span></a>
                     <a th:href="@{/configuracion}" class="wf-dropdown-item-btn"><i
-                            class="fa-solid fa-sliders me-2 text-muted"></i><span>Buscar parámetro de sistema</span></a>
+                            class="fa-solid fa-sliders me-2 text-muted"></i><span>Configurar parametros</span></a>
                 </div>
 
                 <!-- Menú de Cuenta para Todos -->
                 <div class="wf-dropdown-section">
                     <div class="wf-dropdown-section-title">Cuenta & Sesión</div>
                     <a th:href="@{/seguridad/perfil}" class="wf-dropdown-item-btn"><i
-                            class="fa-solid fa-id-card me-2 text-muted"></i><span>Ver mi perfil</span></a>
+                            class="fa-solid fa-id-card me-2 text-muted"></i><span>Ver perfil</span></a>
                     <a th:href="@{/seguridad/sesiones}" class="wf-dropdown-item-btn"><i
-                            class="fa-solid fa-laptop me-2 text-muted"></i><span>Buscar sesión activa</span></a>
-                    <form th:action="@{/logout}" method="post" class="d-inline">
-                        <button type="submit"
-                            class="wf-dropdown-item-btn text-danger border-0 bg-transparent w-100 text-start">
-                            <i class="fa-solid fa-right-from-bracket me-2"></i><span>Cerrar sesión</span>
-                        </button>
-                    </form>
+                            class="fa-solid fa-laptop me-2 text-muted"></i><span>Seguridad y sesiones activas</span></a>
+                    <button type="button" onclick="confirmarCerrarSesionNavbar()"
+                        class="wf-dropdown-item-btn text-danger border-0 bg-transparent w-100 text-start">
+                        <i class="fa-solid fa-right-from-bracket me-2"></i><span>Cerrar sesión</span>
+                    </button>
+                    <form id="globalLogoutForm" th:action="@{/logout}" method="post" style="display: none;"></form>
                 </div>
             </div>
         </div>
     </div>
+    <!-- SweetAlert2 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+        function confirmarCerrarSesionNavbar() {
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    title: '¿Desea cerrar la sesión activa?',
+                    text: 'Se revocarán sus credenciales y será redirigido a la página de bienvenida.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#081426',
+                    cancelButtonColor: '#94A3B8',
+                    confirmButtonText: '<i class="fa-solid fa-right-from-bracket me-1"></i> Sí, cerrar sesión',
+                    cancelButtonText: 'Cancelar',
+                    reverseButtons: true,
+                    customClass: {
+                        popup: 'shadow-lg border-2',
+                        confirmButton: 'btn fw-bold px-4 py-2',
+                        cancelButton: 'btn fw-bold px-4 py-2'
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        Swal.fire({
+                            title: 'Sesión Finalizada',
+                            text: 'Redirigiendo a la pantalla principal...',
+                            icon: 'success',
+                            showConfirmButton: false,
+                            timer: 1200
+                        }).then(() => {
+                            const logoutForm = document.getElementById('globalLogoutForm');
+                            if (logoutForm) logoutForm.submit();
+                            else window.location.href = '/logout';
+                        });
+                    }
+                });
+            } else {
+                if (confirm('¿Confirma cerrar sesión en Idóneos Online?')) {
+                    const logoutForm = document.getElementById('globalLogoutForm');
+                    if (logoutForm) logoutForm.submit();
+                    else window.location.href = '/logout';
+                }
+            }
+        }
+
         function toggleMobileNav() {
             const navLinks = document.getElementById('wfNavLinks');
             if (navLinks) {
@@ -253,10 +304,10 @@
                 const editToggle = document.getElementById('navbarModoEdicionToggle');
                 const badgeEl = document.getElementById('navbarUserModeBadge');
                 const pathIsEdicion = window.location.pathname.includes('/edicion');
-                
+
                 // Si la URL actual es /edicion se fuerza true, sino se toma la preferencia almacenada (por defecto false)
                 let isEditing = pathIsEdicion || (localStorage.getItem('idoneos_modo_edicion') === 'true');
-                
+
                 if (editToggle) {
                     editToggle.checked = isEditing;
                 }
@@ -287,7 +338,7 @@
         function redirectModoEdicion(toggle) {
             const isEditing = toggle.checked;
             localStorage.setItem('idoneos_modo_edicion', isEditing ? 'true' : 'false');
-            
+
             // Si nos encontramos en una vista de curso (/academico/curso/8 o /academico/curso/8/edicion)
             const currentPath = window.location.pathname;
             const match = currentPath.match(/\/academico\/curso\/(\d+)/);
@@ -307,7 +358,7 @@
                 window.location.href = '/academico/curso/1';
                 return;
             }
-            
+
             // Sincronizamos inmediatamente el badge y mostramos Toast
             const badgeEl = document.getElementById('navbarUserModeBadge');
             if (badgeEl) {
@@ -321,7 +372,7 @@
                     if (window.showIdoneosToast) window.showIdoneosToast('info', 'Vista Alumno', 'Modo vista alumno activado.');
                 }
             }
-            
+
             // Sincronizar visibilidad de pestañas de curso en tiempo real si el componente está en pantalla
             if (typeof window.syncCourseTabs === 'function') {
                 window.syncCourseTabs();
@@ -380,7 +431,7 @@
 
     <!-- renderWfPagination — Sistema de paginación premium unificado. Disponible globalmente. -->
     <script>
-        window.renderWfPagination = function(cfg) {
+        window.renderWfPagination = function (cfg) {
             var table = document.getElementById(cfg.tableId);
             if (!table) return;
             var tbody = table.querySelector('tbody');
@@ -390,7 +441,7 @@
             var page = Math.max(1, Math.min(cfg.currentPage, totalPages));
 
             // Filtrar y mostrar solo filas de la página activa
-            rows.forEach(function(row, idx) {
+            rows.forEach(function (row, idx) {
                 var start = (page - 1) * cfg.rowsPerPage;
                 row.style.display = (idx >= start && idx < start + cfg.rowsPerPage) ? '' : 'none';
             });
@@ -423,7 +474,7 @@
             prevBtn.style.cssText = 'border-radius: 8px; font-weight: 600; padding: 6px 12px;';
             prevBtn.innerHTML = '<i class="fa-solid fa-chevron-left"></i>';
             if (page > 1) {
-                prevBtn.onclick = function() { cfg.onPageChange(page - 1); };
+                prevBtn.onclick = function () { cfg.onPageChange(page - 1); };
             }
             ctrl.appendChild(prevBtn);
 
@@ -439,8 +490,8 @@
                     numBtn.className = 'btn btn-sm btn-light border text-secondary';
                     numBtn.style.cssText = 'border-radius: 8px; min-width: 34px; font-weight: 700;';
                 }
-                (function(targetPage) {
-                    numBtn.onclick = function() { cfg.onPageChange(targetPage); };
+                (function (targetPage) {
+                    numBtn.onclick = function () { cfg.onPageChange(targetPage); };
                 })(i);
                 ctrl.appendChild(numBtn);
             }
@@ -452,7 +503,7 @@
             nextBtn.style.cssText = 'border-radius: 8px; font-weight: 600; padding: 6px 12px;';
             nextBtn.innerHTML = '<i class="fa-solid fa-chevron-right"></i>';
             if (page < totalPages) {
-                nextBtn.onclick = function() { cfg.onPageChange(page + 1); };
+                nextBtn.onclick = function () { cfg.onPageChange(page + 1); };
             }
             ctrl.appendChild(nextBtn);
         };

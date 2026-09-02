@@ -56,21 +56,23 @@
                 <div class="wf-body">
                     <div class="wf-main-content">
                         
-      <div class="wf-card" style="max-width: 1080px; margin: 0 auto; background: #FFFFFF;">
-        <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
+      <div class="wf-modal-dialog shadow-sm" style="max-width: 1080px; margin: 0 auto; background: #FFFFFF; border-radius: 12px; border: 1px solid #CBD5E1; overflow: hidden;">
+        <div class="p-3 border-bottom d-flex justify-content-between align-items-center" style="background: #081426; color: #FFFFFF;">
           <div class="d-flex align-items-center gap-3">
-            <div style="width: 44px; height: 44px; border-radius: 10px; background: #081426; display: flex; align-items: center; justify-content: center; color: var(--wf-gold);">
-              <i class="fa-solid fa-video" style="font-size: 20px;"></i>
+            <div style="width: 38px; height: 38px; border-radius: 8px; background: rgba(228,190,108,0.2); display: flex; align-items: center; justify-content: center; color: var(--wf-gold);">
+              <i class="fa-solid fa-video" style="font-size: 18px;"></i>
             </div>
             <div>
-              <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Generar Clase con Clon de IA</h3>
-              <p class="small text-muted" style="margin: 3px 0 0;">Genere una clase audiovisual mediante síntesis en HeyGen a partir de su guión prompt.</p>
+              <h3 style="font-size: 16px; font-weight: 800; color: #FFFFFF; margin: 0;">Generar Clase con Clon de IA (HeyGen)</h3>
+              <p class="small text-muted mb-0" style="font-size: 11px; color: #94A3B8 !important;">Genere una clase audiovisual mediante síntesis en HeyGen a partir de su guión prompt.</p>
             </div>
           </div>
           <div class="d-flex align-items-center gap-2">
-            <span class="wf-badge status-active"><i class="fa-solid fa-circle-check me-1"></i> Avatar & Voz Calibrada</span>
+            <span class="wf-badge status-active" style="background: #10B981; color: #FFFFFF;"><i class="fa-solid fa-circle-check me-1"></i> Avatar &amp; Voz Calibrada</span>
           </div>
         </div>
+
+        <div class="p-4">
 
         <div class="d-flex flex-column flex-lg-row align-items-stretch justify-content-between gap-4">
           <!-- Columna Izquierda: Formulario Real (Título y Prompt) -->
@@ -132,7 +134,7 @@
               </div>
 
               <div class="pt-3 mt-3 border-top d-flex justify-content-end align-items-center gap-3">
-                <a th:href="@{/academico/unidades}" class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-arrow-left me-1"></i> <span>Cancelar</span></a>
+                <a th:href="@{/ia/clon/clases}" class="wf-btn wf-btn-sm wf-btn-outline"><i class="fa-solid fa-arrow-left me-1"></i> <span>Cancelar</span></a>
                 <div class="d-flex align-items-center gap-2">
                   <button class="wf-btn wf-btn-sm wf-btn-primary d-flex align-items-center gap-2" style="font-weight: 700; background: #7C3AED; border-color: #6D28D9;">
                     <i class="fa-solid fa-wand-magic-sparkles"></i>
@@ -144,6 +146,7 @@
             </div>
           </div>
         </div>
+      </div>
       </div>
     
                     </div>
