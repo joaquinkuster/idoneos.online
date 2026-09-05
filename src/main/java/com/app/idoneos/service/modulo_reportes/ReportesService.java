@@ -50,6 +50,7 @@ public class ReportesService {
     @Autowired private ReporteRepository reporteRepository;
     @Autowired private TipoReporteRepository tipoReporteRepository;
     @Autowired private AdministradorRepository administradorRepository;
+    @Autowired private UsuarioRepository usuarioRepository;
 
     // =========================================================
     // CU-87 — Generar informe de alumnos de un curso
@@ -128,14 +129,18 @@ public class ReportesService {
 
     /**
      * CU-87: Persiste el historial del reporte según el modelo (tipo + admin + fecha).
-     * El modelo Reporte NO tiene curso_id → se registra únicamente tipo + admin + fecha.
      */
-    public void registrarReporteAlumnos(int adminUsuarioId) {
-        Administrador admin = administradorRepository.findById(adminUsuarioId).orElse(null);
-        TipoReporte tipo = tipoReporteRepository.findByNombre("Alumnos inscriptos").orElse(null);
-        if (admin != null && tipo != null) {
-            reporteRepository.save(new Reporte(tipo, admin));
-        }
+    public void registrarReporteAlumnos(int adminUsuarioId, int cursoId) {
+        try {
+            Usuario u = usuarioRepository.findById(adminUsuarioId).orElse(null);
+            if (u == null) return;
+            Administrador admin = administradorRepository.findByUsuario(u).orElseGet(() -> administradorRepository.save(new Administrador(u)));
+            TipoReporte tipo = tipoReporteRepository.findByNombre("Alumnos inscriptos").orElse(null);
+            Curso curso = cursoRepository.findById(cursoId).orElse(null);
+            if (admin != null && tipo != null && curso != null) {
+                reporteRepository.save(new Reporte(tipo, admin, curso));
+            }
+        } catch (Exception ignored) {}
     }
 
     // =========================================================
@@ -231,14 +236,19 @@ public class ReportesService {
     }
 
     /**
-     * CU-88: Persiste el historial del reporte (tipo Ingresos + admin + fecha).
+     * CU-88: Persiste el historial del reporte (tipo Ingresos + admin + fecha + curso).
      */
-    public void registrarReporteIngresos(int adminUsuarioId) {
-        Administrador admin = administradorRepository.findById(adminUsuarioId).orElse(null);
-        TipoReporte tipo = tipoReporteRepository.findByNombre("Ingresos").orElse(null);
-        if (admin != null && tipo != null) {
-            reporteRepository.save(new Reporte(tipo, admin));
-        }
+    public void registrarReporteIngresos(int adminUsuarioId, int cursoId) {
+        try {
+            Usuario u = usuarioRepository.findById(adminUsuarioId).orElse(null);
+            if (u == null) return;
+            Administrador admin = administradorRepository.findByUsuario(u).orElseGet(() -> administradorRepository.save(new Administrador(u)));
+            TipoReporte tipo = tipoReporteRepository.findByNombre("Ingresos").orElse(null);
+            Curso curso = cursoRepository.findById(cursoId).orElse(null);
+            if (admin != null && tipo != null && curso != null) {
+                reporteRepository.save(new Reporte(tipo, admin, curso));
+            }
+        } catch (Exception ignored) {}
     }
 
     // =========================================================

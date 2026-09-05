@@ -170,5 +170,15 @@ public class Cohorte {
     public void setPrograma(Programa programa) {
         this.programa = programa;
     }
+
+    /**
+     * Helper para obtener un nombre descriptivo de la cohorte.
+     */
+    public String getNombre() {
+        if (this.programa != null && this.programa.getNombre() != null) {
+            return this.programa.getNombre();
+        }
+        return "Cohorte #" + this.idCohorte;
+    }
 }
 

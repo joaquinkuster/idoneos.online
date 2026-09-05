@@ -93,7 +93,7 @@ public class ReportesController {
             byte[] pdfBytes = pdfAlumnos.generar(datos, nombreAdmin);
 
             if (u != null) {
-                reportesService.registrarReporteAlumnos(u.getId());
+                reportesService.registrarReporteAlumnos(u.getId(), cursoId);
             }
 
             String filename = "informe_alumnos_curso_" + cursoId + "_" + LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")) + ".pdf";
@@ -103,7 +103,8 @@ public class ReportesController {
                     .contentType(MediaType.APPLICATION_PDF)
                     .body(pdfBytes);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
         }
     }
 
@@ -158,7 +159,7 @@ public class ReportesController {
             byte[] pdfBytes = pdfIngresos.generar(datos, nombreAdmin);
 
             if (u != null) {
-                reportesService.registrarReporteIngresos(u.getId());
+                reportesService.registrarReporteIngresos(u.getId(), cursoId);
             }
 
             String filename = "informe_ingresos_curso_" + cursoId + "_" + LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")) + ".pdf";
@@ -168,7 +169,8 @@ public class ReportesController {
                     .contentType(MediaType.APPLICATION_PDF)
                     .body(pdfBytes);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
         }
     }
 

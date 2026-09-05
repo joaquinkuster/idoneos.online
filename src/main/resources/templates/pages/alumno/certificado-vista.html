@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${titulo != null ? titulo : 'Certificado Oficial de Aprobación | Idóneos Online'}">Certificado Oficial de Aprobación | Idóneos Online</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome 6 Pro / Solid Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;800;900&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Estilos del Sistema Centralizados -->
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+
+    <style>
+        .cert-canvas-container {
+            max-width: 980px;
+            margin: 30px auto;
+            padding: 0 15px;
+        }
+
+        .cert-landscape-card {
+            background: #FFFFFF;
+            border-radius: 8px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.12);
+            border: 2px solid #D4A03D;
+            padding: 36px 44px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cert-top-gold-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: #D4A03D;
+        }
+
+        .cert-brand-title {
+            font-size: 18px;
+            font-weight: 900;
+            color: #081426;
+            letter-spacing: -0.5px;
+        }
+
+        .cert-brand-title span {
+            color: #D4A03D;
+        }
+
+        .cert-main-title {
+            font-family: 'Cinzel', serif;
+            font-size: 36px;
+            font-weight: 900;
+            color: #081426;
+            letter-spacing: 5px;
+            margin-bottom: 16px;
+        }
+
+        .cert-student-name {
+            font-size: 24px;
+            font-weight: 800;
+            color: #081426;
+            border-bottom: 2px solid #D4A03D;
+            padding: 0 20px 4px;
+            display: inline-block;
+        }
+
+        .cert-paragraph {
+            max-width: 780px;
+            margin: 0 auto;
+            font-size: 14.5px;
+            line-height: 1.6;
+            color: #334155;
+        }
+
+        .sig-block {
+            text-align: center;
+            width: 220px;
+        }
+
+        .sig-image-holder {
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Cinzel', cursive;
+            font-size: 20px;
+            color: #0F233D;
+            font-weight: 700;
+            transform: rotate(-3deg);
+        }
+
+        .sig-line {
+            border-top: 1.5px solid #081426;
+            margin-top: 4px;
+            padding-top: 4px;
+        }
+    </style>
+</head>
+<body class="wf-canvas-bg">
+
+    <div class="cu-page-container">
+        <div class="screen-frame">
+
+            <!-- Top Navbar Oficial Dinámica -->
+            <div th:replace="~{fragments/wf_navbar :: wf-top-navbar}"></div>
+
+            <!-- Botones de Acción Superiores -->
+            <div class="d-flex justify-content-between align-items-center mb-3 mt-3 px-3">
+                <a th:href="@{/cursos}" class="wf-btn wf-btn-outline">
+                    <i class="fa-solid fa-arrow-left me-2"></i>Volver a Cursos
+                </a>
+                <div class="d-flex gap-2">
+                    <a th:href="@{'/certificado/validar/' + ${inscripcion.numeroCertificado}}" target="_blank" class="wf-btn wf-btn-outline">
+                        <i class="fa-solid fa-shield-halved me-2"></i>Validación Pública
+                    </a>
+                    <a th:href="@{'/certificado/descargar/' + ${inscripcion.id}}" class="wf-btn wf-btn-primary">
+                        <i class="fa-solid fa-file-arrow-down me-2"></i>Descargar PDF Oficial
+                    </a>
+                </div>
+            </div>
+
+            <!-- Certificado Oficial Landscape -->
+            <div class="cert-canvas-container">
+                <div class="cert-landscape-card">
+                    <div class="cert-top-gold-line"></div>
+
+                    <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                        <div class="d-flex align-items-center gap-2">
+                            <img th:src="@{/img/logos/image.png}" alt="Logo" style="height: 42px; width: auto;" onerror="this.style.display='none'">
+                            <div>
+                                <div class="cert-brand-title">IDÓNEOS <span>ONLINE</span></div>
+                                <div style="font-size: 8.5px; font-weight: 800; color: #64748B; letter-spacing: 0.6px;">EDUCACIÓN FINANCIERA & MERCADO DE CAPITALES</div>
+                            </div>
+                        </div>
+                        <div class="text-end" style="font-size: 11px; font-weight: 700; color: #475569;">
+                            <span>FCEQyN — UNaM</span> • <span>CNV RÉGIMEN IDÓNEOS</span>
+                            <div style="font-size: 9.5px; color: #94A3B8; font-weight: normal;">Resolución CNV N° 19.340</div>
+                        </div>
+                    </div>
+
+                    <div class="text-center my-4">
+                        <div style="font-size: 11.5px; color: #64748B; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;">Idóneos Online S.A.S. otorga el presente</div>
+                        <div class="cert-main-title">CERTIFICADO</div>
+
+                        <div class="d-flex align-items-center justify-content-center gap-3 my-3">
+                            <span style="font-size: 15px; color: #64748B;">A:</span>
+                            <span class="cert-student-name" th:text="${inscripcion.nombreAlumno != null ? inscripcion.nombreAlumno : (inscripcion.alumno != null && inscripcion.alumno.usuario != null ? inscripcion.alumno.usuario.nombreCompleto : 'Alumno/a')}">Joaquin Küster</span>
+                            <span th:if="${inscripcion.dniAlumno != null}" style="font-size: 14.5px; font-weight: 700; color: #475569;" th:text="'D.N.I.: ' + ${inscripcion.dniAlumno}">D.N.I.: 44.652.101</span>
+                        </div>
+
+                        <p class="cert-paragraph mt-3">
+                            Por haber completado y aprobado satisfactoriamente las exigencias académicas y evaluaciones de la 
+                            <strong th:text="${inscripcion.curso != null ? inscripcion.curso.nombre : 'Especialización en Idoneidad Bursátil'}">"Especialización en Idoneidad Bursátil"</strong> 
+                            <span th:if="${inscripcion.cohorte != null}" th:text="'(' + ${inscripcion.cohorte.nombre} + ')'">(Programa 2026-A)</span>, 
+                            con una carga horaria total de <strong>120 horas cátedra</strong> y cumplimiento de los estándares regulatorios.
+                        </p>
+                    </div>
+
+                    <div class="d-flex justify-content-around align-items-end mt-4 pt-2">
+                        <div class="sig-block">
+                            <div class="sig-image-holder">Fausto Spotorno</div>
+                            <div class="sig-line">
+                                <div style="font-size: 11.5px; font-weight: 800; color: #081426;">Lic. Fausto Spotorno</div>
+                                <div style="font-size: 9.5px; color: #64748B;">Docente Titular • Matrícula CNV 4821</div>
+                            </div>
+                        </div>
+
+                        <div class="sig-block">
+                            <div class="sig-image-holder">Lazaro Martinez</div>
+                            <div class="sig-line">
+                                <div style="font-size: 11.5px; font-weight: 800; color: #081426;">Lic. Lazaro Martinez</div>
+                                <div style="font-size: 9.5px; color: #64748B;">Director Académico • Idóneos Online</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top" style="font-size: 10px; color: #94A3B8;">
+                        <div class="d-flex align-items-center gap-1" style="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: #081426;">
+                            <i class="fa-solid fa-qrcode"></i> <span th:text="${inscripcion.numeroCertificado}">CERT-2026-000142</span>
+                        </div>
+                        <div>Posadas, Misiones, Argentina • <span th:text="${inscripcion.fechaEmisionCertificado != null ? #temporals.format(inscripcion.fechaEmisionCertificado, 'dd/MM/yyyy') : '28/08/2026'}">28/08/2026</span></div>
+                        <div>Verificación: <code th:text="@{'/certificado/validar/' + ${inscripcion.numeroCertificado}}">/certificado/validar/CERT-2026-000142</code></div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

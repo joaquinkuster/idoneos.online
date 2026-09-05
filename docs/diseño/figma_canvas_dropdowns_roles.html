@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Idóneos Online - Menús Desplegables por Rol (Figma Canvas)</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome 6 Pro / Solid Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        :root {
+            --wf-navy-dark: #081426;
+            --wf-navy-card: #0F233D;
+            --wf-gold: #D4A03D;
+            --wf-gold-dark: #92400E;
+            --wf-gold-light: #FEF3C7;
+            --wf-bg: #0B1728;
+            --wf-card-bg: #FFFFFF;
+            --wf-text: #0F172A;
+            --wf-text-muted: #64748B;
+            --wf-border: #CBD5E1;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            background-color: var(--wf-bg);
+            background-image: radial-gradient(circle at 50% 0%, #152B4D 0%, #081426 70%);
+            color: #FFFFFF;
+            padding: 60px 40px;
+            display: flex;
+            flex-direction: column;
+            gap: 60px;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .figma-board-header {
+            text-align: center;
+            max-width: 800px;
+        }
+
+        .figma-board-title {
+            font-size: 32px;
+            font-weight: 900;
+            color: #FFFFFF;
+            letter-spacing: -0.5px;
+        }
+
+        .figma-board-title span {
+            color: var(--wf-gold);
+        }
+
+        .figma-board-subtitle {
+            font-size: 15px;
+            color: #94A3B8;
+            margin-top: 8px;
+            line-height: 1.5;
+        }
+
+        .dropdowns-grid {
+            display: flex;
+            gap: 48px;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: flex-start;
+            width: 100%;
+            max-width: 1280px;
+        }
+
+        .dropdown-column {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .role-pill-badge {
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            padding: 6px 16px;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .role-pill-admin {
+            background: linear-gradient(135deg, #1E3A8A 0%, #0F233D 100%);
+            color: #93C5FD;
+            border: 1px solid #3B82F6;
+        }
+
+        .role-pill-docente {
+            background: linear-gradient(135deg, #4C1D95 0%, #2E1065 100%);
+            color: #DDD6FE;
+            border: 1px solid #8B5CF6;
+        }
+
+        .role-pill-alumno {
+            background: linear-gradient(135deg, #065F46 0%, #022C22 100%);
+            color: #A7F3D0;
+            border: 1px solid #10B981;
+        }
+
+        /* Nav Pill Simulation */
+        .wf-user-trigger-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 6px 16px 6px 8px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 30px;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+        }
+
+        .user-avatar-circle {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 13px;
+            letter-spacing: 0.5px;
+        }
+
+        .avatar-admin { background: #FEF3C7; color: #92400E; border: 2px solid #D4A03D; }
+        .avatar-docente { background: #EDE9FE; color: #5B21B6; border: 2px solid #8B5CF6; }
+        .avatar-alumno { background: #D1FAE5; color: #065F46; border: 2px solid #10B981; }
+
+        .user-info-text {
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+            line-height: 1.2;
+        }
+
+        .user-info-name {
+            font-size: 13px;
+            font-weight: 800;
+            color: #FFFFFF;
+        }
+
+        .wf-nav-mode-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 10px;
+            font-weight: 800;
+            color: #FBBF24;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .wf-mode-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #FBBF24;
+            box-shadow: 0 0 8px #FBBF24;
+        }
+
+        .wf-mode-dot-student {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #34D399;
+            box-shadow: 0 0 8px #34D399;
+        }
+
+        .wf-nav-mode-badge-student {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 10px;
+            font-weight: 800;
+            color: #34D399;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Dropdown Flotante Fidedigno */
+        .wf-user-floating-dropdown {
+            width: 300px;
+            background: #FFFFFF;
+            border: 1px solid #CBD5E1;
+            border-radius: 16px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.35), 0 0 1px rgba(0,0,0,0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .wf-dropdown-user-header {
+            padding: 16px 20px;
+            background: #F8FAFC;
+            border-bottom: 1px solid #E2E8F0;
+        }
+
+        .wf-dropdown-user-name {
+            font-size: 15px;
+            font-weight: 800;
+            color: #081426;
+        }
+
+        .wf-dropdown-user-role {
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            margin-top: 1px;
+        }
+
+        .role-color-admin { color: #D97706; }
+        .role-color-docente { color: #7C3AED; }
+        .role-color-alumno { color: #059669; }
+
+        .wf-dropdown-user-email {
+            font-size: 12px;
+            color: #64748B;
+            margin-top: 3px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .wf-dropdown-section {
+            padding: 10px 12px;
+            border-bottom: 1px solid #F1F5F9;
+        }
+
+        .wf-dropdown-section:last-child {
+            border-bottom: none;
+        }
+
+        .wf-dropdown-section-title {
+            font-size: 10.5px;
+            font-weight: 800;
+            color: #94A3B8;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            margin-bottom: 6px;
+            padding-left: 8px;
+        }
+
+        /* Switch Modo Edición */
+        .wf-switch-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #FFFBEB;
+            border: 1px solid #FCD34D;
+            padding: 8px 14px;
+            border-radius: 10px;
+            margin-bottom: 4px;
+        }
+
+        .wf-toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 22px;
+        }
+
+        .wf-toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .wf-toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #D4A03D;
+            transition: .3s;
+            border-radius: 22px;
+        }
+
+        .wf-toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 21px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        /* Items del Dropdown con Iconos Polícromos y Foco */
+        .wf-dropdown-item-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 12px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #334155;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: all 0.18s ease;
+            position: relative;
+        }
+
+        .wf-dropdown-item-btn:hover {
+            background: #F8FAFC;
+            color: #081426;
+            transform: translateX(3px);
+        }
+
+        .icon-box {
+            width: 26px;
+            height: 26px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            flex-shrink: 0;
+            transition: transform 0.2s ease;
+        }
+
+        .wf-dropdown-item-btn:hover .icon-box {
+            transform: scale(1.12);
+        }
+
+        /* Variantes de color para iconos */
+        .ic-blue { color: #2563EB; background: #EFF6FF; }
+        .ic-emerald { color: #059669; background: #ECFDF5; }
+        .ic-amber { color: #D97706; background: #FFFBEB; }
+        .ic-indigo { color: #4F46E5; background: #EEF2FF; }
+        .ic-purple { color: #9333EA; background: #FAF5FF; }
+        .ic-cyan { color: #0891B2; background: #ECFEFF; }
+        .ic-pink { color: #DB2777; background: #FDF2F8; }
+        .ic-orange { color: #EA580C; background: #FFF7ED; }
+        .ic-teal { color: #0D9488; background: #F0FDFA; }
+        .ic-yellow { color: #CA8A04; background: #FEFCE8; }
+        .ic-sky { color: #0284C7; background: #F0F9FF; }
+        .ic-slate { color: #475569; background: #F8FAFC; }
+        .ic-red { color: #DC2626; background: #FEF2F2; }
+
+        .badge-shortcut {
+            margin-left: auto;
+            font-size: 10px;
+            font-weight: 700;
+            color: #94A3B8;
+            font-family: 'JetBrains Mono', monospace;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="figma-board-header">
+        <h1 class="figma-board-title">IDÓNEOS <span>ONLINE</span> • MENÚS DE USUARIO POR ROL</h1>
+        <p class="figma-board-subtitle">Canvas Figma con los 3 dropdowns de perfil oficial (Administrador, Docente y Alumno) con paleta de iconos polícroma y jerarquía visual</p>
+    </header>
+
+    <main class="dropdowns-grid">
+
+        <!-- ==========================================
+             1. DROPDOWN ROL: ADMINISTRADOR
+             ========================================== -->
+        <div class="dropdown-column">
+            <span class="role-pill-badge role-pill-admin">
+                <i class="fa-solid fa-crown"></i> Rol Administrador
+            </span>
+
+            <!-- Trigger Pill de la Navbar -->
+            <div class="wf-user-trigger-pill">
+                <div class="user-avatar-circle avatar-admin">AI</div>
+                <div class="user-info-text">
+                    <span class="user-info-name">Admin Idóneos</span>
+                    <div class="wf-nav-mode-badge">
+                        <span class="wf-mode-dot"></span>
+                        <span>Modo Edición</span>
+                    </div>
+                </div>
+                <i class="fa-solid fa-chevron-down" style="font-size: 10px; color: #FFFFFF; margin-left: 4px;"></i>
+            </div>
+
+            <!-- Menú Desplegable Flotante -->
+            <div class="wf-user-floating-dropdown">
+                <div class="wf-dropdown-user-header">
+                    <div class="wf-dropdown-user-name">Admin Idóneos</div>
+                    <div class="wf-dropdown-user-role role-color-admin">Administrador General</div>
+                    <div class="wf-dropdown-user-email">admin@idoneos.online</div>
+                </div>
+
+                <!-- Modo Edición -->
+                <div class="wf-dropdown-section">
+                    <div class="wf-dropdown-section-title">Modo Edición</div>
+                    <div class="wf-switch-container">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <i class="fa-solid fa-pen-to-square" style="color: #D97706; font-size: 14px;"></i>
+                            <span style="font-weight: 800; color: #92400E; font-size: 12px;">Modo Edición</span>
+                        </div>
+                        <label class="wf-toggle-switch">
+                            <input type="checkbox" checked disabled>
+                            <span class="wf-toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Gestión Académica & Docencia -->
+                <div class="wf-dropdown-section">
+                    <div class="wf-dropdown-section-title">Gestión Académica & Docencia</div>
+                    <a href="#" class="wf-dropdown-item-btn">
+                        <span class="icon-box ic-blue"><i class="fa-solid fa-book-bookmark"></i></span>
+                        <span>Buscar curso</span>
+                        <span class="badge-shortcut">CU-01</span>
+                    </a>
+                    <a href="#" class="wf-dropdown-item-btn">
+                        <span class="icon-box ic-purple"><i class="fa-solid fa-chalkboard-user"></i></span>
+                        <span>Buscar programa</span>
+                        <span class="badge-shortcut">CU-11</span>
+                    </a>
+                    <a href="#" class="wf-dropdown-item-btn">
+                        <span class="icon-box ic-cyan"><i class="fa-solid fa-calendar-check"></i></span>
+                        <span>Buscar cohorte</span>
+                        <span class="badge-shortcut">CU-21</span>
+                    </a>
+                    <a href="#" class="wf-dropdown-item-btn">
+                        <span class="icon-box ic-emerald"><i class="fa-solid fa-chart-line-up"></i></span>
+                        <span>Buscar progreso</span>
+                        <span class="badge-shortcut">CU-48</span>
+                    </a>
+                </div>
+
+                <!-- Administración del Sistema -->
+                <div class="wf-dropdown-section">
+                    <div class="wf-dropdown-section-title">Administración del Sistema</div>
+                    <a href="#" class="wf-dropdown-item-btn">
+                        <span class="icon-box ic-pink"><i class="fa-solid fa-id-badge"></i></span>
+                        <span>Buscar inscripción</span>
+                        <span class="badge-shortcut">CU-43</span>
+                    </a>
+                    <a href="#" class="wf-dropdown-item-btn">
+                        <span class="icon-box ic-orange"><i class="fa-solid fa-tags"></i></span>
+                        <span>Buscar categoría</span>
+                        <span class="badge-shortcut">CU-07</span>
+                    </a>
+                    <a href="#" class="wf-dropdown-item-btn">
+                        <span class="icon-box ic-teal"><i class="fa-solid fa-people-roof"></i></span>
+                        <span>Cohortes globales</span>
+                        <span class="badge-shortcut">CU-21</span>
+                    </a>
+                    <a href="#" class="wf-dropdown-item-btn">
+                        <span class="icon-box ic-yellow"><i class="fa-solid fa-percent"></i></span>
+                        <span>Buscar descuento</span>
+                        <span class="badge-shortcut">CU-49</span>
+                    </a>
+                    <a href="#" class="wf-dropdown-item-btn">
+                        <span class="icon-box ic-blue"><i class="fa-solid fa-users-gear"></i></span>
+                        <span>Gestión de usuarios</span>
+                        <span class="badge-shortcut">CU-82</span>
+                    </a>
+                    <a href="#" class="wf-dropdown-item-btn">
+                        <span class="icon-box ic-indigo"><i class="fa-solid fa-shield-halved"></i></span>
+                        <span>Consultar auditoría</span>
+                        <span class="badge-shortcut">CU-95</span>
+                    </a>
+                    <a href="#" class="wf-dropdown-item-btn">
+                        <span class="icon-box ic-sky"><i class="fa-solid fa-user-graduate"></i></span>
+                        <span>Informe de alumnos</span>
+                        <span class="badge-shortcut">CU-96</span>
+                    </a>
+                    <a href="#" class="wf-dropdown-item-btn">
+                        <span class="icon-box ic-emerald"><i class="fa-solid fa-sack-dollar"></i></span>
+                        <span>Informe de ingresos</span>
+                        <span class="badge-shortcut">CU-97</span>
+                    </a>
+                    <a href="#" class="wf-dropdown-item-btn">
+                        <span class="icon-box ic-purple"><i class="fa-solid fa-chart-pie"></i></span>
+                        <span>Consultar estadísticas</span>
+                        <span class="badge-shortcut">CU-98</span>
+                    </a>
+                    <a href="#" class="wf-dropdown-item-btn">
+                        <span class="icon-box ic-slate"><i class="fa-solid fa-sliders"></i></span>
+                        <span>Configurar parámetros</span>
+                        <span class="badge-shortcut">CU-99</span>
+                    </a>
+                </div>
+
+                <!-- Cuenta & Sesión -->
+                <div class="wf-dropdown-section">
+                    <div class="wf-dropdown-section-title">Cuenta & Sesión</div>
+                    <a href="#" class="wf-dropdown-item-btn">
+                        <span class="icon-box ic-blue"><i class="fa-solid fa-id-card"></i></span>
+                        <span>Ver perfil</span>
+                    </a>
+                    <a href="#" class="wf-dropdown-item-btn">
+                        <span class="icon-box ic-indigo"><i class="fa-solid fa-laptop-code"></i></span>
+                        <span>Seguridad y sesiones</span>
+                    </a>
+                    <a href="#" class="wf-dropdown-item-btn" style="color: #DC2626;">
+                        <span class="icon-box ic-red"><i class="fa-solid fa-right-from-bracket"></i></span>
+                        <span>Cerrar sesión</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- ==========================================
+             2. DROPDOWN ROL: DOCENTE
+             ========================================== -->
+        <div class="dropdown-column">
+            <span class="role-pill-badge role-pill-docente">
+                <i class="fa-solid fa-chalkboard-user"></i> Rol Docente
+            </span>
+
+            <!-- Trigger Pill de la Navbar -->
+            <div class="wf-user-trigger-pill">
+                <div class="user-avatar-circle avatar-docente">FS</div>
+                <div class="user-info-text">
+                    <span class="user-info-name">Fausto Spotorno</span>
+                    <div class="wf-nav-mode-badge">
+                        <span class="wf-mode-dot" style="background: #A78BFA; box-shadow: 0 0 8px #A78BFA;"></span>
+                        <span style="color: #C4B5FD;">Modo Edición</span>
+                    </div>
+                </div>
+                <i class="fa-solid fa-chevron-down" style="font-size: 10px; color: #FFFFFF; margin-left: 4px;"></i>
+            </div>
+
+            <!-- Menú Desplegable Flotante -->
+            <div class="wf-user-floating-dropdown">
+                <div class="wf-dropdown-user-header">
+                    <div class="wf-dropdown-user-name">Fausto Spotorno</div>
+                    <div class="wf-dropdown-user-role role-color-docente">Docente Titular • CNV 4821</div>
+                    <div class="wf-dropdown-user-email">docente@idoneos.online</div>
+                </div>
+
+                <!-- Modo Edición -->
+                <div class="wf-dropdown-section">
+                    <div class="wf-dropdown-section-title">Modo Edición</div>
+                    <div class="wf-switch-container">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <i class="fa-solid fa-pen-to-square" style="color: #7C3AED; font-size: 14px;"></i>
+                            <span style="font-weight: 800; color: #5B21B6; font-size: 12px;">Modo Edición</span>
+                        </div>
+                        <label class="wf-toggle-switch">
+                            <input type="checkbox" checked disabled>
+                            <span class="wf-toggle-slider" style="background-color: #8B5CF6;"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Gestión Académica & Docencia -->
+                <div class="wf-dropdown-section">
+                    <div class="wf-dropdown-section-title">Gestión Académica & Docencia</div>
+                    <a href="#" class="wf-dropdown-item-btn">
+                        <span class="icon-box ic-blue"><i class="fa-solid fa-book-bookmark"></i></span>
+                        <span>Buscar curso</span>
+                        <span class="badge-shortcut">CU-01</span>
+                    </a>
+                    <a href="#" class="wf-dropdown-item-btn">
+                        <span class="icon-box ic-purple"><i class="fa-solid fa-chalkboard-user"></i></span>
+                        <span>Buscar programa</span>
+                        <span class="badge-shortcut">CU-11</span>
+                    </a>
+                    <a href="#" class="wf-dropdown-item-btn">
+                        <span class="icon-box ic-cyan"><i class="fa-solid fa-calendar-check"></i></span>
+                        <span>Buscar cohorte</span>
+                        <span class="badge-shortcut">CU-21</span>
+                    </a>
+                    <a href="#" class="wf-dropdown-item-btn">
+                        <span class="icon-box ic-emerald"><i class="fa-solid fa-chart-line-up"></i></span>
+                        <span>Buscar progreso</span>
+                        <span class="badge-shortcut">CU-48</span>
+                    </a>
+                </div>
+
+                <!-- Herramientas y Evaluaciones -->
+                <div class="wf-dropdown-section">
+                    <div class="wf-dropdown-section-title">Clases en Vivo & Evaluaciones</div>
+                    <a href="#" class="wf-dropdown-item-btn">
+                        <span class="icon-box ic-pink"><i class="fa-solid fa-video"></i></span>
+                        <span>Clases en vivo</span>
+                        <span class="badge-shortcut">CU-67</span>
+                    </a>
+                    <a href="#" class="wf-dropdown-item-btn">
+                        <span class="icon-box ic-indigo"><i class="fa-solid fa-robot"></i></span>
+                        <span>Clases con Clon IA</span>
+                        <span class="badge-shortcut">CU-77</span>
+                    </a>
+                    <a href="#" class="wf-dropdown-item-btn">
+                        <span class="icon-box ic-amber"><i class="fa-solid fa-file-circle-check"></i></span>
+                        <span>Calificaciones</span>
+                        <span class="badge-shortcut">CU-64</span>
+                    </a>
+                </div>
+
+                <!-- Cuenta & Sesión -->
+                <div class="wf-dropdown-section">
+                    <div class="wf-dropdown-section-title">Cuenta & Sesión</div>
+                    <a href="#" class="wf-dropdown-item-btn">
+                        <span class="icon-box ic-blue"><i class="fa-solid fa-id-card"></i></span>
+                        <span>Ver perfil</span>
+                    </a>
+                    <a href="#" class="wf-dropdown-item-btn">
+                        <span class="icon-box ic-indigo"><i class="fa-solid fa-laptop-code"></i></span>
+                        <span>Seguridad y sesiones</span>
+                    </a>
+                    <a href="#" class="wf-dropdown-item-btn" style="color: #DC2626;">
+                        <span class="icon-box ic-red"><i class="fa-solid fa-right-from-bracket"></i></span>
+                        <span>Cerrar sesión</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- ==========================================
+             3. DROPDOWN ROL: ALUMNO
+             ========================================== -->
+        <div class="dropdown-column">
+            <span class="role-pill-badge role-pill-alumno">
+                <i class="fa-solid fa-graduation-cap"></i> Rol Alumno
+            </span>
+
+            <!-- Trigger Pill de la Navbar -->
+            <div class="wf-user-trigger-pill">
+                <div class="user-avatar-circle avatar-alumno">JK</div>
+                <div class="user-info-text">
+                    <span class="user-info-name">Joaquin Küster</span>
+                    <div class="wf-nav-mode-badge-student">
+                        <span class="wf-mode-dot-student"></span>
+                        <span>Vista Alumno</span>
+                    </div>
+                </div>
+                <i class="fa-solid fa-chevron-down" style="font-size: 10px; color: #FFFFFF; margin-left: 4px;"></i>
+            </div>
+
+            <!-- Menú Desplegable Flotante -->
+            <div class="wf-user-floating-dropdown">
+                <div class="wf-dropdown-user-header">
+                    <div class="wf-dropdown-user-name">Joaquin Küster</div>
+                    <div class="wf-dropdown-user-role role-color-alumno">Estudiante Matriculado</div>
+                    <div class="wf-dropdown-user-email">alumno@idoneos.online</div>
+                </div>
+
+                <!-- Mi Formación -->
+                <div class="wf-dropdown-section">
+                    <div class="wf-dropdown-section-title">Mi Formación & Cursado</div>
+                    <a href="#" class="wf-dropdown-item-btn">
+                        <span class="icon-box ic-blue"><i class="fa-solid fa-graduation-cap"></i></span>
+                        <span>Ver mis cursos</span>
+                        <span class="badge-shortcut">CU-48</span>
+                    </a>
+                    <a href="#" class="wf-dropdown-item-btn">
+                        <span class="icon-box ic-emerald"><i class="fa-solid fa-certificate"></i></span>
+                        <span>Buscar inscripción</span>
+                        <span class="badge-shortcut">CU-43</span>
+                    </a>
+                    <a href="#" class="wf-dropdown-item-btn">
+                        <span class="icon-box ic-amber"><i class="fa-solid fa-receipt"></i></span>
+                        <span>Buscar pago / Comprobante</span>
+                        <span class="badge-shortcut">CU-46</span>
+                    </a>
+                    <a href="#" class="wf-dropdown-item-btn">
+                        <span class="icon-box ic-indigo"><i class="fa-solid fa-compass"></i></span>
+                        <span>Explorar catálogo de cursos</span>
+                        <span class="badge-shortcut">CU-06</span>
+                    </a>
+                </div>
+
+                <!-- Mis Logros & Certificados -->
+                <div class="wf-dropdown-section">
+                    <div class="wf-dropdown-section-title">Diplomas & Acreditaciones</div>
+                    <a href="#" class="wf-dropdown-item-btn">
+                        <span class="icon-box ic-yellow"><i class="fa-solid fa-award"></i></span>
+                        <span>Mis certificados oficiales</span>
+                        <span class="badge-shortcut">CU-91</span>
+                    </a>
+                    <a href="#" class="wf-dropdown-item-btn">
+                        <span class="icon-box ic-teal"><i class="fa-solid fa-chart-pie"></i></span>
+                        <span>Historial de evaluaciones</span>
+                        <span class="badge-shortcut">CU-63</span>
+                    </a>
+                </div>
+
+                <!-- Cuenta & Sesión -->
+                <div class="wf-dropdown-section">
+                    <div class="wf-dropdown-section-title">Cuenta & Sesión</div>
+                    <a href="#" class="wf-dropdown-item-btn">
+                        <span class="icon-box ic-blue"><i class="fa-solid fa-id-card"></i></span>
+                        <span>Ver perfil</span>
+                    </a>
+                    <a href="#" class="wf-dropdown-item-btn">
+                        <span class="icon-box ic-indigo"><i class="fa-solid fa-laptop-code"></i></span>
+                        <span>Seguridad y sesiones</span>
+                    </a>
+                    <a href="#" class="wf-dropdown-item-btn" style="color: #DC2626;">
+                        <span class="icon-box ic-red"><i class="fa-solid fa-right-from-bracket"></i></span>
+                        <span>Cerrar sesión</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+</body>
+</html>

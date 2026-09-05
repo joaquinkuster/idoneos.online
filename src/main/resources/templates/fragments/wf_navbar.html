@@ -78,15 +78,18 @@
                 <!-- Sección para Alumnos -->
                 <div class="wf-dropdown-section" th:if="${usuario.rol != null and usuario.rol.nombre == 'Alumno'}">
                     <div class="wf-dropdown-section-title">Mi Formación</div>
-                    <a th:href="@{/cursos/mis-cursos}" class="wf-dropdown-item-btn"><i
-                            class="fa-solid fa-graduation-cap me-2 text-gold"></i><span>Ver mis cursos</span></a>
-                    <a th:href="@{/inscripciones}" class="wf-dropdown-item-btn"><i
-                            class="fa-solid fa-certificate me-2 text-gold"></i><span>Buscar inscripción</span></a>
-                    <a th:href="@{/pago/mis-pagos}" class="wf-dropdown-item-btn"><i
-                            class="fa-solid fa-receipt me-2 text-muted"></i><span>Buscar pago</span></a>
-                    <a th:href="@{/cursos/catalogo}" class="wf-dropdown-item-btn"><i
-                            class="fa-solid fa-magnifying-glass me-2 text-muted"></i><span>Explorar catálogo de
-                            cursos</span></a>
+                    <a th:href="@{/cursos/mis-cursos}" class="wf-dropdown-item-btn">
+                        <i class="fa-solid fa-graduation-cap me-2" style="color: #3B82F6;"></i><span>Ver mis cursos</span>
+                    </a>
+                    <a th:href="@{/inscripciones}" class="wf-dropdown-item-btn">
+                        <i class="fa-solid fa-certificate me-2" style="color: #10B981;"></i><span>Buscar inscripción</span>
+                    </a>
+                    <a th:href="@{/pago/mis-pagos}" class="wf-dropdown-item-btn">
+                        <i class="fa-solid fa-receipt me-2" style="color: #F59E0B;"></i><span>Buscar pago</span>
+                    </a>
+                    <a th:href="@{/cursos/catalogo}" class="wf-dropdown-item-btn">
+                        <i class="fa-solid fa-compass me-2" style="color: #6366F1;"></i><span>Explorar catálogo de cursos</span>
+                    </a>
                 </div>
 
                 <!-- Modo Edición para Docentes y Administradores -->
@@ -95,9 +98,8 @@
                     <div class="wf-dropdown-section-title">Modo Edición</div>
                     <div class="wf-switch-container" onclick="toggleModoEdicionNavbar(this)">
                         <div class="d-flex align-items-center gap-2">
-                            <i class="fa-solid fa-pen-to-square text-gold"></i>
-                            <span class="fw-bold" style="color: var(--wf-gold-text); font-size: 12px;">Modo
-                                Edición</span>
+                            <i class="fa-solid fa-pen-to-square" style="color: #D97706;"></i>
+                            <span class="fw-bold" style="color: var(--wf-gold-text); font-size: 12px;">Modo Edición</span>
                         </div>
                         <label class="wf-toggle-switch" onclick="event.stopPropagation()">
                             <input type="checkbox" id="navbarModoEdicionToggle" onchange="redirectModoEdicion(this)">
@@ -110,53 +112,68 @@
                 <div class="wf-dropdown-section"
                     th:if="${usuario.rol != null and (usuario.rol.nombre == 'Administrador' or usuario.rol.nombre == 'Docente')}">
                     <div class="wf-dropdown-section-title">Gestión Académica &amp; Docencia</div>
-                    <a th:href="@{/cursos}" class="wf-dropdown-item-btn"><i
-                            class="fa-solid fa-book-open me-2 text-gold"></i><span>Buscar curso</span></a>
-                    <a th:href="@{/academico/programas}" class="wf-dropdown-item-btn"><i
-                            class="fa-solid fa-graduation-cap me-2 text-gold"></i><span>Buscar programa</span></a>
-                    <a th:href="@{/cursos/cohortes}" class="wf-dropdown-item-btn"><i
-                            class="fa-solid fa-calendar-days me-2 text-muted"></i><span>Buscar cohorte</span></a>
-                    <a th:href="@{/inscripciones/progreso}" class="wf-dropdown-item-btn"><i
-                            class="fa-solid fa-chart-line me-2 text-muted"></i><span>Buscar progreso</span></a>
+                    <a th:href="@{/cursos}" class="wf-dropdown-item-btn">
+                        <i class="fa-solid fa-book-bookmark me-2" style="color: #3B82F6;"></i><span>Buscar curso</span>
+                    </a>
+                    <a th:href="@{/academico/programas}" class="wf-dropdown-item-btn">
+                        <i class="fa-solid fa-chalkboard-user me-2" style="color: #8B5CF6;"></i><span>Buscar programa</span>
+                    </a>
+                    <a th:href="@{/cursos/cohortes}" class="wf-dropdown-item-btn">
+                        <i class="fa-solid fa-calendar-check me-2" style="color: #06B6D4;"></i><span>Buscar cohorte</span>
+                    </a>
+                    <a th:href="@{/inscripciones/progreso}" class="wf-dropdown-item-btn">
+                        <i class="fa-solid fa-chart-line-up me-2" style="color: #10B981;"></i><span>Buscar progreso</span>
+                    </a>
                 </div>
 
                 <!-- Sección Exclusiva para Administradores -->
                 <div class="wf-dropdown-section"
                     th:if="${usuario.rol != null and usuario.rol.nombre == 'Administrador'}">
                     <div class="wf-dropdown-section-title">Administración del Sistema</div>
-                    <a th:href="@{/inscripciones}" class="wf-dropdown-item-btn"><i
-                            class="fa-solid fa-certificate me-2 text-gold"></i><span>Buscar inscripción</span></a>
-                    <a th:href="@{/cursos/categorias}" class="wf-dropdown-item-btn"><i
-                            class="fa-solid fa-tags me-2 text-gold"></i><span>Buscar categoría</span></a>
-                    <a th:href="@{/cursos/cohortes}" class="wf-dropdown-item-btn"><i
-                            class="fa-solid fa-graduation-cap me-2 text-gold"></i><span>Buscar cohorte</span></a>
-                    <a th:href="@{/inscripciones/descuentos}" class="wf-dropdown-item-btn"><i
-                            class="fa-solid fa-percent me-2 text-gold"></i><span>Buscar descuento</span></a>
-                    <a th:href="@{/seguridad/usuarios}" class="wf-dropdown-item-btn"><i
-                            class="fa-solid fa-users me-2 text-muted"></i><span>Gestión de usuarios</span></a>
-                    <a th:href="@{/auditoria}" class="wf-dropdown-item-btn"><i
-                            class="fa-solid fa-shield-halved me-2 text-muted"></i><span>Consultar auditoria</span></a>
-                    <a th:href="@{/reportes/alumnos}" class="wf-dropdown-item-btn"><i
-                            class="fa-solid fa-user-graduate me-2 text-muted"></i><span>Informe de alumnos</span></a>
-                    <a th:href="@{/reportes/ingresos}" class="wf-dropdown-item-btn"><i
-                            class="fa-solid fa-sack-dollar me-2 text-muted"></i><span>Informe de ingresos</span></a>
-                    <a th:href="@{/reportes/estadisticas}" class="wf-dropdown-item-btn"><i
-                            class="fa-solid fa-chart-pie me-2 text-muted"></i><span>Consultar estadisticas</span></a>
-                    <a th:href="@{/configuracion}" class="wf-dropdown-item-btn"><i
-                            class="fa-solid fa-sliders me-2 text-muted"></i><span>Configurar parametros</span></a>
+                    <a th:href="@{/inscripciones}" class="wf-dropdown-item-btn">
+                        <i class="fa-solid fa-id-badge me-2" style="color: #EC4899;"></i><span>Buscar inscripción</span>
+                    </a>
+                    <a th:href="@{/cursos/categorias}" class="wf-dropdown-item-btn">
+                        <i class="fa-solid fa-tags me-2" style="color: #F97316;"></i><span>Buscar categoría</span>
+                    </a>
+                    <a th:href="@{/cursos/cohortes}" class="wf-dropdown-item-btn">
+                        <i class="fa-solid fa-people-roof me-2" style="color: #14B8A6;"></i><span>Buscar cohorte</span>
+                    </a>
+                    <a th:href="@{/inscripciones/descuentos}" class="wf-dropdown-item-btn">
+                        <i class="fa-solid fa-percent me-2" style="color: #EAB308;"></i><span>Buscar descuento</span>
+                    </a>
+                    <a th:href="@{/seguridad/usuarios}" class="wf-dropdown-item-btn">
+                        <i class="fa-solid fa-users-gear me-2" style="color: #3B82F6;"></i><span>Gestión de usuarios</span>
+                    </a>
+                    <a th:href="@{/auditoria}" class="wf-dropdown-item-btn">
+                        <i class="fa-solid fa-shield-halved me-2" style="color: #6366F1;"></i><span>Consultar auditoria</span>
+                    </a>
+                    <a th:href="@{/reportes/alumnos}" class="wf-dropdown-item-btn">
+                        <i class="fa-solid fa-user-graduate me-2" style="color: #0284C7;"></i><span>Informe de alumnos</span>
+                    </a>
+                    <a th:href="@{/reportes/ingresos}" class="wf-dropdown-item-btn">
+                        <i class="fa-solid fa-sack-dollar me-2" style="color: #059669;"></i><span>Informe de ingresos</span>
+                    </a>
+                    <a th:href="@{/reportes/estadisticas}" class="wf-dropdown-item-btn">
+                        <i class="fa-solid fa-chart-pie me-2" style="color: #A855F7;"></i><span>Consultar estadisticas</span>
+                    </a>
+                    <a th:href="@{/configuracion}" class="wf-dropdown-item-btn">
+                        <i class="fa-solid fa-sliders me-2" style="color: #64748B;"></i><span>Configurar parametros</span>
+                    </a>
                 </div>
 
                 <!-- Menú de Cuenta para Todos -->
                 <div class="wf-dropdown-section">
                     <div class="wf-dropdown-section-title">Cuenta & Sesión</div>
                     <button type="button" class="wf-dropdown-item-btn border-0 bg-transparent w-100 text-start" data-bs-toggle="modal" data-bs-target="#modalGlobalMiPerfil">
-                        <i class="fa-solid fa-id-card me-2 text-muted"></i><span>Ver perfil</span>
+                        <i class="fa-solid fa-id-card me-2" style="color: #3B82F6;"></i><span>Ver perfil</span>
                     </button>
-                    <a th:href="@{/seguridad/sesiones}" class="wf-dropdown-item-btn"><i
-                            class="fa-solid fa-laptop me-2 text-muted"></i><span>Seguridad y sesiones activas</span></a>
+                    <a th:href="@{/seguridad/sesiones}" class="wf-dropdown-item-btn">
+                        <i class="fa-solid fa-laptop-code me-2" style="color: #6366F1;"></i><span>Seguridad y sesiones activas</span>
+                    </a>
                     <button type="button" onclick="confirmarCerrarSesionNavbar()"
                         class="wf-dropdown-item-btn text-danger border-0 bg-transparent w-100 text-start">
-                        <i class="fa-solid fa-right-from-bracket me-2"></i><span>Cerrar sesión</span>
+                        <i class="fa-solid fa-right-from-bracket me-2" style="color: #EF4444;"></i><span>Cerrar sesión</span>
                     </button>
                     <form id="globalLogoutForm" th:action="@{/logout}" method="post" style="display: none;"></form>
                 </div>
