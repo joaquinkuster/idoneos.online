@@ -21,6 +21,27 @@
     --wf-text: #0F172A;
     --wf-text-muted: #64748B;
     --wf-surface: #FFFFFF;
+
+    /* iOS Glassmorphism & Squircle Tokens */
+    --squircle-sm: 10px;
+    --squircle-md: 16px;
+    --squircle-lg: 22px;
+    --squircle-xl: 28px;
+    --squircle-pill: 9999px;
+
+    /* iOS Glass Surfaces */
+    --ios-glass-bg: rgba(255, 255, 255, 0.80);
+    --ios-glass-bg-hover: rgba(255, 255, 255, 0.92);
+    --ios-glass-border: rgba(255, 255, 255, 0.75);
+    --ios-glass-border-subtle: rgba(226, 232, 240, 0.85);
+    --ios-glass-blur: blur(20px) saturate(180%);
+    --ios-glass-shadow: 0 10px 32px 0 rgba(8, 20, 38, 0.07), 0 2px 8px 0 rgba(8, 20, 38, 0.04), inset 0 1px 0 0 rgba(255, 255, 255, 0.85);
+    --ios-glass-shadow-hover: 0 16px 40px 0 rgba(8, 20, 38, 0.12), 0 4px 12px 0 rgba(8, 20, 38, 0.06), inset 0 1px 0 0 rgba(255, 255, 255, 0.95);
+    
+    /* iOS Navy Glass (Header, Modals & Floating Pills) */
+    --ios-navy-glass: rgba(8, 20, 38, 0.88);
+    --ios-navy-border: rgba(255, 255, 255, 0.12);
+    --ios-navy-shadow: 0 14px 40px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
 *, *::before, *::after {
@@ -2453,3 +2474,314 @@ textarea.wf-input {
 .live-waveform-bar:nth-child(3) { animation-delay: 0.4s; }
 .live-waveform-bar:nth-child(4) { animation-delay: 0.1s; }
 .live-waveform-bar:nth-child(5) { animation-delay: 0.3s; }
+
+/* ==========================================================================
+   SQUIRCLE GEOMETRY & MODERN IOS GLASSMORPHISM ENGINE
+   Aplicado globalmente a todas las pantallas, componentes, cards y botones
+   Preservando paleta oficial (Navy #081426, Oro #D4A03D, Blanco #FFFFFF)
+   ========================================================================== */
+
+/* 1. SQUIRCLE GEOMETRY BASE & CORNER SMOOTHING (iOS Smooth Radii) */
+.wf-btn,
+.wf-btn-gold,
+.wf-btn-manage-course,
+.wf-btn-primary,
+.wf-btn-outline,
+.wf-btn-danger,
+.wf-btn-sm,
+.btn,
+.idn-btn-gold {
+    border-radius: var(--squircle-md) !important;
+    corner-smoothing: 60%;
+    -webkit-corner-smoothing: 60%;
+    position: relative;
+    overflow: hidden;
+    letter-spacing: -0.01em;
+    transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+/* Micro-brillo specular en botones */
+.wf-btn::after,
+.wf-btn-gold::after,
+.wf-btn-primary::after,
+.wf-btn-manage-course::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 45%;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0) 100%);
+    pointer-events: none;
+    border-radius: inherit;
+}
+
+.wf-btn:active,
+.wf-btn-gold:active,
+.wf-btn-primary:active,
+.wf-btn-outline:active {
+    transform: scale(0.97) !important;
+}
+
+/* 2. BOTONES EN TAMAÑO SMALL / PILL / ACCIONES */
+.wf-btn-sm {
+    border-radius: var(--squircle-sm) !important;
+}
+
+.wf-top-nav-pill,
+.wf-page-btn.wf-page-nav {
+    border-radius: var(--squircle-pill) !important;
+}
+
+.wf-page-btn {
+    border-radius: var(--squircle-sm) !important;
+}
+
+/* 3. INPUTS, SELECTS & TEXTAREAS EN SQUIRCLE Y SUAVE TRANSLUCIDEZ */
+.wf-input,
+input.form-control,
+select.form-select,
+textarea.form-control {
+    border-radius: var(--squircle-sm) !important;
+    corner-smoothing: 60%;
+    background: rgba(255, 255, 255, 0.88) !important;
+    backdrop-filter: blur(12px) saturate(160%);
+    -webkit-backdrop-filter: blur(12px) saturate(160%);
+    border: 1.5px solid rgba(203, 213, 225, 0.8) !important;
+    transition: all 0.24s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.02) !important;
+}
+
+.wf-input:focus,
+input.form-control:focus,
+select.form-select:focus,
+textarea.form-control:focus {
+    background: #FFFFFF !important;
+    border-color: var(--wf-navy-dark) !important;
+    box-shadow: 0 0 0 3.5px rgba(8, 20, 38, 0.09), inset 0 1px 2px rgba(0, 0, 0, 0.02) !important;
+}
+
+/* 4. CARDS, CONTENEDORES Y PANELES (iOS FROSTED GLASS EFECTO ULTRA-PULIDO) */
+.wf-card,
+.card,
+.wf-course-card,
+.wf-table-wrap,
+.meta-strip,
+.wf-unit-box {
+    border-radius: var(--squircle-lg) !important;
+    corner-smoothing: 60%;
+    -webkit-corner-smoothing: 60%;
+    background: var(--ios-glass-bg) !important;
+    backdrop-filter: var(--ios-glass-blur) !important;
+    -webkit-backdrop-filter: var(--ios-glass-blur) !important;
+    border: 1px solid var(--ios-glass-border) !important;
+    box-shadow: var(--ios-glass-shadow) !important;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.wf-card:hover,
+.card:hover,
+.wf-course-card:hover {
+    box-shadow: var(--ios-glass-shadow-hover) !important;
+    border-color: rgba(255, 255, 255, 0.95) !important;
+}
+
+.wf-course-card {
+    overflow: hidden !important;
+}
+
+.wf-course-card-thumb {
+    border-radius: calc(var(--squircle-lg) - 2px) calc(var(--squircle-lg) - 2px) 0 0 !important;
+    backdrop-filter: blur(10px);
+}
+
+.wf-course-card-footer {
+    background: transparent !important;
+}
+
+/* 5. TOP NAVBAR (iOS NAV BAR CON FROSTED NAVY & BORDE REFLEJANTE) */
+.wf-top-navbar {
+    background: rgba(7, 19, 36, 0.85) !important;
+    backdrop-filter: blur(24px) saturate(190%) !important;
+    -webkit-backdrop-filter: blur(24px) saturate(190%) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.10) !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25), inset 0 -1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.wf-user-trigger-pill {
+    border-radius: var(--squircle-pill) !important;
+    background: rgba(15, 35, 61, 0.75) !important;
+    backdrop-filter: blur(16px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.12) !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+}
+
+.wf-user-trigger-pill:hover {
+    background: rgba(23, 54, 96, 0.85) !important;
+    border-color: var(--wf-gold) !important;
+    box-shadow: 0 6px 20px rgba(212, 160, 61, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
+}
+
+.wf-top-nav-links {
+    border-radius: var(--squircle-pill) !important;
+    background: rgba(15, 35, 61, 0.5) !important;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.wf-nav-sliding-capsule {
+    border-radius: var(--squircle-pill) !important;
+}
+
+.wf-top-nav-link {
+    border-radius: var(--squircle-pill) !important;
+}
+
+/* 6. MODALES Y DIÁLOGOS (iOS FLOATING MODAL SHEET GLASS) */
+.wf-modal-box,
+.modal-content {
+    border-radius: var(--squircle-xl) !important;
+    corner-smoothing: 60%;
+    -webkit-corner-smoothing: 60%;
+    background: rgba(255, 255, 255, 0.88) !important;
+    backdrop-filter: blur(28px) saturate(190%) !important;
+    -webkit-backdrop-filter: blur(28px) saturate(190%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.8) !important;
+    box-shadow: 0 32px 80px rgba(8, 20, 38, 0.22), 0 8px 24px rgba(8, 20, 38, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.95) !important;
+    overflow: hidden !important;
+}
+
+.wf-modal-header,
+.modal-header {
+    background: rgba(255, 255, 255, 0.5) !important;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.7) !important;
+    backdrop-filter: blur(10px);
+}
+
+.wf-modal-sidebar {
+    background: rgba(248, 250, 252, 0.6) !important;
+    border-right: 1px solid rgba(226, 232, 240, 0.7) !important;
+}
+
+.wf-modal-option {
+    border-radius: var(--squircle-sm) !important;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.wf-modal-option.active {
+    background: rgba(255, 255, 255, 0.9) !important;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 4px 14px rgba(8, 20, 38, 0.06), inset 0 1px 0 #FFFFFF !important;
+}
+
+/* 7. DROPDOWNS FLOTANTES (iOS Popover Glass) */
+.wf-user-floating-dropdown,
+.dropdown-menu {
+    border-radius: var(--squircle-md) !important;
+    corner-smoothing: 60%;
+    background: rgba(255, 255, 255, 0.88) !important;
+    backdrop-filter: blur(24px) saturate(190%) !important;
+    -webkit-backdrop-filter: blur(24px) saturate(190%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.75) !important;
+    box-shadow: 0 20px 48px rgba(8, 20, 38, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+}
+
+.wf-dropdown-user-header {
+    background: rgba(248, 250, 252, 0.65) !important;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.65) !important;
+}
+
+.wf-dropdown-item-btn {
+    border-radius: var(--squircle-sm) !important;
+}
+
+/* 8. TOASTS Y NOTIFICACIONES (iOS Dynamic Island / Capsule Glass) */
+.wf-toast {
+    border-radius: var(--squircle-lg) !important;
+    corner-smoothing: 60%;
+    background: rgba(255, 255, 255, 0.88) !important;
+    backdrop-filter: blur(25px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(25px) saturate(180%) !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.9) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.7) !important;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.8) !important;
+    box-shadow: 0 20px 50px rgba(8, 20, 38, 0.16), 0 4px 16px rgba(8, 20, 38, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.95) !important;
+}
+
+.wf-toast-icon-wrap {
+    border-radius: var(--squircle-sm) !important;
+}
+
+/* 9. BADGES Y PILLS EN SQUIRCLE Y SUAVE LUMINISCENCIA */
+.wf-badge,
+.wf-pill-tag,
+.wf-pill-status,
+.badge {
+    border-radius: var(--squircle-pill) !important;
+    padding: 5px 12px !important;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    letter-spacing: 0.3px;
+    font-weight: 700;
+}
+
+.wf-pill-tag,
+.wf-pill-status {
+    background: linear-gradient(135deg, rgba(212, 160, 61, 0.95) 0%, rgba(197, 144, 48, 0.95) 100%) !important;
+    box-shadow: 0 2px 8px rgba(212, 160, 61, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
+    border: none !important;
+}
+
+/* 10. TABLAS Y PAGINACIÓN CON ESTÉTICA CRISTALINA */
+.wf-table-wrap {
+    background: rgba(255, 255, 255, 0.78) !important;
+    overflow: hidden;
+}
+
+.wf-table th {
+    background: rgba(248, 250, 252, 0.75) !important;
+    backdrop-filter: blur(10px);
+}
+
+.wf-table tr:hover td {
+    background: rgba(212, 160, 61, 0.04) !important;
+}
+
+.wf-pagination-wrap {
+    border-radius: 0 0 var(--squircle-lg) var(--squircle-lg) !important;
+    background: rgba(248, 250, 252, 0.8) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+}
+
+/* 11. SWITCHES Y CONTROLES ACTIVOS */
+.wf-switch-container {
+    border-radius: var(--squircle-md) !important;
+    background: rgba(212, 160, 61, 0.09) !important;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(212, 160, 61, 0.25) !important;
+}
+
+.wf-toggle-slider {
+    border-radius: var(--squircle-pill) !important;
+}
+
+/* 12. HERO BANNERS CON DEGRADADO SUAVE Y PROFUNDIDAD */
+.wf-hero-banner {
+    position: relative;
+    overflow: hidden;
+}
+
+.wf-hero-banner::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(212, 160, 61, 0.08) 0%, rgba(19, 42, 74, 0.15) 50%, transparent 70%);
+    pointer-events: none;
+    border-radius: 50%;
+}
