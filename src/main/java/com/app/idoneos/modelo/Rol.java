@@ -24,10 +24,19 @@ public class Rol {
     private int idRol;
 
     /**
-     * Nombre.
+     * Nombre del rol. Debe ser único.
      */
     @Column(name = "nombre", nullable = true, length = 50, unique = true)
     private String nombre;
+
+    /**
+     * Constructor para crear un rol con su nombre.
+     *
+     * @param nombre El nombre del rol (Administrador, Docente o Alumno).
+     */
+    public Rol(String nombre) {
+        this.nombre = nombre;
+    }
 
     /**
      * Devuelve una representación en forma de cadena del rol.

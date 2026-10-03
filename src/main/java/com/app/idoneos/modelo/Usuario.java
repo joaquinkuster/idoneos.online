@@ -58,8 +58,8 @@ public class Usuario implements UserDetails {
     /**
      * Correo electrónico. Se usa como nombre de usuario para iniciar sesión. Debe ser único.
      */
-    @Column(name = "email", nullable = false, length = 150, unique = true)
-    private String email;
+    @Column(name = "correo", nullable = false, length = 150, unique = true)
+    private String correo;
 
     /**
      * Contraseña cifrada del usuario.
@@ -154,7 +154,7 @@ public class Usuario implements UserDetails {
     /**
      * Conjunto de roles asociados.
      */
-    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Set<RolUsuario> roles = new HashSet<>();
 
     /**
@@ -163,14 +163,14 @@ public class Usuario implements UserDetails {
      * @param nombre nombre del usuario.
      * @param apellido apellido del usuario.
      * @param dni documento Nacional de Identidad. Debe ser único.
-     * @param email correo electrónico. Se usa como nombre de usuario para iniciar sesión. Debe ser único.
+     * @param correo correo electrónico. Se usa como nombre de usuario para iniciar sesión. Debe ser único.
      * @param contrasena contraseña cifrada del usuario.
      */
-    public Usuario(String nombre, String apellido, String dni, String email, String contrasena) {
+    public Usuario(String nombre, String apellido, String dni, String correo, String contrasena) {
         this.nombre = nombre;
         this.apellido = apellido;
         this.dni = dni;
-        this.email = email;
+        this.correo = correo;
         this.contrasena = contrasena;
     }
 
@@ -198,6 +198,53 @@ public class Usuario implements UserDetails {
     @Override
     public String toString() {
         return nombre + " " + apellido;
+    }
+
+    /**
+     * Obtiene el nombre completo del usuario.
+     *
+     * @return El nombre y el apellido del usuario.
+     */
+    public String getNombreCompleto() {
+        return nombre + " " + apellido;
+    }
+
+    /**
+     * Verifica si el usuario tiene un rol vigente (no dado de baja).
+     *
+     * @param nombreRol El nombre del rol (Administrador, Docente o Alumno).
+     * @return {@code true} si el usuario tiene el rol vigente.
+     */
+    public boolean tieneRol(String nombreRol) {
+        return roles.stream().anyMatch(rolUsuario -> !rolUsuario.getBaja()
+                && rolUsuario.getRol() != null && nombreRol.equalsIgnoreCase(rolUsuario.getRol().getNombre()));
+    }
+
+    /**
+     * Verifica si el usuario tiene el rol de administrador vigente.
+     *
+     * @return {@code true} si es administrador.
+     */
+    public boolean esAdmin() {
+        return tieneRol("Administrador");
+    }
+
+    /**
+     * Verifica si el usuario tiene el rol de docente vigente.
+     *
+     * @return {@code true} si es docente.
+     */
+    public boolean esDocente() {
+        return tieneRol("Docente");
+    }
+
+    /**
+     * Verifica si el usuario tiene el rol de alumno vigente.
+     *
+     * @return {@code true} si es alumno.
+     */
+    public boolean esAlumno() {
+        return tieneRol("Alumno");
     }
 
     // Implementación de métodos de la interfaz UserDetails de Spring Security
@@ -233,7 +280,7 @@ public class Usuario implements UserDetails {
      */
     @Override
     public String getUsername() {
-        return email;
+        return correo;
     }
 
     /**

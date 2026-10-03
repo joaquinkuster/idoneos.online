@@ -16,6 +16,21 @@ import lombok.Setter;
 public class Modalidad {
 
     /**
+     * Nombre de la modalidad con clases en vivo.
+     */
+    public static final String EN_VIVO = "En vivo";
+
+    /**
+     * Nombre de la modalidad con clases grabadas.
+     */
+    public static final String GRABADA = "Grabada";
+
+    /**
+     * Nombre de la modalidad con clases dictadas por un clon de inteligencia artificial.
+     */
+    public static final String CLON_IA = "Con clon de IA";
+
+    /**
      * Identificador único de la modalidad.
      */
     @Id

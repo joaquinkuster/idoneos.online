@@ -1,5 +1,6 @@
 package com.app.idoneos.servicio.Inscripcion;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import com.app.idoneos.modelo.Alumno;
@@ -107,5 +108,26 @@ public class InscripcionServicioImpl implements InscripcionServicio, CrudServici
     @Override
     public List<Inscripcion> buscarPorAlumno(Alumno alumno) {
         return inscripcionRepositorio.findByAlumnoAndBajaFalse(alumno);
+    }
+
+    /**
+     * Busca las inscripciones vigentes de un alumno, filtrando opcionalmente por el nombre del curso
+     * y por el estado de la inscripción (Pendiente, En Progreso o Finalizado).
+     *
+     * @param alumno el alumno dueño de las inscripciones
+     * @param nombreCurso parte del nombre del curso (opcional)
+     * @param estado el estado de la inscripción (opcional)
+     * @return una lista de inscripciones que cumplen los criterios, de la más reciente a la más antigua
+     */
+    @Override
+    public List<Inscripcion> buscarMisCursos(Alumno alumno, String nombreCurso, String estado) {
+        String criterio = nombreCurso == null ? "" : nombreCurso.trim().toLowerCase();
+        return inscripcionRepositorio.findByAlumnoAndBajaFalse(alumno).stream()
+                .filter(inscripcion -> criterio.isEmpty()
+                        || inscripcion.getCurso().getNombre().toLowerCase().contains(criterio))
+                .filter(inscripcion -> estado == null || estado.isBlank()
+                        || inscripcion.getEstado().equalsIgnoreCase(estado.trim()))
+                .sorted(Comparator.comparingInt(Inscripcion::getIdInscripcion).reversed())
+                .toList();
     }
 }

@@ -25,4 +25,13 @@ public interface ParametroServicio {
      * @return un {@link Optional} con el registro si existe, o vacío si no se encuentra
      */
     Optional<Parametro> buscarPorClave(String clave);
+
+    /**
+     * Obtiene el valor entero de un parámetro del sistema.
+     *
+     * @param clave la clave del parámetro
+     * @param valorPorDefecto el valor a devolver si el parámetro no existe o no es un entero
+     * @return el valor entero del parámetro
+     */
+    int obtenerEntero(String clave, int valorPorDefecto);
 }

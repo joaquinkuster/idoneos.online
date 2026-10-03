@@ -25,4 +25,15 @@ public interface InscripcionServicio {
      * @return una lista de Inscripcion asociados al Alumno indicado
      */
     List<Inscripcion> buscarPorAlumno(Alumno alumno);
+
+    /**
+     * Busca las inscripciones vigentes de un alumno, filtrando opcionalmente por el nombre del curso
+     * y por el estado de la inscripción (Pendiente, En Progreso o Finalizado).
+     *
+     * @param alumno el alumno dueño de las inscripciones
+     * @param nombreCurso parte del nombre del curso (opcional)
+     * @param estado el estado de la inscripción (opcional)
+     * @return una lista de inscripciones que cumplen los criterios, de la más reciente a la más antigua
+     */
+    List<Inscripcion> buscarMisCursos(Alumno alumno, String nombreCurso, String estado);
 }

@@ -97,10 +97,6 @@
                                     <i class="fa-solid fa-compass"></i>
                                     <span>Explorar Catálogo</span>
                                 </a>
-                                <a th:href="@{/seguridad/registro}" class="wf-btn wf-btn-outline text-decoration-none" th:if="${usuario == null}">
-                                    <i class="fa-solid fa-user-plus"></i>
-                                    <span>Crear Cuenta Gratis</span>
-                                </a>
                             </div>
                         </div>
 
@@ -179,7 +175,7 @@
 
                         <div class="row g-3">
                             <div th:each="cat : ${categorias}" class="col-md-3">
-                                <a th:href="@{'/cursos/catalogo?categoriaId=' + ${cat.id}}" class="text-decoration-none">
+                                <a th:href="@{'/cursos/catalogo?categoriaId=' + ${cat.idCategoria}}" class="text-decoration-none">
                                     <div class="wf-card h-100 p-4 d-flex flex-column justify-content-between text-start" style="transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); border-radius: 12px;">
                                         <div>
                                             <div class="d-inline-flex p-3 rounded-3 mb-3" style="background: rgba(212, 160, 61, 0.12); color: var(--wf-gold);">
@@ -217,8 +213,8 @@
                                 <div class="wf-course-card-thumb">
                                     <div class="wf-course-thumb-icon"><i class="fa-solid fa-graduation-cap text-white"></i></div>
                                     <div class="wf-course-pills-row">
-                                        <span class="wf-pill-tag" th:text="${curso.categoria != null ? curso.categoria.nombre : 'Finanzas'}">Categoría</span>
-                                        <span class="wf-pill-status" th:text="${curso.nivel != null ? curso.nivel.nombre : 'Avanzado'}">Nivel</span>
+                                        <span class="wf-pill-tag" th:text="${curso.categoria.nombre}">Categoría</span>
+                                        <span class="wf-pill-status" th:text="${curso.nivel.nombre}">Nivel</span>
                                     </div>
                                 </div>
                                 <div class="wf-course-card-body">
@@ -228,19 +224,16 @@
                                     <div class="wf-course-info-row">
                                         <span>
                                             <i class="fa-solid fa-chalkboard-user me-1 text-muted"></i>
-                                            <strong th:text="${curso.docente != null and curso.docente.usuario != null ? curso.docente.usuario.nombreCompleto : 'Equipo Académico'}">Docente</strong>
+                                            <strong th:text="${curso.docenteTitular != null and curso.docenteTitular.usuario != null ? curso.docenteTitular.usuario.nombreCompleto : 'Equipo Académico'}">Docente</strong>
                                         </span>
                                         <span class="wf-course-price" th:text="${curso.precio != null and curso.precio <= 0 ? 'GRATIS' : '$ ' + #numbers.formatDecimal(curso.precio != null ? curso.precio : 0, 1, 'POINT', 0, 'COMMA')}">$0</span>
                                     </div>
                                 </div>
                                 <div class="wf-course-card-footer">
                                     <div class="d-flex align-items-center gap-2">
-                                        <a th:href="@{'/cursos/' + ${curso.id}}" class="wf-btn-manage-course flex-grow-1">
+                                        <a th:href="@{'/cursos/catalogo?cursoId=' + ${curso.idCurso}}" class="wf-btn-manage-course flex-grow-1">
                                             <i class="fa-solid fa-eye"></i>
-                                            <span>Ver Programa</span>
-                                        </a>
-                                        <a th:href="@{'/inscripciones/nueva?cursoId=' + ${curso.id}}" class="wf-btn wf-btn-primary px-3" title="Inscribirme" style="height: 38px; border-radius: 8px;">
-                                            <i class="fa-solid fa-bolt"></i>
+                                            <span>Ver detalle</span>
                                         </a>
                                     </div>
                                 </div>

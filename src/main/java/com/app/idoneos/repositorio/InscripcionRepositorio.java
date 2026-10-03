@@ -1,5 +1,9 @@
 package com.app.idoneos.repositorio;
 
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import com.app.idoneos.modelo.Curso;
+import com.app.idoneos.modelo.Categoria;
 import java.util.List;
 import com.app.idoneos.modelo.Alumno;
 import com.app.idoneos.modelo.Cohorte;
@@ -36,4 +40,22 @@ public interface InscripcionRepositorio extends JpaRepository<Inscripcion, Integ
      * @return una lista de Inscripcion asociados al Alumno indicado
      */
     List<Inscripcion> findByAlumnoAndBajaFalse(Alumno alumno);
+
+    /**
+     * Cuenta las inscripciones activas (no dadas de baja) asociadas a un curso, a través de su cohorte y programa.
+     *
+     * @param curso El curso a consultar.
+     * @return La cantidad de inscripciones activas del curso.
+     */
+    @Query("SELECT COUNT(i) FROM Inscripcion i WHERE i.baja = false AND i.cohorte.programa.curso = :curso")
+    long contarActivasPorCurso(@Param("curso") Curso curso);
+
+    /**
+     * Cuenta las inscripciones activas (no dadas de baja) asociadas a una categoría, a través de los cursos de la categoría.
+     *
+     * @param categoria La categoría a consultar.
+     * @return La cantidad de inscripciones activas de la categoría.
+     */
+    @Query("SELECT COUNT(i) FROM Inscripcion i WHERE i.baja = false AND i.cohorte.programa.curso.categoria = :categoria")
+    long contarActivasPorCategoria(@Param("categoria") Categoria categoria);
 }

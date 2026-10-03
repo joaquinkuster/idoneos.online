@@ -139,4 +139,36 @@ public class Programa {
     public String toString() {
         return nombre;
     }
+
+    /**
+     * Calcula la duración total del cronograma del programa, sumando las semanas de cada unidad vigente.
+     *
+     * @return La duración total en semanas.
+     */
+    public int getDuracionTotalSemanas() {
+        return unidadesCronograma.stream().filter(cronograma -> !cronograma.getBaja())
+                .mapToInt(UnidadCronograma::getSemanasDuracion).sum();
+    }
+
+    /**
+     * Cuenta las unidades del cronograma que tienen al menos un material publicado
+     * (vigente y no oculto).
+     *
+     * @return La cantidad de unidades con material publicado.
+     */
+    public int getCantidadUnidadesConMaterialPublicado() {
+        return (int) unidadesCronograma.stream().filter(cronograma -> !cronograma.getBaja())
+                .filter(cronograma -> cronograma.getUnidad().getMateriales().stream()
+                        .anyMatch(material -> !material.getBaja() && !material.getOculto()))
+                .count();
+    }
+
+    /**
+     * Cuenta las unidades vigentes del cronograma.
+     *
+     * @return La cantidad de unidades del cronograma.
+     */
+    public int getCantidadUnidades() {
+        return (int) unidadesCronograma.stream().filter(cronograma -> !cronograma.getBaja()).count();
+    }
 }

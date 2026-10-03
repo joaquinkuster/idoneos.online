@@ -145,4 +145,49 @@ public class Cohorte {
     public String toString() {
         return "Cohorte #" + idCohorte;
     }
+
+    /**
+     * Calcula el estado de la cohorte según sus fechas: Próxima, Abierta (con inscripción abierta),
+     * En dictado o Finalizada.
+     *
+     * @return El estado de la cohorte.
+     */
+    public String getEstado() {
+        LocalDateTime ahora = LocalDateTime.now();
+        if (ahora.isBefore(fechaInicioInscripcion)) {
+            return "Próxima";
+        }
+        if (!ahora.isAfter(fechaFinInscripcion)) {
+            return "Abierta";
+        }
+        LocalDateTime fin = fechaFinDictado != null ? fechaFinDictado : fechaFinInscripcion.plusWeeks(semanasAcceso);
+        return ahora.isAfter(fin) ? "Finalizada" : "En dictado";
+    }
+
+    /**
+     * Verifica si la cohorte tiene la inscripción abierta.
+     *
+     * @return {@code true} si la inscripción está abierta.
+     */
+    public boolean estaAbierta() {
+        return "Abierta".equals(getEstado());
+    }
+
+    /**
+     * Cuenta las inscripciones vigentes (no dadas de baja) de la cohorte.
+     *
+     * @return La cantidad de inscriptos.
+     */
+    public int getCantidadInscriptos() {
+        return (int) inscripciones.stream().filter(inscripcion -> !inscripcion.getBaja()).count();
+    }
+
+    /**
+     * Calcula el cupo disponible de la cohorte.
+     *
+     * @return El cupo disponible, o {@code null} si la cohorte no tiene cupo máximo.
+     */
+    public Integer getCupoDisponible() {
+        return cupoMaximo == null ? null : Math.max(0, cupoMaximo - getCantidadInscriptos());
+    }
 }

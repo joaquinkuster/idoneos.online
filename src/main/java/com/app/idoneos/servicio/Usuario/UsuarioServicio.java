@@ -19,20 +19,20 @@ public interface UsuarioServicio {
     List<Usuario> buscarPorRolPorDefecto(Rol rolPorDefecto);
 
     /**
+     * Busca el usuario por su atributo único 'correo'. Incluye los registros dados de baja, para poder reactivarlos en lugar de duplicarlos.
+     *
+     * @param correo el valor de 'correo' a buscar
+     * @return un {@link Optional} con el registro si existe, o vacío si no se encuentra
+     */
+    Optional<Usuario> buscarPorCorreo(String correo);
+
+    /**
      * Busca el usuario por su atributo único 'dni'. Incluye los registros dados de baja, para poder reactivarlos en lugar de duplicarlos.
      *
      * @param dni el valor de 'dni' a buscar
      * @return un {@link Optional} con el registro si existe, o vacío si no se encuentra
      */
     Optional<Usuario> buscarPorDni(String dni);
-
-    /**
-     * Busca el usuario por su atributo único 'email'. Incluye los registros dados de baja, para poder reactivarlos en lugar de duplicarlos.
-     *
-     * @param email el valor de 'email' a buscar
-     * @return un {@link Optional} con el registro si existe, o vacío si no se encuentra
-     */
-    Optional<Usuario> buscarPorEmail(String email);
 
     /**
      * Busca el usuario por su atributo único 'googleId'. Incluye los registros dados de baja, para poder reactivarlos en lugar de duplicarlos.

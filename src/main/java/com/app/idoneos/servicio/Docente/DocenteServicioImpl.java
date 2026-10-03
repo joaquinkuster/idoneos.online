@@ -126,4 +126,14 @@ public class DocenteServicioImpl implements DocenteServicio, CrudServicio<Docent
     public Optional<Docente> buscarPorVoiceId(String voiceId) {
         return docenteRepositorio.findByVoiceId(voiceId);
     }
+
+    /**
+     * Busca los docentes activos y habilitados, que pueden participar en cursos.
+     *
+     * @return una lista de docentes habilitados
+     */
+    @Override
+    public List<Docente> buscarHabilitados() {
+        return docenteRepositorio.findHabilitados();
+    }
 }

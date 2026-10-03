@@ -104,4 +104,22 @@ public class ParametroServicioImpl implements ParametroServicio, CrudServicio<Pa
     public Optional<Parametro> buscarPorClave(String clave) {
         return parametroRepositorio.findByClave(clave);
     }
+
+    /**
+     * Obtiene el valor entero de un parámetro del sistema.
+     *
+     * @param clave la clave del parámetro
+     * @param valorPorDefecto el valor a devolver si el parámetro no existe o no es un entero
+     * @return el valor entero del parámetro
+     */
+    @Override
+    public int obtenerEntero(String clave, int valorPorDefecto) {
+        return parametroRepositorio.findByClave(clave).map(parametro -> {
+            try {
+                return Integer.parseInt(parametro.getValor().trim());
+            } catch (NumberFormatException e) {
+                return valorPorDefecto;
+            }
+        }).orElse(valorPorDefecto);
+    }
 }

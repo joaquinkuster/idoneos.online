@@ -1,5 +1,6 @@
 package com.app.idoneos.servicio.Docente;
 
+import java.util.List;
 import java.util.Optional;
 import com.app.idoneos.modelo.Docente;
 import com.app.idoneos.modelo.Usuario;
@@ -40,4 +41,11 @@ public interface DocenteServicio {
      * @return un {@link Optional} con el registro si existe, o vacío si no se encuentra
      */
     Optional<Docente> buscarPorVoiceId(String voiceId);
+
+    /**
+     * Busca los docentes activos y habilitados, que pueden participar en cursos.
+     *
+     * @return una lista de docentes habilitados
+     */
+    List<Docente> buscarHabilitados();
 }

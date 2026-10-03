@@ -27,7 +27,7 @@
         <a th:href="@{/cursos/catalogo}" class="wf-top-nav-link">Catálogo de Cursos</a>
 
         <!-- Enlace Mis Cursos para Alumnos -->
-        <a th:if="${usuario != null and usuario.rol != null and usuario.rol.nombre == 'Alumno'}"
+        <a th:if="${usuario != null and usuario.esAlumno()}"
             th:href="@{/cursos/mis-cursos}" class="wf-top-nav-link">Mis Cursos</a>
 
         <!-- Enlace Novedades -->
@@ -39,9 +39,6 @@
         <th:block th:if="${usuario == null}">
             <a th:href="@{/seguridad/login}" class="wf-btn wf-btn-sm wf-btn-outline text-white"><i
                     class="fa-solid fa-right-to-bracket me-1"></i> Ingresar</a>
-            <a th:href="@{/seguridad/registro}" class="wf-btn wf-btn-sm wf-btn-primary"
-                style="background: var(--wf-gold); color: #081426; border-color: var(--wf-gold); font-weight: 700;">Crear
-                Cuenta</a>
         </th:block>
 
         <!-- Usuario Autenticado -->
@@ -53,13 +50,8 @@
                 <div class="d-flex flex-column text-start" style="line-height: 1.15;">
                     <span style="font-size: 12px; font-weight: 800; color: #FFFFFF;"
                         th:text="${usuario.nombreCompleto}">Admin General</span>
-                    <div id="navbarUserModeBadge" class="wf-nav-mode-badge"
-                        th:if="${usuario.rol != null and (usuario.rol.nombre == 'Administrador' or usuario.rol.nombre == 'Docente')}">
-                        <span class="wf-mode-dot"></span>
-                        <span class="wf-mode-text">Modo Edición</span>
-                    </div>
                     <div class="wf-nav-mode-badge-student"
-                        th:if="${usuario.rol != null and usuario.rol.nombre == 'Alumno'}">
+                        th:if="${usuario.esAlumno()}">
                         <span class="wf-mode-dot-student"></span>
                         <span>Vista Alumno</span>
                     </div>
@@ -71,106 +63,45 @@
                 <div class="wf-dropdown-user-header">
                     <div class="wf-dropdown-user-name" th:text="${usuario.nombreCompleto}">Admin General</div>
                     <div class="wf-dropdown-user-role"
-                        th:text="${usuario.rol != null ? usuario.rol.nombre : 'Usuario'}">Administrador</div>
+                        th:text="${usuario.rolPorDefecto != null ? usuario.rolPorDefecto.nombre : 'Usuario'}">Administrador</div>
                     <div class="wf-dropdown-user-email" th:text="${usuario.correo}">admin@idoneos.online</div>
                 </div>
 
                 <!-- Sección para Alumnos -->
-                <div class="wf-dropdown-section" th:if="${usuario.rol != null and usuario.rol.nombre == 'Alumno'}">
+                <div class="wf-dropdown-section" th:if="${usuario.esAlumno()}">
                     <div class="wf-dropdown-section-title">Mi Formación</div>
                     <a th:href="@{/cursos/mis-cursos}" class="wf-dropdown-item-btn">
                         <i class="fa-solid fa-graduation-cap me-2" style="color: #3B82F6;"></i><span>Ver mis cursos</span>
-                    </a>
-                    <a th:href="@{/inscripciones}" class="wf-dropdown-item-btn">
-                        <i class="fa-solid fa-certificate me-2" style="color: #10B981;"></i><span>Buscar inscripción</span>
-                    </a>
-                    <a th:href="@{/pago/mis-pagos}" class="wf-dropdown-item-btn">
-                        <i class="fa-solid fa-receipt me-2" style="color: #F59E0B;"></i><span>Buscar pago</span>
                     </a>
                     <a th:href="@{/cursos/catalogo}" class="wf-dropdown-item-btn">
                         <i class="fa-solid fa-compass me-2" style="color: #6366F1;"></i><span>Explorar catálogo de cursos</span>
                     </a>
                 </div>
 
-                <!-- Modo Edición para Docentes y Administradores -->
-                <div class="wf-dropdown-section"
-                    th:if="${usuario.rol != null and (usuario.rol.nombre == 'Administrador' or usuario.rol.nombre == 'Docente')}">
-                    <div class="wf-dropdown-section-title">Modo Edición</div>
-                    <div class="wf-switch-container" onclick="toggleModoEdicionNavbar(this)">
-                        <div class="d-flex align-items-center gap-2">
-                            <i class="fa-solid fa-pen-to-square" style="color: #D97706;"></i>
-                            <span class="fw-bold" style="color: var(--wf-gold-text); font-size: 12px;">Modo Edición</span>
-                        </div>
-                        <label class="wf-toggle-switch" onclick="event.stopPropagation()">
-                            <input type="checkbox" id="navbarModoEdicionToggle" onchange="redirectModoEdicion(this)">
-                            <span class="wf-toggle-slider"></span>
-                        </label>
-                    </div>
-                </div>
-
                 <!-- Sección para Docentes y Administradores -->
                 <div class="wf-dropdown-section"
-                    th:if="${usuario.rol != null and (usuario.rol.nombre == 'Administrador' or usuario.rol.nombre == 'Docente')}">
+                    th:if="${usuario.esAdmin() or usuario.esDocente()}">
                     <div class="wf-dropdown-section-title">Gestión Académica &amp; Docencia</div>
                     <a th:href="@{/cursos}" class="wf-dropdown-item-btn">
                         <i class="fa-solid fa-book-bookmark me-2" style="color: #3B82F6;"></i><span>Buscar curso</span>
                     </a>
-                    <a th:href="@{/academico/programas}" class="wf-dropdown-item-btn">
-                        <i class="fa-solid fa-chalkboard-user me-2" style="color: #8B5CF6;"></i><span>Buscar programa</span>
-                    </a>
                     <a th:href="@{/cursos/cohortes}" class="wf-dropdown-item-btn">
                         <i class="fa-solid fa-calendar-check me-2" style="color: #06B6D4;"></i><span>Buscar cohorte</span>
-                    </a>
-                    <a th:href="@{/inscripciones/progreso}" class="wf-dropdown-item-btn">
-                        <i class="fa-solid fa-chart-line-up me-2" style="color: #10B981;"></i><span>Buscar progreso</span>
                     </a>
                 </div>
 
                 <!-- Sección Exclusiva para Administradores -->
                 <div class="wf-dropdown-section"
-                    th:if="${usuario.rol != null and usuario.rol.nombre == 'Administrador'}">
+                    th:if="${usuario.esAdmin()}">
                     <div class="wf-dropdown-section-title">Administración del Sistema</div>
-                    <a th:href="@{/inscripciones}" class="wf-dropdown-item-btn">
-                        <i class="fa-solid fa-id-badge me-2" style="color: #EC4899;"></i><span>Buscar inscripción</span>
-                    </a>
                     <a th:href="@{/cursos/categorias}" class="wf-dropdown-item-btn">
                         <i class="fa-solid fa-tags me-2" style="color: #F97316;"></i><span>Buscar categoría</span>
-                    </a>
-                    <a th:href="@{/cursos/cohortes}" class="wf-dropdown-item-btn">
-                        <i class="fa-solid fa-people-roof me-2" style="color: #14B8A6;"></i><span>Buscar cohorte</span>
-                    </a>
-                    <a th:href="@{/inscripciones/descuentos}" class="wf-dropdown-item-btn">
-                        <i class="fa-solid fa-percent me-2" style="color: #EAB308;"></i><span>Buscar descuento</span>
-                    </a>
-                    <a th:href="@{/seguridad/usuarios}" class="wf-dropdown-item-btn">
-                        <i class="fa-solid fa-users-gear me-2" style="color: #3B82F6;"></i><span>Gestión de usuarios</span>
-                    </a>
-                    <a th:href="@{/auditoria}" class="wf-dropdown-item-btn">
-                        <i class="fa-solid fa-shield-halved me-2" style="color: #6366F1;"></i><span>Consultar auditoria</span>
-                    </a>
-                    <a th:href="@{/reportes/alumnos}" class="wf-dropdown-item-btn">
-                        <i class="fa-solid fa-user-graduate me-2" style="color: #0284C7;"></i><span>Informe de alumnos</span>
-                    </a>
-                    <a th:href="@{/reportes/ingresos}" class="wf-dropdown-item-btn">
-                        <i class="fa-solid fa-sack-dollar me-2" style="color: #059669;"></i><span>Informe de ingresos</span>
-                    </a>
-                    <a th:href="@{/reportes/estadisticas}" class="wf-dropdown-item-btn">
-                        <i class="fa-solid fa-chart-pie me-2" style="color: #A855F7;"></i><span>Consultar estadisticas</span>
-                    </a>
-                    <a th:href="@{/configuracion}" class="wf-dropdown-item-btn">
-                        <i class="fa-solid fa-sliders me-2" style="color: #64748B;"></i><span>Configurar parametros</span>
                     </a>
                 </div>
 
                 <!-- Menú de Cuenta para Todos -->
                 <div class="wf-dropdown-section">
                     <div class="wf-dropdown-section-title">Cuenta & Sesión</div>
-                    <button type="button" class="wf-dropdown-item-btn border-0 bg-transparent w-100 text-start" data-bs-toggle="modal" data-bs-target="#modalGlobalMiPerfil">
-                        <i class="fa-solid fa-id-card me-2" style="color: #3B82F6;"></i><span>Ver perfil</span>
-                    </button>
-                    <a th:href="@{/seguridad/sesiones}" class="wf-dropdown-item-btn">
-                        <i class="fa-solid fa-laptop-code me-2" style="color: #6366F1;"></i><span>Seguridad y sesiones activas</span>
-                    </a>
                     <button type="button" onclick="confirmarCerrarSesionNavbar()"
                         class="wf-dropdown-item-btn text-danger border-0 bg-transparent w-100 text-start">
                         <i class="fa-solid fa-right-from-bracket me-2" style="color: #EF4444;"></i><span>Cerrar sesión</span>
@@ -181,68 +112,7 @@
         </div>
     </div>
 
-    <!-- Modal Global de Mi Perfil y Edición Fiel al Prototipo UI -->
-    <div class="modal fade" id="modalGlobalMiPerfil" tabindex="-1" aria-labelledby="modalGlobalMiPerfilLabel" aria-hidden="true" th:if="${usuario != null}">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content" style="border-radius: 12px; overflow: hidden; border: 1.5px solid var(--wf-navy, #081426);">
-                <div class="p-3 d-flex justify-content-between align-items-center text-white" style="background: #081426; border-bottom: 2px solid var(--wf-gold);">
-                    <div class="d-flex align-items-center gap-2">
-                        <span class="wf-badge" style="background: #081426; color: var(--wf-gold); border-color: var(--wf-gold); font-size: 11px;">Mi Perfil</span>
-                        <strong style="font-size: 14px; color: #FFFFFF;"><i class="fa-solid fa-user-circle text-warning me-2"></i>Perfil de Usuario</strong>
-                    </div>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-
-                <form th:action="@{/seguridad/perfil/editar}" method="post">
-                    <div class="modal-body p-4 bg-white">
-                        <div class="d-flex align-items-center gap-3 pb-3 mb-3 border-bottom">
-                            <div style="width: 52px; height: 52px; border-radius: 50%; background: #081426; border: 2px solid var(--wf-gold); display: flex; align-items: center; justify-content: center; color: var(--wf-gold); font-size: 22px;">
-                                <i class="fa-solid fa-user-tie"></i>
-                            </div>
-                            <div>
-                                <h4 style="font-size: 16px; font-weight: 800; color: #081426; margin: 0;" th:text="${usuario.nombreCompleto}">Nombre Usuario</h4>
-                                <span class="badge bg-primary text-white" style="font-size: 10px;" th:text="${usuario.rol != null ? usuario.rol.nombre : 'Usuario'}">Rol</span>
-                            </div>
-                        </div>
-
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label class="wf-label">Nombre</label>
-                                <div class="wf-input-wrap">
-                                    <input type="text" name="nombre" th:value="${usuario.nombre}" class="wf-input" required>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="wf-label">Apellido</label>
-                                <div class="wf-input-wrap">
-                                    <input type="text" name="apellido" th:value="${usuario.apellido}" class="wf-input" required>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="wf-label">Correo Electrónico (Institucional)</label>
-                                <div class="wf-input-wrap">
-                                    <input type="email" th:value="${usuario.correo}" class="wf-input bg-light" disabled>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="wf-label">Teléfono de Contacto</label>
-                                <div class="wf-input-wrap">
-                                    <input type="tel" name="telefono" th:value="${usuario.telefono}" class="wf-input" placeholder="+54 11 4321-9876">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer d-flex justify-content-between p-3 border-top bg-light">
-                        <button type="button" class="wf-btn wf-btn-outline" data-bs-dismiss="modal">Cerrar</button>
-                        <button type="submit" class="wf-btn wf-btn-primary" style="background: var(--wf-navy); border-color: var(--wf-gold); color: #FFFFFF;">
-                            <i class="fa-solid fa-floppy-disk me-1"></i> Guardar Cambios
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-    <!-- SweetAlert2 CDN -->
+        <!-- SweetAlert2 CDN -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         function confirmarCerrarSesionNavbar() {
@@ -378,86 +248,7 @@
                     moveCapsule(activeElement);
                 }
             });
-
-            // Initialize Modo Edicion Switch State & Badge con persistencia Global
-            function syncModoEdicionUI() {
-                const editToggle = document.getElementById('navbarModoEdicionToggle');
-                const badgeEl = document.getElementById('navbarUserModeBadge');
-                const pathIsEdicion = window.location.pathname.includes('/edicion');
-
-                // Si la URL actual es /edicion se fuerza true, sino se toma la preferencia almacenada (por defecto false)
-                let isEditing = pathIsEdicion || (localStorage.getItem('idoneos_modo_edicion') === 'true');
-
-                if (editToggle) {
-                    editToggle.checked = isEditing;
-                }
-                if (badgeEl) {
-                    if (isEditing) {
-                        badgeEl.className = 'wf-nav-mode-badge mode-active';
-                        badgeEl.innerHTML = '<span class="wf-mode-dot pulse-gold"></span><span class="wf-mode-text">Modo Edición</span>';
-                    } else {
-                        badgeEl.className = 'wf-nav-mode-badge mode-student';
-                        badgeEl.innerHTML = '<span class="wf-mode-dot pulse-gray"></span><span class="wf-mode-text">Vista Alumno</span>';
-                    }
-                }
-                if (typeof window.syncCourseTabs === 'function') {
-                    window.syncCourseTabs();
-                }
-            }
-            syncModoEdicionUI();
         });
-
-        function toggleModoEdicionNavbar(container) {
-            const toggle = document.getElementById('navbarModoEdicionToggle');
-            if (toggle) {
-                toggle.checked = !toggle.checked;
-                redirectModoEdicion(toggle);
-            }
-        }
-
-        function redirectModoEdicion(toggle) {
-            const isEditing = toggle.checked;
-            localStorage.setItem('idoneos_modo_edicion', isEditing ? 'true' : 'false');
-
-            // Si nos encontramos en una vista de curso (/academico/curso/8 o /academico/curso/8/edicion)
-            const currentPath = window.location.pathname;
-            const match = currentPath.match(/\/academico\/curso\/(\d+)/);
-            if (match) {
-                const cursoId = match[1];
-                if (isEditing && !currentPath.includes('/edicion')) {
-                    window.location.href = `/academico/curso/${cursoId}/edicion`;
-                    return;
-                } else if (!isEditing && currentPath.includes('/edicion')) {
-                    window.location.href = `/academico/curso/${cursoId}`;
-                    return;
-                }
-            } else if (currentPath.startsWith('/academico/curso') && !currentPath.includes('/edicion') && isEditing) {
-                window.location.href = '/academico/curso/1/edicion';
-                return;
-            } else if (currentPath.startsWith('/academico/curso') && currentPath.includes('/edicion') && !isEditing) {
-                window.location.href = '/academico/curso/1';
-                return;
-            }
-
-            // Sincronizamos inmediatamente el badge y mostramos Toast
-            const badgeEl = document.getElementById('navbarUserModeBadge');
-            if (badgeEl) {
-                if (isEditing) {
-                    badgeEl.className = 'wf-nav-mode-badge mode-active';
-                    badgeEl.innerHTML = '<span class="wf-mode-dot pulse-gold"></span><span class="wf-mode-text">Modo Edición</span>';
-                    if (window.showIdoneosToast) window.showIdoneosToast('info', 'Modo Edición', 'Modo edición activado.');
-                } else {
-                    badgeEl.className = 'wf-nav-mode-badge mode-student';
-                    badgeEl.innerHTML = '<span class="wf-mode-dot pulse-gray"></span><span class="wf-mode-text">Vista Alumno</span>';
-                    if (window.showIdoneosToast) window.showIdoneosToast('info', 'Vista Alumno', 'Modo vista alumno activado.');
-                }
-            }
-
-            // Sincronizar visibilidad de pestañas de curso en tiempo real si el componente está en pantalla
-            if (typeof window.syncCourseTabs === 'function') {
-                window.syncCourseTabs();
-            }
-        }
 
         // Helper global para disparar SweetAlerts Toasts en operaciones básicas del sistema
         window.showIdoneosToast = function (tipo, titulo, mensaje) {

@@ -1,5 +1,16 @@
 package com.app.idoneos.servicio.Curso;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import org.springframework.transaction.annotation.Transactional;
+import com.app.idoneos.modelo.*;
+import com.app.idoneos.repositorio.*;
 import java.util.List;
 import java.util.Optional;
 import com.app.idoneos.modelo.Categoria;
@@ -19,6 +30,33 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
 
     @Autowired
     private CursoRepositorio cursoRepositorio;
+
+    @Autowired
+    private CategoriaRepositorio categoriaRepositorio;
+
+    @Autowired
+    private NivelRepositorio nivelRepositorio;
+
+    @Autowired
+    private ModalidadRepositorio modalidadRepositorio;
+
+    @Autowired
+    private DocenteRepositorio docenteRepositorio;
+
+    @Autowired
+    private CursoModalidadRepositorio cursoModalidadRepositorio;
+
+    @Autowired
+    private ParticipacionDocenteRepositorio participacionDocenteRepositorio;
+
+    @Autowired
+    private InscripcionRepositorio inscripcionRepositorio;
+
+    @Autowired
+    private ProgramaRepositorio programaRepositorio;
+
+    @Autowired
+    private UnidadRepositorio unidadRepositorio;
 
     /**
      * Guarda el curso en la base de datos.
@@ -118,5 +156,390 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
     @Override
     public Optional<Curso> buscarPorNombre(String nombre) {
         return cursoRepositorio.findByNombre(nombre);
+    }
+
+    /**
+     * Busca cursos aplicando filtros opcionales. Incluye los cursos dados de baja, que se ordenan al final
+     * (o al principio, si se indica).
+     *
+     * @param texto parte del nombre o la descripción del curso (opcional)
+     * @param idCategoria identificador de la categoría (opcional)
+     * @param idNivel identificador del nivel (opcional)
+     * @param idDocente identificador de un docente del equipo docente (opcional)
+     * @param idModalidad identificador de una modalidad de dictado (opcional)
+     * @param bajasPrimero si es {@code true}, los cursos dados de baja se listan primero
+     * @param soloDeDocente si no es {@code null}, restringe el resultado a los cursos en los que ese docente participa
+     * @return una lista de cursos que cumplen los criterios
+     */
+    @Override
+    public List<Curso> buscarConFiltros(String texto, Integer idCategoria, Integer idNivel, Integer idDocente,
+            Integer idModalidad, boolean bajasPrimero, Docente soloDeDocente) {
+        String criterio = texto == null ? "" : texto.trim().toLowerCase();
+        Comparator<Curso> orden = Comparator
+                .comparing((Curso curso) -> bajasPrimero ? !curso.esInactivo() : curso.esInactivo())
+                .thenComparing(Comparator.comparingInt(Curso::getIdCurso).reversed());
+        return cursoRepositorio.findAll().stream()
+                .filter(curso -> criterio.isEmpty() || curso.getNombre().toLowerCase().contains(criterio)
+                        || (curso.getDescripcion() != null && curso.getDescripcion().toLowerCase().contains(criterio)))
+                .filter(curso -> idCategoria == null || curso.getCategoria().getIdCategoria() == idCategoria)
+                .filter(curso -> idNivel == null || curso.getNivel().getIdNivel() == idNivel)
+                .filter(curso -> idDocente == null || participa(curso, idDocente))
+                .filter(curso -> idModalidad == null || curso.getModalidades().stream()
+                        .anyMatch(modalidad -> modalidad.getIdModalidad() == idModalidad))
+                .filter(curso -> soloDeDocente == null || participa(curso, soloDeDocente.getIdDocente()))
+                .sorted(orden)
+                .toList();
+    }
+
+    /**
+     * Busca los cursos del catálogo público: cursos activos con al menos una cohorte con inscripción abierta.
+     *
+     * @param texto parte del nombre o la descripción del curso (opcional)
+     * @param idCategoria identificador de la categoría (opcional)
+     * @param idNivel identificador del nivel (opcional)
+     * @param idDocente identificador de un docente del equipo docente (opcional)
+     * @param idModalidad identificador de una modalidad de dictado (opcional)
+     * @return una lista de cursos con cohortes abiertas
+     */
+    @Override
+    public List<Curso> buscarEnCatalogo(String texto, Integer idCategoria, Integer idNivel, Integer idDocente,
+            Integer idModalidad) {
+        return buscarConFiltros(texto, idCategoria, idNivel, idDocente, idModalidad, false, null).stream()
+                .filter(curso -> !curso.esInactivo())
+                .filter(curso -> !buscarCohortesAbiertas(curso).isEmpty())
+                .toList();
+    }
+
+    /**
+     * Busca las cohortes con inscripción abierta de un curso.
+     *
+     * @param curso el curso a consultar
+     * @return una lista de cohortes abiertas, de la que abre antes a la que abre después
+     */
+    @Override
+    public List<Cohorte> buscarCohortesAbiertas(Curso curso) {
+        return curso.getProgramas().stream()
+                .filter(programa -> !programa.esInactivo())
+                .flatMap(programa -> programa.getCohortes().stream())
+                .filter(cohorte -> !cohorte.esInactivo() && cohorte.estaAbierta())
+                .sorted(Comparator.comparing(Cohorte::getFechaInicioInscripcion))
+                .toList();
+    }
+
+    /**
+     * Verifica si un curso tiene inscripciones activas asociadas.
+     *
+     * @param curso el curso a consultar
+     * @return {@code true} si tiene al menos una inscripción activa
+     */
+    @Override
+    public boolean tieneInscripcionesActivas(Curso curso) {
+        return inscripcionRepositorio.contarActivasPorCurso(curso) > 0;
+    }
+
+    /**
+     * Verifica si un curso tiene programas o unidades activos asociados.
+     *
+     * @param curso el curso a consultar
+     * @return {@code true} si tiene al menos un programa o una unidad activos
+     */
+    @Override
+    public boolean tieneProgramasOUnidadesActivas(Curso curso) {
+        return !programaRepositorio.findByCursoAndBajaFalse(curso).isEmpty()
+                || !unidadRepositorio.findByCursoAndBajaFalse(curso).isEmpty();
+    }
+
+    /**
+     * Registra un curso con sus modalidades de dictado y su equipo docente.
+     *
+     * @param nombre el nombre del curso
+     * @param descripcion la descripción del curso (opcional)
+     * @param precio el precio del curso
+     * @param imagen la ruta de la imagen de portada (opcional)
+     * @param idCategoria el identificador de la categoría
+     * @param idNivel el identificador del nivel
+     * @param emiteCertificado si el curso emite certificado al finalizar
+     * @param idsModalidades los identificadores de las modalidades de dictado
+     * @param idDocenteTitular el identificador del docente titular
+     * @param idDocenteAyudante el identificador del docente ayudante (opcional)
+     * @return el curso registrado
+     * @throws IllegalArgumentException si no se cumple alguna regla de registro
+     */
+    @Override
+    @Transactional
+    public Curso registrarCurso(String nombre, String descripcion, Float precio, String imagen, Integer idCategoria,
+            Integer idNivel, boolean emiteCertificado, List<Integer> idsModalidades, Integer idDocenteTitular,
+            Integer idDocenteAyudante) {
+        validarCamposObligatorios(nombre, precio, idCategoria, idNivel, idsModalidades, idDocenteTitular);
+        Categoria categoria = obtenerCategoriaActiva(idCategoria);
+        Nivel nivel = obtenerNivel(idNivel);
+        Docente titular = obtenerDocenteHabilitado(idDocenteTitular);
+        Docente ayudante = idDocenteAyudante == null ? null : obtenerDocenteHabilitado(idDocenteAyudante);
+        validarTitularDistintoDeAyudante(titular, ayudante);
+        validarPrecio(precio);
+        String nombreLimpio = nombre.trim();
+        if (cursoRepositorio.findByNombre(nombreLimpio).isPresent()) {
+            throw new IllegalArgumentException("Error! Ya existe un curso con el nombre '" + nombreLimpio + "'.");
+        }
+
+        Curso curso = new Curso(nivel, categoria, nombreLimpio, precio);
+        curso.setDescripcion(vacioANulo(descripcion));
+        curso.setImagen(vacioANulo(imagen));
+        curso.setEmiteCertificado(emiteCertificado);
+        curso = cursoRepositorio.save(curso);
+        sincronizarModalidades(curso, idsModalidades);
+        sincronizarEquipoDocente(curso, titular, ayudante);
+        return curso;
+    }
+
+    /**
+     * Modifica un curso activo. Si tiene inscripciones activas, solo pueden modificarse el precio,
+     * el equipo docente y la imagen de portada.
+     *
+     * @param idCurso el identificador del curso
+     * @param nombre el nombre del curso
+     * @param descripcion la descripción del curso (opcional)
+     * @param precio el precio del curso
+     * @param imagen la ruta de la imagen de portada (opcional, si es nula se conserva la actual)
+     * @param idCategoria el identificador de la categoría
+     * @param idNivel el identificador del nivel
+     * @param emiteCertificado si el curso emite certificado al finalizar
+     * @param idsModalidades los identificadores de las modalidades de dictado
+     * @param idDocenteTitular el identificador del docente titular
+     * @param idDocenteAyudante el identificador del docente ayudante (opcional)
+     * @return el curso modificado
+     * @throws IllegalArgumentException si no se cumple alguna regla de modificación
+     */
+    @Override
+    @Transactional
+    public Curso modificarCurso(Integer idCurso, String nombre, String descripcion, Float precio, String imagen,
+            Integer idCategoria, Integer idNivel, boolean emiteCertificado, List<Integer> idsModalidades,
+            Integer idDocenteTitular, Integer idDocenteAyudante) {
+        Curso curso = cursoRepositorio.findById(idCurso).filter(c -> !c.esInactivo())
+                .orElseThrow(() -> new IllegalArgumentException("Error! El curso no se encuentra activo."));
+        validarCamposObligatorios(nombre, precio, idCategoria, idNivel, idsModalidades, idDocenteTitular);
+        if (tieneInscripcionesActivas(curso)
+                && cambiaDatosRestringidos(curso, nombre, descripcion, idCategoria, idNivel, emiteCertificado, idsModalidades)) {
+            throw new IllegalArgumentException("Error! El curso tiene inscripciones activas: solo pueden modificarse "
+                    + "el precio, el equipo docente y la imagen de portada.");
+        }
+        Categoria categoria = obtenerCategoriaActiva(idCategoria);
+        Nivel nivel = obtenerNivel(idNivel);
+        Docente titular = obtenerDocenteHabilitado(idDocenteTitular);
+        Docente ayudante = idDocenteAyudante == null ? null : obtenerDocenteHabilitado(idDocenteAyudante);
+        validarTitularDistintoDeAyudante(titular, ayudante);
+        validarDesvinculaciones(curso, titular, ayudante);
+        validarModalidadesEliminadas(curso, idsModalidades);
+        validarPrecio(precio);
+        String nombreLimpio = nombre.trim();
+        cursoRepositorio.findByNombre(nombreLimpio).filter(otro -> otro.getIdCurso() != idCurso).ifPresent(otro -> {
+            throw new IllegalArgumentException("Error! Ya existe un curso con el nombre '" + nombreLimpio + "'.");
+        });
+
+        curso.setNombre(nombreLimpio);
+        curso.setDescripcion(vacioANulo(descripcion));
+        curso.setPrecio(precio);
+        if (imagen != null && !imagen.isBlank()) {
+            curso.setImagen(imagen.trim());
+        }
+        curso.setCategoria(categoria);
+        curso.setNivel(nivel);
+        curso.setEmiteCertificado(emiteCertificado);
+        curso.setUltimaModificacion(LocalDateTime.now());
+        curso = cursoRepositorio.save(curso);
+        sincronizarModalidades(curso, idsModalidades);
+        sincronizarEquipoDocente(curso, titular, ayudante);
+        return curso;
+    }
+
+    /**
+     * Da de baja un curso activo que no tenga programas ni unidades activas asociadas.
+     *
+     * @param idCurso el identificador del curso
+     * @throws IllegalArgumentException si el curso no está activo o tiene programas o unidades activas
+     */
+    @Override
+    @Transactional
+    public void darDeBajaCurso(Integer idCurso) {
+        Curso curso = cursoRepositorio.findById(idCurso).filter(c -> !c.esInactivo())
+                .orElseThrow(() -> new IllegalArgumentException("Error! El curso no se encuentra activo."));
+        if (tieneProgramasOUnidadesActivas(curso)) {
+            throw new IllegalArgumentException("Error! El curso tiene programas y/o unidades activas asociadas. "
+                    + "Dé de baja primero sus programas y unidades.");
+        }
+        curso.marcarInactivo();
+        curso.setUltimaModificacion(LocalDateTime.now());
+        cursoRepositorio.save(curso);
+    }
+
+    // ---------------------------------------------------------------- métodos auxiliares
+
+    private boolean participa(Curso curso, int idDocente) {
+        return curso.getEquipoDocente().stream()
+                .anyMatch(participacion -> participacion.getDocente().getIdDocente() == idDocente);
+    }
+
+    private String vacioANulo(String texto) {
+        return (texto == null || texto.isBlank()) ? null : texto.trim();
+    }
+
+    private void validarCamposObligatorios(String nombre, Float precio, Integer idCategoria, Integer idNivel,
+            List<Integer> idsModalidades, Integer idDocenteTitular) {
+        List<String> faltantes = new ArrayList<>();
+        if (nombre == null || nombre.isBlank()) faltantes.add("nombre");
+        if (precio == null) faltantes.add("precio");
+        if (idCategoria == null) faltantes.add("categoría");
+        if (idNivel == null) faltantes.add("nivel");
+        if (idsModalidades == null || idsModalidades.isEmpty()) faltantes.add("al menos una modalidad");
+        if (idDocenteTitular == null) faltantes.add("docente titular");
+        if (!faltantes.isEmpty()) {
+            throw new IllegalArgumentException("Error! Faltan completar los campos obligatorios: "
+                    + String.join(", ", faltantes) + ".");
+        }
+    }
+
+    private void validarPrecio(Float precio) {
+        if (precio < 0) {
+            throw new IllegalArgumentException("Error! El precio ingresado debe ser mayor o igual a cero.");
+        }
+    }
+
+    private Categoria obtenerCategoriaActiva(Integer idCategoria) {
+        return categoriaRepositorio.findById(idCategoria).filter(categoria -> !categoria.esInactivo())
+                .orElseThrow(() -> new IllegalArgumentException("Error! La categoría seleccionada no se encuentra activa."));
+    }
+
+    private Nivel obtenerNivel(Integer idNivel) {
+        return nivelRepositorio.findById(idNivel)
+                .orElseThrow(() -> new IllegalArgumentException("Error! El nivel seleccionado no existe."));
+    }
+
+    private Docente obtenerDocenteHabilitado(Integer idDocente) {
+        Docente docente = docenteRepositorio.findById(idDocente)
+                .orElseThrow(() -> new IllegalArgumentException("Error! El docente seleccionado no existe."));
+        if (!docente.estaHabilitado()) {
+            throw new IllegalArgumentException("Error! El docente " + docente.getUsuario().getNombreCompleto()
+                    + " no se encuentra activo o habilitado.");
+        }
+        return docente;
+    }
+
+    private void validarTitularDistintoDeAyudante(Docente titular, Docente ayudante) {
+        if (ayudante != null && titular.getIdDocente() == ayudante.getIdDocente()) {
+            throw new IllegalArgumentException("Error! El docente titular no puede ser también ayudante del curso.");
+        }
+    }
+
+    private Set<Integer> modalidadesActuales(Curso curso) {
+        Set<Integer> ids = new HashSet<>();
+        curso.getCursoModalidades().forEach(cm -> ids.add(cm.getModalidad().getIdModalidad()));
+        return ids;
+    }
+
+    private boolean cambiaDatosRestringidos(Curso curso, String nombre, String descripcion, Integer idCategoria,
+            Integer idNivel, boolean emiteCertificado, List<Integer> idsModalidades) {
+        return !curso.getNombre().equals(nombre.trim())
+                || !Objects.equals(vacioANulo(curso.getDescripcion()), vacioANulo(descripcion))
+                || curso.getCategoria().getIdCategoria() != idCategoria
+                || curso.getNivel().getIdNivel() != idNivel
+                || curso.getEmiteCertificado() != emiteCertificado
+                || !modalidadesActuales(curso).equals(new HashSet<>(idsModalidades));
+    }
+
+    private boolean tieneActividadVigente(ParticipacionDocente participacion) {
+        return participacion.getClasesEnVivo().stream().anyMatch(clase -> !clase.getBaja())
+                || participacion.getClasesClon().stream().anyMatch(clase -> !clase.getBaja())
+                || participacion.getMateriales().stream().anyMatch(material -> !material.getBaja());
+    }
+
+    private void validarDesvinculaciones(Curso curso, Docente titular, Docente ayudante) {
+        Set<Integer> nuevos = new HashSet<>();
+        nuevos.add(titular.getIdDocente());
+        if (ayudante != null) nuevos.add(ayudante.getIdDocente());
+        for (ParticipacionDocente participacion : curso.getEquipoDocente()) {
+            if (!nuevos.contains(participacion.getDocente().getIdDocente()) && tieneActividadVigente(participacion)) {
+                throw new IllegalArgumentException("Error! El docente " + participacion.getDocente().getUsuario().getNombreCompleto()
+                        + " tiene clases y/o material activo en el curso. Dé de baja primero sus clases y materiales "
+                        + "para poder desvincularlo.");
+            }
+        }
+    }
+
+    private void validarModalidadesEliminadas(Curso curso, List<Integer> idsNuevas) {
+        for (CursoModalidad cursoModalidad : curso.getCursoModalidades()) {
+            if (idsNuevas.contains(cursoModalidad.getModalidad().getIdModalidad())) continue;
+            String nombre = cursoModalidad.getModalidad().getNombre();
+            boolean enVivo = curso.getParticipacionesDocente().stream()
+                    .anyMatch(p -> p.getClasesEnVivo().stream().anyMatch(clase -> !clase.getBaja()));
+            boolean clon = curso.getParticipacionesDocente().stream()
+                    .anyMatch(p -> p.getClasesClon().stream().anyMatch(clase -> !clase.getBaja()));
+            if ((Modalidad.EN_VIVO.equals(nombre) && enVivo) || (Modalidad.CLON_IA.equals(nombre) && clon)) {
+                throw new IllegalArgumentException("Error! No puede quitarse la modalidad '" + nombre
+                        + "' porque el curso tiene clases activas de esa modalidad.");
+            }
+        }
+    }
+
+    private void sincronizarModalidades(Curso curso, List<Integer> idsModalidades) {
+        Set<Integer> deseadas = new HashSet<>(idsModalidades);
+        for (CursoModalidad actual : new ArrayList<>(curso.getCursoModalidades())) {
+            if (deseadas.contains(actual.getModalidad().getIdModalidad())) {
+                deseadas.remove(actual.getModalidad().getIdModalidad());
+            } else {
+                curso.getCursoModalidades().remove(actual);
+                cursoModalidadRepositorio.delete(actual);
+            }
+        }
+        for (Integer idModalidad : deseadas) {
+            Modalidad modalidad = modalidadRepositorio.findById(idModalidad)
+                    .orElseThrow(() -> new IllegalArgumentException("Error! La modalidad seleccionada no existe."));
+            curso.getCursoModalidades().add(cursoModalidadRepositorio.save(new CursoModalidad(curso, modalidad)));
+        }
+    }
+
+    private void sincronizarEquipoDocente(Curso curso, Docente titular, Docente ayudante) {
+        Map<Integer, Docente> docentes = new LinkedHashMap<>();
+        Map<Integer, Boolean> titulares = new LinkedHashMap<>();
+        docentes.put(titular.getIdDocente(), titular);
+        titulares.put(titular.getIdDocente(), true);
+        if (ayudante != null) {
+            docentes.put(ayudante.getIdDocente(), ayudante);
+            titulares.put(ayudante.getIdDocente(), false);
+        }
+        for (ParticipacionDocente participacion : new ArrayList<>(curso.getParticipacionesDocente())) {
+            Integer idDocente = participacion.getDocente().getIdDocente();
+            if (titulares.containsKey(idDocente)) {
+                participacion.setEsTitular(titulares.get(idDocente));
+                participacion.setBaja(false);
+                participacion.setUltimaModificacion(LocalDateTime.now());
+                participacionDocenteRepositorio.save(participacion);
+                docentes.remove(idDocente);
+            } else if (!participacion.esInactivo()) {
+                participacion.marcarInactivo();
+                participacion.setProgramaPorDefecto(null);
+                participacion.setCohortePorDefecto(null);
+                participacion.setUltimaModificacion(LocalDateTime.now());
+                participacionDocenteRepositorio.save(participacion);
+            }
+        }
+        for (Docente docente : docentes.values()) {
+            curso.getParticipacionesDocente().add(participacionDocenteRepositorio
+                    .save(new ParticipacionDocente(curso, docente, titulares.get(docente.getIdDocente()))));
+        }
+    }
+
+    /**
+     * Busca las inscripciones activas (no dadas de baja) de un curso, a través de sus programas y cohortes.
+     *
+     * @param curso el curso a consultar
+     * @return una lista de inscripciones activas del curso
+     */
+    @Override
+    public List<Inscripcion> buscarInscripcionesActivas(Curso curso) {
+        return curso.getProgramas().stream()
+                .flatMap(programa -> programa.getCohortes().stream())
+                .flatMap(cohorte -> cohorte.getInscripciones().stream())
+                .filter(inscripcion -> !inscripcion.esInactivo())
+                .toList();
     }
 }

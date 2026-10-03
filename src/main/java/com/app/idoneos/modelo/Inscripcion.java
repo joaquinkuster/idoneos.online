@@ -144,4 +144,45 @@ public class Inscripcion {
     public String toString() {
         return "Inscripcion #" + idInscripcion;
     }
+
+    /**
+     * Obtiene el curso al que pertenece la inscripción, a través de su cohorte y programa.
+     *
+     * @return El curso de la inscripción.
+     */
+    public Curso getCurso() {
+        return cohorte.getPrograma().getCurso();
+    }
+
+    /**
+     * Cuenta las unidades del cronograma del programa que el alumno ya completó.
+     *
+     * @return La cantidad de unidades completadas.
+     */
+    public int getUnidadesCompletadas() {
+        return (int) progresos.stream().filter(Progreso::getCompletada).count();
+    }
+
+    /**
+     * Calcula el progreso general del alumno en el curso, según las unidades completadas.
+     *
+     * @return El porcentaje de progreso (0-100).
+     */
+    public int getPorcentajeProgreso() {
+        int total = cohorte.getPrograma().getCantidadUnidades();
+        return total == 0 ? 0 : Math.min(100, getUnidadesCompletadas() * 100 / total);
+    }
+
+    /**
+     * Calcula el estado de la inscripción: Pendiente (sin unidades completadas), En Progreso o Finalizado.
+     *
+     * @return El estado de la inscripción.
+     */
+    public String getEstado() {
+        int porcentaje = getPorcentajeProgreso();
+        if (porcentaje >= 100) {
+            return "Finalizado";
+        }
+        return getUnidadesCompletadas() == 0 ? "Pendiente" : "En Progreso";
+    }
 }

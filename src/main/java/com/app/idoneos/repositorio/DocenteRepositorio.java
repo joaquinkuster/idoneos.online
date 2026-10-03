@@ -1,5 +1,6 @@
 package com.app.idoneos.repositorio;
 
+import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 import java.util.Optional;
 import com.app.idoneos.modelo.Docente;
@@ -45,4 +46,14 @@ public interface DocenteRepositorio extends JpaRepository<Docente, Integer> {
      * @return un {@link Optional} con el registro si existe, o vacío si no se encuentra
      */
     Optional<Docente> findByVoiceId(String voiceId);
+
+    /**
+     * Encuentra los docentes activos y habilitados: habilitados para dictar, con su usuario vigente
+     * y con el rol de docente vigente.
+     *
+     * @return Una lista de {@link Docente} habilitados.
+     */
+    @Query("SELECT d FROM Docente d WHERE d.habilitado = true AND d.usuario.baja = false AND EXISTS "
+            + "(SELECT ru FROM RolUsuario ru WHERE ru.usuario = d.usuario AND ru.baja = false AND ru.rol.nombre = 'Docente')")
+    List<Docente> findHabilitados();
 }

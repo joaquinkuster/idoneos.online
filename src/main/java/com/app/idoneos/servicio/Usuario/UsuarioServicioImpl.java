@@ -98,6 +98,17 @@ public class UsuarioServicioImpl implements UsuarioServicio, CrudServicio<Usuari
     }
 
     /**
+     * Busca el usuario por su atributo único 'correo'. Incluye los registros dados de baja, para poder reactivarlos en lugar de duplicarlos.
+     *
+     * @param correo el valor de 'correo' a buscar
+     * @return un {@link Optional} con el registro si existe, o vacío si no se encuentra
+     */
+    @Override
+    public Optional<Usuario> buscarPorCorreo(String correo) {
+        return usuarioRepositorio.findByCorreo(correo);
+    }
+
+    /**
      * Busca el usuario por su atributo único 'dni'. Incluye los registros dados de baja, para poder reactivarlos en lugar de duplicarlos.
      *
      * @param dni el valor de 'dni' a buscar
@@ -106,17 +117,6 @@ public class UsuarioServicioImpl implements UsuarioServicio, CrudServicio<Usuari
     @Override
     public Optional<Usuario> buscarPorDni(String dni) {
         return usuarioRepositorio.findByDni(dni);
-    }
-
-    /**
-     * Busca el usuario por su atributo único 'email'. Incluye los registros dados de baja, para poder reactivarlos en lugar de duplicarlos.
-     *
-     * @param email el valor de 'email' a buscar
-     * @return un {@link Optional} con el registro si existe, o vacío si no se encuentra
-     */
-    @Override
-    public Optional<Usuario> buscarPorEmail(String email) {
-        return usuarioRepositorio.findByEmail(email);
     }
 
     /**

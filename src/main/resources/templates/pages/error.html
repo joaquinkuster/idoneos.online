@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${titulo != null ? titulo : 'Error | Idóneos Online'}">Error | Idóneos Online</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- Estilos del Sistema Centralizados -->
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body class="wf-canvas-bg">
+
+    <div class="cu-page-container">
+        <div class="screen-frame">
+
+            <!-- Top Navbar Oficial Dinámica -->
+            <div th:replace="~{fragments/wf_navbar :: wf-top-navbar}"></div>
+
+            <!-- Hero Banner Contextual Superior (Navy) -->
+            <div class="wf-hero-banner">
+                <div>
+                    <div class="wf-hero-tag">
+                        <i class="fa-solid fa-triangle-exclamation" style="color: var(--wf-gold);"></i>
+                        <span th:text="${'ERROR ' + codigo}">ERROR 404</span>
+                    </div>
+                    <h2 class="wf-hero-title" th:text="${encabezado}">Página no encontrada</h2>
+                    <p class="wf-hero-desc" th:text="${detalle}">La página que buscás no existe o fue movida.</p>
+                </div>
+            </div>
+
+            <div class="wf-body">
+                <div class="wf-main-content">
+                    <div class="wf-card text-center py-5" style="background: #FFFFFF;">
+                        <div class="mb-3" style="font-size: 56px; color: var(--wf-gold, #D4A03D);">
+                            <i class="fa-solid fa-compass"></i>
+                        </div>
+                        <h4 class="fw-bold mb-2" style="color: #081426;" th:text="${encabezado}">Página no encontrada</h4>
+                        <p class="text-muted mb-4" th:text="${detalle}">La página que buscás no existe o fue movida.</p>
+                        <div class="d-flex justify-content-center gap-2">
+                            <a th:href="@{/inicio}" class="wf-btn wf-btn-primary text-decoration-none">
+                                <i class="fa-solid fa-house me-1"></i> Volver al inicio
+                            </a>
+                            <a th:href="@{/cursos/catalogo}" class="wf-btn wf-btn-outline text-decoration-none">
+                                <i class="fa-solid fa-book-open me-1"></i> Explorar el catálogo
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Oficial -->
+            <div class="wf-screen-footer">
+                <div>
+                    <strong>Idóneos <span>Online</span> S.A.S.</strong> • Plataforma de Educación Financiera, Economía &amp; Mercado de Capitales
+                </div>
+                <div>
+                    FCEQyN — UNaM • Proyecto Software (LSI) / Trabajo Final (ASI)
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Scripts Globales -->
+    <div th:replace="~{fragments/scripts :: scripts}"></div>
+</body>
+</html>

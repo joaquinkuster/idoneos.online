@@ -280,30 +280,49 @@
           <div class="wf-card mb-4"
             style="background: #FFFFFF; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.03);">
             <form th:action="@{/cursos/catalogo}" method="get" class="row align-items-end g-3 p-2">
-              <div class="col-lg-5">
-                <label class="wf-label fw-bold"
-                  style="font-size: 12px; letter-spacing: 0.5px; text-transform: uppercase;">
-                  BUSCAR CURSOS POR TEMÁTICA O PALABRA CLAVE
-                </label>
-                <input type="text" name="busqueda" th:value="${busqueda}" class="wf-input"
-                  placeholder="Ej: Bonos, Futuros, Renta Fija, Criptomonedas...">
-              </div>
               <div class="col-lg-4">
-                <label class="wf-label fw-bold"
-                  style="font-size: 12px; letter-spacing: 0.5px; text-transform: uppercase;">
-                  FILTRAR POR CATEGORÍA / NIVEL
-                </label>
+                <label class="wf-label fw-bold" style="font-size: 12px; letter-spacing: 0.5px; text-transform: uppercase;">Nombre o palabra clave</label>
+                <input type="text" name="busqueda" th:value="${busqueda}" class="wf-input" placeholder="Ej: Bonos, Macroeconomía...">
+              </div>
+              <div class="col-lg-2">
+                <label class="wf-label fw-bold" style="font-size: 12px; letter-spacing: 0.5px; text-transform: uppercase;">Categoría</label>
                 <select name="categoriaId" class="wf-input">
-                  <option value="">Todas las categorías</option>
-                  <option th:each="cat : ${categorias}" th:value="${cat.id}" th:text="${cat.nombre}"
-                    th:selected="${categoriaSeleccionada != null and categoriaSeleccionada == cat.id}">Categoría
-                  </option>
+                  <option value="">Todas</option>
+                  <option th:each="cat : ${categorias}" th:value="${cat.idCategoria}" th:text="${cat.nombre}"
+                    th:selected="${categoriaSeleccionada != null and categoriaSeleccionada == cat.idCategoria}">Categoría</option>
                 </select>
               </div>
-              <div class="col-lg-3">
+              <div class="col-lg-2">
+                <label class="wf-label fw-bold" style="font-size: 12px; letter-spacing: 0.5px; text-transform: uppercase;">Nivel</label>
+                <select name="nivelId" class="wf-input">
+                  <option value="">Todos</option>
+                  <option th:each="n : ${niveles}" th:value="${n.idNivel}" th:text="${n.nombre}"
+                    th:selected="${nivelSeleccionado != null and nivelSeleccionado == n.idNivel}">Nivel</option>
+                </select>
+              </div>
+              <div class="col-lg-2">
+                <label class="wf-label fw-bold" style="font-size: 12px; letter-spacing: 0.5px; text-transform: uppercase;">Docente</label>
+                <select name="docenteId" class="wf-input">
+                  <option value="">Todos</option>
+                  <option th:each="d : ${docentes}" th:value="${d.idDocente}" th:text="${d.usuario.nombreCompleto}"
+                    th:selected="${docenteSeleccionado != null and docenteSeleccionado == d.idDocente}">Docente</option>
+                </select>
+              </div>
+              <div class="col-lg-2">
+                <label class="wf-label fw-bold" style="font-size: 12px; letter-spacing: 0.5px; text-transform: uppercase;">Modalidad</label>
+                <select name="modalidadId" class="wf-input">
+                  <option value="">Todas</option>
+                  <option th:each="m : ${modalidades}" th:value="${m.idModalidad}" th:text="${m.nombre}"
+                    th:selected="${modalidadSeleccionada != null and modalidadSeleccionada == m.idModalidad}">Modalidad</option>
+                </select>
+              </div>
+              <div class="col-12 d-flex justify-content-end gap-2">
+                <a th:href="@{/cursos/catalogo}" class="wf-btn wf-btn-outline d-flex align-items-center gap-2" style="height: 42px; text-decoration: none;">
+                  <i class="fa-solid fa-eraser"></i><span>Limpiar</span>
+                </a>
                 <button type="submit"
-                  class="wf-btn wf-btn-primary w-100 d-flex align-items-center justify-content-center gap-2"
-                  style="background: #081426; border-color: #081426; font-weight: 700; height: 42px;">
+                  class="wf-btn wf-btn-primary d-flex align-items-center justify-content-center gap-2"
+                  style="background: #081426; border-color: #081426; font-weight: 700; height: 42px; min-width: 190px;">
                   <i class="fa-solid fa-magnifying-glass"></i>
                   <span>Explorar Catálogo</span>
                 </button>
@@ -317,16 +336,15 @@
             <!-- Columna Izquierda: Tarjetas de Cursos -->
             <div class="col-lg-5 col-md-6">
               <div th:if="${cursos == null or #lists.isEmpty(cursos)}" class="alert alert-info">
-                <i class="fa-solid fa-circle-info me-2"></i> No se encontraron cursos publicados con los filtros
-                seleccionados.
+                <i class="fa-solid fa-circle-info me-2"></i> No se encontraron cursos con cohortes abiertas que coincidan con los filtros seleccionados.
               </div>
 
               <div th:each="c : ${cursos}"
-                th:class="'cu06-course-card ' + (${cursoSeleccionado != null and cursoSeleccionado.id == c.id} ? 'active' : '')">
+                th:class="'cu06-course-card ' + (${cursoSeleccionado != null and cursoSeleccionado.idCurso == c.idCurso} ? 'active' : '')">
 
                 <div class="cu06-course-header">
                   <span class="cu06-tag-pill"
-                    th:text="${c.categoria != null ? c.categoria.nombre : 'MERCADO DE CAPITALES'}">MERCADO DE
+                    th:text="${c.categoria.nombre}">MERCADO DE
                     CAPITALES</span>
                   <span class="cu06-status-pill">
                     <i class="fa-solid fa-circle" style="font-size: 8px;"></i> Inscripción Abierta
@@ -344,7 +362,7 @@
                     <span>
                       <i class="fa-solid fa-book-open me-2 text-secondary"></i>
                       <span
-                        th:text="${(cantUnidadesPorCurso != null and cantUnidadesPorCurso.containsKey(c.id) ? cantUnidadesPorCurso.get(c.id) : 3) + ' Unidades temáticas'}">4
+                        th:text="${(cantUnidadesPorCurso != null and cantUnidadesPorCurso.containsKey(c.idCurso) ? cantUnidadesPorCurso.get(c.idCurso) : 0) + ' Unidades temáticas'}">4
                         Unidades temáticas</span>
                     </span>
                     <span class="cu06-card-price"
@@ -352,10 +370,10 @@
                       ARS</span>
                   </div>
 
-                  <a th:href="@{/cursos/catalogo(cursoId=${c.id}, page=${currentPage}, categoriaId=${categoriaSeleccionada}, busqueda=${busqueda})}"
+                  <a th:href="@{/cursos/catalogo(cursoId=${c.idCurso}, page=${currentPage}, categoriaId=${categoriaSeleccionada}, nivelId=${nivelSeleccionado}, docenteId=${docenteSeleccionado}, modalidadId=${modalidadSeleccionada}, busqueda=${busqueda})}"
                     class="cu06-btn-view">
                     <i class="fa-solid fa-id-card"></i>
-                    <span>Ver Ficha / Inscribirme</span>
+                    <span>Ver ficha del curso</span>
                   </a>
                 </div>
               </div>
@@ -370,7 +388,7 @@
                 </div>
                 <div class="d-flex gap-1">
                   <!-- Botón Anterior -->
-                  <a th:href="@{/cursos/catalogo(page=${currentPage - 1}, categoriaId=${categoriaSeleccionada}, busqueda=${busqueda})}"
+                  <a th:href="@{/cursos/catalogo(page=${currentPage - 1}, categoriaId=${categoriaSeleccionada}, nivelId=${nivelSeleccionado}, docenteId=${docenteSeleccionado}, modalidadId=${modalidadSeleccionada}, busqueda=${busqueda})}"
                     th:class="'btn btn-sm ' + (${currentPage == 0} ? 'btn-light disabled border' : 'btn-dark text-white')"
                     style="border-radius: 8px; font-weight: 600; padding: 6px 12px;">
                     <i class="fa-solid fa-chevron-left"></i>
@@ -378,7 +396,7 @@
 
                   <!-- Números de Página -->
                   <th:block th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
-                    <a th:href="@{/cursos/catalogo(page=${i}, categoriaId=${categoriaSeleccionada}, busqueda=${busqueda})}"
+                    <a th:href="@{/cursos/catalogo(page=${i}, categoriaId=${categoriaSeleccionada}, nivelId=${nivelSeleccionado}, docenteId=${docenteSeleccionado}, modalidadId=${modalidadSeleccionada}, busqueda=${busqueda})}"
                       th:text="${i + 1}"
                       th:class="'btn btn-sm ' + (${currentPage == i} ? 'btn-warning text-dark fw-bold' : 'btn-light border text-secondary')"
                       th:style="${currentPage == i ? 'border-radius: 8px; min-width: 34px; font-weight: 800; background: var(--wf-gold); border-color: var(--wf-gold);' : 'border-radius: 8px; min-width: 34px; font-weight: 700;'}">
@@ -387,7 +405,7 @@
                   </th:block>
 
                   <!-- Botón Siguiente -->
-                  <a th:href="@{/cursos/catalogo(page=${currentPage + 1}, categoriaId=${categoriaSeleccionada}, busqueda=${busqueda})}"
+                  <a th:href="@{/cursos/catalogo(page=${currentPage + 1}, categoriaId=${categoriaSeleccionada}, nivelId=${nivelSeleccionado}, docenteId=${docenteSeleccionado}, modalidadId=${modalidadSeleccionada}, busqueda=${busqueda})}"
                     th:class="'btn btn-sm ' + (${currentPage + 1 >= totalPages} ? 'btn-light disabled border' : 'btn-dark text-white')"
                     style="border-radius: 8px; font-weight: 600; padding: 6px 12px;">
                     <i class="fa-solid fa-chevron-right"></i>
@@ -404,7 +422,7 @@
                 <div class="cu06-detail-header">
                   <div>
                     <div class="text-uppercase fw-bold text-muted mb-1" style="font-size: 11px;"
-                      th:text="${cursoSeleccionado.categoria != null ? cursoSeleccionado.categoria.nombre : 'CURSO DE FORMACIÓN'}">
+                      th:text="${cursoSeleccionado.categoria.nombre}">
                       CATEGORÍA</div>
                     <h2 class="cu06-detail-title" th:text="${cursoSeleccionado.nombre}">Nombre del Curso</h2>
                     <div class="mt-2 text-secondary" style="font-size: 13px;"
@@ -422,12 +440,17 @@
                 <div class="cu06-detail-grid">
                   <div>
                     <span class="text-muted">Nivel:</span>
-                    <strong
-                      th:text="${cursoSeleccionado.nivel != null ? cursoSeleccionado.nivel.nombre : 'Intermedio / Profesional'}">Intermedio</strong>
+                    <strong th:text="${cursoSeleccionado.nivel.nombre}">Intermedio</strong>
                   </div>
                   <div>
                     <span class="text-muted">Modalidad:</span>
-                    <strong>Online Asincrónico + Clases en Vivo</strong>
+                    <strong><span th:each="m, st : ${cursoSeleccionado.modalidades}"><span th:text="${m.nombre}">Modalidad</span><span th:if="${!st.last}"> + </span></span></strong>
+                  </div>
+                  <div style="grid-column: span 2;">
+                    <span class="text-muted">Equipo docente:</span>
+                    <strong th:text="${cursoSeleccionado.docenteTitular != null ? cursoSeleccionado.docenteTitular.usuario.nombreCompleto + ' (titular)' : '—'}">Docente (titular)</strong>
+                    <span th:if="${cursoSeleccionado.docenteAyudante != null}" class="text-secondary"
+                          th:text="${' · ' + cursoSeleccionado.docenteAyudante.usuario.nombreCompleto + ' (ayudante)'}"></span>
                   </div>
                   <div style="grid-column: span 2;">
                     <span class="text-muted">Certificación:</span>
@@ -449,28 +472,16 @@
                     </h4>
                   </div>
 
-                  <div th:if="${cronogramas == null or #lists.isEmpty(cronogramas)}">
-                    <div class="cu06-unit-item">
-                      <span><strong>Unidad 1:</strong> Marco Regulatorio & Ley de Mercado de Capitales</span>
-                      <span class="badge bg-light text-dark border">Muestra Gratis</span>
-                    </div>
-                    <div class="cu06-unit-item">
-                      <span><strong>Unidad 2:</strong> Instrumentos de Renta Fija (Bonos y ONs)</span>
-                    </div>
-                    <div class="cu06-unit-item">
-                      <span><strong>Unidad 3:</strong> Renta Variable y Valuación de Acciones</span>
-                    </div>
+                  <div th:if="${cronogramas == null or #lists.isEmpty(cronogramas)}" class="small text-muted">
+                    El curso todavía no tiene unidades publicadas en su programa.
                   </div>
 
                   <div th:each="crono : ${cronogramas}" class="cu06-unit-item">
                     <div>
                       <strong th:text="'Unidad ' + ${crono.numeroOrden} + ': '">Unidad 1: </strong>
-                      <span
-                        th:text="${crono.unidad != null ? (crono.unidad.titulo != null ? crono.unidad.titulo : crono.unidad.descripcion) : 'Unidad Temática'}">Nombre
-                        de la Unidad</span>
+                      <span th:text="${crono.unidad.titulo}">Nombre de la Unidad</span>
                     </div>
-                    <span th:if="${crono.numeroOrden == 1}" class="badge bg-light text-dark border">Muestra
-                      Gratis</span>
+                    <span class="badge bg-light text-dark border" th:text="${crono.semanasDuracion + ' sem.'}">2 sem.</span>
                   </div>
                 </div>
 
@@ -484,51 +495,32 @@
                   </div>
 
                   <div th:if="${cohortesAbiertas == null or #lists.isEmpty(cohortesAbiertas)}" class="cu06-cohort-box">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                      <strong>Cohorte 2026-1 (Inscripción Vigente)</strong>
-                      <span class="cu06-cohort-badge">30 CUPOS LIBRES</span>
-                    </div>
-                    <div class="text-secondary small mb-3">
-                      <i class="fa-solid fa-chalkboard-user me-1"></i> Docente Titular: <strong
-                        th:text="${cursoSeleccionado.docente != null and cursoSeleccionado.docente.usuario != null ? cursoSeleccionado.docente.usuario.nombreCompleto : 'Equipo Docente'}">Docente</strong>
-                    </div>
-                    <button type="button" class="cu06-btn-enroll btn-abrir-modal-inscribir"
-                            th:data-curso-id="${cursoSeleccionado.id}"
-                            th:data-curso-nombre="${cursoSeleccionado.nombre}"
-                            th:data-curso-precio="${cursoSeleccionado.precio != null ? #numbers.formatDecimal(cursoSeleccionado.precio, 1, 'POINT', 0, 'COMMA') : '120.000'}"
-                            th:data-docente="${cursoSeleccionado.docente != null and cursoSeleccionado.docente.usuario != null ? cursoSeleccionado.docente.usuario.nombreCompleto : 'Mg. Elena Valenzuela'}"
-                            th:data-cohorte="Cohorte 2026-1">
-                      <i class="fa-solid fa-ticket"></i>
-                      <span>Inscribirme Ahora</span>
-                    </button>
+                    <span class="small text-muted">El curso no tiene cohortes con inscripción abierta.</span>
                   </div>
 
                   <div th:each="cohorte : ${cohortesAbiertas}" class="cu06-cohort-box mb-3">
                     <div class="d-flex justify-content-between align-items-center mb-2">
-                      <strong
-                        th:text="'Cohorte ' + ${#temporals.format(cohorte.fechaInicioInscripcion, 'yyyy')} + ' (Inicio Dictado: ' + ${#temporals.format(cohorte.fechaInicioDictado != null ? cohorte.fechaInicioDictado : cohorte.fechaFinInscripcion, 'dd/MM/yyyy')} + ')'">Cohorte
-                        2026</strong>
+                      <strong th:text="${cohorte.programa.nombre + ' — inscripción hasta el ' + #temporals.format(cohorte.fechaFinInscripcion, 'dd/MM/yyyy')}">Programa — inscripción hasta el 31/03/2026</strong>
                       <span class="cu06-cohort-badge"
-                        th:text="${(cohorte.cupoMaximo != null ? cohorte.cupoMaximo : 30) + ' CUPOS LIBRES'}">30 CUPOS
-                        LIBRES</span>
+                        th:text="${cohorte.cupoDisponible != null ? cohorte.cupoDisponible + ' CUPOS DISPONIBLES' : 'SIN LÍMITE DE CUPO'}">30 CUPOS DISPONIBLES</span>
                     </div>
-                    <div class="text-secondary small mb-3">
+                    <div class="text-secondary small mb-1">
                       <i class="fa-solid fa-chalkboard-user me-1"></i> Docente Titular: <strong
-                        th:text="${cursoSeleccionado.docente != null and cursoSeleccionado.docente.usuario != null ? cursoSeleccionado.docente.usuario.nombreCompleto : 'Docente'}">Docente</strong>
+                        th:text="${cursoSeleccionado.docenteTitular != null ? cursoSeleccionado.docenteTitular.usuario.nombreCompleto : 'Equipo docente'}">Docente</strong>
                     </div>
-                    <button type="button" class="cu06-btn-enroll btn-abrir-modal-inscribir"
-                            th:data-curso-id="${cursoSeleccionado.id}"
-                            th:data-cohorte-id="${cohorte.id}"
-                            th:data-curso-nombre="${cursoSeleccionado.nombre}"
-                            th:data-curso-precio="${cursoSeleccionado.precio != null ? #numbers.formatDecimal(cursoSeleccionado.precio, 1, 'POINT', 0, 'COMMA') : '120.000'}"
-                            th:data-docente="${cursoSeleccionado.docente != null and cursoSeleccionado.docente.usuario != null ? cursoSeleccionado.docente.usuario.nombreCompleto : 'Docente'}"
-                            th:data-cohorte="'Cohorte ' + ${#temporals.format(cohorte.fechaInicioInscripcion, 'yyyy')}">
-                      <i class="fa-solid fa-ticket"></i>
-                      <span>Inscribirme Ahora</span>
-                    </button>
+                    <div class="text-secondary small mb-1" th:if="${cohorte.fechaInicioDictado != null}">
+                      <i class="fa-solid fa-video me-1"></i> Dictado:
+                      <span th:text="${#temporals.format(cohorte.fechaInicioDictado, 'dd/MM/yyyy') + ' al ' + #temporals.format(cohorte.fechaFinDictado, 'dd/MM/yyyy')}">01/04/2026 al 30/06/2026</span>
+                    </div>
+                    <div class="text-secondary small">
+                      <i class="fa-solid fa-clock me-1"></i> Acceso al contenido: <span th:text="${cohorte.semanasAcceso + ' semanas desde la inscripción'}">12 semanas</span>
+                    </div>
+                  </div>
+
+                  <div class="small text-muted fst-italic">
+                    <i class="fa-solid fa-circle-info me-1"></i> La inscripción online estará disponible con el módulo de Inscripción y Pagos.
                   </div>
                 </div>
-
               </div>
             </div>
 
@@ -550,176 +542,6 @@
     </div>
   </div>
 
-  <!-- Modal Dinámico: Inscribir curso (CU-44) -->
-  <div class="modal fade" id="modalInscribirCurso" tabindex="-1" aria-labelledby="modalInscribirCursoLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-      <div class="modal-content" style="border-radius: 12px; border: 1px solid #CBD5E1; box-shadow: 0 20px 50px rgba(8, 20, 38, 0.15); overflow: hidden;">
-        <div class="p-4 bg-white">
-          <div class="d-flex justify-content-between align-items-start pb-3 mb-4 border-bottom">
-            <div>
-              <div class="small text-muted mb-1" style="font-size: 11px;">
-                <span>Catálogo de Cursos</span> <i class="fa-solid fa-chevron-right" style="font-size: 9px; margin: 0 4px;"></i>
-                <span style="color: #081426; font-weight: 700;">Inscripción Online</span>
-              </div>
-              <h3 style="font-size: 20px; font-weight: 800; color: #081426; margin: 4px 0 0;">Confirmación de Inscripción al Curso</h3>
-              <p class="small text-muted" style="margin: 3px 0 0;">Verifique los detalles de la cohorte seleccionada y confirme su matriculación para proceder al pago.</p>
-            </div>
-            <div class="d-flex align-items-center gap-2">
-              <span class="wf-badge status-active">Inscripción Abierta</span>
-              <button type="button" class="btn-close ms-2" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-            </div>
-          </div>
-
-          <div class="row g-4 mb-4">
-            <div class="col-md-7">
-              <div class="p-3 bg-light rounded border h-100">
-                <div class="d-flex align-items-center gap-2 mb-2">
-                  <span class="wf-pill-tag">Programa Oficial</span>
-                  <span class="small text-muted">Duración: <strong>8 Semanas (40 Horas)</strong></span>
-                </div>
-                <h4 id="modalCursoTitulo" style="font-size: 16px; font-weight: 800; color: #081426; margin-bottom: 8px;">Curso Seleccionado</h4>
-                <p class="small text-muted mb-3">Preparación integral con clases sincrónicas, materiales normativos y simuladores de autoevaluación.</p>
-
-                <div class="p-2 bg-white rounded border" style="font-size: 12px;">
-                  <div class="d-flex justify-content-between mb-1">
-                    <span class="text-muted">Cohorte asignada:</span>
-                    <strong id="modalCursoCohorte">Cohorte 2026-1</strong>
-                  </div>
-                  <div class="d-flex justify-content-between mb-1">
-                    <span class="text-muted">Inicio de dictado:</span>
-                    <strong>01 de Marzo de 2026</strong>
-                  </div>
-                  <div class="d-flex justify-content-between mb-1">
-                    <span class="text-muted">Docente Titular:</span>
-                    <strong id="modalCursoDocente">Equipo Docente</strong>
-                  </div>
-                  <div class="d-flex justify-content-between">
-                    <span class="text-muted">Progreso inicial:</span>
-                    <strong class="text-primary">0% (Unidad 1: Marco Regulatorio)</strong>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="col-md-5">
-              <div class="p-3 border rounded bg-white shadow-sm h-100 d-flex flex-column justify-content-between">
-                <div>
-                  <span class="wf-label mb-2">Resumen de Matrícula</span>
-                  <div class="d-flex justify-content-between mb-2 small">
-                    <span class="text-muted">Arancel del Programa:</span>
-                    <strong id="modalCursoPrecio">$120.000 ARS</strong>
-                  </div>
-                  <div class="d-flex justify-content-between mb-2 small text-success">
-                    <span>Descuento Aplicado:</span>
-                    <strong>-$0 ARS</strong>
-                  </div>
-                  <div class="d-flex justify-content-between border-top pt-2" style="font-size: 16px; color: #081426;">
-                    <span class="fw-bold">Total a Pagar:</span>
-                    <strong id="modalCursoTotal" style="color: var(--wf-navy);">$120.000 ARS</strong>
-                  </div>
-                </div>
-
-                <div class="mt-4 pt-3 border-top">
-                  <div class="small text-muted mb-3" style="line-height: 1.3;">
-                    <i class="fa-solid fa-shield-halved text-success me-1"></i> El acceso se habilitará automáticamente al confirmarse la acreditación del pago.
-                  </div>
-                  <button type="button" id="btnProcederPagoModal" class="wf-btn wf-btn-primary w-100 d-flex align-items-center justify-content-center gap-2" style="font-weight: 700; height: 42px;">
-                    <i class="fa-solid fa-credit-card"></i>
-                    <span>Proceder al Pago</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="d-flex justify-content-between align-items-center pt-3 border-top">
-            <button type="button" class="wf-btn wf-btn-outline" data-bs-dismiss="modal"><i class="fa-solid fa-arrow-left me-1"></i> Volver al Catálogo</button>
-            <span class="small text-muted">ID Inscripción: <strong>#INS-2026-ONLINE</strong></span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal Dinámico: Realizar pago (CU-47 - Pasarela MODO QR) -->
-  <div class="modal fade" id="modalRealizarPago" tabindex="-1" aria-labelledby="modalRealizarPagoLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-      <div class="modal-content" style="border-radius: 12px; border: 1px solid #CBD5E1; box-shadow: 0 20px 50px rgba(8, 20, 38, 0.15); overflow: hidden;">
-        <div class="p-4 bg-white">
-          <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
-            <div>
-              <div class="small text-muted mb-1" style="font-size: 11px;">
-                <span>Inscripción</span> <i class="fa-solid fa-chevron-right" style="font-size: 9px; margin: 0 4px;"></i>
-                <strong style="color: #081426;">Pasarela de Pago MODO API</strong>
-              </div>
-              <h3 style="font-size: 18px; font-weight: 800; color: #081426; margin: 0;">Realizar Pago Online</h3>
-              <p class="small text-muted" style="margin: 3px 0 0;">Curso: <strong id="pagoModalCursoNombre">Especialización en Idoneidad Bursátil</strong></p>
-            </div>
-            <div class="d-flex align-items-center gap-2">
-              <span id="pagoModalTotalBadge" class="wf-badge status-active">Total: $120.000 ARS</span>
-              <button type="button" class="btn-close ms-2" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-            </div>
-          </div>
-
-          <form id="formConfirmarPago" th:action="@{/inscripciones/guardar}" method="post">
-            <input type="hidden" id="formInscripcionCursoId" name="cursoId" value="">
-            <input type="hidden" id="formInscripcionCohorteId" name="cohorteId" value="">
-
-            <div class="row g-4">
-              <div class="col-md-6">
-                <div class="mb-3">
-                  <label class="wf-label">Seleccione el Medio de Pago</label>
-                  <div class="d-flex flex-column gap-2">
-                    <label class="p-3 border rounded d-flex align-items-center justify-content-between bg-light cursor-pointer" style="border-color: #2563EB !important;">
-                      <div class="d-flex align-items-center gap-2">
-                        <i class="fa-solid fa-qrcode text-primary" style="font-size: 18px;"></i>
-                        <strong>MODO Billetera Virtual (QR Interoperable)</strong>
-                      </div>
-                    </label>
-                    <label class="p-3 border rounded d-flex align-items-center justify-content-between cursor-pointer">
-                      <div class="d-flex align-items-center gap-2">
-                        <i class="fa-solid fa-credit-card text-muted"></i>
-                        <span>Tarjeta de Débito / Crédito</span>
-                      </div>
-                    </label>
-                  </div>
-                </div>
-
-                <div class="p-3 border rounded bg-light">
-                  <div class="d-flex justify-content-between mb-2"><span>Arancel Oficial:</span><strong id="pagoArancelOficial">$120.000 ARS</strong></div>
-                  <div class="d-flex justify-content-between mb-2 text-success"><span>Beca / Descuento:</span><strong>-$0 ARS</strong></div>
-                  <div class="d-flex justify-content-between border-top pt-2" style="font-size: 15px; color: #081426;">
-                    <span>Total a Pagar:</span><strong id="pagoTotalAPagar">$120.000 ARS</strong>
-                  </div>
-                </div>
-              </div>
-
-              <div class="col-md-6 text-center">
-                <div class="p-3 border rounded bg-white shadow-sm h-100 d-flex flex-column align-items-center justify-content-center">
-                  <div class="small fw-bold text-muted text-uppercase mb-2">Escanee con App MODO o Billetera Bancaria</div>
-                  <div style="width: 160px; height: 160px; background: #081426; border-radius: 8px; display: flex; align-items: center; justify-content: center; position: relative; padding: 10px;">
-                    <div style="background: white; width: 100%; height: 100%; border-radius: 4px; display: flex; align-items: center; justify-content: center;">
-                      <i class="fa-solid fa-qrcode" style="font-size: 100px; color: #081426;"></i>
-                    </div>
-                  </div>
-                  <div class="small text-muted mt-2">Transacción encriptada BCRA • Acreditación simulada</div>
-                  <button type="submit" class="wf-btn wf-btn-sm wf-btn-primary mt-3" style="background: #059669; border-color: #059669; font-weight: 700; width: 100%;">
-                    <i class="fa-solid fa-circle-check me-1"></i> Simular Aprobación de Pago MODO
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div class="d-flex justify-content-between align-items-center pt-3 mt-4 border-top">
-              <button type="button" class="wf-btn wf-btn-outline" data-bs-dismiss="modal">Cancelar</button>
-              <div class="small text-muted"><i class="fa-solid fa-circle-check text-success me-1"></i> Aguardando notificación de webhook de MODO API...</div>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <!-- Scripts Globales y SweetAlert2 -->
   <div th:replace="~{fragments/scripts :: scripts}"></div>
   <script>
@@ -733,56 +555,6 @@
       }
     }
 
-    document.addEventListener('DOMContentLoaded', function() {
-      const modalInscribirEl = document.getElementById('modalInscribirCurso');
-      const bsModalInscribir = modalInscribirEl ? new bootstrap.Modal(modalInscribirEl) : null;
-      const modalPagoEl = document.getElementById('modalRealizarPago');
-      const bsModalPago = modalPagoEl ? new bootstrap.Modal(modalPagoEl) : null;
-
-      let currentCursoId = null;
-      let currentCohorteId = null;
-      let currentNombre = '';
-      let currentPrecio = '';
-
-      document.querySelectorAll('.btn-abrir-modal-inscribir').forEach(btn => {
-        btn.addEventListener('click', function() {
-          currentCursoId = this.getAttribute('data-curso-id');
-          currentCohorteId = this.getAttribute('data-cohorte-id');
-          currentNombre = this.getAttribute('data-curso-nombre');
-          currentPrecio = this.getAttribute('data-curso-precio');
-          const docente = this.getAttribute('data-docente');
-          const cohorte = this.getAttribute('data-cohorte');
-
-          document.getElementById('modalCursoTitulo').textContent = currentNombre;
-          document.getElementById('modalCursoCohorte').textContent = cohorte || 'Cohorte 2026-1';
-          document.getElementById('modalCursoDocente').textContent = docente || 'Equipo Docente';
-          document.getElementById('modalCursoPrecio').textContent = '$' + currentPrecio + ' ARS';
-          document.getElementById('modalCursoTotal').textContent = '$' + currentPrecio + ' ARS';
-
-          if (bsModalInscribir) bsModalInscribir.show();
-        });
-      });
-
-      const btnProcederPago = document.getElementById('btnProcederPagoModal');
-      if (btnProcederPago) {
-        btnProcederPago.addEventListener('click', function() {
-          if (bsModalInscribir) bsModalInscribir.hide();
-
-          document.getElementById('formInscripcionCursoId').value = currentCursoId || '1';
-          if (currentCohorteId) {
-            document.getElementById('formInscripcionCohorteId').value = currentCohorteId;
-          }
-          document.getElementById('pagoModalCursoNombre').textContent = currentNombre;
-          document.getElementById('pagoModalTotalBadge').textContent = 'Total: $' + currentPrecio + ' ARS';
-          document.getElementById('pagoArancelOficial').textContent = '$' + currentPrecio + ' ARS';
-          document.getElementById('pagoTotalAPagar').textContent = '$' + currentPrecio + ' ARS';
-
-          setTimeout(() => {
-            if (bsModalPago) bsModalPago.show();
-          }, 350);
-        });
-      }
-    });
   </script>
 </body>
 

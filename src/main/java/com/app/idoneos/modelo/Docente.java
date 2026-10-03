@@ -105,4 +105,14 @@ public class Docente {
     public String toString() {
         return "Docente #" + idDocente;
     }
+
+    /**
+     * Verifica si el docente puede participar en cursos: está habilitado, su usuario no fue dado de baja
+     * y mantiene el rol de docente vigente.
+     *
+     * @return {@code true} si está activo y habilitado.
+     */
+    public boolean estaHabilitado() {
+        return habilitado && !usuario.getBaja() && usuario.esDocente();
+    }
 }

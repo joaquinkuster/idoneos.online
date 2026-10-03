@@ -2,6 +2,7 @@ package com.app.idoneos.modelo;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -157,5 +158,53 @@ public class Curso {
     @Override
     public String toString() {
         return nombre;
+    }
+
+    /**
+     * Obtiene las participaciones vigentes (no dadas de baja) que conforman el equipo docente del curso.
+     *
+     * @return La lista de participaciones vigentes.
+     */
+    public List<ParticipacionDocente> getEquipoDocente() {
+        return participacionesDocente.stream().filter(participacion -> !participacion.getBaja()).toList();
+    }
+
+    /**
+     * Obtiene el docente titular vigente del curso.
+     *
+     * @return El docente titular, o {@code null} si no tiene.
+     */
+    public Docente getDocenteTitular() {
+        return getEquipoDocente().stream().filter(ParticipacionDocente::getEsTitular)
+                .map(ParticipacionDocente::getDocente).findFirst().orElse(null);
+    }
+
+    /**
+     * Obtiene el docente ayudante vigente del curso.
+     *
+     * @return El docente ayudante, o {@code null} si no tiene.
+     */
+    public Docente getDocenteAyudante() {
+        return getEquipoDocente().stream().filter(participacion -> !participacion.getEsTitular())
+                .map(ParticipacionDocente::getDocente).findFirst().orElse(null);
+    }
+
+    /**
+     * Obtiene las modalidades de dictado en las que se ofrece el curso.
+     *
+     * @return La lista de modalidades.
+     */
+    public List<Modalidad> getModalidades() {
+        return cursoModalidades.stream().map(CursoModalidad::getModalidad).toList();
+    }
+
+    /**
+     * Verifica si el curso se ofrece en una modalidad.
+     *
+     * @param nombreModalidad El nombre de la modalidad (por ejemplo, "En vivo").
+     * @return {@code true} si el curso incluye esa modalidad.
+     */
+    public boolean incluyeModalidad(String nombreModalidad) {
+        return getModalidades().stream().anyMatch(modalidad -> nombreModalidad.equalsIgnoreCase(modalidad.getNombre()));
     }
 }
