@@ -105,6 +105,22 @@ public class Certificado {
     }
 
     /**
+     * Anula el certificado (por ejemplo, ante un fraude), estableciendo el atributo 'anulado' a true.
+     */
+    public void anular() {
+        anulado = true;
+    }
+
+    /**
+     * Verifica si el certificado fue anulado.
+     *
+     * @return true si está anulado (anulado = true), false si está vigente.
+     */
+    public boolean estaAnulado() {
+        return anulado;
+    }
+
+    /**
      * Devuelve una representación en forma de cadena del certificado.
      *
      * @return La representación textual.

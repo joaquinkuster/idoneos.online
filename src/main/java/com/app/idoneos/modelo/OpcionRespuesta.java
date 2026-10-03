@@ -83,6 +83,22 @@ public class OpcionRespuesta {
     }
 
     /**
+     * Marca el registro como dado de baja (baja lógica), estableciendo el atributo 'baja' a true.
+     */
+    public void marcarInactivo() {
+        baja = true;
+    }
+
+    /**
+     * Verifica si el registro está dado de baja.
+     *
+     * @return true si está dado de baja (baja = true), false si está vigente.
+     */
+    public boolean esInactivo() {
+        return baja;
+    }
+
+    /**
      * Devuelve una representación en forma de cadena de la opción de respuesta.
      *
      * @return La representación textual.

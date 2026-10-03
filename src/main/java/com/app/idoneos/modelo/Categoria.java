@@ -72,6 +72,22 @@ public class Categoria {
     }
 
     /**
+     * Marca el registro como dado de baja (baja lógica), estableciendo el atributo 'baja' a true.
+     */
+    public void marcarInactivo() {
+        baja = true;
+    }
+
+    /**
+     * Verifica si el registro está dado de baja.
+     *
+     * @return true si está dado de baja (baja = true), false si está vigente.
+     */
+    public boolean esInactivo() {
+        return baja;
+    }
+
+    /**
      * Devuelve una representación en forma de cadena de la categoría.
      *
      * @return La representación textual.
