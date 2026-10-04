@@ -1,0 +1,188 @@
+<!-- Navbar Oficial Dinámica de Idóneos Online -->
+<div th:fragment="navbar" class="wf-top-navbar">
+    <div class="wf-brand">
+        <a th:href="@{/inicio}" class="d-flex align-items-center gap-3 text-decoration-none">
+            <img th:src="@{/img/logos/image.png}" src="/img/logos/image.png" alt="Idóneos Online Logo"
+                style="height: 38px; width: auto; object-fit: contain;">
+            <div class="d-flex flex-column">
+                <div class="wf-brand-logo">Idóneos <span>Online</span></div>
+                <div class="wf-brand-sub">FINANZAS • ECONOMÍA • MERCADO DE CAPITALES</div>
+            </div>
+        </a>
+    </div>
+
+    <!-- Mobile Nav Toggle Button -->
+    <button class="wf-mobile-nav-toggle d-lg-none" onclick="toggleMobileNav()" aria-label="Abrir menú" aria-expanded="false" aria-controls="wfNavLinks">
+        <i class="fa-solid fa-bars"></i>
+    </button>
+
+    <div class="wf-top-nav-links" id="wfNavLinks">
+        <a th:href="@{/inicio}" class="wf-top-nav-link">Inicio</a>
+        <a th:href="@{/catalogo}" class="wf-top-nav-link">Catálogo</a>
+
+        <a th:href="@{/acercaDe}" class="wf-top-nav-link">Acerca de</a>
+
+        <!-- Usuario No Autenticado (Visitante) -->
+        <th:block th:if="${usuario == null}">
+            <a th:href="@{/login}" class="wf-btn wf-btn-sm wf-btn-outline text-white"><i
+                    class="fa-solid fa-right-to-bracket me-1"></i> Ingresar</a>
+        </th:block>
+
+        <!-- Usuario Autenticado -->
+        <th:block th:replace="~{fragments/menuUsuario :: menu('navbar')}"></th:block>
+    </div>
+
+    <script>
+        // Menú del navbar en pantallas chicas: se abre y se cierra con el botón, con Escape, con un clic afuera
+        // y al agrandarse la ventana
+        function cerrarMobileNav() {
+            const enlaces = document.getElementById('wfNavLinks');
+            const barra = document.querySelector('.wf-top-navbar');
+            const boton = document.querySelector('.wf-mobile-nav-toggle');
+            if (!enlaces) return;
+            enlaces.classList.remove('mobile-open');
+            barra.classList.remove('menu-abierto');
+            if (boton) {
+                boton.setAttribute('aria-expanded', 'false');
+                boton.querySelector('i').className = 'fa-solid fa-bars';
+            }
+        }
+
+        function toggleMobileNav() {
+            const enlaces = document.getElementById('wfNavLinks');
+            const barra = document.querySelector('.wf-top-navbar');
+            const boton = document.querySelector('.wf-mobile-nav-toggle');
+            if (!enlaces) return;
+            const abierto = enlaces.classList.toggle('mobile-open');
+            barra.classList.toggle('menu-abierto', abierto);
+            boton.setAttribute('aria-expanded', abierto ? 'true' : 'false');
+            boton.querySelector('i').className = abierto ? 'fa-solid fa-xmark' : 'fa-solid fa-bars';
+        }
+
+        document.addEventListener('click', function (evento) {
+            if (!evento.target.closest('.wf-top-navbar')) cerrarMobileNav();
+        });
+        document.addEventListener('keydown', function (evento) {
+            if (evento.key === 'Escape') cerrarMobileNav();
+        });
+        window.addEventListener('resize', function () {
+            if (window.innerWidth >= 992) cerrarMobileNav();
+        });
+
+        // Marca el enlace de la página actual (el hover y el activo se muestran con una línea inferior)
+        document.addEventListener('DOMContentLoaded', function () {
+            const currentPath = window.location.pathname;
+            document.querySelectorAll('#wfNavLinks .wf-top-nav-link').forEach(function (link) {
+                const href = link.getAttribute('href');
+                if (href && (href === currentPath || (href !== '/' && href !== '/inicio' && currentPath.startsWith(href)))) {
+                    link.classList.add('active');
+                }
+            });
+
+            // El navbar es transparente arriba y cambia de color al bajar. Las páginas sin banner superior
+            // oscuro (inicio de sesión, error) lo muestran siempre con color.
+            const navbar = document.querySelector('.wf-top-navbar');
+            if (!navbar) return;
+            const hayBannerOscuro = !!document.querySelector('.wf-hero-banner, .wf-hero-section, .auth-pagina');
+            if (!hayBannerOscuro) {
+                navbar.classList.add('con-color', 'sin-banner');
+                return;
+            }
+            const alHacerScroll = function () {
+                const desplazamiento = window.scrollY || document.documentElement.scrollTop || document.body.scrollTop;
+                navbar.classList.toggle('con-color', desplazamiento > 20);
+            };
+            // En captura, para atender el scroll sin importar qué elemento de la página se desplace
+            document.addEventListener('scroll', alHacerScroll, { passive: true, capture: true });
+            alHacerScroll();
+        });
+    </script>
+
+    <!-- Avisos del servidor (mensaje de éxito o error de una redirección) con SweetAlert -->
+    <script th:if="${mensaje != null and !#strings.isEmpty(mensaje)}" th:inline="javascript">
+        mostrarExito(/*[[${mensaje}]]*/ '');
+    </script>
+    <script th:if="${error != null and !#strings.isEmpty(error)}" th:inline="javascript">
+        mostrarError(/*[[${error}]]*/ '');
+    </script>
+
+    <!-- renderWfPagination — Sistema de paginación premium unificado. Disponible globalmente. -->
+    <script>
+        window.renderWfPagination = function (cfg) {
+            var table = document.getElementById(cfg.tableId);
+            if (!table) return;
+            var tbody = table.querySelector('tbody');
+            var rows = Array.from(tbody.querySelectorAll('tr'));
+            var totalRows = rows.length;
+            var totalPages = Math.ceil(totalRows / cfg.rowsPerPage) || 1;
+            var page = Math.max(1, Math.min(cfg.currentPage, totalPages));
+
+            // Filtrar y mostrar solo filas de la página activa
+            rows.forEach(function (row, idx) {
+                var start = (page - 1) * cfg.rowsPerPage;
+                row.style.display = (idx >= start && idx < start + cfg.rowsPerPage) ? '' : 'none';
+            });
+
+            var wrap = document.getElementById(cfg.wrapId);
+            if (!wrap) return;
+
+            if (totalRows === 0) {
+                wrap.style.display = 'none';
+                return;
+            }
+
+            wrap.style.display = 'flex';
+
+            var info = document.getElementById(cfg.infoId);
+            if (info) {
+                info.innerHTML = 'Página <span class="text-dark fw-bold">' + page + '</span> de <span class="text-dark fw-bold">' + totalPages + '</span> (' + totalRows + ' ' + cfg.entityLabel + ')';
+            }
+
+            var ctrl = document.getElementById(cfg.controlsId);
+            if (!ctrl) return;
+            ctrl.innerHTML = '';
+
+            if (totalPages <= 1) return;
+
+            // Botón Anterior
+            var prevBtn = document.createElement('button');
+            prevBtn.type = 'button';
+            prevBtn.className = 'btn btn-sm ' + (page === 1 ? 'btn-light disabled border' : 'btn-dark text-white');
+            prevBtn.style.cssText = 'border-radius: 8px; font-weight: 600; padding: 6px 12px;';
+            prevBtn.innerHTML = '<i class="fa-solid fa-chevron-left"></i>';
+            if (page > 1) {
+                prevBtn.onclick = function () { cfg.onPageChange(page - 1); };
+            }
+            ctrl.appendChild(prevBtn);
+
+            // Números de Página
+            for (var i = 1; i <= totalPages; i++) {
+                var numBtn = document.createElement('button');
+                numBtn.type = 'button';
+                numBtn.textContent = i;
+                if (i === page) {
+                    numBtn.className = 'btn btn-sm btn-warning text-dark fw-bold';
+                    numBtn.style.cssText = 'border-radius: 8px; min-width: 34px; font-weight: 800; background: var(--wf-gold, #D4A03D); border-color: var(--wf-gold, #D4A03D);';
+                } else {
+                    numBtn.className = 'btn btn-sm btn-light border text-secondary';
+                    numBtn.style.cssText = 'border-radius: 8px; min-width: 34px; font-weight: 700;';
+                }
+                (function (targetPage) {
+                    numBtn.onclick = function () { cfg.onPageChange(targetPage); };
+                })(i);
+                ctrl.appendChild(numBtn);
+            }
+
+            // Botón Siguiente
+            var nextBtn = document.createElement('button');
+            nextBtn.type = 'button';
+            nextBtn.className = 'btn btn-sm ' + (page >= totalPages ? 'btn-light disabled border' : 'btn-dark text-white');
+            nextBtn.style.cssText = 'border-radius: 8px; font-weight: 600; padding: 6px 12px;';
+            nextBtn.innerHTML = '<i class="fa-solid fa-chevron-right"></i>';
+            if (page < totalPages) {
+                nextBtn.onclick = function () { cfg.onPageChange(page + 1); };
+            }
+            ctrl.appendChild(nextBtn);
+        };
+    </script>
+</div>

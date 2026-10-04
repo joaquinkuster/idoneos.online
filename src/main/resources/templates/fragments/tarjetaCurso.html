@@ -1,0 +1,37 @@
+<!-- Tarjeta de un curso del catálogo. Se usa en el catálogo y en el inicio.
+     Parámetros: c (el curso) y unidades (cantidad de unidades temáticas, puede ser nulo). -->
+<div th:fragment="tarjeta(c, unidades)" class="wf-course-card">
+  <div class="wf-course-card-thumb" th:classappend="${c.imagen != null} ? 'wf-thumb-con-imagen'">
+    <img th:if="${c.imagen != null}" class="wf-course-thumb-img" th:src="@{'/img/cursos/' + ${c.imagen}}" alt=""
+         width="640" height="130" loading="lazy" decoding="async">
+    <div class="wf-course-thumb-icon"><i class="fa-solid fa-graduation-cap w-8 h-8 text-white"></i></div>
+    <div class="wf-course-pills-row">
+      <span class="wf-pill-tag" th:text="${c.categoria.nombre}">Categoría</span>
+      <span class="wf-pill-status" th:text="${c.nivel.nombre}">Nivel</span>
+      <span class="wf-pill-status">Inscripción abierta</span>
+    </div>
+  </div>
+  <div class="wf-course-card-body">
+    <h4 class="wf-course-title" th:text="${c.nombre}">Nombre Curso</h4>
+    <p class="wf-course-desc" th:text="${c.descripcion}">Descripción</p>
+    <dl class="wf-course-tabla">
+      <div><dt>Nivel</dt><dd th:text="${c.nivel.nombre}">Básico</dd></div>
+      <div><dt>Modalidad</dt><dd><span th:each="m, st : ${c.modalidades}"><span th:text="${m.nombre}">Grabada</span><span th:if="${!st.last}">, </span></span></dd></div>
+      <div><dt>Contenido</dt><dd th:text="${(unidades != null ? unidades : 0) + ' unidades'}">4 unidades</dd></div>
+    </dl>
+    <div class="wf-course-info-row">
+      <span>
+        <i class="fa-solid fa-chalkboard-user me-1 text-muted"></i>
+        <strong th:text="${c.docenteTitular != null and c.docenteTitular.usuario != null ? c.docenteTitular.usuario.nombreCompleto : 'Equipo Académico'}">Docente</strong>
+      </span>
+      <span class="wf-course-price"
+            th:text="${c.precio != null && c.precio <= 0 ? 'GRATIS' : '$ ' + #numbers.formatDecimal(c.precio != null ? c.precio : 0, 1, 'POINT', 0, 'COMMA')}">$0</span>
+    </div>
+  </div>
+  <div class="wf-course-card-footer">
+    <a th:href="@{'/catalogo/ficha/' + ${c.idCurso}}" class="wf-btn-manage-course">
+      <i class="fa-solid fa-eye"></i>
+      <span>Ver ficha del curso</span>
+    </a>
+  </div>
+</div>

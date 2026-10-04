@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.List;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,9 +34,9 @@ class CategoriaServicioTest {
     @Test
     @DisplayName("CU-07: busca categorías por nombre y por estado")
     void buscarCategorias() {
-        assertEquals(1, categoriaServicio.buscarConFiltros("macro", null).size());
-        assertTrue(categoriaServicio.buscarConFiltros(null, true).isEmpty());
-        assertFalse(categoriaServicio.buscarConFiltros(null, false).isEmpty());
+        assertEquals(1, categoriaServicio.buscarConFiltros("macro", null, "nombre").size());
+        assertTrue(categoriaServicio.buscarConFiltros(null, true, "nombre").isEmpty());
+        assertFalse(categoriaServicio.buscarConFiltros(null, false, "nombre").isEmpty());
     }
 
     @Test
@@ -121,5 +123,21 @@ class CategoriaServicioTest {
         categoriaServicio.darDeBajaCategoria(cripto.getIdCategoria());
 
         assertTrue(categoria("Criptoactivos").esInactivo());
+    }
+
+    @Test
+    @DisplayName("CU-07: ordena por nombre o por las más recientes, con las dadas de baja al final")
+    void ordenarCategorias() {
+        categoriaServicio.darDeBajaCategoria(categoria("Criptoactivos").getIdCategoria());
+
+        List<Categoria> porNombre = categoriaServicio.buscarConFiltros(null, null, "nombre");
+        List<Categoria> recientes = categoriaServicio.buscarConFiltros(null, null, "recientes");
+
+        assertTrue(porNombre.get(porNombre.size() - 1).esInactivo());
+        assertTrue(recientes.get(recientes.size() - 1).esInactivo());
+        List<Categoria> vigentes = porNombre.subList(0, porNombre.size() - 1);
+        assertEquals(vigentes.stream().map(Categoria::getNombre).sorted(String.CASE_INSENSITIVE_ORDER).toList(),
+                vigentes.stream().map(Categoria::getNombre).toList());
+        assertTrue(recientes.get(0).getIdCategoria() > recientes.get(1).getIdCategoria());
     }
 }

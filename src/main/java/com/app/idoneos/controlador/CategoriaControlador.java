@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,16 +20,18 @@ import com.app.idoneos.modelo.Curso;
 import com.app.idoneos.servicio.Categoria.CategoriaServicioImpl;
 import com.app.idoneos.servicio.Curso.CursoServicioImpl;
 
+import com.app.idoneos.utilidades.Utilidades;
+
 /**
  * Controlador de la gestión de categorías (MOD-F-01).
  *
  * Mapea las pantallas de los casos de uso:
- * CU-07 Buscar categoría (GET /cursos/categorias), CU-08 Registrar categoría, CU-09 Modificar categoría
+ * CU-07 Buscar categoría (GET /categoria/buscar), CU-08 Registrar categoría, CU-09 Modificar categoría
  * y CU-10 Dar de baja categoría. Los formularios de alta, modificación y baja se muestran como ventanas modales
  * de la pantalla de búsqueda.
  */
 @Controller
-@RequestMapping("/cursos/categorias")
+@RequestMapping("/categoria")
 public class CategoriaControlador {
 
     @Autowired
@@ -42,13 +45,15 @@ public class CategoriaControlador {
      *
      * @param nombre Parte del nombre de la categoría.
      * @param baja   Si es true, solo las dadas de baja; si es false, solo las vigentes; si es nulo, todas.
+     * @param orden  Orden de los resultados: "nombre" (A–Z) o "recientes". Las dadas de baja van al final.
      * @param modelo El modelo de la vista.
      * @return La vista de búsqueda de categorías.
      */
-    @GetMapping
+    @GetMapping("/buscar")
     public String buscarCategorias(@RequestParam(value = "nombre", required = false) String nombre,
-            @RequestParam(value = "baja", required = false) Boolean baja, Model modelo) {
-        List<Categoria> categorias = categoriaServicio.buscarConFiltros(nombre, baja);
+            @RequestParam(value = "baja", required = false) Boolean baja,
+            @RequestParam(value = "orden", defaultValue = "nombre") String orden, Model modelo) {
+        List<Categoria> categorias = categoriaServicio.buscarConFiltros(nombre, baja, orden);
 
         // Cursos activos e inscripciones activas por categoría, para validar la modificación y la baja
         Map<Integer, List<Curso>> cursosPorCategoria = new HashMap<>();
@@ -64,72 +69,83 @@ public class CategoriaControlador {
         modelo.addAttribute("inscripcionesPorCategoria", inscripcionesPorCategoria);
         modelo.addAttribute("nombreBusqueda", nombre);
         modelo.addAttribute("bajaSeleccionada", baja);
-        modelo.addAttribute("titulo", "CU-07 - Buscar categoría | Idóneos Online");
-        return "pages/cursos/cu-07-buscar-categoria";
+        modelo.addAttribute("ordenSeleccionado", orden);
+        modelo.addAttribute("titulo", "Categorías | Idóneos Online");
+        modelo.addAttribute("menuActivo", "categorias");
+        return "pages/panel/categorias";
     }
 
     /**
-     * CU-08: Registra una categoría.
+     * CU-08: Registra una categoría. Responde en JSON para que el formulario muestre el resultado
+     * sin recargar la página.
      *
-     * @param nombre             El nombre de la categoría.
-     * @param descripcion        La descripción de la categoría (opcional).
-     * @param redirectAttributes Atributos para mensajes de redirección.
-     * @return Una redirección al listado de categorías, o al formulario si hubo un error.
+     * @param nombre      El nombre de la categoría.
+     * @param descripcion La descripción de la categoría (opcional).
+     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
      */
-    @PostMapping("/guardar")
-    public String registrarCategoria(@RequestParam(value = "nombre", required = false) String nombre,
-            @RequestParam(value = "descripcion", required = false) String descripcion,
-            RedirectAttributes redirectAttributes) {
+    @PostMapping("/registrar")
+    public ResponseEntity<Map<String, String>> registrarCategoria(
+            @RequestParam(value = "nombre", required = false) String nombre,
+            @RequestParam(value = "descripcion", required = false) String descripcion) {
         try {
             Categoria categoria = categoriaServicio.registrarCategoria(nombre, descripcion);
-            redirectAttributes.addFlashAttribute("mensaje",
-                    "Categoría '" + categoria.getNombre() + "' registrada con éxito.");
-            return "redirect:/cursos/categorias";
+            return Utilidades.respuestaExitosa("Categoría '" + categoria.getNombre() + "' registrada con éxito.");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/cursos/categorias";
+            return Utilidades.respuestaConError(e);
         }
     }
 
     /**
-     * CU-09: Modifica el nombre y la descripción de una categoría.
+     * CU-09: Modifica el nombre y la descripción de una categoría. Responde en JSON.
      *
-     * @param id                 Identificador de la categoría.
-     * @param nombre             El nuevo nombre.
-     * @param descripcion        La nueva descripción (opcional).
-     * @param redirectAttributes Atributos para mensajes de redirección.
-     * @return Una redirección al listado de categorías, o al formulario si hubo un error.
+     * @param id          Identificador de la categoría.
+     * @param nombre      El nuevo nombre.
+     * @param descripcion La nueva descripción (opcional).
+     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
      */
-    @PostMapping("/{id}/editar")
-    public String modificarCategoria(@PathVariable("id") Integer id,
+    @PostMapping("/modificar/{id}")
+    public ResponseEntity<Map<String, String>> modificarCategoria(@PathVariable("id") Integer id,
             @RequestParam(value = "nombre", required = false) String nombre,
-            @RequestParam(value = "descripcion", required = false) String descripcion,
-            RedirectAttributes redirectAttributes) {
+            @RequestParam(value = "descripcion", required = false) String descripcion) {
         try {
             categoriaServicio.modificarCategoria(id, nombre, descripcion);
-            redirectAttributes.addFlashAttribute("mensaje", "Categoría actualizada con éxito.");
-            return "redirect:/cursos/categorias";
+            return Utilidades.respuestaExitosa("Categoría actualizada con éxito.");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/cursos/categorias";
+            return Utilidades.respuestaConError(e);
         }
     }
 
     /**
-     * CU-10: Da de baja una categoría que no tenga cursos activos asociados.
+     * CU-10: Da de baja una categoría que no tenga cursos activos asociados. Responde en JSON.
      *
-     * @param id                 Identificador de la categoría.
-     * @param redirectAttributes Atributos para mensajes de redirección.
-     * @return Una redirección al listado de categorías.
+     * @param id Identificador de la categoría.
+     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
      */
-    @PostMapping("/{id}/baja")
-    public String darDeBajaCategoria(@PathVariable("id") Integer id, RedirectAttributes redirectAttributes) {
+    @PostMapping("/darDeBaja/{id}")
+    public ResponseEntity<Map<String, String>> darDeBajaCategoria(@PathVariable("id") Integer id) {
         try {
             categoriaServicio.darDeBajaCategoria(id);
-            redirectAttributes.addFlashAttribute("mensaje", "Categoría dada de baja con éxito.");
+            return Utilidades.respuestaExitosa("Categoría dada de baja con éxito.");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return Utilidades.respuestaConError(e);
         }
-        return "redirect:/cursos/categorias";
+    }
+
+    /**
+     * Da de baja varios categorías a la vez, todos o ninguno: si alguno no puede darse de baja, no se da de baja
+     * ninguno. Responde en JSON.
+     *
+     * @param ids Identificadores de los categorías seleccionados.
+     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
+     */
+    @PostMapping("/darDeBajaMasiva")
+    public ResponseEntity<Map<String, String>> darDeBajaVarios(
+            @RequestParam(value = "ids", required = false) List<Integer> ids) {
+        try {
+            categoriaServicio.darDeBajaVarios(ids);
+            return Utilidades.respuestaExitosa("Categorías dadas de baja con éxito.");
+        } catch (Exception e) {
+            return Utilidades.respuestaConError(e);
+        }
     }
 }

@@ -39,20 +39,19 @@ public interface CursoServicio {
     Optional<Curso> buscarPorNombre(String nombre);
 
     /**
-     * Busca cursos aplicando filtros opcionales. Incluye los cursos dados de baja, que se ordenan al final
-     * (o al principio, si se indica).
+     * Busca cursos aplicando filtros opcionales. Incluye los cursos dados de baja, que se ordenan siempre al final.
      *
      * @param texto parte del nombre o la descripción del curso (opcional)
      * @param idCategoria identificador de la categoría (opcional)
      * @param idNivel identificador del nivel (opcional)
      * @param idDocente identificador de un docente del equipo docente (opcional)
      * @param idModalidad identificador de una modalidad de dictado (opcional)
-     * @param bajasPrimero si es {@code true}, los cursos dados de baja se listan primero
+     * @param orden el orden de los resultados: "nombre" (A–Z, por defecto) o "recientes" (más nuevos primero)
      * @param soloDeDocente si no es {@code null}, restringe el resultado a los cursos en los que ese docente participa
      * @return una lista de cursos que cumplen los criterios
      */
     List<Curso> buscarConFiltros(String texto, Integer idCategoria, Integer idNivel, Integer idDocente,
-            Integer idModalidad, boolean bajasPrimero, Docente soloDeDocente);
+            Integer idModalidad, String orden, Docente soloDeDocente);
 
     /**
      * Busca los cursos del catálogo público: cursos activos con al menos una cohorte con inscripción abierta.
@@ -103,13 +102,13 @@ public interface CursoServicio {
      * @param emiteCertificado si el curso emite certificado al finalizar
      * @param idsModalidades los identificadores de las modalidades de dictado
      * @param idDocenteTitular el identificador del docente titular
-     * @param idDocenteAyudante el identificador del docente ayudante (opcional)
+     * @param idsDocentesAyudantes los identificadores de los docentes ayudantes (opcional)
      * @return el curso registrado
      * @throws IllegalArgumentException si no se cumple alguna regla de registro
      */
     Curso registrarCurso(String nombre, String descripcion, Float precio, String imagen, Integer idCategoria,
             Integer idNivel, boolean emiteCertificado, List<Integer> idsModalidades, Integer idDocenteTitular,
-            Integer idDocenteAyudante);
+            List<Integer> idsDocentesAyudantes);
 
     /**
      * Modifica un curso activo. Si tiene inscripciones activas, solo pueden modificarse el precio,
@@ -125,13 +124,13 @@ public interface CursoServicio {
      * @param emiteCertificado si el curso emite certificado al finalizar
      * @param idsModalidades los identificadores de las modalidades de dictado
      * @param idDocenteTitular el identificador del docente titular
-     * @param idDocenteAyudante el identificador del docente ayudante (opcional)
+     * @param idsDocentesAyudantes los identificadores de los docentes ayudantes (opcional)
      * @return el curso modificado
      * @throws IllegalArgumentException si no se cumple alguna regla de modificación
      */
     Curso modificarCurso(Integer idCurso, String nombre, String descripcion, Float precio, String imagen,
             Integer idCategoria, Integer idNivel, boolean emiteCertificado, List<Integer> idsModalidades,
-            Integer idDocenteTitular, Integer idDocenteAyudante);
+            Integer idDocenteTitular, List<Integer> idsDocentesAyudantes);
 
     /**
      * Da de baja un curso activo que no tenga programas ni unidades activas asociadas.
@@ -148,4 +147,12 @@ public interface CursoServicio {
      * @return una lista de inscripciones activas del curso
      */
     List<Inscripcion> buscarInscripcionesActivas(Curso curso);
+
+    /**
+     * Da de baja varios registros a la vez, todos o ninguno: si alguno no puede darse de baja, no se da de baja ninguno.
+     *
+     * @param ids los identificadores de los registros
+     * @throws IllegalArgumentException si no se indicó ningún registro o alguno no puede darse de baja
+     */
+    void darDeBajaVarios(java.util.List<Integer> ids);
 }

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+
+<head>
+  <th:block th:replace="~{fragments/head :: recursos}"></th:block>
+</head>
+
+<body class="wf-canvas-bg">
+
+  <div class="cu-page-container">
+    <!-- Pantalla / Screen Frame Oficial -->
+    <div class="screen-frame">
+
+      <!-- Top Navbar Oficial Dinámica -->
+      <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+      <!-- Hero Banner Contextual Superior (Navy) -->
+      <div class="wf-hero-banner">
+        <div>
+          <div class="wf-hero-tag">
+            <i class="fa-solid fa-graduation-cap" style="color: var(--wf-gold);"></i>
+            <span>OFERTA ACADÉMICA</span>
+          </div>
+          <h2 class="wf-hero-title">Explorar catálogo de cursos</h2>
+          <p class="wf-hero-desc">Cursos de posgrado en Finanzas, Economía y Mercado de Capitales, dictados por docentes de primera línea.</p>
+        </div>
+      </div>
+
+      <th:block th:replace="~{fragments/breadcrumb :: migas(null, null, 'Catálogo')}"></th:block>
+
+      <div class="wf-body py-4">
+        <div class="container-fluid px-4 px-lg-5">
+
+          <!-- Filtros: mismo diseño que los listados del panel, con su label -->
+          <section class="pn-tarjeta mb-4">
+            <div class="pn-lista-cabecera">
+              <h2 class="pn-lista-titulo">Cursos disponibles</h2>
+              <span class="pn-seleccionados"><span th:text="${totalCursos}">0</span> curso(s) encontrado(s)</span>
+            </div>
+
+            <form id="formFiltrosCatalogo" th:action="@{/catalogo}" method="get" class="pn-filtros mb-3" data-filtros>
+              <div class="pn-filtros-campo pn-filtros-campo-grande">
+                <label class="pn-etiqueta">Nombre</label>
+                <input type="text" name="busqueda" th:value="${busqueda}" class="pn-input" placeholder="Buscar por nombre" autocomplete="off">
+              </div>
+              <div class="pn-filtros-campo">
+                <label class="pn-etiqueta">Categoría</label>
+                <select name="categoriaId" class="pn-input">
+                  <option value="">Todas las categorías</option>
+                  <option th:each="cat : ${categorias}" th:value="${cat.idCategoria}" th:text="${cat.nombre}"
+                          th:selected="${categoriaSeleccionada != null and categoriaSeleccionada == cat.idCategoria}">Categoría</option>
+                </select>
+              </div>
+              <div class="pn-filtros-campo">
+                <label class="pn-etiqueta">Nivel</label>
+                <select name="nivelId" class="pn-input">
+                  <option value="">Todos los niveles</option>
+                  <option th:each="n : ${niveles}" th:value="${n.idNivel}" th:text="${n.nombre}"
+                          th:selected="${nivelSeleccionado != null and nivelSeleccionado == n.idNivel}">Nivel</option>
+                </select>
+              </div>
+              <div class="pn-filtros-campo">
+                <label class="pn-etiqueta">Docente</label>
+                <select name="docenteId" class="pn-input">
+                  <option value="">Todos los docentes</option>
+                  <option th:each="d : ${docentes}" th:value="${d.idDocente}" th:text="${d.usuario.nombreCompleto}"
+                          th:selected="${docenteSeleccionado != null and docenteSeleccionado == d.idDocente}">Docente</option>
+                </select>
+              </div>
+              <div class="pn-filtros-campo">
+                <label class="pn-etiqueta">Modalidad</label>
+                <select name="modalidadId" class="pn-input">
+                  <option value="">Todas las modalidades</option>
+                  <option th:each="m : ${modalidades}" th:value="${m.idModalidad}" th:text="${m.nombre}"
+                          th:selected="${modalidadSeleccionada != null and modalidadSeleccionada == m.idModalidad}">Modalidad</option>
+                </select>
+              </div>
+              <a th:href="@{/catalogo}" class="pn-btn pn-btn-contorno">Limpiar</a>
+            </form>
+          </section>
+
+          <div th:if="${cursos == null or #lists.isEmpty(cursos)}" class="pn-tarjeta pn-vacio">
+            <i class="fa-solid fa-circle-info me-1"></i> No se encontraron cursos con cohortes abiertas que coincidan con los filtros seleccionados.
+          </div>
+
+          <!-- Grilla de tarjetas -->
+          <div class="wf-cards-grid">
+            <th:block th:each="c : ${cursos}">
+  <th:block th:replace="~{fragments/tarjetaCurso :: tarjeta(${c}, ${cantUnidadesPorCurso != null ? cantUnidadesPorCurso.get(c.idCurso) : null})}"></th:block>
+</th:block>
+          </div>
+
+          <!-- Pie: cursos por página y paginador (mismo estilo que los listados del panel) -->
+          <section class="pn-tarjeta mt-4" th:if="${totalCursos > 0}">
+            <div class="pn-tabla-pie">
+              <div class="pn-por-pagina">
+                <span>Cursos por página:</span>
+                <select name="porPagina" form="formFiltrosCatalogo" onchange="document.getElementById('formFiltrosCatalogo').submit()">
+                  <option value="10" th:selected="${porPagina == 10}">10</option>
+                  <option value="25" th:selected="${porPagina == 25}">25</option>
+                  <option value="50" th:selected="${porPagina == 50}">50</option>
+                  <option value="0" th:selected="${porPagina == 0}">Todo</option>
+                </select>
+                <span th:text="${desdeCurso + '-' + hastaCurso + ' de ' + totalCursos}">1-10 de 25</span>
+              </div>
+              <div class="pn-paginador">
+                <a th:href="@{/catalogo(page=0, porPagina=${porPagina}, busqueda=${busqueda}, categoriaId=${categoriaSeleccionada}, nivelId=${nivelSeleccionado}, docenteId=${docenteSeleccionado}, modalidadId=${modalidadSeleccionada})}"
+                   th:classappend="${currentPage == 0} ? 'deshabilitado'" title="Primera página">«</a>
+                <a th:href="@{/catalogo(page=${currentPage - 1}, porPagina=${porPagina}, busqueda=${busqueda}, categoriaId=${categoriaSeleccionada}, nivelId=${nivelSeleccionado}, docenteId=${docenteSeleccionado}, modalidadId=${modalidadSeleccionada})}"
+                   th:classappend="${currentPage == 0} ? 'deshabilitado'" title="Página anterior">‹</a>
+                <span th:text="${'Página ' + (currentPage + 1) + ' de ' + totalPages}">Página 1 de 1</span>
+                <a th:href="@{/catalogo(page=${currentPage + 1}, porPagina=${porPagina}, busqueda=${busqueda}, categoriaId=${categoriaSeleccionada}, nivelId=${nivelSeleccionado}, docenteId=${docenteSeleccionado}, modalidadId=${modalidadSeleccionada})}"
+                   th:classappend="${currentPage >= totalPages - 1} ? 'deshabilitado'" title="Página siguiente">›</a>
+                <a th:href="@{/catalogo(page=${totalPages - 1}, porPagina=${porPagina}, busqueda=${busqueda}, categoriaId=${categoriaSeleccionada}, nivelId=${nivelSeleccionado}, docenteId=${docenteSeleccionado}, modalidadId=${modalidadSeleccionada})}"
+                   th:classappend="${currentPage >= totalPages - 1} ? 'deshabilitado'" title="Última página">»</a>
+              </div>
+            </div>
+          </section>
+
+        </div>
+      </div>
+
+      <!-- Footer Oficial -->
+      <div th:replace="~{fragments/footer :: footer}"></div>
+
+    </div>
+  </div>
+
+  <!-- Scripts Globales y SweetAlert2 -->
+  <div th:replace="~{fragments/scripts :: scripts}"></div>
+  <script th:src="@{/js/panel.js}"></script>
+</body>
+
+</html>

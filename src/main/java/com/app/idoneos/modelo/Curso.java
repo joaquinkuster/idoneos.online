@@ -1,6 +1,7 @@
 package com.app.idoneos.modelo;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -18,6 +19,11 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class Curso {
+
+    /**
+     * Precio máximo permitido para un curso, en pesos argentinos (ARS).
+     */
+    public static final float PRECIO_MAXIMO = 10_000_000f;
 
     /**
      * Identificador único del curso.
@@ -161,12 +167,14 @@ public class Curso {
     }
 
     /**
-     * Obtiene las participaciones vigentes (no dadas de baja) que conforman el equipo docente del curso.
+     * Obtiene las participaciones vigentes (no dadas de baja) que conforman el equipo docente del curso,
+     * en el orden en que se incorporaron.
      *
      * @return La lista de participaciones vigentes.
      */
     public List<ParticipacionDocente> getEquipoDocente() {
-        return participacionesDocente.stream().filter(participacion -> !participacion.getBaja()).toList();
+        return participacionesDocente.stream().filter(participacion -> !participacion.getBaja())
+                .sorted(Comparator.comparingInt(ParticipacionDocente::getIdParticipacionDocente)).toList();
     }
 
     /**
@@ -180,13 +188,13 @@ public class Curso {
     }
 
     /**
-     * Obtiene el docente ayudante vigente del curso.
+     * Obtiene los docentes ayudantes vigentes del curso.
      *
-     * @return El docente ayudante, o {@code null} si no tiene.
+     * @return La lista de docentes ayudantes (vacía si no tiene).
      */
-    public Docente getDocenteAyudante() {
+    public List<Docente> getDocentesAyudantes() {
         return getEquipoDocente().stream().filter(participacion -> !participacion.getEsTitular())
-                .map(ParticipacionDocente::getDocente).findFirst().orElse(null);
+                .map(ParticipacionDocente::getDocente).toList();
     }
 
     /**

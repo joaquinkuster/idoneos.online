@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <th:block th:replace="~{fragments/head :: recursos}"></th:block>
+</head>
+<body class="auth-body">
+
+    <!-- Top Navbar Oficial Dinámica -->
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <div class="auth-pagina">
+
+        <!-- Fondo: las mismas imágenes del slider del inicio, con transición suave -->
+        <div class="auth-fondo" aria-hidden="true">
+            <div class="auth-fondo-slide activo" th:style="'background-image: url(' + @{/img/cursos/introduccion-finanzas.jpg} + ')'"></div>
+            <div class="auth-fondo-slide" th:style="'background-image: url(' + @{/img/cursos/macroeconomia-coyuntura.jpg} + ')'"></div>
+            <div class="auth-fondo-slide" th:style="'background-image: url(' + @{/img/cursos/economia-argentina-2024.jpg} + ')'"></div>
+            <div class="auth-fondo-capa"></div>
+        </div>
+
+        <div class="auth-contenedor">
+            <div class="auth-tarjeta">
+
+                <!-- Izquierda: formulario -->
+                <div class="auth-izquierda">
+                    <div class="auth-cabecera">
+                        <img th:src="@{/img/logos/image.png}" src="/img/logos/image.png" alt="Idóneos Online" class="auth-logo">
+                        <h1 class="auth-titulo">Idóneos <span>Online</span></h1>
+                        <p class="auth-subtitulo">Plataforma de formación en Finanzas, Economía y Mercado de Capitales</p>
+                    </div>
+
+                    <form th:action="@{/login}" method="post" class="auth-form">
+                        <div th:if="${errorLogin}" class="auth-error" role="alert" th:text="${errorLogin}">Error</div>
+
+                        <div class="auth-grupo">
+                            <label for="correo">Correo</label>
+                            <input id="correo" name="username" type="email" placeholder="tu.correo@ejemplo.com" required autocomplete="email" autofocus>
+                        </div>
+
+                        <div class="auth-grupo">
+                            <label for="contrasena">Contraseña</label>
+                            <div class="auth-clave">
+                                <input id="contrasena" name="password" type="password" placeholder="••••••••" required autocomplete="current-password">
+                                <button type="button" class="auth-clave-ver" id="verClave" aria-label="Mostrar contraseña">
+                                    <i class="fa-regular fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="auth-opciones">
+                            <label class="auth-recordarme">
+                                <input type="checkbox" name="recordarme" value="true">
+                                <span>Recordarme</span>
+                            </label>
+                            <button type="button" class="auth-enlace" id="olvideClave">¿Olvidaste tu contraseña?</button>
+                        </div>
+
+                        <button type="submit" class="auth-boton">Iniciar sesión</button>
+                    </form>
+
+                    <!-- Solo en pantallas chicas, donde se oculta el panel de la derecha -->
+                    <div class="auth-registro-movil">
+                        <p>¿Primera vez aquí?</p>
+                        <button type="button" class="auth-boton-secundario" data-registro>Crear nueva cuenta</button>
+                    </div>
+                </div>
+
+                <!-- Derecha: invitación a registrarse (sin acción por el momento) -->
+                <div class="auth-derecha">
+                    <div class="auth-promo">
+                        <h2>¿Primera vez aquí?</h2>
+                        <p>Registrate para inscribirte a los cursos y seguir tu avance</p>
+                        <button type="button" class="auth-promo-boton" data-registro>Crear cuenta nueva</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script th:src="@{/js/login.js}"></script>
+</body>
+</html>

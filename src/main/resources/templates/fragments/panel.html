@@ -1,0 +1,53 @@
+<!-- Menú lateral del panel del administrador (y fondo que lo cierra en pantallas chicas) -->
+<th:block th:fragment="menu(activo)">
+    <aside class="pn-menu" aria-label="Menú del panel">
+        <div class="pn-menu-cabecera">
+            <a th:href="@{/inicio}" class="pn-menu-marca" title="Ir al sitio">
+                <img th:src="@{/img/logos/image.png}" src="/img/logos/image.png" alt="Idóneos Online">
+                <span>Idóneos <b>Online</b></span>
+            </a>
+            <button type="button" class="pn-menu-colapsar" data-colapsar-menu aria-label="Contraer menú">
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+        </div>
+        <nav class="pn-menu-nav">
+            <a th:href="@{/curso/buscar}" class="pn-menu-enlace" th:classappend="${activo == 'cursos'} ? 'activo'">
+                <i class="fa-solid fa-book-open"></i><span>Cursos</span>
+            </a>
+            <a th:href="@{/cohorte/buscar}" class="pn-menu-enlace" th:classappend="${activo == 'cohortes'} ? 'activo'">
+                <i class="fa-solid fa-calendar-days"></i><span>Cohortes</span>
+            </a>
+            <a th:href="@{/categoria/buscar}" class="pn-menu-enlace" th:classappend="${activo == 'categorias'} ? 'activo'">
+                <i class="fa-solid fa-tags"></i><span>Categorías</span>
+            </a>
+        </nav>
+        <div class="pn-menu-pie">© 2026 Idóneos Online</div>
+    </aside>
+    <div class="pn-fondo-menu" data-cerrar-menu></div>
+</th:block>
+
+<!-- Barra superior del panel con el menú del usuario -->
+<header class="pn-barra" th:fragment="barra">
+    <button type="button" class="pn-barra-menu" data-abrir-menu aria-label="Abrir menú"><i class="fa-solid fa-bars"></i></button>
+    <span></span>
+    <th:block th:replace="~{fragments/menuUsuario :: menu('panel')}"></th:block>
+</header>
+
+<!-- Pie del panel -->
+<footer class="pn-pie" th:fragment="pie">
+    <span><strong>Idóneos Online</strong> — Panel del administrador</span>
+    <span>Desarrollado por Küster y Martinez</span>
+</footer>
+
+<!-- Scripts comunes de las páginas del panel -->
+<th:block th:fragment="scripts">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:src="@{/js/formularios.js}"></script>
+    <script th:src="@{/js/panel.js}"></script>
+    <script th:if="${mensaje != null and !#strings.isEmpty(mensaje)}" th:inline="javascript">
+        mostrarExito(/*[[${mensaje}]]*/ '');
+    </script>
+    <script th:if="${error != null and !#strings.isEmpty(error)}" th:inline="javascript">
+        mostrarError(/*[[${error}]]*/ '');
+    </script>
+</th:block>

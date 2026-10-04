@@ -49,4 +49,14 @@ public interface UsuarioServicio {
      * @return un {@link Optional} con el registro si existe, o vacío si no se encuentra
      */
     Optional<Usuario> buscarPorTokenVerificacion(String tokenVerificacion);
+
+    /**
+     * Cambia el rol por defecto de un usuario. El rol debe estar vigente entre los roles del usuario.
+     *
+     * @param idUsuario Identificador del usuario.
+     * @param idRol     Identificador del rol que pasa a ser el rol por defecto.
+     * @return El rol establecido como rol por defecto.
+     * @throws IllegalArgumentException Si el usuario no existe o no tiene ese rol vigente.
+     */
+    Rol cambiarRolPorDefecto(int idUsuario, Integer idRol);
 }

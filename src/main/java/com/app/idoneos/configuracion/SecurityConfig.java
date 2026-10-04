@@ -1,6 +1,7 @@
 package com.app.idoneos.configuracion;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -11,6 +12,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
+import com.app.idoneos.controlador.ModeloGlobalControlador;
+import com.app.idoneos.modelo.Usuario;
 import com.app.idoneos.servicio.Usuario.UsuarioDetallesServicio;
 
 /**
@@ -22,8 +25,15 @@ import com.app.idoneos.servicio.Usuario.UsuarioDetallesServicio;
 @EnableWebSecurity
 public class SecurityConfig {
 
+    /** Duración de la sesión recordada: 14 días. */
+    private static final int DIAS_DE_RECORDATORIO = 14;
+
     @Autowired
     private UsuarioDetallesServicio usuarioDetallesServicio;
+
+    /** Clave con la que se firma la cookie de "Recordarme". En producción debe definirse con una clave propia. */
+    @Value("${idoneos.seguridad.clave-recordarme:idoneos-online-clave-de-desarrollo}")
+    private String claveRecordarme;
 
     /**
      * Proveedor de autenticación que valida el usuario contra la base de datos.
@@ -61,31 +71,43 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         // Rutas públicas
-                        .requestMatchers("/", "/inicio", "/acercaDe", "/novedades", "/error",
-                                "/seguridad/login", "/cursos/catalogo", "/cursos/*/ficha",
+                        .requestMatchers("/", "/inicio", "/acercaDe", "/error",
+                                "/login", "/catalogo/**",
                                 "/css/**", "/js/**", "/img/**", "/webjars/**")
                         .permitAll()
                         // CU-02: Ver mis cursos (Alumno)
-                        .requestMatchers("/cursos/mis-cursos").hasRole("Alumno")
+                        .requestMatchers("/inscripcion/misCursos").hasRole("Alumno")
                         // CU-01 y CU-11: búsqueda de cursos y cohortes (Docente y Administrador)
-                        .requestMatchers(HttpMethod.GET, "/cursos", "/cursos/cohortes")
+                        .requestMatchers(HttpMethod.GET, "/curso/buscar", "/cohorte/buscar")
                         .hasAnyRole("Docente", "Administrador")
-                        .requestMatchers(HttpMethod.POST, "/cursos/cohortes/*/contexto").hasRole("Docente")
+                        .requestMatchers(HttpMethod.POST, "/cohorte/cambiarContexto/*").hasRole("Docente")
                         // CU-03 a CU-14: gestión de cursos, categorías y cohortes (Administrador)
-                        .requestMatchers("/cursos/**").hasRole("Administrador")
+                        .requestMatchers("/curso/**", "/categoria/**", "/cohorte/**").hasRole("Administrador")
                         .anyRequest().authenticated())
                 .formLogin(login -> login
-                        .loginPage("/seguridad/login")
-                        .loginProcessingUrl("/seguridad/login")
-                        .defaultSuccessUrl("/inicio?login=true", true)
-                        .failureUrl("/seguridad/login?error=true")
+                        .loginPage("/login")
+                        .loginProcessingUrl("/login")
+                        // El administrador entra directamente a la gestión de cursos; los demás roles, al inicio
+                        .successHandler((solicitud, respuesta, autenticacion) -> {
+                            Usuario usuario = (Usuario) autenticacion.getPrincipal();
+                            solicitud.getSession().setAttribute(ModeloGlobalControlador.MENSAJE_DE_SESION,
+                                    "Sesión iniciada correctamente. ¡Bienvenido/a, " + usuario.getNombre() + "!");
+                            respuesta.sendRedirect(solicitud.getContextPath()
+                                    + (usuario.esAdministradorActivo() ? "/curso/buscar" : "/inicio"));
+                        })
+                        .failureUrl("/login?error=true")
                         .permitAll())
+                // "Recordarme": mantiene la sesión iniciada mediante una cookie
+                .rememberMe(recordarme -> recordarme
+                        .key(claveRecordarme)
+                        .rememberMeParameter("recordarme")
+                        .tokenValiditySeconds(DIAS_DE_RECORDATORIO * 24 * 60 * 60))
                 .userDetailsService(usuarioDetallesServicio)
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/inicio?logout=true")
                         .invalidateHttpSession(true)
-                        .deleteCookies("JSESSIONID")
+                        .deleteCookies("JSESSIONID", "remember-me")
                         .permitAll())
                 .build();
     }

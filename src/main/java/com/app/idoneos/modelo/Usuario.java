@@ -225,6 +225,56 @@ public class Usuario implements UserDetails {
      *
      * @return {@code true} si es administrador.
      */
+    /**
+     * Obtiene los roles vigentes del usuario (los que no fueron dados de baja), ordenados por nombre.
+     *
+     * @return La lista de roles vigentes.
+     */
+    public java.util.List<Rol> getRolesVigentes() {
+        return roles.stream()
+                .filter(rolUsuario -> !rolUsuario.getBaja() && rolUsuario.getRol() != null)
+                .map(RolUsuario::getRol)
+                .sorted(java.util.Comparator.comparing(Rol::getNombre))
+                .toList();
+    }
+
+    /**
+     * Obtiene el rol con el que el usuario trabaja: su rol por defecto si lo tiene vigente o, si no,
+     * el primero de sus roles vigentes.
+     *
+     * @return El rol activo, o {@code null} si el usuario no tiene roles vigentes.
+     */
+    public Rol getRolActivo() {
+        java.util.List<Rol> vigentes = getRolesVigentes();
+        if (rolPorDefecto != null && vigentes.stream().anyMatch(rol -> rol.getIdRol() == rolPorDefecto.getIdRol())) {
+            return rolPorDefecto;
+        }
+        return vigentes.isEmpty() ? null : vigentes.get(0);
+    }
+
+    /**
+     * Indica si el rol con el que el usuario trabaja es el indicado.
+     *
+     * @param nombreRol El nombre del rol.
+     * @return {@code true} si el rol activo coincide.
+     */
+    public boolean esRolActivo(String nombreRol) {
+        Rol activo = getRolActivo();
+        return activo != null && nombreRol.equalsIgnoreCase(activo.getNombre());
+    }
+
+    public boolean esAdministradorActivo() {
+        return esRolActivo("Administrador");
+    }
+
+    public boolean esDocenteActivo() {
+        return esRolActivo("Docente");
+    }
+
+    public boolean esAlumnoActivo() {
+        return esRolActivo("Alumno");
+    }
+
     public boolean esAdmin() {
         return tieneRol("Administrador");
     }

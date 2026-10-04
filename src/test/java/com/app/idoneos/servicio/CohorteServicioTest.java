@@ -50,7 +50,7 @@ class CohorteServicioTest {
     }
 
     private Cohorte cohorte(String curso, String estado) {
-        return cohorteServicio.buscarConFiltros(programaDe(curso).getIdPrograma(), null, estado, null, null, null).get(0);
+        return cohorteServicio.buscarConFiltros(programaDe(curso).getIdPrograma(), null, estado, null, null, "recientes", null).get(0);
     }
 
     @Test
@@ -58,10 +58,10 @@ class CohorteServicioTest {
     void buscarCohortesPorEstado() {
         Integer idPrograma = programaDe("Mercado de Capitales Argentino").getIdPrograma();
 
-        assertEquals(1, cohorteServicio.buscarConFiltros(idPrograma, null, "Abierta", null, null, null).size());
-        assertEquals(1, cohorteServicio.buscarConFiltros(idPrograma, null, "En dictado", null, null, null).size());
-        assertEquals(1, cohorteServicio.buscarConFiltros(idPrograma, null, "Finalizada", null, null, null).size());
-        assertEquals(3, cohorteServicio.buscarConFiltros(idPrograma, null, null, null, null, null).size());
+        assertEquals(1, cohorteServicio.buscarConFiltros(idPrograma, null, "Abierta", null, null, "recientes", null).size());
+        assertEquals(1, cohorteServicio.buscarConFiltros(idPrograma, null, "En dictado", null, null, "recientes", null).size());
+        assertEquals(1, cohorteServicio.buscarConFiltros(idPrograma, null, "Finalizada", null, null, "recientes", null).size());
+        assertEquals(3, cohorteServicio.buscarConFiltros(idPrograma, null, null, null, null, "recientes", null).size());
     }
 
     @Test
@@ -204,5 +204,21 @@ class CohorteServicioTest {
 
         cohorteServicio.cambiarContextoDeTrabajo(cohorte, fausto);
         assertThrows(IllegalArgumentException.class, () -> cohorteServicio.cambiarContextoDeTrabajo(cohorte, mariano));
+    }
+
+    @Test
+    @DisplayName("CU-11: ordena por inicio de inscripción más reciente o por curso, con las dadas de baja al final")
+    void ordenarCohortes() {
+        Integer idPrograma = programaDe("Mercado de Capitales Argentino").getIdPrograma();
+        Cohorte finalizada = cohorte("Mercado de Capitales Argentino", "Finalizada");
+        cohorteServicio.darDeBajaCohorte(finalizada.getIdCohorte());
+
+        List<Cohorte> recientes = cohorteServicio.buscarConFiltros(idPrograma, null, null, null, null, "recientes", null);
+        List<Cohorte> porCurso = cohorteServicio.buscarConFiltros(null, null, null, null, null, "curso", null);
+
+        assertTrue(recientes.get(recientes.size() - 1).esInactivo());
+        assertTrue(recientes.get(0).getFechaInicioInscripcion().isAfter(recientes.get(1).getFechaInicioInscripcion()));
+        assertTrue(porCurso.get(porCurso.size() - 1).esInactivo());
+        assertEquals("Análisis Técnico Bursátil", porCurso.get(0).getPrograma().getCurso().getNombre());
     }
 }

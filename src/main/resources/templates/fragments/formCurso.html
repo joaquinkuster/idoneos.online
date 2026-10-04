@@ -1,0 +1,143 @@
+<!-- Formulario por pasos para registrar (curso == null) o modificar un curso.
+     Parámetros: curso (el curso a modificar o null), bloqueado (true si el curso tiene inscripciones activas y solo
+     pueden modificarse el precio, el equipo docente y la imagen). -->
+<form th:fragment="formulario(curso, bloqueado)"
+      th:action="@{${curso == null ? '/curso/registrar' : '/curso/modificar/' + curso.idCurso}}"
+      method="post" enctype="multipart/form-data" class="form-ajax" data-validar data-pasos data-validador="curso" novalidate>
+
+    <div class="pn-aviso pn-aviso-dorado" th:if="${bloqueado}">
+        <i class="fa-solid fa-lock me-1"></i> El curso tiene inscripciones activas: solo pueden modificarse el <strong>precio</strong>, el <strong>equipo docente</strong> y la <strong>imagen de portada</strong>. El resto de los datos es el que el alumno vio y pagó al inscribirse.
+    </div>
+
+    <div class="pn-progreso"><div class="pn-progreso-barra"></div></div>
+    <div class="pn-pasos">
+        <span class="pn-pasos-punto">1</span><span class="pn-pasos-linea"></span>
+        <span class="pn-pasos-punto">2</span><span class="pn-pasos-linea"></span>
+        <span class="pn-pasos-punto">3</span>
+    </div>
+
+    <!-- Paso 1: información básica -->
+    <div class="pn-paso">
+        <div class="pn-seccion-titulo">
+            <h4>Información básica</h4>
+            <p>Nombre, clasificación y descripción del curso</p>
+        </div>
+        <div class="row g-3">
+            <div class="col-12 pn-campo">
+                <div class="pn-etiqueta-fila">
+                    <label class="pn-etiqueta">Nombre <span class="pn-obligatorio">*</span></label>
+                    <span class="pn-contador" th:text="${curso != null ? #strings.length(curso.nombre) + ' / 50' : '0 / 50'}">0 / 50</span>
+                </div>
+                <input type="text" name="nombre" class="pn-input" maxlength="50" placeholder="Nombre" data-contador required
+                       th:value="${curso != null ? curso.nombre : ''}" th:readonly="${bloqueado}" th:classappend="${bloqueado} ? 'pn-bloqueado'">
+                <div class="pn-ayuda-error"></div>
+            </div>
+            <div class="col-md-6 pn-campo">
+                <label class="pn-etiqueta">Categoría <span class="pn-obligatorio">*</span></label>
+                <select name="categoriaId" class="pn-input" required th:classappend="${bloqueado} ? 'pn-bloqueado'" th:attr="tabindex=${bloqueado} ? '-1' : null">
+                    <option value="">Categoría</option>
+                    <option th:each="cat : ${categorias}" th:value="${cat.idCategoria}" th:text="${cat.nombre}"
+                            th:selected="${curso != null and curso.categoria != null and curso.categoria.idCategoria == cat.idCategoria}">Categoría</option>
+                </select>
+                <div class="pn-ayuda-error"></div>
+            </div>
+            <div class="col-md-6 pn-campo">
+                <label class="pn-etiqueta">Nivel <span class="pn-obligatorio">*</span></label>
+                <select name="nivelId" class="pn-input" required th:classappend="${bloqueado} ? 'pn-bloqueado'" th:attr="tabindex=${bloqueado} ? '-1' : null">
+                    <option value="">Nivel</option>
+                    <option th:each="n : ${niveles}" th:value="${n.idNivel}" th:text="${n.nombre}"
+                            th:selected="${curso != null and curso.nivel != null and curso.nivel.idNivel == n.idNivel}">Nivel</option>
+                </select>
+                <div class="pn-ayuda-error"></div>
+            </div>
+            <div class="col-12 pn-campo">
+                <div class="pn-etiqueta-fila">
+                    <label class="pn-etiqueta">Descripción (opcional)</label>
+                    <span class="pn-contador" th:text="${curso != null and curso.descripcion != null ? #strings.length(curso.descripcion) + ' / 150' : '0 / 150'}">0 / 150</span>
+                </div>
+                <textarea name="descripcion" class="pn-input" rows="3" maxlength="150" placeholder="Descripción" data-contador
+                          th:text="${curso != null ? curso.descripcion : ''}" th:readonly="${bloqueado}" th:classappend="${bloqueado} ? 'pn-bloqueado'"></textarea>
+                <div class="pn-ayuda-error"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Paso 2: dictado y equipo docente -->
+    <div class="pn-paso">
+        <div class="pn-seccion-titulo">
+            <h4>Dictado y equipo docente</h4>
+            <p>Modalidades de dictado, certificación y docentes a cargo</p>
+        </div>
+        <div class="row g-3">
+            <div class="col-md-6 pn-campo">
+                <label class="pn-etiqueta">Modalidades <span class="pn-obligatorio">*</span></label>
+                <div th:style="${bloqueado} ? 'pointer-events: none; opacity: .7;' : ''">
+                    <select name="idsModalidades" class="ts-multiselect" multiple placeholder="Modalidades" required
+                            data-mensaje-obligatorio="Debe seleccionar al menos una modalidad.">
+                        <option th:each="m : ${modalidades}" th:value="${m.idModalidad}" th:text="${m.nombre}"
+                                th:selected="${curso != null and curso.modalidades.contains(m)}">Modalidad</option>
+                    </select>
+                </div>
+                <div class="pn-ayuda-error"></div>
+            </div>
+            <div class="col-md-6 pn-campo">
+                <label class="pn-etiqueta">Emite certificado</label>
+                <select name="emiteCertificado" class="pn-input" th:classappend="${bloqueado} ? 'pn-bloqueado'" th:attr="tabindex=${bloqueado} ? '-1' : null">
+                    <option value="true" th:selected="${curso == null or curso.emiteCertificado}">Sí</option>
+                    <option value="false" th:selected="${curso != null and !curso.emiteCertificado}">No</option>
+                </select>
+                <div class="pn-ayuda-error"></div>
+            </div>
+            <div class="col-md-6 pn-campo">
+                <label class="pn-etiqueta">Docente titular <span class="pn-obligatorio">*</span></label>
+                <select name="docenteTitularId" class="pn-input" required>
+                    <option value="">Docente titular</option>
+                    <option th:each="d : ${docentes}" th:value="${d.idDocente}" th:text="${d.usuario.nombreCompleto}"
+                            th:selected="${curso != null and curso.docenteTitular != null and curso.docenteTitular.idDocente == d.idDocente}">Docente</option>
+                </select>
+                <div class="pn-ayuda-error"></div>
+            </div>
+            <div class="col-md-6 pn-campo">
+                <label class="pn-etiqueta">Docentes ayudantes (opcional)</label>
+                <select name="idsDocentesAyudantes" class="ts-multiselect" multiple placeholder="Docentes ayudantes">
+                    <option th:each="d : ${docentes}" th:value="${d.idDocente}" th:text="${d.usuario.nombreCompleto}"
+                            th:selected="${curso != null and curso.docentesAyudantes.contains(d)}">Docente</option>
+                </select>
+                <div class="pn-ayuda-error"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Paso 3: precio e imagen -->
+    <div class="pn-paso">
+        <div class="pn-seccion-titulo">
+            <h4>Precio e imagen</h4>
+            <p>Valor del curso e imagen de portada para el catálogo</p>
+        </div>
+        <div class="row g-3">
+            <div class="col-md-6 pn-campo">
+                <label class="pn-etiqueta">Precio (ARS) <span class="pn-obligatorio">*</span></label>
+                <input type="number" name="precio" class="pn-input" step="0.01" min="0" th:max="${precioMaximo}" placeholder="Precio" required
+                       th:value="${curso != null ? curso.precio : ''}">
+                <div class="pn-ayuda-error"></div>
+            </div>
+            <div class="col-md-6 pn-campo">
+                <label class="pn-etiqueta">Imagen (opcional)</label>
+                <input type="file" name="imagenArchivo" class="pn-input imagen-curso" accept="image/jpeg,image/png,image/webp" style="padding-top: 9px;">
+                <div class="pn-ayuda-error"></div>
+                <img class="pn-vista-previa mt-2" alt="Imagen del curso"
+                     th:classappend="${curso == null or curso.imagen == null} ? 'd-none'"
+                     th:src="${curso != null and curso.imagen != null} ? @{'/img/cursos/' + ${curso.imagen}} : '#'"
+                     th:attr="data-original=${curso != null and curso.imagen != null ? '/img/cursos/' + curso.imagen : ''}">
+            </div>
+        </div>
+    </div>
+
+    <div class="pn-modal-pie">
+        <button type="button" class="pn-btn pn-btn-contorno pn-pie-izquierda" data-paso-anterior>Anterior</button>
+        <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="pn-btn pn-btn-primario" data-paso-siguiente>Siguiente</button>
+        <button type="submit" class="pn-btn pn-btn-primario d-none" data-paso-guardar
+                th:text="${curso == null ? 'Guardar' : 'Actualizar'}">Guardar</button>
+    </div>
+</form>

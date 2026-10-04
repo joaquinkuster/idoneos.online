@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,32 +14,28 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.app.idoneos.modelo.Alumno;
 import com.app.idoneos.modelo.Curso;
-import com.app.idoneos.modelo.Inscripcion;
 import com.app.idoneos.modelo.Programa;
-import com.app.idoneos.modelo.Usuario;
 import com.app.idoneos.servicio.Categoria.CategoriaServicioImpl;
 import com.app.idoneos.servicio.Curso.CursoServicioImpl;
 import com.app.idoneos.servicio.Docente.DocenteServicioImpl;
-import com.app.idoneos.servicio.Inscripcion.InscripcionServicioImpl;
 import com.app.idoneos.servicio.Modalidad.ModalidadServicioImpl;
 import com.app.idoneos.servicio.Nivel.NivelServicioImpl;
 import com.app.idoneos.servicio.Programa.ProgramaServicioImpl;
 import com.app.idoneos.utilidades.Utilidades;
 
 /**
- * Controlador del catálogo de cursos (MOD-F-01).
+ * Controlador del catálogo público de cursos (MOD-F-01).
  *
  * Mapea las pantallas de los casos de uso:
- * CU-06 Explorar catálogo de cursos (GET /cursos/catalogo) y
- * CU-02 Ver mis cursos (GET /cursos/mis-cursos).
+ * CU-06 Explorar catálogo de cursos (GET /catalogo) y su ficha de curso (GET /catalogo/ficha/{id}).
  */
 @Controller
-@RequestMapping("/cursos")
+@RequestMapping("/catalogo")
 public class CatalogoControlador {
 
-    private static final int TAMANIO_PAGINA = 4;
+    /** Cantidad de cursos por página por defecto. El valor 0 significa "todos". */
+    private static final int CURSOS_POR_PAGINA = 10;
 
     @Autowired
     private CursoServicioImpl cursoServicio;
@@ -60,61 +55,40 @@ public class CatalogoControlador {
     @Autowired
     private ProgramaServicioImpl programaServicio;
 
-    @Autowired
-    private InscripcionServicioImpl inscripcionServicio;
-
     /**
      * CU-06: Explora el catálogo público de cursos con cohortes con inscripción abierta, con o sin sesión
-     * iniciada, y muestra la ficha del curso seleccionado (o del primero de la página, por defecto).
+     * iniciada.
      *
      * @param busqueda    Parte del nombre o la descripción del curso.
      * @param categoriaId Identificador de la categoría.
      * @param nivelId     Identificador del nivel.
      * @param docenteId   Identificador de un docente del equipo docente.
      * @param modalidadId Identificador de la modalidad de dictado.
-     * @param cursoId     Identificador del curso del que se muestra la ficha.
+     * @param porPagina   Cantidad de cursos por página (10, 25, 50 o 0 para ver todos).
      * @param page        Número de página (empieza en 0).
      * @param modelo      El modelo de la vista.
      * @return La vista del catálogo de cursos.
      */
-    @GetMapping("/catalogo")
+    @GetMapping
     public String explorarCatalogo(@RequestParam(value = "busqueda", required = false) String busqueda,
             @RequestParam(value = "categoriaId", required = false) Integer categoriaId,
             @RequestParam(value = "nivelId", required = false) Integer nivelId,
             @RequestParam(value = "docenteId", required = false) Integer docenteId,
             @RequestParam(value = "modalidadId", required = false) Integer modalidadId,
-            @RequestParam(value = "cursoId", required = false) Integer cursoId,
+            @RequestParam(value = "porPagina", defaultValue = "" + CURSOS_POR_PAGINA) int porPagina,
             @RequestParam(value = "page", defaultValue = "0") int page, Model modelo) {
         List<Curso> cursos = cursoServicio.buscarEnCatalogo(busqueda, categoriaId, nivelId, docenteId, modalidadId);
-        int totalPaginas = Utilidades.calcularTotalPaginas(cursos.size(), TAMANIO_PAGINA);
+        int tamanioPagina = porPagina > 0 ? porPagina : Math.max(cursos.size(), 1);
+        int totalPaginas = Utilidades.calcularTotalPaginas(cursos.size(), tamanioPagina);
         int pagina = Utilidades.ajustarPagina(page, totalPaginas);
-        List<Curso> cursosPagina = Utilidades.obtenerPagina(cursos, pagina, TAMANIO_PAGINA);
+        List<Curso> cursosPagina = Utilidades.obtenerPagina(cursos, pagina, tamanioPagina);
 
         // Cantidad de unidades temáticas de cada curso (según su primer programa activo)
         Map<Integer, Integer> cantidadUnidadesPorCurso = new HashMap<>();
-        for (Curso curso : cursos) {
+        for (Curso curso : cursosPagina) {
             List<Programa> programas = programaServicio.buscarPorCurso(curso);
             cantidadUnidadesPorCurso.put(curso.getIdCurso(),
                     programas.isEmpty() ? 0 : programas.get(0).getCantidadUnidades());
-        }
-
-        // Curso seleccionado: el indicado, o el primero de la página
-        Curso seleccionado = cursoId == null ? null
-                : cursos.stream().filter(curso -> curso.getIdCurso() == cursoId).findFirst().orElse(null);
-        if (seleccionado == null && !cursosPagina.isEmpty()) {
-            seleccionado = cursosPagina.get(0);
-        }
-        if (seleccionado != null) {
-            modelo.addAttribute("cursoSeleccionado", seleccionado);
-            modelo.addAttribute("cohortesAbiertas", cursoServicio.buscarCohortesAbiertas(seleccionado));
-            List<Programa> programas = programaServicio.buscarPorCurso(seleccionado);
-            if (!programas.isEmpty()) {
-                Programa programa = programas.get(0);
-                modelo.addAttribute("programaSeleccionado", programa);
-                modelo.addAttribute("cronogramas", programa.getUnidadesCronograma().stream()
-                        .filter(cronograma -> !cronograma.getBaja())
-                        .sorted(Comparator.comparingInt(cronograma -> cronograma.getNumeroOrden())).toList());
-            }
         }
 
         modelo.addAttribute("cursos", cursosPagina);
@@ -122,6 +96,9 @@ public class CatalogoControlador {
         modelo.addAttribute("currentPage", pagina);
         modelo.addAttribute("totalPages", totalPaginas);
         modelo.addAttribute("totalCursos", cursos.size());
+        modelo.addAttribute("desdeCurso", cursosPagina.isEmpty() ? 0 : pagina * tamanioPagina + 1);
+        modelo.addAttribute("hastaCurso", cursosPagina.isEmpty() ? 0 : pagina * tamanioPagina + cursosPagina.size());
+        modelo.addAttribute("porPagina", porPagina);
         modelo.addAttribute("categorias", categoriaServicio.obtenerTodo());
         modelo.addAttribute("niveles", nivelServicio.obtenerTodo());
         modelo.addAttribute("modalidades", modalidadServicio.obtenerTodo());
@@ -131,51 +108,37 @@ public class CatalogoControlador {
         modelo.addAttribute("nivelSeleccionado", nivelId);
         modelo.addAttribute("docenteSeleccionado", docenteId);
         modelo.addAttribute("modalidadSeleccionada", modalidadId);
-        modelo.addAttribute("titulo", "CU-06 - Catálogo de Cursos | Idóneos Online");
-        return "pages/cursos/cu-06-explorar-catalogo-de-cursos";
+        modelo.addAttribute("titulo", "Catálogo de cursos | Idóneos Online");
+        return "pages/catalogo";
     }
 
     /**
-     * Redirige a la ficha de un curso dentro del catálogo.
+     * CU-06: Muestra la ficha de un curso: sus datos, la estructura de contenidos por unidad y las cohortes
+     * con inscripción abierta.
      *
-     * @param id Identificador del curso.
-     * @return Una redirección al catálogo con el curso seleccionado.
-     */
-    @GetMapping("/{id}/ficha")
-    public String verFichaCurso(@PathVariable("id") Integer id) {
-        return "redirect:/cursos/catalogo?cursoId=" + id;
-    }
-
-    /**
-     * CU-02: Lista los cursos en los que el alumno está inscripto, con su progreso general,
-     * filtrando por nombre del curso y estado de la inscripción (Pendiente, En Progreso o Finalizado).
-     *
-     * @param busqueda           Parte del nombre del curso.
-     * @param estado             Estado de la inscripción.
+     * @param id                 Identificador del curso.
      * @param modelo             El modelo de la vista.
-     * @param auth               La autenticación actual.
      * @param redirectAttributes Atributos para mensajes de redirección.
-     * @return La vista de "Ver mis cursos".
+     * @return La vista de la ficha del curso, o una redirección al catálogo si el curso no está activo.
      */
-    @GetMapping("/mis-cursos")
-    public String verMisCursos(@RequestParam(value = "busqueda", required = false) String busqueda,
-            @RequestParam(value = "estado", required = false) String estado, Model modelo, Authentication auth,
-            RedirectAttributes redirectAttributes) {
-        try {
-            Usuario usuario = (Usuario) auth.getPrincipal();
-            Alumno alumno = usuario.getAlumno();
-            if (alumno == null) {
-                throw new IllegalArgumentException("Error! El usuario no tiene el rol de alumno.");
-            }
-            List<Inscripcion> inscripciones = inscripcionServicio.buscarMisCursos(alumno, busqueda, estado);
-            modelo.addAttribute("inscripciones", inscripciones);
-            modelo.addAttribute("busqueda", busqueda);
-            modelo.addAttribute("estadoSeleccionado", estado);
-            modelo.addAttribute("titulo", "CU-02 - Mis Cursos | Idóneos Online");
-            return "pages/cursos/cu-02-ver-mis-cursos";
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/inicio";
+    @GetMapping("/ficha/{id}")
+    public String verFichaCurso(@PathVariable("id") Integer id, Model modelo, RedirectAttributes redirectAttributes) {
+        Curso curso = cursoServicio.buscarPorId(id).orElse(null);
+        if (curso == null) {
+            redirectAttributes.addFlashAttribute("error", "Error! El curso no se encuentra disponible.");
+            return "redirect:/catalogo";
         }
+        modelo.addAttribute("cursoSeleccionado", curso);
+        modelo.addAttribute("cohortesAbiertas", cursoServicio.buscarCohortesAbiertas(curso));
+        List<Programa> programas = programaServicio.buscarPorCurso(curso);
+        if (!programas.isEmpty()) {
+            Programa programa = programas.get(0);
+            modelo.addAttribute("programaSeleccionado", programa);
+            modelo.addAttribute("cronogramas", programa.getUnidadesCronograma().stream()
+                    .filter(cronograma -> !cronograma.getBaja())
+                    .sorted(Comparator.comparingInt(cronograma -> cronograma.getNumeroOrden())).toList());
+        }
+        modelo.addAttribute("titulo", curso.getNombre() + " | Idóneos Online");
+        return "pages/ficha";
     }
 }

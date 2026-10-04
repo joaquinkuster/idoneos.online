@@ -140,4 +140,27 @@ public class UsuarioServicioImpl implements UsuarioServicio, CrudServicio<Usuari
     public Optional<Usuario> buscarPorTokenVerificacion(String tokenVerificacion) {
         return usuarioRepositorio.findByTokenVerificacion(tokenVerificacion);
     }
+
+    /**
+     * Cambia el rol por defecto de un usuario. El rol debe estar vigente entre los roles del usuario.
+     *
+     * @param idUsuario Identificador del usuario.
+     * @param idRol     Identificador del rol que pasa a ser el rol por defecto.
+     * @return El rol establecido como rol por defecto.
+     * @throws IllegalArgumentException Si el usuario no existe o no tiene ese rol vigente.
+     */
+    @Override
+    public Rol cambiarRolPorDefecto(int idUsuario, Integer idRol) {
+        Usuario usuario = usuarioRepositorio.findById(idUsuario)
+                .filter(entidad -> !entidad.esInactivo())
+                .orElseThrow(() -> new IllegalArgumentException("Error! El usuario no se encuentra activo."));
+        Rol rol = usuario.getRolesVigentes().stream()
+                .filter(vigente -> idRol != null && vigente.getIdRol() == idRol)
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Error! El usuario no tiene el rol seleccionado."));
+        usuario.setRolPorDefecto(rol);
+        usuario.setUltimaModificacion(java.time.LocalDateTime.now());
+        usuarioRepositorio.save(usuario);
+        return rol;
+    }
 }

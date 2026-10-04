@@ -79,12 +79,13 @@ class CursoServicioTest {
         Curso curso = cursoServicio.registrarCurso("Curso de Prueba", "Descripción", 1000f, null,
                 idCategoria("Mercado de Capitales"), idNivel("Básico"), true,
                 List.of(idModalidad(Modalidad.GRABADA), idModalidad(Modalidad.EN_VIVO)), idDocente(FAUSTO),
-                idDocente(SEBASTIAN));
+                List.of(idDocente(SEBASTIAN), idDocente(MARIANO)));
 
         assertEquals("Curso de Prueba", curso.getNombre());
         assertEquals(2, curso.getModalidades().size());
         assertEquals(FAUSTO, curso.getDocenteTitular().getUsuario().getCorreo());
-        assertEquals(SEBASTIAN, curso.getDocenteAyudante().getUsuario().getCorreo());
+        assertEquals(List.of(SEBASTIAN, MARIANO),
+                curso.getDocentesAyudantes().stream().map(d -> d.getUsuario().getCorreo()).toList());
         assertFalse(curso.esInactivo());
     }
 
@@ -111,8 +112,36 @@ class CursoServicioTest {
         IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
                 () -> cursoServicio.registrarCurso("Curso Nuevo", null, 10f, null, idCategoria("Macroeconomía"),
                         idNivel("Básico"), false, List.of(idModalidad(Modalidad.GRABADA)), idDocente(FAUSTO),
-                        idDocente(FAUSTO)));
+                        List.of(idDocente(MARIANO), idDocente(FAUSTO))));
         assertTrue(error.getMessage().contains("titular"));
+    }
+
+    @Test
+    @DisplayName("CU-03: rechaza un precio superior al máximo permitido")
+    void registrarCursoConPrecioSuperiorAlMaximo() {
+        IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
+                () -> cursoServicio.registrarCurso("Curso Nuevo", null, Curso.PRECIO_MAXIMO + 1, null,
+                        idCategoria("Macroeconomía"), idNivel("Básico"), false,
+                        List.of(idModalidad(Modalidad.GRABADA)), idDocente(FAUSTO), null));
+        assertTrue(error.getMessage().contains("10.000.000"));
+    }
+
+    @Test
+    @DisplayName("CU-03: acepta el precio máximo permitido")
+    void registrarCursoConElPrecioMaximo() {
+        Curso curso = cursoServicio.registrarCurso("Curso Caro", null, Curso.PRECIO_MAXIMO, null,
+                idCategoria("Macroeconomía"), idNivel("Básico"), false, List.of(idModalidad(Modalidad.GRABADA)),
+                idDocente(FAUSTO), null);
+        assertEquals(Curso.PRECIO_MAXIMO, curso.getPrecio());
+    }
+
+    @Test
+    @DisplayName("CU-03: un docente repetido entre los ayudantes se registra una sola vez")
+    void registrarCursoConAyudantesRepetidos() {
+        Curso curso = cursoServicio.registrarCurso("Curso Nuevo", null, 10f, null, idCategoria("Macroeconomía"),
+                idNivel("Básico"), false, List.of(idModalidad(Modalidad.GRABADA)), idDocente(FAUSTO),
+                List.of(idDocente(MARIANO), idDocente(MARIANO)));
+        assertEquals(1, curso.getDocentesAyudantes().size());
     }
 
     @Test
@@ -126,7 +155,7 @@ class CursoServicioTest {
                         curso.getCategoria().getIdCategoria(), curso.getNivel().getIdNivel(),
                         curso.getEmiteCertificado(),
                         curso.getModalidades().stream().map(Modalidad::getIdModalidad).toList(), idDocente(FAUSTO),
-                        idDocente(SEBASTIAN)));
+                        List.of(idDocente(SEBASTIAN), idDocente(MARIANO))));
     }
 
     @Test
@@ -137,7 +166,7 @@ class CursoServicioTest {
         Curso modificado = cursoServicio.modificarCurso(curso.getIdCurso(), curso.getNombre(), curso.getDescripcion(),
                 175000f, null, curso.getCategoria().getIdCategoria(), curso.getNivel().getIdNivel(),
                 curso.getEmiteCertificado(), curso.getModalidades().stream().map(Modalidad::getIdModalidad).toList(),
-                idDocente(FAUSTO), idDocente(SEBASTIAN));
+                idDocente(FAUSTO), List.of(idDocente(SEBASTIAN), idDocente(MARIANO)));
 
         assertEquals(175000f, modificado.getPrecio());
         assertTrue(modificado.getUltimaModificacion() != null);
@@ -164,11 +193,12 @@ class CursoServicioTest {
 
         Curso modificado = cursoServicio.modificarCurso(curso.getIdCurso(), "Introducción a las Finanzas II", "Nueva",
                 50000f, null, idCategoria("Macroeconomía"), idNivel("Avanzado"), true,
-                List.of(idModalidad(Modalidad.EN_VIVO)), idDocente(MARIANO), idDocente(FAUSTO));
+                List.of(idModalidad(Modalidad.EN_VIVO)), idDocente(MARIANO), List.of(idDocente(FAUSTO), idDocente(SEBASTIAN)));
 
         assertEquals("Introducción a las Finanzas II", modificado.getNombre());
         assertEquals(MARIANO, modificado.getDocenteTitular().getUsuario().getCorreo());
-        assertEquals(FAUSTO, modificado.getDocenteAyudante().getUsuario().getCorreo());
+        assertEquals(2, modificado.getDocentesAyudantes().size());
+        assertTrue(modificado.getDocentesAyudantes().stream().anyMatch(d -> d.getUsuario().getCorreo().equals(FAUSTO)));
         assertTrue(modificado.incluyeModalidad(Modalidad.EN_VIVO));
         assertFalse(modificado.incluyeModalidad(Modalidad.GRABADA));
     }
@@ -211,11 +241,35 @@ class CursoServicioTest {
         var mariano = docenteServicio.buscarHabilitados().stream()
                 .filter(d -> d.getUsuario().getCorreo().equals(MARIANO)).findFirst().orElseThrow();
 
-        List<String> nombres = cursoServicio.buscarConFiltros(null, null, null, null, null, false, mariano).stream()
+        List<String> nombres = cursoServicio.buscarConFiltros(null, null, null, null, null, "nombre", mariano).stream()
                 .map(Curso::getNombre).toList();
 
         assertTrue(nombres.contains("Finanzas Personales e Inversión"));
         assertTrue(nombres.contains("Análisis Técnico Bursátil"));
         assertFalse(nombres.contains("Macroeconomía de Coyuntura"));
+    }
+
+    @Test
+    @DisplayName("CU-01: ordena alfabéticamente por defecto y los dados de baja siempre al final")
+    void buscarCursosOrdenadosPorNombre() {
+        List<String> nombres = cursoServicio.buscarConFiltros(null, null, null, null, null, "nombre", null).stream()
+                .map(Curso::getNombre).toList();
+
+        assertEquals("Economía Argentina 2024", nombres.get(nombres.size() - 1), "el curso dado de baja va al final");
+        List<String> vigentes = nombres.subList(0, nombres.size() - 1);
+        assertEquals(vigentes.stream().sorted(String.CASE_INSENSITIVE_ORDER).toList(), vigentes);
+    }
+
+    @Test
+    @DisplayName("CU-01: puede ordenar por los más recientes y los dados de baja siguen al final")
+    void buscarCursosOrdenadosPorMasRecientes() {
+        List<Curso> cursos = cursoServicio.buscarConFiltros(null, null, null, null, null, "recientes", null);
+        List<Curso> vigentes = cursos.stream().filter(curso -> !curso.esInactivo()).toList();
+
+        assertTrue(cursos.get(cursos.size() - 1).esInactivo());
+        for (int i = 1; i < vigentes.size(); i++) {
+            assertTrue(vigentes.get(i - 1).getIdCurso() > vigentes.get(i).getIdCurso(),
+                    "el curso más reciente va primero");
+        }
     }
 }

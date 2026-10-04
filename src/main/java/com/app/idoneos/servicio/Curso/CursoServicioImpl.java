@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -159,25 +160,25 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
     }
 
     /**
-     * Busca cursos aplicando filtros opcionales. Incluye los cursos dados de baja, que se ordenan al final
-     * (o al principio, si se indica).
+     * Busca cursos aplicando filtros opcionales. Incluye los cursos dados de baja, que se ordenan siempre al final.
      *
      * @param texto parte del nombre o la descripción del curso (opcional)
      * @param idCategoria identificador de la categoría (opcional)
      * @param idNivel identificador del nivel (opcional)
      * @param idDocente identificador de un docente del equipo docente (opcional)
      * @param idModalidad identificador de una modalidad de dictado (opcional)
-     * @param bajasPrimero si es {@code true}, los cursos dados de baja se listan primero
+     * @param orden el orden de los resultados: "nombre" (A–Z, por defecto) o "recientes" (más nuevos primero)
      * @param soloDeDocente si no es {@code null}, restringe el resultado a los cursos en los que ese docente participa
      * @return una lista de cursos que cumplen los criterios
      */
     @Override
     public List<Curso> buscarConFiltros(String texto, Integer idCategoria, Integer idNivel, Integer idDocente,
-            Integer idModalidad, boolean bajasPrimero, Docente soloDeDocente) {
+            Integer idModalidad, String orden, Docente soloDeDocente) {
         String criterio = texto == null ? "" : texto.trim().toLowerCase();
-        Comparator<Curso> orden = Comparator
-                .comparing((Curso curso) -> bajasPrimero ? !curso.esInactivo() : curso.esInactivo())
-                .thenComparing(Comparator.comparingInt(Curso::getIdCurso).reversed());
+        Comparator<Curso> criterioDeOrden = Comparator.comparing(Curso::esInactivo)
+                .thenComparing("recientes".equals(orden)
+                        ? Comparator.comparing(Curso::getFechaCreacion).thenComparingInt(Curso::getIdCurso).reversed()
+                        : Comparator.comparing(Curso::getNombre, String.CASE_INSENSITIVE_ORDER));
         return cursoRepositorio.findAll().stream()
                 .filter(curso -> criterio.isEmpty() || curso.getNombre().toLowerCase().contains(criterio)
                         || (curso.getDescripcion() != null && curso.getDescripcion().toLowerCase().contains(criterio)))
@@ -187,7 +188,7 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
                 .filter(curso -> idModalidad == null || curso.getModalidades().stream()
                         .anyMatch(modalidad -> modalidad.getIdModalidad() == idModalidad))
                 .filter(curso -> soloDeDocente == null || participa(curso, soloDeDocente.getIdDocente()))
-                .sorted(orden)
+                .sorted(criterioDeOrden)
                 .toList();
     }
 
@@ -204,7 +205,7 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
     @Override
     public List<Curso> buscarEnCatalogo(String texto, Integer idCategoria, Integer idNivel, Integer idDocente,
             Integer idModalidad) {
-        return buscarConFiltros(texto, idCategoria, idNivel, idDocente, idModalidad, false, null).stream()
+        return buscarConFiltros(texto, idCategoria, idNivel, idDocente, idModalidad, "recientes", null).stream()
                 .filter(curso -> !curso.esInactivo())
                 .filter(curso -> !buscarCohortesAbiertas(curso).isEmpty())
                 .toList();
@@ -261,7 +262,7 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
      * @param emiteCertificado si el curso emite certificado al finalizar
      * @param idsModalidades los identificadores de las modalidades de dictado
      * @param idDocenteTitular el identificador del docente titular
-     * @param idDocenteAyudante el identificador del docente ayudante (opcional)
+     * @param idsDocentesAyudantes los identificadores de los docentes ayudantes (opcional)
      * @return el curso registrado
      * @throws IllegalArgumentException si no se cumple alguna regla de registro
      */
@@ -269,13 +270,13 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
     @Transactional
     public Curso registrarCurso(String nombre, String descripcion, Float precio, String imagen, Integer idCategoria,
             Integer idNivel, boolean emiteCertificado, List<Integer> idsModalidades, Integer idDocenteTitular,
-            Integer idDocenteAyudante) {
+            List<Integer> idsDocentesAyudantes) {
         validarCamposObligatorios(nombre, precio, idCategoria, idNivel, idsModalidades, idDocenteTitular);
         Categoria categoria = obtenerCategoriaActiva(idCategoria);
         Nivel nivel = obtenerNivel(idNivel);
         Docente titular = obtenerDocenteHabilitado(idDocenteTitular);
-        Docente ayudante = idDocenteAyudante == null ? null : obtenerDocenteHabilitado(idDocenteAyudante);
-        validarTitularDistintoDeAyudante(titular, ayudante);
+        List<Docente> ayudantes = obtenerAyudantes(idsDocentesAyudantes);
+        validarTitularEntreAyudantes(titular, ayudantes);
         validarPrecio(precio);
         String nombreLimpio = nombre.trim();
         if (cursoRepositorio.findByNombre(nombreLimpio).isPresent()) {
@@ -288,7 +289,7 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
         curso.setEmiteCertificado(emiteCertificado);
         curso = cursoRepositorio.save(curso);
         sincronizarModalidades(curso, idsModalidades);
-        sincronizarEquipoDocente(curso, titular, ayudante);
+        sincronizarEquipoDocente(curso, titular, ayudantes);
         return curso;
     }
 
@@ -306,7 +307,7 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
      * @param emiteCertificado si el curso emite certificado al finalizar
      * @param idsModalidades los identificadores de las modalidades de dictado
      * @param idDocenteTitular el identificador del docente titular
-     * @param idDocenteAyudante el identificador del docente ayudante (opcional)
+     * @param idsDocentesAyudantes los identificadores de los docentes ayudantes (opcional)
      * @return el curso modificado
      * @throws IllegalArgumentException si no se cumple alguna regla de modificación
      */
@@ -314,7 +315,7 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
     @Transactional
     public Curso modificarCurso(Integer idCurso, String nombre, String descripcion, Float precio, String imagen,
             Integer idCategoria, Integer idNivel, boolean emiteCertificado, List<Integer> idsModalidades,
-            Integer idDocenteTitular, Integer idDocenteAyudante) {
+            Integer idDocenteTitular, List<Integer> idsDocentesAyudantes) {
         Curso curso = cursoRepositorio.findById(idCurso).filter(c -> !c.esInactivo())
                 .orElseThrow(() -> new IllegalArgumentException("Error! El curso no se encuentra activo."));
         validarCamposObligatorios(nombre, precio, idCategoria, idNivel, idsModalidades, idDocenteTitular);
@@ -326,9 +327,9 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
         Categoria categoria = obtenerCategoriaActiva(idCategoria);
         Nivel nivel = obtenerNivel(idNivel);
         Docente titular = obtenerDocenteHabilitado(idDocenteTitular);
-        Docente ayudante = idDocenteAyudante == null ? null : obtenerDocenteHabilitado(idDocenteAyudante);
-        validarTitularDistintoDeAyudante(titular, ayudante);
-        validarDesvinculaciones(curso, titular, ayudante);
+        List<Docente> ayudantes = obtenerAyudantes(idsDocentesAyudantes);
+        validarTitularEntreAyudantes(titular, ayudantes);
+        validarDesvinculaciones(curso, titular, ayudantes);
         validarModalidadesEliminadas(curso, idsModalidades);
         validarPrecio(precio);
         String nombreLimpio = nombre.trim();
@@ -348,7 +349,7 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
         curso.setUltimaModificacion(LocalDateTime.now());
         curso = cursoRepositorio.save(curso);
         sincronizarModalidades(curso, idsModalidades);
-        sincronizarEquipoDocente(curso, titular, ayudante);
+        sincronizarEquipoDocente(curso, titular, ayudantes);
         return curso;
     }
 
@@ -402,6 +403,10 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
         if (precio < 0) {
             throw new IllegalArgumentException("Error! El precio ingresado debe ser mayor o igual a cero.");
         }
+        if (precio > Curso.PRECIO_MAXIMO) {
+            throw new IllegalArgumentException("Error! El precio ingresado no puede superar los $"
+                    + String.format("%,.0f", Curso.PRECIO_MAXIMO).replace(',', '.') + " (ARS).");
+        }
     }
 
     private Categoria obtenerCategoriaActiva(Integer idCategoria) {
@@ -424,8 +429,17 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
         return docente;
     }
 
-    private void validarTitularDistintoDeAyudante(Docente titular, Docente ayudante) {
-        if (ayudante != null && titular.getIdDocente() == ayudante.getIdDocente()) {
+    private List<Docente> obtenerAyudantes(List<Integer> idsDocentesAyudantes) {
+        List<Docente> ayudantes = new ArrayList<>();
+        if (idsDocentesAyudantes == null) return ayudantes;
+        for (Integer idDocente : new LinkedHashSet<>(idsDocentesAyudantes)) {
+            if (idDocente != null) ayudantes.add(obtenerDocenteHabilitado(idDocente));
+        }
+        return ayudantes;
+    }
+
+    private void validarTitularEntreAyudantes(Docente titular, List<Docente> ayudantes) {
+        if (ayudantes.stream().anyMatch(ayudante -> ayudante.getIdDocente() == titular.getIdDocente())) {
             throw new IllegalArgumentException("Error! El docente titular no puede ser también ayudante del curso.");
         }
     }
@@ -452,10 +466,10 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
                 || participacion.getMateriales().stream().anyMatch(material -> !material.getBaja());
     }
 
-    private void validarDesvinculaciones(Curso curso, Docente titular, Docente ayudante) {
+    private void validarDesvinculaciones(Curso curso, Docente titular, List<Docente> ayudantes) {
         Set<Integer> nuevos = new HashSet<>();
         nuevos.add(titular.getIdDocente());
-        if (ayudante != null) nuevos.add(ayudante.getIdDocente());
+        ayudantes.forEach(ayudante -> nuevos.add(ayudante.getIdDocente()));
         for (ParticipacionDocente participacion : curso.getEquipoDocente()) {
             if (!nuevos.contains(participacion.getDocente().getIdDocente()) && tieneActividadVigente(participacion)) {
                 throw new IllegalArgumentException("Error! El docente " + participacion.getDocente().getUsuario().getNombreCompleto()
@@ -497,12 +511,12 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
         }
     }
 
-    private void sincronizarEquipoDocente(Curso curso, Docente titular, Docente ayudante) {
+    private void sincronizarEquipoDocente(Curso curso, Docente titular, List<Docente> ayudantes) {
         Map<Integer, Docente> docentes = new LinkedHashMap<>();
         Map<Integer, Boolean> titulares = new LinkedHashMap<>();
         docentes.put(titular.getIdDocente(), titular);
         titulares.put(titular.getIdDocente(), true);
-        if (ayudante != null) {
+        for (Docente ayudante : ayudantes) {
             docentes.put(ayudante.getIdDocente(), ayudante);
             titulares.put(ayudante.getIdDocente(), false);
         }
@@ -541,5 +555,29 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
                 .flatMap(cohorte -> cohorte.getInscripciones().stream())
                 .filter(inscripcion -> !inscripcion.esInactivo())
                 .toList();
+    }
+
+    /**
+     * Da de baja varios registros a la vez, todos o ninguno: si alguno no puede darse de baja, no se da de baja
+     * ninguno y el mensaje indica cuál lo impidió.
+     *
+     * @param ids los identificadores de los registros
+     * @throws IllegalArgumentException si no se indicó ningún registro o alguno no puede darse de baja
+     */
+    @Override
+    @Transactional
+    public void darDeBajaVarios(List<Integer> ids) {
+        if (ids == null || ids.isEmpty()) {
+            throw new IllegalArgumentException("Error! Debe seleccionar al menos un registro.");
+        }
+        for (Integer id : ids) {
+            try {
+                darDeBajaCurso(id);
+            } catch (IllegalArgumentException e) {
+                String nombre = cursoRepositorio.findById(id).map(c -> c.getNombre()).orElse("#" + id);
+                throw new IllegalArgumentException("Error! No se dio de baja ningún registro. «" + nombre + "»: "
+                        + e.getMessage().replaceFirst("^Error! ", ""));
+            }
+        }
     }
 }

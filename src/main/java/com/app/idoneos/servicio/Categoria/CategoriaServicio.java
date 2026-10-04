@@ -22,9 +22,11 @@ public interface CategoriaServicio {
      *
      * @param nombre parte del nombre de la categoría (opcional)
      * @param baja {@code true} para solo las dadas de baja, {@code false} para solo las vigentes, {@code null} para todas
+     * @param orden el orden de los resultados: "nombre" (A–Z, por defecto) o "recientes" (más nuevas primero);
+     *              las dadas de baja van siempre al final
      * @return una lista de categorías que cumplen los criterios
      */
-    List<Categoria> buscarConFiltros(String nombre, Boolean baja);
+    List<Categoria> buscarConFiltros(String nombre, Boolean baja, String orden);
 
     /**
      * Cuenta las inscripciones activas asociadas a una categoría, a través de sus cursos.
@@ -62,4 +64,12 @@ public interface CategoriaServicio {
      * @throws IllegalArgumentException si la categoría no está activa o tiene cursos activos asociados
      */
     void darDeBajaCategoria(Integer idCategoria);
+
+    /**
+     * Da de baja varios registros a la vez, todos o ninguno: si alguno no puede darse de baja, no se da de baja ninguno.
+     *
+     * @param ids los identificadores de los registros
+     * @throws IllegalArgumentException si no se indicó ningún registro o alguno no puede darse de baja
+     */
+    void darDeBajaVarios(java.util.List<Integer> ids);
 }

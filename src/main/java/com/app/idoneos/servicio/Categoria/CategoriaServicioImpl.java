@@ -112,16 +112,21 @@ public class CategoriaServicioImpl implements CategoriaServicio, CrudServicio<Ca
      *
      * @param nombre parte del nombre de la categoría (opcional)
      * @param baja {@code true} para solo las dadas de baja, {@code false} para solo las vigentes, {@code null} para todas
+     * @param orden el orden de los resultados: "nombre" (A–Z, por defecto) o "recientes" (más nuevas primero);
+     *              las dadas de baja van siempre al final
      * @return una lista de categorías que cumplen los criterios
      */
     @Override
-    public List<Categoria> buscarConFiltros(String nombre, Boolean baja) {
+    public List<Categoria> buscarConFiltros(String nombre, Boolean baja, String orden) {
         String criterio = nombre == null ? "" : nombre.trim().toLowerCase();
         return categoriaRepositorio.findAll().stream()
                 .filter(categoria -> baja == null || categoria.getBaja().equals(baja))
                 .filter(categoria -> criterio.isEmpty() || categoria.getNombre().toLowerCase().contains(criterio))
                 .sorted(Comparator.comparing(Categoria::esInactivo)
-                        .thenComparing(Categoria::getNombre, String.CASE_INSENSITIVE_ORDER))
+                        .thenComparing("recientes".equals(orden)
+                                ? Comparator.comparing(Categoria::getFechaCreacion)
+                                        .thenComparingInt(Categoria::getIdCategoria).reversed()
+                                : Comparator.comparing(Categoria::getNombre, String.CASE_INSENSITIVE_ORDER)))
                 .toList();
     }
 
@@ -223,5 +228,29 @@ public class CategoriaServicioImpl implements CategoriaServicio, CrudServicio<Ca
         categoria.marcarInactivo();
         categoria.setUltimaModificacion(LocalDateTime.now());
         categoriaRepositorio.save(categoria);
+    }
+
+    /**
+     * Da de baja varios registros a la vez, todos o ninguno: si alguno no puede darse de baja, no se da de baja
+     * ninguno y el mensaje indica cuál lo impidió.
+     *
+     * @param ids los identificadores de los registros
+     * @throws IllegalArgumentException si no se indicó ningún registro o alguno no puede darse de baja
+     */
+    @Override
+    @Transactional
+    public void darDeBajaVarios(List<Integer> ids) {
+        if (ids == null || ids.isEmpty()) {
+            throw new IllegalArgumentException("Error! Debe seleccionar al menos un registro.");
+        }
+        for (Integer id : ids) {
+            try {
+                darDeBajaCategoria(id);
+            } catch (IllegalArgumentException e) {
+                String nombre = categoriaRepositorio.findById(id).map(c -> c.getNombre()).orElse("#" + id);
+                throw new IllegalArgumentException("Error! No se dio de baja ningún registro. «" + nombre + "»: "
+                        + e.getMessage().replaceFirst("^Error! ", ""));
+            }
+        }
     }
 }

@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <th:block th:replace="~{fragments/head :: recursos}"></th:block>
+</head>
+<body class="pn-body">
+<div class="pn-app" id="pnApp">
+    <th:block th:replace="~{fragments/panel :: menu(${menuActivo})}"></th:block>
+
+    <div class="pn-principal">
+        <th:block th:replace="~{fragments/panel :: barra}"></th:block>
+
+        <main class="pn-contenido">
+            <div class="pn-encabezado">
+                <div>
+                    <h1 class="pn-titulo">Categorías</h1>
+                    <p class="pn-subtitulo">Gestiona las categorías temáticas del catálogo de cursos</p>
+                </div>
+                <button type="button" class="pn-btn pn-btn-primario" data-bs-toggle="modal" data-bs-target="#modalNuevaCategoria">
+                    <i class="fa-solid fa-plus"></i> Nueva categoría
+                </button>
+            </div>
+
+            <section class="pn-tarjeta" data-tabla>
+                <div class="pn-lista-cabecera">
+                    <h2 class="pn-lista-titulo">Listado de categorías</h2>
+                    <span class="pn-seleccionados" data-seleccionados>0 de 0 seleccionados</span>
+                    <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico d-none" data-baja-masiva
+                            data-url="/categoria/darDeBajaMasiva" data-elementos="categorías"
+                            data-termino-uno="curso activo asociado" data-termino-varios="cursos activos asociados">Dar de baja seleccionado/s</button>
+                </div>
+
+                <!-- Filtros -->
+                <form th:action="@{/categoria/buscar}" method="get" class="pn-filtros" data-filtros>
+                    <div class="pn-filtros-campo pn-filtros-campo-grande">
+                        <label class="pn-etiqueta">Nombre</label>
+                        <input type="text" name="nombre" th:value="${nombreBusqueda}" class="pn-input" placeholder="Buscar por nombre" autocomplete="off">
+                    </div>
+                    <div class="pn-filtros-campo">
+                        <label class="pn-etiqueta">Estado</label>
+                        <select name="baja" class="pn-input">
+                            <option value="" th:selected="${bajaSeleccionada == null}">Todas</option>
+                            <option value="false" th:selected="${bajaSeleccionada != null and !bajaSeleccionada}">Activas</option>
+                            <option value="true" th:selected="${bajaSeleccionada != null and bajaSeleccionada}">Dadas de baja</option>
+                        </select>
+                    </div>
+                    <div class="pn-filtros-campo">
+                        <label class="pn-etiqueta">Ordenar por</label>
+                        <select name="orden" class="pn-input" title="Ordenar por">
+                            <option value="nombre" th:selected="${ordenSeleccionado == 'nombre'}">Nombre (A–Z)</option>
+                            <option value="recientes" th:selected="${ordenSeleccionado == 'recientes'}">Más recientes</option>
+                        </select>
+                    </div>
+                    <a th:href="@{/categoria/buscar}" class="pn-btn pn-btn-contorno">Limpiar</a>
+                    <div class="pn-columnas-wrapper">
+                        <button type="button" class="pn-btn pn-btn-contorno" data-columnas-boton>Columnas</button>
+                        <div class="pn-columnas-menu" data-columnas-menu></div>
+                    </div>
+                </form>
+
+                <!-- Tabla -->
+                <div class="pn-tabla-contenedor">
+                    <table class="pn-tabla">
+                        <thead>
+                            <tr>
+                                <th class="pn-col-seleccion"><input type="checkbox" data-seleccionar-todos aria-label="Seleccionar todas"></th>
+                                <th data-col="Nombre">Nombre</th>
+                                <th data-col="Descripción">Descripción</th>
+                                <th data-col="Registro">Registro</th>
+                                <th data-col="Estado">Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="cat : ${categorias}" data-fila th:classappend="${cat.baja} ? 'pn-fila-baja'"
+                                th:attr="data-dependencias=${cursosPorCategoria != null and cursosPorCategoria.containsKey(cat.idCategoria) ? cursosPorCategoria.get(cat.idCategoria).size() : 0}">
+                                <td class="pn-col-seleccion"><input type="checkbox" data-seleccionar-fila aria-label="Seleccionar fila"
+                                    th:value="${cat.idCategoria}" th:disabled="${cat.baja}"></td>
+                                <td><span class="pn-celda-principal" th:text="${cat.nombre}">Mercado de Capitales</span></td>
+                                <td th:text="${cat.descripcion != null and !#strings.isEmpty(cat.descripcion) ? cat.descripcion : '—'}">Descripción</td>
+                                <td th:text="${cat.fechaCreacion != null ? #temporals.format(cat.fechaCreacion, 'dd/MM/yyyy') : '—'}">28/08/2026</td>
+                                <td>
+                                    <span class="pn-insignia" th:classappend="${cat.baja} ? 'pn-insignia-gris' : 'pn-insignia-verde'"
+                                          th:text="${cat.baja} ? 'Dada de baja' : 'Activa'">Activa</span>
+                                </td>
+                                <td>
+                                    <div class="pn-acciones" th:if="${!cat.baja}">
+                                        <button type="button" class="pn-btn pn-btn-editar pn-btn-chico" data-bs-toggle="modal"
+                                                th:data-bs-target="'#modalEditarCategoria' + ${cat.idCategoria}">Editar</button>
+                                        <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico" data-bs-toggle="modal"
+                                                th:data-bs-target="'#modalBajaCategoria' + ${cat.idCategoria}">Dar de baja</button>
+                                    </div>
+                                    <span th:if="${cat.baja}" class="pn-celda-secundaria">—</span>
+                                </td>
+                            </tr>
+                            <tr data-vacio hidden>
+                                <td colspan="6" class="pn-vacio">No se encontraron categorías que coincidan con los criterios ingresados.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pie: filas por página y paginador -->
+                <div class="pn-tabla-pie">
+                    <div class="pn-por-pagina">
+                        <span>Filas por página:</span>
+                        <select data-por-pagina>
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="0">Todo</option>
+                        </select>
+                        <span data-rango>0-0 de 0</span>
+                    </div>
+                    <div class="pn-paginador" data-paginador></div>
+                </div>
+            </section>
+        </main>
+
+        <th:block th:replace="~{fragments/panel :: pie}"></th:block>
+    </div>
+</div>
+
+<!-- Modal: registrar categoría (CU-08) -->
+<div class="modal fade pn-modal" id="modalNuevaCategoria" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="pn-modal-cabecera">
+                <h3 class="pn-modal-titulo">Nueva categoría</h3>
+                <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="pn-modal-cuerpo">
+                <div class="pn-seccion-titulo">
+                    <h4>Información básica</h4>
+                    <p>Define una categoría temática para clasificar el catálogo</p>
+                </div>
+                <form th:action="@{/categoria/registrar}" method="post" class="form-ajax" data-validar novalidate>
+                    <div class="pn-campo mb-3">
+                        <div class="pn-etiqueta-fila">
+                            <label class="pn-etiqueta">Nombre <span class="pn-obligatorio">*</span></label>
+                            <span class="pn-contador">0 / 50</span>
+                        </div>
+                        <input type="text" name="nombre" class="pn-input" maxlength="50" placeholder="Nombre" data-contador required>
+                        <div class="pn-ayuda-error"></div>
+                    </div>
+                    <div class="pn-campo mb-3">
+                        <div class="pn-etiqueta-fila">
+                            <label class="pn-etiqueta">Descripción (opcional)</label>
+                            <span class="pn-contador">0 / 150</span>
+                        </div>
+                        <textarea name="descripcion" class="pn-input" rows="4" maxlength="150" placeholder="Descripción" data-contador></textarea>
+                        <div class="pn-ayuda-error"></div>
+                    </div>
+                    <div class="pn-modal-pie">
+                        <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="pn-btn pn-btn-primario">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modales por categoría: modificar (CU-09) y dar de baja (CU-10) -->
+<th:block th:each="cat : ${categorias}" th:if="${!cat.baja}">
+    <div class="modal fade pn-modal" th:id="'modalEditarCategoria' + ${cat.idCategoria}" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="pn-modal-cabecera">
+                    <h3 class="pn-modal-titulo">Editar categoría</h3>
+                    <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="pn-modal-cuerpo">
+                    <div class="pn-seccion-titulo">
+                        <h4>Información básica</h4>
+                        <p>Modifica el nombre y la descripción de la categoría</p>
+                    </div>
+                    <form th:action="@{'/categoria/modificar/' + ${cat.idCategoria}}" method="post" class="form-ajax" data-validar novalidate
+                          th:with="bloqueada=${inscripcionesPorCategoria != null and inscripcionesPorCategoria.containsKey(cat.idCategoria) and inscripcionesPorCategoria.get(cat.idCategoria) > 0}">
+                        <div class="pn-aviso pn-aviso-dorado" th:if="${bloqueada}">
+                            <i class="fa-solid fa-lock me-1"></i> La categoría tiene inscripciones activas y no puede modificarse: es un dato que el alumno vio y pagó al inscribirse.
+                        </div>
+                        <fieldset th:disabled="${bloqueada}" style="border: 0; padding: 0; margin: 0;">
+                            <div class="pn-campo mb-3">
+                                <div class="pn-etiqueta-fila">
+                                    <label class="pn-etiqueta">Nombre <span class="pn-obligatorio">*</span></label>
+                                    <span class="pn-contador" th:text="${#strings.length(cat.nombre) + ' / 50'}">0 / 50</span>
+                                </div>
+                                <input type="text" name="nombre" class="pn-input" maxlength="50" th:value="${cat.nombre}" data-contador required>
+                                <div class="pn-ayuda-error"></div>
+                            </div>
+                            <div class="pn-campo mb-3">
+                                <div class="pn-etiqueta-fila">
+                                    <label class="pn-etiqueta">Descripción (opcional)</label>
+                                    <span class="pn-contador" th:text="${#strings.length(cat.descripcion != null ? cat.descripcion : '') + ' / 150'}">0 / 150</span>
+                                </div>
+                                <textarea name="descripcion" class="pn-input" rows="4" maxlength="150" data-contador th:text="${cat.descripcion}"></textarea>
+                                <div class="pn-ayuda-error"></div>
+                            </div>
+                        </fieldset>
+                        <div class="pn-modal-pie">
+                            <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="pn-btn pn-btn-primario" th:disabled="${bloqueada}">Actualizar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade pn-modal" th:id="'modalBajaCategoria' + ${cat.idCategoria}" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="pn-modal-cabecera">
+                    <h3 class="pn-modal-titulo">Dar de baja categoría</h3>
+                    <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="pn-modal-cuerpo text-center">
+                    <div class="pn-baja-icono"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                    <h4 class="pn-modal-titulo mb-1">¿Confirmas dar de baja la categoría?</h4>
+                    <p class="small text-muted mb-0">La categoría dejará de estar disponible en el sistema.</p>
+
+                    <th:block th:with="cursosAsoc=${cursosPorCategoria != null and cursosPorCategoria.containsKey(cat.idCategoria) ? cursosPorCategoria.get(cat.idCategoria) : null}">
+                        <th:block th:with="tieneCursos=${cursosAsoc != null and !cursosAsoc.isEmpty()}">
+                            <div class="pn-baja-detalle">
+                                <div class="pn-baja-fila"><span class="text-muted">Categoría</span><strong th:text="${cat.nombre}">Nombre</strong></div>
+                                <div class="pn-baja-fila">
+                                    <span class="text-muted">Dependencias</span>
+                                    <span th:if="${tieneCursos}" class="text-danger fw-bold"
+                                          th:text="${cursosAsoc.size() + (cursosAsoc.size() == 1 ? ' curso activo asociado' : ' cursos activos asociados')}">2 cursos activos asociados</span>
+                                    <span th:unless="${tieneCursos}" class="text-success fw-bold">Sin cursos activos asociados</span>
+                                </div>
+                            </div>
+                            <form th:action="@{'/categoria/darDeBaja/' + ${cat.idCategoria}}" method="post" class="form-ajax">
+                                <div class="pn-modal-pie">
+                                    <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+                                    <button type="submit" class="pn-btn pn-btn-peligro" th:disabled="${tieneCursos}"
+                                            th:title="${tieneCursos ? 'No se puede dar de baja porque posee cursos activos asociados' : 'Confirmar baja'}">Dar de baja</button>
+                                </div>
+                            </form>
+                        </th:block>
+                    </th:block>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+
+<th:block th:replace="~{fragments/panel :: scripts}"></th:block>
+</body>
+</html>

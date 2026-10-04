@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <th:block th:replace="~{fragments/head :: recursos}"></th:block>
+</head>
+<body class="wf-canvas-bg">
+
+    <div class="cu-page-container">
+        <!-- Pantalla / Screen Frame Oficial -->
+        <div class="screen-frame">
+
+            <!-- Top Navbar Oficial Dinámica -->
+            <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+            <!-- Hero Banner Contextual Superior (Navy) -->
+            <div class="wf-hero-banner">
+                <div>
+                    <div class="wf-hero-tag">
+                        <i class="fa-solid fa-graduation-cap" style="color: var(--wf-gold);"></i>
+                        <span>PORTAL DEL ALUMNO</span>
+                    </div>
+                    <h2 class="wf-hero-title">Mis Cursos</h2>
+                    <p class="wf-hero-desc">Bienvenido/a, <span th:text="${usuario != null ? usuario.nombreCompleto : 'Alumno'}">Juan Pérez</span></p>
+                </div>
+            </div>
+
+            <th:block th:replace="~{fragments/breadcrumb :: migas(null, null, 'Mis cursos')}"></th:block>
+
+            <div class="wf-body py-4">
+                <div class="container-fluid px-4 px-lg-5">
+
+                    <!-- Filtros: mismo diseño que el catálogo (nombre y estado de la inscripción) -->
+                    <section class="pn-tarjeta mb-4">
+                        <div class="pn-lista-cabecera">
+                            <h2 class="pn-lista-titulo">Mis inscripciones</h2>
+                            <span class="pn-seleccionados"><span th:text="${totalInscripciones}">0</span> curso(s) encontrado(s)</span>
+                        </div>
+
+                        <form id="formFiltrosMisCursos" th:action="@{/inscripcion/misCursos}" method="get" class="pn-filtros mb-3" data-filtros>
+                            <div class="pn-filtros-campo pn-filtros-campo-grande">
+                                <label class="pn-etiqueta">Nombre</label>
+                                <input type="text" name="busqueda" th:value="${busqueda}" class="pn-input" placeholder="Buscar por nombre" autocomplete="off">
+                            </div>
+                            <div class="pn-filtros-campo">
+                                <label class="pn-etiqueta">Estado</label>
+                                <select name="estado" class="pn-input">
+                                    <option value="">Todos los estados</option>
+                                    <option value="Pendiente" th:selected="${estadoSeleccionado == 'Pendiente'}">Pendiente</option>
+                                    <option value="En Progreso" th:selected="${estadoSeleccionado == 'En Progreso'}">En Progreso</option>
+                                    <option value="Finalizado" th:selected="${estadoSeleccionado == 'Finalizado'}">Finalizado</option>
+                                </select>
+                            </div>
+                            <a th:href="@{/inscripcion/misCursos}" class="pn-btn pn-btn-contorno">Limpiar</a>
+                        </form>
+                    </section>
+
+                    <div th:if="${inscripciones == null or #lists.isEmpty(inscripciones)}" class="pn-tarjeta pn-vacio">
+                        <i class="fa-solid fa-circle-info me-1"></i> No tenés cursos para mostrar.
+                        <div class="mt-3">
+                            <a th:href="@{/catalogo}" class="pn-btn pn-btn-primario">Explorar catálogo</a>
+                        </div>
+                    </div>
+
+                    <!-- Grilla de cursos del alumno -->
+                    <div class="wf-cards-grid">
+                        <div th:each="insc : ${inscripciones}" class="wf-course-card">
+                            <div class="wf-course-card-thumb" th:classappend="${insc.curso.imagen != null} ? 'wf-thumb-con-imagen'">
+                                <img th:if="${insc.curso.imagen != null}" class="wf-course-thumb-img" th:src="@{'/img/cursos/' + ${insc.curso.imagen}}" alt=""
+                                     width="640" height="130" loading="lazy" decoding="async">
+                                <div class="wf-course-thumb-icon"><i class="fa-solid fa-graduation-cap w-8 h-8 text-white"></i></div>
+                                <div class="wf-course-pills-row">
+                                    <span class="wf-pill-tag" th:text="${insc.curso.categoria.nombre}">Categoría</span>
+                                    <span class="wf-pill-status" th:text="${insc.estado}">En Progreso</span>
+                                </div>
+                            </div>
+                            <div class="wf-course-card-body">
+                                <h4 class="wf-course-title" th:text="${insc.curso.nombre}">Nombre Curso</h4>
+                                <p class="wf-course-desc" th:text="${insc.curso.descripcion}">Descripción</p>
+                                <div class="mb-2">
+                                    <div class="d-flex justify-content-between small text-muted mb-1">
+                                        <span>Progreso general</span>
+                                        <strong th:text="${insc.porcentajeProgreso + '%'}">0%</strong>
+                                    </div>
+                                    <div class="progress" style="height: 8px;">
+                                        <div class="progress-bar" role="progressbar" th:style="${'width:' + insc.porcentajeProgreso + '%; background: var(--wf-gold, #D4A03D);'}"
+                                             th:attr="aria-valuenow=${insc.porcentajeProgreso}" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                    <div class="small text-muted mt-1" th:text="${insc.unidadesCompletadas + ' de ' + insc.cohorte.programa.cantidadUnidades + ' unidades completadas'}">1 de 3 unidades completadas</div>
+                                </div>
+                                <div class="wf-course-info-row">
+                                    <span><i class="fa-solid fa-layer-group me-1" style="color: #94A3B8;"></i> <span th:text="${insc.cohorte.programa.nombre}">Programa 2026</span></span>
+                                    <span class="small text-muted" th:text="${'Acceso hasta ' + #temporals.format(insc.fechaVencimientoAcceso, 'dd/MM/yyyy')}">Acceso hasta 01/01/2027</span>
+                                </div>
+                            </div>
+                            <div class="wf-course-card-footer">
+                                <span class="wf-btn-manage-course" style="opacity: .55; cursor: not-allowed;" title="El acceso al contenido del programa estará disponible con el módulo de Gestión Académica">
+                                    <i class="fa-solid fa-lock me-1"></i>
+                                    <span>Contenido próximamente</span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pie: cursos por página y paginador (mismo estilo que el catálogo) -->
+                    <section class="pn-tarjeta mt-4" th:if="${totalInscripciones > 0}">
+                        <div class="pn-tabla-pie">
+                            <div class="pn-por-pagina">
+                                <span>Cursos por página:</span>
+                                <select name="porPagina" form="formFiltrosMisCursos" onchange="document.getElementById('formFiltrosMisCursos').submit()">
+                                    <option value="10" th:selected="${porPagina == 10}">10</option>
+                                    <option value="25" th:selected="${porPagina == 25}">25</option>
+                                    <option value="50" th:selected="${porPagina == 50}">50</option>
+                                    <option value="0" th:selected="${porPagina == 0}">Todo</option>
+                                </select>
+                                <span th:text="${desdeCurso + '-' + hastaCurso + ' de ' + totalInscripciones}">1-10 de 25</span>
+                            </div>
+                            <div class="pn-paginador">
+                                <a th:href="@{/inscripcion/misCursos(page=0, porPagina=${porPagina}, busqueda=${busqueda}, estado=${estadoSeleccionado})}"
+                                   th:classappend="${currentPage == 0} ? 'deshabilitado'" title="Primera página">«</a>
+                                <a th:href="@{/inscripcion/misCursos(page=${currentPage - 1}, porPagina=${porPagina}, busqueda=${busqueda}, estado=${estadoSeleccionado})}"
+                                   th:classappend="${currentPage == 0} ? 'deshabilitado'" title="Página anterior">‹</a>
+                                <span th:text="${'Página ' + (currentPage + 1) + ' de ' + totalPages}">Página 1 de 1</span>
+                                <a th:href="@{/inscripcion/misCursos(page=${currentPage + 1}, porPagina=${porPagina}, busqueda=${busqueda}, estado=${estadoSeleccionado})}"
+                                   th:classappend="${currentPage >= totalPages - 1} ? 'deshabilitado'" title="Página siguiente">›</a>
+                                <a th:href="@{/inscripcion/misCursos(page=${totalPages - 1}, porPagina=${porPagina}, busqueda=${busqueda}, estado=${estadoSeleccionado})}"
+                                   th:classappend="${currentPage >= totalPages - 1} ? 'deshabilitado'" title="Última página">»</a>
+                            </div>
+                        </div>
+                    </section>
+
+                </div>
+            </div>
+
+            <!-- Footer Oficial -->
+            <div th:replace="~{fragments/footer :: footer}"></div>
+
+        </div>
+    </div>
+
+    <!-- Scripts Globales y SweetAlert2 -->
+    <div th:replace="~{fragments/scripts :: scripts}"></div>
+    <script th:src="@{/js/panel.js}"></script>
+</body>
+</html>

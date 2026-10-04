@@ -122,12 +122,14 @@ public class CohorteServicioImpl implements CohorteServicio, CrudServicio<Cohort
      * @param estado estado de la cohorte: Abierta, En dictado, Finalizada, Próxima o Dada de baja (opcional)
      * @param desde fecha desde la que la inscripción debe estar abierta (opcional)
      * @param hasta fecha hasta la que la inscripción debe estar abierta (opcional)
+     * @param orden el orden de los resultados: "recientes" (inicio de inscripción más nuevo primero, por defecto)
+     *              o "curso" (nombre del curso A–Z); las dadas de baja van siempre al final
      * @param soloDeDocente si no es {@code null}, restringe el resultado a los cursos en los que el docente participa
      * @return una lista de cohortes que cumplen los criterios
      */
     @Override
     public List<Cohorte> buscarConFiltros(Integer idPrograma, String texto, String estado, LocalDate desde,
-            LocalDate hasta, Docente soloDeDocente) {
+            LocalDate hasta, String orden, Docente soloDeDocente) {
         String criterio = texto == null ? "" : texto.trim().toLowerCase();
         return cohorteRepositorio.findAll().stream()
                 .filter(cohorte -> idPrograma == null || cohorte.getPrograma().getIdPrograma() == idPrograma)
@@ -140,7 +142,11 @@ public class CohorteServicioImpl implements CohorteServicio, CrudServicio<Cohort
                 .filter(cohorte -> soloDeDocente == null || cohorte.getPrograma().getCurso().getEquipoDocente().stream()
                         .anyMatch(p -> p.getDocente().getIdDocente() == soloDeDocente.getIdDocente()))
                 .sorted(Comparator.comparing(Cohorte::esInactivo)
-                        .thenComparing(Cohorte::getFechaInicioInscripcion, Comparator.reverseOrder()))
+                        .thenComparing("curso".equals(orden)
+                                ? Comparator.comparing((Cohorte cohorte) -> cohorte.getPrograma().getCurso().getNombre(),
+                                        String.CASE_INSENSITIVE_ORDER)
+                                        .thenComparing(Cohorte::getFechaInicioInscripcion, Comparator.reverseOrder())
+                                : Comparator.comparing(Cohorte::getFechaInicioInscripcion, Comparator.reverseOrder())))
                 .toList();
     }
 
@@ -317,6 +323,30 @@ public class CohorteServicioImpl implements CohorteServicio, CrudServicio<Cohort
         if (semanasAcceso < duracion) {
             throw new IllegalArgumentException("Error! Las semanas de acceso (" + semanasAcceso
                     + ") no pueden ser menores a la duración total del cronograma del programa (" + duracion + " semanas).");
+        }
+    }
+
+    /**
+     * Da de baja varios registros a la vez, todos o ninguno: si alguno no puede darse de baja, no se da de baja
+     * ninguno y el mensaje indica cuál lo impidió.
+     *
+     * @param ids los identificadores de los registros
+     * @throws IllegalArgumentException si no se indicó ningún registro o alguno no puede darse de baja
+     */
+    @Override
+    @Transactional
+    public void darDeBajaVarios(List<Integer> ids) {
+        if (ids == null || ids.isEmpty()) {
+            throw new IllegalArgumentException("Error! Debe seleccionar al menos un registro.");
+        }
+        for (Integer id : ids) {
+            try {
+                darDeBajaCohorte(id);
+            } catch (IllegalArgumentException e) {
+                String nombre = cohorteRepositorio.findById(id).map(c -> c.getPrograma().getCurso().getNombre() + " — " + c.getPrograma().getNombre()).orElse("#" + id);
+                throw new IllegalArgumentException("Error! No se dio de baja ningún registro. «" + nombre + "»: "
+                        + e.getMessage().replaceFirst("^Error! ", ""));
+            }
         }
     }
 }

@@ -1,20 +1,30 @@
-<footer style="background: linear-gradient(180deg, #0B1F3A, #081629); color: #AEBEDA; border-top: 1px solid rgba(255,255,255,0.08);" class="py-5 mt-5" th:fragment="footer">
-    <div class="container">
-        <div class="row g-4 align-items-center mb-4">
-            <div class="col-md-6 text-center text-md-start">
-                <h5 class="font-serif fw-bold text-white mb-1">Idóneos <span style="color: #E4BE6C;">Online</span> S.A.S.</h5>
-                <p class="small text-white-50 mb-0">Plataforma de Educación Financiera, Economía & Mercado de Capitales</p>
-            </div>
-            <div class="col-md-6 text-center text-md-end">
-                <span class="badge bg-gold-soft rounded-pill px-3 py-2">
-                    <i class="fa-solid fa-graduation-cap me-1"></i> FCEQyN — UNaM
-                </span>
-            </div>
+<!-- Footer oficial de Idóneos Online -->
+<footer th:fragment="footer" class="sf-footer">
+    <div class="sf-footer-contenido">
+        <div class="sf-footer-marca">
+            <a th:href="@{/inicio}" class="sf-footer-logo">
+                <img th:src="@{/img/logos/image.png}" src="/img/logos/image.png" alt="Idóneos Online">
+                <span>Idóneos <b>Online</b> S.A.S.</span>
+            </a>
+            <p>Plataforma de Educación Financiera, Economía &amp; Mercado de Capitales</p>
+            <a href="https://www.instagram.com/idoneos.online/" target="_blank" rel="noopener noreferrer" class="sf-footer-red" aria-label="Instagram de Idóneos Online">
+                <i class="fa-brands fa-instagram"></i>
+            </a>
         </div>
-        <hr style="border-color: rgba(255,255,255,0.1);">
-        <div class="text-center small text-white-50">
-            <p class="mb-1">Proyecto Software (LSI) / Trabajo Final (ASC) — Cátedra Lic. Sergio Daniel Caballero</p>
-            <p class="mb-0">Desarrollado por: <strong>Küster Joaquín</strong> (906560) & <strong>Martinez Lazaro Ezequiel</strong> (906047) · Apóstoles (Misiones), 2026</p>
+        <div class="sf-footer-columna">
+            <h6>Navegación</h6>
+            <a th:href="@{/inicio}">Inicio</a>
+            <a th:href="@{/catalogo}">Catálogo</a>
+            <a th:href="@{/acercaDe}">Acerca de</a>
         </div>
+        <div class="sf-footer-columna">
+            <h6>Institucional</h6>
+            <p>FCEQyN — UNaM</p>
+            <p>Proyecto Software (LSI) / Trabajo Final (ASI)</p>
+        </div>
+    </div>
+    <div class="sf-footer-pie">
+        <span>© 2026 Idóneos Online S.A.S.</span>
+        <span>Desarrollado por Küster y Martinez.</span>
     </div>
 </footer>

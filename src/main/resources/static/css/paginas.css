@@ -1,0 +1,974 @@
+/* ==========================================================================
+   PÁGINAS DEL SITIO: ficha del curso y "Acerca de".
+   Colores de Idóneos: azul marino y dorado, con acentos cielo, esmeralda e índigo.
+   ========================================================================== */
+
+:root {
+    --fx-cielo: #0EA5E9;
+    --fx-esmeralda: #10B981;
+    --fx-indigo: #6366F1;
+    --fx-naranja: #F97316;
+}
+
+/* ---------------------------------------------------------------- FICHA DEL CURSO */
+.fx-pastillas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 14px;
+}
+
+.fx-boton-claro {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 0 20px;
+    border-radius: 12px;
+    border: 1.5px solid rgba(255, 255, 255, 0.4);
+    color: #FFFFFF;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.fx-boton-claro:hover {
+    background: #FFFFFF;
+    color: #081426;
+}
+
+/* Franja de datos clave, montada sobre el borde inferior del hero */
+.fx-franja {
+    margin-bottom: 28px;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 14px;
+}
+
+.fx-dato {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #FFFFFF;
+    border: 1px solid var(--pn-borde);
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: 0 10px 28px rgba(8, 20, 38, 0.10);
+}
+
+.fx-icono {
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #FFFFFF;
+    font-size: 18px;
+}
+
+.fx-oro { background: linear-gradient(135deg, #E4BE6C, #C59030); }
+.fx-cielo { background: linear-gradient(135deg, #38BDF8, #0284C7); }
+.fx-esmeralda { background: linear-gradient(135deg, #34D399, #059669); }
+.fx-indigo { background: linear-gradient(135deg, #818CF8, #4F46E5); }
+.fx-naranja { background: linear-gradient(135deg, #FB923C, #EA580C); }
+
+.fx-dato-etiqueta {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--pn-texto-suave);
+}
+
+.fx-dato-valor {
+    font-size: 14px;
+    font-weight: 800;
+    color: #081426;
+    line-height: 1.25;
+}
+
+.fx-tarjeta {
+    background: #FFFFFF;
+    border: 1px solid var(--pn-borde);
+    border-radius: 18px;
+    padding: 24px;
+    box-shadow: 0 4px 18px rgba(8, 20, 38, 0.05);
+}
+
+.fx-titulo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+    font-weight: 800;
+    color: #081426;
+    margin: 0 0 14px;
+}
+
+.fx-titulo i {
+    color: var(--wf-gold);
+}
+
+.fx-texto {
+    font-size: 14px;
+    line-height: 1.75;
+    color: #475569;
+    margin-bottom: 12px;
+}
+
+/* Pestañas */
+.fx-pestanias {
+    gap: 6px;
+    border-bottom: 1px solid var(--pn-borde);
+}
+
+.fx-pestanias .nav-link {
+    border: 0;
+    border-bottom: 3px solid transparent;
+    border-radius: 0;
+    padding: 10px 14px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--pn-texto-suave);
+    background: transparent;
+}
+
+.fx-pestanias .nav-link:hover {
+    color: #081426;
+}
+
+.fx-pestanias .nav-link.active {
+    color: #081426;
+    border-bottom-color: var(--wf-gold);
+    background: transparent;
+}
+
+.fx-contador {
+    display: inline-block;
+    min-width: 20px;
+    padding: 1px 6px;
+    margin-left: 4px;
+    border-radius: 9999px;
+    background: var(--wf-gold);
+    color: #081426;
+    font-size: 11px;
+    font-weight: 800;
+    text-align: center;
+}
+
+.fx-incluye {
+    margin: 0;
+}
+
+.fx-incluye > div {
+    display: flex;
+    gap: 16px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--pn-borde);
+}
+
+.fx-incluye > div:last-child {
+    border-bottom: 0;
+}
+
+.fx-incluye dt {
+    flex: 0 0 150px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #081426;
+}
+
+.fx-incluye dd {
+    margin: 0;
+    font-size: 14px;
+    color: #475569;
+}
+
+.fx-cohortes {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 14px;
+}
+
+.fx-cohorte {
+    border: 1px solid var(--pn-borde);
+    border-radius: 14px;
+    padding: 16px;
+    background: linear-gradient(180deg, #FFFFFF, #F8FAFC);
+}
+
+/* A quién va dirigido */
+.fx-dirigido {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 26px 28px;
+    border-radius: 18px;
+    color: #FFFFFF;
+    background: linear-gradient(120deg, #0B1B33 0%, #14305A 55%, #1D4E89 100%);
+    box-shadow: 0 10px 28px rgba(8, 20, 38, 0.18);
+}
+
+.fx-dirigido-icono {
+    flex-shrink: 0;
+    width: 60px;
+    height: 60px;
+    border-radius: 16px;
+    background: rgba(125, 211, 252, 0.16);
+    color: #7DD3FC;
+    font-size: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.fx-dirigido-titulo {
+    font-size: 18px;
+    font-weight: 800;
+    margin: 0 0 8px;
+}
+
+.fx-dirigido p {
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.fx-dirigido-nota {
+    color: #CBD5E1;
+}
+
+/* Qué aprenderá el alumno: lista numerada en grilla */
+.fx-unidades {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.fx-unidad {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px;
+    border: 1px solid var(--pn-borde);
+    border-radius: 14px;
+    background: #FFFFFF;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.fx-unidad:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(8, 20, 38, 0.08);
+}
+
+.fx-numero {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 16px;
+    color: #FFFFFF;
+    background: linear-gradient(135deg, #E4BE6C, #C59030);
+}
+
+.fx-unidad:nth-child(4n+2) .fx-numero { background: linear-gradient(135deg, #38BDF8, #0284C7); }
+.fx-unidad:nth-child(4n+3) .fx-numero { background: linear-gradient(135deg, #34D399, #059669); }
+.fx-unidad:nth-child(4n) .fx-numero { background: linear-gradient(135deg, #818CF8, #4F46E5); }
+
+.fx-unidad-titulo {
+    font-size: 14px;
+    font-weight: 700;
+    color: #081426;
+    line-height: 1.35;
+}
+
+.fx-unidad-duracion {
+    font-size: 12px;
+    color: var(--pn-texto-suave);
+    margin-top: 2px;
+}
+
+/* Columna lateral */
+.fx-lateral {
+    position: sticky;
+    top: 88px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.fx-precio-tarjeta {
+    text-align: center;
+    padding: 28px 24px;
+    border-radius: 18px;
+    background: #FFFFFF;
+    border: 1px solid var(--pn-borde);
+    box-shadow: 0 10px 28px rgba(8, 20, 38, 0.08);
+}
+
+.fx-precio-etiqueta {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--pn-texto-suave);
+}
+
+.fx-precio {
+    font-size: 38px;
+    font-weight: 800;
+    color: #081426;
+    line-height: 1.15;
+    margin: 6px 0 18px;
+}
+
+.fx-boton-inscribir {
+    width: 100%;
+    height: 46px;
+    border: 0;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #D4A03D 0%, #C59030 100%);
+    color: #081426;
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.fx-boton-inscribir:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+.fx-boton-cierre {
+    width: auto;
+    min-width: 200px;
+}
+
+.fx-precio-nota {
+    margin-top: 12px;
+    font-size: 12px;
+    color: var(--pn-texto-suave);
+    line-height: 1.5;
+}
+
+/* Cierre */
+.fx-cierre {
+    text-align: center;
+    padding: 48px 24px;
+    border-radius: 22px;
+    color: #FFFFFF;
+    background: linear-gradient(120deg, #0B1B33 0%, #14305A 55%, #1D4E89 100%);
+}
+
+.fx-cierre h3 {
+    font-size: 28px;
+    font-weight: 800;
+    margin-bottom: 8px;
+}
+
+.fx-cierre p {
+    color: #CBD5E1;
+    margin-bottom: 24px;
+}
+
+@media (max-width: 1199.98px) {
+    .fx-franja {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 767.98px) {
+    .fx-franja {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .fx-incluye,
+    .fx-unidades {
+        grid-template-columns: 1fr;
+    }
+
+    .fx-dirigido {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+/* ---------------------------------------------------------------- ACERCA DE */
+.ac-hero-imagen {
+    position: relative;
+}
+
+.ac-etiqueta-hero {
+    display: inline-block;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    color: var(--wf-gold);
+    margin-bottom: 6px;
+}
+
+/* Historia: texto en dos columnas con una imagen intercalada */
+.ac-historia-titulo {
+    display: inline-block;
+    font-size: 26px;
+    font-weight: 800;
+    color: #081426;
+    margin: 0 0 22px;
+    padding-bottom: 10px;
+    border-bottom: 3px solid var(--wf-gold);
+}
+
+.ac-historia-titulo span {
+    color: var(--wf-gold);
+}
+
+.ac-historia p {
+    font-size: 15px;
+    line-height: 1.8;
+    color: #475569;
+    margin-bottom: 18px;
+}
+
+.ac-historia-imagen {
+    display: block;
+    width: 64%;
+    height: auto;
+    margin: 24px auto 0;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    border-radius: 14px;
+    box-shadow: 0 10px 24px rgba(8, 20, 38, 0.16);
+}
+
+/* Tarjeta con imagen y panel de color (estructura del bloque "Trabajá con nosotros") */
+.ac-banda {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border-radius: 22px;
+    overflow: hidden;
+    box-shadow: 0 16px 40px rgba(8, 20, 38, 0.18);
+}
+
+.ac-banda-imagen {
+    min-height: 400px;
+    background:
+        linear-gradient(to right, rgba(8, 20, 38, 0.15) 0%, rgba(8, 20, 38, 0.55) 60%, rgba(15, 35, 61, 0.96) 100%),
+        var(--imagen) center / cover no-repeat;
+}
+
+.ac-banda-panel {
+    padding: 56px 48px;
+    color: #FFFFFF;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background:
+        radial-gradient(500px circle at 100% 0%, rgba(212, 160, 61, 0.3), transparent 65%),
+        linear-gradient(135deg, #0F233D 0%, #1E3A5F 100%);
+}
+
+.ac-banda-panel h3 {
+    font-size: 26px;
+    font-weight: 800;
+    margin-bottom: 4px;
+}
+
+.ac-banda-subtitulo {
+    color: var(--wf-gold);
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 16px;
+}
+
+.ac-banda-panel p {
+    font-size: 14px;
+    line-height: 1.75;
+    color: #CBD5E1;
+    margin-bottom: 22px;
+}
+
+.ac-banda-boton {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 42px;
+    padding: 0 22px;
+    border-radius: 9999px;
+    background: var(--wf-gold);
+    color: #081426;
+    font-size: 13px;
+    font-weight: 800;
+    text-decoration: none;
+    transition: background-color 0.2s;
+}
+
+.ac-banda-boton:hover {
+    background: #E4BE6C;
+    color: #081426;
+}
+
+/* Tarjeta con pestañas sobre un círculo decorativo (estructura del bloque "Nuestros cafés") */
+.ac-pestanias-bloque {
+    position: relative;
+    overflow: hidden;
+    padding: 12px 0 0;
+}
+
+.ac-pestanias {
+    position: relative;
+    z-index: 1;
+    justify-content: center;
+    gap: 6px;
+    border: 0;
+    margin-bottom: 12px;
+}
+
+.ac-pestanias .nav-link {
+    border: 0;
+    border-bottom: 3px solid transparent;
+    border-radius: 0;
+    padding: 8px 14px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--pn-texto-suave);
+    background: transparent;
+}
+
+.ac-pestanias .nav-link.active {
+    color: #081426;
+    border-bottom-color: var(--wf-gold);
+    background: transparent;
+}
+
+.ac-pestana-tarjeta {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+    align-items: center;
+    background: #FFFFFF;
+    border-radius: 20px;
+    padding: 28px;
+    box-shadow: 0 16px 40px rgba(8, 20, 38, 0.14);
+}
+
+.ac-pestana-tarjeta h4 {
+    font-size: 20px;
+    font-weight: 800;
+    color: #081426;
+    margin-bottom: 12px;
+}
+
+.ac-pestana-tarjeta p {
+    font-size: 14px;
+    line-height: 1.75;
+    color: #475569;
+    margin-bottom: 18px;
+}
+
+.ac-pestana-imagen {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 10;
+    max-height: 320px;
+    object-fit: cover;
+    border-radius: 14px;
+}
+
+.ac-pestana-boton {
+    display: inline-flex;
+    align-items: center;
+    height: 40px;
+    padding: 0 22px;
+    border-radius: 9999px;
+    background: #0F233D;
+    color: #FFFFFF;
+    font-size: 13px;
+    font-weight: 800;
+    text-decoration: none;
+}
+
+.ac-pestana-boton:hover {
+    background: #081426;
+    color: #FFFFFF;
+}
+
+@media (max-width: 767.98px) {
+    .ac-banda,
+    .ac-pestana-tarjeta {
+        grid-template-columns: 1fr;
+    }
+
+    .ac-banda-imagen {
+        min-height: 200px;
+    }
+}
+
+/* ---------------------------------------------------------------- FOOTER */
+.sf-footer {
+    margin-top: auto;
+    color: #CBD5E1;
+    background:
+        radial-gradient(700px circle at 100% 0%, rgba(29, 78, 137, 0.35), transparent 60%),
+        linear-gradient(180deg, #0B1B33 0%, #071324 100%);
+    border-top: 3px solid var(--wf-gold);
+}
+
+.sf-footer-contenido {
+    max-width: 1500px;
+    margin: 0 auto;
+    padding: 48px 48px 32px;
+    display: grid;
+    grid-template-columns: 1.6fr 1fr 1.2fr;
+    gap: 40px;
+}
+
+.sf-footer-logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    color: #FFFFFF;
+    font-size: 18px;
+    font-weight: 800;
+    text-decoration: none;
+}
+
+.sf-footer-logo img {
+    height: 40px;
+    width: auto;
+}
+
+.sf-footer-logo b {
+    color: var(--wf-gold);
+}
+
+.sf-footer-marca p {
+    margin: 14px 0 18px;
+    max-width: 360px;
+    font-size: 13px;
+    line-height: 1.7;
+    color: #94A3B8;
+}
+
+.sf-footer-red {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    color: #FFFFFF;
+    font-size: 17px;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.sf-footer-red:hover {
+    background: var(--wf-gold);
+    color: #081426;
+    transform: translateY(-2px);
+}
+
+.sf-footer-columna h6 {
+    display: inline-block;
+    margin: 0 0 16px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--wf-gold);
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #FFFFFF;
+}
+
+.sf-footer-columna a,
+.sf-footer-columna p {
+    display: block;
+    margin: 0 0 10px;
+    font-size: 13px;
+    color: #94A3B8;
+    text-decoration: none;
+}
+
+.sf-footer-columna a:hover {
+    color: var(--wf-gold);
+}
+
+.sf-footer-pie {
+    max-width: 1500px;
+    margin: 0 auto;
+    padding: 18px 48px;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    font-size: 12px;
+    color: #94A3B8;
+}
+
+@media (max-width: 991.98px) {
+    .sf-footer-contenido {
+        grid-template-columns: 1fr 1fr;
+        padding: 36px 24px 24px;
+    }
+
+    .sf-footer-marca {
+        grid-column: 1 / -1;
+    }
+
+    .sf-footer-pie {
+        padding: 16px 24px;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .sf-footer-contenido {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ---------------------------------------------------------------- BREADCRUMB DEBAJO DEL BANNER */
+.wf-migas-barra {
+    padding: 16px 48px 0;
+}
+
+.wf-migas {
+    margin: 0;
+    color: #94A3B8;
+}
+
+.wf-migas a {
+    color: #64748B;
+}
+
+.wf-migas a:hover {
+    color: #B7791F;
+}
+
+.wf-migas-actual {
+    color: #0F233D;
+    font-weight: 700;
+}
+
+@media (max-width: 991.98px) {
+    .wf-migas-barra {
+        padding: 14px 24px 0;
+    }
+}
+
+/* ---------------------------------------------------------------- TARJETAS DE CURSO: imagen con carga diferida */
+.wf-course-card-thumb {
+    overflow: hidden;
+}
+
+.wf-course-thumb-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0;
+}
+
+.wf-thumb-con-imagen::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(rgba(8, 20, 38, 0.35), rgba(8, 20, 38, 0.85));
+    z-index: 1;
+}
+
+.wf-thumb-con-imagen .wf-course-thumb-icon,
+.wf-thumb-con-imagen .wf-course-pills-row {
+    position: relative;
+    z-index: 2;
+}
+
+/* ---------------------------------------------------------------- INICIO DE SESIÓN: esquinas redondeadas de cada mitad */
+.auth-tarjeta {
+    background: transparent;
+}
+
+.auth-izquierda {
+    background: #FFFFFF;
+    border-radius: 1.5rem 0 0 1.5rem;
+}
+
+.auth-derecha {
+    border-radius: 0 1.5rem 1.5rem 0;
+}
+
+@media (max-width: 800px) {
+    .auth-izquierda {
+        border-radius: 1.5rem;
+    }
+}
+
+/* ---------------------------------------------------------------- "APRENDÉ CON LOS MEJORES": el degradado va sobre la foto */
+.ac-banda-imagen {
+    background:
+        linear-gradient(135deg, rgba(8, 20, 38, 0.05) 0%, rgba(15, 35, 61, 0.72) 100%),
+        var(--imagen) center / cover no-repeat;
+}
+
+/* ---------------------------------------------------------------- TARJETAS DE CURSO: datos en formato tabular */
+.wf-course-tabla {
+    margin: 0 0 12px;
+}
+
+.wf-course-tabla > div {
+    display: flex;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid #E2E8F0;
+}
+
+.wf-course-tabla > div:first-child {
+    border-top: 1px solid #E2E8F0;
+}
+
+.wf-course-tabla dt {
+    flex: 0 0 84px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #081426;
+}
+
+.wf-course-tabla dd {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748B;
+}
+
+/* Botón de inscripción del hero de la ficha (todavía sin acción) */
+.fx-boton-hero:disabled {
+    opacity: 0.85;
+    cursor: not-allowed;
+}
+
+/* ---------------------------------------------------------------- NAVBAR Y MENÚ DEL USUARIO EN PANTALLAS CHICAS */
+@media (max-width: 991.98px) {
+    body .wf-top-navbar {
+        padding: 10px 16px;
+        min-height: 60px;
+    }
+
+    /* Al abrir el menú, la barra pasa a azul marino sólido */
+    body .wf-top-navbar.menu-abierto {
+        background: #071324 !important;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25) !important;
+    }
+
+    /* Cajón del menú: debajo de la barra, a todo el ancho, con scroll si no entra */
+    body .wf-top-navbar .wf-top-nav-links {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        width: 100%;
+        max-height: calc(100vh - 60px);
+        overflow-y: auto;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+        padding: 6px 16px 18px;
+        background: #071324 !important;
+        border: 0 !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+        border-radius: 0 0 20px 20px !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        box-shadow: 0 16px 30px rgba(0, 0, 0, 0.35);
+    }
+
+    body .wf-top-navbar .wf-top-nav-link {
+        width: 100%;
+        justify-content: flex-start;
+        padding: 14px 4px;
+        font-size: 15px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    /* En el cajón no se usa la línea inferior: el enlace activo se marca con el dorado */
+    body .wf-top-navbar .wf-top-nav-link::after {
+        display: none;
+    }
+
+    body .wf-top-navbar .wf-top-nav-link.active {
+        color: var(--wf-gold);
+    }
+
+    body .wf-top-navbar .wf-top-nav-links > .wf-btn {
+        width: 100%;
+        justify-content: center;
+        margin-top: 14px;
+    }
+
+    /* Menú del usuario dentro del cajón: ocupa todo el ancho y se despliega hacia abajo */
+    body .wf-top-nav-links .um-wrapper {
+        display: block;
+        width: 100%;
+        margin-top: 12px;
+    }
+
+    body .wf-top-nav-links .um-trigger {
+        width: 100%;
+        padding: 10px;
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.07) !important;
+    }
+
+    body .wf-top-nav-links .um-datos {
+        display: flex;
+    }
+
+    body .wf-top-nav-links .um-trigger-oscuro .um-rol {
+        display: block;
+    }
+
+    body .wf-top-nav-links .um-flecha {
+        margin-left: auto;
+    }
+
+    body .wf-top-nav-links .um-dropdown {
+        position: static;
+        width: 100%;
+        margin-top: 8px;
+        box-shadow: none;
+    }
+}
+
+@media (max-width: 575.98px) {
+    body .wf-top-navbar .wf-brand-sub {
+        display: none;
+    }
+
+    body .wf-top-navbar .wf-brand img {
+        height: 34px !important;
+    }
+}
+
+/* Menú del usuario en la barra del panel (pantallas chicas): el desplegable queda dentro de la pantalla */
+@media (max-width: 575.98px) {
+    .pn-barra .um-dropdown {
+        position: fixed;
+        top: 70px;
+        right: 12px;
+        left: 12px;
+        width: auto;
+    }
+}

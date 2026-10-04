@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <th:block th:replace="~{fragments/head :: recursos}"></th:block>
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
+</head>
+<body class="pn-body">
+<div class="pn-app" id="pnApp">
+    <th:block th:replace="~{fragments/panel :: menu(${menuActivo})}"></th:block>
+
+    <div class="pn-principal">
+        <th:block th:replace="~{fragments/panel :: barra}"></th:block>
+
+        <main class="pn-contenido">
+            <div class="pn-encabezado">
+                <div>
+                    <h1 class="pn-titulo">Cursos</h1>
+                    <p class="pn-subtitulo">Gestiona los cursos del catálogo, su equipo docente y sus condiciones comerciales</p>
+                </div>
+                <button type="button" class="pn-btn pn-btn-primario" data-bs-toggle="modal" data-bs-target="#modalNuevoCurso">
+                    <i class="fa-solid fa-plus"></i> Nuevo curso
+                </button>
+            </div>
+
+            <section class="pn-tarjeta" data-tabla>
+                <div class="pn-lista-cabecera">
+                    <h2 class="pn-lista-titulo">Listado de cursos</h2>
+                    <span class="pn-seleccionados" data-seleccionados>0 de 0 seleccionados</span>
+                    <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico d-none" data-baja-masiva
+                            data-url="/curso/darDeBajaMasiva" data-elementos="cursos"
+                            data-termino-uno="programa activo asociado" data-termino-varios="programas activos asociados">Dar de baja seleccionado/s</button>
+                </div>
+
+                <!-- Filtros (CU-01) -->
+                <form th:action="@{/curso/buscar}" method="get" class="pn-filtros" data-filtros>
+                    <div class="pn-filtros-campo pn-filtros-campo-grande">
+                        <label class="pn-etiqueta">Nombre</label>
+                        <input type="text" name="busqueda" th:value="${busqueda}" class="pn-input" placeholder="Buscar por nombre" autocomplete="off">
+                    </div>
+                    <div class="pn-filtros-campo">
+                        <label class="pn-etiqueta">Categoría</label>
+                        <select name="categoriaId" class="pn-input" title="Categoría">
+                            <option value="">Todas las categorías</option>
+                            <option th:each="cat : ${categorias}" th:value="${cat.idCategoria}" th:text="${cat.nombre}"
+                                    th:selected="${categoriaSeleccionada != null and categoriaSeleccionada == cat.idCategoria}">Categoría</option>
+                        </select>
+                    </div>
+                    <div class="pn-filtros-campo">
+                        <label class="pn-etiqueta">Nivel</label>
+                        <select name="nivelId" class="pn-input" title="Nivel">
+                            <option value="">Todos los niveles</option>
+                            <option th:each="n : ${niveles}" th:value="${n.idNivel}" th:text="${n.nombre}"
+                                    th:selected="${nivelSeleccionado != null and nivelSeleccionado == n.idNivel}">Nivel</option>
+                        </select>
+                    </div>
+                    <div class="pn-filtros-campo">
+                        <label class="pn-etiqueta">Docente</label>
+                        <select name="docenteId" class="pn-input" title="Docente">
+                            <option value="">Todos los docentes</option>
+                            <option th:each="d : ${docentes}" th:value="${d.idDocente}" th:text="${d.usuario.nombreCompleto}"
+                                    th:selected="${docenteSeleccionado != null and docenteSeleccionado == d.idDocente}">Docente</option>
+                        </select>
+                    </div>
+                    <div class="pn-filtros-campo">
+                        <label class="pn-etiqueta">Modalidad</label>
+                        <select name="modalidadId" class="pn-input" title="Modalidad">
+                            <option value="">Todas las modalidades</option>
+                            <option th:each="m : ${modalidades}" th:value="${m.idModalidad}" th:text="${m.nombre}"
+                                    th:selected="${modalidadSeleccionada != null and modalidadSeleccionada == m.idModalidad}">Modalidad</option>
+                        </select>
+                    </div>
+                    <div class="pn-filtros-campo">
+                        <label class="pn-etiqueta">Ordenar por</label>
+                        <select name="orden" class="pn-input" title="Ordenar por">
+                            <option value="nombre" th:selected="${ordenSeleccionado == 'nombre'}">Nombre (A–Z)</option>
+                            <option value="recientes" th:selected="${ordenSeleccionado == 'recientes'}">Más recientes</option>
+                        </select>
+                    </div>
+                    <a th:href="@{/curso/buscar}" class="pn-btn pn-btn-contorno">Limpiar</a>
+                    <div class="pn-columnas-wrapper">
+                        <button type="button" class="pn-btn pn-btn-contorno" data-columnas-boton>Columnas</button>
+                        <div class="pn-columnas-menu" data-columnas-menu></div>
+                    </div>
+                </form>
+
+                <!-- Tabla -->
+                <div class="pn-tabla-contenedor">
+                    <table class="pn-tabla">
+                        <thead>
+                            <tr>
+                                <th class="pn-col-seleccion"><input type="checkbox" data-seleccionar-todos aria-label="Seleccionar todos"></th>
+                                <th data-col="Curso">Curso</th>
+                                <th data-col="Categoría">Categoría</th>
+                                <th data-col="Nivel">Nivel</th>
+                                <th data-col="Precio">Precio</th>
+                                <th data-col="Modalidades">Modalidades</th>
+                                <th data-col="Docente titular">Docente titular</th>
+                                <th data-col="Estado">Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="curso : ${cursos}" data-fila th:classappend="${curso.baja} ? 'pn-fila-baja'"
+                                th:attr="data-dependencias=${programasPorCurso != null and programasPorCurso.containsKey(curso.idCurso) ? programasPorCurso.get(curso.idCurso).size() : 0}">
+                                <td class="pn-col-seleccion"><input type="checkbox" data-seleccionar-fila aria-label="Seleccionar fila"
+                                    th:value="${curso.idCurso}" th:disabled="${curso.baja}"></td>
+                                <td>
+                                    <div class="pn-celda-principal" th:text="${curso.nombre}">Curso</div>
+                                </td>
+                                <td th:text="${curso.categoria.nombre}">Categoría</td>
+                                <td th:text="${curso.nivel.nombre}">Nivel</td>
+                                <td class="text-nowrap" th:text="${curso.precio != null && curso.precio <= 0 ? 'Gratis' : '$ ' + #numbers.formatDecimal(curso.precio != null ? curso.precio : 0, 1, 'POINT', 0, 'COMMA')}">$ 0</td>
+                                <td><span th:each="m, st : ${curso.modalidades}"><span th:text="${m.nombre}">Modalidad</span><span th:if="${!st.last}">, </span></span></td>
+                                <td>
+                                    <div th:text="${curso.docenteTitular != null ? curso.docenteTitular.usuario.nombreCompleto : '—'}">Docente</div>
+                                    <div class="pn-celda-secundaria" th:if="${!#lists.isEmpty(curso.docentesAyudantes)}"
+                                         th:text="${#lists.size(curso.docentesAyudantes) + ' ayudante(s)'}">1 ayudante(s)</div>
+                                </td>
+                                <td>
+                                    <span class="pn-insignia"
+                                          th:classappend="${curso.baja} ? 'pn-insignia-gris' : (${cursosConInscripcionAbierta.contains(curso.idCurso)} ? 'pn-insignia-verde' : 'pn-insignia-azul')"
+                                          th:text="${curso.baja} ? 'Dado de baja' : (${cursosConInscripcionAbierta.contains(curso.idCurso)} ? 'Inscripción abierta' : 'Activo')">Activo</span>
+                                </td>
+                                <td>
+                                    <div class="pn-acciones" th:if="${!curso.baja}">
+                                        <button type="button" class="pn-btn pn-btn-editar pn-btn-chico" data-bs-toggle="modal"
+                                                th:data-bs-target="'#modalEditarCurso' + ${curso.idCurso}">Editar</button>
+                                        <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico" data-bs-toggle="modal"
+                                                th:data-bs-target="'#modalBajaCurso' + ${curso.idCurso}">Dar de baja</button>
+                                    </div>
+                                    <span th:if="${curso.baja}" class="pn-celda-secundaria">—</span>
+                                </td>
+                            </tr>
+                            <tr data-vacio hidden>
+                                <td colspan="9" class="pn-vacio">No se encontraron cursos que coincidan con los criterios ingresados.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pie: filas por página y paginador -->
+                <div class="pn-tabla-pie">
+                    <div class="pn-por-pagina">
+                        <span>Filas por página:</span>
+                        <select data-por-pagina>
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="0">Todo</option>
+                        </select>
+                        <span data-rango>0-0 de 0</span>
+                    </div>
+                    <div class="pn-paginador" data-paginador></div>
+                </div>
+            </section>
+        </main>
+
+        <th:block th:replace="~{fragments/panel :: pie}"></th:block>
+    </div>
+</div>
+
+<!-- Modal: registrar curso (CU-03) -->
+<div class="modal fade pn-modal" id="modalNuevoCurso" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="pn-modal-cabecera">
+                <h3 class="pn-modal-titulo">Nuevo curso</h3>
+                <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="pn-modal-cuerpo">
+                <th:block th:replace="~{fragments/formCurso :: formulario(null, false)}"></th:block>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modales por curso: modificar (CU-04) y dar de baja (CU-05) -->
+<th:block th:each="curso : ${cursos}" th:if="${!curso.baja}">
+    <div class="modal fade pn-modal" th:id="'modalEditarCurso' + ${curso.idCurso}" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="pn-modal-cabecera">
+                    <h3 class="pn-modal-titulo">Editar curso</h3>
+                    <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="pn-modal-cuerpo">
+                    <th:block th:replace="~{fragments/formCurso :: formulario(${curso}, ${inscripcionesPorCurso.containsKey(curso.idCurso) and !inscripcionesPorCurso.get(curso.idCurso).isEmpty()})}"></th:block>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade pn-modal" th:id="'modalBajaCurso' + ${curso.idCurso}" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="pn-modal-cabecera">
+                    <h3 class="pn-modal-titulo">Dar de baja curso</h3>
+                    <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="pn-modal-cuerpo text-center">
+                    <div class="pn-baja-icono"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                    <h4 class="pn-modal-titulo mb-1">¿Confirmas dar de baja el curso?</h4>
+                    <p class="small text-muted mb-0">El curso dejará de estar disponible en el sistema.</p>
+
+                    <th:block th:with="progsCurso=${programasPorCurso != null and programasPorCurso.containsKey(curso.idCurso) ? programasPorCurso.get(curso.idCurso) : null},
+                                       inscriptosCurso=${inscripcionesPorCurso != null and inscripcionesPorCurso.containsKey(curso.idCurso) ? inscripcionesPorCurso.get(curso.idCurso) : null}">
+                        <th:block th:with="tieneProgramas=${progsCurso != null and !progsCurso.isEmpty()}, tieneInscriptos=${inscriptosCurso != null and !inscriptosCurso.isEmpty()}">
+                            <div class="pn-baja-detalle">
+                                <div class="pn-baja-fila"><span class="text-muted">Curso</span><strong th:text="${curso.nombre}">Nombre</strong></div>
+                                <div class="pn-baja-fila">
+                                    <span class="text-muted">Dependencias</span>
+                                    <span th:if="${tieneProgramas}" class="text-danger fw-bold"
+                                          th:text="${progsCurso.size() + (progsCurso.size() == 1 ? ' programa activo asociado' : ' programas activos asociados')}">2 programas activos asociados</span>
+                                    <span th:unless="${tieneProgramas}" class="text-success fw-bold">Sin programas activos asociados</span>
+                                </div>
+                            </div>
+                            <form th:action="@{'/curso/darDeBaja/' + ${curso.idCurso}}" method="post" class="form-ajax">
+                                <div class="pn-modal-pie">
+                                    <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+                                    <button type="submit" class="pn-btn pn-btn-peligro" th:disabled="${tieneProgramas}"
+                                            th:title="${tieneProgramas ? 'No se puede dar de baja porque posee programas y/o unidades activas asociadas' : 'Confirmar baja'}">Dar de baja</button>
+                                </div>
+                            </form>
+                        </th:block>
+                    </th:block>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+
+<th:block th:replace="~{fragments/panel :: scripts}"></th:block>
+<!-- Tom Select: selectores múltiples -->
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+<script>
+    // Regla propia del curso: el docente titular no puede ser a la vez ayudante del mismo curso (CU-03 y CU-04)
+    window.PanelValidadores.curso = function (paso, formulario) {
+        if (paso !== 2) { return true; }
+        var titular = formulario.querySelector('[name="docenteTitularId"]');
+        var ayudantes = formulario.querySelector('[name="idsDocentesAyudantes"]');
+        var ids = Array.prototype.map.call(ayudantes.selectedOptions, function (o) { return o.value; });
+        if (titular.value && ids.indexOf(titular.value) !== -1) {
+            window.PanelValidacion.marcar(ayudantes, 'El docente titular no puede ser a la vez ayudante del mismo curso.');
+            return false;
+        }
+        return true;
+    };
+</script>
+</body>
+</html>

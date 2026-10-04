@@ -20,18 +20,20 @@ public interface CohorteServicio {
     List<Cohorte> buscarPorPrograma(Programa programa);
 
     /**
-     * Busca cohortes aplicando filtros opcionales. Incluye las dadas de baja, que se ordenan al final.
+     * Busca cohortes aplicando filtros opcionales. Incluye las dadas de baja, que se ordenan siempre al final.
      *
      * @param idPrograma identificador del programa (opcional)
      * @param texto parte del nombre del curso o del programa (opcional)
      * @param estado estado de la cohorte: Abierta, En dictado, Finalizada, Próxima o Dada de baja (opcional)
      * @param desde fecha desde la que la inscripción debe estar abierta (opcional)
      * @param hasta fecha hasta la que la inscripción debe estar abierta (opcional)
+     * @param orden el orden de los resultados: "recientes" (inicio de inscripción más nuevo primero, por defecto)
+     *              o "curso" (nombre del curso A–Z); las dadas de baja van siempre al final
      * @param soloDeDocente si no es {@code null}, restringe el resultado a los cursos en los que el docente participa
      * @return una lista de cohortes que cumplen los criterios
      */
     List<Cohorte> buscarConFiltros(Integer idPrograma, String texto, String estado, LocalDate desde, LocalDate hasta,
-            Docente soloDeDocente);
+            String orden, Docente soloDeDocente);
 
     /**
      * Registra una cohorte para un programa activo.
@@ -83,4 +85,12 @@ public interface CohorteServicio {
      * @throws IllegalArgumentException si el docente no participa en el curso de la cohorte
      */
     void cambiarContextoDeTrabajo(Cohorte cohorte, Docente docente);
+
+    /**
+     * Da de baja varios registros a la vez, todos o ninguno: si alguno no puede darse de baja, no se da de baja ninguno.
+     *
+     * @param ids los identificadores de los registros
+     * @throws IllegalArgumentException si no se indicó ningún registro o alguno no puede darse de baja
+     */
+    void darDeBajaVarios(java.util.List<Integer> ids);
 }

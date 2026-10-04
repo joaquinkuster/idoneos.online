@@ -2785,3 +2785,38 @@ textarea.form-control:focus {
     pointer-events: none;
     border-radius: 50%;
 }
+
+/* MODALES RÁPIDOS: fondo sólido (sin desenfoque del fondo, que se recalcula en cada cuadro de la animación)
+   y animación corta. El efecto glass se mantiene en la navbar y en los elementos chicos. */
+.modal-content,
+.wf-modal-box {
+    background: #FFFFFF !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
+.modal-header,
+.wf-modal-header,
+.wf-modal-option.active {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
+.modal.fade .modal-dialog {
+    transition: transform 0.15s ease-out !important;
+}
+
+.modal-backdrop.fade {
+    transition: opacity 0.15s linear !important;
+}
+
+/* MULTISELECT (Tom Select): ocupa todo el ancho disponible del campo */
+.wf-input-wrap .ts-wrapper,
+.ts-wrapper {
+    width: 100%;
+}
+
+.ts-wrapper .ts-control {
+    width: 100%;
+    min-height: 44px;
+}

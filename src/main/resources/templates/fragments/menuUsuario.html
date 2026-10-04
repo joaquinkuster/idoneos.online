@@ -1,0 +1,47 @@
+<!-- Menú desplegable del usuario autenticado.
+     modo: 'navbar' (barra superior oscura) o 'panel' (barra superior clara del panel del administrador). -->
+<div th:fragment="menu(modo)" class="um-wrapper" th:if="${usuario != null}">
+    <button type="button" class="um-trigger" th:classappend="${modo == 'panel'} ? 'um-trigger-claro' : 'um-trigger-oscuro'"
+            data-menu-usuario aria-haspopup="true" aria-expanded="false">
+        <span class="um-avatar"
+              th:text="${#strings.substring(usuario.nombre,0,1) + #strings.substring(usuario.apellido != null ? usuario.apellido : '',0,1)}">AG</span>
+        <span class="um-datos">
+            <span class="um-nombre" th:text="${usuario.nombreCompleto}">Admin General</span>
+            <span class="um-rol" th:text="${usuario.rolActivo != null ? usuario.rolActivo.nombre : 'Usuario'}">Administrador</span>
+        </span>
+        <i class="fa-solid fa-chevron-down um-flecha"></i>
+    </button>
+
+    <div class="um-dropdown" role="menu">
+        <div class="um-encabezado">
+            <div class="um-encabezado-nombre" th:text="${usuario.nombreCompleto}">Admin General</div>
+            <div class="um-encabezado-correo" th:text="${usuario.correo}">admin@idoneos.online</div>
+        </div>
+
+        <div class="um-seccion">
+            <!-- Administrador -->
+            <a th:if="${usuario.esAdministradorActivo() and modo != 'panel'}" th:href="@{/curso/buscar}" class="um-item">Panel Administrador</a>
+            <a th:if="${usuario.esAdministradorActivo() and modo == 'panel'}" th:href="@{/inicio}" class="um-item">Ir al sitio</a>
+
+            <!-- Docente -->
+            <a th:if="${usuario.esDocenteActivo()}" th:href="@{/curso/buscar}" class="um-item">Mis cursos</a>
+            <a th:if="${usuario.esDocenteActivo()}" th:href="@{/cohorte/buscar}" class="um-item">Mis cohortes</a>
+
+            <!-- Alumno -->
+            <a th:if="${usuario.esAlumnoActivo()}" th:href="@{/inscripcion/misCursos}" class="um-item">Mis cursos</a>
+        </div>
+
+        <div class="um-seccion">
+            <label class="um-etiqueta" for="selectRolPorDefecto">Rol por defecto</label>
+            <select id="selectRolPorDefecto" class="um-select" data-selector-rol th:disabled="${#lists.size(usuario.rolesVigentes) < 2}">
+                <option th:each="rol : ${usuario.rolesVigentes}" th:value="${rol.idRol}" th:text="${rol.nombre}"
+                        th:selected="${usuario.rolActivo != null and usuario.rolActivo.idRol == rol.idRol}">Administrador</option>
+            </select>
+        </div>
+
+        <div class="um-seccion">
+            <button type="button" class="um-item um-item-peligro" onclick="confirmarCerrarSesion()">Cerrar sesión</button>
+            <form id="formularioCerrarSesion" th:action="@{/logout}" method="post" style="display: none;"></form>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+
+<head>
+  <th:block th:replace="~{fragments/head :: recursos}"></th:block>
+</head>
+
+<body class="wf-canvas-bg"
+      th:with="curso=${cursoSeleccionado},
+               cantidadUnidades=${cronogramas != null ? #lists.size(cronogramas) : 0},
+               hayCohortes=${cohortesAbiertas != null and !#lists.isEmpty(cohortesAbiertas)},
+               primeraCohorte=${cohortesAbiertas != null and !#lists.isEmpty(cohortesAbiertas) ? cohortesAbiertas.get(0) : null}">
+
+  <div class="cu-page-container">
+    <div class="screen-frame">
+
+      <!-- Top Navbar Oficial Dinámica -->
+      <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+      <!-- Hero -->
+      <div class="wf-hero-banner">
+        <div style="max-width: 760px;">
+          
+          <h2 class="wf-hero-title" th:text="${curso.nombre}">Nombre del curso</h2>
+          <p class="wf-hero-desc" th:if="${curso.descripcion != null and !#strings.isEmpty(curso.descripcion)}" th:text="${curso.descripcion}">Descripción</p>
+          <div class="d-flex flex-wrap gap-2 mt-3">
+            <button type="button" class="wf-btn-gold fx-boton-hero" disabled
+                    title="La inscripción online estará disponible con el módulo de Inscripción y Pagos"><i class="fa-solid fa-user-plus"></i> <span>Inscribirme al curso</span></button>
+            <a th:href="@{/catalogo}" class="fx-boton-claro"><i class="fa-solid fa-arrow-left"></i> <span>Volver al catálogo</span></a>
+          </div>
+        </div>
+      </div>
+
+      <th:block th:replace="~{fragments/breadcrumb :: migas('Catálogo', '/catalogo', ${curso.nombre})}"></th:block>
+
+      <div class="wf-body py-4">
+        <div class="container-fluid px-4 px-lg-5">
+
+          <!-- Franja de datos clave -->
+          <div class="fx-franja">
+            <div class="fx-dato">
+              <span class="fx-icono fx-oro"><i class="fa-solid fa-tag"></i></span>
+              <div>
+                <div class="fx-dato-etiqueta">Precio</div>
+                <div class="fx-dato-valor"
+                     th:text="${curso.precio != null && curso.precio <= 0 ? 'Gratis' : '$ ' + #numbers.formatDecimal(curso.precio != null ? curso.precio : 0, 1, 'POINT', 0, 'COMMA')}">$ 120.000</div>
+              </div>
+            </div>
+            <div class="fx-dato">
+              <span class="fx-icono fx-cielo"><i class="fa-solid fa-hourglass-half"></i></span>
+              <div>
+                <div class="fx-dato-etiqueta">Duración</div>
+                <div class="fx-dato-valor" th:text="${programaSeleccionado != null ? programaSeleccionado.duracionTotalSemanas + ' semanas' : '—'}">9 semanas</div>
+              </div>
+            </div>
+            <div class="fx-dato">
+              <span class="fx-icono fx-esmeralda"><i class="fa-solid fa-video"></i></span>
+              <div>
+                <div class="fx-dato-etiqueta">Modalidad</div>
+                <div class="fx-dato-valor"><span th:each="m, st : ${curso.modalidades}"><span th:text="${m.nombre}">Modalidad</span><span th:if="${!st.last}"> · </span></span></div>
+              </div>
+            </div>
+            <div class="fx-dato">
+              <span class="fx-icono fx-indigo"><i class="fa-solid fa-signal"></i></span>
+              <div>
+                <div class="fx-dato-etiqueta">Nivel</div>
+                <div class="fx-dato-valor" th:text="${curso.nivel.nombre}">Intermedio</div>
+              </div>
+            </div>
+            <div class="fx-dato">
+              <span class="fx-icono fx-naranja"><i class="fa-solid fa-certificate"></i></span>
+              <div>
+                <div class="fx-dato-etiqueta">Certificado digital</div>
+                <div class="fx-dato-valor" th:text="${curso.emiteCertificado ? 'Sí' : 'No'}">Sí</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row g-4" id="fxContenido">
+
+            <!-- Columna principal -->
+            <div class="col-lg-8">
+
+              <!-- Sobre el curso (pestañas) -->
+              <section class="fx-tarjeta mb-4">
+                <h3 class="fx-titulo"><i class="fa-solid fa-book-open"></i> Sobre el curso</h3>
+                <ul class="nav fx-pestanias" role="tablist">
+                  <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#fxPresentacion" type="button" role="tab">Presentación</button></li>
+                  <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#fxIncluye" type="button" role="tab">Qué incluye</button></li>
+                  <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#fxCohortes" type="button" role="tab">
+                      Cohortes <span class="fx-contador" th:text="${hayCohortes ? #lists.size(cohortesAbiertas) : 0}">1</span>
+                    </button>
+                  </li>
+                </ul>
+
+                <div class="tab-content pt-3">
+                  <!-- Presentación -->
+                  <div class="tab-pane fade show active" id="fxPresentacion" role="tabpanel">
+                    <p class="fx-texto" th:text="${curso.descripcion != null and !#strings.isEmpty(curso.descripcion) ? curso.descripcion : 'Un curso de ' + curso.categoria.nombre + ' de nivel ' + #strings.toLowerCase(curso.nivel.nombre) + '.'}">Descripción</p>
+                    <p class="fx-texto mb-0" th:if="${curso.docenteTitular != null}">
+                      Dictado por <strong th:text="${curso.docenteTitular.usuario.nombreCompleto}">Docente</strong>
+                      <span th:if="${!#lists.isEmpty(curso.docentesAyudantes)}"> junto a un equipo de <strong th:text="${#lists.size(curso.docentesAyudantes)}">2</strong> docente(s) ayudante(s)</span>.
+                    </p>
+                  </div>
+
+                  <!-- Qué incluye -->
+                  <div class="tab-pane fade" id="fxIncluye" role="tabpanel">
+                    <dl class="fx-incluye">
+                      <div><dt>Modalidad</dt>
+                        <dd><span th:each="m, st : ${curso.modalidades}"><span th:text="${m.nombre}">Grabada</span><span th:if="${!st.last}">, </span></span></dd></div>
+                      <div><dt>Contenido</dt>
+                        <dd><span th:text="${cantidadUnidades}">4</span> unidades temáticas con avance secuencial</dd></div>
+                      <div th:if="${programaSeleccionado != null}"><dt>Duración</dt>
+                        <dd th:text="${programaSeleccionado.duracionTotalSemanas + ' semanas'}">9 semanas</dd></div>
+                      <div th:if="${primeraCohorte != null}"><dt>Acceso</dt>
+                        <dd th:text="${primeraCohorte.semanasAcceso + ' semanas desde la inscripción'}">12 semanas desde la inscripción</dd></div>
+                      <div><dt>Evaluación</dt>
+                        <dd>Autoevaluación en cada unidad</dd></div>
+                      <div><dt>Certificado digital</dt>
+                        <dd th:text="${curso.emiteCertificado ? 'Sí' : 'No'}">Sí</dd></div>
+                    </dl>
+                  </div>
+
+                  <!-- Cohortes -->
+                  <div class="tab-pane fade" id="fxCohortes" role="tabpanel">
+                    <div th:if="${!hayCohortes}" class="small text-muted">El curso no tiene cohortes con inscripción abierta.</div>
+                    <div class="fx-cohortes">
+                      <div th:each="cohorte : ${cohortesAbiertas}" class="fx-cohorte">
+                        <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+                          <strong th:text="${cohorte.programa.nombre}">Programa</strong>
+                          <span class="pn-insignia pn-insignia-verde"
+                                th:text="${cohorte.cupoDisponible != null ? cohorte.cupoDisponible + ' cupos' : 'Sin límite de cupo'}">30 cupos</span>
+                        </div>
+                        <div class="text-secondary small mb-1">
+                          <i class="fa-solid fa-calendar-check me-1"></i> Inscripción hasta el
+                          <strong th:text="${#temporals.format(cohorte.fechaFinInscripcion, 'dd/MM/yyyy')}">31/03/2026</strong>
+                        </div>
+                        <div class="text-secondary small mb-1" th:if="${cohorte.fechaInicioDictado != null}">
+                          <i class="fa-solid fa-video me-1"></i> Dictado:
+                          <span th:text="${#temporals.format(cohorte.fechaInicioDictado, 'dd/MM/yyyy') + ' al ' + #temporals.format(cohorte.fechaFinDictado, 'dd/MM/yyyy')}">01/04/2026 al 30/06/2026</span>
+                        </div>
+                        <div class="text-secondary small">
+                          <i class="fa-solid fa-clock me-1"></i> Acceso:
+                          <span th:text="${cohorte.semanasAcceso + ' semanas desde la inscripción'}">12 semanas</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <!-- A quién va dirigido -->
+              <section class="fx-dirigido mb-4"
+                       th:with="nivelNombre=${curso.nivel.nombre}, categoriaNombre=${curso.categoria.nombre}">
+                <div class="fx-dirigido-icono"><i class="fa-solid fa-users-viewfinder"></i></div>
+                <div>
+                  <h3 class="fx-dirigido-titulo">A quién va dirigido</h3>
+                  <p class="mb-2" th:text="${nivelNombre == 'Básico' ? 'Está pensado para quienes recién comienzan: no se requieren conocimientos previos de ' + categoriaNombre + '.' : (nivelNombre == 'Intermedio' ? 'Es para quienes ya manejan los conceptos básicos de ' + categoriaNombre + ' y quieren profundizar.' : 'Es para quienes tienen experiencia en ' + categoriaNombre + ' y buscan especializarse.')}">Público</p>
+                  <p class="mb-0 fx-dirigido-nota">También para cualquier persona que quiera aprender con docentes de primera línea, a su propio ritmo.</p>
+                </div>
+              </section>
+
+              <!-- Qué aprenderá el alumno -->
+              <section class="fx-tarjeta">
+                <h3 class="fx-titulo"><i class="fa-solid fa-list-check"></i> Qué aprenderá el alumno</h3>
+                <div th:if="${cantidadUnidades == 0}" class="small text-muted">
+                  El curso todavía no tiene unidades publicadas en su programa.
+                </div>
+                <ol class="fx-unidades">
+                  <li th:each="crono : ${cronogramas}" class="fx-unidad">
+                    <span class="fx-numero" th:text="${crono.numeroOrden}">1</span>
+                    <div class="fx-unidad-texto">
+                      <div class="fx-unidad-titulo" th:text="${crono.unidad.titulo}">Nombre de la unidad</div>
+                      <div class="fx-unidad-duracion"><i class="fa-regular fa-clock"></i> <span th:text="${crono.semanasDuracion + (crono.semanasDuracion == 1 ? ' semana' : ' semanas')}">2 semanas</span></div>
+                    </div>
+                  </li>
+                </ol>
+              </section>
+            </div>
+
+            <!-- Columna lateral -->
+            <div class="col-lg-4">
+              <div class="fx-lateral">
+
+                <section class="fx-precio-tarjeta">
+                  <div class="fx-precio-etiqueta">Precio</div>
+                  <div class="fx-precio"
+                       th:text="${curso.precio != null && curso.precio <= 0 ? 'GRATIS' : '$ ' + #numbers.formatDecimal(curso.precio != null ? curso.precio : 0, 1, 'POINT', 0, 'COMMA')}">$ 120.000</div>
+                  <button type="button" class="fx-boton-inscribir" disabled>Inscribirme</button>
+                  <div class="fx-precio-nota">La inscripción online estará disponible con el módulo de Inscripción y Pagos.</div>
+                </section>
+
+                <section class="fx-tarjeta" th:if="${primeraCohorte != null}">
+                  <h3 class="fx-titulo"><i class="fa-solid fa-calendar-days"></i> Próxima cohorte</h3>
+                  <div class="fw-bold mb-2" th:text="${primeraCohorte.programa.nombre}">Programa 2026</div>
+                  <div class="text-secondary small mb-1"><i class="fa-solid fa-calendar-check me-1"></i> Inscripción hasta el
+                    <strong th:text="${#temporals.format(primeraCohorte.fechaFinInscripcion, 'dd/MM/yyyy')}">31/03/2026</strong></div>
+                  <div class="text-secondary small mb-1" th:if="${primeraCohorte.fechaInicioDictado != null}"><i class="fa-solid fa-video me-1"></i> Dictado desde el
+                    <strong th:text="${#temporals.format(primeraCohorte.fechaInicioDictado, 'dd/MM/yyyy')}">01/04/2026</strong></div>
+                  <div class="text-secondary small"><i class="fa-solid fa-users me-1"></i>
+                    <span th:text="${primeraCohorte.cupoDisponible != null ? primeraCohorte.cupoDisponible + ' cupos disponibles' : 'Sin límite de cupo'}">30 cupos</span></div>
+                </section>
+
+                <section class="fx-tarjeta">
+                  <h3 class="fx-titulo"><i class="fa-solid fa-chalkboard-user"></i> Equipo docente</h3>
+                  <div class="fi-docente" th:if="${curso.docenteTitular != null}">
+                    <span class="um-avatar" th:text="${#strings.substring(curso.docenteTitular.usuario.nombre,0,1) + #strings.substring(curso.docenteTitular.usuario.apellido,0,1)}">FS</span>
+                    <div>
+                      <div class="fw-bold" th:text="${curso.docenteTitular.usuario.nombreCompleto}">Docente</div>
+                      <div class="small text-muted">Titular</div>
+                    </div>
+                  </div>
+                  <div class="fi-docente" th:each="a : ${curso.docentesAyudantes}">
+                    <span class="um-avatar" th:text="${#strings.substring(a.usuario.nombre,0,1) + #strings.substring(a.usuario.apellido,0,1)}">AY</span>
+                    <div>
+                      <div class="fw-bold" th:text="${a.usuario.nombreCompleto}">Ayudante</div>
+                      <div class="small text-muted">Ayudante</div>
+                    </div>
+                  </div>
+                </section>
+
+              </div>
+            </div>
+          </div>
+
+          <!-- Cierre -->
+          <section class="fx-cierre mt-4">
+            <h3>Comenzá tu curso hoy</h3>
+            <p>Aprendé con docentes de primera línea, a tu ritmo y con certificación digital.</p>
+            <div class="d-flex flex-wrap justify-content-center gap-3">
+              <button type="button" class="fx-boton-inscribir fx-boton-cierre" disabled>Comenzar ahora</button>
+              <a th:href="@{/catalogo}" class="fx-boton-claro"><i class="fa-solid fa-compass"></i> <span>Ver más cursos</span></a>
+            </div>
+          </section>
+
+        </div>
+      </div>
+
+      <!-- Footer Oficial -->
+      <div th:replace="~{fragments/footer :: footer}"></div>
+
+    </div>
+  </div>
+
+  <!-- Scripts Globales y SweetAlert2 -->
+  <div th:replace="~{fragments/scripts :: scripts}"></div>
+</body>
+
+</html>

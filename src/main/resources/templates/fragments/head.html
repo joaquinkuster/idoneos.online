@@ -1,4 +1,5 @@
-<head th:fragment="head">
+<!-- Recursos comunes del <head> de todas las páginas (meta, título, Bootstrap, FontAwesome, tipografías y estilos del sistema) -->
+<th:block th:fragment="recursos">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="${titulo != null ? titulo : 'Idóneos Online | Plataforma de Cursos de Finanzas'}">Idóneos Online</title>
@@ -8,11 +9,22 @@
     <!-- FontAwesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-    <!-- Google Fonts: Fraunces (Serif) & Inter (Sans-serif) -->
+    <!-- Google Fonts: Fraunces (serif), Plus Jakarta Sans e Inter (sans-serif) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
-    <!-- Custom System Styles -->
+    <!-- Ícono de la pestaña del navegador -->
+    <link rel="icon" type="image/png" th:href="@{/img/logos/image.png}" href="/img/logos/image.png">
+
+    <!-- Estilos del Sistema Centralizados -->
     <link rel="stylesheet" th:href="@{/css/styles.css}">
-</head>
+    <link rel="stylesheet" th:href="@{/css/panel.css}">
+    <link rel="stylesheet" th:href="@{/css/sitio.css}">
+    <link rel="stylesheet" th:href="@{/css/paginas.css}">
+
+    <!-- SweetAlert2 y alertas del sistema -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script th:src="@{/js/alertas.js}"></script>
+    <script th:src="@{/js/menuUsuario.js}" defer></script>
+</th:block>

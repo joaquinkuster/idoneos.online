@@ -45,3 +45,6 @@ application-*.properties
 
 ### Node / JavaScript ###
 node_modules/
+
+### Imágenes subidas por los usuarios ###
+uploads/

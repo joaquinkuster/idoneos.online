@@ -9,6 +9,7 @@ import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -27,16 +28,18 @@ import com.app.idoneos.servicio.Cohorte.CohorteServicioImpl;
 import com.app.idoneos.servicio.ParticipacionDocente.ParticipacionDocenteServicioImpl;
 import com.app.idoneos.servicio.Programa.ProgramaServicioImpl;
 
+import com.app.idoneos.utilidades.Utilidades;
+
 /**
  * Controlador de la gestión de cohortes (MOD-F-01).
  *
  * Mapea las pantallas de los casos de uso:
- * CU-11 Buscar cohorte (GET /cursos/cohortes), CU-12 Registrar cohorte, CU-13 Modificar cohorte
+ * CU-11 Buscar cohorte (GET /cohorte/buscar), CU-12 Registrar cohorte, CU-13 Modificar cohorte
  * y CU-14 Dar de baja cohorte. Los formularios de alta, modificación y baja se muestran como ventanas modales
  * de la pantalla de búsqueda.
  */
 @Controller
-@RequestMapping("/cursos/cohortes")
+@RequestMapping("/cohorte")
 public class CohorteControlador {
 
     @Autowired
@@ -58,22 +61,25 @@ public class CohorteControlador {
      * @param estado     Estado de la cohorte.
      * @param desde      Fecha desde la que la inscripción debe estar abierta.
      * @param hasta      Fecha hasta la que la inscripción debe estar abierta.
+     * @param orden      Orden de los resultados: "recientes" o "curso" (A–Z). Las dadas de baja van al final.
      * @param modelo     El modelo de la vista.
      * @param auth       La autenticación actual.
      * @return La vista de búsqueda de cohortes.
      */
-    @GetMapping
+    @GetMapping("/buscar")
     public String buscarCohortes(@RequestParam(value = "programaId", required = false) Integer programaId,
             @RequestParam(value = "busqueda", required = false) String busqueda,
             @RequestParam(value = "estado", required = false) String estado,
             @RequestParam(value = "desde", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate desde,
             @RequestParam(value = "hasta", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate hasta,
+            @RequestParam(value = "orden", defaultValue = "recientes") String orden,
             Model modelo, Authentication auth) {
         Usuario usuario = (Usuario) auth.getPrincipal();
-        Docente soloDeDocente = (usuario.esDocente() && !usuario.esAdmin()) ? usuario.getDocente() : null;
+        boolean esAdministrador = usuario.esAdministradorActivo();
+        Docente soloDeDocente = esAdministrador ? null : usuario.getDocente();
 
         List<Cohorte> cohortes = cohorteServicio.buscarConFiltros(programaId, busqueda, estado, desde, hasta,
-                soloDeDocente);
+                orden, soloDeDocente);
         Map<Integer, List<Inscripcion>> inscripcionesPorCohorte = new HashMap<>();
         Map<Integer, Long> clasesPorCohorte = new HashMap<>();
         for (Cohorte cohorte : cohortes) {
@@ -101,8 +107,13 @@ public class CohorteControlador {
         modelo.addAttribute("estadoSeleccionado", estado);
         modelo.addAttribute("desde", desde);
         modelo.addAttribute("hasta", hasta);
-        modelo.addAttribute("titulo", "CU-11 - Buscar cohorte | Idóneos Online");
-        return "pages/cursos/cu-11-buscar-cohorte";
+        modelo.addAttribute("ordenSeleccionado", orden);
+        modelo.addAttribute("titulo", "Cohortes | Idóneos Online");
+        if (esAdministrador) {
+            modelo.addAttribute("menuActivo", "cohortes");
+            return "pages/panel/cohortes";
+        }
+        return "pages/gestion/buscarCohortes";
     }
 
     /**
@@ -114,7 +125,7 @@ public class CohorteControlador {
      * @param redirectAttributes Atributos para mensajes de redirección.
      * @return Una redirección al listado de cohortes.
      */
-    @PostMapping("/{id}/contexto")
+    @PostMapping("/cambiarContexto/{id}")
     public String cambiarContexto(@PathVariable("id") Integer id, Authentication auth,
             RedirectAttributes redirectAttributes) {
         try {
@@ -126,11 +137,12 @@ public class CohorteControlador {
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
-        return "redirect:/cursos/cohortes";
+        return "redirect:/cohorte/buscar";
     }
 
     /**
-     * CU-12: Registra una cohorte para un programa activo.
+     * CU-12: Registra una cohorte para un programa activo. Responde en JSON para que el formulario muestre
+     * el resultado sin recargar la página.
      *
      * @param programaId             Identificador del programa.
      * @param fechaInicioInscripcion Fecha de inicio de la inscripción.
@@ -139,34 +151,31 @@ public class CohorteControlador {
      * @param fechaFinDictado        Fecha de fin del dictado (si el curso tiene modalidad En vivo).
      * @param semanasAcceso          Semanas de acceso al contenido desde la inscripción.
      * @param cupoMaximo             Cupo máximo de inscriptos (opcional).
-     * @param redirectAttributes     Atributos para mensajes de redirección.
-     * @return Una redirección al listado de cohortes, o al formulario si hubo un error.
+     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
      */
-    @PostMapping("/guardar")
-    public String registrarCohorte(@RequestParam(value = "programaId", required = false) Integer programaId,
+    @PostMapping("/registrar")
+    public ResponseEntity<Map<String, String>> registrarCohorte(
+            @RequestParam(value = "programaId", required = false) Integer programaId,
             @RequestParam(value = "fechaInicioInscripcion", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicioInscripcion,
             @RequestParam(value = "fechaFinInscripcion", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFinInscripcion,
             @RequestParam(value = "fechaInicioDictado", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicioDictado,
             @RequestParam(value = "fechaFinDictado", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFinDictado,
             @RequestParam(value = "semanasAcceso", required = false) Integer semanasAcceso,
-            @RequestParam(value = "cupoMaximo", required = false) Integer cupoMaximo,
-            RedirectAttributes redirectAttributes) {
+            @RequestParam(value = "cupoMaximo", required = false) Integer cupoMaximo) {
         try {
             if (programaId == null) {
                 throw new IllegalArgumentException("Error! Debe seleccionar el programa de la cohorte.");
             }
             cohorteServicio.registrarCohorte(programaId, fechaInicioInscripcion, fechaFinInscripcion,
                     fechaInicioDictado, fechaFinDictado, semanasAcceso, cupoMaximo);
-            redirectAttributes.addFlashAttribute("mensaje", "Cohorte registrada correctamente.");
-            return "redirect:/cursos/cohortes?programaId=" + programaId;
+            return Utilidades.respuestaExitosa("Cohorte registrada correctamente.");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/cursos/cohortes" + (programaId != null ? "?programaId=" + programaId + "&nueva=1" : "");
+            return Utilidades.respuestaConError(e);
         }
     }
 
     /**
-     * CU-13: Modifica una cohorte activa.
+     * CU-13: Modifica una cohorte activa. Responde en JSON.
      *
      * @param id                     Identificador de la cohorte.
      * @param fechaInicioInscripcion Fecha de inicio de la inscripción.
@@ -175,45 +184,57 @@ public class CohorteControlador {
      * @param fechaFinDictado        Fecha de fin del dictado (si el curso tiene modalidad En vivo).
      * @param semanasAcceso          Semanas de acceso al contenido desde la inscripción.
      * @param cupoMaximo             Cupo máximo de inscriptos (opcional).
-     * @param redirectAttributes     Atributos para mensajes de redirección.
-     * @return Una redirección al listado de cohortes, o al formulario si hubo un error.
+     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
      */
-    @PostMapping("/{id}/editar")
-    public String modificarCohorte(@PathVariable("id") Integer id,
+    @PostMapping("/modificar/{id}")
+    public ResponseEntity<Map<String, String>> modificarCohorte(@PathVariable("id") Integer id,
             @RequestParam(value = "fechaInicioInscripcion", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicioInscripcion,
             @RequestParam(value = "fechaFinInscripcion", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFinInscripcion,
             @RequestParam(value = "fechaInicioDictado", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicioDictado,
             @RequestParam(value = "fechaFinDictado", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFinDictado,
             @RequestParam(value = "semanasAcceso", required = false) Integer semanasAcceso,
-            @RequestParam(value = "cupoMaximo", required = false) Integer cupoMaximo,
-            RedirectAttributes redirectAttributes) {
+            @RequestParam(value = "cupoMaximo", required = false) Integer cupoMaximo) {
         try {
             cohorteServicio.modificarCohorte(id, fechaInicioInscripcion, fechaFinInscripcion, fechaInicioDictado,
                     fechaFinDictado, semanasAcceso, cupoMaximo);
-            redirectAttributes.addFlashAttribute("mensaje", "Cohorte modificada correctamente.");
-            return "redirect:/cursos/cohortes";
+            return Utilidades.respuestaExitosa("Cohorte modificada correctamente.");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/cursos/cohortes";
+            return Utilidades.respuestaConError(e);
         }
     }
 
     /**
      * CU-14: Da de baja una cohorte que no tenga inscripciones ni clases en vivo activas, y la desvincula
-     * de los docentes que la tienen asignada por defecto.
+     * de los docentes que la tienen asignada por defecto. Responde en JSON.
      *
-     * @param id                 Identificador de la cohorte.
-     * @param redirectAttributes Atributos para mensajes de redirección.
-     * @return Una redirección al listado de cohortes.
+     * @param id Identificador de la cohorte.
+     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
      */
-    @PostMapping("/{id}/baja")
-    public String darDeBajaCohorte(@PathVariable("id") Integer id, RedirectAttributes redirectAttributes) {
+    @PostMapping("/darDeBaja/{id}")
+    public ResponseEntity<Map<String, String>> darDeBajaCohorte(@PathVariable("id") Integer id) {
         try {
             cohorteServicio.darDeBajaCohorte(id);
-            redirectAttributes.addFlashAttribute("mensaje", "Cohorte dada de baja correctamente.");
+            return Utilidades.respuestaExitosa("Cohorte dada de baja correctamente.");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return Utilidades.respuestaConError(e);
         }
-        return "redirect:/cursos/cohortes";
+    }
+
+    /**
+     * Da de baja varios cohortes a la vez, todos o ninguno: si alguno no puede darse de baja, no se da de baja
+     * ninguno. Responde en JSON.
+     *
+     * @param ids Identificadores de los cohortes seleccionados.
+     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
+     */
+    @PostMapping("/darDeBajaMasiva")
+    public ResponseEntity<Map<String, String>> darDeBajaVarios(
+            @RequestParam(value = "ids", required = false) List<Integer> ids) {
+        try {
+            cohorteServicio.darDeBajaVarios(ids);
+            return Utilidades.respuestaExitosa("Cohortes dadas de baja correctamente.");
+        } catch (Exception e) {
+            return Utilidades.respuestaConError(e);
+        }
     }
 }

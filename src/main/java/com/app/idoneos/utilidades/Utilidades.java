@@ -2,6 +2,9 @@ package com.app.idoneos.utilidades;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+
+import org.springframework.http.ResponseEntity;
 
 /**
  * Métodos auxiliares genéricos de la aplicación.
@@ -46,5 +49,29 @@ public class Utilidades {
             return Collections.emptyList();
         }
         return lista.subList(desde, Math.min(desde + tamanioPagina, lista.size()));
+    }
+
+    /**
+     * Arma la respuesta JSON de una operación de formulario que se realizó con éxito.
+     *
+     * @param mensaje El mensaje que se muestra al usuario.
+     * @return Una respuesta HTTP 200 con el mensaje.
+     */
+    public static ResponseEntity<Map<String, String>> respuestaExitosa(String mensaje) {
+        return ResponseEntity.ok(Map.of("mensaje", mensaje));
+    }
+
+    /**
+     * Arma la respuesta JSON de una operación de formulario que falló. Los errores de validación
+     * ({@link IllegalArgumentException}) muestran su mensaje; cualquier otro error muestra un mensaje genérico
+     * para no exponer detalles internos.
+     *
+     * @param e La excepción ocurrida.
+     * @return Una respuesta HTTP 400 con el mensaje de error.
+     */
+    public static ResponseEntity<Map<String, String>> respuestaConError(Exception e) {
+        String mensaje = (e instanceof IllegalArgumentException && e.getMessage() != null) ? e.getMessage()
+                : "Error! Ocurrió un error inesperado. Intente nuevamente.";
+        return ResponseEntity.badRequest().body(Map.of("error", mensaje));
     }
 }

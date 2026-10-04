@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <th:block th:replace="~{fragments/head :: recursos}"></th:block>
+</head>
+<body class="wf-canvas-bg">
+
+    <div class="cu-page-container">
+        <!-- Pantalla / Screen Frame Oficial -->
+        <div class="screen-frame">
+
+                <!-- Top Navbar Oficial Dinámica -->
+                <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+                <!-- Hero Banner Contextual Superior (Navy) -->
+                <div class="wf-hero-banner">
+                    <div>
+                        <div class="wf-hero-tag">
+                            <i class="fa-solid fa-graduation-cap" style="color: var(--wf-gold);"></i>
+                            <span>PANEL DOCENTE</span>
+                        </div>
+                        <h2 class="wf-hero-title">Mis cohortes</h2>
+                        <p class="wf-hero-desc">Bienvenido/a, <span th:text="${usuario != null ? usuario.nombreCompleto : 'Admin General'}">Admin General</span></p>
+                    </div>
+                    
+                </div>
+
+                <th:block th:replace="~{fragments/breadcrumb :: migas(null, null, 'Mis cohortes')}"></th:block>
+
+                <div class="wf-body">
+                    <div class="wf-main-content">
+                        
+      <!-- Cabecera de Gestión -->
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+          <h3 style="font-size: 19px; font-weight: 800; color: #081426; margin: 0;">Mis cohortes</h3>
+          <p class="small text-muted m-0">Consulte, filtre y gestione los registros activos del sistema</p>
+        </div>
+      </div>
+
+      <!-- Barra de Filtros (CU-11): programa, estado y rango de fechas de inscripción -->
+      <div class="wf-card mb-4" style="background: #FFFFFF;">
+        <form th:action="@{/cohorte/buscar}" method="get" class="row g-3 align-items-end">
+          <div class="col-md-4">
+            <label class="wf-label">Programa</label>
+            <div class="wf-input-wrap">
+              <select name="programaId" class="wf-input">
+                <option value="">Todos</option>
+                <option th:each="prog : ${programas}" th:value="${prog.idPrograma}"
+                        th:text="${prog.curso.nombre + ' — ' + prog.nombre}"
+                        th:selected="${programaSeleccionado != null and programaSeleccionado == prog.idPrograma}">Curso — Programa</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <label class="wf-label">Nombre</label>
+            <div class="wf-input-wrap">
+              <input type="text" name="busqueda" th:value="${busqueda}" class="wf-input" placeholder="Nombre">
+            </div>
+          </div>
+          <div class="col-md-2">
+            <label class="wf-label">Estado</label>
+            <select name="estado" class="wf-input">
+              <option value="" th:selected="${estadoSeleccionado == null or estadoSeleccionado == ''}">Todos</option>
+              <option value="Abierta" th:selected="${estadoSeleccionado == 'Abierta'}">Abierta</option>
+              <option value="En dictado" th:selected="${estadoSeleccionado == 'En dictado'}">En dictado</option>
+              <option value="Finalizada" th:selected="${estadoSeleccionado == 'Finalizada'}">Finalizada</option>
+              <option value="Próxima" th:selected="${estadoSeleccionado == 'Próxima'}">Próxima</option>
+              <option value="Dada de baja" th:selected="${estadoSeleccionado == 'Dada de baja'}">Dada de baja</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label class="wf-label">Fecha de inscripción (desde / hasta)</label>
+            <div class="d-flex gap-2">
+              <input type="date" name="desde" th:value="${desde}" class="wf-input" title="Desde">
+              <input type="date" name="hasta" th:value="${hasta}" class="wf-input" title="Hasta">
+            </div>
+          </div>
+          <div class="col-12">
+            <div class="d-flex align-items-end justify-content-between gap-2 flex-wrap">
+              <div style="min-width: 220px;">
+                <label class="wf-label">Ordenar por</label>
+                <div class="wf-input-wrap">
+                  <select name="orden" class="wf-input">
+                    <option value="recientes" th:selected="${ordenSeleccionado == 'recientes'}">Más recientes</option>
+                    <option value="curso" th:selected="${ordenSeleccionado == 'curso'}">Curso (A–Z)</option>
+                  </select>
+                </div>
+              </div>
+              <div class="d-flex justify-content-end gap-2">
+                <a th:href="@{/cohorte/buscar}" class="wf-btn wf-btn-outline d-inline-flex align-items-center" style="text-decoration: none;">
+                  <i class="fa-solid fa-eraser me-1"></i> Limpiar
+                </a>
+                <button type="submit" class="wf-btn wf-btn-primary" style="min-width: 140px;">
+                  <i class="fa-solid fa-magnifying-glass me-1"></i> Buscar
+                </button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Grilla / Tabla de Cohortes Fiel a Figura 11 -->
+      <div class="wf-card" style="background: #FFFFFF;">
+        <div class="table-responsive">
+          <table id="tablaCohortes" class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th style="font-size: 12px; font-weight: 700; color: #081426; white-space: nowrap;">
+                  <span>CURSO / PROGRAMA</span>
+                  <button type="button" class="table-sort-btn" onclick="sortTable('tablaCohortes', 0, 'text', this)" title="Ordenar por curso">
+                    <i class="fa-solid fa-arrow-down-a-z"></i>
+                  </button>
+                </th>
+                <th style="font-size: 12px; font-weight: 700; color: #081426; white-space: nowrap;">
+                  <span>INSCRIPCIÓN</span>
+                  <button type="button" class="table-sort-btn" onclick="sortTable('tablaCohortes', 1, 'date', this)" title="Ordenar por fecha de inicio de inscripción">
+                    <i class="fa-solid fa-calendar-days"></i>
+                  </button>
+                </th>
+                <th style="font-size: 12px; font-weight: 700; color: #081426; white-space: nowrap;">
+                  <span>DICTADO</span>
+                  <button type="button" class="table-sort-btn" onclick="sortTable('tablaCohortes', 2, 'date', this)" title="Ordenar por fecha de inicio de dictado">
+                    <i class="fa-solid fa-calendar-days"></i>
+                  </button>
+                </th>
+                <th style="font-size: 12px; font-weight: 700; color: #081426; white-space: nowrap;">CUPO / ACCESO</th>
+                <th style="font-size: 12px; font-weight: 700; color: #081426; white-space: nowrap;">
+                  <span>ESTADO</span>
+                  <button type="button" class="table-sort-btn" onclick="sortTable('tablaCohortes', 4, 'text', this)" title="Ordenar por estado">
+                    <i class="fa-solid fa-filter"></i>
+                  </button>
+                </th>
+                <th style="font-size: 12px; font-weight: 700; color: #081426; text-align: right;">ACCIONES</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="coh : ${cohortes}" th:style="${coh.baja} ? 'background: #F8FAFC; opacity: 0.65;' : ''">
+                <td>
+                  <strong style="color: #081426;" th:text="${coh.programa.curso.nombre}">Curso</strong>
+                  <div class="small text-muted" th:text="${coh.programa.nombre + ' · ' + coh.programa.curso.categoria.nombre}">Programa · Categoría</div>
+                </td>
+                <td class="small text-secondary" th:text="${#temporals.format(coh.fechaInicioInscripcion, 'dd/MM/yyyy') + ' – ' + #temporals.format(coh.fechaFinInscripcion, 'dd/MM/yyyy')}">01/03/2026 – 31/03/2026</td>
+                <td class="small text-secondary" th:text="${coh.fechaInicioDictado != null ? #temporals.format(coh.fechaInicioDictado, 'dd/MM/yyyy') + ' – ' + #temporals.format(coh.fechaFinDictado, 'dd/MM/yyyy') : '—'}">—</td>
+                <td class="small text-secondary">
+                  <div>Inscriptos: <strong th:text="${coh.cupoMaximo != null ? coh.cantidadInscriptos + ' / ' + coh.cupoMaximo : coh.cantidadInscriptos + ' (sin límite)'}">0</strong></div>
+                  <div>Acceso: <span th:text="${coh.semanasAcceso + ' semanas'}">12 semanas</span></div>
+                </td>
+                <td>
+                  <span class="wf-badge" th:classappend="${coh.baja or coh.estado == 'Finalizada'} ? 'status-inactive' : 'status-active'" th:text="${coh.baja} ? 'Dada de baja' : ${coh.estado}">Abierta</span>
+                </td>
+                <td style="text-align: right;">
+                  <div class="d-inline-flex align-items-center" th:if="${!coh.baja}">
+                    <span th:if="${cohortesDeTrabajo != null and cohortesDeTrabajo.contains(coh.idCohorte)}" class="badge bg-success">
+                      <i class="fa-solid fa-circle-check me-1"></i> Cohorte de trabajo
+                    </span>
+                    <form th:unless="${cohortesDeTrabajo != null and cohortesDeTrabajo.contains(coh.idCohorte)}"
+                          th:action="@{'/cohorte/cambiarContexto/' + ${coh.idCohorte}}" method="post" class="m-0">
+                      <button type="submit" class="btn btn-sm btn-outline-primary rounded-pill px-3" title="Cambiar el contexto de trabajo a esta cohorte">
+                        <i class="fa-solid fa-bullseye me-1"></i> Trabajar en esta cohorte
+                      </button>
+                    </form>
+                  </div>
+                  <div class="d-inline-flex align-items-center" th:if="${coh.baja}">
+                    <span class="text-muted small fst-italic"><i class="fa-solid fa-lock me-1"></i> Dada de baja</span>
+                  </div>
+                </td>
+              </tr>
+              <tr th:if="${cohortes == null or #lists.isEmpty(cohortes)}">
+                <td colspan="6" class="text-center py-4 text-muted">No se encontraron cohortes que coincidan con los criterios ingresados.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Paginación Premium — Sistema wf-pagination (CU-11) -->
+        <div id="paginacionCohortes" class="wf-pagination-wrap">
+          <div class="wf-pagination-info" id="cohPaginaInfo"></div>
+          <div class="wf-pagination-controls" id="cohBotonesPaginacion"></div>
+        </div>
+      </div>
+    
+                    </div>
+                </div>
+
+                <!-- Footer Oficial -->
+                <div th:replace="~{fragments/footer :: footer}"></div>
+            
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // ==========================================
+        // PAGINACIÓN Y ORDENAMIENTO DINÁMICO DE TABLAS
+        // ==========================================
+        let cohCurrentPage = 1;
+        const cohRowsPerPage = 6;
+
+        function renderCohPagination() {
+            window.renderWfPagination({
+                tableId: 'tablaCohortes',
+                wrapId: 'paginacionCohortes',
+                infoId: 'cohPaginaInfo',
+                controlsId: 'cohBotonesPaginacion',
+                currentPage: cohCurrentPage,
+                rowsPerPage: cohRowsPerPage,
+                entityLabel: 'cohortes',
+                onPageChange: (p) => { cohCurrentPage = p; renderCohPagination(); }
+            });
+        }
+
+        function sortTable(tableId, colIndex, type, btn) {
+            const table = document.getElementById(tableId);
+            if (!table) return;
+            const tbody = table.querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            
+            // Determinar dirección
+            const isAsc = !btn.classList.contains('active-asc');
+            
+            // Limpiar otros botones activos en la tabla
+            table.querySelectorAll('.table-sort-btn').forEach(b => {
+                b.classList.remove('active-asc', 'active-desc');
+            });
+
+            if (isAsc) {
+                btn.classList.add('active-asc');
+            } else {
+                btn.classList.add('active-desc');
+            }
+
+            rows.sort((a, b) => {
+                const cellA = a.children[colIndex] ? a.children[colIndex].innerText.trim() : '';
+                const cellB = b.children[colIndex] ? b.children[colIndex].innerText.trim() : '';
+
+                if (type === 'num') {
+                    const numA = parseFloat(cellA.replace(/[^0-9.-]+/g, '')) || 0;
+                    const numB = parseFloat(cellB.replace(/[^0-9.-]+/g, '')) || 0;
+                    return isAsc ? numA - numB : numB - numA;
+                } else if (type === 'date') {
+                    const parseDate = (s) => {
+                        if (s.includes('/')) {
+                            const parts = s.split(' ')[0].split('/');
+                            return new Date(parts[2], parts[1] - 1, parts[0]).getTime() || 0;
+                        }
+                        return new Date(s).getTime() || 0;
+                    };
+                    const dateA = parseDate(cellA);
+                    const dateB = parseDate(cellB);
+                    return isAsc ? dateA - dateB : dateB - dateA;
+                } else {
+                    return isAsc ? cellA.localeCompare(cellB, 'es', { sensitivity: 'base' }) : cellB.localeCompare(cellA, 'es', { sensitivity: 'base' });
+                }
+            });
+
+            rows.forEach(r => tbody.appendChild(r));
+            renderCohPagination();
+        }
+
+        document.addEventListener('DOMContentLoaded', renderCohPagination);
+    </script>
+</body>
+</html>

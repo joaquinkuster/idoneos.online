@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <th:block th:replace="~{fragments/head :: recursos}"></th:block>
+</head>
+<body class="pn-body">
+<div class="pn-app" id="pnApp">
+    <th:block th:replace="~{fragments/panel :: menu(${menuActivo})}"></th:block>
+
+    <div class="pn-principal">
+        <th:block th:replace="~{fragments/panel :: barra}"></th:block>
+
+        <main class="pn-contenido">
+            <div class="pn-encabezado">
+                <div>
+                    <h1 class="pn-titulo">Cohortes</h1>
+                    <p class="pn-subtitulo">Gestiona los períodos de inscripción y dictado de cada programa</p>
+                </div>
+                <button type="button" class="pn-btn pn-btn-primario" data-bs-toggle="modal" data-bs-target="#modalNuevaCohorte">
+                    <i class="fa-solid fa-plus"></i> Nueva cohorte
+                </button>
+            </div>
+
+            <section class="pn-tarjeta" data-tabla>
+                <div class="pn-lista-cabecera">
+                    <h2 class="pn-lista-titulo">Listado de cohortes</h2>
+                    <span class="pn-seleccionados" data-seleccionados>0 de 0 seleccionados</span>
+                    <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico d-none" data-baja-masiva
+                            data-url="/cohorte/darDeBajaMasiva" data-elementos="cohortes"
+                            data-termino-uno="alumno inscripto o clase en vivo activa" data-termino-varios="alumnos inscriptos o clases en vivo activas">Dar de baja seleccionado/s</button>
+                </div>
+
+                <!-- Filtros (CU-11): programa, nombre, estado, rango de fechas de inscripción y orden -->
+                <form th:action="@{/cohorte/buscar}" method="get" class="pn-filtros" data-filtros>
+                    <div class="pn-filtros-campo pn-filtros-campo-grande">
+                        <label class="pn-etiqueta">Programa</label>
+                        <select name="programaId" class="pn-input" title="Programa">
+                            <option value="">Todos los programas</option>
+                            <option th:each="prog : ${programas}" th:value="${prog.idPrograma}"
+                                    th:text="${prog.curso.nombre + ' — ' + prog.nombre}"
+                                    th:selected="${programaSeleccionado != null and programaSeleccionado == prog.idPrograma}">Curso — Programa</option>
+                        </select>
+                    </div>
+                    <div class="pn-filtros-campo">
+                        <label class="pn-etiqueta">Nombre</label>
+                        <input type="text" name="busqueda" th:value="${busqueda}" class="pn-input" placeholder="Buscar por nombre" autocomplete="off">
+                    </div>
+                    <div class="pn-filtros-campo">
+                        <label class="pn-etiqueta">Estado</label>
+                        <select name="estado" class="pn-input" title="Estado">
+                            <option value="" th:selected="${estadoSeleccionado == null or estadoSeleccionado == ''}">Todos los estados</option>
+                            <option value="Próxima" th:selected="${estadoSeleccionado == 'Próxima'}">Próxima</option>
+                            <option value="Abierta" th:selected="${estadoSeleccionado == 'Abierta'}">Abierta</option>
+                            <option value="En dictado" th:selected="${estadoSeleccionado == 'En dictado'}">En dictado</option>
+                            <option value="Finalizada" th:selected="${estadoSeleccionado == 'Finalizada'}">Finalizada</option>
+                            <option value="Dada de baja" th:selected="${estadoSeleccionado == 'Dada de baja'}">Dada de baja</option>
+                        </select>
+                    </div>
+                    <div class="pn-filtros-campo">
+                        <label class="pn-etiqueta">Inscripción desde</label>
+                        <input type="date" name="desde" th:value="${desde}" class="pn-input" title="Inscripción desde">
+                    </div>
+                    <div class="pn-filtros-campo">
+                        <label class="pn-etiqueta">Inscripción hasta</label>
+                        <input type="date" name="hasta" th:value="${hasta}" class="pn-input" title="Inscripción hasta">
+                    </div>
+                    <div class="pn-filtros-campo">
+                        <label class="pn-etiqueta">Ordenar por</label>
+                        <select name="orden" class="pn-input" title="Ordenar por">
+                            <option value="recientes" th:selected="${ordenSeleccionado == 'recientes'}">Más recientes</option>
+                            <option value="curso" th:selected="${ordenSeleccionado == 'curso'}">Curso (A–Z)</option>
+                        </select>
+                    </div>
+                    <a th:href="@{/cohorte/buscar}" class="pn-btn pn-btn-contorno">Limpiar</a>
+                    <div class="pn-columnas-wrapper">
+                        <button type="button" class="pn-btn pn-btn-contorno" data-columnas-boton>Columnas</button>
+                        <div class="pn-columnas-menu" data-columnas-menu></div>
+                    </div>
+                </form>
+
+                <!-- Tabla -->
+                <div class="pn-tabla-contenedor">
+                    <table class="pn-tabla">
+                        <thead>
+                            <tr>
+                                <th class="pn-col-seleccion"><input type="checkbox" data-seleccionar-todos aria-label="Seleccionar todas"></th>
+                                <th data-col="Curso / Programa">Curso / Programa</th>
+                                <th data-col="Inscripción">Inscripción</th>
+                                <th data-col="Dictado">Dictado</th>
+                                <th data-col="Cupo / Acceso">Cupo / Acceso</th>
+                                <th data-col="Estado">Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="coh : ${cohortes}" data-fila th:classappend="${coh.baja} ? 'pn-fila-baja'"
+                                th:attr="data-dependencias=${(inscripcionesPorCohorte != null and inscripcionesPorCohorte.containsKey(coh.idCohorte) ? inscripcionesPorCohorte.get(coh.idCohorte).size() : 0) + (clasesPorCohorte != null and clasesPorCohorte.containsKey(coh.idCohorte) ? clasesPorCohorte.get(coh.idCohorte) : 0)}">
+                                <td class="pn-col-seleccion"><input type="checkbox" data-seleccionar-fila aria-label="Seleccionar fila"
+                                    th:value="${coh.idCohorte}" th:disabled="${coh.baja}"></td>
+                                <td>
+                                    <div class="pn-celda-principal" th:text="${coh.programa.curso.nombre}">Curso</div>
+                                    <div class="pn-celda-secundaria" th:text="${coh.programa.nombre + ' · ' + coh.programa.curso.categoria.nombre}">Programa · Categoría</div>
+                                </td>
+                                <td th:text="${#temporals.format(coh.fechaInicioInscripcion, 'dd/MM/yyyy') + ' – ' + #temporals.format(coh.fechaFinInscripcion, 'dd/MM/yyyy')}">01/03/2026 – 31/03/2026</td>
+                                <td th:text="${coh.fechaInicioDictado != null ? #temporals.format(coh.fechaInicioDictado, 'dd/MM/yyyy') + ' – ' + #temporals.format(coh.fechaFinDictado, 'dd/MM/yyyy') : '—'}">—</td>
+                                <td>
+                                    <div th:text="${coh.cupoMaximo != null ? coh.cantidadInscriptos + ' / ' + coh.cupoMaximo : coh.cantidadInscriptos + ' (sin límite)'}">0</div>
+                                    <div class="pn-celda-secundaria" th:text="${coh.semanasAcceso + ' semanas de acceso'}">12 semanas de acceso</div>
+                                </td>
+                                <td>
+                                    <span class="pn-insignia"
+                                          th:classappend="${coh.baja} ? 'pn-insignia-gris' : (${coh.estado == 'Abierta'} ? 'pn-insignia-verde' : (${coh.estado == 'En dictado'} ? 'pn-insignia-azul' : (${coh.estado == 'Próxima'} ? 'pn-insignia-dorada' : 'pn-insignia-gris')))"
+                                          th:text="${coh.baja} ? 'Dada de baja' : ${coh.estado}">Abierta</span>
+                                </td>
+                                <td>
+                                    <div class="pn-acciones" th:if="${!coh.baja}">
+                                        <button type="button" class="pn-btn pn-btn-editar pn-btn-chico" data-bs-toggle="modal"
+                                                th:data-bs-target="'#modalEditarCohorte' + ${coh.idCohorte}">Editar</button>
+                                        <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico" data-bs-toggle="modal"
+                                                th:data-bs-target="'#modalBajaCohorte' + ${coh.idCohorte}">Dar de baja</button>
+                                    </div>
+                                    <span th:if="${coh.baja}" class="pn-celda-secundaria">—</span>
+                                </td>
+                            </tr>
+                            <tr data-vacio hidden>
+                                <td colspan="7" class="pn-vacio">No se encontraron cohortes que coincidan con los criterios ingresados.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pie: filas por página y paginador -->
+                <div class="pn-tabla-pie">
+                    <div class="pn-por-pagina">
+                        <span>Filas por página:</span>
+                        <select data-por-pagina>
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="0">Todo</option>
+                        </select>
+                        <span data-rango>0-0 de 0</span>
+                    </div>
+                    <div class="pn-paginador" data-paginador></div>
+                </div>
+            </section>
+        </main>
+
+        <th:block th:replace="~{fragments/panel :: pie}"></th:block>
+    </div>
+</div>
+
+<!-- Modal: registrar cohorte (CU-12) -->
+<div class="modal fade pn-modal" id="modalNuevaCohorte" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="pn-modal-cabecera">
+                <h3 class="pn-modal-titulo">Nueva cohorte</h3>
+                <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="pn-modal-cuerpo">
+                <div class="pn-seccion-titulo">
+                    <h4>Información de la cohorte</h4>
+                    <p>Define los plazos de inscripción, el cupo y las semanas de acceso del programa</p>
+                </div>
+                <form id="formNuevaCohorte" th:action="@{/cohorte/registrar}" method="post" class="form-ajax" data-validar data-validador="cohorte" novalidate>
+                    <div class="row g-3">
+                        <div class="col-12 pn-campo">
+                            <label class="pn-etiqueta">Programa <span class="pn-obligatorio">*</span></label>
+                            <select name="programaId" id="cohPrograma" class="pn-input" required>
+                                <option value="">Programa</option>
+                                <option th:each="prog : ${programas}" th:value="${prog.idPrograma}"
+                                        th:text="${prog.curso.nombre + ' — ' + prog.nombre}"
+                                        th:attr="data-envivo=${prog.curso.incluyeModalidad('En vivo')}, data-semanas=${prog.duracionTotalSemanas}"
+                                        th:selected="${programaSeleccionado != null and programaSeleccionado == prog.idPrograma}">Curso — Programa</option>
+                            </select>
+                            <div class="pn-ayuda-error"></div>
+                            <div class="small text-muted mt-1" id="cohProgramaInfo"></div>
+                        </div>
+                        <div class="col-md-6 pn-campo">
+                            <label class="pn-etiqueta">Inicio de inscripción <span class="pn-obligatorio">*</span></label>
+                            <input type="date" name="fechaInicioInscripcion" class="pn-input" required>
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+                        <div class="col-md-6 pn-campo">
+                            <label class="pn-etiqueta">Fin de inscripción <span class="pn-obligatorio">*</span></label>
+                            <input type="date" name="fechaFinInscripcion" class="pn-input" required>
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+                        <div class="col-md-6 pn-campo grupo-dictado d-none">
+                            <label class="pn-etiqueta">Inicio de dictado <span class="pn-obligatorio">*</span></label>
+                            <input type="date" name="fechaInicioDictado" class="pn-input">
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+                        <div class="col-md-6 pn-campo grupo-dictado d-none">
+                            <label class="pn-etiqueta">Fin de dictado <span class="pn-obligatorio">*</span></label>
+                            <input type="date" name="fechaFinDictado" class="pn-input">
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+                        <div class="col-md-6 pn-campo">
+                            <label class="pn-etiqueta">Semanas de acceso <span class="pn-obligatorio">*</span></label>
+                            <input type="number" name="semanasAcceso" class="pn-input" min="1" placeholder="Semanas de acceso" required>
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+                        <div class="col-md-6 pn-campo">
+                            <label class="pn-etiqueta">Cupo máximo (opcional)</label>
+                            <input type="number" name="cupoMaximo" class="pn-input" min="1" placeholder="Cupo máximo">
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+                    </div>
+                    <div class="pn-modal-pie">
+                        <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="pn-btn pn-btn-primario">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modales por cohorte: modificar (CU-13) y dar de baja (CU-14) -->
+<th:block th:each="coh : ${cohortes}" th:if="${!coh.baja}">
+    <div class="modal fade pn-modal" th:id="'modalEditarCohorte' + ${coh.idCohorte}" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="pn-modal-cabecera">
+                    <h3 class="pn-modal-titulo">Editar cohorte</h3>
+                    <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="pn-modal-cuerpo">
+                    <div class="pn-seccion-titulo">
+                        <h4 th:text="${coh.programa.curso.nombre}">Curso</h4>
+                        <p th:text="${coh.programa.nombre}">Programa</p>
+                    </div>
+                    <form th:action="@{'/cohorte/modificar/' + ${coh.idCohorte}}" method="post" class="form-ajax" data-validar data-validador="cohorte" novalidate
+                          th:attr="data-semanas=${coh.programa.duracionTotalSemanas}, data-envivo=${coh.programa.curso.incluyeModalidad('En vivo')}"
+                          th:with="bloqueada=${coh.cantidadInscriptos > 0}, enVivo=${coh.programa.curso.incluyeModalidad('En vivo')}">
+                        <div class="pn-aviso pn-aviso-dorado" th:if="${bloqueada}">
+                            <i class="fa-solid fa-lock me-1"></i> La cohorte tiene <strong th:text="${coh.cantidadInscriptos}">1</strong> inscripción(es) activa(s) y no puede modificarse: son datos que el alumno vio y pagó al inscribirse.
+                        </div>
+                        <div class="pn-aviso pn-aviso-azul">
+                            Duración total del cronograma del programa: <strong th:text="${coh.programa.duracionTotalSemanas}">9</strong> semanas. Las semanas de acceso no pueden ser menores.
+                        </div>
+                        <fieldset th:disabled="${bloqueada}" style="border: 0; padding: 0; margin: 0;">
+                            <div class="row g-3">
+                                <div class="col-md-6 pn-campo">
+                                    <label class="pn-etiqueta">Inicio de inscripción <span class="pn-obligatorio">*</span></label>
+                                    <input type="date" name="fechaInicioInscripcion" class="pn-input" th:value="${#temporals.format(coh.fechaInicioInscripcion, 'yyyy-MM-dd')}" required>
+                                    <div class="pn-ayuda-error"></div>
+                                </div>
+                                <div class="pn-campo col-md-6">
+                                    <label class="pn-etiqueta">Fin de inscripción <span class="pn-obligatorio">*</span></label>
+                                    <input type="date" name="fechaFinInscripcion" class="pn-input" th:value="${#temporals.format(coh.fechaFinInscripcion, 'yyyy-MM-dd')}" required>
+                                    <div class="pn-ayuda-error"></div>
+                                </div>
+                                <div class="col-md-6 pn-campo" th:if="${enVivo}">
+                                    <label class="pn-etiqueta">Inicio de dictado <span class="pn-obligatorio">*</span></label>
+                                    <input type="date" name="fechaInicioDictado" class="pn-input" th:value="${coh.fechaInicioDictado != null ? #temporals.format(coh.fechaInicioDictado, 'yyyy-MM-dd') : ''}">
+                                    <div class="pn-ayuda-error"></div>
+                                </div>
+                                <div class="col-md-6 pn-campo" th:if="${enVivo}">
+                                    <label class="pn-etiqueta">Fin de dictado <span class="pn-obligatorio">*</span></label>
+                                    <input type="date" name="fechaFinDictado" class="pn-input" th:value="${coh.fechaFinDictado != null ? #temporals.format(coh.fechaFinDictado, 'yyyy-MM-dd') : ''}">
+                                    <div class="pn-ayuda-error"></div>
+                                </div>
+                                <div class="col-md-6 pn-campo">
+                                    <label class="pn-etiqueta">Semanas de acceso <span class="pn-obligatorio">*</span></label>
+                                    <input type="number" name="semanasAcceso" class="pn-input" min="1" th:value="${coh.semanasAcceso}" required>
+                                    <div class="pn-ayuda-error"></div>
+                                </div>
+                                <div class="col-md-6 pn-campo">
+                                    <label class="pn-etiqueta">Cupo máximo (opcional)</label>
+                                    <input type="number" name="cupoMaximo" class="pn-input" min="1" th:value="${coh.cupoMaximo}" placeholder="Cupo máximo">
+                                    <div class="pn-ayuda-error"></div>
+                                </div>
+                            </div>
+                        </fieldset>
+                        <div class="pn-modal-pie">
+                            <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="pn-btn pn-btn-primario" th:disabled="${bloqueada}">Actualizar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade pn-modal" th:id="'modalBajaCohorte' + ${coh.idCohorte}" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="pn-modal-cabecera">
+                    <h3 class="pn-modal-titulo">Dar de baja cohorte</h3>
+                    <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="pn-modal-cuerpo text-center">
+                    <div class="pn-baja-icono"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                    <h4 class="pn-modal-titulo mb-1">¿Confirmas dar de baja la cohorte?</h4>
+                    <p class="small text-muted mb-0">Se desvinculará de los docentes que la tienen como cohorte de trabajo.</p>
+
+                    <th:block th:with="inscriptos=${inscripcionesPorCohorte != null and inscripcionesPorCohorte.containsKey(coh.idCohorte) ? inscripcionesPorCohorte.get(coh.idCohorte) : null},
+                                       clases=${clasesPorCohorte != null and clasesPorCohorte.containsKey(coh.idCohorte) ? clasesPorCohorte.get(coh.idCohorte) : 0}">
+                        <th:block th:with="tieneInscriptos=${inscriptos != null and !inscriptos.isEmpty()}, tieneClases=${clases > 0}">
+                            <div class="pn-baja-detalle">
+                                <div class="pn-baja-fila"><span class="text-muted">Cohorte</span><strong th:text="${coh.programa.curso.nombre + ' — ' + coh.programa.nombre}">Nombre</strong></div>
+                                <div class="pn-baja-fila">
+                                    <span class="text-muted">Dependencias</span>
+                                    <span th:if="${tieneInscriptos or tieneClases}" class="text-danger fw-bold text-end">
+                                        <span th:if="${tieneInscriptos}" class="d-block"
+                                              th:text="${inscriptos.size() + (inscriptos.size() == 1 ? ' alumno inscripto activo' : ' alumnos inscriptos activos')}">2 alumnos inscriptos activos</span>
+                                        <span th:if="${tieneClases}" class="d-block"
+                                              th:text="${clases + (clases == 1 ? ' clase en vivo activa' : ' clases en vivo activas')}">1 clase en vivo activa</span>
+                                    </span>
+                                    <span th:unless="${tieneInscriptos or tieneClases}" class="text-success fw-bold">Sin alumnos inscriptos ni clases en vivo activas</span>
+                                </div>
+                            </div>
+                            <form th:action="@{'/cohorte/darDeBaja/' + ${coh.idCohorte}}" method="post" class="form-ajax">
+                                <div class="pn-modal-pie">
+                                    <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+                                    <button type="submit" class="pn-btn pn-btn-peligro" th:disabled="${tieneInscriptos or tieneClases}"
+                                            th:title="${tieneInscriptos or tieneClases ? 'No se puede dar de baja porque posee inscripciones o clases en vivo activas' : 'Confirmar baja'}">Dar de baja</button>
+                                </div>
+                            </form>
+                        </th:block>
+                    </th:block>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+
+<th:block th:replace="~{fragments/panel :: scripts}"></th:block>
+<script>
+    // Validaciones propias de las cohortes (reglas de CU-12 y CU-13)
+    (function () {
+        var marcar = window.PanelValidacion.marcar;
+
+        function campo(formulario, nombre) { return formulario.querySelector('[name="' + nombre + '"]'); }
+
+        // Datos del programa: del selector (alta) o de los atributos del formulario (modificación)
+        function programa(formulario) {
+            var selector = campo(formulario, 'programaId');
+            if (selector) {
+                var opcion = selector.options[selector.selectedIndex];
+                return {
+                    enVivo: !!opcion && opcion.dataset.envivo === 'true',
+                    semanas: opcion && opcion.dataset.semanas ? parseInt(opcion.dataset.semanas, 10) : 0
+                };
+            }
+            return { enVivo: formulario.dataset.envivo === 'true', semanas: parseInt(formulario.dataset.semanas || '0', 10) };
+        }
+
+        window.PanelValidadores.cohorte = function (paso, formulario) {
+            var ok = true;
+            var datos = programa(formulario);
+            var iniIns = campo(formulario, 'fechaInicioInscripcion');
+            var finIns = campo(formulario, 'fechaFinInscripcion');
+            var iniDic = campo(formulario, 'fechaInicioDictado');
+            var finDic = campo(formulario, 'fechaFinDictado');
+            var semanas = campo(formulario, 'semanasAcceso');
+            var cupo = campo(formulario, 'cupoMaximo');
+
+            if (iniIns.value && finIns.value && iniIns.value >= finIns.value) {
+                marcar(finIns, 'La fecha de fin debe ser posterior a la fecha de inicio.');
+                ok = false;
+            }
+            if (semanas.value && datos.semanas && parseInt(semanas.value, 10) < datos.semanas) {
+                marcar(semanas, 'No pueden ser menores a la duración del cronograma (' + datos.semanas + ' semanas).');
+                ok = false;
+            }
+            if (cupo.value !== '' && (!Number.isInteger(Number(cupo.value)) || Number(cupo.value) <= 0)) {
+                marcar(cupo, 'El cupo debe ser un número entero mayor a cero.');
+                ok = false;
+            }
+            if (datos.enVivo && iniDic && finDic) {
+                if (!iniDic.value) {
+                    marcar(iniDic, 'La fecha de inicio de dictado es obligatoria para cursos en vivo.');
+                    ok = false;
+                } else if (finIns.value && iniDic.value < finIns.value) {
+                    marcar(iniDic, 'El dictado no puede comenzar antes del fin de la inscripción.');
+                    ok = false;
+                }
+                if (!finDic.value) {
+                    marcar(finDic, 'La fecha de fin de dictado es obligatoria para cursos en vivo.');
+                    ok = false;
+                } else if (iniDic.value && finDic.value <= iniDic.value) {
+                    marcar(finDic, 'El fin de dictado debe ser posterior al inicio.');
+                    ok = false;
+                }
+            }
+            return ok;
+        };
+
+        // En el alta, las fechas de dictado solo se piden si el curso del programa tiene modalidad En vivo
+        var selector = document.getElementById('cohPrograma');
+        if (selector) {
+            var info = document.getElementById('cohProgramaInfo');
+            var actualizar = function () {
+                var datos = programa(selector.form);
+                document.querySelectorAll('#formNuevaCohorte .grupo-dictado').forEach(function (g) {
+                    g.classList.toggle('d-none', !datos.enVivo);
+                });
+                info.textContent = selector.value
+                    ? 'Duración total del cronograma: ' + datos.semanas + ' semana(s).' + (datos.enVivo ? ' El curso incluye clases en vivo: completa las fechas de dictado.' : '')
+                    : '';
+            };
+            selector.addEventListener('change', actualizar);
+            actualizar();
+        }
+    })();
+</script>
+</body>
+</html>

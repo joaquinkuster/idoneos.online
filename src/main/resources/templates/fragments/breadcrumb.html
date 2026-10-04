@@ -1,0 +1,12 @@
+<!-- Ruta de navegación (breadcrumb), debajo del banner. padre/urlPadre: nivel intermedio opcional; actual: página actual. -->
+<div th:fragment="migas(padre, urlPadre, actual)" class="wf-migas-barra">
+    <nav class="wf-migas" aria-label="Ruta de navegación">
+        <a th:href="@{/inicio}">Inicio</a>
+        <span class="wf-migas-separador">›</span>
+        <th:block th:if="${padre != null}">
+            <a th:href="@{${urlPadre}}" th:text="${padre}">Catálogo</a>
+            <span class="wf-migas-separador">›</span>
+        </th:block>
+        <span class="wf-migas-actual" th:text="${actual}">Página</span>
+    </nav>
+</div>

@@ -213,8 +213,8 @@ public class SemillaServicio {
         // Curso 1: Mercado de Capitales Argentino (en vivo + grabada), con cohortes abierta, en dictado y finalizada
         ParticipacionDocente titular1 = crearCurso("Mercado de Capitales Argentino",
                 "Aprendé a operar acciones, bonos, ONs y opciones en BYMA con docentes de primer nivel.", 150000f,
-                "adam-smigielski-K5mPtONmpHM-unsplash.jpg", mercadoCapitales, intermedio, true,
-                List.of(enVivo, grabada), fausto, sebastian);
+                "mercado-capitales-argentino.jpg", mercadoCapitales, intermedio, true,
+                List.of(enVivo, grabada), fausto, List.of(sebastian, mariano));
         Curso curso1 = titular1.getCurso();
         Programa programa1 = crearPrograma(curso1, "Programa 2026",
                 "Dominar la operatoria bursátil y el análisis de instrumentos del mercado argentino.",
@@ -239,7 +239,7 @@ public class SemillaServicio {
         // Curso 2: Macroeconomía de Coyuntura (grabada), con cohorte abierta sin inscriptos
         ParticipacionDocente titular2 = crearCurso("Macroeconomía de Coyuntura",
                 "Tipo de cambio, inflación y tasas: las variables que mueven la economía argentina.", 0f,
-                "anne-nygard-x07ELaNFt34-unsplash.jpg", macroeconomia, basico, true, List.of(grabada), fausto, null);
+                "macroeconomia-coyuntura.jpg", macroeconomia, basico, true, List.of(grabada), fausto, List.of());
         Curso curso2 = titular2.getCurso();
         Programa programa2 = crearPrograma(curso2, "Programa 2026",
                 "Interpretar la coyuntura macroeconómica y su impacto en las decisiones financieras.",
@@ -252,7 +252,7 @@ public class SemillaServicio {
         // Curso 3: Planificación Fiscal Corporativa (no alcanza el mínimo de unidades con material)
         ParticipacionDocente titular3 = crearCurso("Planificación Fiscal Corporativa",
                 "Estrategias de planificación tributaria para empresas: IVA, ganancias y regímenes especiales.", 120000f,
-                "gustavo-sanchez-yhhVap-uWvo-unsplash.jpg", impuestos, avanzado, true, List.of(grabada), sebastian, null);
+                "planificacion-fiscal-corporativa.jpg", impuestos, avanzado, true, List.of(grabada), sebastian, List.of());
         Curso curso3 = titular3.getCurso();
         Programa programa3 = crearPrograma(curso3, "Programa 2026",
                 "Diseñar estructuras fiscales eficientes dentro del marco legal.", "Ley de Impuesto a las Ganancias.");
@@ -262,8 +262,8 @@ public class SemillaServicio {
         // Curso 4: Finanzas Personales e Inversión (grabada + clon de IA), con cohorte abierta e inscripción
         ParticipacionDocente titular4 = crearCurso("Finanzas Personales e Inversión",
                 "Organizá tus finanzas, aprendé a ahorrar e invertir con criterio y planificá tu patrimonio.", 80000f,
-                "jakub-zerdzicki-ip7GFn5JqX8-unsplash.jpg", finanzasPersonales, basico, true,
-                List.of(grabada, clonIa), mariano, null);
+                "finanzas-personales-inversion.jpg", finanzasPersonales, basico, true,
+                List.of(grabada, clonIa), mariano, List.of());
         Curso curso4 = titular4.getCurso();
         Programa programa4 = crearPrograma(curso4, "Programa 2026",
                 "Construir un plan financiero personal sólido.", "Guía de educación financiera (CNV).");
@@ -278,8 +278,8 @@ public class SemillaServicio {
         // Curso 5: Análisis Técnico Bursátil (en vivo + grabada), con cohorte próxima
         ParticipacionDocente titular5 = crearCurso("Análisis Técnico Bursátil",
                 "Gráficos, indicadores y patrones para tomar decisiones de compra y venta.", 95000f,
-                "leandro-parenti-SNEA0BBoA3g-unsplash.jpg", cuantitativas, intermedio, true,
-                List.of(enVivo, grabada), mariano, fausto);
+                "analisis-tecnico-bursatil.jpg", cuantitativas, intermedio, true,
+                List.of(enVivo, grabada), mariano, List.of(fausto));
         Curso curso5 = titular5.getCurso();
         Programa programa5 = crearPrograma(curso5, "Programa 2026",
                 "Aplicar herramientas de análisis técnico a distintos activos.", "Technical Analysis of the Financial Markets.");
@@ -290,12 +290,12 @@ public class SemillaServicio {
 
         // Curso 6: Introducción a las Finanzas (sin programas ni unidades: puede darse de baja)
         crearCurso("Introducción a las Finanzas", "Conceptos básicos para empezar a entender el mundo financiero.", 40000f,
-                "nick-chong-N__BnvQ_w18-unsplash.jpg", mercadoCapitales, basico, false, List.of(grabada), sebastian, null);
+                "introduccion-finanzas.jpg", mercadoCapitales, basico, false, List.of(grabada), sebastian, List.of());
 
         // Curso 7: curso dado de baja (para ver cómo se listan los registros dados de baja)
         ParticipacionDocente titular7 = crearCurso("Economía Argentina 2024",
                 "Edición histórica del curso de economía argentina. Ya no se dicta.", 60000f,
-                "towfiqu-barbhuiya-nApaSgkzaxg-unsplash.jpg", macroeconomia, intermedio, false, List.of(grabada), fausto, null);
+                "economia-argentina-2024.jpg", macroeconomia, intermedio, false, List.of(grabada), fausto, List.of());
         Curso curso7 = titular7.getCurso();
         curso7.marcarInactivo();
         cursoRepositorio.save(curso7);
@@ -349,7 +349,7 @@ public class SemillaServicio {
      */
     private ParticipacionDocente crearCurso(String nombre, String descripcion, float precio, String imagen,
             Categoria categoria, Nivel nivel, boolean emiteCertificado, List<Modalidad> modalidades,
-            Docente titular, Docente ayudante) {
+            Docente titular, List<Docente> ayudantes) {
         Curso curso = new Curso(nivel, categoria, nombre, precio);
         curso.setDescripcion(descripcion);
         curso.setImagen(imagen);
@@ -358,7 +358,7 @@ public class SemillaServicio {
         for (Modalidad modalidad : modalidades) {
             cursoModalidadRepositorio.save(new CursoModalidad(curso, modalidad));
         }
-        if (ayudante != null) {
+        for (Docente ayudante : ayudantes) {
             participacionDocenteRepositorio.save(new ParticipacionDocente(curso, ayudante, false));
         }
         return participacionDocenteRepositorio.save(new ParticipacionDocente(curso, titular, true));
