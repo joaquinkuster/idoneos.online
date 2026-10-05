@@ -75,7 +75,7 @@ class FormulariosJsonControladorTest {
     void numeroDemasiadoGrande() throws Exception {
         mockMvc.perform(post("/cohorte/registrar").param("programaId", "1").param("semanasAcceso", "100000000000000"))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value(Matchers.containsString("semanas de acceso deben ser un número entero")));
+                .andExpect(jsonPath("$.error").value(Matchers.containsString("no pueden superar las 100 semanas")));
     }
 
     @Test

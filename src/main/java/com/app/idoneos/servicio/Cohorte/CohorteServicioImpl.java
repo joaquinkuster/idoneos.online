@@ -319,6 +319,17 @@ public class CohorteServicioImpl implements CohorteServicio, CrudServicio<Cohort
         if (cupoMaximo != null && cupoMaximo <= 0) {
             throw new IllegalArgumentException("Error! El cupo máximo debe ser un número entero mayor a cero.");
         }
+        if (cupoMaximo != null && cupoMaximo > Cohorte.CUPO_MAXIMO_PERMITIDO) {
+            throw new IllegalArgumentException(
+                    "Error! El cupo máximo no puede superar los " + Cohorte.CUPO_MAXIMO_PERMITIDO + " inscriptos.");
+        }
+        if (semanasAcceso <= 0) {
+            throw new IllegalArgumentException("Error! Las semanas de acceso deben ser un número entero mayor a cero.");
+        }
+        if (semanasAcceso > Cohorte.SEMANAS_ACCESO_MAXIMAS) {
+            throw new IllegalArgumentException(
+                    "Error! Las semanas de acceso no pueden superar las " + Cohorte.SEMANAS_ACCESO_MAXIMAS + " semanas.");
+        }
         int duracion = programa.getDuracionTotalSemanas();
         if (semanasAcceso < duracion) {
             throw new IllegalArgumentException("Error! Las semanas de acceso (" + semanasAcceso

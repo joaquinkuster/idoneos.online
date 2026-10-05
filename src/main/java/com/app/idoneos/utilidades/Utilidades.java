@@ -4,12 +4,16 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 
 /**
  * Métodos auxiliares genéricos de la aplicación.
  */
 public class Utilidades {
+
+    private static final Logger REGISTRO = LoggerFactory.getLogger(Utilidades.class);
 
     /**
      * Calcula la cantidad de páginas necesarias para mostrar una cantidad de elementos.
@@ -70,8 +74,12 @@ public class Utilidades {
      * @return Una respuesta HTTP 400 con el mensaje de error.
      */
     public static ResponseEntity<Map<String, String>> respuestaConError(Exception e) {
-        String mensaje = (e instanceof IllegalArgumentException && e.getMessage() != null) ? e.getMessage()
-                : "Error! Ocurrió un error inesperado. Intente nuevamente.";
+        boolean esDeValidacion = e instanceof IllegalArgumentException && e.getMessage() != null;
+        if (!esDeValidacion) {
+            // El usuario solo ve un mensaje genérico: el detalle queda en el log del servidor para poder diagnosticarlo
+            REGISTRO.error("Error inesperado al procesar un formulario", e);
+        }
+        String mensaje = esDeValidacion ? e.getMessage() : "Error! Ocurrió un error inesperado. Intente nuevamente.";
         return ResponseEntity.badRequest().body(Map.of("error", mensaje));
     }
 }

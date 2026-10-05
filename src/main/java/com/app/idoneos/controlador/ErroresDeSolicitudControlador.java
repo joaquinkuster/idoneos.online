@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.app.idoneos.modelo.Cohorte;
+
 import jakarta.servlet.http.HttpServletRequest;
 
 /**
@@ -22,9 +24,10 @@ public class ErroresDeSolicitudControlador {
 
     /** Mensajes de las excepciones de los casos de uso (CU-12 y CU-13) para los valores numéricos inválidos. */
     private static final Map<String, String> MENSAJES_DE_CU = Map.of(
-            "cupoMaximo", "Error! El cupo máximo debe ser un número entero mayor a cero.",
-            "semanasAcceso", "Error! Las semanas de acceso deben ser un número entero válido, "
-                    + "no menor a la duración total del cronograma del programa.");
+            "cupoMaximo", "Error! El cupo máximo debe ser un número entero mayor a cero y no puede superar los "
+                    + Cohorte.CUPO_MAXIMO_PERMITIDO + " inscriptos.",
+            "semanasAcceso", "Error! Las semanas de acceso deben ser un número entero mayor a cero y no pueden superar las "
+                    + Cohorte.SEMANAS_ACCESO_MAXIMAS + " semanas.");
 
     private static final Map<String, String> NOMBRES_DE_CAMPOS = Map.ofEntries(
             Map.entry("semanasAcceso", "Semanas de acceso"),

@@ -19,6 +19,16 @@ import lombok.Setter;
 public class Cohorte {
 
     /**
+     * Máximo de semanas de acceso al contenido desde la inscripción.
+     */
+    public static final int SEMANAS_ACCESO_MAXIMAS = 100;
+
+    /**
+     * Máximo de inscriptos que se puede definir como cupo de una cohorte.
+     */
+    public static final int CUPO_MAXIMO_PERMITIDO = 10_000;
+
+    /**
      * Identificador único de la cohorte.
      */
     @Id

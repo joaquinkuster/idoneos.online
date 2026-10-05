@@ -199,12 +199,12 @@
                         </div>
                         <div class="col-md-6 pn-campo">
                             <label class="pn-etiqueta">Semanas de acceso <span class="pn-obligatorio">*</span></label>
-                            <input type="number" name="semanasAcceso" class="pn-input" min="1" placeholder="Semanas de acceso" required>
+                            <input type="number" name="semanasAcceso" class="pn-input" min="1" th:attr="data-maximo=${semanasAccesoMaximas}" placeholder="Semanas de acceso" required>
                             <div class="pn-ayuda-error"></div>
                         </div>
                         <div class="col-md-6 pn-campo">
                             <label class="pn-etiqueta">Cupo máximo (opcional)</label>
-                            <input type="number" name="cupoMaximo" class="pn-input" min="1" placeholder="Cupo máximo">
+                            <input type="number" name="cupoMaximo" class="pn-input" min="1" th:attr="data-maximo=${cupoMaximoPermitido}" placeholder="Cupo máximo">
                             <div class="pn-ayuda-error"></div>
                         </div>
                     </div>
@@ -265,12 +265,12 @@
                                 </div>
                                 <div class="col-md-6 pn-campo">
                                     <label class="pn-etiqueta">Semanas de acceso <span class="pn-obligatorio">*</span></label>
-                                    <input type="number" name="semanasAcceso" class="pn-input" min="1" th:value="${coh.semanasAcceso}" required>
+                                    <input type="number" name="semanasAcceso" class="pn-input" min="1" th:attr="data-maximo=${semanasAccesoMaximas}" th:value="${coh.semanasAcceso}" required>
                                     <div class="pn-ayuda-error"></div>
                                 </div>
                                 <div class="col-md-6 pn-campo">
                                     <label class="pn-etiqueta">Cupo máximo (opcional)</label>
-                                    <input type="number" name="cupoMaximo" class="pn-input" min="1" th:value="${coh.cupoMaximo}" placeholder="Cupo máximo">
+                                    <input type="number" name="cupoMaximo" class="pn-input" min="1" th:attr="data-maximo=${cupoMaximoPermitido}" th:value="${coh.cupoMaximo}" placeholder="Cupo máximo">
                                     <div class="pn-ayuda-error"></div>
                                 </div>
                             </div>
@@ -363,13 +363,30 @@
                 marcar(finIns, 'La fecha de fin debe ser posterior a la fecha de inicio.');
                 ok = false;
             }
-            if (semanas.value && datos.semanas && parseInt(semanas.value, 10) < datos.semanas) {
-                marcar(semanas, 'No pueden ser menores a la duración del cronograma (' + datos.semanas + ' semanas).');
-                ok = false;
+            // Semanas de acceso: cada regla tiene su propio mensaje
+            var maximoSemanas = parseInt(semanas.dataset.maximo, 10);
+            if (semanas.value) {
+                if (!Number.isInteger(Number(semanas.value)) || Number(semanas.value) <= 0) {
+                    marcar(semanas, 'Las semanas de acceso deben ser un número entero mayor a cero.');
+                    ok = false;
+                } else if (Number(semanas.value) > maximoSemanas) {
+                    marcar(semanas, 'Las semanas de acceso no pueden superar las ' + maximoSemanas + ' semanas.');
+                    ok = false;
+                } else if (datos.semanas && Number(semanas.value) < datos.semanas) {
+                    marcar(semanas, 'Las semanas de acceso no pueden ser menores a la duración total del cronograma del programa (' + datos.semanas + ' semanas).');
+                    ok = false;
+                }
             }
-            if (cupo.value !== '' && (!Number.isInteger(Number(cupo.value)) || Number(cupo.value) <= 0)) {
-                marcar(cupo, 'El cupo debe ser un número entero mayor a cero.');
-                ok = false;
+            // Cupo máximo: cada regla tiene su propio mensaje
+            var maximoCupo = parseInt(cupo.dataset.maximo, 10);
+            if (cupo.value !== '') {
+                if (!Number.isInteger(Number(cupo.value)) || Number(cupo.value) <= 0) {
+                    marcar(cupo, 'El cupo máximo debe ser un número entero mayor a cero.');
+                    ok = false;
+                } else if (Number(cupo.value) > maximoCupo) {
+                    marcar(cupo, 'El cupo máximo no puede superar los ' + maximoCupo + ' inscriptos.');
+                    ok = false;
+                }
             }
             if (datos.enVivo && iniDic && finDic) {
                 if (!iniDic.value) {

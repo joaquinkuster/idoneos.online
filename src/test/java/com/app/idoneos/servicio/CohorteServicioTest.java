@@ -127,6 +127,33 @@ class CohorteServicioTest {
     }
 
     @Test
+    @DisplayName("CU-12: las semanas de acceso y el cupo tienen un máximo razonable, con un mensaje para cada regla")
+    void registrarCohorteConValoresMaximosExcedidos() {
+        Programa programa = programaDe("Macroeconomía de Coyuntura");
+        Integer id = programa.getIdPrograma();
+        int duracion = programa.getDuracionTotalSemanas();
+
+        IllegalArgumentException semanas = assertThrows(IllegalArgumentException.class,
+                () -> cohorteServicio.registrarCohorte(id, INICIO, INICIO.plusDays(30), null, null,
+                        Cohorte.SEMANAS_ACCESO_MAXIMAS + 1, null));
+        assertTrue(semanas.getMessage().contains("no pueden superar las " + Cohorte.SEMANAS_ACCESO_MAXIMAS));
+        assertFalse(semanas.getMessage().contains("duración total"));
+
+        IllegalArgumentException cupo = assertThrows(IllegalArgumentException.class,
+                () -> cohorteServicio.registrarCohorte(id, INICIO, INICIO.plusDays(30), null, null, duracion,
+                        Cohorte.CUPO_MAXIMO_PERMITIDO + 1));
+        assertTrue(cupo.getMessage().contains("no puede superar los " + Cohorte.CUPO_MAXIMO_PERMITIDO));
+
+        IllegalArgumentException cero = assertThrows(IllegalArgumentException.class,
+                () -> cohorteServicio.registrarCohorte(id, INICIO, INICIO.plusDays(30), null, null, 0, null));
+        assertTrue(cero.getMessage().contains("mayor a cero"));
+
+        Cohorte limite = cohorteServicio.registrarCohorte(id, INICIO, INICIO.plusDays(30), null, null,
+                Cohorte.SEMANAS_ACCESO_MAXIMAS, Cohorte.CUPO_MAXIMO_PERMITIDO);
+        assertEquals(Cohorte.CUPO_MAXIMO_PERMITIDO, limite.getCupoMaximo());
+    }
+
+    @Test
     @DisplayName("CU-12: el programa debe tener el mínimo de unidades con material publicado")
     void registrarCohorteSinMinimoDeUnidadesConMaterial() {
         Programa programa = programaDe("Planificación Fiscal Corporativa");

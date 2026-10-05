@@ -108,6 +108,8 @@ public class CohorteControlador {
         modelo.addAttribute("desde", desde);
         modelo.addAttribute("hasta", hasta);
         modelo.addAttribute("ordenSeleccionado", orden);
+        modelo.addAttribute("semanasAccesoMaximas", Cohorte.SEMANAS_ACCESO_MAXIMAS);
+        modelo.addAttribute("cupoMaximoPermitido", Cohorte.CUPO_MAXIMO_PERMITIDO);
         modelo.addAttribute("titulo", "Cohortes | Idóneos Online");
         if (esAdministrador) {
             modelo.addAttribute("menuActivo", "cohortes");
