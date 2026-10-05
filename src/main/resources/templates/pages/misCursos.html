@@ -54,11 +54,16 @@
                         </form>
                     </section>
 
-                    <div th:if="${inscripciones == null or #lists.isEmpty(inscripciones)}" class="pn-tarjeta pn-vacio">
-                        <i class="fa-solid fa-circle-info me-1"></i> No tenés cursos para mostrar.
-                        <div class="mt-3">
-                            <a th:href="@{/catalogo}" class="pn-btn pn-btn-primario">Explorar catálogo</a>
-                        </div>
+                    <!-- Sin cursos: si hay filtros se avisa que no hay coincidencias; si no, se invita a explorar el catálogo -->
+                    <div th:if="${inscripciones == null or #lists.isEmpty(inscripciones)}" class="pn-tarjeta pn-vacio-grande"
+                         th:with="hayFiltros=${(busqueda != null and !#strings.isEmpty(busqueda)) or (estadoSeleccionado != null and !#strings.isEmpty(estadoSeleccionado))}">
+                        <i class="fa-solid fa-book-open pn-vacio-icono"></i>
+                        <h3 th:if="${!hayFiltros}">Todavía no tenés cursos</h3>
+                        <p th:if="${!hayFiltros}">Cuando te inscribas a un curso, vas a verlo acá con tu progreso.</p>
+                        <h3 th:if="${hayFiltros}">No se encontraron cursos</h3>
+                        <p th:if="${hayFiltros}">Ningún curso coincide con los filtros ingresados.</p>
+                        <a th:if="${!hayFiltros}" th:href="@{/catalogo}" class="pn-btn pn-btn-primario">Explorar catálogo</a>
+                        <a th:if="${hayFiltros}" th:href="@{/inscripcion/misCursos}" class="pn-btn pn-btn-contorno">Limpiar filtros</a>
                     </div>
 
                     <!-- Grilla de cursos del alumno -->

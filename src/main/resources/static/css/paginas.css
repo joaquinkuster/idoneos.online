@@ -972,3 +972,28 @@
         width: auto;
     }
 }
+
+/* ---------------------------------------------------------------- LISTADOS VACÍOS: mensaje y botón */
+.pn-vacio-grande {
+    text-align: center;
+    padding: 56px 24px;
+}
+
+.pn-vacio-icono {
+    font-size: 34px;
+    color: #94A3B8;
+    margin-bottom: 14px;
+}
+
+.pn-vacio-grande h3 {
+    font-size: 20px;
+    font-weight: 800;
+    color: #081426;
+    margin: 0 0 6px;
+}
+
+.pn-vacio-grande p {
+    font-size: 14px;
+    color: var(--pn-texto-suave);
+    margin: 0 0 22px;
+}

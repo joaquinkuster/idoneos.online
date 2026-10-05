@@ -194,6 +194,8 @@ public class SemillaServicio {
         Alumno lucia = crearAlumno("Lucía", "Fernández", "40123456", "lucia.fernandez@correo.com", rolAlumno);
         Alumno martin = crearAlumno("Martín", "Gómez", "41234567", "martin.gomez@correo.com", rolAlumno);
         Alumno valentina = crearAlumno("Valentina", "Ruiz", "42345678", "valentina.ruiz@correo.com", rolAlumno);
+        // Alumno sin inscripciones: permite probar la pantalla "Mis cursos" sin cursos
+        crearAlumno("Tomás", "Herrera", "43456789", "tomas.herrera@correo.com", rolAlumno);
 
         // Categorías
         Categoria mercadoCapitales = categoriaRepositorio.save(crearCategoria("Mercado de Capitales",

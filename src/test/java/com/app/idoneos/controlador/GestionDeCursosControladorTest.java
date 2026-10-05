@@ -58,6 +58,15 @@ class GestionDeCursosControladorTest {
     }
 
     @Test
+    @DisplayName("Al iniciar sesión, cada rol va a su pantalla: el alumno a sus cursos y el docente al inicio")
+    void iniciarSesionRedirigeSegunElRol() throws Exception {
+        mockMvc.perform(post("/login").param("username", "lucia.fernandez@correo.com").param("password", "123456"))
+                .andExpect(redirectedUrl("/inscripcion/misCursos"));
+        mockMvc.perform(post("/login").param("username", "fausto.spotorno@idoneos.online").param("password", "123456"))
+                .andExpect(redirectedUrl("/inicio"));
+    }
+
+    @Test
     @DisplayName("CU-01: un visitante sin sesión es redirigido al inicio de sesión")
     void visitanteNoPuedeBuscarCursos() throws Exception {
         mockMvc.perform(get("/curso/buscar")).andExpect(status().is3xxRedirection());

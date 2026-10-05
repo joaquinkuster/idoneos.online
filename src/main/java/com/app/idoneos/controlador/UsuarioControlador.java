@@ -40,7 +40,8 @@ public class UsuarioControlador {
             Usuario usuario = (Usuario) auth.getPrincipal();
             Rol rol = usuarioServicio.cambiarRolPorDefecto(usuario.getIdUsuario(), idRol);
             usuario.setRolPorDefecto(rol); // mantiene actualizado el usuario de la sesión
-            String destino = usuario.esAdministradorActivo() ? "/curso/buscar" : "/inicio";
+            String destino = usuario.esAdministradorActivo() ? "/curso/buscar"
+                    : usuario.esAlumnoActivo() ? "/inscripcion/misCursos" : "/inicio";
             return ResponseEntity.ok(Map.of("mensaje", "Ahora trabajás con el rol " + rol.getNombre() + ".",
                     "destino", destino));
         } catch (Exception e) {

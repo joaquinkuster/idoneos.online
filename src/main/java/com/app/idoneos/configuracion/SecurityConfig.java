@@ -87,13 +87,14 @@ public class SecurityConfig {
                 .formLogin(login -> login
                         .loginPage("/login")
                         .loginProcessingUrl("/login")
-                        // El administrador entra directamente a la gestión de cursos; los demás roles, al inicio
+                        // El administrador entra a la gestión de cursos, el alumno a sus cursos y los demás roles al inicio
                         .successHandler((solicitud, respuesta, autenticacion) -> {
                             Usuario usuario = (Usuario) autenticacion.getPrincipal();
                             solicitud.getSession().setAttribute(ModeloGlobalControlador.MENSAJE_DE_SESION,
                                     "Sesión iniciada correctamente. ¡Bienvenido/a, " + usuario.getNombre() + "!");
-                            respuesta.sendRedirect(solicitud.getContextPath()
-                                    + (usuario.esAdministradorActivo() ? "/curso/buscar" : "/inicio"));
+                            String destino = usuario.esAdministradorActivo() ? "/curso/buscar"
+                                    : usuario.esAlumnoActivo() ? "/inscripcion/misCursos" : "/inicio";
+                            respuesta.sendRedirect(solicitud.getContextPath() + destino);
                         })
                         .failureUrl("/login?error=true")
                         .permitAll())
