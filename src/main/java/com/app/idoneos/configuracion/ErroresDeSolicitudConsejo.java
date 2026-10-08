@@ -1,4 +1,4 @@
-package com.app.idoneos.controlador;
+package com.app.idoneos.configuracion;
 
 import java.util.Map;
 
@@ -20,7 +20,7 @@ import jakarta.servlet.http.HttpServletRequest;
  * direcciones de operaciones que solo admiten POST abiertas desde el navegador.
  */
 @ControllerAdvice
-public class ErroresDeSolicitudControlador {
+public class ErroresDeSolicitudConsejo {
 
     /** Mensajes de las excepciones de los casos de uso (CU-12 y CU-13) para los valores numéricos inválidos. */
     private static final Map<String, String> MENSAJES_DE_CU = Map.of(

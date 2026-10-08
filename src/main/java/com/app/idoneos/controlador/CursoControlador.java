@@ -1,5 +1,6 @@
 package com.app.idoneos.controlador;
 
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -7,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -23,16 +25,18 @@ import com.app.idoneos.modelo.Curso;
 import com.app.idoneos.modelo.CursoModalidad;
 import com.app.idoneos.modelo.Docente;
 import com.app.idoneos.modelo.Inscripcion;
+import com.app.idoneos.modelo.ParticipacionDocente;
 import com.app.idoneos.modelo.Programa;
 import com.app.idoneos.modelo.Usuario;
-import com.app.idoneos.servicio.Almacenamiento.AlmacenamientoImagenServicio;
+import com.app.idoneos.utilidades.ImagenUtilidad;
 import com.app.idoneos.servicio.Categoria.CategoriaServicioImpl;
 import com.app.idoneos.servicio.Curso.CursoServicioImpl;
 import com.app.idoneos.servicio.Docente.DocenteServicioImpl;
 import com.app.idoneos.servicio.Modalidad.ModalidadServicioImpl;
 import com.app.idoneos.servicio.Nivel.NivelServicioImpl;
 import com.app.idoneos.servicio.Programa.ProgramaServicioImpl;
-import com.app.idoneos.utilidades.Utilidades;
+import com.app.idoneos.utilidades.PaginacionUtilidad;
+import com.app.idoneos.utilidades.RespuestaUtilidad;
 
 /**
  * Controlador de la gestión de cursos (MOD-F-01).
@@ -66,8 +70,9 @@ public class CursoControlador {
     @Autowired
     private ProgramaServicioImpl programaServicio;
 
-    @Autowired
-    private AlmacenamientoImagenServicio almacenamientoImagenServicio;
+    /** Carpeta del servidor donde se guardan las imágenes de los cursos. */
+    @Value("${idoneos.directorio-imagenes:./uploads/cursos}")
+    private Path directorioImagenes;
 
     /**
      * CU-01: Busca cursos según nombre, categoría, nivel, equipo docente y modalidad.
@@ -106,9 +111,9 @@ public class CursoControlador {
                     modalidadId, orden, soloDeDocente);
             // El administrador ve el listado completo (la tabla se pagina en la pantalla); el docente, por páginas
             int tamanioPagina = porPagina > 0 ? porPagina : Math.max(cursos.size(), 1);
-            int totalPaginas = esAdministrador ? 1 : Utilidades.calcularTotalPaginas(cursos.size(), tamanioPagina);
-            int pagina = Utilidades.ajustarPagina(page, totalPaginas);
-            List<Curso> cursosPagina = esAdministrador ? cursos : Utilidades.obtenerPagina(cursos, pagina, tamanioPagina);
+            int totalPaginas = esAdministrador ? 1 : PaginacionUtilidad.calcularTotalPaginas(cursos.size(), tamanioPagina);
+            int pagina = PaginacionUtilidad.ajustarPagina(page, totalPaginas);
+            List<Curso> cursosPagina = esAdministrador ? cursos : PaginacionUtilidad.obtenerPagina(cursos, pagina, tamanioPagina);
 
             // Inscripciones y programas activos por curso, para validar la baja y la modificación
             Map<Integer, List<Inscripcion>> inscripcionesPorCurso = new HashMap<>();
@@ -146,9 +151,9 @@ public class CursoControlador {
             modelo.addAttribute("titulo", "Cursos | Idóneos Online");
             if (esAdministrador) {
                 modelo.addAttribute("menuActivo", "cursos");
-                return "pages/panel/cursos";
+                return "pages/curso/buscarAdministrador";
             }
-            return "pages/gestion/buscarCursos";
+            return "pages/curso/buscarDocente";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
             return "redirect:/inicio";
@@ -186,14 +191,14 @@ public class CursoControlador {
         String nombreImagen = null;
         try {
             if (imagenArchivo != null && !imagenArchivo.isEmpty()) {
-                nombreImagen = almacenamientoImagenServicio.guardar(imagenArchivo);
+                nombreImagen = ImagenUtilidad.guardar(imagenArchivo, directorioImagenes);
             }
             Curso curso = cursoServicio.registrarCurso(nombre, descripcion, precio, nombreImagen, categoriaId, nivelId,
                     emiteCertificado, idsModalidades, docenteTitularId, idsDocentesAyudantes);
-            return Utilidades.respuestaExitosa("Curso '" + curso.getNombre() + "' registrado con éxito.");
+            return RespuestaUtilidad.respuestaExitosa("Curso '" + curso.getNombre() + "' registrado con éxito.");
         } catch (Exception e) {
-            almacenamientoImagenServicio.eliminar(nombreImagen); // evita dejar archivos huérfanos
-            return Utilidades.respuestaConError(e);
+            ImagenUtilidad.eliminar(nombreImagen, directorioImagenes); // evita dejar archivos huérfanos
+            return RespuestaUtilidad.respuestaConError(e);
         }
     }
 
@@ -230,17 +235,17 @@ public class CursoControlador {
         try {
             String imagenAnterior = cursoServicio.buscarPorId(id).map(Curso::getImagen).orElse(null);
             if (imagenArchivo != null && !imagenArchivo.isEmpty()) {
-                nombreImagen = almacenamientoImagenServicio.guardar(imagenArchivo);
+                nombreImagen = ImagenUtilidad.guardar(imagenArchivo, directorioImagenes);
             }
             cursoServicio.modificarCurso(id, nombre, descripcion, precio, nombreImagen, categoriaId, nivelId,
                     emiteCertificado, idsModalidades, docenteTitularId, idsDocentesAyudantes);
             if (nombreImagen != null) {
-                almacenamientoImagenServicio.eliminar(imagenAnterior); // reemplaza la imagen anterior
+                ImagenUtilidad.eliminar(imagenAnterior, directorioImagenes); // reemplaza la imagen anterior
             }
-            return Utilidades.respuestaExitosa("Curso modificado correctamente.");
+            return RespuestaUtilidad.respuestaExitosa("Curso modificado correctamente.");
         } catch (Exception e) {
-            almacenamientoImagenServicio.eliminar(nombreImagen); // evita dejar archivos huérfanos
-            return Utilidades.respuestaConError(e);
+            ImagenUtilidad.eliminar(nombreImagen, directorioImagenes); // evita dejar archivos huérfanos
+            return RespuestaUtilidad.respuestaConError(e);
         }
     }
 
@@ -254,9 +259,9 @@ public class CursoControlador {
     public ResponseEntity<Map<String, String>> darDeBajaCurso(@PathVariable("id") Integer id) {
         try {
             cursoServicio.darDeBajaCurso(id);
-            return Utilidades.respuestaExitosa("Curso dado de baja exitosamente.");
+            return RespuestaUtilidad.respuestaExitosa("Curso dado de baja exitosamente.");
         } catch (Exception e) {
-            return Utilidades.respuestaConError(e);
+            return RespuestaUtilidad.respuestaConError(e);
         }
     }
 
@@ -272,9 +277,50 @@ public class CursoControlador {
             @RequestParam(value = "ids", required = false) List<Integer> ids) {
         try {
             cursoServicio.darDeBajaVarios(ids);
-            return Utilidades.respuestaExitosa("Cursos dados de baja exitosamente.");
+            return RespuestaUtilidad.respuestaExitosa("Cursos dados de baja exitosamente.");
         } catch (Exception e) {
-            return Utilidades.respuestaConError(e);
+            return RespuestaUtilidad.respuestaConError(e);
+        }
+    }
+
+    /**
+     * CU-27: Permite al docente acceder a un curso en el que participa, con todas sus unidades habilitadas y sin
+     * avance. Se muestra el programa y la cohorte de su contexto de trabajo.
+     *
+     * @param idCurso            El identificador del curso.
+     * @param seccion            La sección a mostrar: "unidades" (por defecto), "cronograma" o "clases".
+     * @param modelo             El modelo de la vista.
+     * @param auth               La autenticación actual.
+     * @param redirectAttributes Atributos para mensajes de redirección.
+     * @return La vista de "Acceder curso", o una redirección a "Mis cursos" si no puede acceder.
+     */
+    @GetMapping("/acceder/{idCurso}")
+    public String accederCurso(@PathVariable("idCurso") int idCurso,
+            @RequestParam(value = "seccion", defaultValue = "unidades") String seccion, Model modelo,
+            Authentication auth, RedirectAttributes redirectAttributes) {
+        try {
+            Usuario usuario = (Usuario) auth.getPrincipal();
+            Docente docente = usuario.getDocente();
+            if (docente == null) {
+                throw new IllegalArgumentException("Error! El usuario no tiene el rol de docente.");
+            }
+            ParticipacionDocente participacion = cursoServicio.validarAccesoDocente(idCurso, docente);
+            String seccionActiva = List.of("unidades", "cronograma", "clases").contains(seccion) ? seccion : "unidades";
+
+            modelo.addAttribute("inscripcion", null);
+            modelo.addAttribute("curso", participacion.getCurso());
+            modelo.addAttribute("programa", participacion.getProgramaDeTrabajo());
+            modelo.addAttribute("cohorte", participacion.getCohorteDeTrabajo());
+            modelo.addAttribute("esDocente", true);
+            modelo.addAttribute("urlBase", "/curso/acceder/" + idCurso);
+            modelo.addAttribute("urlMisCursos", "/curso/buscar");
+            modelo.addAttribute("seccion", seccionActiva);
+            modelo.addAttribute("menuActivo", seccionActiva);
+            modelo.addAttribute("titulo", "CU-27 - " + participacion.getCurso().getNombre() + " | Idóneos Online");
+            return "pages/curso/acceder";
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return "redirect:/curso/buscar";
         }
     }
 }

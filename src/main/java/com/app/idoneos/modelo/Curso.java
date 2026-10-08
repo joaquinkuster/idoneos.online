@@ -215,4 +215,14 @@ public class Curso {
     public boolean incluyeModalidad(String nombreModalidad) {
         return getModalidades().stream().anyMatch(modalidad -> nombreModalidad.equalsIgnoreCase(modalidad.getNombre()));
     }
+
+    /**
+     * Obtiene el programa vigente del curso: el más reciente que no está dado de baja.
+     *
+     * @return El programa vigente, o {@code null} si el curso no tiene programas vigentes.
+     */
+    public Programa getProgramaVigente() {
+        return programas.stream().filter(programa -> !programa.getBaja())
+                .max(Comparator.comparingInt(Programa::getIdPrograma)).orElse(null);
+    }
 }

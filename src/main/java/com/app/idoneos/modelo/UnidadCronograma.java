@@ -108,4 +108,22 @@ public class UnidadCronograma {
     public String toString() {
         return "UnidadCronograma #" + idUnidadCronograma;
     }
+
+    /**
+     * Obtiene la primera semana del programa en la que se dicta la unidad.
+     *
+     * @return El número de semana en que empieza la unidad.
+     */
+    public int getSemanaDesde() {
+        return programa.getSemanaDesde(this);
+    }
+
+    /**
+     * Obtiene la última semana del programa en la que se dicta la unidad.
+     *
+     * @return El número de semana en que termina la unidad.
+     */
+    public int getSemanaHasta() {
+        return programa.getSemanaHasta(this);
+    }
 }

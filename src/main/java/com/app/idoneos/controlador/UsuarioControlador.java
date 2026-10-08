@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.app.idoneos.modelo.Rol;
 import com.app.idoneos.modelo.Usuario;
 import com.app.idoneos.servicio.Usuario.UsuarioServicioImpl;
-import com.app.idoneos.utilidades.Utilidades;
+import com.app.idoneos.utilidades.RespuestaUtilidad;
 
 /**
  * Controlador de las acciones del usuario autenticado sobre su propia cuenta.
@@ -45,7 +45,7 @@ public class UsuarioControlador {
             return ResponseEntity.ok(Map.of("mensaje", "Ahora trabajás con el rol " + rol.getNombre() + ".",
                     "destino", destino));
         } catch (Exception e) {
-            return Utilidades.respuestaConError(e);
+            return RespuestaUtilidad.respuestaConError(e);
         }
     }
 }

@@ -1,4 +1,4 @@
-package com.app.idoneos.servicio.Almacenamiento;
+package com.app.idoneos.utilidades;
 
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -7,28 +7,21 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.UUID;
 
 import javax.imageio.ImageIO;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import jakarta.annotation.PostConstruct;
-
 /**
- * Servicio que guarda y elimina las imágenes de portada de los cursos en una carpeta del sistema de archivos
- * del servidor, fuera del código de la aplicación.
- *
- * La carpeta es configurable con la propiedad {@code idoneos.directorio-imagenes} (por defecto
- * {@code ./uploads/cursos}) y se publica en la URL {@code /img/cursos/**} (ver {@code WebConfig}).
+ * Métodos auxiliares para guardar y eliminar imágenes en una carpeta del sistema de archivos del servidor,
+ * fuera del código de la aplicación. Sirve a cualquier entidad que tenga imágenes: cada una indica la carpeta
+ * donde guarda las suyas (por ejemplo, la de los cursos se configura con la propiedad
+ * {@code idoneos.directorio-imagenes} y se publica en {@code /img/cursos/**}, ver {@code WebConfig}).
  * En la base de datos solo se guarda el nombre del archivo.
  */
-@Service
-public class AlmacenamientoImagenServicio {
+public class ImagenUtilidad {
 
     /**
      * Tamaño máximo permitido para una imagen, en bytes (2 MB).
@@ -40,47 +33,17 @@ public class AlmacenamientoImagenServicio {
      */
     public static final int ANCHO_MAXIMO = 1280;
 
-    private final Path directorio;
-
     /**
-     * Crea el servicio con la carpeta de imágenes configurada.
-     *
-     * @param directorio La ruta de la carpeta donde se guardan las imágenes.
-     */
-    public AlmacenamientoImagenServicio(
-            @Value("${idoneos.directorio-imagenes:./uploads/cursos}") String directorio) {
-        this.directorio = Paths.get(directorio).toAbsolutePath().normalize();
-    }
-
-    /**
-     * Crea la carpeta de imágenes si todavía no existe.
-     *
-     * @throws IOException Si no se puede crear la carpeta.
-     */
-    @PostConstruct
-    public void inicializar() throws IOException {
-        Files.createDirectories(directorio);
-    }
-
-    /**
-     * Obtiene la carpeta donde se guardan las imágenes.
-     *
-     * @return La ruta absoluta de la carpeta de imágenes.
-     */
-    public Path getDirectorio() {
-        return directorio;
-    }
-
-    /**
-     * Valida y guarda una imagen con un nombre único generado por el sistema.
+     * Valida y guarda una imagen con un nombre único generado por el sistema. La carpeta se crea si no existe.
      * Solo se aceptan imágenes JPG, PNG o WebP de hasta 2 MB; el formato se verifica con el contenido real
      * del archivo y no solo con su extensión o su tipo declarado.
      *
-     * @param archivo El archivo subido por el usuario.
+     * @param archivo    El archivo subido por el usuario.
+     * @param directorio La carpeta donde se guarda la imagen.
      * @return El nombre con el que se guardó el archivo (UUID más extensión).
      * @throws IllegalArgumentException Si el archivo está vacío, supera el tamaño máximo o no es una imagen válida.
      */
-    public String guardar(MultipartFile archivo) {
+    public static String guardar(MultipartFile archivo, Path directorio) {
         if (archivo == null || archivo.isEmpty()) {
             throw new IllegalArgumentException("Error! La imagen seleccionada está vacía.");
         }
@@ -93,8 +56,10 @@ public class AlmacenamientoImagenServicio {
             if (extension == null) {
                 throw new IllegalArgumentException("Error! La imagen debe estar en formato JPG, PNG o WebP.");
             }
+            Path carpeta = directorio.toAbsolutePath().normalize();
+            Files.createDirectories(carpeta);
             String nombre = UUID.randomUUID() + "." + extension;
-            Path destino = directorio.resolve(nombre);
+            Path destino = carpeta.resolve(nombre);
             try (InputStream completa = archivo.getInputStream()) {
                 if (!guardarAchicada(completa, extension, destino)) {
                     try (InputStream original = archivo.getInputStream()) {
@@ -109,18 +74,20 @@ public class AlmacenamientoImagenServicio {
     }
 
     /**
-     * Elimina una imagen guardada. Si el archivo no existe en la carpeta de imágenes (por ejemplo, una imagen
-     * de ejemplo incluida en la aplicación), no hace nada.
+     * Elimina una imagen guardada. Si el archivo no existe en la carpeta (por ejemplo, una imagen de ejemplo
+     * incluida en la aplicación), no hace nada. Nunca elimina archivos fuera de la carpeta indicada.
      *
-     * @param nombre El nombre del archivo a eliminar.
+     * @param nombre     El nombre del archivo a eliminar.
+     * @param directorio La carpeta donde está guardada la imagen.
      */
-    public void eliminar(String nombre) {
+    public static void eliminar(String nombre, Path directorio) {
         if (nombre == null || nombre.isBlank()) {
             return;
         }
         try {
-            Path archivo = directorio.resolve(nombre).normalize();
-            if (archivo.startsWith(directorio)) {
+            Path carpeta = directorio.toAbsolutePath().normalize();
+            Path archivo = carpeta.resolve(nombre).normalize();
+            if (archivo.startsWith(carpeta)) {
                 Files.deleteIfExists(archivo);
             }
         } catch (IOException e) {
@@ -134,7 +101,7 @@ public class AlmacenamientoImagenServicio {
      * @return {@code true} si guardó la imagen achicada; {@code false} si no hizo falta (o no pudo) y debe
      *         guardarse el archivo original.
      */
-    private boolean guardarAchicada(InputStream entrada, String extension, Path destino) {
+    private static boolean guardarAchicada(InputStream entrada, String extension, Path destino) {
         if (!extension.equals("jpg") && !extension.equals("png")) {
             return false;
         }
@@ -156,7 +123,7 @@ public class AlmacenamientoImagenServicio {
         }
     }
 
-    private String detectarExtension(byte[] cabecera) {
+    private static String detectarExtension(byte[] cabecera) {
         if (cabecera.length >= 3 && (cabecera[0] & 0xFF) == 0xFF && (cabecera[1] & 0xFF) == 0xD8
                 && (cabecera[2] & 0xFF) == 0xFF) {
             return "jpg";

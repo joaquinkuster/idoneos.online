@@ -125,8 +125,7 @@
                                 </div>
                             </div>
                             <div class="wf-course-card-footer">
-                                <!-- El acceso del docente al curso se define con su caso de uso: por ahora el botón no tiene acción -->
-                                <a href="#" class="wf-btn-manage-course" data-sin-accion th:if="${!curso.baja}">
+                                <a th:href="@{/curso/acceder/{id}(id=${curso.idCurso})}" class="wf-btn-manage-course" th:if="${!curso.baja}">
                                     <i class="fa-solid fa-door-open me-1"></i>
                                     <span>Acceder al curso</span>
                                 </a>
@@ -176,6 +175,5 @@
     <!-- Scripts Globales y SweetAlert2 -->
     <div th:replace="~{fragments/scripts :: scripts}"></div>
     <script th:src="@{/js/panel.js}"></script>
-    <script th:src="@{/js/academica.js}"></script>
 </body>
 </html>

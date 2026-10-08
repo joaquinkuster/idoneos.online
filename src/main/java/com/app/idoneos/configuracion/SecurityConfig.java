@@ -12,7 +12,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
-import com.app.idoneos.controlador.ModeloGlobalControlador;
 import com.app.idoneos.modelo.Usuario;
 import com.app.idoneos.servicio.Usuario.UsuarioDetallesServicio;
 
@@ -81,6 +80,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/curso/buscar", "/cohorte/buscar")
                         .hasAnyRole("Docente", "Administrador")
                         .requestMatchers(HttpMethod.POST, "/cohorte/cambiarContexto/*").hasRole("Docente")
+                        // CU-27: Acceder curso (Docente)
+                        .requestMatchers(HttpMethod.GET, "/curso/acceder/*").hasRole("Docente")
                         // CU-03 a CU-14: gestión de cursos, categorías y cohortes (Administrador)
                         .requestMatchers("/curso/**", "/categoria/**", "/cohorte/**").hasRole("Administrador")
                         .anyRequest().authenticated())
@@ -90,7 +91,7 @@ public class SecurityConfig {
                         // El administrador y el docente entran a sus cursos, el alumno a sus inscripciones y los demás roles al inicio
                         .successHandler((solicitud, respuesta, autenticacion) -> {
                             Usuario usuario = (Usuario) autenticacion.getPrincipal();
-                            solicitud.getSession().setAttribute(ModeloGlobalControlador.MENSAJE_DE_SESION,
+                            solicitud.getSession().setAttribute(ModeloGlobalConsejo.MENSAJE_DE_SESION,
                                     "Sesión iniciada correctamente. ¡Bienvenido/a, " + usuario.getNombre() + "!");
                             String destino = usuario.esAdministradorActivo() || usuario.esDocenteActivo() ? "/curso/buscar"
                                     : usuario.esAlumnoActivo() ? "/inscripcion/misCursos" : "/inicio";

@@ -1,4 +1,4 @@
-package com.app.idoneos.controlador;
+package com.app.idoneos.configuracion;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.ui.Model;
@@ -15,7 +15,7 @@ import jakarta.servlet.http.HttpSession;
  * en el modelo de las plantillas Thymeleaf (por ejemplo, para la barra de navegación).
  */
 @ControllerAdvice
-public class ModeloGlobalControlador {
+public class ModeloGlobalConsejo {
 
     /** Nombre del atributo de sesión con un mensaje que se muestra una sola vez en la página siguiente. */
     public static final String MENSAJE_DE_SESION = "mensajeDeSesion";

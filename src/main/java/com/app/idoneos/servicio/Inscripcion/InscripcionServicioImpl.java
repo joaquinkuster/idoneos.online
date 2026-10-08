@@ -10,6 +10,8 @@ import com.app.idoneos.repositorio.InscripcionRepositorio;
 import com.app.idoneos.servicio.CrudServicio;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 /**
  * Implementación del servicio para gestionar las operaciones sobre la entidad {@link Inscripcion}.
@@ -17,6 +19,8 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class InscripcionServicioImpl implements InscripcionServicio, CrudServicio<Inscripcion> {
+
+    private static final DateTimeFormatter FORMATO_FECHA = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     @Autowired
     private InscripcionRepositorio inscripcionRepositorio;
@@ -129,5 +133,34 @@ public class InscripcionServicioImpl implements InscripcionServicio, CrudServici
                         || inscripcion.getEstado().equalsIgnoreCase(estado.trim()))
                 .sorted(Comparator.comparingInt(Inscripcion::getIdInscripcion).reversed())
                 .toList();
+    }
+
+    /**
+     * Verifica que el alumno pueda acceder al curso de la inscripción (CU-27).
+     *
+     * @param idInscripcion El identificador de la inscripción.
+     * @param alumno        El alumno que solicita el acceso.
+     * @return La inscripción a la que puede acceder.
+     * @throws IllegalArgumentException Si el alumno no puede acceder, con el motivo.
+     */
+    @Override
+    public Inscripcion validarAcceso(int idInscripcion, Alumno alumno) {
+        Inscripcion inscripcion = buscarPorId(idInscripcion)
+                .filter(i -> i.getAlumno().getIdAlumno() == alumno.getIdAlumno())
+                .orElseThrow(() -> new IllegalArgumentException("Error! No tenés una inscripción vigente a este curso."));
+        Cohorte cohorte = inscripcion.getCohorte();
+        if (Boolean.FALSE.equals(inscripcion.getHabilitado()) || cohorte.esInactivo()) {
+            throw new IllegalArgumentException("Error! Tu inscripción a este curso no está habilitada.");
+        }
+        LocalDateTime ahora = LocalDateTime.now();
+        if (ahora.isAfter(inscripcion.getFechaVencimientoAcceso())) {
+            throw new IllegalArgumentException("Error! Tu acceso a este curso venció el "
+                    + inscripcion.getFechaVencimientoAcceso().format(FORMATO_FECHA) + ".");
+        }
+        if (cohorte.getFechaInicioDictado() != null && ahora.isBefore(cohorte.getFechaInicioDictado())) {
+            throw new IllegalArgumentException("Error! El dictado de tu cohorte comienza el "
+                    + cohorte.getFechaInicioDictado().format(FORMATO_FECHA) + ".");
+        }
+        return inscripcion;
     }
 }

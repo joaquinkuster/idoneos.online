@@ -1,6 +1,8 @@
 package com.app.idoneos.configuracion;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import java.nio.file.Path;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import java.util.concurrent.TimeUnit;
@@ -10,16 +12,15 @@ import org.springframework.web.filter.HiddenHttpMethodFilter;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import com.app.idoneos.servicio.Almacenamiento.AlmacenamientoImagenServicio;
-
 /**
  * Configuración de Spring MVC.
  */
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
-    @Autowired
-    private AlmacenamientoImagenServicio almacenamientoImagenServicio;
+    /** Carpeta del servidor donde se guardan las imágenes de los cursos. */
+    @Value("${idoneos.directorio-imagenes:./uploads/cursos}")
+    private Path directorioImagenes;
 
     /**
      * Crea un bean de tipo HiddenHttpMethodFilter.
@@ -44,7 +45,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/img/cursos/**")
-                .addResourceLocations(almacenamientoImagenServicio.getDirectorio().toUri().toString(),
+                .addResourceLocations(directorioImagenes.toAbsolutePath().normalize().toUri().toString(),
                         "classpath:/static/img/cursos/")
                 .setCacheControl(CacheControl.maxAge(7, TimeUnit.DAYS));
     }

@@ -12,23 +12,23 @@
     <a th:replace="~{fragments/sidebar :: enlace('/categoria/buscar', 'fa-tags', 'Categorías', ${activo}, 'categorias')}"></a>
 </th:block>
 
-<!-- ========== Gestión académica del alumno (MOD-F-02) ==========
-     inscripcion: inscripción del curso abierto. La navegación se organiza según la jerarquía
+<!-- ========== Gestión académica (MOD-F-02), para el alumno y el docente ==========
+     urlBase: ruta del curso abierto ('/inscripcion/acceder/{id}' o '/curso/acceder/{id}'). La navegación se organiza según la jerarquía
      Curso → Programa → Cohorte → Unidad; los enlaces con '#' no tienen acción por ahora. -->
-<th:block th:fragment="gestionAcademica(activo, inscripcion)">
-    <th:block th:replace="~{fragments/sidebar :: marco(~{fragments/menus :: enlacesGestionAcademica(${activo}, ${inscripcion})})}"></th:block>
+<th:block th:fragment="gestionAcademica(activo, urlBase)">
+    <th:block th:replace="~{fragments/sidebar :: marco(~{fragments/menus :: enlacesGestionAcademica(${activo}, ${urlBase})})}"></th:block>
 </th:block>
 
-<th:block th:fragment="enlacesGestionAcademica(activo, inscripcion)">
+<th:block th:fragment="enlacesGestionAcademica(activo, urlBase)">
     <div th:replace="~{fragments/sidebar :: grupo('Este curso')}"></div>
-    <a th:replace="~{fragments/sidebar :: enlace('/inscripcion/acceder/' + ${inscripcion.idInscripcion}, 'fa-layer-group', 'Unidades', ${activo}, 'unidades')}"></a>
+    <a th:replace="~{fragments/sidebar :: enlace(${urlBase}, 'fa-layer-group', 'Unidades', ${activo}, 'unidades')}"></a>
     <a th:replace="~{fragments/sidebar :: enlace('#', 'fa-book-bookmark', 'Programas', ${activo}, 'programas')}"></a>
 
     <div th:replace="~{fragments/sidebar :: grupo('Este programa')}"></div>
-    <a th:replace="~{fragments/sidebar :: enlace('/inscripcion/acceder/' + ${inscripcion.idInscripcion} + '?seccion=cronograma', 'fa-calendar-check', 'Cronograma', ${activo}, 'cronograma')}"></a>
+    <a th:replace="~{fragments/sidebar :: enlace(${urlBase} + '?seccion=cronograma', 'fa-calendar-check', 'Cronograma', ${activo}, 'cronograma')}"></a>
 
     <div th:replace="~{fragments/sidebar :: grupo('Esta cohorte')}"></div>
-    <a th:replace="~{fragments/sidebar :: enlace('/inscripcion/acceder/' + ${inscripcion.idInscripcion} + '?seccion=clases', 'fa-video', 'Clases en vivo', ${activo}, 'clases')}"></a>
+    <a th:replace="~{fragments/sidebar :: enlace(${urlBase} + '?seccion=clases', 'fa-video', 'Clases en vivo', ${activo}, 'clases')}"></a>
     <a th:replace="~{fragments/sidebar :: enlace('#', 'fa-users', 'Participantes', ${activo}, 'participantes')}"></a>
     <a th:replace="~{fragments/sidebar :: enlace('#', 'fa-star', 'Calificaciones', ${activo}, 'calificaciones')}"></a>
 
@@ -40,7 +40,7 @@
 </th:block>
 
 <!-- Enlaces de la barra superior de Gestión académica (a la izquierda, junto a la barra lateral) -->
-<th:block th:fragment="barraGestionAcademica(activo)">
-    <a th:href="@{/inscripcion/misCursos}" class="pn-barra-enlace" th:classappend="${activo == 'misCursos'} ? 'activo'">Mis cursos</a>
+<th:block th:fragment="barraGestionAcademica(activo, urlMisCursos)">
+    <a th:href="@{${urlMisCursos}}" class="pn-barra-enlace" th:classappend="${activo == 'misCursos'} ? 'activo'">Mis cursos</a>
     <a th:href="@{/catalogo}" class="pn-barra-enlace" th:classappend="${activo == 'catalogo'} ? 'activo'">Catálogo</a>
 </th:block>

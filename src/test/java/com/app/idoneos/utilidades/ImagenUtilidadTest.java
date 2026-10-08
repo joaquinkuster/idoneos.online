@@ -1,4 +1,4 @@
-package com.app.idoneos.servicio;
+package com.app.idoneos.utilidades;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -13,18 +13,15 @@ import java.nio.file.Path;
 
 import javax.imageio.ImageIO;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.mock.web.MockMultipartFile;
 
-import com.app.idoneos.servicio.Almacenamiento.AlmacenamientoImagenServicio;
-
 /**
- * Pruebas del almacenamiento de las imágenes de los cursos en el sistema de archivos.
+ * Pruebas de {@link ImagenUtilidad}: guardado y eliminación de imágenes en el sistema de archivos.
  */
-class AlmacenamientoImagenServicioTest {
+class ImagenUtilidadTest {
 
     private static final byte[] JPG = { (byte) 0xFF, (byte) 0xD8, (byte) 0xFF, (byte) 0xE0, 0, 0x10, 'J', 'F', 'I', 'F' };
     private static final byte[] PNG = { (byte) 0x89, 'P', 'N', 'G', 0x0D, 0x0A, 0x1A, 0x0A, 0, 0, 0, 0x0D };
@@ -33,20 +30,12 @@ class AlmacenamientoImagenServicioTest {
     @TempDir
     Path carpeta;
 
-    private AlmacenamientoImagenServicio servicio;
-
-    @BeforeEach
-    void iniciar() throws IOException {
-        servicio = new AlmacenamientoImagenServicio(carpeta.toString());
-        servicio.inicializar();
-    }
-
     @Test
     @DisplayName("Guarda imágenes JPG, PNG y WebP con un nombre único y la extensión del formato real")
     void guardaImagenesValidas() {
-        String jpg = servicio.guardar(new MockMultipartFile("imagenArchivo", "foto.png", "image/png", JPG));
-        String png = servicio.guardar(new MockMultipartFile("imagenArchivo", "foto.jpg", "image/jpeg", PNG));
-        String webp = servicio.guardar(new MockMultipartFile("imagenArchivo", "foto.gif", "image/gif", WEBP));
+        String jpg = ImagenUtilidad.guardar(new MockMultipartFile("imagenArchivo", "foto.png", "image/png", JPG), carpeta);
+        String png = ImagenUtilidad.guardar(new MockMultipartFile("imagenArchivo", "foto.jpg", "image/jpeg", PNG), carpeta);
+        String webp = ImagenUtilidad.guardar(new MockMultipartFile("imagenArchivo", "foto.gif", "image/gif", WEBP), carpeta);
 
         assertTrue(jpg.endsWith(".jpg"));
         assertTrue(png.endsWith(".png"));
@@ -58,10 +47,10 @@ class AlmacenamientoImagenServicioTest {
     @Test
     @DisplayName("Achica las imágenes más anchas que el máximo para que carguen más rápido y no toca las chicas")
     void achicaLasImagenesMuyAnchas() throws IOException {
-        String ancha = servicio.guardar(imagenReal(2400, 1200, "jpg"));
-        String chica = servicio.guardar(imagenReal(800, 400, "png"));
+        String ancha = ImagenUtilidad.guardar(imagenReal(2400, 1200, "jpg"), carpeta);
+        String chica = ImagenUtilidad.guardar(imagenReal(800, 400, "png"), carpeta);
 
-        assertEquals(AlmacenamientoImagenServicio.ANCHO_MAXIMO, ImageIO.read(carpeta.resolve(ancha).toFile()).getWidth());
+        assertEquals(ImagenUtilidad.ANCHO_MAXIMO, ImageIO.read(carpeta.resolve(ancha).toFile()).getWidth());
         assertEquals(640, ImageIO.read(carpeta.resolve(ancha).toFile()).getHeight());
         assertEquals(800, ImageIO.read(carpeta.resolve(chica).toFile()).getWidth());
     }
@@ -79,7 +68,7 @@ class AlmacenamientoImagenServicioTest {
         MockMultipartFile falso = new MockMultipartFile("imagenArchivo", "foto.jpg", "image/jpeg",
                 "esto no es una imagen".getBytes());
 
-        assertThrows(IllegalArgumentException.class, () -> servicio.guardar(falso));
+        assertThrows(IllegalArgumentException.class, () -> ImagenUtilidad.guardar(falso, carpeta));
         assertEquals(0, carpeta.toFile().list().length);
     }
 
@@ -87,29 +76,29 @@ class AlmacenamientoImagenServicioTest {
     @DisplayName("Rechaza un archivo vacío o ausente")
     void rechazaArchivosVacios() {
         assertThrows(IllegalArgumentException.class,
-                () -> servicio.guardar(new MockMultipartFile("imagenArchivo", "foto.jpg", "image/jpeg", new byte[0])));
-        assertThrows(IllegalArgumentException.class, () -> servicio.guardar(null));
+                () -> ImagenUtilidad.guardar(new MockMultipartFile("imagenArchivo", "foto.jpg", "image/jpeg", new byte[0]), carpeta));
+        assertThrows(IllegalArgumentException.class, () -> ImagenUtilidad.guardar(null, carpeta));
     }
 
     @Test
     @DisplayName("Rechaza una imagen que supera los 2 MB")
     void rechazaImagenesMuyGrandes() {
-        byte[] grande = new byte[(int) AlmacenamientoImagenServicio.TAMANIO_MAXIMO + 1];
+        byte[] grande = new byte[(int) ImagenUtilidad.TAMANIO_MAXIMO + 1];
         System.arraycopy(JPG, 0, grande, 0, JPG.length);
 
         assertThrows(IllegalArgumentException.class,
-                () -> servicio.guardar(new MockMultipartFile("imagenArchivo", "foto.jpg", "image/jpeg", grande)));
+                () -> ImagenUtilidad.guardar(new MockMultipartFile("imagenArchivo", "foto.jpg", "image/jpeg", grande), carpeta));
     }
 
     @Test
     @DisplayName("Elimina la imagen guardada y no sale de la carpeta de imágenes")
     void eliminaSoloDentroDeLaCarpeta() throws IOException {
-        String nombre = servicio.guardar(new MockMultipartFile("imagenArchivo", "foto.jpg", "image/jpeg", JPG));
+        String nombre = ImagenUtilidad.guardar(new MockMultipartFile("imagenArchivo", "foto.jpg", "image/jpeg", JPG), carpeta);
         Path fuera = Files.createTempFile("fuera", ".txt");
 
-        servicio.eliminar(nombre);
-        servicio.eliminar("../" + fuera.getFileName());
-        servicio.eliminar(null);
+        ImagenUtilidad.eliminar(nombre, carpeta);
+        ImagenUtilidad.eliminar("../" + fuera.getFileName(), carpeta);
+        ImagenUtilidad.eliminar(null, carpeta);
 
         assertFalse(Files.exists(carpeta.resolve(nombre)));
         assertTrue(Files.exists(fuera), "no debe borrar archivos fuera de la carpeta de imágenes");

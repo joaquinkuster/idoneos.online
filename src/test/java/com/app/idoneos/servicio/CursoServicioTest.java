@@ -14,7 +14,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.app.idoneos.modelo.Curso;
+import com.app.idoneos.modelo.Docente;
 import com.app.idoneos.modelo.Modalidad;
+import com.app.idoneos.modelo.ParticipacionDocente;
 import com.app.idoneos.servicio.Categoria.CategoriaServicioImpl;
 import com.app.idoneos.servicio.Curso.CursoServicioImpl;
 import com.app.idoneos.servicio.Docente.DocenteServicioImpl;
@@ -271,5 +273,47 @@ class CursoServicioTest {
             assertTrue(vigentes.get(i - 1).getIdCurso() > vigentes.get(i).getIdCurso(),
                     "el curso más reciente va primero");
         }
+    }
+
+    private Docente docente(String correo) {
+        return docenteServicio.buscarHabilitados().stream()
+                .filter(d -> d.getUsuario().getCorreo().equals(correo)).findFirst().orElseThrow();
+    }
+
+    @Test
+    @DisplayName("CU-27: el docente accede a un curso en el que participa, con su programa y su cohorte de trabajo")
+    void docenteAccedeAsuCurso() {
+        Curso curso = curso("Mercado de Capitales Argentino");
+
+        ParticipacionDocente participacion = cursoServicio.validarAccesoDocente(curso.getIdCurso(), docente(FAUSTO));
+
+        assertEquals(curso.getIdCurso(), participacion.getCurso().getIdCurso());
+        assertEquals("Programa 2026", participacion.getProgramaDeTrabajo().getNombre());
+        assertEquals("En dictado", participacion.getCohorteDeTrabajo().getEstado());
+    }
+
+    @Test
+    @DisplayName("CU-27: el docente no accede a un curso en el que no participa")
+    void docenteAjenoAlCurso() {
+        Curso curso = curso("Macroeconomía de Coyuntura");
+
+        IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
+                () -> cursoServicio.validarAccesoDocente(curso.getIdCurso(), docente(SEBASTIAN)));
+
+        assertTrue(error.getMessage().contains("No participás"));
+    }
+
+    @Test
+    @DisplayName("CU-27: el docente no accede a un curso dado de baja ni a uno sin programa vigente")
+    void cursoNoDisponible() {
+        Curso sinPrograma = curso("Introducción a las Finanzas");
+        IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
+                () -> cursoServicio.validarAccesoDocente(sinPrograma.getIdCurso(), docente(SEBASTIAN)));
+        assertTrue(error.getMessage().contains("programa vigente"));
+
+        int idDeBaja = curso("Economía Argentina 2024").getIdCurso();
+        error = assertThrows(IllegalArgumentException.class,
+                () -> cursoServicio.validarAccesoDocente(idDeBaja, docente(FAUSTO)));
+        assertTrue(error.getMessage().contains("no se encuentra activo"));
     }
 }

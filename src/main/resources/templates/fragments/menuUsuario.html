@@ -25,7 +25,6 @@
 
             <!-- Docente -->
             <a th:if="${usuario.esDocenteActivo()}" th:href="@{/curso/buscar}" class="um-item">Mis cursos</a>
-            <a th:if="${usuario.esDocenteActivo()}" th:href="@{/cohorte/buscar}" class="um-item">Mis cohortes</a>
 
             <!-- Alumno -->
             <a th:if="${usuario.esAlumnoActivo()}" th:href="@{/inscripcion/misCursos}" class="um-item">Mis cursos</a>

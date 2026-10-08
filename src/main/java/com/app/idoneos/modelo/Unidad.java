@@ -3,6 +3,8 @@ package com.app.idoneos.modelo;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.Comparator;
+import java.util.List;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -148,5 +150,44 @@ public class Unidad {
     @Override
     public String toString() {
         return titulo;
+    }
+
+    /**
+     * Obtiene el material publicado de la unidad (vigente y no oculto).
+     *
+     * @return El material publicado, en el orden en que se cargó.
+     */
+    public List<Material> getMaterialesPublicados() {
+        return materiales.stream().filter(material -> !material.getBaja() && !material.getOculto())
+                .sorted(Comparator.comparingInt(Material::getIdMaterial)).toList();
+    }
+
+    /**
+     * Obtiene los términos vigentes del glosario de la unidad.
+     *
+     * @return Los términos, en orden alfabético.
+     */
+    public List<TerminoGlosario> getTerminosGlosarioOrdenados() {
+        return terminosGlosario.stream().filter(termino -> !termino.getBaja())
+                .sorted(Comparator.comparing(TerminoGlosario::getTermino, String.CASE_INSENSITIVE_ORDER)).toList();
+    }
+
+    /**
+     * Obtiene las autoevaluaciones publicadas de la unidad (vigentes y no ocultas).
+     *
+     * @return Las autoevaluaciones, en el orden en que se cargaron.
+     */
+    public List<Autoevaluacion> getAutoevaluacionesPublicadas() {
+        return autoevaluaciones.stream().filter(autoevaluacion -> !autoevaluacion.getBaja() && !autoevaluacion.getOculto())
+                .sorted(Comparator.comparingInt(Autoevaluacion::getIdAutoevaluacion)).toList();
+    }
+
+    /**
+     * Cuenta las consultas vigentes registradas en el foro de la unidad.
+     *
+     * @return La cantidad de consultas.
+     */
+    public int getCantidadConsultasForo() {
+        return (int) consultasForo.stream().filter(consulta -> !consulta.getBaja()).count();
     }
 }

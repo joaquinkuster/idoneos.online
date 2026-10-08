@@ -3,6 +3,8 @@ package com.app.idoneos.modelo;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.Comparator;
+import java.util.List;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -170,5 +172,56 @@ public class Programa {
      */
     public int getCantidadUnidades() {
         return (int) unidadesCronograma.stream().filter(cronograma -> !cronograma.getBaja()).count();
+    }
+
+    /**
+     * Obtiene las unidades vigentes del cronograma, en orden de dictado.
+     *
+     * @return Las unidades del cronograma ordenadas por su número de orden.
+     */
+    public List<UnidadCronograma> getCronogramaOrdenado() {
+        return unidadesCronograma.stream().filter(cronograma -> !cronograma.getBaja() && !cronograma.getUnidad().getBaja())
+                .sorted(Comparator.comparingInt(UnidadCronograma::getNumeroOrden)).toList();
+    }
+
+    /**
+     * Calcula la última semana del programa en la que se dicta una unidad (suma de las semanas de las unidades
+     * anteriores y la propia).
+     *
+     * @param unidadCronograma La unidad del cronograma.
+     * @return El número de semana en que termina la unidad.
+     */
+    public int getSemanaHasta(UnidadCronograma unidadCronograma) {
+        return getCronogramaOrdenado().stream()
+                .filter(cronograma -> cronograma.getNumeroOrden() <= unidadCronograma.getNumeroOrden())
+                .mapToInt(UnidadCronograma::getSemanasDuracion).sum();
+    }
+
+    /**
+     * Calcula la primera semana del programa en la que se dicta una unidad.
+     *
+     * @param unidadCronograma La unidad del cronograma.
+     * @return El número de semana en que empieza la unidad.
+     */
+    public int getSemanaDesde(UnidadCronograma unidadCronograma) {
+        return getSemanaHasta(unidadCronograma) - unidadCronograma.getSemanasDuracion() + 1;
+    }
+
+    /**
+     * Elige la cohorte más relevante del programa: la que está en dictado, si no la que tiene la inscripción
+     * abierta y, si no, la más reciente.
+     *
+     * @return La cohorte elegida, o {@code null} si el programa no tiene cohortes vigentes.
+     */
+    public Cohorte getCohorteDestacada() {
+        List<Cohorte> vigentes = cohortes.stream().filter(cohorte -> !cohorte.getBaja()).toList();
+        for (String estado : List.of("En dictado", "Abierta")) {
+            Cohorte elegida = vigentes.stream().filter(cohorte -> estado.equals(cohorte.getEstado()))
+                    .max(Comparator.comparingInt(Cohorte::getIdCohorte)).orElse(null);
+            if (elegida != null) {
+                return elegida;
+            }
+        }
+        return vigentes.stream().max(Comparator.comparingInt(Cohorte::getIdCohorte)).orElse(null);
     }
 }

@@ -537,6 +537,12 @@ a.ac-actividad-titulo:hover {
     color: #991B1B;
 }
 
+.ac-nota {
+    margin: 14px 0;
+    font-size: 13px;
+    color: var(--pn-texto-suave);
+}
+
 .ac-tabla-contenedor {
     overflow-x: auto;
 }

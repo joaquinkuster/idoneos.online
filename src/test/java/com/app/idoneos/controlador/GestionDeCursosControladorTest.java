@@ -77,19 +77,19 @@ class GestionDeCursosControladorTest {
     @DisplayName("CU-01, CU-07 y CU-11: el administrador accede a los listados del panel de cursos, categorías y cohortes")
     void administradorAccedeALasBusquedas() throws Exception {
         mockMvc.perform(get("/curso/buscar")).andExpect(status().isOk())
-                .andExpect(view().name("pages/panel/cursos"));
+                .andExpect(view().name("pages/curso/buscarAdministrador"));
         mockMvc.perform(get("/categoria/buscar")).andExpect(status().isOk())
-                .andExpect(view().name("pages/panel/categorias"));
+                .andExpect(view().name("pages/categoria/buscar"));
         mockMvc.perform(get("/cohorte/buscar")).andExpect(status().isOk())
-                .andExpect(view().name("pages/panel/cohortes"));
+                .andExpect(view().name("pages/cohorte/buscarAdministrador"));
     }
 
     @Test
     @WithUserDetails(value = "fausto.spotorno@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesServicio")
     @DisplayName("El docente ve las vistas de tarjetas de cursos y cohortes, y no puede dar de baja")
     void docenteNoAccedeAlPanel() throws Exception {
-        mockMvc.perform(get("/curso/buscar")).andExpect(view().name("pages/gestion/buscarCursos"));
-        mockMvc.perform(get("/cohorte/buscar")).andExpect(view().name("pages/gestion/buscarCohortes"));
+        mockMvc.perform(get("/curso/buscar")).andExpect(view().name("pages/curso/buscarDocente"));
+        mockMvc.perform(get("/cohorte/buscar")).andExpect(view().name("pages/cohorte/buscarDocente"));
         mockMvc.perform(post("/curso/darDeBajaMasiva").param("ids", "1")).andExpect(status().isForbidden());
     }
 
@@ -116,7 +116,7 @@ class GestionDeCursosControladorTest {
     @DisplayName("CU-02: el alumno ve sus cursos y no accede a la gestión de cursos")
     void alumnoVeSusCursos() throws Exception {
         mockMvc.perform(get("/inscripcion/misCursos")).andExpect(status().isOk())
-                .andExpect(view().name("pages/misCursos"))
+                .andExpect(view().name("pages/inscripcion/misCursos"))
                 .andExpect(model().attributeExists("inscripciones"));
         mockMvc.perform(get("/curso/buscar")).andExpect(status().isForbidden());
     }

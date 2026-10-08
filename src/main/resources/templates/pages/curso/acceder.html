@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <th:block th:replace="~{fragments/head :: recursos}"></th:block>
+</head>
+<body class="pn-body">
+<div class="pn-app" id="pnApp">
+    <!-- Barra lateral reutilizable, con el menú de Gestión académica -->
+    <th:block th:replace="~{fragments/menus :: gestionAcademica(${menuActivo}, ${urlBase})}"></th:block>
+
+    <div class="pn-principal">
+        <th:block th:replace="~{fragments/panel :: barra(~{fragments/menus :: barraGestionAcademica('misCursos', ${urlMisCursos})})}"></th:block>
+
+        <main class="pn-contenido">
+            <!-- CU-27: Acceder curso -->
+            <nav class="ac-migas" aria-label="Ruta de navegación">
+                <a th:href="@{/inicio}">Página principal</a>
+                <i class="fa-solid fa-chevron-right"></i>
+                <a th:href="@{${urlMisCursos}}">Mis cursos</a>
+                <i class="fa-solid fa-chevron-right"></i>
+                <strong th:text="${curso.nombre}">Curso</strong>
+            </nav>
+
+            <!-- Cabecera del curso -->
+            <section class="pn-tarjeta ac-cabecera">
+                <div class="ac-cabecera-superior">
+                    <div>
+                        <span class="ac-etiqueta-portal"><i class="fa-solid fa-graduation-cap"></i> <th:block th:text="${esDocente ? 'Panel docente' : 'Portal del alumno'}">Portal del alumno</th:block></span>
+                        <h1 class="ac-titulo" th:text="${curso.nombre}">Especialización en Idoneidad Bursátil</h1>
+                    </div>
+                </div>
+
+                <!-- Programa y cohorte (sólo lectura) -->
+                <div class="ac-datos">
+                    <span class="ac-dato"><i class="fa-solid fa-layer-group"></i>
+                        <span>Programa: <strong th:text="${programa.nombre}">Programa 2026</strong></span></span>
+                    <span class="ac-dato"><i class="fa-solid fa-calendar-days"></i>
+                        <span th:if="${cohorte != null}">Cohorte: <strong th:text="${#temporals.format(cohorte.fechaInicioDictado != null ? cohorte.fechaInicioDictado : cohorte.fechaInicioInscripcion, 'dd/MM/yyyy') + ' - ' + cohorte.estado}">Marzo 2026</strong></span>
+                        <span th:if="${cohorte == null}">Cohorte: <strong>Sin cohortes</strong></span></span>
+                    <span class="ac-dato" th:if="${inscripcion != null}"><i class="fa-solid fa-hourglass-half"></i>
+                        <span>Acceso hasta: <strong th:text="${#temporals.format(inscripcion.fechaVencimientoAcceso, 'dd/MM/yyyy')}">01/01/2027</strong></span></span>
+                </div>
+            </section>
+
+            <!-- Clase en vivo que se está transmitiendo ahora -->
+            <section class="ac-en-directo" th:if="${cohorte != null and cohorte.claseEnCurso != null}">
+                <span class="ac-en-directo-icono"><i class="fa-solid fa-tower-broadcast"></i></span>
+                <div class="ac-en-directo-texto">
+                    <span class="ac-en-directo-etiqueta"><i class="fa-solid fa-circle"></i> En directo ahora</span>
+                    <strong th:text="${cohorte.claseEnCurso.titulo}">Clase magistral</strong>
+                    <small th:text="${cohorte.claseEnCurso.participacionDocente.docente.usuario.nombreCompleto}">Docente</small>
+                </div>
+                <a href="#" class="ac-en-directo-boton" data-sin-accion><i class="fa-solid fa-video"></i> Ingresar a la sala en vivo</a>
+            </section>
+
+            <!-- ================= Sección: Unidades (acordeón) ================= -->
+            <section th:if="${seccion == 'unidades'}">
+                <div class="ac-barra-acordeon" th:if="${!#lists.isEmpty(programa.cronogramaOrdenado)}">
+                    <h2 class="ac-seccion-titulo">Unidades del programa</h2>
+                    <div class="ac-barra-acordeon-acciones">
+                        <button type="button" class="ac-enlace-boton" data-ac-expandir>Expandir todo</button>
+                        <span>·</span>
+                        <button type="button" class="ac-enlace-boton" data-ac-colapsar>Colapsar todo</button>
+                    </div>
+                </div>
+
+                <div class="pn-tarjeta ac-vacio" th:if="${#lists.isEmpty(programa.cronogramaOrdenado)}">
+                    <i class="fa-regular fa-folder-open"></i>
+                    <p>El programa de tu cohorte todavía no tiene unidades cargadas.</p>
+                </div>
+
+                <div class="ac-acordeon">
+                    <article class="ac-unidad" th:each="uc : ${programa.cronogramaOrdenado}"
+                             th:with="u=${uc.unidad},
+                                      habilitada=${esDocente or inscripcion.estaUnidadHabilitada(uc)},
+                                      completada=${!esDocente and inscripcion.estaUnidadCompletada(uc.unidad)},
+                                      enCurso=${!esDocente and inscripcion.unidadEnCurso != null and inscripcion.unidadEnCurso.idUnidadCronograma == uc.idUnidadCronograma},
+                                      estadoUnidad=${esDocente ? '' : inscripcion.getEstadoUnidad(uc)}"
+                             th:classappend="${completada} ? 'ac-unidad-completada' : (${habilitada} ? 'ac-unidad-habilitada' : 'ac-unidad-bloqueada')">
+                        <button type="button" class="ac-unidad-cabecera" th:disabled="${!habilitada}"
+                                data-bs-toggle="collapse" th:attr="data-bs-target=${'#unidad-' + uc.numeroOrden}, aria-expanded=${enCurso}"
+                                th:aria-controls="${'unidad-' + uc.numeroOrden}">
+                            <i class="fa-solid fa-chevron-down ac-unidad-flecha"></i>
+                            <span class="ac-unidad-numero" th:text="${'Unidad ' + uc.numeroOrden}">Unidad 1</span>
+                            <span class="ac-unidad-nombre" th:text="${u.titulo}">Título de la unidad</span>
+                            <span class="ac-unidad-semanas"><i class="fa-regular fa-clock"></i>
+                                <th:block th:text="${uc.semanasDuracion + (uc.semanasDuracion == 1 ? ' semana' : ' semanas')}">2 semanas</th:block></span>
+                            <span class="pn-insignia" th:if="${!esDocente}" th:text="${estadoUnidad}"
+                                  th:classappend="${completada} ? 'pn-insignia-verde' : (${habilitada} ? 'pn-insignia-dorada' : 'pn-insignia-gris')">Estado</span>
+                            <i class="fa-solid fa-lock ac-unidad-candado" th:if="${!esDocente and !habilitada}"></i>
+                        </button>
+
+                        <!-- Unidad bloqueada: no se muestra su contenido -->
+                        <p class="ac-unidad-aviso" th:if="${!habilitada}">
+                            Completá la unidad anterior para habilitar esta unidad.
+                        </p>
+
+                        <!-- Contenido publicado de la unidad habilitada -->
+                        <div class="collapse" th:if="${habilitada}" th:id="${'unidad-' + uc.numeroOrden}"
+                             th:classappend="${enCurso} ? 'show'">
+                            <div class="ac-unidad-cuerpo">
+                                <p class="ac-unidad-descripcion" th:if="${u.descripcion != null and !#strings.isEmpty(u.descripcion)}"
+                                   th:text="${u.descripcion}">Descripción</p>
+
+                                <!-- Material -->
+                                <h3 class="ac-subtitulo" th:if="${!#lists.isEmpty(u.materialesPublicados)}">Material de estudio</h3>
+                                <ul class="ac-actividades" th:if="${!#lists.isEmpty(u.materialesPublicados)}">
+                                    <li class="ac-actividad" th:each="m : ${u.materialesPublicados}"
+                                        th:with="tipo=${m.tipoMaterial.nombre}">
+                                        <span class="ac-icono"
+                                              th:classappend="${tipo == 'Grabación'} ? 'ac-icono-azul' : (${tipo == 'Presentación'} ? 'ac-icono-naranja' : (${tipo == 'Bibliografía'} ? 'ac-icono-violeta' : 'ac-icono-rojo'))">
+                                            <i class="fa-solid"
+                                               th:classappend="${tipo == 'Grabación'} ? 'fa-circle-play' : (${tipo == 'Presentación'} ? 'fa-file-powerpoint' : (${tipo == 'Bibliografía'} ? 'fa-book' : 'fa-file-lines'))"></i>
+                                        </span>
+                                        <div class="ac-actividad-info">
+                                            <a href="#" class="ac-actividad-titulo" data-sin-accion th:text="${m.titulo}">Material</a>
+                                            <span class="ac-actividad-meta">
+                                                <th:block th:text="${tipo}">Tipo</th:block>
+                                                <th:block th:if="${m.autor != null and !#strings.isEmpty(m.autor)}" th:text="${' · ' + m.autor}"></th:block>
+                                                <th:block th:if="${m.generadoPorIa}"> · Generado con IA</th:block>
+                                            </span>
+                                        </div>
+                                    </li>
+                                </ul>
+
+                                <!-- Glosario -->
+                                <h3 class="ac-subtitulo" th:if="${!#lists.isEmpty(u.terminosGlosarioOrdenados)}">Glosario</h3>
+                                <ul class="ac-actividades" th:if="${!#lists.isEmpty(u.terminosGlosarioOrdenados)}">
+                                    <li class="ac-actividad ac-actividad-glosario">
+                                        <span class="ac-icono ac-icono-amarillo"><i class="fa-solid fa-spell-check"></i></span>
+                                        <div class="ac-actividad-info">
+                                            <a href="#" class="ac-actividad-titulo" data-sin-accion
+                                               th:text="${'Glosario: ' + u.titulo}">Glosario</a>
+                                            <span class="ac-actividad-meta"
+                                                  th:text="${u.terminosGlosarioOrdenados.size() + (u.terminosGlosarioOrdenados.size() == 1 ? ' término' : ' términos')}">3 términos</span>
+                                            <details class="ac-glosario">
+                                                <summary>Ver términos</summary>
+                                                <dl>
+                                                    <th:block th:each="t : ${u.terminosGlosarioOrdenados}">
+                                                        <dt th:text="${t.termino}">Término</dt>
+                                                        <dd th:text="${t.definicion}">Definición</dd>
+                                                    </th:block>
+                                                </dl>
+                                            </details>
+                                        </div>
+                                    </li>
+                                </ul>
+
+                                <!-- Autoevaluaciones y foro -->
+                                <h3 class="ac-subtitulo">Actividades y evaluaciones</h3>
+                                <ul class="ac-actividades">
+                                    <li class="ac-actividad" th:each="a : ${u.autoevaluacionesPublicadas}">
+                                        <span class="ac-icono ac-icono-verde"><i class="fa-solid fa-clipboard-check"></i></span>
+                                        <div class="ac-actividad-info">
+                                            <a href="#" class="ac-actividad-titulo" data-sin-accion th:text="${a.nombre}">Autoevaluación</a>
+                                            <span class="ac-actividad-meta">
+                                                <th:block th:text="${a.cantidadPreguntas + ' preguntas'}">10 preguntas</th:block>
+                                                <th:block th:text="${' · Nota mínima: ' + #numbers.formatDecimal(a.notaMinima, 1, 1)}"> · Nota mínima: 6</th:block>
+                                                <th:block th:text="${a.intentosPermitidos != null ? ' · ' + a.intentosPermitidos + ' intentos máximos' : ' · Intentos ilimitados'}"> · 3 intentos máximos</th:block>
+                                                <th:block th:if="${a.tiempoLimite != null}" th:text="${' · ' + a.tiempoLimite + ' min'}"> · 30 min</th:block>
+                                            </span>
+                                            <!-- Intentos propios del alumno -->
+                                            <ul class="ac-intentos" th:if="${!esDocente and !#lists.isEmpty(a.intentosDe(inscripcion))}">
+                                                <li th:each="i, estado : ${a.intentosDe(inscripcion)}">
+                                                    <span th:text="${'Intento ' + estado.count}">Intento 1</span>
+                                                    <strong th:text="${i.nota != null ? #numbers.formatDecimal(i.nota, 1, 1) : 'Sin nota'}">7,5</strong>
+                                                    <span class="pn-insignia" th:classappend="${i.aprobado} ? 'pn-insignia-verde' : 'pn-insignia-roja'"
+                                                          th:text="${i.aprobado ? 'Aprobado' : 'Desaprobado'}">Aprobado</span>
+                                                    <small th:if="${i.fechaEntrega != null}" th:text="${#temporals.format(i.fechaEntrega, 'dd/MM/yyyy HH:mm')}">01/01/2026</small>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        <div class="ac-actividad-estado" th:if="${!esDocente}">
+                                            <span class="pn-insignia pn-insignia-verde" th:if="${a.estaAprobadaPor(inscripcion)}">Aprobada</span>
+                                            <span class="pn-insignia pn-insignia-gris" th:if="${!a.estaAprobadaPor(inscripcion) and #lists.isEmpty(a.intentosDe(inscripcion))}">Sin intentos</span>
+                                            <small th:if="${a.intentosRestantes(inscripcion) != null}"
+                                                   th:text="${a.intentosRestantes(inscripcion) + (a.intentosRestantes(inscripcion) == 1 ? ' intento restante' : ' intentos restantes')}">2 intentos restantes</small>
+                                        </div>
+                                    </li>
+
+                                    <li class="ac-actividad">
+                                        <span class="ac-icono ac-icono-naranja"><i class="fa-solid fa-comments"></i></span>
+                                        <div class="ac-actividad-info">
+                                            <a href="#" class="ac-actividad-titulo" data-sin-accion
+                                               th:text="${'Foro de consultas: ' + u.titulo}">Foro</a>
+                                            <span class="ac-actividad-meta"
+                                                  th:text="${u.cantidadConsultasForo == 0 ? 'Todavía no hay consultas' : u.cantidadConsultasForo + (u.cantidadConsultasForo == 1 ? ' consulta registrada' : ' consultas registradas')}">2 consultas</span>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <!-- ================= Sección: Cronograma ================= -->
+            <section th:if="${seccion == 'cronograma'}">
+                <h2 class="ac-seccion-titulo">Cronograma del programa</h2>
+
+                <div class="pn-tarjeta ac-vacio" th:if="${#lists.isEmpty(programa.cronogramaOrdenado)}">
+                    <i class="fa-regular fa-calendar"></i>
+                    <p>El programa todavía no tiene unidades cargadas.</p>
+                </div>
+
+                <div th:if="${!#lists.isEmpty(programa.cronogramaOrdenado)}">
+                    <!-- Alumno: semana esperada y atraso respecto de su avance -->
+                    <div class="ac-aviso" th:if="${!esDocente}" th:classappend="${inscripcion.estaAtrasada()} ? 'ac-aviso-atraso' : 'ac-aviso-al-dia'">
+                        <i class="fa-solid" th:classappend="${inscripcion.estaAtrasada()} ? 'fa-triangle-exclamation' : 'fa-circle-check'"></i>
+                        <div>
+                            <strong th:text="${'Semana esperada: ' + cohorte.semanaActual + ' de ' + programa.duracionTotalSemanas}">Semana esperada: 3 de 7</strong>
+                            <span th:text="${'Contada desde el inicio ' + (cohorte.fechaInicioDictado != null ? 'del dictado' : 'de la inscripción') + ' de la cohorte (' + #temporals.format(cohorte.fechaBaseCronograma, 'dd/MM/yyyy') + ').'}">Contada desde...</span>
+                            <p th:if="${inscripcion.estaAtrasada()}"
+                               th:text="${'Vas por detrás de lo esperado: a esta altura (semana ' + cohorte.semanaActual + ') deberías haber completado hasta la unidad ' + inscripcion.unidadesEsperadasTerminadas + ' y tu última unidad ' + (inscripcion.ultimaUnidadCompletada == 0 ? 'completada es: ninguna.' : 'completada es la ' + inscripcion.ultimaUnidadCompletada + '.')}">Vas por detrás de lo esperado.</p>
+                            <p th:if="${!inscripcion.estaAtrasada()}">Vas al día con el cronograma.</p>
+                        </div>
+                    </div>
+
+                    <!-- Docente: semana de la cohorte, sin avance -->
+                    <p class="ac-nota" th:if="${esDocente and cohorte != null}"
+                       th:text="${'Semana actual de la cohorte: ' + cohorte.semanaActual + ' de ' + programa.duracionTotalSemanas + ' (contada desde el inicio ' + (cohorte.fechaInicioDictado != null ? 'del dictado' : 'de la inscripción') + ', ' + #temporals.format(cohorte.fechaBaseCronograma, 'dd/MM/yyyy') + ').'}">Semana actual</p>
+
+                    <div class="pn-tarjeta ac-tabla-contenedor">
+                        <table class="pn-tabla ac-tabla">
+                            <thead>
+                                <tr>
+                                    <th>Orden</th>
+                                    <th>Unidad</th>
+                                    <th>Duración</th>
+                                    <th>Semanas</th>
+                                    <th th:if="${!esDocente}">Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="uc : ${programa.cronogramaOrdenado}"
+                                    th:with="estadoCronograma=${esDocente ? '' : inscripcion.getEstadoCronograma(uc)}">
+                                    <td th:text="${uc.numeroOrden}">1</td>
+                                    <td><span class="pn-celda-principal" th:text="${uc.unidad.titulo}">Unidad</span></td>
+                                    <td th:text="${uc.semanasDuracion + (uc.semanasDuracion == 1 ? ' semana' : ' semanas')}">2 semanas</td>
+                                    <td th:text="${uc.semanaDesde == uc.semanaHasta ? 'Semana ' + uc.semanaDesde : 'Semanas ' + uc.semanaDesde + ' a ' + uc.semanaHasta}">Semanas 1 a 2</td>
+                                    <td th:if="${!esDocente}"><span class="pn-insignia" th:text="${estadoCronograma}"
+                                              th:classappend="${estadoCronograma == 'Completada'} ? 'pn-insignia-verde' : (${estadoCronograma == 'Atrasada'} ? 'pn-insignia-roja' : (${estadoCronograma == 'Semana actual'} ? 'pn-insignia-dorada' : 'pn-insignia-gris'))">Estado</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================= Sección: Clases en vivo ================= -->
+            <section th:if="${seccion == 'clases'}">
+                <h2 class="ac-seccion-titulo">Clases en vivo de tu cohorte</h2>
+
+                <div class="pn-tarjeta ac-vacio" th:if="${cohorte == null or #lists.isEmpty(cohorte.clasesEnVivoPublicadas)}">
+                    <i class="fa-solid fa-video-slash"></i>
+                    <p th:text="${esDocente ? 'La cohorte todavía no tiene clases en vivo programadas.' : 'Tu cohorte todavía no tiene clases en vivo programadas.'}">Tu cohorte todavía no tiene clases en vivo programadas.</p>
+                </div>
+
+                <ul class="ac-actividades ac-clases" th:if="${cohorte != null and !#lists.isEmpty(cohorte.clasesEnVivoPublicadas)}">
+                    <li class="ac-actividad" th:each="c : ${cohorte.clasesEnVivoPublicadas}">
+                        <span class="ac-icono ac-icono-rosa"><i class="fa-solid fa-video"></i></span>
+                        <div class="ac-actividad-info">
+                            <span class="ac-actividad-titulo ac-sin-enlace" th:text="${c.titulo}">Clase</span>
+                            <span class="ac-actividad-meta"
+                                  th:text="${#temporals.format(c.fechaHora, 'dd/MM/yyyy HH:mm') + ' · ' + c.duracion + ' min · ' + c.participacionDocente.docente.usuario.nombreCompleto}">01/01/2026 19:00 · 90 min · Docente</span>
+                        </div>
+                        <div class="ac-actividad-estado">
+                            <span class="pn-insignia" th:text="${c.estadoClaseEnVivo.nombre}"
+                                  th:classappend="${c.estadoClaseEnVivo.nombre == 'En vivo'} ? 'pn-insignia-roja' : (${c.estadoClaseEnVivo.nombre == 'Programada'} ? 'pn-insignia-azul' : 'pn-insignia-gris')">Programada</span>
+                        </div>
+                    </li>
+                </ul>
+            </section>
+        </main>
+
+        <th:block th:replace="~{fragments/panel :: pie('Gestión académica')}"></th:block>
+    </div>
+</div>
+
+<th:block th:replace="~{fragments/panel :: scripts}"></th:block>
+<script th:src="@{/js/academica.js}"></script>
+</body>
+</html>

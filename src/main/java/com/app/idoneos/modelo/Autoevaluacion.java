@@ -3,6 +3,8 @@ package com.app.idoneos.modelo;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.Comparator;
+import java.util.List;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -170,5 +172,49 @@ public class Autoevaluacion {
     @Override
     public String toString() {
         return nombre;
+    }
+
+    /**
+     * Obtiene los intentos vigentes que un alumno registró sobre la autoevaluación.
+     *
+     * @param inscripcion La inscripción del alumno.
+     * @return Los intentos, del más antiguo al más reciente.
+     */
+    public List<IntentoAutoevaluacion> intentosDe(Inscripcion inscripcion) {
+        return intentosAutoevaluacion.stream()
+                .filter(intento -> !intento.getBaja()
+                        && intento.getInscripcion().getIdInscripcion() == inscripcion.getIdInscripcion())
+                .sorted(Comparator.comparingInt(IntentoAutoevaluacion::getIdIntentoAutoevaluacion)).toList();
+    }
+
+    /**
+     * Calcula cuántos intentos le quedan a un alumno.
+     *
+     * @param inscripcion La inscripción del alumno.
+     * @return Los intentos restantes, o {@code null} si la autoevaluación no limita los intentos.
+     */
+    public Integer intentosRestantes(Inscripcion inscripcion) {
+        return intentosPermitidos == null ? null : Math.max(0, intentosPermitidos - intentosDe(inscripcion).size());
+    }
+
+    /**
+     * Obtiene la mejor nota que un alumno obtuvo entre sus intentos entregados.
+     *
+     * @param inscripcion La inscripción del alumno.
+     * @return La mejor nota, o {@code null} si todavía no entregó ningún intento.
+     */
+    public Float mejorNota(Inscripcion inscripcion) {
+        return intentosDe(inscripcion).stream().map(IntentoAutoevaluacion::getNota).filter(nota -> nota != null)
+                .max(Comparator.naturalOrder()).orElse(null);
+    }
+
+    /**
+     * Indica si un alumno aprobó la autoevaluación en alguno de sus intentos.
+     *
+     * @param inscripcion La inscripción del alumno.
+     * @return {@code true} si algún intento está aprobado.
+     */
+    public boolean estaAprobadaPor(Inscripcion inscripcion) {
+        return intentosDe(inscripcion).stream().anyMatch(intento -> Boolean.TRUE.equals(intento.getAprobado()));
     }
 }

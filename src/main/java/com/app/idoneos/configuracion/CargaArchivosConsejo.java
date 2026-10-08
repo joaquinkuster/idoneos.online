@@ -1,4 +1,4 @@
-package com.app.idoneos.controlador;
+package com.app.idoneos.configuracion;
 
 import java.util.Map;
 
@@ -13,7 +13,7 @@ import org.springframework.web.multipart.MaxUploadSizeExceededException;
  * dentro del formulario.
  */
 @ControllerAdvice
-public class CargaArchivosControlador {
+public class CargaArchivosConsejo {
 
     /**
      * Informa que la imagen supera el tamaño máximo permitido.

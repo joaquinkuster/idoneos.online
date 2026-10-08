@@ -3,6 +3,9 @@ package com.app.idoneos.modelo;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
+import java.time.temporal.ChronoUnit;
+import java.util.Comparator;
+import java.util.List;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -199,5 +202,56 @@ public class Cohorte {
      */
     public Integer getCupoDisponible() {
         return cupoMaximo == null ? null : Math.max(0, cupoMaximo - getCantidadInscriptos());
+    }
+
+    /**
+     * Obtiene la fecha desde la que se cuentan las semanas del cronograma: el inicio del dictado o, si la
+     * cohorte no tiene fechas de dictado, el inicio de la inscripción.
+     *
+     * @return La fecha base del cronograma.
+     */
+    public LocalDateTime getFechaBaseCronograma() {
+        return fechaInicioDictado != null ? fechaInicioDictado : fechaInicioInscripcion;
+    }
+
+    /**
+     * Calcula cuántas semanas transcurrieron desde la fecha base del cronograma, contando la semana en curso
+     * (la primera semana es la 1). No se acota a la duración del programa.
+     *
+     * @return El número de semana en que está la cohorte.
+     */
+    public int getSemanasTranscurridas() {
+        return (int) Math.max(0, ChronoUnit.DAYS.between(getFechaBaseCronograma(), LocalDateTime.now())) / 7 + 1;
+    }
+
+    /**
+     * Calcula la semana del cronograma en la que está la cohorte, entre la primera y la última del programa.
+     *
+     * @return La semana actual del cronograma.
+     */
+    public int getSemanaActual() {
+        return Math.max(1, Math.min(getSemanasTranscurridas(), programa.getDuracionTotalSemanas()));
+    }
+
+    /**
+     * Obtiene las clases en vivo de la cohorte que no están dadas de baja ni ocultas, de la más próxima a la
+     * más lejana.
+     *
+     * @return Las clases en vivo publicadas.
+     */
+    public List<ClaseEnVivo> getClasesEnVivoPublicadas() {
+        return clasesEnVivo.stream().filter(clase -> !clase.getBaja() && !clase.getOculto())
+                .sorted(Comparator.comparing(ClaseEnVivo::getFechaHora)).toList();
+    }
+
+    /**
+     * Obtiene la clase que se está transmitiendo en este momento.
+     *
+     * @return La clase en vivo en curso, o {@code null} si no hay ninguna.
+     */
+    public ClaseEnVivo getClaseEnCurso() {
+        return getClasesEnVivoPublicadas().stream()
+                .filter(clase -> EstadoClaseEnVivo.EN_VIVO.equals(clase.getEstadoClaseEnVivo().getNombre()))
+                .findFirst().orElse(null);
     }
 }

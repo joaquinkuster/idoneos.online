@@ -580,4 +580,25 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
             }
         }
     }
+
+    /**
+     * Verifica que el docente pueda acceder al curso (CU-27).
+     *
+     * @param idCurso El identificador del curso.
+     * @param docente El docente que solicita el acceso.
+     * @return La participación del docente en el curso.
+     * @throws IllegalArgumentException Si el docente no puede acceder, con el motivo.
+     */
+    @Override
+    public ParticipacionDocente validarAccesoDocente(int idCurso, Docente docente) {
+        Curso curso = buscarPorId(idCurso)
+                .orElseThrow(() -> new IllegalArgumentException("Error! El curso no se encuentra activo."));
+        ParticipacionDocente participacion = participacionDocenteRepositorio.findByCursoAndBajaFalse(curso).stream()
+                .filter(p -> p.getDocente().getIdDocente() == docente.getIdDocente()).findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Error! No participás en este curso."));
+        if (participacion.getProgramaDeTrabajo() == null) {
+            throw new IllegalArgumentException("Error! El curso no tiene un programa vigente.");
+        }
+        return participacion;
+    }
 }

@@ -8,6 +8,7 @@ import java.util.Optional;
 import com.app.idoneos.modelo.Categoria;
 import com.app.idoneos.modelo.Curso;
 import com.app.idoneos.modelo.Nivel;
+import com.app.idoneos.modelo.ParticipacionDocente;
 
 /**
  * Servicio para gestionar las operaciones relacionadas con el curso.
@@ -155,4 +156,15 @@ public interface CursoServicio {
      * @throws IllegalArgumentException si no se indicó ningún registro o alguno no puede darse de baja
      */
     void darDeBajaVarios(java.util.List<Integer> ids);
+
+    /**
+     * Verifica que el docente pueda acceder al curso: el curso debe estar activo, el docente debe participar en
+     * él y el curso debe tener un programa vigente (CU-27).
+     *
+     * @param idCurso El identificador del curso.
+     * @param docente El docente que solicita el acceso.
+     * @return La participación del docente en el curso, de la que se obtiene su programa y cohorte de trabajo.
+     * @throws IllegalArgumentException Si el docente no puede acceder, con el motivo.
+     */
+    ParticipacionDocente validarAccesoDocente(int idCurso, Docente docente);
 }

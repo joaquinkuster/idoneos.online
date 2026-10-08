@@ -36,4 +36,16 @@ public interface InscripcionServicio {
      * @return una lista de inscripciones que cumplen los criterios, de la más reciente a la más antigua
      */
     List<Inscripcion> buscarMisCursos(Alumno alumno, String nombreCurso, String estado);
+
+    /**
+     * Verifica que el alumno pueda acceder al curso de la inscripción: la inscripción debe ser suya y estar
+     * vigente y habilitada, su acceso no debe haber vencido y, si la cohorte tiene fecha de inicio de dictado,
+     * ésta no debe ser futura (CU-27).
+     *
+     * @param idInscripcion El identificador de la inscripción.
+     * @param alumno        El alumno que solicita el acceso.
+     * @return La inscripción a la que puede acceder.
+     * @throws IllegalArgumentException Si el alumno no puede acceder, con el motivo.
+     */
+    Inscripcion validarAcceso(int idInscripcion, Alumno alumno);
 }

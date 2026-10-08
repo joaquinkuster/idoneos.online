@@ -28,7 +28,7 @@ import com.app.idoneos.servicio.Cohorte.CohorteServicioImpl;
 import com.app.idoneos.servicio.ParticipacionDocente.ParticipacionDocenteServicioImpl;
 import com.app.idoneos.servicio.Programa.ProgramaServicioImpl;
 
-import com.app.idoneos.utilidades.Utilidades;
+import com.app.idoneos.utilidades.RespuestaUtilidad;
 
 /**
  * Controlador de la gestión de cohortes (MOD-F-01).
@@ -113,9 +113,9 @@ public class CohorteControlador {
         modelo.addAttribute("titulo", "Cohortes | Idóneos Online");
         if (esAdministrador) {
             modelo.addAttribute("menuActivo", "cohortes");
-            return "pages/panel/cohortes";
+            return "pages/cohorte/buscarAdministrador";
         }
-        return "pages/gestion/buscarCohortes";
+        return "pages/cohorte/buscarDocente";
     }
 
     /**
@@ -170,9 +170,9 @@ public class CohorteControlador {
             }
             cohorteServicio.registrarCohorte(programaId, fechaInicioInscripcion, fechaFinInscripcion,
                     fechaInicioDictado, fechaFinDictado, semanasAcceso, cupoMaximo);
-            return Utilidades.respuestaExitosa("Cohorte registrada correctamente.");
+            return RespuestaUtilidad.respuestaExitosa("Cohorte registrada correctamente.");
         } catch (Exception e) {
-            return Utilidades.respuestaConError(e);
+            return RespuestaUtilidad.respuestaConError(e);
         }
     }
 
@@ -199,9 +199,9 @@ public class CohorteControlador {
         try {
             cohorteServicio.modificarCohorte(id, fechaInicioInscripcion, fechaFinInscripcion, fechaInicioDictado,
                     fechaFinDictado, semanasAcceso, cupoMaximo);
-            return Utilidades.respuestaExitosa("Cohorte modificada correctamente.");
+            return RespuestaUtilidad.respuestaExitosa("Cohorte modificada correctamente.");
         } catch (Exception e) {
-            return Utilidades.respuestaConError(e);
+            return RespuestaUtilidad.respuestaConError(e);
         }
     }
 
@@ -216,9 +216,9 @@ public class CohorteControlador {
     public ResponseEntity<Map<String, String>> darDeBajaCohorte(@PathVariable("id") Integer id) {
         try {
             cohorteServicio.darDeBajaCohorte(id);
-            return Utilidades.respuestaExitosa("Cohorte dada de baja correctamente.");
+            return RespuestaUtilidad.respuestaExitosa("Cohorte dada de baja correctamente.");
         } catch (Exception e) {
-            return Utilidades.respuestaConError(e);
+            return RespuestaUtilidad.respuestaConError(e);
         }
     }
 
@@ -234,9 +234,9 @@ public class CohorteControlador {
             @RequestParam(value = "ids", required = false) List<Integer> ids) {
         try {
             cohorteServicio.darDeBajaVarios(ids);
-            return Utilidades.respuestaExitosa("Cohortes dadas de baja correctamente.");
+            return RespuestaUtilidad.respuestaExitosa("Cohortes dadas de baja correctamente.");
         } catch (Exception e) {
-            return Utilidades.respuestaConError(e);
+            return RespuestaUtilidad.respuestaConError(e);
         }
     }
 }

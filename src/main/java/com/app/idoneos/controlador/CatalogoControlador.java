@@ -22,7 +22,7 @@ import com.app.idoneos.servicio.Docente.DocenteServicioImpl;
 import com.app.idoneos.servicio.Modalidad.ModalidadServicioImpl;
 import com.app.idoneos.servicio.Nivel.NivelServicioImpl;
 import com.app.idoneos.servicio.Programa.ProgramaServicioImpl;
-import com.app.idoneos.utilidades.Utilidades;
+import com.app.idoneos.utilidades.PaginacionUtilidad;
 
 /**
  * Controlador del catálogo público de cursos (MOD-F-01).
@@ -79,9 +79,9 @@ public class CatalogoControlador {
             @RequestParam(value = "page", defaultValue = "0") int page, Model modelo) {
         List<Curso> cursos = cursoServicio.buscarEnCatalogo(busqueda, categoriaId, nivelId, docenteId, modalidadId);
         int tamanioPagina = porPagina > 0 ? porPagina : Math.max(cursos.size(), 1);
-        int totalPaginas = Utilidades.calcularTotalPaginas(cursos.size(), tamanioPagina);
-        int pagina = Utilidades.ajustarPagina(page, totalPaginas);
-        List<Curso> cursosPagina = Utilidades.obtenerPagina(cursos, pagina, tamanioPagina);
+        int totalPaginas = PaginacionUtilidad.calcularTotalPaginas(cursos.size(), tamanioPagina);
+        int pagina = PaginacionUtilidad.ajustarPagina(page, totalPaginas);
+        List<Curso> cursosPagina = PaginacionUtilidad.obtenerPagina(cursos, pagina, tamanioPagina);
 
         // Cantidad de unidades temáticas de cada curso (según su primer programa activo)
         Map<Integer, Integer> cantidadUnidadesPorCurso = new HashMap<>();
