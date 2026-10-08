@@ -301,12 +301,31 @@ body.pn-body {
     position: fixed;
     inset: 0 auto 0 0;
     width: var(--pn-ancho-menu);
-    background: linear-gradient(180deg, var(--pn-navy-dark) 0%, var(--pn-navy) 100%);
+    /* Mismo degradé (y brillo dorado) de los heros de las vistas internas */
+    background: linear-gradient(180deg, #071324 0%, #0A192F 100%);
     color: #CBD5E1;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
     z-index: 1200;
     transition: width 0.2s ease, transform 0.2s ease;
+}
+
+.pn-menu::after {
+    content: '';
+    position: absolute;
+    top: -12%;
+    right: -60%;
+    width: 360px;
+    height: 360px;
+    background: radial-gradient(circle, rgba(212, 160, 61, 0.1) 0%, rgba(19, 42, 74, 0.2) 50%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.pn-menu > * {
+    position: relative;
+    z-index: 1;
 }
 
 .pn-menu-cabecera {

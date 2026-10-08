@@ -98,10 +98,10 @@
                                 </div>
                             </div>
                             <div class="wf-course-card-footer">
-                                <span class="wf-btn-manage-course" style="opacity: .55; cursor: not-allowed;" title="El acceso al contenido del programa estará disponible con el módulo de Gestión Académica">
-                                    <i class="fa-solid fa-lock me-1"></i>
-                                    <span>Contenido próximamente</span>
-                                </span>
+                                <a th:href="@{/inscripcion/acceder/{id}(id=${insc.idInscripcion})}" class="wf-btn-manage-course">
+                                    <i class="fa-solid fa-door-open me-1"></i>
+                                    <span>Acceder al curso</span>
+                                </a>
                             </div>
                         </div>
                     </div>

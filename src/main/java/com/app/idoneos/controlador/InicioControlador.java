@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import com.app.idoneos.modelo.Categoria;
 import com.app.idoneos.modelo.Curso;
@@ -45,16 +44,11 @@ public class InicioControlador {
      * Muestra la página principal con los cursos destacados del catálogo (los que tienen cohortes
      * con inscripción abierta) y las categorías.
      *
-     * @param logout Indica que el usuario acaba de cerrar sesión.
      * @param modelo El modelo de la vista.
      * @return La vista de inicio.
      */
     @GetMapping({ "/", "/inicio" })
-    public String verInicio(@RequestParam(value = "logout", required = false) String logout, Model modelo) {
-        if (logout != null) {
-            modelo.addAttribute("mensaje", "Has cerrado sesión correctamente. ¡Hasta pronto!");
-        }
-
+    public String verInicio(Model modelo) {
         List<Categoria> categorias = categoriaServicio.obtenerTodo();
         List<Curso> cursosDestacados = Utilidades.obtenerPagina(
                 cursoServicio.buscarEnCatalogo(null, null, null, null, null), 0, CURSOS_DESTACADOS);

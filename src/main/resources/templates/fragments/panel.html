@@ -1,41 +1,17 @@
-<!-- Menú lateral del panel del administrador (y fondo que lo cierra en pantallas chicas) -->
-<th:block th:fragment="menu(activo)">
-    <aside class="pn-menu" aria-label="Menú del panel">
-        <div class="pn-menu-cabecera">
-            <a th:href="@{/inicio}" class="pn-menu-marca" title="Ir al sitio">
-                <img th:src="@{/img/logos/image.png}" src="/img/logos/image.png" alt="Idóneos Online">
-                <span>Idóneos <b>Online</b></span>
-            </a>
-            <button type="button" class="pn-menu-colapsar" data-colapsar-menu aria-label="Contraer menú">
-                <i class="fa-solid fa-chevron-left"></i>
-            </button>
-        </div>
-        <nav class="pn-menu-nav">
-            <a th:href="@{/curso/buscar}" class="pn-menu-enlace" th:classappend="${activo == 'cursos'} ? 'activo'">
-                <i class="fa-solid fa-book-open"></i><span>Cursos</span>
-            </a>
-            <a th:href="@{/cohorte/buscar}" class="pn-menu-enlace" th:classappend="${activo == 'cohortes'} ? 'activo'">
-                <i class="fa-solid fa-calendar-days"></i><span>Cohortes</span>
-            </a>
-            <a th:href="@{/categoria/buscar}" class="pn-menu-enlace" th:classappend="${activo == 'categorias'} ? 'activo'">
-                <i class="fa-solid fa-tags"></i><span>Categorías</span>
-            </a>
-        </nav>
-        <div class="pn-menu-pie">© 2026 Idóneos Online</div>
-    </aside>
-    <div class="pn-fondo-menu" data-cerrar-menu></div>
-</th:block>
-
-<!-- Barra superior del panel con el menú del usuario -->
-<header class="pn-barra" th:fragment="barra">
+<!-- Barra superior del panel con el menú del usuario.
+     navegacion: fragmento con los enlaces del módulo para el lado izquierdo (null si no hay) -->
+<header class="pn-barra" th:fragment="barra(navegacion)">
     <button type="button" class="pn-barra-menu" data-abrir-menu aria-label="Abrir menú"><i class="fa-solid fa-bars"></i></button>
-    <span></span>
+    <th:block th:if="${navegacion != null}">
+        <nav class="pn-barra-nav" th:insert="${navegacion}"></nav>
+    </th:block>
+    <span th:if="${navegacion == null}"></span>
     <th:block th:replace="~{fragments/menuUsuario :: menu('panel')}"></th:block>
 </header>
 
-<!-- Pie del panel -->
-<footer class="pn-pie" th:fragment="pie">
-    <span><strong>Idóneos Online</strong> — Panel del administrador</span>
+<!-- Pie del panel. modulo: nombre del módulo que se muestra junto a la marca -->
+<footer class="pn-pie" th:fragment="pie(modulo)">
+    <span><strong>Idóneos Online</strong> — <th:block th:text="${modulo}">Panel del administrador</th:block></span>
     <span>Desarrollado por Küster y Martinez</span>
 </footer>
 

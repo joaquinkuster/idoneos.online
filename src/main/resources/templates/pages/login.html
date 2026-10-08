@@ -79,5 +79,8 @@
     </div>
 
     <script th:src="@{/js/login.js}"></script>
+    <script th:if="${mensaje != null and !#strings.isEmpty(mensaje)}" th:inline="javascript">
+        mostrarExito(/*[[${mensaje}]]*/ '');
+    </script>
 </body>
 </html>

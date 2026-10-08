@@ -75,8 +75,8 @@ public class SecurityConfig {
                                 "/login", "/catalogo/**",
                                 "/css/**", "/js/**", "/img/**", "/webjars/**")
                         .permitAll()
-                        // CU-02: Ver mis cursos (Alumno)
-                        .requestMatchers("/inscripcion/misCursos").hasRole("Alumno")
+                        // CU-02 y CU-27: Ver mis cursos y Acceder curso (Alumno)
+                        .requestMatchers("/inscripcion/**").hasRole("Alumno")
                         // CU-01 y CU-11: búsqueda de cursos y cohortes (Docente y Administrador)
                         .requestMatchers(HttpMethod.GET, "/curso/buscar", "/cohorte/buscar")
                         .hasAnyRole("Docente", "Administrador")
@@ -87,12 +87,12 @@ public class SecurityConfig {
                 .formLogin(login -> login
                         .loginPage("/login")
                         .loginProcessingUrl("/login")
-                        // El administrador entra a la gestión de cursos, el alumno a sus cursos y los demás roles al inicio
+                        // El administrador y el docente entran a sus cursos, el alumno a sus inscripciones y los demás roles al inicio
                         .successHandler((solicitud, respuesta, autenticacion) -> {
                             Usuario usuario = (Usuario) autenticacion.getPrincipal();
                             solicitud.getSession().setAttribute(ModeloGlobalControlador.MENSAJE_DE_SESION,
                                     "Sesión iniciada correctamente. ¡Bienvenido/a, " + usuario.getNombre() + "!");
-                            String destino = usuario.esAdministradorActivo() ? "/curso/buscar"
+                            String destino = usuario.esAdministradorActivo() || usuario.esDocenteActivo() ? "/curso/buscar"
                                     : usuario.esAlumnoActivo() ? "/inscripcion/misCursos" : "/inicio";
                             respuesta.sendRedirect(solicitud.getContextPath() + destino);
                         })
@@ -106,7 +106,7 @@ public class SecurityConfig {
                 .userDetailsService(usuarioDetallesServicio)
                 .logout(logout -> logout
                         .logoutUrl("/logout")
-                        .logoutSuccessUrl("/inicio?logout=true")
+                        .logoutSuccessUrl("/login?logout=true")
                         .invalidateHttpSession(true)
                         .deleteCookies("JSESSIONID", "remember-me")
                         .permitAll())

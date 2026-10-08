@@ -1,0 +1,46 @@
+<!-- Menús laterales de cada módulo. Todos usan el marco reutilizable de fragments/sidebar.html:
+     para sumar un módulo basta con agregar acá su fragmento de enlaces y su menú. -->
+
+<!-- ========== Panel del administrador (MOD-F-01) ========== -->
+<th:block th:fragment="administrador(activo)">
+    <th:block th:replace="~{fragments/sidebar :: marco(~{fragments/menus :: enlacesAdministrador(${activo})})}"></th:block>
+</th:block>
+
+<th:block th:fragment="enlacesAdministrador(activo)">
+    <a th:replace="~{fragments/sidebar :: enlace('/curso/buscar', 'fa-book-open', 'Cursos', ${activo}, 'cursos')}"></a>
+    <a th:replace="~{fragments/sidebar :: enlace('/cohorte/buscar', 'fa-calendar-days', 'Cohortes', ${activo}, 'cohortes')}"></a>
+    <a th:replace="~{fragments/sidebar :: enlace('/categoria/buscar', 'fa-tags', 'Categorías', ${activo}, 'categorias')}"></a>
+</th:block>
+
+<!-- ========== Gestión académica del alumno (MOD-F-02) ==========
+     inscripcion: inscripción del curso abierto. La navegación se organiza según la jerarquía
+     Curso → Programa → Cohorte → Unidad; los enlaces con '#' no tienen acción por ahora. -->
+<th:block th:fragment="gestionAcademica(activo, inscripcion)">
+    <th:block th:replace="~{fragments/sidebar :: marco(~{fragments/menus :: enlacesGestionAcademica(${activo}, ${inscripcion})})}"></th:block>
+</th:block>
+
+<th:block th:fragment="enlacesGestionAcademica(activo, inscripcion)">
+    <div th:replace="~{fragments/sidebar :: grupo('Este curso')}"></div>
+    <a th:replace="~{fragments/sidebar :: enlace('/inscripcion/acceder/' + ${inscripcion.idInscripcion}, 'fa-layer-group', 'Unidades', ${activo}, 'unidades')}"></a>
+    <a th:replace="~{fragments/sidebar :: enlace('#', 'fa-book-bookmark', 'Programas', ${activo}, 'programas')}"></a>
+
+    <div th:replace="~{fragments/sidebar :: grupo('Este programa')}"></div>
+    <a th:replace="~{fragments/sidebar :: enlace('/inscripcion/acceder/' + ${inscripcion.idInscripcion} + '?seccion=cronograma', 'fa-calendar-check', 'Cronograma', ${activo}, 'cronograma')}"></a>
+
+    <div th:replace="~{fragments/sidebar :: grupo('Esta cohorte')}"></div>
+    <a th:replace="~{fragments/sidebar :: enlace('/inscripcion/acceder/' + ${inscripcion.idInscripcion} + '?seccion=clases', 'fa-video', 'Clases en vivo', ${activo}, 'clases')}"></a>
+    <a th:replace="~{fragments/sidebar :: enlace('#', 'fa-users', 'Participantes', ${activo}, 'participantes')}"></a>
+    <a th:replace="~{fragments/sidebar :: enlace('#', 'fa-star', 'Calificaciones', ${activo}, 'calificaciones')}"></a>
+
+    <div th:replace="~{fragments/sidebar :: grupo('Contenido de las unidades')}"></div>
+    <a th:replace="~{fragments/sidebar :: enlace('#', 'fa-file-lines', 'Materiales', ${activo}, 'materiales')}"></a>
+    <a th:replace="~{fragments/sidebar :: enlace('#', 'fa-spell-check', 'Glosario', ${activo}, 'glosario')}"></a>
+    <a th:replace="~{fragments/sidebar :: enlace('#', 'fa-clipboard-check', 'Autoevaluaciones', ${activo}, 'autoevaluaciones')}"></a>
+    <a th:replace="~{fragments/sidebar :: enlace('#', 'fa-comments', 'Foros', ${activo}, 'foros')}"></a>
+</th:block>
+
+<!-- Enlaces de la barra superior de Gestión académica (a la izquierda, junto a la barra lateral) -->
+<th:block th:fragment="barraGestionAcademica(activo)">
+    <a th:href="@{/inscripcion/misCursos}" class="pn-barra-enlace" th:classappend="${activo == 'misCursos'} ? 'activo'">Mis cursos</a>
+    <a th:href="@{/catalogo}" class="pn-barra-enlace" th:classappend="${activo == 'catalogo'} ? 'activo'">Catálogo</a>
+</th:block>

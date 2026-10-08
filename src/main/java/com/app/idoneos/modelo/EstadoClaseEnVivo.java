@@ -15,6 +15,9 @@ import lombok.Setter;
 @NoArgsConstructor
 public class EstadoClaseEnVivo {
 
+    /** Nombre del estado de una clase que se está transmitiendo en este momento. */
+    public static final String EN_VIVO = "En vivo";
+
     /**
      * Identificador único del estado de la clase en vivo.
      */

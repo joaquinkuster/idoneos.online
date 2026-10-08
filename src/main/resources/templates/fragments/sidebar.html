@@ -1,0 +1,34 @@
+<!-- Barra lateral reutilizable de los módulos con diseño de panel (administración, gestión académica, etc.).
+     Cada módulo arma su menú en fragments/menus.html y lo pasa al marco como parámetro. -->
+
+<!-- Marco de la barra lateral: marca, botón de contraer, lugar para la navegación del módulo y pie.
+     navegacion: fragmento con los enlaces del módulo (se arma con 'enlace' y 'grupo'). -->
+<th:block th:fragment="marco(navegacion)">
+    <aside class="pn-menu" aria-label="Menú lateral">
+        <div class="pn-menu-cabecera">
+            <a th:href="@{/inicio}" class="pn-menu-marca" title="Ir al sitio">
+                <img th:src="@{/img/logos/image.png}" src="/img/logos/image.png" alt="Idóneos Online">
+                <span>Idóneos <b>Online</b></span>
+            </a>
+            <button type="button" class="pn-menu-colapsar" data-colapsar-menu aria-label="Contraer menú">
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+        </div>
+        <nav class="pn-menu-nav" th:insert="${navegacion}"></nav>
+        <div class="pn-menu-pie">© 2026 Idóneos Online</div>
+    </aside>
+    <div class="pn-fondo-menu" data-cerrar-menu></div>
+</th:block>
+
+<!-- Enlace del menú. url: ruta de la aplicación ('#' = sin acción por ahora); icono: clase de FontAwesome;
+     activo: clave de la página actual; clave: clave de este enlace (se marca como activo si coinciden). -->
+<a th:fragment="enlace(url, icono, texto, activo, clave)" th:href="${url == '#' ? '#' : url}" class="pn-menu-enlace"
+   th:classappend="${activo == clave} ? 'activo'" th:attr="data-sin-accion=${url == '#'} ? '' : null"
+   th:title="${texto}">
+    <i class="fa-solid" th:classappend="${icono}"></i><span th:text="${texto}">Enlace</span>
+</a>
+
+<!-- Título de un grupo de enlaces del menú -->
+<div th:fragment="grupo(texto)" class="pn-menu-grupo" th:title="${texto}">
+    <span th:text="${texto}">Grupo</span>
+</div>

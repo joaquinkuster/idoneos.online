@@ -58,12 +58,12 @@ class GestionDeCursosControladorTest {
     }
 
     @Test
-    @DisplayName("Al iniciar sesión, cada rol va a su pantalla: el alumno a sus cursos y el docente al inicio")
+    @DisplayName("Al iniciar sesión, cada rol va a su pantalla: el alumno a sus inscripciones y el docente a sus cursos")
     void iniciarSesionRedirigeSegunElRol() throws Exception {
         mockMvc.perform(post("/login").param("username", "lucia.fernandez@correo.com").param("password", "123456"))
                 .andExpect(redirectedUrl("/inscripcion/misCursos"));
         mockMvc.perform(post("/login").param("username", "fausto.spotorno@idoneos.online").param("password", "123456"))
-                .andExpect(redirectedUrl("/inicio"));
+                .andExpect(redirectedUrl("/curso/buscar"));
     }
 
     @Test

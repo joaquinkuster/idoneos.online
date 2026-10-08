@@ -46,7 +46,7 @@ import com.app.idoneos.utilidades.Utilidades;
 @RequestMapping("/curso")
 public class CursoControlador {
 
-    private static final int TAMANIO_PAGINA = 8;
+    private static final int TAMANIO_PAGINA = 10;
 
     @Autowired
     private CursoServicioImpl cursoServicio;
@@ -81,6 +81,7 @@ public class CursoControlador {
      * @param modalidadId       Identificador de la modalidad de dictado.
      * @param orden             Orden de los resultados: "nombre" (A–Z) o "recientes". Los dados de baja van al final.
      * @param page              Número de página (empieza en 0).
+     * @param porPagina         Cursos por página para el docente (10, 25, 50 o 0 para ver todos).
      * @param modelo            El modelo de la vista.
      * @param auth              La autenticación actual.
      * @param redirectAttributes Atributos para mensajes de redirección.
@@ -94,6 +95,7 @@ public class CursoControlador {
             @RequestParam(value = "modalidadId", required = false) Integer modalidadId,
             @RequestParam(value = "orden", defaultValue = "nombre") String orden,
             @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "porPagina", defaultValue = "" + TAMANIO_PAGINA) int porPagina,
             Model modelo, Authentication auth, RedirectAttributes redirectAttributes) {
         try {
             Usuario usuario = (Usuario) auth.getPrincipal();
@@ -103,9 +105,10 @@ public class CursoControlador {
             List<Curso> cursos = cursoServicio.buscarConFiltros(busqueda, categoriaId, nivelId, docenteId,
                     modalidadId, orden, soloDeDocente);
             // El administrador ve el listado completo (la tabla se pagina en la pantalla); el docente, por páginas
-            int totalPaginas = esAdministrador ? 1 : Utilidades.calcularTotalPaginas(cursos.size(), TAMANIO_PAGINA);
+            int tamanioPagina = porPagina > 0 ? porPagina : Math.max(cursos.size(), 1);
+            int totalPaginas = esAdministrador ? 1 : Utilidades.calcularTotalPaginas(cursos.size(), tamanioPagina);
             int pagina = Utilidades.ajustarPagina(page, totalPaginas);
-            List<Curso> cursosPagina = esAdministrador ? cursos : Utilidades.obtenerPagina(cursos, pagina, TAMANIO_PAGINA);
+            List<Curso> cursosPagina = esAdministrador ? cursos : Utilidades.obtenerPagina(cursos, pagina, tamanioPagina);
 
             // Inscripciones y programas activos por curso, para validar la baja y la modificación
             Map<Integer, List<Inscripcion>> inscripcionesPorCurso = new HashMap<>();
@@ -124,6 +127,9 @@ public class CursoControlador {
             modelo.addAttribute("programasPorCurso", programasPorCurso);
             modelo.addAttribute("cursosConInscripcionAbierta", cursosConInscripcionAbierta);
             modelo.addAttribute("totalCursos", cursos.size());
+            modelo.addAttribute("porPagina", porPagina);
+            modelo.addAttribute("desdeCurso", cursosPagina.isEmpty() ? 0 : pagina * tamanioPagina + 1);
+            modelo.addAttribute("hastaCurso", cursosPagina.isEmpty() ? 0 : pagina * tamanioPagina + cursosPagina.size());
             modelo.addAttribute("currentPage", pagina);
             modelo.addAttribute("totalPages", totalPaginas);
             modelo.addAttribute("categorias", categoriaServicio.obtenerTodo());

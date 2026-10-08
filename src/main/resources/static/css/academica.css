@@ -1,0 +1,589 @@
+/* ==========================================================================
+   GESTIÓN ACADÉMICA (MOD-F-02) — IDÓNEOS ONLINE
+   Acceso al curso del alumno (CU-27): cabecera del curso, pestañas, acordeón de unidades al estilo Moodle,
+   cronograma y clases en vivo. Usa las variables de panel.css (azul marino y dorado).
+   ========================================================================== */
+
+/* ---------- Barra lateral: título de grupo de enlaces (reutilizable) ---------- */
+.pn-menu-grupo {
+    margin: 16px 14px 4px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    font-size: 12px;
+    font-weight: 600;
+    color: #94A3B8;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.pn-menu-nav > .pn-menu-grupo:first-child {
+    margin-top: 2px;
+    padding-top: 0;
+    border-top: 0;
+}
+
+.pn-app.colapsado .pn-menu-grupo span {
+    display: none;
+}
+
+/* ---------- Barra superior: enlaces del módulo (arrancan donde termina la barra lateral) ---------- */
+.pn-barra-nav {
+    display: flex;
+    align-items: stretch;
+    gap: 26px;
+    align-self: stretch;
+}
+
+.pn-barra-enlace {
+    display: inline-flex;
+    align-items: center;
+    padding-top: 3px;
+    border-bottom: 3px solid transparent;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--pn-texto);
+    text-decoration: none;
+    transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.pn-barra-enlace:hover {
+    color: var(--pn-navy);
+    border-bottom-color: var(--pn-borde-input);
+}
+
+.pn-barra-enlace.activo {
+    border-bottom-color: var(--pn-gold);
+}
+
+/* Enlaces del menú sin acción por ahora */
+.pn-menu-enlace[data-sin-accion],
+.ac-actividad-titulo[data-sin-accion] {
+    cursor: default;
+}
+
+/* ---------- Ruta de navegación ---------- */
+.ac-migas {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 14px;
+    font-size: 13px;
+    color: var(--pn-texto-suave);
+}
+
+.ac-migas a {
+    color: var(--pn-ver);
+    text-decoration: none;
+}
+
+.ac-migas a:hover {
+    text-decoration: underline;
+}
+
+.ac-migas i {
+    font-size: 9px;
+    opacity: 0.6;
+}
+
+.ac-migas strong {
+    color: var(--pn-texto);
+}
+
+/* ---------- Cabecera del curso ---------- */
+.ac-cabecera {
+    padding: 24px 26px 22px;
+    margin-bottom: 20px;
+}
+
+.ac-cabecera-superior {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+.ac-etiqueta-portal {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--pn-gold-hover);
+}
+
+.ac-titulo {
+    margin: 4px 0 0;
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--pn-navy);
+    line-height: 1.2;
+}
+
+.ac-datos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 18px;
+}
+
+.ac-dato {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 14px;
+    background: var(--pn-fondo);
+    border: 1px solid var(--pn-borde);
+    border-radius: 10px;
+    font-size: 13px;
+    color: var(--pn-texto-suave);
+}
+
+.ac-dato i {
+    color: var(--pn-navy);
+}
+
+.ac-dato strong {
+    color: var(--pn-texto);
+    font-weight: 700;
+}
+
+/* ---------- Clase en directo ---------- */
+.ac-en-directo {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 20px;
+    margin-bottom: 20px;
+    background: var(--pn-navy);
+    border-left: 4px solid #EF4444;
+    border-radius: 12px;
+    color: #FFFFFF;
+    flex-wrap: wrap;
+}
+
+.ac-en-directo-icono {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #EF4444;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.ac-en-directo-texto {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 200px;
+}
+
+.ac-en-directo-etiqueta {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #FCA5A5;
+}
+
+.ac-en-directo-etiqueta i {
+    font-size: 8px;
+    margin-right: 4px;
+}
+
+.ac-en-directo-texto small {
+    color: #94A3B8;
+}
+
+.ac-en-directo-boton {
+    padding: 10px 18px;
+    border-radius: 9999px;
+    background: #EF4444;
+    color: #FFFFFF;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.ac-en-directo-boton:hover {
+    background: #DC2626;
+    color: #FFFFFF;
+}
+
+/* ---------- Encabezados de sección ---------- */
+.ac-seccion-titulo {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--pn-navy);
+    margin: 0;
+}
+
+.ac-barra-acordeon {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.ac-barra-acordeon-acciones {
+    display: flex;
+    gap: 8px;
+    color: var(--pn-texto-suave);
+    font-size: 13px;
+}
+
+.ac-enlace-boton {
+    background: none;
+    border: 0;
+    padding: 0;
+    color: var(--pn-ver);
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.ac-enlace-boton:hover {
+    text-decoration: underline;
+}
+
+/* ---------- Acordeón de unidades (estilo Moodle) ---------- */
+.ac-acordeon {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.ac-unidad {
+    background: #FFFFFF;
+    border: 1px solid var(--pn-borde);
+    border-left: 4px solid var(--pn-borde-input);
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+    overflow: hidden;
+}
+
+.ac-unidad-habilitada {
+    border-left-color: var(--pn-gold);
+}
+
+.ac-unidad-completada {
+    border-left-color: var(--pn-exito);
+}
+
+.ac-unidad-cabecera {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px;
+    background: transparent;
+    border: 0;
+    text-align: left;
+    color: var(--pn-texto);
+    cursor: pointer;
+    flex-wrap: wrap;
+}
+
+.ac-unidad-cabecera:disabled {
+    cursor: not-allowed;
+    color: var(--pn-texto-suave);
+}
+
+.ac-unidad-flecha {
+    font-size: 13px;
+    color: var(--pn-navy);
+    transition: transform 0.2s ease;
+}
+
+.ac-unidad-cabecera.collapsed .ac-unidad-flecha {
+    transform: rotate(-90deg);
+}
+
+.ac-unidad-cabecera:disabled .ac-unidad-flecha {
+    transform: rotate(-90deg);
+    color: var(--pn-borde-input);
+}
+
+.ac-unidad-numero {
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--pn-gold-hover);
+}
+
+.ac-unidad-nombre {
+    flex: 1;
+    min-width: 180px;
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--pn-navy);
+}
+
+.ac-unidad-cabecera:disabled .ac-unidad-nombre {
+    color: var(--pn-texto-suave);
+}
+
+.ac-unidad-semanas {
+    font-size: 12px;
+    color: var(--pn-texto-suave);
+    white-space: nowrap;
+}
+
+.ac-unidad-candado {
+    color: var(--pn-texto-suave);
+}
+
+.ac-unidad-aviso {
+    margin: 0;
+    padding: 0 20px 16px 52px;
+    font-size: 13px;
+    color: var(--pn-texto-suave);
+}
+
+.ac-unidad-cuerpo {
+    padding: 4px 20px 20px 52px;
+    border-top: 1px solid var(--pn-borde);
+}
+
+.ac-unidad-descripcion {
+    margin: 14px 0 0;
+    font-size: 14px;
+    color: var(--pn-texto-suave);
+}
+
+.ac-subtitulo {
+    margin: 18px 0 8px;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--pn-texto-suave);
+}
+
+/* ---------- Actividades de una unidad ---------- */
+.ac-actividades {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.ac-actividad {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 14px 16px;
+    background: #FFFFFF;
+    border: 1px solid var(--pn-borde);
+    border-radius: 10px;
+}
+
+.ac-icono {
+    width: 42px;
+    height: 42px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: #FFFFFF;
+    flex-shrink: 0;
+}
+
+.ac-icono-azul { background: #3B82F6; }
+.ac-icono-naranja { background: #F97316; }
+.ac-icono-violeta { background: #8B5CF6; }
+.ac-icono-rojo { background: #EF4444; }
+.ac-icono-verde { background: #22C55E; }
+.ac-icono-amarillo { background: #EAB308; }
+.ac-icono-rosa { background: #EC4899; }
+
+.ac-actividad-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.ac-actividad-titulo {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--pn-ver);
+    text-decoration: none;
+}
+
+a.ac-actividad-titulo:hover {
+    text-decoration: underline;
+}
+
+.ac-sin-enlace {
+    color: var(--pn-texto);
+}
+
+.ac-actividad-meta {
+    font-size: 12px;
+    color: var(--pn-texto-suave);
+}
+
+.ac-actividad-estado {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    text-align: right;
+}
+
+.ac-actividad-estado small {
+    font-size: 11px;
+    color: var(--pn-texto-suave);
+}
+
+/* Intentos propios de una autoevaluación */
+.ac-intentos {
+    list-style: none;
+    margin: 8px 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.ac-intentos li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+    color: var(--pn-texto-suave);
+    flex-wrap: wrap;
+}
+
+.ac-intentos strong {
+    color: var(--pn-texto);
+}
+
+/* Glosario desplegable */
+.ac-glosario {
+    margin-top: 6px;
+    font-size: 13px;
+}
+
+.ac-glosario summary {
+    cursor: pointer;
+    color: var(--pn-ver);
+    font-weight: 600;
+}
+
+.ac-glosario dl {
+    margin: 8px 0 0;
+    display: grid;
+    gap: 6px;
+}
+
+.ac-glosario dt {
+    font-weight: 700;
+    color: var(--pn-navy);
+}
+
+.ac-glosario dd {
+    margin: 0;
+    color: var(--pn-texto-suave);
+}
+
+/* ---------- Cronograma, estados vacíos y avisos ---------- */
+.ac-aviso {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    margin: 14px 0;
+    padding: 14px 18px;
+    border-radius: 12px;
+    border: 1px solid;
+    font-size: 14px;
+}
+
+.ac-aviso i {
+    font-size: 20px;
+    margin-top: 2px;
+}
+
+.ac-aviso strong {
+    display: block;
+}
+
+.ac-aviso span,
+.ac-aviso p {
+    font-size: 13px;
+    margin: 4px 0 0;
+}
+
+.ac-aviso-al-dia {
+    background: #F0FDF4;
+    border-color: #BBF7D0;
+    color: #166534;
+}
+
+.ac-aviso-atraso {
+    background: #FEF2F2;
+    border-color: #FECACA;
+    color: #991B1B;
+}
+
+.ac-tabla-contenedor {
+    overflow-x: auto;
+}
+
+.ac-tabla {
+    width: 100%;
+}
+
+.ac-vacio {
+    margin-top: 14px;
+    padding: 48px 20px;
+    text-align: center;
+    color: var(--pn-texto-suave);
+}
+
+.ac-vacio i {
+    font-size: 34px;
+    margin-bottom: 10px;
+    color: var(--pn-borde-input);
+}
+
+.ac-clases {
+    margin-top: 14px;
+}
+
+/* ---------- Pantallas chicas ---------- */
+@media (max-width: 760px) {
+    .ac-cabecera {
+        padding: 18px 16px 4px;
+    }
+
+    .ac-titulo {
+        font-size: 22px;
+    }
+
+    .ac-unidad-cuerpo,
+    .ac-unidad-aviso {
+        padding-left: 20px;
+    }
+
+    .ac-actividad {
+        flex-wrap: wrap;
+    }
+
+    .ac-actividad-estado {
+        align-items: flex-start;
+        text-align: left;
+        width: 100%;
+    }
+}

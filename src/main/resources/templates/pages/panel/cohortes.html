@@ -5,10 +5,10 @@
 </head>
 <body class="pn-body">
 <div class="pn-app" id="pnApp">
-    <th:block th:replace="~{fragments/panel :: menu(${menuActivo})}"></th:block>
+    <th:block th:replace="~{fragments/menus :: administrador(${menuActivo})}"></th:block>
 
     <div class="pn-principal">
-        <th:block th:replace="~{fragments/panel :: barra}"></th:block>
+        <th:block th:replace="~{fragments/panel :: barra(null)}"></th:block>
 
         <main class="pn-contenido">
             <div class="pn-encabezado">
@@ -146,7 +146,7 @@
             </section>
         </main>
 
-        <th:block th:replace="~{fragments/panel :: pie}"></th:block>
+        <th:block th:replace="~{fragments/panel :: pie('Panel del administrador')}"></th:block>
     </div>
 </div>
 

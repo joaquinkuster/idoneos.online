@@ -17,18 +17,22 @@ public class LoginControlador {
      * lo redirige al inicio.
      *
      * @param error  Indica que el inicio de sesión anterior falló.
+     * @param logout Indica que el usuario acaba de cerrar sesión.
      * @param modelo El modelo de la vista.
      * @param auth   La autenticación actual, si existe.
      * @return La vista de inicio de sesión.
      */
     @GetMapping("/login")
-    public String verLogin(@RequestParam(value = "error", required = false) String error, Model modelo,
-            Authentication auth) {
+    public String verLogin(@RequestParam(value = "error", required = false) String error,
+            @RequestParam(value = "logout", required = false) String logout, Model modelo, Authentication auth) {
         if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal())) {
             return "redirect:/inicio";
         }
         if (error != null) {
             modelo.addAttribute("errorLogin", "Correo o contraseña incorrectos, o la cuenta no está habilitada.");
+        }
+        if (logout != null) {
+            modelo.addAttribute("mensaje", "Has cerrado sesión correctamente. ¡Hasta pronto!");
         }
         modelo.addAttribute("titulo", "Iniciar sesión | Idóneos Online");
         return "pages/login";

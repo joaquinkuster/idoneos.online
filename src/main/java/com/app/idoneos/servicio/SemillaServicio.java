@@ -13,12 +13,15 @@ import com.app.idoneos.modelo.Administrador;
 import com.app.idoneos.modelo.Alumno;
 import com.app.idoneos.modelo.Categoria;
 import com.app.idoneos.modelo.ClaseEnVivo;
+import com.app.idoneos.modelo.ConsultaForo;
+import com.app.idoneos.modelo.Autoevaluacion;
 import com.app.idoneos.modelo.Cohorte;
 import com.app.idoneos.modelo.Curso;
 import com.app.idoneos.modelo.CursoModalidad;
 import com.app.idoneos.modelo.Docente;
 import com.app.idoneos.modelo.EstadoClaseEnVivo;
 import com.app.idoneos.modelo.Inscripcion;
+import com.app.idoneos.modelo.IntentoAutoevaluacion;
 import com.app.idoneos.modelo.Material;
 import com.app.idoneos.modelo.Modalidad;
 import com.app.idoneos.modelo.Nivel;
@@ -29,6 +32,7 @@ import com.app.idoneos.modelo.Progreso;
 import com.app.idoneos.modelo.Rol;
 import com.app.idoneos.modelo.RolUsuario;
 import com.app.idoneos.modelo.TipoMaterial;
+import com.app.idoneos.modelo.TerminoGlosario;
 import com.app.idoneos.modelo.Unidad;
 import com.app.idoneos.modelo.UnidadCronograma;
 import com.app.idoneos.modelo.Usuario;
@@ -36,12 +40,15 @@ import com.app.idoneos.repositorio.AdministradorRepositorio;
 import com.app.idoneos.repositorio.AlumnoRepositorio;
 import com.app.idoneos.repositorio.CategoriaRepositorio;
 import com.app.idoneos.repositorio.ClaseEnVivoRepositorio;
+import com.app.idoneos.repositorio.ConsultaForoRepositorio;
+import com.app.idoneos.repositorio.AutoevaluacionRepositorio;
 import com.app.idoneos.repositorio.CohorteRepositorio;
 import com.app.idoneos.repositorio.CursoModalidadRepositorio;
 import com.app.idoneos.repositorio.CursoRepositorio;
 import com.app.idoneos.repositorio.DocenteRepositorio;
 import com.app.idoneos.repositorio.EstadoClaseEnVivoRepositorio;
 import com.app.idoneos.repositorio.InscripcionRepositorio;
+import com.app.idoneos.repositorio.IntentoAutoevaluacionRepositorio;
 import com.app.idoneos.repositorio.MaterialRepositorio;
 import com.app.idoneos.repositorio.ModalidadRepositorio;
 import com.app.idoneos.repositorio.NivelRepositorio;
@@ -52,6 +59,7 @@ import com.app.idoneos.repositorio.ProgresoRepositorio;
 import com.app.idoneos.repositorio.RolRepositorio;
 import com.app.idoneos.repositorio.RolUsuarioRepositorio;
 import com.app.idoneos.repositorio.TipoMaterialRepositorio;
+import com.app.idoneos.repositorio.TerminoGlosarioRepositorio;
 import com.app.idoneos.repositorio.UnidadCronogramaRepositorio;
 import com.app.idoneos.repositorio.UnidadRepositorio;
 import com.app.idoneos.repositorio.UsuarioRepositorio;
@@ -140,6 +148,18 @@ public class SemillaServicio {
     @Autowired
     private ClaseEnVivoRepositorio claseEnVivoRepositorio;
 
+    @Autowired
+    private TerminoGlosarioRepositorio terminoGlosarioRepositorio;
+
+    @Autowired
+    private AutoevaluacionRepositorio autoevaluacionRepositorio;
+
+    @Autowired
+    private IntentoAutoevaluacionRepositorio intentoAutoevaluacionRepositorio;
+
+    @Autowired
+    private ConsultaForoRepositorio consultaForoRepositorio;
+
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     /**
@@ -169,12 +189,12 @@ public class SemillaServicio {
         Modalidad grabada = modalidadRepositorio.save(new Modalidad(Modalidad.GRABADA));
         Modalidad clonIa = modalidadRepositorio.save(new Modalidad(Modalidad.CLON_IA));
         TipoMaterial presentacion = tipoMaterialRepositorio.save(new TipoMaterial("Presentación"));
-        tipoMaterialRepositorio.save(new TipoMaterial("Grabación"));
-        tipoMaterialRepositorio.save(new TipoMaterial("Bibliografía"));
+        TipoMaterial grabacion = tipoMaterialRepositorio.save(new TipoMaterial("Grabación"));
+        TipoMaterial bibliografia = tipoMaterialRepositorio.save(new TipoMaterial("Bibliografía"));
         tipoMaterialRepositorio.save(new TipoMaterial("Resumen"));
         EstadoClaseEnVivo claseProgramada = estadoClaseEnVivoRepositorio.save(new EstadoClaseEnVivo("Programada"));
-        estadoClaseEnVivoRepositorio.save(new EstadoClaseEnVivo("En vivo"));
-        estadoClaseEnVivoRepositorio.save(new EstadoClaseEnVivo("Finalizada"));
+        EstadoClaseEnVivo claseEnVivoAhora = estadoClaseEnVivoRepositorio.save(new EstadoClaseEnVivo(EstadoClaseEnVivo.EN_VIVO));
+        EstadoClaseEnVivo claseFinalizada = estadoClaseEnVivoRepositorio.save(new EstadoClaseEnVivo("Finalizada"));
         estadoClaseEnVivoRepositorio.save(new EstadoClaseEnVivo("Cancelada"));
 
         // Administrador y parámetros
@@ -223,8 +243,8 @@ public class SemillaServicio {
                 "Manual del mercado de capitales (CNV) y apuntes de cátedra.");
         Unidad unidad1 = agregarUnidad(programa1, curso1, 1, 2, "Introducción al mercado de capitales",
                 "Actores, instrumentos y funcionamiento del mercado.", titular1, presentacion);
-        agregarUnidad(programa1, curso1, 2, 3, "Renta fija y bonos", "Valuación y operatoria de bonos soberanos.",
-                titular1, presentacion);
+        Unidad unidad2 = agregarUnidad(programa1, curso1, 2, 3, "Renta fija y bonos",
+                "Valuación y operatoria de bonos soberanos.", titular1, presentacion);
         agregarUnidad(programa1, curso1, 3, 4, "Renta variable y opciones", "Acciones, CEDEARs y estrategias con opciones.",
                 null, null);
         Cohorte abierta1 = crearCohorte(programa1, ahora.minusDays(10), ahora.plusDays(20), ahora.plusDays(25),
@@ -234,9 +254,36 @@ public class SemillaServicio {
         crearCohorte(programa1, ahora.minusDays(200), ahora.minusDays(170), ahora.minusDays(160), ahora.minusDays(80), 12, 25);
         crearInscripcion(abierta1, lucia, ahora, unidad1);
         crearInscripcion(abierta1, martin, ahora, null);
-        crearInscripcion(enDictado1, valentina, ahora, unidad1);
+        Inscripcion inscripcionValentina = crearInscripcion(enDictado1, valentina, ahora, unidad1);
         claseEnVivoRepositorio.save(new ClaseEnVivo(titular1, claseProgramada, enDictado1,
                 "Clase 1: Panorama del mercado de capitales", ahora.plusDays(3), 90));
+        claseEnVivoRepositorio.save(new ClaseEnVivo(titular1, claseFinalizada, enDictado1,
+                "Clase 0: Presentación del curso", ahora.minusDays(15), 60));
+        claseEnVivoRepositorio.save(new ClaseEnVivo(titular1, claseEnVivoAhora, enDictado1,
+                "Clase magistral: Operatoria de renta fija en BYMA", ahora.minusMinutes(20), 90));
+
+        // Contenido de las unidades 1 y 2 (acceso al curso del alumno en dictado, CU-27)
+        agregarMaterial(unidad1, titular1, grabacion, "Grabación: Estructura del mercado argentino");
+        agregarMaterial(unidad1, titular1, bibliografia, "Ley 26.831 y modificatorias CNV");
+        agregarMaterial(unidad2, titular1, bibliografia, "Guía teórica de renta fija");
+        agregarGlosario(unidad1, "BYMA", "Bolsas y Mercados Argentinos: el mercado donde se negocian los valores.");
+        agregarGlosario(unidad1, "CNV", "Comisión Nacional de Valores: organismo que regula y controla el mercado de capitales.");
+        agregarGlosario(unidad1, "ON", "Obligación negociable: título de deuda que emiten las empresas para financiarse.");
+        agregarGlosario(unidad2, "TIR", "Tasa interna de retorno: rendimiento anual de un bono si se lo mantiene hasta el vencimiento.");
+        agregarGlosario(unidad2, "Duration", "Plazo promedio ponderado en que se recibe el dinero de un bono.");
+        Autoevaluacion autoevaluacion1 = new Autoevaluacion(unidad1, "Autoevaluación Unidad 1: Marco regulatorio", 10, 6f,
+                ahora.minusDays(30));
+        autoevaluacion1.setIntentosPermitidos(3);
+        autoevaluacion1.setTiempoLimite(30);
+        autoevaluacion1 = autoevaluacionRepositorio.save(autoevaluacion1);
+        Autoevaluacion autoevaluacion2 = new Autoevaluacion(unidad2, "Autoevaluación Unidad 2: Ejercicios de rendimiento",
+                10, 7f, ahora.minusDays(5));
+        autoevaluacion2.setIntentosPermitidos(3);
+        autoevaluacionRepositorio.save(autoevaluacion2);
+        registrarIntento(inscripcionValentina, autoevaluacion1, 4.5f, false, ahora.minusDays(12));
+        registrarIntento(inscripcionValentina, autoevaluacion1, 8f, true, ahora.minusDays(10));
+        consultaForoRepositorio.save(new ConsultaForo(unidad1, inscripcionValentina,
+                "¿La CNV exige matrícula para operar con obligaciones negociables?"));
 
         // Curso 2: Macroeconomía de Coyuntura (grabada), con cohorte abierta sin inscriptos
         ParticipacionDocente titular2 = crearCurso("Macroeconomía de Coyuntura",
@@ -402,7 +449,7 @@ public class SemillaServicio {
     /**
      * Inscribe a un alumno en una cohorte y, si se indica una unidad, la registra como completada.
      */
-    private void crearInscripcion(Cohorte cohorte, Alumno alumno, LocalDateTime ahora, Unidad unidadCompletada) {
+    private Inscripcion crearInscripcion(Cohorte cohorte, Alumno alumno, LocalDateTime ahora, Unidad unidadCompletada) {
         Inscripcion inscripcion = new Inscripcion(cohorte, alumno, ahora.plusWeeks(cohorte.getSemanasAcceso()));
         inscripcion.setHabilitado(true);
         inscripcion = inscripcionRepositorio.save(inscripcion);
@@ -412,5 +459,25 @@ public class SemillaServicio {
             progreso.setFechaCompletada(ahora);
             progresoRepositorio.save(progreso);
         }
+        return inscripcion;
+    }
+
+    private void agregarMaterial(Unidad unidad, ParticipacionDocente autor, TipoMaterial tipo, String titulo) {
+        Material material = new Material(autor, tipo, unidad, titulo);
+        material.setAutor(autor.getDocente().getUsuario().getNombreCompleto());
+        materialRepositorio.save(material);
+    }
+
+    private void agregarGlosario(Unidad unidad, String termino, String definicion) {
+        terminoGlosarioRepositorio.save(new TerminoGlosario(unidad, termino, definicion));
+    }
+
+    private void registrarIntento(Inscripcion inscripcion, Autoevaluacion autoevaluacion, float nota, boolean aprobado,
+            LocalDateTime fechaEntrega) {
+        IntentoAutoevaluacion intento = new IntentoAutoevaluacion(inscripcion, autoevaluacion);
+        intento.setNota(nota);
+        intento.setAprobado(aprobado);
+        intento.setFechaEntrega(fechaEntrega);
+        intentoAutoevaluacionRepositorio.save(intento);
     }
 }
