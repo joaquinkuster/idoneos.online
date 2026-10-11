@@ -225,4 +225,18 @@ public class Curso {
         return programas.stream().filter(programa -> !programa.getBaja())
                 .max(Comparator.comparingInt(Programa::getIdPrograma)).orElse(null);
     }
+
+    /**
+     * Obtiene la URL pública de la imagen del curso, con la versión de la última modificación para que el
+     * navegador no muestre una imagen vieja después de reemplazarla.
+     *
+     * @return La URL de la imagen, o {@code null} si el curso no tiene imagen.
+     */
+    public String getUrlImagen() {
+        if (imagen == null || imagen.isBlank()) {
+            return null;
+        }
+        long version = ultimaModificacion == null ? 0 : ultimaModificacion.atZone(java.time.ZoneId.systemDefault()).toEpochSecond();
+        return "/uploads/curso" + idCurso + "/" + imagen + "?v=" + version;
+    }
 }

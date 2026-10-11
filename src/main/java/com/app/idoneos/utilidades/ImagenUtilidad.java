@@ -7,8 +7,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
-import java.util.UUID;
+import java.util.List;
 
 import javax.imageio.ImageIO;
 
@@ -16,9 +17,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 /**
  * Métodos auxiliares para guardar y eliminar imágenes en una carpeta del sistema de archivos del servidor,
- * fuera del código de la aplicación. Sirve a cualquier entidad que tenga imágenes: cada una indica la carpeta
- * donde guarda las suyas (por ejemplo, la de los cursos se configura con la propiedad
- * {@code idoneos.directorio-imagenes} y se publica en {@code /img/cursos/**}, ver {@code WebConfig}).
+ * fuera del código de la aplicación. Sirve a cualquier entidad que tenga una imagen: cada una indica la carpeta
+ * y el nombre con el que guarda la suya (por ejemplo, la imagen de un curso es {@code uploads/curso{id}/imagen.png}
+ * y se publica en {@code /uploads/curso{id}/imagen.png}, ver {@code WebConfig}).
  * En la base de datos solo se guarda el nombre del archivo.
  */
 public class ImagenUtilidad {
@@ -33,17 +34,17 @@ public class ImagenUtilidad {
      */
     public static final int ANCHO_MAXIMO = 1280;
 
+    private static final List<String> EXTENSIONES = List.of("jpg", "png", "webp");
+
     /**
-     * Valida y guarda una imagen con un nombre único generado por el sistema. La carpeta se crea si no existe.
-     * Solo se aceptan imágenes JPG, PNG o WebP de hasta 2 MB; el formato se verifica con el contenido real
-     * del archivo y no solo con su extensión o su tipo declarado.
+     * Valida una imagen sin guardarla. Solo se aceptan imágenes JPG, PNG o WebP de hasta 2 MB; el formato se
+     * verifica con el contenido real del archivo y no solo con su extensión o su tipo declarado.
      *
-     * @param archivo    El archivo subido por el usuario.
-     * @param directorio La carpeta donde se guarda la imagen.
-     * @return El nombre con el que se guardó el archivo (UUID más extensión).
+     * @param archivo El archivo subido por el usuario.
+     * @return La extensión que corresponde al formato real de la imagen (jpg, png o webp).
      * @throws IllegalArgumentException Si el archivo está vacío, supera el tamaño máximo o no es una imagen válida.
      */
-    public static String guardar(MultipartFile archivo, Path directorio) {
+    public static String validar(MultipartFile archivo) {
         if (archivo == null || archivo.isEmpty()) {
             throw new IllegalArgumentException("Error! La imagen seleccionada está vacía.");
         }
@@ -51,31 +52,53 @@ public class ImagenUtilidad {
             throw new IllegalArgumentException("Error! La imagen no puede superar los 2 MB.");
         }
         try (InputStream entrada = archivo.getInputStream()) {
-            byte[] cabecera = entrada.readNBytes(12);
-            String extension = detectarExtension(cabecera);
+            String extension = detectarExtension(entrada.readNBytes(12));
             if (extension == null) {
                 throw new IllegalArgumentException("Error! La imagen debe estar en formato JPG, PNG o WebP.");
             }
+            return extension;
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Error! No se pudo leer la imagen. Intente nuevamente.");
+        }
+    }
+
+    /**
+     * Valida y guarda una imagen con el nombre indicado (más la extensión de su formato real). La carpeta se crea
+     * si no existe. Si ya había una imagen con ese nombre, se reemplaza, aunque tuviera otra extensión.
+     *
+     * @param archivo    El archivo subido por el usuario.
+     * @param directorio La carpeta donde se guarda la imagen.
+     * @param nombre     El nombre del archivo, sin extensión.
+     * @return El nombre con el que se guardó el archivo (nombre más extensión).
+     * @throws IllegalArgumentException Si el archivo está vacío, supera el tamaño máximo o no es una imagen válida.
+     */
+    public static String guardar(MultipartFile archivo, Path directorio, String nombre) {
+        String extension = validar(archivo);
+        try {
             Path carpeta = directorio.toAbsolutePath().normalize();
             Files.createDirectories(carpeta);
-            String nombre = UUID.randomUUID() + "." + extension;
-            Path destino = carpeta.resolve(nombre);
+            Path destino = carpeta.resolve(nombre + "." + extension);
             try (InputStream completa = archivo.getInputStream()) {
                 if (!guardarAchicada(completa, extension, destino)) {
                     try (InputStream original = archivo.getInputStream()) {
-                        Files.copy(original, destino);
+                        Files.copy(original, destino, StandardCopyOption.REPLACE_EXISTING);
                     }
                 }
             }
-            return nombre;
+            for (String otra : EXTENSIONES) {
+                if (!otra.equals(extension)) {
+                    Files.deleteIfExists(carpeta.resolve(nombre + "." + otra));
+                }
+            }
+            return nombre + "." + extension;
         } catch (IOException e) {
             throw new IllegalArgumentException("Error! No se pudo guardar la imagen. Intente nuevamente.");
         }
     }
 
     /**
-     * Elimina una imagen guardada. Si el archivo no existe en la carpeta (por ejemplo, una imagen de ejemplo
-     * incluida en la aplicación), no hace nada. Nunca elimina archivos fuera de la carpeta indicada.
+     * Elimina una imagen guardada. Si el archivo no existe en la carpeta, no hace nada. Nunca elimina archivos
+     * fuera de la carpeta indicada.
      *
      * @param nombre     El nombre del archivo a eliminar.
      * @param directorio La carpeta donde está guardada la imagen.

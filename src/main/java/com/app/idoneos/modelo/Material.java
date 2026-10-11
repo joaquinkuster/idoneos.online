@@ -54,9 +54,9 @@ public class Material {
     private String titulo;
 
     /**
-     * Ruta del archivo del material. Es opcional.
+     * Ruta del archivo del material (relativa a la carpeta de los cursos) o enlace externo. Es opcional.
      */
-    @Column(name = "rutaArchivo", nullable = true, length = 150)
+    @Column(name = "rutaArchivo", nullable = true, length = 500)
     private String rutaArchivo;
 
     /**
@@ -152,5 +152,73 @@ public class Material {
     @Override
     public String toString() {
         return titulo;
+    }
+
+    /**
+     * Indica si el material está publicado: vigente y visible para los alumnos.
+     *
+     * @return {@code true} si no está dado de baja ni oculto.
+     */
+    public boolean estaPublicado() {
+        return !baja && !oculto;
+    }
+
+    /**
+     * Obtiene el curso al que pertenece el material, a través de su unidad.
+     *
+     * @return El curso del material.
+     */
+    public Curso getCurso() {
+        return unidad.getCurso();
+    }
+
+    /**
+     * Indica si el material es un enlace externo (en lugar de un archivo guardado en el servidor).
+     *
+     * @return {@code true} si la ruta es un enlace http o https.
+     */
+    public boolean esEnlaceExterno() {
+        return rutaArchivo != null && (rutaArchivo.startsWith("http://") || rutaArchivo.startsWith("https://"));
+    }
+
+    /**
+     * Indica si el material tiene un archivo guardado en el servidor.
+     *
+     * @return {@code true} si tiene ruta y no es un enlace externo.
+     */
+    public boolean tieneArchivo() {
+        return rutaArchivo != null && !esEnlaceExterno();
+    }
+
+    /**
+     * Obtiene la extensión del archivo del material.
+     *
+     * @return La extensión en minúscula y sin punto, o una cadena vacía si no tiene archivo en el servidor.
+     */
+    public String getExtension() {
+        if (!tieneArchivo() || !rutaArchivo.contains(".")) {
+            return "";
+        }
+        return rutaArchivo.substring(rutaArchivo.lastIndexOf('.') + 1).toLowerCase();
+    }
+
+    /**
+     * Indica cómo se muestra el material en la plataforma: "enlace" (se abre la página externa), "video" (reproductor)
+     * o "pdf" (visor de páginas). Si todavía no tiene archivo o enlace, o su formato ya no se admite, es "vacio".
+     *
+     * @return El formato de vista del material.
+     */
+    public String getFormatoDeVista() {
+        if (esEnlaceExterno()) {
+            return "enlace";
+        }
+        if (!tieneArchivo()) {
+            return "vacio";
+        }
+        return switch (getExtension()) {
+            case "mp4", "webm" -> "video";
+            case "pdf" -> "pdf";
+            default -> "vacio";
+        };
     }
 }

@@ -123,7 +123,7 @@
 
 <!-- Modal: registrar categoría (CU-08) -->
 <div class="modal fade pn-modal" id="modalNuevaCategoria" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
             <div class="pn-modal-cabecera">
                 <h3 class="pn-modal-titulo">Nueva categoría</h3>
@@ -164,7 +164,7 @@
 <!-- Modales por categoría: modificar (CU-09) y dar de baja (CU-10) -->
 <th:block th:each="cat : ${categorias}" th:if="${!cat.baja}">
     <div class="modal fade pn-modal" th:id="'modalEditarCategoria' + ${cat.idCategoria}" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
                 <div class="pn-modal-cabecera">
                     <h3 class="pn-modal-titulo">Editar categoría</h3>

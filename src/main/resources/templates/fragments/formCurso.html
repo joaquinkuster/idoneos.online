@@ -127,8 +127,8 @@
                 <div class="pn-ayuda-error"></div>
                 <img class="pn-vista-previa mt-2" alt="Imagen del curso"
                      th:classappend="${curso == null or curso.imagen == null} ? 'd-none'"
-                     th:src="${curso != null and curso.imagen != null} ? @{'/img/cursos/' + ${curso.imagen}} : '#'"
-                     th:attr="data-original=${curso != null and curso.imagen != null ? '/img/cursos/' + curso.imagen : ''}">
+                     th:src="${curso != null and curso.imagen != null} ? @{${curso.urlImagen}} : '#'"
+                     th:attr="data-original=${curso != null and curso.imagen != null ? curso.urlImagen : ''}">
             </div>
         </div>
     </div>

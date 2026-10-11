@@ -1,5 +1,6 @@
 package com.app.idoneos.servicio.TipoMaterial;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import com.app.idoneos.modelo.TipoMaterial;
@@ -91,5 +92,17 @@ public class TipoMaterialServicioImpl implements TipoMaterialServicio, CrudServi
     @Override
     public Optional<TipoMaterial> buscarPorNombre(String nombre) {
         return tipoMaterialRepositorio.findByNombre(nombre);
+    }
+
+    /**
+     * Obtiene los tipos de material que se suben manualmente, en el orden Grabación, Bibliografía, Presentación.
+     *
+     * @return los tipos de material que se suben manualmente
+     */
+    @Override
+    public List<TipoMaterial> buscarSubidosManualmente() {
+        List<String> orden = List.of(TipoMaterial.GRABACION, TipoMaterial.BIBLIOGRAFIA, TipoMaterial.PRESENTACION);
+        return tipoMaterialRepositorio.findAll().stream().filter(TipoMaterial::permiteSubidaManual)
+                .sorted(Comparator.comparingInt(tipo -> orden.indexOf(tipo.getNombre()))).toList();
     }
 }

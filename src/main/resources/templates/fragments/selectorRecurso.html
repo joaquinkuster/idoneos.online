@@ -1,0 +1,65 @@
+<!-- Selector "Agregar un recurso o actividad" (al estilo de Moodle): lista a la izquierda, descripción de lo elegido a
+     la derecha. Se usa en la vista del curso y en el ABM de materiales.
+     destino: ruta a la que se redirige al elegir (se le agrega 'nuevo={id del tipo}'); vacío = abre el formulario de
+     alta en la misma página. Requiere el atributo de modelo 'tiposDeSubida' (tipos de material que se suben a mano).
+     Las opciones que todavía no tienen su ABM figuran como "Próximamente". -->
+<div th:fragment="selector(destino)" class="modal fade pn-modal" id="modalSelectorRecurso" tabindex="-1" aria-hidden="true"
+     th:attr="data-destino=${destino}">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="pn-modal-cabecera">
+                <h3 class="pn-modal-titulo">Agregar un recurso o actividad</h3>
+                <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="pn-modal-cuerpo p-0">
+                <div class="ac-selector">
+                    <div class="ac-selector-lista" role="radiogroup" aria-label="Recursos y actividades">
+                        <div class="ac-selector-grupo">Recursos</div>
+
+                        <label class="ac-selector-opcion" th:each="t : ${tiposDeSubida}"
+                               th:attr="data-tipo-id=${t.idTipoMaterial}, data-nombre=${t.nombre}, data-descripcion=${t.descripcionDeSubida}">
+                            <input type="radio" name="recurso" th:value="${t.idTipoMaterial}">
+                            <th:block th:replace="~{fragments/iconoMaterial :: icono(${t.nombre}, 'ac-recurso-icono-chico')}"></th:block>
+                            <span th:text="${t.nombre}">Grabación</span>
+                        </label>
+                        <label class="ac-selector-opcion ac-selector-opcion-deshabilitada">
+                            <input type="radio" name="recurso" disabled>
+                            <th:block th:replace="~{fragments/iconoMaterial :: icono('Glosario', 'ac-recurso-icono-chico')}"></th:block>
+                            <span>Glosario</span><small>Próximamente</small>
+                        </label>
+                        <label class="ac-selector-opcion ac-selector-opcion-deshabilitada">
+                            <input type="radio" name="recurso" disabled>
+                            <th:block th:replace="~{fragments/iconoMaterial :: icono('Resumen', 'ac-recurso-icono-chico')}"></th:block>
+                            <span>Resumen</span><small>Próximamente</small>
+                        </label>
+
+                        <div class="ac-selector-grupo">Actividades</div>
+                        <label class="ac-selector-opcion ac-selector-opcion-deshabilitada">
+                            <input type="radio" name="recurso" disabled>
+                            <th:block th:replace="~{fragments/iconoMaterial :: icono('Autoevaluación', 'ac-recurso-icono-chico')}"></th:block>
+                            <span>Autoevaluación</span><small>Próximamente</small>
+                        </label>
+                        <label class="ac-selector-opcion ac-selector-opcion-deshabilitada">
+                            <input type="radio" name="recurso" disabled>
+                            <th:block th:replace="~{fragments/iconoMaterial :: icono('Pool de preguntas', 'ac-recurso-icono-chico')}"></th:block>
+                            <span>Pool de preguntas</span><small>Próximamente</small>
+                        </label>
+                        <label class="ac-selector-opcion ac-selector-opcion-deshabilitada">
+                            <input type="radio" name="recurso" disabled>
+                            <th:block th:replace="~{fragments/iconoMaterial :: icono('Clase con clon', 'ac-recurso-icono-chico')}"></th:block>
+                            <span>Clase con clon</span><small>Próximamente</small>
+                        </label>
+                    </div>
+                    <div class="ac-selector-detalle">
+                        <strong data-selector-titulo>Grabación</strong>
+                        <p data-selector-descripcion></p>
+                    </div>
+                </div>
+                <div class="pn-modal-pie px-3 pb-3">
+                    <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="pn-btn pn-btn-primario" data-selector-agregar>Agregar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

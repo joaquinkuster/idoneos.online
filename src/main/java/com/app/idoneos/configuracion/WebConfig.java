@@ -1,12 +1,12 @@
 package com.app.idoneos.configuracion;
 
 import java.nio.file.Path;
-
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import java.util.concurrent.TimeUnit;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.CacheControl;
 import org.springframework.web.filter.HiddenHttpMethodFilter;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
@@ -18,9 +18,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
-    /** Carpeta del servidor donde se guardan las imágenes de los cursos. */
-    @Value("${idoneos.directorio-imagenes:./uploads/cursos}")
-    private Path directorioImagenes;
+    @Autowired
+    @Qualifier("directorioCursos")
+    private Path directorioCursos;
 
     /**
      * Crea un bean de tipo HiddenHttpMethodFilter.
@@ -35,18 +35,28 @@ public class WebConfig implements WebMvcConfigurer {
     }
 
     /**
-     * Publica las imágenes de los cursos en la URL {@code /img/cursos/**}. Se buscan primero en la carpeta
-     * del servidor donde se guardan las imágenes subidas por los usuarios y, si no están, en las imágenes
-     * de ejemplo incluidas en la aplicación ({@code static/img/cursos}). Las imágenes se guardan en la caché del
-     * navegador durante una semana.
+     * Publica las imágenes de la aplicación:
+     * <ul>
+     * <li>{@code /img/cursos/**}: las imágenes de ejemplo incluidas en la aplicación ({@code static/img/cursos}).</li>
+     * <li>{@code /uploads/curso{id}/{imagen}}: la imagen de cada curso, guardada en su carpeta del servidor. El patrón
+     * admite un solo nivel debajo de la carpeta del curso, por lo que las carpetas de unidad
+     * ({@code curso{id}/unidad{id}/...}) con sus materiales <b>no</b> se publican: se entregan solo por un
+     * endpoint que controla el acceso.</li>
+     * </ul>
+     * Las imágenes se guardan en la caché del navegador durante una semana (las imágenes de los cursos incluyen
+     * la versión en la URL, por lo que un cambio se ve de inmediato).
      *
      * @param registry El registro de manejadores de recursos.
      */
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        CacheControl semana = CacheControl.maxAge(7, TimeUnit.DAYS);
         registry.addResourceHandler("/img/cursos/**")
-                .addResourceLocations(directorioImagenes.toAbsolutePath().normalize().toUri().toString(),
-                        "classpath:/static/img/cursos/")
-                .setCacheControl(CacheControl.maxAge(7, TimeUnit.DAYS));
+                .addResourceLocations("classpath:/static/img/cursos/")
+                .setCacheControl(semana);
+        String carpeta = directorioCursos.toUri().toString();
+        registry.addResourceHandler("/uploads/curso*/*")
+                .addResourceLocations(carpeta.endsWith("/") ? carpeta : carpeta + "/")
+                .setCacheControl(semana);
     }
 }

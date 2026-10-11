@@ -319,6 +319,25 @@
             }
             return marcar(campo, '');
         }
+        if (campo.type === 'file' && campo.dataset.extensiones) {
+            // Archivo de material: formatos y tamaño máximo vienen del servidor (data-extensiones y data-tamanio-mb)
+            var adjunto = campo.files && campo.files[0];
+            if (adjunto) {
+                var extension = adjunto.name.indexOf('.') >= 0 ? adjunto.name.split('.').pop().toLowerCase() : '';
+                var permitidas = campo.dataset.extensiones.split(',');
+                if (permitidas.indexOf(extension) === -1) {
+                    campo.value = '';
+                    return marcar(campo, 'El archivo debe estar en formato ' + permitidas.join(', ').toUpperCase() + '.');
+                }
+                if (adjunto.size > parseFloat(campo.dataset.tamanioMb) * 1024 * 1024) {
+                    campo.value = '';
+                    return marcar(campo, 'El archivo no puede superar los ' + campo.dataset.tamanioMb + ' MB.');
+                }
+            } else if (campo.required) {
+                return marcar(campo, 'Debe seleccionar un archivo.');
+            }
+            return marcar(campo, '');
+        }
         if (campo.type === 'file') {
             var archivo = campo.files && campo.files[0];
             if (archivo && IMAGEN_TIPOS.indexOf(archivo.type) === -1) {

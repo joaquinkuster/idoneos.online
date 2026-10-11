@@ -30,29 +30,45 @@ class ImagenUtilidadTest {
     @TempDir
     Path carpeta;
 
-    @Test
-    @DisplayName("Guarda imágenes JPG, PNG y WebP con un nombre único y la extensión del formato real")
-    void guardaImagenesValidas() {
-        String jpg = ImagenUtilidad.guardar(new MockMultipartFile("imagenArchivo", "foto.png", "image/png", JPG), carpeta);
-        String png = ImagenUtilidad.guardar(new MockMultipartFile("imagenArchivo", "foto.jpg", "image/jpeg", PNG), carpeta);
-        String webp = ImagenUtilidad.guardar(new MockMultipartFile("imagenArchivo", "foto.gif", "image/gif", WEBP), carpeta);
+    private MockMultipartFile archivo(String nombre, byte[] contenido) {
+        return new MockMultipartFile("imagenArchivo", nombre, "image/png", contenido);
+    }
 
-        assertTrue(jpg.endsWith(".jpg"));
-        assertTrue(png.endsWith(".png"));
-        assertTrue(webp.endsWith(".webp"));
-        assertTrue(Files.exists(carpeta.resolve(jpg)));
-        assertEquals(3, carpeta.toFile().list().length);
+    @Test
+    @DisplayName("Guarda imágenes JPG, PNG y WebP con el nombre pedido y la extensión del formato real")
+    void guardaImagenesValidas() {
+        String jpg = ImagenUtilidad.guardar(archivo("foto.png", JPG), carpeta.resolve("a"), "imagen");
+        String png = ImagenUtilidad.guardar(archivo("foto.jpg", PNG), carpeta.resolve("b"), "imagen");
+        String webp = ImagenUtilidad.guardar(archivo("foto.gif", WEBP), carpeta.resolve("c"), "imagen");
+
+        assertEquals("imagen.jpg", jpg);
+        assertEquals("imagen.png", png);
+        assertEquals("imagen.webp", webp);
+        assertTrue(Files.exists(carpeta.resolve("a").resolve(jpg)), "la carpeta se crea si no existe");
+    }
+
+    @Test
+    @DisplayName("Al guardar otra imagen con el mismo nombre se reemplaza la anterior, aunque cambie la extensión")
+    void reemplazaLaImagenAnterior() throws IOException {
+        ImagenUtilidad.guardar(archivo("uno.png", PNG), carpeta, "imagen");
+        assertTrue(Files.exists(carpeta.resolve("imagen.png")));
+
+        ImagenUtilidad.guardar(archivo("dos.jpg", JPG), carpeta, "imagen");
+
+        assertFalse(Files.exists(carpeta.resolve("imagen.png")), "no debe quedar la imagen anterior");
+        assertTrue(Files.exists(carpeta.resolve("imagen.jpg")));
+        assertEquals(1, carpeta.toFile().list().length);
     }
 
     @Test
     @DisplayName("Achica las imágenes más anchas que el máximo para que carguen más rápido y no toca las chicas")
     void achicaLasImagenesMuyAnchas() throws IOException {
-        String ancha = ImagenUtilidad.guardar(imagenReal(2400, 1200, "jpg"), carpeta);
-        String chica = ImagenUtilidad.guardar(imagenReal(800, 400, "png"), carpeta);
+        String ancha = ImagenUtilidad.guardar(imagenReal(2400, 1200, "jpg"), carpeta.resolve("a"), "imagen");
+        String chica = ImagenUtilidad.guardar(imagenReal(800, 400, "png"), carpeta.resolve("b"), "imagen");
 
-        assertEquals(ImagenUtilidad.ANCHO_MAXIMO, ImageIO.read(carpeta.resolve(ancha).toFile()).getWidth());
-        assertEquals(640, ImageIO.read(carpeta.resolve(ancha).toFile()).getHeight());
-        assertEquals(800, ImageIO.read(carpeta.resolve(chica).toFile()).getWidth());
+        assertEquals(ImagenUtilidad.ANCHO_MAXIMO, ImageIO.read(carpeta.resolve("a").resolve(ancha).toFile()).getWidth());
+        assertEquals(640, ImageIO.read(carpeta.resolve("a").resolve(ancha).toFile()).getHeight());
+        assertEquals(800, ImageIO.read(carpeta.resolve("b").resolve(chica).toFile()).getWidth());
     }
 
     private MockMultipartFile imagenReal(int ancho, int alto, String formato) throws IOException {
@@ -65,19 +81,17 @@ class ImagenUtilidadTest {
     @Test
     @DisplayName("Rechaza un archivo que no es una imagen aunque tenga extensión de imagen")
     void rechazaArchivosQueNoSonImagenes() {
-        MockMultipartFile falso = new MockMultipartFile("imagenArchivo", "foto.jpg", "image/jpeg",
-                "esto no es una imagen".getBytes());
+        MockMultipartFile falso = archivo("foto.jpg", "esto no es una imagen".getBytes());
 
-        assertThrows(IllegalArgumentException.class, () -> ImagenUtilidad.guardar(falso, carpeta));
-        assertEquals(0, carpeta.toFile().list().length);
+        assertThrows(IllegalArgumentException.class, () -> ImagenUtilidad.guardar(falso, carpeta, "imagen"));
+        assertFalse(Files.exists(carpeta.resolve("imagen.jpg")));
     }
 
     @Test
     @DisplayName("Rechaza un archivo vacío o ausente")
     void rechazaArchivosVacios() {
-        assertThrows(IllegalArgumentException.class,
-                () -> ImagenUtilidad.guardar(new MockMultipartFile("imagenArchivo", "foto.jpg", "image/jpeg", new byte[0]), carpeta));
-        assertThrows(IllegalArgumentException.class, () -> ImagenUtilidad.guardar(null, carpeta));
+        assertThrows(IllegalArgumentException.class, () -> ImagenUtilidad.validar(archivo("foto.jpg", new byte[0])));
+        assertThrows(IllegalArgumentException.class, () -> ImagenUtilidad.validar(null));
     }
 
     @Test
@@ -86,14 +100,13 @@ class ImagenUtilidadTest {
         byte[] grande = new byte[(int) ImagenUtilidad.TAMANIO_MAXIMO + 1];
         System.arraycopy(JPG, 0, grande, 0, JPG.length);
 
-        assertThrows(IllegalArgumentException.class,
-                () -> ImagenUtilidad.guardar(new MockMultipartFile("imagenArchivo", "foto.jpg", "image/jpeg", grande), carpeta));
+        assertThrows(IllegalArgumentException.class, () -> ImagenUtilidad.validar(archivo("foto.jpg", grande)));
     }
 
     @Test
     @DisplayName("Elimina la imagen guardada y no sale de la carpeta de imágenes")
     void eliminaSoloDentroDeLaCarpeta() throws IOException {
-        String nombre = ImagenUtilidad.guardar(new MockMultipartFile("imagenArchivo", "foto.jpg", "image/jpeg", JPG), carpeta);
+        String nombre = ImagenUtilidad.guardar(archivo("foto.jpg", JPG), carpeta, "imagen");
         Path fuera = Files.createTempFile("fuera", ".txt");
 
         ImagenUtilidad.eliminar(nombre, carpeta);

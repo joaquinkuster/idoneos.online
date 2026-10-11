@@ -5,6 +5,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import com.app.idoneos.servicio.Curso.CursoServicioImpl;
 import com.app.idoneos.servicio.SemillaServicio;
 
 /**
@@ -19,6 +20,9 @@ public class IdoneosApplication implements CommandLineRunner {
      */
     @Autowired
     private SemillaServicio semillaServicio;
+
+    @Autowired
+    private CursoServicioImpl cursoServicio;
 
     /**
      * Método principal de la aplicación que lanza el contexto de Spring Boot.
@@ -40,5 +44,7 @@ public class IdoneosApplication implements CommandLineRunner {
     public void run(String... args) throws Exception {
         // Ejecutamos la semilla cuando la aplicación arranca
         semillaServicio.insertarSemilla();
+        // Lleva las imágenes de los cursos a la carpeta de cada curso (datos creados con versiones anteriores)
+        cursoServicio.migrarImagenes();
     }
 }

@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -28,6 +28,7 @@ import com.app.idoneos.modelo.Inscripcion;
 import com.app.idoneos.modelo.ParticipacionDocente;
 import com.app.idoneos.modelo.Programa;
 import com.app.idoneos.modelo.Usuario;
+import com.app.idoneos.utilidades.ArchivoUtilidad;
 import com.app.idoneos.utilidades.ImagenUtilidad;
 import com.app.idoneos.servicio.Categoria.CategoriaServicioImpl;
 import com.app.idoneos.servicio.Curso.CursoServicioImpl;
@@ -37,6 +38,7 @@ import com.app.idoneos.servicio.Nivel.NivelServicioImpl;
 import com.app.idoneos.servicio.Programa.ProgramaServicioImpl;
 import com.app.idoneos.utilidades.PaginacionUtilidad;
 import com.app.idoneos.utilidades.RespuestaUtilidad;
+import com.app.idoneos.servicio.TipoMaterial.TipoMaterialServicioImpl;
 
 /**
  * Controlador de la gestión de cursos (MOD-F-01).
@@ -68,11 +70,15 @@ public class CursoControlador {
     private DocenteServicioImpl docenteServicio;
 
     @Autowired
+    private TipoMaterialServicioImpl tipoMaterialServicio;
+
+    @Autowired
     private ProgramaServicioImpl programaServicio;
 
-    /** Carpeta del servidor donde se guardan las imágenes de los cursos. */
-    @Value("${idoneos.directorio-imagenes:./uploads/cursos}")
-    private Path directorioImagenes;
+    /** Carpeta base del servidor donde se guardan los archivos de los cursos. */
+    @Autowired
+    @Qualifier("directorioCursos")
+    private Path directorioCursos;
 
     /**
      * CU-01: Busca cursos según nombre, categoría, nivel, equipo docente y modalidad.
@@ -188,16 +194,18 @@ public class CursoControlador {
             @RequestParam(value = "idsModalidades", required = false) List<Integer> idsModalidades,
             @RequestParam(value = "docenteTitularId", required = false) Integer docenteTitularId,
             @RequestParam(value = "idsDocentesAyudantes", required = false) List<Integer> idsDocentesAyudantes) {
-        String nombreImagen = null;
         try {
-            if (imagenArchivo != null && !imagenArchivo.isEmpty()) {
-                nombreImagen = ImagenUtilidad.guardar(imagenArchivo, directorioImagenes);
+            boolean hayImagen = imagenArchivo != null && !imagenArchivo.isEmpty();
+            if (hayImagen) {
+                ImagenUtilidad.validar(imagenArchivo); // antes de registrar, para no crear un curso con imagen inválida
             }
-            Curso curso = cursoServicio.registrarCurso(nombre, descripcion, precio, nombreImagen, categoriaId, nivelId,
+            Curso curso = cursoServicio.registrarCurso(nombre, descripcion, precio, null, categoriaId, nivelId,
                     emiteCertificado, idsModalidades, docenteTitularId, idsDocentesAyudantes);
+            if (hayImagen) {
+                guardarImagen(curso, imagenArchivo);
+            }
             return RespuestaUtilidad.respuestaExitosa("Curso '" + curso.getNombre() + "' registrado con éxito.");
         } catch (Exception e) {
-            ImagenUtilidad.eliminar(nombreImagen, directorioImagenes); // evita dejar archivos huérfanos
             return RespuestaUtilidad.respuestaConError(e);
         }
     }
@@ -231,22 +239,36 @@ public class CursoControlador {
             @RequestParam(value = "idsModalidades", required = false) List<Integer> idsModalidades,
             @RequestParam(value = "docenteTitularId", required = false) Integer docenteTitularId,
             @RequestParam(value = "idsDocentesAyudantes", required = false) List<Integer> idsDocentesAyudantes) {
-        String nombreImagen = null;
         try {
-            String imagenAnterior = cursoServicio.buscarPorId(id).map(Curso::getImagen).orElse(null);
-            if (imagenArchivo != null && !imagenArchivo.isEmpty()) {
-                nombreImagen = ImagenUtilidad.guardar(imagenArchivo, directorioImagenes);
+            boolean hayImagen = imagenArchivo != null && !imagenArchivo.isEmpty();
+            if (hayImagen) {
+                ImagenUtilidad.validar(imagenArchivo);
             }
-            cursoServicio.modificarCurso(id, nombre, descripcion, precio, nombreImagen, categoriaId, nivelId,
+            Curso curso = cursoServicio.modificarCurso(id, nombre, descripcion, precio, null, categoriaId, nivelId,
                     emiteCertificado, idsModalidades, docenteTitularId, idsDocentesAyudantes);
-            if (nombreImagen != null) {
-                ImagenUtilidad.eliminar(imagenAnterior, directorioImagenes); // reemplaza la imagen anterior
+            if (hayImagen) {
+                guardarImagen(curso, imagenArchivo); // reemplaza la imagen anterior
             }
             return RespuestaUtilidad.respuestaExitosa("Curso modificado correctamente.");
         } catch (Exception e) {
-            ImagenUtilidad.eliminar(nombreImagen, directorioImagenes); // evita dejar archivos huérfanos
             return RespuestaUtilidad.respuestaConError(e);
         }
+    }
+
+    /**
+     * Guarda la imagen del curso en su carpeta ({@code curso{id}/imagen.{ext}}), reemplazando la anterior, y
+     * registra su nombre en el curso.
+     */
+    private void guardarImagen(Curso curso, MultipartFile imagenArchivo) {
+        String nombre;
+        try {
+            nombre = ImagenUtilidad.guardar(imagenArchivo,
+                    ArchivoUtilidad.carpetaDeCurso(directorioCursos, curso.getIdCurso()), "imagen");
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException(
+                    "Error! El curso se guardó, pero no se pudo guardar la imagen. Modifique el curso para cargarla.");
+        }
+        cursoServicio.actualizarImagen(curso.getIdCurso(), nombre);
     }
 
     /**
@@ -311,6 +333,7 @@ public class CursoControlador {
             modelo.addAttribute("curso", participacion.getCurso());
             modelo.addAttribute("programa", participacion.getProgramaDeTrabajo());
             modelo.addAttribute("cohorte", participacion.getCohorteDeTrabajo());
+            modelo.addAttribute("tiposDeSubida", tipoMaterialServicio.buscarSubidosManualmente());
             modelo.addAttribute("esDocente", true);
             modelo.addAttribute("urlBase", "/curso/acceder/" + idCurso);
             modelo.addAttribute("urlMisCursos", "/curso/buscar");

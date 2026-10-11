@@ -70,7 +70,7 @@
                     <div class="wf-cards-grid">
                         <div th:each="insc : ${inscripciones}" class="wf-course-card">
                             <div class="wf-course-card-thumb" th:classappend="${insc.curso.imagen != null} ? 'wf-thumb-con-imagen'">
-                                <img th:if="${insc.curso.imagen != null}" class="wf-course-thumb-img" th:src="@{'/img/cursos/' + ${insc.curso.imagen}}" alt=""
+                                <img th:if="${insc.curso.imagen != null}" class="wf-course-thumb-img" th:src="@{${insc.curso.urlImagen}}" alt=""
                                      width="640" height="130" loading="lazy" decoding="async">
                                 <div class="wf-course-thumb-icon"><i class="fa-solid fa-graduation-cap w-8 h-8 text-white"></i></div>
                                 <div class="wf-course-pills-row">

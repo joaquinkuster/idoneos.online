@@ -52,10 +52,12 @@ class AccederCursoControladorTest {
                 .andExpect(content().string(Matchers.containsString("Bloqueada")))
                 // contenido de la unidad habilitada: material, glosario, autoevaluación con intentos y foro
                 .andExpect(content().string(Matchers.containsString("Grabación: Estructura del mercado argentino")))
-                .andExpect(content().string(Matchers.containsString("Comisión Nacional de Valores")))
                 .andExpect(content().string(Matchers.containsString("Autoevaluación Unidad 1: Marco regulatorio")))
-                .andExpect(content().string(Matchers.containsString("Intento 2")))
                 .andExpect(content().string(Matchers.containsString("Foro de consultas")))
+                .andExpect(content().string(Matchers.containsString("Glosario")))
+                // el alumno no ve el material oculto ni las opciones del docente
+                .andExpect(content().string(Matchers.not(Matchers.containsString("Borrador: ejercicios de duration"))))
+                .andExpect(content().string(Matchers.not(Matchers.containsString("Agregar recurso o actividad"))))
                 // la unidad bloqueada no entrega su contenido
                 .andExpect(content().string(Matchers.containsString("Completá la unidad anterior")));
     }

@@ -1,6 +1,15 @@
 package com.app.idoneos.servicio.Curso;
 
 import java.time.LocalDateTime;
+import com.app.idoneos.utilidades.ArchivoUtilidad;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.Path;
+import java.nio.file.Files;
+import java.io.InputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -28,6 +37,13 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
+
+    private static final Logger REGISTRO = LoggerFactory.getLogger(CursoServicioImpl.class);
+
+    /** Carpeta base donde se guardan los archivos de los cursos. */
+    @Autowired
+    @Qualifier("directorioCursos")
+    private Path directorioCursos;
 
     @Autowired
     private CursoRepositorio cursoRepositorio;
@@ -600,5 +616,65 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
             throw new IllegalArgumentException("Error! El curso no tiene un programa vigente.");
         }
         return participacion;
+    }
+
+    /**
+     * Asigna la imagen de un curso activo.
+     *
+     * @param idCurso El identificador del curso.
+     * @param imagen  El nombre del archivo de la imagen dentro de la carpeta del curso.
+     * @return El curso actualizado.
+     * @throws IllegalArgumentException Si el curso no está activo.
+     */
+    @Override
+    @Transactional
+    public Curso actualizarImagen(Integer idCurso, String imagen) {
+        Curso curso = cursoRepositorio.findById(idCurso).filter(c -> !c.esInactivo())
+                .orElseThrow(() -> new IllegalArgumentException("Error! El curso no se encuentra activo."));
+        curso.setImagen(imagen);
+        curso.setUltimaModificacion(LocalDateTime.now());
+        return cursoRepositorio.save(curso);
+    }
+
+    /**
+     * Lleva las imágenes de los cursos a la estructura {@code curso{id}/imagen.{ext}}. La imagen se busca en la
+     * carpeta anterior ({@code cursos/}) y, si no está, entre las imágenes de ejemplo de la aplicación.
+     */
+    @Override
+    @Transactional
+    public void migrarImagenes() {
+        for (Curso curso : cursoRepositorio.findAll()) {
+            String imagen = curso.getImagen();
+            if (imagen == null || imagen.isBlank() || imagen.startsWith("imagen.") || imagen.contains("/")
+                    || imagen.contains("\\") || imagen.contains("..")) {
+                continue;
+            }
+            String extension = ArchivoUtilidad.extensionDe(imagen);
+            if (extension == null) {
+                continue;
+            }
+            extension = extension.equals("jpeg") ? "jpg" : extension;
+            try {
+                Path carpeta = ArchivoUtilidad.carpetaDeCurso(directorioCursos, curso.getIdCurso());
+                Files.createDirectories(carpeta);
+                Path destino = carpeta.resolve("imagen." + extension);
+                Path anterior = directorioCursos.resolve("cursos").resolve(imagen);
+                if (Files.exists(anterior)) {
+                    Files.copy(anterior, destino, StandardCopyOption.REPLACE_EXISTING);
+                } else {
+                    try (InputStream ejemplo = getClass().getResourceAsStream("/static/img/cursos/" + imagen)) {
+                        if (ejemplo == null) {
+                            REGISTRO.warn("No se encontró la imagen '{}' del curso {}", imagen, curso.getIdCurso());
+                            continue;
+                        }
+                        Files.copy(ejemplo, destino, StandardCopyOption.REPLACE_EXISTING);
+                    }
+                }
+                curso.setImagen("imagen." + extension);
+                cursoRepositorio.save(curso);
+            } catch (IOException e) {
+                REGISTRO.warn("No se pudo migrar la imagen '{}' del curso {}", imagen, curso.getIdCurso(), e);
+            }
+        }
     }
 }

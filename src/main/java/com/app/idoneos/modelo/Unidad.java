@@ -163,6 +163,16 @@ public class Unidad {
     }
 
     /**
+     * Obtiene el material vigente de la unidad (no dado de baja), incluido el oculto: es el que ve el docente.
+     *
+     * @return El material vigente, en el orden en que se cargó.
+     */
+    public List<Material> getMaterialesVigentes() {
+        return materiales.stream().filter(material -> !material.getBaja())
+                .sorted(Comparator.comparingInt(Material::getIdMaterial)).toList();
+    }
+
+    /**
      * Obtiene los términos vigentes del glosario de la unidad.
      *
      * @return Los términos, en orden alfabético.

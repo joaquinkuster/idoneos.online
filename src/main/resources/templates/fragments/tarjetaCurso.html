@@ -2,7 +2,7 @@
      Parámetros: c (el curso) y unidades (cantidad de unidades temáticas, puede ser nulo). -->
 <div th:fragment="tarjeta(c, unidades)" class="wf-course-card">
   <div class="wf-course-card-thumb" th:classappend="${c.imagen != null} ? 'wf-thumb-con-imagen'">
-    <img th:if="${c.imagen != null}" class="wf-course-thumb-img" th:src="@{'/img/cursos/' + ${c.imagen}}" alt=""
+    <img th:if="${c.imagen != null}" class="wf-course-thumb-img" th:src="@{${c.urlImagen}}" alt=""
          width="640" height="130" loading="lazy" decoding="async">
     <div class="wf-course-thumb-icon"><i class="fa-solid fa-graduation-cap w-8 h-8 text-white"></i></div>
     <div class="wf-course-pills-row">

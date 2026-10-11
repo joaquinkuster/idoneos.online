@@ -266,6 +266,7 @@ public class SemillaServicio {
         agregarMaterial(unidad1, titular1, grabacion, "Grabación: Estructura del mercado argentino");
         agregarMaterial(unidad1, titular1, bibliografia, "Ley 26.831 y modificatorias CNV");
         agregarMaterial(unidad2, titular1, bibliografia, "Guía teórica de renta fija");
+        agregarMaterial(unidad2, titular1, presentacion, "Borrador: ejercicios de duration").setOculto(true);
         agregarGlosario(unidad1, "BYMA", "Bolsas y Mercados Argentinos: el mercado donde se negocian los valores.");
         agregarGlosario(unidad1, "CNV", "Comisión Nacional de Valores: organismo que regula y controla el mercado de capitales.");
         agregarGlosario(unidad1, "ON", "Obligación negociable: título de deuda que emiten las empresas para financiarse.");
@@ -462,10 +463,10 @@ public class SemillaServicio {
         return inscripcion;
     }
 
-    private void agregarMaterial(Unidad unidad, ParticipacionDocente autor, TipoMaterial tipo, String titulo) {
+    private Material agregarMaterial(Unidad unidad, ParticipacionDocente autor, TipoMaterial tipo, String titulo) {
         Material material = new Material(autor, tipo, unidad, titulo);
         material.setAutor(autor.getDocente().getUsuario().getNombreCompleto());
-        materialRepositorio.save(material);
+        return materialRepositorio.save(material);
     }
 
     private void agregarGlosario(Unidad unidad, String termino, String definicion) {

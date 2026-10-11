@@ -16,12 +16,12 @@ import org.springframework.web.multipart.MaxUploadSizeExceededException;
 public class CargaArchivosConsejo {
 
     /**
-     * Informa que la imagen supera el tamaño máximo permitido.
+     * Informa que el archivo supera el tamaño máximo que acepta el servidor.
      *
      * @return Una respuesta HTTP 400 con el mensaje de error.
      */
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     public ResponseEntity<Map<String, String>> archivoDemasiadoGrande() {
-        return ResponseEntity.badRequest().body(Map.of("error", "Error! La imagen no puede superar los 2 MB."));
+        return ResponseEntity.badRequest().body(Map.of("error", "Error! El archivo supera el tamaño máximo permitido (500 MB)."));
     }
 }

@@ -43,7 +43,19 @@ class AccederCursoDocenteControladorTest {
     void docenteVeLasUnidadesSinBloqueos() throws Exception {
         mockMvc.perform(get("/curso/acceder/" + idCurso("Mercado de Capitales Argentino")))
                 .andExpect(status().isOk())
-                .andExpect(content().string(Matchers.containsString("Panel docente")))
+                .andExpect(content().string(Matchers.containsString("Agregar recurso o actividad")))
+                .andExpect(content().string(Matchers.containsString("Agregar un recurso o actividad")))
+                // las actividades de la unidad se agrupan con títulos
+                .andExpect(content().string(Matchers.containsString("ac-grupo-titulo")))
+                .andExpect(content().string(Matchers.containsString(">Autoevaluaciones<")))
+                .andExpect(content().string(Matchers.containsString(">Foro<")))
+                // cada grupo tiene su enlace "Ver listado"; el de materiales lleva al ABM de la unidad
+                .andExpect(content().string(Matchers.containsString("Ver listado")))
+                .andExpect(content().string(Matchers.containsString("/material/ver/")))
+                .andExpect(content().string(Matchers.containsString("/material/buscar?cursoId=")))
+                // el docente ve también el material oculto, marcado como tal
+                .andExpect(content().string(Matchers.containsString("Borrador: ejercicios de duration")))
+                .andExpect(content().string(Matchers.containsString("Oculto")))
                 .andExpect(content().string(Matchers.containsString("Introducción al mercado de capitales")))
                 .andExpect(content().string(Matchers.containsString("Renta variable y opciones")))
                 .andExpect(content().string(Matchers.containsString("Autoevaluación Unidad 1: Marco regulatorio")))

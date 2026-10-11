@@ -72,7 +72,9 @@ public class SecurityConfig {
                         // Rutas públicas
                         .requestMatchers("/", "/inicio", "/acercaDe", "/error",
                                 "/login", "/catalogo/**",
-                                "/css/**", "/js/**", "/img/**", "/webjars/**")
+                                "/css/**", "/js/**", "/img/**", "/webjars/**",
+                                // Imagen de cada curso (un solo nivel): las carpetas de unidad no son públicas
+                                "/uploads/curso*/*")
                         .permitAll()
                         // CU-02 y CU-27: Ver mis cursos y Acceder curso (Alumno)
                         .requestMatchers("/inscripcion/**").hasRole("Alumno")
@@ -80,6 +82,13 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/curso/buscar", "/cohorte/buscar")
                         .hasAnyRole("Docente", "Administrador")
                         .requestMatchers(HttpMethod.POST, "/cohorte/cambiarContexto/*").hasRole("Docente")
+                        // Abrir el archivo de un material: cualquier usuario con sesión (el servicio controla el acceso)
+                        .requestMatchers(HttpMethod.GET, "/material/archivo/*", "/material/ver/*").authenticated()
+                        // CU-28 a CU-31: ABM de materiales (el docente gestiona; el administrador busca y da de baja)
+                        .requestMatchers(HttpMethod.GET, "/material/buscar").hasAnyRole("Docente", "Administrador")
+                        .requestMatchers(HttpMethod.POST, "/material/darDeBaja/*", "/material/darDeBajaMasiva")
+                        .hasAnyRole("Docente", "Administrador")
+                        .requestMatchers("/material/**").hasRole("Docente")
                         // CU-27: Acceder curso (Docente)
                         .requestMatchers(HttpMethod.GET, "/curso/acceder/*").hasRole("Docente")
                         // CU-03 a CU-14: gestión de cursos, categorías y cohortes (Administrador)

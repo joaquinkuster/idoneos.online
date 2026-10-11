@@ -101,7 +101,7 @@
                              th:style="${curso.baja} ? 'background: #F8FAFC; opacity: 0.7; filter: grayscale(0.85); border-color: #CBD5E1;' : ''">
                             <div class="wf-course-card-thumb" th:classappend="${curso.imagen != null} ? 'wf-thumb-con-imagen'"
                                  th:style="${curso.baja} ? 'background: #475569;' : ''">
-                                <img th:if="${curso.imagen != null and !curso.baja}" class="wf-course-thumb-img" th:src="@{'/img/cursos/' + ${curso.imagen}}" alt=""
+                                <img th:if="${curso.imagen != null and !curso.baja}" class="wf-course-thumb-img" th:src="@{${curso.urlImagen}}" alt=""
                                      width="640" height="130" loading="lazy" decoding="async">
                                 <div class="wf-course-thumb-icon"><i class="fa-solid fa-graduation-cap w-8 h-8 text-white"></i></div>
                                 <div class="wf-course-pills-row">

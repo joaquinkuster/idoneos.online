@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <th:block th:replace="~{fragments/head :: recursos}"></th:block>
+</head>
+<body class="pn-body">
+<div class="pn-app" id="pnApp">
+    <!-- Menú lateral: el del docente (gestión académica) o, para el administrador, el del panel -->
+    <th:block th:if="${esDocente}"><th:block th:replace="~{fragments/menus :: gestionAcademica(${menuActivo}, ${urlBase})}"></th:block></th:block>
+    <th:block th:unless="${esDocente}"><th:block th:replace="~{fragments/menus :: administrador(${menuActivo})}"></th:block></th:block>
+
+    <div class="pn-principal">
+        <th:block th:if="${esDocente}"><th:block th:replace="~{fragments/panel :: barra(~{fragments/menus :: barraGestionAcademica('misCursos', ${urlMisCursos})})}"></th:block></th:block>
+        <th:block th:unless="${esDocente}"><th:block th:replace="~{fragments/panel :: barra(null)}"></th:block></th:block>
+
+        <main class="pn-contenido" th:attr="data-abrir-modal=${abrirModal}">
+            <nav class="ac-migas" aria-label="Ruta de navegación">
+                <a th:href="@{/inicio}">Página principal</a>
+                <i class="fa-solid fa-chevron-right"></i>
+                <a th:href="@{${urlMisCursos}}">Mis cursos</a>
+                <i class="fa-solid fa-chevron-right"></i>
+                <a th:href="@{${urlBase}}" th:text="${curso.nombre}">Curso</a>
+                <i class="fa-solid fa-chevron-right"></i>
+                <strong>Materiales</strong>
+            </nav>
+
+            <div class="pn-encabezado">
+                <div>
+                    <h1 class="pn-titulo">Materiales</h1>
+                    <p class="pn-subtitulo" th:text="${'Gestiona las grabaciones, la bibliografía y las presentaciones de ' + curso.nombre}">Gestiona los materiales del curso</p>
+                </div>
+                <button type="button" class="pn-btn pn-btn-primario" th:if="${puedeGestionar}" data-bs-toggle="modal" data-bs-target="#modalNuevoMaterial">
+                    <i class="fa-solid fa-plus"></i> Subir material
+                </button>
+            </div>
+
+            <section class="pn-tarjeta" data-tabla>
+                <div class="pn-lista-cabecera">
+                    <h2 class="pn-lista-titulo">Listado de materiales</h2>
+                    <span class="pn-seleccionados" data-seleccionados>0 de 0 seleccionados</span>
+                    <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico d-none" data-baja-masiva
+                            data-url="/material/darDeBajaMasiva" data-elementos="materiales"
+                            data-termino-uno="elemento asociado" data-termino-varios="elementos asociados">Dar de baja seleccionado/s</button>
+                </div>
+
+                <!-- Filtros -->
+                <form th:action="@{/material/buscar}" method="get" class="pn-filtros" data-filtros>
+                    <input type="hidden" name="cursoId" th:value="${curso.idCurso}">
+                    <div class="pn-filtros-campo pn-filtros-campo-grande">
+                        <label class="pn-etiqueta">Título</label>
+                        <input type="text" name="titulo" th:value="${tituloBusqueda}" class="pn-input" placeholder="Buscar por título" autocomplete="off">
+                    </div>
+                    <div class="pn-filtros-campo">
+                        <label class="pn-etiqueta">Unidad</label>
+                        <select name="unidadId" class="pn-input">
+                            <option value="">Todas</option>
+                            <option th:each="uc : ${unidades}" th:value="${uc.unidad.idUnidad}"
+                                    th:text="${'Unidad ' + uc.numeroOrden + ' · ' + uc.unidad.titulo}"
+                                    th:selected="${unidadSeleccionada != null and unidadSeleccionada == uc.unidad.idUnidad}">Unidad 1</option>
+                        </select>
+                    </div>
+                    <div class="pn-filtros-campo">
+                        <label class="pn-etiqueta">Tipo</label>
+                        <select name="tipoId" class="pn-input">
+                            <option value="">Todos</option>
+                            <option th:each="t : ${tiposMaterial}" th:value="${t.idTipoMaterial}" th:text="${t.nombre}"
+                                    th:selected="${tipoSeleccionado != null and tipoSeleccionado == t.idTipoMaterial}">Grabación</option>
+                        </select>
+                    </div>
+                    <div class="pn-filtros-campo">
+                        <label class="pn-etiqueta">Generado por IA</label>
+                        <select name="generadoPorIa" class="pn-input">
+                            <option value="" th:selected="${iaSeleccionado == null}">Todos</option>
+                            <option value="true" th:selected="${iaSeleccionado != null and iaSeleccionado}">Sí</option>
+                            <option value="false" th:selected="${iaSeleccionado != null and !iaSeleccionado}">No</option>
+                        </select>
+                    </div>
+                    <div class="pn-filtros-campo">
+                        <label class="pn-etiqueta">Estado</label>
+                        <select name="baja" class="pn-input">
+                            <option value="" th:selected="${bajaSeleccionada == null}">Todos</option>
+                            <option value="false" th:selected="${bajaSeleccionada != null and !bajaSeleccionada}">Activos</option>
+                            <option value="true" th:selected="${bajaSeleccionada != null and bajaSeleccionada}">Dados de baja</option>
+                        </select>
+                    </div>
+                    <a th:href="@{/material/buscar(cursoId=${curso.idCurso})}" class="pn-btn pn-btn-contorno">Limpiar</a>
+                    <div class="pn-columnas-wrapper">
+                        <button type="button" class="pn-btn pn-btn-contorno" data-columnas-boton>Columnas</button>
+                        <div class="pn-columnas-menu" data-columnas-menu></div>
+                    </div>
+                </form>
+
+                <!-- Tabla -->
+                <div class="pn-tabla-contenedor">
+                    <table class="pn-tabla">
+                        <thead>
+                            <tr>
+                                <th class="pn-col-seleccion"><input type="checkbox" data-seleccionar-todos aria-label="Seleccionar todos"></th>
+                                <th data-col="Título">Título</th>
+                                <th data-col="Unidad">Unidad</th>
+                                <th data-col="Tipo">Tipo</th>
+                                <th data-col="Autor">Autor</th>
+                                <th data-col="Archivo">Archivo</th>
+                                <th data-col="Visibilidad">Visibilidad</th>
+                                <th data-col="Registro">Registro</th>
+                                <th data-col="Estado">Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="m : ${materiales}" data-fila th:classappend="${m.baja} ? 'pn-fila-baja'" data-dependencias="0">
+                                <td class="pn-col-seleccion"><input type="checkbox" data-seleccionar-fila aria-label="Seleccionar fila"
+                                    th:value="${m.idMaterial}" th:disabled="${m.baja}"></td>
+                                <td>
+                                    <span class="pn-celda-principal" th:text="${m.titulo}">Clase 3</span>
+                                    <span class="pn-insignia pn-insignia-azul ms-1" th:if="${m.generadoPorIa}">IA</span>
+                                </td>
+                                <td th:text="${m.unidad.titulo}">Renta fija y bonos</td>
+                                <td>
+                                    <span class="ac-tipo-celda">
+                                        <th:block th:replace="~{fragments/iconoMaterial :: icono(${m.tipoMaterial.nombre}, 'ac-recurso-icono-chico')}"></th:block>
+                                        <span th:text="${m.tipoMaterial.nombre}">Grabación</span>
+                                    </span>
+                                </td>
+                                <td th:text="${m.autor != null and !#strings.isEmpty(m.autor) ? m.autor : '—'}">Autor</td>
+                                <td>
+                                    <span th:if="${m.tieneArchivo()}"><i class="fa-solid fa-paperclip me-1"></i>Archivo</span>
+                                    <span th:if="${m.esEnlaceExterno()}"><i class="fa-solid fa-link me-1"></i>Enlace externo</span>
+                                    <span th:if="${m.rutaArchivo == null}" class="pn-celda-secundaria">Sin archivo</span>
+                                </td>
+                                <td>
+                                    <span class="pn-insignia" th:classappend="${m.oculto} ? 'pn-insignia-dorada' : 'pn-insignia-azul'"
+                                          th:text="${m.oculto} ? 'Oculto' : 'Publicado'">Publicado</span>
+                                </td>
+                                <td th:text="${m.fechaCreacion != null ? #temporals.format(m.fechaCreacion, 'dd/MM/yyyy') : '—'}">28/08/2026</td>
+                                <td>
+                                    <span class="pn-insignia" th:classappend="${m.baja} ? 'pn-insignia-gris' : 'pn-insignia-verde'"
+                                          th:text="${m.baja} ? 'Dado de baja' : 'Activo'">Activo</span>
+                                </td>
+                                <td>
+                                    <div class="pn-acciones">
+                                        <button type="button" class="pn-btn pn-btn-ver pn-btn-chico" data-bs-toggle="modal"
+                                                th:data-bs-target="'#modalVerMaterial' + ${m.idMaterial}">Ver</button>
+                                        <button type="button" class="pn-btn pn-btn-editar pn-btn-chico" th:if="${puedeGestionar and !m.baja}"
+                                                data-bs-toggle="modal" th:data-bs-target="'#modalEditarMaterial' + ${m.idMaterial}">Editar</button>
+                                        <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico" th:if="${!m.baja}"
+                                                data-bs-toggle="modal" th:data-bs-target="'#modalBajaMaterial' + ${m.idMaterial}">Dar de baja</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr data-vacio hidden>
+                                <td colspan="10" class="pn-vacio">No se encontraron materiales que coincidan con los criterios ingresados.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pie: filas por página y paginador -->
+                <div class="pn-tabla-pie">
+                    <div class="pn-por-pagina">
+                        <span>Filas por página:</span>
+                        <select data-por-pagina>
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="0">Todo</option>
+                        </select>
+                        <span data-rango>0-0 de 0</span>
+                    </div>
+                    <div class="pn-paginador" data-paginador></div>
+                </div>
+            </section>
+        </main>
+
+        <th:block th:replace="~{fragments/panel :: pie(${esDocente ? 'Gestión académica' : 'Panel del administrador'})}"></th:block>
+    </div>
+</div>
+
+<!-- Modal: subir material (CU-29). Los datos que pide dependen del tipo elegido en el formulario -->
+<div class="modal fade pn-modal" id="modalNuevoMaterial" tabindex="-1" aria-hidden="true" th:if="${puedeGestionar}"
+     th:attr="data-abrir-tipo=${nuevoTipoId}, data-unidad=${unidadSeleccionada}">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="pn-modal-cabecera">
+                <h3 class="pn-modal-titulo">Subir material</h3>
+                <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="pn-modal-cuerpo">
+                <div class="pn-seccion-titulo">
+                    <h4>Datos del material</h4>
+                    <p data-material-ayuda>Completá los datos del material</p>
+                </div>
+                <form th:action="@{/material/subir}" method="post" enctype="multipart/form-data" class="form-ajax"
+                      data-validar data-validador="material" data-material-formulario novalidate>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6 pn-campo">
+                            <label class="pn-etiqueta">Tipo de material <span class="pn-obligatorio">*</span></label>
+                            <select name="tipoMaterialId" class="pn-input" required>
+                                <option th:each="t : ${tiposDeSubida}" th:value="${t.idTipoMaterial}" th:text="${t.nombre}"
+                                        th:attr="data-nombre=${t.nombre},
+                                                 data-extensiones=${#strings.listJoin(t.extensionesPermitidas, ',')},
+                                                 data-tamanio-mb=${t.tamanioMaximo / 1048576},
+                                                 data-permite-enlace=${t.permiteEnlaceExterno()},
+                                                 data-descripcion=${t.descripcionDeSubida}">Grabación</option>
+                            </select>
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+                        <div class="col-md-6 pn-campo">
+                            <label class="pn-etiqueta">Unidad <span class="pn-obligatorio">*</span></label>
+                            <select name="unidadId" class="pn-input" required data-mensaje-obligatorio="Debe seleccionar la unidad.">
+                                <option value="">Seleccionar unidad</option>
+                                <option th:each="uc : ${unidades}" th:value="${uc.unidad.idUnidad}"
+                                        th:text="${'Unidad ' + uc.numeroOrden + ' · ' + uc.unidad.titulo}">Unidad 1</option>
+                            </select>
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+                        <div class="col-md-8 pn-campo">
+                            <div class="pn-etiqueta-fila">
+                                <label class="pn-etiqueta">Título <span class="pn-obligatorio">*</span></label>
+                                <span class="pn-contador">0 / 50</span>
+                            </div>
+                            <input type="text" name="titulo" class="pn-input" maxlength="50" placeholder="Título" data-contador required>
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+                        <div class="col-md-4 pn-campo">
+                            <label class="pn-etiqueta">Visibilidad</label>
+                            <select name="oculto" class="pn-input">
+                                <option value="false">Publicado</option>
+                                <option value="true">Oculto</option>
+                            </select>
+                        </div>
+                        <div class="col-12 pn-campo" data-bloque="archivo">
+                            <label class="pn-etiqueta"><span data-archivo-etiqueta>Archivo</span> <span class="pn-obligatorio" data-archivo-obligatorio>*</span></label>
+                            <input type="file" name="archivo" class="pn-input" style="padding-top: 9px;">
+                            <small class="text-muted" data-archivo-ayuda></small>
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+                        <div class="col-md-6 pn-campo" data-bloque="enlace" hidden>
+                            <div class="pn-etiqueta-fila">
+                                <label class="pn-etiqueta">... O enlace externo</label>
+                                <span class="pn-contador">0 / 500</span>
+                            </div>
+                            <input type="text" name="enlace" class="pn-input" maxlength="500" placeholder="https://" data-contador>
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+                        <div class="col-12 pn-campo" data-bloque="autor" hidden>
+                            <div class="pn-etiqueta-fila">
+                                <label class="pn-etiqueta">Autor (opcional)</label>
+                                <span class="pn-contador">0 / 50</span>
+                            </div>
+                            <input type="text" name="autor" class="pn-input" maxlength="50" placeholder="Autor" data-contador>
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+                    </div>
+                    <div class="pn-modal-pie">
+                        <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="pn-btn pn-btn-primario">Subir</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modales por material: detalle (CU-28), modificar (CU-30) y dar de baja (CU-31) -->
+<th:block th:each="m : ${materiales}">
+    <!-- Detalle -->
+    <div class="modal fade pn-modal" th:id="'modalVerMaterial' + ${m.idMaterial}" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="pn-modal-cabecera">
+                    <h3 class="pn-modal-titulo">Detalle del material</h3>
+                    <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="pn-modal-cuerpo">
+                    <div class="pn-baja-detalle mt-0">
+                        <div class="pn-baja-fila"><span class="text-muted">Título</span><strong th:text="${m.titulo}">Clase 3</strong></div>
+                        <div class="pn-baja-fila"><span class="text-muted">Tipo</span><strong th:text="${m.tipoMaterial.nombre}">Grabación</strong></div>
+                        <div class="pn-baja-fila"><span class="text-muted">Unidad</span><strong th:text="${m.unidad.titulo}">Renta fija</strong></div>
+                        <div class="pn-baja-fila"><span class="text-muted">Autor</span><strong th:text="${m.autor != null and !#strings.isEmpty(m.autor) ? m.autor : '—'}">Autor</strong></div>
+                        <div class="pn-baja-fila"><span class="text-muted">Subido por</span><strong th:text="${m.participacionDocente.docente.usuario.nombreCompleto}">Docente</strong></div>
+                        <div class="pn-baja-fila"><span class="text-muted">Generado por IA</span><strong th:text="${m.generadoPorIa ? 'Sí' : 'No'}">No</strong></div>
+                        <div class="pn-baja-fila"><span class="text-muted">Visibilidad</span><strong th:text="${m.oculto ? 'Oculto' : 'Publicado'}">Publicado</strong></div>
+                        <div class="pn-baja-fila"><span class="text-muted">Archivo</span>
+                            <strong th:if="${m.esEnlaceExterno()}"><a th:href="${m.rutaArchivo}" target="_blank" rel="noopener noreferrer">Abrir enlace</a></strong>
+                            <strong th:if="${m.tieneArchivo()}" th:text="${#strings.substringAfter(m.rutaArchivo, 'unidad' + m.unidad.idUnidad + '/')}">material1.mp4</strong>
+                            <strong th:if="${m.rutaArchivo == null}">Sin archivo</strong>
+                        </div>
+                        <div class="pn-baja-fila"><span class="text-muted">Registro</span><strong th:text="${#temporals.format(m.fechaCreacion, 'dd/MM/yyyy HH:mm')}">01/01/2026</strong></div>
+                        <div class="pn-baja-fila" th:if="${m.ultimaModificacion != null}"><span class="text-muted">Última modificación</span><strong th:text="${#temporals.format(m.ultimaModificacion, 'dd/MM/yyyy HH:mm')}">01/01/2026</strong></div>
+                    </div>
+                    <div class="pn-modal-pie">
+                        <a class="pn-btn pn-btn-primario" th:if="${!m.baja}" rel="noopener"
+                           th:href="${m.esEnlaceExterno()} ? ${m.rutaArchivo} : @{'/material/ver/' + ${m.idMaterial}}"
+                           th:target="${m.esEnlaceExterno()} ? '_blank' : null"><i class="fa-solid fa-up-right-from-square"></i> Abrir</a>
+                        <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modificar (solo docente, material activo) -->
+    <div class="modal fade pn-modal" th:id="'modalEditarMaterial' + ${m.idMaterial}" tabindex="-1" aria-hidden="true"
+         th:if="${puedeGestionar and !m.baja}">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="pn-modal-cabecera">
+                    <h3 class="pn-modal-titulo" th:text="${'Editar ' + #strings.toLowerCase(m.tipoMaterial.nombre)}">Editar grabación</h3>
+                    <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="pn-modal-cuerpo">
+                    <div class="pn-seccion-titulo">
+                        <h4>Datos del material</h4>
+                        <p th:text="${'Unidad: ' + m.unidad.titulo}">Unidad</p>
+                    </div>
+                    <form th:action="@{'/material/modificar/' + ${m.idMaterial}}" method="post" enctype="multipart/form-data"
+                          class="form-ajax" data-validar novalidate>
+                        <div class="row g-3 mb-3" th:with="biblio=${m.tipoMaterial.permiteEnlaceExterno()}">
+                            <div class="col-md-8 pn-campo">
+                                <div class="pn-etiqueta-fila">
+                                    <label class="pn-etiqueta">Título <span class="pn-obligatorio">*</span></label>
+                                    <span class="pn-contador" th:text="${#strings.length(m.titulo) + ' / 50'}">0 / 50</span>
+                                </div>
+                                <input type="text" name="titulo" class="pn-input" maxlength="50" th:value="${m.titulo}" data-contador required>
+                                <div class="pn-ayuda-error"></div>
+                            </div>
+                            <div class="col-md-4 pn-campo">
+                                <label class="pn-etiqueta">Visibilidad</label>
+                                <select name="oculto" class="pn-input">
+                                    <option value="false" th:selected="${!m.oculto}">Publicado</option>
+                                    <option value="true" th:selected="${m.oculto}">Oculto</option>
+                                </select>
+                            </div>
+                            <div class="col-12 pn-campo" th:if="${biblio}">
+                                <div class="pn-etiqueta-fila">
+                                    <label class="pn-etiqueta">Autor (opcional)</label>
+                                    <span class="pn-contador" th:text="${#strings.length(m.autor != null ? m.autor : '') + ' / 50'}">0 / 50</span>
+                                </div>
+                                <input type="text" name="autor" class="pn-input" maxlength="50" th:value="${m.autor}" data-contador>
+                                <div class="pn-ayuda-error"></div>
+                            </div>
+                            <div class="pn-campo" th:classappend="${biblio} ? 'col-md-6' : 'col-12'">
+                                <label class="pn-etiqueta">Reemplazar archivo (opcional)</label>
+                                <input type="file" name="archivo" class="pn-input" style="padding-top: 9px;"
+                                       th:attr="data-extensiones=${#strings.listJoin(m.tipoMaterial.extensionesPermitidas, ',')}, data-tamanio-mb=${m.tipoMaterial.tamanioMaximo / 1048576}">
+                                <small class="text-muted"
+                                       th:text="${(m.tieneArchivo() ? 'Hay un archivo cargado. ' : (m.esEnlaceExterno() ? 'Hay un enlace cargado. ' : 'No hay archivo cargado. ')) + 'Formatos: ' + #strings.toUpperCase(#strings.listJoin(m.tipoMaterial.extensionesPermitidas, ', ')) + '. Máximo ' + (m.tipoMaterial.tamanioMaximo / 1048576) + ' MB.'}">Formatos</small>
+                                <div class="pn-ayuda-error"></div>
+                            </div>
+                            <div class="col-md-6 pn-campo" th:if="${biblio}">
+                                <div class="pn-etiqueta-fila">
+                                    <label class="pn-etiqueta">... O enlace externo</label>
+                                    <span class="pn-contador" th:text="${#strings.length(m.esEnlaceExterno() ? m.rutaArchivo : '') + ' / 500'}">0 / 500</span>
+                                </div>
+                                <input type="text" name="enlace" class="pn-input" maxlength="500" placeholder="https://"
+                                       th:value="${m.esEnlaceExterno() ? m.rutaArchivo : ''}" data-contador>
+                                <div class="pn-ayuda-error"></div>
+                            </div>
+                        </div>
+                        <div class="pn-modal-pie">
+                            <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="pn-btn pn-btn-primario">Actualizar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dar de baja -->
+    <div class="modal fade pn-modal" th:id="'modalBajaMaterial' + ${m.idMaterial}" tabindex="-1" aria-hidden="true" th:if="${!m.baja}">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="pn-modal-cabecera">
+                    <h3 class="pn-modal-titulo">Dar de baja material</h3>
+                    <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="pn-modal-cuerpo text-center">
+                    <div class="pn-baja-icono"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                    <h4 class="pn-modal-titulo mb-1">¿Confirmas dar de baja el material?</h4>
+                    <p class="small text-muted mb-0">El material dejará de mostrarse a los alumnos.</p>
+                    <div class="pn-baja-detalle">
+                        <div class="pn-baja-fila"><span class="text-muted">Material</span><strong th:text="${m.titulo}">Clase 3</strong></div>
+                        <div class="pn-baja-fila"><span class="text-muted">Unidad</span><strong th:text="${m.unidad.titulo}">Renta fija</strong></div>
+                    </div>
+                    <form th:action="@{'/material/darDeBaja/' + ${m.idMaterial}}" method="post" class="form-ajax">
+                        <div class="pn-modal-pie">
+                            <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="pn-btn pn-btn-peligro">Dar de baja</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+
+<th:block th:replace="~{fragments/panel :: scripts}"></th:block>
+<script th:src="@{/js/academica.js}"></script>
+<script th:src="@{/js/material.js}"></script>
+</body>
+</html>

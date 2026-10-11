@@ -1,0 +1,15 @@
+<!-- Ícono cuadrado de color de un recurso o actividad de una unidad.
+     tipo: nombre del tipo (Grabación, Bibliografía, Presentación, Resumen, Glosario, Autoevaluación, Pool de preguntas
+           o Clase con clon); tamanio: clase de tamaño adicional ('ac-recurso-icono-chico' o vacío). -->
+<th:block th:fragment="icono(tipo, tamanio)" th:switch="${tipo}">
+    <span th:case="'Grabación'" class="ac-recurso-icono ac-recurso-icono-azul" th:classappend="${tamanio}"><i class="fa-solid fa-circle-play"></i></span>
+    <span th:case="'Presentación'" class="ac-recurso-icono ac-recurso-icono-naranja" th:classappend="${tamanio}"><i class="fa-solid fa-file-powerpoint"></i></span>
+    <span th:case="'Bibliografía'" class="ac-recurso-icono ac-recurso-icono-violeta" th:classappend="${tamanio}"><i class="fa-solid fa-book"></i></span>
+    <span th:case="'Resumen'" class="ac-recurso-icono ac-recurso-icono-rojo" th:classappend="${tamanio}"><i class="fa-solid fa-file-lines"></i></span>
+    <span th:case="'Glosario'" class="ac-recurso-icono ac-recurso-icono-amarillo" th:classappend="${tamanio}"><i class="fa-solid fa-spell-check"></i></span>
+    <span th:case="'Autoevaluación'" class="ac-recurso-icono ac-recurso-icono-verde" th:classappend="${tamanio}"><i class="fa-solid fa-clipboard-check"></i></span>
+    <span th:case="'Foro'" class="ac-recurso-icono ac-recurso-icono-naranja" th:classappend="${tamanio}"><i class="fa-solid fa-comments"></i></span>
+    <span th:case="'Pool de preguntas'" class="ac-recurso-icono ac-recurso-icono-gris" th:classappend="${tamanio}"><i class="fa-solid fa-circle-question"></i></span>
+    <span th:case="'Clase con clon'" class="ac-recurso-icono ac-recurso-icono-rosa" th:classappend="${tamanio}"><i class="fa-solid fa-robot"></i></span>
+    <span th:case="*" class="ac-recurso-icono ac-recurso-icono-gris" th:classappend="${tamanio}"><i class="fa-solid fa-file"></i></span>
+</th:block>

@@ -30,21 +30,23 @@ import com.app.idoneos.modelo.Curso;
 import com.app.idoneos.servicio.Curso.CursoServicioImpl;
 
 /**
- * Pruebas de la carga de la imagen de portada desde el formulario de cursos: se guarda en la carpeta
- * configurada, se publica en {@code /img/cursos/**} y se reemplaza al modificar el curso.
+ * Pruebas de la imagen del curso: se guarda en {@code curso{id}/imagen.{ext}} dentro de la carpeta configurada, se
+ * publica en {@code /uploads/curso{id}/{imagen}}, se reemplaza al modificar el curso y las carpetas de unidad no se
+ * publican.
  */
 @SpringBootTest
 @AutoConfigureMockMvc
 class CargaDeImagenControladorTest {
 
     private static final byte[] PNG = { (byte) 0x89, 'P', 'N', 'G', 0x0D, 0x0A, 0x1A, 0x0A, 0, 0, 0, 0x0D, 'I', 'H', 'D', 'R' };
+    private static final byte[] JPG = { (byte) 0xFF, (byte) 0xD8, (byte) 0xFF, (byte) 0xE0, 0, 0x10, 'J', 'F', 'I', 'F' };
 
-    private static Path carpetaDeImagenes;
+    private static Path carpetaDeCursos;
 
     @DynamicPropertySource
     static void propiedades(DynamicPropertyRegistry registro) throws IOException {
-        carpetaDeImagenes = Files.createTempDirectory("imagenes-cursos");
-        registro.add("idoneos.directorio-imagenes", carpetaDeImagenes::toString);
+        carpetaDeCursos = Files.createTempDirectory("archivos-cursos");
+        registro.add("idoneos.directorio-cursos", carpetaDeCursos::toString);
         // Base de datos propia: este contexto no debe compartir ni recrear la de las demás pruebas
         registro.add("spring.datasource.url", () -> "jdbc:h2:mem:idoneos_imagenes;MODE=PostgreSQL;DB_CLOSE_DELAY=-1");
     }
@@ -67,56 +69,89 @@ class CargaDeImagenControladorTest {
 
     @Test
     @WithUserDetails(value = "admin@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesServicio")
-    @DisplayName("Al registrar un curso con imagen, se guarda en la carpeta del servidor y se publica en /img/cursos")
+    @DisplayName("Al registrar un curso con imagen, se guarda en la carpeta del curso y se publica en /uploads")
     void registraCursoConImagen() throws Exception {
-        mockMvc.perform(formularioDeAlta("Curso con imagen", imagen(PNG, "portada.png")))
+        mockMvc.perform(formularioDeAlta("Curso con imagen", imagen(PNG, "foto.png")))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.mensaje").exists());
 
         Curso curso = cursoServicio.buscarPorNombre("Curso con imagen").orElseThrow();
-        assertNotNull(curso.getImagen());
-        assertTrue(curso.getImagen().endsWith(".png"));
-        assertTrue(Files.exists(carpetaDeImagenes.resolve(curso.getImagen())));
+        assertEquals("imagen.png", curso.getImagen());
+        assertTrue(Files.exists(carpetaDeCursos.resolve("curso" + curso.getIdCurso()).resolve("imagen.png")));
+        assertTrue(curso.getUrlImagen().startsWith("/uploads/curso" + curso.getIdCurso() + "/imagen.png?v="));
 
-        mockMvc.perform(get("/img/cursos/" + curso.getImagen())).andExpect(status().isOk())
+        mockMvc.perform(get("/uploads/curso" + curso.getIdCurso() + "/imagen.png")).andExpect(status().isOk())
                 .andExpect(content().bytes(PNG));
     }
 
     @Test
-    @WithUserDetails(value = "admin@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesServicio")
-    @DisplayName("Las imágenes de ejemplo incluidas en la aplicación se siguen publicando en /img/cursos")
+    @DisplayName("La imagen de un curso es pública: un visitante sin sesión la puede ver")
+    void laImagenEsPublica() throws Exception {
+        Curso curso = cursoServicio.buscarPorNombre("Mercado de Capitales Argentino").orElseThrow();
+
+        mockMvc.perform(get("/uploads/curso" + curso.getIdCurso() + "/" + curso.getImagen()))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("Las imágenes de ejemplo de la semilla se llevan a la carpeta de cada curso al arrancar")
+    void migraLasImagenesDeLaSemilla() throws Exception {
+        Curso curso = cursoServicio.buscarPorNombre("Mercado de Capitales Argentino").orElseThrow();
+
+        assertEquals("imagen.jpg", curso.getImagen());
+        assertTrue(Files.exists(carpetaDeCursos.resolve("curso" + curso.getIdCurso()).resolve("imagen.jpg")));
+    }
+
+    @Test
+    @DisplayName("Las imágenes decorativas incluidas en la aplicación se siguen publicando en /img/cursos")
     void publicaLasImagenesDeEjemplo() throws Exception {
         mockMvc.perform(get("/img/cursos/mercado-capitales-argentino.jpg")).andExpect(status().isOk());
+    }
+
+    @Test
+    @WithUserDetails(value = "valentina.ruiz@correo.com", userDetailsServiceBeanName = "usuarioDetallesServicio")
+    @DisplayName("Los archivos de las carpetas de unidad no se publican por la URL de las imágenes")
+    void lasCarpetasDeUnidadNoSePublican() throws Exception {
+        Curso curso = cursoServicio.buscarPorNombre("Mercado de Capitales Argentino").orElseThrow();
+        Path carpetaDeUnidad = carpetaDeCursos.resolve("curso" + curso.getIdCurso()).resolve("unidad1");
+        Files.createDirectories(carpetaDeUnidad);
+        Files.write(carpetaDeUnidad.resolve("material1.mp4"), new byte[] { 0, 0, 0, 0x18, 'f', 't', 'y', 'p' });
+
+        mockMvc.perform(get("/uploads/curso" + curso.getIdCurso() + "/unidad1/material1.mp4"))
+                .andExpect(status().isNotFound());
     }
 
     @Test
     @WithUserDetails(value = "admin@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesServicio")
     @DisplayName("Una imagen inválida no se guarda y el curso no se registra")
     void rechazaImagenInvalida() throws Exception {
-        long antes = Files.list(carpetaDeImagenes).count();
+        long antes = Files.list(carpetaDeCursos).count();
 
         mockMvc.perform(formularioDeAlta("Curso con imagen falsa", imagen("no es una imagen".getBytes(), "falsa.png")))
                 .andExpect(status().isBadRequest()).andExpect(jsonPath("$.error").value(org.hamcrest.Matchers.containsString("JPG, PNG o WebP")));
 
         assertFalse(cursoServicio.buscarPorNombre("Curso con imagen falsa").isPresent());
-        assertEquals(antes, Files.list(carpetaDeImagenes).count());
+        assertEquals(antes, Files.list(carpetaDeCursos).count());
     }
 
     @Test
     @WithUserDetails(value = "admin@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesServicio")
-    @DisplayName("Al modificar el curso con una imagen nueva, se elimina la anterior")
+    @DisplayName("Al modificar el curso con una imagen nueva, se reemplaza la anterior y no queda ninguna huérfana")
     void reemplazaLaImagenAnterior() throws Exception {
         mockMvc.perform(formularioDeAlta("Curso a reemplazar", imagen(PNG, "uno.png")));
         Curso curso = cursoServicio.buscarPorNombre("Curso a reemplazar").orElseThrow();
-        String anterior = curso.getImagen();
+        Path carpeta = carpetaDeCursos.resolve("curso" + curso.getIdCurso());
+        assertTrue(Files.exists(carpeta.resolve("imagen.png")));
 
-        mockMvc.perform(multipart("/curso/modificar/" + curso.getIdCurso()).file(imagen(PNG, "dos.png"))
+        mockMvc.perform(multipart("/curso/modificar/" + curso.getIdCurso()).file(imagen(JPG, "dos.jpg"))
                 .param("nombre", "Curso a reemplazar").param("precio", "2000").param("categoriaId", "1")
                 .param("nivelId", "1").param("idsModalidades", "2").param("docenteTitularId", "1"))
                 .andExpect(status().isOk());
 
-        String nueva = cursoServicio.buscarPorNombre("Curso a reemplazar").orElseThrow().getImagen();
-        assertFalse(anterior.equals(nueva));
-        assertFalse(Files.exists(carpetaDeImagenes.resolve(anterior)));
-        assertTrue(Files.exists(carpetaDeImagenes.resolve(nueva)));
+        Curso modificado = cursoServicio.buscarPorNombre("Curso a reemplazar").orElseThrow();
+        assertNotNull(modificado.getImagen());
+        assertEquals("imagen.jpg", modificado.getImagen());
+        assertFalse(Files.exists(carpeta.resolve("imagen.png")), "no debe quedar la imagen anterior");
+        assertTrue(Files.exists(carpeta.resolve("imagen.jpg")));
+        assertEquals(1, carpeta.toFile().list().length);
     }
 }

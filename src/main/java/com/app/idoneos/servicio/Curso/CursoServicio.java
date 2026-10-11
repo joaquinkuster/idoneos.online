@@ -167,4 +167,20 @@ public interface CursoServicio {
      * @throws IllegalArgumentException Si el docente no puede acceder, con el motivo.
      */
     ParticipacionDocente validarAccesoDocente(int idCurso, Docente docente);
+
+    /**
+     * Asigna la imagen de un curso activo (el archivo ya se guardó en la carpeta del curso).
+     *
+     * @param idCurso El identificador del curso.
+     * @param imagen  El nombre del archivo de la imagen dentro de la carpeta del curso.
+     * @return El curso actualizado.
+     * @throws IllegalArgumentException Si el curso no está activo.
+     */
+    Curso actualizarImagen(Integer idCurso, String imagen);
+
+    /**
+     * Lleva las imágenes de los cursos a la estructura {@code curso{id}/imagen.{ext}}: copia las que estaban en la
+     * carpeta anterior o entre las imágenes de ejemplo de la aplicación y actualiza el nombre guardado.
+     */
+    void migrarImagenes();
 }
