@@ -14,6 +14,7 @@ import com.app.idoneos.modelo.Alumno;
 import com.app.idoneos.modelo.Categoria;
 import com.app.idoneos.modelo.ClaseEnVivo;
 import com.app.idoneos.modelo.ConsultaForo;
+import com.app.idoneos.modelo.RespuestaForo;
 import com.app.idoneos.modelo.Autoevaluacion;
 import com.app.idoneos.modelo.Cohorte;
 import com.app.idoneos.modelo.Curso;
@@ -41,6 +42,7 @@ import com.app.idoneos.repositorio.AlumnoRepositorio;
 import com.app.idoneos.repositorio.CategoriaRepositorio;
 import com.app.idoneos.repositorio.ClaseEnVivoRepositorio;
 import com.app.idoneos.repositorio.ConsultaForoRepositorio;
+import com.app.idoneos.repositorio.RespuestaForoRepositorio;
 import com.app.idoneos.repositorio.AutoevaluacionRepositorio;
 import com.app.idoneos.repositorio.CohorteRepositorio;
 import com.app.idoneos.repositorio.CursoModalidadRepositorio;
@@ -160,6 +162,9 @@ public class SemillaServicio {
     @Autowired
     private ConsultaForoRepositorio consultaForoRepositorio;
 
+    @Autowired
+    private RespuestaForoRepositorio respuestaForoRepositorio;
+
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     /**
@@ -201,6 +206,8 @@ public class SemillaServicio {
         Usuario usuarioAdmin = crearUsuario("Admin", "Idóneos", "20111222", correoAdmin, "+54 376 4000000", rolAdministrador);
         Administrador admin = administradorRepositorio.save(new Administrador(usuarioAdmin));
         parametroRepositorio.save(new Parametro(admin, Parametro.MINIMO_UNIDADES_CON_MATERIAL, "2"));
+        parametroRepositorio.save(new Parametro(admin, Parametro.PLAZO_EDICION_FORO,
+                String.valueOf(Parametro.PLAZO_EDICION_FORO_POR_DEFECTO)));
 
         // Docentes
         Docente fausto = crearDocente("Fausto", "Spotorno", "23456789", "fausto.spotorno@idoneos.online", rolDocente, 20,
@@ -283,8 +290,18 @@ public class SemillaServicio {
         autoevaluacionRepositorio.save(autoevaluacion2);
         registrarIntento(inscripcionValentina, autoevaluacion1, 4.5f, false, ahora.minusDays(12));
         registrarIntento(inscripcionValentina, autoevaluacion1, 8f, true, ahora.minusDays(10));
-        consultaForoRepositorio.save(new ConsultaForo(unidad1, inscripcionValentina,
+        ConsultaForo consultaCnv = consultaForoRepositorio.save(new ConsultaForo(unidad1, inscripcionValentina,
                 "¿La CNV exige matrícula para operar con obligaciones negociables?"));
+        consultaCnv.setFechaCreacion(ahora.minusDays(3));
+        consultaForoRepositorio.save(consultaCnv);
+        RespuestaForo respuestaCnv = new RespuestaForo(titular1, consultaCnv,
+                "Para operar como inversor no, la matrícula la necesitan los agentes. Lo vemos en la clase 2.");
+        respuestaCnv.setFechaCreacion(ahora.minusDays(2));
+        respuestaForoRepositorio.save(respuestaCnv);
+        ConsultaForo consultaTir = consultaForoRepositorio.save(new ConsultaForo(unidad2, inscripcionValentina,
+                "¿Cómo se calcula la duration de un bono con cupones?"));
+        consultaTir.setFechaCreacion(ahora.minusHours(5));
+        consultaForoRepositorio.save(consultaTir);
 
         // Curso 2: Macroeconomía de Coyuntura (grabada), con cohorte abierta sin inscriptos
         ParticipacionDocente titular2 = crearCurso("Macroeconomía de Coyuntura",

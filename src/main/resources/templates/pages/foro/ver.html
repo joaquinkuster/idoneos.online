@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <th:block th:replace="~{fragments/head :: recursos}"></th:block>
+</head>
+<body class="pn-body">
+<div class="pn-app" id="pnApp">
+    <!-- Menú lateral: el de gestión académica (docente y alumno) o, para el administrador, el del panel -->
+    <th:block th:if="${esAdministrador}"><th:block th:replace="~{fragments/menus :: administrador(${menuActivo})}"></th:block></th:block>
+    <th:block th:unless="${esAdministrador}"><th:block th:replace="~{fragments/menus :: gestionAcademica(${menuActivo}, ${urlBase})}"></th:block></th:block>
+
+    <div class="pn-principal">
+        <th:block th:if="${esAdministrador}"><th:block th:replace="~{fragments/panel :: barra(null)}"></th:block></th:block>
+        <th:block th:unless="${esAdministrador}"><th:block th:replace="~{fragments/panel :: barra(~{fragments/menus :: barraGestionAcademica('misCursos', ${urlMisCursos})})}"></th:block></th:block>
+
+        <main class="pn-contenido">
+            <nav class="ac-migas" aria-label="Ruta de navegación">
+                <a th:href="@{/inicio}">Página principal</a>
+                <i class="fa-solid fa-chevron-right"></i>
+                <a th:href="@{${urlMisCursos}}">Mis cursos</a>
+                <i class="fa-solid fa-chevron-right"></i>
+                <a th:href="@{${urlBase}}" th:text="${curso.nombre}">Curso</a>
+                <i class="fa-solid fa-chevron-right"></i>
+                <strong th:text="${'Foro ' + numeroOrden}">Foro 1</strong>
+            </nav>
+
+            <div class="pn-encabezado">
+                <div class="gl-titulo-fila">
+                    <th:block th:replace="~{fragments/iconoMaterial :: icono('Foro', '')}"></th:block>
+                    <div>
+                        <h1 class="pn-titulo" th:text="${'Foro ' + numeroOrden}">Foro 1</h1>
+                        <p class="pn-subtitulo">
+                            <span th:text="${unidad.titulo}">Introducción al mercado de capitales</span>
+                            · <span th:text="${totalConsultas + (totalConsultas == 1 ? ' consulta' : ' consultas')}">3 consultas</span>
+                        </p>
+                    </div>
+                </div>
+                <button type="button" class="pn-btn pn-btn-primario" th:if="${esAlumno}" data-bs-toggle="modal" data-bs-target="#modalNuevaConsulta">
+                    <i class="fa-solid fa-plus"></i> Registrar consulta
+                </button>
+            </div>
+
+            <section class="pn-tarjeta fo-contenedor" data-tabla>
+                <!-- Buscador: por texto y rango de fechas de registro -->
+                <form th:action="@{'/foro/ver/' + ${unidad.idUnidad}}" method="get" class="pn-filtros">
+                    <div class="pn-filtros-campo pn-filtros-campo-grande">
+                        <label class="pn-etiqueta">Texto</label>
+                        <input type="text" name="texto" class="pn-input" th:value="${texto}" placeholder="Buscar en las consultas"
+                               maxlength="100" autocomplete="off">
+                    </div>
+                    <div class="pn-filtros-campo">
+                        <label class="pn-etiqueta">Desde</label>
+                        <input type="date" name="desde" class="pn-input" th:value="${desde}">
+                    </div>
+                    <div class="pn-filtros-campo">
+                        <label class="pn-etiqueta">Hasta</label>
+                        <input type="date" name="hasta" class="pn-input" th:value="${hasta}">
+                    </div>
+                    <button type="submit" class="pn-btn pn-btn-primario"><i class="fa-solid fa-magnifying-glass"></i> Buscar</button>
+                    <a class="pn-btn pn-btn-contorno" th:href="@{'/foro/ver/' + ${unidad.idUnidad}}">Limpiar</a>
+                </form>
+
+                <p class="gl-resultado" th:if="${hayBusqueda}"
+                   th:text="${cantidadEncontradas + (cantidadEncontradas == 1 ? ' consulta encontrada' : ' consultas encontradas')}">2 consultas encontradas</p>
+
+                <div class="pn-tabla-contenedor">
+                    <table class="pn-tabla fo-tabla">
+                        <thead>
+                            <tr>
+                                <th class="fo-col-consulta">Consulta</th>
+                                <th>Comenzada por</th>
+                                <th>Último mensaje</th>
+                                <th>Respuestas</th>
+                                <th th:if="${esAdministrador}">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="c : ${consultas}" data-fila data-dependencias="0">
+                                <td class="fo-col-consulta">
+                                    <a class="fo-enlace-consulta" th:href="@{'/foro/consulta/' + ${c.idConsulta}}" th:text="${c.resumen}">¿Cómo se calcula la duration?</a>
+                                    <span class="pn-insignia pn-insignia-dorada ms-1" th:if="${c.estaSinResponder()}">Sin responder</span>
+                                </td>
+                                <td>
+                                    <div class="fo-persona">
+                                        <th:block th:replace="~{fragments/avatar :: avatar(${c.usuario}, 'av-chico')}"></th:block>
+                                        <div>
+                                            <span th:text="${c.autor}">Valentina Ruiz</span>
+                                            <small class="fo-fecha" th:text="${#temporals.format(c.fechaCreacion, 'dd/MM/yyyy')}">02/10/2026</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="fo-persona">
+                                        <th:block th:replace="~{fragments/avatar :: avatar(${c.usuarioUltimoMensaje}, 'av-chico')}"></th:block>
+                                        <div>
+                                            <span th:text="${c.autorUltimoMensaje}">Fausto Spotorno</span>
+                                            <small class="fo-fecha" th:text="${#temporals.format(c.fechaUltimoMensaje, 'dd/MM/yyyy HH:mm')}">03/10/2026 09:05</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td th:text="${#lists.size(c.respuestasVigentes)}">2</td>
+                                <td th:if="${esAdministrador}">
+                                    <div class="pn-acciones">
+                                        <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico"
+                                                data-bs-toggle="modal" th:data-bs-target="'#modalBajaConsulta' + ${c.idConsulta}">Dar de baja</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr data-vacio hidden>
+                                <td colspan="5" class="pn-vacio"
+                                    th:text="${totalConsultas == 0 ? 'Este foro todavía no tiene consultas.' : 'No se encontraron consultas que coincidan con los criterios ingresados.'}">No se encontraron consultas.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pie: filas por página y paginador -->
+                <div class="pn-tabla-pie">
+                    <div class="pn-por-pagina">
+                        <span>Filas por página:</span>
+                        <select data-por-pagina>
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="0">Todo</option>
+                        </select>
+                        <span data-rango>0-0 de 0</span>
+                    </div>
+                    <div class="pn-paginador" data-paginador></div>
+                </div>
+            </section>
+        </main>
+
+        <th:block th:replace="~{fragments/panel :: pie(${esAdministrador ? 'Panel del administrador' : 'Gestión académica'})}"></th:block>
+    </div>
+</div>
+
+<!-- Modal: registrar consulta (CU-36). La unidad es la de este foro -->
+<div class="modal fade pn-modal" id="modalNuevaConsulta" tabindex="-1" aria-hidden="true" th:if="${esAlumno}">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="pn-modal-cabecera">
+                <h3 class="pn-modal-titulo">Registrar consulta</h3>
+                <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="pn-modal-cuerpo">
+                <div class="pn-seccion-titulo">
+                    <h4>Tu consulta</h4>
+                    <p th:text="${'Foro ' + numeroOrden + ' · ' + unidad.titulo}">Foro 1</p>
+                </div>
+                <form th:action="@{/foro/registrar}" method="post" class="form-ajax" data-validar novalidate>
+                    <input type="hidden" name="unidadId" th:value="${unidad.idUnidad}">
+                    <div class="row g-3 mb-3">
+                        <div class="col-12 pn-campo">
+                            <div class="pn-etiqueta-fila">
+                                <label class="pn-etiqueta">Consulta <span class="pn-obligatorio">*</span></label>
+                                <span class="pn-contador">0 / 500</span>
+                            </div>
+                            <textarea name="texto" class="pn-input" rows="6" maxlength="500" placeholder="Escribí tu consulta" data-contador required
+                                      data-mensaje-obligatorio="Debe completar el texto de la consulta."></textarea>
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+                    </div>
+                    <div class="pn-modal-pie">
+                        <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="pn-btn pn-btn-primario">Registrar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modales de baja (CU-38, administrador) -->
+<th:block th:if="${esAdministrador}" th:each="c : ${consultas}">
+    <div class="modal fade pn-modal" th:id="'modalBajaConsulta' + ${c.idConsulta}" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="pn-modal-cabecera">
+                    <h3 class="pn-modal-titulo">Dar de baja consulta</h3>
+                    <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="pn-modal-cuerpo text-center">
+                    <div class="pn-baja-icono"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                    <h4 class="pn-modal-titulo mb-1">¿Confirmas dar de baja la consulta?</h4>
+                    <p class="small text-muted mb-0">También se darán de baja sus respuestas.</p>
+                    <div class="pn-baja-detalle">
+                        <div class="pn-baja-fila"><span class="text-muted">Consulta</span><strong th:text="${c.resumen}">Consulta</strong></div>
+                        <div class="pn-baja-fila"><span class="text-muted">Autor</span><strong th:text="${c.autor}">Alumno</strong></div>
+                    </div>
+                    <form th:action="@{'/foro/darDeBaja/' + ${c.idConsulta}}" method="post" class="form-ajax">
+                        <div class="pn-modal-pie">
+                            <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="pn-btn pn-btn-peligro">Dar de baja</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+
+<th:block th:replace="~{fragments/panel :: scripts}"></th:block>
+<script th:src="@{/js/academica.js}"></script>
+</body>
+</html>

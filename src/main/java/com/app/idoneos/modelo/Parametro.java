@@ -22,6 +22,12 @@ public class Parametro {
      */
     public static final String MINIMO_UNIDADES_CON_MATERIAL = "programa.minimo_unidades_con_material";
 
+    /** Clave del plazo, en minutos, para modificar una consulta o una respuesta del foro desde su registro. */
+    public static final String PLAZO_EDICION_FORO = "foro.plazo_edicion_minutos";
+
+    /** Plazo de edición del foro que se usa cuando el parámetro no está cargado. */
+    public static final int PLAZO_EDICION_FORO_POR_DEFECTO = 15;
+
     /**
      * Identificador único del parámetro.
      */

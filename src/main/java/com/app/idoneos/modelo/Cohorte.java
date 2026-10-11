@@ -178,6 +178,18 @@ public class Cohorte {
     }
 
     /**
+     * Obtiene el nombre con el que se reconoce la cohorte en los selectores: el mes y el año en que comienza (el del
+     * dictado o, si no tiene, el de la inscripción) y su estado.
+     *
+     * @return Por ejemplo "Marzo 2026 (En dictado)".
+     */
+    public String getEtiqueta() {
+        LocalDateTime inicio = fechaInicioDictado != null ? fechaInicioDictado : fechaInicioInscripcion;
+        String mes = inicio.getMonth().getDisplayName(java.time.format.TextStyle.FULL, java.util.Locale.of("es", "AR"));
+        return mes.substring(0, 1).toUpperCase() + mes.substring(1) + " " + inicio.getYear() + " (" + getEstado() + ")";
+    }
+
+    /**
      * Verifica si la cohorte tiene la inscripción abierta.
      *
      * @return {@code true} si la inscripción está abierta.

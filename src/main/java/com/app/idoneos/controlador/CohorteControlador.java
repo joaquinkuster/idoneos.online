@@ -143,6 +143,28 @@ public class CohorteControlador {
     }
 
     /**
+     * Guarda la cohorte elegida como cohorte por defecto del docente (junto con su programa) en su participación en
+     * el curso. Responde en JSON (lo usa el selector de la vista del curso).
+     *
+     * @param id   Identificador de la cohorte.
+     * @param auth La autenticación actual.
+     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
+     */
+    @PostMapping("/establecerPorDefecto/{id}")
+    public ResponseEntity<Map<String, String>> establecerPorDefecto(@PathVariable("id") Integer id,
+            Authentication auth) {
+        try {
+            Usuario usuario = (Usuario) auth.getPrincipal();
+            Cohorte cohorte = cohorteServicio.buscarPorId(id)
+                    .orElseThrow(() -> new IllegalArgumentException("Error! La cohorte no se encuentra activa."));
+            cohorteServicio.cambiarContextoDeTrabajo(cohorte, usuario.getDocente());
+            return RespuestaUtilidad.respuestaExitosa("Ahora trabajás sobre la cohorte seleccionada.");
+        } catch (Exception e) {
+            return RespuestaUtilidad.respuestaConError(e);
+        }
+    }
+
+    /**
      * CU-12: Registra una cohorte para un programa activo. Responde en JSON para que el formulario muestre
      * el resultado sin recargar la página.
      *

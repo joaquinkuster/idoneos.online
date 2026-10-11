@@ -16,6 +16,9 @@ import lombok.Setter;
 @NoArgsConstructor
 public class RespuestaForo {
 
+    /** Cantidad máxima de caracteres del texto de la respuesta. */
+    public static final int LONGITUD_TEXTO = 500;
+
     /**
      * Identificador único de la respuesta del foro.
      */
@@ -41,7 +44,7 @@ public class RespuestaForo {
     /**
      * Texto de la respuesta.
      */
-    @Column(name = "texto", nullable = false, length = 500)
+    @Column(name = "texto", nullable = false, length = LONGITUD_TEXTO)
     private String texto;
 
     /**
@@ -73,6 +76,36 @@ public class RespuestaForo {
         this.participacionDocente = participacionDocente;
         this.consulta = consulta;
         this.texto = texto;
+    }
+
+    /**
+     * Obtiene el nombre del docente que respondió.
+     *
+     * @return El nombre completo del docente.
+     */
+    public String getAutor() {
+        return participacionDocente.getDocente().getUsuario().getNombreCompleto();
+    }
+
+    /**
+     * Obtiene el usuario del docente que respondió.
+     *
+     * @return El usuario autor.
+     */
+    public Usuario getUsuario() {
+        return participacionDocente.getDocente().getUsuario();
+    }
+
+    /**
+     * Indica si un docente puede modificar la respuesta: es el autor, está vigente y está dentro del plazo de edición.
+     *
+     * @param docente El docente (puede ser {@code null}).
+     * @param minutos El plazo de edición, en minutos.
+     * @return {@code true} si puede modificarla.
+     */
+    public boolean puedeModificar(Docente docente, int minutos) {
+        return docente != null && !baja && participacionDocente.getDocente().getIdDocente() == docente.getIdDocente()
+                && LocalDateTime.now().isBefore(fechaCreacion.plusMinutes(minutos));
     }
 
     /**

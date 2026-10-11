@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <th:block th:replace="~{fragments/head :: recursos}"></th:block>
+</head>
+<body class="pn-body">
+<div class="pn-app" id="pnApp">
+    <!-- Menú lateral: el del docente (gestión académica) o, para el administrador, el del panel -->
+    <th:block th:if="${esDocente}"><th:block th:replace="~{fragments/menus :: gestionAcademica(${menuActivo}, ${urlBase})}"></th:block></th:block>
+    <th:block th:unless="${esDocente}"><th:block th:replace="~{fragments/menus :: administrador(${menuActivo})}"></th:block></th:block>
+
+    <div class="pn-principal">
+        <th:block th:if="${esDocente}"><th:block th:replace="~{fragments/panel :: barra(~{fragments/menus :: barraGestionAcademica('misCursos', ${urlMisCursos})})}"></th:block></th:block>
+        <th:block th:unless="${esDocente}"><th:block th:replace="~{fragments/panel :: barra(null)}"></th:block></th:block>
+
+        <main class="pn-contenido">
+            <nav class="ac-migas" aria-label="Ruta de navegación">
+                <a th:href="@{/inicio}">Página principal</a>
+                <i class="fa-solid fa-chevron-right"></i>
+                <a th:href="@{${urlMisCursos}}">Mis cursos</a>
+                <i class="fa-solid fa-chevron-right"></i>
+                <a th:href="@{${urlBase}}" th:text="${curso.nombre}">Curso</a>
+                <i class="fa-solid fa-chevron-right"></i>
+                <strong>Programas</strong>
+            </nav>
+
+            <div class="pn-encabezado">
+                <div>
+                    <h1 class="pn-titulo">Programas</h1>
+                    <p class="pn-subtitulo" th:text="${'Versiones del plan de estudios de ' + curso.nombre}">Versiones del plan de estudios</p>
+                </div>
+                <button type="button" class="pn-btn pn-btn-primario" th:if="${puedeGestionar}" data-bs-toggle="modal" data-bs-target="#modalNuevoPrograma">
+                    <i class="fa-solid fa-plus"></i> Registrar programa
+                </button>
+            </div>
+
+            <section class="pn-tarjeta" data-tabla>
+                <div class="pn-lista-cabecera">
+                    <h2 class="pn-lista-titulo">Listado de programas</h2>
+                    <span class="pn-seleccionados" data-seleccionados>0 de 0 seleccionados</span>
+                    <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico d-none" data-baja-masiva
+                            data-url="/programa/darDeBajaMasiva" data-elementos="programas"
+                            data-termino-uno="cohorte activa" data-termino-varios="cohortes activas">Dar de baja seleccionado/s</button>
+                </div>
+
+                <!-- Filtros -->
+                <form th:action="@{/programa/buscar}" method="get" class="pn-filtros" data-filtros>
+                    <input type="hidden" name="cursoId" th:value="${curso.idCurso}">
+                    <div class="pn-filtros-campo pn-filtros-campo-grande">
+                        <label class="pn-etiqueta">Nombre</label>
+                        <input type="text" name="nombre" th:value="${nombreBusqueda}" class="pn-input" placeholder="Buscar por nombre" autocomplete="off">
+                    </div>
+                    <div class="pn-filtros-campo">
+                        <label class="pn-etiqueta">Estado</label>
+                        <select name="estado" class="pn-input">
+                            <option value="" th:selected="${estadoSeleccionado == null or estadoSeleccionado == ''}">Todos</option>
+                            <option value="Vigente" th:selected="${estadoSeleccionado == 'Vigente'}">Vigente</option>
+                            <option value="Anterior" th:selected="${estadoSeleccionado == 'Anterior'}">Anterior</option>
+                        </select>
+                    </div>
+                    <a th:href="@{/programa/buscar(cursoId=${curso.idCurso})}" class="pn-btn pn-btn-contorno">Limpiar</a>
+                    <div class="pn-columnas-wrapper">
+                        <button type="button" class="pn-btn pn-btn-contorno" data-columnas-boton>Columnas</button>
+                        <div class="pn-columnas-menu" data-columnas-menu></div>
+                    </div>
+                </form>
+
+                <!-- Tabla -->
+                <div class="pn-tabla-contenedor">
+                    <table class="pn-tabla">
+                        <thead>
+                            <tr>
+                                <th class="pn-col-seleccion"><input type="checkbox" data-seleccionar-todos aria-label="Seleccionar todos"></th>
+                                <th data-col="Programa">Programa</th>
+                                <th data-col="Objetivos">Objetivos</th>
+                                <th data-col="Bibliografía">Bibliografía</th>
+                                <th data-col="Carga horaria">Carga horaria</th>
+                                <th data-col="Última modificación">Última modificación</th>
+                                <th data-col="Registro">Registro</th>
+                                <th data-col="Estado">Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="p : ${programas}" data-fila th:classappend="${p.baja} ? 'pn-fila-baja'"
+                                th:attr="data-dependencias=${p.cantidadCohortesActivas}">
+                                <td class="pn-col-seleccion"><input type="checkbox" data-seleccionar-fila aria-label="Seleccionar fila"
+                                    th:value="${p.idPrograma}" th:disabled="${p.baja}"></td>
+                                <td>
+                                    <span class="pn-celda-principal" th:text="${p.nombre}">2026</span>
+                                    <span class="pg-estrella" th:if="${programaDeTrabajoId != null and programaDeTrabajoId == p.idPrograma}"
+                                          title="Tu programa por defecto">(Por defecto)</span>
+                                    <small class="fo-fecha" th:if="${p.descripcion != null}" th:text="${p.descripcion}">Descripción</small>
+                                </td>
+                                <td class="fo-col-consulta" th:text="${p.resumenObjetivos}">Objetivos del programa</td>
+                                <td class="fo-col-consulta" th:text="${p.resumenBibliografia}">Bibliografía del programa</td>
+                                <td th:text="${p.cargaHorariaTotal != null ? p.cargaHorariaTotal + ' h' : '-'}">60 h</td>
+                                <td th:text="${p.ultimaModificacion != null ? #temporals.format(p.ultimaModificacion, 'dd/MM/yyyy') : '-'}">—</td>
+                                <td th:text="${#temporals.format(p.fechaCreacion, 'dd/MM/yyyy')}">28/08/2026</td>
+                                <td>
+                                    <span class="pn-insignia" th:text="${p.estado}"
+                                          th:classappend="${p.estado == 'Vigente'} ? 'pn-insignia-verde' : (${p.estado == 'Anterior'} ? 'pn-insignia-azul' : 'pn-insignia-gris')">Vigente</span>
+                                </td>
+                                <td>
+                                    <div class="pn-acciones">
+                                        <button type="button" class="pn-btn pn-btn-editar pn-btn-chico" th:if="${puedeGestionar and !p.baja}"
+                                                data-bs-toggle="modal" th:data-bs-target="'#modalEditarPrograma' + ${p.idPrograma}">Editar</button>
+                                        <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico" th:if="${!p.baja}"
+                                                data-bs-toggle="modal" th:data-bs-target="'#modalBajaPrograma' + ${p.idPrograma}">Dar de baja</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr data-vacio hidden>
+                                <td colspan="9" class="pn-vacio">No se encontraron programas que coincidan con los criterios ingresados.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pie: filas por página y paginador -->
+                <div class="pn-tabla-pie">
+                    <div class="pn-por-pagina">
+                        <span>Filas por página:</span>
+                        <select data-por-pagina>
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="0">Todo</option>
+                        </select>
+                        <span data-rango>0-0 de 0</span>
+                    </div>
+                    <div class="pn-paginador" data-paginador></div>
+                </div>
+            </section>
+        </main>
+
+        <th:block th:replace="~{fragments/panel :: pie(${esDocente ? 'Gestión académica' : 'Panel del administrador'})}"></th:block>
+    </div>
+</div>
+
+<!-- Modal: registrar programa (CU-16) -->
+<div class="modal fade pn-modal" id="modalNuevoPrograma" tabindex="-1" aria-hidden="true" th:if="${puedeGestionar}">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="pn-modal-cabecera">
+                <h3 class="pn-modal-titulo">Registrar programa</h3>
+                <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="pn-modal-cuerpo">
+                <div class="pn-seccion-titulo">
+                    <h4>Datos del programa</h4>
+                    <p>Pasará a ser el programa vigente de <span th:text="${curso.nombre}">el curso</span></p>
+                </div>
+                <form th:action="@{/programa/registrar}" method="post" class="form-ajax" data-validar novalidate>
+                    <input type="hidden" name="cursoId" th:value="${curso.idCurso}">
+                    <div class="row g-3 mb-3">
+                        <div class="col-12 pn-campo" th:if="${!#lists.isEmpty(programasActivos)}">
+                            <label class="pn-etiqueta">Partir de un programa anterior (opcional)</label>
+                            <select name="programaOrigenId" class="pn-input">
+                                <option value="">No, empezar en blanco</option>
+                                <option th:each="o : ${programasActivos}" th:value="${o.idPrograma}"
+                                        th:text="${o.nombre + ' - se copia su cronograma (' + o.cantidadUnidades + ' unidades)'}">2026</option>
+                            </select>
+                        </div>
+                        <div class="col-md-8 pn-campo">
+                            <div class="pn-etiqueta-fila">
+                                <label class="pn-etiqueta">Nombre <span class="pn-obligatorio">*</span></label>
+                                <span class="pn-contador">0 / 50</span>
+                            </div>
+                            <input type="text" name="nombre" class="pn-input" maxlength="50" placeholder="Nombre" data-contador required
+                                   data-mensaje-obligatorio="Debe completar el nombre.">
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+                        <div class="col-md-4 pn-campo">
+                            <label class="pn-etiqueta">Carga horaria (opcional)</label>
+                            <input type="number" name="cargaHoraria" class="pn-input" min="1" step="1" placeholder="Horas">
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+                        <div class="col-md-6 pn-campo">
+                            <label class="pn-etiqueta">Objetivos <span class="pn-obligatorio">*</span></label>
+                            <textarea name="objetivos" class="pn-input" rows="4" placeholder="Objetivos" required
+                                      data-mensaje-obligatorio="Debe completar los objetivos."></textarea>
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+                        <div class="col-md-6 pn-campo">
+                            <label class="pn-etiqueta">Bibliografía <span class="pn-obligatorio">*</span></label>
+                            <textarea name="bibliografia" class="pn-input" rows="4" placeholder="Bibliografía" required
+                                      data-mensaje-obligatorio="Debe completar la bibliografía."></textarea>
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+                        <div class="col-12 pn-campo">
+                            <div class="pn-etiqueta-fila">
+                                <label class="pn-etiqueta">Descripción (opcional)</label>
+                                <span class="pn-contador">0 / 150</span>
+                            </div>
+                            <textarea name="descripcion" class="pn-input" rows="2" maxlength="150" placeholder="Descripción" data-contador></textarea>
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+                    </div>
+                    <div class="pn-modal-pie">
+                        <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="pn-btn pn-btn-primario">Registrar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modales por programa: modificar (CU-17) y dar de baja (CU-18) -->
+<th:block th:each="p : ${programas}">
+    <div class="modal fade pn-modal" th:id="'modalEditarPrograma' + ${p.idPrograma}" tabindex="-1" aria-hidden="true"
+         th:if="${puedeGestionar and !p.baja}">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="pn-modal-cabecera">
+                    <h3 class="pn-modal-titulo">Editar programa</h3>
+                    <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="pn-modal-cuerpo">
+                    <div class="pn-seccion-titulo">
+                        <h4>Datos del programa</h4>
+                        <p th:text="${curso.nombre}">Curso</p>
+                    </div>
+                    <form th:action="@{'/programa/modificar/' + ${p.idPrograma}}" method="post" class="form-ajax" data-validar novalidate>
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-8 pn-campo">
+                                <div class="pn-etiqueta-fila">
+                                    <label class="pn-etiqueta">Nombre <span class="pn-obligatorio">*</span></label>
+                                    <span class="pn-contador" th:text="${#strings.length(p.nombre) + ' / 50'}">0 / 50</span>
+                                </div>
+                                <input type="text" name="nombre" class="pn-input" maxlength="50" th:value="${p.nombre}" data-contador required
+                                       data-mensaje-obligatorio="Debe completar el nombre.">
+                                <div class="pn-ayuda-error"></div>
+                            </div>
+                            <div class="col-md-4 pn-campo">
+                                <label class="pn-etiqueta">Carga horaria (opcional)</label>
+                                <input type="number" name="cargaHoraria" class="pn-input" min="1" step="1" th:value="${p.cargaHorariaTotal}">
+                                <div class="pn-ayuda-error"></div>
+                            </div>
+                            <div class="col-md-6 pn-campo">
+                                <label class="pn-etiqueta">Objetivos <span class="pn-obligatorio">*</span></label>
+                                <textarea name="objetivos" class="pn-input" rows="4" required
+                                          data-mensaje-obligatorio="Debe completar los objetivos." th:text="${p.objetivos}"></textarea>
+                                <div class="pn-ayuda-error"></div>
+                            </div>
+                            <div class="col-md-6 pn-campo">
+                                <label class="pn-etiqueta">Bibliografía <span class="pn-obligatorio">*</span></label>
+                                <textarea name="bibliografia" class="pn-input" rows="4" required
+                                          data-mensaje-obligatorio="Debe completar la bibliografía." th:text="${p.bibliografia}"></textarea>
+                                <div class="pn-ayuda-error"></div>
+                            </div>
+                            <div class="col-12 pn-campo">
+                                <div class="pn-etiqueta-fila">
+                                    <label class="pn-etiqueta">Descripción (opcional)</label>
+                                    <span class="pn-contador" th:text="${#strings.length(p.descripcion != null ? p.descripcion : '') + ' / 150'}">0 / 150</span>
+                                </div>
+                                <textarea name="descripcion" class="pn-input" rows="2" maxlength="150" data-contador th:text="${p.descripcion}"></textarea>
+                                <div class="pn-ayuda-error"></div>
+                            </div>
+                        </div>
+                        <div class="pn-modal-pie">
+                            <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="pn-btn pn-btn-primario">Actualizar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade pn-modal" th:id="'modalBajaPrograma' + ${p.idPrograma}" tabindex="-1" aria-hidden="true"
+         th:if="${!p.baja}">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="pn-modal-cabecera">
+                    <h3 class="pn-modal-titulo">Dar de baja programa</h3>
+                    <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="pn-modal-cuerpo text-center">
+                    <div class="pn-baja-icono"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                    <h4 class="pn-modal-titulo mb-1">¿Confirmas dar de baja el programa?</h4>
+                    <p class="small text-muted mb-0">Dejará de estar disponible en el curso.</p>
+                    <div class="pn-baja-detalle">
+                        <div class="pn-baja-fila"><span class="text-muted">Programa</span><strong th:text="${p.nombre}">2026</strong></div>
+                        <div class="pn-baja-fila"><span class="text-muted">Curso</span><strong th:text="${curso.nombre}">Curso</strong></div>
+                    </div>
+                    <form th:action="@{'/programa/darDeBaja/' + ${p.idPrograma}}" method="post" class="form-ajax">
+                        <div class="pn-modal-pie">
+                            <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="pn-btn pn-btn-peligro">Dar de baja</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+
+<th:block th:replace="~{fragments/panel :: scripts}"></th:block>
+<script th:src="@{/js/academica.js}"></script>
+</body>
+</html>

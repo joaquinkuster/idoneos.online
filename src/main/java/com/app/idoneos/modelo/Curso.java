@@ -227,6 +227,16 @@ public class Curso {
     }
 
     /**
+     * Obtiene los programas activos del curso.
+     *
+     * @return Los programas que no están dados de baja, el más reciente primero.
+     */
+    public List<Programa> getProgramasActivos() {
+        return programas.stream().filter(programa -> !programa.getBaja())
+                .sorted(Comparator.comparingInt(Programa::getIdPrograma).reversed()).toList();
+    }
+
+    /**
      * Obtiene la URL pública de la imagen del curso, con la versión de la última modificación para que el
      * navegador no muestre una imagen vieja después de reemplazarla.
      *

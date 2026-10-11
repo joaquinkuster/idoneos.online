@@ -1,11 +1,9 @@
 package com.app.idoneos.servicio.TerminoGlosario;
 
-import java.text.Normalizer;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import com.app.idoneos.modelo.Alumno;
 import com.app.idoneos.modelo.Curso;
 import com.app.idoneos.modelo.Docente;
 import com.app.idoneos.modelo.TerminoGlosario;
@@ -15,7 +13,8 @@ import com.app.idoneos.repositorio.ParticipacionDocenteRepositorio;
 import com.app.idoneos.repositorio.TerminoGlosarioRepositorio;
 import com.app.idoneos.repositorio.UnidadRepositorio;
 import com.app.idoneos.servicio.CrudServicio;
-import com.app.idoneos.servicio.Inscripcion.InscripcionServicio;
+import com.app.idoneos.servicio.Unidad.UnidadServicio;
+import com.app.idoneos.utilidades.TextoUtilidad;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,7 +36,7 @@ public class TerminoGlosarioServicioImpl implements TerminoGlosarioServicio, Cru
     private ParticipacionDocenteRepositorio participacionDocenteRepositorio;
 
     @Autowired
-    private InscripcionServicio inscripcionServicio;
+    private UnidadServicio unidadServicio;
 
     /**
      * Guarda el término del glosario en la base de datos.
@@ -122,11 +121,11 @@ public class TerminoGlosarioServicioImpl implements TerminoGlosarioServicio, Cru
      */
     @Override
     public List<TerminoGlosario> buscarConFiltros(Unidad unidad, String texto, boolean enDefiniciones) {
-        String buscado = normalizar(texto);
+        String buscado = TextoUtilidad.normalizar(texto);
         return unidad.getTerminosGlosarioOrdenados().stream()
-                .sorted(Comparator.comparing((TerminoGlosario t) -> normalizar(t.getTermino())))
-                .filter(t -> buscado.isEmpty() || normalizar(t.getTermino()).contains(buscado)
-                        || (enDefiniciones && normalizar(t.getDefinicion()).contains(buscado)))
+                .sorted(Comparator.comparing((TerminoGlosario t) -> TextoUtilidad.normalizar(t.getTermino())))
+                .filter(t -> buscado.isEmpty() || TextoUtilidad.normalizar(t.getTermino()).contains(buscado)
+                        || (enDefiniciones && TextoUtilidad.normalizar(t.getDefinicion()).contains(buscado)))
                 .toList();
     }
 
@@ -198,16 +197,7 @@ public class TerminoGlosarioServicioImpl implements TerminoGlosarioServicio, Cru
      */
     @Override
     public boolean puedeVer(Unidad unidad, Usuario usuario) {
-        if (usuario.esAdministradorActivo()) {
-            return true;
-        }
-        Docente docente = usuario.getDocente();
-        if (docente != null && participacionDocenteRepositorio.findByCursoAndBajaFalse(unidad.getCurso()).stream()
-                .anyMatch(p -> p.getDocente().getIdDocente() == docente.getIdDocente())) {
-            return true;
-        }
-        Alumno alumno = usuario.getAlumno();
-        return alumno != null && inscripcionServicio.buscarConAccesoAUnidad(alumno, unidad).isPresent();
+        return unidadServicio.puedeVerContenido(unidad, usuario);
     }
 
     private TerminoGlosario buscarActivo(Integer id) {
@@ -241,13 +231,5 @@ public class TerminoGlosarioServicioImpl implements TerminoGlosarioServicio, Cru
                     "Error! La definición no puede superar los " + TerminoGlosario.LONGITUD_DEFINICION + " caracteres.");
         }
         return termino.trim();
-    }
-
-    /** Pasa un texto a minúsculas y sin tildes, para comparar sin distinguirlas. */
-    private String normalizar(String texto) {
-        if (texto == null) {
-            return "";
-        }
-        return Normalizer.normalize(texto.trim(), Normalizer.Form.NFD).replaceAll("\\p{M}", "").toLowerCase();
     }
 }

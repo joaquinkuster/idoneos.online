@@ -1217,3 +1217,155 @@ a.ac-actividad-titulo:hover {
 .gl-icono-baja:hover {
     color: var(--pn-peligro);
 }
+
+/* ==========================================================================
+   FORO (MOD-F-02): lista de consultas de una unidad y detalle de una consulta con sus respuestas
+   ========================================================================== */
+.fo-contenedor {
+    padding: 24px;
+}
+
+.fo-tabla .fo-col-consulta {
+    width: 40%;
+}
+
+.fo-persona {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    text-align: left;
+}
+
+.fo-mensaje-cabecera .fo-persona {
+    justify-content: flex-start;
+}
+
+.fo-enlace-consulta {
+    font-weight: 700;
+    color: var(--pn-ver);
+    text-decoration: none;
+}
+
+.fo-enlace-consulta:hover {
+    text-decoration: underline;
+}
+
+.fo-fecha {
+    display: block;
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--pn-texto-suave);
+}
+
+.fo-mensaje-cabecera .fo-fecha {
+    display: inline;
+    margin-left: 6px;
+}
+
+.fo-hilo {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.fo-mensaje {
+    padding: 16px 20px;
+    background: #FFFFFF;
+    border: 1px solid var(--pn-borde);
+    border-radius: 12px;
+}
+
+.fo-respuesta {
+    margin-left: 32px;
+}
+
+.fo-pie-mensaje {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 8px;
+}
+
+.fo-enlace-accion {
+    font-size: 14px;
+    color: var(--pn-ver);
+    text-decoration: none;
+}
+
+.fo-enlace-accion:hover {
+    text-decoration: underline;
+}
+
+.fo-mensaje-cabecera {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+
+.fo-texto {
+    margin: 10px 0 0;
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--pn-texto);
+    white-space: pre-line;
+}
+
+@media (max-width: 576px) {
+    .fo-respuesta {
+        margin-left: 12px;
+    }
+}
+
+/* ==========================================================================
+   PROGRAMAS (MOD-F-02): selectores de programa y cohorte por defecto del docente y marca del programa por defecto
+   ========================================================================== */
+.ac-contexto {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 20px;
+    margin-top: 12px;
+}
+
+.ac-contexto-campo {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 240px;
+}
+
+.ac-contexto-etiqueta {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--pn-texto-suave);
+}
+
+.ac-contexto-select {
+    padding: 8px 10px;
+    font-size: 14px;
+    color: var(--pn-texto);
+    background: #FFFFFF;
+    border: 1px solid var(--pn-borde-input);
+    border-radius: 8px;
+}
+
+.ac-contexto-select:focus {
+    outline: none;
+    border-color: var(--pn-gold);
+    box-shadow: 0 0 0 3px rgba(212, 160, 61, 0.2);
+}
+
+.ac-contexto-select:disabled {
+    background: var(--pn-fondo);
+    color: var(--pn-texto-suave);
+    cursor: not-allowed;
+}
+
+.pg-estrella {
+    margin-left: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--pn-ver);
+}

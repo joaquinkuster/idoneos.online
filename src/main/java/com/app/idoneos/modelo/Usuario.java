@@ -201,6 +201,26 @@ public class Usuario implements UserDetails {
     }
 
     /**
+     * Obtiene las iniciales del nombre y el apellido, para el avatar cuando el usuario no tiene foto de perfil.
+     *
+     * @return Las iniciales en mayúscula (por ejemplo "VR").
+     */
+    public String getIniciales() {
+        String inicialNombre = nombre == null || nombre.isBlank() ? "" : nombre.trim().substring(0, 1);
+        String inicialApellido = apellido == null || apellido.isBlank() ? "" : apellido.trim().substring(0, 1);
+        return (inicialNombre + inicialApellido).toUpperCase();
+    }
+
+    /**
+     * Obtiene la dirección de la foto de perfil.
+     *
+     * @return La dirección de la imagen, o {@code null} si el usuario no cargó una foto.
+     */
+    public String getUrlImagen() {
+        return imagen == null || imagen.isBlank() ? null : "/img/usuarios/" + imagen;
+    }
+
+    /**
      * Obtiene el nombre completo del usuario.
      *
      * @return El nombre y el apellido del usuario.

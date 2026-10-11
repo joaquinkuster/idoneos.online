@@ -1,14 +1,24 @@
 package com.app.idoneos.servicio.ConsultaForo;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import com.app.idoneos.modelo.Alumno;
 import com.app.idoneos.modelo.ConsultaForo;
 import com.app.idoneos.modelo.Inscripcion;
+import com.app.idoneos.modelo.Parametro;
 import com.app.idoneos.modelo.Unidad;
 import com.app.idoneos.repositorio.ConsultaForoRepositorio;
+import com.app.idoneos.repositorio.RespuestaForoRepositorio;
+import com.app.idoneos.repositorio.UnidadRepositorio;
 import com.app.idoneos.servicio.CrudServicio;
+import com.app.idoneos.servicio.Inscripcion.InscripcionServicio;
+import com.app.idoneos.servicio.Parametro.ParametroServicio;
+import com.app.idoneos.utilidades.TextoUtilidad;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Implementación del servicio para gestionar las operaciones sobre la entidad {@link ConsultaForo}.
@@ -19,6 +29,18 @@ public class ConsultaForoServicioImpl implements ConsultaForoServicio, CrudServi
 
     @Autowired
     private ConsultaForoRepositorio consultaForoRepositorio;
+
+    @Autowired
+    private RespuestaForoRepositorio respuestaForoRepositorio;
+
+    @Autowired
+    private UnidadRepositorio unidadRepositorio;
+
+    @Autowired
+    private InscripcionServicio inscripcionServicio;
+
+    @Autowired
+    private ParametroServicio parametroServicio;
 
     /**
      * Guarda la consulta del foro en la base de datos.
@@ -107,5 +129,88 @@ public class ConsultaForoServicioImpl implements ConsultaForoServicio, CrudServi
     @Override
     public List<ConsultaForo> buscarPorInscripcion(Inscripcion inscripcion) {
         return consultaForoRepositorio.findByInscripcionAndBajaFalse(inscripcion);
+    }
+
+    /**
+     * CU-35: Busca las consultas de una unidad por texto y rango de fechas.
+     */
+    @Override
+    public List<ConsultaForo> buscarConFiltros(Unidad unidad, String texto, LocalDate desde, LocalDate hasta) {
+        String buscado = TextoUtilidad.normalizar(texto);
+        return unidad.getConsultasForoOrdenadas().stream()
+                .filter(c -> buscado.isEmpty() || TextoUtilidad.normalizar(c.getTexto()).contains(buscado))
+                .filter(c -> desde == null || !c.getFechaCreacion().toLocalDate().isBefore(desde))
+                .filter(c -> hasta == null || !c.getFechaCreacion().toLocalDate().isAfter(hasta)).toList();
+    }
+
+    /**
+     * CU-36: Registra una consulta en el foro de una unidad.
+     */
+    @Override
+    @Transactional
+    public ConsultaForo registrarConsulta(Alumno alumno, Integer unidadId, String texto) {
+        if (alumno == null) {
+            throw new IllegalArgumentException("Error! El usuario no tiene el rol de alumno.");
+        }
+        Unidad unidad = unidadRepositorio.findById(unidadId == null ? -1 : unidadId).filter(u -> !u.esInactivo())
+                .orElseThrow(() -> new IllegalArgumentException("Error! La unidad no se encuentra activa."));
+        Inscripcion inscripcion = inscripcionServicio.buscarConAccesoAUnidad(alumno, unidad).orElseThrow(
+                () -> new IllegalArgumentException("Error! No tenés una inscripción vigente con esta unidad habilitada."));
+        ConsultaForo consulta = consultaForoRepositorio.save(new ConsultaForo(unidad, inscripcion, validarTexto(texto)));
+        unidad.getConsultasForo().add(consulta);
+        return consulta;
+    }
+
+    /**
+     * CU-37: Modifica una consulta propia dentro del plazo de edición.
+     */
+    @Override
+    @Transactional
+    public ConsultaForo modificarConsulta(Integer id, Alumno alumno, String texto) {
+        ConsultaForo consulta = consultaForoRepositorio.findById(id == null ? -1 : id).filter(c -> !c.esInactivo())
+                .orElseThrow(() -> new IllegalArgumentException("Error! La consulta no se encuentra activa."));
+        if (alumno == null || consulta.getInscripcion().getAlumno().getIdAlumno() != alumno.getIdAlumno()) {
+            throw new IllegalArgumentException("Error! Solo podés modificar tus propias consultas.");
+        }
+        int plazo = parametroServicio.obtenerEntero(Parametro.PLAZO_EDICION_FORO,
+                Parametro.PLAZO_EDICION_FORO_POR_DEFECTO);
+        if (!consulta.estaDentroDelPlazo(plazo)) {
+            throw new IllegalArgumentException("Error! La consulta ya no puede modificarse: pasó el plazo de edición de "
+                    + plazo + " minutos.");
+        }
+        consulta.setTexto(validarTexto(texto));
+        consulta.setUltimaModificacion(LocalDateTime.now());
+        return consultaForoRepositorio.save(consulta);
+    }
+
+    /**
+     * CU-38: Da de baja una consulta y sus respuestas.
+     */
+    @Override
+    @Transactional
+    public void darDeBajaConsulta(Integer id) {
+        ConsultaForo consulta = consultaForoRepositorio.findById(id == null ? -1 : id).filter(c -> !c.esInactivo())
+                .orElseThrow(() -> new IllegalArgumentException("Error! La consulta no se encuentra activa."));
+        LocalDateTime ahora = LocalDateTime.now();
+        consulta.getRespuestasVigentes().forEach(respuesta -> {
+            respuesta.marcarInactivo();
+            respuesta.setUltimaModificacion(ahora);
+            respuestaForoRepositorio.save(respuesta);
+        });
+        consulta.marcarInactivo();
+        consulta.setUltimaModificacion(ahora);
+        consultaForoRepositorio.save(consulta);
+    }
+
+    /** Valida el texto de la consulta y lo devuelve sin espacios sobrantes. */
+    private String validarTexto(String texto) {
+        if (texto == null || texto.isBlank()) {
+            throw new IllegalArgumentException("Error! Debe completar el texto de la consulta.");
+        }
+        if (texto.trim().length() > ConsultaForo.LONGITUD_TEXTO) {
+            throw new IllegalArgumentException(
+                    "Error! El texto no puede superar los " + ConsultaForo.LONGITUD_TEXTO + " caracteres.");
+        }
+        return texto.trim();
     }
 }

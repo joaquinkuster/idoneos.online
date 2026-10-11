@@ -38,6 +38,7 @@ public class WebConfig implements WebMvcConfigurer {
      * Publica las imágenes de la aplicación:
      * <ul>
      * <li>{@code /img/cursos/**}: las imágenes de ejemplo incluidas en la aplicación ({@code static/img/cursos}).</li>
+     * <li>{@code /img/usuarios/**}: las fotos de perfil de los usuarios ({@code static/img/usuarios}).</li>
      * <li>{@code /uploads/curso{id}/{imagen}}: la imagen de cada curso, guardada en su carpeta del servidor. El patrón
      * admite un solo nivel debajo de la carpeta del curso, por lo que las carpetas de unidad
      * ({@code curso{id}/unidad{id}/...}) con sus materiales <b>no</b> se publican: se entregan solo por un
@@ -53,6 +54,9 @@ public class WebConfig implements WebMvcConfigurer {
         CacheControl semana = CacheControl.maxAge(7, TimeUnit.DAYS);
         registry.addResourceHandler("/img/cursos/**")
                 .addResourceLocations("classpath:/static/img/cursos/")
+                .setCacheControl(semana);
+        registry.addResourceHandler("/img/usuarios/**")
+                .addResourceLocations("classpath:/static/img/usuarios/")
                 .setCacheControl(semana);
         String carpeta = directorioCursos.toUri().toString();
         registry.addResourceHandler("/uploads/curso*/*")

@@ -204,6 +204,37 @@ public class Unidad {
     }
 
     /**
+     * Obtiene las consultas vigentes del foro de la unidad.
+     *
+     * @return Las consultas, con el último mensaje más reciente primero.
+     */
+    public List<ConsultaForo> getConsultasForoOrdenadas() {
+        return consultasForo.stream().filter(consulta -> !consulta.getBaja())
+                .sorted(Comparator.comparing(ConsultaForo::getFechaUltimoMensaje).reversed()
+                        .thenComparing(Comparator.comparingInt(ConsultaForo::getIdConsulta).reversed()))
+                .toList();
+    }
+
+    /**
+     * Cuenta las consultas vigentes del foro de la unidad que todavía no tienen respuestas.
+     *
+     * @return La cantidad de consultas sin responder.
+     */
+    public int getCantidadConsultasSinResponder() {
+        return (int) consultasForo.stream().filter(consulta -> !consulta.getBaja() && consulta.estaSinResponder())
+                .count();
+    }
+
+    /**
+     * Obtiene la fecha del último mensaje del foro de la unidad.
+     *
+     * @return La fecha y hora, o {@code null} si el foro no tiene consultas.
+     */
+    public LocalDateTime getUltimaActividadForo() {
+        return getConsultasForoOrdenadas().stream().map(ConsultaForo::getFechaUltimoMensaje).findFirst().orElse(null);
+    }
+
+    /**
      * Cuenta las consultas vigentes registradas en el foro de la unidad.
      *
      * @return La cantidad de consultas.

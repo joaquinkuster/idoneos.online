@@ -1,0 +1,6 @@
+<!-- Avatar de un usuario: su foto de perfil (como en Moodle) o, si no tiene, un círculo con sus iniciales.
+     usuario: el usuario; clase: tamaño opcional ('av-chico', 'av-grande' o vacío). -->
+<span th:fragment="avatar(usuario, clase)" class="av" th:classappend="${clase}" aria-hidden="true">
+    <img th:if="${usuario.urlImagen != null}" th:src="@{${usuario.urlImagen}}" alt="">
+    <th:block th:unless="${usuario.urlImagen != null}" th:text="${usuario.iniciales}">VR</th:block>
+</span>

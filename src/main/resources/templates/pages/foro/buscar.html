@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <th:block th:replace="~{fragments/head :: recursos}"></th:block>
+</head>
+<body class="pn-body">
+<div class="pn-app" id="pnApp">
+    <!-- Menú lateral: el del docente (gestión académica) o, para el administrador, el del panel -->
+    <th:block th:if="${esDocente}"><th:block th:replace="~{fragments/menus :: gestionAcademica(${menuActivo}, ${urlBase})}"></th:block></th:block>
+    <th:block th:unless="${esDocente}"><th:block th:replace="~{fragments/menus :: administrador(${menuActivo})}"></th:block></th:block>
+
+    <div class="pn-principal">
+        <th:block th:if="${esDocente}"><th:block th:replace="~{fragments/panel :: barra(~{fragments/menus :: barraGestionAcademica('misCursos', ${urlMisCursos})})}"></th:block></th:block>
+        <th:block th:unless="${esDocente}"><th:block th:replace="~{fragments/panel :: barra(null)}"></th:block></th:block>
+
+        <main class="pn-contenido">
+            <nav class="ac-migas" aria-label="Ruta de navegación">
+                <a th:href="@{/inicio}">Página principal</a>
+                <i class="fa-solid fa-chevron-right"></i>
+                <a th:href="@{${urlMisCursos}}">Mis cursos</a>
+                <i class="fa-solid fa-chevron-right"></i>
+                <a th:href="@{${urlBase}}" th:text="${curso.nombre}">Curso</a>
+                <i class="fa-solid fa-chevron-right"></i>
+                <strong>Foros</strong>
+            </nav>
+
+            <div class="pn-encabezado">
+                <div>
+                    <h1 class="pn-titulo">Foros</h1>
+                    <p class="pn-subtitulo" th:text="${'Cada unidad de ' + curso.nombre + ' tiene su foro de consultas'}">Cada unidad tiene su foro</p>
+                </div>
+            </div>
+
+            <section class="pn-tarjeta" data-tabla>
+                <div class="pn-lista-cabecera">
+                    <h2 class="pn-lista-titulo">Listado de foros</h2>
+                </div>
+
+                <!-- Filtros -->
+                <form th:action="@{/foro/buscar}" method="get" class="pn-filtros" data-filtros>
+                    <input type="hidden" name="cursoId" th:value="${curso.idCurso}">
+                    <div class="pn-filtros-campo pn-filtros-campo-grande">
+                        <label class="pn-etiqueta">Unidad</label>
+                        <select name="unidadId" class="pn-input">
+                            <option value="">Todas</option>
+                            <option th:each="uc : ${unidadesDelPrograma}" th:value="${uc.unidad.idUnidad}"
+                                    th:text="${'Unidad ' + uc.numeroOrden + ' · ' + uc.unidad.titulo}"
+                                    th:selected="${unidadSeleccionada != null and unidadSeleccionada == uc.unidad.idUnidad}">Unidad 1</option>
+                        </select>
+                    </div>
+                    <a th:href="@{/foro/buscar(cursoId=${curso.idCurso})}" class="pn-btn pn-btn-contorno">Limpiar</a>
+                    <div class="pn-columnas-wrapper">
+                        <button type="button" class="pn-btn pn-btn-contorno" data-columnas-boton>Columnas</button>
+                        <div class="pn-columnas-menu" data-columnas-menu></div>
+                    </div>
+                </form>
+
+                <div class="pn-tabla-contenedor">
+                    <table class="pn-tabla">
+                        <thead>
+                            <tr>
+                                <th data-col="Foro">Foro</th>
+                                <th data-col="Unidad">Unidad</th>
+                                <th data-col="Consultas">Consultas</th>
+                                <th data-col="Sin responder">Sin responder</th>
+                                <th data-col="Último mensaje">Último mensaje</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="uc : ${unidades}" data-fila data-dependencias="0">
+                                <td>
+                                    <span class="ac-tipo-celda">
+                                        <th:block th:replace="~{fragments/iconoMaterial :: icono('Foro', 'ac-recurso-icono-chico')}"></th:block>
+                                        <span class="pn-celda-principal" th:text="${'Foro ' + uc.numeroOrden}">Foro 1</span>
+                                    </span>
+                                </td>
+                                <td th:text="${uc.unidad.titulo}">Introducción al mercado</td>
+                                <td>
+                                    <span th:if="${uc.unidad.cantidadConsultasForo > 0}"
+                                          th:text="${uc.unidad.cantidadConsultasForo + (uc.unidad.cantidadConsultasForo == 1 ? ' consulta' : ' consultas')}">3 consultas</span>
+                                    <span th:if="${uc.unidad.cantidadConsultasForo == 0}" class="pn-celda-secundaria">Sin consultas</span>
+                                </td>
+                                <td>
+                                    <span class="pn-insignia pn-insignia-dorada" th:if="${uc.unidad.cantidadConsultasSinResponder > 0}"
+                                          th:text="${uc.unidad.cantidadConsultasSinResponder}">1</span>
+                                    <span th:if="${uc.unidad.cantidadConsultasSinResponder == 0}">-</span>
+                                </td>
+                                <td th:text="${uc.unidad.ultimaActividadForo != null ? #temporals.format(uc.unidad.ultimaActividadForo, 'dd/MM/yyyy') : '-'}">28/08/2026</td>
+                                <td>
+                                    <div class="pn-acciones">
+                                        <a class="pn-btn pn-btn-ver pn-btn-chico" th:href="@{'/foro/ver/' + ${uc.unidad.idUnidad}}">Ver detalle</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr data-vacio hidden>
+                                <td colspan="6" class="pn-vacio">No se encontraron foros que coincidan con los criterios ingresados.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pie: filas por página y paginador -->
+                <div class="pn-tabla-pie">
+                    <div class="pn-por-pagina">
+                        <span>Filas por página:</span>
+                        <select data-por-pagina>
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="0">Todo</option>
+                        </select>
+                        <span data-rango>0-0 de 0</span>
+                    </div>
+                    <div class="pn-paginador" data-paginador></div>
+                </div>
+            </section>
+        </main>
+
+        <th:block th:replace="~{fragments/panel :: pie(${esDocente ? 'Gestión académica' : 'Panel del administrador'})}"></th:block>
+    </div>
+</div>
+
+<th:block th:replace="~{fragments/panel :: scripts}"></th:block>
+<script th:src="@{/js/academica.js}"></script>
+</body>
+</html>

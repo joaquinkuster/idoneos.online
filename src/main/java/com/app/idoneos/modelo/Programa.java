@@ -20,6 +20,12 @@ import lombok.Setter;
 @NoArgsConstructor
 public class Programa {
 
+    /** Cantidad máxima de caracteres del nombre. */
+    public static final int LONGITUD_NOMBRE = 50;
+
+    /** Cantidad máxima de caracteres de la descripción. */
+    public static final int LONGITUD_DESCRIPCION = 150;
+
     /**
      * Identificador único del programa.
      */
@@ -38,13 +44,13 @@ public class Programa {
     /**
      * Nombre del programa.
      */
-    @Column(name = "nombre", nullable = false, length = 50)
+    @Column(name = "nombre", nullable = false, length = LONGITUD_NOMBRE)
     private String nombre;
 
     /**
      * Descripción breve del programa.
      */
-    @Column(name = "descripcion", nullable = true, length = 150)
+    @Column(name = "descripcion", nullable = true, length = LONGITUD_DESCRIPCION)
     private String descripcion;
 
     /**
@@ -140,6 +146,79 @@ public class Programa {
     @Override
     public String toString() {
         return nombre;
+    }
+
+    /**
+     * Indica si el programa es el vigente de su curso: el activo de fecha de creación más reciente.
+     *
+     * @return {@code true} si es el programa vigente.
+     */
+    public boolean esVigente() {
+        Programa vigente = curso.getProgramaVigente();
+        return !baja && vigente != null && vigente.getIdPrograma() == idPrograma;
+    }
+
+    /**
+     * Obtiene el estado del programa dentro de su curso.
+     *
+     * @return "Vigente", "Anterior" (activo pero reemplazado por uno más nuevo) o "Dado de baja".
+     */
+    public String getEstado() {
+        if (baja) {
+            return "Dado de baja";
+        }
+        return esVigente() ? "Vigente" : "Anterior";
+    }
+
+    /**
+     * Obtiene el comienzo de los objetivos en una sola línea, para mostrarlos en los listados.
+     *
+     * @return Los objetivos, recortados con puntos suspensivos si son largos.
+     */
+    public String getResumenObjetivos() {
+        return resumir(objetivos);
+    }
+
+    /**
+     * Obtiene el comienzo de la bibliografía en una sola línea, para mostrarla en los listados.
+     *
+     * @return La bibliografía, recortada con puntos suspensivos si es larga.
+     */
+    public String getResumenBibliografia() {
+        return resumir(bibliografia);
+    }
+
+    private String resumir(String texto) {
+        String limpio = texto == null ? "" : texto.replaceAll("\\s+", " ").trim();
+        return limpio.length() <= 90 ? limpio : limpio.substring(0, 90).trim() + "…";
+    }
+
+    /**
+     * Cuenta las cohortes activas del programa.
+     *
+     * @return La cantidad de cohortes que no están dadas de baja.
+     */
+    public int getCantidadCohortesActivas() {
+        return (int) cohortes.stream().filter(cohorte -> !cohorte.getBaja()).count();
+    }
+
+    /**
+     * Cuenta las inscripciones activas de todas las cohortes del programa.
+     *
+     * @return La cantidad de inscripciones que no están dadas de baja.
+     */
+    public int getCantidadInscripcionesActivas() {
+        return cohortes.stream().mapToInt(Cohorte::getCantidadInscriptos).sum();
+    }
+
+    /**
+     * Obtiene las cohortes activas del programa, de la más reciente a la más antigua.
+     *
+     * @return Las cohortes vigentes.
+     */
+    public List<Cohorte> getCohortesActivas() {
+        return cohortes.stream().filter(cohorte -> !cohorte.getBaja())
+                .sorted(Comparator.comparingInt(Cohorte::getIdCohorte).reversed()).toList();
     }
 
     /**

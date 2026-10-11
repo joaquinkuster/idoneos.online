@@ -1,7 +1,9 @@
 package com.app.idoneos.modelo;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -17,6 +19,12 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class ConsultaForo {
+
+    /** Cantidad máxima de caracteres del texto de la consulta. */
+    public static final int LONGITUD_TEXTO = 500;
+
+    /** Cantidad de caracteres del texto que se muestran en los listados. */
+    private static final int LONGITUD_RESUMEN = 90;
 
     /**
      * Identificador único de la consulta del foro.
@@ -43,7 +51,7 @@ public class ConsultaForo {
     /**
      * Texto de la consulta.
      */
-    @Column(name = "texto", nullable = false, length = 500)
+    @Column(name = "texto", nullable = false, length = LONGITUD_TEXTO)
     private String texto;
 
     /**
@@ -81,6 +89,108 @@ public class ConsultaForo {
         this.unidad = unidad;
         this.inscripcion = inscripcion;
         this.texto = texto;
+    }
+
+    /**
+     * Obtiene las respuestas vigentes de la consulta.
+     *
+     * @return Las respuestas, de la más antigua a la más reciente.
+     */
+    public List<RespuestaForo> getRespuestasVigentes() {
+        return respuestasForo.stream().filter(respuesta -> !respuesta.getBaja())
+                .sorted(Comparator.comparing(RespuestaForo::getFechaCreacion)
+                        .thenComparingInt(RespuestaForo::getIdRespuesta))
+                .toList();
+    }
+
+    /**
+     * Obtiene el nombre del alumno que hizo la consulta.
+     *
+     * @return El nombre completo del alumno.
+     */
+    public String getAutor() {
+        return inscripcion.getAlumno().getUsuario().getNombreCompleto();
+    }
+
+    /**
+     * Obtiene el usuario del alumno que hizo la consulta.
+     *
+     * @return El usuario autor.
+     */
+    public Usuario getUsuario() {
+        return inscripcion.getAlumno().getUsuario();
+    }
+
+    /**
+     * Obtiene el usuario de quien escribió el último mensaje de la consulta.
+     *
+     * @return El docente de la última respuesta o, si no tiene, el alumno autor.
+     */
+    public Usuario getUsuarioUltimoMensaje() {
+        List<RespuestaForo> respuestas = getRespuestasVigentes();
+        return respuestas.isEmpty() ? getUsuario() : respuestas.get(respuestas.size() - 1).getUsuario();
+    }
+
+    /**
+     * Obtiene el comienzo del texto de la consulta, para mostrarla en los listados.
+     *
+     * @return El texto, recortado con puntos suspensivos si es largo.
+     */
+    public String getResumen() {
+        String limpio = texto.replaceAll("\\s+", " ").trim();
+        return limpio.length() <= LONGITUD_RESUMEN ? limpio : limpio.substring(0, LONGITUD_RESUMEN).trim() + "…";
+    }
+
+    /**
+     * Indica si la consulta todavía no tiene respuestas vigentes.
+     *
+     * @return {@code true} si no fue respondida.
+     */
+    public boolean estaSinResponder() {
+        return getRespuestasVigentes().isEmpty();
+    }
+
+    /**
+     * Obtiene la fecha del último mensaje de la consulta: la de su última respuesta o, si no tiene, la de la propia
+     * consulta.
+     *
+     * @return La fecha y hora del último mensaje.
+     */
+    public LocalDateTime getFechaUltimoMensaje() {
+        List<RespuestaForo> respuestas = getRespuestasVigentes();
+        return respuestas.isEmpty() ? fechaCreacion : respuestas.get(respuestas.size() - 1).getFechaCreacion();
+    }
+
+    /**
+     * Obtiene el nombre de quien escribió el último mensaje de la consulta.
+     *
+     * @return El nombre completo del docente de la última respuesta o, si no tiene, del alumno autor.
+     */
+    public String getAutorUltimoMensaje() {
+        List<RespuestaForo> respuestas = getRespuestasVigentes();
+        return respuestas.isEmpty() ? getAutor() : respuestas.get(respuestas.size() - 1).getAutor();
+    }
+
+    /**
+     * Indica si la consulta aún se puede modificar: si no pasó el plazo de edición desde su registro.
+     *
+     * @param minutos El plazo de edición, en minutos.
+     * @return {@code true} si está dentro del plazo.
+     */
+    public boolean estaDentroDelPlazo(int minutos) {
+        return LocalDateTime.now().isBefore(fechaCreacion.plusMinutes(minutos));
+    }
+
+    /**
+     * Indica si un alumno puede modificar la consulta: es el autor, está vigente y está dentro del plazo de edición.
+     *
+     * @param alumno  El alumno (puede ser {@code null}).
+     * @param minutos El plazo de edición, en minutos.
+     * @return {@code true} si puede modificarla.
+     */
+    public boolean puedeModificar(Alumno alumno, int minutos) {
+        return alumno != null && !baja && inscripcion.getAlumno().getIdAlumno() == alumno.getIdAlumno()
+                && estaDentroDelPlazo(minutos);
     }
 
     /**

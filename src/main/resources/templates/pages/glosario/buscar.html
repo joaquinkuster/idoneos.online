@@ -80,7 +80,7 @@
                                           th:text="${#lists.size(uc.unidad.terminosGlosarioOrdenados) + (#lists.size(uc.unidad.terminosGlosarioOrdenados) == 1 ? ' término' : ' términos')}">3 términos</span>
                                     <span th:if="${#lists.isEmpty(uc.unidad.terminosGlosarioOrdenados)}" class="pn-celda-secundaria">Sin términos</span>
                                 </td>
-                                <td th:text="${uc.unidad.ultimaActualizacionGlosario != null ? #temporals.format(uc.unidad.ultimaActualizacionGlosario, 'dd/MM/yyyy') : '—'}">28/08/2026</td>
+                                <td th:text="${uc.unidad.ultimaActualizacionGlosario != null ? #temporals.format(uc.unidad.ultimaActualizacionGlosario, 'dd/MM/yyyy') : '-'}">28/08/2026</td>
                                 <td>
                                     <div class="pn-acciones">
                                         <a class="pn-btn pn-btn-ver pn-btn-chico" th:href="@{'/glosario/ver/' + ${uc.unidad.idUnidad}}">Ver detalle</a>

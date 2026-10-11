@@ -333,6 +333,9 @@ public class CursoControlador {
             modelo.addAttribute("curso", participacion.getCurso());
             modelo.addAttribute("programa", participacion.getProgramaDeTrabajo());
             modelo.addAttribute("cohorte", participacion.getCohorteDeTrabajo());
+            // Selectores de programa y cohorte por defecto: solo los activos, el más reciente primero
+            modelo.addAttribute("programasDelCurso", participacion.getCurso().getProgramasActivos());
+            modelo.addAttribute("cohortesDelPrograma", participacion.getProgramaDeTrabajo().getCohortesActivas());
             modelo.addAttribute("tiposDeSubida", tipoMaterialServicio.buscarSubidosManualmente());
             modelo.addAttribute("esDocente", true);
             modelo.addAttribute("urlBase", "/curso/acceder/" + idCurso);

@@ -3,8 +3,7 @@
 <div th:fragment="menu(modo)" class="um-wrapper" th:if="${usuario != null}">
     <button type="button" class="um-trigger" th:classappend="${modo == 'panel'} ? 'um-trigger-claro' : 'um-trigger-oscuro'"
             data-menu-usuario aria-haspopup="true" aria-expanded="false">
-        <span class="um-avatar"
-              th:text="${#strings.substring(usuario.nombre,0,1) + #strings.substring(usuario.apellido != null ? usuario.apellido : '',0,1)}">AG</span>
+        <th:block th:replace="~{fragments/avatar :: avatar(${usuario}, 'av-menu')}"></th:block>
         <span class="um-datos">
             <span class="um-nombre" th:text="${usuario.nombreCompleto}">Admin General</span>
             <span class="um-rol" th:text="${usuario.rolActivo != null ? usuario.rolActivo.nombre : 'Usuario'}">Administrador</span>

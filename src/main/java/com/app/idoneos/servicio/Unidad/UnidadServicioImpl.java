@@ -3,7 +3,12 @@ package com.app.idoneos.servicio.Unidad;
 import java.util.List;
 import java.util.Optional;
 import com.app.idoneos.modelo.Curso;
+import com.app.idoneos.modelo.Alumno;
+import com.app.idoneos.modelo.Docente;
 import com.app.idoneos.modelo.Unidad;
+import com.app.idoneos.modelo.Usuario;
+import com.app.idoneos.repositorio.ParticipacionDocenteRepositorio;
+import com.app.idoneos.servicio.Inscripcion.InscripcionServicio;
 import com.app.idoneos.repositorio.UnidadRepositorio;
 import com.app.idoneos.servicio.CrudServicio;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +23,12 @@ public class UnidadServicioImpl implements UnidadServicio, CrudServicio<Unidad> 
 
     @Autowired
     private UnidadRepositorio unidadRepositorio;
+
+    @Autowired
+    private ParticipacionDocenteRepositorio participacionDocenteRepositorio;
+
+    @Autowired
+    private InscripcionServicio inscripcionServicio;
 
     /**
      * Guarda la unidad en la base de datos.
@@ -95,5 +106,22 @@ public class UnidadServicioImpl implements UnidadServicio, CrudServicio<Unidad> 
     @Override
     public List<Unidad> buscarPorCurso(Curso curso) {
         return unidadRepositorio.findByCursoAndBajaFalse(curso);
+    }
+
+    /**
+     * Indica si un usuario puede ver el contenido de una unidad.
+     */
+    @Override
+    public boolean puedeVerContenido(Unidad unidad, Usuario usuario) {
+        if (usuario.esAdministradorActivo()) {
+            return true;
+        }
+        Docente docente = usuario.getDocente();
+        if (docente != null && participacionDocenteRepositorio.findByCursoAndBajaFalse(unidad.getCurso()).stream()
+                .anyMatch(p -> p.getDocente().getIdDocente() == docente.getIdDocente())) {
+            return true;
+        }
+        Alumno alumno = usuario.getAlumno();
+        return alumno != null && inscripcionServicio.buscarConAccesoAUnidad(alumno, unidad).isPresent();
     }
 }
