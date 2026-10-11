@@ -20,9 +20,14 @@
 </th:block>
 
 <th:block th:fragment="enlacesGestionAcademica(activo, urlBase)">
-    <div th:replace="~{fragments/sidebar :: grupo('Este curso')}"></div>
-    <a th:replace="~{fragments/sidebar :: enlace(${urlBase}, 'fa-layer-group', 'Unidades', ${activo}, 'unidades')}"></a>
-    <a th:replace="~{fragments/sidebar :: enlace((${esDocente} ? '/programa/buscar?cursoId=' + ${curso.idCurso} : '#'), 'fa-book-bookmark', 'Programas', ${activo}, 'programas')}"></a>
+    <a th:replace="~{fragments/sidebar :: enlace(${urlBase}, 'fa-house', 'Curso', ${activo}, 'curso')}"></a>
+
+    <!-- Lo que el alumno no puede abrir no se le muestra (y sin botones, tampoco el título del grupo) -->
+    <th:block th:if="${esDocente}">
+        <div th:replace="~{fragments/sidebar :: grupo('Este curso')}"></div>
+        <a th:replace="~{fragments/sidebar :: enlace('/unidad/buscar?cursoId=' + ${curso.idCurso}, 'fa-layer-group', 'Unidades', ${activo}, 'unidades')}"></a>
+        <a th:replace="~{fragments/sidebar :: enlace('/programa/buscar?cursoId=' + ${curso.idCurso}, 'fa-book-bookmark', 'Programas', ${activo}, 'programas')}"></a>
+    </th:block>
 
     <div th:replace="~{fragments/sidebar :: grupo('Este programa')}"></div>
     <a th:replace="~{fragments/sidebar :: enlace(${urlBase} + '?seccion=cronograma', 'fa-calendar-check', 'Cronograma', ${activo}, 'cronograma')}"></a>
@@ -33,10 +38,14 @@
     <a th:replace="~{fragments/sidebar :: enlace('#', 'fa-star', 'Calificaciones', ${activo}, 'calificaciones')}"></a>
 
     <div th:replace="~{fragments/sidebar :: grupo('Contenido de las unidades')}"></div>
-    <a th:replace="~{fragments/sidebar :: enlace((${esDocente} ? '/material/buscar?cursoId=' + ${curso.idCurso} : '#'), 'fa-file-lines', 'Materiales', ${activo}, 'materiales')}"></a>
-    <a th:replace="~{fragments/sidebar :: enlace((${esDocente} ? '/glosario/buscar?cursoId=' + ${curso.idCurso} : '#'), 'fa-spell-check', 'Glosario', ${activo}, 'glosario')}"></a>
+    <th:block th:if="${esDocente}">
+        <a th:replace="~{fragments/sidebar :: enlace('/material/buscar?cursoId=' + ${curso.idCurso}, 'fa-file-lines', 'Materiales', ${activo}, 'materiales')}"></a>
+        <a th:replace="~{fragments/sidebar :: enlace('/glosario/buscar?cursoId=' + ${curso.idCurso}, 'fa-spell-check', 'Glosario', ${activo}, 'glosario')}"></a>
+    </th:block>
     <a th:replace="~{fragments/sidebar :: enlace('#', 'fa-clipboard-check', 'Autoevaluaciones', ${activo}, 'autoevaluaciones')}"></a>
-    <a th:replace="~{fragments/sidebar :: enlace((${esDocente} ? '/foro/buscar?cursoId=' + ${curso.idCurso} : '#'), 'fa-comments', 'Foros', ${activo}, 'foros')}"></a>
+    <th:block th:if="${esDocente}">
+        <a th:replace="~{fragments/sidebar :: enlace('/foro/buscar?cursoId=' + ${curso.idCurso}, 'fa-comments', 'Foros', ${activo}, 'foros')}"></a>
+    </th:block>
 </th:block>
 
 <!-- Enlaces de la barra superior de Gestión académica (a la izquierda, junto a la barra lateral) -->

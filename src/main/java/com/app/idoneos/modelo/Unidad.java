@@ -20,6 +20,12 @@ import lombok.Setter;
 @NoArgsConstructor
 public class Unidad {
 
+    /** Cantidad máxima de caracteres del título. */
+    public static final int LONGITUD_TITULO = 50;
+
+    /** Cantidad máxima de caracteres de la descripción. */
+    public static final int LONGITUD_DESCRIPCION = 150;
+
     /**
      * Identificador único de la unidad.
      */
@@ -38,13 +44,13 @@ public class Unidad {
     /**
      * Título de la unidad.
      */
-    @Column(name = "titulo", nullable = false, length = 50)
+    @Column(name = "titulo", nullable = false, length = LONGITUD_TITULO)
     private String titulo;
 
     /**
      * Descripción breve de la unidad.
      */
-    @Column(name = "descripcion", nullable = true, length = 150)
+    @Column(name = "descripcion", nullable = true, length = LONGITUD_DESCRIPCION)
     private String descripcion;
 
     /**
@@ -170,6 +176,57 @@ public class Unidad {
     public List<Material> getMaterialesVigentes() {
         return materiales.stream().filter(material -> !material.getBaja())
                 .sorted(Comparator.comparingInt(Material::getIdMaterial)).toList();
+    }
+
+    /**
+     * Obtiene el comienzo del contenido en una sola línea, para mostrarlo en los listados.
+     *
+     * @return El contenido, recortado con puntos suspensivos si es largo.
+     */
+    public String getResumenContenido() {
+        String limpio = contenido == null ? "" : contenido.replaceAll("\\s+", " ").trim();
+        return limpio.length() <= 90 ? limpio : limpio.substring(0, 90).trim() + "…";
+    }
+
+    /**
+     * Obtiene los programas activos en cuyo cronograma está incluida la unidad.
+     *
+     * @return Los programas, del más antiguo al más reciente.
+     */
+    public List<Programa> getProgramasQueLaIncluyen() {
+        return unidadesCronograma.stream().filter(cronograma -> !cronograma.getBaja())
+                .map(UnidadCronograma::getPrograma).filter(programa -> !programa.getBaja()).distinct()
+                .sorted(Comparator.comparingInt(Programa::getIdPrograma)).toList();
+    }
+
+    /**
+     * Obtiene los identificadores de los programas que incluyen la unidad, separados por coma (para los formularios).
+     *
+     * @return Por ejemplo "1,3", o una cadena vacía si ningún programa la incluye.
+     */
+    public String getIdsProgramasQueLaIncluyen() {
+        return String.join(",", getProgramasQueLaIncluyen().stream().map(p -> String.valueOf(p.getIdPrograma())).toList());
+    }
+
+    /**
+     * Indica si la unidad está incluida en el cronograma de un programa.
+     *
+     * @param programa El programa.
+     * @return {@code true} si el programa la incluye.
+     */
+    public boolean perteneceAlCronograma(Programa programa) {
+        return unidadesCronograma.stream()
+                .anyMatch(cronograma -> cronograma.getPrograma().getIdPrograma() == programa.getIdPrograma());
+    }
+
+    /**
+     * Indica si algún programa que incluye la unidad tiene inscripciones activas: en ese caso la unidad es parte de lo
+     * que el alumno vio y pagó, y no puede modificarse.
+     *
+     * @return {@code true} si hay inscripciones activas asociadas.
+     */
+    public boolean tieneInscripcionesActivas() {
+        return getProgramasQueLaIncluyen().stream().anyMatch(programa -> programa.getCantidadInscripcionesActivas() > 0);
     }
 
     /**

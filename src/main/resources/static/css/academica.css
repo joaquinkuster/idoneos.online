@@ -1369,3 +1369,45 @@ a.ac-actividad-titulo:hover {
     font-weight: 600;
     color: var(--pn-ver);
 }
+
+/* ==========================================================================
+   UNIDADES (MOD-F-02): menú de cada unidad en la vista del curso y su descripción y contenido
+   ========================================================================== */
+.ac-unidad {
+    position: relative;
+}
+
+.ac-menu-unidad {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+}
+
+.ac-unidad-cabecera {
+    padding-right: 56px;
+}
+
+.ac-acciones-debajo {
+    justify-content: flex-end;
+    margin: -4px 0 14px;
+}
+
+.ac-unidad-descripcion {
+    margin: 14px 0 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--pn-texto-suave);
+}
+
+.ac-unidad-contenido {
+    margin: 0 0 8px;
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--pn-texto);
+    white-space: pre-line;
+}
+
+/* Sin descripción, el contenido también queda separado del título */
+.ac-unidad-contenido:first-child {
+    margin-top: 14px;
+}

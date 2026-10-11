@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <th:block th:replace="~{fragments/head :: recursos}"></th:block>
+</head>
+<body class="pn-body">
+<div class="pn-app" id="pnApp">
+    <!-- Menú lateral: el del docente (gestión académica) o, para el administrador, el del panel -->
+    <th:block th:if="${esDocente}"><th:block th:replace="~{fragments/menus :: gestionAcademica(${menuActivo}, ${urlBase})}"></th:block></th:block>
+    <th:block th:unless="${esDocente}"><th:block th:replace="~{fragments/menus :: administrador(${menuActivo})}"></th:block></th:block>
+
+    <div class="pn-principal">
+        <th:block th:if="${esDocente}"><th:block th:replace="~{fragments/panel :: barra(~{fragments/menus :: barraGestionAcademica('misCursos', ${urlMisCursos})})}"></th:block></th:block>
+        <th:block th:unless="${esDocente}"><th:block th:replace="~{fragments/panel :: barra(null)}"></th:block></th:block>
+
+        <main class="pn-contenido" th:attr="data-abrir-modal=${abrirModal}">
+            <nav class="ac-migas" aria-label="Ruta de navegación">
+                <a th:href="@{/inicio}">Página principal</a>
+                <i class="fa-solid fa-chevron-right"></i>
+                <a th:href="@{${urlMisCursos}}">Mis cursos</a>
+                <i class="fa-solid fa-chevron-right"></i>
+                <a th:href="@{${urlBase}}" th:text="${curso.nombre}">Curso</a>
+                <i class="fa-solid fa-chevron-right"></i>
+                <strong>Unidades</strong>
+            </nav>
+
+            <div class="pn-encabezado">
+                <div>
+                    <h1 class="pn-titulo">Unidades</h1>
+                    <p class="pn-subtitulo" th:text="${'Cronograma de ' + programa.nombre + ' de ' + curso.nombre}">Cronograma del programa</p>
+                </div>
+                <button type="button" class="pn-btn pn-btn-primario" th:if="${puedeGestionar}" data-bs-toggle="modal" data-bs-target="#modalNuevaUnidad">
+                    <i class="fa-solid fa-plus"></i> Registrar unidad
+                </button>
+            </div>
+
+            <section class="pn-tarjeta" data-tabla>
+                <div class="pn-lista-cabecera">
+                    <h2 class="pn-lista-titulo">Listado de unidades</h2>
+                    <span class="pn-seleccionados" data-seleccionados>0 de 0 seleccionados</span>
+                    <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico d-none" data-baja-masiva
+                            th:attr="data-url='/unidad/darDeBajaMasiva?programaId=' + ${programa.idPrograma}" data-elementos="unidades"
+                            data-termino-uno="elemento asociado" data-termino-varios="elementos asociados">Dar de baja seleccionado/s</button>
+                </div>
+
+                <!-- Filtros -->
+                <form th:action="@{/unidad/buscar}" method="get" class="pn-filtros" data-filtros>
+                    <input type="hidden" name="cursoId" th:value="${curso.idCurso}">
+                    <div class="pn-filtros-campo pn-filtros-campo-grande">
+                        <label class="pn-etiqueta">Título</label>
+                        <input type="text" name="titulo" th:value="${tituloBusqueda}" class="pn-input" placeholder="Buscar por título" autocomplete="off">
+                    </div>
+                    <a th:href="@{/unidad/buscar(cursoId=${curso.idCurso})}" class="pn-btn pn-btn-contorno">Limpiar</a>
+                    <div class="pn-columnas-wrapper">
+                        <button type="button" class="pn-btn pn-btn-contorno" data-columnas-boton>Columnas</button>
+                        <div class="pn-columnas-menu" data-columnas-menu></div>
+                    </div>
+                </form>
+
+                <!-- Tabla -->
+                <div class="pn-tabla-contenedor">
+                    <table class="pn-tabla">
+                        <thead>
+                            <tr>
+                                <th class="pn-col-seleccion"><input type="checkbox" data-seleccionar-todos aria-label="Seleccionar todos"></th>
+                                <th data-col="Orden">Orden</th>
+                                <th data-col="Título">Título</th>
+                                <th data-col="Descripción">Descripción</th>
+                                <th data-col="Contenido">Contenido</th>
+                                <th data-col="Semanas">Semanas</th>
+                                <th data-col="Última modificación">Última modificación</th>
+                                <th data-col="Fecha de creación">Fecha de creación</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="uc : ${unidades}" data-fila data-dependencias="0">
+                                <td class="pn-col-seleccion"><input type="checkbox" data-seleccionar-fila aria-label="Seleccionar fila"
+                                    th:value="${uc.unidad.idUnidad}"></td>
+                                <td th:text="${uc.numeroOrden}">1</td>
+                                <td><span class="pn-celda-principal" th:text="${uc.unidad.titulo}">Introducción al mercado</span></td>
+                                <td class="fo-col-consulta" th:text="${uc.unidad.descripcion != null ? uc.unidad.descripcion : '-'}">Descripción</td>
+                                <td class="fo-col-consulta" th:text="${uc.unidad.resumenContenido}">Contenido de la unidad</td>
+                                <td th:text="${uc.semanasDuracion}">1</td>
+                                <td th:text="${uc.unidad.ultimaModificacion != null ? #temporals.format(uc.unidad.ultimaModificacion, 'dd/MM/yyyy') : '-'}">-</td>
+                                <td th:text="${#temporals.format(uc.unidad.fechaCreacion, 'dd/MM/yyyy')}">28/08/2026</td>
+                                <td>
+                                    <div class="pn-acciones">
+                                        <button type="button" class="pn-btn pn-btn-editar pn-btn-chico" th:if="${puedeGestionar}"
+                                                data-bs-toggle="modal" th:data-bs-target="'#modalEditarUnidad' + ${uc.unidad.idUnidad}">Editar</button>
+                                        <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico"
+                                                data-bs-toggle="modal" th:data-bs-target="'#modalBajaUnidad' + ${uc.unidad.idUnidad}">Dar de baja</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr data-vacio hidden>
+                                <td colspan="9" class="pn-vacio">No se encontraron unidades que coincidan con los criterios ingresados.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pie: filas por página y paginador -->
+                <div class="pn-tabla-pie">
+                    <div class="pn-por-pagina">
+                        <span>Filas por página:</span>
+                        <select data-por-pagina>
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="0">Todo</option>
+                        </select>
+                        <span data-rango>0-0 de 0</span>
+                    </div>
+                    <div class="pn-paginador" data-paginador></div>
+                </div>
+            </section>
+        </main>
+
+        <th:block th:replace="~{fragments/panel :: pie(${esDocente ? 'Gestión académica' : 'Panel del administrador'})}"></th:block>
+    </div>
+</div>
+
+<!-- Modal: agregar unidad (CU-20). El programa por defecto del docente viene elegido -->
+<div class="modal fade pn-modal" id="modalNuevaUnidad" tabindex="-1" aria-hidden="true" th:if="${puedeGestionar}">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="pn-modal-cabecera">
+                <h3 class="pn-modal-titulo">Registrar unidad</h3>
+                <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="pn-modal-cuerpo">
+                <div class="pn-seccion-titulo">
+                    <h4>Datos de la unidad</h4>
+                    <p>Se agrega al final del cronograma, con una semana de duración</p>
+                </div>
+                <form th:action="@{/unidad/registrar}" method="post" class="form-ajax" data-validar novalidate data-unidad-formulario>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6 pn-campo">
+                            <label class="pn-etiqueta">Programa <span class="pn-obligatorio">*</span></label>
+                            <select name="programaId" class="pn-input" required data-unidad-programa>
+                                <option th:each="p : ${programasActivos}" th:value="${p.idPrograma}"
+                                        th:text="${p.nombre + (p.idPrograma == programa.idPrograma ? ' (Por defecto)' : '')}"
+                                        th:selected="${p.idPrograma == programa.idPrograma}">Programa 2026 (Por defecto)</option>
+                            </select>
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+                        <div class="col-md-6 pn-campo">
+                            <label class="pn-etiqueta">¿Qué querés agregar?</label>
+                            <select class="pn-input" data-unidad-modo>
+                                <option value="nueva">Una unidad nueva</option>
+                                <option value="existente">Una unidad de otro programa del curso</option>
+                            </select>
+                        </div>
+
+                        <div class="col-12 pn-campo" data-bloque="existente" hidden>
+                            <label class="pn-etiqueta">Unidad a incorporar <span class="pn-obligatorio">*</span></label>
+                            <select name="unidadExistenteId" class="pn-input" data-unidad-existente disabled>
+                                <option value="">Seleccionar unidad</option>
+                                <option th:each="u : ${unidadesDelCurso}" th:value="${u.idUnidad}" th:text="${u.titulo}"
+                                        th:attr="data-programas=${u.idsProgramasQueLaIncluyen}">Unidad</option>
+                            </select>
+                            <small class="text-muted" data-unidad-sin-opciones hidden>No hay unidades de otros programas que se puedan incorporar a este programa.</small>
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+
+                        <div class="col-12 pn-campo" data-bloque="nueva">
+                            <div class="pn-etiqueta-fila">
+                                <label class="pn-etiqueta">Título <span class="pn-obligatorio">*</span></label>
+                                <span class="pn-contador">0 / 50</span>
+                            </div>
+                            <input type="text" name="titulo" class="pn-input" maxlength="50" placeholder="Título" data-contador required
+                                   data-requerido data-mensaje-obligatorio="Debe completar el título.">
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+                        <div class="col-12 pn-campo" data-bloque="nueva">
+                            <label class="pn-etiqueta">Contenido <span class="pn-obligatorio">*</span></label>
+                            <textarea name="contenido" class="pn-input" rows="5" placeholder="Contenido de la unidad" required
+                                      data-requerido data-mensaje-obligatorio="Debe completar el contenido."></textarea>
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+                        <div class="col-12 pn-campo" data-bloque="nueva">
+                            <div class="pn-etiqueta-fila">
+                                <label class="pn-etiqueta">Descripción (opcional)</label>
+                                <span class="pn-contador">0 / 150</span>
+                            </div>
+                            <textarea name="descripcion" class="pn-input" rows="2" maxlength="150" placeholder="Descripción" data-contador></textarea>
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+                    </div>
+                    <div class="pn-modal-pie">
+                        <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="pn-btn pn-btn-primario">Registrar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modales por unidad: modificar (CU-21) y dar de baja (CU-22) -->
+<th:block th:each="uc : ${unidades}">
+    <div class="modal fade pn-modal" th:id="'modalEditarUnidad' + ${uc.unidad.idUnidad}" tabindex="-1" aria-hidden="true"
+         th:if="${puedeGestionar}">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="pn-modal-cabecera">
+                    <h3 class="pn-modal-titulo">Editar unidad</h3>
+                    <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="pn-modal-cuerpo">
+                    <div class="pn-seccion-titulo">
+                        <h4>Datos de la unidad</h4>
+                        <p th:text="${'Unidad ' + uc.numeroOrden + ' de ' + programa.nombre}">Unidad 1</p>
+                    </div>
+                    <form th:action="@{'/unidad/modificar/' + ${uc.unidad.idUnidad}}" method="post" class="form-ajax" data-validar novalidate>
+                        <div class="row g-3 mb-3">
+                            <div class="col-12 pn-campo">
+                                <div class="pn-etiqueta-fila">
+                                    <label class="pn-etiqueta">Título <span class="pn-obligatorio">*</span></label>
+                                    <span class="pn-contador" th:text="${#strings.length(uc.unidad.titulo) + ' / 50'}">0 / 50</span>
+                                </div>
+                                <input type="text" name="titulo" class="pn-input" maxlength="50" th:value="${uc.unidad.titulo}" data-contador required
+                                       data-mensaje-obligatorio="Debe completar el título.">
+                                <div class="pn-ayuda-error"></div>
+                            </div>
+                            <div class="col-12 pn-campo">
+                                <label class="pn-etiqueta">Contenido <span class="pn-obligatorio">*</span></label>
+                                <textarea name="contenido" class="pn-input" rows="5" required
+                                          data-mensaje-obligatorio="Debe completar el contenido." th:text="${uc.unidad.contenido}"></textarea>
+                                <div class="pn-ayuda-error"></div>
+                            </div>
+                            <div class="col-12 pn-campo">
+                                <div class="pn-etiqueta-fila">
+                                    <label class="pn-etiqueta">Descripción (opcional)</label>
+                                    <span class="pn-contador" th:text="${#strings.length(uc.unidad.descripcion != null ? uc.unidad.descripcion : '') + ' / 150'}">0 / 150</span>
+                                </div>
+                                <textarea name="descripcion" class="pn-input" rows="2" maxlength="150" data-contador th:text="${uc.unidad.descripcion}"></textarea>
+                                <div class="pn-ayuda-error"></div>
+                            </div>
+                        </div>
+                        <div class="pn-modal-pie">
+                            <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="pn-btn pn-btn-primario">Actualizar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade pn-modal" th:id="'modalBajaUnidad' + ${uc.unidad.idUnidad}" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="pn-modal-cabecera">
+                    <h3 class="pn-modal-titulo">Dar de baja unidad</h3>
+                    <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="pn-modal-cuerpo text-center">
+                    <div class="pn-baja-icono"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                    <h4 class="pn-modal-titulo mb-1">¿Confirmas dar de baja la unidad?</h4>
+                    <p class="small text-muted mb-0">Se quitará del cronograma de este programa. Si no forma parte de otro programa, quedará dada de baja.</p>
+                    <div class="pn-baja-detalle">
+                        <div class="pn-baja-fila"><span class="text-muted">Unidad</span><strong th:text="${uc.unidad.titulo}">Renta fija</strong></div>
+                        <div class="pn-baja-fila"><span class="text-muted">Programa</span><strong th:text="${programa.nombre}">2026</strong></div>
+                    </div>
+                    <form th:action="@{'/unidad/darDeBaja/' + ${uc.unidad.idUnidad}}" method="post" class="form-ajax">
+                        <input type="hidden" name="programaId" th:value="${programa.idPrograma}">
+                        <div class="pn-modal-pie">
+                            <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="pn-btn pn-btn-peligro">Dar de baja</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+
+<th:block th:replace="~{fragments/panel :: scripts}"></th:block>
+<script th:src="@{/js/academica.js}"></script>
+<script th:src="@{/js/unidad.js}"></script>
+</body>
+</html>

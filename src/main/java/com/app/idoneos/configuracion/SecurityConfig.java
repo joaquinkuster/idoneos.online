@@ -102,6 +102,11 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/glosario/buscar").hasAnyRole("Docente", "Administrador")
                         .requestMatchers(HttpMethod.POST, "/glosario/darDeBaja/*").hasAnyRole("Docente", "Administrador")
                         .requestMatchers("/glosario/**").hasRole("Docente")
+                        // CU-19 a CU-22: ABM de unidades (el docente agrega y modifica; el administrador busca y da de baja)
+                        .requestMatchers(HttpMethod.GET, "/unidad/buscar").hasAnyRole("Docente", "Administrador")
+                        .requestMatchers(HttpMethod.POST, "/unidad/darDeBaja/*", "/unidad/darDeBajaMasiva")
+                        .hasAnyRole("Docente", "Administrador")
+                        .requestMatchers("/unidad/**").hasRole("Docente")
                         // CU-35 a CU-42: foro. Verlo: cualquier usuario con sesión (el controlador controla el acceso);
                         // listar los foros de un curso: docente y administrador; consultar: alumno; responder: docente;
                         // moderar (dar de baja consultas y respuestas): administrador

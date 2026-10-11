@@ -341,7 +341,7 @@ public class CursoControlador {
             modelo.addAttribute("urlBase", "/curso/acceder/" + idCurso);
             modelo.addAttribute("urlMisCursos", "/curso/buscar");
             modelo.addAttribute("seccion", seccionActiva);
-            modelo.addAttribute("menuActivo", seccionActiva);
+            modelo.addAttribute("menuActivo", "unidades".equals(seccionActiva) ? "curso" : seccionActiva);
             modelo.addAttribute("titulo", "CU-27 - " + participacion.getCurso().getNombre() + " | Idóneos Online");
             return "pages/curso/acceder";
         } catch (IllegalArgumentException e) {

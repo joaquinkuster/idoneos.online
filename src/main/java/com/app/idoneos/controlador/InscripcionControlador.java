@@ -114,7 +114,7 @@ public class InscripcionControlador {
             modelo.addAttribute("urlBase", "/inscripcion/acceder/" + idInscripcion);
             modelo.addAttribute("urlMisCursos", "/inscripcion/misCursos");
             modelo.addAttribute("seccion", seccionActiva);
-            modelo.addAttribute("menuActivo", seccionActiva);
+            modelo.addAttribute("menuActivo", "unidades".equals(seccionActiva) ? "curso" : seccionActiva);
             modelo.addAttribute("titulo", "CU-27 - " + inscripcion.getCurso().getNombre() + " | Idóneos Online");
             return "pages/curso/acceder";
         } catch (IllegalArgumentException e) {
