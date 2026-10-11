@@ -2,7 +2,8 @@
      la derecha. Se usa en la vista del curso y en el ABM de materiales.
      destino: ruta a la que se redirige al elegir (se le agrega 'nuevo={id del tipo}'); vacío = abre el formulario de
      alta en la misma página. Requiere el atributo de modelo 'tiposDeSubida' (tipos de material que se suben a mano).
-     Las opciones que todavía no tienen su ABM figuran como "Próximamente". -->
+     La opción Glosario lleva al glosario de la unidad con el formulario de alta abierto. Las que todavía no tienen su ABM
+     figuran como "Próximamente". -->
 <div th:fragment="selector(destino)" class="modal fade pn-modal" id="modalSelectorRecurso" tabindex="-1" aria-hidden="true"
      th:attr="data-destino=${destino}">
     <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -22,10 +23,11 @@
                             <th:block th:replace="~{fragments/iconoMaterial :: icono(${t.nombre}, 'ac-recurso-icono-chico')}"></th:block>
                             <span th:text="${t.nombre}">Grabación</span>
                         </label>
-                        <label class="ac-selector-opcion ac-selector-opcion-deshabilitada">
-                            <input type="radio" name="recurso" disabled>
+                        <label class="ac-selector-opcion" data-glosario="true" data-nombre="Glosario"
+                               data-descripcion="Conjunto de términos con su definición, para que los alumnos consulten el vocabulario de la unidad. Se abre el glosario de la unidad con el formulario para registrar un término.">
+                            <input type="radio" name="recurso" value="glosario">
                             <th:block th:replace="~{fragments/iconoMaterial :: icono('Glosario', 'ac-recurso-icono-chico')}"></th:block>
-                            <span>Glosario</span><small>Próximamente</small>
+                            <span>Glosario</span>
                         </label>
                         <label class="ac-selector-opcion ac-selector-opcion-deshabilitada">
                             <input type="radio" name="recurso" disabled>

@@ -95,8 +95,9 @@ class MaterialControladorTest {
                 .andExpect(content().string(Matchers.containsString("Borrador: ejercicios de duration")))
                 .andExpect(content().string(Matchers.containsString("Oculto")))
                 .andExpect(content().string(Matchers.containsString("Subir material")))
-                // el detalle de cada material tiene el botón para abrirlo en su vista
-                .andExpect(content().string(Matchers.containsString("/material/ver/")))
+                // sin botón "Ver": el material se abre desde su unidad
+                .andExpect(content().string(Matchers.not(Matchers.containsString("modalVerMaterial"))))
+                .andExpect(content().string(Matchers.not(Matchers.containsString("pn-btn-ver"))))
                 // "Subir material" abre el formulario directamente, con el tipo como un campo más (sin selector)
                 .andExpect(content().string(Matchers.containsString("data-bs-target=\"#modalNuevoMaterial\"")))
                 .andExpect(content().string(Matchers.containsString("name=\"tipoMaterialId\"")))

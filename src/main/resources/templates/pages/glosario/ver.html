@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <th:block th:replace="~{fragments/head :: recursos}"></th:block>
+</head>
+<body class="pn-body">
+<div class="pn-app" id="pnApp">
+    <!-- Menú lateral: el de gestión académica (docente y alumno) o, para el administrador, el del panel -->
+    <th:block th:if="${esAdministrador}"><th:block th:replace="~{fragments/menus :: administrador(${menuActivo})}"></th:block></th:block>
+    <th:block th:unless="${esAdministrador}"><th:block th:replace="~{fragments/menus :: gestionAcademica(${menuActivo}, ${urlBase})}"></th:block></th:block>
+
+    <div class="pn-principal">
+        <th:block th:if="${esAdministrador}"><th:block th:replace="~{fragments/panel :: barra(null)}"></th:block></th:block>
+        <th:block th:unless="${esAdministrador}"><th:block th:replace="~{fragments/panel :: barra(~{fragments/menus :: barraGestionAcademica('misCursos', ${urlMisCursos})})}"></th:block></th:block>
+
+        <main class="pn-contenido" th:attr="data-abrir-modal=${abrirNuevo ? 'modalNuevoTermino' : null}">
+            <nav class="ac-migas" aria-label="Ruta de navegación">
+                <a th:href="@{/inicio}">Página principal</a>
+                <i class="fa-solid fa-chevron-right"></i>
+                <a th:href="@{${urlMisCursos}}">Mis cursos</a>
+                <i class="fa-solid fa-chevron-right"></i>
+                <a th:href="@{${urlBase}}" th:text="${curso.nombre}">Curso</a>
+                <i class="fa-solid fa-chevron-right"></i>
+                <strong th:text="${'Glosario ' + numeroOrden}">Glosario 1</strong>
+            </nav>
+
+            <div class="pn-encabezado">
+                <div class="gl-titulo-fila">
+                    <th:block th:replace="~{fragments/iconoMaterial :: icono('Glosario', '')}"></th:block>
+                    <div>
+                        <h1 class="pn-titulo" th:text="${'Glosario ' + numeroOrden}">Glosario 1</h1>
+                        <p class="pn-subtitulo">
+                            <span th:text="${unidad.titulo}">Introducción al mercado de capitales</span>
+                            · <span th:text="${totalTerminos + (totalTerminos == 1 ? ' término' : ' términos')}">3 términos</span>
+                        </p>
+                    </div>
+                </div>
+                <button type="button" class="pn-btn pn-btn-primario" th:if="${puedeGestionar}" data-bs-toggle="modal" data-bs-target="#modalNuevoTermino">
+                    <i class="fa-solid fa-plus"></i> Registrar término
+                </button>
+            </div>
+
+            <section class="pn-tarjeta gl-contenedor">
+                <!-- Buscador: por defecto busca en los términos y en las definiciones -->
+                <form th:action="@{'/glosario/ver/' + ${unidad.idUnidad}}" method="get" class="gl-buscador">
+                    <input type="hidden" name="buscar" value="1">
+                    <div class="gl-buscador-fila">
+                        <input type="text" name="texto" class="pn-input" th:value="${texto}" placeholder="Buscar en el glosario"
+                               maxlength="100" autocomplete="off" aria-label="Texto a buscar">
+                        <button type="submit" class="pn-btn pn-btn-primario"><i class="fa-solid fa-magnifying-glass"></i> Buscar</button>
+                        <a class="pn-btn pn-btn-contorno" th:if="${hayBusqueda}" th:href="@{'/glosario/ver/' + ${unidad.idUnidad}}">Limpiar</a>
+                        <label class="gl-casilla">
+                            <input type="checkbox" name="enDefiniciones" value="true" th:checked="${enDefiniciones}">
+                            ¿Buscar en términos y definiciones?
+                        </label>
+                    </div>
+                </form>
+
+                <!-- Índice alfabético: las letras sin términos no se pueden elegir -->
+                <nav class="gl-indice" aria-label="Índice alfabético">
+                    <a th:if="${hayEspeciales}" class="gl-indice-letra" th:classappend="${letraElegida == '#'} ? 'activa'"
+                       th:href="@{/glosario/ver/{id}(id=${unidad.idUnidad}, texto=${texto}, buscar=1, enDefiniciones=${enDefiniciones}, letra='#', pagina=1)}">Especial</a>
+                    <span th:unless="${hayEspeciales}" class="gl-indice-letra gl-indice-letra-vacia">Especial</span>
+                    <th:block th:each="l : ${abecedario}">
+                        <span class="gl-indice-separador">|</span>
+                        <a th:if="${letrasConTerminos.contains(l)}" class="gl-indice-letra" th:classappend="${letraElegida == l} ? 'activa'"
+                           th:href="@{/glosario/ver/{id}(id=${unidad.idUnidad}, texto=${texto}, buscar=1, enDefiniciones=${enDefiniciones}, letra=${l}, pagina=1)}"
+                           th:text="${l}">A</a>
+                        <span th:unless="${letrasConTerminos.contains(l)}" class="gl-indice-letra gl-indice-letra-vacia" th:text="${l}">B</span>
+                    </th:block>
+                    <span class="gl-indice-separador">|</span>
+                    <a class="gl-indice-letra" th:classappend="${letraElegida == ''} ? 'activa'"
+                       th:href="@{/glosario/ver/{id}(id=${unidad.idUnidad}, texto=${texto}, buscar=1, enDefiniciones=${enDefiniciones}, letra='', pagina=1)}">TODAS</a>
+                </nav>
+
+                <!-- Paginación -->
+                <nav class="gl-paginas" th:if="${totalPaginas > 1}" aria-label="Páginas">
+                    <span>Página:</span>
+                    <th:block th:each="n : ${#numbers.sequence(1, totalPaginas)}">
+                        <strong th:if="${n == pagina}" th:text="${n}">1</strong>
+                        <a th:unless="${n == pagina}" th:text="${n}"
+                           th:href="@{/glosario/ver/{id}(id=${unidad.idUnidad}, texto=${texto}, buscar=1, enDefiniciones=${enDefiniciones}, letra=${letraElegida}, pagina=${n})}">2</a>
+                    </th:block>
+                    <strong th:if="${pagina == 0}">TODAS</strong>
+                    <a th:unless="${pagina == 0}"
+                       th:href="@{/glosario/ver/{id}(id=${unidad.idUnidad}, texto=${texto}, buscar=1, enDefiniciones=${enDefiniciones}, letra=${letraElegida}, pagina=0)}">TODAS</a>
+                </nav>
+
+                <p class="gl-resultado" th:if="${hayBusqueda}"
+                   th:text="${cantidadEncontrados + (cantidadEncontrados == 1 ? ' término encontrado' : ' términos encontrados') + ' para «' + texto + '»'}">2 términos encontrados</p>
+
+                <p class="gl-resultado" th:if="${unSoloTermino}">
+                    Se muestra un solo término. <a th:href="@{'/glosario/ver/' + ${unidad.idUnidad}}">Ver todo el glosario</a>
+                </p>
+
+                <!-- Términos agrupados por letra inicial -->
+                <div class="gl-grupo" th:each="grupo : ${grupos}">
+                    <h2 class="gl-letra" th:text="${grupo.key == '#' ? 'Especial' : grupo.key}">A</h2>
+                    <article class="gl-termino" th:each="t : ${grupo.value}">
+                        <div class="gl-termino-cabecera">
+                            <h3 class="gl-termino-nombre" th:text="${t.termino}">Acción</h3>
+                            <div class="gl-iconos">
+                                <a class="gl-icono" title="Enlace permanente" aria-label="Enlace permanente"
+                                   th:href="@{/glosario/ver/{id}(id=${unidad.idUnidad}, terminoId=${t.idTermino})}"><i class="fa-solid fa-link"></i></a>
+                                <button type="button" class="gl-icono" th:if="${puedeGestionar}" title="Editar término" aria-label="Editar término"
+                                        data-bs-toggle="modal" th:data-bs-target="'#modalEditarTermino' + ${t.idTermino}"><i class="fa-solid fa-pencil"></i></button>
+                                <button type="button" class="gl-icono gl-icono-baja" th:if="${puedeDarDeBaja}" title="Dar de baja término" aria-label="Dar de baja término"
+                                        data-bs-toggle="modal" th:data-bs-target="'#modalBajaTermino' + ${t.idTermino}"><i class="fa-solid fa-trash-can"></i></button>
+                            </div>
+                        </div>
+                        <p class="gl-definicion" th:text="${t.definicion}">Título que representa una parte del capital de una sociedad.</p>
+                    </article>
+                </div>
+
+                <p class="gl-vacio" th:if="${totalTerminos == 0}">
+                    Este glosario todavía no tiene términos.
+                    <th:block th:if="${puedeGestionar}">Usá «Registrar término» para agregar el primero.</th:block>
+                </p>
+                <p class="gl-vacio" th:if="${totalTerminos > 0 and #maps.isEmpty(grupos)}">No se encontraron términos que coincidan con la búsqueda.</p>
+            </section>
+        </main>
+
+        <th:block th:replace="~{fragments/panel :: pie(${esAdministrador ? 'Panel del administrador' : 'Gestión académica'})}"></th:block>
+    </div>
+</div>
+
+<!-- Modal: registrar término (CU-33). La unidad es la de este glosario -->
+<div class="modal fade pn-modal" id="modalNuevoTermino" tabindex="-1" aria-hidden="true" th:if="${puedeGestionar}">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="pn-modal-cabecera">
+                <h3 class="pn-modal-titulo">Registrar término</h3>
+                <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="pn-modal-cuerpo">
+                <div class="pn-seccion-titulo">
+                    <h4>Datos del término</h4>
+                    <p th:text="${'Glosario ' + numeroOrden + ' · ' + unidad.titulo}">Glosario 1</p>
+                </div>
+                <form th:action="@{/glosario/registrar}" method="post" class="form-ajax" data-validar novalidate>
+                    <input type="hidden" name="unidadId" th:value="${unidad.idUnidad}">
+                    <div class="row g-3 mb-3">
+                        <div class="col-12 pn-campo">
+                            <div class="pn-etiqueta-fila">
+                                <label class="pn-etiqueta">Término <span class="pn-obligatorio">*</span></label>
+                                <span class="pn-contador">0 / 50</span>
+                            </div>
+                            <input type="text" name="termino" class="pn-input" maxlength="50" placeholder="Término" data-contador required
+                                   data-mensaje-obligatorio="Debe completar el término.">
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+                        <div class="col-12 pn-campo">
+                            <div class="pn-etiqueta-fila">
+                                <label class="pn-etiqueta">Definición <span class="pn-obligatorio">*</span></label>
+                                <span class="pn-contador">0 / 500</span>
+                            </div>
+                            <textarea name="definicion" class="pn-input" rows="5" maxlength="500" placeholder="Definición" data-contador required
+                                      data-mensaje-obligatorio="Debe completar la definición."></textarea>
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+                    </div>
+                    <div class="pn-modal-pie">
+                        <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="pn-btn pn-btn-primario">Registrar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modales por término: modificar (CU-34) y dar de baja (CU-35) -->
+<th:block th:each="grupo : ${grupos}">
+    <th:block th:each="t : ${grupo.value}">
+        <div class="modal fade pn-modal" th:id="'modalEditarTermino' + ${t.idTermino}" tabindex="-1" aria-hidden="true" th:if="${puedeGestionar}">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content">
+                    <div class="pn-modal-cabecera">
+                        <h3 class="pn-modal-titulo">Editar término</h3>
+                        <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                    <div class="pn-modal-cuerpo">
+                        <div class="pn-seccion-titulo">
+                            <h4>Datos del término</h4>
+                            <p th:text="${'Glosario ' + numeroOrden + ' · ' + unidad.titulo}">Glosario 1</p>
+                        </div>
+                        <form th:action="@{'/glosario/modificar/' + ${t.idTermino}}" method="post" class="form-ajax" data-validar novalidate>
+                            <div class="row g-3 mb-3">
+                                <div class="col-12 pn-campo">
+                                    <div class="pn-etiqueta-fila">
+                                        <label class="pn-etiqueta">Término <span class="pn-obligatorio">*</span></label>
+                                        <span class="pn-contador" th:text="${#strings.length(t.termino) + ' / 50'}">0 / 50</span>
+                                    </div>
+                                    <input type="text" name="termino" class="pn-input" maxlength="50" th:value="${t.termino}" data-contador required
+                                           data-mensaje-obligatorio="Debe completar el término.">
+                                    <div class="pn-ayuda-error"></div>
+                                </div>
+                                <div class="col-12 pn-campo">
+                                    <div class="pn-etiqueta-fila">
+                                        <label class="pn-etiqueta">Definición <span class="pn-obligatorio">*</span></label>
+                                        <span class="pn-contador" th:text="${#strings.length(t.definicion) + ' / 500'}">0 / 500</span>
+                                    </div>
+                                    <textarea name="definicion" class="pn-input" rows="5" maxlength="500" data-contador required
+                                              data-mensaje-obligatorio="Debe completar la definición." th:text="${t.definicion}"></textarea>
+                                    <div class="pn-ayuda-error"></div>
+                                </div>
+                            </div>
+                            <div class="pn-modal-pie">
+                                <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+                                <button type="submit" class="pn-btn pn-btn-primario">Actualizar</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade pn-modal" th:id="'modalBajaTermino' + ${t.idTermino}" tabindex="-1" aria-hidden="true" th:if="${puedeDarDeBaja}">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="pn-modal-cabecera">
+                        <h3 class="pn-modal-titulo">Dar de baja término</h3>
+                        <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                    <div class="pn-modal-cuerpo text-center">
+                        <div class="pn-baja-icono"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                        <h4 class="pn-modal-titulo mb-1">¿Confirmas dar de baja el término?</h4>
+                        <p class="small text-muted mb-0">El término dejará de mostrarse en el glosario.</p>
+                        <div class="pn-baja-detalle">
+                            <div class="pn-baja-fila"><span class="text-muted">Término</span><strong th:text="${t.termino}">Acción</strong></div>
+                            <div class="pn-baja-fila"><span class="text-muted">Glosario</span><strong th:text="${'Glosario ' + numeroOrden}">Glosario 1</strong></div>
+                        </div>
+                        <form th:action="@{'/glosario/darDeBaja/' + ${t.idTermino}}" method="post" class="form-ajax">
+                            <div class="pn-modal-pie">
+                                <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+                                <button type="submit" class="pn-btn pn-btn-peligro">Dar de baja</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </th:block>
+</th:block>
+
+<th:block th:replace="~{fragments/panel :: scripts}"></th:block>
+<script th:src="@{/js/academica.js}"></script>
+<script th:src="@{/js/glosario.js}"></script>
+</body>
+</html>

@@ -89,6 +89,13 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/material/darDeBaja/*", "/material/darDeBajaMasiva")
                         .hasAnyRole("Docente", "Administrador")
                         .requestMatchers("/material/**").hasRole("Docente")
+                        // CU-32 a CU-35: glosario. Verlo: cualquier usuario con sesión (el controlador controla el acceso);
+                        // buscar los glosarios de un curso: docente y administrador; dar de baja un término: docente y
+                        // administrador; registrar y modificar: docente
+                        .requestMatchers(HttpMethod.GET, "/glosario/ver/*").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/glosario/buscar").hasAnyRole("Docente", "Administrador")
+                        .requestMatchers(HttpMethod.POST, "/glosario/darDeBaja/*").hasAnyRole("Docente", "Administrador")
+                        .requestMatchers("/glosario/**").hasRole("Docente")
                         // CU-27: Acceder curso (Docente)
                         .requestMatchers(HttpMethod.GET, "/curso/acceder/*").hasRole("Docente")
                         // CU-03 a CU-14: gestión de cursos, categorías y cohortes (Administrador)

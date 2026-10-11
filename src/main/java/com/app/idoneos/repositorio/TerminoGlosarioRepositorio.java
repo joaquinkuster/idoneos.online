@@ -27,4 +27,12 @@ public interface TerminoGlosarioRepositorio extends JpaRepository<TerminoGlosari
      * @return una lista de TerminoGlosario asociados al Unidad indicado
      */
     List<TerminoGlosario> findByUnidadAndBajaFalse(Unidad unidad);
+
+    /**
+     * Busca todos los términos de una unidad, incluidos los dados de baja.
+     *
+     * @param unidad la unidad del glosario
+     * @return la lista de términos
+     */
+    List<TerminoGlosario> findByUnidad(Unidad unidad);
 }

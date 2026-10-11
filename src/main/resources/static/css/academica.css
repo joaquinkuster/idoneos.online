@@ -1048,3 +1048,172 @@ a.ac-actividad-titulo:hover {
         font-size: 18px;
     }
 }
+
+/* ==========================================================================
+   GLOSARIO (MOD-F-02): vista de un glosario con buscador, índice alfabético y términos agrupados por letra
+   ========================================================================== */
+.gl-titulo-fila {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.gl-contenedor {
+    padding: 24px;
+}
+
+.gl-buscador {
+    padding-bottom: 20px;
+}
+
+.gl-buscador-fila {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
+}
+
+.gl-buscador-fila .pn-input {
+    flex: 0 1 280px;
+    min-width: 0;
+}
+
+.gl-casilla {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: var(--pn-texto-suave);
+    cursor: pointer;
+}
+
+.gl-indice,
+.gl-paginas {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 6px 10px;
+    padding: 12px 0;
+    border-top: 1px solid var(--pn-borde);
+    font-size: 15px;
+}
+
+.gl-paginas {
+    gap: 6px 12px;
+    color: var(--pn-texto-suave);
+}
+
+.gl-paginas a,
+.gl-indice a {
+    color: var(--pn-ver);
+    text-decoration: none;
+}
+
+.gl-indice a {
+    font-weight: 700;
+}
+
+.gl-paginas a:hover,
+.gl-indice a:hover {
+    text-decoration: underline;
+}
+
+.gl-indice-letra.activa {
+    font-weight: 700;
+    text-decoration: underline;
+}
+
+.gl-indice-letra-vacia {
+    color: #CBD5E1;
+    cursor: default;
+}
+
+.gl-indice-separador {
+    color: var(--pn-borde-input);
+}
+
+.gl-resultado {
+    margin: 4px 0 0;
+    text-align: center;
+    font-size: 14px;
+    color: var(--pn-texto-suave);
+}
+
+.gl-grupo {
+    margin-top: 24px;
+}
+
+.gl-letra {
+    margin: 0 0 8px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid var(--pn-borde-input);
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--pn-navy);
+}
+
+.gl-termino {
+    padding: 14px 0;
+    border-bottom: 1px solid var(--pn-borde);
+}
+
+.gl-termino:last-child {
+    border-bottom: 0;
+}
+
+.gl-termino-cabecera {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+
+.gl-termino-nombre {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--pn-texto);
+}
+
+.gl-definicion {
+    margin: 6px 0 0;
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--pn-texto);
+    white-space: pre-line;
+}
+
+.gl-vacio {
+    margin: 32px 0 8px;
+    text-align: center;
+    color: var(--pn-texto-suave);
+}
+
+.gl-iconos {
+    display: flex;
+    gap: 4px;
+}
+
+.gl-icono {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    width: 32px;
+    height: 32px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--pn-texto-suave);
+    cursor: pointer;
+}
+
+.gl-icono:hover {
+    background: var(--pn-borde);
+    color: var(--pn-texto);
+}
+
+.gl-icono-baja:hover {
+    color: var(--pn-peligro);
+}

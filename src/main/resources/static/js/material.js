@@ -2,7 +2,8 @@
  * Comportamiento del ABM de materiales (MOD-F-02).
  *
  *  1. Selector "Agregar un recurso o actividad" (vista del curso): muestra la descripción de lo elegido y, al
- *     confirmar, redirige al ABM de materiales con la unidad y el tipo elegidos.
+ *     confirmar, redirige al ABM de materiales con la unidad y el tipo elegidos o, si se elige Glosario, al
+ *     glosario de la unidad con el formulario de alta abierto.
  *  2. Formulario de alta: el tipo de material es un campo del formulario y los datos que pide (formatos y tamaño del
  *     archivo, enlace externo y autor) se adaptan al tipo.
  *  3. Si la página se abre con ?nuevo={tipo}, abre sola el formulario con ese tipo elegido.
@@ -52,7 +53,13 @@
             var elegida = opcionElegida();
             if (!elegida) { return; }
             var destino = selector.dataset.destino;
-            if (destino) {
+            if (elegida.dataset.glosario && destino) {
+                // El glosario es uno por unidad: se abre el de la unidad elegida con el formulario de alta abierto
+                var consulta = new URLSearchParams(destino.substring(destino.indexOf('?') + 1));
+                window.location.href = consulta.get('unidadId')
+                    ? '/glosario/ver/' + consulta.get('unidadId') + '?nuevo'
+                    : '/glosario/buscar?cursoId=' + consulta.get('cursoId');
+            } else if (destino) {
                 window.location.href = destino + (destino.indexOf('?') >= 0 ? '&' : '?') + 'nuevo=' + elegida.dataset.tipoId;
             }
         });
@@ -118,6 +125,10 @@
                 modalNuevo.querySelector('select[name="unidadId"]').value = modalNuevo.dataset.unidad;
             }
             modal(modalNuevo).show();
+            // Se quita "nuevo" de la dirección: al recargar después de subir, el formulario no vuelve a abrirse
+            var direccion = new URL(window.location.href);
+            direccion.searchParams.delete('nuevo');
+            window.history.replaceState(null, '', direccion.pathname + direccion.search);
         }
     }
 

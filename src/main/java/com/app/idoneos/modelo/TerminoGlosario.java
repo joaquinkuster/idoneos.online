@@ -1,5 +1,6 @@
 package com.app.idoneos.modelo;
 
+import java.text.Normalizer;
 import java.time.LocalDateTime;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -15,6 +16,15 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class TerminoGlosario {
+
+    /** Cantidad máxima de caracteres del término. */
+    public static final int LONGITUD_TERMINO = 50;
+
+    /** Cantidad máxima de caracteres de la definición. */
+    public static final int LONGITUD_DEFINICION = 500;
+
+    /** Letra con la que se agrupan los términos que no empiezan con una letra de la A a la Z (números, símbolos). */
+    public static final String LETRA_ESPECIAL = "#";
 
     /**
      * Identificador único del término del glosario.
@@ -34,13 +44,13 @@ public class TerminoGlosario {
     /**
      * Término del glosario.
      */
-    @Column(name = "termino", nullable = false, length = 50)
+    @Column(name = "termino", nullable = false, length = LONGITUD_TERMINO)
     private String termino;
 
     /**
      * Definición del término.
      */
-    @Column(name = "definicion", nullable = false, length = 150)
+    @Column(name = "definicion", nullable = false, length = LONGITUD_DEFINICION)
     private String definicion;
 
     /**
@@ -72,6 +82,31 @@ public class TerminoGlosario {
         this.unidad = unidad;
         this.termino = termino;
         this.definicion = definicion;
+    }
+
+    /**
+     * Obtiene la letra con la que se ordena el término en el índice del glosario: la inicial en mayúscula y sin tilde
+     * (la Ñ cuenta como N), o {@link #LETRA_ESPECIAL} si no empieza con una letra de la A a la Z.
+     *
+     * @return La letra de la A a la Z, o "#".
+     */
+    public String getLetraInicial() {
+        if (termino == null || termino.isBlank()) {
+            return LETRA_ESPECIAL;
+        }
+        String sinTilde = Normalizer.normalize(termino.trim().substring(0, 1), Normalizer.Form.NFD)
+                .replaceAll("\\p{M}", "").toUpperCase();
+        return sinTilde.matches("[A-Z]") ? sinTilde : LETRA_ESPECIAL;
+    }
+
+    /**
+     * Obtiene la fecha de la última actualización del término: la de su última modificación o, si nunca se modificó,
+     * la de su creación.
+     *
+     * @return La fecha y hora de la última actualización.
+     */
+    public LocalDateTime getUltimaActualizacion() {
+        return ultimaModificacion != null ? ultimaModificacion : fechaCreacion;
     }
 
     /**

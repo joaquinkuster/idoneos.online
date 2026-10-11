@@ -139,8 +139,6 @@
                                 </td>
                                 <td>
                                     <div class="pn-acciones">
-                                        <button type="button" class="pn-btn pn-btn-ver pn-btn-chico" data-bs-toggle="modal"
-                                                th:data-bs-target="'#modalVerMaterial' + ${m.idMaterial}">Ver</button>
                                         <button type="button" class="pn-btn pn-btn-editar pn-btn-chico" th:if="${puedeGestionar and !m.baja}"
                                                 data-bs-toggle="modal" th:data-bs-target="'#modalEditarMaterial' + ${m.idMaterial}">Editar</button>
                                         <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico" th:if="${!m.baja}"
@@ -262,44 +260,8 @@
     </div>
 </div>
 
-<!-- Modales por material: detalle (CU-28), modificar (CU-30) y dar de baja (CU-31) -->
+<!-- Modales por material: modificar (CU-30) y dar de baja (CU-31) -->
 <th:block th:each="m : ${materiales}">
-    <!-- Detalle -->
-    <div class="modal fade pn-modal" th:id="'modalVerMaterial' + ${m.idMaterial}" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="pn-modal-cabecera">
-                    <h3 class="pn-modal-titulo">Detalle del material</h3>
-                    <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
-                </div>
-                <div class="pn-modal-cuerpo">
-                    <div class="pn-baja-detalle mt-0">
-                        <div class="pn-baja-fila"><span class="text-muted">Título</span><strong th:text="${m.titulo}">Clase 3</strong></div>
-                        <div class="pn-baja-fila"><span class="text-muted">Tipo</span><strong th:text="${m.tipoMaterial.nombre}">Grabación</strong></div>
-                        <div class="pn-baja-fila"><span class="text-muted">Unidad</span><strong th:text="${m.unidad.titulo}">Renta fija</strong></div>
-                        <div class="pn-baja-fila"><span class="text-muted">Autor</span><strong th:text="${m.autor != null and !#strings.isEmpty(m.autor) ? m.autor : '—'}">Autor</strong></div>
-                        <div class="pn-baja-fila"><span class="text-muted">Subido por</span><strong th:text="${m.participacionDocente.docente.usuario.nombreCompleto}">Docente</strong></div>
-                        <div class="pn-baja-fila"><span class="text-muted">Generado por IA</span><strong th:text="${m.generadoPorIa ? 'Sí' : 'No'}">No</strong></div>
-                        <div class="pn-baja-fila"><span class="text-muted">Visibilidad</span><strong th:text="${m.oculto ? 'Oculto' : 'Publicado'}">Publicado</strong></div>
-                        <div class="pn-baja-fila"><span class="text-muted">Archivo</span>
-                            <strong th:if="${m.esEnlaceExterno()}"><a th:href="${m.rutaArchivo}" target="_blank" rel="noopener noreferrer">Abrir enlace</a></strong>
-                            <strong th:if="${m.tieneArchivo()}" th:text="${#strings.substringAfter(m.rutaArchivo, 'unidad' + m.unidad.idUnidad + '/')}">material1.mp4</strong>
-                            <strong th:if="${m.rutaArchivo == null}">Sin archivo</strong>
-                        </div>
-                        <div class="pn-baja-fila"><span class="text-muted">Registro</span><strong th:text="${#temporals.format(m.fechaCreacion, 'dd/MM/yyyy HH:mm')}">01/01/2026</strong></div>
-                        <div class="pn-baja-fila" th:if="${m.ultimaModificacion != null}"><span class="text-muted">Última modificación</span><strong th:text="${#temporals.format(m.ultimaModificacion, 'dd/MM/yyyy HH:mm')}">01/01/2026</strong></div>
-                    </div>
-                    <div class="pn-modal-pie">
-                        <a class="pn-btn pn-btn-primario" th:if="${!m.baja}" rel="noopener"
-                           th:href="${m.esEnlaceExterno()} ? ${m.rutaArchivo} : @{'/material/ver/' + ${m.idMaterial}}"
-                           th:target="${m.esEnlaceExterno()} ? '_blank' : null"><i class="fa-solid fa-up-right-from-square"></i> Abrir</a>
-                        <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cerrar</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- Modificar (solo docente, material activo) -->
     <div class="modal fade pn-modal" th:id="'modalEditarMaterial' + ${m.idMaterial}" tabindex="-1" aria-hidden="true"
          th:if="${puedeGestionar and !m.baja}">

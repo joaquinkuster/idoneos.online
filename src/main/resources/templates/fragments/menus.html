@@ -34,7 +34,7 @@
 
     <div th:replace="~{fragments/sidebar :: grupo('Contenido de las unidades')}"></div>
     <a th:replace="~{fragments/sidebar :: enlace((${esDocente} ? '/material/buscar?cursoId=' + ${curso.idCurso} : '#'), 'fa-file-lines', 'Materiales', ${activo}, 'materiales')}"></a>
-    <a th:replace="~{fragments/sidebar :: enlace('#', 'fa-spell-check', 'Glosario', ${activo}, 'glosario')}"></a>
+    <a th:replace="~{fragments/sidebar :: enlace((${esDocente} ? '/glosario/buscar?cursoId=' + ${curso.idCurso} : '#'), 'fa-spell-check', 'Glosario', ${activo}, 'glosario')}"></a>
     <a th:replace="~{fragments/sidebar :: enlace('#', 'fa-clipboard-check', 'Autoevaluaciones', ${activo}, 'autoevaluaciones')}"></a>
     <a th:replace="~{fragments/sidebar :: enlace('#', 'fa-comments', 'Foros', ${activo}, 'foros')}"></a>
 </th:block>

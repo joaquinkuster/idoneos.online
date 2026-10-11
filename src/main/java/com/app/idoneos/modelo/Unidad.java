@@ -183,6 +183,17 @@ public class Unidad {
     }
 
     /**
+     * Obtiene la fecha de la última actualización del glosario de la unidad: la más reciente entre sus términos
+     * vigentes.
+     *
+     * @return La fecha y hora, o {@code null} si el glosario no tiene términos.
+     */
+    public LocalDateTime getUltimaActualizacionGlosario() {
+        return terminosGlosario.stream().filter(termino -> !termino.getBaja())
+                .map(TerminoGlosario::getUltimaActualizacion).max(Comparator.naturalOrder()).orElse(null);
+    }
+
+    /**
      * Obtiene las autoevaluaciones publicadas de la unidad (vigentes y no ocultas).
      *
      * @return Las autoevaluaciones, en el orden en que se cargaron.

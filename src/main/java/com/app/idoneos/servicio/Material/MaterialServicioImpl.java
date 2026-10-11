@@ -405,21 +405,6 @@ public class MaterialServicioImpl implements MaterialServicio, CrudServicio<Mate
         if (!material.estaPublicado()) {
             return Optional.empty();
         }
-        return inscripcionRepositorio.findByAlumnoAndBajaFalse(alumno).stream()
-                .filter(inscripcion -> inscripcion.getCurso().getIdCurso() == material.getCurso().getIdCurso())
-                .filter(inscripcion -> tieneAccesoVigente(inscripcion.getIdInscripcion(), alumno))
-                .filter(inscripcion -> inscripcion.getCohorte().getPrograma().getCronogramaOrdenado().stream()
-                        .filter(cronograma -> cronograma.getUnidad().getIdUnidad() == material.getUnidad().getIdUnidad())
-                        .findFirst().map(inscripcion::estaUnidadHabilitada).orElse(false))
-                .findFirst();
-    }
-
-    private boolean tieneAccesoVigente(int idInscripcion, Alumno alumno) {
-        try {
-            inscripcionServicio.validarAcceso(idInscripcion, alumno);
-            return true;
-        } catch (IllegalArgumentException e) {
-            return false;
-        }
+        return inscripcionServicio.buscarConAccesoAUnidad(alumno, material.getUnidad());
     }
 }

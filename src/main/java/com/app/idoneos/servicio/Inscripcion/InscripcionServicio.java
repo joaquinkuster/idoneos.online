@@ -1,9 +1,11 @@
 package com.app.idoneos.servicio.Inscripcion;
 
 import java.util.List;
+import java.util.Optional;
 import com.app.idoneos.modelo.Alumno;
 import com.app.idoneos.modelo.Cohorte;
 import com.app.idoneos.modelo.Inscripcion;
+import com.app.idoneos.modelo.Unidad;
 
 /**
  * Servicio para gestionar las operaciones relacionadas con la inscripción.
@@ -48,4 +50,14 @@ public interface InscripcionServicio {
      * @throws IllegalArgumentException Si el alumno no puede acceder, con el motivo.
      */
     Inscripcion validarAcceso(int idInscripcion, Alumno alumno);
+
+    /**
+     * Busca la inscripción con la que un alumno puede ver el contenido de una unidad: una inscripción vigente a su
+     * curso, con acceso vigente (ver {@link #validarAcceso}) y con la unidad habilitada según su avance.
+     *
+     * @param alumno el alumno que quiere ver el contenido
+     * @param unidad la unidad del contenido
+     * @return la inscripción con acceso, o vacío si el alumno no puede ver la unidad
+     */
+    Optional<Inscripcion> buscarConAccesoAUnidad(Alumno alumno, Unidad unidad);
 }

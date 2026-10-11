@@ -6,6 +6,7 @@ import java.util.Optional;
 import com.app.idoneos.modelo.Alumno;
 import com.app.idoneos.modelo.Cohorte;
 import com.app.idoneos.modelo.Inscripcion;
+import com.app.idoneos.modelo.Unidad;
 import com.app.idoneos.repositorio.InscripcionRepositorio;
 import com.app.idoneos.servicio.CrudServicio;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -162,5 +163,28 @@ public class InscripcionServicioImpl implements InscripcionServicio, CrudServici
                     + cohorte.getFechaInicioDictado().format(FORMATO_FECHA) + ".");
         }
         return inscripcion;
+    }
+
+    /**
+     * Busca la inscripción con la que un alumno puede ver el contenido de una unidad.
+     */
+    @Override
+    public Optional<Inscripcion> buscarConAccesoAUnidad(Alumno alumno, Unidad unidad) {
+        return inscripcionRepositorio.findByAlumnoAndBajaFalse(alumno).stream()
+                .filter(inscripcion -> inscripcion.getCurso().getIdCurso() == unidad.getCurso().getIdCurso())
+                .filter(inscripcion -> tieneAccesoVigente(inscripcion, alumno))
+                .filter(inscripcion -> inscripcion.getCohorte().getPrograma().getCronogramaOrdenado().stream()
+                        .filter(cronograma -> cronograma.getUnidad().getIdUnidad() == unidad.getIdUnidad())
+                        .findFirst().map(inscripcion::estaUnidadHabilitada).orElse(false))
+                .findFirst();
+    }
+
+    private boolean tieneAccesoVigente(Inscripcion inscripcion, Alumno alumno) {
+        try {
+            validarAcceso(inscripcion.getIdInscripcion(), alumno);
+            return true;
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
     }
 }
