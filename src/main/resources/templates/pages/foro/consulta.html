@@ -93,7 +93,7 @@
                     <p class="fo-texto" th:text="${r.texto}">Es el promedio de los plazos de cada flujo.</p>
                 </article>
 
-                <p class="gl-vacio" th:if="${#lists.isEmpty(respuestas) and !unaSolaRespuesta}">Esta consulta todavía no tiene respuestas.</p>
+                <th:block th:if="${#lists.isEmpty(respuestas) and !unaSolaRespuesta}"><th:block th:replace="~{fragments/vacio :: bloque('fa-comments', 'Esta consulta todavía no tiene respuestas', 'Cuando un docente responda, vas a verlo acá.', null, null)}"></th:block></th:block>
 
             </section>
         </main>

@@ -112,11 +112,8 @@
                     </article>
                 </div>
 
-                <p class="gl-vacio" th:if="${totalTerminos == 0}">
-                    Este glosario todavía no tiene términos.
-                    <th:block th:if="${puedeGestionar}">Usá «Registrar término» para agregar el primero.</th:block>
-                </p>
-                <p class="gl-vacio" th:if="${totalTerminos > 0 and #maps.isEmpty(grupos)}">No se encontraron términos que coincidan con la búsqueda.</p>
+                <th:block th:if="${totalTerminos == 0}"><th:block th:replace="~{fragments/vacio :: bloque('fa-spell-check', 'Este glosario todavía no tiene términos', ${puedeGestionar ? 'Usá «Registrar término» para agregar el primero.' : 'Cuando se agreguen términos, vas a verlos acá.'}, null, null)}"></th:block></th:block>
+                <th:block th:if="${totalTerminos > 0 and #maps.isEmpty(grupos)}"><th:block th:replace="~{fragments/vacio :: bloque('fa-spell-check', 'No se encontraron términos', 'Ningún término coincide con la búsqueda.', null, null)}"></th:block></th:block>
             </section>
         </main>
 

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+
+<body>
+    <!-- Sección vacía: ícono, título en negrita, texto y, si se indica, un botón de contorno (todo centrado).
+         icono: clase de Font Awesome ('fa-folder-open'); url y etiqueta: del botón (null si no lleva). -->
+    <div th:fragment="bloque(icono, titulo, texto, url, etiqueta)" class="pn-tarjeta pn-vacio-grande">
+        <i class="fa-solid pn-vacio-icono" th:classappend="${icono}"></i>
+        <h3 th:text="${titulo}">Todavía no hay elementos</h3>
+        <p th:text="${texto}">Cuando se agreguen, vas a verlos acá.</p>
+        <a th:if="${url != null}" th:href="${url}" class="pn-btn pn-btn-contorno" th:text="${etiqueta}">Limpiar filtros</a>
+    </div>
+
+    <!-- Fila de una tabla sin resultados (la muestra panel.js cuando no queda ninguna fila). -->
+    <tr th:fragment="fila(columnas, icono, titulo, texto)" data-vacio hidden>
+        <td th:colspan="${columnas}" class="pn-vacio-grande">
+            <i class="fa-solid pn-vacio-icono" th:classappend="${icono}"></i>
+            <h3 th:text="${titulo}">No se encontraron elementos</h3>
+            <p th:text="${texto}">Ningún elemento coincide con los criterios ingresados.</p>
+        </td>
+    </tr>
+</body>
+
+</html>

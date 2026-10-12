@@ -270,6 +270,36 @@ public class Inscripcion {
     }
 
     /**
+     * Calcula cuántas semanas de atraso lleva el alumno: la diferencia entre la semana actual de la cohorte y la
+     * última semana de la primera unidad que todavía no completó, si esa unidad ya debería estar terminada.
+     *
+     * @return Las semanas de atraso, o 0 si el alumno está al día.
+     */
+    public int getSemanasDeAtraso() {
+        UnidadCronograma pendiente = getUnidadEnCurso();
+        if (pendiente == null) {
+            return 0;
+        }
+        return Math.max(0, cohorte.getSemanasTranscurridas() - pendiente.getSemanaHasta());
+    }
+
+    /**
+     * Calcula el estado resumido de una unidad según el avance del alumno: Completada, En curso (la primera que no
+     * completó) o Pendiente.
+     *
+     * @param unidadCronograma La unidad del cronograma a consultar.
+     * @return "Completada", "En curso" o "Pendiente".
+     */
+    public String getEstadoUnidadResumido(UnidadCronograma unidadCronograma) {
+        if (estaUnidadCompletada(unidadCronograma.getUnidad())) {
+            return "Completada";
+        }
+        UnidadCronograma enCurso = getUnidadEnCurso();
+        return enCurso != null && enCurso.getNumeroOrden() == unidadCronograma.getNumeroOrden()
+                ? "En curso" : "Pendiente";
+    }
+
+    /**
      * Calcula el estado de una unidad respecto del cronograma: Completada, Atrasada (debería estar terminada),
      * Semana actual o Próxima.
      *

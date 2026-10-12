@@ -1801,3 +1801,269 @@ a.ac-actividad-titulo:hover {
         border-radius: 12px;
     }
 }
+
+/* ==========================================================================
+   CAJÓN DEL CRONOGRAMA (vista del curso): a la derecha, se oculta y se vuelve a mostrar
+   ========================================================================== */
+.ac-con-cajon.ac-tiene-cajon {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 340px;
+    gap: 20px;
+    align-items: start;
+}
+
+.ac-con-cajon.ac-tiene-cajon.cajon-oculto {
+    grid-template-columns: minmax(0, 1fr);
+}
+
+.ac-principal {
+    min-width: 0;
+}
+
+.ac-cajon {
+    position: sticky;
+    top: calc(var(--nb-alto, 64px) + 16px);
+    padding: 14px;
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 14px;
+}
+
+.cajon-oculto .ac-cajon {
+    display: none;
+}
+
+.ac-cajon-cabecera {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 4px;
+}
+
+.ac-cajon-titulo {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--pn-navy);
+}
+
+.ac-cajon-cerrar {
+    padding: 4px 6px;
+    color: #64748B;
+    background: none;
+    border: 0;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.ac-cajon-cerrar:hover {
+    color: var(--pn-navy);
+    background: #F1F5F9;
+}
+
+.ac-cajon-cohorte {
+    margin: 0 0 8px;
+    font-size: 12px;
+    color: #64748B;
+}
+
+.ac-cajon-semana {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    margin-bottom: 4px;
+}
+
+.ac-cajon-semana strong {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--pn-navy);
+}
+
+.ac-cajon-semana > span:not(.pn-insignia) {
+    font-size: 12px;
+    color: #64748B;
+}
+
+.ac-cajon-semana {
+    flex-wrap: wrap;
+    gap: 6px 8px;
+}
+
+.ac-cajon-semana .pn-insignia {
+    align-self: center;
+    margin-left: 4px;
+    white-space: nowrap;
+}
+
+/* Grilla: una columna por semana y una fila por unidad */
+.ac-cajon-pista {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(var(--semanas), minmax(0, 1fr));
+    grid-auto-rows: 26px;
+    margin-top: 12px;
+    overflow: hidden;
+    border: 1px solid #E2E8F0;
+    border-radius: 8px;
+    background-image: repeating-linear-gradient(90deg, transparent 0,
+            transparent calc(100% / var(--semanas) - 1px), #EDF1F6 calc(100% / var(--semanas) - 1px),
+            #EDF1F6 calc(100% / var(--semanas)));
+}
+
+.ac-cajon-semana-numero {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    color: #64748B;
+    background: #F1F5F9;
+}
+
+.ac-cajon-semana-numero.actual {
+    font-weight: 800;
+    color: #991B1B;
+    background: #FEE2E2;
+}
+
+/* Línea roja: marca la semana actual, en el medio de su columna */
+.ac-cajon-actual {
+    z-index: 2;
+    justify-self: center;
+    width: 2px;
+    background: #DC2626;
+    pointer-events: none;
+}
+
+.ac-cajon-barra {
+    z-index: 1;
+    align-self: center;
+    height: 18px;
+    margin: 0 2px;
+    padding-left: 6px;
+    overflow: hidden;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 18px;
+    color: #FFFFFF;
+    white-space: nowrap;
+    border-radius: 4px;
+    cursor: default;
+}
+
+.ac-cajon-barra.completada,
+.ac-cajon-leyenda i.completada {
+    background: #2F5D8C;
+}
+
+.ac-cajon-barra.en-curso,
+.ac-cajon-leyenda i.en-curso {
+    background: var(--pn-gold);
+}
+
+.ac-cajon-barra.en-curso {
+    color: var(--pn-navy-dark);
+}
+
+.ac-cajon-barra.pendiente,
+.ac-cajon-leyenda i.pendiente {
+    background: #CBD5E1;
+}
+
+.ac-cajon-barra.pendiente {
+    color: #334155;
+}
+
+.ac-cajon-leyenda {
+    margin: 12px 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.ac-cajon-leyenda li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 0;
+    font-size: 12px;
+    color: #334155;
+}
+
+.ac-cajon-leyenda i {
+    width: 8px;
+    height: 8px;
+    flex-shrink: 0;
+    border-radius: 2px;
+}
+
+.ac-cajon-leyenda em {
+    margin-left: auto;
+    font-style: normal;
+    color: #64748B;
+}
+
+.ac-cajon-hoy {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 6px 0 0;
+    font-size: 12px;
+    color: #334155;
+}
+
+.ac-cajon-hoy i {
+    width: 8px;
+    height: 2px;
+    background: #DC2626;
+}
+
+/* Pestaña del borde derecho para volver a mostrar el cajón */
+.ac-cajon-pestana {
+    display: none;
+    position: fixed;
+    top: calc(var(--nb-alto, 64px) + 90px);
+    right: 0;
+    z-index: 900;
+    width: 32px;
+    height: 36px;
+    align-items: center;
+    justify-content: center;
+    color: #475569;
+    background: #FFFFFF;
+    border: 1px solid #CBD5E1;
+    border-right: 0;
+    border-radius: 18px 0 0 18px;
+    cursor: pointer;
+}
+
+.ac-cajon-pestana:hover {
+    color: var(--pn-navy);
+    background: #F1F5F9;
+}
+
+.cajon-oculto .ac-cajon-pestana {
+    display: flex;
+}
+
+/* Pantallas chicas: el cajón se abre encima del contenido */
+@media (max-width: 1100px) {
+    .ac-con-cajon.ac-tiene-cajon {
+        display: block;
+    }
+
+    .ac-cajon {
+        position: fixed;
+        top: calc(var(--nb-alto, 64px) + 12px);
+        right: 12px;
+        z-index: 1200;
+        width: min(320px, calc(100vw - 24px));
+        max-height: calc(100vh - var(--nb-alto, 64px) - 24px);
+        overflow-y: auto;
+        box-shadow: 0 12px 32px rgba(15, 23, 42, 0.25);
+    }
+}
+
+/* Alumno: sin el menú de tres puntos del docente, el estado de la unidad queda pegado al borde derecho */
+.ac-unidad-cabecera.ac-sin-menu {
+    padding-right: 20px;
+}

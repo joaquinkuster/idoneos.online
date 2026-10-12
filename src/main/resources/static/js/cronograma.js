@@ -100,7 +100,7 @@
             return '<tr><td>' + (i + 1) + '</td><td class="text-start"><span class="pn-celda-principal">' + escapar(u.titulo) + '</span></td>'
                 + '<td>' + u.material + (u.material === 1 ? ' material' : ' materiales') + '</td><td>' + textoSemanas(c.semanas) + '</td>'
                 + '<td>' + (primera === semanaActual ? 'Semana ' + primera : 'Semanas ' + primera + ' a ' + semanaActual) + '</td></tr>';
-        }).join('') : '<tr><td colspan="5" class="pn-vacio">El programa todavía no tiene unidades en su cronograma.</td></tr>';
+        }).join('') : '<tr><td colspan="5" class="pn-vacio-grande"><i class="fa-solid fa-calendar pn-vacio-icono"></i><h3>El cronograma está vacío</h3><p>Arrastrá unidades desde el panel izquierdo para armarlo.</p></td></tr>';
 
         if (editable) { dibujarDisponibles(); }
     }

@@ -79,9 +79,7 @@
             </form>
           </section>
 
-          <div th:if="${cursos == null or #lists.isEmpty(cursos)}" class="pn-tarjeta pn-vacio">
-            <i class="fa-solid fa-circle-info me-1"></i> No se encontraron cursos con cohortes abiertas que coincidan con los filtros seleccionados.
-          </div>
+          <th:block th:if="${cursos == null or #lists.isEmpty(cursos)}"><th:block th:replace="~{fragments/vacio :: bloque('fa-book-open', 'No se encontraron cursos', 'Ningún curso con cohortes abiertas coincide con los filtros seleccionados.', @{/catalogo}, 'Limpiar filtros')}"></th:block></th:block>
 
           <!-- Grilla de tarjetas -->
           <div class="wf-cards-grid">

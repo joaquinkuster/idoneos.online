@@ -30,6 +30,11 @@
                     <img th:if="${curso.urlImagen != null}" th:src="@{${curso.urlImagen}}" th:alt="${'Portada de ' + curso.nombre}">
                 </div>
 
+                <!-- Contenido del curso y, a la derecha, el cajón del cronograma (solo en la página principal) -->
+                <div class="ac-con-cajon"
+                    th:with="mostrarCajon=${seccion == 'unidades' and programa != null and !#lists.isEmpty(programa.cronogramaOrdenado)}"
+                    th:classappend="${mostrarCajon} ? 'ac-tiene-cajon'">
+                <div class="ac-principal">
                 <!-- Cabecera del curso -->
                 <header class="ac-cabecera-simple">
                     <h1 class="ac-titulo" th:text="${curso.nombre}">Especialización en Idoneidad Bursátil</h1>
@@ -90,11 +95,7 @@
                 <!-- ================= Sección: Unidades (acordeón) ================= -->
                 <section th:if="${seccion == 'unidades'}">
                     <!-- Curso sin programas (solo el docente lo ve): desde acá se registra el primero -->
-                    <div class="pn-tarjeta ac-vacio" th:if="${programa == null}">
-                        <i class="fa-regular fa-folder-open"></i>
-                        <p>Este curso todavía no tiene programas. Registrá el primero para empezar a cargar unidades.</p>
-                        <a class="pn-btn pn-btn-contorno" th:href="@{/programa/buscar(cursoId=${curso.idCurso}, nuevo='')}">Registrar programa</a>
-                    </div>
+                    <th:block th:if="${programa == null}"><th:block th:replace="~{fragments/vacio :: bloque('fa-folder-open', 'Este curso todavía no tiene programas', 'Registrá el primero para empezar a cargar unidades.', @{/programa/buscar(cursoId=${curso.idCurso}, nuevo='')}, 'Registrar programa')}"></th:block></th:block>
                     <th:block th:if="${programa != null}">
                     <div class="ac-barra-acordeon">
                         <h2 class="ac-seccion-titulo">Unidades</h2>
@@ -108,10 +109,7 @@
                         <button type="button" class="ac-enlace-boton" data-ac-colapsar>Colapsar todo</button>
                     </div>
 
-                    <div class="pn-tarjeta ac-vacio" th:if="${#lists.isEmpty(programa.cronogramaOrdenado)}">
-                        <i class="fa-regular fa-folder-open"></i>
-                        <p>El programa todavía no tiene unidades cargadas.</p>
-                    </div>
+                    <th:block th:if="${#lists.isEmpty(programa.cronogramaOrdenado)}"><th:block th:replace="~{fragments/vacio :: bloque('fa-layer-group', 'El programa todavía no tiene unidades', ${esDocente ? 'Usá «Registrar unidad» para cargar la primera.' : 'Cuando se carguen unidades, vas a verlas acá.'}, null, null)}"></th:block></th:block>
 
                     <div class="ac-acordeon">
                         <article class="ac-unidad" th:each="uc : ${programa.cronogramaOrdenado}"
@@ -122,7 +120,7 @@
                                       estadoUnidad=${esDocente ? '' : inscripcion.getEstadoUnidad(uc)},
                                       materiales=${esDocente ? uc.unidad.materialesVigentes : uc.unidad.materialesPublicados}"
                             th:classappend="${completada} ? 'ac-unidad-completada' : (${habilitada} ? 'ac-unidad-habilitada' : 'ac-unidad-bloqueada')">
-                            <button type="button" class="ac-unidad-cabecera" th:disabled="${!habilitada}"
+                            <button type="button" class="ac-unidad-cabecera" th:disabled="${!habilitada}" th:classappend="${!esDocente} ? 'ac-sin-menu'"
                                 data-bs-toggle="collapse"
                                 th:attr="data-bs-target=${'#unidad-' + uc.numeroOrden}, aria-expanded=${enCurso}"
                                 th:aria-controls="${'unidad-' + uc.numeroOrden}">
@@ -252,14 +250,9 @@
                 </th:block>
                 </section>
 
-                <!-- ================= Sección: Cronograma ================= -->
+                <!-- ================= Sección: Cronograma (solo lectura) ================= -->
                 <section th:if="${seccion == 'cronograma'}">
-                    <h2 class="ac-seccion-titulo">Cronograma del programa</h2>
-
-                    <div class="pn-tarjeta ac-vacio" th:if="${#lists.isEmpty(programa.cronogramaOrdenado)}">
-                        <i class="fa-regular fa-calendar"></i>
-                        <p>El programa todavía no tiene unidades cargadas.</p>
-                    </div>
+                    <th:block th:if="${#lists.isEmpty(programa.cronogramaOrdenado)}"><th:block th:replace="~{fragments/vacio :: bloque('fa-calendar', 'El programa todavía no tiene unidades', 'Cuando se carguen unidades, vas a ver su cronograma acá.', null, null)}"></th:block></th:block>
 
                     <div th:if="${!#lists.isEmpty(programa.cronogramaOrdenado)}">
                         <!-- Alumno: semana esperada y atraso respecto de su avance -->
@@ -281,42 +274,7 @@
                             </div>
                         </div>
 
-                        <!-- Docente: semana de la cohorte, sin avance -->
-                        <p class="ac-nota" th:if="${esDocente and cohorte != null}"
-                            th:text="${'Semana actual de la cohorte: ' + cohorte.semanaActual + ' de ' + programa.duracionTotalSemanas + ' (contada desde el inicio ' + (cohorte.fechaInicioDictado != null ? 'del dictado' : 'de la inscripción') + ', ' + #temporals.format(cohorte.fechaBaseCronograma, 'dd/MM/yyyy') + ').'}">
-                            Semana actual</p>
-
-                        <div class="pn-tarjeta ac-tabla-contenedor">
-                            <table class="pn-tabla ac-tabla">
-                                <thead>
-                                    <tr>
-                                        <th>Orden</th>
-                                        <th>Unidad</th>
-                                        <th>Duración</th>
-                                        <th>Semanas</th>
-                                        <th th:if="${!esDocente}">Estado</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr th:each="uc : ${programa.cronogramaOrdenado}"
-                                        th:with="estadoCronograma=${esDocente ? '' : inscripcion.getEstadoCronograma(uc)}">
-                                        <td th:text="${uc.numeroOrden}">1</td>
-                                        <td><span class="pn-celda-principal" th:text="${uc.unidad.titulo}">Unidad</span>
-                                        </td>
-                                        <td
-                                            th:text="${uc.semanasDuracion + (uc.semanasDuracion == 1 ? ' semana' : ' semanas')}">
-                                            2 semanas</td>
-                                        <td
-                                            th:text="${uc.semanaDesde == uc.semanaHasta ? 'Semana ' + uc.semanaDesde : 'Semanas ' + uc.semanaDesde + ' a ' + uc.semanaHasta}">
-                                            Semanas 1 a 2</td>
-                                        <td th:if="${!esDocente}"><span class="pn-insignia"
-                                                th:text="${estadoCronograma}"
-                                                th:classappend="${estadoCronograma == 'Completada'} ? 'pn-insignia-verde' : (${estadoCronograma == 'Atrasada'} ? 'pn-insignia-roja' : (${estadoCronograma == 'Semana actual'} ? 'pn-insignia-dorada' : 'pn-insignia-gris'))">Estado</span>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
+                        <th:block th:replace="~{fragments/cronogramaTablero :: tablero(${curso}, ${programa}, ${programa.cronogramaOrdenado}, ${unidadesDelCronograma}, false, true)}"></th:block>
                     </div>
                 </section>
 
@@ -324,13 +282,7 @@
                 <section th:if="${seccion == 'clases'}">
                     <h2 class="ac-seccion-titulo">Clases en vivo de tu cohorte</h2>
 
-                    <div class="pn-tarjeta ac-vacio"
-                        th:if="${cohorte == null or #lists.isEmpty(cohorte.clasesEnVivoPublicadas)}">
-                        <i class="fa-solid fa-video-slash"></i>
-                        <p
-                            th:text="${esDocente ? 'La cohorte todavía no tiene clases en vivo programadas.' : 'Tu cohorte todavía no tiene clases en vivo programadas.'}">
-                            Tu cohorte todavía no tiene clases en vivo programadas.</p>
-                    </div>
+                    <th:block th:if="${cohorte == null or #lists.isEmpty(cohorte.clasesEnVivoPublicadas)}"><th:block th:replace="~{fragments/vacio :: bloque('fa-video-slash', 'Todavía no hay clases en vivo', ${esDocente ? 'Cuando se programen clases en vivo para la cohorte, vas a verlas acá.' : 'Cuando se programen clases en vivo para tu cohorte, vas a verlas acá.'}, null, null)}"></th:block></th:block>
 
                     <ul class="ac-actividades ac-clases"
                         th:if="${cohorte != null and !#lists.isEmpty(cohorte.clasesEnVivoPublicadas)}">
@@ -350,6 +302,12 @@
                         </li>
                     </ul>
                 </section>
+                </div>
+
+                <th:block th:if="${mostrarCajon}">
+                    <th:block th:replace="~{fragments/cajonCronograma :: cajon(${programa}, ${cohorte}, ${inscripcion})}"></th:block>
+                </th:block>
+                </div>
             </main>
 
             <th:block th:replace="~{fragments/panel :: pie('Gestión académica')}"></th:block>
@@ -364,6 +322,8 @@
 
     <th:block th:replace="~{fragments/panel :: scripts}"></th:block>
     <script th:src="@{/js/academica.js}"></script>
+    <script th:src="@{/js/cajonCronograma.js}"></script>
+    <script th:src="@{/js/cronograma.js}" th:if="${seccion == 'cronograma'}"></script>
     <script th:src="@{/js/contexto.js}" th:if="${esDocente}"></script>
     <script th:if="${esDocente}" th:src="@{/js/material.js}"></script>
 </body>

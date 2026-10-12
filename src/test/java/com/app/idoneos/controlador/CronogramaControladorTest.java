@@ -168,7 +168,7 @@ class CronogramaControladorTest {
                 .mapToInt(Inscripcion::getIdInscripcion).findFirst().orElseThrow();
         mockMvc.perform(get("/inscripcion/acceder/" + inscripcion).param("seccion", "cronograma"))
                 .andExpect(status().isOk())
-                .andExpect(content().string(Matchers.containsString("Cronograma del programa")));
+                .andExpect(content().string(Matchers.containsString("id=\"cronograma\"")));
     }
 
     // ------------------------------------------------------------------ CU-24 Formulario

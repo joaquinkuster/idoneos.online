@@ -335,7 +335,7 @@ class ForoControladorTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string(Matchers.containsString("modalEditarConsulta")))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("modalResponder"))))
-                .andExpect(content().string(Matchers.containsString("Esta consulta todavía no tiene respuestas.")));
+                .andExpect(content().string(Matchers.containsString("Esta consulta todavía no tiene respuestas")));
         mockMvc.perform(get("/foro/consulta/" + vencida.getIdConsulta()))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("modalEditarConsulta"))));
     }

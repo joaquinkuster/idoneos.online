@@ -96,6 +96,38 @@ class AccederCursoControladorTest {
 
     @Test
     @WithUserDetails(value = "valentina.ruiz@correo.com", userDetailsServiceBeanName = "usuarioDetallesServicio")
+    @DisplayName("El alumno ve el cajón del cronograma con la semana actual, su estado y el estado de cada unidad")
+    void alumnoVeElCajonDelCronograma() throws Exception {
+        mockMvc.perform(get("/inscripcion/acceder/" + inscripcionDe("valentina.ruiz@correo.com")))
+                .andExpect(status().isOk())
+                .andExpect(content().string(Matchers.containsString("id=\"cajonCronograma\"")))
+                .andExpect(content().string(Matchers.containsString("ac-cajon-semana")))
+                .andExpect(content().string(Matchers.containsString("data-cajon-alternar")))
+                .andExpect(content().string(Matchers.containsString("ac-cajon-barra")))
+                .andExpect(content().string(Matchers.containsString("ac-cajon-leyenda")))
+                .andExpect(content().string(Matchers.anyOf(Matchers.containsString("Al día"),
+                        Matchers.containsString("de atraso"))));
+    }
+
+    @Test
+    @WithUserDetails(value = "valentina.ruiz@correo.com", userDetailsServiceBeanName = "usuarioDetallesServicio")
+    @DisplayName("La alumna atrasada ve en el cajón sus semanas de atraso, en la línea de la semana, y la leyenda de la línea roja")
+    void alumnaAtrasadaVeElAtrasoEnElCajon() throws Exception {
+        int atrasada = inscripcionRepositorio.findAll().stream()
+                .filter(i -> i.getAlumno().getUsuario().getCorreo().equals("valentina.ruiz@correo.com"))
+                .filter(i -> i.getCurso().getNombre().equals("Análisis Técnico Bursátil"))
+                .mapToInt(Inscripcion::getIdInscripcion).findFirst().orElseThrow();
+
+        mockMvc.perform(get("/inscripcion/acceder/" + atrasada))
+                .andExpect(status().isOk())
+                .andExpect(content().string(Matchers.containsString("3 semanas de atraso")))
+                .andExpect(content().string(Matchers.not(Matchers.containsString("Al día"))))
+                .andExpect(content().string(Matchers.containsString("ac-cajon-actual")))
+                .andExpect(content().string(Matchers.containsString("Hoy (semana actual)")));
+    }
+
+    @Test
+    @WithUserDetails(value = "valentina.ruiz@correo.com", userDetailsServiceBeanName = "usuarioDetallesServicio")
     @DisplayName("El alumno también ve la portada del curso en la página principal")
     void alumnoVeLaPortada() throws Exception {
         mockMvc.perform(get("/inscripcion/acceder/" + inscripcionDe("valentina.ruiz@correo.com")))
@@ -110,9 +142,15 @@ class AccederCursoControladorTest {
         mockMvc.perform(get("/inscripcion/acceder/" + inscripcionDe("valentina.ruiz@correo.com"))
                 .param("seccion", "cronograma"))
                 .andExpect(status().isOk())
-                .andExpect(content().string(Matchers.containsString("Cronograma del programa")))
                 .andExpect(content().string(Matchers.containsString("Semana esperada: 3 de 9")))
-                .andExpect(content().string(Matchers.containsString("Vas al día con el cronograma.")));
+                .andExpect(content().string(Matchers.containsString("Vas al día con el cronograma.")))
+                // el mismo tablero que ve el docente cuando hay inscripciones: solo lectura (sin paneles ni botones)
+                .andExpect(content().string(Matchers.containsString("id=\"cronograma\"")))
+                .andExpect(content().string(Matchers.containsString("data-editable=\"false\"")))
+                .andExpect(content().string(Matchers.containsString("data-vista=\"unidades\"")))
+                .andExpect(content().string(Matchers.not(Matchers.containsString("data-panel-disponibles"))))
+                .andExpect(content().string(Matchers.not(Matchers.containsString("data-modificar"))))
+                .andExpect(content().string(Matchers.not(Matchers.containsString("Borrador: ejercicios de duration"))));
     }
 
     @Test

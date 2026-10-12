@@ -62,7 +62,7 @@
                         <p th:if="${!hayFiltros}">Cuando te inscribas a un curso, vas a verlo acá con tu progreso.</p>
                         <h3 th:if="${hayFiltros}">No se encontraron cursos</h3>
                         <p th:if="${hayFiltros}">Ningún curso coincide con los filtros ingresados.</p>
-                        <a th:if="${!hayFiltros}" th:href="@{/catalogo}" class="pn-btn pn-btn-primario">Explorar catálogo</a>
+                        <a th:if="${!hayFiltros}" th:href="@{/catalogo}" class="pn-btn pn-btn-contorno">Explorar catálogo</a>
                         <a th:if="${hayFiltros}" th:href="@{/inscripcion/misCursos}" class="pn-btn pn-btn-contorno">Limpiar filtros</a>
                     </div>
 

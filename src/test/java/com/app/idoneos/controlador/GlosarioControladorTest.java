@@ -186,7 +186,7 @@ class GlosarioControladorTest {
         mockMvc.perform(get("/glosario/ver/" + tercera()).param("nuevo", ""))
                 .andExpect(status().isOk())
                 .andExpect(content().string(Matchers.containsString("data-abrir-modal=\"modalNuevoTermino\"")))
-                .andExpect(content().string(Matchers.containsString("Este glosario todavía no tiene términos.")));
+                .andExpect(content().string(Matchers.containsString("Este glosario todavía no tiene términos")));
         mockMvc.perform(get("/glosario/ver/" + tercera()))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("data-abrir-modal"))));
     }

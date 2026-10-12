@@ -87,11 +87,6 @@
                     <p>Cuando el docente cargue el archivo en un formato compatible, vas a poder verlo acá.</p>
                 </div>
             </section>
-
-            <section class="pn-tarjeta mv-descripcion" th:if="${material.contenido != null and !#strings.isEmpty(material.contenido)}">
-                <h2 class="ac-seccion-titulo">Descripción</h2>
-                <p th:text="${material.contenido}">Contenido del material.</p>
-            </section>
         </main>
 
         <th:block th:replace="~{fragments/panel :: pie(${esAdministrador ? 'Panel del administrador' : 'Gestión académica'})}"></th:block>

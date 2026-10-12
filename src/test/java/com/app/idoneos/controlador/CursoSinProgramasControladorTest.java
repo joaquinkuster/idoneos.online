@@ -54,7 +54,7 @@ class CursoSinProgramasControladorTest {
 
         mockMvc.perform(get("/curso/acceder/" + curso.getIdCurso()))
                 .andExpect(status().isOk())
-                .andExpect(content().string(Matchers.containsString("Este curso todavía no tiene programas.")))
+                .andExpect(content().string(Matchers.containsString("Este curso todavía no tiene programas")))
                 .andExpect(content().string(Matchers.containsString("/programa/buscar?cursoId=" + curso.getIdCurso() + "&amp;nuevo=")))
                 .andExpect(content().string(Matchers.containsString("Sin programas")))
                 // sin programa no hay unidades ni botón para registrarlas
@@ -95,7 +95,7 @@ class CursoSinProgramasControladorTest {
 
         // con el primer programa, el curso se ve con sus selectores y sin el aviso
         mockMvc.perform(get("/curso/acceder/" + id)).andExpect(status().isOk())
-                .andExpect(content().string(Matchers.not(Matchers.containsString("Este curso todavía no tiene programas."))))
+                .andExpect(content().string(Matchers.not(Matchers.containsString("Este curso todavía no tiene programas"))))
                 .andExpect(content().string(Matchers.containsString("Primer programa (Vigente)")))
                 .andExpect(content().string(Matchers.containsString("Registrar unidad")));
     }

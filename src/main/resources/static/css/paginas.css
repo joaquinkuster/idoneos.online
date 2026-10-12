@@ -884,3 +884,14 @@
     color: var(--pn-texto-suave);
     margin: 0 0 22px;
 }
+
+/* Sin botón debajo, el último texto no deja espacio de más */
+.pn-vacio-grande > :last-child {
+    margin-bottom: 0;
+}
+
+/* En una celda de tabla */
+.pn-tabla tbody td.pn-vacio-grande {
+    padding: 64px 24px;
+    border-bottom: 0;
+}

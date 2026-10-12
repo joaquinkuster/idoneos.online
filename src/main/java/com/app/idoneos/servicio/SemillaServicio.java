@@ -354,6 +354,10 @@ public class SemillaServicio {
                 titular5, presentacion);
         agregarUnidad(programa5, curso5, 2, 3, "Indicadores y osciladores", "Medias móviles, RSI y MACD.", titular5, presentacion);
         crearCohorte(programa5, ahora.plusDays(15), ahora.plusDays(45), ahora.plusDays(50), ahora.plusDays(100), 10, null);
+        // Cohorte en su semana 6 de 6 con Valentina sin completar ninguna unidad: va atrasada (la primera terminaba en la semana 3)
+        Cohorte enDictado5 = crearCohorte(programa5, ahora.minusDays(70), ahora.minusDays(45), ahora.minusDays(40),
+                ahora.plusDays(2), 8, 20);
+        crearInscripcion(enDictado5, valentina, ahora, null);
 
         // Curso 6: Introducción a las Finanzas (sin programas ni unidades: puede darse de baja)
         crearCurso("Introducción a las Finanzas", "Conceptos básicos para empezar a entender el mundo financiero.", 40000f,

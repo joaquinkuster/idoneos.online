@@ -39,6 +39,19 @@ class AccederCursoDocenteControladorTest {
 
     @Test
     @WithUserDetails(value = "fausto.spotorno@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesServicio")
+    @DisplayName("El docente ve el cajón del cronograma con el estado de las unidades y sin avisos de atraso")
+    void docenteVeElCajonDelCronograma() throws Exception {
+        mockMvc.perform(get("/curso/acceder/" + idCurso("Mercado de Capitales Argentino")))
+                .andExpect(status().isOk())
+                .andExpect(content().string(Matchers.containsString("id=\"cajonCronograma\"")))
+                .andExpect(content().string(Matchers.containsString("ac-cajon-leyenda")))
+                .andExpect(content().string(Matchers.containsString("data-cajon-alternar")))
+                .andExpect(content().string(Matchers.not(Matchers.containsString("de atraso"))))
+                .andExpect(content().string(Matchers.not(Matchers.containsString("Al día"))));
+    }
+
+    @Test
+    @WithUserDetails(value = "fausto.spotorno@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesServicio")
     @DisplayName("CU-27: el docente ve todas las unidades habilitadas, con su contenido y sin avance")
     void docenteVeLasUnidadesSinBloqueos() throws Exception {
         mockMvc.perform(get("/curso/acceder/" + idCurso("Mercado de Capitales Argentino")))

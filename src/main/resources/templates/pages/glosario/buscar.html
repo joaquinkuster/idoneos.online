@@ -87,9 +87,7 @@
                                     </div>
                                 </td>
                             </tr>
-                            <tr data-vacio hidden>
-                                <td colspan="5" class="pn-vacio">No se encontraron glosarios que coincidan con los criterios ingresados.</td>
-                            </tr>
+                            <tr th:replace="~{fragments/vacio :: fila(5, 'fa-spell-check', 'No se encontraron glosarios', 'Ningún glosario coincide con los criterios ingresados.')}"></tr>
                         </tbody>
                     </table>
                 </div>

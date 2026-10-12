@@ -110,9 +110,7 @@
                                     </div>
                                 </td>
                             </tr>
-                            <tr data-vacio hidden>
-                                <td colspan="9" class="pn-vacio">No se encontraron programas que coincidan con los criterios ingresados.</td>
-                            </tr>
+                            <tr th:replace="~{fragments/vacio :: fila(9, 'fa-folder-open', 'No se encontraron programas', 'Ningún programa coincide con los criterios ingresados.')}"></tr>
                         </tbody>
                     </table>
                 </div>

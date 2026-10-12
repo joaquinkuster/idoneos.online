@@ -246,6 +246,43 @@ public class Cohorte {
     }
 
     /**
+     * Indica si el cronograma de la cohorte ya comenzó: llegó la fecha desde la que se cuentan sus semanas.
+     *
+     * @return {@code true} si la fecha base del cronograma ya pasó.
+     */
+    public boolean haComenzadoCronograma() {
+        return !LocalDateTime.now().isBefore(getFechaBaseCronograma());
+    }
+
+    /**
+     * Indica si el cronograma de la cohorte ya terminó: pasó la última semana del programa.
+     *
+     * @return {@code true} si el cronograma comenzó y ya transcurrieron todas sus semanas.
+     */
+    public boolean haFinalizadoCronograma() {
+        return haComenzadoCronograma() && getSemanasTranscurridas() > programa.getDuracionTotalSemanas();
+    }
+
+    /**
+     * Calcula el estado de una unidad según el calendario de la cohorte (sin mirar el avance de ningún alumno):
+     * Completada si su última semana ya pasó, En curso si la semana actual está dentro de sus semanas y Pendiente en
+     * los demás casos (incluido el cronograma que todavía no comenzó).
+     *
+     * @param unidadCronograma La unidad del cronograma a consultar.
+     * @return "Completada", "En curso" o "Pendiente".
+     */
+    public String getEstadoUnidadResumido(UnidadCronograma unidadCronograma) {
+        if (!haComenzadoCronograma()) {
+            return "Pendiente";
+        }
+        int semana = getSemanasTranscurridas();
+        if (unidadCronograma.getSemanaHasta() < semana) {
+            return "Completada";
+        }
+        return unidadCronograma.getSemanaDesde() <= semana ? "En curso" : "Pendiente";
+    }
+
+    /**
      * Obtiene las clases en vivo de la cohorte que no están dadas de baja ni ocultas, de la más próxima a la
      * más lejana.
      *

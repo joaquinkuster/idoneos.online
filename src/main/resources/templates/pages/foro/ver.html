@@ -106,10 +106,7 @@
                                     </div>
                                 </td>
                             </tr>
-                            <tr data-vacio hidden>
-                                <td colspan="5" class="pn-vacio"
-                                    th:text="${totalConsultas == 0 ? 'Este foro todavía no tiene consultas.' : 'No se encontraron consultas que coincidan con los criterios ingresados.'}">No se encontraron consultas.</td>
-                            </tr>
+                            <tr th:replace="~{fragments/vacio :: fila(5, 'fa-comments', ${totalConsultas == 0 ? 'Este foro todavía no tiene consultas' : 'No se encontraron consultas'}, ${totalConsultas == 0 ? 'Cuando se registre una consulta, vas a verla acá.' : 'Ninguna consulta coincide con los criterios ingresados.'})}"></tr>
                         </tbody>
                     </table>
                 </div>

@@ -58,71 +58,7 @@
             <p class="ac-nota" th:if="${esDocente and cohorte != null}"
                 th:text="${'Semana actual de la cohorte: ' + cohorte.semanaActual + ' de ' + programa.duracionTotalSemanas + ' (contada desde el inicio ' + (cohorte.fechaInicioDictado != null ? 'del dictado' : 'de la inscripción') + ', ' + #temporals.format(cohorte.fechaBaseCronograma, 'dd/MM/yyyy') + ').'}">Semana actual</p>
 
-            <div class="cn" id="cronograma" th:attr="data-editable=${puedeEditar}, data-programa-id=${programa.idPrograma},
-                 data-url-modificar=@{/cronograma/modificar}, data-url-nueva=@{/unidad/buscar(cursoId=${curso.idCurso}, nuevo='')}">
-                <!-- Datos para la pantalla: las unidades del curso y las que están en el cronograma, en orden -->
-                <div hidden>
-                    <span data-unidad th:each="u : ${unidadesDelCurso}"
-                          th:attr="data-id=${u.idUnidad}, data-titulo=${u.titulo}, data-material=${#lists.size(u.materialesVigentes)}"></span>
-                    <span data-colocada th:each="uc : ${cronograma}"
-                          th:attr="data-id=${uc.unidad.idUnidad}, data-semanas=${uc.semanasDuracion}"></span>
-                </div>
-
-                <div class="cn-columnas">
-                    <!-- Unidades disponibles (solo cuando se puede modificar) -->
-                    <aside class="cn-panel cn-izq" th:if="${puedeEditar}" data-panel-disponibles>
-                        <h2 class="cn-panel-titulo">Unidades disponibles</h2>
-                        <input type="text" class="pn-input cn-buscar" placeholder="Buscar unidad..." data-buscar autocomplete="off">
-                        <button type="button" class="cn-nueva" data-nueva-unidad><i class="fa-solid fa-plus"></i> Nueva unidad</button>
-                        <div data-disponibles></div>
-                    </aside>
-
-                    <section class="cn-panel cn-der">
-                        <div class="cn-cabecera">
-                            <div class="cn-titulo-fila">
-                                <h2 class="cn-panel-titulo mb-0">Cronograma</h2>
-                                <!-- Ayuda de la edición: muestra u oculta el texto explicativo de abajo (en solo lectura no hay) -->
-                                <button type="button" class="cn-ayuda" data-ayuda aria-expanded="false" aria-label="Ayuda del cronograma" th:if="${puedeEditar}"
-                                    title="Ayuda"><i class="fa-solid fa-circle-info"></i></button>
-                            </div>
-                            <div class="cn-pestanias">
-                                <button type="button" class="cn-pestania activa" data-vista="semanas">Vista por semanas</button>
-                                <button type="button" class="cn-pestania" data-vista="unidades">Vista por unidades</button>
-                            </div>
-                        </div>
-
-                        <div class="cn-info" data-ayuda-texto hidden th:if="${puedeEditar}">
-                            <i class="fa-solid fa-circle-info"></i>
-                            <span>Podés arrastrar las unidades para reordenarlas o modificar su duración (borde derecho de la barra). Los cambios se guardan al finalizar. Para quitar una unidad, arrastrala al panel izquierdo: si no forma parte de otro programa, quedará dada de baja.</span>
-                        </div>
-
-                        <div class="cn-grilla" data-grilla></div>
-                        <div class="cn-zona" data-zona th:if="${puedeEditar}">
-                            <i class="fa-solid fa-circle-plus"></i> Arrastrá una unidad desde la izquierda o hacé clic en + Nueva unidad
-                        </div>
-
-                        <div class="cn-vista-unidades" data-vista-unidades hidden>
-                            <table class="pn-tabla">
-                                <thead>
-                                    <tr><th>Orden</th><th>Unidad</th><th>Material</th><th>Duración</th><th>Semanas</th></tr>
-                                </thead>
-                                <tbody data-tabla></tbody>
-                            </table>
-                        </div>
-
-                        <div class="cn-resumen">
-                            <strong>Resumen del cronograma</strong>
-                            <span class="cn-resumen-pastillas" data-resumen></span>
-                            <span class="cn-resumen-total" data-total-resumen>Total: 0 semanas</span>
-                        </div>
-                    </section>
-                </div>
-
-                <div class="cn-pie" th:if="${puedeEditar}">
-                    <button type="button" class="pn-btn pn-btn-secundario" data-cancelar>Cancelar</button>
-                    <button type="button" class="pn-btn pn-btn-primario" data-modificar>Modificar</button>
-                </div>
-            </div>
+            <th:block th:replace="~{fragments/cronogramaTablero :: tablero(${curso}, ${programa}, ${cronograma}, ${unidadesDelCurso}, ${puedeEditar}, false)}"></th:block>
         </main>
 
         <th:block th:replace="~{fragments/panel :: pie(${esDocente ? 'Gestión académica' : 'Panel del administrador'})}"></th:block>

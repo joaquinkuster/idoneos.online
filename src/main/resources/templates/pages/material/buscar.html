@@ -146,9 +146,7 @@
                                     </div>
                                 </td>
                             </tr>
-                            <tr data-vacio hidden>
-                                <td colspan="10" class="pn-vacio">No se encontraron materiales que coincidan con los criterios ingresados.</td>
-                            </tr>
+                            <tr th:replace="~{fragments/vacio :: fila(10, 'fa-folder-open', 'No se encontraron materiales', 'Ningún material coincide con los criterios ingresados.')}"></tr>
                         </tbody>
                     </table>
                 </div>

@@ -93,9 +93,7 @@
                                     <span th:if="${cat.baja}" class="pn-celda-secundaria">—</span>
                                 </td>
                             </tr>
-                            <tr data-vacio hidden>
-                                <td colspan="6" class="pn-vacio">No se encontraron categorías que coincidan con los criterios ingresados.</td>
-                            </tr>
+                            <tr th:replace="~{fragments/vacio :: fila(6, 'fa-tags', 'No se encontraron categorías', 'Ninguna categoría coincide con los criterios ingresados.')}"></tr>
                         </tbody>
                     </table>
                 </div>

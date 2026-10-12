@@ -93,9 +93,7 @@
                                     </div>
                                 </td>
                             </tr>
-                            <tr data-vacio hidden>
-                                <td colspan="9" class="pn-vacio">No se encontraron unidades que coincidan con los criterios ingresados.</td>
-                            </tr>
+                            <tr th:replace="~{fragments/vacio :: fila(9, 'fa-layer-group', 'No se encontraron unidades', 'Ninguna unidad coincide con los criterios ingresados.')}"></tr>
                         </tbody>
                     </table>
                 </div>

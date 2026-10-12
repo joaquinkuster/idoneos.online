@@ -122,9 +122,7 @@
                                     <span th:if="${coh.baja}" class="pn-celda-secundaria">—</span>
                                 </td>
                             </tr>
-                            <tr data-vacio hidden>
-                                <td colspan="7" class="pn-vacio">No se encontraron cohortes que coincidan con los criterios ingresados.</td>
-                            </tr>
+                            <tr th:replace="~{fragments/vacio :: fila(7, 'fa-calendar-days', 'No se encontraron cohortes', 'Ninguna cohorte coincide con los criterios ingresados.')}"></tr>
                         </tbody>
                     </table>
                 </div>

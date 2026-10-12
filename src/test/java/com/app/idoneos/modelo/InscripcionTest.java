@@ -145,4 +145,76 @@ class InscripcionTest {
         assertFalse(inscripcion.estaAtrasada());
         assertEquals("Completada", inscripcion.getEstadoCronograma(unidad1));
     }
+
+    @Test
+    @DisplayName("Las semanas de atraso son la semana actual menos la última semana de la primera unidad sin completar")
+    void semanasDeAtraso() {
+        // semana 3 y sigue en la unidad 1 (que terminaba en la semana 2): 1 semana de atraso
+        assertEquals(1, inscripcion.getSemanasDeAtraso());
+
+        cohorte.setFechaInicioDictado(ahora.minusDays(40));
+        // semana 6 y sigue en la unidad 1: 4 semanas de atraso
+        assertEquals(4, inscripcion.getSemanasDeAtraso());
+
+        completar(unidad1);
+        // semana 6 con la unidad 2 (hasta la semana 5) sin completar: 1 semana de atraso
+        assertEquals(1, inscripcion.getSemanasDeAtraso());
+
+        completar(unidad2);
+        completar(unidad3);
+        assertEquals(0, inscripcion.getSemanasDeAtraso());
+    }
+
+    @Test
+    @DisplayName("Quien está al día no tiene semanas de atraso")
+    void sinAtraso() {
+        completar(unidad1);
+
+        assertEquals(0, inscripcion.getSemanasDeAtraso());
+    }
+
+    @Test
+    @DisplayName("El estado resumido del alumno es Completada, En curso o Pendiente según su avance")
+    void estadoResumidoDelAlumno() {
+        assertEquals("En curso", inscripcion.getEstadoUnidadResumido(unidad1));
+        assertEquals("Pendiente", inscripcion.getEstadoUnidadResumido(unidad2));
+
+        completar(unidad1);
+
+        assertEquals("Completada", inscripcion.getEstadoUnidadResumido(unidad1));
+        assertEquals("En curso", inscripcion.getEstadoUnidadResumido(unidad2));
+        assertEquals("Pendiente", inscripcion.getEstadoUnidadResumido(unidad3));
+    }
+
+    @Test
+    @DisplayName("El estado resumido del calendario de la cohorte depende de la semana actual")
+    void estadoResumidoDelCalendario() {
+        // semana 3: la unidad 1 ya pasó, la 2 está en curso y la 3 falta
+        assertEquals("Completada", cohorte.getEstadoUnidadResumido(unidad1));
+        assertEquals("En curso", cohorte.getEstadoUnidadResumido(unidad2));
+        assertEquals("Pendiente", cohorte.getEstadoUnidadResumido(unidad3));
+    }
+
+    @Test
+    @DisplayName("Un cronograma que todavía no comenzó deja todas las unidades pendientes")
+    void cronogramaSinComenzar() {
+        cohorte.setFechaInicioDictado(ahora.plusDays(10));
+
+        assertFalse(cohorte.haComenzadoCronograma());
+        assertFalse(cohorte.haFinalizadoCronograma());
+        assertEquals("Pendiente", cohorte.getEstadoUnidadResumido(unidad1));
+        assertEquals("Pendiente", cohorte.getEstadoUnidadResumido(unidad2));
+    }
+
+    @Test
+    @DisplayName("El cronograma comenzó o finalizó según las semanas transcurridas")
+    void cronogramaEnCursoYFinalizado() {
+        assertTrue(cohorte.haComenzadoCronograma());
+        assertFalse(cohorte.haFinalizadoCronograma());
+
+        cohorte.setFechaInicioDictado(ahora.minusDays(200));
+
+        assertTrue(cohorte.haFinalizadoCronograma());
+        assertEquals("Completada", cohorte.getEstadoUnidadResumido(unidad3));
+    }
 }

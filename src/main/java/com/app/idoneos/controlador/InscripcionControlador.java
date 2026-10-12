@@ -14,6 +14,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.app.idoneos.modelo.Alumno;
 import com.app.idoneos.modelo.Inscripcion;
+import com.app.idoneos.modelo.UnidadCronograma;
 import com.app.idoneos.modelo.Usuario;
 import com.app.idoneos.utilidades.PaginacionUtilidad;
 import com.app.idoneos.servicio.Inscripcion.InscripcionServicioImpl;
@@ -110,6 +111,9 @@ public class InscripcionControlador {
             modelo.addAttribute("curso", inscripcion.getCurso());
             modelo.addAttribute("programa", inscripcion.getCohorte().getPrograma());
             modelo.addAttribute("cohorte", inscripcion.getCohorte());
+            // Unidades del cronograma, para el tablero de solo lectura de la sección "cronograma"
+            modelo.addAttribute("unidadesDelCronograma", inscripcion.getCohorte().getPrograma().getCronogramaOrdenado()
+                    .stream().map(UnidadCronograma::getUnidad).toList());
             modelo.addAttribute("esDocente", false);
             modelo.addAttribute("urlBase", "/inscripcion/acceder/" + idInscripcion);
             modelo.addAttribute("urlMisCursos", "/inscripcion/misCursos");
