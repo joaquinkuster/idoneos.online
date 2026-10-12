@@ -24,7 +24,7 @@
 }
 
 /* ==========================================================================
-   MENÚ DESPLEGABLE DEL USUARIO (barra superior del sitio y del panel)
+   MENÚ DESPLEGABLE DEL USUARIO (dentro del navbar único)
    ========================================================================== */
 .um-wrapper {
     position: relative;
@@ -41,27 +41,6 @@
     cursor: pointer;
     text-align: left;
     transition: background-color 0.15s ease, border-color 0.15s ease;
-}
-
-.um-trigger-oscuro {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.18);
-    color: #FFFFFF;
-}
-
-.um-trigger-oscuro:hover,
-.um-wrapper.abierto .um-trigger-oscuro {
-    background: rgba(255, 255, 255, 0.16);
-}
-
-.um-trigger-claro {
-    background: transparent;
-    color: var(--pn-texto);
-}
-
-.um-trigger-claro:hover,
-.um-wrapper.abierto .um-trigger-claro {
-    background: var(--pn-fondo);
 }
 
 .um-avatar {
@@ -93,11 +72,6 @@
     font-size: 11px;
     font-weight: 500;
     opacity: 0.7;
-}
-
-/* En la barra oscura del sitio no hay lugar para el rol (se ve en el menú desplegable) */
-.um-trigger-oscuro .um-rol {
-    display: none;
 }
 
 .um-flecha {
@@ -329,57 +303,6 @@ body.pn-body {
     z-index: 1;
 }
 
-.pn-menu-cabecera {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    padding: 20px 16px 18px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.pn-menu-marca {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    color: #FFFFFF;
-    text-decoration: none;
-    min-width: 0;
-}
-
-.pn-menu-marca img {
-    height: 34px;
-    width: auto;
-    flex-shrink: 0;
-}
-
-.pn-menu-marca span {
-    font-size: 17px;
-    font-weight: 800;
-    white-space: nowrap;
-}
-
-.pn-menu-marca span b {
-    color: var(--pn-gold);
-    font-weight: 800;
-}
-
-.pn-menu-colapsar {
-    background: transparent;
-    border: 0;
-    color: #94A3B8;
-    width: 28px;
-    height: 28px;
-    border-radius: 6px;
-    cursor: pointer;
-    flex-shrink: 0;
-}
-
-.pn-menu-colapsar:hover {
-    background: rgba(255, 255, 255, 0.08);
-    color: #FFFFFF;
-}
-
 .pn-menu-nav {
     flex: 1;
     padding: 16px 12px;
@@ -432,24 +355,14 @@ body.pn-body {
     width: var(--pn-ancho-menu-colapsado);
 }
 
-.pn-app.colapsado .pn-menu-marca span,
 .pn-app.colapsado .pn-menu-enlace span,
 .pn-app.colapsado .pn-menu-pie {
     display: none;
 }
 
-.pn-app.colapsado .pn-menu-cabecera {
-    flex-direction: column;
-    padding: 16px 8px;
-}
-
 .pn-app.colapsado .pn-menu-enlace {
     justify-content: center;
     padding: 11px 0;
-}
-
-.pn-app.colapsado .pn-menu-colapsar i {
-    transform: rotate(180deg);
 }
 
 .pn-principal {
@@ -463,28 +376,6 @@ body.pn-body {
 
 .pn-app.colapsado .pn-principal {
     margin-left: var(--pn-ancho-menu-colapsado);
-}
-
-.pn-barra {
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-    height: 64px;
-    background: #FFFFFF;
-    border-bottom: 1px solid var(--pn-borde);
-    padding: 0 28px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.pn-barra-menu {
-    display: none;
-    background: transparent;
-    border: 0;
-    font-size: 18px;
-    color: var(--pn-texto);
-    cursor: pointer;
 }
 
 .pn-contenido {
@@ -1344,14 +1235,6 @@ textarea.pn-input {
         margin-left: 0;
     }
 
-    .pn-barra-menu {
-        display: block;
-    }
-
-    .pn-barra {
-        padding: 0 16px;
-    }
-
     .pn-contenido {
         padding: 18px 16px;
     }
@@ -1360,7 +1243,6 @@ textarea.pn-input {
         grid-template-columns: 1fr;
     }
 
-    .pn-app.colapsado .pn-menu-marca span,
     .pn-app.colapsado .pn-menu-enlace span {
         display: inline;
     }
@@ -1382,102 +1264,6 @@ textarea.pn-input {
 
     .pn-modal-pie {
         flex-wrap: wrap;
-    }
-}
-
-/* ==========================================================================
-   NAVBAR PRINCIPAL: transparente arriba y con color al hacer scroll (como el encabezado de CataratasRH).
-   El hover y el elemento activo se muestran solo con una línea dorada inferior.
-   ========================================================================== */
-body .wf-top-navbar {
-    position: fixed !important;
-    z-index: 2000 !important;
-    top: 0;
-    left: 0;
-    right: 0;
-    background: transparent !important;
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-    border-bottom: 1px solid transparent !important;
-    box-shadow: none !important;
-    /* El fondo no se anima: de transparente pasa directo al azul marino (animarlo dejaba ver un tono claro intermedio) */
-    transition: box-shadow 0.3s ease;
-}
-
-body .wf-top-navbar.con-color {
-    background: #071324 !important;
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-    border-bottom-color: rgba(255, 255, 255, 0.08) !important;
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25) !important;
-}
-
-/* El banner superior pasa por debajo del navbar fijo */
-.wf-top-navbar ~ .wf-hero-banner {
-    padding-top: 96px;
-}
-
-.wf-top-navbar ~ .wf-hero-section {
-    padding-top: 64px;
-}
-
-/* Páginas sin banner oscuro: el contenido empieza debajo del navbar */
-.wf-top-navbar + :not(.wf-hero-banner):not(.wf-hero-section):not(.auth-pagina) {
-    margin-top: 64px;
-}
-
-body .wf-top-nav-links {
-    background: transparent !important;
-    border: 0 !important;
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-    gap: 6px;
-    padding: 0;
-}
-
-.wf-nav-sliding-capsule {
-    display: none !important;
-}
-
-body .wf-top-nav-link {
-    border-radius: 0 !important;
-    padding: 8px 14px;
-    color: #E2E8F0;
-}
-
-body .wf-top-nav-link::after {
-    content: '';
-    position: absolute;
-    left: 14px;
-    right: 14px;
-    bottom: 0;
-    height: 2px;
-    background: var(--pn-gold);
-    border-radius: 1px;
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform 0.25s ease;
-}
-
-body .wf-top-nav-link:hover,
-body .wf-top-nav-link.active {
-    color: #FFFFFF;
-}
-
-body .wf-top-nav-link:hover::after,
-body .wf-top-nav-link.active::after {
-    transform: scaleX(1);
-}
-
-@media (max-width: 991.98px) {
-    body .wf-top-nav-link::after {
-        left: 0;
-        right: auto;
-        width: 36px;
-    }
-
-    .wf-top-navbar ~ .wf-hero-banner {
-        padding-top: 84px;
     }
 }
 

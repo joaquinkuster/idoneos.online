@@ -11,7 +11,7 @@
 
     <div class="pn-principal">
         <th:block th:if="${esAdministrador}"><th:block th:replace="~{fragments/panel :: barra(null)}"></th:block></th:block>
-        <th:block th:unless="${esAdministrador}"><th:block th:replace="~{fragments/panel :: barra(~{fragments/menus :: barraGestionAcademica('misCursos', ${urlMisCursos})})}"></th:block></th:block>
+        <th:block th:unless="${esAdministrador}"><th:block th:replace="~{fragments/panel :: barra(null)}"></th:block></th:block>
 
         <main class="pn-contenido">
             <nav class="ac-migas" aria-label="Ruta de navegación">

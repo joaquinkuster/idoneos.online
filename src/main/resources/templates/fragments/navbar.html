@@ -1,102 +1,37 @@
-<!-- Navbar Oficial Dinámica de Idóneos Online -->
-<div th:fragment="navbar" class="wf-top-navbar">
-    <div class="wf-brand">
-        <a th:href="@{/inicio}" class="d-flex align-items-center gap-3 text-decoration-none">
-            <img th:src="@{/img/logos/image.png}" src="/img/logos/image.png" alt="Idóneos Online Logo"
-                style="height: 38px; width: auto; object-fit: contain;">
-            <div class="d-flex flex-column">
-                <div class="wf-brand-logo">Idóneos <span>Online</span></div>
-                <div class="wf-brand-sub">FINANZAS • ECONOMÍA • MERCADO DE CAPITALES</div>
-            </div>
+<!-- Navbar único de Idóneos Online: lo usan el sitio público y los paneles (administración y gestión académica).
+     - Sitio público con banner oscuro: transparente arriba y blanco al hacer scroll. Paneles y páginas sin banner: blanco.
+     - Con menú lateral, el botón de la izquierda lo contrae (o lo abre, en pantallas chicas); el menú empieza debajo.
+     El comportamiento está en static/js/navbar.js y los estilos en static/css/navbar.css. -->
+<header th:fragment="navbar" class="nb" data-navbar>
+    <div class="nb-izq">
+        <!-- Solo con menú lateral (navbar.js lo muestra) -->
+        <button type="button" class="nb-menu" data-menu-lateral aria-label="Menú lateral">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+        <a th:href="@{/inicio}" class="nb-marca" title="Idóneos Online">
+            <img th:src="@{/img/logos/image.png}" src="/img/logos/image.png" alt="Idóneos Online">
+            <span>Idóneos <b>Online</b></span>
         </a>
     </div>
 
-    <!-- Mobile Nav Toggle Button -->
-    <button class="wf-mobile-nav-toggle d-lg-none" onclick="toggleMobileNav()" aria-label="Abrir menú" aria-expanded="false" aria-controls="wfNavLinks">
+    <!-- Pantallas chicas: abre y cierra los enlaces y el menú del usuario -->
+    <button type="button" class="nb-toggle" data-nb-toggle aria-label="Abrir menú" aria-expanded="false" aria-controls="nbEnlaces">
         <i class="fa-solid fa-bars"></i>
     </button>
 
-    <div class="wf-top-nav-links" id="wfNavLinks">
-        <a th:href="@{/inicio}" class="wf-top-nav-link">Inicio</a>
-        <a th:href="@{/catalogo}" class="wf-top-nav-link">Catálogo</a>
+    <nav class="nb-enlaces" id="nbEnlaces" aria-label="Navegación principal">
+        <a th:href="@{/inicio}" class="nb-enlace">Inicio</a>
+        <a th:href="@{/catalogo}" class="nb-enlace">Catálogo</a>
+        <a th:href="@{/acercaDe}" class="nb-enlace">Acerca de</a>
 
-        <a th:href="@{/acercaDe}" class="wf-top-nav-link">Acerca de</a>
+        <!-- Visitante -->
+        <a th:if="${usuario == null}" th:href="@{/login}" class="nb-ingresar">
+            <i class="fa-solid fa-right-to-bracket"></i> Ingresar
+        </a>
 
-        <!-- Usuario No Autenticado (Visitante) -->
-        <th:block th:if="${usuario == null}">
-            <a th:href="@{/login}" class="wf-btn wf-btn-sm wf-btn-outline text-white"><i
-                    class="fa-solid fa-right-to-bracket me-1"></i> Ingresar</a>
-        </th:block>
-
-        <!-- Usuario Autenticado -->
-        <th:block th:replace="~{fragments/menuUsuario :: menu('navbar')}"></th:block>
-    </div>
-
-    <script>
-        // Menú del navbar en pantallas chicas: se abre y se cierra con el botón, con Escape, con un clic afuera
-        // y al agrandarse la ventana
-        function cerrarMobileNav() {
-            const enlaces = document.getElementById('wfNavLinks');
-            const barra = document.querySelector('.wf-top-navbar');
-            const boton = document.querySelector('.wf-mobile-nav-toggle');
-            if (!enlaces) return;
-            enlaces.classList.remove('mobile-open');
-            barra.classList.remove('menu-abierto');
-            if (boton) {
-                boton.setAttribute('aria-expanded', 'false');
-                boton.querySelector('i').className = 'fa-solid fa-bars';
-            }
-        }
-
-        function toggleMobileNav() {
-            const enlaces = document.getElementById('wfNavLinks');
-            const barra = document.querySelector('.wf-top-navbar');
-            const boton = document.querySelector('.wf-mobile-nav-toggle');
-            if (!enlaces) return;
-            const abierto = enlaces.classList.toggle('mobile-open');
-            barra.classList.toggle('menu-abierto', abierto);
-            boton.setAttribute('aria-expanded', abierto ? 'true' : 'false');
-            boton.querySelector('i').className = abierto ? 'fa-solid fa-xmark' : 'fa-solid fa-bars';
-        }
-
-        document.addEventListener('click', function (evento) {
-            if (!evento.target.closest('.wf-top-navbar')) cerrarMobileNav();
-        });
-        document.addEventListener('keydown', function (evento) {
-            if (evento.key === 'Escape') cerrarMobileNav();
-        });
-        window.addEventListener('resize', function () {
-            if (window.innerWidth >= 992) cerrarMobileNav();
-        });
-
-        // Marca el enlace de la página actual (el hover y el activo se muestran con una línea inferior)
-        document.addEventListener('DOMContentLoaded', function () {
-            const currentPath = window.location.pathname;
-            document.querySelectorAll('#wfNavLinks .wf-top-nav-link').forEach(function (link) {
-                const href = link.getAttribute('href');
-                if (href && (href === currentPath || (href !== '/' && href !== '/inicio' && currentPath.startsWith(href)))) {
-                    link.classList.add('active');
-                }
-            });
-
-            // El navbar es transparente arriba y cambia de color al bajar. Las páginas sin banner superior
-            // oscuro (inicio de sesión, error) lo muestran siempre con color.
-            const navbar = document.querySelector('.wf-top-navbar');
-            if (!navbar) return;
-            const hayBannerOscuro = !!document.querySelector('.wf-hero-banner, .wf-hero-section, .auth-pagina');
-            if (!hayBannerOscuro) {
-                navbar.classList.add('con-color', 'sin-banner');
-                return;
-            }
-            const alHacerScroll = function () {
-                const desplazamiento = window.scrollY || document.documentElement.scrollTop || document.body.scrollTop;
-                navbar.classList.toggle('con-color', desplazamiento > 20);
-            };
-            // En captura, para atender el scroll sin importar qué elemento de la página se desplace
-            document.addEventListener('scroll', alHacerScroll, { passive: true, capture: true });
-            alHacerScroll();
-        });
-    </script>
+        <!-- Usuario autenticado -->
+        <th:block th:replace="~{fragments/menuUsuario :: menu}"></th:block>
+    </nav>
 
     <!-- Avisos del servidor (mensaje de éxito o error de una redirección) con SweetAlert -->
     <script th:if="${mensaje != null and !#strings.isEmpty(mensaje)}" th:inline="javascript">
@@ -185,4 +120,4 @@
             ctrl.appendChild(nextBtn);
         };
     </script>
-</div>
+</header>

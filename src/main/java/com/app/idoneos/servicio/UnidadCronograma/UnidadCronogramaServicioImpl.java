@@ -1,14 +1,26 @@
 package com.app.idoneos.servicio.UnidadCronograma;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import com.app.idoneos.modelo.Docente;
 import com.app.idoneos.modelo.Programa;
 import com.app.idoneos.modelo.Unidad;
 import com.app.idoneos.modelo.UnidadCronograma;
+import com.app.idoneos.repositorio.ParticipacionDocenteRepositorio;
+import com.app.idoneos.repositorio.ProgramaRepositorio;
 import com.app.idoneos.repositorio.UnidadCronogramaRepositorio;
+import com.app.idoneos.repositorio.UnidadRepositorio;
 import com.app.idoneos.servicio.CrudServicio;
+import com.app.idoneos.servicio.Unidad.UnidadServicio;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Implementación del servicio para gestionar las operaciones sobre la entidad {@link UnidadCronograma}.
@@ -19,6 +31,18 @@ public class UnidadCronogramaServicioImpl implements UnidadCronogramaServicio, C
 
     @Autowired
     private UnidadCronogramaRepositorio unidadCronogramaRepositorio;
+
+    @Autowired
+    private ProgramaRepositorio programaRepositorio;
+
+    @Autowired
+    private UnidadRepositorio unidadRepositorio;
+
+    @Autowired
+    private ParticipacionDocenteRepositorio participacionDocenteRepositorio;
+
+    @Autowired
+    private UnidadServicio unidadServicio;
 
     /**
      * Guarda la unidad del cronograma en la base de datos.
@@ -119,5 +143,100 @@ public class UnidadCronogramaServicioImpl implements UnidadCronogramaServicio, C
     @Override
     public Optional<UnidadCronograma> buscarPorProgramaYUnidad(Programa programa, Unidad unidad) {
         return unidadCronogramaRepositorio.findByProgramaAndUnidad(programa, unidad);
+    }
+
+    /**
+     * CU-24: Modifica el cronograma de un programa (unidades, orden y semanas).
+     */
+    @Override
+    @Transactional
+    public void modificarCronograma(Docente docente, Integer programaId, List<Integer> unidadIds, List<String> semanas) {
+        Programa programa = programaRepositorio.findById(programaId == null ? -1 : programaId)
+                .filter(p -> !p.esInactivo())
+                .orElseThrow(() -> new IllegalArgumentException("Error! El programa no se encuentra activo."));
+        if (docente == null) {
+            throw new IllegalArgumentException("Error! El usuario no tiene el rol de docente.");
+        }
+        boolean participa = participacionDocenteRepositorio.findByCursoAndBajaFalse(programa.getCurso()).stream()
+                .anyMatch(p -> p.getDocente().getIdDocente() == docente.getIdDocente());
+        if (!participa) {
+            throw new IllegalArgumentException("Error! No participás en este curso.");
+        }
+        if (programa.getCantidadInscripcionesActivas() > 0) {
+            throw new IllegalArgumentException("Error! El programa tiene inscripciones activas: el cronograma no puede "
+                    + "modificarse porque es lo que el alumno vio y pagó al inscribirse.");
+        }
+
+        // Se valida todo lo que se recibió antes de cambiar algo
+        List<Integer> ids = unidadIds == null ? List.of() : unidadIds;
+        List<String> duraciones = semanas == null ? List.of() : semanas;
+        if (ids.size() != duraciones.size() || ids.stream().distinct().count() != ids.size()) {
+            throw new IllegalArgumentException("Error! Los datos del cronograma no son válidos.");
+        }
+        List<Integer> semanasPorUnidad = new ArrayList<>();
+        for (String duracion : duraciones) {
+            semanasPorUnidad.add(parsearSemanas(duracion));
+        }
+        Map<Integer, Unidad> unidades = new HashMap<>();
+        for (Integer id : ids) {
+            Unidad unidad = unidadRepositorio.findById(id == null ? -1 : id)
+                    .filter(u -> !u.esInactivo() && u.getCurso().getIdCurso() == programa.getCurso().getIdCurso())
+                    .orElseThrow(() -> new IllegalArgumentException(
+                            "Error! Una de las unidades no se encuentra activa en este curso."));
+            if (!unidad.perteneceAlCronograma(programa) && unidad.getProgramasQueLaIncluyen().isEmpty()) {
+                throw new IllegalArgumentException("Error! La unidad '" + unidad.getTitulo()
+                        + "' no se puede incorporar: no forma parte del cronograma de ningún programa del curso.");
+            }
+            unidades.put(id, unidad);
+        }
+
+        // Las unidades que ya no figuran se dan de baja del cronograma (si no están en otro programa, quedan de baja)
+        Set<Integer> conservadas = Set.copyOf(ids);
+        List<Integer> quitadas = programa.getUnidadesCronograma().stream().map(c -> c.getUnidad().getIdUnidad())
+                .filter(id -> !conservadas.contains(id)).toList();
+        if (!quitadas.isEmpty()) {
+            unidadServicio.darDeBajaVarias(quitadas, programa.getIdPrograma(), docente);
+        }
+
+        // Números provisionales para poder reubicar sin repetir un número de orden del programa
+        Map<Integer, UnidadCronograma> existentes = programa.getUnidadesCronograma().stream()
+                .collect(Collectors.toMap(c -> c.getUnidad().getIdUnidad(), c -> c));
+        int provisorio = -1;
+        for (UnidadCronograma cronograma : existentes.values()) {
+            cronograma.setNumeroOrden(provisorio--);
+            unidadCronogramaRepositorio.saveAndFlush(cronograma);
+        }
+        LocalDateTime ahora = LocalDateTime.now();
+        for (int i = 0; i < ids.size(); i++) {
+            UnidadCronograma cronograma = existentes.get(ids.get(i));
+            if (cronograma == null) {
+                Unidad unidad = unidades.get(ids.get(i));
+                cronograma = new UnidadCronograma(programa, unidad, i + 1, semanasPorUnidad.get(i));
+                cronograma = unidadCronogramaRepositorio.saveAndFlush(cronograma);
+                programa.getUnidadesCronograma().add(cronograma);
+                unidad.getUnidadesCronograma().add(cronograma);
+            } else {
+                cronograma.setNumeroOrden(i + 1);
+                cronograma.setSemanasDuracion(semanasPorUnidad.get(i));
+                cronograma.setUltimaModificacion(ahora);
+                unidadCronogramaRepositorio.saveAndFlush(cronograma);
+            }
+        }
+        programa.setUltimaModificacion(ahora);
+        programaRepositorio.save(programa);
+    }
+
+    /** Convierte la duración recibida en un número entero de semanas mayor a cero. */
+    private int parsearSemanas(String duracion) {
+        try {
+            int valor = Integer.parseInt(duracion == null ? "" : duracion.trim());
+            if (valor > 0) {
+                return valor;
+            }
+        } catch (NumberFormatException e) {
+            // se informa abajo, igual que un valor menor o igual a cero
+        }
+        throw new IllegalArgumentException(
+                "Error! La duración de cada unidad debe ser un número entero de semanas mayor a cero.");
     }
 }

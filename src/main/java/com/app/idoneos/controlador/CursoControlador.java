@@ -327,7 +327,11 @@ public class CursoControlador {
                 throw new IllegalArgumentException("Error! El usuario no tiene el rol de docente.");
             }
             ParticipacionDocente participacion = cursoServicio.validarAccesoDocente(idCurso, docente);
-            String seccionActiva = List.of("unidades", "cronograma", "clases").contains(seccion) ? seccion : "unidades";
+            if ("cronograma".equals(seccion)) {
+                // El cronograma del docente tiene su propia página, donde también se modifica
+                return "redirect:/cronograma/buscar?cursoId=" + idCurso;
+            }
+            String seccionActiva = List.of("unidades", "clases").contains(seccion) ? seccion : "unidades";
 
             modelo.addAttribute("inscripcion", null);
             modelo.addAttribute("curso", participacion.getCurso());

@@ -85,7 +85,7 @@ class AccederCursoControladorTest {
                 .andExpect(content().string(Matchers.not(Matchers.containsString("/foro/buscar"))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("Registrar unidad"))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("ac-menu-unidad"))))
-                .andExpect(content().string(Matchers.containsString("pn-barra-enlace")))
+                .andExpect(content().string(Matchers.containsString("nb-enlace\">Inicio<")))
                 .andExpect(content().string(Matchers.containsString("data-sin-accion")))
                 .andExpect(content().string(Matchers.containsString("En directo ahora")))
                 // sin categoría en el breadcrumb, sin progreso ni pestañas internas

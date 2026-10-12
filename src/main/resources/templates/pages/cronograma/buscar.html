@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <th:block th:replace="~{fragments/head :: recursos}"></th:block>
+</head>
+<body class="pn-body">
+<div class="pn-app" id="pnApp">
+    <!-- Menú lateral: el del docente (gestión académica) o, para el administrador, el del panel -->
+    <th:block th:if="${esDocente}"><th:block th:replace="~{fragments/menus :: gestionAcademica(${menuActivo}, ${urlBase})}"></th:block></th:block>
+    <th:block th:unless="${esDocente}"><th:block th:replace="~{fragments/menus :: administrador(${menuActivo})}"></th:block></th:block>
+
+    <div class="pn-principal">
+        <th:block th:if="${esDocente}"><th:block th:replace="~{fragments/panel :: barra(null)}"></th:block></th:block>
+        <th:block th:unless="${esDocente}"><th:block th:replace="~{fragments/panel :: barra(null)}"></th:block></th:block>
+
+        <main class="pn-contenido">
+            <nav class="ac-migas" aria-label="Ruta de navegación">
+                <a th:href="@{/inicio}">Página principal</a>
+                <i class="fa-solid fa-chevron-right"></i>
+                <a th:href="@{${urlMisCursos}}">Mis cursos</a>
+                <i class="fa-solid fa-chevron-right"></i>
+                <a th:href="@{${urlBase}}" th:text="${curso.nombre}">Curso</a>
+                <i class="fa-solid fa-chevron-right"></i>
+                <strong>Cronograma</strong>
+            </nav>
+
+            <div class="pn-encabezado">
+                <div>
+                    <h1 class="pn-titulo">Cronograma</h1>
+                    <p class="pn-subtitulo" th:text="${'Programa: ' + programa.nombre}">Programa: 2026</p>
+                </div>
+                <div class="cn-tarjetas">
+                    <div class="cn-dato">
+                        <span>Duración total</span>
+                        <strong data-total th:text="${programa.duracionTotalSemanas + (programa.duracionTotalSemanas == 1 ? ' semana' : ' semanas')}">9 semanas</strong>
+                    </div>
+                    <div class="cn-dato">
+                        <span>Mínimo requerido</span>
+                        <strong th:text="${minimoUnidadesConMaterial + (minimoUnidadesConMaterial == 1 ? ' unidad con material' : ' unidades con material')}">2 unidades con material</strong>
+                    </div>
+                    <div class="cn-dato">
+                        <span>Cohortes activas</span>
+                        <strong th:text="${programa.cantidadCohortesActivas}">3</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Con inscripciones activas el cronograma es lo que el alumno vio y pagó: solo se puede consultar -->
+            <div class="ac-aviso ac-aviso-atraso" th:if="${soloLecturaPorInscripciones}">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <div>
+                    <strong>Cronograma en solo lectura</strong>
+                    <span>El programa tiene inscripciones activas: el cronograma no puede modificarse porque es lo que el alumno vio y pagó al inscribirse.</span>
+                </div>
+            </div>
+
+            <!-- Docente: en qué semana va su cohorte de trabajo -->
+            <p class="ac-nota" th:if="${esDocente and cohorte != null}"
+                th:text="${'Semana actual de la cohorte: ' + cohorte.semanaActual + ' de ' + programa.duracionTotalSemanas + ' (contada desde el inicio ' + (cohorte.fechaInicioDictado != null ? 'del dictado' : 'de la inscripción') + ', ' + #temporals.format(cohorte.fechaBaseCronograma, 'dd/MM/yyyy') + ').'}">Semana actual</p>
+
+            <div class="cn" id="cronograma" th:attr="data-editable=${puedeEditar}, data-programa-id=${programa.idPrograma},
+                 data-url-modificar=@{/cronograma/modificar}, data-url-nueva=@{/unidad/buscar(cursoId=${curso.idCurso}, nuevo='')}">
+                <!-- Datos para la pantalla: las unidades del curso y las que están en el cronograma, en orden -->
+                <div hidden>
+                    <span data-unidad th:each="u : ${unidadesDelCurso}"
+                          th:attr="data-id=${u.idUnidad}, data-titulo=${u.titulo}, data-material=${#lists.size(u.materialesVigentes)}"></span>
+                    <span data-colocada th:each="uc : ${cronograma}"
+                          th:attr="data-id=${uc.unidad.idUnidad}, data-semanas=${uc.semanasDuracion}"></span>
+                </div>
+
+                <div class="cn-columnas">
+                    <!-- Unidades disponibles (solo cuando se puede modificar) -->
+                    <aside class="cn-panel cn-izq" th:if="${puedeEditar}" data-panel-disponibles>
+                        <h2 class="cn-panel-titulo">Unidades disponibles</h2>
+                        <input type="text" class="pn-input cn-buscar" placeholder="Buscar unidad..." data-buscar autocomplete="off">
+                        <button type="button" class="cn-nueva" data-nueva-unidad><i class="fa-solid fa-plus"></i> Nueva unidad</button>
+                        <div data-disponibles></div>
+                    </aside>
+
+                    <section class="cn-panel cn-der">
+                        <div class="cn-cabecera">
+                            <div class="cn-titulo-fila">
+                                <h2 class="cn-panel-titulo mb-0">Cronograma</h2>
+                                <!-- Ayuda de la edición: muestra u oculta el texto explicativo de abajo (en solo lectura no hay) -->
+                                <button type="button" class="cn-ayuda" data-ayuda aria-expanded="false" aria-label="Ayuda del cronograma" th:if="${puedeEditar}"
+                                    title="Ayuda"><i class="fa-solid fa-circle-info"></i></button>
+                            </div>
+                            <div class="cn-pestanias">
+                                <button type="button" class="cn-pestania activa" data-vista="semanas">Vista por semanas</button>
+                                <button type="button" class="cn-pestania" data-vista="unidades">Vista por unidades</button>
+                            </div>
+                        </div>
+
+                        <div class="cn-info" data-ayuda-texto hidden th:if="${puedeEditar}">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <span>Podés arrastrar las unidades para reordenarlas o modificar su duración (borde derecho de la barra). Los cambios se guardan al finalizar. Para quitar una unidad, arrastrala al panel izquierdo: si no forma parte de otro programa, quedará dada de baja.</span>
+                        </div>
+
+                        <div class="cn-grilla" data-grilla></div>
+                        <div class="cn-zona" data-zona th:if="${puedeEditar}">
+                            <i class="fa-solid fa-circle-plus"></i> Arrastrá una unidad desde la izquierda o hacé clic en + Nueva unidad
+                        </div>
+
+                        <div class="cn-vista-unidades" data-vista-unidades hidden>
+                            <table class="pn-tabla">
+                                <thead>
+                                    <tr><th>Orden</th><th>Unidad</th><th>Material</th><th>Duración</th><th>Semanas</th></tr>
+                                </thead>
+                                <tbody data-tabla></tbody>
+                            </table>
+                        </div>
+
+                        <div class="cn-resumen">
+                            <strong>Resumen del cronograma</strong>
+                            <span class="cn-resumen-pastillas" data-resumen></span>
+                            <span class="cn-resumen-total" data-total-resumen>Total: 0 semanas</span>
+                        </div>
+                    </section>
+                </div>
+
+                <div class="cn-pie" th:if="${puedeEditar}">
+                    <button type="button" class="pn-btn pn-btn-secundario" data-cancelar>Cancelar</button>
+                    <button type="button" class="pn-btn pn-btn-primario" data-modificar>Modificar</button>
+                </div>
+            </div>
+        </main>
+
+        <th:block th:replace="~{fragments/panel :: pie(${esDocente ? 'Gestión académica' : 'Panel del administrador'})}"></th:block>
+    </div>
+</div>
+
+<th:block th:replace="~{fragments/panel :: scripts}"></th:block>
+<script th:src="@{/js/academica.js}"></script>
+<script th:src="@{/js/cronograma.js}"></script>
+</body>
+</html>

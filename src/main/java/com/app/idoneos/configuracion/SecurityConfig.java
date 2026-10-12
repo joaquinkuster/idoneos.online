@@ -107,6 +107,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/unidad/darDeBaja/*", "/unidad/darDeBajaMasiva")
                         .hasAnyRole("Docente", "Administrador")
                         .requestMatchers("/unidad/**").hasRole("Docente")
+                        // CU-23 y CU-24: cronograma (docente y administrador lo consultan; solo el docente lo modifica)
+                        .requestMatchers(HttpMethod.GET, "/cronograma/buscar").hasAnyRole("Docente", "Administrador")
+                        .requestMatchers("/cronograma/**").hasRole("Docente")
                         // CU-35 a CU-42: foro. Verlo: cualquier usuario con sesión (el controlador controla el acceso);
                         // listar los foros de un curso: docente y administrador; consultar: alumno; responder: docente;
                         // moderar (dar de baja consultas y respuestas): administrador

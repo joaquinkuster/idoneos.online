@@ -70,10 +70,9 @@ class AccederCursoDocenteControladorTest {
 
     @Test
     @WithUserDetails(value = "fausto.spotorno@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesServicio")
-    @DisplayName("CU-27: el cronograma del docente muestra la semana de la cohorte pero no el atraso del alumno")
+    @DisplayName("CU-27: el cronograma del docente (en su propia página) muestra la semana de la cohorte pero no el atraso del alumno")
     void docenteVeElCronogramaSinAtraso() throws Exception {
-        mockMvc.perform(get("/curso/acceder/" + idCurso("Mercado de Capitales Argentino"))
-                .param("seccion", "cronograma"))
+        mockMvc.perform(get("/cronograma/buscar").param("cursoId", String.valueOf(idCurso("Mercado de Capitales Argentino"))))
                 .andExpect(status().isOk())
                 .andExpect(content().string(Matchers.containsString("Semana actual de la cohorte: 3 de 9")))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("Vas al día"))))

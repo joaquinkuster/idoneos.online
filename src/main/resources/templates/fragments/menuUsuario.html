@@ -1,8 +1,6 @@
-<!-- Menú desplegable del usuario autenticado.
-     modo: 'navbar' (barra superior oscura) o 'panel' (barra superior clara del panel del administrador). -->
-<div th:fragment="menu(modo)" class="um-wrapper" th:if="${usuario != null}">
-    <button type="button" class="um-trigger" th:classappend="${modo == 'panel'} ? 'um-trigger-claro' : 'um-trigger-oscuro'"
-            data-menu-usuario aria-haspopup="true" aria-expanded="false">
+<!-- Menú desplegable del usuario autenticado (el mismo en todo el sitio, dentro del navbar único). -->
+<div th:fragment="menu" class="um-wrapper" th:if="${usuario != null}">
+    <button type="button" class="um-trigger" data-menu-usuario aria-haspopup="true" aria-expanded="false">
         <th:block th:replace="~{fragments/avatar :: avatar(${usuario}, 'av-menu')}"></th:block>
         <span class="um-datos">
             <span class="um-nombre" th:text="${usuario.nombreCompleto}">Admin General</span>
@@ -19,8 +17,7 @@
 
         <div class="um-seccion">
             <!-- Administrador -->
-            <a th:if="${usuario.esAdministradorActivo() and modo != 'panel'}" th:href="@{/curso/buscar}" class="um-item">Panel Administrador</a>
-            <a th:if="${usuario.esAdministradorActivo() and modo == 'panel'}" th:href="@{/inicio}" class="um-item">Ir al sitio</a>
+            <a th:if="${usuario.esAdministradorActivo()}" th:href="@{/curso/buscar}" class="um-item">Panel Administrador</a>
 
             <!-- Docente -->
             <a th:if="${usuario.esDocenteActivo()}" th:href="@{/curso/buscar}" class="um-item">Mis cursos</a>

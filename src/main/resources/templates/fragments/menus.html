@@ -30,7 +30,7 @@
     </th:block>
 
     <div th:replace="~{fragments/sidebar :: grupo('Este programa')}"></div>
-    <a th:replace="~{fragments/sidebar :: enlace(${urlBase} + '?seccion=cronograma', 'fa-calendar-check', 'Cronograma', ${activo}, 'cronograma')}"></a>
+    <a th:replace="~{fragments/sidebar :: enlace((${esDocente} ? '/cronograma/buscar?cursoId=' + ${curso.idCurso} : ${urlBase} + '?seccion=cronograma'), 'fa-calendar-check', 'Cronograma', ${activo}, 'cronograma')}"></a>
 
     <div th:replace="~{fragments/sidebar :: grupo('Esta cohorte')}"></div>
     <a th:replace="~{fragments/sidebar :: enlace(${urlBase} + '?seccion=clases', 'fa-video', 'Clases en vivo', ${activo}, 'clases')}"></a>
@@ -46,10 +46,4 @@
     <th:block th:if="${esDocente}">
         <a th:replace="~{fragments/sidebar :: enlace('/foro/buscar?cursoId=' + ${curso.idCurso}, 'fa-comments', 'Foros', ${activo}, 'foros')}"></a>
     </th:block>
-</th:block>
-
-<!-- Enlaces de la barra superior de Gestión académica (a la izquierda, junto a la barra lateral) -->
-<th:block th:fragment="barraGestionAcademica(activo, urlMisCursos)">
-    <a th:href="@{${urlMisCursos}}" class="pn-barra-enlace" th:classappend="${activo == 'misCursos'} ? 'activo'">Mis cursos</a>
-    <a th:href="@{/catalogo}" class="pn-barra-enlace" th:classappend="${activo == 'catalogo'} ? 'activo'">Catálogo</a>
 </th:block>

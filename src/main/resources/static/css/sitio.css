@@ -3,22 +3,8 @@
    La estructura del inicio de sesión sigue la de CataratasRH, con los colores de Idóneos.
    ========================================================================== */
 
-/* BOTÓN DEL USUARIO EN EL NAVBAR: fondo transparente (como en el panel) */
-body .um-trigger-oscuro {
-    background: transparent !important;
-    border-color: transparent !important;
-    box-shadow: none !important;
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-}
-
-body .um-trigger-oscuro:hover,
-body .um-wrapper.abierto .um-trigger-oscuro {
-    background: rgba(255, 255, 255, 0.10) !important;
-}
-
 /* BANNERS DE LAS PÁGINAS INTERNAS: más altos, con la presencia del banner principal */
-.wf-top-navbar ~ .wf-hero-banner {
+.nb ~ .wf-hero-banner {
     padding: 150px 48px 72px;
     min-height: 360px;
     align-items: flex-end;
@@ -28,24 +14,24 @@ body .um-wrapper.abierto .um-trigger-oscuro {
         linear-gradient(160deg, #071324, #0A192F 60%, #081426);
 }
 
-.wf-top-navbar ~ .wf-hero-banner .wf-hero-title {
+.nb ~ .wf-hero-banner .wf-hero-title {
     font-size: 40px;
     line-height: 1.15;
     letter-spacing: -0.02em;
 }
 
-.wf-top-navbar ~ .wf-hero-banner .wf-hero-desc {
+.nb ~ .wf-hero-banner .wf-hero-desc {
     font-size: 16px;
     max-width: 640px;
 }
 
 @media (max-width: 991.98px) {
-    .wf-top-navbar ~ .wf-hero-banner {
+    .nb ~ .wf-hero-banner {
         padding: 110px 24px 48px;
         min-height: 280px;
     }
 
-    .wf-top-navbar ~ .wf-hero-banner .wf-hero-title {
+    .nb ~ .wf-hero-banner .wf-hero-title {
         font-size: 30px;
     }
 }

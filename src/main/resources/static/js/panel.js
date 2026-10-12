@@ -33,12 +33,7 @@
             app.classList.add('colapsado');
         }
         document.addEventListener('click', function (e) {
-            if (e.target.closest('[data-colapsar-menu]')) {
-                var colapsado = app.classList.toggle('colapsado');
-                guardar(CLAVE_MENU, colapsado ? '1' : '0');
-            } else if (e.target.closest('[data-abrir-menu]')) {
-                app.classList.add('menu-abierto');
-            } else if (e.target.closest('[data-cerrar-menu]')) {
+            if (e.target.closest('[data-cerrar-menu]')) {
                 app.classList.remove('menu-abierto');
             }
         });

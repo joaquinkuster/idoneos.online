@@ -5,6 +5,7 @@
  *  - mostrarError: alerta de error con el botón "Aceptar".
  *  - confirmarBajaMasiva: confirmación de la baja de varios elementos.
  *  - confirmarCerrarSesion: confirmación de cierre de sesión con botón rojo.
+ *  - confirmarCambiosSinGuardar: confirmación para salir de una pantalla con cambios sin guardar.
  */
 (function () {
     'use strict';
@@ -74,6 +75,29 @@
             customClass: {
                 icon: 'swal-icono-peligro',
                 popup: 'swal-confirmacion swal-baja',
+                confirmButton: 'swal-boton-peligro',
+                cancelButton: 'swal-boton-cancelar'
+            },
+            buttonsStyling: false
+        }).then(function (resultado) { return resultado.isConfirmed; });
+    };
+
+    /**
+     * Pregunta si se quiere salir de una pantalla con cambios sin guardar. Devuelve una promesa con true si el usuario
+     * confirma que quiere salir (y perder los cambios).
+     */
+    window.confirmarCambiosSinGuardar = function (mensaje) {
+        return Swal.fire({
+            iconHtml: '<i class="fa-solid fa-triangle-exclamation"></i>',
+            title: 'Hay cambios sin guardar',
+            text: mensaje,
+            showCancelButton: true,
+            reverseButtons: true,
+            confirmButtonText: 'Salir sin guardar',
+            cancelButtonText: 'Seguir editando',
+            customClass: {
+                icon: 'swal-icono-peligro',
+                popup: 'swal-confirmacion',
                 confirmButton: 'swal-boton-peligro',
                 cancelButton: 'swal-boton-cancelar'
             },
