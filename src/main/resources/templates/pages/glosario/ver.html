@@ -6,8 +6,7 @@
 <body class="pn-body">
 <div class="pn-app" id="pnApp">
     <!-- Menú lateral: el de gestión académica (docente y alumno) o, para el administrador, el del panel -->
-    <th:block th:if="${esAdministrador}"><th:block th:replace="~{fragments/menus :: administrador(${menuActivo})}"></th:block></th:block>
-    <th:block th:unless="${esAdministrador}"><th:block th:replace="~{fragments/menus :: gestionAcademica(${menuActivo}, ${urlBase})}"></th:block></th:block>
+    <th:block th:replace="~{fragments/menus :: gestionAcademica(${menuActivo}, ${urlBase})}"></th:block>
 
     <div class="pn-principal">
         <th:block th:if="${esAdministrador}"><th:block th:replace="~{fragments/panel :: barra(null)}"></th:block></th:block>
@@ -17,7 +16,7 @@
             <nav class="ac-migas" aria-label="Ruta de navegación">
                 <a th:href="@{/inicio}">Página principal</a>
                 <i class="fa-solid fa-chevron-right"></i>
-                <a th:href="@{${urlMisCursos}}">Mis cursos</a>
+                <a th:href="@{${urlMisCursos}}" th:text="${esAdministrador == true ? 'Todos los cursos' : 'Mis cursos'}">Mis cursos</a>
                 <i class="fa-solid fa-chevron-right"></i>
                 <a th:href="@{${urlBase}}" th:text="${curso.nombre}">Curso</a>
                 <i class="fa-solid fa-chevron-right"></i>
@@ -40,63 +39,35 @@
                 </button>
             </div>
 
-            <section class="pn-tarjeta gl-contenedor">
-                <!-- Buscador: por defecto busca en los términos y en las definiciones -->
-                <form th:action="@{'/glosario/ver/' + ${unidad.idUnidad}}" method="get" class="gl-buscador">
-                    <input type="hidden" name="buscar" value="1">
+            <section class="pn-tarjeta gl-contenedor" data-glosario>
+                <!-- Buscador: filtra en el navegador mientras se escribe; por defecto busca en los términos y en las definiciones -->
+                <form class="gl-buscador" data-glosario-filtros>
                     <div class="gl-buscador-fila">
-                        <input type="text" name="texto" class="pn-input" th:value="${texto}" placeholder="Buscar en el glosario"
+                        <input type="text" name="texto" class="pn-input" placeholder="Buscar en el glosario"
                                maxlength="100" autocomplete="off" aria-label="Texto a buscar">
-                        <button type="submit" class="pn-btn pn-btn-primario"><i class="fa-solid fa-magnifying-glass"></i> Buscar</button>
-                        <a class="pn-btn pn-btn-contorno" th:if="${hayBusqueda}" th:href="@{'/glosario/ver/' + ${unidad.idUnidad}}">Limpiar</a>
+                        <button type="button" class="pn-btn pn-btn-contorno" data-glosario-limpiar>Limpiar</button>
                         <label class="gl-casilla">
-                            <input type="checkbox" name="enDefiniciones" value="true" th:checked="${enDefiniciones}">
+                            <input type="checkbox" name="enDefiniciones" value="true" checked>
                             ¿Buscar en términos y definiciones?
                         </label>
                     </div>
                 </form>
 
-                <!-- Índice alfabético: las letras sin términos no se pueden elegir -->
-                <nav class="gl-indice" aria-label="Índice alfabético">
-                    <a th:if="${hayEspeciales}" class="gl-indice-letra" th:classappend="${letraElegida == '#'} ? 'activa'"
-                       th:href="@{/glosario/ver/{id}(id=${unidad.idUnidad}, texto=${texto}, buscar=1, enDefiniciones=${enDefiniciones}, letra='#', pagina=1)}">Especial</a>
-                    <span th:unless="${hayEspeciales}" class="gl-indice-letra gl-indice-letra-vacia">Especial</span>
-                    <th:block th:each="l : ${abecedario}">
-                        <span class="gl-indice-separador">|</span>
-                        <a th:if="${letrasConTerminos.contains(l)}" class="gl-indice-letra" th:classappend="${letraElegida == l} ? 'activa'"
-                           th:href="@{/glosario/ver/{id}(id=${unidad.idUnidad}, texto=${texto}, buscar=1, enDefiniciones=${enDefiniciones}, letra=${l}, pagina=1)}"
-                           th:text="${l}">A</a>
-                        <span th:unless="${letrasConTerminos.contains(l)}" class="gl-indice-letra gl-indice-letra-vacia" th:text="${l}">B</span>
-                    </th:block>
-                    <span class="gl-indice-separador">|</span>
-                    <a class="gl-indice-letra" th:classappend="${letraElegida == ''} ? 'activa'"
-                       th:href="@{/glosario/ver/{id}(id=${unidad.idUnidad}, texto=${texto}, buscar=1, enDefiniciones=${enDefiniciones}, letra='', pagina=1)}">TODAS</a>
-                </nav>
+                <!-- Índice alfabético y páginas: los arma glosarioFiltros.js según lo que queda después de filtrar -->
+                <nav class="gl-indice" aria-label="Índice alfabético" data-glosario-indice></nav>
+                <nav class="gl-paginas" aria-label="Páginas" data-glosario-paginas hidden></nav>
 
-                <!-- Paginación -->
-                <nav class="gl-paginas" th:if="${totalPaginas > 1}" aria-label="Páginas">
-                    <span>Página:</span>
-                    <th:block th:each="n : ${#numbers.sequence(1, totalPaginas)}">
-                        <strong th:if="${n == pagina}" th:text="${n}">1</strong>
-                        <a th:unless="${n == pagina}" th:text="${n}"
-                           th:href="@{/glosario/ver/{id}(id=${unidad.idUnidad}, texto=${texto}, buscar=1, enDefiniciones=${enDefiniciones}, letra=${letraElegida}, pagina=${n})}">2</a>
-                    </th:block>
-                    <strong th:if="${pagina == 0}">TODAS</strong>
-                    <a th:unless="${pagina == 0}"
-                       th:href="@{/glosario/ver/{id}(id=${unidad.idUnidad}, texto=${texto}, buscar=1, enDefiniciones=${enDefiniciones}, letra=${letraElegida}, pagina=0)}">TODAS</a>
-                </nav>
-
-                <p class="gl-resultado" th:if="${hayBusqueda}"
-                   th:text="${cantidadEncontrados + (cantidadEncontrados == 1 ? ' término encontrado' : ' términos encontrados') + ' para «' + texto + '»'}">2 términos encontrados</p>
+                <p class="gl-resultado" data-glosario-resultado hidden></p>
 
                 <p class="gl-resultado" th:if="${unSoloTermino}">
                     Se muestra un solo término. <a th:href="@{'/glosario/ver/' + ${unidad.idUnidad}}">Ver todo el glosario</a>
                 </p>
 
                 <!-- Términos agrupados por letra inicial -->
-                <div class="gl-grupo" th:each="grupo : ${grupos}">
+                <div class="gl-grupo" th:each="grupo : ${grupos}" data-grupo>
                     <h2 class="gl-letra" th:text="${grupo.key == '#' ? 'Especial' : grupo.key}">A</h2>
-                    <article class="gl-termino" th:each="t : ${grupo.value}">
+                    <article class="gl-termino" th:each="t : ${grupo.value}" data-termino th:data-letra="${grupo.key}"
+                             th:data-nombre="${t.termino}" th:data-definicion="${t.definicion}">
                         <div class="gl-termino-cabecera">
                             <h3 class="gl-termino-nombre" th:text="${t.termino}">Acción</h3>
                             <div class="gl-iconos">
@@ -113,7 +84,7 @@
                 </div>
 
                 <th:block th:if="${totalTerminos == 0}"><th:block th:replace="~{fragments/vacio :: bloque('fa-spell-check', 'Este glosario todavía no tiene términos', ${puedeGestionar ? 'Usá «Registrar término» para agregar el primero.' : 'Cuando se agreguen términos, vas a verlos acá.'}, null, null)}"></th:block></th:block>
-                <th:block th:if="${totalTerminos > 0 and #maps.isEmpty(grupos)}"><th:block th:replace="~{fragments/vacio :: bloque('fa-spell-check', 'No se encontraron términos', 'Ningún término coincide con la búsqueda.', null, null)}"></th:block></th:block>
+                <div data-glosario-vacio hidden th:if="${totalTerminos > 0}"><th:block th:replace="~{fragments/vacio :: bloque('fa-spell-check', 'No se encontraron términos', 'Ningún término coincide con la búsqueda.', null, null)}"></th:block></div>
             </section>
         </main>
 
@@ -243,5 +214,6 @@
 <th:block th:replace="~{fragments/panel :: scripts}"></th:block>
 <script th:src="@{/js/academica.js}"></script>
 <script th:src="@{/js/glosario.js}"></script>
+<script th:src="@{/js/glosarioFiltros.js}"></script>
 </body>
 </html>

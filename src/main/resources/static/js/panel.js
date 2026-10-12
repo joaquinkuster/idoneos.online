@@ -13,7 +13,6 @@
 (function () {
     'use strict';
 
-    var CLAVE_MENU = 'idoneos.panel.menuColapsado';
     var CLAVE_FOCO = 'idoneos.panel.focoFiltro';
     window.PanelValidadores = window.PanelValidadores || {};
 
@@ -29,10 +28,8 @@
     // ------------------------------------------------------------------
     var app = document.getElementById('pnApp');
     if (app) {
-        // El menú se carga contraído, salvo que el usuario lo haya expandido (sidebar.html lo aplica antes de dibujar)
-        if (leer(CLAVE_MENU) !== '0') {
-            app.classList.add('colapsado');
-        }
+        // El menú siempre se carga contraído (sidebar.html lo aplica antes de dibujar)
+        app.classList.add('colapsado');
         document.addEventListener('click', function (e) {
             if (e.target.closest('[data-cerrar-menu]')) {
                 app.classList.remove('menu-abierto');
@@ -40,11 +37,17 @@
         });
     }
 
+    // Textos truncados con "...": el texto completo queda disponible al pasar el mouse
+    document.querySelectorAll('.pn-truncar').forEach(function (e) {
+        if (!e.title) { e.title = e.textContent.trim(); }
+    });
+
     // ------------------------------------------------------------------
     // 2. Listados en tabla
     // ------------------------------------------------------------------
     function iniciarTabla(raiz) {
-        var filas = Array.prototype.slice.call(raiz.querySelectorAll('tbody tr[data-fila]'));
+        var todas = Array.prototype.slice.call(raiz.querySelectorAll('tbody tr[data-fila], [data-tarjeta]')); // filas o tarjetas
+        var filas = todas.slice(); // las que cumplen los filtros (todas, si no hay)
         var selectPorPagina = raiz.querySelector('[data-por-pagina]');
         var infoRango = raiz.querySelector('[data-rango]');
         var contador = raiz.querySelector('[data-seleccionados]');
@@ -90,12 +93,14 @@
             var paginas = totalPaginas();
             pagina = Math.min(Math.max(pagina, 1), paginas);
             var inicio = (pagina - 1) * tamanio();
+            todas.forEach(function (fila) { if (filas.indexOf(fila) < 0) { fila.hidden = true; } });
             filas.forEach(function (fila, i) {
                 fila.hidden = !(i >= inicio && i < inicio + tamanio());
             });
             if (vacio) {
                 vacio.hidden = filas.length > 0;
             }
+            raiz.querySelectorAll('[data-total-filtradas]').forEach(function (e) { e.textContent = filas.length; });
             if (infoRango) {
                 var desde = filas.length ? inicio + 1 : 0;
                 infoRango.textContent = desde + '-' + Math.min(inicio + tamanio(), filas.length) + ' de ' + filas.length;
@@ -211,6 +216,93 @@
                 etiqueta.appendChild(casilla);
                 etiqueta.appendChild(document.createTextNode(th.getAttribute('data-col')));
                 menuColumnas.appendChild(etiqueta);
+            });
+        }
+
+        // ------------------------------------------------------------------
+        // Filtros y orden en el navegador: sin recargar la página, al escribir o elegir una opción.
+        // Cada campo del formulario (por su name) se compara con el atributo data-f-<name> de la fila:
+        //   texto -> contiene (sin tildes ni mayúsculas); lista desplegable -> igual (la fila puede traer varios valores
+        //   separados por "|"); "desde" / "hasta" -> la fila tiene fecha ISO en data-f-desde / data-f-hasta.
+        // El campo "orden" reordena las filas con data-o-<valor> (y data-o2-<valor> de desempate); la opción indica la
+        // dirección en data-dir / data-dir2 ("desc" para descendente). Las filas dadas de baja van siempre al final.
+        // ------------------------------------------------------------------
+        var formularioFiltros = raiz.querySelector('form[data-filtro-front]');
+        if (formularioFiltros) {
+            var cuerpo = raiz.querySelector('tbody') || raiz.querySelector('[data-tarjetas]');
+            var campos = Array.prototype.filter.call(formularioFiltros.elements, function (c) {
+                return c.name && c.type !== 'hidden' && c.type !== 'button' && c.type !== 'submit' && c.name !== 'orden';
+            });
+            var selectorOrden = formularioFiltros.querySelector('[name="orden"]');
+
+            function normalizar(texto) {
+                return (texto || '').toString().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+            }
+
+            function cumple(fila) {
+                return campos.every(function (campo) {
+                    var valor = (campo.value || '').trim();
+                    if (!valor) { return true; }
+                    var dato = fila.getAttribute('data-f-' + campo.name.toLowerCase());
+                    if (dato === null) { return true; }
+                    if (campo.type === 'date') {
+                        return campo.name === 'desde' ? dato >= valor : dato <= valor;
+                    }
+                    if (campo.tagName === 'SELECT') {
+                        return dato.toLowerCase().split('|').indexOf(valor.toLowerCase()) >= 0;
+                    }
+                    return normalizar(dato).indexOf(normalizar(valor)) >= 0;
+                });
+            }
+
+            function comparar(a, b, clave, direccion) {
+                var x = a.getAttribute(clave) || '';
+                var y = b.getAttribute(clave) || '';
+                var resultado = x.localeCompare(y, 'es', { numeric: true, sensitivity: 'base' });
+                return direccion === 'desc' ? -resultado : resultado;
+            }
+
+            function ordenar() {
+                if (!selectorOrden || !selectorOrden.selectedOptions.length) { return; }
+                var opcion = selectorOrden.selectedOptions[0];
+                var ordenadas = todas.slice().sort(function (a, b) {
+                    var bajaA = a.classList.contains('pn-fila-baja') ? 1 : 0;
+                    var bajaB = b.classList.contains('pn-fila-baja') ? 1 : 0;
+                    return (bajaA - bajaB)
+                        || comparar(a, b, 'data-o-' + opcion.value, opcion.dataset.dir)
+                        || comparar(a, b, 'data-o2-' + opcion.value, opcion.dataset.dir2);
+                });
+                ordenadas.forEach(function (fila) { cuerpo.insertBefore(fila, vacio && vacio.parentNode === cuerpo ? vacio : null); });
+                todas = ordenadas;
+            }
+
+            function filtrar() {
+                filas = todas.filter(cumple);
+                // Lo que queda fuera del filtro deja de estar seleccionado
+                todas.forEach(function (fila) {
+                    var casilla = fila.querySelector('[data-seleccionar-fila]');
+                    if (casilla && filas.indexOf(fila) < 0) { casilla.checked = false; }
+                });
+                pagina = 1;
+                dibujar();
+            }
+
+            formularioFiltros.addEventListener('submit', function (e) { e.preventDefault(); });
+            formularioFiltros.addEventListener('input', function (e) {
+                if (e.target.matches('input[type="text"], input[type="search"]')) { filtrar(); }
+            });
+            formularioFiltros.addEventListener('change', function (e) {
+                if (e.target === selectorOrden) { ordenar(); }
+                if (e.target.matches('select, input[type="date"]')) { filtrar(); }
+            });
+            // "Limpiar" restablece los campos sin recargar
+            formularioFiltros.addEventListener('click', function (e) {
+                var enlace = e.target.closest('a[href]');
+                if (!enlace) { return; }
+                e.preventDefault();
+                formularioFiltros.reset();
+                ordenar();
+                filtrar();
             });
         }
 

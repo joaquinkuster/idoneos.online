@@ -6,8 +6,7 @@
 <body class="pn-body">
 <div class="pn-app" id="pnApp">
     <!-- Menú lateral: el del docente (gestión académica) o, para el administrador, el del panel -->
-    <th:block th:if="${esDocente}"><th:block th:replace="~{fragments/menus :: gestionAcademica(${menuActivo}, ${urlBase})}"></th:block></th:block>
-    <th:block th:unless="${esDocente}"><th:block th:replace="~{fragments/menus :: administrador(${menuActivo})}"></th:block></th:block>
+    <th:block th:replace="~{fragments/menus :: gestionAcademica(${menuActivo}, ${urlBase})}"></th:block>
 
     <div class="pn-principal">
         <th:block th:if="${esDocente}"><th:block th:replace="~{fragments/panel :: barra(null)}"></th:block></th:block>
@@ -17,7 +16,7 @@
             <nav class="ac-migas" aria-label="Ruta de navegación">
                 <a th:href="@{/inicio}">Página principal</a>
                 <i class="fa-solid fa-chevron-right"></i>
-                <a th:href="@{${urlMisCursos}}">Mis cursos</a>
+                <a th:href="@{${urlMisCursos}}" th:text="${esAdministrador == true ? 'Todos los cursos' : 'Mis cursos'}">Mis cursos</a>
                 <i class="fa-solid fa-chevron-right"></i>
                 <a th:href="@{${urlBase}}" th:text="${curso.nombre}">Curso</a>
                 <i class="fa-solid fa-chevron-right"></i>
@@ -37,7 +36,7 @@
                 </div>
 
                 <!-- Filtros -->
-                <form th:action="@{/foro/buscar}" method="get" class="pn-filtros" data-filtros>
+                <form th:action="@{/foro/buscar}" method="get" class="pn-filtros" data-filtro-front>
                     <input type="hidden" name="cursoId" th:value="${curso.idCurso}">
                     <div class="pn-filtros-campo pn-filtros-campo-grande">
                         <label class="pn-etiqueta">Unidad</label>
@@ -68,14 +67,14 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr th:each="uc : ${unidades}" data-fila data-dependencias="0">
+                            <tr th:each="uc : ${unidades}" data-fila data-dependencias="0" th:data-f-unidadid="${uc.unidad.idUnidad}">
                                 <td>
                                     <span class="ac-tipo-celda">
                                         <th:block th:replace="~{fragments/iconoMaterial :: icono('Foro', 'ac-recurso-icono-chico')}"></th:block>
                                         <span class="pn-celda-principal" th:text="${'Foro ' + uc.numeroOrden}">Foro 1</span>
                                     </span>
                                 </td>
-                                <td th:text="${uc.unidad.titulo}">Introducción al mercado</td>
+                                <td><span class="pn-truncar" th:text="${uc.unidad.titulo}">Introducción al mercado</span></td>
                                 <td>
                                     <span th:if="${uc.unidad.cantidadConsultasForo > 0}"
                                           th:text="${uc.unidad.cantidadConsultasForo + (uc.unidad.cantidadConsultasForo == 1 ? ' consulta' : ' consultas')}">3 consultas</span>

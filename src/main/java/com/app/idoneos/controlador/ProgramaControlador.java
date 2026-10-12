@@ -87,9 +87,10 @@ public class ProgramaControlador {
             modelo.addAttribute("nombreBusqueda", nombre);
             modelo.addAttribute("estadoSeleccionado", estado);
             modelo.addAttribute("esDocente", !esAdministrador);
+            modelo.addAttribute("esAdministrador", esAdministrador);
             modelo.addAttribute("puedeGestionar", !esAdministrador);
             modelo.addAttribute("urlBase", "/curso/acceder/" + cursoId);
-            modelo.addAttribute("urlMisCursos", "/curso/buscar");
+            modelo.addAttribute("urlMisCursos", esAdministrador ? "/curso/misCursos" : "/curso/buscar");
             modelo.addAttribute("titulo", "Programas | Idóneos Online");
             modelo.addAttribute("menuActivo", "programas");
             return "pages/programa/buscar";

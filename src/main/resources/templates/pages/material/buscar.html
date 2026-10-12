@@ -6,8 +6,7 @@
 <body class="pn-body">
 <div class="pn-app" id="pnApp">
     <!-- Menú lateral: el del docente (gestión académica) o, para el administrador, el del panel -->
-    <th:block th:if="${esDocente}"><th:block th:replace="~{fragments/menus :: gestionAcademica(${menuActivo}, ${urlBase})}"></th:block></th:block>
-    <th:block th:unless="${esDocente}"><th:block th:replace="~{fragments/menus :: administrador(${menuActivo})}"></th:block></th:block>
+    <th:block th:replace="~{fragments/menus :: gestionAcademica(${menuActivo}, ${urlBase})}"></th:block>
 
     <div class="pn-principal">
         <th:block th:if="${esDocente}"><th:block th:replace="~{fragments/panel :: barra(null)}"></th:block></th:block>
@@ -17,7 +16,7 @@
             <nav class="ac-migas" aria-label="Ruta de navegación">
                 <a th:href="@{/inicio}">Página principal</a>
                 <i class="fa-solid fa-chevron-right"></i>
-                <a th:href="@{${urlMisCursos}}">Mis cursos</a>
+                <a th:href="@{${urlMisCursos}}" th:text="${esAdministrador == true ? 'Todos los cursos' : 'Mis cursos'}">Mis cursos</a>
                 <i class="fa-solid fa-chevron-right"></i>
                 <a th:href="@{${urlBase}}" th:text="${curso.nombre}">Curso</a>
                 <i class="fa-solid fa-chevron-right"></i>
@@ -44,7 +43,7 @@
                 </div>
 
                 <!-- Filtros -->
-                <form th:action="@{/material/buscar}" method="get" class="pn-filtros" data-filtros>
+                <form th:action="@{/material/buscar}" method="get" class="pn-filtros" data-filtro-front>
                     <input type="hidden" name="cursoId" th:value="${curso.idCurso}">
                     <div class="pn-filtros-campo pn-filtros-campo-grande">
                         <label class="pn-etiqueta">Título</label>
@@ -108,25 +107,27 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr th:each="m : ${materiales}" data-fila th:classappend="${m.baja} ? 'pn-fila-baja'" data-dependencias="0">
+                            <tr th:each="m : ${materiales}" data-fila th:classappend="${m.baja} ? 'pn-fila-baja'" data-dependencias="0"
+                                th:data-f-titulo="${m.titulo}" th:data-f-unidadid="${m.unidad.idUnidad}" th:data-f-tipoid="${m.tipoMaterial.idTipoMaterial}"
+                                th:data-f-generadoporia="${m.generadoPorIa}" th:data-f-baja="${m.baja}">
                                 <td class="pn-col-seleccion"><input type="checkbox" data-seleccionar-fila aria-label="Seleccionar fila"
                                     th:value="${m.idMaterial}" th:disabled="${m.baja}"></td>
                                 <td>
-                                    <span class="pn-celda-principal" th:text="${m.titulo}">Clase 3</span>
+                                    <span class="pn-celda-principal pn-truncar" th:text="${m.titulo}">Clase 3</span>
                                     <span class="pn-insignia pn-insignia-azul ms-1" th:if="${m.generadoPorIa}">IA</span>
                                 </td>
-                                <td th:text="${m.unidad.titulo}">Renta fija y bonos</td>
+                                <td><span class="pn-truncar" th:text="${m.unidad.titulo}">Renta fija y bonos</span></td>
                                 <td>
                                     <span class="ac-tipo-celda">
                                         <th:block th:replace="~{fragments/iconoMaterial :: icono(${m.tipoMaterial.nombre}, 'ac-recurso-icono-chico')}"></th:block>
                                         <span th:text="${m.tipoMaterial.nombre}">Grabación</span>
                                     </span>
                                 </td>
-                                <td th:text="${m.autor != null and !#strings.isEmpty(m.autor) ? m.autor : '—'}">Autor</td>
+                                <td><span class="pn-truncar pn-truncar-corto" th:text="${m.autor != null and !#strings.isEmpty(m.autor) ? m.autor : '—'}">Autor</span></td>
                                 <td>
-                                    <span th:if="${m.tieneArchivo()}"><i class="fa-solid fa-paperclip me-1"></i>Archivo</span>
+                                    <span th:if="${m.tieneArchivo()}">Archivo adjunto</span>
                                     <span th:if="${m.esEnlaceExterno()}"><i class="fa-solid fa-link me-1"></i>Enlace externo</span>
-                                    <span th:if="${m.rutaArchivo == null}" class="pn-celda-secundaria">Sin archivo</span>
+                                    <span th:if="${m.rutaArchivo == null}">—</span>
                                 </td>
                                 <td>
                                     <span class="pn-insignia" th:classappend="${m.oculto} ? 'pn-insignia-dorada' : 'pn-insignia-azul'"

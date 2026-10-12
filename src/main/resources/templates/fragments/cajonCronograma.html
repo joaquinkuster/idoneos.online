@@ -43,7 +43,8 @@
             <!-- Grilla de semanas: una fila por unidad (pasar el mouse muestra las semanas y el estado) -->
             <div class="ac-cajon-pista" th:style="${'--semanas:' + duracion}">
                 <div class="ac-cajon-actual" th:if="${comenzo and !finalizo}"
-                    th:style="${'grid-column:' + semana + ';grid-row: 2 / span ' + cantidad}"></div>
+                    th:style="${'grid-column:' + semana + ';grid-row: 2 / span ' + cantidad}"
+                    th:attr="data-tip=${'Hoy: semana ' + semana + ' de ' + duracion}"></div>
                 <span class="ac-cajon-semana-numero" th:each="s : ${#numbers.sequence(1, duracion)}"
                     th:classappend="${comenzo and !finalizo and s == semana} ? 'actual'"
                     th:style="${'grid-column:' + s + ';grid-row:1'}"
@@ -52,7 +53,7 @@
                     th:with="estado=${inscripcion != null ? inscripcion.getEstadoUnidadResumido(uc) : (cohorte != null ? cohorte.getEstadoUnidadResumido(uc) : 'Pendiente')}"
                     th:classappend="${estado == 'Completada'} ? 'completada' : (${estado == 'En curso'} ? 'en-curso' : 'pendiente')"
                     th:style="${'grid-column:' + uc.semanaDesde + ' / span ' + uc.semanasDuracion + ';grid-row:' + (iter.index + 2)}"
-                    th:title="${'Unidad ' + uc.numeroOrden + ' · ' + (uc.semanaDesde == uc.semanaHasta ? 'sem. ' + uc.semanaDesde : 'sem. ' + uc.semanaDesde + '-' + uc.semanaHasta) + ' · ' + estado}"
+                    th:attr="data-tip=${'Unidad ' + uc.numeroOrden + ' · ' + uc.unidad.titulo + ' · ' + (uc.semanaDesde == uc.semanaHasta ? 'semana ' + uc.semanaDesde : 'semanas ' + uc.semanaDesde + ' a ' + uc.semanaHasta) + ' · ' + estado}"
                     th:text="${'U' + uc.numeroOrden}">U1</div>
             </div>
 

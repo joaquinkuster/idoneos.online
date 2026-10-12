@@ -626,7 +626,7 @@
 }
 
 .sf-footer-contenido {
-    max-width: 1500px;
+    max-width: var(--wf-ancho-contenedor, 1680px);
     margin: 0 auto;
     padding: 48px 48px 32px;
     display: grid;
@@ -707,7 +707,7 @@
 }
 
 .sf-footer-pie {
-    max-width: 1500px;
+    max-width: var(--wf-ancho-contenedor, 1680px);
     margin: 0 auto;
     padding: 18px 48px;
     display: flex;
@@ -742,6 +742,9 @@
 
 /* ---------------------------------------------------------------- BREADCRUMB DEBAJO DEL BANNER */
 .wf-migas-barra {
+    width: 100%;
+    max-width: var(--wf-ancho-contenedor, 1680px);
+    margin: 0 auto;
     padding: 16px 48px 0;
 }
 

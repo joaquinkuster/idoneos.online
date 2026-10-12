@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.app.idoneos.modelo.Cohorte;
 import com.app.idoneos.modelo.Curso;
 import com.app.idoneos.modelo.CursoModalidad;
 import com.app.idoneos.modelo.Docente;
@@ -36,7 +37,6 @@ import com.app.idoneos.servicio.Docente.DocenteServicioImpl;
 import com.app.idoneos.servicio.Modalidad.ModalidadServicioImpl;
 import com.app.idoneos.servicio.Nivel.NivelServicioImpl;
 import com.app.idoneos.servicio.Programa.ProgramaServicioImpl;
-import com.app.idoneos.utilidades.PaginacionUtilidad;
 import com.app.idoneos.utilidades.RespuestaUtilidad;
 import com.app.idoneos.servicio.TipoMaterial.TipoMaterialServicioImpl;
 
@@ -51,8 +51,6 @@ import com.app.idoneos.servicio.TipoMaterial.TipoMaterialServicioImpl;
 @Controller
 @RequestMapping("/curso")
 public class CursoControlador {
-
-    private static final int TAMANIO_PAGINA = 10;
 
     @Autowired
     private CursoServicioImpl cursoServicio;
@@ -91,8 +89,6 @@ public class CursoControlador {
      * @param docenteId         Identificador de un docente del equipo docente.
      * @param modalidadId       Identificador de la modalidad de dictado.
      * @param orden             Orden de los resultados: "nombre" (A–Z) o "recientes". Los dados de baja van al final.
-     * @param page              Número de página (empieza en 0).
-     * @param porPagina         Cursos por página para el docente (10, 25, 50 o 0 para ver todos).
      * @param modelo            El modelo de la vista.
      * @param auth              La autenticación actual.
      * @param redirectAttributes Atributos para mensajes de redirección.
@@ -105,8 +101,8 @@ public class CursoControlador {
             @RequestParam(value = "docenteId", required = false) Integer docenteId,
             @RequestParam(value = "modalidadId", required = false) Integer modalidadId,
             @RequestParam(value = "orden", defaultValue = "nombre") String orden,
-            @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "porPagina", defaultValue = "" + TAMANIO_PAGINA) int porPagina,
+            @RequestParam(value = "accion", required = false) String accion,
+            @RequestParam(value = "id", required = false) Integer id,
             Model modelo, Authentication auth, RedirectAttributes redirectAttributes) {
         try {
             Usuario usuario = (Usuario) auth.getPrincipal();
@@ -115,11 +111,12 @@ public class CursoControlador {
 
             List<Curso> cursos = cursoServicio.buscarConFiltros(busqueda, categoriaId, nivelId, docenteId,
                     modalidadId, orden, soloDeDocente);
-            // El administrador ve el listado completo (la tabla se pagina en la pantalla); el docente, por páginas
-            int tamanioPagina = porPagina > 0 ? porPagina : Math.max(cursos.size(), 1);
-            int totalPaginas = esAdministrador ? 1 : PaginacionUtilidad.calcularTotalPaginas(cursos.size(), tamanioPagina);
-            int pagina = PaginacionUtilidad.ajustarPagina(page, totalPaginas);
-            List<Curso> cursosPagina = esAdministrador ? cursos : PaginacionUtilidad.obtenerPagina(cursos, pagina, tamanioPagina);
+            // Se entrega el listado completo: los filtros y la paginación se aplican en la pantalla.
+            // El docente no ve los cursos dados de baja; el administrador sí
+            if (!esAdministrador) {
+                cursos = cursos.stream().filter(curso -> !curso.esInactivo()).toList();
+            }
+            List<Curso> cursosPagina = cursos;
 
             // Inscripciones y programas activos por curso, para validar la baja y la modificación
             Map<Integer, List<Inscripcion>> inscripcionesPorCurso = new HashMap<>();
@@ -138,11 +135,6 @@ public class CursoControlador {
             modelo.addAttribute("programasPorCurso", programasPorCurso);
             modelo.addAttribute("cursosConInscripcionAbierta", cursosConInscripcionAbierta);
             modelo.addAttribute("totalCursos", cursos.size());
-            modelo.addAttribute("porPagina", porPagina);
-            modelo.addAttribute("desdeCurso", cursosPagina.isEmpty() ? 0 : pagina * tamanioPagina + 1);
-            modelo.addAttribute("hastaCurso", cursosPagina.isEmpty() ? 0 : pagina * tamanioPagina + cursosPagina.size());
-            modelo.addAttribute("currentPage", pagina);
-            modelo.addAttribute("totalPages", totalPaginas);
             modelo.addAttribute("categorias", categoriaServicio.obtenerTodo());
             modelo.addAttribute("niveles", nivelServicio.obtenerTodo());
             modelo.addAttribute("modalidades", modalidadServicio.obtenerTodo());
@@ -156,14 +148,63 @@ public class CursoControlador {
             modelo.addAttribute("precioMaximo", (long) Curso.PRECIO_MAXIMO);
             modelo.addAttribute("titulo", "Cursos | Idóneos Online");
             if (esAdministrador) {
+                // Desde "Mis cursos" se llega con la acción elegida: la ventana correspondiente se abre sola
+                String abrirModal = null;
+                if ("nuevo".equals(accion)) {
+                    abrirModal = "modalNuevoCurso";
+                } else if (id != null && "editar".equals(accion)) {
+                    abrirModal = "modalEditarCurso" + id;
+                } else if (id != null && "baja".equals(accion)) {
+                    abrirModal = "modalBajaCurso" + id;
+                }
+                modelo.addAttribute("abrirModal", abrirModal);
                 modelo.addAttribute("menuActivo", "cursos");
                 return "pages/curso/buscarAdministrador";
             }
-            return "pages/curso/buscarDocente";
+            return "pages/curso/buscar";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
             return "redirect:/inicio";
         }
+    }
+
+    /**
+     * "Mis cursos" del administrador: la misma vista del docente, con todos los cursos activos de la plataforma, el
+     * acceso al panel del curso y atajos al ABM de cursos para editarlo, darlo de baja o registrar uno nuevo. Los cursos dados de baja no
+     * se muestran. Los filtros y la paginación se aplican en la pantalla.
+     *
+     * @param modelo             El modelo de la vista.
+     * @param auth               La autenticación actual.
+     * @param redirectAttributes Atributos para mensajes de redirección.
+     * @return La vista de "Mis cursos" del administrador, o una redirección si el usuario no es administrador.
+     */
+    @GetMapping("/misCursos")
+    public String misCursosAdministrador(Model modelo, Authentication auth, RedirectAttributes redirectAttributes) {
+        Usuario usuario = (Usuario) auth.getPrincipal();
+        if (!usuario.esAdministradorActivo()) {
+            return "redirect:/curso/buscar";
+        }
+        List<Curso> cursos = cursoServicio.buscarConFiltros(null, null, null, null, null, "nombre", null).stream()
+                .filter(curso -> !curso.esInactivo()).toList();
+        Map<Integer, List<Programa>> programasPorCurso = new HashMap<>();
+        Set<Integer> cursosConInscripcionAbierta = new HashSet<>();
+        for (Curso curso : cursos) {
+            programasPorCurso.put(curso.getIdCurso(), programaServicio.buscarPorCurso(curso));
+            if (!cursoServicio.buscarCohortesAbiertas(curso).isEmpty()) {
+                cursosConInscripcionAbierta.add(curso.getIdCurso());
+            }
+        }
+        modelo.addAttribute("cursos", cursos);
+        modelo.addAttribute("totalCursos", cursos.size());
+        modelo.addAttribute("programasPorCurso", programasPorCurso);
+        modelo.addAttribute("cursosConInscripcionAbierta", cursosConInscripcionAbierta);
+        modelo.addAttribute("categorias", categoriaServicio.obtenerTodo());
+        modelo.addAttribute("niveles", nivelServicio.obtenerTodo());
+        modelo.addAttribute("modalidades", modalidadServicio.obtenerTodo());
+        modelo.addAttribute("docentes", docenteServicio.buscarHabilitados());
+        modelo.addAttribute("esAdministrador", true);
+        modelo.addAttribute("titulo", "Mis cursos | Idóneos Online");
+        return "pages/curso/buscar";
     }
 
     /**
@@ -320,13 +361,39 @@ public class CursoControlador {
     public String accederCurso(@PathVariable("idCurso") int idCurso,
             @RequestParam(value = "seccion", defaultValue = "unidades") String seccion, Model modelo,
             Authentication auth, RedirectAttributes redirectAttributes) {
+        Usuario usuario = (Usuario) auth.getPrincipal();
+        boolean esAdministrador = false;
         try {
-            Usuario usuario = (Usuario) auth.getPrincipal();
+            // Si participa en el curso como docente trabaja como tal; si no, solo el administrador puede entrar
+            ParticipacionDocente participacion = null;
             Docente docente = usuario.getDocente();
-            if (docente == null) {
+            if (docente != null) {
+                try {
+                    participacion = cursoServicio.validarAccesoDocente(idCurso, docente);
+                } catch (IllegalArgumentException e) {
+                    if (!usuario.esAdministradorActivo()) {
+                        throw e;
+                    }
+                }
+            } else if (!usuario.esAdministradorActivo()) {
                 throw new IllegalArgumentException("Error! El usuario no tiene el rol de docente.");
             }
-            ParticipacionDocente participacion = cursoServicio.validarAccesoDocente(idCurso, docente);
+            esAdministrador = participacion == null;
+            Curso curso;
+            Programa programa;
+            Cohorte cohorte;
+            if (esAdministrador) {
+                // El administrador ve el panel del curso como un docente, sin gestionar su contenido: trabaja con el
+                // programa vigente y su cohorte más reciente
+                curso = cursoServicio.buscarPorId(idCurso).filter(c -> !c.esInactivo())
+                        .orElseThrow(() -> new IllegalArgumentException("Error! El curso no se encuentra activo."));
+                programa = curso.getProgramaVigente();
+                cohorte = programa == null ? null : programa.getCohortesActivas().stream().findFirst().orElse(null);
+            } else {
+                curso = participacion.getCurso();
+                programa = participacion.getProgramaDeTrabajo();
+                cohorte = participacion.getCohorteDeTrabajo();
+            }
             if ("cronograma".equals(seccion)) {
                 // El cronograma del docente tiene su propia página, donde también se modifica
                 return "redirect:/cronograma/buscar?cursoId=" + idCurso;
@@ -334,24 +401,28 @@ public class CursoControlador {
             String seccionActiva = List.of("unidades", "clases").contains(seccion) ? seccion : "unidades";
 
             modelo.addAttribute("inscripcion", null);
-            modelo.addAttribute("curso", participacion.getCurso());
-            modelo.addAttribute("programa", participacion.getProgramaDeTrabajo());
-            modelo.addAttribute("cohorte", participacion.getCohorteDeTrabajo());
+            modelo.addAttribute("curso", curso);
+            modelo.addAttribute("programa", programa);
+            modelo.addAttribute("cohorte", cohorte);
             // Selectores de programa y cohorte por defecto: solo los activos, el más reciente primero
-            modelo.addAttribute("programasDelCurso", participacion.getCurso().getProgramasActivos());
-            modelo.addAttribute("cohortesDelPrograma", participacion.getProgramaDeTrabajo() == null ? List.of()
-                    : participacion.getProgramaDeTrabajo().getCohortesActivas());
-            modelo.addAttribute("tiposDeSubida", tipoMaterialServicio.buscarSubidosManualmente());
+            modelo.addAttribute("programasDelCurso", curso.getProgramasActivos());
+            modelo.addAttribute("cohortesDelPrograma", programa == null ? List.of() : programa.getCohortesActivas());
+            if (!esAdministrador) {
+                modelo.addAttribute("tiposDeSubida", tipoMaterialServicio.buscarSubidosManualmente());
+            }
             modelo.addAttribute("esDocente", true);
+            modelo.addAttribute("esAdministrador", esAdministrador);
+            modelo.addAttribute("puedeGestionar", !esAdministrador);
             modelo.addAttribute("urlBase", "/curso/acceder/" + idCurso);
-            modelo.addAttribute("urlMisCursos", "/curso/buscar");
+            modelo.addAttribute("urlMisCursos", esAdministrador ? "/curso/misCursos" : "/curso/buscar");
             modelo.addAttribute("seccion", seccionActiva);
             modelo.addAttribute("menuActivo", "unidades".equals(seccionActiva) ? "curso" : seccionActiva);
-            modelo.addAttribute("titulo", "CU-27 - " + participacion.getCurso().getNombre() + " | Idóneos Online");
+            modelo.addAttribute("titulo", "CU-27 - " + curso.getNombre() + " | Idóneos Online");
             return "pages/curso/acceder";
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/curso/buscar";
+            return usuario.esAdministradorActivo() && usuario.getDocente() == null ? "redirect:/curso/misCursos"
+                    : "redirect:/curso/buscar";
         }
     }
 }

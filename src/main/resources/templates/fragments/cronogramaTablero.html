@@ -7,15 +7,22 @@
          administrador, o docente con inscripciones activas).
          curso, programa: el curso y su programa; cronograma: las unidades del programa en orden;
          unidadesDelCurso: las unidades que se muestran; soloPublicado: contar solo el material publicado (alumno). -->
-    <th:block th:fragment="tablero(curso, programa, cronograma, unidadesDelCurso, puedeEditar, soloPublicado)">
+    <!-- Si quien lo incluye define cronoCohorte (y cronoInscripcion para el alumno), se marca la semana actual con la línea
+         roja, se muestra el atraso del alumno junto al título y cada unidad lleva su estado. -->
+    <th:block th:fragment="tablero(curso, programa, cronograma, unidadesDelCurso, puedeEditar, soloPublicado)"
+        th:with="enCurso=${cronoCohorte != null and cronoCohorte.haComenzadoCronograma()},
+                 terminado=${cronoCohorte != null and cronoCohorte.haFinalizadoCronograma()}">
             <div class="cn" id="cronograma" th:attr="data-editable=${puedeEditar}, data-programa-id=${programa.idPrograma},
+                 data-semana-actual=${enCurso and !terminado ? cronoCohorte.semanaActual : 0},
+                 data-duracion=${programa.duracionTotalSemanas},
                  data-url-modificar=@{/cronograma/modificar}, data-url-nueva=@{/unidad/buscar(cursoId=${curso.idCurso}, nuevo='')}">
                 <!-- Datos para la pantalla: las unidades del curso y las que están en el cronograma, en orden -->
                 <div hidden>
                     <span data-unidad th:each="u : ${unidadesDelCurso}"
                           th:attr="data-id=${u.idUnidad}, data-titulo=${u.titulo}, data-material=${#lists.size(soloPublicado ? u.materialesPublicados : u.materialesVigentes)}"></span>
                     <span data-colocada th:each="uc : ${cronograma}"
-                          th:attr="data-id=${uc.unidad.idUnidad}, data-semanas=${uc.semanasDuracion}"></span>
+                          th:attr="data-id=${uc.unidad.idUnidad}, data-semanas=${uc.semanasDuracion},
+                                   data-estado=${cronoInscripcion != null ? cronoInscripcion.getEstadoUnidadResumido(uc) : (cronoCohorte != null ? cronoCohorte.getEstadoUnidadResumido(uc) : '')}"></span>
                 </div>
 
                 <div class="cn-columnas">
@@ -31,6 +38,12 @@
                         <div class="cn-cabecera">
                             <div class="cn-titulo-fila">
                                 <h2 class="cn-panel-titulo mb-0">Cronograma</h2>
+                                <!-- Avance del alumno respecto del calendario de la cohorte -->
+                                <th:block th:if="${enCurso and cronoInscripcion != null}">
+                                    <span class="pn-insignia pn-insignia-roja" th:if="${cronoInscripcion.estaAtrasada()}"
+                                        th:text="${cronoInscripcion.semanasDeAtraso + (cronoInscripcion.semanasDeAtraso == 1 ? ' semana de atraso' : ' semanas de atraso')}">1 semana de atraso</span>
+                                    <span class="pn-insignia pn-insignia-verde" th:unless="${cronoInscripcion.estaAtrasada()}">Vas al día</span>
+                                </th:block>
                                 <!-- Ayuda de la edición: muestra u oculta el texto explicativo de abajo (en solo lectura no hay) -->
                                 <button type="button" class="cn-ayuda" data-ayuda aria-expanded="false" aria-label="Ayuda del cronograma" th:if="${puedeEditar}"
                                     title="Ayuda"><i class="fa-solid fa-circle-info"></i></button>
@@ -65,6 +78,9 @@
                             <span class="cn-resumen-pastillas" data-resumen></span>
                             <span class="cn-resumen-total" data-total-resumen>Total: 0 semanas</span>
                         </div>
+
+                        <!-- Qué es la línea roja de la grilla -->
+                        <p class="cn-hoy" th:if="${enCurso and !terminado}"><i></i> Hoy (semana actual)</p>
                     </section>
                 </div>
 

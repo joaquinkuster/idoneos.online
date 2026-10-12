@@ -30,13 +30,14 @@
                 <div class="container-fluid px-4 px-lg-5">
 
                     <!-- Filtros: mismo diseño que el catálogo (nombre y estado de la inscripción) -->
-                    <section class="pn-tarjeta mb-4">
+                    <div data-tabla>
+                        <section class="pn-tarjeta mb-4">
                         <div class="pn-lista-cabecera">
                             <h2 class="pn-lista-titulo">Mis inscripciones</h2>
-                            <span class="pn-seleccionados"><span th:text="${totalInscripciones}">0</span> curso(s) encontrado(s)</span>
+                            <span class="pn-seleccionados"><span data-total-filtradas th:text="${totalInscripciones}">0</span> curso(s) encontrado(s)</span>
                         </div>
 
-                        <form id="formFiltrosMisCursos" th:action="@{/inscripcion/misCursos}" method="get" class="pn-filtros mb-3" data-filtros>
+                        <form id="formFiltrosMisCursos" th:action="@{/inscripcion/misCursos}" method="get" class="pn-filtros mb-3" data-filtro-front>
                             <div class="pn-filtros-campo pn-filtros-campo-grande">
                                 <label class="pn-etiqueta">Nombre</label>
                                 <input type="text" name="busqueda" th:value="${busqueda}" class="pn-input" placeholder="Buscar por nombre" autocomplete="off">
@@ -66,9 +67,12 @@
                         <a th:if="${hayFiltros}" th:href="@{/inscripcion/misCursos}" class="pn-btn pn-btn-contorno">Limpiar filtros</a>
                     </div>
 
+                    <!-- Sin coincidencias con los filtros (los filtros se aplican en el navegador) -->
+                    <div data-vacio hidden th:if="${totalInscripciones > 0}"><th:block th:replace="~{fragments/vacio :: bloque('fa-book-open', 'No se encontraron cursos', 'Ningún curso coincide con los filtros seleccionados.', null, null)}"></th:block></div>
+
                     <!-- Grilla de cursos del alumno -->
-                    <div class="wf-cards-grid">
-                        <div th:each="insc : ${inscripciones}" class="wf-course-card">
+                    <div class="wf-cards-grid" data-tarjetas>
+                        <div th:each="insc : ${inscripciones}" class="wf-course-card" data-tarjeta th:data-f-busqueda="${insc.curso.nombre}" th:data-f-estado="${insc.estado}">
                             <div class="wf-course-card-thumb" th:classappend="${insc.curso.imagen != null} ? 'wf-thumb-con-imagen'">
                                 <img th:if="${insc.curso.imagen != null}" class="wf-course-thumb-img" th:src="@{${insc.curso.urlImagen}}" alt=""
                                      width="640" height="130" loading="lazy" decoding="async">
@@ -111,27 +115,18 @@
                         <div class="pn-tabla-pie">
                             <div class="pn-por-pagina">
                                 <span>Cursos por página:</span>
-                                <select name="porPagina" form="formFiltrosMisCursos" onchange="document.getElementById('formFiltrosMisCursos').submit()">
-                                    <option value="10" th:selected="${porPagina == 10}">10</option>
-                                    <option value="25" th:selected="${porPagina == 25}">25</option>
-                                    <option value="50" th:selected="${porPagina == 50}">50</option>
-                                    <option value="0" th:selected="${porPagina == 0}">Todo</option>
+                                <select data-por-pagina>
+                                    <option value="10">10</option>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                    <option value="0">Todo</option>
                                 </select>
-                                <span th:text="${desdeCurso + '-' + hastaCurso + ' de ' + totalInscripciones}">1-10 de 25</span>
+                                <span data-rango>0-0 de 0</span>
                             </div>
-                            <div class="pn-paginador">
-                                <a th:href="@{/inscripcion/misCursos(page=0, porPagina=${porPagina}, busqueda=${busqueda}, estado=${estadoSeleccionado})}"
-                                   th:classappend="${currentPage == 0} ? 'deshabilitado'" title="Primera página">«</a>
-                                <a th:href="@{/inscripcion/misCursos(page=${currentPage - 1}, porPagina=${porPagina}, busqueda=${busqueda}, estado=${estadoSeleccionado})}"
-                                   th:classappend="${currentPage == 0} ? 'deshabilitado'" title="Página anterior">‹</a>
-                                <span th:text="${'Página ' + (currentPage + 1) + ' de ' + totalPages}">Página 1 de 1</span>
-                                <a th:href="@{/inscripcion/misCursos(page=${currentPage + 1}, porPagina=${porPagina}, busqueda=${busqueda}, estado=${estadoSeleccionado})}"
-                                   th:classappend="${currentPage >= totalPages - 1} ? 'deshabilitado'" title="Página siguiente">›</a>
-                                <a th:href="@{/inscripcion/misCursos(page=${totalPages - 1}, porPagina=${porPagina}, busqueda=${busqueda}, estado=${estadoSeleccionado})}"
-                                   th:classappend="${currentPage >= totalPages - 1} ? 'deshabilitado'" title="Última página">»</a>
-                            </div>
+                            <div class="pn-paginador" data-paginador></div>
                         </div>
                     </section>
+                    </div>
 
                 </div>
             </div>

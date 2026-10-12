@@ -138,11 +138,11 @@ class ProgramaControladorTest {
         String curso = String.valueOf(macro().getIdCurso());
 
         mockMvc.perform(get("/programa/buscar").param("cursoId", curso).param("nombre", "avanzado"))
-                .andExpect(content().string(Matchers.containsString("pn-celda-principal\">Programa Avanzado<")))
-                .andExpect(content().string(Matchers.not(Matchers.containsString("pn-celda-principal\">Programa 2026<"))));
+                .andExpect(content().string(Matchers.containsString("pn-celda-principal pn-truncar\">Programa Avanzado<")))
+                .andExpect(content().string(Matchers.not(Matchers.containsString("pn-celda-principal pn-truncar\">Programa 2026<"))));
         mockMvc.perform(get("/programa/buscar").param("cursoId", curso).param("estado", "Anterior"))
-                .andExpect(content().string(Matchers.containsString("pn-celda-principal\">Programa 2026<")))
-                .andExpect(content().string(Matchers.not(Matchers.containsString("pn-celda-principal\">Programa Avanzado<"))));
+                .andExpect(content().string(Matchers.containsString("pn-celda-principal pn-truncar\">Programa 2026<")))
+                .andExpect(content().string(Matchers.not(Matchers.containsString("pn-celda-principal pn-truncar\">Programa Avanzado<"))));
     }
 
     @Test
@@ -153,12 +153,12 @@ class ProgramaControladorTest {
         int id = macro().getProgramaVigente().getIdPrograma();
         String curso = String.valueOf(macro().getIdCurso());
         mockMvc.perform(get("/programa/buscar").param("cursoId", curso))
-                .andExpect(content().string(Matchers.containsString("pn-celda-principal\">Por error<")));
+                .andExpect(content().string(Matchers.containsString("pn-celda-principal pn-truncar\">Por error<")));
 
         mockMvc.perform(post("/programa/darDeBaja/" + id)).andExpect(status().isOk());
 
         mockMvc.perform(get("/programa/buscar").param("cursoId", curso))
-                .andExpect(content().string(Matchers.not(Matchers.containsString("pn-celda-principal\">Por error<"))))
+                .andExpect(content().string(Matchers.not(Matchers.containsString("pn-celda-principal pn-truncar\">Por error<"))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("value=\"Dado de baja\""))));
     }
 

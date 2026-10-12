@@ -173,7 +173,6 @@ class ForoControladorTest {
     @DisplayName("La búsqueda filtra por texto y por rango de fechas")
     void busqueda() throws Exception {
         mockMvc.perform(get("/foro/ver/" + primera()).param("texto", "matricula"))
-                .andExpect(content().string(Matchers.containsString("1 consulta encontrada")))
                 .andExpect(content().string(Matchers.containsString("matrícula para operar")));
         mockMvc.perform(get("/foro/ver/" + primera()).param("texto", "zzz"))
                 .andExpect(content().string(Matchers.containsString("No se encontraron consultas")))

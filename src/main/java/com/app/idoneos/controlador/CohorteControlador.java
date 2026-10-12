@@ -21,10 +21,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.app.idoneos.modelo.Cohorte;
+import com.app.idoneos.modelo.Curso;
 import com.app.idoneos.modelo.Docente;
 import com.app.idoneos.modelo.Inscripcion;
 import com.app.idoneos.modelo.Usuario;
 import com.app.idoneos.servicio.Cohorte.CohorteServicioImpl;
+import com.app.idoneos.servicio.Curso.CursoServicioImpl;
 import com.app.idoneos.servicio.ParticipacionDocente.ParticipacionDocenteServicioImpl;
 import com.app.idoneos.servicio.Programa.ProgramaServicioImpl;
 
@@ -49,6 +51,9 @@ public class CohorteControlador {
     private ProgramaServicioImpl programaServicio;
 
     @Autowired
+    private CursoServicioImpl cursoServicio;
+
+    @Autowired
     private ParticipacionDocenteServicioImpl participacionDocenteServicio;
 
     /**
@@ -67,7 +72,8 @@ public class CohorteControlador {
      * @return La vista de búsqueda de cohortes.
      */
     @GetMapping("/buscar")
-    public String buscarCohortes(@RequestParam(value = "programaId", required = false) Integer programaId,
+    public String buscarCohortes(@RequestParam(value = "cursoId", required = false) Integer cursoId,
+            @RequestParam(value = "programaId", required = false) Integer programaId,
             @RequestParam(value = "busqueda", required = false) String busqueda,
             @RequestParam(value = "estado", required = false) String estado,
             @RequestParam(value = "desde", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate desde,
@@ -78,8 +84,21 @@ public class CohorteControlador {
         boolean esAdministrador = usuario.esAdministradorActivo();
         Docente soloDeDocente = esAdministrador ? null : usuario.getDocente();
 
+        // El ABM de cohortes del administrador vive dentro del panel de un curso
+        Curso curso = null;
+        if (esAdministrador) {
+            curso = cursoId == null ? null : cursoServicio.buscarPorId(cursoId).filter(c -> !c.esInactivo()).orElse(null);
+            if (curso == null) {
+                return "redirect:/curso/misCursos";
+            }
+        }
+        final Curso cursoDelPanel = curso;
+
         List<Cohorte> cohortes = cohorteServicio.buscarConFiltros(programaId, busqueda, estado, desde, hasta,
-                orden, soloDeDocente);
+                orden, soloDeDocente).stream()
+                .filter(cohorte -> cursoDelPanel == null
+                        || cohorte.getPrograma().getCurso().getIdCurso() == cursoDelPanel.getIdCurso())
+                .toList();
         Map<Integer, List<Inscripcion>> inscripcionesPorCohorte = new HashMap<>();
         Map<Integer, Long> clasesPorCohorte = new HashMap<>();
         for (Cohorte cohorte : cohortes) {
@@ -101,7 +120,7 @@ public class CohorteControlador {
         modelo.addAttribute("inscripcionesPorCohorte", inscripcionesPorCohorte);
         modelo.addAttribute("clasesPorCohorte", clasesPorCohorte);
         modelo.addAttribute("cohortesDeTrabajo", cohortesDeTrabajo);
-        modelo.addAttribute("programas", programaServicio.obtenerTodo());
+        modelo.addAttribute("programas", curso == null ? programaServicio.obtenerTodo() : curso.getProgramasActivos());
         modelo.addAttribute("programaSeleccionado", programaId);
         modelo.addAttribute("busqueda", busqueda);
         modelo.addAttribute("estadoSeleccionado", estado);
@@ -112,6 +131,11 @@ public class CohorteControlador {
         modelo.addAttribute("cupoMaximoPermitido", Cohorte.CUPO_MAXIMO_PERMITIDO);
         modelo.addAttribute("titulo", "Cohortes | Idóneos Online");
         if (esAdministrador) {
+            modelo.addAttribute("curso", curso);
+            modelo.addAttribute("esDocente", false);
+            modelo.addAttribute("esAdministrador", true);
+            modelo.addAttribute("urlBase", "/curso/acceder/" + curso.getIdCurso());
+            modelo.addAttribute("urlMisCursos", "/curso/misCursos");
             modelo.addAttribute("menuActivo", "cohortes");
             return "pages/cohorte/buscarAdministrador";
         }

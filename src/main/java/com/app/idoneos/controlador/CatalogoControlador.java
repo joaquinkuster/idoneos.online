@@ -22,7 +22,6 @@ import com.app.idoneos.servicio.Docente.DocenteServicioImpl;
 import com.app.idoneos.servicio.Modalidad.ModalidadServicioImpl;
 import com.app.idoneos.servicio.Nivel.NivelServicioImpl;
 import com.app.idoneos.servicio.Programa.ProgramaServicioImpl;
-import com.app.idoneos.utilidades.PaginacionUtilidad;
 
 /**
  * Controlador del catálogo público de cursos (MOD-F-01).
@@ -33,9 +32,6 @@ import com.app.idoneos.utilidades.PaginacionUtilidad;
 @Controller
 @RequestMapping("/catalogo")
 public class CatalogoControlador {
-
-    /** Cantidad de cursos por página por defecto. El valor 0 significa "todos". */
-    private static final int CURSOS_POR_PAGINA = 10;
 
     @Autowired
     private CursoServicioImpl cursoServicio;
@@ -57,15 +53,13 @@ public class CatalogoControlador {
 
     /**
      * CU-06: Explora el catálogo público de cursos con cohortes con inscripción abierta, con o sin sesión
-     * iniciada.
+     * iniciada. Entrega todos los cursos: los filtros y la paginación se aplican en el navegador.
      *
      * @param busqueda    Parte del nombre o la descripción del curso.
      * @param categoriaId Identificador de la categoría.
      * @param nivelId     Identificador del nivel.
      * @param docenteId   Identificador de un docente del equipo docente.
      * @param modalidadId Identificador de la modalidad de dictado.
-     * @param porPagina   Cantidad de cursos por página (10, 25, 50 o 0 para ver todos).
-     * @param page        Número de página (empieza en 0).
      * @param modelo      El modelo de la vista.
      * @return La vista del catálogo de cursos.
      */
@@ -74,31 +68,20 @@ public class CatalogoControlador {
             @RequestParam(value = "categoriaId", required = false) Integer categoriaId,
             @RequestParam(value = "nivelId", required = false) Integer nivelId,
             @RequestParam(value = "docenteId", required = false) Integer docenteId,
-            @RequestParam(value = "modalidadId", required = false) Integer modalidadId,
-            @RequestParam(value = "porPagina", defaultValue = "" + CURSOS_POR_PAGINA) int porPagina,
-            @RequestParam(value = "page", defaultValue = "0") int page, Model modelo) {
+            @RequestParam(value = "modalidadId", required = false) Integer modalidadId, Model modelo) {
         List<Curso> cursos = cursoServicio.buscarEnCatalogo(busqueda, categoriaId, nivelId, docenteId, modalidadId);
-        int tamanioPagina = porPagina > 0 ? porPagina : Math.max(cursos.size(), 1);
-        int totalPaginas = PaginacionUtilidad.calcularTotalPaginas(cursos.size(), tamanioPagina);
-        int pagina = PaginacionUtilidad.ajustarPagina(page, totalPaginas);
-        List<Curso> cursosPagina = PaginacionUtilidad.obtenerPagina(cursos, pagina, tamanioPagina);
 
         // Cantidad de unidades temáticas de cada curso (según su primer programa activo)
         Map<Integer, Integer> cantidadUnidadesPorCurso = new HashMap<>();
-        for (Curso curso : cursosPagina) {
+        for (Curso curso : cursos) {
             List<Programa> programas = programaServicio.buscarPorCurso(curso);
             cantidadUnidadesPorCurso.put(curso.getIdCurso(),
                     programas.isEmpty() ? 0 : programas.get(0).getCantidadUnidades());
         }
 
-        modelo.addAttribute("cursos", cursosPagina);
+        modelo.addAttribute("cursos", cursos);
         modelo.addAttribute("cantUnidadesPorCurso", cantidadUnidadesPorCurso);
-        modelo.addAttribute("currentPage", pagina);
-        modelo.addAttribute("totalPages", totalPaginas);
         modelo.addAttribute("totalCursos", cursos.size());
-        modelo.addAttribute("desdeCurso", cursosPagina.isEmpty() ? 0 : pagina * tamanioPagina + 1);
-        modelo.addAttribute("hastaCurso", cursosPagina.isEmpty() ? 0 : pagina * tamanioPagina + cursosPagina.size());
-        modelo.addAttribute("porPagina", porPagina);
         modelo.addAttribute("categorias", categoriaServicio.obtenerTodo());
         modelo.addAttribute("niveles", nivelServicio.obtenerTodo());
         modelo.addAttribute("modalidades", modalidadServicio.obtenerTodo());

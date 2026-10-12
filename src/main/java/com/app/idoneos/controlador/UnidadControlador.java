@@ -115,9 +115,10 @@ public class UnidadControlador {
             modelo.addAttribute("tituloBusqueda", titulo);
             modelo.addAttribute("abrirModal", abrirModal);
             modelo.addAttribute("esDocente", !esAdministrador);
+            modelo.addAttribute("esAdministrador", esAdministrador);
             modelo.addAttribute("puedeGestionar", !esAdministrador);
             modelo.addAttribute("urlBase", "/curso/acceder/" + cursoId);
-            modelo.addAttribute("urlMisCursos", "/curso/buscar");
+            modelo.addAttribute("urlMisCursos", esAdministrador ? "/curso/misCursos" : "/curso/buscar");
             modelo.addAttribute("titulo", "Unidades | Idóneos Online");
             modelo.addAttribute("menuActivo", "unidades");
             return "pages/unidad/buscar";

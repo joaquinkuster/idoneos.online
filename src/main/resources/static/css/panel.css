@@ -276,9 +276,13 @@ body.pn-body {
     position: fixed;
     inset: 0 auto 0 0;
     width: var(--pn-ancho-menu);
-    /* Mismo degradé (y brillo dorado) de los heros de las vistas internas */
-    background: linear-gradient(180deg, #071324 0%, #0A192F 100%);
-    color: #CBD5E1;
+    /* Degradé del hero principal, con luminosidad suficiente para verse bien en pantallas LED, a la escala del menú */
+    background:
+        radial-gradient(380px circle at 90% 70%, rgba(14, 165, 233, 0.16), transparent 70%),
+        radial-gradient(480px 340px at 0% -8%, #1E4278 0%, transparent 62%),
+        linear-gradient(170deg, #16335C, #0F2644 50%, #0A1B33);
+    box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.14);
+    color: #E2E8F0;
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -293,7 +297,7 @@ body.pn-body {
     right: -60%;
     width: 360px;
     height: 360px;
-    background: radial-gradient(circle, rgba(212, 160, 61, 0.1) 0%, rgba(19, 42, 74, 0.2) 50%, transparent 70%);
+    background: radial-gradient(circle, rgba(212, 160, 61, 0.06), transparent 70%);
     border-radius: 50%;
     pointer-events: none;
 }
@@ -311,6 +315,14 @@ body.pn-body {
     flex-direction: column;
     gap: 4px;
     overflow-y: auto;
+    /* Barra de desplazamiento fina y discreta: solo se ve al pasar el mouse por el menú */
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+    scrollbar-gutter: stable;
+}
+
+.pn-menu-nav:hover {
+    scrollbar-color: rgba(255, 255, 255, 0.28) transparent;
 }
 
 .pn-menu-enlace {
@@ -319,7 +331,7 @@ body.pn-body {
     gap: 12px;
     padding: 11px 14px;
     border-radius: 10px;
-    color: #CBD5E1;
+    color: #E2E8F0;
     font-size: 14px;
     font-weight: 600;
     text-decoration: none;
@@ -335,20 +347,22 @@ body.pn-body {
 }
 
 .pn-menu-enlace:hover {
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.14);
     color: #FFFFFF;
 }
 
 .pn-menu-enlace.activo {
-    background: var(--pn-gold);
+    /* Degradé dorado, en la línea del fondo del menú */
+    background: linear-gradient(135deg, #E8BA5A 0%, #D4A03D 50%, #B88A2E 100%);
     color: var(--pn-navy-dark);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
 }
 
 .pn-menu-pie {
     padding: 14px 16px;
     border-top: 1px solid rgba(255, 255, 255, 0.08);
     font-size: 11px;
-    color: #64748B;
+    color: #9FB3CC;
     white-space: nowrap;
 }
 
@@ -382,8 +396,7 @@ body.pn-body {
 .pn-contenido {
     flex: 1;
     padding: 28px 24px;
-    max-width: 1500px;
-    width: 100%;
+    width: 100%; /* ocupa todo el ancho disponible, en cualquier pantalla */
 }
 
 .pn-fondo-menu {
@@ -736,7 +749,7 @@ body.pn-body {
 }
 
 .pn-tabla thead th {
-    padding: 14px 10px;
+    padding: 14px 6px;
     font-size: 11px;
     font-weight: 700;
     letter-spacing: 0.03em;
@@ -745,13 +758,14 @@ body.pn-body {
     color: var(--pn-texto-suave);
     background: #FFFFFF;
     border-bottom: 1px solid var(--pn-borde);
-    white-space: nowrap;
+    white-space: normal; /* los títulos pueden partirse en dos renglones para ahorrar ancho */
 }
 
 .pn-tabla tbody td {
-    padding: 12px 10px;
+    padding: 12px 6px;
     text-align: center;
     vertical-align: middle;
+    white-space: nowrap; /* cada registro ocupa un solo renglón */
     border-bottom: 1px solid var(--pn-borde);
     color: var(--pn-texto);
 }
@@ -785,6 +799,26 @@ body.pn-body {
 .pn-celda-principal {
     font-weight: 700;
     color: var(--pn-texto);
+}
+
+/* Limita el largo de un texto en las celdas de las tablas: al llegar al límite corta con "..." (el texto completo se ve
+   al pasar el mouse; panel.js completa el title). Tamaños: pn-truncar-corto (12), por defecto (16) y pn-truncar-largo (20)
+   caracteres aproximados (los renglones de las tablas no se parten). Se usa sobre un span dentro de la celda: <span class="pn-truncar">texto</span> */
+.pn-truncar {
+    display: inline-block;
+    max-width: var(--pn-truncar-largo, 16ch);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: bottom;
+}
+
+.pn-truncar-corto {
+    --pn-truncar-largo: 12ch;
+}
+
+.pn-truncar-largo {
+    --pn-truncar-largo: 20ch;
 }
 
 .pn-celda-secundaria {
@@ -1490,4 +1524,18 @@ textarea.pn-input {
     width: 34px;
     height: 34px;
     font-size: 13px;
+}
+
+/* Tarjetas filtradas o fuera de la página actual (las maneja panel.js) */
+[data-tarjeta][hidden] {
+    display: none !important;
+}
+
+/* "Editar" en las tarjetas de cursos: parte del amarillo del hover de los ABM y al pasar el mouse se oscurece apenas */
+.wf-course-card-footer .pn-btn-editar {
+    background: #F2CB45;
+}
+
+.wf-course-card-footer .pn-btn-editar:hover {
+    background: #E5BB2C;
 }

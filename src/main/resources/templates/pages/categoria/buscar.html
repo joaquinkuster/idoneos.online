@@ -17,7 +17,7 @@
                     <p class="pn-subtitulo">Gestiona las categorías temáticas del catálogo de cursos</p>
                 </div>
                 <button type="button" class="pn-btn pn-btn-primario" data-bs-toggle="modal" data-bs-target="#modalNuevaCategoria">
-                    <i class="fa-solid fa-plus"></i> Nueva categoría
+                    <i class="fa-solid fa-plus"></i> Registrar categoría
                 </button>
             </div>
 
@@ -31,7 +31,7 @@
                 </div>
 
                 <!-- Filtros -->
-                <form th:action="@{/categoria/buscar}" method="get" class="pn-filtros" data-filtros>
+                <form th:action="@{/categoria/buscar}" method="get" class="pn-filtros" data-filtro-front>
                     <div class="pn-filtros-campo pn-filtros-campo-grande">
                         <label class="pn-etiqueta">Nombre</label>
                         <input type="text" name="nombre" th:value="${nombreBusqueda}" class="pn-input" placeholder="Buscar por nombre" autocomplete="off">
@@ -48,7 +48,7 @@
                         <label class="pn-etiqueta">Ordenar por</label>
                         <select name="orden" class="pn-input" title="Ordenar por">
                             <option value="nombre" th:selected="${ordenSeleccionado == 'nombre'}">Nombre (A–Z)</option>
-                            <option value="recientes" th:selected="${ordenSeleccionado == 'recientes'}">Más recientes</option>
+                            <option value="recientes" data-dir="desc" th:selected="${ordenSeleccionado == 'recientes'}">Más recientes</option>
                         </select>
                     </div>
                     <a th:href="@{/categoria/buscar}" class="pn-btn pn-btn-contorno">Limpiar</a>
@@ -73,11 +73,13 @@
                         </thead>
                         <tbody>
                             <tr th:each="cat : ${categorias}" data-fila th:classappend="${cat.baja} ? 'pn-fila-baja'"
+                                th:data-f-nombre="${cat.nombre}" th:data-f-baja="${cat.baja}" th:data-o-nombre="${cat.nombre}"
+                                th:data-o-recientes="${(cat.fechaCreacion != null ? #temporals.format(cat.fechaCreacion, 'yyyyMMdd') : '') + #numbers.formatInteger(cat.idCategoria, 8, 'NONE')}"
                                 th:attr="data-dependencias=${cursosPorCategoria != null and cursosPorCategoria.containsKey(cat.idCategoria) ? cursosPorCategoria.get(cat.idCategoria).size() : 0}">
                                 <td class="pn-col-seleccion"><input type="checkbox" data-seleccionar-fila aria-label="Seleccionar fila"
                                     th:value="${cat.idCategoria}" th:disabled="${cat.baja}"></td>
-                                <td><span class="pn-celda-principal" th:text="${cat.nombre}">Mercado de Capitales</span></td>
-                                <td th:text="${cat.descripcion != null and !#strings.isEmpty(cat.descripcion) ? cat.descripcion : '—'}">Descripción</td>
+                                <td><span class="pn-celda-principal pn-truncar" th:text="${cat.nombre}">Mercado de Capitales</span></td>
+                                <td><span class="pn-truncar pn-truncar-largo" th:text="${cat.descripcion != null and !#strings.isEmpty(cat.descripcion) ? cat.descripcion : '—'}">Descripción</span></td>
                                 <td th:text="${cat.fechaCreacion != null ? #temporals.format(cat.fechaCreacion, 'dd/MM/yyyy') : '—'}">28/08/2026</td>
                                 <td>
                                     <span class="pn-insignia" th:classappend="${cat.baja} ? 'pn-insignia-gris' : 'pn-insignia-verde'"
@@ -124,7 +126,7 @@
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
             <div class="pn-modal-cabecera">
-                <h3 class="pn-modal-titulo">Nueva categoría</h3>
+                <h3 class="pn-modal-titulo">Registrar categoría</h3>
                 <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="pn-modal-cuerpo">

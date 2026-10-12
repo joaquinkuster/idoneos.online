@@ -87,7 +87,6 @@ class AccederCursoControladorTest {
                 .andExpect(content().string(Matchers.not(Matchers.containsString("ac-menu-unidad"))))
                 .andExpect(content().string(Matchers.containsString("nb-enlace\">Inicio<")))
                 .andExpect(content().string(Matchers.containsString("data-sin-accion")))
-                .andExpect(content().string(Matchers.containsString("En directo ahora")))
                 // sin categoría en el breadcrumb, sin progreso ni pestañas internas
                 .andExpect(content().string(Matchers.not(Matchers.containsString("Progreso general"))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("Clon IA"))))
@@ -137,13 +136,14 @@ class AccederCursoControladorTest {
 
     @Test
     @WithUserDetails(value = "valentina.ruiz@correo.com", userDetailsServiceBeanName = "usuarioDetallesServicio")
-    @DisplayName("CU-27: el cronograma indica la semana esperada y que el alumno va al día")
+    @DisplayName("CU-27: el cronograma marca la semana actual y que el alumno va al día")
     void cronograma() throws Exception {
         mockMvc.perform(get("/inscripcion/acceder/" + inscripcionDe("valentina.ruiz@correo.com"))
                 .param("seccion", "cronograma"))
                 .andExpect(status().isOk())
-                .andExpect(content().string(Matchers.containsString("Semana esperada: 3 de 9")))
-                .andExpect(content().string(Matchers.containsString("Vas al día con el cronograma.")))
+                .andExpect(content().string(Matchers.containsString("data-semana-actual=\"3\"")))
+                .andExpect(content().string(Matchers.containsString("Vas al día")))
+                .andExpect(content().string(Matchers.containsString("Hoy (semana actual)")))
                 // el mismo tablero que ve el docente cuando hay inscripciones: solo lectura (sin paneles ni botones)
                 .andExpect(content().string(Matchers.containsString("id=\"cronograma\"")))
                 .andExpect(content().string(Matchers.containsString("data-editable=\"false\"")))
@@ -191,7 +191,9 @@ class AccederCursoControladorTest {
     void barraLateralDelAdministrador() throws Exception {
         mockMvc.perform(get("/categoria/buscar")).andExpect(status().isOk())
                 .andExpect(content().string(Matchers.containsString("pn-menu-enlace")))
-                .andExpect(content().string(Matchers.containsString("Cohortes")))
+                // "Mis cursos" está en el menú del usuario, debajo de "Panel administrador"
+                .andExpect(content().string(Matchers.containsString("/curso/misCursos")))
+                .andExpect(content().string(Matchers.not(Matchers.containsString("/cohorte/buscar"))))
                 .andExpect(content().string(Matchers.containsString("Panel del administrador")));
     }
 }

@@ -164,8 +164,8 @@ class GlosarioControladorTest {
                 // buscador con la casilla tildada, índice alfabético y las acciones del docente
                 .andExpect(content().string(Matchers.containsString("¿Buscar en términos y definiciones?")))
                 .andExpect(content().string(Matchers.containsString("checked")))
-                .andExpect(content().string(Matchers.containsString("TODAS")))
-                .andExpect(content().string(Matchers.containsString("gl-indice-letra-vacia")))
+                .andExpect(content().string(Matchers.containsString("data-glosario-indice")))
+                .andExpect(content().string(Matchers.containsString("data-glosario-limpiar")))
                 .andExpect(content().string(Matchers.containsString("Registrar término")))
                 .andExpect(content().string(Matchers.containsString("modalNuevoTermino")))
                 .andExpect(content().string(Matchers.containsString("modalEditarTermino" + idTermino(primera(), "BYMA"))))
@@ -193,30 +193,17 @@ class GlosarioControladorTest {
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesServicio")
-    @DisplayName("La búsqueda por texto filtra los términos y la casilla limita la búsqueda al término")
+    @DisplayName("El buscador filtra en el navegador: el servidor entrega todos los términos, sin botón Buscar")
     void busqueda() throws Exception {
-        // "mercado" solo está en las definiciones de BYMA y CNV
-        mockMvc.perform(get("/glosario/ver/" + primera()).param("texto", "mercado").param("buscar", "1")
-                .param("enDefiniciones", "true"))
+        mockMvc.perform(get("/glosario/ver/" + primera()))
                 .andExpect(status().isOk())
-                .andExpect(content().string(Matchers.containsString("2 términos encontrados")))
-                .andExpect(content().string(Matchers.not(Matchers.containsString("Obligación negociable"))));
-        // destildada la casilla (el navegador no envía el parámetro) solo se busca en el término
-        mockMvc.perform(get("/glosario/ver/" + primera()).param("texto", "mercado").param("buscar", "1"))
-                .andExpect(status().isOk())
-                .andExpect(content().string(Matchers.containsString("No se encontraron términos")))
-                .andExpect(content().string(Matchers.not(Matchers.containsString("checked=\"checked\""))));
-    }
-
-    @Test
-    @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesServicio")
-    @DisplayName("El índice filtra por letra y una letra sin términos se ignora")
-    void indicePorLetra() throws Exception {
-        mockMvc.perform(get("/glosario/ver/" + primera()).param("letra", "C"))
-                .andExpect(status().isOk())
+                .andExpect(content().string(Matchers.containsString("data-glosario-filtros")))
+                .andExpect(content().string(Matchers.containsString("data-nombre=\"BYMA\"")))
+                .andExpect(content().string(Matchers.containsString("data-definicion=")))
                 .andExpect(content().string(Matchers.containsString("Comisión Nacional de Valores")))
-                .andExpect(content().string(Matchers.not(Matchers.containsString("Bolsas y Mercados Argentinos"))));
-        mockMvc.perform(get("/glosario/ver/" + primera()).param("letra", "Z"))
+                .andExpect(content().string(Matchers.not(Matchers.containsString("fa-magnifying-glass\"></i> Buscar"))));
+        // los parámetros de búsqueda ya no filtran del lado del servidor
+        mockMvc.perform(get("/glosario/ver/" + primera()).param("texto", "zzz").param("letra", "C"))
                 .andExpect(status().isOk())
                 .andExpect(content().string(Matchers.containsString("Bolsas y Mercados Argentinos")))
                 .andExpect(content().string(Matchers.containsString("Comisión Nacional de Valores")));
@@ -235,27 +222,18 @@ class GlosarioControladorTest {
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesServicio")
-    @DisplayName("Se pagina de a 10 términos, con opción TODAS")
+    @DisplayName("Entrega todos los términos: las páginas de a 10 y el índice se arman en el navegador")
     void paginacion() throws Exception {
-        // 3 términos de la semilla + 9 más = 12 términos: dos páginas
+        // 3 términos de la semilla + 9 más = 12 términos
         for (int i = 1; i <= 9; i++) {
             terminoRepositorio.save(new TerminoGlosario(unidad("Mercado de Capitales Argentino",
                     "Introducción al mercado de capitales"), "Término " + i, "Definición " + i));
         }
         mockMvc.perform(get("/glosario/ver/" + primera()))
                 .andExpect(status().isOk())
-                .andExpect(content().string(Matchers.containsString("Página:")))
-                .andExpect(content().string(Matchers.containsString("pagina=2")))
-                .andExpect(content().string(Matchers.containsString("pagina=0")))
-                .andExpect(content().string(Matchers.not(Matchers.containsString("Definición 9"))));
-        mockMvc.perform(get("/glosario/ver/" + primera()).param("pagina", "2"))
-                .andExpect(content().string(Matchers.containsString("Definición 9")));
-        mockMvc.perform(get("/glosario/ver/" + primera()).param("pagina", "0"))
+                .andExpect(content().string(Matchers.containsString("data-glosario-paginas")))
                 .andExpect(content().string(Matchers.containsString("Definición 9")))
                 .andExpect(content().string(Matchers.containsString("Bolsas y Mercados Argentinos")));
-        // una página fuera de rango muestra la última
-        mockMvc.perform(get("/glosario/ver/" + primera()).param("pagina", "99"))
-                .andExpect(content().string(Matchers.containsString("Definición 9")));
     }
 
     @Test

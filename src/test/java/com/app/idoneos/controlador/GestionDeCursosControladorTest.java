@@ -80,15 +80,63 @@ class GestionDeCursosControladorTest {
                 .andExpect(view().name("pages/curso/buscarAdministrador"));
         mockMvc.perform(get("/categoria/buscar")).andExpect(status().isOk())
                 .andExpect(view().name("pages/categoria/buscar"));
-        mockMvc.perform(get("/cohorte/buscar")).andExpect(status().isOk())
-                .andExpect(view().name("pages/cohorte/buscarAdministrador"));
+        // el ABM de cohortes del administrador vive dentro del panel de un curso
+        mockMvc.perform(get("/cohorte/buscar").param("cursoId", "1")).andExpect(status().isOk())
+                .andExpect(view().name("pages/cohorte/buscarAdministrador"))
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.content()
+                        .string(org.hamcrest.Matchers.containsString("Este programa")));
+        mockMvc.perform(get("/cohorte/buscar")).andExpect(status().is3xxRedirection());
+    }
+
+    @Test
+    @WithUserDetails(value = "admin@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesServicio")
+    @DisplayName("Mis cursos del administrador: la vista del docente con todos los cursos activos y atajos al ABM de cursos")
+    void misCursosDelAdministrador() throws Exception {
+        mockMvc.perform(get("/curso/misCursos")).andExpect(status().isOk())
+                .andExpect(view().name("pages/curso/buscar"))
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.content().string(
+                        org.hamcrest.Matchers.allOf(
+                                org.hamcrest.Matchers.containsString("accion=editar"),
+                                org.hamcrest.Matchers.containsString("accion=baja"),
+                                // con cursos, "Registrar curso" solo está en el ABM (no hay botón en esta vista)
+                                org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("accion=nuevo")),
+                                org.hamcrest.Matchers.containsString("data-tarjeta"),
+                                org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("Dado de baja")))));
+    }
+
+    @Test
+    @WithUserDetails(value = "admin@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesServicio")
+    @DisplayName("Desde Mis cursos el ABM de cursos abre solo la ventana de la acción elegida")
+    void abmDeCursosConLaAccionElegida() throws Exception {
+        mockMvc.perform(get("/curso/buscar").param("accion", "nuevo")).andExpect(status().isOk())
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.model()
+                        .attribute("abrirModal", "modalNuevoCurso"));
+        mockMvc.perform(get("/curso/buscar").param("accion", "editar").param("id", "1")).andExpect(status().isOk())
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.model()
+                        .attribute("abrirModal", "modalEditarCurso1"));
+        mockMvc.perform(get("/curso/buscar").param("accion", "baja").param("id", "1")).andExpect(status().isOk())
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.model()
+                        .attribute("abrirModal", "modalBajaCurso1"));
+    }
+
+    @Test
+    @WithUserDetails(value = "admin@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesServicio")
+    @DisplayName("El administrador accede al panel del curso, sin las acciones de gestión del docente")
+    void administradorAccedeAlPanelDelCurso() throws Exception {
+        mockMvc.perform(get("/curso/acceder/1")).andExpect(status().isOk())
+                .andExpect(view().name("pages/curso/acceder"))
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.content().string(
+                        org.hamcrest.Matchers.allOf(
+                                org.hamcrest.Matchers.containsString("Cohortes"),
+                                org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("Registrar unidad")),
+                                org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("selectProgramaPorDefecto")))));
     }
 
     @Test
     @WithUserDetails(value = "fausto.spotorno@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesServicio")
     @DisplayName("El docente ve las vistas de tarjetas de cursos y cohortes, y no puede dar de baja")
     void docenteNoAccedeAlPanel() throws Exception {
-        mockMvc.perform(get("/curso/buscar")).andExpect(view().name("pages/curso/buscarDocente"));
+        mockMvc.perform(get("/curso/buscar")).andExpect(view().name("pages/curso/buscar"));
         mockMvc.perform(get("/cohorte/buscar")).andExpect(view().name("pages/cohorte/buscarDocente"));
         mockMvc.perform(post("/curso/darDeBajaMasiva").param("ids", "1")).andExpect(status().isForbidden());
     }

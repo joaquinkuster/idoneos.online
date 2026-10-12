@@ -24,9 +24,10 @@
         return { id: e.dataset.id, titulo: e.dataset.titulo, material: parseInt(e.dataset.material, 10) || 0, color: COLORES[indice % COLORES.length] };
     });
     var colocadas = Array.prototype.map.call(raiz.querySelectorAll('[data-colocada]'), function (e) {
-        return { id: e.dataset.id, semanas: parseInt(e.dataset.semanas, 10) };
+        return { id: e.dataset.id, semanas: parseInt(e.dataset.semanas, 10), estado: e.dataset.estado || '' };
     });
-    var inicial = JSON.stringify(colocadas);
+    var semanaHoy = parseInt(raiz.dataset.semanaActual, 10) || 0; // 0: sin línea roja
+    var inicial = JSON.stringify(colocadas.map(function (c) { return { id: c.id, semanas: c.semanas }; }));
 
     var grilla = raiz.querySelector('[data-grilla]');
     var disponibles = raiz.querySelector('[data-disponibles]');
@@ -42,7 +43,7 @@
     }
 
     function hayCambios() {
-        return JSON.stringify(colocadas) !== inicial;
+        return JSON.stringify(colocadas.map(function (c) { return { id: c.id, semanas: c.semanas }; })) !== inicial;
     }
 
     function escapar(texto) {
@@ -66,8 +67,11 @@
         var plantilla = '170px repeat(' + columnas + ', minmax(26px, 1fr))';
 
         var html = '<div class="cn-fila cn-cabecera-fila" style="grid-template-columns:' + plantilla + '"><div class="cn-celda-unidades">Unidades</div>';
-        for (var s = 1; s <= columnas; s++) { html += '<div>' + s + '</div>'; }
+        for (var s = 1; s <= columnas; s++) { html += '<div' + (s === semanaHoy ? ' class="cn-numero-actual"' : '') + '>' + s + '</div>'; }
         html += '</div>';
+        // Línea roja de la semana actual: una por fila, para que se vea continua
+        var lineaActual = semanaHoy >= 1 && semanaHoy <= columnas
+            ? '<div class="cn-actual" style="grid-column:' + (semanaHoy + 1) + '" data-tip="Hoy: semana ' + semanaHoy + ' de ' + (raiz.dataset.duracion || columnas) + '"></div>' : '';
 
         var desde = 1;
         colocadas.forEach(function (c, i) {
@@ -77,7 +81,10 @@
                 + '<div class="cn-tarjeta"><b>' + escapar(u.titulo) + '</b><small>' + textoSemanas(c.semanas) + '</small></div>'
                 + (editable ? '<span class="cn-asa-fila" title="Arrastrar para reordenar"><i class="fa-solid fa-grip-vertical"></i></span>' : '') + '</div>';
             for (var k = 2; k <= columnas + 1; k++) { html += '<div class="cn-semana" style="grid-row:1;grid-column:' + k + '"></div>'; }
-            html += '<div class="cn-barra" style="grid-column:' + (desde + 1) + ' / span ' + c.semanas + '">' + escapar(nombreCorto(u.titulo)) + ' · ' + c.semanas + ' sem.'
+            var hasta = desde + c.semanas - 1;
+            var tip = 'Unidad ' + (i + 1) + ' · ' + u.titulo + ' · ' + (c.semanas === 1 ? 'semana ' + desde : 'semanas ' + desde + ' a ' + hasta) + (c.estado ? ' · ' + c.estado : '');
+            html += lineaActual;
+            html += '<div class="cn-barra" data-tip="' + escapar(tip).replace(/"/g, '&quot;') + '" style="grid-column:' + (desde + 1) + ' / span ' + c.semanas + '">' + escapar(nombreCorto(u.titulo)) + ' · ' + c.semanas + ' sem.'
                 + (editable ? '<span class="cn-borde" data-i="' + i + '" title="Arrastrar para cambiar la duración"></span>' : '') + '</div></div>';
             desde += c.semanas;
         });
@@ -97,7 +104,7 @@
             var u = unidadDe(c.id);
             var primera = semanaActual + 1;
             semanaActual += c.semanas;
-            return '<tr><td>' + (i + 1) + '</td><td class="text-start"><span class="pn-celda-principal">' + escapar(u.titulo) + '</span></td>'
+            return '<tr><td>' + (i + 1) + '</td><td class="text-start"><span class="pn-celda-principal pn-truncar pn-truncar-largo" title="' + escapar(u.titulo).replace(/"/g, '&quot;') + '">' + escapar(u.titulo) + '</span></td>'
                 + '<td>' + u.material + (u.material === 1 ? ' material' : ' materiales') + '</td><td>' + textoSemanas(c.semanas) + '</td>'
                 + '<td>' + (primera === semanaActual ? 'Semana ' + primera : 'Semanas ' + primera + ' a ' + semanaActual) + '</td></tr>';
         }).join('') : '<tr><td colspan="5" class="pn-vacio-grande"><i class="fa-solid fa-calendar pn-vacio-icono"></i><h3>El cronograma está vacío</h3><p>Arrastrá unidades desde el panel izquierdo para armarlo.</p></td></tr>';

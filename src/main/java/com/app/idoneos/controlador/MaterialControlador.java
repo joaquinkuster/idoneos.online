@@ -147,9 +147,10 @@ public class MaterialControlador {
             modelo.addAttribute("bajaSeleccionada", baja);
             modelo.addAttribute("nuevoTipoId", nuevoValido && !esAdministrador ? nuevo : null);
             modelo.addAttribute("esDocente", !esAdministrador);
+            modelo.addAttribute("esAdministrador", esAdministrador);
             modelo.addAttribute("puedeGestionar", !esAdministrador);
             modelo.addAttribute("urlBase", "/curso/acceder/" + cursoId);
-            modelo.addAttribute("urlMisCursos", "/curso/buscar");
+            modelo.addAttribute("urlMisCursos", esAdministrador ? "/curso/misCursos" : "/curso/buscar");
             modelo.addAttribute("titulo", "Materiales | Idóneos Online");
             modelo.addAttribute("menuActivo", "materiales");
             return "pages/material/buscar";
@@ -190,8 +191,8 @@ public class MaterialControlador {
         String urlBase;
         String urlMisCursos;
         if (esAdministrador) {
-            urlBase = "/material/buscar?cursoId=" + curso.getIdCurso();
-            urlMisCursos = "/curso/buscar";
+            urlBase = "/curso/acceder/" + curso.getIdCurso();
+            urlMisCursos = "/curso/misCursos";
         } else if (esDocente) {
             urlBase = "/curso/acceder/" + curso.getIdCurso();
             urlMisCursos = "/curso/buscar";

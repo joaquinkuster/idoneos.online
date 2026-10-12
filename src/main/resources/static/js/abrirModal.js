@@ -11,6 +11,6 @@
     if (!ventana || !window.bootstrap) { return; }
     window.bootstrap.Modal.getOrCreateInstance(ventana).show();
     var direccion = new URL(window.location.href);
-    direccion.searchParams.delete('nuevo');
+    ['nuevo', 'accion', 'id'].forEach(function (parametro) { direccion.searchParams.delete(parametro); });
     window.history.replaceState(null, '', direccion.pathname + direccion.search);
 })();

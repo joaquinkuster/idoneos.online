@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+
+<body>
+    <!-- Pestañas del curso, debajo del título y subtítulo (como en Moodle). Son los mismos enlaces del menú lateral;
+         los que todavía no tienen acción ('#') quedan visibles sin enlace. El docente suma un menú "Más" con el resto.
+         urlBase: ruta del curso abierto; curso: el curso; esDocente: define qué pestañas y enlaces corresponden. -->
+    <th:block th:fragment="pestanias(urlBase, curso, esDocente)">
+        <nav class="ac-curso-pestanias" aria-label="Secciones del curso">
+            <a class="ac-pestania activa" th:href="@{${urlBase}}" aria-current="page">Curso</a>
+            <a class="ac-pestania"
+                th:href="${esDocente ? '/cronograma/buscar?cursoId=' + curso.idCurso : urlBase + '?seccion=cronograma'}">Cronograma</a>
+            <a class="ac-pestania" th:if="${esAdministrador == true}" th:href="${'/cohorte/buscar?cursoId=' + curso.idCurso}">Cohortes</a>
+            <a class="ac-pestania" th:href="${urlBase + '?seccion=clases'}" th:if="${curso.incluyeModalidad('En vivo')}">Clases en vivo</a>
+            <a class="ac-pestania" href="#" data-sin-accion>Participantes</a>
+            <a class="ac-pestania" href="#" data-sin-accion>Calificaciones</a>
+            <a class="ac-pestania" href="#" data-sin-accion th:unless="${esDocente}">Autoevaluaciones</a>
+
+            <!-- Docente: el resto de las secciones, agrupadas -->
+            <div class="ac-pestania-mas" th:if="${esDocente}">
+                <button type="button" class="ac-pestania" data-pestanias-mas aria-expanded="false" aria-haspopup="true">
+                    Más <i class="fa-solid fa-chevron-down"></i>
+                </button>
+                <div class="ac-pestanias-menu" data-pestanias-menu hidden>
+                    <span class="ac-pestanias-grupo">Este curso</span>
+                    <a th:href="${'/unidad/buscar?cursoId=' + curso.idCurso}">Unidades</a>
+                    <a th:href="${'/programa/buscar?cursoId=' + curso.idCurso}">Programas</a>
+                    <span class="ac-pestanias-grupo">Contenido de las unidades</span>
+                    <a th:href="${'/material/buscar?cursoId=' + curso.idCurso}">Materiales</a>
+                    <a th:href="${'/glosario/buscar?cursoId=' + curso.idCurso}">Glosario</a>
+                    <a href="#" data-sin-accion>Autoevaluaciones</a>
+                    <a th:href="${'/foro/buscar?cursoId=' + curso.idCurso}">Foros</a>
+                </div>
+            </div>
+        </nav>
+    </th:block>
+</body>
+
+</html>

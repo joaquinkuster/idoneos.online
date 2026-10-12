@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -34,7 +32,6 @@ import com.app.idoneos.servicio.Curso.CursoServicioImpl;
 import com.app.idoneos.servicio.Inscripcion.InscripcionServicio;
 import com.app.idoneos.servicio.TerminoGlosario.TerminoGlosarioServicio;
 import com.app.idoneos.servicio.Unidad.UnidadServicioImpl;
-import com.app.idoneos.utilidades.PaginacionUtilidad;
 import com.app.idoneos.utilidades.RespuestaUtilidad;
 
 /**
@@ -50,9 +47,6 @@ import com.app.idoneos.utilidades.RespuestaUtilidad;
 @Controller
 @RequestMapping("/glosario")
 public class GlosarioControlador {
-
-    /** Cantidad de términos por página. */
-    private static final int TERMINOS_POR_PAGINA = 10;
 
     @Autowired
     private TerminoGlosarioServicio terminoGlosarioServicio;
@@ -107,8 +101,9 @@ public class GlosarioControlador {
             modelo.addAttribute("unidadSeleccionada", unidadId);
             modelo.addAttribute("unidades", unidades);
             modelo.addAttribute("esDocente", !esAdministrador);
+            modelo.addAttribute("esAdministrador", esAdministrador);
             modelo.addAttribute("urlBase", "/curso/acceder/" + cursoId);
-            modelo.addAttribute("urlMisCursos", "/curso/buscar");
+            modelo.addAttribute("urlMisCursos", esAdministrador ? "/curso/misCursos" : "/curso/buscar");
             modelo.addAttribute("titulo", "Glosarios | Idóneos Online");
             modelo.addAttribute("menuActivo", "glosario");
             return "pages/glosario/buscar";
@@ -161,8 +156,8 @@ public class GlosarioControlador {
         String urlMisCursos;
         if (esAdministrador) {
             programa = curso.getProgramaVigente();
-            urlBase = "/glosario/buscar?cursoId=" + curso.getIdCurso();
-            urlMisCursos = "/curso/buscar";
+            urlBase = "/curso/acceder/" + curso.getIdCurso();
+            urlMisCursos = "/curso/misCursos";
         } else if (esDocente) {
             programa = cursoServicio.validarAccesoDocente(curso.getIdCurso(), docente).getProgramaDeTrabajo();
             urlBase = "/curso/acceder/" + curso.getIdCurso();
@@ -178,56 +173,25 @@ public class GlosarioControlador {
                 .filter(cronograma -> cronograma.getUnidad().getIdUnidad() == unidad.getIdUnidad())
                 .mapToInt(UnidadCronograma::getNumeroOrden).findFirst().orElse(0);
 
-        // Búsqueda: por defecto en términos y definiciones; destildada la casilla, solo en el término
-        boolean buscarEnDefiniciones = buscar == null || Boolean.TRUE.equals(enDefiniciones);
-        List<TerminoGlosario> encontrados = terminoGlosarioServicio.buscarConFiltros(unidad, texto,
-                buscarEnDefiniciones);
+        // Los filtros (texto, letra y páginas) se aplican en el navegador (glosarioFiltros.js): acá se entregan todos
+        // los términos de la unidad, salvo el enlace permanente a un término
+        List<TerminoGlosario> encontrados = terminoGlosarioServicio.buscarConFiltros(unidad, null, true);
         boolean unSoloTermino = terminoId != null;
         if (unSoloTermino) {
             encontrados = encontrados.stream().filter(termino -> termino.getIdTermino() == terminoId).toList();
         }
 
-        // Índice alfabético: las letras sin términos se muestran deshabilitadas
-        Set<String> letrasConTerminos = new TreeSet<>();
-        encontrados.forEach(termino -> letrasConTerminos.add(termino.getLetraInicial()));
-        String letraElegida = letra != null && letrasConTerminos.contains(letra.trim().toUpperCase())
-                ? letra.trim().toUpperCase() : null;
-        List<TerminoGlosario> deLaLetra = letraElegida == null ? encontrados : encontrados.stream()
-                .filter(termino -> termino.getLetraInicial().equals(letraElegida)).toList();
-
-        // Paginación: pagina 0 = todos los términos
-        boolean todas = pagina == 0;
-        int totalPaginas = PaginacionUtilidad.calcularTotalPaginas(deLaLetra.size(), TERMINOS_POR_PAGINA);
-        int paginaActual = todas ? 0 : PaginacionUtilidad.ajustarPagina(pagina - 1, totalPaginas) + 1;
-        List<TerminoGlosario> delaPagina = todas ? deLaLetra
-                : PaginacionUtilidad.obtenerPagina(deLaLetra, paginaActual - 1, TERMINOS_POR_PAGINA);
-
-        // Los términos de la página, agrupados por letra inicial (ya vienen en orden alfabético)
+        // Los términos, agrupados por letra inicial (ya vienen en orden alfabético)
         Map<String, List<TerminoGlosario>> grupos = new LinkedHashMap<>();
-        delaPagina.forEach(termino -> grupos.computeIfAbsent(termino.getLetraInicial(), l -> new ArrayList<>())
+        encontrados.forEach(termino -> grupos.computeIfAbsent(termino.getLetraInicial(), l -> new ArrayList<>())
                 .add(termino));
-
-        List<String> abecedario = new ArrayList<>();
-        for (char c = 'A'; c <= 'Z'; c++) {
-            abecedario.add(String.valueOf(c));
-        }
 
         modelo.addAttribute("unidad", unidad);
         modelo.addAttribute("curso", curso);
         modelo.addAttribute("numeroOrden", numeroOrden);
         modelo.addAttribute("totalTerminos", unidad.getTerminosGlosarioOrdenados().size());
-        modelo.addAttribute("texto", texto == null ? "" : texto.trim());
-        modelo.addAttribute("enDefiniciones", buscarEnDefiniciones);
         modelo.addAttribute("unSoloTermino", unSoloTermino);
-        modelo.addAttribute("hayBusqueda", texto != null && !texto.isBlank());
-        modelo.addAttribute("cantidadEncontrados", encontrados.size());
-        modelo.addAttribute("abecedario", abecedario);
-        modelo.addAttribute("letrasConTerminos", letrasConTerminos);
-        modelo.addAttribute("hayEspeciales", letrasConTerminos.contains(TerminoGlosario.LETRA_ESPECIAL));
-        modelo.addAttribute("letraElegida", letraElegida == null ? "" : letraElegida);
         modelo.addAttribute("grupos", grupos);
-        modelo.addAttribute("pagina", paginaActual);
-        modelo.addAttribute("totalPaginas", totalPaginas);
         modelo.addAttribute("esAdministrador", esAdministrador);
         modelo.addAttribute("esDocente", esDocente);
         modelo.addAttribute("puedeGestionar", esDocente);

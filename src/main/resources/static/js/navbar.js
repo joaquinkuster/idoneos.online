@@ -12,7 +12,6 @@
 (function () {
     'use strict';
 
-    var CLAVE_MENU = 'idoneos.panel.menuColapsado';
     var PUNTO_DE_QUIEBRE_MENU = 900;
     var PUNTO_DE_QUIEBRE_NAVBAR = 992;
 
@@ -94,8 +93,7 @@
             app.classList.toggle('menu-abierto');
             return;
         }
-        var contraido = app.classList.toggle('colapsado');
-        try { window.localStorage.setItem(CLAVE_MENU, contraido ? '1' : '0'); } catch (e) { /* almacenamiento no disponible */ }
+        app.classList.toggle('colapsado');
     };
 
     document.addEventListener('click', function (evento) {

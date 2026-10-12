@@ -32,13 +32,14 @@
         <div class="container-fluid px-4 px-lg-5">
 
           <!-- Filtros: mismo diseño que los listados del panel, con su label -->
-          <section class="pn-tarjeta mb-4">
+          <div data-tabla>
+              <section class="pn-tarjeta mb-4">
             <div class="pn-lista-cabecera">
               <h2 class="pn-lista-titulo">Cursos disponibles</h2>
-              <span class="pn-seleccionados"><span th:text="${totalCursos}">0</span> curso(s) encontrado(s)</span>
+              <span class="pn-seleccionados"><span data-total-filtradas th:text="${totalCursos}">0</span> curso(s) encontrado(s)</span>
             </div>
 
-            <form id="formFiltrosCatalogo" th:action="@{/catalogo}" method="get" class="pn-filtros mb-3" data-filtros>
+            <form id="formFiltrosCatalogo" th:action="@{/catalogo}" method="get" class="pn-filtros mb-3" data-filtro-front>
               <div class="pn-filtros-campo pn-filtros-campo-grande">
                 <label class="pn-etiqueta">Nombre</label>
                 <input type="text" name="busqueda" th:value="${busqueda}" class="pn-input" placeholder="Buscar por nombre" autocomplete="off">
@@ -81,8 +82,11 @@
 
           <th:block th:if="${cursos == null or #lists.isEmpty(cursos)}"><th:block th:replace="~{fragments/vacio :: bloque('fa-book-open', 'No se encontraron cursos', 'Ningún curso con cohortes abiertas coincide con los filtros seleccionados.', @{/catalogo}, 'Limpiar filtros')}"></th:block></th:block>
 
+          <!-- Sin coincidencias con los filtros (los filtros se aplican en el navegador) -->
+          <div data-vacio hidden th:if="${totalCursos > 0}"><th:block th:replace="~{fragments/vacio :: bloque('fa-book-open', 'No se encontraron cursos', 'Ningún curso coincide con los filtros seleccionados.', null, null)}"></th:block></div>
+
           <!-- Grilla de tarjetas -->
-          <div class="wf-cards-grid">
+          <div class="wf-cards-grid" data-tarjetas>
             <th:block th:each="c : ${cursos}">
   <th:block th:replace="~{fragments/tarjetaCurso :: tarjeta(${c}, ${cantUnidadesPorCurso != null ? cantUnidadesPorCurso.get(c.idCurso) : null})}"></th:block>
 </th:block>
@@ -90,30 +94,21 @@
 
           <!-- Pie: cursos por página y paginador (mismo estilo que los listados del panel) -->
           <section class="pn-tarjeta mt-4" th:if="${totalCursos > 0}">
-            <div class="pn-tabla-pie">
-              <div class="pn-por-pagina">
-                <span>Cursos por página:</span>
-                <select name="porPagina" form="formFiltrosCatalogo" onchange="document.getElementById('formFiltrosCatalogo').submit()">
-                  <option value="10" th:selected="${porPagina == 10}">10</option>
-                  <option value="25" th:selected="${porPagina == 25}">25</option>
-                  <option value="50" th:selected="${porPagina == 50}">50</option>
-                  <option value="0" th:selected="${porPagina == 0}">Todo</option>
-                </select>
-                <span th:text="${desdeCurso + '-' + hastaCurso + ' de ' + totalCursos}">1-10 de 25</span>
+              <div class="pn-tabla-pie">
+                  <div class="pn-por-pagina">
+                      <span>Cursos por página:</span>
+                      <select data-por-pagina>
+                          <option value="10">10</option>
+                          <option value="25">25</option>
+                          <option value="50">50</option>
+                          <option value="0">Todo</option>
+                      </select>
+                      <span data-rango>0-0 de 0</span>
+                  </div>
+                  <div class="pn-paginador" data-paginador></div>
               </div>
-              <div class="pn-paginador">
-                <a th:href="@{/catalogo(page=0, porPagina=${porPagina}, busqueda=${busqueda}, categoriaId=${categoriaSeleccionada}, nivelId=${nivelSeleccionado}, docenteId=${docenteSeleccionado}, modalidadId=${modalidadSeleccionada})}"
-                   th:classappend="${currentPage == 0} ? 'deshabilitado'" title="Primera página">«</a>
-                <a th:href="@{/catalogo(page=${currentPage - 1}, porPagina=${porPagina}, busqueda=${busqueda}, categoriaId=${categoriaSeleccionada}, nivelId=${nivelSeleccionado}, docenteId=${docenteSeleccionado}, modalidadId=${modalidadSeleccionada})}"
-                   th:classappend="${currentPage == 0} ? 'deshabilitado'" title="Página anterior">‹</a>
-                <span th:text="${'Página ' + (currentPage + 1) + ' de ' + totalPages}">Página 1 de 1</span>
-                <a th:href="@{/catalogo(page=${currentPage + 1}, porPagina=${porPagina}, busqueda=${busqueda}, categoriaId=${categoriaSeleccionada}, nivelId=${nivelSeleccionado}, docenteId=${docenteSeleccionado}, modalidadId=${modalidadSeleccionada})}"
-                   th:classappend="${currentPage >= totalPages - 1} ? 'deshabilitado'" title="Página siguiente">›</a>
-                <a th:href="@{/catalogo(page=${totalPages - 1}, porPagina=${porPagina}, busqueda=${busqueda}, categoriaId=${categoriaSeleccionada}, nivelId=${nivelSeleccionado}, docenteId=${docenteSeleccionado}, modalidadId=${modalidadSeleccionada})}"
-                   th:classappend="${currentPage >= totalPages - 1} ? 'deshabilitado'" title="Última página">»</a>
-              </div>
-            </div>
           </section>
+          </div>
 
         </div>
       </div>

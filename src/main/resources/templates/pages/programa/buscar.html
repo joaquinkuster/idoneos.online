@@ -6,8 +6,7 @@
 <body class="pn-body">
 <div class="pn-app" id="pnApp">
     <!-- Menú lateral: el del docente (gestión académica) o, para el administrador, el del panel -->
-    <th:block th:if="${esDocente}"><th:block th:replace="~{fragments/menus :: gestionAcademica(${menuActivo}, ${urlBase})}"></th:block></th:block>
-    <th:block th:unless="${esDocente}"><th:block th:replace="~{fragments/menus :: administrador(${menuActivo})}"></th:block></th:block>
+    <th:block th:replace="~{fragments/menus :: gestionAcademica(${menuActivo}, ${urlBase})}"></th:block>
 
     <div class="pn-principal">
         <th:block th:if="${esDocente}"><th:block th:replace="~{fragments/panel :: barra(null)}"></th:block></th:block>
@@ -17,7 +16,7 @@
             <nav class="ac-migas" aria-label="Ruta de navegación">
                 <a th:href="@{/inicio}">Página principal</a>
                 <i class="fa-solid fa-chevron-right"></i>
-                <a th:href="@{${urlMisCursos}}">Mis cursos</a>
+                <a th:href="@{${urlMisCursos}}" th:text="${esAdministrador == true ? 'Todos los cursos' : 'Mis cursos'}">Mis cursos</a>
                 <i class="fa-solid fa-chevron-right"></i>
                 <a th:href="@{${urlBase}}" th:text="${curso.nombre}">Curso</a>
                 <i class="fa-solid fa-chevron-right"></i>
@@ -44,7 +43,7 @@
                 </div>
 
                 <!-- Filtros -->
-                <form th:action="@{/programa/buscar}" method="get" class="pn-filtros" data-filtros>
+                <form th:action="@{/programa/buscar}" method="get" class="pn-filtros" data-filtro-front>
                     <input type="hidden" name="cursoId" th:value="${curso.idCurso}">
                     <div class="pn-filtros-campo pn-filtros-campo-grande">
                         <label class="pn-etiqueta">Nombre</label>
@@ -83,17 +82,18 @@
                         </thead>
                         <tbody>
                             <tr th:each="p : ${programas}" data-fila th:classappend="${p.baja} ? 'pn-fila-baja'"
+                                th:data-f-nombre="${p.nombre}" th:data-f-estado="${p.estado}"
                                 th:attr="data-dependencias=${p.cantidadCohortesActivas}">
                                 <td class="pn-col-seleccion"><input type="checkbox" data-seleccionar-fila aria-label="Seleccionar fila"
                                     th:value="${p.idPrograma}" th:disabled="${p.baja}"></td>
                                 <td>
-                                    <span class="pn-celda-principal" th:text="${p.nombre}">2026</span>
+                                    <span class="pn-celda-principal pn-truncar" th:text="${p.nombre}">2026</span>
                                     <span class="pg-estrella" th:if="${programaDeTrabajoId != null and programaDeTrabajoId == p.idPrograma}"
                                           title="Tu programa por defecto">(Por defecto)</span>
-                                    <small class="fo-fecha" th:if="${p.descripcion != null}" th:text="${p.descripcion}">Descripción</small>
+                                    <small class="fo-fecha pn-truncar pn-truncar-largo" th:if="${p.descripcion != null}" th:text="${p.descripcion}">Descripción</small>
                                 </td>
-                                <td class="fo-col-consulta" th:text="${p.resumenObjetivos}">Objetivos del programa</td>
-                                <td class="fo-col-consulta" th:text="${p.resumenBibliografia}">Bibliografía del programa</td>
+                                <td class="fo-col-consulta"><span class="pn-truncar pn-truncar-largo" th:text="${p.resumenObjetivos}">Objetivos del programa</span></td>
+                                <td class="fo-col-consulta"><span class="pn-truncar pn-truncar-largo" th:text="${p.resumenBibliografia}">Bibliografía del programa</span></td>
                                 <td th:text="${p.cargaHorariaTotal != null ? p.cargaHorariaTotal + ' h' : '-'}">60 h</td>
                                 <td th:text="${p.ultimaModificacion != null ? #temporals.format(p.ultimaModificacion, 'dd/MM/yyyy') : '-'}">—</td>
                                 <td th:text="${#temporals.format(p.fechaCreacion, 'dd/MM/yyyy')}">28/08/2026</td>

@@ -16,7 +16,6 @@ import com.app.idoneos.modelo.Alumno;
 import com.app.idoneos.modelo.Inscripcion;
 import com.app.idoneos.modelo.UnidadCronograma;
 import com.app.idoneos.modelo.Usuario;
-import com.app.idoneos.utilidades.PaginacionUtilidad;
 import com.app.idoneos.servicio.Inscripcion.InscripcionServicioImpl;
 
 /**
@@ -29,9 +28,6 @@ import com.app.idoneos.servicio.Inscripcion.InscripcionServicioImpl;
 @RequestMapping("/inscripcion")
 public class InscripcionControlador {
 
-    /** Cantidad de cursos por página por defecto. El valor 0 significa "todos". */
-    private static final int CURSOS_POR_PAGINA = 10;
-
     @Autowired
     private InscripcionServicioImpl inscripcionServicio;
 
@@ -41,8 +37,6 @@ public class InscripcionControlador {
      *
      * @param busqueda           Parte del nombre del curso.
      * @param estado             Estado de la inscripción.
-     * @param porPagina          Cantidad de cursos por página (10, 25, 50 o 0 para ver todos).
-     * @param page               Número de página (empieza en 0).
      * @param modelo             El modelo de la vista.
      * @param auth               La autenticación actual.
      * @param redirectAttributes Atributos para mensajes de redirección.
@@ -50,9 +44,7 @@ public class InscripcionControlador {
      */
     @GetMapping("/misCursos")
     public String verMisCursos(@RequestParam(value = "busqueda", required = false) String busqueda,
-            @RequestParam(value = "estado", required = false) String estado,
-            @RequestParam(value = "porPagina", defaultValue = "" + CURSOS_POR_PAGINA) int porPagina,
-            @RequestParam(value = "page", defaultValue = "0") int page, Model modelo, Authentication auth,
+            @RequestParam(value = "estado", required = false) String estado, Model modelo, Authentication auth,
             RedirectAttributes redirectAttributes) {
         try {
             Usuario usuario = (Usuario) auth.getPrincipal();
@@ -61,18 +53,9 @@ public class InscripcionControlador {
                 throw new IllegalArgumentException("Error! El usuario no tiene el rol de alumno.");
             }
             List<Inscripcion> inscripciones = inscripcionServicio.buscarMisCursos(alumno, busqueda, estado);
-            int tamanioPagina = porPagina > 0 ? porPagina : Math.max(inscripciones.size(), 1);
-            int totalPaginas = PaginacionUtilidad.calcularTotalPaginas(inscripciones.size(), tamanioPagina);
-            int pagina = PaginacionUtilidad.ajustarPagina(page, totalPaginas);
-            List<Inscripcion> inscripcionesPagina = PaginacionUtilidad.obtenerPagina(inscripciones, pagina, tamanioPagina);
 
-            modelo.addAttribute("inscripciones", inscripcionesPagina);
+            modelo.addAttribute("inscripciones", inscripciones);
             modelo.addAttribute("totalInscripciones", inscripciones.size());
-            modelo.addAttribute("currentPage", pagina);
-            modelo.addAttribute("totalPages", totalPaginas);
-            modelo.addAttribute("desdeCurso", inscripcionesPagina.isEmpty() ? 0 : pagina * tamanioPagina + 1);
-            modelo.addAttribute("hastaCurso", inscripcionesPagina.isEmpty() ? 0 : pagina * tamanioPagina + inscripcionesPagina.size());
-            modelo.addAttribute("porPagina", porPagina);
             modelo.addAttribute("busqueda", busqueda);
             modelo.addAttribute("estadoSeleccionado", estado);
             modelo.addAttribute("titulo", "CU-02 - Mis Cursos | Idóneos Online");

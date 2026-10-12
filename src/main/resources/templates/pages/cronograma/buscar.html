@@ -6,8 +6,7 @@
 <body class="pn-body">
 <div class="pn-app" id="pnApp">
     <!-- Menú lateral: el del docente (gestión académica) o, para el administrador, el del panel -->
-    <th:block th:if="${esDocente}"><th:block th:replace="~{fragments/menus :: gestionAcademica(${menuActivo}, ${urlBase})}"></th:block></th:block>
-    <th:block th:unless="${esDocente}"><th:block th:replace="~{fragments/menus :: administrador(${menuActivo})}"></th:block></th:block>
+    <th:block th:replace="~{fragments/menus :: gestionAcademica(${menuActivo}, ${urlBase})}"></th:block>
 
     <div class="pn-principal">
         <th:block th:if="${esDocente}"><th:block th:replace="~{fragments/panel :: barra(null)}"></th:block></th:block>
@@ -17,7 +16,7 @@
             <nav class="ac-migas" aria-label="Ruta de navegación">
                 <a th:href="@{/inicio}">Página principal</a>
                 <i class="fa-solid fa-chevron-right"></i>
-                <a th:href="@{${urlMisCursos}}">Mis cursos</a>
+                <a th:href="@{${urlMisCursos}}" th:text="${esAdministrador == true ? 'Todos los cursos' : 'Mis cursos'}">Mis cursos</a>
                 <i class="fa-solid fa-chevron-right"></i>
                 <a th:href="@{${urlBase}}" th:text="${curso.nombre}">Curso</a>
                 <i class="fa-solid fa-chevron-right"></i>
@@ -58,7 +57,9 @@
             <p class="ac-nota" th:if="${esDocente and cohorte != null}"
                 th:text="${'Semana actual de la cohorte: ' + cohorte.semanaActual + ' de ' + programa.duracionTotalSemanas + ' (contada desde el inicio ' + (cohorte.fechaInicioDictado != null ? 'del dictado' : 'de la inscripción') + ', ' + #temporals.format(cohorte.fechaBaseCronograma, 'dd/MM/yyyy') + ').'}">Semana actual</p>
 
-            <th:block th:replace="~{fragments/cronogramaTablero :: tablero(${curso}, ${programa}, ${cronograma}, ${unidadesDelCurso}, ${puedeEditar}, false)}"></th:block>
+            <th:block th:with="cronoCohorte=${esDocente ? cohorte : null}">
+                <th:block th:replace="~{fragments/cronogramaTablero :: tablero(${curso}, ${programa}, ${cronograma}, ${unidadesDelCurso}, ${puedeEditar}, false)}"></th:block>
+            </th:block>
         </main>
 
         <th:block th:replace="~{fragments/panel :: pie(${esDocente ? 'Gestión académica' : 'Panel del administrador'})}"></th:block>
@@ -67,6 +68,7 @@
 
 <th:block th:replace="~{fragments/panel :: scripts}"></th:block>
 <script th:src="@{/js/academica.js}"></script>
+<script th:src="@{/js/tooltipCronograma.js}"></script>
 <script th:src="@{/js/cronograma.js}"></script>
 </body>
 </html>

@@ -85,7 +85,7 @@ class UnidadControladorTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string(Matchers.containsString("Listado de unidades")))
                 .andExpect(content().string(Matchers.containsString("Cronograma de " + programaDe(macro()).getNombre())))
-                .andExpect(content().string(Matchers.containsString("pn-celda-principal\">" + unidad.getTitulo() + "<")))
+                .andExpect(content().string(Matchers.containsString("pn-celda-principal pn-truncar\">" + unidad.getTitulo() + "<")))
                 // los datos propios de la unidad, y cada uno se puede ocultar con "Columnas"
                 .andExpect(content().string(Matchers.containsString("data-col=\"Orden\"")))
                 .andExpect(content().string(Matchers.containsString("data-col=\"Título\"")))
@@ -144,8 +144,8 @@ class UnidadControladorTest {
         Unidad unidad = primeraDe(mercado());
 
         mockMvc.perform(get("/unidad/buscar").param("cursoId", cursoId(mercado())).param("titulo", "renta fija"))
-                .andExpect(content().string(Matchers.containsString("pn-celda-principal\">Renta fija y bonos<")))
-                .andExpect(content().string(Matchers.not(Matchers.containsString("pn-celda-principal\">" + unidad.getTitulo() + "<"))));
+                .andExpect(content().string(Matchers.containsString("pn-celda-principal pn-truncar\">Renta fija y bonos<")))
+                .andExpect(content().string(Matchers.not(Matchers.containsString("pn-celda-principal pn-truncar\">" + unidad.getTitulo() + "<"))));
     }
 
     @Test
@@ -192,7 +192,7 @@ class UnidadControladorTest {
                 .andExpect(content().contentTypeCompatibleWith("application/json"))
                 .andExpect(jsonPath("$.mensaje").value(Matchers.containsString("registrada con éxito")));
         mockMvc.perform(get("/unidad/buscar").param("cursoId", cursoId(macro())))
-                .andExpect(content().string(Matchers.containsString("pn-celda-principal\">Política monetaria<")));
+                .andExpect(content().string(Matchers.containsString("pn-celda-principal pn-truncar\">Política monetaria<")));
 
         mockMvc.perform(post("/unidad/registrar").param("programaId", programaId(macro())).param("titulo", "")
                 .param("contenido", ""))

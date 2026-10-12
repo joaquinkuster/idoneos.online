@@ -66,7 +66,7 @@ class FormulariosJsonControladorTest {
         mockMvc.perform(get("/curso/buscar")).andExpect(status().isOk());
         mockMvc.perform(get("/curso/buscar").param("orden", "recientes")).andExpect(status().isOk());
         mockMvc.perform(get("/categoria/buscar").param("orden", "recientes")).andExpect(status().isOk());
-        mockMvc.perform(get("/cohorte/buscar").param("orden", "curso")).andExpect(status().isOk());
+        mockMvc.perform(get("/cohorte/buscar").param("cursoId", "1").param("orden", "curso")).andExpect(status().isOk());
     }
 
     @Test

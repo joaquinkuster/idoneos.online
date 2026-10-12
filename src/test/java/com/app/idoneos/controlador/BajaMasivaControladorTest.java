@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
@@ -55,12 +56,13 @@ class BajaMasivaControladorTest {
     }
 
     @Test
-    @DisplayName("CU-06: el catálogo admite elegir la cantidad de cursos por página, incluso todos")
-    void catalogoConCursosPorPagina() throws Exception {
-        mockMvc.perform(get("/catalogo").param("porPagina", "10")).andExpect(status().isOk())
-                .andExpect(model().attribute("porPagina", 10));
-        mockMvc.perform(get("/catalogo").param("porPagina", "0")).andExpect(status().isOk())
-                .andExpect(model().attribute("totalPages", 1));
+    @DisplayName("CU-06: el catálogo entrega todos los cursos y los filtros y las páginas se aplican en el navegador")
+    void catalogoConFiltrosEnElNavegador() throws Exception {
+        mockMvc.perform(get("/catalogo")).andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("data-filtro-front")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("data-por-pagina")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("data-paginador")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("data-tarjeta")));
     }
 
     @Test

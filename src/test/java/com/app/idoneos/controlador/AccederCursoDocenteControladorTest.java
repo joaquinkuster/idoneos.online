@@ -72,7 +72,6 @@ class AccederCursoDocenteControladorTest {
                 .andExpect(content().string(Matchers.containsString("Introducción al mercado de capitales")))
                 .andExpect(content().string(Matchers.containsString("Renta variable y opciones")))
                 .andExpect(content().string(Matchers.containsString("Autoevaluación Unidad 1: Marco regulatorio")))
-                .andExpect(content().string(Matchers.containsString("En directo ahora")))
                 .andExpect(content().string(Matchers.containsString("Este curso")))
                 // sin bloqueos, sin avance del alumno ni intentos propios
                 .andExpect(content().string(Matchers.not(Matchers.containsString("Completá la unidad anterior"))))

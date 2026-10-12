@@ -17,26 +17,27 @@
                 <div>
                     <div class="wf-hero-tag">
                         <i class="fa-solid fa-graduation-cap" style="color: var(--wf-gold);"></i>
-                        <span>PANEL DOCENTE</span>
+                        <span th:text="${esAdministrador == true ? 'PANEL DEL ADMINISTRADOR' : 'PANEL DOCENTE'}">PANEL DOCENTE</span>
                     </div>
-                    <h2 class="wf-hero-title">Mis Cursos</h2>
+                    <h2 class="wf-hero-title" th:text="${esAdministrador == true ? 'Todos los cursos' : 'Mis Cursos'}">Mis Cursos</h2>
                     <p class="wf-hero-desc">Bienvenido/a, <span th:text="${usuario != null ? usuario.nombreCompleto : 'Docente'}">Docente</span></p>
                 </div>
             </div>
 
-            <th:block th:replace="~{fragments/breadcrumb :: migas(null, null, 'Mis cursos')}"></th:block>
+            <th:block th:replace="~{fragments/breadcrumb :: migas(null, null, ${esAdministrador == true ? 'Todos los cursos' : 'Mis cursos'})}"></th:block>
 
             <div class="wf-body py-4">
                 <div class="container-fluid px-4 px-lg-5">
 
                     <!-- Filtros: mismo diseño que "Mis cursos" del alumno y el catálogo -->
-                    <section class="pn-tarjeta mb-4">
+                    <div data-tabla>
+                        <section class="pn-tarjeta mb-4">
                         <div class="pn-lista-cabecera">
-                            <h2 class="pn-lista-titulo">Mis cursos como docente</h2>
-                            <span class="pn-seleccionados"><span th:text="${totalCursos}">0</span> curso(s) encontrado(s)</span>
+                            <h2 class="pn-lista-titulo" th:text="${esAdministrador == true ? 'Todos los cursos' : 'Mis cursos como docente'}">Mis cursos como docente</h2>
+                            <span class="pn-seleccionados"><span data-total-filtradas th:text="${totalCursos}">0</span> curso(s) encontrado(s)</span>
                         </div>
 
-                        <form id="formFiltrosMisCursos" th:action="@{/curso/buscar}" method="get" class="pn-filtros mb-3" data-filtros>
+                        <form id="formFiltrosMisCursos" th:action="@{/curso/buscar}" method="get" class="pn-filtros mb-3" data-filtro-front>
                             <div class="pn-filtros-campo pn-filtros-campo-grande">
                                 <label class="pn-etiqueta">Nombre</label>
                                 <input type="text" name="busqueda" th:value="${busqueda}" class="pn-input" placeholder="Buscar por nombre" autocomplete="off">
@@ -77,7 +78,7 @@
                                 <label class="pn-etiqueta">Ordenar por</label>
                                 <select name="orden" class="pn-input">
                                     <option value="nombre" th:selected="${ordenSeleccionado == 'nombre'}">Nombre (A–Z)</option>
-                                    <option value="recientes" th:selected="${ordenSeleccionado == 'recientes'}">Más recientes</option>
+                                    <option value="recientes" data-dir="desc" th:selected="${ordenSeleccionado == 'recientes'}">Más recientes</option>
                                 </select>
                             </div>
                             <a th:href="@{/curso/buscar}" class="pn-btn pn-btn-contorno">Limpiar</a>
@@ -88,16 +89,29 @@
                     <div th:if="${#lists.isEmpty(cursos)}" class="pn-tarjeta pn-vacio-grande"
                          th:with="hayFiltros=${(busqueda != null and !#strings.isEmpty(busqueda)) or categoriaSeleccionada != null or nivelSeleccionado != null or docenteSeleccionado != null or modalidadSeleccionada != null}">
                         <i class="fa-solid fa-book-open pn-vacio-icono"></i>
-                        <h3 th:if="${!hayFiltros}">Todavía no tenés cursos asignados</h3>
-                        <p th:if="${!hayFiltros}">Cuando participes en un curso como titular o ayudante, vas a verlo acá.</p>
+                        <h3 th:if="${!hayFiltros and esAdministrador != true}">Todavía no tenés cursos asignados</h3>
+                        <p th:if="${!hayFiltros and esAdministrador != true}">Cuando participes en un curso como titular o ayudante, vas a verlo acá.</p>
+                        <!-- Administrador: sin cursos registrados, invita a registrar el primero (lleva al ABM con el alta abierta) -->
+                        <h3 th:if="${!hayFiltros and esAdministrador == true}">Todavía no hay cursos registrados</h3>
+                        <p th:if="${!hayFiltros and esAdministrador == true}">Cuando registres un curso, vas a verlo acá.</p>
+                        <a th:if="${!hayFiltros and esAdministrador == true}" th:href="@{/curso/buscar(accion='nuevo')}" class="pn-btn pn-btn-contorno">Registrar curso</a>
                         <h3 th:if="${hayFiltros}">No se encontraron cursos</h3>
                         <p th:if="${hayFiltros}">Ningún curso coincide con los filtros ingresados.</p>
                         <a th:if="${hayFiltros}" th:href="@{/curso/buscar}" class="pn-btn pn-btn-contorno">Limpiar filtros</a>
                     </div>
 
+                    <!-- Sin coincidencias con los filtros (los filtros se aplican en el navegador) -->
+                    <div data-vacio hidden th:if="${totalCursos > 0}"><th:block th:replace="~{fragments/vacio :: bloque('fa-book-open', 'No se encontraron cursos', 'Ningún curso coincide con los filtros seleccionados.', null, null)}"></th:block></div>
+
                     <!-- Grilla de cursos del docente -->
-                    <div class="wf-cards-grid">
-                        <div th:each="curso : ${cursos}" class="wf-course-card"
+                    <div class="wf-cards-grid" data-tarjetas>
+                        <div th:each="curso : ${cursos}" class="wf-course-card" data-tarjeta
+                             th:data-f-busqueda="${curso.nombre + ' ' + (curso.descripcion != null ? curso.descripcion : '')}"
+                             th:data-f-categoriaid="${curso.categoria.idCategoria}" th:data-f-nivelid="${curso.nivel.idNivel}"
+                             th:data-f-docenteid="${#strings.listJoin(curso.equipoDocente.![docente.idDocente], '|')}"
+                             th:data-f-modalidadid="${#strings.listJoin(curso.modalidades.![idModalidad], '|')}"
+                             th:data-o-nombre="${curso.nombre}"
+                             th:data-o-recientes="${(curso.fechaCreacion != null ? #temporals.format(curso.fechaCreacion, 'yyyyMMdd') : '') + #numbers.formatInteger(curso.idCurso, 8, 'NONE')}"
                              th:style="${curso.baja} ? 'background: #F8FAFC; opacity: 0.7; filter: grayscale(0.85); border-color: #CBD5E1;' : ''">
                             <div class="wf-course-card-thumb" th:classappend="${curso.imagen != null} ? 'wf-thumb-con-imagen'"
                                  th:style="${curso.baja} ? 'background: #475569;' : ''">
@@ -132,6 +146,11 @@
                                 <div class="d-flex align-items-center justify-content-center p-2 bg-light rounded text-muted small fst-italic" th:if="${curso.baja}">
                                     <i class="fa-solid fa-lock me-1"></i> Curso dado de baja (Inactivo)
                                 </div>
+                                <!-- Administrador: atajos al ABM de cursos, que ejecutan la opción elegida directamente -->
+                                <div class="d-flex gap-2 mt-3" th:if="${esAdministrador == true}">
+                                    <a class="pn-btn pn-btn-editar pn-btn-chico flex-fill" th:href="@{/curso/buscar(accion='editar', id=${curso.idCurso})}">Editar</a>
+                                    <a class="pn-btn pn-btn-peligro pn-btn-chico flex-fill" th:href="@{/curso/buscar(accion='baja', id=${curso.idCurso})}">Dar de baja</a>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -141,27 +160,18 @@
                         <div class="pn-tabla-pie">
                             <div class="pn-por-pagina">
                                 <span>Cursos por página:</span>
-                                <select name="porPagina" form="formFiltrosMisCursos" onchange="document.getElementById('formFiltrosMisCursos').submit()">
-                                    <option value="10" th:selected="${porPagina == 10}">10</option>
-                                    <option value="25" th:selected="${porPagina == 25}">25</option>
-                                    <option value="50" th:selected="${porPagina == 50}">50</option>
-                                    <option value="0" th:selected="${porPagina == 0}">Todo</option>
+                                <select data-por-pagina>
+                                    <option value="10">10</option>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                    <option value="0">Todo</option>
                                 </select>
-                                <span th:text="${desdeCurso + '-' + hastaCurso + ' de ' + totalCursos}">1-10 de 25</span>
+                                <span data-rango>0-0 de 0</span>
                             </div>
-                            <div class="pn-paginador">
-                                <a th:href="@{/curso/buscar(page=0, porPagina=${porPagina}, busqueda=${busqueda}, categoriaId=${categoriaSeleccionada}, nivelId=${nivelSeleccionado}, docenteId=${docenteSeleccionado}, modalidadId=${modalidadSeleccionada}, orden=${ordenSeleccionado})}"
-                                   th:classappend="${currentPage == 0} ? 'deshabilitado'" title="Primera página">«</a>
-                                <a th:href="@{/curso/buscar(page=${currentPage - 1}, porPagina=${porPagina}, busqueda=${busqueda}, categoriaId=${categoriaSeleccionada}, nivelId=${nivelSeleccionado}, docenteId=${docenteSeleccionado}, modalidadId=${modalidadSeleccionada}, orden=${ordenSeleccionado})}"
-                                   th:classappend="${currentPage == 0} ? 'deshabilitado'" title="Página anterior">‹</a>
-                                <span th:text="${'Página ' + (currentPage + 1) + ' de ' + totalPages}">Página 1 de 1</span>
-                                <a th:href="@{/curso/buscar(page=${currentPage + 1}, porPagina=${porPagina}, busqueda=${busqueda}, categoriaId=${categoriaSeleccionada}, nivelId=${nivelSeleccionado}, docenteId=${docenteSeleccionado}, modalidadId=${modalidadSeleccionada}, orden=${ordenSeleccionado})}"
-                                   th:classappend="${currentPage >= totalPages - 1} ? 'deshabilitado'" title="Página siguiente">›</a>
-                                <a th:href="@{/curso/buscar(page=${totalPages - 1}, porPagina=${porPagina}, busqueda=${busqueda}, categoriaId=${categoriaSeleccionada}, nivelId=${nivelSeleccionado}, docenteId=${docenteSeleccionado}, modalidadId=${modalidadSeleccionada}, orden=${ordenSeleccionado})}"
-                                   th:classappend="${currentPage >= totalPages - 1} ? 'deshabilitado'" title="Última página">»</a>
-                            </div>
+                            <div class="pn-paginador" data-paginador></div>
                         </div>
                     </section>
+                    </div>
 
                 </div>
             </div>

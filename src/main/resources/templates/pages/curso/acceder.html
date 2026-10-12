@@ -20,7 +20,7 @@
                 <nav class="ac-migas" aria-label="Ruta de navegación">
                     <a th:href="@{/inicio}">Página principal</a>
                     <i class="fa-solid fa-chevron-right"></i>
-                    <a th:href="@{${urlMisCursos}}">Mis cursos</a>
+                    <a th:href="@{${urlMisCursos}}" th:text="${esAdministrador == true ? 'Todos los cursos' : 'Mis cursos'}">Mis cursos</a>
                     <i class="fa-solid fa-chevron-right"></i>
                     <strong th:text="${curso.nombre}">Curso</strong>
                 </nav>
@@ -38,8 +38,21 @@
                 <!-- Cabecera del curso -->
                 <header class="ac-cabecera-simple">
                     <h1 class="ac-titulo" th:text="${curso.nombre}">Especialización en Idoneidad Bursátil</h1>
+                    <p class="ac-subtitulo-curso" th:if="${programa != null}">
+                        <span th:text="${programa.nombre}">Programa 2026</span>
+                        <th:block th:if="${cohorte != null}">
+                            · <span
+                                th:text="${'Cohorte ' + #temporals.format(cohorte.fechaInicioDictado != null ? cohorte.fechaInicioDictado : cohorte.fechaInicioInscripcion, 'dd/MM/yyyy') + ' · ' + cohorte.estado}">Cohorte
+                                01/01/2026 · En dictado</span>
+                        </th:block>
+                        <th:block th:if="${inscripcion != null}">
+                            · <span
+                                th:text="${'Acceso hasta ' + #temporals.format(inscripcion.fechaVencimientoAcceso, 'dd/MM/yyyy')}">Acceso
+                                hasta 01/01/2027</span>
+                        </th:block>
+                    </p>
                     <!-- Docente: programa y cohorte por defecto (se guardan en su participación en el curso) -->
-                    <div class="ac-contexto" th:if="${esDocente}">
+                    <div class="ac-contexto" th:if="${puedeGestionar}">
                         <div class="ac-contexto-campo">
                             <label class="ac-contexto-etiqueta" for="selectProgramaPorDefecto">Programa por
                                 defecto</label>
@@ -64,23 +77,14 @@
                             </select>
                         </div>
                     </div>
-                    <p class="ac-subtitulo-curso" th:unless="${esDocente}">
-                        <span th:text="${programa.nombre}">Programa 2026</span>
-                        <th:block th:if="${cohorte != null}">
-                            · <span
-                                th:text="${'Cohorte ' + #temporals.format(cohorte.fechaInicioDictado != null ? cohorte.fechaInicioDictado : cohorte.fechaInicioInscripcion, 'dd/MM/yyyy') + ' · ' + cohorte.estado}">Cohorte
-                                01/01/2026 · En dictado</span>
-                        </th:block>
-                        <th:block th:if="${inscripcion != null}">
-                            · <span
-                                th:text="${'Acceso hasta ' + #temporals.format(inscripcion.fechaVencimientoAcceso, 'dd/MM/yyyy')}">Acceso
-                                hasta 01/01/2027</span>
-                        </th:block>
-                    </p>
+                    <!-- Pestañas de las secciones del curso (solo en la página principal) -->
+                    <th:block th:if="${seccion == 'unidades'}">
+                        <th:block th:replace="~{fragments/pestaniasCurso :: pestanias(${urlBase}, ${curso}, ${esDocente})}"></th:block>
+                    </th:block>
                 </header>
 
-                <!-- Clase en vivo que se está transmitiendo ahora -->
-                <section class="ac-en-directo" th:if="${cohorte != null and cohorte.claseEnCurso != null}">
+                <!--/* Pendiente (implementación futura): alerta de la clase en vivo que se está transmitiendo ahora
+                <section class="ac-en-directo" th:if="${seccion == 'unidades' and cohorte != null and cohorte.claseEnCurso != null}">
                     <span class="ac-en-directo-icono"><i class="fa-solid fa-tower-broadcast"></i></span>
                     <div class="ac-en-directo-texto">
                         <span class="ac-en-directo-etiqueta"><i class="fa-solid fa-circle"></i> En directo ahora</span>
@@ -91,6 +95,7 @@
                     <a href="#" class="ac-en-directo-boton" data-sin-accion><i class="fa-solid fa-video"></i> Ingresar a
                         la sala en vivo</a>
                 </section>
+                */-->
 
                 <!-- ================= Sección: Unidades (acordeón) ================= -->
                 <section th:if="${seccion == 'unidades'}">
@@ -100,7 +105,7 @@
                     <div class="ac-barra-acordeon">
                         <h2 class="ac-seccion-titulo">Unidades</h2>
                         <!-- Docente: lleva al ABM de unidades con el formulario de alta abierto -->
-                        <a class="pn-btn pn-btn-contorno" th:if="${esDocente}"
+                        <a class="pn-btn pn-btn-contorno" th:if="${puedeGestionar}"
                             th:href="@{/unidad/buscar(cursoId=${curso.idCurso}, nuevo='')}">Registrar unidad</a>
                     </div>
                     <div class="ac-barra-acordeon-acciones ac-acciones-debajo" th:if="${!#lists.isEmpty(programa.cronogramaOrdenado)}">
@@ -133,7 +138,7 @@
                             </button>
 
                             <!-- Docente: modificar o dar de baja la unidad (lleva al ABM de unidades con esa ventana abierta) -->
-                            <div class="dropdown ac-menu-unidad" th:if="${esDocente}">
+                            <div class="dropdown ac-menu-unidad" th:if="${puedeGestionar}">
                                 <button type="button" class="ac-menu-boton" data-bs-toggle="dropdown" aria-expanded="false"
                                     aria-label="Opciones de la unidad"><i class="fa-solid fa-ellipsis-vertical"></i></button>
                                 <ul class="dropdown-menu dropdown-menu-end">
@@ -174,7 +179,7 @@
                                                 th:href="${m.esEnlaceExterno()} ? ${m.rutaArchivo} : @{'/material/ver/' + ${m.idMaterial}}"
                                                 th:target="${m.esEnlaceExterno()} ? '_blank' : null">Material</a>
                                             <span class="pn-insignia pn-insignia-gris" th:if="${m.oculto}">Oculto</span>
-                                            <div class="dropdown ac-menu-material" th:if="${esDocente}">
+                                            <div class="dropdown ac-menu-material" th:if="${puedeGestionar}">
                                                 <button type="button" class="ac-menu-boton" data-bs-toggle="dropdown"
                                                     aria-expanded="false" aria-label="Opciones del material"><i
                                                         class="fa-solid fa-ellipsis-vertical"></i></button>
@@ -239,7 +244,7 @@
                                         </li>
                                     </ul>
 
-                                    <button type="button" class="ac-agregar" th:if="${esDocente}" data-agregar-recurso
+                                    <button type="button" class="ac-agregar" th:if="${puedeGestionar}" data-agregar-recurso
                                         th:attr="data-unidad-id=${u.idUnidad}">
                                         <i class="fa-solid fa-plus"></i> Agregar recurso o actividad
                                     </button>
@@ -255,26 +260,13 @@
                     <th:block th:if="${#lists.isEmpty(programa.cronogramaOrdenado)}"><th:block th:replace="~{fragments/vacio :: bloque('fa-calendar', 'El programa todavía no tiene unidades', 'Cuando se carguen unidades, vas a ver su cronograma acá.', null, null)}"></th:block></th:block>
 
                     <div th:if="${!#lists.isEmpty(programa.cronogramaOrdenado)}">
-                        <!-- Alumno: semana esperada y atraso respecto de su avance -->
-                        <div class="ac-aviso" th:if="${!esDocente}"
-                            th:classappend="${inscripcion.estaAtrasada()} ? 'ac-aviso-atraso' : 'ac-aviso-al-dia'">
-                            <i class="fa-solid"
-                                th:classappend="${inscripcion.estaAtrasada()} ? 'fa-triangle-exclamation' : 'fa-circle-check'"></i>
-                            <div>
-                                <strong
-                                    th:text="${'Semana esperada: ' + cohorte.semanaActual + ' de ' + programa.duracionTotalSemanas}">Semana
-                                    esperada: 3 de 7</strong>
-                                <span
-                                    th:text="${'Contada desde el inicio ' + (cohorte.fechaInicioDictado != null ? 'del dictado' : 'de la inscripción') + ' de la cohorte (' + #temporals.format(cohorte.fechaBaseCronograma, 'dd/MM/yyyy') + ').'}">Contada
-                                    desde...</span>
-                                <p th:if="${inscripcion.estaAtrasada()}"
-                                    th:text="${'Vas por detrás de lo esperado: a esta altura (semana ' + cohorte.semanaActual + ') deberías haber completado hasta la unidad ' + inscripcion.unidadesEsperadasTerminadas + ' y tu última unidad ' + (inscripcion.ultimaUnidadCompletada == 0 ? 'completada es: ninguna.' : 'completada es la ' + inscripcion.ultimaUnidadCompletada + '.')}">
-                                    Vas por detrás de lo esperado.</p>
-                                <p th:if="${!inscripcion.estaAtrasada()}">Vas al día con el cronograma.</p>
-                            </div>
-                        </div>
+                        <!-- En qué semana va la cohorte (igual que en la vista del docente) -->
+                        <p class="ac-nota" th:if="${cohorte != null}"
+                            th:text="${'Semana actual de la cohorte: ' + cohorte.semanaActual + ' de ' + programa.duracionTotalSemanas + ' (contada desde el inicio ' + (cohorte.fechaInicioDictado != null ? 'del dictado' : 'de la inscripción') + ', ' + #temporals.format(cohorte.fechaBaseCronograma, 'dd/MM/yyyy') + ').'}">Semana actual</p>
 
-                        <th:block th:replace="~{fragments/cronogramaTablero :: tablero(${curso}, ${programa}, ${programa.cronogramaOrdenado}, ${unidadesDelCronograma}, false, true)}"></th:block>
+                        <th:block th:with="cronoCohorte=${cohorte},cronoInscripcion=${esDocente ? null : inscripcion}">
+                            <th:block th:replace="~{fragments/cronogramaTablero :: tablero(${curso}, ${programa}, ${programa.cronogramaOrdenado}, ${unidadesDelCronograma}, false, true)}"></th:block>
+                        </th:block>
                     </div>
                 </section>
 
@@ -315,17 +307,19 @@
     </div>
 
     <!-- Selector de recurso o actividad: al elegir, lleva al ABM de materiales de este curso (con la unidad elegida) -->
-    <th:block th:if="${esDocente}">
+    <th:block th:if="${puedeGestionar}">
         <th:block th:replace="~{fragments/selectorRecurso :: selector('/material/buscar?cursoId=' + ${curso.idCurso})}">
         </th:block>
     </th:block>
 
     <th:block th:replace="~{fragments/panel :: scripts}"></th:block>
     <script th:src="@{/js/academica.js}"></script>
+    <script th:src="@{/js/tooltipCronograma.js}"></script>
+    <script th:src="@{/js/pestaniasCurso.js}"></script>
     <script th:src="@{/js/cajonCronograma.js}"></script>
     <script th:src="@{/js/cronograma.js}" th:if="${seccion == 'cronograma'}"></script>
-    <script th:src="@{/js/contexto.js}" th:if="${esDocente}"></script>
-    <script th:if="${esDocente}" th:src="@{/js/material.js}"></script>
+    <script th:src="@{/js/contexto.js}" th:if="${puedeGestionar}"></script>
+    <script th:if="${puedeGestionar}" th:src="@{/js/material.js}"></script>
 </body>
 
 </html>

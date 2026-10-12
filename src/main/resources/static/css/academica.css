@@ -11,7 +11,7 @@
     border-top: 1px solid rgba(255, 255, 255, 0.12);
     font-size: 12px;
     font-weight: 600;
-    color: #94A3B8;
+    color: #9FB3CC;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -681,6 +681,33 @@ a.ac-actividad-titulo:hover {
 /* ---------- Vista del curso simplificada ---------- */
 .ac-cabecera-simple {
     margin-bottom: 20px;
+    padding: 24px 28px;
+    background: #FFFFFF;
+    border: 1px solid var(--pn-borde);
+    border-radius: 12px;
+}
+
+/* Con pestañas, estas hacen de borde inferior de la card */
+.ac-cabecera-simple:has(.ac-curso-pestanias) {
+    padding-bottom: 0;
+}
+
+.ac-cabecera-simple .ac-curso-pestanias {
+    margin: 22px -28px 0;
+    padding: 0 28px 0 14px; /* el texto de la primera pestaña (14px de padding propio) queda alineado con el título */
+    border-bottom: 0;
+}
+
+.ac-cabecera-simple .ac-pestania {
+    margin-bottom: 0;
+}
+
+.ac-cabecera-simple .ac-subtitulo-curso {
+    margin-top: 8px;
+}
+
+.ac-cabecera-simple .ac-contexto {
+    margin-top: 18px;
 }
 
 .ac-subtitulo-curso {
@@ -1198,7 +1225,7 @@ a.ac-actividad-titulo:hover {
 }
 
 .fo-tabla .fo-col-consulta {
-    width: 40%;
+    width: auto;
 }
 
 .fo-persona {
@@ -1637,6 +1664,54 @@ a.ac-actividad-titulo:hover {
     border-radius: 6px;
 }
 
+/* Línea roja de la semana actual (ancho de 10px para poder pasar el mouse por encima) */
+.cn-actual {
+    grid-row: 1;
+    z-index: 2;
+    justify-self: center;
+    width: 10px;
+    background: linear-gradient(90deg, transparent 4px, #DC2626 4px, #DC2626 6px, transparent 6px);
+}
+
+.cn-cabecera-fila .cn-numero-actual {
+    font-weight: 800;
+    color: #991B1B;
+    background: #FEE2E2;
+}
+
+.cn-hoy {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 10px 0 0;
+    font-size: 12px;
+    color: #334155;
+}
+
+.cn-hoy i {
+    width: 8px;
+    height: 2px;
+    background: #DC2626;
+}
+
+/* Leyenda flotante de barras y líneas (la maneja tooltipCronograma.js) */
+.cn-tooltip {
+    position: fixed;
+    z-index: 2000;
+    max-width: 260px;
+    padding: 6px 10px;
+    font-size: 12px;
+    line-height: 1.4;
+    color: #FFFFFF;
+    background: var(--pn-navy-dark, #0F1B2D);
+    border-radius: 6px;
+    pointer-events: none;
+}
+
+.cn-tooltip[hidden] {
+    display: none;
+}
+
 .cn-borde {
     position: absolute;
     top: 0;
@@ -1808,12 +1883,14 @@ a.ac-actividad-titulo:hover {
 .ac-con-cajon.ac-tiene-cajon {
     display: grid;
     grid-template-columns: minmax(0, 1fr) 340px;
-    gap: 20px;
+    column-gap: 20px;
     align-items: start;
+    transition: grid-template-columns 0.2s ease, column-gap 0.2s ease; /* misma transición que el menú lateral */
 }
 
 .ac-con-cajon.ac-tiene-cajon.cajon-oculto {
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) 0px;
+    column-gap: 0;
 }
 
 .ac-principal {
@@ -1827,10 +1904,19 @@ a.ac-actividad-titulo:hover {
     background: #FFFFFF;
     border: 1px solid #E2E8F0;
     border-radius: 14px;
+    min-width: 0;
+    overflow: hidden;
+    transition: opacity 0.2s ease, padding 0.2s ease, border-width 0.2s ease, visibility 0.2s;
 }
 
+/* Oculto: se achica junto con su columna y se desvanece */
 .cajon-oculto .ac-cajon {
-    display: none;
+    padding-left: 0;
+    padding-right: 0;
+    border-width: 1px 0;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
 }
 
 .ac-cajon-cabecera {
@@ -1930,9 +2016,8 @@ a.ac-actividad-titulo:hover {
 .ac-cajon-actual {
     z-index: 2;
     justify-self: center;
-    width: 2px;
-    background: #DC2626;
-    pointer-events: none;
+    width: 10px;
+    background: linear-gradient(90deg, transparent 4px, #DC2626 4px, #DC2626 6px, transparent 6px);
 }
 
 .ac-cajon-barra {
@@ -2051,6 +2136,10 @@ a.ac-actividad-titulo:hover {
         display: block;
     }
 
+    .cajon-oculto .ac-cajon {
+        display: none;
+    }
+
     .ac-cajon {
         position: fixed;
         top: calc(var(--nb-alto, 64px) + 12px);
@@ -2066,4 +2155,86 @@ a.ac-actividad-titulo:hover {
 /* Alumno: sin el menú de tres puntos del docente, el estado de la unidad queda pegado al borde derecho */
 .ac-unidad-cabecera.ac-sin-menu {
     padding-right: 20px;
+}
+
+/* Pestañas del curso, debajo del título y subtítulo */
+.ac-curso-pestanias {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+    margin-top: 14px;
+    border-bottom: 1px solid var(--pn-borde);
+}
+
+.ac-pestania {
+    padding: 9px 14px;
+    font: inherit;
+    font-size: 14px;
+    color: var(--pn-texto-suave);
+    white-space: nowrap;
+    text-decoration: none;
+    background: transparent;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    cursor: pointer;
+}
+
+.ac-pestania:hover {
+    color: var(--pn-navy);
+    background: var(--pn-fondo);
+}
+
+.ac-pestania.activa {
+    font-weight: 600;
+    color: var(--pn-navy);
+    border-bottom-color: var(--pn-ver);
+}
+
+.ac-pestania-mas {
+    position: relative;
+}
+
+.ac-pestania-mas .fa-chevron-down {
+    margin-left: 4px;
+    font-size: 11px;
+}
+
+.ac-pestanias-menu[hidden] {
+    display: none;
+}
+
+.ac-pestanias-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 50;
+    min-width: 200px;
+    padding: 6px 0;
+    background: #FFFFFF;
+    border: 1px solid var(--pn-borde);
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(15, 27, 45, 0.12);
+}
+
+.ac-pestanias-menu a {
+    display: block;
+    padding: 7px 14px;
+    font-size: 14px;
+    color: var(--pn-navy);
+    text-decoration: none;
+}
+
+.ac-pestanias-menu a:hover {
+    background: var(--pn-fondo);
+}
+
+.ac-pestanias-grupo {
+    display: block;
+    padding: 8px 14px 2px;
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--pn-texto-suave);
+    text-transform: none;
+    letter-spacing: 0;
 }

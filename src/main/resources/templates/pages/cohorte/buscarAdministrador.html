@@ -5,19 +5,29 @@
 </head>
 <body class="pn-body">
 <div class="pn-app" id="pnApp">
-    <th:block th:replace="~{fragments/menus :: administrador(${menuActivo})}"></th:block>
+    <th:block th:replace="~{fragments/menus :: gestionAcademica(${menuActivo}, ${urlBase})}"></th:block>
 
     <div class="pn-principal">
         <th:block th:replace="~{fragments/panel :: barra(null)}"></th:block>
 
         <main class="pn-contenido">
+            <nav class="ac-migas" aria-label="Ruta de navegación">
+                <a th:href="@{/inicio}">Página principal</a>
+                <i class="fa-solid fa-chevron-right"></i>
+                <a th:href="@{${urlMisCursos}}" th:text="${esAdministrador == true ? 'Todos los cursos' : 'Mis cursos'}">Mis cursos</a>
+                <i class="fa-solid fa-chevron-right"></i>
+                <a th:href="@{${urlBase}}" th:text="${curso.nombre}">Curso</a>
+                <i class="fa-solid fa-chevron-right"></i>
+                <strong>Cohortes</strong>
+            </nav>
+
             <div class="pn-encabezado">
                 <div>
                     <h1 class="pn-titulo">Cohortes</h1>
-                    <p class="pn-subtitulo">Gestiona los períodos de inscripción y dictado de cada programa</p>
+                    <p class="pn-subtitulo" th:text="${'Períodos de inscripción y dictado de los programas de ' + curso.nombre}">Gestiona los períodos de inscripción y dictado de cada programa</p>
                 </div>
                 <button type="button" class="pn-btn pn-btn-primario" data-bs-toggle="modal" data-bs-target="#modalNuevaCohorte">
-                    <i class="fa-solid fa-plus"></i> Nueva cohorte
+                    <i class="fa-solid fa-plus"></i> Registrar cohorte
                 </button>
             </div>
 
@@ -31,7 +41,7 @@
                 </div>
 
                 <!-- Filtros (CU-11): programa, nombre, estado, rango de fechas de inscripción y orden -->
-                <form th:action="@{/cohorte/buscar}" method="get" class="pn-filtros" data-filtros>
+                <form th:action="@{/cohorte/buscar}" method="get" class="pn-filtros" data-filtro-front>
                     <div class="pn-filtros-campo pn-filtros-campo-grande">
                         <label class="pn-etiqueta">Programa</label>
                         <select name="programaId" class="pn-input" title="Programa">
@@ -67,8 +77,8 @@
                     <div class="pn-filtros-campo">
                         <label class="pn-etiqueta">Ordenar por</label>
                         <select name="orden" class="pn-input" title="Ordenar por">
-                            <option value="recientes" th:selected="${ordenSeleccionado == 'recientes'}">Más recientes</option>
-                            <option value="curso" th:selected="${ordenSeleccionado == 'curso'}">Curso (A–Z)</option>
+                            <option value="recientes" data-dir="desc" th:selected="${ordenSeleccionado == 'recientes'}">Más recientes</option>
+                            <option value="curso" data-dir2="desc" th:selected="${ordenSeleccionado == 'curso'}">Curso (A–Z)</option>
                         </select>
                     </div>
                     <a th:href="@{/cohorte/buscar}" class="pn-btn pn-btn-contorno">Limpiar</a>
@@ -94,11 +104,19 @@
                         </thead>
                         <tbody>
                             <tr th:each="coh : ${cohortes}" data-fila th:classappend="${coh.baja} ? 'pn-fila-baja'"
+                                th:data-f-programaid="${coh.programa.idPrograma}"
+                                th:data-f-busqueda="${coh.programa.nombre + ' ' + coh.programa.curso.nombre}"
+                                th:data-f-estado="${coh.baja ? 'Dada de baja' : coh.estado}"
+                                th:data-f-desde="${#temporals.format(coh.fechaFinInscripcion, 'yyyy-MM-dd')}"
+                                th:data-f-hasta="${#temporals.format(coh.fechaInicioInscripcion, 'yyyy-MM-dd')}"
+                                th:data-o-recientes="${#temporals.format(coh.fechaInicioInscripcion, 'yyyyMMdd')}"
+                                th:data-o-curso="${coh.programa.curso.nombre}"
+                                th:data-o2-curso="${#temporals.format(coh.fechaInicioInscripcion, 'yyyyMMdd')}"
                                 th:attr="data-dependencias=${(inscripcionesPorCohorte != null and inscripcionesPorCohorte.containsKey(coh.idCohorte) ? inscripcionesPorCohorte.get(coh.idCohorte).size() : 0) + (clasesPorCohorte != null and clasesPorCohorte.containsKey(coh.idCohorte) ? clasesPorCohorte.get(coh.idCohorte) : 0)}">
                                 <td class="pn-col-seleccion"><input type="checkbox" data-seleccionar-fila aria-label="Seleccionar fila"
                                     th:value="${coh.idCohorte}" th:disabled="${coh.baja}"></td>
                                 <td>
-                                    <div class="pn-celda-principal" th:text="${coh.programa.curso.nombre}">Curso</div>
+                                    <div class="pn-celda-principal pn-truncar" th:text="${coh.programa.curso.nombre}">Curso</div>
                                     <div class="pn-celda-secundaria" th:text="${coh.programa.nombre + ' · ' + coh.programa.curso.categoria.nombre}">Programa · Categoría</div>
                                 </td>
                                 <td th:text="${#temporals.format(coh.fechaInicioInscripcion, 'dd/MM/yyyy') + ' – ' + #temporals.format(coh.fechaFinInscripcion, 'dd/MM/yyyy')}">01/03/2026 – 31/03/2026</td>
@@ -153,7 +171,7 @@
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
             <div class="pn-modal-cabecera">
-                <h3 class="pn-modal-titulo">Nueva cohorte</h3>
+                <h3 class="pn-modal-titulo">Registrar cohorte</h3>
                 <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="pn-modal-cuerpo">

@@ -1,6 +1,10 @@
 <!-- Tarjeta de un curso del catálogo. Se usa en el catálogo y en el inicio.
      Parámetros: c (el curso) y unidades (cantidad de unidades temáticas, puede ser nulo). -->
-<div th:fragment="tarjeta(c, unidades)" class="wf-course-card">
+<div th:fragment="tarjeta(c, unidades)" class="wf-course-card" data-tarjeta
+     th:data-f-busqueda="${c.nombre + ' ' + (c.descripcion != null ? c.descripcion : '')}"
+     th:data-f-categoriaid="${c.categoria.idCategoria}" th:data-f-nivelid="${c.nivel.idNivel}"
+     th:data-f-docenteid="${#strings.listJoin(c.equipoDocente.![docente.idDocente], '|')}"
+     th:data-f-modalidadid="${#strings.listJoin(c.modalidades.![idModalidad], '|')}">
   <div class="wf-course-card-thumb" th:classappend="${c.imagen != null} ? 'wf-thumb-con-imagen'">
     <img th:if="${c.imagen != null}" class="wf-course-thumb-img" th:src="@{${c.urlImagen}}" alt=""
          width="640" height="130" loading="lazy" decoding="async">

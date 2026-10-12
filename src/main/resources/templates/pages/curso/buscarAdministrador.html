@@ -11,14 +11,14 @@
     <div class="pn-principal">
         <th:block th:replace="~{fragments/panel :: barra(null)}"></th:block>
 
-        <main class="pn-contenido">
+        <main class="pn-contenido" th:attr="data-abrir-modal=${abrirModal}">
             <div class="pn-encabezado">
                 <div>
                     <h1 class="pn-titulo">Cursos</h1>
                     <p class="pn-subtitulo">Gestiona los cursos del catálogo, su equipo docente y sus condiciones comerciales</p>
                 </div>
                 <button type="button" class="pn-btn pn-btn-primario" data-bs-toggle="modal" data-bs-target="#modalNuevoCurso">
-                    <i class="fa-solid fa-plus"></i> Nuevo curso
+                    <i class="fa-solid fa-plus"></i> Registrar curso
                 </button>
             </div>
 
@@ -32,7 +32,7 @@
                 </div>
 
                 <!-- Filtros (CU-01) -->
-                <form th:action="@{/curso/buscar}" method="get" class="pn-filtros" data-filtros>
+                <form th:action="@{/curso/buscar}" method="get" class="pn-filtros" data-filtro-front>
                     <div class="pn-filtros-campo pn-filtros-campo-grande">
                         <label class="pn-etiqueta">Nombre</label>
                         <input type="text" name="busqueda" th:value="${busqueda}" class="pn-input" placeholder="Buscar por nombre" autocomplete="off">
@@ -73,7 +73,7 @@
                         <label class="pn-etiqueta">Ordenar por</label>
                         <select name="orden" class="pn-input" title="Ordenar por">
                             <option value="nombre" th:selected="${ordenSeleccionado == 'nombre'}">Nombre (A–Z)</option>
-                            <option value="recientes" th:selected="${ordenSeleccionado == 'recientes'}">Más recientes</option>
+                            <option value="recientes" data-dir="desc" th:selected="${ordenSeleccionado == 'recientes'}">Más recientes</option>
                         </select>
                     </div>
                     <a th:href="@{/curso/buscar}" class="pn-btn pn-btn-contorno">Limpiar</a>
@@ -101,11 +101,17 @@
                         </thead>
                         <tbody>
                             <tr th:each="curso : ${cursos}" data-fila th:classappend="${curso.baja} ? 'pn-fila-baja'"
+                                th:data-f-busqueda="${curso.nombre + ' ' + (curso.descripcion != null ? curso.descripcion : '')}"
+                                th:data-f-categoriaid="${curso.categoria.idCategoria}" th:data-f-nivelid="${curso.nivel.idNivel}"
+                                th:data-f-docenteid="${#strings.listJoin(curso.equipoDocente.![docente.idDocente], '|')}"
+                                th:data-f-modalidadid="${#strings.listJoin(curso.modalidades.![idModalidad], '|')}"
+                                th:data-o-nombre="${curso.nombre}"
+                                th:data-o-recientes="${(curso.fechaCreacion != null ? #temporals.format(curso.fechaCreacion, 'yyyyMMdd') : '') + #numbers.formatInteger(curso.idCurso, 8, 'NONE')}"
                                 th:attr="data-dependencias=${programasPorCurso != null and programasPorCurso.containsKey(curso.idCurso) ? programasPorCurso.get(curso.idCurso).size() : 0}">
                                 <td class="pn-col-seleccion"><input type="checkbox" data-seleccionar-fila aria-label="Seleccionar fila"
                                     th:value="${curso.idCurso}" th:disabled="${curso.baja}"></td>
                                 <td>
-                                    <div class="pn-celda-principal" th:text="${curso.nombre}">Curso</div>
+                                    <div class="pn-celda-principal pn-truncar" th:text="${curso.nombre}">Curso</div>
                                 </td>
                                 <td th:text="${curso.categoria.nombre}">Categoría</td>
                                 <td th:text="${curso.nivel.nombre}">Nivel</td>
@@ -162,7 +168,7 @@
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
             <div class="pn-modal-cabecera">
-                <h3 class="pn-modal-titulo">Nuevo curso</h3>
+                <h3 class="pn-modal-titulo">Registrar curso</h3>
                 <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="pn-modal-cuerpo">
@@ -230,6 +236,7 @@
 <th:block th:replace="~{fragments/panel :: scripts}"></th:block>
 <!-- Tom Select: selectores múltiples -->
 <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+<script th:src="@{/js/abrirModal.js}"></script>
 <script>
     // Regla propia del curso: el docente titular no puede ser a la vez ayudante del mismo curso (CU-03 y CU-04)
     window.PanelValidadores.curso = function (paso, formulario) {

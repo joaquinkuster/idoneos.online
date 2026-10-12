@@ -36,6 +36,14 @@
     }
 }
 
+/* El texto del banner arranca donde arranca el contenido de la página (mismo ancho máximo que las secciones y el footer) */
+@media (min-width: 992px) {
+    .nb ~ .wf-hero-banner {
+        padding-left: max(48px, calc((100% - var(--wf-ancho-contenedor)) / 2 + 48px));
+        padding-right: max(48px, calc((100% - var(--wf-ancho-contenedor)) / 2 + 48px));
+    }
+}
+
 /* TARJETAS DE CURSOS: insignias en mayúsculas y datos en gris y negrita */
 .wf-pill-tag,
 .wf-pill-status {

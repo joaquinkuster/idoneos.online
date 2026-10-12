@@ -6,8 +6,7 @@
 <body class="pn-body">
 <div class="pn-app" id="pnApp">
     <!-- Menú lateral: el de gestión académica (docente y alumno) o, para el administrador, el del panel -->
-    <th:block th:if="${esAdministrador}"><th:block th:replace="~{fragments/menus :: administrador(${menuActivo})}"></th:block></th:block>
-    <th:block th:unless="${esAdministrador}"><th:block th:replace="~{fragments/menus :: gestionAcademica(${menuActivo}, ${urlBase})}"></th:block></th:block>
+    <th:block th:replace="~{fragments/menus :: gestionAcademica(${menuActivo}, ${urlBase})}"></th:block>
 
     <div class="pn-principal">
         <th:block th:if="${esAdministrador}"><th:block th:replace="~{fragments/panel :: barra(null)}"></th:block></th:block>
@@ -17,7 +16,7 @@
             <nav class="ac-migas" aria-label="Ruta de navegación">
                 <a th:href="@{/inicio}">Página principal</a>
                 <i class="fa-solid fa-chevron-right"></i>
-                <a th:href="@{${urlMisCursos}}">Mis cursos</a>
+                <a th:href="@{${urlMisCursos}}" th:text="${esAdministrador == true ? 'Todos los cursos' : 'Mis cursos'}">Mis cursos</a>
                 <i class="fa-solid fa-chevron-right"></i>
                 <a th:href="@{${urlBase}}" th:text="${curso.nombre}">Curso</a>
                 <i class="fa-solid fa-chevron-right"></i>
@@ -42,7 +41,7 @@
 
             <section class="pn-tarjeta fo-contenedor" data-tabla>
                 <!-- Buscador: por texto y rango de fechas de registro -->
-                <form th:action="@{'/foro/ver/' + ${unidad.idUnidad}}" method="get" class="pn-filtros">
+                <form th:action="@{'/foro/ver/' + ${unidad.idUnidad}}" method="get" class="pn-filtros" data-filtro-front>
                     <div class="pn-filtros-campo pn-filtros-campo-grande">
                         <label class="pn-etiqueta">Texto</label>
                         <input type="text" name="texto" class="pn-input" th:value="${texto}" placeholder="Buscar en las consultas"
@@ -56,12 +55,8 @@
                         <label class="pn-etiqueta">Hasta</label>
                         <input type="date" name="hasta" class="pn-input" th:value="${hasta}">
                     </div>
-                    <button type="submit" class="pn-btn pn-btn-primario"><i class="fa-solid fa-magnifying-glass"></i> Buscar</button>
                     <a class="pn-btn pn-btn-contorno" th:href="@{'/foro/ver/' + ${unidad.idUnidad}}">Limpiar</a>
                 </form>
-
-                <p class="gl-resultado" th:if="${hayBusqueda}"
-                   th:text="${cantidadEncontradas + (cantidadEncontradas == 1 ? ' consulta encontrada' : ' consultas encontradas')}">2 consultas encontradas</p>
 
                 <div class="pn-tabla-contenedor">
                     <table class="pn-tabla fo-tabla">
@@ -75,7 +70,8 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr th:each="c : ${consultas}" data-fila data-dependencias="0">
+                            <tr th:each="c : ${consultas}" data-fila data-dependencias="0" th:data-f-texto="${c.texto}"
+                                th:data-f-desde="${#temporals.format(c.fechaCreacion, 'yyyy-MM-dd')}" th:data-f-hasta="${#temporals.format(c.fechaCreacion, 'yyyy-MM-dd')}">
                                 <td class="fo-col-consulta">
                                     <a class="fo-enlace-consulta" th:href="@{'/foro/consulta/' + ${c.idConsulta}}" th:text="${c.resumen}">¿Cómo se calcula la duration?</a>
                                     <span class="pn-insignia pn-insignia-dorada ms-1" th:if="${c.estaSinResponder()}">Sin responder</span>

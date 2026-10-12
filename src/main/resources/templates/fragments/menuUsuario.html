@@ -17,7 +17,8 @@
 
         <div class="um-seccion">
             <!-- Administrador -->
-            <a th:if="${usuario.esAdministradorActivo()}" th:href="@{/curso/buscar}" class="um-item">Panel Administrador</a>
+            <a th:if="${usuario.esAdministradorActivo()}" th:href="@{/curso/buscar}" class="um-item">Panel administrador</a>
+            <a th:if="${usuario.esAdministradorActivo()}" th:href="@{/curso/misCursos}" class="um-item">Todos los cursos</a>
 
             <!-- Docente -->
             <a th:if="${usuario.esDocenteActivo()}" th:href="@{/curso/buscar}" class="um-item">Mis cursos</a>

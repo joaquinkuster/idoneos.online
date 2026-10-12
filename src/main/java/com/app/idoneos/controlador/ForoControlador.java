@@ -112,8 +112,9 @@ public class ForoControlador {
             modelo.addAttribute("unidadSeleccionada", unidadId);
             modelo.addAttribute("unidades", unidades);
             modelo.addAttribute("esDocente", !esAdministrador);
+            modelo.addAttribute("esAdministrador", esAdministrador);
             modelo.addAttribute("urlBase", "/curso/acceder/" + cursoId);
-            modelo.addAttribute("urlMisCursos", "/curso/buscar");
+            modelo.addAttribute("urlMisCursos", esAdministrador ? "/curso/misCursos" : "/curso/buscar");
             modelo.addAttribute("titulo", "Foros | Idóneos Online");
             modelo.addAttribute("menuActivo", "foros");
             return "pages/foro/buscar";
@@ -208,8 +209,8 @@ public class ForoControlador {
         String urlMisCursos;
         if (esAdministrador) {
             programa = curso.getProgramaVigente();
-            urlBase = "/foro/buscar?cursoId=" + curso.getIdCurso();
-            urlMisCursos = "/curso/buscar";
+            urlBase = "/curso/acceder/" + curso.getIdCurso();
+            urlMisCursos = "/curso/misCursos";
         } else if (esDocente) {
             programa = cursoServicio.validarAccesoDocente(curso.getIdCurso(), docente).getProgramaDeTrabajo();
             urlBase = "/curso/acceder/" + curso.getIdCurso();

@@ -70,8 +70,8 @@ class NavbarControladorTest {
                 // el botón "Curso" arriba del menú (sin tarjeta)
                 .andExpect(content().string(Matchers.containsString("fa-house")))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("pn-menu-curso"))))
-                // el menú lateral se carga contraído, salvo que el usuario lo haya expandido
-                .andExpect(content().string(Matchers.containsString("idoneos.panel.menuColapsado")))
+                // el menú lateral se carga siempre contraído
+                .andExpect(content().string(Matchers.containsString("classList.add('colapsado')")))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("pn-menu-cabecera"))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("pn-menu-marca"))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("data-colapsar-menu"))))
@@ -84,9 +84,9 @@ class NavbarControladorTest {
     void administrador() throws Exception {
         mockMvc.perform(get("/curso/buscar")).andExpect(status().isOk())
                 .andExpect(content().string(Matchers.containsString("<header class=\"nb\" data-navbar")))
-                .andExpect(content().string(Matchers.containsString("Panel Administrador")))
+                .andExpect(content().string(Matchers.containsString("Panel administrador")))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("Ir al sitio"))));
         mockMvc.perform(get("/inicio")).andExpect(status().isOk())
-                .andExpect(content().string(Matchers.containsString("Panel Administrador")));
+                .andExpect(content().string(Matchers.containsString("Panel administrador")));
     }
 }

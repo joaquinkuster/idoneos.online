@@ -107,8 +107,9 @@ public class CronogramaControlador {
             modelo.addAttribute("minimoUnidadesConMaterial", parametroServicio
                     .obtenerEntero(Parametro.MINIMO_UNIDADES_CON_MATERIAL, MINIMO_POR_DEFECTO));
             modelo.addAttribute("esDocente", !esAdministrador);
+            modelo.addAttribute("esAdministrador", esAdministrador);
             modelo.addAttribute("urlBase", "/curso/acceder/" + cursoId);
-            modelo.addAttribute("urlMisCursos", "/curso/buscar");
+            modelo.addAttribute("urlMisCursos", esAdministrador ? "/curso/misCursos" : "/curso/buscar");
             modelo.addAttribute("titulo", "Cronograma | Idóneos Online");
             modelo.addAttribute("menuActivo", "cronograma");
             return "pages/cronograma/buscar";

@@ -8,6 +8,8 @@
 @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css');
 
 :root {
+    /* Ancho máximo único del contenido del sitio público: secciones, banner, migas y footer */
+    --wf-ancho-contenedor: 1680px;
     --wf-navy-dark: #081426;
     --wf-navy-header: #071324;
     --wf-navy-card-top: #132A4A;
@@ -504,7 +506,7 @@ i {
     padding: 36px 48px;
     overflow-y: auto;
     width: 100%;
-    max-width: 1680px;
+    max-width: var(--wf-ancho-contenedor);
     margin: 0 auto;
 }
 
@@ -2819,4 +2821,12 @@ textarea.form-control:focus {
 .ts-wrapper .ts-control {
     width: 100%;
     min-height: 44px;
+}
+
+/* Las secciones con container-fluid usan el mismo ancho que el resto del contenido */
+.wf-body > .container-fluid,
+.wf-hero-section .container-fluid {
+    max-width: var(--wf-ancho-contenedor);
+    margin-left: auto;
+    margin-right: auto;
 }
