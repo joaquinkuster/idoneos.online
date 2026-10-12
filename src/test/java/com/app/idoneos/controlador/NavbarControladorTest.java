@@ -36,9 +36,12 @@ class NavbarControladorTest {
                 .andExpect(content().string(Matchers.containsString("nb-enlace\">Inicio<")))
                 .andExpect(content().string(Matchers.containsString("nb-enlace\">Catálogo<")))
                 .andExpect(content().string(Matchers.containsString("nb-enlace\">Acerca de<")))
-                .andExpect(content().string(Matchers.containsString("nb-ingresar")))
+                .andExpect(content().string(Matchers.containsString("nb-ingresar\">Ingresar</a>")))
+                // el hero del inicio no promete "formación de posgrado"
+                .andExpect(content().string(Matchers.not(Matchers.containsString("Formación de posgrado"))))
+                .andExpect(content().string(Matchers.containsString("Cursos online de finanzas, economía y mercado de capitales")))
                 // sin el lema debajo de la marca ni el navbar anterior
-                .andExpect(content().string(Matchers.not(Matchers.containsString("FINANZAS"))))
+                .andExpect(content().string(Matchers.not(Matchers.containsString("wf-brand-sub"))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("wf-top-navbar"))))
                 .andExpect(content().string(Matchers.containsString("/css/navbar.css")))
                 .andExpect(content().string(Matchers.containsString("/js/navbar.js")));
@@ -64,6 +67,11 @@ class NavbarControladorTest {
                 .andExpect(content().string(Matchers.containsString("nb-enlace\">Inicio<")))
                 .andExpect(content().string(Matchers.containsString("um-rol\">Docente<")))
                 .andExpect(content().string(Matchers.containsString("pn-menu-nav")))
+                // el botón "Curso" arriba del menú (sin tarjeta)
+                .andExpect(content().string(Matchers.containsString("fa-house")))
+                .andExpect(content().string(Matchers.not(Matchers.containsString("pn-menu-curso"))))
+                // el menú lateral se carga contraído, salvo que el usuario lo haya expandido
+                .andExpect(content().string(Matchers.containsString("idoneos.panel.menuColapsado")))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("pn-menu-cabecera"))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("pn-menu-marca"))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("data-colapsar-menu"))))

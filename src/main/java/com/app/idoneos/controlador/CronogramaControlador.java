@@ -87,7 +87,10 @@ public class CronogramaControlador {
                 cohorte = participacion.getCohorteDeTrabajo();
             }
             if (programa == null) {
-                throw new IllegalArgumentException("Error! El curso no tiene un programa vigente.");
+                // Sin programas no hay cronograma: el docente va a registrar el primero; el administrador, al listado de cursos
+                redirectAttributes.addFlashAttribute("error",
+                        "Error! El curso todavía no tiene programas: registrá uno para poder cargar unidades.");
+                return esAdministrador ? "redirect:/curso/buscar" : "redirect:/programa/buscar?cursoId=" + cursoId + "&nuevo";
             }
             boolean conInscripciones = programa.getCantidadInscripcionesActivas() > 0;
             // Las unidades activas del curso que algún programa incluye: las que se pueden poner en este cronograma

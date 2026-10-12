@@ -289,7 +289,7 @@ class UnidadControladorTest {
 
         mockMvc.perform(get("/curso/acceder/" + mercado().getIdCurso()))
                 .andExpect(status().isOk())
-                .andExpect(content().string(Matchers.containsString("fa-plus\"></i> Registrar unidad")))
+                .andExpect(content().string(Matchers.containsString("Registrar unidad</a>")))
                 .andExpect(content().string(Matchers.containsString("/unidad/buscar?cursoId=" + mercado().getIdCurso() + "&amp;nuevo=")))
                 .andExpect(content().string(Matchers.containsString("ac-menu-unidad")))
                 .andExpect(content().string(Matchers.containsString("accion=editar&amp;unidadId=" + unidad.getIdUnidad())))

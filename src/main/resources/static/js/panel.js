@@ -29,7 +29,8 @@
     // ------------------------------------------------------------------
     var app = document.getElementById('pnApp');
     if (app) {
-        if (leer(CLAVE_MENU) === '1') {
+        // El menú se carga contraído, salvo que el usuario lo haya expandido (sidebar.html lo aplica antes de dibujar)
+        if (leer(CLAVE_MENU) !== '0') {
             app.classList.add('colapsado');
         }
         document.addEventListener('click', function (e) {

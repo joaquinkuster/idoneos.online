@@ -552,7 +552,7 @@ a.ac-actividad-titulo:hover {
     color: var(--pn-texto-suave);
 }
 
-.ac-vacio i {
+.ac-vacio > i {
     font-size: 34px;
     margin-bottom: 10px;
     color: var(--pn-borde-input);
@@ -1752,5 +1752,52 @@ a.ac-actividad-titulo:hover {
 
     .cn-izq {
         width: 100%;
+    }
+}
+
+/* ==========================================================================
+   MENÚ LATERAL: el botón "Curso" va separado del resto del menú
+   ========================================================================== */
+.pn-menu-nav > .pn-menu-enlace:first-child {
+    margin-bottom: 4px;
+}
+
+.pn-menu-nav > .pn-menu-enlace:first-child + .pn-menu-grupo {
+    margin-top: 26px;
+}
+
+/* ==========================================================================
+   PORTADA DEL CURSO (página principal del curso): la imagen del curso o, si no tiene, un degradé azul
+   ========================================================================== */
+.ac-portada {
+    position: relative;
+    height: 150px;
+    margin-bottom: 18px;
+    overflow: hidden;
+    border-radius: 14px;
+    background: linear-gradient(120deg, #0B1B31 0%, #16365C 55%, #2F5D8C 100%);
+}
+
+.ac-portada::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 80% 40%, rgba(14, 165, 233, 0.35), transparent 55%);
+}
+
+/* Con imagen, la imagen cubre el degradé */
+.ac-portada img {
+    position: relative;
+    z-index: 1;
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+@media (max-width: 575.98px) {
+    .ac-portada {
+        height: 110px;
+        border-radius: 12px;
     }
 }

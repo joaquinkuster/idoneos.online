@@ -86,7 +86,10 @@ public class UnidadControlador {
                 programa = participacion.getProgramaDeTrabajo();
             }
             if (programa == null) {
-                throw new IllegalArgumentException("Error! El curso no tiene un programa vigente.");
+                // Sin programas no hay unidades: el docente va a registrar el primero; el administrador, al listado de cursos
+                redirectAttributes.addFlashAttribute("error",
+                        "Error! El curso todavía no tiene programas: registrá uno para poder cargar unidades.");
+                return esAdministrador ? "redirect:/curso/buscar" : "redirect:/programa/buscar?cursoId=" + cursoId + "&nuevo";
             }
             List<UnidadCronograma> unidades = unidadServicio.buscarConFiltros(programa, titulo);
 

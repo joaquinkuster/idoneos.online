@@ -81,6 +81,34 @@ class AccederCursoDocenteControladorTest {
 
     @Test
     @WithUserDetails(value = "fausto.spotorno@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesServicio")
+    @DisplayName("La página principal del curso tiene su portada con la imagen del curso, y las otras secciones no")
+    void portadaConImagen() throws Exception {
+        int id = idCurso("Mercado de Capitales Argentino");
+
+        mockMvc.perform(get("/curso/acceder/" + id)).andExpect(status().isOk())
+                .andExpect(content().string(Matchers.containsString("class=\"ac-portada\"")))
+                .andExpect(content().string(Matchers.containsString("Portada de Mercado de Capitales Argentino")))
+                // el botón "Curso" vuelve a ser un botón del menú, sin tarjeta
+                .andExpect(content().string(Matchers.containsString("fa-house")))
+                .andExpect(content().string(Matchers.not(Matchers.containsString("pn-menu-curso"))));
+        mockMvc.perform(get("/curso/acceder/" + id).param("seccion", "clases")).andExpect(status().isOk())
+                .andExpect(content().string(Matchers.not(Matchers.containsString("ac-portada"))));
+    }
+
+    @Test
+    @WithUserDetails(value = "fausto.spotorno@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesServicio")
+    @DisplayName("Un curso sin imagen muestra la portada con el degradé, sin imagen")
+    void portadaSinImagen() throws Exception {
+        com.app.idoneos.modelo.Curso curso = cursoRepositorio.findById(idCurso("Macroeconomía de Coyuntura")).orElseThrow();
+        curso.setImagen(null);
+
+        mockMvc.perform(get("/curso/acceder/" + curso.getIdCurso())).andExpect(status().isOk())
+                .andExpect(content().string(Matchers.containsString("class=\"ac-portada\"")))
+                .andExpect(content().string(Matchers.not(Matchers.containsString("Portada de Macroeconomía"))));
+    }
+
+    @Test
+    @WithUserDetails(value = "fausto.spotorno@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesServicio")
     @DisplayName("CU-27: el docente ve las clases en vivo de la cohorte")
     void docenteVeLasClasesEnVivo() throws Exception {
         mockMvc.perform(get("/curso/acceder/" + idCurso("Mercado de Capitales Argentino")).param("seccion", "clases"))

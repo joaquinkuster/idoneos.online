@@ -26,10 +26,15 @@
     color: #FFFFFF;
     background: transparent;
     border-bottom: 1px solid transparent;
-    /* El fondo no se anima: de transparente pasa directo al blanco (animarlo dejaba ver un tono intermedio) */
-    transition: box-shadow 0.25s ease;
 }
 
+/* Cambio de color al hacer scroll: suave. Se activa después de la carga para no animar el estado inicial. */
+.nb.nb-animado {
+    transition: background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
+}
+
+/* En los paneles el navbar es blanco desde el primer momento (no depende del script) */
+.pn-body .nb,
 .nb.con-color,
 .nb.menu-abierto {
     color: var(--pn-texto);
@@ -62,6 +67,21 @@
 
 .nb.con-menu-lateral .nb-menu {
     display: inline-flex;
+}
+
+/* Con menú lateral, el botón ocupa el ancho del menú contraído y su ícono queda centrado sobre los íconos del menú */
+.nb.con-menu-lateral {
+    padding-left: 0;
+}
+
+.nb.con-menu-lateral .nb-menu {
+    width: var(--pn-ancho-menu-colapsado);
+    height: var(--nb-alto);
+    border-radius: 0;
+}
+
+.nb.con-menu-lateral .nb-izq {
+    gap: 6px;
 }
 
 .nb-menu:hover {
@@ -187,8 +207,8 @@
     padding-top: 64px;
 }
 
-/* Páginas sin banner oscuro: el contenido empieza debajo del navbar */
-.nb + :not(.wf-hero-banner):not(.wf-hero-section):not(.auth-pagina) {
+/* Páginas públicas sin banner oscuro: el contenido empieza debajo del navbar (los paneles ya reservan ese lugar) */
+body:not(.pn-body) .nb + :not(.wf-hero-banner):not(.wf-hero-section):not(.auth-pagina) {
     margin-top: var(--nb-alto);
 }
 
@@ -252,28 +272,69 @@
         margin-top: 14px;
     }
 
+    /* El usuario forma parte de la misma lista: su nombre y su rol y, debajo, sus opciones, sin desplegar nada */
     .nb .um-wrapper {
         display: block;
         width: 100%;
-        margin-top: 12px;
     }
 
     .nb .um-trigger {
         width: 100%;
-        padding: 10px;
-        border-radius: 14px;
-        background: var(--pn-fondo);
+        padding: 14px 4px;
+        border: 0;
+        border-bottom: 1px solid var(--pn-borde);
+        border-radius: 0;
+        background: transparent !important;
+        pointer-events: none;
     }
 
-    .nb .um-flecha {
-        margin-left: auto;
+    .nb .um-datos {
+        display: flex;
+    }
+
+    .nb .um-flecha,
+    .nb .um-encabezado {
+        display: none;
     }
 
     .nb .um-dropdown {
+        display: block;
         position: static;
         width: 100%;
-        margin-top: 8px;
+        margin: 0;
+        background: transparent;
+        border: 0;
+        border-radius: 0;
         box-shadow: none;
+        overflow: visible;
+    }
+
+    .nb .um-seccion {
+        padding: 0;
+        border-bottom: 0;
+    }
+
+    .nb .um-item {
+        padding: 14px 4px;
+        font-size: 15px;
+        font-weight: 600;
+        border-bottom: 1px solid var(--pn-borde);
+    }
+
+    .nb .um-etiqueta {
+        padding: 14px 4px 4px;
+    }
+
+    .nb .um-select {
+        width: 100%;
+        margin: 4px 0 14px;
+    }
+
+    /* Con menú lateral, el botón del menú es más angosto */
+    .nb.con-menu-lateral .nb-menu {
+        width: 48px;
+        border-radius: 8px;
+        margin-left: 8px;
     }
 
     /* Con menú lateral, sus propios botones ocupan la izquierda y el cajón queda para los enlaces */
@@ -291,4 +352,19 @@
         display: inline;
         font-size: 15px;
     }
+}
+
+/* ==========================================================================
+   Capas: las alertas (SweetAlert) y las ventanas modales oscurecen todo, también el navbar y el menú lateral
+   ========================================================================== */
+.modal-backdrop {
+    --bs-backdrop-zindex: 2500;
+}
+
+.modal {
+    --bs-modal-zindex: 2600;
+}
+
+.swal2-container {
+    z-index: 3000 !important;
 }

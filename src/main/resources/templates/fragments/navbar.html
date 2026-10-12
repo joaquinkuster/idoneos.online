@@ -25,9 +25,7 @@
         <a th:href="@{/acercaDe}" class="nb-enlace">Acerca de</a>
 
         <!-- Visitante -->
-        <a th:if="${usuario == null}" th:href="@{/login}" class="nb-ingresar">
-            <i class="fa-solid fa-right-to-bracket"></i> Ingresar
-        </a>
+        <a th:if="${usuario == null}" th:href="@{/login}" class="nb-ingresar">Ingresar</a>
 
         <!-- Usuario autenticado -->
         <th:block th:replace="~{fragments/menuUsuario :: menu}"></th:block>

@@ -305,7 +305,8 @@ body.pn-body {
 
 .pn-menu-nav {
     flex: 1;
-    padding: 16px 12px;
+    /* Con aire arriba: el primer elemento no queda pegado al navbar */
+    padding: 28px 12px 16px;
     display: flex;
     flex-direction: column;
     gap: 4px;

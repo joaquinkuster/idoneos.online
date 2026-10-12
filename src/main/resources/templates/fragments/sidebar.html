@@ -5,6 +5,18 @@
      marca y el botón para contraerla.
      navegacion: fragmento con los enlaces del módulo (se arma con 'enlace' y 'grupo'). -->
 <th:block th:fragment="marco(navegacion)">
+    <!-- Contraído al cargar, salvo que el usuario lo haya expandido (se aplica antes de dibujar el menú para que no parpadee) -->
+    <script>
+        (function () {
+            try {
+                if (window.localStorage.getItem('idoneos.panel.menuColapsado') !== '0') {
+                    document.getElementById('pnApp').classList.add('colapsado');
+                }
+            } catch (e) {
+                document.getElementById('pnApp').classList.add('colapsado');
+            }
+        })();
+    </script>
     <aside class="pn-menu" aria-label="Menú lateral">
         <nav class="pn-menu-nav" th:insert="${navegacion}"></nav>
         <div class="pn-menu-pie">© 2026 Idóneos Online</div>

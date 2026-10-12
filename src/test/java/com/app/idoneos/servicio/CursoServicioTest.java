@@ -2,6 +2,7 @@ package com.app.idoneos.servicio;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -304,12 +305,13 @@ class CursoServicioTest {
     }
 
     @Test
-    @DisplayName("CU-27: el docente no accede a un curso dado de baja ni a uno sin programa vigente")
+    @DisplayName("CU-27: el docente accede a un curso sin programas (ahí registra el primero), pero no a uno dado de baja")
     void cursoNoDisponible() {
         Curso sinPrograma = curso("Introducción a las Finanzas");
-        IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
-                () -> cursoServicio.validarAccesoDocente(sinPrograma.getIdCurso(), docente(SEBASTIAN)));
-        assertTrue(error.getMessage().contains("programa vigente"));
+        ParticipacionDocente participacion = cursoServicio.validarAccesoDocente(sinPrograma.getIdCurso(), docente(SEBASTIAN));
+        assertNull(participacion.getProgramaDeTrabajo());
+        assertNull(participacion.getCohorteDeTrabajo());
+        IllegalArgumentException error;
 
         int idDeBaja = curso("Economía Argentina 2024").getIdCurso();
         error = assertThrows(IllegalArgumentException.class,

@@ -48,6 +48,8 @@ public class ProgramaControlador {
      * @param cursoId            Identificador del curso.
      * @param nombre             Parte del nombre (opcional).
      * @param estado             Estado del programa (opcional).
+     * @param nuevo              Presente para abrir el formulario de alta (solo docente): es el destino del botón
+     *                           "Registrar programa" de un curso que todavía no tiene programas.
      * @param modelo             El modelo de la vista.
      * @param auth               La autenticación actual.
      * @param redirectAttributes Atributos para mensajes de redirección.
@@ -56,7 +58,8 @@ public class ProgramaControlador {
     @GetMapping("/buscar")
     public String buscarProgramas(@RequestParam(value = "cursoId", required = false) Integer cursoId,
             @RequestParam(value = "nombre", required = false) String nombre,
-            @RequestParam(value = "estado", required = false) String estado, Model modelo, Authentication auth,
+            @RequestParam(value = "estado", required = false) String estado,
+            @RequestParam(value = "nuevo", required = false) String nuevo, Model modelo, Authentication auth,
             RedirectAttributes redirectAttributes) {
         try {
             Usuario usuario = (Usuario) auth.getPrincipal();
@@ -80,6 +83,7 @@ public class ProgramaControlador {
             modelo.addAttribute("programas", programas);
             modelo.addAttribute("programaDeTrabajoId", programaDeTrabajo == null ? null : programaDeTrabajo.getIdPrograma());
             modelo.addAttribute("programasActivos", curso.getProgramasActivos());
+            modelo.addAttribute("abrirModal", !esAdministrador && nuevo != null ? "modalNuevoPrograma" : null);
             modelo.addAttribute("nombreBusqueda", nombre);
             modelo.addAttribute("estadoSeleccionado", estado);
             modelo.addAttribute("esDocente", !esAdministrador);

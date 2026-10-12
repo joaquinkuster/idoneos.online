@@ -159,7 +159,7 @@ public interface CursoServicio {
 
     /**
      * Verifica que el docente pueda acceder al curso: el curso debe estar activo, el docente debe participar en
-     * él y el curso debe tener un programa vigente (CU-27).
+     * él. No hace falta que el curso tenga programas (CU-27): desde la página del curso el docente registra el primero.
      *
      * @param idCurso El identificador del curso.
      * @param docente El docente que solicita el acceso.

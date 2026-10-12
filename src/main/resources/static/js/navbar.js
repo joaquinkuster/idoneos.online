@@ -45,6 +45,11 @@
             alHacerScroll();
         }
 
+        // La transición de colores se activa recién ahora, para que el estado inicial no se anime
+        window.requestAnimationFrame(function () {
+            window.requestAnimationFrame(function () { navbar.classList.add('nb-animado'); });
+        });
+
         // 3. Menú lateral
         var app = document.getElementById('pnApp');
         if (app && document.querySelector('.pn-menu')) {

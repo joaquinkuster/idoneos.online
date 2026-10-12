@@ -612,9 +612,7 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
         ParticipacionDocente participacion = participacionDocenteRepositorio.findByCursoAndBajaFalse(curso).stream()
                 .filter(p -> p.getDocente().getIdDocente() == docente.getIdDocente()).findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Error! No participás en este curso."));
-        if (participacion.getProgramaDeTrabajo() == null) {
-            throw new IllegalArgumentException("Error! El curso no tiene un programa vigente.");
-        }
+        // Un curso sin programas también se puede abrir: desde ahí el docente registra el primero
         return participacion;
     }
 

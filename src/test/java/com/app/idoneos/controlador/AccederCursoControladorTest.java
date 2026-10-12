@@ -96,6 +96,15 @@ class AccederCursoControladorTest {
 
     @Test
     @WithUserDetails(value = "valentina.ruiz@correo.com", userDetailsServiceBeanName = "usuarioDetallesServicio")
+    @DisplayName("El alumno también ve la portada del curso en la página principal")
+    void alumnoVeLaPortada() throws Exception {
+        mockMvc.perform(get("/inscripcion/acceder/" + inscripcionDe("valentina.ruiz@correo.com")))
+                .andExpect(status().isOk())
+                .andExpect(content().string(Matchers.containsString("class=\"ac-portada\"")));
+    }
+
+    @Test
+    @WithUserDetails(value = "valentina.ruiz@correo.com", userDetailsServiceBeanName = "usuarioDetallesServicio")
     @DisplayName("CU-27: el cronograma indica la semana esperada y que el alumno va al día")
     void cronograma() throws Exception {
         mockMvc.perform(get("/inscripcion/acceder/" + inscripcionDe("valentina.ruiz@correo.com"))

@@ -25,6 +25,11 @@
                     <strong th:text="${curso.nombre}">Curso</strong>
                 </nav>
 
+                <!-- Portada del curso: solo en la página principal (la imagen del curso o un degradé azul) -->
+                <div class="ac-portada" th:if="${seccion == 'unidades'}">
+                    <img th:if="${curso.urlImagen != null}" th:src="@{${curso.urlImagen}}" th:alt="${'Portada de ' + curso.nombre}">
+                </div>
+
                 <!-- Cabecera del curso -->
                 <header class="ac-cabecera-simple">
                     <h1 class="ac-titulo" th:text="${curso.nombre}">Especialización en Idoneidad Bursátil</h1>
@@ -36,7 +41,8 @@
                             <select id="selectProgramaPorDefecto" class="ac-contexto-select" data-selector-contexto
                                 data-url="/programa/establecerPorDefecto" data-parametro="programaId"
                                 th:disabled="${#lists.size(programasDelCurso) < 2}">
-                                <option th:each="p : ${programasDelCurso}" th:value="${p.idPrograma}"
+                                <option th:if="${#lists.isEmpty(programasDelCurso)}" value="">Sin programas</option>
+                            <option th:each="p : ${programasDelCurso}" th:value="${p.idPrograma}"
                                     th:text="${p.nombre + ' (' + p.estado + ')'}"
                                     th:selected="${p.idPrograma == programa.idPrograma}">2026 (Vigente)</option>
                             </select>
@@ -83,13 +89,18 @@
 
                 <!-- ================= Sección: Unidades (acordeón) ================= -->
                 <section th:if="${seccion == 'unidades'}">
+                    <!-- Curso sin programas (solo el docente lo ve): desde acá se registra el primero -->
+                    <div class="pn-tarjeta ac-vacio" th:if="${programa == null}">
+                        <i class="fa-regular fa-folder-open"></i>
+                        <p>Este curso todavía no tiene programas. Registrá el primero para empezar a cargar unidades.</p>
+                        <a class="pn-btn pn-btn-contorno" th:href="@{/programa/buscar(cursoId=${curso.idCurso}, nuevo='')}">Registrar programa</a>
+                    </div>
+                    <th:block th:if="${programa != null}">
                     <div class="ac-barra-acordeon">
                         <h2 class="ac-seccion-titulo">Unidades</h2>
                         <!-- Docente: lleva al ABM de unidades con el formulario de alta abierto -->
-                        <a class="pn-btn pn-btn-primario" th:if="${esDocente}"
-                            th:href="@{/unidad/buscar(cursoId=${curso.idCurso}, nuevo='')}">
-                            <i class="fa-solid fa-plus"></i> Registrar unidad
-                        </a>
+                        <a class="pn-btn pn-btn-contorno" th:if="${esDocente}"
+                            th:href="@{/unidad/buscar(cursoId=${curso.idCurso}, nuevo='')}">Registrar unidad</a>
                     </div>
                     <div class="ac-barra-acordeon-acciones ac-acciones-debajo" th:if="${!#lists.isEmpty(programa.cronogramaOrdenado)}">
                         <button type="button" class="ac-enlace-boton" data-ac-expandir>Expandir todo</button>
@@ -238,6 +249,7 @@
                             </div>
                         </article>
                     </div>
+                </th:block>
                 </section>
 
                 <!-- ================= Sección: Cronograma ================= -->
