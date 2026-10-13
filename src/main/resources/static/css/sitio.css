@@ -8,6 +8,7 @@
     padding: 150px 48px 72px;
     min-height: 360px;
     align-items: flex-end;
+    border-bottom: 3px solid var(--wf-gold); /* la misma línea dorada que remata el footer */
     background:
         radial-gradient(750px circle at 75% 50%, rgba(14, 165, 233, 0.22), transparent 70%),
         radial-gradient(1100px 480px at 15% -10%, #16335C 0%, transparent 60%),
@@ -79,94 +80,6 @@
     margin-right: 4px;
     color: #94A3B8;
     text-align: center;
-}
-
-/* FICHA DEL CURSO */
-.fi-datos {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-    margin: 18px 0;
-}
-
-.fi-dato {
-    background: #F8FAFC;
-    border: 1px solid var(--pn-borde);
-    border-radius: 12px;
-    padding: 12px 14px;
-}
-
-.fi-dato-etiqueta {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: var(--pn-texto-suave);
-}
-
-.fi-dato-valor {
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--pn-texto);
-    margin-top: 2px;
-}
-
-.fi-seccion-titulo {
-    font-size: 13px;
-    font-weight: 800;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-    color: #081426;
-    margin: 0 0 12px;
-}
-
-.fi-unidades {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    gap: 10px;
-}
-
-.fi-unidad {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    padding: 12px 14px;
-    border: 1px solid var(--pn-borde);
-    border-radius: 10px;
-    font-size: 14px;
-}
-
-.fi-cohortes {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
-    gap: 14px;
-}
-
-.fi-cohorte {
-    border: 1px solid var(--pn-borde);
-    border-radius: 12px;
-    padding: 16px;
-    background: #FFFFFF;
-}
-
-.fi-precio {
-    font-size: 34px;
-    font-weight: 800;
-    color: #081426;
-    line-height: 1.1;
-}
-
-.fi-docente {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 10px 0;
-    border-bottom: 1px solid var(--pn-borde);
-}
-
-.fi-docente:last-child {
-    border-bottom: 0;
 }
 
 /* INICIO DE SESIÓN */
@@ -350,31 +263,6 @@ body.auth-body {
     color: var(--pn-texto);
 }
 
-.auth-boton {
-    height: 44px;
-    padding: 0 1.5rem;
-    background: linear-gradient(135deg, #D4A03D 0%, #C59030 100%);
-    color: #081426;
-    border: 0;
-    border-radius: 0.5rem;
-    font-size: 0.875rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.2s;
-    box-shadow: 0 4px 10px rgba(212, 160, 61, 0.3);
-    width: 100%;
-}
-
-.auth-boton:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 18px rgba(212, 160, 61, 0.35);
-}
-
-.auth-boton:disabled {
-    opacity: 0.7;
-    cursor: not-allowed;
-}
-
 .auth-error {
     padding: 0.75rem 1rem;
     background: #FEF2F2;
@@ -396,18 +284,6 @@ body.auth-body {
 
 .auth-registro-movil p {
     margin: 0 0 0.5rem;
-}
-
-.auth-boton-secundario {
-    height: 40px;
-    padding: 0 1.25rem;
-    border: 0;
-    border-radius: 0.5rem;
-    background: var(--pn-fondo);
-    color: #334155;
-    font-size: 0.8125rem;
-    font-weight: 700;
-    cursor: pointer;
 }
 
 .auth-promo {
@@ -440,25 +316,6 @@ body.auth-body {
     font-size: 0.875rem;
     margin-bottom: 1.75rem;
     opacity: 0.85;
-}
-
-.auth-promo-boton {
-    display: inline-block;
-    height: 44px;
-    padding: 0 1.75rem;
-    border: 2px solid var(--pn-gold);
-    border-radius: 0.5rem;
-    background: transparent;
-    color: var(--pn-gold);
-    font-size: 0.875rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.auth-promo-boton:hover {
-    background: var(--pn-gold);
-    color: #081426;
 }
 
 @media (max-width: 800px) {
@@ -668,6 +525,12 @@ body.auth-body {
     background: #F6F3EC;
 }
 
+/* El catálogo y "Mis cursos" usan el mismo crema que el panel: el cuerpo de la página y la barra de migas */
+.fondo-crema .wf-body,
+.fondo-crema .wf-migas-barra {
+    background: #F6F3EC;
+}
+
 .ac-seccion {
     padding: 56px 0;
 }
@@ -850,16 +713,55 @@ body.auth-body {
     -webkit-user-drag: none;
 }
 
+.ac-slider {
+    --por-vista: 1;
+    --separacion: 0px;
+}
+
 .ac-slider-pista {
     display: flex;
+    gap: var(--separacion);
     transition: transform 0.45s ease;
 }
 
 .ac-slide {
-    flex: 0 0 100%;
+    flex: 0 0 calc((100% - (var(--por-vista) - 1) * var(--separacion)) / var(--por-vista));
     display: flex;
     justify-content: center;
     padding: 0 4px 4px;
+}
+
+/* Slider de cartas de curso (inicio): varias a la vez, sin el lugar para la foto de los socios */
+.ix-slider-cursos {
+    --por-vista: 4;
+    --separacion: 26px;
+}
+
+.ix-slider-cursos .ac-slider-ventana {
+    margin: -8px -6px 0;
+    padding: 8px 6px 18px;
+}
+
+.ac-slide-llena {
+    padding: 0;
+}
+
+.ac-slide-llena > .cc-carta {
+    width: 100%;
+}
+
+/* Cartas por fila: 4 en PC y televisores, 2 en pantallas medianas y 1 en celulares (siempre divisores de 8, 12 y 24) */
+@media (max-width: 1199.98px) {
+    .ix-slider-cursos {
+        --por-vista: 2;
+    }
+}
+
+@media (max-width: 599.98px) {
+    .ix-slider-cursos {
+        --por-vista: 1;
+        --separacion: 16px;
+    }
 }
 
 .ac-carta {
@@ -1030,4 +932,620 @@ body.auth-body {
     .ac-flecha {
         display: none;
     }
+}
+
+/* Catálogo destacado del inicio: mismo lenguaje que las demás secciones */
+.ix-catalogo {
+    background: #ECE6D6;
+}
+
+.ix-catalogo-encabezado {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+}
+
+.ix-catalogo-encabezado p {
+    max-width: 420px;
+    margin: 14px 0 0;
+    font-size: 15px;
+    line-height: 1.7;
+    color: #3F4E66;
+}
+
+@media (max-width: 767.98px) {
+    .ix-catalogo-encabezado {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+/* ==========================================================================
+   FICHA DEL CURSO (mismo lenguaje que Acerca de y el inicio)
+   ========================================================================== */
+.fx-ficha .wf-migas-barra {
+    background: #F6F3EC;
+}
+
+.fx-resumen {
+    background: #F6F3EC;
+}
+
+.fx-grilla {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+    gap: 56px;
+    align-items: start;
+}
+
+.fx-enunciado {
+    max-width: 720px;
+    margin: 18px 0 28px;
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 26px;
+    font-weight: 500;
+    line-height: 1.45;
+    letter-spacing: -0.01em;
+    color: #0B1B33;
+}
+
+.fx-datos {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+    border-top: 1px solid #D9D1BC;
+    border-bottom: 1px solid #D9D1BC;
+}
+
+.fx-datos > div {
+    padding: 16px 0;
+}
+
+.fx-datos small {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #8A6B1F;
+}
+
+.fx-datos span {
+    font-size: 16px;
+    font-weight: 600;
+    color: #0B1B33;
+}
+
+.fx-docente {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 22px;
+    font-size: 15px;
+    color: #3F4E66;
+}
+
+.fx-docente b {
+    font-weight: 700;
+    color: #0B1B33;
+}
+
+.fx-iniciales {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: #16335C;
+    color: #FFFFFF;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.fx-inscripcion {
+    padding: 26px;
+    background: #FFFFFF;
+    border: 1px solid #DDD5BF;
+    border-radius: 12px;
+}
+
+.fx-precio {
+    margin: 12px 0 22px;
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 40px;
+    font-weight: 600;
+    line-height: 1;
+    color: #0B1B33;
+}
+
+.fx-etiqueta-campo {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #8A6B1F;
+}
+
+.fx-apoyo {
+    margin: 10px 0 18px;
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: #3F4E66;
+}
+
+.fx-contenido {
+    background: #ECE6D6;
+}
+
+.fx-unidades {
+    margin: 22px 0 0;
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid #D1C8AF;
+}
+
+.fx-unidad {
+    display: grid;
+    grid-template-columns: 52px minmax(0, 1fr) auto;
+    gap: 16px;
+    align-items: center;
+    padding: 20px 12px;
+    border-bottom: 1px solid #D1C8AF;
+}
+
+.fx-numero {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 30px;
+    line-height: 1;
+    color: transparent;
+    -webkit-text-stroke: 1.2px #0B1B33;
+}
+
+.fx-unidad-titulo {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: #0B1B33;
+}
+
+.fx-unidad-duracion {
+    font-size: 13px;
+    color: #6B6552;
+    white-space: nowrap;
+}
+
+.fx-vacio {
+    margin: 22px 0 0;
+    font-size: 15px;
+    color: #3F4E66;
+}
+
+@media (max-width: 991.98px) {
+    .fx-grilla {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 36px;
+    }
+
+    .fx-datos {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+/* ==========================================================================
+   INICIO: índice de categorías (mismo lenguaje que Acerca de)
+   ========================================================================== */
+.ix-categorias {
+    background: #F6F3EC;
+}
+
+.ix-grilla {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.6fr);
+    gap: 56px;
+    align-items: start;
+}
+
+.ix-izquierda p {
+    max-width: 320px;
+    margin: 14px 0 22px;
+    font-size: 15px;
+    line-height: 1.7;
+    color: #3F4E66;
+}
+
+.ix-lista {
+    border-top: 1px solid #D9D1BC;
+}
+
+.ix-fila {
+    display: grid;
+    grid-template-columns: 52px minmax(0, 1fr) auto 24px;
+    gap: 16px;
+    align-items: center;
+    padding: 20px 12px;
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 1px solid #D9D1BC;
+    transition: background-color 0.15s ease;
+}
+
+.ix-fila[hidden] {
+    display: none;
+}
+
+.ix-fila:hover {
+    background: #ECE6D6;
+}
+
+.ix-numero {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 30px;
+    line-height: 1;
+    color: transparent;
+    -webkit-text-stroke: 1.2px #0B1B33;
+    transition: -webkit-text-stroke-color 0.15s ease;
+}
+
+.ix-fila:hover .ix-numero {
+    -webkit-text-stroke-color: #8A6B1F;
+}
+
+.ix-texto {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+}
+
+.ix-nombre {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: #0B1B33;
+}
+
+.ix-descripcion {
+    font-size: 13.5px;
+    line-height: 1.5;
+    color: #3F4E66;
+}
+
+.ix-cantidad {
+    font-size: 13px;
+    color: #6B6552;
+    white-space: nowrap;
+}
+
+.ix-flecha {
+    font-size: 16px;
+    color: #B8862B;
+    transition: transform 0.15s ease;
+}
+
+.ix-fila:hover .ix-flecha {
+    transform: translateX(5px);
+}
+
+.ix-paginas {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 20px;
+}
+
+.ix-paginas[hidden] {
+    display: none;
+}
+
+.ix-pagina {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    height: 36px;
+    padding: 0 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #0A192F;
+    background: transparent;
+    border: 1px solid #D9D1BC;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.ix-pagina:hover:not(:disabled):not(.activa) {
+    background: #ECE6D6;
+}
+
+.ix-pagina.activa {
+    color: #FFFFFF;
+    background: #0A192F;
+    border-color: #0A192F;
+}
+
+.ix-pagina:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+
+.ix-pagina:focus-visible {
+    outline: 2px solid #0A192F;
+    outline-offset: 2px;
+}
+
+@media (max-width: 991.98px) {
+    .ix-grilla {
+        grid-template-columns: 1fr;
+        gap: 28px;
+    }
+
+    .ix-fila {
+        grid-template-columns: 40px minmax(0, 1fr) 20px;
+        padding: 16px 8px;
+    }
+
+    /* En pantallas angostas la cantidad de cursos se omite para dar lugar al nombre y la descripción */
+    .ix-cantidad {
+        display: none;
+    }
+
+    .ix-numero {
+        font-size: 24px;
+    }
+}
+
+/* ==========================================================================
+   CARTA DE CURSO (catálogo e inicio), mismo lenguaje que Acerca de
+   ========================================================================== */
+.cc-carta {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: #FFFFFF;
+    border: 1px solid #DDD5BF;
+    border-radius: 12px;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.cc-carta {
+    cursor: pointer; /* toda la carta es un enlace a la ficha del curso (ver .cc-boton::after en botones.css) */
+}
+
+.cc-carta:hover {
+    border-color: #0A192F;
+    box-shadow: 0 10px 26px rgba(10, 25, 47, 0.12);
+}
+
+/* Con el teclado, el foco del enlace se marca alrededor de toda la carta */
+.cc-carta:has(.cc-boton:focus-visible) {
+    border-color: #0A192F;
+    outline: 2px solid #D4A03D;
+    outline-offset: 2px;
+}
+
+/* Tres tonos para todos los cursos: azul, ámbar y verde (según el curso) */
+.cc-tono-0 { --t1: 29, 61, 107; --t2: 14, 35, 64; }
+.cc-tono-1 { --t1: 107, 74, 20; --t2: 43, 29, 8; }
+.cc-tono-2 { --t1: 20, 80, 63; --t2: 10, 42, 34; }
+
+.cc-imagen {
+    position: relative;
+    height: 150px;
+    overflow: hidden;
+    background: linear-gradient(135deg, rgb(var(--t1)), rgb(var(--t2)));
+}
+
+.cc-imagen img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.35s ease;
+}
+
+.cc-carta:hover .cc-imagen img {
+    transform: scale(1.05);
+}
+
+/* Degradé del mismo tono sobre la imagen del curso */
+.cc-velo {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(var(--t1), 0.74), rgba(var(--t2), 0.38));
+}
+
+.cc-estado {
+    position: absolute;
+    left: 14px;
+    bottom: 14px;
+    padding: 5px 10px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: #FFFFFF;
+    background: #0A192F;
+    border-radius: 4px;
+}
+
+.cc-cuerpo {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding: 20px 20px 18px;
+}
+
+.cc-etiqueta {
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #8A6B1F;
+}
+
+.cc-titulo {
+    margin: 8px 0 6px;
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 21px;
+    font-weight: 600;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+    color: #0B1B33;
+}
+
+.cc-descripcion {
+    display: -webkit-box;
+    margin: 0;
+    overflow: hidden;
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: #3F4E66;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.cc-datos {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    margin: 16px 0;
+    border-top: 1px solid #EFE9D9;
+    border-bottom: 1px solid #EFE9D9;
+}
+
+.cc-datos > div {
+    padding: 10px 0;
+    font-size: 13px;
+}
+
+.cc-datos > div + div {
+    padding-left: 14px;
+    border-left: 1px solid #EFE9D9;
+}
+
+.cc-datos small,
+.cc-docente small {
+    display: block;
+    margin-bottom: 2px;
+    font-size: 9.5px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #6B6552;
+}
+
+.cc-datos span {
+    font-weight: 600;
+    color: #0B1B33;
+}
+
+.cc-pie {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: auto;
+}
+
+.cc-docente span {
+    font-size: 13px;
+    font-weight: 600;
+    color: #0B1B33;
+}
+
+.cc-precio {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 24px;
+    font-weight: 600;
+    color: #0B1B33;
+    white-space: nowrap;
+}
+
+/* Hero del inicio: puntos sobre fondo oscuro, del mismo estilo discreto que los de Acerca de */
+.ix-hero-puntos {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    margin-top: 34px;
+}
+
+.ix-hero-punto {
+    width: 6px;
+    height: 6px;
+    padding: 0;
+    background: rgba(255, 255, 255, 0.4);
+    border: 0;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: width 0.25s ease, background-color 0.25s ease;
+}
+
+.ix-hero-punto:hover {
+    background: rgba(255, 255, 255, 0.65);
+}
+
+.ix-hero-punto.activo {
+    width: 16px;
+    background: var(--wf-gold, #D4A03D);
+}
+
+.ix-hero-punto:focus-visible {
+    outline: 2px solid #D4A03D;
+    outline-offset: 3px;
+}
+
+.wf-hero-parallelogram {
+    cursor: grab;
+    touch-action: pan-y;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.wf-hero-parallelogram.arrastrando {
+    cursor: grabbing;
+}
+
+/* Grillas de cartas de curso (catálogo, Mis cursos): cuatro por fila en PC, dos en pantallas medianas y una en celulares */
+.wf-cards-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 26px;
+}
+
+@media (max-width: 1199.98px) {
+    .wf-cards-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 599.98px) {
+    .wf-cards-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Transición "zoom y escala" de las fotos del hero: la que sale se achica y se apaga, y la que entra crece desde el centro */
+#heroCarousel.carousel-fade .carousel-item {
+    transform: scale(0.82);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+#heroCarousel.carousel-fade .carousel-item.active,
+#heroCarousel.carousel-fade .carousel-item-next.carousel-item-start,
+#heroCarousel.carousel-fade .carousel-item-prev.carousel-item-end {
+    transform: scale(1);
+}
+
+#heroCarousel.carousel-fade .active.carousel-item-start,
+#heroCarousel.carousel-fade .active.carousel-item-end {
+    transform: scale(0.82);
+    transition: opacity 0.6s ease, transform 0.6s ease;
 }

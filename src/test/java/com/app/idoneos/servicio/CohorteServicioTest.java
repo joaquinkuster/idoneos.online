@@ -246,6 +246,9 @@ class CohorteServicioTest {
         assertTrue(recientes.get(recientes.size() - 1).esInactivo());
         assertTrue(recientes.get(0).getFechaInicioInscripcion().isAfter(recientes.get(1).getFechaInicioInscripcion()));
         assertTrue(porCurso.get(porCurso.size() - 1).esInactivo());
-        assertEquals("Análisis Técnico Bursátil", porCurso.get(0).getPrograma().getCurso().getNombre());
+        // el primero es el curso que va antes en orden alfabético, sea cual sea
+        String primero = porCurso.stream().filter(c -> !c.esInactivo()).map(c -> c.getPrograma().getCurso().getNombre())
+                .min(String.CASE_INSENSITIVE_ORDER).orElseThrow();
+        assertEquals(primero, porCurso.get(0).getPrograma().getCurso().getNombre());
     }
 }

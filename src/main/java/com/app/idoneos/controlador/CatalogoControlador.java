@@ -69,7 +69,7 @@ public class CatalogoControlador {
             @RequestParam(value = "nivelId", required = false) Integer nivelId,
             @RequestParam(value = "docenteId", required = false) Integer docenteId,
             @RequestParam(value = "modalidadId", required = false) Integer modalidadId, Model modelo) {
-        List<Curso> cursos = cursoServicio.buscarEnCatalogo(busqueda, categoriaId, nivelId, docenteId, modalidadId);
+        List<Curso> cursos = cursoServicio.buscarEnCatalogo(null, null, null, null, null); // todos: los filtros (también los de la URL) se aplican en la pantalla
 
         // Cantidad de unidades temáticas de cada curso (según su primer programa activo)
         Map<Integer, Integer> cantidadUnidadesPorCurso = new HashMap<>();

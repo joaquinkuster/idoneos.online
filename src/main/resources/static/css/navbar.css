@@ -147,6 +147,13 @@
     font-weight: 800;
 }
 
+/* Solo "Idóneos" va en serif */
+.nb-marca .nb-marca-serif {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 18px;
+    font-weight: 700;
+}
+
 /* ---------- Enlaces ---------- */
 .nb-enlaces {
     display: flex;
@@ -158,7 +165,7 @@
 /* Los enlaces sin seleccionar se ven tenues; con el mouse encima o activos recuperan el color de la letra */
 .nb-enlace {
     padding: 4px 0;
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 600;
     color: inherit;
     text-decoration: none;

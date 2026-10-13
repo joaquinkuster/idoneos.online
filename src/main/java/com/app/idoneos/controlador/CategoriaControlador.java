@@ -53,7 +53,7 @@ public class CategoriaControlador {
     public String buscarCategorias(@RequestParam(value = "nombre", required = false) String nombre,
             @RequestParam(value = "baja", required = false) Boolean baja,
             @RequestParam(value = "orden", defaultValue = "nombre") String orden, Model modelo) {
-        List<Categoria> categorias = categoriaServicio.buscarConFiltros(nombre, baja, orden);
+        List<Categoria> categorias = categoriaServicio.buscarConFiltros(null, null, orden); // listado completo: los filtros se aplican en la pantalla
 
         // Cursos activos e inscripciones activas por categoría, para validar la modificación y la baja
         Map<Integer, List<Curso>> cursosPorCategoria = new HashMap<>();

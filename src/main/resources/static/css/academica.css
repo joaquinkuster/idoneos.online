@@ -292,8 +292,9 @@
 .ac-unidad-nombre {
     flex: 1;
     min-width: 180px;
-    font-size: 18px;
-    font-weight: 800;
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 19px;
+    font-weight: 600;
     color: var(--pn-navy);
 }
 

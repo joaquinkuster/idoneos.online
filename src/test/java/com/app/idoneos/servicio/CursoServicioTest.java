@@ -318,4 +318,20 @@ class CursoServicioTest {
                 () -> cursoServicio.validarAccesoDocente(idDeBaja, docente(FAUSTO)));
         assertTrue(error.getMessage().contains("no se encuentra activo"));
     }
+
+    @Test
+    @DisplayName("Los destacados del inicio van del curso con más inscripciones históricas al que tiene menos, hasta el límite")
+    void destacadosPorInscripciones() {
+        List<Curso> destacados = cursoServicio.buscarDestacados(8);
+
+        assertEquals(8, destacados.size());
+        for (int i = 1; i < destacados.size(); i++) {
+            assertTrue(cursoServicio.contarInscripcionesHistoricas(destacados.get(i - 1))
+                    >= cursoServicio.contarInscripcionesHistoricas(destacados.get(i)));
+        }
+        // "Mercado de Capitales Argentino" es el que más alumnos inscriptos acumula en la semilla
+        assertEquals("Mercado de Capitales Argentino", destacados.get(0).getNombre());
+        assertTrue(cursoServicio.contarInscripcionesHistoricas(destacados.get(0)) > 0);
+        assertEquals(3, cursoServicio.buscarDestacados(3).size());
+    }
 }

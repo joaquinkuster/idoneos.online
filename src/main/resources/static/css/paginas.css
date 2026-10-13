@@ -1,406 +1,7 @@
 /* ==========================================================================
-   PÁGINAS DEL SITIO: ficha del curso y "Acerca de".
+   PÁGINAS DEL SITIO: "Acerca de" y el pie.
    Colores de Idóneos: azul marino y dorado, con acentos cielo, esmeralda e índigo.
    ========================================================================== */
-
-:root {
-    --fx-cielo: #0EA5E9;
-    --fx-esmeralda: #10B981;
-    --fx-indigo: #6366F1;
-    --fx-naranja: #F97316;
-}
-
-/* ---------------------------------------------------------------- FICHA DEL CURSO */
-.fx-pastillas {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-bottom: 14px;
-}
-
-.fx-boton-claro {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    min-height: 44px;
-    padding: 0 20px;
-    border-radius: 12px;
-    border: 1.5px solid rgba(255, 255, 255, 0.4);
-    color: #FFFFFF;
-    font-size: 13px;
-    font-weight: 700;
-    text-decoration: none;
-    transition: all 0.2s;
-}
-
-.fx-boton-claro:hover {
-    background: #FFFFFF;
-    color: #081426;
-}
-
-/* Franja de datos clave, montada sobre el borde inferior del hero */
-.fx-franja {
-    margin-bottom: 28px;
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 14px;
-}
-
-.fx-dato {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    background: #FFFFFF;
-    border: 1px solid var(--pn-borde);
-    border-radius: 16px;
-    padding: 16px;
-    box-shadow: 0 10px 28px rgba(8, 20, 38, 0.10);
-}
-
-.fx-icono {
-    flex-shrink: 0;
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #FFFFFF;
-    font-size: 18px;
-}
-
-.fx-oro { background: linear-gradient(135deg, #E4BE6C, #C59030); }
-.fx-cielo { background: linear-gradient(135deg, #38BDF8, #0284C7); }
-.fx-esmeralda { background: linear-gradient(135deg, #34D399, #059669); }
-.fx-indigo { background: linear-gradient(135deg, #818CF8, #4F46E5); }
-.fx-naranja { background: linear-gradient(135deg, #FB923C, #EA580C); }
-
-.fx-dato-etiqueta {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: var(--pn-texto-suave);
-}
-
-.fx-dato-valor {
-    font-size: 14px;
-    font-weight: 800;
-    color: #081426;
-    line-height: 1.25;
-}
-
-.fx-tarjeta {
-    background: #FFFFFF;
-    border: 1px solid var(--pn-borde);
-    border-radius: 18px;
-    padding: 24px;
-    box-shadow: 0 4px 18px rgba(8, 20, 38, 0.05);
-}
-
-.fx-titulo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 16px;
-    font-weight: 800;
-    color: #081426;
-    margin: 0 0 14px;
-}
-
-.fx-titulo i {
-    color: var(--wf-gold);
-}
-
-.fx-texto {
-    font-size: 14px;
-    line-height: 1.75;
-    color: #475569;
-    margin-bottom: 12px;
-}
-
-/* Pestañas */
-.fx-pestanias {
-    gap: 6px;
-    border-bottom: 1px solid var(--pn-borde);
-}
-
-.fx-pestanias .nav-link {
-    border: 0;
-    border-bottom: 3px solid transparent;
-    border-radius: 0;
-    padding: 10px 14px;
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--pn-texto-suave);
-    background: transparent;
-}
-
-.fx-pestanias .nav-link:hover {
-    color: #081426;
-}
-
-.fx-pestanias .nav-link.active {
-    color: #081426;
-    border-bottom-color: var(--wf-gold);
-    background: transparent;
-}
-
-.fx-contador {
-    display: inline-block;
-    min-width: 20px;
-    padding: 1px 6px;
-    margin-left: 4px;
-    border-radius: 9999px;
-    background: var(--wf-gold);
-    color: #081426;
-    font-size: 11px;
-    font-weight: 800;
-    text-align: center;
-}
-
-.fx-incluye {
-    margin: 0;
-}
-
-.fx-incluye > div {
-    display: flex;
-    gap: 16px;
-    padding: 12px 0;
-    border-bottom: 1px solid var(--pn-borde);
-}
-
-.fx-incluye > div:last-child {
-    border-bottom: 0;
-}
-
-.fx-incluye dt {
-    flex: 0 0 150px;
-    font-size: 13px;
-    font-weight: 700;
-    color: #081426;
-}
-
-.fx-incluye dd {
-    margin: 0;
-    font-size: 14px;
-    color: #475569;
-}
-
-.fx-cohortes {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 14px;
-}
-
-.fx-cohorte {
-    border: 1px solid var(--pn-borde);
-    border-radius: 14px;
-    padding: 16px;
-    background: linear-gradient(180deg, #FFFFFF, #F8FAFC);
-}
-
-/* A quién va dirigido */
-.fx-dirigido {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    padding: 26px 28px;
-    border-radius: 18px;
-    color: #FFFFFF;
-    background: linear-gradient(120deg, #0B1B33 0%, #14305A 55%, #1D4E89 100%);
-    box-shadow: 0 10px 28px rgba(8, 20, 38, 0.18);
-}
-
-.fx-dirigido-icono {
-    flex-shrink: 0;
-    width: 60px;
-    height: 60px;
-    border-radius: 16px;
-    background: rgba(125, 211, 252, 0.16);
-    color: #7DD3FC;
-    font-size: 26px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.fx-dirigido-titulo {
-    font-size: 18px;
-    font-weight: 800;
-    margin: 0 0 8px;
-}
-
-.fx-dirigido p {
-    font-size: 14px;
-    line-height: 1.6;
-}
-
-.fx-dirigido-nota {
-    color: #CBD5E1;
-}
-
-/* Qué aprenderá el alumno: lista numerada en grilla */
-.fx-unidades {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-}
-
-.fx-unidad {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 14px;
-    border: 1px solid var(--pn-borde);
-    border-radius: 14px;
-    background: #FFFFFF;
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
-}
-
-.fx-unidad:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(8, 20, 38, 0.08);
-}
-
-.fx-numero {
-    flex-shrink: 0;
-    width: 40px;
-    height: 40px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 800;
-    font-size: 16px;
-    color: #FFFFFF;
-    background: linear-gradient(135deg, #E4BE6C, #C59030);
-}
-
-.fx-unidad:nth-child(4n+2) .fx-numero { background: linear-gradient(135deg, #38BDF8, #0284C7); }
-.fx-unidad:nth-child(4n+3) .fx-numero { background: linear-gradient(135deg, #34D399, #059669); }
-.fx-unidad:nth-child(4n) .fx-numero { background: linear-gradient(135deg, #818CF8, #4F46E5); }
-
-.fx-unidad-titulo {
-    font-size: 14px;
-    font-weight: 700;
-    color: #081426;
-    line-height: 1.35;
-}
-
-.fx-unidad-duracion {
-    font-size: 12px;
-    color: var(--pn-texto-suave);
-    margin-top: 2px;
-}
-
-/* Columna lateral */
-.fx-lateral {
-    position: sticky;
-    top: 88px;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-.fx-precio-tarjeta {
-    text-align: center;
-    padding: 28px 24px;
-    border-radius: 18px;
-    background: #FFFFFF;
-    border: 1px solid var(--pn-borde);
-    box-shadow: 0 10px 28px rgba(8, 20, 38, 0.08);
-}
-
-.fx-precio-etiqueta {
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--pn-texto-suave);
-}
-
-.fx-precio {
-    font-size: 38px;
-    font-weight: 800;
-    color: #081426;
-    line-height: 1.15;
-    margin: 6px 0 18px;
-}
-
-.fx-boton-inscribir {
-    width: 100%;
-    height: 46px;
-    border: 0;
-    border-radius: 12px;
-    background: linear-gradient(135deg, #D4A03D 0%, #C59030 100%);
-    color: #081426;
-    font-size: 14px;
-    font-weight: 800;
-}
-
-.fx-boton-inscribir:disabled {
-    opacity: 0.65;
-    cursor: not-allowed;
-}
-
-.fx-boton-cierre {
-    width: auto;
-    min-width: 200px;
-}
-
-.fx-precio-nota {
-    margin-top: 12px;
-    font-size: 12px;
-    color: var(--pn-texto-suave);
-    line-height: 1.5;
-}
-
-/* Cierre */
-.fx-cierre {
-    text-align: center;
-    padding: 48px 24px;
-    border-radius: 22px;
-    color: #FFFFFF;
-    background: linear-gradient(120deg, #0B1B33 0%, #14305A 55%, #1D4E89 100%);
-}
-
-.fx-cierre h3 {
-    font-size: 28px;
-    font-weight: 800;
-    margin-bottom: 8px;
-}
-
-.fx-cierre p {
-    color: #CBD5E1;
-    margin-bottom: 24px;
-}
-
-@media (max-width: 1199.98px) {
-    .fx-franja {
-        grid-template-columns: repeat(3, 1fr);
-    }
-}
-
-@media (max-width: 767.98px) {
-    .fx-franja {
-        grid-template-columns: repeat(2, 1fr);
-    }
-
-    .fx-incluye,
-    .fx-unidades {
-        grid-template-columns: 1fr;
-    }
-
-    .fx-dirigido {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-}
 
 /* ---------------------------------------------------------------- ACERCA DE */
 .ac-hero-imagen {
@@ -496,27 +97,6 @@
     margin-bottom: 22px;
 }
 
-.ac-banda-boton {
-    align-self: flex-start;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    height: 42px;
-    padding: 0 22px;
-    border-radius: 9999px;
-    background: var(--wf-gold);
-    color: #081426;
-    font-size: 13px;
-    font-weight: 800;
-    text-decoration: none;
-    transition: background-color 0.2s;
-}
-
-.ac-banda-boton:hover {
-    background: #E4BE6C;
-    color: #081426;
-}
-
 /* Tarjeta con pestañas sobre un círculo decorativo (estructura del bloque "Nuestros cafés") */
 .ac-pestanias-bloque {
     position: relative;
@@ -586,24 +166,6 @@
     border-radius: 14px;
 }
 
-.ac-pestana-boton {
-    display: inline-flex;
-    align-items: center;
-    height: 40px;
-    padding: 0 22px;
-    border-radius: 9999px;
-    background: #0F233D;
-    color: #FFFFFF;
-    font-size: 13px;
-    font-weight: 800;
-    text-decoration: none;
-}
-
-.ac-pestana-boton:hover {
-    background: #081426;
-    color: #FFFFFF;
-}
-
 @media (max-width: 767.98px) {
     .ac-banda,
     .ac-pestana-tarjeta {
@@ -644,6 +206,12 @@
     text-decoration: none;
 }
 
+/* Solo "Idóneos" va en serif, como en el navbar */
+.sf-footer-serif {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 700;
+}
+
 .sf-footer-logo img {
     height: 40px;
     width: auto;
@@ -656,9 +224,11 @@
 .sf-footer-marca p {
     margin: 14px 0 18px;
     max-width: 360px;
-    font-size: 13px;
-    line-height: 1.7;
-    color: #94A3B8;
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 15px;
+    font-style: italic;
+    line-height: 1.6;
+    color: #B9C6DA;
 }
 
 .sf-footer-red {
@@ -667,7 +237,7 @@
     justify-content: center;
     width: 38px;
     height: 38px;
-    border-radius: 50%;
+    border-radius: 8px;
     background: rgba(255, 255, 255, 0.08);
     color: #FFFFFF;
     font-size: 17px;
@@ -682,23 +252,30 @@
 }
 
 .sf-footer-columna h6 {
-    display: inline-block;
+    display: flex;
+    align-items: center;
+    gap: 10px;
     margin: 0 0 16px;
-    padding-bottom: 8px;
-    border-bottom: 2px solid var(--wf-gold);
-    font-size: 13px;
-    font-weight: 800;
-    letter-spacing: 0.06em;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: #FFFFFF;
+    color: var(--wf-gold);
+}
+
+.sf-footer-columna h6::after {
+    content: '';
+    width: 32px;
+    height: 1px;
+    background: var(--wf-gold);
 }
 
 .sf-footer-columna a,
 .sf-footer-columna p {
     display: block;
     margin: 0 0 10px;
-    font-size: 13px;
-    color: #94A3B8;
+    font-size: 14px;
+    color: #CBD5E1;
     text-decoration: none;
 }
 
@@ -854,12 +431,6 @@
     font-size: 13px;
     font-weight: 600;
     color: #64748B;
-}
-
-/* Botón de inscripción del hero de la ficha (todavía sin acción) */
-.fx-boton-hero:disabled {
-    opacity: 0.85;
-    cursor: not-allowed;
 }
 
 /* ---------------------------------------------------------------- LISTADOS VACÍOS: mensaje y botón */

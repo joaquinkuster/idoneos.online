@@ -68,6 +68,24 @@ public interface CursoServicio {
             Integer idModalidad);
 
     /**
+     * Busca los cursos destacados del catálogo: los que tienen cohortes con inscripción abierta, de los que más
+     * inscripciones históricas acumularon (incluidas las bajas y las de cohortes ya finalizadas) a los que menos.
+     * A igual cantidad va primero el curso más reciente.
+     *
+     * @param cantidad la cantidad máxima de cursos a devolver
+     * @return los cursos destacados, del más al menos inscripto
+     */
+    List<Curso> buscarDestacados(int cantidad);
+
+    /**
+     * Cuenta las inscripciones históricas de un curso: todas las de todas las cohortes de todos sus programas.
+     *
+     * @param curso el curso a consultar
+     * @return la cantidad de inscripciones, activas o no
+     */
+    long contarInscripcionesHistoricas(Curso curso);
+
+    /**
      * Busca las cohortes con inscripción abierta de un curso.
      *
      * @param curso el curso a consultar

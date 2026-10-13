@@ -41,10 +41,10 @@ class DocenteMisCursosControladorTest {
 
     @Test
     @WithUserDetails(value = "fausto.spotorno@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesServicio")
-    @DisplayName("CU-01: si los filtros no coinciden con ningún curso se avisa y se ofrece limpiarlos")
-    void filtrosSinResultados() throws Exception {
+    @DisplayName("CU-01: un filtro que llega por la URL solo completa el campo: el listado se entrega completo")
+    void filtroDeLaUrlNoRecortaElListado() throws Exception {
         mockMvc.perform(get("/curso/buscar").param("busqueda", "zzz")).andExpect(status().isOk())
-                .andExpect(content().string(Matchers.containsString("No se encontraron cursos")))
-                .andExpect(content().string(Matchers.containsString("Limpiar filtros")));
+                .andExpect(content().string(Matchers.containsString("value=\"zzz\"")))
+                .andExpect(content().string(Matchers.containsString("Mercado de Capitales Argentino")));
     }
 }

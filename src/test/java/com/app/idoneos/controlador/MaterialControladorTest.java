@@ -114,13 +114,13 @@ class MaterialControladorTest {
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesServicio")
-    @DisplayName("CU-28: filtra por título y por estado")
+    @DisplayName("CU-28: el título que llega por la URL no recorta el listado (se filtra en la pantalla)")
     void filtraLaBusqueda() throws Exception {
         mockMvc.perform(get("/material/buscar").param("cursoId", String.valueOf(idCursoPrincipal()))
                 .param("titulo", "borrador"))
                 .andExpect(status().isOk())
                 .andExpect(content().string(Matchers.containsString("Borrador: ejercicios de duration")))
-                .andExpect(content().string(Matchers.not(Matchers.containsString("Ley 26.831 y modificatorias CNV"))));
+                .andExpect(content().string(Matchers.containsString("Ley 26.831 y modificatorias CNV")));
     }
 
     @Test

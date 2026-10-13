@@ -139,13 +139,13 @@ class UnidadControladorTest {
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesServicio")
-    @DisplayName("El listado se filtra por título")
+    @DisplayName("El título que llega por la URL no recorta el listado: se filtra en la pantalla")
     void filtro() throws Exception {
         Unidad unidad = primeraDe(mercado());
 
         mockMvc.perform(get("/unidad/buscar").param("cursoId", cursoId(mercado())).param("titulo", "renta fija"))
                 .andExpect(content().string(Matchers.containsString("pn-celda-principal pn-truncar\">Renta fija y bonos<")))
-                .andExpect(content().string(Matchers.not(Matchers.containsString("pn-celda-principal pn-truncar\">" + unidad.getTitulo() + "<"))));
+                .andExpect(content().string(Matchers.containsString("pn-celda-principal pn-truncar\">" + unidad.getTitulo() + "<")));
     }
 
     @Test

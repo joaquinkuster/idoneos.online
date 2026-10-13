@@ -122,8 +122,8 @@ public class MaterialControlador {
             boolean nuevoValido = nuevo != null
                     && tiposDeSubida.stream().anyMatch(tipo -> tipo.getIdTipoMaterial() == nuevo);
 
-            List<Material> materiales = materialServicio.buscarConFiltros(cursoId, unidadId, tipoId, titulo,
-                    generadoPorIa, baja, docente);
+            List<Material> materiales = materialServicio.buscarConFiltros(cursoId, null, null, null,
+                    null, null, docente); // listado completo: los filtros se aplican en la pantalla
 
             String abrirModal = null;
             boolean hayAccion = accion != null && materialId != null

@@ -134,19 +134,25 @@
     display: block;
     width: 100%;
     padding: 10px 16px;
-    font-size: 14px;
-    font-weight: 500;
+    font-size: 15px;
+    font-weight: 600;
     color: var(--pn-texto);
     text-decoration: none;
     text-align: left;
     background: transparent;
     border: 0;
     cursor: pointer;
-    transition: background-color 0.12s ease;
+    transition: background-color 0.12s ease, opacity 0.15s ease;
+}
+
+/* Las opciones no seleccionadas se atenúan; al pasar el mouse o estar activas vuelven a ser sólidas */
+.um-item:not(.um-item-peligro) {
+    opacity: 0.55;
 }
 
 .um-item:hover,
 .um-item.activo {
+    opacity: 1;
     background: var(--pn-fondo);
     color: var(--pn-texto);
 }
@@ -263,7 +269,7 @@
    DISTRIBUCIÓN DEL PANEL: menú lateral + contenido
    ========================================================================== */
 body.pn-body {
-    background: var(--pn-fondo);
+    background: #F6F3EC; /* el mismo crema del catálogo y "Mis cursos" */
     color: var(--pn-texto);
     min-height: 100vh;
 }
@@ -563,7 +569,7 @@ body.pn-body {
     padding: 0 16px;
     border: 1px solid transparent;
     border-radius: 8px;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 700;
     line-height: 1;
     text-decoration: none;
@@ -647,7 +653,6 @@ body.pn-body {
     height: 30px;
     padding: 0 10px;
     font-size: 12px;
-    border-radius: 6px;
 }
 
 /* ==========================================================================

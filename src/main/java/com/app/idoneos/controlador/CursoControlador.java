@@ -109,9 +109,9 @@ public class CursoControlador {
             boolean esAdministrador = usuario.esAdministradorActivo();
             Docente soloDeDocente = esAdministrador ? null : usuario.getDocente();
 
-            List<Curso> cursos = cursoServicio.buscarConFiltros(busqueda, categoriaId, nivelId, docenteId,
-                    modalidadId, orden, soloDeDocente);
-            // Se entrega el listado completo: los filtros y la paginación se aplican en la pantalla.
+            // Se entrega siempre el listado completo: los filtros (también los que llegan por la URL, que solo
+            // completan los campos) y la paginación se aplican en la pantalla.
+            List<Curso> cursos = cursoServicio.buscarConFiltros(null, null, null, null, null, orden, soloDeDocente);
             // El docente no ve los cursos dados de baja; el administrador sí
             if (!esAdministrador) {
                 cursos = cursos.stream().filter(curso -> !curso.esInactivo()).toList();

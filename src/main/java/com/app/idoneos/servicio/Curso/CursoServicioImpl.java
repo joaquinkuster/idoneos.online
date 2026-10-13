@@ -228,6 +228,21 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
                 .toList();
     }
 
+    @Override
+    public List<Curso> buscarDestacados(int cantidad) {
+        return buscarEnCatalogo(null, null, null, null, null).stream()
+                .sorted(Comparator.comparingLong(this::contarInscripcionesHistoricas).reversed()
+                        .thenComparing(Comparator.comparingInt(Curso::getIdCurso).reversed()))
+                .limit(cantidad).toList();
+    }
+
+    @Override
+    public long contarInscripcionesHistoricas(Curso curso) {
+        return curso.getProgramas().stream()
+                .flatMap(programa -> programa.getCohortes().stream())
+                .mapToLong(cohorte -> cohorte.getInscripciones().size()).sum();
+    }
+
     /**
      * Busca las cohortes con inscripción abierta de un curso.
      *

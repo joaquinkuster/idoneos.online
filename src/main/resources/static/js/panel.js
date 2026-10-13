@@ -303,10 +303,20 @@
                 var enlace = e.target.closest('a[href]');
                 if (!enlace) { return; }
                 e.preventDefault();
-                formularioFiltros.reset();
+                // Se vacían todos los campos (reset() devolvería los valores con que llegó la página, por ejemplo un filtro
+                // que vino elegido por la URL); el orden vuelve a su opción inicial
+                campos.forEach(function (campo) {
+                    if (campo.tagName === 'SELECT') { campo.selectedIndex = 0; } else { campo.value = ''; }
+                });
+                if (selectorOrden) {
+                    Array.prototype.forEach.call(selectorOrden.options, function (op) { op.selected = op.defaultSelected; });
+                }
                 ordenar();
                 filtrar();
             });
+
+            // Los campos que llegan completos (por la URL) se aplican apenas carga la página
+            filtrar();
         }
 
         dibujar();

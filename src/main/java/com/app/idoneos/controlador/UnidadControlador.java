@@ -91,7 +91,7 @@ public class UnidadControlador {
                         "Error! El curso todavía no tiene programas: registrá uno para poder cargar unidades.");
                 return esAdministrador ? "redirect:/curso/buscar" : "redirect:/programa/buscar?cursoId=" + cursoId + "&nuevo";
             }
-            List<UnidadCronograma> unidades = unidadServicio.buscarConFiltros(programa, titulo);
+            List<UnidadCronograma> unidades = unidadServicio.buscarConFiltros(programa, null); // listado completo: los filtros se aplican en la pantalla
 
             String abrirModal = null;
             if (!esAdministrador && nuevo != null) {

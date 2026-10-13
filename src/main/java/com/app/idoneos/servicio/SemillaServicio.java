@@ -236,6 +236,10 @@ public class SemillaServicio {
         Categoria cuantitativas = categoriaRepositorio.save(crearCategoria("Finanzas Cuantitativas",
                 "Análisis técnico, modelos y herramientas cuantitativas."));
         categoriaRepositorio.save(crearCategoria("Criptoactivos", "Activos digitales y finanzas descentralizadas."));
+        Categoria contabilidad = categoriaRepositorio.save(crearCategoria("Contabilidad",
+                "Registro, lectura e interpretación de la información contable."));
+        Categoria flujoDeCaja = categoriaRepositorio.save(crearCategoria("Eficiencia de Flujo de Caja",
+                "Gestión del capital de trabajo y planificación de la liquidez."));
 
         LocalDateTime ahora = LocalDateTime.now();
 
@@ -370,6 +374,112 @@ public class SemillaServicio {
         Curso curso7 = titular7.getCurso();
         curso7.marcarInactivo();
         cursoRepositorio.save(curso7);
+
+        // Más cursos con inscripción abierta, para que el inicio y el catálogo tengan con qué armar sus listados
+        crearCursoAbierto("Contabilidad Básica para Inversores",
+                "Los conceptos contables que necesitás para leer el balance de una empresa.", 45000f, contabilidad, basico,
+                List.of(grabada), sebastian, presentacion, "Activo, pasivo y patrimonio", "Estado de resultados", ahora);
+        crearCursoAbierto("Estados Contables: Cómo Leerlos",
+                "Analizá balances y ratios para evaluar la situación de una empresa.", 70000f, contabilidad, intermedio,
+                List.of(grabada, clonIa), sebastian, presentacion, "Lectura del balance", "Ratios financieros", ahora);
+        crearCursoAbierto("Impuestos para Monotributistas y Autónomos",
+                "Obligaciones, categorías y estrategias para tributar de forma eficiente.", 55000f, impuestos, basico,
+                List.of(grabada), sebastian, presentacion, "Monotributo y autónomos", "Facturación y obligaciones", ahora);
+        crearCursoAbierto("Flujo de Caja para Pymes",
+                "Proyectá tu liquidez y tomá mejores decisiones de capital de trabajo.", 85000f, flujoDeCaja, intermedio,
+                List.of(enVivo, grabada), mariano, presentacion, "Proyección de ingresos y egresos", "Capital de trabajo", ahora);
+        crearCursoAbierto("Bonos Soberanos y Obligaciones Negociables",
+                "Valuación, riesgo y operatoria de renta fija en el mercado argentino.", 120000f, mercadoCapitales, avanzado,
+                List.of(enVivo), fausto, presentacion, "Valuación de bonos", "Riesgo y duration", ahora);
+        crearCursoAbierto("Opciones y Derivados en BYMA",
+                "Cobertura y especulación con opciones y futuros, paso a paso.", 140000f, mercadoCapitales, avanzado,
+                List.of(grabada), fausto, presentacion, "Fundamentos de las opciones", "Estrategias con opciones", ahora);
+        crearCursoAbierto("Inflación y Política Monetaria",
+                "Cómo se forman los precios y qué puede hacer el Banco Central.", 0f, macroeconomia, intermedio,
+                List.of(grabada), fausto, presentacion, "Inflación: causas y medición", "Política monetaria", ahora);
+        crearCursoAbierto("Cómo Armar tu Primer Portafolio",
+                "Diversificá tus inversiones según tu perfil y tu horizonte de tiempo.", 65000f, finanzasPersonales, basico,
+                List.of(grabada, clonIa), mariano, presentacion, "Perfil del inversor", "Diversificación", ahora);
+
+        // Veinte cursos más con inscripción abierta, de todas las categorías, niveles y modalidades
+        crearCursoAbierto("Introducción a la Renta Variable",
+                "Qué son las acciones, cómo se operan y qué mirar antes de comprar la primera.", 48000f, mercadoCapitales, basico,
+                List.of(grabada), sebastian, presentacion, "Qué es una acción", "Cómo operar en BYMA", ahora);
+        crearCursoAbierto("Fondos Comunes de Inversión",
+                "Cómo funcionan los fondos, qué tipos hay y cómo elegir el que se ajusta a tu perfil.", 52000f, mercadoCapitales, basico,
+                List.of(grabada, clonIa), mariano, presentacion, "Tipos de fondos", "Cómo elegir un fondo", ahora);
+        crearCursoAbierto("CEDEARs: Invertir en Empresas del Mundo",
+                "Accedé a empresas del exterior desde el mercado argentino, con sus ventajas y riesgos.", 98000f, mercadoCapitales, intermedio,
+                List.of(enVivo, grabada), fausto, presentacion, "Qué es un CEDEAR", "Riesgos y tipo de cambio", ahora);
+        crearCursoAbierto("Análisis Fundamental de Empresas",
+                "Valuá una empresa a partir de sus balances, su negocio y su industria.", 135000f, mercadoCapitales, avanzado,
+                List.of(grabada), sebastian, presentacion, "Lectura de estados financieros", "Valuación por múltiplos", ahora);
+        crearCursoAbierto("Dólar y Tipo de Cambio en Argentina",
+                "Por qué hay tantos dólares, qué determina su precio y cómo leer el mercado cambiario.", 42000f, macroeconomia, basico,
+                List.of(grabada), fausto, presentacion, "Los tipos de dólar", "Brecha y expectativas", ahora);
+        crearCursoAbierto("Economía para No Economistas",
+                "Los conceptos básicos de la economía explicados sin tecnicismos, con ejemplos cotidianos.", 0f, macroeconomia, basico,
+                List.of(grabada, clonIa), fausto, presentacion, "Oferta, demanda y precios", "Crecimiento y empleo", ahora);
+        crearCursoAbierto("Deuda Pública y Riesgo País",
+                "Cómo se endeuda un país, qué mide el riesgo país y cómo impacta en tus inversiones.", 118000f, macroeconomia, avanzado,
+                List.of(enVivo), fausto, presentacion, "Deuda soberana", "Riesgo país y mercados", ahora);
+        crearCursoAbierto("Ahorro e Inversión desde Cero",
+                "Un plan simple para empezar a ahorrar e invertir aunque nunca lo hayas hecho.", 38000f, finanzasPersonales, basico,
+                List.of(grabada), mariano, presentacion, "Ordenar tus finanzas", "Primeras inversiones", ahora);
+        crearCursoAbierto("Jubilación y Planificación del Retiro",
+                "Calculá cuánto necesitás y cómo construir tu ahorro para el retiro.", 62000f, finanzasPersonales, intermedio,
+                List.of(grabada), mariano, presentacion, "Cuánto necesito para retirarme", "Instrumentos de largo plazo", ahora);
+        crearCursoAbierto("Inversiones Inmobiliarias para Principiantes",
+                "Cómo evaluar una propiedad como inversión y qué alternativas hay al ladrillo.", 72000f, finanzasPersonales, intermedio,
+                List.of(enVivo, grabada), mariano, presentacion, "Rentabilidad inmobiliaria", "Alternativas al ladrillo", ahora);
+        crearCursoAbierto("Gestión de Deudas y Crédito Personal",
+                "Cómo usar el crédito con criterio, salir de deudas y cuidar tu historial.", 35000f, finanzasPersonales, basico,
+                List.of(grabada), mariano, presentacion, "Tasas y costo real del crédito", "Estrategias para salir de deudas", ahora);
+        crearCursoAbierto("Indicadores y Estrategias de Trading",
+                "Armá y probá estrategias de operación con indicadores técnicos.", 88000f, cuantitativas, intermedio,
+                List.of(grabada), mariano, presentacion, "Indicadores de tendencia", "Gestión del riesgo", ahora);
+        crearCursoAbierto("Modelos de Valuación con Excel",
+                "Construí modelos de valuación paso a paso en planillas de cálculo.", 125000f, cuantitativas, avanzado,
+                List.of(enVivo, grabada), sebastian, presentacion, "Flujo de fondos descontado", "Análisis de sensibilidad", ahora);
+        crearCursoAbierto("Estadística Aplicada a las Finanzas",
+                "Media, desvío, correlación y probabilidad aplicados a retornos y riesgo.", 76000f, cuantitativas, intermedio,
+                List.of(grabada), fausto, presentacion, "Retorno y riesgo", "Correlación y diversificación", ahora);
+        crearCursoAbierto("IVA y Ganancias en la Práctica",
+                "Cómo se liquidan el IVA y el impuesto a las ganancias, con casos reales.", 58000f, impuestos, intermedio,
+                List.of(grabada), sebastian, presentacion, "Liquidación del IVA", "Ganancias de personas y sociedades", ahora);
+        crearCursoAbierto("Planificación Tributaria para Pymes",
+                "Estrategias para optimizar la carga impositiva de una pyme dentro de la ley.", 110000f, impuestos, avanzado,
+                List.of(enVivo), sebastian, presentacion, "Estructura tributaria", "Beneficios y regímenes", ahora);
+        crearCursoAbierto("Contabilidad de Costos",
+                "Cómo calcular el costo de un producto o servicio y fijar precios con fundamento.", 64000f, contabilidad, intermedio,
+                List.of(grabada), sebastian, presentacion, "Clasificación de costos", "Costeo y precio de venta", ahora);
+        crearCursoAbierto("Presupuesto y Control de Gestión",
+                "Armá un presupuesto anual y controlá los desvíos mes a mes.", 69000f, flujoDeCaja, intermedio,
+                List.of(grabada, clonIa), sebastian, presentacion, "Armado del presupuesto", "Control de desvíos", ahora);
+        crearCursoAbierto("Financiamiento y Tasas para Pymes",
+                "Qué opciones de financiamiento tiene una pyme y cómo comparar sus costos.", 54000f, flujoDeCaja, basico,
+                List.of(enVivo, grabada), mariano, presentacion, "Fuentes de financiamiento", "Costo financiero total", ahora);
+        crearCursoAbierto("Tesorería y Capital de Trabajo",
+                "Administrá la caja de una empresa para no quedarte sin liquidez.", 92000f, flujoDeCaja, avanzado,
+                List.of(grabada), sebastian, presentacion, "Gestión de tesorería", "Ciclo de conversión del efectivo", ahora);
+    }
+
+    /**
+     * Crea un curso sin imagen con un programa de dos unidades con material y una cohorte con inscripción abierta.
+     */
+    private void crearCursoAbierto(String nombre, String descripcion, float precio, Categoria categoria, Nivel nivel,
+            List<Modalidad> modalidades, Docente titular, TipoMaterial tipoMaterial, String unidad1, String unidad2,
+            LocalDateTime ahora) {
+        ParticipacionDocente participacion = crearCurso(nombre, descripcion, precio, null, categoria, nivel, true,
+                modalidades, titular, List.of());
+        Curso curso = participacion.getCurso();
+        Programa programa = crearPrograma(curso, "Programa 2026", "Dominar los contenidos centrales del curso.",
+                "Bibliografía del curso.");
+        agregarUnidad(programa, curso, 1, 2, unidad1, "Conceptos centrales.", participacion, tipoMaterial);
+        agregarUnidad(programa, curso, 2, 2, unidad2, "Aplicación práctica.", participacion, tipoMaterial);
+        boolean enVivo = modalidades.stream().anyMatch(modalidad -> Modalidad.EN_VIVO.equals(modalidad.getNombre()));
+        crearCohorte(programa, ahora.minusDays(1), ahora.plusDays(45), enVivo ? ahora.plusDays(50) : null,
+                enVivo ? ahora.plusDays(100) : null, 8, 30);
     }
 
     /**

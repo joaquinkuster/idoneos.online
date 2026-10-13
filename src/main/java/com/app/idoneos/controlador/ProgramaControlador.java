@@ -77,7 +77,7 @@ public class ProgramaControlador {
                 curso = participacion.getCurso();
                 programaDeTrabajo = participacion.getProgramaDeTrabajo();
             }
-            List<Programa> programas = programaServicio.buscarConFiltros(curso, nombre, estado);
+            List<Programa> programas = programaServicio.buscarConFiltros(curso, null, null); // listado completo: los filtros se aplican en la pantalla
 
             modelo.addAttribute("curso", curso);
             modelo.addAttribute("programas", programas);

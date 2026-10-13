@@ -94,7 +94,11 @@ public class CohorteControlador {
         }
         final Curso cursoDelPanel = curso;
 
-        List<Cohorte> cohortes = cohorteServicio.buscarConFiltros(programaId, busqueda, estado, desde, hasta,
+        List<Cohorte> cohortes = cohorteServicio.buscarConFiltros(
+                // El administrador recibe el listado completo (los filtros se aplican en la pantalla); la vista del
+                // docente, que todavía filtra en el servidor, recibe los filtros de la URL
+                esAdministrador ? null : programaId, esAdministrador ? null : busqueda,
+                esAdministrador ? null : estado, esAdministrador ? null : desde, esAdministrador ? null : hasta,
                 orden, soloDeDocente).stream()
                 .filter(cohorte -> cursoDelPanel == null
                         || cohorte.getPrograma().getCurso().getIdCurso() == cursoDelPanel.getIdCurso())

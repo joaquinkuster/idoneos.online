@@ -104,8 +104,7 @@ public class ForoControlador {
                 programa = participacion.getProgramaDeTrabajo();
             }
             List<UnidadCronograma> todas = programa == null ? List.of() : programa.getCronogramaOrdenado();
-            List<UnidadCronograma> unidades = unidadId == null ? todas : todas.stream()
-                    .filter(uc -> uc.getUnidad().getIdUnidad() == unidadId).toList();
+            List<UnidadCronograma> unidades = todas; // todas las unidades: el filtro se aplica en la pantalla
 
             modelo.addAttribute("curso", curso);
             modelo.addAttribute("unidadesDelPrograma", todas);

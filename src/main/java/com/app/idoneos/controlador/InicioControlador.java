@@ -17,7 +17,6 @@ import com.app.idoneos.modelo.Programa;
 import com.app.idoneos.servicio.Categoria.CategoriaServicioImpl;
 import com.app.idoneos.servicio.Curso.CursoServicioImpl;
 import com.app.idoneos.servicio.Programa.ProgramaServicioImpl;
-import com.app.idoneos.utilidades.PaginacionUtilidad;
 
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.http.HttpServletRequest;
@@ -31,7 +30,7 @@ import jakarta.servlet.http.HttpServletRequest;
 public class InicioControlador implements ErrorController {
 
     /** Cantidad de cursos que se destacan en el inicio. */
-    private static final int CURSOS_DESTACADOS = 3;
+    private static final int CURSOS_DESTACADOS = 8;
 
     @Autowired
     private ProgramaServicioImpl programaServicio;
@@ -51,9 +50,17 @@ public class InicioControlador implements ErrorController {
      */
     @GetMapping({ "/", "/inicio" })
     public String verInicio(Model modelo) {
-        List<Categoria> categorias = categoriaServicio.obtenerTodo();
-        List<Curso> cursosDestacados = PaginacionUtilidad.obtenerPagina(
-                cursoServicio.buscarEnCatalogo(null, null, null, null, null), 0, CURSOS_DESTACADOS);
+        List<Curso> catalogo = cursoServicio.buscarEnCatalogo(null, null, null, null, null);
+        // Los destacados van del curso con más inscripciones históricas al que tiene menos
+        List<Curso> cursosDestacados = cursoServicio.buscarDestacados(CURSOS_DESTACADOS);
+
+        // Cantidad de cursos del catálogo por categoría: solo se muestran las categorías con cursos disponibles
+        Map<Integer, Long> cursosPorCategoria = new HashMap<>();
+        for (Curso curso : catalogo) {
+            cursosPorCategoria.merge(curso.getCategoria().getIdCategoria(), 1L, Long::sum);
+        }
+        List<Categoria> categorias = categoriaServicio.buscarConFiltros(null, false, "nombre").stream()
+                .filter(categoria -> cursosPorCategoria.containsKey(categoria.getIdCategoria())).toList();
 
         // Cantidad de unidades temáticas de cada curso (según su primer programa activo)
         Map<Integer, Integer> cantidadUnidadesPorCurso = new HashMap<>();
@@ -64,6 +71,7 @@ public class InicioControlador implements ErrorController {
         }
 
         modelo.addAttribute("categorias", categorias);
+        modelo.addAttribute("cursosPorCategoria", cursosPorCategoria);
         modelo.addAttribute("cursos", cursosDestacados);
         modelo.addAttribute("cantUnidadesPorCurso", cantidadUnidadesPorCurso);
         modelo.addAttribute("titulo", "Idóneos Online | Cursos de Finanzas, Economía y Mercado de Capitales");
