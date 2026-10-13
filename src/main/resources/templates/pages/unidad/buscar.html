@@ -255,12 +255,8 @@
                 </div>
                 <div class="pn-modal-cuerpo text-center">
                     <div class="pn-baja-icono"><i class="fa-solid fa-triangle-exclamation"></i></div>
-                    <h4 class="pn-modal-titulo mb-1">¿Confirmas dar de baja la unidad?</h4>
+                    <h4 class="pn-modal-titulo mb-2" th:text="'¿Confirmas dar de baja la unidad «' + ${uc.unidad.titulo} + '»?'">¿Confirmas dar de baja la unidad?</h4>
                     <p class="small text-muted mb-0">Se quitará del cronograma de este programa. Si no forma parte de otro programa, quedará dada de baja.</p>
-                    <div class="pn-baja-detalle">
-                        <div class="pn-baja-fila"><span class="text-muted">Unidad</span><strong th:text="${uc.unidad.titulo}">Renta fija</strong></div>
-                        <div class="pn-baja-fila"><span class="text-muted">Programa</span><strong th:text="${programa.nombre}">2026</strong></div>
-                    </div>
                     <form th:action="@{'/unidad/darDeBaja/' + ${uc.unidad.idUnidad}}" method="post" class="form-ajax">
                         <input type="hidden" name="programaId" th:value="${programa.idPrograma}">
                         <div class="pn-modal-pie">

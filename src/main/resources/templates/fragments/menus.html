@@ -40,7 +40,7 @@
     <th:block th:if="${curso == null or curso.incluyeModalidad('En vivo')}">
         <a th:replace="~{fragments/sidebar :: enlace(${urlBase} + '?seccion=clases', 'fa-video', 'Clases en vivo', ${activo}, 'clases')}"></a>
     </th:block>
-    <a th:replace="~{fragments/sidebar :: enlace('#', 'fa-users', 'Participantes', ${activo}, 'participantes')}"></a>
+    <a th:replace="~{fragments/sidebar :: enlace((${esDocente == true or esAdministrador == true} ? '/participante/buscar?cursoId=' + ${curso.idCurso} : ${#strings.replace(urlBase, '/inscripcion/acceder/', '/participante/ver/')}), 'fa-users', 'Participantes', ${activo}, 'participantes')}"></a>
     <a th:replace="~{fragments/sidebar :: enlace('#', 'fa-star', 'Calificaciones', ${activo}, 'calificaciones')}"></a>
 
     <div th:replace="~{fragments/sidebar :: grupo('Contenido de las unidades')}"></div>

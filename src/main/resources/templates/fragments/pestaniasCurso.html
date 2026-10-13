@@ -12,7 +12,7 @@
                 th:href="${esDocente ? '/cronograma/buscar?cursoId=' + curso.idCurso : urlBase + '?seccion=cronograma'}">Cronograma</a>
             <a class="ac-pestania" th:if="${esAdministrador == true}" th:href="${'/cohorte/buscar?cursoId=' + curso.idCurso}">Cohortes</a>
             <a class="ac-pestania" th:href="${urlBase + '?seccion=clases'}" th:if="${curso.incluyeModalidad('En vivo')}">Clases en vivo</a>
-            <a class="ac-pestania" href="#" data-sin-accion>Participantes</a>
+            <a class="ac-pestania" th:href="${esDocente == true or esAdministrador == true ? '/participante/buscar?cursoId=' + curso.idCurso : #strings.replace(urlBase, '/inscripcion/acceder/', '/participante/ver/')}">Participantes</a>
             <a class="ac-pestania" href="#" data-sin-accion>Calificaciones</a>
             <a class="ac-pestania" href="#" data-sin-accion th:unless="${esDocente}">Autoevaluaciones</a>
 

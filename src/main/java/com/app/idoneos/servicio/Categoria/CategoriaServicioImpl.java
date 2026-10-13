@@ -1,5 +1,6 @@
 package com.app.idoneos.servicio.Categoria;
 
+import com.app.idoneos.utilidades.MensajeUtilidad;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import org.springframework.transaction.annotation.Transactional;
@@ -222,8 +223,9 @@ public class CategoriaServicioImpl implements CategoriaServicio, CrudServicio<Ca
                 .orElseThrow(() -> new IllegalArgumentException("Error! La categoría no se encuentra activa."));
         int cursosActivos = cursoRepositorio.findByCategoriaAndBajaFalse(categoria).size();
         if (cursosActivos > 0) {
-            throw new IllegalArgumentException("Error! La categoría tiene " + cursosActivos
-                    + " curso(s) activo(s) asociado(s). Dé de baja primero esos cursos.");
+            throw new IllegalArgumentException(MensajeUtilidad.bajaBloqueada("la categoría", categoria.getNombre(),
+                    "tiene " + MensajeUtilidad.cantidad(cursosActivos, "curso activo asociado", "cursos activos asociados"),
+                    "Dé de baja primero " + (cursosActivos == 1 ? "ese curso." : "esos cursos.")));
         }
         categoria.marcarInactivo();
         categoria.setUltimaModificacion(LocalDateTime.now());
@@ -247,8 +249,7 @@ public class CategoriaServicioImpl implements CategoriaServicio, CrudServicio<Ca
             try {
                 darDeBajaCategoria(id);
             } catch (IllegalArgumentException e) {
-                String nombre = categoriaRepositorio.findById(id).map(c -> c.getNombre()).orElse("#" + id);
-                throw new IllegalArgumentException("Error! No se dio de baja ningún registro. «" + nombre + "»: "
+                throw new IllegalArgumentException("Error! No se dio de baja ningún registro. "
                         + e.getMessage().replaceFirst("^Error! ", ""));
             }
         }

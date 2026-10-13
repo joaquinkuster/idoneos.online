@@ -34,7 +34,7 @@
                         <section class="pn-tarjeta mb-4">
                         <div class="pn-lista-cabecera">
                             <h2 class="pn-lista-titulo">Mis inscripciones</h2>
-                            <span class="pn-seleccionados"><span data-total-filtradas th:text="${totalInscripciones}">0</span> curso(s) encontrado(s)</span>
+                            <span class="pn-seleccionados" data-total-filtradas data-singular="curso encontrado" data-plural="cursos encontrados" th:text="${totalInscripciones + (totalInscripciones == 1 ? ' curso encontrado' : ' cursos encontrados')}">0 cursos encontrados</span>
                         </div>
 
                         <form id="formFiltrosMisCursos" th:action="@{/inscripcion/misCursos}" method="get" class="pn-filtros mb-3" data-filtro-front>

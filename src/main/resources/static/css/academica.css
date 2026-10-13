@@ -1823,10 +1823,19 @@ a.ac-actividad-titulo:hover {
 @media (max-width: 900px) {
     .cn-columnas {
         flex-direction: column;
+        align-items: stretch; /* con flex-start el panel tomaba el ancho de su contenido y se salía de la pantalla */
     }
 
-    .cn-izq {
+    .cn-izq,
+    .cn-der {
         width: 100%;
+        min-width: 0;
+    }
+
+    /* El tablero se desplaza en horizontal para ver todas las semanas y unidades */
+    .cn-grilla {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
     }
 }
 
@@ -2144,11 +2153,29 @@ a.ac-actividad-titulo:hover {
         position: fixed;
         top: calc(var(--nb-alto, 64px) + 12px);
         right: 12px;
-        z-index: 1200;
+        z-index: 1000;
         width: min(320px, calc(100vw - 24px));
         max-height: calc(100vh - var(--nb-alto, 64px) - 24px);
+        max-height: calc(100dvh - var(--nb-alto, 64px) - 24px);
         overflow-y: auto;
         box-shadow: 0 12px 32px rgba(15, 23, 42, 0.25);
+    }
+
+    /* Grilla de semanas del cajón: cada semana tiene un ancho mínimo y, si no entran todas, se desplaza en horizontal */
+    .ac-cajon-pista-envoltura {
+        overflow-x: auto;
+        margin-top: 12px;
+        border-radius: 8px;
+    }
+
+    .ac-cajon-pista-envoltura .ac-cajon-pista {
+        min-width: calc(var(--semanas) * 30px);
+        margin-top: 0;
+    }
+
+    /* Tablero del cronograma: se recorre en horizontal */
+    .cn-grilla {
+        overflow-x: auto;
     }
 }
 
@@ -2237,4 +2264,12 @@ a.ac-actividad-titulo:hover {
     color: var(--pn-texto-suave);
     text-transform: none;
     letter-spacing: 0;
+}
+
+.ac-cajon-pista-envoltura {
+    margin-top: 12px;
+}
+
+.ac-cajon-pista-envoltura .ac-cajon-pista {
+    margin-top: 0;
 }

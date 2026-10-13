@@ -100,7 +100,10 @@
             if (vacio) {
                 vacio.hidden = filas.length > 0;
             }
-            raiz.querySelectorAll('[data-total-filtradas]').forEach(function (e) { e.textContent = filas.length; });
+            raiz.querySelectorAll('[data-total-filtradas]').forEach(function (e) {
+                // Con singular y plural el elemento lleva el texto completo ("1 curso encontrado" / "3 cursos encontrados")
+                e.textContent = e.dataset.plural ? filas.length + ' ' + (filas.length === 1 ? e.dataset.singular : e.dataset.plural) : filas.length;
+            });
             if (infoRango) {
                 var desde = filas.length ? inicio + 1 : 0;
                 infoRango.textContent = desde + '-' + Math.min(inicio + tamanio(), filas.length) + ' de ' + filas.length;

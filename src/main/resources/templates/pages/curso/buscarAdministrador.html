@@ -203,30 +203,14 @@
                 </div>
                 <div class="pn-modal-cuerpo text-center">
                     <div class="pn-baja-icono"><i class="fa-solid fa-triangle-exclamation"></i></div>
-                    <h4 class="pn-modal-titulo mb-1">¿Confirmas dar de baja el curso?</h4>
+                    <h4 class="pn-modal-titulo mb-2" th:text="'¿Confirmas dar de baja el curso «' + ${curso.nombre} + '»?'">¿Confirmas dar de baja el curso?</h4>
                     <p class="small text-muted mb-0">El curso dejará de estar disponible en el sistema.</p>
-
-                    <th:block th:with="progsCurso=${programasPorCurso != null and programasPorCurso.containsKey(curso.idCurso) ? programasPorCurso.get(curso.idCurso) : null},
-                                       inscriptosCurso=${inscripcionesPorCurso != null and inscripcionesPorCurso.containsKey(curso.idCurso) ? inscripcionesPorCurso.get(curso.idCurso) : null}">
-                        <th:block th:with="tieneProgramas=${progsCurso != null and !progsCurso.isEmpty()}, tieneInscriptos=${inscriptosCurso != null and !inscriptosCurso.isEmpty()}">
-                            <div class="pn-baja-detalle">
-                                <div class="pn-baja-fila"><span class="text-muted">Curso</span><strong th:text="${curso.nombre}">Nombre</strong></div>
-                                <div class="pn-baja-fila">
-                                    <span class="text-muted">Dependencias</span>
-                                    <span th:if="${tieneProgramas}" class="text-danger fw-bold"
-                                          th:text="${progsCurso.size() + (progsCurso.size() == 1 ? ' programa activo asociado' : ' programas activos asociados')}">2 programas activos asociados</span>
-                                    <span th:unless="${tieneProgramas}" class="text-success fw-bold">Sin programas activos asociados</span>
-                                </div>
-                            </div>
-                            <form th:action="@{'/curso/darDeBaja/' + ${curso.idCurso}}" method="post" class="form-ajax">
-                                <div class="pn-modal-pie">
-                                    <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
-                                    <button type="submit" class="pn-btn pn-btn-peligro" th:disabled="${tieneProgramas}"
-                                            th:title="${tieneProgramas ? 'No se puede dar de baja porque posee programas y/o unidades activas asociadas' : 'Confirmar baja'}">Dar de baja</button>
-                                </div>
-                            </form>
-                        </th:block>
-                    </th:block>
+                    <form th:action="@{'/curso/darDeBaja/' + ${curso.idCurso}}" method="post" class="form-ajax">
+                        <div class="pn-modal-pie">
+                            <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="pn-btn pn-btn-peligro">Dar de baja</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>

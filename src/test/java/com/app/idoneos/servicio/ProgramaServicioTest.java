@@ -243,9 +243,9 @@ class ProgramaServicioTest {
     void validaAlDarDeBaja() {
         int conCohortes = mercado().getProgramaVigente().getIdPrograma();
         assertTrue(mensaje(() -> programaServicio.darDeBajaPrograma(conCohortes, fausto()))
-                .contains("tiene cohortes activas"));
+                .contains("No se puede dar de baja el programa"));
         assertTrue(mensaje(() -> programaServicio.darDeBajaPrograma(conCohortes, null))
-                .contains("tiene cohortes activas"));
+                .contains("No se puede dar de baja el programa"));
 
         Programa sinCohortes = registrar(macro(), null, "Sin cohortes");
         assertTrue(mensaje(() -> programaServicio.darDeBajaPrograma(sinCohortes.getIdPrograma(),
@@ -261,7 +261,7 @@ class ProgramaServicioTest {
         Programa conCohortes = mercado().getProgramaVigente();
 
         assertTrue(mensaje(() -> programaServicio.darDeBajaVarios(List.of(uno.getIdPrograma(),
-                conCohortes.getIdPrograma()), fausto())).contains("tiene cohortes activas"));
+                conCohortes.getIdPrograma()), fausto())).contains("No se puede dar de baja el programa"));
         assertFalse(uno.getBaja());
 
         assertTrue(mensaje(() -> programaServicio.darDeBajaVarios(List.of(uno.getIdPrograma(), dos.getIdPrograma()),

@@ -242,7 +242,7 @@ class ProgramaControladorTest {
         mockMvc.perform(post("/programa/darDeBaja/" + sinCohortes)).andExpect(status().isOk())
                 .andExpect(jsonPath("$.mensaje").value("Programa dado de baja con éxito."));
         mockMvc.perform(post("/programa/darDeBaja/" + conCohortes)).andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value(Matchers.containsString("tiene cohortes activas")));
+                .andExpect(jsonPath("$.error").value(Matchers.containsString("No se puede dar de baja el programa")));
     }
 
     @Test
@@ -258,7 +258,7 @@ class ProgramaControladorTest {
         // uno de los programas tiene cohortes activas: no se da de baja ninguno
         mockMvc.perform(post("/programa/darDeBajaMasiva").param("ids", String.valueOf(uno), String.valueOf(conCohortes)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value(Matchers.containsString("tiene cohortes activas")));
+                .andExpect(jsonPath("$.error").value(Matchers.containsString("No se puede dar de baja el programa")));
         assertEquals("Anterior", macro().getProgramas().stream().filter(p -> p.getIdPrograma() == uno).findFirst()
                 .orElseThrow().getEstado());
 
@@ -274,7 +274,7 @@ class ProgramaControladorTest {
     void administrador() throws Exception {
         mockMvc.perform(post("/programa/darDeBaja/" + macro().getProgramaVigente().getIdPrograma()))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value(Matchers.containsString("tiene cohortes activas")));
+                .andExpect(jsonPath("$.error").value(Matchers.containsString("No se puede dar de baja el programa")));
         mockMvc.perform(post("/programa/registrar")).andExpect(status().isForbidden());
         mockMvc.perform(post("/programa/modificar/1")).andExpect(status().isForbidden());
         mockMvc.perform(post("/programa/establecerPorDefecto").param("programaId", "1")).andExpect(status().isForbidden());

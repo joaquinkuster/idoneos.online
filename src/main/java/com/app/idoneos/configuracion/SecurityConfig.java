@@ -2,6 +2,7 @@ package com.app.idoneos.configuracion;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.servlet.ServletContextInitializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -11,6 +12,9 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpSession;
 
 import com.app.idoneos.modelo.Usuario;
 import com.app.idoneos.servicio.Usuario.UsuarioDetallesServicio;
@@ -24,8 +28,14 @@ import com.app.idoneos.servicio.Usuario.UsuarioDetallesServicio;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    /** Duración de la sesión recordada: 14 días. */
-    private static final int DIAS_DE_RECORDATORIO = 14;
+    /** Duración de la sesión recordada: 30 días. */
+    private static final int DIAS_DE_RECORDATORIO = 30;
+
+    /** Nombre de la cookie de sesión (en lugar de JSESSIONID, que comparten todas las aplicaciones de Tomcat en localhost). */
+    public static final String COOKIE_SESION = "SESION_IDONEOS";
+
+    /** Nombre de la cookie de "Recordarme" (en lugar de remember-me). */
+    public static final String COOKIE_RECORDARME = "RECORDARME_IDONEOS";
 
     @Autowired
     private UsuarioDetallesServicio usuarioDetallesServicio;
@@ -33,6 +43,16 @@ public class SecurityConfig {
     /** Clave con la que se firma la cookie de "Recordarme". En producción debe definirse con una clave propia. */
     @Value("${idoneos.seguridad.clave-recordarme:idoneos-online-clave-de-desarrollo}")
     private String claveRecordarme;
+
+    /**
+     * Cambia el nombre de la cookie de sesión del contenedor.
+     *
+     * @return El inicializador que le pone nombre a la cookie de sesión.
+     */
+    @Bean
+    public ServletContextInitializer nombreDeLaCookieDeSesion() {
+        return contexto -> contexto.getSessionCookieConfig().setName(COOKIE_SESION);
+    }
 
     /**
      * Proveedor de autenticación que valida el usuario contra la base de datos.
@@ -118,6 +138,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/foro/registrar", "/foro/modificar/*").hasRole("Alumno")
                         .requestMatchers(HttpMethod.POST, "/foro/responder", "/foro/modificarRespuesta/*").hasRole("Docente")
                         .requestMatchers(HttpMethod.POST, "/foro/darDeBaja/*", "/foro/darDeBajaRespuesta/*").hasRole("Administrador")
+                        // CU-25 y CU-27: participantes del curso (docente y administrador; el alumno ve los de su cohorte)
+                        .requestMatchers(HttpMethod.GET, "/participante/buscar").hasAnyRole("Docente", "Administrador")
+                        .requestMatchers(HttpMethod.GET, "/participante/ver/*").hasRole("Alumno")
                         // CU-27: Acceder curso (Docente; el Administrador lo ve sin gestionar su contenido)
                         .requestMatchers(HttpMethod.GET, "/curso/acceder/*").hasAnyRole("Docente", "Administrador")
                         // CU-03 a CU-14: gestión de cursos, categorías y cohortes (Administrador)
@@ -129,6 +152,18 @@ public class SecurityConfig {
                         // El administrador y el docente entran a sus cursos, el alumno a sus inscripciones y los demás roles al inicio
                         .successHandler((solicitud, respuesta, autenticacion) -> {
                             Usuario usuario = (Usuario) autenticacion.getPrincipal();
+                            // "Recordarme": la sesión (y su cookie) dura 30 días en lugar de cerrarse con el navegador o por
+                            // inactividad; además queda la cookie de "Recordarme" como respaldo si la sesión se pierde
+                            if ("true".equals(solicitud.getParameter("recordarme"))) {
+                                HttpSession sesion = solicitud.getSession();
+                                int segundos = DIAS_DE_RECORDATORIO * 24 * 60 * 60;
+                                sesion.setMaxInactiveInterval(segundos);
+                                Cookie cookie = new Cookie(COOKIE_SESION, sesion.getId());
+                                cookie.setPath(solicitud.getContextPath().isEmpty() ? "/" : solicitud.getContextPath());
+                                cookie.setHttpOnly(true);
+                                cookie.setMaxAge(segundos);
+                                respuesta.addCookie(cookie);
+                            }
                             solicitud.getSession().setAttribute(ModeloGlobalConsejo.MENSAJE_DE_SESION,
                                     "Sesión iniciada correctamente. ¡Bienvenido/a, " + usuario.getNombre() + "!");
                             String destino = usuario.esAdministradorActivo() || usuario.esDocenteActivo() ? "/curso/buscar"
@@ -141,13 +176,14 @@ public class SecurityConfig {
                 .rememberMe(recordarme -> recordarme
                         .key(claveRecordarme)
                         .rememberMeParameter("recordarme")
+                        .rememberMeCookieName(COOKIE_RECORDARME)
                         .tokenValiditySeconds(DIAS_DE_RECORDATORIO * 24 * 60 * 60))
                 .userDetailsService(usuarioDetallesServicio)
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/login?logout=true")
                         .invalidateHttpSession(true)
-                        .deleteCookies("JSESSIONID", "remember-me")
+                        .deleteCookies(COOKIE_SESION, COOKIE_RECORDARME)
                         .permitAll())
                 .build();
     }

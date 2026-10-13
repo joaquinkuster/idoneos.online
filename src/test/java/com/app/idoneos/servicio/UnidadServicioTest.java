@@ -267,7 +267,7 @@ class UnidadServicioTest {
         Programa conInscripciones = mercado().getProgramaVigente();
         Unidad deMercado = conInscripciones.getCronogramaOrdenado().get(0).getUnidad();
         assertTrue(mensaje(() -> unidadServicio.darDeBajaUnidad(deMercado.getIdUnidad(), conInscripciones.getIdPrograma(),
-                fausto())).contains("tiene inscripciones activas"));
+                fausto())).contains("No se puede dar de baja la unidad"));
         assertFalse(deMercado.getBaja());
 
         Programa programa = macro().getProgramaVigente();

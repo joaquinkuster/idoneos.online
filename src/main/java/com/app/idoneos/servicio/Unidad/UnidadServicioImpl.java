@@ -1,5 +1,6 @@
 package com.app.idoneos.servicio.Unidad;
 
+import com.app.idoneos.utilidades.MensajeUtilidad;
 import java.util.List;
 import java.util.Optional;
 import com.app.idoneos.modelo.Curso;
@@ -250,8 +251,12 @@ public class UnidadServicioImpl implements UnidadServicio, CrudServicio<Unidad> 
                 .orElseThrow(() -> new IllegalArgumentException(
                         "Error! La unidad '" + unidad.getTitulo() + "' no pertenece al cronograma de este programa."));
         if (programa.getCantidadInscripcionesActivas() > 0) {
-            throw new IllegalArgumentException("Error! El programa tiene inscripciones activas: no se pueden quitar "
-                    + "unidades de su cronograma porque es lo que el alumno vio y pagó al inscribirse.");
+            // Las inscripciones no se pueden deshacer: no hay un paso que indicar
+            throw new IllegalArgumentException(MensajeUtilidad.bajaBloqueada("la unidad", unidad.getTitulo(),
+                    "el programa «" + programa.getNombre() + "» tiene "
+                            + MensajeUtilidad.cantidad(programa.getCantidadInscripcionesActivas(), "inscripción activa",
+                                    "inscripciones activas")
+                            + " y su cronograma es lo que los alumnos vieron y pagaron al inscribirse", ""));
         }
         return cronograma;
     }

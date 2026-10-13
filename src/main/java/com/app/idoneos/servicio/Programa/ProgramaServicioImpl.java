@@ -1,5 +1,6 @@
 package com.app.idoneos.servicio.Programa;
 
+import com.app.idoneos.utilidades.MensajeUtilidad;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
@@ -243,8 +244,11 @@ public class ProgramaServicioImpl implements ProgramaServicio, CrudServicio<Prog
             obtenerParticipacion(programa.getCurso(), docente);
         }
         if (programa.getCantidadCohortesActivas() > 0) {
-            throw new IllegalArgumentException("Error! El programa '" + programa.getNombre()
-                    + "' tiene cohortes activas asociadas: para darlo de baja, primero deben darse de baja sus cohortes.");
+            int cohortesActivas = programa.getCantidadCohortesActivas();
+            throw new IllegalArgumentException(MensajeUtilidad.bajaBloqueada("el programa", programa.getNombre(),
+                    "tiene " + MensajeUtilidad.cantidad(cohortesActivas, "cohorte activa asociada",
+                            "cohortes activas asociadas"),
+                    "Dé de baja primero " + (cohortesActivas == 1 ? "esa cohorte." : "esas cohortes.")));
         }
         return programa;
     }

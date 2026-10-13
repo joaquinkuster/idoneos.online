@@ -1,5 +1,6 @@
 package com.app.idoneos.servicio.Curso;
 
+import com.app.idoneos.utilidades.MensajeUtilidad;
 import java.time.LocalDateTime;
 import com.app.idoneos.utilidades.ArchivoUtilidad;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -380,9 +381,16 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
     public void darDeBajaCurso(Integer idCurso) {
         Curso curso = cursoRepositorio.findById(idCurso).filter(c -> !c.esInactivo())
                 .orElseThrow(() -> new IllegalArgumentException("Error! El curso no se encuentra activo."));
-        if (tieneProgramasOUnidadesActivas(curso)) {
-            throw new IllegalArgumentException("Error! El curso tiene programas y/o unidades activas asociadas. "
-                    + "Dé de baja primero sus programas y unidades.");
+        int programasActivos = programaRepositorio.findByCursoAndBajaFalse(curso).size();
+        int unidadesActivas = unidadRepositorio.findByCursoAndBajaFalse(curso).size();
+        if (programasActivos > 0 || unidadesActivas > 0) {
+            String motivo = (programasActivos > 0
+                    ? MensajeUtilidad.cantidad(programasActivos, "programa activo", "programas activos") : "")
+                    + (programasActivos > 0 && unidadesActivas > 0 ? " y " : "")
+                    + (unidadesActivas > 0
+                            ? MensajeUtilidad.cantidad(unidadesActivas, "unidad activa", "unidades activas") : "");
+            throw new IllegalArgumentException(MensajeUtilidad.bajaBloqueada("el curso", curso.getNombre(),
+                    "tiene " + motivo, "Dé de baja primero sus programas y unidades."));
         }
         curso.marcarInactivo();
         curso.setUltimaModificacion(LocalDateTime.now());
@@ -590,8 +598,7 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
             try {
                 darDeBajaCurso(id);
             } catch (IllegalArgumentException e) {
-                String nombre = cursoRepositorio.findById(id).map(c -> c.getNombre()).orElse("#" + id);
-                throw new IllegalArgumentException("Error! No se dio de baja ningún registro. «" + nombre + "»: "
+                throw new IllegalArgumentException("Error! No se dio de baja ningún registro. "
                         + e.getMessage().replaceFirst("^Error! ", ""));
             }
         }

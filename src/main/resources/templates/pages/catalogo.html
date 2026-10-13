@@ -36,7 +36,7 @@
               <section class="pn-tarjeta mb-4">
             <div class="pn-lista-cabecera">
               <h2 class="pn-lista-titulo">Cursos disponibles</h2>
-              <span class="pn-seleccionados"><span data-total-filtradas th:text="${totalCursos}">0</span> curso(s) encontrado(s)</span>
+              <span class="pn-seleccionados" data-total-filtradas data-singular="curso encontrado" data-plural="cursos encontrados" th:text="${totalCursos + (totalCursos == 1 ? ' curso encontrado' : ' cursos encontrados')}">0 cursos encontrados</span>
             </div>
 
             <form id="formFiltrosCatalogo" th:action="@{/catalogo}" method="get" class="pn-filtros mb-3" data-filtro-front>

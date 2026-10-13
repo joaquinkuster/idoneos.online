@@ -245,7 +245,7 @@ class UnidadControladorTest {
                 .andExpect(status().isOk()).andExpect(jsonPath("$.mensaje").value("Unidad dada de baja con éxito."));
         mockMvc.perform(post("/unidad/darDeBaja/" + deMercado.getIdUnidad()).param("programaId", programaId(mercado())))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value(Matchers.containsString("tiene inscripciones activas")));
+                .andExpect(jsonPath("$.error").value(Matchers.containsString("No se puede dar de baja la unidad")));
     }
 
     @Test

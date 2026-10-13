@@ -31,6 +31,17 @@
                 border-radius: 12px;
                 margin-top: 24px;
             }
+
+            /* Modo responsivo: el hero queda solo con el texto, alineado a la izquierda como el resto de los contenedores */
+            .wf-hero-imagen {
+                display: none;
+            }
+
+            .wf-hero-section .row > [class*="col-lg-"] {
+                flex: 0 0 100%;
+                max-width: 100%;
+            }
+
         }
 
         .wf-glass-badge {
@@ -87,7 +98,7 @@
                         </div>
 
                         <!-- Columna Derecha: Parallelogram Image Slider -->
-                        <div class="col-lg-6 position-relative">
+                        <div class="col-lg-6 position-relative wf-hero-imagen">
                             <div id="heroCarousel" class="carousel slide carousel-fade h-100" data-bs-ride="carousel">
                                 
                                 <div class="wf-hero-parallelogram shadow-lg">

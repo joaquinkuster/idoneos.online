@@ -1,5 +1,6 @@
 package com.app.idoneos.servicio.Cohorte;
 
+import com.app.idoneos.utilidades.MensajeUtilidad;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -173,8 +174,8 @@ public class CohorteServicioImpl implements CohorteServicio, CrudServicio<Cohort
                 .map(parametro -> Integer.parseInt(parametro.getValor().trim())).orElse(1);
         int conMaterial = programa.getCantidadUnidadesConMaterialPublicado();
         if (conMaterial < minimo) {
-            throw new IllegalArgumentException("Error! El programa debe tener al menos " + minimo
-                    + " unidad(es) con material publicado en su cronograma (tiene " + conMaterial + ").");
+            throw new IllegalArgumentException("Error! El programa debe tener al menos " + MensajeUtilidad.cantidad(minimo, "unidad", "unidades")
+                    + " con material publicado en su cronograma (tiene " + conMaterial + ").");
         }
         boolean enVivo = programa.getCurso().incluyeModalidad(Modalidad.EN_VIVO);
         validarDatosCohorte(programa, enVivo, fechaInicioInscripcion, fechaFinInscripcion, fechaInicioDictado,
@@ -232,10 +233,18 @@ public class CohorteServicioImpl implements CohorteServicio, CrudServicio<Cohort
     public void darDeBajaCohorte(Integer idCohorte) {
         Cohorte cohorte = cohorteRepositorio.findById(idCohorte).filter(c -> !c.esInactivo())
                 .orElseThrow(() -> new IllegalArgumentException("Error! La cohorte no se encuentra activa."));
-        boolean tieneClases = cohorte.getClasesEnVivo().stream().anyMatch(clase -> !clase.getBaja());
-        if (cohorte.getCantidadInscriptos() > 0 || tieneClases) {
-            throw new IllegalArgumentException("Error! La cohorte tiene inscripciones y/o clases en vivo activas asociadas. "
-                    + "No puede darse de baja.");
+        long clasesActivas = cohorte.getClasesEnVivo().stream().filter(clase -> !clase.getBaja()).count();
+        long inscriptos = cohorte.getCantidadInscriptos();
+        if (inscriptos > 0 || clasesActivas > 0) {
+            String motivo = (inscriptos > 0
+                    ? MensajeUtilidad.cantidad(inscriptos, "alumno inscripto activo", "alumnos inscriptos activos") : "")
+                    + (inscriptos > 0 && clasesActivas > 0 ? " y " : "")
+                    + (clasesActivas > 0
+                            ? MensajeUtilidad.cantidad(clasesActivas, "clase en vivo activa", "clases en vivo activas") : "");
+            // Las inscripciones no se pueden deshacer: solo si hay clases en vivo se indica qué hacer
+            throw new IllegalArgumentException(MensajeUtilidad.bajaBloqueada("la cohorte",
+                    cohorte.getPrograma().getCurso().getNombre() + " — " + cohorte.getPrograma().getNombre(),
+                    "tiene " + motivo, inscriptos == 0 ? "Dé de baja primero sus clases en vivo." : ""));
         }
         for (ParticipacionDocente participacion : new ArrayList<>(cohorte.getParticipacionesDocente())) {
             participacion.setCohortePorDefecto(null);
@@ -354,8 +363,7 @@ public class CohorteServicioImpl implements CohorteServicio, CrudServicio<Cohort
             try {
                 darDeBajaCohorte(id);
             } catch (IllegalArgumentException e) {
-                String nombre = cohorteRepositorio.findById(id).map(c -> c.getPrograma().getCurso().getNombre() + " — " + c.getPrograma().getNombre()).orElse("#" + id);
-                throw new IllegalArgumentException("Error! No se dio de baja ningún registro. «" + nombre + "»: "
+                throw new IllegalArgumentException("Error! No se dio de baja ningún registro. "
                         + e.getMessage().replaceFirst("^Error! ", ""));
             }
         }

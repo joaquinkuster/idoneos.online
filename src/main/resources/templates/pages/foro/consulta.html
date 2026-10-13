@@ -183,12 +183,8 @@
             </div>
             <div class="pn-modal-cuerpo text-center">
                 <div class="pn-baja-icono"><i class="fa-solid fa-triangle-exclamation"></i></div>
-                <h4 class="pn-modal-titulo mb-1">¿Confirmas dar de baja la consulta?</h4>
+                <h4 class="pn-modal-titulo mb-2" th:text="'¿Confirmas dar de baja la consulta «' + ${consulta.resumen} + '»?'">¿Confirmas dar de baja la consulta?</h4>
                 <p class="small text-muted mb-0">También se darán de baja sus respuestas.</p>
-                <div class="pn-baja-detalle">
-                    <div class="pn-baja-fila"><span class="text-muted">Consulta</span><strong th:text="${consulta.resumen}">Consulta</strong></div>
-                    <div class="pn-baja-fila"><span class="text-muted">Autor</span><strong th:text="${consulta.autor}">Alumno</strong></div>
-                </div>
                 <form th:action="@{'/foro/darDeBaja/' + ${consulta.idConsulta}}" method="post" class="form-ajax">
                     <div class="pn-modal-pie">
                         <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
@@ -246,10 +242,8 @@
                 </div>
                 <div class="pn-modal-cuerpo text-center">
                     <div class="pn-baja-icono"><i class="fa-solid fa-triangle-exclamation"></i></div>
-                    <h4 class="pn-modal-titulo mb-1">¿Confirmas dar de baja la respuesta?</h4>
-                    <div class="pn-baja-detalle">
-                        <div class="pn-baja-fila"><span class="text-muted">Respuesta de</span><strong th:text="${r.autor}">Docente</strong></div>
-                    </div>
+                    <h4 class="pn-modal-titulo mb-2" th:text="'¿Confirmas dar de baja la respuesta de «' + ${r.autor} + '»?'">¿Confirmas dar de baja la respuesta?</h4>
+                    <p class="small text-muted mb-0">La respuesta dejará de mostrarse en la consulta.</p>
                     <form th:action="@{'/foro/darDeBajaRespuesta/' + ${r.idRespuesta}}" method="post" class="form-ajax">
                         <div class="pn-modal-pie">
                             <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>

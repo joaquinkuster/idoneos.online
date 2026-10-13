@@ -145,7 +145,8 @@
     transition: background-color 0.12s ease;
 }
 
-.um-item:hover {
+.um-item:hover,
+.um-item.activo {
     background: var(--pn-fondo);
     color: var(--pn-texto);
 }
@@ -1538,4 +1539,9 @@ textarea.pn-input {
 
 .wf-course-card-footer .pn-btn-editar:hover {
     background: #E5BB2C;
+}
+
+/* Modales de baja: el motivo por el que no se puede dar de baja se muestra en una alerta roja bajo el subtítulo */
+.pn-modal .pn-modal-cuerpo .alert-formulario {
+    margin-top: 16px;
 }

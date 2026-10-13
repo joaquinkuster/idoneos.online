@@ -30,6 +30,14 @@
             }
         });
 
+        // Opciones del usuario (Mis cursos, Panel administrador, etc.): la de la página actual también se marca
+        navbar.querySelectorAll('.um-item[href]').forEach(function (opcion) {
+            var destino = opcion.getAttribute('href');
+            if (destino && destino !== '#' && (destino === ruta || ruta.indexOf(destino + '/') === 0)) {
+                opcion.classList.add('activo');
+            }
+        });
+
         // 2. Color
         var hayBannerOscuro = !!document.querySelector('.wf-hero-banner, .wf-hero-section, .auth-pagina');
         if (!hayBannerOscuro) {

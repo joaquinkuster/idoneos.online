@@ -41,6 +41,7 @@
             </div>
 
             <!-- Grilla de semanas: una fila por unidad (pasar el mouse muestra las semanas y el estado) -->
+            <div class="ac-cajon-pista-envoltura" th:style="${'--semanas:' + duracion}">
             <div class="ac-cajon-pista" th:style="${'--semanas:' + duracion}">
                 <div class="ac-cajon-actual" th:if="${comenzo and !finalizo}"
                     th:style="${'grid-column:' + semana + ';grid-row: 2 / span ' + cantidad}"
@@ -55,6 +56,7 @@
                     th:style="${'grid-column:' + uc.semanaDesde + ' / span ' + uc.semanasDuracion + ';grid-row:' + (iter.index + 2)}"
                     th:attr="data-tip=${'Unidad ' + uc.numeroOrden + ' · ' + uc.unidad.titulo + ' · ' + (uc.semanaDesde == uc.semanaHasta ? 'semana ' + uc.semanaDesde : 'semanas ' + uc.semanaDesde + ' a ' + uc.semanaHasta) + ' · ' + estado}"
                     th:text="${'U' + uc.numeroOrden}">U1</div>
+            </div>
             </div>
 
             <!-- Estado de cada unidad -->

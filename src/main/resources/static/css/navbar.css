@@ -84,9 +84,40 @@
     gap: 6px;
 }
 
-.nb-menu:hover {
-    background: rgba(148, 163, 184, 0.2);
+/* El efecto al pasar el mouse es un cuadrado gris claro sobre el ícono (no sobre todo el botón) */
+.nb-menu,
+.nb-toggle {
+    position: relative;
 }
+
+.nb-menu > *,
+.nb-toggle > * {
+    position: relative;
+}
+
+.nb-menu::before,
+.nb-toggle::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    transform: translate(-50%, -50%);
+    background: transparent;
+    transition: background-color 0.12s ease;
+}
+
+.nb-menu:hover::before,
+.nb-toggle:hover::before {
+    background: rgba(148, 163, 184, 0.28);
+}
+
+/* Un solo efecto para todas las páginas: el mismo gris translúcido (mismo color y misma transparencia) sobre cualquier
+   fondo; sobre el navbar blanco se ve gris claro y sobre el banner oscuro, un gris que no llega a ser blanco. El ícono
+   conserva su color. */
+
 
 /* ---------- Marca ---------- */
 .nb-marca {
@@ -257,14 +288,22 @@ body:not(.pn-body) .nb + :not(.wf-hero-banner):not(.wf-hero-section):not(.auth-p
         display: flex;
     }
 
+    /* Todos los elementos del cajón (enlaces y opciones del usuario) comparten el mismo efecto: la letra se ve tenue y,
+       con el mouse encima o en el elemento activo, recupera el color y un rectángulo gris claro lo cubre */
     .nb-enlace {
-        padding: 14px 4px;
+        padding: 14px 12px;
         font-size: 15px;
         border-bottom: 1px solid var(--pn-borde);
+        transition: background-color 0.12s ease, opacity 0.15s ease;
     }
 
-    .nb-enlace.activo {
-        border-bottom-color: var(--pn-gold);
+    .nb-enlace:hover,
+    .nb-enlace.activo,
+    .nb .um-item:not(.um-item-peligro):hover,
+    .nb .um-item.activo {
+        opacity: 1;
+        background: var(--pn-fondo);
+        border-bottom-color: var(--pn-borde);
     }
 
     .nb-ingresar {
@@ -280,7 +319,7 @@ body:not(.pn-body) .nb + :not(.wf-hero-banner):not(.wf-hero-section):not(.auth-p
 
     .nb .um-trigger {
         width: 100%;
-        padding: 14px 4px;
+        padding: 14px 12px;
         border: 0;
         border-bottom: 1px solid var(--pn-borde);
         border-radius: 0;
@@ -315,19 +354,29 @@ body:not(.pn-body) .nb + :not(.wf-hero-banner):not(.wf-hero-section):not(.auth-p
     }
 
     .nb .um-item {
-        padding: 14px 4px;
+        padding: 14px 12px;
         font-size: 15px;
         font-weight: 600;
         border-bottom: 1px solid var(--pn-borde);
+        transition: background-color 0.12s ease, opacity 0.15s ease;
+    }
+
+    .nb .um-item:not(.um-item-peligro) {
+        opacity: 0.55;
+    }
+
+    .nb .um-item.activo:not(.um-item-peligro) {
+        opacity: 1;
+        color: var(--pn-texto);
     }
 
     .nb .um-etiqueta {
-        padding: 14px 4px 4px;
+        padding: 14px 12px 4px;
     }
 
     .nb .um-select {
-        width: 100%;
-        margin: 4px 0 14px;
+        width: calc(100% - 24px);
+        margin: 4px 12px 14px;
     }
 
     /* Con menú lateral, el botón del menú es más angosto */
@@ -335,6 +384,11 @@ body:not(.pn-body) .nb + :not(.wf-hero-banner):not(.wf-hero-section):not(.auth-p
         width: 48px;
         border-radius: 8px;
         margin-left: 8px;
+    }
+
+    .nb.con-menu-lateral .nb-menu::before {
+        width: 38px;
+        height: 38px;
     }
 
     /* Con menú lateral, sus propios botones ocupan la izquierda y el cajón queda para los enlaces */

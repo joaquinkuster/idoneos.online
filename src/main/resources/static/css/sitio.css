@@ -29,6 +29,10 @@
     .nb ~ .wf-hero-banner {
         padding: 110px 24px 48px;
         min-height: 280px;
+        /* a la izquierda, en línea con los demás contenedores (flex-end los llevaba a la derecha al apilarse) */
+        flex-direction: column;
+        align-items: flex-start;
+        text-align: left;
     }
 
     .nb ~ .wf-hero-banner .wf-hero-title {
