@@ -143,8 +143,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/participante/ver/*").hasRole("Alumno")
                         // CU-27: Acceder curso (Docente; el Administrador lo ve sin gestionar su contenido)
                         .requestMatchers(HttpMethod.GET, "/curso/acceder/*").hasAnyRole("Docente", "Administrador")
-                        // CU-03 a CU-14: gestión de cursos, categorías y cohortes (Administrador)
-                        .requestMatchers("/curso/**", "/categoria/**", "/cohorte/**").hasRole("Administrador")
+                        // CU-03 a CU-14 y CU-56 a CU-59: gestión de cursos, categorías, cohortes y descuentos (Administrador)
+                        .requestMatchers("/curso/**", "/categoria/**", "/cohorte/**", "/descuento/**").hasRole("Administrador")
                         .anyRequest().authenticated())
                 .formLogin(login -> login
                         .loginPage("/login")

@@ -18,6 +18,7 @@ import com.app.idoneos.modelo.RespuestaForo;
 import com.app.idoneos.modelo.Autoevaluacion;
 import com.app.idoneos.modelo.Cohorte;
 import com.app.idoneos.modelo.Curso;
+import com.app.idoneos.modelo.Descuento;
 import com.app.idoneos.modelo.CursoModalidad;
 import com.app.idoneos.modelo.Docente;
 import com.app.idoneos.modelo.EstadoClaseEnVivo;
@@ -47,6 +48,7 @@ import com.app.idoneos.repositorio.AutoevaluacionRepositorio;
 import com.app.idoneos.repositorio.CohorteRepositorio;
 import com.app.idoneos.repositorio.CursoModalidadRepositorio;
 import com.app.idoneos.repositorio.CursoRepositorio;
+import com.app.idoneos.repositorio.DescuentoRepositorio;
 import com.app.idoneos.repositorio.DocenteRepositorio;
 import com.app.idoneos.repositorio.EstadoClaseEnVivoRepositorio;
 import com.app.idoneos.repositorio.InscripcionRepositorio;
@@ -101,6 +103,9 @@ public class SemillaServicio {
 
     @Autowired
     private ParametroRepositorio parametroRepositorio;
+
+    @Autowired
+    private DescuentoRepositorio descuentoRepositorio;
 
     @Autowired
     private NivelRepositorio nivelRepositorio;
@@ -208,6 +213,14 @@ public class SemillaServicio {
         parametroRepositorio.save(new Parametro(admin, Parametro.MINIMO_UNIDADES_CON_MATERIAL, "2"));
         parametroRepositorio.save(new Parametro(admin, Parametro.PLAZO_EDICION_FORO,
                 String.valueOf(Parametro.PLAZO_EDICION_FORO_POR_DEFECTO)));
+
+        // Descuentos: uno de cada estado (vigentes con y sin condición, próximo, vencido y agotado)
+        LocalDateTime hoy = LocalDateTime.now();
+        descuentoRepositorio.save(new Descuento("Descuento de bienvenida", 0, 10, hoy.minusDays(10), hoy.plusDays(60), 100, 0));
+        descuentoRepositorio.save(new Descuento("Alumno frecuente", 2, 20, hoy.minusDays(10), hoy.plusDays(90), 50, 0));
+        descuentoRepositorio.save(new Descuento("Promo de verano", 0, 15, hoy.plusDays(30), hoy.plusDays(90), 30, 0));
+        descuentoRepositorio.save(new Descuento("Lanzamiento", 0, 25, hoy.minusDays(90), hoy.minusDays(30), 20, 8));
+        descuentoRepositorio.save(new Descuento("Preventa agotada", 1, 30, hoy.minusDays(20), hoy.plusDays(20), 5, 5));
 
         // Docentes
         Docente fausto = crearDocente("Fausto", "Spotorno", "23456789", "fausto.spotorno@idoneos.online", rolDocente, 20,

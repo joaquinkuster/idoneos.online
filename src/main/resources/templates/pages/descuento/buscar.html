@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <th:block th:replace="~{fragments/head :: recursos}"></th:block>
+</head>
+<body class="pn-body">
+<div class="pn-app" id="pnApp">
+    <th:block th:replace="~{fragments/menus :: administrador(${menuActivo})}"></th:block>
+
+    <div class="pn-principal">
+        <th:block th:replace="~{fragments/panel :: barra(null)}"></th:block>
+
+        <main class="pn-contenido">
+            <div class="pn-encabezado">
+                <div>
+                    <h1 class="pn-titulo">Descuentos</h1>
+                    <p class="pn-subtitulo">Gestiona los descuentos que se aplican automáticamente a los alumnos que cumplen la condición</p>
+                </div>
+                <button type="button" class="pn-btn pn-btn-primario" data-bs-toggle="modal" data-bs-target="#modalNuevoDescuento">
+                    <i class="fa-solid fa-plus"></i> Registrar descuento
+                </button>
+            </div>
+
+            <section class="pn-tarjeta" data-tabla>
+                <div class="pn-lista-cabecera">
+                    <h2 class="pn-lista-titulo">Listado de descuentos</h2>
+                    <span class="pn-seleccionados" data-seleccionados>0 de 0 seleccionados</span>
+                    <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico d-none" data-baja-masiva
+                            data-url="/descuento/darDeBajaMasiva" data-elementos="descuentos"
+                            data-termino-uno="inscripción con el descuento aplicado" data-termino-varios="inscripciones con el descuento aplicado">Dar de baja seleccionado/s</button>
+                </div>
+
+                <!-- Filtros (CU-56): nombre, estado y orden -->
+                <form th:action="@{/descuento/buscar}" method="get" class="pn-filtros" data-filtro-front>
+                    <div class="pn-filtros-campo pn-filtros-campo-grande">
+                        <label class="pn-etiqueta">Nombre</label>
+                        <input type="text" name="nombre" th:value="${nombreBusqueda}" class="pn-input" placeholder="Buscar por nombre" autocomplete="off">
+                    </div>
+                    <div class="pn-filtros-campo">
+                        <label class="pn-etiqueta">Estado</label>
+                        <select name="estado" class="pn-input" title="Estado">
+                            <option value="" th:selected="${estadoSeleccionado == null or estadoSeleccionado == ''}">Todos los estados</option>
+                            <option value="Vigente" th:selected="${estadoSeleccionado == 'Vigente'}">Vigente</option>
+                            <option value="Próximo" th:selected="${estadoSeleccionado == 'Próximo'}">Próximo</option>
+                            <option value="Vencido" th:selected="${estadoSeleccionado == 'Vencido'}">Vencido</option>
+                            <option value="Agotado" th:selected="${estadoSeleccionado == 'Agotado'}">Agotado</option>
+                            <option value="Dado de baja" th:selected="${estadoSeleccionado == 'Dado de baja'}">Dado de baja</option>
+                        </select>
+                    </div>
+                    <div class="pn-filtros-campo">
+                        <label class="pn-etiqueta">Ordenar por</label>
+                        <select name="orden" class="pn-input" title="Ordenar por">
+                            <option value="nombre" th:selected="${ordenSeleccionado == 'nombre'}">Nombre (A–Z)</option>
+                            <option value="recientes" data-dir="desc" th:selected="${ordenSeleccionado == 'recientes'}">Más recientes</option>
+                            <option value="porcentaje" data-dir="desc" th:selected="${ordenSeleccionado == 'porcentaje'}">Mayor porcentaje</option>
+                        </select>
+                    </div>
+                    <a th:href="@{/descuento/buscar}" class="pn-btn pn-btn-contorno">Limpiar</a>
+                    <div class="pn-columnas-wrapper">
+                        <button type="button" class="pn-btn pn-btn-contorno" data-columnas-boton>Columnas</button>
+                        <div class="pn-columnas-menu" data-columnas-menu></div>
+                    </div>
+                </form>
+
+                <!-- Tabla -->
+                <div class="pn-tabla-contenedor">
+                    <table class="pn-tabla">
+                        <thead>
+                            <tr>
+                                <th class="pn-col-seleccion"><input type="checkbox" data-seleccionar-todos aria-label="Seleccionar todos"></th>
+                                <th data-col="Nombre">Nombre</th>
+                                <th data-col="Porcentaje">Porcentaje</th>
+                                <th data-col="Vigencia">Vigencia</th>
+                                <th data-col="Usos">Usos</th>
+                                <th data-col="Condición">Condición</th>
+                                <th data-col="Estado">Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="d : ${descuentos}" data-fila th:classappend="${d.baja} ? 'pn-fila-baja'"
+                                th:data-f-nombre="${d.nombre}" th:data-f-estado="${d.estado}" th:data-o-nombre="${d.nombre}"
+                                th:data-o-porcentaje="${#numbers.formatDecimal(d.porcentaje, 4, 'NONE', 2, 'POINT')}"
+                                th:data-o-recientes="${#temporals.format(d.fechaCreacion, 'yyyyMMdd') + #numbers.formatInteger(d.idDescuento, 8, 'NONE')}"
+                                th:attr="data-dependencias=${d.cantidadUsada}">
+                                <td class="pn-col-seleccion"><input type="checkbox" data-seleccionar-fila aria-label="Seleccionar fila"
+                                    th:value="${d.idDescuento}" th:disabled="${d.baja}"></td>
+                                <td><span class="pn-celda-principal pn-truncar" th:text="${d.nombre}">Descuento por segundo curso</span></td>
+                                <td th:text="${#numbers.formatDecimal(d.porcentaje, 1, 'POINT', (d.porcentaje % 1 == 0 ? 0 : 2), 'COMMA') + '%'}">15%</td>
+                                <td th:text="${#temporals.format(d.vigenciaDesde, 'dd/MM/yyyy') + ' al ' + #temporals.format(d.vigenciaHasta, 'dd/MM/yyyy')}">01/09/2026 al 30/11/2026</td>
+                                <td th:text="${d.cantidadUsada + ' de ' + d.cantidadLimite}">0 de 50</td>
+                                <td th:text="${d.cursosRequeridos > 0 ? 'Haber comprado ' + d.cursosRequeridos + (d.cursosRequeridos == 1 ? ' curso' : ' cursos') : 'Sin condición'}">Sin condición</td>
+                                <td>
+                                    <span class="pn-insignia"
+                                          th:classappend="${d.estado == 'Vigente'} ? 'pn-insignia-verde' : (${d.estado == 'Próximo'} ? 'pn-insignia-azul' : (${d.estado == 'Dado de baja'} ? 'pn-insignia-gris' : 'pn-insignia-dorada'))"
+                                          th:text="${d.estado}">Vigente</span>
+                                </td>
+                                <td>
+                                    <div class="pn-acciones" th:if="${!d.baja}">
+                                        <button type="button" class="pn-btn pn-btn-editar pn-btn-chico" data-bs-toggle="modal"
+                                                th:data-bs-target="'#modalEditarDescuento' + ${d.idDescuento}">Editar</button>
+                                        <span th:title="${d.cantidadUsada > 0} ? 'Se aplicó a ' + ${d.cantidadUsada} + ' inscripción(es): ya no puede darse de baja' : null">
+                                            <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico" data-bs-toggle="modal"
+                                                    th:data-bs-target="'#modalBajaDescuento' + ${d.idDescuento}"
+                                                    th:disabled="${d.cantidadUsada > 0}">Dar de baja</button>
+                                        </span>
+                                    </div>
+                                    <span th:if="${d.baja}" class="pn-celda-secundaria">—</span>
+                                </td>
+                            </tr>
+                            <tr th:replace="~{fragments/vacio :: fila(8, 'fa-percent', 'No se encontraron descuentos', 'Ningún descuento coincide con los criterios ingresados.')}"></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pie: filas por página y paginador -->
+                <div class="pn-tabla-pie">
+                    <div class="pn-por-pagina">
+                        <span>Filas por página:</span>
+                        <select data-por-pagina>
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="0">Todo</option>
+                        </select>
+                        <span data-rango>0-0 de 0</span>
+                    </div>
+                    <div class="pn-paginador" data-paginador></div>
+                </div>
+            </section>
+        </main>
+
+        <th:block th:replace="~{fragments/panel :: pie('Panel del administrador')}"></th:block>
+    </div>
+</div>
+
+<!-- Modal: registrar descuento (CU-57) -->
+<div class="modal fade pn-modal" id="modalNuevoDescuento" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="pn-modal-cabecera">
+                <h3 class="pn-modal-titulo">Registrar descuento</h3>
+                <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="pn-modal-cuerpo">
+                <div class="pn-seccion-titulo">
+                    <h4>Datos del descuento</h4>
+                    <p>Se aplica automáticamente a los alumnos que cumplen la condición; si cumplen varios, se aplica el de mayor porcentaje</p>
+                </div>
+                <form th:action="@{/descuento/registrar}" method="post" class="form-ajax" data-validar novalidate>
+                    <div class="row g-3">
+                        <div class="col-12 pn-campo">
+                            <div class="pn-etiqueta-fila">
+                                <label class="pn-etiqueta">Nombre <span class="pn-obligatorio">*</span></label>
+                                <span class="pn-contador">0 / 50</span>
+                            </div>
+                            <input type="text" name="nombre" class="pn-input" maxlength="50" placeholder="Nombre" data-contador required>
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+                        <div class="col-md-6 pn-campo">
+                            <label class="pn-etiqueta">Porcentaje <span class="pn-obligatorio">*</span></label>
+                            <input type="number" name="porcentaje" class="pn-input" min="1" max="100" step="0.01" placeholder="Porcentaje (1 a 100)" required>
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+                        <div class="col-md-6 pn-campo">
+                            <label class="pn-etiqueta">Cantidad límite <span class="pn-obligatorio">*</span></label>
+                            <input type="number" name="cantidadLimite" class="pn-input" min="1" step="1" placeholder="Veces que puede aplicarse" required>
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+                        <div class="col-md-6 pn-campo">
+                            <label class="pn-etiqueta">Vigencia desde <span class="pn-obligatorio">*</span></label>
+                            <input type="date" name="vigenciaDesde" class="pn-input" required>
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+                        <div class="col-md-6 pn-campo">
+                            <label class="pn-etiqueta">Vigencia hasta <span class="pn-obligatorio">*</span></label>
+                            <input type="date" name="vigenciaHasta" class="pn-input" required>
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+                        <div class="col-12 pn-campo">
+                            <label class="pn-etiqueta">Cursos comprados requeridos (opcional)</label>
+                            <input type="number" name="cursosRequeridos" class="pn-input" min="0" step="1" placeholder="Cursos que el alumno debe haber comprado">
+                            <div class="small text-muted mt-1">Se cuentan las inscripciones habilitadas con pago aprobado. Vacío o 0: sin condición.</div>
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+                    </div>
+                    <div class="pn-modal-pie">
+                        <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="pn-btn pn-btn-primario">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modales por descuento: modificar (CU-58) y dar de baja (CU-59) -->
+<th:block th:each="d : ${descuentos}" th:if="${!d.baja}">
+    <div class="modal fade pn-modal" th:id="'modalEditarDescuento' + ${d.idDescuento}" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="pn-modal-cabecera">
+                    <h3 class="pn-modal-titulo">Editar descuento</h3>
+                    <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="pn-modal-cuerpo">
+                    <div class="pn-seccion-titulo">
+                        <h4>Datos del descuento</h4>
+                        <p>Se aplicó <strong th:text="${d.cantidadUsada}">0</strong> vez/veces; la cantidad límite no puede ser menor</p>
+                    </div>
+                    <form th:action="@{'/descuento/modificar/' + ${d.idDescuento}}" method="post" class="form-ajax" data-validar novalidate>
+                        <div class="row g-3">
+                            <div class="col-12 pn-campo">
+                                <div class="pn-etiqueta-fila">
+                                    <label class="pn-etiqueta">Nombre <span class="pn-obligatorio">*</span></label>
+                                    <span class="pn-contador" th:text="${#strings.length(d.nombre) + ' / 50'}">0 / 50</span>
+                                </div>
+                                <input type="text" name="nombre" class="pn-input" maxlength="50" th:value="${d.nombre}" data-contador required>
+                                <div class="pn-ayuda-error"></div>
+                            </div>
+                            <div class="col-md-6 pn-campo">
+                                <label class="pn-etiqueta">Porcentaje <span class="pn-obligatorio">*</span></label>
+                                <input type="number" name="porcentaje" class="pn-input" min="1" max="100" step="0.01"
+                                       th:value="${#numbers.formatDecimal(d.porcentaje, 1, 'NONE', (d.porcentaje % 1 == 0 ? 0 : 2), 'POINT')}" required>
+                                <div class="pn-ayuda-error"></div>
+                            </div>
+                            <div class="col-md-6 pn-campo">
+                                <label class="pn-etiqueta">Cantidad límite <span class="pn-obligatorio">*</span></label>
+                                <input type="number" name="cantidadLimite" class="pn-input" th:min="${d.cantidadUsada > 0 ? d.cantidadUsada : 1}" step="1"
+                                       th:value="${d.cantidadLimite}" required>
+                                <div class="pn-ayuda-error"></div>
+                            </div>
+                            <div class="col-md-6 pn-campo">
+                                <label class="pn-etiqueta">Vigencia desde <span class="pn-obligatorio">*</span></label>
+                                <input type="date" name="vigenciaDesde" class="pn-input" th:value="${#temporals.format(d.vigenciaDesde, 'yyyy-MM-dd')}" required>
+                                <div class="pn-ayuda-error"></div>
+                            </div>
+                            <div class="col-md-6 pn-campo">
+                                <label class="pn-etiqueta">Vigencia hasta <span class="pn-obligatorio">*</span></label>
+                                <input type="date" name="vigenciaHasta" class="pn-input" th:value="${#temporals.format(d.vigenciaHasta, 'yyyy-MM-dd')}" required>
+                                <div class="pn-ayuda-error"></div>
+                            </div>
+                            <div class="col-12 pn-campo">
+                                <label class="pn-etiqueta">Cursos comprados requeridos (opcional)</label>
+                                <input type="number" name="cursosRequeridos" class="pn-input" min="0" step="1" th:value="${d.cursosRequeridos}">
+                                <div class="pn-ayuda-error"></div>
+                            </div>
+                        </div>
+                        <div class="pn-modal-pie">
+                            <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="pn-btn pn-btn-primario">Actualizar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <th:block th:if="${d.cantidadUsada == 0}">
+        <th:block th:replace="~{fragments/modalBaja :: bloque('modalBajaDescuento' + ${d.idDescuento}, 'descuento', '¿Confirmas dar de baja el descuento «' + ${d.nombre} + '»?', 'El descuento dejará de aplicarse en las inscripciones.', '/descuento/darDeBaja/' + ${d.idDescuento}, null, null)}"></th:block>
+    </th:block>
+</th:block>
+
+<th:block th:replace="~{fragments/panel :: scripts}"></th:block>
+</body>
+</html>

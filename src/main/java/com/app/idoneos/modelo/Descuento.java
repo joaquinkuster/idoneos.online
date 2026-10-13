@@ -18,6 +18,19 @@ import lombok.Setter;
 @NoArgsConstructor
 public class Descuento {
 
+    /** Porcentaje mínimo permitido. */
+    public static final float PORCENTAJE_MINIMO = 1;
+
+    /** Porcentaje máximo permitido. */
+    public static final float PORCENTAJE_MAXIMO = 100;
+
+    /** Estados que se derivan de la vigencia y de la cantidad de usos (el de baja se guarda aparte). */
+    public static final String ESTADO_VIGENTE = "Vigente";
+    public static final String ESTADO_PROXIMO = "Próximo";
+    public static final String ESTADO_VENCIDO = "Vencido";
+    public static final String ESTADO_AGOTADO = "Agotado";
+    public static final String ESTADO_DADO_DE_BAJA = "Dado de baja";
+
     /**
      * Identificador único del descuento.
      */
@@ -33,13 +46,14 @@ public class Descuento {
     private String nombre;
 
     /**
-     * Cantidad de cursos que el alumno debe inscribirse para acceder al descuento.
+     * Cantidad de cursos que el alumno debe haber comprado (inscripciones habilitadas con pago aprobado)
+     * para acceder al descuento. Cero si no exige ninguno.
      */
     @Column(name = "cursosRequeridos", nullable = false)
     private int cursosRequeridos;
 
     /**
-     * Porcentaje de descuento (0-100).
+     * Porcentaje de descuento (1-100).
      */
     @Column(name = "porcentaje", nullable = false)
     private float porcentaje;
@@ -127,6 +141,73 @@ public class Descuento {
      */
     public boolean esInactivo() {
         return baja;
+    }
+
+    /**
+     * Indica si ya se aplicó el descuento tantas veces como permite su cantidad límite.
+     *
+     * @return true si la cantidad usada alcanzó el límite.
+     */
+    public boolean estaAgotado() {
+        return cantidadUsada >= cantidadLimite;
+    }
+
+    /**
+     * Indica si la vigencia del descuento ya terminó.
+     *
+     * @param ahora el momento de referencia.
+     * @return true si la vigencia terminó antes de ese momento.
+     */
+    public boolean estaVencido(LocalDateTime ahora) {
+        return vigenciaHasta.isBefore(ahora);
+    }
+
+    /**
+     * Indica si el descuento puede aplicarse en el momento dado: no está dado de baja, está dentro de su vigencia
+     * y no alcanzó su cantidad límite. Se desactiva solo al vencer o al agotarse, lo que ocurra primero.
+     *
+     * @param ahora el momento de referencia.
+     * @return true si puede aplicarse.
+     */
+    public boolean estaVigente(LocalDateTime ahora) {
+        return !baja && !estaAgotado() && !estaVencido(ahora) && !vigenciaDesde.isAfter(ahora);
+    }
+
+    /**
+     * Estado del descuento: Dado de baja, Agotado, Vencido, Próximo (todavía no comenzó su vigencia) o Vigente.
+     *
+     * @param ahora el momento de referencia.
+     * @return el nombre del estado.
+     */
+    public String getEstado(LocalDateTime ahora) {
+        if (baja) {
+            return ESTADO_DADO_DE_BAJA;
+        }
+        if (estaAgotado()) {
+            return ESTADO_AGOTADO;
+        }
+        if (estaVencido(ahora)) {
+            return ESTADO_VENCIDO;
+        }
+        return vigenciaDesde.isAfter(ahora) ? ESTADO_PROXIMO : ESTADO_VIGENTE;
+    }
+
+    /**
+     * Estado del descuento en este momento.
+     *
+     * @return el nombre del estado.
+     */
+    public String getEstado() {
+        return getEstado(LocalDateTime.now());
+    }
+
+    /**
+     * Cantidad de veces que todavía puede aplicarse el descuento.
+     *
+     * @return la cantidad disponible (nunca negativa).
+     */
+    public int getCantidadDisponible() {
+        return Math.max(0, cantidadLimite - cantidadUsada);
     }
 
     /**
