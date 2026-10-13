@@ -13,6 +13,7 @@ import java.io.InputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -29,6 +30,7 @@ import com.app.idoneos.modelo.Curso;
 import com.app.idoneos.modelo.Nivel;
 import com.app.idoneos.repositorio.CursoRepositorio;
 import com.app.idoneos.servicio.CrudServicio;
+import com.app.idoneos.servicio.Inscripcion.InscripcionServicio;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -75,6 +77,9 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
 
     @Autowired
     private UnidadRepositorio unidadRepositorio;
+
+    @Autowired
+    private InscripcionServicio inscripcionServicio;
 
     /**
      * Guarda el curso en la base de datos.
@@ -201,10 +206,10 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
                         || (curso.getDescripcion() != null && curso.getDescripcion().toLowerCase().contains(criterio)))
                 .filter(curso -> idCategoria == null || curso.getCategoria().getIdCategoria() == idCategoria)
                 .filter(curso -> idNivel == null || curso.getNivel().getIdNivel() == idNivel)
-                .filter(curso -> idDocente == null || participa(curso, idDocente))
+                .filter(curso -> idDocente == null || curso.tieneDocente(idDocente))
                 .filter(curso -> idModalidad == null || curso.getModalidades().stream()
                         .anyMatch(modalidad -> modalidad.getIdModalidad() == idModalidad))
-                .filter(curso -> soloDeDocente == null || participa(curso, soloDeDocente.getIdDocente()))
+                .filter(curso -> soloDeDocente == null || curso.tieneDocente(soloDeDocente))
                 .sorted(criterioDeOrden)
                 .toList();
     }
@@ -348,8 +353,7 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
     public Curso modificarCurso(Integer idCurso, String nombre, String descripcion, Float precio, String imagen,
             Integer idCategoria, Integer idNivel, boolean emiteCertificado, List<Integer> idsModalidades,
             Integer idDocenteTitular, List<Integer> idsDocentesAyudantes) {
-        Curso curso = cursoRepositorio.findById(idCurso).filter(c -> !c.esInactivo())
-                .orElseThrow(() -> new IllegalArgumentException("Error! El curso no se encuentra activo."));
+        Curso curso = buscarActivoPorId(idCurso);
         validarCamposObligatorios(nombre, precio, idCategoria, idNivel, idsModalidades, idDocenteTitular);
         if (tieneInscripcionesActivas(curso)
                 && cambiaDatosRestringidos(curso, nombre, descripcion, idCategoria, idNivel, emiteCertificado, idsModalidades)) {
@@ -394,8 +398,7 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
     @Override
     @Transactional
     public void darDeBajaCurso(Integer idCurso) {
-        Curso curso = cursoRepositorio.findById(idCurso).filter(c -> !c.esInactivo())
-                .orElseThrow(() -> new IllegalArgumentException("Error! El curso no se encuentra activo."));
+        Curso curso = buscarActivoPorId(idCurso);
         int programasActivos = programaRepositorio.findByCursoAndBajaFalse(curso).size();
         int unidadesActivas = unidadRepositorio.findByCursoAndBajaFalse(curso).size();
         if (programasActivos > 0 || unidadesActivas > 0) {
@@ -413,11 +416,6 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
     }
 
     // ---------------------------------------------------------------- métodos auxiliares
-
-    private boolean participa(Curso curso, int idDocente) {
-        return curso.getEquipoDocente().stream()
-                .anyMatch(participacion -> participacion.getDocente().getIdDocente() == idDocente);
-    }
 
     private String vacioANulo(String texto) {
         return (texto == null || texto.isBlank()) ? null : texto.trim();
@@ -629,13 +627,56 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
      */
     @Override
     public ParticipacionDocente validarAccesoDocente(int idCurso, Docente docente) {
-        Curso curso = buscarPorId(idCurso)
-                .orElseThrow(() -> new IllegalArgumentException("Error! El curso no se encuentra activo."));
+        Curso curso = buscarActivoPorId(idCurso);
         ParticipacionDocente participacion = participacionDocenteRepositorio.findByCursoAndBajaFalse(curso).stream()
                 .filter(p -> p.getDocente().getIdDocente() == docente.getIdDocente()).findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Error! No participás en este curso."));
         // Un curso sin programas también se puede abrir: desde ahí el docente registra el primero
         return participacion;
+    }
+
+    @Override
+    public ContextoCurso resolverContextoDelPanel(Integer idCurso, Usuario usuario) {
+        if (idCurso == null) {
+            throw new IllegalArgumentException("Error! Debe seleccionar un curso.");
+        }
+        if (usuario.esAdministradorActivo()) {
+            return ContextoCurso.deAdministrador(buscarActivoPorId(idCurso));
+        }
+        return ContextoCurso.deDocente(validarAccesoDocente(idCurso, usuario.getDocente()));
+    }
+
+    @Override
+    public Optional<ContextoCurso> resolverContextoDeLaUnidad(Unidad unidad, Usuario usuario) {
+        Curso curso = unidad.getCurso();
+        if (usuario.esAdministradorActivo()) {
+            return Optional.of(ContextoCurso.deAdministrador(curso));
+        }
+        if (curso.tieneDocente(usuario.getDocente())) {
+            return Optional.of(ContextoCurso.deDocente(validarAccesoDocente(curso.getIdCurso(), usuario.getDocente())));
+        }
+        return inscripcionServicio.buscarConAccesoAUnidad(usuario.getAlumno(), unidad).map(ContextoCurso::deAlumno);
+    }
+
+    @Override
+    public ResumenCursos resumir(List<Curso> cursos) {
+        Map<Integer, List<Inscripcion>> inscripciones = new HashMap<>();
+        Map<Integer, List<Programa>> programas = new HashMap<>();
+        Set<Integer> conInscripcionAbierta = new HashSet<>();
+        for (Curso curso : cursos) {
+            inscripciones.put(curso.getIdCurso(), buscarInscripcionesActivas(curso));
+            programas.put(curso.getIdCurso(), programaRepositorio.findByCursoAndBajaFalse(curso));
+            if (!buscarCohortesAbiertas(curso).isEmpty()) {
+                conInscripcionAbierta.add(curso.getIdCurso());
+            }
+        }
+        return new ResumenCursos(inscripciones, programas, conInscripcionAbierta);
+    }
+
+    @Override
+    public Curso buscarActivoPorId(Integer idCurso) {
+        return buscarPorId(idCurso)
+                .orElseThrow(() -> new IllegalArgumentException("Error! El curso no se encuentra activo."));
     }
 
     /**
@@ -649,8 +690,7 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
     @Override
     @Transactional
     public Curso actualizarImagen(Integer idCurso, String imagen) {
-        Curso curso = cursoRepositorio.findById(idCurso).filter(c -> !c.esInactivo())
-                .orElseThrow(() -> new IllegalArgumentException("Error! El curso no se encuentra activo."));
+        Curso curso = buscarActivoPorId(idCurso);
         curso.setImagen(imagen);
         curso.setUltimaModificacion(LocalDateTime.now());
         return cursoRepositorio.save(curso);

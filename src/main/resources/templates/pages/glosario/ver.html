@@ -183,27 +183,9 @@
             </div>
         </div>
 
-        <div class="modal fade pn-modal" th:id="'modalBajaTermino' + ${t.idTermino}" tabindex="-1" aria-hidden="true" th:if="${puedeDarDeBaja}">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="pn-modal-cabecera">
-                        <h3 class="pn-modal-titulo">Dar de baja término</h3>
-                        <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
-                    </div>
-                    <div class="pn-modal-cuerpo text-center">
-                        <div class="pn-baja-icono"><i class="fa-solid fa-triangle-exclamation"></i></div>
-                        <h4 class="pn-modal-titulo mb-2" th:text="'¿Confirmas dar de baja el término «' + ${t.termino} + '»?'">¿Confirmas dar de baja el término?</h4>
-                        <p class="small text-muted mb-0">El término dejará de mostrarse en el glosario.</p>
-                        <form th:action="@{'/glosario/darDeBaja/' + ${t.idTermino}}" method="post" class="form-ajax">
-                            <div class="pn-modal-pie">
-                                <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
-                                <button type="submit" class="pn-btn pn-btn-peligro">Dar de baja</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <th:block th:if="${puedeDarDeBaja}">
+            <th:block th:replace="~{fragments/modalBaja :: bloque('modalBajaTermino' + ${t.idTermino}, 'término', '¿Confirmas dar de baja el término «' + ${t.termino} + '»?', 'El término dejará de mostrarse en el glosario.', '/glosario/darDeBaja/' + ${t.idTermino}, null, null)}"></th:block>
+        </th:block>
     </th:block>
 </th:block>
 

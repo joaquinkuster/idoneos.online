@@ -19,20 +19,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.app.idoneos.servicio.Curso.ContextoCurso;
 import com.app.idoneos.modelo.ConsultaForo;
-import com.app.idoneos.modelo.Curso;
-import com.app.idoneos.modelo.Docente;
-import com.app.idoneos.modelo.Inscripcion;
 import com.app.idoneos.modelo.Parametro;
-import com.app.idoneos.modelo.ParticipacionDocente;
 import com.app.idoneos.modelo.Programa;
 import com.app.idoneos.modelo.RespuestaForo;
 import com.app.idoneos.modelo.Unidad;
 import com.app.idoneos.modelo.UnidadCronograma;
 import com.app.idoneos.modelo.Usuario;
 import com.app.idoneos.servicio.ConsultaForo.ConsultaForoServicioImpl;
-import com.app.idoneos.servicio.Curso.CursoServicioImpl;
-import com.app.idoneos.servicio.Inscripcion.InscripcionServicio;
 import com.app.idoneos.servicio.Parametro.ParametroServicio;
 import com.app.idoneos.servicio.RespuestaForo.RespuestaForoServicio;
 import com.app.idoneos.servicio.Unidad.UnidadServicioImpl;
@@ -51,7 +46,7 @@ import com.app.idoneos.utilidades.RespuestaUtilidad;
  */
 @Controller
 @RequestMapping("/foro")
-public class ForoControlador {
+public class ForoControlador extends PanelCursoControlador {
 
     @Autowired
     private ConsultaForoServicioImpl consultaServicio;
@@ -60,13 +55,7 @@ public class ForoControlador {
     private RespuestaForoServicio respuestaServicio;
 
     @Autowired
-    private CursoServicioImpl cursoServicio;
-
-    @Autowired
     private UnidadServicioImpl unidadServicio;
-
-    @Autowired
-    private InscripcionServicio inscripcionServicio;
 
     @Autowired
     private ParametroServicio parametroServicio;
@@ -87,39 +76,18 @@ public class ForoControlador {
             @RequestParam(value = "unidadId", required = false) Integer unidadId, Model modelo, Authentication auth,
             RedirectAttributes redirectAttributes) {
         try {
-            Usuario usuario = (Usuario) auth.getPrincipal();
-            boolean esAdministrador = usuario.esAdministradorActivo();
-            if (cursoId == null) {
-                throw new IllegalArgumentException("Error! Debe seleccionar un curso.");
-            }
-            Curso curso;
-            Programa programa;
-            if (esAdministrador) {
-                curso = cursoServicio.buscarPorId(cursoId)
-                        .orElseThrow(() -> new IllegalArgumentException("Error! El curso no se encuentra activo."));
-                programa = curso.getProgramaVigente();
-            } else {
-                ParticipacionDocente participacion = cursoServicio.validarAccesoDocente(cursoId, usuario.getDocente());
-                curso = participacion.getCurso();
-                programa = participacion.getProgramaDeTrabajo();
-            }
+            ContextoCurso contexto = contextoDelPanel(cursoId, (Usuario) auth.getPrincipal());
+            Programa programa = contexto.programa();
             List<UnidadCronograma> todas = programa == null ? List.of() : programa.getCronogramaOrdenado();
-            List<UnidadCronograma> unidades = todas; // todas las unidades: el filtro se aplica en la pantalla
 
-            modelo.addAttribute("curso", curso);
+            cargarContexto(modelo, contexto, "foros");
             modelo.addAttribute("unidadesDelPrograma", todas);
             modelo.addAttribute("unidadSeleccionada", unidadId);
-            modelo.addAttribute("unidades", unidades);
-            modelo.addAttribute("esDocente", !esAdministrador);
-            modelo.addAttribute("esAdministrador", esAdministrador);
-            modelo.addAttribute("urlBase", "/curso/acceder/" + cursoId);
-            modelo.addAttribute("urlMisCursos", esAdministrador ? "/curso/misCursos" : "/curso/buscar");
+            modelo.addAttribute("unidades", todas); // todas las unidades: el filtro se aplica en la pantalla
             modelo.addAttribute("titulo", "Foros | Idóneos Online");
-            modelo.addAttribute("menuActivo", "foros");
             return "pages/foro/buscar";
         } catch (IllegalArgumentException e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/curso/buscar";
+            return volverAMisCursos(redirectAttributes, e);
         }
     }
 
@@ -144,7 +112,7 @@ public class ForoControlador {
             Model modelo, Authentication auth) {
         Unidad unidad = unidadServicio.buscarPorId(unidadId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-        cargarContexto(unidad, (Usuario) auth.getPrincipal(), modelo);
+        cargarContextoDelForo(unidad, (Usuario) auth.getPrincipal(), modelo);
 
         List<ConsultaForo> encontradas = consultaServicio.buscarConFiltros(unidad, texto, desde, hasta);
 
@@ -175,7 +143,7 @@ public class ForoControlador {
             Authentication auth) {
         ConsultaForo consulta = consultaServicio.buscarPorId(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-        cargarContexto(consulta.getUnidad(), (Usuario) auth.getPrincipal(), modelo);
+        cargarContextoDelForo(consulta.getUnidad(), (Usuario) auth.getPrincipal(), modelo);
 
         List<RespuestaForo> respuestas = consulta.getRespuestasVigentes();
         boolean unaSola = respuestaId != null;
@@ -193,51 +161,26 @@ public class ForoControlador {
      * Carga en el modelo lo que comparten las vistas del foro: la unidad, el curso, el rol de quien mira, el plazo de
      * edición y los enlaces del menú. Verifica que el usuario pueda ver el foro de la unidad.
      */
-    private void cargarContexto(Unidad unidad, Usuario usuario, Model modelo) {
+    private void cargarContextoDelForo(Unidad unidad, Usuario usuario, Model modelo) {
         if (!unidadServicio.puedeVerContenido(unidad, usuario)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
-        Curso curso = unidad.getCurso();
-        boolean esAdministrador = usuario.esAdministradorActivo();
-        Docente docente = usuario.getDocente();
-        boolean esDocente = !esAdministrador && docente != null && curso.getEquipoDocente().stream()
-                .anyMatch(participacion -> participacion.getDocente().getIdDocente() == docente.getIdDocente());
-
-        Programa programa;
-        String urlBase;
-        String urlMisCursos;
-        if (esAdministrador) {
-            programa = curso.getProgramaVigente();
-            urlBase = "/curso/acceder/" + curso.getIdCurso();
-            urlMisCursos = "/curso/misCursos";
-        } else if (esDocente) {
-            programa = cursoServicio.validarAccesoDocente(curso.getIdCurso(), docente).getProgramaDeTrabajo();
-            urlBase = "/curso/acceder/" + curso.getIdCurso();
-            urlMisCursos = "/curso/buscar";
-        } else {
-            Inscripcion inscripcion = inscripcionServicio.buscarConAccesoAUnidad(usuario.getAlumno(), unidad)
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN));
-            programa = inscripcion.getCohorte().getPrograma();
-            urlBase = "/inscripcion/acceder/" + inscripcion.getIdInscripcion();
-            urlMisCursos = "/inscripcion/misCursos";
-        }
+        ContextoCurso contexto = contextoDeLaUnidad(unidad, usuario);
+        boolean esAdministrador = contexto.esAdministrador();
+        boolean esDocente = contexto.esDocente();
+        Programa programa = contexto.programa();
         int numeroOrden = programa == null ? 0 : programa.getCronogramaOrdenado().stream()
                 .filter(cronograma -> cronograma.getUnidad().getIdUnidad() == unidad.getIdUnidad())
                 .mapToInt(UnidadCronograma::getNumeroOrden).findFirst().orElse(0);
 
+        cargarContexto(modelo, contexto, "foros");
         modelo.addAttribute("unidad", unidad);
-        modelo.addAttribute("curso", curso);
         modelo.addAttribute("numeroOrden", numeroOrden);
-        modelo.addAttribute("esAdministrador", esAdministrador);
-        modelo.addAttribute("esDocente", esDocente);
-        modelo.addAttribute("esAlumno", !esAdministrador && !esDocente);
-        modelo.addAttribute("alumnoActual", esAdministrador || esDocente ? null : usuario.getAlumno());
-        modelo.addAttribute("docenteActual", esDocente ? docente : null);
+        modelo.addAttribute("esAlumno", contexto.esAlumno());
+        modelo.addAttribute("alumnoActual", contexto.esAlumno() ? usuario.getAlumno() : null);
+        modelo.addAttribute("docenteActual", esDocente ? usuario.getDocente() : null);
         modelo.addAttribute("plazoEdicion", parametroServicio.obtenerEntero(Parametro.PLAZO_EDICION_FORO,
                 Parametro.PLAZO_EDICION_FORO_POR_DEFECTO));
-        modelo.addAttribute("urlBase", urlBase);
-        modelo.addAttribute("urlMisCursos", urlMisCursos);
-        modelo.addAttribute("menuActivo", "foros");
     }
 
     /**

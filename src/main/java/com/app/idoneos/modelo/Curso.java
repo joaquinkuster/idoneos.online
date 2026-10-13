@@ -188,6 +188,27 @@ public class Curso {
     }
 
     /**
+     * Indica si un docente forma parte del equipo docente vigente del curso (como titular o ayudante).
+     *
+     * @param docente El docente a consultar.
+     * @return {@code true} si participa del curso.
+     */
+    public boolean tieneDocente(Docente docente) {
+        return docente != null && tieneDocente(docente.getIdDocente());
+    }
+
+    /**
+     * Indica si un docente forma parte del equipo docente vigente del curso.
+     *
+     * @param idDocente El identificador del docente.
+     * @return {@code true} si participa del curso.
+     */
+    public boolean tieneDocente(int idDocente) {
+        return getEquipoDocente().stream()
+                .anyMatch(participacion -> participacion.getDocente().getIdDocente() == idDocente);
+    }
+
+    /**
      * Obtiene los docentes ayudantes vigentes del curso.
      *
      * @return La lista de docentes ayudantes (vacía si no tiene).

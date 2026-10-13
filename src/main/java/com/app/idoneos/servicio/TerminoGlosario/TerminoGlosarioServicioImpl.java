@@ -1,8 +1,11 @@
 package com.app.idoneos.servicio.TerminoGlosario;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import com.app.idoneos.modelo.Curso;
 import com.app.idoneos.modelo.Docente;
@@ -114,6 +117,14 @@ public class TerminoGlosarioServicioImpl implements TerminoGlosarioServicio, Cru
     @Override
     public List<TerminoGlosario> buscarPorUnidad(Unidad unidad) {
         return terminoGlosarioRepositorio.findByUnidadAndBajaFalse(unidad);
+    }
+
+    @Override
+    public Map<String, List<TerminoGlosario>> agruparPorLetra(List<TerminoGlosario> terminos) {
+        Map<String, List<TerminoGlosario>> grupos = new LinkedHashMap<>();
+        terminos.forEach(termino -> grupos.computeIfAbsent(termino.getLetraInicial(), letra -> new ArrayList<>())
+                .add(termino));
+        return grupos;
     }
 
     /**

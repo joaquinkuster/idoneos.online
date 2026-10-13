@@ -19,7 +19,7 @@
 
       <!-- Hero: categoría y nivel, nombre y descripción del curso -->
       <div class="wf-hero-banner">
-        <div style="max-width: 760px;">
+        <div class="fx-hero-texto">
           <div class="wf-hero-tag"><span th:text="${curso.categoria.nombre + ' · ' + curso.nivel.nombre}">Categoría · Nivel</span></div>
           <h2 class="wf-hero-title" th:text="${curso.nombre}">Nombre del curso</h2>
           <p class="wf-hero-desc" th:if="${curso.descripcion != null and !#strings.isEmpty(curso.descripcion)}" th:text="${curso.descripcion}">Descripción</p>

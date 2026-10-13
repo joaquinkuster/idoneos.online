@@ -1,6 +1,7 @@
 package com.app.idoneos.servicio.TerminoGlosario;
 
 import java.util.List;
+import java.util.Map;
 import com.app.idoneos.modelo.Docente;
 import com.app.idoneos.modelo.TerminoGlosario;
 import com.app.idoneos.modelo.Unidad;
@@ -29,6 +30,14 @@ public interface TerminoGlosarioServicio {
      * @return los términos que cumplen el criterio
      */
     List<TerminoGlosario> buscarConFiltros(Unidad unidad, String texto, boolean enDefiniciones);
+
+    /**
+     * Agrupa términos por su letra inicial, conservando el orden en que vienen (el alfabético).
+     *
+     * @param terminos los términos a agrupar
+     * @return los términos de cada letra, con las letras en el orden en que aparecen
+     */
+    Map<String, List<TerminoGlosario>> agruparPorLetra(List<TerminoGlosario> terminos);
 
     /**
      * CU-33: Registra un término en el glosario de una unidad. Solo lo hace un docente que participa en el curso. Si

@@ -64,62 +64,12 @@
     color: var(--pn-texto);
 }
 
-/* ---------- Cabecera del curso ---------- */
-.ac-cabecera {
-    padding: 24px 26px 22px;
-    margin-bottom: 20px;
-}
-
-.ac-cabecera-superior {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 24px;
-    flex-wrap: wrap;
-}
-
-.ac-etiqueta-portal {
-    font-size: 11px;
-    font-weight: 800;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--pn-gold-hover);
-}
-
 .ac-titulo {
     margin: 4px 0 0;
     font-size: 28px;
     font-weight: 800;
     color: var(--pn-navy);
     line-height: 1.2;
-}
-
-.ac-datos {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-top: 18px;
-}
-
-.ac-dato {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    padding: 9px 14px;
-    background: var(--pn-fondo);
-    border: 1px solid var(--pn-borde);
-    border-radius: 10px;
-    font-size: 13px;
-    color: var(--pn-texto-suave);
-}
-
-.ac-dato i {
-    color: var(--pn-navy);
-}
-
-.ac-dato strong {
-    color: var(--pn-texto);
-    font-weight: 700;
 }
 
 /* ---------- Clase en directo ---------- */
@@ -302,12 +252,6 @@
     color: var(--pn-texto-suave);
 }
 
-.ac-unidad-semanas {
-    font-size: 12px;
-    color: var(--pn-texto-suave);
-    white-space: nowrap;
-}
-
 .ac-unidad-candado {
     color: var(--pn-texto-suave);
 }
@@ -327,15 +271,6 @@
 .ac-unidad-descripcion {
     margin: 14px 0 0;
     font-size: 14px;
-    color: var(--pn-texto-suave);
-}
-
-.ac-subtitulo {
-    margin: 18px 0 8px;
-    font-size: 12px;
-    font-weight: 800;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
     color: var(--pn-texto-suave);
 }
 
@@ -442,57 +377,6 @@ a.ac-actividad-titulo:hover {
     color: var(--pn-texto-suave);
 }
 
-/* Intentos propios de una autoevaluación */
-.ac-intentos {
-    list-style: none;
-    margin: 8px 0 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.ac-intentos li {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 12px;
-    color: var(--pn-texto-suave);
-    flex-wrap: wrap;
-}
-
-.ac-intentos strong {
-    color: var(--pn-texto);
-}
-
-/* Glosario desplegable */
-.ac-glosario {
-    margin-top: 6px;
-    font-size: 13px;
-}
-
-.ac-glosario summary {
-    cursor: pointer;
-    color: var(--pn-ver);
-    font-weight: 600;
-}
-
-.ac-glosario dl {
-    margin: 8px 0 0;
-    display: grid;
-    gap: 6px;
-}
-
-.ac-glosario dt {
-    font-weight: 700;
-    color: var(--pn-navy);
-}
-
-.ac-glosario dd {
-    margin: 0;
-    color: var(--pn-texto-suave);
-}
-
 /* ---------- Cronograma, estados vacíos y avisos ---------- */
 .ac-aviso {
     display: flex;
@@ -520,12 +404,6 @@ a.ac-actividad-titulo:hover {
     margin: 4px 0 0;
 }
 
-.ac-aviso-al-dia {
-    background: #F0FDF4;
-    border-color: #BBF7D0;
-    color: #166534;
-}
-
 .ac-aviso-atraso {
     background: #FEF2F2;
     border-color: #FECACA;
@@ -538,36 +416,12 @@ a.ac-actividad-titulo:hover {
     color: var(--pn-texto-suave);
 }
 
-.ac-tabla-contenedor {
-    overflow-x: auto;
-}
-
-.ac-tabla {
-    width: 100%;
-}
-
-.ac-vacio {
-    margin-top: 14px;
-    padding: 48px 20px;
-    text-align: center;
-    color: var(--pn-texto-suave);
-}
-
-.ac-vacio > i {
-    font-size: 34px;
-    margin-bottom: 10px;
-    color: var(--pn-borde-input);
-}
-
 .ac-clases {
     margin-top: 14px;
 }
 
 /* ---------- Pantallas chicas ---------- */
 @media (max-width: 760px) {
-    .ac-cabecera {
-        padding: 18px 16px 4px;
-    }
 
     .ac-titulo {
         font-size: 22px;
@@ -807,11 +661,6 @@ a.ac-actividad-titulo:hover {
     font-size: 24px;
 }
 
-.mv-acciones {
-    display: flex;
-    gap: 10px;
-}
-
 .mv-contenedor {
     padding: 0;
     overflow: hidden;
@@ -976,16 +825,6 @@ a.ac-actividad-titulo:hover {
 
 .mv-sin-vista p {
     margin: 0 0 18px;
-}
-
-.mv-descripcion {
-    margin-top: 16px;
-    padding: 20px 24px;
-}
-
-.mv-descripcion p {
-    margin: 8px 0 0;
-    color: var(--pn-texto-suave);
 }
 
 /* ---------- Protección del contenido de los materiales ---------- */
@@ -1182,12 +1021,6 @@ a.ac-actividad-titulo:hover {
     line-height: 1.6;
     color: var(--pn-texto);
     white-space: pre-line;
-}
-
-.gl-vacio {
-    margin: 32px 0 8px;
-    text-align: center;
-    color: var(--pn-texto-suave);
 }
 
 .gl-iconos {

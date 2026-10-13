@@ -65,23 +65,6 @@
     white-space: nowrap;
 }
 
-.wf-course-datos {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    margin-bottom: 12px;
-    font-size: 13px;
-    font-weight: 700;
-    color: #64748B;
-}
-
-.wf-course-datos i {
-    width: 18px;
-    margin-right: 4px;
-    color: #94A3B8;
-    text-align: center;
-}
-
 /* INICIO DE SESIÓN */
 body.auth-body {
     min-height: 100vh;
@@ -292,19 +275,6 @@ body.auth-body {
     text-align: center;
 }
 
-.auth-promo-icono {
-    width: 64px;
-    height: 64px;
-    border-radius: 16px;
-    background: rgba(212, 160, 61, 0.15);
-    color: var(--pn-gold);
-    font-size: 28px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 1.5rem;
-}
-
 .auth-promo h2 {
     font-size: 1.5rem;
     font-weight: 800;
@@ -334,143 +304,6 @@ body.auth-body {
 
     .auth-izquierda {
         padding: 2rem 1.5rem;
-    }
-}
-
-/* ACERCA DE */
-.sec-titulo {
-    text-align: center;
-    margin-bottom: 28px;
-}
-
-.sec-etiqueta {
-    display: block;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.8px;
-    color: var(--wf-gold);
-}
-
-.sec-encabezado {
-    font-size: 24px;
-    font-weight: 800;
-    color: #081426;
-    margin: 4px 0 0;
-}
-
-.ac-icono {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
-    background: rgba(212, 160, 61, 0.14);
-    color: var(--wf-gold);
-    font-size: 20px;
-    margin-bottom: 14px;
-}
-
-.ac-cifras {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-}
-
-.ac-cifra {
-    background: linear-gradient(160deg, #0F233D, #081426);
-    border-radius: 16px;
-    padding: 20px 14px;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-
-.ac-cifra-valor {
-    font-size: 36px;
-    font-weight: 800;
-    color: var(--wf-gold);
-    line-height: 1;
-}
-
-.ac-cifra-etiqueta {
-    font-size: 12px;
-    color: #CBD5E1;
-    margin-top: 8px;
-}
-
-.ac-chip {
-    padding: 8px 18px;
-    border-radius: 9999px;
-    background: #FFFFFF;
-    border: 1px solid #E2E8F0;
-    color: #081426;
-    font-size: 14px;
-    font-weight: 600;
-    text-decoration: none;
-    transition: all 0.2s;
-}
-
-.ac-chip:hover {
-    background: var(--wf-gold);
-    border-color: var(--wf-gold);
-    color: #081426;
-}
-
-.ac-cierre {
-    text-align: center;
-    padding: 44px 24px;
-    border-radius: 20px;
-    color: #FFFFFF;
-    background:
-        radial-gradient(600px circle at 80% 0%, rgba(212, 160, 61, 0.2), transparent 70%),
-        linear-gradient(160deg, #0F233D, #081426);
-}
-
-.ac-cierre h3 {
-    font-size: 26px;
-    font-weight: 800;
-    margin-bottom: 8px;
-}
-
-.ac-cierre p {
-    color: #CBD5E1;
-    margin-bottom: 24px;
-}
-
-.ac-cierre a {
-    min-height: 46px;
-}
-
-.ac-instagram {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    line-height: 1;
-    padding: 0 22px;
-    border-radius: 12px;
-    border: 1.5px solid rgba(255, 255, 255, 0.35);
-    color: #FFFFFF;
-    font-weight: 700;
-    text-decoration: none;
-    transition: all 0.2s;
-}
-
-.ac-instagram i {
-    font-size: 20px;
-    line-height: 1;
-}
-
-.ac-instagram:hover {
-    background: #FFFFFF;
-    color: #081426;
-}
-
-@media (max-width: 575.98px) {
-    .ac-cifras {
-        grid-template-columns: 1fr;
     }
 }
 
@@ -1548,4 +1381,70 @@ body.auth-body {
 #heroCarousel.carousel-fade .active.carousel-item-end {
     transform: scale(0.82);
     transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+/* ==========================================================================
+   Estilos sueltos que antes estaban escritos en línea en las plantillas
+   ========================================================================== */
+.ix-hero-velo {
+    position: absolute;
+    inset: 0;
+    opacity: 0.08;
+    background: url('/img/cursos/introduccion-finanzas.jpg') center/cover no-repeat;
+    pointer-events: none;
+}
+
+.ix-hero-contenido {
+    z-index: 2;
+}
+
+.ix-hero-titulo {
+    font-size: 38px;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+}
+
+.ix-hero-texto {
+    max-width: 560px;
+    font-size: 15px;
+    line-height: 1.7;
+}
+
+.ix-hero-imagen {
+    min-height: 480px;
+    transform: scale(1.1);
+    filter: brightness(0.88);
+}
+
+.fx-hero-texto {
+    max-width: 760px;
+}
+
+.wf-badge-baja {
+    padding: 4px 10px;
+    background: #E2E8F0;
+    border: 1px solid #CBD5E1;
+    color: #475569;
+    font-weight: 800;
+}
+
+.wf-icono-suave {
+    color: #94A3B8;
+}
+
+.wf-progreso-fino {
+    height: 8px;
+}
+
+.err-tarjeta {
+    background: #FFFFFF;
+}
+
+.err-icono {
+    font-size: 56px;
+    color: var(--wf-gold, #D4A03D);
+}
+
+.err-titulo {
+    color: #081426;
 }

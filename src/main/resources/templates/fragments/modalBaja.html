@@ -1,0 +1,27 @@
+<!-- Ventana de confirmación de baja, la misma en todos los listados.
+     id: id de la ventana (el que abren los botones "Dar de baja"); tipo: qué se da de baja, para el título ("unidad");
+     pregunta: texto de la confirmación, con el nombre del registro entre « »; nota: aclaración de qué pasa con
+     el registro; accion: ruta de la baja; campoNombre/campoValor: un campo oculto que la baja necesita (o null). -->
+<div th:fragment="bloque(id, tipo, pregunta, nota, accion, campoNombre, campoValor)" class="modal fade pn-modal"
+     th:id="${id}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="pn-modal-cabecera">
+                <h3 class="pn-modal-titulo" th:text="${'Dar de baja ' + tipo}">Dar de baja</h3>
+                <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="pn-modal-cuerpo text-center">
+                <div class="pn-baja-icono"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                <h4 class="pn-modal-titulo mb-2" th:text="${pregunta}">¿Confirmas dar de baja?</h4>
+                <p class="small text-muted mb-0" th:text="${nota}">Aclaración.</p>
+                <form th:action="@{${accion}}" method="post" class="form-ajax">
+                    <input type="hidden" th:if="${campoNombre != null}" th:name="${campoNombre}" th:value="${campoValor}">
+                    <div class="pn-modal-pie">
+                        <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="pn-btn pn-btn-peligro">Dar de baja</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

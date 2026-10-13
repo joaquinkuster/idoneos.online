@@ -9,6 +9,8 @@ import com.app.idoneos.modelo.Categoria;
 import com.app.idoneos.modelo.Curso;
 import com.app.idoneos.modelo.Nivel;
 import com.app.idoneos.modelo.ParticipacionDocente;
+import com.app.idoneos.modelo.Unidad;
+import com.app.idoneos.modelo.Usuario;
 
 /**
  * Servicio para gestionar las operaciones relacionadas con el curso.
@@ -185,6 +187,45 @@ public interface CursoServicio {
      * @throws IllegalArgumentException Si el docente no puede acceder, con el motivo.
      */
     ParticipacionDocente validarAccesoDocente(int idCurso, Docente docente);
+
+    /**
+     * Busca un curso activo y, si no existe o está dado de baja, informa el motivo.
+     *
+     * @param idCurso El identificador del curso.
+     * @return El curso activo.
+     * @throws IllegalArgumentException Si el curso no se encuentra activo.
+     */
+    Curso buscarActivoPorId(Integer idCurso);
+
+    /**
+     * Reúne, para cada curso de una lista, sus inscripciones y programas activos y si tiene inscripción abierta.
+     *
+     * @param cursos Los cursos del listado.
+     * @return El resumen de los cursos.
+     */
+    ResumenCursos resumir(List<Curso> cursos);
+
+    /**
+     * Resuelve con qué rol y programa entra una persona al panel de un curso que se abre con su identificador: el
+     * administrador trabaja con el programa vigente y el docente, con el que tiene elegido.
+     *
+     * @param idCurso El identificador del curso (obligatorio).
+     * @param usuario El usuario autenticado.
+     * @return El contexto de la pantalla.
+     * @throws IllegalArgumentException Si no se indicó el curso, no está activo o el docente no participa.
+     */
+    ContextoCurso resolverContextoDelPanel(Integer idCurso, Usuario usuario);
+
+    /**
+     * Resuelve el contexto de una pantalla que se abre desde una unidad (foro, glosario, material): el administrador y
+     * los docentes del curso entran como tales; el alumno, por su inscripción con acceso a la unidad. Quien la llame
+     * debe haber comprobado antes que la persona puede ver el contenido.
+     *
+     * @param unidad  La unidad de la pantalla.
+     * @param usuario El usuario autenticado.
+     * @return El contexto, o vacío si no es de la gestión del curso ni tiene una inscripción con acceso.
+     */
+    Optional<ContextoCurso> resolverContextoDeLaUnidad(Unidad unidad, Usuario usuario);
 
     /**
      * Asigna la imagen de un curso activo (el archivo ya se guardó en la carpeta del curso).

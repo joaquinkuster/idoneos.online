@@ -20,13 +20,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.app.idoneos.servicio.Curso.ContextoCurso;
 import com.app.idoneos.modelo.Cohorte;
 import com.app.idoneos.modelo.Curso;
 import com.app.idoneos.modelo.Docente;
 import com.app.idoneos.modelo.Inscripcion;
 import com.app.idoneos.modelo.Usuario;
 import com.app.idoneos.servicio.Cohorte.CohorteServicioImpl;
-import com.app.idoneos.servicio.Curso.CursoServicioImpl;
 import com.app.idoneos.servicio.ParticipacionDocente.ParticipacionDocenteServicioImpl;
 import com.app.idoneos.servicio.Programa.ProgramaServicioImpl;
 
@@ -42,16 +42,13 @@ import com.app.idoneos.utilidades.RespuestaUtilidad;
  */
 @Controller
 @RequestMapping("/cohorte")
-public class CohorteControlador {
+public class CohorteControlador extends PanelCursoControlador {
 
     @Autowired
     private CohorteServicioImpl cohorteServicio;
 
     @Autowired
     private ProgramaServicioImpl programaServicio;
-
-    @Autowired
-    private CursoServicioImpl cursoServicio;
 
     @Autowired
     private ParticipacionDocenteServicioImpl participacionDocenteServicio;
@@ -87,19 +84,17 @@ public class CohorteControlador {
         // El ABM de cohortes del administrador vive dentro del panel de un curso
         Curso curso = null;
         if (esAdministrador) {
-            curso = cursoId == null ? null : cursoServicio.buscarPorId(cursoId).filter(c -> !c.esInactivo()).orElse(null);
-            if (curso == null) {
+            try {
+                curso = contextoDelPanel(cursoId, usuario).curso();
+            } catch (IllegalArgumentException e) {
                 return "redirect:/curso/misCursos";
             }
         }
         final Curso cursoDelPanel = curso;
 
         List<Cohorte> cohortes = cohorteServicio.buscarConFiltros(
-                // El administrador recibe el listado completo (los filtros se aplican en la pantalla); la vista del
-                // docente, que todavía filtra en el servidor, recibe los filtros de la URL
-                esAdministrador ? null : programaId, esAdministrador ? null : busqueda,
-                esAdministrador ? null : estado, esAdministrador ? null : desde, esAdministrador ? null : hasta,
-                orden, soloDeDocente).stream()
+                // Listado completo: los filtros (también los que llegan por la URL) se aplican en la pantalla
+                null, null, null, null, null, orden, soloDeDocente).stream()
                 .filter(cohorte -> cursoDelPanel == null
                         || cohorte.getPrograma().getCurso().getIdCurso() == cursoDelPanel.getIdCurso())
                 .toList();
@@ -135,12 +130,7 @@ public class CohorteControlador {
         modelo.addAttribute("cupoMaximoPermitido", Cohorte.CUPO_MAXIMO_PERMITIDO);
         modelo.addAttribute("titulo", "Cohortes | Idóneos Online");
         if (esAdministrador) {
-            modelo.addAttribute("curso", curso);
-            modelo.addAttribute("esDocente", false);
-            modelo.addAttribute("esAdministrador", true);
-            modelo.addAttribute("urlBase", "/curso/acceder/" + curso.getIdCurso());
-            modelo.addAttribute("urlMisCursos", "/curso/misCursos");
-            modelo.addAttribute("menuActivo", "cohortes");
+            cargarContexto(modelo, ContextoCurso.deAdministrador(curso), "cohortes");
             return "pages/cohorte/buscarAdministrador";
         }
         return "pages/cohorte/buscarDocente";

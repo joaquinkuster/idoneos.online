@@ -228,7 +228,7 @@
                         </div>
                         <div class="col-12 pn-campo" data-bloque="archivo">
                             <label class="pn-etiqueta"><span data-archivo-etiqueta>Archivo</span> <span class="pn-obligatorio" data-archivo-obligatorio>*</span></label>
-                            <input type="file" name="archivo" class="pn-input" style="padding-top: 9px;">
+                            <input type="file" name="archivo" class="pn-input pn-input-archivo">
                             <small class="text-muted" data-archivo-ayuda></small>
                             <div class="pn-ayuda-error"></div>
                         </div>
@@ -303,7 +303,7 @@
                             </div>
                             <div class="pn-campo" th:classappend="${biblio} ? 'col-md-6' : 'col-12'">
                                 <label class="pn-etiqueta">Reemplazar archivo (opcional)</label>
-                                <input type="file" name="archivo" class="pn-input" style="padding-top: 9px;"
+                                <input type="file" name="archivo" class="pn-input pn-input-archivo"
                                        th:attr="data-extensiones=${#strings.listJoin(m.tipoMaterial.extensionesPermitidas, ',')}, data-tamanio-mb=${m.tipoMaterial.tamanioMaximo / 1048576}">
                                 <small class="text-muted"
                                        th:text="${(m.tieneArchivo() ? 'Hay un archivo cargado. ' : (m.esEnlaceExterno() ? 'Hay un enlace cargado. ' : 'No hay archivo cargado. ')) + 'Formatos: ' + #strings.toUpperCase(#strings.listJoin(m.tipoMaterial.extensionesPermitidas, ', ')) + '. Máximo ' + (m.tipoMaterial.tamanioMaximo / 1048576) + ' MB.'}">Formatos</small>
@@ -330,27 +330,9 @@
     </div>
 
     <!-- Dar de baja -->
-    <div class="modal fade pn-modal" th:id="'modalBajaMaterial' + ${m.idMaterial}" tabindex="-1" aria-hidden="true" th:if="${!m.baja}">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="pn-modal-cabecera">
-                    <h3 class="pn-modal-titulo">Dar de baja material</h3>
-                    <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
-                </div>
-                <div class="pn-modal-cuerpo text-center">
-                    <div class="pn-baja-icono"><i class="fa-solid fa-triangle-exclamation"></i></div>
-                    <h4 class="pn-modal-titulo mb-2" th:text="'¿Confirmas dar de baja el material «' + ${m.titulo} + '»?'">¿Confirmas dar de baja el material?</h4>
-                    <p class="small text-muted mb-0">El material dejará de mostrarse a los alumnos.</p>
-                    <form th:action="@{'/material/darDeBaja/' + ${m.idMaterial}}" method="post" class="form-ajax">
-                        <div class="pn-modal-pie">
-                            <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
-                            <button type="submit" class="pn-btn pn-btn-peligro">Dar de baja</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
+    <th:block th:if="${!m.baja}">
+        <th:block th:replace="~{fragments/modalBaja :: bloque('modalBajaMaterial' + ${m.idMaterial}, 'material', '¿Confirmas dar de baja el material «' + ${m.titulo} + '»?', 'El material dejará de mostrarse a los alumnos.', '/material/darDeBaja/' + ${m.idMaterial}, null, null)}"></th:block>
+    </th:block>
 </th:block>
 
 <th:block th:replace="~{fragments/panel :: scripts}"></th:block>

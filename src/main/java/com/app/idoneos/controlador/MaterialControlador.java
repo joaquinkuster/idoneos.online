@@ -16,15 +16,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.app.idoneos.modelo.Curso;
+import com.app.idoneos.servicio.Curso.ContextoCurso;
 import com.app.idoneos.modelo.Docente;
 import com.app.idoneos.modelo.Material;
-import com.app.idoneos.modelo.ParticipacionDocente;
 import com.app.idoneos.modelo.Programa;
 import com.app.idoneos.modelo.TipoMaterial;
 import com.app.idoneos.modelo.UnidadCronograma;
 import com.app.idoneos.modelo.Usuario;
-import com.app.idoneos.servicio.Curso.CursoServicioImpl;
 import com.app.idoneos.servicio.Material.MaterialServicioImpl;
 import com.app.idoneos.servicio.TipoMaterial.TipoMaterialServicioImpl;
 import com.app.idoneos.utilidades.RespuestaUtilidad;
@@ -38,9 +36,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.server.ResponseStatusException;
 import com.app.idoneos.utilidades.ArchivoUtilidad;
-import com.app.idoneos.modelo.Alumno;
-import com.app.idoneos.modelo.Inscripcion;
-import java.util.Optional;
 import jakarta.servlet.http.HttpServletRequest;
 
 /**
@@ -53,13 +48,10 @@ import jakarta.servlet.http.HttpServletRequest;
  */
 @Controller
 @RequestMapping("/material")
-public class MaterialControlador {
+public class MaterialControlador extends PanelCursoControlador {
 
     @Autowired
     private MaterialServicioImpl materialServicio;
-
-    @Autowired
-    private CursoServicioImpl cursoServicio;
 
     @Autowired
     private TipoMaterialServicioImpl tipoMaterialServicio;
@@ -101,22 +93,10 @@ public class MaterialControlador {
             Authentication auth, RedirectAttributes redirectAttributes) {
         try {
             Usuario usuario = (Usuario) auth.getPrincipal();
-            boolean esAdministrador = usuario.esAdministradorActivo();
+            ContextoCurso contexto = contextoDelPanel(cursoId, usuario);
+            boolean esAdministrador = contexto.esAdministrador();
             Docente docente = esAdministrador ? null : usuario.getDocente();
-            if (cursoId == null) {
-                throw new IllegalArgumentException("Error! Debe seleccionar un curso.");
-            }
-            Curso curso;
-            Programa programa;
-            if (esAdministrador) {
-                curso = cursoServicio.buscarPorId(cursoId)
-                        .orElseThrow(() -> new IllegalArgumentException("Error! El curso no se encuentra activo."));
-                programa = curso.getProgramaVigente();
-            } else {
-                ParticipacionDocente participacion = cursoServicio.validarAccesoDocente(cursoId, docente);
-                curso = participacion.getCurso();
-                programa = participacion.getProgramaDeTrabajo();
-            }
+            Programa programa = contexto.programa();
             List<UnidadCronograma> unidades = programa == null ? List.of() : programa.getCronogramaOrdenado();
             List<TipoMaterial> tiposDeSubida = tipoMaterialServicio.buscarSubidosManualmente();
             boolean nuevoValido = nuevo != null
@@ -134,8 +114,8 @@ public class MaterialControlador {
                 abrirModal = "modalEditarMaterial" + materialId;
             }
 
+            cargarContexto(modelo, contexto, "materiales");
             modelo.addAttribute("abrirModal", abrirModal);
-            modelo.addAttribute("curso", curso);
             modelo.addAttribute("unidades", unidades);
             modelo.addAttribute("materiales", materiales);
             modelo.addAttribute("tiposMaterial", tipoMaterialServicio.obtenerTodo());
@@ -146,17 +126,11 @@ public class MaterialControlador {
             modelo.addAttribute("iaSeleccionado", generadoPorIa);
             modelo.addAttribute("bajaSeleccionada", baja);
             modelo.addAttribute("nuevoTipoId", nuevoValido && !esAdministrador ? nuevo : null);
-            modelo.addAttribute("esDocente", !esAdministrador);
-            modelo.addAttribute("esAdministrador", esAdministrador);
             modelo.addAttribute("puedeGestionar", !esAdministrador);
-            modelo.addAttribute("urlBase", "/curso/acceder/" + cursoId);
-            modelo.addAttribute("urlMisCursos", esAdministrador ? "/curso/misCursos" : "/curso/buscar");
             modelo.addAttribute("titulo", "Materiales | Idóneos Online");
-            modelo.addAttribute("menuActivo", "materiales");
             return "pages/material/buscar";
         } catch (IllegalArgumentException e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/curso/buscar";
+            return volverAMisCursos(redirectAttributes, e);
         }
     }
 
@@ -183,44 +157,17 @@ public class MaterialControlador {
             return "redirect:" + material.getRutaArchivo();
         }
 
-        Curso curso = material.getCurso();
-        boolean esAdministrador = usuario.esAdministradorActivo();
-        Docente docente = usuario.getDocente();
-        boolean esDocente = !esAdministrador && docente != null
-                && cursoServicioParticipa(curso, docente);
-        String urlBase;
-        String urlMisCursos;
-        if (esAdministrador) {
-            urlBase = "/curso/acceder/" + curso.getIdCurso();
-            urlMisCursos = "/curso/misCursos";
-        } else if (esDocente) {
-            urlBase = "/curso/acceder/" + curso.getIdCurso();
-            urlMisCursos = "/curso/buscar";
-        } else {
-            Alumno alumno = usuario.getAlumno();
-            Optional<Inscripcion> inscripcion = materialServicio.buscarInscripcionConAcceso(material, alumno);
-            urlBase = "/inscripcion/acceder/" + inscripcion.map(Inscripcion::getIdInscripcion).orElse(0);
-            urlMisCursos = "/inscripcion/misCursos";
-        }
+        ContextoCurso contexto = contextoDeLaUnidad(material.getUnidad(), usuario);
 
+        cargarContexto(modelo, contexto, "materiales");
         modelo.addAttribute("material", material);
-        modelo.addAttribute("curso", curso);
         modelo.addAttribute("unidad", material.getUnidad());
         modelo.addAttribute("formato", material.getFormatoDeVista());
         modelo.addAttribute("urlArchivo", "/material/archivo/" + material.getIdMaterial());
-        modelo.addAttribute("esAdministrador", esAdministrador);
-        modelo.addAttribute("esDocente", esDocente);
-        modelo.addAttribute("urlBase", urlBase);
-        modelo.addAttribute("urlMisCursos", urlMisCursos);
-        modelo.addAttribute("menuActivo", "materiales");
         modelo.addAttribute("titulo", material.getTitulo() + " | Idóneos Online");
         return "pages/material/ver";
     }
 
-    private boolean cursoServicioParticipa(Curso curso, Docente docente) {
-        return curso.getEquipoDocente().stream()
-                .anyMatch(participacion -> participacion.getDocente().getIdDocente() == docente.getIdDocente());
-    }
 
     /**
      * Entrega el contenido de un material a la propia plataforma (al reproductor de video o al visor de PDF), para que

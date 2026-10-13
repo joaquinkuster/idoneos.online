@@ -1,11 +1,8 @@
 package com.app.idoneos.controlador;
 
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -21,21 +18,20 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.app.idoneos.servicio.Curso.ContextoCurso;
 import com.app.idoneos.modelo.Cohorte;
 import com.app.idoneos.modelo.Curso;
-import com.app.idoneos.modelo.CursoModalidad;
 import com.app.idoneos.modelo.Docente;
-import com.app.idoneos.modelo.Inscripcion;
 import com.app.idoneos.modelo.ParticipacionDocente;
 import com.app.idoneos.modelo.Programa;
 import com.app.idoneos.modelo.Usuario;
 import com.app.idoneos.utilidades.ArchivoUtilidad;
 import com.app.idoneos.utilidades.ImagenUtilidad;
 import com.app.idoneos.servicio.Categoria.CategoriaServicioImpl;
-import com.app.idoneos.servicio.Curso.CursoServicioImpl;
 import com.app.idoneos.servicio.Docente.DocenteServicioImpl;
 import com.app.idoneos.servicio.Modalidad.ModalidadServicioImpl;
 import com.app.idoneos.servicio.Nivel.NivelServicioImpl;
+import com.app.idoneos.servicio.Curso.ResumenCursos;
 import com.app.idoneos.servicio.Programa.ProgramaServicioImpl;
 import com.app.idoneos.utilidades.RespuestaUtilidad;
 import com.app.idoneos.servicio.TipoMaterial.TipoMaterialServicioImpl;
@@ -50,10 +46,7 @@ import com.app.idoneos.servicio.TipoMaterial.TipoMaterialServicioImpl;
  */
 @Controller
 @RequestMapping("/curso")
-public class CursoControlador {
-
-    @Autowired
-    private CursoServicioImpl cursoServicio;
+public class CursoControlador extends PanelCursoControlador {
 
     @Autowired
     private CategoriaServicioImpl categoriaServicio;
@@ -116,24 +109,14 @@ public class CursoControlador {
             if (!esAdministrador) {
                 cursos = cursos.stream().filter(curso -> !curso.esInactivo()).toList();
             }
-            List<Curso> cursosPagina = cursos;
 
             // Inscripciones y programas activos por curso, para validar la baja y la modificación
-            Map<Integer, List<Inscripcion>> inscripcionesPorCurso = new HashMap<>();
-            Map<Integer, List<Programa>> programasPorCurso = new HashMap<>();
-            Set<Integer> cursosConInscripcionAbierta = new HashSet<>();
-            for (Curso curso : cursosPagina) {
-                inscripcionesPorCurso.put(curso.getIdCurso(), cursoServicio.buscarInscripcionesActivas(curso));
-                programasPorCurso.put(curso.getIdCurso(), programaServicio.buscarPorCurso(curso));
-                if (!cursoServicio.buscarCohortesAbiertas(curso).isEmpty()) {
-                    cursosConInscripcionAbierta.add(curso.getIdCurso());
-                }
-            }
+            ResumenCursos resumen = cursoServicio.resumir(cursos);
 
-            modelo.addAttribute("cursos", cursosPagina);
-            modelo.addAttribute("inscripcionesPorCurso", inscripcionesPorCurso);
-            modelo.addAttribute("programasPorCurso", programasPorCurso);
-            modelo.addAttribute("cursosConInscripcionAbierta", cursosConInscripcionAbierta);
+            modelo.addAttribute("cursos", cursos);
+            modelo.addAttribute("inscripcionesPorCurso", resumen.inscripcionesPorCurso());
+            modelo.addAttribute("programasPorCurso", resumen.programasPorCurso());
+            modelo.addAttribute("cursosConInscripcionAbierta", resumen.cursosConInscripcionAbierta());
             modelo.addAttribute("totalCursos", cursos.size());
             modelo.addAttribute("categorias", categoriaServicio.obtenerTodo());
             modelo.addAttribute("niveles", nivelServicio.obtenerTodo());
@@ -186,18 +169,11 @@ public class CursoControlador {
         }
         List<Curso> cursos = cursoServicio.buscarConFiltros(null, null, null, null, null, "nombre", null).stream()
                 .filter(curso -> !curso.esInactivo()).toList();
-        Map<Integer, List<Programa>> programasPorCurso = new HashMap<>();
-        Set<Integer> cursosConInscripcionAbierta = new HashSet<>();
-        for (Curso curso : cursos) {
-            programasPorCurso.put(curso.getIdCurso(), programaServicio.buscarPorCurso(curso));
-            if (!cursoServicio.buscarCohortesAbiertas(curso).isEmpty()) {
-                cursosConInscripcionAbierta.add(curso.getIdCurso());
-            }
-        }
+        ResumenCursos resumen = cursoServicio.resumir(cursos);
         modelo.addAttribute("cursos", cursos);
         modelo.addAttribute("totalCursos", cursos.size());
-        modelo.addAttribute("programasPorCurso", programasPorCurso);
-        modelo.addAttribute("cursosConInscripcionAbierta", cursosConInscripcionAbierta);
+        modelo.addAttribute("programasPorCurso", resumen.programasPorCurso());
+        modelo.addAttribute("cursosConInscripcionAbierta", resumen.cursosConInscripcionAbierta());
         modelo.addAttribute("categorias", categoriaServicio.obtenerTodo());
         modelo.addAttribute("niveles", nivelServicio.obtenerTodo());
         modelo.addAttribute("modalidades", modalidadServicio.obtenerTodo());
@@ -385,8 +361,7 @@ public class CursoControlador {
             if (esAdministrador) {
                 // El administrador ve el panel del curso como un docente, sin gestionar su contenido: trabaja con el
                 // programa vigente y su cohorte más reciente
-                curso = cursoServicio.buscarPorId(idCurso).filter(c -> !c.esInactivo())
-                        .orElseThrow(() -> new IllegalArgumentException("Error! El curso no se encuentra activo."));
+                curso = cursoServicio.buscarActivoPorId(idCurso);
                 programa = curso.getProgramaVigente();
                 cohorte = programa == null ? null : programa.getCohortesActivas().stream().findFirst().orElse(null);
             } else {
@@ -400,9 +375,10 @@ public class CursoControlador {
             }
             String seccionActiva = List.of("unidades", "clases").contains(seccion) ? seccion : "unidades";
 
+            String menuActivo = "unidades".equals(seccionActiva) ? "curso" : seccionActiva;
+            cargarContexto(modelo, esAdministrador ? ContextoCurso.deAdministrador(curso)
+                    : ContextoCurso.deDocente(participacion), menuActivo);
             modelo.addAttribute("inscripcion", null);
-            modelo.addAttribute("curso", curso);
-            modelo.addAttribute("programa", programa);
             modelo.addAttribute("cohorte", cohorte);
             // Selectores de programa y cohorte por defecto: solo los activos, el más reciente primero
             modelo.addAttribute("programasDelCurso", curso.getProgramasActivos());
@@ -410,14 +386,11 @@ public class CursoControlador {
             if (!esAdministrador) {
                 modelo.addAttribute("tiposDeSubida", tipoMaterialServicio.buscarSubidosManualmente());
             }
+            // La página del curso se ve como la del docente, también para el administrador (sin gestionar contenido)
             modelo.addAttribute("esDocente", true);
-            modelo.addAttribute("esAdministrador", esAdministrador);
             modelo.addAttribute("puedeGestionar", !esAdministrador);
-            modelo.addAttribute("urlBase", "/curso/acceder/" + idCurso);
-            modelo.addAttribute("urlMisCursos", esAdministrador ? "/curso/misCursos" : "/curso/buscar");
             modelo.addAttribute("seccion", seccionActiva);
-            modelo.addAttribute("menuActivo", "unidades".equals(seccionActiva) ? "curso" : seccionActiva);
-            modelo.addAttribute("titulo", "CU-27 - " + curso.getNombre() + " | Idóneos Online");
+            modelo.addAttribute("titulo", curso.getNombre() + " | Idóneos Online");
             return "pages/curso/acceder";
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());

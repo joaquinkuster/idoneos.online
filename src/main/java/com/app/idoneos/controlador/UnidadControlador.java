@@ -15,14 +15,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.app.idoneos.servicio.Curso.ContextoCurso;
 import com.app.idoneos.modelo.Curso;
 import com.app.idoneos.modelo.Docente;
-import com.app.idoneos.modelo.ParticipacionDocente;
 import com.app.idoneos.modelo.Programa;
 import com.app.idoneos.modelo.Unidad;
 import com.app.idoneos.modelo.UnidadCronograma;
 import com.app.idoneos.modelo.Usuario;
-import com.app.idoneos.servicio.Curso.CursoServicioImpl;
 import com.app.idoneos.servicio.Unidad.UnidadServicio;
 import com.app.idoneos.utilidades.RespuestaUtilidad;
 
@@ -37,13 +36,10 @@ import com.app.idoneos.utilidades.RespuestaUtilidad;
  */
 @Controller
 @RequestMapping("/unidad")
-public class UnidadControlador {
+public class UnidadControlador extends PanelCursoControlador {
 
     @Autowired
     private UnidadServicio unidadServicio;
-
-    @Autowired
-    private CursoServicioImpl cursoServicio;
 
     /**
      * CU-19: Lista las unidades del cronograma del programa de trabajo de un curso. Si se indica {@code nuevo}, abre
@@ -69,27 +65,12 @@ public class UnidadControlador {
             @RequestParam(value = "unidadId", required = false) Integer unidadId, Model modelo, Authentication auth,
             RedirectAttributes redirectAttributes) {
         try {
-            Usuario usuario = (Usuario) auth.getPrincipal();
-            boolean esAdministrador = usuario.esAdministradorActivo();
-            if (cursoId == null) {
-                throw new IllegalArgumentException("Error! Debe seleccionar un curso.");
-            }
-            Curso curso;
-            Programa programa;
-            if (esAdministrador) {
-                curso = cursoServicio.buscarPorId(cursoId)
-                        .orElseThrow(() -> new IllegalArgumentException("Error! El curso no se encuentra activo."));
-                programa = curso.getProgramaVigente();
-            } else {
-                ParticipacionDocente participacion = cursoServicio.validarAccesoDocente(cursoId, usuario.getDocente());
-                curso = participacion.getCurso();
-                programa = participacion.getProgramaDeTrabajo();
-            }
+            ContextoCurso contexto = contextoDelPanel(cursoId, (Usuario) auth.getPrincipal());
+            boolean esAdministrador = contexto.esAdministrador();
+            Curso curso = contexto.curso();
+            Programa programa = contexto.programa();
             if (programa == null) {
-                // Sin programas no hay unidades: el docente va a registrar el primero; el administrador, al listado de cursos
-                redirectAttributes.addFlashAttribute("error",
-                        "Error! El curso todavía no tiene programas: registrá uno para poder cargar unidades.");
-                return esAdministrador ? "redirect:/curso/buscar" : "redirect:/programa/buscar?cursoId=" + cursoId + "&nuevo";
+                return avisarCursoSinProgramas(contexto, redirectAttributes);
             }
             List<UnidadCronograma> unidades = unidadServicio.buscarConFiltros(programa, null); // listado completo: los filtros se aplican en la pantalla
 
@@ -107,24 +88,17 @@ public class UnidadControlador {
 
             List<Unidad> unidadesDelCurso = unidadServicio.buscarPorCurso(curso).stream()
                     .filter(u -> !u.getProgramasQueLaIncluyen().isEmpty()).toList();
-            modelo.addAttribute("curso", curso);
-            modelo.addAttribute("programa", programa);
+            cargarContexto(modelo, contexto, "unidades");
             modelo.addAttribute("unidades", unidades);
             modelo.addAttribute("programasActivos", curso.getProgramasActivos());
             modelo.addAttribute("unidadesDelCurso", unidadesDelCurso);
             modelo.addAttribute("tituloBusqueda", titulo);
             modelo.addAttribute("abrirModal", abrirModal);
-            modelo.addAttribute("esDocente", !esAdministrador);
-            modelo.addAttribute("esAdministrador", esAdministrador);
             modelo.addAttribute("puedeGestionar", !esAdministrador);
-            modelo.addAttribute("urlBase", "/curso/acceder/" + cursoId);
-            modelo.addAttribute("urlMisCursos", esAdministrador ? "/curso/misCursos" : "/curso/buscar");
             modelo.addAttribute("titulo", "Unidades | Idóneos Online");
-            modelo.addAttribute("menuActivo", "unidades");
             return "pages/unidad/buscar";
         } catch (IllegalArgumentException e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/curso/buscar";
+            return volverAMisCursos(redirectAttributes, e);
         }
     }
 

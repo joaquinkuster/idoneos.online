@@ -5,6 +5,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.cookie;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
@@ -142,6 +143,21 @@ class GestionDeCursosControladorTest {
         mockMvc.perform(get("/curso/buscar")).andExpect(view().name("pages/curso/buscar"));
         mockMvc.perform(get("/cohorte/buscar")).andExpect(view().name("pages/cohorte/buscarDocente"));
         mockMvc.perform(post("/curso/darDeBajaMasiva").param("ids", "1")).andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithUserDetails(value = "fausto.spotorno@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesServicio")
+    @DisplayName("CU-11: \"Mis cohortes\" del docente trae todas sus cohortes y las filtra en la pantalla, aunque llegue un filtro por la URL")
+    void docenteFiltraSusCohortesEnLaPantalla() throws Exception {
+        mockMvc.perform(get("/cohorte/buscar").param("estado", "Finalizada"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("pages/cohorte/buscarDocente"))
+                .andExpect(content().string(org.hamcrest.Matchers.allOf(
+                        org.hamcrest.Matchers.containsString("data-filtro-front"),
+                        org.hamcrest.Matchers.containsString("data-fila"),
+                        org.hamcrest.Matchers.containsString("data-f-estado=\"Abierta\""),
+                        org.hamcrest.Matchers.containsString("data-paginador"),
+                        org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("renderWfPagination")))));
     }
 
     @Test

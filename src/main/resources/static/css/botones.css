@@ -81,13 +81,6 @@
     outline-offset: 2px;
 }
 
-/* ---------- Tamaños ---------- */
-.wf-btn-sm {
-    height: var(--boton-alto-chico);
-    padding: 0 12px;
-    font-size: 12px;
-}
-
 .auth-boton,
 .auth-promo-boton,
 .fx-boton-inscribir,

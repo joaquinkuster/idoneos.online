@@ -14,14 +14,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.app.idoneos.servicio.Curso.ContextoCurso;
 import com.app.idoneos.modelo.Cohorte;
 import com.app.idoneos.modelo.Curso;
 import com.app.idoneos.modelo.Parametro;
-import com.app.idoneos.modelo.ParticipacionDocente;
 import com.app.idoneos.modelo.Programa;
 import com.app.idoneos.modelo.Unidad;
 import com.app.idoneos.modelo.Usuario;
-import com.app.idoneos.servicio.Curso.CursoServicioImpl;
 import com.app.idoneos.servicio.Parametro.ParametroServicio;
 import com.app.idoneos.servicio.Unidad.UnidadServicio;
 import com.app.idoneos.servicio.UnidadCronograma.UnidadCronogramaServicio;
@@ -37,7 +36,7 @@ import com.app.idoneos.utilidades.RespuestaUtilidad;
  */
 @Controller
 @RequestMapping("/cronograma")
-public class CronogramaControlador {
+public class CronogramaControlador extends PanelCursoControlador {
 
     /** Mínimo de unidades con material que se usa si el parámetro no está cargado. */
     private static final int MINIMO_POR_DEFECTO = 1;
@@ -47,9 +46,6 @@ public class CronogramaControlador {
 
     @Autowired
     private UnidadServicio unidadServicio;
-
-    @Autowired
-    private CursoServicioImpl cursoServicio;
 
     @Autowired
     private ParametroServicio parametroServicio;
@@ -68,37 +64,20 @@ public class CronogramaControlador {
     public String buscarCronograma(@RequestParam(value = "cursoId", required = false) Integer cursoId, Model modelo,
             Authentication auth, RedirectAttributes redirectAttributes) {
         try {
-            Usuario usuario = (Usuario) auth.getPrincipal();
-            boolean esAdministrador = usuario.esAdministradorActivo();
-            if (cursoId == null) {
-                throw new IllegalArgumentException("Error! Debe seleccionar un curso.");
-            }
-            Curso curso;
-            Programa programa;
-            Cohorte cohorte = null;
-            if (esAdministrador) {
-                curso = cursoServicio.buscarPorId(cursoId)
-                        .orElseThrow(() -> new IllegalArgumentException("Error! El curso no se encuentra activo."));
-                programa = curso.getProgramaVigente();
-            } else {
-                ParticipacionDocente participacion = cursoServicio.validarAccesoDocente(cursoId, usuario.getDocente());
-                curso = participacion.getCurso();
-                programa = participacion.getProgramaDeTrabajo();
-                cohorte = participacion.getCohorteDeTrabajo();
-            }
+            ContextoCurso contexto = contextoDelPanel(cursoId, (Usuario) auth.getPrincipal());
+            boolean esAdministrador = contexto.esAdministrador();
+            Curso curso = contexto.curso();
+            Programa programa = contexto.programa();
+            Cohorte cohorte = esAdministrador ? null : contexto.participacion().getCohorteDeTrabajo();
             if (programa == null) {
-                // Sin programas no hay cronograma: el docente va a registrar el primero; el administrador, al listado de cursos
-                redirectAttributes.addFlashAttribute("error",
-                        "Error! El curso todavía no tiene programas: registrá uno para poder cargar unidades.");
-                return esAdministrador ? "redirect:/curso/buscar" : "redirect:/programa/buscar?cursoId=" + cursoId + "&nuevo";
+                return avisarCursoSinProgramas(contexto, redirectAttributes);
             }
             boolean conInscripciones = programa.getCantidadInscripcionesActivas() > 0;
             // Las unidades activas del curso que algún programa incluye: las que se pueden poner en este cronograma
             List<Unidad> unidadesDelCurso = unidadServicio.buscarPorCurso(curso).stream()
                     .filter(u -> !u.getProgramasQueLaIncluyen().isEmpty()).toList();
 
-            modelo.addAttribute("curso", curso);
-            modelo.addAttribute("programa", programa);
+            cargarContexto(modelo, contexto, "cronograma");
             modelo.addAttribute("cohorte", cohorte);
             modelo.addAttribute("cronograma", programa.getCronogramaOrdenado());
             modelo.addAttribute("unidadesDelCurso", unidadesDelCurso);
@@ -106,16 +85,10 @@ public class CronogramaControlador {
             modelo.addAttribute("soloLecturaPorInscripciones", !esAdministrador && conInscripciones);
             modelo.addAttribute("minimoUnidadesConMaterial", parametroServicio
                     .obtenerEntero(Parametro.MINIMO_UNIDADES_CON_MATERIAL, MINIMO_POR_DEFECTO));
-            modelo.addAttribute("esDocente", !esAdministrador);
-            modelo.addAttribute("esAdministrador", esAdministrador);
-            modelo.addAttribute("urlBase", "/curso/acceder/" + cursoId);
-            modelo.addAttribute("urlMisCursos", esAdministrador ? "/curso/misCursos" : "/curso/buscar");
             modelo.addAttribute("titulo", "Cronograma | Idóneos Online");
-            modelo.addAttribute("menuActivo", "cronograma");
             return "pages/cronograma/buscar";
         } catch (IllegalArgumentException e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/curso/buscar";
+            return volverAMisCursos(redirectAttributes, e);
         }
     }
 

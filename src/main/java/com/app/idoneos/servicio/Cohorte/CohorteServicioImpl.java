@@ -140,8 +140,7 @@ public class CohorteServicioImpl implements CohorteServicio, CrudServicio<Cohort
                 .filter(cohorte -> coincideEstado(cohorte, estado))
                 .filter(cohorte -> desde == null || !cohorte.getFechaFinInscripcion().toLocalDate().isBefore(desde))
                 .filter(cohorte -> hasta == null || !cohorte.getFechaInicioInscripcion().toLocalDate().isAfter(hasta))
-                .filter(cohorte -> soloDeDocente == null || cohorte.getPrograma().getCurso().getEquipoDocente().stream()
-                        .anyMatch(p -> p.getDocente().getIdDocente() == soloDeDocente.getIdDocente()))
+                .filter(cohorte -> soloDeDocente == null || cohorte.getPrograma().getCurso().tieneDocente(soloDeDocente))
                 .sorted(Comparator.comparing(Cohorte::esInactivo)
                         .thenComparing("curso".equals(orden)
                                 ? Comparator.comparing((Cohorte cohorte) -> cohorte.getPrograma().getCurso().getNombre(),

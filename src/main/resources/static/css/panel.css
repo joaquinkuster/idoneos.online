@@ -43,20 +43,6 @@
     transition: background-color 0.15s ease, border-color 0.15s ease;
 }
 
-.um-avatar {
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
-    background: var(--pn-avatar);
-    color: #FFFFFF;
-    font-size: 13px;
-    font-weight: 800;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-}
-
 .um-datos {
     display: flex;
     flex-direction: column;
@@ -454,109 +440,6 @@ body.pn-body {
     box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
 }
 
-.pn-tarjeta-cabecera {
-    padding: 18px 22px;
-    border-bottom: 1px solid var(--pn-borde);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-}
-
-.pn-tarjeta-titulo {
-    font-size: 16px;
-    font-weight: 700;
-    margin: 0;
-    color: var(--pn-texto);
-}
-
-.pn-tarjeta-cuerpo {
-    padding: 8px 22px 18px;
-}
-
-.pn-estadisticas {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 18px;
-    margin-bottom: 22px;
-}
-
-.pn-estadistica {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 20px 22px;
-}
-
-.pn-estadistica-icono {
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
-    background: var(--pn-gold-soft);
-    color: var(--pn-gold-hover);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-    flex-shrink: 0;
-}
-
-.pn-estadistica-valor {
-    font-size: 28px;
-    font-weight: 800;
-    line-height: 1;
-    color: var(--pn-texto);
-}
-
-.pn-estadistica-etiqueta {
-    font-size: 13px;
-    color: var(--pn-texto-suave);
-    margin-top: 4px;
-}
-
-.pn-tablero {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 18px;
-}
-
-.pn-lista-simple {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-}
-
-.pn-lista-simple li {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    padding: 14px 0;
-    border-bottom: 1px solid var(--pn-borde);
-}
-
-.pn-lista-simple li:last-child {
-    border-bottom: 0;
-}
-
-.pn-lista-principal {
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--pn-texto);
-}
-
-.pn-lista-secundaria {
-    font-size: 12px;
-    color: var(--pn-texto-suave);
-}
-
-.pn-vacio {
-    text-align: center;
-    color: var(--pn-texto-suave);
-    font-size: 14px;
-    padding: 28px 0;
-}
-
 /* ==========================================================================
    BOTONES SÓLIDOS
    ========================================================================== */
@@ -596,16 +479,6 @@ body.pn-body {
 .pn-btn-primario:hover {
     background: var(--pn-navy-dark);
     color: #FFFFFF;
-}
-
-.pn-btn-dorado {
-    background: var(--pn-gold);
-    color: var(--pn-navy-dark);
-}
-
-.pn-btn-dorado:hover {
-    background: var(--pn-gold-hover);
-    color: var(--pn-navy-dark);
 }
 
 .pn-btn-secundario {
@@ -1160,20 +1033,6 @@ textarea.pn-input {
     padding: 4px 0;
 }
 
-.pn-baja-lista {
-    list-style: none;
-    margin: 8px 0 0;
-    padding: 8px 0 0;
-    border-top: 1px solid var(--pn-borde);
-}
-
-.pn-baja-lista li {
-    display: flex;
-    justify-content: space-between;
-    gap: 8px;
-    padding: 4px 0;
-}
-
 /* ==========================================================================
    FORMULARIO POR PASOS
    ========================================================================== */
@@ -1247,11 +1106,6 @@ textarea.pn-input {
 /* ==========================================================================
    RESPONSIVE
    ========================================================================== */
-@media (max-width: 1100px) {
-    .pn-estadisticas {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
 
 @media (max-width: 900px) {
     .pn-menu {
@@ -1280,10 +1134,6 @@ textarea.pn-input {
         padding: 18px 16px;
     }
 
-    .pn-tablero {
-        grid-template-columns: 1fr;
-    }
-
     .pn-app.colapsado .pn-menu-enlace span {
         display: inline;
     }
@@ -1299,9 +1149,6 @@ textarea.pn-input {
 }
 
 @media (max-width: 560px) {
-    .pn-estadisticas {
-        grid-template-columns: 1fr;
-    }
 
     .pn-modal-pie {
         flex-wrap: wrap;
@@ -1337,33 +1184,6 @@ textarea.pn-input {
 .wf-migas-actual {
     color: #FFFFFF;
     font-weight: 600;
-}
-
-/* ==========================================================================
-   FOOTER: créditos en una fila inferior
-   ========================================================================== */
-.wf-screen-footer {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0;
-    padding: 0;
-}
-
-.wf-footer-fila {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 10px;
-    padding: 16px 48px;
-}
-
-.wf-footer-creditos {
-    text-align: center;
-    padding: 12px 48px;
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
-    font-size: 12px;
-    color: #94A3B8;
 }
 
 /* ==========================================================================
@@ -1549,4 +1369,16 @@ textarea.pn-input {
 /* Modales de baja: el motivo por el que no se puede dar de baja se muestra en una alerta roja bajo el subtítulo */
 .pn-modal .pn-modal-cuerpo .alert-formulario {
     margin-top: 16px;
+}
+
+/* Campo para elegir un archivo: el texto queda alineado con los demás campos */
+.pn-input-archivo {
+    padding-top: 9px;
+}
+
+/* Grupo de campos que se bloquea entero sin dibujar el borde del fieldset */
+.pn-fieldset-plano {
+    margin: 0;
+    padding: 0;
+    border: 0;
 }

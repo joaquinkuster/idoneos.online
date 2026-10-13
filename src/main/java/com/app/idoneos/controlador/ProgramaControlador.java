@@ -15,12 +15,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.app.idoneos.servicio.Curso.ContextoCurso;
 import com.app.idoneos.modelo.Curso;
 import com.app.idoneos.modelo.Docente;
-import com.app.idoneos.modelo.ParticipacionDocente;
 import com.app.idoneos.modelo.Programa;
 import com.app.idoneos.modelo.Usuario;
-import com.app.idoneos.servicio.Curso.CursoServicioImpl;
 import com.app.idoneos.servicio.Programa.ProgramaServicio;
 import com.app.idoneos.utilidades.RespuestaUtilidad;
 
@@ -34,13 +33,10 @@ import com.app.idoneos.utilidades.RespuestaUtilidad;
  */
 @Controller
 @RequestMapping("/programa")
-public class ProgramaControlador {
+public class ProgramaControlador extends PanelCursoControlador {
 
     @Autowired
     private ProgramaServicio programaServicio;
-
-    @Autowired
-    private CursoServicioImpl cursoServicio;
 
     /**
      * CU-15: Busca los programas de un curso por nombre y estado (Vigente, Anterior o Dado de baja).
@@ -62,41 +58,25 @@ public class ProgramaControlador {
             @RequestParam(value = "nuevo", required = false) String nuevo, Model modelo, Authentication auth,
             RedirectAttributes redirectAttributes) {
         try {
-            Usuario usuario = (Usuario) auth.getPrincipal();
-            boolean esAdministrador = usuario.esAdministradorActivo();
-            if (cursoId == null) {
-                throw new IllegalArgumentException("Error! Debe seleccionar un curso.");
-            }
-            Curso curso;
-            Programa programaDeTrabajo = null;
-            if (esAdministrador) {
-                curso = cursoServicio.buscarPorId(cursoId)
-                        .orElseThrow(() -> new IllegalArgumentException("Error! El curso no se encuentra activo."));
-            } else {
-                ParticipacionDocente participacion = cursoServicio.validarAccesoDocente(cursoId, usuario.getDocente());
-                curso = participacion.getCurso();
-                programaDeTrabajo = participacion.getProgramaDeTrabajo();
-            }
+            ContextoCurso contexto = contextoDelPanel(cursoId, (Usuario) auth.getPrincipal());
+            boolean esAdministrador = contexto.esAdministrador();
+            Curso curso = contexto.curso();
+            // Solo el docente tiene un programa de trabajo elegido (el administrador no)
+            Programa programaDeTrabajo = esAdministrador ? null : contexto.programa();
             List<Programa> programas = programaServicio.buscarConFiltros(curso, null, null); // listado completo: los filtros se aplican en la pantalla
 
-            modelo.addAttribute("curso", curso);
+            cargarContexto(modelo, contexto, "programas");
             modelo.addAttribute("programas", programas);
             modelo.addAttribute("programaDeTrabajoId", programaDeTrabajo == null ? null : programaDeTrabajo.getIdPrograma());
             modelo.addAttribute("programasActivos", curso.getProgramasActivos());
             modelo.addAttribute("abrirModal", !esAdministrador && nuevo != null ? "modalNuevoPrograma" : null);
             modelo.addAttribute("nombreBusqueda", nombre);
             modelo.addAttribute("estadoSeleccionado", estado);
-            modelo.addAttribute("esDocente", !esAdministrador);
-            modelo.addAttribute("esAdministrador", esAdministrador);
             modelo.addAttribute("puedeGestionar", !esAdministrador);
-            modelo.addAttribute("urlBase", "/curso/acceder/" + cursoId);
-            modelo.addAttribute("urlMisCursos", esAdministrador ? "/curso/misCursos" : "/curso/buscar");
             modelo.addAttribute("titulo", "Programas | Idóneos Online");
-            modelo.addAttribute("menuActivo", "programas");
             return "pages/programa/buscar";
         } catch (IllegalArgumentException e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/curso/buscar";
+            return volverAMisCursos(redirectAttributes, e);
         }
     }
 

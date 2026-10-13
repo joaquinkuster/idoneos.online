@@ -1,7 +1,5 @@
 package com.app.idoneos.controlador;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -19,17 +17,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.app.idoneos.modelo.Curso;
+import com.app.idoneos.servicio.Curso.ContextoCurso;
 import com.app.idoneos.modelo.Docente;
-import com.app.idoneos.modelo.Inscripcion;
-import com.app.idoneos.modelo.ParticipacionDocente;
 import com.app.idoneos.modelo.Programa;
 import com.app.idoneos.modelo.TerminoGlosario;
 import com.app.idoneos.modelo.Unidad;
 import com.app.idoneos.modelo.UnidadCronograma;
 import com.app.idoneos.modelo.Usuario;
-import com.app.idoneos.servicio.Curso.CursoServicioImpl;
-import com.app.idoneos.servicio.Inscripcion.InscripcionServicio;
 import com.app.idoneos.servicio.TerminoGlosario.TerminoGlosarioServicio;
 import com.app.idoneos.servicio.Unidad.UnidadServicioImpl;
 import com.app.idoneos.utilidades.RespuestaUtilidad;
@@ -46,19 +40,13 @@ import com.app.idoneos.utilidades.RespuestaUtilidad;
  */
 @Controller
 @RequestMapping("/glosario")
-public class GlosarioControlador {
+public class GlosarioControlador extends PanelCursoControlador {
 
     @Autowired
     private TerminoGlosarioServicio terminoGlosarioServicio;
 
     @Autowired
-    private CursoServicioImpl cursoServicio;
-
-    @Autowired
     private UnidadServicioImpl unidadServicio;
-
-    @Autowired
-    private InscripcionServicio inscripcionServicio;
 
     /**
      * Lista los glosarios de un curso, uno por unidad del programa, cada uno con su cantidad de términos y su última
@@ -76,40 +64,18 @@ public class GlosarioControlador {
             @RequestParam(value = "unidadId", required = false) Integer unidadId, Model modelo,
             Authentication auth, RedirectAttributes redirectAttributes) {
         try {
-            Usuario usuario = (Usuario) auth.getPrincipal();
-            boolean esAdministrador = usuario.esAdministradorActivo();
-            if (cursoId == null) {
-                throw new IllegalArgumentException("Error! Debe seleccionar un curso.");
-            }
-            Curso curso;
-            Programa programa;
-            if (esAdministrador) {
-                curso = cursoServicio.buscarPorId(cursoId)
-                        .orElseThrow(() -> new IllegalArgumentException("Error! El curso no se encuentra activo."));
-                programa = curso.getProgramaVigente();
-            } else {
-                ParticipacionDocente participacion = cursoServicio.validarAccesoDocente(cursoId, usuario.getDocente());
-                curso = participacion.getCurso();
-                programa = participacion.getProgramaDeTrabajo();
-            }
+            ContextoCurso contexto = contextoDelPanel(cursoId, (Usuario) auth.getPrincipal());
+            Programa programa = contexto.programa();
             List<UnidadCronograma> todas = programa == null ? List.of() : programa.getCronogramaOrdenado();
-            List<UnidadCronograma> unidades = unidadId == null ? todas : todas.stream()
-                    .filter(uc -> uc.getUnidad().getIdUnidad() == unidadId).toList();
 
-            modelo.addAttribute("curso", curso);
+            cargarContexto(modelo, contexto, "glosario");
             modelo.addAttribute("unidadesDelPrograma", todas);
             modelo.addAttribute("unidadSeleccionada", unidadId);
-            modelo.addAttribute("unidades", unidades);
-            modelo.addAttribute("esDocente", !esAdministrador);
-            modelo.addAttribute("esAdministrador", esAdministrador);
-            modelo.addAttribute("urlBase", "/curso/acceder/" + cursoId);
-            modelo.addAttribute("urlMisCursos", esAdministrador ? "/curso/misCursos" : "/curso/buscar");
+            modelo.addAttribute("unidades", todas); // todas las unidades: el filtro se aplica en la pantalla
             modelo.addAttribute("titulo", "Glosarios | Idóneos Online");
-            modelo.addAttribute("menuActivo", "glosario");
             return "pages/glosario/buscar";
         } catch (IllegalArgumentException e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/curso/buscar";
+            return volverAMisCursos(redirectAttributes, e);
         }
     }
 
@@ -145,30 +111,10 @@ public class GlosarioControlador {
         if (!terminoGlosarioServicio.puedeVer(unidad, usuario)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
-        Curso curso = unidad.getCurso();
-        boolean esAdministrador = usuario.esAdministradorActivo();
-        Docente docente = usuario.getDocente();
-        boolean esDocente = !esAdministrador && docente != null && curso.getEquipoDocente().stream()
-                .anyMatch(participacion -> participacion.getDocente().getIdDocente() == docente.getIdDocente());
-
-        Programa programa;
-        String urlBase;
-        String urlMisCursos;
-        if (esAdministrador) {
-            programa = curso.getProgramaVigente();
-            urlBase = "/curso/acceder/" + curso.getIdCurso();
-            urlMisCursos = "/curso/misCursos";
-        } else if (esDocente) {
-            programa = cursoServicio.validarAccesoDocente(curso.getIdCurso(), docente).getProgramaDeTrabajo();
-            urlBase = "/curso/acceder/" + curso.getIdCurso();
-            urlMisCursos = "/curso/buscar";
-        } else {
-            Inscripcion inscripcion = inscripcionServicio.buscarConAccesoAUnidad(usuario.getAlumno(), unidad)
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN));
-            programa = inscripcion.getCohorte().getPrograma();
-            urlBase = "/inscripcion/acceder/" + inscripcion.getIdInscripcion();
-            urlMisCursos = "/inscripcion/misCursos";
-        }
+        ContextoCurso contexto = contextoDeLaUnidad(unidad, usuario);
+        boolean esAdministrador = contexto.esAdministrador();
+        boolean esDocente = contexto.esDocente();
+        Programa programa = contexto.programa();
         int numeroOrden = programa == null ? 0 : programa.getCronogramaOrdenado().stream()
                 .filter(cronograma -> cronograma.getUnidad().getIdUnidad() == unidad.getIdUnidad())
                 .mapToInt(UnidadCronograma::getNumeroOrden).findFirst().orElse(0);
@@ -181,25 +127,15 @@ public class GlosarioControlador {
             encontrados = encontrados.stream().filter(termino -> termino.getIdTermino() == terminoId).toList();
         }
 
-        // Los términos, agrupados por letra inicial (ya vienen en orden alfabético)
-        Map<String, List<TerminoGlosario>> grupos = new LinkedHashMap<>();
-        encontrados.forEach(termino -> grupos.computeIfAbsent(termino.getLetraInicial(), l -> new ArrayList<>())
-                .add(termino));
-
+        cargarContexto(modelo, contexto, "glosario");
         modelo.addAttribute("unidad", unidad);
-        modelo.addAttribute("curso", curso);
         modelo.addAttribute("numeroOrden", numeroOrden);
         modelo.addAttribute("totalTerminos", unidad.getTerminosGlosarioOrdenados().size());
         modelo.addAttribute("unSoloTermino", unSoloTermino);
-        modelo.addAttribute("grupos", grupos);
-        modelo.addAttribute("esAdministrador", esAdministrador);
-        modelo.addAttribute("esDocente", esDocente);
+        modelo.addAttribute("grupos", terminoGlosarioServicio.agruparPorLetra(encontrados)); // por letra inicial
         modelo.addAttribute("puedeGestionar", esDocente);
         modelo.addAttribute("puedeDarDeBaja", esDocente || esAdministrador);
         modelo.addAttribute("abrirNuevo", esDocente && nuevo != null);
-        modelo.addAttribute("urlBase", urlBase);
-        modelo.addAttribute("urlMisCursos", urlMisCursos);
-        modelo.addAttribute("menuActivo", "glosario");
         modelo.addAttribute("titulo", "Glosario " + numeroOrden + " | Idóneos Online");
         return "pages/glosario/ver";
     }

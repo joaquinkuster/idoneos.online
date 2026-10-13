@@ -15,7 +15,7 @@
             <div class="wf-hero-banner">
                 <div>
                     <div class="wf-hero-tag">
-                        <i class="fa-solid fa-triangle-exclamation" style="color: var(--wf-gold);"></i>
+                        <i class="fa-solid fa-triangle-exclamation"></i>
                         <span th:text="${'ERROR ' + codigo}">ERROR 404</span>
                     </div>
                     <h2 class="wf-hero-title" th:text="${encabezado}">Página no encontrada</h2>
@@ -25,11 +25,11 @@
 
             <div class="wf-body">
                 <div class="wf-main-content">
-                    <div class="wf-card text-center py-5" style="background: #FFFFFF;">
-                        <div class="mb-3" style="font-size: 56px; color: var(--wf-gold, #D4A03D);">
+                    <div class="wf-card text-center py-5 err-tarjeta">
+                        <div class="mb-3 err-icono">
                             <i class="fa-solid fa-compass"></i>
                         </div>
-                        <h4 class="fw-bold mb-2" style="color: #081426;" th:text="${encabezado}">Página no encontrada</h4>
+                        <h4 class="fw-bold mb-2 err-titulo" th:text="${encabezado}">Página no encontrada</h4>
                         <p class="text-muted mb-4" th:text="${detalle}">La página que buscás no existe o fue movida.</p>
                         <div class="d-flex justify-content-center gap-2">
                             <a th:href="@{/inicio}" class="wf-btn wf-btn-primary text-decoration-none">

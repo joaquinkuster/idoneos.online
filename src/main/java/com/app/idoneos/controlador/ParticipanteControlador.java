@@ -10,12 +10,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.app.idoneos.servicio.Curso.ContextoCurso;
 import com.app.idoneos.modelo.Alumno;
 import com.app.idoneos.modelo.Curso;
 import com.app.idoneos.modelo.Inscripcion;
 import com.app.idoneos.modelo.Usuario;
-import com.app.idoneos.servicio.Curso.CursoServicioImpl;
-import com.app.idoneos.servicio.Inscripcion.InscripcionServicioImpl;
 import com.app.idoneos.servicio.Participante.ParticipanteServicioImpl;
 
 /**
@@ -26,16 +25,10 @@ import com.app.idoneos.servicio.Participante.ParticipanteServicioImpl;
  */
 @Controller
 @RequestMapping("/participante")
-public class ParticipanteControlador {
+public class ParticipanteControlador extends PanelCursoControlador {
 
     @Autowired
     private ParticipanteServicioImpl participanteServicio;
-
-    @Autowired
-    private CursoServicioImpl cursoServicio;
-
-    @Autowired
-    private InscripcionServicioImpl inscripcionServicio;
 
     /**
      * CU-25: Lista el equipo docente y los alumnos de todas las cohortes de un curso. Los filtros (nombre o apellido,
@@ -53,26 +46,13 @@ public class ParticipanteControlador {
         Usuario usuario = (Usuario) auth.getPrincipal();
         boolean esAdministrador = usuario.esAdministradorActivo();
         try {
-            if (cursoId == null) {
-                throw new IllegalArgumentException("Error! Debe seleccionar un curso.");
-            }
-            Curso curso;
-            if (esAdministrador) {
-                curso = cursoServicio.buscarPorId(cursoId).filter(c -> !c.esInactivo())
-                        .orElseThrow(() -> new IllegalArgumentException("Error! El curso no se encuentra activo."));
-            } else {
-                curso = cursoServicio.validarAccesoDocente(cursoId, usuario.getDocente()).getCurso();
-            }
-            modelo.addAttribute("curso", curso);
+            ContextoCurso contexto = contextoDelPanel(cursoId, usuario);
+            Curso curso = contexto.curso();
+            cargarContexto(modelo, contexto, "participantes");
             modelo.addAttribute("participantes", participanteServicio.buscarParticipantes(curso, null, null));
             modelo.addAttribute("cohortes", curso.getProgramasActivos().stream()
                     .flatMap(programa -> programa.getCohortesActivas().stream()).toList());
             modelo.addAttribute("soloCohorte", false);
-            modelo.addAttribute("esDocente", !esAdministrador);
-            modelo.addAttribute("esAdministrador", esAdministrador);
-            modelo.addAttribute("urlBase", "/curso/acceder/" + cursoId);
-            modelo.addAttribute("urlMisCursos", esAdministrador ? "/curso/misCursos" : "/curso/buscar");
-            modelo.addAttribute("menuActivo", "participantes");
             modelo.addAttribute("titulo", "Participantes | Idóneos Online");
             return "pages/participante/buscar";
         } catch (IllegalArgumentException e) {
@@ -100,17 +80,12 @@ public class ParticipanteControlador {
                 throw new IllegalArgumentException("Error! El usuario no tiene el rol de alumno.");
             }
             Inscripcion inscripcion = inscripcionServicio.validarAcceso(idInscripcion, alumno);
+            cargarContexto(modelo, ContextoCurso.deAlumno(inscripcion), "participantes");
             modelo.addAttribute("inscripcion", inscripcion);
-            modelo.addAttribute("curso", inscripcion.getCurso());
             modelo.addAttribute("participantes",
                     participanteServicio.buscarParticipantesPorCohorte(inscripcion.getCohorte(), null, null));
             modelo.addAttribute("cohortes", java.util.List.of());
             modelo.addAttribute("soloCohorte", true);
-            modelo.addAttribute("esDocente", false);
-            modelo.addAttribute("esAdministrador", false);
-            modelo.addAttribute("urlBase", "/inscripcion/acceder/" + idInscripcion);
-            modelo.addAttribute("urlMisCursos", "/inscripcion/misCursos");
-            modelo.addAttribute("menuActivo", "participantes");
             modelo.addAttribute("titulo", "Participantes | Idóneos Online");
             return "pages/participante/buscar";
         } catch (IllegalArgumentException e) {

@@ -16,7 +16,7 @@
             <div class="wf-hero-banner">
                 <div>
                     <div class="wf-hero-tag">
-                        <i class="fa-solid fa-graduation-cap" style="color: var(--wf-gold);"></i>
+                        <i class="fa-solid fa-graduation-cap"></i>
                         <span>PORTAL DEL ALUMNO</span>
                     </div>
                     <h2 class="wf-hero-title">Mis Cursos</h2>
@@ -90,14 +90,14 @@
                                         <span>Progreso general</span>
                                         <strong th:text="${insc.porcentajeProgreso + '%'}">0%</strong>
                                     </div>
-                                    <div class="progress" style="height: 8px;">
+                                    <div class="progress wf-progreso-fino">
                                         <div class="progress-bar" role="progressbar" th:style="${'width:' + insc.porcentajeProgreso + '%; background: var(--wf-gold, #D4A03D);'}"
                                              th:attr="aria-valuenow=${insc.porcentajeProgreso}" aria-valuemin="0" aria-valuemax="100"></div>
                                     </div>
                                     <div class="small text-muted mt-1" th:text="${insc.unidadesCompletadas + ' de ' + insc.cohorte.programa.cantidadUnidades + ' unidades completadas'}">1 de 3 unidades completadas</div>
                                 </div>
                                 <div class="wf-course-info-row">
-                                    <span><i class="fa-solid fa-layer-group me-1" style="color: #94A3B8;"></i> <span th:text="${insc.cohorte.programa.nombre}">Programa 2026</span></span>
+                                    <span><i class="fa-solid fa-layer-group me-1 wf-icono-suave"></i> <span th:text="${insc.cohorte.programa.nombre}">Programa 2026</span></span>
                                     <span class="small text-muted" th:text="${'Acceso hasta ' + #temporals.format(insc.fechaVencimientoAcceso, 'dd/MM/yyyy')}">Acceso hasta 01/01/2027</span>
                                 </div>
                             </div>

@@ -246,28 +246,7 @@
         </div>
     </div>
 
-    <div class="modal fade pn-modal" th:id="'modalBajaUnidad' + ${uc.unidad.idUnidad}" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="pn-modal-cabecera">
-                    <h3 class="pn-modal-titulo">Dar de baja unidad</h3>
-                    <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
-                </div>
-                <div class="pn-modal-cuerpo text-center">
-                    <div class="pn-baja-icono"><i class="fa-solid fa-triangle-exclamation"></i></div>
-                    <h4 class="pn-modal-titulo mb-2" th:text="'¿Confirmas dar de baja la unidad «' + ${uc.unidad.titulo} + '»?'">¿Confirmas dar de baja la unidad?</h4>
-                    <p class="small text-muted mb-0">Se quitará del cronograma de este programa. Si no forma parte de otro programa, quedará dada de baja.</p>
-                    <form th:action="@{'/unidad/darDeBaja/' + ${uc.unidad.idUnidad}}" method="post" class="form-ajax">
-                        <input type="hidden" name="programaId" th:value="${programa.idPrograma}">
-                        <div class="pn-modal-pie">
-                            <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
-                            <button type="submit" class="pn-btn pn-btn-peligro">Dar de baja</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
+    <th:block th:replace="~{fragments/modalBaja :: bloque('modalBajaUnidad' + ${uc.unidad.idUnidad}, 'unidad', '¿Confirmas dar de baja la unidad «' + ${uc.unidad.titulo} + '»?', 'Se quitará del cronograma de este programa. Si no forma parte de otro programa, quedará dada de baja.', '/unidad/darDeBaja/' + ${uc.unidad.idUnidad}, 'programaId', ${programa.idPrograma})}"></th:block>
 </th:block>
 
 <th:block th:replace="~{fragments/panel :: scripts}"></th:block>

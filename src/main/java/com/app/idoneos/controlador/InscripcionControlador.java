@@ -2,7 +2,6 @@ package com.app.idoneos.controlador;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -12,11 +11,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.app.idoneos.servicio.Curso.ContextoCurso;
 import com.app.idoneos.modelo.Alumno;
 import com.app.idoneos.modelo.Inscripcion;
 import com.app.idoneos.modelo.UnidadCronograma;
 import com.app.idoneos.modelo.Usuario;
-import com.app.idoneos.servicio.Inscripcion.InscripcionServicioImpl;
 
 /**
  * Controlador de las inscripciones del alumno (MOD-F-01).
@@ -26,10 +25,7 @@ import com.app.idoneos.servicio.Inscripcion.InscripcionServicioImpl;
  */
 @Controller
 @RequestMapping("/inscripcion")
-public class InscripcionControlador {
-
-    @Autowired
-    private InscripcionServicioImpl inscripcionServicio;
+public class InscripcionControlador extends PanelCursoControlador {
 
     /**
      * CU-02: Lista los cursos en los que el alumno está inscripto, con su progreso general,
@@ -58,7 +54,7 @@ public class InscripcionControlador {
             modelo.addAttribute("totalInscripciones", inscripciones.size());
             modelo.addAttribute("busqueda", busqueda);
             modelo.addAttribute("estadoSeleccionado", estado);
-            modelo.addAttribute("titulo", "CU-02 - Mis Cursos | Idóneos Online");
+            modelo.addAttribute("titulo", "Mis cursos | Idóneos Online");
             return "pages/inscripcion/misCursos";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
@@ -90,19 +86,15 @@ public class InscripcionControlador {
             Inscripcion inscripcion = inscripcionServicio.validarAcceso(idInscripcion, alumno);
             String seccionActiva = List.of("unidades", "cronograma", "clases").contains(seccion) ? seccion : "unidades";
 
+            cargarContexto(modelo, ContextoCurso.deAlumno(inscripcion),
+                    "unidades".equals(seccionActiva) ? "curso" : seccionActiva);
             modelo.addAttribute("inscripcion", inscripcion);
-            modelo.addAttribute("curso", inscripcion.getCurso());
-            modelo.addAttribute("programa", inscripcion.getCohorte().getPrograma());
             modelo.addAttribute("cohorte", inscripcion.getCohorte());
             // Unidades del cronograma, para el tablero de solo lectura de la sección "cronograma"
             modelo.addAttribute("unidadesDelCronograma", inscripcion.getCohorte().getPrograma().getCronogramaOrdenado()
                     .stream().map(UnidadCronograma::getUnidad).toList());
-            modelo.addAttribute("esDocente", false);
-            modelo.addAttribute("urlBase", "/inscripcion/acceder/" + idInscripcion);
-            modelo.addAttribute("urlMisCursos", "/inscripcion/misCursos");
             modelo.addAttribute("seccion", seccionActiva);
-            modelo.addAttribute("menuActivo", "unidades".equals(seccionActiva) ? "curso" : seccionActiva);
-            modelo.addAttribute("titulo", "CU-27 - " + inscripcion.getCurso().getNombre() + " | Idóneos Online");
+            modelo.addAttribute("titulo", inscripcion.getCurso().getNombre() + " | Idóneos Online");
             return "pages/curso/acceder";
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());

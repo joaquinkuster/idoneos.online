@@ -180,7 +180,7 @@
                         <div class="pn-aviso pn-aviso-dorado" th:if="${bloqueada}">
                             <i class="fa-solid fa-lock me-1"></i> La categoría tiene inscripciones activas y no puede modificarse: es un dato que el alumno vio y pagó al inscribirse.
                         </div>
-                        <fieldset th:disabled="${bloqueada}" style="border: 0; padding: 0; margin: 0;">
+                        <fieldset th:disabled="${bloqueada}" class="pn-fieldset-plano">
                             <div class="pn-campo mb-3">
                                 <div class="pn-etiqueta-fila">
                                     <label class="pn-etiqueta">Nombre <span class="pn-obligatorio">*</span></label>
@@ -208,27 +208,7 @@
         </div>
     </div>
 
-    <div class="modal fade pn-modal" th:id="'modalBajaCategoria' + ${cat.idCategoria}" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="pn-modal-cabecera">
-                    <h3 class="pn-modal-titulo">Dar de baja categoría</h3>
-                    <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
-                </div>
-                <div class="pn-modal-cuerpo text-center">
-                    <div class="pn-baja-icono"><i class="fa-solid fa-triangle-exclamation"></i></div>
-                    <h4 class="pn-modal-titulo mb-2" th:text="'¿Confirmas dar de baja la categoría «' + ${cat.nombre} + '»?'">¿Confirmas dar de baja la categoría?</h4>
-                    <p class="small text-muted mb-0">La categoría dejará de estar disponible en el sistema.</p>
-                    <form th:action="@{'/categoria/darDeBaja/' + ${cat.idCategoria}}" method="post" class="form-ajax">
-                        <div class="pn-modal-pie">
-                            <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
-                            <button type="submit" class="pn-btn pn-btn-peligro">Dar de baja</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
+    <th:block th:replace="~{fragments/modalBaja :: bloque('modalBajaCategoria' + ${cat.idCategoria}, 'categoría', '¿Confirmas dar de baja la categoría «' + ${cat.nombre} + '»?', 'La categoría dejará de estar disponible en el sistema.', '/categoria/darDeBaja/' + ${cat.idCategoria}, null, null)}"></th:block>
 </th:block>
 
 <th:block th:replace="~{fragments/panel :: scripts}"></th:block>

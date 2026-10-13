@@ -257,7 +257,7 @@
                         <div class="pn-aviso pn-aviso-azul">
                             Duración total del cronograma del programa: <strong th:text="${coh.programa.duracionTotalSemanas}">9</strong> semanas. Las semanas de acceso no pueden ser menores.
                         </div>
-                        <fieldset th:disabled="${bloqueada}" style="border: 0; padding: 0; margin: 0;">
+                        <fieldset th:disabled="${bloqueada}" class="pn-fieldset-plano">
                             <div class="row g-3">
                                 <div class="col-md-6 pn-campo">
                                     <label class="pn-etiqueta">Inicio de inscripción <span class="pn-obligatorio">*</span></label>
@@ -301,27 +301,7 @@
         </div>
     </div>
 
-    <div class="modal fade pn-modal" th:id="'modalBajaCohorte' + ${coh.idCohorte}" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="pn-modal-cabecera">
-                    <h3 class="pn-modal-titulo">Dar de baja cohorte</h3>
-                    <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
-                </div>
-                <div class="pn-modal-cuerpo text-center">
-                    <div class="pn-baja-icono"><i class="fa-solid fa-triangle-exclamation"></i></div>
-                    <h4 class="pn-modal-titulo mb-2" th:text="'¿Confirmas dar de baja la cohorte «' + ${coh.programa.curso.nombre + ' — ' + coh.programa.nombre} + '»?'">¿Confirmas dar de baja la cohorte?</h4>
-                    <p class="small text-muted mb-0">Se desvinculará de los docentes que la tienen como cohorte de trabajo.</p>
-                    <form th:action="@{'/cohorte/darDeBaja/' + ${coh.idCohorte}}" method="post" class="form-ajax">
-                        <div class="pn-modal-pie">
-                            <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
-                            <button type="submit" class="pn-btn pn-btn-peligro">Dar de baja</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
+    <th:block th:replace="~{fragments/modalBaja :: bloque('modalBajaCohorte' + ${coh.idCohorte}, 'cohorte', '¿Confirmas dar de baja la cohorte «' + ${coh.programa.curso.nombre + ' — ' + coh.programa.nombre} + '»?', 'Se desvinculará de los docentes que la tienen como cohorte de trabajo.', '/cohorte/darDeBaja/' + ${coh.idCohorte}, null, null)}"></th:block>
 </th:block>
 
 <th:block th:replace="~{fragments/panel :: scripts}"></th:block>

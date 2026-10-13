@@ -166,27 +166,7 @@
 
 <!-- Modales de baja (CU-38, administrador) -->
 <th:block th:if="${esAdministrador}" th:each="c : ${consultas}">
-    <div class="modal fade pn-modal" th:id="'modalBajaConsulta' + ${c.idConsulta}" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="pn-modal-cabecera">
-                    <h3 class="pn-modal-titulo">Dar de baja consulta</h3>
-                    <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
-                </div>
-                <div class="pn-modal-cuerpo text-center">
-                    <div class="pn-baja-icono"><i class="fa-solid fa-triangle-exclamation"></i></div>
-                    <h4 class="pn-modal-titulo mb-2" th:text="'¿Confirmas dar de baja la consulta «' + ${c.resumen} + '»?'">¿Confirmas dar de baja la consulta?</h4>
-                    <p class="small text-muted mb-0">También se darán de baja sus respuestas.</p>
-                    <form th:action="@{'/foro/darDeBaja/' + ${c.idConsulta}}" method="post" class="form-ajax">
-                        <div class="pn-modal-pie">
-                            <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
-                            <button type="submit" class="pn-btn pn-btn-peligro">Dar de baja</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
+    <th:block th:replace="~{fragments/modalBaja :: bloque('modalBajaConsulta' + ${c.idConsulta}, 'consulta', '¿Confirmas dar de baja la consulta «' + ${c.resumen} + '»?', 'También se darán de baja sus respuestas.', '/foro/darDeBaja/' + ${c.idConsulta}, null, null)}"></th:block>
 </th:block>
 
 <th:block th:replace="~{fragments/panel :: scripts}"></th:block>

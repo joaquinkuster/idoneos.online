@@ -106,15 +106,15 @@ class GlosarioControladorTest {
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesServicio")
-    @DisplayName("El listado se filtra por unidad y trae filtros, botón Limpiar, columnas y paginación")
+    @DisplayName("La unidad que llega por la URL solo se elige en el campo (el listado sigue completo) y trae filtros, botón Limpiar, columnas y paginación")
     void listadoConFiltros() throws Exception {
         int curso = idCurso("Mercado de Capitales Argentino");
 
         mockMvc.perform(get("/glosario/buscar").param("cursoId", String.valueOf(curso)).param("unidadId", String.valueOf(segunda())))
                 .andExpect(status().isOk())
                 .andExpect(content().string(Matchers.containsString("Glosario 2")))
-                .andExpect(content().string(Matchers.not(Matchers.containsString("Glosario 1<"))))
-                .andExpect(content().string(Matchers.not(Matchers.containsString("Glosario 3<"))))
+                .andExpect(content().string(Matchers.containsString("Glosario 1<")))
+                .andExpect(content().string(Matchers.containsString("Glosario 3<")))
                 .andExpect(content().string(Matchers.containsString("Limpiar")))
                 .andExpect(content().string(Matchers.containsString("data-columnas-boton")))
                 .andExpect(content().string(Matchers.containsString("data-paginador")));

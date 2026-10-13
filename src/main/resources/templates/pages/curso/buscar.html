@@ -16,7 +16,7 @@
             <div class="wf-hero-banner">
                 <div>
                     <div class="wf-hero-tag">
-                        <i class="fa-solid fa-graduation-cap" style="color: var(--wf-gold);"></i>
+                        <i class="fa-solid fa-graduation-cap"></i>
                         <span th:text="${esAdministrador == true ? 'PANEL DEL ADMINISTRADOR' : 'PANEL DOCENTE'}">PANEL DOCENTE</span>
                     </div>
                     <h2 class="wf-hero-title" th:text="${esAdministrador == true ? 'Todos los cursos' : 'Mis Cursos'}">Mis Cursos</h2>
@@ -120,7 +120,7 @@
                                 <div class="wf-course-thumb-icon"><i class="fa-solid fa-graduation-cap w-8 h-8 text-white"></i></div>
                                 <div class="wf-course-pills-row">
                                     <span class="wf-pill-tag" th:text="${curso.categoria.nombre}">Categoría</span>
-                                    <span class="wf-badge" th:if="${curso.baja}" style="background: #E2E8F0; color: #475569; font-weight: 800; border: 1px solid #CBD5E1; padding: 4px 10px;">Dado de baja</span>
+                                    <span class="wf-badge wf-badge-baja" th:if="${curso.baja}">Dado de baja</span>
                                     <span class="wf-pill-status" th:if="${!curso.baja and cursosConInscripcionAbierta != null and cursosConInscripcionAbierta.contains(curso.idCurso)}">Inscripción Abierta</span>
                                 </div>
                             </div>
@@ -134,7 +134,7 @@
                                     <div th:if="${!#lists.isEmpty(curso.docentesAyudantes)}"><dt>Ayudantes</dt><dd><span th:each="a, st : ${curso.docentesAyudantes}"><span th:text="${a.usuario.nombreCompleto}">Docente</span><span th:if="${!st.last}">, </span></span></dd></div>
                                 </dl>
                                 <div class="wf-course-info-row">
-                                    <span><i class="fa-solid fa-layer-group me-1" style="color: #94A3B8;"></i> <span th:text="${programasPorCurso != null and programasPorCurso.containsKey(curso.idCurso) and !#lists.isEmpty(programasPorCurso.get(curso.idCurso)) ? 'Programa vigente' : 'Sin programa vigente'}">Programa vigente</span></span>
+                                    <span><i class="fa-solid fa-layer-group me-1 wf-icono-suave"></i> <span th:text="${programasPorCurso != null and programasPorCurso.containsKey(curso.idCurso) and !#lists.isEmpty(programasPorCurso.get(curso.idCurso)) ? 'Programa vigente' : 'Sin programa vigente'}">Programa vigente</span></span>
                                     <span class="wf-course-price" th:text="${curso.precio != null && curso.precio <= 0 ? 'GRATIS' : '$ ' + #numbers.formatDecimal(curso.precio != null ? curso.precio : 0, 1, 'POINT', 0, 'COMMA')}">$0</span>
                                 </div>
                             </div>

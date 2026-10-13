@@ -123,7 +123,7 @@
             </div>
             <div class="col-md-6 pn-campo">
                 <label class="pn-etiqueta">Imagen (opcional)</label>
-                <input type="file" name="imagenArchivo" class="pn-input imagen-curso" accept="image/jpeg,image/png,image/webp" style="padding-top: 9px;">
+                <input type="file" name="imagenArchivo" class="pn-input pn-input-archivo imagen-curso" accept="image/jpeg,image/png,image/webp">
                 <div class="pn-ayuda-error"></div>
                 <img class="pn-vista-previa mt-2" alt="Imagen del curso"
                      th:classappend="${curso == null or curso.imagen == null} ? 'd-none'"
