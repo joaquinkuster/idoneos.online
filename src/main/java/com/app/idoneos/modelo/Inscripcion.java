@@ -156,6 +156,74 @@ public class Inscripcion {
         return cohorte.getPrograma().getCurso();
     }
 
+    /** Estados de acceso (se derivan de la habilitación, el vencimiento y el inicio del dictado). */
+    public static final String ACCESO_VIGENTE = "Vigente";
+    public static final String ACCESO_VENCIDA = "Vencida";
+    public static final String ACCESO_PENDIENTE_DE_PAGO = "Pendiente de pago";
+    public static final String ACCESO_PROGRAMADA = "Programada";
+    public static final String ACCESO_DADA_DE_BAJA = "Dada de baja";
+
+    /**
+     * Indica si el acceso está habilitado: se habilita al aprobarse el pago (o al inscribirse a un curso gratuito).
+     * Las inscripciones sin dato se consideran habilitadas.
+     *
+     * @return {@code true} si no está explícitamente deshabilitada.
+     */
+    public boolean estaHabilitada() {
+        return !Boolean.FALSE.equals(habilitado);
+    }
+
+    /**
+     * Estado de acceso de la inscripción, en este orden: Dada de baja, Vencida (pasó la fecha de vencimiento),
+     * Pendiente de pago (no está habilitada), Programada (habilitada, pero el dictado de la cohorte todavía no
+     * comenzó) o Vigente.
+     *
+     * @param ahora El momento de referencia.
+     * @return El nombre del estado.
+     */
+    public String getEstadoAcceso(LocalDateTime ahora) {
+        if (baja) {
+            return ACCESO_DADA_DE_BAJA;
+        }
+        if (fechaVencimientoAcceso.isBefore(ahora)) {
+            return ACCESO_VENCIDA;
+        }
+        if (!estaHabilitada()) {
+            return ACCESO_PENDIENTE_DE_PAGO;
+        }
+        return cohorte.dictadoPorComenzar(ahora) ? ACCESO_PROGRAMADA : ACCESO_VIGENTE;
+    }
+
+    /**
+     * Estado de acceso de la inscripción en este momento.
+     *
+     * @return El nombre del estado.
+     */
+    public String getEstadoAcceso() {
+        return getEstadoAcceso(LocalDateTime.now());
+    }
+
+    /**
+     * Obtiene el certificado vigente (no anulado) de la inscripción.
+     *
+     * @return El certificado, o {@code null} si no se emitió.
+     */
+    public Certificado getCertificadoVigente() {
+        return certificados.stream().filter(certificado -> !certificado.estaAnulado())
+                .max(Comparator.comparing(Certificado::getFechaCreacion)).orElse(null);
+    }
+
+    /**
+     * Calcula la fecha de vencimiento más temprana que puede tener el acceso: la que resulta de la duración del
+     * cronograma del programa, contada desde el inicio del dictado o, si no tiene, desde la fecha de la inscripción.
+     *
+     * @return La fecha de vencimiento mínima.
+     */
+    public LocalDateTime getVencimientoMinimo() {
+        LocalDateTime base = cohorte.getFechaInicioDictado() != null ? cohorte.getFechaInicioDictado() : fechaCreacion;
+        return base.plusWeeks(cohorte.getPrograma().getDuracionTotalSemanas());
+    }
+
     /**
      * Cuenta las unidades del cronograma del programa que el alumno ya completó.
      *

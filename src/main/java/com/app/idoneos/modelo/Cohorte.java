@@ -217,6 +217,29 @@ public class Cohorte {
     }
 
     /**
+     * Calcula hasta cuándo tiene acceso quien se inscribe en este momento: si la cohorte no tiene fechas de dictado,
+     * las semanas de acceso se suman a la fecha de la inscripción; si las tiene, se suman a la fecha de inicio del
+     * dictado, para alinear todas las inscripciones con las clases en vivo y el cronograma.
+     *
+     * @param fechaInscripcion El momento de la inscripción.
+     * @return La fecha de vencimiento del acceso.
+     */
+    public LocalDateTime calcularVencimientoAcceso(LocalDateTime fechaInscripcion) {
+        LocalDateTime base = fechaInicioDictado != null ? fechaInicioDictado : fechaInscripcion;
+        return base.plusWeeks(semanasAcceso);
+    }
+
+    /**
+     * Indica si el dictado de la cohorte todavía no comenzó (solo las cohortes con fechas de dictado).
+     *
+     * @param ahora El momento de referencia.
+     * @return {@code true} si tiene fecha de inicio de dictado y es posterior a ese momento.
+     */
+    public boolean dictadoPorComenzar(LocalDateTime ahora) {
+        return fechaInicioDictado != null && ahora.isBefore(fechaInicioDictado);
+    }
+
+    /**
      * Obtiene la fecha desde la que se cuentan las semanas del cronograma: el inicio del dictado o, si la
      * cohorte no tiene fechas de dictado, el inicio de la inscripción.
      *

@@ -4,13 +4,23 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import com.app.idoneos.modelo.Alumno;
+import com.app.idoneos.modelo.Certificado;
 import com.app.idoneos.modelo.Cohorte;
 import com.app.idoneos.modelo.Inscripcion;
+import com.app.idoneos.modelo.IntentoAutoevaluacion;
+import com.app.idoneos.modelo.Progreso;
 import com.app.idoneos.modelo.Unidad;
+import com.app.idoneos.modelo.UnidadCronograma;
+import com.app.idoneos.repositorio.AlumnoRepositorio;
+import com.app.idoneos.repositorio.CohorteRepositorio;
 import com.app.idoneos.repositorio.InscripcionRepositorio;
+import com.app.idoneos.repositorio.ProgresoRepositorio;
 import com.app.idoneos.servicio.CrudServicio;
+import com.app.idoneos.utilidades.TextoUtilidad;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -23,8 +33,21 @@ public class InscripcionServicioImpl implements InscripcionServicio, CrudServici
 
     private static final DateTimeFormatter FORMATO_FECHA = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
+    /** Longitud máxima de las observaciones (la de la columna) y del motivo de la baja. */
+    private static final int LONGITUD_OBSERVACIONES = 500;
+    private static final int LONGITUD_MOTIVO = 300;
+
     @Autowired
     private InscripcionRepositorio inscripcionRepositorio;
+
+    @Autowired
+    private CohorteRepositorio cohorteRepositorio;
+
+    @Autowired
+    private AlumnoRepositorio alumnoRepositorio;
+
+    @Autowired
+    private ProgresoRepositorio progresoRepositorio;
 
     /**
      * Guarda la inscripción en la base de datos.
@@ -177,6 +200,147 @@ public class InscripcionServicioImpl implements InscripcionServicio, CrudServici
                         .filter(cronograma -> cronograma.getUnidad().getIdUnidad() == unidad.getIdUnidad())
                         .findFirst().map(inscripcion::estaUnidadHabilitada).orElse(false))
                 .findFirst();
+    }
+
+    @Override
+    public List<Inscripcion> buscarConFiltros(Integer cursoId, String alumno, String estadoAcceso) {
+        String criterio = TextoUtilidad.normalizar(alumno);
+        LocalDateTime ahora = LocalDateTime.now();
+        return inscripcionRepositorio.findByBajaFalse().stream()
+                .filter(i -> cursoId == null || i.getCurso().getIdCurso() == cursoId)
+                .filter(i -> estadoAcceso == null || estadoAcceso.isBlank()
+                        || i.getEstadoAcceso(ahora).equalsIgnoreCase(estadoAcceso.trim()))
+                .filter(i -> criterio.isEmpty() || datosDelAlumno(i.getAlumno()).contains(criterio))
+                .sorted(Comparator.comparing(Inscripcion::getFechaCreacion)
+                        .thenComparingInt(Inscripcion::getIdInscripcion).reversed())
+                .toList();
+    }
+
+    @Override
+    @Transactional
+    public Inscripcion inscribir(Alumno alumno, Integer idCohorte, boolean terminosAceptados) {
+        if (alumno == null) {
+            throw new IllegalArgumentException("Error! Solo los alumnos pueden inscribirse a un curso.");
+        }
+        return crearInscripcion(alumno, idCohorte, terminosAceptados,
+                "Error! Debe aceptar los términos y condiciones de las políticas de privacidad para inscribirse.");
+    }
+
+    @Override
+    @Transactional
+    public Inscripcion registrarInscripcion(Integer idAlumno, Integer idCohorte, boolean terminosConfirmados) {
+        if (idAlumno == null) {
+            throw new IllegalArgumentException("Error! Debe seleccionar el alumno.");
+        }
+        Alumno alumno = alumnoRepositorio.findById(idAlumno).filter(a -> !a.getUsuario().esInactivo())
+                .orElseThrow(() -> new IllegalArgumentException("Error! El alumno no se encuentra activo."));
+        return crearInscripcion(alumno, idCohorte, terminosConfirmados,
+                "Error! Debe confirmar que el alumno acepta los términos y condiciones de las políticas de privacidad.");
+    }
+
+    @Override
+    @Transactional
+    public Inscripcion modificarInscripcion(Integer idInscripcion, String observaciones, Boolean habilitada,
+            LocalDate vencimiento) {
+        Inscripcion inscripcion = inscripcionRepositorio.findById(idInscripcion).filter(i -> !i.esInactivo())
+                .orElseThrow(() -> new IllegalArgumentException("Error! La inscripción no se encuentra activa."));
+        if (vencimiento == null) {
+            throw new IllegalArgumentException("Error! La fecha de vencimiento del acceso es obligatoria.");
+        }
+        String observacionesLimpias = observaciones == null || observaciones.isBlank() ? null : observaciones.trim();
+        if (observacionesLimpias != null && observacionesLimpias.length() > LONGITUD_OBSERVACIONES) {
+            throw new IllegalArgumentException("Error! Las observaciones no pueden superar los "
+                    + LONGITUD_OBSERVACIONES + " caracteres.");
+        }
+        LocalDateTime minimo = inscripcion.getVencimientoMinimo();
+        if (vencimiento.isBefore(minimo.toLocalDate())) {
+            throw new IllegalArgumentException("Error! La fecha de vencimiento del acceso no puede ser anterior al "
+                    + minimo.format(FORMATO_FECHA) + ", que resulta de la duración del cronograma del programa.");
+        }
+        // Si no cambió el día, se conserva el momento exacto; si cambió, el acceso dura hasta el final de ese día
+        if (!vencimiento.equals(inscripcion.getFechaVencimientoAcceso().toLocalDate())) {
+            inscripcion.setFechaVencimientoAcceso(vencimiento.atTime(23, 59, 59));
+        }
+        inscripcion.setObservaciones(observacionesLimpias);
+        if (habilitada != null) {
+            inscripcion.setHabilitado(habilitada);
+        }
+        inscripcion.setUltimaModificacion(LocalDateTime.now());
+        return inscripcionRepositorio.save(inscripcion);
+    }
+
+    @Override
+    @Transactional
+    public void darDeBajaInscripcion(Integer idInscripcion, Alumno alumno, String motivo) {
+        Inscripcion inscripcion = inscripcionRepositorio.findById(idInscripcion).filter(i -> !i.esInactivo())
+                .orElseThrow(() -> new IllegalArgumentException("Error! La inscripción no se encuentra activa."));
+        if (alumno != null && inscripcion.getAlumno().getIdAlumno() != alumno.getIdAlumno()) {
+            throw new IllegalArgumentException("Error! La inscripción no te pertenece.");
+        }
+        String motivoLimpio = motivo == null || motivo.isBlank() ? null : motivo.trim();
+        if (motivoLimpio != null && motivoLimpio.length() > LONGITUD_MOTIVO) {
+            throw new IllegalArgumentException("Error! El motivo no puede superar los " + LONGITUD_MOTIVO + " caracteres.");
+        }
+        if (motivoLimpio != null) {
+            String nota = "Motivo de la baja: " + motivoLimpio;
+            String anterior = inscripcion.getObservaciones();
+            inscripcion.setObservaciones(anterior != null && anterior.length() + 3 + nota.length() <= LONGITUD_OBSERVACIONES
+                    ? anterior + " | " + nota : nota);
+        }
+        inscripcion.marcarInactivo();
+        inscripcion.setUltimaModificacion(LocalDateTime.now());
+        // El certificado y los intentos se dan de baja; los progresos quedan sin acceso con la inscripción y las
+        // consultas de foro se muestran de forma anónima (ConsultaForo.getAutor)
+        inscripcion.getCertificados().forEach(Certificado::anular);
+        inscripcion.getIntentosAutoevaluacion().forEach(IntentoAutoevaluacion::marcarInactivo);
+        inscripcionRepositorio.save(inscripcion);
+    }
+
+    /**
+     * Reglas comunes de CU-45 y CU-46: valida la cohorte, la ventana de inscripción, el cupo, la inscripción
+     * duplicada y los términos, y registra la inscripción con su progreso inicial.
+     */
+    private Inscripcion crearInscripcion(Alumno alumno, Integer idCohorte, boolean terminos, String errorTerminos) {
+        if (idCohorte == null) {
+            throw new IllegalArgumentException("Error! Debe seleccionar la cohorte.");
+        }
+        Cohorte cohorte = cohorteRepositorio.findById(idCohorte)
+                .filter(c -> !c.esInactivo() && !c.getPrograma().esInactivo() && !c.getPrograma().getCurso().esInactivo())
+                .orElseThrow(() -> new IllegalArgumentException("Error! La cohorte no se encuentra disponible."));
+        LocalDateTime ahora = LocalDateTime.now();
+        if (!cohorte.estaAbierta()) {
+            throw new IllegalArgumentException("Error! La inscripción a esta cohorte ya no está habilitada.");
+        }
+        if (cohorte.getCupoDisponible() != null && cohorte.getCupoDisponible() == 0) {
+            throw new IllegalArgumentException("Error! La cohorte alcanzó su cupo máximo.");
+        }
+        if (inscripcionRepositorio.existsByCohorteAndAlumnoAndBajaFalse(cohorte, alumno)) {
+            throw new IllegalArgumentException("Error! El alumno ya tiene una inscripción vigente a esta cohorte.");
+        }
+        if (!terminos) {
+            throw new IllegalArgumentException(errorTerminos);
+        }
+
+        Inscripcion inscripcion = new Inscripcion(cohorte, alumno, cohorte.calcularVencimientoAcceso(ahora));
+        inscripcion.setFechaCreacion(ahora);
+        // Un curso gratuito queda habilitado; uno con costo, hasta que se apruebe el pago
+        inscripcion.setHabilitado(cohorte.getPrograma().getCurso().getPrecio() <= 0);
+        inscripcion = inscripcionRepositorio.save(inscripcion);
+        cohorte.getInscripciones().add(inscripcion);
+        alumno.getInscripciones().add(inscripcion);
+
+        // Progreso inicial: la primera unidad del cronograma, sin completar
+        List<UnidadCronograma> cronograma = cohorte.getPrograma().getCronogramaOrdenado();
+        if (!cronograma.isEmpty()) {
+            Progreso progreso = progresoRepositorio.save(new Progreso(cronograma.get(0).getUnidad(), inscripcion));
+            inscripcion.getProgresos().add(progreso);
+        }
+        return inscripcion;
+    }
+
+    private String datosDelAlumno(Alumno alumno) {
+        return TextoUtilidad.normalizar(alumno.getUsuario().getNombreCompleto() + " " + alumno.getUsuario().getDni()
+                + " " + alumno.getUsuario().getCorreo());
     }
 
     private boolean tieneAccesoVigente(Inscripcion inscripcion, Alumno alumno) {

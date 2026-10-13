@@ -16,6 +16,7 @@ import com.app.idoneos.modelo.ClaseEnVivo;
 import com.app.idoneos.modelo.ConsultaForo;
 import com.app.idoneos.modelo.RespuestaForo;
 import com.app.idoneos.modelo.Autoevaluacion;
+import com.app.idoneos.modelo.Certificado;
 import com.app.idoneos.modelo.Cohorte;
 import com.app.idoneos.modelo.Curso;
 import com.app.idoneos.modelo.Descuento;
@@ -45,6 +46,7 @@ import com.app.idoneos.repositorio.ClaseEnVivoRepositorio;
 import com.app.idoneos.repositorio.ConsultaForoRepositorio;
 import com.app.idoneos.repositorio.RespuestaForoRepositorio;
 import com.app.idoneos.repositorio.AutoevaluacionRepositorio;
+import com.app.idoneos.repositorio.CertificadoRepositorio;
 import com.app.idoneos.repositorio.CohorteRepositorio;
 import com.app.idoneos.repositorio.CursoModalidadRepositorio;
 import com.app.idoneos.repositorio.CursoRepositorio;
@@ -145,6 +147,9 @@ public class SemillaServicio {
 
     @Autowired
     private CohorteRepositorio cohorteRepositorio;
+
+    @Autowired
+    private CertificadoRepositorio certificadoRepositorio;
 
     @Autowired
     private InscripcionRepositorio inscripcionRepositorio;
@@ -358,6 +363,10 @@ public class SemillaServicio {
                 titular4, presentacion);
         Cohorte abierta4 = crearCohorte(programa4, ahora.minusDays(2), ahora.plusDays(40), null, null, 10, 20);
         crearInscripcion(abierta4, martin, ahora, unidad4);
+        // Curso con costo: la inscripción queda pendiente de pago hasta que se apruebe el pago
+        Inscripcion pendienteDePago = crearInscripcion(abierta4, lucia, ahora, null);
+        pendienteDePago.setHabilitado(false);
+        inscripcionRepositorio.save(pendienteDePago);
 
         // Curso 5: Análisis Técnico Bursátil (en vivo + grabada), con cohorte próxima
         ParticipacionDocente titular5 = crearCurso("Análisis Técnico Bursátil",
@@ -375,6 +384,15 @@ public class SemillaServicio {
         Cohorte enDictado5 = crearCohorte(programa5, ahora.minusDays(70), ahora.minusDays(45), ahora.minusDays(40),
                 ahora.plusDays(2), 8, 20);
         crearInscripcion(enDictado5, valentina, ahora, null);
+        // Cohorte finalizada: la inscripción ya venció y el alumno tiene su certificado
+        Cohorte finalizada5 = crearCohorte(programa5, ahora.minusDays(220), ahora.minusDays(190), ahora.minusDays(185),
+                ahora.minusDays(130), 8, 20);
+        Inscripcion inscripcionVencida = crearInscripcion(finalizada5, martin, ahora, null);
+        inscripcionVencida.setFechaCreacion(ahora.minusDays(215));
+        inscripcionVencida.setFechaVencimientoAcceso(ahora.minusDays(50));
+        inscripcionRepositorio.save(inscripcionVencida);
+        certificadoRepositorio.save(new Certificado(inscripcionVencida, "CERT-2026-000001", ahora.minusDays(55),
+                "Certificado de aprobación del curso Análisis Técnico Bursátil", "Martín Gómez", "41234567"));
 
         // Curso 6: Introducción a las Finanzas (sin programas ni unidades: puede darse de baja)
         crearCurso("Introducción a las Finanzas", "Conceptos básicos para empezar a entender el mundo financiero.", 40000f,

@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <th:block th:replace="~{fragments/head :: recursos}"></th:block>
+</head>
+<body class="pn-body">
+<div class="pn-app" id="pnApp">
+    <th:block th:replace="~{fragments/menus :: administrador(${menuActivo})}"></th:block>
+
+    <div class="pn-principal">
+        <th:block th:replace="~{fragments/panel :: barra(null)}"></th:block>
+
+        <main class="pn-contenido">
+            <div class="pn-encabezado">
+                <div>
+                    <h1 class="pn-titulo">Inscripciones</h1>
+                    <p class="pn-subtitulo">Consulta y gestiona las inscripciones de los alumnos a las cohortes</p>
+                </div>
+                <button type="button" class="pn-btn pn-btn-primario" data-bs-toggle="modal" data-bs-target="#modalNuevaInscripcion">
+                    <i class="fa-solid fa-plus"></i> Registrar inscripción
+                </button>
+            </div>
+
+            <section class="pn-tarjeta" data-tabla>
+                <div class="pn-lista-cabecera">
+                    <h2 class="pn-lista-titulo">Listado de inscripciones</h2>
+                </div>
+
+                <!-- Filtros (CU-44): curso, alumno y estado de acceso -->
+                <form th:action="@{/inscripcion/buscar}" method="get" class="pn-filtros" data-filtro-front>
+                    <div class="pn-filtros-campo">
+                        <label class="pn-etiqueta">Curso</label>
+                        <select name="cursoId" class="pn-input" title="Curso">
+                            <option value="">Todos los cursos</option>
+                            <option th:each="c : ${cursosFiltro}" th:value="${c.idCurso}" th:text="${c.nombre}">Curso</option>
+                        </select>
+                    </div>
+                    <div class="pn-filtros-campo pn-filtros-campo-grande">
+                        <label class="pn-etiqueta">Alumno</label>
+                        <input type="text" name="alumno" class="pn-input" placeholder="Nombre, DNI o correo" autocomplete="off">
+                    </div>
+                    <div class="pn-filtros-campo">
+                        <label class="pn-etiqueta">Estado</label>
+                        <select name="estado" class="pn-input" title="Estado">
+                            <option value="">Todos los estados</option>
+                            <option value="Vigente">Vigente</option>
+                            <option value="Programada">Programada</option>
+                            <option value="Pendiente de pago">Pendiente de pago</option>
+                            <option value="Vencida">Vencida</option>
+                        </select>
+                    </div>
+                    <a th:href="@{/inscripcion/buscar}" class="pn-btn pn-btn-contorno">Limpiar</a>
+                    <div class="pn-columnas-wrapper">
+                        <button type="button" class="pn-btn pn-btn-contorno" data-columnas-boton>Columnas</button>
+                        <div class="pn-columnas-menu" data-columnas-menu></div>
+                    </div>
+                </form>
+
+                <!-- Tabla -->
+                <div class="pn-tabla-contenedor">
+                    <table class="pn-tabla">
+                        <thead>
+                            <tr>
+                                <th data-col="Alumno">Alumno</th>
+                                <th data-col="Curso">Curso</th>
+                                <th data-col="Cohorte">Cohorte</th>
+                                <th data-col="Inscripción">Inscripción</th>
+                                <th data-col="Vencimiento">Vencimiento</th>
+                                <th data-col="Estado">Estado</th>
+                                <th data-col="Certificado">Certificado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="i : ${inscripciones}" data-fila
+                                th:data-f-cursoid="${i.curso.idCurso}"
+                                th:data-f-alumno="${i.alumno.usuario.nombreCompleto + ' ' + i.alumno.usuario.dni + ' ' + i.alumno.usuario.correo}"
+                                th:data-f-estado="${i.estadoAcceso}">
+                                <td>
+                                    <span class="pn-celda-principal pn-truncar" th:text="${i.alumno.usuario.nombreCompleto}">Valentina Ruiz</span>
+                                    <span class="pn-celda-secundaria d-block" th:text="${'DNI ' + i.alumno.usuario.dni}">DNI 30123456</span>
+                                </td>
+                                <td><span class="pn-truncar" th:text="${i.curso.nombre}">Curso</span></td>
+                                <td><span class="pn-truncar" th:text="${i.cohorte.programa.nombre + ' · ' + i.cohorte.etiqueta}">Programa · Mayo 2026</span></td>
+                                <td th:text="${#temporals.format(i.fechaCreacion, 'dd/MM/yyyy')}">01/10/2026</td>
+                                <td th:text="${#temporals.format(i.fechaVencimientoAcceso, 'dd/MM/yyyy')}">01/01/2027</td>
+                                <td>
+                                    <span class="pn-insignia"
+                                          th:classappend="${i.estadoAcceso == 'Vigente'} ? 'pn-insignia-verde' : (${i.estadoAcceso == 'Programada'} ? 'pn-insignia-azul' : (${i.estadoAcceso == 'Pendiente de pago'} ? 'pn-insignia-dorada' : 'pn-insignia-roja'))"
+                                          th:text="${i.estadoAcceso}">Vigente</span>
+                                </td>
+                                <td th:text="${i.certificadoVigente != null ? i.certificadoVigente.numero : '—'}">—</td>
+                                <td>
+                                    <div class="pn-acciones">
+                                        <button type="button" class="pn-btn pn-btn-contorno pn-btn-chico" data-bs-toggle="modal"
+                                                th:data-bs-target="'#modalVerInscripcion' + ${i.idInscripcion}">Ver</button>
+                                        <button type="button" class="pn-btn pn-btn-editar pn-btn-chico" data-bs-toggle="modal"
+                                                th:data-bs-target="'#modalEditarInscripcion' + ${i.idInscripcion}">Editar</button>
+                                        <button type="button" class="pn-btn pn-btn-contorno pn-btn-chico" data-bs-toggle="modal"
+                                                th:if="${i.certificadoVigente != null}"
+                                                th:data-bs-target="'#modalCertificado' + ${i.idInscripcion}">Certificado</button>
+                                        <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico" data-bs-toggle="modal"
+                                                th:data-bs-target="'#modalBajaInscripcion' + ${i.idInscripcion}">Dar de baja</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr th:replace="~{fragments/vacio :: fila(8, 'fa-user-graduate', 'No se encontraron inscripciones', 'Ninguna inscripción coincide con los criterios ingresados.')}"></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pie: filas por página y paginador -->
+                <div class="pn-tabla-pie">
+                    <div class="pn-por-pagina">
+                        <span>Filas por página:</span>
+                        <select data-por-pagina>
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="0">Todo</option>
+                        </select>
+                        <span data-rango>0-0 de 0</span>
+                    </div>
+                    <div class="pn-paginador" data-paginador></div>
+                </div>
+            </section>
+        </main>
+
+        <th:block th:replace="~{fragments/panel :: pie('Panel del administrador')}"></th:block>
+    </div>
+</div>
+
+<!-- Modal: registrar inscripción (CU-46) -->
+<div class="modal fade pn-modal" id="modalNuevaInscripcion" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="pn-modal-cabecera">
+                <h3 class="pn-modal-titulo">Registrar inscripción</h3>
+                <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="pn-modal-cuerpo">
+                <div class="pn-seccion-titulo">
+                    <h4>Alumno y cohorte</h4>
+                    <p>Para los casos en que el alta no ocurre por autoinscripción (por ejemplo, un pago acordado por transferencia)</p>
+                </div>
+                <form th:action="@{/inscripcion/registrar}" method="post" class="form-ajax" data-validar novalidate>
+                    <div class="row g-3">
+                        <div class="col-12 pn-campo">
+                            <label class="pn-etiqueta">Alumno <span class="pn-obligatorio">*</span></label>
+                            <select name="alumnoId" class="pn-input" required data-mensaje-obligatorio="Debe seleccionar el alumno.">
+                                <option value="">Alumno</option>
+                                <option th:each="a : ${alumnos}" th:value="${a.idAlumno}"
+                                        th:text="${a.usuario.nombreCompleto + ' — DNI ' + a.usuario.dni}">Valentina Ruiz — DNI 30123456</option>
+                            </select>
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+                        <div class="col-12 pn-campo">
+                            <label class="pn-etiqueta">Cohorte con inscripción abierta <span class="pn-obligatorio">*</span></label>
+                            <select name="cohorteId" class="pn-input" required data-mensaje-obligatorio="Debe seleccionar la cohorte.">
+                                <option value="">Cohorte</option>
+                                <option th:each="c : ${cohortesAbiertas}" th:value="${c.idCohorte}"
+                                        th:text="${c.programa.curso.nombre + ' — ' + c.programa.nombre + ' (hasta el ' + #temporals.format(c.fechaFinInscripcion, 'dd/MM/yyyy') + ' · ' + (c.cupoDisponible != null ? c.cupoDisponible + (c.cupoDisponible == 1 ? ' cupo' : ' cupos') : 'sin límite de cupo') + ')'}">Curso — Programa</option>
+                            </select>
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+                        <div class="col-12 pn-campo">
+                            <label class="d-flex gap-2 align-items-start small">
+                                <input type="checkbox" name="terminos" value="true" class="mt-1" required>
+                                <span>Confirmo que el alumno acepta los términos y condiciones de las políticas de privacidad: ante la baja del curso,
+                                    sus certificados e intentos de autoevaluación se darán de baja, su progreso dejará de ser accesible y sus
+                                    intervenciones en los foros públicos del curso se conservarán de forma anónima.</span>
+                            </label>
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+                    </div>
+                    <div class="pn-modal-pie">
+                        <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="pn-btn pn-btn-primario">Registrar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modales por inscripción: ver detalle (CU-44), modificar (CU-47), corregir certificado (CU-48) y dar de baja (CU-49) -->
+<th:block th:each="i : ${inscripciones}">
+    <div class="modal fade pn-modal" th:id="'modalVerInscripcion' + ${i.idInscripcion}" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="pn-modal-cabecera">
+                    <h3 class="pn-modal-titulo">Detalle de la inscripción</h3>
+                    <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="pn-modal-cuerpo">
+                    <dl class="row mb-0 small">
+                        <dt class="col-sm-4">Alumno</dt><dd class="col-sm-8" th:text="${i.alumno.usuario.nombreCompleto + ' — DNI ' + i.alumno.usuario.dni}">Alumno</dd>
+                        <dt class="col-sm-4">Curso</dt><dd class="col-sm-8" th:text="${i.curso.nombre}">Curso</dd>
+                        <dt class="col-sm-4">Cohorte</dt><dd class="col-sm-8" th:text="${i.cohorte.programa.nombre + ' · ' + i.cohorte.etiqueta}">Cohorte</dd>
+                        <dt class="col-sm-4">Fecha de inscripción</dt><dd class="col-sm-8" th:text="${#temporals.format(i.fechaCreacion, 'dd/MM/yyyy HH:mm')}">01/10/2026</dd>
+                        <dt class="col-sm-4">Vencimiento del acceso</dt><dd class="col-sm-8" th:text="${#temporals.format(i.fechaVencimientoAcceso, 'dd/MM/yyyy')}">01/01/2027</dd>
+                        <dt class="col-sm-4">Estado</dt><dd class="col-sm-8" th:text="${i.estadoAcceso}">Vigente</dd>
+                        <dt class="col-sm-4">Observaciones</dt><dd class="col-sm-8" th:text="${i.observaciones != null ? i.observaciones : '—'}">—</dd>
+                        <dt class="col-sm-4">Certificado</dt>
+                        <dd class="col-sm-8" th:text="${i.certificadoVigente != null ? i.certificadoVigente.numero + ' · emitido el ' + #temporals.format(i.certificadoVigente.fechaEmision, 'dd/MM/yyyy') : 'No emitido'}">No emitido</dd>
+                    </dl>
+                    <div class="pn-modal-pie">
+                        <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade pn-modal" th:id="'modalEditarInscripcion' + ${i.idInscripcion}" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="pn-modal-cabecera">
+                    <h3 class="pn-modal-titulo">Editar inscripción</h3>
+                    <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="pn-modal-cuerpo">
+                    <div class="pn-seccion-titulo">
+                        <h4 th:text="${i.alumno.usuario.nombreCompleto}">Alumno</h4>
+                        <p th:text="${i.curso.nombre + ' · ' + i.cohorte.programa.nombre}">Curso · Programa</p>
+                    </div>
+                    <form th:action="@{'/inscripcion/modificar/' + ${i.idInscripcion}}" method="post" class="form-ajax" data-validar novalidate>
+                        <div class="pn-aviso pn-aviso-azul">
+                            Corrección administrativa (por ejemplo, una extensión de cortesía). El vencimiento no puede ser anterior al
+                            <strong th:text="${#temporals.format(i.vencimientoMinimo, 'dd/MM/yyyy')}">01/01/2027</strong>, que resulta de la duración del cronograma.
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-md-6 pn-campo">
+                                <label class="pn-etiqueta">Vencimiento del acceso <span class="pn-obligatorio">*</span></label>
+                                <input type="date" name="vencimiento" class="pn-input" required
+                                       th:value="${#temporals.format(i.fechaVencimientoAcceso, 'yyyy-MM-dd')}"
+                                       th:min="${#temporals.format(i.vencimientoMinimo, 'yyyy-MM-dd')}">
+                                <div class="pn-ayuda-error"></div>
+                            </div>
+                            <div class="col-md-6 pn-campo">
+                                <label class="pn-etiqueta">Acceso habilitado</label>
+                                <select name="habilitada" class="pn-input">
+                                    <option value="true" th:selected="${i.estaHabilitada()}">Sí</option>
+                                    <option value="false" th:selected="${!i.estaHabilitada()}">No (pendiente de pago)</option>
+                                </select>
+                                <div class="pn-ayuda-error"></div>
+                            </div>
+                            <div class="col-12 pn-campo">
+                                <div class="pn-etiqueta-fila">
+                                    <label class="pn-etiqueta">Observaciones (opcional)</label>
+                                    <span class="pn-contador" th:text="${#strings.length(i.observaciones != null ? i.observaciones : '') + ' / 500'}">0 / 500</span>
+                                </div>
+                                <textarea name="observaciones" class="pn-input" rows="3" maxlength="500" data-contador th:text="${i.observaciones}"></textarea>
+                                <div class="pn-ayuda-error"></div>
+                            </div>
+                        </div>
+                        <div class="pn-modal-pie">
+                            <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="pn-btn pn-btn-primario">Actualizar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade pn-modal" th:id="'modalCertificado' + ${i.idInscripcion}" tabindex="-1" aria-hidden="true"
+         th:if="${i.certificadoVigente != null}">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="pn-modal-cabecera">
+                    <h3 class="pn-modal-titulo">Corregir datos del certificado</h3>
+                    <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="pn-modal-cuerpo">
+                    <div class="pn-seccion-titulo">
+                        <h4 th:text="${i.certificadoVigente.numero}">CERT-2026-000001</h4>
+                        <p th:text="${'Emitido el ' + #temporals.format(i.certificadoVigente.fechaEmision, 'dd/MM/yyyy')}">Emitido el 01/10/2026</p>
+                    </div>
+                    <form th:action="@{'/certificado/corregir/' + ${i.certificadoVigente.idCertificado}}" method="post" class="form-ajax" data-validar novalidate>
+                        <div class="pn-campo mb-3">
+                            <div class="pn-etiqueta-fila">
+                                <label class="pn-etiqueta">Nombre del alumno <span class="pn-obligatorio">*</span></label>
+                                <span class="pn-contador" th:text="${#strings.length(i.certificadoVigente.nombreAlumno) + ' / 100'}">0 / 100</span>
+                            </div>
+                            <input type="text" name="nombre" class="pn-input" maxlength="100" th:value="${i.certificadoVigente.nombreAlumno}" data-contador required>
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+                        <div class="pn-campo mb-3">
+                            <label class="pn-etiqueta">DNI <span class="pn-obligatorio">*</span></label>
+                            <input type="text" name="dni" class="pn-input" maxlength="8" inputmode="numeric" th:value="${i.certificadoVigente.dniAlumno}" required>
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+                        <div class="pn-modal-pie">
+                            <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="pn-btn pn-btn-primario">Corregir</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <th:block th:replace="~{fragments/modalBajaInscripcion :: bloque('modalBajaInscripcion' + ${i.idInscripcion}, '¿Confirmas dar de baja la inscripción de ' + ${i.alumno.usuario.nombreCompleto} + ' a «' + ${i.curso.nombre} + '»?', ${i.idInscripcion})}"></th:block>
+</th:block>
+
+<th:block th:replace="~{fragments/panel :: scripts}"></th:block>
+</body>
+</html>

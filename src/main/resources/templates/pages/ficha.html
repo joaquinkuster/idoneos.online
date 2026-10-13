@@ -85,7 +85,13 @@
             </th:block>
             <p class="fx-apoyo" th:unless="${hayCohortes}">Por ahora el curso no tiene cohortes con inscripción abierta.</p>
 
-            <button type="button" class="fx-boton-inscribir" disabled>Inscribirme</button>
+            <th:block th:if="${hayCohortes}">
+              <a th:if="${usuario == null}" th:href="@{/login}" class="fx-boton-inscribir">Ingresá para inscribirte</a>
+              <button th:if="${usuario != null and usuario.alumno != null}" type="button" class="fx-boton-inscribir"
+                      data-bs-toggle="modal" data-bs-target="#modalInscribirme">Inscribirme</button>
+              <p class="fx-apoyo" th:if="${usuario != null and usuario.alumno == null}">Solo los alumnos pueden inscribirse a un curso.</p>
+            </th:block>
+            <button th:unless="${hayCohortes}" type="button" class="fx-boton-inscribir" disabled>Inscribirme</button>
           </aside>
 
         </div>
@@ -114,8 +120,47 @@
     </div>
   </div>
 
+
+  <!-- Inscripción (CU-45): se confirma la cohorte elegida y se aceptan los términos y condiciones -->
+  <div class="modal fade pn-modal" id="modalInscribirme" tabindex="-1" aria-hidden="true" th:if="${hayCohortes and usuario != null and usuario.alumno != null}">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="pn-modal-cabecera">
+          <h3 class="pn-modal-titulo">Inscribirme al curso</h3>
+          <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="pn-modal-cuerpo">
+          <div class="pn-seccion-titulo">
+            <h4 th:text="${curso.nombre}">Nombre del curso</h4>
+            <p data-modal-cohorte>Programa</p>
+          </div>
+          <div class="pn-aviso pn-aviso-azul" th:if="${curso.precio != null and curso.precio > 0}">
+            El curso cuesta <strong th:text="${'$ ' + #numbers.formatDecimal(curso.precio, 1, 'POINT', 0, 'COMMA')}">$ 120.000</strong>.
+            Después de inscribirte vas a poder pagarlo; el acceso al contenido se habilita al aprobarse el pago.
+          </div>
+          <form th:action="@{/inscripcion/inscribir}" method="post" class="form-ajax" data-validar novalidate>
+            <input type="hidden" name="cohorteId" data-modal-cohorte-id>
+            <div class="pn-campo mb-3">
+              <label class="d-flex gap-2 align-items-start small">
+                <input type="checkbox" name="terminos" value="true" class="mt-1" required>
+                <span>Acepto los términos y condiciones de las políticas de privacidad: ante la baja del curso, mis certificados e intentos de
+                  autoevaluación se darán de baja, mi progreso dejará de ser accesible y mis intervenciones en los foros públicos del curso se
+                  conservarán de forma anónima. La baja no genera reembolso.</span>
+              </label>
+            </div>
+            <div class="pn-modal-pie">
+              <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+              <button type="submit" class="pn-btn pn-btn-primario">Confirmar inscripción</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Scripts Globales y SweetAlert2 -->
   <div th:replace="~{fragments/scripts :: scripts}"></div>
+  <script th:src="@{/js/formularios.js}"></script>
   <script th:src="@{/js/ficha.js}"></script>
 </body>
 

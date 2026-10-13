@@ -20,6 +20,9 @@ import lombok.Setter;
 @NoArgsConstructor
 public class ConsultaForo {
 
+    /** Nombre con el que se muestra la consulta de un alumno que dio de baja su inscripción. */
+    public static final String AUTOR_ANONIMO = "Alumno anónimo";
+
     /** Cantidad máxima de caracteres del texto de la consulta. */
     public static final int LONGITUD_TEXTO = 500;
 
@@ -104,21 +107,22 @@ public class ConsultaForo {
     }
 
     /**
-     * Obtiene el nombre del alumno que hizo la consulta.
+     * Obtiene el nombre del alumno que hizo la consulta. Si el alumno dio de baja su inscripción, su participación
+     * se conserva de forma anónima.
      *
-     * @return El nombre completo del alumno.
+     * @return El nombre completo del alumno o, si su inscripción está dada de baja, {@link #AUTOR_ANONIMO}.
      */
     public String getAutor() {
-        return inscripcion.getAlumno().getUsuario().getNombreCompleto();
+        return inscripcion.esInactivo() ? AUTOR_ANONIMO : inscripcion.getAlumno().getUsuario().getNombreCompleto();
     }
 
     /**
      * Obtiene el usuario del alumno que hizo la consulta.
      *
-     * @return El usuario autor.
+     * @return El usuario autor, o {@code null} si su inscripción está dada de baja (participación anónima).
      */
     public Usuario getUsuario() {
-        return inscripcion.getAlumno().getUsuario();
+        return inscripcion.esInactivo() ? null : inscripcion.getAlumno().getUsuario();
     }
 
     /**

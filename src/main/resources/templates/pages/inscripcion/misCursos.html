@@ -51,6 +51,16 @@
                                     <option value="Finalizado" th:selected="${estadoSeleccionado == 'Finalizado'}">Finalizado</option>
                                 </select>
                             </div>
+                            <div class="pn-filtros-campo">
+                                <label class="pn-etiqueta">Acceso</label>
+                                <select name="acceso" class="pn-input">
+                                    <option value="">Todos los accesos</option>
+                                    <option value="Vigente">Vigente</option>
+                                    <option value="Programada">Programada</option>
+                                    <option value="Pendiente de pago">Pendiente de pago</option>
+                                    <option value="Vencida">Vencida</option>
+                                </select>
+                            </div>
                             <a th:href="@{/inscripcion/misCursos}" class="pn-btn pn-btn-contorno">Limpiar</a>
                         </form>
                     </section>
@@ -72,14 +82,14 @@
 
                     <!-- Grilla de cursos del alumno -->
                     <div class="wf-cards-grid" data-tarjetas>
-                        <div th:each="insc : ${inscripciones}" class="wf-course-card" data-tarjeta th:data-f-busqueda="${insc.curso.nombre}" th:data-f-estado="${insc.estado}">
+                        <div th:each="insc : ${inscripciones}" class="wf-course-card" data-tarjeta th:data-f-busqueda="${insc.curso.nombre}" th:data-f-estado="${insc.estado}" th:data-f-acceso="${insc.estadoAcceso}">
                             <div class="wf-course-card-thumb" th:classappend="${insc.curso.imagen != null} ? 'wf-thumb-con-imagen'">
                                 <img th:if="${insc.curso.imagen != null}" class="wf-course-thumb-img" th:src="@{${insc.curso.urlImagen}}" alt=""
                                      width="640" height="130" loading="lazy" decoding="async">
                                 <div class="wf-course-thumb-icon"><i class="fa-solid fa-graduation-cap w-8 h-8 text-white"></i></div>
                                 <div class="wf-course-pills-row">
                                     <span class="wf-pill-tag" th:text="${insc.curso.categoria.nombre}">Categoría</span>
-                                    <span class="wf-pill-status" th:text="${insc.estado}">En Progreso</span>
+                                    <span class="wf-pill-status" th:text="${insc.estadoAcceso == 'Vigente' ? insc.estado : insc.estadoAcceso}">En Progreso</span>
                                 </div>
                             </div>
                             <div class="wf-course-card-body">
@@ -101,11 +111,21 @@
                                     <span class="small text-muted" th:text="${'Acceso hasta ' + #temporals.format(insc.fechaVencimientoAcceso, 'dd/MM/yyyy')}">Acceso hasta 01/01/2027</span>
                                 </div>
                             </div>
-                            <div class="wf-course-card-footer">
-                                <a th:href="@{/inscripcion/acceder/{id}(id=${insc.idInscripcion})}" class="wf-btn-manage-course">
+                            <div class="wf-course-card-footer d-flex gap-2">
+                                <a th:if="${insc.estadoAcceso == 'Vigente'}" th:href="@{/inscripcion/acceder/{id}(id=${insc.idInscripcion})}" class="wf-btn-manage-course">
                                     <i class="fa-solid fa-door-open me-1"></i>
                                     <span>Acceder al curso</span>
                                 </a>
+                                <span th:unless="${insc.estadoAcceso == 'Vigente'}" class="wf-btn-manage-course" aria-disabled="true"
+                                      style="opacity:.6;cursor:not-allowed;"
+                                      th:title="${insc.estadoAcceso == 'Pendiente de pago' ? 'Completá el pago para acceder' : (insc.estadoAcceso == 'Programada' ? 'El dictado todavía no comenzó' : 'Tu acceso venció')}">
+                                    <i class="fa-solid fa-lock me-1"></i>
+                                    <span th:text="${insc.estadoAcceso == 'Programada' ? 'Comienza el ' + #temporals.format(insc.cohorte.fechaInicioDictado, 'dd/MM/yyyy') : (insc.estadoAcceso == 'Pendiente de pago' ? 'Pendiente de pago' : 'Acceso vencido')}">Pendiente de pago</span>
+                                </span>
+                                <button type="button" class="pn-btn pn-btn-contorno pn-btn-chico" data-bs-toggle="modal"
+                                        th:data-bs-target="'#modalDetalleInscripcion' + ${insc.idInscripcion}" title="Detalle de la inscripción">
+                                    <i class="fa-solid fa-circle-info"></i>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -137,8 +157,41 @@
         </div>
     </div>
 
+    <!-- Detalle de cada inscripción (CU-44) y baja de la inscripción (CU-49) -->
+    <th:block th:each="insc : ${inscripciones}">
+        <div class="modal fade pn-modal" th:id="'modalDetalleInscripcion' + ${insc.idInscripcion}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="pn-modal-cabecera">
+                        <h3 class="pn-modal-titulo">Detalle de la inscripción</h3>
+                        <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                    <div class="pn-modal-cuerpo">
+                        <dl class="row mb-0 small">
+                            <dt class="col-sm-5">Curso</dt><dd class="col-sm-7" th:text="${insc.curso.nombre}">Curso</dd>
+                            <dt class="col-sm-5">Programa</dt><dd class="col-sm-7" th:text="${insc.cohorte.programa.nombre}">Programa</dd>
+                            <dt class="col-sm-5">Inscripción</dt><dd class="col-sm-7" th:text="${#temporals.format(insc.fechaCreacion, 'dd/MM/yyyy')}">01/10/2026</dd>
+                            <dt class="col-sm-5">Acceso hasta</dt><dd class="col-sm-7" th:text="${#temporals.format(insc.fechaVencimientoAcceso, 'dd/MM/yyyy')}">01/01/2027</dd>
+                            <dt class="col-sm-5">Estado del acceso</dt><dd class="col-sm-7" th:text="${insc.estadoAcceso}">Vigente</dd>
+                            <dt class="col-sm-5" th:if="${insc.certificadoVigente != null}">Certificado</dt>
+                            <dd class="col-sm-7" th:if="${insc.certificadoVigente != null}"
+                                th:text="${insc.certificadoVigente.numero + ' · emitido el ' + #temporals.format(insc.certificadoVigente.fechaEmision, 'dd/MM/yyyy')}">CERT-2026-000001</dd>
+                        </dl>
+                        <div class="pn-modal-pie">
+                            <button type="button" class="pn-btn pn-btn-peligro" data-bs-toggle="modal"
+                                    th:data-bs-target="'#modalBajaInscripcion' + ${insc.idInscripcion}" data-bs-dismiss="modal">Darme de baja</button>
+                            <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cerrar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <th:block th:replace="~{fragments/modalBajaInscripcion :: bloque('modalBajaInscripcion' + ${insc.idInscripcion}, '¿Confirmas darte de baja de «' + ${insc.curso.nombre} + '»?', ${insc.idInscripcion})}"></th:block>
+    </th:block>
+
     <!-- Scripts Globales y SweetAlert2 -->
     <div th:replace="~{fragments/scripts :: scripts}"></div>
     <script th:src="@{/js/panel.js}"></script>
+    <script th:src="@{/js/formularios.js}"></script>
 </body>
 </html>

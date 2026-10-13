@@ -96,7 +96,14 @@ public class SecurityConfig {
                                 // Imagen de cada curso (un solo nivel): las carpetas de unidad no son públicas
                                 "/uploads/curso*/*")
                         .permitAll()
-                        // CU-02 y CU-27: Ver mis cursos y Acceder curso (Alumno)
+                        // CU-44, CU-46 y CU-47: buscar, registrar y modificar inscripciones (Administrador); CU-48: corregir
+                        // los datos del certificado (Administrador); CU-49: dar de baja (Alumno la suya, Administrador)
+                        .requestMatchers(HttpMethod.GET, "/inscripcion/buscar").hasRole("Administrador")
+                        .requestMatchers(HttpMethod.POST, "/inscripcion/registrar", "/inscripcion/modificar/*")
+                        .hasRole("Administrador")
+                        .requestMatchers(HttpMethod.POST, "/inscripcion/darDeBaja/*").hasAnyRole("Alumno", "Administrador")
+                        .requestMatchers("/certificado/**").hasRole("Administrador")
+                        // CU-02, CU-27 y CU-45: Ver mis cursos, Acceder curso e Inscribirse (Alumno)
                         .requestMatchers("/inscripcion/**").hasRole("Alumno")
                         // CU-01 y CU-11: búsqueda de cursos y cohortes (Docente y Administrador)
                         .requestMatchers(HttpMethod.GET, "/curso/buscar", "/cohorte/buscar")

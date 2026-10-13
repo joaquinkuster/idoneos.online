@@ -9,6 +9,7 @@
 <th:block th:fragment="enlacesAdministrador(activo)">
     <a th:replace="~{fragments/sidebar :: enlace('/curso/buscar', 'fa-book-open', 'Cursos', ${activo}, 'cursos')}"></a>
     <a th:replace="~{fragments/sidebar :: enlace('/categoria/buscar', 'fa-tags', 'Categorías', ${activo}, 'categorias')}"></a>
+    <a th:replace="~{fragments/sidebar :: enlace('/inscripcion/buscar', 'fa-user-graduate', 'Inscripciones', ${activo}, 'inscripciones')}"></a>
     <a th:replace="~{fragments/sidebar :: enlace('/descuento/buscar', 'fa-percent', 'Descuentos', ${activo}, 'descuentos')}"></a>
 </th:block>
 

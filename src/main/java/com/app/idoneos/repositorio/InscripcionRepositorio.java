@@ -42,6 +42,15 @@ public interface InscripcionRepositorio extends JpaRepository<Inscripcion, Integ
     List<Inscripcion> findByAlumnoAndBajaFalse(Alumno alumno);
 
     /**
+     * Verifica si un alumno tiene una inscripción activa (no dada de baja) a una cohorte.
+     *
+     * @param cohorte la cohorte
+     * @param alumno el alumno
+     * @return {@code true} si ya está inscripto
+     */
+    boolean existsByCohorteAndAlumnoAndBajaFalse(Cohorte cohorte, Alumno alumno);
+
+    /**
      * Cuenta las inscripciones activas (no dadas de baja) asociadas a un curso, a través de su cohorte y programa.
      *
      * @param curso El curso a consultar.

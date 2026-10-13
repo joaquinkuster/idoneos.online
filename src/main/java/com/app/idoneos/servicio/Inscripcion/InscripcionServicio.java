@@ -1,5 +1,6 @@
 package com.app.idoneos.servicio.Inscripcion;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import com.app.idoneos.modelo.Alumno;
@@ -60,4 +61,68 @@ public interface InscripcionServicio {
      * @return la inscripción con acceso, o vacío si el alumno no puede ver la unidad
      */
     Optional<Inscripcion> buscarConAccesoAUnidad(Alumno alumno, Unidad unidad);
+
+    /**
+     * Busca las inscripciones activas (no dadas de baja) por curso, alumno y estado de acceso (CU-44, vista del
+     * Administrador), de la más reciente a la más antigua.
+     *
+     * @param cursoId el curso (opcional)
+     * @param alumno parte del nombre, el DNI o el correo del alumno (opcional)
+     * @param estadoAcceso Vigente, Vencida, Pendiente de pago o Programada (opcional)
+     * @return las inscripciones que cumplen los criterios
+     */
+    List<Inscripcion> buscarConFiltros(Integer cursoId, String alumno, String estadoAcceso);
+
+    /**
+     * El alumno se inscribe a una cohorte con inscripción abierta (CU-45). Valida la ventana de inscripción, el cupo,
+     * que no tenga ya una inscripción activa a la cohorte y que acepte los términos y condiciones. Registra el
+     * progreso inicial sobre la primera unidad del cronograma. Si el curso es gratuito la inscripción queda
+     * habilitada; si tiene costo queda pendiente de pago.
+     *
+     * @param alumno el alumno que se inscribe
+     * @param idCohorte la cohorte elegida
+     * @param terminosAceptados si aceptó los términos y condiciones de las políticas de privacidad
+     * @return la inscripción registrada
+     * @throws IllegalArgumentException si no se cumple alguna regla
+     */
+    Inscripcion inscribir(Alumno alumno, Integer idCohorte, boolean terminosAceptados);
+
+    /**
+     * El Administrador registra manualmente la inscripción de un alumno (CU-46), con las mismas reglas que
+     * {@link #inscribir}. La confirmación de los términos es la del administrador en nombre del alumno.
+     *
+     * @param idAlumno el alumno
+     * @param idCohorte la cohorte
+     * @param terminosConfirmados si el administrador confirmó que el alumno acepta los términos y condiciones
+     * @return la inscripción registrada
+     * @throws IllegalArgumentException si no se cumple alguna regla
+     */
+    Inscripcion registrarInscripcion(Integer idAlumno, Integer idCohorte, boolean terminosConfirmados);
+
+    /**
+     * Modifica las observaciones, la habilitación y la fecha de vencimiento del acceso de una inscripción activa
+     * (CU-47), para correcciones administrativas.
+     *
+     * @param idInscripcion la inscripción
+     * @param observaciones las observaciones (opcional)
+     * @param habilitada si el acceso está habilitado (si es {@code null} no se cambia)
+     * @param vencimiento el último día de acceso
+     * @return la inscripción modificada
+     * @throws IllegalArgumentException si la inscripción no está activa o el vencimiento es anterior al que resulta
+     *         de la duración del cronograma
+     */
+    Inscripcion modificarInscripcion(Integer idInscripcion, String observaciones, Boolean habilitada,
+            LocalDate vencimiento);
+
+    /**
+     * Da de baja una inscripción activa (CU-49): da de baja su certificado y sus intentos de autoevaluación, deja
+     * inaccesible su progreso y revoca el acceso; sus consultas de foro se muestran de forma anónima. No genera
+     * reembolso.
+     *
+     * @param idInscripcion la inscripción
+     * @param alumno el alumno que solicita la baja, o {@code null} si la solicita el Administrador
+     * @param motivo el motivo u observación de la baja (opcional)
+     * @throws IllegalArgumentException si la inscripción no está activa o no pertenece al alumno
+     */
+    void darDeBajaInscripcion(Integer idInscripcion, Alumno alumno, String motivo);
 }

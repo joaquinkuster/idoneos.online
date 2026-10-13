@@ -1,7 +1,9 @@
 package com.app.idoneos.servicio.Certificado;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.transaction.annotation.Transactional;
 import com.app.idoneos.modelo.Certificado;
 import com.app.idoneos.modelo.Inscripcion;
 import com.app.idoneos.repositorio.CertificadoRepositorio;
@@ -15,6 +17,9 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class CertificadoServicioImpl implements CertificadoServicio, CrudServicio<Certificado> {
+
+    /** Longitud máxima del nombre (la de la columna). */
+    private static final int LONGITUD_NOMBRE = 100;
 
     @Autowired
     private CertificadoRepositorio certificadoRepositorio;
@@ -104,5 +109,29 @@ public class CertificadoServicioImpl implements CertificadoServicio, CrudServici
     @Override
     public Optional<Certificado> buscarPorNumero(String numero) {
         return certificadoRepositorio.findByNumero(numero);
+    }
+
+    @Override
+    @Transactional
+    public Certificado corregirDatos(Integer idCertificado, String nombre, String dni) {
+        Certificado certificado = certificadoRepositorio.findById(idCertificado)
+                .filter(c -> !c.estaAnulado() && !c.getInscripcion().esInactivo())
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Error! El certificado no se encuentra vigente o su inscripción está dada de baja."));
+        if (nombre == null || nombre.isBlank() || dni == null || dni.isBlank()) {
+            throw new IllegalArgumentException("Error! El nombre y el DNI del alumno son obligatorios.");
+        }
+        String nombreLimpio = nombre.trim();
+        String dniLimpio = dni.trim();
+        if (nombreLimpio.length() > LONGITUD_NOMBRE) {
+            throw new IllegalArgumentException("Error! El nombre no puede superar los " + LONGITUD_NOMBRE + " caracteres.");
+        }
+        if (!dniLimpio.matches("\\d{7,8}")) {
+            throw new IllegalArgumentException("Error! El DNI debe tener 7 u 8 dígitos.");
+        }
+        certificado.setNombreAlumno(nombreLimpio);
+        certificado.setDniAlumno(dniLimpio);
+        certificado.setUltimaModificacion(LocalDateTime.now());
+        return certificadoRepositorio.save(certificado);
     }
 }
