@@ -41,8 +41,7 @@ class GestionDeCursosControladorTest {
     @DisplayName("El inicio de sesión es público y la sección Novedades ya no existe")
     void loginPublicoYSinNovedades() throws Exception {
         mockMvc.perform(get("/login")).andExpect(status().isOk()).andExpect(view().name("pages/login"));
-        mockMvc.perform(get("/acercaDe")).andExpect(status().isOk())
-                .andExpect(model().attributeExists("idEnVivo", "idGrabada", "idClonIa"));
+        mockMvc.perform(get("/acercaDe")).andExpect(status().isOk());
         mockMvc.perform(get("/novedades")).andExpect(status().is3xxRedirection());
     }
 

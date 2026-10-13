@@ -13,11 +13,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.app.idoneos.modelo.Categoria;
 import com.app.idoneos.modelo.Curso;
-import com.app.idoneos.modelo.Modalidad;
 import com.app.idoneos.modelo.Programa;
 import com.app.idoneos.servicio.Categoria.CategoriaServicioImpl;
 import com.app.idoneos.servicio.Curso.CursoServicioImpl;
-import com.app.idoneos.servicio.Modalidad.ModalidadServicioImpl;
 import com.app.idoneos.servicio.Programa.ProgramaServicioImpl;
 import com.app.idoneos.utilidades.PaginacionUtilidad;
 
@@ -37,9 +35,6 @@ public class InicioControlador implements ErrorController {
 
     @Autowired
     private ProgramaServicioImpl programaServicio;
-
-    @Autowired
-    private ModalidadServicioImpl modalidadServicio;
 
     @Autowired
     private CategoriaServicioImpl categoriaServicio;
@@ -83,16 +78,6 @@ public class InicioControlador implements ErrorController {
      */
     @GetMapping("/acercaDe")
     public String verAcercaDe(Model modelo) {
-        modelo.addAttribute("categorias", categoriaServicio.buscarConFiltros(null, false, "nombre"));
-        // Identificadores de las modalidades, para enlazar cada una con el catálogo filtrado
-        for (Modalidad modalidad : modalidadServicio.obtenerTodo()) {
-            switch (modalidad.getNombre()) {
-                case Modalidad.EN_VIVO -> modelo.addAttribute("idEnVivo", modalidad.getIdModalidad());
-                case Modalidad.GRABADA -> modelo.addAttribute("idGrabada", modalidad.getIdModalidad());
-                case Modalidad.CLON_IA -> modelo.addAttribute("idClonIa", modalidad.getIdModalidad());
-                default -> { }
-            }
-        }
         modelo.addAttribute("titulo", "Acerca de | Idóneos Online");
         return "pages/acercaDe";
     }

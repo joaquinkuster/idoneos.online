@@ -655,3 +655,379 @@ body.auth-body {
 .auth-enlace:hover {
     text-decoration: underline;
 }
+
+/* ==========================================================================
+   ACERCA DE: propuesta, cómo aprendés y socios fundadores
+   ========================================================================== */
+.ac-pagina {
+    background: #F6F3EC;
+}
+
+/* La barra de migas toma el mismo color de papel de la página */
+.ac-acerca .wf-migas-barra {
+    background: #F6F3EC;
+}
+
+.ac-seccion {
+    padding: 56px 0;
+}
+
+.ac-contenido {
+    max-width: var(--wf-ancho-contenedor, 1680px);
+    margin: 0 auto;
+    padding: 0 48px;
+}
+
+.ac-etiqueta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #8A6B1F;
+}
+
+.ac-etiqueta::after {
+    content: '';
+    width: 48px;
+    height: 1px;
+    background: #D4A03D;
+}
+
+.ac-titulo {
+    margin: 12px 0 0;
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 30px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: #0B1B33;
+}
+
+/* 01 · Propuesta: el texto a la izquierda y una imagen a la derecha */
+.ac-propuesta {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+    gap: 56px;
+    align-items: center;
+}
+
+.ac-propuesta-imagen {
+    margin: 0;
+    overflow: hidden;
+    border-radius: 12px;
+    aspect-ratio: 4 / 3;
+    background: #16335C;
+}
+
+.ac-propuesta-imagen img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.ac-enunciado {
+    max-width: 880px;
+    margin: 18px 0 0;
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 32px;
+    font-weight: 500;
+    line-height: 1.45;
+    letter-spacing: -0.01em;
+    color: #0B1B33;
+}
+
+.ac-enunciado em {
+    font-style: normal;
+    background: linear-gradient(transparent 62%, #F0D48A 62%);
+}
+
+.ac-apoyo {
+    max-width: 700px;
+    margin: 22px 0 0;
+    font-size: 16px;
+    line-height: 1.75;
+    color: #3F4E66;
+}
+
+/* 02 · Cómo aprendés */
+.ac-seccion-pasos {
+    padding-top: 8px;
+}
+
+.ac-pasos {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 28px;
+    margin: 34px 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.ac-paso {
+    position: relative;
+}
+
+.ac-paso-numero {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    font-size: 18px;
+    font-weight: 800;
+    color: #D4A03D;
+    background: #0A192F;
+    border-radius: 6px;
+}
+
+/* Flecha curva que une un paso con el siguiente */
+.ac-flecha {
+    position: absolute;
+    top: -6px;
+    left: 54px;
+    width: calc(100% + 28px - 62px);
+    height: auto;
+    aspect-ratio: 200 / 44;
+    overflow: visible;
+    fill: none;
+    stroke: #B8862B;
+    stroke-width: 2.2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    pointer-events: none;
+}
+
+.ac-flecha path {
+    vector-effect: non-scaling-stroke;
+}
+
+.ac-paso h4 {
+    margin: 16px 0 6px;
+    font-size: 17px;
+    font-weight: 700;
+    color: #0B1B33;
+}
+
+.ac-paso p {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.65;
+    color: #3F4E66;
+}
+
+/* 03 · Socios fundadores */
+.ac-seccion-socios {
+    background: #ECE6D6;
+}
+
+.ac-slider {
+    margin-top: 28px;
+}
+
+/* El margen superior deja lugar a la foto, que sobresale de la carta */
+.ac-slider-ventana {
+    overflow: hidden;
+    padding-top: 64px;
+    cursor: grab;
+    touch-action: pan-y;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.ac-slider-ventana.arrastrando {
+    cursor: grabbing;
+}
+
+.ac-slider-ventana.arrastrando .ac-slider-pista {
+    transition: none;
+}
+
+.ac-slider-ventana img,
+.ac-slider-ventana a {
+    -webkit-user-drag: none;
+}
+
+.ac-slider-pista {
+    display: flex;
+    transition: transform 0.45s ease;
+}
+
+.ac-slide {
+    flex: 0 0 100%;
+    display: flex;
+    justify-content: center;
+    padding: 0 4px 4px;
+}
+
+.ac-carta {
+    position: relative;
+    width: 100%;
+    max-width: 440px;
+    padding: 76px 30px 26px;
+    text-align: center;
+    background: #FFFFFF;
+    border: 1px solid #DDD5BF;
+    border-radius: 12px;
+}
+
+/* La foto queda a mitad del borde superior; su marco es del color del fondo de la sección, como si recortara la carta */
+.ac-foto {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 128px;
+    height: 128px;
+    box-sizing: border-box;
+    border: 10px solid #ECE6D6;
+    border-radius: 18px;
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 32px;
+    color: #FFFFFF;
+    background: #16335C;
+    background-clip: padding-box;
+}
+
+.ac-foto-dorada {
+    background-color: #8A6B1F;
+}
+
+.ac-carta h4 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 700;
+    color: #0B1B33;
+}
+
+.ac-rol {
+    margin: 4px 0 14px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #8A6B1F;
+}
+
+.ac-carta p {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.7;
+    color: #3F4E66;
+}
+
+.ac-redes {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+    padding-top: 18px;
+    border-top: 1px solid #EFE9D9;
+}
+
+.ac-red {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    font-size: 16px;
+    color: #0A192F;
+    text-decoration: none;
+    border: 1px solid #DDD5BF;
+    border-radius: 8px;
+    transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.ac-red:hover,
+.ac-red:focus-visible {
+    color: #0A192F;
+    background: #F0D48A;
+    border-color: #D4A03D;
+}
+
+/* Puntos casi imperceptibles: gris apenas más oscuro que el fondo; el activo es un poco más largo */
+.ac-slider-puntos {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    margin-top: 20px;
+}
+
+.ac-slider-punto {
+    width: 6px;
+    height: 6px;
+    padding: 0;
+    background: #DAD3BF;
+    border: 0;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: width 0.25s ease, background-color 0.25s ease;
+}
+
+.ac-slider-punto:hover {
+    background: #CFC7B0;
+}
+
+.ac-slider-punto.activo {
+    width: 16px;
+    background: #C9C1AA;
+}
+
+.ac-slider-punto:focus-visible {
+    outline: 2px solid #8C846E;
+    outline-offset: 3px;
+}
+
+@media (max-width: 991.98px) {
+    .ac-seccion {
+        padding: 40px 0;
+    }
+
+    .ac-contenido {
+        padding: 0 24px;
+    }
+
+    .ac-enunciado {
+        font-size: 24px;
+    }
+
+    .ac-propuesta {
+        grid-template-columns: 1fr;
+        gap: 28px;
+    }
+
+    .ac-propuesta-imagen {
+        aspect-ratio: 16 / 9;
+    }
+
+    .ac-titulo {
+        font-size: 24px;
+    }
+
+    .ac-pasos {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        row-gap: 30px;
+    }
+
+    /* En dos columnas la flecha del segundo paso no tendría a dónde llegar */
+    .ac-paso:nth-child(2) .ac-flecha {
+        display: none;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .ac-pasos {
+        grid-template-columns: 1fr;
+    }
+
+    .ac-flecha {
+        display: none;
+    }
+}

@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
+
 <head>
     <th:block th:replace="~{fragments/head :: recursos}"></th:block>
 </head>
-<body class="wf-canvas-bg">
+
+<body class="wf-canvas-bg ac-acerca">
 
     <div class="cu-page-container">
         <div class="screen-frame">
@@ -23,212 +25,123 @@
                 </div>
             </div>
 
-      <th:block th:replace="~{fragments/breadcrumb :: migas(null, null, 'Acerca de')}"></th:block>
+            <th:block th:replace="~{fragments/breadcrumb :: migas(null, null, 'Acerca de')}"></th:block>
 
-            <div class="wf-body">
-                <div class="wf-main-content">
+            <div class="wf-body ac-pagina">
 
-                    <!-- Nuestra propuesta: carta blanca con el texto en dos columnas y una imagen chica intercalada -->
-                    <section class="mb-5">
-                        <div class="wf-card ac-historia p-4 p-lg-5">
-                            <div class="row g-5">
-                                <div class="col-lg-6">
-                                    <h3 class="ac-historia-titulo">Nuestra <span>propuesta</span></h3>
-                                    <p>
-                                        <strong>Idóneos Online</strong> es una plataforma de cursos online de finanzas, economía y mercado de capitales
-                                        orientada al público argentino.
-                                    </p>
-                                    <p>
-                                        Durante años, aprender con profesores de alto nivel académico —directores de maestrías en universidades de primer
-                                        nivel— estuvo reservado a quienes completaban una carrera de grado y luego una maestría.
-                                    </p>
-                                    <p class="mb-0">
-                                        Idóneos Online abre ese acceso a cualquier persona interesada en formarse, <strong>sin exigir título previo ni
-                                        conocimientos específicos</strong>: los cursos introductorios parten de cero.
-                                    </p>
-                                </div>
-                                <div class="col-lg-6">
-                                    <p>
-                                        Nuestros cursos abarcan mercado de capitales, contabilidad, impuestos y eficiencia de flujo de caja, con contenido
-                                        pensado para la realidad y la legislación de la Argentina.
-                                    </p>
-                                    <p>
-                                        Lo hacemos con docentes de primera línea, clases organizadas en unidades breves, autoevaluaciones para confirmar lo
-                                        aprendido y un plazo de acceso que te permite avanzar a tu propio ritmo.
-                                    </p>
-                                    <p class="mb-0">
-                                        Podés cursar en vivo, con clases grabadas o con un Clon de IA del docente, según lo que mejor se adapte a tu
-                                        tiempo, y al terminar obtenés un certificado digital para respaldar lo que aprendiste.
-                                    </p>
-                                </div>
-                            </div>
+                <!-- 01 · Nuestra propuesta -->
+                <section class="ac-seccion">
+                    <div class="ac-contenido ac-propuesta">
+                        <div class="ac-propuesta-texto">
+                            <span class="ac-etiqueta">01 · Nuestra propuesta</span>
+                            <p class="ac-enunciado">
+                                Una plataforma de cursos online de finanzas, economía y mercado de capitales para el público
+                                argentino, <em>con docentes de primera línea y sin exigir título previo</em>.
+                            </p>
+                            <p class="ac-apoyo">
+                                Durante años, aprender con profesores de alto nivel académico estuvo reservado a quienes completaban
+                                una carrera de grado y luego una maestría. Idóneos Online abre ese acceso a cualquier persona
+                                interesada en formarse: los cursos introductorios parten de cero y están pensados para la realidad y
+                                la legislación de la Argentina.
+                            </p>
                         </div>
-                    </section>
+                        <figure class="ac-propuesta-imagen">
+                            <img th:src="@{/img/cursos/analisis-tecnico-bursatil.jpg}" alt="Gráficos de análisis técnico bursátil"
+                                loading="lazy" decoding="async">
+                        </figure>
+                    </div>
+                </section>
 
-                    <!-- Imagen con panel de color -->
-                    <section class="mb-5">
-                        <div class="ac-banda">
-                            <div class="ac-banda-imagen" th:style="'--imagen: url(' + @{/img/cursos/macroeconomia-coyuntura.jpg} + ')'"></div>
-                            <div class="ac-banda-panel">
-                                <h3>Aprendé con los mejores</h3>
-                                <div class="ac-banda-subtitulo">Docentes de primera línea</div>
-                                <p>
-                                    Profesionales y economistas de referencia, que operan y enseñan en el mercado real, te acompañan en cada unidad
-                                    para que lleves lo aprendido a tu trabajo y a tus decisiones.
-                                </p>
-                                <a th:href="@{/catalogo}" class="ac-banda-boton"><span>Explorar catálogo</span> <i class="fa-solid fa-arrow-right"></i></a>
-                            </div>
-                        </div>
-                    </section>
+                <!-- 02 · Cómo aprendés -->
+                <section class="ac-seccion ac-seccion-pasos">
+                    <div class="ac-contenido">
+                        <span class="ac-etiqueta">02 · Cómo aprendés</span>
+                        <h3 class="ac-titulo">Una forma de cursar pensada para vos</h3>
+                        <ol class="ac-pasos">
+                            <li class="ac-paso">
+                                <span class="ac-paso-numero">1</span>
+                                <svg class="ac-flecha" viewBox="0 0 200 44" aria-hidden="true" focusable="false">
+                                    <path d="M2 34 C 45 -4, 135 -4, 184 26" />
+                                    <path class="punta" d="M170 14 L186 27 L166 33" />
+                                </svg>
+                                <h4>Por unidades</h4>
+                                <p>Clases organizadas paso a paso, en unidades breves, con autoevaluaciones para confirmar lo aprendido antes de avanzar.</p>
+                            </li>
+                            <li class="ac-paso">
+                                <span class="ac-paso-numero">2</span>
+                                <svg class="ac-flecha" viewBox="0 0 200 44" aria-hidden="true" focusable="false">
+                                    <path d="M2 34 C 45 -4, 135 -4, 184 26" />
+                                    <path class="punta" d="M170 14 L186 27 L166 33" />
+                                </svg>
+                                <h4>Con profesionales</h4>
+                                <p>Aprendés de economistas y profesionales de referencia, que operan y enseñan en el mercado real.</p>
+                            </li>
+                            <li class="ac-paso">
+                                <span class="ac-paso-numero">3</span>
+                                <svg class="ac-flecha" viewBox="0 0 200 44" aria-hidden="true" focusable="false">
+                                    <path d="M2 34 C 45 -4, 135 -4, 184 26" />
+                                    <path class="punta" d="M170 14 L186 27 L166 33" />
+                                </svg>
+                                <h4>A tu ritmo</h4>
+                                <p>Contás con un plazo de acceso para completar tu formación, sin presiones ni fechas imposibles.</p>
+                            </li>
+                            <li class="ac-paso">
+                                <span class="ac-paso-numero">4</span>
+                                <h4>Con certificado</h4>
+                                <p>Al completar el curso obtenés un certificado digital con código único de validación.</p>
+                            </li>
+                        </ol>
+                    </div>
+                </section>
 
-                    <!-- Cómo aprendés -->
-                    <section class="mb-5">
-                        <div class="sec-titulo">
-                            <span class="sec-etiqueta">CÓMO APRENDÉS</span>
-                            <h3 class="sec-encabezado">Una forma de cursar pensada para vos</h3>
-                        </div>
-                        <div class="row g-3">
-                            <div class="col-md-6 col-lg-3">
-                                <div class="wf-card h-100 text-center">
-                                    <div class="ac-icono mx-auto"><i class="fa-solid fa-film"></i></div>
-                                    <h5 class="fw-bold mb-2" style="color: #081426;">Sistema Netflix</h5>
-                                    <p class="small text-muted mb-0">Clases organizadas paso a paso, en unidades breves. Cada unidad incluye autoevaluaciones para que confirmes que dominás el tema antes de avanzar.</p>
-                                </div>
-                            </div>
-                            <div class="col-md-6 col-lg-3">
-                                <div class="wf-card h-100 text-center">
-                                    <div class="ac-icono mx-auto"><i class="fa-solid fa-chalkboard-user"></i></div>
-                                    <h5 class="fw-bold mb-2" style="color: #081426;">Docentes de primera línea</h5>
-                                    <p class="small text-muted mb-0">Aprendés de profesionales y economistas de referencia, que operan y enseñan en el mercado real.</p>
-                                </div>
-                            </div>
-                            <div class="col-md-6 col-lg-3">
-                                <div class="wf-card h-100 text-center">
-                                    <div class="ac-icono mx-auto"><i class="fa-solid fa-clock"></i></div>
-                                    <h5 class="fw-bold mb-2" style="color: #081426;">A tu ritmo</h5>
-                                    <p class="small text-muted mb-0">Contás con un plazo de acceso para completar tu formación, sin presiones ni fechas imposibles.</p>
-                                </div>
-                            </div>
-                            <div class="col-md-6 col-lg-3">
-                                <div class="wf-card h-100 text-center">
-                                    <div class="ac-icono mx-auto"><i class="fa-solid fa-certificate"></i></div>
-                                    <h5 class="fw-bold mb-2" style="color: #081426;">Certificación digital</h5>
-                                    <p class="small text-muted mb-0">Al completar el curso obtenés un certificado digital con código único de validación.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
+                <!-- 03 · Socios fundadores -->
+                <section class="ac-seccion ac-seccion-socios">
+                    <div class="ac-contenido">
+                        <span class="ac-etiqueta">03 · Socios fundadores</span>
+                        <h3 class="ac-titulo">Quiénes están detrás de Idóneos Online</h3>
 
-                    <!-- Modalidades de dictado: tarjeta con pestañas -->
-                    <section class="mb-5">
-                        <div class="sec-titulo">
-                            <span class="sec-etiqueta">MODALIDADES DE DICTADO</span>
-                            <h3 class="sec-encabezado">Elegí cómo cursar</h3>
-                        </div>
-                        <div class="ac-pestanias-bloque">
-                            <ul class="nav ac-pestanias" role="tablist">
-                                <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#acEnVivo" type="button" role="tab">En vivo</button></li>
-                                <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#acGrabada" type="button" role="tab">Grabada</button></li>
-                                <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#acClon" type="button" role="tab">Clon de IA</button></li>
-                            </ul>
-                            <div class="tab-content">
-                                <div class="tab-pane fade show active" id="acEnVivo" role="tabpanel">
-                                    <div class="ac-pestana-tarjeta">
-                                        <div>
-                                            <h4>Clases en vivo</h4>
-                                            <p>Clases en directo con el docente, con la posibilidad de consultar en el momento y con grabación disponible para volver a verlas.</p>
-                                            <a th:href="@{/catalogo(modalidadId=${idEnVivo})}" class="ac-pestana-boton">Ver cursos</a>
+                        <!-- Slider automático: pasa solo cada pocos segundos y se detiene con el mouse encima o el foco dentro -->
+                        <div class="ac-slider" data-slider data-intervalo="6000" role="region" aria-roledescription="carrusel"
+                            aria-label="Socios fundadores">
+                            <div class="ac-slider-ventana">
+                                <div class="ac-slider-pista" data-pista>
+                                    <article class="ac-slide" data-slide>
+                                        <div class="ac-carta">
+                                            <span class="ac-foto" aria-hidden="true">FS</span>
+                                            <h4>Fausto Spotorno</h4>
+                                            <div class="ac-rol">Director académico</div>
+                                            <p>
+                                                Economista recibido en la UCA, director de la maestría de la UADE y titular de la
+                                                consultora Orlando Ferreres y Asociados. Ejerce la dirección académica de la plataforma.
+                                            </p>
+                                            <div class="ac-redes">
+                                                <a href="#" class="ac-red" data-sin-accion aria-label="LinkedIn de Fausto Spotorno" title="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+                                                <a href="#" class="ac-red" data-sin-accion aria-label="Instagram de Fausto Spotorno" title="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                                            </div>
                                         </div>
-                                        <img class="ac-pestana-imagen" width="1280" height="853" loading="lazy" decoding="async" th:src="@{/img/cursos/mercado-capitales-argentino.jpg}" alt="Clases en vivo">
-                                    </div>
-                                </div>
-                                <div class="tab-pane fade" id="acGrabada" role="tabpanel">
-                                    <div class="ac-pestana-tarjeta">
-                                        <div>
-                                            <h4>Clases grabadas</h4>
-                                            <p>Clases grabadas con estándares de producción audiovisual, para cursar cuando quieras y repasar las veces que necesites.</p>
-                                            <a th:href="@{/catalogo(modalidadId=${idGrabada})}" class="ac-pestana-boton">Ver cursos</a>
+                                    </article>
+                                    <article class="ac-slide" data-slide>
+                                        <div class="ac-carta">
+                                            <span class="ac-foto ac-foto-dorada" aria-hidden="true">SB</span>
+                                            <h4>Sebastián Bordato</h4>
+                                            <div class="ac-rol">Docente · Ideólogo del proyecto</div>
+                                            <p>
+                                                Ideólogo del proyecto y responsable del armado inicial de la propuesta académica.
+                                                Además, se desempeña como uno de los docentes de la plataforma.
+                                            </p>
+                                            <div class="ac-redes">
+                                                <a href="#" class="ac-red" data-sin-accion aria-label="LinkedIn de Sebastián Bordato" title="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+                                                <a href="#" class="ac-red" data-sin-accion aria-label="Instagram de Sebastián Bordato" title="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                                            </div>
                                         </div>
-                                        <img class="ac-pestana-imagen" width="1280" height="853" loading="lazy" decoding="async" th:src="@{/img/cursos/introduccion-finanzas.jpg}" alt="Clases grabadas">
-                                    </div>
-                                </div>
-                                <div class="tab-pane fade" id="acClon" role="tabpanel">
-                                    <div class="ac-pestana-tarjeta">
-                                        <div>
-                                            <h4>Clon de IA</h4>
-                                            <p>Clases dictadas por un avatar de inteligencia artificial que reproduce la imagen y la voz reales del docente.</p>
-                                            <a th:href="@{/catalogo(modalidadId=${idClonIa})}" class="ac-pestana-boton">Ver cursos</a>
-                                        </div>
-                                        <img class="ac-pestana-imagen" width="1280" height="853" loading="lazy" decoding="async" th:src="@{/img/cursos/planificacion-fiscal-corporativa.jpg}" alt="Clon de IA">
-                                    </div>
+                                    </article>
                                 </div>
                             </div>
+                            <div class="ac-slider-puntos" data-puntos></div>
                         </div>
-                    </section>
+                    </div>
+                </section>
 
-                    <!-- Equipo académico -->
-                    <section class="mb-5">
-                        <div class="sec-titulo">
-                            <span class="sec-etiqueta">EQUIPO ACADÉMICO</span>
-                            <h3 class="sec-encabezado">Quiénes están detrás de Idóneos Online</h3>
-                        </div>
-                        <div class="row g-3 justify-content-center">
-                            <div class="col-lg-5 col-md-6">
-                                <div class="wf-card h-100">
-                                    <div class="d-flex align-items-center gap-3 mb-3">
-                                        <span class="um-avatar" style="width: 56px; height: 56px; font-size: 18px;">FS</span>
-                                        <div>
-                                            <h5 class="fw-bold mb-0" style="color: #081426;">Fausto Spotorno</h5>
-                                            <div class="small text-gold fw-bold text-uppercase">Director académico</div>
-                                        </div>
-                                    </div>
-                                    <p class="small text-muted mb-0" style="line-height: 1.7;">
-                                        Economista recibido en la UCA, director de la maestría de la UADE y titular de la consultora Orlando Ferreres y Asociados.
-                                        Ejerce la dirección académica de la plataforma.
-                                    </p>
-                                </div>
-                            </div>
-                            <div class="col-lg-5 col-md-6">
-                                <div class="wf-card h-100">
-                                    <div class="d-flex align-items-center gap-3 mb-3">
-                                        <span class="um-avatar" style="width: 56px; height: 56px; font-size: 18px;">SB</span>
-                                        <div>
-                                            <h5 class="fw-bold mb-0" style="color: #081426;">Sebastián Bordato</h5>
-                                            <div class="small text-gold fw-bold text-uppercase">Docente · Ideólogo del proyecto</div>
-                                        </div>
-                                    </div>
-                                    <p class="small text-muted mb-0" style="line-height: 1.7;">
-                                        Ideólogo del proyecto y responsable del armado inicial de la propuesta académica. Además, se desempeña como uno de los docentes de la plataforma.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-
-                    <!-- Áreas de formación -->
-                    <section class="mb-5" th:if="${!#lists.isEmpty(categorias)}">
-                        <div class="sec-titulo">
-                            <span class="sec-etiqueta">ÁREAS DE FORMACIÓN</span>
-                            <h3 class="sec-encabezado">Temáticas que podés estudiar</h3>
-                        </div>
-                        <div class="d-flex flex-wrap justify-content-center gap-2">
-                            <a th:each="cat : ${categorias}" th:href="@{/catalogo(categoriaId=${cat.idCategoria})}" class="ac-chip" th:text="${cat.nombre}">Mercado de Capitales</a>
-                        </div>
-                    </section>
-
-                    <!-- Cierre -->
-                    <section class="ac-cierre">
-                        <h3>Empezá tu camino con Idóneos Online</h3>
-                        <p>Explorá los cursos disponibles o seguinos en Instagram.</p>
-                        <div class="d-flex flex-wrap justify-content-center gap-3">
-                            <a th:href="@{/catalogo}" class="wf-btn-gold text-decoration-none"><i class="fa-solid fa-compass"></i> <span>Explorar catálogo</span></a>
-                            <a href="https://www.instagram.com/idoneos.online/" target="_blank" rel="noopener noreferrer" class="ac-instagram">
-                                <i class="fa-brands fa-instagram"></i> <span>@idoneos.online</span>
-                            </a>
-                        </div>
-                    </section>
-
-                </div>
             </div>
 
             <!-- Footer Oficial de Idóneos Online -->
@@ -239,5 +152,7 @@
 
     <!-- Bootstrap Bundle JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:src="@{/js/acercaDe.js}"></script>
 </body>
+
 </html>
