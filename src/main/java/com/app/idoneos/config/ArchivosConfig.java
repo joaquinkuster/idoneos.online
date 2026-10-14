@@ -1,4 +1,4 @@
-package com.app.idoneos.configuracion;
+package com.app.idoneos.config;
 
 import java.io.IOException;
 import java.nio.file.Files;

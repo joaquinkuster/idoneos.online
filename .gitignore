@@ -40,6 +40,8 @@ client_secret*.json
 credentials.properties
 application-local.properties
 application-*.properties
+# Excepción: el perfil local del proyecto (credenciales de PRUEBA de MODO, publicadas en su documentación) sí se versiona
+!src/main/resources/application-local.properties
 
 *.exe
 
@@ -48,6 +50,3 @@ node_modules/
 
 ### Imágenes subidas por los usuarios ###
 uploads/
-
-### Configuración local con credenciales (no se versiona) ###
-application-local.properties

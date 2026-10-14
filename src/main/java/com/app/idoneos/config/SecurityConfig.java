@@ -1,4 +1,4 @@
-package com.app.idoneos.configuracion;
+package com.app.idoneos.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,6 +16,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpSession;
 
+import com.app.idoneos.controlador.consejo.ContextoSesion;
 import com.app.idoneos.modelo.Usuario;
 import com.app.idoneos.servicio.Usuario.UsuarioDetallesServicio;
 
@@ -179,7 +180,7 @@ public class SecurityConfig {
                                 cookie.setMaxAge(segundos);
                                 respuesta.addCookie(cookie);
                             }
-                            solicitud.getSession().setAttribute(ModeloGlobalConsejo.MENSAJE_DE_SESION,
+                            solicitud.getSession().setAttribute(ContextoSesion.MENSAJE_DE_SESION,
                                     "Sesión iniciada correctamente. ¡Bienvenido/a, " + usuario.getNombre() + "!");
                             String destino = usuario.esAdministradorActivo() || usuario.esDocenteActivo() ? "/curso/buscar"
                                     : usuario.esAlumnoActivo() ? "/inscripcion/misCursos" : "/inicio";

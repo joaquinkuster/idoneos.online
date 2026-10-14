@@ -1,4 +1,4 @@
-package com.app.idoneos.configuracion;
+package com.app.idoneos.controlador.consejo;
 
 import java.util.Map;
 
@@ -8,6 +8,7 @@ import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.app.idoneos.modelo.Cohorte;
@@ -16,11 +17,13 @@ import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * Consejo de controladores para los errores de la solicitud que ocurren antes de llegar a la lógica de cada
- * pantalla: valores que no se pueden convertir al tipo esperado (por ejemplo, un número demasiado grande) y
- * direcciones de operaciones que solo admiten POST abiertas desde el navegador.
+ * pantalla, porque los detecta el propio Spring: valores que no se pueden convertir al tipo esperado (por ejemplo,
+ * un número demasiado grande), direcciones de operaciones que solo admiten POST abiertas desde el navegador y archivos
+ * que superan el tamaño máximo de las subidas. Responde con un mensaje claro, en el propio formulario cuando es un
+ * POST.
  */
 @ControllerAdvice
-public class ErroresDeSolicitudConsejo {
+public class ManejadorErrores {
 
     /** Mensajes de las excepciones de los casos de uso (CU-12 y CU-13) para los valores numéricos inválidos. */
     private static final Map<String, String> MENSAJES_DE_CU = Map.of(
@@ -82,5 +85,16 @@ public class ErroresDeSolicitudConsejo {
         }
         return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED)
                 .body(Map.of("error", "Error! La operación solicitada no está permitida."));
+    }
+
+    /**
+     * Informa que el archivo supera el tamaño máximo que acepta el servidor. Ese límite lo controla Spring antes de
+     * llegar a los controladores, por eso el error se atiende acá y se muestra dentro del formulario.
+     *
+     * @return Una respuesta HTTP 400 con el mensaje de error.
+     */
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<Map<String, String>> archivoDemasiadoGrande() {
+        return ResponseEntity.badRequest().body(Map.of("error", "Error! El archivo supera el tamaño máximo permitido (500 MB)."));
     }
 }

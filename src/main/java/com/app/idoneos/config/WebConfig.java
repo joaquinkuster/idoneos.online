@@ -1,4 +1,4 @@
-package com.app.idoneos.configuracion;
+package com.app.idoneos.config;
 
 import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
