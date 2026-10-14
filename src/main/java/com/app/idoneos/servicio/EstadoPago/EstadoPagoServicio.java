@@ -8,6 +8,8 @@ import com.app.idoneos.modelo.EstadoPago;
  */
 public interface EstadoPagoServicio {
 
+    // ---------------------------------------------------------------- Lecturas
+
     /**
      * Busca el estado del pago por su atributo único 'nombre'. Incluye los registros dados de baja, para poder reactivarlos en lugar de duplicarlos.
      *

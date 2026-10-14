@@ -10,6 +10,8 @@ import com.app.idoneos.modelo.Descuento;
  */
 public interface DescuentoServicio {
 
+    // ---------------------------------------------------------------- Lecturas
+
     /**
      * Busca el descuento por su atributo único 'nombre'. Incluye los registros dados de baja, para poder reactivarlos en lugar de duplicarlos.
      *
@@ -29,6 +31,8 @@ public interface DescuentoServicio {
      */
     List<Descuento> buscarConFiltros(String nombre, String estado, String orden);
 
+    // ---------------------------------------------------------------- Creaciones
+
     /**
      * Registra un descuento (CU-57), con cantidad usada en cero. Si existe uno dado de baja con el mismo nombre,
      * lo reactiva con los datos nuevos.
@@ -45,6 +49,8 @@ public interface DescuentoServicio {
     Descuento registrarDescuento(String nombre, Float porcentaje, LocalDate vigenciaDesde, LocalDate vigenciaHasta,
             Integer cantidadLimite, Integer cursosRequeridos);
 
+    // ---------------------------------------------------------------- Modificaciones
+
     /**
      * Modifica los datos de un descuento que no está dado de baja (CU-58). Los vencidos y agotados pueden
      * modificarse (por ejemplo para extender la vigencia), pero la cantidad límite no puede ser menor a la usada.
@@ -55,6 +61,8 @@ public interface DescuentoServicio {
      */
     Descuento modificarDescuento(Integer idDescuento, String nombre, Float porcentaje, LocalDate vigenciaDesde,
             LocalDate vigenciaHasta, Integer cantidadLimite, Integer cursosRequeridos);
+
+    // ---------------------------------------------------------------- Bajas
 
     /**
      * Da de baja un descuento que no está dado de baja y nunca se aplicó (CU-59).

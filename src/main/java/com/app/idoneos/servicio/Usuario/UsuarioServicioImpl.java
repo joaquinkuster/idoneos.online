@@ -19,16 +19,7 @@ public class UsuarioServicioImpl implements UsuarioServicio, CrudServicio<Usuari
     @Autowired
     private UsuarioRepositorio usuarioRepositorio;
 
-    /**
-     * Guarda el usuario en la base de datos.
-     *
-     * @param entidad El registro a guardar.
-     * @return El registro guardado.
-     */
-    @Override
-    public Usuario guardar(Usuario entidad) {
-        return usuarioRepositorio.save(entidad);
-    }
+    // ---------------------------------------------------------------- Lecturas
 
     /**
      * Busca el usuario por su identificador. Solo devuelve registros activos (no dados de baja).
@@ -50,28 +41,6 @@ public class UsuarioServicioImpl implements UsuarioServicio, CrudServicio<Usuari
     @Override
     public List<Usuario> obtenerTodo() {
         return usuarioRepositorio.findByBajaFalse();
-    }
-
-    /**
-     * Modifica un registro existente.
-     *
-     * @param entidad El registro con los datos actualizados.
-     * @return El registro modificado.
-     */
-    @Override
-    public Usuario modificar(Usuario entidad) {
-        return usuarioRepositorio.save(entidad);
-    }
-
-    /**
-     * Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos.
-     *
-     * @param entidad El registro a borrar.
-     */
-    @Override
-    public void borrar(Usuario entidad) {
-        entidad.marcarInactivo(); // Baja lógica
-        usuarioRepositorio.save(entidad);
     }
 
     /**
@@ -141,6 +110,32 @@ public class UsuarioServicioImpl implements UsuarioServicio, CrudServicio<Usuari
         return usuarioRepositorio.findByTokenVerificacion(tokenVerificacion);
     }
 
+    // ---------------------------------------------------------------- Creaciones
+
+    /**
+     * Guarda el usuario en la base de datos.
+     *
+     * @param entidad El registro a guardar.
+     * @return El registro guardado.
+     */
+    @Override
+    public Usuario guardar(Usuario entidad) {
+        return usuarioRepositorio.save(entidad);
+    }
+
+    // ---------------------------------------------------------------- Modificaciones
+
+    /**
+     * Modifica un registro existente.
+     *
+     * @param entidad El registro con los datos actualizados.
+     * @return El registro modificado.
+     */
+    @Override
+    public Usuario modificar(Usuario entidad) {
+        return usuarioRepositorio.save(entidad);
+    }
+
     /**
      * Cambia el rol por defecto de un usuario. El rol debe estar vigente entre los roles del usuario.
      *
@@ -162,5 +157,18 @@ public class UsuarioServicioImpl implements UsuarioServicio, CrudServicio<Usuari
         usuario.setUltimaModificacion(java.time.LocalDateTime.now());
         usuarioRepositorio.save(usuario);
         return rol;
+    }
+
+    // ---------------------------------------------------------------- Bajas
+
+    /**
+     * Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos.
+     *
+     * @param entidad El registro a borrar.
+     */
+    @Override
+    public void borrar(Usuario entidad) {
+        entidad.marcarInactivo(); // Baja lógica
+        usuarioRepositorio.save(entidad);
     }
 }

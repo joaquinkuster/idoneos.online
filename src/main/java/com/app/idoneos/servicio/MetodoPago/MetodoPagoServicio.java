@@ -8,6 +8,8 @@ import com.app.idoneos.modelo.MetodoPago;
  */
 public interface MetodoPagoServicio {
 
+    // ---------------------------------------------------------------- Lecturas
+
     /**
      * Busca el método de pago por su atributo único 'nombre'. Incluye los registros dados de baja, para poder reactivarlos en lugar de duplicarlos.
      *

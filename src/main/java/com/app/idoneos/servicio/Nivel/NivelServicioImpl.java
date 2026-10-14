@@ -18,16 +18,7 @@ public class NivelServicioImpl implements NivelServicio, CrudServicio<Nivel> {
     @Autowired
     private NivelRepositorio nivelRepositorio;
 
-    /**
-     * Guarda el nivel en la base de datos.
-     *
-     * @param entidad El registro a guardar.
-     * @return El registro guardado.
-     */
-    @Override
-    public Nivel guardar(Nivel entidad) {
-        return nivelRepositorio.save(entidad);
-    }
+    // ---------------------------------------------------------------- Lecturas
 
     /**
      * Busca el nivel por su identificador. Devuelve el registro si existe.
@@ -51,27 +42,6 @@ public class NivelServicioImpl implements NivelServicio, CrudServicio<Nivel> {
     }
 
     /**
-     * Modifica un registro existente.
-     *
-     * @param entidad El registro con los datos actualizados.
-     * @return El registro modificado.
-     */
-    @Override
-    public Nivel modificar(Nivel entidad) {
-        return nivelRepositorio.save(entidad);
-    }
-
-    /**
-     * Elimina el registro de la base de datos. Esta entidad no tiene baja lógica.
-     *
-     * @param entidad El registro a borrar.
-     */
-    @Override
-    public void borrar(Nivel entidad) {
-        nivelRepositorio.delete(entidad);
-    }
-
-    /**
      * Verifica si existe un registro con el identificador dado.
      *
      * @param id El identificador del registro.
@@ -91,5 +61,43 @@ public class NivelServicioImpl implements NivelServicio, CrudServicio<Nivel> {
     @Override
     public Optional<Nivel> buscarPorNombre(String nombre) {
         return nivelRepositorio.findByNombre(nombre);
+    }
+
+    // ---------------------------------------------------------------- Creaciones
+
+    /**
+     * Guarda el nivel en la base de datos.
+     *
+     * @param entidad El registro a guardar.
+     * @return El registro guardado.
+     */
+    @Override
+    public Nivel guardar(Nivel entidad) {
+        return nivelRepositorio.save(entidad);
+    }
+
+    // ---------------------------------------------------------------- Modificaciones
+
+    /**
+     * Modifica un registro existente.
+     *
+     * @param entidad El registro con los datos actualizados.
+     * @return El registro modificado.
+     */
+    @Override
+    public Nivel modificar(Nivel entidad) {
+        return nivelRepositorio.save(entidad);
+    }
+
+    // ---------------------------------------------------------------- Bajas
+
+    /**
+     * Elimina el registro de la base de datos. Esta entidad no tiene baja lógica.
+     *
+     * @param entidad El registro a borrar.
+     */
+    @Override
+    public void borrar(Nivel entidad) {
+        nivelRepositorio.delete(entidad);
     }
 }

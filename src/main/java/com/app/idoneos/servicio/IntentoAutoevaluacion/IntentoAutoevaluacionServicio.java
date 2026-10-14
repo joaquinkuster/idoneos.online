@@ -10,6 +10,8 @@ import com.app.idoneos.modelo.IntentoAutoevaluacion;
  */
 public interface IntentoAutoevaluacionServicio {
 
+    // ---------------------------------------------------------------- Lecturas
+
     /**
      * Busca los registros vigentes de intentoAutoevaluacion asociados a inscripcion.
      *

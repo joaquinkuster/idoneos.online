@@ -24,16 +24,7 @@ public class CertificadoServicioImpl implements CertificadoServicio, CrudServici
     @Autowired
     private CertificadoRepositorio certificadoRepositorio;
 
-    /**
-     * Guarda el certificado en la base de datos.
-     *
-     * @param entidad El registro a guardar.
-     * @return El registro guardado.
-     */
-    @Override
-    public Certificado guardar(Certificado entidad) {
-        return certificadoRepositorio.save(entidad);
-    }
+    // ---------------------------------------------------------------- Lecturas
 
     /**
      * Busca el certificado por su identificador. Incluye los registros dados de baja o anulados, para poder consultarlos.
@@ -54,28 +45,6 @@ public class CertificadoServicioImpl implements CertificadoServicio, CrudServici
     @Override
     public List<Certificado> obtenerTodo() {
         return certificadoRepositorio.findByAnuladoFalse();
-    }
-
-    /**
-     * Modifica un registro existente.
-     *
-     * @param entidad El registro con los datos actualizados.
-     * @return El registro modificado.
-     */
-    @Override
-    public Certificado modificar(Certificado entidad) {
-        return certificadoRepositorio.save(entidad);
-    }
-
-    /**
-     * Anula el certificado, en lugar de eliminarlo de la base de datos.
-     *
-     * @param entidad El registro a borrar.
-     */
-    @Override
-    public void borrar(Certificado entidad) {
-        entidad.anular(); // Anulación en lugar de borrado
-        certificadoRepositorio.save(entidad);
     }
 
     /**
@@ -111,6 +80,32 @@ public class CertificadoServicioImpl implements CertificadoServicio, CrudServici
         return certificadoRepositorio.findByNumero(numero);
     }
 
+    // ---------------------------------------------------------------- Creaciones
+
+    /**
+     * Guarda el certificado en la base de datos.
+     *
+     * @param entidad El registro a guardar.
+     * @return El registro guardado.
+     */
+    @Override
+    public Certificado guardar(Certificado entidad) {
+        return certificadoRepositorio.save(entidad);
+    }
+
+    // ---------------------------------------------------------------- Modificaciones
+
+    /**
+     * Modifica un registro existente.
+     *
+     * @param entidad El registro con los datos actualizados.
+     * @return El registro modificado.
+     */
+    @Override
+    public Certificado modificar(Certificado entidad) {
+        return certificadoRepositorio.save(entidad);
+    }
+
     @Override
     @Transactional
     public Certificado corregirDatos(Integer idCertificado, String nombre, String dni) {
@@ -133,5 +128,18 @@ public class CertificadoServicioImpl implements CertificadoServicio, CrudServici
         certificado.setDniAlumno(dniLimpio);
         certificado.setUltimaModificacion(LocalDateTime.now());
         return certificadoRepositorio.save(certificado);
+    }
+
+    // ---------------------------------------------------------------- Bajas
+
+    /**
+     * Anula el certificado, en lugar de eliminarlo de la base de datos.
+     *
+     * @param entidad El registro a borrar.
+     */
+    @Override
+    public void borrar(Certificado entidad) {
+        entidad.anular(); // Anulación en lugar de borrado
+        certificadoRepositorio.save(entidad);
     }
 }

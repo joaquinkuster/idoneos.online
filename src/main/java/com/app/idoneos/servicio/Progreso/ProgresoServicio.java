@@ -11,6 +11,8 @@ import com.app.idoneos.modelo.Unidad;
  */
 public interface ProgresoServicio {
 
+    // ---------------------------------------------------------------- Lecturas
+
     /**
      * Busca los registros de progreso asociados a unidad.
      *
@@ -35,4 +37,24 @@ public interface ProgresoServicio {
      * @return un {@link Optional} con el registro si existe, o vacío si no se encuentra
      */
     Optional<Progreso> buscarPorInscripcionYUnidad(Inscripcion inscripcion, Unidad unidad);
+
+    /**
+     * CU-55: Busca las inscripciones de un curso con su progreso. Solo incluye inscripciones activas (no dadas de baja),
+     * de todas las cohortes del curso, y permite filtrar por alumno.
+     *
+     * @param cursoId El identificador del curso.
+     * @param alumno  Texto a buscar en el nombre, DNI o correo del alumno (opcional).
+     * @return Las inscripciones que cumplen los criterios, de la más reciente a la más antigua.
+     */
+    List<Inscripcion> buscarConFiltros(Integer cursoId, String alumno);
+
+    /**
+     * CU-55: Arma el detalle del progreso de una inscripción: cada unidad del programa de su cohorte, si fue
+     * completada y la fecha en que se completó.
+     *
+     * @param idInscripcion El identificador de la inscripción.
+     * @return El detalle del progreso.
+     * @throws IllegalArgumentException Si la inscripción no existe o fue dada de baja.
+     */
+    DetalleProgreso buscarDetalle(Integer idInscripcion);
 }

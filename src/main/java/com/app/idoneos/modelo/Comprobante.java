@@ -16,6 +16,21 @@ import lombok.Setter;
 @NoArgsConstructor
 public class Comprobante {
 
+    /** Longitud máxima del nombre y del DNI del pagador (las de sus columnas). */
+    public static final int LONGITUD_NOMBRE_PAGADOR = 100;
+    public static final int LONGITUD_DNI_PAGADOR = 8;
+
+    /**
+     * Arma el número de un comprobante: {@code COMP-AAAA-NNNNNN}, con el año de la emisión y el identificador del pago.
+     *
+     * @param idPago       El identificador del pago.
+     * @param fechaEmision La fecha de emisión del comprobante.
+     * @return El número, por ejemplo {@code COMP-2026-000012}.
+     */
+    public static String generarNumero(int idPago, LocalDateTime fechaEmision) {
+        return String.format("COMP-%d-%06d", fechaEmision.getYear(), idPago);
+    }
+
     /**
      * Identificador único del comprobante.
      */

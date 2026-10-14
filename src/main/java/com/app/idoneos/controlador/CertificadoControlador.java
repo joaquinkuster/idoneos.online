@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.app.idoneos.servicio.Certificado.CertificadoServicioImpl;
-import com.app.idoneos.utilidades.RespuestaUtilidad;
+import com.app.idoneos.utilidades.RespuestaJsonUtilidad;
 
 /**
  * Controlador de los certificados (MOD-F-03), solo para el Administrador.
@@ -25,6 +25,8 @@ public class CertificadoControlador {
 
     @Autowired
     private CertificadoServicioImpl certificadoServicio;
+
+    // ---------------------------------------------------------------- Modificaciones
 
     /**
      * CU-48: Corrige el nombre y/o el DNI del alumno registrados en un certificado emitido. Responde en JSON.
@@ -40,9 +42,9 @@ public class CertificadoControlador {
             @RequestParam(value = "dni", required = false) String dni) {
         try {
             certificadoServicio.corregirDatos(id, nombre, dni);
-            return RespuestaUtilidad.respuestaExitosa("Datos del certificado actualizados con éxito.");
+            return RespuestaJsonUtilidad.respuestaExitosa("Datos del certificado actualizados con éxito.");
         } catch (Exception e) {
-            return RespuestaUtilidad.respuestaConError(e);
+            return RespuestaJsonUtilidad.respuestaConError(e);
         }
     }
 }

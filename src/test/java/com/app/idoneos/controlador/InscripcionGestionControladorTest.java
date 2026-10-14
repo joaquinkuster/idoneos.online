@@ -126,7 +126,6 @@ class InscripcionGestionControladorTest {
                 .andExpect(content().string(containsString("Pendiente de pago")))
                 .andExpect(content().string(containsString("Comienza el")))
                 .andExpect(content().string(containsString("data-f-acceso")))
-                .andExpect(content().string(containsString("modalDetalleInscripcion")))
                 .andExpect(content().string(containsString("modalBajaInscripcion")))
                 .andExpect(content().string(not(containsString("Acceder al curso"))));
     }
@@ -141,10 +140,9 @@ class InscripcionGestionControladorTest {
 
     @Test
     @WithUserDetails(value = MARTIN, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-44: el alumno ve los datos del certificado en el detalle de su inscripción")
-    void detalleConCertificado() throws Exception {
+    @DisplayName("CU-44: el alumno con el acceso vencido ve su inscripción bloqueada")
+    void accesoVencido() throws Exception {
         mockMvc.perform(get("/inscripcion/misCursos")).andExpect(status().isOk())
-                .andExpect(content().string(containsString("CERT-2026-000001")))
                 .andExpect(content().string(containsString("Acceso vencido")));
     }
 
@@ -295,12 +293,14 @@ class InscripcionGestionControladorTest {
         Inscripcion pendiente = inscripcion(LUCIA, "Pendiente de pago");
 
         mockMvc.perform(post("/inscripcion/modificar/" + pendiente.getIdInscripcion())
-                .param("observaciones", "Pago confirmado por transferencia").param("habilitada", "true")
-                .param("vencimiento", LocalDate.now().plusMonths(9).toString()))
+                .param("observaciones", "Pago confirmado por transferencia"))
                 .andExpect(status().isOk());
-
-        assertTrue(pendiente.estaHabilitada());
         assertEquals("Pago confirmado por transferencia", pendiente.getObservaciones());
+
+        // habilitarla a mano sin un pago aprobado se rechaza
+        mockMvc.perform(post("/inscripcion/modificar/" + pendiente.getIdInscripcion()).param("habilitada", "true"))
+                .andExpect(status().isBadRequest());
+        assertTrue(!pendiente.estaHabilitada());
     }
 
     @Test

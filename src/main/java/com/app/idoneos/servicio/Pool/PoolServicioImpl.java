@@ -19,16 +19,7 @@ public class PoolServicioImpl implements PoolServicio, CrudServicio<Pool> {
     @Autowired
     private PoolRepositorio poolRepositorio;
 
-    /**
-     * Guarda el pool en la base de datos.
-     *
-     * @param entidad El registro a guardar.
-     * @return El registro guardado.
-     */
-    @Override
-    public Pool guardar(Pool entidad) {
-        return poolRepositorio.save(entidad);
-    }
+    // ---------------------------------------------------------------- Lecturas
 
     /**
      * Busca el pool por su identificador. Solo devuelve registros activos (no dados de baja).
@@ -53,28 +44,6 @@ public class PoolServicioImpl implements PoolServicio, CrudServicio<Pool> {
     }
 
     /**
-     * Modifica un registro existente.
-     *
-     * @param entidad El registro con los datos actualizados.
-     * @return El registro modificado.
-     */
-    @Override
-    public Pool modificar(Pool entidad) {
-        return poolRepositorio.save(entidad);
-    }
-
-    /**
-     * Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos.
-     *
-     * @param entidad El registro a borrar.
-     */
-    @Override
-    public void borrar(Pool entidad) {
-        entidad.marcarInactivo(); // Baja lógica
-        poolRepositorio.save(entidad);
-    }
-
-    /**
      * Verifica si existe un registro con el identificador dado y está activo.
      *
      * @param id El identificador del registro.
@@ -95,5 +64,44 @@ public class PoolServicioImpl implements PoolServicio, CrudServicio<Pool> {
     @Override
     public List<Pool> buscarPorUnidad(Unidad unidad) {
         return poolRepositorio.findByUnidadAndBajaFalse(unidad);
+    }
+
+    // ---------------------------------------------------------------- Creaciones
+
+    /**
+     * Guarda el pool en la base de datos.
+     *
+     * @param entidad El registro a guardar.
+     * @return El registro guardado.
+     */
+    @Override
+    public Pool guardar(Pool entidad) {
+        return poolRepositorio.save(entidad);
+    }
+
+    // ---------------------------------------------------------------- Modificaciones
+
+    /**
+     * Modifica un registro existente.
+     *
+     * @param entidad El registro con los datos actualizados.
+     * @return El registro modificado.
+     */
+    @Override
+    public Pool modificar(Pool entidad) {
+        return poolRepositorio.save(entidad);
+    }
+
+    // ---------------------------------------------------------------- Bajas
+
+    /**
+     * Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos.
+     *
+     * @param entidad El registro a borrar.
+     */
+    @Override
+    public void borrar(Pool entidad) {
+        entidad.marcarInactivo(); // Baja lógica
+        poolRepositorio.save(entidad);
     }
 }

@@ -21,7 +21,7 @@ import com.app.idoneos.modelo.Docente;
 import com.app.idoneos.modelo.Programa;
 import com.app.idoneos.modelo.Usuario;
 import com.app.idoneos.servicio.Programa.ProgramaServicio;
-import com.app.idoneos.utilidades.RespuestaUtilidad;
+import com.app.idoneos.utilidades.RespuestaJsonUtilidad;
 
 /**
  * Controlador del ABM de programas (MOD-F-02): CU-15 Buscar programa (GET /programa/buscar), CU-16 Registrar programa
@@ -37,6 +37,8 @@ public class ProgramaControlador extends PanelCursoControlador {
 
     @Autowired
     private ProgramaServicio programaServicio;
+
+    // ---------------------------------------------------------------- Lecturas
 
     /**
      * CU-15: Busca los programas de un curso por nombre y estado (Vigente, Anterior o Dado de baja).
@@ -80,6 +82,8 @@ public class ProgramaControlador extends PanelCursoControlador {
         }
     }
 
+    // ---------------------------------------------------------------- Creaciones
+
     /**
      * CU-16: Registra un programa para un curso, opcionalmente a partir de uno anterior. Responde en JSON.
      *
@@ -106,11 +110,13 @@ public class ProgramaControlador extends PanelCursoControlador {
             Usuario usuario = (Usuario) auth.getPrincipal();
             Programa programa = programaServicio.registrarPrograma(usuario.getDocente(), cursoId, programaOrigenId,
                     nombre, descripcion, objetivos, cargaHoraria, bibliografia);
-            return RespuestaUtilidad.respuestaExitosa("Programa '" + programa.getNombre() + "' registrado con éxito.");
+            return RespuestaJsonUtilidad.respuestaExitosa("Programa '" + programa.getNombre() + "' registrado con éxito.");
         } catch (Exception e) {
-            return RespuestaUtilidad.respuestaConError(e);
+            return RespuestaJsonUtilidad.respuestaConError(e);
         }
     }
+
+    // ---------------------------------------------------------------- Modificaciones
 
     /**
      * CU-17: Modifica un programa sin inscripciones activas. Responde en JSON.
@@ -135,49 +141,9 @@ public class ProgramaControlador extends PanelCursoControlador {
             Usuario usuario = (Usuario) auth.getPrincipal();
             programaServicio.modificarPrograma(id, usuario.getDocente(), nombre, descripcion, objetivos, cargaHoraria,
                     bibliografia);
-            return RespuestaUtilidad.respuestaExitosa("Programa modificado correctamente.");
+            return RespuestaJsonUtilidad.respuestaExitosa("Programa modificado correctamente.");
         } catch (Exception e) {
-            return RespuestaUtilidad.respuestaConError(e);
-        }
-    }
-
-    /**
-     * CU-18: Da de baja un programa sin cohortes activas. Responde en JSON.
-     *
-     * @param id   Identificador del programa.
-     * @param auth La autenticación actual.
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
-    @PostMapping("/darDeBaja/{id}")
-    public ResponseEntity<Map<String, String>> darDeBajaPrograma(@PathVariable("id") Integer id, Authentication auth) {
-        try {
-            Usuario usuario = (Usuario) auth.getPrincipal();
-            // El administrador puede dar de baja los programas de cualquier curso
-            Docente docente = usuario.esAdministradorActivo() ? null : usuario.getDocente();
-            programaServicio.darDeBajaPrograma(id, docente);
-            return RespuestaUtilidad.respuestaExitosa("Programa dado de baja con éxito.");
-        } catch (Exception e) {
-            return RespuestaUtilidad.respuestaConError(e);
-        }
-    }
-
-    /**
-     * Da de baja varios programas a la vez, todos o ninguno. Responde en JSON.
-     *
-     * @param ids  Identificadores de los programas seleccionados.
-     * @param auth La autenticación actual.
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
-    @PostMapping("/darDeBajaMasiva")
-    public ResponseEntity<Map<String, String>> darDeBajaVarios(
-            @RequestParam(value = "ids", required = false) List<Integer> ids, Authentication auth) {
-        try {
-            Usuario usuario = (Usuario) auth.getPrincipal();
-            Docente docente = usuario.esAdministradorActivo() ? null : usuario.getDocente();
-            programaServicio.darDeBajaVarios(ids, docente);
-            return RespuestaUtilidad.respuestaExitosa("Programas dados de baja con éxito.");
-        } catch (Exception e) {
-            return RespuestaUtilidad.respuestaConError(e);
+            return RespuestaJsonUtilidad.respuestaConError(e);
         }
     }
 
@@ -195,9 +161,51 @@ public class ProgramaControlador extends PanelCursoControlador {
         try {
             Usuario usuario = (Usuario) auth.getPrincipal();
             programaServicio.establecerPorDefecto(usuario.getDocente(), programaId);
-            return RespuestaUtilidad.respuestaExitosa("Ahora trabajás sobre el programa seleccionado.");
+            return RespuestaJsonUtilidad.respuestaExitosa("Ahora trabajás sobre el programa seleccionado.");
         } catch (Exception e) {
-            return RespuestaUtilidad.respuestaConError(e);
+            return RespuestaJsonUtilidad.respuestaConError(e);
+        }
+    }
+
+    // ---------------------------------------------------------------- Bajas
+
+    /**
+     * CU-18: Da de baja un programa sin cohortes activas. Responde en JSON.
+     *
+     * @param id   Identificador del programa.
+     * @param auth La autenticación actual.
+     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
+     */
+    @PostMapping("/darDeBaja/{id}")
+    public ResponseEntity<Map<String, String>> darDeBajaPrograma(@PathVariable("id") Integer id, Authentication auth) {
+        try {
+            Usuario usuario = (Usuario) auth.getPrincipal();
+            // El administrador puede dar de baja los programas de cualquier curso
+            Docente docente = usuario.esAdministradorActivo() ? null : usuario.getDocente();
+            programaServicio.darDeBajaPrograma(id, docente);
+            return RespuestaJsonUtilidad.respuestaExitosa("Programa dado de baja con éxito.");
+        } catch (Exception e) {
+            return RespuestaJsonUtilidad.respuestaConError(e);
+        }
+    }
+
+    /**
+     * Da de baja varios programas a la vez, todos o ninguno. Responde en JSON.
+     *
+     * @param ids  Identificadores de los programas seleccionados.
+     * @param auth La autenticación actual.
+     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
+     */
+    @PostMapping("/darDeBajaMasiva")
+    public ResponseEntity<Map<String, String>> darDeBajaVarios(
+            @RequestParam(value = "ids", required = false) List<Integer> ids, Authentication auth) {
+        try {
+            Usuario usuario = (Usuario) auth.getPrincipal();
+            Docente docente = usuario.esAdministradorActivo() ? null : usuario.getDocente();
+            programaServicio.darDeBajaVarios(ids, docente);
+            return RespuestaJsonUtilidad.respuestaExitosa("Programas dados de baja con éxito.");
+        } catch (Exception e) {
+            return RespuestaJsonUtilidad.respuestaConError(e);
         }
     }
 }

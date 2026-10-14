@@ -10,6 +10,8 @@ import com.app.idoneos.modelo.Usuario;
  */
 public interface SesionServicio {
 
+    // ---------------------------------------------------------------- Lecturas
+
     /**
      * Busca los registros de sesion asociados a usuario.
      *

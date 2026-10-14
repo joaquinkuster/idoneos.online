@@ -20,16 +20,7 @@ public class RespuestaIntentoServicioImpl implements RespuestaIntentoServicio, C
     @Autowired
     private RespuestaIntentoRepositorio respuestaIntentoRepositorio;
 
-    /**
-     * Guarda la respuesta del intento en la base de datos.
-     *
-     * @param entidad El registro a guardar.
-     * @return El registro guardado.
-     */
-    @Override
-    public RespuestaIntento guardar(RespuestaIntento entidad) {
-        return respuestaIntentoRepositorio.save(entidad);
-    }
+    // ---------------------------------------------------------------- Lecturas
 
     /**
      * Busca la respuesta del intento por su identificador. Devuelve el registro si existe.
@@ -50,27 +41,6 @@ public class RespuestaIntentoServicioImpl implements RespuestaIntentoServicio, C
     @Override
     public List<RespuestaIntento> obtenerTodo() {
         return respuestaIntentoRepositorio.findAll();
-    }
-
-    /**
-     * Modifica un registro existente.
-     *
-     * @param entidad El registro con los datos actualizados.
-     * @return El registro modificado.
-     */
-    @Override
-    public RespuestaIntento modificar(RespuestaIntento entidad) {
-        return respuestaIntentoRepositorio.save(entidad);
-    }
-
-    /**
-     * Elimina el registro de la base de datos. Esta entidad no tiene baja lógica.
-     *
-     * @param entidad El registro a borrar.
-     */
-    @Override
-    public void borrar(RespuestaIntento entidad) {
-        respuestaIntentoRepositorio.delete(entidad);
     }
 
     /**
@@ -116,5 +86,43 @@ public class RespuestaIntentoServicioImpl implements RespuestaIntentoServicio, C
     @Override
     public Optional<RespuestaIntento> buscarPorIntentoAutoevaluacionYOpcionRespuesta(IntentoAutoevaluacion intentoAutoevaluacion, OpcionRespuesta opcionRespuesta) {
         return respuestaIntentoRepositorio.findByIntentoAutoevaluacionAndOpcionRespuesta(intentoAutoevaluacion, opcionRespuesta);
+    }
+
+    // ---------------------------------------------------------------- Creaciones
+
+    /**
+     * Guarda la respuesta del intento en la base de datos.
+     *
+     * @param entidad El registro a guardar.
+     * @return El registro guardado.
+     */
+    @Override
+    public RespuestaIntento guardar(RespuestaIntento entidad) {
+        return respuestaIntentoRepositorio.save(entidad);
+    }
+
+    // ---------------------------------------------------------------- Modificaciones
+
+    /**
+     * Modifica un registro existente.
+     *
+     * @param entidad El registro con los datos actualizados.
+     * @return El registro modificado.
+     */
+    @Override
+    public RespuestaIntento modificar(RespuestaIntento entidad) {
+        return respuestaIntentoRepositorio.save(entidad);
+    }
+
+    // ---------------------------------------------------------------- Bajas
+
+    /**
+     * Elimina el registro de la base de datos. Esta entidad no tiene baja lógica.
+     *
+     * @param entidad El registro a borrar.
+     */
+    @Override
+    public void borrar(RespuestaIntento entidad) {
+        respuestaIntentoRepositorio.delete(entidad);
     }
 }

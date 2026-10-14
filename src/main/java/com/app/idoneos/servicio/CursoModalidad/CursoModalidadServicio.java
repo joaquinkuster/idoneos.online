@@ -11,6 +11,8 @@ import com.app.idoneos.modelo.Modalidad;
  */
 public interface CursoModalidadServicio {
 
+    // ---------------------------------------------------------------- Lecturas
+
     /**
      * Busca los registros de cursoModalidad asociados a curso.
      *

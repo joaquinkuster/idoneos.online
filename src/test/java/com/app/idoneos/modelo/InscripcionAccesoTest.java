@@ -63,12 +63,13 @@ class InscripcionAccesoTest {
     }
 
     @Test
-    @DisplayName("Vencida: pasó la fecha de vencimiento, aunque falte pagar o comenzar el dictado")
+    @DisplayName("Vencida: pasó la fecha de vencimiento; si falta pagar, no tiene vencimiento y está pendiente de pago")
     void vencida() {
         inscripcion.setFechaVencimientoAcceso(ahora.minusDays(1));
         assertEquals(Inscripcion.ACCESO_VENCIDA, inscripcion.getEstadoAcceso(ahora));
         inscripcion.setHabilitado(false);
-        assertEquals(Inscripcion.ACCESO_VENCIDA, inscripcion.getEstadoAcceso(ahora));
+        inscripcion.setFechaVencimientoAcceso(null);
+        assertEquals(Inscripcion.ACCESO_PENDIENTE_DE_PAGO, inscripcion.getEstadoAcceso(ahora));
     }
 
     @Test

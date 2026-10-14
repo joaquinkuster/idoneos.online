@@ -11,12 +11,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 
 /**
- * Consejo de controladores con el contexto de la sesión que necesitan todas las pantallas: el usuario autenticado (por
+ * Consejo (advice) de controladores con el contexto de la sesión que necesitan todas las pantallas: el usuario autenticado (por
  * ejemplo, para la barra de navegación) y el mensaje que se muestra una sola vez después de un inicio de sesión.
  * Spring lo aplica a todos los controladores, así que ninguno tiene que agregarlos al modelo por su cuenta.
  */
 @ControllerAdvice
-public class ContextoSesion {
+public class ContextoSesionConsejo {
 
     /** Nombre del atributo de sesión con un mensaje que se muestra una sola vez en la página siguiente. */
     public static final String MENSAJE_DE_SESION = "mensajeDeSesion";

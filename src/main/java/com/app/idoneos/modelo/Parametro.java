@@ -22,6 +22,12 @@ public class Parametro {
      */
     public static final String MINIMO_UNIDADES_CON_MATERIAL = "programa.minimo_unidades_con_material";
 
+    /** Clave de la cantidad máxima de semanas que puede sumar el cronograma de un programa. */
+    public static final String CRONOGRAMA_SEMANAS_MAXIMAS = "cronograma.semanas_maximas";
+
+    /** Máximo de semanas del cronograma que se usa cuando el parámetro no está cargado (un año). */
+    public static final int CRONOGRAMA_SEMANAS_MAXIMAS_POR_DEFECTO = 52;
+
     /** Clave del plazo, en minutos, para modificar una consulta o una respuesta del foro desde su registro. */
     public static final String PLAZO_EDICION_FORO = "foro.plazo_edicion_minutos";
 
@@ -39,6 +45,58 @@ public class Parametro {
 
     /** Clave del CBU de la institución, para las transferencias bancarias. */
     public static final String CBU_INSTITUCION = "pagos.cbu_institucion";
+
+    // ---- Medio de pago MODO: lo que el cliente reemplaza cuando abre su cuenta de MODO. La semilla (solo desarrollo)
+    // ---- carga las credenciales de PRUEBA que MODO publica en su documentación.
+
+    /** Usuario de la cuenta de MODO. */
+    public static final String MODO_USUARIO = "modo.usuario";
+
+    /** Contraseña de la cuenta de MODO. Se guarda cifrada (ver {@link #CLAVES_SENSIBLES}). */
+    public static final String MODO_CLAVE = "modo.clave";
+
+    /** Código del procesador (gateway) que MODO le asigna al comercio. */
+    public static final String MODO_PROCESSOR_CODE = "modo.processor_code";
+
+    /** Código de las condiciones comerciales (cuotas) que se ofrecen, por ejemplo {@code 1CSI}. */
+    public static final String MODO_CC_CODE = "modo.cc_code";
+
+    /** Dirección de la API de MODO: preproducción o producción. */
+    public static final String MODO_URL_API = "modo.url_api";
+
+    /** Dirección del script que muestra el modal de pago de MODO (cambia entre preproducción y producción). */
+    public static final String MODO_URL_SCRIPT_MODAL = "modo.url_script_modal";
+
+    /** Nombre del comercio, que MODO exige en cada pedido. */
+    public static final String MODO_NOMBRE_COMERCIO = "modo.nombre_comercio";
+
+    /**
+     * Dirección pública del sistema (por ejemplo {@code https://idoneos.online}), a la que MODO puede avisar los cambios
+     * de estado de un pago. Vacía mientras el sistema no es accesible desde internet: el pago se confirma consultándolo.
+     */
+    public static final String MODO_URL_PUBLICA = "modo.url_publica";
+
+    /** Monto mínimo, en pesos, que admite el medio de pago para crear una solicitud. */
+    public static final String MODO_MONTO_MINIMO = "modo.monto_minimo";
+
+    /** Monto mínimo que se usa cuando el parámetro no está cargado (el del gateway Decidir). */
+    public static final float MODO_MONTO_MINIMO_POR_DEFECTO = 30f;
+
+    /** Claves de los parámetros cuyo valor se guarda cifrado y nunca se muestra completo. */
+    public static final java.util.Set<String> CLAVES_SENSIBLES = java.util.Set.of(MODO_CLAVE);
+
+    /** Lo que se muestra en lugar del valor de un parámetro sensible. */
+    public static final String VALOR_ENMASCARADO = "••••••••";
+
+    /**
+     * Indica si el valor de un parámetro se guarda cifrado.
+     *
+     * @param clave La clave del parámetro.
+     * @return {@code true} si es una clave sensible.
+     */
+    public static boolean esClaveSensible(String clave) {
+        return CLAVES_SENSIBLES.contains(clave);
+    }
 
     /**
      * Identificador único del parámetro.
@@ -90,6 +148,24 @@ public class Parametro {
         this.administrador = administrador;
         this.clave = clave;
         this.valor = valor;
+    }
+
+    /**
+     * Indica si el valor del parámetro se guarda cifrado.
+     *
+     * @return {@code true} si es un parámetro sensible.
+     */
+    public boolean esSensible() {
+        return esClaveSensible(clave);
+    }
+
+    /**
+     * Obtiene el valor para mostrarlo en pantalla: el de los parámetros sensibles no se muestra.
+     *
+     * @return El valor, o {@link #VALOR_ENMASCARADO} si es un parámetro sensible.
+     */
+    public String getValorEnmascarado() {
+        return esSensible() ? VALOR_ENMASCARADO : valor;
     }
 
     /**

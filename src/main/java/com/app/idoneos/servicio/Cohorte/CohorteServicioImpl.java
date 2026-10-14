@@ -1,6 +1,6 @@
 package com.app.idoneos.servicio.Cohorte;
 
-import com.app.idoneos.utilidades.MensajeUtilidad;
+import com.app.idoneos.utilidades.MensajeBajaUtilidad;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -37,16 +37,7 @@ public class CohorteServicioImpl implements CohorteServicio, CrudServicio<Cohort
     @Autowired
     private ParticipacionDocenteRepositorio participacionDocenteRepositorio;
 
-    /**
-     * Guarda la cohorte en la base de datos.
-     *
-     * @param entidad El registro a guardar.
-     * @return El registro guardado.
-     */
-    @Override
-    public Cohorte guardar(Cohorte entidad) {
-        return cohorteRepositorio.save(entidad);
-    }
+    // ---------------------------------------------------------------- Lecturas
 
     /**
      * Busca la cohorte por su identificador. Solo devuelve registros activos (no dados de baja).
@@ -68,28 +59,6 @@ public class CohorteServicioImpl implements CohorteServicio, CrudServicio<Cohort
     @Override
     public List<Cohorte> obtenerTodo() {
         return cohorteRepositorio.findByBajaFalse();
-    }
-
-    /**
-     * Modifica un registro existente.
-     *
-     * @param entidad El registro con los datos actualizados.
-     * @return El registro modificado.
-     */
-    @Override
-    public Cohorte modificar(Cohorte entidad) {
-        return cohorteRepositorio.save(entidad);
-    }
-
-    /**
-     * Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos.
-     *
-     * @param entidad El registro a borrar.
-     */
-    @Override
-    public void borrar(Cohorte entidad) {
-        entidad.marcarInactivo(); // Baja lógica
-        cohorteRepositorio.save(entidad);
     }
 
     /**
@@ -150,6 +119,19 @@ public class CohorteServicioImpl implements CohorteServicio, CrudServicio<Cohort
                 .toList();
     }
 
+    // ---------------------------------------------------------------- Creaciones
+
+    /**
+     * Guarda la cohorte en la base de datos.
+     *
+     * @param entidad El registro a guardar.
+     * @return El registro guardado.
+     */
+    @Override
+    public Cohorte guardar(Cohorte entidad) {
+        return cohorteRepositorio.save(entidad);
+    }
+
     /**
      * Registra una cohorte para un programa activo.
      *
@@ -173,7 +155,7 @@ public class CohorteServicioImpl implements CohorteServicio, CrudServicio<Cohort
                 .map(parametro -> Integer.parseInt(parametro.getValor().trim())).orElse(1);
         int conMaterial = programa.getCantidadUnidadesConMaterialPublicado();
         if (conMaterial < minimo) {
-            throw new IllegalArgumentException("Error! El programa debe tener al menos " + MensajeUtilidad.cantidad(minimo, "unidad", "unidades")
+            throw new IllegalArgumentException("Error! El programa debe tener al menos " + MensajeBajaUtilidad.cantidad(minimo, "unidad", "unidades")
                     + " con material publicado en su cronograma (tiene " + conMaterial + ").");
         }
         boolean enVivo = programa.getCurso().incluyeModalidad(Modalidad.EN_VIVO);
@@ -184,6 +166,19 @@ public class CohorteServicioImpl implements CohorteServicio, CrudServicio<Cohort
                 semanasAcceso);
         aplicarDatosOpcionales(cohorte, enVivo, fechaInicioDictado, fechaFinDictado, cupoMaximo);
         return cohorteRepositorio.save(cohorte);
+    }
+
+    // ---------------------------------------------------------------- Modificaciones
+
+    /**
+     * Modifica un registro existente.
+     *
+     * @param entidad El registro con los datos actualizados.
+     * @return El registro modificado.
+     */
+    @Override
+    public Cohorte modificar(Cohorte entidad) {
+        return cohorteRepositorio.save(entidad);
     }
 
     /**
@@ -221,40 +216,6 @@ public class CohorteServicioImpl implements CohorteServicio, CrudServicio<Cohort
     }
 
     /**
-     * Da de baja una cohorte activa que no tenga inscripciones ni clases en vivo activas, y la desvincula
-     * de los docentes que la tienen asignada por defecto.
-     *
-     * @param idCohorte el identificador de la cohorte
-     * @throws IllegalArgumentException si la cohorte no está activa o tiene inscripciones o clases en vivo activas
-     */
-    @Override
-    @Transactional
-    public void darDeBajaCohorte(Integer idCohorte) {
-        Cohorte cohorte = cohorteRepositorio.findById(idCohorte).filter(c -> !c.esInactivo())
-                .orElseThrow(() -> new IllegalArgumentException("Error! La cohorte no se encuentra activa."));
-        long clasesActivas = cohorte.getClasesEnVivo().stream().filter(clase -> !clase.getBaja()).count();
-        long inscriptos = cohorte.getCantidadInscriptos();
-        if (inscriptos > 0 || clasesActivas > 0) {
-            String motivo = (inscriptos > 0
-                    ? MensajeUtilidad.cantidad(inscriptos, "alumno inscripto activo", "alumnos inscriptos activos") : "")
-                    + (inscriptos > 0 && clasesActivas > 0 ? " y " : "")
-                    + (clasesActivas > 0
-                            ? MensajeUtilidad.cantidad(clasesActivas, "clase en vivo activa", "clases en vivo activas") : "");
-            // Las inscripciones no se pueden deshacer: solo si hay clases en vivo se indica qué hacer
-            throw new IllegalArgumentException(MensajeUtilidad.bajaBloqueada("la cohorte",
-                    cohorte.getPrograma().getCurso().getNombre() + " — " + cohorte.getPrograma().getNombre(),
-                    "tiene " + motivo, inscriptos == 0 ? "Dé de baja primero sus clases en vivo." : ""));
-        }
-        for (ParticipacionDocente participacion : new ArrayList<>(cohorte.getParticipacionesDocente())) {
-            participacion.setCohortePorDefecto(null);
-            participacionDocenteRepositorio.save(participacion);
-        }
-        cohorte.marcarInactivo();
-        cohorte.setUltimaModificacion(LocalDateTime.now());
-        cohorteRepositorio.save(cohorte);
-    }
-
-    /**
      * Cambia el contexto de trabajo de un docente: establece la cohorte (y su programa) como la de trabajo
      * por defecto en el curso al que pertenece.
      *
@@ -275,7 +236,75 @@ public class CohorteServicioImpl implements CohorteServicio, CrudServicio<Cohort
         participacionDocenteRepositorio.save(participacion);
     }
 
-    // ---------------------------------------------------------------- métodos auxiliares
+    // ---------------------------------------------------------------- Bajas
+
+    /**
+     * Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos.
+     *
+     * @param entidad El registro a borrar.
+     */
+    @Override
+    public void borrar(Cohorte entidad) {
+        entidad.marcarInactivo(); // Baja lógica
+        cohorteRepositorio.save(entidad);
+    }
+
+    /**
+     * Da de baja una cohorte activa que no tenga inscripciones ni clases en vivo activas, y la desvincula
+     * de los docentes que la tienen asignada por defecto.
+     *
+     * @param idCohorte el identificador de la cohorte
+     * @throws IllegalArgumentException si la cohorte no está activa o tiene inscripciones o clases en vivo activas
+     */
+    @Override
+    @Transactional
+    public void darDeBajaCohorte(Integer idCohorte) {
+        Cohorte cohorte = cohorteRepositorio.findById(idCohorte).filter(c -> !c.esInactivo())
+                .orElseThrow(() -> new IllegalArgumentException("Error! La cohorte no se encuentra activa."));
+        long clasesActivas = cohorte.getClasesEnVivo().stream().filter(clase -> !clase.getBaja()).count();
+        long inscriptos = cohorte.getCantidadInscriptos();
+        if (inscriptos > 0 || clasesActivas > 0) {
+            String motivo = (inscriptos > 0
+                    ? MensajeBajaUtilidad.cantidad(inscriptos, "alumno inscripto activo", "alumnos inscriptos activos") : "")
+                    + (inscriptos > 0 && clasesActivas > 0 ? " y " : "")
+                    + (clasesActivas > 0
+                            ? MensajeBajaUtilidad.cantidad(clasesActivas, "clase en vivo activa", "clases en vivo activas") : "");
+            // Las inscripciones no se pueden deshacer: solo si hay clases en vivo se indica qué hacer
+            throw new IllegalArgumentException(MensajeBajaUtilidad.bajaBloqueada("la cohorte",
+                    cohorte.getPrograma().getCurso().getNombre() + " — " + cohorte.getPrograma().getNombre(),
+                    "tiene " + motivo, inscriptos == 0 ? "Dé de baja primero sus clases en vivo." : ""));
+        }
+        for (ParticipacionDocente participacion : new ArrayList<>(cohorte.getParticipacionesDocente())) {
+            participacion.setCohortePorDefecto(null);
+            participacionDocenteRepositorio.save(participacion);
+        }
+        cohorte.marcarInactivo();
+        cohorte.setUltimaModificacion(LocalDateTime.now());
+        cohorteRepositorio.save(cohorte);
+    }
+
+    /**
+     * Da de baja varios registros a la vez, todos o ninguno: si alguno no puede darse de baja, no se da de baja
+     * ninguno y el mensaje indica cuál lo impidió.
+     *
+     * @param ids los identificadores de los registros
+     * @throws IllegalArgumentException si no se indicó ningún registro o alguno no puede darse de baja
+     */
+    @Override
+    @Transactional
+    public void darDeBajaVarios(List<Integer> ids) {
+        if (ids == null || ids.isEmpty()) {
+            throw new IllegalArgumentException("Error! Debe seleccionar al menos un registro.");
+        }
+        for (Integer id : ids) {
+            try {
+                darDeBajaCohorte(id);
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Error! No se dio de baja ningún registro. "
+                        + e.getMessage().replaceFirst("^Error! ", ""));
+            }
+        }
+    }
 
     private boolean coincideEstado(Cohorte cohorte, String estado) {
         if (estado == null || estado.isBlank()) return true;
@@ -342,29 +371,6 @@ public class CohorteServicioImpl implements CohorteServicio, CrudServicio<Cohort
         if (semanasAcceso < duracion) {
             throw new IllegalArgumentException("Error! Las semanas de acceso (" + semanasAcceso
                     + ") no pueden ser menores a la duración total del cronograma del programa (" + duracion + " semanas).");
-        }
-    }
-
-    /**
-     * Da de baja varios registros a la vez, todos o ninguno: si alguno no puede darse de baja, no se da de baja
-     * ninguno y el mensaje indica cuál lo impidió.
-     *
-     * @param ids los identificadores de los registros
-     * @throws IllegalArgumentException si no se indicó ningún registro o alguno no puede darse de baja
-     */
-    @Override
-    @Transactional
-    public void darDeBajaVarios(List<Integer> ids) {
-        if (ids == null || ids.isEmpty()) {
-            throw new IllegalArgumentException("Error! Debe seleccionar al menos un registro.");
-        }
-        for (Integer id : ids) {
-            try {
-                darDeBajaCohorte(id);
-            } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException("Error! No se dio de baja ningún registro. "
-                        + e.getMessage().replaceFirst("^Error! ", ""));
-            }
         }
     }
 }

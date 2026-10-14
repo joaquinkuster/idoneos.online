@@ -1,6 +1,6 @@
 package com.app.idoneos.servicio.Categoria;
 
-import com.app.idoneos.utilidades.MensajeUtilidad;
+import com.app.idoneos.utilidades.MensajeBajaUtilidad;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,16 +30,7 @@ public class CategoriaServicioImpl implements CategoriaServicio, CrudServicio<Ca
     @Autowired
     private InscripcionRepositorio inscripcionRepositorio;
 
-    /**
-     * Guarda la categoría en la base de datos.
-     *
-     * @param entidad El registro a guardar.
-     * @return El registro guardado.
-     */
-    @Override
-    public Categoria guardar(Categoria entidad) {
-        return categoriaRepositorio.save(entidad);
-    }
+    // ---------------------------------------------------------------- Lecturas
 
     /**
      * Busca la categoría por su identificador. Solo devuelve registros activos (no dados de baja).
@@ -61,28 +52,6 @@ public class CategoriaServicioImpl implements CategoriaServicio, CrudServicio<Ca
     @Override
     public List<Categoria> obtenerTodo() {
         return categoriaRepositorio.findByBajaFalse();
-    }
-
-    /**
-     * Modifica un registro existente.
-     *
-     * @param entidad El registro con los datos actualizados.
-     * @return El registro modificado.
-     */
-    @Override
-    public Categoria modificar(Categoria entidad) {
-        return categoriaRepositorio.save(entidad);
-    }
-
-    /**
-     * Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos.
-     *
-     * @param entidad El registro a borrar.
-     */
-    @Override
-    public void borrar(Categoria entidad) {
-        entidad.marcarInactivo(); // Baja lógica
-        categoriaRepositorio.save(entidad);
     }
 
     /**
@@ -142,6 +111,19 @@ public class CategoriaServicioImpl implements CategoriaServicio, CrudServicio<Ca
         return inscripcionRepositorio.contarActivasPorCategoria(categoria);
     }
 
+    // ---------------------------------------------------------------- Creaciones
+
+    /**
+     * Guarda la categoría en la base de datos.
+     *
+     * @param entidad El registro a guardar.
+     * @return El registro guardado.
+     */
+    @Override
+    public Categoria guardar(Categoria entidad) {
+        return categoriaRepositorio.save(entidad);
+    }
+
     /**
      * Registra una nueva categoría. Si existe una categoría dada de baja con el mismo nombre, la reactiva.
      *
@@ -174,6 +156,19 @@ public class CategoriaServicioImpl implements CategoriaServicio, CrudServicio<Ca
         Categoria categoria = new Categoria(nombreLimpio);
         categoria.setDescripcion(descripcionLimpia);
         return categoriaRepositorio.save(categoria);
+    }
+
+    // ---------------------------------------------------------------- Modificaciones
+
+    /**
+     * Modifica un registro existente.
+     *
+     * @param entidad El registro con los datos actualizados.
+     * @return El registro modificado.
+     */
+    @Override
+    public Categoria modificar(Categoria entidad) {
+        return categoriaRepositorio.save(entidad);
     }
 
     /**
@@ -210,6 +205,19 @@ public class CategoriaServicioImpl implements CategoriaServicio, CrudServicio<Ca
         return categoriaRepositorio.save(categoria);
     }
 
+    // ---------------------------------------------------------------- Bajas
+
+    /**
+     * Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos.
+     *
+     * @param entidad El registro a borrar.
+     */
+    @Override
+    public void borrar(Categoria entidad) {
+        entidad.marcarInactivo(); // Baja lógica
+        categoriaRepositorio.save(entidad);
+    }
+
     /**
      * Da de baja una categoría activa que no tenga cursos activos asociados.
      *
@@ -223,8 +231,8 @@ public class CategoriaServicioImpl implements CategoriaServicio, CrudServicio<Ca
                 .orElseThrow(() -> new IllegalArgumentException("Error! La categoría no se encuentra activa."));
         int cursosActivos = cursoRepositorio.findByCategoriaAndBajaFalse(categoria).size();
         if (cursosActivos > 0) {
-            throw new IllegalArgumentException(MensajeUtilidad.bajaBloqueada("la categoría", categoria.getNombre(),
-                    "tiene " + MensajeUtilidad.cantidad(cursosActivos, "curso activo asociado", "cursos activos asociados"),
+            throw new IllegalArgumentException(MensajeBajaUtilidad.bajaBloqueada("la categoría", categoria.getNombre(),
+                    "tiene " + MensajeBajaUtilidad.cantidad(cursosActivos, "curso activo asociado", "cursos activos asociados"),
                     "Dé de baja primero " + (cursosActivos == 1 ? "ese curso." : "esos cursos.")));
         }
         categoria.marcarInactivo();

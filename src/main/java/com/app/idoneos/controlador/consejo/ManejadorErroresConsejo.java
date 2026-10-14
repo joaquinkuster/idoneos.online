@@ -2,6 +2,7 @@ package com.app.idoneos.controlador.consejo;
 
 import java.util.Map;
 
+import com.app.idoneos.utilidades.RespuestaJsonUtilidad;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -16,14 +17,14 @@ import com.app.idoneos.modelo.Cohorte;
 import jakarta.servlet.http.HttpServletRequest;
 
 /**
- * Consejo de controladores para los errores de la solicitud que ocurren antes de llegar a la lógica de cada
+ * Consejo (advice) de controladores para los errores de la solicitud que ocurren antes de llegar a la lógica de cada
  * pantalla, porque los detecta el propio Spring: valores que no se pueden convertir al tipo esperado (por ejemplo,
  * un número demasiado grande), direcciones de operaciones que solo admiten POST abiertas desde el navegador y archivos
  * que superan el tamaño máximo de las subidas. Responde con un mensaje claro, en el propio formulario cuando es un
  * POST.
  */
 @ControllerAdvice
-public class ManejadorErrores {
+public class ManejadorErroresConsejo {
 
     /** Mensajes de las excepciones de los casos de uso (CU-12 y CU-13) para los valores numéricos inválidos. */
     private static final Map<String, String> MENSAJES_DE_CU = Map.of(
@@ -63,7 +64,7 @@ public class ManejadorErrores {
             mensaje = "Error! El valor ingresado en «" + campo + "» no es válido.";
         }
         if ("POST".equalsIgnoreCase(solicitud.getMethod())) {
-            return ResponseEntity.badRequest().body(Map.of("error", mensaje));
+            return RespuestaJsonUtilidad.respuestaConError(HttpStatus.BAD_REQUEST, mensaje);
         }
         redirectAttributes.addFlashAttribute("error", mensaje);
         return "redirect:/inicio";
@@ -83,8 +84,7 @@ public class ManejadorErrores {
             redirectAttributes.addFlashAttribute("error", "Error! Esa dirección no se puede abrir directamente.");
             return "redirect:/inicio";
         }
-        return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED)
-                .body(Map.of("error", "Error! La operación solicitada no está permitida."));
+        return RespuestaJsonUtilidad.respuestaConError(HttpStatus.METHOD_NOT_ALLOWED, "Error! La operación solicitada no está permitida.");
     }
 
     /**
@@ -95,6 +95,6 @@ public class ManejadorErrores {
      */
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     public ResponseEntity<Map<String, String>> archivoDemasiadoGrande() {
-        return ResponseEntity.badRequest().body(Map.of("error", "Error! El archivo supera el tamaño máximo permitido (500 MB)."));
+        return RespuestaJsonUtilidad.respuestaConError(HttpStatus.BAD_REQUEST, "Error! El archivo supera el tamaño máximo permitido (500 MB).");
     }
 }

@@ -19,16 +19,7 @@ public class DetalleAuditoriaServicioImpl implements DetalleAuditoriaServicio, C
     @Autowired
     private DetalleAuditoriaRepositorio detalleAuditoriaRepositorio;
 
-    /**
-     * Guarda el detalle de auditoría en la base de datos.
-     *
-     * @param entidad El registro a guardar.
-     * @return El registro guardado.
-     */
-    @Override
-    public DetalleAuditoria guardar(DetalleAuditoria entidad) {
-        return detalleAuditoriaRepositorio.save(entidad);
-    }
+    // ---------------------------------------------------------------- Lecturas
 
     /**
      * Busca el detalle de auditoría por su identificador. Devuelve el registro si existe.
@@ -52,27 +43,6 @@ public class DetalleAuditoriaServicioImpl implements DetalleAuditoriaServicio, C
     }
 
     /**
-     * Modifica un registro existente.
-     *
-     * @param entidad El registro con los datos actualizados.
-     * @return El registro modificado.
-     */
-    @Override
-    public DetalleAuditoria modificar(DetalleAuditoria entidad) {
-        return detalleAuditoriaRepositorio.save(entidad);
-    }
-
-    /**
-     * Elimina el registro de la base de datos. Esta entidad no tiene baja lógica.
-     *
-     * @param entidad El registro a borrar.
-     */
-    @Override
-    public void borrar(DetalleAuditoria entidad) {
-        detalleAuditoriaRepositorio.delete(entidad);
-    }
-
-    /**
      * Verifica si existe un registro con el identificador dado.
      *
      * @param id El identificador del registro.
@@ -92,5 +62,43 @@ public class DetalleAuditoriaServicioImpl implements DetalleAuditoriaServicio, C
     @Override
     public List<DetalleAuditoria> buscarPorAuditoria(Auditoria auditoria) {
         return detalleAuditoriaRepositorio.findByAuditoria(auditoria);
+    }
+
+    // ---------------------------------------------------------------- Creaciones
+
+    /**
+     * Guarda el detalle de auditoría en la base de datos.
+     *
+     * @param entidad El registro a guardar.
+     * @return El registro guardado.
+     */
+    @Override
+    public DetalleAuditoria guardar(DetalleAuditoria entidad) {
+        return detalleAuditoriaRepositorio.save(entidad);
+    }
+
+    // ---------------------------------------------------------------- Modificaciones
+
+    /**
+     * Modifica un registro existente.
+     *
+     * @param entidad El registro con los datos actualizados.
+     * @return El registro modificado.
+     */
+    @Override
+    public DetalleAuditoria modificar(DetalleAuditoria entidad) {
+        return detalleAuditoriaRepositorio.save(entidad);
+    }
+
+    // ---------------------------------------------------------------- Bajas
+
+    /**
+     * Elimina el registro de la base de datos. Esta entidad no tiene baja lógica.
+     *
+     * @param entidad El registro a borrar.
+     */
+    @Override
+    public void borrar(DetalleAuditoria entidad) {
+        detalleAuditoriaRepositorio.delete(entidad);
     }
 }

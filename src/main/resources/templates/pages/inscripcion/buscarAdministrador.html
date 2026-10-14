@@ -83,7 +83,7 @@
                                 <td><span class="pn-truncar" th:text="${i.curso.nombre}">Curso</span></td>
                                 <td><span class="pn-truncar" th:text="${i.cohorte.programa.nombre + ' · ' + i.cohorte.etiqueta}">Programa · Mayo 2026</span></td>
                                 <td th:text="${#temporals.format(i.fechaCreacion, 'dd/MM/yyyy')}">01/10/2026</td>
-                                <td th:text="${#temporals.format(i.fechaVencimientoAcceso, 'dd/MM/yyyy')}">01/01/2027</td>
+                                <td th:text="${i.fechaVencimientoAcceso != null ? #temporals.format(i.fechaVencimientoAcceso, 'dd/MM/yyyy') : '—'}">01/01/2027</td>
                                 <td>
                                     <span class="pn-insignia"
                                           th:classappend="${i.estadoAcceso == 'Vigente'} ? 'pn-insignia-verde' : (${i.estadoAcceso == 'Programada'} ? 'pn-insignia-azul' : (${i.estadoAcceso == 'Pendiente de pago'} ? 'pn-insignia-dorada' : 'pn-insignia-roja'))"
@@ -92,8 +92,8 @@
                                 <td th:text="${i.certificadoVigente != null ? i.certificadoVigente.numero : '—'}">—</td>
                                 <td>
                                     <div class="pn-acciones">
-                                        <button type="button" class="pn-btn pn-btn-contorno pn-btn-chico" data-bs-toggle="modal"
-                                                th:data-bs-target="'#modalVerInscripcion' + ${i.idInscripcion}">Ver</button>
+                                        <button type="button" class="pn-btn pn-btn-ver pn-btn-chico" data-bs-toggle="modal"
+                                                th:data-bs-target="'#modalVerInscripcion' + ${i.idInscripcion}">Ver detalle</button>
                                         <button type="button" class="pn-btn pn-btn-editar pn-btn-chico" data-bs-toggle="modal"
                                                 th:data-bs-target="'#modalEditarInscripcion' + ${i.idInscripcion}">Editar</button>
                                         <button type="button" class="pn-btn pn-btn-contorno pn-btn-chico" data-bs-toggle="modal"
@@ -233,8 +233,8 @@
                         </div>
                         <div class="row g-3">
                             <div class="col-md-6 pn-campo">
-                                <label class="pn-etiqueta">Vencimiento del acceso <span class="pn-obligatorio">*</span></label>
-                                <input type="date" name="vencimiento" class="pn-input" required
+                                <label class="pn-etiqueta">Vencimiento del acceso <span class="pn-obligatorio" th:if="${i.fechaVencimientoAcceso != null}">*</span></label>
+                                <input type="date" name="vencimiento" class="pn-input" th:required="${i.fechaVencimientoAcceso != null}"
                                        th:value="${#temporals.format(i.fechaVencimientoAcceso, 'yyyy-MM-dd')}"
                                        th:min="${#temporals.format(i.vencimientoMinimo, 'yyyy-MM-dd')}">
                                 <div class="pn-ayuda-error"></div>

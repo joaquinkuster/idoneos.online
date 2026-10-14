@@ -9,6 +9,8 @@ import com.app.idoneos.modelo.Usuario;
  */
 public interface AlumnoServicio {
 
+    // ---------------------------------------------------------------- Lecturas
+
     /**
      * Busca el perfil de alumno asociado a un usuario.
      *

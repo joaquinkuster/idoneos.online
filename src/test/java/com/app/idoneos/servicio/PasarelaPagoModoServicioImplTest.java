@@ -6,12 +6,21 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyFloat;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.header;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.jsonPath;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -22,14 +31,17 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestClient;
 
-import com.app.idoneos.servicio.Pago.ModoPasarela;
-import com.app.idoneos.servicio.Pago.PasarelaPago;
+import com.app.idoneos.modelo.Parametro;
+import com.app.idoneos.servicio.Parametro.ParametroServicio;
+import com.app.idoneos.servicio.PasarelaPago.PasarelaPagoModoServicioImpl;
+import com.app.idoneos.servicio.PasarelaPago.PasarelaPagoServicio;
 
 /**
  * Pruebas de la conexión con la API de MODO contra un servidor simulado: autenticación con token (que se reutiliza),
- * creación de solicitudes y consulta de su resultado, con los cuerpos que devuelve MODO.
+ * creación de solicitudes y consulta de su resultado, con los cuerpos que devuelve MODO. Los parámetros de la cuenta de
+ * MODO se leen de {@link ParametroServicio} (acá, un mock respaldado por un mapa que cada prueba puede cambiar).
  */
-class ModoPasarelaTest {
+class PasarelaPagoModoServicioImplTest {
 
     private static final String BASE = "https://modo.test";
     private static final String TOKEN = "{\"access_token\":\"TOKEN-1\",\"token_type\":\"Bearer\",\"expires_in\":604800}";
@@ -38,11 +50,27 @@ class ModoPasarelaTest {
 
     private MockRestServiceServer servidor;
 
-    private ModoPasarela pasarela(String usuario, String clave, String urlWebhook) {
+    /** Los parámetros de MODO que lee la pasarela: cada prueba puede cambiarlos. */
+    private Map<String, String> valores;
+
+    private PasarelaPagoModoServicioImpl pasarela(String usuario, String clave, String urlPublica) {
+        valores = new HashMap<>();
+        valores.put(Parametro.MODO_URL_API, BASE);
+        valores.put(Parametro.MODO_USUARIO, usuario);
+        valores.put(Parametro.MODO_CLAVE, clave);
+        valores.put(Parametro.MODO_NOMBRE_COMERCIO, "Idoneos Online");
+        valores.put(Parametro.MODO_PROCESSOR_CODE, "P1019");
+        valores.put(Parametro.MODO_CC_CODE, "1CSI");
+        valores.put(Parametro.MODO_URL_SCRIPT_MODAL, "https://modo.test/bundle.js");
+        valores.put(Parametro.MODO_URL_PUBLICA, urlPublica);
+        ParametroServicio parametros = mock(ParametroServicio.class);
+        when(parametros.obtenerTexto(anyString())).thenAnswer(invocacion -> Optional.ofNullable(valores.get(invocacion.<String>getArgument(0))));
+        when(parametros.obtenerDecimal(eq(Parametro.MODO_MONTO_MINIMO), anyFloat()))
+                .thenAnswer(invocacion -> valores.containsKey(Parametro.MODO_MONTO_MINIMO)
+                        ? Float.parseFloat(valores.get(Parametro.MODO_MONTO_MINIMO)) : invocacion.<Float>getArgument(1));
         RestClient.Builder constructor = RestClient.builder();
         servidor = MockRestServiceServer.bindTo(constructor).build();
-        return new ModoPasarela(constructor, BASE, usuario, clave, "Idoneos Online", "P1019", "1CSI",
-                "https://modo.test/bundle.js", urlWebhook);
+        return new PasarelaPagoModoServicioImpl(constructor, parametros);
     }
 
     private void esperarToken(String token) {
@@ -59,7 +87,7 @@ class ModoPasarelaTest {
     @Test
     @DisplayName("Crea la solicitud con los datos que exige MODO y devuelve su identificador, QR y enlace")
     void creaLaSolicitud() {
-        ModoPasarela modo = pasarela("usuario", "clave", "");
+        PasarelaPagoModoServicioImpl modo = pasarela("usuario", "clave", "");
         esperarToken(TOKEN);
         servidor.expect(requestTo(BASE + "/v2/payment-requests/")).andExpect(method(HttpMethod.POST))
                 .andExpect(header("Authorization", "Bearer TOKEN-1")).andExpect(header("User-Agent", "Idoneos Online"))
@@ -73,7 +101,7 @@ class ModoPasarelaTest {
                 .andExpect(jsonPath("$.webhook_notification").doesNotExist())
                 .andRespond(withSuccess(SOLICITUD, MediaType.APPLICATION_JSON));
 
-        PasarelaPago.Solicitud solicitud = modo.crearSolicitud("IDN-123", 72000f, "Curso: Finanzas", "Lucía Fernández",
+        PasarelaPagoServicio.Solicitud solicitud = modo.crearSolicitud("IDN-123", 72000f, "Curso: Finanzas", "Lucía Fernández",
                 "lucia@correo.com", "40123456");
 
         assertEquals("b3c97b14", solicitud.id());
@@ -83,9 +111,9 @@ class ModoPasarelaTest {
     }
 
     @Test
-    @DisplayName("Envía la dirección del webhook cuando está configurada y recorta la descripción a 100 caracteres")
+    @DisplayName("Con la dirección pública configurada envía la del webhook, y recorta la descripción a 100 caracteres")
     void enviaElWebhook() {
-        ModoPasarela modo = pasarela("usuario", "clave", "https://idoneos.test/pago/webhook");
+        PasarelaPagoModoServicioImpl modo = pasarela("usuario", "clave", "https://idoneos.test/"); // con barra final: se normaliza
         esperarToken(TOKEN);
         servidor.expect(requestTo(BASE + "/v2/payment-requests/"))
                 .andExpect(jsonPath("$.webhook_notification").value("https://idoneos.test/pago/webhook"))
@@ -100,7 +128,7 @@ class ModoPasarelaTest {
     @Test
     @DisplayName("El token se reutiliza entre pedidos (MODO limita los pedidos de token)")
     void reutilizaElToken() {
-        ModoPasarela modo = pasarela("usuario", "clave", "");
+        PasarelaPagoModoServicioImpl modo = pasarela("usuario", "clave", "");
         esperarToken(TOKEN);
         servidor.expect(requestTo(BASE + "/v2/payment-requests/")).andRespond(withSuccess(SOLICITUD, MediaType.APPLICATION_JSON));
         servidor.expect(requestTo(BASE + "/v2/payment-requests/")).andExpect(header("Authorization", "Bearer TOKEN-1"))
@@ -115,7 +143,7 @@ class ModoPasarelaTest {
     @Test
     @DisplayName("Si MODO rechaza el token por vencido, pide uno nuevo y reintenta el pedido")
     void renuevaElTokenVencido() {
-        ModoPasarela modo = pasarela("usuario", "clave", "");
+        PasarelaPagoModoServicioImpl modo = pasarela("usuario", "clave", "");
         esperarToken(TOKEN);
         servidor.expect(requestTo(BASE + "/v2/payment-requests/")).andExpect(header("Authorization", "Bearer TOKEN-1"))
                 .andRespond(withStatus(HttpStatus.UNAUTHORIZED));
@@ -130,7 +158,7 @@ class ModoPasarelaTest {
     @Test
     @DisplayName("Un error de MODO al crear la solicitud se informa sin detalles internos")
     void errorAlCrearLaSolicitud() {
-        ModoPasarela modo = pasarela("usuario", "clave", "");
+        PasarelaPagoModoServicioImpl modo = pasarela("usuario", "clave", "");
         esperarToken(TOKEN);
         servidor.expect(requestTo(BASE + "/v2/payment-requests/")).andRespond(withStatus(HttpStatus.BAD_REQUEST)
                 .contentType(MediaType.APPLICATION_JSON).body("{\"message\":\"monto invalido\"}"));
@@ -144,7 +172,7 @@ class ModoPasarelaTest {
     @Test
     @DisplayName("Sin credenciales no se puede crear la solicitud y se informa el problema")
     void sinCredenciales() {
-        ModoPasarela modo = pasarela("", "", "");
+        PasarelaPagoModoServicioImpl modo = pasarela("", "", "");
 
         assertThrows(IllegalArgumentException.class,
                 () -> modo.crearSolicitud("IDN-1", 100f, "Prueba", "Ana Pérez", "ana@correo.com", "30111222"));
@@ -154,22 +182,22 @@ class ModoPasarelaTest {
     @Test
     @DisplayName("Una solicitud recién creada se consulta como pendiente y trae su QR para retomarla")
     void consultaUnPagoPendiente() {
-        ModoPasarela modo = pasarela("usuario", "clave", "");
+        PasarelaPagoModoServicioImpl modo = pasarela("usuario", "clave", "");
         esperarToken(TOKEN);
         servidor.expect(requestTo(BASE + "/v2/payment-requests/b3c97b14/data")).andExpect(method(HttpMethod.GET))
                 .andExpect(header("Authorization", "Bearer TOKEN-1"))
                 .andRespond(withSuccess(SOLICITUD.replace("}", ",\"transaction_data\":{},\"transactions\":[]}"), MediaType.APPLICATION_JSON));
 
-        PasarelaPago.Resultado resultado = modo.consultarPago("b3c97b14");
+        PasarelaPagoServicio.Resultado resultado = modo.consultarPago("b3c97b14");
 
-        assertEquals(PasarelaPago.Estado.PENDIENTE, resultado.estado());
+        assertEquals(PasarelaPagoServicio.Estado.PENDIENTE, resultado.estado());
         assertEquals("000201QR", resultado.solicitud().qr());
     }
 
     @Test
     @DisplayName("Un pago con tarjeta aprobado trae el pagador, el medio, los últimos dígitos y la referencia")
     void consultaUnPagoAprobadoConTarjeta() {
-        ModoPasarela modo = pasarela("usuario", "clave", "");
+        PasarelaPagoModoServicioImpl modo = pasarela("usuario", "clave", "");
         esperarToken(TOKEN);
         servidor.expect(requestTo(BASE + "/v2/payment-requests/b3c97b14/data")).andRespond(withSuccess("""
                 {"id":"b3c97b14","qr":"000201QR","status":"ACCEPTED","deeplink":"https://modo.test/pagar/",
@@ -178,9 +206,9 @@ class ModoPasarelaTest {
                    "operation_error":null,"paid_at":"2025-12-12T17:00:39.007Z","status":"APPROVED","amount":"100.000"}}
                 """, MediaType.APPLICATION_JSON));
 
-        PasarelaPago.Resultado resultado = modo.consultarPago("b3c97b14");
+        PasarelaPagoServicio.Resultado resultado = modo.consultarPago("b3c97b14");
 
-        assertEquals(PasarelaPago.Estado.APROBADO, resultado.estado());
+        assertEquals(PasarelaPagoServicio.Estado.APROBADO, resultado.estado());
         assertEquals("Lucas Barale", resultado.nombrePagador());
         assertEquals("38784087", resultado.dniPagador());
         assertEquals("Tarjeta de crédito Master", resultado.medioPago());
@@ -193,7 +221,7 @@ class ModoPasarelaTest {
     @Test
     @DisplayName("Un pago con cuenta bancaria aprobado se describe con el banco")
     void consultaUnPagoAprobadoConCuenta() {
-        ModoPasarela modo = pasarela("usuario", "clave", "");
+        PasarelaPagoModoServicioImpl modo = pasarela("usuario", "clave", "");
         esperarToken(TOKEN);
         servidor.expect(requestTo(BASE + "/v2/payment-requests/b3c97b14/data")).andRespond(withSuccess("""
                 {"id":"b3c97b14","status":"ACCEPTED","transaction_data":{"reference_code":"NJD0XZ12","first_name":"Prueba",
@@ -201,9 +229,9 @@ class ModoPasarelaTest {
                  "payment_method_detail":{"type":"SAVINGS","bank_name":"Macro","last_digits":"6168"},"status":"APPROVED"}}
                 """, MediaType.APPLICATION_JSON));
 
-        PasarelaPago.Resultado resultado = modo.consultarPago("b3c97b14");
+        PasarelaPagoServicio.Resultado resultado = modo.consultarPago("b3c97b14");
 
-        assertEquals(PasarelaPago.Estado.APROBADO, resultado.estado());
+        assertEquals(PasarelaPagoServicio.Estado.APROBADO, resultado.estado());
         assertEquals("Cuenta bancaria Macro", resultado.medioPago());
         assertEquals("6168", resultado.ultimosDigitos());
     }
@@ -211,7 +239,7 @@ class ModoPasarelaTest {
     @Test
     @DisplayName("Un pago rechazado trae el motivo que informa MODO")
     void consultaUnPagoRechazado() {
-        ModoPasarela modo = pasarela("usuario", "clave", "");
+        PasarelaPagoModoServicioImpl modo = pasarela("usuario", "clave", "");
         esperarToken(TOKEN);
         servidor.expect(requestTo(BASE + "/v2/payment-requests/b3c97b14/data")).andRespond(withSuccess("""
                 {"id":"b3c97b14","status":"REJECTED","transaction_data":{"first_name":"Lucas","last_name":"Barale","dni":"38784087",
@@ -220,9 +248,9 @@ class ModoPasarelaTest {
                  "status":"REJECTED"}}
                 """, MediaType.APPLICATION_JSON));
 
-        PasarelaPago.Resultado resultado = modo.consultarPago("b3c97b14");
+        PasarelaPagoServicio.Resultado resultado = modo.consultarPago("b3c97b14");
 
-        assertEquals(PasarelaPago.Estado.RECHAZADO, resultado.estado());
+        assertEquals(PasarelaPagoServicio.Estado.RECHAZADO, resultado.estado());
         assertEquals("INSUFFICIENT_FUNDS: fondos insuficientes", resultado.motivoError());
         assertEquals("Tarjeta de débito Visa", resultado.medioPago());
     }
@@ -230,7 +258,7 @@ class ModoPasarelaTest {
     @Test
     @DisplayName("Una falla de MODO al consultar se informa para que el pago siga pendiente")
     void fallaAlConsultar() {
-        ModoPasarela modo = pasarela("usuario", "clave", "");
+        PasarelaPagoModoServicioImpl modo = pasarela("usuario", "clave", "");
         esperarToken(TOKEN);
         servidor.expect(requestTo(BASE + "/v2/payment-requests/b3c97b14/data")).andRespond(withStatus(HttpStatus.BAD_GATEWAY));
 
@@ -238,12 +266,72 @@ class ModoPasarelaTest {
     }
 
     @Test
-    @DisplayName("Expone el monto mínimo, el script del modal y que no es simulada")
+    @DisplayName("Expone el monto mínimo y el script del modal")
     void datosDeLaPlataforma() {
-        ModoPasarela modo = pasarela("usuario", "clave", "");
+        PasarelaPagoModoServicioImpl modo = pasarela("usuario", "clave", "");
 
-        assertFalse(modo.esSimulada());
         assertEquals(30f, modo.montoMinimo());
         assertEquals("https://modo.test/bundle.js", modo.scriptModal());
+    }
+
+    @Test
+    @DisplayName("Si el cliente cambia las credenciales, se pide un token nuevo con las credenciales nuevas")
+    void cambiaLasCredenciales() {
+        PasarelaPagoModoServicioImpl modo = pasarela("usuario", "clave", "");
+        // Las expectativas se declaran todas antes del primer pedido, en el orden en que ocurren
+        esperarToken(TOKEN);
+        servidor.expect(requestTo(BASE + "/v2/payment-requests/")).andExpect(header("Authorization", "Bearer TOKEN-1"))
+                .andRespond(withSuccess(SOLICITUD, MediaType.APPLICATION_JSON));
+        servidor.expect(requestTo(BASE + "/v2/stores/companies/token")).andExpect(jsonPath("$.username").value("cuenta-real"))
+                .andExpect(jsonPath("$.password").value("clave-real"))
+                .andRespond(withSuccess(TOKEN.replace("TOKEN-1", "TOKEN-2"), MediaType.APPLICATION_JSON));
+        servidor.expect(requestTo(BASE + "/v2/payment-requests/")).andExpect(header("Authorization", "Bearer TOKEN-2"))
+                .andRespond(withSuccess(SOLICITUD, MediaType.APPLICATION_JSON));
+
+        modo.crearSolicitud("IDN-1", 100f, "Prueba", "Ana Pérez", "ana@correo.com", "30111222");
+        valores.put(Parametro.MODO_USUARIO, "cuenta-real");
+        valores.put(Parametro.MODO_CLAVE, "clave-real");
+        modo.crearSolicitud("IDN-2", 100f, "Prueba", "Ana Pérez", "ana@correo.com", "30111222");
+
+        servidor.verify();
+    }
+
+    @Test
+    @DisplayName("Si el cliente cambia la dirección de la API (de preproducción a producción), usa la nueva")
+    void cambiaLaDireccionDeLaApi() {
+        PasarelaPagoModoServicioImpl modo = pasarela("usuario", "clave", "");
+        valores.put(Parametro.MODO_URL_API, "https://produccion.modo.test/"); // con barra final: se normaliza
+        servidor.expect(requestTo("https://produccion.modo.test/v2/stores/companies/token"))
+                .andRespond(withSuccess(TOKEN, MediaType.APPLICATION_JSON));
+        servidor.expect(requestTo("https://produccion.modo.test/v2/payment-requests/"))
+                .andRespond(withSuccess(SOLICITUD, MediaType.APPLICATION_JSON));
+
+        modo.crearSolicitud("IDN-1", 100f, "Prueba", "Ana Pérez", "ana@correo.com", "30111222");
+
+        servidor.verify();
+    }
+
+    @Test
+    @DisplayName("Con un parámetro obligatorio sin cargar, el pago online no está disponible (sin salir a MODO)")
+    void faltaUnParametro() {
+        PasarelaPagoModoServicioImpl modo = pasarela("usuario", "clave", "");
+        valores.remove(Parametro.MODO_PROCESSOR_CODE);
+
+        IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
+                () -> modo.crearSolicitud("IDN-1", 100f, "Prueba", "Ana Pérez", "ana@correo.com", "30111222"));
+
+        assertTrue(error.getMessage().contains("no está disponible"));
+        servidor.verify(); // no se hizo ningún pedido a MODO
+    }
+
+    @Test
+    @DisplayName("El monto mínimo se toma del parámetro y, si no está cargado, es 30")
+    void montoMinimoConfigurable() {
+        PasarelaPagoModoServicioImpl modo = pasarela("usuario", "clave", "");
+        assertEquals(30f, modo.montoMinimo());
+
+        valores.put(Parametro.MODO_MONTO_MINIMO, "0.01");
+
+        assertEquals(0.01f, modo.montoMinimo());
     }
 }

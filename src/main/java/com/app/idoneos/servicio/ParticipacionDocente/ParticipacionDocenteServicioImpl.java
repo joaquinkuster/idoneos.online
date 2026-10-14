@@ -22,16 +22,7 @@ public class ParticipacionDocenteServicioImpl implements ParticipacionDocenteSer
     @Autowired
     private ParticipacionDocenteRepositorio participacionDocenteRepositorio;
 
-    /**
-     * Guarda la participación docente en la base de datos.
-     *
-     * @param entidad El registro a guardar.
-     * @return El registro guardado.
-     */
-    @Override
-    public ParticipacionDocente guardar(ParticipacionDocente entidad) {
-        return participacionDocenteRepositorio.save(entidad);
-    }
+    // ---------------------------------------------------------------- Lecturas
 
     /**
      * Busca la participación docente por su identificador. Solo devuelve registros activos (no dados de baja).
@@ -53,28 +44,6 @@ public class ParticipacionDocenteServicioImpl implements ParticipacionDocenteSer
     @Override
     public List<ParticipacionDocente> obtenerTodo() {
         return participacionDocenteRepositorio.findByBajaFalse();
-    }
-
-    /**
-     * Modifica un registro existente.
-     *
-     * @param entidad El registro con los datos actualizados.
-     * @return El registro modificado.
-     */
-    @Override
-    public ParticipacionDocente modificar(ParticipacionDocente entidad) {
-        return participacionDocenteRepositorio.save(entidad);
-    }
-
-    /**
-     * Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos.
-     *
-     * @param entidad El registro a borrar.
-     */
-    @Override
-    public void borrar(ParticipacionDocente entidad) {
-        entidad.marcarInactivo(); // Baja lógica
-        participacionDocenteRepositorio.save(entidad);
     }
 
     /**
@@ -131,5 +100,44 @@ public class ParticipacionDocenteServicioImpl implements ParticipacionDocenteSer
     @Override
     public List<ParticipacionDocente> buscarPorCohortePorDefecto(Cohorte cohortePorDefecto) {
         return participacionDocenteRepositorio.findByCohortePorDefectoAndBajaFalse(cohortePorDefecto);
+    }
+
+    // ---------------------------------------------------------------- Creaciones
+
+    /**
+     * Guarda la participación docente en la base de datos.
+     *
+     * @param entidad El registro a guardar.
+     * @return El registro guardado.
+     */
+    @Override
+    public ParticipacionDocente guardar(ParticipacionDocente entidad) {
+        return participacionDocenteRepositorio.save(entidad);
+    }
+
+    // ---------------------------------------------------------------- Modificaciones
+
+    /**
+     * Modifica un registro existente.
+     *
+     * @param entidad El registro con los datos actualizados.
+     * @return El registro modificado.
+     */
+    @Override
+    public ParticipacionDocente modificar(ParticipacionDocente entidad) {
+        return participacionDocenteRepositorio.save(entidad);
+    }
+
+    // ---------------------------------------------------------------- Bajas
+
+    /**
+     * Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos.
+     *
+     * @param entidad El registro a borrar.
+     */
+    @Override
+    public void borrar(ParticipacionDocente entidad) {
+        entidad.marcarInactivo(); // Baja lógica
+        participacionDocenteRepositorio.save(entidad);
     }
 }

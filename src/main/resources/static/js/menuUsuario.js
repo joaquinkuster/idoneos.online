@@ -5,6 +5,12 @@
     'use strict';
 
     document.addEventListener('click', function (evento) {
+        // La flecha de una opción despliega o recoge lo que cuelga de ella (el menú sigue abierto)
+        var desplegar = evento.target.closest('[data-um-desplegar]');
+        if (desplegar) {
+            var abiertoGrupo = desplegar.closest('.um-grupo').classList.toggle('abierto');
+            desplegar.setAttribute('aria-expanded', abiertoGrupo ? 'true' : 'false');
+        }
         var disparador = evento.target.closest('[data-menu-usuario]');
         // Se cierran los menús abiertos cuando el clic fue fuera de ellos (un clic dentro del menú, por ejemplo
         // en el selector del rol, no lo cierra)

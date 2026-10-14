@@ -19,16 +19,7 @@ public class SesionServicioImpl implements SesionServicio, CrudServicio<Sesion> 
     @Autowired
     private SesionRepositorio sesionRepositorio;
 
-    /**
-     * Guarda la sesión en la base de datos.
-     *
-     * @param entidad El registro a guardar.
-     * @return El registro guardado.
-     */
-    @Override
-    public Sesion guardar(Sesion entidad) {
-        return sesionRepositorio.save(entidad);
-    }
+    // ---------------------------------------------------------------- Lecturas
 
     /**
      * Busca la sesión por su identificador. Devuelve el registro si existe.
@@ -49,27 +40,6 @@ public class SesionServicioImpl implements SesionServicio, CrudServicio<Sesion> 
     @Override
     public List<Sesion> obtenerTodo() {
         return sesionRepositorio.findAll();
-    }
-
-    /**
-     * Modifica un registro existente.
-     *
-     * @param entidad El registro con los datos actualizados.
-     * @return El registro modificado.
-     */
-    @Override
-    public Sesion modificar(Sesion entidad) {
-        return sesionRepositorio.save(entidad);
-    }
-
-    /**
-     * Elimina el registro de la base de datos. Esta entidad no tiene baja lógica.
-     *
-     * @param entidad El registro a borrar.
-     */
-    @Override
-    public void borrar(Sesion entidad) {
-        sesionRepositorio.delete(entidad);
     }
 
     /**
@@ -103,5 +73,43 @@ public class SesionServicioImpl implements SesionServicio, CrudServicio<Sesion> 
     @Override
     public Optional<Sesion> buscarPorToken(String token) {
         return sesionRepositorio.findByToken(token);
+    }
+
+    // ---------------------------------------------------------------- Creaciones
+
+    /**
+     * Guarda la sesión en la base de datos.
+     *
+     * @param entidad El registro a guardar.
+     * @return El registro guardado.
+     */
+    @Override
+    public Sesion guardar(Sesion entidad) {
+        return sesionRepositorio.save(entidad);
+    }
+
+    // ---------------------------------------------------------------- Modificaciones
+
+    /**
+     * Modifica un registro existente.
+     *
+     * @param entidad El registro con los datos actualizados.
+     * @return El registro modificado.
+     */
+    @Override
+    public Sesion modificar(Sesion entidad) {
+        return sesionRepositorio.save(entidad);
+    }
+
+    // ---------------------------------------------------------------- Bajas
+
+    /**
+     * Elimina el registro de la base de datos. Esta entidad no tiene baja lógica.
+     *
+     * @param entidad El registro a borrar.
+     */
+    @Override
+    public void borrar(Sesion entidad) {
+        sesionRepositorio.delete(entidad);
     }
 }

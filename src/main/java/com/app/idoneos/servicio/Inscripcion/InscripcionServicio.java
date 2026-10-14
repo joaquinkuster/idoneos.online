@@ -13,6 +13,8 @@ import com.app.idoneos.modelo.Unidad;
  */
 public interface InscripcionServicio {
 
+    // ---------------------------------------------------------------- Lecturas
+
     /**
      * Busca los registros vigentes de inscripcion asociados a cohorte.
      *
@@ -31,7 +33,7 @@ public interface InscripcionServicio {
 
     /**
      * Busca las inscripciones vigentes de un alumno, filtrando opcionalmente por el nombre del curso
-     * y por el estado de la inscripción (Pendiente, En Progreso o Finalizado).
+     * y por el estado de la inscripción (En Progreso o Finalizado).
      *
      * @param alumno el alumno dueño de las inscripciones
      * @param nombreCurso parte del nombre del curso (opcional)
@@ -73,6 +75,8 @@ public interface InscripcionServicio {
      */
     List<Inscripcion> buscarConFiltros(Integer cursoId, String alumno, String estadoAcceso);
 
+    // ---------------------------------------------------------------- Creaciones
+
     /**
      * El alumno se inscribe a una cohorte con inscripción abierta (CU-45). Valida la ventana de inscripción, el cupo,
      * que no tenga ya una inscripción activa a la cohorte y que acepte los términos y condiciones. Registra el
@@ -99,6 +103,8 @@ public interface InscripcionServicio {
      */
     Inscripcion registrarInscripcion(Integer idAlumno, Integer idCohorte, boolean terminosConfirmados);
 
+    // ---------------------------------------------------------------- Modificaciones
+
     /**
      * Modifica las observaciones, la habilitación y la fecha de vencimiento del acceso de una inscripción activa
      * (CU-47), para correcciones administrativas.
@@ -113,6 +119,8 @@ public interface InscripcionServicio {
      */
     Inscripcion modificarInscripcion(Integer idInscripcion, String observaciones, Boolean habilitada,
             LocalDate vencimiento);
+
+    // ---------------------------------------------------------------- Bajas
 
     /**
      * Da de baja una inscripción activa (CU-49): da de baja su certificado y sus intentos de autoevaluación, deja

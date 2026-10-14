@@ -213,15 +213,36 @@ public class Cohorte {
      * @return El cupo disponible, o {@code null} si la cohorte no tiene cupo máximo.
      */
     public Integer getCupoDisponible() {
-        return cupoMaximo == null ? null : Math.max(0, cupoMaximo - getCantidadInscriptos());
+        return cupoMaximo == null ? null : Math.max(0, cupoMaximo - getCuposOcupados());
     }
 
     /**
-     * Calcula hasta cuándo tiene acceso quien se inscribe en este momento: si la cohorte no tiene fechas de dictado,
-     * las semanas de acceso se suman a la fecha de la inscripción; si las tiene, se suman a la fecha de inicio del
-     * dictado, para alinear todas las inscripciones con las clases en vivo y el cronograma.
+     * Cuenta los cupos ocupados: las inscripciones activas que ya están habilitadas (pagas, sin costo o dadas de alta
+     * por el administrador). Una inscripción pendiente de pago todavía no ocupa cupo.
      *
-     * @param fechaInscripcion El momento de la inscripción.
+     * @return La cantidad de cupos ocupados.
+     */
+    public int getCuposOcupados() {
+        return (int) inscripciones.stream().filter(inscripcion -> !inscripcion.getBaja() && inscripcion.estaHabilitada())
+                .count();
+    }
+
+    /**
+     * Indica si la cohorte tiene cupo para habilitar una inscripción más.
+     *
+     * @return {@code true} si no tiene cupo máximo o todavía no lo alcanzó.
+     */
+    public boolean tieneCupo() {
+        return cupoMaximo == null || getCuposOcupados() < cupoMaximo;
+    }
+
+    /**
+     * Calcula hasta cuándo tiene acceso quien se habilita en este momento (al aprobarse su pago, al habilitarse sin
+     * costo o al darlo de alta el administrador): si la cohorte no tiene fechas de dictado, las semanas de acceso se
+     * suman a la fecha de la habilitación; si las tiene, se suman a la fecha de inicio del dictado, para alinear todas
+     * las inscripciones con las clases en vivo y el cronograma.
+     *
+     * @param fechaInscripcion El momento de la habilitación.
      * @return La fecha de vencimiento del acceso.
      */
     public LocalDateTime calcularVencimientoAcceso(LocalDateTime fechaInscripcion) {

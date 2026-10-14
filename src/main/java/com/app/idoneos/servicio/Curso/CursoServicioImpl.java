@@ -1,8 +1,8 @@
 package com.app.idoneos.servicio.Curso;
 
-import com.app.idoneos.utilidades.MensajeUtilidad;
+import com.app.idoneos.utilidades.MensajeBajaUtilidad;
 import java.time.LocalDateTime;
-import com.app.idoneos.utilidades.ArchivoUtilidad;
+import com.app.idoneos.utilidades.ManejadorArchivosUtilidad;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
@@ -81,16 +81,7 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
     @Autowired
     private InscripcionServicio inscripcionServicio;
 
-    /**
-     * Guarda el curso en la base de datos.
-     *
-     * @param entidad El registro a guardar.
-     * @return El registro guardado.
-     */
-    @Override
-    public Curso guardar(Curso entidad) {
-        return cursoRepositorio.save(entidad);
-    }
+    // ---------------------------------------------------------------- Lecturas
 
     /**
      * Busca el curso por su identificador. Solo devuelve registros activos (no dados de baja).
@@ -112,28 +103,6 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
     @Override
     public List<Curso> obtenerTodo() {
         return cursoRepositorio.findByBajaFalse();
-    }
-
-    /**
-     * Modifica un registro existente.
-     *
-     * @param entidad El registro con los datos actualizados.
-     * @return El registro modificado.
-     */
-    @Override
-    public Curso modificar(Curso entidad) {
-        return cursoRepositorio.save(entidad);
-    }
-
-    /**
-     * Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos.
-     *
-     * @param entidad El registro a borrar.
-     */
-    @Override
-    public void borrar(Curso entidad) {
-        entidad.marcarInactivo(); // Baja lógica
-        cursoRepositorio.save(entidad);
     }
 
     /**
@@ -288,6 +257,96 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
     }
 
     /**
+     * Busca las inscripciones activas (no dadas de baja) de un curso, a través de sus programas y cohortes.
+     *
+     * @param curso el curso a consultar
+     * @return una lista de inscripciones activas del curso
+     */
+    @Override
+    public List<Inscripcion> buscarInscripcionesActivas(Curso curso) {
+        return curso.getProgramas().stream()
+                .flatMap(programa -> programa.getCohortes().stream())
+                .flatMap(cohorte -> cohorte.getInscripciones().stream())
+                .filter(inscripcion -> !inscripcion.esInactivo())
+                .toList();
+    }
+
+    /**
+     * Verifica que el docente pueda acceder al curso (CU-27).
+     *
+     * @param idCurso El identificador del curso.
+     * @param docente El docente que solicita el acceso.
+     * @return La participación del docente en el curso.
+     * @throws IllegalArgumentException Si el docente no puede acceder, con el motivo.
+     */
+    @Override
+    public ParticipacionDocente validarAccesoDocente(int idCurso, Docente docente) {
+        Curso curso = buscarActivoPorId(idCurso);
+        ParticipacionDocente participacion = participacionDocenteRepositorio.findByCursoAndBajaFalse(curso).stream()
+                .filter(p -> p.getDocente().getIdDocente() == docente.getIdDocente()).findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Error! No participás en este curso."));
+        // Un curso sin programas también se puede abrir: desde ahí el docente registra el primero
+        return participacion;
+    }
+
+    @Override
+    public ContextoCurso resolverContextoDelPanel(Integer idCurso, Usuario usuario) {
+        if (idCurso == null) {
+            throw new IllegalArgumentException("Error! Debe seleccionar un curso.");
+        }
+        if (usuario.esAdministradorActivo()) {
+            return ContextoCurso.deAdministrador(buscarActivoPorId(idCurso));
+        }
+        return ContextoCurso.deDocente(validarAccesoDocente(idCurso, usuario.getDocente()));
+    }
+
+    @Override
+    public Optional<ContextoCurso> resolverContextoDeLaUnidad(Unidad unidad, Usuario usuario) {
+        Curso curso = unidad.getCurso();
+        if (usuario.esAdministradorActivo()) {
+            return Optional.of(ContextoCurso.deAdministrador(curso));
+        }
+        if (curso.tieneDocente(usuario.getDocente())) {
+            return Optional.of(ContextoCurso.deDocente(validarAccesoDocente(curso.getIdCurso(), usuario.getDocente())));
+        }
+        return inscripcionServicio.buscarConAccesoAUnidad(usuario.getAlumno(), unidad).map(ContextoCurso::deAlumno);
+    }
+
+    @Override
+    public ResumenCursos resumir(List<Curso> cursos) {
+        Map<Integer, List<Inscripcion>> inscripciones = new HashMap<>();
+        Map<Integer, List<Programa>> programas = new HashMap<>();
+        Set<Integer> conInscripcionAbierta = new HashSet<>();
+        for (Curso curso : cursos) {
+            inscripciones.put(curso.getIdCurso(), buscarInscripcionesActivas(curso));
+            programas.put(curso.getIdCurso(), programaRepositorio.findByCursoAndBajaFalse(curso));
+            if (!buscarCohortesAbiertas(curso).isEmpty()) {
+                conInscripcionAbierta.add(curso.getIdCurso());
+            }
+        }
+        return new ResumenCursos(inscripciones, programas, conInscripcionAbierta);
+    }
+
+    @Override
+    public Curso buscarActivoPorId(Integer idCurso) {
+        return buscarPorId(idCurso)
+                .orElseThrow(() -> new IllegalArgumentException("Error! El curso no se encuentra activo."));
+    }
+
+    // ---------------------------------------------------------------- Creaciones
+
+    /**
+     * Guarda el curso en la base de datos.
+     *
+     * @param entidad El registro a guardar.
+     * @return El registro guardado.
+     */
+    @Override
+    public Curso guardar(Curso entidad) {
+        return cursoRepositorio.save(entidad);
+    }
+
+    /**
      * Registra un curso con sus modalidades de dictado y su equipo docente.
      *
      * @param nombre el nombre del curso
@@ -328,6 +387,19 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
         sincronizarModalidades(curso, idsModalidades);
         sincronizarEquipoDocente(curso, titular, ayudantes);
         return curso;
+    }
+
+    // ---------------------------------------------------------------- Modificaciones
+
+    /**
+     * Modifica un registro existente.
+     *
+     * @param entidad El registro con los datos actualizados.
+     * @return El registro modificado.
+     */
+    @Override
+    public Curso modificar(Curso entidad) {
+        return cursoRepositorio.save(entidad);
     }
 
     /**
@@ -390,6 +462,78 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
     }
 
     /**
+     * Asigna la imagen de un curso activo.
+     *
+     * @param idCurso El identificador del curso.
+     * @param imagen  El nombre del archivo de la imagen dentro de la carpeta del curso.
+     * @return El curso actualizado.
+     * @throws IllegalArgumentException Si el curso no está activo.
+     */
+    @Override
+    @Transactional
+    public Curso actualizarImagen(Integer idCurso, String imagen) {
+        Curso curso = buscarActivoPorId(idCurso);
+        curso.setImagen(imagen);
+        curso.setUltimaModificacion(LocalDateTime.now());
+        return cursoRepositorio.save(curso);
+    }
+
+    /**
+     * Lleva las imágenes de los cursos a la estructura {@code curso{id}/imagen.{ext}}. La imagen se busca en la
+     * carpeta anterior ({@code cursos/}) y, si no está, entre las imágenes de ejemplo de la aplicación.
+     */
+    @Override
+    @Transactional
+    public void migrarImagenes() {
+        for (Curso curso : cursoRepositorio.findAll()) {
+            String imagen = curso.getImagen();
+            if (imagen == null || imagen.isBlank() || imagen.startsWith("imagen.") || imagen.contains("/")
+                    || imagen.contains("\\") || imagen.contains("..")) {
+                continue;
+            }
+            String extension = ManejadorArchivosUtilidad.extensionDe(imagen);
+            if (extension == null) {
+                continue;
+            }
+            extension = extension.equals("jpeg") ? "jpg" : extension;
+            try {
+                Path carpeta = ManejadorArchivosUtilidad.carpetaDeCurso(directorioCursos, curso.getIdCurso());
+                Files.createDirectories(carpeta);
+                Path destino = carpeta.resolve("imagen." + extension);
+                Path anterior = directorioCursos.resolve("cursos").resolve(imagen);
+                if (Files.exists(anterior)) {
+                    Files.copy(anterior, destino, StandardCopyOption.REPLACE_EXISTING);
+                } else {
+                    try (InputStream ejemplo = getClass().getResourceAsStream("/static/img/cursos/" + imagen)) {
+                        if (ejemplo == null) {
+                            REGISTRO.warn("No se encontró la imagen '{}' del curso {}", imagen, curso.getIdCurso());
+                            continue;
+                        }
+                        Files.copy(ejemplo, destino, StandardCopyOption.REPLACE_EXISTING);
+                    }
+                }
+                curso.setImagen("imagen." + extension);
+                cursoRepositorio.save(curso);
+            } catch (IOException e) {
+                REGISTRO.warn("No se pudo migrar la imagen '{}' del curso {}", imagen, curso.getIdCurso(), e);
+            }
+        }
+    }
+
+    // ---------------------------------------------------------------- Bajas
+
+    /**
+     * Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos.
+     *
+     * @param entidad El registro a borrar.
+     */
+    @Override
+    public void borrar(Curso entidad) {
+        entidad.marcarInactivo(); // Baja lógica
+        cursoRepositorio.save(entidad);
+    }
+
+    /**
      * Da de baja un curso activo que no tenga programas ni unidades activas asociadas.
      *
      * @param idCurso el identificador del curso
@@ -403,11 +547,11 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
         int unidadesActivas = unidadRepositorio.findByCursoAndBajaFalse(curso).size();
         if (programasActivos > 0 || unidadesActivas > 0) {
             String motivo = (programasActivos > 0
-                    ? MensajeUtilidad.cantidad(programasActivos, "programa activo", "programas activos") : "")
+                    ? MensajeBajaUtilidad.cantidad(programasActivos, "programa activo", "programas activos") : "")
                     + (programasActivos > 0 && unidadesActivas > 0 ? " y " : "")
                     + (unidadesActivas > 0
-                            ? MensajeUtilidad.cantidad(unidadesActivas, "unidad activa", "unidades activas") : "");
-            throw new IllegalArgumentException(MensajeUtilidad.bajaBloqueada("el curso", curso.getNombre(),
+                            ? MensajeBajaUtilidad.cantidad(unidadesActivas, "unidad activa", "unidades activas") : "");
+            throw new IllegalArgumentException(MensajeBajaUtilidad.bajaBloqueada("el curso", curso.getNombre(),
                     "tiene " + motivo, "Dé de baja primero sus programas y unidades."));
         }
         curso.marcarInactivo();
@@ -415,7 +559,28 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
         cursoRepositorio.save(curso);
     }
 
-    // ---------------------------------------------------------------- métodos auxiliares
+    /**
+     * Da de baja varios registros a la vez, todos o ninguno: si alguno no puede darse de baja, no se da de baja
+     * ninguno y el mensaje indica cuál lo impidió.
+     *
+     * @param ids los identificadores de los registros
+     * @throws IllegalArgumentException si no se indicó ningún registro o alguno no puede darse de baja
+     */
+    @Override
+    @Transactional
+    public void darDeBajaVarios(List<Integer> ids) {
+        if (ids == null || ids.isEmpty()) {
+            throw new IllegalArgumentException("Error! Debe seleccionar al menos un registro.");
+        }
+        for (Integer id : ids) {
+            try {
+                darDeBajaCurso(id);
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Error! No se dio de baja ningún registro. "
+                        + e.getMessage().replaceFirst("^Error! ", ""));
+            }
+        }
+    }
 
     private String vacioANulo(String texto) {
         return (texto == null || texto.isBlank()) ? null : texto.trim();
@@ -576,165 +741,6 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
         for (Docente docente : docentes.values()) {
             curso.getParticipacionesDocente().add(participacionDocenteRepositorio
                     .save(new ParticipacionDocente(curso, docente, titulares.get(docente.getIdDocente()))));
-        }
-    }
-
-    /**
-     * Busca las inscripciones activas (no dadas de baja) de un curso, a través de sus programas y cohortes.
-     *
-     * @param curso el curso a consultar
-     * @return una lista de inscripciones activas del curso
-     */
-    @Override
-    public List<Inscripcion> buscarInscripcionesActivas(Curso curso) {
-        return curso.getProgramas().stream()
-                .flatMap(programa -> programa.getCohortes().stream())
-                .flatMap(cohorte -> cohorte.getInscripciones().stream())
-                .filter(inscripcion -> !inscripcion.esInactivo())
-                .toList();
-    }
-
-    /**
-     * Da de baja varios registros a la vez, todos o ninguno: si alguno no puede darse de baja, no se da de baja
-     * ninguno y el mensaje indica cuál lo impidió.
-     *
-     * @param ids los identificadores de los registros
-     * @throws IllegalArgumentException si no se indicó ningún registro o alguno no puede darse de baja
-     */
-    @Override
-    @Transactional
-    public void darDeBajaVarios(List<Integer> ids) {
-        if (ids == null || ids.isEmpty()) {
-            throw new IllegalArgumentException("Error! Debe seleccionar al menos un registro.");
-        }
-        for (Integer id : ids) {
-            try {
-                darDeBajaCurso(id);
-            } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException("Error! No se dio de baja ningún registro. "
-                        + e.getMessage().replaceFirst("^Error! ", ""));
-            }
-        }
-    }
-
-    /**
-     * Verifica que el docente pueda acceder al curso (CU-27).
-     *
-     * @param idCurso El identificador del curso.
-     * @param docente El docente que solicita el acceso.
-     * @return La participación del docente en el curso.
-     * @throws IllegalArgumentException Si el docente no puede acceder, con el motivo.
-     */
-    @Override
-    public ParticipacionDocente validarAccesoDocente(int idCurso, Docente docente) {
-        Curso curso = buscarActivoPorId(idCurso);
-        ParticipacionDocente participacion = participacionDocenteRepositorio.findByCursoAndBajaFalse(curso).stream()
-                .filter(p -> p.getDocente().getIdDocente() == docente.getIdDocente()).findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Error! No participás en este curso."));
-        // Un curso sin programas también se puede abrir: desde ahí el docente registra el primero
-        return participacion;
-    }
-
-    @Override
-    public ContextoCurso resolverContextoDelPanel(Integer idCurso, Usuario usuario) {
-        if (idCurso == null) {
-            throw new IllegalArgumentException("Error! Debe seleccionar un curso.");
-        }
-        if (usuario.esAdministradorActivo()) {
-            return ContextoCurso.deAdministrador(buscarActivoPorId(idCurso));
-        }
-        return ContextoCurso.deDocente(validarAccesoDocente(idCurso, usuario.getDocente()));
-    }
-
-    @Override
-    public Optional<ContextoCurso> resolverContextoDeLaUnidad(Unidad unidad, Usuario usuario) {
-        Curso curso = unidad.getCurso();
-        if (usuario.esAdministradorActivo()) {
-            return Optional.of(ContextoCurso.deAdministrador(curso));
-        }
-        if (curso.tieneDocente(usuario.getDocente())) {
-            return Optional.of(ContextoCurso.deDocente(validarAccesoDocente(curso.getIdCurso(), usuario.getDocente())));
-        }
-        return inscripcionServicio.buscarConAccesoAUnidad(usuario.getAlumno(), unidad).map(ContextoCurso::deAlumno);
-    }
-
-    @Override
-    public ResumenCursos resumir(List<Curso> cursos) {
-        Map<Integer, List<Inscripcion>> inscripciones = new HashMap<>();
-        Map<Integer, List<Programa>> programas = new HashMap<>();
-        Set<Integer> conInscripcionAbierta = new HashSet<>();
-        for (Curso curso : cursos) {
-            inscripciones.put(curso.getIdCurso(), buscarInscripcionesActivas(curso));
-            programas.put(curso.getIdCurso(), programaRepositorio.findByCursoAndBajaFalse(curso));
-            if (!buscarCohortesAbiertas(curso).isEmpty()) {
-                conInscripcionAbierta.add(curso.getIdCurso());
-            }
-        }
-        return new ResumenCursos(inscripciones, programas, conInscripcionAbierta);
-    }
-
-    @Override
-    public Curso buscarActivoPorId(Integer idCurso) {
-        return buscarPorId(idCurso)
-                .orElseThrow(() -> new IllegalArgumentException("Error! El curso no se encuentra activo."));
-    }
-
-    /**
-     * Asigna la imagen de un curso activo.
-     *
-     * @param idCurso El identificador del curso.
-     * @param imagen  El nombre del archivo de la imagen dentro de la carpeta del curso.
-     * @return El curso actualizado.
-     * @throws IllegalArgumentException Si el curso no está activo.
-     */
-    @Override
-    @Transactional
-    public Curso actualizarImagen(Integer idCurso, String imagen) {
-        Curso curso = buscarActivoPorId(idCurso);
-        curso.setImagen(imagen);
-        curso.setUltimaModificacion(LocalDateTime.now());
-        return cursoRepositorio.save(curso);
-    }
-
-    /**
-     * Lleva las imágenes de los cursos a la estructura {@code curso{id}/imagen.{ext}}. La imagen se busca en la
-     * carpeta anterior ({@code cursos/}) y, si no está, entre las imágenes de ejemplo de la aplicación.
-     */
-    @Override
-    @Transactional
-    public void migrarImagenes() {
-        for (Curso curso : cursoRepositorio.findAll()) {
-            String imagen = curso.getImagen();
-            if (imagen == null || imagen.isBlank() || imagen.startsWith("imagen.") || imagen.contains("/")
-                    || imagen.contains("\\") || imagen.contains("..")) {
-                continue;
-            }
-            String extension = ArchivoUtilidad.extensionDe(imagen);
-            if (extension == null) {
-                continue;
-            }
-            extension = extension.equals("jpeg") ? "jpg" : extension;
-            try {
-                Path carpeta = ArchivoUtilidad.carpetaDeCurso(directorioCursos, curso.getIdCurso());
-                Files.createDirectories(carpeta);
-                Path destino = carpeta.resolve("imagen." + extension);
-                Path anterior = directorioCursos.resolve("cursos").resolve(imagen);
-                if (Files.exists(anterior)) {
-                    Files.copy(anterior, destino, StandardCopyOption.REPLACE_EXISTING);
-                } else {
-                    try (InputStream ejemplo = getClass().getResourceAsStream("/static/img/cursos/" + imagen)) {
-                        if (ejemplo == null) {
-                            REGISTRO.warn("No se encontró la imagen '{}' del curso {}", imagen, curso.getIdCurso());
-                            continue;
-                        }
-                        Files.copy(ejemplo, destino, StandardCopyOption.REPLACE_EXISTING);
-                    }
-                }
-                curso.setImagen("imagen." + extension);
-                cursoRepositorio.save(curso);
-            } catch (IOException e) {
-                REGISTRO.warn("No se pudo migrar la imagen '{}' del curso {}", imagen, curso.getIdCurso(), e);
-            }
         }
     }
 }

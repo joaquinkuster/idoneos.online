@@ -8,6 +8,8 @@ import com.app.idoneos.modelo.TipoReporte;
  */
 public interface TipoReporteServicio {
 
+    // ---------------------------------------------------------------- Lecturas
+
     /**
      * Busca el tipo de reporte por su atributo único 'nombre'. Incluye los registros dados de baja, para poder reactivarlos en lugar de duplicarlos.
      *

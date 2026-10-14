@@ -18,13 +18,25 @@
         <div class="um-seccion">
             <!-- Administrador -->
             <a th:if="${usuario.esAdministradorActivo()}" th:href="@{/curso/buscar}" class="um-item">Panel administrador</a>
-            <a th:if="${usuario.esAdministradorActivo()}" th:href="@{/curso/misCursos}" class="um-item">Todos los cursos</a>
+            <a th:if="${usuario.esAdministradorActivo()}" th:href="@{/curso/misCursos}" class="um-item">Cursos</a>
 
             <!-- Docente -->
             <a th:if="${usuario.esDocenteActivo()}" th:href="@{/curso/buscar}" class="um-item">Mis cursos</a>
 
             <!-- Alumno -->
-            <a th:if="${usuario.esAlumnoActivo()}" th:href="@{/inscripcion/misCursos}" class="um-item">Mis cursos</a>
+            <!-- Mis cursos lleva a la lista; la flecha de la derecha despliega, con un efecto suave, lo que cuelga de ella -->
+            <div th:if="${usuario.esAlumnoActivo()}" class="um-grupo">
+                <div class="um-grupo-fila">
+                    <a th:href="@{/inscripcion/misCursos}" class="um-item">Mis cursos</a>
+                    <button type="button" class="um-desplegar" data-um-desplegar aria-expanded="false"
+                            aria-label="Mostrar las opciones de Mis cursos"><i class="fa-solid fa-chevron-down"></i></button>
+                </div>
+                <div class="um-submenu">
+                    <div class="um-submenu-interior">
+                        <a th:href="@{/pago/misPagos}" class="um-item um-item-sub">Mis pagos</a>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div class="um-seccion">

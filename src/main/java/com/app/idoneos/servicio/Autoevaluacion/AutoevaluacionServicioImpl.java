@@ -19,16 +19,7 @@ public class AutoevaluacionServicioImpl implements AutoevaluacionServicio, CrudS
     @Autowired
     private AutoevaluacionRepositorio autoevaluacionRepositorio;
 
-    /**
-     * Guarda la autoevaluación en la base de datos.
-     *
-     * @param entidad El registro a guardar.
-     * @return El registro guardado.
-     */
-    @Override
-    public Autoevaluacion guardar(Autoevaluacion entidad) {
-        return autoevaluacionRepositorio.save(entidad);
-    }
+    // ---------------------------------------------------------------- Lecturas
 
     /**
      * Busca la autoevaluación por su identificador. Solo devuelve registros activos (no dados de baja).
@@ -53,28 +44,6 @@ public class AutoevaluacionServicioImpl implements AutoevaluacionServicio, CrudS
     }
 
     /**
-     * Modifica un registro existente.
-     *
-     * @param entidad El registro con los datos actualizados.
-     * @return El registro modificado.
-     */
-    @Override
-    public Autoevaluacion modificar(Autoevaluacion entidad) {
-        return autoevaluacionRepositorio.save(entidad);
-    }
-
-    /**
-     * Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos.
-     *
-     * @param entidad El registro a borrar.
-     */
-    @Override
-    public void borrar(Autoevaluacion entidad) {
-        entidad.marcarInactivo(); // Baja lógica
-        autoevaluacionRepositorio.save(entidad);
-    }
-
-    /**
      * Verifica si existe un registro con el identificador dado y está activo.
      *
      * @param id El identificador del registro.
@@ -95,5 +64,44 @@ public class AutoevaluacionServicioImpl implements AutoevaluacionServicio, CrudS
     @Override
     public List<Autoevaluacion> buscarPorUnidad(Unidad unidad) {
         return autoevaluacionRepositorio.findByUnidadAndBajaFalse(unidad);
+    }
+
+    // ---------------------------------------------------------------- Creaciones
+
+    /**
+     * Guarda la autoevaluación en la base de datos.
+     *
+     * @param entidad El registro a guardar.
+     * @return El registro guardado.
+     */
+    @Override
+    public Autoevaluacion guardar(Autoevaluacion entidad) {
+        return autoevaluacionRepositorio.save(entidad);
+    }
+
+    // ---------------------------------------------------------------- Modificaciones
+
+    /**
+     * Modifica un registro existente.
+     *
+     * @param entidad El registro con los datos actualizados.
+     * @return El registro modificado.
+     */
+    @Override
+    public Autoevaluacion modificar(Autoevaluacion entidad) {
+        return autoevaluacionRepositorio.save(entidad);
+    }
+
+    // ---------------------------------------------------------------- Bajas
+
+    /**
+     * Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos.
+     *
+     * @param entidad El registro a borrar.
+     */
+    @Override
+    public void borrar(Autoevaluacion entidad) {
+        entidad.marcarInactivo(); // Baja lógica
+        autoevaluacionRepositorio.save(entidad);
     }
 }

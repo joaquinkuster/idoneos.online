@@ -11,6 +11,8 @@ import com.app.idoneos.modelo.Usuario;
  */
 public interface RolUsuarioServicio {
 
+    // ---------------------------------------------------------------- Lecturas
+
     /**
      * Busca los registros vigentes de rolUsuario asociados a rol.
      *

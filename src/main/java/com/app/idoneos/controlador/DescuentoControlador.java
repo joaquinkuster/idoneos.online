@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.app.idoneos.modelo.Descuento;
 import com.app.idoneos.servicio.Descuento.DescuentoServicioImpl;
-import com.app.idoneos.utilidades.RespuestaUtilidad;
+import com.app.idoneos.utilidades.RespuestaJsonUtilidad;
 
 /**
  * Controlador de la gestión de descuentos (MOD-F-03), solo para el Administrador.
@@ -33,6 +33,8 @@ public class DescuentoControlador {
 
     @Autowired
     private DescuentoServicioImpl descuentoServicio;
+
+    // ---------------------------------------------------------------- Lecturas
 
     /**
      * CU-56: Busca descuentos. El listado llega completo y los filtros se aplican en la pantalla.
@@ -57,6 +59,8 @@ public class DescuentoControlador {
         return "pages/descuento/buscar";
     }
 
+    // ---------------------------------------------------------------- Creaciones
+
     /**
      * CU-57: Registra un descuento. Responde en JSON.
      *
@@ -73,11 +77,13 @@ public class DescuentoControlador {
         try {
             Descuento descuento = descuentoServicio.registrarDescuento(nombre, porcentaje, vigenciaDesde,
                     vigenciaHasta, cantidadLimite, cursosRequeridos);
-            return RespuestaUtilidad.respuestaExitosa("Descuento '" + descuento.getNombre() + "' registrado con éxito.");
+            return RespuestaJsonUtilidad.respuestaExitosa("Descuento '" + descuento.getNombre() + "' registrado con éxito.");
         } catch (Exception e) {
-            return RespuestaUtilidad.respuestaConError(e);
+            return RespuestaJsonUtilidad.respuestaConError(e);
         }
     }
+
+    // ---------------------------------------------------------------- Modificaciones
 
     /**
      * CU-58: Modifica un descuento. Responde en JSON.
@@ -96,11 +102,13 @@ public class DescuentoControlador {
         try {
             descuentoServicio.modificarDescuento(id, nombre, porcentaje, vigenciaDesde, vigenciaHasta,
                     cantidadLimite, cursosRequeridos);
-            return RespuestaUtilidad.respuestaExitosa("Descuento actualizado con éxito.");
+            return RespuestaJsonUtilidad.respuestaExitosa("Descuento actualizado con éxito.");
         } catch (Exception e) {
-            return RespuestaUtilidad.respuestaConError(e);
+            return RespuestaJsonUtilidad.respuestaConError(e);
         }
     }
+
+    // ---------------------------------------------------------------- Bajas
 
     /**
      * CU-59: Da de baja un descuento que nunca se aplicó. Responde en JSON.
@@ -112,9 +120,9 @@ public class DescuentoControlador {
     public ResponseEntity<Map<String, String>> darDeBajaDescuento(@PathVariable("id") Integer id) {
         try {
             descuentoServicio.darDeBajaDescuento(id);
-            return RespuestaUtilidad.respuestaExitosa("Descuento dado de baja con éxito.");
+            return RespuestaJsonUtilidad.respuestaExitosa("Descuento dado de baja con éxito.");
         } catch (Exception e) {
-            return RespuestaUtilidad.respuestaConError(e);
+            return RespuestaJsonUtilidad.respuestaConError(e);
         }
     }
 
@@ -129,9 +137,9 @@ public class DescuentoControlador {
             @RequestParam(value = "ids", required = false) List<Integer> ids) {
         try {
             descuentoServicio.darDeBajaVarios(ids);
-            return RespuestaUtilidad.respuestaExitosa("Descuentos dados de baja con éxito.");
+            return RespuestaJsonUtilidad.respuestaExitosa("Descuentos dados de baja con éxito.");
         } catch (Exception e) {
-            return RespuestaUtilidad.respuestaConError(e);
+            return RespuestaJsonUtilidad.respuestaConError(e);
         }
     }
 }

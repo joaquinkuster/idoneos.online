@@ -12,6 +12,8 @@ import com.app.idoneos.modelo.Unidad;
  */
 public interface ConsultaForoServicio {
 
+    // ---------------------------------------------------------------- Lecturas
+
     /**
      * Busca los registros vigentes de consultaForo asociados a unidad.
      *
@@ -40,6 +42,8 @@ public interface ConsultaForoServicio {
      */
     List<ConsultaForo> buscarConFiltros(Unidad unidad, String texto, LocalDate desde, LocalDate hasta);
 
+    // ---------------------------------------------------------------- Creaciones
+
     /**
      * CU-36: Registra una consulta en el foro de una unidad. Solo la hace un alumno con inscripción vigente al curso y
      * la unidad habilitada.
@@ -52,6 +56,8 @@ public interface ConsultaForoServicio {
      */
     ConsultaForo registrarConsulta(Alumno alumno, Integer unidadId, String texto);
 
+    // ---------------------------------------------------------------- Modificaciones
+
     /**
      * CU-37: Modifica el texto de una consulta propia, dentro del plazo de edición.
      *
@@ -62,6 +68,8 @@ public interface ConsultaForoServicio {
      * @throws IllegalArgumentException si no es suya, no está activa, pasó el plazo o el texto no es válido
      */
     ConsultaForo modificarConsulta(Integer id, Alumno alumno, String texto);
+
+    // ---------------------------------------------------------------- Bajas
 
     /**
      * CU-38: Da de baja una consulta, junto con sus respuestas (baja lógica). Lo hace el administrador.

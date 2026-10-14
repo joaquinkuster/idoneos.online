@@ -59,6 +59,15 @@ class CronogramaControladorTest {
         return curso("Mercado de Capitales Argentino");
     }
 
+    @Test
+    @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesServicio")
+    @DisplayName("La pantalla recibe el máximo de semanas del cronograma desde el parámetro del sistema")
+    void maximoDeSemanasParametrizado() throws Exception {
+        mockMvc.perform(get("/cronograma/buscar").param("cursoId", String.valueOf(macro().getIdCurso())))
+                .andExpect(status().isOk())
+                .andExpect(content().string(Matchers.containsString("data-semanas-maximas=\"52\"")));
+    }
+
     private String cursoId(Curso curso) {
         return String.valueOf(curso.getIdCurso());
     }

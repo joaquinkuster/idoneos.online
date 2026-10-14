@@ -11,10 +11,13 @@
     border-top: 1px solid rgba(255, 255, 255, 0.12);
     font-size: 12px;
     font-weight: 600;
+    line-height: 1.5;
     color: #9FB3CC;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    /* El menú es una columna con scroll: sin esto, los títulos se aplastan y el texto queda cortado */
+    flex-shrink: 0;
 }
 
 .pn-menu-nav > .pn-menu-grupo:first-child {
@@ -597,6 +600,10 @@ a.ac-actividad-titulo:hover {
 }
 
 .ac-menu-boton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
     width: 30px;
     height: 30px;
     border: 0;
@@ -609,6 +616,20 @@ a.ac-actividad-titulo:hover {
 .ac-menu-boton:hover {
     background: var(--pn-fondo);
     color: var(--pn-texto);
+}
+
+/* Opciones del menú de tres puntos: al pasar el mouse o hacer clic, un gris muy claro (en lugar del azul de Bootstrap) */
+.ac-menu-boton + .dropdown-menu .dropdown-item:hover,
+.ac-menu-boton + .dropdown-menu .dropdown-item:focus,
+.ac-menu-boton + .dropdown-menu .dropdown-item:active {
+    background: #F3F5F8;
+    color: var(--pn-texto);
+}
+
+.ac-menu-boton + .dropdown-menu .dropdown-item.text-danger:hover,
+.ac-menu-boton + .dropdown-menu .dropdown-item.text-danger:focus,
+.ac-menu-boton + .dropdown-menu .dropdown-item.text-danger:active {
+    color: #DC3545;
 }
 
 /* Títulos grises que agrupan las actividades de una unidad, con su enlace "Ver listado" */

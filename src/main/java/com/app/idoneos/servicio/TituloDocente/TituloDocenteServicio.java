@@ -9,6 +9,8 @@ import com.app.idoneos.modelo.TituloDocente;
  */
 public interface TituloDocenteServicio {
 
+    // ---------------------------------------------------------------- Lecturas
+
     /**
      * Busca los registros vigentes de tituloDocente asociados a docente.
      *

@@ -41,16 +41,7 @@ public class TerminoGlosarioServicioImpl implements TerminoGlosarioServicio, Cru
     @Autowired
     private UnidadServicio unidadServicio;
 
-    /**
-     * Guarda el término del glosario en la base de datos.
-     *
-     * @param entidad El registro a guardar.
-     * @return El registro guardado.
-     */
-    @Override
-    public TerminoGlosario guardar(TerminoGlosario entidad) {
-        return terminoGlosarioRepositorio.save(entidad);
-    }
+    // ---------------------------------------------------------------- Lecturas
 
     /**
      * Busca el término del glosario por su identificador. Solo devuelve registros activos (no dados de baja).
@@ -72,28 +63,6 @@ public class TerminoGlosarioServicioImpl implements TerminoGlosarioServicio, Cru
     @Override
     public List<TerminoGlosario> obtenerTodo() {
         return terminoGlosarioRepositorio.findByBajaFalse();
-    }
-
-    /**
-     * Modifica un registro existente.
-     *
-     * @param entidad El registro con los datos actualizados.
-     * @return El registro modificado.
-     */
-    @Override
-    public TerminoGlosario modificar(TerminoGlosario entidad) {
-        return terminoGlosarioRepositorio.save(entidad);
-    }
-
-    /**
-     * Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos.
-     *
-     * @param entidad El registro a borrar.
-     */
-    @Override
-    public void borrar(TerminoGlosario entidad) {
-        entidad.marcarInactivo(); // Baja lógica
-        terminoGlosarioRepositorio.save(entidad);
     }
 
     /**
@@ -141,6 +110,27 @@ public class TerminoGlosarioServicioImpl implements TerminoGlosarioServicio, Cru
     }
 
     /**
+     * Indica si un usuario puede ver el glosario de una unidad.
+     */
+    @Override
+    public boolean puedeVer(Unidad unidad, Usuario usuario) {
+        return unidadServicio.puedeVerContenido(unidad, usuario);
+    }
+
+    // ---------------------------------------------------------------- Creaciones
+
+    /**
+     * Guarda el término del glosario en la base de datos.
+     *
+     * @param entidad El registro a guardar.
+     * @return El registro guardado.
+     */
+    @Override
+    public TerminoGlosario guardar(TerminoGlosario entidad) {
+        return terminoGlosarioRepositorio.save(entidad);
+    }
+
+    /**
      * CU-33: Registra un término en el glosario de una unidad.
      */
     @Override
@@ -166,6 +156,19 @@ public class TerminoGlosarioServicioImpl implements TerminoGlosarioServicio, Cru
         return terminoGlosarioRepositorio.save(guardado);
     }
 
+    // ---------------------------------------------------------------- Modificaciones
+
+    /**
+     * Modifica un registro existente.
+     *
+     * @param entidad El registro con los datos actualizados.
+     * @return El registro modificado.
+     */
+    @Override
+    public TerminoGlosario modificar(TerminoGlosario entidad) {
+        return terminoGlosarioRepositorio.save(entidad);
+    }
+
     /**
      * CU-34: Modifica un término del glosario.
      */
@@ -188,6 +191,19 @@ public class TerminoGlosarioServicioImpl implements TerminoGlosarioServicio, Cru
         return terminoGlosarioRepositorio.save(existente);
     }
 
+    // ---------------------------------------------------------------- Bajas
+
+    /**
+     * Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos.
+     *
+     * @param entidad El registro a borrar.
+     */
+    @Override
+    public void borrar(TerminoGlosario entidad) {
+        entidad.marcarInactivo(); // Baja lógica
+        terminoGlosarioRepositorio.save(entidad);
+    }
+
     /**
      * CU-35: Da de baja un término del glosario.
      */
@@ -201,14 +217,6 @@ public class TerminoGlosarioServicioImpl implements TerminoGlosarioServicio, Cru
         existente.marcarInactivo();
         existente.setUltimaModificacion(LocalDateTime.now());
         terminoGlosarioRepositorio.save(existente);
-    }
-
-    /**
-     * Indica si un usuario puede ver el glosario de una unidad.
-     */
-    @Override
-    public boolean puedeVer(Unidad unidad, Usuario usuario) {
-        return unidadServicio.puedeVerContenido(unidad, usuario);
     }
 
     private TerminoGlosario buscarActivo(Integer id) {

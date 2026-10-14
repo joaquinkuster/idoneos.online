@@ -21,7 +21,7 @@ import com.app.idoneos.modelo.Docente;
 import com.app.idoneos.repositorio.ParticipacionDocenteRepositorio;
 import com.app.idoneos.repositorio.TipoMaterialRepositorio;
 import com.app.idoneos.repositorio.UnidadRepositorio;
-import com.app.idoneos.utilidades.ArchivoUtilidad;
+import com.app.idoneos.utilidades.ManejadorArchivosUtilidad;
 import com.app.idoneos.modelo.Alumno;
 import com.app.idoneos.modelo.Usuario;
 import com.app.idoneos.repositorio.InscripcionRepositorio;
@@ -58,16 +58,7 @@ public class MaterialServicioImpl implements MaterialServicio, CrudServicio<Mate
     @Autowired
     private ParticipacionDocenteRepositorio participacionDocenteRepositorio;
 
-    /**
-     * Guarda el material en la base de datos.
-     *
-     * @param entidad El registro a guardar.
-     * @return El registro guardado.
-     */
-    @Override
-    public Material guardar(Material entidad) {
-        return materialRepositorio.save(entidad);
-    }
+    // ---------------------------------------------------------------- Lecturas
 
     /**
      * Busca el material por su identificador. Solo devuelve registros activos (no dados de baja).
@@ -89,28 +80,6 @@ public class MaterialServicioImpl implements MaterialServicio, CrudServicio<Mate
     @Override
     public List<Material> obtenerTodo() {
         return materialRepositorio.findByBajaFalse();
-    }
-
-    /**
-     * Modifica un registro existente.
-     *
-     * @param entidad El registro con los datos actualizados.
-     * @return El registro modificado.
-     */
-    @Override
-    public Material modificar(Material entidad) {
-        return materialRepositorio.save(entidad);
-    }
-
-    /**
-     * Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos.
-     *
-     * @param entidad El registro a borrar.
-     */
-    @Override
-    public void borrar(Material entidad) {
-        entidad.marcarInactivo(); // Baja lógica
-        materialRepositorio.save(entidad);
     }
 
     /**
@@ -181,6 +150,46 @@ public class MaterialServicioImpl implements MaterialServicio, CrudServicio<Mate
     }
 
     /**
+     * Indica si un usuario puede abrir el archivo o enlace de un material.
+     */
+    @Override
+    public boolean puedeAcceder(Material material, Usuario usuario) {
+        if (usuario.esAdministradorActivo()) {
+            return true;
+        }
+        Docente docente = usuario.getDocente();
+        if (docente != null && participaEnElCurso(material.getCurso(), docente)) {
+            return true;
+        }
+        Alumno alumno = usuario.getAlumno();
+        return alumno != null && buscarInscripcionConAcceso(material, alumno).isPresent();
+    }
+
+    /**
+     * Busca la inscripción con la que un alumno puede abrir un material.
+     */
+    @Override
+    public Optional<Inscripcion> buscarInscripcionConAcceso(Material material, Alumno alumno) {
+        if (!material.estaPublicado()) {
+            return Optional.empty();
+        }
+        return inscripcionServicio.buscarConAccesoAUnidad(alumno, material.getUnidad());
+    }
+
+    // ---------------------------------------------------------------- Creaciones
+
+    /**
+     * Guarda el material en la base de datos.
+     *
+     * @param entidad El registro a guardar.
+     * @return El registro guardado.
+     */
+    @Override
+    public Material guardar(Material entidad) {
+        return materialRepositorio.save(entidad);
+    }
+
+    /**
      * Sube un material a una unidad activa. Si el archivo no puede guardarse, no queda registrado el material.
      */
     @Override
@@ -199,7 +208,7 @@ public class MaterialServicioImpl implements MaterialServicio, CrudServicio<Mate
         boolean hayArchivo = archivo != null && !archivo.isEmpty();
         validarDatosSegunTipo(tipo, hayArchivo, enlaceLimpio, true);
         if (hayArchivo) {
-            ArchivoUtilidad.validar(archivo, tipo.getTamanioMaximo(), tipo.getExtensionesPermitidas());
+            ManejadorArchivosUtilidad.validar(archivo, tipo.getTamanioMaximo(), tipo.getExtensionesPermitidas());
         }
 
         Material material = new Material(participacion, tipo, unidad, tituloLimpio);
@@ -212,6 +221,19 @@ public class MaterialServicioImpl implements MaterialServicio, CrudServicio<Mate
             material = materialRepositorio.save(material);
         }
         return material;
+    }
+
+    // ---------------------------------------------------------------- Modificaciones
+
+    /**
+     * Modifica un registro existente.
+     *
+     * @param entidad El registro con los datos actualizados.
+     * @return El registro modificado.
+     */
+    @Override
+    public Material modificar(Material entidad) {
+        return materialRepositorio.save(entidad);
     }
 
     /**
@@ -235,18 +257,18 @@ public class MaterialServicioImpl implements MaterialServicio, CrudServicio<Mate
         boolean hayArchivo = archivo != null && !archivo.isEmpty();
         validarDatosSegunTipo(tipo, hayArchivo, enlaceLimpio, false);
         if (hayArchivo) {
-            ArchivoUtilidad.validar(archivo, tipo.getTamanioMaximo(), tipo.getExtensionesPermitidas());
+            ManejadorArchivosUtilidad.validar(archivo, tipo.getTamanioMaximo(), tipo.getExtensionesPermitidas());
         }
 
         String rutaAnterior = material.getRutaArchivo();
         if (hayArchivo) {
             String rutaNueva = guardarArchivo(material, archivo);
             if (rutaAnterior != null && !rutaAnterior.equals(rutaNueva)) {
-                ArchivoUtilidad.eliminar(rutaAnterior, directorioCursos); // cambió de formato: no queda el viejo
+                ManejadorArchivosUtilidad.eliminar(rutaAnterior, directorioCursos); // cambió de formato: no queda el viejo
             }
             material.setRutaArchivo(rutaNueva);
         } else if (enlaceLimpio != null) {
-            ArchivoUtilidad.eliminar(rutaAnterior, directorioCursos);
+            ManejadorArchivosUtilidad.eliminar(rutaAnterior, directorioCursos);
             material.setRutaArchivo(enlaceLimpio);
         }
         material.setTitulo(tituloLimpio);
@@ -254,6 +276,19 @@ public class MaterialServicioImpl implements MaterialServicio, CrudServicio<Mate
         material.setOculto(oculto);
         material.setUltimaModificacion(LocalDateTime.now());
         return materialRepositorio.save(material);
+    }
+
+    // ---------------------------------------------------------------- Bajas
+
+    /**
+     * Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos.
+     *
+     * @param entidad El registro a borrar.
+     */
+    @Override
+    public void borrar(Material entidad) {
+        entidad.marcarInactivo(); // Baja lógica
+        materialRepositorio.save(entidad);
     }
 
     /**
@@ -350,7 +385,7 @@ public class MaterialServicioImpl implements MaterialServicio, CrudServicio<Mate
             if (enlace.length() > 500) {
                 throw new IllegalArgumentException("Error! El enlace no puede superar los 500 caracteres.");
             }
-            if (!ArchivoUtilidad.esEnlaceExterno(enlace)) {
+            if (!ManejadorArchivosUtilidad.esEnlaceExterno(enlace)) {
                 throw new IllegalArgumentException("Error! El enlace debe comenzar con http:// o https://.");
             }
         }
@@ -370,41 +405,14 @@ public class MaterialServicioImpl implements MaterialServicio, CrudServicio<Mate
      */
     private String guardarArchivo(Material material, MultipartFile archivo) {
         TipoMaterial tipo = material.getTipoMaterial();
-        Path carpeta = ArchivoUtilidad.carpetaDeUnidad(directorioCursos, material.getCurso().getIdCurso(),
+        Path carpeta = ManejadorArchivosUtilidad.carpetaDeUnidad(directorioCursos, material.getCurso().getIdCurso(),
                 material.getUnidad().getIdUnidad());
-        String nombre = ArchivoUtilidad.guardar(archivo, carpeta, "material" + material.getIdMaterial(),
+        String nombre = ManejadorArchivosUtilidad.guardar(archivo, carpeta, "material" + material.getIdMaterial(),
                 tipo.getTamanioMaximo(), tipo.getExtensionesPermitidas());
-        return ArchivoUtilidad.rutaRelativa(directorioCursos, carpeta.resolve(nombre));
+        return ManejadorArchivosUtilidad.rutaRelativa(directorioCursos, carpeta.resolve(nombre));
     }
 
     private String vacioANulo(String texto) {
         return texto == null || texto.isBlank() ? null : texto.trim();
-    }
-
-    /**
-     * Indica si un usuario puede abrir el archivo o enlace de un material.
-     */
-    @Override
-    public boolean puedeAcceder(Material material, Usuario usuario) {
-        if (usuario.esAdministradorActivo()) {
-            return true;
-        }
-        Docente docente = usuario.getDocente();
-        if (docente != null && participaEnElCurso(material.getCurso(), docente)) {
-            return true;
-        }
-        Alumno alumno = usuario.getAlumno();
-        return alumno != null && buscarInscripcionConAcceso(material, alumno).isPresent();
-    }
-
-    /**
-     * Busca la inscripción con la que un alumno puede abrir un material.
-     */
-    @Override
-    public Optional<Inscripcion> buscarInscripcionConAcceso(Material material, Alumno alumno) {
-        if (!material.estaPublicado()) {
-            return Optional.empty();
-        }
-        return inscripcionServicio.buscarConAccesoAUnidad(alumno, material.getUnidad());
     }
 }

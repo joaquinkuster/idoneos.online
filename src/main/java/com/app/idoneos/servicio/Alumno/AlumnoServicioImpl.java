@@ -19,16 +19,7 @@ public class AlumnoServicioImpl implements AlumnoServicio, CrudServicio<Alumno> 
     @Autowired
     private AlumnoRepositorio alumnoRepositorio;
 
-    /**
-     * Guarda el alumno en la base de datos.
-     *
-     * @param entidad El registro a guardar.
-     * @return El registro guardado.
-     */
-    @Override
-    public Alumno guardar(Alumno entidad) {
-        return alumnoRepositorio.save(entidad);
-    }
+    // ---------------------------------------------------------------- Lecturas
 
     /**
      * Busca el alumno por su identificador. Devuelve el registro si existe.
@@ -52,27 +43,6 @@ public class AlumnoServicioImpl implements AlumnoServicio, CrudServicio<Alumno> 
     }
 
     /**
-     * Modifica un registro existente.
-     *
-     * @param entidad El registro con los datos actualizados.
-     * @return El registro modificado.
-     */
-    @Override
-    public Alumno modificar(Alumno entidad) {
-        return alumnoRepositorio.save(entidad);
-    }
-
-    /**
-     * Elimina el registro de la base de datos. Esta entidad no tiene baja lógica.
-     *
-     * @param entidad El registro a borrar.
-     */
-    @Override
-    public void borrar(Alumno entidad) {
-        alumnoRepositorio.delete(entidad);
-    }
-
-    /**
      * Verifica si existe un registro con el identificador dado.
      *
      * @param id El identificador del registro.
@@ -92,5 +62,43 @@ public class AlumnoServicioImpl implements AlumnoServicio, CrudServicio<Alumno> 
     @Override
     public Optional<Alumno> buscarPorUsuario(Usuario usuario) {
         return alumnoRepositorio.findByUsuario(usuario);
+    }
+
+    // ---------------------------------------------------------------- Creaciones
+
+    /**
+     * Guarda el alumno en la base de datos.
+     *
+     * @param entidad El registro a guardar.
+     * @return El registro guardado.
+     */
+    @Override
+    public Alumno guardar(Alumno entidad) {
+        return alumnoRepositorio.save(entidad);
+    }
+
+    // ---------------------------------------------------------------- Modificaciones
+
+    /**
+     * Modifica un registro existente.
+     *
+     * @param entidad El registro con los datos actualizados.
+     * @return El registro modificado.
+     */
+    @Override
+    public Alumno modificar(Alumno entidad) {
+        return alumnoRepositorio.save(entidad);
+    }
+
+    // ---------------------------------------------------------------- Bajas
+
+    /**
+     * Elimina el registro de la base de datos. Esta entidad no tiene baja lógica.
+     *
+     * @param entidad El registro a borrar.
+     */
+    @Override
+    public void borrar(Alumno entidad) {
+        alumnoRepositorio.delete(entidad);
     }
 }

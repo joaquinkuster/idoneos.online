@@ -11,6 +11,8 @@ import com.app.idoneos.modelo.TipoReporte;
  */
 public interface ReporteServicio {
 
+    // ---------------------------------------------------------------- Lecturas
+
     /**
      * Busca los registros de reporte asociados a administrador.
      *

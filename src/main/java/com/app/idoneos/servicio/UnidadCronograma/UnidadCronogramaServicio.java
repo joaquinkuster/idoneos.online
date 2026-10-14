@@ -12,6 +12,8 @@ import com.app.idoneos.modelo.UnidadCronograma;
  */
 public interface UnidadCronogramaServicio {
 
+    // ---------------------------------------------------------------- Lecturas
+
     /**
      * Busca los registros vigentes de unidadCronograma asociados a programa.
      *
@@ -36,6 +38,8 @@ public interface UnidadCronogramaServicio {
      * @return un {@link Optional} con el registro si existe, o vacío si no se encuentra
      */
     Optional<UnidadCronograma> buscarPorProgramaYUnidad(Programa programa, Unidad unidad);
+
+    // ---------------------------------------------------------------- Modificaciones
 
     /**
      * CU-24: Modifica el cronograma de un programa: define qué unidades lo componen, en qué orden y con cuántas semanas

@@ -10,6 +10,8 @@ import com.app.idoneos.modelo.Usuario;
  */
 public interface AuditoriaServicio {
 
+    // ---------------------------------------------------------------- Lecturas
+
     /**
      * Busca los registros de auditoria asociados a tipoAccionAuditoria.
      *

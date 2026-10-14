@@ -19,16 +19,7 @@ public class OpcionRespuestaServicioImpl implements OpcionRespuestaServicio, Cru
     @Autowired
     private OpcionRespuestaRepositorio opcionRespuestaRepositorio;
 
-    /**
-     * Guarda la opción de respuesta en la base de datos.
-     *
-     * @param entidad El registro a guardar.
-     * @return El registro guardado.
-     */
-    @Override
-    public OpcionRespuesta guardar(OpcionRespuesta entidad) {
-        return opcionRespuestaRepositorio.save(entidad);
-    }
+    // ---------------------------------------------------------------- Lecturas
 
     /**
      * Busca la opción de respuesta por su identificador. Solo devuelve registros activos (no dados de baja).
@@ -53,28 +44,6 @@ public class OpcionRespuestaServicioImpl implements OpcionRespuestaServicio, Cru
     }
 
     /**
-     * Modifica un registro existente.
-     *
-     * @param entidad El registro con los datos actualizados.
-     * @return El registro modificado.
-     */
-    @Override
-    public OpcionRespuesta modificar(OpcionRespuesta entidad) {
-        return opcionRespuestaRepositorio.save(entidad);
-    }
-
-    /**
-     * Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos.
-     *
-     * @param entidad El registro a borrar.
-     */
-    @Override
-    public void borrar(OpcionRespuesta entidad) {
-        entidad.marcarInactivo(); // Baja lógica
-        opcionRespuestaRepositorio.save(entidad);
-    }
-
-    /**
      * Verifica si existe un registro con el identificador dado y está activo.
      *
      * @param id El identificador del registro.
@@ -95,5 +64,44 @@ public class OpcionRespuestaServicioImpl implements OpcionRespuestaServicio, Cru
     @Override
     public List<OpcionRespuesta> buscarPorPregunta(Pregunta pregunta) {
         return opcionRespuestaRepositorio.findByPreguntaAndBajaFalse(pregunta);
+    }
+
+    // ---------------------------------------------------------------- Creaciones
+
+    /**
+     * Guarda la opción de respuesta en la base de datos.
+     *
+     * @param entidad El registro a guardar.
+     * @return El registro guardado.
+     */
+    @Override
+    public OpcionRespuesta guardar(OpcionRespuesta entidad) {
+        return opcionRespuestaRepositorio.save(entidad);
+    }
+
+    // ---------------------------------------------------------------- Modificaciones
+
+    /**
+     * Modifica un registro existente.
+     *
+     * @param entidad El registro con los datos actualizados.
+     * @return El registro modificado.
+     */
+    @Override
+    public OpcionRespuesta modificar(OpcionRespuesta entidad) {
+        return opcionRespuestaRepositorio.save(entidad);
+    }
+
+    // ---------------------------------------------------------------- Bajas
+
+    /**
+     * Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos.
+     *
+     * @param entidad El registro a borrar.
+     */
+    @Override
+    public void borrar(OpcionRespuesta entidad) {
+        entidad.marcarInactivo(); // Baja lógica
+        opcionRespuestaRepositorio.save(entidad);
     }
 }

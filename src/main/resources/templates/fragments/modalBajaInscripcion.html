@@ -1,5 +1,5 @@
 <!-- Ventana de baja de una inscripción (CU-49), la misma para el alumno y el administrador: confirmación, motivo
-     opcional y aviso de que no hay reembolso.
+     opcional y aviso de lo que implica la baja.
      id: id de la ventana; pregunta: texto de la confirmación; idInscripcion: inscripción que se da de baja. -->
 <div th:fragment="bloque(id, pregunta, idInscripcion)" class="modal fade pn-modal" th:id="${id}" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -14,9 +14,8 @@
                     <h4 class="pn-modal-titulo mb-2" th:text="${pregunta}">¿Confirmas dar de baja la inscripción?</h4>
                 </div>
                 <div class="pn-aviso pn-aviso-dorado">
-                    <i class="fa-solid fa-circle-info me-1"></i> La baja <strong>no genera reembolso</strong> del pago realizado. Se dan de baja el
-                    certificado y los intentos de autoevaluación, se revoca el acceso al contenido y las consultas en los foros del curso
-                    se conservan de forma anónima.
+                    <i class="fa-solid fa-circle-info me-1"></i> Se dan de baja el certificado y los intentos de autoevaluación, se revoca el acceso
+                    al contenido y las consultas en los foros del curso se conservan de forma anónima.
                 </div>
                 <form th:action="@{'/inscripcion/darDeBaja/' + ${idInscripcion}}" method="post" class="form-ajax" data-validar novalidate>
                     <div class="pn-campo mb-3">

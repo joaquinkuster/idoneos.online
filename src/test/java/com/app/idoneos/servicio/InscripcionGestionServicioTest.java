@@ -229,17 +229,29 @@ class InscripcionGestionServicioTest {
     }
 
     @Test
-    @DisplayName("CU-47: modifica observaciones, habilitación y vencimiento de una inscripción activa")
+    @DisplayName("CU-47: modifica observaciones y vencimiento de una inscripción activa")
     void modificarInscripcion() {
-        Inscripcion pendiente = inscripcion(LUCIA, Inscripcion.ACCESO_PENDIENTE_DE_PAGO);
+        Inscripcion vigente = inscripcion(VALENTINA, Inscripcion.ACCESO_VIGENTE);
         LocalDate vencimiento = LocalDate.now().plusMonths(8);
 
-        inscripcionServicio.modificarInscripcion(pendiente.getIdInscripcion(), "  Extensión de cortesía ", true, vencimiento);
+        inscripcionServicio.modificarInscripcion(vigente.getIdInscripcion(), "  Extensión de cortesía ", true, vencimiento);
 
-        assertEquals("Extensión de cortesía", pendiente.getObservaciones());
-        assertEquals(vencimiento, pendiente.getFechaVencimientoAcceso().toLocalDate());
-        assertEquals(Inscripcion.ACCESO_VIGENTE, pendiente.getEstadoAcceso());
-        assertNotNull(pendiente.getUltimaModificacion());
+        assertEquals("Extensión de cortesía", vigente.getObservaciones());
+        assertEquals(vencimiento, vigente.getFechaVencimientoAcceso().toLocalDate());
+        assertEquals(Inscripcion.ACCESO_VIGENTE, vigente.getEstadoAcceso());
+        assertNotNull(vigente.getUltimaModificacion());
+    }
+
+    @Test
+    @DisplayName("CU-47: no se habilita a mano una inscripción de un curso con costo sin pagos aprobados que cubran el precio")
+    void noHabilitaSinPagoAprobado() {
+        Inscripcion pendiente = inscripcion(LUCIA, Inscripcion.ACCESO_PENDIENTE_DE_PAGO);
+
+        IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
+                () -> inscripcionServicio.modificarInscripcion(pendiente.getIdInscripcion(), null, true, null));
+
+        assertTrue(error.getMessage().contains("pago aprobado"), error.getMessage());
+        assertEquals(Inscripcion.ACCESO_PENDIENTE_DE_PAGO, pendiente.getEstadoAcceso());
     }
 
     @Test

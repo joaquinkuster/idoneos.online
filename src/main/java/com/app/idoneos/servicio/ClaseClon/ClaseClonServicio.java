@@ -11,6 +11,8 @@ import com.app.idoneos.modelo.ParticipacionDocente;
  */
 public interface ClaseClonServicio {
 
+    // ---------------------------------------------------------------- Lecturas
+
     /**
      * Busca los registros vigentes de claseClon asociados a participacionDocente.
      *

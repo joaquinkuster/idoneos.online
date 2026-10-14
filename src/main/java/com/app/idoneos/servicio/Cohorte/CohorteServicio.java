@@ -11,6 +11,8 @@ import com.app.idoneos.modelo.Programa;
  */
 public interface CohorteServicio {
 
+    // ---------------------------------------------------------------- Lecturas
+
     /**
      * Busca los registros vigentes de cohorte asociados a programa.
      *
@@ -35,6 +37,8 @@ public interface CohorteServicio {
     List<Cohorte> buscarConFiltros(Integer idPrograma, String texto, String estado, LocalDate desde, LocalDate hasta,
             String orden, Docente soloDeDocente);
 
+    // ---------------------------------------------------------------- Creaciones
+
     /**
      * Registra una cohorte para un programa activo.
      *
@@ -50,6 +54,8 @@ public interface CohorteServicio {
      */
     Cohorte registrarCohorte(Integer idPrograma, LocalDate fechaInicioInscripcion, LocalDate fechaFinInscripcion,
             LocalDate fechaInicioDictado, LocalDate fechaFinDictado, Integer semanasAcceso, Integer cupoMaximo);
+
+    // ---------------------------------------------------------------- Modificaciones
 
     /**
      * Modifica una cohorte activa sin inscripciones activas asociadas.
@@ -68,15 +74,6 @@ public interface CohorteServicio {
             LocalDate fechaInicioDictado, LocalDate fechaFinDictado, Integer semanasAcceso, Integer cupoMaximo);
 
     /**
-     * Da de baja una cohorte activa que no tenga inscripciones ni clases en vivo activas, y la desvincula
-     * de los docentes que la tienen asignada por defecto.
-     *
-     * @param idCohorte el identificador de la cohorte
-     * @throws IllegalArgumentException si la cohorte no está activa o tiene inscripciones o clases en vivo activas
-     */
-    void darDeBajaCohorte(Integer idCohorte);
-
-    /**
      * Cambia el contexto de trabajo de un docente: establece la cohorte (y su programa) como la de trabajo
      * por defecto en el curso al que pertenece.
      *
@@ -85,6 +82,17 @@ public interface CohorteServicio {
      * @throws IllegalArgumentException si el docente no participa en el curso de la cohorte
      */
     void cambiarContextoDeTrabajo(Cohorte cohorte, Docente docente);
+
+    // ---------------------------------------------------------------- Bajas
+
+    /**
+     * Da de baja una cohorte activa que no tenga inscripciones ni clases en vivo activas, y la desvincula
+     * de los docentes que la tienen asignada por defecto.
+     *
+     * @param idCohorte el identificador de la cohorte
+     * @throws IllegalArgumentException si la cohorte no está activa o tiene inscripciones o clases en vivo activas
+     */
+    void darDeBajaCohorte(Integer idCohorte);
 
     /**
      * Da de baja varios registros a la vez, todos o ninguno: si alguno no puede darse de baja, no se da de baja ninguno.

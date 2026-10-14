@@ -21,16 +21,7 @@ public class ClaseClonServicioImpl implements ClaseClonServicio, CrudServicio<Cl
     @Autowired
     private ClaseClonRepositorio claseClonRepositorio;
 
-    /**
-     * Guarda la clase con clon en la base de datos.
-     *
-     * @param entidad El registro a guardar.
-     * @return El registro guardado.
-     */
-    @Override
-    public ClaseClon guardar(ClaseClon entidad) {
-        return claseClonRepositorio.save(entidad);
-    }
+    // ---------------------------------------------------------------- Lecturas
 
     /**
      * Busca la clase con clon por su identificador. Solo devuelve registros activos (no dados de baja).
@@ -52,28 +43,6 @@ public class ClaseClonServicioImpl implements ClaseClonServicio, CrudServicio<Cl
     @Override
     public List<ClaseClon> obtenerTodo() {
         return claseClonRepositorio.findByBajaFalse();
-    }
-
-    /**
-     * Modifica un registro existente.
-     *
-     * @param entidad El registro con los datos actualizados.
-     * @return El registro modificado.
-     */
-    @Override
-    public ClaseClon modificar(ClaseClon entidad) {
-        return claseClonRepositorio.save(entidad);
-    }
-
-    /**
-     * Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos.
-     *
-     * @param entidad El registro a borrar.
-     */
-    @Override
-    public void borrar(ClaseClon entidad) {
-        entidad.marcarInactivo(); // Baja lógica
-        claseClonRepositorio.save(entidad);
     }
 
     /**
@@ -119,5 +88,44 @@ public class ClaseClonServicioImpl implements ClaseClonServicio, CrudServicio<Cl
     @Override
     public List<ClaseClon> buscarPorMaterial(Material material) {
         return claseClonRepositorio.findByMaterialAndBajaFalse(material);
+    }
+
+    // ---------------------------------------------------------------- Creaciones
+
+    /**
+     * Guarda la clase con clon en la base de datos.
+     *
+     * @param entidad El registro a guardar.
+     * @return El registro guardado.
+     */
+    @Override
+    public ClaseClon guardar(ClaseClon entidad) {
+        return claseClonRepositorio.save(entidad);
+    }
+
+    // ---------------------------------------------------------------- Modificaciones
+
+    /**
+     * Modifica un registro existente.
+     *
+     * @param entidad El registro con los datos actualizados.
+     * @return El registro modificado.
+     */
+    @Override
+    public ClaseClon modificar(ClaseClon entidad) {
+        return claseClonRepositorio.save(entidad);
+    }
+
+    // ---------------------------------------------------------------- Bajas
+
+    /**
+     * Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos.
+     *
+     * @param entidad El registro a borrar.
+     */
+    @Override
+    public void borrar(ClaseClon entidad) {
+        entidad.marcarInactivo(); // Baja lógica
+        claseClonRepositorio.save(entidad);
     }
 }

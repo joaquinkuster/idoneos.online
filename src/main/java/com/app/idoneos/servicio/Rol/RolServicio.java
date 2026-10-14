@@ -8,6 +8,8 @@ import com.app.idoneos.modelo.Rol;
  */
 public interface RolServicio {
 
+    // ---------------------------------------------------------------- Lecturas
+
     /**
      * Busca el rol por su atributo único 'nombre'. Incluye los registros dados de baja, para poder reactivarlos en lugar de duplicarlos.
      *

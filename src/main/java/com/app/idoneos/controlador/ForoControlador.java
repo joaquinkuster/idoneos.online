@@ -31,7 +31,7 @@ import com.app.idoneos.servicio.ConsultaForo.ConsultaForoServicioImpl;
 import com.app.idoneos.servicio.Parametro.ParametroServicio;
 import com.app.idoneos.servicio.RespuestaForo.RespuestaForoServicio;
 import com.app.idoneos.servicio.Unidad.UnidadServicioImpl;
-import com.app.idoneos.utilidades.RespuestaUtilidad;
+import com.app.idoneos.utilidades.RespuestaJsonUtilidad;
 
 /**
  * Controlador del foro de consultas (MOD-F-02): CU-35 Buscar consulta de foro (GET /foro/buscar, GET /foro/ver/{unidadId}),
@@ -59,6 +59,8 @@ public class ForoControlador extends PanelCursoControlador {
 
     @Autowired
     private ParametroServicio parametroServicio;
+
+    // ---------------------------------------------------------------- Lecturas
 
     /**
      * Lista los foros de un curso, uno por unidad del programa, cada uno con su cantidad de consultas, las que están
@@ -157,6 +159,128 @@ public class ForoControlador extends PanelCursoControlador {
         return "pages/foro/consulta";
     }
 
+    // ---------------------------------------------------------------- Creaciones
+
+    /**
+     * CU-36: Registra una consulta en el foro de una unidad. Responde en JSON.
+     *
+     * @param unidadId Identificador de la unidad.
+     * @param texto    El texto de la consulta.
+     * @param auth     La autenticación actual.
+     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
+     */
+    @PostMapping("/registrar")
+    public ResponseEntity<Map<String, String>> registrarConsulta(
+            @RequestParam(value = "unidadId", required = false) Integer unidadId,
+            @RequestParam(value = "texto", required = false) String texto, Authentication auth) {
+        try {
+            Usuario usuario = (Usuario) auth.getPrincipal();
+            consultaServicio.registrarConsulta(usuario.getAlumno(), unidadId, texto);
+            return RespuestaJsonUtilidad.respuestaExitosa("Consulta registrada con éxito.");
+        } catch (Exception e) {
+            return RespuestaJsonUtilidad.respuestaConError(e);
+        }
+    }
+
+    /**
+     * CU-40: Registra la respuesta de un docente a una consulta. Responde en JSON.
+     *
+     * @param consultaId Identificador de la consulta.
+     * @param texto      El texto de la respuesta.
+     * @param auth       La autenticación actual.
+     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
+     */
+    @PostMapping("/responder")
+    public ResponseEntity<Map<String, String>> responder(
+            @RequestParam(value = "consultaId", required = false) Integer consultaId,
+            @RequestParam(value = "texto", required = false) String texto, Authentication auth) {
+        try {
+            Usuario usuario = (Usuario) auth.getPrincipal();
+            respuestaServicio.registrarRespuesta(usuario.getDocente(), consultaId, texto);
+            return RespuestaJsonUtilidad.respuestaExitosa("Respuesta registrada con éxito.");
+        } catch (Exception e) {
+            return RespuestaJsonUtilidad.respuestaConError(e);
+        }
+    }
+
+    // ---------------------------------------------------------------- Modificaciones
+
+    /**
+     * CU-37: Modifica una consulta propia, dentro del plazo de edición. Responde en JSON.
+     *
+     * @param id    Identificador de la consulta.
+     * @param texto El texto nuevo.
+     * @param auth  La autenticación actual.
+     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
+     */
+    @PostMapping("/modificar/{id}")
+    public ResponseEntity<Map<String, String>> modificarConsulta(@PathVariable("id") Integer id,
+            @RequestParam(value = "texto", required = false) String texto, Authentication auth) {
+        try {
+            Usuario usuario = (Usuario) auth.getPrincipal();
+            consultaServicio.modificarConsulta(id, usuario.getAlumno(), texto);
+            return RespuestaJsonUtilidad.respuestaExitosa("Consulta modificada correctamente.");
+        } catch (Exception e) {
+            return RespuestaJsonUtilidad.respuestaConError(e);
+        }
+    }
+
+    /**
+     * CU-41: Modifica una respuesta propia, dentro del plazo de edición. Responde en JSON.
+     *
+     * @param id    Identificador de la respuesta.
+     * @param texto El texto nuevo.
+     * @param auth  La autenticación actual.
+     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
+     */
+    @PostMapping("/modificarRespuesta/{id}")
+    public ResponseEntity<Map<String, String>> modificarRespuesta(@PathVariable("id") Integer id,
+            @RequestParam(value = "texto", required = false) String texto, Authentication auth) {
+        try {
+            Usuario usuario = (Usuario) auth.getPrincipal();
+            respuestaServicio.modificarRespuesta(id, usuario.getDocente(), texto);
+            return RespuestaJsonUtilidad.respuestaExitosa("Respuesta modificada correctamente.");
+        } catch (Exception e) {
+            return RespuestaJsonUtilidad.respuestaConError(e);
+        }
+    }
+
+    // ---------------------------------------------------------------- Bajas
+
+    /**
+     * CU-38: Da de baja una consulta y sus respuestas (administrador). Responde en JSON.
+     *
+     * @param id Identificador de la consulta.
+     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
+     */
+    @PostMapping("/darDeBaja/{id}")
+    public ResponseEntity<Map<String, String>> darDeBajaConsulta(@PathVariable("id") Integer id) {
+        try {
+            Integer unidadId = consultaServicio.buscarPorId(id).map(c -> c.getUnidad().getIdUnidad()).orElse(null);
+            consultaServicio.darDeBajaConsulta(id);
+            // Después de la baja se vuelve al foro: la consulta dada de baja ya no tiene página propia
+            return RespuestaJsonUtilidad.respuestaExitosa("Consulta dada de baja con éxito.", "/foro/ver/" + unidadId);
+        } catch (Exception e) {
+            return RespuestaJsonUtilidad.respuestaConError(e);
+        }
+    }
+
+    /**
+     * CU-42: Da de baja una respuesta (administrador). Responde en JSON.
+     *
+     * @param id Identificador de la respuesta.
+     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
+     */
+    @PostMapping("/darDeBajaRespuesta/{id}")
+    public ResponseEntity<Map<String, String>> darDeBajaRespuesta(@PathVariable("id") Integer id) {
+        try {
+            respuestaServicio.darDeBajaRespuesta(id);
+            return RespuestaJsonUtilidad.respuestaExitosa("Respuesta dada de baja con éxito.");
+        } catch (Exception e) {
+            return RespuestaJsonUtilidad.respuestaConError(e);
+        }
+    }
+
     /**
      * Carga en el modelo lo que comparten las vistas del foro: la unidad, el curso, el rol de quien mira, el plazo de
      * edición y los enlaces del menú. Verifica que el usuario pueda ver el foro de la unidad.
@@ -181,122 +305,5 @@ public class ForoControlador extends PanelCursoControlador {
         modelo.addAttribute("docenteActual", esDocente ? usuario.getDocente() : null);
         modelo.addAttribute("plazoEdicion", parametroServicio.obtenerEntero(Parametro.PLAZO_EDICION_FORO,
                 Parametro.PLAZO_EDICION_FORO_POR_DEFECTO));
-    }
-
-    /**
-     * CU-36: Registra una consulta en el foro de una unidad. Responde en JSON.
-     *
-     * @param unidadId Identificador de la unidad.
-     * @param texto    El texto de la consulta.
-     * @param auth     La autenticación actual.
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
-    @PostMapping("/registrar")
-    public ResponseEntity<Map<String, String>> registrarConsulta(
-            @RequestParam(value = "unidadId", required = false) Integer unidadId,
-            @RequestParam(value = "texto", required = false) String texto, Authentication auth) {
-        try {
-            Usuario usuario = (Usuario) auth.getPrincipal();
-            consultaServicio.registrarConsulta(usuario.getAlumno(), unidadId, texto);
-            return RespuestaUtilidad.respuestaExitosa("Consulta registrada con éxito.");
-        } catch (Exception e) {
-            return RespuestaUtilidad.respuestaConError(e);
-        }
-    }
-
-    /**
-     * CU-37: Modifica una consulta propia, dentro del plazo de edición. Responde en JSON.
-     *
-     * @param id    Identificador de la consulta.
-     * @param texto El texto nuevo.
-     * @param auth  La autenticación actual.
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
-    @PostMapping("/modificar/{id}")
-    public ResponseEntity<Map<String, String>> modificarConsulta(@PathVariable("id") Integer id,
-            @RequestParam(value = "texto", required = false) String texto, Authentication auth) {
-        try {
-            Usuario usuario = (Usuario) auth.getPrincipal();
-            consultaServicio.modificarConsulta(id, usuario.getAlumno(), texto);
-            return RespuestaUtilidad.respuestaExitosa("Consulta modificada correctamente.");
-        } catch (Exception e) {
-            return RespuestaUtilidad.respuestaConError(e);
-        }
-    }
-
-    /**
-     * CU-38: Da de baja una consulta y sus respuestas (administrador). Responde en JSON.
-     *
-     * @param id Identificador de la consulta.
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
-    @PostMapping("/darDeBaja/{id}")
-    public ResponseEntity<Map<String, String>> darDeBajaConsulta(@PathVariable("id") Integer id) {
-        try {
-            Integer unidadId = consultaServicio.buscarPorId(id).map(c -> c.getUnidad().getIdUnidad()).orElse(null);
-            consultaServicio.darDeBajaConsulta(id);
-            // Después de la baja se vuelve al foro: la consulta dada de baja ya no tiene página propia
-            return ResponseEntity.ok(Map.of("mensaje", "Consulta dada de baja con éxito.", "destino",
-                    "/foro/ver/" + unidadId));
-        } catch (Exception e) {
-            return RespuestaUtilidad.respuestaConError(e);
-        }
-    }
-
-    /**
-     * CU-40: Registra la respuesta de un docente a una consulta. Responde en JSON.
-     *
-     * @param consultaId Identificador de la consulta.
-     * @param texto      El texto de la respuesta.
-     * @param auth       La autenticación actual.
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
-    @PostMapping("/responder")
-    public ResponseEntity<Map<String, String>> responder(
-            @RequestParam(value = "consultaId", required = false) Integer consultaId,
-            @RequestParam(value = "texto", required = false) String texto, Authentication auth) {
-        try {
-            Usuario usuario = (Usuario) auth.getPrincipal();
-            respuestaServicio.registrarRespuesta(usuario.getDocente(), consultaId, texto);
-            return RespuestaUtilidad.respuestaExitosa("Respuesta registrada con éxito.");
-        } catch (Exception e) {
-            return RespuestaUtilidad.respuestaConError(e);
-        }
-    }
-
-    /**
-     * CU-41: Modifica una respuesta propia, dentro del plazo de edición. Responde en JSON.
-     *
-     * @param id    Identificador de la respuesta.
-     * @param texto El texto nuevo.
-     * @param auth  La autenticación actual.
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
-    @PostMapping("/modificarRespuesta/{id}")
-    public ResponseEntity<Map<String, String>> modificarRespuesta(@PathVariable("id") Integer id,
-            @RequestParam(value = "texto", required = false) String texto, Authentication auth) {
-        try {
-            Usuario usuario = (Usuario) auth.getPrincipal();
-            respuestaServicio.modificarRespuesta(id, usuario.getDocente(), texto);
-            return RespuestaUtilidad.respuestaExitosa("Respuesta modificada correctamente.");
-        } catch (Exception e) {
-            return RespuestaUtilidad.respuestaConError(e);
-        }
-    }
-
-    /**
-     * CU-42: Da de baja una respuesta (administrador). Responde en JSON.
-     *
-     * @param id Identificador de la respuesta.
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
-    @PostMapping("/darDeBajaRespuesta/{id}")
-    public ResponseEntity<Map<String, String>> darDeBajaRespuesta(@PathVariable("id") Integer id) {
-        try {
-            respuestaServicio.darDeBajaRespuesta(id);
-            return RespuestaUtilidad.respuestaExitosa("Respuesta dada de baja con éxito.");
-        } catch (Exception e) {
-            return RespuestaUtilidad.respuestaConError(e);
-        }
     }
 }

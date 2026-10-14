@@ -10,6 +10,8 @@ import com.app.idoneos.modelo.Programa;
  */
 public interface ProgramaServicio {
 
+    // ---------------------------------------------------------------- Lecturas
+
     /**
      * Busca los registros vigentes de programa asociados a curso.
      *
@@ -28,6 +30,8 @@ public interface ProgramaServicio {
      * @return los programas que cumplen los criterios
      */
     List<Programa> buscarConFiltros(Curso curso, String nombre, String estado);
+
+    // ---------------------------------------------------------------- Creaciones
 
     /**
      * CU-16: Registra un programa para un curso. Pasa a ser el vigente del curso y el programa por defecto del docente
@@ -48,6 +52,8 @@ public interface ProgramaServicio {
     Programa registrarPrograma(Docente docente, Integer cursoId, Integer programaOrigenId, String nombre,
             String descripcion, String objetivos, Integer cargaHoraria, String bibliografia);
 
+    // ---------------------------------------------------------------- Modificaciones
+
     /**
      * CU-17: Modifica los datos de un programa que no tiene inscripciones activas.
      *
@@ -64,6 +70,18 @@ public interface ProgramaServicio {
      */
     Programa modificarPrograma(Integer id, Docente docente, String nombre, String descripcion, String objetivos,
             Integer cargaHoraria, String bibliografia);
+
+    /**
+     * Establece el programa por defecto del docente en el curso del programa (y deja sin definir su cohorte por
+     * defecto, que pasa a ser la más relevante del programa). Se guarda en su participación en el curso.
+     *
+     * @param docente    el docente
+     * @param programaId el identificador del programa
+     * @throws IllegalArgumentException si el programa no está activo o el docente no participa en el curso
+     */
+    void establecerPorDefecto(Docente docente, Integer programaId);
+
+    // ---------------------------------------------------------------- Bajas
 
     /**
      * CU-18: Da de baja un programa que no tiene cohortes activas (baja lógica).
@@ -84,14 +102,4 @@ public interface ProgramaServicio {
      * @throws IllegalArgumentException si no se seleccionó ningún programa o alguno no puede darse de baja
      */
     void darDeBajaVarios(List<Integer> ids, Docente docente);
-
-    /**
-     * Establece el programa por defecto del docente en el curso del programa (y deja sin definir su cohorte por
-     * defecto, que pasa a ser la más relevante del programa). Se guarda en su participación en el curso.
-     *
-     * @param docente    el docente
-     * @param programaId el identificador del programa
-     * @throws IllegalArgumentException si el programa no está activo o el docente no participa en el curso
-     */
-    void establecerPorDefecto(Docente docente, Integer programaId);
 }

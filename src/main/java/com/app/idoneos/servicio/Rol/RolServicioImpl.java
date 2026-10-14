@@ -18,16 +18,7 @@ public class RolServicioImpl implements RolServicio, CrudServicio<Rol> {
     @Autowired
     private RolRepositorio rolRepositorio;
 
-    /**
-     * Guarda el rol en la base de datos.
-     *
-     * @param entidad El registro a guardar.
-     * @return El registro guardado.
-     */
-    @Override
-    public Rol guardar(Rol entidad) {
-        return rolRepositorio.save(entidad);
-    }
+    // ---------------------------------------------------------------- Lecturas
 
     /**
      * Busca el rol por su identificador. Devuelve el registro si existe.
@@ -51,27 +42,6 @@ public class RolServicioImpl implements RolServicio, CrudServicio<Rol> {
     }
 
     /**
-     * Modifica un registro existente.
-     *
-     * @param entidad El registro con los datos actualizados.
-     * @return El registro modificado.
-     */
-    @Override
-    public Rol modificar(Rol entidad) {
-        return rolRepositorio.save(entidad);
-    }
-
-    /**
-     * Elimina el registro de la base de datos. Esta entidad no tiene baja lógica.
-     *
-     * @param entidad El registro a borrar.
-     */
-    @Override
-    public void borrar(Rol entidad) {
-        rolRepositorio.delete(entidad);
-    }
-
-    /**
      * Verifica si existe un registro con el identificador dado.
      *
      * @param id El identificador del registro.
@@ -91,5 +61,43 @@ public class RolServicioImpl implements RolServicio, CrudServicio<Rol> {
     @Override
     public Optional<Rol> buscarPorNombre(String nombre) {
         return rolRepositorio.findByNombre(nombre);
+    }
+
+    // ---------------------------------------------------------------- Creaciones
+
+    /**
+     * Guarda el rol en la base de datos.
+     *
+     * @param entidad El registro a guardar.
+     * @return El registro guardado.
+     */
+    @Override
+    public Rol guardar(Rol entidad) {
+        return rolRepositorio.save(entidad);
+    }
+
+    // ---------------------------------------------------------------- Modificaciones
+
+    /**
+     * Modifica un registro existente.
+     *
+     * @param entidad El registro con los datos actualizados.
+     * @return El registro modificado.
+     */
+    @Override
+    public Rol modificar(Rol entidad) {
+        return rolRepositorio.save(entidad);
+    }
+
+    // ---------------------------------------------------------------- Bajas
+
+    /**
+     * Elimina el registro de la base de datos. Esta entidad no tiene baja lógica.
+     *
+     * @param entidad El registro a borrar.
+     */
+    @Override
+    public void borrar(Rol entidad) {
+        rolRepositorio.delete(entidad);
     }
 }

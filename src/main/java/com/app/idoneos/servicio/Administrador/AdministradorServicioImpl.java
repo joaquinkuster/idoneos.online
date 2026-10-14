@@ -19,16 +19,7 @@ public class AdministradorServicioImpl implements AdministradorServicio, CrudSer
     @Autowired
     private AdministradorRepositorio administradorRepositorio;
 
-    /**
-     * Guarda el administrador en la base de datos.
-     *
-     * @param entidad El registro a guardar.
-     * @return El registro guardado.
-     */
-    @Override
-    public Administrador guardar(Administrador entidad) {
-        return administradorRepositorio.save(entidad);
-    }
+    // ---------------------------------------------------------------- Lecturas
 
     /**
      * Busca el administrador por su identificador. Devuelve el registro si existe.
@@ -52,27 +43,6 @@ public class AdministradorServicioImpl implements AdministradorServicio, CrudSer
     }
 
     /**
-     * Modifica un registro existente.
-     *
-     * @param entidad El registro con los datos actualizados.
-     * @return El registro modificado.
-     */
-    @Override
-    public Administrador modificar(Administrador entidad) {
-        return administradorRepositorio.save(entidad);
-    }
-
-    /**
-     * Elimina el registro de la base de datos. Esta entidad no tiene baja lógica.
-     *
-     * @param entidad El registro a borrar.
-     */
-    @Override
-    public void borrar(Administrador entidad) {
-        administradorRepositorio.delete(entidad);
-    }
-
-    /**
      * Verifica si existe un registro con el identificador dado.
      *
      * @param id El identificador del registro.
@@ -92,5 +62,43 @@ public class AdministradorServicioImpl implements AdministradorServicio, CrudSer
     @Override
     public Optional<Administrador> buscarPorUsuario(Usuario usuario) {
         return administradorRepositorio.findByUsuario(usuario);
+    }
+
+    // ---------------------------------------------------------------- Creaciones
+
+    /**
+     * Guarda el administrador en la base de datos.
+     *
+     * @param entidad El registro a guardar.
+     * @return El registro guardado.
+     */
+    @Override
+    public Administrador guardar(Administrador entidad) {
+        return administradorRepositorio.save(entidad);
+    }
+
+    // ---------------------------------------------------------------- Modificaciones
+
+    /**
+     * Modifica un registro existente.
+     *
+     * @param entidad El registro con los datos actualizados.
+     * @return El registro modificado.
+     */
+    @Override
+    public Administrador modificar(Administrador entidad) {
+        return administradorRepositorio.save(entidad);
+    }
+
+    // ---------------------------------------------------------------- Bajas
+
+    /**
+     * Elimina el registro de la base de datos. Esta entidad no tiene baja lógica.
+     *
+     * @param entidad El registro a borrar.
+     */
+    @Override
+    public void borrar(Administrador entidad) {
+        administradorRepositorio.delete(entidad);
     }
 }

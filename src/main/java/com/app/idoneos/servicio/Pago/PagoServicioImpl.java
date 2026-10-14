@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import com.app.idoneos.modelo.Alumno;
-import com.app.idoneos.modelo.Comprobante;
 import com.app.idoneos.modelo.Descuento;
 import com.app.idoneos.modelo.EstadoPago;
 import com.app.idoneos.modelo.Inscripcion;
@@ -16,14 +15,15 @@ import com.app.idoneos.modelo.MetodoPago;
 import com.app.idoneos.modelo.Pago;
 import com.app.idoneos.modelo.Parametro;
 import com.app.idoneos.modelo.Usuario;
-import com.app.idoneos.repositorio.ComprobanteRepositorio;
 import com.app.idoneos.repositorio.DescuentoRepositorio;
 import com.app.idoneos.repositorio.EstadoPagoRepositorio;
 import com.app.idoneos.repositorio.InscripcionRepositorio;
 import com.app.idoneos.repositorio.MetodoPagoRepositorio;
 import com.app.idoneos.repositorio.PagoRepositorio;
+import com.app.idoneos.servicio.Comprobante.ComprobanteServicio;
 import com.app.idoneos.servicio.CrudServicio;
 import com.app.idoneos.servicio.Parametro.ParametroServicio;
+import com.app.idoneos.servicio.PasarelaPago.PasarelaPagoServicio;
 import com.app.idoneos.utilidades.TextoUtilidad;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,24 +62,15 @@ public class PagoServicioImpl implements PagoServicio, CrudServicio<Pago> {
     private DescuentoRepositorio descuentoRepositorio;
 
     @Autowired
-    private ComprobanteRepositorio comprobanteRepositorio;
+    private ComprobanteServicio comprobanteServicio;
 
     @Autowired
     private ParametroServicio parametroServicio;
 
     @Autowired
-    private PasarelaPago pasarela;
+    private PasarelaPagoServicio pasarela;
 
-    /**
-     * Guarda el pago en la base de datos.
-     *
-     * @param entidad El registro a guardar.
-     * @return El registro guardado.
-     */
-    @Override
-    public Pago guardar(Pago entidad) {
-        return pagoRepositorio.save(entidad);
-    }
+    // ---------------------------------------------------------------- Lecturas
 
     /**
      * Busca el pago por su identificador. Devuelve el registro si existe.
@@ -100,27 +91,6 @@ public class PagoServicioImpl implements PagoServicio, CrudServicio<Pago> {
     @Override
     public List<Pago> obtenerTodo() {
         return pagoRepositorio.findAll();
-    }
-
-    /**
-     * Modifica un registro existente.
-     *
-     * @param entidad El registro con los datos actualizados.
-     * @return El registro modificado.
-     */
-    @Override
-    public Pago modificar(Pago entidad) {
-        return pagoRepositorio.save(entidad);
-    }
-
-    /**
-     * Elimina el registro de la base de datos. Esta entidad no tiene baja lógica.
-     *
-     * @param entidad El registro a borrar.
-     */
-    @Override
-    public void borrar(Pago entidad) {
-        pagoRepositorio.delete(entidad);
     }
 
     /**
@@ -211,10 +181,6 @@ public class PagoServicioImpl implements PagoServicio, CrudServicio<Pago> {
         return pagoRepositorio.findByIdSolicitudPago(idSolicitudPago);
     }
 
-    // ---------------------------------------------------------------------------------------------------------
-    // Pagos de las inscripciones (MOD-F-03: CU-50 a CU-54)
-    // ---------------------------------------------------------------------------------------------------------
-
     @Override
     public List<Pago> buscarConFiltros(Integer cursoId, String alumno, String estado, LocalDate desde, LocalDate hasta,
             Alumno soloDe) {
@@ -252,8 +218,75 @@ public class PagoServicioImpl implements PagoServicio, CrudServicio<Pago> {
     }
 
     @Override
+    public float calcularMontoRequerido(Inscripcion inscripcion) {
+        float precio = inscripcion.getCurso().getPrecio();
+        if (precio <= 0) {
+            return 0;
+        }
+        // Un pago que se hizo con descuento fija lo que había que pagar (el descuento puede agotarse después)
+        for (Pago pago : inscripcion.getPagos()) {
+            if (pago.estaAprobado() && pago.getDescuento() != null) {
+                return pago.getDescuento().aplicarA(precio);
+            }
+        }
+        return calcularMontoAPagar(inscripcion);
+    }
+
+    @Override
+    public float calcularMontoPendiente(Inscripcion inscripcion) {
+        return Math.max(0, calcularMontoRequerido(inscripcion) - inscripcion.getMontoPagado());
+    }
+
+    @Override
+    public boolean cubreElPrecio(Inscripcion inscripcion) {
+        if (inscripcion.getCurso().getPrecio() <= 0) {
+            return true;
+        }
+        return inscripcion.tienePagoAprobado()
+                && inscripcion.getMontoPagado() + 0.005f >= calcularMontoRequerido(inscripcion);
+    }
+
+    @Override
     @Transactional
-    public SolicitudDePago iniciarPago(Integer idInscripcion, Alumno alumno) {
+    public Pago consultarEstado(Integer idPago, Alumno alumno) {
+        Pago pago = buscarVisible(idPago, alumno);
+        conciliar(pago);
+        return pago;
+    }
+
+    @Override
+    public Pago buscarVisible(Integer idPago, Alumno alumno) {
+        Pago pago = pagoRepositorio.findById(idPago)
+                .orElseThrow(() -> new IllegalArgumentException("Error! El pago no se encuentra disponible."));
+        if (alumno != null && pago.getInscripcion().getAlumno().getIdAlumno() != alumno.getIdAlumno()) {
+            throw new IllegalArgumentException("Error! El pago no se encuentra disponible.");
+        }
+        return pago;
+    }
+
+    @Override
+    public int plazoConfirmacionMinutos() {
+        int minutos = parametroServicio.obtenerEntero(Parametro.PLAZO_CONFIRMACION_PAGO,
+                Parametro.PLAZO_CONFIRMACION_PAGO_POR_DEFECTO);
+        return Math.min(10, Math.max(5, minutos));
+    }
+
+    // ---------------------------------------------------------------- Creaciones
+
+    /**
+     * Guarda el pago en la base de datos.
+     *
+     * @param entidad El registro a guardar.
+     * @return El registro guardado.
+     */
+    @Override
+    public Pago guardar(Pago entidad) {
+        return pagoRepositorio.save(entidad);
+    }
+
+    @Override
+    @Transactional
+    public SolicitudPago iniciarPago(Integer idInscripcion, Alumno alumno) {
         Inscripcion inscripcion = inscripcionRepositorio.findById(idInscripcion).filter(i -> !i.esInactivo())
                 .orElseThrow(() -> new IllegalArgumentException("Error! La inscripción no se encuentra activa."));
         if (alumno == null || inscripcion.getAlumno().getIdAlumno() != alumno.getIdAlumno()) {
@@ -264,108 +297,67 @@ public class PagoServicioImpl implements PagoServicio, CrudServicio<Pago> {
 
     @Override
     @Transactional
-    public SolicitudDePago reintentarPago(Integer idPago, Alumno alumno) {
+    public Pago registrarPagoManual(Integer idInscripcion, Float monto, String referencia, String observaciones) {
+        Inscripcion inscripcion = inscripcionRepositorio.findById(idInscripcion).filter(i -> !i.esInactivo())
+                .orElseThrow(() -> new IllegalArgumentException("Error! La inscripción no se encuentra activa."));
+        if (inscripcion.estaHabilitada() && inscripcion.tienePagoAprobado()) {
+            throw new IllegalArgumentException("Error! El pago de esta inscripción ya está registrado.");
+        }
+        String referenciaLimpia = referencia == null ? "" : referencia.trim();
+        if (monto == null || referenciaLimpia.isEmpty()) {
+            throw new IllegalArgumentException("Error! Debe completar el monto y el comprobante de la transferencia.");
+        }
+        validarMontoYReferencia(monto, referenciaLimpia, null);
+        validarMontoNoSuperaLaDeuda(inscripcion, monto);
+        validarCupo(inscripcion);
+        String notas = observaciones == null || observaciones.isBlank() ? null : observaciones.trim();
+        if (notas != null && notas.length() > LONGITUD_OBSERVACIONES) {
+            throw new IllegalArgumentException(
+                    "Error! Las observaciones no pueden superar los " + LONGITUD_OBSERVACIONES + " caracteres.");
+        }
+        // Si había un pago sin aprobar (por ejemplo, uno de MODO que no se confirmó), se reutiliza su registro
+        Pago pago = inscripcion.getPagoSinAprobar();
+        if (pago == null) {
+            pago = new Pago(estado(EstadoPago.PENDIENTE), metodo(MetodoPago.TRANSFERENCIA), inscripcion,
+                    "IDN-" + UUID.randomUUID(), monto);
+        }
+        pago.setMetodoPago(metodo(MetodoPago.TRANSFERENCIA));
+        pago.setIdIntencionExterna("IDN-" + UUID.randomUUID());
+        pago.setMonto(monto);
+        pago.setDescuento(null);
+        limpiarResultado(pago);
+        pago.setCodigoReferencia(referenciaLimpia);
+        pago.setDetalleMetodoPago(notas != null ? "Transferencia al CBU de la institución · " + notas
+                : "Transferencia al CBU de la institución");
+        pago = pagoRepositorio.save(pago);
+        inscripcion.getPagos().add(pago);
+        Usuario usuario = inscripcion.getAlumno().getUsuario();
+        aprobar(pago, usuario.getNombreCompleto(), usuario.getDni());
+        return pago;
+    }
+
+    // ---------------------------------------------------------------- Modificaciones
+
+    /**
+     * Modifica un registro existente.
+     *
+     * @param entidad El registro con los datos actualizados.
+     * @return El registro modificado.
+     */
+    @Override
+    public Pago modificar(Pago entidad) {
+        return pagoRepositorio.save(entidad);
+    }
+
+    @Override
+    @Transactional
+    public SolicitudPago reintentarPago(Integer idPago, Alumno alumno) {
         Pago pago = buscarVisible(idPago, alumno);
         if (!pago.estaRechazado() || pago.getInscripcion().estaHabilitada() || pago.getInscripcion().esInactivo()) {
             throw new IllegalArgumentException(
                     "Error! El pago no se encuentra rechazado o su inscripción ya tiene el acceso habilitado.");
         }
         return iniciar(pago.getInscripcion());
-    }
-
-    /** Reglas comunes de CU-51 y CU-52: arma el pago de la inscripción y crea la solicitud en la plataforma. */
-    private SolicitudDePago iniciar(Inscripcion inscripcion) {
-        if (inscripcion.tienePagoAprobado()) {
-            throw new IllegalArgumentException("Error! El pago de esta inscripción ya está aprobado.");
-        }
-        if (inscripcion.estaHabilitada()) {
-            throw new IllegalArgumentException("Error! La inscripción no tiene un pago pendiente.");
-        }
-        LocalDateTime ahora = LocalDateTime.now();
-        if (inscripcion.getFechaVencimientoAcceso().isBefore(ahora)) {
-            throw new IllegalArgumentException("Error! El acceso de la inscripción venció: no se puede pagar.");
-        }
-        Pago existente = inscripcion.getPagoSinAprobar();
-        if (existente != null && existente.estaPendiente()) {
-            conciliar(existente);
-            if (existente.estaAprobado()) {
-                return new SolicitudDePago(existente.getIdPago(), existente.getIdSolicitudPago(), null, null,
-                        pasarela.esSimulada(), pasarela.scriptModal(), true);
-            }
-            if (existente.estaPendiente()) {
-                // Hay un pago en curso: se retoma su solicitud (MODO devuelve su QR) en lugar de crear otra
-                PasarelaPago.Resultado enCurso = pasarela.consultarPago(existente.getIdSolicitudPago());
-                if (enCurso.estado() == PasarelaPago.Estado.PENDIENTE && enCurso.solicitud() != null) {
-                    return new SolicitudDePago(existente.getIdPago(), existente.getIdSolicitudPago(),
-                            enCurso.solicitud().qr(), enCurso.solicitud().deeplink(), pasarela.esSimulada(),
-                            pasarela.scriptModal(), false);
-                }
-            }
-        }
-        // Un pago rechazado se reutiliza (CU-52); si no hay ninguno, se registra uno nuevo
-        Pago pago = existente != null && existente.estaRechazado() ? existente : null;
-
-        Descuento descuento = calcularDescuento(inscripcion).orElse(null);
-        float precio = inscripcion.getCurso().getPrecio();
-        float monto = descuento != null ? descuento.aplicarA(precio) : precio;
-        if (monto <= 0) {
-            return aprobarSinCosto(inscripcion, pago, descuento);
-        }
-        if (monto < pasarela.montoMinimo()) {
-            throw new IllegalArgumentException("Error! El monto a pagar ($" + FORMATO_MONTO.format(monto)
-                    + ") es menor al mínimo que admite el medio de pago ($" + FORMATO_MONTO.format(pasarela.montoMinimo())
-                    + ").");
-        }
-
-        String idExterno = "IDN-" + UUID.randomUUID();
-        if (pago == null) {
-            pago = new Pago(estado(EstadoPago.PENDIENTE), metodo(MetodoPago.MODO), inscripcion, idExterno, monto);
-        }
-        pago.setEstadoPago(estado(EstadoPago.PENDIENTE));
-        pago.setMetodoPago(metodo(MetodoPago.MODO));
-        pago.setIdIntencionExterna(idExterno);
-        pago.setMonto(monto);
-        pago.setDescuento(descuento);
-        limpiarResultado(pago);
-        pago.setUltimaModificacion(ahora);
-        pago = pagoRepositorio.save(pago);
-        inscripcion.getPagos().add(pago);
-
-        Usuario usuario = inscripcion.getAlumno().getUsuario();
-        PasarelaPago.Solicitud solicitud = pasarela.crearSolicitud(idExterno, monto,
-                "Curso: " + inscripcion.getCurso().getNombre(), usuario.getNombreCompleto(), usuario.getCorreo(),
-                usuario.getDni());
-        pago.setIdSolicitudPago(solicitud.id());
-        pagoRepositorio.save(pago);
-        return new SolicitudDePago(pago.getIdPago(), solicitud.id(), solicitud.qr(), solicitud.deeplink(),
-                pasarela.esSimulada(), pasarela.scriptModal(), false);
-    }
-
-    /** El descuento cubre todo el precio: no hay nada que cobrar y el pago se aprueba directamente. */
-    private SolicitudDePago aprobarSinCosto(Inscripcion inscripcion, Pago existente, Descuento descuento) {
-        Pago pago = existente;
-        if (pago == null) {
-            pago = new Pago(estado(EstadoPago.PENDIENTE), metodo(MetodoPago.SIN_COSTO), inscripcion,
-                    "IDN-" + UUID.randomUUID(), 0f);
-        }
-        pago.setMetodoPago(metodo(MetodoPago.SIN_COSTO));
-        pago.setIdIntencionExterna("IDN-" + UUID.randomUUID());
-        pago.setMonto(0f);
-        pago.setDescuento(descuento);
-        limpiarResultado(pago);
-        pago = pagoRepositorio.save(pago);
-        inscripcion.getPagos().add(pago);
-        Usuario usuario = inscripcion.getAlumno().getUsuario();
-        aprobar(pago, usuario.getNombreCompleto(), usuario.getDni());
-        return new SolicitudDePago(pago.getIdPago(), null, null, null, pasarela.esSimulada(), pasarela.scriptModal(), true);
-    }
-
-    @Override
-    @Transactional
-    public Pago consultarEstado(Integer idPago, Alumno alumno) {
-        Pago pago = buscarVisible(idPago, alumno);
-        conciliar(pago);
-        return pago;
     }
 
     @Override
@@ -408,132 +400,6 @@ public class PagoServicioImpl implements PagoServicio, CrudServicio<Pago> {
         }
     }
 
-    /**
-     * Resuelve un pago online pendiente: consulta a la plataforma y lo aprueba o rechaza según informe; si sigue
-     * pendiente y venció el plazo de confirmación, lo rechaza.
-     */
-    private void conciliar(Pago pago) {
-        if (!pago.estaPendiente() || !pago.esDeModo() || pago.getIdSolicitudPago() == null) {
-            return;
-        }
-        PasarelaPago.Resultado resultado = null;
-        try {
-            resultado = pasarela.consultarPago(pago.getIdSolicitudPago());
-        } catch (RuntimeException e) {
-            REGISTRO.warn("No se pudo consultar el pago {} en la plataforma: {}", pago.getIdPago(), e.getMessage());
-        }
-        if (resultado != null && resultado.estado() == PasarelaPago.Estado.APROBADO) {
-            aplicarDatosDeLaPlataforma(pago, resultado);
-            Usuario usuario = pago.getInscripcion().getAlumno().getUsuario();
-            aprobar(pago, resultado.nombrePagador() != null ? resultado.nombrePagador() : usuario.getNombreCompleto(),
-                    resultado.dniPagador() != null ? resultado.dniPagador() : usuario.getDni());
-            return;
-        }
-        if (resultado != null && resultado.estado() == PasarelaPago.Estado.RECHAZADO) {
-            aplicarDatosDeLaPlataforma(pago, resultado);
-            rechazar(pago, resultado.motivoError() != null ? resultado.motivoError() : "El pago fue rechazado.");
-            return;
-        }
-        LocalDateTime inicio = pago.getUltimaModificacion() != null ? pago.getUltimaModificacion() : pago.getFechaCreacion();
-        if (LocalDateTime.now().isAfter(inicio.plusMinutes(plazoConfirmacionMinutos()))) {
-            rechazar(pago, "El pago no se confirmó dentro del plazo de " + plazoConfirmacionMinutos() + " minutos.");
-        }
-    }
-
-    private void aplicarDatosDeLaPlataforma(Pago pago, PasarelaPago.Resultado resultado) {
-        pago.setDetalleMetodoPago(resultado.medioPago());
-        pago.setUltimosDigitosTarjeta(resultado.ultimosDigitos() == null ? null
-                : resultado.ultimosDigitos().substring(Math.max(0, resultado.ultimosDigitos().length() - 4)));
-        if (resultado.referencia() != null && pagoRepositorio.findByCodigoReferencia(resultado.referencia())
-                .filter(otro -> otro.getIdPago() != pago.getIdPago()).isEmpty()) {
-            pago.setCodigoReferencia(resultado.referencia().length() > 20 ? resultado.referencia().substring(0, 20)
-                    : resultado.referencia());
-        }
-    }
-
-    /** Aprueba el pago: registra la fecha, habilita el acceso de la inscripción, cuenta el uso del descuento y emite el comprobante. */
-    private void aprobar(Pago pago, String nombrePagador, String dniPagador) {
-        LocalDateTime ahora = LocalDateTime.now();
-        pago.setEstadoPago(estado(EstadoPago.APROBADO));
-        pago.setFechaAprobacion(ahora);
-        pago.setUltimaModificacion(ahora);
-        pago.setDetalleErrorOperacion(null);
-        Inscripcion inscripcion = pago.getInscripcion();
-        inscripcion.setHabilitado(true);
-        inscripcion.setUltimaModificacion(ahora);
-        inscripcionRepositorio.save(inscripcion);
-        Descuento descuento = pago.getDescuento();
-        if (descuento != null) {
-            // El uso del descuento se cuenta al aprobarse el pago (un pago rechazado no consume cupo)
-            descuento.setCantidadUsada(descuento.getCantidadUsada() + 1);
-            descuentoRepositorio.save(descuento);
-        }
-        pagoRepositorio.save(pago);
-        Comprobante comprobante = comprobanteRepositorio.save(new Comprobante(pago,
-                String.format("COMP-%d-%06d", ahora.getYear(), pago.getIdPago()), ahora, recortar(nombrePagador, 100),
-                recortar(dniPagador, 8)));
-        pago.getComprobantes().add(comprobante);
-        // El envío por correo electrónico es parte de MOD-NF-01: por ahora queda registrado y sin enviar
-        REGISTRO.info("[CORREO SIMULADO] Comprobante {} para {} (se enviará cuando esté el correo electrónico)",
-                comprobante.getNumero(), inscripcion.getAlumno().getUsuario().getCorreo());
-    }
-
-    private void rechazar(Pago pago, String motivo) {
-        pago.setEstadoPago(estado(EstadoPago.RECHAZADO));
-        pago.setDetalleErrorOperacion(motivo);
-        pago.setUltimaModificacion(LocalDateTime.now());
-        pagoRepositorio.save(pago);
-    }
-
-    /** Deja el pago sin los datos del intento anterior, para reutilizar su registro. */
-    private void limpiarResultado(Pago pago) {
-        pago.setIdSolicitudPago(null);
-        pago.setCodigoReferencia(null);
-        pago.setUltimosDigitosTarjeta(null);
-        pago.setDetalleMetodoPago(null);
-        pago.setDetalleErrorOperacion(null);
-        pago.setFechaAprobacion(null);
-    }
-
-    @Override
-    @Transactional
-    public Pago registrarPagoManual(Integer idInscripcion, Float monto, String referencia, String observaciones) {
-        Inscripcion inscripcion = inscripcionRepositorio.findById(idInscripcion).filter(i -> !i.esInactivo())
-                .orElseThrow(() -> new IllegalArgumentException("Error! La inscripción no se encuentra activa."));
-        if (inscripcion.tienePagoAprobado()) {
-            throw new IllegalArgumentException("Error! El pago de esta inscripción ya está registrado.");
-        }
-        String referenciaLimpia = referencia == null ? "" : referencia.trim();
-        if (monto == null || referenciaLimpia.isEmpty()) {
-            throw new IllegalArgumentException("Error! Debe completar el monto y el comprobante de la transferencia.");
-        }
-        validarMontoYReferencia(monto, referenciaLimpia, null);
-        String notas = observaciones == null || observaciones.isBlank() ? null : observaciones.trim();
-        if (notas != null && notas.length() > LONGITUD_OBSERVACIONES) {
-            throw new IllegalArgumentException(
-                    "Error! Las observaciones no pueden superar los " + LONGITUD_OBSERVACIONES + " caracteres.");
-        }
-        // Si había un pago sin aprobar (por ejemplo, uno de MODO que no se confirmó), se reutiliza su registro
-        Pago pago = inscripcion.getPagoSinAprobar();
-        if (pago == null) {
-            pago = new Pago(estado(EstadoPago.PENDIENTE), metodo(MetodoPago.TRANSFERENCIA), inscripcion,
-                    "IDN-" + UUID.randomUUID(), monto);
-        }
-        pago.setMetodoPago(metodo(MetodoPago.TRANSFERENCIA));
-        pago.setIdIntencionExterna("IDN-" + UUID.randomUUID());
-        pago.setMonto(monto);
-        pago.setDescuento(null);
-        limpiarResultado(pago);
-        pago.setCodigoReferencia(referenciaLimpia);
-        pago.setDetalleMetodoPago(notas != null ? "Transferencia al CBU de la institución · " + notas
-                : "Transferencia al CBU de la institución");
-        pago = pagoRepositorio.save(pago);
-        inscripcion.getPagos().add(pago);
-        Usuario usuario = inscripcion.getAlumno().getUsuario();
-        aprobar(pago, usuario.getNombreCompleto(), usuario.getDni());
-        return pago;
-    }
-
     @Override
     @Transactional
     public Pago modificarPago(Integer idPago, String estado, Float monto, String referencia, String nombrePagador,
@@ -554,6 +420,9 @@ public class PagoServicioImpl implements PagoServicio, CrudServicio<Pago> {
             throw new IllegalArgumentException("Error! Debe completar el comprobante de la transferencia.");
         }
         validarMontoYReferencia(monto, referenciaLimpia, pago);
+        if (aprobar) {
+            validarMontoNoSuperaLaDeuda(pago.getInscripcion(), monto);
+        }
         String nombre = nombrePagador == null ? "" : nombrePagador.trim();
         String dni = dniPagador == null ? "" : dniPagador.trim();
         if (aprobar && pago.esDeModo() && (nombre.isEmpty() || !dni.matches("\\d{7,8}"))) {
@@ -575,6 +444,199 @@ public class PagoServicioImpl implements PagoServicio, CrudServicio<Pago> {
         return pago;
     }
 
+    // ---------------------------------------------------------------- Bajas
+
+    /**
+     * Elimina el registro de la base de datos. Esta entidad no tiene baja lógica.
+     *
+     * @param entidad El registro a borrar.
+     */
+    @Override
+    public void borrar(Pago entidad) {
+        pagoRepositorio.delete(entidad);
+    }
+
+    /**
+     * La habilitación de la inscripción ocupa un cupo de la cohorte: si ya no queda, no se puede pagar. (Si el pago
+     * online ya se cobró cuando se aprueba, la inscripción se habilita igual: no se puede rechazar un pago acreditado.)
+     */
+    private void validarCupo(Inscripcion inscripcion) {
+        if (!inscripcion.getCohorte().tieneCupo()) {
+            throw new IllegalArgumentException(
+                    "Error! La cohorte alcanzó su cupo máximo: no se puede pagar esta inscripción.");
+        }
+    }
+
+    /** Reglas comunes de CU-51 y CU-52: arma el pago de la inscripción y crea la solicitud en la plataforma. */
+    private SolicitudPago iniciar(Inscripcion inscripcion) {
+        if (inscripcion.tienePagoAprobado()) {
+            throw new IllegalArgumentException("Error! " + (inscripcion.estaHabilitada()
+                    ? "El pago de esta inscripción ya está aprobado."
+                    : "La inscripción ya tiene un pago aprobado que no cubre el precio: el resto lo acredita el administrador."));
+        }
+        if (inscripcion.estaHabilitada()) {
+            throw new IllegalArgumentException("Error! La inscripción no tiene un pago pendiente.");
+        }
+        validarCupo(inscripcion);
+        LocalDateTime ahora = LocalDateTime.now();
+        Pago existente = inscripcion.getPagoSinAprobar();
+        if (existente != null && existente.estaPendiente()) {
+            conciliar(existente);
+            if (existente.estaAprobado()) {
+                return new SolicitudPago(existente.getIdPago(), existente.getIdSolicitudPago(), null, null,
+                        pasarela.scriptModal(), true);
+            }
+            if (existente.estaPendiente()) {
+                // Hay un pago en curso: se retoma su solicitud (MODO devuelve su QR) en lugar de crear otra
+                PasarelaPagoServicio.Resultado enCurso = pasarela.consultarPago(existente.getIdSolicitudPago());
+                if (enCurso.estado() == PasarelaPagoServicio.Estado.PENDIENTE && enCurso.solicitud() != null) {
+                    return new SolicitudPago(existente.getIdPago(), existente.getIdSolicitudPago(),
+                            enCurso.solicitud().qr(), enCurso.solicitud().deeplink(), pasarela.scriptModal(), false);
+                }
+            }
+        }
+        // Un pago rechazado se reutiliza (CU-52); si no hay ninguno, se registra uno nuevo
+        Pago pago = existente != null && existente.estaRechazado() ? existente : null;
+
+        Descuento descuento = calcularDescuento(inscripcion).orElse(null);
+        float precio = inscripcion.getCurso().getPrecio();
+        float monto = descuento != null ? descuento.aplicarA(precio) : precio;
+        if (monto <= 0) {
+            return habilitarSinPago(inscripcion, descuento);
+        }
+        if (monto < pasarela.montoMinimo()) {
+            throw new IllegalArgumentException("Error! El monto a pagar ($" + FORMATO_MONTO.format(monto)
+                    + ") es menor al mínimo que admite el medio de pago ($" + FORMATO_MONTO.format(pasarela.montoMinimo())
+                    + ").");
+        }
+
+        String idExterno = "IDN-" + UUID.randomUUID();
+        if (pago == null) {
+            pago = new Pago(estado(EstadoPago.PENDIENTE), metodo(MetodoPago.MODO), inscripcion, idExterno, monto);
+        }
+        pago.setEstadoPago(estado(EstadoPago.PENDIENTE));
+        pago.setMetodoPago(metodo(MetodoPago.MODO));
+        pago.setIdIntencionExterna(idExterno);
+        pago.setMonto(monto);
+        pago.setDescuento(descuento);
+        limpiarResultado(pago);
+        pago.setUltimaModificacion(ahora);
+        pago = pagoRepositorio.save(pago);
+        inscripcion.getPagos().add(pago);
+
+        Usuario usuario = inscripcion.getAlumno().getUsuario();
+        PasarelaPagoServicio.Solicitud solicitud = pasarela.crearSolicitud(idExterno, monto,
+                "Curso: " + inscripcion.getCurso().getNombre(), usuario.getNombreCompleto(), usuario.getCorreo(),
+                usuario.getDni());
+        pago.setIdSolicitudPago(solicitud.id());
+        pagoRepositorio.save(pago);
+        return new SolicitudPago(pago.getIdPago(), solicitud.id(), solicitud.qr(), solicitud.deeplink(),
+                pasarela.scriptModal(), false);
+    }
+
+    /**
+     * El descuento cubre todo el precio: no hay nada que cobrar, así que se habilita el acceso directamente, sin
+     * registrar un pago ni emitir comprobante. Como no hay pago al que asociar el descuento, su uso se cuenta acá
+     * (si no, un descuento del 100% no tendría tope). Esta inscripción tampoco cuenta como curso comprado, porque
+     * no tiene pago aprobado.
+     */
+    private SolicitudPago habilitarSinPago(Inscripcion inscripcion, Descuento descuento) {
+        LocalDateTime ahora = LocalDateTime.now();
+        inscripcion.habilitar(ahora);
+        inscripcion.setUltimaModificacion(ahora);
+        inscripcionRepositorio.save(inscripcion);
+        if (descuento != null) {
+            descuento.setCantidadUsada(descuento.getCantidadUsada() + 1);
+            descuentoRepositorio.save(descuento);
+        }
+        return new SolicitudPago(null, null, null, null, pasarela.scriptModal(), true);
+    }
+
+    /**
+     * Resuelve un pago online pendiente: consulta a la plataforma y lo aprueba o rechaza según informe; si sigue
+     * pendiente y venció el plazo de confirmación, lo rechaza.
+     */
+    private void conciliar(Pago pago) {
+        if (!pago.estaPendiente() || !pago.esDeModo() || pago.getIdSolicitudPago() == null) {
+            return;
+        }
+        PasarelaPagoServicio.Resultado resultado = null;
+        try {
+            resultado = pasarela.consultarPago(pago.getIdSolicitudPago());
+        } catch (RuntimeException e) {
+            REGISTRO.warn("No se pudo consultar el pago {} en la plataforma: {}", pago.getIdPago(), e.getMessage());
+        }
+        if (resultado != null && resultado.estado() == PasarelaPagoServicio.Estado.APROBADO) {
+            aplicarDatosDeLaPlataforma(pago, resultado);
+            Usuario usuario = pago.getInscripcion().getAlumno().getUsuario();
+            aprobar(pago, resultado.nombrePagador() != null ? resultado.nombrePagador() : usuario.getNombreCompleto(),
+                    resultado.dniPagador() != null ? resultado.dniPagador() : usuario.getDni());
+            return;
+        }
+        if (resultado != null && resultado.estado() == PasarelaPagoServicio.Estado.RECHAZADO) {
+            aplicarDatosDeLaPlataforma(pago, resultado);
+            rechazar(pago, resultado.motivoError() != null ? resultado.motivoError() : "El pago fue rechazado.");
+            return;
+        }
+        LocalDateTime inicio = pago.getUltimaModificacion() != null ? pago.getUltimaModificacion() : pago.getFechaCreacion();
+        if (LocalDateTime.now().isAfter(inicio.plusMinutes(plazoConfirmacionMinutos()))) {
+            rechazar(pago, "El pago no se confirmó dentro del plazo de " + plazoConfirmacionMinutos() + " minutos.");
+        }
+    }
+
+    private void aplicarDatosDeLaPlataforma(Pago pago, PasarelaPagoServicio.Resultado resultado) {
+        pago.setDetalleMetodoPago(resultado.medioPago());
+        pago.setUltimosDigitosTarjeta(resultado.ultimosDigitos() == null ? null
+                : resultado.ultimosDigitos().substring(Math.max(0, resultado.ultimosDigitos().length() - 4)));
+        if (resultado.referencia() != null && pagoRepositorio.findByCodigoReferencia(resultado.referencia())
+                .filter(otro -> otro.getIdPago() != pago.getIdPago()).isEmpty()) {
+            pago.setCodigoReferencia(resultado.referencia().length() > 20 ? resultado.referencia().substring(0, 20)
+                    : resultado.referencia());
+        }
+    }
+
+    /** Aprueba el pago: registra la fecha, habilita el acceso de la inscripción si lo pagado cubre el precio, cuenta el uso del descuento y emite el comprobante. */
+    private void aprobar(Pago pago, String nombrePagador, String dniPagador) {
+        LocalDateTime ahora = LocalDateTime.now();
+        pago.setEstadoPago(estado(EstadoPago.APROBADO));
+        pago.setFechaAprobacion(ahora);
+        pago.setUltimaModificacion(ahora);
+        pago.setDetalleErrorOperacion(null);
+        Inscripcion inscripcion = pago.getInscripcion();
+        // Solo se habilita cuando lo pagado cubre el precio del curso: un pago menor queda aprobado, pero la
+        // inscripción sigue pendiente. Primera habilitación: ocupa un cupo y se calcula el vencimiento del acceso.
+        if (cubreElPrecio(inscripcion)) {
+            inscripcion.habilitar(ahora);
+        }
+        inscripcion.setUltimaModificacion(ahora);
+        inscripcionRepositorio.save(inscripcion);
+        Descuento descuento = pago.getDescuento();
+        if (descuento != null) {
+            // El uso del descuento se cuenta al aprobarse el pago (un pago rechazado no consume cupo)
+            descuento.setCantidadUsada(descuento.getCantidadUsada() + 1);
+            descuentoRepositorio.save(descuento);
+        }
+        pagoRepositorio.save(pago);
+        comprobanteServicio.emitirComprobante(pago, nombrePagador, dniPagador);
+    }
+
+    private void rechazar(Pago pago, String motivo) {
+        pago.setEstadoPago(estado(EstadoPago.RECHAZADO));
+        pago.setDetalleErrorOperacion(motivo);
+        pago.setUltimaModificacion(LocalDateTime.now());
+        pagoRepositorio.save(pago);
+    }
+
+    /** Deja el pago sin los datos del intento anterior, para reutilizar su registro. */
+    private void limpiarResultado(Pago pago) {
+        pago.setIdSolicitudPago(null);
+        pago.setCodigoReferencia(null);
+        pago.setUltimosDigitosTarjeta(null);
+        pago.setDetalleMetodoPago(null);
+        pago.setDetalleErrorOperacion(null);
+        pago.setFechaAprobacion(null);
+    }
+
     private void validarMontoYReferencia(Float monto, String referencia, Pago pago) {
         if (monto.isNaN() || monto <= 0) {
             throw new IllegalArgumentException("Error! El monto debe ser mayor a cero.");
@@ -590,21 +652,13 @@ public class PagoServicioImpl implements PagoServicio, CrudServicio<Pago> {
         }
     }
 
-    @Override
-    public Pago buscarVisible(Integer idPago, Alumno alumno) {
-        Pago pago = pagoRepositorio.findById(idPago)
-                .orElseThrow(() -> new IllegalArgumentException("Error! El pago no se encuentra disponible."));
-        if (alumno != null && pago.getInscripcion().getAlumno().getIdAlumno() != alumno.getIdAlumno()) {
-            throw new IllegalArgumentException("Error! El pago no se encuentra disponible.");
+    /** El monto que se acredita no puede superar lo que todavía debe la inscripción. */
+    private void validarMontoNoSuperaLaDeuda(Inscripcion inscripcion, float monto) {
+        float debe = calcularMontoPendiente(inscripcion);
+        if (monto > debe + 0.005f) {
+            throw new IllegalArgumentException("Error! El monto no puede superar lo que debe la inscripción ($"
+                    + FORMATO_MONTO.format(debe) + ").");
         }
-        return pago;
-    }
-
-    @Override
-    public int plazoConfirmacionMinutos() {
-        int minutos = parametroServicio.obtenerEntero(Parametro.PLAZO_CONFIRMACION_PAGO,
-                Parametro.PLAZO_CONFIRMACION_PAGO_POR_DEFECTO);
-        return Math.min(10, Math.max(5, minutos));
     }
 
     private EstadoPago estado(String nombre) {
@@ -615,9 +669,5 @@ public class PagoServicioImpl implements PagoServicio, CrudServicio<Pago> {
     private MetodoPago metodo(String nombre) {
         return metodoPagoRepositorio.findByNombre(nombre)
                 .orElseThrow(() -> new IllegalStateException("Falta el método de pago " + nombre));
-    }
-
-    private static String recortar(String texto, int maximo) {
-        return texto == null ? "" : (texto.length() > maximo ? texto.substring(0, maximo) : texto);
     }
 }

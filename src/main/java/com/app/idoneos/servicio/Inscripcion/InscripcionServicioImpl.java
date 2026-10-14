@@ -16,6 +16,7 @@ import com.app.idoneos.repositorio.CohorteRepositorio;
 import com.app.idoneos.repositorio.InscripcionRepositorio;
 import com.app.idoneos.repositorio.ProgresoRepositorio;
 import com.app.idoneos.servicio.CrudServicio;
+import com.app.idoneos.servicio.Pago.PagoServicio;
 import com.app.idoneos.utilidades.TextoUtilidad;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -47,18 +48,12 @@ public class InscripcionServicioImpl implements InscripcionServicio, CrudServici
     private AlumnoRepositorio alumnoRepositorio;
 
     @Autowired
+    private PagoServicio pagoServicio;
+
+    @Autowired
     private ProgresoRepositorio progresoRepositorio;
 
-    /**
-     * Guarda la inscripción en la base de datos.
-     *
-     * @param entidad El registro a guardar.
-     * @return El registro guardado.
-     */
-    @Override
-    public Inscripcion guardar(Inscripcion entidad) {
-        return inscripcionRepositorio.save(entidad);
-    }
+    // ---------------------------------------------------------------- Lecturas
 
     /**
      * Busca la inscripción por su identificador. Solo devuelve registros activos (no dados de baja).
@@ -80,28 +75,6 @@ public class InscripcionServicioImpl implements InscripcionServicio, CrudServici
     @Override
     public List<Inscripcion> obtenerTodo() {
         return inscripcionRepositorio.findByBajaFalse();
-    }
-
-    /**
-     * Modifica un registro existente.
-     *
-     * @param entidad El registro con los datos actualizados.
-     * @return El registro modificado.
-     */
-    @Override
-    public Inscripcion modificar(Inscripcion entidad) {
-        return inscripcionRepositorio.save(entidad);
-    }
-
-    /**
-     * Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos.
-     *
-     * @param entidad El registro a borrar.
-     */
-    @Override
-    public void borrar(Inscripcion entidad) {
-        entidad.marcarInactivo(); // Baja lógica
-        inscripcionRepositorio.save(entidad);
     }
 
     /**
@@ -140,7 +113,7 @@ public class InscripcionServicioImpl implements InscripcionServicio, CrudServici
 
     /**
      * Busca las inscripciones vigentes de un alumno, filtrando opcionalmente por el nombre del curso
-     * y por el estado de la inscripción (Pendiente, En Progreso o Finalizado).
+     * y por el estado de la inscripción (En Progreso o Finalizado).
      *
      * @param alumno el alumno dueño de las inscripciones
      * @param nombreCurso parte del nombre del curso (opcional)
@@ -177,7 +150,7 @@ public class InscripcionServicioImpl implements InscripcionServicio, CrudServici
             throw new IllegalArgumentException("Error! Tu inscripción a este curso no está habilitada.");
         }
         LocalDateTime ahora = LocalDateTime.now();
-        if (ahora.isAfter(inscripcion.getFechaVencimientoAcceso())) {
+        if (inscripcion.getFechaVencimientoAcceso() != null && ahora.isAfter(inscripcion.getFechaVencimientoAcceso())) {
             throw new IllegalArgumentException("Error! Tu acceso a este curso venció el "
                     + inscripcion.getFechaVencimientoAcceso().format(FORMATO_FECHA) + ".");
         }
@@ -216,6 +189,19 @@ public class InscripcionServicioImpl implements InscripcionServicio, CrudServici
                 .toList();
     }
 
+    // ---------------------------------------------------------------- Creaciones
+
+    /**
+     * Guarda la inscripción en la base de datos.
+     *
+     * @param entidad El registro a guardar.
+     * @return El registro guardado.
+     */
+    @Override
+    public Inscripcion guardar(Inscripcion entidad) {
+        return inscripcionRepositorio.save(entidad);
+    }
+
     @Override
     @Transactional
     public Inscripcion inscribir(Alumno alumno, Integer idCohorte, boolean terminosAceptados) {
@@ -238,13 +224,27 @@ public class InscripcionServicioImpl implements InscripcionServicio, CrudServici
                 "Error! Debe confirmar que el alumno acepta los términos y condiciones de las políticas de privacidad.");
     }
 
+    // ---------------------------------------------------------------- Modificaciones
+
+    /**
+     * Modifica un registro existente.
+     *
+     * @param entidad El registro con los datos actualizados.
+     * @return El registro modificado.
+     */
+    @Override
+    public Inscripcion modificar(Inscripcion entidad) {
+        return inscripcionRepositorio.save(entidad);
+    }
+
     @Override
     @Transactional
     public Inscripcion modificarInscripcion(Integer idInscripcion, String observaciones, Boolean habilitada,
             LocalDate vencimiento) {
         Inscripcion inscripcion = inscripcionRepositorio.findById(idInscripcion).filter(i -> !i.esInactivo())
                 .orElseThrow(() -> new IllegalArgumentException("Error! La inscripción no se encuentra activa."));
-        if (vencimiento == null) {
+        // Mientras la inscripción no se habilitó no tiene vencimiento: se calcula al habilitarla
+        if (vencimiento == null && inscripcion.getFechaVencimientoAcceso() != null) {
             throw new IllegalArgumentException("Error! La fecha de vencimiento del acceso es obligatoria.");
         }
         String observacionesLimpias = observaciones == null || observaciones.isBlank() ? null : observaciones.trim();
@@ -252,21 +252,48 @@ public class InscripcionServicioImpl implements InscripcionServicio, CrudServici
             throw new IllegalArgumentException("Error! Las observaciones no pueden superar los "
                     + LONGITUD_OBSERVACIONES + " caracteres.");
         }
-        LocalDateTime minimo = inscripcion.getVencimientoMinimo();
-        if (vencimiento.isBefore(minimo.toLocalDate())) {
-            throw new IllegalArgumentException("Error! La fecha de vencimiento del acceso no puede ser anterior al "
-                    + minimo.format(FORMATO_FECHA) + ", que resulta de la duración del cronograma del programa.");
+        LocalDateTime ahora = LocalDateTime.now();
+        if (vencimiento != null) {
+            LocalDateTime minimo = inscripcion.getVencimientoMinimo();
+            if (vencimiento.isBefore(minimo.toLocalDate())) {
+                throw new IllegalArgumentException("Error! La fecha de vencimiento del acceso no puede ser anterior al "
+                        + minimo.format(FORMATO_FECHA) + ", que resulta de la duración del cronograma del programa.");
+            }
+        }
+        if (habilitada != null) {
+            if (habilitada && !inscripcion.estaHabilitada()) {
+                // Un curso con costo solo se habilita si lo pagado cubre su precio
+                validarPagosCubrenElPrecio(inscripcion);
+                // Primera habilitación: ocupa un cupo y se calcula el vencimiento del acceso
+                if (!inscripcion.getCohorte().tieneCupo()) {
+                    throw new IllegalArgumentException("Error! La cohorte alcanzó su cupo máximo.");
+                }
+                inscripcion.habilitar(ahora);
+            } else {
+                inscripcion.setHabilitado(habilitada);
+            }
         }
         // Si no cambió el día, se conserva el momento exacto; si cambió, el acceso dura hasta el final de ese día
-        if (!vencimiento.equals(inscripcion.getFechaVencimientoAcceso().toLocalDate())) {
+        if (vencimiento != null && (inscripcion.getFechaVencimientoAcceso() == null
+                || !vencimiento.equals(inscripcion.getFechaVencimientoAcceso().toLocalDate()))) {
             inscripcion.setFechaVencimientoAcceso(vencimiento.atTime(23, 59, 59));
         }
         inscripcion.setObservaciones(observacionesLimpias);
-        if (habilitada != null) {
-            inscripcion.setHabilitado(habilitada);
-        }
-        inscripcion.setUltimaModificacion(LocalDateTime.now());
+        inscripcion.setUltimaModificacion(ahora);
         return inscripcionRepositorio.save(inscripcion);
+    }
+
+    // ---------------------------------------------------------------- Bajas
+
+    /**
+     * Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos.
+     *
+     * @param entidad El registro a borrar.
+     */
+    @Override
+    public void borrar(Inscripcion entidad) {
+        entidad.marcarInactivo(); // Baja lógica
+        inscripcionRepositorio.save(entidad);
     }
 
     @Override
@@ -297,6 +324,19 @@ public class InscripcionServicioImpl implements InscripcionServicio, CrudServici
     }
 
     /**
+     * El administrador no puede habilitar a mano una inscripción de un curso con costo si no tiene pagos aprobados o
+     * si lo aprobado no llega al precio del curso (con el descuento del pago, si tuvo).
+     */
+    private void validarPagosCubrenElPrecio(Inscripcion inscripcion) {
+        if (!pagoServicio.cubreElPrecio(inscripcion)) {
+            throw new IllegalArgumentException("Error! No se puede habilitar la inscripción: "
+                    + (inscripcion.tienePagoAprobado() ? "los pagos aprobados no llegan al precio del curso"
+                            : "no tiene ningún pago aprobado")
+                    + ". Registrá o acreditá el pago primero.");
+        }
+    }
+
+    /**
      * Reglas comunes de CU-45 y CU-46: valida la cohorte, la ventana de inscripción, el cupo, la inscripción
      * duplicada y los términos, y registra la inscripción con su progreso inicial.
      */
@@ -324,10 +364,14 @@ public class InscripcionServicioImpl implements InscripcionServicio, CrudServici
             throw new IllegalArgumentException(errorTerminos);
         }
 
-        Inscripcion inscripcion = new Inscripcion(cohorte, alumno, cohorte.calcularVencimientoAcceso(ahora));
+        // El vencimiento del acceso se calcula al habilitarse por primera vez: un curso gratuito queda habilitado ya;
+        // uno con costo, cuando se apruebe el pago (o se habilite sin costo, o el administrador la dé de alta)
+        Inscripcion inscripcion = new Inscripcion(cohorte, alumno, null);
         inscripcion.setFechaCreacion(ahora);
-        // Un curso gratuito queda habilitado; uno con costo, hasta que se apruebe el pago
-        inscripcion.setHabilitado(cohorte.getPrograma().getCurso().getPrecio() <= 0);
+        inscripcion.setHabilitado(false);
+        if (cohorte.getPrograma().getCurso().getPrecio() <= 0) {
+            inscripcion.habilitar(ahora);
+        }
         inscripcion = inscripcionRepositorio.save(inscripcion);
         cohorte.getInscripciones().add(inscripcion);
         alumno.getInscripciones().add(inscripcion);

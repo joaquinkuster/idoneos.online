@@ -12,12 +12,12 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.app.idoneos.modelo.Alumno;
@@ -34,14 +34,13 @@ import com.app.idoneos.servicio.Cohorte.CohorteServicioImpl;
 import com.app.idoneos.servicio.Curso.CursoServicioImpl;
 import com.app.idoneos.servicio.Inscripcion.InscripcionServicioImpl;
 import com.app.idoneos.servicio.Pago.PagoServicioImpl;
-import com.app.idoneos.servicio.Pago.PasarelaPago;
-import com.app.idoneos.servicio.Pago.PasarelaSimulada;
-import com.app.idoneos.servicio.Pago.SolicitudDePago;
+import com.app.idoneos.servicio.PasarelaPago.PasarelaPagoServicio;
+import com.app.idoneos.servicio.Pago.PagoServicio.SolicitudPago;
 import com.app.idoneos.servicio.Programa.ProgramaServicioImpl;
-import com.app.idoneos.utilidades.ComprobanteUtilidad;
+import com.app.idoneos.soporte.PasarelaPagoMockeada;
 
 /**
- * Pruebas de las reglas de negocio de los pagos (CU-50 a CU-54), con la plataforma de pagos simulada y sobre los
+ * Pruebas de las reglas de negocio de los pagos (CU-50 a CU-54), con la pasarela de pago mockeada (ver PasarelaPagoMockeada) y sobre los
  * datos de la semilla. Cada prueba se ejecuta en una transacción que se revierte al finalizar.
  *
  * En la semilla, Lucía tiene su inscripción a Finanzas Personales ($ 80.000) pendiente de pago, con un pago de MODO
@@ -61,8 +60,10 @@ class PagoServicioTest {
     @Autowired
     private InscripcionServicioImpl inscripcionServicio;
 
-    @Autowired
-    private PasarelaSimulada pasarela;
+    @MockitoBean
+    private PasarelaPagoServicio pasarelaMock;
+
+    private PasarelaPagoMockeada pasarela;
 
     @Autowired
     private PagoRepositorio pagoRepositorio;
@@ -86,9 +87,8 @@ class PagoServicioTest {
     private ProgramaServicioImpl programaServicio;
 
     @BeforeEach
-    @AfterEach
-    void reiniciarPasarela() {
-        pasarela.reiniciar();
+    void configurarPasarela() {
+        pasarela = new PasarelaPagoMockeada(pasarelaMock);
     }
 
     private Inscripcion pendienteDeLucia() {
@@ -101,8 +101,13 @@ class PagoServicioTest {
 
     /** Inscribe a un alumno a Finanzas Personales ($ 80.000), que queda pendiente de pago. */
     private Inscripcion inscribirAFinanzas(String correo) {
-        Integer idPrograma = programaServicio.buscarPorCurso(cursoServicio.buscarPorNombre("Finanzas Personales e Inversión")
-                .orElseThrow()).get(0).getIdPrograma();
+        return inscribirA("Finanzas Personales e Inversión", correo);
+    }
+
+    /** Inscribe a un alumno a la cohorte abierta de un curso con costo, que queda pendiente de pago. */
+    private Inscripcion inscribirA(String curso, String correo) {
+        Integer idPrograma = programaServicio.buscarPorCurso(cursoServicio.buscarPorNombre(curso).orElseThrow())
+                .get(0).getIdPrograma();
         Integer idCohorte = cohorteServicio.buscarConFiltros(idPrograma, null, "Abierta", null, null, "recientes", null)
                 .get(0).getIdCohorte();
         return inscripcionServicio.inscribir(alumno(correo), idCohorte, true);
@@ -112,8 +117,8 @@ class PagoServicioTest {
         return descuentoRepositorio.findByNombre(nombre).orElseThrow();
     }
 
-    private PasarelaPago.Resultado rechazado(String motivo) {
-        return new PasarelaPago.Resultado(PasarelaPago.Estado.RECHAZADO, null, "Tarjeta de crédito Visa", "0008", null, null,
+    private PasarelaPagoServicio.Resultado rechazado(String motivo) {
+        return new PasarelaPagoServicio.Resultado(PasarelaPagoServicio.Estado.RECHAZADO, null, "Tarjeta de crédito Visa", "0008", null, null,
                 null, motivo, null);
     }
 
@@ -174,10 +179,9 @@ class PagoServicioTest {
         assertTrue(rechazado.estaRechazado());
         String idExternoAnterior = rechazado.getIdIntencionExterna();
 
-        SolicitudDePago solicitud = pagoServicio.reintentarPago(rechazado.getIdPago(), lucia.getAlumno());
+        SolicitudPago solicitud = pagoServicio.reintentarPago(rechazado.getIdPago(), lucia.getAlumno());
 
         assertEquals(rechazado.getIdPago(), solicitud.idPago());
-        assertTrue(solicitud.simulado());
         assertFalse(solicitud.aprobado());
         assertTrue(rechazado.estaPendiente());
         assertNotEquals(idExternoAnterior, rechazado.getIdIntencionExterna());
@@ -193,14 +197,14 @@ class PagoServicioTest {
     void iniciaUnPagoNuevo() {
         Inscripcion nueva = inscribirAFinanzas(VALENTINA);
 
-        SolicitudDePago solicitud = pagoServicio.iniciarPago(nueva.getIdInscripcion(), nueva.getAlumno());
+        SolicitudPago solicitud = pagoServicio.iniciarPago(nueva.getIdInscripcion(), nueva.getAlumno());
 
         Pago pago = pagoRepositorio.findById(solicitud.idPago()).orElseThrow();
         assertTrue(pago.estaPendiente());
         assertEquals(MetodoPago.MODO, pago.getMetodoPago().getNombre());
         assertEquals(64000f, pago.getMonto());
         assertTrue(pago.getIdIntencionExterna().startsWith("IDN-"));
-        assertTrue(solicitud.idSolicitud().startsWith("SIM-"));
+        assertTrue(solicitud.idSolicitud().startsWith("SOL-"));
         assertNotNull(solicitud.qr());
         assertEquals(0, descuento("Alumno frecuente").getCantidadUsada()); // el uso se cuenta al aprobarse el pago
         assertFalse(nueva.estaHabilitada()); // el acceso sigue sin habilitar hasta que se apruebe
@@ -211,7 +215,7 @@ class PagoServicioTest {
     void apruebaElPago() {
         Inscripcion lucia = pendienteDeLucia();
         int usosAntes = descuento("Descuento de bienvenida").getCantidadUsada();
-        SolicitudDePago solicitud = pagoServicio.iniciarPago(lucia.getIdInscripcion(), lucia.getAlumno());
+        SolicitudPago solicitud = pagoServicio.iniciarPago(lucia.getIdInscripcion(), lucia.getAlumno());
 
         Pago pago = pagoServicio.consultarEstado(solicitud.idPago(), lucia.getAlumno()); // la plataforma aprueba
 
@@ -225,7 +229,7 @@ class PagoServicioTest {
         assertEquals(usosAntes + 1, descuento("Descuento de bienvenida").getCantidadUsada());
         assertNotNull(pago.getComprobanteVigente());
         assertTrue(pago.getComprobanteVigente().getNumero().startsWith("COMP-" + LocalDate.now().getYear() + "-"));
-        assertEquals("Pagador Simulado", pago.getComprobanteVigente().getNombrePagador());
+        assertEquals("Pagador de Prueba", pago.getComprobanteVigente().getNombrePagador());
         assertEquals("30111222", pago.getComprobanteVigente().getDniPagador());
         assertFalse(pago.getComprobanteVigente().getEnviado()); // el envío por correo es de MOD-NF-01
     }
@@ -235,7 +239,7 @@ class PagoServicioTest {
     void rechazaElPago() {
         Inscripcion lucia = pendienteDeLucia();
         int usosAntes = descuento("Descuento de bienvenida").getCantidadUsada();
-        SolicitudDePago solicitud = pagoServicio.iniciarPago(lucia.getIdInscripcion(), lucia.getAlumno());
+        SolicitudPago solicitud = pagoServicio.iniciarPago(lucia.getIdInscripcion(), lucia.getAlumno());
         pasarela.resolver(solicitud.idSolicitud(), rechazado("INSUFFICIENT_FUNDS"));
 
         Pago pago = pagoServicio.consultarEstado(solicitud.idPago(), lucia.getAlumno());
@@ -250,21 +254,11 @@ class PagoServicioTest {
     }
 
     @Test
-    @DisplayName("CU-51: los montos de rechazo de MODO simulan sus errores")
-    void montosDeRechazoDeModo() {
-        PasarelaPago.Solicitud solicitud = pasarela.crearSolicitud("IDN-1", 25.64f, "Prueba", "Ana Pérez", "ana@correo.com", "30111222");
-        PasarelaPago.Resultado resultado = pasarela.consultarPago(solicitud.id());
-
-        assertEquals(PasarelaPago.Estado.RECHAZADO, resultado.estado());
-        assertEquals("INSUFFICIENT_FUNDS", resultado.motivoError());
-    }
-
-    @Test
     @DisplayName("CU-51: sin confirmación el pago sigue pendiente y, vencido el plazo, se rechaza")
     void vencePorFaltaDeConfirmacion() {
-        pasarela.setEsperarConfirmacion(true);
+        pasarela.dejarPendiente();
         Inscripcion lucia = pendienteDeLucia();
-        SolicitudDePago solicitud = pagoServicio.iniciarPago(lucia.getIdInscripcion(), lucia.getAlumno());
+        SolicitudPago solicitud = pagoServicio.iniciarPago(lucia.getIdInscripcion(), lucia.getAlumno());
         Pago pago = pagoRepositorio.findById(solicitud.idPago()).orElseThrow();
 
         assertTrue(pagoServicio.consultarEstado(pago.getIdPago(), lucia.getAlumno()).estaPendiente());
@@ -281,7 +275,7 @@ class PagoServicioTest {
     @DisplayName("CU-51: si MODO ya aprobó el pago, vence el plazo pero gana el resultado de MODO")
     void elResultadoDeModoGanaAlPlazo() {
         Inscripcion lucia = pendienteDeLucia();
-        SolicitudDePago solicitud = pagoServicio.iniciarPago(lucia.getIdInscripcion(), lucia.getAlumno());
+        SolicitudPago solicitud = pagoServicio.iniciarPago(lucia.getIdInscripcion(), lucia.getAlumno());
         Pago pago = pagoRepositorio.findById(solicitud.idPago()).orElseThrow();
         pago.setUltimaModificacion(LocalDateTime.now().minusMinutes(30));
 
@@ -291,11 +285,11 @@ class PagoServicioTest {
     @Test
     @DisplayName("CU-51: volver a pagar con un pago en curso retoma su solicitud en lugar de crear otra")
     void retomaElPagoEnCurso() {
-        pasarela.setEsperarConfirmacion(true);
+        pasarela.dejarPendiente();
         Inscripcion lucia = pendienteDeLucia();
-        SolicitudDePago primera = pagoServicio.iniciarPago(lucia.getIdInscripcion(), lucia.getAlumno());
+        SolicitudPago primera = pagoServicio.iniciarPago(lucia.getIdInscripcion(), lucia.getAlumno());
 
-        SolicitudDePago segunda = pagoServicio.iniciarPago(lucia.getIdInscripcion(), lucia.getAlumno());
+        SolicitudPago segunda = pagoServicio.iniciarPago(lucia.getIdInscripcion(), lucia.getAlumno());
 
         assertEquals(primera.idPago(), segunda.idPago());
         assertEquals(primera.idSolicitud(), segunda.idSolicitud());
@@ -304,22 +298,56 @@ class PagoServicioTest {
     }
 
     @Test
-    @DisplayName("CU-51: si el descuento cubre todo el precio, el pago se aprueba sin pasar por MODO")
+    @DisplayName("CU-51: si el descuento cubre todo el precio, se habilita el acceso sin registrar ningún pago ni comprobante")
     void descuentoTotal() {
         descuentoRepositorio.save(new Descuento("Beca completa", 0, 100, LocalDateTime.now().minusDays(1),
                 LocalDateTime.now().plusDays(10), 5, 0));
         Inscripcion lucia = pendienteDeLucia();
+        Pago rechazadoAntes = lucia.getPagoSinAprobar();
+        long pagosAntes = pagoRepositorio.count();
 
-        SolicitudDePago solicitud = pagoServicio.iniciarPago(lucia.getIdInscripcion(), lucia.getAlumno());
+        SolicitudPago solicitud = pagoServicio.iniciarPago(lucia.getIdInscripcion(), lucia.getAlumno());
 
         assertTrue(solicitud.aprobado());
-        Pago pago = pagoRepositorio.findById(solicitud.idPago()).orElseThrow();
-        assertTrue(pago.estaAprobado());
-        assertEquals(0f, pago.getMonto());
-        assertEquals(MetodoPago.SIN_COSTO, pago.getMetodoPago().getNombre());
+        assertNull(solicitud.idPago());
+        assertNull(solicitud.idSolicitud());
         assertTrue(lucia.estaHabilitada());
-        assertEquals(1, descuento("Beca completa").getCantidadUsada());
-        assertNotNull(pago.getComprobanteVigente());
+        assertEquals(Inscripcion.ACCESO_VIGENTE, lucia.getEstadoAcceso());
+        assertEquals(pagosAntes, pagoRepositorio.count()); // no se registró ningún pago
+        assertNull(lucia.getPagoAprobado());
+        assertTrue(rechazadoAntes.estaRechazado()); // el intento anterior queda como estaba
+    }
+
+    @Test
+    @DisplayName("CU-51: el descuento que cubre todo el precio cuenta su uso y, al agotarse, deja de aplicarse")
+    void descuentoTotalCuentaSuUso() {
+        descuentoRepositorio.save(new Descuento("Beca de uno", 0, 100, LocalDateTime.now().minusDays(1),
+                LocalDateTime.now().plusDays(10), 1, 0));
+        Inscripcion lucia = pendienteDeLucia();
+
+        pagoServicio.iniciarPago(lucia.getIdInscripcion(), lucia.getAlumno());
+
+        assertEquals(1, descuento("Beca de uno").getCantidadUsada());
+        assertTrue(descuento("Beca de uno").estaAgotado());
+        // Con el cupo agotado la beca ya no se aplica: a Valentina (2 cursos comprados) le corresponde el de 2 cursos
+        Inscripcion otra = inscribirA("Contabilidad Básica para Inversores", VALENTINA);
+        assertEquals("Alumno frecuente", pagoServicio.calcularDescuento(otra).orElseThrow().getNombre());
+        assertEquals(36000f, pagoServicio.calcularMontoAPagar(otra)); // $ 45.000 con el 20%
+    }
+
+    @Test
+    @DisplayName("CU-51: la inscripción habilitada por un descuento total no cuenta como curso comprado")
+    void descuentoTotalNoCuentaComoCursoComprado() {
+        descuentoRepositorio.save(new Descuento("Beca de uno", 0, 100, LocalDateTime.now().minusDays(1),
+                LocalDateTime.now().plusDays(10), 1, 0));
+        Inscripcion lucia = pendienteDeLucia();
+        pagoServicio.iniciarPago(lucia.getIdInscripcion(), lucia.getAlumno()); // queda habilitada, sin pago
+
+        // Lucía compró 1 curso (Mercado de Capitales). Si la inscripción sin pago contara, tendría 2 y le
+        // correspondería "Alumno frecuente" (20%); le corresponde solo el descuento de bienvenida (10%)
+        Inscripcion otra = inscribirA("Contabilidad Básica para Inversores", LUCIA);
+
+        assertEquals("Descuento de bienvenida", pagoServicio.calcularDescuento(otra).orElseThrow().getNombre());
     }
 
     @Test
@@ -347,9 +375,11 @@ class PagoServicioTest {
                 () -> pagoServicio.iniciarPago(deMartin.getIdInscripcion(), deMartin.getAlumno()));
         assertTrue(yaPaga.getMessage().contains("ya está aprobado"));
 
-        lucia.setFechaVencimientoAcceso(LocalDateTime.now().minusDays(1));
-        assertThrows(IllegalArgumentException.class,
+        // el cupo se ocupa al habilitarse: con la cohorte llena no se puede pagar
+        lucia.getCohorte().setCupoMaximo(lucia.getCohorte().getCuposOcupados());
+        IllegalArgumentException sinCupo = assertThrows(IllegalArgumentException.class,
                 () -> pagoServicio.iniciarPago(lucia.getIdInscripcion(), lucia.getAlumno()));
+        assertTrue(sinCupo.getMessage().contains("cupo máximo"));
     }
 
     @Test
@@ -369,10 +399,10 @@ class PagoServicioTest {
     @DisplayName("CU-51: el aviso de MODO identifica el pago por su solicitud o su identificador externo y se concilia")
     void procesaElAvisoDeModo() {
         Inscripcion lucia = pendienteDeLucia();
-        SolicitudDePago solicitud = pagoServicio.iniciarPago(lucia.getIdInscripcion(), lucia.getAlumno());
+        SolicitudPago solicitud = pagoServicio.iniciarPago(lucia.getIdInscripcion(), lucia.getAlumno());
         Pago pago = pagoRepositorio.findById(solicitud.idPago()).orElseThrow();
 
-        assertFalse(pagoServicio.procesarNotificacion("SIM-desconocida", null));
+        assertFalse(pagoServicio.procesarNotificacion("SOL-desconocida", null));
         assertFalse(pagoServicio.procesarNotificacion(null, null));
         assertTrue(pagoServicio.procesarNotificacion(null, pago.getIdIntencionExterna()));
 
@@ -382,17 +412,29 @@ class PagoServicioTest {
     @Test
     @DisplayName("CU-51: la conciliación periódica resuelve los pagos pendientes")
     void conciliaLosPendientes() {
-        pasarela.setEsperarConfirmacion(true);
+        pasarela.dejarPendiente();
         Inscripcion lucia = pendienteDeLucia();
-        SolicitudDePago solicitud = pagoServicio.iniciarPago(lucia.getIdInscripcion(), lucia.getAlumno());
+        SolicitudPago solicitud = pagoServicio.iniciarPago(lucia.getIdInscripcion(), lucia.getAlumno());
         assertEquals(0, pagoServicio.conciliarPagosPendientes());
 
-        pasarela.setEsperarConfirmacion(false);
+        pasarela.aprobarTodo();
         assertEquals(1, pagoServicio.conciliarPagosPendientes());
         assertTrue(pagoRepositorio.findById(solicitud.idPago()).orElseThrow().estaAprobado());
     }
 
     // ---------- CU-53 Registrar pago ----------
+
+    @Test
+    @DisplayName("CU-53: un pago aprobado que no cubre el precio del curso no habilita la inscripción")
+    void pagoParcialNoHabilita() {
+        Inscripcion lucia = pendienteDeLucia();
+
+        Pago pago = pagoServicio.registrarPagoManual(lucia.getIdInscripcion(), 1000f, "TRF-000111", null);
+
+        assertTrue(pago.estaAprobado());
+        assertTrue(!lucia.estaHabilitada());
+        assertTrue(!pagoServicio.cubreElPrecio(lucia));
+    }
 
     @Test
     @DisplayName("CU-53: registra el pago por transferencia: queda aprobado, habilita el acceso y emite el comprobante")
@@ -446,7 +488,8 @@ class PagoServicioTest {
     void pagoManualDeUnaInscripcionNueva() {
         Inscripcion nueva = inscribirAFinanzas(VALENTINA);
 
-        Pago pago = pagoServicio.registrarPagoManual(nueva.getIdInscripcion(), 80000f, "TRF-900001", null);
+        Pago pago = pagoServicio.registrarPagoManual(nueva.getIdInscripcion(), pagoServicio.calcularMontoPendiente(nueva),
+                "TRF-900001", null);
 
         assertTrue(pago.estaAprobado());
         assertTrue(nueva.estaHabilitada());
@@ -475,7 +518,7 @@ class PagoServicioTest {
     @DisplayName("CU-54: al aprobar un pago con descuento cuenta su uso, igual que el pago online")
     void acreditarCuentaElDescuento() {
         Inscripcion lucia = pendienteDeLucia();
-        SolicitudDePago solicitud = pagoServicio.iniciarPago(lucia.getIdInscripcion(), lucia.getAlumno());
+        SolicitudPago solicitud = pagoServicio.iniciarPago(lucia.getIdInscripcion(), lucia.getAlumno());
         pasarela.resolver(solicitud.idSolicitud(), rechazado("EXPIRED_CARD"));
         pagoServicio.consultarEstado(solicitud.idPago(), lucia.getAlumno());
         int usosAntes = descuento("Descuento de bienvenida").getCantidadUsada();
@@ -500,9 +543,9 @@ class PagoServicioTest {
     @Test
     @DisplayName("CU-54: marca un pago pendiente como rechazado, con el motivo")
     void rechazaManualmente() {
-        pasarela.setEsperarConfirmacion(true);
+        pasarela.dejarPendiente();
         Inscripcion lucia = pendienteDeLucia();
-        SolicitudDePago solicitud = pagoServicio.iniciarPago(lucia.getIdInscripcion(), lucia.getAlumno());
+        SolicitudPago solicitud = pagoServicio.iniciarPago(lucia.getIdInscripcion(), lucia.getAlumno());
 
         Pago pago = pagoServicio.modificarPago(solicitud.idPago(), "Rechazado", 72000f, null, null, null, "No se acreditó");
 
@@ -534,13 +577,14 @@ class PagoServicioTest {
     void transferenciaExigeComprobante() {
         Inscripcion nueva = inscribirAFinanzas(VALENTINA);
         Pago transferencia = pagoRepositorio.save(new Pago(estadoPagoRepositorio.findByNombre(EstadoPago.PENDIENTE).orElseThrow(),
-                metodoPagoRepositorio.findByNombre(MetodoPago.TRANSFERENCIA).orElseThrow(), nueva, "IDN-PRUEBA-TRF", 80000f));
+                metodoPagoRepositorio.findByNombre(MetodoPago.TRANSFERENCIA).orElseThrow(), nueva, "IDN-PRUEBA-TRF", pagoServicio.calcularMontoPendiente(nueva)));
         Integer id = transferencia.getIdPago();
+        float monto = pagoServicio.calcularMontoPendiente(nueva);
 
-        assertThrows(IllegalArgumentException.class, () -> pagoServicio.modificarPago(id, "Aprobado", 80000f, " ", null, null, null));
-        assertThrows(IllegalArgumentException.class, () -> pagoServicio.modificarPago(id, "Aprobado", 80000f, "TRF-000451", null, null, null));
+        assertThrows(IllegalArgumentException.class, () -> pagoServicio.modificarPago(id, "Aprobado", monto, " ", null, null, null));
+        assertThrows(IllegalArgumentException.class, () -> pagoServicio.modificarPago(id, "Aprobado", monto, "TRF-000451", null, null, null));
 
-        Pago pago = pagoServicio.modificarPago(id, "Aprobado", 80000f, "TRF-123456", null, null, null);
+        Pago pago = pagoServicio.modificarPago(id, "Aprobado", monto, "TRF-123456", null, null, null);
 
         assertTrue(pago.estaAprobado());
         assertEquals("Valentina Ruiz", pago.getComprobanteVigente().getNombrePagador());
@@ -586,18 +630,6 @@ class PagoServicioTest {
         assertEquals(deLucia, pagoServicio.buscarVisible(deLucia.getIdPago(), null));
         assertThrows(IllegalArgumentException.class, () -> pagoServicio.buscarVisible(deLucia.getIdPago(), alumno(MARTIN)));
         assertThrows(IllegalArgumentException.class, () -> pagoServicio.buscarVisible(99999, null));
-    }
-
-    @Test
-    @DisplayName("CU-50: el comprobante de un pago aprobado se genera como PDF")
-    void comprobanteEnPdf() {
-        Pago aprobado = inscripcionServicio.buscarConFiltros(null, VALENTINA, Inscripcion.ACCESO_VIGENTE).get(0)
-                .getPagoAprobado();
-
-        byte[] pdf = ComprobanteUtilidad.generarPdf(aprobado.getComprobanteVigente());
-
-        assertTrue(pdf.length > 800);
-        assertEquals("%PDF", new String(pdf, 0, 4, java.nio.charset.StandardCharsets.US_ASCII));
     }
 
     @Test

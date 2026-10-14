@@ -9,6 +9,8 @@ import com.app.idoneos.modelo.Unidad;
  */
 public interface AutoevaluacionServicio {
 
+    // ---------------------------------------------------------------- Lecturas
+
     /**
      * Busca los registros vigentes de autoevaluacion asociados a unidad.
      *

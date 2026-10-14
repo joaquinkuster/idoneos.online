@@ -17,6 +17,8 @@ import com.app.idoneos.modelo.Inscripcion;
  */
 public interface MaterialServicio {
 
+    // ---------------------------------------------------------------- Lecturas
+
     /**
      * Busca los registros vigentes de material asociados a participacionDocente.
      *
@@ -57,57 +59,6 @@ public interface MaterialServicio {
             Boolean generadoPorIa, Boolean baja, Docente soloDeDocente);
 
     /**
-     * CU-29: Sube un material (grabación, bibliografía o presentación) a una unidad activa.
-     *
-     * @param docente         el docente que lo sube (debe participar en el curso)
-     * @param idUnidad        identificador de la unidad
-     * @param idTipoMaterial  identificador del tipo de material
-     * @param titulo          título del material
-     * @param oculto          si queda oculto para los alumnos
-     * @param autor           autor (opcional)
-     * @param enlace          enlace externo (solo bibliografía, alternativo al archivo)
-     * @param archivo         archivo del material
-     * @return el material registrado
-     * @throws IllegalArgumentException si algún dato no es válido, con el motivo
-     */
-    Material subirMaterial(Docente docente, Integer idUnidad, Integer idTipoMaterial, String titulo, boolean oculto,
-            String autor, String enlace, MultipartFile archivo);
-
-    /**
-     * CU-30: Modifica el título, el autor, el archivo o enlace y la visibilidad de un material activo.
-     *
-     * @param idMaterial identificador del material
-     * @param docente    el docente que lo modifica (debe participar en el curso)
-     * @param titulo     título del material
-     * @param oculto     si queda oculto para los alumnos
-     * @param autor      autor (opcional)
-     * @param enlace     enlace externo (solo bibliografía, alternativo al archivo; opcional)
-     * @param archivo    archivo nuevo (opcional: si no se envía se conserva el actual)
-     * @return el material modificado
-     * @throws IllegalArgumentException si algún dato no es válido, con el motivo
-     */
-    Material modificarMaterial(Integer idMaterial, Docente docente, String titulo, boolean oculto, String autor,
-            String enlace, MultipartFile archivo);
-
-    /**
-     * CU-31: Da de baja un material activo (baja lógica: se conserva el archivo).
-     *
-     * @param idMaterial identificador del material
-     * @param docente    el docente que lo da de baja, o {@code null} si lo hace el administrador
-     * @throws IllegalArgumentException si el material no está activo o el docente no participa en el curso
-     */
-    void darDeBajaMaterial(Integer idMaterial, Docente docente);
-
-    /**
-     * Da de baja varios materiales activos. Es todo o nada: si alguno no puede darse de baja, no se da de baja ninguno.
-     *
-     * @param ids      identificadores de los materiales
-     * @param docente  el docente que los da de baja, o {@code null} si lo hace el administrador
-     * @throws IllegalArgumentException si no se seleccionó ninguno o alguno no puede darse de baja
-     */
-    void darDeBajaVarios(List<Integer> ids, Docente docente);
-
-    /**
      * Indica si un usuario puede abrir el archivo (o enlace) de un material: el administrador, el docente que
      * participa en el curso y el alumno con acceso vigente al curso, siempre que el material esté publicado y su
      * unidad habilitada según su avance.
@@ -127,4 +78,61 @@ public interface MaterialServicio {
      * @return la inscripción que le da acceso, o vacío si no puede abrirlo
      */
     Optional<Inscripcion> buscarInscripcionConAcceso(Material material, Alumno alumno);
+
+    // ---------------------------------------------------------------- Creaciones
+
+    /**
+     * CU-29: Sube un material (grabación, bibliografía o presentación) a una unidad activa.
+     *
+     * @param docente         el docente que lo sube (debe participar en el curso)
+     * @param idUnidad        identificador de la unidad
+     * @param idTipoMaterial  identificador del tipo de material
+     * @param titulo          título del material
+     * @param oculto          si queda oculto para los alumnos
+     * @param autor           autor (opcional)
+     * @param enlace          enlace externo (solo bibliografía, alternativo al archivo)
+     * @param archivo         archivo del material
+     * @return el material registrado
+     * @throws IllegalArgumentException si algún dato no es válido, con el motivo
+     */
+    Material subirMaterial(Docente docente, Integer idUnidad, Integer idTipoMaterial, String titulo, boolean oculto,
+            String autor, String enlace, MultipartFile archivo);
+
+    // ---------------------------------------------------------------- Modificaciones
+
+    /**
+     * CU-30: Modifica el título, el autor, el archivo o enlace y la visibilidad de un material activo.
+     *
+     * @param idMaterial identificador del material
+     * @param docente    el docente que lo modifica (debe participar en el curso)
+     * @param titulo     título del material
+     * @param oculto     si queda oculto para los alumnos
+     * @param autor      autor (opcional)
+     * @param enlace     enlace externo (solo bibliografía, alternativo al archivo; opcional)
+     * @param archivo    archivo nuevo (opcional: si no se envía se conserva el actual)
+     * @return el material modificado
+     * @throws IllegalArgumentException si algún dato no es válido, con el motivo
+     */
+    Material modificarMaterial(Integer idMaterial, Docente docente, String titulo, boolean oculto, String autor,
+            String enlace, MultipartFile archivo);
+
+    // ---------------------------------------------------------------- Bajas
+
+    /**
+     * CU-31: Da de baja un material activo (baja lógica: se conserva el archivo).
+     *
+     * @param idMaterial identificador del material
+     * @param docente    el docente que lo da de baja, o {@code null} si lo hace el administrador
+     * @throws IllegalArgumentException si el material no está activo o el docente no participa en el curso
+     */
+    void darDeBajaMaterial(Integer idMaterial, Docente docente);
+
+    /**
+     * Da de baja varios materiales activos. Es todo o nada: si alguno no puede darse de baja, no se da de baja ninguno.
+     *
+     * @param ids      identificadores de los materiales
+     * @param docente  el docente que los da de baja, o {@code null} si lo hace el administrador
+     * @throws IllegalArgumentException si no se seleccionó ninguno o alguno no puede darse de baja
+     */
+    void darDeBajaVarios(List<Integer> ids, Docente docente);
 }

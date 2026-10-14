@@ -8,6 +8,8 @@ import com.app.idoneos.modelo.EstadoClaseClon;
  */
 public interface EstadoClaseClonServicio {
 
+    // ---------------------------------------------------------------- Lecturas
+
     /**
      * Busca el estado de la clase con clon por su atributo único 'nombre'. Incluye los registros dados de baja, para poder reactivarlos en lugar de duplicarlos.
      *

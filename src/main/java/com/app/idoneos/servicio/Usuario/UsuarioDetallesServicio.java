@@ -20,6 +20,8 @@ public class UsuarioDetallesServicio implements UserDetailsService {
     @Autowired
     private UsuarioRepositorio usuarioRepositorio;
 
+    // ---------------------------------------------------------------- Lecturas
+
     /**
      * Carga el usuario basándose en el nombre de usuario (correo electrónico).
      *

@@ -13,6 +13,8 @@ import com.app.idoneos.modelo.ParticipacionDocente;
  */
 public interface ClaseEnVivoServicio {
 
+    // ---------------------------------------------------------------- Lecturas
+
     /**
      * Busca los registros vigentes de claseEnVivo asociados a participacionDocente.
      *

@@ -18,16 +18,7 @@ public class TipoAccionAuditoriaServicioImpl implements TipoAccionAuditoriaServi
     @Autowired
     private TipoAccionAuditoriaRepositorio tipoAccionAuditoriaRepositorio;
 
-    /**
-     * Guarda el tipo de acción auditada en la base de datos.
-     *
-     * @param entidad El registro a guardar.
-     * @return El registro guardado.
-     */
-    @Override
-    public TipoAccionAuditoria guardar(TipoAccionAuditoria entidad) {
-        return tipoAccionAuditoriaRepositorio.save(entidad);
-    }
+    // ---------------------------------------------------------------- Lecturas
 
     /**
      * Busca el tipo de acción auditada por su identificador. Devuelve el registro si existe.
@@ -51,27 +42,6 @@ public class TipoAccionAuditoriaServicioImpl implements TipoAccionAuditoriaServi
     }
 
     /**
-     * Modifica un registro existente.
-     *
-     * @param entidad El registro con los datos actualizados.
-     * @return El registro modificado.
-     */
-    @Override
-    public TipoAccionAuditoria modificar(TipoAccionAuditoria entidad) {
-        return tipoAccionAuditoriaRepositorio.save(entidad);
-    }
-
-    /**
-     * Elimina el registro de la base de datos. Esta entidad no tiene baja lógica.
-     *
-     * @param entidad El registro a borrar.
-     */
-    @Override
-    public void borrar(TipoAccionAuditoria entidad) {
-        tipoAccionAuditoriaRepositorio.delete(entidad);
-    }
-
-    /**
      * Verifica si existe un registro con el identificador dado.
      *
      * @param id El identificador del registro.
@@ -91,5 +61,43 @@ public class TipoAccionAuditoriaServicioImpl implements TipoAccionAuditoriaServi
     @Override
     public Optional<TipoAccionAuditoria> buscarPorNombre(String nombre) {
         return tipoAccionAuditoriaRepositorio.findByNombre(nombre);
+    }
+
+    // ---------------------------------------------------------------- Creaciones
+
+    /**
+     * Guarda el tipo de acción auditada en la base de datos.
+     *
+     * @param entidad El registro a guardar.
+     * @return El registro guardado.
+     */
+    @Override
+    public TipoAccionAuditoria guardar(TipoAccionAuditoria entidad) {
+        return tipoAccionAuditoriaRepositorio.save(entidad);
+    }
+
+    // ---------------------------------------------------------------- Modificaciones
+
+    /**
+     * Modifica un registro existente.
+     *
+     * @param entidad El registro con los datos actualizados.
+     * @return El registro modificado.
+     */
+    @Override
+    public TipoAccionAuditoria modificar(TipoAccionAuditoria entidad) {
+        return tipoAccionAuditoriaRepositorio.save(entidad);
+    }
+
+    // ---------------------------------------------------------------- Bajas
+
+    /**
+     * Elimina el registro de la base de datos. Esta entidad no tiene baja lógica.
+     *
+     * @param entidad El registro a borrar.
+     */
+    @Override
+    public void borrar(TipoAccionAuditoria entidad) {
+        tipoAccionAuditoriaRepositorio.delete(entidad);
     }
 }

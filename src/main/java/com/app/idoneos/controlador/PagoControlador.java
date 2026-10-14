@@ -32,12 +32,11 @@ import com.app.idoneos.modelo.Inscripcion;
 import com.app.idoneos.modelo.Pago;
 import com.app.idoneos.modelo.Parametro;
 import com.app.idoneos.modelo.Usuario;
+import com.app.idoneos.servicio.Comprobante.ComprobanteServicio;
 import com.app.idoneos.servicio.Inscripcion.InscripcionServicio;
 import com.app.idoneos.servicio.Pago.PagoServicio;
-import com.app.idoneos.servicio.Pago.SolicitudDePago;
 import com.app.idoneos.servicio.Parametro.ParametroServicio;
-import com.app.idoneos.utilidades.ComprobanteUtilidad;
-import com.app.idoneos.utilidades.RespuestaUtilidad;
+import com.app.idoneos.utilidades.RespuestaJsonUtilidad;
 
 /**
  * Controlador de los pagos de las inscripciones (MOD-F-03).
@@ -61,6 +60,11 @@ public class PagoControlador {
     @Autowired
     private ParametroServicio parametroServicio;
 
+    @Autowired
+    private ComprobanteServicio comprobanteServicio;
+
+    // ---------------------------------------------------------------- Lecturas
+
     /**
      * CU-50: Lista los pagos de todos los alumnos (vista del Administrador). El listado llega completo y los filtros
      * se aplican en la pantalla.
@@ -77,9 +81,11 @@ public class PagoControlador {
                 .sorted(Comparator.comparing(Curso::getNombre, String.CASE_INSENSITIVE_ORDER)).toList());
         List<Inscripcion> pendientes = inscripcionServicio.buscarConFiltros(null, null, Inscripcion.ACCESO_PENDIENTE_DE_PAGO);
         modelo.addAttribute("inscripcionesPendientes", pendientes);
-        // Lo que se le cobra a cada alumno (precio con el descuento que le corresponde), para proponerlo como monto
+        // Lo que debe cada inscripción (precio con el descuento, menos lo ya pagado): se propone como monto y es su tope
         Map<Integer, Float> montos = new LinkedHashMap<>();
-        pendientes.forEach(inscripcion -> montos.put(inscripcion.getIdInscripcion(), pagoServicio.calcularMontoAPagar(inscripcion)));
+        pendientes.forEach(inscripcion -> montos.put(inscripcion.getIdInscripcion(), pagoServicio.calcularMontoPendiente(inscripcion)));
+        pagos.forEach(pago -> montos.computeIfAbsent(pago.getInscripcion().getIdInscripcion(),
+                id -> pagoServicio.calcularMontoPendiente(pago.getInscripcion())));
         modelo.addAttribute("montosSugeridos", montos);
         modelo.addAttribute("cbu", parametroServicio.buscarPorClave(Parametro.CBU_INSTITUCION).map(Parametro::getValor).orElse(null));
         modelo.addAttribute("registrarPara", registrarPara);
@@ -107,42 +113,6 @@ public class PagoControlador {
     }
 
     /**
-     * CU-51: El alumno paga una inscripción pendiente de pago. Registra el pago pendiente y crea la solicitud en MODO;
-     * responde con los datos que necesita el navegador para mostrar el QR. Responde en JSON.
-     *
-     * @param idInscripcion Identificador de la inscripción.
-     * @param auth          La autenticación actual.
-     * @return Los datos de la solicitud de pago o el mensaje de error.
-     */
-    @PostMapping("/pagar/{idInscripcion}")
-    public ResponseEntity<Map<String, Object>> pagar(@PathVariable("idInscripcion") Integer idInscripcion,
-            Authentication auth) {
-        try {
-            return ResponseEntity.ok(armarRespuesta(pagoServicio.iniciarPago(idInscripcion,
-                    ((Usuario) auth.getPrincipal()).getAlumno())));
-        } catch (Exception e) {
-            return errorJson(e);
-        }
-    }
-
-    /**
-     * CU-52: El alumno reintenta un pago rechazado, reutilizando su registro. Responde en JSON.
-     *
-     * @param idPago Identificador del pago rechazado.
-     * @param auth   La autenticación actual.
-     * @return Los datos de la nueva solicitud de pago o el mensaje de error.
-     */
-    @PostMapping("/reintentar/{idPago}")
-    public ResponseEntity<Map<String, Object>> reintentar(@PathVariable("idPago") Integer idPago, Authentication auth) {
-        try {
-            return ResponseEntity.ok(armarRespuesta(pagoServicio.reintentarPago(idPago,
-                    ((Usuario) auth.getPrincipal()).getAlumno())));
-        } catch (Exception e) {
-            return errorJson(e);
-        }
-    }
-
-    /**
      * Consulta el estado de un pago (lo concilia con MODO si está pendiente). El navegador la consulta cada pocos
      * segundos mientras el alumno paga. Responde en JSON.
      *
@@ -158,92 +128,11 @@ public class PagoControlador {
             cuerpo.put("estado", pago.getEstadoPago().getNombre());
             cuerpo.put("motivo", pago.getDetalleErrorOperacion());
             cuerpo.put("idPago", pago.getIdPago());
-            return ResponseEntity.ok(cuerpo);
+            return RespuestaJsonUtilidad.respuestaConDatos(cuerpo);
         } catch (ResponseStatusException e) {
             throw e;
         } catch (Exception e) {
-            return errorJson(e);
-        }
-    }
-
-    /**
-     * Aviso de MODO de que cambió el estado de un pago (webhook). Responde siempre 200 de inmediato, como exige MODO: el
-     * aviso solo identifica el pago, y el resultado se toma consultándolo a MODO (por eso un aviso falso no puede
-     * aprobar nada).
-     *
-     * @param cuerpo El contenido del aviso.
-     * @return Una respuesta vacía con estado 200.
-     */
-    @PostMapping("/webhook")
-    public ResponseEntity<Map<String, Object>> webhook(@RequestBody(required = false) Map<String, Object> cuerpo) {
-        try {
-            if (cuerpo != null) {
-                String solicitud = texto(cuerpo.get("id"));
-                if (solicitud == null) {
-                    solicitud = texto(cuerpo.get("payment_request_id"));
-                }
-                pagoServicio.procesarNotificacion(solicitud, texto(cuerpo.get("external_intention_id")));
-            }
-        } catch (RuntimeException e) {
-            REGISTRO.warn("No se pudo procesar el aviso de MODO", e);
-        }
-        return ResponseEntity.ok(Map.of("recibido", true));
-    }
-
-    /**
-     * CU-53: El administrador registra el pago por transferencia bancaria de una inscripción. Responde en JSON.
-     *
-     * @param idInscripcion Identificador de la inscripción.
-     * @param monto         El monto recibido.
-     * @param referencia    El comprobante de la transferencia.
-     * @param observaciones Notas (opcional).
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
-    @PostMapping("/registrar")
-    public ResponseEntity<Map<String, String>> registrar(
-            @RequestParam(value = "idInscripcion", required = false) Integer idInscripcion,
-            @RequestParam(value = "monto", required = false) Float monto,
-            @RequestParam(value = "referencia", required = false) String referencia,
-            @RequestParam(value = "observaciones", required = false) String observaciones) {
-        try {
-            if (idInscripcion == null) {
-                throw new IllegalArgumentException("Error! Debe seleccionar la inscripción.");
-            }
-            Pago pago = pagoServicio.registrarPagoManual(idInscripcion, monto, referencia, observaciones);
-            return RespuestaUtilidad.respuestaExitosa("Pago de " + pago.getInscripcion().getAlumno().getUsuario().getNombreCompleto()
-                    + " registrado con éxito. Se habilitó el acceso al curso y se emitió el comprobante.");
-        } catch (Exception e) {
-            return RespuestaUtilidad.respuestaConError(e);
-        }
-    }
-
-    /**
-     * CU-54: El administrador acredita o rechaza un pago pendiente o rechazado. Responde en JSON.
-     *
-     * @param id            Identificador del pago.
-     * @param estado        Aprobado o Rechazado.
-     * @param monto         El monto.
-     * @param referencia    El comprobante de la transferencia.
-     * @param nombrePagador El nombre del pagador (al aprobar un pago de MODO).
-     * @param dniPagador    El DNI del pagador (al aprobar un pago de MODO).
-     * @param motivo        El motivo del rechazo (opcional).
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
-    @PostMapping("/modificar/{id}")
-    public ResponseEntity<Map<String, String>> modificar(@PathVariable("id") Integer id,
-            @RequestParam(value = "estado", required = false) String estado,
-            @RequestParam(value = "monto", required = false) Float monto,
-            @RequestParam(value = "referencia", required = false) String referencia,
-            @RequestParam(value = "nombrePagador", required = false) String nombrePagador,
-            @RequestParam(value = "dniPagador", required = false) String dniPagador,
-            @RequestParam(value = "motivo", required = false) String motivo) {
-        try {
-            Pago pago = pagoServicio.modificarPago(id, estado, monto, referencia, nombrePagador, dniPagador, motivo);
-            return RespuestaUtilidad.respuestaExitosa(pago.estaAprobado()
-                    ? "Pago acreditado con éxito. Se habilitó el acceso al curso y se emitió el comprobante."
-                    : "Pago actualizado con éxito.");
-        } catch (Exception e) {
-            return RespuestaUtilidad.respuestaConError(e);
+            return RespuestaJsonUtilidad.respuestaConErrorEnDatos(e);
         }
     }
 
@@ -268,7 +157,133 @@ public class PagoControlador {
         }
         return ResponseEntity.ok().contentType(MediaType.APPLICATION_PDF)
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + comprobante.getNumero() + ".pdf\"")
-                .body(ComprobanteUtilidad.generarPdf(comprobante));
+                .body(comprobanteServicio.generarPdf(comprobante));
+    }
+
+    // ---------------------------------------------------------------- Creaciones
+
+    /**
+     * CU-51: El alumno paga una inscripción pendiente de pago. Registra el pago pendiente y crea la solicitud en MODO;
+     * responde con los datos que necesita el navegador para mostrar el QR. Responde en JSON.
+     *
+     * @param idInscripcion Identificador de la inscripción.
+     * @param auth          La autenticación actual.
+     * @return Los datos de la solicitud de pago o el mensaje de error.
+     */
+    @PostMapping("/pagar/{idInscripcion}")
+    public ResponseEntity<Map<String, Object>> pagar(@PathVariable("idInscripcion") Integer idInscripcion,
+            Authentication auth) {
+        try {
+            return RespuestaJsonUtilidad.respuestaConDatos(armarRespuesta(pagoServicio.iniciarPago(idInscripcion,
+                    ((Usuario) auth.getPrincipal()).getAlumno())));
+        } catch (Exception e) {
+            return RespuestaJsonUtilidad.respuestaConErrorEnDatos(e);
+        }
+    }
+
+    /**
+     * CU-53: El administrador registra el pago por transferencia bancaria de una inscripción. Responde en JSON.
+     *
+     * @param idInscripcion Identificador de la inscripción.
+     * @param monto         El monto recibido.
+     * @param referencia    El comprobante de la transferencia.
+     * @param observaciones Notas (opcional).
+     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
+     */
+    @PostMapping("/registrar")
+    public ResponseEntity<Map<String, String>> registrar(
+            @RequestParam(value = "idInscripcion", required = false) Integer idInscripcion,
+            @RequestParam(value = "monto", required = false) Float monto,
+            @RequestParam(value = "referencia", required = false) String referencia,
+            @RequestParam(value = "observaciones", required = false) String observaciones) {
+        try {
+            if (idInscripcion == null) {
+                throw new IllegalArgumentException("Error! Debe seleccionar la inscripción.");
+            }
+            Pago pago = pagoServicio.registrarPagoManual(idInscripcion, monto, referencia, observaciones);
+            Inscripcion inscripcion = pago.getInscripcion();
+            String alumno = inscripcion.getAlumno().getUsuario().getNombreCompleto();
+            return RespuestaJsonUtilidad.respuestaExitosa(inscripcion.estaHabilitada()
+                    ? "Pago de " + alumno + " registrado con éxito. Se habilitó el acceso al curso y se emitió el comprobante."
+                    : "Pago de " + alumno + " registrado, pero no cubre el precio del curso: la inscripción sigue pendiente de pago. "
+                            + "Faltan $" + String.format(java.util.Locale.forLanguageTag("es-AR"), "%,.2f",
+                                    pagoServicio.calcularMontoRequerido(inscripcion) - inscripcion.getMontoPagado()) + ".");
+        } catch (Exception e) {
+            return RespuestaJsonUtilidad.respuestaConError(e);
+        }
+    }
+
+    // ---------------------------------------------------------------- Modificaciones
+
+    /**
+     * CU-54: El administrador acredita o rechaza un pago pendiente o rechazado. Responde en JSON.
+     *
+     * @param id            Identificador del pago.
+     * @param estado        Aprobado o Rechazado.
+     * @param monto         El monto.
+     * @param referencia    El comprobante de la transferencia.
+     * @param nombrePagador El nombre del pagador (al aprobar un pago de MODO).
+     * @param dniPagador    El DNI del pagador (al aprobar un pago de MODO).
+     * @param motivo        El motivo del rechazo (opcional).
+     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
+     */
+    @PostMapping("/modificar/{id}")
+    public ResponseEntity<Map<String, String>> modificar(@PathVariable("id") Integer id,
+            @RequestParam(value = "estado", required = false) String estado,
+            @RequestParam(value = "monto", required = false) Float monto,
+            @RequestParam(value = "referencia", required = false) String referencia,
+            @RequestParam(value = "nombrePagador", required = false) String nombrePagador,
+            @RequestParam(value = "dniPagador", required = false) String dniPagador,
+            @RequestParam(value = "motivo", required = false) String motivo) {
+        try {
+            Pago pago = pagoServicio.modificarPago(id, estado, monto, referencia, nombrePagador, dniPagador, motivo);
+            return RespuestaJsonUtilidad.respuestaExitosa(pago.estaAprobado()
+                    ? "Pago acreditado con éxito. Se habilitó el acceso al curso y se emitió el comprobante."
+                    : "Pago actualizado con éxito.");
+        } catch (Exception e) {
+            return RespuestaJsonUtilidad.respuestaConError(e);
+        }
+    }
+
+    /**
+     * CU-52: El alumno reintenta un pago rechazado, reutilizando su registro. Responde en JSON.
+     *
+     * @param idPago Identificador del pago rechazado.
+     * @param auth   La autenticación actual.
+     * @return Los datos de la nueva solicitud de pago o el mensaje de error.
+     */
+    @PostMapping("/reintentar/{idPago}")
+    public ResponseEntity<Map<String, Object>> reintentar(@PathVariable("idPago") Integer idPago, Authentication auth) {
+        try {
+            return RespuestaJsonUtilidad.respuestaConDatos(armarRespuesta(pagoServicio.reintentarPago(idPago,
+                    ((Usuario) auth.getPrincipal()).getAlumno())));
+        } catch (Exception e) {
+            return RespuestaJsonUtilidad.respuestaConErrorEnDatos(e);
+        }
+    }
+
+    /**
+     * Aviso de MODO de que cambió el estado de un pago (webhook). Responde siempre 200 de inmediato, como exige MODO: el
+     * aviso solo identifica el pago, y el resultado se toma consultándolo a MODO (por eso un aviso falso no puede
+     * aprobar nada).
+     *
+     * @param cuerpo El contenido del aviso.
+     * @return Una respuesta vacía con estado 200.
+     */
+    @PostMapping("/webhook")
+    public ResponseEntity<Map<String, Object>> webhook(@RequestBody(required = false) Map<String, Object> cuerpo) {
+        try {
+            if (cuerpo != null) {
+                String solicitud = texto(cuerpo.get("id"));
+                if (solicitud == null) {
+                    solicitud = texto(cuerpo.get("payment_request_id"));
+                }
+                pagoServicio.procesarNotificacion(solicitud, texto(cuerpo.get("external_intention_id")));
+            }
+        } catch (RuntimeException e) {
+            REGISTRO.warn("No se pudo procesar el aviso de MODO", e);
+        }
+        return RespuestaJsonUtilidad.respuestaConDatos(Map.of("recibido", true));
     }
 
     /**
@@ -284,22 +299,16 @@ public class PagoControlador {
         return usuario.getAlumno();
     }
 
-    private Map<String, Object> armarRespuesta(SolicitudDePago solicitud) {
+    private Map<String, Object> armarRespuesta(PagoServicio.SolicitudPago solicitud) {
         Map<String, Object> cuerpo = new LinkedHashMap<>();
         cuerpo.put("idPago", solicitud.idPago());
         cuerpo.put("idSolicitud", solicitud.idSolicitud());
         cuerpo.put("qr", solicitud.qr());
         cuerpo.put("deeplink", solicitud.deeplink());
-        cuerpo.put("simulado", solicitud.simulado());
         cuerpo.put("scriptModal", solicitud.scriptModal());
         cuerpo.put("aprobado", solicitud.aprobado());
         cuerpo.put("plazoMinutos", pagoServicio.plazoConfirmacionMinutos());
         return cuerpo;
-    }
-
-    private ResponseEntity<Map<String, Object>> errorJson(Exception e) {
-        ResponseEntity<Map<String, String>> error = RespuestaUtilidad.respuestaConError(e);
-        return ResponseEntity.status(error.getStatusCode()).body(Map.of("error", error.getBody().get("error")));
     }
 
     private static String texto(Object valor) {

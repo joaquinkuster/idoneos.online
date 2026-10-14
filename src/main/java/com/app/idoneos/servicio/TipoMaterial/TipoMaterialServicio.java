@@ -9,6 +9,8 @@ import com.app.idoneos.modelo.TipoMaterial;
  */
 public interface TipoMaterialServicio {
 
+    // ---------------------------------------------------------------- Lecturas
+
     /**
      * Busca el tipo de material por su atributo único 'nombre'. Incluye los registros dados de baja, para poder reactivarlos en lugar de duplicarlos.
      *

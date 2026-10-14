@@ -19,7 +19,7 @@ import com.app.idoneos.modelo.Curso;
 import com.app.idoneos.servicio.Categoria.CategoriaServicioImpl;
 import com.app.idoneos.servicio.Curso.CursoServicioImpl;
 
-import com.app.idoneos.utilidades.RespuestaUtilidad;
+import com.app.idoneos.utilidades.RespuestaJsonUtilidad;
 
 /**
  * Controlador de la gestión de categorías (MOD-F-01).
@@ -38,6 +38,8 @@ public class CategoriaControlador {
 
     @Autowired
     private CursoServicioImpl cursoServicio;
+
+    // ---------------------------------------------------------------- Lecturas
 
     /**
      * CU-07: Busca categorías por nombre.
@@ -74,6 +76,8 @@ public class CategoriaControlador {
         return "pages/categoria/buscar";
     }
 
+    // ---------------------------------------------------------------- Creaciones
+
     /**
      * CU-08: Registra una categoría. Responde en JSON para que el formulario muestre el resultado
      * sin recargar la página.
@@ -88,11 +92,13 @@ public class CategoriaControlador {
             @RequestParam(value = "descripcion", required = false) String descripcion) {
         try {
             Categoria categoria = categoriaServicio.registrarCategoria(nombre, descripcion);
-            return RespuestaUtilidad.respuestaExitosa("Categoría '" + categoria.getNombre() + "' registrada con éxito.");
+            return RespuestaJsonUtilidad.respuestaExitosa("Categoría '" + categoria.getNombre() + "' registrada con éxito.");
         } catch (Exception e) {
-            return RespuestaUtilidad.respuestaConError(e);
+            return RespuestaJsonUtilidad.respuestaConError(e);
         }
     }
+
+    // ---------------------------------------------------------------- Modificaciones
 
     /**
      * CU-09: Modifica el nombre y la descripción de una categoría. Responde en JSON.
@@ -108,11 +114,13 @@ public class CategoriaControlador {
             @RequestParam(value = "descripcion", required = false) String descripcion) {
         try {
             categoriaServicio.modificarCategoria(id, nombre, descripcion);
-            return RespuestaUtilidad.respuestaExitosa("Categoría actualizada con éxito.");
+            return RespuestaJsonUtilidad.respuestaExitosa("Categoría actualizada con éxito.");
         } catch (Exception e) {
-            return RespuestaUtilidad.respuestaConError(e);
+            return RespuestaJsonUtilidad.respuestaConError(e);
         }
     }
+
+    // ---------------------------------------------------------------- Bajas
 
     /**
      * CU-10: Da de baja una categoría que no tenga cursos activos asociados. Responde en JSON.
@@ -124,9 +132,9 @@ public class CategoriaControlador {
     public ResponseEntity<Map<String, String>> darDeBajaCategoria(@PathVariable("id") Integer id) {
         try {
             categoriaServicio.darDeBajaCategoria(id);
-            return RespuestaUtilidad.respuestaExitosa("Categoría dada de baja con éxito.");
+            return RespuestaJsonUtilidad.respuestaExitosa("Categoría dada de baja con éxito.");
         } catch (Exception e) {
-            return RespuestaUtilidad.respuestaConError(e);
+            return RespuestaJsonUtilidad.respuestaConError(e);
         }
     }
 
@@ -142,9 +150,9 @@ public class CategoriaControlador {
             @RequestParam(value = "ids", required = false) List<Integer> ids) {
         try {
             categoriaServicio.darDeBajaVarios(ids);
-            return RespuestaUtilidad.respuestaExitosa("Categorías dadas de baja con éxito.");
+            return RespuestaJsonUtilidad.respuestaExitosa("Categorías dadas de baja con éxito.");
         } catch (Exception e) {
-            return RespuestaUtilidad.respuestaConError(e);
+            return RespuestaJsonUtilidad.respuestaConError(e);
         }
     }
 }

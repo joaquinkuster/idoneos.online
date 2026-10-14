@@ -19,6 +19,8 @@ import com.app.idoneos.utilidades.TextoUtilidad;
 @Service
 public class ParticipanteServicioImpl implements ParticipanteServicio {
 
+    // ---------------------------------------------------------------- Lecturas
+
     @Override
     public List<Participante> buscarParticipantes(Curso curso, String nombreCompleto, String rol) {
         List<Participante> alumnos = new ArrayList<>();

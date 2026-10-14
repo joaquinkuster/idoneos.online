@@ -177,7 +177,7 @@
                         <div class="ac-slider-ventana">
                             <div class="ac-slider-pista" data-pista>
                                 <div class="ac-slide ac-slide-llena" data-slide th:each="c : ${cursos}">
-                                    <th:block th:replace="~{fragments/tarjetaCurso :: tarjeta(${c}, ${cantUnidadesPorCurso != null ? cantUnidadesPorCurso.get(c.idCurso) : null})}"></th:block>
+                                    <th:block th:replace="~{fragments/tarjetaCurso :: tarjeta(${c}, ${cantUnidadesPorCurso != null ? cantUnidadesPorCurso.get(c.idCurso) : null}, 'Inscripción abierta', '/catalogo/ficha/' + ${c.idCurso}, 'Ver ficha del curso', null, null)}"></th:block>
                                 </div>
                             </div>
                         </div>

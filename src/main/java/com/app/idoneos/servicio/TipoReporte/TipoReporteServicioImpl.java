@@ -18,16 +18,7 @@ public class TipoReporteServicioImpl implements TipoReporteServicio, CrudServici
     @Autowired
     private TipoReporteRepositorio tipoReporteRepositorio;
 
-    /**
-     * Guarda el tipo de reporte en la base de datos.
-     *
-     * @param entidad El registro a guardar.
-     * @return El registro guardado.
-     */
-    @Override
-    public TipoReporte guardar(TipoReporte entidad) {
-        return tipoReporteRepositorio.save(entidad);
-    }
+    // ---------------------------------------------------------------- Lecturas
 
     /**
      * Busca el tipo de reporte por su identificador. Devuelve el registro si existe.
@@ -51,27 +42,6 @@ public class TipoReporteServicioImpl implements TipoReporteServicio, CrudServici
     }
 
     /**
-     * Modifica un registro existente.
-     *
-     * @param entidad El registro con los datos actualizados.
-     * @return El registro modificado.
-     */
-    @Override
-    public TipoReporte modificar(TipoReporte entidad) {
-        return tipoReporteRepositorio.save(entidad);
-    }
-
-    /**
-     * Elimina el registro de la base de datos. Esta entidad no tiene baja lógica.
-     *
-     * @param entidad El registro a borrar.
-     */
-    @Override
-    public void borrar(TipoReporte entidad) {
-        tipoReporteRepositorio.delete(entidad);
-    }
-
-    /**
      * Verifica si existe un registro con el identificador dado.
      *
      * @param id El identificador del registro.
@@ -91,5 +61,43 @@ public class TipoReporteServicioImpl implements TipoReporteServicio, CrudServici
     @Override
     public Optional<TipoReporte> buscarPorNombre(String nombre) {
         return tipoReporteRepositorio.findByNombre(nombre);
+    }
+
+    // ---------------------------------------------------------------- Creaciones
+
+    /**
+     * Guarda el tipo de reporte en la base de datos.
+     *
+     * @param entidad El registro a guardar.
+     * @return El registro guardado.
+     */
+    @Override
+    public TipoReporte guardar(TipoReporte entidad) {
+        return tipoReporteRepositorio.save(entidad);
+    }
+
+    // ---------------------------------------------------------------- Modificaciones
+
+    /**
+     * Modifica un registro existente.
+     *
+     * @param entidad El registro con los datos actualizados.
+     * @return El registro modificado.
+     */
+    @Override
+    public TipoReporte modificar(TipoReporte entidad) {
+        return tipoReporteRepositorio.save(entidad);
+    }
+
+    // ---------------------------------------------------------------- Bajas
+
+    /**
+     * Elimina el registro de la base de datos. Esta entidad no tiene baja lógica.
+     *
+     * @param entidad El registro a borrar.
+     */
+    @Override
+    public void borrar(TipoReporte entidad) {
+        tipoReporteRepositorio.delete(entidad);
     }
 }

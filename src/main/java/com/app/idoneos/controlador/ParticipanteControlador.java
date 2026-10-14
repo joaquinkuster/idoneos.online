@@ -30,6 +30,8 @@ public class ParticipanteControlador extends PanelCursoControlador {
     @Autowired
     private ParticipanteServicioImpl participanteServicio;
 
+    // ---------------------------------------------------------------- Lecturas
+
     /**
      * CU-25: Lista el equipo docente y los alumnos de todas las cohortes de un curso. Los filtros (nombre o apellido,
      * rol y cohorte) se aplican en la pantalla.
@@ -52,6 +54,10 @@ public class ParticipanteControlador extends PanelCursoControlador {
             modelo.addAttribute("participantes", participanteServicio.buscarParticipantes(curso, null, null));
             modelo.addAttribute("cohortes", curso.getProgramasActivos().stream()
                     .flatMap(programa -> programa.getCohortesActivas().stream()).toList());
+            // El docente entra con el filtro en su cohorte de trabajo; el administrador ve todas
+            modelo.addAttribute("cohorteSeleccionada", contexto.participacion() == null ? null
+                    : contexto.participacion().getCohorteDeTrabajo() == null ? null
+                            : contexto.participacion().getCohorteDeTrabajo().getIdCohorte());
             modelo.addAttribute("soloCohorte", false);
             modelo.addAttribute("titulo", "Participantes | Idóneos Online");
             return "pages/participante/buscar";

@@ -19,12 +19,12 @@
                         <i class="fa-solid fa-graduation-cap"></i>
                         <span th:text="${esAdministrador == true ? 'PANEL DEL ADMINISTRADOR' : 'PANEL DOCENTE'}">PANEL DOCENTE</span>
                     </div>
-                    <h2 class="wf-hero-title" th:text="${esAdministrador == true ? 'Todos los cursos' : 'Mis Cursos'}">Mis Cursos</h2>
+                    <h2 class="wf-hero-title" th:text="${esAdministrador == true ? 'Cursos' : 'Mis Cursos'}">Mis Cursos</h2>
                     <p class="wf-hero-desc">Bienvenido/a, <span th:text="${usuario != null ? usuario.nombreCompleto : 'Docente'}">Docente</span></p>
                 </div>
             </div>
 
-            <th:block th:replace="~{fragments/breadcrumb :: migas(null, null, ${esAdministrador == true ? 'Todos los cursos' : 'Mis cursos'})}"></th:block>
+            <th:block th:replace="~{fragments/breadcrumb :: migas(null, null, ${esAdministrador == true ? 'Cursos' : 'Mis cursos'})}"></th:block>
 
             <div class="wf-body py-4">
                 <div class="container-fluid px-4 px-lg-5">
@@ -33,7 +33,7 @@
                     <div data-tabla>
                         <section class="pn-tarjeta mb-4">
                         <div class="pn-lista-cabecera">
-                            <h2 class="pn-lista-titulo" th:text="${esAdministrador == true ? 'Todos los cursos' : 'Mis cursos como docente'}">Mis cursos como docente</h2>
+                            <h2 class="pn-lista-titulo" th:text="${esAdministrador == true ? 'Cursos' : 'Mis cursos como docente'}">Mis cursos como docente</h2>
                             <span class="pn-seleccionados" data-total-filtradas data-singular="curso encontrado" data-plural="cursos encontrados" th:text="${totalCursos + (totalCursos == 1 ? ' curso encontrado' : ' cursos encontrados')}">0 cursos encontrados</span>
                         </div>
 
@@ -105,54 +105,13 @@
 
                     <!-- Grilla de cursos del docente -->
                     <div class="wf-cards-grid" data-tarjetas>
-                        <div th:each="curso : ${cursos}" class="wf-course-card" data-tarjeta
-                             th:data-f-busqueda="${curso.nombre + ' ' + (curso.descripcion != null ? curso.descripcion : '')}"
-                             th:data-f-categoriaid="${curso.categoria.idCategoria}" th:data-f-nivelid="${curso.nivel.idNivel}"
-                             th:data-f-docenteid="${#strings.listJoin(curso.equipoDocente.![docente.idDocente], '|')}"
-                             th:data-f-modalidadid="${#strings.listJoin(curso.modalidades.![idModalidad], '|')}"
-                             th:data-o-nombre="${curso.nombre}"
-                             th:data-o-recientes="${(curso.fechaCreacion != null ? #temporals.format(curso.fechaCreacion, 'yyyyMMdd') : '') + #numbers.formatInteger(curso.idCurso, 8, 'NONE')}"
-                             th:style="${curso.baja} ? 'background: #F8FAFC; opacity: 0.7; filter: grayscale(0.85); border-color: #CBD5E1;' : ''">
-                            <div class="wf-course-card-thumb" th:classappend="${curso.imagen != null} ? 'wf-thumb-con-imagen'"
-                                 th:style="${curso.baja} ? 'background: #475569;' : ''">
-                                <img th:if="${curso.imagen != null and !curso.baja}" class="wf-course-thumb-img" th:src="@{${curso.urlImagen}}" alt=""
-                                     width="640" height="130" loading="lazy" decoding="async">
-                                <div class="wf-course-thumb-icon"><i class="fa-solid fa-graduation-cap w-8 h-8 text-white"></i></div>
-                                <div class="wf-course-pills-row">
-                                    <span class="wf-pill-tag" th:text="${curso.categoria.nombre}">Categoría</span>
-                                    <span class="wf-badge wf-badge-baja" th:if="${curso.baja}">Dado de baja</span>
-                                    <span class="wf-pill-status" th:if="${!curso.baja and cursosConInscripcionAbierta != null and cursosConInscripcionAbierta.contains(curso.idCurso)}">Inscripción Abierta</span>
-                                </div>
-                            </div>
-                            <div class="wf-course-card-body">
-                                <h4 class="wf-course-title" th:text="${curso.nombre}">Nombre Curso</h4>
-                                <p class="wf-course-desc" th:text="${curso.descripcion}">Descripción</p>
-                                <dl class="wf-course-tabla">
-                                    <div><dt>Nivel</dt><dd th:text="${curso.nivel.nombre}">Básico</dd></div>
-                                    <div><dt>Modalidad</dt><dd><span th:each="m, st : ${curso.modalidades}"><span th:text="${m.nombre}">Grabada</span><span th:if="${!st.last}">, </span></span></dd></div>
-                                    <div><dt>Titular</dt><dd th:text="${curso.docenteTitular != null ? curso.docenteTitular.usuario.nombreCompleto : '—'}">Docente</dd></div>
-                                    <div th:if="${!#lists.isEmpty(curso.docentesAyudantes)}"><dt>Ayudantes</dt><dd><span th:each="a, st : ${curso.docentesAyudantes}"><span th:text="${a.usuario.nombreCompleto}">Docente</span><span th:if="${!st.last}">, </span></span></dd></div>
-                                </dl>
-                                <div class="wf-course-info-row">
-                                    <span><i class="fa-solid fa-layer-group me-1 wf-icono-suave"></i> <span th:text="${programasPorCurso != null and programasPorCurso.containsKey(curso.idCurso) and !#lists.isEmpty(programasPorCurso.get(curso.idCurso)) ? 'Programa vigente' : 'Sin programa vigente'}">Programa vigente</span></span>
-                                    <span class="wf-course-price" th:text="${curso.precio != null && curso.precio <= 0 ? 'GRATIS' : '$ ' + #numbers.formatDecimal(curso.precio != null ? curso.precio : 0, 1, 'POINT', 0, 'COMMA')}">$0</span>
-                                </div>
-                            </div>
-                            <div class="wf-course-card-footer">
-                                <a th:href="@{/curso/acceder/{id}(id=${curso.idCurso})}" class="wf-btn-manage-course" th:if="${!curso.baja}">
-                                    <i class="fa-solid fa-door-open me-1"></i>
-                                    <span>Acceder al curso</span>
-                                </a>
-                                <div class="d-flex align-items-center justify-content-center p-2 bg-light rounded text-muted small fst-italic" th:if="${curso.baja}">
-                                    <i class="fa-solid fa-lock me-1"></i> Curso dado de baja (Inactivo)
-                                </div>
-                                <!-- Administrador: atajos al ABM de cursos, que ejecutan la opción elegida directamente -->
-                                <div class="d-flex gap-2 mt-3" th:if="${esAdministrador == true}">
-                                    <a class="pn-btn pn-btn-editar pn-btn-chico flex-fill" th:href="@{/curso/buscar(accion='editar', id=${curso.idCurso})}">Editar</a>
-                                    <a class="pn-btn pn-btn-peligro pn-btn-chico flex-fill" th:href="@{/curso/buscar(accion='baja', id=${curso.idCurso})}">Dar de baja</a>
-                                </div>
-                            </div>
-                        </div>
+                        <th:block th:each="curso : ${cursos}">
+                            <th:block th:replace="~{fragments/tarjetaCurso :: tarjeta(${curso},
+                                ${programasPorCurso != null and programasPorCurso.containsKey(curso.idCurso) and !#lists.isEmpty(programasPorCurso.get(curso.idCurso)) ? programasPorCurso.get(curso.idCurso).get(0).cantidadUnidades : 0},
+                                ${cursosConInscripcionAbierta != null and cursosConInscripcionAbierta.contains(curso.idCurso) ? 'Inscripción abierta' : null},
+                                '/curso/acceder/' + ${curso.idCurso}, 'Acceder al curso',
+                                ${esAdministrador == true ? 'curso' : null}, null)}"></th:block>
+                        </th:block>
                     </div>
 
                     <!-- Pie: cursos por página y paginador (mismo estilo que "Mis cursos" del alumno) -->

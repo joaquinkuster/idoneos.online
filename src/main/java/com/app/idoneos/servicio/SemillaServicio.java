@@ -67,6 +67,7 @@ import com.app.idoneos.repositorio.ModalidadRepositorio;
 import com.app.idoneos.repositorio.NivelRepositorio;
 import com.app.idoneos.repositorio.PagoRepositorio;
 import com.app.idoneos.repositorio.ParametroRepositorio;
+import com.app.idoneos.servicio.Parametro.ParametroServicio;
 import com.app.idoneos.repositorio.ParticipacionDocenteRepositorio;
 import com.app.idoneos.repositorio.ProgramaRepositorio;
 import com.app.idoneos.repositorio.ProgresoRepositorio;
@@ -113,6 +114,9 @@ public class SemillaServicio {
 
     @Autowired
     private ParametroRepositorio parametroRepositorio;
+
+    @Autowired
+    private ParametroServicio parametroServicio;
 
     @Autowired
     private PagoRepositorio pagoRepositorio;
@@ -235,18 +239,33 @@ public class SemillaServicio {
         EstadoPago pagoRechazado = estadoPagoRepositorio.save(new EstadoPago(EstadoPago.RECHAZADO));
         MetodoPago pagoModo = metodoPagoRepositorio.save(new MetodoPago(MetodoPago.MODO));
         MetodoPago pagoTransferencia = metodoPagoRepositorio.save(new MetodoPago(MetodoPago.TRANSFERENCIA));
-        metodoPagoRepositorio.save(new MetodoPago(MetodoPago.SIN_COSTO));
         estadoClaseEnVivoRepositorio.save(new EstadoClaseEnVivo("Cancelada"));
 
         // Administrador y parámetros
         Usuario usuarioAdmin = crearUsuario("Admin", "Idóneos", "20111222", correoAdmin, "+54 376 4000000", rolAdministrador);
         Administrador admin = administradorRepositorio.save(new Administrador(usuarioAdmin));
         parametroRepositorio.save(new Parametro(admin, Parametro.MINIMO_UNIDADES_CON_MATERIAL, "2"));
+        parametroRepositorio.save(new Parametro(admin, Parametro.CRONOGRAMA_SEMANAS_MAXIMAS,
+                String.valueOf(Parametro.CRONOGRAMA_SEMANAS_MAXIMAS_POR_DEFECTO)));
         parametroRepositorio.save(new Parametro(admin, Parametro.PLAZO_CONFIRMACION_PAGO,
                 String.valueOf(Parametro.PLAZO_CONFIRMACION_PAGO_POR_DEFECTO)));
         parametroRepositorio.save(new Parametro(admin, Parametro.CBU_INSTITUCION, "0000003100012345678901"));
         parametroRepositorio.save(new Parametro(admin, Parametro.PLAZO_EDICION_FORO,
                 String.valueOf(Parametro.PLAZO_EDICION_FORO_POR_DEFECTO)));
+        // Medio de pago MODO: credenciales de PRUEBA (ambiente de preproducción) publicadas en la documentación de MODO.
+        // El cliente las reemplaza por las de su cuenta; la contraseña se guarda cifrada.
+        parametroServicio.registrarTexto(admin, Parametro.MODO_USUARIO, "PLAYDIGITAL SA-318979-preprod");
+        parametroServicio.registrarTexto(admin, Parametro.MODO_CLAVE, "318979-P75V/QLKfVKX");
+        parametroServicio.registrarTexto(admin, Parametro.MODO_URL_API, "https://merchants.preprod.playdigital.com.ar");
+        parametroServicio.registrarTexto(admin, Parametro.MODO_URL_SCRIPT_MODAL,
+                "https://ecommerce-modal.preprod.modo.com.ar/bundle.js");
+        parametroServicio.registrarTexto(admin, Parametro.MODO_NOMBRE_COMERCIO, "Idoneos Online");
+        // Gateway Decidir 2.0/Tradicional y Decidir+ (las tarjetas de prueba de Payway) y una cuota sin interés
+        parametroServicio.registrarTexto(admin, Parametro.MODO_PROCESSOR_CODE, "P1019");
+        parametroServicio.registrarTexto(admin, Parametro.MODO_CC_CODE, "1CSI");
+        parametroServicio.registrarTexto(admin, Parametro.MODO_URL_PUBLICA, "");
+        parametroServicio.registrarTexto(admin, Parametro.MODO_MONTO_MINIMO,
+                String.valueOf((int) Parametro.MODO_MONTO_MINIMO_POR_DEFECTO));
 
         // Descuentos: uno de cada estado (vigentes con y sin condición, próximo, vencido y agotado)
         LocalDateTime hoy = LocalDateTime.now();
@@ -404,6 +423,7 @@ public class SemillaServicio {
         // Curso con costo: la inscripción queda pendiente de pago hasta que se apruebe el pago
         Inscripcion pendienteDePago = crearInscripcion(abierta4, lucia, ahora, null);
         pendienteDePago.setHabilitado(false);
+        pendienteDePago.setFechaVencimientoAcceso(null); // se calcula cuando se habilite
         inscripcionRepositorio.save(pendienteDePago);
         // Su pago con MODO fue rechazado: puede reintentarlo (CU-52) o lo puede acreditar el administrador (CU-54)
         registrarPago(pendienteDePago, pagoRechazado, pagoModo, "Tarjeta de crédito Visa", "0008", null,
@@ -677,7 +697,7 @@ public class SemillaServicio {
         pago = pagoRepositorio.save(pago);
         if (aprobado) {
             Usuario usuario = inscripcion.getAlumno().getUsuario();
-            comprobanteRepositorio.save(new Comprobante(pago, String.format("COMP-%d-%06d", fecha.getYear(), pago.getIdPago()),
+            comprobanteRepositorio.save(new Comprobante(pago, Comprobante.generarNumero(pago.getIdPago(), fecha),
                     fecha, usuario.getNombreCompleto(), usuario.getDni()));
         }
         return pago;

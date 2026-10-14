@@ -113,6 +113,23 @@ class CronogramaServicioTest {
     }
 
     @Test
+    @DisplayName("CU-24: el cronograma no puede superar el máximo de semanas del parámetro del sistema (52 por defecto)")
+    void noSuperaElMaximoDeSemanas() {
+        Programa programa = macro();
+        List<Integer> unidades = ids(programa);
+        List<Integer> antes = semanas(programa);
+
+        String error = mensaje(() -> cronogramaServicio.modificarCronograma(fausto(), programa.getIdPrograma(),
+                unidades, List.of("50", "2", "1")));
+        assertTrue(error.contains("52") && error.contains("53"), error);
+        assertEquals(antes, semanas(programa)); // nada se modificó
+
+        // justo en el máximo, se guarda
+        cronogramaServicio.modificarCronograma(fausto(), programa.getIdPrograma(), unidades, List.of("50", "1", "1"));
+        assertEquals(52, programa.getDuracionTotalSemanas());
+    }
+
+    @Test
     @DisplayName("CU-24: se incorpora una unidad de otro programa del curso, con las semanas indicadas")
     void incorporaUnaUnidadDeOtroPrograma() {
         Programa original = macro();

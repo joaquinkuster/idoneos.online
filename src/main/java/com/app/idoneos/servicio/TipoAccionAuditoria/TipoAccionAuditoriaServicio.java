@@ -8,6 +8,8 @@ import com.app.idoneos.modelo.TipoAccionAuditoria;
  */
 public interface TipoAccionAuditoriaServicio {
 
+    // ---------------------------------------------------------------- Lecturas
+
     /**
      * Busca el tipo de acción auditada por su atributo único 'nombre'. Incluye los registros dados de baja, para poder reactivarlos en lugar de duplicarlos.
      *

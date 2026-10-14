@@ -7,7 +7,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import com.app.idoneos.modelo.Descuento;
-import com.app.idoneos.utilidades.MensajeUtilidad;
+import com.app.idoneos.utilidades.MensajeBajaUtilidad;
 import com.app.idoneos.utilidades.TextoUtilidad;
 import org.springframework.transaction.annotation.Transactional;
 import com.app.idoneos.repositorio.DescuentoRepositorio;
@@ -28,16 +28,7 @@ public class DescuentoServicioImpl implements DescuentoServicio, CrudServicio<De
     @Autowired
     private DescuentoRepositorio descuentoRepositorio;
 
-    /**
-     * Guarda el descuento en la base de datos.
-     *
-     * @param entidad El registro a guardar.
-     * @return El registro guardado.
-     */
-    @Override
-    public Descuento guardar(Descuento entidad) {
-        return descuentoRepositorio.save(entidad);
-    }
+    // ---------------------------------------------------------------- Lecturas
 
     /**
      * Busca el descuento por su identificador. Solo devuelve registros activos (no dados de baja).
@@ -59,28 +50,6 @@ public class DescuentoServicioImpl implements DescuentoServicio, CrudServicio<De
     @Override
     public List<Descuento> obtenerTodo() {
         return descuentoRepositorio.findByBajaFalse();
-    }
-
-    /**
-     * Modifica un registro existente.
-     *
-     * @param entidad El registro con los datos actualizados.
-     * @return El registro modificado.
-     */
-    @Override
-    public Descuento modificar(Descuento entidad) {
-        return descuentoRepositorio.save(entidad);
-    }
-
-    /**
-     * Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos.
-     *
-     * @param entidad El registro a borrar.
-     */
-    @Override
-    public void borrar(Descuento entidad) {
-        entidad.marcarInactivo(); // Baja lógica
-        descuentoRepositorio.save(entidad);
     }
 
     /**
@@ -126,6 +95,19 @@ public class DescuentoServicioImpl implements DescuentoServicio, CrudServicio<De
                 .toList();
     }
 
+    // ---------------------------------------------------------------- Creaciones
+
+    /**
+     * Guarda el descuento en la base de datos.
+     *
+     * @param entidad El registro a guardar.
+     * @return El registro guardado.
+     */
+    @Override
+    public Descuento guardar(Descuento entidad) {
+        return descuentoRepositorio.save(entidad);
+    }
+
     @Override
     @Transactional
     public Descuento registrarDescuento(String nombre, Float porcentaje, LocalDate vigenciaDesde,
@@ -147,6 +129,19 @@ public class DescuentoServicioImpl implements DescuentoServicio, CrudServicio<De
             descuento.setUltimaModificacion(LocalDateTime.now());
         }
         return descuentoRepositorio.save(descuento);
+    }
+
+    // ---------------------------------------------------------------- Modificaciones
+
+    /**
+     * Modifica un registro existente.
+     *
+     * @param entidad El registro con los datos actualizados.
+     * @return El registro modificado.
+     */
+    @Override
+    public Descuento modificar(Descuento entidad) {
+        return descuentoRepositorio.save(entidad);
     }
 
     @Override
@@ -174,14 +169,27 @@ public class DescuentoServicioImpl implements DescuentoServicio, CrudServicio<De
         return descuentoRepositorio.save(descuento);
     }
 
+    // ---------------------------------------------------------------- Bajas
+
+    /**
+     * Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos.
+     *
+     * @param entidad El registro a borrar.
+     */
+    @Override
+    public void borrar(Descuento entidad) {
+        entidad.marcarInactivo(); // Baja lógica
+        descuentoRepositorio.save(entidad);
+    }
+
     @Override
     @Transactional
     public void darDeBajaDescuento(Integer idDescuento) {
         Descuento descuento = descuentoRepositorio.findById(idDescuento).filter(d -> !d.esInactivo())
                 .orElseThrow(() -> new IllegalArgumentException("Error! El descuento se encuentra dado de baja."));
         if (descuento.getCantidadUsada() > 0) {
-            throw new IllegalArgumentException(MensajeUtilidad.bajaBloqueada("el descuento", descuento.getNombre(),
-                    "se aplicó a " + MensajeUtilidad.cantidad(descuento.getCantidadUsada(), "inscripción",
+            throw new IllegalArgumentException(MensajeBajaUtilidad.bajaBloqueada("el descuento", descuento.getNombre(),
+                    "se aplicó a " + MensajeBajaUtilidad.cantidad(descuento.getCantidadUsada(), "inscripción",
                             "inscripciones"),
                     "Un descuento aplicado ya no puede darse de baja; se desactiva solo al vencer o al agotarse."));
         }

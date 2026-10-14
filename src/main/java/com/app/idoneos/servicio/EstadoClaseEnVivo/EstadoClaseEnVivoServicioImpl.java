@@ -18,16 +18,7 @@ public class EstadoClaseEnVivoServicioImpl implements EstadoClaseEnVivoServicio,
     @Autowired
     private EstadoClaseEnVivoRepositorio estadoClaseEnVivoRepositorio;
 
-    /**
-     * Guarda el estado de la clase en vivo en la base de datos.
-     *
-     * @param entidad El registro a guardar.
-     * @return El registro guardado.
-     */
-    @Override
-    public EstadoClaseEnVivo guardar(EstadoClaseEnVivo entidad) {
-        return estadoClaseEnVivoRepositorio.save(entidad);
-    }
+    // ---------------------------------------------------------------- Lecturas
 
     /**
      * Busca el estado de la clase en vivo por su identificador. Devuelve el registro si existe.
@@ -51,27 +42,6 @@ public class EstadoClaseEnVivoServicioImpl implements EstadoClaseEnVivoServicio,
     }
 
     /**
-     * Modifica un registro existente.
-     *
-     * @param entidad El registro con los datos actualizados.
-     * @return El registro modificado.
-     */
-    @Override
-    public EstadoClaseEnVivo modificar(EstadoClaseEnVivo entidad) {
-        return estadoClaseEnVivoRepositorio.save(entidad);
-    }
-
-    /**
-     * Elimina el registro de la base de datos. Esta entidad no tiene baja lógica.
-     *
-     * @param entidad El registro a borrar.
-     */
-    @Override
-    public void borrar(EstadoClaseEnVivo entidad) {
-        estadoClaseEnVivoRepositorio.delete(entidad);
-    }
-
-    /**
      * Verifica si existe un registro con el identificador dado.
      *
      * @param id El identificador del registro.
@@ -91,5 +61,43 @@ public class EstadoClaseEnVivoServicioImpl implements EstadoClaseEnVivoServicio,
     @Override
     public Optional<EstadoClaseEnVivo> buscarPorNombre(String nombre) {
         return estadoClaseEnVivoRepositorio.findByNombre(nombre);
+    }
+
+    // ---------------------------------------------------------------- Creaciones
+
+    /**
+     * Guarda el estado de la clase en vivo en la base de datos.
+     *
+     * @param entidad El registro a guardar.
+     * @return El registro guardado.
+     */
+    @Override
+    public EstadoClaseEnVivo guardar(EstadoClaseEnVivo entidad) {
+        return estadoClaseEnVivoRepositorio.save(entidad);
+    }
+
+    // ---------------------------------------------------------------- Modificaciones
+
+    /**
+     * Modifica un registro existente.
+     *
+     * @param entidad El registro con los datos actualizados.
+     * @return El registro modificado.
+     */
+    @Override
+    public EstadoClaseEnVivo modificar(EstadoClaseEnVivo entidad) {
+        return estadoClaseEnVivoRepositorio.save(entidad);
+    }
+
+    // ---------------------------------------------------------------- Bajas
+
+    /**
+     * Elimina el registro de la base de datos. Esta entidad no tiene baja lógica.
+     *
+     * @param entidad El registro a borrar.
+     */
+    @Override
+    public void borrar(EstadoClaseEnVivo entidad) {
+        estadoClaseEnVivoRepositorio.delete(entidad);
     }
 }

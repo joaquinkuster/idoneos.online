@@ -19,16 +19,7 @@ public class TituloDocenteServicioImpl implements TituloDocenteServicio, CrudSer
     @Autowired
     private TituloDocenteRepositorio tituloDocenteRepositorio;
 
-    /**
-     * Guarda el título del docente en la base de datos.
-     *
-     * @param entidad El registro a guardar.
-     * @return El registro guardado.
-     */
-    @Override
-    public TituloDocente guardar(TituloDocente entidad) {
-        return tituloDocenteRepositorio.save(entidad);
-    }
+    // ---------------------------------------------------------------- Lecturas
 
     /**
      * Busca el título del docente por su identificador. Solo devuelve registros activos (no dados de baja).
@@ -53,28 +44,6 @@ public class TituloDocenteServicioImpl implements TituloDocenteServicio, CrudSer
     }
 
     /**
-     * Modifica un registro existente.
-     *
-     * @param entidad El registro con los datos actualizados.
-     * @return El registro modificado.
-     */
-    @Override
-    public TituloDocente modificar(TituloDocente entidad) {
-        return tituloDocenteRepositorio.save(entidad);
-    }
-
-    /**
-     * Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos.
-     *
-     * @param entidad El registro a borrar.
-     */
-    @Override
-    public void borrar(TituloDocente entidad) {
-        entidad.marcarInactivo(); // Baja lógica
-        tituloDocenteRepositorio.save(entidad);
-    }
-
-    /**
      * Verifica si existe un registro con el identificador dado y está activo.
      *
      * @param id El identificador del registro.
@@ -95,5 +64,44 @@ public class TituloDocenteServicioImpl implements TituloDocenteServicio, CrudSer
     @Override
     public List<TituloDocente> buscarPorDocente(Docente docente) {
         return tituloDocenteRepositorio.findByDocenteAndBajaFalse(docente);
+    }
+
+    // ---------------------------------------------------------------- Creaciones
+
+    /**
+     * Guarda el título del docente en la base de datos.
+     *
+     * @param entidad El registro a guardar.
+     * @return El registro guardado.
+     */
+    @Override
+    public TituloDocente guardar(TituloDocente entidad) {
+        return tituloDocenteRepositorio.save(entidad);
+    }
+
+    // ---------------------------------------------------------------- Modificaciones
+
+    /**
+     * Modifica un registro existente.
+     *
+     * @param entidad El registro con los datos actualizados.
+     * @return El registro modificado.
+     */
+    @Override
+    public TituloDocente modificar(TituloDocente entidad) {
+        return tituloDocenteRepositorio.save(entidad);
+    }
+
+    // ---------------------------------------------------------------- Bajas
+
+    /**
+     * Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos.
+     *
+     * @param entidad El registro a borrar.
+     */
+    @Override
+    public void borrar(TituloDocente entidad) {
+        entidad.marcarInactivo(); // Baja lógica
+        tituloDocenteRepositorio.save(entidad);
     }
 }

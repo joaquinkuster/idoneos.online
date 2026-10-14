@@ -6,7 +6,7 @@
  *  - data-inscripcion: la inscripción que se paga (el modal de MODO la usa para generar un QR nuevo si el pago falla).
  *
  * El servidor registra el pago como pendiente y crea la solicitud en MODO. Con MODO se muestra su modal (QR en la
- * computadora, selector de apps en el celular); con la plataforma simulada se espera el resultado. Mientras tanto se
+ * computadora, selector de apps en el celular); Mientras tanto se
  * consulta el estado del pago cada pocos segundos: MODO avisa el resultado por su cuenta y el servidor también lo
  * consulta, así que el pago se confirma aunque el aviso no llegue.
  */
@@ -63,9 +63,12 @@
         }, INTERVALO_MS);
     }
 
-    function pagoAprobado() {
+    function pagoAprobado(sinPago) {
         if (window.Swal) { window.Swal.close(); }
-        return window.mostrarExito('¡Pago aprobado! Se habilitó el acceso al curso y se emitió tu comprobante.')
+        var mensaje = sinPago
+            ? 'Tu descuento cubre todo el precio: no hay nada que pagar. Se habilitó el acceso al curso.'
+            : '¡Pago aprobado! Se habilitó el acceso al curso y se emitió tu comprobante.';
+        return window.mostrarExito(mensaje)
             .then(function () { window.location.href = URL_RETORNO; });
     }
 
@@ -123,18 +126,7 @@
                 return window.Swal.fire({ icon: 'error', title: 'No se pudo iniciar el pago', text: r.datos.error || 'Intente nuevamente.' });
             }
             var datos = r.datos;
-            if (datos.aprobado) { return pagoAprobado(); }
-            var resolver = function (resultado) {
-                if (resultado.estado === 'Aprobado') { pagoAprobado(); } else {
-                    pagoRechazado(resultado, function () { iniciar(urlNueva, urlNueva); });
-                }
-            };
-            if (datos.simulado) {
-                window.Swal.fire({ title: 'Procesando el pago…', text: 'Plataforma de pagos simulada.', allowOutsideClick: false,
-                    didOpen: function () { window.Swal.showLoading(); } });
-                esperarResultado(datos.idPago, datos.plazoMinutos, resolver);
-                return null;
-            }
+            if (datos.aprobado) { return pagoAprobado(datos.idPago === null || datos.idPago === undefined); }
             window.Swal.close();
             return mostrarModalDeModo(datos, urlNueva).catch(function (error) {
                 return window.Swal.fire({ icon: 'error', title: 'No se pudo abrir el pago con MODO', text: error.message });

@@ -21,10 +21,9 @@ import com.app.idoneos.modelo.Parametro;
 import com.app.idoneos.modelo.Programa;
 import com.app.idoneos.modelo.Unidad;
 import com.app.idoneos.modelo.Usuario;
-import com.app.idoneos.servicio.Parametro.ParametroServicio;
 import com.app.idoneos.servicio.Unidad.UnidadServicio;
 import com.app.idoneos.servicio.UnidadCronograma.UnidadCronogramaServicio;
-import com.app.idoneos.utilidades.RespuestaUtilidad;
+import com.app.idoneos.utilidades.RespuestaJsonUtilidad;
 
 /**
  * Controlador del cronograma (MOD-F-02): CU-23 Buscar cronograma (GET /cronograma/buscar) y CU-24 Modificar cronograma
@@ -47,8 +46,7 @@ public class CronogramaControlador extends PanelCursoControlador {
     @Autowired
     private UnidadServicio unidadServicio;
 
-    @Autowired
-    private ParametroServicio parametroServicio;
+    // ---------------------------------------------------------------- Lecturas
 
     /**
      * CU-23: Muestra el cronograma del programa de trabajo de un curso, con sus unidades, el orden, las semanas de cada
@@ -78,6 +76,7 @@ public class CronogramaControlador extends PanelCursoControlador {
                     .filter(u -> !u.getProgramasQueLaIncluyen().isEmpty()).toList();
 
             cargarContexto(modelo, contexto, "cronograma");
+            cargarSemanasMaximasDelCronograma(modelo);
             modelo.addAttribute("cohorte", cohorte);
             modelo.addAttribute("cronograma", programa.getCronogramaOrdenado());
             modelo.addAttribute("unidadesDelCurso", unidadesDelCurso);
@@ -91,6 +90,8 @@ public class CronogramaControlador extends PanelCursoControlador {
             return volverAMisCursos(redirectAttributes, e);
         }
     }
+
+    // ---------------------------------------------------------------- Modificaciones
 
     /**
      * CU-24: Modifica el cronograma de un programa: las unidades que lo componen, su orden y sus semanas. Responde en
@@ -110,9 +111,9 @@ public class CronogramaControlador extends PanelCursoControlador {
         try {
             Usuario usuario = (Usuario) auth.getPrincipal();
             cronogramaServicio.modificarCronograma(usuario.getDocente(), programaId, ids, semanas);
-            return RespuestaUtilidad.respuestaExitosa("Cronograma modificado correctamente.");
+            return RespuestaJsonUtilidad.respuestaExitosa("Cronograma modificado correctamente.");
         } catch (Exception e) {
-            return RespuestaUtilidad.respuestaConError(e);
+            return RespuestaJsonUtilidad.respuestaConError(e);
         }
     }
 }

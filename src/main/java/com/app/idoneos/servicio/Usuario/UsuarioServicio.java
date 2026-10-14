@@ -10,6 +10,8 @@ import com.app.idoneos.modelo.Usuario;
  */
 public interface UsuarioServicio {
 
+    // ---------------------------------------------------------------- Lecturas
+
     /**
      * Busca los registros vigentes de usuario asociados a rol.
      *
@@ -49,6 +51,8 @@ public interface UsuarioServicio {
      * @return un {@link Optional} con el registro si existe, o vacío si no se encuentra
      */
     Optional<Usuario> buscarPorTokenVerificacion(String tokenVerificacion);
+
+    // ---------------------------------------------------------------- Modificaciones
 
     /**
      * Cambia el rol por defecto de un usuario. El rol debe estar vigente entre los roles del usuario.

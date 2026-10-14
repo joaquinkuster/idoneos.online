@@ -8,6 +8,8 @@ import com.app.idoneos.modelo.Nivel;
  */
 public interface NivelServicio {
 
+    // ---------------------------------------------------------------- Lecturas
+
     /**
      * Busca el nivel por su atributo único 'nombre'. Incluye los registros dados de baja, para poder reactivarlos en lugar de duplicarlos.
      *

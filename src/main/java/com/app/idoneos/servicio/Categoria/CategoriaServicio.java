@@ -9,6 +9,8 @@ import com.app.idoneos.modelo.Categoria;
  */
 public interface CategoriaServicio {
 
+    // ---------------------------------------------------------------- Lecturas
+
     /**
      * Busca la categoría por su atributo único 'nombre'. Incluye los registros dados de baja, para poder reactivarlos en lugar de duplicarlos.
      *
@@ -36,6 +38,8 @@ public interface CategoriaServicio {
      */
     long contarInscripcionesActivas(Categoria categoria);
 
+    // ---------------------------------------------------------------- Creaciones
+
     /**
      * Registra una nueva categoría. Si existe una categoría dada de baja con el mismo nombre, la reactiva.
      *
@@ -45,6 +49,8 @@ public interface CategoriaServicio {
      * @throws IllegalArgumentException si el nombre está vacío o ya existe una categoría activa con ese nombre
      */
     Categoria registrarCategoria(String nombre, String descripcion);
+
+    // ---------------------------------------------------------------- Modificaciones
 
     /**
      * Modifica el nombre y la descripción de una categoría activa sin inscripciones activas asociadas.
@@ -56,6 +62,8 @@ public interface CategoriaServicio {
      * @throws IllegalArgumentException si no se cumple alguna regla de modificación
      */
     Categoria modificarCategoria(Integer idCategoria, String nombre, String descripcion);
+
+    // ---------------------------------------------------------------- Bajas
 
     /**
      * Da de baja una categoría activa que no tenga cursos activos asociados.

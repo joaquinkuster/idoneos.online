@@ -27,7 +27,7 @@ import com.app.idoneos.modelo.Curso;
 import com.app.idoneos.modelo.Inscripcion;
 import com.app.idoneos.modelo.UnidadCronograma;
 import com.app.idoneos.modelo.Usuario;
-import com.app.idoneos.utilidades.RespuestaUtilidad;
+import com.app.idoneos.utilidades.RespuestaJsonUtilidad;
 
 /**
  * Controlador de las inscripciones.
@@ -47,9 +47,11 @@ public class InscripcionControlador extends PanelCursoControlador {
     @Autowired
     private PagoServicio pagoServicio;
 
+    // ---------------------------------------------------------------- Lecturas
+
     /**
      * CU-02: Lista los cursos en los que el alumno está inscripto, con su progreso general,
-     * filtrando por nombre del curso y estado de la inscripción (Pendiente, En Progreso o Finalizado).
+     * filtrando por nombre del curso y estado de la inscripción (En Progreso o Finalizado).
      *
      * @param busqueda           Parte del nombre del curso.
      * @param estado             Estado de la inscripción.
@@ -116,99 +118,6 @@ public class InscripcionControlador extends PanelCursoControlador {
     }
 
     /**
-     * CU-45: El alumno se inscribe a una cohorte con inscripción abierta. Responde en JSON y lleva a Mis cursos.
-     *
-     * @param cohorteId Identificador de la cohorte elegida.
-     * @param terminos  Si aceptó los términos y condiciones de las políticas de privacidad.
-     * @param auth      La autenticación actual.
-     * @return Una respuesta con el mensaje de éxito (y el destino) o el mensaje de error.
-     */
-    @PostMapping("/inscribir")
-    public ResponseEntity<Map<String, String>> inscribir(
-            @RequestParam(value = "cohorteId", required = false) Integer cohorteId,
-            @RequestParam(value = "terminos", defaultValue = "false") boolean terminos, Authentication auth) {
-        try {
-            Usuario usuario = (Usuario) auth.getPrincipal();
-            Inscripcion inscripcion = inscripcionServicio.inscribir(usuario.getAlumno(), cohorteId, terminos);
-            String curso = inscripcion.getCurso().getNombre();
-            String mensaje = inscripcion.estaHabilitada()
-                    ? "Te inscribiste a «" + curso + "». Ya podés acceder desde Mis cursos."
-                    : "Te inscribiste a «" + curso + "». Para acceder al contenido tenés que completar el pago.";
-            return ResponseEntity.ok(Map.of("mensaje", mensaje, "destino", "/inscripcion/misCursos"));
-        } catch (Exception e) {
-            return RespuestaUtilidad.respuestaConError(e);
-        }
-    }
-
-    /**
-     * CU-46: El administrador registra manualmente la inscripción de un alumno. Responde en JSON.
-     *
-     * @param alumnoId  Identificador del alumno.
-     * @param cohorteId Identificador de la cohorte.
-     * @param terminos  Si confirmó que el alumno acepta los términos y condiciones.
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
-    @PostMapping("/registrar")
-    public ResponseEntity<Map<String, String>> registrar(
-            @RequestParam(value = "alumnoId", required = false) Integer alumnoId,
-            @RequestParam(value = "cohorteId", required = false) Integer cohorteId,
-            @RequestParam(value = "terminos", defaultValue = "false") boolean terminos) {
-        try {
-            Inscripcion inscripcion = inscripcionServicio.registrarInscripcion(alumnoId, cohorteId, terminos);
-            String mensaje = "Inscripción de " + inscripcion.getAlumno().getUsuario().getNombreCompleto()
-                    + " a «" + inscripcion.getCurso().getNombre() + "» registrada con éxito."
-                    + (inscripcion.estaHabilitada() ? "" : " Queda pendiente de pago: registrá ahora su pago.");
-            return inscripcion.estaHabilitada() ? ResponseEntity.ok(Map.of("mensaje", mensaje))
-                    : ResponseEntity.ok(Map.of("mensaje", mensaje, "destino",
-                            "/pago/buscar?registrarPara=" + inscripcion.getIdInscripcion()));
-        } catch (Exception e) {
-            return RespuestaUtilidad.respuestaConError(e);
-        }
-    }
-
-    /**
-     * CU-47: El administrador modifica las observaciones, la habilitación y el vencimiento del acceso. Responde en JSON.
-     *
-     * @param id            Identificador de la inscripción.
-     * @param observaciones Las observaciones (opcional).
-     * @param habilitada    Si el acceso está habilitado.
-     * @param vencimiento   El último día de acceso.
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
-    @PostMapping("/modificar/{id}")
-    public ResponseEntity<Map<String, String>> modificar(@PathVariable("id") Integer id,
-            @RequestParam(value = "observaciones", required = false) String observaciones,
-            @RequestParam(value = "habilitada", required = false) Boolean habilitada,
-            @RequestParam(value = "vencimiento", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate vencimiento) {
-        try {
-            inscripcionServicio.modificarInscripcion(id, observaciones, habilitada, vencimiento);
-            return RespuestaUtilidad.respuestaExitosa("Inscripción actualizada con éxito.");
-        } catch (Exception e) {
-            return RespuestaUtilidad.respuestaConError(e);
-        }
-    }
-
-    /**
-     * CU-49: Da de baja una inscripción: el alumno la suya (abandono) o el administrador cualquiera. Responde en JSON.
-     *
-     * @param id     Identificador de la inscripción.
-     * @param motivo El motivo u observación de la baja (opcional).
-     * @param auth   La autenticación actual.
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
-    @PostMapping("/darDeBaja/{id}")
-    public ResponseEntity<Map<String, String>> darDeBaja(@PathVariable("id") Integer id,
-            @RequestParam(value = "motivo", required = false) String motivo, Authentication auth) {
-        try {
-            Usuario usuario = (Usuario) auth.getPrincipal();
-            inscripcionServicio.darDeBajaInscripcion(id, usuario.esAdministradorActivo() ? null : usuario.getAlumno(), motivo);
-            return RespuestaUtilidad.respuestaExitosa("Inscripción dada de baja con éxito.");
-        } catch (Exception e) {
-            return RespuestaUtilidad.respuestaConError(e);
-        }
-    }
-
-    /**
      * CU-27: Permite al alumno acceder a un curso en el que está inscripto: las unidades con su contenido (acordeón),
      * el cronograma con su avance o las clases en vivo de su cohorte.
      *
@@ -234,6 +143,7 @@ public class InscripcionControlador extends PanelCursoControlador {
 
             cargarContexto(modelo, ContextoCurso.deAlumno(inscripcion),
                     "unidades".equals(seccionActiva) ? "curso" : seccionActiva);
+            cargarSemanasMaximasDelCronograma(modelo);
             modelo.addAttribute("inscripcion", inscripcion);
             modelo.addAttribute("cohorte", inscripcion.getCohorte());
             // Unidades del cronograma, para el tablero de solo lectura de la sección "cronograma"
@@ -245,6 +155,104 @@ public class InscripcionControlador extends PanelCursoControlador {
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
             return "redirect:/inscripcion/misCursos";
+        }
+    }
+
+    // ---------------------------------------------------------------- Creaciones
+
+    /**
+     * CU-45: El alumno se inscribe a una cohorte con inscripción abierta. Responde en JSON y lleva a Mis cursos.
+     *
+     * @param cohorteId Identificador de la cohorte elegida.
+     * @param terminos  Si aceptó los términos y condiciones de las políticas de privacidad.
+     * @param auth      La autenticación actual.
+     * @return Una respuesta con el mensaje de éxito (y el destino) o el mensaje de error.
+     */
+    @PostMapping("/inscribir")
+    public ResponseEntity<Map<String, String>> inscribir(
+            @RequestParam(value = "cohorteId", required = false) Integer cohorteId,
+            @RequestParam(value = "terminos", defaultValue = "false") boolean terminos, Authentication auth) {
+        try {
+            Usuario usuario = (Usuario) auth.getPrincipal();
+            Inscripcion inscripcion = inscripcionServicio.inscribir(usuario.getAlumno(), cohorteId, terminos);
+            String curso = inscripcion.getCurso().getNombre();
+            String mensaje = inscripcion.estaHabilitada()
+                    ? "Te inscribiste a «" + curso + "». Ya podés acceder desde Mis cursos."
+                    : "Te inscribiste a «" + curso + "». Para acceder al contenido tenés que completar el pago.";
+            return RespuestaJsonUtilidad.respuestaExitosa(mensaje, "/inscripcion/misCursos");
+        } catch (Exception e) {
+            return RespuestaJsonUtilidad.respuestaConError(e);
+        }
+    }
+
+    /**
+     * CU-46: El administrador registra manualmente la inscripción de un alumno. Responde en JSON.
+     *
+     * @param alumnoId  Identificador del alumno.
+     * @param cohorteId Identificador de la cohorte.
+     * @param terminos  Si confirmó que el alumno acepta los términos y condiciones.
+     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
+     */
+    @PostMapping("/registrar")
+    public ResponseEntity<Map<String, String>> registrar(
+            @RequestParam(value = "alumnoId", required = false) Integer alumnoId,
+            @RequestParam(value = "cohorteId", required = false) Integer cohorteId,
+            @RequestParam(value = "terminos", defaultValue = "false") boolean terminos) {
+        try {
+            Inscripcion inscripcion = inscripcionServicio.registrarInscripcion(alumnoId, cohorteId, terminos);
+            String mensaje = "Inscripción de " + inscripcion.getAlumno().getUsuario().getNombreCompleto()
+                    + " a «" + inscripcion.getCurso().getNombre() + "» registrada con éxito."
+                    + (inscripcion.estaHabilitada() ? "" : " Queda pendiente de pago: registrá ahora su pago.");
+            return inscripcion.estaHabilitada() ? RespuestaJsonUtilidad.respuestaExitosa(mensaje)
+                    : RespuestaJsonUtilidad.respuestaExitosa(mensaje, "/pago/buscar?registrarPara=" + inscripcion.getIdInscripcion());
+        } catch (Exception e) {
+            return RespuestaJsonUtilidad.respuestaConError(e);
+        }
+    }
+
+    // ---------------------------------------------------------------- Modificaciones
+
+    /**
+     * CU-47: El administrador modifica las observaciones, la habilitación y el vencimiento del acceso. Responde en JSON.
+     *
+     * @param id            Identificador de la inscripción.
+     * @param observaciones Las observaciones (opcional).
+     * @param habilitada    Si el acceso está habilitado.
+     * @param vencimiento   El último día de acceso.
+     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
+     */
+    @PostMapping("/modificar/{id}")
+    public ResponseEntity<Map<String, String>> modificar(@PathVariable("id") Integer id,
+            @RequestParam(value = "observaciones", required = false) String observaciones,
+            @RequestParam(value = "habilitada", required = false) Boolean habilitada,
+            @RequestParam(value = "vencimiento", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate vencimiento) {
+        try {
+            inscripcionServicio.modificarInscripcion(id, observaciones, habilitada, vencimiento);
+            return RespuestaJsonUtilidad.respuestaExitosa("Inscripción actualizada con éxito.");
+        } catch (Exception e) {
+            return RespuestaJsonUtilidad.respuestaConError(e);
+        }
+    }
+
+    // ---------------------------------------------------------------- Bajas
+
+    /**
+     * CU-49: Da de baja una inscripción: el alumno la suya (abandono) o el administrador cualquiera. Responde en JSON.
+     *
+     * @param id     Identificador de la inscripción.
+     * @param motivo El motivo u observación de la baja (opcional).
+     * @param auth   La autenticación actual.
+     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
+     */
+    @PostMapping("/darDeBaja/{id}")
+    public ResponseEntity<Map<String, String>> darDeBaja(@PathVariable("id") Integer id,
+            @RequestParam(value = "motivo", required = false) String motivo, Authentication auth) {
+        try {
+            Usuario usuario = (Usuario) auth.getPrincipal();
+            inscripcionServicio.darDeBajaInscripcion(id, usuario.esAdministradorActivo() ? null : usuario.getAlumno(), motivo);
+            return RespuestaJsonUtilidad.respuestaExitosa("Inscripción dada de baja con éxito.");
+        } catch (Exception e) {
+            return RespuestaJsonUtilidad.respuestaConError(e);
         }
     }
 }

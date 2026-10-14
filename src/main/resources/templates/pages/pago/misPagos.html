@@ -10,17 +10,6 @@
 
             <div th:replace="~{fragments/navbar :: navbar}"></div>
 
-            <div class="wf-hero-banner">
-                <div>
-                    <div class="wf-hero-tag">
-                        <i class="fa-solid fa-credit-card"></i>
-                        <span>PORTAL DEL ALUMNO</span>
-                    </div>
-                    <h2 class="wf-hero-title">Mis pagos</h2>
-                    <p class="wf-hero-desc">Los pagos de tus inscripciones, con sus comprobantes</p>
-                </div>
-            </div>
-
             <th:block th:replace="~{fragments/breadcrumb :: migas('Mis cursos', '/inscripcion/misCursos', 'Mis pagos')}"></th:block>
 
             <div class="wf-body py-4">
@@ -99,9 +88,9 @@
                                                         th:if="${p.estaRechazado() and !p.inscripcion.estaHabilitada() and !p.inscripcion.esInactivo()}"
                                                         th:data-url="@{'/pago/reintentar/' + ${p.idPago}}"
                                                         th:data-inscripcion="${p.inscripcion.idInscripcion}">Reintentar</button>
-                                                <a class="pn-btn pn-btn-contorno pn-btn-chico" target="_blank" rel="noopener"
+                                                <a class="pn-btn pn-btn-ver pn-btn-chico" target="_blank" rel="noopener"
                                                    th:if="${p.estaAprobado() and p.comprobanteVigente != null}"
-                                                   th:href="@{'/pago/comprobante/' + ${p.idPago}}">Comprobante</a>
+                                                   th:href="@{'/pago/comprobante/' + ${p.idPago}}">Generar comprobante</a>
                                                 <span class="pn-celda-secundaria" th:if="${p.estaPendiente()}">Esperando confirmación</span>
                                             </div>
                                         </td>

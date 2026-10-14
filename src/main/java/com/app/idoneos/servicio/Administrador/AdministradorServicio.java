@@ -9,6 +9,8 @@ import com.app.idoneos.modelo.Usuario;
  */
 public interface AdministradorServicio {
 
+    // ---------------------------------------------------------------- Lecturas
+
     /**
      * Busca el perfil de administrador asociado a un usuario.
      *

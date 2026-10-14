@@ -42,16 +42,7 @@ public class ConsultaForoServicioImpl implements ConsultaForoServicio, CrudServi
     @Autowired
     private ParametroServicio parametroServicio;
 
-    /**
-     * Guarda la consulta del foro en la base de datos.
-     *
-     * @param entidad El registro a guardar.
-     * @return El registro guardado.
-     */
-    @Override
-    public ConsultaForo guardar(ConsultaForo entidad) {
-        return consultaForoRepositorio.save(entidad);
-    }
+    // ---------------------------------------------------------------- Lecturas
 
     /**
      * Busca la consulta del foro por su identificador. Solo devuelve registros activos (no dados de baja).
@@ -73,28 +64,6 @@ public class ConsultaForoServicioImpl implements ConsultaForoServicio, CrudServi
     @Override
     public List<ConsultaForo> obtenerTodo() {
         return consultaForoRepositorio.findByBajaFalse();
-    }
-
-    /**
-     * Modifica un registro existente.
-     *
-     * @param entidad El registro con los datos actualizados.
-     * @return El registro modificado.
-     */
-    @Override
-    public ConsultaForo modificar(ConsultaForo entidad) {
-        return consultaForoRepositorio.save(entidad);
-    }
-
-    /**
-     * Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos.
-     *
-     * @param entidad El registro a borrar.
-     */
-    @Override
-    public void borrar(ConsultaForo entidad) {
-        entidad.marcarInactivo(); // Baja lógica
-        consultaForoRepositorio.save(entidad);
     }
 
     /**
@@ -143,6 +112,19 @@ public class ConsultaForoServicioImpl implements ConsultaForoServicio, CrudServi
                 .filter(c -> hasta == null || !c.getFechaCreacion().toLocalDate().isAfter(hasta)).toList();
     }
 
+    // ---------------------------------------------------------------- Creaciones
+
+    /**
+     * Guarda la consulta del foro en la base de datos.
+     *
+     * @param entidad El registro a guardar.
+     * @return El registro guardado.
+     */
+    @Override
+    public ConsultaForo guardar(ConsultaForo entidad) {
+        return consultaForoRepositorio.save(entidad);
+    }
+
     /**
      * CU-36: Registra una consulta en el foro de una unidad.
      */
@@ -159,6 +141,19 @@ public class ConsultaForoServicioImpl implements ConsultaForoServicio, CrudServi
         ConsultaForo consulta = consultaForoRepositorio.save(new ConsultaForo(unidad, inscripcion, validarTexto(texto)));
         unidad.getConsultasForo().add(consulta);
         return consulta;
+    }
+
+    // ---------------------------------------------------------------- Modificaciones
+
+    /**
+     * Modifica un registro existente.
+     *
+     * @param entidad El registro con los datos actualizados.
+     * @return El registro modificado.
+     */
+    @Override
+    public ConsultaForo modificar(ConsultaForo entidad) {
+        return consultaForoRepositorio.save(entidad);
     }
 
     /**
@@ -181,6 +176,19 @@ public class ConsultaForoServicioImpl implements ConsultaForoServicio, CrudServi
         consulta.setTexto(validarTexto(texto));
         consulta.setUltimaModificacion(LocalDateTime.now());
         return consultaForoRepositorio.save(consulta);
+    }
+
+    // ---------------------------------------------------------------- Bajas
+
+    /**
+     * Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos.
+     *
+     * @param entidad El registro a borrar.
+     */
+    @Override
+    public void borrar(ConsultaForo entidad) {
+        entidad.marcarInactivo(); // Baja lógica
+        consultaForoRepositorio.save(entidad);
     }
 
     /**

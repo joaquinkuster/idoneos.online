@@ -11,6 +11,8 @@ import com.app.idoneos.modelo.RespuestaIntento;
  */
 public interface RespuestaIntentoServicio {
 
+    // ---------------------------------------------------------------- Lecturas
+
     /**
      * Busca los registros de respuestaIntento asociados a intentoAutoevaluacion.
      *

@@ -1,6 +1,6 @@
 package com.app.idoneos.servicio.Unidad;
 
-import com.app.idoneos.utilidades.MensajeUtilidad;
+import com.app.idoneos.utilidades.MensajeBajaUtilidad;
 import java.util.List;
 import java.util.Optional;
 import com.app.idoneos.modelo.Curso;
@@ -46,16 +46,7 @@ public class UnidadServicioImpl implements UnidadServicio, CrudServicio<Unidad> 
     @Autowired
     private UnidadCronogramaRepositorio unidadCronogramaRepositorio;
 
-    /**
-     * Guarda la unidad en la base de datos.
-     *
-     * @param entidad El registro a guardar.
-     * @return El registro guardado.
-     */
-    @Override
-    public Unidad guardar(Unidad entidad) {
-        return unidadRepositorio.save(entidad);
-    }
+    // ---------------------------------------------------------------- Lecturas
 
     /**
      * Busca la unidad por su identificador. Solo devuelve registros activos (no dados de baja).
@@ -77,28 +68,6 @@ public class UnidadServicioImpl implements UnidadServicio, CrudServicio<Unidad> 
     @Override
     public List<Unidad> obtenerTodo() {
         return unidadRepositorio.findByBajaFalse();
-    }
-
-    /**
-     * Modifica un registro existente.
-     *
-     * @param entidad El registro con los datos actualizados.
-     * @return El registro modificado.
-     */
-    @Override
-    public Unidad modificar(Unidad entidad) {
-        return unidadRepositorio.save(entidad);
-    }
-
-    /**
-     * Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos.
-     *
-     * @param entidad El registro a borrar.
-     */
-    @Override
-    public void borrar(Unidad entidad) {
-        entidad.marcarInactivo(); // Baja lógica
-        unidadRepositorio.save(entidad);
     }
 
     /**
@@ -152,6 +121,19 @@ public class UnidadServicioImpl implements UnidadServicio, CrudServicio<Unidad> 
                 .toList();
     }
 
+    // ---------------------------------------------------------------- Creaciones
+
+    /**
+     * Guarda la unidad en la base de datos.
+     *
+     * @param entidad El registro a guardar.
+     * @return El registro guardado.
+     */
+    @Override
+    public Unidad guardar(Unidad entidad) {
+        return unidadRepositorio.save(entidad);
+    }
+
     /**
      * CU-20: Agrega una unidad (nueva o existente) al final del cronograma de un programa.
      */
@@ -192,6 +174,19 @@ public class UnidadServicioImpl implements UnidadServicio, CrudServicio<Unidad> 
         return unidad;
     }
 
+    // ---------------------------------------------------------------- Modificaciones
+
+    /**
+     * Modifica un registro existente.
+     *
+     * @param entidad El registro con los datos actualizados.
+     * @return El registro modificado.
+     */
+    @Override
+    public Unidad modificar(Unidad entidad) {
+        return unidadRepositorio.save(entidad);
+    }
+
     /**
      * CU-21: Modifica una unidad sin inscripciones activas asociadas.
      */
@@ -212,6 +207,19 @@ public class UnidadServicioImpl implements UnidadServicio, CrudServicio<Unidad> 
         unidad.setContenido(contenido.trim());
         unidad.setUltimaModificacion(LocalDateTime.now());
         return unidadRepositorio.save(unidad);
+    }
+
+    // ---------------------------------------------------------------- Bajas
+
+    /**
+     * Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos.
+     *
+     * @param entidad El registro a borrar.
+     */
+    @Override
+    public void borrar(Unidad entidad) {
+        entidad.marcarInactivo(); // Baja lógica
+        unidadRepositorio.save(entidad);
     }
 
     /**
@@ -252,9 +260,9 @@ public class UnidadServicioImpl implements UnidadServicio, CrudServicio<Unidad> 
                         "Error! La unidad '" + unidad.getTitulo() + "' no pertenece al cronograma de este programa."));
         if (programa.getCantidadInscripcionesActivas() > 0) {
             // Las inscripciones no se pueden deshacer: no hay un paso que indicar
-            throw new IllegalArgumentException(MensajeUtilidad.bajaBloqueada("la unidad", unidad.getTitulo(),
+            throw new IllegalArgumentException(MensajeBajaUtilidad.bajaBloqueada("la unidad", unidad.getTitulo(),
                     "el programa «" + programa.getNombre() + "» tiene "
-                            + MensajeUtilidad.cantidad(programa.getCantidadInscripcionesActivas(), "inscripción activa",
+                            + MensajeBajaUtilidad.cantidad(programa.getCantidadInscripcionesActivas(), "inscripción activa",
                                     "inscripciones activas")
                             + " y su cronograma es lo que los alumnos vieron y pagaron al inscribirse", ""));
         }

@@ -51,6 +51,8 @@ public class CatalogoControlador {
     @Autowired
     private ProgramaServicioImpl programaServicio;
 
+    // ---------------------------------------------------------------- Lecturas
+
     /**
      * CU-06: Explora el catálogo público de cursos con cohortes con inscripción abierta, con o sin sesión
      * iniciada. Entrega todos los cursos: los filtros y la paginación se aplican en el navegador.

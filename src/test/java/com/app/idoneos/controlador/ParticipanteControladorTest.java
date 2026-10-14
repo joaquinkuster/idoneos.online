@@ -56,6 +56,9 @@ class ParticipanteControladorTest {
                 .andExpect(status().isOk())
                 .andExpect(view().name("pages/participante/buscar"))
                 .andExpect(model().attribute("soloCohorte", false))
+                // el docente entra con el filtro en su cohorte de trabajo
+                .andExpect(model().attribute("cohorteSeleccionada", Matchers.notNullValue()))
+                .andExpect(content().string(Matchers.containsString("selected")))
                 .andExpect(content().string(Matchers.allOf(
                         Matchers.containsString("Participantes"),
                         Matchers.containsString("Docente titular"),
@@ -73,6 +76,7 @@ class ParticipanteControladorTest {
     void administradorVeLosParticipantes() throws Exception {
         mockMvc.perform(get("/participante/buscar").param("cursoId", String.valueOf(cursoDeMercado())))
                 .andExpect(status().isOk())
+                .andExpect(model().attribute("cohorteSeleccionada", Matchers.nullValue()))
                 .andExpect(content().string(Matchers.containsString("Este programa")));
         mockMvc.perform(get("/participante/buscar")).andExpect(status().is3xxRedirection());
     }

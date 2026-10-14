@@ -371,6 +371,19 @@ body:not(.pn-body) .nb + :not(.wf-hero-banner):not(.wf-hero-section):not(.auth-p
         opacity: 0.55;
     }
 
+    .nb .um-item.um-item-sub {
+        padding-left: 30px;
+        font-size: 14px;
+    }
+
+    .nb .um-desplegar {
+        border-bottom: 1px solid var(--pn-borde);
+    }
+
+    .nb .um-grupo.abierto .um-grupo-fila .um-item {
+        border-bottom-color: transparent;
+    }
+
     .nb .um-item.activo:not(.um-item-peligro) {
         opacity: 1;
         color: var(--pn-texto);

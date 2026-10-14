@@ -26,7 +26,7 @@ import com.app.idoneos.modelo.UnidadCronograma;
 import com.app.idoneos.modelo.Usuario;
 import com.app.idoneos.servicio.TerminoGlosario.TerminoGlosarioServicio;
 import com.app.idoneos.servicio.Unidad.UnidadServicioImpl;
-import com.app.idoneos.utilidades.RespuestaUtilidad;
+import com.app.idoneos.utilidades.RespuestaJsonUtilidad;
 
 /**
  * Controlador del glosario (MOD-F-02): CU-32 Buscar término (GET /glosario/buscar y GET /glosario/ver/{unidadId}),
@@ -47,6 +47,8 @@ public class GlosarioControlador extends PanelCursoControlador {
 
     @Autowired
     private UnidadServicioImpl unidadServicio;
+
+    // ---------------------------------------------------------------- Lecturas
 
     /**
      * Lista los glosarios de un curso, uno por unidad del programa, cada uno con su cantidad de términos y su última
@@ -140,6 +142,8 @@ public class GlosarioControlador extends PanelCursoControlador {
         return "pages/glosario/ver";
     }
 
+    // ---------------------------------------------------------------- Creaciones
+
     /**
      * CU-33: Registra un término en el glosario de una unidad. Responde en JSON para que el formulario muestre el
      * resultado sin recargar la página.
@@ -159,11 +163,13 @@ public class GlosarioControlador extends PanelCursoControlador {
             Usuario usuario = (Usuario) auth.getPrincipal();
             TerminoGlosario registrado = terminoGlosarioServicio.registrarTermino(usuario.getDocente(), unidadId,
                     termino, definicion);
-            return RespuestaUtilidad.respuestaExitosa("Término '" + registrado.getTermino() + "' registrado con éxito.");
+            return RespuestaJsonUtilidad.respuestaExitosa("Término '" + registrado.getTermino() + "' registrado con éxito.");
         } catch (Exception e) {
-            return RespuestaUtilidad.respuestaConError(e);
+            return RespuestaJsonUtilidad.respuestaConError(e);
         }
     }
+
+    // ---------------------------------------------------------------- Modificaciones
 
     /**
      * CU-34: Modifica un término del glosario. Responde en JSON.
@@ -181,11 +187,13 @@ public class GlosarioControlador extends PanelCursoControlador {
         try {
             Usuario usuario = (Usuario) auth.getPrincipal();
             terminoGlosarioServicio.modificarTermino(id, usuario.getDocente(), termino, definicion);
-            return RespuestaUtilidad.respuestaExitosa("Término modificado correctamente.");
+            return RespuestaJsonUtilidad.respuestaExitosa("Término modificado correctamente.");
         } catch (Exception e) {
-            return RespuestaUtilidad.respuestaConError(e);
+            return RespuestaJsonUtilidad.respuestaConError(e);
         }
     }
+
+    // ---------------------------------------------------------------- Bajas
 
     /**
      * CU-35: Da de baja un término del glosario. Responde en JSON.
@@ -201,9 +209,9 @@ public class GlosarioControlador extends PanelCursoControlador {
             // El administrador puede dar de baja los términos de cualquier curso
             Docente docente = usuario.esAdministradorActivo() ? null : usuario.getDocente();
             terminoGlosarioServicio.darDeBajaTermino(id, docente);
-            return RespuestaUtilidad.respuestaExitosa("Término dado de baja con éxito.");
+            return RespuestaJsonUtilidad.respuestaExitosa("Término dado de baja con éxito.");
         } catch (Exception e) {
-            return RespuestaUtilidad.respuestaConError(e);
+            return RespuestaJsonUtilidad.respuestaConError(e);
         }
     }
 }

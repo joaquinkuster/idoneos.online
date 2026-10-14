@@ -6,11 +6,13 @@ import org.springframework.ui.Model;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.app.idoneos.modelo.Parametro;
 import com.app.idoneos.modelo.Unidad;
 import com.app.idoneos.modelo.Usuario;
 import com.app.idoneos.servicio.Curso.ContextoCurso;
 import com.app.idoneos.servicio.Curso.CursoServicio;
 import com.app.idoneos.servicio.Inscripcion.InscripcionServicio;
+import com.app.idoneos.servicio.Parametro.ParametroServicio;
 
 /**
  * Base de los controladores de las pantallas que viven dentro del panel de un curso (unidades, programas, cronograma,
@@ -26,6 +28,9 @@ public abstract class PanelCursoControlador {
 
     @Autowired
     protected InscripcionServicio inscripcionServicio;
+
+    @Autowired
+    protected ParametroServicio parametroServicio;
 
     /**
      * Resuelve el contexto de las pantallas que se abren desde el panel con {@code cursoId}: el administrador trabaja con
@@ -70,6 +75,16 @@ public abstract class PanelCursoControlador {
         modelo.addAttribute("urlBase", contexto.urlBase());
         modelo.addAttribute("urlMisCursos", contexto.urlMisCursos());
         modelo.addAttribute("menuActivo", menuActivo);
+    }
+
+    /**
+     * Vuelca al modelo el máximo de semanas que puede sumar un cronograma (parámetro del sistema).
+     *
+     * @param modelo El modelo de la vista.
+     */
+    protected void cargarSemanasMaximasDelCronograma(Model modelo) {
+        modelo.addAttribute("semanasMaximas", parametroServicio.obtenerEntero(Parametro.CRONOGRAMA_SEMANAS_MAXIMAS,
+                Parametro.CRONOGRAMA_SEMANAS_MAXIMAS_POR_DEFECTO));
     }
 
     /**

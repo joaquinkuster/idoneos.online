@@ -11,6 +11,8 @@ import com.app.idoneos.modelo.RespuestaForo;
  */
 public interface RespuestaForoServicio {
 
+    // ---------------------------------------------------------------- Lecturas
+
     /**
      * Busca los registros vigentes de respuestaForo asociados a participacionDocente.
      *
@@ -27,6 +29,8 @@ public interface RespuestaForoServicio {
      */
     List<RespuestaForo> buscarPorConsulta(ConsultaForo consulta);
 
+    // ---------------------------------------------------------------- Creaciones
+
     /**
      * CU-40: Registra la respuesta de un docente a una consulta. Solo lo hace un docente que participa en el curso.
      *
@@ -39,6 +43,8 @@ public interface RespuestaForoServicio {
      */
     RespuestaForo registrarRespuesta(Docente docente, Integer consultaId, String texto);
 
+    // ---------------------------------------------------------------- Modificaciones
+
     /**
      * CU-41: Modifica el texto de una respuesta propia, dentro del plazo de edición.
      *
@@ -49,6 +55,8 @@ public interface RespuestaForoServicio {
      * @throws IllegalArgumentException si no es suya, no está activa, pasó el plazo o el texto no es válido
      */
     RespuestaForo modificarRespuesta(Integer id, Docente docente, String texto);
+
+    // ---------------------------------------------------------------- Bajas
 
     /**
      * CU-42: Da de baja una respuesta (baja lógica). Lo hace el administrador.

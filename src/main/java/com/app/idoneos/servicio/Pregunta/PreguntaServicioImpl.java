@@ -19,16 +19,7 @@ public class PreguntaServicioImpl implements PreguntaServicio, CrudServicio<Preg
     @Autowired
     private PreguntaRepositorio preguntaRepositorio;
 
-    /**
-     * Guarda la pregunta en la base de datos.
-     *
-     * @param entidad El registro a guardar.
-     * @return El registro guardado.
-     */
-    @Override
-    public Pregunta guardar(Pregunta entidad) {
-        return preguntaRepositorio.save(entidad);
-    }
+    // ---------------------------------------------------------------- Lecturas
 
     /**
      * Busca la pregunta por su identificador. Solo devuelve registros activos (no dados de baja).
@@ -53,28 +44,6 @@ public class PreguntaServicioImpl implements PreguntaServicio, CrudServicio<Preg
     }
 
     /**
-     * Modifica un registro existente.
-     *
-     * @param entidad El registro con los datos actualizados.
-     * @return El registro modificado.
-     */
-    @Override
-    public Pregunta modificar(Pregunta entidad) {
-        return preguntaRepositorio.save(entidad);
-    }
-
-    /**
-     * Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos.
-     *
-     * @param entidad El registro a borrar.
-     */
-    @Override
-    public void borrar(Pregunta entidad) {
-        entidad.marcarInactivo(); // Baja lógica
-        preguntaRepositorio.save(entidad);
-    }
-
-    /**
      * Verifica si existe un registro con el identificador dado y está activo.
      *
      * @param id El identificador del registro.
@@ -95,5 +64,44 @@ public class PreguntaServicioImpl implements PreguntaServicio, CrudServicio<Preg
     @Override
     public List<Pregunta> buscarPorPool(Pool pool) {
         return preguntaRepositorio.findByPoolAndBajaFalse(pool);
+    }
+
+    // ---------------------------------------------------------------- Creaciones
+
+    /**
+     * Guarda la pregunta en la base de datos.
+     *
+     * @param entidad El registro a guardar.
+     * @return El registro guardado.
+     */
+    @Override
+    public Pregunta guardar(Pregunta entidad) {
+        return preguntaRepositorio.save(entidad);
+    }
+
+    // ---------------------------------------------------------------- Modificaciones
+
+    /**
+     * Modifica un registro existente.
+     *
+     * @param entidad El registro con los datos actualizados.
+     * @return El registro modificado.
+     */
+    @Override
+    public Pregunta modificar(Pregunta entidad) {
+        return preguntaRepositorio.save(entidad);
+    }
+
+    // ---------------------------------------------------------------- Bajas
+
+    /**
+     * Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos.
+     *
+     * @param entidad El registro a borrar.
+     */
+    @Override
+    public void borrar(Pregunta entidad) {
+        entidad.marcarInactivo(); // Baja lógica
+        preguntaRepositorio.save(entidad);
     }
 }

@@ -14,7 +14,7 @@
             <nav class="ac-migas" aria-label="Ruta de navegación">
                 <a th:href="@{/inicio}">Página principal</a>
                 <i class="fa-solid fa-chevron-right"></i>
-                <a th:href="@{${urlMisCursos}}" th:text="${esAdministrador == true ? 'Todos los cursos' : 'Mis cursos'}">Mis cursos</a>
+                <a th:href="@{${urlMisCursos}}" th:text="${esAdministrador == true ? 'Cursos' : 'Mis cursos'}">Mis cursos</a>
                 <i class="fa-solid fa-chevron-right"></i>
                 <a th:href="@{${urlBase}}" th:text="${curso.nombre}">Curso</a>
                 <i class="fa-solid fa-chevron-right"></i>
@@ -53,7 +53,8 @@
                         <label class="pn-etiqueta">Cohorte</label>
                         <select name="cohorte" class="pn-input">
                             <option value="">Todas las cohortes</option>
-                            <option th:each="c : ${cohortes}" th:value="${c.etiqueta}" th:text="${c.etiqueta}">Septiembre 2026</option>
+                            <option th:each="c : ${cohortes}" th:value="${c.etiqueta}" th:text="${c.etiqueta}"
+                                    th:selected="${cohorteSeleccionada != null and cohorteSeleccionada == c.idCohorte}">Septiembre 2026</option>
                         </select>
                     </div>
                     <a th:href="@{${urlBase}}" class="pn-btn pn-btn-contorno">Limpiar</a>

@@ -1448,3 +1448,76 @@ body.auth-body {
 .err-titulo {
     color: #081426;
 }
+
+/* Botón de la carta y, para el administrador, el menú de tres puntos a su derecha */
+.cc-acciones {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+.cc-acciones .cc-boton {
+    flex: 1;
+    width: auto;
+    margin-top: 0;
+}
+
+/* El menú queda por encima del enlace que se estira sobre toda la carta (.cc-boton::after); su botón mide lo mismo que el
+   botón principal */
+.cc-opciones {
+    position: relative;
+    z-index: 2;
+    flex-shrink: 0;
+}
+
+.cc-opciones .ac-menu-boton {
+    width: var(--boton-alto);
+    height: var(--boton-alto);
+    font-size: 16px;
+}
+
+/* Botones de la carta que no son el enlace de toda la carta (Pagar y acceso bloqueado) */
+.cc-boton-fijo::after {
+    display: none;
+}
+
+button.cc-boton {
+    font-family: inherit;
+    cursor: pointer;
+}
+
+.cc-carta:has(.cc-boton-fijo) {
+    cursor: default;
+}
+
+.cc-boton-inactivo,
+.cc-carta:hover .cc-boton-inactivo {
+    background: transparent;
+    color: var(--boton-navy);
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Progreso del alumno en la carta */
+.cc-progreso {
+    margin-bottom: 12px;
+    font-size: 12px;
+    color: #64748B;
+}
+
+.cc-progreso-cabecera {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 4px;
+}
+
+.cc-progreso small {
+    display: block;
+    margin-top: 4px;
+}
+
+.cc-vencimiento {
+    font-size: 12px;
+    color: #64748B;
+}

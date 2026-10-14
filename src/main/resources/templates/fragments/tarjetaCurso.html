@@ -1,21 +1,44 @@
-<!-- Tarjeta de un curso del catálogo. Se usa en el catálogo y en el inicio.
-     Parámetros: c (el curso) y unidades (cantidad de unidades temáticas, puede ser nulo).
+<!-- Tarjeta de un curso. Se usa en el inicio, el catálogo y "Mis cursos" (alumno, docente y administrador).
+     Parámetros:
+       c            el curso;
+       unidades     cantidad de unidades temáticas (puede ser nulo);
+       estado       etiqueta sobre la imagen (nulo para no mostrarla);
+       url, texto   enlace del botón, que se estira sobre toda la tarjeta;
+       menu         menú de tres puntos junto al botón: nulo (sin menú), 'curso' (administrador: Modificar y Dar de baja)
+                    o 'inscripcion' (alumno: Darme de baja);
+       inscripcion  solo para el alumno: su inscripción al curso. Suma el progreso y el vencimiento del acceso, y cambia
+                    el botón según el estado del acceso (Vigente: enlace; Pendiente de pago: botón Pagar; otro: bloqueado).
      La imagen lleva un degradé de uno de tres tonos (azul, ámbar o verde, según el curso); sin imagen, el degradé es el fondo. -->
-<div th:fragment="tarjeta(c, unidades)" class="cc-carta" data-tarjeta
+<div th:fragment="tarjeta(c, unidades, estado, url, texto, menu, inscripcion)" class="cc-carta" data-tarjeta
      th:with="cantidad=${unidades != null ? unidades : 0}"
      th:data-f-busqueda="${c.nombre + ' ' + (c.descripcion != null ? c.descripcion : '')}"
      th:data-f-categoriaid="${c.categoria.idCategoria}" th:data-f-nivelid="${c.nivel.idNivel}"
      th:data-f-docenteid="${#strings.listJoin(c.equipoDocente.![docente.idDocente], '|')}"
-     th:data-f-modalidadid="${#strings.listJoin(c.modalidades.![idModalidad], '|')}">
+     th:data-f-modalidadid="${#strings.listJoin(c.modalidades.![idModalidad], '|')}"
+     th:attr="data-f-estado=${inscripcion != null ? inscripcion.estado : null}, data-f-acceso=${inscripcion != null ? inscripcion.estadoAcceso : null}"
+     th:data-o-nombre="${c.nombre}"
+     th:data-o-recientes="${(c.fechaCreacion != null ? #temporals.format(c.fechaCreacion, 'yyyyMMdd') : '') + #numbers.formatInteger(c.idCurso, 8, 'NONE')}">
   <div class="cc-imagen" th:classappend="${'cc-tono-' + (c.idCurso % 3)}">
     <img th:if="${c.imagen != null}" th:src="@{${c.urlImagen}}" alt="" width="640" height="300" loading="lazy" decoding="async">
     <span class="cc-velo" th:if="${c.imagen != null}"></span>
-    <span class="cc-estado">Inscripción abierta</span>
+    <span class="cc-estado" th:if="${estado != null}" th:text="${estado}">Inscripción abierta</span>
   </div>
   <div class="cc-cuerpo">
     <span class="cc-etiqueta" th:text="${c.categoria.nombre + ' · ' + c.nivel.nombre}">Categoría · Nivel</span>
     <h4 class="cc-titulo" th:text="${c.nombre}">Nombre del curso</h4>
     <p class="cc-descripcion" th:text="${c.descripcion}">Descripción</p>
+    <!-- Alumno: avance en el curso -->
+    <div class="cc-progreso" th:if="${inscripcion != null}">
+      <div class="cc-progreso-cabecera">
+        <span>Progreso general</span>
+        <strong th:text="${inscripcion.porcentajeProgreso + '%'}">0%</strong>
+      </div>
+      <div class="progress wf-progreso-fino">
+        <div class="progress-bar" role="progressbar" th:style="${'width:' + inscripcion.porcentajeProgreso + '%; background: var(--wf-gold, #D4A03D);'}"
+             th:attr="aria-valuenow=${inscripcion.porcentajeProgreso}" aria-valuemin="0" aria-valuemax="100"></div>
+      </div>
+      <small th:text="${inscripcion.unidadesCompletadas + ' de ' + inscripcion.cohorte.programa.cantidadUnidades + ' unidades completadas'}">1 de 3 unidades completadas</small>
+    </div>
     <div class="cc-datos">
       <div>
         <small>Modalidad</small>
@@ -31,9 +54,37 @@
         <small>Docente</small>
         <span th:text="${c.docenteTitular != null and c.docenteTitular.usuario != null ? c.docenteTitular.usuario.nombreCompleto : 'Equipo Académico'}">Docente</span>
       </div>
-      <span class="cc-precio"
+      <span class="cc-precio" th:if="${inscripcion == null}"
             th:text="${c.precio != null && c.precio <= 0 ? 'Gratis' : '$ ' + #numbers.formatDecimal(c.precio != null ? c.precio : 0, 1, 'POINT', 0, 'COMMA')}">$ 0</span>
+      <span class="cc-vencimiento" th:if="${inscripcion != null}"
+            th:text="${inscripcion.fechaVencimientoAcceso != null ? 'Acceso hasta ' + #temporals.format(inscripcion.fechaVencimientoAcceso, 'dd/MM/yyyy') : 'El acceso empieza al pagar'}">Acceso hasta 01/01/2027</span>
     </div>
-    <a th:href="@{'/catalogo/ficha/' + ${c.idCurso}}" class="cc-boton">Ver ficha del curso</a>
+    <div class="cc-acciones">
+      <a th:if="${inscripcion == null or inscripcion.estadoAcceso == 'Vigente'}" th:href="@{${url}}" class="cc-boton" th:text="${texto}">Ver ficha del curso</a>
+      <!-- Alumno con el pago pendiente: el botón paga (no se estira sobre la tarjeta, para no iniciar un pago sin querer) -->
+      <button type="button" th:if="${inscripcion != null and inscripcion.estadoAcceso == 'Pendiente de pago'}" class="cc-boton cc-boton-fijo" data-pagar
+              th:data-url="@{'/pago/pagar/' + ${inscripcion.idInscripcion}}" th:data-inscripcion="${inscripcion.idInscripcion}"
+              title="Pagar la inscripción con MODO"
+              th:text="${montosAPagar != null and montosAPagar.containsKey(inscripcion.idInscripcion) ? (montosAPagar.get(inscripcion.idInscripcion) <= 0 ? 'Habilitar acceso (sin costo)' : 'Pagar $ ' + #numbers.formatDecimal(montosAPagar.get(inscripcion.idInscripcion), 1, 'POINT', 0, 'COMMA')) : 'Pagar'}">Pagar</button>
+      <!-- Alumno sin acceso (dictado sin comenzar o acceso vencido) -->
+      <span th:if="${inscripcion != null and inscripcion.estadoAcceso != 'Vigente' and inscripcion.estadoAcceso != 'Pendiente de pago'}"
+            class="cc-boton cc-boton-fijo cc-boton-inactivo" aria-disabled="true"
+            th:title="${inscripcion.estadoAcceso == 'Programada' ? 'El dictado todavía no comenzó' : 'Tu acceso venció'}"
+            th:text="${inscripcion.estadoAcceso == 'Programada' ? 'Comienza el ' + #temporals.format(inscripcion.cohorte.fechaInicioDictado, 'dd/MM/yyyy') : 'Acceso vencido'}">Acceso vencido</span>
+      <div class="dropdown cc-opciones" th:if="${menu != null}">
+        <button type="button" class="ac-menu-boton" data-bs-toggle="dropdown" aria-expanded="false"
+                data-bs-popper-config='{"strategy":"fixed"}' aria-label="Opciones del curso"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+        <!-- Administrador: lleva al ABM de cursos con la ventana de la opción abierta -->
+        <ul class="dropdown-menu dropdown-menu-end" th:if="${menu == 'curso'}">
+          <li><a class="dropdown-item" th:href="@{/curso/buscar(accion='editar', id=${c.idCurso})}">Modificar</a></li>
+          <li><a class="dropdown-item text-danger" th:href="@{/curso/buscar(accion='baja', id=${c.idCurso})}">Dar de baja</a></li>
+        </ul>
+        <!-- Alumno: abre la confirmación de la baja -->
+        <ul class="dropdown-menu dropdown-menu-end" th:if="${menu == 'inscripcion'}">
+          <li><button type="button" class="dropdown-item text-danger" data-bs-toggle="modal"
+                      th:data-bs-target="'#modalBajaInscripcion' + ${inscripcion.idInscripcion}">Darme de baja</button></li>
+        </ul>
+      </div>
+    </div>
   </div>
 </div>

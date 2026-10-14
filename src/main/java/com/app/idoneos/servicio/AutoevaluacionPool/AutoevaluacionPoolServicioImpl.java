@@ -20,16 +20,7 @@ public class AutoevaluacionPoolServicioImpl implements AutoevaluacionPoolServici
     @Autowired
     private AutoevaluacionPoolRepositorio autoevaluacionPoolRepositorio;
 
-    /**
-     * Guarda la relación entre autoevaluación y pool en la base de datos.
-     *
-     * @param entidad El registro a guardar.
-     * @return El registro guardado.
-     */
-    @Override
-    public AutoevaluacionPool guardar(AutoevaluacionPool entidad) {
-        return autoevaluacionPoolRepositorio.save(entidad);
-    }
+    // ---------------------------------------------------------------- Lecturas
 
     /**
      * Busca la relación entre autoevaluación y pool por su identificador. Devuelve el registro si existe.
@@ -50,27 +41,6 @@ public class AutoevaluacionPoolServicioImpl implements AutoevaluacionPoolServici
     @Override
     public List<AutoevaluacionPool> obtenerTodo() {
         return autoevaluacionPoolRepositorio.findAll();
-    }
-
-    /**
-     * Modifica un registro existente.
-     *
-     * @param entidad El registro con los datos actualizados.
-     * @return El registro modificado.
-     */
-    @Override
-    public AutoevaluacionPool modificar(AutoevaluacionPool entidad) {
-        return autoevaluacionPoolRepositorio.save(entidad);
-    }
-
-    /**
-     * Elimina el registro de la base de datos. Esta entidad no tiene baja lógica.
-     *
-     * @param entidad El registro a borrar.
-     */
-    @Override
-    public void borrar(AutoevaluacionPool entidad) {
-        autoevaluacionPoolRepositorio.delete(entidad);
     }
 
     /**
@@ -116,5 +86,43 @@ public class AutoevaluacionPoolServicioImpl implements AutoevaluacionPoolServici
     @Override
     public Optional<AutoevaluacionPool> buscarPorAutoevaluacionYPool(Autoevaluacion autoevaluacion, Pool pool) {
         return autoevaluacionPoolRepositorio.findByAutoevaluacionAndPool(autoevaluacion, pool);
+    }
+
+    // ---------------------------------------------------------------- Creaciones
+
+    /**
+     * Guarda la relación entre autoevaluación y pool en la base de datos.
+     *
+     * @param entidad El registro a guardar.
+     * @return El registro guardado.
+     */
+    @Override
+    public AutoevaluacionPool guardar(AutoevaluacionPool entidad) {
+        return autoevaluacionPoolRepositorio.save(entidad);
+    }
+
+    // ---------------------------------------------------------------- Modificaciones
+
+    /**
+     * Modifica un registro existente.
+     *
+     * @param entidad El registro con los datos actualizados.
+     * @return El registro modificado.
+     */
+    @Override
+    public AutoevaluacionPool modificar(AutoevaluacionPool entidad) {
+        return autoevaluacionPoolRepositorio.save(entidad);
+    }
+
+    // ---------------------------------------------------------------- Bajas
+
+    /**
+     * Elimina el registro de la base de datos. Esta entidad no tiene baja lógica.
+     *
+     * @param entidad El registro a borrar.
+     */
+    @Override
+    public void borrar(AutoevaluacionPool entidad) {
+        autoevaluacionPoolRepositorio.delete(entidad);
     }
 }

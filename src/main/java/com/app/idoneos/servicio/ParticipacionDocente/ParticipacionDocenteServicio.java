@@ -12,6 +12,8 @@ import com.app.idoneos.modelo.Programa;
  */
 public interface ParticipacionDocenteServicio {
 
+    // ---------------------------------------------------------------- Lecturas
+
     /**
      * Busca los registros vigentes de participacionDocente asociados a curso.
      *

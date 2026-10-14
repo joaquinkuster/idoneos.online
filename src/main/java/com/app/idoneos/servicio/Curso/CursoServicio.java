@@ -17,6 +17,8 @@ import com.app.idoneos.modelo.Usuario;
  */
 public interface CursoServicio {
 
+    // ---------------------------------------------------------------- Lecturas
+
     /**
      * Busca los registros vigentes de curso asociados a nivel.
      *
@@ -112,70 +114,12 @@ public interface CursoServicio {
     boolean tieneProgramasOUnidadesActivas(Curso curso);
 
     /**
-     * Registra un curso con sus modalidades de dictado y su equipo docente.
-     *
-     * @param nombre el nombre del curso
-     * @param descripcion la descripción del curso (opcional)
-     * @param precio el precio del curso
-     * @param imagen la ruta de la imagen de portada (opcional)
-     * @param idCategoria el identificador de la categoría
-     * @param idNivel el identificador del nivel
-     * @param emiteCertificado si el curso emite certificado al finalizar
-     * @param idsModalidades los identificadores de las modalidades de dictado
-     * @param idDocenteTitular el identificador del docente titular
-     * @param idsDocentesAyudantes los identificadores de los docentes ayudantes (opcional)
-     * @return el curso registrado
-     * @throws IllegalArgumentException si no se cumple alguna regla de registro
-     */
-    Curso registrarCurso(String nombre, String descripcion, Float precio, String imagen, Integer idCategoria,
-            Integer idNivel, boolean emiteCertificado, List<Integer> idsModalidades, Integer idDocenteTitular,
-            List<Integer> idsDocentesAyudantes);
-
-    /**
-     * Modifica un curso activo. Si tiene inscripciones activas, solo pueden modificarse el precio,
-     * el equipo docente y la imagen de portada.
-     *
-     * @param idCurso el identificador del curso
-     * @param nombre el nombre del curso
-     * @param descripcion la descripción del curso (opcional)
-     * @param precio el precio del curso
-     * @param imagen la ruta de la imagen de portada (opcional, si es nula se conserva la actual)
-     * @param idCategoria el identificador de la categoría
-     * @param idNivel el identificador del nivel
-     * @param emiteCertificado si el curso emite certificado al finalizar
-     * @param idsModalidades los identificadores de las modalidades de dictado
-     * @param idDocenteTitular el identificador del docente titular
-     * @param idsDocentesAyudantes los identificadores de los docentes ayudantes (opcional)
-     * @return el curso modificado
-     * @throws IllegalArgumentException si no se cumple alguna regla de modificación
-     */
-    Curso modificarCurso(Integer idCurso, String nombre, String descripcion, Float precio, String imagen,
-            Integer idCategoria, Integer idNivel, boolean emiteCertificado, List<Integer> idsModalidades,
-            Integer idDocenteTitular, List<Integer> idsDocentesAyudantes);
-
-    /**
-     * Da de baja un curso activo que no tenga programas ni unidades activas asociadas.
-     *
-     * @param idCurso el identificador del curso
-     * @throws IllegalArgumentException si el curso no está activo o tiene programas o unidades activas
-     */
-    void darDeBajaCurso(Integer idCurso);
-
-    /**
      * Busca las inscripciones activas (no dadas de baja) de un curso, a través de sus programas y cohortes.
      *
      * @param curso el curso a consultar
      * @return una lista de inscripciones activas del curso
      */
     List<Inscripcion> buscarInscripcionesActivas(Curso curso);
-
-    /**
-     * Da de baja varios registros a la vez, todos o ninguno: si alguno no puede darse de baja, no se da de baja ninguno.
-     *
-     * @param ids los identificadores de los registros
-     * @throws IllegalArgumentException si no se indicó ningún registro o alguno no puede darse de baja
-     */
-    void darDeBajaVarios(java.util.List<Integer> ids);
 
     /**
      * Verifica que el docente pueda acceder al curso: el curso debe estar activo, el docente debe participar en
@@ -227,6 +171,52 @@ public interface CursoServicio {
      */
     Optional<ContextoCurso> resolverContextoDeLaUnidad(Unidad unidad, Usuario usuario);
 
+    // ---------------------------------------------------------------- Creaciones
+
+    /**
+     * Registra un curso con sus modalidades de dictado y su equipo docente.
+     *
+     * @param nombre el nombre del curso
+     * @param descripcion la descripción del curso (opcional)
+     * @param precio el precio del curso
+     * @param imagen la ruta de la imagen de portada (opcional)
+     * @param idCategoria el identificador de la categoría
+     * @param idNivel el identificador del nivel
+     * @param emiteCertificado si el curso emite certificado al finalizar
+     * @param idsModalidades los identificadores de las modalidades de dictado
+     * @param idDocenteTitular el identificador del docente titular
+     * @param idsDocentesAyudantes los identificadores de los docentes ayudantes (opcional)
+     * @return el curso registrado
+     * @throws IllegalArgumentException si no se cumple alguna regla de registro
+     */
+    Curso registrarCurso(String nombre, String descripcion, Float precio, String imagen, Integer idCategoria,
+            Integer idNivel, boolean emiteCertificado, List<Integer> idsModalidades, Integer idDocenteTitular,
+            List<Integer> idsDocentesAyudantes);
+
+    // ---------------------------------------------------------------- Modificaciones
+
+    /**
+     * Modifica un curso activo. Si tiene inscripciones activas, solo pueden modificarse el precio,
+     * el equipo docente y la imagen de portada.
+     *
+     * @param idCurso el identificador del curso
+     * @param nombre el nombre del curso
+     * @param descripcion la descripción del curso (opcional)
+     * @param precio el precio del curso
+     * @param imagen la ruta de la imagen de portada (opcional, si es nula se conserva la actual)
+     * @param idCategoria el identificador de la categoría
+     * @param idNivel el identificador del nivel
+     * @param emiteCertificado si el curso emite certificado al finalizar
+     * @param idsModalidades los identificadores de las modalidades de dictado
+     * @param idDocenteTitular el identificador del docente titular
+     * @param idsDocentesAyudantes los identificadores de los docentes ayudantes (opcional)
+     * @return el curso modificado
+     * @throws IllegalArgumentException si no se cumple alguna regla de modificación
+     */
+    Curso modificarCurso(Integer idCurso, String nombre, String descripcion, Float precio, String imagen,
+            Integer idCategoria, Integer idNivel, boolean emiteCertificado, List<Integer> idsModalidades,
+            Integer idDocenteTitular, List<Integer> idsDocentesAyudantes);
+
     /**
      * Asigna la imagen de un curso activo (el archivo ya se guardó en la carpeta del curso).
      *
@@ -242,4 +232,22 @@ public interface CursoServicio {
      * carpeta anterior o entre las imágenes de ejemplo de la aplicación y actualiza el nombre guardado.
      */
     void migrarImagenes();
+
+    // ---------------------------------------------------------------- Bajas
+
+    /**
+     * Da de baja un curso activo que no tenga programas ni unidades activas asociadas.
+     *
+     * @param idCurso el identificador del curso
+     * @throws IllegalArgumentException si el curso no está activo o tiene programas o unidades activas
+     */
+    void darDeBajaCurso(Integer idCurso);
+
+    /**
+     * Da de baja varios registros a la vez, todos o ninguno: si alguno no puede darse de baja, no se da de baja ninguno.
+     *
+     * @param ids los identificadores de los registros
+     * @throws IllegalArgumentException si no se indicó ningún registro o alguno no puede darse de baja
+     */
+    void darDeBajaVarios(java.util.List<Integer> ids);
 }

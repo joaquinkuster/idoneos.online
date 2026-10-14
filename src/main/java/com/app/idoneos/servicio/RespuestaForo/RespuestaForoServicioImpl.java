@@ -36,16 +36,7 @@ public class RespuestaForoServicioImpl implements RespuestaForoServicio, CrudSer
     @Autowired
     private ParametroServicio parametroServicio;
 
-    /**
-     * Guarda la respuesta del foro en la base de datos.
-     *
-     * @param entidad El registro a guardar.
-     * @return El registro guardado.
-     */
-    @Override
-    public RespuestaForo guardar(RespuestaForo entidad) {
-        return respuestaForoRepositorio.save(entidad);
-    }
+    // ---------------------------------------------------------------- Lecturas
 
     /**
      * Busca la respuesta del foro por su identificador. Solo devuelve registros activos (no dados de baja).
@@ -67,28 +58,6 @@ public class RespuestaForoServicioImpl implements RespuestaForoServicio, CrudSer
     @Override
     public List<RespuestaForo> obtenerTodo() {
         return respuestaForoRepositorio.findByBajaFalse();
-    }
-
-    /**
-     * Modifica un registro existente.
-     *
-     * @param entidad El registro con los datos actualizados.
-     * @return El registro modificado.
-     */
-    @Override
-    public RespuestaForo modificar(RespuestaForo entidad) {
-        return respuestaForoRepositorio.save(entidad);
-    }
-
-    /**
-     * Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos.
-     *
-     * @param entidad El registro a borrar.
-     */
-    @Override
-    public void borrar(RespuestaForo entidad) {
-        entidad.marcarInactivo(); // Baja lógica
-        respuestaForoRepositorio.save(entidad);
     }
 
     /**
@@ -125,6 +94,19 @@ public class RespuestaForoServicioImpl implements RespuestaForoServicio, CrudSer
         return respuestaForoRepositorio.findByConsultaAndBajaFalse(consulta);
     }
 
+    // ---------------------------------------------------------------- Creaciones
+
+    /**
+     * Guarda la respuesta del foro en la base de datos.
+     *
+     * @param entidad El registro a guardar.
+     * @return El registro guardado.
+     */
+    @Override
+    public RespuestaForo guardar(RespuestaForo entidad) {
+        return respuestaForoRepositorio.save(entidad);
+    }
+
     /**
      * CU-40: Registra la respuesta de un docente a una consulta.
      */
@@ -139,6 +121,19 @@ public class RespuestaForoServicioImpl implements RespuestaForoServicio, CrudSer
                 validarTexto(texto)));
         consulta.getRespuestasForo().add(respuesta);
         return respuesta;
+    }
+
+    // ---------------------------------------------------------------- Modificaciones
+
+    /**
+     * Modifica un registro existente.
+     *
+     * @param entidad El registro con los datos actualizados.
+     * @return El registro modificado.
+     */
+    @Override
+    public RespuestaForo modificar(RespuestaForo entidad) {
+        return respuestaForoRepositorio.save(entidad);
     }
 
     /**
@@ -161,6 +156,19 @@ public class RespuestaForoServicioImpl implements RespuestaForoServicio, CrudSer
         respuesta.setTexto(validarTexto(texto));
         respuesta.setUltimaModificacion(LocalDateTime.now());
         return respuestaForoRepositorio.save(respuesta);
+    }
+
+    // ---------------------------------------------------------------- Bajas
+
+    /**
+     * Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos.
+     *
+     * @param entidad El registro a borrar.
+     */
+    @Override
+    public void borrar(RespuestaForo entidad) {
+        entidad.marcarInactivo(); // Baja lógica
+        respuestaForoRepositorio.save(entidad);
     }
 
     /**

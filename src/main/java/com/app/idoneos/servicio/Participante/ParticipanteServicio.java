@@ -11,6 +11,8 @@ import com.app.idoneos.modelo.Participante;
  */
 public interface ParticipanteServicio {
 
+    // ---------------------------------------------------------------- Lecturas
+
     /**
      * CU-25: Busca los participantes de un curso: su equipo docente y los alumnos inscriptos en todas sus cohortes.
      *

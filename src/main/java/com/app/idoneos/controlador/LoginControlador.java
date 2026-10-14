@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 public class LoginControlador {
 
+    // ---------------------------------------------------------------- Lecturas
+
     /**
      * Muestra el formulario de inicio de sesión. Si el usuario ya tiene una sesión iniciada,
      * lo redirige al inicio.

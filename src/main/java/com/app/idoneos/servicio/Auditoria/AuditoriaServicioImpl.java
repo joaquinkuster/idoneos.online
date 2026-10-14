@@ -20,16 +20,7 @@ public class AuditoriaServicioImpl implements AuditoriaServicio, CrudServicio<Au
     @Autowired
     private AuditoriaRepositorio auditoriaRepositorio;
 
-    /**
-     * Guarda la auditoría en la base de datos.
-     *
-     * @param entidad El registro a guardar.
-     * @return El registro guardado.
-     */
-    @Override
-    public Auditoria guardar(Auditoria entidad) {
-        return auditoriaRepositorio.save(entidad);
-    }
+    // ---------------------------------------------------------------- Lecturas
 
     /**
      * Busca la auditoría por su identificador. Devuelve el registro si existe.
@@ -50,27 +41,6 @@ public class AuditoriaServicioImpl implements AuditoriaServicio, CrudServicio<Au
     @Override
     public List<Auditoria> obtenerTodo() {
         return auditoriaRepositorio.findAll();
-    }
-
-    /**
-     * Modifica un registro existente.
-     *
-     * @param entidad El registro con los datos actualizados.
-     * @return El registro modificado.
-     */
-    @Override
-    public Auditoria modificar(Auditoria entidad) {
-        return auditoriaRepositorio.save(entidad);
-    }
-
-    /**
-     * Elimina el registro de la base de datos. Esta entidad no tiene baja lógica.
-     *
-     * @param entidad El registro a borrar.
-     */
-    @Override
-    public void borrar(Auditoria entidad) {
-        auditoriaRepositorio.delete(entidad);
     }
 
     /**
@@ -104,5 +74,43 @@ public class AuditoriaServicioImpl implements AuditoriaServicio, CrudServicio<Au
     @Override
     public List<Auditoria> buscarPorUsuario(Usuario usuario) {
         return auditoriaRepositorio.findByUsuario(usuario);
+    }
+
+    // ---------------------------------------------------------------- Creaciones
+
+    /**
+     * Guarda la auditoría en la base de datos.
+     *
+     * @param entidad El registro a guardar.
+     * @return El registro guardado.
+     */
+    @Override
+    public Auditoria guardar(Auditoria entidad) {
+        return auditoriaRepositorio.save(entidad);
+    }
+
+    // ---------------------------------------------------------------- Modificaciones
+
+    /**
+     * Modifica un registro existente.
+     *
+     * @param entidad El registro con los datos actualizados.
+     * @return El registro modificado.
+     */
+    @Override
+    public Auditoria modificar(Auditoria entidad) {
+        return auditoriaRepositorio.save(entidad);
+    }
+
+    // ---------------------------------------------------------------- Bajas
+
+    /**
+     * Elimina el registro de la base de datos. Esta entidad no tiene baja lógica.
+     *
+     * @param entidad El registro a borrar.
+     */
+    @Override
+    public void borrar(Auditoria entidad) {
+        auditoriaRepositorio.delete(entidad);
     }
 }

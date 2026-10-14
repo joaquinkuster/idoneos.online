@@ -13,6 +13,8 @@ import com.app.idoneos.modelo.Usuario;
  */
 public interface UnidadServicio {
 
+    // ---------------------------------------------------------------- Lecturas
+
     /**
      * Busca los registros vigentes de unidad asociados a curso.
      *
@@ -40,6 +42,8 @@ public interface UnidadServicio {
      */
     List<UnidadCronograma> buscarConFiltros(Programa programa, String titulo);
 
+    // ---------------------------------------------------------------- Creaciones
+
     /**
      * CU-20: Agrega una unidad al final del cronograma de un programa activo, con una semana de duración. Puede ser una
      * unidad nueva o una ya existente en otro programa del mismo curso.
@@ -58,6 +62,8 @@ public interface UnidadServicio {
     Unidad agregarUnidad(Docente docente, Integer programaId, Integer unidadExistenteId, String titulo,
             String descripcion, String contenido);
 
+    // ---------------------------------------------------------------- Modificaciones
+
     /**
      * CU-21: Modifica el título, la descripción o el contenido de una unidad, mientras ningún programa que la incluya
      * tenga inscripciones activas.
@@ -72,6 +78,8 @@ public interface UnidadServicio {
      *                                  el título ya existe o el docente no participa en el curso
      */
     Unidad modificarUnidad(Integer id, Docente docente, String titulo, String descripcion, String contenido);
+
+    // ---------------------------------------------------------------- Bajas
 
     /**
      * CU-22: Da de baja una unidad del cronograma de un programa. Si deja de formar parte del cronograma de cualquier

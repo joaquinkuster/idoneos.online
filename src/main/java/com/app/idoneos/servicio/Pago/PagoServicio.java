@@ -15,6 +15,8 @@ import com.app.idoneos.modelo.Pago;
  */
 public interface PagoServicio {
 
+    // ---------------------------------------------------------------- Lecturas
+
     /**
      * Busca los registros de pago asociados a estadoPago.
      *
@@ -103,27 +105,29 @@ public interface PagoServicio {
     float calcularMontoAPagar(Inscripcion inscripcion);
 
     /**
-     * Inicia el pago online de una inscripción pendiente de pago (CU-51): calcula el monto con el descuento, registra
-     * el pago como pendiente y crea la solicitud en la plataforma. Si ya hay un pago en curso lo retoma; si el último
-     * fue rechazado reutiliza su registro (CU-52). Si el descuento cubre todo el precio, aprueba el pago sin pasar por
-     * la plataforma.
+     * Calcula el monto que deben cubrir los pagos aprobados para habilitar la inscripción: el del descuento del pago
+     * aprobado, si lo tuvo, o el que le corresponde pagar hoy al alumno.
      *
-     * @param idInscripcion la inscripción que se paga
-     * @param alumno el alumno dueño de la inscripción
-     * @return los datos para que el alumno complete el pago
-     * @throws IllegalArgumentException si no se puede pagar la inscripción
+     * @param inscripcion la inscripción
+     * @return el monto que debe cubrirse (cero si el curso no tiene costo)
      */
-    SolicitudDePago iniciarPago(Integer idInscripcion, Alumno alumno);
+    float calcularMontoRequerido(Inscripcion inscripcion);
 
     /**
-     * Reintenta un pago rechazado reutilizando su registro (CU-52).
+     * Calcula lo que todavía debe la inscripción: el monto que deben cubrir los pagos aprobados menos lo ya pagado.
      *
-     * @param idPago el pago rechazado
-     * @param alumno el alumno dueño del pago
-     * @return los datos para que el alumno complete el pago
-     * @throws IllegalArgumentException si el pago no está rechazado o su inscripción ya tiene acceso habilitado
+     * @param inscripcion la inscripción
+     * @return el monto pendiente (cero si ya está cubierto)
      */
-    SolicitudDePago reintentarPago(Integer idPago, Alumno alumno);
+    float calcularMontoPendiente(Inscripcion inscripcion);
+
+    /**
+     * Indica si los pagos aprobados de la inscripción cubren lo que hay que pagar. Un curso sin costo no necesita pagos.
+     *
+     * @param inscripcion la inscripción
+     * @return {@code true} si se puede habilitar el acceso
+     */
+    boolean cubreElPrecio(Inscripcion inscripcion);
 
     /**
      * Consulta el estado de un pago. Si está pendiente, lo concilia con la plataforma: lo aprueba o rechaza según
@@ -135,6 +139,63 @@ public interface PagoServicio {
      * @throws IllegalArgumentException si el pago no existe o no es del alumno
      */
     Pago consultarEstado(Integer idPago, Alumno alumno);
+
+    /**
+     * Busca un pago al que puede acceder quien lo pide: el alumno, solo los suyos; el administrador, cualquiera.
+     *
+     * @param idPago el pago
+     * @param alumno el alumno, o {@code null} si es el Administrador
+     * @return el pago
+     * @throws IllegalArgumentException si no existe o no es del alumno
+     */
+    Pago buscarVisible(Integer idPago, Alumno alumno);
+
+    /**
+     * Plazo, en minutos, que se espera la confirmación de un pago online antes de rechazarlo (entre 5 y 10).
+     *
+     * @return el plazo
+     */
+    int plazoConfirmacionMinutos();
+
+    // ---------------------------------------------------------------- Creaciones
+
+    /**
+     * Inicia el pago online de una inscripción pendiente de pago (CU-51): calcula el monto con el descuento, registra
+     * el pago como pendiente y crea la solicitud en la plataforma. Si ya hay un pago en curso lo retoma; si el último
+     * fue rechazado reutiliza su registro (CU-52). Si el descuento cubre todo el precio, habilita la inscripción
+     * directamente, sin registrar un pago ni pasar por la plataforma (la respuesta viene aprobada y sin pago).
+     *
+     * @param idInscripcion la inscripción que se paga
+     * @param alumno el alumno dueño de la inscripción
+     * @return los datos para que el alumno complete el pago
+     * @throws IllegalArgumentException si no se puede pagar la inscripción
+     */
+    SolicitudPago iniciarPago(Integer idInscripcion, Alumno alumno);
+
+    /**
+     * El administrador registra el pago de una inscripción recibido por fuera de MODO, por transferencia bancaria
+     * (CU-53). El pago queda aprobado, se habilita el acceso y se emite el comprobante.
+     *
+     * @param idInscripcion la inscripción que se paga
+     * @param monto el monto recibido
+     * @param referencia el comprobante de la transferencia (número de operación)
+     * @param observaciones notas del administrador (opcional)
+     * @return el pago registrado
+     * @throws IllegalArgumentException si falta algún dato o la inscripción ya está paga
+     */
+    Pago registrarPagoManual(Integer idInscripcion, Float monto, String referencia, String observaciones);
+
+    // ---------------------------------------------------------------- Modificaciones
+
+    /**
+     * Reintenta un pago rechazado reutilizando su registro (CU-52).
+     *
+     * @param idPago el pago rechazado
+     * @param alumno el alumno dueño del pago
+     * @return los datos para que el alumno complete el pago
+     * @throws IllegalArgumentException si el pago no está rechazado o su inscripción ya tiene acceso habilitado
+     */
+    SolicitudPago reintentarPago(Integer idPago, Alumno alumno);
 
     /**
      * Procesa el aviso de la plataforma de que cambió el estado de un pago: lo concilia consultándolo (el aviso solo
@@ -155,19 +216,6 @@ public interface PagoServicio {
     int conciliarPagosPendientes();
 
     /**
-     * El administrador registra el pago de una inscripción recibido por fuera de MODO, por transferencia bancaria
-     * (CU-53). El pago queda aprobado, se habilita el acceso y se emite el comprobante.
-     *
-     * @param idInscripcion la inscripción que se paga
-     * @param monto el monto recibido
-     * @param referencia el comprobante de la transferencia (número de operación)
-     * @param observaciones notas del administrador (opcional)
-     * @return el pago registrado
-     * @throws IllegalArgumentException si falta algún dato o la inscripción ya está paga
-     */
-    Pago registrarPagoManual(Integer idInscripcion, Float monto, String referencia, String observaciones);
-
-    /**
      * El administrador acredita o rechaza manualmente un pago pendiente o rechazado, corrigiendo su monto o
      * comprobante (CU-54). Al aprobarlo se habilita el acceso y se emite el comprobante.
      *
@@ -185,19 +233,19 @@ public interface PagoServicio {
             String dniPagador, String motivo);
 
     /**
-     * Busca un pago al que puede acceder quien lo pide: el alumno, solo los suyos; el administrador, cualquiera.
+     * Datos que necesita el navegador para que el alumno complete un pago online: el pago que se registró y la solicitud
+     * creada en la plataforma (el QR y el enlace no se guardan; si hace falta se vuelven a pedir a la plataforma).
      *
-     * @param idPago el pago
-     * @param alumno el alumno, o {@code null} si es el Administrador
-     * @return el pago
-     * @throws IllegalArgumentException si no existe o no es del alumno
+     * @param idPago      El pago registrado, pendiente de confirmación (nulo si el descuento cubre todo el precio: en ese
+     *                    caso no se registra ningún pago).
+     * @param idSolicitud El identificador de la solicitud en la plataforma.
+     * @param qr          El código QR que se escanea desde la app de MODO o de un banco.
+     * @param deeplink    El enlace que abre la app de pago desde un celular.
+     * @param scriptModal La dirección del script que muestra el modal de MODO.
+     * @param aprobado    Si el pago ya quedó aprobado (o, si no hay pago, si el descuento cubre todo el precio y se
+     *                    habilitó el acceso).
      */
-    Pago buscarVisible(Integer idPago, Alumno alumno);
-
-    /**
-     * Plazo, en minutos, que se espera la confirmación de un pago online antes de rechazarlo (entre 5 y 10).
-     *
-     * @return el plazo
-     */
-    int plazoConfirmacionMinutos();
+    record SolicitudPago(Integer idPago, String idSolicitud, String qr, String deeplink, String scriptModal,
+            boolean aprobado) {
+    }
 }

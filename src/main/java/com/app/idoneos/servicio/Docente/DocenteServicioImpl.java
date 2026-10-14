@@ -19,16 +19,7 @@ public class DocenteServicioImpl implements DocenteServicio, CrudServicio<Docent
     @Autowired
     private DocenteRepositorio docenteRepositorio;
 
-    /**
-     * Guarda el docente en la base de datos.
-     *
-     * @param entidad El registro a guardar.
-     * @return El registro guardado.
-     */
-    @Override
-    public Docente guardar(Docente entidad) {
-        return docenteRepositorio.save(entidad);
-    }
+    // ---------------------------------------------------------------- Lecturas
 
     /**
      * Busca el docente por su identificador. Devuelve el registro si existe.
@@ -49,27 +40,6 @@ public class DocenteServicioImpl implements DocenteServicio, CrudServicio<Docent
     @Override
     public List<Docente> obtenerTodo() {
         return docenteRepositorio.findAll();
-    }
-
-    /**
-     * Modifica un registro existente.
-     *
-     * @param entidad El registro con los datos actualizados.
-     * @return El registro modificado.
-     */
-    @Override
-    public Docente modificar(Docente entidad) {
-        return docenteRepositorio.save(entidad);
-    }
-
-    /**
-     * Elimina el registro de la base de datos. Esta entidad no tiene baja lógica.
-     *
-     * @param entidad El registro a borrar.
-     */
-    @Override
-    public void borrar(Docente entidad) {
-        docenteRepositorio.delete(entidad);
     }
 
     /**
@@ -135,5 +105,43 @@ public class DocenteServicioImpl implements DocenteServicio, CrudServicio<Docent
     @Override
     public List<Docente> buscarHabilitados() {
         return docenteRepositorio.findHabilitados();
+    }
+
+    // ---------------------------------------------------------------- Creaciones
+
+    /**
+     * Guarda el docente en la base de datos.
+     *
+     * @param entidad El registro a guardar.
+     * @return El registro guardado.
+     */
+    @Override
+    public Docente guardar(Docente entidad) {
+        return docenteRepositorio.save(entidad);
+    }
+
+    // ---------------------------------------------------------------- Modificaciones
+
+    /**
+     * Modifica un registro existente.
+     *
+     * @param entidad El registro con los datos actualizados.
+     * @return El registro modificado.
+     */
+    @Override
+    public Docente modificar(Docente entidad) {
+        return docenteRepositorio.save(entidad);
+    }
+
+    // ---------------------------------------------------------------- Bajas
+
+    /**
+     * Elimina el registro de la base de datos. Esta entidad no tiene baja lógica.
+     *
+     * @param entidad El registro a borrar.
+     */
+    @Override
+    public void borrar(Docente entidad) {
+        docenteRepositorio.delete(entidad);
     }
 }

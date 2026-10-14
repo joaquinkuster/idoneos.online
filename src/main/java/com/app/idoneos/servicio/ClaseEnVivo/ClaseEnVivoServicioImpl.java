@@ -22,16 +22,7 @@ public class ClaseEnVivoServicioImpl implements ClaseEnVivoServicio, CrudServici
     @Autowired
     private ClaseEnVivoRepositorio claseEnVivoRepositorio;
 
-    /**
-     * Guarda la clase en vivo en la base de datos.
-     *
-     * @param entidad El registro a guardar.
-     * @return El registro guardado.
-     */
-    @Override
-    public ClaseEnVivo guardar(ClaseEnVivo entidad) {
-        return claseEnVivoRepositorio.save(entidad);
-    }
+    // ---------------------------------------------------------------- Lecturas
 
     /**
      * Busca la clase en vivo por su identificador. Solo devuelve registros activos (no dados de baja).
@@ -53,28 +44,6 @@ public class ClaseEnVivoServicioImpl implements ClaseEnVivoServicio, CrudServici
     @Override
     public List<ClaseEnVivo> obtenerTodo() {
         return claseEnVivoRepositorio.findByBajaFalse();
-    }
-
-    /**
-     * Modifica un registro existente.
-     *
-     * @param entidad El registro con los datos actualizados.
-     * @return El registro modificado.
-     */
-    @Override
-    public ClaseEnVivo modificar(ClaseEnVivo entidad) {
-        return claseEnVivoRepositorio.save(entidad);
-    }
-
-    /**
-     * Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos.
-     *
-     * @param entidad El registro a borrar.
-     */
-    @Override
-    public void borrar(ClaseEnVivo entidad) {
-        entidad.marcarInactivo(); // Baja lógica
-        claseEnVivoRepositorio.save(entidad);
     }
 
     /**
@@ -142,5 +111,44 @@ public class ClaseEnVivoServicioImpl implements ClaseEnVivoServicio, CrudServici
     @Override
     public Optional<ClaseEnVivo> buscarPorClaveStream(String claveStream) {
         return claseEnVivoRepositorio.findByClaveStream(claveStream);
+    }
+
+    // ---------------------------------------------------------------- Creaciones
+
+    /**
+     * Guarda la clase en vivo en la base de datos.
+     *
+     * @param entidad El registro a guardar.
+     * @return El registro guardado.
+     */
+    @Override
+    public ClaseEnVivo guardar(ClaseEnVivo entidad) {
+        return claseEnVivoRepositorio.save(entidad);
+    }
+
+    // ---------------------------------------------------------------- Modificaciones
+
+    /**
+     * Modifica un registro existente.
+     *
+     * @param entidad El registro con los datos actualizados.
+     * @return El registro modificado.
+     */
+    @Override
+    public ClaseEnVivo modificar(ClaseEnVivo entidad) {
+        return claseEnVivoRepositorio.save(entidad);
+    }
+
+    // ---------------------------------------------------------------- Bajas
+
+    /**
+     * Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos.
+     *
+     * @param entidad El registro a borrar.
+     */
+    @Override
+    public void borrar(ClaseEnVivo entidad) {
+        entidad.marcarInactivo(); // Baja lógica
+        claseEnVivoRepositorio.save(entidad);
     }
 }

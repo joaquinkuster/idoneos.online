@@ -25,15 +25,14 @@ import com.app.idoneos.modelo.Docente;
 import com.app.idoneos.modelo.ParticipacionDocente;
 import com.app.idoneos.modelo.Programa;
 import com.app.idoneos.modelo.Usuario;
-import com.app.idoneos.utilidades.ArchivoUtilidad;
-import com.app.idoneos.utilidades.ImagenUtilidad;
+import com.app.idoneos.utilidades.ManejadorArchivosUtilidad;
 import com.app.idoneos.servicio.Categoria.CategoriaServicioImpl;
 import com.app.idoneos.servicio.Docente.DocenteServicioImpl;
 import com.app.idoneos.servicio.Modalidad.ModalidadServicioImpl;
 import com.app.idoneos.servicio.Nivel.NivelServicioImpl;
 import com.app.idoneos.servicio.Curso.ResumenCursos;
 import com.app.idoneos.servicio.Programa.ProgramaServicioImpl;
-import com.app.idoneos.utilidades.RespuestaUtilidad;
+import com.app.idoneos.utilidades.RespuestaJsonUtilidad;
 import com.app.idoneos.servicio.TipoMaterial.TipoMaterialServicioImpl;
 
 /**
@@ -70,6 +69,8 @@ public class CursoControlador extends PanelCursoControlador {
     @Autowired
     @Qualifier("directorioCursos")
     private Path directorioCursos;
+
+    // ---------------------------------------------------------------- Lecturas
 
     /**
      * CU-01: Busca cursos según nombre, categoría, nivel, equipo docente y modalidad.
@@ -184,145 +185,6 @@ public class CursoControlador extends PanelCursoControlador {
     }
 
     /**
-     * CU-03: Registra un curso con sus modalidades de dictado y su equipo docente. Responde en JSON para
-     * que el formulario muestre el resultado sin recargar la página.
-     *
-     * @param nombre               El nombre del curso.
-     * @param descripcion          La descripción del curso (opcional).
-     * @param precio               El precio del curso.
-     * @param imagenArchivo        La imagen de portada (opcional).
-     * @param categoriaId          Identificador de la categoría.
-     * @param nivelId              Identificador del nivel.
-     * @param emiteCertificado     Si el curso emite certificado al finalizar.
-     * @param idsModalidades       Identificadores de las modalidades de dictado.
-     * @param docenteTitularId     Identificador del docente titular.
-     * @param idsDocentesAyudantes Identificadores de los docentes ayudantes (opcional).
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
-    @PostMapping("/registrar")
-    public ResponseEntity<Map<String, String>> registrarCurso(
-            @RequestParam(value = "nombre", required = false) String nombre,
-            @RequestParam(value = "descripcion", required = false) String descripcion,
-            @RequestParam(value = "precio", required = false) Float precio,
-            @RequestParam(value = "imagenArchivo", required = false) MultipartFile imagenArchivo,
-            @RequestParam(value = "categoriaId", required = false) Integer categoriaId,
-            @RequestParam(value = "nivelId", required = false) Integer nivelId,
-            @RequestParam(value = "emiteCertificado", defaultValue = "false") boolean emiteCertificado,
-            @RequestParam(value = "idsModalidades", required = false) List<Integer> idsModalidades,
-            @RequestParam(value = "docenteTitularId", required = false) Integer docenteTitularId,
-            @RequestParam(value = "idsDocentesAyudantes", required = false) List<Integer> idsDocentesAyudantes) {
-        try {
-            boolean hayImagen = imagenArchivo != null && !imagenArchivo.isEmpty();
-            if (hayImagen) {
-                ImagenUtilidad.validar(imagenArchivo); // antes de registrar, para no crear un curso con imagen inválida
-            }
-            Curso curso = cursoServicio.registrarCurso(nombre, descripcion, precio, null, categoriaId, nivelId,
-                    emiteCertificado, idsModalidades, docenteTitularId, idsDocentesAyudantes);
-            if (hayImagen) {
-                guardarImagen(curso, imagenArchivo);
-            }
-            return RespuestaUtilidad.respuestaExitosa("Curso '" + curso.getNombre() + "' registrado con éxito.");
-        } catch (Exception e) {
-            return RespuestaUtilidad.respuestaConError(e);
-        }
-    }
-
-    /**
-     * CU-04: Modifica un curso activo. Responde en JSON para que el formulario muestre el resultado
-     * sin recargar la página.
-     *
-     * @param id                   Identificador del curso.
-     * @param nombre               El nombre del curso.
-     * @param descripcion          La descripción del curso (opcional).
-     * @param precio               El precio del curso.
-     * @param imagenArchivo        La nueva imagen de portada (opcional; si no se envía se conserva la actual).
-     * @param categoriaId          Identificador de la categoría.
-     * @param nivelId              Identificador del nivel.
-     * @param emiteCertificado     Si el curso emite certificado al finalizar.
-     * @param idsModalidades       Identificadores de las modalidades de dictado.
-     * @param docenteTitularId     Identificador del docente titular.
-     * @param idsDocentesAyudantes Identificadores de los docentes ayudantes (opcional).
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
-    @PostMapping("/modificar/{id}")
-    public ResponseEntity<Map<String, String>> modificarCurso(@PathVariable("id") Integer id,
-            @RequestParam(value = "nombre", required = false) String nombre,
-            @RequestParam(value = "descripcion", required = false) String descripcion,
-            @RequestParam(value = "precio", required = false) Float precio,
-            @RequestParam(value = "imagenArchivo", required = false) MultipartFile imagenArchivo,
-            @RequestParam(value = "categoriaId", required = false) Integer categoriaId,
-            @RequestParam(value = "nivelId", required = false) Integer nivelId,
-            @RequestParam(value = "emiteCertificado", defaultValue = "false") boolean emiteCertificado,
-            @RequestParam(value = "idsModalidades", required = false) List<Integer> idsModalidades,
-            @RequestParam(value = "docenteTitularId", required = false) Integer docenteTitularId,
-            @RequestParam(value = "idsDocentesAyudantes", required = false) List<Integer> idsDocentesAyudantes) {
-        try {
-            boolean hayImagen = imagenArchivo != null && !imagenArchivo.isEmpty();
-            if (hayImagen) {
-                ImagenUtilidad.validar(imagenArchivo);
-            }
-            Curso curso = cursoServicio.modificarCurso(id, nombre, descripcion, precio, null, categoriaId, nivelId,
-                    emiteCertificado, idsModalidades, docenteTitularId, idsDocentesAyudantes);
-            if (hayImagen) {
-                guardarImagen(curso, imagenArchivo); // reemplaza la imagen anterior
-            }
-            return RespuestaUtilidad.respuestaExitosa("Curso modificado correctamente.");
-        } catch (Exception e) {
-            return RespuestaUtilidad.respuestaConError(e);
-        }
-    }
-
-    /**
-     * Guarda la imagen del curso en su carpeta ({@code curso{id}/imagen.{ext}}), reemplazando la anterior, y
-     * registra su nombre en el curso.
-     */
-    private void guardarImagen(Curso curso, MultipartFile imagenArchivo) {
-        String nombre;
-        try {
-            nombre = ImagenUtilidad.guardar(imagenArchivo,
-                    ArchivoUtilidad.carpetaDeCurso(directorioCursos, curso.getIdCurso()), "imagen");
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException(
-                    "Error! El curso se guardó, pero no se pudo guardar la imagen. Modifique el curso para cargarla.");
-        }
-        cursoServicio.actualizarImagen(curso.getIdCurso(), nombre);
-    }
-
-    /**
-     * CU-05: Da de baja un curso que no tenga programas ni unidades activas asociadas. Responde en JSON.
-     *
-     * @param id Identificador del curso.
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
-    @PostMapping("/darDeBaja/{id}")
-    public ResponseEntity<Map<String, String>> darDeBajaCurso(@PathVariable("id") Integer id) {
-        try {
-            cursoServicio.darDeBajaCurso(id);
-            return RespuestaUtilidad.respuestaExitosa("Curso dado de baja exitosamente.");
-        } catch (Exception e) {
-            return RespuestaUtilidad.respuestaConError(e);
-        }
-    }
-
-    /**
-     * Da de baja varios cursos a la vez, todos o ninguno: si alguno no puede darse de baja, no se da de baja
-     * ninguno. Responde en JSON.
-     *
-     * @param ids Identificadores de los cursos seleccionados.
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
-    @PostMapping("/darDeBajaMasiva")
-    public ResponseEntity<Map<String, String>> darDeBajaVarios(
-            @RequestParam(value = "ids", required = false) List<Integer> ids) {
-        try {
-            cursoServicio.darDeBajaVarios(ids);
-            return RespuestaUtilidad.respuestaExitosa("Cursos dados de baja exitosamente.");
-        } catch (Exception e) {
-            return RespuestaUtilidad.respuestaConError(e);
-        }
-    }
-
-    /**
      * CU-27: Permite al docente acceder a un curso en el que participa, con todas sus unidades habilitadas y sin
      * avance. Se muestra el programa y la cohorte de su contexto de trabajo.
      *
@@ -378,6 +240,7 @@ public class CursoControlador extends PanelCursoControlador {
             String menuActivo = "unidades".equals(seccionActiva) ? "curso" : seccionActiva;
             cargarContexto(modelo, esAdministrador ? ContextoCurso.deAdministrador(curso)
                     : ContextoCurso.deDocente(participacion), menuActivo);
+            cargarSemanasMaximasDelCronograma(modelo);
             modelo.addAttribute("inscripcion", null);
             modelo.addAttribute("cohorte", cohorte);
             // Selectores de programa y cohorte por defecto: solo los activos, el más reciente primero
@@ -397,5 +260,150 @@ public class CursoControlador extends PanelCursoControlador {
             return usuario.esAdministradorActivo() && usuario.getDocente() == null ? "redirect:/curso/misCursos"
                     : "redirect:/curso/buscar";
         }
+    }
+
+    // ---------------------------------------------------------------- Creaciones
+
+    /**
+     * CU-03: Registra un curso con sus modalidades de dictado y su equipo docente. Responde en JSON para
+     * que el formulario muestre el resultado sin recargar la página.
+     *
+     * @param nombre               El nombre del curso.
+     * @param descripcion          La descripción del curso (opcional).
+     * @param precio               El precio del curso.
+     * @param imagenArchivo        La imagen de portada (opcional).
+     * @param categoriaId          Identificador de la categoría.
+     * @param nivelId              Identificador del nivel.
+     * @param emiteCertificado     Si el curso emite certificado al finalizar.
+     * @param idsModalidades       Identificadores de las modalidades de dictado.
+     * @param docenteTitularId     Identificador del docente titular.
+     * @param idsDocentesAyudantes Identificadores de los docentes ayudantes (opcional).
+     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
+     */
+    @PostMapping("/registrar")
+    public ResponseEntity<Map<String, String>> registrarCurso(
+            @RequestParam(value = "nombre", required = false) String nombre,
+            @RequestParam(value = "descripcion", required = false) String descripcion,
+            @RequestParam(value = "precio", required = false) Float precio,
+            @RequestParam(value = "imagenArchivo", required = false) MultipartFile imagenArchivo,
+            @RequestParam(value = "categoriaId", required = false) Integer categoriaId,
+            @RequestParam(value = "nivelId", required = false) Integer nivelId,
+            @RequestParam(value = "emiteCertificado", defaultValue = "false") boolean emiteCertificado,
+            @RequestParam(value = "idsModalidades", required = false) List<Integer> idsModalidades,
+            @RequestParam(value = "docenteTitularId", required = false) Integer docenteTitularId,
+            @RequestParam(value = "idsDocentesAyudantes", required = false) List<Integer> idsDocentesAyudantes) {
+        try {
+            boolean hayImagen = imagenArchivo != null && !imagenArchivo.isEmpty();
+            if (hayImagen) {
+                ManejadorArchivosUtilidad.validarImagen(imagenArchivo); // antes de registrar, para no crear un curso con imagen inválida
+            }
+            Curso curso = cursoServicio.registrarCurso(nombre, descripcion, precio, null, categoriaId, nivelId,
+                    emiteCertificado, idsModalidades, docenteTitularId, idsDocentesAyudantes);
+            if (hayImagen) {
+                guardarImagen(curso, imagenArchivo);
+            }
+            return RespuestaJsonUtilidad.respuestaExitosa("Curso '" + curso.getNombre() + "' registrado con éxito.");
+        } catch (Exception e) {
+            return RespuestaJsonUtilidad.respuestaConError(e);
+        }
+    }
+
+    // ---------------------------------------------------------------- Modificaciones
+
+    /**
+     * CU-04: Modifica un curso activo. Responde en JSON para que el formulario muestre el resultado
+     * sin recargar la página.
+     *
+     * @param id                   Identificador del curso.
+     * @param nombre               El nombre del curso.
+     * @param descripcion          La descripción del curso (opcional).
+     * @param precio               El precio del curso.
+     * @param imagenArchivo        La nueva imagen de portada (opcional; si no se envía se conserva la actual).
+     * @param categoriaId          Identificador de la categoría.
+     * @param nivelId              Identificador del nivel.
+     * @param emiteCertificado     Si el curso emite certificado al finalizar.
+     * @param idsModalidades       Identificadores de las modalidades de dictado.
+     * @param docenteTitularId     Identificador del docente titular.
+     * @param idsDocentesAyudantes Identificadores de los docentes ayudantes (opcional).
+     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
+     */
+    @PostMapping("/modificar/{id}")
+    public ResponseEntity<Map<String, String>> modificarCurso(@PathVariable("id") Integer id,
+            @RequestParam(value = "nombre", required = false) String nombre,
+            @RequestParam(value = "descripcion", required = false) String descripcion,
+            @RequestParam(value = "precio", required = false) Float precio,
+            @RequestParam(value = "imagenArchivo", required = false) MultipartFile imagenArchivo,
+            @RequestParam(value = "categoriaId", required = false) Integer categoriaId,
+            @RequestParam(value = "nivelId", required = false) Integer nivelId,
+            @RequestParam(value = "emiteCertificado", defaultValue = "false") boolean emiteCertificado,
+            @RequestParam(value = "idsModalidades", required = false) List<Integer> idsModalidades,
+            @RequestParam(value = "docenteTitularId", required = false) Integer docenteTitularId,
+            @RequestParam(value = "idsDocentesAyudantes", required = false) List<Integer> idsDocentesAyudantes) {
+        try {
+            boolean hayImagen = imagenArchivo != null && !imagenArchivo.isEmpty();
+            if (hayImagen) {
+                ManejadorArchivosUtilidad.validarImagen(imagenArchivo);
+            }
+            Curso curso = cursoServicio.modificarCurso(id, nombre, descripcion, precio, null, categoriaId, nivelId,
+                    emiteCertificado, idsModalidades, docenteTitularId, idsDocentesAyudantes);
+            if (hayImagen) {
+                guardarImagen(curso, imagenArchivo); // reemplaza la imagen anterior
+            }
+            return RespuestaJsonUtilidad.respuestaExitosa("Curso modificado correctamente.");
+        } catch (Exception e) {
+            return RespuestaJsonUtilidad.respuestaConError(e);
+        }
+    }
+
+    // ---------------------------------------------------------------- Bajas
+
+    /**
+     * CU-05: Da de baja un curso que no tenga programas ni unidades activas asociadas. Responde en JSON.
+     *
+     * @param id Identificador del curso.
+     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
+     */
+    @PostMapping("/darDeBaja/{id}")
+    public ResponseEntity<Map<String, String>> darDeBajaCurso(@PathVariable("id") Integer id) {
+        try {
+            cursoServicio.darDeBajaCurso(id);
+            return RespuestaJsonUtilidad.respuestaExitosa("Curso dado de baja exitosamente.");
+        } catch (Exception e) {
+            return RespuestaJsonUtilidad.respuestaConError(e);
+        }
+    }
+
+    /**
+     * Da de baja varios cursos a la vez, todos o ninguno: si alguno no puede darse de baja, no se da de baja
+     * ninguno. Responde en JSON.
+     *
+     * @param ids Identificadores de los cursos seleccionados.
+     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
+     */
+    @PostMapping("/darDeBajaMasiva")
+    public ResponseEntity<Map<String, String>> darDeBajaVarios(
+            @RequestParam(value = "ids", required = false) List<Integer> ids) {
+        try {
+            cursoServicio.darDeBajaVarios(ids);
+            return RespuestaJsonUtilidad.respuestaExitosa("Cursos dados de baja exitosamente.");
+        } catch (Exception e) {
+            return RespuestaJsonUtilidad.respuestaConError(e);
+        }
+    }
+
+    /**
+     * Guarda la imagen del curso en su carpeta ({@code curso{id}/imagen.{ext}}), reemplazando la anterior, y
+     * registra su nombre en el curso.
+     */
+    private void guardarImagen(Curso curso, MultipartFile imagenArchivo) {
+        String nombre;
+        try {
+            nombre = ManejadorArchivosUtilidad.guardarImagen(imagenArchivo,
+                    ManejadorArchivosUtilidad.carpetaDeCurso(directorioCursos, curso.getIdCurso()), "imagen");
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException(
+                    "Error! El curso se guardó, pero no se pudo guardar la imagen. Modifique el curso para cargarla.");
+        }
+        cursoServicio.actualizarImagen(curso.getIdCurso(), nombre);
     }
 }

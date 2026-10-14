@@ -1,4 +1,4 @@
-package com.app.idoneos.config;
+package com.app.idoneos.configuracion;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -12,5 +12,5 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  */
 @Configuration
 @EnableScheduling
-public class TareasProgramadasConfig {
+public class TareasProgramadasConfiguracion {
 }

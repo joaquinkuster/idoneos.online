@@ -13,8 +13,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,18 +24,22 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithUserDetails;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.app.idoneos.modelo.Descuento;
 import com.app.idoneos.modelo.Inscripcion;
 import com.app.idoneos.modelo.Pago;
+import com.app.idoneos.repositorio.DescuentoRepositorio;
 import com.app.idoneos.servicio.Inscripcion.InscripcionServicioImpl;
 import com.app.idoneos.servicio.Pago.PagoServicioImpl;
-import com.app.idoneos.servicio.Pago.PasarelaSimulada;
+import com.app.idoneos.servicio.PasarelaPago.PasarelaPagoServicio;
+import com.app.idoneos.soporte.PasarelaPagoMockeada;
 
 /**
  * Pruebas de las pantallas y rutas de los pagos (CU-50 a CU-54): quién puede usar cada una y qué responde, con la
- * plataforma de pagos simulada.
+ * pasarela de pago mockeada (ver PasarelaPagoMockeada).
  */
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -58,13 +62,17 @@ class PagoControladorTest {
     @Autowired
     private PagoServicioImpl pagoServicio;
 
+    @MockitoBean
+    private PasarelaPagoServicio pasarelaMock;
+
+    private PasarelaPagoMockeada pasarela;
+
     @Autowired
-    private PasarelaSimulada pasarela;
+    private DescuentoRepositorio descuentoRepositorio;
 
     @BeforeEach
-    @AfterEach
-    void reiniciarPasarela() {
-        pasarela.reiniciar();
+    void configurarPasarela() {
+        pasarela = new PasarelaPagoMockeada(pasarelaMock);
     }
 
     private Inscripcion pendienteDeLucia() {
@@ -148,7 +156,7 @@ class PagoControladorTest {
     void misPagosSinReintento() throws Exception {
         mockMvc.perform(get("/pago/misPagos")).andExpect(status().isOk())
                 .andExpect(content().string(not(containsString("data-pagar"))))
-                .andExpect(content().string(containsString("Comprobante")));
+                .andExpect(content().string(containsString("Generar comprobante")));
     }
 
     @Test
@@ -180,11 +188,28 @@ class PagoControladorTest {
 
         mockMvc.perform(post("/pago/pagar/" + lucia.getIdInscripcion())).andExpect(status().isOk())
                 .andExpect(jsonPath("$.idPago").isNumber())
-                .andExpect(jsonPath("$.idSolicitud").value(org.hamcrest.Matchers.startsWith("SIM-")))
+                .andExpect(jsonPath("$.idSolicitud").value(org.hamcrest.Matchers.startsWith("SOL-")))
                 .andExpect(jsonPath("$.qr").isNotEmpty())
-                .andExpect(jsonPath("$.simulado").value(true))
                 .andExpect(jsonPath("$.aprobado").value(false))
                 .andExpect(jsonPath("$.plazoMinutos").value(10));
+    }
+
+    @Test
+    @WithUserDetails(value = LUCIA, userDetailsServiceBeanName = SERVICIO)
+    @DisplayName("CU-51: con un descuento que cubre todo el precio, la respuesta es aprobada y sin pago; la tarjeta ofrece habilitar el acceso")
+    void pagarConDescuentoTotal() throws Exception {
+        descuentoRepositorio.save(new Descuento("Beca completa", 0, 100, LocalDateTime.now().minusDays(1),
+                LocalDateTime.now().plusDays(10), 5, 0));
+        Inscripcion lucia = pendienteDeLucia();
+
+        mockMvc.perform(get("/inscripcion/misCursos")).andExpect(status().isOk())
+                .andExpect(content().string(containsString("Habilitar acceso (sin costo)")))
+                .andExpect(content().string(not(containsString("Pagar $"))));
+        mockMvc.perform(post("/pago/pagar/" + lucia.getIdInscripcion())).andExpect(status().isOk())
+                .andExpect(jsonPath("$.aprobado").value(true))
+                .andExpect(jsonPath("$.idPago").value(org.hamcrest.Matchers.nullValue()));
+
+        assertTrue(lucia.estaHabilitada());
     }
 
     @Test
@@ -241,14 +266,14 @@ class PagoControladorTest {
     @WithUserDetails(value = LUCIA, userDetailsServiceBeanName = SERVICIO)
     @DisplayName("CU-51: el estado del pago se concilia con MODO y el navegador lo consulta hasta que se resuelve")
     void estadoDelPago() throws Exception {
-        pasarela.setEsperarConfirmacion(true);
+        pasarela.dejarPendiente();
         Inscripcion lucia = pendienteDeLucia();
         int idPago = pagoServicio.iniciarPago(lucia.getIdInscripcion(), lucia.getAlumno()).idPago();
 
         mockMvc.perform(get("/pago/estado/" + idPago)).andExpect(status().isOk())
                 .andExpect(jsonPath("$.estado").value("Pendiente"));
 
-        pasarela.setEsperarConfirmacion(false);
+        pasarela.aprobarTodo();
         mockMvc.perform(get("/pago/estado/" + idPago)).andExpect(status().isOk())
                 .andExpect(jsonPath("$.estado").value("Aprobado"));
         assertTrue(lucia.estaHabilitada());
@@ -279,7 +304,7 @@ class PagoControladorTest {
         Inscripcion lucia = pendienteDeLucia();
         var solicitud = pagoServicio.iniciarPago(lucia.getIdInscripcion(), lucia.getAlumno());
 
-        mockMvc.perform(post("/pago/webhook").contentType(MediaType.APPLICATION_JSON)
+        mockMvc.perform(post(PasarelaPagoServicio.RUTA_WEBHOOK).contentType(MediaType.APPLICATION_JSON)
                 .content("{\"id\":\"" + solicitud.idSolicitud() + "\",\"status\":\"ACCEPTED\"}"))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.recibido").value(true));
 
@@ -292,10 +317,10 @@ class PagoControladorTest {
     void webhookInvalido() throws Exception {
         Inscripcion lucia = pendienteDeLucia();
 
-        mockMvc.perform(post("/pago/webhook").contentType(MediaType.APPLICATION_JSON).content("{\"id\":\"inventado\"}"))
+        mockMvc.perform(post(PasarelaPagoServicio.RUTA_WEBHOOK).contentType(MediaType.APPLICATION_JSON).content("{\"id\":\"inventado\"}"))
                 .andExpect(status().isOk());
-        mockMvc.perform(post("/pago/webhook").contentType(MediaType.APPLICATION_JSON).content("{}")).andExpect(status().isOk());
-        mockMvc.perform(post("/pago/webhook").contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk());
+        mockMvc.perform(post(PasarelaPagoServicio.RUTA_WEBHOOK).contentType(MediaType.APPLICATION_JSON).content("{}")).andExpect(status().isOk());
+        mockMvc.perform(post(PasarelaPagoServicio.RUTA_WEBHOOK).contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk());
 
         assertTrue(lucia.getPagoAprobado() == null);
     }

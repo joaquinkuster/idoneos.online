@@ -20,16 +20,7 @@ public class RolUsuarioServicioImpl implements RolUsuarioServicio, CrudServicio<
     @Autowired
     private RolUsuarioRepositorio rolUsuarioRepositorio;
 
-    /**
-     * Guarda la asignación de rol en la base de datos.
-     *
-     * @param entidad El registro a guardar.
-     * @return El registro guardado.
-     */
-    @Override
-    public RolUsuario guardar(RolUsuario entidad) {
-        return rolUsuarioRepositorio.save(entidad);
-    }
+    // ---------------------------------------------------------------- Lecturas
 
     /**
      * Busca la asignación de rol por su identificador. Incluye los registros dados de baja o anulados, para poder consultarlos.
@@ -50,28 +41,6 @@ public class RolUsuarioServicioImpl implements RolUsuarioServicio, CrudServicio<
     @Override
     public List<RolUsuario> obtenerTodo() {
         return rolUsuarioRepositorio.findByBajaFalse();
-    }
-
-    /**
-     * Modifica un registro existente.
-     *
-     * @param entidad El registro con los datos actualizados.
-     * @return El registro modificado.
-     */
-    @Override
-    public RolUsuario modificar(RolUsuario entidad) {
-        return rolUsuarioRepositorio.save(entidad);
-    }
-
-    /**
-     * Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos.
-     *
-     * @param entidad El registro a borrar.
-     */
-    @Override
-    public void borrar(RolUsuario entidad) {
-        entidad.marcarInactivo(); // Baja lógica
-        rolUsuarioRepositorio.save(entidad);
     }
 
     /**
@@ -117,5 +86,44 @@ public class RolUsuarioServicioImpl implements RolUsuarioServicio, CrudServicio<
     @Override
     public Optional<RolUsuario> buscarPorRolYUsuario(Rol rol, Usuario usuario) {
         return rolUsuarioRepositorio.findByRolAndUsuario(rol, usuario);
+    }
+
+    // ---------------------------------------------------------------- Creaciones
+
+    /**
+     * Guarda la asignación de rol en la base de datos.
+     *
+     * @param entidad El registro a guardar.
+     * @return El registro guardado.
+     */
+    @Override
+    public RolUsuario guardar(RolUsuario entidad) {
+        return rolUsuarioRepositorio.save(entidad);
+    }
+
+    // ---------------------------------------------------------------- Modificaciones
+
+    /**
+     * Modifica un registro existente.
+     *
+     * @param entidad El registro con los datos actualizados.
+     * @return El registro modificado.
+     */
+    @Override
+    public RolUsuario modificar(RolUsuario entidad) {
+        return rolUsuarioRepositorio.save(entidad);
+    }
+
+    // ---------------------------------------------------------------- Bajas
+
+    /**
+     * Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos.
+     *
+     * @param entidad El registro a borrar.
+     */
+    @Override
+    public void borrar(RolUsuario entidad) {
+        entidad.marcarInactivo(); // Baja lógica
+        rolUsuarioRepositorio.save(entidad);
     }
 }

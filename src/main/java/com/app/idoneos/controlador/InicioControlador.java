@@ -41,6 +41,8 @@ public class InicioControlador implements ErrorController {
     @Autowired
     private CursoServicioImpl cursoServicio;
 
+    // ---------------------------------------------------------------- Lecturas
+
     /**
      * Muestra la página principal con los cursos destacados del catálogo (los que tienen cohortes
      * con inscripción abierta) y las categorías.

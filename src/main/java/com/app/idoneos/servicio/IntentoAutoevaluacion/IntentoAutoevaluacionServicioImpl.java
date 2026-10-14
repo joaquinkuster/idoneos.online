@@ -20,16 +20,7 @@ public class IntentoAutoevaluacionServicioImpl implements IntentoAutoevaluacionS
     @Autowired
     private IntentoAutoevaluacionRepositorio intentoAutoevaluacionRepositorio;
 
-    /**
-     * Guarda el intento de autoevaluación en la base de datos.
-     *
-     * @param entidad El registro a guardar.
-     * @return El registro guardado.
-     */
-    @Override
-    public IntentoAutoevaluacion guardar(IntentoAutoevaluacion entidad) {
-        return intentoAutoevaluacionRepositorio.save(entidad);
-    }
+    // ---------------------------------------------------------------- Lecturas
 
     /**
      * Busca el intento de autoevaluación por su identificador. Solo devuelve registros activos (no dados de baja).
@@ -51,28 +42,6 @@ public class IntentoAutoevaluacionServicioImpl implements IntentoAutoevaluacionS
     @Override
     public List<IntentoAutoevaluacion> obtenerTodo() {
         return intentoAutoevaluacionRepositorio.findByBajaFalse();
-    }
-
-    /**
-     * Modifica un registro existente.
-     *
-     * @param entidad El registro con los datos actualizados.
-     * @return El registro modificado.
-     */
-    @Override
-    public IntentoAutoevaluacion modificar(IntentoAutoevaluacion entidad) {
-        return intentoAutoevaluacionRepositorio.save(entidad);
-    }
-
-    /**
-     * Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos.
-     *
-     * @param entidad El registro a borrar.
-     */
-    @Override
-    public void borrar(IntentoAutoevaluacion entidad) {
-        entidad.marcarInactivo(); // Baja lógica
-        intentoAutoevaluacionRepositorio.save(entidad);
     }
 
     /**
@@ -107,5 +76,44 @@ public class IntentoAutoevaluacionServicioImpl implements IntentoAutoevaluacionS
     @Override
     public List<IntentoAutoevaluacion> buscarPorAutoevaluacion(Autoevaluacion autoevaluacion) {
         return intentoAutoevaluacionRepositorio.findByAutoevaluacionAndBajaFalse(autoevaluacion);
+    }
+
+    // ---------------------------------------------------------------- Creaciones
+
+    /**
+     * Guarda el intento de autoevaluación en la base de datos.
+     *
+     * @param entidad El registro a guardar.
+     * @return El registro guardado.
+     */
+    @Override
+    public IntentoAutoevaluacion guardar(IntentoAutoevaluacion entidad) {
+        return intentoAutoevaluacionRepositorio.save(entidad);
+    }
+
+    // ---------------------------------------------------------------- Modificaciones
+
+    /**
+     * Modifica un registro existente.
+     *
+     * @param entidad El registro con los datos actualizados.
+     * @return El registro modificado.
+     */
+    @Override
+    public IntentoAutoevaluacion modificar(IntentoAutoevaluacion entidad) {
+        return intentoAutoevaluacionRepositorio.save(entidad);
+    }
+
+    // ---------------------------------------------------------------- Bajas
+
+    /**
+     * Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos.
+     *
+     * @param entidad El registro a borrar.
+     */
+    @Override
+    public void borrar(IntentoAutoevaluacion entidad) {
+        entidad.marcarInactivo(); // Baja lógica
+        intentoAutoevaluacionRepositorio.save(entidad);
     }
 }

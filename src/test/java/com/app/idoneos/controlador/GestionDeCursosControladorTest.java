@@ -11,7 +11,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import com.app.idoneos.config.SecurityConfig;
+import com.app.idoneos.configuracion.AutenticacionConfiguracion;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -53,12 +53,12 @@ class GestionDeCursosControladorTest {
                 .param("recordarme", "true"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/curso/buscar"))
-                .andExpect(cookie().exists(SecurityConfig.COOKIE_RECORDARME))
+                .andExpect(cookie().exists(AutenticacionConfiguracion.COOKIE_RECORDARME))
                 // la cookie de la sesión dura 30 días (en lugar de cerrarse con el navegador)
-                .andExpect(cookie().maxAge(SecurityConfig.COOKIE_SESION, 30 * 24 * 60 * 60));
+                .andExpect(cookie().maxAge(AutenticacionConfiguracion.COOKIE_SESION, 30 * 24 * 60 * 60));
         mockMvc.perform(post("/login").param("username", "admin@idoneos.online").param("password", "123456"))
-                .andExpect(cookie().doesNotExist(SecurityConfig.COOKIE_RECORDARME))
-                .andExpect(cookie().doesNotExist(SecurityConfig.COOKIE_SESION));
+                .andExpect(cookie().doesNotExist(AutenticacionConfiguracion.COOKIE_RECORDARME))
+                .andExpect(cookie().doesNotExist(AutenticacionConfiguracion.COOKIE_SESION));
     }
 
     @Test

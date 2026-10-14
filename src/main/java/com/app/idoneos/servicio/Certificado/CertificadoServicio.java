@@ -10,6 +10,8 @@ import com.app.idoneos.modelo.Inscripcion;
  */
 public interface CertificadoServicio {
 
+    // ---------------------------------------------------------------- Lecturas
+
     /**
      * Busca los registros vigentes de certificado asociados a inscripcion.
      *
@@ -25,6 +27,8 @@ public interface CertificadoServicio {
      * @return un {@link Optional} con el registro si existe, o vacío si no se encuentra
      */
     Optional<Certificado> buscarPorNumero(String numero);
+
+    // ---------------------------------------------------------------- Modificaciones
 
     /**
      * Corrige el nombre y/o el DNI del alumno registrados en un certificado emitido de una inscripción activa

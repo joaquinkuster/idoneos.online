@@ -30,7 +30,7 @@ import com.app.idoneos.servicio.Cohorte.CohorteServicioImpl;
 import com.app.idoneos.servicio.ParticipacionDocente.ParticipacionDocenteServicioImpl;
 import com.app.idoneos.servicio.Programa.ProgramaServicioImpl;
 
-import com.app.idoneos.utilidades.RespuestaUtilidad;
+import com.app.idoneos.utilidades.RespuestaJsonUtilidad;
 
 /**
  * Controlador de la gestión de cohortes (MOD-F-01).
@@ -52,6 +52,8 @@ public class CohorteControlador extends PanelCursoControlador {
 
     @Autowired
     private ParticipacionDocenteServicioImpl participacionDocenteServicio;
+
+    // ---------------------------------------------------------------- Lecturas
 
     /**
      * CU-11: Busca cohortes de un programa según su estado (Abierta, En dictado, Finalizada) y un rango
@@ -136,6 +138,44 @@ public class CohorteControlador extends PanelCursoControlador {
         return "pages/cohorte/buscarDocente";
     }
 
+    // ---------------------------------------------------------------- Creaciones
+
+    /**
+     * CU-12: Registra una cohorte para un programa activo. Responde en JSON para que el formulario muestre
+     * el resultado sin recargar la página.
+     *
+     * @param programaId             Identificador del programa.
+     * @param fechaInicioInscripcion Fecha de inicio de la inscripción.
+     * @param fechaFinInscripcion    Fecha de fin de la inscripción.
+     * @param fechaInicioDictado     Fecha de inicio del dictado (si el curso tiene modalidad En vivo).
+     * @param fechaFinDictado        Fecha de fin del dictado (si el curso tiene modalidad En vivo).
+     * @param semanasAcceso          Semanas de acceso al contenido desde la inscripción.
+     * @param cupoMaximo             Cupo máximo de inscriptos (opcional).
+     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
+     */
+    @PostMapping("/registrar")
+    public ResponseEntity<Map<String, String>> registrarCohorte(
+            @RequestParam(value = "programaId", required = false) Integer programaId,
+            @RequestParam(value = "fechaInicioInscripcion", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicioInscripcion,
+            @RequestParam(value = "fechaFinInscripcion", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFinInscripcion,
+            @RequestParam(value = "fechaInicioDictado", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicioDictado,
+            @RequestParam(value = "fechaFinDictado", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFinDictado,
+            @RequestParam(value = "semanasAcceso", required = false) Integer semanasAcceso,
+            @RequestParam(value = "cupoMaximo", required = false) Integer cupoMaximo) {
+        try {
+            if (programaId == null) {
+                throw new IllegalArgumentException("Error! Debe seleccionar el programa de la cohorte.");
+            }
+            cohorteServicio.registrarCohorte(programaId, fechaInicioInscripcion, fechaFinInscripcion,
+                    fechaInicioDictado, fechaFinDictado, semanasAcceso, cupoMaximo);
+            return RespuestaJsonUtilidad.respuestaExitosa("Cohorte registrada correctamente.");
+        } catch (Exception e) {
+            return RespuestaJsonUtilidad.respuestaConError(e);
+        }
+    }
+
+    // ---------------------------------------------------------------- Modificaciones
+
     /**
      * CU-11: Cambia el contexto de trabajo del docente a la cohorte seleccionada (la establece como
      * cohorte y programa por defecto en su participación en el curso).
@@ -176,43 +216,9 @@ public class CohorteControlador extends PanelCursoControlador {
             Cohorte cohorte = cohorteServicio.buscarPorId(id)
                     .orElseThrow(() -> new IllegalArgumentException("Error! La cohorte no se encuentra activa."));
             cohorteServicio.cambiarContextoDeTrabajo(cohorte, usuario.getDocente());
-            return RespuestaUtilidad.respuestaExitosa("Ahora trabajás sobre la cohorte seleccionada.");
+            return RespuestaJsonUtilidad.respuestaExitosa("Ahora trabajás sobre la cohorte seleccionada.");
         } catch (Exception e) {
-            return RespuestaUtilidad.respuestaConError(e);
-        }
-    }
-
-    /**
-     * CU-12: Registra una cohorte para un programa activo. Responde en JSON para que el formulario muestre
-     * el resultado sin recargar la página.
-     *
-     * @param programaId             Identificador del programa.
-     * @param fechaInicioInscripcion Fecha de inicio de la inscripción.
-     * @param fechaFinInscripcion    Fecha de fin de la inscripción.
-     * @param fechaInicioDictado     Fecha de inicio del dictado (si el curso tiene modalidad En vivo).
-     * @param fechaFinDictado        Fecha de fin del dictado (si el curso tiene modalidad En vivo).
-     * @param semanasAcceso          Semanas de acceso al contenido desde la inscripción.
-     * @param cupoMaximo             Cupo máximo de inscriptos (opcional).
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
-    @PostMapping("/registrar")
-    public ResponseEntity<Map<String, String>> registrarCohorte(
-            @RequestParam(value = "programaId", required = false) Integer programaId,
-            @RequestParam(value = "fechaInicioInscripcion", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicioInscripcion,
-            @RequestParam(value = "fechaFinInscripcion", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFinInscripcion,
-            @RequestParam(value = "fechaInicioDictado", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicioDictado,
-            @RequestParam(value = "fechaFinDictado", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFinDictado,
-            @RequestParam(value = "semanasAcceso", required = false) Integer semanasAcceso,
-            @RequestParam(value = "cupoMaximo", required = false) Integer cupoMaximo) {
-        try {
-            if (programaId == null) {
-                throw new IllegalArgumentException("Error! Debe seleccionar el programa de la cohorte.");
-            }
-            cohorteServicio.registrarCohorte(programaId, fechaInicioInscripcion, fechaFinInscripcion,
-                    fechaInicioDictado, fechaFinDictado, semanasAcceso, cupoMaximo);
-            return RespuestaUtilidad.respuestaExitosa("Cohorte registrada correctamente.");
-        } catch (Exception e) {
-            return RespuestaUtilidad.respuestaConError(e);
+            return RespuestaJsonUtilidad.respuestaConError(e);
         }
     }
 
@@ -239,11 +245,13 @@ public class CohorteControlador extends PanelCursoControlador {
         try {
             cohorteServicio.modificarCohorte(id, fechaInicioInscripcion, fechaFinInscripcion, fechaInicioDictado,
                     fechaFinDictado, semanasAcceso, cupoMaximo);
-            return RespuestaUtilidad.respuestaExitosa("Cohorte modificada correctamente.");
+            return RespuestaJsonUtilidad.respuestaExitosa("Cohorte modificada correctamente.");
         } catch (Exception e) {
-            return RespuestaUtilidad.respuestaConError(e);
+            return RespuestaJsonUtilidad.respuestaConError(e);
         }
     }
+
+    // ---------------------------------------------------------------- Bajas
 
     /**
      * CU-14: Da de baja una cohorte que no tenga inscripciones ni clases en vivo activas, y la desvincula
@@ -256,9 +264,9 @@ public class CohorteControlador extends PanelCursoControlador {
     public ResponseEntity<Map<String, String>> darDeBajaCohorte(@PathVariable("id") Integer id) {
         try {
             cohorteServicio.darDeBajaCohorte(id);
-            return RespuestaUtilidad.respuestaExitosa("Cohorte dada de baja correctamente.");
+            return RespuestaJsonUtilidad.respuestaExitosa("Cohorte dada de baja correctamente.");
         } catch (Exception e) {
-            return RespuestaUtilidad.respuestaConError(e);
+            return RespuestaJsonUtilidad.respuestaConError(e);
         }
     }
 
@@ -274,9 +282,9 @@ public class CohorteControlador extends PanelCursoControlador {
             @RequestParam(value = "ids", required = false) List<Integer> ids) {
         try {
             cohorteServicio.darDeBajaVarios(ids);
-            return RespuestaUtilidad.respuestaExitosa("Cohortes dadas de baja correctamente.");
+            return RespuestaJsonUtilidad.respuestaExitosa("Cohortes dadas de baja correctamente.");
         } catch (Exception e) {
-            return RespuestaUtilidad.respuestaConError(e);
+            return RespuestaJsonUtilidad.respuestaConError(e);
         }
     }
 }

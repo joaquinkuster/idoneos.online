@@ -43,9 +43,10 @@ public class Inscripcion {
     private Alumno alumno;
 
     /**
-     * Fecha y hora en que vence el acceso al contenido.
+     * Fecha y hora en que vence el acceso al contenido. Se calcula al habilitarse la inscripción por primera vez, por lo
+     * que es nula mientras está pendiente de pago.
      */
-    @Column(name = "fechaVencimientoAcceso", nullable = false)
+    @Column(name = "fechaVencimientoAcceso", nullable = true)
     private LocalDateTime fechaVencimientoAcceso;
 
     /**
@@ -113,7 +114,7 @@ public class Inscripcion {
      *
      * @param cohorte relación con Cohorte.
      * @param alumno relación con Alumno.
-     * @param fechaVencimientoAcceso fecha y hora en que vence el acceso al contenido.
+     * @param fechaVencimientoAcceso fecha y hora en que vence el acceso al contenido (nula si todavía no está habilitada).
      */
     public Inscripcion(Cohorte cohorte, Alumno alumno, LocalDateTime fechaVencimientoAcceso) {
         this.cohorte = cohorte;
@@ -174,9 +175,22 @@ public class Inscripcion {
     }
 
     /**
-     * Estado de acceso de la inscripción, en este orden: Dada de baja, Vencida (pasó la fecha de vencimiento),
-     * Pendiente de pago (no está habilitada), Programada (habilitada, pero el dictado de la cohorte todavía no
-     * comenzó) o Vigente.
+     * Habilita el acceso. La primera vez que se habilita calcula el vencimiento del acceso a partir de ese momento
+     * (ver {@link Cohorte#calcularVencimientoAcceso}); si ya tenía un vencimiento, lo conserva.
+     *
+     * @param ahora El momento de la habilitación.
+     */
+    public void habilitar(LocalDateTime ahora) {
+        habilitado = true;
+        if (fechaVencimientoAcceso == null) {
+            fechaVencimientoAcceso = cohorte.calcularVencimientoAcceso(ahora);
+        }
+    }
+
+    /**
+     * Estado de acceso de la inscripción, en este orden: Dada de baja, Pendiente de pago (no está habilitada y por eso
+     * todavía no tiene vencimiento), Vencida (pasó la fecha de vencimiento), Programada (habilitada, pero el dictado de
+     * la cohorte todavía no comenzó) o Vigente.
      *
      * @param ahora El momento de referencia.
      * @return El nombre del estado.
@@ -185,11 +199,11 @@ public class Inscripcion {
         if (baja) {
             return ACCESO_DADA_DE_BAJA;
         }
-        if (fechaVencimientoAcceso.isBefore(ahora)) {
-            return ACCESO_VENCIDA;
-        }
         if (!estaHabilitada()) {
             return ACCESO_PENDIENTE_DE_PAGO;
+        }
+        if (fechaVencimientoAcceso != null && fechaVencimientoAcceso.isBefore(ahora)) {
+            return ACCESO_VENCIDA;
         }
         return cohorte.dictadoPorComenzar(ahora) ? ACCESO_PROGRAMADA : ACCESO_VIGENTE;
     }
@@ -210,6 +224,21 @@ public class Inscripcion {
      */
     public Pago getPagoAprobado() {
         return pagos.stream().filter(Pago::estaAprobado).findFirst().orElse(null);
+    }
+
+    /**
+     * Suma lo que el alumno ya pagó: los montos de los pagos aprobados.
+     *
+     * @return El monto pagado.
+     */
+    public float getMontoPagado() {
+        float pagado = 0;
+        for (Pago pago : pagos) {
+            if (pago.estaAprobado()) {
+                pagado += pago.getMonto();
+            }
+        }
+        return pagado;
     }
 
     /**
@@ -272,7 +301,7 @@ public class Inscripcion {
     }
 
     /**
-     * Calcula el estado de la inscripción: Pendiente (sin unidades completadas), En Progreso o Finalizado.
+     * Calcula el avance de la inscripción: En Progreso (aunque todavía no haya completado ninguna unidad) o Finalizado.
      *
      * @return El estado de la inscripción.
      */
@@ -281,7 +310,7 @@ public class Inscripcion {
         if (porcentaje >= 100) {
             return "Finalizado";
         }
-        return getUnidadesCompletadas() == 0 ? "Pendiente" : "En Progreso";
+        return "En Progreso";
     }
 
     /**

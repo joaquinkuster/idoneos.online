@@ -1,4 +1,4 @@
-package com.app.idoneos.config;
+package com.app.idoneos.configuracion;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -16,7 +16,7 @@ import org.springframework.context.annotation.Configuration;
  * contiene una carpeta por curso: {@code curso{id}/imagen.{ext}} y {@code curso{id}/unidad{id}/material{id}.{ext}}.
  */
 @Configuration
-public class ArchivosConfig {
+public class CargaArchivosConfiguracion {
 
     /**
      * Carpeta base de los archivos de los cursos, como ruta absoluta y normalizada.

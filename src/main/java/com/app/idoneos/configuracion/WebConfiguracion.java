@@ -1,4 +1,4 @@
-package com.app.idoneos.config;
+package com.app.idoneos.configuracion;
 
 import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
@@ -16,7 +16,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  * Configuración de Spring MVC.
  */
 @Configuration
-public class WebConfig implements WebMvcConfigurer {
+public class WebConfiguracion implements WebMvcConfigurer {
 
     @Autowired
     @Qualifier("directorioCursos")

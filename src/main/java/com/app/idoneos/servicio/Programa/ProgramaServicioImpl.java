@@ -1,6 +1,6 @@
 package com.app.idoneos.servicio.Programa;
 
-import com.app.idoneos.utilidades.MensajeUtilidad;
+import com.app.idoneos.utilidades.MensajeBajaUtilidad;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
@@ -39,16 +39,7 @@ public class ProgramaServicioImpl implements ProgramaServicio, CrudServicio<Prog
     @Autowired
     private ParticipacionDocenteRepositorio participacionDocenteRepositorio;
 
-    /**
-     * Guarda el programa en la base de datos.
-     *
-     * @param entidad El registro a guardar.
-     * @return El registro guardado.
-     */
-    @Override
-    public Programa guardar(Programa entidad) {
-        return programaRepositorio.save(entidad);
-    }
+    // ---------------------------------------------------------------- Lecturas
 
     /**
      * Busca el programa por su identificador. Solo devuelve registros activos (no dados de baja).
@@ -70,28 +61,6 @@ public class ProgramaServicioImpl implements ProgramaServicio, CrudServicio<Prog
     @Override
     public List<Programa> obtenerTodo() {
         return programaRepositorio.findByBajaFalse();
-    }
-
-    /**
-     * Modifica un registro existente.
-     *
-     * @param entidad El registro con los datos actualizados.
-     * @return El registro modificado.
-     */
-    @Override
-    public Programa modificar(Programa entidad) {
-        return programaRepositorio.save(entidad);
-    }
-
-    /**
-     * Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos.
-     *
-     * @param entidad El registro a borrar.
-     */
-    @Override
-    public void borrar(Programa entidad) {
-        entidad.marcarInactivo(); // Baja lógica
-        programaRepositorio.save(entidad);
     }
 
     /**
@@ -128,6 +97,19 @@ public class ProgramaServicioImpl implements ProgramaServicio, CrudServicio<Prog
                 .filter(p -> buscado.isEmpty() || TextoUtilidad.normalizar(p.getNombre()).contains(buscado))
                 .filter(p -> estadoBuscado.isEmpty() || p.getEstado().equalsIgnoreCase(estadoBuscado))
                 .sorted(Comparator.comparingInt(Programa::getIdPrograma).reversed()).toList();
+    }
+
+    // ---------------------------------------------------------------- Creaciones
+
+    /**
+     * Guarda el programa en la base de datos.
+     *
+     * @param entidad El registro a guardar.
+     * @return El registro guardado.
+     */
+    @Override
+    public Programa guardar(Programa entidad) {
+        return programaRepositorio.save(entidad);
     }
 
     /**
@@ -170,6 +152,19 @@ public class ProgramaServicioImpl implements ProgramaServicio, CrudServicio<Prog
         return programa;
     }
 
+    // ---------------------------------------------------------------- Modificaciones
+
+    /**
+     * Modifica un registro existente.
+     *
+     * @param entidad El registro con los datos actualizados.
+     * @return El registro modificado.
+     */
+    @Override
+    public Programa modificar(Programa entidad) {
+        return programaRepositorio.save(entidad);
+    }
+
     /**
      * CU-17: Modifica los datos de un programa sin inscripciones activas.
      */
@@ -190,6 +185,33 @@ public class ProgramaServicioImpl implements ProgramaServicio, CrudServicio<Prog
         programa.setBibliografia(bibliografia.trim());
         programa.setUltimaModificacion(LocalDateTime.now());
         return programaRepositorio.save(programa);
+    }
+
+    /**
+     * Establece el programa por defecto del docente en el curso del programa.
+     */
+    @Override
+    @Transactional
+    public void establecerPorDefecto(Docente docente, Integer programaId) {
+        Programa programa = buscarActivo(programaId);
+        ParticipacionDocente participacion = obtenerParticipacion(programa.getCurso(), docente);
+        participacion.setProgramaPorDefecto(programa);
+        participacion.setCohortePorDefecto(null);
+        participacion.setUltimaModificacion(LocalDateTime.now());
+        participacionDocenteRepositorio.save(participacion);
+    }
+
+    // ---------------------------------------------------------------- Bajas
+
+    /**
+     * Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos.
+     *
+     * @param entidad El registro a borrar.
+     */
+    @Override
+    public void borrar(Programa entidad) {
+        entidad.marcarInactivo(); // Baja lógica
+        programaRepositorio.save(entidad);
     }
 
     /**
@@ -223,20 +245,6 @@ public class ProgramaServicioImpl implements ProgramaServicio, CrudServicio<Prog
         }
     }
 
-    /**
-     * Establece el programa por defecto del docente en el curso del programa.
-     */
-    @Override
-    @Transactional
-    public void establecerPorDefecto(Docente docente, Integer programaId) {
-        Programa programa = buscarActivo(programaId);
-        ParticipacionDocente participacion = obtenerParticipacion(programa.getCurso(), docente);
-        participacion.setProgramaPorDefecto(programa);
-        participacion.setCohortePorDefecto(null);
-        participacion.setUltimaModificacion(LocalDateTime.now());
-        participacionDocenteRepositorio.save(participacion);
-    }
-
     /** Verifica que el programa se pueda dar de baja: activo, del curso del docente y sin cohortes activas. */
     private Programa validarBaja(Integer id, Docente docente) {
         Programa programa = buscarActivo(id);
@@ -245,8 +253,8 @@ public class ProgramaServicioImpl implements ProgramaServicio, CrudServicio<Prog
         }
         if (programa.getCantidadCohortesActivas() > 0) {
             int cohortesActivas = programa.getCantidadCohortesActivas();
-            throw new IllegalArgumentException(MensajeUtilidad.bajaBloqueada("el programa", programa.getNombre(),
-                    "tiene " + MensajeUtilidad.cantidad(cohortesActivas, "cohorte activa asociada",
+            throw new IllegalArgumentException(MensajeBajaUtilidad.bajaBloqueada("el programa", programa.getNombre(),
+                    "tiene " + MensajeBajaUtilidad.cantidad(cohortesActivas, "cohorte activa asociada",
                             "cohortes activas asociadas"),
                     "Dé de baja primero " + (cohortesActivas == 1 ? "esa cohorte." : "esas cohortes.")));
         }

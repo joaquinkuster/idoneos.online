@@ -9,6 +9,8 @@ import com.app.idoneos.modelo.Pregunta;
  */
 public interface OpcionRespuestaServicio {
 
+    // ---------------------------------------------------------------- Lecturas
+
     /**
      * Busca los registros vigentes de opcionRespuesta asociados a pregunta.
      *

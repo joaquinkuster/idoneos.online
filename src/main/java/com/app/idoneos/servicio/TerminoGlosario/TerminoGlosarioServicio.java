@@ -12,6 +12,8 @@ import com.app.idoneos.modelo.Usuario;
  */
 public interface TerminoGlosarioServicio {
 
+    // ---------------------------------------------------------------- Lecturas
+
     /**
      * Busca los registros vigentes de terminoGlosario asociados a unidad.
      *
@@ -40,6 +42,18 @@ public interface TerminoGlosarioServicio {
     Map<String, List<TerminoGlosario>> agruparPorLetra(List<TerminoGlosario> terminos);
 
     /**
+     * Indica si un usuario puede ver el glosario de una unidad: el administrador, el docente que participa en el curso
+     * y el alumno con la unidad habilitada.
+     *
+     * @param unidad  la unidad del glosario
+     * @param usuario el usuario que quiere verlo
+     * @return {@code true} si puede verlo
+     */
+    boolean puedeVer(Unidad unidad, Usuario usuario);
+
+    // ---------------------------------------------------------------- Creaciones
+
+    /**
      * CU-33: Registra un término en el glosario de una unidad. Solo lo hace un docente que participa en el curso. Si
      * el término estuvo dado de baja, se vuelve a dar de alta con la nueva definición.
      *
@@ -51,6 +65,8 @@ public interface TerminoGlosarioServicio {
      * @throws IllegalArgumentException si falta algún dato, supera el máximo, ya existe o el docente no participa
      */
     TerminoGlosario registrarTermino(Docente docente, Integer unidadId, String termino, String definicion);
+
+    // ---------------------------------------------------------------- Modificaciones
 
     /**
      * CU-34: Modifica el término y la definición de un término del glosario. Solo lo hace un docente que participa en
@@ -65,6 +81,8 @@ public interface TerminoGlosarioServicio {
      */
     TerminoGlosario modificarTermino(Integer id, Docente docente, String termino, String definicion);
 
+    // ---------------------------------------------------------------- Bajas
+
     /**
      * CU-35: Da de baja un término del glosario (baja lógica).
      *
@@ -74,14 +92,4 @@ public interface TerminoGlosarioServicio {
      * @throws IllegalArgumentException si el término no está activo o el docente no participa en el curso
      */
     void darDeBajaTermino(Integer id, Docente docente);
-
-    /**
-     * Indica si un usuario puede ver el glosario de una unidad: el administrador, el docente que participa en el curso
-     * y el alumno con la unidad habilitada.
-     *
-     * @param unidad  la unidad del glosario
-     * @param usuario el usuario que quiere verlo
-     * @return {@code true} si puede verlo
-     */
-    boolean puedeVer(Unidad unidad, Usuario usuario);
 }

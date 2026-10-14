@@ -21,16 +21,7 @@ public class ReporteServicioImpl implements ReporteServicio, CrudServicio<Report
     @Autowired
     private ReporteRepositorio reporteRepositorio;
 
-    /**
-     * Guarda el reporte en la base de datos.
-     *
-     * @param entidad El registro a guardar.
-     * @return El registro guardado.
-     */
-    @Override
-    public Reporte guardar(Reporte entidad) {
-        return reporteRepositorio.save(entidad);
-    }
+    // ---------------------------------------------------------------- Lecturas
 
     /**
      * Busca el reporte por su identificador. Devuelve el registro si existe.
@@ -51,27 +42,6 @@ public class ReporteServicioImpl implements ReporteServicio, CrudServicio<Report
     @Override
     public List<Reporte> obtenerTodo() {
         return reporteRepositorio.findAll();
-    }
-
-    /**
-     * Modifica un registro existente.
-     *
-     * @param entidad El registro con los datos actualizados.
-     * @return El registro modificado.
-     */
-    @Override
-    public Reporte modificar(Reporte entidad) {
-        return reporteRepositorio.save(entidad);
-    }
-
-    /**
-     * Elimina el registro de la base de datos. Esta entidad no tiene baja lógica.
-     *
-     * @param entidad El registro a borrar.
-     */
-    @Override
-    public void borrar(Reporte entidad) {
-        reporteRepositorio.delete(entidad);
     }
 
     /**
@@ -116,5 +86,43 @@ public class ReporteServicioImpl implements ReporteServicio, CrudServicio<Report
     @Override
     public List<Reporte> buscarPorCurso(Curso curso) {
         return reporteRepositorio.findByCurso(curso);
+    }
+
+    // ---------------------------------------------------------------- Creaciones
+
+    /**
+     * Guarda el reporte en la base de datos.
+     *
+     * @param entidad El registro a guardar.
+     * @return El registro guardado.
+     */
+    @Override
+    public Reporte guardar(Reporte entidad) {
+        return reporteRepositorio.save(entidad);
+    }
+
+    // ---------------------------------------------------------------- Modificaciones
+
+    /**
+     * Modifica un registro existente.
+     *
+     * @param entidad El registro con los datos actualizados.
+     * @return El registro modificado.
+     */
+    @Override
+    public Reporte modificar(Reporte entidad) {
+        return reporteRepositorio.save(entidad);
+    }
+
+    // ---------------------------------------------------------------- Bajas
+
+    /**
+     * Elimina el registro de la base de datos. Esta entidad no tiene baja lógica.
+     *
+     * @param entidad El registro a borrar.
+     */
+    @Override
+    public void borrar(Reporte entidad) {
+        reporteRepositorio.delete(entidad);
     }
 }

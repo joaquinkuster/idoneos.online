@@ -46,6 +46,10 @@ class MenuActivoControladorTest {
     @Autowired
     private InscripcionRepositorio inscripcionRepositorio;
 
+    private static String abreviado(String nombre) {
+        return nombre.length() <= 22 ? nombre : nombre.substring(0, 19) + "...";
+    }
+
     private int curso() {
         return cursoRepositorio.findAll().stream().filter(c -> c.getNombre().equals("Mercado de Capitales Argentino"))
                 .mapToInt(c -> c.getIdCurso()).findFirst().orElseThrow();
@@ -67,7 +71,8 @@ class MenuActivoControladorTest {
     private void marcaPanelDelCurso(int cursoId) throws Exception {
         int unidadId = unidadRepositorio.findAll().stream().filter(u -> u.getCurso().getIdCurso() == cursoId)
                 .mapToInt(u -> u.getIdUnidad()).findFirst().orElseThrow();
-        marca("/curso/acceder/" + cursoId, "Curso");
+        // el primer botón del menú lleva el nombre del curso, abreviado a 22 caracteres
+        marca("/curso/acceder/" + cursoId, abreviado(cursoRepositorio.findById(cursoId).orElseThrow().getNombre()));
         marca("/curso/acceder/" + cursoId + "?seccion=clases", "Clases en vivo");
         marca("/unidad/buscar?cursoId=" + cursoId, "Unidades");
         marca("/programa/buscar?cursoId=" + cursoId, "Programas");
@@ -120,7 +125,7 @@ class MenuActivoControladorTest {
         Inscripcion i = inscripcionRepositorio.findAll().stream()
                 .filter(x -> x.getAlumno().getUsuario().getCorreo().equals("valentina.ruiz@correo.com")).findFirst().orElseThrow();
         String base = "/inscripcion/acceder/" + i.getIdInscripcion();
-        marca(base, "Curso");
+        marca(base, abreviado(i.getCurso().getNombre()));
         marca(base + "?seccion=cronograma", "Cronograma");
         marca(base + "?seccion=clases", "Clases en vivo");
         marca("/participante/ver/" + i.getIdInscripcion(), "Participantes");

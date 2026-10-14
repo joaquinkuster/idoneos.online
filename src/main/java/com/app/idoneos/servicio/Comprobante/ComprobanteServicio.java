@@ -10,6 +10,8 @@ import com.app.idoneos.modelo.Pago;
  */
 public interface ComprobanteServicio {
 
+    // ---------------------------------------------------------------- Lecturas
+
     /**
      * Busca los registros de comprobante asociados a pago.
      *
@@ -25,4 +27,25 @@ public interface ComprobanteServicio {
      * @return un {@link Optional} con el registro si existe, o vacío si no se encuentra
      */
     Optional<Comprobante> buscarPorNumero(String numero);
+
+    /**
+     * Genera el archivo PDF de un comprobante, para que el alumno o el administrador lo descarguen.
+     *
+     * @param comprobante El comprobante emitido por un pago aprobado.
+     * @return El contenido del archivo PDF.
+     */
+    byte[] generarPdf(Comprobante comprobante);
+
+    // ---------------------------------------------------------------- Creaciones
+
+    /**
+     * Emite el comprobante de un pago aprobado: le asigna su número, lo guarda y lo agrega al pago. El envío por
+     * correo electrónico es parte de MOD-NF-01: por ahora queda registrado en el log y sin enviar.
+     *
+     * @param pago          El pago aprobado.
+     * @param nombrePagador El nombre del pagador, para el comprobante.
+     * @param dniPagador    El DNI del pagador, para el comprobante.
+     * @return El comprobante emitido.
+     */
+    Comprobante emitirComprobante(Pago pago, String nombrePagador, String dniPagador);
 }

@@ -9,6 +9,8 @@ import com.app.idoneos.modelo.Unidad;
  */
 public interface PoolServicio {
 
+    // ---------------------------------------------------------------- Lecturas
+
     /**
      * Busca los registros vigentes de pool asociados a unidad.
      *

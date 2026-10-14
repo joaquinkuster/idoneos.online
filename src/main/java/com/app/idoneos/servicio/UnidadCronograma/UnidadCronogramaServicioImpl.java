@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import com.app.idoneos.modelo.Docente;
+import com.app.idoneos.modelo.Parametro;
 import com.app.idoneos.modelo.Programa;
 import com.app.idoneos.modelo.Unidad;
 import com.app.idoneos.modelo.UnidadCronograma;
@@ -17,6 +18,7 @@ import com.app.idoneos.repositorio.ProgramaRepositorio;
 import com.app.idoneos.repositorio.UnidadCronogramaRepositorio;
 import com.app.idoneos.repositorio.UnidadRepositorio;
 import com.app.idoneos.servicio.CrudServicio;
+import com.app.idoneos.servicio.Parametro.ParametroServicio;
 import com.app.idoneos.servicio.Unidad.UnidadServicio;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -44,16 +46,10 @@ public class UnidadCronogramaServicioImpl implements UnidadCronogramaServicio, C
     @Autowired
     private UnidadServicio unidadServicio;
 
-    /**
-     * Guarda la unidad del cronograma en la base de datos.
-     *
-     * @param entidad El registro a guardar.
-     * @return El registro guardado.
-     */
-    @Override
-    public UnidadCronograma guardar(UnidadCronograma entidad) {
-        return unidadCronogramaRepositorio.save(entidad);
-    }
+    @Autowired
+    private ParametroServicio parametroServicio;
+
+    // ---------------------------------------------------------------- Lecturas
 
     /**
      * Busca la unidad del cronograma por su identificador. Solo devuelve registros activos (no dados de baja).
@@ -75,28 +71,6 @@ public class UnidadCronogramaServicioImpl implements UnidadCronogramaServicio, C
     @Override
     public List<UnidadCronograma> obtenerTodo() {
         return unidadCronogramaRepositorio.findByBajaFalse();
-    }
-
-    /**
-     * Modifica un registro existente.
-     *
-     * @param entidad El registro con los datos actualizados.
-     * @return El registro modificado.
-     */
-    @Override
-    public UnidadCronograma modificar(UnidadCronograma entidad) {
-        return unidadCronogramaRepositorio.save(entidad);
-    }
-
-    /**
-     * Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos.
-     *
-     * @param entidad El registro a borrar.
-     */
-    @Override
-    public void borrar(UnidadCronograma entidad) {
-        entidad.marcarInactivo(); // Baja lógica
-        unidadCronogramaRepositorio.save(entidad);
     }
 
     /**
@@ -145,6 +119,32 @@ public class UnidadCronogramaServicioImpl implements UnidadCronogramaServicio, C
         return unidadCronogramaRepositorio.findByProgramaAndUnidad(programa, unidad);
     }
 
+    // ---------------------------------------------------------------- Creaciones
+
+    /**
+     * Guarda la unidad del cronograma en la base de datos.
+     *
+     * @param entidad El registro a guardar.
+     * @return El registro guardado.
+     */
+    @Override
+    public UnidadCronograma guardar(UnidadCronograma entidad) {
+        return unidadCronogramaRepositorio.save(entidad);
+    }
+
+    // ---------------------------------------------------------------- Modificaciones
+
+    /**
+     * Modifica un registro existente.
+     *
+     * @param entidad El registro con los datos actualizados.
+     * @return El registro modificado.
+     */
+    @Override
+    public UnidadCronograma modificar(UnidadCronograma entidad) {
+        return unidadCronogramaRepositorio.save(entidad);
+    }
+
     /**
      * CU-24: Modifica el cronograma de un programa (unidades, orden y semanas).
      */
@@ -176,6 +176,13 @@ public class UnidadCronogramaServicioImpl implements UnidadCronogramaServicio, C
         List<Integer> semanasPorUnidad = new ArrayList<>();
         for (String duracion : duraciones) {
             semanasPorUnidad.add(parsearSemanas(duracion));
+        }
+        int maximo = parametroServicio.obtenerEntero(Parametro.CRONOGRAMA_SEMANAS_MAXIMAS,
+                Parametro.CRONOGRAMA_SEMANAS_MAXIMAS_POR_DEFECTO);
+        int total = semanasPorUnidad.stream().mapToInt(Integer::intValue).sum();
+        if (total > maximo) {
+            throw new IllegalArgumentException("Error! El cronograma no puede superar las " + maximo
+                    + " semanas (el que se quiere guardar suma " + total + ").");
         }
         Map<Integer, Unidad> unidades = new HashMap<>();
         for (Integer id : ids) {
@@ -224,6 +231,19 @@ public class UnidadCronogramaServicioImpl implements UnidadCronogramaServicio, C
         }
         programa.setUltimaModificacion(ahora);
         programaRepositorio.save(programa);
+    }
+
+    // ---------------------------------------------------------------- Bajas
+
+    /**
+     * Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos.
+     *
+     * @param entidad El registro a borrar.
+     */
+    @Override
+    public void borrar(UnidadCronograma entidad) {
+        entidad.marcarInactivo(); // Baja lógica
+        unidadCronogramaRepositorio.save(entidad);
     }
 
     /** Convierte la duración recibida en un número entero de semanas mayor a cero. */

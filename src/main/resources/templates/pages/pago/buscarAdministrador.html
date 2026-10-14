@@ -101,14 +101,14 @@
                                 <td th:text="${p.comprobanteVigente != null ? p.comprobanteVigente.numero : '—'}">—</td>
                                 <td>
                                     <div class="pn-acciones">
-                                        <button type="button" class="pn-btn pn-btn-contorno pn-btn-chico" data-bs-toggle="modal"
-                                                th:data-bs-target="'#modalVerPago' + ${p.idPago}">Ver</button>
+                                        <button type="button" class="pn-btn pn-btn-ver pn-btn-chico" data-bs-toggle="modal"
+                                                th:data-bs-target="'#modalVerPago' + ${p.idPago}">Ver detalle</button>
                                         <button type="button" class="pn-btn pn-btn-editar pn-btn-chico" data-bs-toggle="modal"
                                                 th:if="${!p.estaAprobado()}"
                                                 th:data-bs-target="'#modalModificarPago' + ${p.idPago}">Modificar</button>
-                                        <a class="pn-btn pn-btn-contorno pn-btn-chico" target="_blank" rel="noopener"
+                                        <a class="pn-btn pn-btn-ver pn-btn-chico" target="_blank" rel="noopener"
                                            th:if="${p.estaAprobado() and p.comprobanteVigente != null}"
-                                           th:href="@{'/pago/comprobante/' + ${p.idPago}}">Comprobante</a>
+                                           th:href="@{'/pago/comprobante/' + ${p.idPago}}">Generar comprobante</a>
                                     </div>
                                 </td>
                             </tr>
@@ -317,14 +317,16 @@
 <th:block th:replace="~{fragments/panel :: scripts}"></th:block>
 <script th:src="@{/js/abrirModal.js}"></script>
 <script>
-    // El monto del pago manual se propone con lo que le corresponde pagar al alumno (precio con su descuento)
+    // El monto del pago manual se propone con lo que debe la inscripción y no puede superarlo
     (function () {
         var inscripcion = document.getElementById('pagoInscripcion');
         var monto = document.getElementById('pagoMonto');
         if (!inscripcion || !monto) { return; }
         function proponer() {
             var opcion = inscripcion.options[inscripcion.selectedIndex];
-            monto.value = opcion && opcion.getAttribute('data-monto') ? opcion.getAttribute('data-monto') : '';
+            var debe = opcion && opcion.getAttribute('data-monto') ? opcion.getAttribute('data-monto') : '';
+            monto.value = debe;
+            if (debe) { monto.max = debe; } else { monto.removeAttribute('max'); }
         }
         inscripcion.addEventListener('change', proponer);
         proponer();

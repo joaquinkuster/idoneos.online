@@ -25,7 +25,7 @@ import com.app.idoneos.modelo.UnidadCronograma;
 import com.app.idoneos.modelo.Usuario;
 import com.app.idoneos.servicio.Material.MaterialServicioImpl;
 import com.app.idoneos.servicio.TipoMaterial.TipoMaterialServicioImpl;
-import com.app.idoneos.utilidades.RespuestaUtilidad;
+import com.app.idoneos.utilidades.RespuestaJsonUtilidad;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -35,7 +35,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.server.ResponseStatusException;
-import com.app.idoneos.utilidades.ArchivoUtilidad;
+import com.app.idoneos.utilidades.ManejadorArchivosUtilidad;
 import jakarta.servlet.http.HttpServletRequest;
 
 /**
@@ -60,6 +60,8 @@ public class MaterialControlador extends PanelCursoControlador {
     @Autowired
     @Qualifier("directorioCursos")
     private Path directorioCursos;
+
+    // ---------------------------------------------------------------- Lecturas
 
     /**
      * CU-28: Busca el material de un curso (incluido el no publicado) según la unidad, el tipo, el título y si fue
@@ -168,7 +170,6 @@ public class MaterialControlador extends PanelCursoControlador {
         return "pages/material/ver";
     }
 
-
     /**
      * Entrega el contenido de un material a la propia plataforma (al reproductor de video o al visor de PDF), para que
      * se vea únicamente desde ella. Solo responde si el pedido lo hace la página del material: abrir la dirección en
@@ -198,7 +199,7 @@ public class MaterialControlador extends PanelCursoControlador {
         if (!esPedidoDeLaPlataforma(pedido)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
-        Path archivo = ArchivoUtilidad.resolver(directorioCursos, material.getRutaArchivo());
+        Path archivo = ManejadorArchivosUtilidad.resolver(directorioCursos, material.getRutaArchivo());
         if (archivo == null || !Files.isRegularFile(archivo)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
@@ -214,16 +215,7 @@ public class MaterialControlador extends PanelCursoControlador {
                 .body(new FileSystemResource(archivo));
     }
 
-    /**
-     * Indica si el pedido lo hace la propia página del material: lo carga el reproductor de video o el visor de PDF
-     * (destino "video" o "empty") desde el mismo sitio. Si el pedido es una navegación (destino "document"), un iframe
-     * u otro sitio, o el navegador no informa el origen, se rechaza.
-     */
-    private boolean esPedidoDeLaPlataforma(HttpServletRequest pedido) {
-        String destino = pedido.getHeader("Sec-Fetch-Dest");
-        String sitio = pedido.getHeader("Sec-Fetch-Site");
-        return "same-origin".equals(sitio) && ("video".equals(destino) || "empty".equals(destino));
-    }
+    // ---------------------------------------------------------------- Creaciones
 
     /**
      * CU-29: Sube un material a una unidad. Responde en JSON para que el formulario muestre el resultado sin
@@ -252,11 +244,13 @@ public class MaterialControlador extends PanelCursoControlador {
             Usuario usuario = (Usuario) auth.getPrincipal();
             Material material = materialServicio.subirMaterial(usuario.getDocente(), unidadId, tipoMaterialId, titulo,
                     oculto, autor, enlace, archivo);
-            return RespuestaUtilidad.respuestaExitosa("Material '" + material.getTitulo() + "' subido con éxito.");
+            return RespuestaJsonUtilidad.respuestaExitosa("Material '" + material.getTitulo() + "' subido con éxito.");
         } catch (Exception e) {
-            return RespuestaUtilidad.respuestaConError(e);
+            return RespuestaJsonUtilidad.respuestaConError(e);
         }
     }
+
+    // ---------------------------------------------------------------- Modificaciones
 
     /**
      * CU-30: Modifica un material activo. Responde en JSON.
@@ -280,11 +274,13 @@ public class MaterialControlador extends PanelCursoControlador {
         try {
             Usuario usuario = (Usuario) auth.getPrincipal();
             materialServicio.modificarMaterial(id, usuario.getDocente(), titulo, oculto, autor, enlace, archivo);
-            return RespuestaUtilidad.respuestaExitosa("Material modificado correctamente.");
+            return RespuestaJsonUtilidad.respuestaExitosa("Material modificado correctamente.");
         } catch (Exception e) {
-            return RespuestaUtilidad.respuestaConError(e);
+            return RespuestaJsonUtilidad.respuestaConError(e);
         }
     }
+
+    // ---------------------------------------------------------------- Bajas
 
     /**
      * CU-31: Da de baja un material activo. Responde en JSON.
@@ -297,9 +293,9 @@ public class MaterialControlador extends PanelCursoControlador {
     public ResponseEntity<Map<String, String>> darDeBajaMaterial(@PathVariable("id") Integer id, Authentication auth) {
         try {
             materialServicio.darDeBajaMaterial(id, docenteQueGestiona(auth));
-            return RespuestaUtilidad.respuestaExitosa("Material dado de baja con éxito.");
+            return RespuestaJsonUtilidad.respuestaExitosa("Material dado de baja con éxito.");
         } catch (Exception e) {
-            return RespuestaUtilidad.respuestaConError(e);
+            return RespuestaJsonUtilidad.respuestaConError(e);
         }
     }
 
@@ -316,10 +312,21 @@ public class MaterialControlador extends PanelCursoControlador {
             @RequestParam(value = "ids", required = false) List<Integer> ids, Authentication auth) {
         try {
             materialServicio.darDeBajaVarios(ids, docenteQueGestiona(auth));
-            return RespuestaUtilidad.respuestaExitosa("Materiales dados de baja con éxito.");
+            return RespuestaJsonUtilidad.respuestaExitosa("Materiales dados de baja con éxito.");
         } catch (Exception e) {
-            return RespuestaUtilidad.respuestaConError(e);
+            return RespuestaJsonUtilidad.respuestaConError(e);
         }
+    }
+
+    /**
+     * Indica si el pedido lo hace la propia página del material: lo carga el reproductor de video o el visor de PDF
+     * (destino "video" o "empty") desde el mismo sitio. Si el pedido es una navegación (destino "document"), un iframe
+     * u otro sitio, o el navegador no informa el origen, se rechaza.
+     */
+    private boolean esPedidoDeLaPlataforma(HttpServletRequest pedido) {
+        String destino = pedido.getHeader("Sec-Fetch-Dest");
+        String sitio = pedido.getHeader("Sec-Fetch-Site");
+        return "same-origin".equals(sitio) && ("video".equals(destino) || "empty".equals(destino));
     }
 
     /**

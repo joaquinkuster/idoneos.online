@@ -7,11 +7,14 @@
 </th:block>
 
 <th:block th:fragment="enlacesAdministrador(activo)">
+    <div th:replace="~{fragments/sidebar :: grupo('Cursos')}"></div>
     <a th:replace="~{fragments/sidebar :: enlace('/curso/buscar', 'fa-book-open', 'Cursos', ${activo}, 'cursos')}"></a>
     <a th:replace="~{fragments/sidebar :: enlace('/categoria/buscar', 'fa-tags', 'Categorías', ${activo}, 'categorias')}"></a>
+
+    <div th:replace="~{fragments/sidebar :: grupo('Inscripciones')}"></div>
+    <a th:replace="~{fragments/sidebar :: enlace('/descuento/buscar', 'fa-percent', 'Descuentos', ${activo}, 'descuentos')}"></a>
     <a th:replace="~{fragments/sidebar :: enlace('/inscripcion/buscar', 'fa-user-graduate', 'Inscripciones', ${activo}, 'inscripciones')}"></a>
     <a th:replace="~{fragments/sidebar :: enlace('/pago/buscar', 'fa-credit-card', 'Pagos', ${activo}, 'pagos')}"></a>
-    <a th:replace="~{fragments/sidebar :: enlace('/descuento/buscar', 'fa-percent', 'Descuentos', ${activo}, 'descuentos')}"></a>
 </th:block>
 
 <!-- ========== Gestión académica (MOD-F-02), para el alumno y el docente ==========
@@ -22,7 +25,7 @@
 </th:block>
 
 <th:block th:fragment="enlacesGestionAcademica(activo, urlBase)">
-    <a th:replace="~{fragments/sidebar :: enlace(${urlBase}, 'fa-house', 'Curso', ${activo}, 'curso')}"></a>
+    <a th:replace="~{fragments/sidebar :: enlace(${urlBase}, 'fa-house', ${curso != null ? #strings.abbreviate(curso.nombre, 22) : 'Curso'}, ${activo}, 'curso')}"></a>
 
     <!-- Lo que el alumno no puede abrir no se le muestra (y sin botones, tampoco el título del grupo) -->
     <th:block th:if="${esDocente == true or esAdministrador == true}">
@@ -44,6 +47,9 @@
         <a th:replace="~{fragments/sidebar :: enlace(${urlBase} + '?seccion=clases', 'fa-video', 'Clases en vivo', ${activo}, 'clases')}"></a>
     </th:block>
     <a th:replace="~{fragments/sidebar :: enlace((${esDocente == true or esAdministrador == true} ? '/participante/buscar?cursoId=' + ${curso.idCurso} : ${#strings.replace(urlBase, '/inscripcion/acceder/', '/participante/ver/')}), 'fa-users', 'Participantes', ${activo}, 'participantes')}"></a>
+    <th:block th:if="${esDocente == true or esAdministrador == true}">
+        <a th:replace="~{fragments/sidebar :: enlace('/progreso/buscar?cursoId=' + ${curso.idCurso}, 'fa-chart-line', 'Progreso', ${activo}, 'progreso')}"></a>
+    </th:block>
     <a th:replace="~{fragments/sidebar :: enlace('#', 'fa-star', 'Calificaciones', ${activo}, 'calificaciones')}"></a>
 
     <div th:replace="~{fragments/sidebar :: grupo('Contenido de las unidades')}"></div>

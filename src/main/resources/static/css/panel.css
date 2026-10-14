@@ -143,6 +143,77 @@
     color: var(--pn-texto);
 }
 
+/* Opción con otras que cuelgan de ella (Mis cursos > Mis pagos): la flecha de la derecha las despliega */
+.um-grupo-fila {
+    display: flex;
+    align-items: stretch;
+}
+
+.um-grupo-fila .um-item {
+    flex: 1;
+    width: auto;
+}
+
+.um-desplegar {
+    width: 40px;
+    flex-shrink: 0;
+    border: 0;
+    background: transparent;
+    color: var(--pn-texto-suave);
+    cursor: pointer;
+    transition: background-color 0.12s ease;
+}
+
+/* La fila de Mis cursos se pinta entera (enlace y flecha) al pasar el mouse o cuando es la página actual */
+.um-desplegar:hover,
+.um-grupo-fila:hover .um-item,
+.um-grupo-fila:hover .um-desplegar,
+.um-grupo-fila:has(.um-item.activo) .um-desplegar {
+    background: var(--pn-fondo);
+}
+
+.um-grupo-fila:hover .um-item:not(.um-item-peligro) {
+    opacity: 1;
+}
+
+.um-desplegar i {
+    font-size: 12px;
+    transition: transform 0.25s ease;
+}
+
+.um-grupo.abierto .um-desplegar i {
+    transform: rotate(180deg);
+}
+
+/* El alto se anima con grid-template-rows (0fr -> 1fr) */
+.um-submenu {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.25s ease;
+}
+
+.um-grupo.abierto .um-submenu {
+    grid-template-rows: 1fr;
+}
+
+.um-submenu-interior {
+    min-height: 0;
+    overflow: hidden;
+}
+
+/* Opción que cuelga de otra (por ejemplo, Mis pagos dentro de Mis cursos) */
+.um-item-sub {
+    padding-left: 30px;
+    font-size: 13px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .um-submenu,
+    .um-desplegar i {
+        transition: none;
+    }
+}
+
 .um-item-peligro {
     color: var(--pn-peligro);
     font-weight: 600;
@@ -319,6 +390,7 @@ body.pn-body {
 }
 
 .pn-menu-enlace {
+    flex-shrink: 0;
     display: flex;
     align-items: center;
     gap: 12px;
@@ -1381,4 +1453,69 @@ textarea.pn-input {
     margin: 0;
     padding: 0;
     border: 0;
+}
+
+/* ==========================================================================
+   DETALLE DESPLEGABLE DE UNA FILA (tabla dentro de la tabla)
+   La fila de detalle va justo debajo de la fila del listado; si ésta se oculta (filtro o paginado), el detalle también.
+   El alto se anima con grid-template-rows (0fr -> 1fr), así lo que está debajo se desplaza suavemente.
+   ========================================================================== */
+.pn-tabla tbody tr[data-fila][hidden] + tr.pn-fila-detalle {
+    display: none;
+}
+
+.pn-tabla tbody tr.pn-fila-detalle > td {
+    padding: 0;
+    border-bottom: 0;
+    background: transparent;
+}
+
+.pn-tabla tbody tr.pn-fila-detalle.abierto > td {
+    border-bottom: 1px solid var(--pn-borde);
+}
+
+.pn-detalle {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.3s ease;
+}
+
+.pn-fila-detalle.abierto .pn-detalle {
+    grid-template-rows: 1fr;
+}
+
+.pn-detalle-interior {
+    min-height: 0;
+    overflow: hidden;
+}
+
+.pn-fila-detalle.abierto .pn-detalle-interior {
+    padding: 4px 16px 16px;
+}
+
+/* La tabla de unidades ocupa el ancho de la fila, con un margen parejo a los lados, sobre un gris suave que incluye
+   el encabezado (se pisa el fondo blanco de .pn-tabla thead th). */
+.pn-tabla.pn-tabla-anidada {
+    width: 100%;
+    margin: 0;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: #F7F9FB;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.pn-tabla.pn-tabla-anidada thead th,
+.pn-tabla.pn-tabla-anidada tbody td {
+    background: transparent;
+}
+
+.pn-tabla.pn-tabla-anidada tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .pn-detalle {
+        transition: none;
+    }
 }

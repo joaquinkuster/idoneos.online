@@ -1,4 +1,4 @@
-package com.app.idoneos.config;
+package com.app.idoneos.configuracion;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,7 +16,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpSession;
 
-import com.app.idoneos.controlador.consejo.ContextoSesion;
+import com.app.idoneos.controlador.consejo.ContextoSesionConsejo;
 import com.app.idoneos.modelo.Usuario;
 import com.app.idoneos.servicio.Usuario.UsuarioDetallesServicio;
 
@@ -27,7 +27,7 @@ import com.app.idoneos.servicio.Usuario.UsuarioDetallesServicio;
  */
 @Configuration
 @EnableWebSecurity
-public class SecurityConfig {
+public class AutenticacionConfiguracion {
 
     /** Duración de la sesión recordada: 30 días. */
     private static final int DIAS_DE_RECORDATORIO = 30;
@@ -157,6 +157,9 @@ public class SecurityConfig {
                         // CU-25 y CU-27: participantes del curso (docente y administrador; el alumno ve los de su cohorte)
                         .requestMatchers(HttpMethod.GET, "/participante/buscar").hasAnyRole("Docente", "Administrador")
                         .requestMatchers(HttpMethod.GET, "/participante/ver/*").hasRole("Alumno")
+                        // CU-55: progreso de los alumnos del curso (docente y administrador)
+                        .requestMatchers(HttpMethod.GET, "/progreso/buscar")
+                        .hasAnyRole("Docente", "Administrador")
                         // CU-27: Acceder curso (Docente; el Administrador lo ve sin gestionar su contenido)
                         .requestMatchers(HttpMethod.GET, "/curso/acceder/*").hasAnyRole("Docente", "Administrador")
                         // CU-03 a CU-14 y CU-56 a CU-59: gestión de cursos, categorías, cohortes y descuentos (Administrador)
@@ -180,7 +183,7 @@ public class SecurityConfig {
                                 cookie.setMaxAge(segundos);
                                 respuesta.addCookie(cookie);
                             }
-                            solicitud.getSession().setAttribute(ContextoSesion.MENSAJE_DE_SESION,
+                            solicitud.getSession().setAttribute(ContextoSesionConsejo.MENSAJE_DE_SESION,
                                     "Sesión iniciada correctamente. ¡Bienvenido/a, " + usuario.getNombre() + "!");
                             String destino = usuario.esAdministradorActivo() || usuario.esDocenteActivo() ? "/curso/buscar"
                                     : usuario.esAlumnoActivo() ? "/inscripcion/misCursos" : "/inicio";

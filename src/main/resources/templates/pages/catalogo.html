@@ -88,7 +88,7 @@
           <!-- Grilla de tarjetas -->
           <div class="wf-cards-grid" data-tarjetas>
             <th:block th:each="c : ${cursos}">
-  <th:block th:replace="~{fragments/tarjetaCurso :: tarjeta(${c}, ${cantUnidadesPorCurso != null ? cantUnidadesPorCurso.get(c.idCurso) : null})}"></th:block>
+  <th:block th:replace="~{fragments/tarjetaCurso :: tarjeta(${c}, ${cantUnidadesPorCurso != null ? cantUnidadesPorCurso.get(c.idCurso) : null}, 'Inscripción abierta', '/catalogo/ficha/' + ${c.idCurso}, 'Ver ficha del curso', null, null)}"></th:block>
 </th:block>
           </div>
 

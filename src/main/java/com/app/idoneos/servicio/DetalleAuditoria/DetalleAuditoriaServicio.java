@@ -9,6 +9,8 @@ import com.app.idoneos.modelo.DetalleAuditoria;
  */
 public interface DetalleAuditoriaServicio {
 
+    // ---------------------------------------------------------------- Lecturas
+
     /**
      * Busca los registros de detalleAuditoria asociados a auditoria.
      *

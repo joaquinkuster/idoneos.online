@@ -4,7 +4,7 @@ package com.app.idoneos.utilidades;
  * Métodos auxiliares para armar los mensajes que se muestran al usuario con un formato único:
  * los plurales siempre bien escritos (nunca "curso(s)") y los mensajes de baja con la misma estructura.
  */
-public class MensajeUtilidad {
+public class MensajeBajaUtilidad {
 
     /**
      * Escribe una cantidad con su sustantivo en singular o plural: "1 curso activo asociado" o

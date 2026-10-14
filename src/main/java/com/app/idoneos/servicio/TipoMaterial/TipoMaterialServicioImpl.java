@@ -19,16 +19,7 @@ public class TipoMaterialServicioImpl implements TipoMaterialServicio, CrudServi
     @Autowired
     private TipoMaterialRepositorio tipoMaterialRepositorio;
 
-    /**
-     * Guarda el tipo de material en la base de datos.
-     *
-     * @param entidad El registro a guardar.
-     * @return El registro guardado.
-     */
-    @Override
-    public TipoMaterial guardar(TipoMaterial entidad) {
-        return tipoMaterialRepositorio.save(entidad);
-    }
+    // ---------------------------------------------------------------- Lecturas
 
     /**
      * Busca el tipo de material por su identificador. Devuelve el registro si existe.
@@ -49,27 +40,6 @@ public class TipoMaterialServicioImpl implements TipoMaterialServicio, CrudServi
     @Override
     public List<TipoMaterial> obtenerTodo() {
         return tipoMaterialRepositorio.findAll();
-    }
-
-    /**
-     * Modifica un registro existente.
-     *
-     * @param entidad El registro con los datos actualizados.
-     * @return El registro modificado.
-     */
-    @Override
-    public TipoMaterial modificar(TipoMaterial entidad) {
-        return tipoMaterialRepositorio.save(entidad);
-    }
-
-    /**
-     * Elimina el registro de la base de datos. Esta entidad no tiene baja lógica.
-     *
-     * @param entidad El registro a borrar.
-     */
-    @Override
-    public void borrar(TipoMaterial entidad) {
-        tipoMaterialRepositorio.delete(entidad);
     }
 
     /**
@@ -104,5 +74,43 @@ public class TipoMaterialServicioImpl implements TipoMaterialServicio, CrudServi
         List<String> orden = List.of(TipoMaterial.GRABACION, TipoMaterial.BIBLIOGRAFIA, TipoMaterial.PRESENTACION);
         return tipoMaterialRepositorio.findAll().stream().filter(TipoMaterial::permiteSubidaManual)
                 .sorted(Comparator.comparingInt(tipo -> orden.indexOf(tipo.getNombre()))).toList();
+    }
+
+    // ---------------------------------------------------------------- Creaciones
+
+    /**
+     * Guarda el tipo de material en la base de datos.
+     *
+     * @param entidad El registro a guardar.
+     * @return El registro guardado.
+     */
+    @Override
+    public TipoMaterial guardar(TipoMaterial entidad) {
+        return tipoMaterialRepositorio.save(entidad);
+    }
+
+    // ---------------------------------------------------------------- Modificaciones
+
+    /**
+     * Modifica un registro existente.
+     *
+     * @param entidad El registro con los datos actualizados.
+     * @return El registro modificado.
+     */
+    @Override
+    public TipoMaterial modificar(TipoMaterial entidad) {
+        return tipoMaterialRepositorio.save(entidad);
+    }
+
+    // ---------------------------------------------------------------- Bajas
+
+    /**
+     * Elimina el registro de la base de datos. Esta entidad no tiene baja lógica.
+     *
+     * @param entidad El registro a borrar.
+     */
+    @Override
+    public void borrar(TipoMaterial entidad) {
+        tipoMaterialRepositorio.delete(entidad);
     }
 }

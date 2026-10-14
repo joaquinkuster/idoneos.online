@@ -9,6 +9,8 @@ import com.app.idoneos.modelo.Pregunta;
  */
 public interface PreguntaServicio {
 
+    // ---------------------------------------------------------------- Lecturas
+
     /**
      * Busca los registros vigentes de pregunta asociados a pool.
      *

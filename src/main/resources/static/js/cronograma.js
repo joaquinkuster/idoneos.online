@@ -18,7 +18,12 @@
 
     var editable = raiz.dataset.editable === 'true';
     var COLORES = ['#2F5D8C', '#D4A03D', '#3B6D11', '#993C1D', '#534AB7', '#0F6E56'];
-    var MINIMO_SEMANAS_VISIBLES = 9;
+    // Semanas que dibuja la grilla: como mínimo las visibles y, al modificar, algunas libres después de la última unidad
+    // para poder estirarla. El máximo que puede sumar un cronograma es un parámetro del sistema.
+    var SEMANAS_VISIBLES = 20;
+    var SEMANAS_LIBRES = editable ? 6 : 0;
+    var SEMANAS_MAXIMAS = parseInt(raiz.dataset.semanasMaximas, 10) || 52;
+    var columnasCongeladas = 0; // mientras se estira una unidad, la grilla no cambia de columnas (si no, se mueve el borde)
 
     var unidades = Array.prototype.map.call(raiz.querySelectorAll('[data-unidad]'), function (e, indice) {
         return { id: e.dataset.id, titulo: e.dataset.titulo, material: parseInt(e.dataset.material, 10) || 0, color: COLORES[indice % COLORES.length] };
@@ -63,8 +68,9 @@
     // ------------------------------------------------------------------ dibujo
     function dibujar() {
         var total = totalSemanas();
-        var columnas = Math.max(total, MINIMO_SEMANAS_VISIBLES);
-        var plantilla = '170px repeat(' + columnas + ', minmax(26px, 1fr))';
+        var columnas = Math.max(Math.min(total + SEMANAS_LIBRES, SEMANAS_MAXIMAS), SEMANAS_VISIBLES, columnasCongeladas);
+        // min-width: si las columnas no entran, todas las filas se ensanchan juntas (y el fondo del encabezado llega hasta el final)
+        var plantilla = '170px repeat(' + columnas + ', minmax(26px, 1fr));min-width:' + (170 + columnas * 26) + 'px';
 
         var html = '<div class="cn-fila cn-cabecera-fila" style="grid-template-columns:' + plantilla + '"><div class="cn-celda-unidades">Unidades</div>';
         for (var s = 1; s <= columnas; s++) { html += '<div' + (s === semanaHoy ? ' class="cn-numero-actual"' : '') + '>' + s + '</div>'; }
@@ -198,6 +204,8 @@
                 colocadas.splice(arrastre.i, 0, movida); // soltada en cualquier otro lado: queda donde estaba
             }
             // soltada en el panel de disponibles: se quita del cronograma
+        } else if ((fila || zona) && totalSemanas() >= SEMANAS_MAXIMAS) {
+            window.mostrarError('Error! El cronograma no puede superar las ' + SEMANAS_MAXIMAS + ' semanas.');
         } else if ((fila || zona) && !colocadas.some(function (c) { return c.id === arrastre.id; })) {
             var nueva = { id: arrastre.id, semanas: 1 };
             if (fila) { colocadas.splice(parseInt(fila.dataset.i, 10), 0, nueva); } else { colocadas.push(nueva); }
@@ -217,16 +225,25 @@
         fila.draggable = false;
         cambio = { i: parseInt(borde.dataset.i, 10), x: e.clientX, semanas: colocadas[parseInt(borde.dataset.i, 10)].semanas,
             ancho: fila.querySelector('.cn-semana').getBoundingClientRect().width };
+        columnasCongeladas = Math.max(Math.min(totalSemanas() + SEMANAS_LIBRES, SEMANAS_MAXIMAS), SEMANAS_VISIBLES);
     });
     document.addEventListener('pointermove', function (e) {
         if (!cambio) { return; }
-        var semanas = Math.max(1, cambio.semanas + Math.round((e.clientX - cambio.x) / cambio.ancho));
+        // La duración no puede hacer que el cronograma pase del máximo de semanas
+        var tope = SEMANAS_MAXIMAS - (totalSemanas() - colocadas[cambio.i].semanas);
+        var semanas = Math.min(tope, Math.max(1, cambio.semanas + Math.round((e.clientX - cambio.x) / cambio.ancho)));
         if (semanas !== colocadas[cambio.i].semanas) {
             colocadas[cambio.i].semanas = semanas;
             dibujar();
         }
     });
-    document.addEventListener('pointerup', function () { cambio = null; });
+    document.addEventListener('pointerup', function () {
+        if (cambio) {
+            cambio = null;
+            columnasCongeladas = 0;
+            dibujar();
+        }
+    });
 
     buscar.addEventListener('input', dibujarDisponibles);
 

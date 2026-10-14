@@ -11,6 +11,8 @@ import com.app.idoneos.modelo.Pool;
  */
 public interface AutoevaluacionPoolServicio {
 
+    // ---------------------------------------------------------------- Lecturas
+
     /**
      * Busca los registros de autoevaluacionPool asociados a pool.
      *
