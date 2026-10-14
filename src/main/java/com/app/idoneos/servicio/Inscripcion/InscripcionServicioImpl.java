@@ -300,10 +300,13 @@ public class InscripcionServicioImpl implements InscripcionServicio, CrudServici
      * Reglas comunes de CU-45 y CU-46: valida la cohorte, la ventana de inscripción, el cupo, la inscripción
      * duplicada y los términos, y registra la inscripción con su progreso inicial.
      */
-    private Inscripcion crearInscripcion(Alumno alumno, Integer idCohorte, boolean terminos, String errorTerminos) {
+    private Inscripcion crearInscripcion(Alumno solicitante, Integer idCohorte, boolean terminos, String errorTerminos) {
         if (idCohorte == null) {
             throw new IllegalArgumentException("Error! Debe seleccionar la cohorte.");
         }
+        // El alumno que llega del usuario con sesión está desconectado de Hibernate: se trabaja con el alumno de la base
+        Alumno alumno = alumnoRepositorio.findById(solicitante.getIdAlumno())
+                .orElseThrow(() -> new IllegalArgumentException("Error! El alumno no se encuentra activo."));
         Cohorte cohorte = cohorteRepositorio.findById(idCohorte)
                 .filter(c -> !c.esInactivo() && !c.getPrograma().esInactivo() && !c.getPrograma().getCurso().esInactivo())
                 .orElseThrow(() -> new IllegalArgumentException("Error! La cohorte no se encuentra disponible."));

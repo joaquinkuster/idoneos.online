@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <th:block th:replace="~{fragments/head :: recursos}"></th:block>
+</head>
+<body class="pn-body">
+<div class="pn-app" id="pnApp">
+    <th:block th:replace="~{fragments/menus :: administrador(${menuActivo})}"></th:block>
+
+    <div class="pn-principal">
+        <th:block th:replace="~{fragments/panel :: barra(null)}"></th:block>
+
+        <main class="pn-contenido" th:attr="data-abrir-modal=${registrarPara != null ? 'modalRegistrarPago' : null}">
+            <div class="pn-encabezado">
+                <div>
+                    <h1 class="pn-titulo">Pagos</h1>
+                    <p class="pn-subtitulo">Consulta los pagos de las inscripciones, registra transferencias y acredita pagos que MODO no confirmó</p>
+                </div>
+                <button type="button" class="pn-btn pn-btn-primario" data-bs-toggle="modal" data-bs-target="#modalRegistrarPago">
+                    <i class="fa-solid fa-plus"></i> Registrar pago
+                </button>
+            </div>
+
+            <section class="pn-tarjeta" data-tabla>
+                <div class="pn-lista-cabecera">
+                    <h2 class="pn-lista-titulo">Listado de pagos</h2>
+                </div>
+
+                <!-- Filtros (CU-50): curso, alumno, estado y rango de fechas -->
+                <form th:action="@{/pago/buscar}" method="get" class="pn-filtros" data-filtro-front>
+                    <div class="pn-filtros-campo">
+                        <label class="pn-etiqueta">Curso</label>
+                        <select name="cursoId" class="pn-input" title="Curso">
+                            <option value="">Todos los cursos</option>
+                            <option th:each="c : ${cursosFiltro}" th:value="${c.idCurso}" th:text="${c.nombre}">Curso</option>
+                        </select>
+                    </div>
+                    <div class="pn-filtros-campo pn-filtros-campo-grande">
+                        <label class="pn-etiqueta">Alumno</label>
+                        <input type="text" name="alumno" class="pn-input" placeholder="Nombre, DNI o correo" autocomplete="off">
+                    </div>
+                    <div class="pn-filtros-campo">
+                        <label class="pn-etiqueta">Estado</label>
+                        <select name="estado" class="pn-input" title="Estado">
+                            <option value="">Todos los estados</option>
+                            <option value="Pendiente">Pendiente</option>
+                            <option value="Aprobado">Aprobado</option>
+                            <option value="Rechazado">Rechazado</option>
+                        </select>
+                    </div>
+                    <div class="pn-filtros-campo">
+                        <label class="pn-etiqueta">Desde</label>
+                        <input type="date" name="desde" class="pn-input" title="Pagos desde">
+                    </div>
+                    <div class="pn-filtros-campo">
+                        <label class="pn-etiqueta">Hasta</label>
+                        <input type="date" name="hasta" class="pn-input" title="Pagos hasta">
+                    </div>
+                    <a th:href="@{/pago/buscar}" class="pn-btn pn-btn-contorno">Limpiar</a>
+                    <div class="pn-columnas-wrapper">
+                        <button type="button" class="pn-btn pn-btn-contorno" data-columnas-boton>Columnas</button>
+                        <div class="pn-columnas-menu" data-columnas-menu></div>
+                    </div>
+                </form>
+
+                <!-- Tabla -->
+                <div class="pn-tabla-contenedor">
+                    <table class="pn-tabla">
+                        <thead>
+                            <tr>
+                                <th data-col="Alumno">Alumno</th>
+                                <th data-col="Curso">Curso</th>
+                                <th data-col="Monto">Monto</th>
+                                <th data-col="Fecha">Fecha</th>
+                                <th data-col="Medio de pago">Medio de pago</th>
+                                <th data-col="Estado">Estado</th>
+                                <th data-col="Comprobante">Comprobante</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="p : ${pagos}" data-fila
+                                th:data-f-cursoid="${p.inscripcion.curso.idCurso}"
+                                th:data-f-alumno="${p.inscripcion.alumno.usuario.nombreCompleto + ' ' + p.inscripcion.alumno.usuario.dni + ' ' + p.inscripcion.alumno.usuario.correo}"
+                                th:data-f-estado="${p.estadoPago.nombre}"
+                                th:data-f-desde="${#temporals.format(p.fechaDelPago, 'yyyy-MM-dd')}"
+                                th:data-f-hasta="${#temporals.format(p.fechaDelPago, 'yyyy-MM-dd')}">
+                                <td>
+                                    <span class="pn-celda-principal pn-truncar" th:text="${p.inscripcion.alumno.usuario.nombreCompleto}">Valentina Ruiz</span>
+                                    <span class="pn-celda-secundaria d-block" th:text="${'DNI ' + p.inscripcion.alumno.usuario.dni}">DNI 30123456</span>
+                                </td>
+                                <td><span class="pn-truncar" th:text="${p.inscripcion.curso.nombre}">Curso</span></td>
+                                <td th:text="${'$ ' + #numbers.formatDecimal(p.monto, 1, 'POINT', 2, 'COMMA')}">$ 150.000,00</td>
+                                <td th:text="${#temporals.format(p.fechaDelPago, 'dd/MM/yyyy HH:mm')}">13/10/2026 10:00</td>
+                                <td><span class="pn-truncar" th:text="${p.medioDePago}">MODO</span></td>
+                                <td>
+                                    <span class="pn-insignia"
+                                          th:classappend="${p.estaAprobado()} ? 'pn-insignia-verde' : (${p.estaPendiente()} ? 'pn-insignia-dorada' : 'pn-insignia-roja')"
+                                          th:text="${p.estadoPago.nombre}">Aprobado</span>
+                                </td>
+                                <td th:text="${p.comprobanteVigente != null ? p.comprobanteVigente.numero : '—'}">—</td>
+                                <td>
+                                    <div class="pn-acciones">
+                                        <button type="button" class="pn-btn pn-btn-contorno pn-btn-chico" data-bs-toggle="modal"
+                                                th:data-bs-target="'#modalVerPago' + ${p.idPago}">Ver</button>
+                                        <button type="button" class="pn-btn pn-btn-editar pn-btn-chico" data-bs-toggle="modal"
+                                                th:if="${!p.estaAprobado()}"
+                                                th:data-bs-target="'#modalModificarPago' + ${p.idPago}">Modificar</button>
+                                        <a class="pn-btn pn-btn-contorno pn-btn-chico" target="_blank" rel="noopener"
+                                           th:if="${p.estaAprobado() and p.comprobanteVigente != null}"
+                                           th:href="@{'/pago/comprobante/' + ${p.idPago}}">Comprobante</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr th:replace="~{fragments/vacio :: fila(8, 'fa-credit-card', 'No se encontraron pagos', 'Ningún pago coincide con los criterios ingresados.')}"></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pie: filas por página y paginador -->
+                <div class="pn-tabla-pie">
+                    <div class="pn-por-pagina">
+                        <span>Filas por página:</span>
+                        <select data-por-pagina>
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="0">Todo</option>
+                        </select>
+                        <span data-rango>0-0 de 0</span>
+                    </div>
+                    <div class="pn-paginador" data-paginador></div>
+                </div>
+            </section>
+        </main>
+
+        <th:block th:replace="~{fragments/panel :: pie('Panel del administrador')}"></th:block>
+    </div>
+</div>
+
+<!-- Modal: registrar pago por transferencia (CU-53) -->
+<div class="modal fade pn-modal" id="modalRegistrarPago" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="pn-modal-cabecera">
+                <h3 class="pn-modal-titulo">Registrar pago</h3>
+                <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="pn-modal-cuerpo">
+                <div class="pn-seccion-titulo">
+                    <h4>Pago por transferencia bancaria</h4>
+                    <p>Para pagos recibidos por fuera de MODO. Se aprueba el pago, se habilita el acceso al curso y se emite el comprobante</p>
+                </div>
+                <div th:if="${#lists.isEmpty(inscripcionesPendientes)}">
+                    <div th:replace="~{fragments/vacio :: bloque('fa-credit-card', 'No hay inscripciones pendientes de pago', 'Cuando un alumno se inscriba a un curso con costo, vas a poder registrar su pago acá.', null, null)}"></div>
+                </div>
+                <form th:unless="${#lists.isEmpty(inscripcionesPendientes)}" th:action="@{/pago/registrar}" method="post"
+                      class="form-ajax" data-validar novalidate>
+                    <div class="pn-aviso pn-aviso-azul" th:if="${cbu != null}">
+                        CBU de la institución para recibir transferencias: <strong th:text="${cbu}">0000003100012345678901</strong>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-12 pn-campo">
+                            <label class="pn-etiqueta">Inscripción <span class="pn-obligatorio">*</span></label>
+                            <select name="idInscripcion" id="pagoInscripcion" class="pn-input" required data-mensaje-obligatorio="Debe seleccionar la inscripción.">
+                                <option value="">Inscripción pendiente de pago</option>
+                                <option th:each="i : ${inscripcionesPendientes}" th:value="${i.idInscripcion}"
+                                        th:text="${i.alumno.usuario.nombreCompleto + ' — ' + i.curso.nombre}"
+                                        th:data-monto="${#numbers.formatDecimal(montosSugeridos.get(i.idInscripcion), 1, 'NONE', 2, 'POINT')}"
+                                        th:selected="${registrarPara != null and registrarPara == i.idInscripcion}">Alumno — Curso</option>
+                            </select>
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+                        <div class="col-md-6 pn-campo">
+                            <label class="pn-etiqueta">Monto recibido <span class="pn-obligatorio">*</span></label>
+                            <input type="number" name="monto" id="pagoMonto" class="pn-input" min="0.01" step="0.01" placeholder="Monto" required>
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+                        <div class="col-md-6 pn-campo">
+                            <label class="pn-etiqueta">Método de pago</label>
+                            <input type="text" class="pn-input" value="Transferencia bancaria" disabled>
+                        </div>
+                        <div class="col-12 pn-campo">
+                            <div class="pn-etiqueta-fila">
+                                <label class="pn-etiqueta">Comprobante de la transferencia <span class="pn-obligatorio">*</span></label>
+                                <span class="pn-contador">0 / 20</span>
+                            </div>
+                            <input type="text" name="referencia" class="pn-input" maxlength="20" placeholder="Número de operación o comprobante" data-contador required>
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+                        <div class="col-12 pn-campo">
+                            <div class="pn-etiqueta-fila">
+                                <label class="pn-etiqueta">Observaciones (opcional)</label>
+                                <span class="pn-contador">0 / 300</span>
+                            </div>
+                            <textarea name="observaciones" class="pn-input" rows="2" maxlength="300" data-contador></textarea>
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+                    </div>
+                    <div class="pn-modal-pie">
+                        <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="pn-btn pn-btn-primario">Registrar pago</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modales por pago: ver detalle (CU-50) y modificar (CU-54) -->
+<th:block th:each="p : ${pagos}">
+    <div class="modal fade pn-modal" th:id="'modalVerPago' + ${p.idPago}" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="pn-modal-cabecera">
+                    <h3 class="pn-modal-titulo">Detalle del pago</h3>
+                    <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="pn-modal-cuerpo">
+                    <dl class="row mb-0 small">
+                        <dt class="col-sm-4">Alumno</dt><dd class="col-sm-8" th:text="${p.inscripcion.alumno.usuario.nombreCompleto + ' — DNI ' + p.inscripcion.alumno.usuario.dni}">Alumno</dd>
+                        <dt class="col-sm-4">Curso</dt><dd class="col-sm-8" th:text="${p.inscripcion.curso.nombre}">Curso</dd>
+                        <dt class="col-sm-4">Monto</dt><dd class="col-sm-8" th:text="${'$ ' + #numbers.formatDecimal(p.monto, 1, 'POINT', 2, 'COMMA')}">$ 150.000,00</dd>
+                        <dt class="col-sm-4" th:if="${p.descuento != null}">Descuento aplicado</dt>
+                        <dd class="col-sm-8" th:if="${p.descuento != null}" th:text="${p.descuento.nombre + ' (' + #numbers.formatDecimal(p.descuento.porcentaje, 1, 0) + '%)'}">Descuento</dd>
+                        <dt class="col-sm-4">Fecha</dt><dd class="col-sm-8" th:text="${#temporals.format(p.fechaDelPago, 'dd/MM/yyyy HH:mm')}">13/10/2026</dd>
+                        <dt class="col-sm-4">Medio de pago</dt><dd class="col-sm-8" th:text="${p.medioDePago}">MODO</dd>
+                        <dt class="col-sm-4" th:if="${p.codigoReferencia != null}">Referencia</dt>
+                        <dd class="col-sm-8" th:if="${p.codigoReferencia != null}" th:text="${p.codigoReferencia}">QRYT7ZD0</dd>
+                        <dt class="col-sm-4">Estado</dt><dd class="col-sm-8" th:text="${p.estadoPago.nombre}">Aprobado</dd>
+                        <dt class="col-sm-4" th:if="${p.detalleErrorOperacion != null}">Motivo</dt>
+                        <dd class="col-sm-8" th:if="${p.detalleErrorOperacion != null}" th:text="${p.detalleErrorOperacion}">Motivo</dd>
+                        <dt class="col-sm-4" th:if="${p.comprobanteVigente != null}">Comprobante</dt>
+                        <dd class="col-sm-8" th:if="${p.comprobanteVigente != null}"
+                            th:text="${p.comprobanteVigente.numero + ' · ' + p.comprobanteVigente.nombrePagador + ' (DNI ' + p.comprobanteVigente.dniPagador + ')'}">COMP-2026-000001</dd>
+                    </dl>
+                    <div class="pn-modal-pie">
+                        <a class="pn-btn pn-btn-contorno" target="_blank" rel="noopener" th:if="${p.estaAprobado() and p.comprobanteVigente != null}"
+                           th:href="@{'/pago/comprobante/' + ${p.idPago}}">Descargar comprobante</a>
+                        <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade pn-modal" th:id="'modalModificarPago' + ${p.idPago}" tabindex="-1" aria-hidden="true" th:if="${!p.estaAprobado()}">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="pn-modal-cabecera">
+                    <h3 class="pn-modal-titulo">Modificar pago</h3>
+                    <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="pn-modal-cuerpo">
+                    <div class="pn-seccion-titulo">
+                        <h4 th:text="${p.inscripcion.alumno.usuario.nombreCompleto}">Alumno</h4>
+                        <p th:text="${p.inscripcion.curso.nombre + ' · ' + p.medioDePago + ' · ' + p.estadoPago.nombre}">Curso · MODO · Pendiente</p>
+                    </div>
+                    <form th:action="@{'/pago/modificar/' + ${p.idPago}}" method="post" class="form-ajax" data-validar novalidate>
+                        <div class="pn-aviso pn-aviso-azul" th:if="${p.esDeModo()}">
+                            Antes de acreditar un pago de MODO, verificá en el panel de MODO que se haya cobrado. Al aprobarlo hay que indicar el nombre y el DNI del pagador, que van en el comprobante.
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-md-6 pn-campo">
+                                <label class="pn-etiqueta">Estado <span class="pn-obligatorio">*</span></label>
+                                <select name="estado" class="pn-input" required>
+                                    <option value="Aprobado">Aprobado (acreditar)</option>
+                                    <option value="Rechazado" th:selected="${p.estaRechazado()}">Rechazado</option>
+                                </select>
+                                <div class="pn-ayuda-error"></div>
+                            </div>
+                            <div class="col-md-6 pn-campo">
+                                <label class="pn-etiqueta">Monto <span class="pn-obligatorio">*</span></label>
+                                <input type="number" name="monto" class="pn-input" min="0.01" step="0.01"
+                                       th:value="${#numbers.formatDecimal(p.monto, 1, 'NONE', 2, 'POINT')}" required>
+                                <div class="pn-ayuda-error"></div>
+                            </div>
+                            <div class="col-12 pn-campo">
+                                <div class="pn-etiqueta-fila">
+                                    <label class="pn-etiqueta">Comprobante de la transferencia <span class="pn-obligatorio" th:if="${!p.esDeModo()}">*</span><span th:if="${p.esDeModo()}">(opcional)</span></label>
+                                    <span class="pn-contador" th:text="${#strings.length(p.codigoReferencia != null ? p.codigoReferencia : '') + ' / 20'}">0 / 20</span>
+                                </div>
+                                <input type="text" name="referencia" class="pn-input" maxlength="20" data-contador th:value="${p.codigoReferencia}" th:required="${!p.esDeModo()}">
+                                <div class="pn-ayuda-error"></div>
+                            </div>
+                            <th:block th:if="${p.esDeModo()}">
+                                <div class="col-md-8 pn-campo">
+                                    <label class="pn-etiqueta">Nombre del pagador (al aprobar)</label>
+                                    <input type="text" name="nombrePagador" class="pn-input" maxlength="100"
+                                           th:value="${p.inscripcion.alumno.usuario.nombreCompleto}">
+                                    <div class="pn-ayuda-error"></div>
+                                </div>
+                                <div class="col-md-4 pn-campo">
+                                    <label class="pn-etiqueta">DNI del pagador</label>
+                                    <input type="text" name="dniPagador" class="pn-input" maxlength="8" inputmode="numeric"
+                                           th:value="${p.inscripcion.alumno.usuario.dni}">
+                                    <div class="pn-ayuda-error"></div>
+                                </div>
+                            </th:block>
+                            <div class="col-12 pn-campo">
+                                <label class="pn-etiqueta">Motivo (si se rechaza)</label>
+                                <input type="text" name="motivo" class="pn-input" maxlength="200" placeholder="Motivo del rechazo">
+                                <div class="pn-ayuda-error"></div>
+                            </div>
+                        </div>
+                        <div class="pn-modal-pie">
+                            <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="pn-btn pn-btn-primario">Actualizar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+
+<th:block th:replace="~{fragments/panel :: scripts}"></th:block>
+<script th:src="@{/js/abrirModal.js}"></script>
+<script>
+    // El monto del pago manual se propone con lo que le corresponde pagar al alumno (precio con su descuento)
+    (function () {
+        var inscripcion = document.getElementById('pagoInscripcion');
+        var monto = document.getElementById('pagoMonto');
+        if (!inscripcion || !monto) { return; }
+        function proponer() {
+            var opcion = inscripcion.options[inscripcion.selectedIndex];
+            monto.value = opcion && opcion.getAttribute('data-monto') ? opcion.getAttribute('data-monto') : '';
+        }
+        inscripcion.addEventListener('change', proponer);
+        proponer();
+    })();
+</script>
+</body>
+</html>

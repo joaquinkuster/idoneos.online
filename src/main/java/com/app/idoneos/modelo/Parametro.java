@@ -29,6 +29,18 @@ public class Parametro {
     public static final int PLAZO_EDICION_FORO_POR_DEFECTO = 15;
 
     /**
+     * Clave del plazo, en minutos, que el sistema espera la confirmación de un pago online antes de registrarlo como
+     * rechazado. MODO vence las solicitudes de pago entre los 5 y los 10 minutos.
+     */
+    public static final String PLAZO_CONFIRMACION_PAGO = "pagos.plazo_confirmacion_minutos";
+
+    /** Plazo de confirmación del pago que se usa cuando el parámetro no está cargado (el vencimiento de MODO). */
+    public static final int PLAZO_CONFIRMACION_PAGO_POR_DEFECTO = 10;
+
+    /** Clave del CBU de la institución, para las transferencias bancarias. */
+    public static final String CBU_INSTITUCION = "pagos.cbu_institucion";
+
+    /**
      * Identificador único del parámetro.
      */
     @Id

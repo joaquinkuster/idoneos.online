@@ -17,17 +17,21 @@ import com.app.idoneos.modelo.ConsultaForo;
 import com.app.idoneos.modelo.RespuestaForo;
 import com.app.idoneos.modelo.Autoevaluacion;
 import com.app.idoneos.modelo.Certificado;
+import com.app.idoneos.modelo.Comprobante;
 import com.app.idoneos.modelo.Cohorte;
 import com.app.idoneos.modelo.Curso;
 import com.app.idoneos.modelo.Descuento;
 import com.app.idoneos.modelo.CursoModalidad;
 import com.app.idoneos.modelo.Docente;
 import com.app.idoneos.modelo.EstadoClaseEnVivo;
+import com.app.idoneos.modelo.EstadoPago;
 import com.app.idoneos.modelo.Inscripcion;
 import com.app.idoneos.modelo.IntentoAutoevaluacion;
 import com.app.idoneos.modelo.Material;
+import com.app.idoneos.modelo.MetodoPago;
 import com.app.idoneos.modelo.Modalidad;
 import com.app.idoneos.modelo.Nivel;
+import com.app.idoneos.modelo.Pago;
 import com.app.idoneos.modelo.Parametro;
 import com.app.idoneos.modelo.ParticipacionDocente;
 import com.app.idoneos.modelo.Programa;
@@ -48,16 +52,20 @@ import com.app.idoneos.repositorio.RespuestaForoRepositorio;
 import com.app.idoneos.repositorio.AutoevaluacionRepositorio;
 import com.app.idoneos.repositorio.CertificadoRepositorio;
 import com.app.idoneos.repositorio.CohorteRepositorio;
+import com.app.idoneos.repositorio.ComprobanteRepositorio;
 import com.app.idoneos.repositorio.CursoModalidadRepositorio;
 import com.app.idoneos.repositorio.CursoRepositorio;
 import com.app.idoneos.repositorio.DescuentoRepositorio;
 import com.app.idoneos.repositorio.DocenteRepositorio;
 import com.app.idoneos.repositorio.EstadoClaseEnVivoRepositorio;
+import com.app.idoneos.repositorio.EstadoPagoRepositorio;
 import com.app.idoneos.repositorio.InscripcionRepositorio;
 import com.app.idoneos.repositorio.IntentoAutoevaluacionRepositorio;
 import com.app.idoneos.repositorio.MaterialRepositorio;
+import com.app.idoneos.repositorio.MetodoPagoRepositorio;
 import com.app.idoneos.repositorio.ModalidadRepositorio;
 import com.app.idoneos.repositorio.NivelRepositorio;
+import com.app.idoneos.repositorio.PagoRepositorio;
 import com.app.idoneos.repositorio.ParametroRepositorio;
 import com.app.idoneos.repositorio.ParticipacionDocenteRepositorio;
 import com.app.idoneos.repositorio.ProgramaRepositorio;
@@ -105,6 +113,18 @@ public class SemillaServicio {
 
     @Autowired
     private ParametroRepositorio parametroRepositorio;
+
+    @Autowired
+    private PagoRepositorio pagoRepositorio;
+
+    @Autowired
+    private ComprobanteRepositorio comprobanteRepositorio;
+
+    @Autowired
+    private EstadoPagoRepositorio estadoPagoRepositorio;
+
+    @Autowired
+    private MetodoPagoRepositorio metodoPagoRepositorio;
 
     @Autowired
     private DescuentoRepositorio descuentoRepositorio;
@@ -210,12 +230,21 @@ public class SemillaServicio {
         EstadoClaseEnVivo claseProgramada = estadoClaseEnVivoRepositorio.save(new EstadoClaseEnVivo("Programada"));
         EstadoClaseEnVivo claseEnVivoAhora = estadoClaseEnVivoRepositorio.save(new EstadoClaseEnVivo(EstadoClaseEnVivo.EN_VIVO));
         EstadoClaseEnVivo claseFinalizada = estadoClaseEnVivoRepositorio.save(new EstadoClaseEnVivo("Finalizada"));
+        EstadoPago pagoPendiente = estadoPagoRepositorio.save(new EstadoPago(EstadoPago.PENDIENTE));
+        EstadoPago pagoAprobado = estadoPagoRepositorio.save(new EstadoPago(EstadoPago.APROBADO));
+        EstadoPago pagoRechazado = estadoPagoRepositorio.save(new EstadoPago(EstadoPago.RECHAZADO));
+        MetodoPago pagoModo = metodoPagoRepositorio.save(new MetodoPago(MetodoPago.MODO));
+        MetodoPago pagoTransferencia = metodoPagoRepositorio.save(new MetodoPago(MetodoPago.TRANSFERENCIA));
+        metodoPagoRepositorio.save(new MetodoPago(MetodoPago.SIN_COSTO));
         estadoClaseEnVivoRepositorio.save(new EstadoClaseEnVivo("Cancelada"));
 
         // Administrador y parámetros
         Usuario usuarioAdmin = crearUsuario("Admin", "Idóneos", "20111222", correoAdmin, "+54 376 4000000", rolAdministrador);
         Administrador admin = administradorRepositorio.save(new Administrador(usuarioAdmin));
         parametroRepositorio.save(new Parametro(admin, Parametro.MINIMO_UNIDADES_CON_MATERIAL, "2"));
+        parametroRepositorio.save(new Parametro(admin, Parametro.PLAZO_CONFIRMACION_PAGO,
+                String.valueOf(Parametro.PLAZO_CONFIRMACION_PAGO_POR_DEFECTO)));
+        parametroRepositorio.save(new Parametro(admin, Parametro.CBU_INSTITUCION, "0000003100012345678901"));
         parametroRepositorio.save(new Parametro(admin, Parametro.PLAZO_EDICION_FORO,
                 String.valueOf(Parametro.PLAZO_EDICION_FORO_POR_DEFECTO)));
 
@@ -281,9 +310,16 @@ public class SemillaServicio {
         Cohorte enDictado1 = crearCohorte(programa1, ahora.minusDays(60), ahora.minusDays(30), ahora.minusDays(20),
                 ahora.plusDays(40), 12, 25);
         crearCohorte(programa1, ahora.minusDays(200), ahora.minusDays(170), ahora.minusDays(160), ahora.minusDays(80), 12, 25);
-        crearInscripcion(abierta1, lucia, ahora, unidad1);
-        crearInscripcion(abierta1, martin, ahora, null);
+        Inscripcion luciaMercado = crearInscripcion(abierta1, lucia, ahora, unidad1);
+        Inscripcion martinMercado = crearInscripcion(abierta1, martin, ahora, null);
         Inscripcion inscripcionValentina = crearInscripcion(enDictado1, valentina, ahora, unidad1);
+        // Pagos de las inscripciones a un curso con costo (CU-50): aprobados por MODO, con su comprobante
+        registrarPago(luciaMercado, pagoAprobado, pagoModo, "Tarjeta de crédito Mastercard", "0008", "QRL3M0A1", null,
+                ahora.minusDays(9));
+        registrarPago(martinMercado, pagoAprobado, pagoModo, "Cuenta bancaria Macro", "6168", "QRM4R7B2", null,
+                ahora.minusDays(8));
+        registrarPago(inscripcionValentina, pagoAprobado, pagoModo, "Tarjeta de crédito Visa", "0008", "QRV9A1C3", null,
+                ahora.minusDays(55));
         claseEnVivoRepositorio.save(new ClaseEnVivo(titular1, claseProgramada, enDictado1,
                 "Clase 1: Panorama del mercado de capitales", ahora.plusDays(3), 90));
         claseEnVivoRepositorio.save(new ClaseEnVivo(titular1, claseFinalizada, enDictado1,
@@ -362,11 +398,16 @@ public class SemillaServicio {
         agregarUnidad(programa4, curso4, 3, 2, "Planificación patrimonial", "Objetivos y horizonte de inversión.",
                 titular4, presentacion);
         Cohorte abierta4 = crearCohorte(programa4, ahora.minusDays(2), ahora.plusDays(40), null, null, 10, 20);
-        crearInscripcion(abierta4, martin, ahora, unidad4);
+        Inscripcion martinFinanzas = crearInscripcion(abierta4, martin, ahora, unidad4);
+        registrarPago(martinFinanzas, pagoAprobado, pagoTransferencia, "Transferencia al CBU de la institución", null,
+                "TRF-000451", null, ahora.minusDays(1));
         // Curso con costo: la inscripción queda pendiente de pago hasta que se apruebe el pago
         Inscripcion pendienteDePago = crearInscripcion(abierta4, lucia, ahora, null);
         pendienteDePago.setHabilitado(false);
         inscripcionRepositorio.save(pendienteDePago);
+        // Su pago con MODO fue rechazado: puede reintentarlo (CU-52) o lo puede acreditar el administrador (CU-54)
+        registrarPago(pendienteDePago, pagoRechazado, pagoModo, "Tarjeta de crédito Visa", "0008", null,
+                "INSUFFICIENT_FUNDS", ahora.minusHours(3));
 
         // Curso 5: Análisis Técnico Bursátil (en vivo + grabada), con cohorte próxima
         ParticipacionDocente titular5 = crearCurso("Análisis Técnico Bursátil",
@@ -383,7 +424,9 @@ public class SemillaServicio {
         // Cohorte en su semana 6 de 6 con Valentina sin completar ninguna unidad: va atrasada (la primera terminaba en la semana 3)
         Cohorte enDictado5 = crearCohorte(programa5, ahora.minusDays(70), ahora.minusDays(45), ahora.minusDays(40),
                 ahora.plusDays(2), 8, 20);
-        crearInscripcion(enDictado5, valentina, ahora, null);
+        Inscripcion valentinaAnalisis = crearInscripcion(enDictado5, valentina, ahora, null);
+        registrarPago(valentinaAnalisis, pagoAprobado, pagoModo, "Tarjeta de débito Visa", "5609", "QRV2D5E4", null,
+                ahora.minusDays(68));
         // Cohorte finalizada: la inscripción ya venció y el alumno tiene su certificado
         Cohorte finalizada5 = crearCohorte(programa5, ahora.minusDays(220), ahora.minusDays(190), ahora.minusDays(185),
                 ahora.minusDays(130), 8, 20);
@@ -391,6 +434,8 @@ public class SemillaServicio {
         inscripcionVencida.setFechaCreacion(ahora.minusDays(215));
         inscripcionVencida.setFechaVencimientoAcceso(ahora.minusDays(50));
         inscripcionRepositorio.save(inscripcionVencida);
+        registrarPago(inscripcionVencida, pagoAprobado, pagoModo, "Tarjeta de crédito Mastercard", "5290", "QRX7F9G5", null,
+                ahora.minusDays(214));
         certificadoRepositorio.save(new Certificado(inscripcionVencida, "CERT-2026-000001", ahora.minusDays(55),
                 "Certificado de aprobación del curso Análisis Técnico Bursátil", "Martín Gómez", "41234567"));
 
@@ -612,6 +657,32 @@ public class SemillaServicio {
     /**
      * Inscribe a un alumno en una cohorte y, si se indica una unidad, la registra como completada.
      */
+    /**
+     * Registra el pago de una inscripción (el precio del curso, sin descuento) y, si está aprobado, su comprobante.
+     */
+    private Pago registrarPago(Inscripcion inscripcion, EstadoPago estado, MetodoPago metodo, String detalle, String digitos,
+            String referencia, String motivoError, LocalDateTime fecha) {
+        Pago pago = new Pago(estado, metodo, inscripcion, "IDN-SEMILLA-" + inscripcion.getIdInscripcion(),
+                inscripcion.getCurso().getPrecio());
+        pago.setDetalleMetodoPago(detalle);
+        pago.setUltimosDigitosTarjeta(digitos);
+        pago.setCodigoReferencia(referencia);
+        pago.setDetalleErrorOperacion(motivoError);
+        pago.setFechaCreacion(fecha);
+        pago.setUltimaModificacion(fecha);
+        boolean aprobado = EstadoPago.APROBADO.equals(estado.getNombre());
+        if (aprobado) {
+            pago.setFechaAprobacion(fecha);
+        }
+        pago = pagoRepositorio.save(pago);
+        if (aprobado) {
+            Usuario usuario = inscripcion.getAlumno().getUsuario();
+            comprobanteRepositorio.save(new Comprobante(pago, String.format("COMP-%d-%06d", fecha.getYear(), pago.getIdPago()),
+                    fecha, usuario.getNombreCompleto(), usuario.getDni()));
+        }
+        return pago;
+    }
+
     private Inscripcion crearInscripcion(Cohorte cohorte, Alumno alumno, LocalDateTime ahora, Unidad unidadCompletada) {
         Inscripcion inscripcion = new Inscripcion(cohorte, alumno, ahora.plusWeeks(cohorte.getSemanasAcceso()));
         inscripcion.setHabilitado(true);

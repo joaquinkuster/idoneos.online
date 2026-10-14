@@ -34,6 +34,7 @@
                         <section class="pn-tarjeta mb-4">
                         <div class="pn-lista-cabecera">
                             <h2 class="pn-lista-titulo">Mis inscripciones</h2>
+                            <a th:href="@{/pago/misPagos}" class="pn-btn pn-btn-contorno pn-btn-chico ms-auto"><i class="fa-solid fa-credit-card"></i> Mis pagos</a>
                             <span class="pn-seleccionados" data-total-filtradas data-singular="curso encontrado" data-plural="cursos encontrados" th:text="${totalInscripciones + (totalInscripciones == 1 ? ' curso encontrado' : ' cursos encontrados')}">0 cursos encontrados</span>
                         </div>
 
@@ -116,11 +117,17 @@
                                     <i class="fa-solid fa-door-open me-1"></i>
                                     <span>Acceder al curso</span>
                                 </a>
-                                <span th:unless="${insc.estadoAcceso == 'Vigente'}" class="wf-btn-manage-course" aria-disabled="true"
+                                <button type="button" th:if="${insc.estadoAcceso == 'Pendiente de pago'}" class="wf-btn-manage-course border-0" data-pagar
+                                        th:data-url="@{'/pago/pagar/' + ${insc.idInscripcion}}" th:data-inscripcion="${insc.idInscripcion}"
+                                        title="Pagar la inscripción con MODO">
+                                    <i class="fa-solid fa-credit-card me-1"></i>
+                                    <span th:text="${montosAPagar != null and montosAPagar.containsKey(insc.idInscripcion) ? 'Pagar $ ' + #numbers.formatDecimal(montosAPagar.get(insc.idInscripcion), 1, 'POINT', 0, 'COMMA') : 'Pagar'}">Pagar</span>
+                                </button>
+                                <span th:if="${insc.estadoAcceso != 'Vigente' and insc.estadoAcceso != 'Pendiente de pago'}" class="wf-btn-manage-course" aria-disabled="true"
                                       style="opacity:.6;cursor:not-allowed;"
                                       th:title="${insc.estadoAcceso == 'Pendiente de pago' ? 'Completá el pago para acceder' : (insc.estadoAcceso == 'Programada' ? 'El dictado todavía no comenzó' : 'Tu acceso venció')}">
                                     <i class="fa-solid fa-lock me-1"></i>
-                                    <span th:text="${insc.estadoAcceso == 'Programada' ? 'Comienza el ' + #temporals.format(insc.cohorte.fechaInicioDictado, 'dd/MM/yyyy') : (insc.estadoAcceso == 'Pendiente de pago' ? 'Pendiente de pago' : 'Acceso vencido')}">Pendiente de pago</span>
+                                    <span th:text="${insc.estadoAcceso == 'Programada' ? 'Comienza el ' + #temporals.format(insc.cohorte.fechaInicioDictado, 'dd/MM/yyyy') : 'Acceso vencido'}">Acceso vencido</span>
                                 </span>
                                 <button type="button" class="pn-btn pn-btn-contorno pn-btn-chico" data-bs-toggle="modal"
                                         th:data-bs-target="'#modalDetalleInscripcion' + ${insc.idInscripcion}" title="Detalle de la inscripción">
@@ -193,5 +200,6 @@
     <div th:replace="~{fragments/scripts :: scripts}"></div>
     <script th:src="@{/js/panel.js}"></script>
     <script th:src="@{/js/formularios.js}"></script>
+    <script th:src="@{/js/pago.js}"></script>
 </body>
 </html>

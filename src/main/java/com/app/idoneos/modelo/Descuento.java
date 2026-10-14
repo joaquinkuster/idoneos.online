@@ -202,6 +202,18 @@ public class Descuento {
     }
 
     /**
+     * Calcula el monto a pagar de un curso con este descuento aplicado, redondeado a centavos.
+     *
+     * @param precio El precio del curso.
+     * @return El precio menos el porcentaje de descuento (nunca negativo).
+     */
+    public float aplicarA(float precio) {
+        return java.math.BigDecimal.valueOf(precio).multiply(java.math.BigDecimal.valueOf(100 - porcentaje))
+                .divide(java.math.BigDecimal.valueOf(100), 2, java.math.RoundingMode.HALF_UP)
+                .max(java.math.BigDecimal.ZERO).floatValue();
+    }
+
+    /**
      * Cantidad de veces que todavía puede aplicarse el descuento.
      *
      * @return la cantidad disponible (nunca negativa).

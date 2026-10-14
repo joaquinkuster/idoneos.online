@@ -15,6 +15,11 @@ import lombok.Setter;
 @NoArgsConstructor
 public class EstadoPago {
 
+    /** Estados de un pago. */
+    public static final String PENDIENTE = "Pendiente";
+    public static final String APROBADO = "Aprobado";
+    public static final String RECHAZADO = "Rechazado";
+
     /**
      * Identificador único del estado del pago.
      */

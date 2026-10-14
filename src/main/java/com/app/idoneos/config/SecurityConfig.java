@@ -103,6 +103,14 @@ public class SecurityConfig {
                         .hasRole("Administrador")
                         .requestMatchers(HttpMethod.POST, "/inscripcion/darDeBaja/*").hasAnyRole("Alumno", "Administrador")
                         .requestMatchers("/certificado/**").hasRole("Administrador")
+                        // CU-50 a CU-54: pagos. El aviso de MODO (webhook) es público: solo identifica el pago y el resultado se
+                        // consulta a MODO; el administrador busca, registra y modifica pagos; el alumno ve y paga los suyos;
+                        // el estado y el comprobante los ve cualquier usuario con sesión (el servicio controla de quién es)
+                        .requestMatchers(HttpMethod.POST, "/pago/webhook").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/pago/buscar").hasRole("Administrador")
+                        .requestMatchers(HttpMethod.POST, "/pago/registrar", "/pago/modificar/*").hasRole("Administrador")
+                        .requestMatchers(HttpMethod.GET, "/pago/estado/*", "/pago/comprobante/*").authenticated()
+                        .requestMatchers("/pago/**").hasRole("Alumno")
                         // CU-02, CU-27 y CU-45: Ver mis cursos, Acceder curso e Inscribirse (Alumno)
                         .requestMatchers("/inscripcion/**").hasRole("Alumno")
                         // CU-01 y CU-11: búsqueda de cursos y cohortes (Docente y Administrador)

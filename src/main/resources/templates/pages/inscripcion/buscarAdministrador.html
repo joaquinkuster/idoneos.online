@@ -99,6 +99,8 @@
                                         <button type="button" class="pn-btn pn-btn-contorno pn-btn-chico" data-bs-toggle="modal"
                                                 th:if="${i.certificadoVigente != null}"
                                                 th:data-bs-target="'#modalCertificado' + ${i.idInscripcion}">Certificado</button>
+                                        <a class="pn-btn pn-btn-contorno pn-btn-chico" th:if="${i.estadoAcceso == 'Pendiente de pago'}"
+                                           th:href="@{/pago/buscar(registrarPara=${i.idInscripcion})}">Registrar pago</a>
                                         <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico" data-bs-toggle="modal"
                                                 th:data-bs-target="'#modalBajaInscripcion' + ${i.idInscripcion}">Dar de baja</button>
                                     </div>

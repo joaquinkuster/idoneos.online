@@ -204,6 +204,34 @@ public class Inscripcion {
     }
 
     /**
+     * Obtiene el pago aprobado de la inscripción.
+     *
+     * @return El pago aprobado, o {@code null} si todavía no se pagó.
+     */
+    public Pago getPagoAprobado() {
+        return pagos.stream().filter(Pago::estaAprobado).findFirst().orElse(null);
+    }
+
+    /**
+     * Indica si la inscripción tiene un pago aprobado.
+     *
+     * @return {@code true} si está paga.
+     */
+    public boolean tienePagoAprobado() {
+        return getPagoAprobado() != null;
+    }
+
+    /**
+     * Obtiene el último pago de la inscripción que no está aprobado: el pendiente o el rechazado que se puede reintentar.
+     *
+     * @return El pago, o {@code null} si no tiene.
+     */
+    public Pago getPagoSinAprobar() {
+        return pagos.stream().filter(pago -> !pago.estaAprobado())
+                .max(Comparator.comparing(Pago::getFechaCreacion).thenComparingInt(Pago::getIdPago)).orElse(null);
+    }
+
+    /**
      * Obtiene el certificado vigente (no anulado) de la inscripción.
      *
      * @return El certificado, o {@code null} si no se emitió.

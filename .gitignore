@@ -48,3 +48,6 @@ node_modules/
 
 ### Imágenes subidas por los usuarios ###
 uploads/
+
+### Configuración local con credenciales (no se versiona) ###
+application-local.properties

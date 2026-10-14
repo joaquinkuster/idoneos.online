@@ -15,6 +15,15 @@ import lombok.Setter;
 @NoArgsConstructor
 public class MetodoPago {
 
+    /** Pago online con MODO (tarjeta o cuenta, desde la app de MODO o de un banco). */
+    public static final String MODO = "MODO";
+
+    /** Transferencia bancaria al CBU de la institución, registrada por el administrador. */
+    public static final String TRANSFERENCIA = "Transferencia bancaria";
+
+    /** Inscripción sin nada que pagar porque el descuento aplicado cubre todo el precio. */
+    public static final String SIN_COSTO = "Sin costo (descuento total)";
+
     /**
      * Identificador único del método de pago.
      */

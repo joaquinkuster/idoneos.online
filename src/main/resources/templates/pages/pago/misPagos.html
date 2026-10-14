@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <th:block th:replace="~{fragments/head :: recursos}"></th:block>
+</head>
+<body class="wf-canvas-bg fondo-crema">
+
+    <div class="cu-page-container">
+        <div class="screen-frame">
+
+            <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+            <div class="wf-hero-banner">
+                <div>
+                    <div class="wf-hero-tag">
+                        <i class="fa-solid fa-credit-card"></i>
+                        <span>PORTAL DEL ALUMNO</span>
+                    </div>
+                    <h2 class="wf-hero-title">Mis pagos</h2>
+                    <p class="wf-hero-desc">Los pagos de tus inscripciones, con sus comprobantes</p>
+                </div>
+            </div>
+
+            <th:block th:replace="~{fragments/breadcrumb :: migas('Mis cursos', '/inscripcion/misCursos', 'Mis pagos')}"></th:block>
+
+            <div class="wf-body py-4">
+                <div class="container-fluid px-4 px-lg-5">
+
+                    <section class="pn-tarjeta" data-tabla>
+                        <div class="pn-lista-cabecera">
+                            <h2 class="pn-lista-titulo">Historial de pagos</h2>
+                        </div>
+
+                        <!-- Filtros (CU-50): curso, estado y rango de fechas -->
+                        <form th:action="@{/pago/misPagos}" method="get" class="pn-filtros" data-filtro-front>
+                            <div class="pn-filtros-campo">
+                                <label class="pn-etiqueta">Curso</label>
+                                <select name="cursoId" class="pn-input" title="Curso">
+                                    <option value="">Todos los cursos</option>
+                                    <option th:each="c : ${cursosFiltro}" th:value="${c.idCurso}" th:text="${c.nombre}">Curso</option>
+                                </select>
+                            </div>
+                            <div class="pn-filtros-campo">
+                                <label class="pn-etiqueta">Estado</label>
+                                <select name="estado" class="pn-input" title="Estado">
+                                    <option value="">Todos los estados</option>
+                                    <option value="Pendiente">Pendiente</option>
+                                    <option value="Aprobado">Aprobado</option>
+                                    <option value="Rechazado">Rechazado</option>
+                                </select>
+                            </div>
+                            <div class="pn-filtros-campo">
+                                <label class="pn-etiqueta">Desde</label>
+                                <input type="date" name="desde" class="pn-input" title="Pagos desde">
+                            </div>
+                            <div class="pn-filtros-campo">
+                                <label class="pn-etiqueta">Hasta</label>
+                                <input type="date" name="hasta" class="pn-input" title="Pagos hasta">
+                            </div>
+                            <a th:href="@{/pago/misPagos}" class="pn-btn pn-btn-contorno">Limpiar</a>
+                        </form>
+
+                        <div class="pn-tabla-contenedor">
+                            <table class="pn-tabla">
+                                <thead>
+                                    <tr>
+                                        <th>Curso</th>
+                                        <th>Monto</th>
+                                        <th>Fecha</th>
+                                        <th>Medio de pago</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="p : ${pagos}" data-fila
+                                        th:data-f-cursoid="${p.inscripcion.curso.idCurso}"
+                                        th:data-f-estado="${p.estadoPago.nombre}"
+                                        th:data-f-desde="${#temporals.format(p.fechaDelPago, 'yyyy-MM-dd')}"
+                                        th:data-f-hasta="${#temporals.format(p.fechaDelPago, 'yyyy-MM-dd')}">
+                                        <td>
+                                            <span class="pn-celda-principal pn-truncar" th:text="${p.inscripcion.curso.nombre}">Curso</span>
+                                            <span class="pn-celda-secundaria d-block" th:if="${p.descuento != null}"
+                                                  th:text="${'Descuento: ' + p.descuento.nombre + ' (' + #numbers.formatDecimal(p.descuento.porcentaje, 1, 0) + '%)'}">Descuento</span>
+                                        </td>
+                                        <td th:text="${'$ ' + #numbers.formatDecimal(p.monto, 1, 'POINT', 2, 'COMMA')}">$ 150.000,00</td>
+                                        <td th:text="${#temporals.format(p.fechaDelPago, 'dd/MM/yyyy HH:mm')}">13/10/2026 10:00</td>
+                                        <td><span class="pn-truncar" th:text="${p.medioDePago}">MODO</span></td>
+                                        <td>
+                                            <span class="pn-insignia"
+                                                  th:classappend="${p.estaAprobado()} ? 'pn-insignia-verde' : (${p.estaPendiente()} ? 'pn-insignia-dorada' : 'pn-insignia-roja')"
+                                                  th:text="${p.estadoPago.nombre}">Aprobado</span>
+                                            <span class="pn-celda-secundaria d-block" th:if="${p.estaRechazado() and p.detalleErrorOperacion != null}"
+                                                  th:text="${p.detalleErrorOperacion}">Fondos insuficientes</span>
+                                        </td>
+                                        <td>
+                                            <div class="pn-acciones">
+                                                <button type="button" class="pn-btn pn-btn-primario pn-btn-chico" data-pagar
+                                                        th:if="${p.estaRechazado() and !p.inscripcion.estaHabilitada() and !p.inscripcion.esInactivo()}"
+                                                        th:data-url="@{'/pago/reintentar/' + ${p.idPago}}"
+                                                        th:data-inscripcion="${p.inscripcion.idInscripcion}">Reintentar</button>
+                                                <a class="pn-btn pn-btn-contorno pn-btn-chico" target="_blank" rel="noopener"
+                                                   th:if="${p.estaAprobado() and p.comprobanteVigente != null}"
+                                                   th:href="@{'/pago/comprobante/' + ${p.idPago}}">Comprobante</a>
+                                                <span class="pn-celda-secundaria" th:if="${p.estaPendiente()}">Esperando confirmación</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr th:replace="~{fragments/vacio :: fila(6, 'fa-credit-card', 'Todavía no hay pagos', 'Cuando te inscribas a un curso con costo y lo pagues, vas a ver acá el pago y su comprobante.')}"></tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="pn-tabla-pie">
+                            <div class="pn-por-pagina">
+                                <span>Filas por página:</span>
+                                <select data-por-pagina>
+                                    <option value="10">10</option>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                    <option value="0">Todo</option>
+                                </select>
+                                <span data-rango>0-0 de 0</span>
+                            </div>
+                            <div class="pn-paginador" data-paginador></div>
+                        </div>
+                    </section>
+
+                </div>
+            </div>
+
+            <div th:replace="~{fragments/footer :: footer}"></div>
+
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/scripts :: scripts}"></div>
+    <script th:src="@{/js/panel.js}"></script>
+    <script th:src="@{/js/pago.js}"></script>
+</body>
+</html>

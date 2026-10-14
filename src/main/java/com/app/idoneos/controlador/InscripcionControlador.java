@@ -2,6 +2,7 @@ package com.app.idoneos.controlador;
 
 import java.time.LocalDate;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,6 +21,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.app.idoneos.servicio.Alumno.AlumnoServicioImpl;
 import com.app.idoneos.servicio.Curso.ContextoCurso;
+import com.app.idoneos.servicio.Pago.PagoServicio;
 import com.app.idoneos.modelo.Alumno;
 import com.app.idoneos.modelo.Curso;
 import com.app.idoneos.modelo.Inscripcion;
@@ -41,6 +43,9 @@ public class InscripcionControlador extends PanelCursoControlador {
 
     @Autowired
     private AlumnoServicioImpl alumnoServicio;
+
+    @Autowired
+    private PagoServicio pagoServicio;
 
     /**
      * CU-02: Lista los cursos en los que el alumno está inscripto, con su progreso general,
@@ -66,6 +71,12 @@ public class InscripcionControlador extends PanelCursoControlador {
             List<Inscripcion> inscripciones = inscripcionServicio.buscarMisCursos(alumno, busqueda, estado);
 
             modelo.addAttribute("inscripciones", inscripciones);
+            // Lo que debe pagar el alumno por cada inscripción pendiente de pago (el precio con el descuento que le corresponde)
+            Map<Integer, Float> montosAPagar = new HashMap<>();
+            inscripciones.stream().filter(inscripcion -> Inscripcion.ACCESO_PENDIENTE_DE_PAGO.equals(inscripcion.getEstadoAcceso()))
+                    .forEach(inscripcion -> montosAPagar.put(inscripcion.getIdInscripcion(),
+                            pagoServicio.calcularMontoAPagar(inscripcion)));
+            modelo.addAttribute("montosAPagar", montosAPagar);
             modelo.addAttribute("totalInscripciones", inscripciones.size());
             modelo.addAttribute("busqueda", busqueda);
             modelo.addAttribute("estadoSeleccionado", estado);
@@ -144,9 +155,12 @@ public class InscripcionControlador extends PanelCursoControlador {
             @RequestParam(value = "terminos", defaultValue = "false") boolean terminos) {
         try {
             Inscripcion inscripcion = inscripcionServicio.registrarInscripcion(alumnoId, cohorteId, terminos);
-            return RespuestaUtilidad.respuestaExitosa("Inscripción de " + inscripcion.getAlumno().getUsuario().getNombreCompleto()
+            String mensaje = "Inscripción de " + inscripcion.getAlumno().getUsuario().getNombreCompleto()
                     + " a «" + inscripcion.getCurso().getNombre() + "» registrada con éxito."
-                    + (inscripcion.estaHabilitada() ? "" : " Queda pendiente de pago."));
+                    + (inscripcion.estaHabilitada() ? "" : " Queda pendiente de pago: registrá ahora su pago.");
+            return inscripcion.estaHabilitada() ? ResponseEntity.ok(Map.of("mensaje", mensaje))
+                    : ResponseEntity.ok(Map.of("mensaje", mensaje, "destino",
+                            "/pago/buscar?registrarPara=" + inscripcion.getIdInscripcion()));
         } catch (Exception e) {
             return RespuestaUtilidad.respuestaConError(e);
         }

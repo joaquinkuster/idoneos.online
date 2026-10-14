@@ -138,6 +138,78 @@ public class Pago {
     }
 
     /**
+     * Indica si el pago está aprobado.
+     *
+     * @return {@code true} si su estado es Aprobado.
+     */
+    public boolean estaAprobado() {
+        return EstadoPago.APROBADO.equals(estadoPago.getNombre());
+    }
+
+    /**
+     * Indica si el pago está pendiente de confirmación.
+     *
+     * @return {@code true} si su estado es Pendiente.
+     */
+    public boolean estaPendiente() {
+        return EstadoPago.PENDIENTE.equals(estadoPago.getNombre());
+    }
+
+    /**
+     * Indica si el pago fue rechazado.
+     *
+     * @return {@code true} si su estado es Rechazado.
+     */
+    public boolean estaRechazado() {
+        return EstadoPago.RECHAZADO.equals(estadoPago.getNombre());
+    }
+
+    /**
+     * Indica si se paga online con MODO.
+     *
+     * @return {@code true} si el método de pago es MODO.
+     */
+    public boolean esDeModo() {
+        return MetodoPago.MODO.equals(metodoPago.getNombre());
+    }
+
+    /**
+     * Obtiene el comprobante emitido por el pago (los pagos aprobados lo tienen).
+     *
+     * @return El último comprobante, o {@code null} si no se emitió.
+     */
+    public Comprobante getComprobanteVigente() {
+        return comprobantes.stream().max(java.util.Comparator.comparing(Comprobante::getFechaEmision)
+                .thenComparingInt(Comprobante::getIdComprobante)).orElse(null);
+    }
+
+    /**
+     * Obtiene el momento que le corresponde al pago en los listados: cuándo se aprobó o, si todavía no, cuándo se creó.
+     *
+     * @return La fecha del pago.
+     */
+    public LocalDateTime getFechaDelPago() {
+        return fechaAprobacion != null ? fechaAprobacion : fechaCreacion;
+    }
+
+    /**
+     * Arma el detalle del medio de pago para mostrarlo: el método y, si lo hay, lo que informó MODO (por ejemplo,
+     * "MODO · Visa crédito ···· 0008").
+     *
+     * @return El texto del medio de pago.
+     */
+    public String getMedioDePago() {
+        StringBuilder texto = new StringBuilder(metodoPago.getNombre());
+        if (detalleMetodoPago != null && !detalleMetodoPago.isBlank()) {
+            texto.append(" · ").append(detalleMetodoPago);
+        }
+        if (ultimosDigitosTarjeta != null && !ultimosDigitosTarjeta.isBlank()) {
+            texto.append(" ···· ").append(ultimosDigitosTarjeta);
+        }
+        return texto.toString();
+    }
+
+    /**
      * Devuelve una representación en forma de cadena del pago.
      *
      * @return La representación textual.
