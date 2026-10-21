@@ -1,5 +1,6 @@
 package com.app.idoneos.servicio.Pago;
 
+import com.app.idoneos.utilidades.MensajeValidacionUtilidad;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -42,6 +43,15 @@ public class PagoServicioImpl implements PagoServicio, CrudServicio<Pago> {
     private static final Logger REGISTRO = LoggerFactory.getLogger(PagoServicioImpl.class);
 
     /** Longitud máxima de las observaciones del pago manual. */
+    /** Código de referencia de MODO: solo letras y números (sin guiones). */
+    private static final java.util.regex.Pattern FORMATO_REFERENCIA_MODO = java.util.regex.Pattern.compile("[A-Za-z0-9]{6,12}");
+
+    /** Número de comprobante de MODO: solo números, de 4 a 100 dígitos. */
+    private static final java.util.regex.Pattern FORMATO_COMPROBANTE_MODO = java.util.regex.Pattern.compile("\\d{4,100}");
+
+    /** Número de comprobante de una transferencia: depende del banco; puede llevar letras, números y guiones. */
+    private static final java.util.regex.Pattern FORMATO_COMPROBANTE_TRANSFERENCIA = java.util.regex.Pattern.compile("[A-Za-z0-9-]{4,100}");
+
     private static final int LONGITUD_OBSERVACIONES = 300;
 
     private static final DecimalFormat FORMATO_MONTO = new DecimalFormat("#,##0.##");
@@ -200,11 +210,24 @@ public class PagoServicioImpl implements PagoServicio, CrudServicio<Pago> {
 
     @Override
     public Optional<Descuento> calcularDescuento(Inscripcion inscripcion) {
-        LocalDateTime ahora = LocalDateTime.now();
         // Cursos comprados: inscripciones habilitadas con pago aprobado (sin contar la que se está pagando)
         long comprados = inscripcionRepositorio.findByAlumnoAndBajaFalse(inscripcion.getAlumno()).stream()
                 .filter(otra -> otra.getIdInscripcion() != inscripcion.getIdInscripcion())
                 .filter(otra -> otra.estaHabilitada() && otra.tienePagoAprobado()).count();
+        return mejorDescuento(comprados);
+    }
+
+    @Override
+    public Optional<Descuento> calcularDescuentoPara(Alumno alumno) {
+        long comprados = alumno == null ? 0
+                : inscripcionRepositorio.findByAlumnoAndBajaFalse(alumno).stream()
+                        .filter(otra -> otra.estaHabilitada() && otra.tienePagoAprobado()).count();
+        return mejorDescuento(comprados);
+    }
+
+    /** El descuento vigente de mayor porcentaje entre los que exigen, como mucho, esa cantidad de cursos comprados. */
+    private Optional<Descuento> mejorDescuento(long comprados) {
+        LocalDateTime ahora = LocalDateTime.now();
         return descuentoRepositorio.findByBajaFalse().stream()
                 .filter(d -> d.estaVigente(ahora) && d.getCursosRequeridos() <= comprados)
                 .max(Comparator.comparing(Descuento::getPorcentaje)
@@ -230,6 +253,31 @@ public class PagoServicioImpl implements PagoServicio, CrudServicio<Pago> {
             }
         }
         return calcularMontoAPagar(inscripcion);
+    }
+
+    @Override
+    @Transactional
+    public boolean habilitarSiNoHayQuePagar(Inscripcion inscripcion) {
+        if (inscripcion.estaHabilitada() || inscripcion.getCurso().getPrecio() <= 0) {
+            return false;
+        }
+        Descuento descuento = calcularDescuento(inscripcion).orElse(null);
+        if (descuento == null || descuento.aplicarA(inscripcion.getCurso().getPrecio()) > 0) {
+            return false;
+        }
+        habilitarSinPago(inscripcion, descuento);
+        return true;
+    }
+
+    @Override
+    public DetallePago calcularDetalle(Inscripcion inscripcion) {
+        float precio = inscripcion.getCurso().getPrecio();
+        // Un pago aprobado con descuento fija el descuento; si no, el que le corresponde hoy
+        Descuento descuento = inscripcion.getPagos().stream().filter(pago -> pago.estaAprobado() && pago.getDescuento() != null)
+                .map(Pago::getDescuento).findFirst().orElseGet(() -> calcularDescuento(inscripcion).orElse(null));
+        float conDescuento = descuento != null ? descuento.aplicarA(precio) : precio;
+        return new DetallePago(precio, descuento, precio - conDescuento, inscripcion.getMontoPagado(),
+                calcularMontoPendiente(inscripcion));
     }
 
     @Override
@@ -287,33 +335,40 @@ public class PagoServicioImpl implements PagoServicio, CrudServicio<Pago> {
     @Override
     @Transactional
     public SolicitudPago iniciarPago(Integer idInscripcion, Alumno alumno) {
+        return iniciarPago(idInscripcion, alumno, null);
+    }
+
+    @Override
+    @Transactional
+    public SolicitudPago iniciarPago(Integer idInscripcion, Alumno alumno, Float montoEsperado) {
         Inscripcion inscripcion = inscripcionRepositorio.findById(idInscripcion).filter(i -> !i.esInactivo())
                 .orElseThrow(() -> new IllegalArgumentException("Error! La inscripción no se encuentra activa."));
         if (alumno == null || inscripcion.getAlumno().getIdAlumno() != alumno.getIdAlumno()) {
             throw new IllegalArgumentException("Error! No tenés una inscripción pendiente de pago para este curso.");
         }
-        return iniciar(inscripcion);
+        return iniciar(inscripcion, montoEsperado);
     }
 
     @Override
     @Transactional
-    public Pago registrarPagoManual(Integer idInscripcion, Float monto, String referencia, String observaciones) {
+    public Pago registrarPagoManual(Integer idInscripcion, Float monto, String numeroComprobante, String observaciones) {
         Inscripcion inscripcion = inscripcionRepositorio.findById(idInscripcion).filter(i -> !i.esInactivo())
                 .orElseThrow(() -> new IllegalArgumentException("Error! La inscripción no se encuentra activa."));
         if (inscripcion.estaHabilitada() && inscripcion.tienePagoAprobado()) {
             throw new IllegalArgumentException("Error! El pago de esta inscripción ya está registrado.");
         }
-        String referenciaLimpia = referencia == null ? "" : referencia.trim();
-        if (monto == null || referenciaLimpia.isEmpty()) {
-            throw new IllegalArgumentException("Error! Debe completar el monto y el comprobante de la transferencia.");
+        String comprobanteLimpio = numeroComprobante == null ? "" : numeroComprobante.trim();
+        if (monto == null || comprobanteLimpio.isEmpty()) {
+            throw new IllegalArgumentException("Error! Debe completar el monto y el número de comprobante de la transferencia.");
         }
-        validarMontoYReferencia(monto, referenciaLimpia, null);
+        validarMonto(monto);
+        validarNumeroComprobante(comprobanteLimpio, MetodoPago.TRANSFERENCIA, null);
         validarMontoNoSuperaLaDeuda(inscripcion, monto);
         validarCupo(inscripcion);
         String notas = observaciones == null || observaciones.isBlank() ? null : observaciones.trim();
         if (notas != null && notas.length() > LONGITUD_OBSERVACIONES) {
             throw new IllegalArgumentException(
-                    "Error! Las observaciones no pueden superar los " + LONGITUD_OBSERVACIONES + " caracteres.");
+                    MensajeValidacionUtilidad.demasiadoLargo("Las observaciones", LONGITUD_OBSERVACIONES, "caracteres"));
         }
         // Si había un pago sin aprobar (por ejemplo, uno de MODO que no se confirmó), se reutiliza su registro
         Pago pago = inscripcion.getPagoSinAprobar();
@@ -326,7 +381,7 @@ public class PagoServicioImpl implements PagoServicio, CrudServicio<Pago> {
         pago.setMonto(monto);
         pago.setDescuento(null);
         limpiarResultado(pago);
-        pago.setCodigoReferencia(referenciaLimpia);
+        pago.setNumeroComprobante(comprobanteLimpio);
         pago.setDetalleMetodoPago(notas != null ? "Transferencia al CBU de la institución · " + notas
                 : "Transferencia al CBU de la institución");
         pago = pagoRepositorio.save(pago);
@@ -357,7 +412,7 @@ public class PagoServicioImpl implements PagoServicio, CrudServicio<Pago> {
             throw new IllegalArgumentException(
                     "Error! El pago no se encuentra rechazado o su inscripción ya tiene el acceso habilitado.");
         }
-        return iniciar(pago.getInscripcion());
+        return iniciar(pago.getInscripcion(), null);
     }
 
     @Override
@@ -402,8 +457,8 @@ public class PagoServicioImpl implements PagoServicio, CrudServicio<Pago> {
 
     @Override
     @Transactional
-    public Pago modificarPago(Integer idPago, String estado, Float monto, String referencia, String nombrePagador,
-            String dniPagador, String motivo) {
+    public Pago modificarPago(Integer idPago, String estado, Float monto, String referencia, String numeroComprobante,
+            String nombrePagador, String dniPagador, String motivo) {
         Pago pago = pagoRepositorio.findById(idPago).filter(p -> !p.estaAprobado())
                 .orElseThrow(() -> new IllegalArgumentException("Error! El pago no se encuentra pendiente o rechazado."));
         String nuevoEstado = estado == null ? "" : estado.trim();
@@ -412,14 +467,28 @@ public class PagoServicioImpl implements PagoServicio, CrudServicio<Pago> {
         if (!aprobar && !rechazar) {
             throw new IllegalArgumentException("Error! Debe marcar el pago como aprobado o rechazado.");
         }
-        String referenciaLimpia = referencia == null || referencia.isBlank() ? null : referencia.trim();
+        String referenciaLimpia = referencia == null || referencia.isBlank() ? null : referencia.trim().toUpperCase();
+        String comprobanteLimpio = numeroComprobante == null || numeroComprobante.isBlank() ? null : numeroComprobante.trim();
         if (monto == null) {
             throw new IllegalArgumentException("Error! El monto es obligatorio.");
         }
-        if (!pago.esDeModo() && referenciaLimpia == null) {
-            throw new IllegalArgumentException("Error! Debe completar el comprobante de la transferencia.");
+        // Una transferencia siempre lleva su número de comprobante. Un pago de MODO, al acreditarlo, lleva el código de
+        // referencia y el número de comprobante: son la prueba de que el administrador verificó el cobro en MODO. Al
+        // rechazarlo no hay cobro que probar, así que son opcionales (si se completan, se validan igual).
+        if (pago.esDeModo()) {
+            if (aprobar && (referenciaLimpia == null || comprobanteLimpio == null)) {
+                throw new IllegalArgumentException(
+                        "Error! Debe completar el código de referencia y el número de comprobante de MODO para acreditar el pago.");
+            }
+            referenciaLimpia = validarCodigoReferencia(referenciaLimpia, pago);
+        } else {
+            if (comprobanteLimpio == null) {
+                throw new IllegalArgumentException("Error! Debe completar el número de comprobante de la transferencia.");
+            }
+            referenciaLimpia = null; // la referencia es solo de MODO
         }
-        validarMontoYReferencia(monto, referenciaLimpia, pago);
+        validarMonto(monto);
+        validarNumeroComprobante(comprobanteLimpio, pago.getMetodoPago().getNombre(), pago);
         if (aprobar) {
             validarMontoNoSuperaLaDeuda(pago.getInscripcion(), monto);
         }
@@ -427,11 +496,14 @@ public class PagoServicioImpl implements PagoServicio, CrudServicio<Pago> {
         String dni = dniPagador == null ? "" : dniPagador.trim();
         if (aprobar && pago.esDeModo() && (nombre.isEmpty() || !dni.matches("\\d{7,8}"))) {
             throw new IllegalArgumentException(
-                    "Error! Para aprobar un pago de MODO debe indicar el nombre y el DNI (7 u 8 dígitos) del pagador.");
+                    MensajeValidacionUtilidad.formatoInvalido("El nombre o el DNI del pagador", "nombre completo y DNI de 7 u 8 números"));
         }
         pago.setMonto(monto);
         if (referenciaLimpia != null) {
             pago.setCodigoReferencia(referenciaLimpia);
+        }
+        if (comprobanteLimpio != null) {
+            pago.setNumeroComprobante(comprobanteLimpio);
         }
         if (rechazar) {
             rechazar(pago, motivo == null || motivo.isBlank() ? "Rechazado por el administrador." : motivo.trim());
@@ -468,7 +540,7 @@ public class PagoServicioImpl implements PagoServicio, CrudServicio<Pago> {
     }
 
     /** Reglas comunes de CU-51 y CU-52: arma el pago de la inscripción y crea la solicitud en la plataforma. */
-    private SolicitudPago iniciar(Inscripcion inscripcion) {
+    private SolicitudPago iniciar(Inscripcion inscripcion, Float montoEsperado) {
         if (inscripcion.tienePagoAprobado()) {
             throw new IllegalArgumentException("Error! " + (inscripcion.estaHabilitada()
                     ? "El pago de esta inscripción ya está aprobado."
@@ -490,6 +562,7 @@ public class PagoServicioImpl implements PagoServicio, CrudServicio<Pago> {
                 // Hay un pago en curso: se retoma su solicitud (MODO devuelve su QR) en lugar de crear otra
                 PasarelaPagoServicio.Resultado enCurso = pasarela.consultarPago(existente.getIdSolicitudPago());
                 if (enCurso.estado() == PasarelaPagoServicio.Estado.PENDIENTE && enCurso.solicitud() != null) {
+                    validarMontoEsperado(montoEsperado, existente.getMonto());
                     return new SolicitudPago(existente.getIdPago(), existente.getIdSolicitudPago(),
                             enCurso.solicitud().qr(), enCurso.solicitud().deeplink(), pasarela.scriptModal(), false);
                 }
@@ -501,6 +574,7 @@ public class PagoServicioImpl implements PagoServicio, CrudServicio<Pago> {
         Descuento descuento = calcularDescuento(inscripcion).orElse(null);
         float precio = inscripcion.getCurso().getPrecio();
         float monto = descuento != null ? descuento.aplicarA(precio) : precio;
+        validarMontoEsperado(montoEsperado, monto);
         if (monto <= 0) {
             return habilitarSinPago(inscripcion, descuento);
         }
@@ -631,24 +705,67 @@ public class PagoServicioImpl implements PagoServicio, CrudServicio<Pago> {
     private void limpiarResultado(Pago pago) {
         pago.setIdSolicitudPago(null);
         pago.setCodigoReferencia(null);
+        pago.setNumeroComprobante(null);
         pago.setUltimosDigitosTarjeta(null);
         pago.setDetalleMetodoPago(null);
         pago.setDetalleErrorOperacion(null);
         pago.setFechaAprobacion(null);
     }
 
-    private void validarMontoYReferencia(Float monto, String referencia, Pago pago) {
+    private void validarMonto(Float monto) {
         if (monto.isNaN() || monto <= 0) {
             throw new IllegalArgumentException("Error! El monto debe ser mayor a cero.");
         }
-        if (referencia != null) {
-            if (referencia.length() > 20) {
-                throw new IllegalArgumentException("Error! El comprobante no puede superar los 20 caracteres.");
+    }
+
+    /**
+     * Valida el código de referencia de MODO: solo letras y números, de 6 a 12 caracteres, y que no esté en otro pago.
+     *
+     * @return el código validado, o {@code null} si no se indicó
+     */
+    private String validarCodigoReferencia(String codigo, Pago pago) {
+        if (codigo == null) {
+            return null;
+        }
+        if (!FORMATO_REFERENCIA_MODO.matcher(codigo).matches()) {
+            throw new IllegalArgumentException(MensajeValidacionUtilidad.formatoInvalido("El código de referencia",
+                    "letras y números, sin guiones, de 6 a 12 caracteres"));
+        }
+        if (pagoRepositorio.findByCodigoReferencia(codigo).filter(otro -> pago == null || otro.getIdPago() != pago.getIdPago())
+                .isPresent()) {
+            throw new IllegalArgumentException("Error! Ya existe un pago registrado con ese código de referencia.");
+        }
+        return codigo;
+    }
+
+    /**
+     * Valida el número de comprobante según el medio de pago (MODO: solo números; transferencia: letras, números y
+     * guiones) y que no esté repetido entre los pagos del mismo medio.
+     */
+    private void validarNumeroComprobante(String numero, String medio, Pago pago) {
+        if (numero == null) {
+            return;
+        }
+        if (MetodoPago.MODO.equals(medio)) {
+            if (!FORMATO_COMPROBANTE_MODO.matcher(numero).matches()) {
+                throw new IllegalArgumentException(
+                        MensajeValidacionUtilidad.formatoInvalido("El número de comprobante", "solo números, de 4 a 100 dígitos"));
             }
-            if (pagoRepositorio.findByCodigoReferencia(referencia)
-                    .filter(otro -> pago == null || otro.getIdPago() != pago.getIdPago()).isPresent()) {
-                throw new IllegalArgumentException("Error! Ya existe un pago registrado con ese comprobante.");
-            }
+        } else if (!FORMATO_COMPROBANTE_TRANSFERENCIA.matcher(numero).matches()) {
+            throw new IllegalArgumentException(MensajeValidacionUtilidad.formatoInvalido("El número de comprobante",
+                    "letras, números y guiones, de 4 a 100 caracteres"));
+        }
+        if (pagoRepositorio.findFirstByNumeroComprobanteAndMetodoPago(numero, metodo(medio))
+                .filter(otro -> pago == null || otro.getIdPago() != pago.getIdPago()).isPresent()) {
+            throw new IllegalArgumentException("Error! Ya existe un pago registrado con ese número de comprobante.");
+        }
+    }
+
+    /** Si el alumno vio un monto en la caja y ahora corresponde cobrar otro, no se cobra y se le avisa. */
+    private void validarMontoEsperado(Float montoEsperado, float monto) {
+        if (montoEsperado != null && Math.abs(monto - montoEsperado) > 0.005f) {
+            throw new MontoCambiadoException(
+                    "El monto a pagar cambió: el descuento que se aplicaba ya no está disponible. Revisá la caja antes de pagar.");
         }
     }
 

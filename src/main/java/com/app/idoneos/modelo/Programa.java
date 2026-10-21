@@ -105,7 +105,7 @@ public class Programa {
      * Conjunto de participacionesDocente asociados.
      */
     @OneToMany(mappedBy = "programaPorDefecto", cascade = CascadeType.ALL)
-    private Set<ParticipacionDocente> participacionesDocente = new HashSet<>();
+    private Set<DocenteCurso> participacionesDocente = new HashSet<>();
 
     /**
      * Constructor para crear el programa con los datos básicos.

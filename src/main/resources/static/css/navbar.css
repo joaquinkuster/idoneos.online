@@ -376,12 +376,8 @@ body:not(.pn-body) .nb + :not(.wf-hero-banner):not(.wf-hero-section):not(.auth-p
         font-size: 14px;
     }
 
-    .nb .um-desplegar {
-        border-bottom: 1px solid var(--pn-borde);
-    }
-
-    .nb .um-grupo.abierto .um-grupo-fila .um-item {
-        border-bottom-color: transparent;
+    .nb .um-grupo-cabecera {
+        width: 100%;
     }
 
     .nb .um-item.activo:not(.um-item-peligro) {

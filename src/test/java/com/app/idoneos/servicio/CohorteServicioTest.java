@@ -136,17 +136,17 @@ class CohorteServicioTest {
         IllegalArgumentException semanas = assertThrows(IllegalArgumentException.class,
                 () -> cohorteServicio.registrarCohorte(id, INICIO, INICIO.plusDays(30), null, null,
                         Cohorte.SEMANAS_ACCESO_MAXIMAS + 1, null));
-        assertTrue(semanas.getMessage().contains("no pueden superar las " + Cohorte.SEMANAS_ACCESO_MAXIMAS));
+        assertTrue(semanas.getMessage().contains("número entero de 1 a " + Cohorte.SEMANAS_ACCESO_MAXIMAS));
         assertFalse(semanas.getMessage().contains("duración total"));
 
         IllegalArgumentException cupo = assertThrows(IllegalArgumentException.class,
                 () -> cohorteServicio.registrarCohorte(id, INICIO, INICIO.plusDays(30), null, null, duracion,
                         Cohorte.CUPO_MAXIMO_PERMITIDO + 1));
-        assertTrue(cupo.getMessage().contains("no puede superar los " + Cohorte.CUPO_MAXIMO_PERMITIDO));
+        assertTrue(cupo.getMessage().contains("número entero de 1 a " + Cohorte.CUPO_MAXIMO_PERMITIDO));
 
         IllegalArgumentException cero = assertThrows(IllegalArgumentException.class,
                 () -> cohorteServicio.registrarCohorte(id, INICIO, INICIO.plusDays(30), null, null, 0, null));
-        assertTrue(cero.getMessage().contains("mayor a cero"));
+        assertTrue(cero.getMessage().contains("Formato válido: número entero"));
 
         Cohorte limite = cohorteServicio.registrarCohorte(id, INICIO, INICIO.plusDays(30), null, null,
                 Cohorte.SEMANAS_ACCESO_MAXIMAS, Cohorte.CUPO_MAXIMO_PERMITIDO);

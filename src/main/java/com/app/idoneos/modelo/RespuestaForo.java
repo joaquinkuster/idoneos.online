@@ -28,11 +28,11 @@ public class RespuestaForo {
     private int idRespuesta;
 
     /**
-     * Relación con ParticipacionDocente.
+     * Relación con DocenteCurso.
      */
     @ManyToOne
-    @JoinColumn(name = "idParticipacionDocente", nullable = false)
-    private ParticipacionDocente participacionDocente;
+    @JoinColumn(name = "idDocenteCurso", nullable = false)
+    private DocenteCurso docenteCurso;
 
     /**
      * Relación con ConsultaForo.
@@ -68,12 +68,12 @@ public class RespuestaForo {
     /**
      * Constructor para crear la respuesta del foro con los datos básicos.
      *
-     * @param participacionDocente relación con ParticipacionDocente.
+     * @param docenteCurso relación con DocenteCurso.
      * @param consulta relación con ConsultaForo.
      * @param texto texto de la respuesta.
      */
-    public RespuestaForo(ParticipacionDocente participacionDocente, ConsultaForo consulta, String texto) {
-        this.participacionDocente = participacionDocente;
+    public RespuestaForo(DocenteCurso docenteCurso, ConsultaForo consulta, String texto) {
+        this.docenteCurso = docenteCurso;
         this.consulta = consulta;
         this.texto = texto;
     }
@@ -84,7 +84,7 @@ public class RespuestaForo {
      * @return El nombre completo del docente.
      */
     public String getAutor() {
-        return participacionDocente.getDocente().getUsuario().getNombreCompleto();
+        return docenteCurso.getDocente().getUsuario().getNombreCompleto();
     }
 
     /**
@@ -93,7 +93,7 @@ public class RespuestaForo {
      * @return El usuario autor.
      */
     public Usuario getUsuario() {
-        return participacionDocente.getDocente().getUsuario();
+        return docenteCurso.getDocente().getUsuario();
     }
 
     /**
@@ -104,7 +104,7 @@ public class RespuestaForo {
      * @return {@code true} si puede modificarla.
      */
     public boolean puedeModificar(Docente docente, int minutos) {
-        return docente != null && !baja && participacionDocente.getDocente().getIdDocente() == docente.getIdDocente()
+        return docente != null && !baja && docenteCurso.getDocente().getIdDocente() == docente.getIdDocente()
                 && LocalDateTime.now().isBefore(fechaCreacion.plusMinutes(minutos));
     }
 

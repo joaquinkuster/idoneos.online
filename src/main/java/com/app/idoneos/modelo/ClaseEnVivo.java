@@ -25,11 +25,11 @@ public class ClaseEnVivo {
     private int idClaseEnVivo;
 
     /**
-     * Relación con ParticipacionDocente.
+     * Relación con DocenteCurso.
      */
     @ManyToOne
-    @JoinColumn(name = "idParticipacionDocente", nullable = false)
-    private ParticipacionDocente participacionDocente;
+    @JoinColumn(name = "idDocenteCurso", nullable = false)
+    private DocenteCurso docenteCurso;
 
     /**
      * Relación con EstadoClaseEnVivo.
@@ -109,15 +109,15 @@ public class ClaseEnVivo {
     /**
      * Constructor para crear la clase en vivo con los datos básicos.
      *
-     * @param participacionDocente relación con ParticipacionDocente.
+     * @param docenteCurso relación con DocenteCurso.
      * @param estadoClaseEnVivo relación con EstadoClaseEnVivo.
      * @param cohorte relación con Cohorte.
      * @param titulo título de la clase.
      * @param fechaHora fecha y hora en que se dicta la clase.
      * @param duracion duración de la clase, en minutos.
      */
-    public ClaseEnVivo(ParticipacionDocente participacionDocente, EstadoClaseEnVivo estadoClaseEnVivo, Cohorte cohorte, String titulo, LocalDateTime fechaHora, int duracion) {
-        this.participacionDocente = participacionDocente;
+    public ClaseEnVivo(DocenteCurso docenteCurso, EstadoClaseEnVivo estadoClaseEnVivo, Cohorte cohorte, String titulo, LocalDateTime fechaHora, int duracion) {
+        this.docenteCurso = docenteCurso;
         this.estadoClaseEnVivo = estadoClaseEnVivo;
         this.cohorte = cohorte;
         this.titulo = titulo;

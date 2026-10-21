@@ -86,7 +86,9 @@ class DescuentoServicioTest {
         assertThrows(IllegalArgumentException.class, () -> descuentoServicio.registrarDescuento("A", 10f, HASTA, DESDE, 10, 0));
         assertThrows(IllegalArgumentException.class, () -> descuentoServicio.registrarDescuento("A", 10f, DESDE, HASTA, 0, 0));
         assertThrows(IllegalArgumentException.class, () -> descuentoServicio.registrarDescuento("A", 10f, DESDE, HASTA, 10, -1));
-        assertEquals(100f, descuentoServicio.registrarDescuento("Total", 100f, DESDE, DESDE, 1, 0).getPorcentaje());
+        assertEquals(99f, descuentoServicio.registrarDescuento("Casi total", 99f, DESDE, DESDE, 1, 0).getPorcentaje());
+        // no se registran descuentos del 100%: nadie queda sin nada que pagar por un descuento
+        assertThrows(IllegalArgumentException.class, () -> descuentoServicio.registrarDescuento("Total", 100f, DESDE, HASTA, 10, 0));
     }
 
     @Test

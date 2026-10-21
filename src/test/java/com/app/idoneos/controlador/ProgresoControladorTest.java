@@ -57,7 +57,7 @@ class ProgresoControladorTest {
                         Matchers.containsString("Unidades completadas"),
                         Matchers.containsString("pn-btn-ver"),
                         Matchers.containsString("data-filtro-front"),
-                        Matchers.containsString("name=\"alumno\""),
+                        Matchers.containsString("data-campo=\"alumno\""),
                         Matchers.containsString("data-f-alumno"),
                         Matchers.containsString("name=\"cohorte\""),
                         Matchers.containsString("data-f-cohorte"),

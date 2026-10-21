@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.app.idoneos.modelo.Curso;
 import com.app.idoneos.modelo.Docente;
 import com.app.idoneos.modelo.Modalidad;
-import com.app.idoneos.modelo.ParticipacionDocente;
+import com.app.idoneos.modelo.DocenteCurso;
 import com.app.idoneos.servicio.Categoria.CategoriaServicioImpl;
 import com.app.idoneos.servicio.Curso.CursoServicioImpl;
 import com.app.idoneos.servicio.Docente.DocenteServicioImpl;
@@ -286,7 +286,7 @@ class CursoServicioTest {
     void docenteAccedeAsuCurso() {
         Curso curso = curso("Mercado de Capitales Argentino");
 
-        ParticipacionDocente participacion = cursoServicio.validarAccesoDocente(curso.getIdCurso(), docente(FAUSTO));
+        DocenteCurso participacion = cursoServicio.validarAccesoDocente(curso.getIdCurso(), docente(FAUSTO));
 
         assertEquals(curso.getIdCurso(), participacion.getCurso().getIdCurso());
         assertEquals("Programa 2026", participacion.getProgramaDeTrabajo().getNombre());
@@ -308,7 +308,7 @@ class CursoServicioTest {
     @DisplayName("CU-27: el docente accede a un curso sin programas (ahí registra el primero), pero no a uno dado de baja")
     void cursoNoDisponible() {
         Curso sinPrograma = curso("Introducción a las Finanzas");
-        ParticipacionDocente participacion = cursoServicio.validarAccesoDocente(sinPrograma.getIdCurso(), docente(SEBASTIAN));
+        DocenteCurso participacion = cursoServicio.validarAccesoDocente(sinPrograma.getIdCurso(), docente(SEBASTIAN));
         assertNull(participacion.getProgramaDeTrabajo());
         assertNull(participacion.getCohorteDeTrabajo());
         IllegalArgumentException error;

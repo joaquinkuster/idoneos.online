@@ -1521,3 +1521,203 @@ button.cc-boton {
     font-size: 12px;
     color: #64748B;
 }
+
+/* Términos y condiciones dentro de la tarjeta de inscripción de la ficha */
+.fx-terminos {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    margin: 12px 0;
+    font-size: 12px;
+    line-height: 1.5;
+    color: #64748B;
+    cursor: pointer;
+}
+
+.fx-terminos input {
+    margin-top: 3px;
+    flex-shrink: 0;
+}
+
+/* Línea de inscripción de la ficha: el texto y, a su derecha, el botón de ayuda */
+.fx-apoyo-fila {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 4px;
+    margin-top: 10px;
+}
+
+.fx-apoyo-fila .fx-apoyo {
+    margin: 0;
+}
+
+/* Aviso que se despliega con una transición suave: el alto va de 0fr a 1fr y el texto aparece */
+.ayuda-desplegable {
+    display: grid;
+    grid-template-rows: 0fr;
+    opacity: 0;
+    transition: grid-template-rows 0.25s ease, opacity 0.25s ease;
+}
+
+.ayuda-desplegable.abierto {
+    grid-template-rows: 1fr;
+    opacity: 1;
+}
+
+.ayuda-desplegable-interior {
+    min-height: 0;
+    overflow: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ayuda-desplegable {
+        transition: none;
+    }
+}
+
+/* Caja (checkout): resumen de la inscripción y del pago */
+.caja-imagen {
+    width: 120px;
+    height: 90px;
+    flex-shrink: 0;
+    overflow: hidden;
+    border-radius: 8px;
+    background: #EEF4FA;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #64748B;
+    font-size: 26px;
+}
+
+.caja-imagen img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.caja-curso {
+    margin: 0 0 10px;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.caja-detalle {
+    margin: 0 0 2px;
+    font-size: 13px;
+    color: #64748B;
+}
+
+.caja-separador {
+    margin: 14px 0;
+    border: 0;
+    border-top: 1px solid #CBD5E1;
+    opacity: 1;
+}
+
+.caja-lista {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 13px;
+    color: #64748B;
+}
+
+.caja-lista li {
+    margin-bottom: 4px;
+}
+
+.caja-lista i {
+    margin-right: 6px;
+    color: #3B6D11;
+}
+
+.caja-fila {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 4px 0;
+    font-size: 14px;
+}
+
+.caja-descuento {
+    color: #3B6D11;
+}
+
+.caja-total {
+    align-items: baseline;
+}
+
+.caja-total strong {
+    font-size: 26px;
+}
+
+.caja-boton {
+    width: 100%;
+    margin-top: 12px;
+    height: 42px;
+}
+
+.caja-nota {
+    margin: 8px 0 0;
+    font-size: 12px;
+    text-align: center;
+    color: #64748B;
+}
+
+/* Botón de la tarjeta de inscripción de la ficha (Ingresá para inscribirte / sin cohortes): separado de la línea de arriba */
+.fx-inscripcion > .fx-boton-inscribir {
+    margin-top: 14px;
+}
+
+/* Alerta de error del formulario de inscripción de la ficha: separada de la línea de arriba */
+.fx-inscripcion .alert-formulario {
+    margin-top: 14px;
+}
+
+/* Las tarjetas de la caja llevan aire interno (la tarjeta base no tiene padding propio) */
+.pn-tarjeta.caja-tarjeta {
+    padding: 22px 24px;
+}
+
+.caja-tarjeta .pn-lista-cabecera {
+    padding: 0 0 14px;
+}
+
+/* Etiqueta de descuento sobre la imagen de la carta (arriba a la derecha) */
+.cc-descuento {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    z-index: 2;
+    padding: 5px 10px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: #0A192F;
+    background: #D4A03D;
+    border-radius: 4px;
+}
+
+/* Precio original tachado junto al precio con descuento (cartas y ficha) */
+.cc-precio-tachado,
+.fx-precio-tachado {
+    margin-right: 8px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: #94A3B8;
+    text-decoration: line-through;
+}
+
+.fx-precio-tachado {
+    font-size: 18px;
+}
+
+.fx-descuento {
+    margin: 4px 0 18px;
+    color: #3B6D11;
+    font-weight: 600;
+}

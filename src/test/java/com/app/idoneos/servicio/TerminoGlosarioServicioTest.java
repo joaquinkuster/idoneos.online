@@ -150,9 +150,9 @@ class TerminoGlosarioServicioTest {
         assertTrue(mensaje(() -> glosarioServicio.registrarTermino(fausto(), unidad, "Término", " "))
                 .contains("Debe completar el término y la definición."));
         assertTrue(mensaje(() -> glosarioServicio.registrarTermino(fausto(), unidad, "x".repeat(51), "Definición"))
-                .contains("no puede superar los 50 caracteres"));
+                .contains("Máximo: 50 caracteres"));
         assertTrue(mensaje(() -> glosarioServicio.registrarTermino(fausto(), unidad, "Término", "x".repeat(501)))
-                .contains("no puede superar los 500 caracteres"));
+                .contains("Máximo: 500 caracteres"));
         // el máximo exacto se admite
         assertNotNull(glosarioServicio.registrarTermino(fausto(), unidad, "x".repeat(50), "y".repeat(500)));
 
@@ -222,7 +222,7 @@ class TerminoGlosarioServicioTest {
         assertTrue(mensaje(() -> glosarioServicio.modificarTermino(id, fausto(), " ", "Definición"))
                 .contains("Debe completar el término y la definición."));
         assertTrue(mensaje(() -> glosarioServicio.modificarTermino(id, fausto(), "TIR", "x".repeat(501)))
-                .contains("no puede superar los 500 caracteres"));
+                .contains("Máximo: 500 caracteres"));
         assertTrue(mensaje(() -> glosarioServicio.modificarTermino(id, fausto(), "duration", "Definición"))
                 .contains("El término ya está registrado en el glosario de esta unidad."));
         assertTrue(mensaje(() -> glosarioServicio.modificarTermino(999999, fausto(), "TIR", "Definición"))

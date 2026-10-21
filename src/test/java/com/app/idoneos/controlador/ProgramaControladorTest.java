@@ -22,11 +22,11 @@ import org.springframework.transaction.annotation.Transactional;
 import com.app.idoneos.modelo.Cohorte;
 import com.app.idoneos.modelo.Curso;
 import com.app.idoneos.modelo.Inscripcion;
-import com.app.idoneos.modelo.ParticipacionDocente;
+import com.app.idoneos.modelo.DocenteCurso;
 import com.app.idoneos.modelo.Programa;
 import com.app.idoneos.repositorio.CursoRepositorio;
 import com.app.idoneos.repositorio.InscripcionRepositorio;
-import com.app.idoneos.repositorio.ParticipacionDocenteRepositorio;
+import com.app.idoneos.repositorio.DocenteCursoRepositorio;
 
 /**
  * Pruebas de las vistas y los formularios del ABM de programas (CU-15 a CU-18) y de los selectores de programa y cohorte
@@ -47,7 +47,7 @@ class ProgramaControladorTest {
     private CursoRepositorio cursoRepositorio;
 
     @Autowired
-    private ParticipacionDocenteRepositorio participacionRepositorio;
+    private DocenteCursoRepositorio participacionRepositorio;
 
     @Autowired
     private InscripcionRepositorio inscripcionRepositorio;
@@ -64,7 +64,7 @@ class ProgramaControladorTest {
         return curso("Macroeconomía de Coyuntura");
     }
 
-    private ParticipacionDocente participacionDeFausto(Curso curso) {
+    private DocenteCurso participacionDeFausto(Curso curso) {
         return participacionRepositorio.findByCursoAndBajaFalse(curso).stream()
                 .filter(p -> p.getDocente().getUsuario().getCorreo().equals(FAUSTO)).findFirst().orElseThrow();
     }
@@ -88,7 +88,7 @@ class ProgramaControladorTest {
                 .andExpect(content().string(Matchers.containsString("Vigente")))
                 .andExpect(content().string(Matchers.containsString("fa-plus\"></i> Registrar programa")))
                 .andExpect(content().string(Matchers.containsString("modalNuevoPrograma")))
-                .andExpect(content().string(Matchers.containsString("data-columnas-boton")))
+                .andExpect(content().string(Matchers.containsString("data-filtro=")))
                 .andExpect(content().string(Matchers.containsString("data-paginador")))
                 // columnas: objetivos, bibliografía, carga horaria y última modificación (sin conteos)
                 .andExpect(content().string(Matchers.containsString("data-col=\"Objetivos\"")))
@@ -337,7 +337,7 @@ class ProgramaControladorTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.mensaje").value("Ahora trabajás sobre el programa seleccionado."));
 
-        ParticipacionDocente participacion = participacionDeFausto(macro());
+        DocenteCurso participacion = participacionDeFausto(macro());
         assertEquals(anterior, participacion.getProgramaPorDefecto().getIdPrograma());
         assertNull(participacion.getCohortePorDefecto());
         // la vista del curso muestra ahora ese programa como el de trabajo
@@ -363,7 +363,7 @@ class ProgramaControladorTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.mensaje").value("Ahora trabajás sobre la cohorte seleccionada."));
 
-        ParticipacionDocente participacion = participacionDeFausto(curso);
+        DocenteCurso participacion = participacionDeFausto(curso);
         assertEquals(finalizada.getIdCohorte(), participacion.getCohortePorDefecto().getIdCohorte());
         assertEquals(finalizada.getPrograma().getIdPrograma(), participacion.getProgramaPorDefecto().getIdPrograma());
         assertEquals(finalizada.getIdCohorte(), participacion.getCohorteDeTrabajo().getIdCohorte());

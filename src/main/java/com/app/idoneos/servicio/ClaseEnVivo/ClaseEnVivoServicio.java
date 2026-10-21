@@ -6,7 +6,7 @@ import com.app.idoneos.modelo.ClaseEnVivo;
 import com.app.idoneos.modelo.Cohorte;
 import com.app.idoneos.modelo.EstadoClaseEnVivo;
 import com.app.idoneos.modelo.Material;
-import com.app.idoneos.modelo.ParticipacionDocente;
+import com.app.idoneos.modelo.DocenteCurso;
 
 /**
  * Servicio para gestionar las operaciones relacionadas con la clase en vivo.
@@ -16,12 +16,12 @@ public interface ClaseEnVivoServicio {
     // ---------------------------------------------------------------- Lecturas
 
     /**
-     * Busca los registros vigentes de claseEnVivo asociados a participacionDocente.
+     * Busca los registros vigentes de claseEnVivo asociados a docenteCurso.
      *
-     * @param participacionDocente el registro de ParticipacionDocente asociado
-     * @return una lista de ClaseEnVivo asociados al ParticipacionDocente indicado
+     * @param docenteCurso el registro de DocenteCurso asociado
+     * @return una lista de ClaseEnVivo asociados al DocenteCurso indicado
      */
-    List<ClaseEnVivo> buscarPorParticipacionDocente(ParticipacionDocente participacionDocente);
+    List<ClaseEnVivo> buscarPorDocenteCurso(DocenteCurso docenteCurso);
 
     /**
      * Busca los registros vigentes de claseEnVivo asociados a estadoClaseEnVivo.

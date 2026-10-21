@@ -6,7 +6,7 @@ import com.app.idoneos.modelo.ClaseEnVivo;
 import com.app.idoneos.modelo.Cohorte;
 import com.app.idoneos.modelo.EstadoClaseEnVivo;
 import com.app.idoneos.modelo.Material;
-import com.app.idoneos.modelo.ParticipacionDocente;
+import com.app.idoneos.modelo.DocenteCurso;
 import com.app.idoneos.repositorio.ClaseEnVivoRepositorio;
 import com.app.idoneos.servicio.CrudServicio;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,14 +59,14 @@ public class ClaseEnVivoServicioImpl implements ClaseEnVivoServicio, CrudServici
     }
 
     /**
-     * Busca los registros vigentes de claseEnVivo asociados a participacionDocente.
+     * Busca los registros vigentes de claseEnVivo asociados a docenteCurso.
      *
-     * @param participacionDocente el registro de ParticipacionDocente asociado
-     * @return una lista de ClaseEnVivo asociados al ParticipacionDocente indicado
+     * @param docenteCurso el registro de DocenteCurso asociado
+     * @return una lista de ClaseEnVivo asociados al DocenteCurso indicado
      */
     @Override
-    public List<ClaseEnVivo> buscarPorParticipacionDocente(ParticipacionDocente participacionDocente) {
-        return claseEnVivoRepositorio.findByParticipacionDocenteAndBajaFalse(participacionDocente);
+    public List<ClaseEnVivo> buscarPorDocenteCurso(DocenteCurso docenteCurso) {
+        return claseEnVivoRepositorio.findByDocenteCursoAndBajaFalse(docenteCurso);
     }
 
     /**

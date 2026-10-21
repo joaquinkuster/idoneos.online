@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,8 +15,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.app.idoneos.modelo.Usuario;
+import com.app.idoneos.modelo.Alumno;
 import com.app.idoneos.modelo.Curso;
 import com.app.idoneos.modelo.Programa;
+import com.app.idoneos.servicio.Pago.PagoServicio;
+import com.app.idoneos.servicio.Descuento.DescuentoServicio;
 import com.app.idoneos.servicio.Categoria.CategoriaServicioImpl;
 import com.app.idoneos.servicio.Curso.CursoServicioImpl;
 import com.app.idoneos.servicio.Docente.DocenteServicioImpl;
@@ -32,6 +37,12 @@ import com.app.idoneos.servicio.Programa.ProgramaServicioImpl;
 @Controller
 @RequestMapping("/catalogo")
 public class CatalogoControlador {
+
+    @Autowired
+    private PagoServicio pagoServicio;
+
+    @Autowired
+    private DescuentoServicio descuentoServicio;
 
     @Autowired
     private CursoServicioImpl cursoServicio;
@@ -70,7 +81,7 @@ public class CatalogoControlador {
             @RequestParam(value = "categoriaId", required = false) Integer categoriaId,
             @RequestParam(value = "nivelId", required = false) Integer nivelId,
             @RequestParam(value = "docenteId", required = false) Integer docenteId,
-            @RequestParam(value = "modalidadId", required = false) Integer modalidadId, Model modelo) {
+            @RequestParam(value = "modalidadId", required = false) Integer modalidadId, Model modelo, Authentication auth) {
         List<Curso> cursos = cursoServicio.buscarEnCatalogo(null, null, null, null, null); // todos: los filtros (también los de la URL) se aplican en la pantalla
 
         // Cantidad de unidades temáticas de cada curso (según su primer programa activo)
@@ -81,6 +92,9 @@ public class CatalogoControlador {
                     programas.isEmpty() ? 0 : programas.get(0).getCantidadUnidades());
         }
 
+        // Descuentos vigentes: las cartas de los cursos con costo avisan que hay descuentos
+        modelo.addAttribute("descuentosVigentes", descuentoServicio.buscarVigentes());
+        modelo.addAttribute("descuentoAplicable", pagoServicio.calcularDescuentoPara(alumnoDe(auth)).orElse(null));
         modelo.addAttribute("cursos", cursos);
         modelo.addAttribute("cantUnidadesPorCurso", cantidadUnidadesPorCurso);
         modelo.addAttribute("totalCursos", cursos.size());
@@ -107,12 +121,15 @@ public class CatalogoControlador {
      * @return La vista de la ficha del curso, o una redirección al catálogo si el curso no está activo.
      */
     @GetMapping("/ficha/{id}")
-    public String verFichaCurso(@PathVariable("id") Integer id, Model modelo, RedirectAttributes redirectAttributes) {
+    public String verFichaCurso(@PathVariable("id") Integer id, Model modelo, RedirectAttributes redirectAttributes,
+            Authentication auth) {
         Curso curso = cursoServicio.buscarPorId(id).orElse(null);
         if (curso == null) {
             redirectAttributes.addFlashAttribute("error", "Error! El curso no se encuentra disponible.");
             return "redirect:/catalogo";
         }
+        modelo.addAttribute("descuentoAplicable", pagoServicio.calcularDescuentoPara(alumnoDe(auth)).orElse(null));
+        modelo.addAttribute("descuentosVigentes", descuentoServicio.buscarVigentes());
         modelo.addAttribute("cursoSeleccionado", curso);
         modelo.addAttribute("cohortesAbiertas", cursoServicio.buscarCohortesAbiertas(curso));
         List<Programa> programas = programaServicio.buscarPorCurso(curso);
@@ -125,5 +142,10 @@ public class CatalogoControlador {
         }
         modelo.addAttribute("titulo", curso.getNombre() + " | Idóneos Online");
         return "pages/ficha";
+    }
+
+    /** El alumno que está mirando, o {@code null} si es un visitante o no es alumno. */
+    private Alumno alumnoDe(Authentication auth) {
+        return auth != null && auth.getPrincipal() instanceof Usuario usuario ? usuario.getAlumno() : null;
     }
 }

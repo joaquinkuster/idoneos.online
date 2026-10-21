@@ -1,5 +1,6 @@
 package com.app.idoneos.repositorio;
 
+import com.app.idoneos.modelo.Curso;
 import java.util.List;
 import com.app.idoneos.modelo.Cohorte;
 import com.app.idoneos.modelo.Programa;
@@ -27,4 +28,12 @@ public interface CohorteRepositorio extends JpaRepository<Cohorte, Integer> {
      * @return una lista de Cohorte asociados al Programa indicado
      */
     List<Cohorte> findByProgramaAndBajaFalse(Programa programa);
+
+    /**
+     * Busca las cohortes vigentes de todos los programas vigentes del curso.
+     *
+     * @param curso el curso
+     * @return las cohortes activas del curso
+     */
+    List<Cohorte> findByProgramaCursoAndProgramaBajaFalseAndBajaFalse(Curso curso);
 }

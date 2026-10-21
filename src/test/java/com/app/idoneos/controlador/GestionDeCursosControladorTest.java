@@ -155,7 +155,7 @@ class GestionDeCursosControladorTest {
                 .andExpect(content().string(org.hamcrest.Matchers.allOf(
                         org.hamcrest.Matchers.containsString("data-filtro-front"),
                         org.hamcrest.Matchers.containsString("data-fila"),
-                        org.hamcrest.Matchers.containsString("data-f-estado=\"Abierta\""),
+                        org.hamcrest.Matchers.containsString("data-filtro=\"lista\""),
                         org.hamcrest.Matchers.containsString("data-paginador"),
                         org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("renderWfPagination")))));
     }

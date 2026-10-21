@@ -117,7 +117,7 @@ public class Curso {
      * Conjunto de participacionesDocente asociados.
      */
     @OneToMany(mappedBy = "curso", cascade = CascadeType.ALL)
-    private Set<ParticipacionDocente> participacionesDocente = new HashSet<>();
+    private Set<DocenteCurso> participacionesDocente = new HashSet<>();
 
     /**
      * Conjunto de cursoModalidades asociados.
@@ -172,9 +172,9 @@ public class Curso {
      *
      * @return La lista de participaciones vigentes.
      */
-    public List<ParticipacionDocente> getEquipoDocente() {
+    public List<DocenteCurso> getEquipoDocente() {
         return participacionesDocente.stream().filter(participacion -> !participacion.getBaja())
-                .sorted(Comparator.comparingInt(ParticipacionDocente::getIdParticipacionDocente)).toList();
+                .sorted(Comparator.comparingInt(DocenteCurso::getIdDocenteCurso)).toList();
     }
 
     /**
@@ -183,8 +183,8 @@ public class Curso {
      * @return El docente titular, o {@code null} si no tiene.
      */
     public Docente getDocenteTitular() {
-        return getEquipoDocente().stream().filter(ParticipacionDocente::getEsTitular)
-                .map(ParticipacionDocente::getDocente).findFirst().orElse(null);
+        return getEquipoDocente().stream().filter(DocenteCurso::getEsTitular)
+                .map(DocenteCurso::getDocente).findFirst().orElse(null);
     }
 
     /**
@@ -215,7 +215,7 @@ public class Curso {
      */
     public List<Docente> getDocentesAyudantes() {
         return getEquipoDocente().stream().filter(participacion -> !participacion.getEsTitular())
-                .map(ParticipacionDocente::getDocente).toList();
+                .map(DocenteCurso::getDocente).toList();
     }
 
     /**

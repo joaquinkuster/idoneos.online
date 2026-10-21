@@ -25,11 +25,11 @@ public class ClaseClon {
     private int idClaseClon;
 
     /**
-     * Relación con ParticipacionDocente.
+     * Relación con DocenteCurso.
      */
     @ManyToOne
-    @JoinColumn(name = "idParticipacionDocente", nullable = false)
-    private ParticipacionDocente participacionDocente;
+    @JoinColumn(name = "idDocenteCurso", nullable = false)
+    private DocenteCurso docenteCurso;
 
     /**
      * Relación con EstadoClaseClon.
@@ -84,13 +84,13 @@ public class ClaseClon {
     /**
      * Constructor para crear la clase con clon con los datos básicos.
      *
-     * @param participacionDocente relación con ParticipacionDocente.
+     * @param docenteCurso relación con DocenteCurso.
      * @param estadoClaseClon relación con EstadoClaseClon.
      * @param titulo título de la clase.
      * @param guion guion que el clon con inteligencia artificial debe recitar.
      */
-    public ClaseClon(ParticipacionDocente participacionDocente, EstadoClaseClon estadoClaseClon, String titulo, String guion) {
-        this.participacionDocente = participacionDocente;
+    public ClaseClon(DocenteCurso docenteCurso, EstadoClaseClon estadoClaseClon, String titulo, String guion) {
+        this.docenteCurso = docenteCurso;
         this.estadoClaseClon = estadoClaseClon;
         this.titulo = titulo;
         this.guion = guion;

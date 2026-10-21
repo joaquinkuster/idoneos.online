@@ -17,7 +17,7 @@
                 <div>
                     <div class="wf-hero-tag">
                         <i class="fa-solid fa-graduation-cap"></i>
-                        <span th:text="${esAdministrador == true ? 'PANEL DEL ADMINISTRADOR' : 'PANEL DOCENTE'}">PANEL DOCENTE</span>
+                        <span>PORTAL ACADÉMICO</span>
                     </div>
                     <h2 class="wf-hero-title" th:text="${esAdministrador == true ? 'Cursos' : 'Mis Cursos'}">Mis Cursos</h2>
                     <p class="wf-hero-desc">Bienvenido/a, <span th:text="${usuario != null ? usuario.nombreCompleto : 'Docente'}">Docente</span></p>

@@ -1,5 +1,6 @@
 package com.app.idoneos.servicio.ConsultaForo;
 
+import com.app.idoneos.utilidades.MensajeValidacionUtilidad;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -217,7 +218,7 @@ public class ConsultaForoServicioImpl implements ConsultaForoServicio, CrudServi
         }
         if (texto.trim().length() > ConsultaForo.LONGITUD_TEXTO) {
             throw new IllegalArgumentException(
-                    "Error! El texto no puede superar los " + ConsultaForo.LONGITUD_TEXTO + " caracteres.");
+                    MensajeValidacionUtilidad.demasiadoLargo("El texto", ConsultaForo.LONGITUD_TEXTO, "caracteres"));
         }
         return texto.trim();
     }

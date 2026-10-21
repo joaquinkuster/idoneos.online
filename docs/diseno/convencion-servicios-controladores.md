@@ -46,3 +46,18 @@ Los métodos privados auxiliares van al final de la clase.
 
 Reordenar no modifica nombres, firmas ni comportamiento. Si un método nuevo no encaja claramente en un bloque, se
 ubica en el del efecto principal que produce.
+
+## Mensajes de validación
+
+Todos los mensajes de formato, largo y tamaño se arman con `MensajeValidacionUtilidad`, para que tengan la misma forma:
+
+| Caso | Mensaje |
+|---|---|
+| Formato inválido | `Error! El DNI no es válido. Formato válido: solo números.` |
+| Demasiado largo | `Error! El título es demasiado largo. Máximo: 50 caracteres.` |
+| Demasiado corto | `Error! La clave es demasiado corta. Mínimo: 8 caracteres.` |
+| Archivo o imagen grande | `Error! La imagen es demasiado grande. Máximo: 2 MB.` |
+
+El sujeto se pasa con su artículo («El título», «Las observaciones») para que concuerde en género y número. Los límites salen de las mismas constantes que usa la validación.
+
+**Regla:** todo error de formato dice cuál es el formato válido, y ese formato incluye el largo cuando el campo lo exige (por ejemplo, «Formato válido: letras y números, sin guiones, de 6 a 12 caracteres»). Los mensajes que muestra el navegador (`panel.js`, `material.js`) siguen la misma forma.

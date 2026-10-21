@@ -18,11 +18,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.app.idoneos.modelo.Curso;
 import com.app.idoneos.modelo.Docente;
-import com.app.idoneos.modelo.ParticipacionDocente;
+import com.app.idoneos.modelo.DocenteCurso;
 import com.app.idoneos.modelo.Programa;
 import com.app.idoneos.repositorio.CursoRepositorio;
 import com.app.idoneos.repositorio.DocenteRepositorio;
-import com.app.idoneos.repositorio.ParticipacionDocenteRepositorio;
+import com.app.idoneos.repositorio.DocenteCursoRepositorio;
 import com.app.idoneos.servicio.Programa.ProgramaServicio;
 
 /**
@@ -45,7 +45,7 @@ class ProgramaServicioTest {
     private DocenteRepositorio docenteRepositorio;
 
     @Autowired
-    private ParticipacionDocenteRepositorio participacionRepositorio;
+    private DocenteCursoRepositorio participacionRepositorio;
 
     private Curso curso(String nombre) {
         return cursoRepositorio.findAll().stream().filter(c -> c.getNombre().equals(nombre)).findFirst().orElseThrow();
@@ -68,7 +68,7 @@ class ProgramaServicioTest {
         return docente("fausto.spotorno@idoneos.online");
     }
 
-    private ParticipacionDocente participacionDeFausto(Curso curso) {
+    private DocenteCurso participacionDeFausto(Curso curso) {
         return participacionRepositorio.findByCursoAndBajaFalse(curso).stream()
                 .filter(p -> p.getDocente().getIdDocente() == fausto().getIdDocente()).findFirst().orElseThrow();
     }
@@ -133,7 +133,7 @@ class ProgramaServicioTest {
         assertEquals(40, nuevo.getCargaHorariaTotal());
         assertEquals(0, nuevo.getCantidadUnidades());
         assertEquals("Vigente", nuevo.getEstado());
-        ParticipacionDocente participacion = participacionDeFausto(macro());
+        DocenteCurso participacion = participacionDeFausto(macro());
         assertEquals(nuevo.getIdPrograma(), participacion.getProgramaPorDefecto().getIdPrograma());
         assertNull(participacion.getCohortePorDefecto());
         assertEquals(nuevo.getIdPrograma(), participacion.getProgramaDeTrabajo().getIdPrograma());
@@ -167,15 +167,15 @@ class ProgramaServicioTest {
         assertTrue(mensaje(() -> programaServicio.registrarPrograma(fausto(), curso, null, "Nombre", null, "Obj", null, null))
                 .contains("Debe completar el nombre, los objetivos y la bibliografía."));
         assertTrue(mensaje(() -> programaServicio.registrarPrograma(fausto(), curso, null, "x".repeat(51), null, "Obj",
-                null, "Bib")).contains("no puede superar los 50 caracteres"));
+                null, "Bib")).contains("Máximo: 50 caracteres"));
         assertTrue(mensaje(() -> programaServicio.registrarPrograma(fausto(), curso, null, "Nombre", "x".repeat(151),
-                "Obj", null, "Bib")).contains("no puede superar los 150 caracteres"));
+                "Obj", null, "Bib")).contains("Máximo: 150 caracteres"));
         assertTrue(mensaje(() -> programaServicio.registrarPrograma(fausto(), curso, null, "Nombre", null, "Obj", 0,
                 "Bib")).contains("mayor a cero"));
         // el programa de otro curso no sirve como origen
         assertTrue(mensaje(() -> programaServicio.registrarPrograma(fausto(), curso,
                 mercado().getProgramaVigente().getIdPrograma(), "Nombre", null, "Obj", null, "Bib"))
-                .contains("programa del que se quiere partir no es válido"));
+                .contains("programa de origen de la lista"));
         assertTrue(mensaje(() -> programaServicio.registrarPrograma(fausto(), 999999, null, "Nombre", null, "Obj", null,
                 "Bib")).contains("El curso no se encuentra activo"));
         assertTrue(mensaje(() -> programaServicio.registrarPrograma(docente("sebastian.bordato@idoneos.online"), curso,
@@ -282,7 +282,7 @@ class ProgramaServicioTest {
     void estableceElProgramaPorDefecto() {
         Programa anterior = macro().getProgramaVigente();
         Programa nuevo = registrar(macro(), null, "Programa 2027");
-        ParticipacionDocente participacion = participacionDeFausto(macro());
+        DocenteCurso participacion = participacionDeFausto(macro());
         assertEquals(nuevo.getIdPrograma(), participacion.getProgramaDeTrabajo().getIdPrograma());
 
         programaServicio.establecerPorDefecto(fausto(), anterior.getIdPrograma());

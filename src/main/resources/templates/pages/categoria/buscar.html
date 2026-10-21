@@ -32,30 +32,7 @@
 
                 <!-- Filtros -->
                 <form th:action="@{/categoria/buscar}" method="get" class="pn-filtros" data-filtro-front>
-                    <div class="pn-filtros-campo pn-filtros-campo-grande">
-                        <label class="pn-etiqueta">Nombre</label>
-                        <input type="text" name="nombre" th:value="${nombreBusqueda}" class="pn-input" placeholder="Buscar por nombre" autocomplete="off">
-                    </div>
-                    <div class="pn-filtros-campo">
-                        <label class="pn-etiqueta">Estado</label>
-                        <select name="baja" class="pn-input">
-                            <option value="" th:selected="${bajaSeleccionada == null}">Todas</option>
-                            <option value="false" th:selected="${bajaSeleccionada != null and !bajaSeleccionada}">Activas</option>
-                            <option value="true" th:selected="${bajaSeleccionada != null and bajaSeleccionada}">Dadas de baja</option>
-                        </select>
-                    </div>
-                    <div class="pn-filtros-campo">
-                        <label class="pn-etiqueta">Ordenar por</label>
-                        <select name="orden" class="pn-input" title="Ordenar por">
-                            <option value="nombre" th:selected="${ordenSeleccionado == 'nombre'}">Nombre (A–Z)</option>
-                            <option value="recientes" data-dir="desc" th:selected="${ordenSeleccionado == 'recientes'}">Más recientes</option>
-                        </select>
-                    </div>
-                    <a th:href="@{/categoria/buscar}" class="pn-btn pn-btn-contorno">Limpiar</a>
-                    <div class="pn-columnas-wrapper">
-                        <button type="button" class="pn-btn pn-btn-contorno" data-columnas-boton>Columnas</button>
-                        <div class="pn-columnas-menu" data-columnas-menu></div>
-                    </div>
+                    <a th:href="@{/categoria/buscar}" class="pn-btn pn-btn-contorno" hidden>Limpiar</a>
                 </form>
 
                 <!-- Tabla -->
@@ -64,23 +41,22 @@
                         <thead>
                             <tr>
                                 <th class="pn-col-seleccion"><input type="checkbox" data-seleccionar-todos aria-label="Seleccionar todas"></th>
-                                <th data-col="Nombre">Nombre</th>
-                                <th data-col="Descripción">Descripción</th>
-                                <th data-col="Fecha de creación">Fecha de creación</th>
-                                <th data-col="Estado">Estado</th>
+                                <th data-col="Nombre" data-orden-inicial="asc" data-campo="nombre" data-filtro="texto">Nombre</th>
+                                <th data-col="Descripción" data-campo="descripcion" data-filtro="texto">Descripción</th>
+                                <th data-col="Fecha de creación" data-campo="fechaCreacion" data-filtro="fecha">Fecha de creación</th>
+                                <th data-col="Estado" data-campo="estado" data-filtro="lista">Estado</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr th:each="cat : ${categorias}" data-fila th:classappend="${cat.baja} ? 'pn-fila-baja'"
-                                th:data-f-nombre="${cat.nombre}" th:data-f-baja="${cat.baja}" th:data-o-nombre="${cat.nombre}"
+                            <tr th:each="cat : ${categorias}" data-fila th:classappend="${cat.baja} ? 'pn-fila-baja'" th:data-o-nombre="${cat.nombre}"
                                 th:data-o-recientes="${(cat.fechaCreacion != null ? #temporals.format(cat.fechaCreacion, 'yyyyMMdd') : '') + #numbers.formatInteger(cat.idCategoria, 8, 'NONE')}"
                                 th:attr="data-dependencias=${cursosPorCategoria != null and cursosPorCategoria.containsKey(cat.idCategoria) ? cursosPorCategoria.get(cat.idCategoria).size() : 0}">
                                 <td class="pn-col-seleccion"><input type="checkbox" data-seleccionar-fila aria-label="Seleccionar fila"
                                     th:value="${cat.idCategoria}" th:disabled="${cat.baja}"></td>
                                 <td><span class="pn-celda-principal pn-truncar" th:text="${cat.nombre}">Mercado de Capitales</span></td>
                                 <td><span class="pn-truncar pn-truncar-largo" th:text="${cat.descripcion != null and !#strings.isEmpty(cat.descripcion) ? cat.descripcion : '—'}">Descripción</span></td>
-                                <td th:text="${cat.fechaCreacion != null ? #temporals.format(cat.fechaCreacion, 'dd/MM/yyyy') : '—'}">28/08/2026</td>
+                                <td th:text="${cat.fechaCreacion != null ? #temporals.format(cat.fechaCreacion, 'dd/MM/yyyy HH:mm') : '—'}">28/08/2026 10:30</td>
                                 <td>
                                     <span class="pn-insignia" th:classappend="${cat.baja} ? 'pn-insignia-gris' : 'pn-insignia-verde'"
                                           th:text="${cat.baja} ? 'Dada de baja' : 'Activa'">Activa</span>
@@ -88,7 +64,7 @@
                                 <td>
                                     <div class="pn-acciones" th:if="${!cat.baja}">
                                         <button type="button" class="pn-btn pn-btn-editar pn-btn-chico" data-bs-toggle="modal"
-                                                th:data-bs-target="'#modalEditarCategoria' + ${cat.idCategoria}">Editar</button>
+                                                th:data-bs-target="'#modalEditarCategoria' + ${cat.idCategoria}">Modificar</button>
                                         <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico" data-bs-toggle="modal"
                                                 th:data-bs-target="'#modalBajaCategoria' + ${cat.idCategoria}">Dar de baja</button>
                                     </div>
@@ -131,8 +107,8 @@
             </div>
             <div class="pn-modal-cuerpo">
                 <div class="pn-seccion-titulo">
-                    <h4>Información básica</h4>
-                    <p>Define una categoría temática para clasificar el catálogo</p>
+                    <h4>Datos de la categoría</h4>
+                    <p>Nombre y descripción</p>
                 </div>
                 <form th:action="@{/categoria/registrar}" method="post" class="form-ajax" data-validar novalidate>
                     <div class="pn-campo mb-3">
@@ -172,8 +148,8 @@
                 </div>
                 <div class="pn-modal-cuerpo">
                     <div class="pn-seccion-titulo">
-                        <h4>Información básica</h4>
-                        <p>Modifica el nombre y la descripción de la categoría</p>
+                        <h4>Datos de la categoría</h4>
+                        <p>Nombre y descripción</p>
                     </div>
                     <form th:action="@{'/categoria/modificar/' + ${cat.idCategoria}}" method="post" class="form-ajax" data-validar novalidate
                           th:with="bloqueada=${inscripcionesPorCategoria != null and inscripcionesPorCategoria.containsKey(cat.idCategoria) and inscripcionesPorCategoria.get(cat.idCategoria) > 0}">

@@ -90,7 +90,7 @@
                         <span class="ac-en-directo-etiqueta"><i class="fa-solid fa-circle"></i> En directo ahora</span>
                         <strong th:text="${cohorte.claseEnCurso.titulo}">Clase magistral</strong>
                         <small
-                            th:text="${cohorte.claseEnCurso.participacionDocente.docente.usuario.nombreCompleto}">Docente</small>
+                            th:text="${cohorte.claseEnCurso.docenteCurso.docente.usuario.nombreCompleto}">Docente</small>
                     </div>
                     <a href="#" class="ac-en-directo-boton" data-sin-accion><i class="fa-solid fa-video"></i> Ingresar a
                         la sala en vivo</a>
@@ -284,7 +284,7 @@
                             <div class="ac-actividad-info">
                                 <span class="ac-actividad-titulo ac-sin-enlace" th:text="${c.titulo}">Clase</span>
                                 <span class="ac-actividad-meta"
-                                    th:text="${#temporals.format(c.fechaHora, 'dd/MM/yyyy HH:mm') + ' · ' + c.duracion + ' min · ' + c.participacionDocente.docente.usuario.nombreCompleto}">01/01/2026
+                                    th:text="${#temporals.format(c.fechaHora, 'dd/MM/yyyy HH:mm') + ' · ' + c.duracion + ' min · ' + c.docenteCurso.docente.usuario.nombreCompleto}">01/01/2026
                                     19:00 · 90 min · Docente</span>
                             </div>
                             <div class="ac-actividad-estado">

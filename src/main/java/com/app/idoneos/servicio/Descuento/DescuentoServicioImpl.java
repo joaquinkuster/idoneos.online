@@ -1,5 +1,6 @@
 package com.app.idoneos.servicio.Descuento;
 
+import com.app.idoneos.utilidades.MensajeValidacionUtilidad;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -73,6 +74,15 @@ public class DescuentoServicioImpl implements DescuentoServicio, CrudServicio<De
     @Override
     public Optional<Descuento> buscarPorNombre(String nombre) {
         return descuentoRepositorio.findByNombre(nombre);
+    }
+
+    @Override
+    public List<Descuento> buscarVigentes() {
+        LocalDateTime ahora = LocalDateTime.now();
+        return descuentoRepositorio.findByBajaFalse().stream().filter(d -> d.estaVigente(ahora))
+                .sorted(Comparator.comparing(Descuento::getPorcentaje).reversed()
+                        .thenComparing(Descuento::getNombre, String.CASE_INSENSITIVE_ORDER))
+                .toList();
     }
 
     @Override
@@ -242,21 +252,20 @@ public class DescuentoServicioImpl implements DescuentoServicio, CrudServicio<De
         }
         String nombreLimpio = nombre.trim();
         if (nombreLimpio.length() > LONGITUD_NOMBRE) {
-            throw new IllegalArgumentException("Error! El nombre no puede superar los " + LONGITUD_NOMBRE
-                    + " caracteres.");
+            throw new IllegalArgumentException(MensajeValidacionUtilidad.demasiadoLargo("El nombre", LONGITUD_NOMBRE, "caracteres"));
         }
         if (porcentaje.isNaN() || porcentaje < Descuento.PORCENTAJE_MINIMO || porcentaje > Descuento.PORCENTAJE_MAXIMO) {
-            throw new IllegalArgumentException("Error! El porcentaje debe estar entre 1 y 100.");
+            throw new IllegalArgumentException(MensajeValidacionUtilidad.formatoInvalido("El porcentaje", "número de 1 a 99"));
         }
         if (vigenciaHasta.isBefore(vigenciaDesde)) {
             throw new IllegalArgumentException("Error! La vigencia hasta debe ser posterior a la vigencia desde.");
         }
         if (cantidadLimite <= 0) {
-            throw new IllegalArgumentException("Error! La cantidad límite debe ser un número entero mayor a cero.");
+            throw new IllegalArgumentException(MensajeValidacionUtilidad.formatoInvalido("La cantidad límite", "número entero mayor a cero"));
         }
         if (cursosRequeridos != null && cursosRequeridos < 0) {
             throw new IllegalArgumentException(
-                    "Error! La cantidad de cursos requeridos debe ser un número entero mayor o igual a cero.");
+                    MensajeValidacionUtilidad.formatoInvalido("La cantidad de cursos requeridos", "número entero mayor o igual a cero"));
         }
         return nombreLimpio;
     }

@@ -30,7 +30,7 @@ class DocenteMisCursosControladorTest {
     @DisplayName("CU-01: el docente ve sus cursos con el botón 'Acceder al curso' y el pie 'Cursos por página'")
     void docenteVeSusCursosConAccederAlCurso() throws Exception {
         mockMvc.perform(get("/curso/buscar")).andExpect(status().isOk())
-                .andExpect(content().string(Matchers.containsString("PANEL DOCENTE")))
+                .andExpect(content().string(Matchers.containsString("PORTAL ACADÉMICO")))
                 .andExpect(content().string(Matchers.containsString("Mercado de Capitales Argentino")))
                 .andExpect(content().string(Matchers.containsString("Acceder al curso")))
                 .andExpect(content().string(Matchers.containsString("Cursos por página:")))

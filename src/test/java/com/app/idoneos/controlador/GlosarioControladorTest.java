@@ -116,7 +116,7 @@ class GlosarioControladorTest {
                 .andExpect(content().string(Matchers.containsString("Glosario 1<")))
                 .andExpect(content().string(Matchers.containsString("Glosario 3<")))
                 .andExpect(content().string(Matchers.containsString("Limpiar")))
-                .andExpect(content().string(Matchers.containsString("data-columnas-boton")))
+                .andExpect(content().string(Matchers.containsString("data-filtro=")))
                 .andExpect(content().string(Matchers.containsString("data-paginador")));
     }
 

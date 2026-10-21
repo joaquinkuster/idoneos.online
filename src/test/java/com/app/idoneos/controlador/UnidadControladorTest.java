@@ -95,7 +95,7 @@ class UnidadControladorTest {
                 .andExpect(content().string(Matchers.containsString("data-col=\"Última modificación\"")))
                 .andExpect(content().string(Matchers.containsString("data-col=\"Fecha de creación\"")))
                 .andExpect(content().string(Matchers.containsString("fa-plus\"></i> Registrar unidad")))
-                .andExpect(content().string(Matchers.containsString("data-columnas-boton")))
+                .andExpect(content().string(Matchers.containsString("data-filtro=")))
                 .andExpect(content().string(Matchers.containsString("data-paginador")))
                 // baja masiva sobre el programa del listado
                 .andExpect(content().string(Matchers.containsString("data-baja-masiva")))

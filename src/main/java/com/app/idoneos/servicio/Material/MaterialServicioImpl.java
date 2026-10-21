@@ -1,9 +1,10 @@
 package com.app.idoneos.servicio.Material;
 
+import com.app.idoneos.utilidades.MensajeValidacionUtilidad;
 import java.util.List;
 import java.util.Optional;
 import com.app.idoneos.modelo.Material;
-import com.app.idoneos.modelo.ParticipacionDocente;
+import com.app.idoneos.modelo.DocenteCurso;
 import com.app.idoneos.modelo.TipoMaterial;
 import com.app.idoneos.modelo.Unidad;
 import com.app.idoneos.repositorio.MaterialRepositorio;
@@ -18,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import com.app.idoneos.modelo.Curso;
 import com.app.idoneos.modelo.Docente;
-import com.app.idoneos.repositorio.ParticipacionDocenteRepositorio;
+import com.app.idoneos.repositorio.DocenteCursoRepositorio;
 import com.app.idoneos.repositorio.TipoMaterialRepositorio;
 import com.app.idoneos.repositorio.UnidadRepositorio;
 import com.app.idoneos.utilidades.ManejadorArchivosUtilidad;
@@ -56,7 +57,7 @@ public class MaterialServicioImpl implements MaterialServicio, CrudServicio<Mate
     private TipoMaterialRepositorio tipoMaterialRepositorio;
 
     @Autowired
-    private ParticipacionDocenteRepositorio participacionDocenteRepositorio;
+    private DocenteCursoRepositorio docenteCursoRepositorio;
 
     // ---------------------------------------------------------------- Lecturas
 
@@ -95,14 +96,14 @@ public class MaterialServicioImpl implements MaterialServicio, CrudServicio<Mate
     }
 
     /**
-     * Busca los registros vigentes de material asociados a participacionDocente.
+     * Busca los registros vigentes de material asociados a docenteCurso.
      *
-     * @param participacionDocente el registro de ParticipacionDocente asociado
-     * @return una lista de Material asociados al ParticipacionDocente indicado
+     * @param docenteCurso el registro de DocenteCurso asociado
+     * @return una lista de Material asociados al DocenteCurso indicado
      */
     @Override
-    public List<Material> buscarPorParticipacionDocente(ParticipacionDocente participacionDocente) {
-        return materialRepositorio.findByParticipacionDocenteAndBajaFalse(participacionDocente);
+    public List<Material> buscarPorDocenteCurso(DocenteCurso docenteCurso) {
+        return materialRepositorio.findByDocenteCursoAndBajaFalse(docenteCurso);
     }
 
     /**
@@ -198,10 +199,10 @@ public class MaterialServicioImpl implements MaterialServicio, CrudServicio<Mate
             boolean oculto, String autor, String enlace, MultipartFile archivo) {
         Unidad unidad = unidadRepositorio.findById(idUnidad == null ? -1 : idUnidad).filter(u -> !u.esInactivo())
                 .orElseThrow(() -> new IllegalArgumentException("Error! La unidad no se encuentra activa."));
-        ParticipacionDocente participacion = obtenerParticipacion(unidad.getCurso(), docente);
+        DocenteCurso participacion = obtenerParticipacion(unidad.getCurso(), docente);
         TipoMaterial tipo = tipoMaterialRepositorio.findById(idTipoMaterial == null ? -1 : idTipoMaterial)
                 .filter(TipoMaterial::permiteSubidaManual)
-                .orElseThrow(() -> new IllegalArgumentException("Error! Debe seleccionar un tipo de material válido."));
+                .orElseThrow(() -> new IllegalArgumentException("Error! Debe seleccionar un tipo de material de la lista."));
         String tituloLimpio = validarTitulo(titulo);
         String autorLimpio = validarAutor(autor);
         String enlaceLimpio = vacioANulo(enlace);
@@ -333,18 +334,18 @@ public class MaterialServicioImpl implements MaterialServicio, CrudServicio<Mate
     }
 
     private boolean participaEnElCurso(Curso curso, Docente docente) {
-        return participacionDocenteRepositorio.findByCursoAndBajaFalse(curso).stream()
+        return docenteCursoRepositorio.findByCursoAndBajaFalse(curso).stream()
                 .anyMatch(p -> p.getDocente().getIdDocente() == docente.getIdDocente());
     }
 
     /**
      * Obtiene la participación del docente en el curso (como titular o ayudante).
      */
-    private ParticipacionDocente obtenerParticipacion(Curso curso, Docente docente) {
+    private DocenteCurso obtenerParticipacion(Curso curso, Docente docente) {
         if (docente == null) {
             throw new IllegalArgumentException("Error! El usuario no tiene el rol de docente.");
         }
-        return participacionDocenteRepositorio.findByCursoAndBajaFalse(curso).stream()
+        return docenteCursoRepositorio.findByCursoAndBajaFalse(curso).stream()
                 .filter(p -> p.getDocente().getIdDocente() == docente.getIdDocente()).findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Error! No participás en este curso."));
     }
@@ -354,7 +355,7 @@ public class MaterialServicioImpl implements MaterialServicio, CrudServicio<Mate
             throw new IllegalArgumentException("Error! Debe completar el título.");
         }
         if (titulo.trim().length() > 50) {
-            throw new IllegalArgumentException("Error! El título no puede superar los 50 caracteres.");
+            throw new IllegalArgumentException(MensajeValidacionUtilidad.demasiadoLargo("El título", 50, "caracteres"));
         }
         return titulo.trim();
     }
@@ -362,7 +363,7 @@ public class MaterialServicioImpl implements MaterialServicio, CrudServicio<Mate
     private String validarAutor(String autor) {
         String limpio = vacioANulo(autor);
         if (limpio != null && limpio.length() > 50) {
-            throw new IllegalArgumentException("Error! El autor no puede superar los 50 caracteres.");
+            throw new IllegalArgumentException(MensajeValidacionUtilidad.demasiadoLargo("El autor", 50, "caracteres"));
         }
         return limpio;
     }
@@ -383,10 +384,10 @@ public class MaterialServicioImpl implements MaterialServicio, CrudServicio<Mate
                 throw new IllegalArgumentException("Error! Indique un archivo o un enlace externo, no ambos.");
             }
             if (enlace.length() > 500) {
-                throw new IllegalArgumentException("Error! El enlace no puede superar los 500 caracteres.");
+                throw new IllegalArgumentException(MensajeValidacionUtilidad.demasiadoLargo("El enlace", 500, "caracteres"));
             }
             if (!ManejadorArchivosUtilidad.esEnlaceExterno(enlace)) {
-                throw new IllegalArgumentException("Error! El enlace debe comenzar con http:// o https://.");
+                throw new IllegalArgumentException(MensajeValidacionUtilidad.formatoInvalido("El enlace", "comienza con http:// o https://"));
             }
         }
         if (esAlta && !hayArchivo && enlace == null) {

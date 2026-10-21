@@ -10,37 +10,44 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.app.idoneos.servicio.Curso.ContextoCurso;
 import com.app.idoneos.modelo.Alumno;
 import com.app.idoneos.modelo.Curso;
 import com.app.idoneos.modelo.Inscripcion;
 import com.app.idoneos.modelo.Usuario;
-import com.app.idoneos.servicio.Participante.ParticipanteServicioImpl;
+import com.app.idoneos.servicio.Alumno.AlumnoServicio;
+import com.app.idoneos.servicio.Cohorte.CohorteServicio;
+import com.app.idoneos.servicio.Curso.ContextoCurso;
+import com.app.idoneos.servicio.DocenteCurso.DocenteCursoServicio;
+
+import java.util.List;
 
 /**
- * Controlador de la lista de participantes de un curso (MOD-F-02).
- *
- * Mapea las pantallas de CU-25 Ver participantes (GET /participante/buscar, para el docente y el administrador) y de
- * la sección de participantes de CU-27 Acceder curso (GET /participante/ver/{idInscripcion}, para el alumno).
+ * Participantes de un curso (CU-25 y CU-27): su equipo docente ({@code DocenteCurso}) y sus alumnos ({@code Alumno}). Lo ven el docente y el administrador desde la
+ * gestión del curso (con todas las cohortes) y el alumno desde el acceso a su curso (con los de su cohorte).
  */
 @Controller
 @RequestMapping("/participante")
 public class ParticipanteControlador extends PanelCursoControlador {
 
     @Autowired
-    private ParticipanteServicioImpl participanteServicio;
+    private DocenteCursoServicio docenteCursoServicio;
+
+    @Autowired
+    private AlumnoServicio alumnoServicio;
+
+    @Autowired
+    private CohorteServicio cohorteServicio;
 
     // ---------------------------------------------------------------- Lecturas
 
     /**
-     * CU-25: Lista el equipo docente y los alumnos de todas las cohortes de un curso. Los filtros (nombre o apellido,
-     * rol y cohorte) se aplican en la pantalla.
+     * Muestra los participantes del curso (equipo docente y alumnos) al docente o al administrador.
      *
      * @param cursoId            Identificador del curso.
-     * @param modelo             El modelo de la vista.
-     * @param auth               La autenticación actual.
+     * @param modelo             Modelo de la vista.
+     * @param auth               Autenticación de la persona que consulta.
      * @param redirectAttributes Atributos para mensajes de redirección.
-     * @return La vista de participantes, o una redirección a la lista de cursos si no se puede acceder.
+     * @return La vista del listado, o una redirección con el motivo si no se puede mostrar.
      */
     @GetMapping("/buscar")
     public String buscarParticipantes(@RequestParam(value = "cursoId", required = false) Integer cursoId, Model modelo,
@@ -50,10 +57,10 @@ public class ParticipanteControlador extends PanelCursoControlador {
         try {
             ContextoCurso contexto = contextoDelPanel(cursoId, usuario);
             Curso curso = contexto.curso();
-            cargarContexto(modelo, contexto, "participantes");
-            modelo.addAttribute("participantes", participanteServicio.buscarParticipantes(curso, null, null));
-            modelo.addAttribute("cohortes", curso.getProgramasActivos().stream()
-                    .flatMap(programa -> programa.getCohortesActivas().stream()).toList());
+            cargarContexto(modelo, contexto, "docentes");
+            modelo.addAttribute("docentes", docenteCursoServicio.buscarEquipoPorCurso(curso));
+            modelo.addAttribute("alumnos", alumnoServicio.buscarPorCurso(curso));
+            modelo.addAttribute("cohortes", cohorteServicio.buscarPorCurso(curso));
             // El docente entra con el filtro en su cohorte de trabajo; el administrador ve todas
             modelo.addAttribute("cohorteSeleccionada", contexto.participacion() == null ? null
                     : contexto.participacion().getCohorteDeTrabajo() == null ? null
@@ -68,17 +75,17 @@ public class ParticipanteControlador extends PanelCursoControlador {
     }
 
     /**
-     * CU-27: Lista el equipo docente completo del curso y los alumnos de la propia cohorte del alumno.
+     * Muestra el equipo docente y los alumnos de su cohorte al alumno, desde el acceso a su curso.
      *
-     * @param idInscripcion      El identificador de la inscripción del alumno.
-     * @param modelo             El modelo de la vista.
-     * @param auth               La autenticación actual.
+     * @param idInscripcion      Identificador de la inscripción del alumno.
+     * @param modelo             Modelo de la vista.
+     * @param auth               Autenticación del alumno.
      * @param redirectAttributes Atributos para mensajes de redirección.
-     * @return La vista de participantes, o una redirección a "Mis cursos" si no puede acceder.
+     * @return La vista del listado, o una redirección con el motivo si no se puede mostrar.
      */
     @GetMapping("/ver/{idInscripcion}")
-    public String verParticipantes(@PathVariable("idInscripcion") int idInscripcion, Model modelo,
-            Authentication auth, RedirectAttributes redirectAttributes) {
+    public String verParticipantes(@PathVariable("idInscripcion") int idInscripcion, Model modelo, Authentication auth,
+            RedirectAttributes redirectAttributes) {
         try {
             Usuario usuario = (Usuario) auth.getPrincipal();
             Alumno alumno = usuario.getAlumno();
@@ -86,11 +93,12 @@ public class ParticipanteControlador extends PanelCursoControlador {
                 throw new IllegalArgumentException("Error! El usuario no tiene el rol de alumno.");
             }
             Inscripcion inscripcion = inscripcionServicio.validarAcceso(idInscripcion, alumno);
-            cargarContexto(modelo, ContextoCurso.deAlumno(inscripcion), "participantes");
+            Curso curso = inscripcion.getCohorte().getPrograma().getCurso();
+            cargarContexto(modelo, ContextoCurso.deAlumno(inscripcion), "docentes");
             modelo.addAttribute("inscripcion", inscripcion);
-            modelo.addAttribute("participantes",
-                    participanteServicio.buscarParticipantesPorCohorte(inscripcion.getCohorte(), null, null));
-            modelo.addAttribute("cohortes", java.util.List.of());
+            modelo.addAttribute("docentes", docenteCursoServicio.buscarEquipoPorCurso(curso));
+            modelo.addAttribute("alumnos", alumnoServicio.buscarPorCohorte(inscripcion.getCohorte()));
+            modelo.addAttribute("cohortes", List.of());
             modelo.addAttribute("soloCohorte", true);
             modelo.addAttribute("titulo", "Participantes | Idóneos Online");
             return "pages/participante/buscar";

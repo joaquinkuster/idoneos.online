@@ -76,6 +76,14 @@
                           th:selected="${modalidadSeleccionada != null and modalidadSeleccionada == m.idModalidad}">Modalidad</option>
                 </select>
               </div>
+              <div class="pn-filtros-campo">
+                <label class="pn-etiqueta">Precio</label>
+                <select name="precio" class="pn-input">
+                  <option value="">Gratis y de pago</option>
+                  <option value="gratis">Gratis</option>
+                  <option value="pago">De pago</option>
+                </select>
+              </div>
               <a th:href="@{/catalogo}" class="pn-btn pn-btn-contorno">Limpiar</a>
             </form>
           </section>

@@ -4,6 +4,8 @@
  * Los botones con el atributo data-pagar inician el pago:
  *  - data-url: la ruta que lo inicia ("/pago/pagar/{idInscripcion}" o "/pago/reintentar/{idPago}").
  *  - data-inscripcion: la inscripción que se paga (el modal de MODO la usa para generar un QR nuevo si el pago falla).
+ *  - data-monto: el monto que el alumno vio en la caja. Se envía al servidor, que no cobra si el monto cambió (por ejemplo,
+ *    porque el descuento aplicado dejó de estar disponible) y pide recargar la caja.
  *
  * El servidor registra el pago como pendiente y crea la solicitud en MODO. Con MODO se muestra su modal (QR en la
  * computadora, selector de apps en el celular); Mientras tanto se
@@ -119,16 +121,41 @@
         });
     }
 
-    function iniciar(url, urlNueva) {
-        window.Swal.fire({ title: 'Iniciando el pago…', allowOutsideClick: false, didOpen: function () { window.Swal.showLoading(); } });
+    /** Mientras se prepara el pago, el propio botón muestra la espera (sin cartel encima) y no admite otro clic. */
+    function esperando(boton, activo) {
+        if (!boton) { return; }
+        if (activo) {
+            boton.dataset.textoOriginal = boton.textContent;
+            boton.disabled = true;
+            boton.classList.add('cargando');
+            boton.innerHTML = '<span class="pago-giro" aria-hidden="true"></span>Preparando el pago…';
+        } else {
+            boton.disabled = false;
+            boton.classList.remove('cargando');
+            if (boton.dataset.textoOriginal !== undefined) { boton.textContent = boton.dataset.textoOriginal; }
+        }
+    }
+
+    function iniciar(url, urlNueva, boton) {
+        // Un reintento que sale del aviso de pago rechazado no tiene botón propio: se usa el de la página
+        boton = boton || document.querySelector('[data-pagar]');
+        esperando(boton, true);
         return enviar(url).then(function (r) {
             if (!r.ok) {
-                return window.Swal.fire({ icon: 'error', title: 'No se pudo iniciar el pago', text: r.datos.error || 'Intente nuevamente.' });
+                esperando(boton, false);
+                return window.Swal.fire({ icon: 'error', title: r.datos.recargar ? 'El monto cambió' : 'No se pudo iniciar el pago',
+                    text: r.datos.error || 'Intente nuevamente.' }).then(function () {
+                    // Con el monto cambiado, la caja se recarga para mostrar el total actual
+                    if (r.datos.recargar) { window.location.reload(); }
+                });
             }
             var datos = r.datos;
+            // Si no hay nada que cobrar, el botón sigue en espera hasta que la página cambia
             if (datos.aprobado) { return pagoAprobado(datos.idPago === null || datos.idPago === undefined); }
-            window.Swal.close();
-            return mostrarModalDeModo(datos, urlNueva).catch(function (error) {
+            return mostrarModalDeModo(datos, urlNueva).then(function () {
+                esperando(boton, false);
+            }).catch(function (error) {
+                esperando(boton, false);
                 return window.Swal.fire({ icon: 'error', title: 'No se pudo abrir el pago con MODO', text: error.message });
             });
         });
@@ -142,6 +169,11 @@
         var inscripcion = boton.getAttribute('data-inscripcion');
         // Un QR nuevo se pide siempre por la inscripción: el servidor decide si reutiliza el pago rechazado
         var urlNueva = inscripcion ? '/pago/pagar/' + inscripcion : url;
-        iniciar(url, urlNueva);
+        var monto = boton.getAttribute('data-monto');
+        if (monto) {
+            url += (url.indexOf('?') < 0 ? '?' : '&') + 'monto=' + encodeURIComponent(monto);
+            urlNueva += (urlNueva.indexOf('?') < 0 ? '?' : '&') + 'monto=' + encodeURIComponent(monto);
+        }
+        iniciar(url, urlNueva, boton);
     });
 })();

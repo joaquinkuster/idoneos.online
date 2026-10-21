@@ -21,8 +21,8 @@ public class Descuento {
     /** Porcentaje mínimo permitido. */
     public static final float PORCENTAJE_MINIMO = 1;
 
-    /** Porcentaje máximo permitido. */
-    public static final float PORCENTAJE_MAXIMO = 100;
+    /** Porcentaje máximo permitido: un descuento no puede cubrir todo el precio (no hay descuentos del 100%). */
+    public static final float PORCENTAJE_MAXIMO = 99;
 
     /** Estados que se derivan de la vigencia y de la cantidad de usos (el de baja se guarda aparte). */
     public static final String ESTADO_VIGENTE = "Vigente";
@@ -220,6 +220,27 @@ public class Descuento {
      */
     public int getCantidadDisponible() {
         return Math.max(0, cantidadLimite - cantidadUsada);
+    }
+
+    /**
+     * Porcentaje para mostrar: sin decimales cuando es un número entero (20, no 20.0).
+     *
+     * @return El porcentaje como texto.
+     */
+    public String getPorcentajeTexto() {
+        return porcentaje == Math.rint(porcentaje) ? String.valueOf((int) porcentaje) : String.valueOf(porcentaje);
+    }
+
+    /**
+     * Resumen del descuento para mostrar en las cartas de los cursos: su nombre, el porcentaje y, si tiene condición,
+     * cuántos cursos comprados exige.
+     *
+     * @return Por ejemplo, «Alumno frecuente: 20% (con 2 cursos comprados)».
+     */
+    public String getResumen() {
+        String condicion = cursosRequeridos <= 0 ? ""
+                : " (con " + cursosRequeridos + (cursosRequeridos == 1 ? " curso comprado)" : " cursos comprados)");
+        return nombre + ": " + getPorcentajeTexto() + "%" + condicion;
     }
 
     /**

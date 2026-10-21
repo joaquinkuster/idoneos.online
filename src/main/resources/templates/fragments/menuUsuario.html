@@ -23,16 +23,14 @@
             <!-- Docente -->
             <a th:if="${usuario.esDocenteActivo()}" th:href="@{/curso/buscar}" class="um-item">Mis cursos</a>
 
-            <!-- Alumno -->
-            <!-- Mis cursos lleva a la lista; la flecha de la derecha despliega, con un efecto suave, lo que cuelga de ella -->
+            <!-- Alumno: acordeón «Mi portal». El encabezado solo abre y cierra; adentro están las dos pantallas -->
             <div th:if="${usuario.esAlumnoActivo()}" class="um-grupo">
-                <div class="um-grupo-fila">
-                    <a th:href="@{/inscripcion/misCursos}" class="um-item">Mis cursos</a>
-                    <button type="button" class="um-desplegar" data-um-desplegar aria-expanded="false"
-                            aria-label="Mostrar las opciones de Mis cursos"><i class="fa-solid fa-chevron-down"></i></button>
-                </div>
+                <button type="button" class="um-item um-grupo-cabecera" data-um-desplegar aria-expanded="false">
+                    <span>Mi portal</span><i class="fa-solid fa-chevron-down"></i>
+                </button>
                 <div class="um-submenu">
                     <div class="um-submenu-interior">
+                        <a th:href="@{/inscripcion/misCursos}" class="um-item um-item-sub">Mis cursos</a>
                         <a th:href="@{/pago/misPagos}" class="um-item um-item-sub">Mis pagos</a>
                     </div>
                 </div>

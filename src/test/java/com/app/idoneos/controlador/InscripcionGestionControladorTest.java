@@ -223,7 +223,7 @@ class InscripcionGestionControladorTest {
 
         mockMvc.perform(get("/catalogo/ficha/" + idCurso)).andExpect(status().isOk())
                 .andExpect(content().string(containsString("Ingresá para inscribirte")))
-                .andExpect(content().string(not(containsString("modalInscribirme"))));
+                .andExpect(content().string(not(containsString("formInscripcion"))));
     }
 
     @Test
@@ -233,7 +233,7 @@ class InscripcionGestionControladorTest {
         Integer idCurso = cursoServicio.buscarPorNombre("Finanzas Personales e Inversión").orElseThrow().getIdCurso();
 
         mockMvc.perform(get("/catalogo/ficha/" + idCurso)).andExpect(status().isOk())
-                .andExpect(content().string(containsString("modalInscribirme")))
+                .andExpect(content().string(containsString("formInscripcion")))
                 .andExpect(content().string(containsString("/inscripcion/inscribir")))
                 .andExpect(content().string(containsString("términos y condiciones")))
                 .andExpect(content().string(containsString("El curso cuesta")));
@@ -247,7 +247,7 @@ class InscripcionGestionControladorTest {
 
         mockMvc.perform(get("/catalogo/ficha/" + idCurso)).andExpect(status().isOk())
                 .andExpect(content().string(containsString("Solo los alumnos pueden inscribirse")))
-                .andExpect(content().string(not(containsString("modalInscribirme"))));
+                .andExpect(content().string(not(containsString("formInscripcion"))));
     }
 
     // ---------- CU-46 Registrar inscripción ----------

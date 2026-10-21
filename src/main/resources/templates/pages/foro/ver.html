@@ -81,7 +81,7 @@
                                         <th:block th:replace="~{fragments/avatar :: avatar(${c.usuario}, 'av-chico')}"></th:block>
                                         <div>
                                             <span th:text="${c.autor}">Valentina Ruiz</span>
-                                            <small class="fo-fecha" th:text="${#temporals.format(c.fechaCreacion, 'dd/MM/yyyy')}">02/10/2026</small>
+                                            <small class="fo-fecha" th:text="${#temporals.format(c.fechaCreacion, 'dd/MM/yyyy HH:mm')}">02/10/2026</small>
                                         </div>
                                     </div>
                                 </td>
@@ -138,8 +138,8 @@
             </div>
             <div class="pn-modal-cuerpo">
                 <div class="pn-seccion-titulo">
-                    <h4>Tu consulta</h4>
-                    <p th:text="${'Foro ' + numeroOrden + ' · ' + unidad.titulo}">Foro 1</p>
+                    <h4>Datos de la consulta</h4>
+                    <p>Texto de tu consulta sobre la unidad</p>
                 </div>
                 <form th:action="@{/foro/registrar}" method="post" class="form-ajax" data-validar novalidate>
                     <input type="hidden" name="unidadId" th:value="${unidad.idUnidad}">

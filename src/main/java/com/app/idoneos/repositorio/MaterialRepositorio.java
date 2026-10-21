@@ -2,7 +2,7 @@ package com.app.idoneos.repositorio;
 
 import java.util.List;
 import com.app.idoneos.modelo.Material;
-import com.app.idoneos.modelo.ParticipacionDocente;
+import com.app.idoneos.modelo.DocenteCurso;
 import com.app.idoneos.modelo.TipoMaterial;
 import com.app.idoneos.modelo.Unidad;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -23,12 +23,12 @@ public interface MaterialRepositorio extends JpaRepository<Material, Integer> {
     List<Material> findByBajaFalse();
 
     /**
-     * Busca los registros vigentes de material asociados a participacionDocente.
+     * Busca los registros vigentes de material asociados a docenteCurso.
      *
-     * @param participacionDocente el registro de ParticipacionDocente asociado
-     * @return una lista de Material asociados al ParticipacionDocente indicado
+     * @param docenteCurso el registro de DocenteCurso asociado
+     * @return una lista de Material asociados al DocenteCurso indicado
      */
-    List<Material> findByParticipacionDocenteAndBajaFalse(ParticipacionDocente participacionDocente);
+    List<Material> findByDocenteCursoAndBajaFalse(DocenteCurso docenteCurso);
 
     /**
      * Busca los registros vigentes de material asociados a tipoMaterial.

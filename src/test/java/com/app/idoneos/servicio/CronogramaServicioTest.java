@@ -121,7 +121,7 @@ class CronogramaServicioTest {
 
         String error = mensaje(() -> cronogramaServicio.modificarCronograma(fausto(), programa.getIdPrograma(),
                 unidades, List.of("50", "2", "1")));
-        assertTrue(error.contains("52") && error.contains("53"), error);
+        assertTrue(error.contains("Máximo: 52 semanas"), error);
         assertEquals(antes, semanas(programa)); // nada se modificó
 
         // justo en el máximo, se guarda
@@ -205,7 +205,7 @@ class CronogramaServicioTest {
         Programa programa = macro();
         int id = programa.getIdPrograma();
         List<Integer> unidades = ids(programa);
-        String duracion = "La duración de cada unidad debe ser un número entero de semanas mayor a cero";
+        String duracion = "La duración de cada unidad no es válida. Formato válido: número entero de semanas mayor a cero";
 
         assertTrue(mensaje(() -> cronogramaServicio.modificarCronograma(fausto(), id, unidades, List.of("1", "0", "1")))
                 .contains(duracion));

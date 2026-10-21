@@ -37,11 +37,7 @@
 
                 <!-- Filtro (CU-55): alumno. Se aplica en el navegador, sin recargar -->
                 <form class="pn-filtros" data-filtro-front>
-                    <div class="pn-filtros-campo pn-filtros-campo-grande">
-                        <label class="pn-etiqueta">Alumno</label>
-                        <input type="text" name="alumno" class="pn-input" placeholder="Nombre, DNI o correo" autocomplete="off">
-                    </div>
-                    <div class="pn-filtros-campo">
+                    <div class="pn-filtros-campo" data-filtro-estatico="cohorte">
                         <label class="pn-etiqueta">Cohorte</label>
                         <select name="cohorte" class="pn-input" title="Cohorte">
                             <option value="">Todas las cohortes</option>
@@ -50,18 +46,19 @@
                                     th:text="${c.programa.nombre + ' · ' + c.etiqueta}">Programa · Septiembre 2026</option>
                         </select>
                     </div>
-                    <a th:href="@{/progreso/buscar(cursoId=${curso.idCurso})}" class="pn-btn pn-btn-contorno">Limpiar</a>
+                    <a th:href="@{/progreso/buscar(cursoId=${curso.idCurso})}" class="pn-btn pn-btn-contorno" hidden>Limpiar</a>
                 </form>
 
                 <div class="pn-tabla-contenedor">
                     <table class="pn-tabla">
                         <thead>
                             <tr>
-                                <th>Alumno</th>
-                                <th>Cohorte</th>
-                                <th>Unidades completadas</th>
-                                <th>Progreso</th>
-                                <th>Estado</th>
+                                <th data-col="Alumno" data-campo="alumno" data-filtro="texto">Alumno</th>
+                                <th data-col="Cohorte" data-campo="cohorte" data-filtro="estatico">Cohorte</th>
+                                <th data-col="Unidades completadas" data-campo="unidadesCompletadas" data-filtro="numero">Unidades completadas</th>
+                                <th data-col="Progreso" data-campo="progreso" data-filtro="numero">Progreso</th>
+                                <th data-col="Estado" data-campo="estado" data-filtro="lista">Estado</th>
+                                <th data-col="Fecha de creación" data-campo="fechaCreacion" data-filtro="fecha">Fecha de creación</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
@@ -92,6 +89,7 @@
                                           th:classappend="${i.estado == 'Finalizado'} ? 'pn-insignia-verde' : (${i.estado == 'En Progreso'} ? 'pn-insignia-azul' : 'pn-insignia-gris')"
                                           th:text="${i.estado}">En Progreso</span>
                                 </td>
+                                <td th:text="${#temporals.format(i.fechaCreacion, 'dd/MM/yyyy HH:mm')}">28/08/2026 10:30</td>
                                 <td>
                                     <div class="pn-acciones">
                                         <button type="button" class="pn-btn pn-btn-ver pn-btn-chico"
@@ -102,7 +100,7 @@
                             </tr>
                             <!-- Detalle por unidad (CU-55): se despliega debajo de la fila del alumno -->
                             <tr class="pn-fila-detalle" th:id="${'detalleProgreso' + i.idInscripcion}">
-                                <td colspan="6">
+                                <td colspan="7">
                                     <div class="pn-detalle">
                                         <div class="pn-detalle-interior">
                                             <table class="pn-tabla pn-tabla-anidada">
@@ -134,7 +132,7 @@
                                 </td>
                             </tr>
                             </th:block>
-                            <tr th:replace="~{fragments/vacio :: fila(6, 'fa-chart-line', ${#lists.isEmpty(inscripciones) ? 'Todavía no hay alumnos inscriptos' : 'No se encontraron alumnos'}, ${#lists.isEmpty(inscripciones) ? 'Cuando haya alumnos inscriptos en el curso, vas a ver su progreso acá.' : 'Ningún alumno coincide con los criterios ingresados.'})}"></tr>
+                            <tr th:replace="~{fragments/vacio :: fila(7, 'fa-chart-line', ${#lists.isEmpty(inscripciones) ? 'Todavía no hay alumnos inscriptos' : 'No se encontraron alumnos'}, ${#lists.isEmpty(inscripciones) ? 'Cuando haya alumnos inscriptos en el curso, vas a ver su progreso acá.' : 'Ningún alumno coincide con los criterios ingresados.'})}"></tr>
                         </tbody>
                     </table>
                 </div>

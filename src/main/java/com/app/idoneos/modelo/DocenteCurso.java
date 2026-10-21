@@ -12,19 +12,19 @@ import lombok.Setter;
  * Participación de un docente en un curso, y opcionalmente en un programa o cohorte, como titular o ayudante.
  */
 @Entity
-@Table(name = "ParticipacionDocente")
+@Table(name = "DocenteCurso")
 @Getter
 @Setter
 @NoArgsConstructor
-public class ParticipacionDocente {
+public class DocenteCurso {
 
     /**
      * Identificador único de la participación docente.
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "idParticipacionDocente")
-    private int idParticipacionDocente;
+    @Column(name = "idDocenteCurso")
+    private int idDocenteCurso;
 
     /**
      * Relación con Curso.
@@ -81,25 +81,25 @@ public class ParticipacionDocente {
     /**
      * Conjunto de materiales asociados.
      */
-    @OneToMany(mappedBy = "participacionDocente", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "docenteCurso", cascade = CascadeType.ALL)
     private Set<Material> materiales = new HashSet<>();
 
     /**
      * Conjunto de clasesEnVivo asociados.
      */
-    @OneToMany(mappedBy = "participacionDocente", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "docenteCurso", cascade = CascadeType.ALL)
     private Set<ClaseEnVivo> clasesEnVivo = new HashSet<>();
 
     /**
      * Conjunto de clasesClon asociados.
      */
-    @OneToMany(mappedBy = "participacionDocente", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "docenteCurso", cascade = CascadeType.ALL)
     private Set<ClaseClon> clasesClon = new HashSet<>();
 
     /**
      * Conjunto de respuestasForo asociados.
      */
-    @OneToMany(mappedBy = "participacionDocente", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "docenteCurso", cascade = CascadeType.ALL)
     private Set<RespuestaForo> respuestasForo = new HashSet<>();
 
     /**
@@ -109,7 +109,7 @@ public class ParticipacionDocente {
      * @param docente relación con Docente.
      * @param esTitular indica si el docente participa como titular. Si es "false", participa como ayudante.
      */
-    public ParticipacionDocente(Curso curso, Docente docente, Boolean esTitular) {
+    public DocenteCurso(Curso curso, Docente docente, Boolean esTitular) {
         this.curso = curso;
         this.docente = docente;
         this.esTitular = esTitular;
@@ -138,7 +138,7 @@ public class ParticipacionDocente {
      */
     @Override
     public String toString() {
-        return "ParticipacionDocente #" + idParticipacionDocente;
+        return "DocenteCurso #" + idDocenteCurso;
     }
 
     /**

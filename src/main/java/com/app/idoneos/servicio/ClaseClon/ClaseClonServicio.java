@@ -4,7 +4,7 @@ import java.util.List;
 import com.app.idoneos.modelo.ClaseClon;
 import com.app.idoneos.modelo.EstadoClaseClon;
 import com.app.idoneos.modelo.Material;
-import com.app.idoneos.modelo.ParticipacionDocente;
+import com.app.idoneos.modelo.DocenteCurso;
 
 /**
  * Servicio para gestionar las operaciones relacionadas con la clase con clon.
@@ -14,12 +14,12 @@ public interface ClaseClonServicio {
     // ---------------------------------------------------------------- Lecturas
 
     /**
-     * Busca los registros vigentes de claseClon asociados a participacionDocente.
+     * Busca los registros vigentes de claseClon asociados a docenteCurso.
      *
-     * @param participacionDocente el registro de ParticipacionDocente asociado
-     * @return una lista de ClaseClon asociados al ParticipacionDocente indicado
+     * @param docenteCurso el registro de DocenteCurso asociado
+     * @return una lista de ClaseClon asociados al DocenteCurso indicado
      */
-    List<ClaseClon> buscarPorParticipacionDocente(ParticipacionDocente participacionDocente);
+    List<ClaseClon> buscarPorDocenteCurso(DocenteCurso docenteCurso);
 
     /**
      * Busca los registros vigentes de claseClon asociados a estadoClaseClon.

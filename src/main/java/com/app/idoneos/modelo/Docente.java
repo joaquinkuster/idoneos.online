@@ -85,7 +85,7 @@ public class Docente {
      * Conjunto de participacionesDocente asociados.
      */
     @OneToMany(mappedBy = "docente", cascade = CascadeType.ALL)
-    private Set<ParticipacionDocente> participacionesDocente = new HashSet<>();
+    private Set<DocenteCurso> participacionesDocente = new HashSet<>();
 
     /**
      * Constructor para crear el docente con los datos básicos.

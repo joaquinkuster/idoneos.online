@@ -1,5 +1,6 @@
 package com.app.idoneos.servicio.Inscripcion;
 
+import com.app.idoneos.utilidades.MensajeValidacionUtilidad;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -220,8 +221,11 @@ public class InscripcionServicioImpl implements InscripcionServicio, CrudServici
         }
         Alumno alumno = alumnoRepositorio.findById(idAlumno).filter(a -> !a.getUsuario().esInactivo())
                 .orElseThrow(() -> new IllegalArgumentException("Error! El alumno no se encuentra activo."));
-        return crearInscripcion(alumno, idCohorte, terminosConfirmados,
+        Inscripcion inscripcion = crearInscripcion(alumno, idCohorte, terminosConfirmados,
                 "Error! Debe confirmar que el alumno acepta los términos y condiciones de las políticas de privacidad.");
+        // Si el descuento del alumno cubre todo el precio, no hay nada que pagar: queda habilitada
+        pagoServicio.habilitarSiNoHayQuePagar(inscripcion);
+        return inscripcion;
     }
 
     // ---------------------------------------------------------------- Modificaciones
@@ -249,8 +253,7 @@ public class InscripcionServicioImpl implements InscripcionServicio, CrudServici
         }
         String observacionesLimpias = observaciones == null || observaciones.isBlank() ? null : observaciones.trim();
         if (observacionesLimpias != null && observacionesLimpias.length() > LONGITUD_OBSERVACIONES) {
-            throw new IllegalArgumentException("Error! Las observaciones no pueden superar los "
-                    + LONGITUD_OBSERVACIONES + " caracteres.");
+            throw new IllegalArgumentException(MensajeValidacionUtilidad.demasiadoLargo("Las observaciones", LONGITUD_OBSERVACIONES, "caracteres"));
         }
         LocalDateTime ahora = LocalDateTime.now();
         if (vencimiento != null) {
@@ -306,7 +309,7 @@ public class InscripcionServicioImpl implements InscripcionServicio, CrudServici
         }
         String motivoLimpio = motivo == null || motivo.isBlank() ? null : motivo.trim();
         if (motivoLimpio != null && motivoLimpio.length() > LONGITUD_MOTIVO) {
-            throw new IllegalArgumentException("Error! El motivo no puede superar los " + LONGITUD_MOTIVO + " caracteres.");
+            throw new IllegalArgumentException(MensajeValidacionUtilidad.demasiadoLargo("El motivo", LONGITUD_MOTIVO, "caracteres"));
         }
         if (motivoLimpio != null) {
             String nota = "Motivo de la baja: " + motivoLimpio;
@@ -321,6 +324,22 @@ public class InscripcionServicioImpl implements InscripcionServicio, CrudServici
         inscripcion.getCertificados().forEach(Certificado::anular);
         inscripcion.getIntentosAutoevaluacion().forEach(IntentoAutoevaluacion::marcarInactivo);
         inscripcionRepositorio.save(inscripcion);
+    }
+
+    @Override
+    @Transactional
+    public void darDeBajaVarias(List<Integer> ids) {
+        if (ids == null || ids.isEmpty()) {
+            throw new IllegalArgumentException("Error! Debe seleccionar al menos una inscripción.");
+        }
+        for (Integer id : ids) {
+            try {
+                darDeBajaInscripcion(id, null, null);
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Error! No se dio de baja ninguna inscripción. "
+                        + e.getMessage().replaceFirst("^Error! ", ""));
+            }
+        }
     }
 
     /**

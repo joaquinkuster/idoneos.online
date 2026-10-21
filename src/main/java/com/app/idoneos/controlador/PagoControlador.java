@@ -24,10 +24,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.app.idoneos.modelo.Alumno;
 import com.app.idoneos.modelo.Comprobante;
 import com.app.idoneos.modelo.Curso;
+import com.app.idoneos.modelo.Descuento;
 import com.app.idoneos.modelo.Inscripcion;
 import com.app.idoneos.modelo.Pago;
 import com.app.idoneos.modelo.Parametro;
@@ -87,6 +89,12 @@ public class PagoControlador {
         pagos.forEach(pago -> montos.computeIfAbsent(pago.getInscripcion().getIdInscripcion(),
                 id -> pagoServicio.calcularMontoPendiente(pago.getInscripcion())));
         modelo.addAttribute("montosSugeridos", montos);
+        // Precio, descuento, lo ya pagado y lo que falta de cada inscripción pendiente, para el recuadro del formulario
+        Map<Integer, PagoServicio.DetallePago> detalles = new LinkedHashMap<>();
+        pendientes.forEach(inscripcion -> detalles.put(inscripcion.getIdInscripcion(), pagoServicio.calcularDetalle(inscripcion)));
+        pagos.forEach(pago -> detalles.computeIfAbsent(pago.getInscripcion().getIdInscripcion(),
+                id -> pagoServicio.calcularDetalle(pago.getInscripcion())));
+        modelo.addAttribute("detalles", detalles);
         modelo.addAttribute("cbu", parametroServicio.buscarPorClave(Parametro.CBU_INSTITUCION).map(Parametro::getValor).orElse(null));
         modelo.addAttribute("registrarPara", registrarPara);
         modelo.addAttribute("titulo", "Pagos | Idóneos Online");
@@ -110,6 +118,38 @@ public class PagoControlador {
                 .sorted(Comparator.comparing(Curso::getNombre, String.CASE_INSENSITIVE_ORDER)).toList());
         modelo.addAttribute("titulo", "Mis pagos | Idóneos Online");
         return "pages/pago/misPagos";
+    }
+
+    /**
+     * CU-51: Muestra la caja de una inscripción pendiente de pago: qué se compra, el descuento aplicado, el total y el
+     * botón para pagar. A ella llevan la inscripción a un curso con costo y el botón «Pagar» de Mis cursos.
+     *
+     * @param idInscripcion      Identificador de la inscripción.
+     * @param modelo             El modelo de la vista.
+     * @param auth               La autenticación actual.
+     * @param redirectAttributes Atributos para mensajes de redirección.
+     * @return La vista de la caja, o una redirección a Mis cursos si la inscripción no se puede pagar.
+     */
+    @GetMapping("/caja/{idInscripcion}")
+    public String verCaja(@PathVariable("idInscripcion") Integer idInscripcion, Model modelo, Authentication auth,
+            RedirectAttributes redirectAttributes) {
+        Inscripcion inscripcion = inscripcionServicio.buscarMisCursos(((Usuario) auth.getPrincipal()).getAlumno(), null, null)
+                .stream().filter(i -> i.getIdInscripcion() == idInscripcion).findFirst().orElse(null);
+        if (inscripcion == null) {
+            redirectAttributes.addFlashAttribute("error", "Error! La inscripción no se encuentra disponible.");
+            return "redirect:/inscripcion/misCursos";
+        }
+        if (inscripcion.estaHabilitada()) {
+            redirectAttributes.addFlashAttribute("error", "Error! Esta inscripción no tiene un pago pendiente.");
+            return "redirect:/inscripcion/misCursos";
+        }
+        modelo.addAttribute("inscripcion", inscripcion);
+        modelo.addAttribute("descuento", pagoServicio.calcularDescuento(inscripcion).orElse(null));
+        modelo.addAttribute("total", pagoServicio.calcularMontoAPagar(inscripcion));
+        modelo.addAttribute("parcial", inscripcion.tienePagoAprobado());
+        modelo.addAttribute("pagado", inscripcion.getMontoPagado());
+        modelo.addAttribute("titulo", "Caja | Idóneos Online");
+        return "pages/pago/caja";
     }
 
     /**
@@ -167,15 +207,19 @@ public class PagoControlador {
      * responde con los datos que necesita el navegador para mostrar el QR. Responde en JSON.
      *
      * @param idInscripcion Identificador de la inscripción.
+     * @param monto         El monto que el alumno vio en la caja (opcional): si cambió, no se cobra y se avisa.
      * @param auth          La autenticación actual.
      * @return Los datos de la solicitud de pago o el mensaje de error.
      */
     @PostMapping("/pagar/{idInscripcion}")
     public ResponseEntity<Map<String, Object>> pagar(@PathVariable("idInscripcion") Integer idInscripcion,
-            Authentication auth) {
+            @RequestParam(value = "monto", required = false) Float monto, Authentication auth) {
         try {
             return RespuestaJsonUtilidad.respuestaConDatos(armarRespuesta(pagoServicio.iniciarPago(idInscripcion,
-                    ((Usuario) auth.getPrincipal()).getAlumno())));
+                    ((Usuario) auth.getPrincipal()).getAlumno(), monto)));
+        } catch (PagoServicio.MontoCambiadoException e) {
+            // La caja tiene que recargarse para mostrar el monto actual
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", e.getMessage(), "recargar", true));
         } catch (Exception e) {
             return RespuestaJsonUtilidad.respuestaConErrorEnDatos(e);
         }
@@ -186,7 +230,7 @@ public class PagoControlador {
      *
      * @param idInscripcion Identificador de la inscripción.
      * @param monto         El monto recibido.
-     * @param referencia    El comprobante de la transferencia.
+     * @param numeroComprobante El número de comprobante de la transferencia.
      * @param observaciones Notas (opcional).
      * @return Una respuesta con el mensaje de éxito o el mensaje de error.
      */
@@ -194,13 +238,13 @@ public class PagoControlador {
     public ResponseEntity<Map<String, String>> registrar(
             @RequestParam(value = "idInscripcion", required = false) Integer idInscripcion,
             @RequestParam(value = "monto", required = false) Float monto,
-            @RequestParam(value = "referencia", required = false) String referencia,
+            @RequestParam(value = "numeroComprobante", required = false) String numeroComprobante,
             @RequestParam(value = "observaciones", required = false) String observaciones) {
         try {
             if (idInscripcion == null) {
                 throw new IllegalArgumentException("Error! Debe seleccionar la inscripción.");
             }
-            Pago pago = pagoServicio.registrarPagoManual(idInscripcion, monto, referencia, observaciones);
+            Pago pago = pagoServicio.registrarPagoManual(idInscripcion, monto, numeroComprobante, observaciones);
             Inscripcion inscripcion = pago.getInscripcion();
             String alumno = inscripcion.getAlumno().getUsuario().getNombreCompleto();
             return RespuestaJsonUtilidad.respuestaExitosa(inscripcion.estaHabilitada()
@@ -221,7 +265,8 @@ public class PagoControlador {
      * @param id            Identificador del pago.
      * @param estado        Aprobado o Rechazado.
      * @param monto         El monto.
-     * @param referencia    El comprobante de la transferencia.
+     * @param referencia    El código de referencia de MODO.
+     * @param numeroComprobante El número de comprobante (de la transferencia o de MODO).
      * @param nombrePagador El nombre del pagador (al aprobar un pago de MODO).
      * @param dniPagador    El DNI del pagador (al aprobar un pago de MODO).
      * @param motivo        El motivo del rechazo (opcional).
@@ -232,11 +277,12 @@ public class PagoControlador {
             @RequestParam(value = "estado", required = false) String estado,
             @RequestParam(value = "monto", required = false) Float monto,
             @RequestParam(value = "referencia", required = false) String referencia,
+            @RequestParam(value = "numeroComprobante", required = false) String numeroComprobante,
             @RequestParam(value = "nombrePagador", required = false) String nombrePagador,
             @RequestParam(value = "dniPagador", required = false) String dniPagador,
             @RequestParam(value = "motivo", required = false) String motivo) {
         try {
-            Pago pago = pagoServicio.modificarPago(id, estado, monto, referencia, nombrePagador, dniPagador, motivo);
+            Pago pago = pagoServicio.modificarPago(id, estado, monto, referencia, numeroComprobante, nombrePagador, dniPagador, motivo);
             return RespuestaJsonUtilidad.respuestaExitosa(pago.estaAprobado()
                     ? "Pago acreditado con éxito. Se habilitó el acceso al curso y se emitió el comprobante."
                     : "Pago actualizado con éxito.");

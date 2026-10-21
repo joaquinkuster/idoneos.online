@@ -134,6 +134,9 @@ public class ComprobanteServicioImpl implements ComprobanteServicio, CrudServici
             if (pago.getCodigoReferencia() != null) {
                 agregarFila(tabla, "Referencia", pago.getCodigoReferencia());
             }
+            if (pago.getNumeroComprobante() != null) {
+                agregarFila(tabla, "N.º de comprobante", pago.getNumeroComprobante());
+            }
             if (pago.getFechaAprobacion() != null) {
                 agregarFila(tabla, "Fecha de aprobación", pago.getFechaAprobacion().format(FORMATO_FECHA));
             }

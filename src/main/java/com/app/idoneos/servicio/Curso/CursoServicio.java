@@ -8,7 +8,7 @@ import java.util.Optional;
 import com.app.idoneos.modelo.Categoria;
 import com.app.idoneos.modelo.Curso;
 import com.app.idoneos.modelo.Nivel;
-import com.app.idoneos.modelo.ParticipacionDocente;
+import com.app.idoneos.modelo.DocenteCurso;
 import com.app.idoneos.modelo.Unidad;
 import com.app.idoneos.modelo.Usuario;
 
@@ -130,7 +130,7 @@ public interface CursoServicio {
      * @return La participación del docente en el curso, de la que se obtiene su programa y cohorte de trabajo.
      * @throws IllegalArgumentException Si el docente no puede acceder, con el motivo.
      */
-    ParticipacionDocente validarAccesoDocente(int idCurso, Docente docente);
+    DocenteCurso validarAccesoDocente(int idCurso, Docente docente);
 
     /**
      * Busca un curso activo y, si no existe o está dado de baja, informa el motivo.

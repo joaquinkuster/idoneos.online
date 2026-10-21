@@ -111,8 +111,8 @@
             </div>
             <div class="pn-modal-cuerpo">
                 <div class="pn-seccion-titulo">
-                    <h4>Tu respuesta</h4>
-                    <p th:text="${consulta.resumen}">Consulta</p>
+                    <h4>Datos de la respuesta</h4>
+                    <p>Texto de la respuesta a la consulta</p>
                 </div>
                 <form th:action="@{/foro/responder}" method="post" class="form-ajax" data-validar novalidate>
                     <input type="hidden" name="consultaId" th:value="${consulta.idConsulta}">
@@ -148,8 +148,8 @@
             </div>
             <div class="pn-modal-cuerpo">
                 <div class="pn-seccion-titulo">
-                    <h4>Tu consulta</h4>
-                    <p th:text="${'Podés modificarla hasta ' + plazoEdicion + ' minutos después de registrarla'}">Plazo</p>
+                    <h4>Datos de la consulta</h4>
+                    <p th:text="${'Texto de la consulta; podés modificarla hasta ' + plazoEdicion + ' minutos después de registrarla'}">Texto de la consulta</p>
                 </div>
                 <form th:action="@{'/foro/modificar/' + ${consulta.idConsulta}}" method="post" class="form-ajax" data-validar novalidate>
                     <div class="row g-3 mb-3">
@@ -208,8 +208,8 @@
                 </div>
                 <div class="pn-modal-cuerpo">
                     <div class="pn-seccion-titulo">
-                        <h4>Tu respuesta</h4>
-                        <p th:text="${'Podés modificarla hasta ' + plazoEdicion + ' minutos después de registrarla'}">Plazo</p>
+                        <h4>Datos de la respuesta</h4>
+                        <p th:text="${'Texto de la respuesta; podés modificarla hasta ' + plazoEdicion + ' minutos después de registrarla'}">Texto de la respuesta</p>
                     </div>
                     <form th:action="@{'/foro/modificarRespuesta/' + ${r.idRespuesta}}" method="post" class="form-ajax" data-validar novalidate>
                         <div class="row g-3 mb-3">

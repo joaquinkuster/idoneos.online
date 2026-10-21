@@ -33,6 +33,7 @@ import com.app.idoneos.repositorio.PagoRepositorio;
 import com.app.idoneos.servicio.Cohorte.CohorteServicioImpl;
 import com.app.idoneos.servicio.Curso.CursoServicioImpl;
 import com.app.idoneos.servicio.Inscripcion.InscripcionServicioImpl;
+import com.app.idoneos.servicio.Pago.PagoServicio;
 import com.app.idoneos.servicio.Pago.PagoServicioImpl;
 import com.app.idoneos.servicio.PasarelaPago.PasarelaPagoServicio;
 import com.app.idoneos.servicio.Pago.PagoServicio.SolicitudPago;
@@ -298,6 +299,25 @@ class PagoServicioTest {
     }
 
     @Test
+    @DisplayName("CU-46: al registrar la inscripción, si el descuento del alumno cubre todo el precio queda habilitada sin pago")
+    void administradorHabilitaSiNoHayQuePagar() {
+        Descuento beca = descuentoRepositorio.save(new Descuento("Beca completa", 0, 100, LocalDateTime.now().minusDays(1),
+                LocalDateTime.now().plusDays(10), 5, 0));
+        Inscripcion lucia = pendienteDeLucia();
+
+        assertTrue(pagoServicio.habilitarSiNoHayQuePagar(lucia));
+
+        assertTrue(lucia.estaHabilitada());
+        assertEquals(1, beca.getCantidadUsada());
+        // sin descuento que cubra todo, no hace nada
+        Inscripcion otra = inscribirAFinanzas(VALENTINA);
+        beca.setBaja(true);
+        descuentoRepositorio.save(beca);
+        assertTrue(!pagoServicio.habilitarSiNoHayQuePagar(otra));
+        assertTrue(!otra.estaHabilitada());
+    }
+
+    @Test
     @DisplayName("CU-51: si el descuento cubre todo el precio, se habilita el acceso sin registrar ningún pago ni comprobante")
     void descuentoTotal() {
         descuentoRepositorio.save(new Descuento("Beca completa", 0, 100, LocalDateTime.now().minusDays(1),
@@ -425,6 +445,45 @@ class PagoServicioTest {
     // ---------- CU-53 Registrar pago ----------
 
     @Test
+    @DisplayName("CU-54: en un pago de MODO el código de referencia son letras y números, y el número de comprobante, solo números")
+    void formatosDeUnPagoDeModo() {
+        Inscripcion lucia = pendienteDeLucia();
+        Integer id = lucia.getPagoSinAprobar().getIdPago();
+        String comprobante = "123456789012345678901234567890";
+
+        IllegalArgumentException guion = assertThrows(IllegalArgumentException.class, () -> pagoServicio.modificarPago(id,
+                "Aprobado", 72000f, "QR-1234", comprobante, "Lucía Fernández", "40123456", null));
+        assertTrue(guion.getMessage().contains("código de referencia no es válido"));
+        IllegalArgumentException letras = assertThrows(IllegalArgumentException.class, () -> pagoServicio.modificarPago(id,
+                "Aprobado", 72000f, "QRTEST09", "ABC-123456789", "Lucía Fernández", "40123456", null));
+        assertTrue(letras.getMessage().contains("comprobante no es válido"));
+        // un código de 5 caracteres no llega al mínimo: el mensaje dice cuál es el formato válido
+        IllegalArgumentException corto = assertThrows(IllegalArgumentException.class, () -> pagoServicio.modificarPago(id,
+                "Aprobado", 72000f, "39933", comprobante, "Lucía Fernández", "40123456", null));
+        assertTrue(corto.getMessage().contains("Formato válido: letras y números, sin guiones, de 6 a 12 caracteres"));
+        // un comprobante de MODO de menos de 4 dígitos no es válido y el mensaje dice el formato
+        IllegalArgumentException cortoModo = assertThrows(IllegalArgumentException.class, () -> pagoServicio.modificarPago(id,
+                "Aprobado", 72000f, "QRTEST08", "123", "Lucía Fernández", "40123456", null));
+        assertTrue(cortoModo.getMessage().contains("Formato válido: solo números, de 4 a 100 dígitos"));
+        // se normaliza a mayúsculas
+        assertEquals("QRTEST09", pagoServicio.modificarPago(id, "Aprobado", 72000f, "qrtest09", "5656546",
+                "Lucía Fernández", "40123456", null).getCodigoReferencia());
+    }
+
+    @Test
+    @DisplayName("CU-51: si el monto a cobrar cambió respecto del que el alumno vio en la caja, no se cobra y se avisa")
+    void avisaSiCambioElMonto() {
+        Inscripcion lucia = pendienteDeLucia();
+        float actual = pagoServicio.calcularMontoAPagar(lucia);
+
+        PagoServicio.MontoCambiadoException error = assertThrows(PagoServicio.MontoCambiadoException.class,
+                () -> pagoServicio.iniciarPago(lucia.getIdInscripcion(), lucia.getAlumno(), actual + 8000f));
+        assertTrue(error.getMessage().contains("cambió"));
+        // con el monto que corresponde, se inicia normalmente
+        assertTrue(pagoServicio.iniciarPago(lucia.getIdInscripcion(), lucia.getAlumno(), actual).qr() != null);
+    }
+
+    @Test
     @DisplayName("CU-53: un pago aprobado que no cubre el precio del curso no habilita la inscripción")
     void pagoParcialNoHabilita() {
         Inscripcion lucia = pendienteDeLucia();
@@ -447,7 +506,7 @@ class PagoServicioTest {
         assertEquals(anterior.getIdPago(), pago.getIdPago());
         assertTrue(pago.estaAprobado());
         assertEquals(MetodoPago.TRANSFERENCIA, pago.getMetodoPago().getNombre());
-        assertEquals("TRF-778899", pago.getCodigoReferencia());
+        assertEquals("TRF-778899", pago.getNumeroComprobante());
         assertTrue(pago.getDetalleMetodoPago().contains("Transferencia del 12/10"));
         assertNull(pago.getDescuento());
         assertNull(pago.getDetalleErrorOperacion());
@@ -465,7 +524,9 @@ class PagoServicioTest {
         assertThrows(IllegalArgumentException.class, () -> pagoServicio.registrarPagoManual(id, null, "TRF-1", null));
         assertThrows(IllegalArgumentException.class, () -> pagoServicio.registrarPagoManual(id, 100f, " ", null));
         assertThrows(IllegalArgumentException.class, () -> pagoServicio.registrarPagoManual(id, 0f, "TRF-1", null));
-        assertThrows(IllegalArgumentException.class, () -> pagoServicio.registrarPagoManual(id, 100f, "X".repeat(21), null));
+        assertThrows(IllegalArgumentException.class, () -> pagoServicio.registrarPagoManual(id, 100f, "X".repeat(101), null));
+        // solo letras, números y guiones
+        assertThrows(IllegalArgumentException.class, () -> pagoServicio.registrarPagoManual(id, 100f, "TRF 1", null));
         assertThrows(IllegalArgumentException.class, () -> pagoServicio.registrarPagoManual(id, 100f, "TRF-1", "x".repeat(301)));
         assertThrows(IllegalArgumentException.class, () -> pagoServicio.registrarPagoManual(99999, 100f, "TRF-1", null));
         IllegalArgumentException repetido = assertThrows(IllegalArgumentException.class,
@@ -504,7 +565,7 @@ class PagoServicioTest {
         Inscripcion lucia = pendienteDeLucia();
         Pago rechazado = lucia.getPagoSinAprobar();
 
-        Pago pago = pagoServicio.modificarPago(rechazado.getIdPago(), "Aprobado", 72000f, null, "Lucía Fernández", "40123456", null);
+        Pago pago = pagoServicio.modificarPago(rechazado.getIdPago(), "Aprobado", 72000f, "QRTEST001", "123456789012345678901234567890", "Lucía Fernández", "40123456", null);
 
         assertTrue(pago.estaAprobado());
         assertEquals(72000f, pago.getMonto());
@@ -523,7 +584,7 @@ class PagoServicioTest {
         pagoServicio.consultarEstado(solicitud.idPago(), lucia.getAlumno());
         int usosAntes = descuento("Descuento de bienvenida").getCantidadUsada();
 
-        pagoServicio.modificarPago(solicitud.idPago(), "Aprobado", 72000f, null, "Lucía Fernández", "40123456", null);
+        pagoServicio.modificarPago(solicitud.idPago(), "Aprobado", 72000f, "QRTEST002", "123456789012345678901234567890", "Lucía Fernández", "40123456", null);
 
         assertEquals(usosAntes + 1, descuento("Descuento de bienvenida").getCantidadUsada());
     }
@@ -534,9 +595,9 @@ class PagoServicioTest {
         Pago rechazado = pendienteDeLucia().getPagoSinAprobar();
         Integer id = rechazado.getIdPago();
 
-        assertThrows(IllegalArgumentException.class, () -> pagoServicio.modificarPago(id, "Aprobado", 72000f, null, "", "40123456", null));
-        assertThrows(IllegalArgumentException.class, () -> pagoServicio.modificarPago(id, "Aprobado", 72000f, null, "Lucía", "abc", null));
-        assertThrows(IllegalArgumentException.class, () -> pagoServicio.modificarPago(id, "Aprobado", 72000f, null, "Lucía", null, null));
+        assertThrows(IllegalArgumentException.class, () -> pagoServicio.modificarPago(id, "Aprobado", 72000f, "QRTEST003", "123456789012345678901234567890", "", "40123456", null));
+        assertThrows(IllegalArgumentException.class, () -> pagoServicio.modificarPago(id, "Aprobado", 72000f, "QRTEST003", "123456789012345678901234567890", "Lucía", "abc", null));
+        assertThrows(IllegalArgumentException.class, () -> pagoServicio.modificarPago(id, "Aprobado", 72000f, "QRTEST003", "123456789012345678901234567890", "Lucía", null, null));
         assertTrue(rechazado.estaRechazado());
     }
 
@@ -547,13 +608,13 @@ class PagoServicioTest {
         Inscripcion lucia = pendienteDeLucia();
         SolicitudPago solicitud = pagoServicio.iniciarPago(lucia.getIdInscripcion(), lucia.getAlumno());
 
-        Pago pago = pagoServicio.modificarPago(solicitud.idPago(), "Rechazado", 72000f, null, null, null, "No se acreditó");
+        Pago pago = pagoServicio.modificarPago(solicitud.idPago(), "Rechazado", 72000f, null, null, null, null, "No se acreditó");
 
         assertTrue(pago.estaRechazado());
         assertEquals("No se acreditó", pago.getDetalleErrorOperacion());
         assertFalse(lucia.estaHabilitada());
         assertEquals("Rechazado por el administrador.",
-                pagoServicio.modificarPago(solicitud.idPago(), "Rechazado", 72000f, null, null, null, " ").getDetalleErrorOperacion());
+                pagoServicio.modificarPago(solicitud.idPago(), "Rechazado", 72000f, null, null, null, null, " ").getDetalleErrorOperacion());
     }
 
     @Test
@@ -563,13 +624,13 @@ class PagoServicioTest {
         Pago aprobado = inscripcionServicio.buscarConFiltros(null, MARTIN, Inscripcion.ACCESO_VIGENTE).get(0).getPagos().iterator().next();
 
         IllegalArgumentException estado = assertThrows(IllegalArgumentException.class,
-                () -> pagoServicio.modificarPago(aprobado.getIdPago(), "Rechazado", 100f, "TRF-1", null, null, null));
+                () -> pagoServicio.modificarPago(aprobado.getIdPago(), "Rechazado", 100f, null, "TRF-1", null, null, null));
         assertTrue(estado.getMessage().contains("pendiente o rechazado"));
-        assertThrows(IllegalArgumentException.class, () -> pagoServicio.modificarPago(rechazado.getIdPago(), "Pendiente", 100f, null, null, null, null));
-        assertThrows(IllegalArgumentException.class, () -> pagoServicio.modificarPago(rechazado.getIdPago(), null, 100f, null, null, null, null));
-        assertThrows(IllegalArgumentException.class, () -> pagoServicio.modificarPago(rechazado.getIdPago(), "Rechazado", null, null, null, null, null));
-        assertThrows(IllegalArgumentException.class, () -> pagoServicio.modificarPago(rechazado.getIdPago(), "Rechazado", -5f, null, null, null, null));
-        assertThrows(IllegalArgumentException.class, () -> pagoServicio.modificarPago(99999, "Aprobado", 100f, null, null, null, null));
+        assertThrows(IllegalArgumentException.class, () -> pagoServicio.modificarPago(rechazado.getIdPago(), "Pendiente", 100f, null, null, null, null, null));
+        assertThrows(IllegalArgumentException.class, () -> pagoServicio.modificarPago(rechazado.getIdPago(), null, 100f, null, null, null, null, null));
+        assertThrows(IllegalArgumentException.class, () -> pagoServicio.modificarPago(rechazado.getIdPago(), "Rechazado", null, null, null, null, null, null));
+        assertThrows(IllegalArgumentException.class, () -> pagoServicio.modificarPago(rechazado.getIdPago(), "Rechazado", -5f, null, null, null, null, null));
+        assertThrows(IllegalArgumentException.class, () -> pagoServicio.modificarPago(99999, "Aprobado", 100f, null, null, null, null, null));
     }
 
     @Test
@@ -581,10 +642,10 @@ class PagoServicioTest {
         Integer id = transferencia.getIdPago();
         float monto = pagoServicio.calcularMontoPendiente(nueva);
 
-        assertThrows(IllegalArgumentException.class, () -> pagoServicio.modificarPago(id, "Aprobado", monto, " ", null, null, null));
-        assertThrows(IllegalArgumentException.class, () -> pagoServicio.modificarPago(id, "Aprobado", monto, "TRF-000451", null, null, null));
+        assertThrows(IllegalArgumentException.class, () -> pagoServicio.modificarPago(id, "Aprobado", monto, null, " ", null, null, null));
+        assertThrows(IllegalArgumentException.class, () -> pagoServicio.modificarPago(id, "Aprobado", monto, null, "TRF-000451", null, null, null));
 
-        Pago pago = pagoServicio.modificarPago(id, "Aprobado", monto, "TRF-123456", null, null, null);
+        Pago pago = pagoServicio.modificarPago(id, "Aprobado", monto, null, "TRF-123456", null, null, null);
 
         assertTrue(pago.estaAprobado());
         assertEquals("Valentina Ruiz", pago.getComprobanteVigente().getNombrePagador());

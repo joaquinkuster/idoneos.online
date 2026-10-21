@@ -1,5 +1,6 @@
 package com.app.idoneos.servicio.Programa;
 
+import com.app.idoneos.utilidades.MensajeValidacionUtilidad;
 import com.app.idoneos.utilidades.MensajeBajaUtilidad;
 import java.time.LocalDateTime;
 import java.util.Comparator;
@@ -7,11 +8,11 @@ import java.util.List;
 import java.util.Optional;
 import com.app.idoneos.modelo.Curso;
 import com.app.idoneos.modelo.Docente;
-import com.app.idoneos.modelo.ParticipacionDocente;
+import com.app.idoneos.modelo.DocenteCurso;
 import com.app.idoneos.modelo.Programa;
 import com.app.idoneos.modelo.UnidadCronograma;
 import com.app.idoneos.repositorio.CursoRepositorio;
-import com.app.idoneos.repositorio.ParticipacionDocenteRepositorio;
+import com.app.idoneos.repositorio.DocenteCursoRepositorio;
 import com.app.idoneos.repositorio.ProgramaRepositorio;
 import com.app.idoneos.repositorio.UnidadCronogramaRepositorio;
 import com.app.idoneos.servicio.CrudServicio;
@@ -37,7 +38,7 @@ public class ProgramaServicioImpl implements ProgramaServicio, CrudServicio<Prog
     private UnidadCronogramaRepositorio unidadCronogramaRepositorio;
 
     @Autowired
-    private ParticipacionDocenteRepositorio participacionDocenteRepositorio;
+    private DocenteCursoRepositorio docenteCursoRepositorio;
 
     // ---------------------------------------------------------------- Lecturas
 
@@ -121,13 +122,13 @@ public class ProgramaServicioImpl implements ProgramaServicio, CrudServicio<Prog
             String descripcion, String objetivos, Integer cargaHoraria, String bibliografia) {
         Curso curso = cursoRepositorio.findById(cursoId == null ? -1 : cursoId).filter(c -> !c.esInactivo())
                 .orElseThrow(() -> new IllegalArgumentException("Error! El curso no se encuentra activo."));
-        ParticipacionDocente participacion = obtenerParticipacion(curso, docente);
+        DocenteCurso participacion = obtenerParticipacion(curso, docente);
         Programa origen = null;
         if (programaOrigenId != null) {
             origen = programaRepositorio.findById(programaOrigenId)
                     .filter(p -> !p.esInactivo() && p.getCurso().getIdCurso() == curso.getIdCurso())
                     .orElseThrow(() -> new IllegalArgumentException(
-                            "Error! El programa del que se quiere partir no es válido."));
+                            "Error! Debe seleccionar un programa de origen de la lista."));
         }
         Programa programa = new Programa(curso, validarDatos(nombre, objetivos, bibliografia), objetivos.trim(),
                 bibliografia.trim());
@@ -148,7 +149,7 @@ public class ProgramaServicioImpl implements ProgramaServicio, CrudServicio<Prog
         participacion.setProgramaPorDefecto(programa);
         participacion.setCohortePorDefecto(null);
         participacion.setUltimaModificacion(LocalDateTime.now());
-        participacionDocenteRepositorio.save(participacion);
+        docenteCursoRepositorio.save(participacion);
         return programa;
     }
 
@@ -194,11 +195,11 @@ public class ProgramaServicioImpl implements ProgramaServicio, CrudServicio<Prog
     @Transactional
     public void establecerPorDefecto(Docente docente, Integer programaId) {
         Programa programa = buscarActivo(programaId);
-        ParticipacionDocente participacion = obtenerParticipacion(programa.getCurso(), docente);
+        DocenteCurso participacion = obtenerParticipacion(programa.getCurso(), docente);
         participacion.setProgramaPorDefecto(programa);
         participacion.setCohortePorDefecto(null);
         participacion.setUltimaModificacion(LocalDateTime.now());
-        participacionDocenteRepositorio.save(participacion);
+        docenteCursoRepositorio.save(participacion);
     }
 
     // ---------------------------------------------------------------- Bajas
@@ -267,11 +268,11 @@ public class ProgramaServicioImpl implements ProgramaServicio, CrudServicio<Prog
     }
 
     /** Obtiene la participación del docente en el curso (como titular o ayudante). */
-    private ParticipacionDocente obtenerParticipacion(Curso curso, Docente docente) {
+    private DocenteCurso obtenerParticipacion(Curso curso, Docente docente) {
         if (docente == null) {
             throw new IllegalArgumentException("Error! El usuario no tiene el rol de docente.");
         }
-        return participacionDocenteRepositorio.findByCursoAndBajaFalse(curso).stream()
+        return docenteCursoRepositorio.findByCursoAndBajaFalse(curso).stream()
                 .filter(p -> p.getDocente().getIdDocente() == docente.getIdDocente()).findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Error! No participás en este curso."));
     }
@@ -284,7 +285,7 @@ public class ProgramaServicioImpl implements ProgramaServicio, CrudServicio<Prog
         }
         if (nombre.trim().length() > Programa.LONGITUD_NOMBRE) {
             throw new IllegalArgumentException(
-                    "Error! El nombre no puede superar los " + Programa.LONGITUD_NOMBRE + " caracteres.");
+                    MensajeValidacionUtilidad.demasiadoLargo("El nombre", Programa.LONGITUD_NOMBRE, "caracteres"));
         }
         return nombre.trim();
     }
@@ -293,14 +294,14 @@ public class ProgramaServicioImpl implements ProgramaServicio, CrudServicio<Prog
         String limpia = descripcion == null || descripcion.isBlank() ? null : descripcion.trim();
         if (limpia != null && limpia.length() > Programa.LONGITUD_DESCRIPCION) {
             throw new IllegalArgumentException(
-                    "Error! La descripción no puede superar los " + Programa.LONGITUD_DESCRIPCION + " caracteres.");
+                    MensajeValidacionUtilidad.demasiadoLargo("La descripción", Programa.LONGITUD_DESCRIPCION, "caracteres"));
         }
         return limpia;
     }
 
     private Integer validarCargaHoraria(Integer cargaHoraria) {
         if (cargaHoraria != null && cargaHoraria <= 0) {
-            throw new IllegalArgumentException("Error! La carga horaria debe ser un número entero mayor a cero.");
+            throw new IllegalArgumentException(MensajeValidacionUtilidad.formatoInvalido("La carga horaria", "número entero mayor a cero"));
         }
         return cargaHoraria;
     }

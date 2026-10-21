@@ -103,6 +103,7 @@ public class AutenticacionConfiguracion {
                         .requestMatchers(HttpMethod.POST, "/inscripcion/registrar", "/inscripcion/modificar/*")
                         .hasRole("Administrador")
                         .requestMatchers(HttpMethod.POST, "/inscripcion/darDeBaja/*").hasAnyRole("Alumno", "Administrador")
+                        .requestMatchers(HttpMethod.POST, "/inscripcion/darDeBajaMasiva").hasRole("Administrador")
                         .requestMatchers("/certificado/**").hasRole("Administrador")
                         // CU-50 a CU-54: pagos. El aviso de MODO (webhook) es público: solo identifica el pago y el resultado se
                         // consulta a MODO; el administrador busca, registra y modifica pagos; el alumno ve y paga los suyos;
@@ -154,7 +155,7 @@ public class AutenticacionConfiguracion {
                         .requestMatchers(HttpMethod.POST, "/foro/registrar", "/foro/modificar/*").hasRole("Alumno")
                         .requestMatchers(HttpMethod.POST, "/foro/responder", "/foro/modificarRespuesta/*").hasRole("Docente")
                         .requestMatchers(HttpMethod.POST, "/foro/darDeBaja/*", "/foro/darDeBajaRespuesta/*").hasRole("Administrador")
-                        // CU-25 y CU-27: participantes del curso (docente y administrador; el alumno ve los de su cohorte)
+                        // CU-25 y CU-27: docentes del curso (docente y administrador; el alumno ve los de su cohorte)
                         .requestMatchers(HttpMethod.GET, "/participante/buscar").hasAnyRole("Docente", "Administrador")
                         .requestMatchers(HttpMethod.GET, "/participante/ver/*").hasRole("Alumno")
                         // CU-55: progreso de los alumnos del curso (docente y administrador)

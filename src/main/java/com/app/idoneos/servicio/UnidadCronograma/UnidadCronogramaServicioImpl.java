@@ -1,5 +1,6 @@
 package com.app.idoneos.servicio.UnidadCronograma;
 
+import com.app.idoneos.utilidades.MensajeValidacionUtilidad;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,7 +14,7 @@ import com.app.idoneos.modelo.Parametro;
 import com.app.idoneos.modelo.Programa;
 import com.app.idoneos.modelo.Unidad;
 import com.app.idoneos.modelo.UnidadCronograma;
-import com.app.idoneos.repositorio.ParticipacionDocenteRepositorio;
+import com.app.idoneos.repositorio.DocenteCursoRepositorio;
 import com.app.idoneos.repositorio.ProgramaRepositorio;
 import com.app.idoneos.repositorio.UnidadCronogramaRepositorio;
 import com.app.idoneos.repositorio.UnidadRepositorio;
@@ -41,7 +42,7 @@ public class UnidadCronogramaServicioImpl implements UnidadCronogramaServicio, C
     private UnidadRepositorio unidadRepositorio;
 
     @Autowired
-    private ParticipacionDocenteRepositorio participacionDocenteRepositorio;
+    private DocenteCursoRepositorio docenteCursoRepositorio;
 
     @Autowired
     private UnidadServicio unidadServicio;
@@ -157,7 +158,7 @@ public class UnidadCronogramaServicioImpl implements UnidadCronogramaServicio, C
         if (docente == null) {
             throw new IllegalArgumentException("Error! El usuario no tiene el rol de docente.");
         }
-        boolean participa = participacionDocenteRepositorio.findByCursoAndBajaFalse(programa.getCurso()).stream()
+        boolean participa = docenteCursoRepositorio.findByCursoAndBajaFalse(programa.getCurso()).stream()
                 .anyMatch(p -> p.getDocente().getIdDocente() == docente.getIdDocente());
         if (!participa) {
             throw new IllegalArgumentException("Error! No participás en este curso.");
@@ -171,7 +172,7 @@ public class UnidadCronogramaServicioImpl implements UnidadCronogramaServicio, C
         List<Integer> ids = unidadIds == null ? List.of() : unidadIds;
         List<String> duraciones = semanas == null ? List.of() : semanas;
         if (ids.size() != duraciones.size() || ids.stream().distinct().count() != ids.size()) {
-            throw new IllegalArgumentException("Error! Los datos del cronograma no son válidos.");
+            throw new IllegalArgumentException(MensajeValidacionUtilidad.formatoInvalido("Los datos del cronograma", "una duración entera en semanas para cada unidad del programa"));
         }
         List<Integer> semanasPorUnidad = new ArrayList<>();
         for (String duracion : duraciones) {
@@ -181,8 +182,7 @@ public class UnidadCronogramaServicioImpl implements UnidadCronogramaServicio, C
                 Parametro.CRONOGRAMA_SEMANAS_MAXIMAS_POR_DEFECTO);
         int total = semanasPorUnidad.stream().mapToInt(Integer::intValue).sum();
         if (total > maximo) {
-            throw new IllegalArgumentException("Error! El cronograma no puede superar las " + maximo
-                    + " semanas (el que se quiere guardar suma " + total + ").");
+            throw new IllegalArgumentException(MensajeValidacionUtilidad.demasiadoLargo("El cronograma", maximo, "semanas"));
         }
         Map<Integer, Unidad> unidades = new HashMap<>();
         for (Integer id : ids) {
@@ -257,6 +257,6 @@ public class UnidadCronogramaServicioImpl implements UnidadCronogramaServicio, C
             // se informa abajo, igual que un valor menor o igual a cero
         }
         throw new IllegalArgumentException(
-                "Error! La duración de cada unidad debe ser un número entero de semanas mayor a cero.");
+                MensajeValidacionUtilidad.formatoInvalido("La duración de cada unidad", "número entero de semanas mayor a cero"));
     }
 }

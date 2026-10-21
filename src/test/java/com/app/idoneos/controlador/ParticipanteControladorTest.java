@@ -21,7 +21,7 @@ import com.app.idoneos.repositorio.CursoRepositorio;
 import com.app.idoneos.repositorio.InscripcionRepositorio;
 
 /**
- * Pruebas de la lista de participantes (CU-25 y la sección de participantes del CU-27, MOD-F-02).
+ * Pruebas de la equipo docente del curso (CU-25 y la sección de docentes del CU-27, MOD-F-02).
  */
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -55,18 +55,18 @@ class ParticipanteControladorTest {
         mockMvc.perform(get("/participante/buscar").param("cursoId", String.valueOf(cursoDeMercado())))
                 .andExpect(status().isOk())
                 .andExpect(view().name("pages/participante/buscar"))
+                .andExpect(model().attributeExists("docentes", "alumnos"))
                 .andExpect(model().attribute("soloCohorte", false))
                 // el docente entra con el filtro en su cohorte de trabajo
                 .andExpect(model().attribute("cohorteSeleccionada", Matchers.notNullValue()))
-                .andExpect(content().string(Matchers.containsString("selected")))
                 .andExpect(content().string(Matchers.allOf(
                         Matchers.containsString("Participantes"),
                         Matchers.containsString("Docente titular"),
                         Matchers.containsString("Alumno"),
-                        // filtros en el navegador: sin botón "Filtrar"
-                        Matchers.containsString("data-filtro-front"),
                         Matchers.containsString("name=\"cohorte\""),
-                        Matchers.containsString("data-f-rol"),
+                        // filtros en el navegador: se arman desde las columnas, sin botón "Filtrar"
+                        Matchers.containsString("data-filtro-front"),
+                        Matchers.containsString("data-campo=\"rol\""),
                         Matchers.not(Matchers.containsString(">Filtrar<")))));
     }
 
@@ -76,21 +76,21 @@ class ParticipanteControladorTest {
     void administradorVeLosParticipantes() throws Exception {
         mockMvc.perform(get("/participante/buscar").param("cursoId", String.valueOf(cursoDeMercado())))
                 .andExpect(status().isOk())
-                .andExpect(model().attribute("cohorteSeleccionada", Matchers.nullValue()))
-                .andExpect(content().string(Matchers.containsString("Este programa")));
+                .andExpect(model().attributeExists("docentes", "alumnos"))
+                .andExpect(model().attribute("cohorteSeleccionada", Matchers.nullValue()));
         mockMvc.perform(get("/participante/buscar")).andExpect(status().is3xxRedirection());
     }
 
     @Test
     @WithUserDetails(value = "valentina.ruiz@correo.com", userDetailsServiceBeanName = "usuarioDetallesServicio")
     @DisplayName("CU-27: el alumno ve el equipo docente y los alumnos de su cohorte, sin filtro ni columna de cohorte")
-    void alumnoVeLosDeSuCohorte() throws Exception {
+    void alumnoVeElEquipoDeSuCurso() throws Exception {
         mockMvc.perform(get("/participante/ver/" + inscripcionDe("valentina.ruiz@correo.com")))
                 .andExpect(status().isOk())
                 .andExpect(model().attribute("soloCohorte", true))
                 .andExpect(content().string(Matchers.allOf(
                         Matchers.containsString("Docente titular"),
-                        Matchers.containsString("Valentina"),
+                        Matchers.containsString("Ruiz, Valentina"),
                         Matchers.not(Matchers.containsString("name=\"cohorte\"")))));
         // el alumno no entra a la vista del docente
         mockMvc.perform(get("/participante/buscar").param("cursoId", String.valueOf(cursoDeMercado())))

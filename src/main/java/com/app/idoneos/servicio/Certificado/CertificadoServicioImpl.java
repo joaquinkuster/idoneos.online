@@ -1,5 +1,6 @@
 package com.app.idoneos.servicio.Certificado;
 
+import com.app.idoneos.utilidades.MensajeValidacionUtilidad;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -119,10 +120,10 @@ public class CertificadoServicioImpl implements CertificadoServicio, CrudServici
         String nombreLimpio = nombre.trim();
         String dniLimpio = dni.trim();
         if (nombreLimpio.length() > LONGITUD_NOMBRE) {
-            throw new IllegalArgumentException("Error! El nombre no puede superar los " + LONGITUD_NOMBRE + " caracteres.");
+            throw new IllegalArgumentException(MensajeValidacionUtilidad.demasiadoLargo("El nombre", LONGITUD_NOMBRE, "caracteres"));
         }
         if (!dniLimpio.matches("\\d{7,8}")) {
-            throw new IllegalArgumentException("Error! El DNI debe tener 7 u 8 dígitos.");
+            throw new IllegalArgumentException(MensajeValidacionUtilidad.formatoInvalido("El DNI", "solo números, 7 u 8 dígitos"));
         }
         certificado.setNombreAlumno(nombreLimpio);
         certificado.setDniAlumno(dniLimpio);

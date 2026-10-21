@@ -45,15 +45,7 @@
                 <!-- Filtros -->
                 <form th:action="@{/unidad/buscar}" method="get" class="pn-filtros" data-filtro-front>
                     <input type="hidden" name="cursoId" th:value="${curso.idCurso}">
-                    <div class="pn-filtros-campo pn-filtros-campo-grande">
-                        <label class="pn-etiqueta">Título</label>
-                        <input type="text" name="titulo" th:value="${tituloBusqueda}" class="pn-input" placeholder="Buscar por título" autocomplete="off">
-                    </div>
-                    <a th:href="@{/unidad/buscar(cursoId=${curso.idCurso})}" class="pn-btn pn-btn-contorno">Limpiar</a>
-                    <div class="pn-columnas-wrapper">
-                        <button type="button" class="pn-btn pn-btn-contorno" data-columnas-boton>Columnas</button>
-                        <div class="pn-columnas-menu" data-columnas-menu></div>
-                    </div>
+                    <a th:href="@{/unidad/buscar(cursoId=${curso.idCurso})}" class="pn-btn pn-btn-contorno" hidden>Limpiar</a>
                 </form>
 
                 <!-- Tabla -->
@@ -62,18 +54,18 @@
                         <thead>
                             <tr>
                                 <th class="pn-col-seleccion"><input type="checkbox" data-seleccionar-todos aria-label="Seleccionar todos"></th>
-                                <th data-col="Orden">Orden</th>
-                                <th data-col="Título">Título</th>
-                                <th data-col="Descripción">Descripción</th>
-                                <th data-col="Contenido">Contenido</th>
-                                <th data-col="Semanas">Semanas</th>
-                                <th data-col="Última modificación">Última modificación</th>
-                                <th data-col="Fecha de creación">Fecha de creación</th>
+                                <th data-col="Orden" data-campo="orden" data-filtro="numero">Orden</th>
+                                <th data-col="Título" data-campo="titulo" data-filtro="texto">Título</th>
+                                <th data-col="Descripción" data-campo="descripcion" data-filtro="texto">Descripción</th>
+                                <th data-col="Contenido" data-campo="contenido" data-filtro="texto">Contenido</th>
+                                <th data-col="Semanas" data-campo="semanas" data-filtro="numero">Semanas</th>
+                                <th data-col="Última modificación" data-campo="ultimaModificacion" data-filtro="fecha">Última modificación</th>
+                                <th data-col="Fecha de creación" data-campo="fechaCreacion" data-filtro="fecha">Fecha de creación</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr th:each="uc : ${unidades}" data-fila data-dependencias="0" th:data-f-titulo="${uc.unidad.titulo}">
+                            <tr th:each="uc : ${unidades}" data-fila data-dependencias="0">
                                 <td class="pn-col-seleccion"><input type="checkbox" data-seleccionar-fila aria-label="Seleccionar fila"
                                     th:value="${uc.unidad.idUnidad}"></td>
                                 <td th:text="${uc.numeroOrden}">1</td>
@@ -82,11 +74,11 @@
                                 <td class="fo-col-consulta"><span class="pn-truncar pn-truncar-largo" th:text="${uc.unidad.resumenContenido}">Contenido de la unidad</span></td>
                                 <td th:text="${uc.semanasDuracion}">1</td>
                                 <td th:text="${uc.unidad.ultimaModificacion != null ? #temporals.format(uc.unidad.ultimaModificacion, 'dd/MM/yyyy') : '-'}">-</td>
-                                <td th:text="${#temporals.format(uc.unidad.fechaCreacion, 'dd/MM/yyyy')}">28/08/2026</td>
+                                <td th:text="${#temporals.format(uc.unidad.fechaCreacion, 'dd/MM/yyyy HH:mm')}">28/08/2026 10:30</td>
                                 <td>
                                     <div class="pn-acciones">
                                         <button type="button" class="pn-btn pn-btn-editar pn-btn-chico" th:if="${puedeGestionar}"
-                                                data-bs-toggle="modal" th:data-bs-target="'#modalEditarUnidad' + ${uc.unidad.idUnidad}">Editar</button>
+                                                data-bs-toggle="modal" th:data-bs-target="'#modalEditarUnidad' + ${uc.unidad.idUnidad}">Modificar</button>
                                         <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico"
                                                 data-bs-toggle="modal" th:data-bs-target="'#modalBajaUnidad' + ${uc.unidad.idUnidad}">Dar de baja</button>
                                     </div>
@@ -129,13 +121,13 @@
             <div class="pn-modal-cuerpo">
                 <div class="pn-seccion-titulo">
                     <h4>Datos de la unidad</h4>
-                    <p>Se agrega al final del cronograma, con una semana de duración</p>
+                    <p>Programa, título, contenido y descripción</p>
                 </div>
                 <form th:action="@{/unidad/registrar}" method="post" class="form-ajax" data-validar novalidate data-unidad-formulario>
                     <div class="row g-3 mb-3">
                         <div class="col-md-6 pn-campo">
                             <label class="pn-etiqueta">Programa <span class="pn-obligatorio">*</span></label>
-                            <select name="programaId" class="pn-input" required data-unidad-programa>
+                            <select name="programaId" data-buscable class="pn-input" required data-unidad-programa>
                                 <option th:each="p : ${programasActivos}" th:value="${p.idPrograma}"
                                         th:text="${p.nombre + (p.idPrograma == programa.idPrograma ? ' (Por defecto)' : '')}"
                                         th:selected="${p.idPrograma == programa.idPrograma}">Programa 2026 (Por defecto)</option>
@@ -152,7 +144,7 @@
 
                         <div class="col-12 pn-campo" data-bloque="existente" hidden>
                             <label class="pn-etiqueta">Unidad a incorporar <span class="pn-obligatorio">*</span></label>
-                            <select name="unidadExistenteId" class="pn-input" data-unidad-existente disabled>
+                            <select name="unidadExistenteId" data-buscable class="pn-input" data-unidad-existente disabled>
                                 <option value="">Seleccionar unidad</option>
                                 <option th:each="u : ${unidadesDelCurso}" th:value="${u.idUnidad}" th:text="${u.titulo}"
                                         th:attr="data-programas=${u.idsProgramasQueLaIncluyen}">Unidad</option>
@@ -208,7 +200,7 @@
                 <div class="pn-modal-cuerpo">
                     <div class="pn-seccion-titulo">
                         <h4>Datos de la unidad</h4>
-                        <p th:text="${'Unidad ' + uc.numeroOrden + ' de ' + programa.nombre}">Unidad 1</p>
+                        <p>Título, contenido y descripción</p>
                     </div>
                     <form th:action="@{'/unidad/modificar/' + ${uc.unidad.idUnidad}}" method="post" class="form-ajax" data-validar novalidate>
                         <div class="row g-3 mb-3">

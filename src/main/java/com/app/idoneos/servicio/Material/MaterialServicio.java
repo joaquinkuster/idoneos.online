@@ -2,7 +2,7 @@ package com.app.idoneos.servicio.Material;
 
 import java.util.List;
 import com.app.idoneos.modelo.Material;
-import com.app.idoneos.modelo.ParticipacionDocente;
+import com.app.idoneos.modelo.DocenteCurso;
 import com.app.idoneos.modelo.TipoMaterial;
 import com.app.idoneos.modelo.Unidad;
 import com.app.idoneos.modelo.Docente;
@@ -20,12 +20,12 @@ public interface MaterialServicio {
     // ---------------------------------------------------------------- Lecturas
 
     /**
-     * Busca los registros vigentes de material asociados a participacionDocente.
+     * Busca los registros vigentes de material asociados a docenteCurso.
      *
-     * @param participacionDocente el registro de ParticipacionDocente asociado
-     * @return una lista de Material asociados al ParticipacionDocente indicado
+     * @param docenteCurso el registro de DocenteCurso asociado
+     * @return una lista de Material asociados al DocenteCurso indicado
      */
-    List<Material> buscarPorParticipacionDocente(ParticipacionDocente participacionDocente);
+    List<Material> buscarPorDocenteCurso(DocenteCurso docenteCurso);
 
     /**
      * Busca los registros vigentes de material asociados a tipoMaterial.

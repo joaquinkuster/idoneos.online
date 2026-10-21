@@ -111,7 +111,11 @@ class PagoControladorTest {
         mockMvc.perform(get("/pago/buscar").param("registrarPara", String.valueOf(lucia.getIdInscripcion())))
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("data-abrir-modal=\"modalRegistrarPago\"")))
-                .andExpect(content().string(containsString("data-monto=\"72000.00\" selected=\"selected\""))); // elegida y con el monto sugerido (con su descuento)
+                // elegida, con el monto sugerido (con su descuento) y el detalle del pago para el recuadro
+                .andExpect(content().string(containsString("data-monto=\"72000.00\"")))
+                .andExpect(content().string(containsString("selected=\"selected\"")))
+                .andExpect(content().string(containsString("Detalle del pago")))
+                .andExpect(content().string(containsString("data-desc-monto=\"8000.00\"")));
         mockMvc.perform(get("/inscripcion/buscar")).andExpect(content().string(containsString("Registrar pago")));
     }
 
@@ -161,12 +165,25 @@ class PagoControladorTest {
 
     @Test
     @WithUserDetails(value = LUCIA, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-51: en Mis cursos, la inscripción pendiente de pago ofrece pagar con el monto que le corresponde")
+    @DisplayName("CU-51: en Mis cursos, la inscripción pendiente de pago ofrece pagar y lleva a la caja")
     void misCursosOfrecePagar() throws Exception {
         mockMvc.perform(get("/inscripcion/misCursos")).andExpect(status().isOk())
+                .andExpect(content().string(containsString("/pago/caja/")))
+                .andExpect(content().string(containsString(">Pagar</a>")))
+                .andExpect(content().string(containsString("/pago/misPagos")));
+    }
+
+    @Test
+    @WithUserDetails(value = LUCIA, userDetailsServiceBeanName = SERVICIO)
+    @DisplayName("CU-51: la caja resume la compra con el descuento aplicado y ofrece pagar")
+    void caja() throws Exception {
+        Inscripcion lucia = pendienteDeLucia();
+
+        mockMvc.perform(get("/pago/caja/" + lucia.getIdInscripcion())).andExpect(status().isOk())
+                .andExpect(content().string(containsString("Total a pagar")))
+                .andExpect(content().string(containsString("Descuento")))
+                .andExpect(content().string(containsString("$ 72.000")))
                 .andExpect(content().string(containsString("data-pagar")))
-                .andExpect(content().string(containsString("Pagar $ 72.000")))
-                .andExpect(content().string(containsString("/pago/misPagos")))
                 .andExpect(content().string(containsString("/js/pago.js")));
     }
 
@@ -196,15 +213,18 @@ class PagoControladorTest {
 
     @Test
     @WithUserDetails(value = LUCIA, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-51: con un descuento que cubre todo el precio, la respuesta es aprobada y sin pago; la tarjeta ofrece habilitar el acceso")
+    @DisplayName("CU-51: con un descuento que cubre todo el precio, la respuesta es aprobada y sin pago; la caja ofrece habilitar el acceso")
     void pagarConDescuentoTotal() throws Exception {
         descuentoRepositorio.save(new Descuento("Beca completa", 0, 100, LocalDateTime.now().minusDays(1),
                 LocalDateTime.now().plusDays(10), 5, 0));
         Inscripcion lucia = pendienteDeLucia();
 
         mockMvc.perform(get("/inscripcion/misCursos")).andExpect(status().isOk())
-                .andExpect(content().string(containsString("Habilitar acceso (sin costo)")))
+                .andExpect(content().string(containsString(">Pagar</a>")))
                 .andExpect(content().string(not(containsString("Pagar $"))));
+        // la caja ofrece habilitar el acceso, sin cobrar nada
+        mockMvc.perform(get("/pago/caja/" + lucia.getIdInscripcion())).andExpect(status().isOk())
+                .andExpect(content().string(containsString("Habilitar acceso")));
         mockMvc.perform(post("/pago/pagar/" + lucia.getIdInscripcion())).andExpect(status().isOk())
                 .andExpect(jsonPath("$.aprobado").value(true))
                 .andExpect(jsonPath("$.idPago").value(org.hamcrest.Matchers.nullValue()));
@@ -334,12 +354,12 @@ class PagoControladorTest {
         Inscripcion lucia = pendienteDeLucia();
 
         mockMvc.perform(post("/pago/registrar").param("idInscripcion", String.valueOf(lucia.getIdInscripcion()))
-                .param("monto", "72000").param("referencia", "TRF-555111").param("observaciones", "Banco Nación"))
+                .param("monto", "72000").param("numeroComprobante", "TRF-555111").param("observaciones", "Banco Nación"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.mensaje").value(containsString("Lucía Fernández")));
 
         assertTrue(lucia.estaHabilitada());
-        assertEquals("TRF-555111", lucia.getPagoAprobado().getCodigoReferencia());
+        assertEquals("TRF-555111", lucia.getPagoAprobado().getNumeroComprobante());
     }
 
     @Test
@@ -350,7 +370,7 @@ class PagoControladorTest {
                 .andExpect(jsonPath("$.error").value(containsString("inscripción")));
         mockMvc.perform(post("/pago/registrar").param("idInscripcion", String.valueOf(pendienteDeLucia().getIdInscripcion())))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value(containsString("monto y el comprobante")));
+                .andExpect(jsonPath("$.error").value(containsString("monto y el número de comprobante")));
     }
 
     @Test
@@ -385,7 +405,7 @@ class PagoControladorTest {
         Pago rechazado = lucia.getPagoSinAprobar();
 
         mockMvc.perform(post("/pago/modificar/" + rechazado.getIdPago()).param("estado", "Aprobado").param("monto", "72000")
-                .param("nombrePagador", "Lucía Fernández").param("dniPagador", "40123456"))
+                .param("referencia", "QRTEST001").param("numeroComprobante", "123456789012345678901234567890").param("nombrePagador", "Lucía Fernández").param("dniPagador", "40123456"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.mensaje").value(containsString("Pago acreditado")));
 
@@ -398,9 +418,14 @@ class PagoControladorTest {
     @DisplayName("CU-54: rechaza datos inválidos y los pagos que ya están aprobados")
     void modificarPagoInvalido() throws Exception {
         Pago rechazado = pendienteDeLucia().getPagoSinAprobar();
+        // acreditar un pago de MODO exige el código de referencia y, después, el nombre y el DNI del pagador
         mockMvc.perform(post("/pago/modificar/" + rechazado.getIdPago()).param("estado", "Aprobado").param("monto", "72000"))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value(containsString("nombre y el DNI")));
+                .andExpect(jsonPath("$.error").value(containsString("código de referencia y el número de comprobante de MODO")));
+        mockMvc.perform(post("/pago/modificar/" + rechazado.getIdPago()).param("estado", "Aprobado").param("monto", "72000")
+                .param("referencia", "QRTEST002").param("numeroComprobante", "123456789012345678901234567890"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value(containsString("nombre o el DNI")));
 
         Pago aprobado = pagoAprobadoDe(MARTIN);
         mockMvc.perform(post("/pago/modificar/" + aprobado.getIdPago()).param("estado", "Rechazado").param("monto", "100"))

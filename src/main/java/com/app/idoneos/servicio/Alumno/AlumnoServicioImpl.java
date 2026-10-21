@@ -1,5 +1,9 @@
 package com.app.idoneos.servicio.Alumno;
 
+import com.app.idoneos.utilidades.TextoUtilidad;
+import com.app.idoneos.modelo.Curso;
+import com.app.idoneos.modelo.Cohorte;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import com.app.idoneos.modelo.Alumno;
@@ -62,6 +66,23 @@ public class AlumnoServicioImpl implements AlumnoServicio, CrudServicio<Alumno> 
     @Override
     public Optional<Alumno> buscarPorUsuario(Usuario usuario) {
         return alumnoRepositorio.findByUsuario(usuario);
+    }
+
+    @Override
+    public List<Alumno> buscarPorCurso(Curso curso) {
+        return ordenarPorApellidoYNombre(alumnoRepositorio.buscarActivosPorCurso(curso));
+    }
+
+    @Override
+    public List<Alumno> buscarPorCohorte(Cohorte cohorte) {
+        return ordenarPorApellidoYNombre(alumnoRepositorio.buscarActivosPorCohorte(cohorte));
+    }
+
+    private List<Alumno> ordenarPorApellidoYNombre(List<Alumno> alumnos) {
+        return alumnos.stream()
+                .sorted(Comparator.comparing((Alumno a) -> TextoUtilidad.normalizar(a.getUsuario().getApellido()))
+                        .thenComparing(a -> TextoUtilidad.normalizar(a.getUsuario().getNombre())))
+                .toList();
     }
 
     // ---------------------------------------------------------------- Creaciones

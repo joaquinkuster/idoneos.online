@@ -149,9 +149,9 @@ class UnidadServicioTest {
         assertTrue(mensaje(() -> unidadServicio.agregarUnidad(fausto(), id, null, "Título", null, " "))
                 .contains("Debe completar el título y el contenido."));
         assertTrue(mensaje(() -> unidadServicio.agregarUnidad(fausto(), id, null, "x".repeat(51), null, "Contenido"))
-                .contains("no puede superar los 50 caracteres"));
+                .contains("Máximo: 50 caracteres"));
         assertTrue(mensaje(() -> unidadServicio.agregarUnidad(fausto(), id, null, "Título", "x".repeat(151), "Contenido"))
-                .contains("no puede superar los 150 caracteres"));
+                .contains("Máximo: 150 caracteres"));
         assertTrue(mensaje(() -> unidadServicio.agregarUnidad(fausto(), id, null, repetido.toUpperCase(), null, "Contenido"))
                 .contains("Ya existe una unidad con ese título en el curso"));
         assertTrue(mensaje(() -> unidadServicio.agregarUnidad(fausto(), 999999, null, "Título", null, "Contenido"))

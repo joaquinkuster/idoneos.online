@@ -58,6 +58,15 @@ public interface PagoRepositorio extends JpaRepository<Pago, Integer> {
     Optional<Pago> findByCodigoReferencia(String codigoReferencia);
 
     /**
+     * Busca el pago con ese número de comprobante entre los que se hicieron con el mismo medio de pago.
+     *
+     * @param numeroComprobante el número de comprobante a buscar
+     * @param metodoPago        el medio de pago
+     * @return un {@link Optional} con el pago si existe, o vacío si no se encuentra
+     */
+    Optional<Pago> findFirstByNumeroComprobanteAndMetodoPago(String numeroComprobante, com.app.idoneos.modelo.MetodoPago metodoPago);
+
+    /**
      * Busca el pago por su atributo único 'idIntencionExterna'. Incluye los registros dados de baja, para poder reactivarlos en lugar de duplicarlos.
      *
      * @param idIntencionExterna el valor de 'idIntencionExterna' a buscar

@@ -1,5 +1,6 @@
 package com.app.idoneos.servicio.TerminoGlosario;
 
+import com.app.idoneos.utilidades.MensajeValidacionUtilidad;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -12,7 +13,7 @@ import com.app.idoneos.modelo.Docente;
 import com.app.idoneos.modelo.TerminoGlosario;
 import com.app.idoneos.modelo.Unidad;
 import com.app.idoneos.modelo.Usuario;
-import com.app.idoneos.repositorio.ParticipacionDocenteRepositorio;
+import com.app.idoneos.repositorio.DocenteCursoRepositorio;
 import com.app.idoneos.repositorio.TerminoGlosarioRepositorio;
 import com.app.idoneos.repositorio.UnidadRepositorio;
 import com.app.idoneos.servicio.CrudServicio;
@@ -36,7 +37,7 @@ public class TerminoGlosarioServicioImpl implements TerminoGlosarioServicio, Cru
     private UnidadRepositorio unidadRepositorio;
 
     @Autowired
-    private ParticipacionDocenteRepositorio participacionDocenteRepositorio;
+    private DocenteCursoRepositorio docenteCursoRepositorio;
 
     @Autowired
     private UnidadServicio unidadServicio;
@@ -229,7 +230,7 @@ public class TerminoGlosarioServicioImpl implements TerminoGlosarioServicio, Cru
         if (docente == null) {
             throw new IllegalArgumentException("Error! El usuario no tiene el rol de docente.");
         }
-        boolean participa = participacionDocenteRepositorio.findByCursoAndBajaFalse(curso).stream()
+        boolean participa = docenteCursoRepositorio.findByCursoAndBajaFalse(curso).stream()
                 .anyMatch(p -> p.getDocente().getIdDocente() == docente.getIdDocente());
         if (!participa) {
             throw new IllegalArgumentException("Error! No participás en este curso.");
@@ -243,11 +244,11 @@ public class TerminoGlosarioServicioImpl implements TerminoGlosarioServicio, Cru
         }
         if (termino.trim().length() > TerminoGlosario.LONGITUD_TERMINO) {
             throw new IllegalArgumentException(
-                    "Error! El término no puede superar los " + TerminoGlosario.LONGITUD_TERMINO + " caracteres.");
+                    MensajeValidacionUtilidad.demasiadoLargo("El término", TerminoGlosario.LONGITUD_TERMINO, "caracteres"));
         }
         if (definicion.trim().length() > TerminoGlosario.LONGITUD_DEFINICION) {
             throw new IllegalArgumentException(
-                    "Error! La definición no puede superar los " + TerminoGlosario.LONGITUD_DEFINICION + " caracteres.");
+                    MensajeValidacionUtilidad.demasiadoLargo("La definición", TerminoGlosario.LONGITUD_DEFINICION, "caracteres"));
         }
         return termino.trim();
     }

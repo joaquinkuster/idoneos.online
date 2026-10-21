@@ -6,14 +6,19 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.error.ErrorController;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.app.idoneos.modelo.Usuario;
+import com.app.idoneos.modelo.Alumno;
 import com.app.idoneos.modelo.Categoria;
 import com.app.idoneos.modelo.Curso;
 import com.app.idoneos.modelo.Programa;
+import com.app.idoneos.servicio.Pago.PagoServicio;
+import com.app.idoneos.servicio.Descuento.DescuentoServicio;
 import com.app.idoneos.servicio.Categoria.CategoriaServicioImpl;
 import com.app.idoneos.servicio.Curso.CursoServicioImpl;
 import com.app.idoneos.servicio.Programa.ProgramaServicioImpl;
@@ -31,6 +36,12 @@ public class InicioControlador implements ErrorController {
 
     /** Cantidad de cursos que se destacan en el inicio. */
     private static final int CURSOS_DESTACADOS = 8;
+
+    @Autowired
+    private PagoServicio pagoServicio;
+
+    @Autowired
+    private DescuentoServicio descuentoServicio;
 
     @Autowired
     private ProgramaServicioImpl programaServicio;
@@ -51,7 +62,7 @@ public class InicioControlador implements ErrorController {
      * @return La vista de inicio.
      */
     @GetMapping({ "/", "/inicio" })
-    public String verInicio(Model modelo) {
+    public String verInicio(Model modelo, Authentication auth) {
         List<Curso> catalogo = cursoServicio.buscarEnCatalogo(null, null, null, null, null);
         // Los destacados van del curso con más inscripciones históricas al que tiene menos
         List<Curso> cursosDestacados = cursoServicio.buscarDestacados(CURSOS_DESTACADOS);
@@ -74,6 +85,9 @@ public class InicioControlador implements ErrorController {
 
         modelo.addAttribute("categorias", categorias);
         modelo.addAttribute("cursosPorCategoria", cursosPorCategoria);
+        // Descuentos vigentes: las cartas de los cursos con costo avisan que hay descuentos
+        modelo.addAttribute("descuentosVigentes", descuentoServicio.buscarVigentes());
+        modelo.addAttribute("descuentoAplicable", pagoServicio.calcularDescuentoPara(alumnoDe(auth)).orElse(null));
         modelo.addAttribute("cursos", cursosDestacados);
         modelo.addAttribute("cantUnidadesPorCurso", cantidadUnidadesPorCurso);
         modelo.addAttribute("titulo", "Idóneos Online | Cursos de Finanzas, Economía y Mercado de Capitales");
@@ -120,5 +134,10 @@ public class InicioControlador implements ErrorController {
         modelo.addAttribute("detalle", detalle);
         modelo.addAttribute("titulo", encabezado + " | Idóneos Online");
         return "pages/error";
+    }
+
+    /** El alumno que está mirando, o {@code null} si es un visitante o no es alumno. */
+    private Alumno alumnoDe(Authentication auth) {
+        return auth != null && auth.getPrincipal() instanceof Usuario usuario ? usuario.getAlumno() : null;
     }
 }

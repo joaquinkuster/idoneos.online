@@ -2,6 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
     <th:block th:replace="~{fragments/head :: recursos}"></th:block>
+    <link rel="stylesheet" th:href="@{/css/modo.css}">
 </head>
 <body class="wf-canvas-bg fondo-crema">
 
@@ -10,7 +11,7 @@
 
             <div th:replace="~{fragments/navbar :: navbar}"></div>
 
-            <th:block th:replace="~{fragments/breadcrumb :: migas('Mis cursos', '/inscripcion/misCursos', 'Mis pagos')}"></th:block>
+            <th:block th:replace="~{fragments/breadcrumb :: migas(null, null, 'Mis pagos')}"></th:block>
 
             <div class="wf-body py-4">
                 <div class="container-fluid px-4 px-lg-5">

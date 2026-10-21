@@ -116,7 +116,7 @@ public class Cohorte {
      * Conjunto de participacionesDocente asociados.
      */
     @OneToMany(mappedBy = "cohortePorDefecto", cascade = CascadeType.ALL)
-    private Set<ParticipacionDocente> participacionesDocente = new HashSet<>();
+    private Set<DocenteCurso> participacionesDocente = new HashSet<>();
 
     /**
      * Constructor para crear la cohorte con los datos básicos.

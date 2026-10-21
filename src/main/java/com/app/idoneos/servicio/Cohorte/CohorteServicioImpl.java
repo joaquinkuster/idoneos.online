@@ -1,5 +1,7 @@
 package com.app.idoneos.servicio.Cohorte;
 
+import com.app.idoneos.modelo.Curso;
+import com.app.idoneos.utilidades.MensajeValidacionUtilidad;
 import com.app.idoneos.utilidades.MensajeBajaUtilidad;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -35,7 +37,7 @@ public class CohorteServicioImpl implements CohorteServicio, CrudServicio<Cohort
     private ParametroRepositorio parametroRepositorio;
 
     @Autowired
-    private ParticipacionDocenteRepositorio participacionDocenteRepositorio;
+    private DocenteCursoRepositorio docenteCursoRepositorio;
 
     // ---------------------------------------------------------------- Lecturas
 
@@ -82,6 +84,11 @@ public class CohorteServicioImpl implements CohorteServicio, CrudServicio<Cohort
     @Override
     public List<Cohorte> buscarPorPrograma(Programa programa) {
         return cohorteRepositorio.findByProgramaAndBajaFalse(programa);
+    }
+
+    @Override
+    public List<Cohorte> buscarPorCurso(Curso curso) {
+        return cohorteRepositorio.findByProgramaCursoAndProgramaBajaFalseAndBajaFalse(curso);
     }
 
     /**
@@ -226,14 +233,14 @@ public class CohorteServicioImpl implements CohorteServicio, CrudServicio<Cohort
     @Override
     @Transactional
     public void cambiarContextoDeTrabajo(Cohorte cohorte, Docente docente) {
-        ParticipacionDocente participacion = participacionDocenteRepositorio
+        DocenteCurso participacion = docenteCursoRepositorio
                 .findByCursoAndBajaFalse(cohorte.getPrograma().getCurso()).stream()
                 .filter(p -> p.getDocente().getIdDocente() == docente.getIdDocente()).findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Error! El docente no participa en el curso de la cohorte."));
         participacion.setProgramaPorDefecto(cohorte.getPrograma());
         participacion.setCohortePorDefecto(cohorte);
         participacion.setUltimaModificacion(LocalDateTime.now());
-        participacionDocenteRepositorio.save(participacion);
+        docenteCursoRepositorio.save(participacion);
     }
 
     // ---------------------------------------------------------------- Bajas
@@ -271,12 +278,12 @@ public class CohorteServicioImpl implements CohorteServicio, CrudServicio<Cohort
                             ? MensajeBajaUtilidad.cantidad(clasesActivas, "clase en vivo activa", "clases en vivo activas") : "");
             // Las inscripciones no se pueden deshacer: solo si hay clases en vivo se indica qué hacer
             throw new IllegalArgumentException(MensajeBajaUtilidad.bajaBloqueada("la cohorte",
-                    cohorte.getPrograma().getCurso().getNombre() + " — " + cohorte.getPrograma().getNombre(),
+                    cohorte.getPrograma().getCurso().getNombre() + " - " + cohorte.getPrograma().getNombre(),
                     "tiene " + motivo, inscriptos == 0 ? "Dé de baja primero sus clases en vivo." : ""));
         }
-        for (ParticipacionDocente participacion : new ArrayList<>(cohorte.getParticipacionesDocente())) {
+        for (DocenteCurso participacion : new ArrayList<>(cohorte.getParticipacionesDocente())) {
             participacion.setCohortePorDefecto(null);
-            participacionDocenteRepositorio.save(participacion);
+            docenteCursoRepositorio.save(participacion);
         }
         cohorte.marcarInactivo();
         cohorte.setUltimaModificacion(LocalDateTime.now());
@@ -354,18 +361,18 @@ public class CohorteServicioImpl implements CohorteServicio, CrudServicio<Cohort
             throw new IllegalArgumentException("Error! La fecha de inicio de dictado no puede ser anterior a la fecha de fin de inscripción.");
         }
         if (cupoMaximo != null && cupoMaximo <= 0) {
-            throw new IllegalArgumentException("Error! El cupo máximo debe ser un número entero mayor a cero.");
+            throw new IllegalArgumentException(MensajeValidacionUtilidad.formatoInvalido("El cupo máximo", "número entero de 1 a " + Cohorte.CUPO_MAXIMO_PERMITIDO));
         }
         if (cupoMaximo != null && cupoMaximo > Cohorte.CUPO_MAXIMO_PERMITIDO) {
             throw new IllegalArgumentException(
-                    "Error! El cupo máximo no puede superar los " + Cohorte.CUPO_MAXIMO_PERMITIDO + " inscriptos.");
+                    MensajeValidacionUtilidad.formatoInvalido("El cupo máximo", "número entero de 1 a " + Cohorte.CUPO_MAXIMO_PERMITIDO));
         }
         if (semanasAcceso <= 0) {
-            throw new IllegalArgumentException("Error! Las semanas de acceso deben ser un número entero mayor a cero.");
+            throw new IllegalArgumentException(MensajeValidacionUtilidad.formatoInvalido("Las semanas de acceso", "número entero de 1 a " + Cohorte.SEMANAS_ACCESO_MAXIMAS));
         }
         if (semanasAcceso > Cohorte.SEMANAS_ACCESO_MAXIMAS) {
             throw new IllegalArgumentException(
-                    "Error! Las semanas de acceso no pueden superar las " + Cohorte.SEMANAS_ACCESO_MAXIMAS + " semanas.");
+                    MensajeValidacionUtilidad.formatoInvalido("Las semanas de acceso", "número entero de 1 a " + Cohorte.SEMANAS_ACCESO_MAXIMAS));
         }
         int duracion = programa.getDuracionTotalSemanas();
         if (semanasAcceso < duracion) {

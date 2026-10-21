@@ -1,15 +1,16 @@
 package com.app.idoneos.servicio.RespuestaForo;
 
+import com.app.idoneos.utilidades.MensajeValidacionUtilidad;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import com.app.idoneos.modelo.ConsultaForo;
 import com.app.idoneos.modelo.Docente;
 import com.app.idoneos.modelo.Parametro;
-import com.app.idoneos.modelo.ParticipacionDocente;
+import com.app.idoneos.modelo.DocenteCurso;
 import com.app.idoneos.modelo.RespuestaForo;
 import com.app.idoneos.repositorio.ConsultaForoRepositorio;
-import com.app.idoneos.repositorio.ParticipacionDocenteRepositorio;
+import com.app.idoneos.repositorio.DocenteCursoRepositorio;
 import com.app.idoneos.repositorio.RespuestaForoRepositorio;
 import com.app.idoneos.servicio.CrudServicio;
 import com.app.idoneos.servicio.Parametro.ParametroServicio;
@@ -31,7 +32,7 @@ public class RespuestaForoServicioImpl implements RespuestaForoServicio, CrudSer
     private ConsultaForoRepositorio consultaForoRepositorio;
 
     @Autowired
-    private ParticipacionDocenteRepositorio participacionDocenteRepositorio;
+    private DocenteCursoRepositorio docenteCursoRepositorio;
 
     @Autowired
     private ParametroServicio parametroServicio;
@@ -73,14 +74,14 @@ public class RespuestaForoServicioImpl implements RespuestaForoServicio, CrudSer
     }
 
     /**
-     * Busca los registros vigentes de respuestaForo asociados a participacionDocente.
+     * Busca los registros vigentes de respuestaForo asociados a docenteCurso.
      *
-     * @param participacionDocente el registro de ParticipacionDocente asociado
-     * @return una lista de RespuestaForo asociados al ParticipacionDocente indicado
+     * @param docenteCurso el registro de DocenteCurso asociado
+     * @return una lista de RespuestaForo asociados al DocenteCurso indicado
      */
     @Override
-    public List<RespuestaForo> buscarPorParticipacionDocente(ParticipacionDocente participacionDocente) {
-        return respuestaForoRepositorio.findByParticipacionDocenteAndBajaFalse(participacionDocente);
+    public List<RespuestaForo> buscarPorDocenteCurso(DocenteCurso docenteCurso) {
+        return respuestaForoRepositorio.findByDocenteCursoAndBajaFalse(docenteCurso);
     }
 
     /**
@@ -116,7 +117,7 @@ public class RespuestaForoServicioImpl implements RespuestaForoServicio, CrudSer
         ConsultaForo consulta = consultaForoRepositorio.findById(consultaId == null ? -1 : consultaId)
                 .filter(c -> !c.esInactivo())
                 .orElseThrow(() -> new IllegalArgumentException("Error! La consulta no se encuentra activa."));
-        ParticipacionDocente participacion = obtenerParticipacion(consulta, docente);
+        DocenteCurso participacion = obtenerParticipacion(consulta, docente);
         RespuestaForo respuesta = respuestaForoRepositorio.save(new RespuestaForo(participacion, consulta,
                 validarTexto(texto)));
         consulta.getRespuestasForo().add(respuesta);
@@ -144,7 +145,7 @@ public class RespuestaForoServicioImpl implements RespuestaForoServicio, CrudSer
     public RespuestaForo modificarRespuesta(Integer id, Docente docente, String texto) {
         RespuestaForo respuesta = buscarActiva(id);
         obtenerParticipacion(respuesta.getConsulta(), docente);
-        if (respuesta.getParticipacionDocente().getDocente().getIdDocente() != docente.getIdDocente()) {
+        if (respuesta.getDocenteCurso().getDocente().getIdDocente() != docente.getIdDocente()) {
             throw new IllegalArgumentException("Error! Solo podés modificar tus propias respuestas.");
         }
         int plazo = parametroServicio.obtenerEntero(Parametro.PLAZO_EDICION_FORO,
@@ -189,11 +190,11 @@ public class RespuestaForoServicioImpl implements RespuestaForoServicio, CrudSer
     }
 
     /** Obtiene la participación del docente en el curso de la consulta (como titular o ayudante). */
-    private ParticipacionDocente obtenerParticipacion(ConsultaForo consulta, Docente docente) {
+    private DocenteCurso obtenerParticipacion(ConsultaForo consulta, Docente docente) {
         if (docente == null) {
             throw new IllegalArgumentException("Error! El usuario no tiene el rol de docente.");
         }
-        return participacionDocenteRepositorio.findByCursoAndBajaFalse(consulta.getUnidad().getCurso()).stream()
+        return docenteCursoRepositorio.findByCursoAndBajaFalse(consulta.getUnidad().getCurso()).stream()
                 .filter(p -> p.getDocente().getIdDocente() == docente.getIdDocente()).findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Error! No participás en este curso."));
     }
@@ -205,7 +206,7 @@ public class RespuestaForoServicioImpl implements RespuestaForoServicio, CrudSer
         }
         if (texto.trim().length() > RespuestaForo.LONGITUD_TEXTO) {
             throw new IllegalArgumentException(
-                    "Error! El texto no puede superar los " + RespuestaForo.LONGITUD_TEXTO + " caracteres.");
+                    MensajeValidacionUtilidad.demasiadoLargo("El texto", RespuestaForo.LONGITUD_TEXTO, "caracteres"));
         }
         return texto.trim();
     }

@@ -97,6 +97,45 @@ public interface PagoServicio {
     Optional<Descuento> calcularDescuento(Inscripcion inscripcion);
 
     /**
+     * Calcula el descuento que le corresponde hoy a un alumno (el de mayor porcentaje entre los vigentes cuya condición de
+     * cursos comprados cumple). Sin alumno (un visitante), solo cuentan los descuentos sin condición.
+     *
+     * @param alumno el alumno, o {@code null} si quien mira no es un alumno
+     * @return el descuento aplicable, si hay alguno
+     */
+    Optional<Descuento> calcularDescuentoPara(Alumno alumno);
+
+    /**
+     * Detalle de lo que hay que pagar por una inscripción, para mostrarlo al administrador al registrar un pago.
+     *
+     * @param precio         El precio del curso.
+     * @param descuento      El descuento aplicado, o {@code null} si no hay.
+     * @param montoDescuento Cuánto se descuenta del precio (cero si no hay descuento).
+     * @param pagado         Lo ya pagado (pagos aprobados).
+     * @param total          Lo que falta pagar: el precio con el descuento menos lo ya pagado.
+     */
+    record DetallePago(float precio, Descuento descuento, float montoDescuento, float pagado, float total) {
+    }
+
+    /**
+     * Arma el detalle de lo que hay que pagar por una inscripción: precio, descuento, lo ya pagado y lo que falta.
+     *
+     * @param inscripcion la inscripción
+     * @return el detalle del pago
+     */
+    DetallePago calcularDetalle(Inscripcion inscripcion);
+
+    /**
+     * Habilita la inscripción sin pago si el descuento que le corresponde al alumno cubre todo el precio del curso (el
+     * total a pagar es cero). Es lo que ocurre cuando el administrador registra la inscripción. Cuenta el uso del
+     * descuento. Si hay algo que pagar, no hace nada.
+     *
+     * @param inscripcion la inscripción recién registrada
+     * @return {@code true} si quedó habilitada sin pago
+     */
+    boolean habilitarSiNoHayQuePagar(Inscripcion inscripcion);
+
+    /**
      * Calcula el monto que debe pagar el alumno por una inscripción: el precio del curso con el descuento aplicado.
      *
      * @param inscripcion la inscripción que se va a pagar
@@ -173,17 +212,40 @@ public interface PagoServicio {
     SolicitudPago iniciarPago(Integer idInscripcion, Alumno alumno);
 
     /**
+     * Igual que {@link #iniciarPago(Integer, Alumno)}, pero comprueba que el monto a cobrar sea el que el alumno vio en la
+     * caja: si el descuento aplicado dejó de estar disponible (o apareció otro) mientras tanto, no cobra y avisa.
+     *
+     * @param idInscripcion El identificador de la inscripción.
+     * @param alumno        El alumno que paga.
+     * @param montoEsperado El monto que el alumno vio en la caja (nulo para no comprobarlo).
+     * @return La solicitud de pago.
+     * @throws MontoCambiadoException Si el monto a cobrar es distinto del que el alumno vio.
+     */
+    SolicitudPago iniciarPago(Integer idInscripcion, Alumno alumno, Float montoEsperado);
+
+    /**
+     * El monto a cobrar cambió entre el momento en que el alumno lo vio en la caja y el momento de pagar.
+     */
+    class MontoCambiadoException extends IllegalArgumentException {
+        private static final long serialVersionUID = 1L;
+
+        public MontoCambiadoException(String mensaje) {
+            super(mensaje);
+        }
+    }
+
+    /**
      * El administrador registra el pago de una inscripción recibido por fuera de MODO, por transferencia bancaria
      * (CU-53). El pago queda aprobado, se habilita el acceso y se emite el comprobante.
      *
      * @param idInscripcion la inscripción que se paga
      * @param monto el monto recibido
-     * @param referencia el comprobante de la transferencia (número de operación)
+     * @param numeroComprobante el número de comprobante de la transferencia
      * @param observaciones notas del administrador (opcional)
      * @return el pago registrado
      * @throws IllegalArgumentException si falta algún dato o la inscripción ya está paga
      */
-    Pago registrarPagoManual(Integer idInscripcion, Float monto, String referencia, String observaciones);
+    Pago registrarPagoManual(Integer idInscripcion, Float monto, String numeroComprobante, String observaciones);
 
     // ---------------------------------------------------------------- Modificaciones
 
@@ -222,15 +284,16 @@ public interface PagoServicio {
      * @param idPago el pago
      * @param estado el nuevo estado: Aprobado o Rechazado
      * @param monto el monto (obligatorio)
-     * @param referencia el comprobante de la transferencia (obligatorio si es una transferencia)
+     * @param referencia el código de referencia de MODO (obligatorio al acreditar un pago de MODO)
+     * @param numeroComprobante el número de comprobante (obligatorio en una transferencia y al acreditar un pago de MODO)
      * @param nombrePagador el nombre del pagador (obligatorio al aprobar un pago de MODO)
      * @param dniPagador el DNI del pagador (obligatorio al aprobar un pago de MODO)
      * @param motivo el motivo, si se rechaza (opcional)
      * @return el pago actualizado
      * @throws IllegalArgumentException si el pago no está pendiente o rechazado o falta algún dato
      */
-    Pago modificarPago(Integer idPago, String estado, Float monto, String referencia, String nombrePagador,
-            String dniPagador, String motivo);
+    Pago modificarPago(Integer idPago, String estado, Float monto, String referencia, String numeroComprobante,
+            String nombrePagador, String dniPagador, String motivo);
 
     /**
      * Datos que necesita el navegador para que el alumno complete un pago online: el pago que se registró y la solicitud

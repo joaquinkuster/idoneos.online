@@ -133,4 +133,13 @@ public interface InscripcionServicio {
      * @throws IllegalArgumentException si la inscripción no está activa o no pertenece al alumno
      */
     void darDeBajaInscripcion(Integer idInscripcion, Alumno alumno, String motivo);
+
+    /**
+     * Da de baja varias inscripciones a la vez (solo el Administrador). Es de todo o nada: si alguna no puede darse de
+     * baja, no se da de baja ninguna. Cada una sigue las reglas de {@link #darDeBajaInscripcion}.
+     *
+     * @param ids identificadores de las inscripciones
+     * @throws IllegalArgumentException si no se indicó ninguna o alguna no puede darse de baja
+     */
+    void darDeBajaVarias(List<Integer> ids);
 }

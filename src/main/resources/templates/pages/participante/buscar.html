@@ -32,24 +32,12 @@
                 <div class="pn-lista-cabecera">
                     <h2 class="pn-lista-titulo">Listado de participantes</h2>
                     <span class="pn-seleccionados" data-total-filtradas data-singular="participante encontrado" data-plural="participantes encontrados"
-                          th:text="${#lists.size(participantes) + (#lists.size(participantes) == 1 ? ' participante encontrado' : ' participantes encontrados')}">0 participantes encontrados</span>
+                          th:text="${#lists.size(docentes) + #lists.size(alumnos) + (#lists.size(docentes) + #lists.size(alumnos) == 1 ? ' participante encontrado' : ' participantes encontrados')}">0 participantes encontrados</span>
                 </div>
 
                 <!-- Filtros: se aplican en el navegador, sin recargar -->
                 <form class="pn-filtros" data-filtro-front>
-                    <div class="pn-filtros-campo pn-filtros-campo-grande">
-                        <label class="pn-etiqueta">Nombre o apellido</label>
-                        <input type="text" name="busqueda" class="pn-input" placeholder="Buscar por nombre o apellido" autocomplete="off">
-                    </div>
-                    <div class="pn-filtros-campo">
-                        <label class="pn-etiqueta">Rol</label>
-                        <select name="rol" class="pn-input">
-                            <option value="">Todos</option>
-                            <option value="Docente">Docente</option>
-                            <option value="Alumno">Alumno</option>
-                        </select>
-                    </div>
-                    <div class="pn-filtros-campo" th:unless="${soloCohorte}">
+                    <div class="pn-filtros-campo" data-filtro-estatico="cohorte" th:unless="${soloCohorte}">
                         <label class="pn-etiqueta">Cohorte</label>
                         <select name="cohorte" class="pn-input">
                             <option value="">Todas las cohortes</option>
@@ -57,37 +45,49 @@
                                     th:selected="${cohorteSeleccionada != null and cohorteSeleccionada == c.idCohorte}">Septiembre 2026</option>
                         </select>
                     </div>
-                    <a th:href="@{${urlBase}}" class="pn-btn pn-btn-contorno">Limpiar</a>
+                    <a th:href="@{${urlBase}}" class="pn-btn pn-btn-contorno" hidden>Limpiar</a>
                 </form>
 
                 <div class="pn-tabla-contenedor">
                     <table class="pn-tabla">
                         <thead>
                             <tr>
-                                <th>Nombre / Apellido</th>
-                                <th>Rol</th>
-                                <th th:unless="${soloCohorte}">Cohorte</th>
+                                <th data-col="Nombre y apellido" data-campo="nombreYApellido" data-filtro="texto">Nombre y apellido</th>
+                                <th data-col="Rol" data-campo="rol" data-filtro="lista">Rol</th>
+                                <th data-col="Programa" data-campo="programa" data-filtro="lista">Programa</th>
+                                <th th:unless="${soloCohorte}" data-col="Cohorte" data-campo="cohorte" data-filtro="estatico">Cohorte</th>
+                                <th data-col="Fecha de creación" data-campo="fechaCreacion" data-filtro="fecha">Fecha de creación</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr th:each="p : ${participantes}" data-fila
-                                th:data-f-busqueda="${p.nombre + ' ' + p.apellido}"
-                                th:data-f-rol="${p.esDocente() ? 'Docente|' + p.rol : p.rol}"
-                                th:attr="data-f-cohorte=${p.cohorte != null ? p.cohorte.etiqueta : null}">
+                            <tr th:each="d : ${docentes}" data-fila>
                                 <td>
                                     <span class="pn-celda-principal d-inline-flex align-items-center gap-2">
-                                        <th:block th:replace="~{fragments/avatar :: avatar(${p.usuario}, 'av-chico')}"></th:block>
-                                        <span class="pn-truncar pn-truncar-largo" th:text="${p.nombre + ', ' + p.apellido}">Valentina, Ruiz</span>
+                                        <th:block th:replace="~{fragments/avatar :: avatar(${d.docente.usuario}, 'av-chico')}"></th:block>
+                                        <span class="pn-truncar pn-truncar-largo" th:text="${d.docente.usuario.apellido + ', ' + d.docente.usuario.nombre}">Ruiz, Valentina</span>
                                     </span>
                                 </td>
                                 <td>
-                                    <span class="pn-insignia"
-                                          th:classappend="${p.rol == 'Docente titular'} ? 'pn-insignia-dorada' : (${p.rol == 'Docente ayudante'} ? 'pn-insignia-azul' : 'pn-insignia-verde')"
-                                          th:text="${p.rol}">Alumno</span>
+                                    <span class="pn-insignia" th:classappend="${d.esTitular} ? 'pn-insignia-dorada' : 'pn-insignia-azul'"
+                                          th:text="${d.esTitular ? 'Docente titular' : 'Docente ayudante'}">Docente titular</span>
                                 </td>
-                                <td th:unless="${soloCohorte}" th:text="${p.cohorte != null ? p.cohorte.etiqueta : '—'}">Septiembre 2026</td>
+                                <td th:text="${d.programaDeTrabajo != null ? d.programaDeTrabajo.nombre : '—'}">Programa 2026</td>
+                                <td th:unless="${soloCohorte}" th:text="${d.cohorteDeTrabajo != null ? d.cohorteDeTrabajo.etiqueta : '—'}">Septiembre 2026</td>
+                                <td th:text="${#temporals.format(d.docente.usuario.fechaCreacion, 'dd/MM/yyyy HH:mm')}">28/08/2026 10:30</td>
                             </tr>
-                            <tr th:replace="~{fragments/vacio :: fila(${soloCohorte ? 2 : 3}, 'fa-users', ${#lists.isEmpty(participantes) ? 'Todavía no hay participantes' : 'No se encontraron participantes'}, ${#lists.isEmpty(participantes) ? 'Cuando haya docentes o alumnos en el curso, vas a verlos acá.' : 'Ningún participante coincide con los criterios ingresados.'})}"></tr>
+                            <tr th:each="a : ${alumnos}" data-fila th:with="i=${a.getInscripcionActivaEn(curso)}" th:attr="data-f-cohorte=${i.cohorte.etiqueta}">
+                                <td>
+                                    <span class="pn-celda-principal d-inline-flex align-items-center gap-2">
+                                        <th:block th:replace="~{fragments/avatar :: avatar(${a.usuario}, 'av-chico')}"></th:block>
+                                        <span class="pn-truncar pn-truncar-largo" th:text="${a.usuario.apellido + ', ' + a.usuario.nombre}">Ruiz, Valentina</span>
+                                    </span>
+                                </td>
+                                <td><span class="pn-insignia pn-insignia-verde">Alumno</span></td>
+                                <td th:text="${i.cohorte.programa.nombre}">Programa 2026</td>
+                                <td th:unless="${soloCohorte}" th:text="${i.cohorte.etiqueta}">Septiembre 2026</td>
+                                <td th:text="${#temporals.format(a.usuario.fechaCreacion, 'dd/MM/yyyy HH:mm')}">28/08/2026 10:30</td>
+                            </tr>
+                            <tr th:replace="~{fragments/vacio :: fila(${soloCohorte ? 4 : 5}, 'fa-users', ${#lists.isEmpty(docentes) and #lists.isEmpty(alumnos) ? 'Todavía no hay participantes' : 'No se encontraron participantes'}, ${#lists.isEmpty(docentes) and #lists.isEmpty(alumnos) ? 'Cuando haya docentes o alumnos en el curso, vas a verlos acá.' : 'Ningún participante coincide con los criterios ingresados.'})}"></tr>
                         </tbody>
                     </table>
                 </div>

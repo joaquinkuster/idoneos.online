@@ -16,12 +16,16 @@
      th:data-f-docenteid="${#strings.listJoin(c.equipoDocente.![docente.idDocente], '|')}"
      th:data-f-modalidadid="${#strings.listJoin(c.modalidades.![idModalidad], '|')}"
      th:attr="data-f-estado=${inscripcion != null ? inscripcion.estado : null}, data-f-acceso=${inscripcion != null ? inscripcion.estadoAcceso : null}"
+     th:data-f-precio="${c.precio != null && c.precio <= 0 ? 'gratis' : 'pago'}"
      th:data-o-nombre="${c.nombre}"
      th:data-o-recientes="${(c.fechaCreacion != null ? #temporals.format(c.fechaCreacion, 'yyyyMMdd') : '') + #numbers.formatInteger(c.idCurso, 8, 'NONE')}">
   <div class="cc-imagen" th:classappend="${'cc-tono-' + (c.idCurso % 3)}">
     <img th:if="${c.imagen != null}" th:src="@{${c.urlImagen}}" alt="" width="640" height="300" loading="lazy" decoding="async">
     <span class="cc-velo" th:if="${c.imagen != null}"></span>
     <span class="cc-estado" th:if="${estado != null}" th:text="${estado}">Inscripción abierta</span>
+    <!-- Descuentos vigentes (solo donde la página los carga: inicio y catálogo): el que se aplica o el mayor porcentaje -->
+    <span class="cc-descuento" th:if="${descuentosVigentes != null and !#lists.isEmpty(descuentosVigentes) and c.precio != null and c.precio > 0}"
+          th:text="${descuentoAplicable != null ? descuentoAplicable.porcentajeTexto + '% de descuento' : 'Hasta ' + descuentosVigentes.get(0).porcentajeTexto + '% de descuento'}">Hasta 20% de descuento</span>
   </div>
   <div class="cc-cuerpo">
     <span class="cc-etiqueta" th:text="${c.categoria.nombre + ' · ' + c.nivel.nombre}">Categoría · Nivel</span>
@@ -54,18 +58,20 @@
         <small>Docente</small>
         <span th:text="${c.docenteTitular != null and c.docenteTitular.usuario != null ? c.docenteTitular.usuario.nombreCompleto : 'Equipo Académico'}">Docente</span>
       </div>
-      <span class="cc-precio" th:if="${inscripcion == null}"
+      <span class="cc-precio" th:if="${inscripcion == null and descuentoAplicable != null and c.precio != null and c.precio > 0}">
+        <s class="cc-precio-tachado" th:text="${'$ ' + #numbers.formatDecimal(c.precio, 1, 'POINT', 0, 'COMMA')}">$ 80.000</s>
+        <span th:text="${'$ ' + #numbers.formatDecimal(descuentoAplicable.aplicarA(c.precio), 1, 'POINT', 0, 'COMMA')}">$ 72.000</span>
+      </span>
+      <span class="cc-precio" th:if="${inscripcion == null and (descuentoAplicable == null or c.precio == null or c.precio <= 0)}"
             th:text="${c.precio != null && c.precio <= 0 ? 'Gratis' : '$ ' + #numbers.formatDecimal(c.precio != null ? c.precio : 0, 1, 'POINT', 0, 'COMMA')}">$ 0</span>
       <span class="cc-vencimiento" th:if="${inscripcion != null}"
             th:text="${inscripcion.fechaVencimientoAcceso != null ? 'Acceso hasta ' + #temporals.format(inscripcion.fechaVencimientoAcceso, 'dd/MM/yyyy') : 'El acceso empieza al pagar'}">Acceso hasta 01/01/2027</span>
     </div>
     <div class="cc-acciones">
       <a th:if="${inscripcion == null or inscripcion.estadoAcceso == 'Vigente'}" th:href="@{${url}}" class="cc-boton" th:text="${texto}">Ver ficha del curso</a>
-      <!-- Alumno con el pago pendiente: el botón paga (no se estira sobre la tarjeta, para no iniciar un pago sin querer) -->
-      <button type="button" th:if="${inscripcion != null and inscripcion.estadoAcceso == 'Pendiente de pago'}" class="cc-boton cc-boton-fijo" data-pagar
-              th:data-url="@{'/pago/pagar/' + ${inscripcion.idInscripcion}}" th:data-inscripcion="${inscripcion.idInscripcion}"
-              title="Pagar la inscripción con MODO"
-              th:text="${montosAPagar != null and montosAPagar.containsKey(inscripcion.idInscripcion) ? (montosAPagar.get(inscripcion.idInscripcion) <= 0 ? 'Habilitar acceso (sin costo)' : 'Pagar $ ' + #numbers.formatDecimal(montosAPagar.get(inscripcion.idInscripcion), 1, 'POINT', 0, 'COMMA')) : 'Pagar'}">Pagar</button>
+      <!-- Alumno con el pago pendiente: el botón lleva a la caja y se estira sobre toda la tarjeta -->
+      <a th:if="${inscripcion != null and inscripcion.estadoAcceso == 'Pendiente de pago'}" class="cc-boton"
+         th:href="@{'/pago/caja/' + ${inscripcion.idInscripcion}}" title="Ir a la caja para pagar la inscripción">Pagar</a>
       <!-- Alumno sin acceso (dictado sin comenzar o acceso vencido) -->
       <span th:if="${inscripcion != null and inscripcion.estadoAcceso != 'Vigente' and inscripcion.estadoAcceso != 'Pendiente de pago'}"
             class="cc-boton cc-boton-fijo cc-boton-inactivo" aria-disabled="true"

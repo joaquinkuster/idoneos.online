@@ -149,7 +149,7 @@ class ForoServicioTest {
         assertTrue(mensaje(() -> consultaServicio.registrarConsulta(valentina(), unidad, " "))
                 .contains("Debe completar el texto de la consulta."));
         assertTrue(mensaje(() -> consultaServicio.registrarConsulta(valentina(), unidad, "x".repeat(501)))
-                .contains("no puede superar los 500 caracteres"));
+                .contains("Máximo: 500 caracteres"));
         assertNotNull(consultaServicio.registrarConsulta(valentina(), unidad, "x".repeat(500)));
 
         // unidad bloqueada, dictado sin comenzar, sin inscripción, sin unidad y sin ser alumno
@@ -242,7 +242,7 @@ class ForoServicioTest {
         assertTrue(mensaje(() -> respuestaServicio.registrarRespuesta(fausto(), id, ""))
                 .contains("Debe completar el texto de la respuesta."));
         assertTrue(mensaje(() -> respuestaServicio.registrarRespuesta(fausto(), id, "x".repeat(501)))
-                .contains("no puede superar los 500 caracteres"));
+                .contains("Máximo: 500 caracteres"));
         assertTrue(mensaje(() -> respuestaServicio.registrarRespuesta(null, id, "Hola")).contains("rol de docente"));
         assertTrue(mensaje(() -> respuestaServicio.registrarRespuesta(fausto(), 999999, "Hola"))
                 .contains("La consulta no se encuentra activa"));

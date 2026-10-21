@@ -107,7 +107,7 @@ class ForoControladorTest {
                 .andExpect(content().string(Matchers.containsString("Sin consultas")))
                 .andExpect(content().string(Matchers.containsString("/foro/ver/" + primera())))
                 .andExpect(content().string(Matchers.containsString("Ver detalle")))
-                .andExpect(content().string(Matchers.containsString("data-columnas-boton")))
+                .andExpect(content().string(Matchers.containsString("data-filtro=")))
                 .andExpect(content().string(Matchers.containsString("data-paginador")));
         // la unidad que llega por la URL solo se elige en el campo: el listado sigue completo (se filtra en la pantalla)
         mockMvc.perform(get("/foro/buscar").param("cursoId", String.valueOf(curso)).param("unidadId",

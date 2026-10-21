@@ -27,7 +27,7 @@ import com.app.idoneos.modelo.Docente;
 import com.app.idoneos.modelo.Inscripcion;
 import com.app.idoneos.modelo.Usuario;
 import com.app.idoneos.servicio.Cohorte.CohorteServicioImpl;
-import com.app.idoneos.servicio.ParticipacionDocente.ParticipacionDocenteServicioImpl;
+import com.app.idoneos.servicio.DocenteCurso.DocenteCursoServicioImpl;
 import com.app.idoneos.servicio.Programa.ProgramaServicioImpl;
 
 import com.app.idoneos.utilidades.RespuestaJsonUtilidad;
@@ -51,7 +51,7 @@ public class CohorteControlador extends PanelCursoControlador {
     private ProgramaServicioImpl programaServicio;
 
     @Autowired
-    private ParticipacionDocenteServicioImpl participacionDocenteServicio;
+    private DocenteCursoServicioImpl docenteCursoServicio;
 
     // ---------------------------------------------------------------- Lecturas
 
@@ -112,7 +112,7 @@ public class CohorteControlador extends PanelCursoControlador {
         // Cohortes que el docente tiene como contexto de trabajo por defecto
         Set<Integer> cohortesDeTrabajo = new HashSet<>();
         if (soloDeDocente != null) {
-            participacionDocenteServicio.buscarPorDocente(soloDeDocente).stream()
+            docenteCursoServicio.buscarPorDocente(soloDeDocente).stream()
                     .filter(participacion -> participacion.getCohortePorDefecto() != null)
                     .forEach(participacion -> cohortesDeTrabajo.add(participacion.getCohortePorDefecto().getIdCohorte()));
         }

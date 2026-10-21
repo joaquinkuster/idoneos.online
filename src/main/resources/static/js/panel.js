@@ -45,6 +45,130 @@
     // ------------------------------------------------------------------
     // 2. Listados en tabla
     // ------------------------------------------------------------------
+    // ------------------------------------------------------------------
+    // Filtros generados desde las columnas. Cada <th data-filtro="..."> declara su tipo y el filtro se dibuja con el
+    // nombre de la columna y en su mismo orden:
+    //   texto  -> campo "contiene"                      (fila: data-f-<campo>)
+    //   numero -> desde / hasta                         (fila: data-f-<campo> con el número)
+    //   fecha  -> desde / hasta                         (fila: data-f-<campo> con la fecha ISO)
+    //   lista  -> desplegable (o campo con sugerencias si hay muchas opciones) con los valores que hay en la tabla
+    // ------------------------------------------------------------------
+    function construirFiltros(formulario, raiz) {
+        var cabeceras = raiz.querySelectorAll('thead th[data-filtro]');
+        if (!cabeceras.length) { return; }
+        var filas = raiz.querySelectorAll('tbody tr[data-fila]');
+        var inicio = formulario.firstChild;
+        var sufijo = 0;
+
+        // Si la fila no trae el dato del filtro (data-f-<campo>), se toma de lo que muestra su celda:
+        //   fecha -> la primera dd/mm/aaaa pasada a aaaa-mm-dd; numero -> el primer número ("Gratis" es 0);
+        //   texto y lista -> el texto de la celda (con data-separador en el <th>, la celda trae varios valores).
+        function derivar(th, tipo, campo) {
+            var atributo = 'data-f-' + campo.toLowerCase();
+            var indice = Array.prototype.indexOf.call(th.parentNode.children, th);
+            var separador = th.getAttribute('data-separador');
+            filas.forEach(function (fila) {
+                if (fila.hasAttribute(atributo)) { return; }
+                var celda = fila.children[indice];
+                var texto = celda ? celda.textContent.replace(/\s+/g, ' ').trim() : '';
+                var valor = '';
+                if (tipo === 'fecha') {
+                    var f = /(\d{2})\/(\d{2})\/(\d{4})(?:\s+(\d{2}:\d{2}))?/.exec(texto);
+                    valor = f ? f[3] + '-' + f[2] + '-' + f[1] + (f[4] ? ' ' + f[4] : '') : '';
+                } else if (tipo === 'numero') {
+                    if (/gratis/i.test(texto)) {
+                        valor = '0';
+                    } else {
+                        var n = /\d[\d.]*(?:,\d+)?/.exec(texto);
+                        valor = n ? n[0].replace(/\./g, '').replace(',', '.') : '';
+                    }
+                } else if (separador) {
+                    valor = texto.split(separador).map(function (v) { return v.trim(); }).filter(Boolean).join('|');
+                } else {
+                    valor = texto === '—' ? '' : texto;
+                }
+                fila.setAttribute(atributo, valor);
+            });
+        }
+        cabeceras.forEach(function (th) {
+            if (th.getAttribute('data-filtro') !== 'estatico') { derivar(th, th.getAttribute('data-filtro'), th.getAttribute('data-campo')); }
+        });
+        function crearCampo(etiqueta, ancho) {
+            var contenedor = document.createElement('div');
+            contenedor.className = 'pn-filtros-campo' + (ancho ? ' ' + ancho : '');
+            var rotulo = document.createElement('label');
+            rotulo.className = 'pn-etiqueta';
+            rotulo.textContent = etiqueta;
+            contenedor.appendChild(rotulo);
+            formulario.insertBefore(contenedor, inicio);
+            return contenedor;
+        }
+        function entrada(tipo, nombre, titulo, extra) {
+            var input = document.createElement('input');
+            input.type = tipo;
+            input.name = nombre;
+            input.className = 'pn-input';
+            input.title = titulo;
+            input.autocomplete = 'off';
+            if (extra) { Object.keys(extra).forEach(function (k) { input.setAttribute(k, extra[k]); }); }
+            return input;
+        }
+        cabeceras.forEach(function (th) {
+            var tipo = th.getAttribute('data-filtro');
+            var campo = th.getAttribute('data-campo');
+            var nombre = th.getAttribute('data-col') || th.textContent.trim();
+            if (tipo === 'estatico') {
+                // Filtro escrito en la página (por ejemplo, el que llega elegido por el servidor): se respeta su lugar
+                var bloque = formulario.querySelector('[data-filtro-estatico="' + campo + '"]');
+                if (bloque) { inicio = bloque.nextSibling; }
+                return;
+            }
+            if (tipo === 'texto') {
+                var c = crearCampo(nombre, 'pn-filtros-campo-grande');
+                c.appendChild(entrada('text', campo, nombre, { placeholder: 'Buscar' }));
+            } else if (tipo === 'numero' || tipo === 'fecha') {
+                var r = crearCampo(nombre, 'pn-filtros-rango');
+                var par = document.createElement('div');
+                par.className = 'pn-filtros-par';
+                var t = tipo === 'numero' ? 'number' : 'date';
+                var extraDesde = tipo === 'numero' ? { step: 'any', min: '0', placeholder: 'Desde' } : null;
+                var extraHasta = tipo === 'numero' ? { step: 'any', min: '0', placeholder: 'Hasta' } : null;
+                par.appendChild(entrada(t, campo + 'Desde', nombre + ' desde', extraDesde));
+                par.appendChild(entrada(t, campo + 'Hasta', nombre + ' hasta', extraHasta));
+                r.appendChild(par);
+            } else if (tipo === 'lista') {
+                var valores = [];
+                filas.forEach(function (fila) {
+                    (fila.getAttribute('data-f-' + campo.toLowerCase()) || '').split('|').forEach(function (v) {
+                        if (v && valores.indexOf(v) < 0) { valores.push(v); }
+                    });
+                });
+                valores.sort(function (a, b) { return a.localeCompare(b, 'es', { sensitivity: 'base' }); });
+                var l = crearCampo(nombre);
+                if (valores.length > 8) {
+                    var id = 'sugerencias-' + campo + '-' + (sufijo++);
+                    var texto = entrada('text', campo, nombre, { placeholder: 'Escribí para buscar', list: id });
+                    var lista = document.createElement('datalist');
+                    lista.id = id;
+                    valores.forEach(function (v) { var o = document.createElement('option'); o.value = v; lista.appendChild(o); });
+                    l.appendChild(texto);
+                    l.appendChild(lista);
+                } else {
+                    var sel = document.createElement('select');
+                    sel.name = campo;
+                    sel.className = 'pn-input';
+                    sel.title = nombre;
+                    var todos = document.createElement('option');
+                    todos.value = '';
+                    todos.textContent = 'Todos';
+                    sel.appendChild(todos);
+                    valores.forEach(function (v) { var o = document.createElement('option'); o.value = v; o.textContent = v; sel.appendChild(o); });
+                    l.appendChild(sel);
+                }
+            }
+        });
+    }
+
     function iniciarTabla(raiz) {
         var todas = Array.prototype.slice.call(raiz.querySelectorAll('tbody tr[data-fila], [data-tarjeta]')); // filas o tarjetas
         var filas = todas.slice(); // las que cumplen los filtros (todas, si no hay)
@@ -199,28 +323,65 @@
             });
         }
 
-        // Columnas visibles
-        var menuColumnas = raiz.querySelector('[data-columnas-menu]');
+        // Columnas visibles: un ícono en el encabezado de la última columna abre el menú. La elección se recuerda por listado.
         var cabeceras = Array.prototype.slice.call(raiz.querySelectorAll('thead th'));
+        var cabeceraAcciones = cabeceras[cabeceras.length - 1];
+        var menuColumnas = raiz.querySelector('[data-columnas-menu]');
+        if (!menuColumnas && cabeceraAcciones && !cabeceraAcciones.hasAttribute('data-col')
+                && cabeceras.some(function (th) { return th.hasAttribute('data-col'); })) {
+            cabeceraAcciones.classList.add('pn-th-acciones');
+            cabeceraAcciones.closest('table').classList.add('pn-con-columnas');
+            var envoltura = document.createElement('div');
+            envoltura.className = 'pn-columnas-wrapper';
+            envoltura.innerHTML = '<button type="button" class="pn-columnas-icono" data-columnas-boton aria-label="Columnas" '
+                + 'title="Columnas"><i class="fa-solid fa-table-columns"></i></button>'
+                + '<div class="pn-columnas-menu" data-columnas-menu></div>';
+            cabeceraAcciones.appendChild(envoltura);
+            menuColumnas = envoltura.querySelector('[data-columnas-menu]');
+        }
         if (menuColumnas) {
+            var claveColumnas = 'idoneos.columnas.' + window.location.pathname;
+            var ocultas = [];
+            try { ocultas = JSON.parse(leer(claveColumnas) || '[]'); } catch (e) { ocultas = []; }
+            var casillas = [];
+            var aplicarColumna = function (th, indice, visible) {
+                th.style.display = visible ? '' : 'none';
+                raiz.querySelectorAll('tbody tr[data-fila]').forEach(function (fila) {
+                    if (fila.children[indice]) { fila.children[indice].style.display = visible ? '' : 'none'; }
+                });
+            };
             cabeceras.forEach(function (th, indice) {
                 if (!th.hasAttribute('data-col')) { return; }
+                var nombreColumna = th.getAttribute('data-col');
                 var etiqueta = document.createElement('label');
                 var casilla = document.createElement('input');
                 casilla.type = 'checkbox';
-                casilla.checked = true;
+                casilla.checked = ocultas.indexOf(nombreColumna) < 0;
+                aplicarColumna(th, indice, casilla.checked);
                 casilla.addEventListener('change', function () {
-                    var visible = casilla.checked;
-                    th.style.display = visible ? '' : 'none';
-                    raiz.querySelectorAll('tbody tr[data-fila]').forEach(function (fila) {
-                        if (fila.children[indice]) { fila.children[indice].style.display = visible ? '' : 'none'; }
-                    });
+                    aplicarColumna(th, indice, casilla.checked);
+                    var ocultasAhora = casillas.filter(function (c) { return !c.casilla.checked; })
+                        .map(function (c) { return c.nombre; });
+                    guardar(claveColumnas, JSON.stringify(ocultasAhora));
                 });
+                casillas.push({ casilla: casilla, nombre: nombreColumna, th: th, indice: indice });
                 etiqueta.appendChild(casilla);
-                etiqueta.appendChild(document.createTextNode(th.getAttribute('data-col')));
+                etiqueta.appendChild(document.createTextNode(nombreColumna));
                 menuColumnas.appendChild(etiqueta);
             });
+            var restablecer = document.createElement('button');
+            restablecer.type = 'button';
+            restablecer.className = 'pn-columnas-restablecer';
+            restablecer.textContent = 'Restablecer';
+            restablecer.addEventListener('click', function () {
+                casillas.forEach(function (c) { c.casilla.checked = true; aplicarColumna(c.th, c.indice, true); });
+                guardar(claveColumnas, '[]');
+            });
+            menuColumnas.appendChild(restablecer);
         }
+
+        // Vuelve a calcular las filas a mostrar. Con filtros, lo reemplaza la función de filtrado.
+        var reaplicar = function () { filas = todas.slice(); pagina = 1; dibujar(); };
 
         // ------------------------------------------------------------------
         // Filtros y orden en el navegador: sin recargar la página, al escribir o elegir una opción.
@@ -233,6 +394,7 @@
         var formularioFiltros = raiz.querySelector('form[data-filtro-front]');
         if (formularioFiltros) {
             var cuerpo = raiz.querySelector('tbody') || raiz.querySelector('[data-tarjetas]');
+            construirFiltros(formularioFiltros, raiz);
             var campos = Array.prototype.filter.call(formularioFiltros.elements, function (c) {
                 return c.name && c.type !== 'hidden' && c.type !== 'button' && c.type !== 'submit' && c.name !== 'orden';
             });
@@ -247,6 +409,19 @@
                     var valor = (campo.value || '').trim();
                     if (!valor) { return true; }
                     var dato = fila.getAttribute('data-f-' + campo.name.toLowerCase());
+                    var rango = /^(.+)(Desde|Hasta)$/.exec(campo.name);
+                    if (rango) {
+                        var datoRango = fila.getAttribute('data-f-' + rango[1].toLowerCase());
+                        if (datoRango === null) { return true; }
+                        if (datoRango === '') { return false; }
+                        var esDesde = rango[2] === 'Desde';
+                        if (campo.type === 'number') {
+                            return esDesde ? parseFloat(datoRango) >= parseFloat(valor) : parseFloat(datoRango) <= parseFloat(valor);
+                        }
+                        // las fechas con hora se comparan por el día; la hora solo sirve para ordenar
+                        var dia = campo.type === 'date' ? datoRango.substring(0, 10) : datoRango;
+                        return esDesde ? dia >= valor : dia <= valor;
+                    }
                     if (dato === null) { return true; }
                     if (campo.type === 'date') {
                         return campo.name === 'desde' ? dato >= valor : dato <= valor;
@@ -279,7 +454,13 @@
                 todas = ordenadas;
             }
 
+            function actualizarLimpiar() {
+                var hay = campos.some(function (campo) { return (campo.value || '').trim() !== ''; });
+                formularioFiltros.querySelectorAll('a[href].pn-btn, [data-limpiar]').forEach(function (b) { b.hidden = !hay; });
+            }
+
             function filtrar() {
+                actualizarLimpiar();
                 filas = todas.filter(cumple);
                 // Lo que queda fuera del filtro deja de estar seleccionado
                 todas.forEach(function (fila) {
@@ -292,15 +473,15 @@
 
             formularioFiltros.addEventListener('submit', function (e) { e.preventDefault(); });
             formularioFiltros.addEventListener('input', function (e) {
-                if (e.target.matches('input[type="text"], input[type="search"]')) { filtrar(); }
+                if (e.target.matches('input[type="text"], input[type="search"], input[type="number"]')) { filtrar(); }
             });
             formularioFiltros.addEventListener('change', function (e) {
                 if (e.target === selectorOrden) { ordenar(); }
-                if (e.target.matches('select, input[type="date"]')) { filtrar(); }
+                if (e.target.matches('select, input[type="date"], input[type="number"]')) { filtrar(); }
             });
             // "Limpiar" restablece los campos sin recargar
             formularioFiltros.addEventListener('click', function (e) {
-                var enlace = e.target.closest('a[href]');
+                var enlace = e.target.closest('a[href], [data-limpiar]');
                 if (!enlace) { return; }
                 e.preventDefault();
                 // Se vacían todos los campos (reset() devolvería los valores con que llegó la página, por ejemplo un filtro
@@ -315,9 +496,107 @@
                 filtrar();
             });
 
+            reaplicar = filtrar;
             // Los campos que llegan completos (por la URL) se aplican apenas carga la página
             filtrar();
         }
+
+        // ------------------------------------------------------------------
+        // Orden por columna: un clic en el título ordena de menor a mayor, otro de mayor a menor y otro quita el orden.
+        // El criterio depende del tipo de la columna (data-filtro): número, fecha (ISO) o texto sin tildes ni mayúsculas.
+        // Un <th data-orden-inicial="asc|desc"> marca el orden con el que arranca el listado. Las filas dadas de baja
+        // quedan siempre al final.
+        // ------------------------------------------------------------------
+        (function () {
+            var titulos = Array.prototype.filter.call(raiz.querySelectorAll('thead th[data-col]'), function (th) {
+                return !th.classList.contains('pn-th-acciones');
+            });
+            if (!titulos.length || !cuerpoOrden()) { return; }
+            var cuerpoTabla = cuerpoOrden();
+            var ordenOriginal = todas.slice();
+            // Las filas con detalle desplegable (progreso) se mueven junto con su fila de detalle
+            var detalles = new Map();
+            ordenOriginal.forEach(function (fila) {
+                var siguiente = fila.nextElementSibling;
+                if (siguiente && siguiente.classList.contains('pn-fila-detalle')) { detalles.set(fila, siguiente); }
+            });
+            var activo = null;
+            var sentido = 0;
+
+            function cuerpoOrden() { return raiz.querySelector('tbody'); }
+
+            function clave(fila, th) {
+                var indice = Array.prototype.indexOf.call(th.parentNode.children, th);
+                var tipo = th.getAttribute('data-filtro');
+                var campo = th.getAttribute('data-campo');
+                var dato = campo ? fila.getAttribute('data-f-' + campo.toLowerCase()) : null;
+                var texto = dato !== null ? dato : (fila.children[indice] ? fila.children[indice].textContent.replace(/\s+/g, ' ').trim() : '');
+                if (tipo === 'numero') {
+                    var n = parseFloat(texto);
+                    return isNaN(n) ? null : n;
+                }
+                if (tipo === 'fecha') { return texto === '' ? null : texto; }
+                var normalizado = texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+                return normalizado === '' || normalizado === '—' ? null : normalizado;
+            }
+
+            function aplicarOrden() {
+                var base = ordenOriginal.slice();
+                if (activo && sentido !== 0) {
+                    var claves = new Map();
+                    base.forEach(function (f) { claves.set(f, clave(f, activo)); });
+                    base.sort(function (a, b) {
+                        var bajaA = a.classList.contains('pn-fila-baja') ? 1 : 0;
+                        var bajaB = b.classList.contains('pn-fila-baja') ? 1 : 0;
+                        if (bajaA !== bajaB) { return bajaA - bajaB; }
+                        var x = claves.get(a);
+                        var y = claves.get(b);
+                        if (x === null && y === null) { return 0; }
+                        if (x === null) { return 1; } // lo vacío va siempre al final
+                        if (y === null) { return -1; }
+                        var r = typeof x === 'number' ? x - y : x.localeCompare(y, 'es', { numeric: true });
+                        return sentido * r;
+                    });
+                }
+                base.forEach(function (fila) {
+                    var referencia = vacio && vacio.parentNode === cuerpoTabla ? vacio : null;
+                    cuerpoTabla.insertBefore(fila, referencia);
+                    if (detalles.has(fila)) { cuerpoTabla.insertBefore(detalles.get(fila), referencia); }
+                });
+                todas = base;
+                titulos.forEach(function (th) {
+                    var marca = th === activo ? sentido : 0;
+                    th.setAttribute('aria-sort', marca === 1 ? 'ascending' : (marca === -1 ? 'descending' : 'none'));
+                    th.classList.toggle('pn-orden-asc', marca === 1);
+                    th.classList.toggle('pn-orden-desc', marca === -1);
+                });
+                reaplicar();
+            }
+
+            titulos.forEach(function (th) {
+                th.classList.add('pn-th-ordenable');
+                th.tabIndex = 0;
+                var flechas = document.createElement('span');
+                flechas.className = 'pn-orden-flechas';
+                flechas.setAttribute('aria-hidden', 'true');
+                flechas.innerHTML = '<i class="fa-solid fa-caret-up"></i><i class="fa-solid fa-caret-down"></i>';
+                th.appendChild(flechas);
+                function alternar() {
+                    if (activo !== th) { activo = th; sentido = 1; } else if (sentido === 1) { sentido = -1; } else { sentido = 0; activo = null; }
+                    aplicarOrden();
+                }
+                th.addEventListener('click', function (e) {
+                    if (e.target.closest('[data-columnas-boton], .pn-columnas-wrapper')) { return; }
+                    alternar();
+                });
+                th.addEventListener('keydown', function (e) {
+                    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); alternar(); }
+                });
+                var inicial = th.getAttribute('data-orden-inicial');
+                if (inicial) { activo = th; sentido = inicial === 'desc' ? -1 : 1; }
+            });
+            if (activo) { aplicarOrden(); }
+        })();
 
         dibujar();
     }
@@ -326,6 +605,8 @@
 
     document.addEventListener('click', function (e) {
         var boton = e.target.closest('[data-columnas-boton]');
+        // Marcar o desmarcar una columna no cierra el menú
+        if (!boton && e.target.closest('.pn-columnas-menu')) { return; }
         document.querySelectorAll('.pn-columnas-wrapper.abierto').forEach(function (w) {
             if (!boton || !w.contains(boton)) { w.classList.remove('abierto'); }
         });
@@ -336,6 +617,12 @@
                 // Si el menú se saliera por el borde izquierdo del contenido (tapando el menú lateral), se alinea a la izquierda
                 var menu = wrapper.querySelector('.pn-columnas-menu');
                 menu.classList.remove('alinear-izquierda');
+                if (wrapper.closest('.pn-th-acciones')) {
+                    var caja = boton.getBoundingClientRect();
+                    menu.style.top = (caja.bottom + 6) + 'px';
+                    menu.style.left = Math.max(8, caja.right - menu.offsetWidth) + 'px';
+                    return;
+                }
                 var principal = document.querySelector('.pn-principal');
                 var limite = principal ? principal.getBoundingClientRect().left : 0;
                 if (menu.getBoundingClientRect().left < limite) {
@@ -428,11 +715,11 @@
                 var permitidas = campo.dataset.extensiones.split(',');
                 if (permitidas.indexOf(extension) === -1) {
                     campo.value = '';
-                    return marcar(campo, 'El archivo debe estar en formato ' + permitidas.join(', ').toUpperCase() + '.');
+                    return marcar(campo, 'El archivo no es válido. Formato válido: ' + permitidas.join(', ').toUpperCase() + '.');
                 }
                 if (adjunto.size > parseFloat(campo.dataset.tamanioMb) * 1024 * 1024) {
                     campo.value = '';
-                    return marcar(campo, 'El archivo no puede superar los ' + campo.dataset.tamanioMb + ' MB.');
+                    return marcar(campo, 'El archivo es demasiado grande. Máximo: ' + campo.dataset.tamanioMb + ' MB.');
                 }
             } else if (campo.required) {
                 return marcar(campo, 'Debe seleccionar un archivo.');
@@ -443,11 +730,11 @@
             var archivo = campo.files && campo.files[0];
             if (archivo && IMAGEN_TIPOS.indexOf(archivo.type) === -1) {
                 campo.value = '';
-                return marcar(campo, 'La imagen debe estar en formato JPG, PNG o WebP.');
+                return marcar(campo, 'La imagen no es válida. Formato válido: JPG, PNG o WebP.');
             }
             if (archivo && archivo.size > IMAGEN_TAMANIO_MAXIMO) {
                 campo.value = '';
-                return marcar(campo, 'La imagen no puede superar los 2 MB.');
+                return marcar(campo, 'La imagen es demasiado grande. Máximo: 2 MB.');
             }
             return marcar(campo, '');
         }
@@ -455,16 +742,16 @@
             return marcar(campo, campo.dataset.mensajeObligatorio || 'Este campo es obligatorio.');
         }
         if (campo.maxLength > 0 && valor.length > campo.maxLength) {
-            return marcar(campo, 'No puede superar los ' + campo.maxLength + ' caracteres.');
+            return marcar(campo, 'Es demasiado largo. Máximo: ' + campo.maxLength + ' caracteres.');
         }
         if (campo.type === 'number' && valor !== '') {
             var numero = parseFloat(valor);
-            if (isNaN(numero)) { return marcar(campo, 'Ingrese un número válido.'); }
+            if (isNaN(numero)) { return marcar(campo, 'No es válido. Formato válido: número.'); }
             if (campo.min !== '' && numero < parseFloat(campo.min)) {
-                return marcar(campo, 'Debe ser mayor o igual a ' + campo.min + '.');
+                return marcar(campo, 'No es válido. Formato válido: número mayor o igual a ' + campo.min + '.');
             }
             if (campo.max !== '' && numero > parseFloat(campo.max)) {
-                return marcar(campo, 'No puede superar ' + parseFloat(campo.max).toLocaleString('es-AR') + '.');
+                return marcar(campo, 'No es válido. Formato válido: número menor o igual a ' + parseFloat(campo.max).toLocaleString('es-AR') + '.');
             }
         }
         return marcar(campo, '');

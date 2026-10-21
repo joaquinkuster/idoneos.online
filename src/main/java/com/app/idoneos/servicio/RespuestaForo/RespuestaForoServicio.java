@@ -3,7 +3,7 @@ package com.app.idoneos.servicio.RespuestaForo;
 import java.util.List;
 import com.app.idoneos.modelo.ConsultaForo;
 import com.app.idoneos.modelo.Docente;
-import com.app.idoneos.modelo.ParticipacionDocente;
+import com.app.idoneos.modelo.DocenteCurso;
 import com.app.idoneos.modelo.RespuestaForo;
 
 /**
@@ -14,12 +14,12 @@ public interface RespuestaForoServicio {
     // ---------------------------------------------------------------- Lecturas
 
     /**
-     * Busca los registros vigentes de respuestaForo asociados a participacionDocente.
+     * Busca los registros vigentes de respuestaForo asociados a docenteCurso.
      *
-     * @param participacionDocente el registro de ParticipacionDocente asociado
-     * @return una lista de RespuestaForo asociados al ParticipacionDocente indicado
+     * @param docenteCurso el registro de DocenteCurso asociado
+     * @return una lista de RespuestaForo asociados al DocenteCurso indicado
      */
-    List<RespuestaForo> buscarPorParticipacionDocente(ParticipacionDocente participacionDocente);
+    List<RespuestaForo> buscarPorDocenteCurso(DocenteCurso docenteCurso);
 
     /**
      * Busca los registros vigentes de respuestaForo asociados a consultaForo.

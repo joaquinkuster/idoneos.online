@@ -143,46 +143,26 @@
     color: var(--pn-texto);
 }
 
-/* Opción con otras que cuelgan de ella (Mis cursos > Mis pagos): la flecha de la derecha las despliega */
-.um-grupo-fila {
+/* Acordeón del menú de usuario (Mi portal): el encabezado abre y cierra, y la flecha gira */
+.um-grupo-cabecera {
     display: flex;
-    align-items: stretch;
+    align-items: center;
+    justify-content: space-between;
 }
 
-.um-grupo-fila .um-item {
-    flex: 1;
-    width: auto;
-}
-
-.um-desplegar {
-    width: 40px;
-    flex-shrink: 0;
-    border: 0;
-    background: transparent;
-    color: var(--pn-texto-suave);
-    cursor: pointer;
-    transition: background-color 0.12s ease;
-}
-
-/* La fila de Mis cursos se pinta entera (enlace y flecha) al pasar el mouse o cuando es la página actual */
-.um-desplegar:hover,
-.um-grupo-fila:hover .um-item,
-.um-grupo-fila:hover .um-desplegar,
-.um-grupo-fila:has(.um-item.activo) .um-desplegar {
-    background: var(--pn-fondo);
-}
-
-.um-grupo-fila:hover .um-item:not(.um-item-peligro) {
-    opacity: 1;
-}
-
-.um-desplegar i {
+.um-grupo-cabecera i {
     font-size: 12px;
+    color: var(--pn-texto-suave);
     transition: transform 0.25s ease;
 }
 
-.um-grupo.abierto .um-desplegar i {
+.um-grupo.abierto .um-grupo-cabecera i {
     transform: rotate(180deg);
+}
+
+.um-grupo.abierto .um-grupo-cabecera,
+.um-grupo-cabecera:hover {
+    opacity: 1;
 }
 
 /* El alto se anima con grid-template-rows (0fr -> 1fr) */
@@ -201,6 +181,12 @@
     overflow: hidden;
 }
 
+/* Opción que cuelga de otra (por ejemplo, Mis pagos dentro de Mi portal) */
+.um-item-sub {
+    padding-left: 30px;
+    font-size: 14px;
+}
+
 /* Opción que cuelga de otra (por ejemplo, Mis pagos dentro de Mis cursos) */
 .um-item-sub {
     padding-left: 30px;
@@ -209,7 +195,7 @@
 
 @media (prefers-reduced-motion: reduce) {
     .um-submenu,
-    .um-desplegar i {
+    .um-grupo-cabecera i {
         transition: none;
     }
 }
@@ -1518,4 +1504,628 @@ textarea.pn-input {
     .pn-detalle {
         transition: none;
     }
+}
+
+/* ==========================================================================
+   RECUADRO DEL PAGO (formularios del administrador): precio, descuento, ya pagado y total a pagar
+   ========================================================================== */
+.pn-resumen-pago {
+    padding: 12px 14px;
+    background: #F1F5F9;
+    border: 1px solid #E2E8F0;
+    border-radius: 10px;
+}
+
+.pn-resumen-titulo {
+    margin-bottom: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #0A192F;
+}
+
+.pn-resumen-fila,
+.pn-resumen-total {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 13px;
+    color: #475569;
+}
+
+.pn-resumen-fila {
+    padding: 2px 0;
+}
+
+.pn-resumen-fila[hidden],
+.pn-resumen-total[hidden],
+.pn-resumen-nota[hidden] {
+    display: none;
+}
+
+.pn-resumen-precio {
+    color: #0A192F;
+}
+
+.pn-resumen-total {
+    align-items: baseline;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid #CBD5E1;
+    color: #0A192F;
+}
+
+.pn-resumen-total strong {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 20px;
+}
+
+.pn-resumen-nota {
+    margin: 8px 0 0;
+    font-size: 12px;
+    color: #64748B;
+}
+
+.pn-etiqueta-ayuda {
+    font-weight: 400;
+    color: #64748B;
+}
+
+/* Etiqueta de un campo con el botón de ayuda (ícono de información) a su derecha */
+.pn-etiqueta-con-ayuda {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    margin-bottom: 6px;
+}
+
+.pn-etiqueta-con-ayuda .pn-etiqueta {
+    margin-bottom: 0;
+}
+
+.pn-etiqueta-con-ayuda .cn-ayuda {
+    width: 20px;
+    height: 20px;
+    margin: -4px 0;
+    font-size: 14px;
+}
+
+/* El aviso desplegable dentro de una fila de formulario no deja el espacio entre columnas mientras está cerrado */
+.row > .ayuda-desplegable {
+    margin-top: 0;
+}
+
+/* Filtros por rango (desde / hasta) y botón de columnas en el encabezado */
+.pn-filtros-rango {
+    flex: 2 1 240px;
+}
+
+.pn-filtros-par {
+    display: flex;
+    gap: 6px;
+}
+
+.pn-filtros-par .pn-input {
+    min-width: 0;
+}
+
+.pn-tabla thead th.pn-th-acciones {
+    position: relative;
+    white-space: nowrap;
+}
+
+.pn-th-acciones .pn-columnas-wrapper {
+    display: inline-block;
+    margin-left: 8px;
+    vertical-align: middle;
+    z-index: 20;
+}
+
+.pn-columnas-icono {
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    border: 1px solid var(--pn-borde);
+    border-radius: 6px;
+    background: #FFFFFF;
+    color: var(--pn-texto-suave);
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.pn-columnas-icono:hover {
+    background: var(--pn-fondo);
+    color: var(--pn-navy);
+}
+
+.pn-th-acciones .pn-columnas-menu {
+    position: fixed;
+    top: auto;
+    right: auto;
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: normal;
+}
+
+.pn-columnas-restablecer {
+    display: block;
+    width: 100%;
+    margin-top: 6px;
+    padding: 7px 8px;
+    border: none;
+    border-top: 1px solid var(--pn-borde);
+    background: none;
+    text-align: left;
+    font-size: 13px;
+    color: var(--pn-azul, #1E6FD9);
+    cursor: pointer;
+}
+
+/* La última columna (acciones y botón de columnas) queda fija a la derecha cuando la tabla se desplaza */
+.pn-tabla.pn-con-columnas thead th:last-child,
+.pn-tabla.pn-con-columnas tbody td:last-child {
+    position: sticky;
+    right: 0;
+    background: #FFFFFF;
+    box-shadow: -1px 0 0 var(--pn-borde);
+}
+
+.pn-tabla.pn-con-columnas tbody td:last-child {
+    z-index: 1;
+}
+
+.pn-tabla.pn-con-columnas thead th:last-child {
+    z-index: 5;
+}
+
+/* Filtros: todas las columnas miden lo mismo. Un filtro de rango (desde / hasta) usa el ancho de una sola columna,
+   partido en dos mitades. */
+.pn-filtros {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    align-items: end;
+    gap: 10px 12px;
+}
+
+.pn-filtros .pn-filtros-campo,
+.pn-filtros .pn-filtros-campo-grande,
+.pn-filtros .pn-filtros-rango {
+    flex: none;
+    min-width: 0;
+}
+
+.pn-filtros .pn-filtros-par {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+}
+
+.pn-filtros .pn-filtros-par .pn-input {
+    padding-left: 8px;
+    padding-right: 6px;
+    font-size: 12px;
+}
+
+.pn-filtros > .pn-btn {
+    justify-self: start;
+}
+
+/* Botón "Más" de las acciones de una fila: aparece solo cuando hay más de dos acciones. Modificar y Dar de baja
+   quedan siempre a la vista; lo demás va en un menú aparte, como el desplegable de Bootstrap. Los tres botones miden lo
+   mismo. */
+.pn-acciones .pn-btn-editar,
+.pn-acciones .pn-btn-peligro,
+.pn-acciones .pn-mas {
+    width: 96px;
+    justify-content: center;
+}
+
+.pn-mas {
+    gap: 4px;
+    background: #244A72;
+    border-color: #244A72;
+    color: #FFFFFF;
+}
+
+.pn-mas:hover,
+.pn-mas:focus,
+.pn-mas.show {
+    background: #1C3B5C;
+    border-color: #1C3B5C;
+    color: #FFFFFF;
+}
+
+.pn-mas .fa-chevron-down {
+    font-size: 10px;
+}
+
+.pn-mas + .dropdown-menu {
+    min-width: 160px;
+    padding: 8px 0;
+    font-size: 12px;
+    background: #FFFFFF !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border: 1px solid rgba(0, 0, 0, 0.175);
+    border-radius: 8px;
+    box-shadow: none;
+}
+
+.pn-mas + .dropdown-menu .dropdown-item {
+    display: block;
+    padding: 6px 16px;
+    border-radius: 0;
+    font-size: 12px;
+    color: #212529;
+}
+
+.pn-mas + .dropdown-menu .dropdown-item:hover,
+.pn-mas + .dropdown-menu .dropdown-item:focus,
+.pn-mas + .dropdown-menu .dropdown-item:active {
+    background: #E9ECEF;
+    color: #212529;
+}
+
+/* La columna fija de acciones acompaña el fondo de la fila al pasar el mouse y en las filas dadas de baja */
+.pn-tabla.pn-con-columnas tbody tr[data-fila]:hover td:last-child,
+.pn-tabla.pn-con-columnas tbody tr.pn-fila-baja td:last-child {
+    background: #F8FAFC;
+}
+
+/* Más aire entre el título "Acciones" y el botón de columnas */
+.pn-th-acciones .pn-columnas-wrapper {
+    margin-left: 16px;
+}
+
+/* Selectores con búsqueda por texto (selectBuscable.js) */
+.sb {
+    position: relative;
+}
+
+.sb-oculto {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.sb-campo {
+    padding-right: 34px;
+    text-overflow: ellipsis;
+    cursor: text;
+}
+
+.sb-flecha {
+    position: absolute;
+    top: 50%;
+    right: 13px;
+    transform: translateY(-50%);
+    font-size: 12px;
+    color: var(--pn-texto-suave);
+    cursor: pointer;
+}
+
+.sb-abierto .sb-flecha {
+    transform: translateY(-50%) rotate(180deg);
+}
+
+.sb-deshabilitado .sb-flecha {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.sb-lista {
+    position: fixed;
+    z-index: 2700; /* por encima de los modales (2600) */
+    margin: 0;
+    padding: 4px;
+    list-style: none;
+    overflow-y: auto;
+    font-size: 14px;
+    background: #FFFFFF;
+    border: 1px solid var(--pn-borde);
+    border-radius: 10px;
+    box-shadow: 0 12px 30px rgba(8, 20, 38, 0.16);
+}
+
+.sb-opcion {
+    padding: 8px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.sb-activa {
+    background: #F3F5F8;
+}
+
+.sb-opcion-elegida {
+    font-weight: 700;
+}
+
+.sb-opcion-inactiva {
+    color: var(--pn-texto-suave);
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.sb-vacio {
+    padding: 10px;
+    color: var(--pn-texto-suave);
+}
+
+/* La fila con el desplegable "Más" abierto queda por encima de las filas de abajo */
+.pn-tabla.pn-con-columnas tbody td:last-child:has(.dropdown-menu.show) {
+    z-index: 10;
+}
+
+/* Orden por columna: el título se puede pulsar y muestra una flecha con el sentido */
+.pn-tabla thead th.pn-th-ordenable {
+    cursor: pointer;
+    user-select: none;
+}
+
+.pn-tabla thead th.pn-th-ordenable:hover {
+    color: var(--pn-navy);
+}
+
+.pn-orden-flechas {
+    display: inline-flex;
+    flex-direction: column;
+    margin-left: 5px;
+    vertical-align: middle;
+    line-height: 0.6;
+    font-size: 10px;
+    color: #B6BFCA;
+}
+
+.pn-orden-asc .pn-orden-flechas .fa-caret-up,
+.pn-orden-desc .pn-orden-flechas .fa-caret-down {
+    color: var(--pn-navy);
+}
+
+/* Hoja de ruta: pasos con nombre y resumen en árbol */
+.pn-pasos-nombrados {
+    align-items: flex-start;
+    max-width: 640px;
+}
+
+.pn-pasos-nombrados .pn-pasos-linea {
+    margin: 16px 10px 0;
+}
+
+.pn-pasos-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    min-width: 72px;
+}
+
+.pn-pasos-nombre {
+    font-size: 12px;
+    color: var(--pn-texto-suave);
+    text-align: center;
+}
+
+.pn-pasos-punto.activo + .pn-pasos-nombre {
+    color: var(--pn-navy-dark);
+    font-weight: 700;
+}
+
+.pn-arbol {
+    padding: 16px;
+    background: #FFFFFF;
+    border: 1px solid var(--pn-borde);
+    border-radius: 8px;
+    font-size: 13px;
+    max-height: 380px;
+    overflow-y: auto;
+}
+
+/* Árbol del resumen: mismo estilo que el organigrama (RRHH). Cada nodo tiene una línea vertical con un codo, un punto y
+   un título. Colores: curso (dorado), programa (azul), cohorte e inscripción (violeta), lo que se registra (verde) y lo
+   que se modifica (naranja). */
+.pn-nodo {
+    --color: #94A3B8;
+    position: relative;
+    padding-left: 24px;
+    margin-top: 8px;
+}
+
+.pn-nodo:first-child {
+    margin-top: 0;
+}
+
+.pn-nodo::before,
+.pn-nodo::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    background: var(--color);
+}
+
+.pn-nodo::before {
+    top: 11px;
+    bottom: 11px;
+    width: 2px;
+}
+
+.pn-nodo::after {
+    top: 11px;
+    width: 16px;
+    height: 2px;
+}
+
+.pn-nodo-oro { --color: #D4A03D; }
+.pn-nodo-azul { --color: #3B82F6; }
+.pn-nodo-violeta { --color: #8B5CF6; }
+.pn-nodo-rosa { --color: #EC4899; } /* inscripción: rosa, bien distinto del verde de lo que se registra */
+.pn-nodo-verde { --color: #22C55E; }
+.pn-nodo-naranja { --color: #22C55E; } /* lo que se modifica: el mismo verde que lo que se registra (línea, punto y leyenda) */
+.pn-nodo-gris { --color: #94A3B8; }
+
+.pn-nodo-fila {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 22px;
+}
+
+.pn-punto {
+    flex-shrink: 0;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--color);
+}
+
+.pn-nodo-primero > .pn-nodo-fila > .pn-punto {
+    width: 10px;
+    height: 10px;
+}
+
+.pn-nodo-titulo {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--pn-texto);
+}
+
+.pn-nodo-primero > .pn-nodo-fila > .pn-nodo-titulo {
+    font-size: 14.5px;
+    font-weight: 700;
+}
+
+.pn-chip {
+    --color: #94A3B8;
+    padding: 2px 9px;
+    border-radius: 16px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--pn-texto);
+    background: color-mix(in srgb, var(--color) 18%, transparent);
+}
+
+.pn-chip-oro { --color: #D4A03D; }
+.pn-chip-azul { --color: #3B82F6; }
+.pn-chip-violeta { --color: #8B5CF6; }
+.pn-chip-rosa { --color: #EC4899; }
+.pn-chip-verde { --color: #22C55E; }
+.pn-chip-naranja { --color: #22C55E; }
+.pn-chip-gris { --color: #94A3B8; }
+
+/* El estado (nueva, N cambios) va a la derecha de la fila */
+.pn-chip-estado {
+    margin-left: auto;
+}
+
+/* Leyenda de colores */
+.pn-arbol-leyenda {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 14px;
+    margin: 0 0 14px;
+    font-size: 12px;
+    color: var(--pn-texto-suave);
+}
+
+.pn-leyenda-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.pn-leyenda-item i {
+    display: inline-block;
+    width: 20px;
+    height: 3px;
+    border-radius: 2px;
+    background: var(--color);
+}
+
+.pn-arbol-editar {
+    margin-left: auto;
+    padding: 0;
+    border: 0;
+    background: none;
+    font-size: 12px;
+    font-weight: 600;
+    color: #1E6FD9;
+    cursor: pointer;
+}
+
+.pn-arbol-editar i {
+    font-size: 10px;
+    margin-right: 3px;
+}
+
+.pn-arbol-editar:hover {
+    text-decoration: underline;
+}
+
+/* Datos: una banda por fila. Verde si se registra, naranja si cambió y sin banda (atenuada) si no cambió */
+.pn-arbol-dato {
+    margin-top: 3px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    color: var(--pn-texto);
+    overflow-wrap: anywhere;
+}
+
+.pn-arbol-dato strong {
+    font-weight: 700;
+    color: var(--pn-texto);
+}
+
+.pn-dato-nuevo { background: rgba(34, 197, 94, 0.12); }
+.pn-dato-cambio { background: rgba(34, 197, 94, 0.12); }
+.pn-dato-igual { color: var(--pn-texto); }
+
+.pn-arbol-antes {
+    color: var(--pn-texto);
+}
+
+.pn-dato-cambio .pn-arbol-antes {
+    margin-right: 0;
+}
+
+.pn-arbol-flecha {
+    margin: 0 7px;
+    color: var(--pn-texto-suave);
+}
+
+.pn-arbol-vacio {
+    font-style: italic;
+    color: #94A3B8;
+}
+
+.pn-arbol-sin-cambios {
+    margin: 6px 0 0;
+    padding-left: 10px;
+    color: var(--pn-texto-suave);
+    font-style: italic;
+}
+
+/* Barra de desplazamiento del resumen: fina y gris, como la del menú lateral */
+.pn-arbol {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(100, 116, 139, 0.45) transparent;
+}
+
+.pn-arbol::-webkit-scrollbar {
+    width: 8px;
+}
+
+.pn-arbol::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.pn-arbol::-webkit-scrollbar-thumb {
+    background: rgba(100, 116, 139, 0.45);
+    border-radius: 8px;
+}
+
+.pn-arbol::-webkit-scrollbar-thumb:hover {
+    background: rgba(100, 116, 139, 0.65);
 }

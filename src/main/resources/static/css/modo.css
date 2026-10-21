@@ -1,0 +1,215 @@
+/* ==========================================================================
+   MODAL DE PAGO DE MODO — estilo del sitio
+   El modal lo dibuja el SDK de MODO dentro de esta misma página, con sus propios estilos (varias propiedades con
+   !important y colores puestos en línea por el SDK), por eso acá hace falta más especificidad y !important.
+   Solo cambia el aspecto: colores, tipografías, bordes y los loaders; los textos, el QR, los logos de los bancos y la
+   estructura son de MODO. Se carga en las páginas que usan pago.js (caja y Mis pagos).
+   Si MODO cambia el nombre de sus clases, hay que revisarlo.
+   Fases: step-LOADING, step-CREATED (QR), step-SCANNED, step-PROCESSING, step-ACCEPTED, step-PAYMENT_DENIED,
+   step-ERROR, step-VOIDED, step-ERROR_STATUS y step-BLOCKED.
+   ========================================================================== */
+
+/* Fondo y ventana */
+.modo-overlay {
+    background: rgba(10, 25, 47, 0.88) !important;
+}
+
+.modal-wrapper {
+    font-family: 'Plus Jakarta Sans', 'Inter', Arial, sans-serif !important;
+    color: #0A192F !important;
+    background-color: #FFFFFF !important;
+    border: 1px solid #DDD5BF;
+    border-radius: 14px !important;
+    box-shadow: 0 24px 60px rgba(10, 25, 47, 0.35) !important;
+}
+
+/* Encabezado y pie en blanco, separados por una línea (el SDK les pone un gris en línea); el crema queda solo en los
+   recuadros «Las promos aplican en la app al pagar» y «Recibirás un mail…» */
+.modal-wrapper .modal-header-wrapper-modo,
+.modal-wrapper .modal-bottom-content-modo {
+    background-color: #FFFFFF !important;
+}
+
+.modal-wrapper .modal-header-wrapper-modo {
+    border-bottom: 1px solid #EFE9D8;
+}
+
+.modal-wrapper .modal-bottom-content-modo {
+    border-top: 1px solid #EFE9D8;
+}
+
+.modal-wrapper .modal-payment-data-section {
+    background-color: #F5F1E8 !important;
+}
+
+.modal-wrapper .modal-title-header-modo {
+    font-family: 'Fraunces', Georgia, serif !important;
+    font-weight: 500 !important;
+    color: #0A192F !important;
+}
+
+.modal-wrapper .modal-title-header-modo .modo-strong-text {
+    font-weight: 700 !important;
+}
+
+.modal-wrapper .modo-app-logos-carousel-container {
+    border-color: #EFE9D8 !important;
+}
+
+.modal-wrapper .modal-payment-data-container {
+    border-color: #DDD5BF !important;
+    border-radius: 12px;
+    background-color: #FFFFFF;
+}
+
+.modal-wrapper .modal-payment-data-amount {
+    font-family: 'Fraunces', Georgia, serif !important;
+    color: #0A192F !important;
+}
+
+.modal-wrapper .modal-payment-data-store,
+.modal-wrapper .modal-payment-data-promo-info-without-installments,
+.modal-wrapper .modal-bottom-text-modo {
+    color: #64748B !important;
+}
+
+/* Puntos de avance del pie: el activo en dorado */
+.modal-wrapper #selected-step {
+    background-color: #D4A03D !important;
+}
+
+/* Textos y títulos de cada fase */
+.modal-wrapper .modo-modal-subtitle,
+.modal-wrapper .modal-loading-title-modo {
+    font-family: 'Fraunces', Georgia, serif !important;
+    font-weight: 600 !important;
+    color: #0A192F !important;
+}
+
+.modal-wrapper .modo-modal-paragraph,
+.modal-wrapper .modo-default-text,
+.modal-wrapper .modal-qr-scan-waiting-modo,
+.modal-wrapper .modal-success-paragraph-modo {
+    font-family: 'Plus Jakarta Sans', 'Inter', Arial, sans-serif !important;
+    color: #334155 !important;
+}
+
+.modal-wrapper .modal-success-merchant-modo {
+    border-color: #DDD5BF !important;
+    border-radius: 8px;
+    color: #0A192F;
+}
+
+.modal-wrapper .modal-success-email-info-modo {
+    background-color: #F5F1E8 !important;
+    border-radius: 10px;
+    color: #334155;
+}
+
+/* Botones: el gris de las secciones vacías (contorno gris sobre blanco) */
+.modal-wrapper .modo-btn-primary,
+.modal-wrapper .modo-btn-link {
+    font-family: 'Plus Jakarta Sans', 'Inter', Arial, sans-serif !important;
+    font-size: 14px !important;
+    font-weight: 700;
+    line-height: 1;
+    min-width: 0;
+    height: 38px;
+    flex-shrink: 0;
+    padding: 0 18px;
+    border-radius: 8px;
+    border: 1px solid #CBD5E1 !important;
+    background: #FFFFFF !important;
+    color: #334155 !important;
+}
+
+.modal-wrapper .modo-btn-primary:hover,
+.modal-wrapper .modo-btn-primary:hover:focus,
+.modal-wrapper .modo-btn-primary:hover:active,
+.modal-wrapper .modo-btn-link:hover,
+.modal-wrapper .modo-btn-link:hover:focus,
+.modal-wrapper .modo-btn-link:hover:active {
+    background: #F1F5F9 !important;
+    color: #334155 !important;
+}
+
+/* El mismo loader dorado en toda la espera: preparando el pago (step-LOADING) y procesando (step-SCANNED y step-PROCESSING) */
+.modal-wrapper .modal-loading-modo {
+    background-color: #FFFFFF !important;
+    border-radius: 14px;
+}
+
+.modal-wrapper .modal-background-loading-modo {
+    background-color: #FFFFFF !important;
+}
+
+.modal-wrapper .modal-container-loading-modo {
+    position: relative;
+    width: 56px;
+    height: 56px;
+}
+
+.modal-wrapper .modal-container-loading-modo img {
+    display: none !important;
+}
+
+.modal-wrapper .modal-container-loading-modo::after,
+.modal-wrapper .modal-loading-spinner-modo {
+    content: '';
+    box-sizing: border-box;
+    border: 5px solid #EFE9D8 !important;
+    border-top-color: #D4A03D !important;
+    border-radius: 50%;
+    animation: pago-giro 0.9s linear infinite !important;
+}
+
+.modal-wrapper .modal-container-loading-modo::after {
+    position: absolute;
+    inset: 0;
+}
+
+.modal-wrapper .modal-transaction-loading-modo {
+    display: none !important;
+}
+
+.modal-wrapper .modal-loading-spinner-bg-modo {
+    background: transparent !important;
+}
+
+/* Sin la ilustración de la persona, el loader queda centrado en su lugar */
+.modal-wrapper .modal-spinner-transaction-container-modo {
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%);
+}
+
+@keyframes pago-giro {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .modal-wrapper .modal-container-loading-modo::after,
+    .modal-wrapper .modal-loading-spinner-modo {
+        animation-duration: 2.4s !important;
+    }
+}
+
+/* Botón mientras se prepara el pago (pago.js): el mismo anillo dorado */
+.cargando {
+    cursor: progress;
+}
+
+.cargando .pago-giro {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    margin-right: 8px;
+    vertical-align: -2px;
+    box-sizing: border-box;
+    border: 2px solid rgba(255, 255, 255, 0.35);
+    border-top-color: #D4A03D;
+    border-radius: 50%;
+    animation: pago-giro 0.9s linear infinite;
+}

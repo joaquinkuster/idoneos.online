@@ -32,34 +32,7 @@
 
                 <!-- Filtros (CU-56): nombre, estado y orden -->
                 <form th:action="@{/descuento/buscar}" method="get" class="pn-filtros" data-filtro-front>
-                    <div class="pn-filtros-campo pn-filtros-campo-grande">
-                        <label class="pn-etiqueta">Nombre</label>
-                        <input type="text" name="nombre" th:value="${nombreBusqueda}" class="pn-input" placeholder="Buscar por nombre" autocomplete="off">
-                    </div>
-                    <div class="pn-filtros-campo">
-                        <label class="pn-etiqueta">Estado</label>
-                        <select name="estado" class="pn-input" title="Estado">
-                            <option value="" th:selected="${estadoSeleccionado == null or estadoSeleccionado == ''}">Todos los estados</option>
-                            <option value="Vigente" th:selected="${estadoSeleccionado == 'Vigente'}">Vigente</option>
-                            <option value="Próximo" th:selected="${estadoSeleccionado == 'Próximo'}">Próximo</option>
-                            <option value="Vencido" th:selected="${estadoSeleccionado == 'Vencido'}">Vencido</option>
-                            <option value="Agotado" th:selected="${estadoSeleccionado == 'Agotado'}">Agotado</option>
-                            <option value="Dado de baja" th:selected="${estadoSeleccionado == 'Dado de baja'}">Dado de baja</option>
-                        </select>
-                    </div>
-                    <div class="pn-filtros-campo">
-                        <label class="pn-etiqueta">Ordenar por</label>
-                        <select name="orden" class="pn-input" title="Ordenar por">
-                            <option value="nombre" th:selected="${ordenSeleccionado == 'nombre'}">Nombre (A–Z)</option>
-                            <option value="recientes" data-dir="desc" th:selected="${ordenSeleccionado == 'recientes'}">Más recientes</option>
-                            <option value="porcentaje" data-dir="desc" th:selected="${ordenSeleccionado == 'porcentaje'}">Mayor porcentaje</option>
-                        </select>
-                    </div>
-                    <a th:href="@{/descuento/buscar}" class="pn-btn pn-btn-contorno">Limpiar</a>
-                    <div class="pn-columnas-wrapper">
-                        <button type="button" class="pn-btn pn-btn-contorno" data-columnas-boton>Columnas</button>
-                        <div class="pn-columnas-menu" data-columnas-menu></div>
-                    </div>
+                    <a th:href="@{/descuento/buscar}" class="pn-btn pn-btn-contorno" hidden>Limpiar</a>
                 </form>
 
                 <!-- Tabla -->
@@ -68,18 +41,18 @@
                         <thead>
                             <tr>
                                 <th class="pn-col-seleccion"><input type="checkbox" data-seleccionar-todos aria-label="Seleccionar todos"></th>
-                                <th data-col="Nombre">Nombre</th>
-                                <th data-col="Porcentaje">Porcentaje</th>
-                                <th data-col="Vigencia">Vigencia</th>
-                                <th data-col="Usos">Usos</th>
-                                <th data-col="Condición">Condición</th>
-                                <th data-col="Estado">Estado</th>
+                                <th data-col="Nombre" data-orden-inicial="asc" data-campo="nombre" data-filtro="texto">Nombre</th>
+                                <th data-col="Porcentaje" data-campo="porcentaje" data-filtro="numero">Porcentaje</th>
+                                <th data-col="Vigencia" data-campo="vigencia" data-filtro="texto">Vigencia</th>
+                                <th data-col="Usos" data-campo="usos" data-filtro="texto">Usos</th>
+                                <th data-col="Condición" data-campo="condicion" data-filtro="lista">Condición</th>
+                                <th data-col="Estado" data-campo="estado" data-filtro="lista">Estado</th>
+                                <th data-col="Fecha de creación" data-campo="fechaCreacion" data-filtro="fecha">Fecha de creación</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr th:each="d : ${descuentos}" data-fila th:classappend="${d.baja} ? 'pn-fila-baja'"
-                                th:data-f-nombre="${d.nombre}" th:data-f-estado="${d.estado}" th:data-o-nombre="${d.nombre}"
+                            <tr th:each="d : ${descuentos}" data-fila th:classappend="${d.baja} ? 'pn-fila-baja'" th:data-o-nombre="${d.nombre}"
                                 th:data-o-porcentaje="${#numbers.formatDecimal(d.porcentaje, 4, 'NONE', 2, 'POINT')}"
                                 th:data-o-recientes="${#temporals.format(d.fechaCreacion, 'yyyyMMdd') + #numbers.formatInteger(d.idDescuento, 8, 'NONE')}"
                                 th:attr="data-dependencias=${d.cantidadUsada}">
@@ -95,10 +68,11 @@
                                           th:classappend="${d.estado == 'Vigente'} ? 'pn-insignia-verde' : (${d.estado == 'Próximo'} ? 'pn-insignia-azul' : (${d.estado == 'Dado de baja'} ? 'pn-insignia-gris' : 'pn-insignia-dorada'))"
                                           th:text="${d.estado}">Vigente</span>
                                 </td>
+                                <td th:text="${#temporals.format(d.fechaCreacion, 'dd/MM/yyyy HH:mm')}">28/08/2026 10:30</td>
                                 <td>
                                     <div class="pn-acciones" th:if="${!d.baja}">
                                         <button type="button" class="pn-btn pn-btn-editar pn-btn-chico" data-bs-toggle="modal"
-                                                th:data-bs-target="'#modalEditarDescuento' + ${d.idDescuento}">Editar</button>
+                                                th:data-bs-target="'#modalEditarDescuento' + ${d.idDescuento}">Modificar</button>
                                         <span th:title="${d.cantidadUsada > 0} ? 'Se aplicó a ' + ${d.cantidadUsada} + ' inscripción(es): ya no puede darse de baja' : null">
                                             <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico" data-bs-toggle="modal"
                                                     th:data-bs-target="'#modalBajaDescuento' + ${d.idDescuento}"
@@ -108,7 +82,7 @@
                                     <span th:if="${d.baja}" class="pn-celda-secundaria">—</span>
                                 </td>
                             </tr>
-                            <tr th:replace="~{fragments/vacio :: fila(8, 'fa-percent', 'No se encontraron descuentos', 'Ningún descuento coincide con los criterios ingresados.')}"></tr>
+                            <tr th:replace="~{fragments/vacio :: fila(9, 'fa-percent', 'No se encontraron descuentos', 'Ningún descuento coincide con los criterios ingresados.')}"></tr>
                         </tbody>
                     </table>
                 </div>
@@ -145,7 +119,7 @@
             <div class="pn-modal-cuerpo">
                 <div class="pn-seccion-titulo">
                     <h4>Datos del descuento</h4>
-                    <p>Se aplica automáticamente a los alumnos que cumplen la condición; si cumplen varios, se aplica el de mayor porcentaje</p>
+                    <p>Nombre, porcentaje, vigencia, cantidad límite y cursos comprados requeridos</p>
                 </div>
                 <form th:action="@{/descuento/registrar}" method="post" class="form-ajax" data-validar novalidate>
                     <div class="row g-3">
@@ -159,7 +133,7 @@
                         </div>
                         <div class="col-md-6 pn-campo">
                             <label class="pn-etiqueta">Porcentaje <span class="pn-obligatorio">*</span></label>
-                            <input type="number" name="porcentaje" class="pn-input" min="1" max="100" step="0.01" placeholder="Porcentaje (1 a 100)" required>
+                            <input type="number" name="porcentaje" class="pn-input" min="1" max="99" step="0.01" placeholder="Porcentaje (1 a 99)" required>
                             <div class="pn-ayuda-error"></div>
                         </div>
                         <div class="col-md-6 pn-campo">
@@ -206,7 +180,7 @@
                 <div class="pn-modal-cuerpo">
                     <div class="pn-seccion-titulo">
                         <h4>Datos del descuento</h4>
-                        <p>Se aplicó <strong th:text="${d.cantidadUsada}">0</strong> vez/veces; la cantidad límite no puede ser menor</p>
+                        <p>Nombre, porcentaje, vigencia, cantidad límite (ya se aplicó <strong th:text="${d.cantidadUsada + (d.cantidadUsada == 1 ? ' vez' : ' veces')}">0 veces</strong>; no puede ser menor) y cursos comprados requeridos</p>
                     </div>
                     <form th:action="@{'/descuento/modificar/' + ${d.idDescuento}}" method="post" class="form-ajax" data-validar novalidate>
                         <div class="row g-3">
@@ -220,7 +194,7 @@
                             </div>
                             <div class="col-md-6 pn-campo">
                                 <label class="pn-etiqueta">Porcentaje <span class="pn-obligatorio">*</span></label>
-                                <input type="number" name="porcentaje" class="pn-input" min="1" max="100" step="0.01"
+                                <input type="number" name="porcentaje" class="pn-input" min="1" max="99" step="0.01"
                                        th:value="${#numbers.formatDecimal(d.porcentaje, 1, 'NONE', (d.porcentaje % 1 == 0 ? 0 : 2), 'POINT')}" required>
                                 <div class="pn-ayuda-error"></div>
                             </div>

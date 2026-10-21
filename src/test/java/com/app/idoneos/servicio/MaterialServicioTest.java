@@ -118,7 +118,7 @@ class MaterialServicioTest {
         assertTrue(Files.exists(directorioCursos.resolve(esperada)));
         assertEquals("Clase 3: Valuación de bonos", material.getTitulo());
         assertEquals(TipoMaterial.GRABACION, material.getTipoMaterial().getNombre());
-        assertEquals(fausto().getIdDocente(), material.getParticipacionDocente().getDocente().getIdDocente());
+        assertEquals(fausto().getIdDocente(), material.getDocenteCurso().getDocente().getIdDocente());
         assertNotNull(material.getFechaCreacion());
         assertTrue(material.estaPublicado());
         assertTrue(material.tieneArchivo());
@@ -157,7 +157,7 @@ class MaterialServicioTest {
         assertTrue(mensaje(() -> materialServicio.subirMaterial(docente, unidad, grabacion, "x".repeat(51), false, null,
                 null, archivo("c.mp4", MP4))).contains("50 caracteres"));
         assertTrue(mensaje(() -> materialServicio.subirMaterial(docente, unidad, resumen, "Resumen", false, null, null,
-                archivo("c.pdf", PDF))).contains("tipo de material válido"));
+                archivo("c.pdf", PDF))).contains("tipo de material de la lista"));
         assertTrue(mensaje(() -> materialServicio.subirMaterial(docente, unidad, grabacion, "Clase", false, null, null,
                 null)).contains("archivo de video"));
         assertTrue(mensaje(() -> materialServicio.subirMaterial(docente, unidad, presentacion, "Clase", false, null,
@@ -174,12 +174,12 @@ class MaterialServicioTest {
         assertTrue(mensaje(() -> materialServicio.subirMaterial(docente, unidad, grabacion, "Clase", false, null, null,
                 archivo("clase.mp4", PDF))).contains("MP4 o WEBM"));
         assertTrue(mensaje(() -> materialServicio.subirMaterial(docente, unidad, presentacion, "Clase", false, null,
-                null, archivo("clase.mp4", MP4))).contains("en formato PDF."));
+                null, archivo("clase.mp4", MP4))).contains("Formato válido: PDF."));
         // los documentos de Office ya no se admiten: solo PDF
         assertTrue(mensaje(() -> materialServicio.subirMaterial(docente, unidad, presentacion, "Clase", false, null,
-                null, archivo("clase.pptx", PDF))).contains("en formato PDF."));
+                null, archivo("clase.pptx", PDF))).contains("Formato válido: PDF."));
         assertTrue(mensaje(() -> materialServicio.subirMaterial(docente, unidad, bibliografia, "Libro", false, null,
-                null, archivo("libro.docx", PDF))).contains("en formato PDF."));
+                null, archivo("libro.docx", PDF))).contains("Formato válido: PDF."));
     }
 
     @Test

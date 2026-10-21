@@ -2,7 +2,7 @@ package com.app.idoneos.servicio.Curso;
 
 import com.app.idoneos.modelo.Curso;
 import com.app.idoneos.modelo.Inscripcion;
-import com.app.idoneos.modelo.ParticipacionDocente;
+import com.app.idoneos.modelo.DocenteCurso;
 import com.app.idoneos.modelo.Programa;
 
 /**
@@ -16,7 +16,7 @@ import com.app.idoneos.modelo.Programa;
  * @param urlBase       La ruta de la página principal del curso para ese rol.
  * @param urlMisCursos  La ruta del listado de cursos para ese rol.
  */
-public record ContextoCurso(Curso curso, Programa programa, Rol rol, ParticipacionDocente participacion,
+public record ContextoCurso(Curso curso, Programa programa, Rol rol, DocenteCurso participacion,
         String urlBase, String urlMisCursos) {
 
     /** Rol con el que se entra al panel de un curso. */
@@ -39,7 +39,7 @@ public record ContextoCurso(Curso curso, Programa programa, Rol rol, Participaci
      * @param participacion La participación del docente en el curso.
      * @return El contexto del docente.
      */
-    public static ContextoCurso deDocente(ParticipacionDocente participacion) {
+    public static ContextoCurso deDocente(DocenteCurso participacion) {
         Curso curso = participacion.getCurso();
         return new ContextoCurso(curso, participacion.getProgramaDeTrabajo(), Rol.DOCENTE, participacion,
                 "/curso/acceder/" + curso.getIdCurso(), "/curso/buscar");

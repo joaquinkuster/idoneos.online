@@ -1,5 +1,6 @@
 package com.app.idoneos.servicio.Cohorte;
 
+import com.app.idoneos.modelo.Curso;
 import java.time.LocalDate;
 import com.app.idoneos.modelo.Docente;
 import java.util.List;
@@ -20,6 +21,14 @@ public interface CohorteServicio {
      * @return una lista de Cohorte asociados al Programa indicado
      */
     List<Cohorte> buscarPorPrograma(Programa programa);
+
+    /**
+     * Busca las cohortes vigentes de los programas vigentes de un curso.
+     *
+     * @param curso el curso
+     * @return una lista de Cohorte del curso indicado
+     */
+    List<Cohorte> buscarPorCurso(Curso curso);
 
     /**
      * Busca cohortes aplicando filtros opcionales. Incluye las dadas de baja, que se ordenan siempre al final.

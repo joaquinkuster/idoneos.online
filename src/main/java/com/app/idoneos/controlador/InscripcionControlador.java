@@ -23,7 +23,9 @@ import com.app.idoneos.servicio.Alumno.AlumnoServicioImpl;
 import com.app.idoneos.servicio.Curso.ContextoCurso;
 import com.app.idoneos.servicio.Pago.PagoServicio;
 import com.app.idoneos.modelo.Alumno;
+import com.app.idoneos.modelo.Cohorte;
 import com.app.idoneos.modelo.Curso;
+import com.app.idoneos.modelo.Descuento;
 import com.app.idoneos.modelo.Inscripcion;
 import com.app.idoneos.modelo.UnidadCronograma;
 import com.app.idoneos.modelo.Usuario;
@@ -73,12 +75,6 @@ public class InscripcionControlador extends PanelCursoControlador {
             List<Inscripcion> inscripciones = inscripcionServicio.buscarMisCursos(alumno, busqueda, estado);
 
             modelo.addAttribute("inscripciones", inscripciones);
-            // Lo que debe pagar el alumno por cada inscripción pendiente de pago (el precio con el descuento que le corresponde)
-            Map<Integer, Float> montosAPagar = new HashMap<>();
-            inscripciones.stream().filter(inscripcion -> Inscripcion.ACCESO_PENDIENTE_DE_PAGO.equals(inscripcion.getEstadoAcceso()))
-                    .forEach(inscripcion -> montosAPagar.put(inscripcion.getIdInscripcion(),
-                            pagoServicio.calcularMontoAPagar(inscripcion)));
-            modelo.addAttribute("montosAPagar", montosAPagar);
             modelo.addAttribute("totalInscripciones", inscripciones.size());
             modelo.addAttribute("busqueda", busqueda);
             modelo.addAttribute("estadoSeleccionado", estado);
@@ -104,6 +100,11 @@ public class InscripcionControlador extends PanelCursoControlador {
         modelo.addAttribute("inscripciones", inscripciones);
         modelo.addAttribute("cursosFiltro", inscripciones.stream().map(Inscripcion::getCurso).distinct()
                 .sorted(Comparator.comparing(Curso::getNombre, String.CASE_INSENSITIVE_ORDER)).toList());
+        modelo.addAttribute("cohortesFiltro", inscripciones.stream().map(Inscripcion::getCohorte).distinct()
+                .sorted(Comparator.comparing((Cohorte c) -> c.getPrograma().getCurso().getNombre(), String.CASE_INSENSITIVE_ORDER)
+                        .thenComparing(c -> c.getPrograma().getNombre(), String.CASE_INSENSITIVE_ORDER)
+                        .thenComparing(Cohorte::getFechaInicioInscripcion))
+                .toList());
         List<Curso> cursosAbiertos = cursoServicio.buscarEnCatalogo(null, null, null, null, null);
         modelo.addAttribute("cohortesAbiertas", cursosAbiertos.stream()
                 .flatMap(curso -> cursoServicio.buscarCohortesAbiertas(curso).stream()).toList());
@@ -112,6 +113,13 @@ public class InscripcionControlador extends PanelCursoControlador {
                 .sorted(Comparator.comparing(alumno -> alumno.getUsuario().getNombreCompleto(),
                         String.CASE_INSENSITIVE_ORDER))
                 .toList());
+        // Descuento que le corresponde hoy a cada alumno, para el recuadro de pago del formulario de alta
+        Map<Integer, Descuento> descuentosPorAlumno = new HashMap<>();
+        for (Alumno alumno : alumnoServicio.obtenerTodo()) {
+            pagoServicio.calcularDescuentoPara(alumno)
+                    .ifPresent(descuento -> descuentosPorAlumno.put(alumno.getIdAlumno(), descuento));
+        }
+        modelo.addAttribute("descuentosPorAlumno", descuentosPorAlumno);
         modelo.addAttribute("titulo", "Inscripciones | Idóneos Online");
         modelo.addAttribute("menuActivo", "inscripciones");
         return "pages/inscripcion/buscarAdministrador";
@@ -179,7 +187,8 @@ public class InscripcionControlador extends PanelCursoControlador {
             String mensaje = inscripcion.estaHabilitada()
                     ? "Te inscribiste a «" + curso + "». Ya podés acceder desde Mis cursos."
                     : "Te inscribiste a «" + curso + "». Para acceder al contenido tenés que completar el pago.";
-            return RespuestaJsonUtilidad.respuestaExitosa(mensaje, "/inscripcion/misCursos");
+            return RespuestaJsonUtilidad.respuestaExitosa(mensaje, inscripcion.estaHabilitada() ? "/inscripcion/misCursos"
+                    : "/pago/caja/" + inscripcion.getIdInscripcion());
         } catch (Exception e) {
             return RespuestaJsonUtilidad.respuestaConError(e);
         }
@@ -251,6 +260,23 @@ public class InscripcionControlador extends PanelCursoControlador {
             Usuario usuario = (Usuario) auth.getPrincipal();
             inscripcionServicio.darDeBajaInscripcion(id, usuario.esAdministradorActivo() ? null : usuario.getAlumno(), motivo);
             return RespuestaJsonUtilidad.respuestaExitosa("Inscripción dada de baja con éxito.");
+        } catch (Exception e) {
+            return RespuestaJsonUtilidad.respuestaConError(e);
+        }
+    }
+
+    /**
+     * Da de baja varias inscripciones a la vez (solo el Administrador). Es de todo o nada. Responde en JSON.
+     *
+     * @param ids Identificadores de las inscripciones seleccionadas.
+     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
+     */
+    @PostMapping("/darDeBajaMasiva")
+    public ResponseEntity<Map<String, String>> darDeBajaVarias(
+            @RequestParam(value = "ids", required = false) List<Integer> ids) {
+        try {
+            inscripcionServicio.darDeBajaVarias(ids);
+            return RespuestaJsonUtilidad.respuestaExitosa("Inscripciones dadas de baja con éxito.");
         } catch (Exception e) {
             return RespuestaJsonUtilidad.respuestaConError(e);
         }

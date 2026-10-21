@@ -5,7 +5,7 @@ import java.util.Optional;
 import com.app.idoneos.modelo.ClaseClon;
 import com.app.idoneos.modelo.EstadoClaseClon;
 import com.app.idoneos.modelo.Material;
-import com.app.idoneos.modelo.ParticipacionDocente;
+import com.app.idoneos.modelo.DocenteCurso;
 import com.app.idoneos.repositorio.ClaseClonRepositorio;
 import com.app.idoneos.servicio.CrudServicio;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,14 +58,14 @@ public class ClaseClonServicioImpl implements ClaseClonServicio, CrudServicio<Cl
     }
 
     /**
-     * Busca los registros vigentes de claseClon asociados a participacionDocente.
+     * Busca los registros vigentes de claseClon asociados a docenteCurso.
      *
-     * @param participacionDocente el registro de ParticipacionDocente asociado
-     * @return una lista de ClaseClon asociados al ParticipacionDocente indicado
+     * @param docenteCurso el registro de DocenteCurso asociado
+     * @return una lista de ClaseClon asociados al DocenteCurso indicado
      */
     @Override
-    public List<ClaseClon> buscarPorParticipacionDocente(ParticipacionDocente participacionDocente) {
-        return claseClonRepositorio.findByParticipacionDocenteAndBajaFalse(participacionDocente);
+    public List<ClaseClon> buscarPorDocenteCurso(DocenteCurso docenteCurso) {
+        return claseClonRepositorio.findByDocenteCursoAndBajaFalse(docenteCurso);
     }
 
     /**

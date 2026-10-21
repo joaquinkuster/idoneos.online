@@ -27,11 +27,11 @@ public class Material {
     private int idMaterial;
 
     /**
-     * Relación con ParticipacionDocente.
+     * Relación con DocenteCurso.
      */
     @ManyToOne
-    @JoinColumn(name = "idParticipacionDocente", nullable = false)
-    private ParticipacionDocente participacionDocente;
+    @JoinColumn(name = "idDocenteCurso", nullable = false)
+    private DocenteCurso docenteCurso;
 
     /**
      * Relación con TipoMaterial.
@@ -116,13 +116,13 @@ public class Material {
     /**
      * Constructor para crear el material con los datos básicos.
      *
-     * @param participacionDocente relación con ParticipacionDocente.
+     * @param docenteCurso relación con DocenteCurso.
      * @param tipoMaterial relación con TipoMaterial.
      * @param unidad relación con Unidad.
      * @param titulo título del material.
      */
-    public Material(ParticipacionDocente participacionDocente, TipoMaterial tipoMaterial, Unidad unidad, String titulo) {
-        this.participacionDocente = participacionDocente;
+    public Material(DocenteCurso docenteCurso, TipoMaterial tipoMaterial, Unidad unidad, String titulo) {
+        this.docenteCurso = docenteCurso;
         this.tipoMaterial = tipoMaterial;
         this.unidad = unidad;
         this.titulo = titulo;

@@ -33,7 +33,7 @@ import com.app.idoneos.modelo.Modalidad;
 import com.app.idoneos.modelo.Nivel;
 import com.app.idoneos.modelo.Pago;
 import com.app.idoneos.modelo.Parametro;
-import com.app.idoneos.modelo.ParticipacionDocente;
+import com.app.idoneos.modelo.DocenteCurso;
 import com.app.idoneos.modelo.Programa;
 import com.app.idoneos.modelo.Progreso;
 import com.app.idoneos.modelo.Rol;
@@ -68,7 +68,7 @@ import com.app.idoneos.repositorio.NivelRepositorio;
 import com.app.idoneos.repositorio.PagoRepositorio;
 import com.app.idoneos.repositorio.ParametroRepositorio;
 import com.app.idoneos.servicio.Parametro.ParametroServicio;
-import com.app.idoneos.repositorio.ParticipacionDocenteRepositorio;
+import com.app.idoneos.repositorio.DocenteCursoRepositorio;
 import com.app.idoneos.repositorio.ProgramaRepositorio;
 import com.app.idoneos.repositorio.ProgresoRepositorio;
 import com.app.idoneos.repositorio.RolRepositorio;
@@ -155,7 +155,7 @@ public class SemillaServicio {
     private CursoModalidadRepositorio cursoModalidadRepositorio;
 
     @Autowired
-    private ParticipacionDocenteRepositorio participacionDocenteRepositorio;
+    private DocenteCursoRepositorio docenteCursoRepositorio;
 
     @Autowired
     private ProgramaRepositorio programaRepositorio;
@@ -310,7 +310,7 @@ public class SemillaServicio {
         LocalDateTime ahora = LocalDateTime.now();
 
         // Curso 1: Mercado de Capitales Argentino (en vivo + grabada), con cohortes abierta, en dictado y finalizada
-        ParticipacionDocente titular1 = crearCurso("Mercado de Capitales Argentino",
+        DocenteCurso titular1 = crearCurso("Mercado de Capitales Argentino",
                 "Aprendé a operar acciones, bonos, ONs y opciones en BYMA con docentes de primer nivel.", 150000f,
                 "mercado-capitales-argentino.jpg", mercadoCapitales, intermedio, true,
                 List.of(enVivo, grabada), fausto, List.of(sebastian, mariano));
@@ -381,7 +381,7 @@ public class SemillaServicio {
         consultaForoRepositorio.save(consultaTir);
 
         // Curso 2: Macroeconomía de Coyuntura (grabada), con cohorte abierta sin inscriptos
-        ParticipacionDocente titular2 = crearCurso("Macroeconomía de Coyuntura",
+        DocenteCurso titular2 = crearCurso("Macroeconomía de Coyuntura",
                 "Tipo de cambio, inflación y tasas: las variables que mueven la economía argentina.", 0f,
                 "macroeconomia-coyuntura.jpg", macroeconomia, basico, true, List.of(grabada), fausto, List.of());
         Curso curso2 = titular2.getCurso();
@@ -394,7 +394,7 @@ public class SemillaServicio {
         crearCohorte(programa2, ahora.minusDays(5), ahora.plusDays(30), null, null, 8, null);
 
         // Curso 3: Planificación Fiscal Corporativa (no alcanza el mínimo de unidades con material)
-        ParticipacionDocente titular3 = crearCurso("Planificación Fiscal Corporativa",
+        DocenteCurso titular3 = crearCurso("Planificación Fiscal Corporativa",
                 "Estrategias de planificación tributaria para empresas: IVA, ganancias y regímenes especiales.", 120000f,
                 "planificacion-fiscal-corporativa.jpg", impuestos, avanzado, true, List.of(grabada), sebastian, List.of());
         Curso curso3 = titular3.getCurso();
@@ -404,7 +404,7 @@ public class SemillaServicio {
         agregarUnidad(programa3, curso3, 2, 3, "IVA y regímenes especiales", "Débito, crédito y regímenes.", null, null);
 
         // Curso 4: Finanzas Personales e Inversión (grabada + clon de IA), con cohorte abierta e inscripción
-        ParticipacionDocente titular4 = crearCurso("Finanzas Personales e Inversión",
+        DocenteCurso titular4 = crearCurso("Finanzas Personales e Inversión",
                 "Organizá tus finanzas, aprendé a ahorrar e invertir con criterio y planificá tu patrimonio.", 80000f,
                 "finanzas-personales-inversion.jpg", finanzasPersonales, basico, true,
                 List.of(grabada, clonIa), mariano, List.of());
@@ -430,7 +430,7 @@ public class SemillaServicio {
                 "INSUFFICIENT_FUNDS", ahora.minusHours(3));
 
         // Curso 5: Análisis Técnico Bursátil (en vivo + grabada), con cohorte próxima
-        ParticipacionDocente titular5 = crearCurso("Análisis Técnico Bursátil",
+        DocenteCurso titular5 = crearCurso("Análisis Técnico Bursátil",
                 "Gráficos, indicadores y patrones para tomar decisiones de compra y venta.", 95000f,
                 "analisis-tecnico-bursatil.jpg", cuantitativas, intermedio, true,
                 List.of(enVivo, grabada), mariano, List.of(fausto));
@@ -464,7 +464,7 @@ public class SemillaServicio {
                 "introduccion-finanzas.jpg", mercadoCapitales, basico, false, List.of(grabada), sebastian, List.of());
 
         // Curso 7: curso dado de baja (para ver cómo se listan los registros dados de baja)
-        ParticipacionDocente titular7 = crearCurso("Economía Argentina 2024",
+        DocenteCurso titular7 = crearCurso("Economía Argentina 2024",
                 "Edición histórica del curso de economía argentina. Ya no se dicta.", 60000f,
                 "economia-argentina-2024.jpg", macroeconomia, intermedio, false, List.of(grabada), fausto, List.of());
         Curso curso7 = titular7.getCurso();
@@ -566,7 +566,7 @@ public class SemillaServicio {
     private void crearCursoAbierto(String nombre, String descripcion, float precio, Categoria categoria, Nivel nivel,
             List<Modalidad> modalidades, Docente titular, TipoMaterial tipoMaterial, String unidad1, String unidad2,
             LocalDateTime ahora) {
-        ParticipacionDocente participacion = crearCurso(nombre, descripcion, precio, null, categoria, nivel, true,
+        DocenteCurso participacion = crearCurso(nombre, descripcion, precio, null, categoria, nivel, true,
                 modalidades, titular, List.of());
         Curso curso = participacion.getCurso();
         Programa programa = crearPrograma(curso, "Programa 2026", "Dominar los contenidos centrales del curso.",
@@ -624,7 +624,7 @@ public class SemillaServicio {
      *
      * @return La participación del docente titular (de la que se obtiene el curso).
      */
-    private ParticipacionDocente crearCurso(String nombre, String descripcion, float precio, String imagen,
+    private DocenteCurso crearCurso(String nombre, String descripcion, float precio, String imagen,
             Categoria categoria, Nivel nivel, boolean emiteCertificado, List<Modalidad> modalidades,
             Docente titular, List<Docente> ayudantes) {
         Curso curso = new Curso(nivel, categoria, nombre, precio);
@@ -636,9 +636,9 @@ public class SemillaServicio {
             cursoModalidadRepositorio.save(new CursoModalidad(curso, modalidad));
         }
         for (Docente ayudante : ayudantes) {
-            participacionDocenteRepositorio.save(new ParticipacionDocente(curso, ayudante, false));
+            docenteCursoRepositorio.save(new DocenteCurso(curso, ayudante, false));
         }
-        return participacionDocenteRepositorio.save(new ParticipacionDocente(curso, titular, true));
+        return docenteCursoRepositorio.save(new DocenteCurso(curso, titular, true));
     }
 
     private Programa crearPrograma(Curso curso, String nombre, String objetivos, String bibliografia) {
@@ -652,7 +652,7 @@ public class SemillaServicio {
      * además un material publicado asociado a la unidad.
      */
     private Unidad agregarUnidad(Programa programa, Curso curso, int numeroOrden, int semanas, String titulo,
-            String descripcion, ParticipacionDocente autorMaterial, TipoMaterial tipoMaterial) {
+            String descripcion, DocenteCurso autorMaterial, TipoMaterial tipoMaterial) {
         Unidad unidad = new Unidad(curso, titulo, "Contenido de la unidad: " + titulo + ". " + descripcion);
         unidad.setDescripcion(descripcion);
         unidad = unidadRepositorio.save(unidad);
@@ -686,7 +686,12 @@ public class SemillaServicio {
                 inscripcion.getCurso().getPrecio());
         pago.setDetalleMetodoPago(detalle);
         pago.setUltimosDigitosTarjeta(digitos);
-        pago.setCodigoReferencia(referencia);
+        // Las transferencias llevan su número de comprobante; MODO, su código de referencia
+        if (MetodoPago.TRANSFERENCIA.equals(metodo.getNombre())) {
+            pago.setNumeroComprobante(referencia);
+        } else {
+            pago.setCodigoReferencia(referencia);
+        }
         pago.setDetalleErrorOperacion(motivoError);
         pago.setFechaCreacion(fecha);
         pago.setUltimaModificacion(fecha);
@@ -716,7 +721,7 @@ public class SemillaServicio {
         return inscripcion;
     }
 
-    private Material agregarMaterial(Unidad unidad, ParticipacionDocente autor, TipoMaterial tipo, String titulo) {
+    private Material agregarMaterial(Unidad unidad, DocenteCurso autor, TipoMaterial tipo, String titulo) {
         Material material = new Material(autor, tipo, unidad, titulo);
         material.setAutor(autor.getDocente().getUsuario().getNombreCompleto());
         return materialRepositorio.save(material);

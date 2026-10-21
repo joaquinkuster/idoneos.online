@@ -31,6 +31,14 @@ public interface DescuentoServicio {
      */
     List<Descuento> buscarConFiltros(String nombre, String estado, String orden);
 
+    /**
+     * Busca los descuentos vigentes en este momento (no dados de baja, no agotados, no vencidos y ya comenzados),
+     * del mayor porcentaje al menor.
+     *
+     * @return Los descuentos vigentes.
+     */
+    List<Descuento> buscarVigentes();
+
     // ---------------------------------------------------------------- Creaciones
 
     /**

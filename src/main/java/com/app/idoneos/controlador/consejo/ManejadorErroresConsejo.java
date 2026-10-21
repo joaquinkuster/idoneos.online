@@ -1,5 +1,6 @@
 package com.app.idoneos.controlador.consejo;
 
+import com.app.idoneos.utilidades.MensajeValidacionUtilidad;
 import java.util.Map;
 
 import com.app.idoneos.utilidades.RespuestaJsonUtilidad;
@@ -28,10 +29,8 @@ public class ManejadorErroresConsejo {
 
     /** Mensajes de las excepciones de los casos de uso (CU-12 y CU-13) para los valores numéricos inválidos. */
     private static final Map<String, String> MENSAJES_DE_CU = Map.of(
-            "cupoMaximo", "Error! El cupo máximo debe ser un número entero mayor a cero y no puede superar los "
-                    + Cohorte.CUPO_MAXIMO_PERMITIDO + " inscriptos.",
-            "semanasAcceso", "Error! Las semanas de acceso deben ser un número entero mayor a cero y no pueden superar las "
-                    + Cohorte.SEMANAS_ACCESO_MAXIMAS + " semanas.");
+            "cupoMaximo", MensajeValidacionUtilidad.formatoInvalido("El cupo máximo", "número entero de 1 a " + Cohorte.CUPO_MAXIMO_PERMITIDO),
+            "semanasAcceso", MensajeValidacionUtilidad.formatoInvalido("Las semanas de acceso", "número entero de 1 a " + Cohorte.SEMANAS_ACCESO_MAXIMAS));
 
     private static final Map<String, String> NOMBRES_DE_CAMPOS = Map.ofEntries(
             Map.entry("semanasAcceso", "Semanas de acceso"),
@@ -55,13 +54,28 @@ public class ManejadorErroresConsejo {
      * @param redirectAttributes Atributos para mensajes de redirección.
      * @return Una respuesta HTTP 400 con el mensaje de error, o una redirección al inicio.
      */
+    /** El formato que se espera según el tipo al que no se pudo convertir el valor. */
+    private static String formatoDe(Class<?> tipo) {
+        if (tipo == null) {
+            return "valor de la lista";
+        }
+        if (java.time.temporal.Temporal.class.isAssignableFrom(tipo)) {
+            return "fecha con el formato aaaa-mm-dd";
+        }
+        if (Number.class.isAssignableFrom(tipo) || tipo.isPrimitive()) {
+            return Float.class.equals(tipo) || Double.class.equals(tipo) || float.class.equals(tipo) || double.class.equals(tipo)
+                    ? "número, con punto para los decimales" : "número entero";
+        }
+        return "valor de la lista";
+    }
+
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public Object valorInvalido(MethodArgumentTypeMismatchException e, HttpServletRequest solicitud,
             RedirectAttributes redirectAttributes) {
         String mensaje = MENSAJES_DE_CU.get(e.getName());
         if (mensaje == null) {
             String campo = NOMBRES_DE_CAMPOS.getOrDefault(e.getName(), e.getName());
-            mensaje = "Error! El valor ingresado en «" + campo + "» no es válido.";
+            mensaje = MensajeValidacionUtilidad.formatoInvalido("El valor ingresado en «" + campo + "»", formatoDe(e.getRequiredType()));
         }
         if ("POST".equalsIgnoreCase(solicitud.getMethod())) {
             return RespuestaJsonUtilidad.respuestaConError(HttpStatus.BAD_REQUEST, mensaje);
@@ -95,6 +109,6 @@ public class ManejadorErroresConsejo {
      */
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     public ResponseEntity<Map<String, String>> archivoDemasiadoGrande() {
-        return RespuestaJsonUtilidad.respuestaConError(HttpStatus.BAD_REQUEST, "Error! El archivo supera el tamaño máximo permitido (500 MB).");
+        return RespuestaJsonUtilidad.respuestaConError(HttpStatus.BAD_REQUEST, MensajeValidacionUtilidad.demasiadoGrande("El archivo", 500, "MB"));
     }
 }

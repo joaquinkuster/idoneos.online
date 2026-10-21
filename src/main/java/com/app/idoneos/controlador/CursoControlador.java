@@ -22,7 +22,7 @@ import com.app.idoneos.servicio.Curso.ContextoCurso;
 import com.app.idoneos.modelo.Cohorte;
 import com.app.idoneos.modelo.Curso;
 import com.app.idoneos.modelo.Docente;
-import com.app.idoneos.modelo.ParticipacionDocente;
+import com.app.idoneos.modelo.DocenteCurso;
 import com.app.idoneos.modelo.Programa;
 import com.app.idoneos.modelo.Usuario;
 import com.app.idoneos.utilidades.ManejadorArchivosUtilidad;
@@ -203,7 +203,7 @@ public class CursoControlador extends PanelCursoControlador {
         boolean esAdministrador = false;
         try {
             // Si participa en el curso como docente trabaja como tal; si no, solo el administrador puede entrar
-            ParticipacionDocente participacion = null;
+            DocenteCurso participacion = null;
             Docente docente = usuario.getDocente();
             if (docente != null) {
                 try {

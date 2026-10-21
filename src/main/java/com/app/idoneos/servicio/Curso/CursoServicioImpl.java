@@ -1,5 +1,6 @@
 package com.app.idoneos.servicio.Curso;
 
+import com.app.idoneos.utilidades.MensajeValidacionUtilidad;
 import com.app.idoneos.utilidades.MensajeBajaUtilidad;
 import java.time.LocalDateTime;
 import com.app.idoneos.utilidades.ManejadorArchivosUtilidad;
@@ -67,7 +68,7 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
     private CursoModalidadRepositorio cursoModalidadRepositorio;
 
     @Autowired
-    private ParticipacionDocenteRepositorio participacionDocenteRepositorio;
+    private DocenteCursoRepositorio docenteCursoRepositorio;
 
     @Autowired
     private InscripcionRepositorio inscripcionRepositorio;
@@ -280,9 +281,9 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
      * @throws IllegalArgumentException Si el docente no puede acceder, con el motivo.
      */
     @Override
-    public ParticipacionDocente validarAccesoDocente(int idCurso, Docente docente) {
+    public DocenteCurso validarAccesoDocente(int idCurso, Docente docente) {
         Curso curso = buscarActivoPorId(idCurso);
-        ParticipacionDocente participacion = participacionDocenteRepositorio.findByCursoAndBajaFalse(curso).stream()
+        DocenteCurso participacion = docenteCursoRepositorio.findByCursoAndBajaFalse(curso).stream()
                 .filter(p -> p.getDocente().getIdDocente() == docente.getIdDocente()).findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Error! No participás en este curso."));
         // Un curso sin programas también se puede abrir: desde ahí el docente registra el primero
@@ -603,11 +604,10 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
 
     private void validarPrecio(Float precio) {
         if (precio < 0) {
-            throw new IllegalArgumentException("Error! El precio ingresado debe ser mayor o igual a cero.");
+            throw new IllegalArgumentException(MensajeValidacionUtilidad.formatoInvalido("El precio", "número desde 0 hasta $" + String.format("%,.0f", Curso.PRECIO_MAXIMO).replace(',', '.')));
         }
         if (precio > Curso.PRECIO_MAXIMO) {
-            throw new IllegalArgumentException("Error! El precio ingresado no puede superar los $"
-                    + String.format("%,.0f", Curso.PRECIO_MAXIMO).replace(',', '.') + " (ARS).");
+            throw new IllegalArgumentException(MensajeValidacionUtilidad.formatoInvalido("El precio", "número desde 0 hasta $" + String.format("%,.0f", Curso.PRECIO_MAXIMO).replace(',', '.')));
         }
     }
 
@@ -662,7 +662,7 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
                 || !modalidadesActuales(curso).equals(new HashSet<>(idsModalidades));
     }
 
-    private boolean tieneActividadVigente(ParticipacionDocente participacion) {
+    private boolean tieneActividadVigente(DocenteCurso participacion) {
         return participacion.getClasesEnVivo().stream().anyMatch(clase -> !clase.getBaja())
                 || participacion.getClasesClon().stream().anyMatch(clase -> !clase.getBaja())
                 || participacion.getMateriales().stream().anyMatch(material -> !material.getBaja());
@@ -672,7 +672,7 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
         Set<Integer> nuevos = new HashSet<>();
         nuevos.add(titular.getIdDocente());
         ayudantes.forEach(ayudante -> nuevos.add(ayudante.getIdDocente()));
-        for (ParticipacionDocente participacion : curso.getEquipoDocente()) {
+        for (DocenteCurso participacion : curso.getEquipoDocente()) {
             if (!nuevos.contains(participacion.getDocente().getIdDocente()) && tieneActividadVigente(participacion)) {
                 throw new IllegalArgumentException("Error! El docente " + participacion.getDocente().getUsuario().getNombreCompleto()
                         + " tiene clases y/o material activo en el curso. Dé de baja primero sus clases y materiales "
@@ -722,25 +722,25 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
             docentes.put(ayudante.getIdDocente(), ayudante);
             titulares.put(ayudante.getIdDocente(), false);
         }
-        for (ParticipacionDocente participacion : new ArrayList<>(curso.getParticipacionesDocente())) {
+        for (DocenteCurso participacion : new ArrayList<>(curso.getParticipacionesDocente())) {
             Integer idDocente = participacion.getDocente().getIdDocente();
             if (titulares.containsKey(idDocente)) {
                 participacion.setEsTitular(titulares.get(idDocente));
                 participacion.setBaja(false);
                 participacion.setUltimaModificacion(LocalDateTime.now());
-                participacionDocenteRepositorio.save(participacion);
+                docenteCursoRepositorio.save(participacion);
                 docentes.remove(idDocente);
             } else if (!participacion.esInactivo()) {
                 participacion.marcarInactivo();
                 participacion.setProgramaPorDefecto(null);
                 participacion.setCohortePorDefecto(null);
                 participacion.setUltimaModificacion(LocalDateTime.now());
-                participacionDocenteRepositorio.save(participacion);
+                docenteCursoRepositorio.save(participacion);
             }
         }
         for (Docente docente : docentes.values()) {
-            curso.getParticipacionesDocente().add(participacionDocenteRepositorio
-                    .save(new ParticipacionDocente(curso, docente, titulares.get(docente.getIdDocente()))));
+            curso.getParticipacionesDocente().add(docenteCursoRepositorio
+                    .save(new DocenteCurso(curso, docente, titulares.get(docente.getIdDocente()))));
         }
     }
 }

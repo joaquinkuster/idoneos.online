@@ -56,4 +56,16 @@ public class Alumno {
     public String toString() {
         return "Alumno #" + idAlumno;
     }
+
+    /**
+     * Devuelve la inscripción activa del alumno a alguna cohorte del curso.
+     *
+     * @param curso el curso
+     * @return la inscripción activa, o {@code null} si el alumno no está inscripto al curso
+     */
+    public Inscripcion getInscripcionActivaEn(Curso curso) {
+        return inscripciones.stream()
+                .filter(i -> !i.esInactivo() && i.getCohorte().getPrograma().getCurso().getIdCurso() == curso.getIdCurso())
+                .findFirst().orElse(null);
+    }
 }

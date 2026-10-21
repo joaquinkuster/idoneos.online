@@ -6,7 +6,7 @@ import com.app.idoneos.modelo.ClaseEnVivo;
 import com.app.idoneos.modelo.Cohorte;
 import com.app.idoneos.modelo.EstadoClaseEnVivo;
 import com.app.idoneos.modelo.Material;
-import com.app.idoneos.modelo.ParticipacionDocente;
+import com.app.idoneos.modelo.DocenteCurso;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -25,12 +25,12 @@ public interface ClaseEnVivoRepositorio extends JpaRepository<ClaseEnVivo, Integ
     List<ClaseEnVivo> findByBajaFalse();
 
     /**
-     * Busca los registros vigentes de claseEnVivo asociados a participacionDocente.
+     * Busca los registros vigentes de claseEnVivo asociados a docenteCurso.
      *
-     * @param participacionDocente el registro de ParticipacionDocente asociado
-     * @return una lista de ClaseEnVivo asociados al ParticipacionDocente indicado
+     * @param docenteCurso el registro de DocenteCurso asociado
+     * @return una lista de ClaseEnVivo asociados al DocenteCurso indicado
      */
-    List<ClaseEnVivo> findByParticipacionDocenteAndBajaFalse(ParticipacionDocente participacionDocente);
+    List<ClaseEnVivo> findByDocenteCursoAndBajaFalse(DocenteCurso docenteCurso);
 
     /**
      * Busca los registros vigentes de claseEnVivo asociados a estadoClaseEnVivo.

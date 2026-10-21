@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <th:block th:replace="~{fragments/head :: recursos}"></th:block>
+    <link rel="stylesheet" th:href="@{/css/modo.css}">
+</head>
+<body class="wf-canvas-bg fondo-crema">
+
+    <div class="cu-page-container">
+        <div class="screen-frame">
+
+            <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+            <th:block th:replace="~{fragments/breadcrumb :: migas('Mis cursos', '/inscripcion/misCursos', 'Caja')}"></th:block>
+
+            <div class="wf-body py-4">
+                <div class="container-fluid px-4 px-lg-5">
+                    <div class="row g-4">
+
+                        <!-- Qué se está comprando -->
+                        <div class="col-lg-7">
+                            <section class="pn-tarjeta caja-tarjeta">
+                                <div class="pn-lista-cabecera">
+                                    <h2 class="pn-lista-titulo">Tu inscripción</h2>
+                                </div>
+                                <div class="d-flex gap-3 align-items-start">
+                                    <div class="caja-imagen">
+                                        <img th:if="${inscripcion.curso.imagen != null}" th:src="@{${inscripcion.curso.urlImagen}}" alt=""
+                                             width="160" height="120" loading="lazy">
+                                        <i class="fa-solid fa-graduation-cap" th:unless="${inscripcion.curso.imagen != null}"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="caja-curso" th:text="${inscripcion.curso.nombre}">Nombre del curso</h3>
+                                        <p class="caja-detalle" th:text="${inscripcion.cohorte.programa.nombre + ' · Cohorte ' + inscripcion.cohorte.etiqueta}">Programa · Cohorte</p>
+                                        <p class="caja-detalle" th:if="${inscripcion.cohorte.fechaInicioDictado != null}"
+                                           th:text="${'Inicio del dictado: ' + #temporals.format(inscripcion.cohorte.fechaInicioDictado, 'dd/MM/yyyy')}">Inicio del dictado: 15/11/2026</p>
+                                    </div>
+                                </div>
+                                <hr class="caja-separador">
+                                <ul class="caja-lista">
+                                    <li><i class="fa-solid fa-check"></i> El acceso al contenido se habilita al aprobarse el pago.</li>
+                                    <li><i class="fa-solid fa-check"></i> El vencimiento del acceso se cuenta desde ese momento.</li>
+                                </ul>
+                            </section>
+                        </div>
+
+                        <!-- Resumen y pago -->
+                        <div class="col-lg-5">
+                            <section class="pn-tarjeta caja-tarjeta">
+                                <div class="pn-lista-cabecera">
+                                    <h2 class="pn-lista-titulo">Resumen</h2>
+                                </div>
+                                <div class="caja-fila">
+                                    <span>Precio del curso</span>
+                                    <span th:text="${'$ ' + #numbers.formatDecimal(inscripcion.curso.precio, 1, 'POINT', 0, 'COMMA')}">$ 80.000</span>
+                                </div>
+                                <div class="caja-fila caja-descuento" th:if="${descuento != null}">
+                                    <span th:text="${'Descuento «' + descuento.nombre + '» (' + #numbers.formatDecimal(descuento.porcentaje, 1, 0) + '%)'}">Descuento «Fidelidad» (10%)</span>
+                                    <span th:text="${'− $ ' + #numbers.formatDecimal(inscripcion.curso.precio - total, 1, 'POINT', 0, 'COMMA')}">− $ 8.000</span>
+                                </div>
+                                <hr class="caja-separador">
+                                <div class="caja-fila caja-total">
+                                    <span>Total a pagar</span>
+                                    <strong th:text="${'$ ' + #numbers.formatDecimal(total, 1, 'POINT', 0, 'COMMA')}">$ 72.000</strong>
+                                </div>
+
+                                <button type="button" class="pn-btn pn-btn-primario caja-boton" data-pagar th:unless="${parcial}"
+                                        th:data-url="@{'/pago/pagar/' + ${inscripcion.idInscripcion}}"
+                                        th:data-inscripcion="${inscripcion.idInscripcion}"
+                                        th:data-monto="${#numbers.formatDecimal(total, 1, 'NONE', 2, 'POINT')}"
+                                        th:text="${total <= 0 ? 'Habilitar acceso' : 'Pagar con MODO'}">Pagar con MODO</button>
+                                <p class="caja-nota" th:if="${!parcial and total > 0}">Pagás con la app de tu banco escaneando un QR.</p>
+
+                                <div class="pn-aviso pn-aviso-dorado mt-3" th:if="${parcial}">
+                                    <i class="fa-solid fa-circle-info me-1"></i>
+                                    Ya se registró un pago de
+                                    <strong th:text="${'$ ' + #numbers.formatDecimal(pagado, 1, 'POINT', 0, 'COMMA')}">$ 30.000</strong>
+                                    que no cubre el precio. El resto lo acredita el administrador.
+                                </div>
+                            </section>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div th:replace="~{fragments/footer :: footer}"></div>
+
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/scripts :: scripts}"></div>
+    <script th:src="@{/js/pago.js}"></script>
+</body>
+</html>

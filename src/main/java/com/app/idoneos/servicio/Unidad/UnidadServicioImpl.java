@@ -1,5 +1,6 @@
 package com.app.idoneos.servicio.Unidad;
 
+import com.app.idoneos.utilidades.MensajeValidacionUtilidad;
 import com.app.idoneos.utilidades.MensajeBajaUtilidad;
 import java.util.List;
 import java.util.Optional;
@@ -11,7 +12,7 @@ import com.app.idoneos.modelo.Programa;
 import com.app.idoneos.modelo.Unidad;
 import com.app.idoneos.modelo.UnidadCronograma;
 import com.app.idoneos.modelo.Usuario;
-import com.app.idoneos.repositorio.ParticipacionDocenteRepositorio;
+import com.app.idoneos.repositorio.DocenteCursoRepositorio;
 import com.app.idoneos.repositorio.ProgramaRepositorio;
 import com.app.idoneos.repositorio.UnidadCronogramaRepositorio;
 import com.app.idoneos.utilidades.TextoUtilidad;
@@ -35,7 +36,7 @@ public class UnidadServicioImpl implements UnidadServicio, CrudServicio<Unidad> 
     private UnidadRepositorio unidadRepositorio;
 
     @Autowired
-    private ParticipacionDocenteRepositorio participacionDocenteRepositorio;
+    private DocenteCursoRepositorio docenteCursoRepositorio;
 
     @Autowired
     private InscripcionServicio inscripcionServicio;
@@ -102,7 +103,7 @@ public class UnidadServicioImpl implements UnidadServicio, CrudServicio<Unidad> 
             return true;
         }
         Docente docente = usuario.getDocente();
-        if (docente != null && participacionDocenteRepositorio.findByCursoAndBajaFalse(unidad.getCurso()).stream()
+        if (docente != null && docenteCursoRepositorio.findByCursoAndBajaFalse(unidad.getCurso()).stream()
                 .anyMatch(p -> p.getDocente().getIdDocente() == docente.getIdDocente())) {
             return true;
         }
@@ -314,7 +315,7 @@ public class UnidadServicioImpl implements UnidadServicio, CrudServicio<Unidad> 
         if (docente == null) {
             throw new IllegalArgumentException("Error! El usuario no tiene el rol de docente.");
         }
-        boolean participa = participacionDocenteRepositorio.findByCursoAndBajaFalse(curso).stream()
+        boolean participa = docenteCursoRepositorio.findByCursoAndBajaFalse(curso).stream()
                 .anyMatch(p -> p.getDocente().getIdDocente() == docente.getIdDocente());
         if (!participa) {
             throw new IllegalArgumentException("Error! No participás en este curso.");
@@ -328,7 +329,7 @@ public class UnidadServicioImpl implements UnidadServicio, CrudServicio<Unidad> 
         }
         if (titulo.trim().length() > Unidad.LONGITUD_TITULO) {
             throw new IllegalArgumentException(
-                    "Error! El título no puede superar los " + Unidad.LONGITUD_TITULO + " caracteres.");
+                    MensajeValidacionUtilidad.demasiadoLargo("El título", Unidad.LONGITUD_TITULO, "caracteres"));
         }
         return titulo.trim();
     }
@@ -337,7 +338,7 @@ public class UnidadServicioImpl implements UnidadServicio, CrudServicio<Unidad> 
         String limpia = descripcion == null || descripcion.isBlank() ? null : descripcion.trim();
         if (limpia != null && limpia.length() > Unidad.LONGITUD_DESCRIPCION) {
             throw new IllegalArgumentException(
-                    "Error! La descripción no puede superar los " + Unidad.LONGITUD_DESCRIPCION + " caracteres.");
+                    MensajeValidacionUtilidad.demasiadoLargo("La descripción", Unidad.LONGITUD_DESCRIPCION, "caracteres"));
         }
         return limpia;
     }

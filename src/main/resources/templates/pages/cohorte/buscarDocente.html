@@ -17,7 +17,7 @@
                 <div>
                     <div class="wf-hero-tag">
                         <i class="fa-solid fa-graduation-cap"></i>
-                        <span>PANEL DOCENTE</span>
+                        <span>PORTAL ACADÉMICO</span>
                     </div>
                     <h2 class="wf-hero-title">Mis cohortes</h2>
                     <p class="wf-hero-desc">Bienvenido/a, <span th:text="${usuario != null ? usuario.nombreCompleto : 'Docente'}">Docente</span></p>
@@ -38,87 +38,48 @@
 
                         <!-- Filtros (CU-11): programa, nombre, estado, rango de fechas de inscripción y orden -->
                         <form th:action="@{/cohorte/buscar}" method="get" class="pn-filtros" data-filtro-front>
-                            <div class="pn-filtros-campo pn-filtros-campo-grande">
-                                <label class="pn-etiqueta">Programa</label>
-                                <select name="programaId" class="pn-input" title="Programa">
-                                    <option value="">Todos los programas</option>
-                                    <option th:each="prog : ${programas}" th:value="${prog.idPrograma}"
-                                            th:text="${prog.curso.nombre + ' — ' + prog.nombre}"
-                                            th:selected="${programaSeleccionado != null and programaSeleccionado == prog.idPrograma}">Curso — Programa</option>
-                                </select>
-                            </div>
-                            <div class="pn-filtros-campo">
-                                <label class="pn-etiqueta">Nombre</label>
-                                <input type="text" name="busqueda" th:value="${busqueda}" class="pn-input" placeholder="Buscar por nombre" autocomplete="off">
-                            </div>
-                            <div class="pn-filtros-campo">
-                                <label class="pn-etiqueta">Estado</label>
-                                <select name="estado" class="pn-input" title="Estado">
-                                    <option value="" th:selected="${estadoSeleccionado == null or estadoSeleccionado == ''}">Todos los estados</option>
-                                    <option value="Próxima" th:selected="${estadoSeleccionado == 'Próxima'}">Próxima</option>
-                                    <option value="Abierta" th:selected="${estadoSeleccionado == 'Abierta'}">Abierta</option>
-                                    <option value="En dictado" th:selected="${estadoSeleccionado == 'En dictado'}">En dictado</option>
-                                    <option value="Finalizada" th:selected="${estadoSeleccionado == 'Finalizada'}">Finalizada</option>
-                                    <option value="Dada de baja" th:selected="${estadoSeleccionado == 'Dada de baja'}">Dada de baja</option>
-                                </select>
-                            </div>
-                            <div class="pn-filtros-campo">
-                                <label class="pn-etiqueta">Inscripción desde</label>
-                                <input type="date" name="desde" th:value="${desde}" class="pn-input" title="Inscripción desde">
-                            </div>
-                            <div class="pn-filtros-campo">
-                                <label class="pn-etiqueta">Inscripción hasta</label>
-                                <input type="date" name="hasta" th:value="${hasta}" class="pn-input" title="Inscripción hasta">
-                            </div>
-                            <div class="pn-filtros-campo">
-                                <label class="pn-etiqueta">Ordenar por</label>
-                                <select name="orden" class="pn-input" title="Ordenar por">
-                                    <option value="recientes" data-dir="desc" th:selected="${ordenSeleccionado == 'recientes'}">Más recientes</option>
-                                    <option value="curso" data-dir2="desc" th:selected="${ordenSeleccionado == 'curso'}">Curso (A–Z)</option>
-                                </select>
-                            </div>
-                            <a th:href="@{/cohorte/buscar}" class="pn-btn pn-btn-contorno">Limpiar</a>
-                        </form>
+                    <a th:href="@{/cohorte/buscar}" class="pn-btn pn-btn-contorno" hidden>Limpiar</a>
+                </form>
 
                         <!-- Tabla -->
                         <div class="pn-tabla-contenedor">
                             <table class="pn-tabla">
                                 <thead>
-                                    <tr>
-                                        <th>Curso / Programa</th>
-                                        <th>Inscripción</th>
-                                        <th>Dictado</th>
-                                        <th>Cupo / Acceso</th>
-                                        <th>Estado</th>
-                                        <th>Acciones</th>
-                                    </tr>
-                                </thead>
+                            <tr>
+                                <th data-col="Curso" data-campo="curso" data-filtro="lista">Curso</th>
+                                <th data-col="Programa" data-campo="programa" data-filtro="lista">Programa</th>
+                                <th data-col="Inicio de inscripción" data-orden-inicial="desc" data-campo="fechaInicioInscripcion" data-filtro="fecha">Inicio de inscripción</th>
+                                <th data-col="Fin de inscripción" data-campo="fechaFinInscripcion" data-filtro="fecha">Fin de inscripción</th>
+                                <th data-col="Inicio de dictado" data-campo="fechaInicioDictado" data-filtro="fecha">Inicio de dictado</th>
+                                <th data-col="Fin de dictado" data-campo="fechaFinDictado" data-filtro="fecha">Fin de dictado</th>
+                                <th data-col="Cupo máximo" data-campo="cupoMaximo" data-filtro="numero">Cupo máximo</th>
+                                <th data-col="Semanas de acceso" data-campo="semanasAcceso" data-filtro="numero">Semanas de acceso</th>
+                                <th data-col="Estado" data-campo="estado" data-filtro="lista">Estado</th>
+                                <th data-col="Fecha de creación" data-campo="fechaCreacion" data-filtro="fecha">Fecha de creación</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
                                 <tbody>
                                     <tr th:each="coh : ${cohortes}" data-fila th:classappend="${coh.baja} ? 'pn-fila-baja'"
-                                        th:data-f-programaid="${coh.programa.idPrograma}"
-                                        th:data-f-busqueda="${coh.programa.nombre + ' ' + coh.programa.curso.nombre}"
-                                        th:data-f-estado="${coh.baja ? 'Dada de baja' : coh.estado}"
-                                        th:data-f-desde="${#temporals.format(coh.fechaFinInscripcion, 'yyyy-MM-dd')}"
-                                        th:data-f-hasta="${#temporals.format(coh.fechaInicioInscripcion, 'yyyy-MM-dd')}"
                                         th:data-o-recientes="${#temporals.format(coh.fechaInicioInscripcion, 'yyyyMMdd')}"
                                         th:data-o-curso="${coh.programa.curso.nombre}"
-                                        th:data-o2-curso="${#temporals.format(coh.fechaInicioInscripcion, 'yyyyMMdd')}">
-                                        <td>
-                                            <div class="pn-celda-principal pn-truncar" th:text="${coh.programa.curso.nombre}">Curso</div>
-                                            <div class="pn-celda-secundaria" th:text="${coh.programa.nombre + ' · ' + coh.programa.curso.categoria.nombre}">Programa · Categoría</div>
-                                        </td>
-                                        <td th:text="${#temporals.format(coh.fechaInicioInscripcion, 'dd/MM/yyyy') + ' – ' + #temporals.format(coh.fechaFinInscripcion, 'dd/MM/yyyy')}">01/03/2026 – 31/03/2026</td>
-                                        <td th:text="${coh.fechaInicioDictado != null ? #temporals.format(coh.fechaInicioDictado, 'dd/MM/yyyy') + ' – ' + #temporals.format(coh.fechaFinDictado, 'dd/MM/yyyy') : '—'}">—</td>
-                                        <td>
-                                            <div th:text="${coh.cupoMaximo != null ? coh.cantidadInscriptos + ' / ' + coh.cupoMaximo : coh.cantidadInscriptos + ' (sin límite)'}">0</div>
-                                            <div class="pn-celda-secundaria" th:text="${coh.semanasAcceso + ' semanas de acceso'}">12 semanas de acceso</div>
-                                        </td>
-                                        <td>
+                                        th:data-o2-curso="${#temporals.format(coh.fechaInicioInscripcion, 'yyyyMMdd')}"
+                                th:data-f-cupomaximo="${coh.cupoMaximo != null ? coh.cupoMaximo : ''}">
+                                <td><div class="pn-celda-principal pn-truncar" th:text="${coh.programa.curso.nombre}">Curso</div></td>
+                                <td><div class="pn-truncar" th:text="${coh.programa.nombre}">Programa</div></td>
+                                <td th:text="${#temporals.format(coh.fechaInicioInscripcion, 'dd/MM/yyyy')}">01/03/2026</td>
+                                <td th:text="${#temporals.format(coh.fechaFinInscripcion, 'dd/MM/yyyy')}">31/03/2026</td>
+                                <td th:text="${coh.fechaInicioDictado != null ? #temporals.format(coh.fechaInicioDictado, 'dd/MM/yyyy') : '—'}">01/04/2026</td>
+                                <td th:text="${coh.fechaFinDictado != null ? #temporals.format(coh.fechaFinDictado, 'dd/MM/yyyy') : '—'}">30/06/2026</td>
+                                <td th:text="${coh.cupoMaximo != null ? coh.cantidadInscriptos + ' de ' + coh.cupoMaximo : coh.cantidadInscriptos + ' (sin límite)'}">0 de 40</td>
+                                <td th:text="${coh.semanasAcceso}">12</td>
+                                <td>
                                             <span class="pn-insignia"
                                                   th:classappend="${coh.baja} ? 'pn-insignia-gris' : (${coh.estado == 'Abierta'} ? 'pn-insignia-verde' : (${coh.estado == 'En dictado'} ? 'pn-insignia-azul' : (${coh.estado == 'Próxima'} ? 'pn-insignia-dorada' : 'pn-insignia-gris')))"
                                                   th:text="${coh.baja} ? 'Dada de baja' : ${coh.estado}">Abierta</span>
                                         </td>
-                                        <td>
+                                <td th:text="${#temporals.format(coh.fechaCreacion, 'dd/MM/yyyy HH:mm')}">28/08/2026 10:30</td>
+                                <td>
                                             <div class="pn-acciones" th:if="${!coh.baja}">
                                                 <span th:if="${cohortesDeTrabajo != null and cohortesDeTrabajo.contains(coh.idCohorte)}" class="pn-insignia pn-insignia-verde">Cohorte de trabajo</span>
                                                 <form th:unless="${cohortesDeTrabajo != null and cohortesDeTrabajo.contains(coh.idCohorte)}"
@@ -129,8 +90,8 @@
                                             </div>
                                             <span th:if="${coh.baja}" class="pn-celda-secundaria">—</span>
                                         </td>
-                                    </tr>
-                                    <tr th:replace="~{fragments/vacio :: fila(6, 'fa-calendar-days', 'No se encontraron cohortes', 'Ninguna cohorte coincide con los criterios ingresados.')}"></tr>
+                            </tr>
+                                    <tr th:replace="~{fragments/vacio :: fila(11, 'fa-calendar-days', 'No se encontraron cohortes', 'Ninguna cohorte coincide con los criterios ingresados.')}"></tr>
                                 </tbody>
                             </table>
                         </div>

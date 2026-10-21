@@ -73,6 +73,12 @@ public class Pago {
     private String codigoReferencia;
 
     /**
+     * Número de comprobante de la operación: el de la transferencia bancaria o el que muestra MODO. Es opcional.
+     */
+    @Column(name = "numeroComprobante", nullable = true, length = 100)
+    private String numeroComprobante;
+
+    /**
      * Monto del pago.
      */
     @Column(name = "monto", nullable = false)

@@ -45,48 +45,7 @@
                 <!-- Filtros -->
                 <form th:action="@{/material/buscar}" method="get" class="pn-filtros" data-filtro-front>
                     <input type="hidden" name="cursoId" th:value="${curso.idCurso}">
-                    <div class="pn-filtros-campo pn-filtros-campo-grande">
-                        <label class="pn-etiqueta">Título</label>
-                        <input type="text" name="titulo" th:value="${tituloBusqueda}" class="pn-input" placeholder="Buscar por título" autocomplete="off">
-                    </div>
-                    <div class="pn-filtros-campo">
-                        <label class="pn-etiqueta">Unidad</label>
-                        <select name="unidadId" class="pn-input">
-                            <option value="">Todas</option>
-                            <option th:each="uc : ${unidades}" th:value="${uc.unidad.idUnidad}"
-                                    th:text="${'Unidad ' + uc.numeroOrden + ' · ' + uc.unidad.titulo}"
-                                    th:selected="${unidadSeleccionada != null and unidadSeleccionada == uc.unidad.idUnidad}">Unidad 1</option>
-                        </select>
-                    </div>
-                    <div class="pn-filtros-campo">
-                        <label class="pn-etiqueta">Tipo</label>
-                        <select name="tipoId" class="pn-input">
-                            <option value="">Todos</option>
-                            <option th:each="t : ${tiposMaterial}" th:value="${t.idTipoMaterial}" th:text="${t.nombre}"
-                                    th:selected="${tipoSeleccionado != null and tipoSeleccionado == t.idTipoMaterial}">Grabación</option>
-                        </select>
-                    </div>
-                    <div class="pn-filtros-campo">
-                        <label class="pn-etiqueta">Generado por IA</label>
-                        <select name="generadoPorIa" class="pn-input">
-                            <option value="" th:selected="${iaSeleccionado == null}">Todos</option>
-                            <option value="true" th:selected="${iaSeleccionado != null and iaSeleccionado}">Sí</option>
-                            <option value="false" th:selected="${iaSeleccionado != null and !iaSeleccionado}">No</option>
-                        </select>
-                    </div>
-                    <div class="pn-filtros-campo">
-                        <label class="pn-etiqueta">Estado</label>
-                        <select name="baja" class="pn-input">
-                            <option value="" th:selected="${bajaSeleccionada == null}">Todos</option>
-                            <option value="false" th:selected="${bajaSeleccionada != null and !bajaSeleccionada}">Activos</option>
-                            <option value="true" th:selected="${bajaSeleccionada != null and bajaSeleccionada}">Dados de baja</option>
-                        </select>
-                    </div>
-                    <a th:href="@{/material/buscar(cursoId=${curso.idCurso})}" class="pn-btn pn-btn-contorno">Limpiar</a>
-                    <div class="pn-columnas-wrapper">
-                        <button type="button" class="pn-btn pn-btn-contorno" data-columnas-boton>Columnas</button>
-                        <div class="pn-columnas-menu" data-columnas-menu></div>
-                    </div>
+                    <a th:href="@{/material/buscar(cursoId=${curso.idCurso})}" class="pn-btn pn-btn-contorno" hidden>Limpiar</a>
                 </form>
 
                 <!-- Tabla -->
@@ -95,21 +54,20 @@
                         <thead>
                             <tr>
                                 <th class="pn-col-seleccion"><input type="checkbox" data-seleccionar-todos aria-label="Seleccionar todos"></th>
-                                <th data-col="Título">Título</th>
-                                <th data-col="Unidad">Unidad</th>
-                                <th data-col="Tipo">Tipo</th>
-                                <th data-col="Autor">Autor</th>
-                                <th data-col="Archivo">Archivo</th>
-                                <th data-col="Visibilidad">Visibilidad</th>
-                                <th data-col="Fecha de creación">Fecha de creación</th>
-                                <th data-col="Estado">Estado</th>
+                                <th data-col="Título" data-campo="titulo" data-filtro="texto">Título</th>
+                                <th data-col="Unidad" data-campo="unidad" data-filtro="lista">Unidad</th>
+                                <th data-col="Tipo" data-campo="tipo" data-filtro="lista">Tipo</th>
+                                <th data-col="Autor" data-campo="autor" data-filtro="texto">Autor</th>
+                                <th data-col="Archivo" data-campo="archivo" data-filtro="lista">Archivo</th>
+                                <th data-col="Visibilidad" data-campo="visibilidad" data-filtro="lista">Visibilidad</th>
+                                <th data-col="Generado por IA" data-campo="generadoPorIa" data-filtro="lista">Generado por IA</th>
+                                <th data-col="Fecha de creación" data-campo="fechaCreacion" data-filtro="fecha">Fecha de creación</th>
+                                <th data-col="Estado" data-campo="estado" data-filtro="lista">Estado</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr th:each="m : ${materiales}" data-fila th:classappend="${m.baja} ? 'pn-fila-baja'" data-dependencias="0"
-                                th:data-f-titulo="${m.titulo}" th:data-f-unidadid="${m.unidad.idUnidad}" th:data-f-tipoid="${m.tipoMaterial.idTipoMaterial}"
-                                th:data-f-generadoporia="${m.generadoPorIa}" th:data-f-baja="${m.baja}">
+                            <tr th:each="m : ${materiales}" data-fila th:classappend="${m.baja} ? 'pn-fila-baja'" data-dependencias="0">
                                 <td class="pn-col-seleccion"><input type="checkbox" data-seleccionar-fila aria-label="Seleccionar fila"
                                     th:value="${m.idMaterial}" th:disabled="${m.baja}"></td>
                                 <td>
@@ -133,7 +91,8 @@
                                     <span class="pn-insignia" th:classappend="${m.oculto} ? 'pn-insignia-dorada' : 'pn-insignia-azul'"
                                           th:text="${m.oculto} ? 'Oculto' : 'Publicado'">Publicado</span>
                                 </td>
-                                <td th:text="${m.fechaCreacion != null ? #temporals.format(m.fechaCreacion, 'dd/MM/yyyy') : '—'}">28/08/2026</td>
+                                <td th:text="${m.generadoPorIa ? 'Sí' : 'No'}">No</td>
+                                <td th:text="${m.fechaCreacion != null ? #temporals.format(m.fechaCreacion, 'dd/MM/yyyy HH:mm') : '—'}">28/08/2026 10:30</td>
                                 <td>
                                     <span class="pn-insignia" th:classappend="${m.baja} ? 'pn-insignia-gris' : 'pn-insignia-verde'"
                                           th:text="${m.baja} ? 'Dado de baja' : 'Activo'">Activo</span>
@@ -141,13 +100,13 @@
                                 <td>
                                     <div class="pn-acciones">
                                         <button type="button" class="pn-btn pn-btn-editar pn-btn-chico" th:if="${puedeGestionar and !m.baja}"
-                                                data-bs-toggle="modal" th:data-bs-target="'#modalEditarMaterial' + ${m.idMaterial}">Editar</button>
+                                                data-bs-toggle="modal" th:data-bs-target="'#modalEditarMaterial' + ${m.idMaterial}">Modificar</button>
                                         <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico" th:if="${!m.baja}"
                                                 data-bs-toggle="modal" th:data-bs-target="'#modalBajaMaterial' + ${m.idMaterial}">Dar de baja</button>
                                     </div>
                                 </td>
                             </tr>
-                            <tr th:replace="~{fragments/vacio :: fila(10, 'fa-folder-open', 'No se encontraron materiales', 'Ningún material coincide con los criterios ingresados.')}"></tr>
+                            <tr th:replace="~{fragments/vacio :: fila(11, 'fa-folder-open', 'No se encontraron materiales', 'Ningún material coincide con los criterios ingresados.')}"></tr>
                         </tbody>
                     </table>
                 </div>
@@ -204,7 +163,7 @@
                         </div>
                         <div class="col-md-6 pn-campo">
                             <label class="pn-etiqueta">Unidad <span class="pn-obligatorio">*</span></label>
-                            <select name="unidadId" class="pn-input" required data-mensaje-obligatorio="Debe seleccionar la unidad.">
+                            <select name="unidadId" data-buscable class="pn-input" required data-mensaje-obligatorio="Debe seleccionar la unidad.">
                                 <option value="">Seleccionar unidad</option>
                                 <option th:each="uc : ${unidades}" th:value="${uc.unidad.idUnidad}"
                                         th:text="${'Unidad ' + uc.numeroOrden + ' · ' + uc.unidad.titulo}">Unidad 1</option>
@@ -273,7 +232,7 @@
                 <div class="pn-modal-cuerpo">
                     <div class="pn-seccion-titulo">
                         <h4>Datos del material</h4>
-                        <p th:text="${'Unidad: ' + m.unidad.titulo}">Unidad</p>
+                        <p>Título, visibilidad, autor y archivo o enlace</p>
                     </div>
                     <form th:action="@{'/material/modificar/' + ${m.idMaterial}}" method="post" enctype="multipart/form-data"
                           class="form-ajax" data-validar novalidate>

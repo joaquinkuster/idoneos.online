@@ -38,6 +38,15 @@
             }
         });
 
+        // Acordeón del menú de usuario (Mi portal): se abre solo si la página actual es una de sus opciones
+        navbar.querySelectorAll('.um-grupo').forEach(function (grupo) {
+            if (grupo.querySelector('.um-item.activo')) {
+                grupo.classList.add('abierto');
+                var cabecera = grupo.querySelector('[data-um-desplegar]');
+                if (cabecera) { cabecera.setAttribute('aria-expanded', 'true'); }
+            }
+        });
+
         // 2. Color
         var hayBannerOscuro = !!document.querySelector('.wf-hero-banner, .wf-hero-section, .auth-pagina');
         if (!hayBannerOscuro) {

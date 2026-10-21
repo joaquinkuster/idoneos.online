@@ -205,7 +205,7 @@
             }
             // soltada en el panel de disponibles: se quita del cronograma
         } else if ((fila || zona) && totalSemanas() >= SEMANAS_MAXIMAS) {
-            window.mostrarError('Error! El cronograma no puede superar las ' + SEMANAS_MAXIMAS + ' semanas.');
+            window.mostrarError('Error! El cronograma es demasiado largo. Máximo: ' + SEMANAS_MAXIMAS + ' semanas.');
         } else if ((fila || zona) && !colocadas.some(function (c) { return c.id === arrastre.id; })) {
             var nueva = { id: arrastre.id, semanas: 1 };
             if (fila) { colocadas.splice(parseInt(fila.dataset.i, 10), 0, nueva); } else { colocadas.push(nueva); }

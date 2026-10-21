@@ -157,7 +157,7 @@
             return false;
         }
         if (hayEnlace && !/^https?:\/\//i.test(enlace.value.trim())) {
-            window.PanelValidacion.marcar(enlace, 'El enlace debe comenzar con http:// o https://.');
+            window.PanelValidacion.marcar(enlace, 'El enlace no es válido. Formato válido: comienza con http:// o https://.');
             return false;
         }
         return true;

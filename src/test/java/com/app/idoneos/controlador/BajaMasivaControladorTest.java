@@ -17,6 +17,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.app.idoneos.repositorio.InscripcionRepositorio;
 import com.app.idoneos.servicio.Categoria.CategoriaServicioImpl;
 
 /**
@@ -32,6 +33,9 @@ class BajaMasivaControladorTest {
 
     @Autowired
     private CategoriaServicioImpl categoriaServicio;
+
+    @Autowired
+    private InscripcionRepositorio inscripcionRepositorio;
 
     @Test
     @WithUserDetails(value = "admin@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesServicio")
@@ -53,6 +57,21 @@ class BajaMasivaControladorTest {
     void bajaMasivaSinSeleccion() throws Exception {
         mockMvc.perform(post("/curso/darDeBajaMasiva")).andExpect(status().isBadRequest());
         mockMvc.perform(post("/cohorte/darDeBajaMasiva")).andExpect(status().isBadRequest());
+        mockMvc.perform(post("/inscripcion/darDeBajaMasiva")).andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithUserDetails(value = "admin@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesServicio")
+    @DisplayName("La baja masiva de inscripciones es de todo o nada: si una no existe, no se da de baja ninguna")
+    void bajaMasivaDeInscripcionesTodoONada() throws Exception {
+        Integer activa = inscripcionRepositorio.findAll().stream().filter(i -> !i.esInactivo()).findFirst().orElseThrow()
+                .getIdInscripcion();
+
+        mockMvc.perform(post("/inscripcion/darDeBajaMasiva").param("ids", activa.toString(), "999999"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value(org.hamcrest.Matchers.containsString("No se dio de baja ninguna")));
+
+        assertFalse(inscripcionRepositorio.findById(activa).orElseThrow().esInactivo());
     }
 
     @Test

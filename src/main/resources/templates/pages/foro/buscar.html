@@ -38,36 +38,23 @@
                 <!-- Filtros -->
                 <form th:action="@{/foro/buscar}" method="get" class="pn-filtros" data-filtro-front>
                     <input type="hidden" name="cursoId" th:value="${curso.idCurso}">
-                    <div class="pn-filtros-campo pn-filtros-campo-grande">
-                        <label class="pn-etiqueta">Unidad</label>
-                        <select name="unidadId" class="pn-input">
-                            <option value="">Todas</option>
-                            <option th:each="uc : ${unidadesDelPrograma}" th:value="${uc.unidad.idUnidad}"
-                                    th:text="${'Unidad ' + uc.numeroOrden + ' · ' + uc.unidad.titulo}"
-                                    th:selected="${unidadSeleccionada != null and unidadSeleccionada == uc.unidad.idUnidad}">Unidad 1</option>
-                        </select>
-                    </div>
-                    <a th:href="@{/foro/buscar(cursoId=${curso.idCurso})}" class="pn-btn pn-btn-contorno">Limpiar</a>
-                    <div class="pn-columnas-wrapper">
-                        <button type="button" class="pn-btn pn-btn-contorno" data-columnas-boton>Columnas</button>
-                        <div class="pn-columnas-menu" data-columnas-menu></div>
-                    </div>
+                    <a th:href="@{/foro/buscar(cursoId=${curso.idCurso})}" class="pn-btn pn-btn-contorno" hidden>Limpiar</a>
                 </form>
 
                 <div class="pn-tabla-contenedor">
                     <table class="pn-tabla">
                         <thead>
                             <tr>
-                                <th data-col="Foro">Foro</th>
-                                <th data-col="Unidad">Unidad</th>
-                                <th data-col="Consultas">Consultas</th>
-                                <th data-col="Sin responder">Sin responder</th>
-                                <th data-col="Último mensaje">Último mensaje</th>
+                                <th data-col="Nombre" data-campo="nombre" data-filtro="texto">Nombre</th>
+                                <th data-col="Unidad" data-campo="unidad" data-filtro="lista">Unidad</th>
+                                <th data-col="Consultas" data-campo="consultas" data-filtro="numero">Consultas</th>
+                                <th data-col="Sin responder" data-campo="sinResponder" data-filtro="numero">Sin responder</th>
+                                <th data-col="Último mensaje" data-campo="ultimoMensaje" data-filtro="fecha">Último mensaje</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr th:each="uc : ${unidades}" data-fila data-dependencias="0" th:data-f-unidadid="${uc.unidad.idUnidad}">
+                            <tr th:each="uc : ${unidades}" data-fila data-dependencias="0">
                                 <td>
                                     <span class="ac-tipo-celda">
                                         <th:block th:replace="~{fragments/iconoMaterial :: icono('Foro', 'ac-recurso-icono-chico')}"></th:block>

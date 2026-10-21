@@ -103,7 +103,7 @@
             <div class="pn-modal-cuerpo">
                 <div class="pn-seccion-titulo">
                     <h4>Datos del término</h4>
-                    <p th:text="${'Glosario ' + numeroOrden + ' · ' + unidad.titulo}">Glosario 1</p>
+                    <p>Término y definición</p>
                 </div>
                 <form th:action="@{/glosario/registrar}" method="post" class="form-ajax" data-validar novalidate>
                     <input type="hidden" name="unidadId" th:value="${unidad.idUnidad}">
@@ -150,7 +150,7 @@
                     <div class="pn-modal-cuerpo">
                         <div class="pn-seccion-titulo">
                             <h4>Datos del término</h4>
-                            <p th:text="${'Glosario ' + numeroOrden + ' · ' + unidad.titulo}">Glosario 1</p>
+                            <p>Término y definición</p>
                         </div>
                         <form th:action="@{'/glosario/modificar/' + ${t.idTermino}}" method="post" class="form-ajax" data-validar novalidate>
                             <div class="row g-3 mb-3">
