@@ -1,6 +1,7 @@
 package com.app.idoneos.servicio.Descuento;
 
-import com.app.idoneos.utilidades.MensajeValidacionUtilidad;
+import com.app.idoneos.utilidades.RespuestaFormularioUtilidad;
+import com.app.idoneos.utilidades.MensajeErrorUtilidad;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -8,7 +9,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import com.app.idoneos.modelo.Descuento;
-import com.app.idoneos.utilidades.MensajeBajaUtilidad;
+import com.app.idoneos.utilidades.MensajeErrorUtilidad;
 import com.app.idoneos.utilidades.TextoUtilidad;
 import org.springframework.transaction.annotation.Transactional;
 import com.app.idoneos.repositorio.DescuentoRepositorio;
@@ -127,7 +128,7 @@ public class DescuentoServicioImpl implements DescuentoServicio, CrudServicio<De
         Descuento existente = descuentoRepositorio.findAll().stream()
                 .filter(d -> d.getNombre().equalsIgnoreCase(nombreLimpio)).findFirst().orElse(null);
         if (existente != null && !existente.esInactivo()) {
-            throw new IllegalArgumentException("Error! Ya existe un descuento con el nombre '" + nombreLimpio + "'.");
+            throw RespuestaFormularioUtilidad.campoInvalido("nombre", "Error! Ya existe un descuento con el nombre '" + nombreLimpio + "'.");
         }
         Descuento descuento = existente != null ? existente : new Descuento();
         aplicarDatos(descuento, nombreLimpio, porcentaje, vigenciaDesde, vigenciaHasta, cantidadLimite,
@@ -163,7 +164,7 @@ public class DescuentoServicioImpl implements DescuentoServicio, CrudServicio<De
         String nombreLimpio = validarDatos(nombre, porcentaje, vigenciaDesde, vigenciaHasta, cantidadLimite,
                 cursosRequeridos);
         if (cantidadLimite < descuento.getCantidadUsada()) {
-            throw new IllegalArgumentException("Error! La cantidad límite no puede ser menor a la cantidad ya usada ("
+            throw RespuestaFormularioUtilidad.campoInvalido("cantidadLimite", "Error! La cantidad límite no puede ser menor a la cantidad ya usada ("
                     + descuento.getCantidadUsada() + ").");
         }
         for (Descuento otro : descuentoRepositorio.findAll()) {
@@ -198,8 +199,8 @@ public class DescuentoServicioImpl implements DescuentoServicio, CrudServicio<De
         Descuento descuento = descuentoRepositorio.findById(idDescuento).filter(d -> !d.esInactivo())
                 .orElseThrow(() -> new IllegalArgumentException("Error! El descuento se encuentra dado de baja."));
         if (descuento.getCantidadUsada() > 0) {
-            throw new IllegalArgumentException(MensajeBajaUtilidad.bajaBloqueada("el descuento", descuento.getNombre(),
-                    "se aplicó a " + MensajeBajaUtilidad.cantidad(descuento.getCantidadUsada(), "inscripción",
+            throw new IllegalArgumentException(MensajeErrorUtilidad.bajaBloqueada("el descuento", descuento.getNombre(),
+                    "se aplicó a " + MensajeErrorUtilidad.cantidad(descuento.getCantidadUsada(), "inscripción",
                             "inscripciones"),
                     "Un descuento aplicado ya no puede darse de baja; se desactiva solo al vencer o al agotarse."));
         }
@@ -252,20 +253,20 @@ public class DescuentoServicioImpl implements DescuentoServicio, CrudServicio<De
         }
         String nombreLimpio = nombre.trim();
         if (nombreLimpio.length() > LONGITUD_NOMBRE) {
-            throw new IllegalArgumentException(MensajeValidacionUtilidad.demasiadoLargo("El nombre", LONGITUD_NOMBRE, "caracteres"));
+            throw RespuestaFormularioUtilidad.campoInvalido("nombre", MensajeErrorUtilidad.demasiadoLargo("El nombre", LONGITUD_NOMBRE, "caracteres"));
         }
         if (porcentaje.isNaN() || porcentaje < Descuento.PORCENTAJE_MINIMO || porcentaje > Descuento.PORCENTAJE_MAXIMO) {
-            throw new IllegalArgumentException(MensajeValidacionUtilidad.formatoInvalido("El porcentaje", "número de 1 a 99"));
+            throw RespuestaFormularioUtilidad.campoInvalido("porcentaje", MensajeErrorUtilidad.formatoInvalido("El porcentaje", "número de 1 a 99"));
         }
         if (vigenciaHasta.isBefore(vigenciaDesde)) {
-            throw new IllegalArgumentException("Error! La vigencia hasta debe ser posterior a la vigencia desde.");
+            throw RespuestaFormularioUtilidad.campoInvalido("vigenciaHasta", "Error! La vigencia hasta debe ser posterior a la vigencia desde.");
         }
         if (cantidadLimite <= 0) {
-            throw new IllegalArgumentException(MensajeValidacionUtilidad.formatoInvalido("La cantidad límite", "número entero mayor a cero"));
+            throw RespuestaFormularioUtilidad.campoInvalido("cantidadLimite", MensajeErrorUtilidad.formatoInvalido("La cantidad límite", "número entero mayor a cero"));
         }
         if (cursosRequeridos != null && cursosRequeridos < 0) {
             throw new IllegalArgumentException(
-                    MensajeValidacionUtilidad.formatoInvalido("La cantidad de cursos requeridos", "número entero mayor o igual a cero"));
+                    MensajeErrorUtilidad.formatoInvalido("La cantidad de cursos requeridos", "número entero mayor o igual a cero"));
         }
         return nombreLimpio;
     }

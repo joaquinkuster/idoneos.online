@@ -132,7 +132,7 @@
                 <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="pn-modal-cuerpo">
-                <form id="formNuevaCohorte" th:action="@{/cohorte/registrar}" method="post" class="form-ajax" data-validar data-validador="cohorte" data-pasos data-resumen="Cohorte" data-resumen-color="violeta" data-modo="alta" data-resumen-nuevo="nueva"
+                <form id="formNuevaCohorte" th:action="@{/cohorte/registrar}" method="post" class="form-ajax" data-validar data-validador="cohorte" data-pasos data-resumen="Cohorte" data-modo="alta" data-resumen-nuevo="nueva"
                       data-contexto='[{"etiqueta":"Curso","campo":"programaId","atributo":"data-curso"},{"etiqueta":"Programa","campo":"programaId","atributo":"data-programa"}]' novalidate>
     <div class="pn-progreso"><div class="pn-progreso-barra"></div></div>
     <div class="pn-pasos pn-pasos-nombrados">
@@ -248,7 +248,7 @@
                     <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
                 </div>
                 <div class="pn-modal-cuerpo">
-                    <form th:action="@{'/cohorte/modificar/' + ${coh.idCohorte}}" method="post" class="form-ajax" data-validar data-validador="cohorte" data-pasos data-resumen="Cohorte" data-resumen-color="violeta" data-modo="modificacion"
+                    <form th:action="@{'/cohorte/modificar/' + ${coh.idCohorte}}" method="post" class="form-ajax" data-validar data-validador="cohorte" data-pasos data-resumen="Cohorte" data-modo="modificacion"
                           data-contexto='[{"etiqueta":"Curso","atributoForm":"data-ctx-curso"},{"etiqueta":"Programa","atributoForm":"data-ctx-programa"}]' novalidate
                           th:attr="data-semanas=${coh.programa.duracionTotalSemanas}, data-envivo=${coh.programa.curso.incluyeModalidad('En vivo')}, data-ctx-curso=${coh.programa.curso.nombre}, data-ctx-programa=${coh.programa.nombre}, data-resumen-titulo=${'(' + #temporals.format(coh.fechaInicioDictado != null ? coh.fechaInicioDictado : coh.fechaInicioInscripcion, 'dd/MM/yyyy') + ')'}"
                           th:with="bloqueada=${coh.cantidadInscriptos > 0}, enVivo=${coh.programa.curso.incluyeModalidad('En vivo')}">
@@ -301,7 +301,7 @@
                                         <button type="button" class="cn-ayuda" aria-expanded="false" aria-label="Sobre las semanas de acceso" title="Ayuda"
                                                 th:data-ayuda-destino="'ayudaSemanas' + ${coh.idCohorte}"><i class="fa-solid fa-circle-info"></i></button>
                                     </div>
-                                    <input type="number" name="semanasAcceso" class="pn-input" min="1" th:attr="data-maximo=${semanasAccesoMaximas}" th:value="${coh.semanasAcceso}" required>
+                                    <input type="number" name="semanasAcceso" class="pn-input" min="1" th:attr="data-maximo=${semanasAccesoMaximas}" th:value="${coh.semanasAcceso}" th:placeholder="${'Mínimo: ' + coh.programa.duracionTotalSemanas}" required>
                                     <div class="pn-ayuda-error"></div>
                                 </div>
 <div class="col-md-6 pn-campo">
@@ -432,6 +432,15 @@
                 info.textContent = selector.value && datos.enVivo ? 'El curso incluye clases en vivo: completá las fechas de dictado.' : '';
                 var ayudaSemanas = document.getElementById('ayudaSemanasTexto');
                 if (ayudaSemanas) {
+                    var campoSemanas = selector.form.elements['semanasAcceso'];
+                    if (campoSemanas) {
+                        campoSemanas.placeholder = selector.value && datos.semanas > 0 ? 'Mínimo: ' + datos.semanas : 'Semanas de acceso';
+                        // si todavía no se escribió nada (o es el mínimo del programa anterior), se propone el mínimo
+                        if (selector.value && datos.semanas > 0 && (campoSemanas.value === '' || campoSemanas.dataset.sugerido === campoSemanas.value)) {
+                            campoSemanas.value = String(datos.semanas);
+                            campoSemanas.dataset.sugerido = String(datos.semanas);
+                        }
+                    }
                     ayudaSemanas.textContent = selector.value
                         ? 'La duración total del cronograma del programa es de ' + datos.semanas + ' semanas, y las semanas de acceso no pueden ser menores.'
                         : 'La duración total del cronograma se muestra al elegir un programa, y las semanas de acceso no pueden ser menores a esa duración.';

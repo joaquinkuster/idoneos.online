@@ -31,7 +31,7 @@ import com.app.idoneos.servicio.ConsultaForo.ConsultaForoServicioImpl;
 import com.app.idoneos.servicio.Parametro.ParametroServicio;
 import com.app.idoneos.servicio.RespuestaForo.RespuestaForoServicio;
 import com.app.idoneos.servicio.Unidad.UnidadServicioImpl;
-import com.app.idoneos.utilidades.RespuestaJsonUtilidad;
+import com.app.idoneos.utilidades.RespuestaFormularioUtilidad;
 
 /**
  * Controlador del foro de consultas (MOD-F-02): CU-35 Buscar consulta de foro (GET /foro/buscar, GET /foro/ver/{unidadId}),
@@ -176,9 +176,9 @@ public class ForoControlador extends PanelCursoControlador {
         try {
             Usuario usuario = (Usuario) auth.getPrincipal();
             consultaServicio.registrarConsulta(usuario.getAlumno(), unidadId, texto);
-            return RespuestaJsonUtilidad.respuestaExitosa("Consulta registrada con éxito.");
+            return RespuestaFormularioUtilidad.respuestaExitosa("Consulta registrada con éxito.");
         } catch (Exception e) {
-            return RespuestaJsonUtilidad.respuestaConError(e);
+            return RespuestaFormularioUtilidad.respuestaConError(e);
         }
     }
 
@@ -197,9 +197,9 @@ public class ForoControlador extends PanelCursoControlador {
         try {
             Usuario usuario = (Usuario) auth.getPrincipal();
             respuestaServicio.registrarRespuesta(usuario.getDocente(), consultaId, texto);
-            return RespuestaJsonUtilidad.respuestaExitosa("Respuesta registrada con éxito.");
+            return RespuestaFormularioUtilidad.respuestaExitosa("Respuesta registrada con éxito.");
         } catch (Exception e) {
-            return RespuestaJsonUtilidad.respuestaConError(e);
+            return RespuestaFormularioUtilidad.respuestaConError(e);
         }
     }
 
@@ -219,9 +219,9 @@ public class ForoControlador extends PanelCursoControlador {
         try {
             Usuario usuario = (Usuario) auth.getPrincipal();
             consultaServicio.modificarConsulta(id, usuario.getAlumno(), texto);
-            return RespuestaJsonUtilidad.respuestaExitosa("Consulta modificada correctamente.");
+            return RespuestaFormularioUtilidad.respuestaExitosa("Consulta modificada correctamente.");
         } catch (Exception e) {
-            return RespuestaJsonUtilidad.respuestaConError(e);
+            return RespuestaFormularioUtilidad.respuestaConError(e);
         }
     }
 
@@ -239,9 +239,9 @@ public class ForoControlador extends PanelCursoControlador {
         try {
             Usuario usuario = (Usuario) auth.getPrincipal();
             respuestaServicio.modificarRespuesta(id, usuario.getDocente(), texto);
-            return RespuestaJsonUtilidad.respuestaExitosa("Respuesta modificada correctamente.");
+            return RespuestaFormularioUtilidad.respuestaExitosa("Respuesta modificada correctamente.");
         } catch (Exception e) {
-            return RespuestaJsonUtilidad.respuestaConError(e);
+            return RespuestaFormularioUtilidad.respuestaConError(e);
         }
     }
 
@@ -259,9 +259,9 @@ public class ForoControlador extends PanelCursoControlador {
             Integer unidadId = consultaServicio.buscarPorId(id).map(c -> c.getUnidad().getIdUnidad()).orElse(null);
             consultaServicio.darDeBajaConsulta(id);
             // Después de la baja se vuelve al foro: la consulta dada de baja ya no tiene página propia
-            return RespuestaJsonUtilidad.respuestaExitosa("Consulta dada de baja con éxito.", "/foro/ver/" + unidadId);
+            return RespuestaFormularioUtilidad.respuestaExitosa("Consulta dada de baja con éxito.", "/foro/ver/" + unidadId);
         } catch (Exception e) {
-            return RespuestaJsonUtilidad.respuestaConError(e);
+            return RespuestaFormularioUtilidad.respuestaConError(e);
         }
     }
 
@@ -275,9 +275,9 @@ public class ForoControlador extends PanelCursoControlador {
     public ResponseEntity<Map<String, String>> darDeBajaRespuesta(@PathVariable("id") Integer id) {
         try {
             respuestaServicio.darDeBajaRespuesta(id);
-            return RespuestaJsonUtilidad.respuestaExitosa("Respuesta dada de baja con éxito.");
+            return RespuestaFormularioUtilidad.respuestaExitosa("Respuesta dada de baja con éxito.");
         } catch (Exception e) {
-            return RespuestaJsonUtilidad.respuestaConError(e);
+            return RespuestaFormularioUtilidad.respuestaConError(e);
         }
     }
 

@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.app.idoneos.modelo.Descuento;
 import com.app.idoneos.servicio.Descuento.DescuentoServicioImpl;
-import com.app.idoneos.utilidades.RespuestaJsonUtilidad;
+import com.app.idoneos.utilidades.RespuestaFormularioUtilidad;
 
 /**
  * Controlador de la gestión de descuentos (MOD-F-03), solo para el Administrador.
@@ -77,9 +77,9 @@ public class DescuentoControlador {
         try {
             Descuento descuento = descuentoServicio.registrarDescuento(nombre, porcentaje, vigenciaDesde,
                     vigenciaHasta, cantidadLimite, cursosRequeridos);
-            return RespuestaJsonUtilidad.respuestaExitosa("Descuento '" + descuento.getNombre() + "' registrado con éxito.");
+            return RespuestaFormularioUtilidad.respuestaExitosa("Descuento '" + descuento.getNombre() + "' registrado con éxito.");
         } catch (Exception e) {
-            return RespuestaJsonUtilidad.respuestaConError(e);
+            return RespuestaFormularioUtilidad.respuestaConError(e);
         }
     }
 
@@ -102,9 +102,9 @@ public class DescuentoControlador {
         try {
             descuentoServicio.modificarDescuento(id, nombre, porcentaje, vigenciaDesde, vigenciaHasta,
                     cantidadLimite, cursosRequeridos);
-            return RespuestaJsonUtilidad.respuestaExitosa("Descuento actualizado con éxito.");
+            return RespuestaFormularioUtilidad.respuestaExitosa("Descuento actualizado con éxito.");
         } catch (Exception e) {
-            return RespuestaJsonUtilidad.respuestaConError(e);
+            return RespuestaFormularioUtilidad.respuestaConError(e);
         }
     }
 
@@ -120,9 +120,9 @@ public class DescuentoControlador {
     public ResponseEntity<Map<String, String>> darDeBajaDescuento(@PathVariable("id") Integer id) {
         try {
             descuentoServicio.darDeBajaDescuento(id);
-            return RespuestaJsonUtilidad.respuestaExitosa("Descuento dado de baja con éxito.");
+            return RespuestaFormularioUtilidad.respuestaExitosa("Descuento dado de baja con éxito.");
         } catch (Exception e) {
-            return RespuestaJsonUtilidad.respuestaConError(e);
+            return RespuestaFormularioUtilidad.respuestaConError(e);
         }
     }
 
@@ -137,9 +137,9 @@ public class DescuentoControlador {
             @RequestParam(value = "ids", required = false) List<Integer> ids) {
         try {
             descuentoServicio.darDeBajaVarios(ids);
-            return RespuestaJsonUtilidad.respuestaExitosa("Descuentos dados de baja con éxito.");
+            return RespuestaFormularioUtilidad.respuestaExitosa("Descuentos dados de baja con éxito.");
         } catch (Exception e) {
-            return RespuestaJsonUtilidad.respuestaConError(e);
+            return RespuestaFormularioUtilidad.respuestaConError(e);
         }
     }
 }

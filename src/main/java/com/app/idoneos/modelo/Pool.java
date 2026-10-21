@@ -1,7 +1,9 @@
 package com.app.idoneos.modelo;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -94,6 +96,46 @@ public class Pool {
      */
     public boolean esInactivo() {
         return baja;
+    }
+
+    /**
+     * Obtiene las preguntas vigentes del pool.
+     *
+     * @return Las preguntas, en el orden en que se cargaron.
+     */
+    public List<Pregunta> getPreguntasActivas() {
+        return preguntas.stream().filter(pregunta -> !pregunta.getBaja())
+                .sorted(Comparator.comparingInt(Pregunta::getIdPregunta)).toList();
+    }
+
+    /**
+     * Cuenta las preguntas vigentes del pool.
+     *
+     * @return La cantidad de preguntas cargadas.
+     */
+    public int getCantidadPreguntas() {
+        return getPreguntasActivas().size();
+    }
+
+    /**
+     * Obtiene las autoevaluaciones vigentes que usan el pool.
+     *
+     * @return Las autoevaluaciones asociadas, en el orden en que se cargaron.
+     */
+    public List<Autoevaluacion> getAutoevaluacionesActivas() {
+        return autoevaluacionPools.stream().map(AutoevaluacionPool::getAutoevaluacion)
+                .filter(autoevaluacion -> !autoevaluacion.getBaja()).distinct()
+                .sorted(Comparator.comparingInt(Autoevaluacion::getIdAutoevaluacion)).toList();
+    }
+
+    /**
+     * Indica si alguna autoevaluación que usa el pool tiene intentos vigentes: en ese caso su contenido no puede alterarse,
+     * porque sería inconsistente con lo que algún alumno ya rindió.
+     *
+     * @return {@code true} si el pool tiene intentos vigentes asociados.
+     */
+    public boolean tieneIntentosActivos() {
+        return getAutoevaluacionesActivas().stream().anyMatch(Autoevaluacion::tieneIntentosActivos);
     }
 
     /**

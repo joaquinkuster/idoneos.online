@@ -30,7 +30,7 @@ import com.app.idoneos.servicio.Cohorte.CohorteServicioImpl;
 import com.app.idoneos.servicio.DocenteCurso.DocenteCursoServicioImpl;
 import com.app.idoneos.servicio.Programa.ProgramaServicioImpl;
 
-import com.app.idoneos.utilidades.RespuestaJsonUtilidad;
+import com.app.idoneos.utilidades.RespuestaFormularioUtilidad;
 
 /**
  * Controlador de la gestión de cohortes (MOD-F-01).
@@ -168,9 +168,9 @@ public class CohorteControlador extends PanelCursoControlador {
             }
             cohorteServicio.registrarCohorte(programaId, fechaInicioInscripcion, fechaFinInscripcion,
                     fechaInicioDictado, fechaFinDictado, semanasAcceso, cupoMaximo);
-            return RespuestaJsonUtilidad.respuestaExitosa("Cohorte registrada correctamente.");
+            return RespuestaFormularioUtilidad.respuestaExitosa("Cohorte registrada correctamente.");
         } catch (Exception e) {
-            return RespuestaJsonUtilidad.respuestaConError(e);
+            return RespuestaFormularioUtilidad.respuestaConError(e);
         }
     }
 
@@ -216,9 +216,9 @@ public class CohorteControlador extends PanelCursoControlador {
             Cohorte cohorte = cohorteServicio.buscarPorId(id)
                     .orElseThrow(() -> new IllegalArgumentException("Error! La cohorte no se encuentra activa."));
             cohorteServicio.cambiarContextoDeTrabajo(cohorte, usuario.getDocente());
-            return RespuestaJsonUtilidad.respuestaExitosa("Ahora trabajás sobre la cohorte seleccionada.");
+            return RespuestaFormularioUtilidad.respuestaExitosa("Ahora trabajás sobre la cohorte seleccionada.");
         } catch (Exception e) {
-            return RespuestaJsonUtilidad.respuestaConError(e);
+            return RespuestaFormularioUtilidad.respuestaConError(e);
         }
     }
 
@@ -245,9 +245,9 @@ public class CohorteControlador extends PanelCursoControlador {
         try {
             cohorteServicio.modificarCohorte(id, fechaInicioInscripcion, fechaFinInscripcion, fechaInicioDictado,
                     fechaFinDictado, semanasAcceso, cupoMaximo);
-            return RespuestaJsonUtilidad.respuestaExitosa("Cohorte modificada correctamente.");
+            return RespuestaFormularioUtilidad.respuestaExitosa("Cohorte modificada correctamente.");
         } catch (Exception e) {
-            return RespuestaJsonUtilidad.respuestaConError(e);
+            return RespuestaFormularioUtilidad.respuestaConError(e);
         }
     }
 
@@ -264,9 +264,9 @@ public class CohorteControlador extends PanelCursoControlador {
     public ResponseEntity<Map<String, String>> darDeBajaCohorte(@PathVariable("id") Integer id) {
         try {
             cohorteServicio.darDeBajaCohorte(id);
-            return RespuestaJsonUtilidad.respuestaExitosa("Cohorte dada de baja correctamente.");
+            return RespuestaFormularioUtilidad.respuestaExitosa("Cohorte dada de baja correctamente.");
         } catch (Exception e) {
-            return RespuestaJsonUtilidad.respuestaConError(e);
+            return RespuestaFormularioUtilidad.respuestaConError(e);
         }
     }
 
@@ -282,9 +282,9 @@ public class CohorteControlador extends PanelCursoControlador {
             @RequestParam(value = "ids", required = false) List<Integer> ids) {
         try {
             cohorteServicio.darDeBajaVarios(ids);
-            return RespuestaJsonUtilidad.respuestaExitosa("Cohortes dadas de baja correctamente.");
+            return RespuestaFormularioUtilidad.respuestaExitosa("Cohortes dadas de baja correctamente.");
         } catch (Exception e) {
-            return RespuestaJsonUtilidad.respuestaConError(e);
+            return RespuestaFormularioUtilidad.respuestaConError(e);
         }
     }
 }

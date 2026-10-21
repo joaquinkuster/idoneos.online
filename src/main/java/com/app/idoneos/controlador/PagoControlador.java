@@ -38,7 +38,7 @@ import com.app.idoneos.servicio.Comprobante.ComprobanteServicio;
 import com.app.idoneos.servicio.Inscripcion.InscripcionServicio;
 import com.app.idoneos.servicio.Pago.PagoServicio;
 import com.app.idoneos.servicio.Parametro.ParametroServicio;
-import com.app.idoneos.utilidades.RespuestaJsonUtilidad;
+import com.app.idoneos.utilidades.RespuestaFormularioUtilidad;
 
 /**
  * Controlador de los pagos de las inscripciones (MOD-F-03).
@@ -168,11 +168,11 @@ public class PagoControlador {
             cuerpo.put("estado", pago.getEstadoPago().getNombre());
             cuerpo.put("motivo", pago.getDetalleErrorOperacion());
             cuerpo.put("idPago", pago.getIdPago());
-            return RespuestaJsonUtilidad.respuestaConDatos(cuerpo);
+            return RespuestaFormularioUtilidad.respuestaConDatos(cuerpo);
         } catch (ResponseStatusException e) {
             throw e;
         } catch (Exception e) {
-            return RespuestaJsonUtilidad.respuestaConErrorEnDatos(e);
+            return RespuestaFormularioUtilidad.respuestaConErrorEnDatos(e);
         }
     }
 
@@ -215,13 +215,13 @@ public class PagoControlador {
     public ResponseEntity<Map<String, Object>> pagar(@PathVariable("idInscripcion") Integer idInscripcion,
             @RequestParam(value = "monto", required = false) Float monto, Authentication auth) {
         try {
-            return RespuestaJsonUtilidad.respuestaConDatos(armarRespuesta(pagoServicio.iniciarPago(idInscripcion,
+            return RespuestaFormularioUtilidad.respuestaConDatos(armarRespuesta(pagoServicio.iniciarPago(idInscripcion,
                     ((Usuario) auth.getPrincipal()).getAlumno(), monto)));
         } catch (PagoServicio.MontoCambiadoException e) {
             // La caja tiene que recargarse para mostrar el monto actual
             return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", e.getMessage(), "recargar", true));
         } catch (Exception e) {
-            return RespuestaJsonUtilidad.respuestaConErrorEnDatos(e);
+            return RespuestaFormularioUtilidad.respuestaConErrorEnDatos(e);
         }
     }
 
@@ -242,18 +242,18 @@ public class PagoControlador {
             @RequestParam(value = "observaciones", required = false) String observaciones) {
         try {
             if (idInscripcion == null) {
-                throw new IllegalArgumentException("Error! Debe seleccionar la inscripción.");
+                throw RespuestaFormularioUtilidad.campoInvalido("idInscripcion", "Error! Debe seleccionar la inscripción.");
             }
             Pago pago = pagoServicio.registrarPagoManual(idInscripcion, monto, numeroComprobante, observaciones);
             Inscripcion inscripcion = pago.getInscripcion();
             String alumno = inscripcion.getAlumno().getUsuario().getNombreCompleto();
-            return RespuestaJsonUtilidad.respuestaExitosa(inscripcion.estaHabilitada()
+            return RespuestaFormularioUtilidad.respuestaExitosa(inscripcion.estaHabilitada()
                     ? "Pago de " + alumno + " registrado con éxito. Se habilitó el acceso al curso y se emitió el comprobante."
                     : "Pago de " + alumno + " registrado, pero no cubre el precio del curso: la inscripción sigue pendiente de pago. "
                             + "Faltan $" + String.format(java.util.Locale.forLanguageTag("es-AR"), "%,.2f",
                                     pagoServicio.calcularMontoRequerido(inscripcion) - inscripcion.getMontoPagado()) + ".");
         } catch (Exception e) {
-            return RespuestaJsonUtilidad.respuestaConError(e);
+            return RespuestaFormularioUtilidad.respuestaConError(e);
         }
     }
 
@@ -283,11 +283,11 @@ public class PagoControlador {
             @RequestParam(value = "motivo", required = false) String motivo) {
         try {
             Pago pago = pagoServicio.modificarPago(id, estado, monto, referencia, numeroComprobante, nombrePagador, dniPagador, motivo);
-            return RespuestaJsonUtilidad.respuestaExitosa(pago.estaAprobado()
+            return RespuestaFormularioUtilidad.respuestaExitosa(pago.estaAprobado()
                     ? "Pago acreditado con éxito. Se habilitó el acceso al curso y se emitió el comprobante."
                     : "Pago actualizado con éxito.");
         } catch (Exception e) {
-            return RespuestaJsonUtilidad.respuestaConError(e);
+            return RespuestaFormularioUtilidad.respuestaConError(e);
         }
     }
 
@@ -301,10 +301,10 @@ public class PagoControlador {
     @PostMapping("/reintentar/{idPago}")
     public ResponseEntity<Map<String, Object>> reintentar(@PathVariable("idPago") Integer idPago, Authentication auth) {
         try {
-            return RespuestaJsonUtilidad.respuestaConDatos(armarRespuesta(pagoServicio.reintentarPago(idPago,
+            return RespuestaFormularioUtilidad.respuestaConDatos(armarRespuesta(pagoServicio.reintentarPago(idPago,
                     ((Usuario) auth.getPrincipal()).getAlumno())));
         } catch (Exception e) {
-            return RespuestaJsonUtilidad.respuestaConErrorEnDatos(e);
+            return RespuestaFormularioUtilidad.respuestaConErrorEnDatos(e);
         }
     }
 
@@ -329,7 +329,7 @@ public class PagoControlador {
         } catch (RuntimeException e) {
             REGISTRO.warn("No se pudo procesar el aviso de MODO", e);
         }
-        return RespuestaJsonUtilidad.respuestaConDatos(Map.of("recibido", true));
+        return RespuestaFormularioUtilidad.respuestaConDatos(Map.of("recibido", true));
     }
 
     /**

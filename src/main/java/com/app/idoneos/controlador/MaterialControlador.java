@@ -25,7 +25,7 @@ import com.app.idoneos.modelo.UnidadCronograma;
 import com.app.idoneos.modelo.Usuario;
 import com.app.idoneos.servicio.Material.MaterialServicioImpl;
 import com.app.idoneos.servicio.TipoMaterial.TipoMaterialServicioImpl;
-import com.app.idoneos.utilidades.RespuestaJsonUtilidad;
+import com.app.idoneos.utilidades.RespuestaFormularioUtilidad;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -244,9 +244,9 @@ public class MaterialControlador extends PanelCursoControlador {
             Usuario usuario = (Usuario) auth.getPrincipal();
             Material material = materialServicio.subirMaterial(usuario.getDocente(), unidadId, tipoMaterialId, titulo,
                     oculto, autor, enlace, archivo);
-            return RespuestaJsonUtilidad.respuestaExitosa("Material '" + material.getTitulo() + "' subido con éxito.");
+            return RespuestaFormularioUtilidad.respuestaExitosa("Material '" + material.getTitulo() + "' subido con éxito.");
         } catch (Exception e) {
-            return RespuestaJsonUtilidad.respuestaConError(e);
+            return RespuestaFormularioUtilidad.respuestaConError(e);
         }
     }
 
@@ -274,9 +274,9 @@ public class MaterialControlador extends PanelCursoControlador {
         try {
             Usuario usuario = (Usuario) auth.getPrincipal();
             materialServicio.modificarMaterial(id, usuario.getDocente(), titulo, oculto, autor, enlace, archivo);
-            return RespuestaJsonUtilidad.respuestaExitosa("Material modificado correctamente.");
+            return RespuestaFormularioUtilidad.respuestaExitosa("Material modificado correctamente.");
         } catch (Exception e) {
-            return RespuestaJsonUtilidad.respuestaConError(e);
+            return RespuestaFormularioUtilidad.respuestaConError(e);
         }
     }
 
@@ -293,9 +293,9 @@ public class MaterialControlador extends PanelCursoControlador {
     public ResponseEntity<Map<String, String>> darDeBajaMaterial(@PathVariable("id") Integer id, Authentication auth) {
         try {
             materialServicio.darDeBajaMaterial(id, docenteQueGestiona(auth));
-            return RespuestaJsonUtilidad.respuestaExitosa("Material dado de baja con éxito.");
+            return RespuestaFormularioUtilidad.respuestaExitosa("Material dado de baja con éxito.");
         } catch (Exception e) {
-            return RespuestaJsonUtilidad.respuestaConError(e);
+            return RespuestaFormularioUtilidad.respuestaConError(e);
         }
     }
 
@@ -312,9 +312,9 @@ public class MaterialControlador extends PanelCursoControlador {
             @RequestParam(value = "ids", required = false) List<Integer> ids, Authentication auth) {
         try {
             materialServicio.darDeBajaVarios(ids, docenteQueGestiona(auth));
-            return RespuestaJsonUtilidad.respuestaExitosa("Materiales dados de baja con éxito.");
+            return RespuestaFormularioUtilidad.respuestaExitosa("Materiales dados de baja con éxito.");
         } catch (Exception e) {
-            return RespuestaJsonUtilidad.respuestaConError(e);
+            return RespuestaFormularioUtilidad.respuestaConError(e);
         }
     }
 

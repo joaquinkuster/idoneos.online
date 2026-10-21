@@ -99,6 +99,17 @@ public class OpcionRespuesta {
     }
 
     /**
+     * Calcula cuánto suma o resta a la nota del intento esta opción cuando el alumno la elige.
+     *
+     * @param descuentoPorError Si la autoevaluación descuenta las respuestas incorrectas.
+     * @param cantidadPreguntas La cantidad de preguntas de la autoevaluación.
+     * @return El valor de la opción, sobre una nota de 0 a 1.
+     */
+    public double calcularValorOpcion(boolean descuentoPorError, int cantidadPreguntas) {
+        return pregunta.calcularValorOpcion(esCorrecta, descuentoPorError, cantidadPreguntas);
+    }
+
+    /**
      * Devuelve una representación en forma de cadena de la opción de respuesta.
      *
      * @return La representación textual.

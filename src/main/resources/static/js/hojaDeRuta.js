@@ -46,7 +46,7 @@
             return elegidas || control.getAttribute('data-resumen-vacio') || '';
         }
         if (control.type === 'file') {
-            if (control.files && control.files.length) { return 'Nueva: ' + control.files[0].name; }
+            if (control.files && control.files.length) { return control.files[0].name; }
             var vista = campo.querySelector('img[data-original]');
             return vista && vista.getAttribute('data-original') ? 'Imagen actual' : '';
         }
@@ -119,13 +119,18 @@
             return boton;
         }
 
+        function fechaYHora(f) {
+            function dos(n) { return (n < 10 ? '0' : '') + n; }
+            return dos(f.getDate()) + '/' + dos(f.getMonth() + 1) + '/' + f.getFullYear() + ' ' + dos(f.getHours()) + ':' + dos(f.getMinutes());
+        }
+
         function vacio() { return '<span class="pn-arbol-vacio">' + VACIO + '</span>'; }
 
-        // Colores: curso (oro), programa (azul), cohorte e inscripción (violeta), lo que se registra (verde) y lo que se
+        // Colores: curso (oro), programa (azul), los niveles siguientes alternan dorado y azul, lo que se registra (verde) y lo que se
         // modifica (naranja). El color de lo que se registra o modifica lo da el nodo, y el de su tipo, su badge.
-        var COLOR_ENTIDAD = formulario.getAttribute('data-resumen-color') || 'violeta';
-        // Los niveles de contexto, de arriba hacia abajo: curso, programa y cohorte
-        var COLORES_CONTEXTO = ['oro', 'azul', 'violeta'];
+        // Los niveles del árbol alternan dorado y azul de arriba hacia abajo (curso, programa, cohorte, inscripción...), así que
+        // una rama nueva más abajo sigue el mismo patrón
+        function colorDeNivel(i) { return i % 2 === 0 ? 'oro' : 'azul'; }
 
 
         /** Un nodo del árbol: línea vertical con codo, punto del color del nivel, título y badges. Los hijos van dentro. */
@@ -144,8 +149,8 @@
         /** La leyenda trae solo los colores que aparecen en este árbol: los niveles de contexto, el de lo que se registra y el del estado. */
         function leyenda(contextos) {
             var items = [];
-            contextos.forEach(function (c, i) { items.push([COLORES_CONTEXTO[i] || 'azul', c.etiqueta]); });
-            if (!items.some(function (e) { return e[0] === COLOR_ENTIDAD; })) { items.push([COLOR_ENTIDAD, nombre]); }
+            contextos.forEach(function (c, i) { items.push([colorDeNivel(i), c.etiqueta]); });
+            items.push([colorDeNivel(contextos.length), nombre]);
             items.push(esAlta ? ['verde', 'Lo que se registra'] : ['naranja', 'Lo que se modifica']);
             var l = crear('div', 'pn-arbol-leyenda');
             items.forEach(function (e) {
@@ -177,7 +182,7 @@
             contenedor.appendChild(leyenda(contextos));
             var raiz = contenedor;
             contextos.forEach(function (c, i) {
-                var color = COLORES_CONTEXTO[i] || 'azul';
+                var color = colorDeNivel(i);
                 var rama = nodo(color, esc(c.valor), [color, c.etiqueta]);
                 rama.classList.add(i === 0 ? 'pn-nodo-primero' : 'pn-nodo-segundo');
                 raiz.appendChild(rama);
@@ -185,14 +190,23 @@
             });
 
             // Lo que se registra o se modifica
+            // El título de lo que se registra no repite el badge de su tipo: es su nombre (curso, programa, unidad, material,
+            // descuento), o, si no tiene, la fecha y hora en que se registra (cohorte, inscripción, pago) o su dato propio
             var sufijo = formulario.getAttribute('data-resumen-titulo');
             var campoNombre = formulario.querySelector('[name="nombre"], [name="titulo"]');
-            var titulo = contextos.length ? esc(nombre) : (campoNombre && campoNombre.value.trim() ? esc(campoNombre.value.trim()) : esc(nombre));
-            if (sufijo) { titulo += ' ' + esc(sufijo); }
+            var titulo;
+            if (campoNombre && !campoNombre.disabled && campoNombre.value.trim()) {
+                titulo = esc(campoNombre.value.trim());
+            } else if (sufijo) {
+                titulo = esc(nombre + ' ' + sufijo.replace(/^\(|\)$/g, ''));
+            } else {
+                titulo = esc(nombre + ' ' + fechaYHora(new Date()));
+            }
             var estado = esAlta
                 ? ['verde', formulario.getAttribute('data-resumen-nuevo') === 'nueva' ? 'Nueva' : 'Nuevo']
                 : (cambios ? ['naranja', cambios + (cambios === 1 ? ' cambio' : ' cambios')] : ['gris', 'Sin cambios']);
-            var entidad = nodo(COLOR_ENTIDAD, titulo, [COLOR_ENTIDAD, nombre], estado);
+            var colorEntidad = colorDeNivel(contextos.length);
+            var entidad = nodo(colorEntidad, titulo, [colorEntidad, nombre], estado);
             entidad.classList.add(contextos.length ? 'pn-nodo-tercero' : 'pn-nodo-primero');
             raiz.appendChild(entidad);
 

@@ -23,7 +23,7 @@ import com.app.idoneos.modelo.Unidad;
 import com.app.idoneos.modelo.UnidadCronograma;
 import com.app.idoneos.modelo.Usuario;
 import com.app.idoneos.servicio.Unidad.UnidadServicio;
-import com.app.idoneos.utilidades.RespuestaJsonUtilidad;
+import com.app.idoneos.utilidades.RespuestaFormularioUtilidad;
 
 /**
  * Controlador del ABM de unidades (MOD-F-02): CU-19 Buscar unidad (GET /unidad/buscar), CU-20 Agregar unidad
@@ -130,9 +130,9 @@ public class UnidadControlador extends PanelCursoControlador {
             Unidad unidad = unidadServicio.agregarUnidad(usuario.getDocente(), programaId, unidadExistenteId, titulo,
                     descripcion, contenido);
             String accion = unidadExistenteId != null ? "incorporada" : "registrada";
-            return RespuestaJsonUtilidad.respuestaExitosa("Unidad '" + unidad.getTitulo() + "' " + accion + " con éxito.");
+            return RespuestaFormularioUtilidad.respuestaExitosa("Unidad '" + unidad.getTitulo() + "' " + accion + " con éxito.");
         } catch (Exception e) {
-            return RespuestaJsonUtilidad.respuestaConError(e);
+            return RespuestaFormularioUtilidad.respuestaConError(e);
         }
     }
 
@@ -156,9 +156,9 @@ public class UnidadControlador extends PanelCursoControlador {
         try {
             Usuario usuario = (Usuario) auth.getPrincipal();
             unidadServicio.modificarUnidad(id, usuario.getDocente(), titulo, descripcion, contenido);
-            return RespuestaJsonUtilidad.respuestaExitosa("Unidad modificada correctamente.");
+            return RespuestaFormularioUtilidad.respuestaExitosa("Unidad modificada correctamente.");
         } catch (Exception e) {
-            return RespuestaJsonUtilidad.respuestaConError(e);
+            return RespuestaFormularioUtilidad.respuestaConError(e);
         }
     }
 
@@ -177,9 +177,9 @@ public class UnidadControlador extends PanelCursoControlador {
             @RequestParam(value = "programaId", required = false) Integer programaId, Authentication auth) {
         try {
             unidadServicio.darDeBajaUnidad(id, programaId, docenteQueGestiona(auth));
-            return RespuestaJsonUtilidad.respuestaExitosa("Unidad dada de baja con éxito.");
+            return RespuestaFormularioUtilidad.respuestaExitosa("Unidad dada de baja con éxito.");
         } catch (Exception e) {
-            return RespuestaJsonUtilidad.respuestaConError(e);
+            return RespuestaFormularioUtilidad.respuestaConError(e);
         }
     }
 
@@ -197,9 +197,9 @@ public class UnidadControlador extends PanelCursoControlador {
             @RequestParam(value = "programaId", required = false) Integer programaId, Authentication auth) {
         try {
             unidadServicio.darDeBajaVarias(ids, programaId, docenteQueGestiona(auth));
-            return RespuestaJsonUtilidad.respuestaExitosa("Unidades dadas de baja con éxito.");
+            return RespuestaFormularioUtilidad.respuestaExitosa("Unidades dadas de baja con éxito.");
         } catch (Exception e) {
-            return RespuestaJsonUtilidad.respuestaConError(e);
+            return RespuestaFormularioUtilidad.respuestaConError(e);
         }
     }
 

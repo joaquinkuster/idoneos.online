@@ -1,7 +1,8 @@
 package com.app.idoneos.servicio.Unidad;
 
-import com.app.idoneos.utilidades.MensajeValidacionUtilidad;
-import com.app.idoneos.utilidades.MensajeBajaUtilidad;
+import com.app.idoneos.utilidades.RespuestaFormularioUtilidad;
+import com.app.idoneos.utilidades.MensajeErrorUtilidad;
+import com.app.idoneos.utilidades.MensajeErrorUtilidad;
 import java.util.List;
 import java.util.Optional;
 import com.app.idoneos.modelo.Curso;
@@ -153,7 +154,7 @@ public class UnidadServicioImpl implements UnidadServicio, CrudServicio<Unidad> 
                     .orElseThrow(() -> new IllegalArgumentException(
                             "Error! La unidad que se quiere incorporar no se encuentra activa en este curso."));
             if (unidad.perteneceAlCronograma(programa)) {
-                throw new IllegalArgumentException("Error! La unidad ya forma parte del cronograma de este programa.");
+                throw RespuestaFormularioUtilidad.campoInvalido("unidadExistenteId", "Error! La unidad ya forma parte del cronograma de este programa.");
             }
             if (unidad.getProgramasQueLaIncluyen().isEmpty()) {
                 throw new IllegalArgumentException(
@@ -261,9 +262,9 @@ public class UnidadServicioImpl implements UnidadServicio, CrudServicio<Unidad> 
                         "Error! La unidad '" + unidad.getTitulo() + "' no pertenece al cronograma de este programa."));
         if (programa.getCantidadInscripcionesActivas() > 0) {
             // Las inscripciones no se pueden deshacer: no hay un paso que indicar
-            throw new IllegalArgumentException(MensajeBajaUtilidad.bajaBloqueada("la unidad", unidad.getTitulo(),
+            throw new IllegalArgumentException(MensajeErrorUtilidad.bajaBloqueada("la unidad", unidad.getTitulo(),
                     "el programa «" + programa.getNombre() + "» tiene "
-                            + MensajeBajaUtilidad.cantidad(programa.getCantidadInscripcionesActivas(), "inscripción activa",
+                            + MensajeErrorUtilidad.cantidad(programa.getCantidadInscripcionesActivas(), "inscripción activa",
                                     "inscripciones activas")
                             + " y su cronograma es lo que los alumnos vieron y pagaron al inscribirse", ""));
         }
@@ -328,8 +329,7 @@ public class UnidadServicioImpl implements UnidadServicio, CrudServicio<Unidad> 
             throw new IllegalArgumentException("Error! Debe completar el título y el contenido.");
         }
         if (titulo.trim().length() > Unidad.LONGITUD_TITULO) {
-            throw new IllegalArgumentException(
-                    MensajeValidacionUtilidad.demasiadoLargo("El título", Unidad.LONGITUD_TITULO, "caracteres"));
+            throw RespuestaFormularioUtilidad.campoInvalido("titulo", MensajeErrorUtilidad.demasiadoLargo("El título", Unidad.LONGITUD_TITULO, "caracteres"));
         }
         return titulo.trim();
     }
@@ -337,8 +337,7 @@ public class UnidadServicioImpl implements UnidadServicio, CrudServicio<Unidad> 
     private String validarDescripcion(String descripcion) {
         String limpia = descripcion == null || descripcion.isBlank() ? null : descripcion.trim();
         if (limpia != null && limpia.length() > Unidad.LONGITUD_DESCRIPCION) {
-            throw new IllegalArgumentException(
-                    MensajeValidacionUtilidad.demasiadoLargo("La descripción", Unidad.LONGITUD_DESCRIPCION, "caracteres"));
+            throw RespuestaFormularioUtilidad.campoInvalido("descripcion", MensajeErrorUtilidad.demasiadoLargo("La descripción", Unidad.LONGITUD_DESCRIPCION, "caracteres"));
         }
         return limpia;
     }
@@ -349,7 +348,7 @@ public class UnidadServicioImpl implements UnidadServicio, CrudServicio<Unidad> 
                 .anyMatch(u -> u.getCurso().getIdCurso() == curso.getIdCurso() && u.getTitulo().equalsIgnoreCase(titulo)
                         && (propia == null || u.getIdUnidad() != propia.getIdUnidad()));
         if (repetido) {
-            throw new IllegalArgumentException("Error! Ya existe una unidad con ese título en el curso.");
+            throw RespuestaFormularioUtilidad.campoInvalido("titulo", "Error! Ya existe una unidad con ese título en el curso.");
         }
     }
 }

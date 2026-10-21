@@ -6,10 +6,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * Opción elegida por el alumno en un intento de autoevaluación.
+ * Opción elegida por el alumno para una pregunta de un intento de autoevaluación.
  */
 @Entity
-@Table(name = "RespuestaIntento", uniqueConstraints = { @UniqueConstraint(columnNames = {"idIntentoAutoevaluacion", "idOpcionRespuesta"}) })
+@Table(name = "RespuestaIntento", uniqueConstraints = { @UniqueConstraint(columnNames = {"idPreguntaIntento", "idOpcionRespuesta"}) })
 @Getter
 @Setter
 @NoArgsConstructor
@@ -24,11 +24,11 @@ public class RespuestaIntento {
     private int idRespuestaIntento;
 
     /**
-     * Relación con IntentoAutoevaluacion.
+     * Relación con PreguntaIntento.
      */
     @ManyToOne
-    @JoinColumn(name = "idIntentoAutoevaluacion", nullable = false)
-    private IntentoAutoevaluacion intentoAutoevaluacion;
+    @JoinColumn(name = "idPreguntaIntento", nullable = false)
+    private PreguntaIntento preguntaIntento;
 
     /**
      * Relación con OpcionRespuesta.
@@ -40,12 +40,23 @@ public class RespuestaIntento {
     /**
      * Constructor para crear la respuesta del intento con los datos básicos.
      *
-     * @param intentoAutoevaluacion relación con IntentoAutoevaluacion.
+     * @param preguntaIntento relación con PreguntaIntento.
      * @param opcionRespuesta relación con OpcionRespuesta.
      */
-    public RespuestaIntento(IntentoAutoevaluacion intentoAutoevaluacion, OpcionRespuesta opcionRespuesta) {
-        this.intentoAutoevaluacion = intentoAutoevaluacion;
+    public RespuestaIntento(PreguntaIntento preguntaIntento, OpcionRespuesta opcionRespuesta) {
+        this.preguntaIntento = preguntaIntento;
         this.opcionRespuesta = opcionRespuesta;
+    }
+
+    /**
+     * Calcula cuánto suma o resta a la nota del intento la opción elegida.
+     *
+     * @param descuentoPorError Si la autoevaluación descuenta las respuestas incorrectas.
+     * @param cantidadPreguntas La cantidad de preguntas de la autoevaluación.
+     * @return El valor de la opción, sobre una nota de 0 a 1.
+     */
+    public double calcularValorOpcion(boolean descuentoPorError, int cantidadPreguntas) {
+        return opcionRespuesta.calcularValorOpcion(descuentoPorError, cantidadPreguntas);
     }
 
     /**

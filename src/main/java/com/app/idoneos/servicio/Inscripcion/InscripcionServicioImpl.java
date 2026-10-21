@@ -1,6 +1,7 @@
 package com.app.idoneos.servicio.Inscripcion;
 
-import com.app.idoneos.utilidades.MensajeValidacionUtilidad;
+import com.app.idoneos.utilidades.RespuestaFormularioUtilidad;
+import com.app.idoneos.utilidades.MensajeErrorUtilidad;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -217,7 +218,7 @@ public class InscripcionServicioImpl implements InscripcionServicio, CrudServici
     @Transactional
     public Inscripcion registrarInscripcion(Integer idAlumno, Integer idCohorte, boolean terminosConfirmados) {
         if (idAlumno == null) {
-            throw new IllegalArgumentException("Error! Debe seleccionar el alumno.");
+            throw RespuestaFormularioUtilidad.campoInvalido("alumnoId", "Error! Debe seleccionar el alumno.");
         }
         Alumno alumno = alumnoRepositorio.findById(idAlumno).filter(a -> !a.getUsuario().esInactivo())
                 .orElseThrow(() -> new IllegalArgumentException("Error! El alumno no se encuentra activo."));
@@ -249,17 +250,17 @@ public class InscripcionServicioImpl implements InscripcionServicio, CrudServici
                 .orElseThrow(() -> new IllegalArgumentException("Error! La inscripción no se encuentra activa."));
         // Mientras la inscripción no se habilitó no tiene vencimiento: se calcula al habilitarla
         if (vencimiento == null && inscripcion.getFechaVencimientoAcceso() != null) {
-            throw new IllegalArgumentException("Error! La fecha de vencimiento del acceso es obligatoria.");
+            throw RespuestaFormularioUtilidad.campoInvalido("fechaVencimientoAcceso", "Error! La fecha de vencimiento del acceso es obligatoria.");
         }
         String observacionesLimpias = observaciones == null || observaciones.isBlank() ? null : observaciones.trim();
         if (observacionesLimpias != null && observacionesLimpias.length() > LONGITUD_OBSERVACIONES) {
-            throw new IllegalArgumentException(MensajeValidacionUtilidad.demasiadoLargo("Las observaciones", LONGITUD_OBSERVACIONES, "caracteres"));
+            throw RespuestaFormularioUtilidad.campoInvalido("observaciones", MensajeErrorUtilidad.demasiadoLargo("Las observaciones", LONGITUD_OBSERVACIONES, "caracteres"));
         }
         LocalDateTime ahora = LocalDateTime.now();
         if (vencimiento != null) {
             LocalDateTime minimo = inscripcion.getVencimientoMinimo();
             if (vencimiento.isBefore(minimo.toLocalDate())) {
-                throw new IllegalArgumentException("Error! La fecha de vencimiento del acceso no puede ser anterior al "
+                throw RespuestaFormularioUtilidad.campoInvalido("fechaVencimientoAcceso", "Error! La fecha de vencimiento del acceso no puede ser anterior al "
                         + minimo.format(FORMATO_FECHA) + ", que resulta de la duración del cronograma del programa.");
             }
         }
@@ -309,7 +310,7 @@ public class InscripcionServicioImpl implements InscripcionServicio, CrudServici
         }
         String motivoLimpio = motivo == null || motivo.isBlank() ? null : motivo.trim();
         if (motivoLimpio != null && motivoLimpio.length() > LONGITUD_MOTIVO) {
-            throw new IllegalArgumentException(MensajeValidacionUtilidad.demasiadoLargo("El motivo", LONGITUD_MOTIVO, "caracteres"));
+            throw new IllegalArgumentException(MensajeErrorUtilidad.demasiadoLargo("El motivo", LONGITUD_MOTIVO, "caracteres"));
         }
         if (motivoLimpio != null) {
             String nota = "Motivo de la baja: " + motivoLimpio;
@@ -361,7 +362,7 @@ public class InscripcionServicioImpl implements InscripcionServicio, CrudServici
      */
     private Inscripcion crearInscripcion(Alumno solicitante, Integer idCohorte, boolean terminos, String errorTerminos) {
         if (idCohorte == null) {
-            throw new IllegalArgumentException("Error! Debe seleccionar la cohorte.");
+            throw RespuestaFormularioUtilidad.campoInvalido("cohorteId", "Error! Debe seleccionar la cohorte.");
         }
         // El alumno que llega del usuario con sesión está desconectado de Hibernate: se trabaja con el alumno de la base
         Alumno alumno = alumnoRepositorio.findById(solicitante.getIdAlumno())
@@ -377,10 +378,10 @@ public class InscripcionServicioImpl implements InscripcionServicio, CrudServici
             throw new IllegalArgumentException("Error! La cohorte alcanzó su cupo máximo.");
         }
         if (inscripcionRepositorio.existsByCohorteAndAlumnoAndBajaFalse(cohorte, alumno)) {
-            throw new IllegalArgumentException("Error! El alumno ya tiene una inscripción vigente a esta cohorte.");
+            throw RespuestaFormularioUtilidad.campoInvalido("alumnoId", "Error! El alumno ya tiene una inscripción vigente a esta cohorte.");
         }
         if (!terminos) {
-            throw new IllegalArgumentException(errorTerminos);
+            throw RespuestaFormularioUtilidad.campoInvalido("terminos", errorTerminos);
         }
 
         // El vencimiento del acceso se calcula al habilitarse por primera vez: un curso gratuito queda habilitado ya;

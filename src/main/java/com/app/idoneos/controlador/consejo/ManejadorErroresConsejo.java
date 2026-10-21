@@ -1,9 +1,9 @@
 package com.app.idoneos.controlador.consejo;
 
-import com.app.idoneos.utilidades.MensajeValidacionUtilidad;
+import com.app.idoneos.utilidades.MensajeErrorUtilidad;
 import java.util.Map;
 
-import com.app.idoneos.utilidades.RespuestaJsonUtilidad;
+import com.app.idoneos.utilidades.RespuestaFormularioUtilidad;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -29,8 +29,8 @@ public class ManejadorErroresConsejo {
 
     /** Mensajes de las excepciones de los casos de uso (CU-12 y CU-13) para los valores numéricos inválidos. */
     private static final Map<String, String> MENSAJES_DE_CU = Map.of(
-            "cupoMaximo", MensajeValidacionUtilidad.formatoInvalido("El cupo máximo", "número entero de 1 a " + Cohorte.CUPO_MAXIMO_PERMITIDO),
-            "semanasAcceso", MensajeValidacionUtilidad.formatoInvalido("Las semanas de acceso", "número entero de 1 a " + Cohorte.SEMANAS_ACCESO_MAXIMAS));
+            "cupoMaximo", MensajeErrorUtilidad.formatoInvalido("El cupo máximo", "número entero de 1 a " + Cohorte.CUPO_MAXIMO_PERMITIDO),
+            "semanasAcceso", MensajeErrorUtilidad.formatoInvalido("Las semanas de acceso", "número entero de 1 a " + Cohorte.SEMANAS_ACCESO_MAXIMAS));
 
     private static final Map<String, String> NOMBRES_DE_CAMPOS = Map.ofEntries(
             Map.entry("semanasAcceso", "Semanas de acceso"),
@@ -75,10 +75,10 @@ public class ManejadorErroresConsejo {
         String mensaje = MENSAJES_DE_CU.get(e.getName());
         if (mensaje == null) {
             String campo = NOMBRES_DE_CAMPOS.getOrDefault(e.getName(), e.getName());
-            mensaje = MensajeValidacionUtilidad.formatoInvalido("El valor ingresado en «" + campo + "»", formatoDe(e.getRequiredType()));
+            mensaje = MensajeErrorUtilidad.formatoInvalido("El valor ingresado en «" + campo + "»", formatoDe(e.getRequiredType()));
         }
         if ("POST".equalsIgnoreCase(solicitud.getMethod())) {
-            return RespuestaJsonUtilidad.respuestaConError(HttpStatus.BAD_REQUEST, mensaje);
+            return RespuestaFormularioUtilidad.respuestaConError(HttpStatus.BAD_REQUEST, mensaje);
         }
         redirectAttributes.addFlashAttribute("error", mensaje);
         return "redirect:/inicio";
@@ -98,7 +98,7 @@ public class ManejadorErroresConsejo {
             redirectAttributes.addFlashAttribute("error", "Error! Esa dirección no se puede abrir directamente.");
             return "redirect:/inicio";
         }
-        return RespuestaJsonUtilidad.respuestaConError(HttpStatus.METHOD_NOT_ALLOWED, "Error! La operación solicitada no está permitida.");
+        return RespuestaFormularioUtilidad.respuestaConError(HttpStatus.METHOD_NOT_ALLOWED, "Error! La operación solicitada no está permitida.");
     }
 
     /**
@@ -109,6 +109,6 @@ public class ManejadorErroresConsejo {
      */
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     public ResponseEntity<Map<String, String>> archivoDemasiadoGrande() {
-        return RespuestaJsonUtilidad.respuestaConError(HttpStatus.BAD_REQUEST, MensajeValidacionUtilidad.demasiadoGrande("El archivo", 500, "MB"));
+        return RespuestaFormularioUtilidad.respuestaConError(HttpStatus.BAD_REQUEST, MensajeErrorUtilidad.demasiadoGrande("El archivo", 500, "MB"));
     }
 }

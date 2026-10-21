@@ -128,7 +128,7 @@
                 <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="pn-modal-cuerpo">
-                <form th:action="@{/programa/registrar}" method="post" class="form-ajax" data-validar data-pasos data-resumen="Programa" data-resumen-color="azul" data-modo="alta"
+                <form th:action="@{/programa/registrar}" method="post" class="form-ajax" data-validar data-pasos data-resumen="Programa" data-modo="alta"
                       data-contexto='[{"etiqueta":"Curso","atributoForm":"data-ctx-curso"}]' th:attr="data-ctx-curso=${curso.nombre}" novalidate>
     <input type="hidden" name="cursoId" th:value="${curso.idCurso}">
     <div class="pn-progreso"><div class="pn-progreso-barra"></div></div>
@@ -225,7 +225,7 @@
                     <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
                 </div>
                 <div class="pn-modal-cuerpo">
-                    <form th:action="@{'/programa/modificar/' + ${p.idPrograma}}" method="post" class="form-ajax" data-validar data-pasos data-resumen="Programa" data-resumen-color="azul" data-modo="modificacion"
+                    <form th:action="@{'/programa/modificar/' + ${p.idPrograma}}" method="post" class="form-ajax" data-validar data-pasos data-resumen="Programa" data-modo="modificacion"
                           data-contexto='[{"etiqueta":"Curso","atributoForm":"data-ctx-curso"}]' th:attr="data-ctx-curso=${curso.nombre},data-resumen-titulo=${'(' + p.nombre + ')'}" novalidate>
     <div class="pn-progreso"><div class="pn-progreso-barra"></div></div>
     <div class="pn-pasos pn-pasos-nombrados">

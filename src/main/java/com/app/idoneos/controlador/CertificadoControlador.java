@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.app.idoneos.servicio.Certificado.CertificadoServicioImpl;
-import com.app.idoneos.utilidades.RespuestaJsonUtilidad;
+import com.app.idoneos.utilidades.RespuestaFormularioUtilidad;
 
 /**
  * Controlador de los certificados (MOD-F-03), solo para el Administrador.
@@ -42,9 +42,9 @@ public class CertificadoControlador {
             @RequestParam(value = "dni", required = false) String dni) {
         try {
             certificadoServicio.corregirDatos(id, nombre, dni);
-            return RespuestaJsonUtilidad.respuestaExitosa("Datos del certificado actualizados con éxito.");
+            return RespuestaFormularioUtilidad.respuestaExitosa("Datos del certificado actualizados con éxito.");
         } catch (Exception e) {
-            return RespuestaJsonUtilidad.respuestaConError(e);
+            return RespuestaFormularioUtilidad.respuestaConError(e);
         }
     }
 }

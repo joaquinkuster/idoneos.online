@@ -78,19 +78,21 @@ public class Autoevaluacion {
     private LocalDateTime fechaCierre;
 
     /**
-     * Puntaje que se descuenta por cada respuesta incorrecta.
+     * Indica si cada opción incorrecta que elige el alumno resta lo que vale una opción correcta de esa pregunta.
      */
     @Column(name = "descuentoPorError", nullable = false)
     private Boolean descuentoPorError = false;
 
     /**
-     * Indica si el alumno puede volver a preguntas anteriores.
+     * Indica si el alumno puede desplazarse libremente entre las preguntas y modificar sus respuestas. Si no, el
+     * cuestionario es secuencial: las preguntas se presentan en orden y no se puede volver a una anterior.
      */
-    @Column(name = "permiteRetroceder", nullable = false)
-    private Boolean permiteRetroceder = false;
+    @Column(name = "navegacionLibre", nullable = false)
+    private Boolean navegacionLibre = false;
 
     /**
-     * Indica si el alumno puede salir y retomar el intento.
+     * Indica si el alumno puede salir del cuestionario y retomarlo. Si no, mientras el intento está en curso solo puede
+     * acceder al cuestionario.
      */
     @Column(name = "permiteSalir", nullable = false)
     private Boolean permiteSalir = false;
@@ -175,6 +177,83 @@ public class Autoevaluacion {
     }
 
     /**
+     * Indica si la autoevaluación está vigente y los alumnos la ven (no está dada de baja ni oculta).
+     *
+     * @return {@code true} si es visible para los alumnos.
+     */
+    public boolean esVisible() {
+        return !baja && !oculto;
+    }
+
+    /**
+     * Indica si la fecha dada está dentro del período habilitado: desde la fecha de apertura y, si tiene, hasta la fecha de
+     * cierre.
+     *
+     * @param momento La fecha y hora a consultar.
+     * @return {@code true} si se puede iniciar un intento en ese momento.
+     */
+    public boolean estaAbierta(LocalDateTime momento) {
+        return !momento.isBefore(fechaApertura) && (fechaCierre == null || !momento.isAfter(fechaCierre));
+    }
+
+    /**
+     * Obtiene los pools vigentes asociados a la autoevaluación.
+     *
+     * @return Los pools, en el orden en que se cargaron.
+     */
+    public List<Pool> getPoolsActivos() {
+        return autoevaluacionPools.stream().map(AutoevaluacionPool::getPool).filter(pool -> !pool.getBaja()).distinct()
+                .sorted(Comparator.comparingInt(Pool::getIdPool)).toList();
+    }
+
+    /**
+     * Obtiene las preguntas vigentes de los pools asociados, de las que se sortea cada intento.
+     *
+     * @return Las preguntas disponibles, agrupadas por pool.
+     */
+    public List<Pregunta> getPreguntasDisponibles() {
+        return getPoolsActivos().stream().flatMap(pool -> pool.getPreguntasActivas().stream()).toList();
+    }
+
+    /**
+     * Indica si los pools asociados reúnen, en conjunto, la cantidad de preguntas necesaria para sortear un intento.
+     *
+     * @return {@code true} si hay preguntas suficientes.
+     */
+    public boolean tienePreguntasSuficientes() {
+        return getPreguntasDisponibles().size() >= cantidadPreguntas;
+    }
+
+    /**
+     * Obtiene los intentos vigentes de todos los alumnos sobre la autoevaluación, incluidos los que están en curso.
+     *
+     * @return Los intentos vigentes, del más antiguo al más reciente.
+     */
+    public List<IntentoAutoevaluacion> getIntentosActivos() {
+        return intentosAutoevaluacion.stream().filter(intento -> !intento.getBaja())
+                .sorted(Comparator.comparingInt(IntentoAutoevaluacion::getIdIntentoAutoevaluacion)).toList();
+    }
+
+    /**
+     * Indica si algún alumno registra intentos vigentes sobre la autoevaluación: en ese caso su contenido queda protegido.
+     *
+     * @return {@code true} si tiene intentos vigentes.
+     */
+    public boolean tieneIntentosActivos() {
+        return intentosAutoevaluacion.stream().anyMatch(intento -> !intento.getBaja());
+    }
+
+    /**
+     * Obtiene el intento que un alumno tiene en curso sobre la autoevaluación.
+     *
+     * @param inscripcion La inscripción del alumno.
+     * @return El intento en curso, o {@code null} si no tiene ninguno.
+     */
+    public IntentoAutoevaluacion getIntentoEnCurso(Inscripcion inscripcion) {
+        return intentosDe(inscripcion).stream().filter(IntentoAutoevaluacion::estaEnCurso).findFirst().orElse(null);
+    }
+
+    /**
      * Obtiene los intentos vigentes que un alumno registró sobre la autoevaluación.
      *
      * @param inscripcion La inscripción del alumno.
@@ -209,7 +288,7 @@ public class Autoevaluacion {
     }
 
     /**
-     * Indica si un alumno aprobó la autoevaluación en alguno de sus intentos.
+     * Indica si un alumno aprobó la autoevaluación en alguno de sus intentos (automática o manualmente).
      *
      * @param inscripcion La inscripción del alumno.
      * @return {@code true} si algún intento está aprobado.

@@ -1,6 +1,7 @@
 package com.app.idoneos.servicio.Categoria;
 
-import com.app.idoneos.utilidades.MensajeBajaUtilidad;
+import com.app.idoneos.utilidades.RespuestaFormularioUtilidad;
+import com.app.idoneos.utilidades.MensajeErrorUtilidad;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import org.springframework.transaction.annotation.Transactional;
@@ -136,14 +137,14 @@ public class CategoriaServicioImpl implements CategoriaServicio, CrudServicio<Ca
     @Transactional
     public Categoria registrarCategoria(String nombre, String descripcion) {
         if (nombre == null || nombre.isBlank()) {
-            throw new IllegalArgumentException("Error! El nombre de la categoría es obligatorio.");
+            throw RespuestaFormularioUtilidad.campoInvalido("nombre", "Error! El nombre de la categoría es obligatorio.");
         }
         String nombreLimpio = nombre.trim();
         String descripcionLimpia = (descripcion == null || descripcion.isBlank()) ? null : descripcion.trim();
         Categoria existente = categoriaRepositorio.findAll().stream()
                 .filter(categoria -> categoria.getNombre().equalsIgnoreCase(nombreLimpio)).findFirst().orElse(null);
         if (existente != null && !existente.esInactivo()) {
-            throw new IllegalArgumentException("Error! Ya existe una categoría activa con el nombre '" + nombreLimpio + "'.");
+            throw RespuestaFormularioUtilidad.campoInvalido("nombre", "Error! Ya existe una categoría activa con el nombre '" + nombreLimpio + "'.");
         }
         if (existente != null) {
             // Reactiva la categoría dada de baja con el mismo nombre (el nombre es único).
@@ -189,12 +190,12 @@ public class CategoriaServicioImpl implements CategoriaServicio, CrudServicio<Ca
             throw new IllegalArgumentException("Error! La categoría tiene inscripciones activas asociadas y no puede modificarse.");
         }
         if (nombre == null || nombre.isBlank()) {
-            throw new IllegalArgumentException("Error! El nombre de la categoría no puede quedar vacío.");
+            throw RespuestaFormularioUtilidad.campoInvalido("nombre", "Error! El nombre de la categoría no puede quedar vacío.");
         }
         String nombreLimpio = nombre.trim();
         for (Categoria otra : categoriaRepositorio.findAll()) {
             if (otra.getIdCategoria() != idCategoria && otra.getNombre().equalsIgnoreCase(nombreLimpio)) {
-                throw new IllegalArgumentException(otra.esInactivo()
+                throw RespuestaFormularioUtilidad.campoInvalido("nombre", otra.esInactivo()
                         ? "Error! Ya existe una categoría dada de baja con el nombre '" + nombreLimpio + "'."
                         : "Error! El nombre coincide con el de otra categoría activa.");
             }
@@ -231,8 +232,8 @@ public class CategoriaServicioImpl implements CategoriaServicio, CrudServicio<Ca
                 .orElseThrow(() -> new IllegalArgumentException("Error! La categoría no se encuentra activa."));
         int cursosActivos = cursoRepositorio.findByCategoriaAndBajaFalse(categoria).size();
         if (cursosActivos > 0) {
-            throw new IllegalArgumentException(MensajeBajaUtilidad.bajaBloqueada("la categoría", categoria.getNombre(),
-                    "tiene " + MensajeBajaUtilidad.cantidad(cursosActivos, "curso activo asociado", "cursos activos asociados"),
+            throw new IllegalArgumentException(MensajeErrorUtilidad.bajaBloqueada("la categoría", categoria.getNombre(),
+                    "tiene " + MensajeErrorUtilidad.cantidad(cursosActivos, "curso activo asociado", "cursos activos asociados"),
                     "Dé de baja primero " + (cursosActivos == 1 ? "ese curso." : "esos cursos.")));
         }
         categoria.marcarInactivo();

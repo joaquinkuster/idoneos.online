@@ -1,6 +1,7 @@
 package com.app.idoneos.servicio.Material;
 
-import com.app.idoneos.utilidades.MensajeValidacionUtilidad;
+import com.app.idoneos.utilidades.RespuestaFormularioUtilidad;
+import com.app.idoneos.utilidades.MensajeErrorUtilidad;
 import java.util.List;
 import java.util.Optional;
 import com.app.idoneos.modelo.Material;
@@ -352,10 +353,10 @@ public class MaterialServicioImpl implements MaterialServicio, CrudServicio<Mate
 
     private String validarTitulo(String titulo) {
         if (titulo == null || titulo.isBlank()) {
-            throw new IllegalArgumentException("Error! Debe completar el título.");
+            throw RespuestaFormularioUtilidad.campoInvalido("titulo", "Error! Debe completar el título.");
         }
         if (titulo.trim().length() > 50) {
-            throw new IllegalArgumentException(MensajeValidacionUtilidad.demasiadoLargo("El título", 50, "caracteres"));
+            throw RespuestaFormularioUtilidad.campoInvalido("titulo", MensajeErrorUtilidad.demasiadoLargo("El título", 50, "caracteres"));
         }
         return titulo.trim();
     }
@@ -363,7 +364,7 @@ public class MaterialServicioImpl implements MaterialServicio, CrudServicio<Mate
     private String validarAutor(String autor) {
         String limpio = vacioANulo(autor);
         if (limpio != null && limpio.length() > 50) {
-            throw new IllegalArgumentException(MensajeValidacionUtilidad.demasiadoLargo("El autor", 50, "caracteres"));
+            throw RespuestaFormularioUtilidad.campoInvalido("autor", MensajeErrorUtilidad.demasiadoLargo("El autor", 50, "caracteres"));
         }
         return limpio;
     }
@@ -378,20 +379,20 @@ public class MaterialServicioImpl implements MaterialServicio, CrudServicio<Mate
     private void validarDatosSegunTipo(TipoMaterial tipo, boolean hayArchivo, String enlace, boolean esAlta) {
         if (enlace != null) {
             if (!tipo.permiteEnlaceExterno()) {
-                throw new IllegalArgumentException("Error! Este tipo de material no admite un enlace externo.");
+                throw RespuestaFormularioUtilidad.campoInvalido("enlace", "Error! Este tipo de material no admite un enlace externo.");
             }
             if (hayArchivo) {
-                throw new IllegalArgumentException("Error! Indique un archivo o un enlace externo, no ambos.");
+                throw RespuestaFormularioUtilidad.campoInvalido("enlace", "Error! Indique un archivo o un enlace externo, no ambos.");
             }
             if (enlace.length() > 500) {
-                throw new IllegalArgumentException(MensajeValidacionUtilidad.demasiadoLargo("El enlace", 500, "caracteres"));
+                throw RespuestaFormularioUtilidad.campoInvalido("enlace", MensajeErrorUtilidad.demasiadoLargo("El enlace", 500, "caracteres"));
             }
             if (!ManejadorArchivosUtilidad.esEnlaceExterno(enlace)) {
-                throw new IllegalArgumentException(MensajeValidacionUtilidad.formatoInvalido("El enlace", "comienza con http:// o https://"));
+                throw RespuestaFormularioUtilidad.campoInvalido("enlace", MensajeErrorUtilidad.formatoInvalido("El enlace", "comienza con http:// o https://"));
             }
         }
         if (esAlta && !hayArchivo && enlace == null) {
-            throw new IllegalArgumentException(switch (tipo.getNombre()) {
+            throw RespuestaFormularioUtilidad.campoInvalido("archivo", switch (tipo.getNombre()) {
                 case TipoMaterial.GRABACION -> "Error! Debe seleccionar el archivo de video.";
                 case TipoMaterial.PRESENTACION -> "Error! Debe seleccionar el archivo de la presentación.";
                 default -> "Error! Debe seleccionar un archivo o ingresar un enlace externo.";

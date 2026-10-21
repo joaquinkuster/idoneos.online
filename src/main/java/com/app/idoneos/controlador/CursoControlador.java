@@ -32,7 +32,7 @@ import com.app.idoneos.servicio.Modalidad.ModalidadServicioImpl;
 import com.app.idoneos.servicio.Nivel.NivelServicioImpl;
 import com.app.idoneos.servicio.Curso.ResumenCursos;
 import com.app.idoneos.servicio.Programa.ProgramaServicioImpl;
-import com.app.idoneos.utilidades.RespuestaJsonUtilidad;
+import com.app.idoneos.utilidades.RespuestaFormularioUtilidad;
 import com.app.idoneos.servicio.TipoMaterial.TipoMaterialServicioImpl;
 
 /**
@@ -302,9 +302,9 @@ public class CursoControlador extends PanelCursoControlador {
             if (hayImagen) {
                 guardarImagen(curso, imagenArchivo);
             }
-            return RespuestaJsonUtilidad.respuestaExitosa("Curso '" + curso.getNombre() + "' registrado con éxito.");
+            return RespuestaFormularioUtilidad.respuestaExitosa("Curso '" + curso.getNombre() + "' registrado con éxito.");
         } catch (Exception e) {
-            return RespuestaJsonUtilidad.respuestaConError(e);
+            return RespuestaFormularioUtilidad.respuestaConError(e);
         }
     }
 
@@ -349,9 +349,9 @@ public class CursoControlador extends PanelCursoControlador {
             if (hayImagen) {
                 guardarImagen(curso, imagenArchivo); // reemplaza la imagen anterior
             }
-            return RespuestaJsonUtilidad.respuestaExitosa("Curso modificado correctamente.");
+            return RespuestaFormularioUtilidad.respuestaExitosa("Curso modificado correctamente.");
         } catch (Exception e) {
-            return RespuestaJsonUtilidad.respuestaConError(e);
+            return RespuestaFormularioUtilidad.respuestaConError(e);
         }
     }
 
@@ -367,9 +367,9 @@ public class CursoControlador extends PanelCursoControlador {
     public ResponseEntity<Map<String, String>> darDeBajaCurso(@PathVariable("id") Integer id) {
         try {
             cursoServicio.darDeBajaCurso(id);
-            return RespuestaJsonUtilidad.respuestaExitosa("Curso dado de baja exitosamente.");
+            return RespuestaFormularioUtilidad.respuestaExitosa("Curso dado de baja exitosamente.");
         } catch (Exception e) {
-            return RespuestaJsonUtilidad.respuestaConError(e);
+            return RespuestaFormularioUtilidad.respuestaConError(e);
         }
     }
 
@@ -385,9 +385,9 @@ public class CursoControlador extends PanelCursoControlador {
             @RequestParam(value = "ids", required = false) List<Integer> ids) {
         try {
             cursoServicio.darDeBajaVarios(ids);
-            return RespuestaJsonUtilidad.respuestaExitosa("Cursos dados de baja exitosamente.");
+            return RespuestaFormularioUtilidad.respuestaExitosa("Cursos dados de baja exitosamente.");
         } catch (Exception e) {
-            return RespuestaJsonUtilidad.respuestaConError(e);
+            return RespuestaFormularioUtilidad.respuestaConError(e);
         }
     }
 

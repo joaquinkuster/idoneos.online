@@ -1,6 +1,6 @@
 package com.app.idoneos.servicio.UnidadCronograma;
 
-import com.app.idoneos.utilidades.MensajeValidacionUtilidad;
+import com.app.idoneos.utilidades.MensajeErrorUtilidad;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -172,7 +172,7 @@ public class UnidadCronogramaServicioImpl implements UnidadCronogramaServicio, C
         List<Integer> ids = unidadIds == null ? List.of() : unidadIds;
         List<String> duraciones = semanas == null ? List.of() : semanas;
         if (ids.size() != duraciones.size() || ids.stream().distinct().count() != ids.size()) {
-            throw new IllegalArgumentException(MensajeValidacionUtilidad.formatoInvalido("Los datos del cronograma", "una duración entera en semanas para cada unidad del programa"));
+            throw new IllegalArgumentException(MensajeErrorUtilidad.formatoInvalido("Los datos del cronograma", "una duración entera en semanas para cada unidad del programa"));
         }
         List<Integer> semanasPorUnidad = new ArrayList<>();
         for (String duracion : duraciones) {
@@ -182,7 +182,7 @@ public class UnidadCronogramaServicioImpl implements UnidadCronogramaServicio, C
                 Parametro.CRONOGRAMA_SEMANAS_MAXIMAS_POR_DEFECTO);
         int total = semanasPorUnidad.stream().mapToInt(Integer::intValue).sum();
         if (total > maximo) {
-            throw new IllegalArgumentException(MensajeValidacionUtilidad.demasiadoLargo("El cronograma", maximo, "semanas"));
+            throw new IllegalArgumentException(MensajeErrorUtilidad.demasiadoLargo("El cronograma", maximo, "semanas"));
         }
         Map<Integer, Unidad> unidades = new HashMap<>();
         for (Integer id : ids) {
@@ -257,6 +257,6 @@ public class UnidadCronogramaServicioImpl implements UnidadCronogramaServicio, C
             // se informa abajo, igual que un valor menor o igual a cero
         }
         throw new IllegalArgumentException(
-                MensajeValidacionUtilidad.formatoInvalido("La duración de cada unidad", "número entero de semanas mayor a cero"));
+                MensajeErrorUtilidad.formatoInvalido("La duración de cada unidad", "número entero de semanas mayor a cero"));
     }
 }

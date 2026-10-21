@@ -2,8 +2,8 @@ package com.app.idoneos.servicio.RespuestaIntento;
 
 import java.util.List;
 import java.util.Optional;
-import com.app.idoneos.modelo.IntentoAutoevaluacion;
 import com.app.idoneos.modelo.OpcionRespuesta;
+import com.app.idoneos.modelo.PreguntaIntento;
 import com.app.idoneos.modelo.RespuestaIntento;
 
 /**
@@ -14,12 +14,12 @@ public interface RespuestaIntentoServicio {
     // ---------------------------------------------------------------- Lecturas
 
     /**
-     * Busca los registros de respuestaIntento asociados a intentoAutoevaluacion.
+     * Busca los registros de respuestaIntento asociados a preguntaIntento.
      *
-     * @param intentoAutoevaluacion el registro de IntentoAutoevaluacion asociado
-     * @return una lista de RespuestaIntento asociados al IntentoAutoevaluacion indicado
+     * @param preguntaIntento el registro de PreguntaIntento asociado
+     * @return una lista de RespuestaIntento asociados al PreguntaIntento indicado
      */
-    List<RespuestaIntento> buscarPorIntentoAutoevaluacion(IntentoAutoevaluacion intentoAutoevaluacion);
+    List<RespuestaIntento> buscarPorPreguntaIntento(PreguntaIntento preguntaIntento);
 
     /**
      * Busca los registros de respuestaIntento asociados a opcionRespuesta.
@@ -30,11 +30,11 @@ public interface RespuestaIntentoServicio {
     List<RespuestaIntento> buscarPorOpcionRespuesta(OpcionRespuesta opcionRespuesta);
 
     /**
-     * Busca la respuesta del intento a partir de la combinación única de sus relaciones. Incluye los registros dados de baja.
+     * Busca la respuesta del intento a partir de la combinación única de sus relaciones.
      *
-     * @param intentoAutoevaluacion el registro de IntentoAutoevaluacion asociado
+     * @param preguntaIntento el registro de PreguntaIntento asociado
      * @param opcionRespuesta el registro de OpcionRespuesta asociado
      * @return un {@link Optional} con el registro si existe, o vacío si no se encuentra
      */
-    Optional<RespuestaIntento> buscarPorIntentoAutoevaluacionYOpcionRespuesta(IntentoAutoevaluacion intentoAutoevaluacion, OpcionRespuesta opcionRespuesta);
+    Optional<RespuestaIntento> buscarPorPreguntaIntentoYOpcionRespuesta(PreguntaIntento preguntaIntento, OpcionRespuesta opcionRespuesta);
 }

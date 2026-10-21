@@ -1,7 +1,9 @@
 package com.app.idoneos.modelo;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -70,6 +72,12 @@ public class Pregunta {
     private Set<OpcionRespuesta> opcionesRespuesta = new HashSet<>();
 
     /**
+     * Conjunto de preguntasIntento asociados.
+     */
+    @OneToMany(mappedBy = "pregunta", cascade = CascadeType.ALL)
+    private Set<PreguntaIntento> preguntasIntento = new HashSet<>();
+
+    /**
      * Constructor para crear la pregunta con los datos básicos.
      *
      * @param pool relación con Pool.
@@ -96,6 +104,68 @@ public class Pregunta {
      */
     public boolean esInactivo() {
         return baja;
+    }
+
+    /**
+     * Obtiene las opciones de respuesta vigentes de la pregunta.
+     *
+     * @return Las opciones, en el orden en que se cargaron.
+     */
+    public List<OpcionRespuesta> getOpcionesActivas() {
+        return opcionesRespuesta.stream().filter(opcion -> !opcion.getBaja())
+                .sorted(Comparator.comparingInt(OpcionRespuesta::getIdOpcionRespuesta)).toList();
+    }
+
+    /**
+     * Cuenta las opciones vigentes marcadas como correctas.
+     *
+     * @return La cantidad de opciones correctas.
+     */
+    public int getCantidadOpcionesCorrectas() {
+        return (int) opcionesRespuesta.stream().filter(opcion -> !opcion.getBaja() && opcion.getEsCorrecta()).count();
+    }
+
+    /**
+     * Indica si la pregunta admite una única opción correcta (opción única y verdadero/falso).
+     *
+     * @return {@code true} si no es de opción múltiple.
+     */
+    public boolean esOpcionUnica() {
+        return !esOpcionMultiple;
+    }
+
+    /**
+     * Indica si la pregunta tiene al menos dos opciones y la cantidad de opciones correctas que corresponde a su tipo:
+     * exactamente una en las de opción única y al menos una en las de opción múltiple.
+     *
+     * @return {@code true} si la pregunta puede usarse en un pool.
+     */
+    public boolean esValida() {
+        int correctas = getCantidadOpcionesCorrectas();
+        boolean correctasValidas = esOpcionMultiple ? correctas >= 1 : correctas == 1;
+        return getOpcionesActivas().size() >= 2 && correctasValidas;
+    }
+
+    /**
+     * Calcula cuánto suma o resta a la nota del intento una opción de la pregunta cuando el alumno la elige. Cada pregunta
+     * vale lo mismo (1 / cantidad de preguntas) y ese valor se reparte entre sus opciones correctas; una opción incorrecta
+     * resta ese mismo valor si la autoevaluación descuenta por error, y si no, no modifica la nota.
+     *
+     * @param esCorrecta Si la opción elegida es correcta.
+     * @param descuentoPorError Si la autoevaluación descuenta las respuestas incorrectas.
+     * @param cantidadPreguntas La cantidad de preguntas de la autoevaluación.
+     * @return El valor de la opción, sobre una nota de 0 a 1.
+     */
+    public double calcularValorOpcion(boolean esCorrecta, boolean descuentoPorError, int cantidadPreguntas) {
+        int cantidadCorrectas = getCantidadOpcionesCorrectas();
+        if (cantidadPreguntas <= 0 || cantidadCorrectas == 0) {
+            return 0;
+        }
+        double valorOpcion = (1d / cantidadPreguntas) / cantidadCorrectas;
+        if (esCorrecta) {
+            return valorOpcion;
+        }
+        return descuentoPorError ? -valorOpcion : 0;
     }
 
     /**

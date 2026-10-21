@@ -126,18 +126,31 @@
                     <div th:replace="~{fragments/vacio :: bloque('fa-credit-card', 'No hay inscripciones pendientes de pago', 'Cuando un alumno se inscriba a un curso con costo, vas a poder registrar su pago acá.', null, null)}"></div>
                 </div>
                 <form th:unless="${#lists.isEmpty(inscripcionesPendientes)}" th:action="@{/pago/registrar}" method="post"
-                      class="form-ajax" data-validar novalidate>
-                    <div class="pn-aviso pn-aviso-azul" th:if="${cbu != null}">
+                      class="form-ajax" data-validar data-pasos data-resumen="Pago" data-modo="alta" data-resumen-nuevo="nuevo"
+                      data-contexto='[{"etiqueta":"Curso","campo":"idInscripcion","atributo":"data-curso"},{"etiqueta":"Programa","campo":"idInscripcion","atributo":"data-programa"},{"etiqueta":"Cohorte","campo":"idInscripcion","atributo":"data-cohorte"},{"etiqueta":"Inscripción","campo":"idInscripcion","atributo":"data-alumno"}]' novalidate>
+    <div class="pn-aviso pn-aviso-azul" th:if="${cbu != null}">
                         CBU de la institución para recibir transferencias: <strong th:text="${cbu}">0000003100012345678901</strong>
                     </div>
-                    <div class="row g-3">
-                        <div class="col-12 pn-campo">
+    <div class="pn-progreso"><div class="pn-progreso-barra"></div></div>
+    <div class="pn-pasos pn-pasos-nombrados">
+        <span class="pn-pasos-item"><span class="pn-pasos-punto">1</span><span class="pn-pasos-nombre">Inscripción</span></span><span class="pn-pasos-linea"></span>
+        <span class="pn-pasos-item"><span class="pn-pasos-punto">2</span><span class="pn-pasos-nombre">Datos del pago</span></span><span class="pn-pasos-linea"></span>
+        <span class="pn-pasos-item"><span class="pn-pasos-punto">3</span><span class="pn-pasos-nombre">Resumen</span></span>
+    </div>
+    <div class="pn-paso" data-grupo="Inscripción" data-sin-rama>
+        <div class="pn-seccion-titulo">
+            <h4>Inscripción</h4>
+            <p>Inscripción pendiente de pago</p>
+        </div>
+        <div class="row g-3">
+<div class="col-12 pn-campo">
                             <label class="pn-etiqueta">Inscripción <span class="pn-obligatorio">*</span></label>
                             <select name="idInscripcion" data-buscable id="pagoInscripcion" class="pn-input" required data-mensaje-obligatorio="Debe seleccionar la inscripción.">
                                 <option value="">Inscripción pendiente de pago</option>
                                 <option th:each="i : ${inscripcionesPendientes}" th:value="${i.idInscripcion}"
                                         th:with="d=${detalles.get(i.idInscripcion)}"
                                         th:text="${i.alumno.usuario.nombreCompleto + ' - ' + i.curso.nombre}"
+                                        th:data-curso="${i.curso.nombre}" th:data-programa="${i.cohorte.programa.nombre}" th:data-cohorte="${i.cohorte.etiqueta}" th:data-alumno="${i.alumno.usuario.nombreCompleto}"
                                         th:data-monto="${#numbers.formatDecimal(montosSugeridos.get(i.idInscripcion), 1, 'NONE', 2, 'POINT')}"
                                         th:data-precio="${#numbers.formatDecimal(d.precio, 1, 'NONE', 2, 'POINT')}"
                                         th:data-desc-nombre="${d.descuento != null ? d.descuento.nombre : ''}"
@@ -148,7 +161,7 @@
                             </select>
                             <div class="pn-ayuda-error"></div>
                         </div>
-                        <div class="col-12" data-caja hidden>
+<div class="col-12" data-caja hidden>
                             <div class="pn-resumen-pago">
                                 <div class="pn-resumen-titulo">Detalle del pago</div>
                                 <div class="pn-resumen-fila pn-resumen-precio">
@@ -166,16 +179,24 @@
                                 <p class="pn-resumen-nota" data-caja-nota hidden></p>
                             </div>
                         </div>
-                        <div class="col-md-6 pn-campo">
+        </div>
+    </div>
+    <div class="pn-paso" data-grupo="Datos del pago">
+        <div class="pn-seccion-titulo">
+            <h4>Datos del pago</h4>
+            <p>Monto recibido, comprobante y observaciones</p>
+        </div>
+        <div class="row g-3">
+<div class="col-md-6 pn-campo" data-resumen-etiqueta="Monto">
                             <label class="pn-etiqueta">Monto recibido <span class="pn-obligatorio">*</span> <span class="pn-etiqueta-ayuda">(hasta el total a pagar)</span></label>
-                            <input type="number" name="monto" id="pagoMonto" class="pn-input" min="0.01" step="0.01" placeholder="Monto" required>
+                            <input type="number" name="monto" data-resumen-formato="moneda" id="pagoMonto" class="pn-input" min="0.01" step="0.01" placeholder="Monto" required>
                             <div class="pn-ayuda-error"></div>
                         </div>
-                        <div class="col-md-6 pn-campo">
+<div class="col-md-6 pn-campo">
                             <label class="pn-etiqueta">Método de pago</label>
                             <input type="text" class="pn-input" value="Transferencia bancaria" disabled>
                         </div>
-                        <div class="col-12 pn-campo">
+<div class="col-12 pn-campo">
                             <div class="pn-etiqueta-fila">
                                 <label class="pn-etiqueta">Número de comprobante de la transferencia <span class="pn-obligatorio">*</span></label>
                                 <span class="pn-contador">0 / 100</span>
@@ -183,7 +204,7 @@
                             <input type="text" name="numeroComprobante" class="pn-input" maxlength="100" placeholder="Número de comprobante" data-contador required>
                             <div class="pn-ayuda-error"></div>
                         </div>
-                        <div class="col-12 pn-campo">
+<div class="col-12 pn-campo">
                             <div class="pn-etiqueta-fila">
                                 <label class="pn-etiqueta">Observaciones (opcional)</label>
                                 <span class="pn-contador">0 / 300</span>
@@ -191,12 +212,22 @@
                             <textarea name="observaciones" class="pn-input" rows="2" maxlength="300" data-contador></textarea>
                             <div class="pn-ayuda-error"></div>
                         </div>
-                    </div>
-                    <div class="pn-modal-pie">
-                        <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="pn-btn pn-btn-primario">Registrar pago</button>
-                    </div>
-                </form>
+        </div>
+    </div>
+    <div class="pn-paso">
+        <div class="pn-seccion-titulo">
+            <h4>Resumen</h4>
+            <p>Revisá los datos antes de guardar</p>
+        </div>
+        <div class="pn-arbol" data-resumen-arbol></div>
+    </div>
+    <div class="pn-modal-pie">
+        <button type="button" class="pn-btn pn-btn-contorno pn-pie-izquierda" data-paso-anterior>Anterior</button>
+        <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="pn-btn pn-btn-primario" data-paso-siguiente>Siguiente</button>
+        <button type="submit" class="pn-btn pn-btn-primario d-none" data-paso-guardar>Confirmar y guardar</button>
+    </div>
+</form>
             </div>
         </div>
     </div>
@@ -212,13 +243,27 @@
                     <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
                 </div>
                 <div class="pn-modal-cuerpo">
-                    <div class="pn-seccion-titulo">
-                        <h4>Datos del pago</h4>
-                        <p>Estado, monto, comprobante, pagador y motivo del rechazo</p>
-                    </div>
-                    <form th:action="@{'/pago/modificar/' + ${p.idPago}}" method="post" class="form-ajax" data-validar novalidate>
-                        <!-- Detalle del pago de la inscripción: precio, descuento, ya pagado y total a pagar -->
-                        <div class="mb-3" data-caja th:with="d=${detalles.get(p.inscripcion.idInscripcion)}"
+                    <form th:action="@{'/pago/modificar/' + ${p.idPago}}" method="post" class="form-ajax" data-validar data-pasos data-resumen="Pago" data-modo="modificacion"
+                          data-contexto='[{"etiqueta":"Curso","atributoForm":"data-ctx-curso"},{"etiqueta":"Programa","atributoForm":"data-ctx-programa"},{"etiqueta":"Cohorte","atributoForm":"data-ctx-cohorte"},{"etiqueta":"Inscripción","atributoForm":"data-ctx-alumno"}]' 
+                          th:attr="data-resumen-titulo=${'(' + #temporals.format(p.fechaCreacion, 'dd/MM/yyyy HH:mm') + ')'}, data-ctx-curso=${p.inscripcion.curso.nombre}, data-ctx-programa=${p.inscripcion.cohorte.programa.nombre}, data-ctx-cohorte=${p.inscripcion.cohorte.etiqueta}, data-ctx-alumno=${p.inscripcion.alumno.usuario.nombreCompleto}" novalidate>
+    <div class="pn-progreso"><div class="pn-progreso-barra"></div></div>
+    <div class="pn-pasos pn-pasos-nombrados">
+        <span class="pn-pasos-item"><span class="pn-pasos-punto">1</span><span class="pn-pasos-nombre">Inscripción</span></span><span class="pn-pasos-linea"></span>
+        <span class="pn-pasos-item"><span class="pn-pasos-punto">2</span><span class="pn-pasos-nombre">Datos del pago</span></span><span class="pn-pasos-linea"></span>
+        <span class="pn-pasos-item"><span class="pn-pasos-punto">3</span><span class="pn-pasos-nombre">Resumen</span></span>
+    </div>
+    <div class="pn-paso" data-grupo="Inscripción" data-sin-rama>
+        <div class="pn-seccion-titulo">
+            <h4>Inscripción</h4>
+            <p>Detalle del pago de la inscripción (solo informativo)</p>
+        </div>
+        <div class="row g-3">
+<div class="col-12 pn-campo" data-resumen-omitir>
+    <label class="pn-etiqueta">Inscripción</label>
+    <select class="pn-input" disabled><option th:text="${p.inscripcion.alumno.usuario.nombreCompleto + ' - ' + p.inscripcion.curso.nombre}">Alumno - Curso</option></select>
+</div>
+<div class="col-12">
+<div class="mb-3" data-caja th:with="d=${detalles.get(p.inscripcion.idInscripcion)}"
                              th:data-precio="${#numbers.formatDecimal(d.precio, 1, 'NONE', 2, 'POINT')}"
                              th:data-desc-nombre="${d.descuento != null ? d.descuento.nombre : ''}"
                              th:data-desc-pct="${d.descuento != null ? d.descuento.porcentaje : 0}"
@@ -242,11 +287,19 @@
                                 <p class="pn-resumen-nota" data-caja-nota hidden></p>
                             </div>
                         </div>
-                        <p class="small text-muted mb-3" th:if="${p.detalleErrorOperacion != null}">
+<p class="small text-muted mb-3" th:if="${p.detalleErrorOperacion != null}">
                             Motivo del rechazo: <span th:text="${p.detalleErrorOperacion}">Motivo</span>
                         </p>
-                        <div class="row g-3">
-                            <div class="col-md-6 pn-campo">
+</div>
+        </div>
+    </div>
+    <div class="pn-paso" data-grupo="Datos del pago">
+        <div class="pn-seccion-titulo">
+            <h4>Datos del pago</h4>
+            <p>Estado, monto, comprobante, pagador y motivo del rechazo</p>
+        </div>
+        <div class="row g-3">
+<div class="col-md-6 pn-campo">
                                 <div class="pn-etiqueta-con-ayuda">
                                     <label class="pn-etiqueta">Estado <span class="pn-obligatorio">*</span></label>
                                     <button type="button" class="cn-ayuda" th:if="${p.esDeModo()}" aria-expanded="false" title="Ayuda"
@@ -258,14 +311,14 @@
                                 </select>
                                 <div class="pn-ayuda-error"></div>
                             </div>
-                            <div class="col-md-6 pn-campo">
+<div class="col-md-6 pn-campo" data-resumen-etiqueta="Monto">
                                 <label class="pn-etiqueta">Monto <span class="pn-obligatorio">*</span> <span class="pn-etiqueta-ayuda">(hasta el total a pagar)</span></label>
-                                <input type="number" name="monto" class="pn-input" min="0.01" step="0.01"
+                                <input type="number" name="monto" data-resumen-formato="moneda" class="pn-input" min="0.01" step="0.01"
                                        th:with="d=${detalles.get(p.inscripcion.idInscripcion)}"
                                        th:value="${#numbers.formatDecimal(d.total > 0 ? d.total : p.monto, 1, 'NONE', 2, 'POINT')}" required>
                                 <div class="pn-ayuda-error"></div>
                             </div>
-                            <div class="col-12 ayuda-desplegable" th:if="${p.esDeModo()}" th:id="'ayudaModo' + ${p.idPago}">
+<div class="col-12 ayuda-desplegable" th:if="${p.esDeModo()}" th:id="'ayudaModo' + ${p.idPago}">
                                 <div class="ayuda-desplegable-interior">
                                     <div class="cn-info">
                                         <i class="fa-solid fa-circle-info"></i>
@@ -273,8 +326,8 @@
                                     </div>
                                 </div>
                             </div>
-                            <!-- MODO: código de referencia y número de comprobante (obligatorios al acreditar; al rechazar son opcionales) -->
-                            <div class="col-md-6 pn-campo" th:if="${p.esDeModo()}">
+<th:block th:if="${p.esDeModo()}">
+<div class="col-md-6 pn-campo" th:if="${p.esDeModo()}">
                                 <div class="pn-etiqueta-fila">
                                     <label class="pn-etiqueta">Código de referencia de MODO
                                         <span class="pn-obligatorio" data-ref-obligatorio hidden>*</span><span data-ref-opcional>(opcional)</span></label>
@@ -283,7 +336,8 @@
                                 <input type="text" name="referencia" class="pn-input" maxlength="12" data-ref-modo data-contador th:value="${p.codigoReferencia}">
                                 <div class="pn-ayuda-error"></div>
                             </div>
-                            <div class="pn-campo" th:classappend="${p.esDeModo()} ? 'col-md-6' : 'col-12'">
+</th:block>
+<div class="pn-campo" th:classappend="${p.esDeModo()} ? 'col-md-6' : 'col-12'">
                                 <div class="pn-etiqueta-fila">
                                     <label class="pn-etiqueta">
                                         <th:block th:if="${!p.esDeModo()}">Número de comprobante de la transferencia <span class="pn-obligatorio">*</span></th:block>
@@ -296,31 +350,41 @@
                                        th:value="${p.numeroComprobante}" th:required="${!p.esDeModo()}">
                                 <div class="pn-ayuda-error"></div>
                             </div>
-                            <th:block th:if="${p.esDeModo()}">
-                                <div class="col-md-8 pn-campo">
+<th:block th:if="${p.esDeModo()}">
+<div class="col-md-8 pn-campo">
                                     <label class="pn-etiqueta">Nombre del pagador <span class="pn-obligatorio">*</span></label>
                                     <input type="text" name="nombrePagador" class="pn-input" maxlength="100"
                                            th:value="${p.inscripcion.alumno.usuario.nombreCompleto}">
                                     <div class="pn-ayuda-error"></div>
                                 </div>
-                                <div class="col-md-4 pn-campo">
+<div class="col-md-4 pn-campo">
                                     <label class="pn-etiqueta">DNI del pagador <span class="pn-obligatorio">*</span></label>
                                     <input type="text" name="dniPagador" class="pn-input" maxlength="8" inputmode="numeric"
                                            th:value="${p.inscripcion.alumno.usuario.dni}">
                                     <div class="pn-ayuda-error"></div>
                                 </div>
-                            </th:block>
-                            <div class="col-12 pn-campo">
+</th:block>
+<div class="col-12 pn-campo">
                                 <label class="pn-etiqueta">Motivo (si se rechaza)</label>
                                 <input type="text" name="motivo" class="pn-input" maxlength="200" placeholder="Motivo del rechazo">
                                 <div class="pn-ayuda-error"></div>
                             </div>
-                        </div>
-                        <div class="pn-modal-pie">
-                            <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
-                            <button type="submit" class="pn-btn pn-btn-primario">Actualizar</button>
-                        </div>
-                    </form>
+        </div>
+    </div>
+    <div class="pn-paso">
+        <div class="pn-seccion-titulo">
+            <h4>Resumen</h4>
+            <p>Estos son los cambios que se van a guardar</p>
+        </div>
+        <div class="pn-arbol" data-resumen-arbol></div>
+    </div>
+    <div class="pn-modal-pie">
+        <button type="button" class="pn-btn pn-btn-contorno pn-pie-izquierda" data-paso-anterior>Anterior</button>
+        <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="pn-btn pn-btn-primario" data-paso-siguiente>Siguiente</button>
+        <button type="submit" class="pn-btn pn-btn-primario d-none" data-paso-guardar>Confirmar cambios</button>
+    </div>
+</form>
                 </div>
             </div>
         </div>

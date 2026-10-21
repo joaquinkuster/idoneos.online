@@ -26,7 +26,7 @@ import com.app.idoneos.modelo.UnidadCronograma;
 import com.app.idoneos.modelo.Usuario;
 import com.app.idoneos.servicio.TerminoGlosario.TerminoGlosarioServicio;
 import com.app.idoneos.servicio.Unidad.UnidadServicioImpl;
-import com.app.idoneos.utilidades.RespuestaJsonUtilidad;
+import com.app.idoneos.utilidades.RespuestaFormularioUtilidad;
 
 /**
  * Controlador del glosario (MOD-F-02): CU-32 Buscar término (GET /glosario/buscar y GET /glosario/ver/{unidadId}),
@@ -163,9 +163,9 @@ public class GlosarioControlador extends PanelCursoControlador {
             Usuario usuario = (Usuario) auth.getPrincipal();
             TerminoGlosario registrado = terminoGlosarioServicio.registrarTermino(usuario.getDocente(), unidadId,
                     termino, definicion);
-            return RespuestaJsonUtilidad.respuestaExitosa("Término '" + registrado.getTermino() + "' registrado con éxito.");
+            return RespuestaFormularioUtilidad.respuestaExitosa("Término '" + registrado.getTermino() + "' registrado con éxito.");
         } catch (Exception e) {
-            return RespuestaJsonUtilidad.respuestaConError(e);
+            return RespuestaFormularioUtilidad.respuestaConError(e);
         }
     }
 
@@ -187,9 +187,9 @@ public class GlosarioControlador extends PanelCursoControlador {
         try {
             Usuario usuario = (Usuario) auth.getPrincipal();
             terminoGlosarioServicio.modificarTermino(id, usuario.getDocente(), termino, definicion);
-            return RespuestaJsonUtilidad.respuestaExitosa("Término modificado correctamente.");
+            return RespuestaFormularioUtilidad.respuestaExitosa("Término modificado correctamente.");
         } catch (Exception e) {
-            return RespuestaJsonUtilidad.respuestaConError(e);
+            return RespuestaFormularioUtilidad.respuestaConError(e);
         }
     }
 
@@ -209,9 +209,9 @@ public class GlosarioControlador extends PanelCursoControlador {
             // El administrador puede dar de baja los términos de cualquier curso
             Docente docente = usuario.esAdministradorActivo() ? null : usuario.getDocente();
             terminoGlosarioServicio.darDeBajaTermino(id, docente);
-            return RespuestaJsonUtilidad.respuestaExitosa("Término dado de baja con éxito.");
+            return RespuestaFormularioUtilidad.respuestaExitosa("Término dado de baja con éxito.");
         } catch (Exception e) {
-            return RespuestaJsonUtilidad.respuestaConError(e);
+            return RespuestaFormularioUtilidad.respuestaConError(e);
         }
     }
 }

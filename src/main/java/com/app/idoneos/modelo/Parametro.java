@@ -46,6 +46,15 @@ public class Parametro {
     /** Clave del CBU de la institución, para las transferencias bancarias. */
     public static final String CBU_INSTITUCION = "pagos.cbu_institucion";
 
+    /**
+     * Clave de la tolerancia, en segundos, con la que se admite una respuesta o entrega de un intento de autoevaluación que
+     * llega después de agotado su tiempo límite (por la latencia entre el navegador y el servidor).
+     */
+    public static final String GRACIA_ENTREGA_AUTOEVALUACION = "autoevaluacion.gracia_segundos";
+
+    /** Tolerancia de entrega de las autoevaluaciones que se usa cuando el parámetro no está cargado. */
+    public static final int GRACIA_ENTREGA_AUTOEVALUACION_POR_DEFECTO = 15;
+
     // ---- Medio de pago MODO: lo que el cliente reemplaza cuando abre su cuenta de MODO. La semilla (solo desarrollo)
     // ---- carga las credenciales de PRUEBA que MODO publica en su documentación.
 

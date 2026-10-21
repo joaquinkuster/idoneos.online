@@ -1,8 +1,9 @@
 package com.app.idoneos.servicio.Cohorte;
 
+import com.app.idoneos.utilidades.RespuestaFormularioUtilidad;
 import com.app.idoneos.modelo.Curso;
-import com.app.idoneos.utilidades.MensajeValidacionUtilidad;
-import com.app.idoneos.utilidades.MensajeBajaUtilidad;
+import com.app.idoneos.utilidades.MensajeErrorUtilidad;
+import com.app.idoneos.utilidades.MensajeErrorUtilidad;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -162,7 +163,7 @@ public class CohorteServicioImpl implements CohorteServicio, CrudServicio<Cohort
                 .map(parametro -> Integer.parseInt(parametro.getValor().trim())).orElse(1);
         int conMaterial = programa.getCantidadUnidadesConMaterialPublicado();
         if (conMaterial < minimo) {
-            throw new IllegalArgumentException("Error! El programa debe tener al menos " + MensajeBajaUtilidad.cantidad(minimo, "unidad", "unidades")
+            throw RespuestaFormularioUtilidad.campoInvalido("programaId", "Error! El programa debe tener al menos " + MensajeErrorUtilidad.cantidad(minimo, "unidad", "unidades")
                     + " con material publicado en su cronograma (tiene " + conMaterial + ").");
         }
         boolean enVivo = programa.getCurso().incluyeModalidad(Modalidad.EN_VIVO);
@@ -272,12 +273,12 @@ public class CohorteServicioImpl implements CohorteServicio, CrudServicio<Cohort
         long inscriptos = cohorte.getCantidadInscriptos();
         if (inscriptos > 0 || clasesActivas > 0) {
             String motivo = (inscriptos > 0
-                    ? MensajeBajaUtilidad.cantidad(inscriptos, "alumno inscripto activo", "alumnos inscriptos activos") : "")
+                    ? MensajeErrorUtilidad.cantidad(inscriptos, "alumno inscripto activo", "alumnos inscriptos activos") : "")
                     + (inscriptos > 0 && clasesActivas > 0 ? " y " : "")
                     + (clasesActivas > 0
-                            ? MensajeBajaUtilidad.cantidad(clasesActivas, "clase en vivo activa", "clases en vivo activas") : "");
+                            ? MensajeErrorUtilidad.cantidad(clasesActivas, "clase en vivo activa", "clases en vivo activas") : "");
             // Las inscripciones no se pueden deshacer: solo si hay clases en vivo se indica qué hacer
-            throw new IllegalArgumentException(MensajeBajaUtilidad.bajaBloqueada("la cohorte",
+            throw new IllegalArgumentException(MensajeErrorUtilidad.bajaBloqueada("la cohorte",
                     cohorte.getPrograma().getCurso().getNombre() + " - " + cohorte.getPrograma().getNombre(),
                     "tiene " + motivo, inscriptos == 0 ? "Dé de baja primero sus clases en vivo." : ""));
         }
@@ -352,31 +353,29 @@ public class CohorteServicioImpl implements CohorteServicio, CrudServicio<Cohort
                     + String.join(", ", faltantes) + ".");
         }
         if (!fechaFinInscripcion.isAfter(fechaInicioInscripcion)) {
-            throw new IllegalArgumentException("Error! La fecha de fin de inscripción debe ser posterior a la fecha de inicio.");
+            throw RespuestaFormularioUtilidad.campoInvalido("fechaFinInscripcion", "Error! La fecha de fin de inscripción debe ser posterior a la fecha de inicio.");
         }
         if (enVivo && !fechaFinDictado.isAfter(fechaInicioDictado)) {
-            throw new IllegalArgumentException("Error! La fecha de fin de dictado debe ser posterior a la fecha de inicio.");
+            throw RespuestaFormularioUtilidad.campoInvalido("fechaFinDictado", "Error! La fecha de fin de dictado debe ser posterior a la fecha de inicio.");
         }
         if (enVivo && fechaInicioDictado.isBefore(fechaFinInscripcion)) {
-            throw new IllegalArgumentException("Error! La fecha de inicio de dictado no puede ser anterior a la fecha de fin de inscripción.");
+            throw RespuestaFormularioUtilidad.campoInvalido("fechaInicioDictado", "Error! La fecha de inicio de dictado no puede ser anterior a la fecha de fin de inscripción.");
         }
         if (cupoMaximo != null && cupoMaximo <= 0) {
-            throw new IllegalArgumentException(MensajeValidacionUtilidad.formatoInvalido("El cupo máximo", "número entero de 1 a " + Cohorte.CUPO_MAXIMO_PERMITIDO));
+            throw RespuestaFormularioUtilidad.campoInvalido("cupoMaximo", MensajeErrorUtilidad.formatoInvalido("El cupo máximo", "número entero de 1 a " + Cohorte.CUPO_MAXIMO_PERMITIDO));
         }
         if (cupoMaximo != null && cupoMaximo > Cohorte.CUPO_MAXIMO_PERMITIDO) {
-            throw new IllegalArgumentException(
-                    MensajeValidacionUtilidad.formatoInvalido("El cupo máximo", "número entero de 1 a " + Cohorte.CUPO_MAXIMO_PERMITIDO));
+            throw RespuestaFormularioUtilidad.campoInvalido("cupoMaximo", MensajeErrorUtilidad.formatoInvalido("El cupo máximo", "número entero de 1 a " + Cohorte.CUPO_MAXIMO_PERMITIDO));
         }
         if (semanasAcceso <= 0) {
-            throw new IllegalArgumentException(MensajeValidacionUtilidad.formatoInvalido("Las semanas de acceso", "número entero de 1 a " + Cohorte.SEMANAS_ACCESO_MAXIMAS));
+            throw RespuestaFormularioUtilidad.campoInvalido("semanasAcceso", MensajeErrorUtilidad.formatoInvalido("Las semanas de acceso", "número entero de 1 a " + Cohorte.SEMANAS_ACCESO_MAXIMAS));
         }
         if (semanasAcceso > Cohorte.SEMANAS_ACCESO_MAXIMAS) {
-            throw new IllegalArgumentException(
-                    MensajeValidacionUtilidad.formatoInvalido("Las semanas de acceso", "número entero de 1 a " + Cohorte.SEMANAS_ACCESO_MAXIMAS));
+            throw RespuestaFormularioUtilidad.campoInvalido("semanasAcceso", MensajeErrorUtilidad.formatoInvalido("Las semanas de acceso", "número entero de 1 a " + Cohorte.SEMANAS_ACCESO_MAXIMAS));
         }
         int duracion = programa.getDuracionTotalSemanas();
         if (semanasAcceso < duracion) {
-            throw new IllegalArgumentException("Error! Las semanas de acceso (" + semanasAcceso
+            throw RespuestaFormularioUtilidad.campoInvalido("semanasAcceso", "Error! Las semanas de acceso (" + semanasAcceso
                     + ") no pueden ser menores a la duración total del cronograma del programa (" + duracion + " semanas).");
         }
     }

@@ -1,7 +1,8 @@
 package com.app.idoneos.servicio.Programa;
 
-import com.app.idoneos.utilidades.MensajeValidacionUtilidad;
-import com.app.idoneos.utilidades.MensajeBajaUtilidad;
+import com.app.idoneos.utilidades.RespuestaFormularioUtilidad;
+import com.app.idoneos.utilidades.MensajeErrorUtilidad;
+import com.app.idoneos.utilidades.MensajeErrorUtilidad;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
@@ -254,8 +255,8 @@ public class ProgramaServicioImpl implements ProgramaServicio, CrudServicio<Prog
         }
         if (programa.getCantidadCohortesActivas() > 0) {
             int cohortesActivas = programa.getCantidadCohortesActivas();
-            throw new IllegalArgumentException(MensajeBajaUtilidad.bajaBloqueada("el programa", programa.getNombre(),
-                    "tiene " + MensajeBajaUtilidad.cantidad(cohortesActivas, "cohorte activa asociada",
+            throw new IllegalArgumentException(MensajeErrorUtilidad.bajaBloqueada("el programa", programa.getNombre(),
+                    "tiene " + MensajeErrorUtilidad.cantidad(cohortesActivas, "cohorte activa asociada",
                             "cohortes activas asociadas"),
                     "Dé de baja primero " + (cohortesActivas == 1 ? "esa cohorte." : "esas cohortes.")));
         }
@@ -284,8 +285,7 @@ public class ProgramaServicioImpl implements ProgramaServicio, CrudServicio<Prog
             throw new IllegalArgumentException("Error! Debe completar el nombre, los objetivos y la bibliografía.");
         }
         if (nombre.trim().length() > Programa.LONGITUD_NOMBRE) {
-            throw new IllegalArgumentException(
-                    MensajeValidacionUtilidad.demasiadoLargo("El nombre", Programa.LONGITUD_NOMBRE, "caracteres"));
+            throw RespuestaFormularioUtilidad.campoInvalido("nombre", MensajeErrorUtilidad.demasiadoLargo("El nombre", Programa.LONGITUD_NOMBRE, "caracteres"));
         }
         return nombre.trim();
     }
@@ -293,15 +293,14 @@ public class ProgramaServicioImpl implements ProgramaServicio, CrudServicio<Prog
     private String validarDescripcion(String descripcion) {
         String limpia = descripcion == null || descripcion.isBlank() ? null : descripcion.trim();
         if (limpia != null && limpia.length() > Programa.LONGITUD_DESCRIPCION) {
-            throw new IllegalArgumentException(
-                    MensajeValidacionUtilidad.demasiadoLargo("La descripción", Programa.LONGITUD_DESCRIPCION, "caracteres"));
+            throw RespuestaFormularioUtilidad.campoInvalido("descripcion", MensajeErrorUtilidad.demasiadoLargo("La descripción", Programa.LONGITUD_DESCRIPCION, "caracteres"));
         }
         return limpia;
     }
 
     private Integer validarCargaHoraria(Integer cargaHoraria) {
         if (cargaHoraria != null && cargaHoraria <= 0) {
-            throw new IllegalArgumentException(MensajeValidacionUtilidad.formatoInvalido("La carga horaria", "número entero mayor a cero"));
+            throw RespuestaFormularioUtilidad.campoInvalido("cargaHoraria", MensajeErrorUtilidad.formatoInvalido("La carga horaria", "número entero mayor a cero"));
         }
         return cargaHoraria;
     }

@@ -117,13 +117,20 @@
                 <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="pn-modal-cuerpo">
-                <div class="pn-seccion-titulo">
-                    <h4>Datos del descuento</h4>
-                    <p>Nombre, porcentaje, vigencia, cantidad límite y cursos comprados requeridos</p>
-                </div>
-                <form th:action="@{/descuento/registrar}" method="post" class="form-ajax" data-validar novalidate>
-                    <div class="row g-3">
-                        <div class="col-12 pn-campo">
+                <form th:action="@{/descuento/registrar}" method="post" class="form-ajax" data-validar data-pasos data-resumen="Descuento" data-modo="alta" novalidate>
+    <div class="pn-progreso"><div class="pn-progreso-barra"></div></div>
+    <div class="pn-pasos pn-pasos-nombrados">
+        <span class="pn-pasos-item"><span class="pn-pasos-punto">1</span><span class="pn-pasos-nombre">Datos</span></span><span class="pn-pasos-linea"></span>
+        <span class="pn-pasos-item"><span class="pn-pasos-punto">2</span><span class="pn-pasos-nombre">Vigencia y uso</span></span><span class="pn-pasos-linea"></span>
+        <span class="pn-pasos-item"><span class="pn-pasos-punto">3</span><span class="pn-pasos-nombre">Resumen</span></span>
+    </div>
+    <div class="pn-paso" data-grupo="Datos">
+        <div class="pn-seccion-titulo">
+            <h4>Datos del descuento</h4>
+            <p>Nombre, porcentaje y cursos comprados requeridos</p>
+        </div>
+        <div class="row g-3">
+<div class="col-12 pn-campo">
                             <div class="pn-etiqueta-fila">
                                 <label class="pn-etiqueta">Nombre <span class="pn-obligatorio">*</span></label>
                                 <span class="pn-contador">0 / 50</span>
@@ -131,38 +138,55 @@
                             <input type="text" name="nombre" class="pn-input" maxlength="50" placeholder="Nombre" data-contador required>
                             <div class="pn-ayuda-error"></div>
                         </div>
-                        <div class="col-md-6 pn-campo">
+<div class="col-md-6 pn-campo">
                             <label class="pn-etiqueta">Porcentaje <span class="pn-obligatorio">*</span></label>
                             <input type="number" name="porcentaje" class="pn-input" min="1" max="99" step="0.01" placeholder="Porcentaje (1 a 99)" required>
                             <div class="pn-ayuda-error"></div>
                         </div>
-                        <div class="col-md-6 pn-campo">
-                            <label class="pn-etiqueta">Cantidad límite <span class="pn-obligatorio">*</span></label>
-                            <input type="number" name="cantidadLimite" class="pn-input" min="1" step="1" placeholder="Veces que puede aplicarse" required>
+<div class="col-md-6 pn-campo">
+                            <label class="pn-etiqueta">Cursos comprados requeridos (opcional)</label>
+                            <input type="number" name="cursosRequeridos" class="pn-input" min="0" step="1" placeholder="Cursos que el alumno debe haber comprado">
                             <div class="pn-ayuda-error"></div>
                         </div>
-                        <div class="col-md-6 pn-campo">
+        </div>
+    </div>
+    <div class="pn-paso" data-grupo="Vigencia y uso">
+        <div class="pn-seccion-titulo">
+            <h4>Vigencia y uso</h4>
+            <p>Plazo de vigencia y cantidad de veces que puede aplicarse</p>
+        </div>
+        <div class="row g-3">
+<div class="col-md-6 pn-campo">
                             <label class="pn-etiqueta">Vigencia desde <span class="pn-obligatorio">*</span></label>
                             <input type="date" name="vigenciaDesde" class="pn-input" required>
                             <div class="pn-ayuda-error"></div>
                         </div>
-                        <div class="col-md-6 pn-campo">
+<div class="col-md-6 pn-campo">
                             <label class="pn-etiqueta">Vigencia hasta <span class="pn-obligatorio">*</span></label>
                             <input type="date" name="vigenciaHasta" class="pn-input" required>
                             <div class="pn-ayuda-error"></div>
                         </div>
-                        <div class="col-12 pn-campo">
-                            <label class="pn-etiqueta">Cursos comprados requeridos (opcional)</label>
-                            <input type="number" name="cursosRequeridos" class="pn-input" min="0" step="1" placeholder="Cursos que el alumno debe haber comprado">
-                            <div class="small text-muted mt-1">Se cuentan las inscripciones habilitadas con pago aprobado. Vacío o 0: sin condición.</div>
+<div class="col-12 pn-campo">
+                            <label class="pn-etiqueta">Cantidad límite <span class="pn-obligatorio">*</span></label>
+                            <input type="number" name="cantidadLimite" class="pn-input" min="1" step="1" placeholder="Veces que puede aplicarse" required>
                             <div class="pn-ayuda-error"></div>
                         </div>
-                    </div>
-                    <div class="pn-modal-pie">
-                        <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="pn-btn pn-btn-primario">Guardar</button>
-                    </div>
-                </form>
+        </div>
+    </div>
+    <div class="pn-paso">
+        <div class="pn-seccion-titulo">
+            <h4>Resumen</h4>
+            <p>Revisá los datos antes de guardar</p>
+        </div>
+        <div class="pn-arbol" data-resumen-arbol></div>
+    </div>
+    <div class="pn-modal-pie">
+        <button type="button" class="pn-btn pn-btn-contorno pn-pie-izquierda" data-paso-anterior>Anterior</button>
+        <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="pn-btn pn-btn-primario" data-paso-siguiente>Siguiente</button>
+        <button type="submit" class="pn-btn pn-btn-primario d-none" data-paso-guardar>Confirmar y guardar</button>
+    </div>
+</form>
             </div>
         </div>
     </div>
@@ -178,13 +202,21 @@
                     <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
                 </div>
                 <div class="pn-modal-cuerpo">
-                    <div class="pn-seccion-titulo">
-                        <h4>Datos del descuento</h4>
-                        <p>Nombre, porcentaje, vigencia, cantidad límite (ya se aplicó <strong th:text="${d.cantidadUsada + (d.cantidadUsada == 1 ? ' vez' : ' veces')}">0 veces</strong>; no puede ser menor) y cursos comprados requeridos</p>
-                    </div>
-                    <form th:action="@{'/descuento/modificar/' + ${d.idDescuento}}" method="post" class="form-ajax" data-validar novalidate>
-                        <div class="row g-3">
-                            <div class="col-12 pn-campo">
+                    <form th:action="@{'/descuento/modificar/' + ${d.idDescuento}}" method="post" class="form-ajax" data-validar data-pasos data-resumen="Descuento" data-modo="modificacion"
+                          th:attr="data-resumen-titulo=${'(' + d.nombre + ')'}" novalidate>
+    <div class="pn-progreso"><div class="pn-progreso-barra"></div></div>
+    <div class="pn-pasos pn-pasos-nombrados">
+        <span class="pn-pasos-item"><span class="pn-pasos-punto">1</span><span class="pn-pasos-nombre">Datos</span></span><span class="pn-pasos-linea"></span>
+        <span class="pn-pasos-item"><span class="pn-pasos-punto">2</span><span class="pn-pasos-nombre">Vigencia y uso</span></span><span class="pn-pasos-linea"></span>
+        <span class="pn-pasos-item"><span class="pn-pasos-punto">3</span><span class="pn-pasos-nombre">Resumen</span></span>
+    </div>
+    <div class="pn-paso" data-grupo="Datos">
+        <div class="pn-seccion-titulo">
+            <h4>Datos del descuento</h4>
+            <p>Nombre, porcentaje y cursos comprados requeridos</p>
+        </div>
+        <div class="row g-3">
+<div class="col-12 pn-campo">
                                 <div class="pn-etiqueta-fila">
                                     <label class="pn-etiqueta">Nombre <span class="pn-obligatorio">*</span></label>
                                     <span class="pn-contador" th:text="${#strings.length(d.nombre) + ' / 50'}">0 / 50</span>
@@ -192,39 +224,57 @@
                                 <input type="text" name="nombre" class="pn-input" maxlength="50" th:value="${d.nombre}" data-contador required>
                                 <div class="pn-ayuda-error"></div>
                             </div>
-                            <div class="col-md-6 pn-campo">
+<div class="col-md-6 pn-campo">
                                 <label class="pn-etiqueta">Porcentaje <span class="pn-obligatorio">*</span></label>
                                 <input type="number" name="porcentaje" class="pn-input" min="1" max="99" step="0.01"
                                        th:value="${#numbers.formatDecimal(d.porcentaje, 1, 'NONE', (d.porcentaje % 1 == 0 ? 0 : 2), 'POINT')}" required>
                                 <div class="pn-ayuda-error"></div>
                             </div>
-                            <div class="col-md-6 pn-campo">
+<div class="col-md-6 pn-campo">
+                                <label class="pn-etiqueta">Cursos comprados requeridos (opcional)</label>
+                                <input type="number" name="cursosRequeridos" class="pn-input" min="0" step="1" th:value="${d.cursosRequeridos}">
+                                <div class="pn-ayuda-error"></div>
+                            </div>
+        </div>
+    </div>
+    <div class="pn-paso" data-grupo="Vigencia y uso">
+        <div class="pn-seccion-titulo">
+            <h4>Vigencia y uso</h4>
+            <p>Plazo de vigencia y cantidad límite (ya se aplicó <strong th:text="${d.cantidadUsada + (d.cantidadUsada == 1 ? ' vez' : ' veces')}">0 veces</strong>; no puede ser menor)</p>
+        </div>
+        <div class="row g-3">
+<div class="col-md-6 pn-campo">
+                                <label class="pn-etiqueta">Vigencia desde <span class="pn-obligatorio">*</span></label>
+                                <input type="date" name="vigenciaDesde" class="pn-input" th:value="${#temporals.format(d.vigenciaDesde, 'yyyy-MM-dd')}" required>
+                                <div class="pn-ayuda-error"></div>
+                            </div>
+<div class="col-md-6 pn-campo">
+                                <label class="pn-etiqueta">Vigencia hasta <span class="pn-obligatorio">*</span></label>
+                                <input type="date" name="vigenciaHasta" class="pn-input" th:value="${#temporals.format(d.vigenciaHasta, 'yyyy-MM-dd')}" required>
+                                <div class="pn-ayuda-error"></div>
+                            </div>
+<div class="col-12 pn-campo">
                                 <label class="pn-etiqueta">Cantidad límite <span class="pn-obligatorio">*</span></label>
                                 <input type="number" name="cantidadLimite" class="pn-input" th:min="${d.cantidadUsada > 0 ? d.cantidadUsada : 1}" step="1"
                                        th:value="${d.cantidadLimite}" required>
                                 <div class="pn-ayuda-error"></div>
                             </div>
-                            <div class="col-md-6 pn-campo">
-                                <label class="pn-etiqueta">Vigencia desde <span class="pn-obligatorio">*</span></label>
-                                <input type="date" name="vigenciaDesde" class="pn-input" th:value="${#temporals.format(d.vigenciaDesde, 'yyyy-MM-dd')}" required>
-                                <div class="pn-ayuda-error"></div>
-                            </div>
-                            <div class="col-md-6 pn-campo">
-                                <label class="pn-etiqueta">Vigencia hasta <span class="pn-obligatorio">*</span></label>
-                                <input type="date" name="vigenciaHasta" class="pn-input" th:value="${#temporals.format(d.vigenciaHasta, 'yyyy-MM-dd')}" required>
-                                <div class="pn-ayuda-error"></div>
-                            </div>
-                            <div class="col-12 pn-campo">
-                                <label class="pn-etiqueta">Cursos comprados requeridos (opcional)</label>
-                                <input type="number" name="cursosRequeridos" class="pn-input" min="0" step="1" th:value="${d.cursosRequeridos}">
-                                <div class="pn-ayuda-error"></div>
-                            </div>
-                        </div>
-                        <div class="pn-modal-pie">
-                            <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
-                            <button type="submit" class="pn-btn pn-btn-primario">Actualizar</button>
-                        </div>
-                    </form>
+        </div>
+    </div>
+    <div class="pn-paso">
+        <div class="pn-seccion-titulo">
+            <h4>Resumen</h4>
+            <p>Estos son los cambios que se van a guardar</p>
+        </div>
+        <div class="pn-arbol" data-resumen-arbol></div>
+    </div>
+    <div class="pn-modal-pie">
+        <button type="button" class="pn-btn pn-btn-contorno pn-pie-izquierda" data-paso-anterior>Anterior</button>
+        <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="pn-btn pn-btn-primario" data-paso-siguiente>Siguiente</button>
+        <button type="submit" class="pn-btn pn-btn-primario d-none" data-paso-guardar>Confirmar cambios</button>
+    </div>
+</form>
                 </div>
             </div>
         </div>

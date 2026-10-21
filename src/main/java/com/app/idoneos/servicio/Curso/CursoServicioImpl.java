@@ -1,7 +1,8 @@
 package com.app.idoneos.servicio.Curso;
 
-import com.app.idoneos.utilidades.MensajeValidacionUtilidad;
-import com.app.idoneos.utilidades.MensajeBajaUtilidad;
+import com.app.idoneos.utilidades.RespuestaFormularioUtilidad;
+import com.app.idoneos.utilidades.MensajeErrorUtilidad;
+import com.app.idoneos.utilidades.MensajeErrorUtilidad;
 import java.time.LocalDateTime;
 import com.app.idoneos.utilidades.ManejadorArchivosUtilidad;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -377,7 +378,7 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
         validarPrecio(precio);
         String nombreLimpio = nombre.trim();
         if (cursoRepositorio.findByNombre(nombreLimpio).isPresent()) {
-            throw new IllegalArgumentException("Error! Ya existe un curso con el nombre '" + nombreLimpio + "'.");
+            throw RespuestaFormularioUtilidad.campoInvalido("nombre", "Error! Ya existe un curso con el nombre '" + nombreLimpio + "'.");
         }
 
         Curso curso = new Curso(nivel, categoria, nombreLimpio, precio);
@@ -443,7 +444,7 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
         validarPrecio(precio);
         String nombreLimpio = nombre.trim();
         cursoRepositorio.findByNombre(nombreLimpio).filter(otro -> otro.getIdCurso() != idCurso).ifPresent(otro -> {
-            throw new IllegalArgumentException("Error! Ya existe un curso con el nombre '" + nombreLimpio + "'.");
+            throw RespuestaFormularioUtilidad.campoInvalido("nombre", "Error! Ya existe un curso con el nombre '" + nombreLimpio + "'.");
         });
 
         curso.setNombre(nombreLimpio);
@@ -548,11 +549,11 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
         int unidadesActivas = unidadRepositorio.findByCursoAndBajaFalse(curso).size();
         if (programasActivos > 0 || unidadesActivas > 0) {
             String motivo = (programasActivos > 0
-                    ? MensajeBajaUtilidad.cantidad(programasActivos, "programa activo", "programas activos") : "")
+                    ? MensajeErrorUtilidad.cantidad(programasActivos, "programa activo", "programas activos") : "")
                     + (programasActivos > 0 && unidadesActivas > 0 ? " y " : "")
                     + (unidadesActivas > 0
-                            ? MensajeBajaUtilidad.cantidad(unidadesActivas, "unidad activa", "unidades activas") : "");
-            throw new IllegalArgumentException(MensajeBajaUtilidad.bajaBloqueada("el curso", curso.getNombre(),
+                            ? MensajeErrorUtilidad.cantidad(unidadesActivas, "unidad activa", "unidades activas") : "");
+            throw new IllegalArgumentException(MensajeErrorUtilidad.bajaBloqueada("el curso", curso.getNombre(),
                     "tiene " + motivo, "Dé de baja primero sus programas y unidades."));
         }
         curso.marcarInactivo();
@@ -604,10 +605,10 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
 
     private void validarPrecio(Float precio) {
         if (precio < 0) {
-            throw new IllegalArgumentException(MensajeValidacionUtilidad.formatoInvalido("El precio", "número desde 0 hasta $" + String.format("%,.0f", Curso.PRECIO_MAXIMO).replace(',', '.')));
+            throw RespuestaFormularioUtilidad.campoInvalido("precio", MensajeErrorUtilidad.formatoInvalido("El precio", "número desde 0 hasta $" + String.format("%,.0f", Curso.PRECIO_MAXIMO).replace(',', '.')));
         }
         if (precio > Curso.PRECIO_MAXIMO) {
-            throw new IllegalArgumentException(MensajeValidacionUtilidad.formatoInvalido("El precio", "número desde 0 hasta $" + String.format("%,.0f", Curso.PRECIO_MAXIMO).replace(',', '.')));
+            throw RespuestaFormularioUtilidad.campoInvalido("precio", MensajeErrorUtilidad.formatoInvalido("El precio", "número desde 0 hasta $" + String.format("%,.0f", Curso.PRECIO_MAXIMO).replace(',', '.')));
         }
     }
 
@@ -642,7 +643,7 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
 
     private void validarTitularEntreAyudantes(Docente titular, List<Docente> ayudantes) {
         if (ayudantes.stream().anyMatch(ayudante -> ayudante.getIdDocente() == titular.getIdDocente())) {
-            throw new IllegalArgumentException("Error! El docente titular no puede ser también ayudante del curso.");
+            throw RespuestaFormularioUtilidad.campoInvalido("idsDocentesAyudantes", "Error! El docente titular no puede ser también ayudante del curso.");
         }
     }
 
@@ -690,7 +691,7 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
             boolean clon = curso.getParticipacionesDocente().stream()
                     .anyMatch(p -> p.getClasesClon().stream().anyMatch(clase -> !clase.getBaja()));
             if ((Modalidad.EN_VIVO.equals(nombre) && enVivo) || (Modalidad.CLON_IA.equals(nombre) && clon)) {
-                throw new IllegalArgumentException("Error! No puede quitarse la modalidad '" + nombre
+                throw RespuestaFormularioUtilidad.campoInvalido("idsModalidades", "Error! No puede quitarse la modalidad '" + nombre
                         + "' porque el curso tiene clases activas de esa modalidad.");
             }
         }

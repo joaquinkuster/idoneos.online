@@ -2,8 +2,8 @@ package com.app.idoneos.servicio.RespuestaIntento;
 
 import java.util.List;
 import java.util.Optional;
-import com.app.idoneos.modelo.IntentoAutoevaluacion;
 import com.app.idoneos.modelo.OpcionRespuesta;
+import com.app.idoneos.modelo.PreguntaIntento;
 import com.app.idoneos.modelo.RespuestaIntento;
 import com.app.idoneos.repositorio.RespuestaIntentoRepositorio;
 import com.app.idoneos.servicio.CrudServicio;
@@ -55,14 +55,14 @@ public class RespuestaIntentoServicioImpl implements RespuestaIntentoServicio, C
     }
 
     /**
-     * Busca los registros de respuestaIntento asociados a intentoAutoevaluacion.
+     * Busca los registros de respuestaIntento asociados a preguntaIntento.
      *
-     * @param intentoAutoevaluacion el registro de IntentoAutoevaluacion asociado
-     * @return una lista de RespuestaIntento asociados al IntentoAutoevaluacion indicado
+     * @param preguntaIntento el registro de PreguntaIntento asociado
+     * @return una lista de RespuestaIntento asociados al PreguntaIntento indicado
      */
     @Override
-    public List<RespuestaIntento> buscarPorIntentoAutoevaluacion(IntentoAutoevaluacion intentoAutoevaluacion) {
-        return respuestaIntentoRepositorio.findByIntentoAutoevaluacion(intentoAutoevaluacion);
+    public List<RespuestaIntento> buscarPorPreguntaIntento(PreguntaIntento preguntaIntento) {
+        return respuestaIntentoRepositorio.findByPreguntaIntento(preguntaIntento);
     }
 
     /**
@@ -77,15 +77,15 @@ public class RespuestaIntentoServicioImpl implements RespuestaIntentoServicio, C
     }
 
     /**
-     * Busca la respuesta del intento a partir de la combinación única de sus relaciones. Incluye los registros dados de baja.
+     * Busca la respuesta del intento a partir de la combinación única de sus relaciones.
      *
-     * @param intentoAutoevaluacion el registro de IntentoAutoevaluacion asociado
+     * @param preguntaIntento el registro de PreguntaIntento asociado
      * @param opcionRespuesta el registro de OpcionRespuesta asociado
      * @return un {@link Optional} con el registro si existe, o vacío si no se encuentra
      */
     @Override
-    public Optional<RespuestaIntento> buscarPorIntentoAutoevaluacionYOpcionRespuesta(IntentoAutoevaluacion intentoAutoevaluacion, OpcionRespuesta opcionRespuesta) {
-        return respuestaIntentoRepositorio.findByIntentoAutoevaluacionAndOpcionRespuesta(intentoAutoevaluacion, opcionRespuesta);
+    public Optional<RespuestaIntento> buscarPorPreguntaIntentoYOpcionRespuesta(PreguntaIntento preguntaIntento, OpcionRespuesta opcionRespuesta) {
+        return respuestaIntentoRepositorio.findByPreguntaIntentoAndOpcionRespuesta(preguntaIntento, opcionRespuesta);
     }
 
     // ---------------------------------------------------------------- Creaciones

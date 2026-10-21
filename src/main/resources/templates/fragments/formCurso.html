@@ -3,7 +3,7 @@
      pueden modificarse el precio, el equipo docente y la imagen). -->
 <form th:fragment="formulario(curso, bloqueado)"
       th:action="@{${curso == null ? '/curso/registrar' : '/curso/modificar/' + curso.idCurso}}"
-      method="post" enctype="multipart/form-data" class="form-ajax" data-validar data-pasos data-validador="curso" data-resumen="Curso" data-resumen-color="oro"
+      method="post" enctype="multipart/form-data" class="form-ajax" data-validar data-pasos data-validador="curso" data-resumen="Curso"
       th:attr="data-modo=${curso == null ? 'alta' : 'modificacion'}" novalidate>
 
     <div class="pn-aviso pn-aviso-dorado" th:if="${bloqueado}">

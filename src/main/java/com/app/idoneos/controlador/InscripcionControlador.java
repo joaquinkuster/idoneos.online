@@ -29,7 +29,7 @@ import com.app.idoneos.modelo.Descuento;
 import com.app.idoneos.modelo.Inscripcion;
 import com.app.idoneos.modelo.UnidadCronograma;
 import com.app.idoneos.modelo.Usuario;
-import com.app.idoneos.utilidades.RespuestaJsonUtilidad;
+import com.app.idoneos.utilidades.RespuestaFormularioUtilidad;
 
 /**
  * Controlador de las inscripciones.
@@ -187,10 +187,10 @@ public class InscripcionControlador extends PanelCursoControlador {
             String mensaje = inscripcion.estaHabilitada()
                     ? "Te inscribiste a «" + curso + "». Ya podés acceder desde Mis cursos."
                     : "Te inscribiste a «" + curso + "». Para acceder al contenido tenés que completar el pago.";
-            return RespuestaJsonUtilidad.respuestaExitosa(mensaje, inscripcion.estaHabilitada() ? "/inscripcion/misCursos"
+            return RespuestaFormularioUtilidad.respuestaExitosa(mensaje, inscripcion.estaHabilitada() ? "/inscripcion/misCursos"
                     : "/pago/caja/" + inscripcion.getIdInscripcion());
         } catch (Exception e) {
-            return RespuestaJsonUtilidad.respuestaConError(e);
+            return RespuestaFormularioUtilidad.respuestaConError(e);
         }
     }
 
@@ -212,10 +212,10 @@ public class InscripcionControlador extends PanelCursoControlador {
             String mensaje = "Inscripción de " + inscripcion.getAlumno().getUsuario().getNombreCompleto()
                     + " a «" + inscripcion.getCurso().getNombre() + "» registrada con éxito."
                     + (inscripcion.estaHabilitada() ? "" : " Queda pendiente de pago: registrá ahora su pago.");
-            return inscripcion.estaHabilitada() ? RespuestaJsonUtilidad.respuestaExitosa(mensaje)
-                    : RespuestaJsonUtilidad.respuestaExitosa(mensaje, "/pago/buscar?registrarPara=" + inscripcion.getIdInscripcion());
+            return inscripcion.estaHabilitada() ? RespuestaFormularioUtilidad.respuestaExitosa(mensaje)
+                    : RespuestaFormularioUtilidad.respuestaExitosa(mensaje, "/pago/buscar?registrarPara=" + inscripcion.getIdInscripcion());
         } catch (Exception e) {
-            return RespuestaJsonUtilidad.respuestaConError(e);
+            return RespuestaFormularioUtilidad.respuestaConError(e);
         }
     }
 
@@ -237,9 +237,9 @@ public class InscripcionControlador extends PanelCursoControlador {
             @RequestParam(value = "vencimiento", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate vencimiento) {
         try {
             inscripcionServicio.modificarInscripcion(id, observaciones, habilitada, vencimiento);
-            return RespuestaJsonUtilidad.respuestaExitosa("Inscripción actualizada con éxito.");
+            return RespuestaFormularioUtilidad.respuestaExitosa("Inscripción actualizada con éxito.");
         } catch (Exception e) {
-            return RespuestaJsonUtilidad.respuestaConError(e);
+            return RespuestaFormularioUtilidad.respuestaConError(e);
         }
     }
 
@@ -259,9 +259,9 @@ public class InscripcionControlador extends PanelCursoControlador {
         try {
             Usuario usuario = (Usuario) auth.getPrincipal();
             inscripcionServicio.darDeBajaInscripcion(id, usuario.esAdministradorActivo() ? null : usuario.getAlumno(), motivo);
-            return RespuestaJsonUtilidad.respuestaExitosa("Inscripción dada de baja con éxito.");
+            return RespuestaFormularioUtilidad.respuestaExitosa("Inscripción dada de baja con éxito.");
         } catch (Exception e) {
-            return RespuestaJsonUtilidad.respuestaConError(e);
+            return RespuestaFormularioUtilidad.respuestaConError(e);
         }
     }
 
@@ -276,9 +276,9 @@ public class InscripcionControlador extends PanelCursoControlador {
             @RequestParam(value = "ids", required = false) List<Integer> ids) {
         try {
             inscripcionServicio.darDeBajaVarias(ids);
-            return RespuestaJsonUtilidad.respuestaExitosa("Inscripciones dadas de baja con éxito.");
+            return RespuestaFormularioUtilidad.respuestaExitosa("Inscripciones dadas de baja con éxito.");
         } catch (Exception e) {
-            return RespuestaJsonUtilidad.respuestaConError(e);
+            return RespuestaFormularioUtilidad.respuestaConError(e);
         }
     }
 }

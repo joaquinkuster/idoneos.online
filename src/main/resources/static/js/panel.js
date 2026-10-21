@@ -693,8 +693,15 @@
     window.PanelValidacion = { marcar: marcar };
 
     function validarCampo(campo) {
-        if (campo.matches(':disabled') || !campo.name || campo.type === 'hidden' || campo.type === 'checkbox') {
+        if (campo.matches(':disabled') || !campo.name || campo.type === 'hidden') {
             return true;
+        }
+        // Una casilla obligatoria (por ejemplo, los términos y condiciones) debe estar marcada
+        if (campo.type === 'checkbox') {
+            if (campo.required && !campo.checked) {
+                return marcar(campo, campo.dataset.mensajeObligatorio || 'Este campo es obligatorio.');
+            }
+            return marcar(campo, '');
         }
         // Los campos ocultos (por ejemplo, las fechas de dictado de un curso grabado) no se validan
         if (campo.closest('[hidden], .d-none')) {
@@ -880,6 +887,55 @@
         mostrar(0);
     }
     document.querySelectorAll('form[data-pasos]').forEach(iniciarPasos);
+
+    // Cuando el servidor rechaza un formulario por pasos, se vuelve al paso del campo al que se refiere el error y se
+    // marca ese campo. El servidor responde con un mensaje, así que el campo se deduce de las palabras de su etiqueta.
+    var PALABRAS_VACIAS = ['de', 'del', 'la', 'el', 'los', 'las', 'y', 'o', 'en', 'con', 'al', 'por', 'para', 'una', 'que', 'sus', 'debe', 'error'];
+
+    function palabras(texto) {
+        return (texto || '').toString().normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
+            .split(/[^a-z0-9]+/).filter(function (p) { return p.length >= 3 && PALABRAS_VACIAS.indexOf(p) < 0; });
+    }
+
+    /**
+     * Lleva al paso del campo al que se refiere un error del servidor y lo marca con el mensaje. El servidor indica el
+     * campo por su nombre; si no lo indica, se deduce de las palabras de las etiquetas. Devuelve true si marcó un campo.
+     */
+    window.PanelValidacion.irAlError = function (formulario, mensaje, nombreCampo) {
+        var mejor = null;
+        if (nombreCampo) {
+            var elegido = formulario.querySelector('[name="' + nombreCampo + '"]');
+            if (elegido && elegido.type !== 'hidden' && !elegido.disabled) { mejor = elegido; }
+        }
+        if (!mejor) {
+            var enMensaje = palabras(mensaje);
+            var mejorPuntaje = 0;
+            formulario.querySelectorAll('.pn-campo').forEach(function (campo) {
+                var control = campo.querySelector('input:not([type="hidden"]), select, textarea');
+                var etiqueta = campo.querySelector('.pn-etiqueta');
+                if (!control || !etiqueta || control.disabled || campo.closest('[hidden], .d-none')) { return; }
+                var clave = palabras(etiqueta.textContent.replace(/\(.*?\)/g, ''));
+                if (!clave.length) { return; }
+                var coinciden = clave.filter(function (p) { return enMensaje.indexOf(p) >= 0; });
+                // todas las palabras de la etiqueta (la coincidencia más precisa) o, si no, la palabra más larga que coincida
+                var puntaje = coinciden.length === clave.length ? 100 + clave.length
+                    : coinciden.reduce(function (m, p) { return p.length >= 5 ? Math.max(m, p.length) : m; }, 0);
+                // a igual puntaje gana el campo cuyas palabras aparecen antes en el mensaje (el sujeto de la frase)
+                var posicion = coinciden.length ? Math.min.apply(null, coinciden.map(function (p) { return enMensaje.indexOf(p); })) : 999;
+                puntaje = puntaje * 1000 - posicion;
+                if (puntaje > mejorPuntaje) { mejorPuntaje = puntaje; mejor = control; }
+            });
+        }
+        if (!mejor) { return false; }
+        var paso = mejor.closest('.pn-paso');
+        if (formulario.pasos && paso) {
+            var indice = Array.prototype.indexOf.call(formulario.querySelectorAll('.pn-paso'), paso);
+            if (indice >= 0) { formulario.pasos.mostrar(indice); }
+        }
+        window.PanelValidacion.marcar(mejor, (mensaje || '').replace(/^Error!\s*/, ''));
+        if (mejor.focus && mejor.offsetParent !== null) { mejor.focus(); }
+        return true;
+    };
 
     // Al abrir una ventana modal con formulario por pasos, vuelve al primer paso
     document.addEventListener('show.bs.modal', function (e) {

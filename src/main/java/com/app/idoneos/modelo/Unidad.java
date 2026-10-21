@@ -261,6 +261,18 @@ public class Unidad {
     }
 
     /**
+     * Indica si un alumno aprobó la unidad: la unidad tiene al menos una autoevaluación publicada y el alumno aprobó todas
+     * las que tiene publicadas (vigentes y no ocultas).
+     *
+     * @param inscripcion La inscripción del alumno.
+     * @return {@code true} si el alumno cumple con todas las autoevaluaciones de la unidad.
+     */
+    public boolean estaAprobadaPor(Inscripcion inscripcion) {
+        List<Autoevaluacion> publicadas = getAutoevaluacionesPublicadas();
+        return !publicadas.isEmpty() && publicadas.stream().allMatch(autoevaluacion -> autoevaluacion.estaAprobadaPor(inscripcion));
+    }
+
+    /**
      * Obtiene las consultas vigentes del foro de la unidad.
      *
      * @return Las consultas, con el último mensaje más reciente primero.

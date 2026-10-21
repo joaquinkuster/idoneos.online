@@ -19,7 +19,7 @@ import com.app.idoneos.modelo.Curso;
 import com.app.idoneos.servicio.Categoria.CategoriaServicioImpl;
 import com.app.idoneos.servicio.Curso.CursoServicioImpl;
 
-import com.app.idoneos.utilidades.RespuestaJsonUtilidad;
+import com.app.idoneos.utilidades.RespuestaFormularioUtilidad;
 
 /**
  * Controlador de la gestión de categorías (MOD-F-01).
@@ -92,9 +92,9 @@ public class CategoriaControlador {
             @RequestParam(value = "descripcion", required = false) String descripcion) {
         try {
             Categoria categoria = categoriaServicio.registrarCategoria(nombre, descripcion);
-            return RespuestaJsonUtilidad.respuestaExitosa("Categoría '" + categoria.getNombre() + "' registrada con éxito.");
+            return RespuestaFormularioUtilidad.respuestaExitosa("Categoría '" + categoria.getNombre() + "' registrada con éxito.");
         } catch (Exception e) {
-            return RespuestaJsonUtilidad.respuestaConError(e);
+            return RespuestaFormularioUtilidad.respuestaConError(e);
         }
     }
 
@@ -114,9 +114,9 @@ public class CategoriaControlador {
             @RequestParam(value = "descripcion", required = false) String descripcion) {
         try {
             categoriaServicio.modificarCategoria(id, nombre, descripcion);
-            return RespuestaJsonUtilidad.respuestaExitosa("Categoría actualizada con éxito.");
+            return RespuestaFormularioUtilidad.respuestaExitosa("Categoría actualizada con éxito.");
         } catch (Exception e) {
-            return RespuestaJsonUtilidad.respuestaConError(e);
+            return RespuestaFormularioUtilidad.respuestaConError(e);
         }
     }
 
@@ -132,9 +132,9 @@ public class CategoriaControlador {
     public ResponseEntity<Map<String, String>> darDeBajaCategoria(@PathVariable("id") Integer id) {
         try {
             categoriaServicio.darDeBajaCategoria(id);
-            return RespuestaJsonUtilidad.respuestaExitosa("Categoría dada de baja con éxito.");
+            return RespuestaFormularioUtilidad.respuestaExitosa("Categoría dada de baja con éxito.");
         } catch (Exception e) {
-            return RespuestaJsonUtilidad.respuestaConError(e);
+            return RespuestaFormularioUtilidad.respuestaConError(e);
         }
     }
 
@@ -150,9 +150,9 @@ public class CategoriaControlador {
             @RequestParam(value = "ids", required = false) List<Integer> ids) {
         try {
             categoriaServicio.darDeBajaVarios(ids);
-            return RespuestaJsonUtilidad.respuestaExitosa("Categorías dadas de baja con éxito.");
+            return RespuestaFormularioUtilidad.respuestaExitosa("Categorías dadas de baja con éxito.");
         } catch (Exception e) {
-            return RespuestaJsonUtilidad.respuestaConError(e);
+            return RespuestaFormularioUtilidad.respuestaConError(e);
         }
     }
 }

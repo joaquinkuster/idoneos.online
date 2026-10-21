@@ -72,8 +72,13 @@
                 }
                 return;
             }
-            mostrarError(formulario, datos.error
-                || (respuesta.status === 403 ? 'Error! No tenés permisos para realizar esta operación.' : MENSAJE_INESPERADO));
+            var texto = datos.error
+                || (respuesta.status === 403 ? 'Error! No tenés permisos para realizar esta operación.' : MENSAJE_INESPERADO);
+            // Si el error es de un campo, se marca ese campo (en su paso, si el formulario es por pasos) y no se repite en
+            // la alerta de arriba; si no, se muestra la alerta del formulario
+            var marcado = window.PanelValidacion && window.PanelValidacion.irAlError
+                && window.PanelValidacion.irAlError(formulario, texto, datos.campo);
+            if (!marcado) { mostrarError(formulario, texto); }
         } catch (error) {
             mostrarError(formulario, 'Error! No se pudo conectar con el servidor. Intente nuevamente.');
         }

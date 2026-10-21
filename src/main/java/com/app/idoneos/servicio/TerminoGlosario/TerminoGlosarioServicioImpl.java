@@ -1,6 +1,7 @@
 package com.app.idoneos.servicio.TerminoGlosario;
 
-import com.app.idoneos.utilidades.MensajeValidacionUtilidad;
+import com.app.idoneos.utilidades.RespuestaFormularioUtilidad;
+import com.app.idoneos.utilidades.MensajeErrorUtilidad;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -146,7 +147,7 @@ public class TerminoGlosarioServicioImpl implements TerminoGlosarioServicio, Cru
 
         List<TerminoGlosario> existentes = terminoGlosarioRepositorio.findByUnidad(unidad);
         if (existentes.stream().anyMatch(t -> !t.getBaja() && t.getTermino().equalsIgnoreCase(terminoLimpio))) {
-            throw new IllegalArgumentException("Error! El término ya está registrado en el glosario de esta unidad.");
+            throw RespuestaFormularioUtilidad.campoInvalido("termino", "Error! El término ya está registrado en el glosario de esta unidad.");
         }
         // Un término dado de baja con el mismo nombre se vuelve a dar de alta (el glosario no admite repetidos)
         TerminoGlosario guardado = existentes.stream().filter(t -> t.getBaja() && t.getTermino().equals(terminoLimpio))
@@ -184,7 +185,7 @@ public class TerminoGlosarioServicioImpl implements TerminoGlosarioServicio, Cru
                 .anyMatch(t -> t.getIdTermino() != existente.getIdTermino()
                         && (t.getBaja() ? t.getTermino().equals(terminoLimpio) : t.getTermino().equalsIgnoreCase(terminoLimpio)));
         if (repetido) {
-            throw new IllegalArgumentException("Error! El término ya está registrado en el glosario de esta unidad.");
+            throw RespuestaFormularioUtilidad.campoInvalido("termino", "Error! El término ya está registrado en el glosario de esta unidad.");
         }
         existente.setTermino(terminoLimpio);
         existente.setDefinicion(definicion.trim());
@@ -243,12 +244,10 @@ public class TerminoGlosarioServicioImpl implements TerminoGlosarioServicio, Cru
             throw new IllegalArgumentException("Error! Debe completar el término y la definición.");
         }
         if (termino.trim().length() > TerminoGlosario.LONGITUD_TERMINO) {
-            throw new IllegalArgumentException(
-                    MensajeValidacionUtilidad.demasiadoLargo("El término", TerminoGlosario.LONGITUD_TERMINO, "caracteres"));
+            throw RespuestaFormularioUtilidad.campoInvalido("termino", MensajeErrorUtilidad.demasiadoLargo("El término", TerminoGlosario.LONGITUD_TERMINO, "caracteres"));
         }
         if (definicion.trim().length() > TerminoGlosario.LONGITUD_DEFINICION) {
-            throw new IllegalArgumentException(
-                    MensajeValidacionUtilidad.demasiadoLargo("La definición", TerminoGlosario.LONGITUD_DEFINICION, "caracteres"));
+            throw RespuestaFormularioUtilidad.campoInvalido("definicion", MensajeErrorUtilidad.demasiadoLargo("La definición", TerminoGlosario.LONGITUD_DEFINICION, "caracteres"));
         }
         return termino.trim();
     }

@@ -1,6 +1,7 @@
 package com.app.idoneos.servicio.Pago;
 
-import com.app.idoneos.utilidades.MensajeValidacionUtilidad;
+import com.app.idoneos.utilidades.RespuestaFormularioUtilidad;
+import com.app.idoneos.utilidades.MensajeErrorUtilidad;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -368,7 +369,7 @@ public class PagoServicioImpl implements PagoServicio, CrudServicio<Pago> {
         String notas = observaciones == null || observaciones.isBlank() ? null : observaciones.trim();
         if (notas != null && notas.length() > LONGITUD_OBSERVACIONES) {
             throw new IllegalArgumentException(
-                    MensajeValidacionUtilidad.demasiadoLargo("Las observaciones", LONGITUD_OBSERVACIONES, "caracteres"));
+                    MensajeErrorUtilidad.demasiadoLargo("Las observaciones", LONGITUD_OBSERVACIONES, "caracteres"));
         }
         // Si había un pago sin aprobar (por ejemplo, uno de MODO que no se confirmó), se reutiliza su registro
         Pago pago = inscripcion.getPagoSinAprobar();
@@ -465,12 +466,12 @@ public class PagoServicioImpl implements PagoServicio, CrudServicio<Pago> {
         boolean aprobar = EstadoPago.APROBADO.equalsIgnoreCase(nuevoEstado);
         boolean rechazar = EstadoPago.RECHAZADO.equalsIgnoreCase(nuevoEstado);
         if (!aprobar && !rechazar) {
-            throw new IllegalArgumentException("Error! Debe marcar el pago como aprobado o rechazado.");
+            throw RespuestaFormularioUtilidad.campoInvalido("estado", "Error! Debe marcar el pago como aprobado o rechazado.");
         }
         String referenciaLimpia = referencia == null || referencia.isBlank() ? null : referencia.trim().toUpperCase();
         String comprobanteLimpio = numeroComprobante == null || numeroComprobante.isBlank() ? null : numeroComprobante.trim();
         if (monto == null) {
-            throw new IllegalArgumentException("Error! El monto es obligatorio.");
+            throw RespuestaFormularioUtilidad.campoInvalido("monto", "Error! El monto es obligatorio.");
         }
         // Una transferencia siempre lleva su número de comprobante. Un pago de MODO, al acreditarlo, lleva el código de
         // referencia y el número de comprobante: son la prueba de que el administrador verificó el cobro en MODO. Al
@@ -483,7 +484,7 @@ public class PagoServicioImpl implements PagoServicio, CrudServicio<Pago> {
             referenciaLimpia = validarCodigoReferencia(referenciaLimpia, pago);
         } else {
             if (comprobanteLimpio == null) {
-                throw new IllegalArgumentException("Error! Debe completar el número de comprobante de la transferencia.");
+                throw RespuestaFormularioUtilidad.campoInvalido("numeroComprobante", "Error! Debe completar el número de comprobante de la transferencia.");
             }
             referenciaLimpia = null; // la referencia es solo de MODO
         }
@@ -496,7 +497,7 @@ public class PagoServicioImpl implements PagoServicio, CrudServicio<Pago> {
         String dni = dniPagador == null ? "" : dniPagador.trim();
         if (aprobar && pago.esDeModo() && (nombre.isEmpty() || !dni.matches("\\d{7,8}"))) {
             throw new IllegalArgumentException(
-                    MensajeValidacionUtilidad.formatoInvalido("El nombre o el DNI del pagador", "nombre completo y DNI de 7 u 8 números"));
+                    MensajeErrorUtilidad.formatoInvalido("El nombre o el DNI del pagador", "nombre completo y DNI de 7 u 8 números"));
         }
         pago.setMonto(monto);
         if (referenciaLimpia != null) {
@@ -579,7 +580,7 @@ public class PagoServicioImpl implements PagoServicio, CrudServicio<Pago> {
             return habilitarSinPago(inscripcion, descuento);
         }
         if (monto < pasarela.montoMinimo()) {
-            throw new IllegalArgumentException("Error! El monto a pagar ($" + FORMATO_MONTO.format(monto)
+            throw RespuestaFormularioUtilidad.campoInvalido("monto", "Error! El monto a pagar ($" + FORMATO_MONTO.format(monto)
                     + ") es menor al mínimo que admite el medio de pago ($" + FORMATO_MONTO.format(pasarela.montoMinimo())
                     + ").");
         }
@@ -714,7 +715,7 @@ public class PagoServicioImpl implements PagoServicio, CrudServicio<Pago> {
 
     private void validarMonto(Float monto) {
         if (monto.isNaN() || monto <= 0) {
-            throw new IllegalArgumentException("Error! El monto debe ser mayor a cero.");
+            throw RespuestaFormularioUtilidad.campoInvalido("monto", "Error! El monto debe ser mayor a cero.");
         }
     }
 
@@ -728,12 +729,12 @@ public class PagoServicioImpl implements PagoServicio, CrudServicio<Pago> {
             return null;
         }
         if (!FORMATO_REFERENCIA_MODO.matcher(codigo).matches()) {
-            throw new IllegalArgumentException(MensajeValidacionUtilidad.formatoInvalido("El código de referencia",
+            throw RespuestaFormularioUtilidad.campoInvalido("referencia", MensajeErrorUtilidad.formatoInvalido("El código de referencia",
                     "letras y números, sin guiones, de 6 a 12 caracteres"));
         }
         if (pagoRepositorio.findByCodigoReferencia(codigo).filter(otro -> pago == null || otro.getIdPago() != pago.getIdPago())
                 .isPresent()) {
-            throw new IllegalArgumentException("Error! Ya existe un pago registrado con ese código de referencia.");
+            throw RespuestaFormularioUtilidad.campoInvalido("referencia", "Error! Ya existe un pago registrado con ese código de referencia.");
         }
         return codigo;
     }
@@ -749,15 +750,15 @@ public class PagoServicioImpl implements PagoServicio, CrudServicio<Pago> {
         if (MetodoPago.MODO.equals(medio)) {
             if (!FORMATO_COMPROBANTE_MODO.matcher(numero).matches()) {
                 throw new IllegalArgumentException(
-                        MensajeValidacionUtilidad.formatoInvalido("El número de comprobante", "solo números, de 4 a 100 dígitos"));
+                        MensajeErrorUtilidad.formatoInvalido("El número de comprobante", "solo números, de 4 a 100 dígitos"));
             }
         } else if (!FORMATO_COMPROBANTE_TRANSFERENCIA.matcher(numero).matches()) {
-            throw new IllegalArgumentException(MensajeValidacionUtilidad.formatoInvalido("El número de comprobante",
+            throw RespuestaFormularioUtilidad.campoInvalido("numeroComprobante", MensajeErrorUtilidad.formatoInvalido("El número de comprobante",
                     "letras, números y guiones, de 4 a 100 caracteres"));
         }
         if (pagoRepositorio.findFirstByNumeroComprobanteAndMetodoPago(numero, metodo(medio))
                 .filter(otro -> pago == null || otro.getIdPago() != pago.getIdPago()).isPresent()) {
-            throw new IllegalArgumentException("Error! Ya existe un pago registrado con ese número de comprobante.");
+            throw RespuestaFormularioUtilidad.campoInvalido("numeroComprobante", "Error! Ya existe un pago registrado con ese número de comprobante.");
         }
     }
 
@@ -773,7 +774,7 @@ public class PagoServicioImpl implements PagoServicio, CrudServicio<Pago> {
     private void validarMontoNoSuperaLaDeuda(Inscripcion inscripcion, float monto) {
         float debe = calcularMontoPendiente(inscripcion);
         if (monto > debe + 0.005f) {
-            throw new IllegalArgumentException("Error! El monto no puede superar lo que debe la inscripción ($"
+            throw RespuestaFormularioUtilidad.campoInvalido("monto", "Error! El monto no puede superar lo que debe la inscripción ($"
                     + FORMATO_MONTO.format(debe) + ").");
         }
     }

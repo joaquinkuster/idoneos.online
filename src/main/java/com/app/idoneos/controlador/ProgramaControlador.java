@@ -21,7 +21,7 @@ import com.app.idoneos.modelo.Docente;
 import com.app.idoneos.modelo.Programa;
 import com.app.idoneos.modelo.Usuario;
 import com.app.idoneos.servicio.Programa.ProgramaServicio;
-import com.app.idoneos.utilidades.RespuestaJsonUtilidad;
+import com.app.idoneos.utilidades.RespuestaFormularioUtilidad;
 
 /**
  * Controlador del ABM de programas (MOD-F-02): CU-15 Buscar programa (GET /programa/buscar), CU-16 Registrar programa
@@ -110,9 +110,9 @@ public class ProgramaControlador extends PanelCursoControlador {
             Usuario usuario = (Usuario) auth.getPrincipal();
             Programa programa = programaServicio.registrarPrograma(usuario.getDocente(), cursoId, programaOrigenId,
                     nombre, descripcion, objetivos, cargaHoraria, bibliografia);
-            return RespuestaJsonUtilidad.respuestaExitosa("Programa '" + programa.getNombre() + "' registrado con éxito.");
+            return RespuestaFormularioUtilidad.respuestaExitosa("Programa '" + programa.getNombre() + "' registrado con éxito.");
         } catch (Exception e) {
-            return RespuestaJsonUtilidad.respuestaConError(e);
+            return RespuestaFormularioUtilidad.respuestaConError(e);
         }
     }
 
@@ -141,9 +141,9 @@ public class ProgramaControlador extends PanelCursoControlador {
             Usuario usuario = (Usuario) auth.getPrincipal();
             programaServicio.modificarPrograma(id, usuario.getDocente(), nombre, descripcion, objetivos, cargaHoraria,
                     bibliografia);
-            return RespuestaJsonUtilidad.respuestaExitosa("Programa modificado correctamente.");
+            return RespuestaFormularioUtilidad.respuestaExitosa("Programa modificado correctamente.");
         } catch (Exception e) {
-            return RespuestaJsonUtilidad.respuestaConError(e);
+            return RespuestaFormularioUtilidad.respuestaConError(e);
         }
     }
 
@@ -161,9 +161,9 @@ public class ProgramaControlador extends PanelCursoControlador {
         try {
             Usuario usuario = (Usuario) auth.getPrincipal();
             programaServicio.establecerPorDefecto(usuario.getDocente(), programaId);
-            return RespuestaJsonUtilidad.respuestaExitosa("Ahora trabajás sobre el programa seleccionado.");
+            return RespuestaFormularioUtilidad.respuestaExitosa("Ahora trabajás sobre el programa seleccionado.");
         } catch (Exception e) {
-            return RespuestaJsonUtilidad.respuestaConError(e);
+            return RespuestaFormularioUtilidad.respuestaConError(e);
         }
     }
 
@@ -183,9 +183,9 @@ public class ProgramaControlador extends PanelCursoControlador {
             // El administrador puede dar de baja los programas de cualquier curso
             Docente docente = usuario.esAdministradorActivo() ? null : usuario.getDocente();
             programaServicio.darDeBajaPrograma(id, docente);
-            return RespuestaJsonUtilidad.respuestaExitosa("Programa dado de baja con éxito.");
+            return RespuestaFormularioUtilidad.respuestaExitosa("Programa dado de baja con éxito.");
         } catch (Exception e) {
-            return RespuestaJsonUtilidad.respuestaConError(e);
+            return RespuestaFormularioUtilidad.respuestaConError(e);
         }
     }
 
@@ -203,9 +203,9 @@ public class ProgramaControlador extends PanelCursoControlador {
             Usuario usuario = (Usuario) auth.getPrincipal();
             Docente docente = usuario.esAdministradorActivo() ? null : usuario.getDocente();
             programaServicio.darDeBajaVarios(ids, docente);
-            return RespuestaJsonUtilidad.respuestaExitosa("Programas dados de baja con éxito.");
+            return RespuestaFormularioUtilidad.respuestaExitosa("Programas dados de baja con éxito.");
         } catch (Exception e) {
-            return RespuestaJsonUtilidad.respuestaConError(e);
+            return RespuestaFormularioUtilidad.respuestaConError(e);
         }
     }
 }

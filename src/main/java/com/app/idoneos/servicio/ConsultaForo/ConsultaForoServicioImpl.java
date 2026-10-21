@@ -1,6 +1,7 @@
 package com.app.idoneos.servicio.ConsultaForo;
 
-import com.app.idoneos.utilidades.MensajeValidacionUtilidad;
+import com.app.idoneos.utilidades.RespuestaFormularioUtilidad;
+import com.app.idoneos.utilidades.MensajeErrorUtilidad;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -214,11 +215,10 @@ public class ConsultaForoServicioImpl implements ConsultaForoServicio, CrudServi
     /** Valida el texto de la consulta y lo devuelve sin espacios sobrantes. */
     private String validarTexto(String texto) {
         if (texto == null || texto.isBlank()) {
-            throw new IllegalArgumentException("Error! Debe completar el texto de la consulta.");
+            throw RespuestaFormularioUtilidad.campoInvalido("texto", "Error! Debe completar el texto de la consulta.");
         }
         if (texto.trim().length() > ConsultaForo.LONGITUD_TEXTO) {
-            throw new IllegalArgumentException(
-                    MensajeValidacionUtilidad.demasiadoLargo("El texto", ConsultaForo.LONGITUD_TEXTO, "caracteres"));
+            throw RespuestaFormularioUtilidad.campoInvalido("texto", MensajeErrorUtilidad.demasiadoLargo("El texto", ConsultaForo.LONGITUD_TEXTO, "caracteres"));
         }
         return texto.trim();
     }

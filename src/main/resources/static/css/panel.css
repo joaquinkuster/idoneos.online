@@ -1925,7 +1925,7 @@ textarea.pn-input {
 }
 
 /* Árbol del resumen: mismo estilo que el organigrama (RRHH). Cada nodo tiene una línea vertical con un codo, un punto y
-   un título. Colores: curso (dorado), programa (azul), cohorte e inscripción (violeta), lo que se registra (verde) y lo
+   un título. Colores: curso (dorado), programa (azul), los niveles siguientes alternan dorado y azul, lo que se registra (verde) y lo
    que se modifica (naranja). */
 .pn-nodo {
     --color: #94A3B8;
@@ -1960,8 +1960,6 @@ textarea.pn-input {
 
 .pn-nodo-oro { --color: #D4A03D; }
 .pn-nodo-azul { --color: #3B82F6; }
-.pn-nodo-violeta { --color: #8B5CF6; }
-.pn-nodo-rosa { --color: #EC4899; } /* inscripción: rosa, bien distinto del verde de lo que se registra */
 .pn-nodo-verde { --color: #22C55E; }
 .pn-nodo-naranja { --color: #22C55E; } /* lo que se modifica: el mismo verde que lo que se registra (línea, punto y leyenda) */
 .pn-nodo-gris { --color: #94A3B8; }
@@ -2009,8 +2007,6 @@ textarea.pn-input {
 
 .pn-chip-oro { --color: #D4A03D; }
 .pn-chip-azul { --color: #3B82F6; }
-.pn-chip-violeta { --color: #8B5CF6; }
-.pn-chip-rosa { --color: #EC4899; }
 .pn-chip-verde { --color: #22C55E; }
 .pn-chip-naranja { --color: #22C55E; }
 .pn-chip-gris { --color: #94A3B8; }

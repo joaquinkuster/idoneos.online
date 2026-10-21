@@ -131,12 +131,12 @@
                 <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="pn-modal-cuerpo">
-                <form th:action="@{/inscripcion/registrar}" method="post" class="form-ajax" data-validar data-pasos data-resumen="Inscripción" data-resumen-color="rosa" data-modo="alta" data-resumen-nuevo="nueva"
+                <form th:action="@{/inscripcion/registrar}" method="post" class="form-ajax" data-validar data-pasos data-resumen="Inscripción" data-modo="alta" data-resumen-nuevo="nueva"
                       data-contexto='[{"etiqueta":"Curso","campo":"cohorteId","atributo":"data-curso"},{"etiqueta":"Programa","campo":"cohorteId","atributo":"data-programa"},{"etiqueta":"Cohorte","campo":"cohorteId","atributo":"data-cohorte"}]' novalidate>
     <div class="pn-progreso"><div class="pn-progreso-barra"></div></div>
     <div class="pn-pasos pn-pasos-nombrados">
         <span class="pn-pasos-item"><span class="pn-pasos-punto">1</span><span class="pn-pasos-nombre">Alumno y cohorte</span></span><span class="pn-pasos-linea"></span>
-        <span class="pn-pasos-item"><span class="pn-pasos-punto">2</span><span class="pn-pasos-nombre">Pago</span></span><span class="pn-pasos-linea"></span>
+        <span class="pn-pasos-item"><span class="pn-pasos-punto">2</span><span class="pn-pasos-nombre">Detalle del pago</span></span><span class="pn-pasos-linea"></span>
         <span class="pn-pasos-item"><span class="pn-pasos-punto">3</span><span class="pn-pasos-nombre">Resumen</span></span>
     </div>
     <div class="pn-paso" data-grupo="Alumno">
@@ -169,10 +169,10 @@
                         </div>
         </div>
     </div>
-    <div class="pn-paso" data-grupo="Pago">
+    <div class="pn-paso" data-grupo="Detalle del pago" data-sin-rama>
         <div class="pn-seccion-titulo">
-            <h4>Pago de la inscripción</h4>
-            <p>Precio, descuento y términos y condiciones</p>
+            <h4>Detalle del pago</h4>
+            <p>Precio, descuento y términos y condiciones de la inscripción</p>
         </div>
         <div class="row g-3">
 <div class="col-12" data-caja hidden>
@@ -192,7 +192,7 @@
                         </div>
 <div class="col-12 pn-campo">
                             <label class="d-flex gap-2 align-items-start small">
-                                <input type="checkbox" name="terminos" value="true" class="mt-1" required data-resumen-linea="Términos y condiciones">
+                                <input type="checkbox" name="terminos" value="true" class="mt-1" required data-mensaje-obligatorio="Debe confirmar que el alumno acepta los términos y condiciones de las políticas de privacidad.">
                                 <span>Confirmo que el alumno acepta los términos y condiciones de las políticas de privacidad: ante la baja del curso,
                                     sus certificados e intentos de autoevaluación se darán de baja, su progreso dejará de ser accesible y sus
                                     intervenciones en los foros públicos del curso se conservarán de forma anónima.</span>
@@ -230,7 +230,7 @@
                     <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
                 </div>
                 <div class="pn-modal-cuerpo">
-                    <form th:action="@{'/inscripcion/modificar/' + ${i.idInscripcion}}" method="post" class="form-ajax" data-validar data-pasos data-resumen="Inscripción" data-resumen-color="rosa" data-modo="modificacion"
+                    <form th:action="@{'/inscripcion/modificar/' + ${i.idInscripcion}}" method="post" class="form-ajax" data-validar data-pasos data-resumen="Inscripción" data-modo="modificacion"
                           data-contexto='[{"etiqueta":"Curso","atributoForm":"data-ctx-curso"},{"etiqueta":"Programa","atributoForm":"data-ctx-programa"},{"etiqueta":"Cohorte","atributoForm":"data-ctx-cohorte"}]' 
                           th:attr="data-resumen-titulo=${'(' + i.alumno.usuario.nombreCompleto + ')'}, data-ctx-curso=${i.cohorte.programa.curso.nombre}, data-ctx-programa=${i.cohorte.programa.nombre}, data-ctx-cohorte=${i.cohorte.etiqueta}" novalidate>
     <div class="pn-progreso"><div class="pn-progreso-barra"></div></div>

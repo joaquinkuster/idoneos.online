@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.app.idoneos.modelo.Rol;
 import com.app.idoneos.modelo.Usuario;
 import com.app.idoneos.servicio.Usuario.UsuarioServicioImpl;
-import com.app.idoneos.utilidades.RespuestaJsonUtilidad;
+import com.app.idoneos.utilidades.RespuestaFormularioUtilidad;
 
 /**
  * Controlador de las acciones del usuario autenticado sobre su propia cuenta.
@@ -44,9 +44,9 @@ public class UsuarioControlador {
             usuario.setRolPorDefecto(rol); // mantiene actualizado el usuario de la sesión
             String destino = usuario.esAdministradorActivo() ? "/curso/buscar"
                     : usuario.esAlumnoActivo() ? "/inscripcion/misCursos" : "/inicio";
-            return RespuestaJsonUtilidad.respuestaExitosa("Ahora trabajás con el rol " + rol.getNombre() + ".", destino);
+            return RespuestaFormularioUtilidad.respuestaExitosa("Ahora trabajás con el rol " + rol.getNombre() + ".", destino);
         } catch (Exception e) {
-            return RespuestaJsonUtilidad.respuestaConError(e);
+            return RespuestaFormularioUtilidad.respuestaConError(e);
         }
     }
 }

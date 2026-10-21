@@ -19,62 +19,36 @@
                     <section class="pn-tarjeta" data-tabla>
                         <div class="pn-lista-cabecera">
                             <h2 class="pn-lista-titulo">Historial de pagos</h2>
+                            <span class="pn-seleccionados" data-total-filtradas data-singular="pago encontrado" data-plural="pagos encontrados"
+                                  th:text="${#lists.size(pagos) + (#lists.size(pagos) == 1 ? ' pago encontrado' : ' pagos encontrados')}">0 pagos encontrados</span>
                         </div>
 
                         <!-- Filtros (CU-50): curso, estado y rango de fechas -->
                         <form th:action="@{/pago/misPagos}" method="get" class="pn-filtros" data-filtro-front>
-                            <div class="pn-filtros-campo">
-                                <label class="pn-etiqueta">Curso</label>
-                                <select name="cursoId" class="pn-input" title="Curso">
-                                    <option value="">Todos los cursos</option>
-                                    <option th:each="c : ${cursosFiltro}" th:value="${c.idCurso}" th:text="${c.nombre}">Curso</option>
-                                </select>
-                            </div>
-                            <div class="pn-filtros-campo">
-                                <label class="pn-etiqueta">Estado</label>
-                                <select name="estado" class="pn-input" title="Estado">
-                                    <option value="">Todos los estados</option>
-                                    <option value="Pendiente">Pendiente</option>
-                                    <option value="Aprobado">Aprobado</option>
-                                    <option value="Rechazado">Rechazado</option>
-                                </select>
-                            </div>
-                            <div class="pn-filtros-campo">
-                                <label class="pn-etiqueta">Desde</label>
-                                <input type="date" name="desde" class="pn-input" title="Pagos desde">
-                            </div>
-                            <div class="pn-filtros-campo">
-                                <label class="pn-etiqueta">Hasta</label>
-                                <input type="date" name="hasta" class="pn-input" title="Pagos hasta">
-                            </div>
-                            <a th:href="@{/pago/misPagos}" class="pn-btn pn-btn-contorno">Limpiar</a>
+                            <a th:href="@{/pago/misPagos}" class="pn-btn pn-btn-contorno" hidden>Limpiar</a>
                         </form>
 
                         <div class="pn-tabla-contenedor">
                             <table class="pn-tabla">
                                 <thead>
                                     <tr>
-                                        <th>Curso</th>
-                                        <th>Monto</th>
-                                        <th>Fecha</th>
-                                        <th>Medio de pago</th>
-                                        <th>Estado</th>
+                                        <th data-col="Curso" data-campo="curso" data-filtro="lista">Curso</th>
+                                        <th data-col="Monto" data-campo="monto" data-filtro="numero">Monto</th>
+                                        <th data-col="Medio de pago" data-campo="medioDePago" data-filtro="lista">Medio de pago</th>
+                                        <th data-col="Estado" data-campo="estado" data-filtro="lista">Estado</th>
+                                        <th data-col="Fecha de creación" data-campo="fechaCreacion" data-filtro="fecha" data-orden-inicial="desc">Fecha de creación</th>
                                         <th>Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr th:each="p : ${pagos}" data-fila
-                                        th:data-f-cursoid="${p.inscripcion.curso.idCurso}"
-                                        th:data-f-estado="${p.estadoPago.nombre}"
-                                        th:data-f-desde="${#temporals.format(p.fechaDelPago, 'yyyy-MM-dd')}"
-                                        th:data-f-hasta="${#temporals.format(p.fechaDelPago, 'yyyy-MM-dd')}">
+                                    <tr th:each="p : ${pagos}" data-fila th:data-f-mediodepago="${p.metodoPago.nombre}" th:data-f-monto="${p.monto}">
                                         <td>
                                             <span class="pn-celda-principal pn-truncar" th:text="${p.inscripcion.curso.nombre}">Curso</span>
                                             <span class="pn-celda-secundaria d-block" th:if="${p.descuento != null}"
                                                   th:text="${'Descuento: ' + p.descuento.nombre + ' (' + #numbers.formatDecimal(p.descuento.porcentaje, 1, 0) + '%)'}">Descuento</span>
                                         </td>
                                         <td th:text="${'$ ' + #numbers.formatDecimal(p.monto, 1, 'POINT', 2, 'COMMA')}">$ 150.000,00</td>
-                                        <td th:text="${#temporals.format(p.fechaDelPago, 'dd/MM/yyyy HH:mm')}">13/10/2026 10:00</td>
+                                        
                                         <td><span class="pn-truncar" th:text="${p.medioDePago}">MODO</span></td>
                                         <td>
                                             <span class="pn-insignia"
@@ -83,6 +57,7 @@
                                             <span class="pn-celda-secundaria d-block" th:if="${p.estaRechazado() and p.detalleErrorOperacion != null}"
                                                   th:text="${p.detalleErrorOperacion}">Fondos insuficientes</span>
                                         </td>
+                                        <td th:text="${#temporals.format(p.fechaCreacion, 'dd/MM/yyyy HH:mm')}">13/10/2026 10:00</td>
                                         <td>
                                             <div class="pn-acciones">
                                                 <button type="button" class="pn-btn pn-btn-primario pn-btn-chico" data-pagar

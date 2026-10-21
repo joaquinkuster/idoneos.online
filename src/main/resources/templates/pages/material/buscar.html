@@ -142,14 +142,23 @@
                 <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="pn-modal-cuerpo">
-                <div class="pn-seccion-titulo">
-                    <h4>Datos del material</h4>
-                    <p data-material-ayuda>Completá los datos del material</p>
-                </div>
                 <form th:action="@{/material/subir}" method="post" enctype="multipart/form-data" class="form-ajax"
-                      data-validar data-validador="material" data-material-formulario novalidate>
-                    <div class="row g-3 mb-3">
-                        <div class="col-md-6 pn-campo">
+                      data-validar data-validador="material" data-material-formulario novalidate
+                      data-pasos data-resumen="Material" data-modo="alta"
+                      data-contexto='[{"etiqueta":"Curso","atributoForm":"data-ctx-curso"},{"etiqueta":"Unidad","campo":"unidadId","atributo":"data-unidad"}]' th:attr="data-ctx-curso=${curso.nombre}">
+    <div class="pn-progreso"><div class="pn-progreso-barra"></div></div>
+    <div class="pn-pasos pn-pasos-nombrados">
+        <span class="pn-pasos-item"><span class="pn-pasos-punto">1</span><span class="pn-pasos-nombre">Datos</span></span><span class="pn-pasos-linea"></span>
+        <span class="pn-pasos-item"><span class="pn-pasos-punto">2</span><span class="pn-pasos-nombre">Contenido</span></span><span class="pn-pasos-linea"></span>
+        <span class="pn-pasos-item"><span class="pn-pasos-punto">3</span><span class="pn-pasos-nombre">Resumen</span></span>
+    </div>
+    <div class="pn-paso" data-grupo="Datos">
+        <div class="pn-seccion-titulo">
+            <h4>Datos del material</h4>
+            <p>Tipo, unidad, título y visibilidad</p>
+        </div>
+        <div class="row g-3">
+<div class="col-md-6 pn-campo">
                             <label class="pn-etiqueta">Tipo de material <span class="pn-obligatorio">*</span></label>
                             <select name="tipoMaterialId" class="pn-input" required>
                                 <option th:each="t : ${tiposDeSubida}" th:value="${t.idTipoMaterial}" th:text="${t.nombre}"
@@ -161,16 +170,17 @@
                             </select>
                             <div class="pn-ayuda-error"></div>
                         </div>
-                        <div class="col-md-6 pn-campo">
+<div class="col-md-6 pn-campo" data-resumen-omitir>
                             <label class="pn-etiqueta">Unidad <span class="pn-obligatorio">*</span></label>
                             <select name="unidadId" data-buscable class="pn-input" required data-mensaje-obligatorio="Debe seleccionar la unidad.">
                                 <option value="">Seleccionar unidad</option>
                                 <option th:each="uc : ${unidades}" th:value="${uc.unidad.idUnidad}"
-                                        th:text="${'Unidad ' + uc.numeroOrden + ' · ' + uc.unidad.titulo}">Unidad 1</option>
+                                        th:text="${'Unidad ' + uc.numeroOrden + ' · ' + uc.unidad.titulo}"
+                                        th:data-unidad="${uc.unidad.titulo}">Unidad 1</option>
                             </select>
                             <div class="pn-ayuda-error"></div>
                         </div>
-                        <div class="col-md-8 pn-campo">
+<div class="col-md-8 pn-campo">
                             <div class="pn-etiqueta-fila">
                                 <label class="pn-etiqueta">Título <span class="pn-obligatorio">*</span></label>
                                 <span class="pn-contador">0 / 50</span>
@@ -178,20 +188,28 @@
                             <input type="text" name="titulo" class="pn-input" maxlength="50" placeholder="Título" data-contador required>
                             <div class="pn-ayuda-error"></div>
                         </div>
-                        <div class="col-md-4 pn-campo">
+<div class="col-md-4 pn-campo">
                             <label class="pn-etiqueta">Visibilidad</label>
                             <select name="oculto" class="pn-input">
                                 <option value="false">Publicado</option>
                                 <option value="true">Oculto</option>
                             </select>
                         </div>
-                        <div class="col-12 pn-campo" data-bloque="archivo">
+        </div>
+    </div>
+    <div class="pn-paso" data-grupo="Contenido">
+        <div class="pn-seccion-titulo">
+            <h4>Contenido del material</h4>
+            <p>Archivo o enlace externo y autor</p>
+        </div>
+        <div class="row g-3">
+<div class="col-12 pn-campo" data-bloque="archivo">
                             <label class="pn-etiqueta"><span data-archivo-etiqueta>Archivo</span> <span class="pn-obligatorio" data-archivo-obligatorio>*</span></label>
                             <input type="file" name="archivo" class="pn-input pn-input-archivo">
                             <small class="text-muted" data-archivo-ayuda></small>
                             <div class="pn-ayuda-error"></div>
                         </div>
-                        <div class="col-md-6 pn-campo" data-bloque="enlace" hidden>
+<div class="col-md-6 pn-campo" data-bloque="enlace" hidden>
                             <div class="pn-etiqueta-fila">
                                 <label class="pn-etiqueta">... O enlace externo</label>
                                 <span class="pn-contador">0 / 500</span>
@@ -199,7 +217,7 @@
                             <input type="text" name="enlace" class="pn-input" maxlength="500" placeholder="https://" data-contador>
                             <div class="pn-ayuda-error"></div>
                         </div>
-                        <div class="col-12 pn-campo" data-bloque="autor" hidden>
+<div class="col-12 pn-campo" data-bloque="autor" hidden>
                             <div class="pn-etiqueta-fila">
                                 <label class="pn-etiqueta">Autor (opcional)</label>
                                 <span class="pn-contador">0 / 50</span>
@@ -207,12 +225,22 @@
                             <input type="text" name="autor" class="pn-input" maxlength="50" placeholder="Autor" data-contador>
                             <div class="pn-ayuda-error"></div>
                         </div>
-                    </div>
-                    <div class="pn-modal-pie">
-                        <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="pn-btn pn-btn-primario">Subir</button>
-                    </div>
-                </form>
+        </div>
+    </div>
+    <div class="pn-paso">
+        <div class="pn-seccion-titulo">
+            <h4>Resumen</h4>
+            <p>Revisá los datos antes de guardar</p>
+        </div>
+        <div class="pn-arbol" data-resumen-arbol></div>
+    </div>
+    <div class="pn-modal-pie">
+        <button type="button" class="pn-btn pn-btn-contorno pn-pie-izquierda" data-paso-anterior>Anterior</button>
+        <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="pn-btn pn-btn-primario" data-paso-siguiente>Siguiente</button>
+        <button type="submit" class="pn-btn pn-btn-primario d-none" data-paso-guardar>Confirmar y subir</button>
+    </div>
+</form>
             </div>
         </div>
     </div>
@@ -230,14 +258,23 @@
                     <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
                 </div>
                 <div class="pn-modal-cuerpo">
-                    <div class="pn-seccion-titulo">
-                        <h4>Datos del material</h4>
-                        <p>Título, visibilidad, autor y archivo o enlace</p>
-                    </div>
                     <form th:action="@{'/material/modificar/' + ${m.idMaterial}}" method="post" enctype="multipart/form-data"
-                          class="form-ajax" data-validar novalidate>
-                        <div class="row g-3 mb-3" th:with="biblio=${m.tipoMaterial.permiteEnlaceExterno()}">
-                            <div class="col-md-8 pn-campo">
+                          class="form-ajax" data-validar novalidate data-pasos data-resumen="Material" data-modo="modificacion"
+                          data-contexto='[{"etiqueta":"Curso","atributoForm":"data-ctx-curso"},{"etiqueta":"Unidad","atributoForm":"data-ctx-unidad"}]' 
+                          th:attr="data-resumen-titulo=${'(' + m.titulo + ')'}, data-ctx-curso=${curso.nombre}, data-ctx-unidad=${m.unidad.titulo}">
+    <div class="pn-progreso"><div class="pn-progreso-barra"></div></div>
+    <div class="pn-pasos pn-pasos-nombrados">
+        <span class="pn-pasos-item"><span class="pn-pasos-punto">1</span><span class="pn-pasos-nombre">Datos</span></span><span class="pn-pasos-linea"></span>
+        <span class="pn-pasos-item"><span class="pn-pasos-punto">2</span><span class="pn-pasos-nombre">Contenido</span></span><span class="pn-pasos-linea"></span>
+        <span class="pn-pasos-item"><span class="pn-pasos-punto">3</span><span class="pn-pasos-nombre">Resumen</span></span>
+    </div>
+    <div class="pn-paso" data-grupo="Datos">
+        <div class="pn-seccion-titulo">
+            <h4>Datos del material</h4>
+            <p>Título, visibilidad y autor</p>
+        </div>
+        <div class="row g-3" th:with="biblio=${m.tipoMaterial.permiteEnlaceExterno()}">
+<div class="col-md-8 pn-campo">
                                 <div class="pn-etiqueta-fila">
                                     <label class="pn-etiqueta">Título <span class="pn-obligatorio">*</span></label>
                                     <span class="pn-contador" th:text="${#strings.length(m.titulo) + ' / 50'}">0 / 50</span>
@@ -245,14 +282,14 @@
                                 <input type="text" name="titulo" class="pn-input" maxlength="50" th:value="${m.titulo}" data-contador required>
                                 <div class="pn-ayuda-error"></div>
                             </div>
-                            <div class="col-md-4 pn-campo">
+<div class="col-md-4 pn-campo">
                                 <label class="pn-etiqueta">Visibilidad</label>
                                 <select name="oculto" class="pn-input">
                                     <option value="false" th:selected="${!m.oculto}">Publicado</option>
                                     <option value="true" th:selected="${m.oculto}">Oculto</option>
                                 </select>
                             </div>
-                            <div class="col-12 pn-campo" th:if="${biblio}">
+<div class="col-12 pn-campo" th:if="${biblio}">
                                 <div class="pn-etiqueta-fila">
                                     <label class="pn-etiqueta">Autor (opcional)</label>
                                     <span class="pn-contador" th:text="${#strings.length(m.autor != null ? m.autor : '') + ' / 50'}">0 / 50</span>
@@ -260,7 +297,15 @@
                                 <input type="text" name="autor" class="pn-input" maxlength="50" th:value="${m.autor}" data-contador>
                                 <div class="pn-ayuda-error"></div>
                             </div>
-                            <div class="pn-campo" th:classappend="${biblio} ? 'col-md-6' : 'col-12'">
+        </div>
+    </div>
+    <div class="pn-paso" data-grupo="Contenido">
+        <div class="pn-seccion-titulo">
+            <h4>Contenido del material</h4>
+            <p>Archivo o enlace externo</p>
+        </div>
+        <div class="row g-3" th:with="biblio=${m.tipoMaterial.permiteEnlaceExterno()}">
+<div class="pn-campo" th:classappend="${biblio} ? 'col-md-6' : 'col-12'">
                                 <label class="pn-etiqueta">Reemplazar archivo (opcional)</label>
                                 <input type="file" name="archivo" class="pn-input pn-input-archivo"
                                        th:attr="data-extensiones=${#strings.listJoin(m.tipoMaterial.extensionesPermitidas, ',')}, data-tamanio-mb=${m.tipoMaterial.tamanioMaximo / 1048576}">
@@ -268,7 +313,7 @@
                                        th:text="${(m.tieneArchivo() ? 'Hay un archivo cargado. ' : (m.esEnlaceExterno() ? 'Hay un enlace cargado. ' : 'No hay archivo cargado. ')) + 'Formatos: ' + #strings.toUpperCase(#strings.listJoin(m.tipoMaterial.extensionesPermitidas, ', ')) + '. Máximo ' + (m.tipoMaterial.tamanioMaximo / 1048576) + ' MB.'}">Formatos</small>
                                 <div class="pn-ayuda-error"></div>
                             </div>
-                            <div class="col-md-6 pn-campo" th:if="${biblio}">
+<div class="col-md-6 pn-campo" th:if="${biblio}">
                                 <div class="pn-etiqueta-fila">
                                     <label class="pn-etiqueta">... O enlace externo</label>
                                     <span class="pn-contador" th:text="${#strings.length(m.esEnlaceExterno() ? m.rutaArchivo : '') + ' / 500'}">0 / 500</span>
@@ -277,12 +322,22 @@
                                        th:value="${m.esEnlaceExterno() ? m.rutaArchivo : ''}" data-contador>
                                 <div class="pn-ayuda-error"></div>
                             </div>
-                        </div>
-                        <div class="pn-modal-pie">
-                            <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
-                            <button type="submit" class="pn-btn pn-btn-primario">Actualizar</button>
-                        </div>
-                    </form>
+        </div>
+    </div>
+    <div class="pn-paso">
+        <div class="pn-seccion-titulo">
+            <h4>Resumen</h4>
+            <p>Estos son los cambios que se van a guardar</p>
+        </div>
+        <div class="pn-arbol" data-resumen-arbol></div>
+    </div>
+    <div class="pn-modal-pie">
+        <button type="button" class="pn-btn pn-btn-contorno pn-pie-izquierda" data-paso-anterior>Anterior</button>
+        <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="pn-btn pn-btn-primario" data-paso-siguiente>Siguiente</button>
+        <button type="submit" class="pn-btn pn-btn-primario d-none" data-paso-guardar>Confirmar cambios</button>
+    </div>
+</form>
                 </div>
             </div>
         </div>

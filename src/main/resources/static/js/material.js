@@ -143,6 +143,7 @@
     // ------------------------------------------------------------------
     window.PanelValidadores = window.PanelValidadores || {};
     window.PanelValidadores.material = function (paso, formulario) {
+        if (paso !== 2) { return true; } // el archivo o el enlace se piden en el segundo paso
         var archivo = formulario.elements['archivo'];
         var enlace = formulario.elements['enlace'];
         if (formulario.dataset.permiteEnlace !== 'true') { return true; }

@@ -11,11 +11,15 @@ import org.springframework.http.ResponseEntity;
 /**
  * Métodos auxiliares para armar las respuestas JSON de los formularios que se envían sin recargar la página.
  * Todas las respuestas tienen la misma forma: {@code mensaje} (y opcionalmente {@code destino}) si salió bien,
- * {@code error} si falló.
+ * {@code error} (y opcionalmente {@code campo}) si falló.
+ * <p>
+ * Cuando un error de validación corresponde a un campo, se lanza con {@link #campoInvalido(String, String)} indicando el
+ * {@code name} del input: la respuesta devuelve ese nombre y la pantalla marca el campo debajo, en su paso, en lugar de
+ * mostrar una alerta general. Los errores sin campo siguen lanzándose como {@link IllegalArgumentException}.
  */
-public class RespuestaJsonUtilidad {
+public class RespuestaFormularioUtilidad {
 
-    private static final Logger REGISTRO = LoggerFactory.getLogger(RespuestaJsonUtilidad.class);
+    private static final Logger REGISTRO = LoggerFactory.getLogger(RespuestaFormularioUtilidad.class);
 
     private static final String MENSAJE_GENERICO = "Error! Ocurrió un error inesperado. Intente nuevamente.";
 
@@ -59,7 +63,12 @@ public class RespuestaJsonUtilidad {
      * @return Una respuesta HTTP 400 con el mensaje de error.
      */
     public static ResponseEntity<Map<String, String>> respuestaConError(Exception e) {
-        return respuestaConError(HttpStatus.BAD_REQUEST, mensajeDeError(e));
+        Map<String, String> cuerpo = new LinkedHashMap<>();
+        cuerpo.put("error", mensajeDeError(e));
+        if (campoDe(e) != null) {
+            cuerpo.put("campo", campoDe(e));
+        }
+        return ResponseEntity.badRequest().body(cuerpo);
     }
 
     /**
@@ -81,7 +90,12 @@ public class RespuestaJsonUtilidad {
      * @return Una respuesta HTTP 400 con el mensaje de error.
      */
     public static ResponseEntity<Map<String, Object>> respuestaConErrorEnDatos(Exception e) {
-        return ResponseEntity.badRequest().body(Map.of("error", mensajeDeError(e)));
+        Map<String, Object> cuerpo = new LinkedHashMap<>();
+        cuerpo.put("error", mensajeDeError(e));
+        if (campoDe(e) != null) {
+            cuerpo.put("campo", campoDe(e));
+        }
+        return ResponseEntity.badRequest().body(cuerpo);
     }
 
     private static String mensajeDeError(Exception e) {
@@ -91,5 +105,30 @@ public class RespuestaJsonUtilidad {
             REGISTRO.error("Error inesperado al procesar un formulario", e);
         }
         return esDeValidacion ? e.getMessage() : MENSAJE_GENERICO;
+    }
+
+    /**
+     * Arma el error de validación de un campo.
+     *
+     * @param campo   El {@code name} del input del formulario.
+     * @param mensaje El mensaje que se muestra debajo del campo.
+     * @return La excepción lista para lanzar.
+     */
+    public static IllegalArgumentException campoInvalido(String campo, String mensaje) {
+        return new CampoInvalido(campo, mensaje);
+    }
+
+    private static String campoDe(Exception e) {
+        return e instanceof CampoInvalido invalido ? invalido.campo : null;
+    }
+
+    private static final class CampoInvalido extends IllegalArgumentException {
+
+        private final String campo;
+
+        private CampoInvalido(String campo, String mensaje) {
+            super(mensaje);
+            this.campo = campo;
+        }
     }
 }

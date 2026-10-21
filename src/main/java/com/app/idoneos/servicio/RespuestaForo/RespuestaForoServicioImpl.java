@@ -1,6 +1,7 @@
 package com.app.idoneos.servicio.RespuestaForo;
 
-import com.app.idoneos.utilidades.MensajeValidacionUtilidad;
+import com.app.idoneos.utilidades.RespuestaFormularioUtilidad;
+import com.app.idoneos.utilidades.MensajeErrorUtilidad;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -202,11 +203,10 @@ public class RespuestaForoServicioImpl implements RespuestaForoServicio, CrudSer
     /** Valida el texto de la respuesta y lo devuelve sin espacios sobrantes. */
     private String validarTexto(String texto) {
         if (texto == null || texto.isBlank()) {
-            throw new IllegalArgumentException("Error! Debe completar el texto de la respuesta.");
+            throw RespuestaFormularioUtilidad.campoInvalido("texto", "Error! Debe completar el texto de la respuesta.");
         }
         if (texto.trim().length() > RespuestaForo.LONGITUD_TEXTO) {
-            throw new IllegalArgumentException(
-                    MensajeValidacionUtilidad.demasiadoLargo("El texto", RespuestaForo.LONGITUD_TEXTO, "caracteres"));
+            throw RespuestaFormularioUtilidad.campoInvalido("texto", MensajeErrorUtilidad.demasiadoLargo("El texto", RespuestaForo.LONGITUD_TEXTO, "caracteres"));
         }
         return texto.trim();
     }

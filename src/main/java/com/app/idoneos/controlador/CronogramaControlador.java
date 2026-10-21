@@ -23,7 +23,7 @@ import com.app.idoneos.modelo.Unidad;
 import com.app.idoneos.modelo.Usuario;
 import com.app.idoneos.servicio.Unidad.UnidadServicio;
 import com.app.idoneos.servicio.UnidadCronograma.UnidadCronogramaServicio;
-import com.app.idoneos.utilidades.RespuestaJsonUtilidad;
+import com.app.idoneos.utilidades.RespuestaFormularioUtilidad;
 
 /**
  * Controlador del cronograma (MOD-F-02): CU-23 Buscar cronograma (GET /cronograma/buscar) y CU-24 Modificar cronograma
@@ -111,9 +111,9 @@ public class CronogramaControlador extends PanelCursoControlador {
         try {
             Usuario usuario = (Usuario) auth.getPrincipal();
             cronogramaServicio.modificarCronograma(usuario.getDocente(), programaId, ids, semanas);
-            return RespuestaJsonUtilidad.respuestaExitosa("Cronograma modificado correctamente.");
+            return RespuestaFormularioUtilidad.respuestaExitosa("Cronograma modificado correctamente.");
         } catch (Exception e) {
-            return RespuestaJsonUtilidad.respuestaConError(e);
+            return RespuestaFormularioUtilidad.respuestaConError(e);
         }
     }
 }

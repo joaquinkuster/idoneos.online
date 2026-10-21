@@ -87,16 +87,16 @@ public class ManejadorArchivosUtilidad {
         }
         if (archivo.getSize() > tamanioMaximo) {
             throw new IllegalArgumentException(
-                    MensajeValidacionUtilidad.demasiadoGrande("El archivo", tamanioMaximo / (1024 * 1024), "MB"));
+                    MensajeErrorUtilidad.demasiadoGrande("El archivo", tamanioMaximo / (1024 * 1024), "MB"));
         }
         String formatos = descripcionDeFormatos(extensionesPermitidas);
         String extension = extensionDe(archivo.getOriginalFilename());
         if (extension == null || !extensionesPermitidas.contains(extension)) {
-            throw new IllegalArgumentException(MensajeValidacionUtilidad.formatoInvalido("El archivo", formatos));
+            throw new IllegalArgumentException(MensajeErrorUtilidad.formatoInvalido("El archivo", formatos));
         }
         try (InputStream entrada = archivo.getInputStream()) {
             if (!firmaCoincide(entrada.readNBytes(12), extension)) {
-                throw new IllegalArgumentException(MensajeValidacionUtilidad.formatoInvalido("El archivo", formatos));
+                throw new IllegalArgumentException(MensajeErrorUtilidad.formatoInvalido("El archivo", formatos));
             }
         } catch (IOException e) {
             throw new IllegalArgumentException("Error! No se pudo leer el archivo. Intente nuevamente.");
@@ -244,12 +244,12 @@ public class ManejadorArchivosUtilidad {
             throw new IllegalArgumentException("Error! La imagen seleccionada está vacía.");
         }
         if (archivo.getSize() > TAMANIO_MAXIMO_IMAGEN) {
-            throw new IllegalArgumentException(MensajeValidacionUtilidad.demasiadoGrande("La imagen", 2, "MB"));
+            throw new IllegalArgumentException(MensajeErrorUtilidad.demasiadoGrande("La imagen", 2, "MB"));
         }
         try (InputStream entrada = archivo.getInputStream()) {
             String extension = detectarExtensionDeImagen(entrada.readNBytes(12));
             if (extension == null) {
-                throw new IllegalArgumentException(MensajeValidacionUtilidad.formatoInvalido("La imagen", "JPG, PNG o WebP"));
+                throw new IllegalArgumentException(MensajeErrorUtilidad.formatoInvalido("La imagen", "JPG, PNG o WebP"));
             }
             return extension;
         } catch (IOException e) {
