@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <th:block th:replace="~{fragments/head :: recursos}"></th:block>
+</head>
+<body class="pn-body">
+<div class="pn-app" id="pnApp">
+    <!-- Menú lateral del alumno (gestión académica) -->
+    <th:block th:replace="~{fragments/menus :: gestionAcademica(${menuActivo}, ${urlBase})}"></th:block>
+
+    <div class="pn-principal">
+        <th:block th:replace="~{fragments/panel :: barra(null)}"></th:block>
+
+        <main class="pn-contenido">
+            <nav class="ac-migas" aria-label="Ruta de navegación">
+                <a th:href="@{/inicio}">Página principal</a>
+                <i class="fa-solid fa-chevron-right"></i>
+                <a th:href="@{${urlMisCursos}}">Mis cursos</a>
+                <i class="fa-solid fa-chevron-right"></i>
+                <a th:href="@{${urlBase}}" th:text="${curso.nombre}">Curso</a>
+                <i class="fa-solid fa-chevron-right"></i>
+                <strong th:text="${autoevaluacion.nombre}">Autoevaluación</strong>
+            </nav>
+
+            <div class="pn-encabezado">
+                <div class="gl-titulo-fila">
+                    <th:block th:replace="~{fragments/iconoMaterial :: icono('Autoevaluación', '')}"></th:block>
+                    <div>
+                        <h1 class="pn-titulo" th:text="${autoevaluacion.nombre}">Autoevaluación</h1>
+                        <p class="pn-subtitulo" th:text="${autoevaluacion.unidad.titulo}">Introducción al mercado de capitales</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reglas -->
+            <section class="pn-tarjeta in-ficha">
+                <h2 class="pn-lista-titulo">Reglas de la autoevaluación</h2>
+                <div class="in-reglas">
+                    <div><span class="in-regla-etiqueta">Tiempo límite</span><strong th:text="${autoevaluacion.tiempoLimite != null ? autoevaluacion.tiempoLimite + ' minutos' : 'Sin límite'}">30 minutos</strong></div>
+                    <div><span class="in-regla-etiqueta">Preguntas</span><strong th:text="${autoevaluacion.cantidadPreguntas}">10</strong></div>
+                    <div><span class="in-regla-etiqueta">Nota mínima</span><strong th:text="${#numbers.formatInteger(autoevaluacion.notaMinima, 1) + ' / 10'}">6 / 10</strong></div>
+                    <div><span class="in-regla-etiqueta">Intentos</span>
+                        <strong th:text="${autoevaluacion.intentosPermitidos != null ? (#lists.size(intentos) + ' de ' + autoevaluacion.intentosPermitidos + ' usados') : 'Sin límite'}">1 de 3 usados</strong></div>
+                    <div><span class="in-regla-etiqueta">Se abre</span><strong th:text="${#temporals.format(autoevaluacion.fechaApertura, 'dd/MM/yyyy HH:mm')}">01/10/2026 09:00</strong></div>
+                    <div><span class="in-regla-etiqueta">Se cierra</span><strong th:text="${autoevaluacion.fechaCierre != null ? #temporals.format(autoevaluacion.fechaCierre, 'dd/MM/yyyy HH:mm') : 'No cierra'}">No cierra</strong></div>
+                </div>
+                <ul class="in-notas">
+                    <li th:if="${autoevaluacion.descuentoPorError}">Cada opción incorrecta resta lo que vale una correcta de su pregunta.</li>
+                    <li th:unless="${autoevaluacion.navegacionLibre}">Las preguntas se presentan en orden y no se puede volver a una anterior.</li>
+                    <li th:if="${autoevaluacion.navegacionLibre}">Podés moverte libremente entre las preguntas y cambiar tus respuestas antes de entregar.</li>
+                    <li th:unless="${autoevaluacion.permiteSalir}"><strong>No permite salir:</strong> mientras rendís solo podés acceder al cuestionario. El tiempo corre siempre.</li>
+                    <li th:if="${autoevaluacion.permiteSalir}">Podés salir y volver al intento; el tiempo no se detiene.</li>
+                </ul>
+
+                <div class="in-accion">
+                    <form th:if="${enCurso != null}" th:action="@{'/intento/iniciar/' + ${autoevaluacion.idAutoevaluacion}}" method="post">
+                        <button type="submit" class="pn-btn pn-btn-primario"><i class="fa-solid fa-play"></i> Continuar intento en curso</button>
+                    </form>
+                    <form th:if="${enCurso == null and motivo == null}" th:action="@{'/intento/iniciar/' + ${autoevaluacion.idAutoevaluacion}}" method="post"
+                          data-confirmar-inicio th:attr="data-sin-salida=${!autoevaluacion.permiteSalir}">
+                        <button type="submit" class="pn-btn pn-btn-primario"><i class="fa-solid fa-play"></i> Realizar intento</button>
+                    </form>
+                    <p class="in-motivo" th:if="${enCurso == null and motivo != null}"><i class="fa-solid fa-circle-info"></i> <span th:text="${motivo}">Motivo</span></p>
+                </div>
+            </section>
+
+            <!-- Mis intentos -->
+            <section class="pn-tarjeta in-ficha">
+                <h2 class="pn-lista-titulo">Resumen de sus intentos anteriores</h2>
+                <div class="pn-tabla-contenedor" th:if="${!#lists.isEmpty(intentos)}">
+                    <table class="pn-tabla">
+                        <thead>
+                            <tr>
+                                <th>N°</th>
+                                <th>Estado</th>
+                                <th>Iniciado</th>
+                                <th>Entregado</th>
+                                <th>Duración</th>
+                                <th>Nota / 10</th>
+                                <th>Resultado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="i, estado : ${intentos}">
+                                <td th:text="${estado.count}">1</td>
+                                <td th:text="${i.estaEnCurso() ? 'En curso' : 'Finalizado'}">Finalizado</td>
+                                <td th:text="${#temporals.format(i.fechaCreacion, 'dd/MM/yyyy HH:mm')}">01/10/2026 18:20</td>
+                                <td th:text="${i.fechaEntrega != null ? #temporals.format(i.fechaEntrega, 'dd/MM/yyyy HH:mm') : '-'}">-</td>
+                                <td th:text="${i.duracionMinutos != null ? i.duracionMinutos + ' min' : '-'}">20 min</td>
+                                <td th:text="${i.nota != null ? #numbers.formatDecimal(i.nota, 1, 2, 'COMMA') : '-'}">8,00</td>
+                                <td>
+                                    <span class="pn-insignia"
+                                          th:classappend="${i.resultado == 'Aprobado' or i.resultado == 'Aprobado por el docente'} ? 'pn-insignia-verde' : (${i.resultado == 'No aprobado'} ? 'pn-insignia-roja' : 'pn-insignia-azul')"
+                                          th:text="${i.resultado}">Aprobado</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="in-vacio" th:if="${#lists.isEmpty(intentos)}">Todavía no realizaste ningún intento.</p>
+                <p class="in-mejor-nota" th:if="${mejorNota != null}">
+                    Su mejor nota es <strong th:text="${#numbers.formatDecimal(mejorNota, 1, 2, 'COMMA') + ' / 10,00'}">8,00 / 10,00</strong>
+                </p>
+            </section>
+        </main>
+
+        <th:block th:replace="~{fragments/panel :: pie('Gestión académica')}"></th:block>
+    </div>
+</div>
+
+<th:block th:replace="~{fragments/panel :: scripts}"></th:block>
+<script th:src="@{/js/academica.js}"></script>
+<script th:src="@{/js/intento.js}"></script>
+</body>
+</html>

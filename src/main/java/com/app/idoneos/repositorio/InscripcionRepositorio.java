@@ -5,6 +5,8 @@ import org.springframework.data.repository.query.Param;
 import com.app.idoneos.modelo.Curso;
 import com.app.idoneos.modelo.Categoria;
 import java.util.List;
+import jakarta.persistence.LockModeType;
+import org.springframework.data.jpa.repository.Lock;
 import com.app.idoneos.modelo.Alumno;
 import com.app.idoneos.modelo.Cohorte;
 import com.app.idoneos.modelo.Inscripcion;
@@ -67,4 +69,15 @@ public interface InscripcionRepositorio extends JpaRepository<Inscripcion, Integ
      */
     @Query("SELECT COUNT(i) FROM Inscripcion i WHERE i.baja = false AND i.cohorte.programa.curso.categoria = :categoria")
     long contarActivasPorCategoria(@Param("categoria") Categoria categoria);
+
+    /**
+     * Busca una inscripción bloqueándola hasta el fin de la transacción: sirve para que dos pedidos simultáneos del mismo
+     * alumno (por ejemplo, dos clics en "Realizar intento") no registren dos intentos.
+     *
+     * @param id el identificador de la inscripción
+     * @return la inscripción, si existe
+     */
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select i from Inscripcion i where i.idInscripcion = :id")
+    java.util.Optional<Inscripcion> bloquearPorId(@Param("id") Integer id);
 }

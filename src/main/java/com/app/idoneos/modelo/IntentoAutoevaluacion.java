@@ -156,6 +156,15 @@ public class IntentoAutoevaluacion {
     }
 
     /**
+     * Calcula cuánto tardó el alumno en entregar el intento.
+     *
+     * @return Los minutos transcurridos entre el inicio y la entrega, o {@code null} si todavía no se entregó.
+     */
+    public Long getDuracionMinutos() {
+        return fechaEntrega == null ? null : Duration.between(fechaCreacion, fechaEntrega).toMinutes();
+    }
+
+    /**
      * Calcula cuántos segundos le quedan al intento.
      *
      * @param momento La fecha y hora de referencia (la del servidor).
@@ -185,6 +194,33 @@ public class IntentoAutoevaluacion {
      */
     public List<PreguntaIntento> getPreguntasOrdenadas() {
         return preguntasIntento.stream().sorted(Comparator.comparingInt(PreguntaIntento::getOrden)).toList();
+    }
+
+    /**
+     * Obtiene la pregunta en la que está el alumno en un cuestionario secuencial: la primera por la que todavía no pasó.
+     *
+     * @return La pregunta actual, o {@code null} si ya pasó por todas.
+     */
+    public PreguntaIntento getPreguntaActualSecuencial() {
+        return getPreguntasOrdenadas().stream().filter(p -> !p.getPasada()).findFirst().orElse(null);
+    }
+
+    /**
+     * Cuenta las preguntas con al menos una opción elegida.
+     *
+     * @return La cantidad de preguntas respondidas.
+     */
+    public int getCantidadRespondidas() {
+        return (int) preguntasIntento.stream().filter(PreguntaIntento::estaRespondida).count();
+    }
+
+    /**
+     * Cuenta las preguntas que el alumno marcó para revisar.
+     *
+     * @return La cantidad de preguntas marcadas.
+     */
+    public int getCantidadMarcadas() {
+        return (int) preguntasIntento.stream().filter(PreguntaIntento::getMarcada).count();
     }
 
     /**

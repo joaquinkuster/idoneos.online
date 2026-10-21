@@ -216,15 +216,16 @@
                                     <div class="ac-grupo-cabecera"
                                         th:if="${!#lists.isEmpty(u.autoevaluacionesPublicadas)}">
                                         <h3 class="ac-grupo-titulo">Autoevaluaciones</h3>
-                                        <a href="#" class="ac-grupo-enlace" data-sin-accion>Ver listado</a>
+                                        <a th:if="${esDocente or esAdministrador}" class="ac-grupo-enlace"
+                                            th:href="@{/autoevaluacion/buscar(cursoId=${curso.idCurso})}">Ver listado</a>
                                     </div>
                                     <ul class="ac-actividades" th:if="${!#lists.isEmpty(u.autoevaluacionesPublicadas)}">
                                         <li class="ac-actividad" th:each="a : ${u.autoevaluacionesPublicadas}">
                                             <th:block
                                                 th:replace="~{fragments/iconoMaterial :: icono('Autoevaluación', '')}">
                                             </th:block>
-                                            <a href="#" class="ac-actividad-titulo" data-sin-accion
-                                                th:text="${a.nombre}">Autoevaluación</a>
+                                            <a class="ac-actividad-titulo" th:text="${a.nombre}"
+                                                th:href="${esDocente or esAdministrador} ? @{/autoevaluacion/buscar(cursoId=${curso.idCurso})} : @{'/autoevaluacion/ver/' + ${a.idAutoevaluacion}}">Autoevaluación</a>
                                         </li>
                                     </ul>
 

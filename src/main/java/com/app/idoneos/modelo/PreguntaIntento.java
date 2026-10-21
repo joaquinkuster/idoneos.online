@@ -56,6 +56,13 @@ public class PreguntaIntento {
     private Boolean marcada = false;
 
     /**
+     * En un cuestionario secuencial (sin navegación libre), indica que el alumno ya pasó por la pregunta (respondida o no) y
+     * no puede volver a ella. Con navegación libre no se usa.
+     */
+    @Column(name = "pasada", nullable = false)
+    private Boolean pasada = false;
+
+    /**
      * Conjunto de respuestasIntento asociados.
      */
     @OneToMany(mappedBy = "preguntaIntento", cascade = CascadeType.ALL)

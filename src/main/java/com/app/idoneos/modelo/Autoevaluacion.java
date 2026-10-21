@@ -186,6 +186,15 @@ public class Autoevaluacion {
     }
 
     /**
+     * Calcula cuántos puntos (sobre 10) vale cada pregunta del cuestionario.
+     *
+     * @return El valor de una pregunta, o 0 si la autoevaluación no sortea preguntas.
+     */
+    public double getValorDeCadaPregunta() {
+        return cantidadPreguntas <= 0 ? 0 : 10d / cantidadPreguntas;
+    }
+
+    /**
      * Indica si la autoevaluación combina pools de otras unidades (anteriores a la suya): un repaso o una evaluación final.
      *
      * @return {@code true} si alguno de sus pools es de otra unidad.

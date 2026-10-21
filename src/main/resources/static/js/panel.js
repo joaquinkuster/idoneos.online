@@ -854,6 +854,8 @@
         if (!window.TomSelect) { return; }
         contenedor.querySelectorAll('select.ts-multiselect:not(.tomselected)').forEach(function (el) {
             new TomSelect(el, {
+                // El menú se dibuja sobre la página y no dentro de la ventana: así el modal no lo recorta
+                dropdownParent: 'body',
                 plugins: ['remove_button', 'checkbox_options'],
                 placeholder: el.getAttribute('placeholder'),
                 closeAfterSelect: false,

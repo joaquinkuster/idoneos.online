@@ -17,8 +17,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.app.idoneos.modelo.Alumno;
 import com.app.idoneos.modelo.Autoevaluacion;
 import com.app.idoneos.modelo.Docente;
+import com.app.idoneos.modelo.Inscripcion;
+import com.app.idoneos.modelo.IntentoAutoevaluacion;
 import com.app.idoneos.modelo.Pool;
 import com.app.idoneos.modelo.Programa;
 import com.app.idoneos.modelo.UnidadCronograma;
@@ -26,6 +29,7 @@ import com.app.idoneos.modelo.Usuario;
 import com.app.idoneos.servicio.Autoevaluacion.AutoevaluacionServicio;
 import com.app.idoneos.servicio.Autoevaluacion.AutoevaluacionServicio.SolicitudAutoevaluacion;
 import com.app.idoneos.servicio.Curso.ContextoCurso;
+import com.app.idoneos.servicio.IntentoAutoevaluacion.IntentoAutoevaluacionServicio;
 import com.app.idoneos.servicio.Pool.PoolServicio;
 import com.app.idoneos.utilidades.RespuestaFormularioUtilidad;
 
@@ -56,6 +60,9 @@ public class AutoevaluacionControlador extends PanelCursoControlador {
 
     @Autowired
     private PoolServicio poolServicio;
+
+    @Autowired
+    private IntentoAutoevaluacionServicio intentoServicio;
 
     // ---------------------------------------------------------------- Lecturas
 
@@ -109,6 +116,48 @@ public class AutoevaluacionControlador extends PanelCursoControlador {
             modelo.addAttribute("puedeGestionar", !esAdministrador);
             modelo.addAttribute("titulo", "Autoevaluaciones | Idóneos Online");
             return "pages/autoevaluacion/buscar";
+        } catch (IllegalArgumentException e) {
+            return volverAMisCursos(redirectAttributes, e);
+        }
+    }
+
+    /**
+     * CU-27 (flujo del alumno) y CU-70: Ficha de la autoevaluación para el alumno: sus reglas, el historial de sus intentos
+     * (con la mejor nota) y el botón para realizar un intento, continuar el que tiene en curso o el motivo por el que no puede
+     * rendir ahora.
+     *
+     * @param id                 Identificador de la autoevaluación.
+     * @param modelo             El modelo de la vista.
+     * @param auth               La autenticación actual.
+     * @param redirectAttributes Atributos para mensajes de redirección.
+     * @return La vista de la ficha, o una redirección a "Mis cursos" si no se puede acceder.
+     */
+    @GetMapping("/ver/{id}")
+    public String verAutoevaluacion(@PathVariable("id") Integer id, Model modelo, Authentication auth,
+            RedirectAttributes redirectAttributes) {
+        try {
+            Usuario usuario = (Usuario) auth.getPrincipal();
+            Alumno alumno = usuario.getAlumno();
+            Autoevaluacion autoevaluacion = autoevaluacionServicio.buscarPorId(id).filter(Autoevaluacion::esVisible)
+                    .orElseThrow(() -> new IllegalArgumentException("Error! La autoevaluación no se encuentra disponible."));
+            ContextoCurso contexto = contextoDeLaUnidad(autoevaluacion.getUnidad(), usuario);
+            Inscripcion inscripcion = inscripcionServicio.buscarConAccesoAUnidad(alumno, autoevaluacion.getUnidad())
+                    .orElseThrow(() -> new IllegalArgumentException("Error! Todavía no podés acceder a esta unidad."));
+            List<IntentoAutoevaluacion> intentos = intentoServicio.buscarPorInscripcionYAutoevaluacion(inscripcion,
+                    autoevaluacion);
+            intentos.forEach(intentoServicio::cerrarSiVencido); // si se le agotó el tiempo, queda corregido
+            intentos = intentoServicio.buscarPorInscripcionYAutoevaluacion(inscripcion, autoevaluacion);
+
+            cargarContexto(modelo, contexto, "autoevaluaciones");
+            modelo.addAttribute("autoevaluacion", autoevaluacion);
+            modelo.addAttribute("inscripcion", inscripcion);
+            modelo.addAttribute("intentos", intentos);
+            modelo.addAttribute("enCurso", intentos.stream().filter(IntentoAutoevaluacion::estaEnCurso).findFirst().orElse(null));
+            modelo.addAttribute("motivo", intentoServicio.motivoNoDisponible(alumno, autoevaluacion).orElse(null));
+            modelo.addAttribute("mejorNota", autoevaluacion.mejorNota(inscripcion));
+            modelo.addAttribute("restantes", autoevaluacion.intentosRestantes(inscripcion));
+            modelo.addAttribute("titulo", autoevaluacion.getNombre() + " | Idóneos Online");
+            return "pages/autoevaluacion/ver";
         } catch (IllegalArgumentException e) {
             return volverAMisCursos(redirectAttributes, e);
         }

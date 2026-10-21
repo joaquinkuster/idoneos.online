@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.CacheControl;
 import org.springframework.web.filter.HiddenHttpMethodFilter;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -21,6 +22,9 @@ public class WebConfiguracion implements WebMvcConfigurer {
     @Autowired
     @Qualifier("directorioCursos")
     private Path directorioCursos;
+
+    @Autowired
+    private BloqueoDeIntentoInterceptor bloqueoDeIntento;
 
     /**
      * Crea un bean de tipo HiddenHttpMethodFilter.
@@ -49,6 +53,14 @@ public class WebConfiguracion implements WebMvcConfigurer {
      *
      * @param registry El registro de manejadores de recursos.
      */
+    /**
+     * Mantiene al alumno dentro del cuestionario mientras rinde una autoevaluación que no permite salir.
+     */
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(bloqueoDeIntento).addPathPatterns("/**");
+    }
+
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         CacheControl semana = CacheControl.maxAge(7, TimeUnit.DAYS);

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <th:block th:replace="~{fragments/head :: recursos}"></th:block>
+</head>
+<body class="in-body" id="intento"
+      th:attr="data-intento=${intento.idIntentoAutoevaluacion}, data-segundos=${segundosRestantes}, data-pregunta=${actual.idPreguntaIntento},
+               data-multiple=${actual.pregunta.esOpcionMultiple}, data-libre=${libre}, data-total=${total},
+               data-url-ficha='/autoevaluacion/ver/' + ${autoevaluacion.idAutoevaluacion}">
+
+    <th:block th:replace="~{fragments/intentoCabecera :: cabecera(${curso}, ${autoevaluacion}, ${segundosRestantes})}"></th:block>
+
+    <main class="in-principal">
+        <!-- Izquierda: datos de la pregunta -->
+        <aside class="in-info">
+            <h2 class="in-info-titulo" th:text="${'Pregunta ' + actual.orden}">Pregunta 1</h2>
+            <p class="in-info-estado" data-estado-pregunta th:text="${actual.estaRespondida() ? 'Respuesta guardada' : 'Sin responder'}">Sin responder</p>
+            <p class="in-info-valor">Vale <strong th:text="${valorPregunta}">1,00</strong> <span th:text="${valorPregunta == '1,00' ? 'punto' : 'puntos'}">punto</span>.</p>
+            <p class="in-info-valor" th:if="${autoevaluacion.descuentoPorError}">
+                Una opción incorrecta resta <strong th:text="${valorOpcion}">1,00</strong>.
+            </p>
+            <button type="button" class="in-marcar" th:if="${libre}" data-marcar th:classappend="${actual.marcada} ? 'in-marcada'"
+                    th:attr="data-marcada=${actual.marcada}">
+                <i class="fa-regular fa-flag" aria-hidden="true"></i> <span data-marcar-texto th:text="${actual.marcada ? 'Quitar marca' : 'Marcar para revisar'}">Marcar para revisar</span>
+            </button>
+        </aside>
+
+        <!-- Centro: la pregunta y sus opciones -->
+        <section class="in-pregunta">
+            <p class="in-enunciado" th:text="${actual.pregunta.texto}">¿Qué organismo regula el mercado de capitales?</p>
+            <p class="in-ayuda" th:text="${actual.pregunta.esOpcionMultiple ? 'Seleccione una o más opciones' : 'Seleccione una opción'}">Seleccione una opción</p>
+            <div class="in-opciones" role="group">
+                <label class="in-opcion" th:each="o, estado : ${actual.pregunta.opcionesActivas}"
+                       th:classappend="${elegidas.contains(o.idOpcionRespuesta)} ? 'in-opcion-elegida'">
+                    <input th:type="${actual.pregunta.esOpcionMultiple ? 'checkbox' : 'radio'}" name="opcion" th:value="${o.idOpcionRespuesta}"
+                           th:checked="${elegidas.contains(o.idOpcionRespuesta)}" data-opcion>
+                    <span class="in-opcion-letra" th:text="${#strings.substring('abcdefghij', estado.index, estado.index + 1) + '.'}">a.</span>
+                    <span class="in-opcion-texto" th:text="${o.texto}">Opción</span>
+                </label>
+            </div>
+            <div class="in-pie">
+                <span class="in-guardado" data-guardado aria-live="polite"></span>
+                <button type="button" class="in-enlace" data-limpiar th:classappend="${elegidas.isEmpty()} ? 'd-none'">Limpiar mi elección</button>
+                <span class="in-botones">
+                    <a class="pn-btn pn-btn-secundario" th:if="${hayAnterior}"
+                       th:href="@{/intento/realizar/{id}(id=${intento.idIntentoAutoevaluacion}, pregunta=${actual.orden - 1})}">Anterior</a>
+                    <!-- Navegación libre: se va a la siguiente (o al resumen en la última) -->
+                    <a class="pn-btn pn-btn-primario" th:if="${libre and !esUltima}"
+                       th:href="@{/intento/realizar/{id}(id=${intento.idIntentoAutoevaluacion}, pregunta=${actual.orden + 1})}">Siguiente</a>
+                    <a class="pn-btn pn-btn-primario" th:if="${libre and esUltima}"
+                       th:href="@{/intento/resumen/{id}(id=${intento.idIntentoAutoevaluacion})}">Terminar intento</a>
+                    <!-- Secuencial: avanzar pasa la pregunta y no se vuelve a ella -->
+                    <button type="button" class="pn-btn pn-btn-primario" th:unless="${libre}" data-avanzar
+                            th:text="${esUltima ? 'Terminar intento' : 'Siguiente'}">Siguiente</button>
+                </span>
+            </div>
+        </section>
+
+        <!-- Derecha: navegación -->
+        <nav class="in-navegacion" aria-label="Navegación del cuestionario">
+            <th:block th:if="${libre}">
+                <h2 class="in-nav-titulo">Navegación</h2>
+                <div class="in-nav-grilla">
+                    <a th:each="p : ${preguntas}" class="in-nav-casilla" th:text="${p.orden}" th:attr="data-orden=${p.orden}"
+                       th:classappend="${(p.orden == actual.orden ? 'in-nav-actual ' : '') + (p.estaRespondida() ? 'in-nav-respondida ' : '') + (p.marcada ? 'in-nav-marcada' : '')}"
+                       th:href="@{/intento/realizar/{id}(id=${intento.idIntentoAutoevaluacion}, pregunta=${p.orden})}">1</a>
+                </div>
+                <p class="in-nav-leyenda"><span class="in-leyenda-azul"></span> Respondida <span class="in-leyenda-dorada"></span> Marcada</p>
+            </th:block>
+            <th:block th:unless="${libre}">
+                <h2 class="in-nav-titulo" th:text="${'Pregunta ' + actual.orden + ' de ' + total}">Pregunta 1 de 10</h2>
+                <p class="in-nav-faltan"><strong th:text="${faltanPorPasar - 1}">9</strong> por delante</p>
+                <div class="in-progreso"><div class="in-progreso-barra" th:style="${'width:' + (100 * (actual.orden - 1) / total) + '%'}"></div></div>
+                <p class="in-nav-nota">Las preguntas se presentan en orden: no se puede volver a una anterior.</p>
+            </th:block>
+            <a class="in-terminar" th:href="@{/intento/resumen/{id}(id=${intento.idIntentoAutoevaluacion})}">Terminar intento ...</a>
+        </nav>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:src="@{/js/intento.js}"></script>
+</body>
+</html>
