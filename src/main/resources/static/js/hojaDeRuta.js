@@ -52,6 +52,10 @@
         }
         var texto = (control.value || '').trim();
         if (control.type === 'date' && /^\d{4}-\d{2}-\d{2}$/.test(texto)) { return texto.split('-').reverse().join('/'); }
+        if (control.type === 'datetime-local' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(texto)) {
+            var partes = texto.split('T');
+            return partes[0].split('-').reverse().join('/') + ' ' + partes[1].substring(0, 5);
+        }
         return control.getAttribute('data-resumen-formato') === 'moneda' ? moneda(texto) : texto;
     }
 

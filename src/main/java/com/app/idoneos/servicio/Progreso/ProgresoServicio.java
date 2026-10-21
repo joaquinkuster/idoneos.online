@@ -57,4 +57,37 @@ public interface ProgresoServicio {
      * @throws IllegalArgumentException Si la inscripción no existe o fue dada de baja.
      */
     DetalleProgreso buscarDetalle(Integer idInscripcion);
+
+    // ---------------------------------------------------------------- Modificaciones
+
+    /**
+     * Registra la unidad como completada para un alumno si la aprobó: tiene al menos una autoevaluación visible y aprobó
+     * todas las que tiene visibles. Al completarla se habilita la siguiente unidad del cronograma y, si con ella el alumno
+     * completó todas las unidades del programa, se emite su certificado de finalización. No hace nada si la unidad ya
+     * estaba completada.
+     *
+     * @param inscripcion la inscripción del alumno
+     * @param unidad la unidad a verificar
+     * @return {@code true} si la unidad quedó completada con esta llamada
+     */
+    boolean actualizarProgreso(Inscripcion inscripcion, Unidad unidad);
+
+    /**
+     * Verifica la unidad para cada alumno con inscripción vigente en un programa que la incluye: completa la de quienes ya
+     * aprobaron todas las autoevaluaciones visibles que le quedan (por ejemplo, después de ocultar o dar de baja una).
+     *
+     * @param unidad la unidad cuyas autoevaluaciones cambiaron
+     */
+    void actualizarProgresoDeLaUnidad(Unidad unidad);
+
+    /**
+     * Revierte la unidad a no completada para un alumno (por ejemplo, por fraude). Las unidades posteriores ya completadas
+     * conservan su estado pero quedan bloqueadas hasta que el alumno vuelva a completar esta. Si el alumno tenía un
+     * certificado vigente, lo anula, porque el curso deja de estar completo.
+     *
+     * @param inscripcion la inscripción del alumno
+     * @param unidad la unidad a revertir
+     * @return {@code true} si la unidad estaba completada
+     */
+    boolean revertirProgreso(Inscripcion inscripcion, Unidad unidad);
 }

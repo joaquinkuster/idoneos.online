@@ -27,4 +27,12 @@ public interface PoolRepositorio extends JpaRepository<Pool, Integer> {
      * @return una lista de Pool asociados al Unidad indicado
      */
     List<Pool> findByUnidadAndBajaFalse(Unidad unidad);
+
+    /**
+     * Busca todos los pools de una unidad, incluidos los dados de baja.
+     *
+     * @param unidad el registro de Unidad asociado
+     * @return una lista de Pool de la unidad
+     */
+    List<Pool> findByUnidad(Unidad unidad);
 }

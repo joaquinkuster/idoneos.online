@@ -166,6 +166,12 @@ public class CohorteServicioImpl implements CohorteServicio, CrudServicio<Cohort
             throw RespuestaFormularioUtilidad.campoInvalido("programaId", "Error! El programa debe tener al menos " + MensajeErrorUtilidad.cantidad(minimo, "unidad", "unidades")
                     + " con material publicado en su cronograma (tiene " + conMaterial + ").");
         }
+        var sinAutoevaluacion = programa.getUnidadesSinAutoevaluacion();
+        if (!sinAutoevaluacion.isEmpty()) {
+            throw RespuestaFormularioUtilidad.campoInvalido("programaId", "Error! Todas las unidades del programa deben tener "
+                    + "al menos una autoevaluación visible. Faltan en: "
+                    + String.join(", ", sinAutoevaluacion.stream().map(u -> "«" + u.getTitulo() + "»").toList()) + ".");
+        }
         boolean enVivo = programa.getCurso().incluyeModalidad(Modalidad.EN_VIVO);
         validarDatosCohorte(programa, enVivo, fechaInicioInscripcion, fechaFinInscripcion, fechaInicioDictado,
                 fechaFinDictado, semanasAcceso, cupoMaximo);

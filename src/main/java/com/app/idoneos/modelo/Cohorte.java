@@ -199,6 +199,16 @@ public class Cohorte {
     }
 
     /**
+     * Verifica si la cohorte todavía no terminó: es próxima, tiene la inscripción abierta o está en dictado. Los alumnos
+     * de una cohorte así cursan (o van a cursar) las unidades del programa.
+     *
+     * @return {@code true} si la cohorte no está finalizada.
+     */
+    public boolean estaEnCurso() {
+        return !baja && !"Finalizada".equals(getEstado());
+    }
+
+    /**
      * Cuenta las inscripciones vigentes (no dadas de baja) de la cohorte.
      *
      * @return La cantidad de inscriptos.

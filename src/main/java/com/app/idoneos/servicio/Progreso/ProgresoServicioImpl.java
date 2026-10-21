@@ -1,18 +1,23 @@
 package com.app.idoneos.servicio.Progreso;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import com.app.idoneos.modelo.Cohorte;
 import com.app.idoneos.modelo.Inscripcion;
+import com.app.idoneos.modelo.Programa;
 import com.app.idoneos.modelo.Progreso;
 import com.app.idoneos.modelo.UnidadCronograma;
 import com.app.idoneos.modelo.Unidad;
 import com.app.idoneos.repositorio.InscripcionRepositorio;
 import com.app.idoneos.repositorio.ProgresoRepositorio;
+import com.app.idoneos.servicio.Certificado.CertificadoServicio;
 import com.app.idoneos.servicio.CrudServicio;
 import com.app.idoneos.servicio.Inscripcion.InscripcionServicio;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Implementación del servicio para gestionar las operaciones sobre la entidad {@link Progreso}.
@@ -29,6 +34,9 @@ public class ProgresoServicioImpl implements ProgresoServicio, CrudServicio<Prog
 
     @Autowired
     private InscripcionRepositorio inscripcionRepositorio;
+
+    @Autowired
+    private CertificadoServicio certificadoServicio;
 
     // ---------------------------------------------------------------- Lecturas
 
@@ -148,6 +156,50 @@ public class ProgresoServicioImpl implements ProgresoServicio, CrudServicio<Prog
         return progresoRepositorio.save(entidad);
     }
 
+    /**
+     * Registra la unidad como completada para un alumno si la aprobó (ver {@link Unidad#estaAprobadaPor}).
+     */
+    @Override
+    @Transactional
+    public boolean actualizarProgreso(Inscripcion inscripcion, Unidad unidad) {
+        boolean esDelPrograma = inscripcion.getCohorte().getPrograma().getCronogramaOrdenado().stream()
+                .anyMatch(cronograma -> cronograma.getUnidad().getIdUnidad() == unidad.getIdUnidad());
+        if (inscripcion.esInactivo() || !esDelPrograma || inscripcion.estaUnidadCompletada(unidad)
+                || !unidad.estaAprobadaPor(inscripcion)) {
+            return false;
+        }
+        Progreso progreso = progresoRepositorio.findByInscripcionAndUnidad(inscripcion, unidad).orElseGet(() -> {
+            Progreso nuevo = progresoRepositorio.save(new Progreso(unidad, inscripcion));
+            inscripcion.getProgresos().add(nuevo);
+            return nuevo;
+        });
+        progreso.setCompletada(true);
+        progreso.setFechaCompletada(LocalDateTime.now());
+        progresoRepositorio.save(progreso);
+        // Con la última unidad pendiente completada, el alumno terminó el programa: se emite su certificado
+        if (inscripcion.getUnidadEnCurso() == null) {
+            certificadoServicio.emitirCertificado(inscripcion);
+        }
+        return true;
+    }
+
+    /**
+     * Verifica la unidad para cada alumno con inscripción vigente en un programa que la incluye.
+     */
+    @Override
+    @Transactional
+    public void actualizarProgresoDeLaUnidad(Unidad unidad) {
+        for (Programa programa : unidad.getProgramasQueLaIncluyen()) {
+            for (Cohorte cohorte : programa.getCohortesActivas()) {
+                for (Inscripcion inscripcion : cohorte.getInscripciones()) {
+                    if (!inscripcion.esInactivo() && inscripcion.estaHabilitada()) {
+                        actualizarProgreso(inscripcion, unidad);
+                    }
+                }
+            }
+        }
+    }
+
     // ---------------------------------------------------------------- Bajas
 
     /**
@@ -158,5 +210,23 @@ public class ProgresoServicioImpl implements ProgresoServicio, CrudServicio<Prog
     @Override
     public void borrar(Progreso entidad) {
         progresoRepositorio.delete(entidad);
+    }
+
+    /**
+     * Revierte la unidad a no completada y anula el certificado vigente de la inscripción, si lo tenía.
+     */
+    @Override
+    @Transactional
+    public boolean revertirProgreso(Inscripcion inscripcion, Unidad unidad) {
+        Progreso progreso = progresoRepositorio.findByInscripcionAndUnidad(inscripcion, unidad)
+                .filter(p -> Boolean.TRUE.equals(p.getCompletada())).orElse(null);
+        if (progreso == null) {
+            return false;
+        }
+        progreso.setCompletada(false);
+        progreso.setFechaCompletada(null);
+        progresoRepositorio.save(progreso);
+        certificadoServicio.anularCertificados(inscripcion);
+        return true;
     }
 }

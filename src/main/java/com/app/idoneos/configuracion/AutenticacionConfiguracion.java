@@ -144,6 +144,18 @@ public class AutenticacionConfiguracion {
                         .requestMatchers(HttpMethod.POST, "/unidad/darDeBaja/*", "/unidad/darDeBajaMasiva")
                         .hasAnyRole("Docente", "Administrador")
                         .requestMatchers("/unidad/**").hasRole("Docente")
+                        // CU-60 a CU-63: ABM de pools (docente y administrador los buscan, los ven y los dan de baja; el
+                        // docente los crea y los modifica)
+                        .requestMatchers(HttpMethod.GET, "/pool/buscar", "/pool/ver/*").hasAnyRole("Docente", "Administrador")
+                        .requestMatchers(HttpMethod.POST, "/pool/darDeBaja/*", "/pool/darDeBajaMasiva")
+                        .hasAnyRole("Docente", "Administrador")
+                        .requestMatchers("/pool/**").hasRole("Docente")
+                        // CU-64 a CU-67: ABM de autoevaluaciones (docente y administrador las buscan y las dan de baja; el
+                        // docente las crea y las modifica)
+                        .requestMatchers(HttpMethod.GET, "/autoevaluacion/buscar").hasAnyRole("Docente", "Administrador")
+                        .requestMatchers(HttpMethod.POST, "/autoevaluacion/darDeBaja/*", "/autoevaluacion/darDeBajaMasiva")
+                        .hasAnyRole("Docente", "Administrador")
+                        .requestMatchers("/autoevaluacion/**").hasRole("Docente")
                         // CU-23 y CU-24: cronograma (docente y administrador lo consultan; solo el docente lo modifica)
                         .requestMatchers(HttpMethod.GET, "/cronograma/buscar").hasAnyRole("Docente", "Administrador")
                         .requestMatchers("/cronograma/**").hasRole("Docente")

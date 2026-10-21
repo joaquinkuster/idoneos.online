@@ -57,7 +57,15 @@
         <a th:replace="~{fragments/sidebar :: enlace('/material/buscar?cursoId=' + ${curso.idCurso}, 'fa-file-lines', 'Materiales', ${activo}, 'materiales')}"></a>
         <a th:replace="~{fragments/sidebar :: enlace('/glosario/buscar?cursoId=' + ${curso.idCurso}, 'fa-spell-check', 'Glosario', ${activo}, 'glosario')}"></a>
     </th:block>
-    <a th:replace="~{fragments/sidebar :: enlace('#', 'fa-clipboard-check', 'Autoevaluaciones', ${activo}, 'autoevaluaciones')}"></a>
+    <th:block th:if="${esDocente == true or esAdministrador == true}">
+        <a th:replace="~{fragments/sidebar :: enlace('/pool/buscar?cursoId=' + ${curso.idCurso}, 'fa-circle-question', 'Pools', ${activo}, 'pools')}"></a>
+    </th:block>
+    <th:block th:if="${esDocente == true or esAdministrador == true}">
+        <a th:replace="~{fragments/sidebar :: enlace('/autoevaluacion/buscar?cursoId=' + ${curso.idCurso}, 'fa-clipboard-check', 'Autoevaluaciones', ${activo}, 'autoevaluaciones')}"></a>
+    </th:block>
+    <th:block th:unless="${esDocente == true or esAdministrador == true}">
+        <a th:replace="~{fragments/sidebar :: enlace('#', 'fa-clipboard-check', 'Autoevaluaciones', ${activo}, 'autoevaluaciones')}"></a>
+    </th:block>
     <th:block th:if="${esDocente == true or esAdministrador == true}">
         <a th:replace="~{fragments/sidebar :: enlace('/foro/buscar?cursoId=' + ${curso.idCurso}, 'fa-comments', 'Foros', ${activo}, 'foros')}"></a>
     </th:block>

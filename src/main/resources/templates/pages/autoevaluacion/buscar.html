@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <th:block th:replace="~{fragments/head :: recursos}"></th:block>
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
+</head>
+<body class="pn-body">
+<div class="pn-app" id="pnApp">
+    <!-- Menú lateral: el del docente (gestión académica) o, para el administrador, el del panel -->
+    <th:block th:replace="~{fragments/menus :: gestionAcademica(${menuActivo}, ${urlBase})}"></th:block>
+
+    <div class="pn-principal">
+        <th:block th:replace="~{fragments/panel :: barra(null)}"></th:block>
+
+        <main class="pn-contenido">
+            <nav class="ac-migas" aria-label="Ruta de navegación">
+                <a th:href="@{/inicio}">Página principal</a>
+                <i class="fa-solid fa-chevron-right"></i>
+                <a th:href="@{${urlMisCursos}}" th:text="${esAdministrador == true ? 'Cursos' : 'Mis cursos'}">Mis cursos</a>
+                <i class="fa-solid fa-chevron-right"></i>
+                <a th:href="@{${urlBase}}" th:text="${curso.nombre}">Curso</a>
+                <i class="fa-solid fa-chevron-right"></i>
+                <strong>Autoevaluaciones</strong>
+            </nav>
+
+            <div class="pn-encabezado">
+                <div>
+                    <h1 class="pn-titulo">Autoevaluaciones</h1>
+                    <p class="pn-subtitulo" th:text="${'Cuestionarios con corrección automática de ' + curso.nombre}">Cuestionarios con corrección automática</p>
+                </div>
+                <button type="button" class="pn-btn pn-btn-primario" th:if="${puedeGestionar}" data-bs-toggle="modal" data-bs-target="#modalNuevaAutoevaluacion"
+                        th:disabled="${#lists.isEmpty(unidades) or #lists.isEmpty(pools)}"
+                        th:title="${#lists.isEmpty(pools) ? 'Primero creá un pool de preguntas' : null}">
+                    <i class="fa-solid fa-plus"></i> Registrar autoevaluación
+                </button>
+            </div>
+
+            <section class="pn-tarjeta" data-tabla>
+                <div class="pn-lista-cabecera">
+                    <h2 class="pn-lista-titulo">Listado de autoevaluaciones</h2>
+                    <span class="pn-seleccionados" data-seleccionados>0 de 0 seleccionados</span>
+                    <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico d-none" data-baja-masiva
+                            data-url="/autoevaluacion/darDeBajaMasiva" data-elementos="autoevaluaciones"
+                            data-termino-uno="intento registrado" data-termino-varios="intentos registrados">Dar de baja seleccionado/s</button>
+                </div>
+
+                <!-- Filtros -->
+                <form th:action="@{/autoevaluacion/buscar}" method="get" class="pn-filtros" data-filtro-front>
+                    <input type="hidden" name="cursoId" th:value="${curso.idCurso}">
+                    <a th:href="@{/autoevaluacion/buscar(cursoId=${curso.idCurso})}" class="pn-btn pn-btn-contorno" hidden>Limpiar</a>
+                </form>
+
+                <!-- Tabla -->
+                <div class="pn-tabla-contenedor">
+                    <table class="pn-tabla">
+                        <thead>
+                            <tr>
+                                <th class="pn-col-seleccion"><input type="checkbox" data-seleccionar-todos aria-label="Seleccionar todos"></th>
+                                <th data-col="Nombre" data-campo="nombre" data-filtro="texto">Nombre</th>
+                                <th data-col="Unidad" data-campo="unidad" data-filtro="lista">Unidad</th>
+                                <th data-col="Pools" data-campo="pools" data-filtro="texto">Pools</th>
+                                <th data-col="Tiempo límite" data-campo="tiempo" data-filtro="numero">Tiempo límite</th>
+                                <th data-col="Preguntas" data-campo="preguntas" data-filtro="numero">Preguntas</th>
+                                <th data-col="Nota mínima" data-campo="nota" data-filtro="numero">Nota mínima</th>
+                                <th data-col="Intentos permitidos" data-campo="intentos" data-filtro="texto">Intentos permitidos</th>
+                                <th data-col="Evaluación final" data-campo="final" data-filtro="lista">Evaluación final</th>
+                                <th data-col="Visibilidad" data-campo="visibilidad" data-filtro="lista">Visibilidad</th>
+                                <th data-col="Apertura" data-campo="apertura" data-filtro="fecha">Apertura</th>
+                                <th data-col="Cierre" data-campo="cierre" data-filtro="fecha">Cierre</th>
+                                <th data-col="Intentos registrados" data-campo="registrados" data-filtro="numero">Intentos registrados</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="a : ${autoevaluaciones}" data-fila th:attr="data-dependencias=${#lists.size(a.intentosActivos)}">
+                                <td class="pn-col-seleccion"><input type="checkbox" data-seleccionar-fila aria-label="Seleccionar fila"
+                                    th:value="${a.idAutoevaluacion}"></td>
+                                <td><span class="pn-celda-principal pn-truncar" th:text="${a.nombre}">Autoevaluación Unidad 1</span></td>
+                                <td><span class="pn-truncar" th:text="${a.unidad.titulo}">Introducción al mercado</span></td>
+                                <td><span class="pn-truncar pn-truncar-largo" th:text="${#strings.listJoin(a.poolsActivos, ', ')}">Marco regulatorio</span></td>
+                                <td th:text="${a.tiempoLimite != null ? a.tiempoLimite + ' min' : '-'}">30 min</td>
+                                <td th:text="${a.cantidadPreguntas}">10</td>
+                                <td th:text="${#numbers.formatInteger(a.notaMinima, 1)}">6</td>
+                                <td th:text="${a.intentosPermitidos != null ? a.intentosPermitidos : 'Sin límite'}">3</td>
+                                <td th:text="${a.esEvaluacionFinal() ? 'Sí' : 'No'}">No</td>
+                                <td>
+                                    <span class="pn-insignia" th:classappend="${a.oculto} ? 'pn-insignia-dorada' : ''" th:text="${a.oculto ? 'Oculta' : 'Visible'}">Visible</span>
+                                </td>
+                                <td th:text="${#temporals.format(a.fechaApertura, 'dd/MM/yyyy HH:mm')}">28/08/2026 10:30</td>
+                                <td th:text="${a.fechaCierre != null ? #temporals.format(a.fechaCierre, 'dd/MM/yyyy HH:mm') : '-'}">-</td>
+                                <td th:text="${#lists.size(a.intentosActivos)}">0</td>
+                                <td>
+                                    <div class="pn-acciones">
+                                        <button type="button" class="pn-btn pn-btn-editar pn-btn-chico" th:if="${puedeGestionar}"
+                                                data-bs-toggle="modal" th:data-bs-target="'#modalEditarAutoevaluacion' + ${a.idAutoevaluacion}">Modificar</button>
+                                        <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico"
+                                                data-bs-toggle="modal" th:data-bs-target="'#modalBajaAutoevaluacion' + ${a.idAutoevaluacion}">Dar de baja</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr th:replace="~{fragments/vacio :: fila(14, 'fa-clipboard-check', 'No se encontraron autoevaluaciones', 'Ninguna autoevaluación coincide con los criterios ingresados.')}"></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pie: filas por página y paginador -->
+                <div class="pn-tabla-pie">
+                    <div class="pn-por-pagina">
+                        <span>Filas por página:</span>
+                        <select data-por-pagina>
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="0">Todo</option>
+                        </select>
+                        <span data-rango>0-0 de 0</span>
+                    </div>
+                    <div class="pn-paginador" data-paginador></div>
+                </div>
+            </section>
+        </main>
+
+        <th:block th:replace="~{fragments/panel :: pie(${esDocente ? 'Gestión académica' : 'Panel del administrador'})}"></th:block>
+    </div>
+</div>
+
+<!-- Modal: registrar autoevaluación (CU-65) -->
+<div class="modal fade pn-modal" id="modalNuevaAutoevaluacion" tabindex="-1" aria-hidden="true" th:if="${puedeGestionar}">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="pn-modal-cabecera">
+                <h3 class="pn-modal-titulo">Registrar autoevaluación</h3>
+                <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="pn-modal-cuerpo">
+                <th:block th:replace="~{fragments/formAutoevaluacion :: formulario(null, false)}"></th:block>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modales por autoevaluación: modificar (CU-66) y dar de baja (CU-67) -->
+<th:block th:each="a : ${autoevaluaciones}">
+    <div class="modal fade pn-modal" th:id="'modalEditarAutoevaluacion' + ${a.idAutoevaluacion}" tabindex="-1" aria-hidden="true"
+         th:if="${puedeGestionar}">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="pn-modal-cabecera">
+                    <h3 class="pn-modal-titulo">Editar autoevaluación</h3>
+                    <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="pn-modal-cuerpo">
+                    <th:block th:replace="~{fragments/formAutoevaluacion :: formulario(${a}, ${a.tieneIntentosActivos()})}"></th:block>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <th:block th:replace="~{fragments/modalBaja :: bloque('modalBajaAutoevaluacion' + ${a.idAutoevaluacion}, 'autoevaluación', '¿Confirmas dar de baja la autoevaluación «' + ${a.nombre} + '»?', ${a.tieneIntentosActivos() ? 'Tiene ' + #lists.size(a.intentosActivos) + ' intento/s registrado/s: no se puede dar de baja.' : 'Dejará de estar disponible para los alumnos. Los pools no se modifican.'}, '/autoevaluacion/darDeBaja/' + ${a.idAutoevaluacion}, null, null)}"></th:block>
+</th:block>
+
+<th:block th:replace="~{fragments/panel :: scripts}"></th:block>
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+<script th:src="@{/js/academica.js}"></script>
+<script th:src="@{/js/autoevaluacion.js}"></script>
+</body>
+</html>

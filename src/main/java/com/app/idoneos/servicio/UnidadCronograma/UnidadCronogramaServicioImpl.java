@@ -196,6 +196,15 @@ public class UnidadCronogramaServicioImpl implements UnidadCronogramaServicio, C
             }
             unidades.put(id, unidad);
         }
+        if (programa.tieneCohortesEnCurso()) {
+            List<String> sinAutoevaluacion = ids.stream().map(unidades::get)
+                    .filter(u -> u.getAutoevaluacionesPublicadas().isEmpty()).map(u -> "«" + u.getTitulo() + "»").toList();
+            if (!sinAutoevaluacion.isEmpty()) {
+                throw new IllegalArgumentException("Error! El programa tiene cohortes en curso: todas las unidades del "
+                        + "cronograma deben tener al menos una autoevaluación visible. Faltan en: "
+                        + String.join(", ", sinAutoevaluacion) + ".");
+            }
+        }
 
         // Las unidades que ya no figuran se dan de baja del cronograma (si no están en otro programa, quedan de baja)
         Set<Integer> conservadas = Set.copyOf(ids);

@@ -186,6 +186,15 @@ public class Autoevaluacion {
     }
 
     /**
+     * Indica si la autoevaluación integra pools de otras unidades, es decir, si es la evaluación final del curso.
+     *
+     * @return {@code true} si alguno de sus pools es de otra unidad.
+     */
+    public boolean esEvaluacionFinal() {
+        return getPoolsActivos().stream().anyMatch(pool -> pool.getUnidad().getIdUnidad() != unidad.getIdUnidad());
+    }
+
+    /**
      * Indica si la fecha dada está dentro del período habilitado: desde la fecha de apertura y, si tiene, hasta la fecha de
      * cierre.
      *

@@ -3,6 +3,8 @@ package com.app.idoneos.servicio.Certificado;
 import com.app.idoneos.utilidades.RespuestaFormularioUtilidad;
 import com.app.idoneos.utilidades.MensajeErrorUtilidad;
 import java.time.LocalDateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +24,8 @@ public class CertificadoServicioImpl implements CertificadoServicio, CrudServici
 
     /** Longitud máxima del nombre (la de la columna). */
     private static final int LONGITUD_NOMBRE = 100;
+
+    private static final Logger REGISTRO = LoggerFactory.getLogger(CertificadoServicioImpl.class);
 
     @Autowired
     private CertificadoRepositorio certificadoRepositorio;
@@ -95,6 +99,34 @@ public class CertificadoServicioImpl implements CertificadoServicio, CrudServici
         return certificadoRepositorio.save(entidad);
     }
 
+    /**
+     * Emite el certificado de finalización de una inscripción. Si ya tiene uno vigente, lo devuelve.
+     */
+    @Override
+    @Transactional
+    public Certificado emitirCertificado(Inscripcion inscripcion) {
+        Certificado vigente = inscripcion.getCertificadoVigente();
+        if (vigente != null) {
+            return vigente;
+        }
+        LocalDateTime ahora = LocalDateTime.now();
+        long secuencia = certificadoRepositorio.count() + 1;
+        String numero = String.format("CERT-%d-%06d", ahora.getYear(), secuencia);
+        while (certificadoRepositorio.findByNumero(numero).isPresent()) {
+            secuencia++;
+            numero = String.format("CERT-%d-%06d", ahora.getYear(), secuencia);
+        }
+        var usuario = inscripcion.getAlumno().getUsuario();
+        Certificado certificado = new Certificado(inscripcion, numero, ahora,
+                "Certificado de aprobación del curso " + inscripcion.getCurso().getNombre(), usuario.getNombreCompleto(),
+                usuario.getDni());
+        certificado = certificadoRepositorio.save(certificado);
+        inscripcion.getCertificados().add(certificado);
+        // El correo real llega con MOD-NF-01: por ahora el envío se registra en el log y el certificado queda sin enviar
+        REGISTRO.info("Certificado {} emitido para {} (envío por correo simulado)", numero, usuario.getCorreo());
+        return certificado;
+    }
+
     // ---------------------------------------------------------------- Modificaciones
 
     /**
@@ -143,5 +175,20 @@ public class CertificadoServicioImpl implements CertificadoServicio, CrudServici
     public void borrar(Certificado entidad) {
         entidad.anular(); // Anulación en lugar de borrado
         certificadoRepositorio.save(entidad);
+    }
+
+    /**
+     * Anula los certificados vigentes de una inscripción.
+     */
+    @Override
+    @Transactional
+    public boolean anularCertificados(Inscripcion inscripcion) {
+        List<Certificado> vigentes = certificadoRepositorio.findByInscripcionAndAnuladoFalse(inscripcion);
+        for (Certificado certificado : vigentes) {
+            certificado.anular();
+            certificado.setUltimaModificacion(LocalDateTime.now());
+            certificadoRepositorio.save(certificado);
+        }
+        return !vigentes.isEmpty();
     }
 }

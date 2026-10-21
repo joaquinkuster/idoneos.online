@@ -273,6 +273,27 @@ public class Unidad {
     }
 
     /**
+     * Indica si algún programa que incluye la unidad tiene cohortes que todavía no terminaron. En ese caso la unidad debe
+     * conservar al menos una autoevaluación visible.
+     *
+     * @return {@code true} si la unidad es cursada (o lo será) por alumnos de alguna cohorte.
+     */
+    public boolean tieneCohortesEnCurso() {
+        return getProgramasQueLaIncluyen().stream().anyMatch(Programa::tieneCohortesEnCurso);
+    }
+
+    /**
+     * Indica si la unidad es la última del cronograma de un programa.
+     *
+     * @param programa El programa.
+     * @return {@code true} si es la última unidad del cronograma.
+     */
+    public boolean esUltimaDelPrograma(Programa programa) {
+        List<UnidadCronograma> cronograma = programa.getCronogramaOrdenado();
+        return !cronograma.isEmpty() && cronograma.get(cronograma.size() - 1).getUnidad().getIdUnidad() == idUnidad;
+    }
+
+    /**
      * Obtiene las consultas vigentes del foro de la unidad.
      *
      * @return Las consultas, con el último mensaje más reciente primero.

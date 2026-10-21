@@ -28,6 +28,18 @@ public interface CertificadoServicio {
      */
     Optional<Certificado> buscarPorNumero(String numero);
 
+    // ---------------------------------------------------------------- Creaciones
+
+    /**
+     * Emite el certificado de finalización de una inscripción que completó todas las unidades del programa: genera su
+     * número (CERT-año-secuencia) y su fecha de emisión y lo registra. El envío por correo se simula (queda registrado
+     * en el log) hasta que exista el servicio de correo. Si la inscripción ya tiene un certificado vigente, lo devuelve.
+     *
+     * @param inscripcion la inscripción que completó el curso
+     * @return el certificado vigente de la inscripción
+     */
+    Certificado emitirCertificado(Inscripcion inscripcion);
+
     // ---------------------------------------------------------------- Modificaciones
 
     /**
@@ -42,4 +54,15 @@ public interface CertificadoServicio {
      *         inscripción está dada de baja
      */
     Certificado corregirDatos(Integer idCertificado, String nombre, String dni);
+
+    // ---------------------------------------------------------------- Bajas
+
+    /**
+     * Anula los certificados vigentes de una inscripción (por ejemplo, cuando se revierte una unidad del curso por
+     * fraude y el curso deja de estar completo).
+     *
+     * @param inscripcion la inscripción
+     * @return {@code true} si había algún certificado vigente
+     */
+    boolean anularCertificados(Inscripcion inscripcion);
 }

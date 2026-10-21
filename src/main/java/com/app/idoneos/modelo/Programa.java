@@ -222,6 +222,27 @@ public class Programa {
     }
 
     /**
+     * Indica si el programa tiene cohortes que todavía no terminaron (próximas, abiertas o en dictado). Mientras las tenga,
+     * cada unidad de su cronograma debe conservar al menos una autoevaluación visible: es lo que permite a los alumnos
+     * completarla.
+     *
+     * @return {@code true} si alguna cohorte activa no está finalizada.
+     */
+    public boolean tieneCohortesEnCurso() {
+        return cohortes.stream().anyMatch(Cohorte::estaEnCurso);
+    }
+
+    /**
+     * Obtiene las unidades del cronograma que no tienen ninguna autoevaluación visible (vigente y no oculta).
+     *
+     * @return Las unidades sin autoevaluación visible, en el orden del cronograma.
+     */
+    public List<Unidad> getUnidadesSinAutoevaluacion() {
+        return getCronogramaOrdenado().stream().map(UnidadCronograma::getUnidad)
+                .filter(unidad -> unidad.getAutoevaluacionesPublicadas().isEmpty()).toList();
+    }
+
+    /**
      * Calcula la duración total del cronograma del programa, sumando las semanas de cada unidad vigente.
      *
      * @return La duración total en semanas.
