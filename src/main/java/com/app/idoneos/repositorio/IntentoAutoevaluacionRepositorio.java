@@ -66,4 +66,14 @@ public interface IntentoAutoevaluacionRepositorio extends JpaRepository<IntentoA
     @Query("select i from IntentoAutoevaluacion i where i.baja = false and i.fechaEntrega is null "
             + "and i.inscripcion.alumno = :alumno")
     List<IntentoAutoevaluacion> buscarEnCursoDelAlumno(@Param("alumno") Alumno alumno);
+
+    /**
+     * Busca los intentos vigentes de las autoevaluaciones de un curso, del más antiguo al más reciente.
+     *
+     * @param idCurso el identificador del curso
+     * @return los intentos vigentes
+     */
+    @Query("select i from IntentoAutoevaluacion i where i.baja = false "
+            + "and i.autoevaluacion.unidad.curso.idCurso = :idCurso order by i.idIntentoAutoevaluacion")
+    List<IntentoAutoevaluacion> buscarVigentesDelCurso(@Param("idCurso") Integer idCurso);
 }

@@ -10,6 +10,7 @@ import java.util.Optional;
 import java.util.Set;
 import com.app.idoneos.modelo.Alumno;
 import com.app.idoneos.modelo.Autoevaluacion;
+import com.app.idoneos.modelo.Docente;
 import com.app.idoneos.modelo.Inscripcion;
 import com.app.idoneos.modelo.IntentoAutoevaluacion;
 import com.app.idoneos.modelo.OpcionRespuesta;
@@ -195,6 +196,22 @@ public class IntentoAutoevaluacionServicioImpl implements IntentoAutoevaluacionS
     public int obtenerGraciaEnSegundos() {
         return parametroServicio.obtenerEntero(Parametro.GRACIA_ENTREGA_AUTOEVALUACION,
                 Parametro.GRACIA_ENTREGA_AUTOEVALUACION_POR_DEFECTO);
+    }
+
+    /**
+     * CU-68: Busca los intentos vigentes del curso.
+     */
+    @Override
+    public List<IntentoAutoevaluacion> buscarDelCurso(Integer idCurso, Docente soloDeDocente) {
+        if (idCurso == null) {
+            throw new IllegalArgumentException("Error! Debe seleccionar un curso.");
+        }
+        List<IntentoAutoevaluacion> intentos = intentoAutoevaluacionRepositorio.buscarVigentesDelCurso(idCurso);
+        if (soloDeDocente != null && !intentos.isEmpty()) {
+            validarDocenteDelCurso(intentos.get(0), soloDeDocente);
+        }
+        intentos.forEach(this::cerrarSiVencido); // los que se quedaron sin tiempo se muestran ya corregidos
+        return intentos;
     }
 
     // ---------------------------------------------------------------- Creaciones
@@ -387,6 +404,28 @@ public class IntentoAutoevaluacionServicioImpl implements IntentoAutoevaluacionS
         }
     }
 
+    /**
+     * CU-71: Aprueba manualmente un intento entregado que no alcanzó la nota mínima.
+     */
+    @Override
+    @Transactional
+    public IntentoAutoevaluacion aprobarPorDocente(Integer idIntento, Docente docente) {
+        IntentoAutoevaluacion intento = intentoVigente(idIntento);
+        validarDocenteDelCurso(intento, docente);
+        cerrarSiVencido(intento);
+        if (intento.estaEnCurso()) {
+            throw new IllegalArgumentException("Error! El intento todavía está en curso: esperá a que el alumno lo entregue.");
+        }
+        if (Boolean.TRUE.equals(intento.getAprobado())) {
+            throw new IllegalArgumentException("Error! El intento ya está aprobado.");
+        }
+        intento.setAprobado(true);
+        intento.setUltimaModificacion(LocalDateTime.now());
+        intentoAutoevaluacionRepositorio.save(intento);
+        progresoServicio.actualizarProgreso(intento.getInscripcion(), intento.getAutoevaluacion().getUnidad());
+        return intento;
+    }
+
     // ---------------------------------------------------------------- Bajas
 
     /**
@@ -398,6 +437,24 @@ public class IntentoAutoevaluacionServicioImpl implements IntentoAutoevaluacionS
     public void borrar(IntentoAutoevaluacion entidad) {
         entidad.marcarInactivo(); // Baja lógica
         intentoAutoevaluacionRepositorio.save(entidad);
+    }
+
+    /**
+     * CU-72: Da de baja un intento y, si el alumno deja de aprobar la unidad, la revierte y anula su certificado.
+     */
+    @Override
+    @Transactional
+    public boolean darDeBajaIntento(Integer idIntento) {
+        IntentoAutoevaluacion intento = intentoVigente(idIntento);
+        Inscripcion inscripcion = intento.getInscripcion();
+        Unidad unidad = intento.getAutoevaluacion().getUnidad();
+        intento.marcarInactivo();
+        intento.setUltimaModificacion(LocalDateTime.now());
+        intentoAutoevaluacionRepositorio.save(intento);
+        if (inscripcion.estaUnidadCompletada(unidad) && !unidad.estaAprobadaPor(inscripcion)) {
+            return progresoServicio.revertirProgreso(inscripcion, unidad);
+        }
+        return false;
     }
 
     // ---------------------------------------------------------------- Auxiliares
@@ -466,5 +523,18 @@ public class IntentoAutoevaluacionServicioImpl implements IntentoAutoevaluacionS
             return Optional.of("La autoevaluación todavía no tiene preguntas suficientes: avisale a tu docente.");
         }
         return Optional.empty();
+    }
+    private IntentoAutoevaluacion intentoVigente(Integer idIntento) {
+        return buscarPorId(idIntento == null ? -1 : idIntento)
+                .orElseThrow(() -> new IllegalArgumentException("Error! El intento no se encuentra disponible."));
+    }
+
+    private void validarDocenteDelCurso(IntentoAutoevaluacion intento, Docente docente) {
+        if (docente == null) {
+            throw new IllegalArgumentException("Error! El usuario no tiene el rol de docente.");
+        }
+        if (!intento.getAutoevaluacion().getUnidad().getCurso().tieneDocente(docente)) {
+            throw new IllegalArgumentException("Error! No participás en este curso.");
+        }
     }
 }

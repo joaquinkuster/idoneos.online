@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <th:block th:replace="~{fragments/head :: recursos}"></th:block>
+</head>
+<body class="pn-body">
+<div class="pn-app" id="pnApp">
+    <th:block th:replace="~{fragments/menus :: gestionAcademica(${menuActivo}, ${urlBase})}"></th:block>
+
+    <div class="pn-principal">
+        <th:block th:replace="~{fragments/panel :: barra(null)}"></th:block>
+
+        <main class="pn-contenido">
+            <nav class="ac-migas" aria-label="Ruta de navegación">
+                <a th:href="@{/inicio}">Página principal</a>
+                <i class="fa-solid fa-chevron-right"></i>
+                <a th:href="@{${urlMisCursos}}" th:text="${esAdministrador == true ? 'Cursos' : 'Mis cursos'}">Mis cursos</a>
+                <i class="fa-solid fa-chevron-right"></i>
+                <a th:href="@{${urlBase}}" th:text="${curso.nombre}">Curso</a>
+                <i class="fa-solid fa-chevron-right"></i>
+                <strong>Intentos</strong>
+            </nav>
+
+            <div class="pn-encabezado">
+                <div>
+                    <h1 class="pn-titulo">Intentos de autoevaluación</h1>
+                    <p class="pn-subtitulo" th:text="${'Intentos de los alumnos de ' + curso.nombre}">Intentos de los alumnos del curso</p>
+                </div>
+            </div>
+
+            <section class="pn-tarjeta" data-tabla>
+                <div class="pn-lista-cabecera">
+                    <h2 class="pn-lista-titulo">Listado de intentos</h2>
+                    <span class="pn-seleccionados" data-total-filtradas data-singular="intento encontrado" data-plural="intentos encontrados"
+                          th:text="${#lists.size(filas) + (#lists.size(filas) == 1 ? ' intento encontrado' : ' intentos encontrados')}">0 intentos encontrados</span>
+                </div>
+
+                <!-- Filtros: se aplican en el navegador, sin recargar -->
+                <form class="pn-filtros" data-filtro-front>
+                    <div class="pn-filtros-campo" data-filtro-estatico="cohorte">
+                        <label class="pn-etiqueta">Cohorte</label>
+                        <select name="cohorte" class="pn-input" title="Cohorte">
+                            <option value="">Todas las cohortes</option>
+                            <option th:each="c : ${cohortes}" th:value="${c.idCohorte}"
+                                    th:selected="${cohorteSeleccionada != null and cohorteSeleccionada == c.idCohorte}"
+                                    th:text="${c.programa.nombre + ' · ' + c.etiqueta}">Programa · Septiembre 2026</option>
+                        </select>
+                    </div>
+                    <a th:href="@{/intento/buscar(cursoId=${curso.idCurso})}" class="pn-btn pn-btn-contorno" hidden>Limpiar</a>
+                </form>
+
+                <div class="pn-tabla-contenedor">
+                    <table class="pn-tabla">
+                        <thead>
+                            <tr>
+                                <th data-col="Alumno" data-campo="alumno" data-filtro="texto">Alumno</th>
+                                <th data-col="Cohorte" data-campo="cohorte" data-filtro="estatico">Cohorte</th>
+                                <th data-col="Autoevaluación" data-campo="autoevaluacion" data-filtro="lista">Autoevaluación</th>
+                                <th data-col="Intento" data-campo="numero" data-filtro="numero">Intento</th>
+                                <th data-col="Inicio" data-campo="inicio" data-filtro="fecha">Inicio</th>
+                                <th data-col="Entrega" data-campo="entrega" data-filtro="fecha">Entrega</th>
+                                <th data-col="Duración" data-campo="duracion" data-filtro="numero">Duración</th>
+                                <th data-col="Nota" data-campo="nota" data-filtro="numero">Nota</th>
+                                <th data-col="Resultado" data-campo="resultado" data-filtro="lista">Resultado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="f : ${filas}" data-fila
+                                th:with="i=${f.intento}, puedeAprobarEste=${puedeAprobar and i.estaFinalizado() and !i.aprobado}"
+                                th:data-f-alumno="${i.inscripcion.alumno.usuario.nombreCompleto + ' ' + i.inscripcion.alumno.usuario.dni + ' ' + i.inscripcion.alumno.usuario.correo}"
+                                th:data-f-cohorte="${i.inscripcion.cohorte.idCohorte}">
+                                <td>
+                                    <span class="pn-celda-principal d-inline-flex align-items-center gap-2">
+                                        <th:block th:replace="~{fragments/avatar :: avatar(${i.inscripcion.alumno.usuario}, 'av-chico')}"></th:block>
+                                        <span class="pn-truncar pn-truncar-largo" th:text="${i.inscripcion.alumno.usuario.nombreCompleto}">Valentina Ruiz</span>
+                                    </span>
+                                </td>
+                                <td><span class="pn-truncar" th:text="${i.inscripcion.cohorte.programa.nombre + ' · ' + i.inscripcion.cohorte.etiqueta}">Programa · Mayo 2026</span></td>
+                                <td><span class="pn-truncar" th:text="${i.autoevaluacion.nombre}">Autoevaluación Unidad 1</span></td>
+                                <td th:text="${f.numero}">1</td>
+                                <td th:text="${#temporals.format(i.fechaCreacion, 'dd/MM/yyyy HH:mm')}">28/08/2026 10:30</td>
+                                <td th:text="${i.fechaEntrega != null ? #temporals.format(i.fechaEntrega, 'dd/MM/yyyy HH:mm') : '-'}">-</td>
+                                <td th:text="${i.duracionMinutos != null ? i.duracionMinutos + ' min' : '-'}">12 min</td>
+                                <td th:text="${i.nota != null ? #numbers.formatDecimal(i.nota, 1, 2, 'COMMA') : '-'}">8,00</td>
+                                <td>
+                                    <span class="pn-insignia"
+                                          th:classappend="${i.resultado == 'Aprobado' or i.resultado == 'Aprobado por el docente'} ? 'pn-insignia-verde' : (${i.resultado == 'En curso'} ? 'pn-insignia-azul' : 'pn-insignia-gris')"
+                                          th:text="${i.resultado}">Aprobado</span>
+                                </td>
+                                <td>
+                                    <div class="pn-acciones">
+                                        <div class="dropdown" th:if="${puedeAprobarEste or puedeDarDeBaja}">
+                                            <button type="button" class="pn-btn pn-btn-contorno pn-btn-chico pn-mas" data-bs-toggle="dropdown"
+                                                    aria-expanded="false" data-bs-popper-config='{"strategy":"fixed"}'>Más <i class="fa-solid fa-chevron-down"></i></button>
+                                            <ul class="dropdown-menu dropdown-menu-end">
+                                                <li th:if="${puedeAprobarEste}"><button type="button" class="dropdown-item" data-bs-toggle="modal"
+                                                    th:data-bs-target="'#modalAprobarIntento' + ${i.idIntentoAutoevaluacion}">Aprobar intento</button></li>
+                                                <li th:if="${puedeDarDeBaja}"><button type="button" class="dropdown-item" data-bs-toggle="modal"
+                                                    th:data-bs-target="'#modalBajaIntento' + ${i.idIntentoAutoevaluacion}">Dar de baja</button></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr th:replace="~{fragments/vacio :: fila(10, 'fa-clipboard-check', ${#lists.isEmpty(filas) ? 'Todavía no hay intentos' : 'No se encontraron intentos'}, ${#lists.isEmpty(filas) ? 'Cuando los alumnos rindan las autoevaluaciones, vas a ver sus intentos acá.' : 'Ningún intento coincide con los criterios ingresados.'})}"></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pie: filas por página y paginador -->
+                <div class="pn-tabla-pie">
+                    <div class="pn-por-pagina">
+                        <span>Filas por página:</span>
+                        <select data-por-pagina>
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="0">Todo</option>
+                        </select>
+                        <span data-rango>0-0 de 0</span>
+                    </div>
+                    <div class="pn-paginador" data-paginador></div>
+                </div>
+            </section>
+        </main>
+
+        <th:block th:replace="~{fragments/panel :: pie(${esAdministrador == true ? 'Panel del administrador' : 'Gestión académica'})}"></th:block>
+    </div>
+</div>
+
+<!-- Ventanas por intento: aprobar (CU-71, docente) y dar de baja (CU-72, administrador) -->
+<th:block th:each="f : ${filas}" th:with="i=${f.intento}">
+    <div class="modal fade pn-modal" th:id="'modalAprobarIntento' + ${i.idIntentoAutoevaluacion}" tabindex="-1" aria-hidden="true"
+         th:if="${puedeAprobar and i.estaFinalizado() and !i.aprobado}">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="pn-modal-cabecera">
+                    <h3 class="pn-modal-titulo">Aprobar intento</h3>
+                    <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="pn-modal-cuerpo text-center">
+                    <h4 class="pn-modal-titulo mb-2"
+                        th:text="${'¿Confirmás aprobar el intento ' + f.numero + ' de ' + i.inscripcion.alumno.usuario.nombreCompleto + '?'}">¿Confirmás aprobar el intento?</h4>
+                    <p class="small text-muted mb-0"
+                       th:text="${'La nota (' + #numbers.formatDecimal(i.nota, 1, 2, 'COMMA') + ') no se modifica: el intento pasa a contar como aprobado por el docente y se verifica si el alumno completó la unidad.'}">Aclaración.</p>
+                    <form th:action="@{'/intento/aprobar/' + ${i.idIntentoAutoevaluacion}}" method="post" class="form-ajax">
+                        <div class="pn-modal-pie">
+                            <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="pn-btn pn-btn-primario">Aprobar intento</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <th:block th:if="${puedeDarDeBaja}">
+        <th:block th:replace="~{fragments/modalBaja :: bloque('modalBajaIntento' + ${i.idIntentoAutoevaluacion}, 'intento', '¿Confirmás dar de baja el intento ' + ${f.numero} + ' de ' + ${i.inscripcion.alumno.usuario.nombreCompleto} + '?', ${i.estaEnCurso() ? 'Está en curso: el alumno no podrá continuarlo y no se corregirá.' : (i.aprobado ? 'Estaba aprobado: si era el que le permitía completar la unidad, la unidad vuelve a estar pendiente y se anula su certificado.' : 'Dejará de contar entre los intentos del alumno.')}, '/intento/darDeBaja/' + ${i.idIntentoAutoevaluacion}, null, null)}"></th:block>
+    </th:block>
+</th:block>
+
+<th:block th:replace="~{fragments/panel :: scripts}"></th:block>
+<script th:src="@{/js/academica.js}"></script>
+</body>
+</html>

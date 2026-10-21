@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <th:block th:replace="~{fragments/head :: recursos}"></th:block>
+</head>
+<body class="pn-body">
+<div class="pn-app" id="pnApp">
+    <th:block th:replace="~{fragments/menus :: gestionAcademica(${menuActivo}, ${urlBase})}"></th:block>
+
+    <div class="pn-principal">
+        <th:block th:replace="~{fragments/panel :: barra(null)}"></th:block>
+
+        <main class="pn-contenido">
+            <nav class="ac-migas" aria-label="Ruta de navegación">
+                <a th:href="@{/inicio}">Página principal</a>
+                <i class="fa-solid fa-chevron-right"></i>
+                <a th:href="@{${urlMisCursos}}" th:text="${esAdministrador == true ? 'Cursos' : 'Mis cursos'}">Mis cursos</a>
+                <i class="fa-solid fa-chevron-right"></i>
+                <a th:href="@{${urlBase}}" th:text="${curso.nombre}">Curso</a>
+                <i class="fa-solid fa-chevron-right"></i>
+                <strong>Calificaciones</strong>
+            </nav>
+
+            <div class="pn-encabezado">
+                <div>
+                    <h1 class="pn-titulo">Calificaciones</h1>
+                    <p class="pn-subtitulo" th:text="${'Mejor nota de cada alumno en las autoevaluaciones de ' + curso.nombre}">Mejor nota de cada alumno</p>
+                </div>
+            </div>
+
+            <section class="pn-tarjeta" data-tabla>
+                <div class="pn-lista-cabecera">
+                    <h2 class="pn-lista-titulo">Matriz de calificaciones</h2>
+                    <span class="pn-seleccionados" data-total-filtradas data-singular="alumno encontrado" data-plural="alumnos encontrados"
+                          th:text="${#lists.size(inscripciones) + (#lists.size(inscripciones) == 1 ? ' alumno encontrado' : ' alumnos encontrados')}">0 alumnos encontrados</span>
+                </div>
+
+                <form class="pn-filtros" data-filtro-front>
+                    <div class="pn-filtros-campo" data-filtro-estatico="cohorte">
+                        <label class="pn-etiqueta">Cohorte</label>
+                        <select name="cohorte" class="pn-input" title="Cohorte">
+                            <option value="">Todas las cohortes</option>
+                            <option th:each="c : ${cohortes}" th:value="${c.idCohorte}"
+                                    th:selected="${cohorteSeleccionada != null and cohorteSeleccionada == c.idCohorte}"
+                                    th:text="${c.programa.nombre + ' · ' + c.etiqueta}">Programa · Septiembre 2026</option>
+                        </select>
+                    </div>
+                    <a th:href="@{/calificacion/buscar(cursoId=${curso.idCurso})}" class="pn-btn pn-btn-contorno" hidden>Limpiar</a>
+                </form>
+
+                <div class="pn-tabla-contenedor">
+                    <table class="pn-tabla">
+                        <thead>
+                            <tr>
+                                <th data-col="Alumno" data-campo="alumno" data-filtro="texto">Alumno</th>
+                                <th data-col="Cohorte" data-campo="cohorte" data-filtro="estatico">Cohorte</th>
+                                <th th:each="a : ${autoevaluaciones}" th:text="${a.nombre}" th:title="${a.unidad.titulo}">Autoevaluación</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="i : ${inscripciones}" data-fila
+                                th:data-f-alumno="${i.alumno.usuario.nombreCompleto + ' ' + i.alumno.usuario.dni + ' ' + i.alumno.usuario.correo}"
+                                th:data-f-cohorte="${i.cohorte.idCohorte}">
+                                <td>
+                                    <span class="pn-celda-principal d-inline-flex align-items-center gap-2">
+                                        <th:block th:replace="~{fragments/avatar :: avatar(${i.alumno.usuario}, 'av-chico')}"></th:block>
+                                        <span class="pn-truncar pn-truncar-largo" th:text="${i.alumno.usuario.nombreCompleto}">Valentina Ruiz</span>
+                                    </span>
+                                </td>
+                                <td><span class="pn-truncar" th:text="${i.cohorte.programa.nombre + ' · ' + i.cohorte.etiqueta}">Programa · Mayo 2026</span></td>
+                                <td th:each="a : ${autoevaluaciones}">
+                                    <th:block th:if="${unidadesPorPrograma.get(i.cohorte.programa.idPrograma).contains(a.unidad.idUnidad)}">
+                                        <span th:if="${a.mejorNota(i) == null}" class="text-muted">-</span>
+                                        <span th:unless="${a.mejorNota(i) == null}" class="pn-insignia"
+                                              th:classappend="${a.estaAprobadaPor(i)} ? 'pn-insignia-verde' : 'pn-insignia-gris'"
+                                              th:text="${#numbers.formatDecimal(a.mejorNota(i), 1, 2, 'COMMA')}">8,00</span>
+                                    </th:block>
+                                    <span th:unless="${unidadesPorPrograma.get(i.cohorte.programa.idPrograma).contains(a.unidad.idUnidad)}" class="text-muted" title="No es de su programa">n/a</span>
+                                </td>
+                            </tr>
+                            <tr th:replace="~{fragments/vacio :: fila(2 + ${#lists.size(autoevaluaciones)}, 'fa-star', ${#lists.isEmpty(inscripciones) ? 'Todavía no hay alumnos inscriptos' : 'No se encontraron alumnos'}, ${#lists.isEmpty(inscripciones) ? 'Cuando haya alumnos inscriptos en el curso, vas a ver sus calificaciones acá.' : 'Ningún alumno coincide con los criterios ingresados.'})}"></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <p class="small text-muted mt-3 mb-0">
+                    Se muestra la mejor nota entre los intentos entregados (en verde, las aprobadas). El guion indica que todavía no hay intentos entregados.
+                </p>
+
+                <div class="pn-tabla-pie">
+                    <div class="pn-por-pagina">
+                        <span>Filas por página:</span>
+                        <select data-por-pagina>
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="0">Todo</option>
+                        </select>
+                        <span data-rango>0-0 de 0</span>
+                    </div>
+                    <div class="pn-paginador" data-paginador></div>
+                </div>
+            </section>
+        </main>
+
+        <th:block th:replace="~{fragments/panel :: pie(${esAdministrador == true ? 'Panel del administrador' : 'Gestión académica'})}"></th:block>
+    </div>
+</div>
+
+<th:block th:replace="~{fragments/panel :: scripts}"></th:block>
+<script th:src="@{/js/academica.js}"></script>
+</body>
+</html>

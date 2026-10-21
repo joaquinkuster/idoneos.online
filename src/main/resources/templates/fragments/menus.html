@@ -50,7 +50,10 @@
     <th:block th:if="${esDocente == true or esAdministrador == true}">
         <a th:replace="~{fragments/sidebar :: enlace('/progreso/buscar?cursoId=' + ${curso.idCurso}, 'fa-chart-line', 'Progreso', ${activo}, 'progreso')}"></a>
     </th:block>
-    <a th:replace="~{fragments/sidebar :: enlace('#', 'fa-star', 'Calificaciones', ${activo}, 'calificaciones')}"></a>
+    <th:block th:if="${esDocente == true or esAdministrador == true}">
+        <a th:replace="~{fragments/sidebar :: enlace('/intento/buscar?cursoId=' + ${curso.idCurso}, 'fa-clipboard-list', 'Intentos', ${activo}, 'intentos')}"></a>
+    </th:block>
+    <a th:replace="~{fragments/sidebar :: enlace((${esDocente == true or esAdministrador == true} ? '/calificacion/buscar?cursoId=' + ${curso.idCurso} : ${#strings.replace(urlBase, '/inscripcion/acceder/', '/calificacion/ver/')}), 'fa-star', 'Calificaciones', ${activo}, 'calificaciones')}"></a>
 
     <div th:replace="~{fragments/sidebar :: grupo('Contenido de las unidades')}"></div>
     <th:block th:if="${esDocente == true or esAdministrador == true}">

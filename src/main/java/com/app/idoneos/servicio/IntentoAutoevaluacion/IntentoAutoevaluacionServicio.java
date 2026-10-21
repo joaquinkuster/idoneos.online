@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import com.app.idoneos.modelo.Alumno;
 import com.app.idoneos.modelo.Autoevaluacion;
+import com.app.idoneos.modelo.Docente;
 import com.app.idoneos.modelo.Inscripcion;
 import com.app.idoneos.modelo.IntentoAutoevaluacion;
 
@@ -152,4 +153,35 @@ public interface IntentoAutoevaluacionServicio {
      * @return la cantidad de intentos cerrados
      */
     int cerrarIntentosVencidos();
+
+    /**
+     * CU-68: Busca los intentos vigentes de las autoevaluaciones de un curso, del más antiguo al más reciente.
+     *
+     * @param idCurso       el identificador del curso
+     * @param soloDeDocente si se indica, el docente debe participar en el curso (si no, se rechaza)
+     * @return los intentos del curso
+     * @throws IllegalArgumentException si el docente no participa en el curso
+     */
+    List<IntentoAutoevaluacion> buscarDelCurso(Integer idCurso, Docente soloDeDocente);
+
+    /**
+     * CU-71: El docente aprueba manualmente un intento entregado que no alcanzó la nota mínima. La nota no se modifica; el
+     * intento pasa a contar como aprobado y se verifica si el alumno completó la unidad (y el curso).
+     *
+     * @param idIntento el identificador del intento
+     * @param docente   el docente, que debe participar en el curso
+     * @return el intento aprobado
+     * @throws IllegalArgumentException si el intento no existe, está en curso, ya está aprobado o el docente no participa
+     */
+    IntentoAutoevaluacion aprobarPorDocente(Integer idIntento, Docente docente);
+
+    /**
+     * CU-72: Da de baja un intento (también uno en curso, por ejemplo ante un fraude). Si el intento hacía que el alumno
+     * tuviera la unidad completada y ya no la aprueba, se revierte esa unidad y se anula su certificado.
+     *
+     * @param idIntento el identificador del intento
+     * @return {@code true} si la baja hizo retroceder la unidad del alumno
+     * @throws IllegalArgumentException si el intento no existe o ya está dado de baja
+     */
+    boolean darDeBajaIntento(Integer idIntento);
 }
