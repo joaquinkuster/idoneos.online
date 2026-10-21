@@ -144,9 +144,9 @@ public class AutenticacionConfiguracion {
                         .requestMatchers(HttpMethod.POST, "/unidad/darDeBaja/*", "/unidad/darDeBajaMasiva")
                         .hasAnyRole("Docente", "Administrador")
                         .requestMatchers("/unidad/**").hasRole("Docente")
-                        // CU-60 a CU-63: ABM de pools (docente y administrador los buscan, los ven y los dan de baja; el
-                        // docente los crea y los modifica)
-                        .requestMatchers(HttpMethod.GET, "/pool/buscar", "/pool/ver/*").hasAnyRole("Docente", "Administrador")
+                        // CU-60 a CU-63: ABM de pools (docente y administrador los buscan y los dan de baja; el docente los
+                        // crea y los modifica)
+                        .requestMatchers(HttpMethod.GET, "/pool/buscar").hasAnyRole("Docente", "Administrador")
                         .requestMatchers(HttpMethod.POST, "/pool/darDeBaja/*", "/pool/darDeBajaMasiva")
                         .hasAnyRole("Docente", "Administrador")
                         .requestMatchers("/pool/**").hasRole("Docente")

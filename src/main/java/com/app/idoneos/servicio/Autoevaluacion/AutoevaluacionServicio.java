@@ -67,9 +67,9 @@ public interface AutoevaluacionServicio {
             Docente soloDeDocente);
 
     /**
-     * Obtiene las unidades cuyas autoevaluaciones pueden usar un pool: la propia y, si esa unidad integra el cronograma de
-     * un programa en el que otra unidad es la última, esa última (que arma la evaluación final del curso con pools de las
-     * demás unidades).
+     * Obtiene las unidades cuyas autoevaluaciones pueden usar un pool: la propia y las que vienen después en el
+     * cronograma de los programas que incluyen la unidad del pool. Una autoevaluación puede combinar pools de su unidad y de
+     * las unidades anteriores (para un examen de la unidad, un repaso o una evaluación final), nunca de las posteriores.
      *
      * @param pool el pool
      * @return las unidades que pueden usarlo, la propia primero
@@ -79,7 +79,7 @@ public interface AutoevaluacionServicio {
     // ---------------------------------------------------------------- Creaciones
 
     /**
-     * CU-65: Crea una autoevaluación en una unidad activa, asociada a uno o más pools.
+     * CU-65: Crea una autoevaluación en una unidad activa, asociada a uno o más pools de su unidad o de unidades anteriores.
      *
      * @param docente  el docente que la crea; debe participar en el curso como titular o ayudante
      * @param idUnidad identificador de la unidad

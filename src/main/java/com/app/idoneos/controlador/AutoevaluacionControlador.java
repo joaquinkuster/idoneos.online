@@ -1,5 +1,6 @@
 package com.app.idoneos.controlador;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +41,16 @@ import com.app.idoneos.utilidades.RespuestaFormularioUtilidad;
 @RequestMapping("/autoevaluacion")
 public class AutoevaluacionControlador extends PanelCursoControlador {
 
+    /**
+     * Los pools de una unidad del programa, para ofrecerlos agrupados en el selector del formulario.
+     *
+     * @param numeroOrden número de orden de la unidad en el cronograma
+     * @param titulo      título de la unidad
+     * @param pools       los pools de la unidad
+     */
+    public record GrupoDePools(int numeroOrden, String titulo, List<Pool> pools) {
+    }
+
     @Autowired
     private AutoevaluacionServicio autoevaluacionServicio;
 
@@ -49,8 +60,8 @@ public class AutoevaluacionControlador extends PanelCursoControlador {
     // ---------------------------------------------------------------- Lecturas
 
     /**
-     * CU-64: Lista las autoevaluaciones de un curso con sus pools, tiempo límite, intentos permitidos y si integran pools
-     * de otras unidades (evaluación final del curso). Desde el listado el docente las crea y las modifica en ventanas.
+     * CU-64: Lista las autoevaluaciones de un curso con sus pools, tiempo límite e intentos permitidos. Desde el listado
+     * el docente las crea y las modifica en ventanas.
      *
      * @param cursoId            Identificador del curso.
      * @param modelo             El modelo de la vista.
@@ -79,7 +90,18 @@ public class AutoevaluacionControlador extends PanelCursoControlador {
                         .stream().map(u -> String.valueOf(u.getIdUnidad())).toList()));
             }
 
+            // Los pools que se ofrecen, agrupados por la unidad a la que pertenecen (en el orden del cronograma)
+            List<GrupoDePools> gruposDePools = new ArrayList<>();
+            for (UnidadCronograma cronograma : unidades) {
+                List<Pool> deLaUnidad = pools.stream()
+                        .filter(p -> p.getUnidad().getIdUnidad() == cronograma.getUnidad().getIdUnidad()).toList();
+                if (!deLaUnidad.isEmpty()) {
+                    gruposDePools.add(new GrupoDePools(cronograma.getNumeroOrden(), cronograma.getUnidad().getTitulo(), deLaUnidad));
+                }
+            }
+
             cargarContexto(modelo, contexto, "autoevaluaciones");
+            modelo.addAttribute("gruposDePools", gruposDePools);
             modelo.addAttribute("autoevaluaciones", autoevaluaciones);
             modelo.addAttribute("unidades", unidades);
             modelo.addAttribute("pools", pools);

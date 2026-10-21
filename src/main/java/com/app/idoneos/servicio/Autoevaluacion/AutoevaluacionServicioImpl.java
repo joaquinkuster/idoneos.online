@@ -138,24 +138,52 @@ public class AutoevaluacionServicioImpl implements AutoevaluacionServicio, CrudS
     }
 
     /**
-     * Obtiene las unidades cuyas autoevaluaciones pueden usar un pool: la propia y la última de cada programa que incluye
-     * la unidad del pool.
+     * Obtiene las unidades cuyas autoevaluaciones pueden usar un pool: la propia y las que vienen después en el cronograma
+     * de los programas que la incluyen (una autoevaluación puede combinar pools de su unidad y de las anteriores).
      */
     @Override
     public List<Unidad> unidadesQuePuedenUsar(Pool pool) {
-        Unidad propia = pool.getUnidad();
-        List<Unidad> unidades = new ArrayList<>(List.of(propia));
-        for (Programa programa : propia.getProgramasQueLaIncluyen()) {
-            List<UnidadCronograma> cronograma = programa.getCronogramaOrdenado();
-            if (cronograma.isEmpty()) {
-                continue;
-            }
-            Unidad ultima = cronograma.get(cronograma.size() - 1).getUnidad();
-            if (unidades.stream().noneMatch(u -> u.getIdUnidad() == ultima.getIdUnidad())) {
-                unidades.add(ultima);
+        Unidad delPool = pool.getUnidad();
+        List<Unidad> unidades = new ArrayList<>(List.of(delPool));
+        for (Programa programa : delPool.getProgramasQueLaIncluyen()) {
+            for (UnidadCronograma cronograma : programa.getCronogramaOrdenado()) {
+                Unidad candidata = cronograma.getUnidad();
+                if (unidades.stream().noneMatch(u -> u.getIdUnidad() == candidata.getIdUnidad())
+                        && puedeUsarPoolDe(candidata, delPool)) {
+                    unidades.add(candidata);
+                }
             }
         }
         return unidades;
+    }
+
+    /**
+     * Indica si una autoevaluación de {@code unidad} puede usar pools de {@code delPool}: es la misma unidad o viene antes
+     * en el cronograma de algún programa que incluye a ambas, y en ningún programa viene después. Nunca se usan pools de
+     * unidades posteriores.
+     */
+    private boolean puedeUsarPoolDe(Unidad unidad, Unidad delPool) {
+        if (unidad.getIdUnidad() == delPool.getIdUnidad()) {
+            return true;
+        }
+        boolean vieneAntes = false;
+        for (Programa programa : unidad.getProgramasQueLaIncluyen()) {
+            int ordenDeLaUnidad = ordenEn(programa, unidad);
+            int ordenDelPool = ordenEn(programa, delPool);
+            if (ordenDelPool < 0) {
+                continue;
+            }
+            if (ordenDelPool > ordenDeLaUnidad) {
+                return false;
+            }
+            vieneAntes = true;
+        }
+        return vieneAntes;
+    }
+
+    private int ordenEn(Programa programa, Unidad unidad) {
+        return programa.getCronogramaOrdenado().stream().filter(c -> c.getUnidad().getIdUnidad() == unidad.getIdUnidad())
+                .mapToInt(UnidadCronograma::getNumeroOrden).findFirst().orElse(-1);
     }
 
     // ---------------------------------------------------------------- Creaciones
@@ -381,10 +409,10 @@ public class AutoevaluacionServicioImpl implements AutoevaluacionServicio, CrudS
             Pool pool = poolRepositorio.findById(idPool == null ? -1 : idPool).filter(p -> !p.esInactivo())
                     .orElseThrow(() -> RespuestaFormularioUtilidad.campoInvalido("idsPools",
                             "Error! Alguno de los pools seleccionados no se encuentra activo."));
-            if (unidadesQuePuedenUsar(pool).stream().noneMatch(u -> u.getIdUnidad() == unidad.getIdUnidad())) {
+            if (!puedeUsarPoolDe(unidad, pool.getUnidad())) {
                 throw RespuestaFormularioUtilidad.campoInvalido("idsPools", "Error! El pool «" + pool.getNombre()
-                        + "» no puede usarse en esta autoevaluación: solo se admiten los pools de su unidad y, si es la última "
-                        + "unidad del programa, los de las otras unidades del programa.");
+                        + "» (unidad «" + pool.getUnidad().getTitulo() + "») no puede usarse en esta autoevaluación: solo "
+                        + "se admiten los pools de su unidad y de las unidades anteriores del programa, nunca de las posteriores.");
             }
             pools.add(pool);
         }

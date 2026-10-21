@@ -52,6 +52,8 @@
     //   numero -> desde / hasta                         (fila: data-f-<campo> con el número)
     //   fecha  -> desde / hasta                         (fila: data-f-<campo> con la fecha ISO)
     //   lista  -> desplegable (o campo con sugerencias si hay muchas opciones) con los valores que hay en la tabla
+    //   multilista -> selector múltiple con búsqueda (Tom Select) con los valores que hay en la tabla; la fila cumple si
+    //                 tiene alguno de los elegidos (fila: data-f-<campo> con los valores separados por "|")
     // ------------------------------------------------------------------
     function construirFiltros(formulario, raiz) {
         var cabeceras = raiz.querySelectorAll('thead th[data-filtro]');
@@ -136,6 +138,23 @@
                 par.appendChild(entrada(t, campo + 'Desde', nombre + ' desde', extraDesde));
                 par.appendChild(entrada(t, campo + 'Hasta', nombre + ' hasta', extraHasta));
                 r.appendChild(par);
+            } else if (tipo === 'multilista') {
+                var elegibles = [];
+                filas.forEach(function (fila) {
+                    (fila.getAttribute('data-f-' + campo.toLowerCase()) || '').split('|').forEach(function (v) {
+                        if (v && elegibles.indexOf(v) < 0) { elegibles.push(v); }
+                    });
+                });
+                elegibles.sort(function (a, b) { return a.localeCompare(b, 'es', { sensitivity: 'base' }); });
+                var m = crearCampo(nombre, 'pn-filtros-campo-grande');
+                var multiple = document.createElement('select');
+                multiple.name = campo;
+                multiple.multiple = true;
+                multiple.className = 'ts-multiselect';
+                multiple.title = nombre;
+                multiple.setAttribute('placeholder', 'Todos');
+                elegibles.forEach(function (v) { var o = document.createElement('option'); o.value = v; o.textContent = v; multiple.appendChild(o); });
+                m.appendChild(multiple);
             } else if (tipo === 'lista') {
                 var valores = [];
                 filas.forEach(function (fila) {
@@ -426,6 +445,11 @@
                     if (campo.type === 'date') {
                         return campo.name === 'desde' ? dato >= valor : dato <= valor;
                     }
+                    if (campo.multiple) {
+                        var elegidos = Array.prototype.map.call(campo.selectedOptions, function (o) { return o.value.toLowerCase(); });
+                        var presentes = dato.toLowerCase().split('|');
+                        return elegidos.some(function (v) { return presentes.indexOf(v) >= 0; });
+                    }
                     if (campo.tagName === 'SELECT') {
                         return dato.toLowerCase().split('|').indexOf(valor.toLowerCase()) >= 0;
                     }
@@ -487,7 +511,11 @@
                 // Se vacían todos los campos (reset() devolvería los valores con que llegó la página, por ejemplo un filtro
                 // que vino elegido por la URL); el orden vuelve a su opción inicial
                 campos.forEach(function (campo) {
-                    if (campo.tagName === 'SELECT') { campo.selectedIndex = 0; } else { campo.value = ''; }
+                    if (campo.multiple) {
+                        if (campo.tomselect) { campo.tomselect.clear(true); } else {
+                            Array.prototype.forEach.call(campo.options, function (o) { o.selected = false; });
+                        }
+                    } else if (campo.tagName === 'SELECT') { campo.selectedIndex = 0; } else { campo.value = ''; }
                 });
                 if (selectorOrden) {
                     Array.prototype.forEach.call(selectorOrden.options, function (op) { op.selected = op.defaultSelected; });

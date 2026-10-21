@@ -1,0 +1,84 @@
+<!-- Formulario por pasos para registrar (pool == null) o modificar un pool y sus preguntas.
+     Parámetros: pool (el pool a modificar o null), datos (JSON con el nombre y las preguntas del pool, que dibuja
+     static/js/pool.js). Usa del modelo: curso y unidades (unidades del programa de trabajo, para el alta). -->
+<form th:fragment="formulario(pool, datos)"
+      th:action="@{${pool == null ? '/pool/registrar' : '/pool/modificar/' + pool.idPool}}"
+      method="post" class="form-ajax" data-validar data-pasos data-resumen="Pool" data-pool-formulario
+      data-contexto='[{"etiqueta":"Curso","atributoForm":"data-ctx-curso"}]'
+      th:attr="data-modo=${pool == null ? 'alta' : 'modificacion'}, data-resumen-titulo=${pool != null ? '(' + pool.nombre + ')' : null}, data-ctx-curso=${curso.nombre}"
+      novalidate>
+
+    <div class="pn-progreso"><div class="pn-progreso-barra"></div></div>
+    <div class="pn-pasos pn-pasos-nombrados">
+        <span class="pn-pasos-item"><span class="pn-pasos-punto">1</span><span class="pn-pasos-nombre">Datos</span></span><span class="pn-pasos-linea"></span>
+        <span class="pn-pasos-item"><span class="pn-pasos-punto">2</span><span class="pn-pasos-nombre">Preguntas</span></span><span class="pn-pasos-linea"></span>
+        <span class="pn-pasos-item"><span class="pn-pasos-punto">3</span><span class="pn-pasos-nombre">Resumen</span></span>
+    </div>
+
+    <!-- Paso 1: unidad y nombre -->
+    <div class="pn-paso" data-grupo="Datos">
+        <div class="pn-seccion-titulo">
+            <h4>Datos del pool</h4>
+            <p>Unidad y nombre del pool de preguntas</p>
+        </div>
+        <div class="row g-3">
+            <div class="col-md-6 pn-campo" th:if="${pool == null}">
+                <label class="pn-etiqueta">Unidad <span class="pn-obligatorio">*</span></label>
+                <select name="unidadId" class="pn-input" required data-sin-busqueda data-mensaje-obligatorio="Debe seleccionar la unidad.">
+                    <option th:each="uc : ${unidades}" th:value="${uc.unidad.idUnidad}"
+                            th:text="${uc.numeroOrden + '. ' + uc.unidad.titulo}">1. Introducción</option>
+                </select>
+                <div class="pn-ayuda-error"></div>
+            </div>
+            <div class="col-md-6 pn-campo" th:if="${pool != null}">
+                <label class="pn-etiqueta">Unidad</label>
+                <input type="text" class="pn-input pn-bloqueado" readonly tabindex="-1" th:value="${pool.unidad.titulo}">
+            </div>
+            <div class="col-md-6 pn-campo">
+                <div class="pn-etiqueta-fila">
+                    <label class="pn-etiqueta">Nombre <span class="pn-obligatorio">*</span></label>
+                    <span class="pn-contador" th:text="${pool != null ? #strings.length(pool.nombre) + ' / 50' : '0 / 50'}">0 / 50</span>
+                </div>
+                <input type="text" name="nombre" class="pn-input" maxlength="50" placeholder="Nombre" data-contador required
+                       th:value="${pool != null ? pool.nombre : ''}" data-mensaje-obligatorio="Debe completar el nombre.">
+                <div class="pn-ayuda-error"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Paso 2: preguntas y opciones (las dibuja static/js/pool.js a partir de data-pool) -->
+    <div class="pn-paso" data-grupo="Preguntas">
+        <div class="pn-seccion-titulo">
+            <h4>Preguntas del pool</h4>
+            <p>Cada pregunta es de opción única, de opción múltiple o de verdadero o falso</p>
+        </div>
+        <div class="pl-editor" data-pool-editor th:attr="data-pool=${datos}">
+            <div class="pl-cabecera">
+                <span class="pn-celda-secundaria" data-total-preguntas>0 preguntas</span>
+                <button type="button" class="pn-btn pn-btn-contorno pn-btn-chico" data-agregar-pregunta>
+                    <i class="fa-solid fa-plus"></i> Agregar pregunta
+                </button>
+            </div>
+            <div class="pl-lista" data-pl-lista></div>
+            <div class="pl-resumen-oculto" data-pl-resumen></div>
+            <input type="hidden" name="preguntas" data-pl-preguntas>
+        </div>
+    </div>
+
+    <!-- Paso 3: resumen -->
+    <div class="pn-paso">
+        <div class="pn-seccion-titulo">
+            <h4>Resumen</h4>
+            <p th:text="${pool == null ? 'Revisá los datos antes de guardar' : 'Estos son los cambios que se van a guardar'}">Revisá los datos antes de guardar</p>
+        </div>
+        <div class="pn-arbol" data-resumen-arbol></div>
+    </div>
+
+    <div class="pn-modal-pie">
+        <button type="button" class="pn-btn pn-btn-contorno pn-pie-izquierda" data-paso-anterior>Anterior</button>
+        <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="pn-btn pn-btn-primario" data-paso-siguiente>Siguiente</button>
+        <button type="submit" class="pn-btn pn-btn-primario d-none" data-paso-guardar
+                th:text="${pool == null ? 'Confirmar y guardar' : 'Confirmar cambios'}">Confirmar y guardar</button>
+    </div>
+</form>

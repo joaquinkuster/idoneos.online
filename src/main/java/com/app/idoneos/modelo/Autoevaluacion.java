@@ -186,7 +186,7 @@ public class Autoevaluacion {
     }
 
     /**
-     * Indica si la autoevaluación integra pools de otras unidades, es decir, si es la evaluación final del curso.
+     * Indica si la autoevaluación combina pools de otras unidades (anteriores a la suya): un repaso o una evaluación final.
      *
      * @return {@code true} si alguno de sus pools es de otra unidad.
      */

@@ -27,9 +27,10 @@
                     <h1 class="pn-titulo">Pools de preguntas</h1>
                     <p class="pn-subtitulo" th:text="${'Preguntas de las que se sortean las autoevaluaciones de ' + curso.nombre}">Preguntas de las autoevaluaciones</p>
                 </div>
-                <a class="pn-btn pn-btn-primario" th:if="${puedeGestionar}" th:href="@{/pool/nuevo(cursoId=${curso.idCurso})}">
+                <button type="button" class="pn-btn pn-btn-primario" th:if="${puedeGestionar}" data-bs-toggle="modal" data-bs-target="#modalNuevoPool"
+                        th:disabled="${#lists.isEmpty(unidades)}" th:title="${#lists.isEmpty(unidades) ? 'El programa todavía no tiene unidades' : null}">
                     <i class="fa-solid fa-plus"></i> Crear pool
-                </a>
+                </button>
             </div>
 
             <section class="pn-tarjeta" data-tabla>
@@ -57,7 +58,6 @@
                                 <th data-col="Unidad" data-campo="unidad" data-filtro="lista">Unidad</th>
                                 <th data-col="Preguntas" data-campo="preguntas" data-filtro="numero">Preguntas</th>
                                 <th data-col="Autoevaluaciones" data-campo="autoevaluaciones" data-filtro="numero">Autoevaluaciones</th>
-                                <th data-col="Última modificación" data-campo="ultimaModificacion" data-filtro="fecha">Última modificación</th>
                                 <th data-col="Fecha de creación" data-campo="fechaCreacion" data-filtro="fecha">Fecha de creación</th>
                                 <th>Acciones</th>
                             </tr>
@@ -70,21 +70,19 @@
                                 <td><span class="pn-truncar" th:text="${p.unidad.titulo}">Introducción al mercado</span></td>
                                 <td th:text="${p.cantidadPreguntas}">6</td>
                                 <td th:text="${#lists.size(p.autoevaluacionesActivas)}">1</td>
-                                <td th:text="${p.ultimaModificacion != null ? #temporals.format(p.ultimaModificacion, 'dd/MM/yyyy') : '-'}">-</td>
                                 <td th:text="${#temporals.format(p.fechaCreacion, 'dd/MM/yyyy HH:mm')}">28/08/2026 10:30</td>
                                 <td>
                                     <div class="pn-acciones">
-                                        <a class="pn-btn pn-btn-ver pn-btn-chico" th:href="@{'/pool/ver/' + ${p.idPool}}">Ver detalle</a>
-                                        <a class="pn-btn pn-btn-editar pn-btn-chico" th:if="${puedeGestionar and !p.tieneIntentosActivos}"
-                                           th:href="@{'/pool/ver/' + ${p.idPool}}">Modificar</a>
-                                        <button type="button" class="pn-btn pn-btn-editar pn-btn-chico" th:if="${puedeGestionar and p.tieneIntentosActivos}"
+                                        <button type="button" class="pn-btn pn-btn-editar pn-btn-chico" th:if="${puedeGestionar and !p.tieneIntentosActivos()}"
+                                                data-bs-toggle="modal" th:data-bs-target="'#modalEditarPool' + ${p.idPool}">Modificar</button>
+                                        <button type="button" class="pn-btn pn-btn-editar pn-btn-chico" th:if="${puedeGestionar and p.tieneIntentosActivos()}"
                                                 disabled title="Tiene intentos de autoevaluación asociados: su contenido no puede modificarse">Modificar</button>
                                         <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico"
                                                 data-bs-toggle="modal" th:data-bs-target="'#modalBajaPool' + ${p.idPool}">Dar de baja</button>
                                     </div>
                                 </td>
                             </tr>
-                            <tr th:replace="~{fragments/vacio :: fila(8, 'fa-circle-question', 'No se encontraron pools', 'Ningún pool coincide con los criterios ingresados.')}"></tr>
+                            <tr th:replace="~{fragments/vacio :: fila(7, 'fa-circle-question', 'No se encontraron pools', 'Ningún pool coincide con los criterios ingresados.')}"></tr>
                         </tbody>
                     </table>
                 </div>
@@ -110,12 +108,43 @@
     </div>
 </div>
 
-<!-- Modales por pool: dar de baja (CU-63) -->
+<!-- Modal: crear pool (CU-61) -->
+<div class="modal fade pn-modal" id="modalNuevoPool" tabindex="-1" aria-hidden="true" th:if="${puedeGestionar}">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="pn-modal-cabecera">
+                <h3 class="pn-modal-titulo">Crear pool</h3>
+                <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="pn-modal-cuerpo">
+                <th:block th:replace="~{fragments/formPool :: formulario(null, ${datosNuevo})}"></th:block>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modales por pool: modificar (CU-62) y dar de baja (CU-63) -->
 <th:block th:each="p : ${pools}">
+    <div class="modal fade pn-modal" th:id="'modalEditarPool' + ${p.idPool}" tabindex="-1" aria-hidden="true"
+         th:if="${puedeGestionar and !p.tieneIntentosActivos()}">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="pn-modal-cabecera">
+                    <h3 class="pn-modal-titulo">Editar pool</h3>
+                    <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="pn-modal-cuerpo">
+                    <th:block th:replace="~{fragments/formPool :: formulario(${p}, ${datosPorPool.get(p.idPool)})}"></th:block>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <th:block th:replace="~{fragments/modalBaja :: bloque('modalBajaPool' + ${p.idPool}, 'pool', '¿Confirmas dar de baja el pool «' + ${p.nombre} + '»?', ${#lists.isEmpty(p.autoevaluacionesActivas) ? 'El pool y sus preguntas dejarán de estar disponibles.' : 'Está asociado a ' + #lists.size(p.autoevaluacionesActivas) + ' autoevaluación/es activa/s: no se puede dar de baja hasta que se den de baja esas autoevaluaciones.'}, '/pool/darDeBaja/' + ${p.idPool}, null, null)}"></th:block>
 </th:block>
 
 <th:block th:replace="~{fragments/panel :: scripts}"></th:block>
 <script th:src="@{/js/academica.js}"></script>
+<script th:src="@{/js/pool.js}"></script>
 </body>
 </html>

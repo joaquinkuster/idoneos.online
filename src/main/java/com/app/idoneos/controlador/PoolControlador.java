@@ -34,12 +34,12 @@ import com.app.idoneos.servicio.Pool.PoolServicio.SolicitudPregunta;
 import com.app.idoneos.utilidades.RespuestaFormularioUtilidad;
 
 /**
- * Controlador del ABM de pools de preguntas (MOD-F-04): CU-60 Buscar pool (GET /pool/buscar y GET /pool/ver/{id}), CU-61
- * Crear pool (GET /pool/nuevo y POST /pool/registrar), CU-62 Modificar pool (POST /pool/modificar/{id}) y CU-63 Dar de
- * baja pool (POST /pool/darDeBaja/{id} y /pool/darDeBajaMasiva).
+ * Controlador del ABM de pools de preguntas (MOD-F-04): CU-60 Buscar pool (GET /pool/buscar), CU-61 Crear pool (POST
+ * /pool/registrar), CU-62 Modificar pool (POST /pool/modificar/{id}) y CU-63 Dar de baja pool (POST /pool/darDeBaja/{id} y
+ * /pool/darDeBajaMasiva). Crear y modificar se hacen en ventanas por pasos del listado.
  *
  * El docente (titular o ayudante) gestiona los pools de los cursos en los que participa; el administrador puede
- * buscarlos, verlos y darlos de baja en cualquier curso.
+ * buscarlos y darlos de baja en cualquier curso.
  */
 @Controller
 @RequestMapping("/pool")
@@ -54,7 +54,8 @@ public class PoolControlador extends PanelCursoControlador {
     // ---------------------------------------------------------------- Lecturas
 
     /**
-     * CU-60: Lista los pools de un curso, con su unidad y la cantidad de preguntas cargadas.
+     * CU-60: Lista los pools de un curso, con su unidad y la cantidad de preguntas cargadas. Trae también los datos de
+     * cada pool y del alta para las ventanas de crear y modificar.
      *
      * @param cursoId            Identificador del curso.
      * @param modelo             El modelo de la vista.
@@ -73,83 +74,20 @@ public class PoolControlador extends PanelCursoControlador {
             // Listado completo: los filtros se aplican en la pantalla
             List<Pool> pools = poolServicio.buscarConFiltros(cursoId, null, null, false, docente);
 
+            Programa programa = contexto.programa();
+            Map<Integer, String> datosPorPool = new LinkedHashMap<>();
+            for (Pool pool : pools) {
+                datosPorPool.put(pool.getIdPool(), aJson(datosDelPool(pool)));
+            }
+
             cargarContexto(modelo, contexto, "pools");
             modelo.addAttribute("pools", pools);
+            modelo.addAttribute("unidades", programa == null || esAdministrador ? List.of() : programa.getCronogramaOrdenado());
+            modelo.addAttribute("datosPorPool", datosPorPool);
+            modelo.addAttribute("datosNuevo", aJson(Map.of("nombre", "", "preguntas", List.of())));
             modelo.addAttribute("puedeGestionar", !esAdministrador);
             modelo.addAttribute("titulo", "Pools | Idóneos Online");
             return "pages/pool/buscar";
-        } catch (IllegalArgumentException e) {
-            return volverAMisCursos(redirectAttributes, e);
-        }
-    }
-
-    /**
-     * CU-61: Abre el editor para crear un pool (solo docente). Las unidades que se ofrecen son las del programa de trabajo.
-     *
-     * @param cursoId            Identificador del curso.
-     * @param unidadId           Unidad que viene elegida (opcional).
-     * @param modelo             El modelo de la vista.
-     * @param auth               La autenticación actual.
-     * @param redirectAttributes Atributos para mensajes de redirección.
-     * @return La vista del editor, o una redirección si no se puede acceder.
-     */
-    @GetMapping("/nuevo")
-    public String nuevoPool(@RequestParam(value = "cursoId", required = false) Integer cursoId,
-            @RequestParam(value = "unidadId", required = false) Integer unidadId, Model modelo, Authentication auth,
-            RedirectAttributes redirectAttributes) {
-        try {
-            ContextoCurso contexto = contextoDelPanel(cursoId, (Usuario) auth.getPrincipal());
-            if (contexto.esAdministrador()) {
-                throw new IllegalArgumentException("Error! Solo los docentes pueden crear pools.");
-            }
-            Programa programa = contexto.programa();
-            if (programa == null) {
-                return avisarCursoSinProgramas(contexto, redirectAttributes);
-            }
-            List<UnidadCronograma> unidades = programa.getCronogramaOrdenado();
-            if (unidades.isEmpty()) {
-                throw new IllegalArgumentException("Error! El programa todavía no tiene unidades: registrá una para poder cargar pools.");
-            }
-            cargarContexto(modelo, contexto, "pools");
-            modelo.addAttribute("pool", null);
-            modelo.addAttribute("unidades", unidades);
-            modelo.addAttribute("unidadSeleccionada", unidadId);
-            modelo.addAttribute("datosPool", aJson(Map.of("nombre", "", "preguntas", List.of())));
-            modelo.addAttribute("soloLectura", false);
-            modelo.addAttribute("titulo", "Crear pool | Idóneos Online");
-            return "pages/pool/editar";
-        } catch (IllegalArgumentException e) {
-            return volverAMisCursos(redirectAttributes, e);
-        }
-    }
-
-    /**
-     * CU-60 (detalle) y CU-62: Muestra un pool con sus preguntas y opciones. El docente lo puede modificar mientras no
-     * tenga intentos asociados; si no, y para el administrador, se muestra de solo lectura.
-     *
-     * @param id                 Identificador del pool.
-     * @param modelo             El modelo de la vista.
-     * @param auth               La autenticación actual.
-     * @param redirectAttributes Atributos para mensajes de redirección.
-     * @return La vista del editor, o una redirección si no se puede acceder.
-     */
-    @GetMapping("/ver/{id}")
-    public String verPool(@PathVariable("id") Integer id, Model modelo, Authentication auth,
-            RedirectAttributes redirectAttributes) {
-        try {
-            Pool pool = poolServicio.buscarPorId(id)
-                    .orElseThrow(() -> new IllegalArgumentException("Error! El pool no se encuentra activo."));
-            ContextoCurso contexto = contextoDelPanel(pool.getUnidad().getCurso().getIdCurso(), (Usuario) auth.getPrincipal());
-            boolean conIntentos = pool.tieneIntentosActivos();
-
-            cargarContexto(modelo, contexto, "pools");
-            modelo.addAttribute("pool", pool);
-            modelo.addAttribute("unidades", List.of());
-            modelo.addAttribute("datosPool", aJson(datosDelPool(pool)));
-            modelo.addAttribute("soloLectura", contexto.esAdministrador() || conIntentos);
-            modelo.addAttribute("conIntentos", conIntentos);
-            modelo.addAttribute("titulo", "Pool | Idóneos Online");
-            return "pages/pool/editar";
         } catch (IllegalArgumentException e) {
             return volverAMisCursos(redirectAttributes, e);
         }
@@ -174,8 +112,7 @@ public class PoolControlador extends PanelCursoControlador {
         try {
             Usuario usuario = (Usuario) auth.getPrincipal();
             Pool pool = poolServicio.registrarPool(usuario.getDocente(), unidadId, nombre, leerPreguntas(preguntas));
-            return RespuestaFormularioUtilidad.respuestaExitosa("Pool '" + pool.getNombre() + "' creado con éxito.",
-                    "/pool/buscar?cursoId=" + pool.getUnidad().getCurso().getIdCurso());
+            return RespuestaFormularioUtilidad.respuestaExitosa("Pool '" + pool.getNombre() + "' creado con éxito.");
         } catch (Exception e) {
             return RespuestaFormularioUtilidad.respuestaConError(e);
         }
@@ -198,9 +135,8 @@ public class PoolControlador extends PanelCursoControlador {
             @RequestParam(value = "preguntas", required = false) String preguntas, Authentication auth) {
         try {
             Usuario usuario = (Usuario) auth.getPrincipal();
-            Pool pool = poolServicio.modificarPool(id, usuario.getDocente(), nombre, leerPreguntas(preguntas));
-            return RespuestaFormularioUtilidad.respuestaExitosa("Pool modificado correctamente.",
-                    "/pool/buscar?cursoId=" + pool.getUnidad().getCurso().getIdCurso());
+            poolServicio.modificarPool(id, usuario.getDocente(), nombre, leerPreguntas(preguntas));
+            return RespuestaFormularioUtilidad.respuestaExitosa("Pool modificado correctamente.");
         } catch (Exception e) {
             return RespuestaFormularioUtilidad.respuestaConError(e);
         }

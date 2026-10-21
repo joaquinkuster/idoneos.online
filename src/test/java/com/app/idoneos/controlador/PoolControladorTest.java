@@ -66,17 +66,33 @@ class PoolControladorTest {
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesServicio")
-    @DisplayName("CU-60: el docente ve el listado de pools con sus acciones; el que tiene intentos no se puede modificar")
+    @DisplayName("CU-60: el docente ve el listado sin 'Ver detalle' ni 'Última modificación', con las ventanas de crear y modificar")
     void listadoDelDocente() throws Exception {
         mockMvc.perform(get("/pool/buscar").param("cursoId", curso()))
                 .andExpect(status().isOk())
                 .andExpect(content().string(Matchers.containsString("Marco regulatorio")))
                 .andExpect(content().string(Matchers.containsString("Renta fija")))
-                .andExpect(content().string(Matchers.containsString("Crear pool")))
-                .andExpect(content().string(Matchers.containsString("/pool/darDeBajaMasiva")))
+                .andExpect(content().string(Matchers.containsString("data-bs-target=\"#modalNuevoPool\"")))
+                .andExpect(content().string(Matchers.containsString("id=\"modalNuevoPool\"")))
+                .andExpect(content().string(Matchers.containsString("id=\"modalEditarPool" + pool("Renta fija") + "\"")))
                 .andExpect(content().string(Matchers.containsString("id=\"modalBajaPool")))
+                .andExpect(content().string(Matchers.containsString("/pool/darDeBajaMasiva")))
+                .andExpect(content().string(Matchers.containsString("data-pool-formulario")))
+                .andExpect(content().string(Matchers.containsString("/js/pool.js")))
+                .andExpect(content().string(Matchers.containsString("data-col=\"Fecha de creación\"")))
+                .andExpect(content().string(Matchers.not(Matchers.containsString("Ver detalle"))))
+                .andExpect(content().string(Matchers.not(Matchers.containsString("Última modificación"))));
+    }
+
+    @Test
+    @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesServicio")
+    @DisplayName("CU-62: el pool con intentos no se modifica: su botón está deshabilitado y no tiene ventana de edición")
+    void poolConIntentos() throws Exception {
+        mockMvc.perform(get("/pool/buscar").param("cursoId", curso()))
+                .andExpect(status().isOk())
                 .andExpect(content().string(Matchers.containsString("Tiene intentos de autoevaluación asociados")))
-                .andExpect(content().string(Matchers.containsString("href=\"/pool/nuevo?cursoId=")));
+                .andExpect(content().string(Matchers.not(Matchers.containsString("id=\"modalEditarPool" + pool("Marco regulatorio") + "\""))))
+                .andExpect(content().string(Matchers.containsString("id=\"modalEditarPool" + pool("Renta fija") + "\"")));
     }
 
     @Test
@@ -86,11 +102,11 @@ class PoolControladorTest {
         mockMvc.perform(get("/pool/buscar").param("cursoId", curso()))
                 .andExpect(status().isOk())
                 .andExpect(content().string(Matchers.containsString("Marco regulatorio")))
-                .andExpect(content().string(Matchers.not(Matchers.containsString("Crear pool"))))
+                .andExpect(content().string(Matchers.not(Matchers.containsString("modalNuevoPool"))))
+                .andExpect(content().string(Matchers.not(Matchers.containsString("modalEditarPool"))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("pn-btn-editar"))))
                 .andExpect(content().string(Matchers.containsString("id=\"modalBajaPool")));
 
-        mockMvc.perform(get("/pool/nuevo").param("cursoId", curso())).andExpect(status().isForbidden());
         mockMvc.perform(post("/pool/registrar").param("unidadId", String.valueOf(unidad("Renta variable y opciones")))
                 .param("nombre", "X").param("preguntas", PREGUNTAS)).andExpect(status().isForbidden());
     }
@@ -100,50 +116,30 @@ class PoolControladorTest {
     @DisplayName("El alumno no accede a los pools")
     void elAlumnoNoAccede() throws Exception {
         mockMvc.perform(get("/pool/buscar").param("cursoId", curso())).andExpect(status().isForbidden());
-        mockMvc.perform(get("/pool/ver/" + pool("Renta fija"))).andExpect(status().isForbidden());
     }
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesServicio")
-    @DisplayName("CU-61: el editor de un pool nuevo ofrece las unidades del programa")
-    void editorDeAlta() throws Exception {
-        mockMvc.perform(get("/pool/nuevo").param("cursoId", curso()).param("unidadId",
-                String.valueOf(unidad("Renta fija y bonos"))))
+    @DisplayName("CU-61: la ventana de alta ofrece las unidades del programa y la de modificación trae las preguntas del pool")
+    void ventanasDelFormulario() throws Exception {
+        mockMvc.perform(get("/pool/buscar").param("cursoId", curso()))
                 .andExpect(status().isOk())
-                .andExpect(content().string(Matchers.containsString("Crear pool")))
-                .andExpect(content().string(Matchers.containsString("name=\"unidadId\"")))
-                .andExpect(content().string(Matchers.containsString("Renta variable y opciones")))
                 .andExpect(content().string(Matchers.containsString("action=\"/pool/registrar\"")))
-                .andExpect(content().string(Matchers.containsString("/js/pool.js")));
-    }
-
-    @Test
-    @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesServicio")
-    @DisplayName("CU-62: el pool sin intentos se edita y el que tiene intentos se muestra de solo lectura")
-    void editorDeModificacion() throws Exception {
-        mockMvc.perform(get("/pool/ver/" + pool("Renta fija")))
-                .andExpect(status().isOk())
-                .andExpect(content().string(Matchers.containsString("Modificar pool")))
-                .andExpect(content().string(Matchers.containsString("Guardar cambios")))
+                .andExpect(content().string(Matchers.containsString("name=\"unidadId\"")))
+                .andExpect(content().string(Matchers.containsString("3. Renta variable y opciones")))
+                .andExpect(content().string(Matchers.containsString("action=\"/pool/modificar/" + pool("Renta fija") + "\"")))
                 .andExpect(content().string(Matchers.containsString("El rendimiento anual")));
-
-        mockMvc.perform(get("/pool/ver/" + pool("Marco regulatorio")))
-                .andExpect(status().isOk())
-                .andExpect(content().string(Matchers.containsString("Detalle del pool")))
-                .andExpect(content().string(Matchers.containsString("no puede modificarse")))
-                .andExpect(content().string(Matchers.not(Matchers.containsString("Guardar cambios"))));
     }
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesServicio")
-    @DisplayName("CU-61 y CU-62: registrar y modificar responden en JSON, con el listado como destino, y informan los errores")
+    @DisplayName("CU-61 y CU-62: registrar y modificar responden en JSON e informan los errores")
     void registrarYModificar() throws Exception {
         String unidad = String.valueOf(unidad("Renta variable y opciones"));
         mockMvc.perform(post("/pool/registrar").param("unidadId", unidad).param("nombre", "Nuevo pool")
                 .param("preguntas", PREGUNTAS))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.mensaje").value("Pool 'Nuevo pool' creado con éxito."))
-                .andExpect(jsonPath("$.destino").value("/pool/buscar?cursoId=" + curso()));
+                .andExpect(jsonPath("$.mensaje").value("Pool 'Nuevo pool' creado con éxito."));
 
         mockMvc.perform(post("/pool/registrar").param("unidadId", unidad).param("nombre", "Nuevo pool")
                 .param("preguntas", PREGUNTAS))

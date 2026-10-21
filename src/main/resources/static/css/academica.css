@@ -2309,3 +2309,17 @@ a.ac-actividad-titulo:hover {
         order: 3;
     }
 }
+
+/* Editor de preguntas dentro del formulario por pasos del pool */
+.pl-editor .pl-cabecera {
+    margin-bottom: 12px;
+}
+
+.pl-resumen-oculto {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+}

@@ -55,7 +55,7 @@
                 <div class="pn-ayuda-error"></div>
             </div>
             <div class="col-md-6 pn-campo">
-                <label class="pn-etiqueta">Cantidad de preguntas <span class="pn-obligatorio">*</span></label>
+                <label class="pn-etiqueta">Cantidad de preguntas sorteadas <span class="pn-obligatorio">*</span></label>
                 <input type="number" name="cantidadPreguntas" class="pn-input" min="1" step="1" placeholder="Preguntas" required
                        th:value="${autoevaluacion != null ? autoevaluacion.cantidadPreguntas : ''}" th:readonly="${bloqueado}"
                        th:classappend="${bloqueado} ? 'pn-bloqueado'" data-mensaje-obligatorio="Debe completar la cantidad de preguntas.">
@@ -136,7 +136,7 @@
     <div class="pn-paso" data-grupo="Pools">
         <div class="pn-seccion-titulo">
             <h4>Pools de preguntas</h4>
-            <p>De dónde se sortean las preguntas. La última unidad del programa también puede usar los pools de las otras unidades (evaluación final).</p>
+            <p>De dónde se sortean las preguntas: los pools de la propia unidad y los de las unidades anteriores, para armar un examen de la unidad, un repaso o una evaluación final. Nunca los de unidades posteriores.</p>
         </div>
         <div class="row g-3">
             <div class="col-12 pn-campo">
@@ -144,10 +144,13 @@
                 <div th:style="${bloqueado} ? 'pointer-events: none; opacity: .7;' : ''">
                     <select name="idsPools" class="ts-multiselect" multiple placeholder="Seleccionar pools" required data-autoevaluacion-pools
                             data-mensaje-obligatorio="Debe seleccionar al menos un pool.">
-                        <option th:each="p : ${pools}" th:value="${p.idPool}"
-                                th:text="${p.unidad.titulo + ' · ' + p.nombre + ' (' + p.cantidadPreguntas + (p.cantidadPreguntas == 1 ? ' pregunta' : ' preguntas') + ')'}"
-                                th:attr="data-unidades=${unidadesPorPool.get(p.idPool)}"
-                                th:selected="${autoevaluacion != null and autoevaluacion.poolsActivos.contains(p)}">Pool</option>
+                        <optgroup th:each="g : ${gruposDePools}" th:label="${g.numeroOrden() + '. ' + g.titulo()}">
+                            <option th:each="p : ${g.pools()}" th:value="${p.idPool}"
+                                    th:if="${autoevaluacion == null or #strings.contains(',' + unidadesPorPool.get(p.idPool) + ',', ',' + autoevaluacion.unidad.idUnidad + ',')}"
+                                    th:text="${'U' + g.numeroOrden() + ' · ' + p.nombre + ' (' + p.cantidadPreguntas + (p.cantidadPreguntas == 1 ? ' pregunta' : ' preguntas') + ')'}"
+                                    th:attr="data-unidades=${unidadesPorPool.get(p.idPool)}"
+                                    th:selected="${autoevaluacion != null and autoevaluacion.poolsActivos.contains(p)}">Pool</option>
+                        </optgroup>
                     </select>
                 </div>
                 <small class="text-muted" data-pools-aviso>Los pools seleccionados deben reunir al menos tantas preguntas como las que se sortean.</small>

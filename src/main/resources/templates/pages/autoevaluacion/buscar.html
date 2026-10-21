@@ -58,37 +58,35 @@
                                 <th class="pn-col-seleccion"><input type="checkbox" data-seleccionar-todos aria-label="Seleccionar todos"></th>
                                 <th data-col="Nombre" data-campo="nombre" data-filtro="texto">Nombre</th>
                                 <th data-col="Unidad" data-campo="unidad" data-filtro="lista">Unidad</th>
-                                <th data-col="Pools" data-campo="pools" data-filtro="texto">Pools</th>
+                                <th data-col="Pools" data-campo="pools" data-filtro="multilista">Pools</th>
                                 <th data-col="Tiempo límite" data-campo="tiempo" data-filtro="numero">Tiempo límite</th>
                                 <th data-col="Preguntas" data-campo="preguntas" data-filtro="numero">Preguntas</th>
                                 <th data-col="Nota mínima" data-campo="nota" data-filtro="numero">Nota mínima</th>
                                 <th data-col="Intentos permitidos" data-campo="intentos" data-filtro="texto">Intentos permitidos</th>
-                                <th data-col="Evaluación final" data-campo="final" data-filtro="lista">Evaluación final</th>
                                 <th data-col="Visibilidad" data-campo="visibilidad" data-filtro="lista">Visibilidad</th>
                                 <th data-col="Apertura" data-campo="apertura" data-filtro="fecha">Apertura</th>
                                 <th data-col="Cierre" data-campo="cierre" data-filtro="fecha">Cierre</th>
-                                <th data-col="Intentos registrados" data-campo="registrados" data-filtro="numero">Intentos registrados</th>
+                                <th data-col="Fecha de creación" data-campo="fechaCreacion" data-filtro="fecha">Fecha de creación</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr th:each="a : ${autoevaluaciones}" data-fila th:attr="data-dependencias=${#lists.size(a.intentosActivos)}">
+                            <tr th:each="a : ${autoevaluaciones}" data-fila th:attr="data-dependencias=${#lists.size(a.intentosActivos)}, data-f-pools=${#strings.listJoin(a.poolsActivos, '|')}">
                                 <td class="pn-col-seleccion"><input type="checkbox" data-seleccionar-fila aria-label="Seleccionar fila"
                                     th:value="${a.idAutoevaluacion}"></td>
                                 <td><span class="pn-celda-principal pn-truncar" th:text="${a.nombre}">Autoevaluación Unidad 1</span></td>
                                 <td><span class="pn-truncar" th:text="${a.unidad.titulo}">Introducción al mercado</span></td>
-                                <td><span class="pn-truncar pn-truncar-largo" th:text="${#strings.listJoin(a.poolsActivos, ', ')}">Marco regulatorio</span></td>
+                                <td th:text="${#lists.size(a.poolsActivos)}">1</td>
                                 <td th:text="${a.tiempoLimite != null ? a.tiempoLimite + ' min' : '-'}">30 min</td>
                                 <td th:text="${a.cantidadPreguntas}">10</td>
                                 <td th:text="${#numbers.formatInteger(a.notaMinima, 1)}">6</td>
                                 <td th:text="${a.intentosPermitidos != null ? a.intentosPermitidos : 'Sin límite'}">3</td>
-                                <td th:text="${a.esEvaluacionFinal() ? 'Sí' : 'No'}">No</td>
                                 <td>
                                     <span class="pn-insignia" th:classappend="${a.oculto} ? 'pn-insignia-dorada' : ''" th:text="${a.oculto ? 'Oculta' : 'Visible'}">Visible</span>
                                 </td>
                                 <td th:text="${#temporals.format(a.fechaApertura, 'dd/MM/yyyy HH:mm')}">28/08/2026 10:30</td>
                                 <td th:text="${a.fechaCierre != null ? #temporals.format(a.fechaCierre, 'dd/MM/yyyy HH:mm') : '-'}">-</td>
-                                <td th:text="${#lists.size(a.intentosActivos)}">0</td>
+                                <td th:text="${#temporals.format(a.fechaCreacion, 'dd/MM/yyyy HH:mm')}">28/08/2026 10:30</td>
                                 <td>
                                     <div class="pn-acciones">
                                         <button type="button" class="pn-btn pn-btn-editar pn-btn-chico" th:if="${puedeGestionar}"
@@ -98,7 +96,7 @@
                                     </div>
                                 </td>
                             </tr>
-                            <tr th:replace="~{fragments/vacio :: fila(14, 'fa-clipboard-check', 'No se encontraron autoevaluaciones', 'Ninguna autoevaluación coincide con los criterios ingresados.')}"></tr>
+                            <tr th:replace="~{fragments/vacio :: fila(13, 'fa-clipboard-check', 'No se encontraron autoevaluaciones', 'Ninguna autoevaluación coincide con los criterios ingresados.')}"></tr>
                         </tbody>
                     </table>
                 </div>

@@ -139,17 +139,29 @@ class AutoevaluacionServicioTest {
     }
 
     @Test
-    @DisplayName("CU-65: la última unidad del programa puede armar la evaluación final con pools de las otras unidades")
-    void evaluacionFinal() {
+    @DisplayName("CU-65: una autoevaluación combina pools de su unidad y de las anteriores (repaso o evaluación final), nunca de las posteriores")
+    void poolsDeUnidadesAnteriores() {
+        // La unidad 3 (la última) puede usar los pools de las tres unidades
         Autoevaluacion final_ = autoevaluacionServicio.registrarAutoevaluacion(fausto(), tercera().getIdUnidad(),
                 solicitud("Evaluación final", pool("Preguntas de la unidad"), pool("Renta fija"), pool("Marco regulatorio")));
-
         assertTrue(final_.esEvaluacionFinal());
         assertEquals(3, final_.getPoolsActivos().size());
 
-        // Una unidad que no es la última no puede usar pools de otras unidades
-        assertError("no puede usarse en esta autoevaluación", () -> autoevaluacionServicio.registrarAutoevaluacion(fausto(),
-                segunda().getIdUnidad(), solicitud("Mezcla", pool("Renta fija"), pool("Marco regulatorio"))));
+        // Una unidad intermedia también puede repasar: la unidad 2 usa el pool de la 1
+        Autoevaluacion repaso = autoevaluacionServicio.registrarAutoevaluacion(fausto(), segunda().getIdUnidad(),
+                solicitud("Repaso de las unidades 1 y 2", pool("Renta fija"), pool("Marco regulatorio")));
+        assertTrue(repaso.esEvaluacionFinal());
+
+        // Nunca pools de unidades posteriores
+        assertError("anteriores del programa, nunca de las posteriores", () -> autoevaluacionServicio.registrarAutoevaluacion(
+                fausto(), segunda().getIdUnidad(), solicitud("Con pool posterior", pool("Renta fija"), pool("Preguntas de la unidad"))));
+        assertError("nunca de las posteriores", () -> autoevaluacionServicio.registrarAutoevaluacion(fausto(),
+                primera().getIdUnidad(), solicitud("Con pool posterior", pool("Marco regulatorio"), pool("Renta fija"))));
+
+        // Y la lista de unidades que pueden usar un pool sigue la misma regla
+        List<Unidad> usanElPoolDeLaUnidad1 = autoevaluacionServicio.unidadesQuePuedenUsar(pool("Marco regulatorio"));
+        assertEquals(List.of(primera(), segunda(), tercera()), usanElPoolDeLaUnidad1);
+        assertEquals(List.of(tercera()), autoevaluacionServicio.unidadesQuePuedenUsar(pool("Preguntas de la unidad")));
     }
 
     @Test
