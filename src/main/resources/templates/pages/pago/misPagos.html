@@ -54,12 +54,13 @@
                                             <span class="pn-insignia"
                                                   th:classappend="${p.estaAprobado()} ? 'pn-insignia-verde' : (${p.estaPendiente()} ? 'pn-insignia-dorada' : 'pn-insignia-roja')"
                                                   th:text="${p.estadoPago.nombre}">Aprobado</span>
-                                            <span class="pn-celda-secundaria d-block" th:if="${p.estaRechazado() and p.detalleErrorOperacion != null}"
-                                                  th:text="${p.detalleErrorOperacion}">Fondos insuficientes</span>
                                         </td>
                                         <td th:text="${#temporals.format(p.fechaCreacion, 'dd/MM/yyyy HH:mm')}">13/10/2026 10:00</td>
                                         <td>
                                             <div class="pn-acciones">
+                                                <button type="button" class="btn btn-secondary btn-sm pn-btn-motivo" data-motivo-pago
+                                                        th:if="${p.estaRechazado() and p.detalleErrorOperacion != null}"
+                                                        th:attr="data-bs-content=${p.detalleErrorOperacion}">Ver motivo</button>
                                                 <button type="button" class="pn-btn pn-btn-primario pn-btn-chico" data-pagar
                                                         th:if="${p.estaRechazado() and !p.inscripcion.estaHabilitada() and !p.inscripcion.esInactivo()}"
                                                         th:data-url="@{'/pago/reintentar/' + ${p.idPago}}"
@@ -102,5 +103,6 @@
     <div th:replace="~{fragments/scripts :: scripts}"></div>
     <script th:src="@{/js/panel.js}"></script>
     <script th:src="@{/js/pago.js}"></script>
+    <script th:src="@{/js/motivoPago.js}"></script>
 </body>
 </html>

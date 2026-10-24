@@ -146,7 +146,6 @@
                       data-validar data-validador="material" data-material-formulario novalidate
                       data-pasos data-resumen="Material" data-modo="alta"
                       data-contexto='[{"etiqueta":"Curso","atributoForm":"data-ctx-curso"},{"etiqueta":"Unidad","campo":"unidadId","atributo":"data-unidad"}]' th:attr="data-ctx-curso=${curso.nombre}">
-    <div class="pn-progreso"><div class="pn-progreso-barra"></div></div>
     <div class="pn-pasos pn-pasos-nombrados">
         <span class="pn-pasos-item"><span class="pn-pasos-punto">1</span><span class="pn-pasos-nombre">Datos</span></span><span class="pn-pasos-linea"></span>
         <span class="pn-pasos-item"><span class="pn-pasos-punto">2</span><span class="pn-pasos-nombre">Contenido</span></span><span class="pn-pasos-linea"></span>
@@ -262,7 +261,6 @@
                           class="form-ajax" data-validar novalidate data-pasos data-resumen="Material" data-modo="modificacion"
                           data-contexto='[{"etiqueta":"Curso","atributoForm":"data-ctx-curso"},{"etiqueta":"Unidad","atributoForm":"data-ctx-unidad"}]' 
                           th:attr="data-resumen-titulo=${'(' + m.titulo + ')'}, data-ctx-curso=${curso.nombre}, data-ctx-unidad=${m.unidad.titulo}">
-    <div class="pn-progreso"><div class="pn-progreso-barra"></div></div>
     <div class="pn-pasos pn-pasos-nombrados">
         <span class="pn-pasos-item"><span class="pn-pasos-punto">1</span><span class="pn-pasos-nombre">Datos</span></span><span class="pn-pasos-linea"></span>
         <span class="pn-pasos-item"><span class="pn-pasos-punto">2</span><span class="pn-pasos-nombre">Contenido</span></span><span class="pn-pasos-linea"></span>

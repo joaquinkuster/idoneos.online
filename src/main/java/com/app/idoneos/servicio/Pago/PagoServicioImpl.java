@@ -6,6 +6,7 @@ import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Comparator;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -371,8 +372,13 @@ public class PagoServicioImpl implements PagoServicio, CrudServicio<Pago> {
             throw new IllegalArgumentException(
                     MensajeErrorUtilidad.demasiadoLargo("Las observaciones", LONGITUD_OBSERVACIONES, "caracteres"));
         }
-        // Si había un pago sin aprobar (por ejemplo, uno de MODO que no se confirmó), se reutiliza su registro
+        // Un pago que ya había fallado (rechazado) se reutiliza; uno pendiente (por ejemplo, de MODO sin confirmar) queda
+        // rechazado, porque el que se registra es otro pago y el pendiente no debe acreditarse después
         Pago pago = inscripcion.getPagoSinAprobar();
+        if (pago != null && pago.estaPendiente()) {
+            pago = null;
+        }
+        rechazarPendientes(inscripcion, null);
         if (pago == null) {
             pago = new Pago(estado(EstadoPago.PENDIENTE), metodo(MetodoPago.TRANSFERENCIA), inscripcion,
                     "IDN-" + UUID.randomUUID(), monto);
@@ -511,8 +517,11 @@ public class PagoServicioImpl implements PagoServicio, CrudServicio<Pago> {
             return pago;
         }
         Usuario usuario = pago.getInscripcion().getAlumno().getUsuario();
-        pago.setDetalleMetodoPago((pago.getDetalleMetodoPago() == null ? pago.getMetodoPago().getNombre()
-                : pago.getDetalleMetodoPago()) + " · Acreditado manualmente por el administrador");
+        // El medio de pago ya antepone el nombre del método: acá solo se agrega el detalle
+        String detalleAnterior = pago.getDetalleMetodoPago();
+        pago.setDetalleMetodoPago((detalleAnterior == null || detalleAnterior.isBlank() ? "" : detalleAnterior + " · ")
+                + "Acreditado manualmente por el administrador");
+        rechazarPendientes(pago.getInscripcion(), pago);
         aprobar(pago, nombre.isEmpty() ? usuario.getNombreCompleto() : nombre, dni.isEmpty() ? usuario.getDni() : dni);
         return pago;
     }
@@ -693,6 +702,15 @@ public class PagoServicioImpl implements PagoServicio, CrudServicio<Pago> {
         }
         pagoRepositorio.save(pago);
         comprobanteServicio.emitirComprobante(pago, nombrePagador, dniPagador);
+    }
+
+    /** Rechaza los pagos pendientes de la inscripción (menos {@code excepto}): otro pago se aprobó y estos ya no corresponden. */
+    private void rechazarPendientes(Inscripcion inscripcion, Pago excepto) {
+        for (Pago otro : new ArrayList<>(inscripcion.getPagos())) {
+            if (otro != excepto && otro.estaPendiente()) {
+                rechazar(otro, null);
+            }
+        }
     }
 
     private void rechazar(Pago pago, String motivo) {

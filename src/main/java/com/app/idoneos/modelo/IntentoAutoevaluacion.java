@@ -156,6 +156,30 @@ public class IntentoAutoevaluacion {
     }
 
     /**
+     * Expresa cuánto tardó el alumno en entregar el intento, para mostrarlo: en minutos y, si no llegó al minuto, en
+     * segundos.
+     *
+     * @return La duración ("12 min" o "45 s"), o {@code null} si todavía no se entregó.
+     */
+    public String getDuracionTexto() {
+        if (fechaEntrega == null) {
+            return null;
+        }
+        long segundos = Math.max(0, Duration.between(fechaCreacion, fechaEntrega).getSeconds());
+        return segundos < 60 ? segundos + " s" : (segundos / 60) + " min";
+    }
+
+    /**
+     * Calcula cuántos minutos (con decimales) tardó el alumno en entregar el intento, para ordenar y filtrar.
+     *
+     * @return Los minutos con dos decimales, o {@code null} si todavía no se entregó.
+     */
+    public Double getDuracionEnMinutos() {
+        return fechaEntrega == null ? null
+                : Math.round(Math.max(0, Duration.between(fechaCreacion, fechaEntrega).getSeconds()) / 60.0 * 100) / 100.0;
+    }
+
+    /**
      * Calcula cuánto tardó el alumno en entregar el intento.
      *
      * @return Los minutos transcurridos entre el inicio y la entrega, o {@code null} si todavía no se entregó.

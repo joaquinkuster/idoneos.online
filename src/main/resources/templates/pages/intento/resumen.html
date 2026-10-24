@@ -10,38 +10,52 @@
     <th:block th:replace="~{fragments/intentoCabecera :: cabecera(${curso}, ${autoevaluacion}, ${segundosRestantes})}"></th:block>
 
     <main class="in-resumen">
-        <section class="in-tarjeta">
-            <h1 class="in-resumen-titulo">Resumen del intento</h1>
-            <p class="in-resumen-subtitulo">
-                Respondiste <strong th:text="${respondidas}">8</strong> de <strong th:text="${total}">10</strong> preguntas.
-                <span th:if="${intento.cantidadMarcadas > 0}">Marcaste <strong th:text="${intento.cantidadMarcadas}">1</strong> para revisar.</span>
-            </p>
-            <table class="in-resumen-tabla">
-                <thead>
-                    <tr><th>Pregunta</th><th>Estado</th></tr>
-                </thead>
-                <tbody>
-                    <tr th:each="p : ${preguntas}">
-                        <td>
-                            <a th:if="${libre}" th:href="@{/intento/realizar/{id}(id=${intento.idIntentoAutoevaluacion}, pregunta=${p.orden})}" th:text="${p.orden}">1</a>
-                            <span th:unless="${libre}" th:text="${p.orden}">1</span>
-                        </td>
-                        <td>
-                            <span th:text="${p.estaRespondida() ? 'Respuesta guardada' : 'Sin responder'}">Respuesta guardada</span>
-                            <span class="pn-insignia pn-insignia-dorada" th:if="${p.marcada}">Marcada</span>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+        <section class="in-tarjeta in-resumen-tarjeta">
+            <div class="in-resumen-cuerpo">
+            <div>
+                <h1 class="in-resumen-titulo">Resumen del intento</h1>
+                <p class="in-resumen-subtitulo">
+                    Respondiste <strong th:text="${respondidas + ' de ' + total}">8 de 10</strong> preguntas.
+                </p>
+                <div class="in-resumen-barra"><div th:style="${'width:' + (total == 0 ? 0 : 100 * respondidas / total) + '%'}"></div></div>
+                <p class="in-resumen-porcentaje" th:text="${(total == 0 ? 0 : 100 * respondidas / total) + ' % completo'}">60 % completo</p>
+            </div>
 
+            <dl class="in-resumen-lista">
+                <div th:if="${sinResponder > 0}">
+                    <dt>Sin responder</dt>
+                    <dd>
+                        <th:block th:each="p : ${preguntas}" th:if="${!p.estaRespondida()}">
+                            <a class="in-resumen-num" th:if="${libre}"
+                               th:href="@{/intento/realizar/{id}(id=${intento.idIntentoAutoevaluacion}, pregunta=${p.orden})}" th:text="${p.orden}">1</a>
+                            <span class="in-resumen-num" th:unless="${libre}" th:text="${p.orden}">1</span>
+                        </th:block>
+                    </dd>
+                </div>
+                <div th:if="${intento.cantidadMarcadas > 0}">
+                    <dt>Para revisar</dt>
+                    <dd>
+                        <th:block th:each="p : ${preguntas}" th:if="${p.marcada}">
+                            <a class="in-resumen-num" th:href="@{/intento/realizar/{id}(id=${intento.idIntentoAutoevaluacion}, pregunta=${p.orden})}" th:text="${p.orden}">1</a>
+                        </th:block>
+                    </dd>
+                </div>
+                <div th:if="${sinResponder == 0 and intento.cantidadMarcadas == 0}">
+                    <dt>Estado</dt>
+                    <dd>Respondiste todas las preguntas.</dd>
+                </div>
+            </dl>
+            </div>
+
+            <div class="in-resumen-pie">
             <p class="in-resumen-aviso" th:if="${sinResponder > 0}">
-                <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
-                Quedan <strong th:text="${sinResponder}">2</strong> preguntas sin responder: si entregás ahora se contarán como vacías.
+                Si entregás ahora, las preguntas sin responder se cuentan como vacías.
             </p>
             <div class="in-resumen-acciones">
                 <a class="pn-btn pn-btn-secundario" th:if="${volverA != null}"
                    th:href="${libre} ? @{/intento/realizar/{id}(id=${intento.idIntentoAutoevaluacion}, pregunta=${volverA.orden})} : @{/intento/realizar/{id}(id=${intento.idIntentoAutoevaluacion})}">Volver al intento</a>
                 <button type="button" class="pn-btn pn-btn-primario" data-entregar>Entregar todo y terminar</button>
+            </div>
             </div>
         </section>
     </main>

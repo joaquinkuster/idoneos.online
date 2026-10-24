@@ -131,7 +131,6 @@
                 <form th:action="@{/programa/registrar}" method="post" class="form-ajax" data-validar data-pasos data-resumen="Programa" data-modo="alta"
                       data-contexto='[{"etiqueta":"Curso","atributoForm":"data-ctx-curso"}]' th:attr="data-ctx-curso=${curso.nombre}" novalidate>
     <input type="hidden" name="cursoId" th:value="${curso.idCurso}">
-    <div class="pn-progreso"><div class="pn-progreso-barra"></div></div>
     <div class="pn-pasos pn-pasos-nombrados">
         <span class="pn-pasos-item"><span class="pn-pasos-punto">1</span><span class="pn-pasos-nombre">Datos</span></span><span class="pn-pasos-linea"></span>
         <span class="pn-pasos-item"><span class="pn-pasos-punto">2</span><span class="pn-pasos-nombre">Contenido</span></span><span class="pn-pasos-linea"></span>
@@ -227,7 +226,6 @@
                 <div class="pn-modal-cuerpo">
                     <form th:action="@{'/programa/modificar/' + ${p.idPrograma}}" method="post" class="form-ajax" data-validar data-pasos data-resumen="Programa" data-modo="modificacion"
                           data-contexto='[{"etiqueta":"Curso","atributoForm":"data-ctx-curso"}]' th:attr="data-ctx-curso=${curso.nombre},data-resumen-titulo=${'(' + p.nombre + ')'}" novalidate>
-    <div class="pn-progreso"><div class="pn-progreso-barra"></div></div>
     <div class="pn-pasos pn-pasos-nombrados">
         <span class="pn-pasos-item"><span class="pn-pasos-punto">1</span><span class="pn-pasos-nombre">Datos</span></span><span class="pn-pasos-linea"></span>
         <span class="pn-pasos-item"><span class="pn-pasos-punto">2</span><span class="pn-pasos-nombre">Contenido</span></span><span class="pn-pasos-linea"></span>

@@ -133,7 +133,6 @@
             <div class="pn-modal-cuerpo">
                 <form th:action="@{/inscripcion/registrar}" method="post" class="form-ajax" data-validar data-pasos data-resumen="Inscripción" data-modo="alta" data-resumen-nuevo="nueva"
                       data-contexto='[{"etiqueta":"Curso","campo":"cohorteId","atributo":"data-curso"},{"etiqueta":"Programa","campo":"cohorteId","atributo":"data-programa"},{"etiqueta":"Cohorte","campo":"cohorteId","atributo":"data-cohorte"}]' novalidate>
-    <div class="pn-progreso"><div class="pn-progreso-barra"></div></div>
     <div class="pn-pasos pn-pasos-nombrados">
         <span class="pn-pasos-item"><span class="pn-pasos-punto">1</span><span class="pn-pasos-nombre">Alumno y cohorte</span></span><span class="pn-pasos-linea"></span>
         <span class="pn-pasos-item"><span class="pn-pasos-punto">2</span><span class="pn-pasos-nombre">Detalle del pago</span></span><span class="pn-pasos-linea"></span>
@@ -233,7 +232,6 @@
                     <form th:action="@{'/inscripcion/modificar/' + ${i.idInscripcion}}" method="post" class="form-ajax" data-validar data-pasos data-resumen="Inscripción" data-modo="modificacion"
                           data-contexto='[{"etiqueta":"Curso","atributoForm":"data-ctx-curso"},{"etiqueta":"Programa","atributoForm":"data-ctx-programa"},{"etiqueta":"Cohorte","atributoForm":"data-ctx-cohorte"}]' 
                           th:attr="data-resumen-titulo=${'(' + i.alumno.usuario.nombreCompleto + ')'}, data-ctx-curso=${i.cohorte.programa.curso.nombre}, data-ctx-programa=${i.cohorte.programa.nombre}, data-ctx-cohorte=${i.cohorte.etiqueta}" novalidate>
-    <div class="pn-progreso"><div class="pn-progreso-barra"></div></div>
     <div class="pn-pasos pn-pasos-nombrados">
         <span class="pn-pasos-item"><span class="pn-pasos-punto">1</span><span class="pn-pasos-nombre">Datos de la inscripción</span></span><span class="pn-pasos-linea"></span>
         <span class="pn-pasos-item"><span class="pn-pasos-punto">2</span><span class="pn-pasos-nombre">Resumen</span></span>
@@ -266,7 +264,6 @@
 <div class="col-12 ayuda-desplegable" th:id="'ayudaVencimiento' + ${i.idInscripcion}">
                                 <div class="ayuda-desplegable-interior">
                                     <div class="cn-info">
-                                        <i class="fa-solid fa-circle-info"></i>
                                         <span th:text="${'Corrección administrativa (por ejemplo, una extensión de cortesía). El vencimiento no puede ser anterior al ' + #temporals.format(i.vencimientoMinimo, 'dd/MM/yyyy') + ', que resulta de la duración del cronograma.'}">Corrección administrativa.</span>
                                     </div>
                                 </div>

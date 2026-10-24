@@ -34,33 +34,36 @@
 
             <!-- Reglas -->
             <section class="pn-tarjeta in-ficha">
-                <h2 class="pn-lista-titulo">Reglas de la autoevaluación</h2>
-                <div class="in-reglas">
-                    <div><span class="in-regla-etiqueta">Tiempo límite</span><strong th:text="${autoevaluacion.tiempoLimite != null ? autoevaluacion.tiempoLimite + ' minutos' : 'Sin límite'}">30 minutos</strong></div>
-                    <div><span class="in-regla-etiqueta">Preguntas</span><strong th:text="${autoevaluacion.cantidadPreguntas}">10</strong></div>
-                    <div><span class="in-regla-etiqueta">Nota mínima</span><strong th:text="${#numbers.formatInteger(autoevaluacion.notaMinima, 1) + ' / 10'}">6 / 10</strong></div>
-                    <div><span class="in-regla-etiqueta">Intentos</span>
-                        <strong th:text="${autoevaluacion.intentosPermitidos != null ? (#lists.size(intentos) + ' de ' + autoevaluacion.intentosPermitidos + ' usados') : 'Sin límite'}">1 de 3 usados</strong></div>
-                    <div><span class="in-regla-etiqueta">Se abre</span><strong th:text="${#temporals.format(autoevaluacion.fechaApertura, 'dd/MM/yyyy HH:mm')}">01/10/2026 09:00</strong></div>
-                    <div><span class="in-regla-etiqueta">Se cierra</span><strong th:text="${autoevaluacion.fechaCierre != null ? #temporals.format(autoevaluacion.fechaCierre, 'dd/MM/yyyy HH:mm') : 'No cierra'}">No cierra</strong></div>
-                </div>
-                <ul class="in-notas">
-                    <li th:if="${autoevaluacion.descuentoPorError}">Cada opción incorrecta resta lo que vale una correcta de su pregunta.</li>
-                    <li th:unless="${autoevaluacion.navegacionLibre}">Las preguntas se presentan en orden y no se puede volver a una anterior.</li>
-                    <li th:if="${autoevaluacion.navegacionLibre}">Podés moverte libremente entre las preguntas y cambiar tus respuestas antes de entregar.</li>
-                    <li th:unless="${autoevaluacion.permiteSalir}"><strong>No permite salir:</strong> mientras rendís solo podés acceder al cuestionario. El tiempo corre siempre.</li>
-                    <li th:if="${autoevaluacion.permiteSalir}">Podés salir y volver al intento; el tiempo no se detiene.</li>
-                </ul>
+                <h2 class="pn-lista-titulo">Antes de empezar</h2>
+                <p class="in-frase">
+                    <th:block th:if="${autoevaluacion.tiempoLimite != null}">Tenés <strong th:text="${autoevaluacion.tiempoLimite + ' minutos'}">20 minutos</strong> para responder
+                        <strong th:text="${autoevaluacion.cantidadPreguntas + (autoevaluacion.cantidadPreguntas == 1 ? ' pregunta' : ' preguntas')}">5 preguntas</strong></th:block><th:block th:unless="${autoevaluacion.tiempoLimite != null}">Podés responder
+                        <strong th:text="${autoevaluacion.cantidadPreguntas + (autoevaluacion.cantidadPreguntas == 1 ? ' pregunta' : ' preguntas')}">5 preguntas</strong>
+                        sin límite de tiempo</th:block><th:block th:unless="${autoevaluacion.navegacionLibre}">, una por vez y sin poder volver a la anterior</th:block><th:block th:if="${autoevaluacion.navegacionLibre}">, y podés moverte libremente entre ellas y cambiar tus respuestas antes de entregar</th:block>.
+                    <th:block th:if="${autoevaluacion.descuentoPorError}">Cada respuesta incorrecta resta puntos.</th:block>
+                    Necesitás <strong th:text="${#numbers.formatInteger(autoevaluacion.notaMinima, 1) + ' de 10'}">7 de 10</strong> para aprobar
+                    <th:block th:if="${autoevaluacion.intentosPermitidos != null}">y podés intentarlo hasta
+                        <strong th:text="${autoevaluacion.intentosPermitidos + (autoevaluacion.intentosPermitidos == 1 ? ' vez' : ' veces')}">3 veces</strong>
+                        (usaste <span th:text="${#lists.size(intentos)}">0</span>).</th:block>
+                    <th:block th:unless="${autoevaluacion.intentosPermitidos != null}">y podés intentarlo todas las veces que quieras.</th:block>
+                    <th:block th:if="${autoevaluacion.permiteSalir}">Podés salir y volver al intento; el tiempo no se detiene.</th:block>
+                    <th:block th:unless="${autoevaluacion.permiteSalir}"><b class="in-resalta">No permite salir:</b> mientras rendís solo podés acceder al cuestionario y el tiempo corre siempre.</th:block>
+                </p>
+                <p class="in-frase-detalle">
+                    <th:block th:text="${'Abierta desde el ' + #temporals.format(autoevaluacion.fechaApertura, 'dd/MM/yyyy HH:mm')}">Abierta desde el 19/10/2026 04:48</th:block>
+                    ·
+                    <th:block th:text="${autoevaluacion.fechaCierre != null ? 'Se cierra el ' + #temporals.format(autoevaluacion.fechaCierre, 'dd/MM/yyyy HH:mm') : 'Sin fecha de cierre'}">Sin fecha de cierre</th:block>
+                </p>
 
                 <div class="in-accion">
                     <form th:if="${enCurso != null}" th:action="@{'/intento/iniciar/' + ${autoevaluacion.idAutoevaluacion}}" method="post">
-                        <button type="submit" class="pn-btn pn-btn-primario"><i class="fa-solid fa-play"></i> Continuar intento en curso</button>
+                        <button type="submit" class="pn-btn pn-btn-primario">Continuar intento en curso</button>
                     </form>
                     <form th:if="${enCurso == null and motivo == null}" th:action="@{'/intento/iniciar/' + ${autoevaluacion.idAutoevaluacion}}" method="post"
                           data-confirmar-inicio th:attr="data-sin-salida=${!autoevaluacion.permiteSalir}">
-                        <button type="submit" class="pn-btn pn-btn-primario"><i class="fa-solid fa-play"></i> Realizar intento</button>
+                        <button type="submit" class="pn-btn pn-btn-primario">Realizar intento</button>
                     </form>
-                    <p class="in-motivo" th:if="${enCurso == null and motivo != null}"><i class="fa-solid fa-circle-info"></i> <span th:text="${motivo}">Motivo</span></p>
+                    <p class="in-motivo" th:if="${enCurso == null and motivo != null}" th:text="${motivo}">Motivo</p>
                 </div>
             </section>
 
@@ -86,7 +89,7 @@
                                 <td th:text="${i.estaEnCurso() ? 'En curso' : 'Finalizado'}">Finalizado</td>
                                 <td th:text="${#temporals.format(i.fechaCreacion, 'dd/MM/yyyy HH:mm')}">01/10/2026 18:20</td>
                                 <td th:text="${i.fechaEntrega != null ? #temporals.format(i.fechaEntrega, 'dd/MM/yyyy HH:mm') : '-'}">-</td>
-                                <td th:text="${i.duracionMinutos != null ? i.duracionMinutos + ' min' : '-'}">20 min</td>
+                                <td th:text="${i.duracionTexto != null ? i.duracionTexto : '-'}">20 min</td>
                                 <td th:text="${i.nota != null ? #numbers.formatDecimal(i.nota, 1, 2, 'COMMA') : '-'}">8,00</td>
                                 <td>
                                     <span class="pn-insignia"

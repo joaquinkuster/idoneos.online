@@ -154,7 +154,7 @@
                     <form th:action="@{'/categoria/modificar/' + ${cat.idCategoria}}" method="post" class="form-ajax" data-validar novalidate
                           th:with="bloqueada=${inscripcionesPorCategoria != null and inscripcionesPorCategoria.containsKey(cat.idCategoria) and inscripcionesPorCategoria.get(cat.idCategoria) > 0}">
                         <div class="pn-aviso pn-aviso-dorado" th:if="${bloqueada}">
-                            <i class="fa-solid fa-lock me-1"></i> La categoría tiene inscripciones activas y no puede modificarse: es un dato que el alumno vio y pagó al inscribirse.
+                            La categoría tiene inscripciones activas y no puede modificarse: es un dato que el alumno vio y pagó al inscribirse.
                         </div>
                         <fieldset th:disabled="${bloqueada}" class="pn-fieldset-plano">
                             <div class="pn-campo mb-3">

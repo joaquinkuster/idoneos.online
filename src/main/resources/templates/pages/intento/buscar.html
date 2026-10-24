@@ -69,7 +69,8 @@
                             <tr th:each="f : ${filas}" data-fila
                                 th:with="i=${f.intento}, puedeAprobarEste=${puedeAprobar and i.estaFinalizado() and !i.aprobado}"
                                 th:data-f-alumno="${i.inscripcion.alumno.usuario.nombreCompleto + ' ' + i.inscripcion.alumno.usuario.dni + ' ' + i.inscripcion.alumno.usuario.correo}"
-                                th:data-f-cohorte="${i.inscripcion.cohorte.idCohorte}">
+                                th:data-f-cohorte="${i.inscripcion.cohorte.idCohorte}"
+                                th:data-f-duracion="${i.duracionEnMinutos}">
                                 <td>
                                     <span class="pn-celda-principal d-inline-flex align-items-center gap-2">
                                         <th:block th:replace="~{fragments/avatar :: avatar(${i.inscripcion.alumno.usuario}, 'av-chico')}"></th:block>
@@ -81,7 +82,7 @@
                                 <td th:text="${f.numero}">1</td>
                                 <td th:text="${#temporals.format(i.fechaCreacion, 'dd/MM/yyyy HH:mm')}">28/08/2026 10:30</td>
                                 <td th:text="${i.fechaEntrega != null ? #temporals.format(i.fechaEntrega, 'dd/MM/yyyy HH:mm') : '-'}">-</td>
-                                <td th:text="${i.duracionMinutos != null ? i.duracionMinutos + ' min' : '-'}">12 min</td>
+                                <td th:text="${i.duracionTexto != null ? i.duracionTexto : '-'}">12 min</td>
                                 <td th:text="${i.nota != null ? #numbers.formatDecimal(i.nota, 1, 2, 'COMMA') : '-'}">8,00</td>
                                 <td>
                                     <span class="pn-insignia"

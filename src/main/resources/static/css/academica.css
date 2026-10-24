@@ -2324,9 +2324,9 @@ a.ac-actividad-titulo:hover {
     white-space: nowrap;
 }
 
-/* Menús de los selectores múltiples (Tom Select): quedan por encima de las ventanas modales (1055) */
+/* Menús de los selectores múltiples (Tom Select): quedan por encima de las ventanas modales (.pn-modal, 2600) */
 body > .ts-dropdown {
-    z-index: 2100 !important;
+    z-index: 2700 !important;
 }
 
 /* ==========================================================================
@@ -2337,30 +2337,33 @@ body > .ts-dropdown {
     margin-bottom: 18px;
 }
 
-.in-reglas {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 14px;
-    margin: 14px 0;
+.in-frase {
+    margin: 12px 0 6px;
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: var(--pn-texto);
 }
 
-.in-reglas > div {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
+.in-frase strong {
+    font-weight: 700;
+    border-bottom: 2px solid var(--pn-gold);
 }
 
-.in-regla-etiqueta {
-    color: var(--pn-texto-suave);
-    font-size: 0.8rem;
+.in-resalta {
+    font-weight: 700;
 }
 
-.in-notas {
+/* La tabla de intentos queda alineada con el texto de la tarjeta (la tarjeta ya tiene su propio relleno) */
+.in-ficha .pn-tabla-contenedor {
+    margin: 14px 0 0;
+}
+
+.in-frase-detalle {
     margin: 0 0 16px;
-    padding-left: 18px;
     color: var(--pn-texto-suave);
-    font-size: 0.9rem;
+    font-size: 0.88rem;
 }
+
 
 .in-accion {
     display: flex;
@@ -2387,9 +2390,37 @@ body > .ts-dropdown {
 /* ---- Modo foco: cuestionario y resumen, sin menú */
 .in-body {
     min-height: 100vh;
-    background: var(--pn-fondo);
+    background: #F6F3EC; /* el mismo crema de los paneles y de "Mis cursos" */
     color: var(--pn-texto);
     font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+}
+
+/* Navbar reducido del cuestionario: logo, reloj y menú del usuario; queda fijo arriba */
+.nb.nb-intento {
+    position: sticky;
+    top: 0;
+    padding: 0 24px; /* el mismo margen lateral que el contenido de los paneles */
+}
+
+.in-titulo-intento {
+    box-sizing: border-box;
+    width: 100%;
+    margin: 0;
+    padding: 20px 24px 0;
+}
+
+.in-titulo-intento-nombre {
+    margin: 2px 0 0;
+    font-size: 1.15rem;
+    font-weight: 700;
+}
+
+.nb.nb-intento + * {
+    margin-top: 0 !important; /* el navbar ya no es fijo: no hace falta dejarle lugar */
+}
+
+.nb-intento .nb-marca {
+    cursor: default;
 }
 
 .in-cabecera {
@@ -2427,8 +2458,9 @@ body > .ts-dropdown {
     align-items: center;
     gap: 8px;
     padding: 6px 12px;
-    border: 1px solid var(--pn-borde-input);
+    border: 1px solid var(--pn-gold);
     border-radius: 8px;
+    background: var(--pn-gold-soft);
     font-variant-numeric: tabular-nums;
     font-weight: 600;
 }
@@ -2440,6 +2472,7 @@ body > .ts-dropdown {
 
 .in-reloj-critico {
     border-color: var(--pn-peligro);
+    background: #FEF2F2;
     color: var(--pn-peligro);
 }
 
@@ -2456,12 +2489,11 @@ body > .ts-dropdown {
 
 .in-principal {
     display: grid;
-    grid-template-columns: 190px minmax(0, 1fr) 230px;
+    grid-template-columns: 220px minmax(0, 1fr) 260px;
     gap: 20px;
     align-items: start;
-    max-width: 1180px;
-    margin: 24px auto;
-    padding: 0 20px;
+    margin: 18px 0 28px;
+    padding: 0 24px; /* ocupa todo el ancho, como el resto de las pantallas */
 }
 
 .in-info,
@@ -2488,6 +2520,8 @@ body > .ts-dropdown {
 }
 
 .in-info-estado {
+    min-height: 1.4em;
+    white-space: nowrap;
     margin: 0 0 10px;
     color: var(--pn-texto-suave);
     font-size: 0.9rem;
@@ -2514,14 +2548,27 @@ body > .ts-dropdown {
 }
 
 .in-pregunta {
-    padding: 22px 24px;
-    background: #EEF3F8;
+    position: relative;
+    overflow: hidden;
+    padding: 25px 24px 22px;
+}
+
+.in-pregunta::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--pn-gold);
 }
 
 .in-enunciado {
     margin: 0 0 6px;
-    font-size: 1.1rem;
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 1.3rem;
     font-weight: 500;
+    line-height: 1.4;
 }
 
 .in-ayuda {
@@ -2542,22 +2589,50 @@ body > .ts-dropdown {
 }
 
 .in-opcion:hover {
-    background: #FFFFFF;
+    background: var(--pn-fondo);
 }
 
-.in-opcion-elegida {
+.in-opcion-elegida,
+.in-opcion-elegida:hover {
     border-color: var(--pn-ver);
-    background: #FFFFFF;
+    background: #EEF4FA;
+}
+
+/* El campo real sigue ahí (teclado y lectores de pantalla) pero se muestra como una letra dentro de un círculo */
+.in-opcion {
+    position: relative;
 }
 
 .in-opcion input {
-    width: 18px;
-    height: 18px;
-    accent-color: var(--pn-navy);
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
 }
 
 .in-opcion-letra {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 26px;
+    height: 26px;
+    border: 1.5px solid #CBD5E1;
+    border-radius: 50%;
+    background: #FFFFFF;
     color: var(--pn-texto-suave);
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.in-opcion-elegida .in-opcion-letra {
+    border-color: var(--pn-navy);
+    background: var(--pn-navy);
+    color: #FFFFFF;
+}
+
+.in-opcion input:focus-visible + .in-opcion-letra {
+    outline: 2px solid var(--pn-ver);
+    outline-offset: 2px;
 }
 
 .in-pie {
@@ -2568,6 +2643,9 @@ body > .ts-dropdown {
 }
 
 .in-guardado {
+    display: inline-block;
+    min-width: 170px; /* el texto cambia (Guardando / Respuesta guardada) sin mover los botones */
+    min-height: 1.3em;
     color: var(--pn-texto-suave);
     font-size: 0.8rem;
 }
@@ -2577,6 +2655,7 @@ body > .ts-dropdown {
 }
 
 .in-botones {
+    margin-left: auto;
     display: flex;
     gap: 10px;
     margin-left: auto;
@@ -2645,13 +2724,13 @@ body > .ts-dropdown {
     height: 6px;
     margin-bottom: 12px;
     border-radius: 3px;
-    background: #E1ECF7;
+    background: var(--pn-gold-soft);
 }
 
 .in-progreso-barra {
     height: 6px;
     border-radius: 3px;
-    background: var(--pn-ver);
+    background: var(--pn-gold);
 }
 
 .in-terminar {
@@ -2661,18 +2740,94 @@ body > .ts-dropdown {
 }
 
 .in-resumen {
-    max-width: 720px;
-    margin: 28px auto;
-    padding: 0 20px;
+    display: flex;
+    justify-content: center;
+    margin: 28px 0;
+    padding: 0 24px;
+}
+
+.in-resumen-tarjeta {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    max-width: 680px;
+    padding: 28px 28px 24px;
+}
+
+.in-resumen-tarjeta::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--pn-gold);
+}
+
+.in-resumen-barra {
+    height: 8px;
+    margin: 14px 0 6px;
+    border-radius: 99px;
+    background: var(--pn-gold-soft);
+    overflow: hidden;
+}
+
+.in-resumen-barra div {
+    height: 100%;
+    background: var(--pn-gold);
+}
+
+.in-resumen-lista {
+    margin: 0;
+}
+
+.in-resumen-lista > div {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--pn-borde);
+    font-size: 0.92rem;
+}
+
+.in-resumen-lista > div:last-child {
+    border-bottom: 0;
+}
+
+.in-resumen-lista dt {
+    color: var(--pn-texto-suave);
+    font-weight: 400;
+}
+
+.in-resumen-lista dd {
+    margin: 0;
+    font-weight: 700;
+    text-align: right;
+}
+
+.in-resumen-num + .in-resumen-num::before {
+    content: ', ';
+    font-weight: 400;
+}
+
+a.in-resumen-num {
+    color: var(--pn-texto);
+    text-decoration: none;
+}
+
+a.in-resumen-num:hover {
+    text-decoration: underline;
 }
 
 .in-resumen-titulo {
-    margin: 0 0 6px;
-    font-size: 1.4rem;
+    margin: 0 0 4px;
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 1.5rem;
+    font-weight: 500;
 }
 
 .in-resumen-subtitulo {
-    margin: 0 0 16px;
+    margin: 0;
     color: var(--pn-texto-suave);
 }
 
@@ -2690,16 +2845,23 @@ body > .ts-dropdown {
 }
 
 .in-resumen-aviso {
-    margin: 0 0 16px;
+    margin: 0;
     padding: 10px 12px;
-    border-radius: 8px;
+    border: 1px solid #F3D68A;
+    border-radius: 10px;
     background: var(--pn-gold-soft);
+    color: #7A5500;
+    font-size: 0.88rem;
 }
 
 .in-resumen-acciones {
     display: flex;
-    justify-content: center;
+    flex-wrap: wrap;
     gap: 12px;
+}
+
+.in-resumen-aviso + .in-resumen-acciones {
+    margin-top: 14px;
 }
 
 @media (max-width: 900px) {
@@ -2710,5 +2872,92 @@ body > .ts-dropdown {
     .in-info,
     .in-navegacion {
         position: static;
+    }
+}
+
+/* ---- Navbar del cuestionario en pantallas chicas */
+@media (max-width: 991.98px) {
+    .nb.nb-intento {
+        padding: 0 16px;
+        gap: 8px;
+    }
+
+    .nb.nb-intento .um-wrapper {
+        display: inline-block;
+        width: auto;
+    }
+
+    .nb.nb-intento .um-trigger {
+        width: auto;
+        padding: 5px 8px 5px 5px;
+        border: 1px solid transparent;
+        border-radius: 9999px;
+        pointer-events: auto;
+    }
+
+    .nb.nb-intento .um-flecha {
+        display: inline;
+    }
+
+    .nb.nb-intento .um-dropdown {
+        display: none;
+        position: absolute;
+        right: 0;
+        width: 220px;
+        margin: 0;
+        background: #FFFFFF;
+        border: 1px solid var(--pn-borde);
+        border-radius: 12px;
+        box-shadow: 0 16px 40px rgba(8, 20, 38, 0.18);
+        overflow: hidden;
+    }
+
+    .nb.nb-intento .um-wrapper.abierto .um-dropdown {
+        display: block;
+    }
+
+    .nb.nb-intento .um-seccion {
+        padding: 6px 0;
+    }
+
+    .nb.nb-intento .um-item {
+        padding: 10px 16px;
+        border-bottom: 0;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .nb.nb-intento .nb-marca > span {
+        display: none; /* queda solo el logo */
+    }
+
+    .nb.nb-intento .um-datos,
+    .nb.nb-intento .um-flecha {
+        display: none; /* queda solo el avatar */
+    }
+
+    .nb.nb-intento .um-trigger {
+        padding: 2px;
+    }
+
+    .in-titulo-intento,
+    .in-principal,
+    .in-resumen {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    .in-pregunta {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    /* El pie de la pregunta se acomoda en renglones en vez de recortar el botón */
+    .in-pregunta .in-pie {
+        flex-wrap: wrap;
+    }
+
+    .in-guardado {
+        min-width: 0;
     }
 }

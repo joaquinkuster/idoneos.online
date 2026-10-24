@@ -1094,18 +1094,6 @@ textarea.pn-input {
 /* ==========================================================================
    FORMULARIO POR PASOS
    ========================================================================== */
-.pn-progreso {
-    height: 4px;
-    background: var(--pn-borde);
-}
-
-.pn-progreso-barra {
-    height: 100%;
-    width: 0;
-    background: var(--pn-gold);
-    transition: width 0.25s ease;
-}
-
 .pn-pasos {
     display: flex;
     align-items: center;
@@ -2124,4 +2112,52 @@ textarea.pn-input {
 
 .pn-arbol::-webkit-scrollbar-thumb:hover {
     background: rgba(100, 116, 139, 0.65);
+}
+
+/* Globo del botón "Ver motivo" del historial de pagos: chico, debajo del botón y sin franja de título */
+.pn-btn-motivo {
+    --bs-btn-font-size: 12px;
+    --bs-btn-padding-y: 0;
+    height: 30px;
+    font-family: inherit;
+    font-weight: 700;
+    white-space: nowrap;
+    /* Gris relleno siempre; al pasar el mouse solo baja un poco la opacidad */
+    --bs-btn-hover-bg: var(--bs-btn-bg);
+    --bs-btn-hover-border-color: var(--bs-btn-border-color);
+    --bs-btn-active-bg: var(--bs-btn-bg);
+    --bs-btn-active-border-color: var(--bs-btn-border-color);
+}
+
+.pn-btn-motivo:hover,
+.pn-btn-motivo:focus-visible,
+.pn-btn-motivo:active {
+    opacity: 0.85;
+}
+
+.pn-motivo-popover {
+    font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+    --bs-popover-max-width: 230px;
+    --bs-popover-font-size: 12px;
+    --bs-popover-border-width: 0;
+    --bs-popover-bg: #FFFFFF;
+    border: 0;
+    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.18);
+}
+
+.pn-motivo-popover .popover-arrow {
+    display: none;
+}
+
+.pn-motivo-popover .popover-header {
+    padding: 8px 12px 0;
+    font-size: 12px;
+    font-weight: 700;
+    background: transparent;
+    border-bottom: 0;
+}
+
+.pn-motivo-popover .popover-body {
+    padding: 2px 12px 8px;
+    color: var(--pn-texto-suave);
 }

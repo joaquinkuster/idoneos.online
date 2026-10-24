@@ -139,9 +139,8 @@
                 });
                 return;
             }
-            dialogo(datos.titulo, datos.mensaje, datos.aprobado ? 'success' : 'info').then(function () {
-                window.location.href = datos.destino || urlFicha;
-            });
+            // Sin aviso: la ficha de la autoevaluación muestra la nota y el resultado del intento
+            window.location.href = datos.destino || urlFicha;
         }).catch(function () {
             entregando = false;
             dialogo('Sin conexión', 'No se pudo conectar con el servidor. Intentá nuevamente.', 'error');
@@ -187,7 +186,7 @@
         var hay = elegidas().length > 0;
         opciones.forEach(function (o) { o.closest('.in-opcion').classList.toggle('in-opcion-elegida', o.checked); });
         estadoPregunta.textContent = hay ? 'Respuesta guardada' : 'Sin responder';
-        if (botonLimpiar) { botonLimpiar.classList.toggle('d-none', !hay); }
+        if (botonLimpiar) { botonLimpiar.classList.toggle('invisible', !hay); } // oculto pero ocupa su lugar: no mueve el resto
         var casilla = document.querySelector('.in-nav-casilla.in-nav-actual');
         if (casilla) { casilla.classList.toggle('in-nav-respondida', hay); }
     }

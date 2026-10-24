@@ -57,4 +57,10 @@
             modal.querySelectorAll('form[data-autoevaluacion-formulario]').forEach(filtrarPools);
         });
     });
+
+    // Apertura automatica de la ventana de una autoevaluacion (?accion=editar|baja&autoevaluacionId=...), desde la vista del curso
+    var principal = document.querySelector('[data-abrir-modal]');
+    if (principal && principal.dataset.abrirModal && document.getElementById(principal.dataset.abrirModal)) {
+        bootstrap.Modal.getOrCreateInstance(document.getElementById(principal.dataset.abrirModal)).show();
+    }
 })();

@@ -71,13 +71,17 @@ public class AutoevaluacionControlador extends PanelCursoControlador {
      * el docente las crea y las modifica en ventanas.
      *
      * @param cursoId            Identificador del curso.
+     * @param accion             "editar" o "baja": abre sola la ventana de esa autoevaluación (desde la vista del curso).
+     * @param autoevaluacionId   Identificador de la autoevaluación de la acción (opcional).
      * @param modelo             El modelo de la vista.
      * @param auth               La autenticación actual.
      * @param redirectAttributes Atributos para mensajes de redirección.
      * @return La vista del listado, o una redirección a "Mis cursos" si no se puede acceder.
      */
     @GetMapping("/buscar")
-    public String buscarAutoevaluaciones(@RequestParam(value = "cursoId", required = false) Integer cursoId, Model modelo,
+    public String buscarAutoevaluaciones(@RequestParam(value = "cursoId", required = false) Integer cursoId,
+            @RequestParam(value = "accion", required = false) String accion,
+            @RequestParam(value = "autoevaluacionId", required = false) Integer autoevaluacionId, Model modelo,
             Authentication auth, RedirectAttributes redirectAttributes) {
         try {
             Usuario usuario = (Usuario) auth.getPrincipal();
@@ -107,7 +111,17 @@ public class AutoevaluacionControlador extends PanelCursoControlador {
                 }
             }
 
+            String abrirModal = null;
+            boolean hayAccion = accion != null && autoevaluacionId != null
+                    && autoevaluaciones.stream().anyMatch(a -> a.getIdAutoevaluacion() == autoevaluacionId && !a.getBaja());
+            if (hayAccion && "baja".equals(accion)) {
+                abrirModal = "modalBajaAutoevaluacion" + autoevaluacionId;
+            } else if (hayAccion && "editar".equals(accion) && !esAdministrador) {
+                abrirModal = "modalEditarAutoevaluacion" + autoevaluacionId;
+            }
+
             cargarContexto(modelo, contexto, "autoevaluaciones");
+            modelo.addAttribute("abrirModal", abrirModal);
             modelo.addAttribute("gruposDePools", gruposDePools);
             modelo.addAttribute("autoevaluaciones", autoevaluaciones);
             modelo.addAttribute("unidades", unidades);

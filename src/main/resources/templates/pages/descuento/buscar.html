@@ -118,7 +118,6 @@
             </div>
             <div class="pn-modal-cuerpo">
                 <form th:action="@{/descuento/registrar}" method="post" class="form-ajax" data-validar data-pasos data-resumen="Descuento" data-modo="alta" novalidate>
-    <div class="pn-progreso"><div class="pn-progreso-barra"></div></div>
     <div class="pn-pasos pn-pasos-nombrados">
         <span class="pn-pasos-item"><span class="pn-pasos-punto">1</span><span class="pn-pasos-nombre">Datos</span></span><span class="pn-pasos-linea"></span>
         <span class="pn-pasos-item"><span class="pn-pasos-punto">2</span><span class="pn-pasos-nombre">Vigencia y uso</span></span><span class="pn-pasos-linea"></span>
@@ -204,7 +203,6 @@
                 <div class="pn-modal-cuerpo">
                     <form th:action="@{'/descuento/modificar/' + ${d.idDescuento}}" method="post" class="form-ajax" data-validar data-pasos data-resumen="Descuento" data-modo="modificacion"
                           th:attr="data-resumen-titulo=${'(' + d.nombre + ')'}" novalidate>
-    <div class="pn-progreso"><div class="pn-progreso-barra"></div></div>
     <div class="pn-pasos pn-pasos-nombrados">
         <span class="pn-pasos-item"><span class="pn-pasos-punto">1</span><span class="pn-pasos-nombre">Datos</span></span><span class="pn-pasos-linea"></span>
         <span class="pn-pasos-item"><span class="pn-pasos-punto">2</span><span class="pn-pasos-nombre">Vigencia y uso</span></span><span class="pn-pasos-linea"></span>

@@ -74,6 +74,9 @@
                                 <td th:text="${#temporals.format(p.fechaCreacion, 'dd/MM/yyyy HH:mm')}">13/10/2026 09:50</td>
                                 <td>
                                     <div class="pn-acciones">
+                                        <button type="button" class="btn btn-secondary btn-sm pn-btn-motivo" data-motivo-pago
+                                                th:if="${p.estaRechazado() and p.detalleErrorOperacion != null}"
+                                                th:attr="data-bs-content=${p.detalleErrorOperacion}">Ver motivo</button>
                                         <button type="button" class="pn-btn pn-btn-editar pn-btn-chico" data-bs-toggle="modal"
                                                 th:if="${!p.estaAprobado()}"
                                                 th:data-bs-target="'#modalModificarPago' + ${p.idPago}">Modificar</button>
@@ -131,7 +134,6 @@
     <div class="pn-aviso pn-aviso-azul" th:if="${cbu != null}">
                         CBU de la institución para recibir transferencias: <strong th:text="${cbu}">0000003100012345678901</strong>
                     </div>
-    <div class="pn-progreso"><div class="pn-progreso-barra"></div></div>
     <div class="pn-pasos pn-pasos-nombrados">
         <span class="pn-pasos-item"><span class="pn-pasos-punto">1</span><span class="pn-pasos-nombre">Inscripción</span></span><span class="pn-pasos-linea"></span>
         <span class="pn-pasos-item"><span class="pn-pasos-punto">2</span><span class="pn-pasos-nombre">Datos del pago</span></span><span class="pn-pasos-linea"></span>
@@ -246,7 +248,6 @@
                     <form th:action="@{'/pago/modificar/' + ${p.idPago}}" method="post" class="form-ajax" data-validar data-pasos data-resumen="Pago" data-modo="modificacion"
                           data-contexto='[{"etiqueta":"Curso","atributoForm":"data-ctx-curso"},{"etiqueta":"Programa","atributoForm":"data-ctx-programa"},{"etiqueta":"Cohorte","atributoForm":"data-ctx-cohorte"},{"etiqueta":"Inscripción","atributoForm":"data-ctx-alumno"}]' 
                           th:attr="data-resumen-titulo=${'(' + #temporals.format(p.fechaCreacion, 'dd/MM/yyyy HH:mm') + ')'}, data-ctx-curso=${p.inscripcion.curso.nombre}, data-ctx-programa=${p.inscripcion.cohorte.programa.nombre}, data-ctx-cohorte=${p.inscripcion.cohorte.etiqueta}, data-ctx-alumno=${p.inscripcion.alumno.usuario.nombreCompleto}" novalidate>
-    <div class="pn-progreso"><div class="pn-progreso-barra"></div></div>
     <div class="pn-pasos pn-pasos-nombrados">
         <span class="pn-pasos-item"><span class="pn-pasos-punto">1</span><span class="pn-pasos-nombre">Inscripción</span></span><span class="pn-pasos-linea"></span>
         <span class="pn-pasos-item"><span class="pn-pasos-punto">2</span><span class="pn-pasos-nombre">Datos del pago</span></span><span class="pn-pasos-linea"></span>
@@ -321,7 +322,6 @@
 <div class="col-12 ayuda-desplegable" th:if="${p.esDeModo()}" th:id="'ayudaModo' + ${p.idPago}">
                                 <div class="ayuda-desplegable-interior">
                                     <div class="cn-info">
-                                        <i class="fa-solid fa-circle-info"></i>
                                         <span>Antes de acreditar un pago de MODO, verificá en el panel de MODO que se haya cobrado. Al aprobarlo hay que indicar el nombre y el DNI del pagador, que van en el comprobante.</span>
                                     </div>
                                 </div>
@@ -394,6 +394,7 @@
 <th:block th:replace="~{fragments/panel :: scripts}"></th:block>
 <script th:src="@{/js/abrirModal.js}"></script>
 <script th:src="@{/js/resumenPago.js}"></script>
+<script th:src="@{/js/motivoPago.js}"></script>
 <script th:src="@{/js/ayudaDesplegable.js}"></script>
 <script>
     // Modificar un pago de MODO: el código de referencia y el número de comprobante son obligatorios solo al acreditarlo

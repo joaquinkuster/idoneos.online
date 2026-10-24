@@ -122,7 +122,6 @@
                 <form th:action="@{/unidad/registrar}" method="post" class="form-ajax" data-validar novalidate data-unidad-formulario
                       data-pasos data-resumen="Unidad" data-modo="alta" data-resumen-nuevo="nueva"
                       data-contexto='[{"etiqueta":"Curso","atributoForm":"data-ctx-curso"},{"etiqueta":"Programa","campo":"programaId","atributo":"data-programa"}]' th:attr="data-ctx-curso=${curso.nombre}">
-    <div class="pn-progreso"><div class="pn-progreso-barra"></div></div>
     <div class="pn-pasos pn-pasos-nombrados">
         <span class="pn-pasos-item"><span class="pn-pasos-punto">1</span><span class="pn-pasos-nombre">Programa</span></span><span class="pn-pasos-linea"></span>
         <span class="pn-pasos-item"><span class="pn-pasos-punto">2</span><span class="pn-pasos-nombre">Unidad</span></span><span class="pn-pasos-linea"></span>
@@ -228,7 +227,6 @@
                           data-pasos data-resumen="Unidad" data-modo="modificacion"
                           data-contexto='[{"etiqueta":"Curso","atributoForm":"data-ctx-curso"},{"etiqueta":"Programa","atributoForm":"data-ctx-programa"}]' 
                           th:attr="data-resumen-titulo=${'(' + uc.unidad.titulo + ')'}, data-ctx-curso=${curso.nombre}, data-ctx-programa=${programa.nombre}">
-    <div class="pn-progreso"><div class="pn-progreso-barra"></div></div>
     <div class="pn-pasos pn-pasos-nombrados">
         <span class="pn-pasos-item"><span class="pn-pasos-punto">1</span><span class="pn-pasos-nombre">Datos</span></span><span class="pn-pasos-linea"></span>
         <span class="pn-pasos-item"><span class="pn-pasos-punto">2</span><span class="pn-pasos-nombre">Contenido</span></span><span class="pn-pasos-linea"></span>

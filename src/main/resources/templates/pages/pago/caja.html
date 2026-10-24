@@ -72,8 +72,7 @@
                                 <p class="caja-nota" th:if="${!parcial and total > 0}">Pagás con la app de tu banco escaneando un QR.</p>
 
                                 <div class="pn-aviso pn-aviso-dorado mt-3" th:if="${parcial}">
-                                    <i class="fa-solid fa-circle-info me-1"></i>
-                                    Ya se registró un pago de
+                                                                        Ya se registró un pago de
                                     <strong th:text="${'$ ' + #numbers.formatDecimal(pagado, 1, 'POINT', 0, 'COMMA')}">$ 30.000</strong>
                                     que no cubre el precio. El resto lo acredita el administrador.
                                 </div>

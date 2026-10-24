@@ -251,6 +251,16 @@ public class Unidad {
     }
 
     /**
+     * Obtiene las autoevaluaciones vigentes de la unidad (no dadas de baja), también las ocultas: es lo que ve el docente.
+     *
+     * @return Las autoevaluaciones, en el orden en que se cargaron.
+     */
+    public List<Autoevaluacion> getAutoevaluacionesVigentes() {
+        return autoevaluaciones.stream().filter(autoevaluacion -> !autoevaluacion.getBaja())
+                .sorted(Comparator.comparingInt(Autoevaluacion::getIdAutoevaluacion)).toList();
+    }
+
+    /**
      * Obtiene las autoevaluaciones publicadas de la unidad (vigentes y no ocultas).
      *
      * @return Las autoevaluaciones, en el orden en que se cargaron.

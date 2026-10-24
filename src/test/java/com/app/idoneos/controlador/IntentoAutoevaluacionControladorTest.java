@@ -76,8 +76,8 @@ class IntentoAutoevaluacionControladorTest {
     void ficha() throws Exception {
         mockMvc.perform(get("/autoevaluacion/ver/" + libre()))
                 .andExpect(status().isOk())
-                .andExpect(content().string(Matchers.containsString("Reglas de la autoevaluación")))
-                .andExpect(content().string(Matchers.containsString("2 de 3 usados")))
+                .andExpect(content().string(Matchers.containsString("Antes de empezar")))
+                .andExpect(content().string(Matchers.containsString("hasta")))
                 .andExpect(content().string(Matchers.containsString("Resumen de sus intentos anteriores")))
                 .andExpect(content().string(Matchers.containsString("4,00")))
                 .andExpect(content().string(Matchers.containsString("8,00 / 10,00")))

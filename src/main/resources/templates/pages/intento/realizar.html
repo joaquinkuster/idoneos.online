@@ -34,13 +34,13 @@
                        th:classappend="${elegidas.contains(o.idOpcionRespuesta)} ? 'in-opcion-elegida'">
                     <input th:type="${actual.pregunta.esOpcionMultiple ? 'checkbox' : 'radio'}" name="opcion" th:value="${o.idOpcionRespuesta}"
                            th:checked="${elegidas.contains(o.idOpcionRespuesta)}" data-opcion>
-                    <span class="in-opcion-letra" th:text="${#strings.substring('abcdefghij', estado.index, estado.index + 1) + '.'}">a.</span>
+                    <span class="in-opcion-letra" th:text="${#strings.substring('ABCDEFGHIJ', estado.index, estado.index + 1)}">A</span>
                     <span class="in-opcion-texto" th:text="${o.texto}">Opción</span>
                 </label>
             </div>
             <div class="in-pie">
                 <span class="in-guardado" data-guardado aria-live="polite"></span>
-                <button type="button" class="in-enlace" data-limpiar th:classappend="${elegidas.isEmpty()} ? 'd-none'">Limpiar mi elección</button>
+                <button type="button" class="in-enlace" data-limpiar th:classappend="${elegidas.isEmpty()} ? 'invisible'">Limpiar mi elección</button>
                 <span class="in-botones">
                     <a class="pn-btn pn-btn-secundario" th:if="${hayAnterior}"
                        th:href="@{/intento/realizar/{id}(id=${intento.idIntentoAutoevaluacion}, pregunta=${actual.orden - 1})}">Anterior</a>

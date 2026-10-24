@@ -88,7 +88,8 @@
 
         formulario.querySelectorAll('.es-invalido').forEach(function (campo) { window.PanelValidacion.marcar(campo, ''); });
         formulario.dataset.permiteEnlace = String(permiteEnlace);
-        modalNuevo.querySelector('[data-material-ayuda]').textContent = opcion.dataset.descripcion;
+        var ayudaTipo = modalNuevo.querySelector('[data-material-ayuda]'); // ya no está en el formulario: es opcional
+        if (ayudaTipo) { ayudaTipo.textContent = opcion.dataset.descripcion; }
 
         var archivo = formulario.elements['archivo'];
         archivo.value = '';

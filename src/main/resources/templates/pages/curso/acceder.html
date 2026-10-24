@@ -123,7 +123,8 @@
                                       completada=${!esDocente and inscripcion.estaUnidadCompletada(uc.unidad)},
                                       enCurso=${!esDocente and inscripcion.unidadEnCurso != null and inscripcion.unidadEnCurso.idUnidadCronograma == uc.idUnidadCronograma},
                                       estadoUnidad=${esDocente ? '' : inscripcion.getEstadoUnidad(uc)},
-                                      materiales=${esDocente ? uc.unidad.materialesVigentes : uc.unidad.materialesPublicados}"
+                                      materiales=${esDocente ? uc.unidad.materialesVigentes : uc.unidad.materialesPublicados},
+                                      autoevaluaciones=${esDocente ? uc.unidad.autoevaluacionesVigentes : uc.unidad.autoevaluacionesPublicadas}"
                             th:classappend="${completada} ? 'ac-unidad-completada' : (${habilitada} ? 'ac-unidad-habilitada' : 'ac-unidad-bloqueada')">
                             <button type="button" class="ac-unidad-cabecera" th:disabled="${!habilitada}" th:classappend="${!esDocente} ? 'ac-sin-menu'"
                                 data-bs-toggle="collapse"
@@ -212,20 +213,34 @@
                                         </li>
                                     </ul>
 
-                                    <!-- Autoevaluaciones -->
+                                    <!-- Autoevaluaciones (el docente ve también la oculta) -->
                                     <div class="ac-grupo-cabecera"
-                                        th:if="${!#lists.isEmpty(u.autoevaluacionesPublicadas)}">
+                                        th:if="${!#lists.isEmpty(autoevaluaciones)}">
                                         <h3 class="ac-grupo-titulo">Autoevaluaciones</h3>
                                         <a th:if="${esDocente or esAdministrador}" class="ac-grupo-enlace"
                                             th:href="@{/autoevaluacion/buscar(cursoId=${curso.idCurso})}">Ver listado</a>
                                     </div>
-                                    <ul class="ac-actividades" th:if="${!#lists.isEmpty(u.autoevaluacionesPublicadas)}">
-                                        <li class="ac-actividad" th:each="a : ${u.autoevaluacionesPublicadas}">
+                                    <ul class="ac-actividades" th:if="${!#lists.isEmpty(autoevaluaciones)}">
+                                        <li class="ac-actividad" th:each="a : ${autoevaluaciones}">
                                             <th:block
                                                 th:replace="~{fragments/iconoMaterial :: icono('Autoevaluación', '')}">
                                             </th:block>
                                             <a class="ac-actividad-titulo" th:text="${a.nombre}"
                                                 th:href="${esDocente or esAdministrador} ? @{/autoevaluacion/buscar(cursoId=${curso.idCurso})} : @{'/autoevaluacion/ver/' + ${a.idAutoevaluacion}}">Autoevaluación</a>
+                                            <span class="pn-insignia pn-insignia-gris" th:if="${a.oculto}">Oculta</span>
+                                            <div class="dropdown ac-menu-material" th:if="${puedeGestionar}">
+                                                <button type="button" class="ac-menu-boton" data-bs-toggle="dropdown"
+                                                    aria-expanded="false" aria-label="Opciones de la autoevaluación"><i
+                                                        class="fa-solid fa-ellipsis-vertical"></i></button>
+                                                <ul class="dropdown-menu dropdown-menu-end">
+                                                    <li><a class="dropdown-item"
+                                                            th:href="@{/autoevaluacion/buscar(cursoId=${curso.idCurso}, accion='editar', autoevaluacionId=${a.idAutoevaluacion})}">Modificar</a>
+                                                    </li>
+                                                    <li><a class="dropdown-item text-danger"
+                                                            th:href="@{/autoevaluacion/buscar(cursoId=${curso.idCurso}, accion='baja', autoevaluacionId=${a.idAutoevaluacion})}">Dar
+                                                            de baja</a></li>
+                                                </ul>
+                                            </div>
                                         </li>
                                     </ul>
 

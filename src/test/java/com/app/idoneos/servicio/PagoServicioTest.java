@@ -516,6 +516,25 @@ class PagoServicioTest {
     }
 
     @Test
+    @DisplayName("CU-53: al registrar un pago aprobado, el pago pendiente de la inscripción queda rechazado y se crea uno nuevo")
+    void registrarUnPagoRechazaElPendiente() {
+        Inscripcion lucia = pendienteDeLucia();
+        Pago pendiente = lucia.getPagoSinAprobar();
+        pendiente.setEstadoPago(estadoPagoRepositorio.findByNombre(EstadoPago.PENDIENTE).orElseThrow());
+        pagoRepositorio.save(pendiente);
+        assertTrue(pendiente.estaPendiente());
+
+        Pago pago = pagoServicio.registrarPagoManual(lucia.getIdInscripcion(), 72000f, "TRF-778899", null);
+
+        assertTrue(pago.estaAprobado());
+        assertNotEquals(pendiente.getIdPago(), pago.getIdPago());
+        assertTrue(pendiente.estaRechazado());
+        assertNull(pendiente.getDetalleErrorOperacion());
+        assertTrue(lucia.estaHabilitada());
+        assertEquals(pago.getIdPago(), lucia.getPagoAprobado().getIdPago());
+    }
+
+    @Test
     @DisplayName("CU-53: informa los datos obligatorios que faltan y los inválidos")
     void validacionesDelPagoManual() {
         Inscripcion lucia = pendienteDeLucia();

@@ -883,7 +883,6 @@
         var pasos = Array.prototype.slice.call(formulario.querySelectorAll('.pn-paso'));
         var puntos = Array.prototype.slice.call(formulario.querySelectorAll('.pn-pasos-punto'));
         var lineas = Array.prototype.slice.call(formulario.querySelectorAll('.pn-pasos-linea'));
-        var barra = formulario.querySelector('.pn-progreso-barra');
         var anterior = formulario.querySelector('[data-paso-anterior]');
         var siguiente = formulario.querySelector('[data-paso-siguiente]');
         var guardarBtn = formulario.querySelector('[data-paso-guardar]');
@@ -900,7 +899,6 @@
             lineas.forEach(function (l, i) { l.classList.toggle('completa', i < actual); });
             // Los menús de los selectores que quedaron abiertos en otro paso se cierran
             formulario.querySelectorAll('select.tomselected').forEach(function (s) { if (s.tomselect) { s.tomselect.close(); } });
-            if (barra) { barra.style.width = ((actual + 1) / pasos.length * 100) + '%'; }
             if (anterior) { anterior.style.visibility = actual === 0 ? 'hidden' : 'visible'; }
             if (siguiente) { siguiente.classList.toggle('d-none', actual === pasos.length - 1); }
             if (guardarBtn) { guardarBtn.classList.toggle('d-none', actual !== pasos.length - 1); }

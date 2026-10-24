@@ -1,18 +1,11 @@
-<!-- Cabecera del cuestionario (modo foco: sin menú ni navbar). Parámetros: curso, autoevaluacion y segundos (los que le
-     quedan al intento según el servidor, o null si no tiene tiempo límite). El reloj lo dibuja static/js/intento.js. Cerrar
-     sesión está permitido: no termina el intento, el tiempo sigue corriendo y al volver a ingresar se retoma el cuestionario. -->
-<header th:fragment="cabecera(curso, autoevaluacion, segundos)" class="in-cabecera">
-    <div class="in-cabecera-titulo">
-        <span class="in-cabecera-curso" th:text="${curso.nombre + ' · ' + autoevaluacion.unidad.titulo}">Curso · Unidad</span>
-        <strong th:text="${autoevaluacion.nombre}">Autoevaluación</strong>
-    </div>
-    <div class="in-cabecera-derecha">
-        <div class="in-reloj" th:if="${segundos != null}" data-reloj-caja>
-            <i class="fa-regular fa-clock" aria-hidden="true"></i>
-            <span data-reloj aria-live="off">--:--</span>
-            <button type="button" class="in-reloj-ocultar" data-ocultar-reloj>Ocultar</button>
-        </div>
-        <button type="button" class="in-salir" onclick="confirmarCerrarSesion()">Cerrar sesión</button>
-        <form id="formularioCerrarSesion" th:action="@{/logout}" method="post" class="d-none"></form>
-    </div>
-</header>
+<!-- Cabecera del cuestionario (modo foco: sin menú lateral). Parámetros: curso, autoevaluacion y segundos (los que le quedan al
+     intento según el servidor, o null si no tiene tiempo límite). El navbar reducido lleva el logo, el reloj (que dibuja
+     static/js/intento.js) y el menú con "Cerrar sesión", que está permitido: no termina el intento, el tiempo sigue corriendo y
+     al volver a ingresar se retoma el cuestionario. Debajo del navbar va el título de la autoevaluación. -->
+<th:block th:fragment="cabecera(curso, autoevaluacion, segundos)">
+<th:block th:replace="~{fragments/navbarIntento :: navbar(${segundos})}"></th:block>
+<div class="in-titulo-intento">
+    <span class="in-cabecera-curso" th:text="${curso.nombre + ' · ' + autoevaluacion.unidad.titulo}">Curso · Unidad</span>
+    <h1 class="in-titulo-intento-nombre" th:text="${autoevaluacion.nombre}">Autoevaluación</h1>
+</div>
+</th:block>

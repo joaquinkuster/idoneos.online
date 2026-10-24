@@ -12,7 +12,7 @@
     <div class="pn-principal">
         <th:block th:replace="~{fragments/panel :: barra(null)}"></th:block>
 
-        <main class="pn-contenido">
+        <main class="pn-contenido" th:attr="data-abrir-modal=${abrirModal}">
             <nav class="ac-migas" aria-label="Ruta de navegación">
                 <a th:href="@{/inicio}">Página principal</a>
                 <i class="fa-solid fa-chevron-right"></i>

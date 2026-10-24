@@ -7,10 +7,9 @@
       th:attr="data-modo=${curso == null ? 'alta' : 'modificacion'}" novalidate>
 
     <div class="pn-aviso pn-aviso-dorado" th:if="${bloqueado}">
-        <i class="fa-solid fa-lock me-1"></i> El curso tiene inscripciones activas: solo pueden modificarse el <strong>precio</strong>, el <strong>equipo docente</strong> y la <strong>imagen de portada</strong>. El resto de los datos es el que el alumno vio y pagó al inscribirse.
+        El curso tiene inscripciones activas: solo pueden modificarse el <strong>precio</strong>, el <strong>equipo docente</strong> y la <strong>imagen de portada</strong>. El resto de los datos es el que el alumno vio y pagó al inscribirse.
     </div>
 
-    <div class="pn-progreso"><div class="pn-progreso-barra"></div></div>
     <div class="pn-pasos pn-pasos-nombrados">
         <span class="pn-pasos-item"><span class="pn-pasos-punto">1</span><span class="pn-pasos-nombre">Datos básicos</span></span><span class="pn-pasos-linea"></span>
         <span class="pn-pasos-item"><span class="pn-pasos-punto">2</span><span class="pn-pasos-nombre">Dictado</span></span><span class="pn-pasos-linea"></span>

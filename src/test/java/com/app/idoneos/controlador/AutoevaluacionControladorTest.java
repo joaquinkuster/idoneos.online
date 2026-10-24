@@ -76,6 +76,29 @@ class AutoevaluacionControladorTest {
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesServicio")
+    @DisplayName("Desde la vista del curso, el docente modifica o da de baja cada autoevaluación con el mismo menú que los materiales")
+    void menuDesdeLaVistaDelCurso() throws Exception {
+        int id = autoevaluacion("Autoevaluación Unidad 1: Marco regulatorio");
+        mockMvc.perform(get("/curso/acceder/" + curso()))
+                .andExpect(status().isOk())
+                .andExpect(content().string(Matchers.containsString("aria-label=\"Opciones de la autoevaluación\"")))
+                .andExpect(content().string(Matchers.containsString("accion=editar&amp;autoevaluacionId=" + id)))
+                .andExpect(content().string(Matchers.containsString("accion=baja&amp;autoevaluacionId=" + id)));
+
+        mockMvc.perform(get("/autoevaluacion/buscar").param("cursoId", curso()).param("accion", "editar")
+                .param("autoevaluacionId", String.valueOf(id)))
+                .andExpect(status().isOk())
+                .andExpect(content().string(Matchers.containsString("data-abrir-modal=\"modalEditarAutoevaluacion" + id + "\"")));
+        mockMvc.perform(get("/autoevaluacion/buscar").param("cursoId", curso()).param("accion", "baja")
+                .param("autoevaluacionId", String.valueOf(id)))
+                .andExpect(content().string(Matchers.containsString("data-abrir-modal=\"modalBajaAutoevaluacion" + id + "\"")));
+        mockMvc.perform(get("/autoevaluacion/buscar").param("cursoId", curso()).param("accion", "editar")
+                .param("autoevaluacionId", "999999"))
+                .andExpect(content().string(Matchers.not(Matchers.containsString("data-abrir-modal=\"modal"))));
+    }
+
+    @Test
+    @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesServicio")
     @DisplayName("CU-64: el docente ve el listado con sus columnas, el formulario de alta y los modales de cada autoevaluación")
     void listadoDelDocente() throws Exception {
         mockMvc.perform(get("/autoevaluacion/buscar").param("cursoId", curso()))
