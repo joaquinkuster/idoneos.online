@@ -1,5 +1,18 @@
 package com.app.idoneos.servicio.Certificado;
 
+import java.awt.Color;
+import java.io.ByteArrayOutputStream;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
+import com.app.idoneos.modelo.Alumno;
+import com.lowagie.text.Document;
+import com.lowagie.text.DocumentException;
+import com.lowagie.text.Element;
+import com.lowagie.text.FontFactory;
+import com.lowagie.text.PageSize;
+import com.lowagie.text.Paragraph;
+import com.lowagie.text.pdf.PdfContentByte;
+import com.lowagie.text.pdf.PdfWriter;
 import com.app.idoneos.utilidades.RespuestaFormularioUtilidad;
 import com.app.idoneos.utilidades.MensajeErrorUtilidad;
 import java.time.LocalDateTime;
@@ -86,6 +99,67 @@ public class CertificadoServicioImpl implements CertificadoServicio, CrudServici
         return certificadoRepositorio.findByNumero(numero);
     }
 
+    @Override
+    public List<Certificado> buscarVigentesDelAlumno(Alumno alumno) {
+        return certificadoRepositorio.findByInscripcionAlumnoAndAnuladoFalseOrderByFechaEmisionDesc(alumno);
+    }
+
+    @Override
+    public Certificado buscarVisible(Integer idCertificado, Alumno solicitante) {
+        return certificadoRepositorio.findById(idCertificado == null ? -1 : idCertificado)
+                .filter(c -> !c.getAnulado())
+                .filter(c -> solicitante == null
+                        || c.getInscripcion().getAlumno().getIdAlumno() == solicitante.getIdAlumno())
+                .orElseThrow(() -> new IllegalArgumentException("Error! El certificado no se encuentra disponible."));
+    }
+
+    @Override
+    public byte[] generarPdf(Certificado certificado) {
+        Color azul = new Color(0x0B, 0x1B, 0x31);
+        Color dorado = new Color(0xD4, 0xA0, 0x3D);
+        DateTimeFormatter formatoFecha = DateTimeFormatter.ofPattern("d 'de' MMMM 'de' yyyy", Locale.of("es", "AR"));
+        ByteArrayOutputStream salida = new ByteArrayOutputStream();
+        Document documento = new Document(PageSize.A4.rotate(), 72, 72, 60, 60);
+        try {
+            PdfWriter escritor = PdfWriter.getInstance(documento, salida);
+            documento.open();
+
+            // Marco doble de la hoja
+            PdfContentByte lienzo = escritor.getDirectContentUnder();
+            lienzo.setColorStroke(dorado);
+            lienzo.setLineWidth(2.5f);
+            lienzo.rectangle(28, 28, PageSize.A4.rotate().getWidth() - 56, PageSize.A4.rotate().getHeight() - 56);
+            lienzo.stroke();
+            lienzo.setLineWidth(0.8f);
+            lienzo.rectangle(36, 36, PageSize.A4.rotate().getWidth() - 72, PageSize.A4.rotate().getHeight() - 72);
+            lienzo.stroke();
+
+            documento.add(centrado("Idóneos Online", FontFactory.getFont(FontFactory.HELVETICA_BOLD, 24, azul), 6));
+            documento.add(centrado("CERTIFICADO DE FINALIZACIÓN", FontFactory.getFont(FontFactory.HELVETICA, 13, dorado), 34));
+            documento.add(centrado("Se certifica que", FontFactory.getFont(FontFactory.HELVETICA, 12, Color.GRAY), 10));
+            documento.add(centrado(certificado.getNombreAlumno(), FontFactory.getFont(FontFactory.TIMES_BOLD, 30, azul), 4));
+            documento.add(centrado("DNI " + certificado.getDniAlumno(), FontFactory.getFont(FontFactory.HELVETICA, 11, Color.GRAY), 22));
+            documento.add(centrado("finalizó con éxito el curso", FontFactory.getFont(FontFactory.HELVETICA, 12, Color.GRAY), 10));
+            documento.add(centrado(certificado.getInscripcion().getCurso().getNombre(), FontFactory.getFont(FontFactory.TIMES_BOLD, 22, azul), 4));
+            documento.add(centrado(certificado.getInscripcion().getCohorte().getPrograma().getNombre(),
+                    FontFactory.getFont(FontFactory.HELVETICA, 11, Color.GRAY), 34));
+            documento.add(centrado("Emitido el " + certificado.getFechaEmision().format(formatoFecha),
+                    FontFactory.getFont(FontFactory.HELVETICA, 11, Color.BLACK), 4));
+            documento.add(centrado("N.º " + certificado.getNumero(), FontFactory.getFont(FontFactory.HELVETICA_BOLD, 10, azul), 0));
+            documento.close();
+        } catch (DocumentException e) {
+            throw new IllegalStateException("No se pudo generar el certificado en PDF", e);
+        }
+        return salida.toByteArray();
+    }
+
+    private static Paragraph centrado(String texto, com.lowagie.text.Font fuente, float espacioDespues) {
+        Paragraph parrafo = new Paragraph(texto, fuente);
+        parrafo.setAlignment(Element.ALIGN_CENTER);
+        parrafo.setSpacingAfter(espacioDespues);
+        return parrafo;
+    }
+
     // ---------------------------------------------------------------- Creaciones
 
     /**
@@ -118,7 +192,7 @@ public class CertificadoServicioImpl implements CertificadoServicio, CrudServici
         }
         var usuario = inscripcion.getAlumno().getUsuario();
         Certificado certificado = new Certificado(inscripcion, numero, ahora,
-                "Certificado de aprobación del curso " + inscripcion.getCurso().getNombre(), usuario.getNombreCompleto(),
+                "Certificado de finalización del curso " + inscripcion.getCurso().getNombre(), usuario.getNombreCompleto(),
                 usuario.getDni());
         certificado = certificadoRepositorio.save(certificado);
         inscripcion.getCertificados().add(certificado);

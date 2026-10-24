@@ -16,18 +16,10 @@
                 return;
             }
             evento.preventDefault();
-            Swal.fire({
-                iconHtml: '<i class="fa-solid fa-triangle-exclamation"></i>',
-                title: 'Realizar intento',
-                text: 'Esta autoevaluación no permite salir: una vez iniciada, no vas a poder acceder a otras secciones '
-                    + 'de la plataforma hasta entregar el intento o agotarse el tiempo. ¿Querés comenzar?',
-                showCancelButton: true,
-                reverseButtons: true,
-                confirmButtonText: 'Comenzar',
-                cancelButtonText: 'Cancelar',
-                customClass: { icon: 'swal-icono-peligro', popup: 'swal-confirmacion', confirmButton: 'swal-boton-peligro', cancelButton: 'swal-boton-cancelar' },
-                buttonsStyling: false
-            }).then(function (resultado) {
+            window.mostrarAviso({ tipo: 'advertencia', titulo: 'Realizar intento',
+                texto: 'Esta autoevaluación no permite salir: una vez iniciada, no vas a poder acceder a otras secciones '
+                + 'de la plataforma hasta entregar el intento o agotarse el tiempo. ¿Querés comenzar?',
+                confirmar: 'Comenzar', cancelar: 'Cancelar' }).then(function (resultado) {
                 if (resultado.isConfirmed) {
                     formulario.dataset.confirmado = '1';
                     formulario.submit();
@@ -61,8 +53,7 @@
     }
 
     function dialogo(titulo, texto, icono) {
-        return Swal.fire({ icon: icono || 'info', title: titulo, text: texto, confirmButtonText: 'Aceptar',
-            customClass: { confirmButton: 'swal-boton-peligro' }, buttonsStyling: false, allowOutsideClick: false });
+        return window.mostrarAviso({ tipo: icono === 'error' ? 'error' : 'info', titulo: titulo, texto: texto, bloquear: true });
     }
 
     // ------------------------------------------------------------------ Temporizador sincronizado con el servidor
@@ -151,19 +142,14 @@
     if (botonEntregar) {
         botonEntregar.addEventListener('click', function () {
             var sinResponder = parseInt(raiz.dataset.sinResponder || '0', 10);
-            Swal.fire({
-                iconHtml: '<i class="fa-solid fa-triangle-exclamation"></i>',
-                title: 'Entregar el intento',
-                text: sinResponder > 0
-                    ? 'Quedan ' + sinResponder + ' preguntas sin responder y se contarán como vacías. ¿Querés entregar de todas formas?'
-                    : '¿Querés entregar el intento? No vas a poder modificarlo.',
-                showCancelButton: true,
-                reverseButtons: true,
-                confirmButtonText: 'Entregar',
-                cancelButtonText: 'Volver',
-                customClass: { icon: 'swal-icono-peligro', popup: 'swal-confirmacion', confirmButton: 'swal-boton-peligro', cancelButton: 'swal-boton-cancelar' },
-                buttonsStyling: false
-            }).then(function (resultado) { if (resultado.isConfirmed) { entregar(false); } });
+            if (sinResponder > 0) {
+                window.mostrarAviso({ tipo: 'advertencia', titulo: 'Entregar el intento',
+                    texto: 'Quedan ' + sinResponder + ' preguntas sin responder y se contarán como vacías. ¿Querés entregar de todas formas?',
+                    confirmar: 'Entregar', cancelar: 'Volver' }).then(function (resultado) { if (resultado.isConfirmed) { entregar(false); } });
+            } else {
+                confirmarAccion('Entregar el intento', '¿Querés entregar el intento? No vas a poder modificarlo.', 'Entregar', 'Volver')
+                    .then(function (confirmado) { if (confirmado) { entregar(false); } });
+            }
         });
     }
 
@@ -261,17 +247,9 @@
         }
         botonAvanzar.addEventListener('click', function () {
             if (elegidas().length > 0) { avanzar(); return; }
-            Swal.fire({
-                iconHtml: '<i class="fa-solid fa-triangle-exclamation"></i>',
-                title: 'Pregunta sin responder',
-                text: 'Si avanzás sin responder, no vas a poder volver a esta pregunta y se contará como vacía.',
-                showCancelButton: true,
-                reverseButtons: true,
-                confirmButtonText: 'Avanzar',
-                cancelButtonText: 'Volver',
-                customClass: { icon: 'swal-icono-peligro', popup: 'swal-confirmacion', confirmButton: 'swal-boton-peligro', cancelButton: 'swal-boton-cancelar' },
-                buttonsStyling: false
-            }).then(function (resultado) { if (resultado.isConfirmed) { avanzar(); } });
+            window.mostrarAviso({ tipo: 'advertencia', titulo: 'Pregunta sin responder',
+                texto: 'Si avanzás sin responder, no vas a poder volver a esta pregunta y se contará como vacía.',
+                confirmar: 'Avanzar', cancelar: 'Volver' }).then(function (resultado) { if (resultado.isConfirmed) { avanzar(); } });
         });
     }
 })();

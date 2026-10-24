@@ -47,6 +47,15 @@ class IntentoAutoevaluacionControladorTest {
     private com.app.idoneos.repositorio.InscripcionRepositorio inscripcionRepositorio;
 
     @Autowired
+    private com.app.idoneos.repositorio.ProgresoRepositorio progresoRepositorio;
+
+    @Autowired
+    private com.app.idoneos.servicio.IntentoAutoevaluacion.IntentoAutoevaluacionServicio intentoServicio;
+
+    @Autowired
+    private com.app.idoneos.servicio.Certificado.CertificadoServicio certificadoServicio;
+
+    @Autowired
     private AutoevaluacionRepositorio autoevaluacionRepositorio;
 
     @Autowired
@@ -120,7 +129,7 @@ class IntentoAutoevaluacionControladorTest {
         mockMvc.perform(get("/intento/resumen/" + id))
                 .andExpect(status().isOk())
                 .andExpect(content().string(Matchers.containsString("Resumen del intento")))
-                .andExpect(content().string(Matchers.containsString("Marcada")))
+                .andExpect(content().string(Matchers.containsString("Para revisar")))
                 .andExpect(content().string(Matchers.containsString("Entregar todo y terminar")));
 
         // Esta autoevaluación permite salir: el resto de la plataforma sigue accesible
@@ -214,6 +223,64 @@ class IntentoAutoevaluacionControladorTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string(Matchers.containsString("/autoevaluacion/ver/" + libre())))
                 .andExpect(content().string(Matchers.containsString("/autoevaluacion/ver/" + secuencial())));
+    }
+
+    @Test
+    @WithUserDetails(value = VALENTINA, userDetailsServiceBeanName = "usuarioDetallesServicio")
+    @DisplayName("Al entregar el intento que completa el último contenido del curso, se emite el certificado y la respuesta lo informa")
+    void entregarElIntentoQueFinalizaElCurso() throws Exception {
+        com.app.idoneos.modelo.Inscripcion inscripcion = inscripcionRepositorio.findByBajaFalse().stream()
+                .filter(i -> i.getAlumno().getUsuario().getCorreo().equals(VALENTINA)
+                        && i.getCurso().getNombre().equals("Mercado de Capitales Argentino"))
+                .findFirst().orElseThrow();
+        // Le quedan sin completar la unidad 2 (la que va a rendir) y la 3: se da la 3 por completada
+        com.app.idoneos.modelo.Unidad unidad3 = autoevaluacionRepositorio.findAll().stream()
+                .filter(a -> a.getNombre().equals("Autoevaluación de la unidad 3")).findFirst().orElseThrow().getUnidad();
+        com.app.idoneos.modelo.Progreso progreso = new com.app.idoneos.modelo.Progreso(unidad3, inscripcion);
+        progreso.setCompletada(true);
+        progreso.setFechaCompletada(java.time.LocalDateTime.now());
+        inscripcion.getProgresos().add(progresoRepositorio.save(progreso));
+        org.junit.jupiter.api.Assertions.assertNull(inscripcion.getCertificadoVigente());
+
+        // Rinde la unidad 2 con todo correcto
+        mockMvc.perform(post("/intento/iniciar/" + secuencial())).andExpect(status().isFound());
+        IntentoAutoevaluacion intento = ultimoIntento();
+        int id = intento.getIdIntentoAutoevaluacion();
+        for (PreguntaIntento pregunta : intento.getPreguntasOrdenadas()) {
+            intentoServicio.responderPregunta(id, inscripcion.getAlumno(), pregunta.getIdPreguntaIntento(),
+                    pregunta.getPregunta().getOpcionesActivas().stream().filter(o -> o.getEsCorrecta())
+                            .map(o -> o.getIdOpcionRespuesta()).toList());
+            intentoServicio.avanzarPregunta(id, inscripcion.getAlumno());
+        }
+
+        mockMvc.perform(post("/intento/entregar/" + id))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.aprobado").value(true))
+                .andExpect(jsonPath("$.cursoFinalizado").value(true))
+                .andExpect(jsonPath("$.destino").value("/autoevaluacion/ver/" + secuencial() + "?cursoFinalizado"));
+        org.junit.jupiter.api.Assertions.assertNotNull(inscripcion.getCertificadoVigente());
+    }
+
+    @Test
+    @WithUserDetails(value = VALENTINA, userDetailsServiceBeanName = "usuarioDetallesServicio")
+    @DisplayName("La ficha avisa que se finalizó el curso solo si llega el parámetro y la inscripción tiene su certificado")
+    void avisoDeCursoFinalizado() throws Exception {
+        com.app.idoneos.modelo.Inscripcion inscripcion = inscripcionRepositorio.findByBajaFalse().stream()
+                .filter(i -> i.getAlumno().getUsuario().getCorreo().equals(VALENTINA)
+                        && i.getCurso().getNombre().equals("Mercado de Capitales Argentino"))
+                .findFirst().orElseThrow();
+        // Sin certificado, el parámetro no muestra nada
+        mockMvc.perform(get("/autoevaluacion/ver/" + libre()).param("cursoFinalizado", ""))
+                .andExpect(status().isOk())
+                .andExpect(content().string(Matchers.not(Matchers.containsString("mostrarCursoFinalizado("))));
+
+        certificadoServicio.emitirCertificado(inscripcion);
+        mockMvc.perform(get("/autoevaluacion/ver/" + libre()).param("cursoFinalizado", ""))
+                .andExpect(content().string(Matchers.containsString("mostrarCursoFinalizado(")))
+                .andExpect(content().string(Matchers.containsString("/certificado/misCertificados")));
+        // Sin el parámetro (por ejemplo, al recargar), tampoco
+        mockMvc.perform(get("/autoevaluacion/ver/" + libre()))
+                .andExpect(content().string(Matchers.not(Matchers.containsString("mostrarCursoFinalizado("))));
     }
 
     @Test

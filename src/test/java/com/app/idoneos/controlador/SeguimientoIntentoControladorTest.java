@@ -126,9 +126,9 @@ class SeguimientoIntentoControladorTest {
     void docenteVeLaMatriz() throws Exception {
         mockMvc.perform(get("/calificacion/buscar").param("cursoId", cursoId()))
                 .andExpect(status().isOk())
-                .andExpect(view().name("pages/calificacion/buscar"))
+                .andExpect(view().name("pages/calificacion/listado"))
                 .andExpect(content().string(Matchers.allOf(
-                        Matchers.containsString("Matriz de calificaciones"),
+                        Matchers.containsString("Resultados por autoevaluación"),
                         Matchers.containsString("Valentina Ruiz"),
                         Matchers.containsString("Autoevaluación Unidad 1: Marco regulatorio"),
                         Matchers.containsString("8,00"),
@@ -141,11 +141,13 @@ class SeguimientoIntentoControladorTest {
     void alumnoVeSusCalificaciones() throws Exception {
         mockMvc.perform(get("/calificacion/ver/" + valentina().getIdInscripcion()))
                 .andExpect(status().isOk())
-                .andExpect(view().name("pages/calificacion/ver"))
+                .andExpect(view().name("pages/calificacion/listado"))
                 .andExpect(content().string(Matchers.allOf(
                         Matchers.containsString("Mis calificaciones"),
                         Matchers.containsString("Autoevaluación Unidad 1: Marco regulatorio"),
-                        Matchers.containsString("8,00 / 10,00"),
+                        Matchers.containsString("Resultados por autoevaluación"),
+                        Matchers.containsString("Unidad 1"),
+                        Matchers.containsString("8,00"),
                         Matchers.containsString("Aprobada"),
                         Matchers.containsString("Sin rendir"))));
 

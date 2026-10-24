@@ -2,6 +2,7 @@ package com.app.idoneos.servicio.Certificado;
 
 import java.util.List;
 import java.util.Optional;
+import com.app.idoneos.modelo.Alumno;
 import com.app.idoneos.modelo.Certificado;
 import com.app.idoneos.modelo.Inscripcion;
 
@@ -65,4 +66,31 @@ public interface CertificadoServicio {
      * @return {@code true} si había algún certificado vigente
      */
     boolean anularCertificados(Inscripcion inscripcion);
+
+    /**
+     * Busca los certificados vigentes de un alumno (los de todos sus cursos), del más reciente al más antiguo.
+     *
+     * @param alumno el alumno
+     * @return sus certificados vigentes
+     */
+    List<Certificado> buscarVigentesDelAlumno(Alumno alumno);
+
+    /**
+     * Busca un certificado vigente para mostrarlo: el alumno solo puede ver los suyos y el administrador (se indica
+     * {@code null}) cualquiera.
+     *
+     * @param idCertificado el identificador del certificado
+     * @param solicitante   el alumno que lo pide, o {@code null} si lo pide el administrador
+     * @return el certificado
+     * @throws IllegalArgumentException si no existe, está anulado o no es del alumno
+     */
+    Certificado buscarVisible(Integer idCertificado, Alumno solicitante);
+
+    /**
+     * Genera el archivo PDF de un certificado, para que el alumno o el administrador lo descarguen.
+     *
+     * @param certificado el certificado emitido
+     * @return el contenido del archivo PDF
+     */
+    byte[] generarPdf(Certificado certificado);
 }

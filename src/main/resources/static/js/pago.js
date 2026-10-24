@@ -75,13 +75,12 @@
     }
 
     function pagoRechazado(datos, reintentar) {
-        return window.Swal.fire({
-            icon: 'error',
-            title: 'El pago fue rechazado',
-            text: (datos.motivo || 'No se pudo completar el pago.') + ' Podés reintentarlo.',
-            showCancelButton: true,
-            confirmButtonText: 'Reintentar',
-            cancelButtonText: 'Cerrar'
+        return window.mostrarAviso({
+            tipo: 'error',
+            titulo: 'El pago fue rechazado',
+            texto: (datos.motivo || 'No se pudo completar el pago.') + ' Podés reintentarlo.',
+            confirmar: 'Reintentar',
+            cancelar: 'Cerrar'
         }).then(function (resultado) {
             if (resultado.isConfirmed) { reintentar(); } else { window.location.reload(); }
         });
@@ -143,8 +142,8 @@
         return enviar(url).then(function (r) {
             if (!r.ok) {
                 esperando(boton, false);
-                return window.Swal.fire({ icon: 'error', title: r.datos.recargar ? 'El monto cambió' : 'No se pudo iniciar el pago',
-                    text: r.datos.error || 'Intente nuevamente.' }).then(function () {
+                return window.mostrarAviso({ tipo: 'error', titulo: r.datos.recargar ? 'El monto cambió' : 'No se pudo iniciar el pago',
+                    texto: r.datos.error || 'Intente nuevamente.' }).then(function () {
                     // Con el monto cambiado, la caja se recarga para mostrar el total actual
                     if (r.datos.recargar) { window.location.reload(); }
                 });
@@ -156,7 +155,7 @@
                 esperando(boton, false);
             }).catch(function (error) {
                 esperando(boton, false);
-                return window.Swal.fire({ icon: 'error', title: 'No se pudo abrir el pago con MODO', text: error.message });
+                return window.mostrarAviso({ tipo: 'error', titulo: 'No se pudo abrir el pago con MODO', texto: error.message });
             });
         });
     }

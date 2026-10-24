@@ -1,11 +1,7 @@
 package com.app.idoneos.controlador;
 
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -20,24 +16,31 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.app.idoneos.modelo.Alumno;
 import com.app.idoneos.modelo.Autoevaluacion;
 import com.app.idoneos.modelo.Inscripcion;
-import com.app.idoneos.modelo.Programa;
 import com.app.idoneos.modelo.UnidadCronograma;
 import com.app.idoneos.modelo.Usuario;
-import com.app.idoneos.servicio.Autoevaluacion.AutoevaluacionServicio;
 import com.app.idoneos.servicio.Curso.ContextoCurso;
 import com.app.idoneos.servicio.Progreso.ProgresoServicio;
 
 /**
- * Calificaciones de las autoevaluaciones (MOD-F-04): CU-69 Consultar calificaciones. El docente y el administrador ven una
- * matriz con la mejor nota de cada alumno del curso en cada autoevaluación (GET /calificacion/buscar); el alumno ve las
- * suyas (GET /calificacion/ver/{idInscripcion}).
+ * Calificaciones de las autoevaluaciones (MOD-F-04): CU-69 Consultar calificaciones. Todos los roles ven el mismo listado:
+ * una fila por alumno y autoevaluación, con sus intentos, su mejor nota y el resultado. El docente y el administrador ven
+ * los alumnos del curso (GET /calificacion/buscar), con los filtros de alumno y de cohorte (el docente entra con su
+ * cohorte de trabajo); el alumno ve solo las suyas (GET /calificacion/ver/{idInscripcion}).
  */
 @Controller
 @RequestMapping("/calificacion")
 public class CalificacionControlador extends PanelCursoControlador {
 
-    @Autowired
-    private AutoevaluacionServicio autoevaluacionServicio;
+    /**
+     * Una fila del listado: la calificación de un alumno en una autoevaluación.
+     *
+     * @param inscripcion   la inscripción del alumno
+     * @param autoevaluacion la autoevaluación
+     * @param numeroUnidad  el número de la unidad en el cronograma del programa
+     * @param habilitada    si el alumno ya puede acceder a la unidad
+     */
+    public record FilaCalificacion(Inscripcion inscripcion, Autoevaluacion autoevaluacion, int numeroUnidad, boolean habilitada) {
+    }
 
     @Autowired
     private ProgresoServicio progresoServicio;
@@ -45,14 +48,14 @@ public class CalificacionControlador extends PanelCursoControlador {
     // ---------------------------------------------------------------- Lecturas
 
     /**
-     * CU-69: Matriz de calificaciones del curso: una fila por alumno inscripto y una columna por autoevaluación visible, con
-     * la mejor nota. El docente entra con el filtro en su cohorte de trabajo; el administrador ve todas.
+     * CU-69: Listado de calificaciones del curso para el docente y el administrador: una fila por alumno inscripto y
+     * autoevaluación. El docente entra con el filtro en su cohorte de trabajo; el administrador ve todas.
      *
      * @param cursoId            Identificador del curso.
      * @param modelo             El modelo de la vista.
      * @param auth               La autenticación actual.
      * @param redirectAttributes Atributos para mensajes de redirección.
-     * @return La vista de la matriz, o una redirección a la lista de cursos si no se puede acceder.
+     * @return La vista del listado, o una redirección a la lista de cursos si no se puede acceder.
      */
     @GetMapping("/buscar")
     public String buscarCalificaciones(@RequestParam(value = "cursoId", required = false) Integer cursoId, Model modelo,
@@ -60,30 +63,22 @@ public class CalificacionControlador extends PanelCursoControlador {
         try {
             Usuario usuario = (Usuario) auth.getPrincipal();
             ContextoCurso contexto = contextoDelPanel(cursoId, usuario);
-            List<Inscripcion> inscripciones = progresoServicio.buscarConFiltros(contexto.curso().getIdCurso(), null);
-            List<Autoevaluacion> autoevaluaciones = autoevaluacionServicio
-                    .buscarConFiltros(cursoId, null, null, false, contexto.esAdministrador() ? null : usuario.getDocente())
-                    .stream().filter(Autoevaluacion::esVisible).toList();
-
-            // Las unidades de cada programa: una autoevaluación solo corresponde a los alumnos de programas que la incluyen
-            Map<Integer, Set<Integer>> unidadesPorPrograma = new LinkedHashMap<>();
-            for (Programa programa : contexto.curso().getProgramasActivos()) {
-                Set<Integer> unidades = new HashSet<>();
-                programa.getCronogramaOrdenado().forEach(c -> unidades.add(c.getUnidad().getIdUnidad()));
-                unidadesPorPrograma.put(programa.getIdPrograma(), unidades);
+            List<FilaCalificacion> filas = new ArrayList<>();
+            for (Inscripcion inscripcion : progresoServicio.buscarConFiltros(contexto.curso().getIdCurso(), null)) {
+                filas.addAll(filasDe(inscripcion));
             }
 
             cargarContexto(modelo, contexto, "calificaciones");
-            modelo.addAttribute("inscripciones", inscripciones);
-            modelo.addAttribute("autoevaluaciones", autoevaluaciones);
-            modelo.addAttribute("unidadesPorPrograma", unidadesPorPrograma);
+            modelo.addAttribute("filas", filas);
+            modelo.addAttribute("verAlumnos", true);
+            modelo.addAttribute("urlListado", "/calificacion/buscar?cursoId=" + contexto.curso().getIdCurso());
             modelo.addAttribute("cohorteSeleccionada", contexto.participacion() == null ? null
                     : contexto.participacion().getCohorteDeTrabajo() == null ? null
                             : contexto.participacion().getCohorteDeTrabajo().getIdCohorte());
             modelo.addAttribute("cohortes", contexto.curso().getProgramasActivos().stream()
                     .flatMap(programa -> programa.getCohortesActivas().stream()).toList());
             modelo.addAttribute("titulo", "Calificaciones | Idóneos Online");
-            return "pages/calificacion/buscar";
+            return "pages/calificacion/listado";
         } catch (IllegalArgumentException e) {
             return volverAMisCursos(redirectAttributes, e);
         }
@@ -109,23 +104,30 @@ public class CalificacionControlador extends PanelCursoControlador {
                 throw new IllegalArgumentException("Error! El usuario no tiene el rol de alumno.");
             }
             Inscripcion inscripcion = inscripcionServicio.validarAcceso(idInscripcion, alumno);
-            List<Autoevaluacion> autoevaluaciones = inscripcion.getCohorte().getPrograma().getCronogramaOrdenado().stream()
-                    .map(UnidadCronograma::getUnidad).flatMap(unidad -> unidad.getAutoevaluacionesPublicadas().stream())
-                    .sorted(Comparator.comparing((Autoevaluacion a) -> a.getUnidad().getIdUnidad())
-                            .thenComparingInt(Autoevaluacion::getIdAutoevaluacion))
-                    .toList();
-            Set<Integer> unidadesHabilitadas = new HashSet<>();
-            inscripcion.getCohorte().getPrograma().getCronogramaOrdenado().stream().filter(inscripcion::estaUnidadHabilitada)
-                    .forEach(c -> unidadesHabilitadas.add(c.getUnidad().getIdUnidad()));
-            modelo.addAttribute("unidadesHabilitadas", unidadesHabilitadas);
             cargarContexto(modelo, ContextoCurso.deAlumno(inscripcion), "calificaciones");
-            modelo.addAttribute("inscripcion", inscripcion);
-            modelo.addAttribute("autoevaluaciones", autoevaluaciones);
+            modelo.addAttribute("filas", filasDe(inscripcion));
+            modelo.addAttribute("verAlumnos", false);
+            modelo.addAttribute("urlListado", "/calificacion/ver/" + inscripcion.getIdInscripcion());
+            modelo.addAttribute("cohortes", List.of());
             modelo.addAttribute("titulo", "Calificaciones | Idóneos Online");
-            return "pages/calificacion/ver";
+            return "pages/calificacion/listado";
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
             return "redirect:/inscripcion/misCursos";
         }
+    }
+
+    // ---------------------------------------------------------------- Auxiliares
+
+    /** Las filas de una inscripción: sus autoevaluaciones visibles, unidad por unidad, en el orden del cronograma. */
+    private List<FilaCalificacion> filasDe(Inscripcion inscripcion) {
+        List<FilaCalificacion> filas = new ArrayList<>();
+        for (UnidadCronograma cronograma : inscripcion.getCohorte().getPrograma().getCronogramaOrdenado()) {
+            boolean habilitada = inscripcion.estaUnidadHabilitada(cronograma);
+            for (Autoevaluacion autoevaluacion : cronograma.getUnidad().getAutoevaluacionesPublicadas()) {
+                filas.add(new FilaCalificacion(inscripcion, autoevaluacion, cronograma.getNumeroOrden(), habilitada));
+            }
+        }
+        return filas;
     }
 }

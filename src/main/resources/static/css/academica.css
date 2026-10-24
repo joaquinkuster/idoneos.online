@@ -2961,3 +2961,33 @@ a.in-resumen-num:hover {
         min-width: 0;
     }
 }
+
+/* ---- Calificaciones del alumno */
+.ca-unidad-numero {
+    display: block;
+    color: var(--pn-texto-suave);
+    font-size: 0.78rem;
+}
+
+.ca-unidad-nombre {
+    font-weight: 600;
+}
+
+.ca-enlace {
+    color: var(--pn-ver);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.ca-enlace:hover {
+    text-decoration: underline;
+}
+
+.ca-nota {
+    font-size: 1rem;
+}
+
+.ca-sobre {
+    color: var(--pn-texto-suave);
+    font-size: 0.85rem;
+}

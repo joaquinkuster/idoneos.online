@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.app.idoneos.modelo.Alumno;
+import com.app.idoneos.modelo.Certificado;
 import com.app.idoneos.modelo.Autoevaluacion;
 import com.app.idoneos.modelo.IntentoAutoevaluacion;
 import com.app.idoneos.modelo.PreguntaIntento;
@@ -263,7 +264,12 @@ public class IntentoAutoevaluacionControlador {
             datos.put("aprobado", intento.getAprobado());
             datos.put("titulo", tiempoAgotado ? "Se agotó el tiempo" : "Intento entregado");
             datos.put("mensaje", (tiempoAgotado ? "Tu intento se corrigió con las respuestas guardadas. " : "") + resultado);
-            datos.put("destino", "/autoevaluacion/ver/" + intento.getAutoevaluacion().getIdAutoevaluacion());
+            // Si con este intento se completó el último contenido del curso, se emitió el certificado: la ficha lo avisa
+            Certificado certificado = intento.getInscripcion().getCertificadoVigente();
+            boolean cursoFinalizado = certificado != null && !certificado.getFechaCreacion().isBefore(intento.getFechaCreacion());
+            datos.put("cursoFinalizado", cursoFinalizado);
+            datos.put("destino", "/autoevaluacion/ver/" + intento.getAutoevaluacion().getIdAutoevaluacion()
+                    + (cursoFinalizado ? "?cursoFinalizado" : ""));
             return RespuestaFormularioUtilidad.respuestaConDatos(datos);
         } catch (Exception e) {
             return RespuestaFormularioUtilidad.respuestaConErrorEnDatos(e);

@@ -266,19 +266,88 @@
 }
 
 .swal2-icon.swal-icono-peligro {
-    width: 64px;
-    height: 64px;
-    margin: 0 auto 14px;
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 15px;
     border: 0;
     background: #FEE2E2;
     color: var(--pn-peligro);
 }
 
 .swal2-icon.swal-icono-peligro .swal2-icon-content {
-    font-size: 26px;
+    font-size: 36px;
+}
+
+/* El título queda más cerca del ícono (SweetAlert le deja un relleno arriba) */
+.swal2-icon.swal-icono-peligro ~ .swal2-title {
+    padding-top: 0;
+}
+
+/* Avisos del sistema (éxito, error, información y advertencia): el mismo círculo de 80 px de las bajas, con el color del tipo */
+.swal2-icon.swal-icono-exito,
+.swal2-icon.swal-icono-error,
+.swal2-icon.swal-icono-info,
+.swal2-icon.swal-icono-advertencia {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 15px;
+    border: 0;
+}
+
+.swal2-icon.swal-icono-exito .swal2-icon-content,
+.swal2-icon.swal-icono-error .swal2-icon-content,
+.swal2-icon.swal-icono-info .swal2-icon-content,
+.swal2-icon.swal-icono-advertencia .swal2-icon-content {
+    font-size: 36px;
+}
+
+.swal2-icon.swal-icono-exito {
+    background: #DCFCE7;
+    color: #15803D;
+}
+
+.swal2-icon.swal-icono-error {
+    background: #FEE2E2;
+    color: var(--pn-peligro);
+}
+
+.swal2-icon.swal-icono-info {
+    background: #E6EEF7;
+    color: var(--pn-ver);
+}
+
+.swal2-icon.swal-icono-advertencia {
+    background: var(--pn-gold-soft);
+    color: #B7791F;
+}
+
+.swal2-icon[class*='swal-icono-'] ~ .swal2-title {
+    padding-top: 0;
+}
+
+/* El mismo círculo del ícono de las bajas, en azul, para las confirmaciones que no son una baja */
+.swal2-icon.swal-icono-confirmar {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 15px;
+    border: 0;
+    background: #E6EEF7;
+    color: var(--pn-ver);
+}
+
+/* El título queda más cerca del ícono (SweetAlert le deja un relleno arriba) */
+.swal2-icon.swal-icono-confirmar ~ .swal2-title {
+    padding-top: 0;
+}
+
+.swal2-icon.swal-icono-confirmar .swal2-icon-content {
+    font-size: 36px;
 }
 
 .swal-boton-peligro,
+.swal-boton-info,
+.swal-boton-exito,
+.swal-boton-advertencia,
 .swal-boton-cancelar {
     border-radius: 8px;
     padding: 10px 22px;
@@ -298,14 +367,45 @@
     background: #B91C1C;
 }
 
+/* Cada alerta lleva el botón principal del color de su tipo: rojo, azul o amarillo; el secundario es transparente */
+.swal-boton-info {
+    background: var(--pn-ver);
+    color: #FFFFFF;
+    border: 0;
+}
+
+.swal-boton-info:hover {
+    background: #244A72;
+}
+
+.swal-boton-exito {
+    background: #166534;
+    color: #FFFFFF;
+    border: 0;
+}
+
+.swal-boton-exito:hover {
+    background: #14532D;
+}
+
+.swal-boton-advertencia {
+    background: var(--pn-gold);
+    color: var(--pn-navy-dark);
+    border: 0;
+}
+
+.swal-boton-advertencia:hover {
+    background: var(--pn-gold-hover);
+}
+
 .swal-boton-cancelar {
-    background: #F1F5F9;
+    background: transparent;
     color: #334155;
-    border: 1px solid var(--pn-borde);
+    border: 1px solid var(--pn-borde-input);
 }
 
 .swal-boton-cancelar:hover {
-    background: #E2E8F0;
+    background: #F1F5F9;
 }
 
 /* ==========================================================================
@@ -922,6 +1022,58 @@ body.pn-body {
     margin-top: 16px;
 }
 
+/* Ventanas de baja: el mismo aspecto de las alertas del sistema (460 px, sin franja de título, texto y botones centrados) */
+.pn-modal-alerta .modal-dialog {
+    max-width: 460px;
+}
+
+.pn-modal-alerta .pn-modal-cabecera {
+    display: none;
+}
+
+.pn-modal-alerta .pn-modal-cuerpo {
+    padding: 28px 24px 24px;
+    text-align: center;
+}
+
+.pn-modal-alerta .pn-modal-cuerpo h4.pn-modal-titulo {
+    font-size: 20px;
+}
+
+.pn-modal-alerta .pn-modal-cuerpo p {
+    color: var(--pn-texto-suave);
+    font-size: 14px;
+}
+
+.pn-modal-alerta .pn-modal-pie {
+    justify-content: center;
+    gap: 12px;
+    margin-top: 0;
+    padding: 20px 0 0;
+    border-top: 0;
+}
+
+.pn-modal-alerta .pn-modal-pie .pn-btn {
+    padding: 0 22px;
+    height: 40px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.pn-modal-alerta .pn-modal-pie .pn-btn-secundario {
+    background: transparent;
+    color: #334155;
+    border: 1px solid var(--pn-borde-input);
+}
+
+.pn-modal-alerta .pn-modal-pie .pn-btn-secundario:hover {
+    background: #F1F5F9;
+}
+
+.pn-modal-alerta .pn-campo {
+    text-align: left;
+}
+
 .pn-modal-pie .pn-pie-izquierda {
     margin-right: auto;
 }
@@ -1062,16 +1214,16 @@ textarea.pn-input {
 
 /* Confirmación de baja */
 .pn-baja-icono {
-    width: 56px;
-    height: 56px;
+    width: 80px;
+    height: 80px;
     border-radius: 50%;
     background: #FEE2E2;
     color: var(--pn-peligro);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 24px;
-    margin: 0 auto 14px;
+    font-size: 36px;
+    margin: 0 auto 15px;
 }
 
 .pn-baja-detalle {

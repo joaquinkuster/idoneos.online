@@ -104,6 +104,9 @@ public class AutenticacionConfiguracion {
                         .hasRole("Administrador")
                         .requestMatchers(HttpMethod.POST, "/inscripcion/darDeBaja/*").hasAnyRole("Alumno", "Administrador")
                         .requestMatchers(HttpMethod.POST, "/inscripcion/darDeBajaMasiva").hasRole("Administrador")
+                        // Mis certificados: el alumno los ve y los descarga; el administrador descarga cualquiera
+                        .requestMatchers(HttpMethod.GET, "/certificado/misCertificados").hasRole("Alumno")
+                        .requestMatchers(HttpMethod.GET, "/certificado/descargar/*").hasAnyRole("Alumno", "Administrador")
                         .requestMatchers("/certificado/**").hasRole("Administrador")
                         // CU-50 a CU-54: pagos. El aviso de MODO (webhook) es público: solo identifica el pago y el resultado se
                         // consulta a MODO; el administrador busca, registra y modifica pagos; el alumno ve y paga los suyos;

@@ -2,6 +2,7 @@ package com.app.idoneos.repositorio;
 
 import java.util.List;
 import java.util.Optional;
+import com.app.idoneos.modelo.Alumno;
 import com.app.idoneos.modelo.Certificado;
 import com.app.idoneos.modelo.Inscripcion;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -36,4 +37,12 @@ public interface CertificadoRepositorio extends JpaRepository<Certificado, Integ
      * @return un {@link Optional} con el registro si existe, o vacío si no se encuentra
      */
     Optional<Certificado> findByNumero(String numero);
+
+    /**
+     * Busca los certificados vigentes (no anulados) de un alumno, del más reciente al más antiguo.
+     *
+     * @param alumno el alumno
+     * @return los certificados vigentes de sus inscripciones
+     */
+    List<Certificado> findByInscripcionAlumnoAndAnuladoFalseOrderByFechaEmisionDesc(Alumno alumno);
 }

@@ -526,7 +526,7 @@ public class SemillaServicio {
         registrarPago(inscripcionVencida, pagoAprobado, pagoModo, "Tarjeta de crédito Mastercard", "5290", "QRX7F9G5", null,
                 ahora.minusDays(214));
         certificadoRepositorio.save(new Certificado(inscripcionVencida, "CERT-2026-000001", ahora.minusDays(55),
-                "Certificado de aprobación del curso Análisis Técnico Bursátil", "Martín Gómez", "41234567"));
+                "Certificado de finalización del curso Análisis Técnico Bursátil", "Martín Gómez", "41234567"));
 
         // Curso 6: Introducción a las Finanzas (sin programas ni unidades: puede darse de baja)
         crearCurso("Introducción a las Finanzas", "Conceptos básicos para empezar a entender el mundo financiero.", 40000f,

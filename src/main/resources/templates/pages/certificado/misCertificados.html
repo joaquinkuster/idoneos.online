@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <th:block th:replace="~{fragments/head :: recursos}"></th:block>
+    <link rel="stylesheet" th:href="@{/css/modo.css}">
+</head>
+<body class="wf-canvas-bg fondo-crema">
+
+    <div class="cu-page-container">
+        <div class="screen-frame">
+
+            <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+            <th:block th:replace="~{fragments/breadcrumb :: migas(null, null, 'Mis certificados')}"></th:block>
+
+            <div class="wf-body py-4">
+                <div class="container-fluid px-4 px-lg-5">
+
+                    <section class="pn-tarjeta" data-tabla>
+                        <div class="pn-lista-cabecera">
+                            <h2 class="pn-lista-titulo">Mis certificados</h2>
+                            <span class="pn-seleccionados" data-total-filtradas data-singular="certificado encontrado" data-plural="certificados encontrados"
+                                  th:text="${#lists.size(certificados) + (#lists.size(certificados) == 1 ? ' certificado encontrado' : ' certificados encontrados')}">0 certificados encontrados</span>
+                        </div>
+
+                        <!-- Filtros: se aplican en el navegador, sin recargar -->
+                        <form th:action="@{/certificado/misCertificados}" method="get" class="pn-filtros" data-filtro-front>
+                            <a th:href="@{/certificado/misCertificados}" class="pn-btn pn-btn-contorno" hidden>Limpiar</a>
+                        </form>
+
+                        <div class="pn-tabla-contenedor">
+                            <table class="pn-tabla">
+                                <thead>
+                                    <tr>
+                                        <th data-col="Curso" data-campo="curso" data-filtro="lista">Curso</th>
+                                        <th data-col="Programa" data-campo="programa" data-filtro="lista">Programa</th>
+                                        <th data-col="Número" data-campo="numero" data-filtro="texto">Número</th>
+                                        <th data-col="Fecha de emisión" data-campo="fechaEmision" data-filtro="fecha" data-orden-inicial="desc">Fecha de emisión</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="c : ${certificados}" data-fila>
+                                        <td><span class="pn-celda-principal pn-truncar" th:text="${c.inscripcion.curso.nombre}">Curso</span></td>
+                                        <td><span class="pn-truncar" th:text="${c.inscripcion.cohorte.programa.nombre}">Programa</span></td>
+                                        <td th:text="${c.numero}">CERT-2026-000001</td>
+                                        <td th:text="${#temporals.format(c.fechaEmision, 'dd/MM/yyyy HH:mm')}">13/10/2026 10:00</td>
+                                        <td>
+                                            <div class="pn-acciones">
+                                                <a class="pn-btn pn-btn-ver pn-btn-chico" target="_blank" rel="noopener"
+                                                   th:href="@{'/certificado/descargar/' + ${c.idCertificado}}">Ver certificado</a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr th:replace="~{fragments/vacio :: fila(5, 'fa-certificate', 'Todavía no tenés certificados', 'Cuando completes todas las unidades de un curso, vas a ver acá tu certificado.')}"></tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="pn-tabla-pie">
+                            <div class="pn-por-pagina">
+                                <span>Filas por página:</span>
+                                <select data-por-pagina>
+                                    <option value="10">10</option>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                    <option value="0">Todo</option>
+                                </select>
+                                <span data-rango>0-0 de 0</span>
+                            </div>
+                            <div class="pn-paginador" data-paginador></div>
+                        </div>
+                    </section>
+
+                </div>
+            </div>
+
+            <div th:replace="~{fragments/footer :: footer}"></div>
+
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/scripts :: scripts}"></div>
+    <script th:src="@{/js/panel.js}"></script>
+</body>
+</html>

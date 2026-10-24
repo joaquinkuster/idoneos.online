@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <th:block th:replace="~{fragments/head :: recursos}"></th:block>
+</head>
+<body class="pn-body">
+<div class="pn-app" id="pnApp">
+    <th:block th:replace="~{fragments/menus :: gestionAcademica(${menuActivo}, ${urlBase})}"></th:block>
+
+    <div class="pn-principal">
+        <th:block th:replace="~{fragments/panel :: barra(null)}"></th:block>
+
+        <main class="pn-contenido">
+            <nav class="ac-migas" aria-label="Ruta de navegación">
+                <a th:href="@{/inicio}">Página principal</a>
+                <i class="fa-solid fa-chevron-right"></i>
+                <a th:href="@{${urlMisCursos}}" th:text="${esAdministrador == true ? 'Cursos' : 'Mis cursos'}">Mis cursos</a>
+                <i class="fa-solid fa-chevron-right"></i>
+                <a th:href="@{${urlBase}}" th:text="${curso.nombre}">Curso</a>
+                <i class="fa-solid fa-chevron-right"></i>
+                <strong>Calificaciones</strong>
+            </nav>
+
+            <div class="pn-encabezado">
+                <div>
+                    <h1 class="pn-titulo" th:text="${verAlumnos ? 'Calificaciones' : 'Mis calificaciones'}">Calificaciones</h1>
+                    <p class="pn-subtitulo"
+                       th:text="${verAlumnos ? 'Mejor nota de cada alumno en las autoevaluaciones de ' + curso.nombre : 'Tus resultados en las autoevaluaciones de ' + curso.nombre}">Resultados</p>
+                </div>
+            </div>
+
+            <section class="pn-tarjeta" data-tabla>
+                <div class="pn-lista-cabecera">
+                    <h2 class="pn-lista-titulo">Resultados por autoevaluación</h2>
+                    <span class="pn-seleccionados" data-total-filtradas data-singular="resultado encontrado" data-plural="resultados encontrados"
+                          th:text="${#lists.size(filas) + (#lists.size(filas) == 1 ? ' resultado encontrado' : ' resultados encontrados')}">0 resultados encontrados</span>
+                </div>
+
+                <!-- Filtros: se aplican en el navegador, sin recargar. Los mismos para todos; el docente suma la cohorte -->
+                <form th:action="@{${urlListado}}" method="get" class="pn-filtros" data-filtro-front>
+                    <div class="pn-filtros-campo" data-filtro-estatico="cohorte" th:if="${verAlumnos}">
+                        <label class="pn-etiqueta">Cohorte</label>
+                        <select name="cohorte" class="pn-input" title="Cohorte">
+                            <option value="">Todas las cohortes</option>
+                            <option th:each="c : ${cohortes}" th:value="${c.idCohorte}"
+                                    th:selected="${cohorteSeleccionada != null and cohorteSeleccionada == c.idCohorte}"
+                                    th:text="${c.programa.nombre + ' · ' + c.etiqueta}">Programa · Septiembre 2026</option>
+                        </select>
+                    </div>
+                    <a th:href="@{${urlListado}}" class="pn-btn pn-btn-contorno" hidden>Limpiar</a>
+                </form>
+
+                <div class="pn-tabla-contenedor">
+                    <table class="pn-tabla">
+                        <thead>
+                            <tr>
+                                <th th:if="${verAlumnos}" data-col="Alumno" data-campo="alumno" data-filtro="texto">Alumno</th>
+                                <th th:if="${verAlumnos}" data-col="Cohorte" data-campo="cohorte" data-filtro="estatico">Cohorte</th>
+                                <th data-col="Unidad" data-campo="unidad" data-filtro="lista">Unidad</th>
+                                <th data-col="Autoevaluación" data-campo="autoevaluacion" data-filtro="lista">Autoevaluación</th>
+                                <th data-col="Intentos" data-campo="intentos" data-filtro="numero">Intentos</th>
+                                <th data-col="Mejor nota" data-campo="mejorNota" data-filtro="numero">Mejor nota</th>
+                                <th data-col="Resultado" data-campo="resultado" data-filtro="lista">Resultado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="f : ${filas}" data-fila
+                                th:with="a=${f.autoevaluacion}, i=${f.inscripcion}, nota=${f.autoevaluacion.mejorNota(f.inscripcion)}"
+                                th:data-f-unidad="${a.unidad.titulo}" th:data-f-autoevaluacion="${a.nombre}"
+                                th:data-f-alumno="${i.alumno.usuario.nombreCompleto + ' ' + i.alumno.usuario.dni + ' ' + i.alumno.usuario.correo}"
+                                th:data-f-cohorte="${i.cohorte.idCohorte}">
+                                <td th:if="${verAlumnos}">
+                                    <span class="pn-celda-principal d-inline-flex align-items-center gap-2">
+                                        <th:block th:replace="~{fragments/avatar :: avatar(${i.alumno.usuario}, 'av-chico')}"></th:block>
+                                        <span class="pn-truncar pn-truncar-largo" th:text="${i.alumno.usuario.nombreCompleto}">Valentina Ruiz</span>
+                                    </span>
+                                </td>
+                                <td th:if="${verAlumnos}"><span class="pn-truncar" th:text="${i.cohorte.programa.nombre + ' · ' + i.cohorte.etiqueta}">Programa · Mayo 2026</span></td>
+                                <td>
+                                    <span class="ca-unidad-numero" th:text="${'Unidad ' + f.numeroUnidad}">Unidad 1</span>
+                                    <span class="ca-unidad-nombre" th:text="${a.unidad.titulo}">Introducción</span>
+                                </td>
+                                <td>
+                                    <a class="ca-enlace" th:if="${!verAlumnos and f.habilitada}"
+                                       th:href="@{'/autoevaluacion/ver/' + ${a.idAutoevaluacion}}" th:text="${a.nombre}">Autoevaluación</a>
+                                    <span th:unless="${!verAlumnos and f.habilitada}" th:text="${a.nombre}">Autoevaluación</span>
+                                </td>
+                                <td th:text="${#lists.size(a.intentosDe(i)) + (a.intentosPermitidos != null ? ' de ' + a.intentosPermitidos : '')}">1 de 3</td>
+                                <td>
+                                    <strong class="ca-nota" th:if="${nota != null}" th:text="${#numbers.formatDecimal(nota, 1, 2, 'COMMA')}">8,00</strong>
+                                    <span class="ca-sobre" th:if="${nota != null}"> / 10</span>
+                                    <span th:if="${nota == null}">-</span>
+                                </td>
+                                <td>
+                                    <span class="pn-insignia"
+                                          th:classappend="${a.estaAprobadaPor(i)} ? 'pn-insignia-verde' : (${nota != null} ? 'pn-insignia-roja' : 'pn-insignia-gris')"
+                                          th:text="${a.estaAprobadaPor(i) ? 'Aprobada' : (nota != null ? 'No aprobada' : (f.habilitada ? 'Sin rendir' : 'Unidad bloqueada'))}">Aprobada</span>
+                                </td>
+                            </tr>
+                            <tr th:replace="~{fragments/vacio :: fila(7, 'fa-star', ${verAlumnos ? 'Todavía no hay resultados' : 'Todavía no hay autoevaluaciones'}, ${verAlumnos ? 'Cuando haya alumnos inscriptos y autoevaluaciones publicadas, vas a ver sus calificaciones acá.' : 'Cuando el docente publique autoevaluaciones, vas a ver tus resultados acá.'})}"></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pie: filas por página y paginador -->
+                <div class="pn-tabla-pie">
+                    <div class="pn-por-pagina">
+                        <span>Filas por página:</span>
+                        <select data-por-pagina>
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="0">Todo</option>
+                        </select>
+                        <span data-rango>0-0 de 0</span>
+                    </div>
+                    <div class="pn-paginador" data-paginador></div>
+                </div>
+            </section>
+        </main>
+
+        <th:block th:replace="~{fragments/panel :: pie(${esAdministrador == true ? 'Panel del administrador' : 'Gestión académica'})}"></th:block>
+    </div>
+</div>
+
+<th:block th:replace="~{fragments/panel :: scripts}"></th:block>
+<script th:src="@{/js/academica.js}"></script>
+</body>
+</html>

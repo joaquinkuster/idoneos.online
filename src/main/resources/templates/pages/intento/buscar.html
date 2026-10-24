@@ -91,14 +91,16 @@
                                 </td>
                                 <td>
                                     <div class="pn-acciones">
-                                        <div class="dropdown" th:if="${puedeAprobarEste or puedeDarDeBaja}">
+                                        <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico" th:if="${puedeDarDeBaja}"
+                                                data-bs-toggle="modal" th:data-bs-target="'#modalBajaIntento' + ${i.idIntentoAutoevaluacion}">Dar de baja</button>
+                                        <div class="dropdown" th:if="${puedeAprobarEste}">
                                             <button type="button" class="pn-btn pn-btn-contorno pn-btn-chico pn-mas" data-bs-toggle="dropdown"
                                                     aria-expanded="false" data-bs-popper-config='{"strategy":"fixed"}'>Más <i class="fa-solid fa-chevron-down"></i></button>
                                             <ul class="dropdown-menu dropdown-menu-end">
-                                                <li th:if="${puedeAprobarEste}"><button type="button" class="dropdown-item" data-bs-toggle="modal"
-                                                    th:data-bs-target="'#modalAprobarIntento' + ${i.idIntentoAutoevaluacion}">Aprobar intento</button></li>
-                                                <li th:if="${puedeDarDeBaja}"><button type="button" class="dropdown-item" data-bs-toggle="modal"
-                                                    th:data-bs-target="'#modalBajaIntento' + ${i.idIntentoAutoevaluacion}">Dar de baja</button></li>
+                                                <li th:if="${puedeAprobarEste}"><button type="button" class="dropdown-item" data-aprobar-intento
+                                                    th:data-formulario="'formAprobarIntento' + ${i.idIntentoAutoevaluacion}"
+                                                    th:data-pregunta="${'¿Confirmas aprobar el intento ' + f.numero + ' de «' + i.inscripcion.alumno.usuario.nombreCompleto + '»?'}"
+                                                    th:data-aclaracion="${'La nota (' + #numbers.formatDecimal(i.nota, 1, 2, 'COMMA') + ') no se modifica: el intento pasa a contar como aprobado por el docente.'}">Aprobar intento</button></li>
                                             </ul>
                                         </div>
                                     </div>
@@ -130,38 +132,18 @@
     </div>
 </div>
 
-<!-- Ventanas por intento: aprobar (CU-71, docente) y dar de baja (CU-72, administrador) -->
+<!-- Aprobar (CU-71, docente): se confirma con una alerta y se envía el formulario; dar de baja (CU-72, administrador): ventana -->
 <th:block th:each="f : ${filas}" th:with="i=${f.intento}">
-    <div class="modal fade pn-modal" th:id="'modalAprobarIntento' + ${i.idIntentoAutoevaluacion}" tabindex="-1" aria-hidden="true"
-         th:if="${puedeAprobar and i.estaFinalizado() and !i.aprobado}">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="pn-modal-cabecera">
-                    <h3 class="pn-modal-titulo">Aprobar intento</h3>
-                    <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
-                </div>
-                <div class="pn-modal-cuerpo text-center">
-                    <h4 class="pn-modal-titulo mb-2"
-                        th:text="${'¿Confirmás aprobar el intento ' + f.numero + ' de ' + i.inscripcion.alumno.usuario.nombreCompleto + '?'}">¿Confirmás aprobar el intento?</h4>
-                    <p class="small text-muted mb-0"
-                       th:text="${'La nota (' + #numbers.formatDecimal(i.nota, 1, 2, 'COMMA') + ') no se modifica: el intento pasa a contar como aprobado por el docente y se verifica si el alumno completó la unidad.'}">Aclaración.</p>
-                    <form th:action="@{'/intento/aprobar/' + ${i.idIntentoAutoevaluacion}}" method="post" class="form-ajax">
-                        <div class="pn-modal-pie">
-                            <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
-                            <button type="submit" class="pn-btn pn-btn-primario">Aprobar intento</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
+    <form th:if="${puedeAprobar and i.estaFinalizado() and !i.aprobado}" th:id="'formAprobarIntento' + ${i.idIntentoAutoevaluacion}"
+          th:action="@{'/intento/aprobar/' + ${i.idIntentoAutoevaluacion}}" method="post" class="form-ajax d-none"></form>
 
     <th:block th:if="${puedeDarDeBaja}">
-        <th:block th:replace="~{fragments/modalBaja :: bloque('modalBajaIntento' + ${i.idIntentoAutoevaluacion}, 'intento', '¿Confirmás dar de baja el intento ' + ${f.numero} + ' de ' + ${i.inscripcion.alumno.usuario.nombreCompleto} + '?', ${i.estaEnCurso() ? 'Está en curso: el alumno no podrá continuarlo y no se corregirá.' : (i.aprobado ? 'Estaba aprobado: si era el que le permitía completar la unidad, la unidad vuelve a estar pendiente y se anula su certificado.' : 'Dejará de contar entre los intentos del alumno.')}, '/intento/darDeBaja/' + ${i.idIntentoAutoevaluacion}, null, null)}"></th:block>
+        <th:block th:replace="~{fragments/modalBaja :: bloque('modalBajaIntento' + ${i.idIntentoAutoevaluacion}, 'intento', '¿Confirmas dar de baja el intento ' + ${f.numero} + ' de «' + ${i.inscripcion.alumno.usuario.nombreCompleto} + '»?', ${i.estaEnCurso() ? 'Está en curso: el alumno no podrá continuarlo y no se corregirá.' : (i.aprobado ? 'Estaba aprobado: si era el que le permitía completar la unidad, la unidad vuelve a estar pendiente y se anula su certificado.' : 'Dejará de contar entre los intentos del alumno.')}, '/intento/darDeBaja/' + ${i.idIntentoAutoevaluacion}, null, null)}"></th:block>
     </th:block>
 </th:block>
 
 <th:block th:replace="~{fragments/panel :: scripts}"></th:block>
 <script th:src="@{/js/academica.js}"></script>
+<script th:src="@{/js/seguimientoIntento.js}"></script>
 </body>
 </html>

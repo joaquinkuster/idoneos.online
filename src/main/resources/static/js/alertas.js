@@ -1,49 +1,66 @@
 /**
  * Alertas del sistema (SweetAlert2).
  *
- *  - mostrarExito: alerta de éxito con el tilde verde, el título, el mensaje y el botón "Aceptar".
+ *  - mostrarAviso: el aviso base, con el círculo de color del tipo (éxito, error, información o advertencia). Todos los
+ *    avisos y confirmaciones tienen el mismo formato: círculo de 80 px, título, texto, 460 px de ancho y sin animación.
+ *  - mostrarExito: alerta de éxito con el título, el mensaje y el botón "Aceptar".
  *  - mostrarError: alerta de error con el botón "Aceptar".
  *  - confirmarBajaMasiva: confirmación de la baja de varios elementos.
+ *  - mostrarCursoFinalizado: aviso de curso finalizado con éxito, con acceso a "Mis certificados".
+ *  - confirmarAccion: confirmación de una acción que no es una baja (por ejemplo, aprobar un intento), con botón azul.
  *  - confirmarCerrarSesion: confirmación de cierre de sesión con botón rojo.
  *  - confirmarCambiosSinGuardar: confirmación para salir de una pantalla con cambios sin guardar.
  */
 (function () {
     'use strict';
 
-    // Todas las alertas comparten tamaño y estilo: título en negrita y mensaje debajo, sin negrita
-    var CLASES_INFORMACION = { popup: 'swal-confirmacion', confirmButton: 'swal-boton-confirmar' };
+    // Ícono (de Font Awesome) y clase de cada tipo de aviso: todos son el mismo círculo de 80 px, con el color del tipo
+    var TIPOS_DE_AVISO = {
+        exito: { icono: 'fa-check', clase: 'swal-icono-exito', boton: 'swal-boton-confirmar' },
+        error: { icono: 'fa-xmark', clase: 'swal-icono-error', boton: 'swal-boton-peligro' },
+        info: { icono: 'fa-circle-info', clase: 'swal-icono-info', boton: 'swal-boton-info' },
+        advertencia: { icono: 'fa-triangle-exclamation', clase: 'swal-icono-advertencia', boton: 'swal-boton-advertencia' }
+    };
 
-    window.mostrarExito = function (mensaje) {
+    /**
+     * Aviso del sistema, con el formato de todas las alertas: círculo de color con el ícono del tipo, título en negrita y
+     * texto debajo, sin animación. opciones: tipo ('exito', 'error', 'info' o 'advertencia'), titulo, texto, confirmar
+     * (texto del botón, "Aceptar" por defecto), cancelar (si se indica, muestra también un botón para cerrar) y bloquear
+     * (si es true, no se cierra al hacer clic afuera) y claseBoton (para cambiar el estilo del botón principal). Devuelve
+     * la promesa de SweetAlert (con isConfirmed).
+     */
+    window.mostrarAviso = function (opciones) {
+        var tipo = TIPOS_DE_AVISO[opciones.tipo] || TIPOS_DE_AVISO.info;
         return Swal.fire({
-            icon: 'success',
-            title: '¡Operación exitosa!',
-            text: mensaje,
-            confirmButtonText: 'Aceptar',
-            customClass: CLASES_INFORMACION,
+            iconHtml: '<i class="fa-solid ' + tipo.icono + '"></i>',
+            title: opciones.titulo,
+            text: opciones.texto,
+            showCancelButton: !!opciones.cancelar,
+            reverseButtons: true,
+            confirmButtonText: opciones.confirmar || 'Aceptar',
+            cancelButtonText: opciones.cancelar || 'Cancelar',
+            showClass: { icon: '' },
+            allowOutsideClick: !opciones.bloquear,
+            customClass: {
+                icon: tipo.clase,
+                popup: 'swal-confirmacion swal-baja',
+                confirmButton: opciones.claseBoton || tipo.boton,
+                cancelButton: 'swal-boton-cancelar'
+            },
             buttonsStyling: false
         });
+    };
+
+    window.mostrarExito = function (mensaje) {
+        return window.mostrarAviso({ tipo: 'exito', titulo: '¡Operación exitosa!', texto: mensaje });
     };
 
     window.mostrarError = function (mensaje) {
-        return Swal.fire({
-            icon: 'error',
-            title: 'Atención',
-            text: mensaje,
-            confirmButtonText: 'Aceptar',
-            customClass: CLASES_INFORMACION,
-            buttonsStyling: false
-        });
+        return window.mostrarAviso({ tipo: 'error', titulo: 'Atención', texto: mensaje });
     };
 
     window.mostrarInformacion = function (titulo, mensaje) {
-        return Swal.fire({
-            icon: 'info',
-            title: titulo,
-            text: mensaje,
-            confirmButtonText: 'Aceptar',
-            customClass: CLASES_INFORMACION,
-            buttonsStyling: false
-        });
+        return window.mostrarAviso({ tipo: 'info', titulo: titulo, texto: mensaje });
     };
 
     /**
@@ -97,8 +114,46 @@
             cancelButtonText: 'Seguir editando',
             customClass: {
                 icon: 'swal-icono-peligro',
-                popup: 'swal-confirmacion',
+                popup: 'swal-confirmacion swal-baja',
                 confirmButton: 'swal-boton-peligro',
+                cancelButton: 'swal-boton-cancelar'
+            },
+            buttonsStyling: false
+        }).then(function (resultado) { return resultado.isConfirmed; });
+    };
+
+    window.mostrarCursoFinalizado = function (urlCertificados) {
+        return window.mostrarAviso({
+            tipo: 'exito',
+            titulo: '¡Finalizaste el curso con éxito!',
+            texto: 'Tu certificado ya está disponible para descargar en «Mis certificados».',
+            confirmar: 'Ir a Mis certificados',
+            cancelar: 'Cerrar'
+        }).then(function (resultado) {
+            if (resultado.isConfirmed) {
+                window.location.href = urlCertificados;
+            }
+        });
+    };
+
+    /**
+     * Confirmación de una acción que no es una baja: título, texto y el nombre del botón de confirmar. Lleva el mismo ícono
+     * redondeado que las de baja, en azul, y aparece sin animación. Devuelve una promesa con true si el usuario confirma.
+     */
+    window.confirmarAccion = function (titulo, texto, textoConfirmar, textoCancelar) {
+        return Swal.fire({
+            iconHtml: '<i class="fa-solid fa-circle-question"></i>',
+            title: titulo,
+            text: texto,
+            showCancelButton: true,
+            reverseButtons: true,
+            confirmButtonText: textoConfirmar,
+            cancelButtonText: textoCancelar || 'Cancelar',
+            showClass: { icon: '' },
+            customClass: {
+                icon: 'swal-icono-confirmar',
+                popup: 'swal-confirmacion swal-baja', // mismo ancho (460 px) que la confirmación de baja masiva
+                confirmButton: 'swal-boton-info',
                 cancelButton: 'swal-boton-cancelar'
             },
             buttonsStyling: false
@@ -116,7 +171,7 @@
             cancelButtonText: 'Cancelar',
             customClass: {
                 icon: 'swal-icono-peligro',
-                popup: 'swal-confirmacion',
+                popup: 'swal-confirmacion swal-baja',
                 confirmButton: 'swal-boton-peligro',
                 cancelButton: 'swal-boton-cancelar'
             },

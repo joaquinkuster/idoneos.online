@@ -114,5 +114,10 @@
 <th:block th:replace="~{fragments/panel :: scripts}"></th:block>
 <script th:src="@{/js/academica.js}"></script>
 <script th:src="@{/js/intento.js}"></script>
+<script th:if="${cursoFinalizado}" th:inline="javascript">
+    // Se quita el parámetro de la dirección: al recargar la ficha el aviso no vuelve a aparecer
+    window.history.replaceState(null, '', window.location.pathname);
+    mostrarCursoFinalizado(/*[[@{/certificado/misCertificados}]]*/ '/certificado/misCertificados');
+</script>
 </body>
 </html>

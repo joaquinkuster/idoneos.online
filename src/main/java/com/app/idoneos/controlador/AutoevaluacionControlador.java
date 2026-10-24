@@ -147,8 +147,9 @@ public class AutoevaluacionControlador extends PanelCursoControlador {
      * @return La vista de la ficha, o una redirección a "Mis cursos" si no se puede acceder.
      */
     @GetMapping("/ver/{id}")
-    public String verAutoevaluacion(@PathVariable("id") Integer id, Model modelo, Authentication auth,
-            RedirectAttributes redirectAttributes) {
+    public String verAutoevaluacion(@PathVariable("id") Integer id,
+            @RequestParam(value = "cursoFinalizado", required = false) String cursoFinalizado, Model modelo,
+            Authentication auth, RedirectAttributes redirectAttributes) {
         try {
             Usuario usuario = (Usuario) auth.getPrincipal();
             Alumno alumno = usuario.getAlumno();
@@ -170,6 +171,8 @@ public class AutoevaluacionControlador extends PanelCursoControlador {
             modelo.addAttribute("motivo", intentoServicio.motivoNoDisponible(alumno, autoevaluacion).orElse(null));
             modelo.addAttribute("mejorNota", autoevaluacion.mejorNota(inscripcion));
             modelo.addAttribute("restantes", autoevaluacion.intentosRestantes(inscripcion));
+            // Aviso de curso finalizado: solo si llegó con ?cursoFinalizado y la inscripción tiene su certificado vigente
+            modelo.addAttribute("cursoFinalizado", cursoFinalizado != null && inscripcion.getCertificadoVigente() != null);
             modelo.addAttribute("titulo", autoevaluacion.getNombre() + " | Idóneos Online");
             return "pages/autoevaluacion/ver";
         } catch (IllegalArgumentException e) {
