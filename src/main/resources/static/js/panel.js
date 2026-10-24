@@ -860,7 +860,12 @@
                 placeholder: el.getAttribute('placeholder'),
                 closeAfterSelect: false,
                 hideSelected: false,
-                maxOptions: null
+                maxOptions: null,
+                // En las ventanas por pasos el selector puede recibir el foco mientras su paso no se muestra: el menú se
+                // abriría sin tamaño ni lugar y después no se podría abrir. Si el campo no está a la vista, no se abre.
+                onDropdownOpen: function () {
+                    if (!this.control.offsetWidth) { this.close(); }
+                }
             });
         });
     }
@@ -893,6 +898,8 @@
                 p.innerHTML = i < actual ? '<i class="fa-solid fa-check"></i>' : String(i + 1);
             });
             lineas.forEach(function (l, i) { l.classList.toggle('completa', i < actual); });
+            // Los menús de los selectores que quedaron abiertos en otro paso se cierran
+            formulario.querySelectorAll('select.tomselected').forEach(function (s) { if (s.tomselect) { s.tomselect.close(); } });
             if (barra) { barra.style.width = ((actual + 1) / pasos.length * 100) + '%'; }
             if (anterior) { anterior.style.visibility = actual === 0 ? 'hidden' : 'visible'; }
             if (siguiente) { siguiente.classList.toggle('d-none', actual === pasos.length - 1); }

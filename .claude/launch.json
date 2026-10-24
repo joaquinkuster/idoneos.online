@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "idoneos",
+      "runtimeExecutable": "mvn",
+      "runtimeArgs": ["-o", "-f", "C:/Users/DELL/AppData/Local/Temp/claude/C--Users-DELL-Desktop-idoneos-online/2249b602-9eb8-42c4-a80f-860b08bd1bbe/scratchpad/copia/pom.xml", "spring-boot:run", "-Dspring-boot.run.jvmArguments=-Djavax.net.ssl.trustStoreType=Windows-ROOT"],
+      "port": 8080
+    }
+  ]
+}

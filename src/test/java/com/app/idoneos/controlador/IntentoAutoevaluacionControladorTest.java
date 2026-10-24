@@ -44,6 +44,9 @@ class IntentoAutoevaluacionControladorTest {
     private MockMvc mockMvc;
 
     @Autowired
+    private com.app.idoneos.repositorio.InscripcionRepositorio inscripcionRepositorio;
+
+    @Autowired
     private AutoevaluacionRepositorio autoevaluacionRepositorio;
 
     @Autowired
@@ -197,6 +200,20 @@ class IntentoAutoevaluacionControladorTest {
         mockMvc.perform(get("/intento/realizar/" + id)).andExpect(status().isFound())
                 .andExpect(redirectedUrl("/intento/resumen/" + id));
         assertTrue(intentoRepositorio.findById(id).orElseThrow().getPreguntasOrdenadas().stream().allMatch(PreguntaIntento::getPasada));
+    }
+
+    @Test
+    @WithUserDetails(value = VALENTINA, userDetailsServiceBeanName = "usuarioDetallesServicio")
+    @DisplayName("Desde el curso, el alumno llega a la ficha de cada autoevaluación de las unidades que tiene habilitadas")
+    void enlaceDesdeElCurso() throws Exception {
+        int inscripcion = inscripcionRepositorio.findByBajaFalse().stream()
+                .filter(i -> i.getAlumno().getUsuario().getCorreo().equals(VALENTINA)
+                        && i.getCurso().getNombre().equals("Mercado de Capitales Argentino"))
+                .findFirst().orElseThrow().getIdInscripcion();
+        mockMvc.perform(get("/inscripcion/acceder/" + inscripcion))
+                .andExpect(status().isOk())
+                .andExpect(content().string(Matchers.containsString("/autoevaluacion/ver/" + libre())))
+                .andExpect(content().string(Matchers.containsString("/autoevaluacion/ver/" + secuencial())));
     }
 
     @Test
