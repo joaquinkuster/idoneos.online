@@ -16,7 +16,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.app.idoneos.modelo.Curso;
 import com.app.idoneos.modelo.Docente;
+import com.app.idoneos.modelo.Material;
 import com.app.idoneos.modelo.Modalidad;
+import com.app.idoneos.modelo.TipoMaterial;
 import com.app.idoneos.modelo.DocenteCurso;
 import com.app.idoneos.servicio.Categoria.CategoriaServicioImpl;
 import com.app.idoneos.servicio.Curso.CursoServicioImpl;
@@ -50,6 +52,12 @@ class CursoServicioTest {
 
     @Autowired
     private DocenteServicioImpl docenteServicio;
+
+    @Autowired
+    private com.app.idoneos.repositorio.MaterialRepositorio materialRepositorio;
+
+    @Autowired
+    private com.app.idoneos.repositorio.TipoMaterialRepositorio tipoMaterialRepositorio;
 
     private Integer idDocente(String correo) {
         return docenteServicio.buscarHabilitados().stream()
@@ -187,6 +195,46 @@ class CursoServicioTest {
                         curso.getModalidades().stream().map(Modalidad::getIdModalidad).toList(), idDocente(SEBASTIAN),
                         null));
         assertTrue(error.getMessage().contains("Fausto"));
+    }
+
+    @Test
+    @DisplayName("CU-04: no se puede quitar la modalidad En vivo si el curso tiene cohortes con fechas de dictado")
+    void noSePuedeQuitarEnVivoConCohortesConDictado() {
+        Curso curso = curso("CEDEARs: Invertir en Empresas del Mundo");
+        assertFalse(curso.getCohortesConFechasDeDictado().isEmpty());
+
+        IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
+                () -> modificarModalidades(curso, List.of(idModalidad(Modalidad.GRABADA))));
+        assertTrue(error.getMessage().startsWith("Error! No puede quitarse la modalidad 'En vivo': el curso tiene "),
+                error.getMessage());
+        assertTrue(error.getMessage().contains("con fechas de dictado"), error.getMessage());
+    }
+
+    @Test
+    @DisplayName("CU-04: no se puede quitar la modalidad Grabada si el curso tiene grabaciones publicadas")
+    void noSePuedeQuitarGrabadaConGrabacionesPublicadas() {
+        Curso curso = curso("Fondos Comunes de Inversión");
+        var unidad = curso.getUnidades().stream().filter(u -> !u.getBaja()).findFirst().orElseThrow();
+        var participacion = curso.getParticipacionesDocente().stream().findFirst().orElseThrow();
+        var grabacion = tipoMaterialRepositorio.findByNombre(TipoMaterial.GRABACION).orElseThrow();
+        var material = materialRepositorio.save(new Material(participacion, grabacion, unidad, "Grabación de prueba"));
+        unidad.getMateriales().add(material);
+
+        IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
+                () -> modificarModalidades(curso, List.of(idModalidad(Modalidad.CLON_IA))));
+        assertEquals("Error! No puede quitarse la modalidad 'Grabada': el curso tiene 1 grabación publicada. "
+                + "Dé de baja u ocultá ese material antes.", error.getMessage());
+
+        // Oculta, ya no impide quitar la modalidad
+        material.setOculto(true);
+        assertEquals(1, modificarModalidades(curso, List.of(idModalidad(Modalidad.CLON_IA))).getModalidades().size());
+    }
+
+    private Curso modificarModalidades(Curso curso, List<Integer> idsModalidades) {
+        return cursoServicio.modificarCurso(curso.getIdCurso(), curso.getNombre(), curso.getDescripcion(),
+                curso.getPrecio(), null, curso.getCategoria().getIdCategoria(), curso.getNivel().getIdNivel(),
+                curso.getEmiteCertificado(), idsModalidades, curso.getDocenteTitular().getIdDocente(),
+                curso.getDocentesAyudantes().stream().map(Docente::getIdDocente).toList());
     }
 
     @Test

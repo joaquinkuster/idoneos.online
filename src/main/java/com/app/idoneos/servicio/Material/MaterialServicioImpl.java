@@ -5,6 +5,7 @@ import com.app.idoneos.utilidades.MensajeErrorUtilidad;
 import java.util.List;
 import java.util.Optional;
 import com.app.idoneos.modelo.Material;
+import com.app.idoneos.modelo.Modalidad;
 import com.app.idoneos.modelo.DocenteCurso;
 import com.app.idoneos.modelo.TipoMaterial;
 import com.app.idoneos.modelo.Unidad;
@@ -207,6 +208,10 @@ public class MaterialServicioImpl implements MaterialServicio, CrudServicio<Mate
         TipoMaterial tipo = tipoMaterialRepositorio.findById(idTipoMaterial == null ? -1 : idTipoMaterial)
                 .filter(TipoMaterial::permiteSubidaManual)
                 .orElseThrow(() -> new IllegalArgumentException("Error! Debe seleccionar un tipo de material de la lista."));
+        if (TipoMaterial.GRABACION.equals(tipo.getNombre()) && !unidad.getCurso().incluyeModalidad(Modalidad.GRABADA)) {
+            throw RespuestaFormularioUtilidad.campoInvalido("tipoMaterialId", "Error! El curso no tiene la modalidad '"
+                    + Modalidad.GRABADA + "': no puede registrarse una grabación.");
+        }
         String tituloLimpio = validarTitulo(titulo);
         String autorLimpio = validarAutor(autor);
         String enlaceLimpio = vacioANulo(enlace);
@@ -265,6 +270,14 @@ public class MaterialServicioImpl implements MaterialServicio, CrudServicio<Mate
             ManejadorArchivosUtilidad.validar(archivo, tipo.getTamanioMaximo(), tipo.getExtensionesPermitidas());
         }
 
+        if (!oculto && material.getOculto()) {
+            // Volver a publicar un material cuya modalidad el curso ya no tiene
+            String modalidad = material.getModalidadAsociada();
+            if (modalidad != null && !material.getCurso().incluyeModalidad(modalidad)) {
+                throw RespuestaFormularioUtilidad.campoInvalido("oculto", "Error! No se puede publicar el material «"
+                        + material.getTitulo() + "»: el curso no tiene la modalidad '" + modalidad + "'.");
+            }
+        }
         if (oculto && !material.getOculto()) {
             minimoDeContenido.motivoParaElMaterial(material.getUnidad(), java.util.Set.of(material.getIdMaterial())).ifPresent(motivo -> {
                 // El error es del campo "Visibilidad": se muestra debajo de él, como en las autoevaluaciones

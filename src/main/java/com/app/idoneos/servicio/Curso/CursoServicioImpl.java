@@ -441,6 +441,7 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
         validarTitularEntreAyudantes(titular, ayudantes);
         validarDesvinculaciones(curso, titular, ayudantes);
         validarModalidadesEliminadas(curso, idsModalidades);
+        validarModalidadEnVivoAgregada(curso, idsModalidades);
         validarPrecio(precio);
         String nombreLimpio = nombre.trim();
         cursoRepositorio.findByNombre(nombreLimpio).filter(otro -> otro.getIdCurso() != idCurso).ifPresent(otro -> {
@@ -682,10 +683,33 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
         }
     }
 
+    /** Agregar la modalidad En vivo exige que las cohortes existentes tengan fechas de dictado. */
+    private void validarModalidadEnVivoAgregada(Curso curso, List<Integer> idsNuevas) {
+        if (curso.incluyeModalidad(Modalidad.EN_VIVO)) return;
+        boolean agregaEnVivo = idsNuevas.stream().map(modalidadRepositorio::findById)
+                .anyMatch(m -> m.isPresent() && Modalidad.EN_VIVO.equals(m.get().getNombre()));
+        int sinDictado = curso.getCohortesSinFechasDeDictado().size();
+        if (agregaEnVivo && sinDictado > 0) {
+            throw RespuestaFormularioUtilidad.campoInvalido("idsModalidades", "Error! No puede agregarse la modalidad '"
+                    + Modalidad.EN_VIVO + "': el curso tiene " + MensajeErrorUtilidad.cantidad(sinDictado,
+                            "cohorte sin fechas de dictado", "cohortes sin fechas de dictado") + ". Dé de baja "
+                    + (sinDictado == 1 ? "la cohorte" : "las cohortes") + " antes.");
+        }
+    }
+
     private void validarModalidadesEliminadas(Curso curso, List<Integer> idsNuevas) {
         for (CursoModalidad cursoModalidad : curso.getCursoModalidades()) {
             if (idsNuevas.contains(cursoModalidad.getModalidad().getIdModalidad())) continue;
             String nombre = cursoModalidad.getModalidad().getNombre();
+            if (Modalidad.EN_VIVO.equals(nombre)) {
+                int conDictado = curso.getCohortesConFechasDeDictado().size();
+                if (conDictado > 0) {
+                    throw RespuestaFormularioUtilidad.campoInvalido("idsModalidades", "Error! No puede quitarse la modalidad '"
+                            + nombre + "': el curso tiene " + MensajeErrorUtilidad.cantidad(conDictado, "cohorte con fechas de dictado",
+                                    "cohortes con fechas de dictado") + ". Dé de baja " + (conDictado == 1 ? "la cohorte" : "las cohortes")
+                            + " antes.");
+                }
+            }
             boolean enVivo = curso.getParticipacionesDocente().stream()
                     .anyMatch(p -> p.getClasesEnVivo().stream().anyMatch(clase -> !clase.getBaja()));
             boolean clon = curso.getParticipacionesDocente().stream()
@@ -693,6 +717,15 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
             if ((Modalidad.EN_VIVO.equals(nombre) && enVivo) || (Modalidad.CLON_IA.equals(nombre) && clon)) {
                 throw RespuestaFormularioUtilidad.campoInvalido("idsModalidades", "Error! No puede quitarse la modalidad '" + nombre
                         + "' porque el curso tiene clases activas de esa modalidad.");
+            }
+            int materiales = curso.getMaterialesPublicadosDeModalidad(nombre).size();
+            if (materiales > 0) {
+                throw RespuestaFormularioUtilidad.campoInvalido("idsModalidades", "Error! No puede quitarse la modalidad '" + nombre
+                        + "': el curso tiene " + materiales + " " + (materiales == 1
+                                ? Material.describirPorModalidad(nombre).replace("grabaciones", "grabación")
+                                : Material.describirPorModalidad(nombre))
+                        + " publicad" + (materiales == 1 ? "a" : "as") + ". Dé de baja u ocultá "
+                        + (materiales == 1 ? "ese material" : "esos materiales") + " antes.");
             }
         }
     }

@@ -241,6 +241,38 @@ public class Curso {
     }
 
     /**
+     * Obtiene el material publicado (vigente y visible) del curso que pertenece a una modalidad.
+     *
+     * @param nombreModalidad El nombre de la modalidad (por ejemplo, "Grabada").
+     * @return Los materiales publicados de esa modalidad.
+     */
+    public List<Material> getMaterialesPublicadosDeModalidad(String nombreModalidad) {
+        return unidades.stream().filter(unidad -> !unidad.getBaja()).flatMap(unidad -> unidad.getMateriales().stream())
+                .filter(material -> material.estaPublicado() && nombreModalidad.equals(material.getModalidadAsociada()))
+                .toList();
+    }
+
+    /**
+     * Obtiene las cohortes vigentes del curso que tienen fechas de dictado (las de los cursos en vivo).
+     *
+     * @return Las cohortes con fechas de dictado de todos los programas activos.
+     */
+    public List<Cohorte> getCohortesConFechasDeDictado() {
+        return getProgramasActivos().stream().flatMap(programa -> programa.getCohortesActivas().stream())
+                .filter(cohorte -> cohorte.getFechaInicioDictado() != null || cohorte.getFechaFinDictado() != null).toList();
+    }
+
+    /**
+     * Obtiene las cohortes vigentes del curso que no tienen fechas de dictado (las de los cursos grabados).
+     *
+     * @return Las cohortes sin fechas de dictado de todos los programas activos.
+     */
+    public List<Cohorte> getCohortesSinFechasDeDictado() {
+        return getProgramasActivos().stream().flatMap(programa -> programa.getCohortesActivas().stream())
+                .filter(cohorte -> cohorte.getFechaInicioDictado() == null && cohorte.getFechaFinDictado() == null).toList();
+    }
+
+    /**
      * Obtiene el programa vigente del curso: el más reciente que no está dado de baja.
      *
      * @return El programa vigente, o {@code null} si el curso no tiene programas vigentes.

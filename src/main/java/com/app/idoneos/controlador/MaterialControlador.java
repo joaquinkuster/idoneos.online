@@ -20,6 +20,7 @@ import com.app.idoneos.servicio.Curso.ContextoCurso;
 import com.app.idoneos.modelo.Docente;
 import com.app.idoneos.modelo.Material;
 import com.app.idoneos.modelo.Programa;
+import com.app.idoneos.modelo.Modalidad;
 import com.app.idoneos.modelo.TipoMaterial;
 import com.app.idoneos.modelo.UnidadCronograma;
 import com.app.idoneos.modelo.Usuario;
@@ -100,7 +101,11 @@ public class MaterialControlador extends PanelCursoControlador {
             Docente docente = esAdministrador ? null : usuario.getDocente();
             Programa programa = contexto.programa();
             List<UnidadCronograma> unidades = programa == null ? List.of() : programa.getCronogramaOrdenado();
-            List<TipoMaterial> tiposDeSubida = tipoMaterialServicio.buscarSubidosManualmente();
+            // La grabación solo se ofrece si el curso tiene la modalidad Grabada
+            List<TipoMaterial> tiposDeSubida = tipoMaterialServicio.buscarSubidosManualmente().stream()
+                    .filter(tipo -> !TipoMaterial.GRABACION.equals(tipo.getNombre())
+                            || contexto.curso().incluyeModalidad(Modalidad.GRABADA))
+                    .toList();
             boolean nuevoValido = nuevo != null
                     && tiposDeSubida.stream().anyMatch(tipo -> tipo.getIdTipoMaterial() == nuevo);
 

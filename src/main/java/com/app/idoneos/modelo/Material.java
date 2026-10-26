@@ -166,6 +166,38 @@ public class Material {
     }
 
     /**
+     * Obtiene la modalidad a la que pertenece el material: la grabación de una clase en vivo es de la modalidad En vivo,
+     * la de una clase con clon de IA es de Con clon de IA y la grabación suelta es de Grabada. El resto de los tipos
+     * (presentación, bibliografía, resumen) no depende de ninguna modalidad.
+     *
+     * @return El nombre de la modalidad, o {@code null} si el material sirve para cualquier curso.
+     */
+    public String getModalidadAsociada() {
+        if (clasesEnVivo.stream().anyMatch(clase -> !clase.getBaja())) {
+            return Modalidad.EN_VIVO;
+        }
+        if (clasesClon.stream().anyMatch(clase -> !clase.getBaja())) {
+            return Modalidad.CLON_IA;
+        }
+        return TipoMaterial.GRABACION.equals(tipoMaterial.getNombre()) ? Modalidad.GRABADA : null;
+    }
+
+    /**
+     * Describe el material según su modalidad, para los mensajes: "grabaciones", "grabaciones de clases en vivo" o
+     * "grabaciones de clases con clon de IA".
+     *
+     * @param modalidad El nombre de la modalidad.
+     * @return El nombre en plural del material de esa modalidad.
+     */
+    public static String describirPorModalidad(String modalidad) {
+        return switch (modalidad) {
+            case Modalidad.EN_VIVO -> "grabaciones de clases en vivo";
+            case Modalidad.CLON_IA -> "grabaciones de clases con clon de IA";
+            default -> "grabaciones";
+        };
+    }
+
+    /**
      * Obtiene el curso al que pertenece el material, a través de su unidad.
      *
      * @return El curso del material.

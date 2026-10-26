@@ -388,14 +388,16 @@
     background: #14532D;
 }
 
+/* Amarillo con letra azul oscuro en negrita (contraste de más de 10 a 1): en reposo el tono más intenso y al pasar el mouse el más suave */
 .swal-boton-advertencia {
-    background: var(--pn-gold);
+    background: #F2CB45;
     color: var(--pn-navy-dark);
+    font-weight: 700;
     border: 0;
 }
 
 .swal-boton-advertencia:hover {
-    background: var(--pn-gold-hover);
+    background: #F8D96B;
 }
 
 .swal-boton-cancelar {
