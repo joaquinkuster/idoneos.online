@@ -187,6 +187,14 @@ public class UnidadCronogramaServicioImpl implements UnidadCronogramaServicio, C
         if (total > maximo) {
             throw new IllegalArgumentException(MensajeErrorUtilidad.demasiadoLargo("El cronograma", maximo, "semanas"));
         }
+        // Las semanas de acceso de cada cohorte activa del programa no pueden quedar por debajo de la nueva duración
+        for (com.app.idoneos.modelo.Cohorte cohorte : programa.getCohortesActivas()) {
+            if (cohorte.getSemanasAcceso() < total) {
+                throw new IllegalArgumentException("Error! La cohorte «" + cohorte.getEtiqueta() + "» tiene "
+                        + MensajeErrorUtilidad.cantidad(cohorte.getSemanasAcceso(), "semana de acceso", "semanas de acceso")
+                        + ", menos que las " + total + " del cronograma. Modificá la cohorte o acortá el cronograma.");
+            }
+        }
         Map<Integer, Unidad> unidades = new HashMap<>();
         for (Integer id : ids) {
             Unidad unidad = unidadRepositorio.findById(id == null ? -1 : id)

@@ -211,7 +211,7 @@
                         <div class="col-12 ayuda-desplegable" id="ayudaSemanasNueva">
                             <div class="ayuda-desplegable-interior">
                                 <div class="cn-info">
-                                    <span id="ayudaSemanasTexto">La duración total del cronograma se muestra al elegir un programa, y las semanas de acceso no pueden ser menores a esa duración.</span>
+                                    <span id="ayudaSemanasTexto">La duración total del cronograma y la forma de calcular el vencimiento se muestran al elegir un programa.</span>
                                 </div>
                             </div>
                         </div>
@@ -309,7 +309,9 @@
                         <div class="col-12 ayuda-desplegable" th:id="'ayudaSemanas' + ${coh.idCohorte}">
                             <div class="ayuda-desplegable-interior">
                                 <div class="cn-info">
-                                    <span>La duración total del cronograma del programa es de <strong th:text="${coh.programa.duracionTotalSemanas}">9</strong> semanas, y las semanas de acceso no pueden ser menores.</span>
+                                    <span>La duración total del cronograma del programa es de <strong th:text="${coh.programa.duracionTotalSemanas}">9</strong> semanas, y las semanas de acceso no pueden ser menores.
+                                        <th:block th:if="${coh.programa.curso.incluyeModalidad('En vivo')}">La fecha de vencimiento de acceso se calcula a partir de la fecha de fin de dictado más las semanas de acceso.</th:block>
+                                        <th:block th:unless="${coh.programa.curso.incluyeModalidad('En vivo')}">La fecha de vencimiento de acceso se calcula a partir de la fecha de habilitación más las semanas de acceso.</th:block></span>
                                 </div>
                             </div>
                         </div>
@@ -438,8 +440,11 @@
                         }
                     }
                     ayudaSemanas.textContent = selector.value
-                        ? 'La duración total del cronograma del programa es de ' + datos.semanas + ' semanas, y las semanas de acceso no pueden ser menores.'
-                        : 'La duración total del cronograma se muestra al elegir un programa, y las semanas de acceso no pueden ser menores a esa duración.';
+                        ? 'La duración total del cronograma del programa es de ' + datos.semanas + ' semanas, y las semanas de acceso no pueden ser menores. '
+                            + (datos.enVivo
+                                ? 'La fecha de vencimiento de acceso se calcula a partir de la fecha de fin de dictado más las semanas de acceso.'
+                                : 'La fecha de vencimiento de acceso se calcula a partir de la fecha de habilitación más las semanas de acceso.')
+                        : 'La duración total del cronograma y la forma de calcular el vencimiento se muestran al elegir un programa.';
                 }
             };
             selector.addEventListener('change', actualizar);

@@ -365,8 +365,9 @@ public class CohorteServicioImpl implements CohorteServicio, CrudServicio<Cohort
         if (enVivo && !fechaFinDictado.isAfter(fechaInicioDictado)) {
             throw RespuestaFormularioUtilidad.campoInvalido("fechaFinDictado", "Error! La fecha de fin de dictado debe ser posterior a la fecha de inicio.");
         }
-        if (enVivo && fechaInicioDictado.isBefore(fechaFinInscripcion)) {
-            throw RespuestaFormularioUtilidad.campoInvalido("fechaInicioDictado", "Error! La fecha de inicio de dictado no puede ser anterior a la fecha de fin de inscripción.");
+        // La inscripción cierra al final del día de su fecha de fin: el dictado empieza al menos el día siguiente
+        if (enVivo && !fechaInicioDictado.isAfter(fechaFinInscripcion)) {
+            throw RespuestaFormularioUtilidad.campoInvalido("fechaInicioDictado", "Error! La fecha de inicio de dictado debe ser posterior a la fecha de fin de inscripción.");
         }
         if (cupoMaximo != null && cupoMaximo <= 0) {
             throw RespuestaFormularioUtilidad.campoInvalido("cupoMaximo", MensajeErrorUtilidad.formatoInvalido("El cupo máximo", "número entero de 1 a " + Cohorte.CUPO_MAXIMO_PERMITIDO));

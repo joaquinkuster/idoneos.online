@@ -149,14 +149,14 @@ class InscripcionGestionServicioTest {
     }
 
     @Test
-    @DisplayName("CU-45: con fechas de dictado, el vencimiento se cuenta desde el inicio del dictado")
+    @DisplayName("CU-45: con fechas de dictado, el vencimiento se cuenta desde el fin del dictado")
     void inscribirCohorteConDictado() {
         Cohorte cohorte = cohorte("Mercado de Capitales Argentino", "Abierta");
         cohorte.getPrograma().getCurso().setPrecio(0);
 
         Inscripcion inscripcion = inscripcionServicio.inscribir(alumno(VALENTINA), cohorte.getIdCohorte(), true);
 
-        assertEquals(cohorte.getFechaInicioDictado().plusWeeks(cohorte.getSemanasAcceso()),
+        assertEquals(cohorte.getFechaFinDictado().plusWeeks(cohorte.getSemanasAcceso()),
                 inscripcion.getFechaVencimientoAcceso());
         assertEquals(Inscripcion.ACCESO_PROGRAMADA, inscripcion.getEstadoAcceso());
     }

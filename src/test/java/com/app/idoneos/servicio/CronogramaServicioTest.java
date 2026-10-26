@@ -124,9 +124,25 @@ class CronogramaServicioTest {
         assertTrue(error.contains("Máximo: 52 semanas"), error);
         assertEquals(antes, semanas(programa)); // nada se modificó
 
-        // justo en el máximo, se guarda
+        // justo en el máximo, se guarda (con cohortes cuyas semanas de acceso alcanzan)
+        programa.getCohortesActivas().forEach(c -> c.setSemanasAcceso(52));
         cronogramaServicio.modificarCronograma(fausto(), programa.getIdPrograma(), unidades, List.of("50", "1", "1"));
         assertEquals(52, programa.getDuracionTotalSemanas());
+    }
+
+    @Test
+    @DisplayName("CU-24: el cronograma no puede superar las semanas de acceso de una cohorte del programa")
+    void noSuperaLasSemanasDeAccesoDeLasCohortes() {
+        Programa programa = macro();
+        List<Integer> unidades = ids(programa);
+        List<Integer> antes = semanas(programa);
+        int minimoDeAcceso = programa.getCohortesActivas().stream().mapToInt(c -> c.getSemanasAcceso()).min().orElseThrow();
+
+        String error = mensaje(() -> cronogramaServicio.modificarCronograma(fausto(), programa.getIdPrograma(), unidades,
+                List.of(String.valueOf(minimoDeAcceso), "1", "1")));
+        assertTrue(error.startsWith("Error! La cohorte «"), error);
+        assertTrue(error.endsWith("Modificá la cohorte o acortá el cronograma."), error);
+        assertEquals(antes, semanas(programa)); // nada se modificó
     }
 
     @Test

@@ -87,11 +87,20 @@ class InscripcionAccesoTest {
     }
 
     @Test
-    @DisplayName("CU-45: con fechas de dictado, el acceso vence las semanas de acceso después del inicio del dictado")
+    @DisplayName("CU-45: con fechas de dictado, el acceso vence las semanas de acceso después del fin del dictado")
     void vencimientoConDictado() {
         cohorte.setFechaInicioDictado(ahora.plusDays(25));
-        assertEquals(ahora.plusDays(25).plusWeeks(12), cohorte.calcularVencimientoAcceso(ahora));
+        cohorte.setFechaFinDictado(ahora.plusDays(25).plusWeeks(8));
+        assertEquals(ahora.plusDays(25).plusWeeks(8).plusWeeks(12), cohorte.calcularVencimientoAcceso(ahora));
         assertTrue(cohorte.dictadoPorComenzar(ahora));
+    }
+
+    @Test
+    @DisplayName("CU-45: quien se habilita con el dictado ya terminado tiene las semanas de acceso completas desde su habilitación")
+    void vencimientoConDictadoTerminado() {
+        cohorte.setFechaInicioDictado(ahora.minusWeeks(10));
+        cohorte.setFechaFinDictado(ahora.minusWeeks(2));
+        assertEquals(ahora.plusWeeks(12), cohorte.calcularVencimientoAcceso(ahora));
     }
 
     @Test

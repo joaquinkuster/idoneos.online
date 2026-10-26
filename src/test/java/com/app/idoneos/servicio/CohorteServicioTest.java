@@ -78,6 +78,23 @@ class CohorteServicioTest {
     }
 
     @Test
+    @DisplayName("CU-12: el dictado debe empezar después de la fecha de fin de inscripción, no el mismo día")
+    void registrarCohorteConInicioDeDictadoElMismoDiaQueElFinDeInscripcion() {
+        Programa programa = programaDe("Mercado de Capitales Argentino");
+        int semanas = programa.getDuracionTotalSemanas();
+
+        IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
+                () -> cohorteServicio.registrarCohorte(programa.getIdPrograma(), INICIO, INICIO.plusDays(30),
+                        INICIO.plusDays(30), INICIO.plusDays(60), semanas, null));
+        assertEquals("Error! La fecha de inicio de dictado debe ser posterior a la fecha de fin de inscripción.", error.getMessage());
+
+        // Al día siguiente sí se puede
+        Cohorte cohorte = cohorteServicio.registrarCohorte(programa.getIdPrograma(), INICIO, INICIO.plusDays(30),
+                INICIO.plusDays(31), INICIO.plusDays(60), semanas, null);
+        assertEquals(INICIO.plusDays(31), cohorte.getFechaInicioDictado().toLocalDate());
+    }
+
+    @Test
     @DisplayName("CU-12: un curso en vivo exige las fechas de dictado")
     void registrarCohorteEnVivoSinFechasDeDictado() {
         Programa programa = programaDe("Mercado de Capitales Argentino");
