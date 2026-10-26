@@ -1,6 +1,7 @@
 package com.app.idoneos.modelo;
 
 import java.time.LocalDateTime;
+import org.hibernate.annotations.Check;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,6 +12,7 @@ import lombok.Setter;
  */
 @Entity
 @Table(name = "RespuestaForo")
+@Check(name = "ck_respuesta_foro_texto", constraints = "trim(texto) <> ''")
 @Getter
 @Setter
 @NoArgsConstructor

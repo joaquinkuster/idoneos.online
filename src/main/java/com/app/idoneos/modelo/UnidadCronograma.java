@@ -1,6 +1,7 @@
 package com.app.idoneos.modelo;
 
 import java.time.LocalDateTime;
+import org.hibernate.annotations.Check;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,6 +12,7 @@ import lombok.Setter;
  */
 @Entity
 @Table(name = "UnidadCronograma", uniqueConstraints = { @UniqueConstraint(columnNames = {"idPrograma", "idUnidad"}), @UniqueConstraint(columnNames = {"idPrograma", "numeroOrden"}) })
+@Check(name = "ck_unidad_cronograma_semanas", constraints = "semanas_duracion > 0")
 @Getter
 @Setter
 @NoArgsConstructor

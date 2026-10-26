@@ -6,6 +6,7 @@ import java.util.Set;
 import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
 import java.util.List;
+import org.hibernate.annotations.Check;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,6 +17,11 @@ import lombok.Setter;
  */
 @Entity
 @Table(name = "Cohorte")
+@Check(name = "ck_cohorte_inscripcion", constraints = "fecha_fin_inscripcion > fecha_inicio_inscripcion")
+@Check(name = "ck_cohorte_dictado", constraints = "fecha_inicio_dictado is null or fecha_fin_dictado is null or fecha_fin_dictado > fecha_inicio_dictado")
+@Check(name = "ck_cohorte_inicio_dictado", constraints = "fecha_inicio_dictado is null or fecha_inicio_dictado >= fecha_fin_inscripcion")
+@Check(name = "ck_cohorte_cupo", constraints = "cupo_maximo is null or cupo_maximo > 0")
+@Check(name = "ck_cohorte_semanas", constraints = "semanas_acceso > 0")
 @Getter
 @Setter
 @NoArgsConstructor

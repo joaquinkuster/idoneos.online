@@ -3,6 +3,7 @@ package com.app.idoneos.modelo;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
+import org.hibernate.annotations.Check;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,6 +14,7 @@ import lombok.Setter;
  */
 @Entity
 @Table(name = "Categoria")
+@Check(name = "ck_categoria_nombre", constraints = "trim(nombre) <> ''")
 @Getter
 @Setter
 @NoArgsConstructor

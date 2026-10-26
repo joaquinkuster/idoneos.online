@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.Comparator;
 import java.util.List;
+import org.hibernate.annotations.Check;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,6 +16,9 @@ import lombok.Setter;
  */
 @Entity
 @Table(name = "Programa")
+@Check(name = "ck_programa_nombre", constraints = "trim(nombre) <> ''")
+@Check(name = "ck_programa_objetivos", constraints = "trim(objetivos) <> ''")
+@Check(name = "ck_programa_bibliografia", constraints = "trim(bibliografia) <> ''")
 @Getter
 @Setter
 @NoArgsConstructor

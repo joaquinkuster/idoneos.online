@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.hibernate.annotations.Check;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,6 +16,7 @@ import lombok.Setter;
  */
 @Entity
 @Table(name = "Pool", uniqueConstraints = { @UniqueConstraint(columnNames = {"idUnidad", "nombre"}) })
+@Check(name = "ck_pool_nombre", constraints = "trim(nombre) <> ''")
 @Getter
 @Setter
 @NoArgsConstructor

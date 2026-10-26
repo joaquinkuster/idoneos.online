@@ -3,6 +3,7 @@ package com.app.idoneos.modelo;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
+import org.hibernate.annotations.Check;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,6 +14,12 @@ import lombok.Setter;
  */
 @Entity
 @Table(name = "Descuento")
+@Check(name = "ck_descuento_nombre", constraints = "trim(nombre) <> ''")
+@Check(name = "ck_descuento_porcentaje", constraints = "porcentaje >= 1 and porcentaje <= 100")
+@Check(name = "ck_descuento_vigencia", constraints = "vigencia_hasta > vigencia_desde")
+@Check(name = "ck_descuento_limite", constraints = "cantidad_limite > 0")
+@Check(name = "ck_descuento_cursos", constraints = "cursos_requeridos >= 0")
+@Check(name = "ck_descuento_uso", constraints = "cantidad_usada >= 0 and cantidad_usada <= cantidad_limite")
 @Getter
 @Setter
 @NoArgsConstructor

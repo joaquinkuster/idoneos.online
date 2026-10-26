@@ -2,6 +2,7 @@ package com.app.idoneos.modelo;
 
 import java.text.Normalizer;
 import java.time.LocalDateTime;
+import org.hibernate.annotations.Check;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,6 +13,8 @@ import lombok.Setter;
  */
 @Entity
 @Table(name = "TerminoGlosario", uniqueConstraints = { @UniqueConstraint(columnNames = {"idUnidad", "termino"}) })
+@Check(name = "ck_termino_glosario_termino", constraints = "trim(termino) <> ''")
+@Check(name = "ck_termino_glosario_definicion", constraints = "trim(definicion) <> ''")
 @Getter
 @Setter
 @NoArgsConstructor

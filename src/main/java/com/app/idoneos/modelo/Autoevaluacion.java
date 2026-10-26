@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.Comparator;
 import java.util.List;
+import org.hibernate.annotations.Check;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,6 +16,12 @@ import lombok.Setter;
  */
 @Entity
 @Table(name = "Autoevaluacion")
+@Check(name = "ck_autoevaluacion_nombre", constraints = "trim(nombre) <> ''")
+@Check(name = "ck_autoevaluacion_tiempo", constraints = "tiempo_limite is null or tiempo_limite > 0")
+@Check(name = "ck_autoevaluacion_preguntas", constraints = "cantidad_preguntas > 0")
+@Check(name = "ck_autoevaluacion_nota", constraints = "nota_minima > 0 and nota_minima <= 10")
+@Check(name = "ck_autoevaluacion_intentos", constraints = "intentos_permitidos is null or intentos_permitidos > 0")
+@Check(name = "ck_autoevaluacion_cierre", constraints = "fecha_cierre is null or fecha_cierre > fecha_apertura")
 @Getter
 @Setter
 @NoArgsConstructor
