@@ -161,7 +161,64 @@ WITH casos(descripcion, sentencia, esperada) AS (VALUES
  ('CU-66: acortar el cierre de una autoevaluacion con intentos activos',
   $$UPDATE autoevaluacion SET fecha_cierre = now() WHERE id_autoevaluacion = (SELECT id_autoevaluacion FROM intento_autoevaluacion WHERE baja = false LIMIT 1) AND fecha_cierre IS NULL$$, 'trg_autoevaluacion_congelado'),
  ('CU-66: cambiar los pools de una autoevaluacion con intentos activos',
-  $$DELETE FROM autoevaluacion_pool WHERE id_autoevaluacion = (SELECT id_autoevaluacion FROM intento_autoevaluacion WHERE baja = false LIMIT 1)$$, 'trg_autoevaluacion_pool_congelado')
+  $$DELETE FROM autoevaluacion_pool WHERE id_autoevaluacion = (SELECT id_autoevaluacion FROM intento_autoevaluacion WHERE baja = false LIMIT 1)$$, 'trg_autoevaluacion_pool_congelado'),
+ -- Otras reglas de negocio
+ ('CU-45: habilitar una inscripcion en una cohorte sin cupo',
+  $q$DO $x$
+     DECLARE c int; n int; a int;
+     BEGIN
+       SELECT i.id_cohorte, count(*) INTO c, n FROM inscripcion i JOIN cohorte co ON co.id_cohorte = i.id_cohorte
+         WHERE i.baja = false AND i.habilitado = true AND co.cupo_maximo IS NOT NULL GROUP BY i.id_cohorte LIMIT 1;
+       PERFORM set_config('session_replication_role', 'replica', true);
+       UPDATE cohorte SET cupo_maximo = n WHERE id_cohorte = c;
+       PERFORM set_config('session_replication_role', 'origin', true);
+       SELECT id_alumno INTO a FROM alumno al WHERE NOT EXISTS (SELECT 1 FROM inscripcion i2 WHERE i2.id_alumno = al.id_alumno AND i2.id_cohorte = c AND i2.baja = false) LIMIT 1;
+       INSERT INTO inscripcion (id_cohorte, id_alumno, fecha_creacion, habilitado, baja) VALUES (c, a, now(), true, false);
+     END $x$$q$, 'trg_inscripcion_cupo'),
+ ('CU-61: pregunta sin opciones',
+  $q$DO $x$
+     DECLARE u int; p int;
+     BEGIN
+       SELECT min(id_unidad) INTO u FROM unidad WHERE baja = false;
+       INSERT INTO pool (id_unidad, nombre, fecha_creacion, baja) VALUES (u, 'pool de prueba', now(), false) RETURNING id_pool INTO p;
+       INSERT INTO pregunta (id_pool, texto, es_opcion_multiple, fecha_creacion, baja) VALUES (p, 'pregunta de prueba', false, now(), false);
+       SET CONSTRAINTS ALL IMMEDIATE;
+     END $x$$q$, 'trg_pregunta_completa'),
+ ('CU-61: pool sin preguntas',
+  $q$DO $x$
+     DECLARE u int;
+     BEGIN
+       SELECT min(id_unidad) INTO u FROM unidad WHERE baja = false;
+       INSERT INTO pool (id_unidad, nombre, fecha_creacion, baja) VALUES (u, 'pool vacio', now(), false);
+       SET CONSTRAINTS ALL IMMEDIATE;
+     END $x$$q$, 'trg_pool_con_preguntas'),
+ ('CU-54: modificar el monto de un pago aprobado',
+  $$UPDATE pago SET monto = monto + 1 WHERE id_pago = (SELECT p.id_pago FROM pago p JOIN estado_pago e ON e.id_estado_pago = p.id_estado_pago WHERE e.nombre = 'Aprobado' LIMIT 1)$$, 'trg_pago_aprobado'),
+ ('CU-47: cambiar la cohorte de una inscripcion',
+  $$UPDATE inscripcion i SET id_cohorte = (SELECT c.id_cohorte FROM cohorte c WHERE c.id_cohorte <> i.id_cohorte LIMIT 1) WHERE i.id_inscripcion = (SELECT min(id_inscripcion) FROM inscripcion)$$, 'trg_inscripcion_inmutable'),
+ ('CU-38: cambiar la unidad de una consulta de foro',
+  $$UPDATE consulta_foro f SET id_unidad = (SELECT u.id_unidad FROM unidad u WHERE u.id_unidad <> f.id_unidad LIMIT 1) WHERE f.id_consulta = (SELECT min(id_consulta) FROM consulta_foro)$$, 'trg_consulta_foro_inmutable'),
+ ('CU-42: cambiar la consulta a la que responde una respuesta de foro',
+  $$UPDATE respuesta_foro r SET id_consulta = (SELECT c.id_consulta FROM consulta_foro c WHERE c.id_consulta <> r.id_consulta LIMIT 1) WHERE r.id_respuesta = (SELECT min(id_respuesta) FROM respuesta_foro)$$, 'trg_respuesta_foro_inmutable'),
+ ('CU-48: cambiar el numero de un certificado',
+  $$UPDATE certificado SET numero = numero || 'x' WHERE id_certificado = (SELECT min(id_certificado) FROM certificado)$$, 'trg_certificado_inmutable'),
+ ('Coherencia: crear un curso activo en una categoria dada de baja',
+  $q$DO $x$
+     DECLARE c int;
+     BEGIN
+       INSERT INTO categoria (nombre, fecha_creacion, baja) VALUES ('categoria dada de baja', now(), true) RETURNING id_categoria INTO c;
+       INSERT INTO curso (id_categoria, id_nivel, nombre, precio, emite_certificado, fecha_creacion, baja)
+         SELECT c, id_nivel, 'curso hijo', 0, false, now(), false FROM curso LIMIT 1;
+     END $x$$q$, 'trg_curso_categoria_activa'),
+ ('Coherencia: crear una unidad activa en un curso dado de baja',
+  $q$DO $x$
+     DECLARE c int; k int;
+     BEGIN
+       SELECT id_categoria INTO c FROM categoria LIMIT 1;
+       INSERT INTO curso (id_categoria, id_nivel, nombre, precio, emite_certificado, fecha_creacion, baja)
+         SELECT c, id_nivel, 'curso dado de baja', 0, false, now(), true FROM curso LIMIT 1 RETURNING id_curso INTO k;
+       INSERT INTO unidad (id_curso, titulo, contenido, fecha_creacion, baja) VALUES (k, 'unidad hija', 'contenido', now(), false);
+     END $x$$q$, 'trg_unidad_curso_activo')
 )
 SELECT descripcion, esperada AS restriccion_esperada, pg_temp.probar_v2(sentencia, esperada) AS resultado
 FROM casos;

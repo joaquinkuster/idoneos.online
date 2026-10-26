@@ -464,3 +464,247 @@ $$ LANGUAGE plpgsql ^^^
 DROP TRIGGER IF EXISTS trg_autoevaluacion_pool_congelado ON autoevaluacion_pool ^^^
 CREATE TRIGGER trg_autoevaluacion_pool_congelado BEFORE INSERT OR UPDATE OR DELETE ON autoevaluacion_pool
     FOR EACH ROW EXECUTE FUNCTION fn_autoevaluacion_pool_congelado() ^^^
+
+-- ---------------------------------------------------------------------------------------------
+-- Cupo de la cohorte (CU-45 y CU-46): una inscripcion habilitada ocupa un cupo. Al habilitarse se bloquea la
+-- cohorte mientras se cuentan los cupos ocupados, asi dos alumnos no pueden tomar el ultimo lugar a la vez.
+-- ---------------------------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION fn_cupo_cohorte() RETURNS trigger AS $$
+DECLARE
+    v_cupo int;
+    v_ocupados bigint;
+BEGIN
+    IF NEW.habilitado IS NOT TRUE OR NEW.baja = true THEN
+        RETURN NEW;
+    END IF;
+    IF TG_OP = 'UPDATE' AND OLD.habilitado IS TRUE AND OLD.baja = false AND OLD.id_cohorte = NEW.id_cohorte THEN
+        RETURN NEW;
+    END IF;
+    SELECT cupo_maximo INTO v_cupo FROM cohorte WHERE id_cohorte = NEW.id_cohorte FOR UPDATE;
+    IF v_cupo IS NULL THEN
+        RETURN NEW;
+    END IF;
+    SELECT count(*) INTO v_ocupados FROM inscripcion
+        WHERE id_cohorte = NEW.id_cohorte AND baja = false AND habilitado = true AND id_inscripcion <> NEW.id_inscripcion;
+    IF v_ocupados >= v_cupo THEN
+        RAISE EXCEPTION 'No se puede habilitar la inscripcion: la cohorte alcanzo su cupo maximo (%)', v_cupo
+            USING ERRCODE = 'restrict_violation', CONSTRAINT = TG_NAME;
+    END IF;
+    RETURN NEW;
+END
+$$ LANGUAGE plpgsql ^^^
+
+DROP TRIGGER IF EXISTS trg_inscripcion_cupo ON inscripcion ^^^
+CREATE TRIGGER trg_inscripcion_cupo BEFORE INSERT OR UPDATE ON inscripcion
+    FOR EACH ROW EXECUTE FUNCTION fn_cupo_cohorte() ^^^
+
+-- ---------------------------------------------------------------------------------------------
+-- Estructura de las preguntas (CU-61 y CU-62): cada pregunta activa tiene al menos dos opciones activas y, si es
+-- de opcion unica, exactamente una correcta (si es multiple, al menos una). Cada pool activo tiene al menos una
+-- pregunta activa. Se controla al terminar la operacion (disparadores diferidos), porque la pregunta y sus
+-- opciones se guardan juntas.
+-- ---------------------------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION fn_pregunta_completa() RETURNS trigger AS $$
+DECLARE
+    v_pregunta int;
+    v_multiple boolean;
+    v_baja boolean;
+    v_total bigint;
+    v_correctas bigint;
+BEGIN
+    IF TG_TABLE_NAME = 'opcion_respuesta' THEN
+        IF TG_OP = 'DELETE' THEN v_pregunta := OLD.id_pregunta; ELSE v_pregunta := NEW.id_pregunta; END IF;
+    ELSE
+        IF TG_OP = 'DELETE' THEN RETURN NULL; END IF;
+        v_pregunta := NEW.id_pregunta;
+    END IF;
+    SELECT es_opcion_multiple, baja INTO v_multiple, v_baja FROM pregunta WHERE id_pregunta = v_pregunta;
+    IF NOT FOUND OR v_baja THEN
+        RETURN NULL;
+    END IF;
+    SELECT count(*), count(*) FILTER (WHERE es_correcta) INTO v_total, v_correctas
+        FROM opcion_respuesta WHERE id_pregunta = v_pregunta AND baja = false;
+    IF v_total < 2 THEN
+        RAISE EXCEPTION 'La pregunta debe tener al menos dos opciones'
+            USING ERRCODE = 'check_violation', CONSTRAINT = TG_NAME;
+    END IF;
+    IF (v_multiple AND v_correctas < 1) OR (NOT v_multiple AND v_correctas <> 1) THEN
+        RAISE EXCEPTION 'La pregunta debe tener %', CASE WHEN v_multiple THEN 'al menos una opcion correcta' ELSE 'exactamente una opcion correcta' END
+            USING ERRCODE = 'check_violation', CONSTRAINT = TG_NAME;
+    END IF;
+    RETURN NULL;
+END
+$$ LANGUAGE plpgsql ^^^
+
+DROP TRIGGER IF EXISTS trg_pregunta_completa ON pregunta ^^^
+CREATE CONSTRAINT TRIGGER trg_pregunta_completa AFTER INSERT OR UPDATE ON pregunta
+    DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION fn_pregunta_completa() ^^^
+
+DROP TRIGGER IF EXISTS trg_opcion_completa ON opcion_respuesta ^^^
+CREATE CONSTRAINT TRIGGER trg_opcion_completa AFTER INSERT OR UPDATE OR DELETE ON opcion_respuesta
+    DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION fn_pregunta_completa() ^^^
+
+CREATE OR REPLACE FUNCTION fn_pool_con_preguntas() RETURNS trigger AS $$
+DECLARE
+    v_pool int;
+    v_baja boolean;
+BEGIN
+    IF TG_TABLE_NAME = 'pool' THEN
+        v_pool := NEW.id_pool;
+    ELSIF TG_OP = 'DELETE' THEN
+        v_pool := OLD.id_pool;
+    ELSE
+        v_pool := NEW.id_pool;
+    END IF;
+    SELECT baja INTO v_baja FROM pool WHERE id_pool = v_pool;
+    IF NOT FOUND OR v_baja THEN
+        RETURN NULL;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pregunta WHERE id_pool = v_pool AND baja = false) THEN
+        RAISE EXCEPTION 'El pool debe tener al menos una pregunta'
+            USING ERRCODE = 'check_violation', CONSTRAINT = TG_NAME;
+    END IF;
+    RETURN NULL;
+END
+$$ LANGUAGE plpgsql ^^^
+
+DROP TRIGGER IF EXISTS trg_pool_con_preguntas ON pool ^^^
+CREATE CONSTRAINT TRIGGER trg_pool_con_preguntas AFTER INSERT OR UPDATE ON pool
+    DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION fn_pool_con_preguntas() ^^^
+
+DROP TRIGGER IF EXISTS trg_pregunta_pool_con_preguntas ON pregunta ^^^
+CREATE CONSTRAINT TRIGGER trg_pregunta_pool_con_preguntas AFTER INSERT OR UPDATE OR DELETE ON pregunta
+    DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION fn_pool_con_preguntas() ^^^
+
+-- ---------------------------------------------------------------------------------------------
+-- Pago aprobado (CU-54): un pago aprobado ya no admite cambios de estado, monto, comprobante ni inscripcion.
+-- ---------------------------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION fn_pago_aprobado() RETURNS trigger AS $$
+BEGIN
+    IF (SELECT nombre FROM estado_pago WHERE id_estado_pago = OLD.id_estado_pago) = 'Aprobado' THEN
+        RAISE EXCEPTION 'No se puede modificar un pago aprobado'
+            USING ERRCODE = 'restrict_violation', CONSTRAINT = TG_NAME;
+    END IF;
+    RETURN NEW;
+END
+$$ LANGUAGE plpgsql ^^^
+
+DROP TRIGGER IF EXISTS trg_pago_aprobado ON pago ^^^
+CREATE TRIGGER trg_pago_aprobado BEFORE UPDATE ON pago
+    FOR EACH ROW WHEN (OLD.id_estado_pago IS DISTINCT FROM NEW.id_estado_pago
+                    OR OLD.monto IS DISTINCT FROM NEW.monto
+                    OR OLD.numero_comprobante IS DISTINCT FROM NEW.numero_comprobante
+                    OR OLD.id_inscripcion IS DISTINCT FROM NEW.id_inscripcion)
+    EXECUTE FUNCTION fn_pago_aprobado() ^^^
+
+-- ---------------------------------------------------------------------------------------------
+-- Columnas que nunca cambian despues del alta (CU-38, 42, 47 y 48). Argumentos: las columnas protegidas.
+-- ---------------------------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION fn_columnas_inmutables() RETURNS trigger AS $$
+DECLARE
+    i int;
+BEGIN
+    FOR i IN 0 .. TG_NARGS - 1 LOOP
+        IF (to_jsonb(OLD) ->> TG_ARGV[i]) IS DISTINCT FROM (to_jsonb(NEW) ->> TG_ARGV[i]) THEN
+            RAISE EXCEPTION 'No se puede modificar la columna % de %', TG_ARGV[i], TG_TABLE_NAME
+                USING ERRCODE = 'restrict_violation', CONSTRAINT = TG_NAME;
+        END IF;
+    END LOOP;
+    RETURN NEW;
+END
+$$ LANGUAGE plpgsql ^^^
+
+DROP TRIGGER IF EXISTS trg_inscripcion_inmutable ON inscripcion ^^^
+CREATE TRIGGER trg_inscripcion_inmutable BEFORE UPDATE ON inscripcion
+    FOR EACH ROW EXECUTE FUNCTION fn_columnas_inmutables('id_cohorte', 'id_alumno') ^^^
+
+DROP TRIGGER IF EXISTS trg_consulta_foro_inmutable ON consulta_foro ^^^
+CREATE TRIGGER trg_consulta_foro_inmutable BEFORE UPDATE ON consulta_foro
+    FOR EACH ROW EXECUTE FUNCTION fn_columnas_inmutables('id_unidad', 'id_inscripcion') ^^^
+
+DROP TRIGGER IF EXISTS trg_respuesta_foro_inmutable ON respuesta_foro ^^^
+CREATE TRIGGER trg_respuesta_foro_inmutable BEFORE UPDATE ON respuesta_foro
+    FOR EACH ROW EXECUTE FUNCTION fn_columnas_inmutables('id_consulta', 'id_docente_curso') ^^^
+
+DROP TRIGGER IF EXISTS trg_certificado_inmutable ON certificado ^^^
+CREATE TRIGGER trg_certificado_inmutable BEFORE UPDATE ON certificado
+    FOR EACH ROW EXECUTE FUNCTION fn_columnas_inmutables('numero', 'id_inscripcion', 'fecha_emision') ^^^
+
+-- ---------------------------------------------------------------------------------------------
+-- Coherencia padre-hijo: no se crea ni se reactiva un registro activo dentro de uno dado de baja.
+-- Argumentos: columna del hijo que apunta al padre, tabla del padre y columna clave del padre.
+-- (Excepcion CU-49: las consultas de foro de una inscripcion dada de baja se conservan, por eso no se controla.)
+-- ---------------------------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION fn_padre_activo() RETURNS trigger AS $$
+DECLARE
+    v_baja boolean;
+BEGIN
+    EXECUTE format('SELECT baja FROM %I WHERE %I = $1::int', TG_ARGV[1], TG_ARGV[2])
+        INTO v_baja USING (to_jsonb(NEW) ->> TG_ARGV[0]);
+    IF v_baja IS TRUE THEN
+        RAISE EXCEPTION 'No se puede crear ni reactivar el registro: su % esta dado de baja', TG_ARGV[1]
+            USING ERRCODE = 'restrict_violation', CONSTRAINT = TG_NAME;
+    END IF;
+    RETURN NEW;
+END
+$$ LANGUAGE plpgsql ^^^
+
+DROP TRIGGER IF EXISTS trg_curso_categoria_activa ON curso ^^^
+CREATE TRIGGER trg_curso_categoria_activa BEFORE INSERT OR UPDATE OF id_categoria, baja ON curso
+    FOR EACH ROW WHEN (NEW.baja = false) EXECUTE FUNCTION fn_padre_activo('id_categoria', 'categoria', 'id_categoria') ^^^
+
+DROP TRIGGER IF EXISTS trg_programa_curso_activo ON programa ^^^
+CREATE TRIGGER trg_programa_curso_activo BEFORE INSERT OR UPDATE OF id_curso, baja ON programa
+    FOR EACH ROW WHEN (NEW.baja = false) EXECUTE FUNCTION fn_padre_activo('id_curso', 'curso', 'id_curso') ^^^
+
+DROP TRIGGER IF EXISTS trg_unidad_curso_activo ON unidad ^^^
+CREATE TRIGGER trg_unidad_curso_activo BEFORE INSERT OR UPDATE OF id_curso, baja ON unidad
+    FOR EACH ROW WHEN (NEW.baja = false) EXECUTE FUNCTION fn_padre_activo('id_curso', 'curso', 'id_curso') ^^^
+
+DROP TRIGGER IF EXISTS trg_docente_curso_curso_activo ON docente_curso ^^^
+CREATE TRIGGER trg_docente_curso_curso_activo BEFORE INSERT OR UPDATE OF id_curso, baja ON docente_curso
+    FOR EACH ROW WHEN (NEW.baja = false) EXECUTE FUNCTION fn_padre_activo('id_curso', 'curso', 'id_curso') ^^^
+
+DROP TRIGGER IF EXISTS trg_cohorte_programa_activo ON cohorte ^^^
+CREATE TRIGGER trg_cohorte_programa_activo BEFORE INSERT OR UPDATE OF id_programa, baja ON cohorte
+    FOR EACH ROW WHEN (NEW.baja = false) EXECUTE FUNCTION fn_padre_activo('id_programa', 'programa', 'id_programa') ^^^
+
+DROP TRIGGER IF EXISTS trg_clase_en_vivo_cohorte_activa ON clase_en_vivo ^^^
+CREATE TRIGGER trg_clase_en_vivo_cohorte_activa BEFORE INSERT OR UPDATE OF id_cohorte, baja ON clase_en_vivo
+    FOR EACH ROW WHEN (NEW.baja = false) EXECUTE FUNCTION fn_padre_activo('id_cohorte', 'cohorte', 'id_cohorte') ^^^
+
+DROP TRIGGER IF EXISTS trg_unidad_cronograma_programa_activo ON unidad_cronograma ^^^
+CREATE TRIGGER trg_unidad_cronograma_programa_activo BEFORE INSERT OR UPDATE OF id_programa, baja ON unidad_cronograma
+    FOR EACH ROW WHEN (NEW.baja = false) EXECUTE FUNCTION fn_padre_activo('id_programa', 'programa', 'id_programa') ^^^
+
+DROP TRIGGER IF EXISTS trg_unidad_cronograma_unidad_activa ON unidad_cronograma ^^^
+CREATE TRIGGER trg_unidad_cronograma_unidad_activa BEFORE INSERT OR UPDATE OF id_unidad, baja ON unidad_cronograma
+    FOR EACH ROW WHEN (NEW.baja = false) EXECUTE FUNCTION fn_padre_activo('id_unidad', 'unidad', 'id_unidad') ^^^
+
+DROP TRIGGER IF EXISTS trg_material_unidad_activa ON material ^^^
+CREATE TRIGGER trg_material_unidad_activa BEFORE INSERT OR UPDATE OF id_unidad, baja ON material
+    FOR EACH ROW WHEN (NEW.baja = false) EXECUTE FUNCTION fn_padre_activo('id_unidad', 'unidad', 'id_unidad') ^^^
+
+DROP TRIGGER IF EXISTS trg_pool_unidad_activa ON pool ^^^
+CREATE TRIGGER trg_pool_unidad_activa BEFORE INSERT OR UPDATE OF id_unidad, baja ON pool
+    FOR EACH ROW WHEN (NEW.baja = false) EXECUTE FUNCTION fn_padre_activo('id_unidad', 'unidad', 'id_unidad') ^^^
+
+DROP TRIGGER IF EXISTS trg_autoevaluacion_unidad_activa ON autoevaluacion ^^^
+CREATE TRIGGER trg_autoevaluacion_unidad_activa BEFORE INSERT OR UPDATE OF id_unidad, baja ON autoevaluacion
+    FOR EACH ROW WHEN (NEW.baja = false) EXECUTE FUNCTION fn_padre_activo('id_unidad', 'unidad', 'id_unidad') ^^^
+
+DROP TRIGGER IF EXISTS trg_termino_glosario_unidad_activa ON termino_glosario ^^^
+CREATE TRIGGER trg_termino_glosario_unidad_activa BEFORE INSERT OR UPDATE OF id_unidad, baja ON termino_glosario
+    FOR EACH ROW WHEN (NEW.baja = false) EXECUTE FUNCTION fn_padre_activo('id_unidad', 'unidad', 'id_unidad') ^^^
+
+DROP TRIGGER IF EXISTS trg_consulta_foro_unidad_activa ON consulta_foro ^^^
+CREATE TRIGGER trg_consulta_foro_unidad_activa BEFORE INSERT OR UPDATE OF id_unidad, baja ON consulta_foro
+    FOR EACH ROW WHEN (NEW.baja = false) EXECUTE FUNCTION fn_padre_activo('id_unidad', 'unidad', 'id_unidad') ^^^
+
+DROP TRIGGER IF EXISTS trg_respuesta_foro_consulta_activa ON respuesta_foro ^^^
+CREATE TRIGGER trg_respuesta_foro_consulta_activa BEFORE INSERT OR UPDATE OF id_consulta, baja ON respuesta_foro
+    FOR EACH ROW WHEN (NEW.baja = false) EXECUTE FUNCTION fn_padre_activo('id_consulta', 'consulta_foro', 'id_consulta') ^^^
+
+DROP TRIGGER IF EXISTS trg_intento_autoevaluacion_autoevaluacion_activa ON intento_autoevaluacion ^^^
+CREATE TRIGGER trg_intento_autoevaluacion_autoevaluacion_activa BEFORE INSERT OR UPDATE OF id_autoevaluacion, baja ON intento_autoevaluacion
+    FOR EACH ROW WHEN (NEW.baja = false) EXECUTE FUNCTION fn_padre_activo('id_autoevaluacion', 'autoevaluacion', 'id_autoevaluacion') ^^^
