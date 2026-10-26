@@ -34,6 +34,9 @@ import org.springframework.stereotype.Service;
 public class UnidadServicioImpl implements UnidadServicio, CrudServicio<Unidad> {
 
     @Autowired
+    private com.app.idoneos.servicio.Programa.MinimoDeContenidoValidador minimoDeContenido;
+
+    @Autowired
     private UnidadRepositorio unidadRepositorio;
 
     @Autowired
@@ -231,7 +234,9 @@ public class UnidadServicioImpl implements UnidadServicio, CrudServicio<Unidad> 
     @Transactional
     public void darDeBajaUnidad(Integer id, Integer programaId, Docente docente) {
         Programa programa = buscarProgramaActivo(programaId);
-        quitarDelCronograma(programa, List.of(validarBaja(id, programa, docente)));
+        UnidadCronograma aQuitar = validarBaja(id, programa, docente);
+        validarMinimoAlQuitar(programa, List.of(aQuitar));
+        quitarDelCronograma(programa, List.of(aQuitar));
     }
 
     /**
@@ -246,7 +251,21 @@ public class UnidadServicioImpl implements UnidadServicio, CrudServicio<Unidad> 
         Programa programa = buscarProgramaActivo(programaId);
         // Se valida todo antes de quitar alguna
         List<UnidadCronograma> aQuitar = ids.stream().distinct().map(id -> validarBaja(id, programa, docente)).toList();
+        validarMinimoAlQuitar(programa, aQuitar);
         quitarDelCronograma(programa, aQuitar);
+    }
+
+    /** Verifica que, sin estas unidades, el programa con cohortes en curso conserve el mínimo de contenido publicado. */
+    private void validarMinimoAlQuitar(Programa programa, List<UnidadCronograma> aQuitar) {
+        java.util.Set<Integer> ids = aQuitar.stream().map(c -> c.getUnidad().getIdUnidad()).collect(java.util.stream.Collectors.toSet());
+        minimoDeContenido.verificarUnidades(programa, ids).ifPresent(bloqueo -> {
+            Unidad primera = aQuitar.get(0).getUnidad();
+            throw new IllegalArgumentException(MensajeErrorUtilidad.bajaBloqueada("la unidad", primera.getTitulo(),
+                    (bloqueo.minimo() == 1 ? "es la única unidad que debe conservar su programa"
+                            : "es una de las " + bloqueo.minimoEnUnidades() + " que debe conservar su programa")
+                            + " y este tiene cohortes en curso",
+                    "Registrá otra unidad antes."));
+        });
     }
 
     /** Verifica que la unidad se pueda quitar del cronograma del programa y devuelve su lugar en el cronograma. */

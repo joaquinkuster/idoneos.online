@@ -254,7 +254,8 @@ public class AutoevaluacionServicioImpl implements AutoevaluacionServicio, CrudS
         }
         boolean seOculta = datos.oculto() && !autoevaluacion.getOculto();
         if (seOculta && quedariaSinAutoevaluacionVisible(unidad, Set.of(autoevaluacion.getIdAutoevaluacion()))) {
-            throw new IllegalArgumentException("Error! No se puede ocultar la autoevaluación «" + autoevaluacion.getNombre()
+            throw com.app.idoneos.utilidades.RespuestaFormularioUtilidad.campoInvalido("oculto",
+                    "Error! No se puede ocultar la autoevaluación «" + autoevaluacion.getNombre()
                     + "»: es la única visible de la unidad «" + unidad.getTitulo()
                     + "» y su programa tiene cohortes en curso. Registrá otra autoevaluación antes.");
         }

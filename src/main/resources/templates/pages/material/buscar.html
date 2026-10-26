@@ -84,7 +84,7 @@
                                 <td><span class="pn-truncar pn-truncar-corto" th:text="${m.autor != null and !#strings.isEmpty(m.autor) ? m.autor : '—'}">Autor</span></td>
                                 <td>
                                     <span th:if="${m.tieneArchivo()}">Archivo adjunto</span>
-                                    <span th:if="${m.esEnlaceExterno()}"><i class="fa-solid fa-link me-1"></i>Enlace externo</span>
+                                    <span th:if="${m.esEnlaceExterno()}">Enlace externo</span>
                                     <span th:if="${m.rutaArchivo == null}">—</span>
                                 </td>
                                 <td>

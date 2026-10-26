@@ -50,6 +50,9 @@ public class UnidadCronogramaServicioImpl implements UnidadCronogramaServicio, C
     @Autowired
     private ParametroServicio parametroServicio;
 
+    @Autowired
+    private com.app.idoneos.servicio.Programa.MinimoDeContenidoValidador minimoDeContenido;
+
     // ---------------------------------------------------------------- Lecturas
 
     /**
@@ -203,6 +206,16 @@ public class UnidadCronogramaServicioImpl implements UnidadCronogramaServicio, C
                 throw new IllegalArgumentException("Error! El programa tiene cohortes en curso: todas las unidades del "
                         + "cronograma deben tener al menos una autoevaluación visible. Faltan en: "
                         + String.join(", ", sinAutoevaluacion) + ".");
+            }
+        }
+
+        if (programa.tieneCohortesEnCurso()) {
+            // El cronograma que se guarda debe conservar el mínimo de unidades
+            int minimo = minimoDeContenido.minimo();
+            if (ids.size() < programa.getCantidadUnidades() && ids.size() < minimo) {
+                throw new IllegalArgumentException("Error! El programa tiene cohortes en curso: debe conservar al menos "
+                        + MensajeErrorUtilidad.cantidad(minimo, "unidad", "unidades")
+                        + " en su cronograma (quedaría con " + ids.size() + ").");
             }
         }
 

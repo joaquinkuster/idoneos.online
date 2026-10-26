@@ -39,6 +39,9 @@ public class MaterialServicioImpl implements MaterialServicio, CrudServicio<Mate
 
     /** Carpeta base donde se guardan los archivos de los cursos. */
     @Autowired
+    private com.app.idoneos.servicio.Programa.MinimoDeContenidoValidador minimoDeContenido;
+
+    @Autowired
     @Qualifier("directorioCursos")
     private Path directorioCursos;
 
@@ -262,6 +265,15 @@ public class MaterialServicioImpl implements MaterialServicio, CrudServicio<Mate
             ManejadorArchivosUtilidad.validar(archivo, tipo.getTamanioMaximo(), tipo.getExtensionesPermitidas());
         }
 
+        if (oculto && !material.getOculto()) {
+            minimoDeContenido.motivoParaElMaterial(material.getUnidad(), java.util.Set.of(material.getIdMaterial())).ifPresent(motivo -> {
+                // El error es del campo "Visibilidad": se muestra debajo de él, como en las autoevaluaciones
+                throw com.app.idoneos.utilidades.RespuestaFormularioUtilidad.campoInvalido("oculto",
+                        MensajeErrorUtilidad.accionBloqueada("ocultar", "el material", material.getTitulo(), motivo,
+                                "Registrá otro material antes."));
+            });
+        }
+
         String rutaAnterior = material.getRutaArchivo();
         if (hayArchivo) {
             String rutaNueva = guardarArchivo(material, archivo);
@@ -299,7 +311,9 @@ public class MaterialServicioImpl implements MaterialServicio, CrudServicio<Mate
     @Override
     @Transactional
     public void darDeBajaMaterial(Integer idMaterial, Docente docente) {
-        darDeBaja(validarBaja(idMaterial, docente));
+        Material material = validarBaja(idMaterial, docente);
+        validarMinimoAlDarDeBaja(List.of(material));
+        darDeBaja(material);
     }
 
     /**
@@ -312,6 +326,7 @@ public class MaterialServicioImpl implements MaterialServicio, CrudServicio<Mate
             throw new IllegalArgumentException("Error! Debe seleccionar al menos un material.");
         }
         List<Material> materiales = ids.stream().distinct().map(id -> validarBaja(id, docente)).toList();
+        validarMinimoAlDarDeBaja(materiales);
         materiales.forEach(this::darDeBaja);
     }
 
@@ -326,6 +341,20 @@ public class MaterialServicioImpl implements MaterialServicio, CrudServicio<Mate
             obtenerParticipacion(material.getCurso(), docente);
         }
         return material;
+    }
+
+    /**
+     * Verifica que, al dar de baja estos materiales, los programas con cohortes en curso conserven el mínimo de unidades con
+     * material publicado y autoevaluación.
+     */
+    private void validarMinimoAlDarDeBaja(List<Material> materiales) {
+        java.util.Set<Integer> ids = materiales.stream().map(Material::getIdMaterial).collect(java.util.stream.Collectors.toSet());
+        for (Material material : materiales) {
+            minimoDeContenido.motivoParaElMaterial(material.getUnidad(), ids).ifPresent(motivo -> {
+                throw new IllegalArgumentException(MensajeErrorUtilidad.bajaBloqueada("el material", material.getTitulo(), motivo,
+                        "Registrá otro material antes."));
+            });
+        }
     }
 
     private void darDeBaja(Material material) {

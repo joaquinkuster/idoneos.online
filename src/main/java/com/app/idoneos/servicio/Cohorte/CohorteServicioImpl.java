@@ -163,8 +163,9 @@ public class CohorteServicioImpl implements CohorteServicio, CrudServicio<Cohort
                 .map(parametro -> Integer.parseInt(parametro.getValor().trim())).orElse(1);
         int conMaterial = programa.getCantidadUnidadesConMaterialPublicado();
         if (conMaterial < minimo) {
-            throw RespuestaFormularioUtilidad.campoInvalido("programaId", "Error! El programa debe tener al menos " + MensajeErrorUtilidad.cantidad(minimo, "unidad", "unidades")
-                    + " con material publicado en su cronograma (tiene " + conMaterial + ").");
+            throw RespuestaFormularioUtilidad.campoInvalido("programaId", "Error! El programa debe tener al menos "
+                    + MensajeErrorUtilidad.cantidad(minimo, "unidad", "unidades")
+                    + " con al menos un material y una autoevaluación publicados (tiene " + conMaterial + ").");
         }
         var sinAutoevaluacion = programa.getUnidadesSinAutoevaluacion();
         if (!sinAutoevaluacion.isEmpty()) {

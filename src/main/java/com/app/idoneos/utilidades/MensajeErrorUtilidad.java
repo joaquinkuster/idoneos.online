@@ -46,6 +46,21 @@ public final class MensajeErrorUtilidad {
 
 
 
+    /**
+     * No se puede hacer una acción sobre un registro (por ejemplo, ocultarlo).
+     *
+     * @param accion   La acción en infinitivo, por ejemplo "ocultar".
+     * @param tipo     El tipo de registro con su artículo, por ejemplo "el material".
+     * @param nombre   El nombre del registro.
+     * @param motivo   Por qué no se puede, sin punto final.
+     * @param queHacer El paso que puede dar el usuario (con su punto final); vacío si no hay ninguno posible.
+     * @return El mensaje listo para mostrar.
+     */
+    public static String accionBloqueada(String accion, String tipo, String nombre, String motivo, String queHacer) {
+        String mensaje = "Error! No se puede " + accion + " " + tipo + " «" + nombre + "»: " + motivo + ".";
+        return queHacer == null || queHacer.isBlank() ? mensaje : mensaje + " " + queHacer;
+    }
+
     /** El valor no tiene el formato esperado. */
     public static String formatoInvalido(String sujeto, String formatoValido) {
         return "Error! " + sujeto + " " + (esPlural(sujeto) ? "no son" : "no es") + " válid" + terminacion(sujeto)

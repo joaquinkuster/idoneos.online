@@ -257,15 +257,46 @@ public class Programa {
     }
 
     /**
-     * Cuenta las unidades del cronograma que tienen al menos un material publicado
-     * (vigente y no oculto).
+     * Cuenta las unidades del cronograma con contenido publicado: las que tienen al menos un material (vigente y no oculto)
+     * y al menos una autoevaluación visible.
      *
-     * @return La cantidad de unidades con material publicado.
+     * @return La cantidad de unidades con material publicado y autoevaluación.
      */
     public int getCantidadUnidadesConMaterialPublicado() {
+        return cantidadUnidadesConMaterialPublicadoSin(java.util.Set.of(), java.util.Set.of());
+    }
+
+    /**
+     * Obtiene las unidades que hoy cuentan (con material publicado y autoevaluación) y dejarían de contar si se quitaran
+     * ciertos materiales: las que se quedarían sin ningún material publicado.
+     *
+     * @param materialesQuitados Los identificadores de los materiales que dejarían de estar publicados.
+     * @return Las unidades que dejarían de contar, en el orden del cronograma.
+     */
+    public java.util.List<Unidad> unidadesQueDejanDeContarSin(java.util.Collection<Integer> materialesQuitados) {
+        return unidadesCronograma.stream().filter(cronograma -> !cronograma.getBaja()).map(UnidadCronograma::getUnidad)
+                .filter(unidad -> !unidad.getAutoevaluacionesPublicadas().isEmpty())
+                .filter(unidad -> unidad.getMateriales().stream().anyMatch(m -> !m.getBaja() && !m.getOculto()))
+                .filter(unidad -> unidad.getMateriales().stream().noneMatch(m -> !m.getBaja() && !m.getOculto()
+                        && !materialesQuitados.contains(m.getIdMaterial())))
+                .toList();
+    }
+
+    /**
+     * Cuenta las unidades con material publicado y autoevaluación que quedarían si se quitaran ciertos materiales (por
+     * ocultarlos o darlos de baja) y ciertas unidades del cronograma.
+     *
+     * @param materialesQuitados Los identificadores de los materiales que dejarían de estar publicados.
+     * @param unidadesQuitadas   Los identificadores de las unidades que dejarían de formar parte del cronograma.
+     * @return La cantidad de unidades que conservarían material publicado y autoevaluación.
+     */
+    public int cantidadUnidadesConMaterialPublicadoSin(java.util.Collection<Integer> materialesQuitados,
+            java.util.Collection<Integer> unidadesQuitadas) {
         return (int) unidadesCronograma.stream().filter(cronograma -> !cronograma.getBaja())
-                .filter(cronograma -> cronograma.getUnidad().getMateriales().stream()
-                        .anyMatch(material -> !material.getBaja() && !material.getOculto()))
+                .map(UnidadCronograma::getUnidad).filter(unidad -> !unidadesQuitadas.contains(unidad.getIdUnidad()))
+                .filter(unidad -> !unidad.getAutoevaluacionesPublicadas().isEmpty())
+                .filter(unidad -> unidad.getMateriales().stream().anyMatch(material -> !material.getBaja()
+                        && !material.getOculto() && !materialesQuitados.contains(material.getIdMaterial())))
                 .count();
     }
 
