@@ -9,6 +9,13 @@ FROM pg_constraint
 WHERE conname LIKE 'ck\_%'
 ORDER BY 1, 2;
 
+-- 1b) Indices creados: 2 unicos parciales (uq_) y 12 de apoyo (ix_), 14 en total
+-- (pgAdmin muestra solo el ultimo resultado: seleccionar esta consulta y ejecutar solo la seleccion)
+SELECT tablename AS tabla, indexname AS indice, indexdef AS definicion
+FROM pg_indexes
+WHERE indexname LIKE 'uq\_%' OR indexname LIKE 'ix\_%'
+ORDER BY 1, 2;
+
 -- 2) Funcion auxiliar: ejecuta una sentencia que DEBERIA ser rechazada y verifica por que restriccion.
 CREATE OR REPLACE FUNCTION pg_temp.probar(sentencia text, esperada text) RETURNS text AS $f$
 DECLARE
@@ -88,7 +95,13 @@ WITH casos(descripcion, sentencia, esperada) AS (VALUES
  ('Programa con nombre de solo espacios',
   $$UPDATE programa SET nombre = '   ' WHERE id_programa = (SELECT min(id_programa) FROM programa)$$, 'ck_programa_nombre'),
  ('Consulta de foro con texto de solo espacios',
-  $$UPDATE consulta_foro SET texto = '   ' WHERE id_consulta = (SELECT min(id_consulta) FROM consulta_foro)$$, 'ck_consulta_foro_texto')
+  $$UPDATE consulta_foro SET texto = '   ' WHERE id_consulta = (SELECT min(id_consulta) FROM consulta_foro)$$, 'ck_consulta_foro_texto'),
+ ('Inscripcion repetida del mismo alumno a la misma cohorte',
+  $$INSERT INTO inscripcion (id_cohorte, id_alumno, fecha_creacion, baja)
+    SELECT id_cohorte, id_alumno, now(), false FROM inscripcion WHERE baja = false LIMIT 1$$, 'uq_inscripcion_alumno_cohorte_activo'),
+ ('Docente repetido en el mismo curso',
+  $$INSERT INTO docente_curso (id_curso, id_docente, es_titular, fecha_creacion, baja)
+    SELECT id_curso, id_docente, false, now(), false FROM docente_curso WHERE baja = false LIMIT 1$$, 'uq_docente_curso_curso_docente_activo')
 )
 SELECT descripcion, esperada AS restriccion_esperada, pg_temp.probar(sentencia, esperada) AS resultado
 FROM casos;
