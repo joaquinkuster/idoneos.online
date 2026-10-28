@@ -29,7 +29,7 @@ CREATE TRIGGER trg_inscripcion_inmutable BEFORE UPDATE ON inscripcion
 
 DROP TRIGGER IF EXISTS trg_consulta_foro_inmutable ON consulta_foro ^^^
 CREATE TRIGGER trg_consulta_foro_inmutable BEFORE UPDATE ON consulta_foro
-    FOR EACH ROW EXECUTE FUNCTION fn_columnas_inmutables('id_unidad', 'id_inscripcion') ^^^
+    FOR EACH ROW EXECUTE FUNCTION fn_columnas_inmutables('id_tema', 'id_inscripcion') ^^^
 
 DROP TRIGGER IF EXISTS trg_respuesta_foro_inmutable ON respuesta_foro ^^^
 CREATE TRIGGER trg_respuesta_foro_inmutable BEFORE UPDATE ON respuesta_foro
@@ -69,8 +69,8 @@ DROP TRIGGER IF EXISTS trg_programa_curso_activo ON programa ^^^
 CREATE TRIGGER trg_programa_curso_activo BEFORE INSERT OR UPDATE OF id_curso, baja ON programa
     FOR EACH ROW WHEN (NEW.baja = false) EXECUTE FUNCTION fn_padre_activo('id_curso', 'curso', 'id_curso') ^^^
 
-DROP TRIGGER IF EXISTS trg_unidad_curso_activo ON unidad ^^^
-CREATE TRIGGER trg_unidad_curso_activo BEFORE INSERT OR UPDATE OF id_curso, baja ON unidad
+DROP TRIGGER IF EXISTS trg_tema_curso_activo ON tema ^^^
+CREATE TRIGGER trg_tema_curso_activo BEFORE INSERT OR UPDATE OF id_curso, baja ON tema
     FOR EACH ROW WHEN (NEW.baja = false) EXECUTE FUNCTION fn_padre_activo('id_curso', 'curso', 'id_curso') ^^^
 
 DROP TRIGGER IF EXISTS trg_docente_curso_curso_activo ON docente_curso ^^^
@@ -85,33 +85,33 @@ DROP TRIGGER IF EXISTS trg_clase_en_vivo_cohorte_activa ON clase_en_vivo ^^^
 CREATE TRIGGER trg_clase_en_vivo_cohorte_activa BEFORE INSERT OR UPDATE OF id_cohorte, baja ON clase_en_vivo
     FOR EACH ROW WHEN (NEW.baja = false) EXECUTE FUNCTION fn_padre_activo('id_cohorte', 'cohorte', 'id_cohorte') ^^^
 
-DROP TRIGGER IF EXISTS trg_unidad_cronograma_programa_activo ON unidad_cronograma ^^^
-CREATE TRIGGER trg_unidad_cronograma_programa_activo BEFORE INSERT OR UPDATE OF id_programa, baja ON unidad_cronograma
+DROP TRIGGER IF EXISTS trg_tema_cronograma_programa_activo ON tema_cronograma ^^^
+CREATE TRIGGER trg_tema_cronograma_programa_activo BEFORE INSERT OR UPDATE OF id_programa, baja ON tema_cronograma
     FOR EACH ROW WHEN (NEW.baja = false) EXECUTE FUNCTION fn_padre_activo('id_programa', 'programa', 'id_programa') ^^^
 
-DROP TRIGGER IF EXISTS trg_unidad_cronograma_unidad_activa ON unidad_cronograma ^^^
-CREATE TRIGGER trg_unidad_cronograma_unidad_activa BEFORE INSERT OR UPDATE OF id_unidad, baja ON unidad_cronograma
-    FOR EACH ROW WHEN (NEW.baja = false) EXECUTE FUNCTION fn_padre_activo('id_unidad', 'unidad', 'id_unidad') ^^^
+DROP TRIGGER IF EXISTS trg_tema_cronograma_tema_activa ON tema_cronograma ^^^
+CREATE TRIGGER trg_tema_cronograma_tema_activa BEFORE INSERT OR UPDATE OF id_tema, baja ON tema_cronograma
+    FOR EACH ROW WHEN (NEW.baja = false) EXECUTE FUNCTION fn_padre_activo('id_tema', 'tema', 'id_tema') ^^^
 
-DROP TRIGGER IF EXISTS trg_material_unidad_activa ON material ^^^
-CREATE TRIGGER trg_material_unidad_activa BEFORE INSERT OR UPDATE OF id_unidad, baja ON material
-    FOR EACH ROW WHEN (NEW.baja = false) EXECUTE FUNCTION fn_padre_activo('id_unidad', 'unidad', 'id_unidad') ^^^
+DROP TRIGGER IF EXISTS trg_material_tema_activa ON material ^^^
+CREATE TRIGGER trg_material_tema_activa BEFORE INSERT OR UPDATE OF id_tema, baja ON material
+    FOR EACH ROW WHEN (NEW.baja = false) EXECUTE FUNCTION fn_padre_activo('id_tema', 'tema', 'id_tema') ^^^
 
-DROP TRIGGER IF EXISTS trg_pool_unidad_activa ON pool ^^^
-CREATE TRIGGER trg_pool_unidad_activa BEFORE INSERT OR UPDATE OF id_unidad, baja ON pool
-    FOR EACH ROW WHEN (NEW.baja = false) EXECUTE FUNCTION fn_padre_activo('id_unidad', 'unidad', 'id_unidad') ^^^
+DROP TRIGGER IF EXISTS trg_pool_tema_activa ON pool ^^^
+CREATE TRIGGER trg_pool_tema_activa BEFORE INSERT OR UPDATE OF id_tema, baja ON pool
+    FOR EACH ROW WHEN (NEW.baja = false) EXECUTE FUNCTION fn_padre_activo('id_tema', 'tema', 'id_tema') ^^^
 
-DROP TRIGGER IF EXISTS trg_autoevaluacion_unidad_activa ON autoevaluacion ^^^
-CREATE TRIGGER trg_autoevaluacion_unidad_activa BEFORE INSERT OR UPDATE OF id_unidad, baja ON autoevaluacion
-    FOR EACH ROW WHEN (NEW.baja = false) EXECUTE FUNCTION fn_padre_activo('id_unidad', 'unidad', 'id_unidad') ^^^
+DROP TRIGGER IF EXISTS trg_autoevaluacion_tema_activa ON autoevaluacion ^^^
+CREATE TRIGGER trg_autoevaluacion_tema_activa BEFORE INSERT OR UPDATE OF id_tema, baja ON autoevaluacion
+    FOR EACH ROW WHEN (NEW.baja = false) EXECUTE FUNCTION fn_padre_activo('id_tema', 'tema', 'id_tema') ^^^
 
-DROP TRIGGER IF EXISTS trg_termino_glosario_unidad_activa ON termino_glosario ^^^
-CREATE TRIGGER trg_termino_glosario_unidad_activa BEFORE INSERT OR UPDATE OF id_unidad, baja ON termino_glosario
-    FOR EACH ROW WHEN (NEW.baja = false) EXECUTE FUNCTION fn_padre_activo('id_unidad', 'unidad', 'id_unidad') ^^^
+DROP TRIGGER IF EXISTS trg_termino_glosario_tema_activa ON termino_glosario ^^^
+CREATE TRIGGER trg_termino_glosario_tema_activa BEFORE INSERT OR UPDATE OF id_tema, baja ON termino_glosario
+    FOR EACH ROW WHEN (NEW.baja = false) EXECUTE FUNCTION fn_padre_activo('id_tema', 'tema', 'id_tema') ^^^
 
-DROP TRIGGER IF EXISTS trg_consulta_foro_unidad_activa ON consulta_foro ^^^
-CREATE TRIGGER trg_consulta_foro_unidad_activa BEFORE INSERT OR UPDATE OF id_unidad, baja ON consulta_foro
-    FOR EACH ROW WHEN (NEW.baja = false) EXECUTE FUNCTION fn_padre_activo('id_unidad', 'unidad', 'id_unidad') ^^^
+DROP TRIGGER IF EXISTS trg_consulta_foro_tema_activa ON consulta_foro ^^^
+CREATE TRIGGER trg_consulta_foro_tema_activa BEFORE INSERT OR UPDATE OF id_tema, baja ON consulta_foro
+    FOR EACH ROW WHEN (NEW.baja = false) EXECUTE FUNCTION fn_padre_activo('id_tema', 'tema', 'id_tema') ^^^
 
 DROP TRIGGER IF EXISTS trg_respuesta_foro_consulta_activa ON respuesta_foro ^^^
 CREATE TRIGGER trg_respuesta_foro_consulta_activa BEFORE INSERT OR UPDATE OF id_consulta, baja ON respuesta_foro

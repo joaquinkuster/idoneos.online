@@ -3,7 +3,7 @@ package com.app.idoneos.repositorio;
 import java.util.List;
 import com.app.idoneos.modelo.ConsultaForo;
 import com.app.idoneos.modelo.Inscripcion;
-import com.app.idoneos.modelo.Unidad;
+import com.app.idoneos.modelo.Tema;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -22,12 +22,12 @@ public interface ConsultaForoRepositorio extends JpaRepository<ConsultaForo, Int
     List<ConsultaForo> findByBajaFalse();
 
     /**
-     * Busca los registros vigentes de consultaForo asociados a unidad.
+     * Busca los registros vigentes de consultaForo asociados a tema.
      *
-     * @param unidad el registro de Unidad asociado
-     * @return una lista de ConsultaForo asociados al Unidad indicado
+     * @param tema el registro de Tema asociado
+     * @return una lista de ConsultaForo asociados al Tema indicado
      */
-    List<ConsultaForo> findByUnidadAndBajaFalse(Unidad unidad);
+    List<ConsultaForo> findByTemaAndBajaFalse(Tema tema);
 
     /**
      * Busca los registros vigentes de consultaForo asociados a inscripcion.

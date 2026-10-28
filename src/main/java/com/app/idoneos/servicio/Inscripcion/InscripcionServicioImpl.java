@@ -11,8 +11,8 @@ import com.app.idoneos.modelo.Cohorte;
 import com.app.idoneos.modelo.Inscripcion;
 import com.app.idoneos.modelo.IntentoAutoevaluacion;
 import com.app.idoneos.modelo.Progreso;
-import com.app.idoneos.modelo.Unidad;
-import com.app.idoneos.modelo.UnidadCronograma;
+import com.app.idoneos.modelo.Tema;
+import com.app.idoneos.modelo.TemaCronograma;
 import com.app.idoneos.repositorio.AlumnoRepositorio;
 import com.app.idoneos.repositorio.CohorteRepositorio;
 import com.app.idoneos.repositorio.InscripcionRepositorio;
@@ -164,16 +164,16 @@ public class InscripcionServicioImpl implements InscripcionServicio, CrudServici
     }
 
     /**
-     * Busca la inscripción con la que un alumno puede ver el contenido de una unidad.
+     * Busca la inscripción con la que un alumno puede ver el contenido de un tema.
      */
     @Override
-    public Optional<Inscripcion> buscarConAccesoAUnidad(Alumno alumno, Unidad unidad) {
+    public Optional<Inscripcion> buscarConAccesoATema(Alumno alumno, Tema tema) {
         return inscripcionRepositorio.findByAlumnoAndBajaFalse(alumno).stream()
-                .filter(inscripcion -> inscripcion.getCurso().getIdCurso() == unidad.getCurso().getIdCurso())
+                .filter(inscripcion -> inscripcion.getCurso().getIdCurso() == tema.getCurso().getIdCurso())
                 .filter(inscripcion -> tieneAccesoVigente(inscripcion, alumno))
                 .filter(inscripcion -> inscripcion.getCohorte().getPrograma().getCronogramaOrdenado().stream()
-                        .filter(cronograma -> cronograma.getUnidad().getIdUnidad() == unidad.getIdUnidad())
-                        .findFirst().map(inscripcion::estaUnidadHabilitada).orElse(false))
+                        .filter(cronograma -> cronograma.getTema().getIdTema() == tema.getIdTema())
+                        .findFirst().map(inscripcion::estaTemaHabilitada).orElse(false))
                 .findFirst();
     }
 
@@ -396,10 +396,10 @@ public class InscripcionServicioImpl implements InscripcionServicio, CrudServici
         cohorte.getInscripciones().add(inscripcion);
         alumno.getInscripciones().add(inscripcion);
 
-        // Progreso inicial: la primera unidad del cronograma, sin completar
-        List<UnidadCronograma> cronograma = cohorte.getPrograma().getCronogramaOrdenado();
+        // Progreso inicial: la primer tema del cronograma, sin completar
+        List<TemaCronograma> cronograma = cohorte.getPrograma().getCronogramaOrdenado();
         if (!cronograma.isEmpty()) {
-            Progreso progreso = progresoRepositorio.save(new Progreso(cronograma.get(0).getUnidad(), inscripcion));
+            Progreso progreso = progresoRepositorio.save(new Progreso(cronograma.get(0).getTema(), inscripcion));
             inscripcion.getProgresos().add(progreso);
         }
         return inscripcion;

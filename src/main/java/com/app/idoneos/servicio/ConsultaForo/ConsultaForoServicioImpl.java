@@ -10,10 +10,10 @@ import com.app.idoneos.modelo.Alumno;
 import com.app.idoneos.modelo.ConsultaForo;
 import com.app.idoneos.modelo.Inscripcion;
 import com.app.idoneos.modelo.Parametro;
-import com.app.idoneos.modelo.Unidad;
+import com.app.idoneos.modelo.Tema;
 import com.app.idoneos.repositorio.ConsultaForoRepositorio;
 import com.app.idoneos.repositorio.RespuestaForoRepositorio;
-import com.app.idoneos.repositorio.UnidadRepositorio;
+import com.app.idoneos.repositorio.TemaRepositorio;
 import com.app.idoneos.servicio.CrudServicio;
 import com.app.idoneos.servicio.Inscripcion.InscripcionServicio;
 import com.app.idoneos.servicio.Parametro.ParametroServicio;
@@ -36,7 +36,7 @@ public class ConsultaForoServicioImpl implements ConsultaForoServicio, CrudServi
     private RespuestaForoRepositorio respuestaForoRepositorio;
 
     @Autowired
-    private UnidadRepositorio unidadRepositorio;
+    private TemaRepositorio temaRepositorio;
 
     @Autowired
     private InscripcionServicio inscripcionServicio;
@@ -81,14 +81,14 @@ public class ConsultaForoServicioImpl implements ConsultaForoServicio, CrudServi
     }
 
     /**
-     * Busca los registros vigentes de consultaForo asociados a unidad.
+     * Busca los registros vigentes de consultaForo asociados a tema.
      *
-     * @param unidad el registro de Unidad asociado
-     * @return una lista de ConsultaForo asociados al Unidad indicado
+     * @param tema el registro de Tema asociado
+     * @return una lista de ConsultaForo asociados al Tema indicado
      */
     @Override
-    public List<ConsultaForo> buscarPorUnidad(Unidad unidad) {
-        return consultaForoRepositorio.findByUnidadAndBajaFalse(unidad);
+    public List<ConsultaForo> buscarPorTema(Tema tema) {
+        return consultaForoRepositorio.findByTemaAndBajaFalse(tema);
     }
 
     /**
@@ -103,12 +103,12 @@ public class ConsultaForoServicioImpl implements ConsultaForoServicio, CrudServi
     }
 
     /**
-     * CU-35: Busca las consultas de una unidad por texto y rango de fechas.
+     * CU-35: Busca las consultas de un tema por texto y rango de fechas.
      */
     @Override
-    public List<ConsultaForo> buscarConFiltros(Unidad unidad, String texto, LocalDate desde, LocalDate hasta) {
+    public List<ConsultaForo> buscarConFiltros(Tema tema, String texto, LocalDate desde, LocalDate hasta) {
         String buscado = TextoUtilidad.normalizar(texto);
-        return unidad.getConsultasForoOrdenadas().stream()
+        return tema.getConsultasForoOrdenadas().stream()
                 .filter(c -> buscado.isEmpty() || TextoUtilidad.normalizar(c.getTexto()).contains(buscado))
                 .filter(c -> desde == null || !c.getFechaCreacion().toLocalDate().isBefore(desde))
                 .filter(c -> hasta == null || !c.getFechaCreacion().toLocalDate().isAfter(hasta)).toList();
@@ -128,20 +128,20 @@ public class ConsultaForoServicioImpl implements ConsultaForoServicio, CrudServi
     }
 
     /**
-     * CU-36: Registra una consulta en el foro de una unidad.
+     * CU-36: Registra una consulta en el foro de un tema.
      */
     @Override
     @Transactional
-    public ConsultaForo registrarConsulta(Alumno alumno, Integer unidadId, String texto) {
+    public ConsultaForo registrarConsulta(Alumno alumno, Integer temaId, String texto) {
         if (alumno == null) {
             throw new IllegalArgumentException("Error! El usuario no tiene el rol de alumno.");
         }
-        Unidad unidad = unidadRepositorio.findById(unidadId == null ? -1 : unidadId).filter(u -> !u.esInactivo())
-                .orElseThrow(() -> new IllegalArgumentException("Error! La unidad no se encuentra activa."));
-        Inscripcion inscripcion = inscripcionServicio.buscarConAccesoAUnidad(alumno, unidad).orElseThrow(
-                () -> new IllegalArgumentException("Error! No tenés una inscripción vigente con esta unidad habilitada."));
-        ConsultaForo consulta = consultaForoRepositorio.save(new ConsultaForo(unidad, inscripcion, validarTexto(texto)));
-        unidad.getConsultasForo().add(consulta);
+        Tema tema = temaRepositorio.findById(temaId == null ? -1 : temaId).filter(u -> !u.esInactivo())
+                .orElseThrow(() -> new IllegalArgumentException("Error! El tema no se encuentra activa."));
+        Inscripcion inscripcion = inscripcionServicio.buscarConAccesoATema(alumno, tema).orElseThrow(
+                () -> new IllegalArgumentException("Error! No tenés una inscripción vigente con este tema habilitado."));
+        ConsultaForo consulta = consultaForoRepositorio.save(new ConsultaForo(tema, inscripcion, validarTexto(texto)));
+        tema.getConsultasForo().add(consulta);
         return consulta;
     }
 

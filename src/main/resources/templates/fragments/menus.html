@@ -19,7 +19,7 @@
 
 <!-- ========== Gestión académica (MOD-F-02), para el alumno y el docente ==========
      urlBase: ruta del curso abierto ('/inscripcion/acceder/{id}' o '/curso/acceder/{id}'). La navegación se organiza según la jerarquía
-     Curso → Programa → Cohorte → Unidad; los enlaces con '#' no tienen acción por ahora. -->
+     Curso → Programa → Cohorte → Tema; los enlaces con '#' no tienen acción por ahora. -->
 <th:block th:fragment="gestionAcademica(activo, urlBase)">
     <th:block th:replace="~{fragments/sidebar :: marco(~{fragments/menus :: enlacesGestionAcademica(${activo}, ${urlBase})})}"></th:block>
 </th:block>
@@ -30,7 +30,7 @@
     <!-- Lo que el alumno no puede abrir no se le muestra (y sin botones, tampoco el título del grupo) -->
     <th:block th:if="${esDocente == true or esAdministrador == true}">
         <div th:replace="~{fragments/sidebar :: grupo('Este curso')}"></div>
-        <a th:replace="~{fragments/sidebar :: enlace('/unidad/buscar?cursoId=' + ${curso.idCurso}, 'fa-layer-group', 'Unidades', ${activo}, 'unidades')}"></a>
+        <a th:replace="~{fragments/sidebar :: enlace('/tema/buscar?cursoId=' + ${curso.idCurso}, 'fa-layer-group', 'Temas', ${activo}, 'temas')}"></a>
         <a th:replace="~{fragments/sidebar :: enlace('/programa/buscar?cursoId=' + ${curso.idCurso}, 'fa-book-bookmark', 'Programas', ${activo}, 'programas')}"></a>
     </th:block>
 
@@ -55,7 +55,7 @@
     </th:block>
     <a th:replace="~{fragments/sidebar :: enlace((${esDocente == true or esAdministrador == true} ? '/calificacion/buscar?cursoId=' + ${curso.idCurso} : ${#strings.replace(urlBase, '/inscripcion/acceder/', '/calificacion/ver/')}), 'fa-star', 'Calificaciones', ${activo}, 'calificaciones')}"></a>
 
-    <div th:replace="~{fragments/sidebar :: grupo('Contenido de las unidades')}"></div>
+    <div th:replace="~{fragments/sidebar :: grupo('Contenido de los temas')}"></div>
     <th:block th:if="${esDocente == true or esAdministrador == true}">
         <a th:replace="~{fragments/sidebar :: enlace('/material/buscar?cursoId=' + ${curso.idCurso}, 'fa-file-lines', 'Materiales', ${activo}, 'materiales')}"></a>
         <a th:replace="~{fragments/sidebar :: enlace('/glosario/buscar?cursoId=' + ${curso.idCurso}, 'fa-spell-check', 'Glosario', ${activo}, 'glosario')}"></a>

@@ -8,23 +8,23 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * Posición y duración en semanas de una unidad dentro del cronograma de un programa.
+ * Posición y duración en semanas de un tema dentro del cronograma de un programa.
  */
 @Entity
-@Table(name = "UnidadCronograma", uniqueConstraints = { @UniqueConstraint(columnNames = {"idPrograma", "idUnidad"}), @UniqueConstraint(columnNames = {"idPrograma", "numeroOrden"}) })
-@Check(name = "ck_unidad_cronograma_semanas", constraints = "semanas_duracion > 0")
+@Table(name = "TemaCronograma", uniqueConstraints = { @UniqueConstraint(columnNames = {"idPrograma", "idTema"}), @UniqueConstraint(columnNames = {"idPrograma", "numeroOrden"}) })
+@Check(name = "ck_tema_cronograma_semanas", constraints = "semanas_duracion > 0")
 @Getter
 @Setter
 @NoArgsConstructor
-public class UnidadCronograma {
+public class TemaCronograma {
 
     /**
-     * Identificador único de la unidad del cronograma.
+     * Identificador único del tema del cronograma.
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "idUnidadCronograma")
-    private int idUnidadCronograma;
+    @Column(name = "idTemaCronograma")
+    private int idTemaCronograma;
 
     /**
      * Relación con Programa.
@@ -34,20 +34,20 @@ public class UnidadCronograma {
     private Programa programa;
 
     /**
-     * Relación con Unidad.
+     * Relación con Tema.
      */
     @ManyToOne
-    @JoinColumn(name = "idUnidad", nullable = false)
-    private Unidad unidad;
+    @JoinColumn(name = "idTema", nullable = false)
+    private Tema tema;
 
     /**
-     * Número de orden de la unidad dentro del cronograma.
+     * Número de orden del tema dentro del cronograma.
      */
     @Column(name = "numeroOrden", nullable = false)
     private int numeroOrden;
 
     /**
-     * Duración de la unidad en semanas.
+     * Duración del tema en semanas.
      */
     @Column(name = "semanasDuracion", nullable = false)
     private int semanasDuracion;
@@ -71,16 +71,16 @@ public class UnidadCronograma {
     private Boolean baja = false;
 
     /**
-     * Constructor para crear la unidad del cronograma con los datos básicos.
+     * Constructor para crear el tema del cronograma con los datos básicos.
      *
      * @param programa relación con Programa.
-     * @param unidad relación con Unidad.
-     * @param numeroOrden número de orden de la unidad dentro del cronograma.
-     * @param semanasDuracion duración de la unidad en semanas.
+     * @param tema relación con Tema.
+     * @param numeroOrden número de orden del tema dentro del cronograma.
+     * @param semanasDuracion duración del tema en semanas.
      */
-    public UnidadCronograma(Programa programa, Unidad unidad, int numeroOrden, int semanasDuracion) {
+    public TemaCronograma(Programa programa, Tema tema, int numeroOrden, int semanasDuracion) {
         this.programa = programa;
-        this.unidad = unidad;
+        this.tema = tema;
         this.numeroOrden = numeroOrden;
         this.semanasDuracion = semanasDuracion;
     }
@@ -102,28 +102,28 @@ public class UnidadCronograma {
     }
 
     /**
-     * Devuelve una representación en forma de cadena de la unidad del cronograma.
+     * Devuelve una representación en forma de cadena del tema del cronograma.
      *
      * @return La representación textual.
      */
     @Override
     public String toString() {
-        return "UnidadCronograma #" + idUnidadCronograma;
+        return "TemaCronograma #" + idTemaCronograma;
     }
 
     /**
-     * Obtiene la primera semana del programa en la que se dicta la unidad.
+     * Obtiene la primera semana del programa en la que se dicta el tema.
      *
-     * @return El número de semana en que empieza la unidad.
+     * @return El número de semana en que empieza el tema.
      */
     public int getSemanaDesde() {
         return programa.getSemanaDesde(this);
     }
 
     /**
-     * Obtiene la última semana del programa en la que se dicta la unidad.
+     * Obtiene la última semana del programa en la que se dicta el tema.
      *
-     * @return El número de semana en que termina la unidad.
+     * @return El número de semana en que termina el tema.
      */
     public int getSemanaHasta() {
         return programa.getSemanaHasta(this);

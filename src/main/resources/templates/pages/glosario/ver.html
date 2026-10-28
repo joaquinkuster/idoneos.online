@@ -29,7 +29,7 @@
                     <div>
                         <h1 class="pn-titulo" th:text="${'Glosario ' + numeroOrden}">Glosario 1</h1>
                         <p class="pn-subtitulo">
-                            <span th:text="${unidad.titulo}">Introducción al mercado de capitales</span>
+                            <span th:text="${tema.titulo}">Introducción al mercado de capitales</span>
                             · <span th:text="${totalTerminos + (totalTerminos == 1 ? ' término' : ' términos')}">3 términos</span>
                         </p>
                     </div>
@@ -60,7 +60,7 @@
                 <p class="gl-resultado" data-glosario-resultado hidden></p>
 
                 <p class="gl-resultado" th:if="${unSoloTermino}">
-                    Se muestra un solo término. <a th:href="@{'/glosario/ver/' + ${unidad.idUnidad}}">Ver todo el glosario</a>
+                    Se muestra un solo término. <a th:href="@{'/glosario/ver/' + ${tema.idTema}}">Ver todo el glosario</a>
                 </p>
 
                 <!-- Términos agrupados por letra inicial -->
@@ -72,7 +72,7 @@
                             <h3 class="gl-termino-nombre" th:text="${t.termino}">Acción</h3>
                             <div class="gl-iconos">
                                 <a class="gl-icono" title="Enlace permanente" aria-label="Enlace permanente"
-                                   th:href="@{/glosario/ver/{id}(id=${unidad.idUnidad}, terminoId=${t.idTermino})}"><i class="fa-solid fa-link"></i></a>
+                                   th:href="@{/glosario/ver/{id}(id=${tema.idTema}, terminoId=${t.idTermino})}"><i class="fa-solid fa-link"></i></a>
                                 <button type="button" class="gl-icono" th:if="${puedeGestionar}" title="Editar término" aria-label="Editar término"
                                         data-bs-toggle="modal" th:data-bs-target="'#modalEditarTermino' + ${t.idTermino}"><i class="fa-solid fa-pencil"></i></button>
                                 <button type="button" class="gl-icono gl-icono-baja" th:if="${puedeDarDeBaja}" title="Dar de baja término" aria-label="Dar de baja término"
@@ -92,7 +92,7 @@
     </div>
 </div>
 
-<!-- Modal: registrar término (CU-33). La unidad es la de este glosario -->
+<!-- Modal: registrar término (CU-33). El tema es la de este glosario -->
 <div class="modal fade pn-modal" id="modalNuevoTermino" tabindex="-1" aria-hidden="true" th:if="${puedeGestionar}">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
@@ -106,7 +106,7 @@
                     <p>Término y definición</p>
                 </div>
                 <form th:action="@{/glosario/registrar}" method="post" class="form-ajax" data-validar novalidate>
-                    <input type="hidden" name="unidadId" th:value="${unidad.idUnidad}">
+                    <input type="hidden" name="temaId" th:value="${tema.idTema}">
                     <div class="row g-3 mb-3">
                         <div class="col-12 pn-campo">
                             <div class="pn-etiqueta-fila">

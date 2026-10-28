@@ -29,7 +29,7 @@
                     <div>
                         <h1 class="pn-titulo" th:text="${'Foro ' + numeroOrden}">Foro 1</h1>
                         <p class="pn-subtitulo">
-                            <span th:text="${unidad.titulo}">Introducción al mercado de capitales</span>
+                            <span th:text="${tema.titulo}">Introducción al mercado de capitales</span>
                             · <span th:text="${totalConsultas + (totalConsultas == 1 ? ' consulta' : ' consultas')}">3 consultas</span>
                         </p>
                     </div>
@@ -41,7 +41,7 @@
 
             <section class="pn-tarjeta fo-contenedor" data-tabla>
                 <!-- Buscador: por texto y rango de fechas de registro -->
-                <form th:action="@{'/foro/ver/' + ${unidad.idUnidad}}" method="get" class="pn-filtros" data-filtro-front>
+                <form th:action="@{'/foro/ver/' + ${tema.idTema}}" method="get" class="pn-filtros" data-filtro-front>
                     <div class="pn-filtros-campo pn-filtros-campo-grande">
                         <label class="pn-etiqueta">Texto</label>
                         <input type="text" name="texto" class="pn-input" th:value="${texto}" placeholder="Buscar en las consultas"
@@ -55,7 +55,7 @@
                         <label class="pn-etiqueta">Hasta</label>
                         <input type="date" name="hasta" class="pn-input" th:value="${hasta}">
                     </div>
-                    <a class="pn-btn pn-btn-contorno" th:href="@{'/foro/ver/' + ${unidad.idUnidad}}">Limpiar</a>
+                    <a class="pn-btn pn-btn-contorno" th:href="@{'/foro/ver/' + ${tema.idTema}}">Limpiar</a>
                 </form>
 
                 <div class="pn-tabla-contenedor">
@@ -128,7 +128,7 @@
     </div>
 </div>
 
-<!-- Modal: registrar consulta (CU-36). La unidad es la de este foro -->
+<!-- Modal: registrar consulta (CU-36). El tema es la de este foro -->
 <div class="modal fade pn-modal" id="modalNuevaConsulta" tabindex="-1" aria-hidden="true" th:if="${esAlumno}">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
@@ -139,10 +139,10 @@
             <div class="pn-modal-cuerpo">
                 <div class="pn-seccion-titulo">
                     <h4>Datos de la consulta</h4>
-                    <p>Texto de tu consulta sobre la unidad</p>
+                    <p>Texto de tu consulta sobre el tema</p>
                 </div>
                 <form th:action="@{/foro/registrar}" method="post" class="form-ajax" data-validar novalidate>
-                    <input type="hidden" name="unidadId" th:value="${unidad.idUnidad}">
+                    <input type="hidden" name="temaId" th:value="${tema.idTema}">
                     <div class="row g-3 mb-3">
                         <div class="col-12 pn-campo">
                             <div class="pn-etiqueta-fila">

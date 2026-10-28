@@ -5,7 +5,7 @@ import java.util.Optional;
 import com.app.idoneos.modelo.Autoevaluacion;
 import com.app.idoneos.modelo.Docente;
 import com.app.idoneos.modelo.Pool;
-import com.app.idoneos.modelo.Unidad;
+import com.app.idoneos.modelo.Tema;
 
 /**
  * Servicio para gestionar las operaciones relacionadas con la autoevaluación.
@@ -45,56 +45,56 @@ public interface AutoevaluacionServicio {
     Optional<Autoevaluacion> buscarPorId(Integer id);
 
     /**
-     * Busca los registros vigentes de autoevaluacion asociados a unidad.
+     * Busca los registros vigentes de autoevaluacion asociados a tema.
      *
-     * @param unidad el registro de Unidad asociado
-     * @return una lista de Autoevaluacion asociados al Unidad indicado
+     * @param tema el registro de Tema asociado
+     * @return una lista de Autoevaluacion asociados al Tema indicado
      */
-    List<Autoevaluacion> buscarPorUnidad(Unidad unidad);
+    List<Autoevaluacion> buscarPorTema(Tema tema);
 
     /**
      * CU-64: Busca las autoevaluaciones de un curso (incluidas las dadas de baja) aplicando filtros opcionales. Las dadas
      * de baja van siempre al final.
      *
      * @param idCurso       identificador del curso (opcional)
-     * @param idUnidad      identificador de la unidad (opcional)
+     * @param idTema      identificador del tema (opcional)
      * @param nombre        parte del nombre (opcional)
      * @param baja          {@code true} solo dadas de baja, {@code false} solo vigentes, {@code null} todas (opcional)
      * @param soloDeDocente si se indica, solo las de los cursos en los que participa ese docente
      * @return las autoevaluaciones que cumplen los criterios
      */
-    List<Autoevaluacion> buscarConFiltros(Integer idCurso, Integer idUnidad, String nombre, Boolean baja,
+    List<Autoevaluacion> buscarConFiltros(Integer idCurso, Integer idTema, String nombre, Boolean baja,
             Docente soloDeDocente);
 
     /**
-     * Obtiene las unidades cuyas autoevaluaciones pueden usar un pool: la propia y las que vienen después en el
-     * cronograma de los programas que incluyen la unidad del pool. Una autoevaluación puede combinar pools de su unidad y de
-     * las unidades anteriores (para un examen de la unidad, un repaso o una evaluación final), nunca de las posteriores.
+     * Obtiene los temas cuyos autoevaluaciones pueden usar un pool: la propia y las que vienen después en el
+     * cronograma de los programas que incluyen el tema del pool. Una autoevaluación puede combinar pools de su tema y de
+     * los temas anteriores (para un examen del tema, un repaso o una evaluación final), nunca de las posteriores.
      *
      * @param pool el pool
-     * @return las unidades que pueden usarlo, la propia primero
+     * @return los temas que pueden usarlo, la propia primero
      */
-    List<Unidad> unidadesQuePuedenUsar(Pool pool);
+    List<Tema> temasQuePuedenUsar(Pool pool);
 
     // ---------------------------------------------------------------- Creaciones
 
     /**
-     * CU-65: Crea una autoevaluación en una unidad activa, asociada a uno o más pools de su unidad o de unidades anteriores.
+     * CU-65: Crea una autoevaluación en un tema activo, asociada a uno o más pools de su tema o de temas anteriores.
      *
      * @param docente  el docente que la crea; debe participar en el curso como titular o ayudante
-     * @param idUnidad identificador de la unidad
+     * @param idTema identificador del tema
      * @param datos    los datos de la autoevaluación
      * @return la autoevaluación registrada
-     * @throws IllegalArgumentException si la unidad no está activa o los datos no son válidos
+     * @throws IllegalArgumentException si el tema no está activa o los datos no son válidos
      */
-    Autoevaluacion registrarAutoevaluacion(Docente docente, Integer idUnidad, SolicitudAutoevaluacion datos);
+    Autoevaluacion registrarAutoevaluacion(Docente docente, Integer idTema, SolicitudAutoevaluacion datos);
 
     // ---------------------------------------------------------------- Modificaciones
 
     /**
      * CU-66: Modifica una autoevaluación. Mientras no registre intentos pueden modificarse todos sus datos; una vez
      * registrado al menos uno solo pueden extenderse la fecha de cierre, ocultarse o mostrarse y ampliarse la cantidad de
-     * intentos permitidos. Al ocultarla se verifica el progreso de los alumnos de la unidad.
+     * intentos permitidos. Al ocultarla se verifica el progreso de los alumnos del tema.
      *
      * @param idAutoevaluacion identificador de la autoevaluación
      * @param docente          el docente que la modifica; debe participar en el curso como titular o ayudante
@@ -107,7 +107,7 @@ public interface AutoevaluacionServicio {
     // ---------------------------------------------------------------- Bajas
 
     /**
-     * CU-67: Da de baja una autoevaluación sin intentos que no sea la última visible de una unidad con cohortes en curso.
+     * CU-67: Da de baja una autoevaluación sin intentos que no sea la última visible de un tema con cohortes en curso.
      *
      * @param idAutoevaluacion identificador de la autoevaluación
      * @param docente          el docente que la da de baja, o {@code null} si es el administrador

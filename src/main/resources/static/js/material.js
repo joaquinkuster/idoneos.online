@@ -2,8 +2,8 @@
  * Comportamiento del ABM de materiales (MOD-F-02).
  *
  *  1. Selector "Agregar un recurso o actividad" (vista del curso): muestra la descripción de lo elegido y, al
- *     confirmar, redirige al ABM de materiales con la unidad y el tipo elegidos o, si se elige Glosario, al
- *     glosario de la unidad con el formulario de alta abierto.
+ *     confirmar, redirige al ABM de materiales con el tema y el tipo elegidos o, si se elige Glosario, al
+ *     glosario del tema con el formulario de alta abierto.
  *  2. Formulario de alta: el tipo de material es un campo del formulario y los datos que pide (formatos y tamaño del
  *     archivo, enlace externo y autor) se adaptan al tipo.
  *  3. Si la página se abre con ?nuevo={tipo}, abre sola el formulario con ese tipo elegido.
@@ -54,10 +54,10 @@
             if (!elegida) { return; }
             var destino = selector.dataset.destino;
             if (elegida.dataset.glosario && destino) {
-                // El glosario es uno por unidad: se abre el de la unidad elegida con el formulario de alta abierto
+                // El glosario es uno por tema: se abre el del tema elegido con el formulario de alta abierto
                 var consulta = new URLSearchParams(destino.substring(destino.indexOf('?') + 1));
-                window.location.href = consulta.get('unidadId')
-                    ? '/glosario/ver/' + consulta.get('unidadId') + '?nuevo'
+                window.location.href = consulta.get('temaId')
+                    ? '/glosario/ver/' + consulta.get('temaId') + '?nuevo'
                     : '/glosario/buscar?cursoId=' + consulta.get('cursoId');
             } else if (destino) {
                 window.location.href = destino + (destino.indexOf('?') >= 0 ? '&' : '?') + 'nuevo=' + elegida.dataset.tipoId;
@@ -65,13 +65,13 @@
         });
     }
 
-    // Botón "Agregar recurso o actividad" de cada unidad: el selector lleva al ABM con esa unidad elegida
+    // Botón "Agregar recurso o actividad" de cada tema: el selector lleva al ABM con ese tema elegido
     document.addEventListener('click', function (e) {
         var boton = e.target.closest('[data-agregar-recurso]');
         if (!boton || !selector) { return; }
         var base = selector.dataset.destinoBase || selector.dataset.destino;
         selector.dataset.destinoBase = base;
-        selector.dataset.destino = base + (base.indexOf('?') >= 0 ? '&' : '?') + 'unidadId=' + boton.dataset.unidadId;
+        selector.dataset.destino = base + (base.indexOf('?') >= 0 ? '&' : '?') + 'temaId=' + boton.dataset.temaId;
         modal(selector).show();
     });
 
@@ -118,12 +118,12 @@
         campoTipo.addEventListener('change', function () { aplicarTipo(campoTipo.selectedOptions[0]); });
         modalNuevo.addEventListener('show.bs.modal', function () { aplicarTipo(campoTipo.selectedOptions[0]); });
 
-        // Apertura automática desde ?nuevo={tipo}, con la unidad elegida
+        // Apertura automática desde ?nuevo={tipo}, con el tema elegido
         var tipoInicial = modalNuevo.dataset.abrirTipo;
         if (tipoInicial && campoTipo.querySelector('option[value="' + tipoInicial + '"]')) {
             campoTipo.value = tipoInicial;
-            if (modalNuevo.dataset.unidad) {
-                modalNuevo.querySelector('select[name="unidadId"]').value = modalNuevo.dataset.unidad;
+            if (modalNuevo.dataset.tema) {
+                modalNuevo.querySelector('select[name="temaId"]').value = modalNuevo.dataset.tema;
             }
             modal(modalNuevo).show();
             // Se quita "nuevo" de la dirección: al recargar después de subir, el formulario no vuelve a abrirse

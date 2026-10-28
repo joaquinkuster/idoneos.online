@@ -291,8 +291,8 @@ public class IntentoAutoevaluacionControlador {
         Autoevaluacion autoevaluacion = intento.getAutoevaluacion();
         modelo.addAttribute("intento", intento);
         modelo.addAttribute("autoevaluacion", autoevaluacion);
-        modelo.addAttribute("curso", autoevaluacion.getUnidad().getCurso());
-        modelo.addAttribute("unidad", autoevaluacion.getUnidad());
+        modelo.addAttribute("curso", autoevaluacion.getTema().getCurso());
+        modelo.addAttribute("tema", autoevaluacion.getTema());
         modelo.addAttribute("libre", autoevaluacion.getNavegacionLibre());
         modelo.addAttribute("segundosRestantes", intento.getSegundosRestantes(java.time.LocalDateTime.now()));
         modelo.addAttribute("total", intento.getPreguntasIntento().size());

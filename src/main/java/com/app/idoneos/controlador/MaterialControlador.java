@@ -22,7 +22,7 @@ import com.app.idoneos.modelo.Material;
 import com.app.idoneos.modelo.Programa;
 import com.app.idoneos.modelo.Modalidad;
 import com.app.idoneos.modelo.TipoMaterial;
-import com.app.idoneos.modelo.UnidadCronograma;
+import com.app.idoneos.modelo.TemaCronograma;
 import com.app.idoneos.modelo.Usuario;
 import com.app.idoneos.servicio.Material.MaterialServicioImpl;
 import com.app.idoneos.servicio.TipoMaterial.TipoMaterialServicioImpl;
@@ -65,12 +65,12 @@ public class MaterialControlador extends PanelCursoControlador {
     // ---------------------------------------------------------------- Lecturas
 
     /**
-     * CU-28: Busca el material de un curso (incluido el no publicado) según la unidad, el tipo, el título y si fue
+     * CU-28: Busca el material de un curso (incluido el no publicado) según el tema, el tipo, el título y si fue
      * generado con IA. Si se indica {@code nuevo}, la página abre sola el formulario para subir un material de ese
      * tipo (es el destino del selector "Agregar recurso o actividad" de la vista del curso).
      *
      * @param cursoId       Identificador del curso.
-     * @param unidadId      Identificador de la unidad (opcional).
+     * @param temaId      Identificador del tema (opcional).
      * @param tipoId        Identificador del tipo de material (opcional).
      * @param titulo        Parte del título (opcional).
      * @param generadoPorIa Si fue generado con IA (opcional).
@@ -85,7 +85,7 @@ public class MaterialControlador extends PanelCursoControlador {
      */
     @GetMapping("/buscar")
     public String buscarMateriales(@RequestParam(value = "cursoId", required = false) Integer cursoId,
-            @RequestParam(value = "unidadId", required = false) Integer unidadId,
+            @RequestParam(value = "temaId", required = false) Integer temaId,
             @RequestParam(value = "tipoId", required = false) Integer tipoId,
             @RequestParam(value = "titulo", required = false) String titulo,
             @RequestParam(value = "generadoPorIa", required = false) Boolean generadoPorIa,
@@ -100,7 +100,7 @@ public class MaterialControlador extends PanelCursoControlador {
             boolean esAdministrador = contexto.esAdministrador();
             Docente docente = esAdministrador ? null : usuario.getDocente();
             Programa programa = contexto.programa();
-            List<UnidadCronograma> unidades = programa == null ? List.of() : programa.getCronogramaOrdenado();
+            List<TemaCronograma> temas = programa == null ? List.of() : programa.getCronogramaOrdenado();
             // La grabación solo se ofrece si el curso tiene la modalidad Grabada
             List<TipoMaterial> tiposDeSubida = tipoMaterialServicio.buscarSubidosManualmente().stream()
                     .filter(tipo -> !TipoMaterial.GRABACION.equals(tipo.getNombre())
@@ -123,11 +123,11 @@ public class MaterialControlador extends PanelCursoControlador {
 
             cargarContexto(modelo, contexto, "materiales");
             modelo.addAttribute("abrirModal", abrirModal);
-            modelo.addAttribute("unidades", unidades);
+            modelo.addAttribute("temas", temas);
             modelo.addAttribute("materiales", materiales);
             modelo.addAttribute("tiposMaterial", tipoMaterialServicio.obtenerTodo());
             modelo.addAttribute("tiposDeSubida", tiposDeSubida);
-            modelo.addAttribute("unidadSeleccionada", unidadId);
+            modelo.addAttribute("temaSeleccionada", temaId);
             modelo.addAttribute("tipoSeleccionado", tipoId);
             modelo.addAttribute("tituloBusqueda", titulo);
             modelo.addAttribute("iaSeleccionado", generadoPorIa);
@@ -145,7 +145,7 @@ public class MaterialControlador extends PanelCursoControlador {
      * Muestra un material en una vista aparte: el reproductor de una grabación, el visor de páginas de un PDF. No hay
      * forma de descargarlo: se ve únicamente desde la plataforma. Un enlace externo no tiene vista: se
      * redirige directamente a la página. Lo ve quien tiene acceso al material (administrador, docente del curso y
-     * alumno con la unidad habilitada).
+     * alumno con el tema habilitado).
      *
      * @param id     Identificador del material.
      * @param modelo El modelo de la vista.
@@ -164,11 +164,11 @@ public class MaterialControlador extends PanelCursoControlador {
             return "redirect:" + material.getRutaArchivo();
         }
 
-        ContextoCurso contexto = contextoDeLaUnidad(material.getUnidad(), usuario);
+        ContextoCurso contexto = contextoDeLaTema(material.getTema(), usuario);
 
         cargarContexto(modelo, contexto, "materiales");
         modelo.addAttribute("material", material);
-        modelo.addAttribute("unidad", material.getUnidad());
+        modelo.addAttribute("tema", material.getTema());
         modelo.addAttribute("formato", material.getFormatoDeVista());
         modelo.addAttribute("urlArchivo", "/material/archivo/" + material.getIdMaterial());
         modelo.addAttribute("titulo", material.getTitulo() + " | Idóneos Online");
@@ -185,7 +185,7 @@ public class MaterialControlador extends PanelCursoControlador {
      * Ningún mecanismo web puede impedir del todo que alguien capture la pantalla o copie el pedido desde las
      * herramientas del navegador: por eso el visor suma una marca de agua con el nombre de quien mira.
      *
-     * Lo reciben el administrador, el docente del curso y el alumno con la unidad habilitada. Los videos admiten
+     * Lo reciben el administrador, el docente del curso y el alumno con el tema habilitado. Los videos admiten
      * pedidos por rangos, para poder adelantarlos sin descargarlos enteros.
      *
      * @param id      Identificador del material.
@@ -223,10 +223,10 @@ public class MaterialControlador extends PanelCursoControlador {
     // ---------------------------------------------------------------- Creaciones
 
     /**
-     * CU-29: Sube un material a una unidad. Responde en JSON para que el formulario muestre el resultado sin
+     * CU-29: Sube un material a un tema. Responde en JSON para que el formulario muestre el resultado sin
      * recargar la página.
      *
-     * @param unidadId       Identificador de la unidad.
+     * @param temaId       Identificador del tema.
      * @param tipoMaterialId Identificador del tipo de material (Grabación, Bibliografía o Presentación).
      * @param titulo         El título del material.
      * @param oculto         Si el material queda oculto para los alumnos.
@@ -238,7 +238,7 @@ public class MaterialControlador extends PanelCursoControlador {
      */
     @PostMapping("/subir")
     public ResponseEntity<Map<String, String>> subirMaterial(
-            @RequestParam(value = "unidadId", required = false) Integer unidadId,
+            @RequestParam(value = "temaId", required = false) Integer temaId,
             @RequestParam(value = "tipoMaterialId", required = false) Integer tipoMaterialId,
             @RequestParam(value = "titulo", required = false) String titulo,
             @RequestParam(value = "oculto", defaultValue = "false") boolean oculto,
@@ -247,7 +247,7 @@ public class MaterialControlador extends PanelCursoControlador {
             @RequestParam(value = "archivo", required = false) MultipartFile archivo, Authentication auth) {
         try {
             Usuario usuario = (Usuario) auth.getPrincipal();
-            Material material = materialServicio.subirMaterial(usuario.getDocente(), unidadId, tipoMaterialId, titulo,
+            Material material = materialServicio.subirMaterial(usuario.getDocente(), temaId, tipoMaterialId, titulo,
                     oculto, autor, enlace, archivo);
             return RespuestaFormularioUtilidad.respuestaExitosa("Material '" + material.getTitulo() + "' subido con éxito.");
         } catch (Exception e) {

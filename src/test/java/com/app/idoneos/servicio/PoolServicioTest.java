@@ -16,9 +16,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.app.idoneos.modelo.Docente;
 import com.app.idoneos.modelo.Pool;
 import com.app.idoneos.modelo.Pregunta;
-import com.app.idoneos.modelo.Unidad;
+import com.app.idoneos.modelo.Tema;
 import com.app.idoneos.repositorio.DocenteRepositorio;
-import com.app.idoneos.repositorio.UnidadRepositorio;
+import com.app.idoneos.repositorio.TemaRepositorio;
 import com.app.idoneos.servicio.Pool.PoolServicio;
 import com.app.idoneos.servicio.Pool.PoolServicio.SolicitudOpcion;
 import com.app.idoneos.servicio.Pool.PoolServicio.SolicitudPregunta;
@@ -26,7 +26,7 @@ import com.app.idoneos.servicio.Pool.PoolServicio.SolicitudPregunta;
 /**
  * Pruebas del ABM de pools (CU-60 a CU-63) con los datos de la semilla: en "Mercado de Capitales Argentino" (titular
  * Fausto Spotorno; Sebastián Bordato no participa en "Macroeconomía de Coyuntura") el pool "Marco regulatorio" de la
- * unidad 1 tiene intentos (los de Valentina) y el pool "Renta fija" de la unidad 2 tiene 6 preguntas y lo usa una
+ * tema 1 tiene intentos (los de Valentina) y el pool "Renta fija" del tema 2 tiene 6 preguntas y lo usa una
  * autoevaluación que sortea 5.
  */
 @SpringBootTest
@@ -37,7 +37,7 @@ class PoolServicioTest {
     private PoolServicio poolServicio;
 
     @Autowired
-    private UnidadRepositorio unidadRepositorio;
+    private TemaRepositorio temaRepositorio;
 
     @Autowired
     private DocenteRepositorio docenteRepositorio;
@@ -51,13 +51,13 @@ class PoolServicioTest {
         return docente("fausto.spotorno@idoneos.online");
     }
 
-    private Unidad unidad(String curso, String titulo) {
-        return unidadRepositorio.findAll().stream()
+    private Tema tema(String curso, String titulo) {
+        return temaRepositorio.findAll().stream()
                 .filter(u -> u.getCurso().getNombre().equals(curso) && u.getTitulo().equals(titulo)).findFirst().orElseThrow();
     }
 
-    private Unidad terceraDeMercado() {
-        return unidad("Mercado de Capitales Argentino", "Renta variable y opciones");
+    private Tema terceraDeMercado() {
+        return tema("Mercado de Capitales Argentino", "Renta variable y opciones");
     }
 
     private Pool pool(String nombre) {
@@ -77,7 +77,7 @@ class PoolServicioTest {
     }
 
     private Pool crear(String nombre) {
-        return poolServicio.registrarPool(fausto(), terceraDeMercado().getIdUnidad(), nombre, dosPreguntas());
+        return poolServicio.registrarPool(fausto(), terceraDeMercado().getIdTema(), nombre, dosPreguntas());
     }
 
     private void assertError(String fragmento, Runnable accion) {
@@ -88,7 +88,7 @@ class PoolServicioTest {
     @Test
     @DisplayName("CU-61: crea un pool con sus preguntas y opciones de los tres tipos")
     void crearPool() {
-        Pool pool = poolServicio.registrarPool(fausto(), terceraDeMercado().getIdUnidad(), "  Opciones  ", List.of(
+        Pool pool = poolServicio.registrarPool(fausto(), terceraDeMercado().getIdTema(), "  Opciones  ", List.of(
                 pregunta("Única", false, "*A", "B"), pregunta("Múltiple", true, "*A", "*B", "C"),
                 pregunta("Verdadero o falso", false, "*Verdadero", "Falso")));
 
@@ -96,25 +96,25 @@ class PoolServicioTest {
         assertEquals(3, pool.getCantidadPreguntas());
         assertTrue(pool.getPreguntasActivas().stream().allMatch(Pregunta::esValida));
         assertEquals(1, pool.getPreguntasActivas().get(1).getOpcionesActivas().stream().filter(o -> !o.getEsCorrecta()).count());
-        assertTrue(poolServicio.buscarPorUnidad(terceraDeMercado()).stream().anyMatch(p -> p.getNombre().equals("Opciones")));
+        assertTrue(poolServicio.buscarPorTema(terceraDeMercado()).stream().anyMatch(p -> p.getNombre().equals("Opciones")));
     }
 
     @Test
     @DisplayName("CU-61: rechaza un pool sin nombre, repetido, sin preguntas o con preguntas mal armadas")
     void validacionesDelAlta() {
-        int unidad = terceraDeMercado().getIdUnidad();
-        assertError("nombre", () -> poolServicio.registrarPool(fausto(), unidad, " ", dosPreguntas()));
-        assertError("Ya existe un pool", () -> poolServicio.registrarPool(fausto(), unidad, "preguntas de la unidad", dosPreguntas()));
-        assertError("al menos una pregunta", () -> poolServicio.registrarPool(fausto(), unidad, "Vacío", List.of()));
-        assertError("no tiene enunciado", () -> poolServicio.registrarPool(fausto(), unidad, "Sin enunciado",
+        int tema = terceraDeMercado().getIdTema();
+        assertError("nombre", () -> poolServicio.registrarPool(fausto(), tema, " ", dosPreguntas()));
+        assertError("Ya existe un pool", () -> poolServicio.registrarPool(fausto(), tema, "preguntas del tema", dosPreguntas()));
+        assertError("al menos una pregunta", () -> poolServicio.registrarPool(fausto(), tema, "Vacío", List.of()));
+        assertError("no tiene enunciado", () -> poolServicio.registrarPool(fausto(), tema, "Sin enunciado",
                 List.of(pregunta(" ", false, "*A", "B"))));
-        assertError("al menos dos opciones", () -> poolServicio.registrarPool(fausto(), unidad, "Una opción",
+        assertError("al menos dos opciones", () -> poolServicio.registrarPool(fausto(), tema, "Una opción",
                 List.of(pregunta("P", false, "*A"))));
-        assertError("exactamente una opción correcta", () -> poolServicio.registrarPool(fausto(), unidad, "Dos correctas",
+        assertError("exactamente una opción correcta", () -> poolServicio.registrarPool(fausto(), tema, "Dos correctas",
                 List.of(pregunta("P", false, "*A", "*B"))));
-        assertError("al menos una opción correcta", () -> poolServicio.registrarPool(fausto(), unidad, "Sin correcta",
+        assertError("al menos una opción correcta", () -> poolServicio.registrarPool(fausto(), tema, "Sin correcta",
                 List.of(pregunta("P", true, "A", "B"))));
-        assertError("opción sin texto", () -> poolServicio.registrarPool(fausto(), unidad, "Opción vacía",
+        assertError("opción sin texto", () -> poolServicio.registrarPool(fausto(), tema, "Opción vacía",
                 List.of(pregunta("P", false, "*A", " "))));
         assertError("no se encuentra activa", () -> poolServicio.registrarPool(fausto(), 999999, "X", dosPreguntas()));
     }
@@ -122,11 +122,11 @@ class PoolServicioTest {
     @Test
     @DisplayName("CU-61: solo el docente que participa en el curso puede crear pools")
     void soloElDocenteDelCurso() {
-        Unidad macro = unidad("Macroeconomía de Coyuntura", "Tipo de cambio");
+        Tema macro = tema("Macroeconomía de Coyuntura", "Tipo de cambio");
         Docente sebastian = docente("sebastian.bordato@idoneos.online");
 
-        assertError("No participás", () -> poolServicio.registrarPool(sebastian, macro.getIdUnidad(), "X", dosPreguntas()));
-        assertError("rol de docente", () -> poolServicio.registrarPool(null, macro.getIdUnidad(), "X", dosPreguntas()));
+        assertError("No participás", () -> poolServicio.registrarPool(sebastian, macro.getIdTema(), "X", dosPreguntas()));
+        assertError("rol de docente", () -> poolServicio.registrarPool(null, macro.getIdTema(), "X", dosPreguntas()));
     }
 
     @Test
@@ -215,7 +215,7 @@ class PoolServicioTest {
     }
 
     @Test
-    @DisplayName("CU-60: busca los pools de un curso por unidad y nombre; los dados de baja van al final")
+    @DisplayName("CU-60: busca los pools de un curso por tema y nombre; los dados de baja van al final")
     void buscarPools() {
         int curso = terceraDeMercado().getCurso().getIdCurso();
         Pool nuevo = crear("Opciones de venta");
@@ -229,8 +229,8 @@ class PoolServicioTest {
         List<Pool> todos = poolServicio.buscarConFiltros(curso, null, null, null, null);
         assertTrue(todos.get(todos.size() - 1).esInactivo());
 
-        assertEquals(1, poolServicio.buscarConFiltros(curso, terceraDeMercado().getIdUnidad(), "venta", false, null).size());
+        assertEquals(1, poolServicio.buscarConFiltros(curso, terceraDeMercado().getIdTema(), "venta", false, null).size());
         assertTrue(poolServicio.buscarConFiltros(null, null, null, null, docente("sebastian.bordato@idoneos.online")).stream()
-                .noneMatch(p -> p.getUnidad().getCurso().getNombre().equals("Macroeconomía de Coyuntura")));
+                .noneMatch(p -> p.getTema().getCurso().getNombre().equals("Macroeconomía de Coyuntura")));
     }
 }

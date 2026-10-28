@@ -154,36 +154,36 @@ CREATE TRIGGER trg_programa_congelado BEFORE UPDATE ON programa
                     OR OLD.id_curso IS DISTINCT FROM NEW.id_curso)
     EXECUTE FUNCTION fn_programa_congelado() ^^^
 
--- fn_unidad_congelada() (CU-21): disparador de modificacion de una unidad. Se llama solo si cambio el titulo, la descripcion,
--- el contenido o el curso, y rechaza el cambio si el curso de la unidad tiene inscripciones activas.
-CREATE OR REPLACE FUNCTION fn_unidad_congelada() RETURNS trigger AS $$
+-- fn_tema_congelada() (CU-21): disparador de modificacion de un tema. Se llama solo si cambio el titulo, la descripcion,
+-- el contenido o el curso, y rechaza el cambio si el curso del tema tiene inscripciones activas.
+CREATE OR REPLACE FUNCTION fn_tema_congelada() RETURNS trigger AS $$
 BEGIN
     IF fn_curso_con_inscripciones(OLD.id_curso) THEN
-        RAISE EXCEPTION 'No se puede modificar la unidad: el curso tiene inscripciones activas'
+        RAISE EXCEPTION 'No se puede modificar el tema: el curso tiene inscripciones activas'
             USING ERRCODE = 'restrict_violation', CONSTRAINT = TG_NAME;
     END IF;
     RETURN NEW;
 END
 $$ LANGUAGE plpgsql ^^^
 
-DROP TRIGGER IF EXISTS trg_unidad_congelado ON unidad ^^^
-CREATE TRIGGER trg_unidad_congelado BEFORE UPDATE ON unidad
+DROP TRIGGER IF EXISTS trg_tema_congelado ON tema ^^^
+CREATE TRIGGER trg_tema_congelado BEFORE UPDATE ON tema
     FOR EACH ROW WHEN (OLD.titulo IS DISTINCT FROM NEW.titulo
                     OR OLD.descripcion IS DISTINCT FROM NEW.descripcion
                     OR OLD.contenido IS DISTINCT FROM NEW.contenido
                     OR OLD.id_curso IS DISTINCT FROM NEW.id_curso)
-    EXECUTE FUNCTION fn_unidad_congelada() ^^^
+    EXECUTE FUNCTION fn_tema_congelada() ^^^
 
--- fn_unidad_cronograma_congelado() (CU-25): disparador del cronograma de un programa. Rechaza agregar o quitar unidades,
+-- fn_tema_cronograma_congelado() (CU-25): disparador del cronograma de un programa. Rechaza agregar o quitar temas,
 -- cambiar su orden o su duracion cuando el programa tiene inscripciones activas. Si una modificacion no toca esas
 -- columnas, la deja pasar.
-CREATE OR REPLACE FUNCTION fn_unidad_cronograma_congelado() RETURNS trigger AS $$
+CREATE OR REPLACE FUNCTION fn_tema_cronograma_congelado() RETURNS trigger AS $$
 DECLARE
     v_programa int;
 BEGIN
     IF TG_OP = 'UPDATE'
        AND OLD.id_programa IS NOT DISTINCT FROM NEW.id_programa
-       AND OLD.id_unidad IS NOT DISTINCT FROM NEW.id_unidad
+       AND OLD.id_tema IS NOT DISTINCT FROM NEW.id_tema
        AND OLD.numero_orden IS NOT DISTINCT FROM NEW.numero_orden
        AND OLD.semanas_duracion IS NOT DISTINCT FROM NEW.semanas_duracion
        AND OLD.baja IS NOT DISTINCT FROM NEW.baja THEN
@@ -199,11 +199,11 @@ BEGIN
 END
 $$ LANGUAGE plpgsql ^^^
 
-DROP TRIGGER IF EXISTS trg_unidad_cronograma_congelado ON unidad_cronograma ^^^
-CREATE TRIGGER trg_unidad_cronograma_congelado BEFORE INSERT OR UPDATE OR DELETE ON unidad_cronograma
-    FOR EACH ROW EXECUTE FUNCTION fn_unidad_cronograma_congelado() ^^^
+DROP TRIGGER IF EXISTS trg_tema_cronograma_congelado ON tema_cronograma ^^^
+CREATE TRIGGER trg_tema_cronograma_congelado BEFORE INSERT OR UPDATE OR DELETE ON tema_cronograma
+    FOR EACH ROW EXECUTE FUNCTION fn_tema_cronograma_congelado() ^^^
 
--- fn_pool_congelado() (CU-62): disparador de modificacion de un pool. Se llama solo si cambio el nombre o la unidad, y
+-- fn_pool_congelado() (CU-62): disparador de modificacion de un pool. Se llama solo si cambio el nombre o el tema, y
 -- rechaza el cambio si el pool tiene intentos activos.
 CREATE OR REPLACE FUNCTION fn_pool_congelado() RETURNS trigger AS $$
 BEGIN
@@ -217,7 +217,7 @@ $$ LANGUAGE plpgsql ^^^
 
 DROP TRIGGER IF EXISTS trg_pool_congelado ON pool ^^^
 CREATE TRIGGER trg_pool_congelado BEFORE UPDATE ON pool
-    FOR EACH ROW WHEN (OLD.nombre IS DISTINCT FROM NEW.nombre OR OLD.id_unidad IS DISTINCT FROM NEW.id_unidad)
+    FOR EACH ROW WHEN (OLD.nombre IS DISTINCT FROM NEW.nombre OR OLD.id_tema IS DISTINCT FROM NEW.id_tema)
     EXECUTE FUNCTION fn_pool_congelado() ^^^
 
 -- fn_pregunta_congelada() (CU-62): disparador de las preguntas de un pool. Rechaza agregar, modificar o dar de baja una
@@ -278,14 +278,14 @@ CREATE TRIGGER trg_opcion_respuesta_congelado BEFORE INSERT OR UPDATE OR DELETE 
 
 -- fn_autoevaluacion_congelada() (CU-66): disparador de modificacion de una autoevaluacion. Si tiene intentos activos, rechaza
 -- cambiar su contenido (nombre, tiempo limite, cantidad de preguntas, nota minima, apertura, descuento por error,
--- navegacion libre, permiso para salir y unidad) y tambien acortar la fecha de cierre o reducir los intentos permitidos.
+-- navegacion libre, permiso para salir y tema) y tambien acortar la fecha de cierre o reducir los intentos permitidos.
 -- Lo que si se permite: ocultarla o mostrarla, extender el cierre y ampliar los intentos.
 CREATE OR REPLACE FUNCTION fn_autoevaluacion_congelada() RETURNS trigger AS $$
 DECLARE
     v_contenido boolean;
     v_retroceso boolean;
 BEGIN
-    v_contenido := OLD.id_unidad IS DISTINCT FROM NEW.id_unidad
+    v_contenido := OLD.id_tema IS DISTINCT FROM NEW.id_tema
                 OR OLD.nombre IS DISTINCT FROM NEW.nombre
                 OR OLD.tiempo_limite IS DISTINCT FROM NEW.tiempo_limite
                 OR OLD.cantidad_preguntas IS DISTINCT FROM NEW.cantidad_preguntas

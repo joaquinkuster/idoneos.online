@@ -8,8 +8,8 @@ import com.app.idoneos.modelo.Cohorte;
 import com.app.idoneos.modelo.Inscripcion;
 import com.app.idoneos.modelo.Programa;
 import com.app.idoneos.modelo.Progreso;
-import com.app.idoneos.modelo.UnidadCronograma;
-import com.app.idoneos.modelo.Unidad;
+import com.app.idoneos.modelo.TemaCronograma;
+import com.app.idoneos.modelo.Tema;
 import com.app.idoneos.repositorio.InscripcionRepositorio;
 import com.app.idoneos.repositorio.ProgresoRepositorio;
 import com.app.idoneos.servicio.Certificado.CertificadoServicio;
@@ -73,14 +73,14 @@ public class ProgresoServicioImpl implements ProgresoServicio, CrudServicio<Prog
     }
 
     /**
-     * Busca los registros de progreso asociados a unidad.
+     * Busca los registros de progreso asociados a tema.
      *
-     * @param unidad el registro de Unidad asociado
-     * @return una lista de Progreso asociados al Unidad indicado
+     * @param tema el registro de Tema asociado
+     * @return una lista de Progreso asociados al Tema indicado
      */
     @Override
-    public List<Progreso> buscarPorUnidad(Unidad unidad) {
-        return progresoRepositorio.findByUnidad(unidad);
+    public List<Progreso> buscarPorTema(Tema tema) {
+        return progresoRepositorio.findByTema(tema);
     }
 
     /**
@@ -98,12 +98,12 @@ public class ProgresoServicioImpl implements ProgresoServicio, CrudServicio<Prog
      * Busca el progreso a partir de la combinación única de sus relaciones. Incluye los registros dados de baja.
      *
      * @param inscripcion el registro de Inscripcion asociado
-     * @param unidad el registro de Unidad asociado
+     * @param tema el registro de Tema asociado
      * @return un {@link Optional} con el registro si existe, o vacío si no se encuentra
      */
     @Override
-    public Optional<Progreso> buscarPorInscripcionYUnidad(Inscripcion inscripcion, Unidad unidad) {
-        return progresoRepositorio.findByInscripcionAndUnidad(inscripcion, unidad);
+    public Optional<Progreso> buscarPorInscripcionYTema(Inscripcion inscripcion, Tema tema) {
+        return progresoRepositorio.findByInscripcionAndTema(inscripcion, tema);
     }
 
     @Override
@@ -118,16 +118,16 @@ public class ProgresoServicioImpl implements ProgresoServicio, CrudServicio<Prog
         Map<Integer, Progreso> completados = new java.util.HashMap<>();
         for (Progreso progreso : progresoRepositorio.findByInscripcion(inscripcion)) {
             if (Boolean.TRUE.equals(progreso.getCompletada())) {
-                completados.put(progreso.getUnidad().getIdUnidad(), progreso);
+                completados.put(progreso.getTema().getIdTema(), progreso);
             }
         }
-        List<DetalleProgreso.AvanceUnidad> unidades = inscripcion.getCohorte().getPrograma().getCronogramaOrdenado()
-                .stream().map((UnidadCronograma cronograma) -> {
-                    Progreso progreso = completados.get(cronograma.getUnidad().getIdUnidad());
-                    return new DetalleProgreso.AvanceUnidad(cronograma, progreso != null,
+        List<DetalleProgreso.AvanceTema> temas = inscripcion.getCohorte().getPrograma().getCronogramaOrdenado()
+                .stream().map((TemaCronograma cronograma) -> {
+                    Progreso progreso = completados.get(cronograma.getTema().getIdTema());
+                    return new DetalleProgreso.AvanceTema(cronograma, progreso != null,
                             progreso == null ? null : progreso.getFechaCompletada());
                 }).toList();
-        return new DetalleProgreso(inscripcion, unidades);
+        return new DetalleProgreso(inscripcion, temas);
     }
 
     // ---------------------------------------------------------------- Creaciones
@@ -157,43 +157,43 @@ public class ProgresoServicioImpl implements ProgresoServicio, CrudServicio<Prog
     }
 
     /**
-     * Registra la unidad como completada para un alumno si la aprobó (ver {@link Unidad#estaAprobadaPor}).
+     * Registra el tema como completada para un alumno si la aprobó (ver {@link Tema#estaAprobadaPor}).
      */
     @Override
     @Transactional
-    public boolean actualizarProgreso(Inscripcion inscripcion, Unidad unidad) {
+    public boolean actualizarProgreso(Inscripcion inscripcion, Tema tema) {
         boolean esDelPrograma = inscripcion.getCohorte().getPrograma().getCronogramaOrdenado().stream()
-                .anyMatch(cronograma -> cronograma.getUnidad().getIdUnidad() == unidad.getIdUnidad());
-        if (inscripcion.esInactivo() || !esDelPrograma || inscripcion.estaUnidadCompletada(unidad)
-                || !unidad.estaAprobadaPor(inscripcion)) {
+                .anyMatch(cronograma -> cronograma.getTema().getIdTema() == tema.getIdTema());
+        if (inscripcion.esInactivo() || !esDelPrograma || inscripcion.estaTemaCompletada(tema)
+                || !tema.estaAprobadaPor(inscripcion)) {
             return false;
         }
-        Progreso progreso = progresoRepositorio.findByInscripcionAndUnidad(inscripcion, unidad).orElseGet(() -> {
-            Progreso nuevo = progresoRepositorio.save(new Progreso(unidad, inscripcion));
+        Progreso progreso = progresoRepositorio.findByInscripcionAndTema(inscripcion, tema).orElseGet(() -> {
+            Progreso nuevo = progresoRepositorio.save(new Progreso(tema, inscripcion));
             inscripcion.getProgresos().add(nuevo);
             return nuevo;
         });
         progreso.setCompletada(true);
         progreso.setFechaCompletada(LocalDateTime.now());
         progresoRepositorio.save(progreso);
-        // Con la última unidad pendiente completada, el alumno terminó el programa: se emite su certificado
-        if (inscripcion.getUnidadEnCurso() == null) {
+        // Con la último tema pendiente completada, el alumno terminó el programa: se emite su certificado
+        if (inscripcion.getTemaEnCurso() == null) {
             certificadoServicio.emitirCertificado(inscripcion);
         }
         return true;
     }
 
     /**
-     * Verifica la unidad para cada alumno con inscripción vigente en un programa que la incluye.
+     * Verifica el tema para cada alumno con inscripción vigente en un programa que la incluye.
      */
     @Override
     @Transactional
-    public void actualizarProgresoDeLaUnidad(Unidad unidad) {
-        for (Programa programa : unidad.getProgramasQueLaIncluyen()) {
+    public void actualizarProgresoDeLaTema(Tema tema) {
+        for (Programa programa : tema.getProgramasQueLaIncluyen()) {
             for (Cohorte cohorte : programa.getCohortesActivas()) {
                 for (Inscripcion inscripcion : cohorte.getInscripciones()) {
                     if (!inscripcion.esInactivo() && inscripcion.estaHabilitada()) {
-                        actualizarProgreso(inscripcion, unidad);
+                        actualizarProgreso(inscripcion, tema);
                     }
                 }
             }
@@ -213,12 +213,12 @@ public class ProgresoServicioImpl implements ProgresoServicio, CrudServicio<Prog
     }
 
     /**
-     * Revierte la unidad a no completada y anula el certificado vigente de la inscripción, si lo tenía.
+     * Revierte el tema a no completada y anula el certificado vigente de la inscripción, si lo tenía.
      */
     @Override
     @Transactional
-    public boolean revertirProgreso(Inscripcion inscripcion, Unidad unidad) {
-        Progreso progreso = progresoRepositorio.findByInscripcionAndUnidad(inscripcion, unidad)
+    public boolean revertirProgreso(Inscripcion inscripcion, Tema tema) {
+        Progreso progreso = progresoRepositorio.findByInscripcionAndTema(inscripcion, tema)
                 .filter(p -> Boolean.TRUE.equals(p.getCompletada())).orElse(null);
         if (progreso == null) {
             return false;

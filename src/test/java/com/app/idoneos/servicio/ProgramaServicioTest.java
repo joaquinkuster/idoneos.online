@@ -27,7 +27,7 @@ import com.app.idoneos.servicio.Programa.ProgramaServicio;
 
 /**
  * Pruebas del ABM de programas (CU-15 a CU-18) con los datos de la semilla: "Mercado de Capitales Argentino" tiene un
- * programa con tres unidades, tres cohortes e inscripciones activas; "Macroeconomía de Coyuntura" tiene un programa con
+ * programa con tres temas, tres cohortes e inscripciones activas; "Macroeconomía de Coyuntura" tiene un programa con
  * una cohorte abierta sin inscriptos. Fausto Spotorno es titular de ambos cursos y Sebastián Bordato no participa en el
  * segundo.
  */
@@ -131,7 +131,7 @@ class ProgramaServicioTest {
         assertEquals("Programa 2027", nuevo.getNombre());
         assertEquals("Plan nuevo", nuevo.getDescripcion());
         assertEquals(40, nuevo.getCargaHorariaTotal());
-        assertEquals(0, nuevo.getCantidadUnidades());
+        assertEquals(0, nuevo.getCantidadTemas());
         assertEquals("Vigente", nuevo.getEstado());
         DocenteCurso participacion = participacionDeFausto(macro());
         assertEquals(nuevo.getIdPrograma(), participacion.getProgramaPorDefecto().getIdPrograma());
@@ -143,17 +143,17 @@ class ProgramaServicioTest {
     @DisplayName("CU-16: al partir de un programa anterior se copia su cronograma sin tocar el original")
     void copiaElCronograma() {
         Programa original = mercado().getProgramaVigente();
-        int unidades = original.getCantidadUnidades();
+        int temas = original.getCantidadTemas();
         int semanas = original.getDuracionTotalSemanas();
-        assertTrue(unidades > 0);
+        assertTrue(temas > 0);
 
         Programa copia = registrar(mercado(), original.getIdPrograma(), "Edición 2027");
 
-        assertEquals(unidades, copia.getCantidadUnidades());
+        assertEquals(temas, copia.getCantidadTemas());
         assertEquals(semanas, copia.getDuracionTotalSemanas());
-        assertEquals(original.getCronogramaOrdenado().stream().map(c -> c.getUnidad().getIdUnidad()).toList(),
-                copia.getCronogramaOrdenado().stream().map(c -> c.getUnidad().getIdUnidad()).toList());
-        assertEquals(unidades, original.getCantidadUnidades());
+        assertEquals(original.getCronogramaOrdenado().stream().map(c -> c.getTema().getIdTema()).toList(),
+                copia.getCronogramaOrdenado().stream().map(c -> c.getTema().getIdTema()).toList());
+        assertEquals(temas, original.getCantidadTemas());
     }
 
     @Test

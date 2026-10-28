@@ -28,7 +28,7 @@
                     <p class="pn-subtitulo" th:text="${'Preguntas de las que se sortean las autoevaluaciones de ' + curso.nombre}">Preguntas de las autoevaluaciones</p>
                 </div>
                 <button type="button" class="pn-btn pn-btn-primario" th:if="${puedeGestionar}" data-bs-toggle="modal" data-bs-target="#modalNuevoPool"
-                        th:disabled="${#lists.isEmpty(unidades)}" th:title="${#lists.isEmpty(unidades) ? 'El programa todavía no tiene unidades' : null}">
+                        th:disabled="${#lists.isEmpty(temas)}" th:title="${#lists.isEmpty(temas) ? 'El programa todavía no tiene temas' : null}">
                     <i class="fa-solid fa-plus"></i> Crear pool
                 </button>
             </div>
@@ -55,7 +55,7 @@
                             <tr>
                                 <th class="pn-col-seleccion"><input type="checkbox" data-seleccionar-todos aria-label="Seleccionar todos"></th>
                                 <th data-col="Nombre" data-campo="nombre" data-filtro="texto">Nombre</th>
-                                <th data-col="Unidad" data-campo="unidad" data-filtro="lista">Unidad</th>
+                                <th data-col="Tema" data-campo="tema" data-filtro="lista">Tema</th>
                                 <th data-col="Preguntas" data-campo="preguntas" data-filtro="numero">Preguntas</th>
                                 <th data-col="Autoevaluaciones" data-campo="autoevaluaciones" data-filtro="numero">Autoevaluaciones</th>
                                 <th data-col="Fecha de creación" data-campo="fechaCreacion" data-filtro="fecha">Fecha de creación</th>
@@ -67,7 +67,7 @@
                                 <td class="pn-col-seleccion"><input type="checkbox" data-seleccionar-fila aria-label="Seleccionar fila"
                                     th:value="${p.idPool}"></td>
                                 <td><span class="pn-celda-principal pn-truncar" th:text="${p.nombre}">Marco regulatorio</span></td>
-                                <td><span class="pn-truncar" th:text="${p.unidad.titulo}">Introducción al mercado</span></td>
+                                <td><span class="pn-truncar" th:text="${p.tema.titulo}">Introducción al mercado</span></td>
                                 <td th:text="${p.cantidadPreguntas}">6</td>
                                 <td th:text="${#lists.size(p.autoevaluacionesActivas)}">1</td>
                                 <td th:text="${#temporals.format(p.fechaCreacion, 'dd/MM/yyyy HH:mm')}">28/08/2026 10:30</td>

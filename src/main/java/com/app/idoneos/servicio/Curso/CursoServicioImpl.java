@@ -78,7 +78,7 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
     private ProgramaRepositorio programaRepositorio;
 
     @Autowired
-    private UnidadRepositorio unidadRepositorio;
+    private TemaRepositorio temaRepositorio;
 
     @Autowired
     private InscripcionServicio inscripcionServicio;
@@ -247,15 +247,15 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
     }
 
     /**
-     * Verifica si un curso tiene programas o unidades activos asociados.
+     * Verifica si un curso tiene programas o temas activos asociados.
      *
      * @param curso el curso a consultar
-     * @return {@code true} si tiene al menos un programa o una unidad activos
+     * @return {@code true} si tiene al menos un programa o un tema activos
      */
     @Override
-    public boolean tieneProgramasOUnidadesActivas(Curso curso) {
+    public boolean tieneProgramasOTemasActivas(Curso curso) {
         return !programaRepositorio.findByCursoAndBajaFalse(curso).isEmpty()
-                || !unidadRepositorio.findByCursoAndBajaFalse(curso).isEmpty();
+                || !temaRepositorio.findByCursoAndBajaFalse(curso).isEmpty();
     }
 
     /**
@@ -303,15 +303,15 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
     }
 
     @Override
-    public Optional<ContextoCurso> resolverContextoDeLaUnidad(Unidad unidad, Usuario usuario) {
-        Curso curso = unidad.getCurso();
+    public Optional<ContextoCurso> resolverContextoDeLaTema(Tema tema, Usuario usuario) {
+        Curso curso = tema.getCurso();
         if (usuario.esAdministradorActivo()) {
             return Optional.of(ContextoCurso.deAdministrador(curso));
         }
         if (curso.tieneDocente(usuario.getDocente())) {
             return Optional.of(ContextoCurso.deDocente(validarAccesoDocente(curso.getIdCurso(), usuario.getDocente())));
         }
-        return inscripcionServicio.buscarConAccesoAUnidad(usuario.getAlumno(), unidad).map(ContextoCurso::deAlumno);
+        return inscripcionServicio.buscarConAccesoATema(usuario.getAlumno(), tema).map(ContextoCurso::deAlumno);
     }
 
     @Override
@@ -537,25 +537,25 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
     }
 
     /**
-     * Da de baja un curso activo que no tenga programas ni unidades activas asociadas.
+     * Da de baja un curso activo que no tenga programas ni temas activos asociadas.
      *
      * @param idCurso el identificador del curso
-     * @throws IllegalArgumentException si el curso no está activo o tiene programas o unidades activas
+     * @throws IllegalArgumentException si el curso no está activo o tiene programas o temas activos
      */
     @Override
     @Transactional
     public void darDeBajaCurso(Integer idCurso) {
         Curso curso = buscarActivoPorId(idCurso);
         int programasActivos = programaRepositorio.findByCursoAndBajaFalse(curso).size();
-        int unidadesActivas = unidadRepositorio.findByCursoAndBajaFalse(curso).size();
-        if (programasActivos > 0 || unidadesActivas > 0) {
+        int temasActivas = temaRepositorio.findByCursoAndBajaFalse(curso).size();
+        if (programasActivos > 0 || temasActivas > 0) {
             String motivo = (programasActivos > 0
                     ? MensajeErrorUtilidad.cantidad(programasActivos, "programa activo", "programas activos") : "")
-                    + (programasActivos > 0 && unidadesActivas > 0 ? " y " : "")
-                    + (unidadesActivas > 0
-                            ? MensajeErrorUtilidad.cantidad(unidadesActivas, "unidad activa", "unidades activas") : "");
+                    + (programasActivos > 0 && temasActivas > 0 ? " y " : "")
+                    + (temasActivas > 0
+                            ? MensajeErrorUtilidad.cantidad(temasActivas, "tema activo", "temas activos") : "");
             throw new IllegalArgumentException(MensajeErrorUtilidad.bajaBloqueada("el curso", curso.getNombre(),
-                    "tiene " + motivo, "Dé de baja primero sus programas y unidades."));
+                    "tiene " + motivo, "Dé de baja primero sus programas y temas."));
         }
         curso.marcarInactivo();
         curso.setUltimaModificacion(LocalDateTime.now());

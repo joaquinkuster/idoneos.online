@@ -2,36 +2,36 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 
 <body>
-    <!-- Tablero del cronograma de un programa (vista por semanas y por unidades), que dibuja static/js/cronograma.js.
+    <!-- Tablero del cronograma de un programa (vista por semanas y por temas), que dibuja static/js/cronograma.js.
          Con puedeEditar se puede reordenar y cambiar las semanas (docente); si no, es de solo lectura (alumno,
          administrador, o docente con inscripciones activas).
-         curso, programa: el curso y su programa; cronograma: las unidades del programa en orden;
-         unidadesDelCurso: las unidades que se muestran; soloPublicado: contar solo el material publicado (alumno). -->
+         curso, programa: el curso y su programa; cronograma: los temas del programa en orden;
+         temasDelCurso: los temas que se muestran; soloPublicado: contar solo el material publicado (alumno). -->
     <!-- Si quien lo incluye define cronoCohorte (y cronoInscripcion para el alumno), se marca la semana actual con la línea
-         roja, se muestra el atraso del alumno junto al título y cada unidad lleva su estado. -->
-    <th:block th:fragment="tablero(curso, programa, cronograma, unidadesDelCurso, puedeEditar, soloPublicado)"
+         roja, se muestra el atraso del alumno junto al título y cada tema lleva su estado. -->
+    <th:block th:fragment="tablero(curso, programa, cronograma, temasDelCurso, puedeEditar, soloPublicado)"
         th:with="enCurso=${cronoCohorte != null and cronoCohorte.haComenzadoCronograma()},
                  terminado=${cronoCohorte != null and cronoCohorte.haFinalizadoCronograma()}">
             <div class="cn" id="cronograma" th:attr="data-editable=${puedeEditar}, data-programa-id=${programa.idPrograma},
                  data-semana-actual=${enCurso and !terminado ? cronoCohorte.semanaActual : 0},
                  data-duracion=${programa.duracionTotalSemanas},
                  data-semanas-maximas=${semanasMaximas},
-                 data-url-modificar=@{/cronograma/modificar}, data-url-nueva=@{/unidad/buscar(cursoId=${curso.idCurso}, nuevo='')}">
-                <!-- Datos para la pantalla: las unidades del curso y las que están en el cronograma, en orden -->
+                 data-url-modificar=@{/cronograma/modificar}, data-url-nueva=@{/tema/buscar(cursoId=${curso.idCurso}, nuevo='')}">
+                <!-- Datos para la pantalla: los temas del curso y las que están en el cronograma, en orden -->
                 <div hidden>
-                    <span data-unidad th:each="u : ${unidadesDelCurso}"
-                          th:attr="data-id=${u.idUnidad}, data-titulo=${u.titulo}, data-material=${#lists.size(soloPublicado ? u.materialesPublicados : u.materialesVigentes)}"></span>
+                    <span data-tema th:each="u : ${temasDelCurso}"
+                          th:attr="data-id=${u.idTema}, data-titulo=${u.titulo}, data-material=${#lists.size(soloPublicado ? u.materialesPublicados : u.materialesVigentes)}"></span>
                     <span data-colocada th:each="uc : ${cronograma}"
-                          th:attr="data-id=${uc.unidad.idUnidad}, data-semanas=${uc.semanasDuracion},
-                                   data-estado=${cronoInscripcion != null ? cronoInscripcion.getEstadoUnidadResumido(uc) : (cronoCohorte != null ? cronoCohorte.getEstadoUnidadResumido(uc) : '')}"></span>
+                          th:attr="data-id=${uc.tema.idTema}, data-semanas=${uc.semanasDuracion},
+                                   data-estado=${cronoInscripcion != null ? cronoInscripcion.getEstadoTemaResumido(uc) : (cronoCohorte != null ? cronoCohorte.getEstadoTemaResumido(uc) : '')}"></span>
                 </div>
 
                 <div class="cn-columnas">
-                    <!-- Unidades disponibles (solo cuando se puede modificar) -->
+                    <!-- Temas disponibles (solo cuando se puede modificar) -->
                     <aside class="cn-panel cn-izq" th:if="${puedeEditar}" data-panel-disponibles>
-                        <h2 class="cn-panel-titulo">Unidades disponibles</h2>
-                        <input type="text" class="pn-input cn-buscar" placeholder="Buscar unidad..." data-buscar autocomplete="off">
-                        <button type="button" class="cn-nueva" data-nueva-unidad><i class="fa-solid fa-plus"></i> Nueva unidad</button>
+                        <h2 class="cn-panel-titulo">Temas disponibles</h2>
+                        <input type="text" class="pn-input cn-buscar" placeholder="Buscar tema..." data-buscar autocomplete="off">
+                        <button type="button" class="cn-nueva" data-nueva-tema><i class="fa-solid fa-plus"></i> Nuevo tema</button>
                         <div data-disponibles></div>
                     </aside>
 
@@ -51,23 +51,23 @@
                             </div>
                             <div class="cn-pestanias">
                                 <button type="button" class="cn-pestania activa" data-vista="semanas">Vista por semanas</button>
-                                <button type="button" class="cn-pestania" data-vista="unidades">Vista por unidades</button>
+                                <button type="button" class="cn-pestania" data-vista="temas">Vista por temas</button>
                             </div>
                         </div>
 
                         <div class="cn-info" data-ayuda-texto hidden th:if="${puedeEditar}">
-                            <span>Podés arrastrar las unidades para reordenarlas o modificar su duración (borde derecho de la barra). Los cambios se guardan al finalizar. Para quitar una unidad, arrastrala al panel izquierdo: si no forma parte de otro programa, quedará dada de baja.</span>
+                            <span>Podés arrastrar los temas para reordenarlas o modificar su duración (borde derecho de la barra). Los cambios se guardan al finalizar. Para quitar un tema, arrastrala al panel izquierdo: si no forma parte de otro programa, quedará dada de baja.</span>
                         </div>
 
                         <div class="cn-grilla" data-grilla></div>
                         <div class="cn-zona" data-zona th:if="${puedeEditar}">
-                            <i class="fa-solid fa-circle-plus"></i> Arrastrá una unidad desde la izquierda o hacé clic en + Nueva unidad
+                            <i class="fa-solid fa-circle-plus"></i> Arrastrá un tema desde la izquierda o hacé clic en + Nuevo tema
                         </div>
 
-                        <div class="cn-vista-unidades" data-vista-unidades hidden>
+                        <div class="cn-vista-temas" data-vista-temas hidden>
                             <table class="pn-tabla">
                                 <thead>
-                                    <tr><th>Orden</th><th>Unidad</th><th>Material</th><th>Duración</th><th>Semanas</th></tr>
+                                    <tr><th>Orden</th><th>Tema</th><th>Material</th><th>Duración</th><th>Semanas</th></tr>
                                 </thead>
                                 <tbody data-tabla></tbody>
                             </table>

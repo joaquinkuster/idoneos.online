@@ -94,7 +94,7 @@ public class AutenticacionConfiguracion {
                         .requestMatchers("/", "/inicio", "/acercaDe", "/error",
                                 "/login", "/catalogo/**",
                                 "/css/**", "/js/**", "/img/**", "/webjars/**",
-                                // Imagen de cada curso (un solo nivel): las carpetas de unidad no son públicas
+                                // Imagen de cada curso (un solo nivel): las carpetas de tema no son públicas
                                 "/uploads/curso*/*")
                         .permitAll()
                         // CU-44, CU-46 y CU-47: buscar, registrar y modificar inscripciones (Administrador); CU-48: corregir
@@ -142,11 +142,11 @@ public class AutenticacionConfiguracion {
                         .requestMatchers(HttpMethod.GET, "/glosario/buscar").hasAnyRole("Docente", "Administrador")
                         .requestMatchers(HttpMethod.POST, "/glosario/darDeBaja/*").hasAnyRole("Docente", "Administrador")
                         .requestMatchers("/glosario/**").hasRole("Docente")
-                        // CU-19 a CU-22: ABM de unidades (el docente agrega y modifica; el administrador busca y da de baja)
-                        .requestMatchers(HttpMethod.GET, "/unidad/buscar").hasAnyRole("Docente", "Administrador")
-                        .requestMatchers(HttpMethod.POST, "/unidad/darDeBaja/*", "/unidad/darDeBajaMasiva")
+                        // CU-19 a CU-22: ABM de temas (el docente agrega y modifica; el administrador busca y da de baja)
+                        .requestMatchers(HttpMethod.GET, "/tema/buscar").hasAnyRole("Docente", "Administrador")
+                        .requestMatchers(HttpMethod.POST, "/tema/darDeBaja/*", "/tema/darDeBajaMasiva")
                         .hasAnyRole("Docente", "Administrador")
-                        .requestMatchers("/unidad/**").hasRole("Docente")
+                        .requestMatchers("/tema/**").hasRole("Docente")
                         // CU-60 a CU-63: ABM de pools (docente y administrador los buscan y los dan de baja; el docente los
                         // crea y los modifica)
                         .requestMatchers(HttpMethod.GET, "/pool/buscar").hasAnyRole("Docente", "Administrador")

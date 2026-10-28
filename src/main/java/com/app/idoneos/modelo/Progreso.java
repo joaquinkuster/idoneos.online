@@ -7,10 +7,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * Registro de avance de una inscripción sobre una unidad.
+ * Registro de avance de una inscripción sobre un tema.
  */
 @Entity
-@Table(name = "Progreso", uniqueConstraints = { @UniqueConstraint(columnNames = {"idInscripcion", "idUnidad"}) })
+@Table(name = "Progreso", uniqueConstraints = { @UniqueConstraint(columnNames = {"idInscripcion", "idTema"}) })
 @Getter
 @Setter
 @NoArgsConstructor
@@ -25,11 +25,11 @@ public class Progreso {
     private int idProgreso;
 
     /**
-     * Relación con Unidad.
+     * Relación con Tema.
      */
     @ManyToOne
-    @JoinColumn(name = "idUnidad", nullable = false)
-    private Unidad unidad;
+    @JoinColumn(name = "idTema", nullable = false)
+    private Tema tema;
 
     /**
      * Relación con Inscripcion.
@@ -39,13 +39,13 @@ public class Progreso {
     private Inscripcion inscripcion;
 
     /**
-     * Indica si la unidad fue completada.
+     * Indica si el tema fue completada.
      */
     @Column(name = "completada", nullable = false)
     private Boolean completada = false;
 
     /**
-     * Fecha y hora en que se completó la unidad. Es opcional.
+     * Fecha y hora en que se completó el tema. Es opcional.
      */
     @Column(name = "fechaCompletada", nullable = true)
     private LocalDateTime fechaCompletada;
@@ -53,11 +53,11 @@ public class Progreso {
     /**
      * Constructor para crear el progreso con los datos básicos.
      *
-     * @param unidad relación con Unidad.
+     * @param tema relación con Tema.
      * @param inscripcion relación con Inscripcion.
      */
-    public Progreso(Unidad unidad, Inscripcion inscripcion) {
-        this.unidad = unidad;
+    public Progreso(Tema tema, Inscripcion inscripcion) {
+        this.tema = tema;
         this.inscripcion = inscripcion;
     }
 

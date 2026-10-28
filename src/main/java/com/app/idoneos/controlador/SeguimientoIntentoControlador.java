@@ -125,7 +125,7 @@ public class SeguimientoIntentoControlador extends PanelCursoControlador {
         try {
             boolean revirtio = intentoServicio.darDeBajaIntento(id);
             return RespuestaFormularioUtilidad.respuestaExitosa(revirtio
-                    ? "Intento dado de baja con éxito. El alumno ya no aprueba la unidad: volvió a estar pendiente y se anuló su certificado, si tenía."
+                    ? "Intento dado de baja con éxito. El alumno ya no aprueba el tema: volvió a estar pendiente y se anuló su certificado, si tenía."
                     : "Intento dado de baja con éxito.");
         } catch (Exception e) {
             return RespuestaFormularioUtilidad.respuestaConError(e);

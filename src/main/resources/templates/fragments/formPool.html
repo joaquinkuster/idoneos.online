@@ -1,6 +1,6 @@
 <!-- Formulario por pasos para registrar (pool == null) o modificar un pool y sus preguntas.
      Parámetros: pool (el pool a modificar o null), datos (JSON con el nombre y las preguntas del pool, que dibuja
-     static/js/pool.js). Usa del modelo: curso y unidades (unidades del programa de trabajo, para el alta). -->
+     static/js/pool.js). Usa del modelo: curso y temas (temas del programa de trabajo, para el alta). -->
 <form th:fragment="formulario(pool, datos)"
       th:action="@{${pool == null ? '/pool/registrar' : '/pool/modificar/' + pool.idPool}}"
       method="post" class="form-ajax" data-validar data-pasos data-resumen="Pool" data-pool-formulario
@@ -14,24 +14,24 @@
         <span class="pn-pasos-item"><span class="pn-pasos-punto">3</span><span class="pn-pasos-nombre">Resumen</span></span>
     </div>
 
-    <!-- Paso 1: unidad y nombre -->
+    <!-- Paso 1: tema y nombre -->
     <div class="pn-paso" data-grupo="Datos">
         <div class="pn-seccion-titulo">
             <h4>Datos del pool</h4>
-            <p>Unidad y nombre del pool de preguntas</p>
+            <p>Tema y nombre del pool de preguntas</p>
         </div>
         <div class="row g-3">
             <div class="col-md-6 pn-campo" th:if="${pool == null}">
-                <label class="pn-etiqueta">Unidad <span class="pn-obligatorio">*</span></label>
-                <select name="unidadId" class="pn-input" required data-sin-busqueda data-mensaje-obligatorio="Debe seleccionar la unidad.">
-                    <option th:each="uc : ${unidades}" th:value="${uc.unidad.idUnidad}"
-                            th:text="${uc.numeroOrden + '. ' + uc.unidad.titulo}">1. Introducción</option>
+                <label class="pn-etiqueta">Tema <span class="pn-obligatorio">*</span></label>
+                <select name="temaId" class="pn-input" required data-sin-busqueda data-mensaje-obligatorio="Debe seleccionar el tema.">
+                    <option th:each="uc : ${temas}" th:value="${uc.tema.idTema}"
+                            th:text="${uc.numeroOrden + '. ' + uc.tema.titulo}">1. Introducción</option>
                 </select>
                 <div class="pn-ayuda-error"></div>
             </div>
             <div class="col-md-6 pn-campo" th:if="${pool != null}">
-                <label class="pn-etiqueta">Unidad</label>
-                <input type="text" class="pn-input pn-bloqueado" readonly tabindex="-1" th:value="${pool.unidad.titulo}">
+                <label class="pn-etiqueta">Tema</label>
+                <input type="text" class="pn-input pn-bloqueado" readonly tabindex="-1" th:value="${pool.tema.titulo}">
             </div>
             <div class="col-md-6 pn-campo">
                 <div class="pn-etiqueta-fila">

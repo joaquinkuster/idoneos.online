@@ -12,7 +12,7 @@ class MensajeErrorUtilidadTest {
     void cantidades() {
         assertEquals("1 curso activo asociado", MensajeErrorUtilidad.cantidad(1, "curso activo asociado", "cursos activos asociados"));
         assertEquals("3 cursos activos asociados", MensajeErrorUtilidad.cantidad(3, "curso activo asociado", "cursos activos asociados"));
-        assertEquals("0 unidades", MensajeErrorUtilidad.cantidad(0, "unidad", "unidades"));
+        assertEquals("0 temas", MensajeErrorUtilidad.cantidad(0, "tema", "temas"));
     }
 
     @Test

@@ -30,9 +30,9 @@ import com.app.idoneos.servicio.IntentoAutoevaluacion.IntentoAutoevaluacionServi
 
 /**
  * Pruebas de CU-70 (realizar un intento) con los datos de la semilla. Valentina Ruiz cursa "Mercado de Capitales Argentino"
- * (cohorte en dictado): tiene completada la unidad 1, cuya autoevaluación permite navegar libremente y salir (5 preguntas,
- * nota mínima 6, 3 intentos de los que ya usó 2); la unidad 2 está habilitada y su autoevaluación es secuencial, descuenta
- * por error, no permite salir y dura 20 minutos (5 preguntas, nota mínima 7); la unidad 3 todavía está bloqueada.
+ * (cohorte en dictado): tiene completada el tema 1, cuya autoevaluación permite navegar libremente y salir (5 preguntas,
+ * nota mínima 6, 3 intentos de los que ya usó 2); el tema 2 está habilitada y su autoevaluación es secuencial, descuenta
+ * por error, no permite salir y dura 20 minutos (5 preguntas, nota mínima 7); el tema 3 todavía está bloqueada.
  */
 @SpringBootTest
 @Transactional
@@ -63,11 +63,11 @@ class IntentoAutoevaluacionServicioTest {
     }
 
     private Autoevaluacion libre() {
-        return autoevaluacion("Autoevaluación Unidad 1: Marco regulatorio");
+        return autoevaluacion("Autoevaluación Tema 1: Marco regulatorio");
     }
 
     private Autoevaluacion secuencial() {
-        return autoevaluacion("Autoevaluación Unidad 2: Ejercicios de rendimiento");
+        return autoevaluacion("Autoevaluación Tema 2: Ejercicios de rendimiento");
     }
 
     private void assertError(String fragmento, Runnable accion) {
@@ -106,10 +106,10 @@ class IntentoAutoevaluacionServicioTest {
     }
 
     @Test
-    @DisplayName("No deja iniciar con la unidad bloqueada, fuera del período, sin intentos o sin preguntas suficientes")
+    @DisplayName("No deja iniciar con el tema bloqueado, fuera del período, sin intentos o sin preguntas suficientes")
     void precondiciones() {
-        Autoevaluacion tercera = autoevaluacion("Autoevaluación de la unidad 3");
-        assertError("Todavía no podés acceder", () -> iniciar(tercera)); // la unidad 3 está bloqueada
+        Autoevaluacion tercera = autoevaluacion("Autoevaluación del tema 3");
+        assertError("Todavía no podés acceder", () -> iniciar(tercera)); // el tema 3 está bloqueada
         assertTrue(intentoServicio.motivoNoDisponible(alumno(), tercera).isPresent());
 
         Autoevaluacion libre = libre();
@@ -194,13 +194,13 @@ class IntentoAutoevaluacionServicioTest {
     }
 
     @Test
-    @DisplayName("Entregar corrige el intento; si aprobó la única autoevaluación de la unidad, la completa y habilita la siguiente")
+    @DisplayName("Entregar corrige el intento; si aprobó la única autoevaluación del tema, la completa y habilita la siguiente")
     void entregarAprobado() {
         Inscripcion inscripcion = valentina();
         Autoevaluacion secuencial = secuencial();
         IntentoAutoevaluacion intento = iniciar(secuencial);
         int id = intento.getIdIntentoAutoevaluacion();
-        assertFalse(inscripcion.estaUnidadCompletada(secuencial.getUnidad()));
+        assertFalse(inscripcion.estaTemaCompletada(secuencial.getTema()));
 
         for (PreguntaIntento pregunta : intento.getPreguntasOrdenadas()) {
             intentoServicio.responderPregunta(id, alumno(), pregunta.getIdPreguntaIntento(), correctas(pregunta));
@@ -212,8 +212,8 @@ class IntentoAutoevaluacionServicioTest {
         assertEquals(10f, entregado.getNota());
         assertTrue(entregado.getAprobado());
         assertNotNull(entregado.getFechaEntrega());
-        assertTrue(inscripcion.estaUnidadCompletada(secuencial.getUnidad()));
-        assertTrue(inscripcion.estaUnidadHabilitada(inscripcion.getCohorte().getPrograma().getCronogramaOrdenado().get(2)));
+        assertTrue(inscripcion.estaTemaCompletada(secuencial.getTema()));
+        assertTrue(inscripcion.estaTemaHabilitada(inscripcion.getCohorte().getPrograma().getCronogramaOrdenado().get(2)));
         assertError("ya fue entregado", () -> intentoServicio.responderPregunta(id, alumno(),
                 intento.getPreguntasOrdenadas().get(0).getIdPreguntaIntento(), List.of()));
         // Entregar de nuevo no repite la corrección
@@ -221,7 +221,7 @@ class IntentoAutoevaluacionServicioTest {
     }
 
     @Test
-    @DisplayName("Entregar sin responder cuenta las preguntas como vacías: nota 0 y la unidad no se completa")
+    @DisplayName("Entregar sin responder cuenta las preguntas como vacías: nota 0 y el tema no se completa")
     void entregarSinResponder() {
         Inscripcion inscripcion = valentina();
         IntentoAutoevaluacion intento = iniciar(secuencial());
@@ -230,7 +230,7 @@ class IntentoAutoevaluacionServicioTest {
 
         assertEquals(0f, entregado.getNota());
         assertFalse(entregado.getAprobado());
-        assertFalse(inscripcion.estaUnidadCompletada(secuencial().getUnidad()));
+        assertFalse(inscripcion.estaTemaCompletada(secuencial().getTema()));
         assertEquals(1, secuencial().intentosDe(inscripcion).size());
     }
 

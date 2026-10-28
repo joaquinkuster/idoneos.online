@@ -1,4 +1,4 @@
-package com.app.idoneos.servicio.UnidadCronograma;
+package com.app.idoneos.servicio.TemaCronograma;
 
 import com.app.idoneos.utilidades.MensajeErrorUtilidad;
 import java.time.LocalDateTime;
@@ -12,40 +12,40 @@ import java.util.stream.Collectors;
 import com.app.idoneos.modelo.Docente;
 import com.app.idoneos.modelo.Parametro;
 import com.app.idoneos.modelo.Programa;
-import com.app.idoneos.modelo.Unidad;
-import com.app.idoneos.modelo.UnidadCronograma;
+import com.app.idoneos.modelo.Tema;
+import com.app.idoneos.modelo.TemaCronograma;
 import com.app.idoneos.repositorio.DocenteCursoRepositorio;
 import com.app.idoneos.repositorio.ProgramaRepositorio;
-import com.app.idoneos.repositorio.UnidadCronogramaRepositorio;
-import com.app.idoneos.repositorio.UnidadRepositorio;
+import com.app.idoneos.repositorio.TemaCronogramaRepositorio;
+import com.app.idoneos.repositorio.TemaRepositorio;
 import com.app.idoneos.servicio.CrudServicio;
 import com.app.idoneos.servicio.Parametro.ParametroServicio;
-import com.app.idoneos.servicio.Unidad.UnidadServicio;
+import com.app.idoneos.servicio.Tema.TemaServicio;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Implementación del servicio para gestionar las operaciones sobre la entidad {@link UnidadCronograma}.
- * Proporciona las operaciones CRUD básicas y las consultas definidas en {@link UnidadCronogramaServicio}.
+ * Implementación del servicio para gestionar las operaciones sobre la entidad {@link TemaCronograma}.
+ * Proporciona las operaciones CRUD básicas y las consultas definidas en {@link TemaCronogramaServicio}.
  */
 @Service
-public class UnidadCronogramaServicioImpl implements UnidadCronogramaServicio, CrudServicio<UnidadCronograma> {
+public class TemaCronogramaServicioImpl implements TemaCronogramaServicio, CrudServicio<TemaCronograma> {
 
     @Autowired
-    private UnidadCronogramaRepositorio unidadCronogramaRepositorio;
+    private TemaCronogramaRepositorio temaCronogramaRepositorio;
 
     @Autowired
     private ProgramaRepositorio programaRepositorio;
 
     @Autowired
-    private UnidadRepositorio unidadRepositorio;
+    private TemaRepositorio temaRepositorio;
 
     @Autowired
     private DocenteCursoRepositorio docenteCursoRepositorio;
 
     @Autowired
-    private UnidadServicio unidadServicio;
+    private TemaServicio temaServicio;
 
     @Autowired
     private ParametroServicio parametroServicio;
@@ -56,14 +56,14 @@ public class UnidadCronogramaServicioImpl implements UnidadCronogramaServicio, C
     // ---------------------------------------------------------------- Lecturas
 
     /**
-     * Busca la unidad del cronograma por su identificador. Solo devuelve registros activos (no dados de baja).
+     * Busca el tema del cronograma por su identificador. Solo devuelve registros activos (no dados de baja).
      *
      * @param id El identificador del registro.
      * @return Un {@link Optional} con el registro encontrado.
      */
     @Override
-    public Optional<UnidadCronograma> buscarPorId(Integer id) {
-        return unidadCronogramaRepositorio.findById(id)
+    public Optional<TemaCronograma> buscarPorId(Integer id) {
+        return temaCronogramaRepositorio.findById(id)
                 .filter(entidad -> !entidad.esInactivo()); // Solo devuelve registros activos
     }
 
@@ -73,8 +73,8 @@ public class UnidadCronogramaServicioImpl implements UnidadCronogramaServicio, C
      * @return Una lista de registros.
      */
     @Override
-    public List<UnidadCronograma> obtenerTodo() {
-        return unidadCronogramaRepositorio.findByBajaFalse();
+    public List<TemaCronograma> obtenerTodo() {
+        return temaCronogramaRepositorio.findByBajaFalse();
     }
 
     /**
@@ -85,55 +85,55 @@ public class UnidadCronogramaServicioImpl implements UnidadCronogramaServicio, C
      */
     @Override
     public boolean existePorId(Integer id) {
-        return unidadCronogramaRepositorio.existsById(id) &&
+        return temaCronogramaRepositorio.existsById(id) &&
                 buscarPorId(id).isPresent(); // Solo cuenta registros activos
     }
 
     /**
-     * Busca los registros vigentes de unidadCronograma asociados a programa.
+     * Busca los registros vigentes de temaCronograma asociados a programa.
      *
      * @param programa el registro de Programa asociado
-     * @return una lista de UnidadCronograma asociados al Programa indicado
+     * @return una lista de TemaCronograma asociados al Programa indicado
      */
     @Override
-    public List<UnidadCronograma> buscarPorPrograma(Programa programa) {
-        return unidadCronogramaRepositorio.findByProgramaAndBajaFalse(programa);
+    public List<TemaCronograma> buscarPorPrograma(Programa programa) {
+        return temaCronogramaRepositorio.findByProgramaAndBajaFalse(programa);
     }
 
     /**
-     * Busca los registros vigentes de unidadCronograma asociados a unidad.
+     * Busca los registros vigentes de temaCronograma asociados a tema.
      *
-     * @param unidad el registro de Unidad asociado
-     * @return una lista de UnidadCronograma asociados al Unidad indicado
+     * @param tema el registro de Tema asociado
+     * @return una lista de TemaCronograma asociados al Tema indicado
      */
     @Override
-    public List<UnidadCronograma> buscarPorUnidad(Unidad unidad) {
-        return unidadCronogramaRepositorio.findByUnidadAndBajaFalse(unidad);
+    public List<TemaCronograma> buscarPorTema(Tema tema) {
+        return temaCronogramaRepositorio.findByTemaAndBajaFalse(tema);
     }
 
     /**
-     * Busca la unidad del cronograma a partir de la combinación única de sus relaciones. Incluye los registros dados de baja.
+     * Busca el tema del cronograma a partir de la combinación única de sus relaciones. Incluye los registros dados de baja.
      *
      * @param programa el registro de Programa asociado
-     * @param unidad el registro de Unidad asociado
+     * @param tema el registro de Tema asociado
      * @return un {@link Optional} con el registro si existe, o vacío si no se encuentra
      */
     @Override
-    public Optional<UnidadCronograma> buscarPorProgramaYUnidad(Programa programa, Unidad unidad) {
-        return unidadCronogramaRepositorio.findByProgramaAndUnidad(programa, unidad);
+    public Optional<TemaCronograma> buscarPorProgramaYTema(Programa programa, Tema tema) {
+        return temaCronogramaRepositorio.findByProgramaAndTema(programa, tema);
     }
 
     // ---------------------------------------------------------------- Creaciones
 
     /**
-     * Guarda la unidad del cronograma en la base de datos.
+     * Guarda el tema del cronograma en la base de datos.
      *
      * @param entidad El registro a guardar.
      * @return El registro guardado.
      */
     @Override
-    public UnidadCronograma guardar(UnidadCronograma entidad) {
-        return unidadCronogramaRepositorio.save(entidad);
+    public TemaCronograma guardar(TemaCronograma entidad) {
+        return temaCronogramaRepositorio.save(entidad);
     }
 
     // ---------------------------------------------------------------- Modificaciones
@@ -145,16 +145,16 @@ public class UnidadCronogramaServicioImpl implements UnidadCronogramaServicio, C
      * @return El registro modificado.
      */
     @Override
-    public UnidadCronograma modificar(UnidadCronograma entidad) {
-        return unidadCronogramaRepositorio.save(entidad);
+    public TemaCronograma modificar(TemaCronograma entidad) {
+        return temaCronogramaRepositorio.save(entidad);
     }
 
     /**
-     * CU-24: Modifica el cronograma de un programa (unidades, orden y semanas).
+     * CU-24: Modifica el cronograma de un programa (temas, orden y semanas).
      */
     @Override
     @Transactional
-    public void modificarCronograma(Docente docente, Integer programaId, List<Integer> unidadIds, List<String> semanas) {
+    public void modificarCronograma(Docente docente, Integer programaId, List<Integer> temaIds, List<String> semanas) {
         Programa programa = programaRepositorio.findById(programaId == null ? -1 : programaId)
                 .filter(p -> !p.esInactivo())
                 .orElseThrow(() -> new IllegalArgumentException("Error! El programa no se encuentra activo."));
@@ -172,18 +172,18 @@ public class UnidadCronogramaServicioImpl implements UnidadCronogramaServicio, C
         }
 
         // Se valida todo lo que se recibió antes de cambiar algo
-        List<Integer> ids = unidadIds == null ? List.of() : unidadIds;
+        List<Integer> ids = temaIds == null ? List.of() : temaIds;
         List<String> duraciones = semanas == null ? List.of() : semanas;
         if (ids.size() != duraciones.size() || ids.stream().distinct().count() != ids.size()) {
-            throw new IllegalArgumentException(MensajeErrorUtilidad.formatoInvalido("Los datos del cronograma", "una duración entera en semanas para cada unidad del programa"));
+            throw new IllegalArgumentException(MensajeErrorUtilidad.formatoInvalido("Los datos del cronograma", "una duración entera en semanas para cada tema del programa"));
         }
-        List<Integer> semanasPorUnidad = new ArrayList<>();
+        List<Integer> semanasPorTema = new ArrayList<>();
         for (String duracion : duraciones) {
-            semanasPorUnidad.add(parsearSemanas(duracion));
+            semanasPorTema.add(parsearSemanas(duracion));
         }
         int maximo = parametroServicio.obtenerEntero(Parametro.CRONOGRAMA_SEMANAS_MAXIMAS,
                 Parametro.CRONOGRAMA_SEMANAS_MAXIMAS_POR_DEFECTO);
-        int total = semanasPorUnidad.stream().mapToInt(Integer::intValue).sum();
+        int total = semanasPorTema.stream().mapToInt(Integer::intValue).sum();
         if (total > maximo) {
             throw new IllegalArgumentException(MensajeErrorUtilidad.demasiadoLargo("El cronograma", maximo, "semanas"));
         }
@@ -195,68 +195,68 @@ public class UnidadCronogramaServicioImpl implements UnidadCronogramaServicio, C
                         + ", menos que las " + total + " del cronograma. Modificá la cohorte o acortá el cronograma.");
             }
         }
-        Map<Integer, Unidad> unidades = new HashMap<>();
+        Map<Integer, Tema> temas = new HashMap<>();
         for (Integer id : ids) {
-            Unidad unidad = unidadRepositorio.findById(id == null ? -1 : id)
+            Tema tema = temaRepositorio.findById(id == null ? -1 : id)
                     .filter(u -> !u.esInactivo() && u.getCurso().getIdCurso() == programa.getCurso().getIdCurso())
                     .orElseThrow(() -> new IllegalArgumentException(
-                            "Error! Una de las unidades no se encuentra activa en este curso."));
-            if (!unidad.perteneceAlCronograma(programa) && unidad.getProgramasQueLaIncluyen().isEmpty()) {
-                throw new IllegalArgumentException("Error! La unidad '" + unidad.getTitulo()
+                            "Error! Uno de los temas no se encuentra activa en este curso."));
+            if (!tema.perteneceAlCronograma(programa) && tema.getProgramasQueLaIncluyen().isEmpty()) {
+                throw new IllegalArgumentException("Error! El tema '" + tema.getTitulo()
                         + "' no se puede incorporar: no forma parte del cronograma de ningún programa del curso.");
             }
-            unidades.put(id, unidad);
+            temas.put(id, tema);
         }
         if (programa.tieneCohortesEnCurso()) {
-            List<String> sinAutoevaluacion = ids.stream().map(unidades::get)
+            List<String> sinAutoevaluacion = ids.stream().map(temas::get)
                     .filter(u -> u.getAutoevaluacionesPublicadas().isEmpty()).map(u -> "«" + u.getTitulo() + "»").toList();
             if (!sinAutoevaluacion.isEmpty()) {
-                throw new IllegalArgumentException("Error! El programa tiene cohortes en curso: todas las unidades del "
+                throw new IllegalArgumentException("Error! El programa tiene cohortes en curso: todos los temas del "
                         + "cronograma deben tener al menos una autoevaluación visible. Faltan en: "
                         + String.join(", ", sinAutoevaluacion) + ".");
             }
         }
 
         if (programa.tieneCohortesEnCurso()) {
-            // El cronograma que se guarda debe conservar el mínimo de unidades
+            // El cronograma que se guarda debe conservar el mínimo de temas
             int minimo = minimoDeContenido.minimo();
-            if (ids.size() < programa.getCantidadUnidades() && ids.size() < minimo) {
+            if (ids.size() < programa.getCantidadTemas() && ids.size() < minimo) {
                 throw new IllegalArgumentException("Error! El programa tiene cohortes en curso: debe conservar al menos "
-                        + MensajeErrorUtilidad.cantidad(minimo, "unidad", "unidades")
+                        + MensajeErrorUtilidad.cantidad(minimo, "tema", "temas")
                         + " en su cronograma (quedaría con " + ids.size() + ").");
             }
         }
 
-        // Las unidades que ya no figuran se dan de baja del cronograma (si no están en otro programa, quedan de baja)
+        // Los temas que ya no figuran se dan de baja del cronograma (si no están en otro programa, quedan de baja)
         Set<Integer> conservadas = Set.copyOf(ids);
-        List<Integer> quitadas = programa.getUnidadesCronograma().stream().map(c -> c.getUnidad().getIdUnidad())
+        List<Integer> quitadas = programa.getTemasCronograma().stream().map(c -> c.getTema().getIdTema())
                 .filter(id -> !conservadas.contains(id)).toList();
         if (!quitadas.isEmpty()) {
-            unidadServicio.darDeBajaVarias(quitadas, programa.getIdPrograma(), docente);
+            temaServicio.darDeBajaVarias(quitadas, programa.getIdPrograma(), docente);
         }
 
         // Números provisionales para poder reubicar sin repetir un número de orden del programa
-        Map<Integer, UnidadCronograma> existentes = programa.getUnidadesCronograma().stream()
-                .collect(Collectors.toMap(c -> c.getUnidad().getIdUnidad(), c -> c));
+        Map<Integer, TemaCronograma> existentes = programa.getTemasCronograma().stream()
+                .collect(Collectors.toMap(c -> c.getTema().getIdTema(), c -> c));
         int provisorio = -1;
-        for (UnidadCronograma cronograma : existentes.values()) {
+        for (TemaCronograma cronograma : existentes.values()) {
             cronograma.setNumeroOrden(provisorio--);
-            unidadCronogramaRepositorio.saveAndFlush(cronograma);
+            temaCronogramaRepositorio.saveAndFlush(cronograma);
         }
         LocalDateTime ahora = LocalDateTime.now();
         for (int i = 0; i < ids.size(); i++) {
-            UnidadCronograma cronograma = existentes.get(ids.get(i));
+            TemaCronograma cronograma = existentes.get(ids.get(i));
             if (cronograma == null) {
-                Unidad unidad = unidades.get(ids.get(i));
-                cronograma = new UnidadCronograma(programa, unidad, i + 1, semanasPorUnidad.get(i));
-                cronograma = unidadCronogramaRepositorio.saveAndFlush(cronograma);
-                programa.getUnidadesCronograma().add(cronograma);
-                unidad.getUnidadesCronograma().add(cronograma);
+                Tema tema = temas.get(ids.get(i));
+                cronograma = new TemaCronograma(programa, tema, i + 1, semanasPorTema.get(i));
+                cronograma = temaCronogramaRepositorio.saveAndFlush(cronograma);
+                programa.getTemasCronograma().add(cronograma);
+                tema.getTemasCronograma().add(cronograma);
             } else {
                 cronograma.setNumeroOrden(i + 1);
-                cronograma.setSemanasDuracion(semanasPorUnidad.get(i));
+                cronograma.setSemanasDuracion(semanasPorTema.get(i));
                 cronograma.setUltimaModificacion(ahora);
-                unidadCronogramaRepositorio.saveAndFlush(cronograma);
+                temaCronogramaRepositorio.saveAndFlush(cronograma);
             }
         }
         programa.setUltimaModificacion(ahora);
@@ -271,9 +271,9 @@ public class UnidadCronogramaServicioImpl implements UnidadCronogramaServicio, C
      * @param entidad El registro a borrar.
      */
     @Override
-    public void borrar(UnidadCronograma entidad) {
+    public void borrar(TemaCronograma entidad) {
         entidad.marcarInactivo(); // Baja lógica
-        unidadCronogramaRepositorio.save(entidad);
+        temaCronogramaRepositorio.save(entidad);
     }
 
     /** Convierte la duración recibida en un número entero de semanas mayor a cero. */
@@ -287,6 +287,6 @@ public class UnidadCronogramaServicioImpl implements UnidadCronogramaServicio, C
             // se informa abajo, igual que un valor menor o igual a cero
         }
         throw new IllegalArgumentException(
-                MensajeErrorUtilidad.formatoInvalido("La duración de cada unidad", "número entero de semanas mayor a cero"));
+                MensajeErrorUtilidad.formatoInvalido("La duración de cada tema", "número entero de semanas mayor a cero"));
     }
 }

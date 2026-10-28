@@ -87,7 +87,7 @@
                                 Cursos online de finanzas, economía y mercado de capitales
                             </h1>
                             <p class="lead mb-4 text-white-50 ix-hero-texto">
-                                Cursás a tu ritmo, con clases en vivo o grabadas. Cada curso se divide en unidades con su material y sus autoevaluaciones, y al terminar recibís un certificado con código de validación.
+                                Cursás a tu ritmo, con clases en vivo o grabadas. Cada curso se divide en temas con su material y sus autoevaluaciones, y al terminar recibís un certificado con código de validación.
                             </p>
                             <div class="d-flex gap-3 flex-wrap align-items-center">
                                 <a th:href="@{/catalogo}" class="wf-btn-gold ix-hero-boton text-decoration-none">
@@ -177,7 +177,7 @@
                         <div class="ac-slider-ventana">
                             <div class="ac-slider-pista" data-pista>
                                 <div class="ac-slide ac-slide-llena" data-slide th:each="c : ${cursos}">
-                                    <th:block th:replace="~{fragments/tarjetaCurso :: tarjeta(${c}, ${cantUnidadesPorCurso != null ? cantUnidadesPorCurso.get(c.idCurso) : null}, 'Inscripción abierta', '/catalogo/ficha/' + ${c.idCurso}, 'Ver ficha del curso', null, null)}"></th:block>
+                                    <th:block th:replace="~{fragments/tarjetaCurso :: tarjeta(${c}, ${cantTemasPorCurso != null ? cantTemasPorCurso.get(c.idCurso) : null}, 'Inscripción abierta', '/catalogo/ficha/' + ${c.idCurso}, 'Ver ficha del curso', null, null)}"></th:block>
                                 </div>
                             </div>
                         </div>

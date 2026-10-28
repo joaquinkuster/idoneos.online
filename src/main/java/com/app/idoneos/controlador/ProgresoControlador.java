@@ -23,7 +23,7 @@ import com.app.idoneos.servicio.Progreso.ProgresoServicio;
  * Controlador del progreso de los alumnos de un curso (MOD-F-03).
  *
  * Mapea la pantalla de CU-55 Buscar progreso (GET /progreso/buscar), para el docente y el administrador. El detalle de
- * cada alumno por unidad se despliega debajo de su fila.
+ * cada alumno por tema se despliega debajo de su fila.
  */
 @Controller
 @RequestMapping("/progreso")
@@ -36,7 +36,7 @@ public class ProgresoControlador extends PanelCursoControlador {
 
     /**
      * CU-55: Lista los alumnos inscriptos en el curso, de todas sus cohortes, con su avance y, desplegable debajo de
-     * cada uno, el detalle por unidad. El filtro por alumno se aplica en la pantalla.
+     * cada uno, el detalle por tema. El filtro por alumno se aplica en la pantalla.
      *
      * @param cursoId            Identificador del curso.
      * @param modelo             El modelo de la vista.

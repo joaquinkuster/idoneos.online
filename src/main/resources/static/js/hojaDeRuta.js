@@ -194,7 +194,7 @@
             });
 
             // Lo que se registra o se modifica
-            // El título de lo que se registra no repite el badge de su tipo: es su nombre (curso, programa, unidad, material,
+            // El título de lo que se registra no repite el badge de su tipo: es su nombre (curso, programa, tema, material,
             // descuento), o, si no tiene, la fecha y hora en que se registra (cohorte, inscripción, pago) o su dato propio
             var sufijo = formulario.getAttribute('data-resumen-titulo');
             var campoNombre = formulario.querySelector('[name="nombre"], [name="titulo"]');

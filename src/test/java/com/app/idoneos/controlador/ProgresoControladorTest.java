@@ -36,7 +36,7 @@ class ProgresoControladorTest {
     private Inscripcion inscripcionDeMercado() {
         return inscripcionRepositorio.findByBajaFalse().stream()
                 .filter(i -> i.getCurso().getNombre().equals("Mercado de Capitales Argentino")
-                        && i.getUnidadesCompletadas() > 0)
+                        && i.getTemasCompletadas() > 0)
                 .findFirst().orElseThrow();
     }
 
@@ -54,7 +54,7 @@ class ProgresoControladorTest {
                 .andExpect(content().string(Matchers.allOf(
                         Matchers.containsString("Progreso de los alumnos"),
                         Matchers.containsString(inscripcion.getAlumno().getUsuario().getNombreCompleto()),
-                        Matchers.containsString("Unidades completadas"),
+                        Matchers.containsString("Temas completadas"),
                         Matchers.containsString("pn-btn-ver"),
                         Matchers.containsString("data-filtro-front"),
                         Matchers.containsString("data-campo=\"alumno\""),
@@ -80,7 +80,7 @@ class ProgresoControladorTest {
 
     @Test
     @WithUserDetails(value = "fausto.spotorno@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesServicio")
-    @DisplayName("CU-55: debajo de cada alumno se despliega la tabla de unidades, con si fue completada y la fecha")
+    @DisplayName("CU-55: debajo de cada alumno se despliega la tabla de temas, con si fue completada y la fecha")
     void detalleDebajoDeCadaAlumno() throws Exception {
         Inscripcion inscripcion = inscripcionDeMercado();
         mockMvc.perform(get("/progreso/buscar").param("cursoId", String.valueOf(inscripcion.getCurso().getIdCurso())))
@@ -91,7 +91,7 @@ class ProgresoControladorTest {
                         Matchers.containsString("pn-fila-detalle"),
                         Matchers.containsString("Fecha en que se completó"),
                         Matchers.containsString(inscripcion.getCohorte().getPrograma().getCronogramaOrdenado()
-                                .get(0).getUnidad().getTitulo()),
+                                .get(0).getTema().getTitulo()),
                         Matchers.containsString("pn-btn-ver"))));
     }
 

@@ -1,5 +1,5 @@
 /**
- * Filtros del glosario de una unidad, en el navegador (sin recargar la página): el texto (en términos o en términos y
+ * Filtros del glosario de un tema, en el navegador (sin recargar la página): el texto (en términos o en términos y
  * definiciones), el índice alfabético y la paginación se aplican sobre los términos que entrega el servidor.
  * El servidor entrega todos los términos agrupados por letra; acá se muestran los que cumplen los filtros.
  */

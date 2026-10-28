@@ -36,16 +36,16 @@ class ManejadorArchivosUtilidadTest {
     }
 
     @Test
-    @DisplayName("Arma las carpetas del curso y de la unidad dentro de la carpeta base")
+    @DisplayName("Arma las carpetas del curso y del tema dentro de la carpeta base")
     void carpetas() {
         assertEquals(base.resolve("curso3"), ManejadorArchivosUtilidad.carpetaDeCurso(base, 3));
-        assertEquals(base.resolve("curso3").resolve("unidad12"), ManejadorArchivosUtilidad.carpetaDeUnidad(base, 3, 12));
+        assertEquals(base.resolve("curso3").resolve("tema12"), ManejadorArchivosUtilidad.carpetaDeTema(base, 3, 12));
     }
 
     @Test
     @DisplayName("Guarda cada formato permitido si su contenido coincide con la extensión")
     void guardaFormatosValidos() {
-        Path carpeta = ManejadorArchivosUtilidad.carpetaDeUnidad(base, 1, 2);
+        Path carpeta = ManejadorArchivosUtilidad.carpetaDeTema(base, 1, 2);
         List<String> todos = List.of("mp4", "webm", "pdf", "ppt", "pptx", "doc", "docx");
 
         assertEquals("material1.mp4", ManejadorArchivosUtilidad.guardar(archivo("clase.MP4", MP4), carpeta, "material1", DIEZ_MB, todos));
@@ -54,7 +54,7 @@ class ManejadorArchivosUtilidadTest {
         assertEquals("material4.pptx", ManejadorArchivosUtilidad.guardar(archivo("clase.pptx", ZIP), carpeta, "material4", DIEZ_MB, todos));
         assertEquals("material5.ppt", ManejadorArchivosUtilidad.guardar(archivo("clase.ppt", OLE), carpeta, "material5", DIEZ_MB, todos));
         assertEquals("material6.docx", ManejadorArchivosUtilidad.guardar(archivo("texto.docx", ZIP), carpeta, "material6", DIEZ_MB, todos));
-        assertTrue(Files.exists(carpeta.resolve("material1.mp4")), "la carpeta de la unidad se crea si no existe");
+        assertTrue(Files.exists(carpeta.resolve("material1.mp4")), "la carpeta del tema se crea si no existe");
     }
 
     @Test
@@ -104,11 +104,11 @@ class ManejadorArchivosUtilidadTest {
     @Test
     @DisplayName("Elimina el archivo por su ruta relativa, ignora los enlaces y no sale de la carpeta base")
     void eliminaSoloDentroDeLaBase() throws IOException {
-        Path carpeta = ManejadorArchivosUtilidad.carpetaDeUnidad(base, 1, 2);
+        Path carpeta = ManejadorArchivosUtilidad.carpetaDeTema(base, 1, 2);
         ManejadorArchivosUtilidad.guardar(archivo("a.pdf", PDF), carpeta, "material1", DIEZ_MB, List.of("pdf"));
         Path fuera = Files.createTempFile("fuera", ".txt");
 
-        ManejadorArchivosUtilidad.eliminar("curso1/unidad2/material1.pdf", base);
+        ManejadorArchivosUtilidad.eliminar("curso1/tema2/material1.pdf", base);
         ManejadorArchivosUtilidad.eliminar("../" + fuera.getFileName(), base);
         ManejadorArchivosUtilidad.eliminar("https://sitio.com/archivo.pdf", base);
         ManejadorArchivosUtilidad.eliminar(null, base);
@@ -123,7 +123,7 @@ class ManejadorArchivosUtilidadTest {
     void enlaceExterno() {
         assertTrue(ManejadorArchivosUtilidad.esEnlaceExterno("https://sitio.com/libro.pdf"));
         assertTrue(ManejadorArchivosUtilidad.esEnlaceExterno("http://sitio.com"));
-        assertFalse(ManejadorArchivosUtilidad.esEnlaceExterno("curso1/unidad2/material1.pdf"));
+        assertFalse(ManejadorArchivosUtilidad.esEnlaceExterno("curso1/tema2/material1.pdf"));
         assertFalse(ManejadorArchivosUtilidad.esEnlaceExterno(null));
     }
 }

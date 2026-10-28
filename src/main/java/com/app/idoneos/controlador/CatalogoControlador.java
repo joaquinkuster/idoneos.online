@@ -84,19 +84,19 @@ public class CatalogoControlador {
             @RequestParam(value = "modalidadId", required = false) Integer modalidadId, Model modelo, Authentication auth) {
         List<Curso> cursos = cursoServicio.buscarEnCatalogo(null, null, null, null, null); // todos: los filtros (también los de la URL) se aplican en la pantalla
 
-        // Cantidad de unidades temáticas de cada curso (según su primer programa activo)
-        Map<Integer, Integer> cantidadUnidadesPorCurso = new HashMap<>();
+        // Cantidad de temas de cada curso (según su primer programa activo)
+        Map<Integer, Integer> cantidadTemasPorCurso = new HashMap<>();
         for (Curso curso : cursos) {
             List<Programa> programas = programaServicio.buscarPorCurso(curso);
-            cantidadUnidadesPorCurso.put(curso.getIdCurso(),
-                    programas.isEmpty() ? 0 : programas.get(0).getCantidadUnidades());
+            cantidadTemasPorCurso.put(curso.getIdCurso(),
+                    programas.isEmpty() ? 0 : programas.get(0).getCantidadTemas());
         }
 
         // Descuentos vigentes: las cartas de los cursos con costo avisan que hay descuentos
         modelo.addAttribute("descuentosVigentes", descuentoServicio.buscarVigentes());
         modelo.addAttribute("descuentoAplicable", pagoServicio.calcularDescuentoPara(alumnoDe(auth)).orElse(null));
         modelo.addAttribute("cursos", cursos);
-        modelo.addAttribute("cantUnidadesPorCurso", cantidadUnidadesPorCurso);
+        modelo.addAttribute("cantTemasPorCurso", cantidadTemasPorCurso);
         modelo.addAttribute("totalCursos", cursos.size());
         modelo.addAttribute("categorias", categoriaServicio.obtenerTodo());
         modelo.addAttribute("niveles", nivelServicio.obtenerTodo());
@@ -112,7 +112,7 @@ public class CatalogoControlador {
     }
 
     /**
-     * CU-06: Muestra la ficha de un curso: sus datos, la estructura de contenidos por unidad y las cohortes
+     * CU-06: Muestra la ficha de un curso: sus datos, la estructura de contenidos por tema y las cohortes
      * con inscripción abierta.
      *
      * @param id                 Identificador del curso.
@@ -136,7 +136,7 @@ public class CatalogoControlador {
         if (!programas.isEmpty()) {
             Programa programa = programas.get(0);
             modelo.addAttribute("programaSeleccionado", programa);
-            modelo.addAttribute("cronogramas", programa.getUnidadesCronograma().stream()
+            modelo.addAttribute("cronogramas", programa.getTemasCronograma().stream()
                     .filter(cronograma -> !cronograma.getBaja())
                     .sorted(Comparator.comparingInt(cronograma -> cronograma.getNumeroOrden())).toList());
         }

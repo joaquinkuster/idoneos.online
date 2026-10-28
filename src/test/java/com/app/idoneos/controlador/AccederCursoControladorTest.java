@@ -42,24 +42,24 @@ class AccederCursoControladorTest {
 
     @Test
     @WithUserDetails(value = "valentina.ruiz@correo.com", userDetailsServiceBeanName = "usuarioDetallesServicio")
-    @DisplayName("CU-27: el acordeón muestra las unidades completada, en curso y bloqueada con su contenido publicado")
-    void acordeonDeUnidades() throws Exception {
+    @DisplayName("CU-27: el acordeón muestra los temas completado, en curso y bloqueada con su contenido publicado")
+    void acordeonDeTemas() throws Exception {
         mockMvc.perform(get("/inscripcion/acceder/" + inscripcionDe("valentina.ruiz@correo.com")))
                 .andExpect(status().isOk())
                 .andExpect(content().string(Matchers.containsString("Introducción al mercado de capitales")))
                 .andExpect(content().string(Matchers.containsString("Completada")))
                 .andExpect(content().string(Matchers.containsString("En curso")))
                 .andExpect(content().string(Matchers.containsString("Bloqueada")))
-                // contenido de la unidad habilitada: material, glosario, autoevaluación con intentos y foro
+                // contenido del tema habilitado: material, glosario, autoevaluación con intentos y foro
                 .andExpect(content().string(Matchers.containsString("Grabación: Estructura del mercado argentino")))
-                .andExpect(content().string(Matchers.containsString("Autoevaluación Unidad 1: Marco regulatorio")))
+                .andExpect(content().string(Matchers.containsString("Autoevaluación Tema 1: Marco regulatorio")))
                 .andExpect(content().string(Matchers.containsString("Foro de consultas")))
                 .andExpect(content().string(Matchers.containsString("Glosario")))
                 // el alumno no ve el material oculto ni las opciones del docente
                 .andExpect(content().string(Matchers.not(Matchers.containsString("Borrador: ejercicios de duration"))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("Agregar recurso o actividad"))))
-                // la unidad bloqueada no entrega su contenido
-                .andExpect(content().string(Matchers.containsString("Completá la unidad anterior")));
+                // el tema bloqueado no entrega su contenido
+                .andExpect(content().string(Matchers.containsString("Completá el tema anterior")));
     }
 
     @Test
@@ -68,23 +68,23 @@ class AccederCursoControladorTest {
     void barraLateralYBarraSuperior() throws Exception {
         mockMvc.perform(get("/inscripcion/acceder/" + inscripcionDe("valentina.ruiz@correo.com")))
                 .andExpect(status().isOk())
-                // "Curso" va arriba; el grupo "Este curso" (Unidades y Programas) es de gestión y el alumno no lo ve
+                // "Curso" va arriba; el grupo "Este curso" (Temas y Programas) es de gestión y el alumno no lo ve
                 .andExpect(content().string(Matchers.not(Matchers.containsString("Este curso"))))
                 .andExpect(content().string(Matchers.containsString("Este programa")))
                 .andExpect(content().string(Matchers.containsString("Esta cohorte")))
-                .andExpect(content().string(Matchers.containsString("Contenido de las unidades")))
+                .andExpect(content().string(Matchers.containsString("Contenido de los temas")))
                 .andExpect(content().string(Matchers.containsString("fa-house")))
                 .andExpect(content().string(Matchers.containsString("Participantes")))
                 .andExpect(content().string(Matchers.containsString("Calificaciones")))
                 .andExpect(content().string(Matchers.containsString("Cronograma")))
                 // el alumno no ve los botones del menú que son de gestión (no puede abrirlos)
-                .andExpect(content().string(Matchers.not(Matchers.containsString("/unidad/buscar"))))
+                .andExpect(content().string(Matchers.not(Matchers.containsString("/tema/buscar"))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("/programa/buscar"))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("/material/buscar"))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("/glosario/buscar"))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("/foro/buscar"))))
-                .andExpect(content().string(Matchers.not(Matchers.containsString("Registrar unidad"))))
-                .andExpect(content().string(Matchers.not(Matchers.containsString("ac-menu-unidad"))))
+                .andExpect(content().string(Matchers.not(Matchers.containsString("Registrar tema"))))
+                .andExpect(content().string(Matchers.not(Matchers.containsString("ac-menu-tema"))))
                 .andExpect(content().string(Matchers.containsString("nb-enlace\">Inicio<")))
                 .andExpect(content().string(Matchers.containsString("data-sin-accion")))
                 // sin categoría en el breadcrumb, sin progreso ni pestañas internas
@@ -95,7 +95,7 @@ class AccederCursoControladorTest {
 
     @Test
     @WithUserDetails(value = "valentina.ruiz@correo.com", userDetailsServiceBeanName = "usuarioDetallesServicio")
-    @DisplayName("El alumno ve el cajón del cronograma con la semana actual, su estado y el estado de cada unidad")
+    @DisplayName("El alumno ve el cajón del cronograma con la semana actual, su estado y el estado de cada tema")
     void alumnoVeElCajonDelCronograma() throws Exception {
         mockMvc.perform(get("/inscripcion/acceder/" + inscripcionDe("valentina.ruiz@correo.com")))
                 .andExpect(status().isOk())
@@ -147,7 +147,7 @@ class AccederCursoControladorTest {
                 // el mismo tablero que ve el docente cuando hay inscripciones: solo lectura (sin paneles ni botones)
                 .andExpect(content().string(Matchers.containsString("id=\"cronograma\"")))
                 .andExpect(content().string(Matchers.containsString("data-editable=\"false\"")))
-                .andExpect(content().string(Matchers.containsString("data-vista=\"unidades\"")))
+                .andExpect(content().string(Matchers.containsString("data-vista=\"temas\"")))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("data-panel-disponibles"))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("data-modificar"))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("Borrador: ejercicios de duration"))));

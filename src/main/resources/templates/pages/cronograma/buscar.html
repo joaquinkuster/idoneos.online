@@ -35,7 +35,7 @@
                     </div>
                     <div class="cn-dato">
                         <span>Mínimo requerido</span>
-                        <strong th:text="${minimoUnidadesConMaterial + (minimoUnidadesConMaterial == 1 ? ' unidad' : ' unidades')}">2 unidades con material</strong>
+                        <strong th:text="${minimoTemasConMaterial + (minimoTemasConMaterial == 1 ? ' tema' : ' temas')}">2 temas con material</strong>
                     </div>
                     <div class="cn-dato">
                         <span>Cohortes activas</span>
@@ -57,7 +57,7 @@
                 th:text="${'Semana actual de la cohorte: ' + cohorte.semanaActual + ' de ' + programa.duracionTotalSemanas + ' (contada desde el inicio ' + (cohorte.fechaInicioDictado != null ? 'del dictado' : 'de la inscripción') + ', ' + #temporals.format(cohorte.fechaBaseCronograma, 'dd/MM/yyyy') + ').'}">Semana actual</p>
 
             <th:block th:with="cronoCohorte=${esDocente ? cohorte : null}">
-                <th:block th:replace="~{fragments/cronogramaTablero :: tablero(${curso}, ${programa}, ${cronograma}, ${unidadesDelCurso}, ${puedeEditar}, false)}"></th:block>
+                <th:block th:replace="~{fragments/cronogramaTablero :: tablero(${curso}, ${programa}, ${cronograma}, ${temasDelCurso}, ${puedeEditar}, false)}"></th:block>
             </th:block>
         </main>
 

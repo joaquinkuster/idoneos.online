@@ -78,7 +78,7 @@
                                     </span>
                                 </td>
                                 <td><span class="pn-truncar" th:text="${i.inscripcion.cohorte.programa.nombre + ' · ' + i.inscripcion.cohorte.etiqueta}">Programa · Mayo 2026</span></td>
-                                <td><span class="pn-truncar" th:text="${i.autoevaluacion.nombre}">Autoevaluación Unidad 1</span></td>
+                                <td><span class="pn-truncar" th:text="${i.autoevaluacion.nombre}">Autoevaluación Tema 1</span></td>
                                 <td th:text="${f.numero}">1</td>
                                 <td th:text="${#temporals.format(i.fechaCreacion, 'dd/MM/yyyy HH:mm')}">28/08/2026 10:30</td>
                                 <td th:text="${i.fechaEntrega != null ? #temporals.format(i.fechaEntrega, 'dd/MM/yyyy HH:mm') : '-'}">-</td>
@@ -138,7 +138,7 @@
           th:action="@{'/intento/aprobar/' + ${i.idIntentoAutoevaluacion}}" method="post" class="form-ajax d-none"></form>
 
     <th:block th:if="${puedeDarDeBaja}">
-        <th:block th:replace="~{fragments/modalBaja :: bloque('modalBajaIntento' + ${i.idIntentoAutoevaluacion}, 'intento', '¿Confirmas dar de baja el intento ' + ${f.numero} + ' de «' + ${i.inscripcion.alumno.usuario.nombreCompleto} + '»?', ${i.estaEnCurso() ? 'Está en curso: el alumno no podrá continuarlo y no se corregirá.' : (i.aprobado ? 'Estaba aprobado: si era el que le permitía completar la unidad, la unidad vuelve a estar pendiente y se anula su certificado.' : 'Dejará de contar entre los intentos del alumno.')}, '/intento/darDeBaja/' + ${i.idIntentoAutoevaluacion}, null, null)}"></th:block>
+        <th:block th:replace="~{fragments/modalBaja :: bloque('modalBajaIntento' + ${i.idIntentoAutoevaluacion}, 'intento', '¿Confirmas dar de baja el intento ' + ${f.numero} + ' de «' + ${i.inscripcion.alumno.usuario.nombreCompleto} + '»?', ${i.estaEnCurso() ? 'Está en curso: el alumno no podrá continuarlo y no se corregirá.' : (i.aprobado ? 'Estaba aprobado: si era el que le permitía completar el tema, el tema vuelve a estar pendiente y se anula su certificado.' : 'Dejará de contar entre los intentos del alumno.')}, '/intento/darDeBaja/' + ${i.idIntentoAutoevaluacion}, null, null)}"></th:block>
     </th:block>
 </th:block>
 

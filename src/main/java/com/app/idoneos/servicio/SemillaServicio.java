@@ -46,8 +46,8 @@ import com.app.idoneos.modelo.Rol;
 import com.app.idoneos.modelo.RolUsuario;
 import com.app.idoneos.modelo.TipoMaterial;
 import com.app.idoneos.modelo.TerminoGlosario;
-import com.app.idoneos.modelo.Unidad;
-import com.app.idoneos.modelo.UnidadCronograma;
+import com.app.idoneos.modelo.Tema;
+import com.app.idoneos.modelo.TemaCronograma;
 import com.app.idoneos.modelo.Usuario;
 import com.app.idoneos.repositorio.AdministradorRepositorio;
 import com.app.idoneos.repositorio.AlumnoRepositorio;
@@ -87,8 +87,8 @@ import com.app.idoneos.repositorio.RolRepositorio;
 import com.app.idoneos.repositorio.RolUsuarioRepositorio;
 import com.app.idoneos.repositorio.TipoMaterialRepositorio;
 import com.app.idoneos.repositorio.TerminoGlosarioRepositorio;
-import com.app.idoneos.repositorio.UnidadCronogramaRepositorio;
-import com.app.idoneos.repositorio.UnidadRepositorio;
+import com.app.idoneos.repositorio.TemaCronogramaRepositorio;
+import com.app.idoneos.repositorio.TemaRepositorio;
 import com.app.idoneos.repositorio.UsuarioRepositorio;
 
 /**
@@ -173,10 +173,10 @@ public class SemillaServicio {
     private ProgramaRepositorio programaRepositorio;
 
     @Autowired
-    private UnidadRepositorio unidadRepositorio;
+    private TemaRepositorio temaRepositorio;
 
     @Autowired
-    private UnidadCronogramaRepositorio unidadCronogramaRepositorio;
+    private TemaCronogramaRepositorio temaCronogramaRepositorio;
 
     @Autowired
     private MaterialRepositorio materialRepositorio;
@@ -274,7 +274,7 @@ public class SemillaServicio {
         // Administrador y parámetros
         Usuario usuarioAdmin = crearUsuario("Admin", "Idóneos", "20111222", correoAdmin, "+54 376 4000000", rolAdministrador);
         Administrador admin = administradorRepositorio.save(new Administrador(usuarioAdmin));
-        parametroRepositorio.save(new Parametro(admin, Parametro.MINIMO_UNIDADES_CON_MATERIAL, "2"));
+        parametroRepositorio.save(new Parametro(admin, Parametro.MINIMO_TEMAS_CON_MATERIAL, "2"));
         parametroRepositorio.save(new Parametro(admin, Parametro.CRONOGRAMA_SEMANAS_MAXIMAS,
                 String.valueOf(Parametro.CRONOGRAMA_SEMANAS_MAXIMAS_POR_DEFECTO)));
         parametroRepositorio.save(new Parametro(admin, Parametro.PLAZO_CONFIRMACION_PAGO,
@@ -350,20 +350,20 @@ public class SemillaServicio {
         Programa programa1 = crearPrograma(curso1, "Programa 2026",
                 "Dominar la operatoria bursátil y el análisis de instrumentos del mercado argentino.",
                 "Manual del mercado de capitales (CNV) y apuntes de cátedra.");
-        Unidad unidad1 = agregarUnidad(programa1, curso1, 1, 2, "Introducción al mercado de capitales",
+        Tema tema1 = agregarTema(programa1, curso1, 1, 2, "Introducción al mercado de capitales",
                 "Actores, instrumentos y funcionamiento del mercado.", titular1, presentacion);
-        Unidad unidad2 = agregarUnidad(programa1, curso1, 2, 3, "Renta fija y bonos",
+        Tema tema2 = agregarTema(programa1, curso1, 2, 3, "Renta fija y bonos",
                 "Valuación y operatoria de bonos soberanos.", titular1, presentacion);
-        Unidad unidad3 = agregarUnidad(programa1, curso1, 3, 4, "Renta variable y opciones",
+        Tema tema3 = agregarTema(programa1, curso1, 3, 4, "Renta variable y opciones",
                 "Acciones, CEDEARs y estrategias con opciones.", null, null);
         Cohorte abierta1 = crearCohorte(programa1, ahora.minusDays(10), ahora.plusDays(20), ahora.plusDays(25),
                 ahora.plusDays(90), 12, 30);
         Cohorte enDictado1 = crearCohorte(programa1, ahora.minusDays(60), ahora.minusDays(30), ahora.minusDays(20),
                 ahora.plusDays(40), 12, 25);
         crearCohorte(programa1, ahora.minusDays(200), ahora.minusDays(170), ahora.minusDays(160), ahora.minusDays(80), 12, 25);
-        Inscripcion luciaMercado = crearInscripcion(abierta1, lucia, ahora, unidad1);
+        Inscripcion luciaMercado = crearInscripcion(abierta1, lucia, ahora, tema1);
         Inscripcion martinMercado = crearInscripcion(abierta1, martin, ahora, null);
-        Inscripcion inscripcionValentina = crearInscripcion(enDictado1, valentina, ahora, unidad1);
+        Inscripcion inscripcionValentina = crearInscripcion(enDictado1, valentina, ahora, tema1);
         // Pagos de las inscripciones a un curso con costo (CU-50): aprobados por MODO, con su comprobante
         registrarPago(luciaMercado, pagoAprobado, pagoModo, "Tarjeta de crédito Mastercard", "0008", "QRL3M0A1", null,
                 ahora.minusDays(9));
@@ -378,18 +378,18 @@ public class SemillaServicio {
         claseEnVivoRepositorio.save(new ClaseEnVivo(titular1, claseEnVivoAhora, enDictado1,
                 "Clase magistral: Operatoria de renta fija en BYMA", ahora.minusMinutes(20), 90));
 
-        // Contenido de las unidades 1 y 2 (acceso al curso del alumno en dictado, CU-27)
-        agregarMaterial(unidad1, titular1, grabacion, "Grabación: Estructura del mercado argentino");
-        agregarMaterial(unidad1, titular1, bibliografia, "Ley 26.831 y modificatorias CNV");
-        agregarMaterial(unidad2, titular1, bibliografia, "Guía teórica de renta fija");
-        agregarMaterial(unidad2, titular1, presentacion, "Borrador: ejercicios de duration").setOculto(true);
-        agregarGlosario(unidad1, "BYMA", "Bolsas y Mercados Argentinos: el mercado donde se negocian los valores.");
-        agregarGlosario(unidad1, "CNV", "Comisión Nacional de Valores: organismo que regula y controla el mercado de capitales.");
-        agregarGlosario(unidad1, "ON", "Obligación negociable: título de deuda que emiten las empresas para financiarse.");
-        agregarGlosario(unidad2, "TIR", "Tasa interna de retorno: rendimiento anual de un bono si se lo mantiene hasta el vencimiento.");
-        agregarGlosario(unidad2, "Duration", "Plazo promedio ponderado en que se recibe el dinero de un bono.");
+        // Contenido de los temas 1 y 2 (acceso al curso del alumno en dictado, CU-27)
+        agregarMaterial(tema1, titular1, grabacion, "Grabación: Estructura del mercado argentino");
+        agregarMaterial(tema1, titular1, bibliografia, "Ley 26.831 y modificatorias CNV");
+        agregarMaterial(tema2, titular1, bibliografia, "Guía teórica de renta fija");
+        agregarMaterial(tema2, titular1, presentacion, "Borrador: ejercicios de duration").setOculto(true);
+        agregarGlosario(tema1, "BYMA", "Bolsas y Mercados Argentinos: el mercado donde se negocian los valores.");
+        agregarGlosario(tema1, "CNV", "Comisión Nacional de Valores: organismo que regula y controla el mercado de capitales.");
+        agregarGlosario(tema1, "ON", "Obligación negociable: título de deuda que emiten las empresas para financiarse.");
+        agregarGlosario(tema2, "TIR", "Tasa interna de retorno: rendimiento anual de un bono si se lo mantiene hasta el vencimiento.");
+        agregarGlosario(tema2, "Duration", "Plazo promedio ponderado en que se recibe el dinero de un bono.");
         // Autoevaluaciones (MOD-F-04): la 1 deja navegar libremente y salir; la 2 es secuencial, descuenta por error y no deja salir
-        Pool poolMarcoRegulatorio = crearPool(unidad1, "Marco regulatorio");
+        Pool poolMarcoRegulatorio = crearPool(tema1, "Marco regulatorio");
         agregarPregunta(poolMarcoRegulatorio, "¿Qué organismo regula y controla el mercado de capitales argentino?", false,
                 "*Comisión Nacional de Valores", "Banco Central de la República Argentina",
                 "Administración Federal de Ingresos Públicos", "Superintendencia de Seguros de la Nación");
@@ -405,9 +405,9 @@ public class SemillaServicio {
         agregarPregunta(poolMarcoRegulatorio, "¿Qué funciones cumple la CNV?", true,
                 "*Autorizar la oferta pública de valores", "*Supervisar a los agentes registrados",
                 "Fijar la tasa de interés de política monetaria", "Emitir moneda");
-        Autoevaluacion autoevaluacion1 = agregarAutoevaluacion(unidad1, poolMarcoRegulatorio,
-                "Autoevaluación Unidad 1: Marco regulatorio", 5, 6f, 3, 30, ahora.minusDays(30), false, true, true);
-        Pool poolRentaFija = crearPool(unidad2, "Renta fija");
+        Autoevaluacion autoevaluacion1 = agregarAutoevaluacion(tema1, poolMarcoRegulatorio,
+                "Autoevaluación Tema 1: Marco regulatorio", 5, 6f, 3, 30, ahora.minusDays(30), false, true, true);
+        Pool poolRentaFija = crearPool(tema2, "Renta fija");
         agregarPregunta(poolRentaFija, "¿Qué mide la tasa interna de retorno (TIR) de un bono?", false,
                 "*El rendimiento anual si se lo mantiene hasta el vencimiento", "El precio de mercado del bono",
                 "El valor nominal del cupón", "La inflación esperada");
@@ -421,15 +421,15 @@ public class SemillaServicio {
                 "*Su valor nominal", "Su valor residual menos los cupones", "Su TIR", "Cero");
         agregarPregunta(poolRentaFija, "¿Qué factores afectan la sensibilidad del precio de un bono?", true,
                 "*La duration", "*El cupón", "El color del papel", "El horario de operación");
-        agregarAutoevaluacion(unidad2, poolRentaFija, "Autoevaluación Unidad 2: Ejercicios de rendimiento", 5, 7f, 3, 20,
+        agregarAutoevaluacion(tema2, poolRentaFija, "Autoevaluación Tema 2: Ejercicios de rendimiento", 5, 7f, 3, 20,
                 ahora.minusDays(5), true, false, false);
-        agregarEvaluacionBasica(unidad3, 3, ahora);
+        agregarEvaluacionBasica(tema3, 3, ahora);
         // Valentina: un intento con 2 correctas y 1 incorrecta de 5 (4,00: no aprobado) y otro con 4 correctas (8,00: aprobado)
         registrarIntento(inscripcionValentina, autoevaluacion1, 2, 1, ahora.minusDays(12));
         registrarIntento(inscripcionValentina, autoevaluacion1, 4, 0, ahora.minusDays(10));
-        // Lucía ya completó la unidad 1: su intento aprobado
+        // Lucía ya completó el tema 1: su intento aprobado
         registrarIntento(luciaMercado, autoevaluacion1, 5, 0, ahora.minusDays(1));
-        ConsultaForo consultaCnv = consultaForoRepositorio.save(new ConsultaForo(unidad1, inscripcionValentina,
+        ConsultaForo consultaCnv = consultaForoRepositorio.save(new ConsultaForo(tema1, inscripcionValentina,
                 "¿La CNV exige matrícula para operar con obligaciones negociables?"));
         consultaCnv.setFechaCreacion(ahora.minusDays(3));
         consultaForoRepositorio.save(consultaCnv);
@@ -437,7 +437,7 @@ public class SemillaServicio {
                 "Para operar como inversor no, la matrícula la necesitan los agentes. Lo vemos en la clase 2.");
         respuestaCnv.setFechaCreacion(ahora.minusDays(2));
         respuestaForoRepositorio.save(respuestaCnv);
-        ConsultaForo consultaTir = consultaForoRepositorio.save(new ConsultaForo(unidad2, inscripcionValentina,
+        ConsultaForo consultaTir = consultaForoRepositorio.save(new ConsultaForo(tema2, inscripcionValentina,
                 "¿Cómo se calcula la duration de un bono con cupones?"));
         consultaTir.setFechaCreacion(ahora.minusHours(5));
         consultaForoRepositorio.save(consultaTir);
@@ -450,23 +450,23 @@ public class SemillaServicio {
         Programa programa2 = crearPrograma(curso2, "Programa 2026",
                 "Interpretar la coyuntura macroeconómica y su impacto en las decisiones financieras.",
                 "Informes del BCRA e INDEC.");
-        agregarEvaluacionBasica(agregarUnidad(programa2, curso2, 1, 2, "Inflación y precios", "Medición y causas de la inflación.",
+        agregarEvaluacionBasica(agregarTema(programa2, curso2, 1, 2, "Inflación y precios", "Medición y causas de la inflación.",
                 titular2, presentacion), 1, ahora);
-        agregarEvaluacionBasica(agregarUnidad(programa2, curso2, 2, 2, "Tipo de cambio", "Regímenes cambiarios y brecha.",
+        agregarEvaluacionBasica(agregarTema(programa2, curso2, 2, 2, "Tipo de cambio", "Regímenes cambiarios y brecha.",
                 titular2, presentacion), 2, ahora);
-        agregarEvaluacionBasica(agregarUnidad(programa2, curso2, 3, 2, "Tasas y política monetaria", "Instrumentos del BCRA.",
+        agregarEvaluacionBasica(agregarTema(programa2, curso2, 3, 2, "Tasas y política monetaria", "Instrumentos del BCRA.",
                 titular2, presentacion), 3, ahora);
         crearCohorte(programa2, ahora.minusDays(5), ahora.plusDays(30), null, null, 8, null);
 
-        // Curso 3: Planificación Fiscal Corporativa (no alcanza el mínimo de unidades con material)
+        // Curso 3: Planificación Fiscal Corporativa (no alcanza el mínimo de temas con material)
         DocenteCurso titular3 = crearCurso("Planificación Fiscal Corporativa",
                 "Estrategias de planificación tributaria para empresas: IVA, ganancias y regímenes especiales.", 120000f,
                 "planificacion-fiscal-corporativa.jpg", impuestos, avanzado, true, List.of(grabada), sebastian, List.of());
         Curso curso3 = titular3.getCurso();
         Programa programa3 = crearPrograma(curso3, "Programa 2026",
                 "Diseñar estructuras fiscales eficientes dentro del marco legal.", "Ley de Impuesto a las Ganancias.");
-        agregarUnidad(programa3, curso3, 1, 3, "Impuesto a las ganancias", "Determinación y planificación.", titular3, presentacion);
-        agregarUnidad(programa3, curso3, 2, 3, "IVA y regímenes especiales", "Débito, crédito y regímenes.", null, null);
+        agregarTema(programa3, curso3, 1, 3, "Impuesto a las ganancias", "Determinación y planificación.", titular3, presentacion);
+        agregarTema(programa3, curso3, 2, 3, "IVA y regímenes especiales", "Débito, crédito y regímenes.", null, null);
 
         // Curso 4: Finanzas Personales e Inversión (grabada + clon de IA), con cohorte abierta e inscripción
         DocenteCurso titular4 = crearCurso("Finanzas Personales e Inversión",
@@ -476,15 +476,15 @@ public class SemillaServicio {
         Curso curso4 = titular4.getCurso();
         Programa programa4 = crearPrograma(curso4, "Programa 2026",
                 "Construir un plan financiero personal sólido.", "Guía de educación financiera (CNV).");
-        Unidad unidad4 = agregarUnidad(programa4, curso4, 1, 2, "Presupuesto y ahorro", "Ordenar ingresos y gastos.",
+        Tema tema4 = agregarTema(programa4, curso4, 1, 2, "Presupuesto y ahorro", "Ordenar ingresos y gastos.",
                 titular4, presentacion);
-        Autoevaluacion autoevaluacion4 = agregarEvaluacionBasica(unidad4, 1, ahora);
-        agregarEvaluacionBasica(agregarUnidad(programa4, curso4, 2, 3, "Instrumentos de inversión",
+        Autoevaluacion autoevaluacion4 = agregarEvaluacionBasica(tema4, 1, ahora);
+        agregarEvaluacionBasica(agregarTema(programa4, curso4, 2, 3, "Instrumentos de inversión",
                 "Plazos fijos, bonos y fondos.", titular4, presentacion), 2, ahora);
-        agregarEvaluacionBasica(agregarUnidad(programa4, curso4, 3, 2, "Planificación patrimonial",
+        agregarEvaluacionBasica(agregarTema(programa4, curso4, 3, 2, "Planificación patrimonial",
                 "Objetivos y horizonte de inversión.", titular4, presentacion), 3, ahora);
         Cohorte abierta4 = crearCohorte(programa4, ahora.minusDays(2), ahora.plusDays(40), null, null, 10, 20);
-        Inscripcion martinFinanzas = crearInscripcion(abierta4, martin, ahora, unidad4);
+        Inscripcion martinFinanzas = crearInscripcion(abierta4, martin, ahora, tema4);
         registrarIntento(martinFinanzas, autoevaluacion4, 3, 0, ahora.minusDays(1));
         registrarPago(martinFinanzas, pagoAprobado, pagoTransferencia, "Transferencia al CBU de la institución", null,
                 "TRF-000451", null, ahora.minusDays(1));
@@ -505,12 +505,12 @@ public class SemillaServicio {
         Curso curso5 = titular5.getCurso();
         Programa programa5 = crearPrograma(curso5, "Programa 2026",
                 "Aplicar herramientas de análisis técnico a distintos activos.", "Technical Analysis of the Financial Markets.");
-        agregarEvaluacionBasica(agregarUnidad(programa5, curso5, 1, 3, "Fundamentos del análisis técnico",
+        agregarEvaluacionBasica(agregarTema(programa5, curso5, 1, 3, "Fundamentos del análisis técnico",
                 "Tendencias, soportes y resistencias.", titular5, presentacion), 1, ahora);
-        agregarEvaluacionBasica(agregarUnidad(programa5, curso5, 2, 3, "Indicadores y osciladores",
+        agregarEvaluacionBasica(agregarTema(programa5, curso5, 2, 3, "Indicadores y osciladores",
                 "Medias móviles, RSI y MACD.", titular5, presentacion), 2, ahora);
         crearCohorte(programa5, ahora.plusDays(15), ahora.plusDays(45), ahora.plusDays(50), ahora.plusDays(100), 10, null);
-        // Cohorte en su semana 6 de 6 con Valentina sin completar ninguna unidad: va atrasada (la primera terminaba en la semana 3)
+        // Cohorte en su semana 6 de 6 con Valentina sin completar ningún tema: va atrasada (la primera terminaba en la semana 3)
         Cohorte enDictado5 = crearCohorte(programa5, ahora.minusDays(70), ahora.minusDays(45), ahora.minusDays(40),
                 ahora.plusDays(2), 8, 20);
         Inscripcion valentinaAnalisis = crearInscripcion(enDictado5, valentina, ahora, null);
@@ -528,7 +528,7 @@ public class SemillaServicio {
         certificadoRepositorio.save(new Certificado(inscripcionVencida, "CERT-2026-000001", ahora.minusDays(55),
                 "Certificado de finalización del curso Análisis Técnico Bursátil", "Martín Gómez", "41234567"));
 
-        // Curso 6: Introducción a las Finanzas (sin programas ni unidades: puede darse de baja)
+        // Curso 6: Introducción a las Finanzas (sin programas ni temas: puede darse de baja)
         crearCurso("Introducción a las Finanzas", "Conceptos básicos para empezar a entender el mundo financiero.", 40000f,
                 "introduccion-finanzas.jpg", mercadoCapitales, basico, false, List.of(grabada), sebastian, List.of());
 
@@ -630,19 +630,19 @@ public class SemillaServicio {
     }
 
     /**
-     * Crea un curso sin imagen con un programa de dos unidades con material y una cohorte con inscripción abierta.
+     * Crea un curso sin imagen con un programa de dos temas con material y una cohorte con inscripción abierta.
      */
     private void crearCursoAbierto(String nombre, String descripcion, float precio, Categoria categoria, Nivel nivel,
-            List<Modalidad> modalidades, Docente titular, TipoMaterial tipoMaterial, String unidad1, String unidad2,
+            List<Modalidad> modalidades, Docente titular, TipoMaterial tipoMaterial, String tema1, String tema2,
             LocalDateTime ahora) {
         DocenteCurso participacion = crearCurso(nombre, descripcion, precio, null, categoria, nivel, true,
                 modalidades, titular, List.of());
         Curso curso = participacion.getCurso();
         Programa programa = crearPrograma(curso, "Programa 2026", "Dominar los contenidos centrales del curso.",
                 "Bibliografía del curso.");
-        agregarEvaluacionBasica(agregarUnidad(programa, curso, 1, 2, unidad1, "Conceptos centrales.", participacion,
+        agregarEvaluacionBasica(agregarTema(programa, curso, 1, 2, tema1, "Conceptos centrales.", participacion,
                 tipoMaterial), 1, ahora);
-        agregarEvaluacionBasica(agregarUnidad(programa, curso, 2, 2, unidad2, "Aplicación práctica.", participacion,
+        agregarEvaluacionBasica(agregarTema(programa, curso, 2, 2, tema2, "Aplicación práctica.", participacion,
                 tipoMaterial), 2, ahora);
         boolean enVivo = modalidades.stream().anyMatch(modalidad -> Modalidad.EN_VIVO.equals(modalidad.getNombre()));
         crearCohorte(programa, ahora.minusDays(1), ahora.plusDays(45), enVivo ? ahora.plusDays(50) : null,
@@ -719,21 +719,21 @@ public class SemillaServicio {
     }
 
     /**
-     * Agrega una unidad al curso y a su cronograma. Si se indica una participación docente, carga
-     * además un material publicado asociado a la unidad.
+     * Agrega un tema al curso y a su cronograma. Si se indica una participación docente, carga
+     * además un material publicado asociado al tema.
      */
-    private Unidad agregarUnidad(Programa programa, Curso curso, int numeroOrden, int semanas, String titulo,
+    private Tema agregarTema(Programa programa, Curso curso, int numeroOrden, int semanas, String titulo,
             String descripcion, DocenteCurso autorMaterial, TipoMaterial tipoMaterial) {
-        Unidad unidad = new Unidad(curso, titulo, "Contenido de la unidad: " + titulo + ". " + descripcion);
-        unidad.setDescripcion(descripcion);
-        unidad = unidadRepositorio.save(unidad);
-        unidadCronogramaRepositorio.save(new UnidadCronograma(programa, unidad, numeroOrden, semanas));
+        Tema tema = new Tema(curso, titulo, "Contenido del tema: " + titulo + ". " + descripcion);
+        tema.setDescripcion(descripcion);
+        tema = temaRepositorio.save(tema);
+        temaCronogramaRepositorio.save(new TemaCronograma(programa, tema, numeroOrden, semanas));
         if (autorMaterial != null) {
-            Material material = new Material(autorMaterial, tipoMaterial, unidad, "Material: " + titulo);
-            material.setContenido("Material de estudio de la unidad " + titulo + ".");
+            Material material = new Material(autorMaterial, tipoMaterial, tema, "Material: " + titulo);
+            material.setContenido("Material de estudio del tema " + titulo + ".");
             materialRepositorio.save(material);
         }
-        return unidad;
+        return tema;
     }
 
     private Cohorte crearCohorte(Programa programa, LocalDateTime inicioInscripcion, LocalDateTime finInscripcion,
@@ -746,7 +746,7 @@ public class SemillaServicio {
     }
 
     /**
-     * Inscribe a un alumno en una cohorte y, si se indica una unidad, la registra como completada.
+     * Inscribe a un alumno en una cohorte y, si se indica un tema, la registra como completada.
      */
     /**
      * Registra el pago de una inscripción (el precio del curso, sin descuento) y, si está aprobado, su comprobante.
@@ -779,12 +779,12 @@ public class SemillaServicio {
         return pago;
     }
 
-    private Inscripcion crearInscripcion(Cohorte cohorte, Alumno alumno, LocalDateTime ahora, Unidad unidadCompletada) {
+    private Inscripcion crearInscripcion(Cohorte cohorte, Alumno alumno, LocalDateTime ahora, Tema temaCompletada) {
         Inscripcion inscripcion = new Inscripcion(cohorte, alumno, ahora.plusWeeks(cohorte.getSemanasAcceso()));
         inscripcion.setHabilitado(true);
         inscripcion = inscripcionRepositorio.save(inscripcion);
-        if (unidadCompletada != null) {
-            Progreso progreso = new Progreso(unidadCompletada, inscripcion);
+        if (temaCompletada != null) {
+            Progreso progreso = new Progreso(temaCompletada, inscripcion);
             progreso.setCompletada(true);
             progreso.setFechaCompletada(ahora);
             progresoRepositorio.save(progreso);
@@ -792,21 +792,21 @@ public class SemillaServicio {
         return inscripcion;
     }
 
-    private Material agregarMaterial(Unidad unidad, DocenteCurso autor, TipoMaterial tipo, String titulo) {
-        Material material = new Material(autor, tipo, unidad, titulo);
+    private Material agregarMaterial(Tema tema, DocenteCurso autor, TipoMaterial tipo, String titulo) {
+        Material material = new Material(autor, tipo, tema, titulo);
         material.setAutor(autor.getDocente().getUsuario().getNombreCompleto());
         return materialRepositorio.save(material);
     }
 
-    private void agregarGlosario(Unidad unidad, String termino, String definicion) {
-        terminoGlosarioRepositorio.save(new TerminoGlosario(unidad, termino, definicion));
+    private void agregarGlosario(Tema tema, String termino, String definicion) {
+        terminoGlosarioRepositorio.save(new TerminoGlosario(tema, termino, definicion));
     }
 
     /**
-     * Crea un pool vacío para una unidad.
+     * Crea un pool vacío para un tema.
      */
-    private Pool crearPool(Unidad unidad, String nombre) {
-        return poolRepositorio.save(new Pool(unidad, nombre));
+    private Pool crearPool(Tema tema, String nombre) {
+        return poolRepositorio.save(new Pool(tema, nombre));
     }
 
     /**
@@ -824,12 +824,12 @@ public class SemillaServicio {
     }
 
     /**
-     * Crea una autoevaluación de una unidad asociada a un pool, con el tiempo límite en minutos.
+     * Crea una autoevaluación de un tema asociado a un pool, con el tiempo límite en minutos.
      */
-    private Autoevaluacion agregarAutoevaluacion(Unidad unidad, Pool pool, String nombre, int cantidadPreguntas,
+    private Autoevaluacion agregarAutoevaluacion(Tema tema, Pool pool, String nombre, int cantidadPreguntas,
             float notaMinima, Integer intentosPermitidos, Integer tiempoLimite, LocalDateTime apertura,
             boolean descuentoPorError, boolean navegacionLibre, boolean permiteSalir) {
-        Autoevaluacion autoevaluacion = new Autoevaluacion(unidad, nombre, cantidadPreguntas, notaMinima, apertura);
+        Autoevaluacion autoevaluacion = new Autoevaluacion(tema, nombre, cantidadPreguntas, notaMinima, apertura);
         autoevaluacion.setIntentosPermitidos(intentosPermitidos);
         autoevaluacion.setTiempoLimite(tiempoLimite);
         autoevaluacion.setDescuentoPorError(descuentoPorError);
@@ -838,25 +838,25 @@ public class SemillaServicio {
         autoevaluacion = autoevaluacionRepositorio.save(autoevaluacion);
         autoevaluacion.getAutoevaluacionPools()
                 .add(autoevaluacionPoolRepositorio.save(new AutoevaluacionPool(pool, autoevaluacion)));
-        unidad.getAutoevaluaciones().add(autoevaluacion);
+        tema.getAutoevaluaciones().add(autoevaluacion);
         return autoevaluacion;
     }
 
     /**
-     * Crea, para una unidad, un pool de cuatro preguntas (dos de opción única, una de opción múltiple y una de verdadero o
-     * falso) y una autoevaluación de tres preguntas que lo usa: cada unidad de un programa con cohortes necesita una.
+     * Crea, para un tema, un pool de cuatro preguntas (dos de opción única, una de opción múltiple y una de verdadero o
+     * falso) y una autoevaluación de tres preguntas que lo usa: cada tema de un programa con cohortes necesita una.
      */
-    private Autoevaluacion agregarEvaluacionBasica(Unidad unidad, int numeroOrden, LocalDateTime ahora) {
-        String tema = "«" + unidad.getTitulo() + "»";
-        Pool pool = crearPool(unidad, "Preguntas de la unidad");
-        agregarPregunta(pool, "¿Cuál de estas afirmaciones sobre " + tema + " es correcta?", false,
+    private Autoevaluacion agregarEvaluacionBasica(Tema tema, int numeroOrden, LocalDateTime ahora) {
+        String descripcionTema = "«" + tema.getTitulo() + "»";
+        Pool pool = crearPool(tema, "Preguntas del tema");
+        agregarPregunta(pool, "¿Cuál de estas afirmaciones sobre " + descripcionTema + " es correcta?", false,
                 "*La que describe el concepto central", "La que lo contradice", "La que no tiene relación");
-        agregarPregunta(pool, "¿Qué idea corresponde a " + tema + "?", false,
-                "*La que se vio en el material de la unidad", "Una idea de otra materia", "Ninguna de las anteriores");
-        agregarPregunta(pool, "¿Cuáles de estos puntos se trabajan en " + tema + "?", true,
-                "*El concepto central", "*Su aplicación práctica", "Un tema de otra unidad", "Un tema sin relación");
-        agregarPregunta(pool, "El contenido de " + tema + " se aplica en la práctica.", false, "*Verdadero", "Falso");
-        return agregarAutoevaluacion(unidad, pool, "Autoevaluación de la unidad " + numeroOrden, 3, 6f, 3, 15,
+        agregarPregunta(pool, "¿Qué idea corresponde a " + descripcionTema + "?", false,
+                "*La que se vio en el material del tema", "Una idea de otra materia", "Ninguna de las anteriores");
+        agregarPregunta(pool, "¿Cuáles de estos puntos se trabajan en " + descripcionTema + "?", true,
+                "*El concepto central", "*Su aplicación práctica", "Un tema de otro tema", "Un tema sin relación");
+        agregarPregunta(pool, "El contenido de " + descripcionTema + " se aplica en la práctica.", false, "*Verdadero", "Falso");
+        return agregarAutoevaluacion(tema, pool, "Autoevaluación del tema " + numeroOrden, 3, 6f, 3, 15,
                 ahora.minusDays(30), false, true, true);
     }
 

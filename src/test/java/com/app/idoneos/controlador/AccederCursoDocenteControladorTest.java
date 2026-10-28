@@ -39,7 +39,7 @@ class AccederCursoDocenteControladorTest {
 
     @Test
     @WithUserDetails(value = "fausto.spotorno@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesServicio")
-    @DisplayName("El docente ve el cajón del cronograma con el estado de las unidades y sin avisos de atraso")
+    @DisplayName("El docente ve el cajón del cronograma con el estado de los temas y sin avisos de atraso")
     void docenteVeElCajonDelCronograma() throws Exception {
         mockMvc.perform(get("/curso/acceder/" + idCurso("Mercado de Capitales Argentino")))
                 .andExpect(status().isOk())
@@ -52,17 +52,17 @@ class AccederCursoDocenteControladorTest {
 
     @Test
     @WithUserDetails(value = "fausto.spotorno@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesServicio")
-    @DisplayName("CU-27: el docente ve todas las unidades habilitadas, con su contenido y sin avance")
-    void docenteVeLasUnidadesSinBloqueos() throws Exception {
+    @DisplayName("CU-27: el docente ve todos los temas habilitados, con su contenido y sin avance")
+    void docenteVeLasTemasSinBloqueos() throws Exception {
         mockMvc.perform(get("/curso/acceder/" + idCurso("Mercado de Capitales Argentino")))
                 .andExpect(status().isOk())
                 .andExpect(content().string(Matchers.containsString("Agregar recurso o actividad")))
                 .andExpect(content().string(Matchers.containsString("Agregar un recurso o actividad")))
-                // las actividades de la unidad se agrupan con títulos
+                // las actividades del tema se agrupan con títulos
                 .andExpect(content().string(Matchers.containsString("ac-grupo-titulo")))
                 .andExpect(content().string(Matchers.containsString(">Autoevaluaciones<")))
                 .andExpect(content().string(Matchers.containsString(">Foro<")))
-                // cada grupo tiene su enlace "Ver listado"; el de materiales lleva al ABM de la unidad
+                // cada grupo tiene su enlace "Ver listado"; el de materiales lleva al ABM del tema
                 .andExpect(content().string(Matchers.containsString("Ver listado")))
                 .andExpect(content().string(Matchers.containsString("/material/ver/")))
                 .andExpect(content().string(Matchers.containsString("/material/buscar?cursoId=")))
@@ -71,10 +71,10 @@ class AccederCursoDocenteControladorTest {
                 .andExpect(content().string(Matchers.containsString("Oculto")))
                 .andExpect(content().string(Matchers.containsString("Introducción al mercado de capitales")))
                 .andExpect(content().string(Matchers.containsString("Renta variable y opciones")))
-                .andExpect(content().string(Matchers.containsString("Autoevaluación Unidad 1: Marco regulatorio")))
+                .andExpect(content().string(Matchers.containsString("Autoevaluación Tema 1: Marco regulatorio")))
                 .andExpect(content().string(Matchers.containsString("Este curso")))
                 // sin bloqueos, sin avance del alumno ni intentos propios
-                .andExpect(content().string(Matchers.not(Matchers.containsString("Completá la unidad anterior"))))
+                .andExpect(content().string(Matchers.not(Matchers.containsString("Completá el tema anterior"))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("Bloqueada"))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("Sin intentos"))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("Acceso hasta"))));

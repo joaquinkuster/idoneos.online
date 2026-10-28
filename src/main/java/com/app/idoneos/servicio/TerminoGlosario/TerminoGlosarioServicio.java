@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 import com.app.idoneos.modelo.Docente;
 import com.app.idoneos.modelo.TerminoGlosario;
-import com.app.idoneos.modelo.Unidad;
+import com.app.idoneos.modelo.Tema;
 import com.app.idoneos.modelo.Usuario;
 
 /**
@@ -15,23 +15,23 @@ public interface TerminoGlosarioServicio {
     // ---------------------------------------------------------------- Lecturas
 
     /**
-     * Busca los registros vigentes de terminoGlosario asociados a unidad.
+     * Busca los registros vigentes de terminoGlosario asociados a tema.
      *
-     * @param unidad el registro de Unidad asociado
-     * @return una lista de TerminoGlosario asociados al Unidad indicado
+     * @param tema el registro de Tema asociado
+     * @return una lista de TerminoGlosario asociados al Tema indicado
      */
-    List<TerminoGlosario> buscarPorUnidad(Unidad unidad);
+    List<TerminoGlosario> buscarPorTema(Tema tema);
 
     /**
-     * CU-32: Busca los términos vigentes del glosario de una unidad que contienen un texto (sin distinguir
+     * CU-32: Busca los términos vigentes del glosario de un tema que contienen un texto (sin distinguir
      * mayúsculas ni tildes), en orden alfabético.
      *
-     * @param unidad         la unidad del glosario
+     * @param tema         el tema del glosario
      * @param texto          el texto a buscar (opcional: si está vacío devuelve todos los términos)
      * @param enDefiniciones {@code true} para buscar también en las definiciones, {@code false} solo en el término
      * @return los términos que cumplen el criterio
      */
-    List<TerminoGlosario> buscarConFiltros(Unidad unidad, String texto, boolean enDefiniciones);
+    List<TerminoGlosario> buscarConFiltros(Tema tema, String texto, boolean enDefiniciones);
 
     /**
      * Agrupa términos por su letra inicial, conservando el orden en que vienen (el alfabético).
@@ -42,29 +42,29 @@ public interface TerminoGlosarioServicio {
     Map<String, List<TerminoGlosario>> agruparPorLetra(List<TerminoGlosario> terminos);
 
     /**
-     * Indica si un usuario puede ver el glosario de una unidad: el administrador, el docente que participa en el curso
-     * y el alumno con la unidad habilitada.
+     * Indica si un usuario puede ver el glosario de un tema: el administrador, el docente que participa en el curso
+     * y el alumno con el tema habilitado.
      *
-     * @param unidad  la unidad del glosario
+     * @param tema  el tema del glosario
      * @param usuario el usuario que quiere verlo
      * @return {@code true} si puede verlo
      */
-    boolean puedeVer(Unidad unidad, Usuario usuario);
+    boolean puedeVer(Tema tema, Usuario usuario);
 
     // ---------------------------------------------------------------- Creaciones
 
     /**
-     * CU-33: Registra un término en el glosario de una unidad. Solo lo hace un docente que participa en el curso. Si
+     * CU-33: Registra un término en el glosario de un tema. Solo lo hace un docente que participa en el curso. Si
      * el término estuvo dado de baja, se vuelve a dar de alta con la nueva definición.
      *
      * @param docente    el docente que registra
-     * @param unidadId   el identificador de la unidad
+     * @param temaId   el identificador del tema
      * @param termino    el término
      * @param definicion la definición del término
      * @return el término registrado
      * @throws IllegalArgumentException si falta algún dato, supera el máximo, ya existe o el docente no participa
      */
-    TerminoGlosario registrarTermino(Docente docente, Integer unidadId, String termino, String definicion);
+    TerminoGlosario registrarTermino(Docente docente, Integer temaId, String termino, String definicion);
 
     // ---------------------------------------------------------------- Modificaciones
 

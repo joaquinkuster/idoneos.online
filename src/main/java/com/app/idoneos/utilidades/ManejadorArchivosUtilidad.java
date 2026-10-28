@@ -19,8 +19,8 @@ import org.springframework.web.multipart.MultipartFile;
 /**
  * Gestiona los archivos del sistema en el sistema de archivos local del servidor (fuera del código de la
  * aplicación): materiales (videos, documentos, presentaciones) e imágenes. Valida por contenido real, guarda,
- * elimina y arma las rutas de las carpetas de cada curso y unidad:
- * {@code {base}/curso{id}/} (imagen del curso) y {@code {base}/curso{id}/unidad{id}/} (archivos de la unidad).
+ * elimina y arma las rutas de las carpetas de cada curso y tema:
+ * {@code {base}/curso{id}/} (imagen del curso) y {@code {base}/curso{id}/tema{id}/} (archivos del tema).
  * Las rutas que se guardan en la base de datos son relativas a la carpeta base (los materiales) o solo el nombre
  * del archivo (las imágenes); se publican según {@code WebConfiguracion}.
  */
@@ -50,15 +50,15 @@ public class ManejadorArchivosUtilidad {
     }
 
     /**
-     * Obtiene la carpeta de una unidad.
+     * Obtiene la carpeta de un tema.
      *
      * @param base     La carpeta base de los cursos.
-     * @param idCurso  El identificador del curso de la unidad.
-     * @param idUnidad El identificador de la unidad.
-     * @return La carpeta {@code curso{id}/unidad{id}} dentro de la carpeta base.
+     * @param idCurso  El identificador del curso del tema.
+     * @param idTema El identificador del tema.
+     * @return La carpeta {@code curso{id}/tema{id}} dentro de la carpeta base.
      */
-    public static Path carpetaDeUnidad(Path base, int idCurso, int idUnidad) {
-        return carpetaDeCurso(base, idCurso).resolve("unidad" + idUnidad);
+    public static Path carpetaDeTema(Path base, int idCurso, int idTema) {
+        return carpetaDeCurso(base, idCurso).resolve("tema" + idTema);
     }
 
     /**
@@ -206,7 +206,7 @@ public class ManejadorArchivosUtilidad {
      *
      * @param base    La carpeta base de los cursos.
      * @param archivo La ruta del archivo guardado.
-     * @return La ruta relativa, por ejemplo {@code curso3/unidad12/material45.mp4}.
+     * @return La ruta relativa, por ejemplo {@code curso3/tema12/material45.mp4}.
      */
     public static String rutaRelativa(Path base, Path archivo) {
         return base.toAbsolutePath().normalize().relativize(archivo.toAbsolutePath().normalize()).toString()

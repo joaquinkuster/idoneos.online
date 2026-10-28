@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import com.app.idoneos.modelo.Docente;
 import com.app.idoneos.modelo.Pool;
-import com.app.idoneos.modelo.Unidad;
+import com.app.idoneos.modelo.Tema;
 
 /**
  * Servicio para gestionar las operaciones relacionadas con el pool de preguntas.
@@ -44,39 +44,39 @@ public interface PoolServicio {
     Optional<Pool> buscarPorId(Integer id);
 
     /**
-     * Busca los registros vigentes de pool asociados a unidad.
+     * Busca los registros vigentes de pool asociados a tema.
      *
-     * @param unidad el registro de Unidad asociado
-     * @return una lista de Pool asociados al Unidad indicado
+     * @param tema el registro de Tema asociado
+     * @return una lista de Pool asociados al Tema indicado
      */
-    List<Pool> buscarPorUnidad(Unidad unidad);
+    List<Pool> buscarPorTema(Tema tema);
 
     /**
      * CU-60: Busca los pools de un curso (incluidos los dados de baja) aplicando filtros opcionales. Los dados de baja van
      * siempre al final.
      *
      * @param idCurso       identificador del curso (opcional)
-     * @param idUnidad      identificador de la unidad (opcional)
+     * @param idTema      identificador del tema (opcional)
      * @param nombre        parte del nombre (opcional)
      * @param baja          {@code true} solo dados de baja, {@code false} solo activos, {@code null} todos (opcional)
      * @param soloDeDocente si se indica, solo los pools de los cursos en los que participa ese docente
      * @return los pools que cumplen los criterios
      */
-    List<Pool> buscarConFiltros(Integer idCurso, Integer idUnidad, String nombre, Boolean baja, Docente soloDeDocente);
+    List<Pool> buscarConFiltros(Integer idCurso, Integer idTema, String nombre, Boolean baja, Docente soloDeDocente);
 
     // ---------------------------------------------------------------- Creaciones
 
     /**
-     * CU-61: Crea un pool en una unidad activa, con sus preguntas y opciones de respuesta.
+     * CU-61: Crea un pool en un tema activo, con sus preguntas y opciones de respuesta.
      *
      * @param docente   el docente que lo crea; debe participar en el curso como titular o ayudante
-     * @param idUnidad  identificador de la unidad
+     * @param idTema  identificador del tema
      * @param nombre    nombre del pool
      * @param preguntas preguntas del pool (al menos una)
      * @return el pool registrado
-     * @throws IllegalArgumentException si la unidad no está activa o los datos no son válidos
+     * @throws IllegalArgumentException si el tema no está activa o los datos no son válidos
      */
-    Pool registrarPool(Docente docente, Integer idUnidad, String nombre, List<SolicitudPregunta> preguntas);
+    Pool registrarPool(Docente docente, Integer idTema, String nombre, List<SolicitudPregunta> preguntas);
 
     // ---------------------------------------------------------------- Modificaciones
 

@@ -9,7 +9,7 @@ import com.app.idoneos.modelo.Categoria;
 import com.app.idoneos.modelo.Curso;
 import com.app.idoneos.modelo.Nivel;
 import com.app.idoneos.modelo.DocenteCurso;
-import com.app.idoneos.modelo.Unidad;
+import com.app.idoneos.modelo.Tema;
 import com.app.idoneos.modelo.Usuario;
 
 /**
@@ -106,12 +106,12 @@ public interface CursoServicio {
     boolean tieneInscripcionesActivas(Curso curso);
 
     /**
-     * Verifica si un curso tiene programas o unidades activos asociados.
+     * Verifica si un curso tiene programas o temas activos asociados.
      *
      * @param curso el curso a consultar
-     * @return {@code true} si tiene al menos un programa o una unidad activos
+     * @return {@code true} si tiene al menos un programa o un tema activos
      */
-    boolean tieneProgramasOUnidadesActivas(Curso curso);
+    boolean tieneProgramasOTemasActivas(Curso curso);
 
     /**
      * Busca las inscripciones activas (no dadas de baja) de un curso, a través de sus programas y cohortes.
@@ -161,15 +161,15 @@ public interface CursoServicio {
     ContextoCurso resolverContextoDelPanel(Integer idCurso, Usuario usuario);
 
     /**
-     * Resuelve el contexto de una pantalla que se abre desde una unidad (foro, glosario, material): el administrador y
-     * los docentes del curso entran como tales; el alumno, por su inscripción con acceso a la unidad. Quien la llame
+     * Resuelve el contexto de una pantalla que se abre desde un tema (foro, glosario, material): el administrador y
+     * los docentes del curso entran como tales; el alumno, por su inscripción con acceso al tema. Quien la llame
      * debe haber comprobado antes que la persona puede ver el contenido.
      *
-     * @param unidad  La unidad de la pantalla.
+     * @param tema  El tema de la pantalla.
      * @param usuario El usuario autenticado.
      * @return El contexto, o vacío si no es de la gestión del curso ni tiene una inscripción con acceso.
      */
-    Optional<ContextoCurso> resolverContextoDeLaUnidad(Unidad unidad, Usuario usuario);
+    Optional<ContextoCurso> resolverContextoDeLaTema(Tema tema, Usuario usuario);
 
     // ---------------------------------------------------------------- Creaciones
 
@@ -236,10 +236,10 @@ public interface CursoServicio {
     // ---------------------------------------------------------------- Bajas
 
     /**
-     * Da de baja un curso activo que no tenga programas ni unidades activas asociadas.
+     * Da de baja un curso activo que no tenga programas ni temas activos asociadas.
      *
      * @param idCurso el identificador del curso
-     * @throws IllegalArgumentException si el curso no está activo o tiene programas o unidades activas
+     * @throws IllegalArgumentException si el curso no está activo o tiene programas o temas activos
      */
     void darDeBajaCurso(Integer idCurso);
 

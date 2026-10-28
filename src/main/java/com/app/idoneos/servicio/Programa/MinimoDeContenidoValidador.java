@@ -8,15 +8,15 @@ import org.springframework.stereotype.Component;
 
 import com.app.idoneos.modelo.Parametro;
 import com.app.idoneos.modelo.Programa;
-import com.app.idoneos.modelo.Unidad;
+import com.app.idoneos.modelo.Tema;
 import com.app.idoneos.servicio.Parametro.ParametroServicio;
 import com.app.idoneos.utilidades.MensajeErrorUtilidad;
 
 /**
  * Regla del mínimo de contenido de un programa: mientras tenga cohortes en curso (aunque no tengan inscripciones), debe
- * conservar al menos el mínimo de unidades con material publicado y autoevaluación que se exige para registrar una cohorte
- * (parámetro {@code programa.minimo_unidades_con_material}). Las operaciones que le quitan contenido (ocultar o dar de baja
- * materiales, quitar unidades del cronograma) consultan acá si el programa se mantiene por encima del mínimo.
+ * conservar al menos el mínimo de temas con material publicado y autoevaluación que se exige para registrar una cohorte
+ * (parámetro {@code programa.minimo_temas_con_material}). Las operaciones que le quitan contenido (ocultar o dar de baja
+ * materiales, quitar temas del cronograma) consultan acá si el programa se mantiene por encima del mínimo.
  */
 @Component
 public class MinimoDeContenidoValidador {
@@ -27,23 +27,23 @@ public class MinimoDeContenidoValidador {
      * Un programa que quedaría por debajo del mínimo.
      *
      * @param programa el programa afectado
-     * @param minimo   el mínimo de unidades con material publicado y autoevaluación que exige el sistema
-     * @param quedaria la cantidad de unidades que conservaría
+     * @param minimo   el mínimo de temas con material publicado y autoevaluación que exige el sistema
+     * @param quedaria la cantidad de temas que conservaría
      */
     public record Bloqueo(Programa programa, int minimo, int quedaria) {
 
-        /** El mínimo expresado en unidades, por ejemplo "2 unidades". */
-        public String minimoEnUnidades() {
-            return MensajeErrorUtilidad.cantidad(minimo, "unidad", "unidades");
+        /** El mínimo expresado en temas, por ejemplo "2 temas". */
+        public String minimoEnTemas() {
+            return MensajeErrorUtilidad.cantidad(minimo, "tema", "temas");
         }
     }
 
     @Autowired
     private ParametroServicio parametroServicio;
 
-    /** El mínimo de unidades con material publicado y autoevaluación que exige el sistema. */
+    /** El mínimo de temas con material publicado y autoevaluación que exige el sistema. */
     public int minimo() {
-        return parametroServicio.obtenerEntero(Parametro.MINIMO_UNIDADES_CON_MATERIAL, MINIMO_POR_DEFECTO);
+        return parametroServicio.obtenerEntero(Parametro.MINIMO_TEMAS_CON_MATERIAL, MINIMO_POR_DEFECTO);
     }
 
     /**
@@ -52,17 +52,17 @@ public class MinimoDeContenidoValidador {
      *
      * @param programa           El programa que se verifica.
      * @param materialesQuitados Los materiales que dejarían de estar publicados.
-     * @param unidadesQuitadas   Las unidades que dejarían de formar parte del cronograma.
+     * @param temasQuitadas   Los temas que dejarían de formar parte del cronograma.
      * @return El bloqueo, o vacío si el programa se mantiene por encima del mínimo.
      */
     public Optional<Bloqueo> verificar(Programa programa, Collection<Integer> materialesQuitados,
-            Collection<Integer> unidadesQuitadas) {
+            Collection<Integer> temasQuitadas) {
         if (!programa.tieneCohortesEnCurso()) {
             return Optional.empty();
         }
         int minimo = minimo();
-        int antes = programa.getCantidadUnidadesConMaterialPublicado();
-        int despues = programa.cantidadUnidadesConMaterialPublicadoSin(materialesQuitados, unidadesQuitadas);
+        int antes = programa.getCantidadTemasConMaterialPublicado();
+        int despues = programa.cantidadTemasConMaterialPublicadoSin(materialesQuitados, temasQuitadas);
         if (despues >= antes || despues >= minimo) {
             return Optional.empty();
         }
@@ -70,39 +70,39 @@ public class MinimoDeContenidoValidador {
     }
 
     /**
-     * Indica si quitar unidades del cronograma dejaría al programa con cohortes en curso con menos unidades que el mínimo.
-     * Cuenta solo unidades del cronograma, sin mirar su contenido. Si el programa ya estaba por debajo y la operación no
+     * Indica si quitar temas del cronograma dejaría al programa con cohortes en curso con menos temas que el mínimo.
+     * Cuenta solo temas del cronograma, sin mirar su contenido. Si el programa ya estaba por debajo y la operación no
      * empeora, no se bloquea.
      *
      * @param programa         El programa que se verifica.
-     * @param unidadesQuitadas Las unidades que dejarían de formar parte del cronograma.
-     * @return El bloqueo (con la cantidad de unidades que quedarían), o vacío si el programa conserva el mínimo.
+     * @param temasQuitadas Los temas que dejarían de formar parte del cronograma.
+     * @return El bloqueo (con la cantidad de temas que quedarían), o vacío si el programa conserva el mínimo.
      */
-    public Optional<Bloqueo> verificarUnidades(Programa programa, Collection<Integer> unidadesQuitadas) {
+    public Optional<Bloqueo> verificarTemas(Programa programa, Collection<Integer> temasQuitadas) {
         if (!programa.tieneCohortesEnCurso()) {
             return Optional.empty();
         }
         int minimo = minimo();
-        int antes = programa.getCantidadUnidades();
+        int antes = programa.getCantidadTemas();
         int despues = (int) programa.getCronogramaOrdenado().stream()
-                .filter(cronograma -> !unidadesQuitadas.contains(cronograma.getUnidad().getIdUnidad())).count();
+                .filter(cronograma -> !temasQuitadas.contains(cronograma.getTema().getIdTema())).count();
         return despues >= antes || despues >= minimo ? Optional.empty() : Optional.of(new Bloqueo(programa, minimo, despues));
     }
 
     /**
-     * Motivo (sin punto final) por el que no se puede quitar el material de una unidad, con la misma oración que usan las
-     * autoevaluaciones: es el único visible de la unidad y su programa tiene cohortes en curso.
+     * Motivo (sin punto final) por el que no se puede quitar el material de un tema, con la misma oración que usan las
+     * autoevaluaciones: es el único visible del tema y su programa tiene cohortes en curso.
      *
-     * @param unidad             La unidad del material.
+     * @param tema             El tema del material.
      * @param materialesQuitados Los materiales que dejarían de estar publicados en la operación.
      * @return El motivo, o vacío si el programa se mantiene por encima del mínimo.
      */
-    public Optional<String> motivoParaElMaterial(Unidad unidad, Collection<Integer> materialesQuitados) {
-        for (Programa programa : unidad.getProgramasQueLaIncluyen()) {
+    public Optional<String> motivoParaElMaterial(Tema tema, Collection<Integer> materialesQuitados) {
+        for (Programa programa : tema.getProgramasQueLaIncluyen()) {
             Optional<Bloqueo> bloqueo = verificar(programa, materialesQuitados, java.util.Set.of());
             if (bloqueo.isPresent()) {
-                Unidad afectada = programa.unidadesQueDejanDeContarSin(materialesQuitados).stream().findFirst().orElse(unidad);
-                return Optional.of("es el único visible de la unidad «" + afectada.getTitulo()
+                Tema afectada = programa.temasQueDejanDeContarSin(materialesQuitados).stream().findFirst().orElse(tema);
+                return Optional.of("es el único visible del tema «" + afectada.getTitulo()
                         + "» y su programa tiene cohortes en curso");
             }
         }

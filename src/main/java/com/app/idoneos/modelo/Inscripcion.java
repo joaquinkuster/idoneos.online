@@ -282,26 +282,26 @@ public class Inscripcion {
     }
 
     /**
-     * Cuenta las unidades del cronograma del programa que el alumno ya completó.
+     * Cuenta los temas del cronograma del programa que el alumno ya completó.
      *
-     * @return La cantidad de unidades completadas.
+     * @return La cantidad de temas completados.
      */
-    public int getUnidadesCompletadas() {
+    public int getTemasCompletadas() {
         return (int) progresos.stream().filter(Progreso::getCompletada).count();
     }
 
     /**
-     * Calcula el progreso general del alumno en el curso, según las unidades completadas.
+     * Calcula el progreso general del alumno en el curso, según los temas completados.
      *
      * @return El porcentaje de progreso (0-100).
      */
     public int getPorcentajeProgreso() {
-        int total = cohorte.getPrograma().getCantidadUnidades();
-        return total == 0 ? 0 : Math.min(100, getUnidadesCompletadas() * 100 / total);
+        int total = cohorte.getPrograma().getCantidadTemas();
+        return total == 0 ? 0 : Math.min(100, getTemasCompletadas() * 100 / total);
     }
 
     /**
-     * Calcula el avance de la inscripción: En Progreso (aunque todavía no haya completado ninguna unidad) o Finalizado.
+     * Calcula el avance de la inscripción: En Progreso (aunque todavía no haya completado ningún tema) o Finalizado.
      *
      * @return El estado de la inscripción.
      */
@@ -314,94 +314,94 @@ public class Inscripcion {
     }
 
     /**
-     * Indica si el alumno completó una unidad.
+     * Indica si el alumno completó un tema.
      *
-     * @param unidad La unidad a consultar.
-     * @return {@code true} si la unidad figura como completada.
+     * @param tema El tema a consultar.
+     * @return {@code true} si el tema figura como completada.
      */
-    public boolean estaUnidadCompletada(Unidad unidad) {
+    public boolean estaTemaCompletada(Tema tema) {
         return progresos.stream()
-                .anyMatch(progreso -> progreso.getCompletada() && progreso.getUnidad().getIdUnidad() == unidad.getIdUnidad());
+                .anyMatch(progreso -> progreso.getCompletada() && progreso.getTema().getIdTema() == tema.getIdTema());
     }
 
     /**
-     * Indica si una unidad está habilitada según el avance secuencial del alumno: es la primera del cronograma o
-     * la unidad anterior figura como completada.
+     * Indica si un tema está habilitada según el avance secuencial del alumno: es la primera del cronograma o
+     * el tema anterior figura como completada.
      *
-     * @param unidadCronograma La unidad del cronograma a consultar.
-     * @return {@code true} si el alumno puede acceder a la unidad.
+     * @param temaCronograma El tema del cronograma a consultar.
+     * @return {@code true} si el alumno puede acceder al tema.
      */
-    public boolean estaUnidadHabilitada(UnidadCronograma unidadCronograma) {
+    public boolean estaTemaHabilitada(TemaCronograma temaCronograma) {
         return cohorte.getPrograma().getCronogramaOrdenado().stream()
-                .filter(cronograma -> cronograma.getNumeroOrden() < unidadCronograma.getNumeroOrden())
-                .max(Comparator.comparingInt(UnidadCronograma::getNumeroOrden))
-                .map(anterior -> estaUnidadCompletada(anterior.getUnidad())).orElse(true);
+                .filter(cronograma -> cronograma.getNumeroOrden() < temaCronograma.getNumeroOrden())
+                .max(Comparator.comparingInt(TemaCronograma::getNumeroOrden))
+                .map(anterior -> estaTemaCompletada(anterior.getTema())).orElse(true);
     }
 
     /**
-     * Obtiene la unidad que el alumno debe cursar ahora: la primera del cronograma que todavía no completó.
+     * Obtiene el tema que el alumno debe cursar ahora: la primera del cronograma que todavía no completó.
      *
-     * @return La unidad en curso, o {@code null} si completó todas.
+     * @return El tema en curso, o {@code null} si completó todas.
      */
-    public UnidadCronograma getUnidadEnCurso() {
+    public TemaCronograma getTemaEnCurso() {
         return cohorte.getPrograma().getCronogramaOrdenado().stream()
-                .filter(cronograma -> !estaUnidadCompletada(cronograma.getUnidad())).findFirst().orElse(null);
+                .filter(cronograma -> !estaTemaCompletada(cronograma.getTema())).findFirst().orElse(null);
     }
 
     /**
-     * Calcula el estado de una unidad para el alumno: Completada, En curso (habilitada y sin completar) o Bloqueada.
+     * Calcula el estado de un tema para el alumno: Completada, En curso (habilitada y sin completar) o Bloqueada.
      *
-     * @param unidadCronograma La unidad del cronograma a consultar.
-     * @return El estado de la unidad.
+     * @param temaCronograma El tema del cronograma a consultar.
+     * @return El estado del tema.
      */
-    public String getEstadoUnidad(UnidadCronograma unidadCronograma) {
-        if (estaUnidadCompletada(unidadCronograma.getUnidad())) {
+    public String getEstadoTema(TemaCronograma temaCronograma) {
+        if (estaTemaCompletada(temaCronograma.getTema())) {
             return "Completada";
         }
-        return estaUnidadHabilitada(unidadCronograma) ? "En curso" : "Bloqueada";
+        return estaTemaHabilitada(temaCronograma) ? "En curso" : "Bloqueada";
     }
 
     /**
-     * Obtiene el número de orden de la última unidad que el alumno completó.
+     * Obtiene el número de orden del último tema que el alumno completó.
      *
      * @return El número de orden, o 0 si no completó ninguna.
      */
-    public int getUltimaUnidadCompletada() {
+    public int getUltimaTemaCompletada() {
         return cohorte.getPrograma().getCronogramaOrdenado().stream()
-                .filter(cronograma -> estaUnidadCompletada(cronograma.getUnidad()))
-                .mapToInt(UnidadCronograma::getNumeroOrden).max().orElse(0);
+                .filter(cronograma -> estaTemaCompletada(cronograma.getTema()))
+                .mapToInt(TemaCronograma::getNumeroOrden).max().orElse(0);
     }
 
     /**
-     * Obtiene el número de orden de la última unidad que, según el cronograma, ya debería estar terminada hoy.
+     * Obtiene el número de orden del último tema que, según el cronograma, ya debería estar terminada hoy.
      *
-     * @return El número de orden, o 0 si todavía no terminó ninguna semana de ninguna unidad.
+     * @return El número de orden, o 0 si todavía no terminó ninguna semana de ningún tema.
      */
-    public int getUnidadesEsperadasTerminadas() {
+    public int getTemasEsperadasTerminadas() {
         Programa programa = cohorte.getPrograma();
         return programa.getCronogramaOrdenado().stream()
                 .filter(cronograma -> programa.getSemanaHasta(cronograma) < cohorte.getSemanasTranscurridas())
-                .mapToInt(UnidadCronograma::getNumeroOrden).max().orElse(0);
+                .mapToInt(TemaCronograma::getNumeroOrden).max().orElse(0);
     }
 
     /**
-     * Indica si el alumno va por detrás de lo esperado: su última unidad completada es anterior a la última que
+     * Indica si el alumno va por detrás de lo esperado: su último tema completado es anterior a la última que
      * el cronograma ya daba por terminada.
      *
      * @return {@code true} si el alumno está atrasado.
      */
     public boolean estaAtrasada() {
-        return getUltimaUnidadCompletada() < getUnidadesEsperadasTerminadas();
+        return getUltimaTemaCompletada() < getTemasEsperadasTerminadas();
     }
 
     /**
      * Calcula cuántas semanas de atraso lleva el alumno: la diferencia entre la semana actual de la cohorte y la
-     * última semana de la primera unidad que todavía no completó, si esa unidad ya debería estar terminada.
+     * última semana del primer tema que todavía no completó, si ese tema ya debería estar terminada.
      *
      * @return Las semanas de atraso, o 0 si el alumno está al día.
      */
     public int getSemanasDeAtraso() {
-        UnidadCronograma pendiente = getUnidadEnCurso();
+        TemaCronograma pendiente = getTemaEnCurso();
         if (pendiente == null) {
             return 0;
         }
@@ -409,36 +409,36 @@ public class Inscripcion {
     }
 
     /**
-     * Calcula el estado resumido de una unidad según el avance del alumno: Completada, En curso (la primera que no
+     * Calcula el estado resumido de un tema según el avance del alumno: Completada, En curso (la primera que no
      * completó) o Pendiente.
      *
-     * @param unidadCronograma La unidad del cronograma a consultar.
+     * @param temaCronograma El tema del cronograma a consultar.
      * @return "Completada", "En curso" o "Pendiente".
      */
-    public String getEstadoUnidadResumido(UnidadCronograma unidadCronograma) {
-        if (estaUnidadCompletada(unidadCronograma.getUnidad())) {
+    public String getEstadoTemaResumido(TemaCronograma temaCronograma) {
+        if (estaTemaCompletada(temaCronograma.getTema())) {
             return "Completada";
         }
-        UnidadCronograma enCurso = getUnidadEnCurso();
-        return enCurso != null && enCurso.getNumeroOrden() == unidadCronograma.getNumeroOrden()
+        TemaCronograma enCurso = getTemaEnCurso();
+        return enCurso != null && enCurso.getNumeroOrden() == temaCronograma.getNumeroOrden()
                 ? "En curso" : "Pendiente";
     }
 
     /**
-     * Calcula el estado de una unidad respecto del cronograma: Completada, Atrasada (debería estar terminada),
+     * Calcula el estado de un tema respecto del cronograma: Completada, Atrasada (debería estar terminada),
      * Semana actual o Próxima.
      *
-     * @param unidadCronograma La unidad del cronograma a consultar.
-     * @return El estado de la unidad en el cronograma.
+     * @param temaCronograma El tema del cronograma a consultar.
+     * @return El estado del tema en el cronograma.
      */
-    public String getEstadoCronograma(UnidadCronograma unidadCronograma) {
-        if (estaUnidadCompletada(unidadCronograma.getUnidad())) {
+    public String getEstadoCronograma(TemaCronograma temaCronograma) {
+        if (estaTemaCompletada(temaCronograma.getTema())) {
             return "Completada";
         }
         int semana = cohorte.getSemanasTranscurridas();
-        if (unidadCronograma.getSemanaHasta() < semana) {
+        if (temaCronograma.getSemanaHasta() < semana) {
             return "Atrasada";
         }
-        return unidadCronograma.getSemanaDesde() <= semana ? "Semana actual" : "Próxima";
+        return temaCronograma.getSemanaDesde() <= semana ? "Semana actual" : "Próxima";
     }
 }

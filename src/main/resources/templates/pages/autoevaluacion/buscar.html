@@ -29,7 +29,7 @@
                     <p class="pn-subtitulo" th:text="${'Cuestionarios con corrección automática de ' + curso.nombre}">Cuestionarios con corrección automática</p>
                 </div>
                 <button type="button" class="pn-btn pn-btn-primario" th:if="${puedeGestionar}" data-bs-toggle="modal" data-bs-target="#modalNuevaAutoevaluacion"
-                        th:disabled="${#lists.isEmpty(unidades) or #lists.isEmpty(pools)}"
+                        th:disabled="${#lists.isEmpty(temas) or #lists.isEmpty(pools)}"
                         th:title="${#lists.isEmpty(pools) ? 'Primero creá un pool de preguntas' : null}">
                     <i class="fa-solid fa-plus"></i> Registrar autoevaluación
                 </button>
@@ -57,7 +57,7 @@
                             <tr>
                                 <th class="pn-col-seleccion"><input type="checkbox" data-seleccionar-todos aria-label="Seleccionar todos"></th>
                                 <th data-col="Nombre" data-campo="nombre" data-filtro="texto">Nombre</th>
-                                <th data-col="Unidad" data-campo="unidad" data-filtro="lista">Unidad</th>
+                                <th data-col="Tema" data-campo="tema" data-filtro="lista">Tema</th>
                                 <th data-col="Pools" data-campo="pools" data-filtro="multilista">Pools</th>
                                 <th data-col="Tiempo límite" data-campo="tiempo" data-filtro="numero">Tiempo límite</th>
                                 <th data-col="Preguntas" data-campo="preguntas" data-filtro="numero">Preguntas</th>
@@ -74,8 +74,8 @@
                             <tr th:each="a : ${autoevaluaciones}" data-fila th:attr="data-dependencias=${#lists.size(a.intentosActivos)}, data-f-pools=${#strings.listJoin(a.poolsActivos, '|')}">
                                 <td class="pn-col-seleccion"><input type="checkbox" data-seleccionar-fila aria-label="Seleccionar fila"
                                     th:value="${a.idAutoevaluacion}"></td>
-                                <td><span class="pn-celda-principal pn-truncar" th:text="${a.nombre}">Autoevaluación Unidad 1</span></td>
-                                <td><span class="pn-truncar" th:text="${a.unidad.titulo}">Introducción al mercado</span></td>
+                                <td><span class="pn-celda-principal pn-truncar" th:text="${a.nombre}">Autoevaluación Tema 1</span></td>
+                                <td><span class="pn-truncar" th:text="${a.tema.titulo}">Introducción al mercado</span></td>
                                 <td th:text="${#lists.size(a.poolsActivos)}">1</td>
                                 <td th:text="${a.tiempoLimite != null ? a.tiempoLimite + ' min' : '-'}">30 min</td>
                                 <td th:text="${a.cantidadPreguntas}">10</td>

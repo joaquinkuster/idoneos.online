@@ -8,7 +8,7 @@ import com.app.idoneos.modelo.Material;
 import com.app.idoneos.modelo.Modalidad;
 import com.app.idoneos.modelo.DocenteCurso;
 import com.app.idoneos.modelo.TipoMaterial;
-import com.app.idoneos.modelo.Unidad;
+import com.app.idoneos.modelo.Tema;
 import com.app.idoneos.repositorio.MaterialRepositorio;
 import com.app.idoneos.servicio.CrudServicio;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +23,7 @@ import com.app.idoneos.modelo.Curso;
 import com.app.idoneos.modelo.Docente;
 import com.app.idoneos.repositorio.DocenteCursoRepositorio;
 import com.app.idoneos.repositorio.TipoMaterialRepositorio;
-import com.app.idoneos.repositorio.UnidadRepositorio;
+import com.app.idoneos.repositorio.TemaRepositorio;
 import com.app.idoneos.utilidades.ManejadorArchivosUtilidad;
 import com.app.idoneos.modelo.Alumno;
 import com.app.idoneos.modelo.Usuario;
@@ -50,7 +50,7 @@ public class MaterialServicioImpl implements MaterialServicio, CrudServicio<Mate
     private MaterialRepositorio materialRepositorio;
 
     @Autowired
-    private UnidadRepositorio unidadRepositorio;
+    private TemaRepositorio temaRepositorio;
 
     @Autowired
     private InscripcionRepositorio inscripcionRepositorio;
@@ -123,14 +123,14 @@ public class MaterialServicioImpl implements MaterialServicio, CrudServicio<Mate
     }
 
     /**
-     * Busca los registros vigentes de material asociados a unidad.
+     * Busca los registros vigentes de material asociados a tema.
      *
-     * @param unidad el registro de Unidad asociado
-     * @return una lista de Material asociados al Unidad indicado
+     * @param tema el registro de Tema asociado
+     * @return una lista de Material asociados al Tema indicado
      */
     @Override
-    public List<Material> buscarPorUnidad(Unidad unidad) {
-        return materialRepositorio.findByUnidadAndBajaFalse(unidad);
+    public List<Material> buscarPorTema(Tema tema) {
+        return materialRepositorio.findByTemaAndBajaFalse(tema);
     }
 
     /**
@@ -138,19 +138,19 @@ public class MaterialServicioImpl implements MaterialServicio, CrudServicio<Mate
      * siempre al final.
      */
     @Override
-    public List<Material> buscarConFiltros(Integer idCurso, Integer idUnidad, Integer idTipoMaterial, String titulo,
+    public List<Material> buscarConFiltros(Integer idCurso, Integer idTema, Integer idTipoMaterial, String titulo,
             Boolean generadoPorIa, Boolean baja, Docente soloDeDocente) {
         String criterio = titulo == null ? "" : titulo.trim().toLowerCase();
         return materialRepositorio.findAll().stream()
                 .filter(m -> idCurso == null || m.getCurso().getIdCurso() == idCurso)
-                .filter(m -> idUnidad == null || m.getUnidad().getIdUnidad() == idUnidad)
+                .filter(m -> idTema == null || m.getTema().getIdTema() == idTema)
                 .filter(m -> idTipoMaterial == null || m.getTipoMaterial().getIdTipoMaterial() == idTipoMaterial)
                 .filter(m -> criterio.isEmpty() || m.getTitulo().toLowerCase().contains(criterio))
                 .filter(m -> generadoPorIa == null || m.getGeneradoPorIa().equals(generadoPorIa))
                 .filter(m -> baja == null || m.getBaja().equals(baja))
                 .filter(m -> soloDeDocente == null || participaEnElCurso(m.getCurso(), soloDeDocente))
                 .sorted(Comparator.comparing(Material::getBaja)
-                        .thenComparingInt((Material m) -> m.getUnidad().getIdUnidad())
+                        .thenComparingInt((Material m) -> m.getTema().getIdTema())
                         .thenComparingInt(Material::getIdMaterial))
                 .toList();
     }
@@ -179,7 +179,7 @@ public class MaterialServicioImpl implements MaterialServicio, CrudServicio<Mate
         if (!material.estaPublicado()) {
             return Optional.empty();
         }
-        return inscripcionServicio.buscarConAccesoAUnidad(alumno, material.getUnidad());
+        return inscripcionServicio.buscarConAccesoATema(alumno, material.getTema());
     }
 
     // ---------------------------------------------------------------- Creaciones
@@ -196,19 +196,19 @@ public class MaterialServicioImpl implements MaterialServicio, CrudServicio<Mate
     }
 
     /**
-     * Sube un material a una unidad activa. Si el archivo no puede guardarse, no queda registrado el material.
+     * Sube un material a un tema activo. Si el archivo no puede guardarse, no queda registrado el material.
      */
     @Override
     @Transactional
-    public Material subirMaterial(Docente docente, Integer idUnidad, Integer idTipoMaterial, String titulo,
+    public Material subirMaterial(Docente docente, Integer idTema, Integer idTipoMaterial, String titulo,
             boolean oculto, String autor, String enlace, MultipartFile archivo) {
-        Unidad unidad = unidadRepositorio.findById(idUnidad == null ? -1 : idUnidad).filter(u -> !u.esInactivo())
-                .orElseThrow(() -> new IllegalArgumentException("Error! La unidad no se encuentra activa."));
-        DocenteCurso participacion = obtenerParticipacion(unidad.getCurso(), docente);
+        Tema tema = temaRepositorio.findById(idTema == null ? -1 : idTema).filter(u -> !u.esInactivo())
+                .orElseThrow(() -> new IllegalArgumentException("Error! El tema no se encuentra activa."));
+        DocenteCurso participacion = obtenerParticipacion(tema.getCurso(), docente);
         TipoMaterial tipo = tipoMaterialRepositorio.findById(idTipoMaterial == null ? -1 : idTipoMaterial)
                 .filter(TipoMaterial::permiteSubidaManual)
                 .orElseThrow(() -> new IllegalArgumentException("Error! Debe seleccionar un tipo de material de la lista."));
-        if (TipoMaterial.GRABACION.equals(tipo.getNombre()) && !unidad.getCurso().incluyeModalidad(Modalidad.GRABADA)) {
+        if (TipoMaterial.GRABACION.equals(tipo.getNombre()) && !tema.getCurso().incluyeModalidad(Modalidad.GRABADA)) {
             throw RespuestaFormularioUtilidad.campoInvalido("tipoMaterialId", "Error! El curso no tiene la modalidad '"
                     + Modalidad.GRABADA + "': no puede registrarse una grabación.");
         }
@@ -221,7 +221,7 @@ public class MaterialServicioImpl implements MaterialServicio, CrudServicio<Mate
             ManejadorArchivosUtilidad.validar(archivo, tipo.getTamanioMaximo(), tipo.getExtensionesPermitidas());
         }
 
-        Material material = new Material(participacion, tipo, unidad, tituloLimpio);
+        Material material = new Material(participacion, tipo, tema, tituloLimpio);
         material.setAutor(autorLimpio);
         material.setOculto(oculto);
         material.setRutaArchivo(enlaceLimpio);
@@ -279,7 +279,7 @@ public class MaterialServicioImpl implements MaterialServicio, CrudServicio<Mate
             }
         }
         if (oculto && !material.getOculto()) {
-            minimoDeContenido.motivoParaElMaterial(material.getUnidad(), java.util.Set.of(material.getIdMaterial())).ifPresent(motivo -> {
+            minimoDeContenido.motivoParaElMaterial(material.getTema(), java.util.Set.of(material.getIdMaterial())).ifPresent(motivo -> {
                 // El error es del campo "Visibilidad": se muestra debajo de él, como en las autoevaluaciones
                 throw com.app.idoneos.utilidades.RespuestaFormularioUtilidad.campoInvalido("oculto",
                         MensajeErrorUtilidad.accionBloqueada("ocultar", "el material", material.getTitulo(), motivo,
@@ -357,13 +357,13 @@ public class MaterialServicioImpl implements MaterialServicio, CrudServicio<Mate
     }
 
     /**
-     * Verifica que, al dar de baja estos materiales, los programas con cohortes en curso conserven el mínimo de unidades con
+     * Verifica que, al dar de baja estos materiales, los programas con cohortes en curso conserven el mínimo de temas con
      * material publicado y autoevaluación.
      */
     private void validarMinimoAlDarDeBaja(List<Material> materiales) {
         java.util.Set<Integer> ids = materiales.stream().map(Material::getIdMaterial).collect(java.util.stream.Collectors.toSet());
         for (Material material : materiales) {
-            minimoDeContenido.motivoParaElMaterial(material.getUnidad(), ids).ifPresent(motivo -> {
+            minimoDeContenido.motivoParaElMaterial(material.getTema(), ids).ifPresent(motivo -> {
                 throw new IllegalArgumentException(MensajeErrorUtilidad.bajaBloqueada("el material", material.getTitulo(), motivo,
                         "Registrá otro material antes."));
             });
@@ -443,14 +443,14 @@ public class MaterialServicioImpl implements MaterialServicio, CrudServicio<Mate
     }
 
     /**
-     * Guarda el archivo del material en la carpeta de su unidad ({@code curso{id}/unidad{id}/material{id}.{ext}}).
+     * Guarda el archivo del material en la carpeta de su tema ({@code curso{id}/tema{id}/material{id}.{ext}}).
      *
      * @return La ruta del archivo, relativa a la carpeta de los cursos.
      */
     private String guardarArchivo(Material material, MultipartFile archivo) {
         TipoMaterial tipo = material.getTipoMaterial();
-        Path carpeta = ManejadorArchivosUtilidad.carpetaDeUnidad(directorioCursos, material.getCurso().getIdCurso(),
-                material.getUnidad().getIdUnidad());
+        Path carpeta = ManejadorArchivosUtilidad.carpetaDeTema(directorioCursos, material.getCurso().getIdCurso(),
+                material.getTema().getIdTema());
         String nombre = ManejadorArchivosUtilidad.guardar(archivo, carpeta, "material" + material.getIdMaterial(),
                 tipo.getTamanioMaximo(), tipo.getExtensionesPermitidas());
         return ManejadorArchivosUtilidad.rutaRelativa(directorioCursos, carpeta.resolve(nombre));

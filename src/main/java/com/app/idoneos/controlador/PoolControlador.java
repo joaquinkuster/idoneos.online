@@ -26,7 +26,7 @@ import com.app.idoneos.modelo.OpcionRespuesta;
 import com.app.idoneos.modelo.Pool;
 import com.app.idoneos.modelo.Pregunta;
 import com.app.idoneos.modelo.Programa;
-import com.app.idoneos.modelo.UnidadCronograma;
+import com.app.idoneos.modelo.TemaCronograma;
 import com.app.idoneos.modelo.Usuario;
 import com.app.idoneos.servicio.Curso.ContextoCurso;
 import com.app.idoneos.servicio.Pool.PoolServicio;
@@ -54,7 +54,7 @@ public class PoolControlador extends PanelCursoControlador {
     // ---------------------------------------------------------------- Lecturas
 
     /**
-     * CU-60: Lista los pools de un curso, con su unidad y la cantidad de preguntas cargadas. Trae también los datos de
+     * CU-60: Lista los pools de un curso, con su tema y la cantidad de preguntas cargadas. Trae también los datos de
      * cada pool y del alta para las ventanas de crear y modificar.
      *
      * @param cursoId            Identificador del curso.
@@ -82,7 +82,7 @@ public class PoolControlador extends PanelCursoControlador {
 
             cargarContexto(modelo, contexto, "pools");
             modelo.addAttribute("pools", pools);
-            modelo.addAttribute("unidades", programa == null || esAdministrador ? List.of() : programa.getCronogramaOrdenado());
+            modelo.addAttribute("temas", programa == null || esAdministrador ? List.of() : programa.getCronogramaOrdenado());
             modelo.addAttribute("datosPorPool", datosPorPool);
             modelo.addAttribute("datosNuevo", aJson(Map.of("nombre", "", "preguntas", List.of())));
             modelo.addAttribute("puedeGestionar", !esAdministrador);
@@ -98,7 +98,7 @@ public class PoolControlador extends PanelCursoControlador {
     /**
      * CU-61: Registra un pool con sus preguntas. Responde en JSON.
      *
-     * @param unidadId  Identificador de la unidad.
+     * @param temaId  Identificador del tema.
      * @param nombre    El nombre del pool.
      * @param preguntas Las preguntas, en JSON.
      * @param auth      La autenticación actual.
@@ -106,12 +106,12 @@ public class PoolControlador extends PanelCursoControlador {
      */
     @PostMapping("/registrar")
     public ResponseEntity<Map<String, String>> registrarPool(
-            @RequestParam(value = "unidadId", required = false) Integer unidadId,
+            @RequestParam(value = "temaId", required = false) Integer temaId,
             @RequestParam(value = "nombre", required = false) String nombre,
             @RequestParam(value = "preguntas", required = false) String preguntas, Authentication auth) {
         try {
             Usuario usuario = (Usuario) auth.getPrincipal();
-            Pool pool = poolServicio.registrarPool(usuario.getDocente(), unidadId, nombre, leerPreguntas(preguntas));
+            Pool pool = poolServicio.registrarPool(usuario.getDocente(), temaId, nombre, leerPreguntas(preguntas));
             return RespuestaFormularioUtilidad.respuestaExitosa("Pool '" + pool.getNombre() + "' creado con éxito.");
         } catch (Exception e) {
             return RespuestaFormularioUtilidad.respuestaConError(e);

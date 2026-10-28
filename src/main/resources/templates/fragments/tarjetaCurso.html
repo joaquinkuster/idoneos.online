@@ -1,7 +1,7 @@
 <!-- Tarjeta de un curso. Se usa en el inicio, el catálogo y "Mis cursos" (alumno, docente y administrador).
      Parámetros:
        c            el curso;
-       unidades     cantidad de unidades temáticas (puede ser nulo);
+       temas     cantidad de temas (puede ser nulo);
        estado       etiqueta sobre la imagen (nulo para no mostrarla);
        url, texto   enlace del botón, que se estira sobre toda la tarjeta;
        menu         menú de tres puntos junto al botón: nulo (sin menú), 'curso' (administrador: Modificar y Dar de baja)
@@ -9,8 +9,8 @@
        inscripcion  solo para el alumno: su inscripción al curso. Suma el progreso y el vencimiento del acceso, y cambia
                     el botón según el estado del acceso (Vigente: enlace; Pendiente de pago: botón Pagar; otro: bloqueado).
      La imagen lleva un degradé de uno de tres tonos (azul, ámbar o verde, según el curso); sin imagen, el degradé es el fondo. -->
-<div th:fragment="tarjeta(c, unidades, estado, url, texto, menu, inscripcion)" class="cc-carta" data-tarjeta
-     th:with="cantidad=${unidades != null ? unidades : 0}"
+<div th:fragment="tarjeta(c, temas, estado, url, texto, menu, inscripcion)" class="cc-carta" data-tarjeta
+     th:with="cantidad=${temas != null ? temas : 0}"
      th:data-f-busqueda="${c.nombre + ' ' + (c.descripcion != null ? c.descripcion : '')}"
      th:data-f-categoriaid="${c.categoria.idCategoria}" th:data-f-nivelid="${c.nivel.idNivel}"
      th:data-f-docenteid="${#strings.listJoin(c.equipoDocente.![docente.idDocente], '|')}"
@@ -41,7 +41,7 @@
         <div class="progress-bar" role="progressbar" th:style="${'width:' + inscripcion.porcentajeProgreso + '%; background: var(--wf-gold, #D4A03D);'}"
              th:attr="aria-valuenow=${inscripcion.porcentajeProgreso}" aria-valuemin="0" aria-valuemax="100"></div>
       </div>
-      <small th:text="${inscripcion.unidadesCompletadas + ' de ' + inscripcion.cohorte.programa.cantidadUnidades + ' unidades completadas'}">1 de 3 unidades completadas</small>
+      <small th:text="${inscripcion.temasCompletadas + ' de ' + inscripcion.cohorte.programa.cantidadTemas + ' temas completados'}">1 de 3 temas completados</small>
     </div>
     <div class="cc-datos">
       <div>
@@ -50,7 +50,7 @@
       </div>
       <div>
         <small>Contenido</small>
-        <span th:text="${cantidad + (cantidad == 1 ? ' unidad' : ' unidades')}">3 unidades</span>
+        <span th:text="${cantidad + (cantidad == 1 ? ' tema' : ' temas')}">3 temas</span>
       </div>
     </div>
     <div class="cc-pie">

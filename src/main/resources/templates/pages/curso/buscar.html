@@ -107,7 +107,7 @@
                     <div class="wf-cards-grid" data-tarjetas>
                         <th:block th:each="curso : ${cursos}">
                             <th:block th:replace="~{fragments/tarjetaCurso :: tarjeta(${curso},
-                                ${programasPorCurso != null and programasPorCurso.containsKey(curso.idCurso) and !#lists.isEmpty(programasPorCurso.get(curso.idCurso)) ? programasPorCurso.get(curso.idCurso).get(0).cantidadUnidades : 0},
+                                ${programasPorCurso != null and programasPorCurso.containsKey(curso.idCurso) and !#lists.isEmpty(programasPorCurso.get(curso.idCurso)) ? programasPorCurso.get(curso.idCurso).get(0).cantidadTemas : 0},
                                 ${cursosConInscripcionAbierta != null and cursosConInscripcionAbierta.contains(curso.idCurso) ? 'Inscripción abierta' : null},
                                 '/curso/acceder/' + ${curso.idCurso}, 'Acceder al curso',
                                 ${esAdministrador == true ? 'curso' : null}, null)}"></th:block>

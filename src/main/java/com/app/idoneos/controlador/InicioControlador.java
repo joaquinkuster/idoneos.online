@@ -75,12 +75,12 @@ public class InicioControlador implements ErrorController {
         List<Categoria> categorias = categoriaServicio.buscarConFiltros(null, false, "nombre").stream()
                 .filter(categoria -> cursosPorCategoria.containsKey(categoria.getIdCategoria())).toList();
 
-        // Cantidad de unidades temáticas de cada curso (según su primer programa activo)
-        Map<Integer, Integer> cantidadUnidadesPorCurso = new HashMap<>();
+        // Cantidad de temas de cada curso (según su primer programa activo)
+        Map<Integer, Integer> cantidadTemasPorCurso = new HashMap<>();
         for (Curso curso : cursosDestacados) {
             List<Programa> programas = programaServicio.buscarPorCurso(curso);
-            cantidadUnidadesPorCurso.put(curso.getIdCurso(),
-                    programas.isEmpty() ? 0 : programas.get(0).getCantidadUnidades());
+            cantidadTemasPorCurso.put(curso.getIdCurso(),
+                    programas.isEmpty() ? 0 : programas.get(0).getCantidadTemas());
         }
 
         modelo.addAttribute("categorias", categorias);
@@ -89,7 +89,7 @@ public class InicioControlador implements ErrorController {
         modelo.addAttribute("descuentosVigentes", descuentoServicio.buscarVigentes());
         modelo.addAttribute("descuentoAplicable", pagoServicio.calcularDescuentoPara(alumnoDe(auth)).orElse(null));
         modelo.addAttribute("cursos", cursosDestacados);
-        modelo.addAttribute("cantUnidadesPorCurso", cantidadUnidadesPorCurso);
+        modelo.addAttribute("cantTemasPorCurso", cantidadTemasPorCurso);
         modelo.addAttribute("titulo", "Idóneos Online | Cursos de Finanzas, Economía y Mercado de Capitales");
         return "index";
     }

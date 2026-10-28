@@ -19,52 +19,52 @@ import com.app.idoneos.servicio.Curso.ContextoCurso;
 import com.app.idoneos.modelo.Curso;
 import com.app.idoneos.modelo.Docente;
 import com.app.idoneos.modelo.Programa;
-import com.app.idoneos.modelo.Unidad;
-import com.app.idoneos.modelo.UnidadCronograma;
+import com.app.idoneos.modelo.Tema;
+import com.app.idoneos.modelo.TemaCronograma;
 import com.app.idoneos.modelo.Usuario;
-import com.app.idoneos.servicio.Unidad.UnidadServicio;
+import com.app.idoneos.servicio.Tema.TemaServicio;
 import com.app.idoneos.utilidades.RespuestaFormularioUtilidad;
 
 /**
- * Controlador del ABM de unidades (MOD-F-02): CU-19 Buscar unidad (GET /unidad/buscar), CU-20 Agregar unidad
- * (POST /unidad/registrar), CU-21 Modificar unidad (POST /unidad/modificar/{id}) y CU-22 Dar de baja unidad (quitarla del
- * cronograma de un programa: POST /unidad/darDeBaja/{id} y /unidad/darDeBajaMasiva).
+ * Controlador del ABM de temas (MOD-F-02): CU-19 Buscar tema (GET /tema/buscar), CU-20 Agregar tema
+ * (POST /tema/registrar), CU-21 Modificar tema (POST /tema/modificar/{id}) y CU-22 Dar de baja tema (quitarla del
+ * cronograma de un programa: POST /tema/darDeBaja/{id} y /tema/darDeBajaMasiva).
  *
  * El listado muestra el cronograma del programa por defecto del docente (o el vigente, si lo ve el administrador). El
- * docente (titular o ayudante) agrega y modifica unidades de los cursos en los que participa; el administrador puede
+ * docente (titular o ayudante) agrega y modifica temas de los cursos en los que participa; el administrador puede
  * buscar y dar de baja las de cualquier curso.
  */
 @Controller
-@RequestMapping("/unidad")
-public class UnidadControlador extends PanelCursoControlador {
+@RequestMapping("/tema")
+public class TemaControlador extends PanelCursoControlador {
 
     @Autowired
-    private UnidadServicio unidadServicio;
+    private TemaServicio temaServicio;
 
     // ---------------------------------------------------------------- Lecturas
 
     /**
-     * CU-19: Lista las unidades del cronograma del programa de trabajo de un curso. Si se indica {@code nuevo}, abre
-     * sola la ventana para agregar una unidad; con {@code accion} y {@code unidadId} abre la ventana de modificar o de
-     * dar de baja esa unidad (son los destinos del botón "Registrar unidad" y del menú de cada unidad de la vista del
+     * CU-19: Lista los temas del cronograma del programa de trabajo de un curso. Si se indica {@code nuevo}, abre
+     * sola la ventana para agregar un tema; con {@code accion} y {@code temaId} abre la ventana de modificar o de
+     * dar de baja ese tema (son los destinos del botón "Registrar tema" y del menú de cada tema de la vista del
      * curso).
      *
      * @param cursoId            Identificador del curso.
      * @param titulo             Parte del título (opcional).
      * @param nuevo              Presente para abrir el formulario de alta (solo docente).
-     * @param accion             "editar" o "baja": abre sola la ventana de esa unidad.
-     * @param unidadId           Identificador de la unidad de la acción (opcional).
+     * @param accion             "editar" o "baja": abre sola la ventana de ese tema.
+     * @param temaId           Identificador del tema de la acción (opcional).
      * @param modelo             El modelo de la vista.
      * @param auth               La autenticación actual.
      * @param redirectAttributes Atributos para mensajes de redirección.
      * @return La vista del listado, o una redirección a "Mis cursos" si no se puede acceder.
      */
     @GetMapping("/buscar")
-    public String buscarUnidades(@RequestParam(value = "cursoId", required = false) Integer cursoId,
+    public String buscarTemas(@RequestParam(value = "cursoId", required = false) Integer cursoId,
             @RequestParam(value = "titulo", required = false) String titulo,
             @RequestParam(value = "nuevo", required = false) String nuevo,
             @RequestParam(value = "accion", required = false) String accion,
-            @RequestParam(value = "unidadId", required = false) Integer unidadId, Model modelo, Authentication auth,
+            @RequestParam(value = "temaId", required = false) Integer temaId, Model modelo, Authentication auth,
             RedirectAttributes redirectAttributes) {
         try {
             ContextoCurso contexto = contextoDelPanel(cursoId, (Usuario) auth.getPrincipal());
@@ -74,31 +74,31 @@ public class UnidadControlador extends PanelCursoControlador {
             if (programa == null) {
                 return avisarCursoSinProgramas(contexto, redirectAttributes);
             }
-            List<UnidadCronograma> unidades = unidadServicio.buscarConFiltros(programa, null); // listado completo: los filtros se aplican en la pantalla
+            List<TemaCronograma> temas = temaServicio.buscarConFiltros(programa, null); // listado completo: los filtros se aplican en la pantalla
 
             String abrirModal = null;
             if (!esAdministrador && nuevo != null) {
-                abrirModal = "modalNuevaUnidad";
-            } else if (accion != null && unidadId != null && programa.getCronogramaOrdenado().stream()
-                    .anyMatch(c -> c.getUnidad().getIdUnidad() == unidadId)) {
+                abrirModal = "modalNuevaTema";
+            } else if (accion != null && temaId != null && programa.getCronogramaOrdenado().stream()
+                    .anyMatch(c -> c.getTema().getIdTema() == temaId)) {
                 if ("baja".equals(accion)) {
-                    abrirModal = "modalBajaUnidad" + unidadId;
+                    abrirModal = "modalBajaTema" + temaId;
                 } else if ("editar".equals(accion) && !esAdministrador) {
-                    abrirModal = "modalEditarUnidad" + unidadId;
+                    abrirModal = "modalEditarTema" + temaId;
                 }
             }
 
-            List<Unidad> unidadesDelCurso = unidadServicio.buscarPorCurso(curso).stream()
+            List<Tema> temasDelCurso = temaServicio.buscarPorCurso(curso).stream()
                     .filter(u -> !u.getProgramasQueLaIncluyen().isEmpty()).toList();
-            cargarContexto(modelo, contexto, "unidades");
-            modelo.addAttribute("unidades", unidades);
+            cargarContexto(modelo, contexto, "temas");
+            modelo.addAttribute("temas", temas);
             modelo.addAttribute("programasActivos", curso.getProgramasActivos());
-            modelo.addAttribute("unidadesDelCurso", unidadesDelCurso);
+            modelo.addAttribute("temasDelCurso", temasDelCurso);
             modelo.addAttribute("tituloBusqueda", titulo);
             modelo.addAttribute("abrirModal", abrirModal);
             modelo.addAttribute("puedeGestionar", !esAdministrador);
-            modelo.addAttribute("titulo", "Unidades | Idóneos Online");
-            return "pages/unidad/buscar";
+            modelo.addAttribute("titulo", "Temas | Idóneos Online");
+            return "pages/tema/buscar";
         } catch (IllegalArgumentException e) {
             return volverAMisCursos(redirectAttributes, e);
         }
@@ -107,30 +107,30 @@ public class UnidadControlador extends PanelCursoControlador {
     // ---------------------------------------------------------------- Creaciones
 
     /**
-     * CU-20: Agrega una unidad (nueva o ya existente en otro programa del curso) al final del cronograma de un programa.
+     * CU-20: Agrega un tema (nueva o ya existente en otro programa del curso) al final del cronograma de un programa.
      * Responde en JSON.
      *
      * @param programaId        Identificador del programa.
-     * @param unidadExistenteId Unidad de otro programa que se incorpora (opcional).
-     * @param titulo            El título de la unidad nueva.
-     * @param descripcion       La descripción de la unidad nueva (opcional).
-     * @param contenido         El contenido de la unidad nueva.
+     * @param temaExistenteId Tema de otro programa que se incorpora (opcional).
+     * @param titulo            El título del tema nueva.
+     * @param descripcion       La descripción del tema nueva (opcional).
+     * @param contenido         El contenido del tema nueva.
      * @param auth              La autenticación actual.
      * @return Una respuesta con el mensaje de éxito o el mensaje de error.
      */
     @PostMapping("/registrar")
-    public ResponseEntity<Map<String, String>> agregarUnidad(
+    public ResponseEntity<Map<String, String>> agregarTema(
             @RequestParam(value = "programaId", required = false) Integer programaId,
-            @RequestParam(value = "unidadExistenteId", required = false) Integer unidadExistenteId,
+            @RequestParam(value = "temaExistenteId", required = false) Integer temaExistenteId,
             @RequestParam(value = "titulo", required = false) String titulo,
             @RequestParam(value = "descripcion", required = false) String descripcion,
             @RequestParam(value = "contenido", required = false) String contenido, Authentication auth) {
         try {
             Usuario usuario = (Usuario) auth.getPrincipal();
-            Unidad unidad = unidadServicio.agregarUnidad(usuario.getDocente(), programaId, unidadExistenteId, titulo,
+            Tema tema = temaServicio.agregarTema(usuario.getDocente(), programaId, temaExistenteId, titulo,
                     descripcion, contenido);
-            String accion = unidadExistenteId != null ? "incorporada" : "registrada";
-            return RespuestaFormularioUtilidad.respuestaExitosa("Unidad '" + unidad.getTitulo() + "' " + accion + " con éxito.");
+            String accion = temaExistenteId != null ? "incorporada" : "registrada";
+            return RespuestaFormularioUtilidad.respuestaExitosa("Tema '" + tema.getTitulo() + "' " + accion + " con éxito.");
         } catch (Exception e) {
             return RespuestaFormularioUtilidad.respuestaConError(e);
         }
@@ -139,9 +139,9 @@ public class UnidadControlador extends PanelCursoControlador {
     // ---------------------------------------------------------------- Modificaciones
 
     /**
-     * CU-21: Modifica una unidad sin inscripciones activas asociadas. Responde en JSON.
+     * CU-21: Modifica un tema sin inscripciones activas asociadas. Responde en JSON.
      *
-     * @param id          Identificador de la unidad.
+     * @param id          Identificador del tema.
      * @param titulo      El título.
      * @param descripcion La descripción (opcional).
      * @param contenido   El contenido.
@@ -149,14 +149,14 @@ public class UnidadControlador extends PanelCursoControlador {
      * @return Una respuesta con el mensaje de éxito o el mensaje de error.
      */
     @PostMapping("/modificar/{id}")
-    public ResponseEntity<Map<String, String>> modificarUnidad(@PathVariable("id") Integer id,
+    public ResponseEntity<Map<String, String>> modificarTema(@PathVariable("id") Integer id,
             @RequestParam(value = "titulo", required = false) String titulo,
             @RequestParam(value = "descripcion", required = false) String descripcion,
             @RequestParam(value = "contenido", required = false) String contenido, Authentication auth) {
         try {
             Usuario usuario = (Usuario) auth.getPrincipal();
-            unidadServicio.modificarUnidad(id, usuario.getDocente(), titulo, descripcion, contenido);
-            return RespuestaFormularioUtilidad.respuestaExitosa("Unidad modificada correctamente.");
+            temaServicio.modificarTema(id, usuario.getDocente(), titulo, descripcion, contenido);
+            return RespuestaFormularioUtilidad.respuestaExitosa("Tema modificada correctamente.");
         } catch (Exception e) {
             return RespuestaFormularioUtilidad.respuestaConError(e);
         }
@@ -165,28 +165,28 @@ public class UnidadControlador extends PanelCursoControlador {
     // ---------------------------------------------------------------- Bajas
 
     /**
-     * CU-22: Da de baja una unidad del cronograma de un programa. Responde en JSON.
+     * CU-22: Da de baja un tema del cronograma de un programa. Responde en JSON.
      *
-     * @param id         Identificador de la unidad.
+     * @param id         Identificador del tema.
      * @param programaId Identificador del programa.
      * @param auth       La autenticación actual.
      * @return Una respuesta con el mensaje de éxito o el mensaje de error.
      */
     @PostMapping("/darDeBaja/{id}")
-    public ResponseEntity<Map<String, String>> darDeBajaUnidad(@PathVariable("id") Integer id,
+    public ResponseEntity<Map<String, String>> darDeBajaTema(@PathVariable("id") Integer id,
             @RequestParam(value = "programaId", required = false) Integer programaId, Authentication auth) {
         try {
-            unidadServicio.darDeBajaUnidad(id, programaId, docenteQueGestiona(auth));
-            return RespuestaFormularioUtilidad.respuestaExitosa("Unidad dada de baja con éxito.");
+            temaServicio.darDeBajaTema(id, programaId, docenteQueGestiona(auth));
+            return RespuestaFormularioUtilidad.respuestaExitosa("Tema dada de baja con éxito.");
         } catch (Exception e) {
             return RespuestaFormularioUtilidad.respuestaConError(e);
         }
     }
 
     /**
-     * CU-22: Da de baja varias unidades del cronograma de un programa, todas o ninguna. Responde en JSON.
+     * CU-22: Da de baja varios temas del cronograma de un programa, todas o ninguna. Responde en JSON.
      *
-     * @param ids        Identificadores de las unidades seleccionadas.
+     * @param ids        Identificadores de los temas seleccionados.
      * @param programaId Identificador del programa.
      * @param auth       La autenticación actual.
      * @return Una respuesta con el mensaje de éxito o el mensaje de error.
@@ -196,8 +196,8 @@ public class UnidadControlador extends PanelCursoControlador {
             @RequestParam(value = "ids", required = false) List<Integer> ids,
             @RequestParam(value = "programaId", required = false) Integer programaId, Authentication auth) {
         try {
-            unidadServicio.darDeBajaVarias(ids, programaId, docenteQueGestiona(auth));
-            return RespuestaFormularioUtilidad.respuestaExitosa("Unidades dadas de baja con éxito.");
+            temaServicio.darDeBajaVarias(ids, programaId, docenteQueGestiona(auth));
+            return RespuestaFormularioUtilidad.respuestaExitosa("Temas dadas de baja con éxito.");
         } catch (Exception e) {
             return RespuestaFormularioUtilidad.respuestaConError(e);
         }

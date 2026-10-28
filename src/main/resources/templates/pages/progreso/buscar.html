@@ -55,7 +55,7 @@
                             <tr>
                                 <th data-col="Alumno" data-campo="alumno" data-filtro="texto">Alumno</th>
                                 <th data-col="Cohorte" data-campo="cohorte" data-filtro="estatico">Cohorte</th>
-                                <th data-col="Unidades completadas" data-campo="unidadesCompletadas" data-filtro="numero">Unidades completadas</th>
+                                <th data-col="Temas completadas" data-campo="temasCompletadas" data-filtro="numero">Temas completadas</th>
                                 <th data-col="Progreso" data-campo="progreso" data-filtro="numero">Progreso</th>
                                 <th data-col="Estado" data-campo="estado" data-filtro="lista">Estado</th>
                                 <th data-col="Fecha de creación" data-campo="fechaCreacion" data-filtro="fecha">Fecha de creación</th>
@@ -74,7 +74,7 @@
                                     </span>
                                 </td>
                                 <td><span class="pn-truncar" th:text="${i.cohorte.programa.nombre + ' · ' + i.cohorte.etiqueta}">Programa · Mayo 2026</span></td>
-                                <td th:text="${i.unidadesCompletadas + ' de ' + i.cohorte.programa.cantidadUnidades}">1 de 4</td>
+                                <td th:text="${i.temasCompletadas + ' de ' + i.cohorte.programa.cantidadTemas}">1 de 4</td>
                                 <td>
                                     <div class="d-flex align-items-center gap-2">
                                         <div class="progress flex-grow-1" style="height: 6px; min-width: 80px;">
@@ -98,7 +98,7 @@
                                     </div>
                                 </td>
                             </tr>
-                            <!-- Detalle por unidad (CU-55): se despliega debajo de la fila del alumno -->
+                            <!-- Detalle por tema (CU-55): se despliega debajo de la fila del alumno -->
                             <tr class="pn-fila-detalle" th:id="${'detalleProgreso' + i.idInscripcion}">
                                 <td colspan="7">
                                     <div class="pn-detalle">
@@ -107,23 +107,23 @@
                                                 <thead>
                                                     <tr>
                                                         <th>Orden</th>
-                                                        <th>Unidad</th>
+                                                        <th>Tema</th>
                                                         <th>Completada</th>
                                                         <th>Fecha en que se completó</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    <tr th:each="u : ${detalles.get(i.idInscripcion).unidades}">
-                                                        <td th:text="${u.unidad.numeroOrden}">1</td>
-                                                        <td><span class="pn-truncar pn-truncar-largo" th:text="${u.unidad.unidad.titulo}">Introducción</span></td>
+                                                    <tr th:each="u : ${detalles.get(i.idInscripcion).temas}">
+                                                        <td th:text="${u.tema.numeroOrden}">1</td>
+                                                        <td><span class="pn-truncar pn-truncar-largo" th:text="${u.tema.tema.titulo}">Introducción</span></td>
                                                         <td>
                                                             <span class="pn-insignia" th:classappend="${u.completada} ? 'pn-insignia-verde' : 'pn-insignia-gris'"
                                                                   th:text="${u.completada ? 'Sí' : 'No'}">Sí</span>
                                                         </td>
                                                         <td th:text="${u.fechaCompletada != null ? #temporals.format(u.fechaCompletada, 'dd/MM/yyyy HH:mm') : '—'}">—</td>
                                                     </tr>
-                                                    <tr th:if="${#lists.isEmpty(detalles.get(i.idInscripcion).unidades)}">
-                                                        <td colspan="4" class="text-center">El programa todavía no tiene unidades.</td>
+                                                    <tr th:if="${#lists.isEmpty(detalles.get(i.idInscripcion).temas)}">
+                                                        <td colspan="4" class="text-center">El programa todavía no tiene temas.</td>
                                                     </tr>
                                                 </tbody>
                                             </table>

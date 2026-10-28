@@ -29,7 +29,7 @@ import com.app.idoneos.repositorio.IntentoAutoevaluacionRepositorio;
 
 /**
  * Pruebas de las pantallas del alumno para CU-70: la ficha de la autoevaluación, el cuestionario, el resumen, la entrega y el
- * bloqueo del resto de la plataforma mientras rinde una autoevaluación que no permite salir. Valentina Ruiz tiene la unidad
+ * bloqueo del resto de la plataforma mientras rinde una autoevaluación que no permite salir. Valentina Ruiz tiene el tema
  * 2 habilitada (autoevaluación secuencial que no permite salir) y la 1 completada (navegación libre, permite salir).
  */
 @SpringBootTest
@@ -67,11 +67,11 @@ class IntentoAutoevaluacionControladorTest {
     }
 
     private int libre() {
-        return autoevaluacion("Autoevaluación Unidad 1: Marco regulatorio");
+        return autoevaluacion("Autoevaluación Tema 1: Marco regulatorio");
     }
 
     private int secuencial() {
-        return autoevaluacion("Autoevaluación Unidad 2: Ejercicios de rendimiento");
+        return autoevaluacion("Autoevaluación Tema 2: Ejercicios de rendimiento");
     }
 
     private IntentoAutoevaluacion ultimoIntento() {
@@ -99,8 +99,8 @@ class IntentoAutoevaluacionControladorTest {
                 .andExpect(content().string(Matchers.containsString("data-sin-salida=\"true\"")))
                 .andExpect(content().string(Matchers.containsString("Todavía no realizaste ningún intento")));
 
-        // La unidad 3 todavía está bloqueada para Valentina
-        mockMvc.perform(get("/autoevaluacion/ver/" + autoevaluacion("Autoevaluación de la unidad 3")))
+        // El tema 3 todavía está bloqueada para Valentina
+        mockMvc.perform(get("/autoevaluacion/ver/" + autoevaluacion("Autoevaluación del tema 3")))
                 .andExpect(status().isForbidden());
     }
 
@@ -213,7 +213,7 @@ class IntentoAutoevaluacionControladorTest {
 
     @Test
     @WithUserDetails(value = VALENTINA, userDetailsServiceBeanName = "usuarioDetallesServicio")
-    @DisplayName("Desde el curso, el alumno llega a la ficha de cada autoevaluación de las unidades que tiene habilitadas")
+    @DisplayName("Desde el curso, el alumno llega a la ficha de cada autoevaluación de los temas que tiene habilitadas")
     void enlaceDesdeElCurso() throws Exception {
         int inscripcion = inscripcionRepositorio.findByBajaFalse().stream()
                 .filter(i -> i.getAlumno().getUsuario().getCorreo().equals(VALENTINA)
@@ -233,16 +233,16 @@ class IntentoAutoevaluacionControladorTest {
                 .filter(i -> i.getAlumno().getUsuario().getCorreo().equals(VALENTINA)
                         && i.getCurso().getNombre().equals("Mercado de Capitales Argentino"))
                 .findFirst().orElseThrow();
-        // Le quedan sin completar la unidad 2 (la que va a rendir) y la 3: se da la 3 por completada
-        com.app.idoneos.modelo.Unidad unidad3 = autoevaluacionRepositorio.findAll().stream()
-                .filter(a -> a.getNombre().equals("Autoevaluación de la unidad 3")).findFirst().orElseThrow().getUnidad();
-        com.app.idoneos.modelo.Progreso progreso = new com.app.idoneos.modelo.Progreso(unidad3, inscripcion);
+        // Le quedan sin completar el tema 2 (la que va a rendir) y la 3: se da la 3 por completada
+        com.app.idoneos.modelo.Tema tema3 = autoevaluacionRepositorio.findAll().stream()
+                .filter(a -> a.getNombre().equals("Autoevaluación del tema 3")).findFirst().orElseThrow().getTema();
+        com.app.idoneos.modelo.Progreso progreso = new com.app.idoneos.modelo.Progreso(tema3, inscripcion);
         progreso.setCompletada(true);
         progreso.setFechaCompletada(java.time.LocalDateTime.now());
         inscripcion.getProgresos().add(progresoRepositorio.save(progreso));
         org.junit.jupiter.api.Assertions.assertNull(inscripcion.getCertificadoVigente());
 
-        // Rinde la unidad 2 con todo correcto
+        // Rinde el tema 2 con todo correcto
         mockMvc.perform(post("/intento/iniciar/" + secuencial())).andExpect(status().isFound());
         IntentoAutoevaluacion intento = ultimoIntento();
         int id = intento.getIdIntentoAutoevaluacion();

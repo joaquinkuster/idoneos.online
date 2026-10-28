@@ -32,7 +32,7 @@ class ProgresoServicioTest {
     private InscripcionRepositorio inscripcionRepositorio;
 
     private Inscripcion conProgreso() {
-        return inscripcionRepositorio.findByBajaFalse().stream().filter(i -> i.getUnidadesCompletadas() > 0)
+        return inscripcionRepositorio.findByBajaFalse().stream().filter(i -> i.getTemasCompletadas() > 0)
                 .findFirst().orElseThrow();
     }
 
@@ -66,17 +66,17 @@ class ProgresoServicioTest {
     }
 
     @Test
-    @DisplayName("CU-55: el detalle muestra cada unidad del programa de la cohorte, si fue completada y su fecha")
+    @DisplayName("CU-55: el detalle muestra cada tema del programa de la cohorte, si fue completada y su fecha")
     void detalleDelProgreso() {
         Inscripcion inscripcion = conProgreso();
 
         DetalleProgreso detalle = progresoServicio.buscarDetalle(inscripcion.getIdInscripcion());
 
         assertEquals(inscripcion, detalle.inscripcion());
-        assertEquals(inscripcion.getCohorte().getPrograma().getCantidadUnidades(), detalle.unidades().size());
-        long completadas = detalle.unidades().stream().filter(DetalleProgreso.AvanceUnidad::completada).count();
-        assertEquals(inscripcion.getUnidadesCompletadas(), completadas);
-        detalle.unidades().forEach(u -> {
+        assertEquals(inscripcion.getCohorte().getPrograma().getCantidadTemas(), detalle.temas().size());
+        long completadas = detalle.temas().stream().filter(DetalleProgreso.AvanceTema::completada).count();
+        assertEquals(inscripcion.getTemasCompletadas(), completadas);
+        detalle.temas().forEach(u -> {
             if (u.completada()) {
                 assertTrue(u.fechaCompletada() != null);
             } else {
@@ -84,9 +84,9 @@ class ProgresoServicioTest {
             }
         });
         // en orden de dictado
-        for (int i = 1; i < detalle.unidades().size(); i++) {
-            assertTrue(detalle.unidades().get(i - 1).unidad().getNumeroOrden() < detalle.unidades().get(i)
-                    .unidad().getNumeroOrden());
+        for (int i = 1; i < detalle.temas().size(); i++) {
+            assertTrue(detalle.temas().get(i - 1).tema().getNumeroOrden() < detalle.temas().get(i)
+                    .tema().getNumeroOrden());
         }
     }
 

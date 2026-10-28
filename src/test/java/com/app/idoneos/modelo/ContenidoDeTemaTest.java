@@ -14,12 +14,12 @@ import org.springframework.transaction.annotation.Transactional;
 import com.app.idoneos.repositorio.InscripcionRepositorio;
 
 /**
- * Pruebas del contenido publicado de una unidad y de las clases en vivo de una cohorte (CU-27), con los datos de la
+ * Pruebas del contenido publicado de un tema y de las clases en vivo de una cohorte (CU-27), con los datos de la
  * semilla: el alumno Valentina Ruiz está inscripta en la cohorte en dictado de "Mercado de Capitales Argentino".
  */
 @SpringBootTest
 @Transactional
-class ContenidoDeUnidadTest {
+class ContenidoDeTemaTest {
 
     @Autowired
     private InscripcionRepositorio inscripcionRepositorio;
@@ -31,9 +31,9 @@ class ContenidoDeUnidadTest {
     }
 
     @Test
-    @DisplayName("La unidad entrega su material, glosario, autoevaluaciones y consultas del foro publicados")
+    @DisplayName("El tema entrega su material, glosario, autoevaluaciones y consultas del foro publicados")
     void contenidoPublicado() {
-        Unidad primera = inscripcionDeValentina().getCohorte().getPrograma().getCronogramaOrdenado().get(0).getUnidad();
+        Tema primera = inscripcionDeValentina().getCohorte().getPrograma().getCronogramaOrdenado().get(0).getTema();
 
         assertEquals(3, primera.getMaterialesPublicados().size());
         assertEquals(3, primera.getTerminosGlosarioOrdenados().size());
@@ -45,7 +45,7 @@ class ContenidoDeUnidadTest {
     @Test
     @DisplayName("El material oculto o dado de baja no se publica")
     void materialNoPublicado() {
-        Unidad primera = inscripcionDeValentina().getCohorte().getPrograma().getCronogramaOrdenado().get(0).getUnidad();
+        Tema primera = inscripcionDeValentina().getCohorte().getPrograma().getCronogramaOrdenado().get(0).getTema();
         Material oculto = primera.getMateriales().iterator().next();
         oculto.setOculto(true);
 
@@ -61,7 +61,7 @@ class ContenidoDeUnidadTest {
     @DisplayName("La autoevaluación informa los intentos propios del alumno")
     void intentosDelAlumno() {
         Inscripcion inscripcion = inscripcionDeValentina();
-        Autoevaluacion primera = inscripcion.getCohorte().getPrograma().getCronogramaOrdenado().get(0).getUnidad()
+        Autoevaluacion primera = inscripcion.getCohorte().getPrograma().getCronogramaOrdenado().get(0).getTema()
                 .getAutoevaluacionesPublicadas().get(0);
 
         assertEquals(2, primera.intentosDe(inscripcion).size());
@@ -69,7 +69,7 @@ class ContenidoDeUnidadTest {
         assertEquals(8f, primera.mejorNota(inscripcion));
         assertTrue(primera.estaAprobadaPor(inscripcion));
 
-        Autoevaluacion segunda = inscripcion.getCohorte().getPrograma().getCronogramaOrdenado().get(1).getUnidad()
+        Autoevaluacion segunda = inscripcion.getCohorte().getPrograma().getCronogramaOrdenado().get(1).getTema()
                 .getAutoevaluacionesPublicadas().get(0);
 
         assertTrue(segunda.intentosDe(inscripcion).isEmpty());

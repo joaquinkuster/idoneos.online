@@ -7,7 +7,7 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.app.idoneos.modelo.Parametro;
-import com.app.idoneos.modelo.Unidad;
+import com.app.idoneos.modelo.Tema;
 import com.app.idoneos.modelo.Usuario;
 import com.app.idoneos.servicio.Curso.ContextoCurso;
 import com.app.idoneos.servicio.Curso.CursoServicio;
@@ -15,7 +15,7 @@ import com.app.idoneos.servicio.Inscripcion.InscripcionServicio;
 import com.app.idoneos.servicio.Parametro.ParametroServicio;
 
 /**
- * Base de los controladores de las pantallas que viven dentro del panel de un curso (unidades, programas, cronograma,
+ * Base de los controladores de las pantallas que viven dentro del panel de un curso (temas, programas, cronograma,
  * materiales, glosario, foros, participantes, cohortes y la página del curso). Resuelve con qué rol entra la persona,
  * con qué curso y programa trabaja y arma los datos de pantalla que todas comparten ({@code urlBase},
  * {@code urlMisCursos}, {@code esDocente}, {@code esAdministrador} y {@code menuActivo}). Las reglas de acceso las
@@ -46,17 +46,17 @@ public abstract class PanelCursoControlador {
     }
 
     /**
-     * Resuelve el contexto de las pantallas que se abren desde una unidad (foro, glosario, material): el administrador
-     * y los docentes del curso entran como tales; el alumno, por su inscripción con acceso a la unidad. Quien las
+     * Resuelve el contexto de las pantallas que se abren desde un tema (foro, glosario, material): el administrador
+     * y los docentes del curso entran como tales; el alumno, por su inscripción con acceso al tema. Quien las
      * llame debe haber comprobado antes que la persona puede ver el contenido.
      *
-     * @param unidad  La unidad de la pantalla.
+     * @param tema  El tema de la pantalla.
      * @param usuario El usuario autenticado.
      * @return El contexto de la pantalla.
      * @throws ResponseStatusException 403 si no es de la gestión del curso ni tiene una inscripción con acceso.
      */
-    protected ContextoCurso contextoDeLaUnidad(Unidad unidad, Usuario usuario) {
-        return cursoServicio.resolverContextoDeLaUnidad(unidad, usuario)
+    protected ContextoCurso contextoDeLaTema(Tema tema, Usuario usuario) {
+        return cursoServicio.resolverContextoDeLaTema(tema, usuario)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN));
     }
 
@@ -100,7 +100,7 @@ public abstract class PanelCursoControlador {
     }
 
     /**
-     * Un curso sin programas no tiene unidades ni cronograma: el docente va a registrar el primero y el administrador
+     * Un curso sin programas no tiene temas ni cronograma: el docente va a registrar el primero y el administrador
      * vuelve al listado de cursos.
      *
      * @param contexto           El contexto de la pantalla.
@@ -109,7 +109,7 @@ public abstract class PanelCursoControlador {
      */
     protected String avisarCursoSinProgramas(ContextoCurso contexto, RedirectAttributes redirectAttributes) {
         redirectAttributes.addFlashAttribute("error",
-                "Error! El curso todavía no tiene programas: registrá uno para poder cargar unidades.");
+                "Error! El curso todavía no tiene programas: registrá uno para poder cargar temas.");
         return contexto.esAdministrador() ? "redirect:/curso/buscar"
                 : "redirect:/programa/buscar?cursoId=" + contexto.curso().getIdCurso() + "&nuevo";
     }

@@ -12,16 +12,16 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * Unidad temática de un curso, con su contenido.
+ * Tema de un curso, con su contenido.
  */
 @Entity
-@Table(name = "Unidad", uniqueConstraints = { @UniqueConstraint(columnNames = {"idCurso", "titulo"}) })
-@Check(name = "ck_unidad_titulo", constraints = "trim(titulo) <> ''")
-@Check(name = "ck_unidad_contenido", constraints = "trim(contenido) <> ''")
+@Table(name = "Tema", uniqueConstraints = { @UniqueConstraint(columnNames = {"idCurso", "titulo"}) })
+@Check(name = "ck_tema_titulo", constraints = "trim(titulo) <> ''")
+@Check(name = "ck_tema_contenido", constraints = "trim(contenido) <> ''")
 @Getter
 @Setter
 @NoArgsConstructor
-public class Unidad {
+public class Tema {
 
     /** Cantidad máxima de caracteres del título. */
     public static final int LONGITUD_TITULO = 50;
@@ -30,12 +30,12 @@ public class Unidad {
     public static final int LONGITUD_DESCRIPCION = 150;
 
     /**
-     * Identificador único de la unidad.
+     * Identificador único del tema.
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "idUnidad")
-    private int idUnidad;
+    @Column(name = "idTema")
+    private int idTema;
 
     /**
      * Relación con Curso.
@@ -45,19 +45,19 @@ public class Unidad {
     private Curso curso;
 
     /**
-     * Título de la unidad.
+     * Título del tema.
      */
     @Column(name = "titulo", nullable = false, length = LONGITUD_TITULO)
     private String titulo;
 
     /**
-     * Descripción breve de la unidad.
+     * Descripción breve del tema.
      */
     @Column(name = "descripcion", nullable = true, length = LONGITUD_DESCRIPCION)
     private String descripcion;
 
     /**
-     * Contenido de la unidad.
+     * Contenido del tema.
      */
     @Column(name = "contenido", nullable = false, columnDefinition = "TEXT")
     private String contenido;
@@ -83,53 +83,53 @@ public class Unidad {
     /**
      * Conjunto de progresos asociados.
      */
-    @OneToMany(mappedBy = "unidad", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "tema", cascade = CascadeType.ALL)
     private Set<Progreso> progresos = new HashSet<>();
 
     /**
      * Conjunto de materiales asociados.
      */
-    @OneToMany(mappedBy = "unidad", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "tema", cascade = CascadeType.ALL)
     private Set<Material> materiales = new HashSet<>();
 
     /**
      * Conjunto de terminosGlosario asociados.
      */
-    @OneToMany(mappedBy = "unidad", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "tema", cascade = CascadeType.ALL)
     private Set<TerminoGlosario> terminosGlosario = new HashSet<>();
 
     /**
      * Conjunto de consultasForo asociados.
      */
-    @OneToMany(mappedBy = "unidad", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "tema", cascade = CascadeType.ALL)
     private Set<ConsultaForo> consultasForo = new HashSet<>();
 
     /**
-     * Conjunto de unidadesCronograma asociados.
+     * Conjunto de temasCronograma asociados.
      */
-    @OneToMany(mappedBy = "unidad", cascade = CascadeType.ALL)
-    private Set<UnidadCronograma> unidadesCronograma = new HashSet<>();
+    @OneToMany(mappedBy = "tema", cascade = CascadeType.ALL)
+    private Set<TemaCronograma> temasCronograma = new HashSet<>();
 
     /**
      * Conjunto de pooles asociados.
      */
-    @OneToMany(mappedBy = "unidad", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "tema", cascade = CascadeType.ALL)
     private Set<Pool> pooles = new HashSet<>();
 
     /**
      * Conjunto de autoevaluaciones asociados.
      */
-    @OneToMany(mappedBy = "unidad", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "tema", cascade = CascadeType.ALL)
     private Set<Autoevaluacion> autoevaluaciones = new HashSet<>();
 
     /**
-     * Constructor para crear la unidad con los datos básicos.
+     * Constructor para crear el tema con los datos básicos.
      *
      * @param curso relación con Curso.
-     * @param titulo título de la unidad.
-     * @param contenido contenido de la unidad.
+     * @param titulo título del tema.
+     * @param contenido contenido del tema.
      */
-    public Unidad(Curso curso, String titulo, String contenido) {
+    public Tema(Curso curso, String titulo, String contenido) {
         this.curso = curso;
         this.titulo = titulo;
         this.contenido = contenido;
@@ -152,7 +152,7 @@ public class Unidad {
     }
 
     /**
-     * Devuelve una representación en forma de cadena de la unidad.
+     * Devuelve una representación en forma de cadena del tema.
      *
      * @return La representación textual.
      */
@@ -162,7 +162,7 @@ public class Unidad {
     }
 
     /**
-     * Obtiene el material publicado de la unidad (vigente y no oculto).
+     * Obtiene el material publicado del tema (vigente y no oculto).
      *
      * @return El material publicado, en el orden en que se cargó.
      */
@@ -172,7 +172,7 @@ public class Unidad {
     }
 
     /**
-     * Obtiene el material vigente de la unidad (no dado de baja), incluido el oculto: es el que ve el docente.
+     * Obtiene el material vigente del tema (no dado de baja), incluido el oculto: es el que ve el docente.
      *
      * @return El material vigente, en el orden en que se cargó.
      */
@@ -192,18 +192,18 @@ public class Unidad {
     }
 
     /**
-     * Obtiene los programas activos en cuyo cronograma está incluida la unidad.
+     * Obtiene los programas activos en cuyo cronograma está incluida el tema.
      *
      * @return Los programas, del más antiguo al más reciente.
      */
     public List<Programa> getProgramasQueLaIncluyen() {
-        return unidadesCronograma.stream().filter(cronograma -> !cronograma.getBaja())
-                .map(UnidadCronograma::getPrograma).filter(programa -> !programa.getBaja()).distinct()
+        return temasCronograma.stream().filter(cronograma -> !cronograma.getBaja())
+                .map(TemaCronograma::getPrograma).filter(programa -> !programa.getBaja()).distinct()
                 .sorted(Comparator.comparingInt(Programa::getIdPrograma)).toList();
     }
 
     /**
-     * Obtiene los identificadores de los programas que incluyen la unidad, separados por coma (para los formularios).
+     * Obtiene los identificadores de los programas que incluyen el tema, separados por coma (para los formularios).
      *
      * @return Por ejemplo "1,3", o una cadena vacía si ningún programa la incluye.
      */
@@ -212,18 +212,18 @@ public class Unidad {
     }
 
     /**
-     * Indica si la unidad está incluida en el cronograma de un programa.
+     * Indica si el tema está incluida en el cronograma de un programa.
      *
      * @param programa El programa.
      * @return {@code true} si el programa la incluye.
      */
     public boolean perteneceAlCronograma(Programa programa) {
-        return unidadesCronograma.stream()
+        return temasCronograma.stream()
                 .anyMatch(cronograma -> cronograma.getPrograma().getIdPrograma() == programa.getIdPrograma());
     }
 
     /**
-     * Indica si algún programa que incluye la unidad tiene inscripciones activas: en ese caso la unidad es parte de lo
+     * Indica si algún programa que incluye el tema tiene inscripciones activas: en ese caso el tema es parte de lo
      * que el alumno vio y pagó, y no puede modificarse.
      *
      * @return {@code true} si hay inscripciones activas asociadas.
@@ -233,7 +233,7 @@ public class Unidad {
     }
 
     /**
-     * Obtiene los términos vigentes del glosario de la unidad.
+     * Obtiene los términos vigentes del glosario del tema.
      *
      * @return Los términos, en orden alfabético.
      */
@@ -243,7 +243,7 @@ public class Unidad {
     }
 
     /**
-     * Obtiene la fecha de la última actualización del glosario de la unidad: la más reciente entre sus términos
+     * Obtiene la fecha de la última actualización del glosario del tema: la más reciente entre sus términos
      * vigentes.
      *
      * @return La fecha y hora, o {@code null} si el glosario no tiene términos.
@@ -254,7 +254,7 @@ public class Unidad {
     }
 
     /**
-     * Obtiene las autoevaluaciones vigentes de la unidad (no dadas de baja), también las ocultas: es lo que ve el docente.
+     * Obtiene las autoevaluaciones vigentes del tema (no dadas de baja), también las ocultas: es lo que ve el docente.
      *
      * @return Las autoevaluaciones, en el orden en que se cargaron.
      */
@@ -264,7 +264,7 @@ public class Unidad {
     }
 
     /**
-     * Obtiene las autoevaluaciones publicadas de la unidad (vigentes y no ocultas).
+     * Obtiene las autoevaluaciones publicadas del tema (vigentes y no ocultas).
      *
      * @return Las autoevaluaciones, en el orden en que se cargaron.
      */
@@ -274,11 +274,11 @@ public class Unidad {
     }
 
     /**
-     * Indica si un alumno aprobó la unidad: la unidad tiene al menos una autoevaluación publicada y el alumno aprobó todas
+     * Indica si un alumno aprobó el tema: el tema tiene al menos una autoevaluación publicada y el alumno aprobó todas
      * las que tiene publicadas (vigentes y no ocultas).
      *
      * @param inscripcion La inscripción del alumno.
-     * @return {@code true} si el alumno cumple con todas las autoevaluaciones de la unidad.
+     * @return {@code true} si el alumno cumple con todas las autoevaluaciones del tema.
      */
     public boolean estaAprobadaPor(Inscripcion inscripcion) {
         List<Autoevaluacion> publicadas = getAutoevaluacionesPublicadas();
@@ -286,28 +286,28 @@ public class Unidad {
     }
 
     /**
-     * Indica si algún programa que incluye la unidad tiene cohortes que todavía no terminaron. En ese caso la unidad debe
+     * Indica si algún programa que incluye el tema tiene cohortes que todavía no terminaron. En ese caso el tema debe
      * conservar al menos una autoevaluación visible.
      *
-     * @return {@code true} si la unidad es cursada (o lo será) por alumnos de alguna cohorte.
+     * @return {@code true} si el tema es cursada (o lo será) por alumnos de alguna cohorte.
      */
     public boolean tieneCohortesEnCurso() {
         return getProgramasQueLaIncluyen().stream().anyMatch(Programa::tieneCohortesEnCurso);
     }
 
     /**
-     * Indica si la unidad es la última del cronograma de un programa.
+     * Indica si el tema es el último del cronograma de un programa.
      *
      * @param programa El programa.
-     * @return {@code true} si es la última unidad del cronograma.
+     * @return {@code true} si es el último tema del cronograma.
      */
     public boolean esUltimaDelPrograma(Programa programa) {
-        List<UnidadCronograma> cronograma = programa.getCronogramaOrdenado();
-        return !cronograma.isEmpty() && cronograma.get(cronograma.size() - 1).getUnidad().getIdUnidad() == idUnidad;
+        List<TemaCronograma> cronograma = programa.getCronogramaOrdenado();
+        return !cronograma.isEmpty() && cronograma.get(cronograma.size() - 1).getTema().getIdTema() == idTema;
     }
 
     /**
-     * Obtiene las consultas vigentes del foro de la unidad.
+     * Obtiene las consultas vigentes del foro del tema.
      *
      * @return Las consultas, con el último mensaje más reciente primero.
      */
@@ -319,7 +319,7 @@ public class Unidad {
     }
 
     /**
-     * Cuenta las consultas vigentes del foro de la unidad que todavía no tienen respuestas.
+     * Cuenta las consultas vigentes del foro del tema que todavía no tienen respuestas.
      *
      * @return La cantidad de consultas sin responder.
      */
@@ -329,7 +329,7 @@ public class Unidad {
     }
 
     /**
-     * Obtiene la fecha del último mensaje del foro de la unidad.
+     * Obtiene la fecha del último mensaje del foro del tema.
      *
      * @return La fecha y hora, o {@code null} si el foro no tiene consultas.
      */
@@ -338,7 +338,7 @@ public class Unidad {
     }
 
     /**
-     * Cuenta las consultas vigentes registradas en el foro de la unidad.
+     * Cuenta las consultas vigentes registradas en el foro del tema.
      *
      * @return La cantidad de consultas.
      */

@@ -18,7 +18,7 @@ import com.app.idoneos.modelo.Parametro;
 import com.app.idoneos.modelo.Pregunta;
 import com.app.idoneos.modelo.PreguntaIntento;
 import com.app.idoneos.modelo.RespuestaIntento;
-import com.app.idoneos.modelo.Unidad;
+import com.app.idoneos.modelo.Tema;
 import com.app.idoneos.repositorio.AutoevaluacionRepositorio;
 import com.app.idoneos.repositorio.InscripcionRepositorio;
 import com.app.idoneos.repositorio.IntentoAutoevaluacionRepositorio;
@@ -178,9 +178,9 @@ public class IntentoAutoevaluacionServicioImpl implements IntentoAutoevaluacionS
         if (!autoevaluacion.esVisible()) {
             return Optional.of("La autoevaluación no se encuentra disponible.");
         }
-        Optional<Inscripcion> inscripcion = inscripcionServicio.buscarConAccesoAUnidad(alumno, autoevaluacion.getUnidad());
+        Optional<Inscripcion> inscripcion = inscripcionServicio.buscarConAccesoATema(alumno, autoevaluacion.getTema());
         if (inscripcion.isEmpty()) {
-            return Optional.of("Todavía no podés acceder a esta unidad: completá la anterior o revisá el estado de tu inscripción.");
+            return Optional.of("Todavía no podés acceder a este tema: completá el anterior o revisá el estado de tu inscripción.");
         }
         List<IntentoAutoevaluacion> intentos = buscarPorInscripcionYAutoevaluacion(inscripcion.get(), autoevaluacion);
         if (intentos.stream().anyMatch(IntentoAutoevaluacion::estaEnCurso)) {
@@ -236,9 +236,9 @@ public class IntentoAutoevaluacionServicioImpl implements IntentoAutoevaluacionS
         Autoevaluacion autoevaluacion = autoevaluacionRepositorio.findById(idAutoevaluacion == null ? -1 : idAutoevaluacion)
                 .filter(Autoevaluacion::esVisible)
                 .orElseThrow(() -> new IllegalArgumentException("Error! La autoevaluación no se encuentra disponible."));
-        Unidad unidad = autoevaluacion.getUnidad();
-        Inscripcion inscripcion = inscripcionServicio.buscarConAccesoAUnidad(alumno, unidad).orElseThrow(
-                () -> new IllegalArgumentException("Error! Todavía no podés acceder a esta unidad: completá la anterior "
+        Tema tema = autoevaluacion.getTema();
+        Inscripcion inscripcion = inscripcionServicio.buscarConAccesoATema(alumno, tema).orElseThrow(
+                () -> new IllegalArgumentException("Error! Todavía no podés acceder a este tema: completá el anterior "
                         + "o revisá el estado de tu inscripción."));
         // Serializa los pedidos simultáneos del mismo alumno: dos clics no registran dos intentos
         inscripcionRepositorio.bloquearPorId(inscripcion.getIdInscripcion());
@@ -422,7 +422,7 @@ public class IntentoAutoevaluacionServicioImpl implements IntentoAutoevaluacionS
         intento.setAprobado(true);
         intento.setUltimaModificacion(LocalDateTime.now());
         intentoAutoevaluacionRepositorio.save(intento);
-        progresoServicio.actualizarProgreso(intento.getInscripcion(), intento.getAutoevaluacion().getUnidad());
+        progresoServicio.actualizarProgreso(intento.getInscripcion(), intento.getAutoevaluacion().getTema());
         return intento;
     }
 
@@ -440,19 +440,19 @@ public class IntentoAutoevaluacionServicioImpl implements IntentoAutoevaluacionS
     }
 
     /**
-     * CU-72: Da de baja un intento y, si el alumno deja de aprobar la unidad, la revierte y anula su certificado.
+     * CU-72: Da de baja un intento y, si el alumno deja de aprobar el tema, la revierte y anula su certificado.
      */
     @Override
     @Transactional
     public boolean darDeBajaIntento(Integer idIntento) {
         IntentoAutoevaluacion intento = intentoVigente(idIntento);
         Inscripcion inscripcion = intento.getInscripcion();
-        Unidad unidad = intento.getAutoevaluacion().getUnidad();
+        Tema tema = intento.getAutoevaluacion().getTema();
         intento.marcarInactivo();
         intento.setUltimaModificacion(LocalDateTime.now());
         intentoAutoevaluacionRepositorio.save(intento);
-        if (inscripcion.estaUnidadCompletada(unidad) && !unidad.estaAprobadaPor(inscripcion)) {
-            return progresoServicio.revertirProgreso(inscripcion, unidad);
+        if (inscripcion.estaTemaCompletada(tema) && !tema.estaAprobadaPor(inscripcion)) {
+            return progresoServicio.revertirProgreso(inscripcion, tema);
         }
         return false;
     }
@@ -460,14 +460,14 @@ public class IntentoAutoevaluacionServicioImpl implements IntentoAutoevaluacionS
     // ---------------------------------------------------------------- Auxiliares
 
     /**
-     * Corrige el intento, registra su fecha de entrega y, si lo aprobó, verifica el progreso de la unidad (y del curso).
+     * Corrige el intento, registra su fecha de entrega y, si lo aprobó, verifica el progreso del tema (y del curso).
      */
     private void finalizar(IntentoAutoevaluacion intento) {
         intento.corregir();
         intento.setFechaEntrega(LocalDateTime.now());
         intentoAutoevaluacionRepositorio.save(intento);
         if (intento.getAprobado()) {
-            progresoServicio.actualizarProgreso(intento.getInscripcion(), intento.getAutoevaluacion().getUnidad());
+            progresoServicio.actualizarProgreso(intento.getInscripcion(), intento.getAutoevaluacion().getTema());
         }
     }
 
@@ -533,7 +533,7 @@ public class IntentoAutoevaluacionServicioImpl implements IntentoAutoevaluacionS
         if (docente == null) {
             throw new IllegalArgumentException("Error! El usuario no tiene el rol de docente.");
         }
-        if (!intento.getAutoevaluacion().getUnidad().getCurso().tieneDocente(docente)) {
+        if (!intento.getAutoevaluacion().getTema().getCurso().tieneDocente(docente)) {
             throw new IllegalArgumentException("Error! No participás en este curso.");
         }
     }

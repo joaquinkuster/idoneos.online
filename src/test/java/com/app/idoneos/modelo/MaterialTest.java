@@ -37,8 +37,8 @@ class MaterialTest {
     @Test
     @DisplayName("Distingue un archivo del servidor de un enlace externo")
     void archivoOEnlace() {
-        assertTrue(material(TipoMaterial.GRABACION, "curso1/unidad2/material3.mp4").tieneArchivo());
-        assertFalse(material(TipoMaterial.GRABACION, "curso1/unidad2/material3.mp4").esEnlaceExterno());
+        assertTrue(material(TipoMaterial.GRABACION, "curso1/tema2/material3.mp4").tieneArchivo());
+        assertFalse(material(TipoMaterial.GRABACION, "curso1/tema2/material3.mp4").esEnlaceExterno());
         assertTrue(material(TipoMaterial.BIBLIOGRAFIA, "https://sitio.com/libro.pdf").esEnlaceExterno());
         assertFalse(material(TipoMaterial.BIBLIOGRAFIA, "https://sitio.com/libro.pdf").tieneArchivo());
         assertFalse(material(TipoMaterial.BIBLIOGRAFIA, null).tieneArchivo());
@@ -84,11 +84,11 @@ class MaterialTest {
     @Test
     @DisplayName("El formato de vista depende del archivo: video, pdf, enlace o vacío (los formatos que ya no se admiten)")
     void formatoDeVista() {
-        assertEquals("video", material(TipoMaterial.GRABACION, "curso1/unidad2/material3.mp4").getFormatoDeVista());
-        assertEquals("video", material(TipoMaterial.GRABACION, "curso1/unidad2/material3.webm").getFormatoDeVista());
-        assertEquals("pdf", material(TipoMaterial.PRESENTACION, "curso1/unidad2/material3.PDF").getFormatoDeVista());
-        assertEquals("vacio", material(TipoMaterial.PRESENTACION, "curso1/unidad2/material3.pptx").getFormatoDeVista());
-        assertEquals("vacio", material(TipoMaterial.BIBLIOGRAFIA, "curso1/unidad2/material3.docx").getFormatoDeVista());
+        assertEquals("video", material(TipoMaterial.GRABACION, "curso1/tema2/material3.mp4").getFormatoDeVista());
+        assertEquals("video", material(TipoMaterial.GRABACION, "curso1/tema2/material3.webm").getFormatoDeVista());
+        assertEquals("pdf", material(TipoMaterial.PRESENTACION, "curso1/tema2/material3.PDF").getFormatoDeVista());
+        assertEquals("vacio", material(TipoMaterial.PRESENTACION, "curso1/tema2/material3.pptx").getFormatoDeVista());
+        assertEquals("vacio", material(TipoMaterial.BIBLIOGRAFIA, "curso1/tema2/material3.docx").getFormatoDeVista());
         assertEquals("enlace", material(TipoMaterial.BIBLIOGRAFIA, "https://sitio.com/libro").getFormatoDeVista());
         assertEquals("vacio", material(TipoMaterial.BIBLIOGRAFIA, null).getFormatoDeVista());
     }

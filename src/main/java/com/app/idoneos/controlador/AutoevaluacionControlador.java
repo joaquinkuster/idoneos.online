@@ -24,7 +24,7 @@ import com.app.idoneos.modelo.Inscripcion;
 import com.app.idoneos.modelo.IntentoAutoevaluacion;
 import com.app.idoneos.modelo.Pool;
 import com.app.idoneos.modelo.Programa;
-import com.app.idoneos.modelo.UnidadCronograma;
+import com.app.idoneos.modelo.TemaCronograma;
 import com.app.idoneos.modelo.Usuario;
 import com.app.idoneos.servicio.Autoevaluacion.AutoevaluacionServicio;
 import com.app.idoneos.servicio.Autoevaluacion.AutoevaluacionServicio.SolicitudAutoevaluacion;
@@ -46,11 +46,11 @@ import com.app.idoneos.utilidades.RespuestaFormularioUtilidad;
 public class AutoevaluacionControlador extends PanelCursoControlador {
 
     /**
-     * Los pools de una unidad del programa, para ofrecerlos agrupados en el selector del formulario.
+     * Los pools de un tema del programa, para ofrecerlos agrupados en el selector del formulario.
      *
-     * @param numeroOrden número de orden de la unidad en el cronograma
-     * @param titulo      título de la unidad
-     * @param pools       los pools de la unidad
+     * @param numeroOrden número de orden del tema en el cronograma
+     * @param titulo      título del tema
+     * @param pools       los pools del tema
      */
     public record GrupoDePools(int numeroOrden, String titulo, List<Pool> pools) {
     }
@@ -89,25 +89,25 @@ public class AutoevaluacionControlador extends PanelCursoControlador {
             boolean esAdministrador = contexto.esAdministrador();
             Docente docente = esAdministrador ? null : usuario.getDocente();
             Programa programa = contexto.programa();
-            List<UnidadCronograma> unidades = programa == null ? List.of() : programa.getCronogramaOrdenado();
+            List<TemaCronograma> temas = programa == null ? List.of() : programa.getCronogramaOrdenado();
             // Listado completo: los filtros se aplican en la pantalla
             List<Autoevaluacion> autoevaluaciones = autoevaluacionServicio.buscarConFiltros(cursoId, null, null, false, docente);
             List<Pool> pools = poolServicio.buscarConFiltros(cursoId, null, null, false, docente);
 
-            // Para cada pool, las unidades cuyas autoevaluaciones pueden usarlo (el formulario filtra con esto)
-            Map<Integer, String> unidadesPorPool = new LinkedHashMap<>();
+            // Para cada pool, los temas cuyos autoevaluaciones pueden usarlo (el formulario filtra con esto)
+            Map<Integer, String> temasPorPool = new LinkedHashMap<>();
             for (Pool pool : pools) {
-                unidadesPorPool.put(pool.getIdPool(), String.join(",", autoevaluacionServicio.unidadesQuePuedenUsar(pool)
-                        .stream().map(u -> String.valueOf(u.getIdUnidad())).toList()));
+                temasPorPool.put(pool.getIdPool(), String.join(",", autoevaluacionServicio.temasQuePuedenUsar(pool)
+                        .stream().map(u -> String.valueOf(u.getIdTema())).toList()));
             }
 
-            // Los pools que se ofrecen, agrupados por la unidad a la que pertenecen (en el orden del cronograma)
+            // Los pools que se ofrecen, agrupados por el tema a la que pertenecen (en el orden del cronograma)
             List<GrupoDePools> gruposDePools = new ArrayList<>();
-            for (UnidadCronograma cronograma : unidades) {
-                List<Pool> deLaUnidad = pools.stream()
-                        .filter(p -> p.getUnidad().getIdUnidad() == cronograma.getUnidad().getIdUnidad()).toList();
-                if (!deLaUnidad.isEmpty()) {
-                    gruposDePools.add(new GrupoDePools(cronograma.getNumeroOrden(), cronograma.getUnidad().getTitulo(), deLaUnidad));
+            for (TemaCronograma cronograma : temas) {
+                List<Pool> deLaTema = pools.stream()
+                        .filter(p -> p.getTema().getIdTema() == cronograma.getTema().getIdTema()).toList();
+                if (!deLaTema.isEmpty()) {
+                    gruposDePools.add(new GrupoDePools(cronograma.getNumeroOrden(), cronograma.getTema().getTitulo(), deLaTema));
                 }
             }
 
@@ -124,9 +124,9 @@ public class AutoevaluacionControlador extends PanelCursoControlador {
             modelo.addAttribute("abrirModal", abrirModal);
             modelo.addAttribute("gruposDePools", gruposDePools);
             modelo.addAttribute("autoevaluaciones", autoevaluaciones);
-            modelo.addAttribute("unidades", unidades);
+            modelo.addAttribute("temas", temas);
             modelo.addAttribute("pools", pools);
-            modelo.addAttribute("unidadesPorPool", unidadesPorPool);
+            modelo.addAttribute("temasPorPool", temasPorPool);
             modelo.addAttribute("puedeGestionar", !esAdministrador);
             modelo.addAttribute("titulo", "Autoevaluaciones | Idóneos Online");
             return "pages/autoevaluacion/buscar";
@@ -155,9 +155,9 @@ public class AutoevaluacionControlador extends PanelCursoControlador {
             Alumno alumno = usuario.getAlumno();
             Autoevaluacion autoevaluacion = autoevaluacionServicio.buscarPorId(id).filter(Autoevaluacion::esVisible)
                     .orElseThrow(() -> new IllegalArgumentException("Error! La autoevaluación no se encuentra disponible."));
-            ContextoCurso contexto = contextoDeLaUnidad(autoevaluacion.getUnidad(), usuario);
-            Inscripcion inscripcion = inscripcionServicio.buscarConAccesoAUnidad(alumno, autoevaluacion.getUnidad())
-                    .orElseThrow(() -> new IllegalArgumentException("Error! Todavía no podés acceder a esta unidad."));
+            ContextoCurso contexto = contextoDeLaTema(autoevaluacion.getTema(), usuario);
+            Inscripcion inscripcion = inscripcionServicio.buscarConAccesoATema(alumno, autoevaluacion.getTema())
+                    .orElseThrow(() -> new IllegalArgumentException("Error! Todavía no podés acceder a este tema."));
             List<IntentoAutoevaluacion> intentos = intentoServicio.buscarPorInscripcionYAutoevaluacion(inscripcion,
                     autoevaluacion);
             intentos.forEach(intentoServicio::cerrarSiVencido); // si se le agotó el tiempo, queda corregido
@@ -185,7 +185,7 @@ public class AutoevaluacionControlador extends PanelCursoControlador {
     /**
      * CU-65: Registra una autoevaluación asociada a uno o más pools. Responde en JSON.
      *
-     * @param unidadId           Identificador de la unidad.
+     * @param temaId           Identificador del tema.
      * @param nombre             El nombre.
      * @param tiempoLimite       El tiempo límite en minutos.
      * @param cantidadPreguntas  La cantidad de preguntas que se sortean.
@@ -203,7 +203,7 @@ public class AutoevaluacionControlador extends PanelCursoControlador {
      */
     @PostMapping("/registrar")
     public ResponseEntity<Map<String, String>> registrarAutoevaluacion(
-            @RequestParam(value = "unidadId", required = false) Integer unidadId,
+            @RequestParam(value = "temaId", required = false) Integer temaId,
             @RequestParam(value = "nombre", required = false) String nombre,
             @RequestParam(value = "tiempoLimite", required = false) String tiempoLimite,
             @RequestParam(value = "cantidadPreguntas", required = false) String cantidadPreguntas,
@@ -218,7 +218,7 @@ public class AutoevaluacionControlador extends PanelCursoControlador {
             @RequestParam(value = "idsPools", required = false) List<Integer> idsPools, Authentication auth) {
         try {
             Usuario usuario = (Usuario) auth.getPrincipal();
-            Autoevaluacion autoevaluacion = autoevaluacionServicio.registrarAutoevaluacion(usuario.getDocente(), unidadId,
+            Autoevaluacion autoevaluacion = autoevaluacionServicio.registrarAutoevaluacion(usuario.getDocente(), temaId,
                     new SolicitudAutoevaluacion(nombre, tiempoLimite, cantidadPreguntas, notaMinima, intentosPermitidos,
                             fechaApertura, fechaCierre, descuentoPorError, navegacionLibre, permiteSalir, oculto, idsPools));
             return RespuestaFormularioUtilidad

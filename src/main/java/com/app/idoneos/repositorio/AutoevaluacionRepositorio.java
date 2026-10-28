@@ -2,7 +2,7 @@ package com.app.idoneos.repositorio;
 
 import java.util.List;
 import com.app.idoneos.modelo.Autoevaluacion;
-import com.app.idoneos.modelo.Unidad;
+import com.app.idoneos.modelo.Tema;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -21,10 +21,10 @@ public interface AutoevaluacionRepositorio extends JpaRepository<Autoevaluacion,
     List<Autoevaluacion> findByBajaFalse();
 
     /**
-     * Busca los registros vigentes de autoevaluacion asociados a unidad.
+     * Busca los registros vigentes de autoevaluacion asociados a tema.
      *
-     * @param unidad el registro de Unidad asociado
-     * @return una lista de Autoevaluacion asociados al Unidad indicado
+     * @param tema el registro de Tema asociado
+     * @return una lista de Autoevaluacion asociados al Tema indicado
      */
-    List<Autoevaluacion> findByUnidadAndBajaFalse(Unidad unidad);
+    List<Autoevaluacion> findByTemaAndBajaFalse(Tema tema);
 }

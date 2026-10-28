@@ -20,15 +20,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.app.idoneos.modelo.Autoevaluacion;
 import com.app.idoneos.modelo.Pool;
-import com.app.idoneos.modelo.Unidad;
+import com.app.idoneos.modelo.Tema;
 import com.app.idoneos.repositorio.AutoevaluacionRepositorio;
 import com.app.idoneos.repositorio.CursoRepositorio;
 import com.app.idoneos.repositorio.PoolRepositorio;
-import com.app.idoneos.repositorio.UnidadRepositorio;
+import com.app.idoneos.repositorio.TemaRepositorio;
 
 /**
  * Pruebas de las vistas y los formularios del ABM de autoevaluaciones (CU-64 a CU-67). Fausto Spotorno es titular de
- * "Mercado de Capitales Argentino": su autoevaluación de la unidad 1 tiene intentos y la de la unidad 2 no.
+ * "Mercado de Capitales Argentino": su autoevaluación del tema 1 tiene intentos y la del tema 2 no.
  */
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -52,7 +52,7 @@ class AutoevaluacionControladorTest {
     private PoolRepositorio poolRepositorio;
 
     @Autowired
-    private UnidadRepositorio unidadRepositorio;
+    private TemaRepositorio temaRepositorio;
 
     private String curso() {
         return String.valueOf(cursoRepositorio.findAll().stream()
@@ -69,8 +69,8 @@ class AutoevaluacionControladorTest {
                 .findFirst().orElseThrow();
     }
 
-    private int unidad(String titulo) {
-        return unidadRepositorio.findAll().stream().filter(u -> u.getTitulo().equals(titulo)).mapToInt(Unidad::getIdUnidad)
+    private int tema(String titulo) {
+        return temaRepositorio.findAll().stream().filter(u -> u.getTitulo().equals(titulo)).mapToInt(Tema::getIdTema)
                 .findFirst().orElseThrow();
     }
 
@@ -78,7 +78,7 @@ class AutoevaluacionControladorTest {
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesServicio")
     @DisplayName("Desde la vista del curso, el docente modifica o da de baja cada autoevaluación con el mismo menú que los materiales")
     void menuDesdeLaVistaDelCurso() throws Exception {
-        int id = autoevaluacion("Autoevaluación Unidad 1: Marco regulatorio");
+        int id = autoevaluacion("Autoevaluación Tema 1: Marco regulatorio");
         mockMvc.perform(get("/curso/acceder/" + curso()))
                 .andExpect(status().isOk())
                 .andExpect(content().string(Matchers.containsString("aria-label=\"Opciones de la autoevaluación\"")))
@@ -103,7 +103,7 @@ class AutoevaluacionControladorTest {
     void listadoDelDocente() throws Exception {
         mockMvc.perform(get("/autoevaluacion/buscar").param("cursoId", curso()))
                 .andExpect(status().isOk())
-                .andExpect(content().string(Matchers.containsString("Autoevaluación Unidad 1: Marco regulatorio")))
+                .andExpect(content().string(Matchers.containsString("Autoevaluación Tema 1: Marco regulatorio")))
                 .andExpect(content().string(Matchers.containsString("Marco regulatorio")))
                 .andExpect(content().string(Matchers.containsString("data-col=\"Intentos permitidos\"")))
                 .andExpect(content().string(Matchers.containsString("data-col=\"Fecha de creación\"")))
@@ -122,30 +122,30 @@ class AutoevaluacionControladorTest {
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesServicio")
-    @DisplayName("Los pools se ofrecen agrupados por unidad: la propia y las anteriores, nunca las posteriores")
+    @DisplayName("Los pools se ofrecen agrupados por tema: el propio y los anteriores, nunca los posteriores")
     void poolsQueSeOfrecenAlModificar() throws Exception {
         String pagina = mockMvc.perform(get("/autoevaluacion/buscar").param("cursoId", curso())).andReturn().getResponse()
                 .getContentAsString();
 
-        // Unidad 1: solo su pool
-        String modalUnidad1 = modal(pagina, autoevaluacion("Autoevaluación Unidad 1: Marco regulatorio"));
-        assertTrue(modalUnidad1.contains("Marco regulatorio (6 preguntas)"));
-        assertFalse(modalUnidad1.contains("Renta fija (6 preguntas)"));
-        assertFalse(modalUnidad1.contains("Preguntas de la unidad"));
+        // Tema 1: solo su pool
+        String modalTema1 = modal(pagina, autoevaluacion("Autoevaluación Tema 1: Marco regulatorio"));
+        assertTrue(modalTema1.contains("Marco regulatorio (6 preguntas)"));
+        assertFalse(modalTema1.contains("Renta fija (6 preguntas)"));
+        assertFalse(modalTema1.contains("Preguntas del tema"));
 
-        // Unidad 2: su pool y el de la unidad 1, agrupados; no el de la unidad 3
-        String modalUnidad2 = modal(pagina, autoevaluacion("Autoevaluación Unidad 2: Ejercicios de rendimiento"));
-        assertTrue(modalUnidad2.contains("U1 · Marco regulatorio (6 preguntas)"));
-        assertTrue(modalUnidad2.contains("U2 · Renta fija (6 preguntas)"));
-        assertTrue(modalUnidad2.contains("<optgroup label=\"1. Introducción al mercado de capitales\">"));
-        assertTrue(modalUnidad2.contains("<optgroup label=\"2. Renta fija y bonos\">"));
-        assertFalse(modalUnidad2.contains("Preguntas de la unidad"));
+        // Tema 2: su pool y el del tema 1, agrupados; no el del tema 3
+        String modalTema2 = modal(pagina, autoevaluacion("Autoevaluación Tema 2: Ejercicios de rendimiento"));
+        assertTrue(modalTema2.contains("U1 · Marco regulatorio (6 preguntas)"));
+        assertTrue(modalTema2.contains("U2 · Renta fija (6 preguntas)"));
+        assertTrue(modalTema2.contains("<optgroup label=\"1. Introducción al mercado de capitales\">"));
+        assertTrue(modalTema2.contains("<optgroup label=\"2. Renta fija y bonos\">"));
+        assertFalse(modalTema2.contains("Preguntas del tema"));
 
-        // Unidad 3 (la última): los de las tres unidades
-        String modalUnidad3 = modal(pagina, autoevaluacion("Autoevaluación de la unidad 3"));
-        assertTrue(modalUnidad3.contains("U1 · Marco regulatorio (6 preguntas)"));
-        assertTrue(modalUnidad3.contains("U2 · Renta fija (6 preguntas)"));
-        assertTrue(modalUnidad3.contains("U3 · Preguntas de la unidad (4 preguntas)"));
+        // Tema 3 (el último): los de los tres temas
+        String modalTema3 = modal(pagina, autoevaluacion("Autoevaluación del tema 3"));
+        assertTrue(modalTema3.contains("U1 · Marco regulatorio (6 preguntas)"));
+        assertTrue(modalTema3.contains("U2 · Renta fija (6 preguntas)"));
+        assertTrue(modalTema3.contains("U3 · Preguntas del tema (4 preguntas)"));
     }
 
     /** El HTML de la ventana de modificación de una autoevaluación. */
@@ -162,12 +162,12 @@ class AutoevaluacionControladorTest {
     void listadoDelAdministrador() throws Exception {
         mockMvc.perform(get("/autoevaluacion/buscar").param("cursoId", curso()))
                 .andExpect(status().isOk())
-                .andExpect(content().string(Matchers.containsString("Autoevaluación Unidad 2: Ejercicios de rendimiento")))
+                .andExpect(content().string(Matchers.containsString("Autoevaluación Tema 2: Ejercicios de rendimiento")))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("modalNuevaAutoevaluacion"))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("modalEditarAutoevaluacion"))))
                 .andExpect(content().string(Matchers.containsString("id=\"modalBajaAutoevaluacion")));
 
-        mockMvc.perform(post("/autoevaluacion/registrar").param("unidadId", String.valueOf(unidad("Renta fija y bonos"))))
+        mockMvc.perform(post("/autoevaluacion/registrar").param("temaId", String.valueOf(tema("Renta fija y bonos"))))
                 .andExpect(status().isForbidden());
     }
 
@@ -182,21 +182,21 @@ class AutoevaluacionControladorTest {
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesServicio")
     @DisplayName("CU-65 y CU-66: registrar y modificar responden en JSON e informan los errores con su campo")
     void registrarYModificar() throws Exception {
-        String unidad = String.valueOf(unidad("Renta fija y bonos"));
+        String tema = String.valueOf(tema("Renta fija y bonos"));
         String pool = String.valueOf(pool("Renta fija"));
-        mockMvc.perform(post("/autoevaluacion/registrar").param("unidadId", unidad).param("nombre", "Nueva autoevaluación")
+        mockMvc.perform(post("/autoevaluacion/registrar").param("temaId", tema).param("nombre", "Nueva autoevaluación")
                 .param("tiempoLimite", "30").param("cantidadPreguntas", "3").param("notaMinima", "6")
                 .param("fechaApertura", "2026-01-01T09:00").param("navegacionLibre", "true").param("idsPools", pool))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.mensaje").value("Autoevaluación 'Nueva autoevaluación' registrada con éxito."));
 
-        mockMvc.perform(post("/autoevaluacion/registrar").param("unidadId", unidad).param("nombre", "Sin pools")
+        mockMvc.perform(post("/autoevaluacion/registrar").param("temaId", tema).param("nombre", "Sin pools")
                 .param("tiempoLimite", "30").param("cantidadPreguntas", "3").param("notaMinima", "6")
                 .param("fechaApertura", "2026-01-01T09:00"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.campo").value("idsPools"));
 
-        mockMvc.perform(post("/autoevaluacion/registrar").param("unidadId", unidad).param("nombre", "Nota alta")
+        mockMvc.perform(post("/autoevaluacion/registrar").param("temaId", tema).param("nombre", "Nota alta")
                 .param("tiempoLimite", "30").param("cantidadPreguntas", "3").param("notaMinima", "12")
                 .param("fechaApertura", "2026-01-01T09:00").param("idsPools", pool))
                 .andExpect(status().isBadRequest())
@@ -214,12 +214,12 @@ class AutoevaluacionControladorTest {
     @WithUserDetails(value = ADMIN, userDetailsServiceBeanName = "usuarioDetallesServicio")
     @DisplayName("CU-67: dar de baja responde en JSON y se rechaza si la autoevaluación tiene intentos")
     void darDeBaja() throws Exception {
-        mockMvc.perform(post("/autoevaluacion/darDeBaja/" + autoevaluacion("Autoevaluación Unidad 1: Marco regulatorio")))
+        mockMvc.perform(post("/autoevaluacion/darDeBaja/" + autoevaluacion("Autoevaluación Tema 1: Marco regulatorio")))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value(Matchers.containsString("intentos registrados")));
 
         mockMvc.perform(post("/autoevaluacion/darDeBajaMasiva").param("ids",
-                String.valueOf(autoevaluacion("Autoevaluación Unidad 1: Marco regulatorio"))))
+                String.valueOf(autoevaluacion("Autoevaluación Tema 1: Marco regulatorio"))))
                 .andExpect(status().isBadRequest());
     }
 }

@@ -22,15 +22,15 @@ import org.springframework.transaction.annotation.Transactional;
 import com.app.idoneos.modelo.ConsultaForo;
 import com.app.idoneos.modelo.Curso;
 import com.app.idoneos.modelo.Inscripcion;
-import com.app.idoneos.modelo.Unidad;
+import com.app.idoneos.modelo.Tema;
 import com.app.idoneos.repositorio.ConsultaForoRepositorio;
 import com.app.idoneos.repositorio.CursoRepositorio;
 import com.app.idoneos.repositorio.InscripcionRepositorio;
-import com.app.idoneos.repositorio.UnidadRepositorio;
+import com.app.idoneos.repositorio.TemaRepositorio;
 
 /**
- * Pruebas de las vistas y los formularios del foro (CU-35 a CU-42). En "Mercado de Capitales Argentino", la unidad 1
- * tiene una consulta de Valentina Ruiz con una respuesta de Fausto Spotorno (titular); la unidad 2, una consulta sin
+ * Pruebas de las vistas y los formularios del foro (CU-35 a CU-42). En "Mercado de Capitales Argentino", el tema 1
+ * tiene una consulta de Valentina Ruiz con una respuesta de Fausto Spotorno (titular); el tema 2, una consulta sin
  * responder; la 3 no tiene consultas y está bloqueada para Valentina, alumna de la cohorte en dictado.
  */
 @SpringBootTest
@@ -45,7 +45,7 @@ class ForoControladorTest {
     private MockMvc mockMvc;
 
     @Autowired
-    private UnidadRepositorio unidadRepositorio;
+    private TemaRepositorio temaRepositorio;
 
     @Autowired
     private CursoRepositorio cursoRepositorio;
@@ -56,22 +56,22 @@ class ForoControladorTest {
     @Autowired
     private InscripcionRepositorio inscripcionRepositorio;
 
-    private Unidad unidad(String curso, String titulo) {
-        return unidadRepositorio.findAll().stream()
+    private Tema tema(String curso, String titulo) {
+        return temaRepositorio.findAll().stream()
                 .filter(u -> u.getCurso().getNombre().equals(curso) && u.getTitulo().equals(titulo)).findFirst()
                 .orElseThrow();
     }
 
     private int primera() {
-        return unidad("Mercado de Capitales Argentino", "Introducción al mercado de capitales").getIdUnidad();
+        return tema("Mercado de Capitales Argentino", "Introducción al mercado de capitales").getIdTema();
     }
 
     private int segunda() {
-        return unidad("Mercado de Capitales Argentino", "Renta fija y bonos").getIdUnidad();
+        return tema("Mercado de Capitales Argentino", "Renta fija y bonos").getIdTema();
     }
 
     private int tercera() {
-        return unidad("Mercado de Capitales Argentino", "Renta variable y opciones").getIdUnidad();
+        return tema("Mercado de Capitales Argentino", "Renta variable y opciones").getIdTema();
     }
 
     private int idCurso(String nombre) {
@@ -79,9 +79,9 @@ class ForoControladorTest {
                 .findFirst().orElseThrow();
     }
 
-    /** La consulta de la semilla en la unidad indicada. */
-    private ConsultaForo consultaDe(int idUnidad) {
-        return unidadRepositorio.findById(idUnidad).orElseThrow().getConsultasForoOrdenadas().get(0);
+    /** La consulta de la semilla en el tema indicado. */
+    private ConsultaForo consultaDe(int idTema) {
+        return temaRepositorio.findById(idTema).orElseThrow().getConsultasForoOrdenadas().get(0);
     }
 
     private Inscripcion inscripcionDeValentina() {
@@ -93,7 +93,7 @@ class ForoControladorTest {
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesServicio")
-    @DisplayName("El listado tiene un foro por unidad, con sus consultas y las que están sin responder")
+    @DisplayName("El listado tiene un foro por tema, con sus consultas y las que están sin responder")
     void listadoDeForos() throws Exception {
         int curso = idCurso("Mercado de Capitales Argentino");
 
@@ -109,8 +109,8 @@ class ForoControladorTest {
                 .andExpect(content().string(Matchers.containsString("Ver detalle")))
                 .andExpect(content().string(Matchers.containsString("data-filtro=")))
                 .andExpect(content().string(Matchers.containsString("data-paginador")));
-        // la unidad que llega por la URL solo se elige en el campo: el listado sigue completo (se filtra en la pantalla)
-        mockMvc.perform(get("/foro/buscar").param("cursoId", String.valueOf(curso)).param("unidadId",
+        // el tema que llega por la URL solo se elige en el campo: el listado sigue completo (se filtra en la pantalla)
+        mockMvc.perform(get("/foro/buscar").param("cursoId", String.valueOf(curso)).param("temaId",
                 String.valueOf(segunda())))
                 .andExpect(content().string(Matchers.containsString("Foro 2")))
                 .andExpect(content().string(Matchers.containsString("Foro 3")));
@@ -177,7 +177,7 @@ class ForoControladorTest {
         mockMvc.perform(get("/foro/ver/" + primera()).param("texto", "zzz"))
                 .andExpect(content().string(Matchers.containsString("No se encontraron consultas")))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("matrícula para operar"))));
-        // la consulta de la unidad 1 es de hace 3 días
+        // la consulta del tema 1 es de hace 3 días
         mockMvc.perform(get("/foro/ver/" + primera()).param("desde", java.time.LocalDate.now().minusDays(1).toString()))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("matrícula para operar"))));
         mockMvc.perform(get("/foro/ver/" + primera()).param("desde", "").param("hasta", ""))
@@ -189,9 +189,9 @@ class ForoControladorTest {
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesServicio")
     @DisplayName("La lista usa la paginación de las tablas: entrega todas las consultas y la tabla las pagina")
     void paginacion() throws Exception {
-        Unidad unidad = unidadRepositorio.findById(primera()).orElseThrow();
+        Tema tema = temaRepositorio.findById(primera()).orElseThrow();
         for (int i = 1; i <= 11; i++) {
-            consultaRepositorio.save(new ConsultaForo(unidad, inscripcionDeValentina(), "Consulta número " + i));
+            consultaRepositorio.save(new ConsultaForo(tema, inscripcionDeValentina(), "Consulta número " + i));
         }
         mockMvc.perform(get("/foro/ver/" + primera()))
                 .andExpect(content().string(Matchers.containsString("data-tabla")))
@@ -203,21 +203,21 @@ class ForoControladorTest {
 
     @Test
     @WithUserDetails(value = VALENTINA, userDetailsServiceBeanName = "usuarioDetallesServicio")
-    @DisplayName("El alumno ve el foro de una unidad habilitada y puede registrar una consulta")
+    @DisplayName("El alumno ve el foro de un tema habilitado y puede registrar una consulta")
     void vistaDelAlumno() throws Exception {
         mockMvc.perform(get("/foro/ver/" + segunda()))
                 .andExpect(status().isOk())
                 .andExpect(content().string(Matchers.containsString("Registrar consulta")))
                 .andExpect(content().string(Matchers.containsString("modalNuevaConsulta")))
-                .andExpect(content().string(Matchers.containsString("name=\"unidadId\"")))
+                .andExpect(content().string(Matchers.containsString("name=\"temaId\"")))
                 .andExpect(content().string(Matchers.containsString("duration de un bono con cupones")))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("Dar de baja"))));
     }
 
     @Test
     @WithUserDetails(value = VALENTINA, userDetailsServiceBeanName = "usuarioDetallesServicio")
-    @DisplayName("El alumno no ve el foro de una unidad bloqueada ni sus consultas")
-    void alumnoConUnidadBloqueada() throws Exception {
+    @DisplayName("El alumno no ve el foro de un tema bloqueado ni sus consultas")
+    void alumnoConTemaBloqueada() throws Exception {
         mockMvc.perform(get("/foro/ver/" + tercera())).andExpect(status().isForbidden());
     }
 
@@ -231,9 +231,9 @@ class ForoControladorTest {
 
     @Test
     @WithUserDetails(value = "sebastian.bordato@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesServicio")
-    @DisplayName("Un docente que no participa en el curso no ve el foro, y una unidad inexistente responde 404")
+    @DisplayName("Un docente que no participa en el curso no ve el foro, y un tema inexistente responde 404")
     void docenteAjenoEInexistente() throws Exception {
-        int ajena = unidad("Macroeconomía de Coyuntura", "Inflación y precios").getIdUnidad();
+        int ajena = tema("Macroeconomía de Coyuntura", "Inflación y precios").getIdTema();
 
         mockMvc.perform(get("/foro/ver/" + ajena)).andExpect(status().isForbidden());
         mockMvc.perform(get("/foro/ver/999999")).andExpect(status().isNotFound());
@@ -359,16 +359,16 @@ class ForoControladorTest {
     @WithUserDetails(value = VALENTINA, userDetailsServiceBeanName = "usuarioDetallesServicio")
     @DisplayName("CU-36 y CU-37: registrar y modificar una consulta responde en JSON, con el error de validación en 400")
     void alumnoRegistraYModifica() throws Exception {
-        mockMvc.perform(post("/foro/registrar").param("unidadId", String.valueOf(segunda())).param("texto", "Nueva duda"))
+        mockMvc.perform(post("/foro/registrar").param("temaId", String.valueOf(segunda())).param("texto", "Nueva duda"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith("application/json"))
                 .andExpect(jsonPath("$.mensaje").value("Consulta registrada con éxito."));
         mockMvc.perform(get("/foro/ver/" + segunda())).andExpect(content().string(Matchers.containsString("Nueva duda")));
 
-        mockMvc.perform(post("/foro/registrar").param("unidadId", String.valueOf(segunda())).param("texto", " "))
+        mockMvc.perform(post("/foro/registrar").param("temaId", String.valueOf(segunda())).param("texto", " "))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value(Matchers.containsString("Debe completar el texto de la consulta.")));
-        mockMvc.perform(post("/foro/registrar").param("unidadId", String.valueOf(tercera())).param("texto", "Hola"))
+        mockMvc.perform(post("/foro/registrar").param("temaId", String.valueOf(tercera())).param("texto", "Hola"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value(Matchers.containsString("No tenés una inscripción vigente")));
 
@@ -414,7 +414,7 @@ class ForoControladorTest {
     @WithUserDetails(value = "admin@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesServicio")
     @DisplayName("El administrador no puede consultar, modificar ni responder")
     void administradorNoParticipa() throws Exception {
-        mockMvc.perform(post("/foro/registrar").param("unidadId", String.valueOf(segunda())).param("texto", "x"))
+        mockMvc.perform(post("/foro/registrar").param("temaId", String.valueOf(segunda())).param("texto", "x"))
                 .andExpect(status().isForbidden());
         mockMvc.perform(post("/foro/modificar/1").param("texto", "x")).andExpect(status().isForbidden());
         mockMvc.perform(post("/foro/responder").param("consultaId", "1").param("texto", "x"))
@@ -426,7 +426,7 @@ class ForoControladorTest {
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesServicio")
     @DisplayName("El docente no puede consultar ni moderar")
     void docenteNoConsultaNiModera() throws Exception {
-        mockMvc.perform(post("/foro/registrar").param("unidadId", String.valueOf(segunda())).param("texto", "x"))
+        mockMvc.perform(post("/foro/registrar").param("temaId", String.valueOf(segunda())).param("texto", "x"))
                 .andExpect(status().isForbidden());
         mockMvc.perform(post("/foro/modificar/1").param("texto", "x")).andExpect(status().isForbidden());
         mockMvc.perform(post("/foro/darDeBaja/1")).andExpect(status().isForbidden());
@@ -455,14 +455,14 @@ class ForoControladorTest {
         mockMvc.perform(get("/curso/acceder/" + curso))
                 .andExpect(status().isOk())
                 .andExpect(content().string(Matchers.containsString("/foro/buscar?cursoId=" + curso)))
-                .andExpect(content().string(Matchers.containsString("/foro/buscar?cursoId=" + curso + "&amp;unidadId=" + primera())))
+                .andExpect(content().string(Matchers.containsString("/foro/buscar?cursoId=" + curso + "&amp;temaId=" + primera())))
                 .andExpect(content().string(Matchers.containsString("/foro/ver/" + primera())))
                 .andExpect(content().string(Matchers.containsString("Foro de consultas")));
     }
 
     @Test
     @WithUserDetails(value = VALENTINA, userDetailsServiceBeanName = "usuarioDetallesServicio")
-    @DisplayName("El alumno llega al foro de la unidad desde la vista del curso")
+    @DisplayName("El alumno llega al foro del tema desde la vista del curso")
     void enlacesDelAlumno() throws Exception {
         mockMvc.perform(get("/inscripcion/acceder/" + inscripcionDeValentina().getIdInscripcion()))
                 .andExpect(status().isOk())

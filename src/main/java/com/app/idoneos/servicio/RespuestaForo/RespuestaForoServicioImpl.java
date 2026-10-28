@@ -195,7 +195,7 @@ public class RespuestaForoServicioImpl implements RespuestaForoServicio, CrudSer
         if (docente == null) {
             throw new IllegalArgumentException("Error! El usuario no tiene el rol de docente.");
         }
-        return docenteCursoRepositorio.findByCursoAndBajaFalse(consulta.getUnidad().getCurso()).stream()
+        return docenteCursoRepositorio.findByCursoAndBajaFalse(consulta.getTema().getCurso()).stream()
                 .filter(p -> p.getDocente().getIdDocente() == docente.getIdDocente()).findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Error! No participás en este curso."));
     }

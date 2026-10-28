@@ -44,8 +44,8 @@ public class WebConfiguracion implements WebMvcConfigurer {
      * <li>{@code /img/cursos/**}: las imágenes de ejemplo incluidas en la aplicación ({@code static/img/cursos}).</li>
      * <li>{@code /img/usuarios/**}: las fotos de perfil de los usuarios ({@code static/img/usuarios}).</li>
      * <li>{@code /uploads/curso{id}/{imagen}}: la imagen de cada curso, guardada en su carpeta del servidor. El patrón
-     * admite un solo nivel debajo de la carpeta del curso, por lo que las carpetas de unidad
-     * ({@code curso{id}/unidad{id}/...}) con sus materiales <b>no</b> se publican: se entregan solo por un
+     * admite un solo nivel debajo de la carpeta del curso, por lo que las carpetas de tema
+     * ({@code curso{id}/tema{id}/...}) con sus materiales <b>no</b> se publican: se entregan solo por un
      * endpoint que controla el acceso.</li>
      * </ul>
      * Las imágenes se guardan en la caché del navegador durante una semana (las imágenes de los cursos incluyen

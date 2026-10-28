@@ -27,7 +27,7 @@ import com.app.idoneos.modelo.Cohorte;
 import com.app.idoneos.modelo.Curso;
 import com.app.idoneos.modelo.Descuento;
 import com.app.idoneos.modelo.Inscripcion;
-import com.app.idoneos.modelo.UnidadCronograma;
+import com.app.idoneos.modelo.TemaCronograma;
 import com.app.idoneos.modelo.Usuario;
 import com.app.idoneos.utilidades.RespuestaFormularioUtilidad;
 
@@ -126,11 +126,11 @@ public class InscripcionControlador extends PanelCursoControlador {
     }
 
     /**
-     * CU-27: Permite al alumno acceder a un curso en el que está inscripto: las unidades con su contenido (acordeón),
+     * CU-27: Permite al alumno acceder a un curso en el que está inscripto: los temas con su contenido (acordeón),
      * el cronograma con su avance o las clases en vivo de su cohorte.
      *
      * @param idInscripcion      El identificador de la inscripción del alumno.
-     * @param seccion            La sección a mostrar: "unidades" (por defecto), "cronograma" o "clases".
+     * @param seccion            La sección a mostrar: "temas" (por defecto), "cronograma" o "clases".
      * @param modelo             El modelo de la vista.
      * @param auth               La autenticación actual.
      * @param redirectAttributes Atributos para mensajes de redirección.
@@ -138,7 +138,7 @@ public class InscripcionControlador extends PanelCursoControlador {
      */
     @GetMapping("/acceder/{idInscripcion}")
     public String accederCurso(@PathVariable("idInscripcion") int idInscripcion,
-            @RequestParam(value = "seccion", defaultValue = "unidades") String seccion, Model modelo,
+            @RequestParam(value = "seccion", defaultValue = "temas") String seccion, Model modelo,
             Authentication auth, RedirectAttributes redirectAttributes) {
         try {
             Usuario usuario = (Usuario) auth.getPrincipal();
@@ -147,16 +147,16 @@ public class InscripcionControlador extends PanelCursoControlador {
                 throw new IllegalArgumentException("Error! El usuario no tiene el rol de alumno.");
             }
             Inscripcion inscripcion = inscripcionServicio.validarAcceso(idInscripcion, alumno);
-            String seccionActiva = List.of("unidades", "cronograma", "clases").contains(seccion) ? seccion : "unidades";
+            String seccionActiva = List.of("temas", "cronograma", "clases").contains(seccion) ? seccion : "temas";
 
             cargarContexto(modelo, ContextoCurso.deAlumno(inscripcion),
-                    "unidades".equals(seccionActiva) ? "curso" : seccionActiva);
+                    "temas".equals(seccionActiva) ? "curso" : seccionActiva);
             cargarSemanasMaximasDelCronograma(modelo);
             modelo.addAttribute("inscripcion", inscripcion);
             modelo.addAttribute("cohorte", inscripcion.getCohorte());
-            // Unidades del cronograma, para el tablero de solo lectura de la sección "cronograma"
-            modelo.addAttribute("unidadesDelCronograma", inscripcion.getCohorte().getPrograma().getCronogramaOrdenado()
-                    .stream().map(UnidadCronograma::getUnidad).toList());
+            // Temas del cronograma, para el tablero de solo lectura de la sección "cronograma"
+            modelo.addAttribute("temasDelCronograma", inscripcion.getCohorte().getPrograma().getCronogramaOrdenado()
+                    .stream().map(TemaCronograma::getTema).toList());
             modelo.addAttribute("seccion", seccionActiva);
             modelo.addAttribute("titulo", inscripcion.getCurso().getNombre() + " | Idóneos Online");
             return "pages/curso/acceder";

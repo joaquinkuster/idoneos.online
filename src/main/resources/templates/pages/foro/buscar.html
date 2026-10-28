@@ -26,7 +26,7 @@
             <div class="pn-encabezado">
                 <div>
                     <h1 class="pn-titulo">Foros</h1>
-                    <p class="pn-subtitulo" th:text="${'Cada unidad de ' + curso.nombre + ' tiene su foro de consultas'}">Cada unidad tiene su foro</p>
+                    <p class="pn-subtitulo" th:text="${'Cada tema de ' + curso.nombre + ' tiene su foro de consultas'}">Cada tema tiene su foro</p>
                 </div>
             </div>
 
@@ -46,7 +46,7 @@
                         <thead>
                             <tr>
                                 <th data-col="Nombre" data-campo="nombre" data-filtro="texto">Nombre</th>
-                                <th data-col="Unidad" data-campo="unidad" data-filtro="lista">Unidad</th>
+                                <th data-col="Tema" data-campo="tema" data-filtro="lista">Tema</th>
                                 <th data-col="Consultas" data-campo="consultas" data-filtro="numero">Consultas</th>
                                 <th data-col="Sin responder" data-campo="sinResponder" data-filtro="numero">Sin responder</th>
                                 <th data-col="Último mensaje" data-campo="ultimoMensaje" data-filtro="fecha">Último mensaje</th>
@@ -54,28 +54,28 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr th:each="uc : ${unidades}" data-fila data-dependencias="0">
+                            <tr th:each="uc : ${temas}" data-fila data-dependencias="0">
                                 <td>
                                     <span class="ac-tipo-celda">
                                         <th:block th:replace="~{fragments/iconoMaterial :: icono('Foro', 'ac-recurso-icono-chico')}"></th:block>
                                         <span class="pn-celda-principal" th:text="${'Foro ' + uc.numeroOrden}">Foro 1</span>
                                     </span>
                                 </td>
-                                <td><span class="pn-truncar" th:text="${uc.unidad.titulo}">Introducción al mercado</span></td>
+                                <td><span class="pn-truncar" th:text="${uc.tema.titulo}">Introducción al mercado</span></td>
                                 <td>
-                                    <span th:if="${uc.unidad.cantidadConsultasForo > 0}"
-                                          th:text="${uc.unidad.cantidadConsultasForo + (uc.unidad.cantidadConsultasForo == 1 ? ' consulta' : ' consultas')}">3 consultas</span>
-                                    <span th:if="${uc.unidad.cantidadConsultasForo == 0}" class="pn-celda-secundaria">Sin consultas</span>
+                                    <span th:if="${uc.tema.cantidadConsultasForo > 0}"
+                                          th:text="${uc.tema.cantidadConsultasForo + (uc.tema.cantidadConsultasForo == 1 ? ' consulta' : ' consultas')}">3 consultas</span>
+                                    <span th:if="${uc.tema.cantidadConsultasForo == 0}" class="pn-celda-secundaria">Sin consultas</span>
                                 </td>
                                 <td>
-                                    <span class="pn-insignia pn-insignia-dorada" th:if="${uc.unidad.cantidadConsultasSinResponder > 0}"
-                                          th:text="${uc.unidad.cantidadConsultasSinResponder}">1</span>
-                                    <span th:if="${uc.unidad.cantidadConsultasSinResponder == 0}">-</span>
+                                    <span class="pn-insignia pn-insignia-dorada" th:if="${uc.tema.cantidadConsultasSinResponder > 0}"
+                                          th:text="${uc.tema.cantidadConsultasSinResponder}">1</span>
+                                    <span th:if="${uc.tema.cantidadConsultasSinResponder == 0}">-</span>
                                 </td>
-                                <td th:text="${uc.unidad.ultimaActividadForo != null ? #temporals.format(uc.unidad.ultimaActividadForo, 'dd/MM/yyyy') : '-'}">28/08/2026</td>
+                                <td th:text="${uc.tema.ultimaActividadForo != null ? #temporals.format(uc.tema.ultimaActividadForo, 'dd/MM/yyyy') : '-'}">28/08/2026</td>
                                 <td>
                                     <div class="pn-acciones">
-                                        <a class="pn-btn pn-btn-ver pn-btn-chico" th:href="@{'/foro/ver/' + ${uc.unidad.idUnidad}}">Ver detalle</a>
+                                        <a class="pn-btn pn-btn-ver pn-btn-chico" th:href="@{'/foro/ver/' + ${uc.tema.idTema}}">Ver detalle</a>
                                     </div>
                                 </td>
                             </tr>

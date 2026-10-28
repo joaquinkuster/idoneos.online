@@ -11,11 +11,11 @@ import com.app.idoneos.modelo.Curso;
 import com.app.idoneos.modelo.Docente;
 import com.app.idoneos.modelo.DocenteCurso;
 import com.app.idoneos.modelo.Programa;
-import com.app.idoneos.modelo.UnidadCronograma;
+import com.app.idoneos.modelo.TemaCronograma;
 import com.app.idoneos.repositorio.CursoRepositorio;
 import com.app.idoneos.repositorio.DocenteCursoRepositorio;
 import com.app.idoneos.repositorio.ProgramaRepositorio;
-import com.app.idoneos.repositorio.UnidadCronogramaRepositorio;
+import com.app.idoneos.repositorio.TemaCronogramaRepositorio;
 import com.app.idoneos.servicio.CrudServicio;
 import com.app.idoneos.utilidades.TextoUtilidad;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +36,7 @@ public class ProgramaServicioImpl implements ProgramaServicio, CrudServicio<Prog
     private CursoRepositorio cursoRepositorio;
 
     @Autowired
-    private UnidadCronogramaRepositorio unidadCronogramaRepositorio;
+    private TemaCronogramaRepositorio temaCronogramaRepositorio;
 
     @Autowired
     private DocenteCursoRepositorio docenteCursoRepositorio;
@@ -138,12 +138,12 @@ public class ProgramaServicioImpl implements ProgramaServicio, CrudServicio<Prog
         programa = programaRepositorio.save(programa);
         curso.getProgramas().add(programa);
 
-        // Se parte del cronograma del programa anterior (unidades, orden y semanas), como base editable
+        // Se parte del cronograma del programa anterior (temas, orden y semanas), como base editable
         if (origen != null) {
-            for (UnidadCronograma original : origen.getCronogramaOrdenado()) {
-                UnidadCronograma copia = unidadCronogramaRepositorio.save(new UnidadCronograma(programa,
-                        original.getUnidad(), original.getNumeroOrden(), original.getSemanasDuracion()));
-                programa.getUnidadesCronograma().add(copia);
+            for (TemaCronograma original : origen.getCronogramaOrdenado()) {
+                TemaCronograma copia = temaCronogramaRepositorio.save(new TemaCronograma(programa,
+                        original.getTema(), original.getNumeroOrden(), original.getSemanasDuracion()));
+                programa.getTemasCronograma().add(copia);
             }
         }
         // Pasa a ser el vigente: el docente que lo registró sigue trabajando sobre él

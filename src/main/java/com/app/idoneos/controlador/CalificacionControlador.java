@@ -16,7 +16,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.app.idoneos.modelo.Alumno;
 import com.app.idoneos.modelo.Autoevaluacion;
 import com.app.idoneos.modelo.Inscripcion;
-import com.app.idoneos.modelo.UnidadCronograma;
+import com.app.idoneos.modelo.TemaCronograma;
 import com.app.idoneos.modelo.Usuario;
 import com.app.idoneos.servicio.Curso.ContextoCurso;
 import com.app.idoneos.servicio.Progreso.ProgresoServicio;
@@ -36,10 +36,10 @@ public class CalificacionControlador extends PanelCursoControlador {
      *
      * @param inscripcion   la inscripción del alumno
      * @param autoevaluacion la autoevaluación
-     * @param numeroUnidad  el número de la unidad en el cronograma del programa
-     * @param habilitada    si el alumno ya puede acceder a la unidad
+     * @param numeroTema  el número del tema en el cronograma del programa
+     * @param habilitada    si el alumno ya puede acceder al tema
      */
-    public record FilaCalificacion(Inscripcion inscripcion, Autoevaluacion autoevaluacion, int numeroUnidad, boolean habilitada) {
+    public record FilaCalificacion(Inscripcion inscripcion, Autoevaluacion autoevaluacion, int numeroTema, boolean habilitada) {
     }
 
     @Autowired
@@ -119,12 +119,12 @@ public class CalificacionControlador extends PanelCursoControlador {
 
     // ---------------------------------------------------------------- Auxiliares
 
-    /** Las filas de una inscripción: sus autoevaluaciones visibles, unidad por unidad, en el orden del cronograma. */
+    /** Las filas de una inscripción: sus autoevaluaciones visibles, tema por tema, en el orden del cronograma. */
     private List<FilaCalificacion> filasDe(Inscripcion inscripcion) {
         List<FilaCalificacion> filas = new ArrayList<>();
-        for (UnidadCronograma cronograma : inscripcion.getCohorte().getPrograma().getCronogramaOrdenado()) {
-            boolean habilitada = inscripcion.estaUnidadHabilitada(cronograma);
-            for (Autoevaluacion autoevaluacion : cronograma.getUnidad().getAutoevaluacionesPublicadas()) {
+        for (TemaCronograma cronograma : inscripcion.getCohorte().getPrograma().getCronogramaOrdenado()) {
+            boolean habilitada = inscripcion.estaTemaHabilitada(cronograma);
+            for (Autoevaluacion autoevaluacion : cronograma.getTema().getAutoevaluacionesPublicadas()) {
                 filas.add(new FilaCalificacion(inscripcion, autoevaluacion, cronograma.getNumeroOrden(), habilitada));
             }
         }

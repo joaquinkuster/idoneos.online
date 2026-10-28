@@ -214,11 +214,11 @@ class CursoServicioTest {
     @DisplayName("CU-04: no se puede quitar la modalidad Grabada si el curso tiene grabaciones publicadas")
     void noSePuedeQuitarGrabadaConGrabacionesPublicadas() {
         Curso curso = curso("Fondos Comunes de Inversión");
-        var unidad = curso.getUnidades().stream().filter(u -> !u.getBaja()).findFirst().orElseThrow();
+        var tema = curso.getTemas().stream().filter(u -> !u.getBaja()).findFirst().orElseThrow();
         var participacion = curso.getParticipacionesDocente().stream().findFirst().orElseThrow();
         var grabacion = tipoMaterialRepositorio.findByNombre(TipoMaterial.GRABACION).orElseThrow();
-        var material = materialRepositorio.save(new Material(participacion, grabacion, unidad, "Grabación de prueba"));
-        unidad.getMateriales().add(material);
+        var material = materialRepositorio.save(new Material(participacion, grabacion, tema, "Grabación de prueba"));
+        tema.getMateriales().add(material);
 
         IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
                 () -> modificarModalidades(curso, List.of(idModalidad(Modalidad.CLON_IA))));
@@ -255,7 +255,7 @@ class CursoServicioTest {
     }
 
     @Test
-    @DisplayName("CU-05: no se puede dar de baja un curso con programas o unidades activas")
+    @DisplayName("CU-05: no se puede dar de baja un curso con programas o temas activos")
     void darDeBajaCursoConProgramasActivos() {
         Curso curso = curso("Macroeconomía de Coyuntura");
 

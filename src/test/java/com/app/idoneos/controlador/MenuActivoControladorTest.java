@@ -21,7 +21,7 @@ import com.app.idoneos.repositorio.ConsultaForoRepositorio;
 import com.app.idoneos.repositorio.CursoRepositorio;
 import com.app.idoneos.repositorio.InscripcionRepositorio;
 import com.app.idoneos.repositorio.MaterialRepositorio;
-import com.app.idoneos.repositorio.UnidadRepositorio;
+import com.app.idoneos.repositorio.TemaRepositorio;
 
 /**
  * Todas las vistas con menú lateral (panel del administrador y panel del curso) marcan una, y solo una, opción activa.
@@ -38,7 +38,7 @@ class MenuActivoControladorTest {
     @Autowired
     private CursoRepositorio cursoRepositorio;
     @Autowired
-    private UnidadRepositorio unidadRepositorio;
+    private TemaRepositorio temaRepositorio;
     @Autowired
     private MaterialRepositorio materialRepositorio;
     @Autowired
@@ -69,20 +69,20 @@ class MenuActivoControladorTest {
     }
 
     private void marcaPanelDelCurso(int cursoId) throws Exception {
-        int unidadId = unidadRepositorio.findAll().stream().filter(u -> u.getCurso().getIdCurso() == cursoId)
-                .mapToInt(u -> u.getIdUnidad()).findFirst().orElseThrow();
+        int temaId = temaRepositorio.findAll().stream().filter(u -> u.getCurso().getIdCurso() == cursoId)
+                .mapToInt(u -> u.getIdTema()).findFirst().orElseThrow();
         // el primer botón del menú lleva el nombre del curso, abreviado a 22 caracteres
         marca("/curso/acceder/" + cursoId, abreviado(cursoRepositorio.findById(cursoId).orElseThrow().getNombre()));
         marca("/curso/acceder/" + cursoId + "?seccion=clases", "Clases en vivo");
-        marca("/unidad/buscar?cursoId=" + cursoId, "Unidades");
+        marca("/tema/buscar?cursoId=" + cursoId, "Temas");
         marca("/programa/buscar?cursoId=" + cursoId, "Programas");
         marca("/cronograma/buscar?cursoId=" + cursoId, "Cronograma");
         marca("/participante/buscar?cursoId=" + cursoId, "Participantes");
         marca("/material/buscar?cursoId=" + cursoId, "Materiales");
         marca("/glosario/buscar?cursoId=" + cursoId, "Glosario");
-        marca("/glosario/ver/" + unidadId, "Glosario");
+        marca("/glosario/ver/" + temaId, "Glosario");
         marca("/foro/buscar?cursoId=" + cursoId, "Foros");
-        marca("/foro/ver/" + unidadId, "Foros");
+        marca("/foro/ver/" + temaId, "Foros");
         materialRepositorio.findAll().stream().filter(m -> m.getCurso().getIdCurso() == cursoId).findFirst()
                 .ifPresent(m -> {
                     try {
@@ -91,7 +91,7 @@ class MenuActivoControladorTest {
                         throw new IllegalStateException(e);
                     }
                 });
-        consultaForoRepositorio.findAll().stream().filter(c -> c.getUnidad().getCurso().getIdCurso() == cursoId).findFirst()
+        consultaForoRepositorio.findAll().stream().filter(c -> c.getTema().getCurso().getIdCurso() == cursoId).findFirst()
                 .ifPresent(c -> {
                     try {
                         marca("/foro/consulta/" + c.getIdConsulta(), "Foros");

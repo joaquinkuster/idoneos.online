@@ -21,19 +21,19 @@ import com.app.idoneos.modelo.Alumno;
 import com.app.idoneos.modelo.ConsultaForo;
 import com.app.idoneos.modelo.Docente;
 import com.app.idoneos.modelo.RespuestaForo;
-import com.app.idoneos.modelo.Unidad;
+import com.app.idoneos.modelo.Tema;
 import com.app.idoneos.repositorio.AlumnoRepositorio;
 import com.app.idoneos.repositorio.ConsultaForoRepositorio;
 import com.app.idoneos.repositorio.DocenteRepositorio;
 import com.app.idoneos.repositorio.RespuestaForoRepositorio;
-import com.app.idoneos.repositorio.UnidadRepositorio;
+import com.app.idoneos.repositorio.TemaRepositorio;
 import com.app.idoneos.servicio.ConsultaForo.ConsultaForoServicio;
 import com.app.idoneos.servicio.RespuestaForo.RespuestaForoServicio;
 
 /**
- * Pruebas del foro (CU-35 a CU-42) con los datos de la semilla: la unidad 1 de "Mercado de Capitales Argentino" tiene una
- * consulta de Valentina Ruiz con una respuesta de Fausto Spotorno; la unidad 2, una consulta sin responder; la 3 no tiene
- * consultas. Valentina tiene habilitadas las unidades 1 y 2; el plazo de edición es de 15 minutos.
+ * Pruebas del foro (CU-35 a CU-42) con los datos de la semilla: el tema 1 de "Mercado de Capitales Argentino" tiene una
+ * consulta de Valentina Ruiz con una respuesta de Fausto Spotorno; el tema 2, una consulta sin responder; la 3 no tiene
+ * consultas. Valentina tiene habilitadas los temas 1 y 2; el plazo de edición es de 15 minutos.
  */
 @SpringBootTest
 @Transactional
@@ -52,7 +52,7 @@ class ForoServicioTest {
     private RespuestaForoRepositorio respuestaRepositorio;
 
     @Autowired
-    private UnidadRepositorio unidadRepositorio;
+    private TemaRepositorio temaRepositorio;
 
     @Autowired
     private AlumnoRepositorio alumnoRepositorio;
@@ -70,22 +70,22 @@ class ForoServicioTest {
                 .orElseThrow();
     }
 
-    private Unidad unidad(String curso, String titulo) {
-        return unidadRepositorio.findAll().stream()
+    private Tema tema(String curso, String titulo) {
+        return temaRepositorio.findAll().stream()
                 .filter(u -> u.getCurso().getNombre().equals(curso) && u.getTitulo().equals(titulo)).findFirst()
                 .orElseThrow();
     }
 
-    private Unidad primera() {
-        return unidad("Mercado de Capitales Argentino", "Introducción al mercado de capitales");
+    private Tema primera() {
+        return tema("Mercado de Capitales Argentino", "Introducción al mercado de capitales");
     }
 
-    private Unidad segunda() {
-        return unidad("Mercado de Capitales Argentino", "Renta fija y bonos");
+    private Tema segunda() {
+        return tema("Mercado de Capitales Argentino", "Renta fija y bonos");
     }
 
-    private Unidad tercera() {
-        return unidad("Mercado de Capitales Argentino", "Renta variable y opciones");
+    private Tema tercera() {
+        return tema("Mercado de Capitales Argentino", "Renta variable y opciones");
     }
 
     private Alumno valentina() {
@@ -110,7 +110,7 @@ class ForoServicioTest {
         assertTrue(consultaServicio.buscarConFiltros(primera(), "duration", null, null).isEmpty());
 
         LocalDate hoy = LocalDate.now();
-        // la consulta de la unidad 1 es de hace 3 días
+        // la consulta del tema 1 es de hace 3 días
         assertEquals(1, consultaServicio.buscarConFiltros(primera(), null, hoy.minusDays(4), hoy.minusDays(2)).size());
         assertTrue(consultaServicio.buscarConFiltros(primera(), null, hoy.minusDays(2), null).isEmpty());
         assertTrue(consultaServicio.buscarConFiltros(primera(), null, null, hoy.minusDays(4)).isEmpty());
@@ -119,7 +119,7 @@ class ForoServicioTest {
     @Test
     @DisplayName("CU-35: las consultas se listan con el último mensaje más reciente primero")
     void ordenaPorUltimoMensaje() {
-        ConsultaForo nueva = consultaServicio.registrarConsulta(valentina(), primera().getIdUnidad(), "Otra consulta");
+        ConsultaForo nueva = consultaServicio.registrarConsulta(valentina(), primera().getIdTema(), "Otra consulta");
 
         List<ConsultaForo> consultas = consultaServicio.buscarConFiltros(primera(), null, null, null);
 
@@ -130,9 +130,9 @@ class ForoServicioTest {
     // ------------------------------------------------------------------ CU-36 Registrar consulta
 
     @Test
-    @DisplayName("CU-36: el alumno con la unidad habilitada registra una consulta")
+    @DisplayName("CU-36: el alumno con el tema habilitado registra una consulta")
     void registraConsulta() {
-        ConsultaForo consulta = consultaServicio.registrarConsulta(valentina(), segunda().getIdUnidad(),
+        ConsultaForo consulta = consultaServicio.registrarConsulta(valentina(), segunda().getIdTema(),
                 "  ¿Qué es el cupón corrido?  ");
 
         assertTrue(consulta.getIdConsulta() > 0);
@@ -143,25 +143,25 @@ class ForoServicioTest {
     }
 
     @Test
-    @DisplayName("CU-36: falta el texto, supera el máximo o el alumno no tiene la unidad habilitada")
+    @DisplayName("CU-36: falta el texto, supera el máximo o el alumno no tiene el tema habilitado")
     void validaAlRegistrar() {
-        int unidad = segunda().getIdUnidad();
-        assertTrue(mensaje(() -> consultaServicio.registrarConsulta(valentina(), unidad, " "))
+        int tema = segunda().getIdTema();
+        assertTrue(mensaje(() -> consultaServicio.registrarConsulta(valentina(), tema, " "))
                 .contains("Debe completar el texto de la consulta."));
-        assertTrue(mensaje(() -> consultaServicio.registrarConsulta(valentina(), unidad, "x".repeat(501)))
+        assertTrue(mensaje(() -> consultaServicio.registrarConsulta(valentina(), tema, "x".repeat(501)))
                 .contains("Máximo: 500 caracteres"));
-        assertNotNull(consultaServicio.registrarConsulta(valentina(), unidad, "x".repeat(500)));
+        assertNotNull(consultaServicio.registrarConsulta(valentina(), tema, "x".repeat(500)));
 
-        // unidad bloqueada, dictado sin comenzar, sin inscripción, sin unidad y sin ser alumno
-        assertTrue(mensaje(() -> consultaServicio.registrarConsulta(valentina(), tercera().getIdUnidad(), "Hola"))
+        // tema bloqueado, dictado sin comenzar, sin inscripción, sin tema y sin ser alumno
+        assertTrue(mensaje(() -> consultaServicio.registrarConsulta(valentina(), tercera().getIdTema(), "Hola"))
                 .contains("No tenés una inscripción vigente"));
-        assertTrue(mensaje(() -> consultaServicio.registrarConsulta(alumno("martin.gomez@correo.com"), unidad, "Hola"))
+        assertTrue(mensaje(() -> consultaServicio.registrarConsulta(alumno("martin.gomez@correo.com"), tema, "Hola"))
                 .contains("No tenés una inscripción vigente"));
-        assertTrue(mensaje(() -> consultaServicio.registrarConsulta(alumno("tomas.herrera@correo.com"), unidad, "Hola"))
+        assertTrue(mensaje(() -> consultaServicio.registrarConsulta(alumno("tomas.herrera@correo.com"), tema, "Hola"))
                 .contains("No tenés una inscripción vigente"));
         assertTrue(mensaje(() -> consultaServicio.registrarConsulta(valentina(), null, "Hola"))
-                .contains("La unidad no se encuentra activa"));
-        assertTrue(mensaje(() -> consultaServicio.registrarConsulta(null, unidad, "Hola")).contains("rol de alumno"));
+                .contains("El tema no se encuentra activa"));
+        assertTrue(mensaje(() -> consultaServicio.registrarConsulta(null, tema, "Hola")).contains("rol de alumno"));
     }
 
     // ------------------------------------------------------------------ CU-37 Modificar consulta
@@ -169,7 +169,7 @@ class ForoServicioTest {
     @Test
     @DisplayName("CU-37: el alumno modifica su consulta dentro del plazo")
     void modificaConsulta() {
-        ConsultaForo consulta = consultaServicio.registrarConsulta(valentina(), segunda().getIdUnidad(), "Texto");
+        ConsultaForo consulta = consultaServicio.registrarConsulta(valentina(), segunda().getIdTema(), "Texto");
 
         ConsultaForo modificada = consultaServicio.modificarConsulta(consulta.getIdConsulta(), valentina(), "Texto nuevo");
 
@@ -181,7 +181,7 @@ class ForoServicioTest {
     @Test
     @DisplayName("CU-37: no se modifica una consulta ajena, vencida, vacía o dada de baja")
     void validaAlModificarConsulta() {
-        ConsultaForo consulta = consultaServicio.registrarConsulta(valentina(), segunda().getIdUnidad(), "Texto");
+        ConsultaForo consulta = consultaServicio.registrarConsulta(valentina(), segunda().getIdTema(), "Texto");
         int id = consulta.getIdConsulta();
 
         assertTrue(mensaje(() -> consultaServicio.modificarConsulta(id, alumno("tomas.herrera@correo.com"), "Otro"))
@@ -249,7 +249,7 @@ class ForoServicioTest {
 
         // una consulta del curso "Macroeconomía de Coyuntura", donde Sebastián Bordato no participa
         ConsultaForo ajena = consultaRepositorio.save(new ConsultaForo(
-                unidad("Macroeconomía de Coyuntura", "Inflación y precios"), consulta.getInscripcion(), "Consulta"));
+                tema("Macroeconomía de Coyuntura", "Inflación y precios"), consulta.getInscripcion(), "Consulta"));
         assertTrue(mensaje(() -> respuestaServicio.registrarRespuesta(docente("sebastian.bordato@idoneos.online"),
                 ajena.getIdConsulta(), "Hola")).contains("No participás en este curso"));
     }

@@ -31,7 +31,7 @@ import com.app.idoneos.servicio.Curso.CursoServicioImpl;
 
 /**
  * Pruebas de la imagen del curso: se guarda en {@code curso{id}/imagen.{ext}} dentro de la carpeta configurada, se
- * publica en {@code /uploads/curso{id}/{imagen}}, se reemplaza al modificar el curso y las carpetas de unidad no se
+ * publica en {@code /uploads/curso{id}/{imagen}}, se reemplaza al modificar el curso y las carpetas de tema no se
  * publican.
  */
 @SpringBootTest
@@ -109,14 +109,14 @@ class CargaDeImagenControladorTest {
 
     @Test
     @WithUserDetails(value = "valentina.ruiz@correo.com", userDetailsServiceBeanName = "usuarioDetallesServicio")
-    @DisplayName("Los archivos de las carpetas de unidad no se publican por la URL de las imágenes")
-    void lasCarpetasDeUnidadNoSePublican() throws Exception {
+    @DisplayName("Los archivos de las carpetas de tema no se publican por la URL de las imágenes")
+    void lasCarpetasDeTemaNoSePublican() throws Exception {
         Curso curso = cursoServicio.buscarPorNombre("Mercado de Capitales Argentino").orElseThrow();
-        Path carpetaDeUnidad = carpetaDeCursos.resolve("curso" + curso.getIdCurso()).resolve("unidad1");
-        Files.createDirectories(carpetaDeUnidad);
-        Files.write(carpetaDeUnidad.resolve("material1.mp4"), new byte[] { 0, 0, 0, 0x18, 'f', 't', 'y', 'p' });
+        Path carpetaDeTema = carpetaDeCursos.resolve("curso" + curso.getIdCurso()).resolve("tema1");
+        Files.createDirectories(carpetaDeTema);
+        Files.write(carpetaDeTema.resolve("material1.mp4"), new byte[] { 0, 0, 0, 0x18, 'f', 't', 'y', 'p' });
 
-        mockMvc.perform(get("/uploads/curso" + curso.getIdCurso() + "/unidad1/material1.mp4"))
+        mockMvc.perform(get("/uploads/curso" + curso.getIdCurso() + "/tema1/material1.mp4"))
                 .andExpect(status().isNotFound());
     }
 

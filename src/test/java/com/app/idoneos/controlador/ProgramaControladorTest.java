@@ -94,7 +94,7 @@ class ProgramaControladorTest {
                 .andExpect(content().string(Matchers.containsString("data-col=\"Objetivos\"")))
                 .andExpect(content().string(Matchers.containsString("data-col=\"Bibliografía\"")))
                 .andExpect(content().string(Matchers.containsString("data-col=\"Última modificación\"")))
-                .andExpect(content().string(Matchers.not(Matchers.containsString("data-col=\"Unidades\""))))
+                .andExpect(content().string(Matchers.not(Matchers.containsString("data-col=\"Temas\""))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("data-col=\"Con material\""))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("data-col=\"Semanas\""))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("data-col=\"Cohortes\""))))

@@ -147,7 +147,7 @@
                             <select name="programaOrigenId" data-buscable data-resumen-vacio="No, empezar en blanco" class="pn-input">
                                 <option value="">No, empezar en blanco</option>
                                 <option th:each="o : ${programasActivos}" th:value="${o.idPrograma}"
-                                        th:text="${o.nombre + ' - se copia su cronograma (' + o.cantidadUnidades + ' unidades)'}">2026</option>
+                                        th:text="${o.nombre + ' - se copia su cronograma (' + o.cantidadTemas + ' temas)'}">2026</option>
                             </select>
                         </div>
 <div class="col-md-8 pn-campo">

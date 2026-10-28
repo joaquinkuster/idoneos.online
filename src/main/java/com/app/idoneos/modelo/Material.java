@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * Material didáctico de una unidad (grabación, bibliografía, resumen, presentación) cargado por un docente.
+ * Material didáctico de un tema (grabación, bibliografía, resumen, presentación) cargado por un docente.
  */
 @Entity
 @Table(name = "Material")
@@ -43,11 +43,11 @@ public class Material {
     private TipoMaterial tipoMaterial;
 
     /**
-     * Relación con Unidad.
+     * Relación con Tema.
      */
     @ManyToOne
-    @JoinColumn(name = "idUnidad", nullable = false)
-    private Unidad unidad;
+    @JoinColumn(name = "idTema", nullable = false)
+    private Tema tema;
 
     /**
      * Título del material.
@@ -120,13 +120,13 @@ public class Material {
      *
      * @param docenteCurso relación con DocenteCurso.
      * @param tipoMaterial relación con TipoMaterial.
-     * @param unidad relación con Unidad.
+     * @param tema relación con Tema.
      * @param titulo título del material.
      */
-    public Material(DocenteCurso docenteCurso, TipoMaterial tipoMaterial, Unidad unidad, String titulo) {
+    public Material(DocenteCurso docenteCurso, TipoMaterial tipoMaterial, Tema tema, String titulo) {
         this.docenteCurso = docenteCurso;
         this.tipoMaterial = tipoMaterial;
-        this.unidad = unidad;
+        this.tema = tema;
         this.titulo = titulo;
     }
 
@@ -198,12 +198,12 @@ public class Material {
     }
 
     /**
-     * Obtiene el curso al que pertenece el material, a través de su unidad.
+     * Obtiene el curso al que pertenece el material, a través de su tema.
      *
      * @return El curso del material.
      */
     public Curso getCurso() {
-        return unidad.getCurso();
+        return tema.getCurso();
     }
 
     /**

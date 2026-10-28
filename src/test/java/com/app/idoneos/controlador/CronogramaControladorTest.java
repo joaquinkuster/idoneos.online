@@ -22,13 +22,13 @@ import org.springframework.transaction.annotation.Transactional;
 import com.app.idoneos.modelo.Curso;
 import com.app.idoneos.modelo.Inscripcion;
 import com.app.idoneos.modelo.Programa;
-import com.app.idoneos.modelo.UnidadCronograma;
+import com.app.idoneos.modelo.TemaCronograma;
 import com.app.idoneos.repositorio.CursoRepositorio;
 import com.app.idoneos.repositorio.InscripcionRepositorio;
 
 /**
  * Pruebas de la página del cronograma (CU-23 y CU-24). Fausto Spotorno es titular de "Macroeconomía de Coyuntura" (un
- * programa con tres unidades, sin inscripciones: se puede modificar) y de "Mercado de Capitales Argentino" (con
+ * programa con tres temas, sin inscripciones: se puede modificar) y de "Mercado de Capitales Argentino" (con
  * inscripciones activas: solo lectura).
  */
 @SpringBootTest
@@ -76,8 +76,8 @@ class CronogramaControladorTest {
         return curso.getProgramaVigente();
     }
 
-    private List<Integer> unidadesDe(Curso curso) {
-        return programaDe(curso).getCronogramaOrdenado().stream().map(c -> c.getUnidad().getIdUnidad()).toList();
+    private List<Integer> temasDe(Curso curso) {
+        return programaDe(curso).getCronogramaOrdenado().stream().map(c -> c.getTema().getIdTema()).toList();
     }
 
     // ------------------------------------------------------------------ Consulta y edición
@@ -107,20 +107,20 @@ class CronogramaControladorTest {
                 .andExpect(content().string(Matchers.containsString("Mínimo requerido")))
                 .andExpect(content().string(Matchers.containsString("Cohortes activas")))
                 // los dos paneles, las dos vistas y los botones (el de guardar se llama "Modificar")
-                .andExpect(content().string(Matchers.containsString("Unidades disponibles")))
-                .andExpect(content().string(Matchers.containsString("data-nueva-unidad")))
+                .andExpect(content().string(Matchers.containsString("Temas disponibles")))
+                .andExpect(content().string(Matchers.containsString("data-nueva-tema")))
                 .andExpect(content().string(Matchers.containsString("Vista por semanas")))
-                .andExpect(content().string(Matchers.containsString("Vista por unidades")))
+                .andExpect(content().string(Matchers.containsString("Vista por temas")))
                 .andExpect(content().string(Matchers.containsString("data-zona")))
                 .andExpect(content().string(Matchers.containsString("data-cancelar")))
                 .andExpect(content().string(Matchers.containsString("data-modificar")))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("Guardar cambios"))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("Cronograma en solo lectura"))))
                 .andExpect(content().string(Matchers.containsString("/js/cronograma.js")));
-        // las unidades del cronograma viajan a la pantalla, en orden y con sus semanas
-        for (UnidadCronograma c : programa.getCronogramaOrdenado()) {
+        // los temas del cronograma viajan a la pantalla, en orden y con sus semanas
+        for (TemaCronograma c : programa.getCronogramaOrdenado()) {
             mockMvc.perform(get("/cronograma/buscar").param("cursoId", cursoId(macro())))
-                    .andExpect(content().string(Matchers.containsString("data-id=\"" + c.getUnidad().getIdUnidad()
+                    .andExpect(content().string(Matchers.containsString("data-id=\"" + c.getTema().getIdTema()
                             + "\" data-semanas=\"" + c.getSemanasDuracion() + "\"")));
         }
     }
@@ -187,17 +187,17 @@ class CronogramaControladorTest {
     @DisplayName("CU-24: modificar el cronograma responde en JSON y la página muestra el nuevo orden y las nuevas semanas")
     void modificar() throws Exception {
         Programa programa = programaDe(macro());
-        List<Integer> unidades = unidadesDe(macro());
+        List<Integer> temas = temasDe(macro());
 
         mockMvc.perform(post("/cronograma/modificar").param("programaId", String.valueOf(programa.getIdPrograma()))
-                .param("ids", String.valueOf(unidades.get(2)), String.valueOf(unidades.get(0)), String.valueOf(unidades.get(1)))
+                .param("ids", String.valueOf(temas.get(2)), String.valueOf(temas.get(0)), String.valueOf(temas.get(1)))
                 .param("semanas", "2", "4", "1"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith("application/json"))
                 .andExpect(jsonPath("$.mensaje").value("Cronograma modificado correctamente."));
 
         mockMvc.perform(get("/cronograma/buscar").param("cursoId", cursoId(macro())))
-                .andExpect(content().string(Matchers.containsString("data-id=\"" + unidades.get(2) + "\" data-semanas=\"2\"")))
+                .andExpect(content().string(Matchers.containsString("data-id=\"" + temas.get(2) + "\" data-semanas=\"2\"")))
                 .andExpect(content().string(Matchers.containsString("7 semanas")));
     }
 
@@ -206,15 +206,15 @@ class CronogramaControladorTest {
     @DisplayName("CU-24: las duraciones inválidas y el programa con inscripciones responden 400 con el mensaje del CU")
     void rechazos() throws Exception {
         Programa programa = programaDe(macro());
-        List<Integer> unidades = unidadesDe(macro());
+        List<Integer> temas = temasDe(macro());
         String id = String.valueOf(programa.getIdPrograma());
 
         mockMvc.perform(post("/cronograma/modificar").param("programaId", id)
-                .param("ids", String.valueOf(unidades.get(0))).param("semanas", "0"))
+                .param("ids", String.valueOf(temas.get(0))).param("semanas", "0"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value(Matchers.containsString("mayor a cero")));
         mockMvc.perform(post("/cronograma/modificar").param("programaId", id)
-                .param("ids", String.valueOf(unidades.get(0))).param("semanas", "tres"))
+                .param("ids", String.valueOf(temas.get(0))).param("semanas", "tres"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value(Matchers.containsString("mayor a cero")));
 

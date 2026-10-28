@@ -408,7 +408,7 @@ class InscripcionGestionControladorTest {
                 .filter(c -> c.getInscripcion().getAlumno().getUsuario().getCorreo().equals(VALENTINA)).findFirst().orElseThrow();
         inscripcionServicio.darDeBajaInscripcion(consulta.getInscripcion().getIdInscripcion(), null, null);
 
-        mockMvc.perform(get("/foro/ver/" + consulta.getUnidad().getIdUnidad())).andExpect(status().isOk())
+        mockMvc.perform(get("/foro/ver/" + consulta.getTema().getIdTema())).andExpect(status().isOk())
                 .andExpect(content().string(containsString("Alumno anónimo")))
                 .andExpect(content().string(not(containsString("Valentina Ruiz"))));
         mockMvc.perform(get("/foro/consulta/" + consulta.getIdConsulta())).andExpect(status().isOk())

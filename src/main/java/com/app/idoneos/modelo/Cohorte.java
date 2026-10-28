@@ -206,7 +206,7 @@ public class Cohorte {
 
     /**
      * Verifica si la cohorte todavía no terminó: es próxima, tiene la inscripción abierta o está en dictado. Los alumnos
-     * de una cohorte así cursan (o van a cursar) las unidades del programa.
+     * de una cohorte así cursan (o van a cursar) los temas del programa.
      *
      * @return {@code true} si la cohorte no está finalizada.
      */
@@ -326,22 +326,22 @@ public class Cohorte {
     }
 
     /**
-     * Calcula el estado de una unidad según el calendario de la cohorte (sin mirar el avance de ningún alumno):
+     * Calcula el estado de un tema según el calendario de la cohorte (sin mirar el avance de ningún alumno):
      * Completada si su última semana ya pasó, En curso si la semana actual está dentro de sus semanas y Pendiente en
      * los demás casos (incluido el cronograma que todavía no comenzó).
      *
-     * @param unidadCronograma La unidad del cronograma a consultar.
+     * @param temaCronograma El tema del cronograma a consultar.
      * @return "Completada", "En curso" o "Pendiente".
      */
-    public String getEstadoUnidadResumido(UnidadCronograma unidadCronograma) {
+    public String getEstadoTemaResumido(TemaCronograma temaCronograma) {
         if (!haComenzadoCronograma()) {
             return "Pendiente";
         }
         int semana = getSemanasTranscurridas();
-        if (unidadCronograma.getSemanaHasta() < semana) {
+        if (temaCronograma.getSemanaHasta() < semana) {
             return "Completada";
         }
-        return unidadCronograma.getSemanaDesde() <= semana ? "En curso" : "Pendiente";
+        return temaCronograma.getSemanaDesde() <= semana ? "En curso" : "Pendiente";
     }
 
     /**

@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * Evaluación de una unidad, armada a partir de pools de preguntas, con tiempo límite, nota mínima e intentos permitidos.
+ * Evaluación de un tema, armada a partir de pools de preguntas, con tiempo límite, nota mínima e intentos permitidos.
  */
 @Entity
 @Table(name = "Autoevaluacion")
@@ -36,11 +36,11 @@ public class Autoevaluacion {
     private int idAutoevaluacion;
 
     /**
-     * Relación con Unidad.
+     * Relación con Tema.
      */
     @ManyToOne
-    @JoinColumn(name = "idUnidad", nullable = false)
-    private Unidad unidad;
+    @JoinColumn(name = "idTema", nullable = false)
+    private Tema tema;
 
     /**
      * Nombre de la autoevaluación.
@@ -143,14 +143,14 @@ public class Autoevaluacion {
     /**
      * Constructor para crear la autoevaluación con los datos básicos.
      *
-     * @param unidad relación con Unidad.
+     * @param tema relación con Tema.
      * @param nombre nombre de la autoevaluación.
      * @param cantidadPreguntas cantidad de preguntas que se extraen de los pools.
      * @param notaMinima nota mínima para aprobar.
      * @param fechaApertura fecha y hora desde la que está disponible.
      */
-    public Autoevaluacion(Unidad unidad, String nombre, int cantidadPreguntas, float notaMinima, LocalDateTime fechaApertura) {
-        this.unidad = unidad;
+    public Autoevaluacion(Tema tema, String nombre, int cantidadPreguntas, float notaMinima, LocalDateTime fechaApertura) {
+        this.tema = tema;
         this.nombre = nombre;
         this.cantidadPreguntas = cantidadPreguntas;
         this.notaMinima = notaMinima;
@@ -202,12 +202,12 @@ public class Autoevaluacion {
     }
 
     /**
-     * Indica si la autoevaluación combina pools de otras unidades (anteriores a la suya): un repaso o una evaluación final.
+     * Indica si la autoevaluación combina pools de otros temas (anteriores a la suya): un repaso o una evaluación final.
      *
-     * @return {@code true} si alguno de sus pools es de otra unidad.
+     * @return {@code true} si alguno de sus pools es de otro tema.
      */
     public boolean esEvaluacionFinal() {
-        return getPoolsActivos().stream().anyMatch(pool -> pool.getUnidad().getIdUnidad() != unidad.getIdUnidad());
+        return getPoolsActivos().stream().anyMatch(pool -> pool.getTema().getIdTema() != tema.getIdTema());
     }
 
     /**

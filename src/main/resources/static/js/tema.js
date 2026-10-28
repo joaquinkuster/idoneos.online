@@ -1,11 +1,11 @@
 /**
- * Comportamiento del ABM de unidades (MOD-F-02).
+ * Comportamiento del ABM de temas (MOD-F-02).
  *
- *  1. Si la página se abre con ?nuevo, o con ?accion=editar|baja&unidadId=…, abre sola la ventana correspondiente
- *     (son los destinos del botón "Registrar unidad" y del menú de cada unidad de la vista del curso). Se quita esa
+ *  1. Si la página se abre con ?nuevo, o con ?accion=editar|baja&temaId=…, abre sola la ventana correspondiente
+ *     (son los destinos del botón "Registrar tema" y del menú de cada tema de la vista del curso). Se quita esa
  *     parte de la dirección para que, al recargar después de la operación, la ventana no vuelva a abrirse.
- *  2. Formulario de alta: elegir "una unidad de otro programa del curso" cambia los campos que pide, y la lista de
- *     unidades a incorporar muestra solo las que todavía no están en el programa elegido.
+ *  2. Formulario de alta: elegir "un tema de otro programa del curso" cambia los campos que pide, y la lista de
+ *     temas a incorporar muestra solo las que todavía no están en el programa elegido.
  */
 (function () {
     'use strict';
@@ -15,18 +15,18 @@
     if (ventana && window.bootstrap) {
         window.bootstrap.Modal.getOrCreateInstance(ventana).show();
         var direccion = new URL(window.location.href);
-        ['nuevo', 'accion', 'unidadId'].forEach(function (nombre) { direccion.searchParams.delete(nombre); });
+        ['nuevo', 'accion', 'temaId'].forEach(function (nombre) { direccion.searchParams.delete(nombre); });
         window.history.replaceState(null, '', direccion.pathname + direccion.search);
     }
 
-    var formulario = document.querySelector('[data-unidad-formulario]');
+    var formulario = document.querySelector('[data-tema-formulario]');
     if (!formulario) { return; }
-    var modo = formulario.querySelector('[data-unidad-modo]');
-    var programa = formulario.querySelector('[data-unidad-programa]');
-    var existente = formulario.querySelector('[data-unidad-existente]');
-    var aviso = formulario.querySelector('[data-unidad-sin-opciones]');
+    var modo = formulario.querySelector('[data-tema-modo]');
+    var programa = formulario.querySelector('[data-tema-programa]');
+    var existente = formulario.querySelector('[data-tema-existente]');
+    var aviso = formulario.querySelector('[data-tema-sin-opciones]');
 
-    /** Muestra solo las unidades que no están ya en el cronograma del programa elegido. */
+    /** Muestra solo los temas que no están ya en el cronograma del programa elegido. */
     function filtrarIncorporables() {
         var disponibles = 0;
         Array.prototype.forEach.call(existente.options, function (opcion) {
@@ -41,7 +41,7 @@
         aviso.hidden = disponibles > 0 || modo.value !== 'existente';
     }
 
-    /** Adapta los campos al modo: unidad nueva (título, contenido, descripción) o unidad existente (un selector). */
+    /** Adapta los campos al modo: tema nueva (título, contenido, descripción) o tema existente (un selector). */
     function aplicarModo() {
         var esExistente = modo.value === 'existente';
         formulario.querySelectorAll('[data-bloque="nueva"]').forEach(function (bloque) {

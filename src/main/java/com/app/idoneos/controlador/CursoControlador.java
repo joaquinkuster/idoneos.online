@@ -185,11 +185,11 @@ public class CursoControlador extends PanelCursoControlador {
     }
 
     /**
-     * CU-27: Permite al docente acceder a un curso en el que participa, con todas sus unidades habilitadas y sin
+     * CU-27: Permite al docente acceder a un curso en el que participa, con todos sus temas habilitados y sin
      * avance. Se muestra el programa y la cohorte de su contexto de trabajo.
      *
      * @param idCurso            El identificador del curso.
-     * @param seccion            La sección a mostrar: "unidades" (por defecto), "cronograma" o "clases".
+     * @param seccion            La sección a mostrar: "temas" (por defecto), "cronograma" o "clases".
      * @param modelo             El modelo de la vista.
      * @param auth               La autenticación actual.
      * @param redirectAttributes Atributos para mensajes de redirección.
@@ -197,7 +197,7 @@ public class CursoControlador extends PanelCursoControlador {
      */
     @GetMapping("/acceder/{idCurso}")
     public String accederCurso(@PathVariable("idCurso") int idCurso,
-            @RequestParam(value = "seccion", defaultValue = "unidades") String seccion, Model modelo,
+            @RequestParam(value = "seccion", defaultValue = "temas") String seccion, Model modelo,
             Authentication auth, RedirectAttributes redirectAttributes) {
         Usuario usuario = (Usuario) auth.getPrincipal();
         boolean esAdministrador = false;
@@ -235,9 +235,9 @@ public class CursoControlador extends PanelCursoControlador {
                 // El cronograma del docente tiene su propia página, donde también se modifica
                 return "redirect:/cronograma/buscar?cursoId=" + idCurso;
             }
-            String seccionActiva = List.of("unidades", "clases").contains(seccion) ? seccion : "unidades";
+            String seccionActiva = List.of("temas", "clases").contains(seccion) ? seccion : "temas";
 
-            String menuActivo = "unidades".equals(seccionActiva) ? "curso" : seccionActiva;
+            String menuActivo = "temas".equals(seccionActiva) ? "curso" : seccionActiva;
             cargarContexto(modelo, esAdministrador ? ContextoCurso.deAdministrador(curso)
                     : ContextoCurso.deDocente(participacion), menuActivo);
             cargarSemanasMaximasDelCronograma(modelo);
@@ -358,7 +358,7 @@ public class CursoControlador extends PanelCursoControlador {
     // ---------------------------------------------------------------- Bajas
 
     /**
-     * CU-05: Da de baja un curso que no tenga programas ni unidades activas asociadas. Responde en JSON.
+     * CU-05: Da de baja un curso que no tenga programas ni temas activos asociadas. Responde en JSON.
      *
      * @param id Identificador del curso.
      * @return Una respuesta con el mensaje de éxito o el mensaje de error.

@@ -24,11 +24,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.app.idoneos.modelo.Material;
 import com.app.idoneos.modelo.TipoMaterial;
-import com.app.idoneos.modelo.Unidad;
+import com.app.idoneos.modelo.Tema;
 import com.app.idoneos.repositorio.CursoRepositorio;
 import com.app.idoneos.repositorio.MaterialRepositorio;
 import com.app.idoneos.repositorio.TipoMaterialRepositorio;
-import com.app.idoneos.repositorio.UnidadRepositorio;
+import com.app.idoneos.repositorio.TemaRepositorio;
 
 /**
  * Pruebas del ABM de materiales (CU-28 a CU-31): pantalla, permisos por rol y formularios.
@@ -49,7 +49,7 @@ class MaterialControladorTest {
     private CursoRepositorio cursoRepositorio;
 
     @Autowired
-    private UnidadRepositorio unidadRepositorio;
+    private TemaRepositorio temaRepositorio;
 
     @Autowired
     private TipoMaterialRepositorio tipoMaterialRepositorio;
@@ -66,8 +66,8 @@ class MaterialControladorTest {
         return idCurso("Mercado de Capitales Argentino");
     }
 
-    private Unidad unidadDeRentaFija() {
-        return unidadRepositorio.findAll().stream().filter(u -> u.getTitulo().equals("Renta fija y bonos")
+    private Tema temaDeRentaFija() {
+        return temaRepositorio.findAll().stream().filter(u -> u.getTitulo().equals("Renta fija y bonos")
                 && u.getCurso().getNombre().equals("Mercado de Capitales Argentino")).findFirst().orElseThrow();
     }
 
@@ -78,7 +78,7 @@ class MaterialControladorTest {
 
     private MockHttpServletRequestBuilder subir(String titulo, String nombreArchivo, byte[] contenido) {
         return multipart("/material/subir").file(new MockMultipartFile("archivo", nombreArchivo, "video/mp4", contenido))
-                .param("unidadId", String.valueOf(unidadDeRentaFija().getIdUnidad()))
+                .param("temaId", String.valueOf(temaDeRentaFija().getIdTema()))
                 .param("tipoMaterialId", String.valueOf(idTipo(TipoMaterial.GRABACION))).param("titulo", titulo);
     }
 
@@ -95,7 +95,7 @@ class MaterialControladorTest {
                 .andExpect(content().string(Matchers.containsString("Borrador: ejercicios de duration")))
                 .andExpect(content().string(Matchers.containsString("Oculto")))
                 .andExpect(content().string(Matchers.containsString("Subir material")))
-                // sin botón "Ver": el material se abre desde su unidad
+                // sin botón "Ver": el material se abre desde su tema
                 .andExpect(content().string(Matchers.not(Matchers.containsString("modalVerMaterial"))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("pn-btn-ver"))))
                 // "Subir material" abre el formulario directamente, con el tipo como un campo más (sin selector)
@@ -108,7 +108,7 @@ class MaterialControladorTest {
                 .andExpect(content().string(Matchers.not(Matchers.containsString("Agregar un recurso o actividad"))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("modalSelectorRecurso"))))
                 // la sidebar de gestión académica con "Materiales" activo y funcionando
-                .andExpect(content().string(Matchers.containsString("Contenido de las unidades")))
+                .andExpect(content().string(Matchers.containsString("Contenido de los temas")))
                 .andExpect(content().string(Matchers.containsString("/material/buscar?cursoId=")));
     }
 
@@ -125,16 +125,16 @@ class MaterialControladorTest {
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesServicio")
-    @DisplayName("CU-29: con ?nuevo={tipo} la página abre sola el formulario de ese tipo en la unidad elegida")
+    @DisplayName("CU-29: con ?nuevo={tipo} la página abre sola el formulario de ese tipo en el tema elegido")
     void abreElFormularioDelTipoElegido() throws Exception {
         int grabacion = idTipo(TipoMaterial.GRABACION);
-        int unidad = unidadDeRentaFija().getIdUnidad();
+        int tema = temaDeRentaFija().getIdTema();
 
         mockMvc.perform(get("/material/buscar").param("cursoId", String.valueOf(idCursoPrincipal()))
-                .param("unidadId", String.valueOf(unidad)).param("nuevo", String.valueOf(grabacion)))
+                .param("temaId", String.valueOf(tema)).param("nuevo", String.valueOf(grabacion)))
                 .andExpect(status().isOk())
                 .andExpect(content().string(Matchers.containsString("data-abrir-tipo=\"" + grabacion + "\"")))
-                .andExpect(content().string(Matchers.containsString("data-unidad=\"" + unidad + "\"")));
+                .andExpect(content().string(Matchers.containsString("data-tema=\"" + tema + "\"")));
 
         // un tipo que no se sube a mano (Resumen) se ignora
         mockMvc.perform(get("/material/buscar").param("cursoId", String.valueOf(idCursoPrincipal()))

@@ -12,10 +12,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * Conjunto de preguntas de una unidad, del que se arman las autoevaluaciones.
+ * Conjunto de preguntas de un tema, del que se arman las autoevaluaciones.
  */
 @Entity
-@Table(name = "Pool", uniqueConstraints = { @UniqueConstraint(columnNames = {"idUnidad", "nombre"}) })
+@Table(name = "Pool", uniqueConstraints = { @UniqueConstraint(columnNames = {"idTema", "nombre"}) })
 @Check(name = "ck_pool_nombre", constraints = "trim(nombre) <> ''")
 @Getter
 @Setter
@@ -31,11 +31,11 @@ public class Pool {
     private int idPool;
 
     /**
-     * Relación con Unidad.
+     * Relación con Tema.
      */
     @ManyToOne
-    @JoinColumn(name = "idUnidad", nullable = false)
-    private Unidad unidad;
+    @JoinColumn(name = "idTema", nullable = false)
+    private Tema tema;
 
     /**
      * Nombre del pool.
@@ -76,11 +76,11 @@ public class Pool {
     /**
      * Constructor para crear el pool con los datos básicos.
      *
-     * @param unidad relación con Unidad.
+     * @param tema relación con Tema.
      * @param nombre nombre del pool.
      */
-    public Pool(Unidad unidad, String nombre) {
-        this.unidad = unidad;
+    public Pool(Tema tema, String nombre) {
+        this.tema = tema;
         this.nombre = nombre;
     }
 

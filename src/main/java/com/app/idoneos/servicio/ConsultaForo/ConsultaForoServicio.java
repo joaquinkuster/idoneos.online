@@ -5,7 +5,7 @@ import java.util.List;
 import com.app.idoneos.modelo.Alumno;
 import com.app.idoneos.modelo.ConsultaForo;
 import com.app.idoneos.modelo.Inscripcion;
-import com.app.idoneos.modelo.Unidad;
+import com.app.idoneos.modelo.Tema;
 
 /**
  * Servicio para gestionar las operaciones relacionadas con la consulta del foro.
@@ -15,12 +15,12 @@ public interface ConsultaForoServicio {
     // ---------------------------------------------------------------- Lecturas
 
     /**
-     * Busca los registros vigentes de consultaForo asociados a unidad.
+     * Busca los registros vigentes de consultaForo asociados a tema.
      *
-     * @param unidad el registro de Unidad asociado
-     * @return una lista de ConsultaForo asociados al Unidad indicado
+     * @param tema el registro de Tema asociado
+     * @return una lista de ConsultaForo asociados al Tema indicado
      */
-    List<ConsultaForo> buscarPorUnidad(Unidad unidad);
+    List<ConsultaForo> buscarPorTema(Tema tema);
 
     /**
      * Busca los registros vigentes de consultaForo asociados a inscripcion.
@@ -31,30 +31,30 @@ public interface ConsultaForoServicio {
     List<ConsultaForo> buscarPorInscripcion(Inscripcion inscripcion);
 
     /**
-     * CU-35: Busca las consultas vigentes del foro de una unidad que contienen un texto y fueron registradas dentro de
+     * CU-35: Busca las consultas vigentes del foro de un tema que contienen un texto y fueron registradas dentro de
      * un rango de fechas, con el último mensaje más reciente primero.
      *
-     * @param unidad la unidad del foro
+     * @param tema el tema del foro
      * @param texto  el texto a buscar, sin distinguir mayúsculas ni tildes (opcional)
      * @param desde  la fecha de registro mínima, inclusive (opcional)
      * @param hasta  la fecha de registro máxima, inclusive (opcional)
      * @return las consultas que cumplen los criterios
      */
-    List<ConsultaForo> buscarConFiltros(Unidad unidad, String texto, LocalDate desde, LocalDate hasta);
+    List<ConsultaForo> buscarConFiltros(Tema tema, String texto, LocalDate desde, LocalDate hasta);
 
     // ---------------------------------------------------------------- Creaciones
 
     /**
-     * CU-36: Registra una consulta en el foro de una unidad. Solo la hace un alumno con inscripción vigente al curso y
-     * la unidad habilitada.
+     * CU-36: Registra una consulta en el foro de un tema. Solo la hace un alumno con inscripción vigente al curso y
+     * el tema habilitado.
      *
      * @param alumno   el alumno que consulta
-     * @param unidadId el identificador de la unidad
+     * @param temaId el identificador del tema
      * @param texto    el texto de la consulta
      * @return la consulta registrada
-     * @throws IllegalArgumentException si falta el texto, supera el máximo o el alumno no tiene acceso a la unidad
+     * @throws IllegalArgumentException si falta el texto, supera el máximo o el alumno no tiene acceso al tema
      */
-    ConsultaForo registrarConsulta(Alumno alumno, Integer unidadId, String texto);
+    ConsultaForo registrarConsulta(Alumno alumno, Integer temaId, String texto);
 
     // ---------------------------------------------------------------- Modificaciones
 

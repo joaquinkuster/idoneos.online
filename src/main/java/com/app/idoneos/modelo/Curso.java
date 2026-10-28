@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * Oferta educativa principal de la plataforma. Se dicta en una o más modalidades y se organiza en programas y unidades.
+ * Oferta educativa principal de la plataforma. Se dicta en una o más modalidades y se organiza en programas y temas.
  */
 @Entity
 @Table(name = "Curso")
@@ -105,10 +105,10 @@ public class Curso {
     private Set<Reporte> reportes = new HashSet<>();
 
     /**
-     * Conjunto de unidades asociados.
+     * Conjunto de temas asociados.
      */
     @OneToMany(mappedBy = "curso", cascade = CascadeType.ALL)
-    private Set<Unidad> unidades = new HashSet<>();
+    private Set<Tema> temas = new HashSet<>();
 
     /**
      * Conjunto de programas asociados.
@@ -247,7 +247,7 @@ public class Curso {
      * @return Los materiales publicados de esa modalidad.
      */
     public List<Material> getMaterialesPublicadosDeModalidad(String nombreModalidad) {
-        return unidades.stream().filter(unidad -> !unidad.getBaja()).flatMap(unidad -> unidad.getMateriales().stream())
+        return temas.stream().filter(tema -> !tema.getBaja()).flatMap(tema -> tema.getMateriales().stream())
                 .filter(material -> material.estaPublicado() && nombreModalidad.equals(material.getModalidadAsociada()))
                 .toList();
     }

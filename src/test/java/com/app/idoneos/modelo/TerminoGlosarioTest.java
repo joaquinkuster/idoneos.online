@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 class TerminoGlosarioTest {
 
     private TerminoGlosario termino(String texto) {
-        return new TerminoGlosario(new Unidad(), texto, "Definición");
+        return new TerminoGlosario(new Tema(), texto, "Definición");
     }
 
     @Test
@@ -46,8 +46,8 @@ class TerminoGlosarioTest {
     }
 
     @Test
-    @DisplayName("La unidad sin términos no tiene fecha de última actualización del glosario")
+    @DisplayName("El tema sin términos no tiene fecha de última actualización del glosario")
     void glosarioSinTerminos() {
-        assertNull(new Unidad().getUltimaActualizacionGlosario());
+        assertNull(new Tema().getUltimaActualizacionGlosario());
     }
 }

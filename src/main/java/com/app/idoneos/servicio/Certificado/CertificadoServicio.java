@@ -32,7 +32,7 @@ public interface CertificadoServicio {
     // ---------------------------------------------------------------- Creaciones
 
     /**
-     * Emite el certificado de finalización de una inscripción que completó todas las unidades del programa: genera su
+     * Emite el certificado de finalización de una inscripción que completó todos los temas del programa: genera su
      * número (CERT-año-secuencia) y su fecha de emisión y lo registra. El envío por correo se simula (queda registrado
      * en el log) hasta que exista el servicio de correo. Si la inscripción ya tiene un certificado vigente, lo devuelve.
      *
@@ -59,7 +59,7 @@ public interface CertificadoServicio {
     // ---------------------------------------------------------------- Bajas
 
     /**
-     * Anula los certificados vigentes de una inscripción (por ejemplo, cuando se revierte una unidad del curso por
+     * Anula los certificados vigentes de una inscripción (por ejemplo, cuando se revierte un tema del curso por
      * fraude y el curso deja de estar completo).
      *
      * @param inscripcion la inscripción

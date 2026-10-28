@@ -21,11 +21,11 @@ import org.springframework.transaction.annotation.Transactional;
 import com.app.idoneos.modelo.Docente;
 import com.app.idoneos.modelo.Material;
 import com.app.idoneos.modelo.TipoMaterial;
-import com.app.idoneos.modelo.Unidad;
+import com.app.idoneos.modelo.Tema;
 import com.app.idoneos.repositorio.DocenteRepositorio;
 import com.app.idoneos.repositorio.MaterialRepositorio;
 import com.app.idoneos.repositorio.TipoMaterialRepositorio;
-import com.app.idoneos.repositorio.UnidadRepositorio;
+import com.app.idoneos.repositorio.TemaRepositorio;
 import com.app.idoneos.servicio.Material.MaterialServicio;
 
 /**
@@ -47,7 +47,7 @@ class MaterialServicioTest {
     private MaterialRepositorio materialRepositorio;
 
     @Autowired
-    private UnidadRepositorio unidadRepositorio;
+    private TemaRepositorio temaRepositorio;
 
     @Autowired
     private TipoMaterialRepositorio tipoMaterialRepositorio;
@@ -68,14 +68,14 @@ class MaterialServicioTest {
         return docente("fausto.spotorno@idoneos.online");
     }
 
-    private Unidad unidad(String curso, String titulo) {
-        return unidadRepositorio.findAll().stream()
+    private Tema tema(String curso, String titulo) {
+        return temaRepositorio.findAll().stream()
                 .filter(u -> u.getCurso().getNombre().equals(curso) && u.getTitulo().equals(titulo)).findFirst()
                 .orElseThrow();
     }
 
-    private Unidad unidadDeRentaFija() {
-        return unidad("Mercado de Capitales Argentino", "Renta fija y bonos");
+    private Tema temaDeRentaFija() {
+        return tema("Mercado de Capitales Argentino", "Renta fija y bonos");
     }
 
     private TipoMaterial tipo(String nombre) {
@@ -88,14 +88,14 @@ class MaterialServicioTest {
     }
 
     private Material subirGrabacion(String titulo) {
-        return materialServicio.subirMaterial(fausto(), unidadDeRentaFija().getIdUnidad(),
+        return materialServicio.subirMaterial(fausto(), temaDeRentaFija().getIdTema(),
                 tipo(TipoMaterial.GRABACION).getIdTipoMaterial(), titulo, false, null, null, archivo("clase.mp4", MP4));
     }
 
     /** Material de "Macroeconomía de Coyuntura", curso en el que no participa Sebastián Bordato. */
     private Material subirEnMacroeconomia() {
         return materialServicio.subirMaterial(fausto(),
-                unidad("Macroeconomía de Coyuntura", "Inflación y precios").getIdUnidad(),
+                tema("Macroeconomía de Coyuntura", "Inflación y precios").getIdTema(),
                 tipo(TipoMaterial.GRABACION).getIdTipoMaterial(), "Clase de inflación", false, null, null,
                 archivo("clase.mp4", MP4));
     }
@@ -107,12 +107,12 @@ class MaterialServicioTest {
     // ------------------------------------------------------------------ CU-29 Subir material
 
     @Test
-    @DisplayName("CU-29: sube una grabación y la guarda en curso{id}/unidad{id}/material{id}.mp4")
+    @DisplayName("CU-29: sube una grabación y la guarda en curso{id}/tema{id}/material{id}.mp4")
     void subeUnaGrabacion() {
         Material material = subirGrabacion("Clase 3: Valuación de bonos");
 
-        Unidad unidad = material.getUnidad();
-        String esperada = "curso" + unidad.getCurso().getIdCurso() + "/unidad" + unidad.getIdUnidad() + "/material"
+        Tema tema = material.getTema();
+        String esperada = "curso" + tema.getCurso().getIdCurso() + "/tema" + tema.getIdTema() + "/material"
                 + material.getIdMaterial() + ".mp4";
         assertEquals(esperada, material.getRutaArchivo());
         assertTrue(Files.exists(directorioCursos.resolve(esperada)));
@@ -127,10 +127,10 @@ class MaterialServicioTest {
     @Test
     @DisplayName("CU-29: puede subirse oculto, y una bibliografía puede ser un enlace externo con su autor")
     void subeOcultoYBibliografiaConEnlace() {
-        Material oculto = materialServicio.subirMaterial(fausto(), unidadDeRentaFija().getIdUnidad(),
+        Material oculto = materialServicio.subirMaterial(fausto(), temaDeRentaFija().getIdTema(),
                 tipo(TipoMaterial.PRESENTACION).getIdTipoMaterial(), "Diapositivas", true, null, null,
                 archivo("clase.pdf", PDF));
-        Material enlace = materialServicio.subirMaterial(fausto(), unidadDeRentaFija().getIdUnidad(),
+        Material enlace = materialServicio.subirMaterial(fausto(), temaDeRentaFija().getIdTema(),
                 tipo(TipoMaterial.BIBLIOGRAFIA).getIdTipoMaterial(), "Libro de bonos", false, "J. Pérez",
                 "https://sitio.com/libro.pdf", null);
 
@@ -145,40 +145,40 @@ class MaterialServicioTest {
     @Test
     @DisplayName("CU-29: valida el título, el tipo y los datos que pide cada tipo de material")
     void validaLosDatos() {
-        int unidad = unidadDeRentaFija().getIdUnidad();
+        int tema = temaDeRentaFija().getIdTema();
         int grabacion = tipo(TipoMaterial.GRABACION).getIdTipoMaterial();
         int bibliografia = tipo(TipoMaterial.BIBLIOGRAFIA).getIdTipoMaterial();
         int presentacion = tipo(TipoMaterial.PRESENTACION).getIdTipoMaterial();
         int resumen = tipo(TipoMaterial.RESUMEN).getIdTipoMaterial();
         Docente docente = fausto();
 
-        assertTrue(mensaje(() -> materialServicio.subirMaterial(docente, unidad, grabacion, "  ", false, null, null,
+        assertTrue(mensaje(() -> materialServicio.subirMaterial(docente, tema, grabacion, "  ", false, null, null,
                 archivo("c.mp4", MP4))).contains("título"));
-        assertTrue(mensaje(() -> materialServicio.subirMaterial(docente, unidad, grabacion, "x".repeat(51), false, null,
+        assertTrue(mensaje(() -> materialServicio.subirMaterial(docente, tema, grabacion, "x".repeat(51), false, null,
                 null, archivo("c.mp4", MP4))).contains("50 caracteres"));
-        assertTrue(mensaje(() -> materialServicio.subirMaterial(docente, unidad, resumen, "Resumen", false, null, null,
+        assertTrue(mensaje(() -> materialServicio.subirMaterial(docente, tema, resumen, "Resumen", false, null, null,
                 archivo("c.pdf", PDF))).contains("tipo de material de la lista"));
-        assertTrue(mensaje(() -> materialServicio.subirMaterial(docente, unidad, grabacion, "Clase", false, null, null,
+        assertTrue(mensaje(() -> materialServicio.subirMaterial(docente, tema, grabacion, "Clase", false, null, null,
                 null)).contains("archivo de video"));
-        assertTrue(mensaje(() -> materialServicio.subirMaterial(docente, unidad, presentacion, "Clase", false, null,
+        assertTrue(mensaje(() -> materialServicio.subirMaterial(docente, tema, presentacion, "Clase", false, null,
                 null, null)).contains("presentación"));
-        assertTrue(mensaje(() -> materialServicio.subirMaterial(docente, unidad, bibliografia, "Libro", false, null,
+        assertTrue(mensaje(() -> materialServicio.subirMaterial(docente, tema, bibliografia, "Libro", false, null,
                 null, null)).contains("archivo o ingresar un enlace"));
-        assertTrue(mensaje(() -> materialServicio.subirMaterial(docente, unidad, bibliografia, "Libro", false, null,
+        assertTrue(mensaje(() -> materialServicio.subirMaterial(docente, tema, bibliografia, "Libro", false, null,
                 "https://sitio.com", archivo("l.pdf", PDF))).contains("no ambos"));
-        assertTrue(mensaje(() -> materialServicio.subirMaterial(docente, unidad, bibliografia, "Libro", false, null,
+        assertTrue(mensaje(() -> materialServicio.subirMaterial(docente, tema, bibliografia, "Libro", false, null,
                 "ftp://sitio.com", null)).contains("http://"));
-        assertTrue(mensaje(() -> materialServicio.subirMaterial(docente, unidad, grabacion, "Clase", false, null,
+        assertTrue(mensaje(() -> materialServicio.subirMaterial(docente, tema, grabacion, "Clase", false, null,
                 "https://sitio.com", null)).contains("no admite un enlace"));
         // un archivo renombrado (un PDF que dice ser MP4) o de otro formato se rechaza
-        assertTrue(mensaje(() -> materialServicio.subirMaterial(docente, unidad, grabacion, "Clase", false, null, null,
+        assertTrue(mensaje(() -> materialServicio.subirMaterial(docente, tema, grabacion, "Clase", false, null, null,
                 archivo("clase.mp4", PDF))).contains("MP4 o WEBM"));
-        assertTrue(mensaje(() -> materialServicio.subirMaterial(docente, unidad, presentacion, "Clase", false, null,
+        assertTrue(mensaje(() -> materialServicio.subirMaterial(docente, tema, presentacion, "Clase", false, null,
                 null, archivo("clase.mp4", MP4))).contains("Formato válido: PDF."));
         // los documentos de Office ya no se admiten: solo PDF
-        assertTrue(mensaje(() -> materialServicio.subirMaterial(docente, unidad, presentacion, "Clase", false, null,
+        assertTrue(mensaje(() -> materialServicio.subirMaterial(docente, tema, presentacion, "Clase", false, null,
                 null, archivo("clase.pptx", PDF))).contains("Formato válido: PDF."));
-        assertTrue(mensaje(() -> materialServicio.subirMaterial(docente, unidad, bibliografia, "Libro", false, null,
+        assertTrue(mensaje(() -> materialServicio.subirMaterial(docente, tema, bibliografia, "Libro", false, null,
                 null, archivo("libro.docx", PDF))).contains("Formato válido: PDF."));
     }
 
@@ -187,27 +187,27 @@ class MaterialServicioTest {
     void subidaInvalidaNoRegistra() {
         long antes = materialRepositorio.count();
 
-        mensaje(() -> materialServicio.subirMaterial(fausto(), unidadDeRentaFija().getIdUnidad(),
+        mensaje(() -> materialServicio.subirMaterial(fausto(), temaDeRentaFija().getIdTema(),
                 tipo(TipoMaterial.GRABACION).getIdTipoMaterial(), "Clase", false, null, null, archivo("c.mp4", PDF)));
 
         assertEquals(antes, materialRepositorio.count());
     }
 
     @Test
-    @DisplayName("CU-29: el docente debe participar en el curso y la unidad debe estar activa")
-    void participacionYUnidadActiva() {
+    @DisplayName("CU-29: el docente debe participar en el curso y el tema debe estar activa")
+    void participacionYTemaActiva() {
         Docente sebastian = docente("sebastian.bordato@idoneos.online");
-        Unidad ajena = unidad("Macroeconomía de Coyuntura", "Inflación y precios");
+        Tema ajena = tema("Macroeconomía de Coyuntura", "Inflación y precios");
 
-        assertTrue(mensaje(() -> materialServicio.subirMaterial(sebastian, ajena.getIdUnidad(),
+        assertTrue(mensaje(() -> materialServicio.subirMaterial(sebastian, ajena.getIdTema(),
                 tipo(TipoMaterial.GRABACION).getIdTipoMaterial(), "Clase", false, null, null, archivo("c.mp4", MP4)))
                 .contains("No participás"));
 
-        Unidad deBaja = unidadDeRentaFija();
+        Tema deBaja = temaDeRentaFija();
         deBaja.marcarInactivo();
-        assertTrue(mensaje(() -> materialServicio.subirMaterial(fausto(), deBaja.getIdUnidad(),
+        assertTrue(mensaje(() -> materialServicio.subirMaterial(fausto(), deBaja.getIdTema(),
                 tipo(TipoMaterial.GRABACION).getIdTipoMaterial(), "Clase", false, null, null, archivo("c.mp4", MP4)))
-                .contains("unidad no se encuentra activa"));
+                .contains("tema no se encuentra activa"));
     }
 
     // ------------------------------------------------------------------ CU-30 Modificar material
@@ -246,7 +246,7 @@ class MaterialServicioTest {
     @Test
     @DisplayName("CU-30: una bibliografía puede pasar de archivo a enlace externo y se borra el archivo")
     void pasaDeArchivoAEnlace() {
-        Material biblio = materialServicio.subirMaterial(fausto(), unidadDeRentaFija().getIdUnidad(),
+        Material biblio = materialServicio.subirMaterial(fausto(), temaDeRentaFija().getIdTema(),
                 tipo(TipoMaterial.BIBLIOGRAFIA).getIdTipoMaterial(), "Libro", false, null, null,
                 archivo("libro.pdf", PDF));
         String anterior = biblio.getRutaArchivo();
@@ -329,14 +329,14 @@ class MaterialServicioTest {
     // ------------------------------------------------------------------ CU-28 Buscar material
 
     @Test
-    @DisplayName("CU-28: la búsqueda incluye el material oculto y filtra por unidad, tipo, título y estado")
+    @DisplayName("CU-28: la búsqueda incluye el material oculto y filtra por tema, tipo, título y estado")
     void buscaConFiltros() {
-        Unidad unidad = unidadDeRentaFija();
-        Integer curso = unidad.getCurso().getIdCurso();
+        Tema tema = temaDeRentaFija();
+        Integer curso = tema.getCurso().getIdCurso();
 
-        List<Material> deLaUnidad = materialServicio.buscarConFiltros(curso, unidad.getIdUnidad(), null, null, null,
+        List<Material> deLaTema = materialServicio.buscarConFiltros(curso, tema.getIdTema(), null, null, null,
                 false, null);
-        assertTrue(deLaUnidad.stream().anyMatch(m -> m.getTitulo().equals("Borrador: ejercicios de duration") && m.getOculto()),
+        assertTrue(deLaTema.stream().anyMatch(m -> m.getTitulo().equals("Borrador: ejercicios de duration") && m.getOculto()),
                 "debe listar también el material no publicado");
 
         List<Material> porTitulo = materialServicio.buscarConFiltros(curso, null, null, "guía", null, null, null);
@@ -353,18 +353,18 @@ class MaterialServicioTest {
     @Test
     @DisplayName("CU-28: los dados de baja van al final y cada docente solo ve el material de sus cursos")
     void bajasAlFinalYSoloDeDocente() {
-        Unidad unidad = unidadDeRentaFija();
-        Integer curso = unidad.getCurso().getIdCurso();
-        Material primero = materialServicio.buscarConFiltros(curso, unidad.getIdUnidad(), null, null, null, null, null)
+        Tema tema = temaDeRentaFija();
+        Integer curso = tema.getCurso().getIdCurso();
+        Material primero = materialServicio.buscarConFiltros(curso, tema.getIdTema(), null, null, null, null, null)
                 .get(0);
         primero.marcarInactivo();
 
-        List<Material> todos = materialServicio.buscarConFiltros(curso, unidad.getIdUnidad(), null, null, null, null, null);
+        List<Material> todos = materialServicio.buscarConFiltros(curso, tema.getIdTema(), null, null, null, null, null);
         assertTrue(todos.get(todos.size() - 1).esInactivo());
         assertEquals(1, materialServicio.buscarConFiltros(curso, null, null, null, null, true, null).size());
 
         Docente sebastian = docente("sebastian.bordato@idoneos.online");
-        assertTrue(materialServicio.buscarConFiltros(unidad("Macroeconomía de Coyuntura", "Inflación y precios")
+        assertTrue(materialServicio.buscarConFiltros(tema("Macroeconomía de Coyuntura", "Inflación y precios")
                 .getCurso().getIdCurso(), null, null, null, null, null, sebastian).isEmpty());
         assertFalse(materialServicio.buscarConFiltros(curso, null, null, null, null, null, fausto()).isEmpty());
     }

@@ -14,12 +14,12 @@ import com.app.idoneos.modelo.Docente;
 import com.app.idoneos.modelo.OpcionRespuesta;
 import com.app.idoneos.modelo.Pool;
 import com.app.idoneos.modelo.Pregunta;
-import com.app.idoneos.modelo.Unidad;
+import com.app.idoneos.modelo.Tema;
 import com.app.idoneos.repositorio.DocenteCursoRepositorio;
 import com.app.idoneos.repositorio.OpcionRespuestaRepositorio;
 import com.app.idoneos.repositorio.PoolRepositorio;
 import com.app.idoneos.repositorio.PreguntaRepositorio;
-import com.app.idoneos.repositorio.UnidadRepositorio;
+import com.app.idoneos.repositorio.TemaRepositorio;
 import com.app.idoneos.servicio.CrudServicio;
 import com.app.idoneos.utilidades.MensajeErrorUtilidad;
 import com.app.idoneos.utilidades.RespuestaFormularioUtilidad;
@@ -44,7 +44,7 @@ public class PoolServicioImpl implements PoolServicio, CrudServicio<Pool> {
     private PoolRepositorio poolRepositorio;
 
     @Autowired
-    private UnidadRepositorio unidadRepositorio;
+    private TemaRepositorio temaRepositorio;
 
     @Autowired
     private PreguntaRepositorio preguntaRepositorio;
@@ -92,14 +92,14 @@ public class PoolServicioImpl implements PoolServicio, CrudServicio<Pool> {
     }
 
     /**
-     * Busca los registros vigentes de pool asociados a unidad.
+     * Busca los registros vigentes de pool asociados a tema.
      *
-     * @param unidad el registro de Unidad asociado
-     * @return una lista de Pool asociados al Unidad indicado
+     * @param tema el registro de Tema asociado
+     * @return una lista de Pool asociados al Tema indicado
      */
     @Override
-    public List<Pool> buscarPorUnidad(Unidad unidad) {
-        return poolRepositorio.findByUnidadAndBajaFalse(unidad);
+    public List<Pool> buscarPorTema(Tema tema) {
+        return poolRepositorio.findByTemaAndBajaFalse(tema);
     }
 
     /**
@@ -107,17 +107,17 @@ public class PoolServicioImpl implements PoolServicio, CrudServicio<Pool> {
      * van siempre al final.
      */
     @Override
-    public List<Pool> buscarConFiltros(Integer idCurso, Integer idUnidad, String nombre, Boolean baja,
+    public List<Pool> buscarConFiltros(Integer idCurso, Integer idTema, String nombre, Boolean baja,
             Docente soloDeDocente) {
         String criterio = nombre == null ? "" : nombre.trim().toLowerCase();
         return poolRepositorio.findAll().stream()
-                .filter(p -> idCurso == null || p.getUnidad().getCurso().getIdCurso() == idCurso)
-                .filter(p -> idUnidad == null || p.getUnidad().getIdUnidad() == idUnidad)
+                .filter(p -> idCurso == null || p.getTema().getCurso().getIdCurso() == idCurso)
+                .filter(p -> idTema == null || p.getTema().getIdTema() == idTema)
                 .filter(p -> criterio.isEmpty() || p.getNombre().toLowerCase().contains(criterio))
                 .filter(p -> baja == null || p.getBaja().equals(baja))
-                .filter(p -> soloDeDocente == null || participaEnElCurso(p.getUnidad().getCurso(), soloDeDocente))
+                .filter(p -> soloDeDocente == null || participaEnElCurso(p.getTema().getCurso(), soloDeDocente))
                 .sorted(Comparator.comparing(Pool::getBaja)
-                        .thenComparingInt((Pool p) -> p.getUnidad().getIdUnidad())
+                        .thenComparingInt((Pool p) -> p.getTema().getIdTema())
                         .thenComparingInt(Pool::getIdPool))
                 .toList();
     }
@@ -136,19 +136,19 @@ public class PoolServicioImpl implements PoolServicio, CrudServicio<Pool> {
     }
 
     /**
-     * CU-61: Crea un pool en una unidad activa, con sus preguntas y opciones de respuesta.
+     * CU-61: Crea un pool en un tema activo, con sus preguntas y opciones de respuesta.
      */
     @Override
     @Transactional
-    public Pool registrarPool(Docente docente, Integer idUnidad, String nombre, List<SolicitudPregunta> preguntas) {
-        Unidad unidad = unidadRepositorio.findById(idUnidad == null ? -1 : idUnidad)
+    public Pool registrarPool(Docente docente, Integer idTema, String nombre, List<SolicitudPregunta> preguntas) {
+        Tema tema = temaRepositorio.findById(idTema == null ? -1 : idTema)
                 .filter(u -> !u.esInactivo())
-                .orElseThrow(() -> new IllegalArgumentException("Error! La unidad no se encuentra activa."));
-        obtenerParticipacion(unidad.getCurso(), docente);
-        String nombreLimpio = validarNombre(nombre, unidad, null);
+                .orElseThrow(() -> new IllegalArgumentException("Error! El tema no se encuentra activa."));
+        obtenerParticipacion(tema.getCurso(), docente);
+        String nombreLimpio = validarNombre(nombre, tema, null);
         validarPreguntas(preguntas);
 
-        Pool pool = poolRepositorio.save(new Pool(unidad, nombreLimpio));
+        Pool pool = poolRepositorio.save(new Pool(tema, nombreLimpio));
         aplicarPreguntas(pool, preguntas, LocalDateTime.now());
         return pool;
     }
@@ -174,12 +174,12 @@ public class PoolServicioImpl implements PoolServicio, CrudServicio<Pool> {
     public Pool modificarPool(Integer idPool, Docente docente, String nombre, List<SolicitudPregunta> preguntas) {
         Pool pool = poolRepositorio.findById(idPool == null ? -1 : idPool).filter(p -> !p.esInactivo())
                 .orElseThrow(() -> new IllegalArgumentException("Error! El pool no se encuentra activo."));
-        obtenerParticipacion(pool.getUnidad().getCurso(), docente);
+        obtenerParticipacion(pool.getTema().getCurso(), docente);
         if (pool.tieneIntentosActivos()) {
             throw new IllegalArgumentException("Error! El contenido del pool «" + pool.getNombre()
                     + "» no puede modificarse porque ya tiene intentos de autoevaluación asociados.");
         }
-        String nombreLimpio = validarNombre(nombre, pool.getUnidad(), pool);
+        String nombreLimpio = validarNombre(nombre, pool.getTema(), pool);
         validarPreguntas(preguntas);
         validarQueLasAutoevaluacionesPuedanSortear(pool, preguntas.size());
 
@@ -233,7 +233,7 @@ public class PoolServicioImpl implements PoolServicio, CrudServicio<Pool> {
         Pool pool = poolRepositorio.findById(idPool == null ? -1 : idPool).filter(p -> !p.esInactivo())
                 .orElseThrow(() -> new IllegalArgumentException("Error! El pool no se encuentra activo."));
         if (docente != null) {
-            obtenerParticipacion(pool.getUnidad().getCurso(), docente);
+            obtenerParticipacion(pool.getTema().getCurso(), docente);
         }
         List<Autoevaluacion> autoevaluaciones = pool.getAutoevaluacionesActivas();
         if (!autoevaluaciones.isEmpty()) {
@@ -271,10 +271,10 @@ public class PoolServicioImpl implements PoolServicio, CrudServicio<Pool> {
     }
 
     /**
-     * Valida el nombre (obligatorio, hasta 50 caracteres y único en la unidad, incluso entre los pools dados de baja,
+     * Valida el nombre (obligatorio, hasta 50 caracteres y único en el tema, incluso entre los pools dados de baja,
      * porque la restricción de la tabla lo exige) y lo devuelve sin espacios sobrantes.
      */
-    private String validarNombre(String nombre, Unidad unidad, Pool actual) {
+    private String validarNombre(String nombre, Tema tema, Pool actual) {
         if (nombre == null || nombre.isBlank()) {
             throw RespuestaFormularioUtilidad.campoInvalido("nombre", "Error! Debe completar el nombre del pool.");
         }
@@ -283,11 +283,11 @@ public class PoolServicioImpl implements PoolServicio, CrudServicio<Pool> {
             throw RespuestaFormularioUtilidad.campoInvalido("nombre",
                     MensajeErrorUtilidad.demasiadoLargo("El nombre del pool", LONGITUD_NOMBRE, "caracteres"));
         }
-        boolean repetido = poolRepositorio.findByUnidad(unidad).stream()
+        boolean repetido = poolRepositorio.findByTema(tema).stream()
                 .anyMatch(p -> (actual == null || p.getIdPool() != actual.getIdPool()) && p.getNombre().equalsIgnoreCase(limpio));
         if (repetido) {
             throw RespuestaFormularioUtilidad.campoInvalido("nombre", "Error! Ya existe un pool llamado «" + limpio
-                    + "» en esta unidad (incluso entre los dados de baja). Elegí otro nombre.");
+                    + "» en este tema (incluso entre los dados de baja). Elegí otro nombre.");
         }
         return limpio;
     }

@@ -20,17 +20,17 @@ import org.springframework.transaction.annotation.Transactional;
 import com.app.idoneos.modelo.Docente;
 import com.app.idoneos.modelo.Material;
 import com.app.idoneos.modelo.TipoMaterial;
-import com.app.idoneos.modelo.Unidad;
+import com.app.idoneos.modelo.Tema;
 import com.app.idoneos.repositorio.DocenteRepositorio;
 import com.app.idoneos.repositorio.TipoMaterialRepositorio;
-import com.app.idoneos.repositorio.UnidadRepositorio;
+import com.app.idoneos.repositorio.TemaRepositorio;
 import com.app.idoneos.servicio.Material.MaterialServicio;
 
 /**
  * Pruebas de la entrega del contenido de los materiales ({@code GET /material/archivo/{id}}): solo la reciben quienes
  * tienen acceso y solo cuando el pedido lo hace la propia página del material (nunca por navegación directa, iframe ni
  * desde otro sitio); los videos admiten pedidos por rangos. Valentina Ruiz es alumna de la cohorte en dictado de
- * "Mercado de Capitales Argentino" (con la unidad 2 habilitada y la 3 bloqueada).
+ * "Mercado de Capitales Argentino" (con el tema 2 habilitada y la 3 bloqueada).
  */
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -47,7 +47,7 @@ class MaterialArchivoControladorTest {
     private MaterialServicio materialServicio;
 
     @Autowired
-    private UnidadRepositorio unidadRepositorio;
+    private TemaRepositorio temaRepositorio;
 
     @Autowired
     private TipoMaterialRepositorio tipoMaterialRepositorio;
@@ -60,8 +60,8 @@ class MaterialArchivoControladorTest {
                 .orElseThrow();
     }
 
-    private Unidad unidad(String curso, String titulo) {
-        return unidadRepositorio.findAll().stream()
+    private Tema tema(String curso, String titulo) {
+        return temaRepositorio.findAll().stream()
                 .filter(u -> u.getCurso().getNombre().equals(curso) && u.getTitulo().equals(titulo)).findFirst()
                 .orElseThrow();
     }
@@ -71,15 +71,15 @@ class MaterialArchivoControladorTest {
                 .orElseThrow().getIdTipoMaterial();
     }
 
-    /** Sube una grabación a la unidad indicada, como lo haría el docente titular del curso. */
-    private Material subir(Unidad unidad, boolean oculto) {
-        return materialServicio.subirMaterial(docente("fausto.spotorno@idoneos.online"), unidad.getIdUnidad(),
+    /** Sube una grabación al tema indicado, como lo haría el docente titular del curso. */
+    private Material subir(Tema tema, boolean oculto) {
+        return materialServicio.subirMaterial(docente("fausto.spotorno@idoneos.online"), tema.getIdTema(),
                 idTipo(TipoMaterial.GRABACION), "Clase de prueba", oculto, null, null,
                 new MockMultipartFile("archivo", "clase.mp4", "video/mp4", MP4));
     }
 
-    private Material subirEnUnidadDos(boolean oculto) {
-        return subir(unidad("Mercado de Capitales Argentino", "Renta fija y bonos"), oculto);
+    private Material subirEnTemaDos(boolean oculto) {
+        return subir(tema("Mercado de Capitales Argentino", "Renta fija y bonos"), oculto);
     }
 
     /** El pedido que hace el reproductor o el visor de la propia página del material. */
@@ -92,7 +92,7 @@ class MaterialArchivoControladorTest {
     @WithUserDetails(value = "fausto.spotorno@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesServicio")
     @DisplayName("El docente del curso recibe el video en el reproductor, sin nombre de archivo y sin caché")
     void docenteRecibeElContenido() throws Exception {
-        Material material = subirEnUnidadDos(true);
+        Material material = subirEnTemaDos(true);
 
         mockMvc.perform(pedidoDeLaPagina(material.getIdMaterial())).andExpect(status().isOk())
                 .andExpect(content().bytes(MP4)).andExpect(content().contentType("video/mp4"))
@@ -105,7 +105,7 @@ class MaterialArchivoControladorTest {
     @DisplayName("El PDF también se entrega solo al visor de la página (pedido de tipo 'empty', como el de PDF.js)")
     void pdfParaElVisor() throws Exception {
         Material pdf = materialServicio.subirMaterial(docente("fausto.spotorno@idoneos.online"),
-                unidad("Mercado de Capitales Argentino", "Renta fija y bonos").getIdUnidad(),
+                tema("Mercado de Capitales Argentino", "Renta fija y bonos").getIdTema(),
                 idTipo(TipoMaterial.PRESENTACION), "Diapositivas", false, null, null,
                 new MockMultipartFile("archivo", "clase.pdf", "application/pdf", PDF));
 
@@ -118,7 +118,7 @@ class MaterialArchivoControladorTest {
     @WithUserDetails(value = "fausto.spotorno@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesServicio")
     @DisplayName("No se entrega por navegación directa, en un iframe, desde otro sitio ni sin encabezados del navegador")
     void soloParaLaPropiaPagina() throws Exception {
-        int id = subirEnUnidadDos(false).getIdMaterial();
+        int id = subirEnTemaDos(false).getIdMaterial();
 
         // abrir la dirección en otra pestaña, o con "guardar enlace como"
         mockMvc.perform(get("/material/archivo/" + id).header("Sec-Fetch-Dest", "document").header("Sec-Fetch-Site",
@@ -135,9 +135,9 @@ class MaterialArchivoControladorTest {
 
     @Test
     @WithUserDetails(value = "valentina.ruiz@correo.com", userDetailsServiceBeanName = "usuarioDetallesServicio")
-    @DisplayName("El alumno con la unidad habilitada recibe el contenido y puede pedir un rango del video")
+    @DisplayName("El alumno con el tema habilitado recibe el contenido y puede pedir un rango del video")
     void alumnoRecibeElContenidoYPideUnRango() throws Exception {
-        Material material = subirEnUnidadDos(false);
+        Material material = subirEnTemaDos(false);
 
         mockMvc.perform(pedidoDeLaPagina(material.getIdMaterial())).andExpect(status().isOk())
                 .andExpect(content().bytes(MP4));
@@ -149,12 +149,12 @@ class MaterialArchivoControladorTest {
 
     @Test
     @WithUserDetails(value = "valentina.ruiz@correo.com", userDetailsServiceBeanName = "usuarioDetallesServicio")
-    @DisplayName("El alumno no recibe el material de una unidad bloqueada ni el material oculto")
+    @DisplayName("El alumno no recibe el material de un tema bloqueado ni el material oculto")
     void alumnoSinAccesoABloqueadoNiOculto() throws Exception {
-        Material deUnidadBloqueada = subir(unidad("Mercado de Capitales Argentino", "Renta variable y opciones"), false);
-        Material oculto = subirEnUnidadDos(true);
+        Material deTemaBloqueada = subir(tema("Mercado de Capitales Argentino", "Renta variable y opciones"), false);
+        Material oculto = subirEnTemaDos(true);
 
-        mockMvc.perform(pedidoDeLaPagina(deUnidadBloqueada.getIdMaterial())).andExpect(status().isForbidden());
+        mockMvc.perform(pedidoDeLaPagina(deTemaBloqueada.getIdMaterial())).andExpect(status().isForbidden());
         mockMvc.perform(pedidoDeLaPagina(oculto.getIdMaterial())).andExpect(status().isForbidden());
     }
 
@@ -162,7 +162,7 @@ class MaterialArchivoControladorTest {
     @WithUserDetails(value = "martin.gomez@correo.com", userDetailsServiceBeanName = "usuarioDetallesServicio")
     @DisplayName("El alumno cuyo dictado todavía no comenzó no recibe el material")
     void alumnoConDictadoSinComenzar() throws Exception {
-        Material material = subirEnUnidadDos(false);
+        Material material = subirEnTemaDos(false);
 
         mockMvc.perform(pedidoDeLaPagina(material.getIdMaterial())).andExpect(status().isForbidden());
     }
@@ -171,7 +171,7 @@ class MaterialArchivoControladorTest {
     @WithUserDetails(value = "tomas.herrera@correo.com", userDetailsServiceBeanName = "usuarioDetallesServicio")
     @DisplayName("El alumno que no está inscripto en el curso no recibe el material")
     void alumnoSinInscripcion() throws Exception {
-        Material material = subirEnUnidadDos(false);
+        Material material = subirEnTemaDos(false);
 
         mockMvc.perform(pedidoDeLaPagina(material.getIdMaterial())).andExpect(status().isForbidden());
     }
@@ -180,7 +180,7 @@ class MaterialArchivoControladorTest {
     @WithUserDetails(value = "sebastian.bordato@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesServicio")
     @DisplayName("Un docente que no participa en el curso no recibe el material")
     void docenteAjenoAlCurso() throws Exception {
-        Material material = subir(unidad("Macroeconomía de Coyuntura", "Inflación y precios"), false);
+        Material material = subir(tema("Macroeconomía de Coyuntura", "Inflación y precios"), false);
 
         mockMvc.perform(pedidoDeLaPagina(material.getIdMaterial())).andExpect(status().isForbidden());
     }
@@ -189,7 +189,7 @@ class MaterialArchivoControladorTest {
     @WithUserDetails(value = "admin@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesServicio")
     @DisplayName("El administrador recibe el contenido de cualquier curso")
     void administradorRecibeElContenido() throws Exception {
-        Material material = subirEnUnidadDos(true);
+        Material material = subirEnTemaDos(true);
 
         mockMvc.perform(pedidoDeLaPagina(material.getIdMaterial())).andExpect(status().isOk());
     }
@@ -199,9 +199,9 @@ class MaterialArchivoControladorTest {
     @DisplayName("Un enlace externo no tiene contenido propio, y un material dado de baja o inexistente responde 404")
     void enlaceBajaOInexistente() throws Exception {
         Material enlace = materialServicio.subirMaterial(docente("fausto.spotorno@idoneos.online"),
-                unidad("Mercado de Capitales Argentino", "Renta fija y bonos").getIdUnidad(),
+                tema("Mercado de Capitales Argentino", "Renta fija y bonos").getIdTema(),
                 idTipo(TipoMaterial.BIBLIOGRAFIA), "Libro", false, "Autor", "https://sitio.com/libro.pdf", null);
-        Material deBaja = subirEnUnidadDos(false);
+        Material deBaja = subirEnTemaDos(false);
         materialServicio.darDeBajaMaterial(deBaja.getIdMaterial(), null);
 
         mockMvc.perform(pedidoDeLaPagina(enlace.getIdMaterial())).andExpect(status().isNotFound());
@@ -212,7 +212,7 @@ class MaterialArchivoControladorTest {
     @Test
     @DisplayName("Sin sesión no se entrega ningún contenido: se pide iniciar sesión")
     void sinSesion() throws Exception {
-        Material material = subirEnUnidadDos(false);
+        Material material = subirEnTemaDos(false);
 
         mockMvc.perform(pedidoDeLaPagina(material.getIdMaterial())).andExpect(status().is3xxRedirection());
     }

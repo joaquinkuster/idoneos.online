@@ -100,10 +100,10 @@ public class Programa {
     private Set<Cohorte> cohortes = new HashSet<>();
 
     /**
-     * Conjunto de unidadesCronograma asociados.
+     * Conjunto de temasCronograma asociados.
      */
     @OneToMany(mappedBy = "programa", cascade = CascadeType.ALL)
-    private Set<UnidadCronograma> unidadesCronograma = new HashSet<>();
+    private Set<TemaCronograma> temasCronograma = new HashSet<>();
 
     /**
      * Conjunto de participacionesDocente asociados.
@@ -227,7 +227,7 @@ public class Programa {
 
     /**
      * Indica si el programa tiene cohortes que todavía no terminaron (próximas, abiertas o en dictado). Mientras las tenga,
-     * cada unidad de su cronograma debe conservar al menos una autoevaluación visible: es lo que permite a los alumnos
+     * cada tema de su cronograma debe conservar al menos una autoevaluación visible: es lo que permite a los alumnos
      * completarla.
      *
      * @return {@code true} si alguna cohorte activa no está finalizada.
@@ -237,109 +237,109 @@ public class Programa {
     }
 
     /**
-     * Obtiene las unidades del cronograma que no tienen ninguna autoevaluación visible (vigente y no oculta).
+     * Obtiene los temas del cronograma que no tienen ninguna autoevaluación visible (vigente y no oculta).
      *
-     * @return Las unidades sin autoevaluación visible, en el orden del cronograma.
+     * @return Los temas sin autoevaluación visible, en el orden del cronograma.
      */
-    public List<Unidad> getUnidadesSinAutoevaluacion() {
-        return getCronogramaOrdenado().stream().map(UnidadCronograma::getUnidad)
-                .filter(unidad -> unidad.getAutoevaluacionesPublicadas().isEmpty()).toList();
+    public List<Tema> getTemasSinAutoevaluacion() {
+        return getCronogramaOrdenado().stream().map(TemaCronograma::getTema)
+                .filter(tema -> tema.getAutoevaluacionesPublicadas().isEmpty()).toList();
     }
 
     /**
-     * Calcula la duración total del cronograma del programa, sumando las semanas de cada unidad vigente.
+     * Calcula la duración total del cronograma del programa, sumando las semanas de cada tema vigente.
      *
      * @return La duración total en semanas.
      */
     public int getDuracionTotalSemanas() {
-        return unidadesCronograma.stream().filter(cronograma -> !cronograma.getBaja())
-                .mapToInt(UnidadCronograma::getSemanasDuracion).sum();
+        return temasCronograma.stream().filter(cronograma -> !cronograma.getBaja())
+                .mapToInt(TemaCronograma::getSemanasDuracion).sum();
     }
 
     /**
-     * Cuenta las unidades del cronograma con contenido publicado: las que tienen al menos un material (vigente y no oculto)
+     * Cuenta los temas del cronograma con contenido publicado: las que tienen al menos un material (vigente y no oculto)
      * y al menos una autoevaluación visible.
      *
-     * @return La cantidad de unidades con material publicado y autoevaluación.
+     * @return La cantidad de temas con material publicado y autoevaluación.
      */
-    public int getCantidadUnidadesConMaterialPublicado() {
-        return cantidadUnidadesConMaterialPublicadoSin(java.util.Set.of(), java.util.Set.of());
+    public int getCantidadTemasConMaterialPublicado() {
+        return cantidadTemasConMaterialPublicadoSin(java.util.Set.of(), java.util.Set.of());
     }
 
     /**
-     * Obtiene las unidades que hoy cuentan (con material publicado y autoevaluación) y dejarían de contar si se quitaran
+     * Obtiene los temas que hoy cuentan (con material publicado y autoevaluación) y dejarían de contar si se quitaran
      * ciertos materiales: las que se quedarían sin ningún material publicado.
      *
      * @param materialesQuitados Los identificadores de los materiales que dejarían de estar publicados.
-     * @return Las unidades que dejarían de contar, en el orden del cronograma.
+     * @return Los temas que dejarían de contar, en el orden del cronograma.
      */
-    public java.util.List<Unidad> unidadesQueDejanDeContarSin(java.util.Collection<Integer> materialesQuitados) {
-        return unidadesCronograma.stream().filter(cronograma -> !cronograma.getBaja()).map(UnidadCronograma::getUnidad)
-                .filter(unidad -> !unidad.getAutoevaluacionesPublicadas().isEmpty())
-                .filter(unidad -> unidad.getMateriales().stream().anyMatch(m -> !m.getBaja() && !m.getOculto()))
-                .filter(unidad -> unidad.getMateriales().stream().noneMatch(m -> !m.getBaja() && !m.getOculto()
+    public java.util.List<Tema> temasQueDejanDeContarSin(java.util.Collection<Integer> materialesQuitados) {
+        return temasCronograma.stream().filter(cronograma -> !cronograma.getBaja()).map(TemaCronograma::getTema)
+                .filter(tema -> !tema.getAutoevaluacionesPublicadas().isEmpty())
+                .filter(tema -> tema.getMateriales().stream().anyMatch(m -> !m.getBaja() && !m.getOculto()))
+                .filter(tema -> tema.getMateriales().stream().noneMatch(m -> !m.getBaja() && !m.getOculto()
                         && !materialesQuitados.contains(m.getIdMaterial())))
                 .toList();
     }
 
     /**
-     * Cuenta las unidades con material publicado y autoevaluación que quedarían si se quitaran ciertos materiales (por
-     * ocultarlos o darlos de baja) y ciertas unidades del cronograma.
+     * Cuenta los temas con material publicado y autoevaluación que quedarían si se quitaran ciertos materiales (por
+     * ocultarlos o darlos de baja) y ciertas temas del cronograma.
      *
      * @param materialesQuitados Los identificadores de los materiales que dejarían de estar publicados.
-     * @param unidadesQuitadas   Los identificadores de las unidades que dejarían de formar parte del cronograma.
-     * @return La cantidad de unidades que conservarían material publicado y autoevaluación.
+     * @param temasQuitadas   Los identificadores de los temas que dejarían de formar parte del cronograma.
+     * @return La cantidad de temas que conservarían material publicado y autoevaluación.
      */
-    public int cantidadUnidadesConMaterialPublicadoSin(java.util.Collection<Integer> materialesQuitados,
-            java.util.Collection<Integer> unidadesQuitadas) {
-        return (int) unidadesCronograma.stream().filter(cronograma -> !cronograma.getBaja())
-                .map(UnidadCronograma::getUnidad).filter(unidad -> !unidadesQuitadas.contains(unidad.getIdUnidad()))
-                .filter(unidad -> !unidad.getAutoevaluacionesPublicadas().isEmpty())
-                .filter(unidad -> unidad.getMateriales().stream().anyMatch(material -> !material.getBaja()
+    public int cantidadTemasConMaterialPublicadoSin(java.util.Collection<Integer> materialesQuitados,
+            java.util.Collection<Integer> temasQuitadas) {
+        return (int) temasCronograma.stream().filter(cronograma -> !cronograma.getBaja())
+                .map(TemaCronograma::getTema).filter(tema -> !temasQuitadas.contains(tema.getIdTema()))
+                .filter(tema -> !tema.getAutoevaluacionesPublicadas().isEmpty())
+                .filter(tema -> tema.getMateriales().stream().anyMatch(material -> !material.getBaja()
                         && !material.getOculto() && !materialesQuitados.contains(material.getIdMaterial())))
                 .count();
     }
 
     /**
-     * Cuenta las unidades vigentes del cronograma.
+     * Cuenta los temas vigentes del cronograma.
      *
-     * @return La cantidad de unidades del cronograma.
+     * @return La cantidad de temas del cronograma.
      */
-    public int getCantidadUnidades() {
-        return (int) unidadesCronograma.stream().filter(cronograma -> !cronograma.getBaja()).count();
+    public int getCantidadTemas() {
+        return (int) temasCronograma.stream().filter(cronograma -> !cronograma.getBaja()).count();
     }
 
     /**
-     * Obtiene las unidades vigentes del cronograma, en orden de dictado.
+     * Obtiene los temas vigentes del cronograma, en orden de dictado.
      *
-     * @return Las unidades del cronograma ordenadas por su número de orden.
+     * @return Los temas del cronograma ordenadas por su número de orden.
      */
-    public List<UnidadCronograma> getCronogramaOrdenado() {
-        return unidadesCronograma.stream().filter(cronograma -> !cronograma.getBaja() && !cronograma.getUnidad().getBaja())
-                .sorted(Comparator.comparingInt(UnidadCronograma::getNumeroOrden)).toList();
+    public List<TemaCronograma> getCronogramaOrdenado() {
+        return temasCronograma.stream().filter(cronograma -> !cronograma.getBaja() && !cronograma.getTema().getBaja())
+                .sorted(Comparator.comparingInt(TemaCronograma::getNumeroOrden)).toList();
     }
 
     /**
-     * Calcula la última semana del programa en la que se dicta una unidad (suma de las semanas de las unidades
+     * Calcula la última semana del programa en la que se dicta un tema (suma de las semanas de los temas
      * anteriores y la propia).
      *
-     * @param unidadCronograma La unidad del cronograma.
-     * @return El número de semana en que termina la unidad.
+     * @param temaCronograma El tema del cronograma.
+     * @return El número de semana en que termina el tema.
      */
-    public int getSemanaHasta(UnidadCronograma unidadCronograma) {
+    public int getSemanaHasta(TemaCronograma temaCronograma) {
         return getCronogramaOrdenado().stream()
-                .filter(cronograma -> cronograma.getNumeroOrden() <= unidadCronograma.getNumeroOrden())
-                .mapToInt(UnidadCronograma::getSemanasDuracion).sum();
+                .filter(cronograma -> cronograma.getNumeroOrden() <= temaCronograma.getNumeroOrden())
+                .mapToInt(TemaCronograma::getSemanasDuracion).sum();
     }
 
     /**
-     * Calcula la primera semana del programa en la que se dicta una unidad.
+     * Calcula la primera semana del programa en la que se dicta un tema.
      *
-     * @param unidadCronograma La unidad del cronograma.
-     * @return El número de semana en que empieza la unidad.
+     * @param temaCronograma El tema del cronograma.
+     * @return El número de semana en que empieza el tema.
      */
-    public int getSemanaDesde(UnidadCronograma unidadCronograma) {
-        return getSemanaHasta(unidadCronograma) - unidadCronograma.getSemanasDuracion() + 1;
+    public int getSemanaDesde(TemaCronograma temaCronograma) {
+        return getSemanaHasta(temaCronograma) - temaCronograma.getSemanasDuracion() + 1;
     }
 
     /**

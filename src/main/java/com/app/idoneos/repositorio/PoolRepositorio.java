@@ -2,7 +2,7 @@ package com.app.idoneos.repositorio;
 
 import java.util.List;
 import com.app.idoneos.modelo.Pool;
-import com.app.idoneos.modelo.Unidad;
+import com.app.idoneos.modelo.Tema;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -21,18 +21,18 @@ public interface PoolRepositorio extends JpaRepository<Pool, Integer> {
     List<Pool> findByBajaFalse();
 
     /**
-     * Busca los registros vigentes de pool asociados a unidad.
+     * Busca los registros vigentes de pool asociados a tema.
      *
-     * @param unidad el registro de Unidad asociado
-     * @return una lista de Pool asociados al Unidad indicado
+     * @param tema el registro de Tema asociado
+     * @return una lista de Pool asociados al Tema indicado
      */
-    List<Pool> findByUnidadAndBajaFalse(Unidad unidad);
+    List<Pool> findByTemaAndBajaFalse(Tema tema);
 
     /**
-     * Busca todos los pools de una unidad, incluidos los dados de baja.
+     * Busca todos los pools de un tema, incluidos los dados de baja.
      *
-     * @param unidad el registro de Unidad asociado
-     * @return una lista de Pool de la unidad
+     * @param tema el registro de Tema asociado
+     * @return una lista de Pool del tema
      */
-    List<Pool> findByUnidad(Unidad unidad);
+    List<Pool> findByTema(Tema tema);
 }

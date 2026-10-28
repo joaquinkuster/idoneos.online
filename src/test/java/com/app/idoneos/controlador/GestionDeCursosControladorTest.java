@@ -132,7 +132,7 @@ class GestionDeCursosControladorTest {
                 .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.content().string(
                         org.hamcrest.Matchers.allOf(
                                 org.hamcrest.Matchers.containsString("Cohortes"),
-                                org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("Registrar unidad")),
+                                org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("Registrar tema")),
                                 org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("selectProgramaPorDefecto")))));
     }
 

@@ -12,13 +12,13 @@ import java.util.Optional;
 import com.app.idoneos.modelo.Curso;
 import com.app.idoneos.modelo.Docente;
 import com.app.idoneos.modelo.TerminoGlosario;
-import com.app.idoneos.modelo.Unidad;
+import com.app.idoneos.modelo.Tema;
 import com.app.idoneos.modelo.Usuario;
 import com.app.idoneos.repositorio.DocenteCursoRepositorio;
 import com.app.idoneos.repositorio.TerminoGlosarioRepositorio;
-import com.app.idoneos.repositorio.UnidadRepositorio;
+import com.app.idoneos.repositorio.TemaRepositorio;
 import com.app.idoneos.servicio.CrudServicio;
-import com.app.idoneos.servicio.Unidad.UnidadServicio;
+import com.app.idoneos.servicio.Tema.TemaServicio;
 import com.app.idoneos.utilidades.TextoUtilidad;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,13 +35,13 @@ public class TerminoGlosarioServicioImpl implements TerminoGlosarioServicio, Cru
     private TerminoGlosarioRepositorio terminoGlosarioRepositorio;
 
     @Autowired
-    private UnidadRepositorio unidadRepositorio;
+    private TemaRepositorio temaRepositorio;
 
     @Autowired
     private DocenteCursoRepositorio docenteCursoRepositorio;
 
     @Autowired
-    private UnidadServicio unidadServicio;
+    private TemaServicio temaServicio;
 
     // ---------------------------------------------------------------- Lecturas
 
@@ -80,14 +80,14 @@ public class TerminoGlosarioServicioImpl implements TerminoGlosarioServicio, Cru
     }
 
     /**
-     * Busca los registros vigentes de terminoGlosario asociados a unidad.
+     * Busca los registros vigentes de terminoGlosario asociados a tema.
      *
-     * @param unidad el registro de Unidad asociado
-     * @return una lista de TerminoGlosario asociados al Unidad indicado
+     * @param tema el registro de Tema asociado
+     * @return una lista de TerminoGlosario asociados al Tema indicado
      */
     @Override
-    public List<TerminoGlosario> buscarPorUnidad(Unidad unidad) {
-        return terminoGlosarioRepositorio.findByUnidadAndBajaFalse(unidad);
+    public List<TerminoGlosario> buscarPorTema(Tema tema) {
+        return terminoGlosarioRepositorio.findByTemaAndBajaFalse(tema);
     }
 
     @Override
@@ -99,12 +99,12 @@ public class TerminoGlosarioServicioImpl implements TerminoGlosarioServicio, Cru
     }
 
     /**
-     * CU-32: Busca los términos de una unidad que contienen un texto, en orden alfabético.
+     * CU-32: Busca los términos de un tema que contienen un texto, en orden alfabético.
      */
     @Override
-    public List<TerminoGlosario> buscarConFiltros(Unidad unidad, String texto, boolean enDefiniciones) {
+    public List<TerminoGlosario> buscarConFiltros(Tema tema, String texto, boolean enDefiniciones) {
         String buscado = TextoUtilidad.normalizar(texto);
-        return unidad.getTerminosGlosarioOrdenados().stream()
+        return tema.getTerminosGlosarioOrdenados().stream()
                 .sorted(Comparator.comparing((TerminoGlosario t) -> TextoUtilidad.normalizar(t.getTermino())))
                 .filter(t -> buscado.isEmpty() || TextoUtilidad.normalizar(t.getTermino()).contains(buscado)
                         || (enDefiniciones && TextoUtilidad.normalizar(t.getDefinicion()).contains(buscado)))
@@ -112,11 +112,11 @@ public class TerminoGlosarioServicioImpl implements TerminoGlosarioServicio, Cru
     }
 
     /**
-     * Indica si un usuario puede ver el glosario de una unidad.
+     * Indica si un usuario puede ver el glosario de un tema.
      */
     @Override
-    public boolean puedeVer(Unidad unidad, Usuario usuario) {
-        return unidadServicio.puedeVerContenido(unidad, usuario);
+    public boolean puedeVer(Tema tema, Usuario usuario) {
+        return temaServicio.puedeVerContenido(tema, usuario);
     }
 
     // ---------------------------------------------------------------- Creaciones
@@ -133,25 +133,25 @@ public class TerminoGlosarioServicioImpl implements TerminoGlosarioServicio, Cru
     }
 
     /**
-     * CU-33: Registra un término en el glosario de una unidad.
+     * CU-33: Registra un término en el glosario de un tema.
      */
     @Override
     @Transactional
-    public TerminoGlosario registrarTermino(Docente docente, Integer unidadId, String termino, String definicion) {
-        Unidad unidad = unidadRepositorio.findById(unidadId == null ? -1 : unidadId)
+    public TerminoGlosario registrarTermino(Docente docente, Integer temaId, String termino, String definicion) {
+        Tema tema = temaRepositorio.findById(temaId == null ? -1 : temaId)
                 .filter(u -> !u.esInactivo())
-                .orElseThrow(() -> new IllegalArgumentException("Error! La unidad no se encuentra activa."));
-        verificarParticipacion(unidad.getCurso(), docente);
+                .orElseThrow(() -> new IllegalArgumentException("Error! El tema no se encuentra activa."));
+        verificarParticipacion(tema.getCurso(), docente);
         String terminoLimpio = validarDatos(termino, definicion);
         String definicionLimpia = definicion.trim();
 
-        List<TerminoGlosario> existentes = terminoGlosarioRepositorio.findByUnidad(unidad);
+        List<TerminoGlosario> existentes = terminoGlosarioRepositorio.findByTema(tema);
         if (existentes.stream().anyMatch(t -> !t.getBaja() && t.getTermino().equalsIgnoreCase(terminoLimpio))) {
-            throw RespuestaFormularioUtilidad.campoInvalido("termino", "Error! El término ya está registrado en el glosario de esta unidad.");
+            throw RespuestaFormularioUtilidad.campoInvalido("termino", "Error! El término ya está registrado en el glosario de este tema.");
         }
         // Un término dado de baja con el mismo nombre se vuelve a dar de alta (el glosario no admite repetidos)
         TerminoGlosario guardado = existentes.stream().filter(t -> t.getBaja() && t.getTermino().equals(terminoLimpio))
-                .findFirst().orElseGet(() -> new TerminoGlosario(unidad, terminoLimpio, definicionLimpia));
+                .findFirst().orElseGet(() -> new TerminoGlosario(tema, terminoLimpio, definicionLimpia));
         guardado.setDefinicion(definicionLimpia);
         guardado.setBaja(false);
         guardado.setUltimaModificacion(LocalDateTime.now());
@@ -178,14 +178,14 @@ public class TerminoGlosarioServicioImpl implements TerminoGlosarioServicio, Cru
     @Transactional
     public TerminoGlosario modificarTermino(Integer id, Docente docente, String termino, String definicion) {
         TerminoGlosario existente = buscarActivo(id);
-        verificarParticipacion(existente.getUnidad().getCurso(), docente);
+        verificarParticipacion(existente.getTema().getCurso(), docente);
         String terminoLimpio = validarDatos(termino, definicion);
 
-        boolean repetido = terminoGlosarioRepositorio.findByUnidad(existente.getUnidad()).stream()
+        boolean repetido = terminoGlosarioRepositorio.findByTema(existente.getTema()).stream()
                 .anyMatch(t -> t.getIdTermino() != existente.getIdTermino()
                         && (t.getBaja() ? t.getTermino().equals(terminoLimpio) : t.getTermino().equalsIgnoreCase(terminoLimpio)));
         if (repetido) {
-            throw RespuestaFormularioUtilidad.campoInvalido("termino", "Error! El término ya está registrado en el glosario de esta unidad.");
+            throw RespuestaFormularioUtilidad.campoInvalido("termino", "Error! El término ya está registrado en el glosario de este tema.");
         }
         existente.setTermino(terminoLimpio);
         existente.setDefinicion(definicion.trim());
@@ -214,7 +214,7 @@ public class TerminoGlosarioServicioImpl implements TerminoGlosarioServicio, Cru
     public void darDeBajaTermino(Integer id, Docente docente) {
         TerminoGlosario existente = buscarActivo(id);
         if (docente != null) {
-            verificarParticipacion(existente.getUnidad().getCurso(), docente);
+            verificarParticipacion(existente.getTema().getCurso(), docente);
         }
         existente.marcarInactivo();
         existente.setUltimaModificacion(LocalDateTime.now());

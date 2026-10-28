@@ -1,6 +1,6 @@
 /* ==========================================================================
    GESTIÓN ACADÉMICA (MOD-F-02) — IDÓNEOS ONLINE
-   Acceso al curso del alumno (CU-27): cabecera del curso, pestañas, acordeón de unidades al estilo Moodle,
+   Acceso al curso del alumno (CU-27): cabecera del curso, pestañas, acordeón de temas al estilo Moodle,
    cronograma y clases en vivo. Usa las variables de panel.css (azul marino y dorado).
    ========================================================================== */
 
@@ -177,14 +177,14 @@
     text-decoration: underline;
 }
 
-/* ---------- Acordeón de unidades (estilo Moodle) ---------- */
+/* ---------- Acordeón de temas (estilo Moodle) ---------- */
 .ac-acordeon {
     display: flex;
     flex-direction: column;
     gap: 14px;
 }
 
-.ac-unidad {
+.ac-tema {
     background: #FFFFFF;
     border: 1px solid var(--pn-borde);
     border-left: 4px solid var(--pn-borde-input);
@@ -192,15 +192,15 @@
     box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
 }
 
-.ac-unidad-habilitada {
+.ac-tema-habilitada {
     border-left-color: var(--pn-gold);
 }
 
-.ac-unidad-completada {
+.ac-tema-completada {
     border-left-color: var(--pn-exito);
 }
 
-.ac-unidad-cabecera {
+.ac-tema-cabecera {
     width: 100%;
     display: flex;
     align-items: center;
@@ -214,27 +214,27 @@
     flex-wrap: wrap;
 }
 
-.ac-unidad-cabecera:disabled {
+.ac-tema-cabecera:disabled {
     cursor: not-allowed;
     color: var(--pn-texto-suave);
 }
 
-.ac-unidad-flecha {
+.ac-tema-flecha {
     font-size: 13px;
     color: var(--pn-navy);
     transition: transform 0.2s ease;
 }
 
-.ac-unidad-cabecera.collapsed .ac-unidad-flecha {
+.ac-tema-cabecera.collapsed .ac-tema-flecha {
     transform: rotate(-90deg);
 }
 
-.ac-unidad-cabecera:disabled .ac-unidad-flecha {
+.ac-tema-cabecera:disabled .ac-tema-flecha {
     transform: rotate(-90deg);
     color: var(--pn-borde-input);
 }
 
-.ac-unidad-numero {
+.ac-tema-numero {
     font-size: 12px;
     font-weight: 800;
     letter-spacing: 0.04em;
@@ -242,7 +242,7 @@
     color: var(--pn-gold-hover);
 }
 
-.ac-unidad-nombre {
+.ac-tema-nombre {
     flex: 1;
     min-width: 180px;
     font-family: 'Fraunces', Georgia, serif;
@@ -251,33 +251,33 @@
     color: var(--pn-navy);
 }
 
-.ac-unidad-cabecera:disabled .ac-unidad-nombre {
+.ac-tema-cabecera:disabled .ac-tema-nombre {
     color: var(--pn-texto-suave);
 }
 
-.ac-unidad-candado {
+.ac-tema-candado {
     color: var(--pn-texto-suave);
 }
 
-.ac-unidad-aviso {
+.ac-tema-aviso {
     margin: 0;
     padding: 0 20px 16px 52px;
     font-size: 13px;
     color: var(--pn-texto-suave);
 }
 
-.ac-unidad-cuerpo {
+.ac-tema-cuerpo {
     padding: 4px 20px 20px 52px;
     border-top: 1px solid var(--pn-borde);
 }
 
-.ac-unidad-descripcion {
+.ac-tema-descripcion {
     margin: 14px 0 0;
     font-size: 14px;
     color: var(--pn-texto-suave);
 }
 
-/* ---------- Actividades de una unidad ---------- */
+/* ---------- Actividades de un tema ---------- */
 .ac-actividades {
     list-style: none;
     margin: 0;
@@ -430,8 +430,8 @@ a.ac-actividad-titulo:hover {
         font-size: 22px;
     }
 
-    .ac-unidad-cuerpo,
-    .ac-unidad-aviso {
+    .ac-tema-cuerpo,
+    .ac-tema-aviso {
         padding-left: 20px;
     }
 
@@ -574,12 +574,12 @@ a.ac-actividad-titulo:hover {
     color: var(--pn-texto-suave);
 }
 
-.ac-unidad-cuerpo .ac-actividad {
+.ac-tema-cuerpo .ac-actividad {
     align-items: center;
     padding: 10px 14px;
 }
 
-.ac-unidad-cuerpo .ac-actividad-titulo {
+.ac-tema-cuerpo .ac-actividad-titulo {
     flex: 1;
     min-width: 0;
 }
@@ -618,7 +618,7 @@ a.ac-actividad-titulo:hover {
     color: var(--pn-texto);
 }
 
-/* Menú de tres puntos (unidades, materiales, cartas de curso e inscripciones): fondo sólido, sin el efecto glass de los
+/* Menú de tres puntos (temas, materiales, cartas de curso e inscripciones): fondo sólido, sin el efecto glass de los
    desplegables del sitio, y letra de 14 px */
 .ac-menu-boton + .dropdown-menu {
     font-size: 14px;
@@ -645,7 +645,7 @@ a.ac-actividad-titulo:hover {
     color: #DC3545;
 }
 
-/* Títulos grises que agrupan las actividades de una unidad, con su enlace "Ver listado" */
+/* Títulos grises que agrupan las actividades de un tema, con su enlace "Ver listado" */
 .ac-grupo-cabecera {
     display: flex;
     align-items: baseline;
@@ -654,7 +654,7 @@ a.ac-actividad-titulo:hover {
     margin: 16px 0 6px;
 }
 
-.ac-unidad-cuerpo .ac-grupo-cabecera:first-child {
+.ac-tema-cuerpo .ac-grupo-cabecera:first-child {
     margin-top: 6px;
 }
 
@@ -1086,7 +1086,7 @@ a.ac-actividad-titulo:hover {
 }
 
 /* ==========================================================================
-   FORO (MOD-F-02): lista de consultas de una unidad y detalle de una consulta con sus respuestas
+   FORO (MOD-F-02): lista de consultas de un tema y detalle de una consulta con sus respuestas
    ========================================================================== */
 .fo-contenedor {
     padding: 24px;
@@ -1238,19 +1238,19 @@ a.ac-actividad-titulo:hover {
 }
 
 /* ==========================================================================
-   UNIDADES (MOD-F-02): menú de cada unidad en la vista del curso y su descripción y contenido
+   TEMAS (MOD-F-02): menú de cada tema en la vista del curso y su descripción y contenido
    ========================================================================== */
-.ac-unidad {
+.ac-tema {
     position: relative;
 }
 
-.ac-menu-unidad {
+.ac-menu-tema {
     position: absolute;
     top: 12px;
     right: 14px;
 }
 
-.ac-unidad-cabecera {
+.ac-tema-cabecera {
     padding-right: 56px;
 }
 
@@ -1259,14 +1259,14 @@ a.ac-actividad-titulo:hover {
     margin: -4px 0 14px;
 }
 
-.ac-unidad-descripcion {
+.ac-tema-descripcion {
     margin: 14px 0 8px;
     font-size: 14px;
     font-weight: 600;
     color: var(--pn-texto-suave);
 }
 
-.ac-unidad-contenido {
+.ac-tema-contenido {
     margin: 0 0 8px;
     font-size: 15px;
     line-height: 1.6;
@@ -1275,7 +1275,7 @@ a.ac-actividad-titulo:hover {
 }
 
 /* Sin descripción, el contenido también queda separado del título */
-.ac-unidad-contenido:first-child {
+.ac-tema-contenido:first-child {
     margin-top: 14px;
 }
 
@@ -1461,7 +1461,7 @@ a.ac-actividad-titulo:hover {
     padding: 8px 0;
 }
 
-.cn-celda-unidades {
+.cn-celda-temas {
     padding-left: 12px !important;
     text-align: left;
     font-weight: 600;
@@ -1475,7 +1475,7 @@ a.ac-actividad-titulo:hover {
     box-shadow: inset 0 3px 0 var(--pn-ver);
 }
 
-.cn-unidad {
+.cn-tema {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -1606,7 +1606,7 @@ a.ac-actividad-titulo:hover {
     border-color: var(--pn-ver);
 }
 
-.cn-vista-unidades {
+.cn-vista-temas {
     margin-top: 14px;
 }
 
@@ -1700,7 +1700,7 @@ a.ac-actividad-titulo:hover {
         min-width: 0;
     }
 
-    /* El tablero se desplaza en horizontal para ver todas las semanas y unidades */
+    /* El tablero se desplaza en horizontal para ver todas las semanas y temas */
     .cn-grilla {
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
@@ -1859,7 +1859,7 @@ a.ac-actividad-titulo:hover {
     white-space: nowrap;
 }
 
-/* Grilla: una columna por semana y una fila por unidad */
+/* Grilla: una columna por semana y una fila por tema */
 .ac-cajon-pista {
     position: relative;
     display: grid;
@@ -2047,8 +2047,8 @@ a.ac-actividad-titulo:hover {
     }
 }
 
-/* Alumno: sin el menú de tres puntos del docente, el estado de la unidad queda pegado al borde derecho */
-.ac-unidad-cabecera.ac-sin-menu {
+/* Alumno: sin el menú de tres puntos del docente, el estado del tema queda pegado al borde derecho */
+.ac-tema-cabecera.ac-sin-menu {
     padding-right: 20px;
 }
 
@@ -2963,13 +2963,13 @@ a.in-resumen-num:hover {
 }
 
 /* ---- Calificaciones del alumno */
-.ca-unidad-numero {
+.ca-tema-numero {
     display: block;
     color: var(--pn-texto-suave);
     font-size: 0.78rem;
 }
 
-.ca-unidad-nombre {
+.ca-tema-nombre {
     font-weight: 600;
 }
 

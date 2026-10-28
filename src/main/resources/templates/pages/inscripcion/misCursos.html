@@ -82,7 +82,7 @@
                     <!-- Grilla de cursos del alumno -->
                     <div class="wf-cards-grid" data-tarjetas>
                         <th:block th:each="insc : ${inscripciones}">
-                            <th:block th:replace="~{fragments/tarjetaCurso :: tarjeta(${insc.curso}, ${insc.cohorte.programa.cantidadUnidades},
+                            <th:block th:replace="~{fragments/tarjetaCurso :: tarjeta(${insc.curso}, ${insc.cohorte.programa.cantidadTemas},
                                 ${insc.estadoAcceso == 'Vigente' ? insc.estado : insc.estadoAcceso},
                                 '/inscripcion/acceder/' + ${insc.idInscripcion}, 'Acceder al curso', 'inscripcion', ${insc})}"></th:block>
                         </th:block>

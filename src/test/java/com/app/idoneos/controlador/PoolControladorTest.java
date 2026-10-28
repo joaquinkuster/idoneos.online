@@ -17,10 +17,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.app.idoneos.modelo.Pool;
-import com.app.idoneos.modelo.Unidad;
+import com.app.idoneos.modelo.Tema;
 import com.app.idoneos.repositorio.CursoRepositorio;
 import com.app.idoneos.repositorio.PoolRepositorio;
-import com.app.idoneos.repositorio.UnidadRepositorio;
+import com.app.idoneos.repositorio.TemaRepositorio;
 
 /**
  * Pruebas de las vistas y los formularios del ABM de pools (CU-60 a CU-63). Fausto Spotorno es titular de "Mercado de
@@ -47,7 +47,7 @@ class PoolControladorTest {
     private PoolRepositorio poolRepositorio;
 
     @Autowired
-    private UnidadRepositorio unidadRepositorio;
+    private TemaRepositorio temaRepositorio;
 
     private String curso() {
         return String.valueOf(cursoRepositorio.findAll().stream()
@@ -59,8 +59,8 @@ class PoolControladorTest {
                 .findFirst().orElseThrow();
     }
 
-    private int unidad(String titulo) {
-        return unidadRepositorio.findAll().stream().filter(u -> u.getTitulo().equals(titulo)).mapToInt(Unidad::getIdUnidad)
+    private int tema(String titulo) {
+        return temaRepositorio.findAll().stream().filter(u -> u.getTitulo().equals(titulo)).mapToInt(Tema::getIdTema)
                 .findFirst().orElseThrow();
     }
 
@@ -107,7 +107,7 @@ class PoolControladorTest {
                 .andExpect(content().string(Matchers.not(Matchers.containsString("pn-btn-editar"))))
                 .andExpect(content().string(Matchers.containsString("id=\"modalBajaPool")));
 
-        mockMvc.perform(post("/pool/registrar").param("unidadId", String.valueOf(unidad("Renta variable y opciones")))
+        mockMvc.perform(post("/pool/registrar").param("temaId", String.valueOf(tema("Renta variable y opciones")))
                 .param("nombre", "X").param("preguntas", PREGUNTAS)).andExpect(status().isForbidden());
     }
 
@@ -120,12 +120,12 @@ class PoolControladorTest {
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesServicio")
-    @DisplayName("CU-61: la ventana de alta ofrece las unidades del programa y la de modificación trae las preguntas del pool")
+    @DisplayName("CU-61: la ventana de alta ofrece los temas del programa y la de modificación trae las preguntas del pool")
     void ventanasDelFormulario() throws Exception {
         mockMvc.perform(get("/pool/buscar").param("cursoId", curso()))
                 .andExpect(status().isOk())
                 .andExpect(content().string(Matchers.containsString("action=\"/pool/registrar\"")))
-                .andExpect(content().string(Matchers.containsString("name=\"unidadId\"")))
+                .andExpect(content().string(Matchers.containsString("name=\"temaId\"")))
                 .andExpect(content().string(Matchers.containsString("3. Renta variable y opciones")))
                 .andExpect(content().string(Matchers.containsString("action=\"/pool/modificar/" + pool("Renta fija") + "\"")))
                 .andExpect(content().string(Matchers.containsString("El rendimiento anual")));
@@ -135,19 +135,19 @@ class PoolControladorTest {
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesServicio")
     @DisplayName("CU-61 y CU-62: registrar y modificar responden en JSON e informan los errores")
     void registrarYModificar() throws Exception {
-        String unidad = String.valueOf(unidad("Renta variable y opciones"));
-        mockMvc.perform(post("/pool/registrar").param("unidadId", unidad).param("nombre", "Nuevo pool")
+        String tema = String.valueOf(tema("Renta variable y opciones"));
+        mockMvc.perform(post("/pool/registrar").param("temaId", tema).param("nombre", "Nuevo pool")
                 .param("preguntas", PREGUNTAS))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.mensaje").value("Pool 'Nuevo pool' creado con éxito."));
 
-        mockMvc.perform(post("/pool/registrar").param("unidadId", unidad).param("nombre", "Nuevo pool")
+        mockMvc.perform(post("/pool/registrar").param("temaId", tema).param("nombre", "Nuevo pool")
                 .param("preguntas", PREGUNTAS))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value(Matchers.containsString("Ya existe un pool")))
                 .andExpect(jsonPath("$.campo").value("nombre"));
 
-        mockMvc.perform(post("/pool/registrar").param("unidadId", unidad).param("nombre", "Roto")
+        mockMvc.perform(post("/pool/registrar").param("temaId", tema).param("nombre", "Roto")
                 .param("preguntas", "esto no es json"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value(Matchers.containsString("No se pudieron leer las preguntas")));

@@ -18,16 +18,16 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.app.idoneos.modelo.Docente;
 import com.app.idoneos.modelo.TerminoGlosario;
-import com.app.idoneos.modelo.Unidad;
+import com.app.idoneos.modelo.Tema;
 import com.app.idoneos.modelo.Usuario;
 import com.app.idoneos.repositorio.DocenteRepositorio;
 import com.app.idoneos.repositorio.TerminoGlosarioRepositorio;
-import com.app.idoneos.repositorio.UnidadRepositorio;
+import com.app.idoneos.repositorio.TemaRepositorio;
 import com.app.idoneos.repositorio.UsuarioRepositorio;
 import com.app.idoneos.servicio.TerminoGlosario.TerminoGlosarioServicio;
 
 /**
- * Pruebas del glosario (CU-32 a CU-35) con los datos de la semilla: la unidad 1 de "Mercado de Capitales Argentino"
+ * Pruebas del glosario (CU-32 a CU-35) con los datos de la semilla: el tema 1 de "Mercado de Capitales Argentino"
  * tiene los términos BYMA, CNV y ON; la 2, TIR y Duration; la 3 no tiene ninguno. Fausto Spotorno es titular de
  * ambos cursos y Sebastián Bordato no participa en "Macroeconomía de Coyuntura".
  */
@@ -42,7 +42,7 @@ class TerminoGlosarioServicioTest {
     private TerminoGlosarioRepositorio terminoRepositorio;
 
     @Autowired
-    private UnidadRepositorio unidadRepositorio;
+    private TemaRepositorio temaRepositorio;
 
     @Autowired
     private DocenteRepositorio docenteRepositorio;
@@ -59,22 +59,22 @@ class TerminoGlosarioServicioTest {
         return docente("fausto.spotorno@idoneos.online");
     }
 
-    private Unidad unidad(String curso, String titulo) {
-        return unidadRepositorio.findAll().stream()
+    private Tema tema(String curso, String titulo) {
+        return temaRepositorio.findAll().stream()
                 .filter(u -> u.getCurso().getNombre().equals(curso) && u.getTitulo().equals(titulo)).findFirst()
                 .orElseThrow();
     }
 
-    private Unidad primera() {
-        return unidad("Mercado de Capitales Argentino", "Introducción al mercado de capitales");
+    private Tema primera() {
+        return tema("Mercado de Capitales Argentino", "Introducción al mercado de capitales");
     }
 
-    private Unidad segunda() {
-        return unidad("Mercado de Capitales Argentino", "Renta fija y bonos");
+    private Tema segunda() {
+        return tema("Mercado de Capitales Argentino", "Renta fija y bonos");
     }
 
-    private Unidad tercera() {
-        return unidad("Mercado de Capitales Argentino", "Renta variable y opciones");
+    private Tema tercera() {
+        return tema("Mercado de Capitales Argentino", "Renta variable y opciones");
     }
 
     private Usuario usuario(String correo) {
@@ -92,7 +92,7 @@ class TerminoGlosarioServicioTest {
     // ------------------------------------------------------------------ CU-32 Buscar término
 
     @Test
-    @DisplayName("CU-32: sin texto se devuelven todos los términos de la unidad, en orden alfabético")
+    @DisplayName("CU-32: sin texto se devuelven todos los términos del tema, en orden alfabético")
     void buscaTodos() {
         assertEquals(List.of("BYMA", "CNV", "ON"), nombres(glosarioServicio.buscarConFiltros(primera(), null, true)));
         assertEquals(List.of("Duration", "TIR"), nombres(glosarioServicio.buscarConFiltros(segunda(), "  ", true)));
@@ -119,8 +119,8 @@ class TerminoGlosarioServicioTest {
     @Test
     @DisplayName("CU-32: los términos con tilde se ordenan según su letra, no al final")
     void ordenaSinTildes() {
-        glosarioServicio.registrarTermino(fausto(), primera().getIdUnidad(), "Álgebra", "Definición");
-        glosarioServicio.registrarTermino(fausto(), primera().getIdUnidad(), "Zeta", "Definición");
+        glosarioServicio.registrarTermino(fausto(), primera().getIdTema(), "Álgebra", "Definición");
+        glosarioServicio.registrarTermino(fausto(), primera().getIdTema(), "Zeta", "Definición");
 
         assertEquals(List.of("Álgebra", "BYMA", "CNV", "ON", "Zeta"),
                 nombres(glosarioServicio.buscarConFiltros(primera(), null, true)));
@@ -131,7 +131,7 @@ class TerminoGlosarioServicioTest {
     @Test
     @DisplayName("CU-33: el docente del curso registra un término con su definición")
     void registra() {
-        TerminoGlosario nuevo = glosarioServicio.registrarTermino(fausto(), tercera().getIdUnidad(), "  Opción  ",
+        TerminoGlosario nuevo = glosarioServicio.registrarTermino(fausto(), tercera().getIdTema(), "  Opción  ",
                 " Derecho a comprar o vender un activo a un precio fijado. ");
 
         assertTrue(nuevo.getIdTermino() > 0);
@@ -144,48 +144,48 @@ class TerminoGlosarioServicioTest {
     @Test
     @DisplayName("CU-33: faltan datos, superan el máximo, el término ya existe o el docente no participa")
     void validaAlRegistrar() {
-        int unidad = primera().getIdUnidad();
-        assertTrue(mensaje(() -> glosarioServicio.registrarTermino(fausto(), unidad, "", "Definición"))
+        int tema = primera().getIdTema();
+        assertTrue(mensaje(() -> glosarioServicio.registrarTermino(fausto(), tema, "", "Definición"))
                 .contains("Debe completar el término y la definición."));
-        assertTrue(mensaje(() -> glosarioServicio.registrarTermino(fausto(), unidad, "Término", " "))
+        assertTrue(mensaje(() -> glosarioServicio.registrarTermino(fausto(), tema, "Término", " "))
                 .contains("Debe completar el término y la definición."));
-        assertTrue(mensaje(() -> glosarioServicio.registrarTermino(fausto(), unidad, "x".repeat(51), "Definición"))
+        assertTrue(mensaje(() -> glosarioServicio.registrarTermino(fausto(), tema, "x".repeat(51), "Definición"))
                 .contains("Máximo: 50 caracteres"));
-        assertTrue(mensaje(() -> glosarioServicio.registrarTermino(fausto(), unidad, "Término", "x".repeat(501)))
+        assertTrue(mensaje(() -> glosarioServicio.registrarTermino(fausto(), tema, "Término", "x".repeat(501)))
                 .contains("Máximo: 500 caracteres"));
         // el máximo exacto se admite
-        assertNotNull(glosarioServicio.registrarTermino(fausto(), unidad, "x".repeat(50), "y".repeat(500)));
+        assertNotNull(glosarioServicio.registrarTermino(fausto(), tema, "x".repeat(50), "y".repeat(500)));
 
-        // repetido en la misma unidad, sin distinguir mayúsculas
-        assertTrue(mensaje(() -> glosarioServicio.registrarTermino(fausto(), unidad, "byma", "Otra definición"))
-                .contains("El término ya está registrado en el glosario de esta unidad."));
-        // pero se puede repetir en otra unidad
-        assertNotNull(glosarioServicio.registrarTermino(fausto(), segunda().getIdUnidad(), "BYMA", "Definición"));
+        // repetido en la mismo tema, sin distinguir mayúsculas
+        assertTrue(mensaje(() -> glosarioServicio.registrarTermino(fausto(), tema, "byma", "Otra definición"))
+                .contains("El término ya está registrado en el glosario de este tema."));
+        // pero se puede repetir en otro tema
+        assertNotNull(glosarioServicio.registrarTermino(fausto(), segunda().getIdTema(), "BYMA", "Definición"));
 
         assertTrue(mensaje(() -> glosarioServicio.registrarTermino(fausto(), null, "Término", "Definición"))
-                .contains("La unidad no se encuentra activa"));
-        assertTrue(mensaje(() -> glosarioServicio.registrarTermino(null, unidad, "Término", "Definición"))
+                .contains("El tema no se encuentra activa"));
+        assertTrue(mensaje(() -> glosarioServicio.registrarTermino(null, tema, "Término", "Definición"))
                 .contains("no tiene el rol de docente"));
     }
 
     @Test
     @DisplayName("CU-33: un docente que no participa en el curso no puede registrar términos")
     void docenteAjenoNoRegistra() {
-        Unidad ajena = unidad("Macroeconomía de Coyuntura", "Inflación y precios");
+        Tema ajena = tema("Macroeconomía de Coyuntura", "Inflación y precios");
 
         assertTrue(mensaje(() -> glosarioServicio.registrarTermino(docente("sebastian.bordato@idoneos.online"),
-                ajena.getIdUnidad(), "IPC", "Índice de precios al consumidor.")).contains("No participás en este curso"));
+                ajena.getIdTema(), "IPC", "Índice de precios al consumidor.")).contains("No participás en este curso"));
     }
 
     @Test
     @DisplayName("CU-33: un término dado de baja se vuelve a dar de alta con la nueva definición")
     void reactivaElTerminoDadoDeBaja() {
-        TerminoGlosario byma = terminoRepositorio.findByUnidad(primera()).stream()
+        TerminoGlosario byma = terminoRepositorio.findByTema(primera()).stream()
                 .filter(t -> t.getTermino().equals("BYMA")).findFirst().orElseThrow();
         glosarioServicio.darDeBajaTermino(byma.getIdTermino(), fausto());
         assertEquals(List.of("CNV", "ON"), nombres(glosarioServicio.buscarConFiltros(primera(), null, true)));
 
-        TerminoGlosario vuelto = glosarioServicio.registrarTermino(fausto(), primera().getIdUnidad(), "BYMA",
+        TerminoGlosario vuelto = glosarioServicio.registrarTermino(fausto(), primera().getIdTema(), "BYMA",
                 "Nueva definición");
 
         assertEquals(byma.getIdTermino(), vuelto.getIdTermino());
@@ -199,7 +199,7 @@ class TerminoGlosarioServicioTest {
     @Test
     @DisplayName("CU-34: el docente modifica el término y la definición, y queda registrada la fecha")
     void modifica() {
-        TerminoGlosario tir = terminoRepositorio.findByUnidad(segunda()).stream()
+        TerminoGlosario tir = terminoRepositorio.findByTema(segunda()).stream()
                 .filter(t -> t.getTermino().equals("TIR")).findFirst().orElseThrow();
 
         TerminoGlosario modificado = glosarioServicio.modificarTermino(tir.getIdTermino(), fausto(), "TIR (tasa)",
@@ -215,7 +215,7 @@ class TerminoGlosarioServicioTest {
     @Test
     @DisplayName("CU-34: valida los datos, rechaza un término repetido y exige participar en el curso")
     void validaAlModificar() {
-        TerminoGlosario tir = terminoRepositorio.findByUnidad(segunda()).stream()
+        TerminoGlosario tir = terminoRepositorio.findByTema(segunda()).stream()
                 .filter(t -> t.getTermino().equals("TIR")).findFirst().orElseThrow();
         int id = tir.getIdTermino();
 
@@ -224,7 +224,7 @@ class TerminoGlosarioServicioTest {
         assertTrue(mensaje(() -> glosarioServicio.modificarTermino(id, fausto(), "TIR", "x".repeat(501)))
                 .contains("Máximo: 500 caracteres"));
         assertTrue(mensaje(() -> glosarioServicio.modificarTermino(id, fausto(), "duration", "Definición"))
-                .contains("El término ya está registrado en el glosario de esta unidad."));
+                .contains("El término ya está registrado en el glosario de este tema."));
         assertTrue(mensaje(() -> glosarioServicio.modificarTermino(999999, fausto(), "TIR", "Definición"))
                 .contains("El término no se encuentra activo"));
     }
@@ -232,8 +232,8 @@ class TerminoGlosarioServicioTest {
     @Test
     @DisplayName("CU-34 y CU-35: un docente que no participa en el curso no modifica ni da de baja sus términos")
     void docenteAjenoNoModificaNiDaDeBaja() {
-        Unidad ajena = unidad("Macroeconomía de Coyuntura", "Inflación y precios");
-        TerminoGlosario ipc = glosarioServicio.registrarTermino(fausto(), ajena.getIdUnidad(), "IPC",
+        Tema ajena = tema("Macroeconomía de Coyuntura", "Inflación y precios");
+        TerminoGlosario ipc = glosarioServicio.registrarTermino(fausto(), ajena.getIdTema(), "IPC",
                 "Índice de precios al consumidor.");
         Docente sebastian = docente("sebastian.bordato@idoneos.online");
 
@@ -249,9 +249,9 @@ class TerminoGlosarioServicioTest {
     @Test
     @DisplayName("CU-35: el docente da de baja un término (baja lógica) y el administrador también, sin participar")
     void daDeBaja() {
-        TerminoGlosario cnv = terminoRepositorio.findByUnidad(primera()).stream()
+        TerminoGlosario cnv = terminoRepositorio.findByTema(primera()).stream()
                 .filter(t -> t.getTermino().equals("CNV")).findFirst().orElseThrow();
-        TerminoGlosario on = terminoRepositorio.findByUnidad(primera()).stream()
+        TerminoGlosario on = terminoRepositorio.findByTema(primera()).stream()
                 .filter(t -> t.getTermino().equals("ON")).findFirst().orElseThrow();
 
         glosarioServicio.darDeBajaTermino(cnv.getIdTermino(), fausto());
@@ -267,18 +267,18 @@ class TerminoGlosarioServicioTest {
     // ------------------------------------------------------------------ Quién puede ver el glosario
 
     @Test
-    @DisplayName("Ven el glosario el administrador, el docente del curso y el alumno con la unidad habilitada")
+    @DisplayName("Ven el glosario el administrador, el docente del curso y el alumno con el tema habilitado")
     void quienPuedeVer() {
         assertTrue(glosarioServicio.puedeVer(primera(), usuario("admin@idoneos.online")));
         assertTrue(glosarioServicio.puedeVer(primera(), usuario("fausto.spotorno@idoneos.online")));
-        // Valentina tiene habilitadas las unidades 1 y 2, pero no la 3
+        // Valentina tiene habilitadas los temas 1 y 2, pero no la 3
         assertTrue(glosarioServicio.puedeVer(segunda(), usuario("valentina.ruiz@correo.com")));
         assertFalse(glosarioServicio.puedeVer(tercera(), usuario("valentina.ruiz@correo.com")));
         // el dictado de su cohorte todavía no empezó / no está inscripto en el curso
         assertFalse(glosarioServicio.puedeVer(segunda(), usuario("martin.gomez@correo.com")));
         assertFalse(glosarioServicio.puedeVer(segunda(), usuario("tomas.herrera@correo.com")));
         // Sebastián no participa en "Macroeconomía de Coyuntura"
-        assertFalse(glosarioServicio.puedeVer(unidad("Macroeconomía de Coyuntura", "Inflación y precios"),
+        assertFalse(glosarioServicio.puedeVer(tema("Macroeconomía de Coyuntura", "Inflación y precios"),
                 usuario("sebastian.bordato@idoneos.online")));
     }
 }

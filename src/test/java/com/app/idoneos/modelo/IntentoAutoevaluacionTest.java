@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Pruebas de la corrección de los intentos de autoevaluación (DSD corregir) y de las reglas derivadas del modelo de
- * evaluaciones: tiempo, resultado y unidad aprobada. No usan la base de datos.
+ * evaluaciones: tiempo, resultado y tema aprobado. No usan la base de datos.
  */
 class IntentoAutoevaluacionTest {
 
@@ -20,7 +20,7 @@ class IntentoAutoevaluacionTest {
     private int siguienteId = 1;
 
     private Autoevaluacion autoevaluacion(int cantidadPreguntas, boolean descuentoPorError, float notaMinima) {
-        Autoevaluacion autoevaluacion = new Autoevaluacion(new Unidad(), "Autoevaluación", cantidadPreguntas, notaMinima, INICIO);
+        Autoevaluacion autoevaluacion = new Autoevaluacion(new Tema(), "Autoevaluación", cantidadPreguntas, notaMinima, INICIO);
         autoevaluacion.setIdAutoevaluacion(siguienteId++);
         autoevaluacion.setDescuentoPorError(descuentoPorError);
         return autoevaluacion;
@@ -219,30 +219,30 @@ class IntentoAutoevaluacionTest {
     }
 
     @Test
-    @DisplayName("La unidad se aprueba cuando el alumno aprobó todas sus autoevaluaciones visibles")
-    void unidadAprobada() {
-        Unidad unidad = new Unidad();
+    @DisplayName("El tema se aprueba cuando el alumno aprobó todas sus autoevaluaciones visibles")
+    void temaAprobada() {
+        Tema tema = new Tema();
         Inscripcion inscripcion = new Inscripcion();
         inscripcion.setIdInscripcion(1);
         Autoevaluacion primera = autoevaluacion(5, false, 6f);
         Autoevaluacion segunda = autoevaluacion(5, false, 6f);
-        unidad.getAutoevaluaciones().add(primera);
-        unidad.getAutoevaluaciones().add(segunda);
-        assertFalse(unidad.estaAprobadaPor(inscripcion));
+        tema.getAutoevaluaciones().add(primera);
+        tema.getAutoevaluaciones().add(segunda);
+        assertFalse(tema.estaAprobadaPor(inscripcion));
 
         aprobar(primera, inscripcion);
-        assertFalse(unidad.estaAprobadaPor(inscripcion)); // falta la segunda
+        assertFalse(tema.estaAprobadaPor(inscripcion)); // falta la segunda
 
         segunda.setOculto(true);
-        assertTrue(unidad.estaAprobadaPor(inscripcion)); // la oculta no se exige
+        assertTrue(tema.estaAprobadaPor(inscripcion)); // la oculta no se exige
 
         segunda.setOculto(false);
         aprobar(segunda, inscripcion);
-        assertTrue(unidad.estaAprobadaPor(inscripcion));
+        assertTrue(tema.estaAprobadaPor(inscripcion));
 
         primera.marcarInactivo();
         segunda.marcarInactivo();
-        assertFalse(unidad.estaAprobadaPor(inscripcion)); // sin autoevaluaciones visibles no hay nada que aprobar
+        assertFalse(tema.estaAprobadaPor(inscripcion)); // sin autoevaluaciones visibles no hay nada que aprobar
     }
 
     private void aprobar(Autoevaluacion autoevaluacion, Inscripcion inscripcion) {

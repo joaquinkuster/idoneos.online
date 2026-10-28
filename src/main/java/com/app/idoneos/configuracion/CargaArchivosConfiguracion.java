@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Configuration;
  * Configuración de la carpeta del servidor donde se guardan los archivos subidos por los usuarios.
  *
  * La carpeta base se configura con la propiedad {@code idoneos.directorio-cursos} (por defecto {@code ./uploads}) y
- * contiene una carpeta por curso: {@code curso{id}/imagen.{ext}} y {@code curso{id}/unidad{id}/material{id}.{ext}}.
+ * contiene una carpeta por curso: {@code curso{id}/imagen.{ext}} y {@code curso{id}/tema{id}/material{id}.{ext}}.
  */
 @Configuration
 public class CargaArchivosConfiguracion {

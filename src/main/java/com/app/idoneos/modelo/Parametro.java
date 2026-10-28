@@ -17,10 +17,10 @@ import lombok.Setter;
 public class Parametro {
 
     /**
-     * Clave del parámetro con la cantidad mínima de unidades con material publicado que debe tener
+     * Clave del parámetro con la cantidad mínima de temas con material publicado que debe tener
      * el cronograma de un programa para poder registrar cohortes.
      */
-    public static final String MINIMO_UNIDADES_CON_MATERIAL = "programa.minimo_unidades_con_material";
+    public static final String MINIMO_TEMAS_CON_MATERIAL = "programa.minimo_temas_con_material";
 
     /** Clave de la cantidad máxima de semanas que puede sumar el cronograma de un programa. */
     public static final String CRONOGRAMA_SEMANAS_MAXIMAS = "cronograma.semanas_maximas";

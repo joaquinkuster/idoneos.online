@@ -24,7 +24,7 @@ import com.app.idoneos.repositorio.IntentoAutoevaluacionRepositorio;
 
 /**
  * Pruebas de las pantallas de seguimiento: intentos (CU-68, CU-71, CU-72) y calificaciones (CU-69). Valentina Ruiz es la
- * alumna con intentos de 4,00 y 8,00 en la autoevaluación de la unidad 1.
+ * alumna con intentos de 4,00 y 8,00 en la autoevaluación del tema 1.
  */
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -130,7 +130,7 @@ class SeguimientoIntentoControladorTest {
                 .andExpect(content().string(Matchers.allOf(
                         Matchers.containsString("Resultados por autoevaluación"),
                         Matchers.containsString("Valentina Ruiz"),
-                        Matchers.containsString("Autoevaluación Unidad 1: Marco regulatorio"),
+                        Matchers.containsString("Autoevaluación Tema 1: Marco regulatorio"),
                         Matchers.containsString("8,00"),
                         Matchers.containsString("name=\"cohorte\""))));
     }
@@ -144,9 +144,9 @@ class SeguimientoIntentoControladorTest {
                 .andExpect(view().name("pages/calificacion/listado"))
                 .andExpect(content().string(Matchers.allOf(
                         Matchers.containsString("Mis calificaciones"),
-                        Matchers.containsString("Autoevaluación Unidad 1: Marco regulatorio"),
+                        Matchers.containsString("Autoevaluación Tema 1: Marco regulatorio"),
                         Matchers.containsString("Resultados por autoevaluación"),
-                        Matchers.containsString("Unidad 1"),
+                        Matchers.containsString("Tema 1"),
                         Matchers.containsString("8,00"),
                         Matchers.containsString("Aprobada"),
                         Matchers.containsString("Sin rendir"))));

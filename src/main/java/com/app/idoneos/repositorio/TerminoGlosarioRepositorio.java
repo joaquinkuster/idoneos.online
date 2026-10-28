@@ -2,7 +2,7 @@ package com.app.idoneos.repositorio;
 
 import java.util.List;
 import com.app.idoneos.modelo.TerminoGlosario;
-import com.app.idoneos.modelo.Unidad;
+import com.app.idoneos.modelo.Tema;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -21,18 +21,18 @@ public interface TerminoGlosarioRepositorio extends JpaRepository<TerminoGlosari
     List<TerminoGlosario> findByBajaFalse();
 
     /**
-     * Busca los registros vigentes de terminoGlosario asociados a unidad.
+     * Busca los registros vigentes de terminoGlosario asociados a tema.
      *
-     * @param unidad el registro de Unidad asociado
-     * @return una lista de TerminoGlosario asociados al Unidad indicado
+     * @param tema el registro de Tema asociado
+     * @return una lista de TerminoGlosario asociados al Tema indicado
      */
-    List<TerminoGlosario> findByUnidadAndBajaFalse(Unidad unidad);
+    List<TerminoGlosario> findByTemaAndBajaFalse(Tema tema);
 
     /**
-     * Busca todos los términos de una unidad, incluidos los dados de baja.
+     * Busca todos los términos de un tema, incluidos los dados de baja.
      *
-     * @param unidad la unidad del glosario
+     * @param tema el tema del glosario
      * @return la lista de términos
      */
-    List<TerminoGlosario> findByUnidad(Unidad unidad);
+    List<TerminoGlosario> findByTema(Tema tema);
 }

@@ -56,7 +56,7 @@
                             <tr>
                                 <th th:if="${verAlumnos}" data-col="Alumno" data-campo="alumno" data-filtro="texto">Alumno</th>
                                 <th th:if="${verAlumnos}" data-col="Cohorte" data-campo="cohorte" data-filtro="estatico">Cohorte</th>
-                                <th data-col="Unidad" data-campo="unidad" data-filtro="lista">Unidad</th>
+                                <th data-col="Tema" data-campo="tema" data-filtro="lista">Tema</th>
                                 <th data-col="Autoevaluación" data-campo="autoevaluacion" data-filtro="lista">Autoevaluación</th>
                                 <th data-col="Intentos" data-campo="intentos" data-filtro="numero">Intentos</th>
                                 <th data-col="Mejor nota" data-campo="mejorNota" data-filtro="numero">Mejor nota</th>
@@ -66,7 +66,7 @@
                         <tbody>
                             <tr th:each="f : ${filas}" data-fila
                                 th:with="a=${f.autoevaluacion}, i=${f.inscripcion}, nota=${f.autoevaluacion.mejorNota(f.inscripcion)}"
-                                th:data-f-unidad="${a.unidad.titulo}" th:data-f-autoevaluacion="${a.nombre}"
+                                th:data-f-tema="${a.tema.titulo}" th:data-f-autoevaluacion="${a.nombre}"
                                 th:data-f-alumno="${i.alumno.usuario.nombreCompleto + ' ' + i.alumno.usuario.dni + ' ' + i.alumno.usuario.correo}"
                                 th:data-f-cohorte="${i.cohorte.idCohorte}">
                                 <td th:if="${verAlumnos}">
@@ -77,8 +77,8 @@
                                 </td>
                                 <td th:if="${verAlumnos}"><span class="pn-truncar" th:text="${i.cohorte.programa.nombre + ' · ' + i.cohorte.etiqueta}">Programa · Mayo 2026</span></td>
                                 <td>
-                                    <span class="ca-unidad-numero" th:text="${'Unidad ' + f.numeroUnidad}">Unidad 1</span>
-                                    <span class="ca-unidad-nombre" th:text="${a.unidad.titulo}">Introducción</span>
+                                    <span class="ca-tema-numero" th:text="${'Tema ' + f.numeroTema}">Tema 1</span>
+                                    <span class="ca-tema-nombre" th:text="${a.tema.titulo}">Introducción</span>
                                 </td>
                                 <td>
                                     <a class="ca-enlace" th:if="${!verAlumnos and f.habilitada}"
@@ -94,7 +94,7 @@
                                 <td>
                                     <span class="pn-insignia"
                                           th:classappend="${a.estaAprobadaPor(i)} ? 'pn-insignia-verde' : (${nota != null} ? 'pn-insignia-roja' : 'pn-insignia-gris')"
-                                          th:text="${a.estaAprobadaPor(i) ? 'Aprobada' : (nota != null ? 'No aprobada' : (f.habilitada ? 'Sin rendir' : 'Unidad bloqueada'))}">Aprobada</span>
+                                          th:text="${a.estaAprobadaPor(i) ? 'Aprobada' : (nota != null ? 'No aprobada' : (f.habilitada ? 'Sin rendir' : 'Tema bloqueada'))}">Aprobada</span>
                                 </td>
                             </tr>
                             <tr th:replace="~{fragments/vacio :: fila(7, 'fa-star', ${verAlumnos ? 'Todavía no hay resultados' : 'Todavía no hay autoevaluaciones'}, ${verAlumnos ? 'Cuando haya alumnos inscriptos y autoevaluaciones publicadas, vas a ver sus calificaciones acá.' : 'Cuando el docente publique autoevaluaciones, vas a ver tus resultados acá.'})}"></tr>

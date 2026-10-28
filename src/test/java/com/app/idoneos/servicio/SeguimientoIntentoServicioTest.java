@@ -24,8 +24,8 @@ import com.app.idoneos.servicio.IntentoAutoevaluacion.IntentoAutoevaluacionServi
 
 /**
  * Pruebas de CU-68 (buscar intentos), CU-71 (aprobar intento) y CU-72 (dar de baja intento) con los datos de la semilla.
- * Valentina Ruiz tiene en la autoevaluación de la unidad 1 un intento de 4,00 (no aprobado) y otro de 8,00 (aprobado, con el
- * que completó la unidad); fausto.spotorno es docente del curso.
+ * Valentina Ruiz tiene en la autoevaluación del tema 1 un intento de 4,00 (no aprobado) y otro de 8,00 (aprobado, con el
+ * que completó el tema); fausto.spotorno es docente del curso.
  */
 @SpringBootTest
 @Transactional
@@ -50,9 +50,9 @@ class SeguimientoIntentoServicioTest {
                 .findFirst().orElseThrow();
     }
 
-    private Autoevaluacion autoevaluacionDeLaUnidad1() {
+    private Autoevaluacion autoevaluacionDeLaTema1() {
         return autoevaluacionRepositorio.findAll().stream()
-                .filter(a -> a.getNombre().equals("Autoevaluación Unidad 1: Marco regulatorio")).findFirst().orElseThrow();
+                .filter(a -> a.getNombre().equals("Autoevaluación Tema 1: Marco regulatorio")).findFirst().orElseThrow();
     }
 
     private Docente docenteDelCurso() {
@@ -60,7 +60,7 @@ class SeguimientoIntentoServicioTest {
     }
 
     private IntentoAutoevaluacion intentoConNota(float nota) {
-        return autoevaluacionDeLaUnidad1().intentosDe(valentina()).stream().filter(i -> i.getNota() != null && i.getNota() == nota)
+        return autoevaluacionDeLaTema1().intentosDe(valentina()).stream().filter(i -> i.getNota() != null && i.getNota() == nota)
                 .findFirst().orElseThrow();
     }
 
@@ -98,7 +98,7 @@ class SeguimientoIntentoServicioTest {
 
         // Uno en curso no se puede aprobar
         Autoevaluacion secuencial = autoevaluacionRepositorio.findAll().stream()
-                .filter(a -> a.getNombre().equals("Autoevaluación Unidad 2: Ejercicios de rendimiento")).findFirst().orElseThrow();
+                .filter(a -> a.getNombre().equals("Autoevaluación Tema 2: Ejercicios de rendimiento")).findFirst().orElseThrow();
         IntentoAutoevaluacion enCurso = intentoServicio.iniciarIntento(valentina().getAlumno(), secuencial.getIdAutoevaluacion());
         assertThrows(IllegalArgumentException.class,
                 () -> intentoServicio.aprobarPorDocente(enCurso.getIdIntentoAutoevaluacion(), docenteDelCurso()));
@@ -110,34 +110,34 @@ class SeguimientoIntentoServicioTest {
     }
 
     @Test
-    @DisplayName("CU-72: al dar de baja el intento que aprobaba la unidad, ésta vuelve a quedar pendiente; aprobar otro la completa de nuevo")
-    void darDeBajaRevierteLaUnidad() {
+    @DisplayName("CU-72: al dar de baja el intento que aprobaba el tema, ésta vuelve a quedar pendiente; aprobar otro la completa de nuevo")
+    void darDeBajaRevierteLaTema() {
         Inscripcion valentina = valentina();
-        var unidad1 = autoevaluacionDeLaUnidad1().getUnidad();
-        assertTrue(valentina.estaUnidadCompletada(unidad1));
+        var tema1 = autoevaluacionDeLaTema1().getTema();
+        assertTrue(valentina.estaTemaCompletada(tema1));
 
         IntentoAutoevaluacion aprobado = intentoConNota(8f);
         assertTrue(intentoServicio.darDeBajaIntento(aprobado.getIdIntentoAutoevaluacion()));
         assertTrue(aprobado.esInactivo());
-        assertFalse(valentina.estaUnidadCompletada(unidad1));
+        assertFalse(valentina.estaTemaCompletada(tema1));
         assertThrows(IllegalArgumentException.class, () -> intentoServicio.darDeBajaIntento(aprobado.getIdIntentoAutoevaluacion()));
 
-        // El docente aprueba el que queda: la unidad se completa otra vez
+        // El docente aprueba el que queda: el tema se completa otra vez
         intentoServicio.aprobarPorDocente(intentoConNota(4f).getIdIntentoAutoevaluacion(), docenteDelCurso());
-        assertTrue(valentina.estaUnidadCompletada(unidad1));
+        assertTrue(valentina.estaTemaCompletada(tema1));
     }
 
     @Test
     @DisplayName("CU-72: dar de baja un intento no aprobado o en curso no toca el progreso")
     void darDeBajaSinEfectoEnElProgreso() {
         Inscripcion valentina = valentina();
-        var unidad1 = autoevaluacionDeLaUnidad1().getUnidad();
+        var tema1 = autoevaluacionDeLaTema1().getTema();
 
         assertFalse(intentoServicio.darDeBajaIntento(intentoConNota(4f).getIdIntentoAutoevaluacion()));
-        assertTrue(valentina.estaUnidadCompletada(unidad1));
+        assertTrue(valentina.estaTemaCompletada(tema1));
 
         Autoevaluacion secuencial = autoevaluacionRepositorio.findAll().stream()
-                .filter(a -> a.getNombre().equals("Autoevaluación Unidad 2: Ejercicios de rendimiento")).findFirst().orElseThrow();
+                .filter(a -> a.getNombre().equals("Autoevaluación Tema 2: Ejercicios de rendimiento")).findFirst().orElseThrow();
         IntentoAutoevaluacion enCurso = intentoServicio.iniciarIntento(valentina.getAlumno(), secuencial.getIdAutoevaluacion());
         assertTrue(intentoServicio.buscarEnCursoSinSalida(valentina.getAlumno()).isPresent());
         assertFalse(intentoServicio.darDeBajaIntento(enCurso.getIdIntentoAutoevaluacion()));

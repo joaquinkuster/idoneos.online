@@ -6,7 +6,7 @@ import java.util.Optional;
 import com.app.idoneos.modelo.Alumno;
 import com.app.idoneos.modelo.Cohorte;
 import com.app.idoneos.modelo.Inscripcion;
-import com.app.idoneos.modelo.Unidad;
+import com.app.idoneos.modelo.Tema;
 
 /**
  * Servicio para gestionar las operaciones relacionadas con la inscripción.
@@ -55,14 +55,14 @@ public interface InscripcionServicio {
     Inscripcion validarAcceso(int idInscripcion, Alumno alumno);
 
     /**
-     * Busca la inscripción con la que un alumno puede ver el contenido de una unidad: una inscripción vigente a su
-     * curso, con acceso vigente (ver {@link #validarAcceso}) y con la unidad habilitada según su avance.
+     * Busca la inscripción con la que un alumno puede ver el contenido de un tema: una inscripción vigente a su
+     * curso, con acceso vigente (ver {@link #validarAcceso}) y con el tema habilitado según su avance.
      *
      * @param alumno el alumno que quiere ver el contenido
-     * @param unidad la unidad del contenido
-     * @return la inscripción con acceso, o vacío si el alumno no puede ver la unidad
+     * @param tema el tema del contenido
+     * @return la inscripción con acceso, o vacío si el alumno no puede ver el tema
      */
-    Optional<Inscripcion> buscarConAccesoAUnidad(Alumno alumno, Unidad unidad);
+    Optional<Inscripcion> buscarConAccesoATema(Alumno alumno, Tema tema);
 
     /**
      * Busca las inscripciones activas (no dadas de baja) por curso, alumno y estado de acceso (CU-44, vista del
@@ -80,7 +80,7 @@ public interface InscripcionServicio {
     /**
      * El alumno se inscribe a una cohorte con inscripción abierta (CU-45). Valida la ventana de inscripción, el cupo,
      * que no tenga ya una inscripción activa a la cohorte y que acepte los términos y condiciones. Registra el
-     * progreso inicial sobre la primera unidad del cronograma. Si el curso es gratuito la inscripción queda
+     * progreso inicial sobre la primer tema del cronograma. Si el curso es gratuito la inscripción queda
      * habilitada; si tiene costo queda pendiente de pago.
      *
      * @param alumno el alumno que se inscribe

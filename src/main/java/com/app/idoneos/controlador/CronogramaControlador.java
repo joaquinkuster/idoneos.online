@@ -19,10 +19,10 @@ import com.app.idoneos.modelo.Cohorte;
 import com.app.idoneos.modelo.Curso;
 import com.app.idoneos.modelo.Parametro;
 import com.app.idoneos.modelo.Programa;
-import com.app.idoneos.modelo.Unidad;
+import com.app.idoneos.modelo.Tema;
 import com.app.idoneos.modelo.Usuario;
-import com.app.idoneos.servicio.Unidad.UnidadServicio;
-import com.app.idoneos.servicio.UnidadCronograma.UnidadCronogramaServicio;
+import com.app.idoneos.servicio.Tema.TemaServicio;
+import com.app.idoneos.servicio.TemaCronograma.TemaCronogramaServicio;
 import com.app.idoneos.utilidades.RespuestaFormularioUtilidad;
 
 /**
@@ -37,19 +37,19 @@ import com.app.idoneos.utilidades.RespuestaFormularioUtilidad;
 @RequestMapping("/cronograma")
 public class CronogramaControlador extends PanelCursoControlador {
 
-    /** Mínimo de unidades con material que se usa si el parámetro no está cargado. */
+    /** Mínimo de temas con material que se usa si el parámetro no está cargado. */
     private static final int MINIMO_POR_DEFECTO = 1;
 
     @Autowired
-    private UnidadCronogramaServicio cronogramaServicio;
+    private TemaCronogramaServicio cronogramaServicio;
 
     @Autowired
-    private UnidadServicio unidadServicio;
+    private TemaServicio temaServicio;
 
     // ---------------------------------------------------------------- Lecturas
 
     /**
-     * CU-23: Muestra el cronograma del programa de trabajo de un curso, con sus unidades, el orden, las semanas de cada
+     * CU-23: Muestra el cronograma del programa de trabajo de un curso, con sus temas, el orden, las semanas de cada
      * una y el material cargado. Si el docente puede modificarlo, la misma página permite hacerlo (CU-24).
      *
      * @param cursoId            Identificador del curso.
@@ -71,19 +71,19 @@ public class CronogramaControlador extends PanelCursoControlador {
                 return avisarCursoSinProgramas(contexto, redirectAttributes);
             }
             boolean conInscripciones = programa.getCantidadInscripcionesActivas() > 0;
-            // Las unidades activas del curso que algún programa incluye: las que se pueden poner en este cronograma
-            List<Unidad> unidadesDelCurso = unidadServicio.buscarPorCurso(curso).stream()
+            // Los temas activos del curso que algún programa incluye: las que se pueden poner en este cronograma
+            List<Tema> temasDelCurso = temaServicio.buscarPorCurso(curso).stream()
                     .filter(u -> !u.getProgramasQueLaIncluyen().isEmpty()).toList();
 
             cargarContexto(modelo, contexto, "cronograma");
             cargarSemanasMaximasDelCronograma(modelo);
             modelo.addAttribute("cohorte", cohorte);
             modelo.addAttribute("cronograma", programa.getCronogramaOrdenado());
-            modelo.addAttribute("unidadesDelCurso", unidadesDelCurso);
+            modelo.addAttribute("temasDelCurso", temasDelCurso);
             modelo.addAttribute("puedeEditar", !esAdministrador && !conInscripciones);
             modelo.addAttribute("soloLecturaPorInscripciones", !esAdministrador && conInscripciones);
-            modelo.addAttribute("minimoUnidadesConMaterial", parametroServicio
-                    .obtenerEntero(Parametro.MINIMO_UNIDADES_CON_MATERIAL, MINIMO_POR_DEFECTO));
+            modelo.addAttribute("minimoTemasConMaterial", parametroServicio
+                    .obtenerEntero(Parametro.MINIMO_TEMAS_CON_MATERIAL, MINIMO_POR_DEFECTO));
             modelo.addAttribute("titulo", "Cronograma | Idóneos Online");
             return "pages/cronograma/buscar";
         } catch (IllegalArgumentException e) {
@@ -94,12 +94,12 @@ public class CronogramaControlador extends PanelCursoControlador {
     // ---------------------------------------------------------------- Modificaciones
 
     /**
-     * CU-24: Modifica el cronograma de un programa: las unidades que lo componen, su orden y sus semanas. Responde en
+     * CU-24: Modifica el cronograma de un programa: los temas que lo componen, su orden y sus semanas. Responde en
      * JSON.
      *
      * @param programaId Identificador del programa.
-     * @param ids        Identificadores de las unidades, en el orden del cronograma.
-     * @param semanas    Semanas de cada unidad, en el mismo orden.
+     * @param ids        Identificadores de los temas, en el orden del cronograma.
+     * @param semanas    Semanas de cada tema, en el mismo orden.
      * @param auth       La autenticación actual.
      * @return Una respuesta con el mensaje de éxito o el mensaje de error.
      */

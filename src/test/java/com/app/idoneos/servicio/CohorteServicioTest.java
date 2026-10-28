@@ -171,10 +171,10 @@ class CohorteServicioTest {
     }
 
     @Test
-    @DisplayName("CU-12: el programa debe tener el mínimo de unidades con material publicado")
-    void registrarCohorteSinMinimoDeUnidadesConMaterial() {
+    @DisplayName("CU-12: el programa debe tener el mínimo de temas con material publicado")
+    void registrarCohorteSinMinimoDeTemasConMaterial() {
         Programa programa = programaDe("Planificación Fiscal Corporativa");
-        assertEquals(0, programa.getCantidadUnidadesConMaterialPublicado()); // su única unidad con material no tiene autoevaluación
+        assertEquals(0, programa.getCantidadTemasConMaterialPublicado()); // su único tema con material no tiene autoevaluación
 
         assertThrows(IllegalArgumentException.class, () -> cohorteServicio.registrarCohorte(programa.getIdPrograma(),
                 INICIO, INICIO.plusDays(30), null, null, programa.getDuracionTotalSemanas(), null));

@@ -1,5 +1,5 @@
 /**
- * Leyenda flotante del cronograma: al pasar el mouse por una barra de unidad o por la línea roja de la semana actual
+ * Leyenda flotante del cronograma: al pasar el mouse por una barra de tema o por la línea roja de la semana actual
  * (cualquier elemento con data-tip) se muestra su texto junto al cursor. Sirve para la pantalla del cronograma y para
  * el cajón de la vista del curso; los elementos pueden dibujarse después, porque los eventos se escuchan en el documento.
  */

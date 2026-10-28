@@ -55,7 +55,7 @@
                             <tr>
                                 <th class="pn-col-seleccion"><input type="checkbox" data-seleccionar-todos aria-label="Seleccionar todos"></th>
                                 <th data-col="Título" data-campo="titulo" data-filtro="texto">Título</th>
-                                <th data-col="Unidad" data-campo="unidad" data-filtro="lista">Unidad</th>
+                                <th data-col="Tema" data-campo="tema" data-filtro="lista">Tema</th>
                                 <th data-col="Tipo" data-campo="tipo" data-filtro="lista">Tipo</th>
                                 <th data-col="Autor" data-campo="autor" data-filtro="texto">Autor</th>
                                 <th data-col="Archivo" data-campo="archivo" data-filtro="lista">Archivo</th>
@@ -74,7 +74,7 @@
                                     <span class="pn-celda-principal pn-truncar" th:text="${m.titulo}">Clase 3</span>
                                     <span class="pn-insignia pn-insignia-azul ms-1" th:if="${m.generadoPorIa}">IA</span>
                                 </td>
-                                <td><span class="pn-truncar" th:text="${m.unidad.titulo}">Renta fija y bonos</span></td>
+                                <td><span class="pn-truncar" th:text="${m.tema.titulo}">Renta fija y bonos</span></td>
                                 <td>
                                     <span class="ac-tipo-celda">
                                         <th:block th:replace="~{fragments/iconoMaterial :: icono(${m.tipoMaterial.nombre}, 'ac-recurso-icono-chico')}"></th:block>
@@ -134,7 +134,7 @@
 
 <!-- Modal: subir material (CU-29). Los datos que pide dependen del tipo elegido en el formulario -->
 <div class="modal fade pn-modal" id="modalNuevoMaterial" tabindex="-1" aria-hidden="true" th:if="${puedeGestionar}"
-     th:attr="data-abrir-tipo=${nuevoTipoId}, data-unidad=${unidadSeleccionada}">
+     th:attr="data-abrir-tipo=${nuevoTipoId}, data-tema=${temaSeleccionada}">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
             <div class="pn-modal-cabecera">
@@ -145,7 +145,7 @@
                 <form th:action="@{/material/subir}" method="post" enctype="multipart/form-data" class="form-ajax"
                       data-validar data-validador="material" data-material-formulario novalidate
                       data-pasos data-resumen="Material" data-modo="alta"
-                      data-contexto='[{"etiqueta":"Curso","atributoForm":"data-ctx-curso"},{"etiqueta":"Unidad","campo":"unidadId","atributo":"data-unidad"}]' th:attr="data-ctx-curso=${curso.nombre}">
+                      data-contexto='[{"etiqueta":"Curso","atributoForm":"data-ctx-curso"},{"etiqueta":"Tema","campo":"temaId","atributo":"data-tema"}]' th:attr="data-ctx-curso=${curso.nombre}">
     <div class="pn-pasos pn-pasos-nombrados">
         <span class="pn-pasos-item"><span class="pn-pasos-punto">1</span><span class="pn-pasos-nombre">Datos</span></span><span class="pn-pasos-linea"></span>
         <span class="pn-pasos-item"><span class="pn-pasos-punto">2</span><span class="pn-pasos-nombre">Contenido</span></span><span class="pn-pasos-linea"></span>
@@ -154,7 +154,7 @@
     <div class="pn-paso" data-grupo="Datos">
         <div class="pn-seccion-titulo">
             <h4>Datos del material</h4>
-            <p>Tipo, unidad, título y visibilidad</p>
+            <p>Tipo, tema, título y visibilidad</p>
         </div>
         <div class="row g-3">
 <div class="col-md-6 pn-campo">
@@ -170,12 +170,12 @@
                             <div class="pn-ayuda-error"></div>
                         </div>
 <div class="col-md-6 pn-campo" data-resumen-omitir>
-                            <label class="pn-etiqueta">Unidad <span class="pn-obligatorio">*</span></label>
-                            <select name="unidadId" data-buscable class="pn-input" required data-mensaje-obligatorio="Debe seleccionar la unidad.">
-                                <option value="">Seleccionar unidad</option>
-                                <option th:each="uc : ${unidades}" th:value="${uc.unidad.idUnidad}"
-                                        th:text="${'Unidad ' + uc.numeroOrden + ' · ' + uc.unidad.titulo}"
-                                        th:data-unidad="${uc.unidad.titulo}">Unidad 1</option>
+                            <label class="pn-etiqueta">Tema <span class="pn-obligatorio">*</span></label>
+                            <select name="temaId" data-buscable class="pn-input" required data-mensaje-obligatorio="Debe seleccionar el tema.">
+                                <option value="">Seleccionar tema</option>
+                                <option th:each="uc : ${temas}" th:value="${uc.tema.idTema}"
+                                        th:text="${'Tema ' + uc.numeroOrden + ' · ' + uc.tema.titulo}"
+                                        th:data-tema="${uc.tema.titulo}">Tema 1</option>
                             </select>
                             <div class="pn-ayuda-error"></div>
                         </div>
@@ -259,8 +259,8 @@
                 <div class="pn-modal-cuerpo">
                     <form th:action="@{'/material/modificar/' + ${m.idMaterial}}" method="post" enctype="multipart/form-data"
                           class="form-ajax" data-validar novalidate data-pasos data-resumen="Material" data-modo="modificacion"
-                          data-contexto='[{"etiqueta":"Curso","atributoForm":"data-ctx-curso"},{"etiqueta":"Unidad","atributoForm":"data-ctx-unidad"}]' 
-                          th:attr="data-resumen-titulo=${'(' + m.titulo + ')'}, data-ctx-curso=${curso.nombre}, data-ctx-unidad=${m.unidad.titulo}">
+                          data-contexto='[{"etiqueta":"Curso","atributoForm":"data-ctx-curso"},{"etiqueta":"Tema","atributoForm":"data-ctx-tema"}]' 
+                          th:attr="data-resumen-titulo=${'(' + m.titulo + ')'}, data-ctx-curso=${curso.nombre}, data-ctx-tema=${m.tema.titulo}">
     <div class="pn-pasos pn-pasos-nombrados">
         <span class="pn-pasos-item"><span class="pn-pasos-punto">1</span><span class="pn-pasos-nombre">Datos</span></span><span class="pn-pasos-linea"></span>
         <span class="pn-pasos-item"><span class="pn-pasos-punto">2</span><span class="pn-pasos-nombre">Contenido</span></span><span class="pn-pasos-linea"></span>

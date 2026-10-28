@@ -916,14 +916,14 @@ body.auth-body {
     background: #ECE6D6;
 }
 
-.fx-unidades {
+.fx-temas {
     margin: 22px 0 0;
     padding: 0;
     list-style: none;
     border-top: 1px solid #D1C8AF;
 }
 
-.fx-unidad {
+.fx-tema {
     display: grid;
     grid-template-columns: 52px minmax(0, 1fr) auto;
     gap: 16px;
@@ -940,14 +940,14 @@ body.auth-body {
     -webkit-text-stroke: 1.2px #0B1B33;
 }
 
-.fx-unidad-titulo {
+.fx-tema-titulo {
     font-family: 'Fraunces', Georgia, serif;
     font-size: 20px;
     font-weight: 600;
     color: #0B1B33;
 }
 
-.fx-unidad-duracion {
+.fx-tema-duracion {
     font-size: 13px;
     color: #6B6552;
     white-space: nowrap;

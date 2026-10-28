@@ -4,7 +4,7 @@ import java.util.List;
 import com.app.idoneos.modelo.Material;
 import com.app.idoneos.modelo.DocenteCurso;
 import com.app.idoneos.modelo.TipoMaterial;
-import com.app.idoneos.modelo.Unidad;
+import com.app.idoneos.modelo.Tema;
 import com.app.idoneos.modelo.Docente;
 import org.springframework.web.multipart.MultipartFile;
 import com.app.idoneos.modelo.Usuario;
@@ -36,18 +36,18 @@ public interface MaterialServicio {
     List<Material> buscarPorTipoMaterial(TipoMaterial tipoMaterial);
 
     /**
-     * Busca los registros vigentes de material asociados a unidad.
+     * Busca los registros vigentes de material asociados a tema.
      *
-     * @param unidad el registro de Unidad asociado
-     * @return una lista de Material asociados al Unidad indicado
+     * @param tema el registro de Tema asociado
+     * @return una lista de Material asociados al Tema indicado
      */
-    List<Material> buscarPorUnidad(Unidad unidad);
+    List<Material> buscarPorTema(Tema tema);
 
     /**
      * CU-28: Busca el material (incluido el no publicado) aplicando filtros opcionales.
      *
      * @param idCurso         identificador del curso (opcional)
-     * @param idUnidad        identificador de la unidad (opcional)
+     * @param idTema        identificador del tema (opcional)
      * @param idTipoMaterial  identificador del tipo de material (opcional)
      * @param titulo          parte del título (opcional)
      * @param generadoPorIa   si fue generado con IA (opcional)
@@ -55,13 +55,13 @@ public interface MaterialServicio {
      * @param soloDeDocente   si se indica, solo el material de los cursos en los que participa ese docente
      * @return los materiales que cumplen los criterios; los dados de baja van siempre al final
      */
-    List<Material> buscarConFiltros(Integer idCurso, Integer idUnidad, Integer idTipoMaterial, String titulo,
+    List<Material> buscarConFiltros(Integer idCurso, Integer idTema, Integer idTipoMaterial, String titulo,
             Boolean generadoPorIa, Boolean baja, Docente soloDeDocente);
 
     /**
      * Indica si un usuario puede abrir el archivo (o enlace) de un material: el administrador, el docente que
      * participa en el curso y el alumno con acceso vigente al curso, siempre que el material esté publicado y su
-     * unidad habilitada según su avance.
+     * tema habilitado según su avance.
      *
      * @param material el material a abrir
      * @param usuario  el usuario que lo solicita
@@ -71,7 +71,7 @@ public interface MaterialServicio {
 
     /**
      * Busca la inscripción con la que un alumno puede abrir un material: debe tener acceso vigente al curso, el
-     * material debe estar publicado y su unidad habilitada según el avance del alumno.
+     * material debe estar publicado y su tema habilitado según el avance del alumno.
      *
      * @param material el material a abrir
      * @param alumno   el alumno que lo solicita
@@ -82,10 +82,10 @@ public interface MaterialServicio {
     // ---------------------------------------------------------------- Creaciones
 
     /**
-     * CU-29: Sube un material (grabación, bibliografía o presentación) a una unidad activa.
+     * CU-29: Sube un material (grabación, bibliografía o presentación) a un tema activo.
      *
      * @param docente         el docente que lo sube (debe participar en el curso)
-     * @param idUnidad        identificador de la unidad
+     * @param idTema        identificador del tema
      * @param idTipoMaterial  identificador del tipo de material
      * @param titulo          título del material
      * @param oculto          si queda oculto para los alumnos
@@ -95,7 +95,7 @@ public interface MaterialServicio {
      * @return el material registrado
      * @throws IllegalArgumentException si algún dato no es válido, con el motivo
      */
-    Material subirMaterial(Docente docente, Integer idUnidad, Integer idTipoMaterial, String titulo, boolean oculto,
+    Material subirMaterial(Docente docente, Integer idTema, Integer idTipoMaterial, String titulo, boolean oculto,
             String autor, String enlace, MultipartFile archivo);
 
     // ---------------------------------------------------------------- Modificaciones

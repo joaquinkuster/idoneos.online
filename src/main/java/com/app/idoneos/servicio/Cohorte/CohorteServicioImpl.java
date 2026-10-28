@@ -159,17 +159,17 @@ public class CohorteServicioImpl implements CohorteServicio, CrudServicio<Cohort
             LocalDate fechaInicioDictado, LocalDate fechaFinDictado, Integer semanasAcceso, Integer cupoMaximo) {
         Programa programa = programaRepositorio.findById(idPrograma).filter(p -> !p.esInactivo())
                 .orElseThrow(() -> new IllegalArgumentException("Error! El programa no se encuentra activo."));
-        int minimo = parametroRepositorio.findByClave(Parametro.MINIMO_UNIDADES_CON_MATERIAL)
+        int minimo = parametroRepositorio.findByClave(Parametro.MINIMO_TEMAS_CON_MATERIAL)
                 .map(parametro -> Integer.parseInt(parametro.getValor().trim())).orElse(1);
-        int conMaterial = programa.getCantidadUnidadesConMaterialPublicado();
+        int conMaterial = programa.getCantidadTemasConMaterialPublicado();
         if (conMaterial < minimo) {
             throw RespuestaFormularioUtilidad.campoInvalido("programaId", "Error! El programa debe tener al menos "
-                    + MensajeErrorUtilidad.cantidad(minimo, "unidad", "unidades")
+                    + MensajeErrorUtilidad.cantidad(minimo, "tema", "temas")
                     + " con al menos un material y una autoevaluación publicados (tiene " + conMaterial + ").");
         }
-        var sinAutoevaluacion = programa.getUnidadesSinAutoevaluacion();
+        var sinAutoevaluacion = programa.getTemasSinAutoevaluacion();
         if (!sinAutoevaluacion.isEmpty()) {
-            throw RespuestaFormularioUtilidad.campoInvalido("programaId", "Error! Todas las unidades del programa deben tener "
+            throw RespuestaFormularioUtilidad.campoInvalido("programaId", "Error! Todos los temas del programa deben tener "
                     + "al menos una autoevaluación visible. Faltan en: "
                     + String.join(", ", sinAutoevaluacion.stream().map(u -> "«" + u.getTitulo() + "»").toList()) + ".");
         }

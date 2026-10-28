@@ -1621,7 +1621,7 @@ textarea.pn-input {
     padding: 4px 16px 16px;
 }
 
-/* La tabla de unidades ocupa el ancho de la fila, con un margen parejo a los lados, sobre un gris suave que incluye
+/* La tabla de temas ocupa el ancho de la fila, con un margen parejo a los lados, sobre un gris suave que incluye
    el encabezado (se pisa el fondo blanco de .pn-tabla thead th). */
 .pn-tabla.pn-tabla-anidada {
     width: 100%;

@@ -20,20 +20,20 @@ import com.app.idoneos.modelo.Docente;
 import com.app.idoneos.modelo.Inscripcion;
 import com.app.idoneos.modelo.IntentoAutoevaluacion;
 import com.app.idoneos.modelo.Pool;
-import com.app.idoneos.modelo.Unidad;
+import com.app.idoneos.modelo.Tema;
 import com.app.idoneos.repositorio.DocenteRepositorio;
 import com.app.idoneos.repositorio.InscripcionRepositorio;
 import com.app.idoneos.repositorio.IntentoAutoevaluacionRepositorio;
-import com.app.idoneos.repositorio.UnidadRepositorio;
+import com.app.idoneos.repositorio.TemaRepositorio;
 import com.app.idoneos.servicio.Autoevaluacion.AutoevaluacionServicio;
 import com.app.idoneos.servicio.Autoevaluacion.AutoevaluacionServicio.SolicitudAutoevaluacion;
 import com.app.idoneos.servicio.Pool.PoolServicio;
 
 /**
  * Pruebas del ABM de autoevaluaciones (CU-64 a CU-67) con los datos de la semilla. "Mercado de Capitales Argentino"
- * (titular Fausto Spotorno) tiene un programa con tres unidades y cohortes en curso: la unidad 1 tiene la autoevaluación
- * "Autoevaluación Unidad 1: Marco regulatorio" con intentos de Valentina (pool "Marco regulatorio"); la unidad 2, la
- * "Unidad 2: Ejercicios de rendimiento" sin intentos (pool "Renta fija", 6 preguntas, sortea 5); y la unidad 3 (la
+ * (titular Fausto Spotorno) tiene un programa con tres temas y cohortes en curso: el tema 1 tiene la autoevaluación
+ * "Autoevaluación Tema 1: Marco regulatorio" con intentos de Valentina (pool "Marco regulatorio"); el tema 2, la
+ * "Tema 2: Ejercicios de rendimiento" sin intentos (pool "Renta fija", 6 preguntas, sortea 5); y el tema 3 (la
  * última), una autoevaluación básica con su pool de 4 preguntas. Sebastián Bordato no participa en "Macroeconomía".
  */
 @SpringBootTest
@@ -49,7 +49,7 @@ class AutoevaluacionServicioTest {
     private PoolServicio poolServicio;
 
     @Autowired
-    private UnidadRepositorio unidadRepositorio;
+    private TemaRepositorio temaRepositorio;
 
     @Autowired
     private DocenteRepositorio docenteRepositorio;
@@ -69,21 +69,21 @@ class AutoevaluacionServicioTest {
         return docente("fausto.spotorno@idoneos.online");
     }
 
-    private Unidad unidad(String curso, String titulo) {
-        return unidadRepositorio.findAll().stream()
+    private Tema tema(String curso, String titulo) {
+        return temaRepositorio.findAll().stream()
                 .filter(u -> u.getCurso().getNombre().equals(curso) && u.getTitulo().equals(titulo)).findFirst().orElseThrow();
     }
 
-    private Unidad primera() {
-        return unidad("Mercado de Capitales Argentino", "Introducción al mercado de capitales");
+    private Tema primera() {
+        return tema("Mercado de Capitales Argentino", "Introducción al mercado de capitales");
     }
 
-    private Unidad segunda() {
-        return unidad("Mercado de Capitales Argentino", "Renta fija y bonos");
+    private Tema segunda() {
+        return tema("Mercado de Capitales Argentino", "Renta fija y bonos");
     }
 
-    private Unidad tercera() {
-        return unidad("Mercado de Capitales Argentino", "Renta variable y opciones");
+    private Tema tercera() {
+        return tema("Mercado de Capitales Argentino", "Renta variable y opciones");
     }
 
     private Pool pool(String nombre) {
@@ -121,9 +121,9 @@ class AutoevaluacionServicioTest {
     }
 
     @Test
-    @DisplayName("CU-65: crea una autoevaluación asociada a los pools de su unidad")
+    @DisplayName("CU-65: crea una autoevaluación asociada a los pools de su tema")
     void crearAutoevaluacion() {
-        Autoevaluacion creada = autoevaluacionServicio.registrarAutoevaluacion(fausto(), segunda().getIdUnidad(),
+        Autoevaluacion creada = autoevaluacionServicio.registrarAutoevaluacion(fausto(), segunda().getIdTema(),
                 solicitud("  Segunda autoevaluación ", pool("Renta fija")));
 
         assertEquals("Segunda autoevaluación", creada.getNombre());
@@ -139,68 +139,68 @@ class AutoevaluacionServicioTest {
     }
 
     @Test
-    @DisplayName("CU-65: una autoevaluación combina pools de su unidad y de las anteriores (repaso o evaluación final), nunca de las posteriores")
-    void poolsDeUnidadesAnteriores() {
-        // La unidad 3 (la última) puede usar los pools de las tres unidades
-        Autoevaluacion final_ = autoevaluacionServicio.registrarAutoevaluacion(fausto(), tercera().getIdUnidad(),
-                solicitud("Evaluación final", pool("Preguntas de la unidad"), pool("Renta fija"), pool("Marco regulatorio")));
+    @DisplayName("CU-65: una autoevaluación combina pools de su tema y de las anteriores (repaso o evaluación final), nunca de las posteriores")
+    void poolsDeTemasAnteriores() {
+        // El tema 3 (la última) puede usar los pools de los tres temas
+        Autoevaluacion final_ = autoevaluacionServicio.registrarAutoevaluacion(fausto(), tercera().getIdTema(),
+                solicitud("Evaluación final", pool("Preguntas del tema"), pool("Renta fija"), pool("Marco regulatorio")));
         assertTrue(final_.esEvaluacionFinal());
         assertEquals(3, final_.getPoolsActivos().size());
 
-        // Una unidad intermedia también puede repasar: la unidad 2 usa el pool de la 1
-        Autoevaluacion repaso = autoevaluacionServicio.registrarAutoevaluacion(fausto(), segunda().getIdUnidad(),
-                solicitud("Repaso de las unidades 1 y 2", pool("Renta fija"), pool("Marco regulatorio")));
+        // Un tema intermedia también puede repasar: el tema 2 usa el pool de la 1
+        Autoevaluacion repaso = autoevaluacionServicio.registrarAutoevaluacion(fausto(), segunda().getIdTema(),
+                solicitud("Repaso de los temas 1 y 2", pool("Renta fija"), pool("Marco regulatorio")));
         assertTrue(repaso.esEvaluacionFinal());
 
-        // Nunca pools de unidades posteriores
+        // Nunca pools de temas posteriores
         assertError("anteriores del programa, nunca de las posteriores", () -> autoevaluacionServicio.registrarAutoevaluacion(
-                fausto(), segunda().getIdUnidad(), solicitud("Con pool posterior", pool("Renta fija"), pool("Preguntas de la unidad"))));
+                fausto(), segunda().getIdTema(), solicitud("Con pool posterior", pool("Renta fija"), pool("Preguntas del tema"))));
         assertError("nunca de las posteriores", () -> autoevaluacionServicio.registrarAutoevaluacion(fausto(),
-                primera().getIdUnidad(), solicitud("Con pool posterior", pool("Marco regulatorio"), pool("Renta fija"))));
+                primera().getIdTema(), solicitud("Con pool posterior", pool("Marco regulatorio"), pool("Renta fija"))));
 
-        // Y la lista de unidades que pueden usar un pool sigue la misma regla
-        List<Unidad> usanElPoolDeLaUnidad1 = autoevaluacionServicio.unidadesQuePuedenUsar(pool("Marco regulatorio"));
-        assertEquals(List.of(primera(), segunda(), tercera()), usanElPoolDeLaUnidad1);
-        assertEquals(List.of(tercera()), autoevaluacionServicio.unidadesQuePuedenUsar(pool("Preguntas de la unidad")));
+        // Y la lista de temas que pueden usar un pool sigue la misma regla
+        List<Tema> usanElPoolDeLaTema1 = autoevaluacionServicio.temasQuePuedenUsar(pool("Marco regulatorio"));
+        assertEquals(List.of(primera(), segunda(), tercera()), usanElPoolDeLaTema1);
+        assertEquals(List.of(tercera()), autoevaluacionServicio.temasQuePuedenUsar(pool("Preguntas del tema")));
     }
 
     @Test
     @DisplayName("CU-65: valida los campos obligatorios, los valores enteros, las fechas y las preguntas disponibles")
     void validacionesDelAlta() {
-        int unidad = segunda().getIdUnidad();
+        int tema = segunda().getIdTema();
         Pool renta = pool("Renta fija");
         var base = solicitud("X", renta);
         List<Integer> pools = base.idsPools();
 
-        assertError("nombre", () -> autoevaluacionServicio.registrarAutoevaluacion(fausto(), unidad, solicitud(" ", renta)));
-        assertError("al menos un pool", () -> autoevaluacionServicio.registrarAutoevaluacion(fausto(), unidad, solicitud("X")));
-        assertError("tiempo límite", () -> autoevaluacionServicio.registrarAutoevaluacion(fausto(), unidad,
+        assertError("nombre", () -> autoevaluacionServicio.registrarAutoevaluacion(fausto(), tema, solicitud(" ", renta)));
+        assertError("al menos un pool", () -> autoevaluacionServicio.registrarAutoevaluacion(fausto(), tema, solicitud("X")));
+        assertError("tiempo límite", () -> autoevaluacionServicio.registrarAutoevaluacion(fausto(), tema,
                 new SolicitudAutoevaluacion("X", "", "3", "6", "", APERTURA, "", false, false, false, false, pools)));
-        assertError("entero mayor a cero", () -> autoevaluacionServicio.registrarAutoevaluacion(fausto(), unidad,
+        assertError("entero mayor a cero", () -> autoevaluacionServicio.registrarAutoevaluacion(fausto(), tema,
                 new SolicitudAutoevaluacion("X", "0", "3", "6", "", APERTURA, "", false, false, false, false, pools)));
-        assertError("entero mayor a cero", () -> autoevaluacionServicio.registrarAutoevaluacion(fausto(), unidad,
+        assertError("entero mayor a cero", () -> autoevaluacionServicio.registrarAutoevaluacion(fausto(), tema,
                 new SolicitudAutoevaluacion("X", "60", "tres", "6", "", APERTURA, "", false, false, false, false, pools)));
-        assertError("no puede ser mayor a 10", () -> autoevaluacionServicio.registrarAutoevaluacion(fausto(), unidad,
+        assertError("no puede ser mayor a 10", () -> autoevaluacionServicio.registrarAutoevaluacion(fausto(), tema,
                 new SolicitudAutoevaluacion("X", "60", "3", "11", "", APERTURA, "", false, false, false, false, pools)));
-        assertError("intentos permitidos", () -> autoevaluacionServicio.registrarAutoevaluacion(fausto(), unidad,
+        assertError("intentos permitidos", () -> autoevaluacionServicio.registrarAutoevaluacion(fausto(), tema,
                 new SolicitudAutoevaluacion("X", "60", "3", "6", "-1", APERTURA, "", false, false, false, false, pools)));
-        assertError("posterior a la fecha de apertura", () -> autoevaluacionServicio.registrarAutoevaluacion(fausto(), unidad,
+        assertError("posterior a la fecha de apertura", () -> autoevaluacionServicio.registrarAutoevaluacion(fausto(), tema,
                 new SolicitudAutoevaluacion("X", "60", "3", "6", "", APERTURA, "2025-12-31T09:00", false, false, false,
                         false, pools)));
-        assertError("fecha de apertura", () -> autoevaluacionServicio.registrarAutoevaluacion(fausto(), unidad,
+        assertError("fecha de apertura", () -> autoevaluacionServicio.registrarAutoevaluacion(fausto(), tema,
                 new SolicitudAutoevaluacion("X", "60", "3", "6", "", "", "", false, false, false, false, pools)));
-        assertError("reúnen 6 preguntas", () -> autoevaluacionServicio.registrarAutoevaluacion(fausto(), unidad,
+        assertError("reúnen 6 preguntas", () -> autoevaluacionServicio.registrarAutoevaluacion(fausto(), tema,
                 new SolicitudAutoevaluacion("X", "60", "7", "6", "", APERTURA, "", false, false, false, false, pools)));
         assertError("no se encuentra activa", () -> autoevaluacionServicio.registrarAutoevaluacion(fausto(), 999999, base));
         assertError("No participás", () -> autoevaluacionServicio.registrarAutoevaluacion(
-                docente("sebastian.bordato@idoneos.online"), unidad("Macroeconomía de Coyuntura", "Tipo de cambio").getIdUnidad(),
-                solicitud("X", pool("Preguntas de la unidad"))));
+                docente("sebastian.bordato@idoneos.online"), tema("Macroeconomía de Coyuntura", "Tipo de cambio").getIdTema(),
+                solicitud("X", pool("Preguntas del tema"))));
     }
 
     @Test
     @DisplayName("CU-66: sin intentos se modifican todos los datos, incluidos los pools")
     void modificarSinIntentos() {
-        Autoevaluacion creada = autoevaluacionServicio.registrarAutoevaluacion(fausto(), segunda().getIdUnidad(),
+        Autoevaluacion creada = autoevaluacionServicio.registrarAutoevaluacion(fausto(), segunda().getIdTema(),
                 solicitud("Para modificar", pool("Renta fija")));
 
         autoevaluacionServicio.modificarAutoevaluacion(creada.getIdAutoevaluacion(), fausto(),
@@ -221,7 +221,7 @@ class AutoevaluacionServicioTest {
     @Test
     @DisplayName("CU-66: con intentos solo se extiende el cierre, se oculta o se amplían los intentos")
     void modificarConIntentos() {
-        Autoevaluacion primera = autoevaluacion("Autoevaluación Unidad 1: Marco regulatorio");
+        Autoevaluacion primera = autoevaluacion("Autoevaluación Tema 1: Marco regulatorio");
         assertTrue(primera.tieneIntentosActivos());
         assertEquals(3, primera.getIntentosPermitidos());
 
@@ -242,9 +242,9 @@ class AutoevaluacionServicioTest {
     }
 
     @Test
-    @DisplayName("CU-66 y CU-67: no se oculta ni se da de baja la última autoevaluación visible de una unidad con cohortes en curso")
+    @DisplayName("CU-66 y CU-67: no se oculta ni se da de baja la última autoevaluación visible de un tema con cohortes en curso")
     void ultimaAutoevaluacionVisible() {
-        Autoevaluacion unica = autoevaluacion("Autoevaluación de la unidad 3");
+        Autoevaluacion unica = autoevaluacion("Autoevaluación del tema 3");
         assertTrue(tercera().tieneCohortesEnCurso());
 
         assertError("única visible", () -> autoevaluacionServicio.modificarAutoevaluacion(unica.getIdAutoevaluacion(),
@@ -253,9 +253,9 @@ class AutoevaluacionServicioTest {
         assertFalse(unica.getOculto());
         assertFalse(unica.esInactivo());
 
-        // Con otra visible en la unidad, sí se puede
-        Autoevaluacion otra = autoevaluacionServicio.registrarAutoevaluacion(fausto(), tercera().getIdUnidad(),
-                solicitud("Otra de la unidad 3", pool("Preguntas de la unidad")));
+        // Con otra visible en el tema, sí se puede
+        Autoevaluacion otra = autoevaluacionServicio.registrarAutoevaluacion(fausto(), tercera().getIdTema(),
+                solicitud("Otra del tema 3", pool("Preguntas del tema")));
         autoevaluacionServicio.modificarAutoevaluacion(unica.getIdAutoevaluacion(), fausto(),
                 conCambios(unica, unica.getNombre(), "3", "", true));
         assertTrue(unica.getOculto());
@@ -265,8 +265,8 @@ class AutoevaluacionServicioTest {
     @Test
     @DisplayName("CU-67: no se da de baja una autoevaluación con intentos; la baja masiva es todo o nada")
     void darDeBaja() {
-        Autoevaluacion conIntentos = autoevaluacion("Autoevaluación Unidad 1: Marco regulatorio");
-        Autoevaluacion libre = autoevaluacionServicio.registrarAutoevaluacion(fausto(), segunda().getIdUnidad(),
+        Autoevaluacion conIntentos = autoevaluacion("Autoevaluación Tema 1: Marco regulatorio");
+        Autoevaluacion libre = autoevaluacionServicio.registrarAutoevaluacion(fausto(), segunda().getIdTema(),
                 solicitud("Libre", pool("Renta fija")));
 
         assertError("tiene 3 intentos registrados", () -> autoevaluacionServicio.darDeBajaAutoevaluacion(
@@ -282,25 +282,25 @@ class AutoevaluacionServicioTest {
     }
 
     @Test
-    @DisplayName("CU-66 y CU-67: al ocultar o dar de baja una autoevaluación se completa la unidad de quien aprobó las demás")
-    void completaLaUnidadAlQuitarUnaAutoevaluacion() {
+    @DisplayName("CU-66 y CU-67: al ocultar o dar de baja una autoevaluación se completa el tema de quien aprobó las demás")
+    void completaLaTemaAlQuitarUnaAutoevaluacion() {
         Inscripcion valentina = inscripcionRepositorio.findAll().stream()
                 .filter(i -> i.getAlumno().getUsuario().getCorreo().equals("valentina.ruiz@correo.com")
                         && i.getCurso().getNombre().equals("Mercado de Capitales Argentino"))
                 .findFirst().orElseThrow();
-        Unidad segunda = segunda();
-        Autoevaluacion rendimiento = autoevaluacion("Autoevaluación Unidad 2: Ejercicios de rendimiento");
-        Autoevaluacion nueva = autoevaluacionServicio.registrarAutoevaluacion(fausto(), segunda.getIdUnidad(),
-                solicitud("Segunda de la unidad 2", pool("Renta fija")));
-        assertFalse(valentina.estaUnidadCompletada(segunda));
+        Tema segunda = segunda();
+        Autoevaluacion rendimiento = autoevaluacion("Autoevaluación Tema 2: Ejercicios de rendimiento");
+        Autoevaluacion nueva = autoevaluacionServicio.registrarAutoevaluacion(fausto(), segunda.getIdTema(),
+                solicitud("Segunda del tema 2", pool("Renta fija")));
+        assertFalse(valentina.estaTemaCompletada(segunda));
 
         aprobar(valentina, rendimiento);
-        assertFalse(valentina.estaUnidadCompletada(segunda)); // falta aprobar la nueva
+        assertFalse(valentina.estaTemaCompletada(segunda)); // falta aprobar la nueva
 
         autoevaluacionServicio.modificarAutoevaluacion(nueva.getIdAutoevaluacion(), fausto(),
                 conCambios(nueva, nueva.getNombre(), "", "", true));
 
-        assertTrue(valentina.estaUnidadCompletada(segunda));
+        assertTrue(valentina.estaTemaCompletada(segunda));
     }
 
     private void aprobar(Inscripcion inscripcion, Autoevaluacion autoevaluacion) {
@@ -314,21 +314,21 @@ class AutoevaluacionServicioTest {
     }
 
     @Test
-    @DisplayName("CU-64: busca las autoevaluaciones de un curso por unidad y nombre; las dadas de baja van al final")
+    @DisplayName("CU-64: busca las autoevaluaciones de un curso por tema y nombre; las dadas de baja van al final")
     void buscarAutoevaluaciones() {
         int curso = primera().getCurso().getIdCurso();
-        Autoevaluacion libre = autoevaluacionServicio.registrarAutoevaluacion(fausto(), segunda().getIdUnidad(),
+        Autoevaluacion libre = autoevaluacionServicio.registrarAutoevaluacion(fausto(), segunda().getIdTema(),
                 solicitud("Para buscar", pool("Renta fija")));
         autoevaluacionServicio.darDeBajaAutoevaluacion(libre.getIdAutoevaluacion(), fausto());
 
         List<Autoevaluacion> vigentes = autoevaluacionServicio.buscarConFiltros(curso, null, null, false, fausto());
         assertTrue(vigentes.stream().noneMatch(Autoevaluacion::esInactivo));
-        assertEquals(1, autoevaluacionServicio.buscarConFiltros(curso, primera().getIdUnidad(), "marco", false, null).size());
+        assertEquals(1, autoevaluacionServicio.buscarConFiltros(curso, primera().getIdTema(), "marco", false, null).size());
 
         List<Autoevaluacion> todas = autoevaluacionServicio.buscarConFiltros(curso, null, null, null, null);
         assertTrue(todas.get(todas.size() - 1).esInactivo());
         assertTrue(autoevaluacionServicio.buscarConFiltros(null, null, null, false,
                 docente("sebastian.bordato@idoneos.online")).stream()
-                .noneMatch(a -> a.getUnidad().getCurso().getNombre().equals("Macroeconomía de Coyuntura")));
+                .noneMatch(a -> a.getTema().getCurso().getNombre().equals("Macroeconomía de Coyuntura")));
     }
 }

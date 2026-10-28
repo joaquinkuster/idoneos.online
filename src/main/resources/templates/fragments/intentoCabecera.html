@@ -5,7 +5,7 @@
 <th:block th:fragment="cabecera(curso, autoevaluacion, segundos)">
 <th:block th:replace="~{fragments/navbarIntento :: navbar(${segundos})}"></th:block>
 <div class="in-titulo-intento">
-    <span class="in-cabecera-curso" th:text="${curso.nombre + ' · ' + autoevaluacion.unidad.titulo}">Curso · Unidad</span>
+    <span class="in-cabecera-curso" th:text="${curso.nombre + ' · ' + autoevaluacion.tema.titulo}">Curso · Tema</span>
     <h1 class="in-titulo-intento-nombre" th:text="${autoevaluacion.nombre}">Autoevaluación</h1>
 </div>
 </th:block>

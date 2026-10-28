@@ -9,10 +9,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * Término del glosario de una unidad, con su definición.
+ * Término del glosario de un tema, con su definición.
  */
 @Entity
-@Table(name = "TerminoGlosario", uniqueConstraints = { @UniqueConstraint(columnNames = {"idUnidad", "termino"}) })
+@Table(name = "TerminoGlosario", uniqueConstraints = { @UniqueConstraint(columnNames = {"idTema", "termino"}) })
 @Check(name = "ck_termino_glosario_termino", constraints = "trim(termino) <> ''")
 @Check(name = "ck_termino_glosario_definicion", constraints = "trim(definicion) <> ''")
 @Getter
@@ -38,11 +38,11 @@ public class TerminoGlosario {
     private int idTermino;
 
     /**
-     * Relación con Unidad.
+     * Relación con Tema.
      */
     @ManyToOne
-    @JoinColumn(name = "idUnidad", nullable = false)
-    private Unidad unidad;
+    @JoinColumn(name = "idTema", nullable = false)
+    private Tema tema;
 
     /**
      * Término del glosario.
@@ -77,12 +77,12 @@ public class TerminoGlosario {
     /**
      * Constructor para crear el término del glosario con los datos básicos.
      *
-     * @param unidad relación con Unidad.
+     * @param tema relación con Tema.
      * @param termino término del glosario.
      * @param definicion definición del término.
      */
-    public TerminoGlosario(Unidad unidad, String termino, String definicion) {
-        this.unidad = unidad;
+    public TerminoGlosario(Tema tema, String termino, String definicion) {
+        this.tema = tema;
         this.termino = termino;
         this.definicion = definicion;
     }

@@ -18,13 +18,13 @@ import com.app.idoneos.modelo.Curso;
 import com.app.idoneos.modelo.Docente;
 import com.app.idoneos.modelo.Pool;
 import com.app.idoneos.modelo.Programa;
-import com.app.idoneos.modelo.Unidad;
-import com.app.idoneos.modelo.UnidadCronograma;
+import com.app.idoneos.modelo.Tema;
+import com.app.idoneos.modelo.TemaCronograma;
 import com.app.idoneos.repositorio.AutoevaluacionPoolRepositorio;
 import com.app.idoneos.repositorio.AutoevaluacionRepositorio;
 import com.app.idoneos.repositorio.DocenteCursoRepositorio;
 import com.app.idoneos.repositorio.PoolRepositorio;
-import com.app.idoneos.repositorio.UnidadRepositorio;
+import com.app.idoneos.repositorio.TemaRepositorio;
 import com.app.idoneos.servicio.CrudServicio;
 import com.app.idoneos.servicio.Progreso.ProgresoServicio;
 import com.app.idoneos.utilidades.MensajeErrorUtilidad;
@@ -62,7 +62,7 @@ public class AutoevaluacionServicioImpl implements AutoevaluacionServicio, CrudS
     private PoolRepositorio poolRepositorio;
 
     @Autowired
-    private UnidadRepositorio unidadRepositorio;
+    private TemaRepositorio temaRepositorio;
 
     @Autowired
     private DocenteCursoRepositorio docenteCursoRepositorio;
@@ -107,14 +107,14 @@ public class AutoevaluacionServicioImpl implements AutoevaluacionServicio, CrudS
     }
 
     /**
-     * Busca los registros vigentes de autoevaluacion asociados a unidad.
+     * Busca los registros vigentes de autoevaluacion asociados a tema.
      *
-     * @param unidad el registro de Unidad asociado
-     * @return una lista de Autoevaluacion asociados al Unidad indicado
+     * @param tema el registro de Tema asociado
+     * @return una lista de Autoevaluacion asociados al Tema indicado
      */
     @Override
-    public List<Autoevaluacion> buscarPorUnidad(Unidad unidad) {
-        return autoevaluacionRepositorio.findByUnidadAndBajaFalse(unidad);
+    public List<Autoevaluacion> buscarPorTema(Tema tema) {
+        return autoevaluacionRepositorio.findByTemaAndBajaFalse(tema);
     }
 
     /**
@@ -122,58 +122,58 @@ public class AutoevaluacionServicioImpl implements AutoevaluacionServicio, CrudS
      * de baja van siempre al final.
      */
     @Override
-    public List<Autoevaluacion> buscarConFiltros(Integer idCurso, Integer idUnidad, String nombre, Boolean baja,
+    public List<Autoevaluacion> buscarConFiltros(Integer idCurso, Integer idTema, String nombre, Boolean baja,
             Docente soloDeDocente) {
         String criterio = nombre == null ? "" : nombre.trim().toLowerCase();
         return autoevaluacionRepositorio.findAll().stream()
-                .filter(a -> idCurso == null || a.getUnidad().getCurso().getIdCurso() == idCurso)
-                .filter(a -> idUnidad == null || a.getUnidad().getIdUnidad() == idUnidad)
+                .filter(a -> idCurso == null || a.getTema().getCurso().getIdCurso() == idCurso)
+                .filter(a -> idTema == null || a.getTema().getIdTema() == idTema)
                 .filter(a -> criterio.isEmpty() || a.getNombre().toLowerCase().contains(criterio))
                 .filter(a -> baja == null || a.getBaja().equals(baja))
-                .filter(a -> soloDeDocente == null || participaEnElCurso(a.getUnidad().getCurso(), soloDeDocente))
+                .filter(a -> soloDeDocente == null || participaEnElCurso(a.getTema().getCurso(), soloDeDocente))
                 .sorted(Comparator.comparing(Autoevaluacion::getBaja)
-                        .thenComparingInt((Autoevaluacion a) -> a.getUnidad().getIdUnidad())
+                        .thenComparingInt((Autoevaluacion a) -> a.getTema().getIdTema())
                         .thenComparingInt(Autoevaluacion::getIdAutoevaluacion))
                 .toList();
     }
 
     /**
-     * Obtiene las unidades cuyas autoevaluaciones pueden usar un pool: la propia y las que vienen después en el cronograma
-     * de los programas que la incluyen (una autoevaluación puede combinar pools de su unidad y de las anteriores).
+     * Obtiene los temas cuyos autoevaluaciones pueden usar un pool: la propia y las que vienen después en el cronograma
+     * de los programas que la incluyen (una autoevaluación puede combinar pools de su tema y de las anteriores).
      */
     @Override
-    public List<Unidad> unidadesQuePuedenUsar(Pool pool) {
-        Unidad delPool = pool.getUnidad();
-        List<Unidad> unidades = new ArrayList<>(List.of(delPool));
+    public List<Tema> temasQuePuedenUsar(Pool pool) {
+        Tema delPool = pool.getTema();
+        List<Tema> temas = new ArrayList<>(List.of(delPool));
         for (Programa programa : delPool.getProgramasQueLaIncluyen()) {
-            for (UnidadCronograma cronograma : programa.getCronogramaOrdenado()) {
-                Unidad candidata = cronograma.getUnidad();
-                if (unidades.stream().noneMatch(u -> u.getIdUnidad() == candidata.getIdUnidad())
+            for (TemaCronograma cronograma : programa.getCronogramaOrdenado()) {
+                Tema candidata = cronograma.getTema();
+                if (temas.stream().noneMatch(u -> u.getIdTema() == candidata.getIdTema())
                         && puedeUsarPoolDe(candidata, delPool)) {
-                    unidades.add(candidata);
+                    temas.add(candidata);
                 }
             }
         }
-        return unidades;
+        return temas;
     }
 
     /**
-     * Indica si una autoevaluación de {@code unidad} puede usar pools de {@code delPool}: es la misma unidad o viene antes
+     * Indica si una autoevaluación de {@code tema} puede usar pools de {@code delPool}: es la mismo tema o viene antes
      * en el cronograma de algún programa que incluye a ambas, y en ningún programa viene después. Nunca se usan pools de
-     * unidades posteriores.
+     * temas posteriores.
      */
-    private boolean puedeUsarPoolDe(Unidad unidad, Unidad delPool) {
-        if (unidad.getIdUnidad() == delPool.getIdUnidad()) {
+    private boolean puedeUsarPoolDe(Tema tema, Tema delPool) {
+        if (tema.getIdTema() == delPool.getIdTema()) {
             return true;
         }
         boolean vieneAntes = false;
-        for (Programa programa : unidad.getProgramasQueLaIncluyen()) {
-            int ordenDeLaUnidad = ordenEn(programa, unidad);
+        for (Programa programa : tema.getProgramasQueLaIncluyen()) {
+            int ordenDeLaTema = ordenEn(programa, tema);
             int ordenDelPool = ordenEn(programa, delPool);
             if (ordenDelPool < 0) {
                 continue;
             }
-            if (ordenDelPool > ordenDeLaUnidad) {
+            if (ordenDelPool > ordenDeLaTema) {
                 return false;
             }
             vieneAntes = true;
@@ -181,9 +181,9 @@ public class AutoevaluacionServicioImpl implements AutoevaluacionServicio, CrudS
         return vieneAntes;
     }
 
-    private int ordenEn(Programa programa, Unidad unidad) {
-        return programa.getCronogramaOrdenado().stream().filter(c -> c.getUnidad().getIdUnidad() == unidad.getIdUnidad())
-                .mapToInt(UnidadCronograma::getNumeroOrden).findFirst().orElse(-1);
+    private int ordenEn(Programa programa, Tema tema) {
+        return programa.getCronogramaOrdenado().stream().filter(c -> c.getTema().getIdTema() == tema.getIdTema())
+                .mapToInt(TemaCronograma::getNumeroOrden).findFirst().orElse(-1);
     }
 
     // ---------------------------------------------------------------- Creaciones
@@ -200,24 +200,24 @@ public class AutoevaluacionServicioImpl implements AutoevaluacionServicio, CrudS
     }
 
     /**
-     * CU-65: Crea una autoevaluación en una unidad activa, asociada a uno o más pools.
+     * CU-65: Crea una autoevaluación en un tema activo, asociada a uno o más pools.
      */
     @Override
     @Transactional
-    public Autoevaluacion registrarAutoevaluacion(Docente docente, Integer idUnidad, SolicitudAutoevaluacion solicitud) {
-        Unidad unidad = unidadRepositorio.findById(idUnidad == null ? -1 : idUnidad).filter(u -> !u.esInactivo())
-                .orElseThrow(() -> new IllegalArgumentException("Error! La unidad no se encuentra activa."));
-        obtenerParticipacion(unidad.getCurso(), docente);
-        Datos datos = leer(unidad, solicitud);
+    public Autoevaluacion registrarAutoevaluacion(Docente docente, Integer idTema, SolicitudAutoevaluacion solicitud) {
+        Tema tema = temaRepositorio.findById(idTema == null ? -1 : idTema).filter(u -> !u.esInactivo())
+                .orElseThrow(() -> new IllegalArgumentException("Error! El tema no se encuentra activa."));
+        obtenerParticipacion(tema.getCurso(), docente);
+        Datos datos = leer(tema, solicitud);
 
-        Autoevaluacion autoevaluacion = new Autoevaluacion(unidad, datos.nombre(), datos.cantidadPreguntas(),
+        Autoevaluacion autoevaluacion = new Autoevaluacion(tema, datos.nombre(), datos.cantidadPreguntas(),
                 datos.notaMinima(), datos.fechaApertura());
         aplicarDatosSimples(autoevaluacion, datos);
         autoevaluacion.setNavegacionLibre(datos.navegacionLibre());
         autoevaluacion.setPermiteSalir(datos.permiteSalir());
         autoevaluacion = autoevaluacionRepositorio.save(autoevaluacion);
         asociarPools(autoevaluacion, datos.pools());
-        unidad.getAutoevaluaciones().add(autoevaluacion);
+        tema.getAutoevaluaciones().add(autoevaluacion);
         return autoevaluacion;
     }
 
@@ -245,18 +245,18 @@ public class AutoevaluacionServicioImpl implements AutoevaluacionServicio, CrudS
         Autoevaluacion autoevaluacion = autoevaluacionRepositorio.findById(idAutoevaluacion == null ? -1 : idAutoevaluacion)
                 .filter(a -> !a.esInactivo())
                 .orElseThrow(() -> new IllegalArgumentException("Error! La autoevaluación no se encuentra activa."));
-        Unidad unidad = autoevaluacion.getUnidad();
-        obtenerParticipacion(unidad.getCurso(), docente);
-        Datos datos = leer(unidad, solicitud);
+        Tema tema = autoevaluacion.getTema();
+        obtenerParticipacion(tema.getCurso(), docente);
+        Datos datos = leer(tema, solicitud);
         boolean conIntentos = autoevaluacion.tieneIntentosActivos();
         if (conIntentos) {
             validarModificacionConIntentos(autoevaluacion, datos);
         }
         boolean seOculta = datos.oculto() && !autoevaluacion.getOculto();
-        if (seOculta && quedariaSinAutoevaluacionVisible(unidad, Set.of(autoevaluacion.getIdAutoevaluacion()))) {
+        if (seOculta && quedariaSinAutoevaluacionVisible(tema, Set.of(autoevaluacion.getIdAutoevaluacion()))) {
             throw com.app.idoneos.utilidades.RespuestaFormularioUtilidad.campoInvalido("oculto",
                     "Error! No se puede ocultar la autoevaluación «" + autoevaluacion.getNombre()
-                    + "»: es la única visible de la unidad «" + unidad.getTitulo()
+                    + "»: es la única visible del tema «" + tema.getTitulo()
                     + "» y su programa tiene cohortes en curso. Registrá otra autoevaluación antes.");
         }
 
@@ -277,7 +277,7 @@ public class AutoevaluacionServicioImpl implements AutoevaluacionServicio, CrudS
         autoevaluacion.setUltimaModificacion(LocalDateTime.now());
         autoevaluacion = autoevaluacionRepositorio.save(autoevaluacion);
         if (seOculta) {
-            progresoServicio.actualizarProgresoDeLaUnidad(unidad);
+            progresoServicio.actualizarProgresoDeLaTema(tema);
         }
         return autoevaluacion;
     }
@@ -317,10 +317,10 @@ public class AutoevaluacionServicioImpl implements AutoevaluacionServicio, CrudS
         Set<Integer> dadasDeBaja = autoevaluaciones.stream().map(Autoevaluacion::getIdAutoevaluacion)
                 .collect(Collectors.toSet());
         for (Autoevaluacion autoevaluacion : autoevaluaciones) {
-            Unidad unidad = autoevaluacion.getUnidad();
-            if (autoevaluacion.esVisible() && quedariaSinAutoevaluacionVisible(unidad, dadasDeBaja)) {
+            Tema tema = autoevaluacion.getTema();
+            if (autoevaluacion.esVisible() && quedariaSinAutoevaluacionVisible(tema, dadasDeBaja)) {
                 throw new IllegalArgumentException(MensajeErrorUtilidad.bajaBloqueada("la autoevaluación",
-                        autoevaluacion.getNombre(), "es la única visible de la unidad «" + unidad.getTitulo()
+                        autoevaluacion.getNombre(), "es la única visible del tema «" + tema.getTitulo()
                                 + "» y su programa tiene cohortes en curso",
                         "Registrá otra autoevaluación antes."));
             }
@@ -331,7 +331,7 @@ public class AutoevaluacionServicioImpl implements AutoevaluacionServicio, CrudS
             autoevaluacion.setUltimaModificacion(ahora);
             autoevaluacionRepositorio.save(autoevaluacion);
         }
-        autoevaluaciones.stream().map(Autoevaluacion::getUnidad).distinct().forEach(progresoServicio::actualizarProgresoDeLaUnidad);
+        autoevaluaciones.stream().map(Autoevaluacion::getTema).distinct().forEach(progresoServicio::actualizarProgresoDeLaTema);
     }
 
     /**
@@ -343,7 +343,7 @@ public class AutoevaluacionServicioImpl implements AutoevaluacionServicio, CrudS
                 .filter(a -> !a.esInactivo())
                 .orElseThrow(() -> new IllegalArgumentException("Error! La autoevaluación no se encuentra activa."));
         if (docente != null) {
-            obtenerParticipacion(autoevaluacion.getUnidad().getCurso(), docente);
+            obtenerParticipacion(autoevaluacion.getTema().getCurso(), docente);
         }
         int intentos = autoevaluacion.getIntentosActivos().size();
         if (intentos > 0) {
@@ -374,12 +374,12 @@ public class AutoevaluacionServicioImpl implements AutoevaluacionServicio, CrudS
     }
 
     /**
-     * Indica si, sacando las autoevaluaciones indicadas de las visibles, una unidad con cohortes en curso se quedaría sin
-     * ninguna. Una unidad que ya estaba sin autoevaluaciones visibles no cuenta: no es lo que cambia esta operación.
+     * Indica si, sacando las autoevaluaciones indicadas de las visibles, un tema con cohortes en curso se quedaría sin
+     * ninguna. Un tema que ya estaba sin autoevaluaciones visibles no cuenta: no es lo que cambia esta operación.
      */
-    private boolean quedariaSinAutoevaluacionVisible(Unidad unidad, Set<Integer> quitadas) {
-        List<Autoevaluacion> visibles = unidad.getAutoevaluacionesPublicadas();
-        return unidad.tieneCohortesEnCurso() && !visibles.isEmpty()
+    private boolean quedariaSinAutoevaluacionVisible(Tema tema, Set<Integer> quitadas) {
+        List<Autoevaluacion> visibles = tema.getAutoevaluacionesPublicadas();
+        return tema.tieneCohortesEnCurso() && !visibles.isEmpty()
                 && visibles.stream().allMatch(a -> quitadas.contains(a.getIdAutoevaluacion()));
     }
 
@@ -389,7 +389,7 @@ public class AutoevaluacionServicioImpl implements AutoevaluacionServicio, CrudS
      * Lee y valida los datos de una solicitud, en el orden de los casos de uso: campos obligatorios y pools, pools
      * vigentes, valores enteros, fechas y cantidad de preguntas que reúnen los pools.
      */
-    private Datos leer(Unidad unidad, SolicitudAutoevaluacion s) {
+    private Datos leer(Tema tema, SolicitudAutoevaluacion s) {
         if (s.nombre() == null || s.nombre().isBlank()) {
             throw RespuestaFormularioUtilidad.campoInvalido("nombre", "Error! Debe completar el nombre de la autoevaluación.");
         }
@@ -410,10 +410,10 @@ public class AutoevaluacionServicioImpl implements AutoevaluacionServicio, CrudS
             Pool pool = poolRepositorio.findById(idPool == null ? -1 : idPool).filter(p -> !p.esInactivo())
                     .orElseThrow(() -> RespuestaFormularioUtilidad.campoInvalido("idsPools",
                             "Error! Alguno de los pools seleccionados no se encuentra activo."));
-            if (!puedeUsarPoolDe(unidad, pool.getUnidad())) {
+            if (!puedeUsarPoolDe(tema, pool.getTema())) {
                 throw RespuestaFormularioUtilidad.campoInvalido("idsPools", "Error! El pool «" + pool.getNombre()
-                        + "» (unidad «" + pool.getUnidad().getTitulo() + "») no puede usarse en esta autoevaluación: solo "
-                        + "se admiten los pools de su unidad y de las unidades anteriores del programa, nunca de las posteriores.");
+                        + "» (tema «" + pool.getTema().getTitulo() + "») no puede usarse en esta autoevaluación: solo "
+                        + "se admiten los pools de su tema y de los temas anteriores del programa, nunca de las posteriores.");
             }
             pools.add(pool);
         }

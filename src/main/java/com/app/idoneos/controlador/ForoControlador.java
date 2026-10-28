@@ -24,25 +24,25 @@ import com.app.idoneos.modelo.ConsultaForo;
 import com.app.idoneos.modelo.Parametro;
 import com.app.idoneos.modelo.Programa;
 import com.app.idoneos.modelo.RespuestaForo;
-import com.app.idoneos.modelo.Unidad;
-import com.app.idoneos.modelo.UnidadCronograma;
+import com.app.idoneos.modelo.Tema;
+import com.app.idoneos.modelo.TemaCronograma;
 import com.app.idoneos.modelo.Usuario;
 import com.app.idoneos.servicio.ConsultaForo.ConsultaForoServicioImpl;
 import com.app.idoneos.servicio.Parametro.ParametroServicio;
 import com.app.idoneos.servicio.RespuestaForo.RespuestaForoServicio;
-import com.app.idoneos.servicio.Unidad.UnidadServicioImpl;
+import com.app.idoneos.servicio.Tema.TemaServicioImpl;
 import com.app.idoneos.utilidades.RespuestaFormularioUtilidad;
 
 /**
- * Controlador del foro de consultas (MOD-F-02): CU-35 Buscar consulta de foro (GET /foro/buscar, GET /foro/ver/{unidadId}),
+ * Controlador del foro de consultas (MOD-F-02): CU-35 Buscar consulta de foro (GET /foro/buscar, GET /foro/ver/{temaId}),
  * CU-39 Buscar respuesta de foro (GET /foro/consulta/{id}), CU-36 Registrar consulta (POST /foro/registrar), CU-37 Modificar
  * consulta (POST /foro/modificar/{id}), CU-38 Dar de baja consulta (POST /foro/darDeBaja/{id}), CU-40 Registrar respuesta
  * (POST /foro/responder), CU-41 Modificar respuesta (POST /foro/modificarRespuesta/{id}) y CU-42 Dar de baja respuesta
  * (POST /foro/darDeBajaRespuesta/{id}).
  *
- * Cada unidad tiene su foro ("Foro 1", "Foro 2", … según el orden de la unidad en el programa). Los alumnos con la unidad
+ * Cada tema tiene su foro ("Foro 1", "Foro 2", … según el orden del tema en el programa). Los alumnos con el tema
  * habilitada plantean consultas; los docentes (titular o ayudante) las responden; el administrador modera dando de baja
- * consultas y respuestas. Todos ven el foro de las unidades a las que tienen acceso.
+ * consultas y respuestas. Todos ven el foro de los temas a las que tienen acceso.
  */
 @Controller
 @RequestMapping("/foro")
@@ -55,7 +55,7 @@ public class ForoControlador extends PanelCursoControlador {
     private RespuestaForoServicio respuestaServicio;
 
     @Autowired
-    private UnidadServicioImpl unidadServicio;
+    private TemaServicioImpl temaServicio;
 
     @Autowired
     private ParametroServicio parametroServicio;
@@ -63,11 +63,11 @@ public class ForoControlador extends PanelCursoControlador {
     // ---------------------------------------------------------------- Lecturas
 
     /**
-     * Lista los foros de un curso, uno por unidad del programa, cada uno con su cantidad de consultas, las que están
+     * Lista los foros de un curso, uno por tema del programa, cada uno con su cantidad de consultas, las que están
      * sin responder y su último mensaje. Es el listado del ABM: desde cada fila se entra al foro.
      *
      * @param cursoId            Identificador del curso.
-     * @param unidadId           Identificador de la unidad (opcional).
+     * @param temaId           Identificador del tema (opcional).
      * @param modelo             El modelo de la vista.
      * @param auth               La autenticación actual.
      * @param redirectAttributes Atributos para mensajes de redirección.
@@ -75,17 +75,17 @@ public class ForoControlador extends PanelCursoControlador {
      */
     @GetMapping("/buscar")
     public String buscarForos(@RequestParam(value = "cursoId", required = false) Integer cursoId,
-            @RequestParam(value = "unidadId", required = false) Integer unidadId, Model modelo, Authentication auth,
+            @RequestParam(value = "temaId", required = false) Integer temaId, Model modelo, Authentication auth,
             RedirectAttributes redirectAttributes) {
         try {
             ContextoCurso contexto = contextoDelPanel(cursoId, (Usuario) auth.getPrincipal());
             Programa programa = contexto.programa();
-            List<UnidadCronograma> todas = programa == null ? List.of() : programa.getCronogramaOrdenado();
+            List<TemaCronograma> todas = programa == null ? List.of() : programa.getCronogramaOrdenado();
 
             cargarContexto(modelo, contexto, "foros");
-            modelo.addAttribute("unidadesDelPrograma", todas);
-            modelo.addAttribute("unidadSeleccionada", unidadId);
-            modelo.addAttribute("unidades", todas); // todas las unidades: el filtro se aplica en la pantalla
+            modelo.addAttribute("temasDelPrograma", todas);
+            modelo.addAttribute("temaSeleccionada", temaId);
+            modelo.addAttribute("temas", todas); // todos los temas: el filtro se aplica en la pantalla
             modelo.addAttribute("titulo", "Foros | Idóneos Online");
             return "pages/foro/buscar";
         } catch (IllegalArgumentException e) {
@@ -94,11 +94,11 @@ public class ForoControlador extends PanelCursoControlador {
     }
 
     /**
-     * CU-35: Muestra el foro de una unidad: sus consultas con el último mensaje más reciente primero, con buscador por
+     * CU-35: Muestra el foro de un tema: sus consultas con el último mensaje más reciente primero, con buscador por
      * texto y rango de fechas. La paginación (filas por página y paginador) la resuelve
      * la propia tabla, como en los demás listados.
      *
-     * @param unidadId Identificador de la unidad.
+     * @param temaId Identificador del tema.
      * @param texto    Texto a buscar (opcional).
      * @param desde    Fecha de registro mínima (opcional).
      * @param hasta    Fecha de registro máxima (opcional).
@@ -106,20 +106,20 @@ public class ForoControlador extends PanelCursoControlador {
      * @param auth     La autenticación actual.
      * @return La vista del foro.
      */
-    @GetMapping("/ver/{unidadId}")
-    public String verForo(@PathVariable("unidadId") Integer unidadId,
+    @GetMapping("/ver/{temaId}")
+    public String verForo(@PathVariable("temaId") Integer temaId,
             @RequestParam(value = "texto", required = false) String texto,
             @RequestParam(value = "desde", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate desde,
             @RequestParam(value = "hasta", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate hasta,
             Model modelo, Authentication auth) {
-        Unidad unidad = unidadServicio.buscarPorId(unidadId)
+        Tema tema = temaServicio.buscarPorId(temaId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-        cargarContextoDelForo(unidad, (Usuario) auth.getPrincipal(), modelo);
+        cargarContextoDelForo(tema, (Usuario) auth.getPrincipal(), modelo);
 
-        List<ConsultaForo> encontradas = consultaServicio.buscarConFiltros(unidad, texto, desde, hasta);
+        List<ConsultaForo> encontradas = consultaServicio.buscarConFiltros(tema, texto, desde, hasta);
 
         modelo.addAttribute("consultas", encontradas);
-        modelo.addAttribute("totalConsultas", unidad.getCantidadConsultasForo());
+        modelo.addAttribute("totalConsultas", tema.getCantidadConsultasForo());
         modelo.addAttribute("cantidadEncontradas", encontradas.size());
         modelo.addAttribute("texto", texto == null ? "" : texto.trim());
         modelo.addAttribute("desde", desde);
@@ -145,7 +145,7 @@ public class ForoControlador extends PanelCursoControlador {
             Authentication auth) {
         ConsultaForo consulta = consultaServicio.buscarPorId(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-        cargarContextoDelForo(consulta.getUnidad(), (Usuario) auth.getPrincipal(), modelo);
+        cargarContextoDelForo(consulta.getTema(), (Usuario) auth.getPrincipal(), modelo);
 
         List<RespuestaForo> respuestas = consulta.getRespuestasVigentes();
         boolean unaSola = respuestaId != null;
@@ -162,20 +162,20 @@ public class ForoControlador extends PanelCursoControlador {
     // ---------------------------------------------------------------- Creaciones
 
     /**
-     * CU-36: Registra una consulta en el foro de una unidad. Responde en JSON.
+     * CU-36: Registra una consulta en el foro de un tema. Responde en JSON.
      *
-     * @param unidadId Identificador de la unidad.
+     * @param temaId Identificador del tema.
      * @param texto    El texto de la consulta.
      * @param auth     La autenticación actual.
      * @return Una respuesta con el mensaje de éxito o el mensaje de error.
      */
     @PostMapping("/registrar")
     public ResponseEntity<Map<String, String>> registrarConsulta(
-            @RequestParam(value = "unidadId", required = false) Integer unidadId,
+            @RequestParam(value = "temaId", required = false) Integer temaId,
             @RequestParam(value = "texto", required = false) String texto, Authentication auth) {
         try {
             Usuario usuario = (Usuario) auth.getPrincipal();
-            consultaServicio.registrarConsulta(usuario.getAlumno(), unidadId, texto);
+            consultaServicio.registrarConsulta(usuario.getAlumno(), temaId, texto);
             return RespuestaFormularioUtilidad.respuestaExitosa("Consulta registrada con éxito.");
         } catch (Exception e) {
             return RespuestaFormularioUtilidad.respuestaConError(e);
@@ -256,10 +256,10 @@ public class ForoControlador extends PanelCursoControlador {
     @PostMapping("/darDeBaja/{id}")
     public ResponseEntity<Map<String, String>> darDeBajaConsulta(@PathVariable("id") Integer id) {
         try {
-            Integer unidadId = consultaServicio.buscarPorId(id).map(c -> c.getUnidad().getIdUnidad()).orElse(null);
+            Integer temaId = consultaServicio.buscarPorId(id).map(c -> c.getTema().getIdTema()).orElse(null);
             consultaServicio.darDeBajaConsulta(id);
             // Después de la baja se vuelve al foro: la consulta dada de baja ya no tiene página propia
-            return RespuestaFormularioUtilidad.respuestaExitosa("Consulta dada de baja con éxito.", "/foro/ver/" + unidadId);
+            return RespuestaFormularioUtilidad.respuestaExitosa("Consulta dada de baja con éxito.", "/foro/ver/" + temaId);
         } catch (Exception e) {
             return RespuestaFormularioUtilidad.respuestaConError(e);
         }
@@ -282,23 +282,23 @@ public class ForoControlador extends PanelCursoControlador {
     }
 
     /**
-     * Carga en el modelo lo que comparten las vistas del foro: la unidad, el curso, el rol de quien mira, el plazo de
-     * edición y los enlaces del menú. Verifica que el usuario pueda ver el foro de la unidad.
+     * Carga en el modelo lo que comparten las vistas del foro: el tema, el curso, el rol de quien mira, el plazo de
+     * edición y los enlaces del menú. Verifica que el usuario pueda ver el foro del tema.
      */
-    private void cargarContextoDelForo(Unidad unidad, Usuario usuario, Model modelo) {
-        if (!unidadServicio.puedeVerContenido(unidad, usuario)) {
+    private void cargarContextoDelForo(Tema tema, Usuario usuario, Model modelo) {
+        if (!temaServicio.puedeVerContenido(tema, usuario)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
-        ContextoCurso contexto = contextoDeLaUnidad(unidad, usuario);
+        ContextoCurso contexto = contextoDeLaTema(tema, usuario);
         boolean esAdministrador = contexto.esAdministrador();
         boolean esDocente = contexto.esDocente();
         Programa programa = contexto.programa();
         int numeroOrden = programa == null ? 0 : programa.getCronogramaOrdenado().stream()
-                .filter(cronograma -> cronograma.getUnidad().getIdUnidad() == unidad.getIdUnidad())
-                .mapToInt(UnidadCronograma::getNumeroOrden).findFirst().orElse(0);
+                .filter(cronograma -> cronograma.getTema().getIdTema() == tema.getIdTema())
+                .mapToInt(TemaCronograma::getNumeroOrden).findFirst().orElse(0);
 
         cargarContexto(modelo, contexto, "foros");
-        modelo.addAttribute("unidad", unidad);
+        modelo.addAttribute("tema", tema);
         modelo.addAttribute("numeroOrden", numeroOrden);
         modelo.addAttribute("esAlumno", contexto.esAlumno());
         modelo.addAttribute("alumnoActual", contexto.esAlumno() ? usuario.getAlumno() : null);

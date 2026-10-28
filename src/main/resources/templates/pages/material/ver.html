@@ -31,7 +31,7 @@
                         <h1 class="ac-titulo mv-titulo" th:text="${material.titulo}">Clase 3: Valuación de bonos</h1>
                         <p class="ac-subtitulo-curso">
                             <span th:text="${material.tipoMaterial.nombre}">Grabación</span>
-                            · <span th:text="${unidad.titulo}">Renta fija y bonos</span>
+                            · <span th:text="${tema.titulo}">Renta fija y bonos</span>
                             <th:block th:if="${material.autor != null and !#strings.isEmpty(material.autor)}">
                                 · <span th:text="${material.autor}">Autor</span>
                             </th:block>

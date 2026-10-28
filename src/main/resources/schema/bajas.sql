@@ -35,11 +35,11 @@ BEGIN
 END
 $$ LANGUAGE plpgsql ^^^
 
--- CU-05: un curso no se da de baja si tiene programas o unidades activas
+-- CU-05: un curso no se da de baja si tiene programas o temas activos
 DROP TRIGGER IF EXISTS trg_curso_baja ON curso ^^^
 CREATE TRIGGER trg_curso_baja BEFORE UPDATE OF baja ON curso
     FOR EACH ROW WHEN (OLD.baja = false AND NEW.baja = true)
-    EXECUTE FUNCTION fn_baja_sin_dependientes('id_curso', 'programa:id_curso', 'unidad:id_curso') ^^^
+    EXECUTE FUNCTION fn_baja_sin_dependientes('id_curso', 'programa:id_curso', 'tema:id_curso') ^^^
 
 -- CU-10: una categoria no se da de baja si tiene cursos activos
 DROP TRIGGER IF EXISTS trg_categoria_baja ON categoria ^^^
@@ -65,36 +65,36 @@ CREATE TRIGGER trg_autoevaluacion_baja BEFORE UPDATE OF baja ON autoevaluacion
     FOR EACH ROW WHEN (OLD.baja = false AND NEW.baja = true)
     EXECUTE FUNCTION fn_baja_sin_dependientes('id_autoevaluacion', 'intento_autoevaluacion:id_autoevaluacion') ^^^
 
--- fn_baja_unidad(): disparador de baja de una unidad (CU-22). Rechaza la baja si la unidad esta en el cronograma de un
+-- fn_baja_tema(): disparador de baja de un tema (CU-22). Rechaza la baja si el tema esta en el cronograma de un
 -- programa activo, si tiene pools o autoevaluaciones activos, o si el curso al que pertenece tiene inscripciones activas.
-CREATE OR REPLACE FUNCTION fn_baja_unidad() RETURNS trigger AS $$
+CREATE OR REPLACE FUNCTION fn_baja_tema() RETURNS trigger AS $$
 BEGIN
-    IF EXISTS (SELECT 1 FROM unidad_cronograma uc
+    IF EXISTS (SELECT 1 FROM tema_cronograma uc
                JOIN programa p ON p.id_programa = uc.id_programa
-               WHERE uc.id_unidad = OLD.id_unidad AND uc.baja = false AND p.baja = false) THEN
-        RAISE EXCEPTION 'No se puede dar de baja la unidad: pertenece al cronograma de un programa activo'
+               WHERE uc.id_tema = OLD.id_tema AND uc.baja = false AND p.baja = false) THEN
+        RAISE EXCEPTION 'No se puede dar de baja el tema: pertenece al cronograma de un programa activo'
             USING ERRCODE = 'restrict_violation', CONSTRAINT = TG_NAME;
     END IF;
-    IF EXISTS (SELECT 1 FROM pool WHERE id_unidad = OLD.id_unidad AND baja = false)
-       OR EXISTS (SELECT 1 FROM autoevaluacion WHERE id_unidad = OLD.id_unidad AND baja = false) THEN
-        RAISE EXCEPTION 'No se puede dar de baja la unidad: tiene pools o autoevaluaciones activos'
+    IF EXISTS (SELECT 1 FROM pool WHERE id_tema = OLD.id_tema AND baja = false)
+       OR EXISTS (SELECT 1 FROM autoevaluacion WHERE id_tema = OLD.id_tema AND baja = false) THEN
+        RAISE EXCEPTION 'No se puede dar de baja el tema: tiene pools o autoevaluaciones activos'
             USING ERRCODE = 'restrict_violation', CONSTRAINT = TG_NAME;
     END IF;
     IF EXISTS (SELECT 1 FROM inscripcion i
                JOIN cohorte c ON c.id_cohorte = i.id_cohorte
                JOIN programa p ON p.id_programa = c.id_programa
                WHERE p.id_curso = OLD.id_curso AND i.baja = false) THEN
-        RAISE EXCEPTION 'No se puede dar de baja la unidad: el curso tiene inscripciones activas'
+        RAISE EXCEPTION 'No se puede dar de baja el tema: el curso tiene inscripciones activas'
             USING ERRCODE = 'restrict_violation', CONSTRAINT = TG_NAME;
     END IF;
     RETURN NEW;
 END
 $$ LANGUAGE plpgsql ^^^
 
-DROP TRIGGER IF EXISTS trg_unidad_baja ON unidad ^^^
-CREATE TRIGGER trg_unidad_baja BEFORE UPDATE OF baja ON unidad
+DROP TRIGGER IF EXISTS trg_tema_baja ON tema ^^^
+CREATE TRIGGER trg_tema_baja BEFORE UPDATE OF baja ON tema
     FOR EACH ROW WHEN (OLD.baja = false AND NEW.baja = true)
-    EXECUTE FUNCTION fn_baja_unidad() ^^^
+    EXECUTE FUNCTION fn_baja_tema() ^^^
 
 -- fn_baja_descuento(): disparador de baja de un descuento (CU-59). Rechaza la baja si el descuento ya se uso
 -- (cantidad_usada mayor que cero).

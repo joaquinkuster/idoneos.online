@@ -20,17 +20,17 @@ import org.springframework.transaction.annotation.Transactional;
 import com.app.idoneos.modelo.Docente;
 import com.app.idoneos.modelo.Material;
 import com.app.idoneos.modelo.TipoMaterial;
-import com.app.idoneos.modelo.Unidad;
+import com.app.idoneos.modelo.Tema;
 import com.app.idoneos.repositorio.DocenteRepositorio;
 import com.app.idoneos.repositorio.MaterialRepositorio;
 import com.app.idoneos.repositorio.TipoMaterialRepositorio;
-import com.app.idoneos.repositorio.UnidadRepositorio;
+import com.app.idoneos.repositorio.TemaRepositorio;
 import com.app.idoneos.servicio.Material.MaterialServicio;
 
 /**
  * Pruebas de la vista de un material ({@code GET /material/ver/{id}}): reproductor, visor de PDF, descarga de los
  * formatos que no se pueden previsualizar y redirección de los enlaces externos. Valentina Ruiz es alumna de la
- * cohorte en dictado de "Mercado de Capitales Argentino" (unidad 2 habilitada, unidad 3 bloqueada).
+ * cohorte en dictado de "Mercado de Capitales Argentino" (tema 2 habilitada, tema 3 bloqueada).
  */
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -50,7 +50,7 @@ class MaterialVerControladorTest {
     private MaterialRepositorio materialRepositorio;
 
     @Autowired
-    private UnidadRepositorio unidadRepositorio;
+    private TemaRepositorio temaRepositorio;
 
     @Autowired
     private TipoMaterialRepositorio tipoMaterialRepositorio;
@@ -58,17 +58,17 @@ class MaterialVerControladorTest {
     @Autowired
     private DocenteRepositorio docenteRepositorio;
 
-    private Unidad unidad(String titulo) {
-        return unidadRepositorio.findAll().stream().filter(u -> u.getTitulo().equals(titulo)
+    private Tema tema(String titulo) {
+        return temaRepositorio.findAll().stream().filter(u -> u.getTitulo().equals(titulo)
                 && u.getCurso().getNombre().equals("Mercado de Capitales Argentino")).findFirst().orElseThrow();
     }
 
-    private Material subir(String tipo, String nombreArchivo, byte[] contenido, String enlace, String unidad) {
+    private Material subir(String tipo, String nombreArchivo, byte[] contenido, String enlace, String tema) {
         Docente fausto = docenteRepositorio.findAll().stream()
                 .filter(d -> d.getUsuario().getCorreo().equals("fausto.spotorno@idoneos.online")).findFirst().orElseThrow();
         int idTipo = tipoMaterialRepositorio.findAll().stream().filter(t -> t.getNombre().equals(tipo)).findFirst()
                 .orElseThrow().getIdTipoMaterial();
-        return materialServicio.subirMaterial(fausto, unidad(unidad).getIdUnidad(), idTipo, "Material de prueba", false,
+        return materialServicio.subirMaterial(fausto, tema(tema).getIdTema(), idTipo, "Material de prueba", false,
                 null, enlace, contenido == null ? null : new MockMultipartFile("archivo", nombreArchivo, "x", contenido));
     }
 
@@ -84,7 +84,7 @@ class MaterialVerControladorTest {
                 .andExpect(content().string(Matchers.containsString("/material/archivo/" + material.getIdMaterial())))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("Volver al curso"))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("Descargar"))))
-                .andExpect(content().string(Matchers.containsString("Contenido de las unidades")));
+                .andExpect(content().string(Matchers.containsString("Contenido de los temas")));
     }
 
     @Test
@@ -149,7 +149,7 @@ class MaterialVerControladorTest {
 
     @Test
     @WithUserDetails(value = "valentina.ruiz@correo.com", userDetailsServiceBeanName = "usuarioDetallesServicio")
-    @DisplayName("El alumno con la unidad habilitada ve el material, con su propio menú de gestión académica")
+    @DisplayName("El alumno con el tema habilitado ve el material, con su propio menú de gestión académica")
     void alumnoConAcceso() throws Exception {
         Material material = subir(TipoMaterial.GRABACION, "clase.mp4", MP4, null, "Renta fija y bonos");
 
@@ -160,7 +160,7 @@ class MaterialVerControladorTest {
 
     @Test
     @WithUserDetails(value = "valentina.ruiz@correo.com", userDetailsServiceBeanName = "usuarioDetallesServicio")
-    @DisplayName("El alumno no ve un material de una unidad bloqueada")
+    @DisplayName("El alumno no ve un material de un tema bloqueado")
     void alumnoSinAcceso() throws Exception {
         Material material = subir(TipoMaterial.GRABACION, "clase.mp4", MP4, null, "Renta variable y opciones");
 

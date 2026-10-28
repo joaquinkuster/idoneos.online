@@ -63,7 +63,7 @@ public interface IntentoAutoevaluacionServicio {
 
     /**
      * Indica por qué el alumno no puede iniciar un intento de la autoevaluación, o vacío si puede (o si ya tiene uno en
-     * curso para continuar): acceso a la unidad, período habilitado, límite de intentos y preguntas suficientes.
+     * curso para continuar): acceso al tema, período habilitado, límite de intentos y preguntas suficientes.
      *
      * @param alumno         el alumno
      * @param autoevaluacion la autoevaluación
@@ -130,7 +130,7 @@ public interface IntentoAutoevaluacionServicio {
 
     /**
      * CU-70 (pasos 8 a 12): Entrega el intento: lo corrige, registra la nota y la fecha de entrega y, si lo aprobó, verifica
-     * si completó la unidad (y el curso). Si el intento ya se había cerrado (por tiempo), lo devuelve tal cual.
+     * si completó el tema (y el curso). Si el intento ya se había cerrado (por tiempo), lo devuelve tal cual.
      *
      * @param idIntento identificador del intento
      * @param alumno    el alumno autenticado
@@ -166,7 +166,7 @@ public interface IntentoAutoevaluacionServicio {
 
     /**
      * CU-71: El docente aprueba manualmente un intento entregado que no alcanzó la nota mínima. La nota no se modifica; el
-     * intento pasa a contar como aprobado y se verifica si el alumno completó la unidad (y el curso).
+     * intento pasa a contar como aprobado y se verifica si el alumno completó el tema (y el curso).
      *
      * @param idIntento el identificador del intento
      * @param docente   el docente, que debe participar en el curso
@@ -177,10 +177,10 @@ public interface IntentoAutoevaluacionServicio {
 
     /**
      * CU-72: Da de baja un intento (también uno en curso, por ejemplo ante un fraude). Si el intento hacía que el alumno
-     * tuviera la unidad completada y ya no la aprueba, se revierte esa unidad y se anula su certificado.
+     * tuviera el tema completado y ya no la aprueba, se revierte ese tema y se anula su certificado.
      *
      * @param idIntento el identificador del intento
-     * @return {@code true} si la baja hizo retroceder la unidad del alumno
+     * @return {@code true} si la baja hizo retroceder el tema del alumno
      * @throws IllegalArgumentException si el intento no existe o ya está dado de baja
      */
     boolean darDeBajaIntento(Integer idIntento);

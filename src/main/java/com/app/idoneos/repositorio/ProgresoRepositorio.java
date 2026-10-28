@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import com.app.idoneos.modelo.Inscripcion;
 import com.app.idoneos.modelo.Progreso;
-import com.app.idoneos.modelo.Unidad;
+import com.app.idoneos.modelo.Tema;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -16,12 +16,12 @@ import org.springframework.stereotype.Repository;
 public interface ProgresoRepositorio extends JpaRepository<Progreso, Integer> {
 
     /**
-     * Busca los registros de progreso asociados a unidad.
+     * Busca los registros de progreso asociados a tema.
      *
-     * @param unidad el registro de Unidad asociado
-     * @return una lista de Progreso asociados al Unidad indicado
+     * @param tema el registro de Tema asociado
+     * @return una lista de Progreso asociados al Tema indicado
      */
-    List<Progreso> findByUnidad(Unidad unidad);
+    List<Progreso> findByTema(Tema tema);
 
     /**
      * Busca los registros de progreso asociados a inscripcion.
@@ -35,8 +35,8 @@ public interface ProgresoRepositorio extends JpaRepository<Progreso, Integer> {
      * Busca el progreso a partir de la combinación única de sus relaciones. Incluye los registros dados de baja.
      *
      * @param inscripcion el registro de Inscripcion asociado
-     * @param unidad el registro de Unidad asociado
+     * @param tema el registro de Tema asociado
      * @return un {@link Optional} con el registro si existe, o vacío si no se encuentra
      */
-    Optional<Progreso> findByInscripcionAndUnidad(Inscripcion inscripcion, Unidad unidad);
+    Optional<Progreso> findByInscripcionAndTema(Inscripcion inscripcion, Tema tema);
 }

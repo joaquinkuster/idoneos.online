@@ -1,29 +1,29 @@
 /**
  * Formulario de autoevaluaciones (CU-65 y CU-66).
  *
- * En el alta, los pools que se ofrecen dependen de la unidad elegida: los de la propia unidad y los de las unidades
- * anteriores del programa, nunca los de las posteriores. Los pools se muestran agrupados por unidad. Cada opción de pool
- * lleva en data-unidades las unidades que pueden usarla. El selector de pools es un Tom Select que inicia panel.js al abrir
+ * En el alta, los pools que se ofrecen dependen del tema elegido: los del propio tema y los de los temas
+ * anteriores del programa, nunca los de las posteriores. Los pools se muestran agrupados por tema. Cada opción de pool
+ * lleva en data-temas los temas que pueden usarla. El selector de pools es un Tom Select que inicia panel.js al abrir
  * la ventana.
  */
 (function () {
     'use strict';
 
     function filtrarPools(formulario) {
-        var unidad = formulario.querySelector('[data-autoevaluacion-unidad]');
+        var tema = formulario.querySelector('[data-autoevaluacion-tema]');
         var pools = formulario.querySelector('select[data-autoevaluacion-pools]');
-        if (!unidad || !pools || pools.dataset.filtroListo) {
+        if (!tema || !pools || pools.dataset.filtroListo) {
             return;
         }
         pools.dataset.filtroListo = '1';
-        // Todas las opciones con su unidad (el optgroup en el que están), en el orden del cronograma
+        // Todas las opciones con su tema (el optgroup en el que están), en el orden del cronograma
         var todas = Array.prototype.map.call(pools.options, function (o) {
             var grupo = o.parentElement && o.parentElement.tagName === 'OPTGROUP' ? o.parentElement.label : '';
-            return { value: o.value, text: o.textContent, grupo: grupo, unidades: (o.getAttribute('data-unidades') || '').split(',') };
+            return { value: o.value, text: o.textContent, grupo: grupo, temas: (o.getAttribute('data-temas') || '').split(',') };
         });
 
         function aplicar() {
-            var permitidas = todas.filter(function (o) { return o.unidades.indexOf(unidad.value) >= 0; });
+            var permitidas = todas.filter(function (o) { return o.temas.indexOf(tema.value) >= 0; });
             var ts = pools.tomselect;
             if (ts) {
                 var elegidas = ts.items.slice().filter(function (v) {
@@ -48,7 +48,7 @@
                 });
             }
         }
-        unidad.addEventListener('change', aplicar);
+        tema.addEventListener('change', aplicar);
         aplicar();
     }
 

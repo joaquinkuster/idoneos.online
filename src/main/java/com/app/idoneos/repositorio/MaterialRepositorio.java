@@ -4,7 +4,7 @@ import java.util.List;
 import com.app.idoneos.modelo.Material;
 import com.app.idoneos.modelo.DocenteCurso;
 import com.app.idoneos.modelo.TipoMaterial;
-import com.app.idoneos.modelo.Unidad;
+import com.app.idoneos.modelo.Tema;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -39,10 +39,10 @@ public interface MaterialRepositorio extends JpaRepository<Material, Integer> {
     List<Material> findByTipoMaterialAndBajaFalse(TipoMaterial tipoMaterial);
 
     /**
-     * Busca los registros vigentes de material asociados a unidad.
+     * Busca los registros vigentes de material asociados a tema.
      *
-     * @param unidad el registro de Unidad asociado
-     * @return una lista de Material asociados al Unidad indicado
+     * @param tema el registro de Tema asociado
+     * @return una lista de Material asociados al Tema indicado
      */
-    List<Material> findByUnidadAndBajaFalse(Unidad unidad);
+    List<Material> findByTemaAndBajaFalse(Tema tema);
 }

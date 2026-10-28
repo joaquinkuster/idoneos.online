@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * Consulta realizada por un alumno en el foro de una unidad.
+ * Consulta realizada por un alumno en el foro de un tema.
  */
 @Entity
 @Table(name = "ConsultaForo")
@@ -40,11 +40,11 @@ public class ConsultaForo {
     private int idConsulta;
 
     /**
-     * Relación con Unidad.
+     * Relación con Tema.
      */
     @ManyToOne
-    @JoinColumn(name = "idUnidad", nullable = false)
-    private Unidad unidad;
+    @JoinColumn(name = "idTema", nullable = false)
+    private Tema tema;
 
     /**
      * Relación con Inscripcion.
@@ -86,12 +86,12 @@ public class ConsultaForo {
     /**
      * Constructor para crear la consulta del foro con los datos básicos.
      *
-     * @param unidad relación con Unidad.
+     * @param tema relación con Tema.
      * @param inscripcion relación con Inscripcion.
      * @param texto texto de la consulta.
      */
-    public ConsultaForo(Unidad unidad, Inscripcion inscripcion, String texto) {
-        this.unidad = unidad;
+    public ConsultaForo(Tema tema, Inscripcion inscripcion, String texto) {
+        this.tema = tema;
         this.inscripcion = inscripcion;
         this.texto = texto;
     }

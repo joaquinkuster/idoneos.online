@@ -20,16 +20,16 @@ import org.springframework.transaction.annotation.Transactional;
 import com.app.idoneos.modelo.Curso;
 import com.app.idoneos.modelo.Inscripcion;
 import com.app.idoneos.modelo.TerminoGlosario;
-import com.app.idoneos.modelo.Unidad;
+import com.app.idoneos.modelo.Tema;
 import com.app.idoneos.repositorio.CursoRepositorio;
 import com.app.idoneos.repositorio.InscripcionRepositorio;
 import com.app.idoneos.repositorio.TerminoGlosarioRepositorio;
-import com.app.idoneos.repositorio.UnidadRepositorio;
+import com.app.idoneos.repositorio.TemaRepositorio;
 
 /**
  * Pruebas de las vistas y los formularios del glosario (CU-32 a CU-35). Fausto Spotorno es titular de "Mercado de
- * Capitales Argentino" (unidad 1 con tres términos, unidad 2 con dos y unidad 3 sin términos); Valentina Ruiz es alumna
- * de la cohorte en dictado, con las unidades 1 y 2 habilitadas y la 3 bloqueada.
+ * Capitales Argentino" (tema 1 con tres términos, tema 2 con dos y tema 3 sin términos); Valentina Ruiz es alumna
+ * de la cohorte en dictado, con los temas 1 y 2 habilitadas y la 3 bloqueada.
  */
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -42,7 +42,7 @@ class GlosarioControladorTest {
     private MockMvc mockMvc;
 
     @Autowired
-    private UnidadRepositorio unidadRepositorio;
+    private TemaRepositorio temaRepositorio;
 
     @Autowired
     private CursoRepositorio cursoRepositorio;
@@ -53,22 +53,22 @@ class GlosarioControladorTest {
     @Autowired
     private InscripcionRepositorio inscripcionRepositorio;
 
-    private Unidad unidad(String curso, String titulo) {
-        return unidadRepositorio.findAll().stream()
+    private Tema tema(String curso, String titulo) {
+        return temaRepositorio.findAll().stream()
                 .filter(u -> u.getCurso().getNombre().equals(curso) && u.getTitulo().equals(titulo)).findFirst()
                 .orElseThrow();
     }
 
     private int primera() {
-        return unidad("Mercado de Capitales Argentino", "Introducción al mercado de capitales").getIdUnidad();
+        return tema("Mercado de Capitales Argentino", "Introducción al mercado de capitales").getIdTema();
     }
 
     private int segunda() {
-        return unidad("Mercado de Capitales Argentino", "Renta fija y bonos").getIdUnidad();
+        return tema("Mercado de Capitales Argentino", "Renta fija y bonos").getIdTema();
     }
 
     private int tercera() {
-        return unidad("Mercado de Capitales Argentino", "Renta variable y opciones").getIdUnidad();
+        return tema("Mercado de Capitales Argentino", "Renta variable y opciones").getIdTema();
     }
 
     private int idCurso(String nombre) {
@@ -76,9 +76,9 @@ class GlosarioControladorTest {
                 .findFirst().orElseThrow();
     }
 
-    private int idTermino(int idUnidad, String termino) {
+    private int idTermino(int idTema, String termino) {
         return terminoRepositorio.findAll().stream()
-                .filter(t -> t.getUnidad().getIdUnidad() == idUnidad && t.getTermino().equals(termino))
+                .filter(t -> t.getTema().getIdTema() == idTema && t.getTermino().equals(termino))
                 .mapToInt(TerminoGlosario::getIdTermino).findFirst().orElseThrow();
     }
 
@@ -86,7 +86,7 @@ class GlosarioControladorTest {
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesServicio")
-    @DisplayName("El listado tiene un glosario por unidad, con sus términos, y un solo botón: Ver detalle")
+    @DisplayName("El listado tiene un glosario por tema, con sus términos, y un solo botón: Ver detalle")
     void listadoDeGlosarios() throws Exception {
         mockMvc.perform(get("/glosario/buscar").param("cursoId", String.valueOf(idCurso("Mercado de Capitales Argentino"))))
                 .andExpect(status().isOk())
@@ -96,7 +96,7 @@ class GlosarioControladorTest {
                 .andExpect(content().string(Matchers.containsString("Glosario 3")))
                 .andExpect(content().string(Matchers.containsString("3 términos")))
                 .andExpect(content().string(Matchers.containsString("2 términos")))
-                // la unidad sin términos también figura
+                // el tema sin términos también figura
                 .andExpect(content().string(Matchers.containsString("Sin términos")))
                 .andExpect(content().string(Matchers.containsString("/glosario/ver/" + primera())))
                 .andExpect(content().string(Matchers.containsString("Ver detalle")))
@@ -106,11 +106,11 @@ class GlosarioControladorTest {
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesServicio")
-    @DisplayName("La unidad que llega por la URL solo se elige en el campo (el listado sigue completo) y trae filtros, botón Limpiar, columnas y paginación")
+    @DisplayName("El tema que llega por la URL solo se elige en el campo (el listado sigue completo) y trae filtros, botón Limpiar, columnas y paginación")
     void listadoConFiltros() throws Exception {
         int curso = idCurso("Mercado de Capitales Argentino");
 
-        mockMvc.perform(get("/glosario/buscar").param("cursoId", String.valueOf(curso)).param("unidadId", String.valueOf(segunda())))
+        mockMvc.perform(get("/glosario/buscar").param("cursoId", String.valueOf(curso)).param("temaId", String.valueOf(segunda())))
                 .andExpect(status().isOk())
                 .andExpect(content().string(Matchers.containsString("Glosario 2")))
                 .andExpect(content().string(Matchers.containsString("Glosario 1<")))
@@ -174,9 +174,9 @@ class GlosarioControladorTest {
                 .andExpect(content().string(Matchers.containsString("terminoId=" + idTermino(primera(), "BYMA"))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("Añadir entrada"))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("entradas"))))
-                // la unidad no se pide en el formulario: es la de este glosario
-                .andExpect(content().string(Matchers.containsString("name=\"unidadId\"")))
-                .andExpect(content().string(Matchers.not(Matchers.containsString("Seleccionar unidad"))));
+                // el tema no se pide en el formulario: es la de este glosario
+                .andExpect(content().string(Matchers.containsString("name=\"temaId\"")))
+                .andExpect(content().string(Matchers.not(Matchers.containsString("Seleccionar tema"))));
     }
 
     @Test
@@ -226,7 +226,7 @@ class GlosarioControladorTest {
     void paginacion() throws Exception {
         // 3 términos de la semilla + 9 más = 12 términos
         for (int i = 1; i <= 9; i++) {
-            terminoRepositorio.save(new TerminoGlosario(unidad("Mercado de Capitales Argentino",
+            terminoRepositorio.save(new TerminoGlosario(tema("Mercado de Capitales Argentino",
                     "Introducción al mercado de capitales"), "Término " + i, "Definición " + i));
         }
         mockMvc.perform(get("/glosario/ver/" + primera()))
@@ -238,7 +238,7 @@ class GlosarioControladorTest {
 
     @Test
     @WithUserDetails(value = "valentina.ruiz@correo.com", userDetailsServiceBeanName = "usuarioDetallesServicio")
-    @DisplayName("El alumno ve el glosario de una unidad habilitada en solo lectura")
+    @DisplayName("El alumno ve el glosario de un tema habilitado en solo lectura")
     void vistaDelAlumno() throws Exception {
         mockMvc.perform(get("/glosario/ver/" + segunda()))
                 .andExpect(status().isOk())
@@ -256,8 +256,8 @@ class GlosarioControladorTest {
 
     @Test
     @WithUserDetails(value = "valentina.ruiz@correo.com", userDetailsServiceBeanName = "usuarioDetallesServicio")
-    @DisplayName("El alumno no ve el glosario de una unidad bloqueada")
-    void alumnoConUnidadBloqueada() throws Exception {
+    @DisplayName("El alumno no ve el glosario de un tema bloqueado")
+    void alumnoConTemaBloqueada() throws Exception {
         mockMvc.perform(get("/glosario/ver/" + tercera())).andExpect(status().isForbidden());
     }
 
@@ -277,9 +277,9 @@ class GlosarioControladorTest {
 
     @Test
     @WithUserDetails(value = "sebastian.bordato@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesServicio")
-    @DisplayName("Un docente que no participa en el curso no ve el glosario, y una unidad inexistente responde 404")
+    @DisplayName("Un docente que no participa en el curso no ve el glosario, y un tema inexistente responde 404")
     void docenteAjenoEInexistente() throws Exception {
-        int ajena = unidad("Macroeconomía de Coyuntura", "Inflación y precios").getIdUnidad();
+        int ajena = tema("Macroeconomía de Coyuntura", "Inflación y precios").getIdTema();
 
         mockMvc.perform(get("/glosario/ver/" + ajena)).andExpect(status().isForbidden());
         mockMvc.perform(get("/glosario/ver/999999")).andExpect(status().isNotFound());
@@ -309,7 +309,7 @@ class GlosarioControladorTest {
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesServicio")
     @DisplayName("CU-33: registrar un término responde en JSON, y un error de validación responde 400")
     void registrar() throws Exception {
-        mockMvc.perform(post("/glosario/registrar").param("unidadId", String.valueOf(tercera()))
+        mockMvc.perform(post("/glosario/registrar").param("temaId", String.valueOf(tercera()))
                 .param("termino", "Opción").param("definicion", "Derecho a comprar o vender."))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith("application/json"))
@@ -317,11 +317,11 @@ class GlosarioControladorTest {
         mockMvc.perform(get("/glosario/ver/" + tercera()))
                 .andExpect(content().string(Matchers.containsString("Derecho a comprar o vender.")));
 
-        mockMvc.perform(post("/glosario/registrar").param("unidadId", String.valueOf(tercera()))
+        mockMvc.perform(post("/glosario/registrar").param("temaId", String.valueOf(tercera()))
                 .param("termino", "opción").param("definicion", "Otra"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value(Matchers.containsString("El término ya está registrado")));
-        mockMvc.perform(post("/glosario/registrar").param("unidadId", String.valueOf(tercera()))
+        mockMvc.perform(post("/glosario/registrar").param("temaId", String.valueOf(tercera()))
                 .param("termino", "").param("definicion", ""))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value(Matchers.containsString("Debe completar el término y la definición.")));
@@ -365,7 +365,7 @@ class GlosarioControladorTest {
         int id = idTermino(primera(), "ON");
 
         mockMvc.perform(post("/glosario/darDeBaja/" + id)).andExpect(status().isOk());
-        mockMvc.perform(post("/glosario/registrar").param("unidadId", String.valueOf(primera()))
+        mockMvc.perform(post("/glosario/registrar").param("temaId", String.valueOf(primera()))
                 .param("termino", "Nuevo").param("definicion", "x")).andExpect(status().isForbidden());
         mockMvc.perform(post("/glosario/modificar/" + idTermino(primera(), "CNV")).param("termino", "CNV")
                 .param("definicion", "x")).andExpect(status().isForbidden());
@@ -375,7 +375,7 @@ class GlosarioControladorTest {
     @WithUserDetails(value = "valentina.ruiz@correo.com", userDetailsServiceBeanName = "usuarioDetallesServicio")
     @DisplayName("El alumno no puede registrar, modificar ni dar de baja términos")
     void alumnoNoGestiona() throws Exception {
-        mockMvc.perform(post("/glosario/registrar").param("unidadId", String.valueOf(segunda()))
+        mockMvc.perform(post("/glosario/registrar").param("temaId", String.valueOf(segunda()))
                 .param("termino", "Nuevo").param("definicion", "x")).andExpect(status().isForbidden());
         mockMvc.perform(post("/glosario/modificar/" + idTermino(segunda(), "TIR")).param("termino", "TIR")
                 .param("definicion", "x")).andExpect(status().isForbidden());
@@ -394,15 +394,15 @@ class GlosarioControladorTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string(Matchers.containsString("data-glosario=\"true\"")))
                 .andExpect(content().string(Matchers.containsString("/glosario/buscar?cursoId=" + curso)))
-                // "Ver listado" de cada unidad ya viene filtrado por esa unidad
-                .andExpect(content().string(Matchers.containsString("/glosario/buscar?cursoId=" + curso + "&amp;unidadId=" + primera())))
+                // "Ver listado" de cada tema ya viene filtrado por ese tema
+                .andExpect(content().string(Matchers.containsString("/glosario/buscar?cursoId=" + curso + "&amp;temaId=" + primera())))
                 .andExpect(content().string(Matchers.containsString("/glosario/ver/" + primera())))
                 .andExpect(content().string(Matchers.containsString("Glosario 1")));
     }
 
     @Test
     @WithUserDetails(value = "valentina.ruiz@correo.com", userDetailsServiceBeanName = "usuarioDetallesServicio")
-    @DisplayName("El alumno llega al glosario de la unidad desde la vista del curso")
+    @DisplayName("El alumno llega al glosario del tema desde la vista del curso")
     void enlacesDelAlumno() throws Exception {
         mockMvc.perform(get("/inscripcion/acceder/" + inscripcionDeValentina()))
                 .andExpect(status().isOk())

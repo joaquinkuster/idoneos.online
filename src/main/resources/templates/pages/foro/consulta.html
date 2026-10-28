@@ -20,7 +20,7 @@
                 <i class="fa-solid fa-chevron-right"></i>
                 <a th:href="@{${urlBase}}" th:text="${curso.nombre}">Curso</a>
                 <i class="fa-solid fa-chevron-right"></i>
-                <a th:href="@{'/foro/ver/' + ${unidad.idUnidad}}" th:text="${'Foro ' + numeroOrden}">Foro 1</a>
+                <a th:href="@{'/foro/ver/' + ${tema.idTema}}" th:text="${'Foro ' + numeroOrden}">Foro 1</a>
                 <i class="fa-solid fa-chevron-right"></i>
                 <strong>Consulta</strong>
             </nav>
@@ -28,9 +28,9 @@
             <div class="pn-encabezado">
                 <div>
                     <h1 class="pn-titulo" th:text="${'Foro ' + numeroOrden}">Foro 1</h1>
-                    <p class="pn-subtitulo" th:text="${unidad.titulo}">Introducción al mercado de capitales</p>
+                    <p class="pn-subtitulo" th:text="${tema.titulo}">Introducción al mercado de capitales</p>
                 </div>
-                <a class="pn-btn pn-btn-contorno" th:href="@{'/foro/ver/' + ${unidad.idUnidad}}">Volver al foro</a>
+                <a class="pn-btn pn-btn-contorno" th:href="@{'/foro/ver/' + ${tema.idTema}}">Volver al foro</a>
             </div>
 
             <section class="fo-hilo">

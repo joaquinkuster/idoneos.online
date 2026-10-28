@@ -23,7 +23,7 @@ import com.app.idoneos.modelo.Certificado;
 import com.app.idoneos.modelo.Cohorte;
 import com.app.idoneos.modelo.ConsultaForo;
 import com.app.idoneos.modelo.Inscripcion;
-import com.app.idoneos.modelo.Unidad;
+import com.app.idoneos.modelo.Tema;
 import com.app.idoneos.repositorio.ConsultaForoRepositorio;
 import com.app.idoneos.repositorio.InscripcionRepositorio;
 import com.app.idoneos.servicio.Certificado.CertificadoServicioImpl;
@@ -129,10 +129,10 @@ class InscripcionGestionServicioTest {
         assertTrue(inscripcion.estaHabilitada());
         long semanas = ChronoUnit.WEEKS.between(LocalDateTime.now(), inscripcion.getFechaVencimientoAcceso());
         assertTrue(semanas >= cohorte.getSemanasAcceso() - 1 && semanas <= cohorte.getSemanasAcceso());
-        // Progreso inicial: la primera unidad del cronograma, sin completar
+        // Progreso inicial: la primer tema del cronograma, sin completar
         assertEquals(1, inscripcion.getProgresos().size());
-        Unidad primera = cohorte.getPrograma().getCronogramaOrdenado().get(0).getUnidad();
-        assertEquals(primera, inscripcion.getProgresos().iterator().next().getUnidad());
+        Tema primera = cohorte.getPrograma().getCronogramaOrdenado().get(0).getTema();
+        assertEquals(primera, inscripcion.getProgresos().iterator().next().getTema());
         assertFalse(inscripcion.getProgresos().iterator().next().getCompletada());
         assertEquals(0, inscripcion.getPorcentajeProgreso());
     }

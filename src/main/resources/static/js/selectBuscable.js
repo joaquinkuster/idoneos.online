@@ -8,7 +8,7 @@
  * Se aplica a:
  *  - los <select data-buscable> de cualquier página;
  *  - los <select class="pn-input"> dentro de un modal de formulario que tengan MINIMO opciones o más (alumnos, cohortes,
- *    inscripciones, cursos, programas, unidades...).
+ *    inscripciones, cursos, programas, temas...).
  * Con data-sin-busqueda un <select> queda como está.
  */
 (function () {
