@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Pruebas unitarias de las reglas del acceso al curso (CU-27) que calcula el modelo: habilitación secuencial de
- * temas, semanas del cronograma, semana esperada y atraso del alumno.
+ * temas, días del cronograma, día esperado y atraso del alumno.
  */
 class InscripcionTest {
 
@@ -26,23 +26,23 @@ class InscripcionTest {
     private TemaCronograma tema2;
     private TemaCronograma tema3;
 
-    /** Programa de 9 semanas (temas de 2, 3 y 4 semanas) con una cohorte que empezó a dictarse hace 20 días. */
+    /** Programa de 63 días (temas de 14, 21 y 28 días) con una cohorte que empezó a dictarse hace 20 días. */
     @BeforeEach
     void armarPrograma() {
         programa = new Programa(null, "Programa 2026", "Objetivos", "Bibliografía");
         programa.setIdPrograma(1);
-        tema1 = agregarTema(1, 1, 2);
-        tema2 = agregarTema(2, 2, 3);
-        tema3 = agregarTema(3, 3, 4);
-        cohorte = new Cohorte(programa, ahora.minusDays(60), ahora.minusDays(30), 12);
+        tema1 = agregarTema(1, 1, 14);
+        tema2 = agregarTema(2, 2, 21);
+        tema3 = agregarTema(3, 3, 28);
+        cohorte = new Cohorte(programa, ahora.minusDays(60), ahora.minusDays(30), 84);
         cohorte.setFechaInicioDictado(ahora.minusDays(20));
         inscripcion = new Inscripcion(cohorte, null, ahora.plusWeeks(12));
     }
 
-    private TemaCronograma agregarTema(int id, int orden, int semanas) {
+    private TemaCronograma agregarTema(int id, int orden, int dias) {
         Tema tema = new Tema(null, "Tema " + id, "Contenido");
         tema.setIdTema(id);
-        TemaCronograma cronograma = new TemaCronograma(programa, tema, orden, semanas);
+        TemaCronograma cronograma = new TemaCronograma(programa, tema, orden, dias);
         programa.getTemasCronograma().add(cronograma);
         return cronograma;
     }
@@ -85,15 +85,15 @@ class InscripcionTest {
     }
 
     @Test
-    @DisplayName("Las semanas de cada tema se acumulan a lo largo del programa")
+    @DisplayName("Los días de cada tema se acumulan a lo largo del programa")
     void semanasDelCronograma() {
-        assertEquals(9, programa.getDuracionTotalSemanas());
-        assertEquals(1, tema1.getSemanaDesde());
-        assertEquals(2, tema1.getSemanaHasta());
-        assertEquals(3, tema2.getSemanaDesde());
-        assertEquals(5, tema2.getSemanaHasta());
-        assertEquals(6, tema3.getSemanaDesde());
-        assertEquals(9, tema3.getSemanaHasta());
+        assertEquals(63, programa.getDuracionTotalDias());
+        assertEquals(1, tema1.getDiaDesde());
+        assertEquals(14, tema1.getDiaHasta());
+        assertEquals(15, tema2.getDiaDesde());
+        assertEquals(35, tema2.getDiaHasta());
+        assertEquals(36, tema3.getDiaDesde());
+        assertEquals(63, tema3.getDiaHasta());
     }
 
     @Test
@@ -102,28 +102,28 @@ class InscripcionTest {
         tema3.marcarInactivo();
 
         assertEquals(2, programa.getCronogramaOrdenado().size());
-        assertEquals(5, programa.getDuracionTotalSemanas());
+        assertEquals(35, programa.getDuracionTotalDias());
     }
 
     @Test
-    @DisplayName("La semana esperada se cuenta desde el inicio del dictado y no pasa de la duración del programa")
+    @DisplayName("El día esperado se cuenta desde el inicio del dictado y no pasa de la duración del programa")
     void semanaEsperada() {
-        assertEquals(3, cohorte.getSemanasTranscurridas());
-        assertEquals(3, cohorte.getSemanaActual());
+        assertEquals(21, cohorte.getDiasTranscurridos());
+        assertEquals(21, cohorte.getDiaActual());
 
         cohorte.setFechaInicioDictado(ahora.minusDays(200));
 
-        assertEquals(29, cohorte.getSemanasTranscurridas());
-        assertEquals(9, cohorte.getSemanaActual());
+        assertEquals(201, cohorte.getDiasTranscurridos());
+        assertEquals(63, cohorte.getDiaActual());
     }
 
     @Test
-    @DisplayName("Sin fecha de dictado, la semana esperada se cuenta desde el inicio de la inscripción")
+    @DisplayName("Sin fecha de dictado, el día esperado se cuenta desde el inicio de la inscripción")
     void semanaEsperadaDesdeLaInscripcion() {
         cohorte.setFechaInicioDictado(null);
 
         assertEquals(cohorte.getFechaInicioInscripcion(), cohorte.getFechaBaseCronograma());
-        assertEquals(9, cohorte.getSemanasTranscurridas());
+        assertEquals(61, cohorte.getDiasTranscurridos());
     }
 
     @Test
@@ -133,7 +133,7 @@ class InscripcionTest {
         assertEquals(0, inscripcion.getUltimaTemaCompletada());
         assertTrue(inscripcion.estaAtrasada());
         assertEquals("Atrasada", inscripcion.getEstadoCronograma(tema1));
-        assertEquals("Semana actual", inscripcion.getEstadoCronograma(tema2));
+        assertEquals("Actual", inscripcion.getEstadoCronograma(tema2));
         assertEquals("Próxima", inscripcion.getEstadoCronograma(tema3));
     }
 
@@ -147,30 +147,30 @@ class InscripcionTest {
     }
 
     @Test
-    @DisplayName("Las semanas de atraso son la semana actual menos la última semana del primer tema sin completar")
-    void semanasDeAtraso() {
-        // semana 3 y sigue en el tema 1 (que terminaba en la semana 2): 1 semana de atraso
-        assertEquals(1, inscripcion.getSemanasDeAtraso());
+    @DisplayName("Los días de atraso son el día actual menos el último día del primer tema sin completar")
+    void diasDeAtraso() {
+        // día 21 y sigue en el tema 1 (que terminaba el día 14): 7 días de atraso
+        assertEquals(7, inscripcion.getDiasDeAtraso());
 
         cohorte.setFechaInicioDictado(ahora.minusDays(40));
-        // semana 6 y sigue en el tema 1: 4 semanas de atraso
-        assertEquals(4, inscripcion.getSemanasDeAtraso());
+        // día 41 y sigue en el tema 1: 27 días de atraso
+        assertEquals(27, inscripcion.getDiasDeAtraso());
 
         completar(tema1);
-        // semana 6 con el tema 2 (hasta la semana 5) sin completar: 1 semana de atraso
-        assertEquals(1, inscripcion.getSemanasDeAtraso());
+        // día 41 con el tema 2 (hasta el día 35) sin completar: 6 días de atraso
+        assertEquals(6, inscripcion.getDiasDeAtraso());
 
         completar(tema2);
         completar(tema3);
-        assertEquals(0, inscripcion.getSemanasDeAtraso());
+        assertEquals(0, inscripcion.getDiasDeAtraso());
     }
 
     @Test
-    @DisplayName("Quien está al día no tiene semanas de atraso")
+    @DisplayName("Quien está al día no tiene días de atraso")
     void sinAtraso() {
         completar(tema1);
 
-        assertEquals(0, inscripcion.getSemanasDeAtraso());
+        assertEquals(0, inscripcion.getDiasDeAtraso());
     }
 
     @Test
@@ -187,9 +187,9 @@ class InscripcionTest {
     }
 
     @Test
-    @DisplayName("El estado resumido del calendario de la cohorte depende de la semana actual")
+    @DisplayName("El estado resumido del calendario de la cohorte depende del día actual")
     void estadoResumidoDelCalendario() {
-        // semana 3: el tema 1 ya pasó, la 2 está en curso y la 3 falta
+        // día 21: el tema 1 ya pasó, el 2 está en curso y el 3 falta
         assertEquals("Completada", cohorte.getEstadoTemaResumido(tema1));
         assertEquals("En curso", cohorte.getEstadoTemaResumido(tema2));
         assertEquals("Pendiente", cohorte.getEstadoTemaResumido(tema3));
@@ -207,7 +207,7 @@ class InscripcionTest {
     }
 
     @Test
-    @DisplayName("El cronograma comenzó o finalizó según las semanas transcurridas")
+    @DisplayName("El cronograma comenzó o finalizó según los días transcurridos")
     void cronogramaEnCursoYFinalizado() {
         assertTrue(cohorte.haComenzadoCronograma());
         assertFalse(cohorte.haFinalizadoCronograma());

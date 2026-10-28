@@ -150,11 +150,11 @@ public class TemaCronogramaServicioImpl implements TemaCronogramaServicio, CrudS
     }
 
     /**
-     * CU-24: Modifica el cronograma de un programa (temas, orden y semanas).
+     * CU-24: Modifica el cronograma de un programa (temas, orden y días).
      */
     @Override
     @Transactional
-    public void modificarCronograma(Docente docente, Integer programaId, List<Integer> temaIds, List<String> semanas) {
+    public void modificarCronograma(Docente docente, Integer programaId, List<Integer> temaIds, List<String> dias) {
         Programa programa = programaRepositorio.findById(programaId == null ? -1 : programaId)
                 .filter(p -> !p.esInactivo())
                 .orElseThrow(() -> new IllegalArgumentException("Error! El programa no se encuentra activo."));
@@ -173,26 +173,26 @@ public class TemaCronogramaServicioImpl implements TemaCronogramaServicio, CrudS
 
         // Se valida todo lo que se recibió antes de cambiar algo
         List<Integer> ids = temaIds == null ? List.of() : temaIds;
-        List<String> duraciones = semanas == null ? List.of() : semanas;
+        List<String> duraciones = dias == null ? List.of() : dias;
         if (ids.size() != duraciones.size() || ids.stream().distinct().count() != ids.size()) {
-            throw new IllegalArgumentException(MensajeErrorUtilidad.formatoInvalido("Los datos del cronograma", "una duración entera en semanas para cada tema del programa"));
+            throw new IllegalArgumentException(MensajeErrorUtilidad.formatoInvalido("Los datos del cronograma", "una duración entera en días para cada tema del programa"));
         }
-        List<Integer> semanasPorTema = new ArrayList<>();
+        List<Integer> diasPorTema = new ArrayList<>();
         for (String duracion : duraciones) {
-            semanasPorTema.add(parsearSemanas(duracion));
+            diasPorTema.add(parsearDias(duracion));
         }
-        int maximo = parametroServicio.obtenerEntero(Parametro.CRONOGRAMA_SEMANAS_MAXIMAS,
-                Parametro.CRONOGRAMA_SEMANAS_MAXIMAS_POR_DEFECTO);
-        int total = semanasPorTema.stream().mapToInt(Integer::intValue).sum();
+        int maximo = parametroServicio.obtenerEntero(Parametro.CRONOGRAMA_DIAS_MAXIMOS,
+                Parametro.CRONOGRAMA_DIAS_MAXIMOS_POR_DEFECTO);
+        int total = diasPorTema.stream().mapToInt(Integer::intValue).sum();
         if (total > maximo) {
-            throw new IllegalArgumentException(MensajeErrorUtilidad.demasiadoLargo("El cronograma", maximo, "semanas"));
+            throw new IllegalArgumentException(MensajeErrorUtilidad.demasiadoLargo("El cronograma", maximo, "días"));
         }
-        // Las semanas de acceso de cada cohorte activa del programa no pueden quedar por debajo de la nueva duración
+        // Los días de acceso de cada cohorte activa del programa no pueden quedar por debajo de la nueva duración
         for (com.app.idoneos.modelo.Cohorte cohorte : programa.getCohortesActivas()) {
-            if (cohorte.getSemanasAcceso() < total) {
+            if (cohorte.getAccesoDias() < total) {
                 throw new IllegalArgumentException("Error! La cohorte «" + cohorte.getEtiqueta() + "» tiene "
-                        + MensajeErrorUtilidad.cantidad(cohorte.getSemanasAcceso(), "semana de acceso", "semanas de acceso")
-                        + ", menos que las " + total + " del cronograma. Modificá la cohorte o acortá el cronograma.");
+                        + MensajeErrorUtilidad.cantidad(cohorte.getAccesoDias(), "día de acceso", "días de acceso")
+                        + ", menos que los " + total + " del cronograma. Modificá la cohorte o acortá el cronograma.");
             }
         }
         Map<Integer, Tema> temas = new HashMap<>();
@@ -248,13 +248,13 @@ public class TemaCronogramaServicioImpl implements TemaCronogramaServicio, CrudS
             TemaCronograma cronograma = existentes.get(ids.get(i));
             if (cronograma == null) {
                 Tema tema = temas.get(ids.get(i));
-                cronograma = new TemaCronograma(programa, tema, i + 1, semanasPorTema.get(i));
+                cronograma = new TemaCronograma(programa, tema, i + 1, diasPorTema.get(i));
                 cronograma = temaCronogramaRepositorio.saveAndFlush(cronograma);
                 programa.getTemasCronograma().add(cronograma);
                 tema.getTemasCronograma().add(cronograma);
             } else {
                 cronograma.setNumeroOrden(i + 1);
-                cronograma.setSemanasDuracion(semanasPorTema.get(i));
+                cronograma.setDuracionDias(diasPorTema.get(i));
                 cronograma.setUltimaModificacion(ahora);
                 temaCronogramaRepositorio.saveAndFlush(cronograma);
             }
@@ -276,8 +276,8 @@ public class TemaCronogramaServicioImpl implements TemaCronogramaServicio, CrudS
         temaCronogramaRepositorio.save(entidad);
     }
 
-    /** Convierte la duración recibida en un número entero de semanas mayor a cero. */
-    private int parsearSemanas(String duracion) {
+    /** Convierte la duración recibida en un número entero de días mayor a cero. */
+    private int parsearDias(String duracion) {
         try {
             int valor = Integer.parseInt(duracion == null ? "" : duracion.trim());
             if (valor > 0) {
@@ -287,6 +287,6 @@ public class TemaCronogramaServicioImpl implements TemaCronogramaServicio, CrudS
             // se informa abajo, igual que un valor menor o igual a cero
         }
         throw new IllegalArgumentException(
-                MensajeErrorUtilidad.formatoInvalido("La duración de cada tema", "número entero de semanas mayor a cero"));
+                MensajeErrorUtilidad.formatoInvalido("La duración de cada tema", "número entero de días mayor a cero"));
     }
 }

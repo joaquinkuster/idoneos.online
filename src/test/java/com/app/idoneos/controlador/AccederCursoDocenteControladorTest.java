@@ -86,7 +86,7 @@ class AccederCursoDocenteControladorTest {
     void docenteVeElCronogramaSinAtraso() throws Exception {
         mockMvc.perform(get("/cronograma/buscar").param("cursoId", String.valueOf(idCurso("Mercado de Capitales Argentino"))))
                 .andExpect(status().isOk())
-                .andExpect(content().string(Matchers.containsString("Semana actual de la cohorte: 3 de 9")))
+                .andExpect(content().string(Matchers.containsString("Día actual de la cohorte: 21 de 63")))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("Vas al día"))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("Vas por detrás"))));
     }

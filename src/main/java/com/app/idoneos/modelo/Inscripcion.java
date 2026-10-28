@@ -278,7 +278,7 @@ public class Inscripcion {
      */
     public LocalDateTime getVencimientoMinimo() {
         LocalDateTime base = cohorte.getFechaInicioDictado() != null ? cohorte.getFechaInicioDictado() : fechaCreacion;
-        return base.plusWeeks(cohorte.getPrograma().getDuracionTotalSemanas());
+        return base.plusDays(cohorte.getPrograma().getDuracionTotalDias());
     }
 
     /**
@@ -375,12 +375,12 @@ public class Inscripcion {
     /**
      * Obtiene el número de orden del último tema que, según el cronograma, ya debería estar terminada hoy.
      *
-     * @return El número de orden, o 0 si todavía no terminó ninguna semana de ningún tema.
+     * @return El número de orden, o 0 si todavía no terminó ningún tema.
      */
     public int getTemasEsperadasTerminadas() {
         Programa programa = cohorte.getPrograma();
         return programa.getCronogramaOrdenado().stream()
-                .filter(cronograma -> programa.getSemanaHasta(cronograma) < cohorte.getSemanasTranscurridas())
+                .filter(cronograma -> programa.getDiaHasta(cronograma) < cohorte.getDiasTranscurridos())
                 .mapToInt(TemaCronograma::getNumeroOrden).max().orElse(0);
     }
 
@@ -395,17 +395,17 @@ public class Inscripcion {
     }
 
     /**
-     * Calcula cuántas semanas de atraso lleva el alumno: la diferencia entre la semana actual de la cohorte y la
-     * última semana del primer tema que todavía no completó, si ese tema ya debería estar terminada.
+     * Calcula cuántos días de atraso lleva el alumno: la diferencia entre el día actual de la cohorte y el
+     * último día del primer tema que todavía no completó, si ese tema ya debería estar terminada.
      *
-     * @return Las semanas de atraso, o 0 si el alumno está al día.
+     * @return Los días de atraso, o 0 si el alumno está al día.
      */
-    public int getSemanasDeAtraso() {
+    public int getDiasDeAtraso() {
         TemaCronograma pendiente = getTemaEnCurso();
         if (pendiente == null) {
             return 0;
         }
-        return Math.max(0, cohorte.getSemanasTranscurridas() - pendiente.getSemanaHasta());
+        return Math.max(0, cohorte.getDiasTranscurridos() - pendiente.getDiaHasta());
     }
 
     /**
@@ -426,7 +426,7 @@ public class Inscripcion {
 
     /**
      * Calcula el estado de un tema respecto del cronograma: Completada, Atrasada (debería estar terminada),
-     * Semana actual o Próxima.
+     * En curso o Próxima.
      *
      * @param temaCronograma El tema del cronograma a consultar.
      * @return El estado del tema en el cronograma.
@@ -435,10 +435,10 @@ public class Inscripcion {
         if (estaTemaCompletada(temaCronograma.getTema())) {
             return "Completada";
         }
-        int semana = cohorte.getSemanasTranscurridas();
-        if (temaCronograma.getSemanaHasta() < semana) {
+        int dia = cohorte.getDiasTranscurridos();
+        if (temaCronograma.getDiaHasta() < dia) {
             return "Atrasada";
         }
-        return temaCronograma.getSemanaDesde() <= semana ? "Semana actual" : "Próxima";
+        return temaCronograma.getDiaDesde() <= dia ? "Actual" : "Próxima";
     }
 }

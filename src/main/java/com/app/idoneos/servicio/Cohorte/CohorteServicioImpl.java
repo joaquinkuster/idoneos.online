@@ -148,7 +148,7 @@ public class CohorteServicioImpl implements CohorteServicio, CrudServicio<Cohort
      * @param fechaFinInscripcion la fecha de fin de la inscripción
      * @param fechaInicioDictado la fecha de inicio del dictado (obligatoria si el curso tiene modalidad En vivo)
      * @param fechaFinDictado la fecha de fin del dictado (obligatoria si el curso tiene modalidad En vivo)
-     * @param semanasAcceso las semanas de acceso al contenido desde la inscripción
+     * @param accesoDias los días de acceso al contenido desde la inscripción
      * @param cupoMaximo el cupo máximo de inscriptos (opcional)
      * @return la cohorte registrada
      * @throws IllegalArgumentException si no se cumple alguna regla de registro
@@ -156,7 +156,7 @@ public class CohorteServicioImpl implements CohorteServicio, CrudServicio<Cohort
     @Override
     @Transactional
     public Cohorte registrarCohorte(Integer idPrograma, LocalDate fechaInicioInscripcion, LocalDate fechaFinInscripcion,
-            LocalDate fechaInicioDictado, LocalDate fechaFinDictado, Integer semanasAcceso, Integer cupoMaximo) {
+            LocalDate fechaInicioDictado, LocalDate fechaFinDictado, Integer accesoDias, Integer cupoMaximo) {
         Programa programa = programaRepositorio.findById(idPrograma).filter(p -> !p.esInactivo())
                 .orElseThrow(() -> new IllegalArgumentException("Error! El programa no se encuentra activo."));
         int minimo = parametroRepositorio.findByClave(Parametro.MINIMO_TEMAS_CON_MATERIAL)
@@ -175,10 +175,10 @@ public class CohorteServicioImpl implements CohorteServicio, CrudServicio<Cohort
         }
         boolean enVivo = programa.getCurso().incluyeModalidad(Modalidad.EN_VIVO);
         validarDatosCohorte(programa, enVivo, fechaInicioInscripcion, fechaFinInscripcion, fechaInicioDictado,
-                fechaFinDictado, semanasAcceso, cupoMaximo);
+                fechaFinDictado, accesoDias, cupoMaximo);
 
         Cohorte cohorte = new Cohorte(programa, inicioDelDia(fechaInicioInscripcion), finDelDia(fechaFinInscripcion),
-                semanasAcceso);
+                accesoDias);
         aplicarDatosOpcionales(cohorte, enVivo, fechaInicioDictado, fechaFinDictado, cupoMaximo);
         return cohorteRepositorio.save(cohorte);
     }
@@ -204,7 +204,7 @@ public class CohorteServicioImpl implements CohorteServicio, CrudServicio<Cohort
      * @param fechaFinInscripcion la fecha de fin de la inscripción
      * @param fechaInicioDictado la fecha de inicio del dictado (obligatoria si el curso tiene modalidad En vivo)
      * @param fechaFinDictado la fecha de fin del dictado (obligatoria si el curso tiene modalidad En vivo)
-     * @param semanasAcceso las semanas de acceso al contenido desde la inscripción
+     * @param accesoDias los días de acceso al contenido desde la inscripción
      * @param cupoMaximo el cupo máximo de inscriptos (opcional)
      * @return la cohorte modificada
      * @throws IllegalArgumentException si no se cumple alguna regla de modificación
@@ -212,7 +212,7 @@ public class CohorteServicioImpl implements CohorteServicio, CrudServicio<Cohort
     @Override
     @Transactional
     public Cohorte modificarCohorte(Integer idCohorte, LocalDate fechaInicioInscripcion, LocalDate fechaFinInscripcion,
-            LocalDate fechaInicioDictado, LocalDate fechaFinDictado, Integer semanasAcceso, Integer cupoMaximo) {
+            LocalDate fechaInicioDictado, LocalDate fechaFinDictado, Integer accesoDias, Integer cupoMaximo) {
         Cohorte cohorte = cohorteRepositorio.findById(idCohorte).filter(c -> !c.esInactivo())
                 .orElseThrow(() -> new IllegalArgumentException("Error! La cohorte no se encuentra activa."));
         if (cohorte.getCantidadInscriptos() > 0) {
@@ -220,11 +220,11 @@ public class CohorteServicioImpl implements CohorteServicio, CrudServicio<Cohort
         }
         boolean enVivo = cohorte.getPrograma().getCurso().incluyeModalidad(Modalidad.EN_VIVO);
         validarDatosCohorte(cohorte.getPrograma(), enVivo, fechaInicioInscripcion, fechaFinInscripcion,
-                fechaInicioDictado, fechaFinDictado, semanasAcceso, cupoMaximo);
+                fechaInicioDictado, fechaFinDictado, accesoDias, cupoMaximo);
 
         cohorte.setFechaInicioInscripcion(inicioDelDia(fechaInicioInscripcion));
         cohorte.setFechaFinInscripcion(finDelDia(fechaFinInscripcion));
-        cohorte.setSemanasAcceso(semanasAcceso);
+        cohorte.setAccesoDias(accesoDias);
         aplicarDatosOpcionales(cohorte, enVivo, fechaInicioDictado, fechaFinDictado, cupoMaximo);
         cohorte.setUltimaModificacion(LocalDateTime.now());
         return cohorteRepositorio.save(cohorte);
@@ -348,11 +348,11 @@ public class CohorteServicioImpl implements CohorteServicio, CrudServicio<Cohort
 
     private void validarDatosCohorte(Programa programa, boolean enVivo, LocalDate fechaInicioInscripcion,
             LocalDate fechaFinInscripcion, LocalDate fechaInicioDictado, LocalDate fechaFinDictado,
-            Integer semanasAcceso, Integer cupoMaximo) {
+            Integer accesoDias, Integer cupoMaximo) {
         List<String> faltantes = new ArrayList<>();
         if (fechaInicioInscripcion == null) faltantes.add("fecha de inicio de inscripción");
         if (fechaFinInscripcion == null) faltantes.add("fecha de fin de inscripción");
-        if (semanasAcceso == null) faltantes.add("semanas de acceso");
+        if (accesoDias == null) faltantes.add("días de acceso");
         if (enVivo && fechaInicioDictado == null) faltantes.add("fecha de inicio de dictado");
         if (enVivo && fechaFinDictado == null) faltantes.add("fecha de fin de dictado");
         if (!faltantes.isEmpty()) {
@@ -375,16 +375,16 @@ public class CohorteServicioImpl implements CohorteServicio, CrudServicio<Cohort
         if (cupoMaximo != null && cupoMaximo > Cohorte.CUPO_MAXIMO_PERMITIDO) {
             throw RespuestaFormularioUtilidad.campoInvalido("cupoMaximo", MensajeErrorUtilidad.formatoInvalido("El cupo máximo", "número entero de 1 a " + Cohorte.CUPO_MAXIMO_PERMITIDO));
         }
-        if (semanasAcceso <= 0) {
-            throw RespuestaFormularioUtilidad.campoInvalido("semanasAcceso", MensajeErrorUtilidad.formatoInvalido("Las semanas de acceso", "número entero de 1 a " + Cohorte.SEMANAS_ACCESO_MAXIMAS));
+        if (accesoDias <= 0) {
+            throw RespuestaFormularioUtilidad.campoInvalido("accesoDias", MensajeErrorUtilidad.formatoInvalido("Los días de acceso", "número entero de 1 a " + Cohorte.DIAS_ACCESO_MAXIMOS));
         }
-        if (semanasAcceso > Cohorte.SEMANAS_ACCESO_MAXIMAS) {
-            throw RespuestaFormularioUtilidad.campoInvalido("semanasAcceso", MensajeErrorUtilidad.formatoInvalido("Las semanas de acceso", "número entero de 1 a " + Cohorte.SEMANAS_ACCESO_MAXIMAS));
+        if (accesoDias > Cohorte.DIAS_ACCESO_MAXIMOS) {
+            throw RespuestaFormularioUtilidad.campoInvalido("accesoDias", MensajeErrorUtilidad.formatoInvalido("Los días de acceso", "número entero de 1 a " + Cohorte.DIAS_ACCESO_MAXIMOS));
         }
-        int duracion = programa.getDuracionTotalSemanas();
-        if (semanasAcceso < duracion) {
-            throw RespuestaFormularioUtilidad.campoInvalido("semanasAcceso", "Error! Las semanas de acceso (" + semanasAcceso
-                    + ") no pueden ser menores a la duración total del cronograma del programa (" + duracion + " semanas).");
+        int duracion = programa.getDuracionTotalDias();
+        if (accesoDias < duracion) {
+            throw RespuestaFormularioUtilidad.campoInvalido("accesoDias", "Error! Los días de acceso (" + accesoDias
+                    + ") no pueden ser menores a la duración total del cronograma del programa (" + duracion + " días).");
         }
     }
 }

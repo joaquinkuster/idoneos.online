@@ -1,5 +1,6 @@
 package com.app.idoneos.modelo;
 
+import com.app.idoneos.utilidades.DuracionUtilidad;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -247,13 +248,58 @@ public class Programa {
     }
 
     /**
-     * Calcula la duración total del cronograma del programa, sumando las semanas de cada tema vigente.
+     * Calcula la duración total del cronograma del programa, sumando los días de cada tema vigente.
      *
-     * @return La duración total en semanas.
+     * @return La duración total en días.
      */
-    public int getDuracionTotalSemanas() {
+    public int getDuracionTotalDias() {
         return temasCronograma.stream().filter(cronograma -> !cronograma.getBaja())
-                .mapToInt(TemaCronograma::getSemanasDuracion).sum();
+                .mapToInt(TemaCronograma::getDuracionDias).sum();
+    }
+
+    /**
+     * Calcula cuántos días representa cada columna al dibujar el cronograma: el mes (30 días) o la semana (7 días) si
+     * todos los temas duran un múltiplo exacto de esa unidad, o el día en cualquier otro caso. Así las barras ocupan
+     * columnas completas y la grilla no se ensancha de más.
+     *
+     * @return 30, 7 o 1.
+     */
+    public int getPasoCronograma() {
+        int comun = 0;
+        for (TemaCronograma cronograma : getCronogramaOrdenado()) {
+            comun = mcd(comun, cronograma.getDuracionDias());
+        }
+        if (comun > 0 && comun % DuracionUtilidad.DIAS_POR_MES == 0) {
+            return DuracionUtilidad.DIAS_POR_MES;
+        }
+        return comun > 0 && comun % DuracionUtilidad.DIAS_POR_SEMANA == 0 ? DuracionUtilidad.DIAS_POR_SEMANA : 1;
+    }
+
+    /**
+     * Obtiene el nombre de la unidad que representa cada columna del cronograma.
+     *
+     * @return "mes", "semana" o "día".
+     */
+    public String getUnidadCronograma() {
+        return switch (getPasoCronograma()) {
+            case DuracionUtilidad.DIAS_POR_MES -> "mes";
+            case DuracionUtilidad.DIAS_POR_SEMANA -> "semana";
+            default -> "día";
+        };
+    }
+
+    /**
+     * Calcula cuántas columnas tiene el cronograma al dibujarlo (una por unidad, ver {@link #getPasoCronograma()}).
+     *
+     * @return La cantidad de columnas.
+     */
+    public int getColumnasCronograma() {
+        int paso = getPasoCronograma();
+        return (getDuracionTotalDias() + paso - 1) / paso;
+    }
+
+    private static int mcd(int a, int b) {
+        return b == 0 ? a : mcd(b, a % b);
     }
 
     /**
@@ -320,26 +366,26 @@ public class Programa {
     }
 
     /**
-     * Calcula la última semana del programa en la que se dicta un tema (suma de las semanas de los temas
+     * Calcula el último día del programa en el que se dicta un tema (suma de los días de los temas
      * anteriores y la propia).
      *
      * @param temaCronograma El tema del cronograma.
-     * @return El número de semana en que termina el tema.
+     * @return El número de día en que termina el tema.
      */
-    public int getSemanaHasta(TemaCronograma temaCronograma) {
+    public int getDiaHasta(TemaCronograma temaCronograma) {
         return getCronogramaOrdenado().stream()
                 .filter(cronograma -> cronograma.getNumeroOrden() <= temaCronograma.getNumeroOrden())
-                .mapToInt(TemaCronograma::getSemanasDuracion).sum();
+                .mapToInt(TemaCronograma::getDuracionDias).sum();
     }
 
     /**
-     * Calcula la primera semana del programa en la que se dicta un tema.
+     * Calcula el primer día del programa en el que se dicta un tema.
      *
      * @param temaCronograma El tema del cronograma.
-     * @return El número de semana en que empieza el tema.
+     * @return El número de día en que empieza el tema.
      */
-    public int getSemanaDesde(TemaCronograma temaCronograma) {
-        return getSemanaHasta(temaCronograma) - temaCronograma.getSemanasDuracion() + 1;
+    public int getDiaDesde(TemaCronograma temaCronograma) {
+        return getDiaHasta(temaCronograma) - temaCronograma.getDuracionDias() + 1;
     }
 
     /**

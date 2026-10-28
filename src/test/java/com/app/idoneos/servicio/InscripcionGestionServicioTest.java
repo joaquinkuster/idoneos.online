@@ -127,8 +127,8 @@ class InscripcionGestionServicioTest {
 
         assertEquals(Inscripcion.ACCESO_VIGENTE, inscripcion.getEstadoAcceso());
         assertTrue(inscripcion.estaHabilitada());
-        long semanas = ChronoUnit.WEEKS.between(LocalDateTime.now(), inscripcion.getFechaVencimientoAcceso());
-        assertTrue(semanas >= cohorte.getSemanasAcceso() - 1 && semanas <= cohorte.getSemanasAcceso());
+        long dias = ChronoUnit.DAYS.between(LocalDateTime.now(), inscripcion.getFechaVencimientoAcceso());
+        assertTrue(dias >= cohorte.getAccesoDias() - 1 && dias <= cohorte.getAccesoDias());
         // Progreso inicial: la primer tema del cronograma, sin completar
         assertEquals(1, inscripcion.getProgresos().size());
         Tema primera = cohorte.getPrograma().getCronogramaOrdenado().get(0).getTema();
@@ -156,7 +156,7 @@ class InscripcionGestionServicioTest {
 
         Inscripcion inscripcion = inscripcionServicio.inscribir(alumno(VALENTINA), cohorte.getIdCohorte(), true);
 
-        assertEquals(cohorte.getFechaFinDictado().plusWeeks(cohorte.getSemanasAcceso()),
+        assertEquals(cohorte.getFechaFinDictado().plusDays(cohorte.getAccesoDias()),
                 inscripcion.getFechaVencimientoAcceso());
         assertEquals(Inscripcion.ACCESO_PROGRAMADA, inscripcion.getEstadoAcceso());
     }

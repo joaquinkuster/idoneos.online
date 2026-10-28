@@ -107,7 +107,7 @@ class TemaServicioTest {
     void agregaTemaNueva() {
         Programa programa = macro().getProgramaVigente();
         int temas = programa.getCantidadTemas();
-        int semanas = programa.getDuracionTotalSemanas();
+        int dias = programa.getDuracionTotalDias();
 
         Tema nueva = temaServicio.agregarTema(fausto(), programa.getIdPrograma(), null, "  Política monetaria avanzada  ", "  ",
                 "  Regímenes cambiarios  ");
@@ -117,11 +117,11 @@ class TemaServicioTest {
         assertNull(nueva.getDescripcion());
         assertEquals("Regímenes cambiarios", nueva.getContenido());
         assertEquals(temas + 1, programa.getCantidadTemas());
-        assertEquals(semanas + 1, programa.getDuracionTotalSemanas());
+        assertEquals(dias + 7, programa.getDuracionTotalDias());
         TemaCronograma ultima = programa.getCronogramaOrdenado().get(temas);
         assertEquals(nueva.getIdTema(), ultima.getTema().getIdTema());
         assertEquals(temas + 1, ultima.getNumeroOrden());
-        assertEquals(1, ultima.getSemanasDuracion());
+        assertEquals(7, ultima.getDuracionDias());
     }
 
     @Test

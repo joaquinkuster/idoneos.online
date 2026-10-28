@@ -151,7 +151,7 @@ public class InscripcionControlador extends PanelCursoControlador {
 
             cargarContexto(modelo, ContextoCurso.deAlumno(inscripcion),
                     "temas".equals(seccionActiva) ? "curso" : seccionActiva);
-            cargarSemanasMaximasDelCronograma(modelo);
+            cargarDiasMaximosDelCronograma(modelo);
             modelo.addAttribute("inscripcion", inscripcion);
             modelo.addAttribute("cohorte", inscripcion.getCohorte());
             // Temas del cronograma, para el tablero de solo lectura de la sección "cronograma"

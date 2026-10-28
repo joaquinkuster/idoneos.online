@@ -49,7 +49,7 @@ public class CronogramaControlador extends PanelCursoControlador {
     // ---------------------------------------------------------------- Lecturas
 
     /**
-     * CU-23: Muestra el cronograma del programa de trabajo de un curso, con sus temas, el orden, las semanas de cada
+     * CU-23: Muestra el cronograma del programa de trabajo de un curso, con sus temas, el orden, los días de cada
      * una y el material cargado. Si el docente puede modificarlo, la misma página permite hacerlo (CU-24).
      *
      * @param cursoId            Identificador del curso.
@@ -76,7 +76,7 @@ public class CronogramaControlador extends PanelCursoControlador {
                     .filter(u -> !u.getProgramasQueLaIncluyen().isEmpty()).toList();
 
             cargarContexto(modelo, contexto, "cronograma");
-            cargarSemanasMaximasDelCronograma(modelo);
+            cargarDiasMaximosDelCronograma(modelo);
             modelo.addAttribute("cohorte", cohorte);
             modelo.addAttribute("cronograma", programa.getCronogramaOrdenado());
             modelo.addAttribute("temasDelCurso", temasDelCurso);
@@ -94,12 +94,12 @@ public class CronogramaControlador extends PanelCursoControlador {
     // ---------------------------------------------------------------- Modificaciones
 
     /**
-     * CU-24: Modifica el cronograma de un programa: los temas que lo componen, su orden y sus semanas. Responde en
+     * CU-24: Modifica el cronograma de un programa: los temas que lo componen, su orden y sus días. Responde en
      * JSON.
      *
      * @param programaId Identificador del programa.
      * @param ids        Identificadores de los temas, en el orden del cronograma.
-     * @param semanas    Semanas de cada tema, en el mismo orden.
+     * @param dias       Días de cada tema, en el mismo orden.
      * @param auth       La autenticación actual.
      * @return Una respuesta con el mensaje de éxito o el mensaje de error.
      */
@@ -107,10 +107,10 @@ public class CronogramaControlador extends PanelCursoControlador {
     public ResponseEntity<Map<String, String>> modificarCronograma(
             @RequestParam(value = "programaId", required = false) Integer programaId,
             @RequestParam(value = "ids", required = false) List<Integer> ids,
-            @RequestParam(value = "semanas", required = false) List<String> semanas, Authentication auth) {
+            @RequestParam(value = "dias", required = false) List<String> dias, Authentication auth) {
         try {
             Usuario usuario = (Usuario) auth.getPrincipal();
-            cronogramaServicio.modificarCronograma(usuario.getDocente(), programaId, ids, semanas);
+            cronogramaServicio.modificarCronograma(usuario.getDocente(), programaId, ids, dias);
             return RespuestaFormularioUtilidad.respuestaExitosa("Cronograma modificado correctamente.");
         } catch (Exception e) {
             return RespuestaFormularioUtilidad.respuestaConError(e);

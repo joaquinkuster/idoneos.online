@@ -58,7 +58,7 @@
                                 <th data-col="Título" data-campo="titulo" data-filtro="texto">Título</th>
                                 <th data-col="Descripción" data-campo="descripcion" data-filtro="texto">Descripción</th>
                                 <th data-col="Contenido" data-campo="contenido" data-filtro="texto">Contenido</th>
-                                <th data-col="Semanas" data-campo="semanas" data-filtro="numero">Semanas</th>
+                                <th data-col="Duración" data-campo="duracion" data-filtro="numero">Duración</th>
                                 <th data-col="Última modificación" data-campo="ultimaModificacion" data-filtro="fecha">Última modificación</th>
                                 <th data-col="Fecha de creación" data-campo="fechaCreacion" data-filtro="fecha">Fecha de creación</th>
                                 <th>Acciones</th>
@@ -72,7 +72,7 @@
                                 <td><span class="pn-celda-principal pn-truncar" th:text="${uc.tema.titulo}">Introducción al mercado</span></td>
                                 <td class="fo-col-consulta"><span class="pn-truncar pn-truncar-largo" th:text="${uc.tema.descripcion != null ? uc.tema.descripcion : '-'}">Descripción</span></td>
                                 <td class="fo-col-consulta"><span class="pn-truncar pn-truncar-largo" th:text="${uc.tema.resumenContenido}">Contenido del tema</span></td>
-                                <td th:text="${uc.semanasDuracion}">1</td>
+                                <td th:text="${T(com.app.idoneos.utilidades.DuracionUtilidad).formatear(uc.duracionDias)}">1 semana</td>
                                 <td th:text="${uc.tema.ultimaModificacion != null ? #temporals.format(uc.tema.ultimaModificacion, 'dd/MM/yyyy') : '-'}">-</td>
                                 <td th:text="${#temporals.format(uc.tema.fechaCreacion, 'dd/MM/yyyy HH:mm')}">28/08/2026 10:30</td>
                                 <td>

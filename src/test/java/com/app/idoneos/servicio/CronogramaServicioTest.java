@@ -80,7 +80,7 @@ class CronogramaServicioTest {
     }
 
     private List<Integer> semanas(Programa programa) {
-        return programa.getCronogramaOrdenado().stream().map(TemaCronograma::getSemanasDuracion).toList();
+        return programa.getCronogramaOrdenado().stream().map(TemaCronograma::getDuracionDias).toList();
     }
 
     private List<Integer> ordenes(Programa programa) {
@@ -108,26 +108,26 @@ class CronogramaServicioTest {
         assertEquals(nuevoOrden, ids(programa));
         assertEquals(List.of(2, 4, 1), semanas(programa));
         assertEquals(List.of(1, 2, 3), ordenes(programa));
-        assertEquals(7, programa.getDuracionTotalSemanas());
+        assertEquals(7, programa.getDuracionTotalDias());
         assertNotNull(programa.getUltimaModificacion());
     }
 
     @Test
-    @DisplayName("CU-24: el cronograma no puede superar el máximo de semanas del parámetro del sistema (52 por defecto)")
+    @DisplayName("CU-24: el cronograma no puede superar el máximo de días del parámetro del sistema (365 por defecto)")
     void noSuperaElMaximoDeSemanas() {
         Programa programa = macro();
         List<Integer> temas = ids(programa);
         List<Integer> antes = semanas(programa);
 
         String error = mensaje(() -> cronogramaServicio.modificarCronograma(fausto(), programa.getIdPrograma(),
-                temas, List.of("50", "2", "1")));
-        assertTrue(error.contains("Máximo: 52 semanas"), error);
+                temas, List.of("360", "4", "2")));
+        assertTrue(error.contains("Máximo: 365 días"), error);
         assertEquals(antes, semanas(programa)); // nada se modificó
 
-        // justo en el máximo, se guarda (con cohortes cuyas semanas de acceso alcanzan)
-        programa.getCohortesActivas().forEach(c -> c.setSemanasAcceso(52));
-        cronogramaServicio.modificarCronograma(fausto(), programa.getIdPrograma(), temas, List.of("50", "1", "1"));
-        assertEquals(52, programa.getDuracionTotalSemanas());
+        // justo en el máximo, se guarda (con cohortes cuyos días de acceso alcanzan)
+        programa.getCohortesActivas().forEach(c -> c.setAccesoDias(365));
+        cronogramaServicio.modificarCronograma(fausto(), programa.getIdPrograma(), temas, List.of("360", "3", "2"));
+        assertEquals(365, programa.getDuracionTotalDias());
     }
 
     @Test
@@ -136,7 +136,7 @@ class CronogramaServicioTest {
         Programa programa = macro();
         List<Integer> temas = ids(programa);
         List<Integer> antes = semanas(programa);
-        int minimoDeAcceso = programa.getCohortesActivas().stream().mapToInt(c -> c.getSemanasAcceso()).min().orElseThrow();
+        int minimoDeAcceso = programa.getCohortesActivas().stream().mapToInt(c -> c.getAccesoDias()).min().orElseThrow();
 
         String error = mensaje(() -> cronogramaServicio.modificarCronograma(fausto(), programa.getIdPrograma(), temas,
                 List.of(String.valueOf(minimoDeAcceso), "1", "1")));
@@ -221,7 +221,7 @@ class CronogramaServicioTest {
         Programa programa = macro();
         int id = programa.getIdPrograma();
         List<Integer> temas = ids(programa);
-        String duracion = "La duración de cada tema no es válida. Formato válido: número entero de semanas mayor a cero";
+        String duracion = "La duración de cada tema no es válida. Formato válido: número entero de días mayor a cero";
 
         assertTrue(mensaje(() -> cronogramaServicio.modificarCronograma(fausto(), id, temas, List.of("1", "0", "1")))
                 .contains(duracion));

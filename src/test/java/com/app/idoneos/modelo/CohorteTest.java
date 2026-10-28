@@ -56,10 +56,10 @@ class CohorteTest {
     }
 
     @Test
-    @DisplayName("Sin dictado, la cohorte finaliza cuando vencen las semanas de acceso desde el fin de la inscripción")
+    @DisplayName("Sin dictado, la cohorte finaliza cuando vencen los días de acceso desde el fin de la inscripción")
     void estadoSinDictado() {
-        Cohorte vigente = new Cohorte(null, ahora.minusDays(40), ahora.minusDays(10), 10);
-        Cohorte vencida = new Cohorte(null, ahora.minusDays(400), ahora.minusDays(370), 10);
+        Cohorte vigente = new Cohorte(null, ahora.minusDays(40), ahora.minusDays(10), 70);
+        Cohorte vencida = new Cohorte(null, ahora.minusDays(400), ahora.minusDays(370), 70);
 
         assertEquals("En dictado", vigente.getEstado());
         assertEquals("Finalizada", vencida.getEstado());

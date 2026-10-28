@@ -2,27 +2,27 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 
 <body>
-    <!-- Tablero del cronograma de un programa (vista por semanas y por temas), que dibuja static/js/cronograma.js.
-         Con puedeEditar se puede reordenar y cambiar las semanas (docente); si no, es de solo lectura (alumno,
+    <!-- Tablero del cronograma de un programa (vista de calendario y por temas), que dibuja static/js/cronograma.js.
+         Con puedeEditar se puede reordenar y cambiar los días (docente); si no, es de solo lectura (alumno,
          administrador, o docente con inscripciones activas).
          curso, programa: el curso y su programa; cronograma: los temas del programa en orden;
          temasDelCurso: los temas que se muestran; soloPublicado: contar solo el material publicado (alumno). -->
-    <!-- Si quien lo incluye define cronoCohorte (y cronoInscripcion para el alumno), se marca la semana actual con la línea
+    <!-- Si quien lo incluye define cronoCohorte (y cronoInscripcion para el alumno), se marca el día actual con la línea
          roja, se muestra el atraso del alumno junto al título y cada tema lleva su estado. -->
     <th:block th:fragment="tablero(curso, programa, cronograma, temasDelCurso, puedeEditar, soloPublicado)"
         th:with="enCurso=${cronoCohorte != null and cronoCohorte.haComenzadoCronograma()},
                  terminado=${cronoCohorte != null and cronoCohorte.haFinalizadoCronograma()}">
             <div class="cn" id="cronograma" th:attr="data-editable=${puedeEditar}, data-programa-id=${programa.idPrograma},
-                 data-semana-actual=${enCurso and !terminado ? cronoCohorte.semanaActual : 0},
-                 data-duracion=${programa.duracionTotalSemanas},
-                 data-semanas-maximas=${semanasMaximas},
+                 data-dia-actual=${enCurso and !terminado ? cronoCohorte.diaActual : 0},
+                 data-duracion=${programa.duracionTotalDias},
+                 data-dias-maximos=${diasMaximos},
                  data-url-modificar=@{/cronograma/modificar}, data-url-nueva=@{/tema/buscar(cursoId=${curso.idCurso}, nuevo='')}">
                 <!-- Datos para la pantalla: los temas del curso y las que están en el cronograma, en orden -->
                 <div hidden>
                     <span data-tema th:each="u : ${temasDelCurso}"
                           th:attr="data-id=${u.idTema}, data-titulo=${u.titulo}, data-material=${#lists.size(soloPublicado ? u.materialesPublicados : u.materialesVigentes)}"></span>
                     <span data-colocada th:each="uc : ${cronograma}"
-                          th:attr="data-id=${uc.tema.idTema}, data-semanas=${uc.semanasDuracion},
+                          th:attr="data-id=${uc.tema.idTema}, data-dias=${uc.duracionDias},
                                    data-estado=${cronoInscripcion != null ? cronoInscripcion.getEstadoTemaResumido(uc) : (cronoCohorte != null ? cronoCohorte.getEstadoTemaResumido(uc) : '')}"></span>
                 </div>
 
@@ -42,7 +42,7 @@
                                 <!-- Avance del alumno respecto del calendario de la cohorte -->
                                 <th:block th:if="${enCurso and cronoInscripcion != null}">
                                     <span class="pn-insignia pn-insignia-roja" th:if="${cronoInscripcion.estaAtrasada()}"
-                                        th:text="${cronoInscripcion.semanasDeAtraso + (cronoInscripcion.semanasDeAtraso == 1 ? ' semana de atraso' : ' semanas de atraso')}">1 semana de atraso</span>
+                                        th:text="${cronoInscripcion.diasDeAtraso + (cronoInscripcion.diasDeAtraso == 1 ? ' día de atraso' : ' días de atraso')}">1 día de atraso</span>
                                     <span class="pn-insignia pn-insignia-verde" th:unless="${cronoInscripcion.estaAtrasada()}">Vas al día</span>
                                 </th:block>
                                 <!-- Ayuda de la edición: muestra u oculta el texto explicativo de abajo (en solo lectura no hay) -->
@@ -50,13 +50,21 @@
                                     title="Ayuda"><i class="fa-solid fa-circle-info"></i></button>
                             </div>
                             <div class="cn-pestanias">
-                                <button type="button" class="cn-pestania activa" data-vista="semanas">Vista por semanas</button>
+                                <button type="button" class="cn-pestania activa" data-vista="calendario">Vista de calendario</button>
                                 <button type="button" class="cn-pestania" data-vista="temas">Vista por temas</button>
                             </div>
+                            <!-- Escala de la grilla: solo cambia cómo se dibuja; la duración siempre se guarda en días -->
+                            <label class="cn-escala" data-escala-etiqueta>Escala
+                                <select class="pn-input" data-escala aria-label="Escala del calendario">
+                                    <option value="dias">Días</option>
+                                    <option value="semanas">Semanas</option>
+                                    <option value="meses">Meses</option>
+                                </select>
+                            </label>
                         </div>
 
                         <div class="cn-info" data-ayuda-texto hidden th:if="${puedeEditar}">
-                            <span>Podés arrastrar los temas para reordenarlas o modificar su duración (borde derecho de la barra). Los cambios se guardan al finalizar. Para quitar un tema, arrastrala al panel izquierdo: si no forma parte de otro programa, quedará dada de baja.</span>
+                            <span>Podés arrastrar los temas para reordenarlos o modificar su duración (borde derecho de la barra). En la vista por temas también podés escribir la duración en días, semanas o meses. Se guarda siempre en días. Los cambios se guardan al finalizar. Para quitar un tema, arrastrala al panel izquierdo: si no forma parte de otro programa, quedará dada de baja.</span>
                         </div>
 
                         <div class="cn-grilla" data-grilla></div>
@@ -67,7 +75,7 @@
                         <div class="cn-vista-temas" data-vista-temas hidden>
                             <table class="pn-tabla">
                                 <thead>
-                                    <tr><th>Orden</th><th>Tema</th><th>Material</th><th>Duración</th><th>Semanas</th></tr>
+                                    <tr><th>Orden</th><th>Tema</th><th>Material</th><th>Duración</th><th>Período</th></tr>
                                 </thead>
                                 <tbody data-tabla></tbody>
                             </table>
@@ -76,11 +84,11 @@
                         <div class="cn-resumen">
                             <strong>Resumen del cronograma</strong>
                             <span class="cn-resumen-pastillas" data-resumen></span>
-                            <span class="cn-resumen-total" data-total-resumen>Total: 0 semanas</span>
+                            <span class="cn-resumen-total" data-total-resumen>Total: 0 días</span>
                         </div>
 
                         <!-- Qué es la línea roja de la grilla -->
-                        <p class="cn-hoy" th:if="${enCurso and !terminado}"><i></i> Hoy (semana actual)</p>
+                        <p class="cn-hoy" th:if="${enCurso and !terminado}"><i></i> Hoy (día actual)</p>
                     </section>
                 </div>
 

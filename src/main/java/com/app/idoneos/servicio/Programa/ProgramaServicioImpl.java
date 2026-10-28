@@ -138,11 +138,11 @@ public class ProgramaServicioImpl implements ProgramaServicio, CrudServicio<Prog
         programa = programaRepositorio.save(programa);
         curso.getProgramas().add(programa);
 
-        // Se parte del cronograma del programa anterior (temas, orden y semanas), como base editable
+        // Se parte del cronograma del programa anterior (temas, orden y días), como base editable
         if (origen != null) {
             for (TemaCronograma original : origen.getCronogramaOrdenado()) {
                 TemaCronograma copia = temaCronogramaRepositorio.save(new TemaCronograma(programa,
-                        original.getTema(), original.getNumeroOrden(), original.getSemanasDuracion()));
+                        original.getTema(), original.getNumeroOrden(), original.getDuracionDias()));
                 programa.getTemasCronograma().add(copia);
             }
         }

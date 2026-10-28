@@ -128,7 +128,7 @@ public class CohorteControlador extends PanelCursoControlador {
         modelo.addAttribute("desde", desde);
         modelo.addAttribute("hasta", hasta);
         modelo.addAttribute("ordenSeleccionado", orden);
-        modelo.addAttribute("semanasAccesoMaximas", Cohorte.SEMANAS_ACCESO_MAXIMAS);
+        modelo.addAttribute("accesoDiasMaximos", Cohorte.DIAS_ACCESO_MAXIMOS);
         modelo.addAttribute("cupoMaximoPermitido", Cohorte.CUPO_MAXIMO_PERMITIDO);
         modelo.addAttribute("titulo", "Cohortes | Idóneos Online");
         if (esAdministrador) {
@@ -149,7 +149,7 @@ public class CohorteControlador extends PanelCursoControlador {
      * @param fechaFinInscripcion    Fecha de fin de la inscripción.
      * @param fechaInicioDictado     Fecha de inicio del dictado (si el curso tiene modalidad En vivo).
      * @param fechaFinDictado        Fecha de fin del dictado (si el curso tiene modalidad En vivo).
-     * @param semanasAcceso          Semanas de acceso al contenido desde la inscripción.
+     * @param accesoDias          Días de acceso al contenido desde la inscripción.
      * @param cupoMaximo             Cupo máximo de inscriptos (opcional).
      * @return Una respuesta con el mensaje de éxito o el mensaje de error.
      */
@@ -160,14 +160,14 @@ public class CohorteControlador extends PanelCursoControlador {
             @RequestParam(value = "fechaFinInscripcion", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFinInscripcion,
             @RequestParam(value = "fechaInicioDictado", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicioDictado,
             @RequestParam(value = "fechaFinDictado", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFinDictado,
-            @RequestParam(value = "semanasAcceso", required = false) Integer semanasAcceso,
+            @RequestParam(value = "accesoDias", required = false) Integer accesoDias,
             @RequestParam(value = "cupoMaximo", required = false) Integer cupoMaximo) {
         try {
             if (programaId == null) {
                 throw new IllegalArgumentException("Error! Debe seleccionar el programa de la cohorte.");
             }
             cohorteServicio.registrarCohorte(programaId, fechaInicioInscripcion, fechaFinInscripcion,
-                    fechaInicioDictado, fechaFinDictado, semanasAcceso, cupoMaximo);
+                    fechaInicioDictado, fechaFinDictado, accesoDias, cupoMaximo);
             return RespuestaFormularioUtilidad.respuestaExitosa("Cohorte registrada correctamente.");
         } catch (Exception e) {
             return RespuestaFormularioUtilidad.respuestaConError(e);
@@ -230,7 +230,7 @@ public class CohorteControlador extends PanelCursoControlador {
      * @param fechaFinInscripcion    Fecha de fin de la inscripción.
      * @param fechaInicioDictado     Fecha de inicio del dictado (si el curso tiene modalidad En vivo).
      * @param fechaFinDictado        Fecha de fin del dictado (si el curso tiene modalidad En vivo).
-     * @param semanasAcceso          Semanas de acceso al contenido desde la inscripción.
+     * @param accesoDias          Días de acceso al contenido desde la inscripción.
      * @param cupoMaximo             Cupo máximo de inscriptos (opcional).
      * @return Una respuesta con el mensaje de éxito o el mensaje de error.
      */
@@ -240,11 +240,11 @@ public class CohorteControlador extends PanelCursoControlador {
             @RequestParam(value = "fechaFinInscripcion", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFinInscripcion,
             @RequestParam(value = "fechaInicioDictado", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicioDictado,
             @RequestParam(value = "fechaFinDictado", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFinDictado,
-            @RequestParam(value = "semanasAcceso", required = false) Integer semanasAcceso,
+            @RequestParam(value = "accesoDias", required = false) Integer accesoDias,
             @RequestParam(value = "cupoMaximo", required = false) Integer cupoMaximo) {
         try {
             cohorteServicio.modificarCohorte(id, fechaInicioInscripcion, fechaFinInscripcion, fechaInicioDictado,
-                    fechaFinDictado, semanasAcceso, cupoMaximo);
+                    fechaFinDictado, accesoDias, cupoMaximo);
             return RespuestaFormularioUtilidad.respuestaExitosa("Cohorte modificada correctamente.");
         } catch (Exception e) {
             return RespuestaFormularioUtilidad.respuestaConError(e);

@@ -70,7 +70,7 @@ class CohorteServicioTest {
         Programa programa = programaDe("Macroeconomía de Coyuntura");
 
         Cohorte cohorte = cohorteServicio.registrarCohorte(programa.getIdPrograma(), INICIO, INICIO.plusDays(30),
-                null, null, programa.getDuracionTotalSemanas(), 25);
+                null, null, programa.getDuracionTotalDias(), 25);
 
         assertEquals(25, cohorte.getCupoMaximo());
         assertNull(cohorte.getFechaInicioDictado());
@@ -81,7 +81,7 @@ class CohorteServicioTest {
     @DisplayName("CU-12: el dictado debe empezar después de la fecha de fin de inscripción, no el mismo día")
     void registrarCohorteConInicioDeDictadoElMismoDiaQueElFinDeInscripcion() {
         Programa programa = programaDe("Mercado de Capitales Argentino");
-        int semanas = programa.getDuracionTotalSemanas();
+        int semanas = programa.getDuracionTotalDias();
 
         IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
                 () -> cohorteServicio.registrarCohorte(programa.getIdPrograma(), INICIO, INICIO.plusDays(30),
@@ -111,7 +111,7 @@ class CohorteServicioTest {
         Programa programa = programaDe("Mercado de Capitales Argentino");
 
         Cohorte cohorte = cohorteServicio.registrarCohorte(programa.getIdPrograma(), INICIO, INICIO.plusDays(30),
-                INICIO.plusDays(40), INICIO.plusDays(120), 12, null);
+                INICIO.plusDays(40), INICIO.plusDays(120), 84, null);
 
         assertEquals(INICIO.plusDays(40), cohorte.getFechaInicioDictado().toLocalDate());
     }
@@ -131,7 +131,7 @@ class CohorteServicioTest {
     void registrarCohorteConDatosInvalidos() {
         Programa programa = programaDe("Macroeconomía de Coyuntura");
         Integer id = programa.getIdPrograma();
-        int duracion = programa.getDuracionTotalSemanas();
+        int duracion = programa.getDuracionTotalDias();
 
         assertThrows(IllegalArgumentException.class,
                 () -> cohorteServicio.registrarCohorte(id, INICIO, null, null, null, duracion, null));
@@ -148,12 +148,12 @@ class CohorteServicioTest {
     void registrarCohorteConValoresMaximosExcedidos() {
         Programa programa = programaDe("Macroeconomía de Coyuntura");
         Integer id = programa.getIdPrograma();
-        int duracion = programa.getDuracionTotalSemanas();
+        int duracion = programa.getDuracionTotalDias();
 
         IllegalArgumentException semanas = assertThrows(IllegalArgumentException.class,
                 () -> cohorteServicio.registrarCohorte(id, INICIO, INICIO.plusDays(30), null, null,
-                        Cohorte.SEMANAS_ACCESO_MAXIMAS + 1, null));
-        assertTrue(semanas.getMessage().contains("número entero de 1 a " + Cohorte.SEMANAS_ACCESO_MAXIMAS));
+                        Cohorte.DIAS_ACCESO_MAXIMOS + 1, null));
+        assertTrue(semanas.getMessage().contains("número entero de 1 a " + Cohorte.DIAS_ACCESO_MAXIMOS));
         assertFalse(semanas.getMessage().contains("duración total"));
 
         IllegalArgumentException cupo = assertThrows(IllegalArgumentException.class,
@@ -166,7 +166,7 @@ class CohorteServicioTest {
         assertTrue(cero.getMessage().contains("Formato válido: número entero"));
 
         Cohorte limite = cohorteServicio.registrarCohorte(id, INICIO, INICIO.plusDays(30), null, null,
-                Cohorte.SEMANAS_ACCESO_MAXIMAS, Cohorte.CUPO_MAXIMO_PERMITIDO);
+                Cohorte.DIAS_ACCESO_MAXIMOS, Cohorte.CUPO_MAXIMO_PERMITIDO);
         assertEquals(Cohorte.CUPO_MAXIMO_PERMITIDO, limite.getCupoMaximo());
     }
 
@@ -177,20 +177,20 @@ class CohorteServicioTest {
         assertEquals(0, programa.getCantidadTemasConMaterialPublicado()); // su único tema con material no tiene autoevaluación
 
         assertThrows(IllegalArgumentException.class, () -> cohorteServicio.registrarCohorte(programa.getIdPrograma(),
-                INICIO, INICIO.plusDays(30), null, null, programa.getDuracionTotalSemanas(), null));
+                INICIO, INICIO.plusDays(30), null, null, programa.getDuracionTotalDias(), null));
     }
 
     @Test
     @DisplayName("CU-13: modifica una cohorte sin inscripciones")
     void modificarCohorteSinInscripciones() {
         Cohorte cohorte = cohorte("Macroeconomía de Coyuntura", "Abierta");
-        int duracion = cohorte.getPrograma().getDuracionTotalSemanas();
+        int duracion = cohorte.getPrograma().getDuracionTotalDias();
 
         Cohorte modificada = cohorteServicio.modificarCohorte(cohorte.getIdCohorte(), INICIO, INICIO.plusDays(20), null,
                 null, duracion + 2, 40);
 
         assertEquals(40, modificada.getCupoMaximo());
-        assertEquals(duracion + 2, modificada.getSemanasAcceso());
+        assertEquals(duracion + 2, modificada.getAccesoDias());
         assertTrue(modificada.getUltimaModificacion() != null);
     }
 

@@ -53,7 +53,7 @@
                                 <th data-col="Inicio de dictado" data-campo="fechaInicioDictado" data-filtro="fecha">Inicio de dictado</th>
                                 <th data-col="Fin de dictado" data-campo="fechaFinDictado" data-filtro="fecha">Fin de dictado</th>
                                 <th data-col="Cupo máximo" data-campo="cupoMaximo" data-filtro="numero">Cupo máximo</th>
-                                <th data-col="Semanas de acceso" data-campo="semanasAcceso" data-filtro="numero">Semanas de acceso</th>
+                                <th data-col="Días de acceso" data-campo="accesoDias" data-filtro="numero">Días de acceso</th>
                                 <th data-col="Estado" data-campo="estado" data-filtro="lista">Estado</th>
                                 <th data-col="Fecha de creación" data-campo="fechaCreacion" data-filtro="fecha">Fecha de creación</th>
                                 <th>Acciones</th>
@@ -72,7 +72,7 @@
                                 <td th:text="${coh.fechaInicioDictado != null ? #temporals.format(coh.fechaInicioDictado, 'dd/MM/yyyy') : '—'}">01/04/2026</td>
                                 <td th:text="${coh.fechaFinDictado != null ? #temporals.format(coh.fechaFinDictado, 'dd/MM/yyyy') : '—'}">30/06/2026</td>
                                 <td th:text="${coh.cupoMaximo != null ? coh.cantidadInscriptos + ' de ' + coh.cupoMaximo : coh.cantidadInscriptos + ' (sin límite)'}">0 de 40</td>
-                                <td th:text="${coh.semanasAcceso}">12</td>
+                                <td th:text="${coh.accesoDias}">12</td>
                                 <td>
                                             <span class="pn-insignia"
                                                   th:classappend="${coh.baja} ? 'pn-insignia-gris' : (${coh.estado == 'Abierta'} ? 'pn-insignia-verde' : (${coh.estado == 'En dictado'} ? 'pn-insignia-azul' : (${coh.estado == 'Próxima'} ? 'pn-insignia-dorada' : 'pn-insignia-gris')))"

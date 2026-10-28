@@ -16,6 +16,7 @@ import com.app.idoneos.modelo.ClaseEnVivo;
 import com.app.idoneos.modelo.ConsultaForo;
 import com.app.idoneos.modelo.RespuestaForo;
 import com.app.idoneos.modelo.Autoevaluacion;
+import com.app.idoneos.utilidades.DuracionUtilidad;
 import com.app.idoneos.modelo.AutoevaluacionPool;
 import com.app.idoneos.modelo.Certificado;
 import com.app.idoneos.modelo.Comprobante;
@@ -275,8 +276,8 @@ public class SemillaServicio {
         Usuario usuarioAdmin = crearUsuario("Admin", "Idóneos", "20111222", correoAdmin, "+54 376 4000000", rolAdministrador);
         Administrador admin = administradorRepositorio.save(new Administrador(usuarioAdmin));
         parametroRepositorio.save(new Parametro(admin, Parametro.MINIMO_TEMAS_CON_MATERIAL, "2"));
-        parametroRepositorio.save(new Parametro(admin, Parametro.CRONOGRAMA_SEMANAS_MAXIMAS,
-                String.valueOf(Parametro.CRONOGRAMA_SEMANAS_MAXIMAS_POR_DEFECTO)));
+        parametroRepositorio.save(new Parametro(admin, Parametro.CRONOGRAMA_DIAS_MAXIMOS,
+                String.valueOf(Parametro.CRONOGRAMA_DIAS_MAXIMOS_POR_DEFECTO)));
         parametroRepositorio.save(new Parametro(admin, Parametro.PLAZO_CONFIRMACION_PAGO,
                 String.valueOf(Parametro.PLAZO_CONFIRMACION_PAGO_POR_DEFECTO)));
         parametroRepositorio.save(new Parametro(admin, Parametro.CBU_INSTITUCION, "0000003100012345678901"));
@@ -727,7 +728,8 @@ public class SemillaServicio {
         Tema tema = new Tema(curso, titulo, "Contenido del tema: " + titulo + ". " + descripcion);
         tema.setDescripcion(descripcion);
         tema = temaRepositorio.save(tema);
-        temaCronogramaRepositorio.save(new TemaCronograma(programa, tema, numeroOrden, semanas));
+        // La semilla describe los temas en semanas; el cronograma se guarda en días
+        temaCronogramaRepositorio.save(new TemaCronograma(programa, tema, numeroOrden, semanas * DuracionUtilidad.DIAS_POR_SEMANA));
         if (autorMaterial != null) {
             Material material = new Material(autorMaterial, tipoMaterial, tema, "Material: " + titulo);
             material.setContenido("Material de estudio del tema " + titulo + ".");
@@ -738,7 +740,7 @@ public class SemillaServicio {
 
     private Cohorte crearCohorte(Programa programa, LocalDateTime inicioInscripcion, LocalDateTime finInscripcion,
             LocalDateTime inicioDictado, LocalDateTime finDictado, int semanasAcceso, Integer cupoMaximo) {
-        Cohorte cohorte = new Cohorte(programa, inicioInscripcion, finInscripcion, semanasAcceso);
+        Cohorte cohorte = new Cohorte(programa, inicioInscripcion, finInscripcion, semanasAcceso * DuracionUtilidad.DIAS_POR_SEMANA);
         cohorte.setFechaInicioDictado(inicioDictado);
         cohorte.setFechaFinDictado(finDictado);
         cohorte.setCupoMaximo(cupoMaximo);
@@ -780,7 +782,7 @@ public class SemillaServicio {
     }
 
     private Inscripcion crearInscripcion(Cohorte cohorte, Alumno alumno, LocalDateTime ahora, Tema temaCompletada) {
-        Inscripcion inscripcion = new Inscripcion(cohorte, alumno, ahora.plusWeeks(cohorte.getSemanasAcceso()));
+        Inscripcion inscripcion = new Inscripcion(cohorte, alumno, ahora.plusDays(cohorte.getAccesoDias()));
         inscripcion.setHabilitado(true);
         inscripcion = inscripcionRepositorio.save(inscripcion);
         if (temaCompletada != null) {

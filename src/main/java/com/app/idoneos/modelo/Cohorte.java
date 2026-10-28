@@ -21,16 +21,16 @@ import lombok.Setter;
 @Check(name = "ck_cohorte_dictado", constraints = "fecha_inicio_dictado is null or fecha_fin_dictado is null or fecha_fin_dictado > fecha_inicio_dictado")
 @Check(name = "ck_cohorte_inicio_dictado", constraints = "fecha_inicio_dictado is null or fecha_inicio_dictado >= fecha_fin_inscripcion")
 @Check(name = "ck_cohorte_cupo", constraints = "cupo_maximo is null or cupo_maximo > 0")
-@Check(name = "ck_cohorte_semanas", constraints = "semanas_acceso > 0")
+@Check(name = "ck_cohorte_acceso_dias", constraints = "acceso_dias > 0")
 @Getter
 @Setter
 @NoArgsConstructor
 public class Cohorte {
 
     /**
-     * Máximo de semanas de acceso al contenido desde la inscripción.
+     * Máximo de días de acceso al contenido desde la inscripción.
      */
-    public static final int SEMANAS_ACCESO_MAXIMAS = 100;
+    public static final int DIAS_ACCESO_MAXIMOS = 700;
 
     /**
      * Máximo de inscriptos que se puede definir como cupo de una cohorte.
@@ -83,10 +83,10 @@ public class Cohorte {
     private Integer cupoMaximo;
 
     /**
-     * Cantidad de semanas de acceso al contenido luego de inscribirse.
+     * Cantidad de días de acceso al contenido luego de inscribirse.
      */
-    @Column(name = "semanasAcceso", nullable = false)
-    private int semanasAcceso;
+    @Column(name = "accesoDias", nullable = false)
+    private int accesoDias;
 
     /**
      * Fecha y hora de creación del registro. Se establece al momento actual por defecto.
@@ -130,13 +130,13 @@ public class Cohorte {
      * @param programa relación con Programa.
      * @param fechaInicioInscripcion fecha y hora de inicio del período de inscripción.
      * @param fechaFinInscripcion fecha y hora de fin del período de inscripción.
-     * @param semanasAcceso cantidad de semanas de acceso al contenido luego de inscribirse.
+     * @param accesoDias cantidad de días de acceso al contenido luego de inscribirse.
      */
-    public Cohorte(Programa programa, LocalDateTime fechaInicioInscripcion, LocalDateTime fechaFinInscripcion, int semanasAcceso) {
+    public Cohorte(Programa programa, LocalDateTime fechaInicioInscripcion, LocalDateTime fechaFinInscripcion, int accesoDias) {
         this.programa = programa;
         this.fechaInicioInscripcion = fechaInicioInscripcion;
         this.fechaFinInscripcion = fechaFinInscripcion;
-        this.semanasAcceso = semanasAcceso;
+        this.accesoDias = accesoDias;
     }
 
     /**
@@ -179,7 +179,7 @@ public class Cohorte {
         if (!ahora.isAfter(fechaFinInscripcion)) {
             return "Abierta";
         }
-        LocalDateTime fin = fechaFinDictado != null ? fechaFinDictado : fechaFinInscripcion.plusWeeks(semanasAcceso);
+        LocalDateTime fin = fechaFinDictado != null ? fechaFinDictado : fechaFinInscripcion.plusDays(accesoDias);
         return ahora.isAfter(fin) ? "Finalizada" : "En dictado";
     }
 
@@ -254,7 +254,7 @@ public class Cohorte {
 
     /**
      * Calcula hasta cuándo tiene acceso quien se habilita en este momento (al aprobarse su pago, al habilitarse sin
-     * costo o al darlo de alta el administrador). Si la cohorte no tiene fechas de dictado (curso grabado), las semanas de
+     * costo o al darlo de alta el administrador). Si la cohorte no tiene fechas de dictado (curso grabado), los días de
      * acceso se suman al momento de la habilitación. Si las tiene (curso en vivo), se suman al fin del dictado, para que
      * todos los alumnos tengan el mismo tiempo para terminar el curso después de las clases; si alguien se habilita
      * cuando el dictado ya terminó (por ejemplo, paga tarde su inscripción), se cuentan desde su habilitación.
@@ -265,7 +265,7 @@ public class Cohorte {
     public LocalDateTime calcularVencimientoAcceso(LocalDateTime fechaInscripcion) {
         LocalDateTime base = fechaFinDictado != null && fechaFinDictado.isAfter(fechaInscripcion)
                 ? fechaFinDictado : fechaInscripcion;
-        return base.plusWeeks(semanasAcceso);
+        return base.plusDays(accesoDias);
     }
 
     /**
@@ -279,7 +279,7 @@ public class Cohorte {
     }
 
     /**
-     * Obtiene la fecha desde la que se cuentan las semanas del cronograma: el inicio del dictado o, si la
+     * Obtiene la fecha desde la que se cuentan los días del cronograma: el inicio del dictado o, si la
      * cohorte no tiene fechas de dictado, el inicio de la inscripción.
      *
      * @return La fecha base del cronograma.
@@ -289,26 +289,26 @@ public class Cohorte {
     }
 
     /**
-     * Calcula cuántas semanas transcurrieron desde la fecha base del cronograma, contando la semana en curso
-     * (la primera semana es la 1). No se acota a la duración del programa.
+     * Calcula cuántos días transcurrieron desde la fecha base del cronograma, contando el día en curso
+     * (el primer día es el 1). No se acota a la duración del programa.
      *
-     * @return El número de semana en que está la cohorte.
+     * @return El número de día en que está la cohorte.
      */
-    public int getSemanasTranscurridas() {
-        return (int) Math.max(0, ChronoUnit.DAYS.between(getFechaBaseCronograma(), LocalDateTime.now())) / 7 + 1;
+    public int getDiasTranscurridos() {
+        return (int) Math.max(0, ChronoUnit.DAYS.between(getFechaBaseCronograma(), LocalDateTime.now())) + 1;
     }
 
     /**
-     * Calcula la semana del cronograma en la que está la cohorte, entre la primera y la última del programa.
+     * Calcula el día del cronograma en el que está la cohorte, entre el primero y el último del programa.
      *
-     * @return La semana actual del cronograma.
+     * @return El día actual del cronograma.
      */
-    public int getSemanaActual() {
-        return Math.max(1, Math.min(getSemanasTranscurridas(), programa.getDuracionTotalSemanas()));
+    public int getDiaActual() {
+        return Math.max(1, Math.min(getDiasTranscurridos(), programa.getDuracionTotalDias()));
     }
 
     /**
-     * Indica si el cronograma de la cohorte ya comenzó: llegó la fecha desde la que se cuentan sus semanas.
+     * Indica si el cronograma de la cohorte ya comenzó: llegó la fecha desde la que se cuentan sus días.
      *
      * @return {@code true} si la fecha base del cronograma ya pasó.
      */
@@ -317,17 +317,17 @@ public class Cohorte {
     }
 
     /**
-     * Indica si el cronograma de la cohorte ya terminó: pasó la última semana del programa.
+     * Indica si el cronograma de la cohorte ya terminó: pasó el último día del programa.
      *
-     * @return {@code true} si el cronograma comenzó y ya transcurrieron todas sus semanas.
+     * @return {@code true} si el cronograma comenzó y ya transcurrieron todos sus días.
      */
     public boolean haFinalizadoCronograma() {
-        return haComenzadoCronograma() && getSemanasTranscurridas() > programa.getDuracionTotalSemanas();
+        return haComenzadoCronograma() && getDiasTranscurridos() > programa.getDuracionTotalDias();
     }
 
     /**
      * Calcula el estado de un tema según el calendario de la cohorte (sin mirar el avance de ningún alumno):
-     * Completada si su última semana ya pasó, En curso si la semana actual está dentro de sus semanas y Pendiente en
+     * Completada si su último día ya pasó, En curso si el día actual está dentro de sus días y Pendiente en
      * los demás casos (incluido el cronograma que todavía no comenzó).
      *
      * @param temaCronograma El tema del cronograma a consultar.
@@ -337,11 +337,11 @@ public class Cohorte {
         if (!haComenzadoCronograma()) {
             return "Pendiente";
         }
-        int semana = getSemanasTranscurridas();
-        if (temaCronograma.getSemanaHasta() < semana) {
+        int dia = getDiasTranscurridos();
+        if (temaCronograma.getDiaHasta() < dia) {
             return "Completada";
         }
-        return temaCronograma.getSemanaDesde() <= semana ? "En curso" : "Pendiente";
+        return temaCronograma.getDiaDesde() <= dia ? "En curso" : "Pendiente";
     }
 
     /**

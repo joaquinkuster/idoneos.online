@@ -42,16 +42,16 @@ public interface TemaCronogramaServicio {
     // ---------------------------------------------------------------- Modificaciones
 
     /**
-     * CU-24: Modifica el cronograma de un programa: define qué temas lo componen, en qué orden y con cuántas semanas
+     * CU-24: Modifica el cronograma de un programa: define qué temas lo componen, en qué orden y con cuántos días
      * cada una. Los temas que ya no figuran se dan de baja del cronograma (CU-22) y las nuevas se incorporan (CU-20).
      * Todo se hace en una sola operación: si algo falla, no se cambia nada.
      *
      * @param docente    el docente que modifica
      * @param programaId el identificador del programa
      * @param temaIds  los identificadores de los temas, en el orden del cronograma
-     * @param semanas    las semanas de duración de cada tema, en el mismo orden
+     * @param dias       los días de duración de cada tema, en el mismo orden
      * @throws IllegalArgumentException si el programa no está activo, tiene inscripciones activas, el docente no participa
      *                                  en el curso, alguna duración no es un entero mayor a cero o algún tema no es válida
      */
-    void modificarCronograma(Docente docente, Integer programaId, List<Integer> temaIds, List<String> semanas);
+    void modificarCronograma(Docente docente, Integer programaId, List<Integer> temaIds, List<String> dias);
 }

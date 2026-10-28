@@ -58,7 +58,7 @@
                                 <th data-col="Inicio de dictado" data-campo="fechaInicioDictado" data-filtro="fecha">Inicio de dictado</th>
                                 <th data-col="Fin de dictado" data-campo="fechaFinDictado" data-filtro="fecha">Fin de dictado</th>
                                 <th data-col="Cupo máximo" data-campo="cupoMaximo" data-filtro="numero">Cupo máximo</th>
-                                <th data-col="Semanas de acceso" data-campo="semanasAcceso" data-filtro="numero">Semanas de acceso</th>
+                                <th data-col="Días de acceso" data-campo="accesoDias" data-filtro="numero">Días de acceso</th>
                                 <th data-col="Estado" data-campo="estado" data-filtro="lista">Estado</th>
                                 <th data-col="Fecha de creación" data-campo="fechaCreacion" data-filtro="fecha">Fecha de creación</th>
                                 <th>Acciones</th>
@@ -80,7 +80,7 @@
                                 <td th:text="${coh.fechaInicioDictado != null ? #temporals.format(coh.fechaInicioDictado, 'dd/MM/yyyy') : '—'}">01/04/2026</td>
                                 <td th:text="${coh.fechaFinDictado != null ? #temporals.format(coh.fechaFinDictado, 'dd/MM/yyyy') : '—'}">30/06/2026</td>
                                 <td th:text="${coh.cupoMaximo != null ? coh.cantidadInscriptos + ' de ' + coh.cupoMaximo : coh.cantidadInscriptos + ' (sin límite)'}">0 de 40</td>
-                                <td th:text="${coh.semanasAcceso}">12</td>
+                                <td th:text="${coh.accesoDias}">12</td>
                                 <td>
                                     <span class="pn-insignia"
                                           th:classappend="${coh.baja} ? 'pn-insignia-gris' : (${coh.estado == 'Abierta'} ? 'pn-insignia-verde' : (${coh.estado == 'En dictado'} ? 'pn-insignia-azul' : (${coh.estado == 'Próxima'} ? 'pn-insignia-dorada' : 'pn-insignia-gris')))"
@@ -152,7 +152,7 @@
                                 <option value="">Programa</option>
                                 <option th:each="prog : ${programas}" th:value="${prog.idPrograma}"
                                         th:text="${prog.curso.nombre + ' - ' + prog.nombre}"
-                                        th:attr="data-envivo=${prog.curso.incluyeModalidad('En vivo')}, data-semanas=${prog.duracionTotalSemanas}, data-curso=${prog.curso.nombre}, data-programa=${prog.nombre}"
+                                        th:attr="data-envivo=${prog.curso.incluyeModalidad('En vivo')}, data-dias=${prog.duracionTotalDias}, data-curso=${prog.curso.nombre}, data-programa=${prog.nombre}"
                                         th:selected="${programaSeleccionado != null and programaSeleccionado == prog.idPrograma}">Curso - Programa</option>
                             </select>
                             <div class="pn-ayuda-error"></div>
@@ -191,16 +191,16 @@
     <div class="pn-paso" data-grupo="Cupo y acceso">
         <div class="pn-seccion-titulo">
             <h4>Cupo y acceso</h4>
-            <p>Semanas de acceso y cupo máximo</p>
+            <p>Días de acceso y cupo máximo</p>
         </div>
         <div class="row g-3">
 <div class="col-md-6 pn-campo">
                             <div class="pn-etiqueta-con-ayuda">
-                                <label class="pn-etiqueta">Semanas de acceso <span class="pn-obligatorio">*</span></label>
-                                <button type="button" class="cn-ayuda" aria-expanded="false" aria-label="Sobre las semanas de acceso" title="Ayuda"
-                                        data-ayuda-destino="ayudaSemanasNueva"><i class="fa-solid fa-circle-info"></i></button>
+                                <label class="pn-etiqueta">Días de acceso <span class="pn-obligatorio">*</span></label>
+                                <button type="button" class="cn-ayuda" aria-expanded="false" aria-label="Sobre los días de acceso" title="Ayuda"
+                                        data-ayuda-destino="ayudaDiasNueva"><i class="fa-solid fa-circle-info"></i></button>
                             </div>
-                            <input type="number" name="semanasAcceso" class="pn-input" min="1" th:attr="data-maximo=${semanasAccesoMaximas}" placeholder="Semanas de acceso" required>
+                            <input type="number" name="accesoDias" class="pn-input" min="1" th:attr="data-maximo=${accesoDiasMaximos}" placeholder="Días de acceso" required>
                             <div class="pn-ayuda-error"></div>
                         </div>
 <div class="col-md-6 pn-campo">
@@ -208,10 +208,10 @@
                             <input type="number" name="cupoMaximo" class="pn-input" min="1" th:attr="data-maximo=${cupoMaximoPermitido}" placeholder="Cupo máximo">
                             <div class="pn-ayuda-error"></div>
                         </div>
-                        <div class="col-12 ayuda-desplegable" id="ayudaSemanasNueva">
+                        <div class="col-12 ayuda-desplegable" id="ayudaDiasNueva">
                             <div class="ayuda-desplegable-interior">
                                 <div class="cn-info">
-                                    <span id="ayudaSemanasTexto">La duración total del cronograma y la forma de calcular el vencimiento se muestran al elegir un programa.</span>
+                                    <span id="ayudaDiasTexto">La duración total del cronograma y la forma de calcular el vencimiento se muestran al elegir un programa.</span>
                                 </div>
                             </div>
                         </div>
@@ -248,7 +248,7 @@
                 <div class="pn-modal-cuerpo">
                     <form th:action="@{'/cohorte/modificar/' + ${coh.idCohorte}}" method="post" class="form-ajax" data-validar data-validador="cohorte" data-pasos data-resumen="Cohorte" data-modo="modificacion"
                           data-contexto='[{"etiqueta":"Curso","atributoForm":"data-ctx-curso"},{"etiqueta":"Programa","atributoForm":"data-ctx-programa"}]' novalidate
-                          th:attr="data-semanas=${coh.programa.duracionTotalSemanas}, data-envivo=${coh.programa.curso.incluyeModalidad('En vivo')}, data-ctx-curso=${coh.programa.curso.nombre}, data-ctx-programa=${coh.programa.nombre}, data-resumen-titulo=${'(' + #temporals.format(coh.fechaInicioDictado != null ? coh.fechaInicioDictado : coh.fechaInicioInscripcion, 'dd/MM/yyyy') + ')'}"
+                          th:attr="data-dias=${coh.programa.duracionTotalDias}, data-envivo=${coh.programa.curso.incluyeModalidad('En vivo')}, data-ctx-curso=${coh.programa.curso.nombre}, data-ctx-programa=${coh.programa.nombre}, data-resumen-titulo=${'(' + #temporals.format(coh.fechaInicioDictado != null ? coh.fechaInicioDictado : coh.fechaInicioInscripcion, 'dd/MM/yyyy') + ')'}"
                           th:with="bloqueada=${coh.cantidadInscriptos > 0}, enVivo=${coh.programa.curso.incluyeModalidad('En vivo')}">
     <div class="pn-aviso pn-aviso-dorado" th:if="${bloqueada}">
                             La cohorte tiene <strong th:text="${coh.cantidadInscriptos}">1</strong> inscripción(es) activa(s) y no puede modificarse: son datos que el alumno vio y pagó al inscribirse.
@@ -289,16 +289,16 @@
     <div class="pn-paso" data-grupo="Cupo y acceso">
         <div class="pn-seccion-titulo">
             <h4>Cupo y acceso</h4>
-            <p>Semanas de acceso y cupo máximo</p>
+            <p>Días de acceso y cupo máximo</p>
         </div>
         <fieldset th:disabled="${bloqueada}" class="pn-fieldset-plano"><div class="row g-3">
 <div class="col-md-6 pn-campo">
                                     <div class="pn-etiqueta-con-ayuda">
-                                        <label class="pn-etiqueta">Semanas de acceso <span class="pn-obligatorio">*</span></label>
-                                        <button type="button" class="cn-ayuda" aria-expanded="false" aria-label="Sobre las semanas de acceso" title="Ayuda"
-                                                th:data-ayuda-destino="'ayudaSemanas' + ${coh.idCohorte}"><i class="fa-solid fa-circle-info"></i></button>
+                                        <label class="pn-etiqueta">Días de acceso <span class="pn-obligatorio">*</span></label>
+                                        <button type="button" class="cn-ayuda" aria-expanded="false" aria-label="Sobre los días de acceso" title="Ayuda"
+                                                th:data-ayuda-destino="'ayudaDias' + ${coh.idCohorte}"><i class="fa-solid fa-circle-info"></i></button>
                                     </div>
-                                    <input type="number" name="semanasAcceso" class="pn-input" min="1" th:attr="data-maximo=${semanasAccesoMaximas}" th:value="${coh.semanasAcceso}" th:placeholder="${'Mínimo: ' + coh.programa.duracionTotalSemanas}" required>
+                                    <input type="number" name="accesoDias" class="pn-input" min="1" th:attr="data-maximo=${accesoDiasMaximos}" th:value="${coh.accesoDias}" th:placeholder="${'Mínimo: ' + coh.programa.duracionTotalDias}" required>
                                     <div class="pn-ayuda-error"></div>
                                 </div>
 <div class="col-md-6 pn-campo">
@@ -306,12 +306,12 @@
                                     <input type="number" name="cupoMaximo" class="pn-input" min="1" th:attr="data-maximo=${cupoMaximoPermitido}" th:value="${coh.cupoMaximo}" placeholder="Cupo máximo">
                                     <div class="pn-ayuda-error"></div>
                                 </div>
-                        <div class="col-12 ayuda-desplegable" th:id="'ayudaSemanas' + ${coh.idCohorte}">
+                        <div class="col-12 ayuda-desplegable" th:id="'ayudaDias' + ${coh.idCohorte}">
                             <div class="ayuda-desplegable-interior">
                                 <div class="cn-info">
-                                    <span>La duración total del cronograma del programa es de <strong th:text="${coh.programa.duracionTotalSemanas}">9</strong> semanas, y las semanas de acceso no pueden ser menores.
-                                        <th:block th:if="${coh.programa.curso.incluyeModalidad('En vivo')}">La fecha de vencimiento de acceso se calcula a partir de la fecha de fin de dictado más las semanas de acceso.</th:block>
-                                        <th:block th:unless="${coh.programa.curso.incluyeModalidad('En vivo')}">La fecha de vencimiento de acceso se calcula a partir de la fecha de habilitación más las semanas de acceso.</th:block></span>
+                                    <span>La duración total del cronograma del programa es de <strong th:text="${coh.programa.duracionTotalDias}">9</strong> dias, y los días de acceso no pueden ser menores.
+                                        <th:block th:if="${coh.programa.curso.incluyeModalidad('En vivo')}">La fecha de vencimiento de acceso se calcula a partir de la fecha de fin de dictado más los días de acceso.</th:block>
+                                        <th:block th:unless="${coh.programa.curso.incluyeModalidad('En vivo')}">La fecha de vencimiento de acceso se calcula a partir de la fecha de habilitación más los días de acceso.</th:block></span>
                                 </div>
                             </div>
                         </div>
@@ -355,10 +355,10 @@
                 var opcion = selector.options[selector.selectedIndex];
                 return {
                     enVivo: !!opcion && opcion.dataset.envivo === 'true',
-                    semanas: opcion && opcion.dataset.semanas ? parseInt(opcion.dataset.semanas, 10) : 0
+                    dias: opcion && opcion.dataset.dias ? parseInt(opcion.dataset.dias, 10) : 0
                 };
             }
-            return { enVivo: formulario.dataset.envivo === 'true', semanas: parseInt(formulario.dataset.semanas || '0', 10) };
+            return { enVivo: formulario.dataset.envivo === 'true', dias: parseInt(formulario.dataset.dias || '0', 10) };
         }
 
         // Cada paso valida sus propios campos: 1 programa, 2 fechas, 3 cupo y acceso (en la modificación, 1 fechas y 2 cupo y acceso)
@@ -369,7 +369,7 @@
             var finIns = campo(formulario, 'fechaFinInscripcion');
             var iniDic = campo(formulario, 'fechaInicioDictado');
             var finDic = campo(formulario, 'fechaFinDictado');
-            var semanas = campo(formulario, 'semanasAcceso');
+            var dias = campo(formulario, 'accesoDias');
             var cupo = campo(formulario, 'cupoMaximo');
             var hayPrograma = !!campo(formulario, 'programaId');
             var pasoFechas = hayPrograma ? 2 : 1;
@@ -398,14 +398,14 @@
                 }
             }
             if (paso === pasoCupo) {
-                // Semanas de acceso y cupo: cada regla tiene su propio mensaje
-                var maximoSemanas = parseInt(semanas.dataset.maximo, 10);
-                if (semanas.value) {
-                    if (!Number.isInteger(Number(semanas.value)) || Number(semanas.value) <= 0 || Number(semanas.value) > maximoSemanas) {
-                        marcar(semanas, 'No es válido. Formato válido: número entero de 1 a ' + maximoSemanas + '.');
+                // Días de acceso y cupo: cada regla tiene su propio mensaje
+                var maximoDias = parseInt(dias.dataset.maximo, 10);
+                if (dias.value) {
+                    if (!Number.isInteger(Number(dias.value)) || Number(dias.value) <= 0 || Number(dias.value) > maximoDias) {
+                        marcar(dias, 'No es válido. Formato válido: número entero de 1 a ' + maximoDias + '.');
                         ok = false;
-                    } else if (datos.semanas && Number(semanas.value) < datos.semanas) {
-                        marcar(semanas, 'Las semanas de acceso no pueden ser menores a la duración total del cronograma del programa (' + datos.semanas + ' semanas).');
+                    } else if (datos.dias && Number(dias.value) < datos.dias) {
+                        marcar(dias, 'Los días de acceso no pueden ser menores a la duración total del cronograma del programa (' + datos.dias + ' dias).');
                         ok = false;
                     }
                 }
@@ -428,22 +428,22 @@
                     g.classList.toggle('d-none', !datos.enVivo);
                 });
                 info.textContent = selector.value && datos.enVivo ? 'El curso incluye clases en vivo: completá las fechas de dictado.' : '';
-                var ayudaSemanas = document.getElementById('ayudaSemanasTexto');
-                if (ayudaSemanas) {
-                    var campoSemanas = selector.form.elements['semanasAcceso'];
-                    if (campoSemanas) {
-                        campoSemanas.placeholder = selector.value && datos.semanas > 0 ? 'Mínimo: ' + datos.semanas : 'Semanas de acceso';
+                var ayudaDias = document.getElementById('ayudaDiasTexto');
+                if (ayudaDias) {
+                    var campoDias = selector.form.elements['accesoDias'];
+                    if (campoDias) {
+                        campoDias.placeholder = selector.value && datos.dias > 0 ? 'Mínimo: ' + datos.dias : 'Días de acceso';
                         // si todavía no se escribió nada (o es el mínimo del programa anterior), se propone el mínimo
-                        if (selector.value && datos.semanas > 0 && (campoSemanas.value === '' || campoSemanas.dataset.sugerido === campoSemanas.value)) {
-                            campoSemanas.value = String(datos.semanas);
-                            campoSemanas.dataset.sugerido = String(datos.semanas);
+                        if (selector.value && datos.dias > 0 && (campoDias.value === '' || campoDias.dataset.sugerido === campoDias.value)) {
+                            campoDias.value = String(datos.dias);
+                            campoDias.dataset.sugerido = String(datos.dias);
                         }
                     }
-                    ayudaSemanas.textContent = selector.value
-                        ? 'La duración total del cronograma del programa es de ' + datos.semanas + ' semanas, y las semanas de acceso no pueden ser menores. '
+                    ayudaDias.textContent = selector.value
+                        ? 'La duración total del cronograma del programa es de ' + datos.dias + ' dias, y los días de acceso no pueden ser menores. '
                             + (datos.enVivo
-                                ? 'La fecha de vencimiento de acceso se calcula a partir de la fecha de fin de dictado más las semanas de acceso.'
-                                : 'La fecha de vencimiento de acceso se calcula a partir de la fecha de habilitación más las semanas de acceso.')
+                                ? 'La fecha de vencimiento de acceso se calcula a partir de la fecha de fin de dictado más los días de acceso.'
+                                : 'La fecha de vencimiento de acceso se calcula a partir de la fecha de habilitación más los días de acceso.')
                         : 'La duración total del cronograma y la forma de calcular el vencimiento se muestran al elegir un programa.';
                 }
             };

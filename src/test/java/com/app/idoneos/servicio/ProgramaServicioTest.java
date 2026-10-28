@@ -144,13 +144,13 @@ class ProgramaServicioTest {
     void copiaElCronograma() {
         Programa original = mercado().getProgramaVigente();
         int temas = original.getCantidadTemas();
-        int semanas = original.getDuracionTotalSemanas();
+        int semanas = original.getDuracionTotalDias();
         assertTrue(temas > 0);
 
         Programa copia = registrar(mercado(), original.getIdPrograma(), "Edición 2027");
 
         assertEquals(temas, copia.getCantidadTemas());
-        assertEquals(semanas, copia.getDuracionTotalSemanas());
+        assertEquals(semanas, copia.getDuracionTotalDias());
         assertEquals(original.getCronogramaOrdenado().stream().map(c -> c.getTema().getIdTema()).toList(),
                 copia.getCronogramaOrdenado().stream().map(c -> c.getTema().getIdTema()).toList());
         assertEquals(temas, original.getCantidadTemas());

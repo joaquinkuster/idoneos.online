@@ -61,11 +61,11 @@ class CronogramaControladorTest {
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesServicio")
-    @DisplayName("La pantalla recibe el máximo de semanas del cronograma desde el parámetro del sistema")
+    @DisplayName("La pantalla recibe el máximo de días del cronograma desde el parámetro del sistema")
     void maximoDeSemanasParametrizado() throws Exception {
         mockMvc.perform(get("/cronograma/buscar").param("cursoId", String.valueOf(macro().getIdCurso())))
                 .andExpect(status().isOk())
-                .andExpect(content().string(Matchers.containsString("data-semanas-maximas=\"52\"")));
+                .andExpect(content().string(Matchers.containsString("data-dias-maximos=\"365\"")));
     }
 
     private String cursoId(Curso curso) {
@@ -109,7 +109,7 @@ class CronogramaControladorTest {
                 // los dos paneles, las dos vistas y los botones (el de guardar se llama "Modificar")
                 .andExpect(content().string(Matchers.containsString("Temas disponibles")))
                 .andExpect(content().string(Matchers.containsString("data-nueva-tema")))
-                .andExpect(content().string(Matchers.containsString("Vista por semanas")))
+                .andExpect(content().string(Matchers.containsString("Vista de calendario")))
                 .andExpect(content().string(Matchers.containsString("Vista por temas")))
                 .andExpect(content().string(Matchers.containsString("data-zona")))
                 .andExpect(content().string(Matchers.containsString("data-cancelar")))
@@ -117,11 +117,11 @@ class CronogramaControladorTest {
                 .andExpect(content().string(Matchers.not(Matchers.containsString("Guardar cambios"))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("Cronograma en solo lectura"))))
                 .andExpect(content().string(Matchers.containsString("/js/cronograma.js")));
-        // los temas del cronograma viajan a la pantalla, en orden y con sus semanas
+        // los temas del cronograma viajan a la pantalla, en orden y con sus días
         for (TemaCronograma c : programa.getCronogramaOrdenado()) {
             mockMvc.perform(get("/cronograma/buscar").param("cursoId", cursoId(macro())))
                     .andExpect(content().string(Matchers.containsString("data-id=\"" + c.getTema().getIdTema()
-                            + "\" data-semanas=\"" + c.getSemanasDuracion() + "\"")));
+                            + "\" data-dias=\"" + c.getDuracionDias() + "\"")));
         }
     }
 
@@ -140,7 +140,7 @@ class CronogramaControladorTest {
                 // sin edición no hay botón de ayuda ni su texto
                 .andExpect(content().string(Matchers.not(Matchers.containsString("data-ayuda"))))
                 // la semana actual de la cohorte de trabajo sigue informada, sin el atraso del alumno
-                .andExpect(content().string(Matchers.containsString("Semana actual de la cohorte: 3 de 9")))
+                .andExpect(content().string(Matchers.containsString("Día actual de la cohorte: 21 de 63")))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("Vas al día"))));
     }
 
@@ -184,20 +184,20 @@ class CronogramaControladorTest {
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesServicio")
-    @DisplayName("CU-24: modificar el cronograma responde en JSON y la página muestra el nuevo orden y las nuevas semanas")
+    @DisplayName("CU-24: modificar el cronograma responde en JSON y la página muestra el nuevo orden y los nuevos días")
     void modificar() throws Exception {
         Programa programa = programaDe(macro());
         List<Integer> temas = temasDe(macro());
 
         mockMvc.perform(post("/cronograma/modificar").param("programaId", String.valueOf(programa.getIdPrograma()))
                 .param("ids", String.valueOf(temas.get(2)), String.valueOf(temas.get(0)), String.valueOf(temas.get(1)))
-                .param("semanas", "2", "4", "1"))
+                .param("dias", "14", "28", "7"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith("application/json"))
                 .andExpect(jsonPath("$.mensaje").value("Cronograma modificado correctamente."));
 
         mockMvc.perform(get("/cronograma/buscar").param("cursoId", cursoId(macro())))
-                .andExpect(content().string(Matchers.containsString("data-id=\"" + temas.get(2) + "\" data-semanas=\"2\"")))
+                .andExpect(content().string(Matchers.containsString("data-id=\"" + temas.get(2) + "\" data-dias=\"14\"")))
                 .andExpect(content().string(Matchers.containsString("7 semanas")));
     }
 
@@ -210,11 +210,11 @@ class CronogramaControladorTest {
         String id = String.valueOf(programa.getIdPrograma());
 
         mockMvc.perform(post("/cronograma/modificar").param("programaId", id)
-                .param("ids", String.valueOf(temas.get(0))).param("semanas", "0"))
+                .param("ids", String.valueOf(temas.get(0))).param("dias", "0"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value(Matchers.containsString("mayor a cero")));
         mockMvc.perform(post("/cronograma/modificar").param("programaId", id)
-                .param("ids", String.valueOf(temas.get(0))).param("semanas", "tres"))
+                .param("ids", String.valueOf(temas.get(0))).param("dias", "tres"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value(Matchers.containsString("mayor a cero")));
 

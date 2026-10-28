@@ -1,5 +1,6 @@
 package com.app.idoneos.servicio.Tema;
 
+import com.app.idoneos.utilidades.DuracionUtilidad;
 import com.app.idoneos.utilidades.RespuestaFormularioUtilidad;
 import com.app.idoneos.utilidades.MensajeErrorUtilidad;
 import com.app.idoneos.utilidades.MensajeErrorUtilidad;
@@ -173,7 +174,7 @@ public class TemaServicioImpl implements TemaServicio, CrudServicio<Tema> {
         int orden = programa.getTemasCronograma().stream().mapToInt(TemaCronograma::getNumeroOrden).max().orElse(0)
                 + 1;
         TemaCronograma cronograma = temaCronogramaRepositorio
-                .save(new TemaCronograma(programa, tema, orden, 1));
+                .save(new TemaCronograma(programa, tema, orden, DuracionUtilidad.DIAS_POR_SEMANA));
         programa.getTemasCronograma().add(cronograma);
         tema.getTemasCronograma().add(cronograma);
         return tema;

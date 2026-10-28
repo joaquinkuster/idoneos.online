@@ -8,11 +8,11 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * Posición y duración en semanas de un tema dentro del cronograma de un programa.
+ * Posición y duración en días de un tema dentro del cronograma de un programa.
  */
 @Entity
 @Table(name = "TemaCronograma", uniqueConstraints = { @UniqueConstraint(columnNames = {"idPrograma", "idTema"}), @UniqueConstraint(columnNames = {"idPrograma", "numeroOrden"}) })
-@Check(name = "ck_tema_cronograma_semanas", constraints = "semanas_duracion > 0")
+@Check(name = "ck_tema_cronograma_duracion_dias", constraints = "duracion_dias > 0")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -47,10 +47,10 @@ public class TemaCronograma {
     private int numeroOrden;
 
     /**
-     * Duración del tema en semanas.
+     * Duración del tema en días.
      */
-    @Column(name = "semanasDuracion", nullable = false)
-    private int semanasDuracion;
+    @Column(name = "duracionDias", nullable = false)
+    private int duracionDias;
 
     /**
      * Fecha y hora de creación del registro. Se establece al momento actual por defecto.
@@ -76,13 +76,13 @@ public class TemaCronograma {
      * @param programa relación con Programa.
      * @param tema relación con Tema.
      * @param numeroOrden número de orden del tema dentro del cronograma.
-     * @param semanasDuracion duración del tema en semanas.
+     * @param duracionDias duración del tema en días.
      */
-    public TemaCronograma(Programa programa, Tema tema, int numeroOrden, int semanasDuracion) {
+    public TemaCronograma(Programa programa, Tema tema, int numeroOrden, int duracionDias) {
         this.programa = programa;
         this.tema = tema;
         this.numeroOrden = numeroOrden;
-        this.semanasDuracion = semanasDuracion;
+        this.duracionDias = duracionDias;
     }
 
     /**
@@ -112,20 +112,39 @@ public class TemaCronograma {
     }
 
     /**
-     * Obtiene la primera semana del programa en la que se dicta el tema.
+     * Obtiene el primer día del programa en el que se dicta el tema.
      *
-     * @return El número de semana en que empieza el tema.
+     * @return El número de día en que empieza el tema.
      */
-    public int getSemanaDesde() {
-        return programa.getSemanaDesde(this);
+    public int getDiaDesde() {
+        return programa.getDiaDesde(this);
     }
 
     /**
-     * Obtiene la última semana del programa en la que se dicta el tema.
+     * Obtiene el último día del programa en el que se dicta el tema.
      *
-     * @return El número de semana en que termina el tema.
+     * @return El número de día en que termina el tema.
      */
-    public int getSemanaHasta() {
-        return programa.getSemanaHasta(this);
+    public int getDiaHasta() {
+        return programa.getDiaHasta(this);
+    }
+
+    /**
+     * Obtiene la primera columna que ocupa el tema al dibujar el cronograma (ver {@link Programa#getPasoCronograma()}).
+     *
+     * @return El número de columna, desde 1.
+     */
+    public int getColumnaDesde() {
+        return (getDiaDesde() - 1) / programa.getPasoCronograma() + 1;
+    }
+
+    /**
+     * Obtiene la última columna que ocupa el tema al dibujar el cronograma.
+     *
+     * @return El número de columna.
+     */
+    public int getColumnaHasta() {
+        int paso = programa.getPasoCronograma();
+        return (getDiaHasta() + paso - 1) / paso;
     }
 }

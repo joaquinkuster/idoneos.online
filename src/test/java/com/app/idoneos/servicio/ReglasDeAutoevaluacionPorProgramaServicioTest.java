@@ -59,7 +59,7 @@ class ReglasDeAutoevaluacionPorProgramaServicioTest {
 
     private void registrarCohorte(Programa programa) {
         LocalDate hoy = LocalDate.now();
-        cohorteServicio.registrarCohorte(programa.getIdPrograma(), hoy.plusDays(1), hoy.plusDays(30), null, null, 10, null);
+        cohorteServicio.registrarCohorte(programa.getIdPrograma(), hoy.plusDays(1), hoy.plusDays(30), null, null, 70, null);
     }
 
     private Docente fausto() {
@@ -87,7 +87,7 @@ class ReglasDeAutoevaluacionPorProgramaServicioTest {
         Programa programa = macro();
         List<TemaCronograma> cronograma = programa.getCronogramaOrdenado();
         List<Integer> ids = cronograma.stream().map(c -> c.getTema().getIdTema()).toList();
-        List<String> semanas = cronograma.stream().map(c -> String.valueOf(c.getSemanasDuracion())).toList();
+        List<String> semanas = cronograma.stream().map(c -> String.valueOf(c.getDuracionDias())).toList();
 
         assertDoesNotThrow(() -> cronogramaServicio.modificarCronograma(fausto(), programa.getIdPrograma(), ids, semanas));
 

@@ -240,7 +240,7 @@ public class CursoControlador extends PanelCursoControlador {
             String menuActivo = "temas".equals(seccionActiva) ? "curso" : seccionActiva;
             cargarContexto(modelo, esAdministrador ? ContextoCurso.deAdministrador(curso)
                     : ContextoCurso.deDocente(participacion), menuActivo);
-            cargarSemanasMaximasDelCronograma(modelo);
+            cargarDiasMaximosDelCronograma(modelo);
             modelo.addAttribute("inscripcion", null);
             modelo.addAttribute("cohorte", cohorte);
             // Selectores de programa y cohorte por defecto: solo los activos, el más reciente primero

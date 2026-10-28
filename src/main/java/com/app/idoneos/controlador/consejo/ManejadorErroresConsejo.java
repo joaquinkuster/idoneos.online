@@ -30,10 +30,10 @@ public class ManejadorErroresConsejo {
     /** Mensajes de las excepciones de los casos de uso (CU-12 y CU-13) para los valores numéricos inválidos. */
     private static final Map<String, String> MENSAJES_DE_CU = Map.of(
             "cupoMaximo", MensajeErrorUtilidad.formatoInvalido("El cupo máximo", "número entero de 1 a " + Cohorte.CUPO_MAXIMO_PERMITIDO),
-            "semanasAcceso", MensajeErrorUtilidad.formatoInvalido("Las semanas de acceso", "número entero de 1 a " + Cohorte.SEMANAS_ACCESO_MAXIMAS));
+            "accesoDias", MensajeErrorUtilidad.formatoInvalido("Los días de acceso", "número entero de 1 a " + Cohorte.DIAS_ACCESO_MAXIMOS));
 
     private static final Map<String, String> NOMBRES_DE_CAMPOS = Map.ofEntries(
-            Map.entry("semanasAcceso", "Semanas de acceso"),
+            Map.entry("accesoDias", "Días de acceso"),
             Map.entry("cupoMaximo", "Cupo máximo"),
             Map.entry("precio", "Precio"),
             Map.entry("categoriaId", "Categoría"),

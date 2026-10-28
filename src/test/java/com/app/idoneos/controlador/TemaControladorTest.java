@@ -91,7 +91,7 @@ class TemaControladorTest {
                 .andExpect(content().string(Matchers.containsString("data-col=\"Título\"")))
                 .andExpect(content().string(Matchers.containsString("data-col=\"Descripción\"")))
                 .andExpect(content().string(Matchers.containsString("data-col=\"Contenido\"")))
-                .andExpect(content().string(Matchers.containsString("data-col=\"Semanas\"")))
+                .andExpect(content().string(Matchers.containsString("data-col=\"Duración\"")))
                 .andExpect(content().string(Matchers.containsString("data-col=\"Última modificación\"")))
                 .andExpect(content().string(Matchers.containsString("data-col=\"Fecha de creación\"")))
                 .andExpect(content().string(Matchers.containsString("fa-plus\"></i> Registrar tema")))

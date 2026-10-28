@@ -276,9 +276,9 @@
                     <th:block th:if="${#lists.isEmpty(programa.cronogramaOrdenado)}"><th:block th:replace="~{fragments/vacio :: bloque('fa-calendar', 'El programa todavía no tiene temas', 'Cuando se carguen temas, vas a ver su cronograma acá.', null, null)}"></th:block></th:block>
 
                     <div th:if="${!#lists.isEmpty(programa.cronogramaOrdenado)}">
-                        <!-- En qué semana va la cohorte (igual que en la vista del docente) -->
+                        <!-- En qué día va la cohorte (igual que en la vista del docente) -->
                         <p class="ac-nota" th:if="${cohorte != null}"
-                            th:text="${'Semana actual de la cohorte: ' + cohorte.semanaActual + ' de ' + programa.duracionTotalSemanas + ' (contada desde el inicio ' + (cohorte.fechaInicioDictado != null ? 'del dictado' : 'de la inscripción') + ', ' + #temporals.format(cohorte.fechaBaseCronograma, 'dd/MM/yyyy') + ').'}">Semana actual</p>
+                            th:text="${'Día actual de la cohorte: ' + cohorte.diaActual + ' de ' + programa.duracionTotalDias + ' (contado desde el inicio ' + (cohorte.fechaInicioDictado != null ? 'del dictado' : 'de la inscripción') + ', ' + #temporals.format(cohorte.fechaBaseCronograma, 'dd/MM/yyyy') + ').'}">Día actual</p>
 
                         <th:block th:with="cronoCohorte=${cohorte},cronoInscripcion=${esDocente ? null : inscripcion}">
                             <th:block th:replace="~{fragments/cronogramaTablero :: tablero(${curso}, ${programa}, ${programa.cronogramaOrdenado}, ${temasDelCronograma}, false, true)}"></th:block>

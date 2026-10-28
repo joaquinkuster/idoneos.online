@@ -119,10 +119,10 @@ class AccederCursoControladorTest {
 
         mockMvc.perform(get("/inscripcion/acceder/" + atrasada))
                 .andExpect(status().isOk())
-                .andExpect(content().string(Matchers.containsString("3 semanas de atraso")))
+                .andExpect(content().string(Matchers.containsString("20 días de atraso")))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("Al día"))))
                 .andExpect(content().string(Matchers.containsString("ac-cajon-actual")))
-                .andExpect(content().string(Matchers.containsString("Hoy (semana actual)")));
+                .andExpect(content().string(Matchers.containsString("Hoy (día actual)")));
     }
 
     @Test
@@ -141,9 +141,9 @@ class AccederCursoControladorTest {
         mockMvc.perform(get("/inscripcion/acceder/" + inscripcionDe("valentina.ruiz@correo.com"))
                 .param("seccion", "cronograma"))
                 .andExpect(status().isOk())
-                .andExpect(content().string(Matchers.containsString("data-semana-actual=\"3\"")))
+                .andExpect(content().string(Matchers.containsString("data-dia-actual=\"21\"")))
                 .andExpect(content().string(Matchers.containsString("Vas al día")))
-                .andExpect(content().string(Matchers.containsString("Hoy (semana actual)")))
+                .andExpect(content().string(Matchers.containsString("Hoy (día actual)")))
                 // el mismo tablero que ve el docente cuando hay inscripciones: solo lectura (sin paneles ni botones)
                 .andExpect(content().string(Matchers.containsString("id=\"cronograma\"")))
                 .andExpect(content().string(Matchers.containsString("data-editable=\"false\"")))

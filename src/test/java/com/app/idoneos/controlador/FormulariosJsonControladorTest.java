@@ -73,9 +73,9 @@ class FormulariosJsonControladorTest {
     @WithUserDetails(value = "admin@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesServicio")
     @DisplayName("Un valor numérico que no se puede interpretar informa el error del caso de uso en lugar de un error interno")
     void numeroDemasiadoGrande() throws Exception {
-        mockMvc.perform(post("/cohorte/registrar").param("programaId", "1").param("semanasAcceso", "100000000000000"))
+        mockMvc.perform(post("/cohorte/registrar").param("programaId", "1").param("accesoDias", "100000000000000"))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value(Matchers.containsString("número entero de 1 a 100")));
+                .andExpect(jsonPath("$.error").value(Matchers.containsString("número entero de 1 a 700")));
     }
 
     @Test

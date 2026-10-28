@@ -26,7 +26,7 @@ class InscripcionAccesoTest {
     @BeforeEach
     void armar() {
         programa = new Programa(null, "Programa 2026", "Objetivos", "Bibliografía");
-        cohorte = new Cohorte(programa, ahora.minusDays(10), ahora.plusDays(20), 12);
+        cohorte = new Cohorte(programa, ahora.minusDays(10), ahora.plusDays(20), 84);
         inscripcion = new Inscripcion(cohorte, null, ahora.plusWeeks(12));
         inscripcion.setHabilitado(true);
     }

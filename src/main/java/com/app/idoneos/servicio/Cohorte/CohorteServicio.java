@@ -56,13 +56,13 @@ public interface CohorteServicio {
      * @param fechaFinInscripcion la fecha de fin de la inscripción
      * @param fechaInicioDictado la fecha de inicio del dictado (obligatoria si el curso tiene modalidad En vivo)
      * @param fechaFinDictado la fecha de fin del dictado (obligatoria si el curso tiene modalidad En vivo)
-     * @param semanasAcceso las semanas de acceso al contenido desde la inscripción
+     * @param accesoDias los días de acceso al contenido desde la inscripción
      * @param cupoMaximo el cupo máximo de inscriptos (opcional)
      * @return la cohorte registrada
      * @throws IllegalArgumentException si no se cumple alguna regla de registro
      */
     Cohorte registrarCohorte(Integer idPrograma, LocalDate fechaInicioInscripcion, LocalDate fechaFinInscripcion,
-            LocalDate fechaInicioDictado, LocalDate fechaFinDictado, Integer semanasAcceso, Integer cupoMaximo);
+            LocalDate fechaInicioDictado, LocalDate fechaFinDictado, Integer accesoDias, Integer cupoMaximo);
 
     // ---------------------------------------------------------------- Modificaciones
 
@@ -74,13 +74,13 @@ public interface CohorteServicio {
      * @param fechaFinInscripcion la fecha de fin de la inscripción
      * @param fechaInicioDictado la fecha de inicio del dictado (obligatoria si el curso tiene modalidad En vivo)
      * @param fechaFinDictado la fecha de fin del dictado (obligatoria si el curso tiene modalidad En vivo)
-     * @param semanasAcceso las semanas de acceso al contenido desde la inscripción
+     * @param accesoDias los días de acceso al contenido desde la inscripción
      * @param cupoMaximo el cupo máximo de inscriptos (opcional)
      * @return la cohorte modificada
      * @throws IllegalArgumentException si no se cumple alguna regla de modificación
      */
     Cohorte modificarCohorte(Integer idCohorte, LocalDate fechaInicioInscripcion, LocalDate fechaFinInscripcion,
-            LocalDate fechaInicioDictado, LocalDate fechaFinDictado, Integer semanasAcceso, Integer cupoMaximo);
+            LocalDate fechaInicioDictado, LocalDate fechaFinDictado, Integer accesoDias, Integer cupoMaximo);
 
     /**
      * Cambia el contexto de trabajo de un docente: establece la cohorte (y su programa) como la de trabajo

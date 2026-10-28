@@ -3,14 +3,17 @@
 
 <body>
     <!-- Cajón del cronograma de la vista del curso (a la derecha, se oculta y se vuelve a mostrar).
-         Con cohorte en curso muestra la semana actual y, al alumno, su atraso; sin comenzar, solo el cronograma.
+         Con cohorte en curso muestra el día actual y, al alumno, su atraso; sin comenzar, solo el cronograma.
          programa: programa del curso; cohorte: cohorte actual (puede ser null para el docente); inscripcion: del alumno
          (null para el docente). Cada tema muestra su estado: del avance del alumno o, para el docente, del calendario. -->
     <th:block th:fragment="cajon(programa, cohorte, inscripcion)"
-        th:with="duracion=${programa.duracionTotalSemanas},
+        th:with="duracion=${programa.duracionTotalDias},
                  comenzo=${cohorte != null and cohorte.haComenzadoCronograma()},
                  finalizo=${cohorte != null and cohorte.haFinalizadoCronograma()},
-                 semana=${cohorte != null ? cohorte.semanaActual : 0},
+                 dia=${cohorte != null ? cohorte.diaActual : 0},
+                 paso=${programa.pasoCronograma},
+                 columnas=${programa.columnasCronograma},
+                 columnaHoy=${cohorte != null ? (cohorte.diaActual - 1) / programa.pasoCronograma + 1 : 0},
                  cantidad=${#lists.size(programa.cronogramaOrdenado)}">
         <aside class="ac-cajon" id="cajonCronograma" aria-label="Cronograma del curso">
             <div class="ac-cajon-cabecera">
@@ -22,13 +25,13 @@
             <p class="ac-cajon-cohorte" th:if="${cohorte != null}" th:text="${'Cohorte ' + cohorte.etiqueta}">Cohorte Mayo 2026 (En dictado)</p>
             <p class="ac-cajon-cohorte" th:if="${cohorte == null}">Sin cohorte seleccionada</p>
 
-            <!-- Cohorte en curso: la semana y, en la misma línea, el atraso del alumno -->
+            <!-- Cohorte en curso: el día y, en la misma línea, el atraso del alumno -->
             <div class="ac-cajon-semana" th:if="${comenzo}">
-                <strong th:text="${finalizo ? 'Finalizado' : 'Semana ' + semana}">Semana 3</strong>
-                <span th:text="${finalizo ? duracion + (duracion == 1 ? ' semana' : ' semanas') : 'de ' + duracion}">de 9</span>
+                <strong th:text="${finalizo ? 'Finalizado' : 'Día ' + dia}">Día 12</strong>
+                <span th:text="${finalizo ? T(com.app.idoneos.utilidades.DuracionUtilidad).formatear(duracion) : 'de ' + duracion + (duracion == 1 ? ' día' : ' días')}">de 63 días</span>
                 <th:block th:if="${inscripcion != null}">
                     <span class="pn-insignia pn-insignia-roja" th:if="${inscripcion.estaAtrasada()}"
-                        th:text="${inscripcion.semanasDeAtraso + (inscripcion.semanasDeAtraso == 1 ? ' semana de atraso' : ' semanas de atraso')}">1 semana de atraso</span>
+                        th:text="${inscripcion.diasDeAtraso + (inscripcion.diasDeAtraso == 1 ? ' día de atraso' : ' días de atraso')}">1 día de atraso</span>
                     <span class="pn-insignia pn-insignia-verde" th:unless="${inscripcion.estaAtrasada()}">Al día</span>
                 </th:block>
             </div>
@@ -37,24 +40,24 @@
             <div class="ac-cajon-semana" th:if="${cohorte != null and !comenzo}">
                 <span class="pn-insignia pn-insignia-azul"
                     th:text="${'Comienza el ' + #temporals.format(cohorte.fechaBaseCronograma, 'dd/MM/yyyy')}">Comienza el 03/08/2026</span>
-                <span th:text="${duracion + (duracion == 1 ? ' semana' : ' semanas')}">9 semanas</span>
+                <span th:text="${T(com.app.idoneos.utilidades.DuracionUtilidad).formatear(duracion)}">9 semanas</span>
             </div>
 
-            <!-- Grilla de semanas: una fila por tema (pasar el mouse muestra las semanas y el estado) -->
-            <div class="ac-cajon-pista-envoltura" th:style="${'--semanas:' + duracion}">
-            <div class="ac-cajon-pista" th:style="${'--semanas:' + duracion}">
+            <!-- Grilla: una columna por unidad (día, semana o mes) y una fila por tema (pasar el mouse muestra los días y el estado) -->
+            <div class="ac-cajon-pista-envoltura" th:style="${'--columnas:' + columnas}">
+            <div class="ac-cajon-pista" th:style="${'--columnas:' + columnas}">
                 <div class="ac-cajon-actual" th:if="${comenzo and !finalizo}"
-                    th:style="${'grid-column:' + semana + ';grid-row: 2 / span ' + cantidad}"
-                    th:attr="data-tip=${'Hoy: semana ' + semana + ' de ' + duracion}"></div>
-                <span class="ac-cajon-semana-numero" th:each="s : ${#numbers.sequence(1, duracion)}"
-                    th:classappend="${comenzo and !finalizo and s == semana} ? 'actual'"
+                    th:style="${'grid-column:' + columnaHoy + ';grid-row: 2 / span ' + cantidad}"
+                    th:attr="data-tip=${'Hoy: día ' + dia + ' de ' + duracion}"></div>
+                <span class="ac-cajon-semana-numero" th:each="s : ${#numbers.sequence(1, columnas)}"
+                    th:classappend="${comenzo and !finalizo and s == columnaHoy} ? 'actual'"
                     th:style="${'grid-column:' + s + ';grid-row:1'}"
-                    th:text="${duracion <= 12 or s == 1 or s % 5 == 0 ? s : ''}">1</span>
+                    th:text="${columnas <= 12 or s == 1 or s % 5 == 0 ? s : ''}">1</span>
                 <div class="ac-cajon-barra" th:each="uc, iter : ${programa.cronogramaOrdenado}"
                     th:with="estado=${inscripcion != null ? inscripcion.getEstadoTemaResumido(uc) : (cohorte != null ? cohorte.getEstadoTemaResumido(uc) : 'Pendiente')}"
                     th:classappend="${estado == 'Completada'} ? 'completada' : (${estado == 'En curso'} ? 'en-curso' : 'pendiente')"
-                    th:style="${'grid-column:' + uc.semanaDesde + ' / span ' + uc.semanasDuracion + ';grid-row:' + (iter.index + 2)}"
-                    th:attr="data-tip=${'Tema ' + uc.numeroOrden + ' · ' + uc.tema.titulo + ' · ' + (uc.semanaDesde == uc.semanaHasta ? 'semana ' + uc.semanaDesde : 'semanas ' + uc.semanaDesde + ' a ' + uc.semanaHasta) + ' · ' + estado}"
+                    th:style="${'grid-column:' + uc.columnaDesde + ' / span ' + (uc.columnaHasta - uc.columnaDesde + 1) + ';grid-row:' + (iter.index + 2)}"
+                    th:attr="data-tip=${'Tema ' + uc.numeroOrden + ' · ' + uc.tema.titulo + ' · ' + (uc.diaDesde == uc.diaHasta ? 'día ' + uc.diaDesde : 'días ' + uc.diaDesde + ' a ' + uc.diaHasta) + ' · ' + estado}"
                     th:text="${'U' + uc.numeroOrden}">U1</div>
             </div>
             </div>
@@ -63,7 +66,7 @@
             <ul class="ac-cajon-leyenda">
                 <li th:each="uc : ${programa.cronogramaOrdenado}"
                     th:with="estado=${inscripcion != null ? inscripcion.getEstadoTemaResumido(uc) : (cohorte != null ? cohorte.getEstadoTemaResumido(uc) : 'Pendiente')}"
-                    th:title="${uc.semanaDesde == uc.semanaHasta ? 'Semana ' + uc.semanaDesde : 'Semanas ' + uc.semanaDesde + ' a ' + uc.semanaHasta}">
+                    th:title="${uc.diaDesde == uc.diaHasta ? 'Día ' + uc.diaDesde : 'Días ' + uc.diaDesde + ' a ' + uc.diaHasta}">
                     <i th:classappend="${estado == 'Completada'} ? 'completada' : (${estado == 'En curso'} ? 'en-curso' : 'pendiente')"></i>
                     <span th:text="${'Tema ' + uc.numeroOrden}">Tema 1</span>
                     <em th:text="${estado}">Completada</em>
@@ -71,7 +74,8 @@
             </ul>
 
             <!-- Qué es la línea roja de la grilla -->
-            <p class="ac-cajon-hoy" th:if="${comenzo and !finalizo}"><i></i> Hoy (semana actual)</p>
+            <p class="ac-cajon-hoy" th:if="${comenzo and !finalizo}"><i></i> Hoy (día actual)</p>
+            <p class="ac-cajon-hoy" th:text="${'Cada columna es 1 ' + programa.unidadCronograma}">Cada columna es 1 semana</p>
         </aside>
 
         <!-- Pestaña para volver a mostrar el cajón cuando está oculto -->

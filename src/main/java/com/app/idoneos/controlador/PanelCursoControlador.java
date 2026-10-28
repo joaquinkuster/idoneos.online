@@ -78,13 +78,13 @@ public abstract class PanelCursoControlador {
     }
 
     /**
-     * Vuelca al modelo el máximo de semanas que puede sumar un cronograma (parámetro del sistema).
+     * Vuelca al modelo el máximo de días que puede sumar un cronograma (parámetro del sistema).
      *
      * @param modelo El modelo de la vista.
      */
-    protected void cargarSemanasMaximasDelCronograma(Model modelo) {
-        modelo.addAttribute("semanasMaximas", parametroServicio.obtenerEntero(Parametro.CRONOGRAMA_SEMANAS_MAXIMAS,
-                Parametro.CRONOGRAMA_SEMANAS_MAXIMAS_POR_DEFECTO));
+    protected void cargarDiasMaximosDelCronograma(Model modelo) {
+        modelo.addAttribute("diasMaximos", parametroServicio.obtenerEntero(Parametro.CRONOGRAMA_DIAS_MAXIMOS,
+                Parametro.CRONOGRAMA_DIAS_MAXIMOS_POR_DEFECTO));
     }
 
     /**

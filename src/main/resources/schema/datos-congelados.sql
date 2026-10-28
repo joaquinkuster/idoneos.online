@@ -111,7 +111,7 @@ CREATE TRIGGER trg_categoria_congelado BEFORE UPDATE ON categoria
     EXECUTE FUNCTION fn_categoria_congelada() ^^^
 
 -- fn_cohorte_congelada() (CU-13): disparador de modificacion de una cohorte. Se llama solo si cambio alguna fecha, el cupo,
--- las semanas de acceso o el programa, y rechaza el cambio si la cohorte tiene inscripciones activas.
+-- los días de acceso o el programa, y rechaza el cambio si la cohorte tiene inscripciones activas.
 CREATE OR REPLACE FUNCTION fn_cohorte_congelada() RETURNS trigger AS $$
 BEGIN
     IF EXISTS (SELECT 1 FROM inscripcion WHERE id_cohorte = OLD.id_cohorte AND baja = false) THEN
@@ -129,7 +129,7 @@ CREATE TRIGGER trg_cohorte_congelado BEFORE UPDATE ON cohorte
                     OR OLD.fecha_inicio_dictado IS DISTINCT FROM NEW.fecha_inicio_dictado
                     OR OLD.fecha_fin_dictado IS DISTINCT FROM NEW.fecha_fin_dictado
                     OR OLD.cupo_maximo IS DISTINCT FROM NEW.cupo_maximo
-                    OR OLD.semanas_acceso IS DISTINCT FROM NEW.semanas_acceso
+                    OR OLD.acceso_dias IS DISTINCT FROM NEW.acceso_dias
                     OR OLD.id_programa IS DISTINCT FROM NEW.id_programa)
     EXECUTE FUNCTION fn_cohorte_congelada() ^^^
 
@@ -185,7 +185,7 @@ BEGIN
        AND OLD.id_programa IS NOT DISTINCT FROM NEW.id_programa
        AND OLD.id_tema IS NOT DISTINCT FROM NEW.id_tema
        AND OLD.numero_orden IS NOT DISTINCT FROM NEW.numero_orden
-       AND OLD.semanas_duracion IS NOT DISTINCT FROM NEW.semanas_duracion
+       AND OLD.duracion_dias IS NOT DISTINCT FROM NEW.duracion_dias
        AND OLD.baja IS NOT DISTINCT FROM NEW.baja THEN
         RETURN NEW;
     END IF;

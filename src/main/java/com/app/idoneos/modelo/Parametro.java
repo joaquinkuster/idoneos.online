@@ -22,11 +22,11 @@ public class Parametro {
      */
     public static final String MINIMO_TEMAS_CON_MATERIAL = "programa.minimo_temas_con_material";
 
-    /** Clave de la cantidad máxima de semanas que puede sumar el cronograma de un programa. */
-    public static final String CRONOGRAMA_SEMANAS_MAXIMAS = "cronograma.semanas_maximas";
+    /** Clave de la cantidad máxima de días que puede sumar el cronograma de un programa. */
+    public static final String CRONOGRAMA_DIAS_MAXIMOS = "cronograma.dias_maximos";
 
-    /** Máximo de semanas del cronograma que se usa cuando el parámetro no está cargado (un año). */
-    public static final int CRONOGRAMA_SEMANAS_MAXIMAS_POR_DEFECTO = 52;
+    /** Máximo de días del cronograma que se usa cuando el parámetro no está cargado (un año). */
+    public static final int CRONOGRAMA_DIAS_MAXIMOS_POR_DEFECTO = 365;
 
     /** Clave del plazo, en minutos, para modificar una consulta o una respuesta del foro desde su registro. */
     public static final String PLAZO_EDICION_FORO = "foro.plazo_edicion_minutos";

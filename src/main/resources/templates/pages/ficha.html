@@ -45,7 +45,7 @@
               </div>
               <div>
                 <small>Duración</small>
-                <span th:text="${programaSeleccionado != null ? programaSeleccionado.duracionTotalSemanas + ' semanas' : '-'}">9 semanas</span>
+                <span th:text="${programaSeleccionado != null ? T(com.app.idoneos.utilidades.DuracionUtilidad).formatear(programaSeleccionado.duracionTotalDias) : '-'}">9 semanas</span>
               </div>
               <div>
                 <small>Temas</small>
@@ -141,7 +141,7 @@
             <li class="fx-tema" th:each="crono : ${cronogramas}">
               <span class="fx-numero" th:text="${#numbers.formatInteger(crono.numeroOrden, 2)}">01</span>
               <span class="fx-tema-titulo" th:text="${crono.tema.titulo}">Nombre del tema</span>
-              <span class="fx-tema-duracion" th:text="${crono.semanasDuracion + (crono.semanasDuracion == 1 ? ' semana' : ' semanas')}">2 semanas</span>
+              <span class="fx-tema-duracion" th:text="${T(com.app.idoneos.utilidades.DuracionUtilidad).formatear(crono.duracionDias)}">2 semanas</span>
             </li>
           </ol>
         </div>

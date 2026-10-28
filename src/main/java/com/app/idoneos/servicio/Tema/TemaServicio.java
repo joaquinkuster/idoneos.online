@@ -45,7 +45,7 @@ public interface TemaServicio {
     // ---------------------------------------------------------------- Creaciones
 
     /**
-     * CU-20: Agrega un tema al final del cronograma de un programa activo, con una semana de duración. Puede ser una
+     * CU-20: Agrega un tema al final del cronograma de un programa activo, con siete días de duración. Puede ser una
      * tema nueva o una ya existente en otro programa del mismo curso.
      *
      * @param docente           el docente que agrega
