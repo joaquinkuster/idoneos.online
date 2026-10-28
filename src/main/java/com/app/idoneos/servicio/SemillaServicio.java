@@ -81,6 +81,7 @@ import com.app.idoneos.repositorio.PreguntaIntentoRepositorio;
 import com.app.idoneos.repositorio.PreguntaRepositorio;
 import com.app.idoneos.repositorio.RespuestaIntentoRepositorio;
 import com.app.idoneos.servicio.Parametro.ParametroServicio;
+import com.app.idoneos.servicio.Tema.CargaHorariaTemas;
 import com.app.idoneos.repositorio.DocenteCursoRepositorio;
 import com.app.idoneos.repositorio.ProgramaRepositorio;
 import com.app.idoneos.repositorio.ProgresoRepositorio;
@@ -181,6 +182,9 @@ public class SemillaServicio {
 
     @Autowired
     private TemaRepositorio temaRepositorio;
+
+    @Autowired
+    private CargaHorariaTemas cargaHorariaTemas;
 
     @Autowired
     private TemaCronogramaRepositorio temaCronogramaRepositorio;
@@ -730,6 +734,7 @@ public class SemillaServicio {
             String descripcion, DocenteCurso autorMaterial, TipoMaterial tipoMaterial) {
         Tema tema = new Tema(curso, titulo, "Contenido del tema: " + titulo + ". " + descripcion);
         tema.setDescripcion(descripcion);
+        cargaHorariaTemas.asignarATemaNuevo(curso, tema, null); // la carga horaria del curso se reparte entre sus temas
         tema = temaRepositorio.save(tema);
         // La semilla describe los temas en semanas; el cronograma se guarda en días
         temaCronogramaRepositorio.save(new TemaCronograma(programa, tema, numeroOrden, semanas * DuracionUtilidad.DIAS_POR_SEMANA));

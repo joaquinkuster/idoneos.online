@@ -18,6 +18,7 @@ import lombok.Setter;
 @Table(name = "Tema", uniqueConstraints = { @UniqueConstraint(columnNames = {"idCurso", "titulo"}) })
 @Check(name = "ck_tema_titulo", constraints = "trim(titulo) <> ''")
 @Check(name = "ck_tema_contenido", constraints = "trim(contenido) <> ''")
+@Check(name = "ck_tema_carga_horaria", constraints = "carga_horaria_minutos > 0")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -61,6 +62,13 @@ public class Tema {
      */
     @Column(name = "contenido", nullable = false, columnDefinition = "TEXT")
     private String contenido;
+
+    /**
+     * Carga horaria del tema, en minutos: la parte de la carga horaria del curso que le corresponde. La suma de los
+     * temas vigentes del curso es siempre igual a la carga horaria del curso.
+     */
+    @Column(name = "cargaHorariaMinutos", nullable = false)
+    private int cargaHorariaMinutos;
 
     /**
      * Fecha y hora de creación del registro. Se establece al momento actual por defecto.

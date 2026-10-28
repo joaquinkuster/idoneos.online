@@ -170,6 +170,25 @@ public class Curso {
     }
 
     /**
+     * Suma la carga horaria de los temas vigentes del curso.
+     *
+     * @return Los minutos repartidos entre los temas.
+     */
+    public int getCargaHorariaRepartidaMinutos() {
+        return temas.stream().filter(tema -> !tema.getBaja()).mapToInt(Tema::getCargaHorariaMinutos).sum();
+    }
+
+    /**
+     * Indica si la carga horaria del curso está repartida por completo entre sus temas: tiene temas vigentes y la suma de
+     * sus minutos es igual a la carga horaria del curso.
+     *
+     * @return {@code true} si todo lo que paga la empresa está asignado a algún tema.
+     */
+    public boolean estaCargaHorariaCompleta() {
+        return temas.stream().anyMatch(tema -> !tema.getBaja()) && getCargaHorariaRepartidaMinutos() == cargaHorariaMinutos;
+    }
+
+    /**
      * Marca el registro como dado de baja (baja lógica), estableciendo el atributo 'baja' a true.
      */
     public void marcarInactivo() {

@@ -52,6 +52,9 @@ public class TemaServicioImpl implements TemaServicio, CrudServicio<Tema> {
     @Autowired
     private TemaCronogramaRepositorio temaCronogramaRepositorio;
 
+    @Autowired
+    private CargaHorariaTemas cargaHoraria;
+
     // ---------------------------------------------------------------- Lecturas
 
     /**
@@ -147,6 +150,16 @@ public class TemaServicioImpl implements TemaServicio, CrudServicio<Tema> {
     @Transactional
     public Tema agregarTema(Docente docente, Integer programaId, Integer temaExistenteId, String titulo,
             String descripcion, String contenido) {
+        return agregarTema(docente, programaId, temaExistenteId, titulo, descripcion, contenido, null);
+    }
+
+    /**
+     * CU-20: Agrega un tema al cronograma de un programa, con los minutos de carga horaria indicados.
+     */
+    @Override
+    @Transactional
+    public Tema agregarTema(Docente docente, Integer programaId, Integer temaExistenteId, String titulo,
+            String descripcion, String contenido, Integer cargaHorariaMinutos) {
         Programa programa = buscarProgramaActivo(programaId);
         Curso curso = programa.getCurso();
         obtenerParticipacion(curso, docente);
@@ -175,6 +188,7 @@ public class TemaServicioImpl implements TemaServicio, CrudServicio<Tema> {
             validarTituloLibre(curso, tituloLimpio, null);
             tema = new Tema(curso, tituloLimpio, contenido.trim());
             tema.setDescripcion(validarDescripcion(descripcion));
+            cargaHoraria.asignarATemaNuevo(curso, tema, cargaHorariaMinutos);
             tema = temaRepositorio.save(tema);
         }
         int orden = programa.getTemasCronograma().stream().mapToInt(TemaCronograma::getNumeroOrden).max().orElse(0)
@@ -205,6 +219,16 @@ public class TemaServicioImpl implements TemaServicio, CrudServicio<Tema> {
     @Override
     @Transactional
     public Tema modificarTema(Integer id, Docente docente, String titulo, String descripcion, String contenido) {
+        return modificarTema(id, docente, titulo, descripcion, contenido, null);
+    }
+
+    /**
+     * CU-21: Modifica un tema sin inscripciones activas asociadas, incluidos sus minutos de carga horaria.
+     */
+    @Override
+    @Transactional
+    public Tema modificarTema(Integer id, Docente docente, String titulo, String descripcion, String contenido,
+            Integer cargaHorariaMinutos) {
         Tema tema = temaRepositorio.findById(id == null ? -1 : id).filter(u -> !u.esInactivo())
                 .orElseThrow(() -> new IllegalArgumentException("Error! El tema no se encuentra activa."));
         obtenerParticipacion(tema.getCurso(), docente);
@@ -217,6 +241,9 @@ public class TemaServicioImpl implements TemaServicio, CrudServicio<Tema> {
         tema.setTitulo(tituloLimpio);
         tema.setDescripcion(validarDescripcion(descripcion));
         tema.setContenido(contenido.trim());
+        if (cargaHorariaMinutos != null && cargaHorariaMinutos != tema.getCargaHorariaMinutos()) {
+            cargaHoraria.cambiarCargaDeTema(tema, cargaHorariaMinutos);
+        }
         tema.setUltimaModificacion(LocalDateTime.now());
         return temaRepositorio.save(tema);
     }
@@ -322,13 +349,19 @@ public class TemaServicioImpl implements TemaServicio, CrudServicio<Tema> {
             }
             orden++;
         }
+        boolean hayBajas = false;
         for (TemaCronograma cronograma : aQuitar) {
             Tema tema = cronograma.getTema();
             if (tema.getProgramasQueLaIncluyen().isEmpty()) {
                 tema.marcarInactivo();
                 tema.setUltimaModificacion(ahora);
                 temaRepositorio.save(tema);
+                hayBajas = true;
             }
+        }
+        // La carga horaria de los temas dados de baja se vuelve a repartir entre los que quedan
+        if (hayBajas) {
+            cargaHoraria.redistribuir(programa.getCurso());
         }
     }
 

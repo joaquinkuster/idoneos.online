@@ -153,6 +153,20 @@ class CursoServicioTest {
                 curso.getDocentesAyudantes().stream().map(Docente::getIdDocente).toList());
         assertEquals(cronograma, modificado.getDuracionMaximaDias());
         assertEquals(600, modificado.getCargaHorariaMinutos());
+        // la nueva carga horaria se reparte entre los temas del curso
+        assertEquals(600, modificado.getCargaHorariaRepartidaMinutos());
+        assertTrue(modificado.estaCargaHorariaCompleta());
+
+        // y no puede ser menor a un minuto por tema
+        int temas = (int) modificado.getTemas().stream().filter(tema -> !tema.getBaja()).count();
+        IllegalArgumentException poca = assertThrows(IllegalArgumentException.class,
+                () -> cursoServicio.modificarCurso(curso.getIdCurso(), curso.getNombre(), curso.getDescripcion(),
+                        curso.getPrecio(), temas - 1, cronograma, null, curso.getCategoria().getIdCategoria(),
+                        curso.getNivel().getIdNivel(), curso.getEmiteCertificado(),
+                        curso.getModalidades().stream().map(Modalidad::getIdModalidad).toList(),
+                        curso.getDocenteTitular().getIdDocente(),
+                        curso.getDocentesAyudantes().stream().map(Docente::getIdDocente).toList()));
+        assertTrue(poca.getMessage().contains("La carga horaria no puede ser menor"), poca.getMessage());
     }
 
     @Test

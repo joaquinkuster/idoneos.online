@@ -62,6 +62,17 @@ public interface TemaServicio {
     Tema agregarTema(Docente docente, Integer programaId, Integer temaExistenteId, String titulo,
             String descripcion, String contenido);
 
+    /**
+     * CU-20: Igual que {@link #agregarTema(Docente, Integer, Integer, String, String, String)}, indicando los minutos de
+     * carga horaria que se piden para el tema nuevo. Los demás temas del curso se reajustan en proporción para que la
+     * suma siga siendo la carga horaria del curso.
+     *
+     * @param cargaHorariaMinutos los minutos del tema nuevo (opcional; si no se indica, el tema recibe una parte pareja)
+     * @return el tema agregado
+     */
+    Tema agregarTema(Docente docente, Integer programaId, Integer temaExistenteId, String titulo,
+            String descripcion, String contenido, Integer cargaHorariaMinutos);
+
     // ---------------------------------------------------------------- Modificaciones
 
     /**
@@ -78,6 +89,16 @@ public interface TemaServicio {
      *                                  el título ya existe o el docente no participa en el curso
      */
     Tema modificarTema(Integer id, Docente docente, String titulo, String descripcion, String contenido);
+
+    /**
+     * CU-21: Igual que {@link #modificarTema(Integer, Docente, String, String, String)}, y cambia además los minutos de
+     * carga horaria del tema. La diferencia la absorben, en proporción, los demás temas del curso.
+     *
+     * @param cargaHorariaMinutos los minutos del tema (opcional; si no se indica, se conserva la actual)
+     * @return el tema modificado
+     */
+    Tema modificarTema(Integer id, Docente docente, String titulo, String descripcion, String contenido,
+            Integer cargaHorariaMinutos);
 
     // ---------------------------------------------------------------- Bajas
 

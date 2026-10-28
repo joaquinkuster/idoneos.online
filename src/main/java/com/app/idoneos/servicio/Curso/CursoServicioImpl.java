@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import com.app.idoneos.utilidades.ManejadorArchivosUtilidad;
 import com.app.idoneos.utilidades.DuracionUtilidad;
 import com.app.idoneos.servicio.Parametro.ParametroServicio;
+import com.app.idoneos.servicio.Tema.CargaHorariaTemas;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
@@ -87,6 +88,9 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
 
     @Autowired
     private ParametroServicio parametroServicio;
+
+    @Autowired
+    private CargaHorariaTemas cargaHorariaTemas;
 
     // ---------------------------------------------------------------- Lecturas
 
@@ -461,6 +465,10 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
         validarCargaHoraria(cargaHorariaMinutos);
         validarDuracionMaxima(duracionMaximaDias);
         validarDuracionMaximaContraCronogramas(curso, duracionMaximaDias);
+        boolean cambiaCarga = curso.getCargaHorariaMinutos() != cargaHorariaMinutos;
+        if (cambiaCarga) {
+            cargaHorariaTemas.validarCargaDelCurso(curso, cargaHorariaMinutos);
+        }
         String nombreLimpio = nombre.trim();
         cursoRepositorio.findByNombre(nombreLimpio).filter(otro -> otro.getIdCurso() != idCurso).ifPresent(otro -> {
             throw RespuestaFormularioUtilidad.campoInvalido("nombre", "Error! Ya existe un curso con el nombre '" + nombreLimpio + "'.");
@@ -479,6 +487,10 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
         curso.setEmiteCertificado(emiteCertificado);
         curso.setUltimaModificacion(LocalDateTime.now());
         curso = cursoRepositorio.save(curso);
+        if (cambiaCarga) {
+            // La nueva carga horaria se reparte entre los temas del curso en proporción a lo que tiene cada uno
+            cargaHorariaTemas.redistribuir(curso);
+        }
         sincronizarModalidades(curso, idsModalidades);
         sincronizarEquipoDocente(curso, titular, ayudantes);
         return curso;

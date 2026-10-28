@@ -1,5 +1,6 @@
 package com.app.idoneos.servicio.Cohorte;
 
+import com.app.idoneos.utilidades.DuracionUtilidad;
 import com.app.idoneos.utilidades.RespuestaFormularioUtilidad;
 import com.app.idoneos.modelo.Curso;
 import com.app.idoneos.utilidades.MensajeErrorUtilidad;
@@ -166,6 +167,12 @@ public class CohorteServicioImpl implements CohorteServicio, CrudServicio<Cohort
             throw RespuestaFormularioUtilidad.campoInvalido("programaId", "Error! El programa debe tener al menos "
                     + MensajeErrorUtilidad.cantidad(minimo, "tema", "temas")
                     + " con al menos un material y una autoevaluación publicados (tiene " + conMaterial + ").");
+        }
+        if (!programa.getCurso().estaCargaHorariaCompleta()) {
+            throw RespuestaFormularioUtilidad.campoInvalido("programaId", "Error! La carga horaria de los temas ("
+                    + DuracionUtilidad.formatearMinutos(programa.getCurso().getCargaHorariaRepartidaMinutos())
+                    + ") no coincide con la del curso (" + DuracionUtilidad.formatearMinutos(programa.getCurso().getCargaHorariaMinutos())
+                    + "). Ajustala en los temas antes de registrar una cohorte.");
         }
         var sinAutoevaluacion = programa.getTemasSinAutoevaluacion();
         if (!sinAutoevaluacion.isEmpty()) {

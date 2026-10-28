@@ -59,6 +59,7 @@
                                 <th data-col="Descripción" data-campo="descripcion" data-filtro="texto">Descripción</th>
                                 <th data-col="Contenido" data-campo="contenido" data-filtro="texto">Contenido</th>
                                 <th data-col="Duración" data-campo="duracion" data-filtro="numero">Duración</th>
+                                <th data-col="Carga horaria" data-campo="cargaHoraria" data-filtro="numero">Carga horaria</th>
                                 <th data-col="Última modificación" data-campo="ultimaModificacion" data-filtro="fecha">Última modificación</th>
                                 <th data-col="Fecha de creación" data-campo="fechaCreacion" data-filtro="fecha">Fecha de creación</th>
                                 <th>Acciones</th>
@@ -73,6 +74,7 @@
                                 <td class="fo-col-consulta"><span class="pn-truncar pn-truncar-largo" th:text="${uc.tema.descripcion != null ? uc.tema.descripcion : '-'}">Descripción</span></td>
                                 <td class="fo-col-consulta"><span class="pn-truncar pn-truncar-largo" th:text="${uc.tema.resumenContenido}">Contenido del tema</span></td>
                                 <td th:text="${T(com.app.idoneos.utilidades.DuracionUtilidad).formatear(uc.duracionDias)}">1 semana</td>
+                                <td th:text="${T(com.app.idoneos.utilidades.DuracionUtilidad).formatearMinutos(uc.tema.cargaHorariaMinutos)}">2 horas</td>
                                 <td th:text="${uc.tema.ultimaModificacion != null ? #temporals.format(uc.tema.ultimaModificacion, 'dd/MM/yyyy') : '-'}">-</td>
                                 <td th:text="${#temporals.format(uc.tema.fechaCreacion, 'dd/MM/yyyy HH:mm')}">28/08/2026 10:30</td>
                                 <td>
@@ -191,6 +193,28 @@
                             <textarea name="descripcion" class="pn-input" rows="2" maxlength="150" placeholder="Descripción" data-contador></textarea>
                             <div class="pn-ayuda-error"></div>
                         </div>
+<div class="col-12 pn-campo" data-bloque="nueva">
+                            <div class="pn-etiqueta-con-ayuda">
+                                <label class="pn-etiqueta">Carga horaria (opcional)</label>
+                                <button type="button" class="cn-ayuda" aria-expanded="false" aria-label="Sobre la carga horaria del tema" title="Ayuda"
+                                        data-ayuda-destino="ayudaCargaTemaNueva"><i class="fa-solid fa-circle-info"></i></button>
+                            </div>
+                            <div class="pn-duracion">
+                                <input type="number" name="cargaHoraria" class="pn-input" min="1" step="1" placeholder="Una parte pareja">
+                                <select name="cargaHorariaUnidad" class="pn-input" aria-label="Unidad de la carga horaria">
+                                    <option value="minutos">Minutos</option>
+                                    <option value="horas" selected>Horas</option>
+                                </select>
+                            </div>
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+<div class="col-12 ayuda-desplegable" data-bloque="nueva" id="ayudaCargaTemaNueva">
+                            <div class="ayuda-desplegable-interior">
+                                <div class="cn-info">
+                                    <span>Parte de la carga horaria del curso que corresponde a este tema. Si no la indicás, el tema recibe una parte pareja y los demás temas se reajustan en proporción. La suma de los temas siempre coincide con la carga horaria del curso.</span>
+                                </div>
+                            </div>
+                        </div>
         </div>
     </div>
     <div class="pn-paso">
@@ -254,6 +278,30 @@
                                 </div>
                                 <textarea name="descripcion" class="pn-input" rows="2" maxlength="150" data-contador th:text="${uc.tema.descripcion}"></textarea>
                                 <div class="pn-ayuda-error"></div>
+                            </div>
+<div class="col-12 pn-campo">
+                                <div class="pn-etiqueta-con-ayuda">
+                                    <label class="pn-etiqueta">Carga horaria <span class="pn-obligatorio">*</span></label>
+                                    <button type="button" class="cn-ayuda" aria-expanded="false" aria-label="Sobre la carga horaria del tema" title="Ayuda"
+                                            th:data-ayuda-destino="'ayudaCargaTema' + ${uc.tema.idTema}"><i class="fa-solid fa-circle-info"></i></button>
+                                </div>
+                                <div class="pn-duracion">
+                                    <input type="number" name="cargaHoraria" class="pn-input" min="1" step="1" placeholder="Cantidad" required
+                                           data-mensaje-obligatorio="Debe completar la carga horaria."
+                                           th:value="${T(com.app.idoneos.utilidades.DuracionUtilidad).cantidadEnMinutos(uc.tema.cargaHorariaMinutos)}">
+                                    <select name="cargaHorariaUnidad" class="pn-input" aria-label="Unidad de la carga horaria">
+                                        <option value="minutos" th:selected="${T(com.app.idoneos.utilidades.DuracionUtilidad).unidadEnMinutos(uc.tema.cargaHorariaMinutos) == 'minutos'}">Minutos</option>
+                                        <option value="horas" th:selected="${T(com.app.idoneos.utilidades.DuracionUtilidad).unidadEnMinutos(uc.tema.cargaHorariaMinutos) == 'horas'}">Horas</option>
+                                    </select>
+                                </div>
+                                <div class="pn-ayuda-error"></div>
+                            </div>
+<div class="col-12 ayuda-desplegable" th:id="'ayudaCargaTema' + ${uc.tema.idTema}">
+                                <div class="ayuda-desplegable-interior">
+                                    <div class="cn-info">
+                                        <span>Parte de la carga horaria del curso que corresponde a este tema. Al cambiarla, los demás temas se reajustan en proporción: la suma de los temas siempre coincide con la carga horaria del curso.</span>
+                                    </div>
+                                </div>
                             </div>
         </div>
     </div>

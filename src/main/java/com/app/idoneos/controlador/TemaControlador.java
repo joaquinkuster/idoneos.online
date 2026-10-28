@@ -23,6 +23,7 @@ import com.app.idoneos.modelo.Tema;
 import com.app.idoneos.modelo.TemaCronograma;
 import com.app.idoneos.modelo.Usuario;
 import com.app.idoneos.servicio.Tema.TemaServicio;
+import com.app.idoneos.utilidades.DuracionUtilidad;
 import com.app.idoneos.utilidades.RespuestaFormularioUtilidad;
 
 /**
@@ -115,6 +116,8 @@ public class TemaControlador extends PanelCursoControlador {
      * @param titulo            El título del tema nueva.
      * @param descripcion       La descripción del tema nueva (opcional).
      * @param contenido         El contenido del tema nueva.
+     * @param cargaHoraria      La carga horaria del tema nuevo, en la unidad indicada (opcional: una parte pareja).
+     * @param cargaHorariaUnidad La unidad de la carga horaria: "minutos" u "horas" (por defecto, horas).
      * @param auth              La autenticación actual.
      * @return Una respuesta con el mensaje de éxito o el mensaje de error.
      */
@@ -124,11 +127,14 @@ public class TemaControlador extends PanelCursoControlador {
             @RequestParam(value = "temaExistenteId", required = false) Integer temaExistenteId,
             @RequestParam(value = "titulo", required = false) String titulo,
             @RequestParam(value = "descripcion", required = false) String descripcion,
-            @RequestParam(value = "contenido", required = false) String contenido, Authentication auth) {
+            @RequestParam(value = "contenido", required = false) String contenido,
+            @RequestParam(value = "cargaHoraria", required = false) Integer cargaHoraria,
+            @RequestParam(value = "cargaHorariaUnidad", defaultValue = "horas") String cargaHorariaUnidad,
+            Authentication auth) {
         try {
             Usuario usuario = (Usuario) auth.getPrincipal();
             Tema tema = temaServicio.agregarTema(usuario.getDocente(), programaId, temaExistenteId, titulo,
-                    descripcion, contenido);
+                    descripcion, contenido, minutos(cargaHoraria, cargaHorariaUnidad));
             String accion = temaExistenteId != null ? "incorporada" : "registrada";
             return RespuestaFormularioUtilidad.respuestaExitosa("Tema '" + tema.getTitulo() + "' " + accion + " con éxito.");
         } catch (Exception e) {
@@ -145,6 +151,8 @@ public class TemaControlador extends PanelCursoControlador {
      * @param titulo      El título.
      * @param descripcion La descripción (opcional).
      * @param contenido   El contenido.
+     * @param cargaHoraria La carga horaria del tema, en la unidad indicada (opcional: se conserva la actual).
+     * @param cargaHorariaUnidad La unidad de la carga horaria: "minutos" u "horas" (por defecto, horas).
      * @param auth        La autenticación actual.
      * @return Una respuesta con el mensaje de éxito o el mensaje de error.
      */
@@ -152,13 +160,31 @@ public class TemaControlador extends PanelCursoControlador {
     public ResponseEntity<Map<String, String>> modificarTema(@PathVariable("id") Integer id,
             @RequestParam(value = "titulo", required = false) String titulo,
             @RequestParam(value = "descripcion", required = false) String descripcion,
-            @RequestParam(value = "contenido", required = false) String contenido, Authentication auth) {
+            @RequestParam(value = "contenido", required = false) String contenido,
+            @RequestParam(value = "cargaHoraria", required = false) Integer cargaHoraria,
+            @RequestParam(value = "cargaHorariaUnidad", defaultValue = "horas") String cargaHorariaUnidad,
+            Authentication auth) {
         try {
             Usuario usuario = (Usuario) auth.getPrincipal();
-            temaServicio.modificarTema(id, usuario.getDocente(), titulo, descripcion, contenido);
-            return RespuestaFormularioUtilidad.respuestaExitosa("Tema modificada correctamente.");
+            temaServicio.modificarTema(id, usuario.getDocente(), titulo, descripcion, contenido,
+                    minutos(cargaHoraria, cargaHorariaUnidad));
+            return RespuestaFormularioUtilidad.respuestaExitosa("Tema modificado correctamente.");
         } catch (Exception e) {
             return RespuestaFormularioUtilidad.respuestaConError(e);
+        }
+    }
+
+    // ---------------------------------------------------------------- Unidades de duración
+
+    /** Convierte la carga horaria recibida (en minutos u horas) a minutos; {@code null} si no se envió. */
+    private static Integer minutos(Integer cantidad, String unidad) {
+        if (cantidad == null) {
+            return null;
+        }
+        try {
+            return DuracionUtilidad.aMinutos(cantidad, unidad);
+        } catch (ArithmeticException e) {
+            return Integer.MAX_VALUE; // desborda: el servicio lo rechaza por superar el máximo
         }
     }
 

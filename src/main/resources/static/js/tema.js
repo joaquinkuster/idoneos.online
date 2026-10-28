@@ -46,7 +46,7 @@
         var esExistente = modo.value === 'existente';
         formulario.querySelectorAll('[data-bloque="nueva"]').forEach(function (bloque) {
             bloque.hidden = esExistente;
-            bloque.querySelectorAll('input, textarea').forEach(function (campo) {
+            bloque.querySelectorAll('input, textarea, select').forEach(function (campo) {
                 campo.disabled = esExistente;
                 if (campo.hasAttribute('data-requerido')) { campo.required = !esExistente; }
                 if (esExistente) { window.PanelValidacion.marcar(campo, ''); }

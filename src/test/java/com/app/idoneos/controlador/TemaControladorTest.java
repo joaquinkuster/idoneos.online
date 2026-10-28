@@ -227,7 +227,7 @@ class TemaControladorTest {
 
         mockMvc.perform(post("/tema/modificar/" + sinInscripciones.getIdTema()).param("titulo", "Otro título")
                 .param("contenido", "Otro contenido"))
-                .andExpect(status().isOk()).andExpect(jsonPath("$.mensaje").value("Tema modificada correctamente."));
+                .andExpect(status().isOk()).andExpect(jsonPath("$.mensaje").value("Tema modificado correctamente."));
         mockMvc.perform(post("/tema/modificar/" + conInscripciones.getIdTema()).param("titulo", "Otro")
                 .param("contenido", "Otro contenido"))
                 .andExpect(status().isBadRequest())

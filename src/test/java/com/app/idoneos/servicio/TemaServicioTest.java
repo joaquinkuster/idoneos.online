@@ -305,4 +305,91 @@ class TemaServicioTest {
         assertTrue(uno.getBaja());
         assertTrue(dos.getBaja());
     }
+
+    // ------------------------------------------------------------------ Carga horaria de los temas
+
+    /** Suma los minutos de los temas vigentes de un curso. */
+    private int cargaRepartida(Curso curso) {
+        return temaServicio.buscarPorCurso(curso).stream().mapToInt(Tema::getCargaHorariaMinutos).sum();
+    }
+
+    @Test
+    @DisplayName("La carga horaria del curso siempre está repartida por completo entre sus temas")
+    void cargaHorariaRepartidaPorCompleto() {
+        Programa programa = macro().getProgramaVigente();
+        Curso curso = programa.getCurso();
+        assertEquals(curso.getCargaHorariaMinutos(), cargaRepartida(curso));
+        int temas = temaServicio.buscarPorCurso(curso).size();
+
+        Tema nueva = agregar(programa, "Tema parejo");
+
+        // el tema nuevo entra con una parte pareja y los demás se reajustan en proporción
+        assertEquals(curso.getCargaHorariaMinutos() / (temas + 1), nueva.getCargaHorariaMinutos());
+        assertEquals(curso.getCargaHorariaMinutos(), cargaRepartida(curso));
+    }
+
+    @Test
+    @DisplayName("Al agregar un tema se puede indicar su carga horaria y los demás absorben la diferencia")
+    void agregaConCargaHorariaIndicada() {
+        Programa programa = macro().getProgramaVigente();
+        Curso curso = programa.getCurso();
+
+        Tema nueva = temaServicio.agregarTema(fausto(), programa.getIdPrograma(), null, "Tema con carga", null,
+                "Contenido", 90);
+
+        assertEquals(90, nueva.getCargaHorariaMinutos());
+        assertEquals(curso.getCargaHorariaMinutos(), cargaRepartida(curso));
+        // la carga pedida debe dejar al menos un minuto a cada otro tema
+        int otros = temaServicio.buscarPorCurso(curso).size() - 1;
+        int maxima = curso.getCargaHorariaMinutos() - otros;
+        assertTrue(mensaje(() -> temaServicio.agregarTema(fausto(), programa.getIdPrograma(), null, "Otro tema", null,
+                "Contenido", maxima + 1)).contains("La carga horaria no es válida"));
+        assertTrue(mensaje(() -> temaServicio.agregarTema(fausto(), programa.getIdPrograma(), null, "Otro tema", null,
+                "Contenido", 0)).contains("La carga horaria no es válida"));
+    }
+
+    @Test
+    @DisplayName("Al modificar la carga horaria de un tema, los demás se reajustan y la suma no cambia")
+    void modificaLaCargaHoraria() {
+        Programa programa = macro().getProgramaVigente();
+        Curso curso = programa.getCurso();
+        Tema tema = programa.getCronogramaOrdenado().get(0).getTema();
+
+        Tema modificado = temaServicio.modificarTema(tema.getIdTema(), fausto(), tema.getTitulo(), tema.getDescripcion(),
+                tema.getContenido(), 600);
+
+        assertEquals(600, modificado.getCargaHorariaMinutos());
+        assertEquals(curso.getCargaHorariaMinutos(), cargaRepartida(curso));
+        // con un solo tema que se pueda ajustar, no hay de dónde sacar la diferencia
+        int maxima = curso.getCargaHorariaMinutos() - (temaServicio.buscarPorCurso(curso).size() - 1);
+        assertTrue(mensaje(() -> temaServicio.modificarTema(tema.getIdTema(), fausto(), tema.getTitulo(),
+                tema.getDescripcion(), tema.getContenido(), maxima + 1)).contains("La carga horaria no es válida"));
+        assertEquals(600, tema.getCargaHorariaMinutos());
+    }
+
+    @Test
+    @DisplayName("Al dar de baja un tema, su carga horaria se vuelve a repartir entre los que quedan")
+    void bajaRepartePorCompletoLaCargaHoraria() {
+        Programa programa = macro().getProgramaVigente();
+        Curso curso = programa.getCurso();
+        Tema uno = agregar(programa, "Uno");
+        assertEquals(curso.getCargaHorariaMinutos(), cargaRepartida(curso));
+
+        temaServicio.darDeBajaTema(uno.getIdTema(), programa.getIdPrograma(), fausto());
+
+        assertTrue(uno.getBaja());
+        assertEquals(curso.getCargaHorariaMinutos(), cargaRepartida(curso));
+    }
+
+    @Test
+    @DisplayName("Se puede agregar un tema a un programa con inscripciones: la carga horaria no es lo que el alumno pagó")
+    void agregaEnProgramaConInscripcionesReajustaLaCarga() {
+        Programa programa = mercado().getProgramaVigente();
+        Curso curso = programa.getCurso();
+
+        Tema nueva = agregar(programa, "Tema con inscripciones");
+
+        assertTrue(nueva.getCargaHorariaMinutos() > 0);
+        assertEquals(curso.getCargaHorariaMinutos(), cargaRepartida(curso));
+    }
 }
