@@ -39,6 +39,9 @@ public class CohorteServicioImpl implements CohorteServicio, CrudServicio<Cohort
     private ParametroRepositorio parametroRepositorio;
 
     @Autowired
+    private EstadoCohorteRepositorio estadoCohorteRepositorio;
+
+    @Autowired
     private DocenteCursoRepositorio docenteCursoRepositorio;
 
     // ---------------------------------------------------------------- Lecturas
@@ -187,6 +190,7 @@ public class CohorteServicioImpl implements CohorteServicio, CrudServicio<Cohort
         Cohorte cohorte = new Cohorte(programa, inicioDelDia(fechaInicioInscripcion), finDelDia(fechaFinInscripcion),
                 accesoDias);
         aplicarDatosOpcionales(cohorte, enVivo, fechaInicioDictado, fechaFinDictado, cupoMaximo);
+        cohorte.setEstadoCohorte(estadoCohorteRepositorio.findByNombre(EstadoCohorte.ACTIVA).orElseThrow());
         return cohorteRepositorio.save(cohorte);
     }
 

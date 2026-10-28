@@ -224,6 +224,44 @@ public class Programa {
     }
 
     /**
+     * Indica qué le falta al programa para tener el contenido completo, que es lo que se necesita para que una cohorte
+     * esté activa: el mínimo de temas con material y autoevaluación publicados, una autoevaluación visible en cada tema y
+     * la carga horaria del curso repartida por completo entre sus temas.
+     *
+     * @param minimoTemasConMaterial El mínimo de temas con material publicado y autoevaluación que exige el sistema.
+     * @return Lo que falta, uno por línea y listo para mostrar; vacío si el contenido está completo.
+     */
+    public List<String> getFaltantesDeContenido(int minimoTemasConMaterial) {
+        List<String> faltantes = new java.util.ArrayList<>();
+        int conMaterial = getCantidadTemasConMaterialPublicado();
+        if (conMaterial < minimoTemasConMaterial) {
+            faltantes.add("Faltan temas con al menos un material y una autoevaluación publicados: tiene " + conMaterial
+                    + " de " + minimoTemasConMaterial + " requeridos");
+        }
+        List<Tema> sinAutoevaluacion = getTemasSinAutoevaluacion();
+        if (!sinAutoevaluacion.isEmpty()) {
+            faltantes.add("Faltan autoevaluaciones visibles en: " + String.join(", ",
+                    sinAutoevaluacion.stream().map(tema -> "«" + tema.getTitulo() + "»").toList()));
+        }
+        if (!curso.estaCargaHorariaCompleta()) {
+            faltantes.add("La carga horaria de los temas ("
+                    + DuracionUtilidad.formatearMinutos(curso.getCargaHorariaRepartidaMinutos())
+                    + ") no coincide con la del curso (" + DuracionUtilidad.formatearMinutos(curso.getCargaHorariaMinutos()) + ")");
+        }
+        return faltantes;
+    }
+
+    /**
+     * Indica si el programa tiene el contenido completo (ver {@link #getFaltantesDeContenido(int)}).
+     *
+     * @param minimoTemasConMaterial El mínimo de temas con material publicado y autoevaluación que exige el sistema.
+     * @return {@code true} si no le falta nada.
+     */
+    public boolean tieneContenidoCompleto(int minimoTemasConMaterial) {
+        return getFaltantesDeContenido(minimoTemasConMaterial).isEmpty();
+    }
+
+    /**
      * Calcula la duración total del cronograma del programa, sumando los días de cada tema vigente.
      *
      * @return La duración total en días.
@@ -371,7 +409,8 @@ public class Programa {
      * @return La cohorte elegida, o {@code null} si el programa no tiene cohortes vigentes.
      */
     public Cohorte getCohorteDestacada() {
-        List<Cohorte> vigentes = cohortes.stream().filter(cohorte -> !cohorte.getBaja()).toList();
+        // Las cohortes pendientes o canceladas no se muestran: todavía no tienen contenido completo o ya no lo tendrán
+        List<Cohorte> vigentes = cohortes.stream().filter(cohorte -> !cohorte.getBaja() && cohorte.esActiva()).toList();
         for (String estado : List.of("En dictado", "Abierta")) {
             Cohorte elegida = vigentes.stream().filter(cohorte -> estado.equals(cohorte.getEstado()))
                     .max(Comparator.comparingInt(Cohorte::getIdCohorte)).orElse(null);

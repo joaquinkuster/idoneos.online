@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDateTime;
+import com.app.idoneos.modelo.EstadoCohorte;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -73,6 +74,31 @@ class CohorteTest {
 
         cohorte.setCupoMaximo(5);
         assertEquals(5, cohorte.getCupoDisponible());
+    }
+
+    @Test
+    @DisplayName("Una cohorte pendiente o cancelada no sigue el calendario: su estado es el guardado y no cuenta como en curso")
+    void estadoPendienteYCancelada() {
+        Cohorte cohorte = new Cohorte(null, ahora.minusDays(5), ahora.plusDays(30), 10);
+        assertTrue(cohorte.esActiva());
+        assertEquals("Abierta", cohorte.getEstado());
+        assertTrue(cohorte.estaEnCurso());
+
+        cohorte.setEstadoCohorte(new EstadoCohorte(EstadoCohorte.PENDIENTE));
+        assertTrue(cohorte.esPendiente());
+        assertEquals("Pendiente", cohorte.getEstado());
+        assertFalse(cohorte.estaAbierta());
+        assertFalse(cohorte.estaEnCurso());
+
+        cohorte.setEstadoCohorte(new EstadoCohorte(EstadoCohorte.CANCELADA));
+        assertTrue(cohorte.esCancelada());
+        assertEquals("Cancelada", cohorte.getEstado());
+        assertFalse(cohorte.estaAbierta());
+        assertFalse(cohorte.estaEnCurso());
+
+        cohorte.setEstadoCohorte(new EstadoCohorte(EstadoCohorte.ACTIVA));
+        assertEquals("Abierta", cohorte.getEstado());
+        assertTrue(cohorte.estaEnCurso());
     }
 
     @Test

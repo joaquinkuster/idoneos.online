@@ -26,6 +26,7 @@ import com.app.idoneos.modelo.Descuento;
 import com.app.idoneos.modelo.CursoModalidad;
 import com.app.idoneos.modelo.Docente;
 import com.app.idoneos.modelo.EstadoClaseEnVivo;
+import com.app.idoneos.modelo.EstadoCohorte;
 import com.app.idoneos.modelo.EstadoPago;
 import com.app.idoneos.modelo.Inscripcion;
 import com.app.idoneos.modelo.IntentoAutoevaluacion;
@@ -66,6 +67,7 @@ import com.app.idoneos.repositorio.CursoRepositorio;
 import com.app.idoneos.repositorio.DescuentoRepositorio;
 import com.app.idoneos.repositorio.DocenteRepositorio;
 import com.app.idoneos.repositorio.EstadoClaseEnVivoRepositorio;
+import com.app.idoneos.repositorio.EstadoCohorteRepositorio;
 import com.app.idoneos.repositorio.EstadoPagoRepositorio;
 import com.app.idoneos.repositorio.InscripcionRepositorio;
 import com.app.idoneos.repositorio.IntentoAutoevaluacionRepositorio;
@@ -146,6 +148,9 @@ public class SemillaServicio {
 
     @Autowired
     private EstadoPagoRepositorio estadoPagoRepositorio;
+
+    @Autowired
+    private EstadoCohorteRepositorio estadoCohorteRepositorio;
 
     @Autowired
     private MetodoPagoRepositorio metodoPagoRepositorio;
@@ -275,6 +280,9 @@ public class SemillaServicio {
         EstadoClaseEnVivo claseProgramada = estadoClaseEnVivoRepositorio.save(new EstadoClaseEnVivo("Programada"));
         EstadoClaseEnVivo claseEnVivoAhora = estadoClaseEnVivoRepositorio.save(new EstadoClaseEnVivo(EstadoClaseEnVivo.EN_VIVO));
         EstadoClaseEnVivo claseFinalizada = estadoClaseEnVivoRepositorio.save(new EstadoClaseEnVivo("Finalizada"));
+        estadoCohorteRepositorio.save(new EstadoCohorte(EstadoCohorte.PENDIENTE));
+        estadoCohorteRepositorio.save(new EstadoCohorte(EstadoCohorte.ACTIVA));
+        estadoCohorteRepositorio.save(new EstadoCohorte(EstadoCohorte.CANCELADA));
         EstadoPago pagoPendiente = estadoPagoRepositorio.save(new EstadoPago(EstadoPago.PENDIENTE));
         EstadoPago pagoAprobado = estadoPagoRepositorio.save(new EstadoPago(EstadoPago.APROBADO));
         EstadoPago pagoRechazado = estadoPagoRepositorio.save(new EstadoPago(EstadoPago.RECHAZADO));
@@ -752,6 +760,7 @@ public class SemillaServicio {
         cohorte.setFechaInicioDictado(inicioDictado);
         cohorte.setFechaFinDictado(finDictado);
         cohorte.setCupoMaximo(cupoMaximo);
+        cohorte.setEstadoCohorte(estadoCohorteRepositorio.findByNombre(EstadoCohorte.ACTIVA).orElseThrow());
         return cohorteRepositorio.save(cohorte);
     }
 

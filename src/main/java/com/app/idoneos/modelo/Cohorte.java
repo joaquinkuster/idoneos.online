@@ -53,6 +53,14 @@ public class Cohorte {
     private Programa programa;
 
     /**
+     * Relación con EstadoCohorte: Pendiente, Activa o Cancelada. Una cohorte sin estado (por ejemplo, una que todavía no se
+     * guardó) se considera Activa.
+     */
+    @ManyToOne
+    @JoinColumn(name = "idEstadoCohorte", nullable = false)
+    private EstadoCohorte estadoCohorte;
+
+    /**
      * Fecha y hora de inicio del período de inscripción.
      */
     @Column(name = "fechaInicioInscripcion", nullable = false)
@@ -166,12 +174,46 @@ public class Cohorte {
     }
 
     /**
-     * Calcula el estado de la cohorte según sus fechas: Próxima, Abierta (con inscripción abierta),
-     * En dictado o Finalizada.
+     * Indica si la cohorte está pendiente: el contenido del programa todavía no está completo y el docente tiene hasta el
+     * inicio de la inscripción para completarlo.
+     *
+     * @return {@code true} si el estado de la cohorte es Pendiente.
+     */
+    public boolean esPendiente() {
+        return estadoCohorte != null && EstadoCohorte.PENDIENTE.equals(estadoCohorte.getNombre());
+    }
+
+    /**
+     * Indica si la cohorte fue cancelada porque venció el plazo para completar el contenido sin hacerlo.
+     *
+     * @return {@code true} si el estado de la cohorte es Cancelada.
+     */
+    public boolean esCancelada() {
+        return estadoCohorte != null && EstadoCohorte.CANCELADA.equals(estadoCohorte.getNombre());
+    }
+
+    /**
+     * Indica si la cohorte está activa: tiene el contenido completo y sigue el calendario de inscripción y dictado.
+     *
+     * @return {@code true} si el estado de la cohorte es Activa (o todavía no tiene estado).
+     */
+    public boolean esActiva() {
+        return !esPendiente() && !esCancelada();
+    }
+
+    /**
+     * Calcula el estado de la cohorte: Pendiente o Cancelada, y si está activa, el que resulta de sus fechas: Próxima,
+     * Abierta (con inscripción abierta), En dictado o Finalizada.
      *
      * @return El estado de la cohorte.
      */
     public String getEstado() {
+        if (esPendiente()) {
+            return EstadoCohorte.PENDIENTE;
+        }
+        if (esCancelada()) {
+            return EstadoCohorte.CANCELADA;
+        }
         LocalDateTime ahora = LocalDateTime.now();
         if (ahora.isBefore(fechaInicioInscripcion)) {
             return "Próxima";
@@ -206,12 +248,13 @@ public class Cohorte {
 
     /**
      * Verifica si la cohorte todavía no terminó: es próxima, tiene la inscripción abierta o está en dictado. Los alumnos
-     * de una cohorte así cursan (o van a cursar) los temas del programa.
+     * de una cohorte así cursan (o van a cursar) los temas del programa. Una cohorte pendiente o cancelada no cuenta:
+     * todavía no tiene alumnos ni los va a tener.
      *
-     * @return {@code true} si la cohorte no está finalizada.
+     * @return {@code true} si la cohorte está activa y no está finalizada.
      */
     public boolean estaEnCurso() {
-        return !baja && !"Finalizada".equals(getEstado());
+        return !baja && esActiva() && !"Finalizada".equals(getEstado());
     }
 
     /**

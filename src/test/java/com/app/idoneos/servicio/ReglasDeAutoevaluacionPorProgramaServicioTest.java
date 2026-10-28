@@ -82,6 +82,21 @@ class ReglasDeAutoevaluacionPorProgramaServicioTest {
     }
 
     @Test
+    @DisplayName("El programa informa qué le falta para tener el contenido completo")
+    void faltantesDeContenido() {
+        assertTrue(macro().getFaltantesDeContenido(1).isEmpty());
+        assertTrue(macro().tieneContenidoCompleto(1));
+
+        sacarLasAutoevaluaciones(tipoDeCambio());
+
+        List<String> faltantes = macro().getFaltantesDeContenido(1);
+        assertTrue(faltantes.stream().anyMatch(f -> f.contains("Faltan autoevaluaciones visibles en: «Tipo de cambio»")), faltantes.toString());
+        assertTrue(!macro().tieneContenidoCompleto(1));
+        // un mínimo de temas que el programa no alcanza también se informa
+        assertTrue(macro().getFaltantesDeContenido(10).stream().anyMatch(f -> f.contains("requeridos")));
+    }
+
+    @Test
     @DisplayName("CU-25: con cohortes en curso el cronograma no puede incluir un tema sin autoevaluación visible")
     void modificarCronograma() {
         Programa programa = macro();
