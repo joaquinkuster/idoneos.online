@@ -25,7 +25,7 @@ class InscripcionAccesoTest {
     /** Cohorte sin fechas de dictado, de 12 semanas de acceso, y una inscripción habilitada que vence en 12 semanas. */
     @BeforeEach
     void armar() {
-        programa = new Programa(null, "Programa 2026", "Objetivos", "Bibliografía");
+        programa = new Programa(null, "Programa 2026", "Objetivos");
         cohorte = new Cohorte(programa, ahora.minusDays(10), ahora.plusDays(20), 84);
         inscripcion = new Inscripcion(cohorte, null, ahora.plusWeeks(12));
         inscripcion.setHabilitado(true);

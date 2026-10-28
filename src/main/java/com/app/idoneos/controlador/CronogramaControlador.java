@@ -76,7 +76,7 @@ public class CronogramaControlador extends PanelCursoControlador {
                     .filter(u -> !u.getProgramasQueLaIncluyen().isEmpty()).toList();
 
             cargarContexto(modelo, contexto, "cronograma");
-            cargarDiasMaximosDelCronograma(modelo);
+            cargarDiasMaximosDelCronograma(modelo, curso);
             modelo.addAttribute("cohorte", cohorte);
             modelo.addAttribute("cronograma", programa.getCronogramaOrdenado());
             modelo.addAttribute("temasDelCurso", temasDelCurso);

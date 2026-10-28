@@ -56,6 +56,9 @@
             var partes = texto.split('T');
             return partes[0].split('-').reverse().join('/') + ' ' + partes[1].substring(0, 5);
         }
+        // Una duración se escribe con un número y su unidad (select del mismo campo)
+        var unidad = control.type === 'number' ? campo.querySelector('select') : null;
+        if (unidad && texto) { return texto + ' ' + unidad.options[unidad.selectedIndex].textContent.trim().toLowerCase(); }
         return control.getAttribute('data-resumen-formato') === 'moneda' ? moneda(texto) : texto;
     }
 

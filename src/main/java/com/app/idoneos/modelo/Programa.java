@@ -13,13 +13,12 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * Programa de un curso, con sus objetivos, carga horaria y bibliografía.
+ * Programa de un curso, con sus objetivos y su cronograma de temas.
  */
 @Entity
 @Table(name = "Programa")
 @Check(name = "ck_programa_nombre", constraints = "trim(nombre) <> ''")
 @Check(name = "ck_programa_objetivos", constraints = "trim(objetivos) <> ''")
-@Check(name = "ck_programa_bibliografia", constraints = "trim(bibliografia) <> ''")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -65,18 +64,6 @@ public class Programa {
     private String objetivos;
 
     /**
-     * Carga horaria total del programa, en horas. Es opcional.
-     */
-    @Column(name = "cargaHorariaTotal", nullable = true)
-    private Integer cargaHorariaTotal;
-
-    /**
-     * Bibliografía del programa.
-     */
-    @Column(name = "bibliografia", nullable = false, columnDefinition = "TEXT")
-    private String bibliografia;
-
-    /**
      * Fecha y hora de creación del registro. Se establece al momento actual por defecto.
      */
     @Column(name = "fechaCreacion", nullable = false)
@@ -118,13 +105,11 @@ public class Programa {
      * @param curso relación con Curso.
      * @param nombre nombre del programa.
      * @param objetivos objetivos del programa.
-     * @param bibliografia bibliografía del programa.
      */
-    public Programa(Curso curso, String nombre, String objetivos, String bibliografia) {
+    public Programa(Curso curso, String nombre, String objetivos) {
         this.curso = curso;
         this.nombre = nombre;
         this.objetivos = objetivos;
-        this.bibliografia = bibliografia;
     }
 
     /**
@@ -182,15 +167,6 @@ public class Programa {
      */
     public String getResumenObjetivos() {
         return resumir(objetivos);
-    }
-
-    /**
-     * Obtiene el comienzo de la bibliografía en una sola línea, para mostrarla en los listados.
-     *
-     * @return La bibliografía, recortada con puntos suspensivos si es larga.
-     */
-    public String getResumenBibliografia() {
-        return resumir(bibliografia);
     }
 
     private String resumir(String texto) {

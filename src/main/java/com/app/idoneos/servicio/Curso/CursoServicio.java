@@ -179,6 +179,8 @@ public interface CursoServicio {
      * @param nombre el nombre del curso
      * @param descripcion la descripción del curso (opcional)
      * @param precio el precio del curso
+     * @param cargaHorariaMinutos la carga horaria total del curso, en minutos
+     * @param duracionMaximaDias la duración máxima del curso, en días
      * @param imagen la ruta de la imagen de portada (opcional)
      * @param idCategoria el identificador de la categoría
      * @param idNivel el identificador del nivel
@@ -189,7 +191,8 @@ public interface CursoServicio {
      * @return el curso registrado
      * @throws IllegalArgumentException si no se cumple alguna regla de registro
      */
-    Curso registrarCurso(String nombre, String descripcion, Float precio, String imagen, Integer idCategoria,
+    Curso registrarCurso(String nombre, String descripcion, Float precio, Integer cargaHorariaMinutos,
+            Integer duracionMaximaDias, String imagen, Integer idCategoria,
             Integer idNivel, boolean emiteCertificado, List<Integer> idsModalidades, Integer idDocenteTitular,
             List<Integer> idsDocentesAyudantes);
 
@@ -203,6 +206,8 @@ public interface CursoServicio {
      * @param nombre el nombre del curso
      * @param descripcion la descripción del curso (opcional)
      * @param precio el precio del curso
+     * @param cargaHorariaMinutos la carga horaria total del curso, en minutos
+     * @param duracionMaximaDias la duración máxima del curso, en días
      * @param imagen la ruta de la imagen de portada (opcional, si es nula se conserva la actual)
      * @param idCategoria el identificador de la categoría
      * @param idNivel el identificador del nivel
@@ -213,7 +218,8 @@ public interface CursoServicio {
      * @return el curso modificado
      * @throws IllegalArgumentException si no se cumple alguna regla de modificación
      */
-    Curso modificarCurso(Integer idCurso, String nombre, String descripcion, Float precio, String imagen,
+    Curso modificarCurso(Integer idCurso, String nombre, String descripcion, Float precio,
+            Integer cargaHorariaMinutos, Integer duracionMaximaDias, String imagen,
             Integer idCategoria, Integer idNivel, boolean emiteCertificado, List<Integer> idsModalidades,
             Integer idDocenteTitular, List<Integer> idsDocentesAyudantes);
 

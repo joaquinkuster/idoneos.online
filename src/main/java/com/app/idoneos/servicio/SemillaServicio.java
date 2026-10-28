@@ -102,6 +102,12 @@ import com.app.idoneos.repositorio.UsuarioRepositorio;
 @Service
 public class SemillaServicio {
 
+    /** Carga horaria de los cursos de prueba: 20 horas. */
+    private static final int CARGA_HORARIA_SEMILLA_MINUTOS = 1200;
+
+    /** Duración máxima de los cursos de prueba: un año. */
+    private static final int DURACION_MAXIMA_SEMILLA_DIAS = 365;
+
     /**
      * Contraseña de todos los usuarios de prueba.
      */
@@ -349,8 +355,7 @@ public class SemillaServicio {
                 List.of(enVivo, grabada), fausto, List.of(sebastian, mariano));
         Curso curso1 = titular1.getCurso();
         Programa programa1 = crearPrograma(curso1, "Programa 2026",
-                "Dominar la operatoria bursátil y el análisis de instrumentos del mercado argentino.",
-                "Manual del mercado de capitales (CNV) y apuntes de cátedra.");
+                "Dominar la operatoria bursátil y el análisis de instrumentos del mercado argentino.");
         Tema tema1 = agregarTema(programa1, curso1, 1, 2, "Introducción al mercado de capitales",
                 "Actores, instrumentos y funcionamiento del mercado.", titular1, presentacion);
         Tema tema2 = agregarTema(programa1, curso1, 2, 3, "Renta fija y bonos",
@@ -449,8 +454,7 @@ public class SemillaServicio {
                 "macroeconomia-coyuntura.jpg", macroeconomia, basico, true, List.of(grabada), fausto, List.of());
         Curso curso2 = titular2.getCurso();
         Programa programa2 = crearPrograma(curso2, "Programa 2026",
-                "Interpretar la coyuntura macroeconómica y su impacto en las decisiones financieras.",
-                "Informes del BCRA e INDEC.");
+                "Interpretar la coyuntura macroeconómica y su impacto en las decisiones financieras.");
         agregarEvaluacionBasica(agregarTema(programa2, curso2, 1, 2, "Inflación y precios", "Medición y causas de la inflación.",
                 titular2, presentacion), 1, ahora);
         agregarEvaluacionBasica(agregarTema(programa2, curso2, 2, 2, "Tipo de cambio", "Regímenes cambiarios y brecha.",
@@ -465,7 +469,7 @@ public class SemillaServicio {
                 "planificacion-fiscal-corporativa.jpg", impuestos, avanzado, true, List.of(grabada), sebastian, List.of());
         Curso curso3 = titular3.getCurso();
         Programa programa3 = crearPrograma(curso3, "Programa 2026",
-                "Diseñar estructuras fiscales eficientes dentro del marco legal.", "Ley de Impuesto a las Ganancias.");
+                "Diseñar estructuras fiscales eficientes dentro del marco legal.");
         agregarTema(programa3, curso3, 1, 3, "Impuesto a las ganancias", "Determinación y planificación.", titular3, presentacion);
         agregarTema(programa3, curso3, 2, 3, "IVA y regímenes especiales", "Débito, crédito y regímenes.", null, null);
 
@@ -476,7 +480,7 @@ public class SemillaServicio {
                 List.of(grabada, clonIa), mariano, List.of());
         Curso curso4 = titular4.getCurso();
         Programa programa4 = crearPrograma(curso4, "Programa 2026",
-                "Construir un plan financiero personal sólido.", "Guía de educación financiera (CNV).");
+                "Construir un plan financiero personal sólido.");
         Tema tema4 = agregarTema(programa4, curso4, 1, 2, "Presupuesto y ahorro", "Ordenar ingresos y gastos.",
                 titular4, presentacion);
         Autoevaluacion autoevaluacion4 = agregarEvaluacionBasica(tema4, 1, ahora);
@@ -505,7 +509,7 @@ public class SemillaServicio {
                 List.of(enVivo, grabada), mariano, List.of(fausto));
         Curso curso5 = titular5.getCurso();
         Programa programa5 = crearPrograma(curso5, "Programa 2026",
-                "Aplicar herramientas de análisis técnico a distintos activos.", "Technical Analysis of the Financial Markets.");
+                "Aplicar herramientas de análisis técnico a distintos activos.");
         agregarEvaluacionBasica(agregarTema(programa5, curso5, 1, 3, "Fundamentos del análisis técnico",
                 "Tendencias, soportes y resistencias.", titular5, presentacion), 1, ahora);
         agregarEvaluacionBasica(agregarTema(programa5, curso5, 2, 3, "Indicadores y osciladores",
@@ -639,8 +643,7 @@ public class SemillaServicio {
         DocenteCurso participacion = crearCurso(nombre, descripcion, precio, null, categoria, nivel, true,
                 modalidades, titular, List.of());
         Curso curso = participacion.getCurso();
-        Programa programa = crearPrograma(curso, "Programa 2026", "Dominar los contenidos centrales del curso.",
-                "Bibliografía del curso.");
+        Programa programa = crearPrograma(curso, "Programa 2026", "Dominar los contenidos centrales del curso.");
         agregarEvaluacionBasica(agregarTema(programa, curso, 1, 2, tema1, "Conceptos centrales.", participacion,
                 tipoMaterial), 1, ahora);
         agregarEvaluacionBasica(agregarTema(programa, curso, 2, 2, tema2, "Aplicación práctica.", participacion,
@@ -699,7 +702,7 @@ public class SemillaServicio {
     private DocenteCurso crearCurso(String nombre, String descripcion, float precio, String imagen,
             Categoria categoria, Nivel nivel, boolean emiteCertificado, List<Modalidad> modalidades,
             Docente titular, List<Docente> ayudantes) {
-        Curso curso = new Curso(nivel, categoria, nombre, precio);
+        Curso curso = new Curso(nivel, categoria, nombre, precio, CARGA_HORARIA_SEMILLA_MINUTOS, DURACION_MAXIMA_SEMILLA_DIAS);
         curso.setDescripcion(descripcion);
         curso.setImagen(imagen);
         curso.setEmiteCertificado(emiteCertificado);
@@ -713,8 +716,8 @@ public class SemillaServicio {
         return docenteCursoRepositorio.save(new DocenteCurso(curso, titular, true));
     }
 
-    private Programa crearPrograma(Curso curso, String nombre, String objetivos, String bibliografia) {
-        Programa programa = new Programa(curso, nombre, objetivos, bibliografia);
+    private Programa crearPrograma(Curso curso, String nombre, String objetivos) {
+        Programa programa = new Programa(curso, nombre, objetivos);
         programa.setDescripcion("Plan de formación del curso " + curso.getNombre() + ".");
         return programaRepositorio.save(programa);
     }

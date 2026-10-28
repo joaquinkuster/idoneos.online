@@ -43,14 +43,12 @@ public interface ProgramaServicio {
      * @param nombre           el nombre
      * @param descripcion      la descripción (opcional)
      * @param objetivos        los objetivos
-     * @param cargaHoraria     la carga horaria total (opcional)
-     * @param bibliografia     la bibliografía
      * @return el programa registrado
      * @throws IllegalArgumentException si falta algún dato, supera el máximo, el curso no está activo o el docente no
      *                                  participa en el curso
      */
     Programa registrarPrograma(Docente docente, Integer cursoId, Integer programaOrigenId, String nombre,
-            String descripcion, String objetivos, Integer cargaHoraria, String bibliografia);
+            String descripcion, String objetivos);
 
     // ---------------------------------------------------------------- Modificaciones
 
@@ -62,14 +60,11 @@ public interface ProgramaServicio {
      * @param nombre       el nombre
      * @param descripcion  la descripción (opcional)
      * @param objetivos    los objetivos
-     * @param cargaHoraria la carga horaria total (opcional)
-     * @param bibliografia la bibliografía
      * @return el programa modificado
      * @throws IllegalArgumentException si el programa no está activo, tiene inscripciones activas, falta algún dato o
      *                                  el docente no participa en el curso
      */
-    Programa modificarPrograma(Integer id, Docente docente, String nombre, String descripcion, String objetivos,
-            Integer cargaHoraria, String bibliografia);
+    Programa modificarPrograma(Integer id, Docente docente, String nombre, String descripcion, String objetivos);
 
     /**
      * Establece el programa por defecto del docente en el curso del programa (y deja sin definir su cohorte por

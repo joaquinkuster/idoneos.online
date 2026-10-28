@@ -1431,6 +1431,21 @@ a.ac-actividad-titulo:hover {
     padding: 5px 8px;
 }
 
+/* Duración en un formulario: número y unidad en la misma línea */
+.pn-duracion {
+    display: flex;
+    gap: 8px;
+}
+
+.pn-duracion input {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.pn-duracion select {
+    flex: 0 0 130px;
+}
+
 /* Duración de un tema en la vista por temas: número y unidad */
 .cn-duracion-campo {
     display: inline-flex;

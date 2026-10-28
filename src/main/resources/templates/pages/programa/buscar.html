@@ -56,8 +56,6 @@
                                 <th class="pn-col-seleccion"><input type="checkbox" data-seleccionar-todos aria-label="Seleccionar todos"></th>
                                 <th data-col="Nombre" data-campo="nombre" data-filtro="texto">Nombre</th>
                                 <th data-col="Objetivos" data-campo="objetivos" data-filtro="texto">Objetivos</th>
-                                <th data-col="Bibliografía" data-campo="bibliografia" data-filtro="texto">Bibliografía</th>
-                                <th data-col="Carga horaria" data-campo="cargaHoraria" data-filtro="numero">Carga horaria</th>
                                 <th data-col="Última modificación" data-campo="ultimaModificacion" data-filtro="fecha">Última modificación</th>
                                 <th data-col="Fecha de creación" data-campo="fechaCreacion" data-filtro="fecha">Fecha de creación</th>
                                 <th data-col="Estado" data-campo="estado" data-filtro="lista">Estado</th>
@@ -76,8 +74,6 @@
                                     <small class="fo-fecha pn-truncar pn-truncar-largo" th:if="${p.descripcion != null}" th:text="${p.descripcion}">Descripción</small>
                                 </td>
                                 <td class="fo-col-consulta"><span class="pn-truncar pn-truncar-largo" th:text="${p.resumenObjetivos}">Objetivos del programa</span></td>
-                                <td class="fo-col-consulta"><span class="pn-truncar pn-truncar-largo" th:text="${p.resumenBibliografia}">Bibliografía del programa</span></td>
-                                <td th:text="${p.cargaHorariaTotal != null ? p.cargaHorariaTotal + ' h' : '-'}">60 h</td>
                                 <td th:text="${p.ultimaModificacion != null ? #temporals.format(p.ultimaModificacion, 'dd/MM/yyyy') : '-'}">—</td>
                                 <td th:text="${#temporals.format(p.fechaCreacion, 'dd/MM/yyyy HH:mm')}">28/08/2026 10:30</td>
                                 <td>
@@ -150,7 +146,7 @@
                                         th:text="${o.nombre + ' - se copia su cronograma (' + o.cantidadTemas + ' temas)'}">2026</option>
                             </select>
                         </div>
-<div class="col-md-8 pn-campo">
+<div class="col-12 pn-campo">
                             <div class="pn-etiqueta-fila">
                                 <label class="pn-etiqueta">Nombre <span class="pn-obligatorio">*</span></label>
                                 <span class="pn-contador">0 / 50</span>
@@ -159,29 +155,18 @@
                                    data-mensaje-obligatorio="Debe completar el nombre.">
                             <div class="pn-ayuda-error"></div>
                         </div>
-<div class="col-md-4 pn-campo">
-                            <label class="pn-etiqueta">Carga horaria (opcional)</label>
-                            <input type="number" name="cargaHoraria" class="pn-input" min="1" step="1" placeholder="Horas">
-                            <div class="pn-ayuda-error"></div>
-                        </div>
         </div>
     </div>
     <div class="pn-paso" data-grupo="Contenido">
         <div class="pn-seccion-titulo">
             <h4>Contenido del programa</h4>
-            <p>Objetivos, bibliografía y descripción</p>
+            <p>Objetivos y descripción</p>
         </div>
         <div class="row g-3">
-<div class="col-md-6 pn-campo">
+<div class="col-12 pn-campo">
                             <label class="pn-etiqueta">Objetivos <span class="pn-obligatorio">*</span></label>
                             <textarea name="objetivos" class="pn-input" rows="4" placeholder="Objetivos" required
                                       data-mensaje-obligatorio="Debe completar los objetivos."></textarea>
-                            <div class="pn-ayuda-error"></div>
-                        </div>
-<div class="col-md-6 pn-campo">
-                            <label class="pn-etiqueta">Bibliografía <span class="pn-obligatorio">*</span></label>
-                            <textarea name="bibliografia" class="pn-input" rows="4" placeholder="Bibliografía" required
-                                      data-mensaje-obligatorio="Debe completar la bibliografía."></textarea>
                             <div class="pn-ayuda-error"></div>
                         </div>
 <div class="col-12 pn-campo">
@@ -237,7 +222,7 @@
             <p>Nombre y carga horaria</p>
         </div>
         <div class="row g-3">
-<div class="col-md-8 pn-campo">
+<div class="col-12 pn-campo">
                                 <div class="pn-etiqueta-fila">
                                     <label class="pn-etiqueta">Nombre <span class="pn-obligatorio">*</span></label>
                                     <span class="pn-contador" th:text="${#strings.length(p.nombre) + ' / 50'}">0 / 50</span>
@@ -246,29 +231,18 @@
                                        data-mensaje-obligatorio="Debe completar el nombre.">
                                 <div class="pn-ayuda-error"></div>
                             </div>
-<div class="col-md-4 pn-campo">
-                                <label class="pn-etiqueta">Carga horaria (opcional)</label>
-                                <input type="number" name="cargaHoraria" class="pn-input" min="1" step="1" th:value="${p.cargaHorariaTotal}">
-                                <div class="pn-ayuda-error"></div>
-                            </div>
         </div>
     </div>
     <div class="pn-paso" data-grupo="Contenido">
         <div class="pn-seccion-titulo">
             <h4>Contenido del programa</h4>
-            <p>Objetivos, bibliografía y descripción</p>
+            <p>Objetivos y descripción</p>
         </div>
         <div class="row g-3">
-<div class="col-md-6 pn-campo">
+<div class="col-12 pn-campo">
                                 <label class="pn-etiqueta">Objetivos <span class="pn-obligatorio">*</span></label>
                                 <textarea name="objetivos" class="pn-input" rows="4" required
                                           data-mensaje-obligatorio="Debe completar los objetivos." th:text="${p.objetivos}"></textarea>
-                                <div class="pn-ayuda-error"></div>
-                            </div>
-<div class="col-md-6 pn-campo">
-                                <label class="pn-etiqueta">Bibliografía <span class="pn-obligatorio">*</span></label>
-                                <textarea name="bibliografia" class="pn-input" rows="4" required
-                                          data-mensaje-obligatorio="Debe completar la bibliografía." th:text="${p.bibliografia}"></textarea>
                                 <div class="pn-ayuda-error"></div>
                             </div>
 <div class="col-12 pn-campo">

@@ -21,7 +21,7 @@
     <div class="pn-paso" data-grupo="Datos básicos">
         <div class="pn-seccion-titulo">
             <h4>Datos del curso</h4>
-            <p>Nombre, categoría, nivel y descripción</p>
+            <p>Nombre, categoría, nivel, carga horaria, duración máxima y descripción</p>
         </div>
         <div class="row g-3">
             <div class="col-12 pn-campo">
@@ -50,6 +50,55 @@
                             th:selected="${curso != null and curso.nivel != null and curso.nivel.idNivel == n.idNivel}">Nivel</option>
                 </select>
                 <div class="pn-ayuda-error"></div>
+            </div>
+            <div class="col-md-6 pn-campo">
+                <div class="pn-etiqueta-con-ayuda">
+                    <label class="pn-etiqueta">Carga horaria <span class="pn-obligatorio">*</span></label>
+                    <button type="button" class="cn-ayuda" aria-expanded="false" aria-label="Sobre la carga horaria" title="Ayuda"
+                            data-ayuda-destino="ayudaCargaHoraria"><i class="fa-solid fa-circle-info"></i></button>
+                </div>
+                <div class="pn-duracion">
+                    <input type="number" name="cargaHoraria" class="pn-input" min="1" step="1" placeholder="Cantidad" required
+                           data-mensaje-obligatorio="Debe completar la carga horaria."
+                           th:value="${curso != null ? T(com.app.idoneos.utilidades.DuracionUtilidad).cantidadEnMinutos(curso.cargaHorariaMinutos) : ''}" th:readonly="${bloqueado}" th:classappend="${bloqueado} ? 'pn-bloqueado'">
+                    <select name="cargaHorariaUnidad" class="pn-input" aria-label="Unidad de la carga horaria" th:classappend="${bloqueado} ? 'pn-bloqueado'" th:attr="tabindex=${bloqueado} ? '-1' : null">
+                        <option value="minutos" th:selected="${curso != null and T(com.app.idoneos.utilidades.DuracionUtilidad).unidadEnMinutos(curso.cargaHorariaMinutos) == 'minutos'}">Minutos</option>
+                        <option value="horas" th:selected="${curso == null or T(com.app.idoneos.utilidades.DuracionUtilidad).unidadEnMinutos(curso.cargaHorariaMinutos) == 'horas'}">Horas</option>
+                    </select>
+                </div>
+                <div class="pn-ayuda-error"></div>
+            </div>
+            <div class="col-md-6 pn-campo">
+                <div class="pn-etiqueta-con-ayuda">
+                    <label class="pn-etiqueta">Duración máxima <span class="pn-obligatorio">*</span></label>
+                    <button type="button" class="cn-ayuda" aria-expanded="false" aria-label="Sobre la duración máxima" title="Ayuda"
+                            data-ayuda-destino="ayudaDuracionMaxima"><i class="fa-solid fa-circle-info"></i></button>
+                </div>
+                <div class="pn-duracion">
+                    <input type="number" name="duracionMaxima" class="pn-input" min="1" step="1" placeholder="Cantidad" required
+                           data-mensaje-obligatorio="Debe completar la duración máxima."
+                           th:value="${curso != null ? T(com.app.idoneos.utilidades.DuracionUtilidad).cantidadEnDias(curso.duracionMaximaDias) : ''}" th:readonly="${bloqueado}" th:classappend="${bloqueado} ? 'pn-bloqueado'">
+                    <select name="duracionMaximaUnidad" class="pn-input" aria-label="Unidad de la duración máxima" th:classappend="${bloqueado} ? 'pn-bloqueado'" th:attr="tabindex=${bloqueado} ? '-1' : null">
+                        <option value="dias" th:selected="${curso == null or T(com.app.idoneos.utilidades.DuracionUtilidad).unidadEnDias(curso.duracionMaximaDias) == 'dias'}">Días</option>
+                        <option value="semanas" th:selected="${curso != null and T(com.app.idoneos.utilidades.DuracionUtilidad).unidadEnDias(curso.duracionMaximaDias) == 'semanas'}">Semanas</option>
+                        <option value="meses" th:selected="${curso != null and T(com.app.idoneos.utilidades.DuracionUtilidad).unidadEnDias(curso.duracionMaximaDias) == 'meses'}">Meses</option>
+                    </select>
+                </div>
+                <div class="pn-ayuda-error"></div>
+            </div>
+            <div class="col-12 ayuda-desplegable" id="ayudaCargaHoraria">
+                <div class="ayuda-desplegable-interior">
+                    <div class="cn-info">
+                        <span>Tiempo total de trabajo del docente para este curso. Es lo que la empresa reconoce por el diseño y la preparación. El docente lo reparte entre los temas y la suma siempre debe coincidir con este total.</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 ayuda-desplegable" id="ayudaDuracionMaxima">
+                <div class="ayuda-desplegable-interior">
+                    <div class="cn-info">
+                        <span>Tiempo de calendario que el alumno tiene disponible para completar el curso. Ningún programa puede tener un cronograma más largo que este plazo.</span>
+                    </div>
+                </div>
             </div>
             <div class="col-12 pn-campo">
                 <div class="pn-etiqueta-fila">

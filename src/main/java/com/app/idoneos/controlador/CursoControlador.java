@@ -25,6 +25,7 @@ import com.app.idoneos.modelo.Docente;
 import com.app.idoneos.modelo.DocenteCurso;
 import com.app.idoneos.modelo.Programa;
 import com.app.idoneos.modelo.Usuario;
+import com.app.idoneos.utilidades.DuracionUtilidad;
 import com.app.idoneos.utilidades.ManejadorArchivosUtilidad;
 import com.app.idoneos.servicio.Categoria.CategoriaServicioImpl;
 import com.app.idoneos.servicio.Docente.DocenteServicioImpl;
@@ -240,7 +241,7 @@ public class CursoControlador extends PanelCursoControlador {
             String menuActivo = "temas".equals(seccionActiva) ? "curso" : seccionActiva;
             cargarContexto(modelo, esAdministrador ? ContextoCurso.deAdministrador(curso)
                     : ContextoCurso.deDocente(participacion), menuActivo);
-            cargarDiasMaximosDelCronograma(modelo);
+            cargarDiasMaximosDelCronograma(modelo, curso);
             modelo.addAttribute("inscripcion", null);
             modelo.addAttribute("cohorte", cohorte);
             // Selectores de programa y cohorte por defecto: solo los activos, el más reciente primero
@@ -271,6 +272,10 @@ public class CursoControlador extends PanelCursoControlador {
      * @param nombre               El nombre del curso.
      * @param descripcion          La descripción del curso (opcional).
      * @param precio               El precio del curso.
+     * @param cargaHoraria         La carga horaria total, en la unidad indicada.
+     * @param cargaHorariaUnidad   La unidad de la carga horaria: "minutos" u "horas" (por defecto, horas).
+     * @param duracionMaxima       La duración máxima, en la unidad indicada.
+     * @param duracionMaximaUnidad La unidad de la duración máxima: "dias", "semanas" o "meses" (por defecto, días).
      * @param imagenArchivo        La imagen de portada (opcional).
      * @param categoriaId          Identificador de la categoría.
      * @param nivelId              Identificador del nivel.
@@ -285,6 +290,10 @@ public class CursoControlador extends PanelCursoControlador {
             @RequestParam(value = "nombre", required = false) String nombre,
             @RequestParam(value = "descripcion", required = false) String descripcion,
             @RequestParam(value = "precio", required = false) Float precio,
+            @RequestParam(value = "cargaHoraria", required = false) Integer cargaHoraria,
+            @RequestParam(value = "cargaHorariaUnidad", defaultValue = "horas") String cargaHorariaUnidad,
+            @RequestParam(value = "duracionMaxima", required = false) Integer duracionMaxima,
+            @RequestParam(value = "duracionMaximaUnidad", defaultValue = "dias") String duracionMaximaUnidad,
             @RequestParam(value = "imagenArchivo", required = false) MultipartFile imagenArchivo,
             @RequestParam(value = "categoriaId", required = false) Integer categoriaId,
             @RequestParam(value = "nivelId", required = false) Integer nivelId,
@@ -297,7 +306,8 @@ public class CursoControlador extends PanelCursoControlador {
             if (hayImagen) {
                 ManejadorArchivosUtilidad.validarImagen(imagenArchivo); // antes de registrar, para no crear un curso con imagen inválida
             }
-            Curso curso = cursoServicio.registrarCurso(nombre, descripcion, precio, null, categoriaId, nivelId,
+            Curso curso = cursoServicio.registrarCurso(nombre, descripcion, precio,
+                    minutos(cargaHoraria, cargaHorariaUnidad), dias(duracionMaxima, duracionMaximaUnidad), null, categoriaId, nivelId,
                     emiteCertificado, idsModalidades, docenteTitularId, idsDocentesAyudantes);
             if (hayImagen) {
                 guardarImagen(curso, imagenArchivo);
@@ -318,6 +328,10 @@ public class CursoControlador extends PanelCursoControlador {
      * @param nombre               El nombre del curso.
      * @param descripcion          La descripción del curso (opcional).
      * @param precio               El precio del curso.
+     * @param cargaHoraria         La carga horaria total, en la unidad indicada.
+     * @param cargaHorariaUnidad   La unidad de la carga horaria: "minutos" u "horas" (por defecto, horas).
+     * @param duracionMaxima       La duración máxima, en la unidad indicada.
+     * @param duracionMaximaUnidad La unidad de la duración máxima: "dias", "semanas" o "meses" (por defecto, días).
      * @param imagenArchivo        La nueva imagen de portada (opcional; si no se envía se conserva la actual).
      * @param categoriaId          Identificador de la categoría.
      * @param nivelId              Identificador del nivel.
@@ -332,6 +346,10 @@ public class CursoControlador extends PanelCursoControlador {
             @RequestParam(value = "nombre", required = false) String nombre,
             @RequestParam(value = "descripcion", required = false) String descripcion,
             @RequestParam(value = "precio", required = false) Float precio,
+            @RequestParam(value = "cargaHoraria", required = false) Integer cargaHoraria,
+            @RequestParam(value = "cargaHorariaUnidad", defaultValue = "horas") String cargaHorariaUnidad,
+            @RequestParam(value = "duracionMaxima", required = false) Integer duracionMaxima,
+            @RequestParam(value = "duracionMaximaUnidad", defaultValue = "dias") String duracionMaximaUnidad,
             @RequestParam(value = "imagenArchivo", required = false) MultipartFile imagenArchivo,
             @RequestParam(value = "categoriaId", required = false) Integer categoriaId,
             @RequestParam(value = "nivelId", required = false) Integer nivelId,
@@ -344,7 +362,8 @@ public class CursoControlador extends PanelCursoControlador {
             if (hayImagen) {
                 ManejadorArchivosUtilidad.validarImagen(imagenArchivo);
             }
-            Curso curso = cursoServicio.modificarCurso(id, nombre, descripcion, precio, null, categoriaId, nivelId,
+            Curso curso = cursoServicio.modificarCurso(id, nombre, descripcion, precio,
+                    minutos(cargaHoraria, cargaHorariaUnidad), dias(duracionMaxima, duracionMaximaUnidad), null, categoriaId, nivelId,
                     emiteCertificado, idsModalidades, docenteTitularId, idsDocentesAyudantes);
             if (hayImagen) {
                 guardarImagen(curso, imagenArchivo); // reemplaza la imagen anterior
@@ -352,6 +371,32 @@ public class CursoControlador extends PanelCursoControlador {
             return RespuestaFormularioUtilidad.respuestaExitosa("Curso modificado correctamente.");
         } catch (Exception e) {
             return RespuestaFormularioUtilidad.respuestaConError(e);
+        }
+    }
+
+    // ---------------------------------------------------------------- Unidades de duración
+
+    /** Convierte la carga horaria recibida (en minutos u horas) a minutos; {@code null} si no se envió. */
+    private static Integer minutos(Integer cantidad, String unidad) {
+        if (cantidad == null) {
+            return null;
+        }
+        try {
+            return DuracionUtilidad.aMinutos(cantidad, unidad);
+        } catch (ArithmeticException e) {
+            return Integer.MAX_VALUE; // desborda: el servicio lo rechaza por superar el máximo
+        }
+    }
+
+    /** Convierte la duración recibida (en días, semanas o meses) a días; {@code null} si no se envió. */
+    private static Integer dias(Integer cantidad, String unidad) {
+        if (cantidad == null) {
+            return null;
+        }
+        try {
+            return DuracionUtilidad.aDias(cantidad, unidad);
+        } catch (ArithmeticException e) {
+            return Integer.MAX_VALUE;
         }
     }
 

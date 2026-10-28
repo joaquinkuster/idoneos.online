@@ -134,7 +134,7 @@ CREATE TRIGGER trg_cohorte_congelado BEFORE UPDATE ON cohorte
     EXECUTE FUNCTION fn_cohorte_congelada() ^^^
 
 -- fn_programa_congelado() (CU-17): disparador de modificacion de un programa. Se llama solo si cambio el nombre, la
--- descripcion, los objetivos, la bibliografia o el curso, y rechaza el cambio si el programa tiene inscripciones activas.
+-- descripcion, los objetivos o el curso, y rechaza el cambio si el programa tiene inscripciones activas.
 CREATE OR REPLACE FUNCTION fn_programa_congelado() RETURNS trigger AS $$
 BEGIN
     IF fn_programa_con_inscripciones(OLD.id_programa) THEN
@@ -150,7 +150,6 @@ CREATE TRIGGER trg_programa_congelado BEFORE UPDATE ON programa
     FOR EACH ROW WHEN (OLD.nombre IS DISTINCT FROM NEW.nombre
                     OR OLD.descripcion IS DISTINCT FROM NEW.descripcion
                     OR OLD.objetivos IS DISTINCT FROM NEW.objetivos
-                    OR OLD.bibliografia IS DISTINCT FROM NEW.bibliografia
                     OR OLD.id_curso IS DISTINCT FROM NEW.id_curso)
     EXECUTE FUNCTION fn_programa_congelado() ^^^
 

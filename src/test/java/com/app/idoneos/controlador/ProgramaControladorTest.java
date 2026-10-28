@@ -71,7 +71,7 @@ class ProgramaControladorTest {
 
     private void registrar(Curso curso, String nombre) throws Exception {
         mockMvc.perform(post("/programa/registrar").param("cursoId", String.valueOf(curso.getIdCurso()))
-                .param("nombre", nombre).param("objetivos", "Objetivos").param("bibliografia", "Bibliografía"))
+                .param("nombre", nombre).param("objetivos", "Objetivos"))
                 .andExpect(status().isOk());
     }
 
@@ -90,9 +90,10 @@ class ProgramaControladorTest {
                 .andExpect(content().string(Matchers.containsString("modalNuevoPrograma")))
                 .andExpect(content().string(Matchers.containsString("data-filtro=")))
                 .andExpect(content().string(Matchers.containsString("data-paginador")))
-                // columnas: objetivos, bibliografía, carga horaria y última modificación (sin conteos)
+                // columnas: objetivos y última modificación (sin conteos, sin bibliografía ni carga horaria, que ya no son del programa)
                 .andExpect(content().string(Matchers.containsString("data-col=\"Objetivos\"")))
-                .andExpect(content().string(Matchers.containsString("data-col=\"Bibliografía\"")))
+                .andExpect(content().string(Matchers.not(Matchers.containsString("data-col=\"Bibliografía\""))))
+                .andExpect(content().string(Matchers.not(Matchers.containsString("data-col=\"Carga horaria\""))))
                 .andExpect(content().string(Matchers.containsString("data-col=\"Última modificación\"")))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("data-col=\"Temas\""))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("data-col=\"Con material\""))))
@@ -201,18 +202,14 @@ class ProgramaControladorTest {
         String curso = String.valueOf(macro().getIdCurso());
 
         mockMvc.perform(post("/programa/registrar").param("cursoId", curso).param("nombre", "Programa 2027")
-                .param("objetivos", "Obj").param("bibliografia", "Bib").param("cargaHoraria", "40"))
+                .param("objetivos", "Obj"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith("application/json"))
                 .andExpect(jsonPath("$.mensaje").value(Matchers.containsString("Programa 2027")));
         mockMvc.perform(post("/programa/registrar").param("cursoId", curso).param("nombre", "")
-                .param("objetivos", "").param("bibliografia", ""))
+                .param("objetivos", ""))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value(Matchers.containsString("Debe completar el nombre, los objetivos")));
-        mockMvc.perform(post("/programa/registrar").param("cursoId", curso).param("nombre", "X").param("objetivos", "O")
-                .param("bibliografia", "B").param("cargaHoraria", "-3"))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value(Matchers.containsString("mayor a cero")));
+                .andExpect(jsonPath("$.error").value(Matchers.containsString("Debe completar el nombre y los objetivos")));
     }
 
     @Test
@@ -223,10 +220,10 @@ class ProgramaControladorTest {
         int conInscripciones = mercado().getProgramaVigente().getIdPrograma();
 
         mockMvc.perform(post("/programa/modificar/" + sinInscripciones).param("nombre", "Renombrado")
-                .param("objetivos", "Obj").param("bibliografia", "Bib"))
+                .param("objetivos", "Obj"))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.mensaje").value("Programa modificado correctamente."));
         mockMvc.perform(post("/programa/modificar/" + conInscripciones).param("nombre", "Otro")
-                .param("objetivos", "Obj").param("bibliografia", "Bib"))
+                .param("objetivos", "Obj"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value(Matchers.containsString("tiene inscripciones activas")));
     }

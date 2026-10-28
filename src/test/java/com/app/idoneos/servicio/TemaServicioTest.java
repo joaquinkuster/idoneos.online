@@ -169,7 +169,7 @@ class TemaServicioTest {
         Programa original = macro().getProgramaVigente();
         Tema tema = original.getCronogramaOrdenado().get(0).getTema();
         Programa nuevo = programaServicio.registrarPrograma(fausto(), macro().getIdCurso(), null, "Programa 2027", null,
-                "Objetivos", null, "Bibliografía");
+                "Objetivos");
         assertEquals(0, nuevo.getCantidadTemas());
 
         temaServicio.agregarTema(fausto(), nuevo.getIdPrograma(), tema.getIdTema(), null, null, null);
@@ -251,7 +251,7 @@ class TemaServicioTest {
         Programa original = macro().getProgramaVigente();
         Tema tema = original.getCronogramaOrdenado().get(0).getTema();
         Programa nuevo = programaServicio.registrarPrograma(fausto(), macro().getIdCurso(), null, "Programa 2027", null,
-                "Objetivos", null, "Bibliografía");
+                "Objetivos");
         temaServicio.agregarTema(fausto(), nuevo.getIdPrograma(), tema.getIdTema(), null, null, null);
 
         temaServicio.darDeBajaTema(tema.getIdTema(), nuevo.getIdPrograma(), fausto());

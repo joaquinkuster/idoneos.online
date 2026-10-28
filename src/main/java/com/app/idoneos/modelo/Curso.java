@@ -18,6 +18,8 @@ import lombok.Setter;
 @Table(name = "Curso")
 @Check(name = "ck_curso_nombre", constraints = "trim(nombre) <> ''")
 @Check(name = "ck_curso_precio", constraints = "precio >= 0")
+@Check(name = "ck_curso_carga_horaria", constraints = "carga_horaria_minutos > 0")
+@Check(name = "ck_curso_duracion_maxima", constraints = "duracion_maxima_dias > 0")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -27,6 +29,11 @@ public class Curso {
      * Precio máximo permitido para un curso, en pesos argentinos (ARS).
      */
     public static final float PRECIO_MAXIMO = 10_000_000f;
+
+    /**
+     * Carga horaria máxima permitida para un curso, en minutos (1.000 horas).
+     */
+    public static final int CARGA_HORARIA_MAXIMA_MINUTOS = 60_000;
 
     /**
      * Identificador único del curso.
@@ -67,6 +74,20 @@ public class Curso {
      */
     @Column(name = "precio", nullable = false)
     private float precio;
+
+    /**
+     * Carga horaria total del curso, en minutos: el tiempo de trabajo del docente que reconoce la empresa y que el
+     * docente reparte entre los temas. La define el administrador.
+     */
+    @Column(name = "cargaHorariaMinutos", nullable = false)
+    private int cargaHorariaMinutos;
+
+    /**
+     * Duración máxima del curso, en días: el tiempo de calendario que tiene el alumno para completarlo. La suma de los
+     * temas de cualquier cronograma del curso no puede superarla. La define el administrador.
+     */
+    @Column(name = "duracionMaximaDias", nullable = false)
+    private int duracionMaximaDias;
 
     /**
      * Ruta de la imagen de portada del curso. Es opcional.
@@ -135,12 +156,17 @@ public class Curso {
      * @param categoria relación con Categoria.
      * @param nombre nombre del curso.
      * @param precio precio del curso.
+     * @param cargaHorariaMinutos carga horaria total del curso, en minutos.
+     * @param duracionMaximaDias duración máxima del curso, en días.
      */
-    public Curso(Nivel nivel, Categoria categoria, String nombre, float precio) {
+    public Curso(Nivel nivel, Categoria categoria, String nombre, float precio, int cargaHorariaMinutos,
+            int duracionMaximaDias) {
         this.nivel = nivel;
         this.categoria = categoria;
         this.nombre = nombre;
         this.precio = precio;
+        this.cargaHorariaMinutos = cargaHorariaMinutos;
+        this.duracionMaximaDias = duracionMaximaDias;
     }
 
     /**

@@ -92,8 +92,6 @@ public class ProgramaControlador extends PanelCursoControlador {
      * @param nombre           El nombre.
      * @param descripcion      La descripción (opcional).
      * @param objetivos        Los objetivos.
-     * @param cargaHoraria     La carga horaria total (opcional).
-     * @param bibliografia     La bibliografía.
      * @param auth             La autenticación actual.
      * @return Una respuesta con el mensaje de éxito o el mensaje de error.
      */
@@ -103,13 +101,11 @@ public class ProgramaControlador extends PanelCursoControlador {
             @RequestParam(value = "programaOrigenId", required = false) Integer programaOrigenId,
             @RequestParam(value = "nombre", required = false) String nombre,
             @RequestParam(value = "descripcion", required = false) String descripcion,
-            @RequestParam(value = "objetivos", required = false) String objetivos,
-            @RequestParam(value = "cargaHoraria", required = false) Integer cargaHoraria,
-            @RequestParam(value = "bibliografia", required = false) String bibliografia, Authentication auth) {
+            @RequestParam(value = "objetivos", required = false) String objetivos, Authentication auth) {
         try {
             Usuario usuario = (Usuario) auth.getPrincipal();
             Programa programa = programaServicio.registrarPrograma(usuario.getDocente(), cursoId, programaOrigenId,
-                    nombre, descripcion, objetivos, cargaHoraria, bibliografia);
+                    nombre, descripcion, objetivos);
             return RespuestaFormularioUtilidad.respuestaExitosa("Programa '" + programa.getNombre() + "' registrado con éxito.");
         } catch (Exception e) {
             return RespuestaFormularioUtilidad.respuestaConError(e);
@@ -125,8 +121,6 @@ public class ProgramaControlador extends PanelCursoControlador {
      * @param nombre       El nombre.
      * @param descripcion  La descripción (opcional).
      * @param objetivos    Los objetivos.
-     * @param cargaHoraria La carga horaria total (opcional).
-     * @param bibliografia La bibliografía.
      * @param auth         La autenticación actual.
      * @return Una respuesta con el mensaje de éxito o el mensaje de error.
      */
@@ -134,13 +128,10 @@ public class ProgramaControlador extends PanelCursoControlador {
     public ResponseEntity<Map<String, String>> modificarPrograma(@PathVariable("id") Integer id,
             @RequestParam(value = "nombre", required = false) String nombre,
             @RequestParam(value = "descripcion", required = false) String descripcion,
-            @RequestParam(value = "objetivos", required = false) String objetivos,
-            @RequestParam(value = "cargaHoraria", required = false) Integer cargaHoraria,
-            @RequestParam(value = "bibliografia", required = false) String bibliografia, Authentication auth) {
+            @RequestParam(value = "objetivos", required = false) String objetivos, Authentication auth) {
         try {
             Usuario usuario = (Usuario) auth.getPrincipal();
-            programaServicio.modificarPrograma(id, usuario.getDocente(), nombre, descripcion, objetivos, cargaHoraria,
-                    bibliografia);
+            programaServicio.modificarPrograma(id, usuario.getDocente(), nombre, descripcion, objetivos);
             return RespuestaFormularioUtilidad.respuestaExitosa("Programa modificado correctamente.");
         } catch (Exception e) {
             return RespuestaFormularioUtilidad.respuestaConError(e);

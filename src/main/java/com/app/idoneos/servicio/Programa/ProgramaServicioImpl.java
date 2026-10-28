@@ -120,7 +120,7 @@ public class ProgramaServicioImpl implements ProgramaServicio, CrudServicio<Prog
     @Override
     @Transactional
     public Programa registrarPrograma(Docente docente, Integer cursoId, Integer programaOrigenId, String nombre,
-            String descripcion, String objetivos, Integer cargaHoraria, String bibliografia) {
+            String descripcion, String objetivos) {
         Curso curso = cursoRepositorio.findById(cursoId == null ? -1 : cursoId).filter(c -> !c.esInactivo())
                 .orElseThrow(() -> new IllegalArgumentException("Error! El curso no se encuentra activo."));
         DocenteCurso participacion = obtenerParticipacion(curso, docente);
@@ -131,10 +131,8 @@ public class ProgramaServicioImpl implements ProgramaServicio, CrudServicio<Prog
                     .orElseThrow(() -> new IllegalArgumentException(
                             "Error! Debe seleccionar un programa de origen de la lista."));
         }
-        Programa programa = new Programa(curso, validarDatos(nombre, objetivos, bibliografia), objetivos.trim(),
-                bibliografia.trim());
+        Programa programa = new Programa(curso, validarDatos(nombre, objetivos), objetivos.trim());
         programa.setDescripcion(validarDescripcion(descripcion));
-        programa.setCargaHorariaTotal(validarCargaHoraria(cargaHoraria));
         programa = programaRepositorio.save(programa);
         curso.getProgramas().add(programa);
 
@@ -172,19 +170,16 @@ public class ProgramaServicioImpl implements ProgramaServicio, CrudServicio<Prog
      */
     @Override
     @Transactional
-    public Programa modificarPrograma(Integer id, Docente docente, String nombre, String descripcion, String objetivos,
-            Integer cargaHoraria, String bibliografia) {
+    public Programa modificarPrograma(Integer id, Docente docente, String nombre, String descripcion, String objetivos) {
         Programa programa = buscarActivo(id);
         obtenerParticipacion(programa.getCurso(), docente);
         if (programa.getCantidadInscripcionesActivas() > 0) {
             throw new IllegalArgumentException("Error! El programa tiene inscripciones activas: sus datos no pueden "
                     + "modificarse porque son los que el alumno vio y pagó al inscribirse.");
         }
-        programa.setNombre(validarDatos(nombre, objetivos, bibliografia));
+        programa.setNombre(validarDatos(nombre, objetivos));
         programa.setDescripcion(validarDescripcion(descripcion));
         programa.setObjetivos(objetivos.trim());
-        programa.setCargaHorariaTotal(validarCargaHoraria(cargaHoraria));
-        programa.setBibliografia(bibliografia.trim());
         programa.setUltimaModificacion(LocalDateTime.now());
         return programaRepositorio.save(programa);
     }
@@ -278,11 +273,10 @@ public class ProgramaServicioImpl implements ProgramaServicio, CrudServicio<Prog
                 .orElseThrow(() -> new IllegalArgumentException("Error! No participás en este curso."));
     }
 
-    /** Valida el nombre, los objetivos y la bibliografía, y devuelve el nombre sin espacios sobrantes. */
-    private String validarDatos(String nombre, String objetivos, String bibliografia) {
-        if (nombre == null || nombre.isBlank() || objetivos == null || objetivos.isBlank() || bibliografia == null
-                || bibliografia.isBlank()) {
-            throw new IllegalArgumentException("Error! Debe completar el nombre, los objetivos y la bibliografía.");
+    /** Valida el nombre y los objetivos, y devuelve el nombre sin espacios sobrantes. */
+    private String validarDatos(String nombre, String objetivos) {
+        if (nombre == null || nombre.isBlank() || objetivos == null || objetivos.isBlank()) {
+            throw new IllegalArgumentException("Error! Debe completar el nombre y los objetivos.");
         }
         if (nombre.trim().length() > Programa.LONGITUD_NOMBRE) {
             throw RespuestaFormularioUtilidad.campoInvalido("nombre", MensajeErrorUtilidad.demasiadoLargo("El nombre", Programa.LONGITUD_NOMBRE, "caracteres"));
@@ -296,12 +290,5 @@ public class ProgramaServicioImpl implements ProgramaServicio, CrudServicio<Prog
             throw RespuestaFormularioUtilidad.campoInvalido("descripcion", MensajeErrorUtilidad.demasiadoLargo("La descripción", Programa.LONGITUD_DESCRIPCION, "caracteres"));
         }
         return limpia;
-    }
-
-    private Integer validarCargaHoraria(Integer cargaHoraria) {
-        if (cargaHoraria != null && cargaHoraria <= 0) {
-            throw RespuestaFormularioUtilidad.campoInvalido("cargaHoraria", MensajeErrorUtilidad.formatoInvalido("La carga horaria", "número entero mayor a cero"));
-        }
-        return cargaHoraria;
     }
 }

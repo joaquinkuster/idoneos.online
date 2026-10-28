@@ -90,7 +90,7 @@ class CronogramaServicioTest {
     /** Registra un programa nuevo en el curso del programa dado (queda como el vigente, sin temas). */
     private Programa programaNuevo(Programa deCurso) {
         return programaServicio.registrarPrograma(fausto(), deCurso.getCurso().getIdCurso(), null, "Programa 2027", null,
-                "Objetivos", null, "Bibliografía");
+                "Objetivos");
     }
 
     // ------------------------------------------------------------------ CU-24 Modificar cronograma
@@ -128,6 +128,20 @@ class CronogramaServicioTest {
         programa.getCohortesActivas().forEach(c -> c.setAccesoDias(365));
         cronogramaServicio.modificarCronograma(fausto(), programa.getIdPrograma(), temas, List.of("360", "3", "2"));
         assertEquals(365, programa.getDuracionTotalDias());
+    }
+
+    @Test
+    @DisplayName("CU-24: el cronograma no puede superar la duración máxima del curso")
+    void noSuperaLaDuracionMaximaDelCurso() {
+        Programa programa = macro();
+        programa.getCurso().setDuracionMaximaDias(100);
+        List<Integer> temas = ids(programa);
+        List<Integer> antes = semanas(programa);
+
+        String error = mensaje(() -> cronogramaServicio.modificarCronograma(fausto(), programa.getIdPrograma(),
+                temas, List.of("90", "10", "1")));
+        assertTrue(error.contains("Máximo: 100 días"), error);
+        assertEquals(antes, semanas(programa)); // nada se modificó
     }
 
     @Test

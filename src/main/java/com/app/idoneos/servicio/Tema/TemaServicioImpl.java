@@ -150,6 +150,12 @@ public class TemaServicioImpl implements TemaServicio, CrudServicio<Tema> {
         Programa programa = buscarProgramaActivo(programaId);
         Curso curso = programa.getCurso();
         obtenerParticipacion(curso, docente);
+        // El tema entra con una semana, o con los días que queden hasta la duración máxima del curso
+        int restante = curso.getDuracionMaximaDias() - programa.getDuracionTotalDias();
+        if (restante <= 0) {
+            throw new IllegalArgumentException("Error! El cronograma ya alcanzó la duración máxima del curso ("
+                    + DuracionUtilidad.formatear(curso.getDuracionMaximaDias()) + "): no se pueden agregar más temas.");
+        }
 
         Tema tema;
         if (temaExistenteId != null) {
@@ -174,7 +180,7 @@ public class TemaServicioImpl implements TemaServicio, CrudServicio<Tema> {
         int orden = programa.getTemasCronograma().stream().mapToInt(TemaCronograma::getNumeroOrden).max().orElse(0)
                 + 1;
         TemaCronograma cronograma = temaCronogramaRepositorio
-                .save(new TemaCronograma(programa, tema, orden, DuracionUtilidad.DIAS_POR_SEMANA));
+                .save(new TemaCronograma(programa, tema, orden, Math.min(DuracionUtilidad.DIAS_POR_SEMANA, restante)));
         programa.getTemasCronograma().add(cronograma);
         tema.getTemasCronograma().add(cronograma);
         return tema;
