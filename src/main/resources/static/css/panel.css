@@ -1201,6 +1201,35 @@ textarea.pn-input {
     width: 100%;
 }
 
+/* Duración en días, semanas o meses (o mixta): la cantidad (o las tres casillas) y, al lado, la unidad */
+.pn-duracion-fila {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+}
+
+.pn-duracion-valor {
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+.pn-duracion-mixto {
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    gap: 10px;
+}
+
+.pn-duracion-mixto[hidden],
+.pn-duracion-valor[hidden] {
+    display: none;
+}
+
+.pn-duracion-unidad {
+    flex: 0 0 120px;
+    width: 120px;
+}
+
 .pn-tiempo-eq {
     margin: 6px 0 0;
     font-size: 12px;

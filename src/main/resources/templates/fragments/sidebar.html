@@ -24,7 +24,8 @@
     <i class="fa-solid" th:classappend="${icono}"></i><span th:text="${texto}">Enlace</span>
 </a>
 
-<!-- Título de un grupo de enlaces del menú -->
-<div th:fragment="grupo(texto)" class="pn-menu-grupo" th:title="${texto}">
-    <span th:text="${texto}">Grupo</span>
+<!-- Título de un grupo de enlaces del menú. Es desplegable: al hacerle clic se ocultan o se muestran los enlaces que le siguen
+     hasta el próximo grupo (lo arma static/js/panel.js). -->
+<div th:fragment="grupo(texto)" class="pn-menu-grupo" th:title="${texto}" role="button" tabindex="0" aria-expanded="true" data-grupo-menu>
+    <span th:text="${texto}">Grupo</span><i class="fa-solid fa-chevron-down pn-menu-grupo-flecha" aria-hidden="true"></i>
 </div>

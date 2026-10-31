@@ -369,8 +369,10 @@ public class CursoControlador extends PanelCursoControlador {
             if (hayImagen) {
                 ManejadorArchivosUtilidad.validarImagen(imagenArchivo);
             }
-            Curso curso = cursoServicio.modificarCurso(id, nombre, descripcion, precio,
-                    minutos(cargaHoraria, cargaHorariaUnidad),
+            // El nivel, la descripción y la carga horaria son del docente: el formulario del administrador no los envía y se conservan
+            Curso actual = cursoServicio.buscarActivoPorId(id);
+            Curso curso = cursoServicio.modificarCurso(id, nombre, descripcion != null ? descripcion : actual.getDescripcion(), precio,
+                    cargaHoraria != null ? minutos(cargaHoraria, cargaHorariaUnidad) : actual.getCargaHorariaMinutos(),
                     dias(duracion, duracionUnidad), null, categoriaId, nivelId,
                     emiteCertificado, idsModalidades, docenteTitularId, idsDocentesAyudantes);
             if (hayImagen) {

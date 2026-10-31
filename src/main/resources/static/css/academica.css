@@ -30,6 +30,43 @@
     display: none;
 }
 
+/* El título de un grupo es desplegable: con una flecha a la derecha que gira cuando el grupo está cerrado */
+.pn-menu-grupo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.pn-menu-grupo:hover {
+    color: #FFFFFF;
+}
+
+.pn-menu-grupo-flecha {
+    flex-shrink: 0;
+    font-size: 10px;
+    transition: transform 0.15s ease;
+}
+
+.pn-menu-grupo.cerrado .pn-menu-grupo-flecha {
+    transform: rotate(-90deg);
+}
+
+.pn-menu-grupo-cuerpo.cerrado {
+    display: none;
+}
+
+/* Con el menú contraído (solo íconos) se ven todos los enlaces, estén o no cerrados sus grupos */
+.pn-app.colapsado .pn-menu-grupo-flecha {
+    display: none;
+}
+
+.pn-app.colapsado .pn-menu-grupo-cuerpo.cerrado {
+    display: block;
+}
+
 /* ---------- Barra superior: enlaces del módulo (arrancan donde termina la barra lateral) ---------- */
 /* Enlaces del menú sin acción por ahora */
 .pn-menu-enlace[data-sin-accion],

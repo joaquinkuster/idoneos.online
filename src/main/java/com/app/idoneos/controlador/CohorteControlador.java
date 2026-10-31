@@ -174,7 +174,7 @@ public class CohorteControlador extends PanelCursoControlador {
      * @param fechaInicioInscripcion Fecha de inicio de la inscripción.
      * @param fechaFinInscripcion    Fecha de fin de la inscripción.
      * @param fechaInicioDictado     Fecha de inicio del dictado (si el curso tiene modalidad En vivo).
-     * @param accesoDias          Días de acceso al contenido desde la inscripción.
+     * @param accesoDias          Días de acceso al contenido (opcional: si no se indica, la duración del curso más el tiempo extra).
      * @param cupoMaximo             Cupo máximo de inscriptos (opcional).
      * @return Una respuesta con el mensaje de éxito o el mensaje de error.
      */
@@ -186,13 +186,16 @@ public class CohorteControlador extends PanelCursoControlador {
             @RequestParam(value = "fechaFinInscripcion", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFinInscripcion,
             @RequestParam(value = "fechaInicioDictado", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicioDictado,
             @RequestParam(value = "accesoDias", required = false) Integer accesoDias,
+            @RequestParam(value = "tiempoExtra", required = false) Integer tiempoExtra,
             @RequestParam(value = "cupoMaximo", required = false) Integer cupoMaximo) {
         try {
             if (cursoId == null) {
                 throw RespuestaFormularioUtilidad.campoInvalido("cursoId", "Error! Debe seleccionar el curso de la cohorte.");
             }
             Cohorte cohorte = cohorteServicio.registrarCohorte(cursoId, programaId, fechaInicioInscripcion,
-                    fechaFinInscripcion, fechaInicioDictado, accesoDias, cupoMaximo);
+                    fechaFinInscripcion, fechaInicioDictado,
+                    accesoDias != null ? accesoDias : accesoConTiempoExtra(cursoServicio.buscarActivoPorId(cursoId), tiempoExtra),
+                    cupoMaximo);
             return RespuestaFormularioUtilidad.respuestaExitosa(cohorte.esPendiente()
                     ? "Cohorte registrada como pendiente: se activa cuando el contenido del programa esté completo."
                     : "Cohorte registrada correctamente.");
@@ -281,7 +284,7 @@ public class CohorteControlador extends PanelCursoControlador {
      * @param fechaInicioInscripcion Fecha de inicio de la inscripción.
      * @param fechaFinInscripcion    Fecha de fin de la inscripción.
      * @param fechaInicioDictado     Fecha de inicio del dictado (si el curso tiene modalidad En vivo).
-     * @param accesoDias          Días de acceso al contenido desde la inscripción.
+     * @param accesoDias          Días de acceso al contenido (opcional: si no se indica, la duración del curso más el tiempo extra).
      * @param cupoMaximo             Cupo máximo de inscriptos (opcional).
      * @return Una respuesta con el mensaje de éxito o el mensaje de error.
      */
@@ -291,14 +294,30 @@ public class CohorteControlador extends PanelCursoControlador {
             @RequestParam(value = "fechaFinInscripcion", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFinInscripcion,
             @RequestParam(value = "fechaInicioDictado", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicioDictado,
             @RequestParam(value = "accesoDias", required = false) Integer accesoDias,
+            @RequestParam(value = "tiempoExtra", required = false) Integer tiempoExtra,
             @RequestParam(value = "cupoMaximo", required = false) Integer cupoMaximo) {
         try {
+            if (accesoDias == null) {
+                accesoDias = accesoConTiempoExtra(cohorteServicio.buscarPorId(id)
+                        .orElseThrow(() -> new IllegalArgumentException("Error! La cohorte no se encuentra activa.")).getCurso(), tiempoExtra);
+            }
             cohorteServicio.modificarCohorte(id, fechaInicioInscripcion, fechaFinInscripcion, fechaInicioDictado,
                     accesoDias, cupoMaximo);
             return RespuestaFormularioUtilidad.respuestaExitosa("Cohorte modificada correctamente.");
         } catch (Exception e) {
             return RespuestaFormularioUtilidad.respuestaConError(e);
         }
+    }
+
+    /**
+     * Calcula los días de acceso de una cohorte: la duración del curso más el tiempo extra para quien se atrase.
+     *
+     * @param curso       El curso de la cohorte.
+     * @param tiempoExtra El tiempo extra, en días (opcional).
+     * @return Los días de acceso.
+     */
+    private static int accesoConTiempoExtra(Curso curso, Integer tiempoExtra) {
+        return curso.getDuracionDias() + (tiempoExtra == null ? 0 : tiempoExtra);
     }
 
     // ---------------------------------------------------------------- Bajas

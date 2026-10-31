@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+
+<body>
+    <!-- Duración en días, semanas o meses, o una combinación (Mixto) con una casilla para cada unidad (static/js/duracion.js).
+         El servidor recibe un solo número: el total en días (campo "nombre") y su unidad fija ("nombreUnidad" = dias).
+         nombre: name del campo; valor: total guardado en días (o null); bloqueado: solo lectura; mensaje: aviso de campo obligatorio
+         (si es null, el campo es opcional). -->
+    <div th:fragment="duracion(nombre, valor, bloqueado, mensaje)" class="pn-duracion" data-duracion>
+        <input type="text" class="pn-tiempo-total" th:name="${nombre}" th:value="${valor}" th:required="${mensaje != null}" tabindex="-1" aria-hidden="true"
+               data-tiempo-total th:attr="data-mensaje-obligatorio=${mensaje}">
+        <input type="hidden" th:name="${nombre + 'Unidad'}" value="dias">
+        <div class="pn-duracion-fila">
+            <div class="pn-duracion-valor" data-duracion-simple>
+                <input type="number" min="1" step="1" class="pn-input" data-duracion-cantidad placeholder="Cantidad"
+                       th:readonly="${bloqueado}" th:classappend="${bloqueado} ? 'pn-bloqueado'">
+            </div>
+            <div class="pn-duracion-mixto" data-duracion-mixto hidden>
+                <label class="pn-tiempo-parte"><span>Meses</span>
+                    <input type="number" min="0" step="1" class="pn-input" data-duracion-parte="30" placeholder="0"
+                           th:readonly="${bloqueado}" th:classappend="${bloqueado} ? 'pn-bloqueado'">
+                </label>
+                <label class="pn-tiempo-parte"><span>Semanas</span>
+                    <input type="number" min="0" step="1" class="pn-input" data-duracion-parte="7" placeholder="0"
+                           th:readonly="${bloqueado}" th:classappend="${bloqueado} ? 'pn-bloqueado'">
+                </label>
+                <label class="pn-tiempo-parte"><span>Días</span>
+                    <input type="number" min="0" step="1" class="pn-input" data-duracion-parte="1" placeholder="0"
+                           th:readonly="${bloqueado}" th:classappend="${bloqueado} ? 'pn-bloqueado'">
+                </label>
+            </div>
+            <select class="pn-input pn-duracion-unidad" data-duracion-unidad aria-label="Unidad de la duración"
+                    th:disabled="${bloqueado}" th:classappend="${bloqueado} ? 'pn-bloqueado'">
+                <option value="1">Días</option>
+                <option value="7">Semanas</option>
+                <option value="30">Meses</option>
+                <option value="0">Mixto</option>
+            </select>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -37,6 +37,40 @@
         });
     }
 
+    // Grupos desplegables del menú lateral: los enlaces que siguen a un título, hasta el próximo, se ocultan o se muestran al
+    // hacerle clic. El grupo del enlace activo siempre arranca abierto; el resto recuerda cómo lo dejó la persona.
+    document.querySelectorAll('.pn-menu-nav').forEach(function (menu) {
+        Array.prototype.slice.call(menu.querySelectorAll(':scope > .pn-menu-grupo')).forEach(function (titulo) {
+            var cuerpo = document.createElement('div');
+            cuerpo.className = 'pn-menu-grupo-cuerpo';
+            var siguiente = titulo.nextElementSibling;
+            while (siguiente && !siguiente.classList.contains('pn-menu-grupo')) {
+                var proximo = siguiente.nextElementSibling;
+                cuerpo.appendChild(siguiente);
+                siguiente = proximo;
+            }
+            titulo.parentNode.insertBefore(cuerpo, titulo.nextSibling);
+
+            var clave = 'idoneos.menu.grupo.' + (titulo.getAttribute('title') || titulo.textContent.trim());
+            var cerrado = leer(clave) === 'cerrado' && !cuerpo.querySelector('.pn-menu-enlace.activo');
+            function aplicar() {
+                titulo.classList.toggle('cerrado', cerrado);
+                cuerpo.classList.toggle('cerrado', cerrado);
+                titulo.setAttribute('aria-expanded', cerrado ? 'false' : 'true');
+            }
+            function alternar() {
+                cerrado = !cerrado;
+                guardar(clave, cerrado ? 'cerrado' : 'abierto');
+                aplicar();
+            }
+            titulo.addEventListener('click', alternar);
+            titulo.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); alternar(); }
+            });
+            aplicar();
+        });
+    });
+
     // Textos truncados con "...": el texto completo queda disponible al pasar el mouse
     document.querySelectorAll('.pn-truncar').forEach(function (e) {
         if (!e.title) { e.title = e.textContent.trim(); }

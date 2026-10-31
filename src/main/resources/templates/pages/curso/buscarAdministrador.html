@@ -159,7 +159,7 @@
 <script>
     // Regla propia del curso: el docente titular no puede ser a la vez ayudante del mismo curso (CU-03 y CU-04)
     window.PanelValidadores.curso = function (paso, formulario) {
-        if (paso !== 3) { return true; } // paso del dictado y el equipo docente
+        if (paso !== 2) { return true; } // paso del equipo docente y las modalidades
         var titular = formulario.querySelector('[name="docenteTitularId"]');
         var ayudantes = formulario.querySelector('[name="idsDocentesAyudantes"]');
         var ids = Array.prototype.map.call(ayudantes.selectedOptions, function (o) { return o.value; });
