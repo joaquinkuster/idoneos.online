@@ -193,7 +193,7 @@ class AccederCursoControladorTest {
                 .andExpect(content().string(Matchers.containsString("pn-menu-enlace")))
                 // "Mis cursos" está en el menú del usuario, debajo de "Panel administrador"
                 .andExpect(content().string(Matchers.containsString("/curso/misCursos")))
-                .andExpect(content().string(Matchers.not(Matchers.containsString("/cohorte/buscar"))))
+                .andExpect(content().string(Matchers.containsString("/cohorte/buscar")))
                 .andExpect(content().string(Matchers.containsString("Panel del administrador")));
     }
 }

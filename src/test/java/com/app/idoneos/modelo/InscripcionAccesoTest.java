@@ -25,7 +25,7 @@ class InscripcionAccesoTest {
     /** Cohorte sin fechas de dictado, de 12 semanas de acceso, y una inscripción habilitada que vence en 12 semanas. */
     @BeforeEach
     void armar() {
-        programa = new Programa(null, "Programa 2026", "Objetivos");
+        programa = new Programa(null, "Programa 2026");
         cohorte = new Cohorte(programa, ahora.minusDays(10), ahora.plusDays(20), 84);
         inscripcion = new Inscripcion(cohorte, null, ahora.plusWeeks(12));
         inscripcion.setHabilitado(true);
@@ -87,11 +87,11 @@ class InscripcionAccesoTest {
     }
 
     @Test
-    @DisplayName("CU-45: con fechas de dictado, el acceso vence las semanas de acceso después del fin del dictado")
+    @DisplayName("CU-45: con fechas de dictado, el acceso vence los días de acceso después del inicio del dictado")
     void vencimientoConDictado() {
         cohorte.setFechaInicioDictado(ahora.plusDays(25));
         cohorte.setFechaFinDictado(ahora.plusDays(25).plusWeeks(8));
-        assertEquals(ahora.plusDays(25).plusWeeks(8).plusWeeks(12), cohorte.calcularVencimientoAcceso(ahora));
+        assertEquals(ahora.plusDays(25).plusWeeks(12), cohorte.calcularVencimientoAcceso(ahora));
         assertTrue(cohorte.dictadoPorComenzar(ahora));
     }
 

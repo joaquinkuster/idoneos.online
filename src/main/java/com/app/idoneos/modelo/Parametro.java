@@ -22,12 +22,6 @@ public class Parametro {
      */
     public static final String MINIMO_TEMAS_CON_MATERIAL = "programa.minimo_temas_con_material";
 
-    /** Clave de la cantidad máxima de días que puede sumar el cronograma de un programa. */
-    public static final String CRONOGRAMA_DIAS_MAXIMOS = "cronograma.dias_maximos";
-
-    /** Máximo de días del cronograma que se usa cuando el parámetro no está cargado (un año). */
-    public static final int CRONOGRAMA_DIAS_MAXIMOS_POR_DEFECTO = 365;
-
     /**
      * Clave de los días que como mínimo debe haber entre hoy y el inicio de la inscripción de una cohorte pendiente: es el
      * tiempo que tiene el docente para completar el contenido.

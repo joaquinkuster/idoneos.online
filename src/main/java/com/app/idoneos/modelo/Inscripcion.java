@@ -272,13 +272,13 @@ public class Inscripcion {
 
     /**
      * Calcula la fecha de vencimiento más temprana que puede tener el acceso: la que resulta de la duración del
-     * cronograma del programa, contada desde el inicio del dictado o, si no tiene, desde la fecha de la inscripción.
+     * curso, contada desde el inicio del dictado o, si no tiene, desde la fecha de la inscripción.
      *
      * @return La fecha de vencimiento mínima.
      */
     public LocalDateTime getVencimientoMinimo() {
         LocalDateTime base = cohorte.getFechaInicioDictado() != null ? cohorte.getFechaInicioDictado() : fechaCreacion;
-        return base.plusDays(cohorte.getPrograma().getDuracionTotalDias());
+        return base.plusDays(cohorte.getCurso().getDuracionDias());
     }
 
     /**

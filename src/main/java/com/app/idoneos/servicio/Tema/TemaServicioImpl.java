@@ -56,9 +56,6 @@ public class TemaServicioImpl implements TemaServicio, CrudServicio<Tema> {
     private TemaCronogramaRepositorio temaCronogramaRepositorio;
 
     @Autowired
-    private DedicacionDocenteTemas dedicacionDocente;
-
-    @Autowired
     private ParametroServicio parametroServicio;
 
     // ---------------------------------------------------------------- Lecturas
@@ -160,31 +157,20 @@ public class TemaServicioImpl implements TemaServicio, CrudServicio<Tema> {
     }
 
     /**
-     * CU-20: Agrega un tema al cronograma de un programa, con los minutos de dedicación docente indicados.
+     * CU-20: Agrega un tema al cronograma de un programa, con los días de duración indicados.
      */
     @Override
     @Transactional
     public Tema agregarTema(Docente docente, Integer programaId, Integer temaExistenteId, String titulo,
-            String descripcion, String contenido, Integer dedicacionDocenteMinutos) {
-        return agregarTema(docente, programaId, temaExistenteId, titulo, descripcion, contenido, dedicacionDocenteMinutos, null);
-    }
-
-    /**
-     * CU-20: Agrega un tema al cronograma de un programa, con los minutos de dedicación docente y los días de duración
-     * indicados.
-     */
-    @Override
-    @Transactional
-    public Tema agregarTema(Docente docente, Integer programaId, Integer temaExistenteId, String titulo,
-            String descripcion, String contenido, Integer dedicacionDocenteMinutos, Integer duracionDias) {
+            String descripcion, String contenido, Integer duracionDias) {
         Programa programa = buscarProgramaActivo(programaId);
         Curso curso = programa.getCurso();
         obtenerParticipacion(curso, docente);
-        // Sin duración indicada, el tema entra con la del parámetro o con los días que queden hasta la duración máxima
-        int restante = curso.getDuracionMaximaDias() - programa.getDuracionTotalDias();
+        // Sin duración indicada, el tema entra con la del parámetro o con los días que queden hasta la duración del curso
+        int restante = curso.getDuracionDias() - programa.getDuracionTotalDias();
         if (restante <= 0) {
             throw RespuestaFormularioUtilidad.campoInvalido("duracion", "Error! La duración del cronograma ya alcanzó la duración "
-                    + "máxima del curso. Para disponer de más tiempo, modificá el cronograma o comunicate con un administrador para que extienda la duración máxima.");
+                    + "del curso. Para disponer de más tiempo, modificá el cronograma o comunicate con un administrador para que extienda la duración del curso.");
         }
         int duracion = duracionDias != null ? duracionDias : Math.min(diasPorTemaNuevo(), restante);
         validarDuracion(programa, duracion, 0);
@@ -203,11 +189,10 @@ public class TemaServicioImpl implements TemaServicio, CrudServicio<Tema> {
                         "Error! El tema no forma parte del cronograma de ningún otro programa del curso.");
             }
         } else {
-            String tituloLimpio = validarDatos(titulo, contenido);
+            String tituloLimpio = validarDatos(titulo);
             validarTituloLibre(curso, tituloLimpio, null);
-            tema = new Tema(curso, tituloLimpio, contenido.trim());
+            tema = new Tema(curso, tituloLimpio, contenidoLimpio(contenido));
             tema.setDescripcion(validarDescripcion(descripcion));
-            dedicacionDocente.asignarATemaNuevo(curso, tema, dedicacionDocenteMinutos);
             tema = temaRepositorio.save(tema);
         }
         int orden = programa.getTemasCronograma().stream().mapToInt(TemaCronograma::getNumeroOrden).max().orElse(0)
@@ -238,16 +223,6 @@ public class TemaServicioImpl implements TemaServicio, CrudServicio<Tema> {
     @Override
     @Transactional
     public Tema modificarTema(Integer id, Docente docente, String titulo, String descripcion, String contenido) {
-        return modificarTema(id, docente, titulo, descripcion, contenido, null);
-    }
-
-    /**
-     * CU-21: Modifica un tema sin inscripciones activas asociadas, incluidos sus minutos de dedicación docente.
-     */
-    @Override
-    @Transactional
-    public Tema modificarTema(Integer id, Docente docente, String titulo, String descripcion, String contenido,
-            Integer dedicacionDocenteMinutos) {
         Tema tema = temaRepositorio.findById(id == null ? -1 : id).filter(u -> !u.esInactivo())
                 .orElseThrow(() -> new IllegalArgumentException("Error! El tema no se encuentra activa."));
         obtenerParticipacion(tema.getCurso(), docente);
@@ -255,28 +230,25 @@ public class TemaServicioImpl implements TemaServicio, CrudServicio<Tema> {
             throw new IllegalArgumentException("Error! El tema tiene inscripciones activas asociadas: no puede "
                     + "modificarse porque es parte de lo que el alumno vio y pagó al inscribirse.");
         }
-        String tituloLimpio = validarDatos(titulo, contenido);
+        String tituloLimpio = validarDatos(titulo);
         validarTituloLibre(tema.getCurso(), tituloLimpio, tema);
         tema.setTitulo(tituloLimpio);
         tema.setDescripcion(validarDescripcion(descripcion));
-        tema.setContenido(contenido.trim());
-        if (dedicacionDocenteMinutos != null && dedicacionDocenteMinutos != tema.getDedicacionDocenteMinutos()) {
-            dedicacionDocente.cambiarDedicacionDeTema(tema, dedicacionDocenteMinutos);
-        }
+        tema.setContenido(contenidoLimpio(contenido));
         tema.setUltimaModificacion(LocalDateTime.now());
         return temaRepositorio.save(tema);
     }
 
     /**
-     * CU-21: Modifica un tema sin inscripciones activas asociadas, incluidos sus minutos de dedicación docente y sus días de
-     * duración en el cronograma de un programa.
+     * CU-21: Modifica un tema sin inscripciones activas asociadas, incluidos sus días de duración en el cronograma de un
+     * programa.
      */
     @Override
     @Transactional
     public Tema modificarTema(Integer id, Integer programaId, Docente docente, String titulo, String descripcion,
-            String contenido, Integer dedicacionDocenteMinutos, Integer duracionDias) {
+            String contenido, Integer duracionDias) {
         Programa programa = buscarProgramaActivo(programaId);
-        Tema tema = modificarTema(id, docente, titulo, descripcion, contenido, dedicacionDocenteMinutos);
+        Tema tema = modificarTema(id, docente, titulo, descripcion, contenido);
         TemaCronograma cronograma = programa.getTemasCronograma().stream()
                 .filter(c -> !c.getBaja() && c.getTema().getIdTema() == tema.getIdTema()).findFirst()
                 .orElseThrow(() -> new IllegalArgumentException(
@@ -301,7 +273,7 @@ public class TemaServicioImpl implements TemaServicio, CrudServicio<Tema> {
 
     /**
      * Verifica que la duración de un tema sea válida: un entero mayor a cero que no deje el cronograma por encima de la
-     * duración máxima del curso (ni del máximo del sistema) ni de los días de acceso de una cohorte del programa.
+     * duración del curso ni de los días de acceso de una cohorte del programa.
      *
      * @param programa El programa del cronograma.
      * @param duracion La duración que se quiere para el tema, en días.
@@ -312,13 +284,12 @@ public class TemaServicioImpl implements TemaServicio, CrudServicio<Tema> {
             throw RespuestaFormularioUtilidad.campoInvalido("duracion",
                     MensajeErrorUtilidad.formatoInvalido("La duración en el cronograma", "número entero mayor a cero"));
         }
-        int maximo = Math.min(programa.getCurso().getDuracionMaximaDias(), parametroServicio.obtenerEntero(
-                Parametro.CRONOGRAMA_DIAS_MAXIMOS, Parametro.CRONOGRAMA_DIAS_MAXIMOS_POR_DEFECTO));
+        int maximo = programa.getCurso().getDuracionDias();
         int sinElTema = programa.getDuracionTotalDias() - actual;
         if (sinElTema + duracion > maximo) {
             throw RespuestaFormularioUtilidad.campoInvalido("duracion", "Error! La duración en el cronograma supera lo que queda: "
                     + "el tema puede durar hasta " + DuracionUtilidad.formatear(Math.max(0, maximo - sinElTema))
-                    + ", porque la duración máxima del curso es de " + DuracionUtilidad.formatear(maximo) + ".");
+                    + ", porque la duración del curso es de " + DuracionUtilidad.formatear(maximo) + ".");
         }
         int total = sinElTema + duracion;
         for (Cohorte cohorte : programa.getCohortesActivas()) {
@@ -431,19 +402,13 @@ public class TemaServicioImpl implements TemaServicio, CrudServicio<Tema> {
             }
             orden++;
         }
-        boolean hayBajas = false;
         for (TemaCronograma cronograma : aQuitar) {
             Tema tema = cronograma.getTema();
             if (tema.getProgramasQueLaIncluyen().isEmpty()) {
                 tema.marcarInactivo();
                 tema.setUltimaModificacion(ahora);
                 temaRepositorio.save(tema);
-                hayBajas = true;
             }
-        }
-        // La dedicación docente de los temas dados de baja se vuelve a repartir entre los que quedan
-        if (hayBajas) {
-            dedicacionDocente.redistribuir(programa.getCurso());
         }
     }
 
@@ -465,9 +430,14 @@ public class TemaServicioImpl implements TemaServicio, CrudServicio<Tema> {
     }
 
     /** Valida el título y el contenido, y devuelve el título sin espacios sobrantes. */
-    private String validarDatos(String titulo, String contenido) {
-        if (titulo == null || titulo.isBlank() || contenido == null || contenido.isBlank()) {
-            throw new IllegalArgumentException("Error! Debe completar el título y el contenido.");
+    /** El contenido de un tema es opcional: se puede completar después de registrarlo. */
+    private String contenidoLimpio(String contenido) {
+        return contenido == null || contenido.isBlank() ? null : contenido.trim();
+    }
+
+    private String validarDatos(String titulo) {
+        if (titulo == null || titulo.isBlank()) {
+            throw RespuestaFormularioUtilidad.campoInvalido("titulo", "Error! Debe completar el título del tema.");
         }
         if (titulo.trim().length() > Tema.LONGITUD_TITULO) {
             throw RespuestaFormularioUtilidad.campoInvalido("titulo", MensajeErrorUtilidad.demasiadoLargo("El título", Tema.LONGITUD_TITULO, "caracteres"));

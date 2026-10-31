@@ -89,9 +89,8 @@ public class ProgramaControlador extends PanelCursoControlador {
      *
      * @param cursoId          Identificador del curso.
      * @param programaOrigenId Programa del que se parte (opcional).
-     * @param nombre           El nombre.
-     * @param descripcion      La descripción (opcional).
-     * @param objetivos        Los objetivos.
+     * @param nombre           El nombre (opcional: si no se indica, es "Versión N").
+     * @param descripcion      Qué cambia respecto de la versión anterior (opcional).
      * @param auth             La autenticación actual.
      * @return Una respuesta con el mensaje de éxito o el mensaje de error.
      */
@@ -100,12 +99,11 @@ public class ProgramaControlador extends PanelCursoControlador {
             @RequestParam(value = "cursoId", required = false) Integer cursoId,
             @RequestParam(value = "programaOrigenId", required = false) Integer programaOrigenId,
             @RequestParam(value = "nombre", required = false) String nombre,
-            @RequestParam(value = "descripcion", required = false) String descripcion,
-            @RequestParam(value = "objetivos", required = false) String objetivos, Authentication auth) {
+            @RequestParam(value = "descripcion", required = false) String descripcion, Authentication auth) {
         try {
             Usuario usuario = (Usuario) auth.getPrincipal();
             Programa programa = programaServicio.registrarPrograma(usuario.getDocente(), cursoId, programaOrigenId,
-                    nombre, descripcion, objetivos);
+                    nombre, descripcion);
             return RespuestaFormularioUtilidad.respuestaExitosa("Programa '" + programa.getNombre() + "' registrado con éxito.");
         } catch (Exception e) {
             return RespuestaFormularioUtilidad.respuestaConError(e);
@@ -119,19 +117,17 @@ public class ProgramaControlador extends PanelCursoControlador {
      *
      * @param id           Identificador del programa.
      * @param nombre       El nombre.
-     * @param descripcion  La descripción (opcional).
-     * @param objetivos    Los objetivos.
+     * @param descripcion  Qué cambia respecto de la versión anterior (opcional).
      * @param auth         La autenticación actual.
      * @return Una respuesta con el mensaje de éxito o el mensaje de error.
      */
     @PostMapping("/modificar/{id}")
     public ResponseEntity<Map<String, String>> modificarPrograma(@PathVariable("id") Integer id,
             @RequestParam(value = "nombre", required = false) String nombre,
-            @RequestParam(value = "descripcion", required = false) String descripcion,
-            @RequestParam(value = "objetivos", required = false) String objetivos, Authentication auth) {
+            @RequestParam(value = "descripcion", required = false) String descripcion, Authentication auth) {
         try {
             Usuario usuario = (Usuario) auth.getPrincipal();
-            programaServicio.modificarPrograma(id, usuario.getDocente(), nombre, descripcion, objetivos);
+            programaServicio.modificarPrograma(id, usuario.getDocente(), nombre, descripcion);
             return RespuestaFormularioUtilidad.respuestaExitosa("Programa modificado correctamente.");
         } catch (Exception e) {
             return RespuestaFormularioUtilidad.respuestaConError(e);

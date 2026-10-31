@@ -18,9 +18,9 @@ import lombok.Setter;
 @Table(name = "Curso")
 @Check(name = "ck_curso_nombre", constraints = "trim(nombre) <> ''")
 @Check(name = "ck_curso_precio", constraints = "precio >= 0")
-@Check(name = "ck_curso_carga_horaria", constraints = "carga_horaria_minutos > 0")
-@Check(name = "ck_curso_dedicacion_docente", constraints = "dedicacion_docente_minutos > 0")
-@Check(name = "ck_curso_duracion_maxima", constraints = "duracion_maxima_dias > 0")
+@Check(name = "ck_curso_carga_horaria", constraints = "carga_horaria_minutos is null or carga_horaria_minutos > 0")
+@Check(name = "ck_curso_duracion", constraints = "duracion_dias > 0")
+@Check(name = "ck_curso_objetivos", constraints = "objetivos is null or trim(objetivos) <> ''")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -37,11 +37,6 @@ public class Curso {
     public static final int CARGA_HORARIA_MAXIMA_MINUTOS = 60_000;
 
     /**
-     * Dedicación docente máxima permitida para un curso, en minutos (1.000 horas).
-     */
-    public static final int DEDICACION_DOCENTE_MAXIMA_MINUTOS = 60_000;
-
-    /**
      * Identificador único del curso.
      */
     @Id
@@ -50,10 +45,10 @@ public class Curso {
     private int idCurso;
 
     /**
-     * Relación con Nivel.
+     * Relación con Nivel. Lo completa el docente al diseñar el curso, por eso puede estar vacío al registrarlo.
      */
     @ManyToOne
-    @JoinColumn(name = "idNivel", nullable = false)
+    @JoinColumn(name = "idNivel", nullable = true)
     private Nivel nivel;
 
     /**
@@ -82,25 +77,24 @@ public class Curso {
     private float precio;
 
     /**
-     * Carga horaria del curso, en minutos: las horas de cursada que tiene el alumno. Es la que se informa en el
-     * certificado. La define el administrador.
+     * Objetivos del curso. Los completa el docente al diseñar el curso.
      */
-    @Column(name = "cargaHorariaMinutos", nullable = false)
-    private int cargaHorariaMinutos;
+    @Column(name = "objetivos", nullable = true, columnDefinition = "TEXT")
+    private String objetivos;
 
     /**
-     * Dedicación docente total del curso, en minutos: el tiempo de trabajo del docente que reconoce la empresa y que el
-     * docente reparte entre los temas. La define el administrador.
+     * Carga horaria del curso, en minutos: el total de horas que se informa en el certificado. No interviene en ningún
+     * cálculo. La completa el docente.
      */
-    @Column(name = "dedicacionDocenteMinutos", nullable = false)
-    private int dedicacionDocenteMinutos;
+    @Column(name = "cargaHorariaMinutos", nullable = true)
+    private Integer cargaHorariaMinutos;
 
     /**
-     * Duración máxima del curso, en días: el tiempo de calendario que tiene el alumno para completarlo. La suma de los
-     * temas de cualquier cronograma del curso no puede superarla. La define el administrador.
+     * Duración del curso, en días: el tiempo de calendario que el docente asigna entre los temas del programa, y el
+     * mínimo de acceso que tiene el alumno. La define el administrador.
      */
-    @Column(name = "duracionMaximaDias", nullable = false)
-    private int duracionMaximaDias;
+    @Column(name = "duracionDias", nullable = false)
+    private int duracionDias;
 
     /**
      * Ruta de la imagen de portada del curso. Es opcional.
@@ -151,6 +145,12 @@ public class Curso {
     private Set<Programa> programas = new HashSet<>();
 
     /**
+     * Conjunto de cohortes del curso, tengan o no programa.
+     */
+    @OneToMany(mappedBy = "curso")
+    private Set<Cohorte> cohortes = new HashSet<>();
+
+    /**
      * Conjunto de participacionesDocente asociados.
      */
     @OneToMany(mappedBy = "curso", cascade = CascadeType.ALL)
@@ -165,67 +165,45 @@ public class Curso {
     /**
      * Constructor para crear el curso con los datos básicos.
      *
-     * @param nivel relación con Nivel.
+     * @param nivel relación con Nivel (opcional: lo completa el docente).
      * @param categoria relación con Categoria.
      * @param nombre nombre del curso.
      * @param precio precio del curso.
-     * @param cargaHorariaMinutos carga horaria del curso para el alumno, en minutos.
-     * @param dedicacionDocenteMinutos dedicación docente total del curso, en minutos.
-     * @param duracionMaximaDias duración máxima del curso, en días.
+     * @param cargaHorariaMinutos carga horaria para el certificado, en minutos (opcional: la completa el docente).
+     * @param duracionDias duración del curso, en días.
      */
-    public Curso(Nivel nivel, Categoria categoria, String nombre, float precio, int cargaHorariaMinutos,
-            int dedicacionDocenteMinutos, int duracionMaximaDias) {
+    public Curso(Nivel nivel, Categoria categoria, String nombre, float precio, Integer cargaHorariaMinutos, int duracionDias) {
         this.nivel = nivel;
         this.categoria = categoria;
         this.nombre = nombre;
         this.precio = precio;
         this.cargaHorariaMinutos = cargaHorariaMinutos;
-        this.dedicacionDocenteMinutos = dedicacionDocenteMinutos;
-        this.duracionMaximaDias = duracionMaximaDias;
+        this.duracionDias = duracionDias;
     }
 
     /**
-     * Calcula la dedicación docente que recibe un tema nuevo si no se indica otra: el primer tema lleva toda la dedicación del curso
-     * y los siguientes entran con una parte pareja, sin dejar a los demás temas por debajo de un minuto cada uno.
+     * Indica qué datos académicos le faltan al curso: los que completa el docente al diseñarlo. La carga horaria solo
+     * es obligatoria si el curso emite certificado.
      *
-     * @param dedicacionDocenteMinutos La dedicación docente del curso, en minutos.
-     * @param temasExistentes     La cantidad de temas vigentes que ya tiene el curso.
-     * @return Los minutos del tema nuevo.
+     * @return Los nombres de lo que falta ("nivel", "objetivos", "carga horaria"); vacío si está todo.
      */
-    public static int dedicacionPorDefectoDeTemaNuevo(int dedicacionDocenteMinutos, int temasExistentes) {
-        if (temasExistentes == 0) {
-            return dedicacionDocenteMinutos;
+    public List<String> getFaltantesDeDatosAcademicos() {
+        List<String> faltantes = new java.util.ArrayList<>();
+        if (nivel == null) faltantes.add("nivel");
+        if (objetivos == null || objetivos.isBlank()) faltantes.add("objetivos");
+        if (Boolean.TRUE.equals(emiteCertificado) && (cargaHorariaMinutos == null || cargaHorariaMinutos <= 0)) {
+            faltantes.add("carga horaria");
         }
-        int maxima = Math.max(1, dedicacionDocenteMinutos - temasExistentes);
-        return Math.min(Math.max(1, dedicacionDocenteMinutos / (temasExistentes + 1)), maxima);
+        return faltantes;
     }
 
     /**
-     * Obtiene la dedicación docente que recibiría un tema nuevo de este curso si no se indica otra.
+     * Indica si el docente ya completó los datos académicos del curso.
      *
-     * @return Los minutos del tema nuevo.
+     * @return {@code true} si no falta ninguno.
      */
-    public int getDedicacionDocentePorDefectoDeTemaNuevo() {
-        return dedicacionPorDefectoDeTemaNuevo(dedicacionDocenteMinutos, (int) temas.stream().filter(tema -> !tema.getBaja()).count());
-    }
-
-    /**
-     * Suma la dedicación docente de los temas vigentes del curso.
-     *
-     * @return Los minutos repartidos entre los temas.
-     */
-    public int getDedicacionDocenteRepartidaMinutos() {
-        return temas.stream().filter(tema -> !tema.getBaja()).mapToInt(Tema::getDedicacionDocenteMinutos).sum();
-    }
-
-    /**
-     * Indica si la dedicación docente del curso está repartida por completo entre sus temas: tiene temas vigentes y la suma de
-     * sus minutos es igual a la dedicación docente del curso.
-     *
-     * @return {@code true} si todo lo que paga la empresa está asignado a algún tema.
-     */
-    public boolean estaDedicacionDocenteCompleta() {
-        return temas.stream().anyMatch(tema -> !tema.getBaja()) && getDedicacionDocenteRepartidaMinutos() == dedicacionDocenteMinutos;
+    public boolean tieneDatosAcademicosCompletos() {
+        return getFaltantesDeDatosAcademicos().isEmpty();
     }
 
     /**
@@ -340,20 +318,20 @@ public class Curso {
     /**
      * Obtiene las cohortes vigentes del curso que tienen fechas de dictado (las de los cursos en vivo).
      *
-     * @return Las cohortes con fechas de dictado de todos los programas activos.
+     * @return Las cohortes vigentes con fechas de dictado.
      */
     public List<Cohorte> getCohortesConFechasDeDictado() {
-        return getProgramasActivos().stream().flatMap(programa -> programa.getCohortesActivas().stream())
+        return cohortes.stream().filter(cohorte -> !cohorte.getBaja())
                 .filter(cohorte -> cohorte.getFechaInicioDictado() != null || cohorte.getFechaFinDictado() != null).toList();
     }
 
     /**
      * Obtiene las cohortes vigentes del curso que no tienen fechas de dictado (las de los cursos grabados).
      *
-     * @return Las cohortes sin fechas de dictado de todos los programas activos.
+     * @return Las cohortes vigentes sin fechas de dictado.
      */
     public List<Cohorte> getCohortesSinFechasDeDictado() {
-        return getProgramasActivos().stream().flatMap(programa -> programa.getCohortesActivas().stream())
+        return cohortes.stream().filter(cohorte -> !cohorte.getBaja())
                 .filter(cohorte -> cohorte.getFechaInicioDictado() == null && cohorte.getFechaFinDictado() == null).toList();
     }
 

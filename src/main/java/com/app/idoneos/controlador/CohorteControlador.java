@@ -174,7 +174,6 @@ public class CohorteControlador extends PanelCursoControlador {
      * @param fechaInicioInscripcion Fecha de inicio de la inscripción.
      * @param fechaFinInscripcion    Fecha de fin de la inscripción.
      * @param fechaInicioDictado     Fecha de inicio del dictado (si el curso tiene modalidad En vivo).
-     * @param fechaFinDictado        Fecha de fin del dictado (si el curso tiene modalidad En vivo).
      * @param accesoDias          Días de acceso al contenido desde la inscripción.
      * @param cupoMaximo             Cupo máximo de inscriptos (opcional).
      * @return Una respuesta con el mensaje de éxito o el mensaje de error.
@@ -186,7 +185,6 @@ public class CohorteControlador extends PanelCursoControlador {
             @RequestParam(value = "fechaInicioInscripcion", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicioInscripcion,
             @RequestParam(value = "fechaFinInscripcion", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFinInscripcion,
             @RequestParam(value = "fechaInicioDictado", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicioDictado,
-            @RequestParam(value = "fechaFinDictado", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFinDictado,
             @RequestParam(value = "accesoDias", required = false) Integer accesoDias,
             @RequestParam(value = "cupoMaximo", required = false) Integer cupoMaximo) {
         try {
@@ -194,7 +192,7 @@ public class CohorteControlador extends PanelCursoControlador {
                 throw RespuestaFormularioUtilidad.campoInvalido("cursoId", "Error! Debe seleccionar el curso de la cohorte.");
             }
             Cohorte cohorte = cohorteServicio.registrarCohorte(cursoId, programaId, fechaInicioInscripcion,
-                    fechaFinInscripcion, fechaInicioDictado, fechaFinDictado, accesoDias, cupoMaximo);
+                    fechaFinInscripcion, fechaInicioDictado, accesoDias, cupoMaximo);
             return RespuestaFormularioUtilidad.respuestaExitosa(cohorte.esPendiente()
                     ? "Cohorte registrada como pendiente: se activa cuando el contenido del programa esté completo."
                     : "Cohorte registrada correctamente.");
@@ -283,7 +281,6 @@ public class CohorteControlador extends PanelCursoControlador {
      * @param fechaInicioInscripcion Fecha de inicio de la inscripción.
      * @param fechaFinInscripcion    Fecha de fin de la inscripción.
      * @param fechaInicioDictado     Fecha de inicio del dictado (si el curso tiene modalidad En vivo).
-     * @param fechaFinDictado        Fecha de fin del dictado (si el curso tiene modalidad En vivo).
      * @param accesoDias          Días de acceso al contenido desde la inscripción.
      * @param cupoMaximo             Cupo máximo de inscriptos (opcional).
      * @return Una respuesta con el mensaje de éxito o el mensaje de error.
@@ -293,12 +290,11 @@ public class CohorteControlador extends PanelCursoControlador {
             @RequestParam(value = "fechaInicioInscripcion", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicioInscripcion,
             @RequestParam(value = "fechaFinInscripcion", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFinInscripcion,
             @RequestParam(value = "fechaInicioDictado", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicioDictado,
-            @RequestParam(value = "fechaFinDictado", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFinDictado,
             @RequestParam(value = "accesoDias", required = false) Integer accesoDias,
             @RequestParam(value = "cupoMaximo", required = false) Integer cupoMaximo) {
         try {
             cohorteServicio.modificarCohorte(id, fechaInicioInscripcion, fechaFinInscripcion, fechaInicioDictado,
-                    fechaFinDictado, accesoDias, cupoMaximo);
+                    accesoDias, cupoMaximo);
             return RespuestaFormularioUtilidad.respuestaExitosa("Cohorte modificada correctamente.");
         } catch (Exception e) {
             return RespuestaFormularioUtilidad.respuestaConError(e);

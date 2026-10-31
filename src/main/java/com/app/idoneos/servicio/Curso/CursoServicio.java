@@ -179,12 +179,11 @@ public interface CursoServicio {
      * @param nombre el nombre del curso
      * @param descripcion la descripción del curso (opcional)
      * @param precio el precio del curso
-     * @param cargaHorariaMinutos la carga horaria del curso para el alumno, en minutos
-     * @param dedicacionDocenteMinutos la dedicación docente total del curso, en minutos
-     * @param duracionMaximaDias la duración máxima del curso, en días
+     * @param cargaHorariaMinutos la carga horaria para el certificado, en minutos (opcional: la completa el docente)
+     * @param duracionDias la duración del curso, en días
      * @param imagen la ruta de la imagen de portada (opcional)
      * @param idCategoria el identificador de la categoría
-     * @param idNivel el identificador del nivel
+     * @param idNivel el identificador del nivel (opcional: lo completa el docente)
      * @param emiteCertificado si el curso emite certificado al finalizar
      * @param idsModalidades los identificadores de las modalidades de dictado
      * @param idDocenteTitular el identificador del docente titular
@@ -193,7 +192,7 @@ public interface CursoServicio {
      * @throws IllegalArgumentException si no se cumple alguna regla de registro
      */
     Curso registrarCurso(String nombre, String descripcion, Float precio, Integer cargaHorariaMinutos,
-            Integer dedicacionDocenteMinutos, Integer duracionMaximaDias, String imagen, Integer idCategoria,
+            Integer duracionDias, String imagen, Integer idCategoria,
             Integer idNivel, boolean emiteCertificado, List<Integer> idsModalidades, Integer idDocenteTitular,
             List<Integer> idsDocentesAyudantes);
 
@@ -207,12 +206,11 @@ public interface CursoServicio {
      * @param nombre el nombre del curso
      * @param descripcion la descripción del curso (opcional)
      * @param precio el precio del curso
-     * @param cargaHorariaMinutos la carga horaria del curso para el alumno, en minutos
-     * @param dedicacionDocenteMinutos la dedicación docente total del curso, en minutos
-     * @param duracionMaximaDias la duración máxima del curso, en días
+     * @param cargaHorariaMinutos la carga horaria para el certificado, en minutos (opcional)
+     * @param duracionDias la duración del curso, en días
      * @param imagen la ruta de la imagen de portada (opcional, si es nula se conserva la actual)
      * @param idCategoria el identificador de la categoría
-     * @param idNivel el identificador del nivel
+     * @param idNivel el identificador del nivel (opcional: si es nulo se conserva el actual)
      * @param emiteCertificado si el curso emite certificado al finalizar
      * @param idsModalidades los identificadores de las modalidades de dictado
      * @param idDocenteTitular el identificador del docente titular
@@ -221,9 +219,24 @@ public interface CursoServicio {
      * @throws IllegalArgumentException si no se cumple alguna regla de modificación
      */
     Curso modificarCurso(Integer idCurso, String nombre, String descripcion, Float precio,
-            Integer cargaHorariaMinutos, Integer dedicacionDocenteMinutos, Integer duracionMaximaDias, String imagen,
+            Integer cargaHorariaMinutos, Integer duracionDias, String imagen,
             Integer idCategoria, Integer idNivel, boolean emiteCertificado, List<Integer> idsModalidades,
             Integer idDocenteTitular, List<Integer> idsDocentesAyudantes);
+
+    /**
+     * Completa los datos académicos de un curso: los que define el docente al diseñarlo.
+     *
+     * @param idCurso el identificador del curso
+     * @param docente el docente que los completa (debe formar parte del equipo del curso)
+     * @param idNivel el identificador del nivel
+     * @param descripcion la descripción del curso (opcional)
+     * @param objetivos los objetivos del curso
+     * @param cargaHorariaMinutos la carga horaria para el certificado, en minutos (obligatoria si el curso emite certificado)
+     * @return el curso actualizado
+     * @throws IllegalArgumentException si el docente no participa en el curso o algún dato no es válido
+     */
+    Curso completarDatosDelCurso(Integer idCurso, Docente docente, Integer idNivel, String descripcion, String objetivos,
+            Integer cargaHorariaMinutos);
 
     /**
      * Asigna la imagen de un curso activo (el archivo ya se guardó en la carpeta del curso).

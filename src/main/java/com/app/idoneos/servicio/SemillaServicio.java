@@ -83,7 +83,6 @@ import com.app.idoneos.repositorio.PreguntaIntentoRepositorio;
 import com.app.idoneos.repositorio.PreguntaRepositorio;
 import com.app.idoneos.repositorio.RespuestaIntentoRepositorio;
 import com.app.idoneos.servicio.Parametro.ParametroServicio;
-import com.app.idoneos.servicio.Tema.DedicacionDocenteTemas;
 import com.app.idoneos.repositorio.DocenteCursoRepositorio;
 import com.app.idoneos.repositorio.ProgramaRepositorio;
 import com.app.idoneos.repositorio.ProgresoRepositorio;
@@ -108,11 +107,14 @@ public class SemillaServicio {
     /** Carga horaria de los cursos de prueba para el alumno: 10 horas. */
     private static final int CARGA_HORARIA_SEMILLA_MINUTOS = 600;
 
-    /** Dedicación docente de los cursos de prueba: 20 horas. */
-    private static final int DEDICACION_DOCENTE_SEMILLA_MINUTOS = 1200;
+    /** Duración inicial de los cursos de prueba, hasta que se les cargan los temas: 8 semanas. */
+    private static final int DURACION_SEMILLA_DIAS = 56;
 
-    /** Duración máxima de los cursos de prueba: un año. */
-    private static final int DURACION_MAXIMA_SEMILLA_DIAS = 365;
+    /** Días acumulados del cronograma de cada programa de la semilla, para fijar la duración de sus cursos. */
+    private final java.util.Map<Integer, Integer> diasPorPrograma = new java.util.HashMap<>();
+
+    /** La duración del cronograma más largo de cada curso de la semilla. */
+    private final java.util.Map<Integer, Integer> duracionMaximaDelCurso = new java.util.HashMap<>();
 
     /**
      * Contraseña de todos los usuarios de prueba.
@@ -190,9 +192,6 @@ public class SemillaServicio {
 
     @Autowired
     private TemaRepositorio temaRepositorio;
-
-    @Autowired
-    private DedicacionDocenteTemas dedicacionDocenteTemas;
 
     @Autowired
     private TemaCronogramaRepositorio temaCronogramaRepositorio;
@@ -301,8 +300,6 @@ public class SemillaServicio {
                 String.valueOf(Parametro.COHORTE_PLAZO_MINIMO_CONTENIDO_DIAS_POR_DEFECTO)));
         parametroRepositorio.save(new Parametro(admin, Parametro.CRONOGRAMA_DIAS_POR_TEMA_NUEVO,
                 String.valueOf(Parametro.CRONOGRAMA_DIAS_POR_TEMA_NUEVO_POR_DEFECTO)));
-        parametroRepositorio.save(new Parametro(admin, Parametro.CRONOGRAMA_DIAS_MAXIMOS,
-                String.valueOf(Parametro.CRONOGRAMA_DIAS_MAXIMOS_POR_DEFECTO)));
         parametroRepositorio.save(new Parametro(admin, Parametro.PLAZO_CONFIRMACION_PAGO,
                 String.valueOf(Parametro.PLAZO_CONFIRMACION_PAGO_POR_DEFECTO)));
         parametroRepositorio.save(new Parametro(admin, Parametro.CBU_INSTITUCION, "0000003100012345678901"));
@@ -727,7 +724,7 @@ public class SemillaServicio {
     private DocenteCurso crearCurso(String nombre, String descripcion, float precio, String imagen,
             Categoria categoria, Nivel nivel, boolean emiteCertificado, List<Modalidad> modalidades,
             Docente titular, List<Docente> ayudantes) {
-        Curso curso = new Curso(nivel, categoria, nombre, precio, CARGA_HORARIA_SEMILLA_MINUTOS, DEDICACION_DOCENTE_SEMILLA_MINUTOS, DURACION_MAXIMA_SEMILLA_DIAS);
+        Curso curso = new Curso(nivel, categoria, nombre, precio, CARGA_HORARIA_SEMILLA_MINUTOS, DURACION_SEMILLA_DIAS);
         curso.setDescripcion(descripcion);
         curso.setImagen(imagen);
         curso.setEmiteCertificado(emiteCertificado);
@@ -741,8 +738,13 @@ public class SemillaServicio {
         return docenteCursoRepositorio.save(new DocenteCurso(curso, titular, true));
     }
 
+    /** Crea el programa de un curso; los objetivos que se indican son los del curso (si todavía no los tiene). */
     private Programa crearPrograma(Curso curso, String nombre, String objetivos) {
-        Programa programa = new Programa(curso, nombre, objetivos);
+        if (curso.getObjetivos() == null) {
+            curso.setObjetivos(objetivos);
+            cursoRepositorio.save(curso);
+        }
+        Programa programa = new Programa(curso, nombre);
         programa.setDescripcion("Plan de formación del curso " + curso.getNombre() + ".");
         return programaRepositorio.save(programa);
     }
@@ -755,10 +757,17 @@ public class SemillaServicio {
             String descripcion, DocenteCurso autorMaterial, TipoMaterial tipoMaterial) {
         Tema tema = new Tema(curso, titulo, "Contenido del tema: " + titulo + ". " + descripcion);
         tema.setDescripcion(descripcion);
-        dedicacionDocenteTemas.asignarATemaNuevo(curso, tema, null); // la dedicación docente del curso se reparte entre sus temas
         tema = temaRepositorio.save(tema);
         // La semilla describe los temas en semanas; el cronograma se guarda en días
-        temaCronogramaRepositorio.save(new TemaCronograma(programa, tema, numeroOrden, semanas * DuracionUtilidad.DIAS_POR_SEMANA));
+        int dias = semanas * DuracionUtilidad.DIAS_POR_SEMANA;
+        temaCronogramaRepositorio.save(new TemaCronograma(programa, tema, numeroOrden, dias));
+        // La duración del curso es la del más largo de sus programas (así sus cohortes tienen el acceso necesario)
+        int totalDelPrograma = diasPorPrograma.merge(programa.getIdPrograma(), dias, Integer::sum);
+        int duracion = duracionMaximaDelCurso.merge(curso.getIdCurso(), totalDelPrograma, Math::max);
+        if (curso.getDuracionDias() != duracion) {
+            curso.setDuracionDias(duracion);
+            cursoRepositorio.save(curso);
+        }
         if (autorMaterial != null) {
             Material material = new Material(autorMaterial, tipoMaterial, tema, "Material: " + titulo);
             material.setContenido("Material de estudio del tema " + titulo + ".");

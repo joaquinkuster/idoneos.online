@@ -59,7 +59,7 @@ class ReglasDeAutoevaluacionPorProgramaServicioTest {
 
     private void registrarCohorte(Programa programa) {
         LocalDate hoy = LocalDate.now();
-        cohorteServicio.registrarCohorte(programa.getIdPrograma(), hoy.plusDays(1), hoy.plusDays(30), null, null, 70, null);
+        cohorteServicio.registrarCohorte(programa.getIdPrograma(), hoy.plusDays(1), hoy.plusDays(30), null, 70, null);
     }
 
     private Docente fausto() {
@@ -83,7 +83,7 @@ class ReglasDeAutoevaluacionPorProgramaServicioTest {
         assertTrue(error.contains("posterior a hoy"), error);
 
         LocalDate inicio = LocalDate.now().plusDays(cohorteServicio.plazoMinimoParaCompletarContenidoDias());
-        var pendiente = cohorteServicio.registrarCohorte(macro().getIdPrograma(), inicio, inicio.plusDays(30), null, null, 70, null);
+        var pendiente = cohorteServicio.registrarCohorte(macro().getIdPrograma(), inicio, inicio.plusDays(30), null, 70, null);
         assertTrue(pendiente.esPendiente());
     }
 
@@ -100,6 +100,27 @@ class ReglasDeAutoevaluacionPorProgramaServicioTest {
         assertTrue(!macro().tieneContenidoCompleto(1));
         // un mínimo de temas que el programa no alcanza también se informa
         assertTrue(macro().getFaltantesDeContenido(10).stream().anyMatch(f -> f.contains("requeridos")));
+    }
+
+    @Test
+    @DisplayName("El programa no está completo si no asigna toda la duración del curso o si faltan datos del curso")
+    void faltantesPorDuracionYDatosDelCurso() {
+        Programa programa = macro();
+        assertTrue(programa.estaDuracionAsignadaCompleta());
+
+        // con más duración en el curso que en los temas, falta asignar
+        programa.getCurso().setDuracionDias(programa.getDuracionTotalDias() + 7);
+        assertTrue(!programa.estaDuracionAsignadaCompleta());
+        assertTrue(programa.getFaltantesDeContenido(1).stream().anyMatch(f -> f.contains("duración asignada")),
+                programa.getFaltantesDeContenido(1).toString());
+        programa.getCurso().setDuracionDias(programa.getDuracionTotalDias());
+
+        // y si el docente no completó el nivel o los objetivos
+        programa.getCurso().setObjetivos(null);
+        programa.getCurso().setNivel(null);
+        assertTrue(programa.getFaltantesDeContenido(1).stream()
+                .anyMatch(f -> f.equals("Faltan completar los datos del curso: nivel, objetivos")),
+                programa.getFaltantesDeContenido(1).toString());
     }
 
     @Test

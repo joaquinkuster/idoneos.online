@@ -90,8 +90,8 @@ class ProgramaControladorTest {
                 .andExpect(content().string(Matchers.containsString("modalNuevoPrograma")))
                 .andExpect(content().string(Matchers.containsString("data-filtro=")))
                 .andExpect(content().string(Matchers.containsString("data-paginador")))
-                // columnas: objetivos y última modificación (sin conteos, sin bibliografía ni dedicación docente, que ya no son del programa)
-                .andExpect(content().string(Matchers.containsString("data-col=\"Objetivos\"")))
+                // columnas: última modificación (sin objetivos, que son del curso, ni conteos, bibliografía o dedicación docente)
+                .andExpect(content().string(Matchers.not(Matchers.containsString("data-col=\"Objetivos\""))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("data-col=\"Bibliografía\""))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("data-col=\"Dedicación docente\""))))
                 .andExpect(content().string(Matchers.containsString("data-col=\"Última modificación\"")))
@@ -201,15 +201,17 @@ class ProgramaControladorTest {
     void registrarPrograma() throws Exception {
         String curso = String.valueOf(macro().getIdCurso());
 
-        mockMvc.perform(post("/programa/registrar").param("cursoId", curso).param("nombre", "Programa 2027")
-                .param("objetivos", "Obj"))
+        mockMvc.perform(post("/programa/registrar").param("cursoId", curso).param("nombre", "Programa 2027"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith("application/json"))
                 .andExpect(jsonPath("$.mensaje").value(Matchers.containsString("Programa 2027")));
-        mockMvc.perform(post("/programa/registrar").param("cursoId", curso).param("nombre", "")
-                .param("objetivos", ""))
+        // sin nombre, la versión se llama "Versión N"
+        mockMvc.perform(post("/programa/registrar").param("cursoId", curso).param("nombre", ""))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.mensaje").value(Matchers.containsString("Versión")));
+        mockMvc.perform(post("/programa/registrar").param("cursoId", curso).param("nombre", "x".repeat(51)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value(Matchers.containsString("Debe completar el nombre y los objetivos")));
+                .andExpect(jsonPath("$.error").value(Matchers.containsString("Máximo: 50 caracteres")));
     }
 
     @Test

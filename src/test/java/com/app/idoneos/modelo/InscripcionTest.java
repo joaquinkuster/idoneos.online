@@ -29,7 +29,7 @@ class InscripcionTest {
     /** Programa de 63 días (temas de 14, 21 y 28 días) con una cohorte que empezó a dictarse hace 20 días. */
     @BeforeEach
     void armarPrograma() {
-        programa = new Programa(null, "Programa 2026", "Objetivos");
+        programa = new Programa(null, "Programa 2026");
         programa.setIdPrograma(1);
         tema1 = agregarTema(1, 1, 14);
         tema2 = agregarTema(2, 2, 21);

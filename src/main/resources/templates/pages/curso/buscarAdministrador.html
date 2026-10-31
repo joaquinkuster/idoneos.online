@@ -47,8 +47,7 @@
                                 <th data-col="Nivel" data-campo="nivel" data-filtro="lista">Nivel</th>
                                 <th data-col="Precio" data-campo="precio" data-filtro="numero">Precio</th>
                                 <th data-col="Carga horaria" data-campo="cargaHoraria" data-filtro="numero">Carga horaria</th>
-                                <th data-col="Dedicación docente" data-campo="dedicacionDocente" data-filtro="numero">Dedicación docente</th>
-                                <th data-col="Duración máxima" data-campo="duracionMaxima" data-filtro="numero">Duración máxima</th>
+                                <th data-col="Duración" data-campo="duracion" data-filtro="numero">Duración</th>
                                 <th data-col="Modalidades" data-campo="modalidades" data-filtro="lista">Modalidades</th>
                                 <th data-col="Docente titular" data-campo="docenteTitular" data-filtro="lista">Docente titular</th>
                                 <th data-col="Estado" data-campo="estado" data-filtro="lista">Estado</th>
@@ -67,11 +66,10 @@
                                     <div class="pn-celda-principal pn-truncar" th:text="${curso.nombre}">Curso</div>
                                 </td>
                                 <td th:text="${curso.categoria.nombre}">Categoría</td>
-                                <td th:text="${curso.nivel.nombre}">Nivel</td>
+                                <td th:text="${curso.nivel != null ? curso.nivel.nombre : '—'}">Nivel</td>
                                 <td class="text-nowrap" th:text="${curso.precio != null && curso.precio <= 0 ? 'Gratis' : '$ ' + #numbers.formatDecimal(curso.precio != null ? curso.precio : 0, 1, 'POINT', 0, 'COMMA')}">$ 0</td>
-                                <td class="text-nowrap" th:text="${T(com.app.idoneos.utilidades.DuracionUtilidad).formatearMinutos(curso.cargaHorariaMinutos)}">10 horas</td>
-                                <td class="text-nowrap" th:text="${T(com.app.idoneos.utilidades.DuracionUtilidad).formatearMinutos(curso.dedicacionDocenteMinutos)}">20 horas</td>
-                                <td class="text-nowrap" th:text="${T(com.app.idoneos.utilidades.DuracionUtilidad).formatear(curso.duracionMaximaDias)}">12 semanas</td>
+                                <td class="text-nowrap" th:text="${curso.cargaHorariaMinutos != null ? T(com.app.idoneos.utilidades.DuracionUtilidad).formatearMinutos(curso.cargaHorariaMinutos) : '—'}">10 horas</td>
+                                <td class="text-nowrap" th:text="${T(com.app.idoneos.utilidades.DuracionUtilidad).formatear(curso.duracionDias)}">12 semanas</td>
                                 <td><span th:each="m, st : ${curso.modalidades}"><span th:text="${m.nombre}">Modalidad</span><span th:if="${!st.last}">, </span></span></td>
                                 <td>
                                     <div th:text="${curso.docenteTitular != null ? curso.docenteTitular.usuario.nombreCompleto : '—'}">Docente</div>

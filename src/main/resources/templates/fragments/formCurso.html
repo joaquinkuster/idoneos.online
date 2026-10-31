@@ -64,11 +64,11 @@
         </div>
     </div>
 
-    <!-- Paso 2: tiempos del curso (carga horaria, dedicación docente y duración máxima) -->
+    <!-- Paso 2: tiempos del curso (carga horaria y duración) -->
     <div class="pn-paso" data-grupo="Tiempos">
         <div class="pn-seccion-titulo">
             <h4>Tiempos del curso</h4>
-            <p>Carga horaria, dedicación docente y duración máxima</p>
+            <p>Carga horaria y duración</p>
         </div>
         <div class="row g-3">
             <div class="col-md-6 pn-campo">
@@ -82,40 +82,24 @@
             </div>
             <div class="col-md-6 pn-campo">
                 <div class="pn-etiqueta-con-ayuda">
-                    <label class="pn-etiqueta">Dedicación docente <span class="pn-obligatorio">*</span></label>
-                    <button type="button" class="cn-ayuda" aria-expanded="false" aria-label="Sobre la dedicación docente" title="Ayuda"
-                            th:data-ayuda-destino="${'ayudaDedicacionDocente' + (curso != null ? curso.idCurso : 'Nueva')}"><i class="fa-solid fa-circle-info"></i></button>
+                    <label class="pn-etiqueta">Duración <span class="pn-obligatorio">*</span></label>
+                    <button type="button" class="cn-ayuda" aria-expanded="false" aria-label="Sobre la duración" title="Ayuda"
+                            th:data-ayuda-destino="${'ayudaDuracion' + (curso != null ? curso.idCurso : 'Nueva')}"><i class="fa-solid fa-circle-info"></i></button>
                 </div>
-                <th:block th:replace="~{fragments/campoTiempo :: minutos('dedicacionDocente', ${curso != null ? curso.dedicacionDocenteMinutos : null}, ${bloqueado}, 'Debe completar la dedicación docente.', ${false})}"></th:block>
-                <div class="pn-ayuda-error"></div>
-            </div>
-            <div class="col-md-6 pn-campo">
-                <div class="pn-etiqueta-con-ayuda">
-                    <label class="pn-etiqueta">Duración máxima <span class="pn-obligatorio">*</span></label>
-                    <button type="button" class="cn-ayuda" aria-expanded="false" aria-label="Sobre la duración máxima" title="Ayuda"
-                            th:data-ayuda-destino="${'ayudaDuracionMaxima' + (curso != null ? curso.idCurso : 'Nueva')}"><i class="fa-solid fa-circle-info"></i></button>
-                </div>
-                <th:block th:replace="~{fragments/campoTiempo :: dias('duracionMaxima', ${curso != null ? curso.duracionMaximaDias : null}, ${bloqueado}, 'Debe completar la duración máxima.', ${false})}"></th:block>
+                <th:block th:replace="~{fragments/campoTiempo :: dias('duracion', ${curso != null ? curso.duracionDias : null}, ${bloqueado}, 'Debe completar la duración.', ${false})}"></th:block>
                 <div class="pn-ayuda-error"></div>
             </div>
             <div class="col-12 ayuda-desplegable" th:id="${'ayudaCargaHoraria' + (curso != null ? curso.idCurso : 'Nueva')}">
                 <div class="ayuda-desplegable-interior">
                     <div class="cn-info">
-                        <span>La <strong>carga horaria</strong> es la cantidad de horas del curso para el alumno. Es la que se informa en el certificado. No puede ser mayor que el tiempo de la duración máxima.</span>
+                        <span>La <strong>carga horaria</strong> es la cantidad de horas del curso para el alumno. Es la que se informa en el certificado. No puede ser mayor que el tiempo de la duración del curso.</span>
                     </div>
                 </div>
             </div>
-            <div class="col-12 ayuda-desplegable" th:id="${'ayudaDedicacionDocente' + (curso != null ? curso.idCurso : 'Nueva')}">
+            <div class="col-12 ayuda-desplegable" th:id="${'ayudaDuracion' + (curso != null ? curso.idCurso : 'Nueva')}">
                 <div class="ayuda-desplegable-interior">
                     <div class="cn-info">
-                        <span>La <strong>dedicación docente</strong> es el tiempo total de trabajo del docente para este curso. Es lo que la empresa reconoce por el diseño y la preparación. El docente lo reparte entre los temas y la suma siempre debe coincidir con este total.</span>
-                    </div>
-                </div>
-            </div>
-            <div class="col-12 ayuda-desplegable" th:id="${'ayudaDuracionMaxima' + (curso != null ? curso.idCurso : 'Nueva')}">
-                <div class="ayuda-desplegable-interior">
-                    <div class="cn-info">
-                        <span>La <strong>duración máxima</strong> es el tiempo de calendario que el alumno tiene disponible para completar el curso. Ningún programa puede tener un cronograma más largo que este plazo.</span>
+                        <span>La <strong>duración</strong> es el tiempo de calendario del curso: el docente lo asigna entre los temas del programa y es el mínimo de acceso del alumno. Ningún programa puede tener un cronograma más largo.</span>
                     </div>
                 </div>
             </div>

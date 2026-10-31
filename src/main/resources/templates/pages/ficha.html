@@ -20,7 +20,7 @@
       <!-- Hero: categoría y nivel, nombre y descripción del curso -->
       <div class="wf-hero-banner">
         <div class="fx-hero-texto">
-          <div class="wf-hero-tag"><span th:text="${curso.categoria.nombre + ' · ' + curso.nivel.nombre}">Categoría · Nivel</span></div>
+          <div class="wf-hero-tag"><span th:text="${curso.nivel != null ? curso.categoria.nombre + ' · ' + curso.nivel.nombre : curso.categoria.nombre}">Categoría · Nivel</span></div>
           <h2 class="wf-hero-title" th:text="${curso.nombre}">Nombre del curso</h2>
           <p class="wf-hero-desc" th:if="${curso.descripcion != null and !#strings.isEmpty(curso.descripcion)}" th:text="${curso.descripcion}">Descripción</p>
         </div>
@@ -35,7 +35,7 @@
           <div>
             <span class="ac-etiqueta">Sobre el curso</span>
             <p class="fx-enunciado"
-               th:with="nivelNombre=${curso.nivel.nombre}, categoriaNombre=${curso.categoria.nombre}"
+               th:with="nivelNombre=${curso.nivel != null ? curso.nivel.nombre : ''}, categoriaNombre=${curso.categoria.nombre}"
                th:text="${nivelNombre == 'Básico' ? 'Está pensado para quienes recién comienzan: no se requieren conocimientos previos de ' + categoriaNombre + '.' : (nivelNombre == 'Intermedio' ? 'Es para quienes ya manejan los conceptos básicos de ' + categoriaNombre + ' y quieren profundizar.' : 'Es para quienes tienen experiencia en ' + categoriaNombre + ' y buscan especializarse.')}">Público</p>
 
             <div class="fx-datos">

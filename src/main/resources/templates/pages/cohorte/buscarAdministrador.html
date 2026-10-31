@@ -159,7 +159,7 @@
                                 <option value="">Curso</option>
                                 <option th:each="c : ${cursos}" th:if="${curso == null or curso.idCurso == c.idCurso}" th:value="${c.idCurso}"
                                         th:text="${c.nombre}"
-                                        th:attr="data-envivo=${c.incluyeModalidad('En vivo')}, data-curso=${c.nombre}"
+                                        th:attr="data-envivo=${c.incluyeModalidad('En vivo')}, data-dias=${c.duracionDias}, data-curso=${c.nombre}"
                                         th:selected="${cursoSeleccionado != null and cursoSeleccionado == c.idCurso}">Curso</option>
                             </select>
                             <div class="pn-ayuda-error"></div>
@@ -170,7 +170,7 @@
                                 <option value="" th:attr="data-faltantes=${#strings.listJoin(faltantesSinPrograma, '|')}">Sin programa por ahora</option>
                                 <option th:each="prog : ${programas}" th:value="${prog.idPrograma}"
                                         th:text="${prog.curso.nombre + ' - ' + prog.nombre}"
-                                        th:attr="data-curso-id=${prog.curso.idCurso}, data-dias=${prog.duracionTotalDias}, data-programa=${prog.nombre}, data-faltantes=${#strings.listJoin(faltantesPorPrograma.get(prog.idPrograma), '|')}"
+                                        th:attr="data-curso-id=${prog.curso.idCurso}, data-programa=${prog.nombre}, data-faltantes=${#strings.listJoin(faltantesPorPrograma.get(prog.idPrograma), '|')}"
                                         th:selected="${programaSeleccionado != null and programaSeleccionado == prog.idPrograma}">Curso - Programa</option>
                             </select>
                             <div class="pn-ayuda-error"></div>
@@ -202,11 +202,6 @@
                             <input type="date" name="fechaInicioDictado" class="pn-input">
                             <div class="pn-ayuda-error"></div>
                         </div>
-<div class="col-md-6 pn-campo grupo-dictado d-none">
-                            <label class="pn-etiqueta">Fin de dictado <span class="pn-obligatorio">*</span></label>
-                            <input type="date" name="fechaFinDictado" class="pn-input">
-                            <div class="pn-ayuda-error"></div>
-                        </div>
         </div>
     </div>
     <div class="pn-paso" data-grupo="Cupo y acceso">
@@ -232,7 +227,7 @@
                         <div class="col-12 ayuda-desplegable" id="ayudaDiasNueva">
                             <div class="ayuda-desplegable-interior">
                                 <div class="cn-info">
-                                    <span id="ayudaDiasTexto">La duración total del cronograma y la forma de calcular el vencimiento se muestran al elegir un programa.</span>
+                                    <span id="ayudaDiasTexto">La duración del curso y la forma de calcular el vencimiento se muestran al elegir un curso.</span>
                                 </div>
                             </div>
                         </div>
@@ -269,7 +264,7 @@
                 <div class="pn-modal-cuerpo">
                     <form th:action="@{'/cohorte/modificar/' + ${coh.idCohorte}}" method="post" class="form-ajax" data-validar data-validador="cohorte" data-pasos data-resumen="Cohorte" data-modo="modificacion"
                           data-contexto='[{"etiqueta":"Curso","atributoForm":"data-ctx-curso"},{"etiqueta":"Programa","atributoForm":"data-ctx-programa"}]' novalidate
-                          th:attr="data-dias=${coh.programa != null ? coh.programa.duracionTotalDias : 0}, data-envivo=${coh.curso.incluyeModalidad('En vivo')}, data-ctx-curso=${coh.curso.nombre}, data-ctx-programa=${coh.programa != null ? coh.programa.nombre : ''}, data-pendiente=${coh.esPendiente()}, data-plazo=${plazoMinimoContenidoDias}, data-resumen-titulo=${'(' + #temporals.format(coh.fechaInicioDictado != null ? coh.fechaInicioDictado : coh.fechaInicioInscripcion, 'dd/MM/yyyy') + ')'}"
+                          th:attr="data-dias=${coh.curso.duracionDias}, data-envivo=${coh.curso.incluyeModalidad('En vivo')}, data-ctx-curso=${coh.curso.nombre}, data-ctx-programa=${coh.programa != null ? coh.programa.nombre : ''}, data-pendiente=${coh.esPendiente()}, data-plazo=${plazoMinimoContenidoDias}, data-resumen-titulo=${'(' + #temporals.format(coh.fechaInicioDictado != null ? coh.fechaInicioDictado : coh.fechaInicioInscripcion, 'dd/MM/yyyy') + ')'}"
                           th:with="bloqueada=${coh.cantidadInscriptos > 0}, enVivo=${coh.curso.incluyeModalidad('En vivo')}">
     <div class="pn-aviso pn-aviso-dorado" th:if="${bloqueada}">
                             La cohorte tiene <strong th:text="${coh.cantidadInscriptos}">1</strong> inscripción(es) activa(s) y no puede modificarse: son datos que el alumno vio y pagó al inscribirse.
@@ -303,11 +298,6 @@
                                     <input type="date" name="fechaInicioDictado" class="pn-input" th:value="${coh.fechaInicioDictado != null ? #temporals.format(coh.fechaInicioDictado, 'yyyy-MM-dd') : ''}">
                                     <div class="pn-ayuda-error"></div>
                                 </div>
-<div class="col-md-6 pn-campo" th:if="${enVivo}">
-                                    <label class="pn-etiqueta">Fin de dictado <span class="pn-obligatorio">*</span></label>
-                                    <input type="date" name="fechaFinDictado" class="pn-input" th:value="${coh.fechaFinDictado != null ? #temporals.format(coh.fechaFinDictado, 'yyyy-MM-dd') : ''}">
-                                    <div class="pn-ayuda-error"></div>
-                                </div>
         </div></fieldset>
     </div>
     <div class="pn-paso" data-grupo="Cupo y acceso">
@@ -322,7 +312,7 @@
                                         <button type="button" class="cn-ayuda" aria-expanded="false" aria-label="Sobre los días de acceso" title="Ayuda"
                                                 th:data-ayuda-destino="'ayudaDias' + ${coh.idCohorte}"><i class="fa-solid fa-circle-info"></i></button>
                                     </div>
-                                    <input type="number" name="accesoDias" class="pn-input" min="1" th:attr="data-maximo=${accesoDiasMaximos}" th:value="${coh.accesoDias}" th:placeholder="${coh.programa != null ? 'Mínimo: ' + coh.programa.duracionTotalDias : 'Días de acceso'}" required>
+                                    <input type="number" name="accesoDias" class="pn-input" min="1" th:attr="data-maximo=${accesoDiasMaximos}" th:value="${coh.accesoDias}" th:placeholder="${'Mínimo: ' + coh.curso.duracionDias}" required>
                                     <div class="pn-ayuda-error"></div>
                                 </div>
 <div class="col-md-6 pn-campo">
@@ -333,9 +323,8 @@
                         <div class="col-12 ayuda-desplegable" th:id="'ayudaDias' + ${coh.idCohorte}">
                             <div class="ayuda-desplegable-interior">
                                 <div class="cn-info">
-                                    <span th:if="${coh.programa == null}">La cohorte todavía no tiene programa: los días de acceso no pueden ser menores a la duración del cronograma del programa que elija el docente.</span>
-                                    <span th:unless="${coh.programa == null}">La duración total del cronograma del programa es de <strong th:text="${coh.programa != null ? coh.programa.duracionTotalDias : 0}">9</strong> dias, y los días de acceso no pueden ser menores.
-                                        <th:block th:if="${coh.curso.incluyeModalidad('En vivo')}">La fecha de vencimiento de acceso se calcula a partir de la fecha de fin de dictado más los días de acceso.</th:block>
+                                    <span>La duración del curso es de <strong th:text="${coh.curso.duracionDias}">9</strong> dias, y los días de acceso no pueden ser menores; lo que agregues es tiempo extra para quien se atrase.
+                                        <th:block th:if="${coh.curso.incluyeModalidad('En vivo')}">La fecha de vencimiento de acceso se calcula a partir de la fecha de inicio de dictado más los días de acceso.</th:block>
                                         <th:block th:unless="${coh.curso.incluyeModalidad('En vivo')}">La fecha de vencimiento de acceso se calcula a partir de la fecha de habilitación más los días de acceso.</th:block></span>
                                 </div>
                             </div>
@@ -383,7 +372,7 @@
                 var op = progSel && progSel.selectedIndex >= 0 ? progSel.options[progSel.selectedIndex] : null;
                 return {
                     enVivo: !!oc && oc.dataset.envivo === 'true',
-                    dias: op && op.value && op.dataset.dias ? parseInt(op.dataset.dias, 10) : 0,
+                    dias: oc && oc.dataset.dias ? parseInt(oc.dataset.dias, 10) : 0,
                     tienePrograma: !!op && op.value !== '',
                     faltantes: op && op.dataset.faltantes ? op.dataset.faltantes.split('|') : []
                 };
@@ -413,7 +402,6 @@
             var iniIns = campo(formulario, 'fechaInicioInscripcion');
             var finIns = campo(formulario, 'fechaFinInscripcion');
             var iniDic = campo(formulario, 'fechaInicioDictado');
-            var finDic = campo(formulario, 'fechaFinDictado');
             var dias = campo(formulario, 'accesoDias');
             var cupo = campo(formulario, 'cupoMaximo');
             var hayPrograma = !!campo(formulario, 'cursoId');
@@ -431,19 +419,12 @@
                     marcar(finIns, 'La fecha de fin debe ser posterior a la fecha de inicio.');
                     ok = false;
                 }
-                if (datos.enVivo && iniDic && finDic) {
+                if (datos.enVivo && iniDic) {
                     if (!iniDic.value) {
                         marcar(iniDic, 'La fecha de inicio de dictado es obligatoria para cursos en vivo.');
                         ok = false;
                     } else if (finIns.value && iniDic.value < finIns.value) {
                         marcar(iniDic, 'El dictado no puede comenzar antes del fin de la inscripción.');
-                        ok = false;
-                    }
-                    if (!finDic.value) {
-                        marcar(finDic, 'La fecha de fin de dictado es obligatoria para cursos en vivo.');
-                        ok = false;
-                    } else if (iniDic.value && finDic.value <= iniDic.value) {
-                        marcar(finDic, 'El fin de dictado debe ser posterior al inicio.');
                         ok = false;
                     }
                 }
@@ -456,7 +437,7 @@
                         marcar(dias, 'No es válido. Formato válido: número entero de 1 a ' + maximoDias + '.');
                         ok = false;
                     } else if (datos.dias && Number(dias.value) < datos.dias) {
-                        marcar(dias, 'Los días de acceso no pueden ser menores a la duración total del cronograma del programa (' + datos.dias + ' dias).');
+                        marcar(dias, 'Los días de acceso no pueden ser menores a la duración del curso (' + datos.dias + ' dias).');
                         ok = false;
                     }
                 }
@@ -496,7 +477,7 @@
                 document.querySelectorAll('#formNuevaCohorte .grupo-dictado').forEach(function (g) {
                     g.classList.toggle('d-none', !datos.enVivo);
                 });
-                info.textContent = selectorCurso.value && datos.enVivo ? 'El curso incluye clases en vivo: completá las fechas de dictado.' : '';
+                info.textContent = selectorCurso.value && datos.enVivo ? 'El curso incluye clases en vivo: completá el inicio del dictado (el fin se calcula).' : '';
 
                 // Aviso de cohorte pendiente
                 var plazo = parseInt(selector.form.dataset.plazo || '0', 10);
@@ -536,12 +517,12 @@
                             campoDias.dataset.sugerido = String(datos.dias);
                         }
                     }
-                    ayudaDias.textContent = datos.tienePrograma
-                        ? 'La duración total del cronograma del programa es de ' + datos.dias + ' dias, y los días de acceso no pueden ser menores. '
+                    ayudaDias.textContent = selectorCurso.value
+                        ? 'La duración del curso es de ' + datos.dias + ' dias, y los días de acceso no pueden ser menores; lo que agregues es tiempo extra para quien se atrase. '
                             + (datos.enVivo
-                                ? 'La fecha de vencimiento de acceso se calcula a partir de la fecha de fin de dictado más los días de acceso.'
+                                ? 'La fecha de vencimiento de acceso se calcula a partir de la fecha de inicio de dictado más los días de acceso.'
                                 : 'La fecha de vencimiento de acceso se calcula a partir de la fecha de habilitación más los días de acceso.')
-                        : 'La duración total del cronograma y la forma de calcular el vencimiento se muestran al elegir un programa.';
+                        : 'La duración del curso y la forma de calcular el vencimiento se muestran al elegir un curso.';
                 }
             };
             selectorCurso.addEventListener('change', function () { filtrarProgramas(); actualizar(); });

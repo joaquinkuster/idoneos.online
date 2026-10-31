@@ -7,7 +7,6 @@ import java.time.LocalDateTime;
 import com.app.idoneos.utilidades.ManejadorArchivosUtilidad;
 import com.app.idoneos.utilidades.DuracionUtilidad;
 import com.app.idoneos.servicio.Parametro.ParametroServicio;
-import com.app.idoneos.servicio.Tema.DedicacionDocenteTemas;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
@@ -88,9 +87,6 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
 
     @Autowired
     private ParametroServicio parametroServicio;
-
-    @Autowired
-    private DedicacionDocenteTemas dedicacionDocenteTemas;
 
     // ---------------------------------------------------------------- Lecturas
 
@@ -185,7 +181,7 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
                 .filter(curso -> criterio.isEmpty() || curso.getNombre().toLowerCase().contains(criterio)
                         || (curso.getDescripcion() != null && curso.getDescripcion().toLowerCase().contains(criterio)))
                 .filter(curso -> idCategoria == null || curso.getCategoria().getIdCategoria() == idCategoria)
-                .filter(curso -> idNivel == null || curso.getNivel().getIdNivel() == idNivel)
+                .filter(curso -> idNivel == null || (curso.getNivel() != null && curso.getNivel().getIdNivel() == idNivel))
                 .filter(curso -> idDocente == null || curso.tieneDocente(idDocente))
                 .filter(curso -> idModalidad == null || curso.getModalidades().stream()
                         .anyMatch(modalidad -> modalidad.getIdModalidad() == idModalidad))
@@ -363,12 +359,11 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
      * @param nombre el nombre del curso
      * @param descripcion la descripción del curso (opcional)
      * @param precio el precio del curso
-     * @param cargaHorariaMinutos la carga horaria del curso para el alumno, en minutos
-     * @param dedicacionDocenteMinutos la dedicación docente total del curso, en minutos
-     * @param duracionMaximaDias la duración máxima del curso, en días
+     * @param cargaHorariaMinutos la carga horaria para el certificado, en minutos (opcional: la completa el docente)
+     * @param duracionDias la duración del curso, en días
      * @param imagen la ruta de la imagen de portada (opcional)
      * @param idCategoria el identificador de la categoría
-     * @param idNivel el identificador del nivel
+     * @param idNivel el identificador del nivel (opcional: lo completa el docente)
      * @param emiteCertificado si el curso emite certificado al finalizar
      * @param idsModalidades los identificadores de las modalidades de dictado
      * @param idDocenteTitular el identificador del docente titular
@@ -379,27 +374,23 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
     @Override
     @Transactional
     public Curso registrarCurso(String nombre, String descripcion, Float precio, Integer cargaHorariaMinutos,
-            Integer dedicacionDocenteMinutos, Integer duracionMaximaDias, String imagen, Integer idCategoria, Integer idNivel, boolean emiteCertificado,
+            Integer duracionDias, String imagen, Integer idCategoria, Integer idNivel, boolean emiteCertificado,
             List<Integer> idsModalidades, Integer idDocenteTitular, List<Integer> idsDocentesAyudantes) {
-        validarCamposObligatorios(nombre, precio, cargaHorariaMinutos, dedicacionDocenteMinutos, duracionMaximaDias, idCategoria, idNivel,
-                idsModalidades, idDocenteTitular);
+        validarCamposObligatorios(nombre, precio, duracionDias, idCategoria, idsModalidades, idDocenteTitular);
         Categoria categoria = obtenerCategoriaActiva(idCategoria);
-        Nivel nivel = obtenerNivel(idNivel);
+        Nivel nivel = idNivel == null ? null : obtenerNivel(idNivel);
         Docente titular = obtenerDocenteHabilitado(idDocenteTitular);
         List<Docente> ayudantes = obtenerAyudantes(idsDocentesAyudantes);
         validarTitularEntreAyudantes(titular, ayudantes);
         validarPrecio(precio);
-        validarCargaHoraria(cargaHorariaMinutos);
-        validarDedicacionDocente(dedicacionDocenteMinutos);
-        validarDuracionMaxima(duracionMaximaDias);
-        validarCargaContraDuracionMaxima(cargaHorariaMinutos, duracionMaximaDias);
+        validarDuracion(duracionDias);
+        validarCargaHoraria(cargaHorariaMinutos, duracionDias);
         String nombreLimpio = nombre.trim();
         if (cursoRepositorio.findByNombre(nombreLimpio).isPresent()) {
             throw RespuestaFormularioUtilidad.campoInvalido("nombre", "Error! Ya existe un curso con el nombre '" + nombreLimpio + "'.");
         }
 
-        Curso curso = new Curso(nivel, categoria, nombreLimpio, precio, cargaHorariaMinutos, dedicacionDocenteMinutos,
-                duracionMaximaDias);
+        Curso curso = new Curso(nivel, categoria, nombreLimpio, precio, cargaHorariaMinutos, duracionDias);
         curso.setDescripcion(vacioANulo(descripcion));
         curso.setImagen(vacioANulo(imagen));
         curso.setEmiteCertificado(emiteCertificado);
@@ -430,12 +421,11 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
      * @param nombre el nombre del curso
      * @param descripcion la descripción del curso (opcional)
      * @param precio el precio del curso
-     * @param cargaHorariaMinutos la carga horaria del curso para el alumno, en minutos
-     * @param dedicacionDocenteMinutos la dedicación docente total del curso, en minutos
-     * @param duracionMaximaDias la duración máxima del curso, en días
+     * @param cargaHorariaMinutos la carga horaria para el certificado, en minutos (opcional)
+     * @param duracionDias la duración del curso, en días
      * @param imagen la ruta de la imagen de portada (opcional, si es nula se conserva la actual)
      * @param idCategoria el identificador de la categoría
-     * @param idNivel el identificador del nivel
+     * @param idNivel el identificador del nivel (opcional: si es nulo se conserva el actual)
      * @param emiteCertificado si el curso emite certificado al finalizar
      * @param idsModalidades los identificadores de las modalidades de dictado
      * @param idDocenteTitular el identificador del docente titular
@@ -446,20 +436,19 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
     @Override
     @Transactional
     public Curso modificarCurso(Integer idCurso, String nombre, String descripcion, Float precio,
-            Integer cargaHorariaMinutos, Integer dedicacionDocenteMinutos, Integer duracionMaximaDias, String imagen, Integer idCategoria,
+            Integer cargaHorariaMinutos, Integer duracionDias, String imagen, Integer idCategoria,
             Integer idNivel, boolean emiteCertificado, List<Integer> idsModalidades, Integer idDocenteTitular,
             List<Integer> idsDocentesAyudantes) {
         Curso curso = buscarActivoPorId(idCurso);
-        validarCamposObligatorios(nombre, precio, cargaHorariaMinutos, dedicacionDocenteMinutos, duracionMaximaDias, idCategoria, idNivel,
-                idsModalidades, idDocenteTitular);
+        validarCamposObligatorios(nombre, precio, duracionDias, idCategoria, idsModalidades, idDocenteTitular);
         if (tieneInscripcionesActivas(curso)
-                && cambiaDatosRestringidos(curso, nombre, descripcion, cargaHorariaMinutos, dedicacionDocenteMinutos, duracionMaximaDias,
+                && cambiaDatosRestringidos(curso, nombre, descripcion, cargaHorariaMinutos, duracionDias,
                         idCategoria, idNivel, emiteCertificado, idsModalidades)) {
             throw new IllegalArgumentException("Error! El curso tiene inscripciones activas: solo pueden modificarse "
                     + "el precio, el equipo docente y la imagen de portada.");
         }
         Categoria categoria = obtenerCategoriaActiva(idCategoria);
-        Nivel nivel = obtenerNivel(idNivel);
+        Nivel nivel = idNivel == null ? curso.getNivel() : obtenerNivel(idNivel);
         Docente titular = obtenerDocenteHabilitado(idDocenteTitular);
         List<Docente> ayudantes = obtenerAyudantes(idsDocentesAyudantes);
         validarTitularEntreAyudantes(titular, ayudantes);
@@ -467,15 +456,9 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
         validarModalidadesEliminadas(curso, idsModalidades);
         validarModalidadEnVivoAgregada(curso, idsModalidades);
         validarPrecio(precio);
-        validarCargaHoraria(cargaHorariaMinutos);
-        validarDedicacionDocente(dedicacionDocenteMinutos);
-        validarDuracionMaxima(duracionMaximaDias);
-        validarCargaContraDuracionMaxima(cargaHorariaMinutos, duracionMaximaDias);
-        validarDuracionMaximaContraCronogramas(curso, duracionMaximaDias);
-        boolean cambiaDedicacion = curso.getDedicacionDocenteMinutos() != dedicacionDocenteMinutos;
-        if (cambiaDedicacion) {
-            dedicacionDocenteTemas.validarDedicacionDelCurso(curso, dedicacionDocenteMinutos);
-        }
+        validarDuracion(duracionDias);
+        validarCargaHoraria(cargaHorariaMinutos, duracionDias);
+        validarDuracionContraCronogramas(curso, duracionDias);
         String nombreLimpio = nombre.trim();
         cursoRepositorio.findByNombre(nombreLimpio).filter(otro -> otro.getIdCurso() != idCurso).ifPresent(otro -> {
             throw RespuestaFormularioUtilidad.campoInvalido("nombre", "Error! Ya existe un curso con el nombre '" + nombreLimpio + "'.");
@@ -485,8 +468,7 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
         curso.setDescripcion(vacioANulo(descripcion));
         curso.setPrecio(precio);
         curso.setCargaHorariaMinutos(cargaHorariaMinutos);
-        curso.setDedicacionDocenteMinutos(dedicacionDocenteMinutos);
-        curso.setDuracionMaximaDias(duracionMaximaDias);
+        curso.setDuracionDias(duracionDias);
         if (imagen != null && !imagen.isBlank()) {
             curso.setImagen(imagen.trim());
         }
@@ -495,13 +477,47 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
         curso.setEmiteCertificado(emiteCertificado);
         curso.setUltimaModificacion(LocalDateTime.now());
         curso = cursoRepositorio.save(curso);
-        if (cambiaDedicacion) {
-            // La nueva dedicación docente se reparte entre los temas del curso en proporción a lo que tiene cada uno
-            dedicacionDocenteTemas.redistribuir(curso);
-        }
         sincronizarModalidades(curso, idsModalidades);
         sincronizarEquipoDocente(curso, titular, ayudantes);
         return curso;
+    }
+
+    /**
+     * Completa los datos académicos de un curso activo: el nivel, la descripción, los objetivos y la carga horaria para el
+     * certificado. Los define el docente al diseñar el curso.
+     *
+     * @param idCurso el identificador del curso
+     * @param docente el docente que los completa (debe formar parte del equipo del curso)
+     * @param idNivel el identificador del nivel
+     * @param descripcion la descripción del curso (opcional)
+     * @param objetivos los objetivos del curso
+     * @param cargaHorariaMinutos la carga horaria para el certificado, en minutos (obligatoria si el curso emite certificado)
+     * @return el curso actualizado
+     * @throws IllegalArgumentException si el docente no participa en el curso o algún dato no es válido
+     */
+    @Override
+    @Transactional
+    public Curso completarDatosDelCurso(Integer idCurso, Docente docente, Integer idNivel, String descripcion,
+            String objetivos, Integer cargaHorariaMinutos) {
+        Curso curso = buscarActivoPorId(idCurso);
+        validarAccesoDocente(idCurso, docente);
+        if (idNivel == null) {
+            throw RespuestaFormularioUtilidad.campoInvalido("nivelId", "Error! Elegí el nivel del curso.");
+        }
+        if (objetivos == null || objetivos.isBlank()) {
+            throw RespuestaFormularioUtilidad.campoInvalido("objetivos", "Error! Ingresá los objetivos del curso.");
+        }
+        if (Boolean.TRUE.equals(curso.getEmiteCertificado()) && cargaHorariaMinutos == null) {
+            throw RespuestaFormularioUtilidad.campoInvalido("cargaHoraria",
+                    "Error! Ingresá la carga horaria: va impresa en el certificado.");
+        }
+        validarCargaHoraria(cargaHorariaMinutos, curso.getDuracionDias());
+        curso.setNivel(obtenerNivel(idNivel));
+        curso.setDescripcion(vacioANulo(descripcion));
+        curso.setObjetivos(objetivos.trim());
+        curso.setCargaHorariaMinutos(cargaHorariaMinutos);
+        curso.setUltimaModificacion(LocalDateTime.now());
+        return cursoRepositorio.save(curso);
     }
 
     /**
@@ -629,17 +645,13 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
         return (texto == null || texto.isBlank()) ? null : texto.trim();
     }
 
-    private void validarCamposObligatorios(String nombre, Float precio, Integer cargaHorariaMinutos,
-            Integer dedicacionDocenteMinutos, Integer duracionMaximaDias, Integer idCategoria, Integer idNivel, List<Integer> idsModalidades,
-            Integer idDocenteTitular) {
+    private void validarCamposObligatorios(String nombre, Float precio, Integer duracionDias, Integer idCategoria,
+            List<Integer> idsModalidades, Integer idDocenteTitular) {
         List<String> faltantes = new ArrayList<>();
         if (nombre == null || nombre.isBlank()) faltantes.add("nombre");
         if (precio == null) faltantes.add("precio");
-        if (cargaHorariaMinutos == null) faltantes.add("carga horaria");
-        if (dedicacionDocenteMinutos == null) faltantes.add("dedicación docente");
-        if (duracionMaximaDias == null) faltantes.add("duración máxima");
+        if (duracionDias == null) faltantes.add("duración");
         if (idCategoria == null) faltantes.add("categoría");
-        if (idNivel == null) faltantes.add("nivel");
         if (idsModalidades == null || idsModalidades.isEmpty()) faltantes.add("al menos una modalidad");
         if (idDocenteTitular == null) faltantes.add("docente titular");
         if (!faltantes.isEmpty()) {
@@ -657,48 +669,36 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
         }
     }
 
-    private void validarCargaHoraria(Integer cargaHorariaMinutos) {
+    /** La carga horaria es opcional al registrar el curso; si se indica, debe ser válida. */
+    private void validarCargaHoraria(Integer cargaHorariaMinutos, Integer duracionDias) {
+        if (cargaHorariaMinutos == null) {
+            return;
+        }
         if (cargaHorariaMinutos <= 0 || cargaHorariaMinutos > Curso.CARGA_HORARIA_MAXIMA_MINUTOS) {
             throw RespuestaFormularioUtilidad.campoInvalido("cargaHoraria", MensajeErrorUtilidad.formatoInvalido(
                     "La carga horaria", "mayor a cero y hasta " + DuracionUtilidad.formatearMinutos(Curso.CARGA_HORARIA_MAXIMA_MINUTOS)));
         }
-    }
-
-    private void validarDedicacionDocente(Integer dedicacionDocenteMinutos) {
-        if (dedicacionDocenteMinutos <= 0 || dedicacionDocenteMinutos > Curso.DEDICACION_DOCENTE_MAXIMA_MINUTOS) {
-            throw RespuestaFormularioUtilidad.campoInvalido("dedicacionDocente", MensajeErrorUtilidad.formatoInvalido(
-                    "La dedicación docente", "mayor a cero y hasta " + DuracionUtilidad.formatearMinutos(Curso.DEDICACION_DOCENTE_MAXIMA_MINUTOS)));
-        }
-    }
-
-    /** La duración máxima de un curso no puede superar el máximo que el sistema admite para un cronograma. */
-    private void validarDuracionMaxima(Integer duracionMaximaDias) {
-        int maximo = parametroServicio.obtenerEntero(Parametro.CRONOGRAMA_DIAS_MAXIMOS,
-                Parametro.CRONOGRAMA_DIAS_MAXIMOS_POR_DEFECTO);
-        if (duracionMaximaDias <= 0 || duracionMaximaDias > maximo) {
-            throw RespuestaFormularioUtilidad.campoInvalido("duracionMaxima", MensajeErrorUtilidad.formatoInvalido(
-                    "La duración máxima", "mayor a cero y hasta " + DuracionUtilidad.formatear(maximo)));
-        }
-    }
-
-    /**
-     * La carga horaria del alumno no puede ser mayor que el tiempo que dura el curso: la duración máxima tiene como mucho
-     * 24 horas por día, así que un curso de 1 día no admite 25 horas.
-     */
-    private void validarCargaContraDuracionMaxima(Integer cargaHorariaMinutos, Integer duracionMaximaDias) {
-        long maximo = (long) duracionMaximaDias * DuracionUtilidad.MINUTOS_POR_DIA;
-        if (cargaHorariaMinutos > maximo) {
+        // No puede ser mayor que el tiempo que dura el curso: como mucho 24 horas por día
+        if (cargaHorariaMinutos > (long) duracionDias * DuracionUtilidad.MINUTOS_POR_DIA) {
             throw RespuestaFormularioUtilidad.campoInvalido("cargaHoraria",
-                    "Error! La carga horaria no puede ser mayor al tiempo de la duración máxima del curso.");
+                    "Error! La carga horaria no puede ser mayor al tiempo de la duración del curso.");
         }
     }
 
-    /** La duración máxima no puede quedar por debajo del cronograma de ningún programa vigente del curso. */
-    private void validarDuracionMaximaContraCronogramas(Curso curso, Integer duracionMaximaDias) {
+    /** La duración del curso es de al menos un día y el acceso de una cohorte (que la incluye) tiene un máximo. */
+    private void validarDuracion(Integer duracionDias) {
+        if (duracionDias <= 0 || duracionDias > Cohorte.DIAS_ACCESO_MAXIMOS) {
+            throw RespuestaFormularioUtilidad.campoInvalido("duracion", MensajeErrorUtilidad.formatoInvalido(
+                    "La duración", "mayor a cero y hasta " + DuracionUtilidad.formatear(Cohorte.DIAS_ACCESO_MAXIMOS)));
+        }
+    }
+
+    /** La duración del curso no puede quedar por debajo del cronograma de ningún programa vigente del curso. */
+    private void validarDuracionContraCronogramas(Curso curso, Integer duracionDias) {
         for (Programa programa : curso.getProgramas()) {
-            if (!programa.esInactivo() && programa.getDuracionTotalDias() > duracionMaximaDias) {
-                throw RespuestaFormularioUtilidad.campoInvalido("duracionMaxima", "Error! La duración máxima ("
-                        + DuracionUtilidad.formatear(duracionMaximaDias) + ") no puede ser menor a la duración del cronograma del programa «"
+            if (!programa.esInactivo() && programa.getDuracionTotalDias() > duracionDias) {
+                throw RespuestaFormularioUtilidad.campoInvalido("duracion", "Error! La duración ("
+                        + DuracionUtilidad.formatear(duracionDias) + ") no puede ser menor a la duración del cronograma del programa «"
                         + programa.getNombre() + "» (" + DuracionUtilidad.formatear(programa.getDuracionTotalDias()) + ").");
             }
         }
@@ -746,15 +746,14 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
     }
 
     private boolean cambiaDatosRestringidos(Curso curso, String nombre, String descripcion, Integer cargaHorariaMinutos,
-            Integer dedicacionDocenteMinutos, Integer duracionMaximaDias, Integer idCategoria, Integer idNivel, boolean emiteCertificado,
+            Integer duracionDias, Integer idCategoria, Integer idNivel, boolean emiteCertificado,
             List<Integer> idsModalidades) {
         return !curso.getNombre().equals(nombre.trim())
-                || curso.getCargaHorariaMinutos() != cargaHorariaMinutos
-                || curso.getDedicacionDocenteMinutos() != dedicacionDocenteMinutos
-                || curso.getDuracionMaximaDias() != duracionMaximaDias
+                || !Objects.equals(curso.getCargaHorariaMinutos(), cargaHorariaMinutos)
+                || curso.getDuracionDias() != duracionDias
                 || !Objects.equals(vacioANulo(curso.getDescripcion()), vacioANulo(descripcion))
                 || curso.getCategoria().getIdCategoria() != idCategoria
-                || curso.getNivel().getIdNivel() != idNivel
+                || (idNivel != null && (curso.getNivel() == null || curso.getNivel().getIdNivel() != idNivel))
                 || curso.getEmiteCertificado() != emiteCertificado
                 || !modalidadesActuales(curso).equals(new HashSet<>(idsModalidades));
     }

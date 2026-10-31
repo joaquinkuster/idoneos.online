@@ -78,7 +78,7 @@ class ProgramaServicioTest {
     }
 
     private Programa registrar(Curso curso, Integer origen, String nombre) {
-        return programaServicio.registrarPrograma(fausto(), curso.getIdCurso(), origen, nombre, null, "Objetivos");
+        return programaServicio.registrarPrograma(fausto(), curso.getIdCurso(), origen, nombre, null);
     }
 
     // ------------------------------------------------------------------ CU-15 Buscar programa
@@ -124,7 +124,7 @@ class ProgramaServicioTest {
     @DisplayName("CU-16: registrar un programa lo deja vigente y como programa por defecto del docente")
     void registra() {
         Programa nuevo = programaServicio.registrarPrograma(fausto(), macro().getIdCurso(), null, "  Programa 2027  ",
-                " Plan nuevo ", "Objetivos nuevos");
+                " Plan nuevo ");
 
         assertTrue(nuevo.getIdPrograma() > 0);
         assertEquals("Programa 2027", nuevo.getNombre());
@@ -155,25 +155,25 @@ class ProgramaServicioTest {
     }
 
     @Test
-    @DisplayName("CU-16: faltan datos, superan el máximo, el origen no es válido o el docente no participa")
+    @DisplayName("CU-16: supera el máximo, el origen no es válido o el docente no participa")
     void validaAlRegistrar() {
         int curso = macro().getIdCurso();
-        String faltan = "Debe completar el nombre y los objetivos.";
-        assertTrue(mensaje(() -> programaServicio.registrarPrograma(fausto(), curso, null, "", null, "Obj")).contains(faltan));
-        assertTrue(mensaje(() -> programaServicio.registrarPrograma(fausto(), curso, null, "Nombre", null, " ")).contains(faltan));
-        assertTrue(mensaje(() -> programaServicio.registrarPrograma(fausto(), curso, null, "x".repeat(51), null, "Obj"))
+        // sin nombre, la versión se llama "Versión N" (las que tuvo el curso más una)
+        int versiones = macro().getProgramas().size();
+        assertEquals("Versión " + (versiones + 1), programaServicio.registrarPrograma(fausto(), curso, null, "", null).getNombre());
+        assertTrue(mensaje(() -> programaServicio.registrarPrograma(fausto(), curso, null, "x".repeat(51), null))
                 .contains("Máximo: 50 caracteres"));
-        assertTrue(mensaje(() -> programaServicio.registrarPrograma(fausto(), curso, null, "Nombre", "x".repeat(151), "Obj"))
+        assertTrue(mensaje(() -> programaServicio.registrarPrograma(fausto(), curso, null, "Nombre", "x".repeat(151)))
                 .contains("Máximo: 150 caracteres"));
         // el programa de otro curso no sirve como origen
         assertTrue(mensaje(() -> programaServicio.registrarPrograma(fausto(), curso,
-                mercado().getProgramaVigente().getIdPrograma(), "Nombre", null, "Obj"))
+                mercado().getProgramaVigente().getIdPrograma(), "Nombre", null))
                 .contains("programa de origen de la lista"));
-        assertTrue(mensaje(() -> programaServicio.registrarPrograma(fausto(), 999999, null, "Nombre", null, "Obj"))
+        assertTrue(mensaje(() -> programaServicio.registrarPrograma(fausto(), 999999, null, "Nombre", null))
                 .contains("El curso no se encuentra activo"));
         assertTrue(mensaje(() -> programaServicio.registrarPrograma(docente("sebastian.bordato@idoneos.online"), curso,
-                null, "Nombre", null, "Obj")).contains("No participás en este curso"));
-        assertTrue(mensaje(() -> programaServicio.registrarPrograma(null, curso, null, "Nombre", null, "Obj"))
+                null, "Nombre", null)).contains("No participás en este curso"));
+        assertTrue(mensaje(() -> programaServicio.registrarPrograma(null, curso, null, "Nombre", null))
                 .contains("rol de docente"));
     }
 
@@ -185,11 +185,10 @@ class ProgramaServicioTest {
         Programa programa = macro().getProgramaVigente();
 
         Programa modificado = programaServicio.modificarPrograma(programa.getIdPrograma(), fausto(), " Nuevo nombre ",
-                "", "Otros objetivos");
+                "");
 
         assertEquals("Nuevo nombre", modificado.getNombre());
         assertNull(modificado.getDescripcion());
-        assertEquals("Otros objetivos", modificado.getObjetivos());
         assertNotNull(modificado.getUltimaModificacion());
     }
 
@@ -199,14 +198,14 @@ class ProgramaServicioTest {
         Programa conInscripciones = mercado().getProgramaVigente();
         assertTrue(conInscripciones.getCantidadInscripcionesActivas() > 0);
         assertTrue(mensaje(() -> programaServicio.modificarPrograma(conInscripciones.getIdPrograma(), fausto(), "Nombre",
-                null, "Obj")).contains("tiene inscripciones activas"));
+                null)).contains("tiene inscripciones activas"));
 
         int id = macro().getProgramaVigente().getIdPrograma();
-        assertTrue(mensaje(() -> programaServicio.modificarPrograma(id, fausto(), " ", null, "Obj"))
-                .contains("Debe completar el nombre y los objetivos."));
+        assertTrue(mensaje(() -> programaServicio.modificarPrograma(id, fausto(), " ", null))
+                .contains("Debe completar el nombre del programa."));
         assertTrue(mensaje(() -> programaServicio.modificarPrograma(id, docente("sebastian.bordato@idoneos.online"),
-                "Nombre", null, "Obj")).contains("No participás en este curso"));
-        assertTrue(mensaje(() -> programaServicio.modificarPrograma(999999, fausto(), "Nombre", null, "Obj"))
+                "Nombre", null)).contains("No participás en este curso"));
+        assertTrue(mensaje(() -> programaServicio.modificarPrograma(999999, fausto(), "Nombre", null))
                 .contains("El programa no se encuentra activo"));
     }
 

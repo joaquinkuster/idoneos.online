@@ -59,7 +59,6 @@
                                 <th data-col="Descripción" data-campo="descripcion" data-filtro="texto">Descripción</th>
                                 <th data-col="Contenido" data-campo="contenido" data-filtro="texto">Contenido</th>
                                 <th data-col="Duración" data-campo="duracion" data-filtro="numero">Duración</th>
-                                <th data-col="Dedicación docente" data-campo="dedicacionDocente" data-filtro="numero">Dedicación docente</th>
                                 <th data-col="Última modificación" data-campo="ultimaModificacion" data-filtro="fecha">Última modificación</th>
                                 <th data-col="Fecha de creación" data-campo="fechaCreacion" data-filtro="fecha">Fecha de creación</th>
                                 <th>Acciones</th>
@@ -74,7 +73,6 @@
                                 <td class="fo-col-consulta"><span class="pn-truncar pn-truncar-largo" th:text="${uc.tema.descripcion != null ? uc.tema.descripcion : '-'}">Descripción</span></td>
                                 <td class="fo-col-consulta"><span class="pn-truncar pn-truncar-largo" th:text="${uc.tema.resumenContenido}">Contenido del tema</span></td>
                                 <td th:text="${T(com.app.idoneos.utilidades.DuracionUtilidad).formatear(uc.duracionDias)}">1 semana</td>
-                                <td th:text="${T(com.app.idoneos.utilidades.DuracionUtilidad).formatearMinutos(uc.tema.dedicacionDocenteMinutos)}">2 horas</td>
                                 <td th:text="${uc.tema.ultimaModificacion != null ? #temporals.format(uc.tema.ultimaModificacion, 'dd/MM/yyyy') : '-'}">-</td>
                                 <td th:text="${#temporals.format(uc.tema.fechaCreacion, 'dd/MM/yyyy HH:mm')}">28/08/2026 10:30</td>
                                 <td>
@@ -124,9 +122,9 @@
                 <form th:action="@{/tema/registrar}" method="post" class="form-ajax" data-validar novalidate data-tema-formulario
                       data-pasos data-resumen="Tema" data-modo="alta" data-resumen-nuevo="nueva"
                       data-contexto='[{"etiqueta":"Curso","atributoForm":"data-ctx-curso"},{"etiqueta":"Programa","campo":"programaId","atributo":"data-programa"}]' th:attr="data-ctx-curso=${curso.nombre}">
-    <!-- Cronograma lleno: el programa elegido ya ocupa toda la duración máxima del curso (lo muestra y bloquea tema.js) -->
+    <!-- Cronograma lleno: el programa elegido ya ocupa toda la duración del curso (lo muestra y bloquea tema.js) -->
     <div class="pn-aviso pn-aviso-rojo" data-cronograma-lleno hidden>
-        Se alcanzó la duración máxima del curso. Para disponer de más tiempo, modificá el cronograma o comunicate con un administrador para que extienda la duración máxima.
+        Se alcanzó la duración del curso. Para disponer de más tiempo, modificá el cronograma o comunicate con un administrador para que extienda la duración del curso.
     </div>
 
     <div class="pn-pasos pn-pasos-nombrados">
@@ -147,7 +145,7 @@
                                 <option th:each="p : ${programasActivos}" th:value="${p.idPrograma}"
                                         th:text="${p.nombre + (p.idPrograma == programa.idPrograma ? ' (Por defecto)' : '')}"
                                         th:data-programa="${p.nombre}"
-                                        th:data-lleno="${curso.duracionMaximaDias - p.duracionTotalDias <= 0}"
+                                        th:data-lleno="${curso.duracionDias - p.duracionTotalDias <= 0}"
                                         th:selected="${p.idPrograma == programa.idPrograma}">Programa 2026 (Por defecto)</option>
                             </select>
                             <div class="pn-ayuda-error"></div>
@@ -205,18 +203,9 @@
     <div class="pn-paso" data-grupo="Tiempos">
         <div class="pn-seccion-titulo">
             <h4>Tiempos del tema</h4>
-            <p>Dedicación docente y duración en el cronograma</p>
+            <p>Duración en el cronograma</p>
         </div>
         <div class="row g-3">
-<div class="col-md-6 pn-campo" data-bloque="nueva">
-                            <div class="pn-etiqueta-con-ayuda">
-                                <label class="pn-etiqueta">Dedicación docente <span class="pn-obligatorio">*</span></label>
-                                <button type="button" class="cn-ayuda" aria-expanded="false" aria-label="Sobre la dedicación docente" title="Ayuda"
-                                        data-ayuda-destino="ayudaDedicacionTemaNueva"><i class="fa-solid fa-circle-info"></i></button>
-                            </div>
-                            <th:block th:replace="~{fragments/campoTiempo :: minutos('dedicacionDocente', ${curso.dedicacionDocentePorDefectoDeTemaNuevo}, ${false}, 'Debe completar la dedicación docente.', ${true})}"></th:block>
-                            <div class="pn-ayuda-error"></div>
-                        </div>
 <div class="col-md-6 pn-campo">
                             <div class="pn-etiqueta-con-ayuda">
                                 <label class="pn-etiqueta">Duración en el cronograma <span class="pn-obligatorio">*</span></label>
@@ -226,17 +215,10 @@
                             <th:block th:replace="~{fragments/campoTiempo :: dias('duracion', ${duracionPorDefectoDias}, ${false}, 'Debe completar la duración en el cronograma.', ${false})}"></th:block>
                             <div class="pn-ayuda-error"></div>
                         </div>
-<div class="col-12 ayuda-desplegable" data-bloque="nueva" id="ayudaDedicacionTemaNueva">
-                            <div class="ayuda-desplegable-interior">
-                                <div class="cn-info">
-                                    <span>La <strong>dedicación docente</strong> es el tiempo de trabajo que le corresponde a este tema. El curso tiene <strong th:text="${T(com.app.idoneos.utilidades.DuracionUtilidad).formatearMinutos(curso.dedicacionDocenteMinutos)}">20 horas</strong> en total, repartidas entre todos sus temas. Te proponemos una parte equitativa de <strong th:text="${T(com.app.idoneos.utilidades.DuracionUtilidad).formatearMinutos(curso.dedicacionDocentePorDefectoDeTemaNuevo)}">4 horas</strong>, pero podés cambiarla: los demás temas se ajustan solos para que el total no cambie.</span>
-                                </div>
-                            </div>
-                        </div>
 <div class="col-12 ayuda-desplegable" id="ayudaDuracionTemaNueva">
                             <div class="ayuda-desplegable-interior">
                                 <div class="cn-info">
-                                    <span>La <strong>duración en el cronograma</strong> es el tiempo de calendario que ocupa este tema en el programa. Entre todos los temas no puede superar la duración máxima del curso de <strong th:text="${T(com.app.idoneos.utilidades.DuracionUtilidad).formatear(curso.duracionMaximaDias)}">12 semanas</strong>.</span>
+                                    <span>La <strong>duración en el cronograma</strong> es el tiempo de calendario que ocupa este tema en el programa. Entre todos los temas no puede superar la duración del curso de <strong th:text="${T(com.app.idoneos.utilidades.DuracionUtilidad).formatear(curso.duracionDias)}">12 semanas</strong>.</span>
                                 </div>
                             </div>
                         </div>
@@ -310,19 +292,10 @@
     <div class="pn-paso" data-grupo="Tiempos">
         <div class="pn-seccion-titulo">
             <h4>Tiempos del tema</h4>
-            <p>Dedicación docente y duración en el cronograma</p>
+            <p>Duración en el cronograma</p>
         </div>
         <div class="row g-3">
 <input type="hidden" name="programaId" th:value="${programa.idPrograma}">
-<div class="col-md-6 pn-campo">
-                                <div class="pn-etiqueta-con-ayuda">
-                                    <label class="pn-etiqueta">Dedicación docente <span class="pn-obligatorio">*</span></label>
-                                    <button type="button" class="cn-ayuda" aria-expanded="false" aria-label="Sobre la dedicación docente" title="Ayuda"
-                                            th:data-ayuda-destino="'ayudaDedicacionTema' + ${uc.tema.idTema}"><i class="fa-solid fa-circle-info"></i></button>
-                                </div>
-                                <th:block th:replace="~{fragments/campoTiempo :: minutos('dedicacionDocente', ${uc.tema.dedicacionDocenteMinutos}, ${false}, 'Debe completar la dedicación docente.', ${false})}"></th:block>
-                                <div class="pn-ayuda-error"></div>
-                            </div>
 <div class="col-md-6 pn-campo">
                             <div class="pn-etiqueta-con-ayuda">
                                 <label class="pn-etiqueta">Duración en el cronograma <span class="pn-obligatorio">*</span></label>
@@ -332,17 +305,10 @@
                             <th:block th:replace="~{fragments/campoTiempo :: dias('duracion', ${uc.duracionDias}, ${false}, 'Debe completar la duración en el cronograma.', ${false})}"></th:block>
                             <div class="pn-ayuda-error"></div>
                         </div>
-<div class="col-12 ayuda-desplegable" th:id="'ayudaDedicacionTema' + ${uc.tema.idTema}">
-                                <div class="ayuda-desplegable-interior">
-                                    <div class="cn-info">
-                                        <span>La <strong>dedicación docente</strong> es el tiempo de trabajo que le corresponde a este tema. El curso tiene <strong th:text="${T(com.app.idoneos.utilidades.DuracionUtilidad).formatearMinutos(curso.dedicacionDocenteMinutos)}">20 horas</strong> en total, repartidas entre todos sus temas. Si la cambiás, los demás temas se ajustan solos para que el total no cambie.</span>
-                                    </div>
-                                </div>
-                            </div>
 <div class="col-12 ayuda-desplegable" th:id="'ayudaDuracionTema' + ${uc.tema.idTema}">
                                 <div class="ayuda-desplegable-interior">
                                     <div class="cn-info">
-                                        <span>La <strong>duración en el cronograma</strong> es el tiempo de calendario que ocupa este tema en este programa; no cambia su duración en otros programas. Entre todos los temas no puede superar la duración máxima del curso de <strong th:text="${T(com.app.idoneos.utilidades.DuracionUtilidad).formatear(curso.duracionMaximaDias)}">12 semanas</strong>.</span>
+                                        <span>La <strong>duración en el cronograma</strong> es el tiempo de calendario que ocupa este tema en este programa; no cambia su duración en otros programas. Entre todos los temas no puede superar la duración del curso de <strong th:text="${T(com.app.idoneos.utilidades.DuracionUtilidad).formatear(curso.duracionDias)}">12 semanas</strong>.</span>
                                     </div>
                                 </div>
                             </div>

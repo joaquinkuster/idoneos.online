@@ -55,7 +55,6 @@
                             <tr>
                                 <th class="pn-col-seleccion"><input type="checkbox" data-seleccionar-todos aria-label="Seleccionar todos"></th>
                                 <th data-col="Nombre" data-campo="nombre" data-filtro="texto">Nombre</th>
-                                <th data-col="Objetivos" data-campo="objetivos" data-filtro="texto">Objetivos</th>
                                 <th data-col="Última modificación" data-campo="ultimaModificacion" data-filtro="fecha">Última modificación</th>
                                 <th data-col="Fecha de creación" data-campo="fechaCreacion" data-filtro="fecha">Fecha de creación</th>
                                 <th data-col="Estado" data-campo="estado" data-filtro="lista">Estado</th>
@@ -73,7 +72,6 @@
                                           title="Tu programa por defecto">(Por defecto)</span>
                                     <small class="fo-fecha pn-truncar pn-truncar-largo" th:if="${p.descripcion != null}" th:text="${p.descripcion}">Descripción</small>
                                 </td>
-                                <td class="fo-col-consulta"><span class="pn-truncar pn-truncar-largo" th:text="${p.resumenObjetivos}">Objetivos del programa</span></td>
                                 <td th:text="${p.ultimaModificacion != null ? #temporals.format(p.ultimaModificacion, 'dd/MM/yyyy') : '-'}">—</td>
                                 <td th:text="${#temporals.format(p.fechaCreacion, 'dd/MM/yyyy HH:mm')}">28/08/2026 10:30</td>
                                 <td>
@@ -159,19 +157,13 @@
     </div>
     <div class="pn-paso" data-grupo="Contenido">
         <div class="pn-seccion-titulo">
-            <h4>Contenido del programa</h4>
-            <p>Objetivos y descripción</p>
+            <h4>Qué cambia</h4>
+            <p>Descripción de esta versión</p>
         </div>
         <div class="row g-3">
 <div class="col-12 pn-campo">
-                            <label class="pn-etiqueta">Objetivos <span class="pn-obligatorio">*</span></label>
-                            <textarea name="objetivos" class="pn-input" rows="4" placeholder="Objetivos" required
-                                      data-mensaje-obligatorio="Debe completar los objetivos."></textarea>
-                            <div class="pn-ayuda-error"></div>
-                        </div>
-<div class="col-12 pn-campo">
                             <div class="pn-etiqueta-fila">
-                                <label class="pn-etiqueta">Descripción (opcional)</label>
+                                <label class="pn-etiqueta">¿Qué cambia? (opcional)</label>
                                 <span class="pn-contador">0 / 150</span>
                             </div>
                             <textarea name="descripcion" class="pn-input" rows="2" maxlength="150" placeholder="Descripción" data-contador></textarea>
@@ -235,19 +227,13 @@
     </div>
     <div class="pn-paso" data-grupo="Contenido">
         <div class="pn-seccion-titulo">
-            <h4>Contenido del programa</h4>
-            <p>Objetivos y descripción</p>
+            <h4>Qué cambia</h4>
+            <p>Descripción de esta versión</p>
         </div>
         <div class="row g-3">
 <div class="col-12 pn-campo">
-                                <label class="pn-etiqueta">Objetivos <span class="pn-obligatorio">*</span></label>
-                                <textarea name="objetivos" class="pn-input" rows="4" required
-                                          data-mensaje-obligatorio="Debe completar los objetivos." th:text="${p.objetivos}"></textarea>
-                                <div class="pn-ayuda-error"></div>
-                            </div>
-<div class="col-12 pn-campo">
                                 <div class="pn-etiqueta-fila">
-                                    <label class="pn-etiqueta">Descripción (opcional)</label>
+                                    <label class="pn-etiqueta">¿Qué cambia? (opcional)</label>
                                     <span class="pn-contador" th:text="${#strings.length(p.descripcion != null ? p.descripcion : '') + ' / 150'}">0 / 150</span>
                                 </div>
                                 <textarea name="descripcion" class="pn-input" rows="2" maxlength="150" data-contador th:text="${p.descripcion}"></textarea>

@@ -81,6 +81,34 @@ DROP TRIGGER IF EXISTS trg_cohorte_curso_activo ON cohorte ^^^
 CREATE TRIGGER trg_cohorte_curso_activo BEFORE INSERT OR UPDATE OF id_curso, baja ON cohorte
     FOR EACH ROW WHEN (NEW.baja = false) EXECUTE FUNCTION fn_padre_activo('id_curso', 'curso', 'id_curso') ^^^
 
+-- fn_cohorte_coherente(): coherencia de una cohorte. El programa, si lo tiene, debe ser del mismo curso que la cohorte
+-- (el curso esta duplicado en la cohorte para poder registrarla antes de que el docente cargue un programa) y una cohorte
+-- Activa necesita programa.
+CREATE OR REPLACE FUNCTION fn_cohorte_coherente() RETURNS trigger AS $$
+DECLARE
+    v_curso_del_programa int;
+    v_estado text;
+BEGIN
+    IF NEW.id_programa IS NOT NULL THEN
+        SELECT id_curso INTO v_curso_del_programa FROM programa WHERE id_programa = NEW.id_programa;
+        IF v_curso_del_programa IS DISTINCT FROM NEW.id_curso THEN
+            RAISE EXCEPTION 'El programa de la cohorte debe ser del mismo curso que la cohorte'
+                USING ERRCODE = 'integrity_constraint_violation', CONSTRAINT = TG_NAME;
+        END IF;
+    END IF;
+    SELECT nombre INTO v_estado FROM estado_cohorte WHERE id_estado_cohorte = NEW.id_estado_cohorte;
+    IF v_estado = 'Activa' AND NEW.id_programa IS NULL THEN
+        RAISE EXCEPTION 'Una cohorte activa necesita un programa'
+            USING ERRCODE = 'integrity_constraint_violation', CONSTRAINT = TG_NAME;
+    END IF;
+    RETURN NEW;
+END
+$$ LANGUAGE plpgsql ^^^
+
+DROP TRIGGER IF EXISTS trg_cohorte_coherente ON cohorte ^^^
+CREATE TRIGGER trg_cohorte_coherente BEFORE INSERT OR UPDATE OF id_curso, id_programa, id_estado_cohorte ON cohorte
+    FOR EACH ROW EXECUTE FUNCTION fn_cohorte_coherente() ^^^
+
 DROP TRIGGER IF EXISTS trg_cohorte_programa_activo ON cohorte ^^^
 CREATE TRIGGER trg_cohorte_programa_activo BEFORE INSERT OR UPDATE OF id_programa, baja ON cohorte
     FOR EACH ROW WHEN (NEW.baja = false) EXECUTE FUNCTION fn_padre_activo('id_programa', 'programa', 'id_programa') ^^^

@@ -330,17 +330,18 @@ public class Cohorte {
 
     /**
      * Calcula hasta cuándo tiene acceso quien se habilita en este momento (al aprobarse su pago, al habilitarse sin
-     * costo o al darlo de alta el administrador). Si la cohorte no tiene fechas de dictado (curso grabado), los días de
-     * acceso se suman al momento de la habilitación. Si las tiene (curso en vivo), se suman al fin del dictado, para que
-     * todos los alumnos tengan el mismo tiempo para terminar el curso después de las clases; si alguien se habilita
-     * cuando el dictado ya terminó (por ejemplo, paga tarde su inscripción), se cuentan desde su habilitación.
+     * costo o al darlo de alta el administrador). Los días de acceso incluyen la duración del curso y el tiempo extra para
+     * quien se atrase. Si la cohorte no tiene fechas de dictado (curso grabado), se cuentan desde el momento de la
+     * habilitación. Si las tiene (curso en vivo), se cuentan desde el inicio del dictado, para que todos los alumnos
+     * tengan el mismo tiempo para terminar el curso; si alguien se habilita cuando el dictado ya empezó (por ejemplo, paga
+     * tarde su inscripción), se cuentan desde su habilitación.
      *
      * @param fechaInscripcion El momento de la habilitación.
      * @return La fecha de vencimiento del acceso.
      */
     public LocalDateTime calcularVencimientoAcceso(LocalDateTime fechaInscripcion) {
-        LocalDateTime base = fechaFinDictado != null && fechaFinDictado.isAfter(fechaInscripcion)
-                ? fechaFinDictado : fechaInscripcion;
+        LocalDateTime base = fechaInicioDictado != null && fechaInicioDictado.isAfter(fechaInscripcion)
+                ? fechaInicioDictado : fechaInscripcion;
         return base.plusDays(accesoDias);
     }
 

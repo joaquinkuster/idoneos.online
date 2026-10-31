@@ -97,9 +97,9 @@ public class TemaControlador extends PanelCursoControlador {
             modelo.addAttribute("temasDelCurso", temasDelCurso);
             modelo.addAttribute("tituloBusqueda", titulo);
             modelo.addAttribute("abrirModal", abrirModal);
-            // Duración precargada del tema nuevo: la del parámetro, sin pasar de lo que queda hasta la duración máxima
+            // Duración precargada del tema nuevo: la del parámetro, sin pasar de lo que queda hasta la duración del curso
             modelo.addAttribute("duracionPorDefectoDias", Math.max(1, Math.min(diasPorTemaNuevo(),
-                    curso.getDuracionMaximaDias() - programa.getDuracionTotalDias())));
+                    curso.getDuracionDias() - programa.getDuracionTotalDias())));
             modelo.addAttribute("puedeGestionar", !esAdministrador);
             modelo.addAttribute("titulo", "Temas | Idóneos Online");
             return "pages/tema/buscar";
@@ -118,9 +118,7 @@ public class TemaControlador extends PanelCursoControlador {
      * @param temaExistenteId Tema de otro programa que se incorpora (opcional).
      * @param titulo            El título del tema nueva.
      * @param descripcion       La descripción del tema nueva (opcional).
-     * @param contenido         El contenido del tema nueva.
-     * @param dedicacionDocente      La dedicación docente del tema nuevo, en la unidad indicada (opcional: una parte pareja).
-     * @param dedicacionDocenteUnidad La unidad de la dedicación docente: "minutos" u "horas" (por defecto, horas).
+     * @param contenido         El contenido del tema nueva (opcional).
      * @param duracion          La duración en el cronograma, en la unidad indicada (opcional: la del parámetro del sistema).
      * @param duracionUnidad    La unidad de la duración: "dias", "semanas" o "meses" (por defecto, días).
      * @param auth              La autenticación actual.
@@ -133,15 +131,13 @@ public class TemaControlador extends PanelCursoControlador {
             @RequestParam(value = "titulo", required = false) String titulo,
             @RequestParam(value = "descripcion", required = false) String descripcion,
             @RequestParam(value = "contenido", required = false) String contenido,
-            @RequestParam(value = "dedicacionDocente", required = false) Integer dedicacionDocente,
-            @RequestParam(value = "dedicacionDocenteUnidad", defaultValue = "horas") String dedicacionDocenteUnidad,
             @RequestParam(value = "duracion", required = false) Integer duracion,
             @RequestParam(value = "duracionUnidad", defaultValue = "dias") String duracionUnidad,
             Authentication auth) {
         try {
             Usuario usuario = (Usuario) auth.getPrincipal();
             Tema tema = temaServicio.agregarTema(usuario.getDocente(), programaId, temaExistenteId, titulo,
-                    descripcion, contenido, minutos(dedicacionDocente, dedicacionDocenteUnidad), dias(duracion, duracionUnidad));
+                    descripcion, contenido, dias(duracion, duracionUnidad));
             String accion = temaExistenteId != null ? "incorporada" : "registrada";
             return RespuestaFormularioUtilidad.respuestaExitosa("Tema '" + tema.getTitulo() + "' " + accion + " con éxito.");
         } catch (Exception e) {
@@ -158,8 +154,6 @@ public class TemaControlador extends PanelCursoControlador {
      * @param titulo      El título.
      * @param descripcion La descripción (opcional).
      * @param contenido   El contenido.
-     * @param dedicacionDocente La dedicación docente del tema, en la unidad indicada (opcional: se conserva la actual).
-     * @param dedicacionDocenteUnidad La unidad de la dedicación docente: "minutos" u "horas" (por defecto, horas).
      * @param programaId  Programa cuyo cronograma contiene el tema (opcional; necesario para cambiar la duración).
      * @param duracion    La duración en el cronograma de ese programa, en la unidad indicada (opcional).
      * @param duracionUnidad La unidad de la duración: "dias", "semanas" o "meses" (por defecto, días).
@@ -171,8 +165,6 @@ public class TemaControlador extends PanelCursoControlador {
             @RequestParam(value = "titulo", required = false) String titulo,
             @RequestParam(value = "descripcion", required = false) String descripcion,
             @RequestParam(value = "contenido", required = false) String contenido,
-            @RequestParam(value = "dedicacionDocente", required = false) Integer dedicacionDocente,
-            @RequestParam(value = "dedicacionDocenteUnidad", defaultValue = "horas") String dedicacionDocenteUnidad,
             @RequestParam(value = "programaId", required = false) Integer programaId,
             @RequestParam(value = "duracion", required = false) Integer duracion,
             @RequestParam(value = "duracionUnidad", defaultValue = "dias") String duracionUnidad,
@@ -181,10 +173,9 @@ public class TemaControlador extends PanelCursoControlador {
             Usuario usuario = (Usuario) auth.getPrincipal();
             if (programaId != null) {
                 temaServicio.modificarTema(id, programaId, usuario.getDocente(), titulo, descripcion, contenido,
-                        minutos(dedicacionDocente, dedicacionDocenteUnidad), dias(duracion, duracionUnidad));
+                        dias(duracion, duracionUnidad));
             } else {
-                temaServicio.modificarTema(id, usuario.getDocente(), titulo, descripcion, contenido,
-                        minutos(dedicacionDocente, dedicacionDocenteUnidad));
+                temaServicio.modificarTema(id, usuario.getDocente(), titulo, descripcion, contenido);
             }
             return RespuestaFormularioUtilidad.respuestaExitosa("Tema modificado correctamente.");
         } catch (Exception e) {

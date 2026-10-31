@@ -63,7 +63,7 @@ class CargaDeImagenControladorTest {
 
     private MockHttpServletRequestBuilder formularioDeAlta(String nombre, MockMultipartFile imagen) {
         return multipart("/curso/registrar").file(imagen).param("nombre", nombre).param("precio", "1000")
-                .param("cargaHoraria", "10").param("dedicacionDocente", "20").param("duracionMaxima", "12").param("duracionMaximaUnidad", "semanas")
+                .param("cargaHoraria", "10").param("duracion", "12").param("duracionUnidad", "semanas")
                 .param("categoriaId", "1").param("nivelId", "1").param("idsModalidades", "2")
                 .param("docenteTitularId", "1");
     }
@@ -144,7 +144,7 @@ class CargaDeImagenControladorTest {
         assertTrue(Files.exists(carpeta.resolve("imagen.png")));
 
         mockMvc.perform(multipart("/curso/modificar/" + curso.getIdCurso()).file(imagen(JPG, "dos.jpg"))
-                .param("nombre", "Curso a reemplazar").param("precio", "2000").param("cargaHoraria", "10").param("dedicacionDocente", "20").param("duracionMaxima", "12").param("duracionMaximaUnidad", "semanas").param("categoriaId", "1")
+                .param("nombre", "Curso a reemplazar").param("precio", "2000").param("cargaHoraria", "10").param("duracion", "12").param("duracionUnidad", "semanas").param("categoriaId", "1")
                 .param("nivelId", "1").param("idsModalidades", "2").param("docenteTitularId", "1"))
                 .andExpect(status().isOk());
 

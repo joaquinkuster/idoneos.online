@@ -13,12 +13,11 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * Programa de un curso, con sus objetivos y su cronograma de temas.
+ * Programa de un curso: una versión de su diseño, con el cronograma de temas que reparte la duración del curso.
  */
 @Entity
 @Table(name = "Programa")
 @Check(name = "ck_programa_nombre", constraints = "trim(nombre) <> ''")
-@Check(name = "ck_programa_objetivos", constraints = "trim(objetivos) <> ''")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -46,22 +45,16 @@ public class Programa {
     private Curso curso;
 
     /**
-     * Nombre del programa.
+     * Nombre del programa. Por defecto es "Versión N", con N la cantidad de versiones que tuvo el curso.
      */
     @Column(name = "nombre", nullable = false, length = LONGITUD_NOMBRE)
     private String nombre;
 
     /**
-     * Descripción breve del programa.
+     * Qué cambia esta versión respecto de la anterior.
      */
     @Column(name = "descripcion", nullable = true, length = LONGITUD_DESCRIPCION)
     private String descripcion;
-
-    /**
-     * Objetivos del programa.
-     */
-    @Column(name = "objetivos", nullable = false, columnDefinition = "TEXT")
-    private String objetivos;
 
     /**
      * Fecha y hora de creación del registro. Se establece al momento actual por defecto.
@@ -104,12 +97,10 @@ public class Programa {
      *
      * @param curso relación con Curso.
      * @param nombre nombre del programa.
-     * @param objetivos objetivos del programa.
      */
-    public Programa(Curso curso, String nombre, String objetivos) {
+    public Programa(Curso curso, String nombre) {
         this.curso = curso;
         this.nombre = nombre;
-        this.objetivos = objetivos;
     }
 
     /**
@@ -158,20 +149,6 @@ public class Programa {
             return "Dado de baja";
         }
         return esVigente() ? "Vigente" : "Anterior";
-    }
-
-    /**
-     * Obtiene el comienzo de los objetivos en una sola línea, para mostrarlos en los listados.
-     *
-     * @return Los objetivos, recortados con puntos suspensivos si son largos.
-     */
-    public String getResumenObjetivos() {
-        return resumir(objetivos);
-    }
-
-    private String resumir(String texto) {
-        String limpio = texto == null ? "" : texto.replaceAll("\\s+", " ").trim();
-        return limpio.length() <= 90 ? limpio : limpio.substring(0, 90).trim() + "…";
     }
 
     /**
@@ -225,14 +202,18 @@ public class Programa {
 
     /**
      * Indica qué le falta al programa para tener el contenido completo, que es lo que se necesita para que una cohorte
-     * esté activa: el mínimo de temas con material y autoevaluación publicados, una autoevaluación visible en cada tema y
-     * la dedicación docente del curso repartida por completo entre sus temas.
+     * esté activa: los datos académicos del curso completos, el mínimo de temas con material y autoevaluación publicados, una
+     * autoevaluación visible en cada tema y la duración del curso asignada por completo entre sus temas.
      *
      * @param minimoTemasConMaterial El mínimo de temas con material publicado y autoevaluación que exige el sistema.
      * @return Lo que falta, uno por línea y listo para mostrar; vacío si el contenido está completo.
      */
     public List<String> getFaltantesDeContenido(int minimoTemasConMaterial) {
         List<String> faltantes = new java.util.ArrayList<>();
+        List<String> faltantesDelCurso = curso.getFaltantesDeDatosAcademicos();
+        if (!faltantesDelCurso.isEmpty()) {
+            faltantes.add("Faltan completar los datos del curso: " + String.join(", ", faltantesDelCurso));
+        }
         int conMaterial = getCantidadTemasConMaterialPublicado();
         if (conMaterial < minimoTemasConMaterial) {
             faltantes.add("Faltan temas con al menos un material y una autoevaluación publicados: tiene " + conMaterial
@@ -243,12 +224,21 @@ public class Programa {
             faltantes.add("Faltan autoevaluaciones visibles en: " + String.join(", ",
                     sinAutoevaluacion.stream().map(tema -> "«" + tema.getTitulo() + "»").toList()));
         }
-        if (!curso.estaDedicacionDocenteCompleta()) {
-            faltantes.add("La dedicación docente repartida entre los temas ("
-                    + DuracionUtilidad.formatearMinutos(curso.getDedicacionDocenteRepartidaMinutos())
-                    + ") no coincide con la del curso (" + DuracionUtilidad.formatearMinutos(curso.getDedicacionDocenteMinutos()) + ")");
+        if (!estaDuracionAsignadaCompleta()) {
+            faltantes.add("La duración asignada a los temas (" + DuracionUtilidad.formatear(getDuracionTotalDias())
+                    + ") no coincide con la del curso (" + DuracionUtilidad.formatear(curso.getDuracionDias()) + ")");
         }
         return faltantes;
+    }
+
+    /**
+     * Indica si la duración del curso está asignada por completo entre los temas del programa: la suma de los días de sus
+     * temas es igual a la duración del curso.
+     *
+     * @return {@code true} si el programa cubre toda la duración del curso.
+     */
+    public boolean estaDuracionAsignadaCompleta() {
+        return getCantidadTemas() > 0 && getDuracionTotalDias() == curso.getDuracionDias();
     }
 
     /**
@@ -282,7 +272,7 @@ public class Programa {
      * @return 1, 7 o 30.
      */
     public int getPasoCronograma() {
-        int total = getDuracionTotalDias();
+        int total = curso.getDuracionDias();
         if (total <= COLUMNAS_MAXIMAS_DEL_CRONOGRAMA) {
             return 1;
         }
@@ -310,7 +300,7 @@ public class Programa {
      */
     public int getColumnasCronograma() {
         int paso = getPasoCronograma();
-        return (getDuracionTotalDias() + paso - 1) / paso;
+        return (curso.getDuracionDias() + paso - 1) / paso;
     }
 
     /**

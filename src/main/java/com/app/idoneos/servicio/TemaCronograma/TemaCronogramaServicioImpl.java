@@ -181,9 +181,8 @@ public class TemaCronogramaServicioImpl implements TemaCronogramaServicio, CrudS
         for (String duracion : duraciones) {
             diasPorTema.add(parsearDias(duracion));
         }
-        // El cronograma no puede superar la duración máxima del curso, ni el máximo que admite el sistema
-        int maximo = Math.min(programa.getCurso().getDuracionMaximaDias(), parametroServicio.obtenerEntero(
-                Parametro.CRONOGRAMA_DIAS_MAXIMOS, Parametro.CRONOGRAMA_DIAS_MAXIMOS_POR_DEFECTO));
+        // El cronograma no puede superar la duración del curso
+        int maximo = programa.getCurso().getDuracionDias();
         int total = diasPorTema.stream().mapToInt(Integer::intValue).sum();
         if (total > maximo) {
             throw new IllegalArgumentException(MensajeErrorUtilidad.demasiadoLargo("El cronograma", maximo, "días"));

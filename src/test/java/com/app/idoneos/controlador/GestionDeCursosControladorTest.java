@@ -89,7 +89,9 @@ class GestionDeCursosControladorTest {
                 .andExpect(view().name("pages/cohorte/buscarAdministrador"))
                 .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.content()
                         .string(org.hamcrest.Matchers.containsString("Este programa")));
-        mockMvc.perform(get("/cohorte/buscar")).andExpect(status().is3xxRedirection());
+        // sin curso, el administrador ve las cohortes de todos los cursos
+        mockMvc.perform(get("/cohorte/buscar")).andExpect(status().isOk())
+                .andExpect(view().name("pages/cohorte/buscarAdministrador"));
     }
 
     @Test

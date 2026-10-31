@@ -61,11 +61,11 @@ class CronogramaControladorTest {
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesServicio")
-    @DisplayName("La pantalla recibe el máximo de días del cronograma desde el parámetro del sistema")
+    @DisplayName("La pantalla recibe el máximo de días del cronograma: la duración del curso")
     void maximoDeSemanasParametrizado() throws Exception {
         mockMvc.perform(get("/cronograma/buscar").param("cursoId", String.valueOf(macro().getIdCurso())))
                 .andExpect(status().isOk())
-                .andExpect(content().string(Matchers.containsString("data-dias-maximos=\"365\"")));
+                .andExpect(content().string(Matchers.containsString("data-dias-maximos=\"" + macro().getDuracionDias() + "\"")));
     }
 
     private String cursoId(Curso curso) {
@@ -188,17 +188,19 @@ class CronogramaControladorTest {
     void modificar() throws Exception {
         Programa programa = programaDe(macro());
         List<Integer> temas = temasDe(macro());
+        // el cronograma no puede superar la duración del curso: se reparte en tres partes que entran justo
+        int total = programa.getDuracionTotalDias();
+        int parte = total / 3;
 
         mockMvc.perform(post("/cronograma/modificar").param("programaId", String.valueOf(programa.getIdPrograma()))
                 .param("ids", String.valueOf(temas.get(2)), String.valueOf(temas.get(0)), String.valueOf(temas.get(1)))
-                .param("dias", "14", "28", "7"))
+                .param("dias", String.valueOf(parte), String.valueOf(parte), String.valueOf(total - 2 * parte)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith("application/json"))
                 .andExpect(jsonPath("$.mensaje").value("Cronograma modificado correctamente."));
 
         mockMvc.perform(get("/cronograma/buscar").param("cursoId", cursoId(macro())))
-                .andExpect(content().string(Matchers.containsString("data-id=\"" + temas.get(2) + "\" data-dias=\"14\"")))
-                .andExpect(content().string(Matchers.containsString("7 semanas")));
+                .andExpect(content().string(Matchers.containsString("data-id=\"" + temas.get(2) + "\" data-dias=\"" + parte + "\"")));
     }
 
     @Test

@@ -40,15 +40,13 @@ public interface ProgramaServicio {
      * @param docente          el docente que registra
      * @param cursoId          el identificador del curso
      * @param programaOrigenId el programa del que se parte (opcional)
-     * @param nombre           el nombre
-     * @param descripcion      la descripción (opcional)
-     * @param objetivos        los objetivos
+     * @param nombre           el nombre (opcional: si no se indica, es "Versión N")
+     * @param descripcion      qué cambia respecto de la versión anterior (opcional)
      * @return el programa registrado
-     * @throws IllegalArgumentException si falta algún dato, supera el máximo, el curso no está activo o el docente no
-     *                                  participa en el curso
+     * @throws IllegalArgumentException si supera el máximo, el curso no está activo o el docente no participa en el curso
      */
     Programa registrarPrograma(Docente docente, Integer cursoId, Integer programaOrigenId, String nombre,
-            String descripcion, String objetivos);
+            String descripcion);
 
     // ---------------------------------------------------------------- Modificaciones
 
@@ -58,13 +56,12 @@ public interface ProgramaServicio {
      * @param id           el identificador del programa
      * @param docente      el docente que modifica
      * @param nombre       el nombre
-     * @param descripcion  la descripción (opcional)
-     * @param objetivos    los objetivos
+     * @param descripcion  qué cambia respecto de la versión anterior (opcional)
      * @return el programa modificado
-     * @throws IllegalArgumentException si el programa no está activo, tiene inscripciones activas, falta algún dato o
+     * @throws IllegalArgumentException si el programa no está activo, tiene inscripciones activas, falta el nombre o
      *                                  el docente no participa en el curso
      */
-    Programa modificarPrograma(Integer id, Docente docente, String nombre, String descripcion, String objetivos);
+    Programa modificarPrograma(Integer id, Docente docente, String nombre, String descripcion);
 
     /**
      * Establece el programa por defecto del docente en el curso del programa (y deja sin definir su cohorte por

@@ -52,7 +52,7 @@ CREATE OR REPLACE FUNCTION fn_pool_con_intentos(p_id_pool int) RETURNS boolean A
 $$ LANGUAGE sql STABLE ^^^
 
 -- fn_curso_congelado() (CU-04): disparador de modificacion de un curso. El disparador solo la llama si cambio el nombre,
--- la descripcion, la categoria, el nivel o si emite certificado; en ese caso rechaza el cambio cuando el curso tiene
+-- la descripcion, la categoria, el nivel, la duracion o si emite certificado; en ese caso rechaza el cambio cuando el curso tiene
 -- inscripciones activas. El precio, la imagen y el equipo docente se pueden modificar siempre.
 CREATE OR REPLACE FUNCTION fn_curso_congelado() RETURNS trigger AS $$
 BEGIN
@@ -70,6 +70,7 @@ CREATE TRIGGER trg_curso_congelado BEFORE UPDATE ON curso
                     OR OLD.descripcion IS DISTINCT FROM NEW.descripcion
                     OR OLD.id_categoria IS DISTINCT FROM NEW.id_categoria
                     OR OLD.id_nivel IS DISTINCT FROM NEW.id_nivel
+                    OR OLD.duracion_dias IS DISTINCT FROM NEW.duracion_dias
                     OR OLD.emite_certificado IS DISTINCT FROM NEW.emite_certificado)
     EXECUTE FUNCTION fn_curso_congelado() ^^^
 
@@ -134,7 +135,7 @@ CREATE TRIGGER trg_cohorte_congelado BEFORE UPDATE ON cohorte
     EXECUTE FUNCTION fn_cohorte_congelada() ^^^
 
 -- fn_programa_congelado() (CU-17): disparador de modificacion de un programa. Se llama solo si cambio el nombre, la
--- descripcion, los objetivos o el curso, y rechaza el cambio si el programa tiene inscripciones activas.
+-- descripcion o el curso, y rechaza el cambio si el programa tiene inscripciones activas.
 CREATE OR REPLACE FUNCTION fn_programa_congelado() RETURNS trigger AS $$
 BEGIN
     IF fn_programa_con_inscripciones(OLD.id_programa) THEN
@@ -149,7 +150,6 @@ DROP TRIGGER IF EXISTS trg_programa_congelado ON programa ^^^
 CREATE TRIGGER trg_programa_congelado BEFORE UPDATE ON programa
     FOR EACH ROW WHEN (OLD.nombre IS DISTINCT FROM NEW.nombre
                     OR OLD.descripcion IS DISTINCT FROM NEW.descripcion
-                    OR OLD.objetivos IS DISTINCT FROM NEW.objetivos
                     OR OLD.id_curso IS DISTINCT FROM NEW.id_curso)
     EXECUTE FUNCTION fn_programa_congelado() ^^^
 

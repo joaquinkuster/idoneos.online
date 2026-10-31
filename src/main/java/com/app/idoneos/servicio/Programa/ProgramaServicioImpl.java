@@ -120,7 +120,7 @@ public class ProgramaServicioImpl implements ProgramaServicio, CrudServicio<Prog
     @Override
     @Transactional
     public Programa registrarPrograma(Docente docente, Integer cursoId, Integer programaOrigenId, String nombre,
-            String descripcion, String objetivos) {
+            String descripcion) {
         Curso curso = cursoRepositorio.findById(cursoId == null ? -1 : cursoId).filter(c -> !c.esInactivo())
                 .orElseThrow(() -> new IllegalArgumentException("Error! El curso no se encuentra activo."));
         DocenteCurso participacion = obtenerParticipacion(curso, docente);
@@ -131,7 +131,9 @@ public class ProgramaServicioImpl implements ProgramaServicio, CrudServicio<Prog
                     .orElseThrow(() -> new IllegalArgumentException(
                             "Error! Debe seleccionar un programa de origen de la lista."));
         }
-        Programa programa = new Programa(curso, validarDatos(nombre, objetivos), objetivos.trim());
+        // Sin nombre, la versión se llama "Versión N": las que tuvo el curso (incluidas las dadas de baja) más una
+        String nombreFinal = nombre == null || nombre.isBlank() ? "Versión " + (curso.getProgramas().size() + 1) : validarNombre(nombre);
+        Programa programa = new Programa(curso, nombreFinal);
         programa.setDescripcion(validarDescripcion(descripcion));
         programa = programaRepositorio.save(programa);
         curso.getProgramas().add(programa);
@@ -170,16 +172,15 @@ public class ProgramaServicioImpl implements ProgramaServicio, CrudServicio<Prog
      */
     @Override
     @Transactional
-    public Programa modificarPrograma(Integer id, Docente docente, String nombre, String descripcion, String objetivos) {
+    public Programa modificarPrograma(Integer id, Docente docente, String nombre, String descripcion) {
         Programa programa = buscarActivo(id);
         obtenerParticipacion(programa.getCurso(), docente);
         if (programa.getCantidadInscripcionesActivas() > 0) {
             throw new IllegalArgumentException("Error! El programa tiene inscripciones activas: sus datos no pueden "
                     + "modificarse porque son los que el alumno vio y pagó al inscribirse.");
         }
-        programa.setNombre(validarDatos(nombre, objetivos));
+        programa.setNombre(validarNombre(nombre));
         programa.setDescripcion(validarDescripcion(descripcion));
-        programa.setObjetivos(objetivos.trim());
         programa.setUltimaModificacion(LocalDateTime.now());
         return programaRepositorio.save(programa);
     }
@@ -273,10 +274,10 @@ public class ProgramaServicioImpl implements ProgramaServicio, CrudServicio<Prog
                 .orElseThrow(() -> new IllegalArgumentException("Error! No participás en este curso."));
     }
 
-    /** Valida el nombre y los objetivos, y devuelve el nombre sin espacios sobrantes. */
-    private String validarDatos(String nombre, String objetivos) {
-        if (nombre == null || nombre.isBlank() || objetivos == null || objetivos.isBlank()) {
-            throw new IllegalArgumentException("Error! Debe completar el nombre y los objetivos.");
+    /** Valida el nombre y lo devuelve sin espacios sobrantes. */
+    private String validarNombre(String nombre) {
+        if (nombre == null || nombre.isBlank()) {
+            throw RespuestaFormularioUtilidad.campoInvalido("nombre", "Error! Debe completar el nombre del programa.");
         }
         if (nombre.trim().length() > Programa.LONGITUD_NOMBRE) {
             throw RespuestaFormularioUtilidad.campoInvalido("nombre", MensajeErrorUtilidad.demasiadoLargo("El nombre", Programa.LONGITUD_NOMBRE, "caracteres"));

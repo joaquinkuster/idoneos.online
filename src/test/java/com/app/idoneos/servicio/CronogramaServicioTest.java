@@ -51,7 +51,12 @@ class CronogramaServicioTest {
     private DocenteRepositorio docenteRepositorio;
 
     private Curso curso(String nombre) {
-        return cursoRepositorio.findAll().stream().filter(c -> c.getNombre().equals(nombre)).findFirst().orElseThrow();
+        Curso curso = cursoRepositorio.findAll().stream().filter(c -> c.getNombre().equals(nombre)).findFirst().orElseThrow();
+        // la semilla deja los cronogramas completos: se amplía la duración para poder agregar temas
+        if (curso.getDuracionDias() < 365) {
+            curso.setDuracionDias(365);
+        }
+        return curso;
     }
 
     private Programa macro() {
@@ -89,8 +94,7 @@ class CronogramaServicioTest {
 
     /** Registra un programa nuevo en el curso del programa dado (queda como el vigente, sin temas). */
     private Programa programaNuevo(Programa deCurso) {
-        return programaServicio.registrarPrograma(fausto(), deCurso.getCurso().getIdCurso(), null, "Programa 2027", null,
-                "Objetivos");
+        return programaServicio.registrarPrograma(fausto(), deCurso.getCurso().getIdCurso(), null, "Programa 2027", null);
     }
 
     // ------------------------------------------------------------------ CU-24 Modificar cronograma
@@ -134,7 +138,7 @@ class CronogramaServicioTest {
     @DisplayName("CU-24: el cronograma no puede superar la duración máxima del curso")
     void noSuperaLaDuracionMaximaDelCurso() {
         Programa programa = macro();
-        programa.getCurso().setDuracionMaximaDias(100);
+        programa.getCurso().setDuracionDias(100);
         List<Integer> temas = ids(programa);
         List<Integer> antes = semanas(programa);
 

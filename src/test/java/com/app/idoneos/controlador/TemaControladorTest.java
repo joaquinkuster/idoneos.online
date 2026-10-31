@@ -46,7 +46,12 @@ class TemaControladorTest {
     private InscripcionRepositorio inscripcionRepositorio;
 
     private Curso curso(String nombre) {
-        return cursoRepositorio.findAll().stream().filter(c -> c.getNombre().equals(nombre)).findFirst().orElseThrow();
+        Curso curso = cursoRepositorio.findAll().stream().filter(c -> c.getNombre().equals(nombre)).findFirst().orElseThrow();
+        // la semilla deja los cronogramas completos: se amplía la duración para poder agregar temas
+        if (curso.getDuracionDias() < 365) {
+            curso.setDuracionDias(365);
+        }
+        return curso;
     }
 
     private Curso mercado() {
@@ -186,10 +191,12 @@ class TemaControladorTest {
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesServicio")
     @DisplayName("CU-20: con el cronograma lleno el error se marca en el campo de la duración")
     void agregarTemaConElCronogramaLleno() throws Exception {
+        String programaId = programaId(macro());
         Programa programa = programaDe(macro());
-        programa.getCurso().setDuracionMaximaDias(programa.getDuracionTotalDias());
+        // el curso no tiene lugar: la duración es justo la del cronograma
+        programa.getCurso().setDuracionDias(programa.getDuracionTotalDias());
 
-        mockMvc.perform(post("/tema/registrar").param("programaId", programaId(macro())).param("titulo", "Sin lugar")
+        mockMvc.perform(post("/tema/registrar").param("programaId", programaId).param("titulo", "Sin lugar")
                 .param("contenido", "Contenido"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value(Matchers.containsString("La duración del cronograma ya alcanzó")))
@@ -211,7 +218,7 @@ class TemaControladorTest {
         mockMvc.perform(post("/tema/registrar").param("programaId", programaId(macro())).param("titulo", "")
                 .param("contenido", ""))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value(Matchers.containsString("Debe completar el título y el contenido.")));
+                .andExpect(jsonPath("$.error").value(Matchers.containsString("Debe completar el título del tema.")));
         mockMvc.perform(post("/tema/registrar").param("programaId", programaId(macro())).param("titulo", "política monetaria")
                 .param("contenido", "x"))
                 .andExpect(status().isBadRequest())

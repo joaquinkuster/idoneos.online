@@ -155,8 +155,7 @@ public class CohorteServicioImpl implements CohorteServicio, CrudServicio<Cohort
      * @param idPrograma el identificador del programa
      * @param fechaInicioInscripcion la fecha de inicio de la inscripción
      * @param fechaFinInscripcion la fecha de fin de la inscripción
-     * @param fechaInicioDictado la fecha de inicio del dictado (obligatoria si el curso tiene modalidad En vivo)
-     * @param fechaFinDictado la fecha de fin del dictado (obligatoria si el curso tiene modalidad En vivo)
+     * @param fechaInicioDictado la fecha de inicio del dictado (obligatoria si el curso tiene modalidad En vivo; el fin se calcula)
      * @param accesoDias los días de acceso al contenido desde la inscripción
      * @param cupoMaximo el cupo máximo de inscriptos (opcional)
      * @return la cohorte registrada
@@ -165,11 +164,11 @@ public class CohorteServicioImpl implements CohorteServicio, CrudServicio<Cohort
     @Override
     @Transactional
     public Cohorte registrarCohorte(Integer idPrograma, LocalDate fechaInicioInscripcion, LocalDate fechaFinInscripcion,
-            LocalDate fechaInicioDictado, LocalDate fechaFinDictado, Integer accesoDias, Integer cupoMaximo) {
+            LocalDate fechaInicioDictado, Integer accesoDias, Integer cupoMaximo) {
         Programa programa = programaRepositorio.findById(idPrograma).filter(p -> !p.esInactivo())
                 .orElseThrow(() -> new IllegalArgumentException("Error! El programa no se encuentra activo."));
         return registrarCohorte(programa.getCurso().getIdCurso(), idPrograma, fechaInicioInscripcion, fechaFinInscripcion,
-                fechaInicioDictado, fechaFinDictado, accesoDias, cupoMaximo);
+                fechaInicioDictado, accesoDias, cupoMaximo);
     }
 
     /**
@@ -180,8 +179,7 @@ public class CohorteServicioImpl implements CohorteServicio, CrudServicio<Cohort
      * @param idPrograma el identificador del programa (opcional; debe ser del curso)
      * @param fechaInicioInscripcion la fecha de inicio de la inscripción
      * @param fechaFinInscripcion la fecha de fin de la inscripción
-     * @param fechaInicioDictado la fecha de inicio del dictado (obligatoria si el curso tiene modalidad En vivo)
-     * @param fechaFinDictado la fecha de fin del dictado (obligatoria si el curso tiene modalidad En vivo)
+     * @param fechaInicioDictado la fecha de inicio del dictado (obligatoria si el curso tiene modalidad En vivo; el fin se calcula)
      * @param accesoDias los días de acceso al contenido desde la inscripción
      * @param cupoMaximo el cupo máximo de inscriptos (opcional)
      * @return la cohorte registrada
@@ -190,14 +188,14 @@ public class CohorteServicioImpl implements CohorteServicio, CrudServicio<Cohort
     @Override
     @Transactional
     public Cohorte registrarCohorte(Integer idCurso, Integer idPrograma, LocalDate fechaInicioInscripcion,
-            LocalDate fechaFinInscripcion, LocalDate fechaInicioDictado, LocalDate fechaFinDictado, Integer accesoDias,
+            LocalDate fechaFinInscripcion, LocalDate fechaInicioDictado, Integer accesoDias,
             Integer cupoMaximo) {
         Curso curso = cursoRepositorio.findById(idCurso).filter(c -> !c.esInactivo())
                 .orElseThrow(() -> new IllegalArgumentException("Error! El curso no se encuentra activo."));
         Programa programa = idPrograma == null ? null : programaDelCurso(curso, idPrograma);
         boolean enVivo = curso.incluyeModalidad(Modalidad.EN_VIVO);
-        validarDatosCohorte(programa, enVivo, fechaInicioInscripcion, fechaFinInscripcion, fechaInicioDictado,
-                fechaFinDictado, accesoDias, cupoMaximo);
+        validarDatosCohorte(curso, enVivo, fechaInicioInscripcion, fechaFinInscripcion, fechaInicioDictado,
+                accesoDias, cupoMaximo);
 
         boolean activa = tieneContenidoCompleto(programa);
         if (!activa) {
@@ -205,7 +203,7 @@ public class CohorteServicioImpl implements CohorteServicio, CrudServicio<Cohort
         }
         Cohorte cohorte = new Cohorte(curso, programa, inicioDelDia(fechaInicioInscripcion), finDelDia(fechaFinInscripcion),
                 accesoDias);
-        aplicarDatosOpcionales(cohorte, enVivo, fechaInicioDictado, fechaFinDictado, cupoMaximo);
+        aplicarDatosOpcionales(cohorte, enVivo, fechaInicioDictado, cohorte.getCurso().getDuracionDias(), cupoMaximo);
         cohorte.setEstadoCohorte(estadoCohorteRepositorio
                 .findByNombre(activa ? EstadoCohorte.ACTIVA : EstadoCohorte.PENDIENTE).orElseThrow());
         return cohorteRepositorio.save(cohorte);
@@ -256,8 +254,7 @@ public class CohorteServicioImpl implements CohorteServicio, CrudServicio<Cohort
      * @param idCohorte el identificador de la cohorte
      * @param fechaInicioInscripcion la fecha de inicio de la inscripción
      * @param fechaFinInscripcion la fecha de fin de la inscripción
-     * @param fechaInicioDictado la fecha de inicio del dictado (obligatoria si el curso tiene modalidad En vivo)
-     * @param fechaFinDictado la fecha de fin del dictado (obligatoria si el curso tiene modalidad En vivo)
+     * @param fechaInicioDictado la fecha de inicio del dictado (obligatoria si el curso tiene modalidad En vivo; el fin se calcula)
      * @param accesoDias los días de acceso al contenido desde la inscripción
      * @param cupoMaximo el cupo máximo de inscriptos (opcional)
      * @return la cohorte modificada
@@ -266,7 +263,7 @@ public class CohorteServicioImpl implements CohorteServicio, CrudServicio<Cohort
     @Override
     @Transactional
     public Cohorte modificarCohorte(Integer idCohorte, LocalDate fechaInicioInscripcion, LocalDate fechaFinInscripcion,
-            LocalDate fechaInicioDictado, LocalDate fechaFinDictado, Integer accesoDias, Integer cupoMaximo) {
+            LocalDate fechaInicioDictado, Integer accesoDias, Integer cupoMaximo) {
         Cohorte cohorte = cohorteRepositorio.findById(idCohorte).filter(c -> !c.esInactivo())
                 .orElseThrow(() -> new IllegalArgumentException("Error! La cohorte no se encuentra activa."));
         if (cohorte.esCancelada()) {
@@ -276,8 +273,8 @@ public class CohorteServicioImpl implements CohorteServicio, CrudServicio<Cohort
             throw new IllegalArgumentException("Error! La cohorte tiene inscripciones activas asociadas y no puede modificarse.");
         }
         boolean enVivo = cohorte.getCurso().incluyeModalidad(Modalidad.EN_VIVO);
-        validarDatosCohorte(cohorte.getPrograma(), enVivo, fechaInicioInscripcion, fechaFinInscripcion,
-                fechaInicioDictado, fechaFinDictado, accesoDias, cupoMaximo);
+        validarDatosCohorte(cohorte.getCurso(), enVivo, fechaInicioInscripcion, fechaFinInscripcion,
+                fechaInicioDictado, accesoDias, cupoMaximo);
         if (cohorte.esPendiente()) {
             validarPlazoParaCompletarContenido(cohorte.getPrograma(), fechaInicioInscripcion);
         }
@@ -285,7 +282,7 @@ public class CohorteServicioImpl implements CohorteServicio, CrudServicio<Cohort
         cohorte.setFechaInicioInscripcion(inicioDelDia(fechaInicioInscripcion));
         cohorte.setFechaFinInscripcion(finDelDia(fechaFinInscripcion));
         cohorte.setAccesoDias(accesoDias);
-        aplicarDatosOpcionales(cohorte, enVivo, fechaInicioDictado, fechaFinDictado, cupoMaximo);
+        aplicarDatosOpcionales(cohorte, enVivo, fechaInicioDictado, cohorte.getCurso().getDuracionDias(), cupoMaximo);
         cohorte.setUltimaModificacion(LocalDateTime.now());
         return cohorteRepositorio.save(cohorte);
     }
@@ -314,12 +311,6 @@ public class CohorteServicioImpl implements CohorteServicio, CrudServicio<Cohort
             throw new IllegalArgumentException("Error! La cohorte tiene inscripciones activas asociadas y no puede modificarse.");
         }
         Programa programa = programaDelCurso(cohorte.getCurso(), idPrograma);
-        int duracion = programa.getDuracionTotalDias();
-        if (cohorte.getAccesoDias() < duracion) {
-            throw RespuestaFormularioUtilidad.campoInvalido("programaId", "Error! Los días de acceso de la cohorte ("
-                    + cohorte.getAccesoDias() + ") no pueden ser menores a la duración total del cronograma del programa ("
-                    + duracion + " días).");
-        }
         cohorte.setPrograma(programa);
         if (tieneContenidoCompleto(programa)) {
             cohorte.setEstadoCohorte(estadoCohorteRepositorio.findByNombre(EstadoCohorte.ACTIVA).orElseThrow());
@@ -468,31 +459,28 @@ public class CohorteServicioImpl implements CohorteServicio, CrudServicio<Cohort
         return fecha.atTime(LocalTime.of(23, 59, 59));
     }
 
-    private void aplicarDatosOpcionales(Cohorte cohorte, boolean enVivo, LocalDate fechaInicioDictado,
-            LocalDate fechaFinDictado, Integer cupoMaximo) {
+    /** El dictado dura lo que el curso: termina al final del último día de su duración. */
+    private void aplicarDatosOpcionales(Cohorte cohorte, boolean enVivo, LocalDate fechaInicioDictado, int duracionDias,
+            Integer cupoMaximo) {
         cohorte.setFechaInicioDictado(enVivo ? inicioDelDia(fechaInicioDictado) : null);
-        cohorte.setFechaFinDictado(enVivo ? finDelDia(fechaFinDictado) : null);
+        cohorte.setFechaFinDictado(enVivo ? finDelDia(fechaInicioDictado.plusDays(duracionDias - 1L)) : null);
         cohorte.setCupoMaximo(cupoMaximo);
     }
 
-    private void validarDatosCohorte(Programa programa, boolean enVivo, LocalDate fechaInicioInscripcion,
-            LocalDate fechaFinInscripcion, LocalDate fechaInicioDictado, LocalDate fechaFinDictado,
+    private void validarDatosCohorte(Curso curso, boolean enVivo, LocalDate fechaInicioInscripcion,
+            LocalDate fechaFinInscripcion, LocalDate fechaInicioDictado,
             Integer accesoDias, Integer cupoMaximo) {
         List<String> faltantes = new ArrayList<>();
         if (fechaInicioInscripcion == null) faltantes.add("fecha de inicio de inscripción");
         if (fechaFinInscripcion == null) faltantes.add("fecha de fin de inscripción");
         if (accesoDias == null) faltantes.add("días de acceso");
         if (enVivo && fechaInicioDictado == null) faltantes.add("fecha de inicio de dictado");
-        if (enVivo && fechaFinDictado == null) faltantes.add("fecha de fin de dictado");
         if (!faltantes.isEmpty()) {
             throw new IllegalArgumentException("Error! Faltan completar los campos obligatorios: "
                     + String.join(", ", faltantes) + ".");
         }
         if (!fechaFinInscripcion.isAfter(fechaInicioInscripcion)) {
             throw RespuestaFormularioUtilidad.campoInvalido("fechaFinInscripcion", "Error! La fecha de fin de inscripción debe ser posterior a la fecha de inicio.");
-        }
-        if (enVivo && !fechaFinDictado.isAfter(fechaInicioDictado)) {
-            throw RespuestaFormularioUtilidad.campoInvalido("fechaFinDictado", "Error! La fecha de fin de dictado debe ser posterior a la fecha de inicio.");
         }
         // La inscripción cierra al final del día de su fecha de fin: el dictado empieza al menos el día siguiente
         if (enVivo && !fechaInicioDictado.isAfter(fechaFinInscripcion)) {
@@ -510,10 +498,11 @@ public class CohorteServicioImpl implements CohorteServicio, CrudServicio<Cohort
         if (accesoDias > Cohorte.DIAS_ACCESO_MAXIMOS) {
             throw RespuestaFormularioUtilidad.campoInvalido("accesoDias", MensajeErrorUtilidad.formatoInvalido("Los días de acceso", "número entero de 1 a " + Cohorte.DIAS_ACCESO_MAXIMOS));
         }
-        int duracion = programa == null ? 0 : programa.getDuracionTotalDias();
+        // El acceso incluye toda la duración del curso: lo que se agrega es el tiempo extra para quien se atrase
+        int duracion = curso.getDuracionDias();
         if (accesoDias < duracion) {
             throw RespuestaFormularioUtilidad.campoInvalido("accesoDias", "Error! Los días de acceso (" + accesoDias
-                    + ") no pueden ser menores a la duración total del cronograma del programa (" + duracion + " días).");
+                    + ") no pueden ser menores a la duración del curso (" + duracion + " días).");
         }
     }
 }

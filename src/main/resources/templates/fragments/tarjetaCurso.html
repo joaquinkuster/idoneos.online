@@ -12,7 +12,7 @@
 <div th:fragment="tarjeta(c, temas, estado, url, texto, menu, inscripcion)" class="cc-carta" data-tarjeta
      th:with="cantidad=${temas != null ? temas : 0}"
      th:data-f-busqueda="${c.nombre + ' ' + (c.descripcion != null ? c.descripcion : '')}"
-     th:data-f-categoriaid="${c.categoria.idCategoria}" th:data-f-nivelid="${c.nivel.idNivel}"
+     th:data-f-categoriaid="${c.categoria.idCategoria}" th:data-f-nivelid="${c.nivel != null ? c.nivel.idNivel : ''}"
      th:data-f-docenteid="${#strings.listJoin(c.equipoDocente.![docente.idDocente], '|')}"
      th:data-f-modalidadid="${#strings.listJoin(c.modalidades.![idModalidad], '|')}"
      th:attr="data-f-estado=${inscripcion != null ? inscripcion.estado : null}, data-f-acceso=${inscripcion != null ? inscripcion.estadoAcceso : null}"
@@ -28,7 +28,7 @@
           th:text="${descuentoAplicable != null ? descuentoAplicable.porcentajeTexto + '% de descuento' : 'Hasta ' + descuentosVigentes.get(0).porcentajeTexto + '% de descuento'}">Hasta 20% de descuento</span>
   </div>
   <div class="cc-cuerpo">
-    <span class="cc-etiqueta" th:text="${c.categoria.nombre + ' · ' + c.nivel.nombre}">Categoría · Nivel</span>
+    <span class="cc-etiqueta" th:text="${c.nivel != null ? c.categoria.nombre + ' · ' + c.nivel.nombre : c.categoria.nombre}">Categoría · Nivel</span>
     <h4 class="cc-titulo" th:text="${c.nombre}">Nombre del curso</h4>
     <p class="cc-descripcion" th:text="${c.descripcion}">Descripción</p>
     <!-- Alumno: avance en el curso -->

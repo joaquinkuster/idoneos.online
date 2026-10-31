@@ -70,7 +70,7 @@ class CohorteServicioTest {
         Programa programa = programaDe("Macroeconomía de Coyuntura");
 
         Cohorte cohorte = cohorteServicio.registrarCohorte(programa.getIdPrograma(), INICIO, INICIO.plusDays(30),
-                null, null, programa.getDuracionTotalDias(), 25);
+                null, programa.getDuracionTotalDias(), 25);
 
         assertEquals(25, cohorte.getCupoMaximo());
         assertNull(cohorte.getFechaInicioDictado());
@@ -85,12 +85,12 @@ class CohorteServicioTest {
 
         IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
                 () -> cohorteServicio.registrarCohorte(programa.getIdPrograma(), INICIO, INICIO.plusDays(30),
-                        INICIO.plusDays(30), INICIO.plusDays(60), semanas, null));
+                        INICIO.plusDays(30), semanas, null));
         assertEquals("Error! La fecha de inicio de dictado debe ser posterior a la fecha de fin de inscripción.", error.getMessage());
 
         // Al día siguiente sí se puede
         Cohorte cohorte = cohorteServicio.registrarCohorte(programa.getIdPrograma(), INICIO, INICIO.plusDays(30),
-                INICIO.plusDays(31), INICIO.plusDays(60), semanas, null);
+                INICIO.plusDays(31), semanas, null);
         assertEquals(INICIO.plusDays(31), cohorte.getFechaInicioDictado().toLocalDate());
     }
 
@@ -100,7 +100,7 @@ class CohorteServicioTest {
         Programa programa = programaDe("Mercado de Capitales Argentino");
 
         IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
-                () -> cohorteServicio.registrarCohorte(programa.getIdPrograma(), INICIO, INICIO.plusDays(30), null, null,
+                () -> cohorteServicio.registrarCohorte(programa.getIdPrograma(), INICIO, INICIO.plusDays(30), null,
                         12, null));
         assertTrue(error.getMessage().contains("dictado"));
     }
@@ -111,9 +111,39 @@ class CohorteServicioTest {
         Programa programa = programaDe("Mercado de Capitales Argentino");
 
         Cohorte cohorte = cohorteServicio.registrarCohorte(programa.getIdPrograma(), INICIO, INICIO.plusDays(30),
-                INICIO.plusDays(40), INICIO.plusDays(120), 84, null);
+                INICIO.plusDays(40), 84, null);
 
         assertEquals(INICIO.plusDays(40), cohorte.getFechaInicioDictado().toLocalDate());
+    }
+
+    @Test
+    @DisplayName("CU-12: el fin del dictado se calcula: el inicio más la duración del curso")
+    void registrarCohorteCalculaElFinDelDictado() {
+        Programa programa = programaDe("Mercado de Capitales Argentino");
+        int duracion = programa.getCurso().getDuracionDias();
+
+        Cohorte cohorte = cohorteServicio.registrarCohorte(programa.getIdPrograma(), INICIO, INICIO.plusDays(30),
+                INICIO.plusDays(40), duracion, null);
+
+        // el dictado dura lo que el curso: termina el último día de su duración
+        assertEquals(INICIO.plusDays(40).plusDays(duracion - 1L), cohorte.getFechaFinDictado().toLocalDate());
+    }
+
+    @Test
+    @DisplayName("CU-12: el acceso no puede ser menor a la duración del curso, aunque la cohorte no tenga programa")
+    void registrarCohorteConAccesoMenorALaDuracionDelCurso() {
+        var curso = programaDe("Macroeconomía de Coyuntura").getCurso();
+
+        IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
+                () -> cohorteServicio.registrarCohorte(curso.getIdCurso(), null, INICIO, INICIO.plusDays(30), null,
+                        curso.getDuracionDias() - 1, null));
+        assertEquals("Error! Los días de acceso (" + (curso.getDuracionDias() - 1)
+                + ") no pueden ser menores a la duración del curso (" + curso.getDuracionDias() + " días).", error.getMessage());
+
+        // con la duración justa se registra; lo que se agrega es el tiempo extra para quien se atrase
+        Cohorte justa = cohorteServicio.registrarCohorte(curso.getIdCurso(), null, INICIO, INICIO.plusDays(30), null,
+                curso.getDuracionDias(), null);
+        assertEquals(curso.getDuracionDias(), justa.getAccesoDias());
     }
 
     @Test
@@ -123,7 +153,7 @@ class CohorteServicioTest {
 
         assertThrows(IllegalArgumentException.class,
                 () -> cohorteServicio.registrarCohorte(programa.getIdPrograma(), INICIO, INICIO.plusDays(30),
-                        INICIO.plusDays(10), INICIO.plusDays(120), 12, null));
+                        INICIO.plusDays(10), 12, null));
     }
 
     @Test
@@ -134,13 +164,13 @@ class CohorteServicioTest {
         int duracion = programa.getDuracionTotalDias();
 
         assertThrows(IllegalArgumentException.class,
-                () -> cohorteServicio.registrarCohorte(id, INICIO, null, null, null, duracion, null));
+                () -> cohorteServicio.registrarCohorte(id, INICIO, null, null, duracion, null));
         assertThrows(IllegalArgumentException.class,
-                () -> cohorteServicio.registrarCohorte(id, INICIO.plusDays(30), INICIO, null, null, duracion, null));
+                () -> cohorteServicio.registrarCohorte(id, INICIO.plusDays(30), INICIO, null, duracion, null));
         assertThrows(IllegalArgumentException.class,
-                () -> cohorteServicio.registrarCohorte(id, INICIO, INICIO.plusDays(30), null, null, duracion - 1, null));
+                () -> cohorteServicio.registrarCohorte(id, INICIO, INICIO.plusDays(30), null, duracion - 1, null));
         assertThrows(IllegalArgumentException.class,
-                () -> cohorteServicio.registrarCohorte(id, INICIO, INICIO.plusDays(30), null, null, duracion, 0));
+                () -> cohorteServicio.registrarCohorte(id, INICIO, INICIO.plusDays(30), null, duracion, 0));
     }
 
     @Test
@@ -151,21 +181,21 @@ class CohorteServicioTest {
         int duracion = programa.getDuracionTotalDias();
 
         IllegalArgumentException semanas = assertThrows(IllegalArgumentException.class,
-                () -> cohorteServicio.registrarCohorte(id, INICIO, INICIO.plusDays(30), null, null,
+                () -> cohorteServicio.registrarCohorte(id, INICIO, INICIO.plusDays(30), null,
                         Cohorte.DIAS_ACCESO_MAXIMOS + 1, null));
         assertTrue(semanas.getMessage().contains("número entero de 1 a " + Cohorte.DIAS_ACCESO_MAXIMOS));
         assertFalse(semanas.getMessage().contains("duración total"));
 
         IllegalArgumentException cupo = assertThrows(IllegalArgumentException.class,
-                () -> cohorteServicio.registrarCohorte(id, INICIO, INICIO.plusDays(30), null, null, duracion,
+                () -> cohorteServicio.registrarCohorte(id, INICIO, INICIO.plusDays(30), null, duracion,
                         Cohorte.CUPO_MAXIMO_PERMITIDO + 1));
         assertTrue(cupo.getMessage().contains("número entero de 1 a " + Cohorte.CUPO_MAXIMO_PERMITIDO));
 
         IllegalArgumentException cero = assertThrows(IllegalArgumentException.class,
-                () -> cohorteServicio.registrarCohorte(id, INICIO, INICIO.plusDays(30), null, null, 0, null));
+                () -> cohorteServicio.registrarCohorte(id, INICIO, INICIO.plusDays(30), null, 0, null));
         assertTrue(cero.getMessage().contains("Formato válido: número entero"));
 
-        Cohorte limite = cohorteServicio.registrarCohorte(id, INICIO, INICIO.plusDays(30), null, null,
+        Cohorte limite = cohorteServicio.registrarCohorte(id, INICIO, INICIO.plusDays(30), null,
                 Cohorte.DIAS_ACCESO_MAXIMOS, Cohorte.CUPO_MAXIMO_PERMITIDO);
         assertEquals(Cohorte.CUPO_MAXIMO_PERMITIDO, limite.getCupoMaximo());
     }
@@ -176,7 +206,7 @@ class CohorteServicioTest {
         Programa programa = programaDe("Planificación Fiscal Corporativa");
         assertEquals(0, programa.getCantidadTemasConMaterialPublicado()); // su único tema con material no tiene autoevaluación
 
-        Cohorte cohorte = cohorteServicio.registrarCohorte(programa.getIdPrograma(), INICIO, INICIO.plusDays(30), null, null,
+        Cohorte cohorte = cohorteServicio.registrarCohorte(programa.getIdPrograma(), INICIO, INICIO.plusDays(30), null,
                 programa.getDuracionTotalDias(), null);
 
         assertTrue(cohorte.esPendiente());
@@ -189,7 +219,7 @@ class CohorteServicioTest {
         Programa programa = programaDe("Macroeconomía de Coyuntura");
         LocalDate manana = LocalDate.now().plusDays(1);
 
-        Cohorte cohorte = cohorteServicio.registrarCohorte(programa.getIdPrograma(), manana, manana.plusDays(30), null, null,
+        Cohorte cohorte = cohorteServicio.registrarCohorte(programa.getIdPrograma(), manana, manana.plusDays(30), null,
                 programa.getDuracionTotalDias(), null);
 
         assertTrue(cohorte.esActiva());
@@ -203,12 +233,12 @@ class CohorteServicioTest {
         LocalDate corto = LocalDate.now().plusDays(plazo - 1);
 
         IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
-                () -> cohorteServicio.registrarCohorte(programa.getIdPrograma(), corto, corto.plusDays(30), null, null,
+                () -> cohorteServicio.registrarCohorte(programa.getIdPrograma(), corto, corto.plusDays(30), null,
                         programa.getDuracionTotalDias(), null));
         assertTrue(error.getMessage().startsWith("Error! La fecha de inicio de inscripción debe ser al menos"), error.getMessage());
 
         LocalDate justo = LocalDate.now().plusDays(plazo);
-        Cohorte cohorte = cohorteServicio.registrarCohorte(programa.getIdPrograma(), justo, justo.plusDays(30), null, null,
+        Cohorte cohorte = cohorteServicio.registrarCohorte(programa.getIdPrograma(), justo, justo.plusDays(30), null,
                 programa.getDuracionTotalDias(), null);
         assertTrue(cohorte.esPendiente());
     }
@@ -219,7 +249,7 @@ class CohorteServicioTest {
         Programa programa = programaDe("Macroeconomía de Coyuntura");
         var curso = programa.getCurso();
 
-        Cohorte cohorte = cohorteServicio.registrarCohorte(curso.getIdCurso(), null, INICIO, INICIO.plusDays(30), null, null,
+        Cohorte cohorte = cohorteServicio.registrarCohorte(curso.getIdCurso(), null, INICIO, INICIO.plusDays(30), null,
                 programa.getDuracionTotalDias(), null);
 
         assertTrue(cohorte.esPendiente());
@@ -246,7 +276,7 @@ class CohorteServicioTest {
 
         IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
                 () -> cohorteServicio.registrarCohorte(programa.getCurso().getIdCurso(), ajeno.getIdPrograma(), INICIO,
-                        INICIO.plusDays(30), null, null, 84, null));
+                        INICIO.plusDays(30), null, 84, null));
         assertEquals("Error! El programa no pertenece al curso de la cohorte.", error.getMessage());
     }
 
@@ -267,7 +297,7 @@ class CohorteServicioTest {
         Cohorte cancelada = cohorteServicio.buscarConFiltros(null, null, "Cancelada", null, null, "recientes", null).get(0);
 
         IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
-                () -> cohorteServicio.modificarCohorte(cancelada.getIdCohorte(), INICIO, INICIO.plusDays(30), null, null, 84, null));
+                () -> cohorteServicio.modificarCohorte(cancelada.getIdCohorte(), INICIO, INICIO.plusDays(30), null, 84, null));
         assertEquals("Error! La cohorte está cancelada y no puede modificarse.", error.getMessage());
     }
 
@@ -277,8 +307,7 @@ class CohorteServicioTest {
         Cohorte cohorte = cohorte("Macroeconomía de Coyuntura", "Abierta");
         int duracion = cohorte.getPrograma().getDuracionTotalDias();
 
-        Cohorte modificada = cohorteServicio.modificarCohorte(cohorte.getIdCohorte(), INICIO, INICIO.plusDays(20), null,
-                null, duracion + 2, 40);
+        Cohorte modificada = cohorteServicio.modificarCohorte(cohorte.getIdCohorte(), INICIO, INICIO.plusDays(20), null, duracion + 2, 40);
 
         assertEquals(40, modificada.getCupoMaximo());
         assertEquals(duracion + 2, modificada.getAccesoDias());
@@ -292,7 +321,7 @@ class CohorteServicioTest {
         assertTrue(cohorte.getCantidadInscriptos() > 0);
 
         assertThrows(IllegalArgumentException.class, () -> cohorteServicio.modificarCohorte(cohorte.getIdCohorte(),
-                INICIO, INICIO.plusDays(20), INICIO.plusDays(30), INICIO.plusDays(90), 12, null));
+                INICIO, INICIO.plusDays(20), INICIO.plusDays(30), 12, null));
     }
 
     @Test
