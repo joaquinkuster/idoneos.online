@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.app.idoneos.servicio.Curso.ContextoCurso;
+import com.app.idoneos.servicio.Curso.CursoServicioImpl;
 import com.app.idoneos.modelo.Cohorte;
 import com.app.idoneos.modelo.Curso;
 import com.app.idoneos.modelo.Docente;
@@ -53,6 +54,9 @@ public class CohorteControlador extends PanelCursoControlador {
     @Autowired
     private DocenteCursoServicioImpl docenteCursoServicio;
 
+    @Autowired
+    private CursoServicioImpl cursoServicioImpl;
+
     // ---------------------------------------------------------------- Lecturas
 
     /**
@@ -60,7 +64,9 @@ public class CohorteControlador extends PanelCursoControlador {
      * de fechas de inscripción. Si el usuario es docente (y no administrador), se restringe a los cursos
      * en los que participa como titular o ayudante.
      *
+     * @param cursoId    Identificador del curso. El administrador sin curso ve las cohortes de todos los cursos.
      * @param programaId Identificador del programa.
+     * @param nuevo      Si está presente, se abre el alta de cohorte (con el curso elegido) al cargar la pantalla.
      * @param busqueda   Parte del nombre del curso o del programa.
      * @param estado     Estado de la cohorte.
      * @param desde      Fecha desde la que la inscripción debe estar abierta.
@@ -73,6 +79,7 @@ public class CohorteControlador extends PanelCursoControlador {
     @GetMapping("/buscar")
     public String buscarCohortes(@RequestParam(value = "cursoId", required = false) Integer cursoId,
             @RequestParam(value = "programaId", required = false) Integer programaId,
+            @RequestParam(value = "nuevo", required = false) String nuevo,
             @RequestParam(value = "busqueda", required = false) String busqueda,
             @RequestParam(value = "estado", required = false) String estado,
             @RequestParam(value = "desde", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate desde,
@@ -83,9 +90,9 @@ public class CohorteControlador extends PanelCursoControlador {
         boolean esAdministrador = usuario.esAdministradorActivo();
         Docente soloDeDocente = esAdministrador ? null : usuario.getDocente();
 
-        // El ABM de cohortes del administrador vive dentro del panel de un curso
+        // El administrador ve las cohortes de todos los cursos, o las de un curso si entra desde su panel
         Curso curso = null;
-        if (esAdministrador) {
+        if (esAdministrador && cursoId != null) {
             try {
                 curso = contextoDelPanel(cursoId, usuario).curso();
             } catch (IllegalArgumentException e) {
@@ -98,7 +105,7 @@ public class CohorteControlador extends PanelCursoControlador {
                 // Listado completo: los filtros (también los que llegan por la URL) se aplican en la pantalla
                 null, null, null, null, null, orden, soloDeDocente).stream()
                 .filter(cohorte -> cursoDelPanel == null
-                        || cohorte.getPrograma().getCurso().getIdCurso() == cursoDelPanel.getIdCurso())
+                        || cohorte.getCurso().getIdCurso() == cursoDelPanel.getIdCurso())
                 .toList();
         Map<Integer, List<Inscripcion>> inscripcionesPorCohorte = new HashMap<>();
         Map<Integer, Long> clasesPorCohorte = new HashMap<>();
@@ -123,6 +130,16 @@ public class CohorteControlador extends PanelCursoControlador {
         modelo.addAttribute("cohortesDeTrabajo", cohortesDeTrabajo);
         modelo.addAttribute("programas", curso == null ? programaServicio.obtenerTodo() : curso.getProgramasActivos());
         modelo.addAttribute("programaSeleccionado", programaId);
+        modelo.addAttribute("cursoSeleccionado", curso == null ? null : curso.getIdCurso());
+        modelo.addAttribute("abrirAlta", nuevo != null);
+        modelo.addAttribute("plazoMinimoContenidoDias", cohorteServicio.plazoMinimoParaCompletarContenidoDias());
+        // Qué le falta al contenido de cada programa para poder abrir la inscripción (el formulario avisa si la cohorte queda pendiente)
+        Map<Integer, List<String>> faltantesPorPrograma = new HashMap<>();
+        for (var programa : programaServicio.obtenerTodo()) {
+            faltantesPorPrograma.put(programa.getIdPrograma(), cohorteServicio.faltantesDeContenido(programa));
+        }
+        modelo.addAttribute("faltantesPorPrograma", faltantesPorPrograma);
+        modelo.addAttribute("faltantesSinPrograma", cohorteServicio.faltantesDeContenido(null));
         modelo.addAttribute("busqueda", busqueda);
         modelo.addAttribute("estadoSeleccionado", estado);
         modelo.addAttribute("desde", desde);
@@ -132,19 +149,28 @@ public class CohorteControlador extends PanelCursoControlador {
         modelo.addAttribute("cupoMaximoPermitido", Cohorte.CUPO_MAXIMO_PERMITIDO);
         modelo.addAttribute("titulo", "Cohortes | Idóneos Online");
         if (esAdministrador) {
-            cargarContexto(modelo, ContextoCurso.deAdministrador(curso), "cohortes");
+            modelo.addAttribute("cursos", cursoServicioImpl.obtenerTodo());
+            if (curso != null) {
+                cargarContexto(modelo, ContextoCurso.deAdministrador(curso), "cohortes");
+            } else {
+                modelo.addAttribute("menuActivo", "cohortes");
+            }
             return "pages/cohorte/buscarAdministrador";
         }
+        modelo.addAttribute("programasDelCurso", cohortes.stream().filter(c -> c.esPendiente() && !c.tienePrograma())
+                .collect(java.util.stream.Collectors.toMap(Cohorte::getIdCohorte,
+                        c -> c.getCurso().getProgramasActivos())));
         return "pages/cohorte/buscarDocente";
     }
 
     // ---------------------------------------------------------------- Creaciones
 
     /**
-     * CU-12: Registra una cohorte para un programa activo. Responde en JSON para que el formulario muestre
-     * el resultado sin recargar la página.
+     * CU-12: Registra una cohorte de un curso, con o sin programa. Nace Pendiente si todavía no tiene un programa con el
+     * contenido completo. Responde en JSON para que el formulario muestre el resultado sin recargar la página.
      *
-     * @param programaId             Identificador del programa.
+     * @param cursoId                Identificador del curso.
+     * @param programaId             Identificador del programa (opcional).
      * @param fechaInicioInscripcion Fecha de inicio de la inscripción.
      * @param fechaFinInscripcion    Fecha de fin de la inscripción.
      * @param fechaInicioDictado     Fecha de inicio del dictado (si el curso tiene modalidad En vivo).
@@ -155,6 +181,7 @@ public class CohorteControlador extends PanelCursoControlador {
      */
     @PostMapping("/registrar")
     public ResponseEntity<Map<String, String>> registrarCohorte(
+            @RequestParam(value = "cursoId", required = false) Integer cursoId,
             @RequestParam(value = "programaId", required = false) Integer programaId,
             @RequestParam(value = "fechaInicioInscripcion", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicioInscripcion,
             @RequestParam(value = "fechaFinInscripcion", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFinInscripcion,
@@ -163,12 +190,14 @@ public class CohorteControlador extends PanelCursoControlador {
             @RequestParam(value = "accesoDias", required = false) Integer accesoDias,
             @RequestParam(value = "cupoMaximo", required = false) Integer cupoMaximo) {
         try {
-            if (programaId == null) {
-                throw new IllegalArgumentException("Error! Debe seleccionar el programa de la cohorte.");
+            if (cursoId == null) {
+                throw RespuestaFormularioUtilidad.campoInvalido("cursoId", "Error! Debe seleccionar el curso de la cohorte.");
             }
-            cohorteServicio.registrarCohorte(programaId, fechaInicioInscripcion, fechaFinInscripcion,
-                    fechaInicioDictado, fechaFinDictado, accesoDias, cupoMaximo);
-            return RespuestaFormularioUtilidad.respuestaExitosa("Cohorte registrada correctamente.");
+            Cohorte cohorte = cohorteServicio.registrarCohorte(cursoId, programaId, fechaInicioInscripcion,
+                    fechaFinInscripcion, fechaInicioDictado, fechaFinDictado, accesoDias, cupoMaximo);
+            return RespuestaFormularioUtilidad.respuestaExitosa(cohorte.esPendiente()
+                    ? "Cohorte registrada como pendiente: se activa cuando el contenido del programa esté completo."
+                    : "Cohorte registrada correctamente.");
         } catch (Exception e) {
             return RespuestaFormularioUtilidad.respuestaConError(e);
         }
@@ -198,6 +227,31 @@ public class CohorteControlador extends PanelCursoControlador {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
         return "redirect:/cohorte/buscar";
+    }
+
+    /**
+     * El docente elige el programa de una cohorte pendiente que el administrador registró sin programa. Responde en JSON.
+     *
+     * @param id         Identificador de la cohorte.
+     * @param programaId Identificador del programa (debe ser del curso de la cohorte).
+     * @param auth       La autenticación actual.
+     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
+     */
+    @PostMapping("/asignarPrograma/{id}")
+    public ResponseEntity<Map<String, String>> asignarPrograma(@PathVariable("id") Integer id,
+            @RequestParam(value = "programaId", required = false) Integer programaId, Authentication auth) {
+        try {
+            if (programaId == null) {
+                throw RespuestaFormularioUtilidad.campoInvalido("programaId", "Error! Debe seleccionar el programa de la cohorte.");
+            }
+            Usuario usuario = (Usuario) auth.getPrincipal();
+            Cohorte cohorte = cohorteServicio.asignarPrograma(id, programaId, usuario.getDocente());
+            return RespuestaFormularioUtilidad.respuestaExitosa(cohorte.esPendiente()
+                    ? "Programa asignado. La cohorte sigue pendiente hasta que el contenido del programa esté completo."
+                    : "Programa asignado. La cohorte quedó activa.");
+        } catch (Exception e) {
+            return RespuestaFormularioUtilidad.respuestaConError(e);
+        }
     }
 
     /**

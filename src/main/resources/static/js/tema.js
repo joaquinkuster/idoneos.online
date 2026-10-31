@@ -59,7 +59,27 @@
         filtrarIncorporables();
     }
 
+    // Cronograma lleno: si el programa elegido ya ocupa toda la duración máxima del curso, se muestra el aviso rojo y se
+    // deshabilita todo el formulario (salvo el selector de programa, para poder elegir otro)
+    var avisoLleno = formulario.querySelector('[data-cronograma-lleno]');
+
+    function aplicarCronogramaLleno() {
+        var opcion = programa.options[programa.selectedIndex];
+        var lleno = !!opcion && opcion.dataset.lleno === 'true';
+        avisoLleno.hidden = !lleno;
+        formulario.querySelectorAll('input, select, textarea, [data-paso-siguiente], [data-paso-guardar]').forEach(function (campo) {
+            if (campo === programa) { return; }
+            if (campo.tomselect) {
+                if (lleno) { campo.tomselect.disable(); } else { campo.tomselect.enable(); }
+            } else {
+                campo.disabled = lleno;
+            }
+        });
+        if (!lleno) { aplicarModo(); } // se restablece lo que habilita o deshabilita el modo (tema nuevo o existente)
+    }
+
     modo.addEventListener('change', aplicarModo);
-    programa.addEventListener('change', filtrarIncorporables);
+    programa.addEventListener('change', function () { filtrarIncorporables(); aplicarCronogramaLleno(); });
     aplicarModo();
+    aplicarCronogramaLleno();
 })();

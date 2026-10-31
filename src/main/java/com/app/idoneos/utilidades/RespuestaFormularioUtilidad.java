@@ -45,6 +45,29 @@ public class RespuestaFormularioUtilidad {
     }
 
     /**
+     * Arma la respuesta JSON de una operación exitosa después de la cual la pantalla propone el paso siguiente del flujo
+     * (por ejemplo, crear una cohorte después de crear un curso): se muestra el mensaje y, a continuación, una alerta que
+     * pregunta si se quiere seguir; si se acepta se navega a {@code siguienteUrl}, y si no, se recarga la pantalla.
+     *
+     * @param mensaje El mensaje de éxito.
+     * @param titulo El título de la alerta del paso siguiente.
+     * @param texto El texto de la alerta del paso siguiente.
+     * @param confirmar El texto del botón que acepta seguir.
+     * @param url La dirección a la que se va si se acepta.
+     * @return Una respuesta HTTP 200 con el mensaje y los datos del paso siguiente.
+     */
+    public static ResponseEntity<Map<String, String>> respuestaExitosaConSiguiente(String mensaje, String titulo, String texto,
+            String confirmar, String url) {
+        Map<String, String> cuerpo = new LinkedHashMap<>();
+        cuerpo.put("mensaje", mensaje);
+        cuerpo.put("siguienteTitulo", titulo);
+        cuerpo.put("siguienteTexto", texto);
+        cuerpo.put("siguienteConfirmar", confirmar);
+        cuerpo.put("siguienteUrl", url);
+        return ResponseEntity.ok(cuerpo);
+    }
+
+    /**
      * Arma una respuesta HTTP 200 con datos propios de la operación (por ejemplo, el estado de un pago).
      *
      * @param datos Los datos que se devuelven, en el orden dado.

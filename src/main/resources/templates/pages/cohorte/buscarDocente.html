@@ -62,11 +62,11 @@
                                 <tbody>
                                     <tr th:each="coh : ${cohortes}" data-fila th:classappend="${coh.baja} ? 'pn-fila-baja'"
                                         th:data-o-recientes="${#temporals.format(coh.fechaInicioInscripcion, 'yyyyMMdd')}"
-                                        th:data-o-curso="${coh.programa.curso.nombre}"
+                                        th:data-o-curso="${coh.curso.nombre}"
                                         th:data-o2-curso="${#temporals.format(coh.fechaInicioInscripcion, 'yyyyMMdd')}"
                                 th:data-f-cupomaximo="${coh.cupoMaximo != null ? coh.cupoMaximo : ''}">
-                                <td><div class="pn-celda-principal pn-truncar" th:text="${coh.programa.curso.nombre}">Curso</div></td>
-                                <td><div class="pn-truncar" th:text="${coh.programa.nombre}">Programa</div></td>
+                                <td><div class="pn-celda-principal pn-truncar" th:text="${coh.curso.nombre}">Curso</div></td>
+                                <td><div class="pn-truncar" th:text="${coh.programa != null ? coh.programa.nombre : 'Sin programa'}">Programa</div></td>
                                 <td th:text="${#temporals.format(coh.fechaInicioInscripcion, 'dd/MM/yyyy')}">01/03/2026</td>
                                 <td th:text="${#temporals.format(coh.fechaFinInscripcion, 'dd/MM/yyyy')}">31/03/2026</td>
                                 <td th:text="${coh.fechaInicioDictado != null ? #temporals.format(coh.fechaInicioDictado, 'dd/MM/yyyy') : '—'}">01/04/2026</td>
@@ -75,18 +75,23 @@
                                 <td th:text="${coh.accesoDias}">12</td>
                                 <td>
                                             <span class="pn-insignia"
-                                                  th:classappend="${coh.baja} ? 'pn-insignia-gris' : (${coh.estado == 'Abierta'} ? 'pn-insignia-verde' : (${coh.estado == 'En dictado'} ? 'pn-insignia-azul' : (${coh.estado == 'Próxima'} ? 'pn-insignia-dorada' : 'pn-insignia-gris')))"
+                                                  th:classappend="${coh.baja} ? 'pn-insignia-gris' : (${coh.estado == 'Abierta'} ? 'pn-insignia-verde' : (${coh.estado == 'En dictado'} ? 'pn-insignia-azul' : (${coh.estado == 'Próxima' or coh.estado == 'Pendiente'} ? 'pn-insignia-dorada' : (${coh.estado == 'Cancelada'} ? 'pn-insignia-roja' : 'pn-insignia-gris'))))"
                                                   th:text="${coh.baja} ? 'Dada de baja' : ${coh.estado}">Abierta</span>
                                         </td>
                                 <td th:text="${#temporals.format(coh.fechaCreacion, 'dd/MM/yyyy HH:mm')}">28/08/2026 10:30</td>
                                 <td>
-                                            <div class="pn-acciones" th:if="${!coh.baja}">
-                                                <span th:if="${cohortesDeTrabajo != null and cohortesDeTrabajo.contains(coh.idCohorte)}" class="pn-insignia pn-insignia-verde">Cohorte de trabajo</span>
-                                                <form th:unless="${cohortesDeTrabajo != null and cohortesDeTrabajo.contains(coh.idCohorte)}"
-                                                      th:action="@{'/cohorte/cambiarContexto/' + ${coh.idCohorte}}" method="post" class="m-0">
-                                                    <button type="submit" class="pn-btn pn-btn-contorno pn-btn-chico"
-                                                            title="Cambiar el contexto de trabajo a esta cohorte">Trabajar en esta cohorte</button>
-                                                </form>
+                                            <div class="pn-acciones" th:if="${!coh.baja and !coh.esCancelada()}">
+                                                <button type="button" class="pn-btn pn-btn-primario pn-btn-chico" data-bs-toggle="modal"
+                                                        th:if="${!coh.tienePrograma()}"
+                                                        th:data-bs-target="'#modalAsignarPrograma' + ${coh.idCohorte}">Asignar programa</button>
+                                                <th:block th:if="${coh.tienePrograma()}">
+                                                    <span th:if="${cohortesDeTrabajo != null and cohortesDeTrabajo.contains(coh.idCohorte)}" class="pn-insignia pn-insignia-verde">Cohorte de trabajo</span>
+                                                    <form th:unless="${cohortesDeTrabajo != null and cohortesDeTrabajo.contains(coh.idCohorte)}"
+                                                          th:action="@{'/cohorte/cambiarContexto/' + ${coh.idCohorte}}" method="post" class="m-0">
+                                                        <button type="submit" class="pn-btn pn-btn-contorno pn-btn-chico"
+                                                                title="Cambiar el contexto de trabajo a esta cohorte">Trabajar en esta cohorte</button>
+                                                    </form>
+                                                </th:block>
                                             </div>
                                             <span th:if="${coh.baja}" class="pn-celda-secundaria">—</span>
                                         </td>
@@ -115,6 +120,39 @@
                 </div>
             </div>
 
+            <!-- Modales: asignar el programa a una cohorte pendiente que el administrador registró sin programa -->
+            <th:block th:each="coh : ${cohortes}" th:if="${coh.esPendiente() and !coh.tienePrograma() and !coh.baja}">
+                <div class="modal fade pn-modal" th:id="'modalAsignarPrograma' + ${coh.idCohorte}" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="pn-modal-cabecera">
+                                <h3 class="pn-modal-titulo">Asignar programa</h3>
+                                <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+                            </div>
+                            <div class="pn-modal-cuerpo">
+                                <form th:action="@{'/cohorte/asignarPrograma/' + ${coh.idCohorte}}" method="post" class="form-ajax" novalidate>
+                                    <p class="pn-celda-secundaria mb-3">
+                                        Elegí el programa de <strong th:text="${coh.curso.nombre}">Curso</strong>. La cohorte sigue pendiente hasta que el contenido del programa esté completo.
+                                    </p>
+                                    <div class="pn-campo mb-3">
+                                        <label class="pn-etiqueta">Programa <span class="pn-obligatorio">*</span></label>
+                                        <select name="programaId" class="pn-input" required data-sin-busqueda>
+                                            <option value="">Programa</option>
+                                            <option th:each="prog : ${programasDelCurso.get(coh.idCohorte)}" th:value="${prog.idPrograma}" th:text="${prog.nombre}">Programa</option>
+                                        </select>
+                                        <div class="pn-ayuda-error"></div>
+                                    </div>
+                                    <div class="pn-modal-pie">
+                                        <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+                                        <button type="submit" class="pn-btn pn-btn-primario">Asignar programa</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </th:block>
+
             <!-- Footer Oficial -->
             <div th:replace="~{fragments/footer :: footer}"></div>
 
@@ -123,6 +161,7 @@
 
     <!-- Scripts Globales y SweetAlert2 -->
     <div th:replace="~{fragments/scripts :: scripts}"></div>
+    <script th:src="@{/js/formularios.js}"></script>
     <script th:src="@{/js/panel.js}"></script>
 </body>
 </html>

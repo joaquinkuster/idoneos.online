@@ -226,7 +226,7 @@ public class Programa {
     /**
      * Indica qué le falta al programa para tener el contenido completo, que es lo que se necesita para que una cohorte
      * esté activa: el mínimo de temas con material y autoevaluación publicados, una autoevaluación visible en cada tema y
-     * la carga horaria del curso repartida por completo entre sus temas.
+     * la dedicación docente del curso repartida por completo entre sus temas.
      *
      * @param minimoTemasConMaterial El mínimo de temas con material publicado y autoevaluación que exige el sistema.
      * @return Lo que falta, uno por línea y listo para mostrar; vacío si el contenido está completo.
@@ -243,10 +243,10 @@ public class Programa {
             faltantes.add("Faltan autoevaluaciones visibles en: " + String.join(", ",
                     sinAutoevaluacion.stream().map(tema -> "«" + tema.getTitulo() + "»").toList()));
         }
-        if (!curso.estaCargaHorariaCompleta()) {
-            faltantes.add("La carga horaria de los temas ("
-                    + DuracionUtilidad.formatearMinutos(curso.getCargaHorariaRepartidaMinutos())
-                    + ") no coincide con la del curso (" + DuracionUtilidad.formatearMinutos(curso.getCargaHorariaMinutos()) + ")");
+        if (!curso.estaDedicacionDocenteCompleta()) {
+            faltantes.add("La dedicación docente repartida entre los temas ("
+                    + DuracionUtilidad.formatearMinutos(curso.getDedicacionDocenteRepartidaMinutos())
+                    + ") no coincide con la del curso (" + DuracionUtilidad.formatearMinutos(curso.getDedicacionDocenteMinutos()) + ")");
         }
         return faltantes;
     }
@@ -271,22 +271,23 @@ public class Programa {
                 .mapToInt(TemaCronograma::getDuracionDias).sum();
     }
 
+    /** Cantidad máxima de columnas con las que se dibuja el cronograma en un espacio sin barra de desplazamiento. */
+    public static final int COLUMNAS_MAXIMAS_DEL_CRONOGRAMA = 20;
+
     /**
-     * Calcula cuántos días representa cada columna al dibujar el cronograma: el mes (30 días) o la semana (7 días) si
-     * todos los temas duran un múltiplo exacto de esa unidad, o el día en cualquier otro caso. Así las barras ocupan
-     * columnas completas y la grilla no se ensancha de más.
+     * Calcula cuántos días representa cada columna al dibujar el cronograma en un espacio sin desplazamiento: la escala
+     * más fina (día, semana o mes) con la que la duración total no pasa de {@value #COLUMNAS_MAXIMAS_DEL_CRONOGRAMA}
+     * columnas. Un tema que no dura una cantidad exacta de columnas ocupa la columna parcial completa.
      *
-     * @return 30, 7 o 1.
+     * @return 1, 7 o 30.
      */
     public int getPasoCronograma() {
-        int comun = 0;
-        for (TemaCronograma cronograma : getCronogramaOrdenado()) {
-            comun = mcd(comun, cronograma.getDuracionDias());
+        int total = getDuracionTotalDias();
+        if (total <= COLUMNAS_MAXIMAS_DEL_CRONOGRAMA) {
+            return 1;
         }
-        if (comun > 0 && comun % DuracionUtilidad.DIAS_POR_MES == 0) {
-            return DuracionUtilidad.DIAS_POR_MES;
-        }
-        return comun > 0 && comun % DuracionUtilidad.DIAS_POR_SEMANA == 0 ? DuracionUtilidad.DIAS_POR_SEMANA : 1;
+        return total <= COLUMNAS_MAXIMAS_DEL_CRONOGRAMA * DuracionUtilidad.DIAS_POR_SEMANA
+                ? DuracionUtilidad.DIAS_POR_SEMANA : DuracionUtilidad.DIAS_POR_MES;
     }
 
     /**
@@ -310,10 +311,6 @@ public class Programa {
     public int getColumnasCronograma() {
         int paso = getPasoCronograma();
         return (getDuracionTotalDias() + paso - 1) / paso;
-    }
-
-    private static int mcd(int a, int b) {
-        return b == 0 ? a : mcd(b, a % b);
     }
 
     /**

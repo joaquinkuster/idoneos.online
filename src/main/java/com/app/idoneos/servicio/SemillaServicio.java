@@ -83,7 +83,7 @@ import com.app.idoneos.repositorio.PreguntaIntentoRepositorio;
 import com.app.idoneos.repositorio.PreguntaRepositorio;
 import com.app.idoneos.repositorio.RespuestaIntentoRepositorio;
 import com.app.idoneos.servicio.Parametro.ParametroServicio;
-import com.app.idoneos.servicio.Tema.CargaHorariaTemas;
+import com.app.idoneos.servicio.Tema.DedicacionDocenteTemas;
 import com.app.idoneos.repositorio.DocenteCursoRepositorio;
 import com.app.idoneos.repositorio.ProgramaRepositorio;
 import com.app.idoneos.repositorio.ProgresoRepositorio;
@@ -105,8 +105,11 @@ import com.app.idoneos.repositorio.UsuarioRepositorio;
 @Service
 public class SemillaServicio {
 
-    /** Carga horaria de los cursos de prueba: 20 horas. */
-    private static final int CARGA_HORARIA_SEMILLA_MINUTOS = 1200;
+    /** Carga horaria de los cursos de prueba para el alumno: 10 horas. */
+    private static final int CARGA_HORARIA_SEMILLA_MINUTOS = 600;
+
+    /** Dedicación docente de los cursos de prueba: 20 horas. */
+    private static final int DEDICACION_DOCENTE_SEMILLA_MINUTOS = 1200;
 
     /** Duración máxima de los cursos de prueba: un año. */
     private static final int DURACION_MAXIMA_SEMILLA_DIAS = 365;
@@ -189,7 +192,7 @@ public class SemillaServicio {
     private TemaRepositorio temaRepositorio;
 
     @Autowired
-    private CargaHorariaTemas cargaHorariaTemas;
+    private DedicacionDocenteTemas dedicacionDocenteTemas;
 
     @Autowired
     private TemaCronogramaRepositorio temaCronogramaRepositorio;
@@ -294,6 +297,10 @@ public class SemillaServicio {
         Usuario usuarioAdmin = crearUsuario("Admin", "Idóneos", "20111222", correoAdmin, "+54 376 4000000", rolAdministrador);
         Administrador admin = administradorRepositorio.save(new Administrador(usuarioAdmin));
         parametroRepositorio.save(new Parametro(admin, Parametro.MINIMO_TEMAS_CON_MATERIAL, "2"));
+        parametroRepositorio.save(new Parametro(admin, Parametro.COHORTE_PLAZO_MINIMO_CONTENIDO_DIAS,
+                String.valueOf(Parametro.COHORTE_PLAZO_MINIMO_CONTENIDO_DIAS_POR_DEFECTO)));
+        parametroRepositorio.save(new Parametro(admin, Parametro.CRONOGRAMA_DIAS_POR_TEMA_NUEVO,
+                String.valueOf(Parametro.CRONOGRAMA_DIAS_POR_TEMA_NUEVO_POR_DEFECTO)));
         parametroRepositorio.save(new Parametro(admin, Parametro.CRONOGRAMA_DIAS_MAXIMOS,
                 String.valueOf(Parametro.CRONOGRAMA_DIAS_MAXIMOS_POR_DEFECTO)));
         parametroRepositorio.save(new Parametro(admin, Parametro.PLAZO_CONFIRMACION_PAGO,
@@ -527,6 +534,12 @@ public class SemillaServicio {
         agregarEvaluacionBasica(agregarTema(programa5, curso5, 2, 3, "Indicadores y osciladores",
                 "Medias móviles, RSI y MACD.", titular5, presentacion), 2, ahora);
         crearCohorte(programa5, ahora.plusDays(15), ahora.plusDays(45), ahora.plusDays(50), ahora.plusDays(100), 10, null);
+        // Cohorte pendiente, registrada por el administrador sin programa: el docente todavía tiene que elegir uno
+        crearCohorteConEstado(curso5, null, ahora.plusDays(30), ahora.plusDays(60), ahora.plusDays(65), ahora.plusDays(120), 10,
+                null, EstadoCohorte.PENDIENTE);
+        // Cohorte cancelada: llegó la fecha de inicio de la inscripción y el contenido no estaba completo
+        crearCohorteConEstado(curso5, programa5, ahora.minusDays(3), ahora.plusDays(25), ahora.plusDays(30), ahora.plusDays(80), 10,
+                null, EstadoCohorte.CANCELADA);
         // Cohorte en su semana 6 de 6 con Valentina sin completar ningún tema: va atrasada (la primera terminaba en la semana 3)
         Cohorte enDictado5 = crearCohorte(programa5, ahora.minusDays(70), ahora.minusDays(45), ahora.minusDays(40),
                 ahora.plusDays(2), 8, 20);
@@ -714,7 +727,7 @@ public class SemillaServicio {
     private DocenteCurso crearCurso(String nombre, String descripcion, float precio, String imagen,
             Categoria categoria, Nivel nivel, boolean emiteCertificado, List<Modalidad> modalidades,
             Docente titular, List<Docente> ayudantes) {
-        Curso curso = new Curso(nivel, categoria, nombre, precio, CARGA_HORARIA_SEMILLA_MINUTOS, DURACION_MAXIMA_SEMILLA_DIAS);
+        Curso curso = new Curso(nivel, categoria, nombre, precio, CARGA_HORARIA_SEMILLA_MINUTOS, DEDICACION_DOCENTE_SEMILLA_MINUTOS, DURACION_MAXIMA_SEMILLA_DIAS);
         curso.setDescripcion(descripcion);
         curso.setImagen(imagen);
         curso.setEmiteCertificado(emiteCertificado);
@@ -742,7 +755,7 @@ public class SemillaServicio {
             String descripcion, DocenteCurso autorMaterial, TipoMaterial tipoMaterial) {
         Tema tema = new Tema(curso, titulo, "Contenido del tema: " + titulo + ". " + descripcion);
         tema.setDescripcion(descripcion);
-        cargaHorariaTemas.asignarATemaNuevo(curso, tema, null); // la carga horaria del curso se reparte entre sus temas
+        dedicacionDocenteTemas.asignarATemaNuevo(curso, tema, null); // la dedicación docente del curso se reparte entre sus temas
         tema = temaRepositorio.save(tema);
         // La semilla describe los temas en semanas; el cronograma se guarda en días
         temaCronogramaRepositorio.save(new TemaCronograma(programa, tema, numeroOrden, semanas * DuracionUtilidad.DIAS_POR_SEMANA));
@@ -756,11 +769,19 @@ public class SemillaServicio {
 
     private Cohorte crearCohorte(Programa programa, LocalDateTime inicioInscripcion, LocalDateTime finInscripcion,
             LocalDateTime inicioDictado, LocalDateTime finDictado, int semanasAcceso, Integer cupoMaximo) {
-        Cohorte cohorte = new Cohorte(programa, inicioInscripcion, finInscripcion, semanasAcceso * DuracionUtilidad.DIAS_POR_SEMANA);
+        return crearCohorteConEstado(programa.getCurso(), programa, inicioInscripcion, finInscripcion, inicioDictado, finDictado,
+                semanasAcceso, cupoMaximo, EstadoCohorte.ACTIVA);
+    }
+
+    private Cohorte crearCohorteConEstado(Curso curso, Programa programa, LocalDateTime inicioInscripcion,
+            LocalDateTime finInscripcion, LocalDateTime inicioDictado, LocalDateTime finDictado, int semanasAcceso,
+            Integer cupoMaximo, String estado) {
+        Cohorte cohorte = new Cohorte(curso, programa, inicioInscripcion, finInscripcion,
+                semanasAcceso * DuracionUtilidad.DIAS_POR_SEMANA);
         cohorte.setFechaInicioDictado(inicioDictado);
         cohorte.setFechaFinDictado(finDictado);
         cohorte.setCupoMaximo(cupoMaximo);
-        cohorte.setEstadoCohorte(estadoCohorteRepositorio.findByNombre(EstadoCohorte.ACTIVA).orElseThrow());
+        cohorte.setEstadoCohorte(estadoCohorteRepositorio.findByNombre(estado).orElseThrow());
         return cohorteRepositorio.save(cohorte);
     }
 

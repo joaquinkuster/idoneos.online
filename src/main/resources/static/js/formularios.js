@@ -65,6 +65,11 @@
 
             if (respuesta.ok && datos.mensaje) {
                 await window.mostrarExito(datos.mensaje);
+                if (datos.siguienteUrl && window.preguntarSiguientePaso
+                        && await window.preguntarSiguientePaso(datos.siguienteTitulo, datos.siguienteTexto, datos.siguienteConfirmar)) {
+                    window.location.href = datos.siguienteUrl;
+                    return;
+                }
                 if (datos.destino) {
                     window.location.href = datos.destino;
                 } else {

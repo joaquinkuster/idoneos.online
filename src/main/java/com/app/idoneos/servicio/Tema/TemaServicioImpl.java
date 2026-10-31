@@ -10,7 +10,10 @@ import com.app.idoneos.modelo.Curso;
 import com.app.idoneos.modelo.Alumno;
 import com.app.idoneos.modelo.Curso;
 import com.app.idoneos.modelo.Docente;
+import com.app.idoneos.modelo.Cohorte;
+import com.app.idoneos.modelo.Parametro;
 import com.app.idoneos.modelo.Programa;
+import com.app.idoneos.servicio.Parametro.ParametroServicio;
 import com.app.idoneos.modelo.Tema;
 import com.app.idoneos.modelo.TemaCronograma;
 import com.app.idoneos.modelo.Usuario;
@@ -53,7 +56,10 @@ public class TemaServicioImpl implements TemaServicio, CrudServicio<Tema> {
     private TemaCronogramaRepositorio temaCronogramaRepositorio;
 
     @Autowired
-    private CargaHorariaTemas cargaHoraria;
+    private DedicacionDocenteTemas dedicacionDocente;
+
+    @Autowired
+    private ParametroServicio parametroServicio;
 
     // ---------------------------------------------------------------- Lecturas
 
@@ -154,21 +160,34 @@ public class TemaServicioImpl implements TemaServicio, CrudServicio<Tema> {
     }
 
     /**
-     * CU-20: Agrega un tema al cronograma de un programa, con los minutos de carga horaria indicados.
+     * CU-20: Agrega un tema al cronograma de un programa, con los minutos de dedicación docente indicados.
      */
     @Override
     @Transactional
     public Tema agregarTema(Docente docente, Integer programaId, Integer temaExistenteId, String titulo,
-            String descripcion, String contenido, Integer cargaHorariaMinutos) {
+            String descripcion, String contenido, Integer dedicacionDocenteMinutos) {
+        return agregarTema(docente, programaId, temaExistenteId, titulo, descripcion, contenido, dedicacionDocenteMinutos, null);
+    }
+
+    /**
+     * CU-20: Agrega un tema al cronograma de un programa, con los minutos de dedicación docente y los días de duración
+     * indicados.
+     */
+    @Override
+    @Transactional
+    public Tema agregarTema(Docente docente, Integer programaId, Integer temaExistenteId, String titulo,
+            String descripcion, String contenido, Integer dedicacionDocenteMinutos, Integer duracionDias) {
         Programa programa = buscarProgramaActivo(programaId);
         Curso curso = programa.getCurso();
         obtenerParticipacion(curso, docente);
-        // El tema entra con una semana, o con los días que queden hasta la duración máxima del curso
+        // Sin duración indicada, el tema entra con la del parámetro o con los días que queden hasta la duración máxima
         int restante = curso.getDuracionMaximaDias() - programa.getDuracionTotalDias();
         if (restante <= 0) {
-            throw new IllegalArgumentException("Error! El cronograma ya alcanzó la duración máxima del curso ("
-                    + DuracionUtilidad.formatear(curso.getDuracionMaximaDias()) + "): no se pueden agregar más temas.");
+            throw RespuestaFormularioUtilidad.campoInvalido("duracion", "Error! La duración del cronograma ya alcanzó la duración "
+                    + "máxima del curso. Para disponer de más tiempo, modificá el cronograma o comunicate con un administrador para que extienda la duración máxima.");
         }
+        int duracion = duracionDias != null ? duracionDias : Math.min(diasPorTemaNuevo(), restante);
+        validarDuracion(programa, duracion, 0);
 
         Tema tema;
         if (temaExistenteId != null) {
@@ -188,13 +207,13 @@ public class TemaServicioImpl implements TemaServicio, CrudServicio<Tema> {
             validarTituloLibre(curso, tituloLimpio, null);
             tema = new Tema(curso, tituloLimpio, contenido.trim());
             tema.setDescripcion(validarDescripcion(descripcion));
-            cargaHoraria.asignarATemaNuevo(curso, tema, cargaHorariaMinutos);
+            dedicacionDocente.asignarATemaNuevo(curso, tema, dedicacionDocenteMinutos);
             tema = temaRepositorio.save(tema);
         }
         int orden = programa.getTemasCronograma().stream().mapToInt(TemaCronograma::getNumeroOrden).max().orElse(0)
                 + 1;
         TemaCronograma cronograma = temaCronogramaRepositorio
-                .save(new TemaCronograma(programa, tema, orden, Math.min(DuracionUtilidad.DIAS_POR_SEMANA, restante)));
+                .save(new TemaCronograma(programa, tema, orden, duracion));
         programa.getTemasCronograma().add(cronograma);
         tema.getTemasCronograma().add(cronograma);
         return tema;
@@ -223,12 +242,12 @@ public class TemaServicioImpl implements TemaServicio, CrudServicio<Tema> {
     }
 
     /**
-     * CU-21: Modifica un tema sin inscripciones activas asociadas, incluidos sus minutos de carga horaria.
+     * CU-21: Modifica un tema sin inscripciones activas asociadas, incluidos sus minutos de dedicación docente.
      */
     @Override
     @Transactional
     public Tema modificarTema(Integer id, Docente docente, String titulo, String descripcion, String contenido,
-            Integer cargaHorariaMinutos) {
+            Integer dedicacionDocenteMinutos) {
         Tema tema = temaRepositorio.findById(id == null ? -1 : id).filter(u -> !u.esInactivo())
                 .orElseThrow(() -> new IllegalArgumentException("Error! El tema no se encuentra activa."));
         obtenerParticipacion(tema.getCurso(), docente);
@@ -241,11 +260,74 @@ public class TemaServicioImpl implements TemaServicio, CrudServicio<Tema> {
         tema.setTitulo(tituloLimpio);
         tema.setDescripcion(validarDescripcion(descripcion));
         tema.setContenido(contenido.trim());
-        if (cargaHorariaMinutos != null && cargaHorariaMinutos != tema.getCargaHorariaMinutos()) {
-            cargaHoraria.cambiarCargaDeTema(tema, cargaHorariaMinutos);
+        if (dedicacionDocenteMinutos != null && dedicacionDocenteMinutos != tema.getDedicacionDocenteMinutos()) {
+            dedicacionDocente.cambiarDedicacionDeTema(tema, dedicacionDocenteMinutos);
         }
         tema.setUltimaModificacion(LocalDateTime.now());
         return temaRepositorio.save(tema);
+    }
+
+    /**
+     * CU-21: Modifica un tema sin inscripciones activas asociadas, incluidos sus minutos de dedicación docente y sus días de
+     * duración en el cronograma de un programa.
+     */
+    @Override
+    @Transactional
+    public Tema modificarTema(Integer id, Integer programaId, Docente docente, String titulo, String descripcion,
+            String contenido, Integer dedicacionDocenteMinutos, Integer duracionDias) {
+        Programa programa = buscarProgramaActivo(programaId);
+        Tema tema = modificarTema(id, docente, titulo, descripcion, contenido, dedicacionDocenteMinutos);
+        TemaCronograma cronograma = programa.getTemasCronograma().stream()
+                .filter(c -> !c.getBaja() && c.getTema().getIdTema() == tema.getIdTema()).findFirst()
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Error! El tema '" + tema.getTitulo() + "' no pertenece al cronograma de este programa."));
+        if (duracionDias != null && duracionDias != cronograma.getDuracionDias()) {
+            validarDuracion(programa, duracionDias, cronograma.getDuracionDias());
+            LocalDateTime ahora = LocalDateTime.now();
+            cronograma.setDuracionDias(duracionDias);
+            cronograma.setUltimaModificacion(ahora);
+            temaCronogramaRepositorio.save(cronograma);
+            programa.setUltimaModificacion(ahora);
+            programaRepositorio.save(programa);
+        }
+        return tema;
+    }
+
+    /** Días que ocupa un tema nuevo en el cronograma cuando no se indica otra duración (parámetro del sistema). */
+    private int diasPorTemaNuevo() {
+        return Math.max(1, parametroServicio.obtenerEntero(Parametro.CRONOGRAMA_DIAS_POR_TEMA_NUEVO,
+                Parametro.CRONOGRAMA_DIAS_POR_TEMA_NUEVO_POR_DEFECTO));
+    }
+
+    /**
+     * Verifica que la duración de un tema sea válida: un entero mayor a cero que no deje el cronograma por encima de la
+     * duración máxima del curso (ni del máximo del sistema) ni de los días de acceso de una cohorte del programa.
+     *
+     * @param programa El programa del cronograma.
+     * @param duracion La duración que se quiere para el tema, en días.
+     * @param actual   La duración que el tema ya tiene en el cronograma, o 0 si se está agregando.
+     */
+    private void validarDuracion(Programa programa, int duracion, int actual) {
+        if (duracion <= 0) {
+            throw RespuestaFormularioUtilidad.campoInvalido("duracion",
+                    MensajeErrorUtilidad.formatoInvalido("La duración en el cronograma", "número entero mayor a cero"));
+        }
+        int maximo = Math.min(programa.getCurso().getDuracionMaximaDias(), parametroServicio.obtenerEntero(
+                Parametro.CRONOGRAMA_DIAS_MAXIMOS, Parametro.CRONOGRAMA_DIAS_MAXIMOS_POR_DEFECTO));
+        int sinElTema = programa.getDuracionTotalDias() - actual;
+        if (sinElTema + duracion > maximo) {
+            throw RespuestaFormularioUtilidad.campoInvalido("duracion", "Error! La duración en el cronograma supera lo que queda: "
+                    + "el tema puede durar hasta " + DuracionUtilidad.formatear(Math.max(0, maximo - sinElTema))
+                    + ", porque la duración máxima del curso es de " + DuracionUtilidad.formatear(maximo) + ".");
+        }
+        int total = sinElTema + duracion;
+        for (Cohorte cohorte : programa.getCohortesActivas()) {
+            if (cohorte.getAccesoDias() < total) {
+                throw RespuestaFormularioUtilidad.campoInvalido("duracion", "Error! La duración en el cronograma deja el programa en "
+                        + DuracionUtilidad.formatear(total) + ", más que los " + DuracionUtilidad.formatear(cohorte.getAccesoDias())
+                        + " de acceso de la cohorte «" + cohorte.getEtiqueta() + "». Modificá la cohorte o acortá la duración.");
+            }
+        }
     }
 
     // ---------------------------------------------------------------- Bajas
@@ -359,9 +441,9 @@ public class TemaServicioImpl implements TemaServicio, CrudServicio<Tema> {
                 hayBajas = true;
             }
         }
-        // La carga horaria de los temas dados de baja se vuelve a repartir entre los que quedan
+        // La dedicación docente de los temas dados de baja se vuelve a repartir entre los que quedan
         if (hayBajas) {
-            cargaHoraria.redistribuir(programa.getCurso());
+            dedicacionDocente.redistribuir(programa.getCurso());
         }
     }
 

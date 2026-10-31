@@ -77,6 +77,10 @@ DROP TRIGGER IF EXISTS trg_docente_curso_curso_activo ON docente_curso ^^^
 CREATE TRIGGER trg_docente_curso_curso_activo BEFORE INSERT OR UPDATE OF id_curso, baja ON docente_curso
     FOR EACH ROW WHEN (NEW.baja = false) EXECUTE FUNCTION fn_padre_activo('id_curso', 'curso', 'id_curso') ^^^
 
+DROP TRIGGER IF EXISTS trg_cohorte_curso_activo ON cohorte ^^^
+CREATE TRIGGER trg_cohorte_curso_activo BEFORE INSERT OR UPDATE OF id_curso, baja ON cohorte
+    FOR EACH ROW WHEN (NEW.baja = false) EXECUTE FUNCTION fn_padre_activo('id_curso', 'curso', 'id_curso') ^^^
+
 DROP TRIGGER IF EXISTS trg_cohorte_programa_activo ON cohorte ^^^
 CREATE TRIGGER trg_cohorte_programa_activo BEFORE INSERT OR UPDATE OF id_programa, baja ON cohorte
     FOR EACH ROW WHEN (NEW.baja = false) EXECUTE FUNCTION fn_padre_activo('id_programa', 'programa', 'id_programa') ^^^

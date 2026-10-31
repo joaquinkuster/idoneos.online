@@ -179,7 +179,8 @@ public interface CursoServicio {
      * @param nombre el nombre del curso
      * @param descripcion la descripción del curso (opcional)
      * @param precio el precio del curso
-     * @param cargaHorariaMinutos la carga horaria total del curso, en minutos
+     * @param cargaHorariaMinutos la carga horaria del curso para el alumno, en minutos
+     * @param dedicacionDocenteMinutos la dedicación docente total del curso, en minutos
      * @param duracionMaximaDias la duración máxima del curso, en días
      * @param imagen la ruta de la imagen de portada (opcional)
      * @param idCategoria el identificador de la categoría
@@ -192,7 +193,7 @@ public interface CursoServicio {
      * @throws IllegalArgumentException si no se cumple alguna regla de registro
      */
     Curso registrarCurso(String nombre, String descripcion, Float precio, Integer cargaHorariaMinutos,
-            Integer duracionMaximaDias, String imagen, Integer idCategoria,
+            Integer dedicacionDocenteMinutos, Integer duracionMaximaDias, String imagen, Integer idCategoria,
             Integer idNivel, boolean emiteCertificado, List<Integer> idsModalidades, Integer idDocenteTitular,
             List<Integer> idsDocentesAyudantes);
 
@@ -206,7 +207,8 @@ public interface CursoServicio {
      * @param nombre el nombre del curso
      * @param descripcion la descripción del curso (opcional)
      * @param precio el precio del curso
-     * @param cargaHorariaMinutos la carga horaria total del curso, en minutos
+     * @param cargaHorariaMinutos la carga horaria del curso para el alumno, en minutos
+     * @param dedicacionDocenteMinutos la dedicación docente total del curso, en minutos
      * @param duracionMaximaDias la duración máxima del curso, en días
      * @param imagen la ruta de la imagen de portada (opcional, si es nula se conserva la actual)
      * @param idCategoria el identificador de la categoría
@@ -219,7 +221,7 @@ public interface CursoServicio {
      * @throws IllegalArgumentException si no se cumple alguna regla de modificación
      */
     Curso modificarCurso(Integer idCurso, String nombre, String descripcion, Float precio,
-            Integer cargaHorariaMinutos, Integer duracionMaximaDias, String imagen,
+            Integer cargaHorariaMinutos, Integer dedicacionDocenteMinutos, Integer duracionMaximaDias, String imagen,
             Integer idCategoria, Integer idNivel, boolean emiteCertificado, List<Integer> idsModalidades,
             Integer idDocenteTitular, List<Integer> idsDocentesAyudantes);
 

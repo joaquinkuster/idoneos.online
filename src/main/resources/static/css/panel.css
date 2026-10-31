@@ -1172,6 +1172,46 @@ textarea.pn-input {
     display: none;
 }
 
+/* Tiempo escrito en partes (horas y minutos, o meses, semanas y días): una casilla por parte y el total debajo */
+.pn-tiempo-total {
+    display: none;
+}
+
+.pn-tiempo-fila {
+    display: flex;
+    gap: 10px;
+}
+
+/* Cada casilla lleva su unidad arriba, a la izquierda, y todas se reparten el ancho de la columna */
+.pn-tiempo-parte {
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+}
+
+.pn-tiempo-parte span {
+    margin-bottom: 4px;
+    font-size: 12px;
+    color: var(--pn-texto-suave);
+}
+
+.pn-tiempo-parte input {
+    width: 100%;
+}
+
+.pn-tiempo-eq {
+    margin: 6px 0 0;
+    font-size: 12px;
+    color: var(--pn-texto-suave);
+}
+
+.pn-tiempo-eq b {
+    font-weight: 600;
+    color: var(--pn-texto, inherit);
+}
+
 .pn-aviso {
     border-radius: 10px;
     padding: 10px 14px;
@@ -1187,6 +1227,11 @@ textarea.pn-input {
 .pn-aviso-azul {
     background: #DBEAFE;
     color: #1E40AF;
+}
+
+.pn-aviso-rojo {
+    background: #FEE2E2;
+    color: #991B1B;
 }
 
 /* Los selectores múltiples (Tom Select) se ven como el resto de los campos */
@@ -1736,6 +1781,15 @@ textarea.pn-input {
 /* El aviso desplegable dentro de una fila de formulario no deja el espacio entre columnas mientras está cerrado */
 .row > .ayuda-desplegable {
     margin-top: 0;
+}
+
+/* Cerrado, tampoco deja el espacio inferior que la grilla (.g-3) le da a cada columna; abierto, sí */
+.row.g-3 > .ayuda-desplegable {
+    padding-bottom: 0;
+}
+
+.row.g-3 > .ayuda-desplegable.abierto {
+    padding-bottom: 18px;
 }
 
 /* Filtros por rango (desde / hasta) y botón de columnas en el encabezado */

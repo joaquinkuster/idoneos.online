@@ -103,6 +103,78 @@ class TemaServicioTest {
     // ------------------------------------------------------------------ CU-20 Agregar tema
 
     @Test
+    @DisplayName("CU-20: al agregar un tema se puede indicar cuántos días dura en el cronograma")
+    void agregaTemaConDuracion() {
+        Programa programa = macro().getProgramaVigente();
+        int dias = programa.getDuracionTotalDias();
+
+        Tema nueva = temaServicio.agregarTema(fausto(), programa.getIdPrograma(), null, "Tema con duración", null,
+                "Contenido", null, 14);
+
+        TemaCronograma ultima = programa.getCronogramaOrdenado().get(programa.getCantidadTemas() - 1);
+        assertEquals(nueva.getIdTema(), ultima.getTema().getIdTema());
+        assertEquals(14, ultima.getDuracionDias());
+        assertEquals(dias + 14, programa.getDuracionTotalDias());
+    }
+
+    @Test
+    @DisplayName("CU-20: la duración del tema debe ser mayor a cero y entrar en la duración máxima del curso y en los días de acceso")
+    void validaLaDuracionAlAgregar() {
+        Programa programa = macro().getProgramaVigente();
+        int id = programa.getIdPrograma();
+
+        assertTrue(mensaje(() -> temaServicio.agregarTema(fausto(), id, null, "Tema uno", null, "Contenido", null, 0))
+                .contains("La duración en el cronograma no es válida"));
+
+        // la cohorte del programa tiene menos días de acceso que el cronograma con esta duración
+        int acceso = programa.getCohortesActivas().get(0).getAccesoDias();
+        int demasiado = acceso - programa.getDuracionTotalDias() + 1;
+        assertTrue(mensaje(() -> temaServicio.agregarTema(fausto(), id, null, "Tema dos", null, "Contenido", null, demasiado))
+                .contains("de acceso de la cohorte"));
+
+        // la duración máxima del curso deja menos días que los pedidos
+        programa.getCurso().setDuracionMaximaDias(programa.getDuracionTotalDias() + 5);
+        assertTrue(mensaje(() -> temaServicio.agregarTema(fausto(), id, null, "Tema tres", null, "Contenido", null, 6))
+                .contains("puede durar hasta 5 días"));
+        assertNotNull(temaServicio.agregarTema(fausto(), id, null, "Tema cuatro", null, "Contenido", null, 5));
+    }
+
+    @Test
+    @DisplayName("CU-20: con el cronograma lleno no se agregan más temas y el error indica cómo conseguir más tiempo")
+    void noAgregaConElCronogramaLleno() {
+        Programa programa = macro().getProgramaVigente();
+        programa.getCurso().setDuracionMaximaDias(programa.getDuracionTotalDias());
+
+        IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
+                () -> agregar(programa, "Sin lugar"));
+
+        assertTrue(error.getMessage().startsWith("Error! La duración del cronograma ya alcanzó la duración máxima del curso."));
+        assertTrue(error.getMessage().contains("modificá el cronograma o comunicate con un administrador"));
+    }
+
+    @Test
+    @DisplayName("CU-21: se puede cambiar la duración de un tema en el cronograma de un programa")
+    void modificaLaDuracion() {
+        Programa programa = macro().getProgramaVigente();
+        TemaCronograma primero = programa.getCronogramaOrdenado().get(0);
+        Tema tema = primero.getTema();
+        int total = programa.getDuracionTotalDias();
+        int nueva = primero.getDuracionDias() + 7;
+
+        temaServicio.modificarTema(tema.getIdTema(), programa.getIdPrograma(), fausto(), tema.getTitulo(),
+                tema.getDescripcion(), tema.getContenido(), null, nueva);
+
+        assertEquals(nueva, primero.getDuracionDias());
+        assertEquals(total + 7, programa.getDuracionTotalDias());
+        assertTrue(mensaje(() -> temaServicio.modificarTema(tema.getIdTema(), programa.getIdPrograma(), fausto(),
+                tema.getTitulo(), tema.getDescripcion(), tema.getContenido(), null, 0)).contains("La duración en el cronograma no es válida"));
+        // un tema que no está en el cronograma de ese programa no se puede modificar desde él
+        Tema ajeno = mercado().getProgramaVigente().getCronogramaOrdenado().get(0).getTema();
+        assertTrue(mensaje(() -> temaServicio.modificarTema(ajeno.getIdTema(), programa.getIdPrograma(), fausto(),
+                ajeno.getTitulo(), ajeno.getDescripcion(), ajeno.getContenido(), null, 7)).length() > 0);
+    }
+
+    @Test
     @DisplayName("CU-20: un tema nueva queda al final del cronograma con una semana de duración")
     void agregaTemaNueva() {
         Programa programa = macro().getProgramaVigente();
@@ -306,51 +378,51 @@ class TemaServicioTest {
         assertTrue(dos.getBaja());
     }
 
-    // ------------------------------------------------------------------ Carga horaria de los temas
+    // ------------------------------------------------------------------ Dedicación docente de los temas
 
     /** Suma los minutos de los temas vigentes de un curso. */
-    private int cargaRepartida(Curso curso) {
-        return temaServicio.buscarPorCurso(curso).stream().mapToInt(Tema::getCargaHorariaMinutos).sum();
+    private int dedicacionRepartida(Curso curso) {
+        return temaServicio.buscarPorCurso(curso).stream().mapToInt(Tema::getDedicacionDocenteMinutos).sum();
     }
 
     @Test
-    @DisplayName("La carga horaria del curso siempre está repartida por completo entre sus temas")
-    void cargaHorariaRepartidaPorCompleto() {
+    @DisplayName("La dedicación docente del curso siempre está repartida por completo entre sus temas")
+    void dedicacionDocenteRepartidaPorCompleto() {
         Programa programa = macro().getProgramaVigente();
         Curso curso = programa.getCurso();
-        assertEquals(curso.getCargaHorariaMinutos(), cargaRepartida(curso));
+        assertEquals(curso.getDedicacionDocenteMinutos(), dedicacionRepartida(curso));
         int temas = temaServicio.buscarPorCurso(curso).size();
 
         Tema nueva = agregar(programa, "Tema parejo");
 
         // el tema nuevo entra con una parte pareja y los demás se reajustan en proporción
-        assertEquals(curso.getCargaHorariaMinutos() / (temas + 1), nueva.getCargaHorariaMinutos());
-        assertEquals(curso.getCargaHorariaMinutos(), cargaRepartida(curso));
+        assertEquals(curso.getDedicacionDocenteMinutos() / (temas + 1), nueva.getDedicacionDocenteMinutos());
+        assertEquals(curso.getDedicacionDocenteMinutos(), dedicacionRepartida(curso));
     }
 
     @Test
-    @DisplayName("Al agregar un tema se puede indicar su carga horaria y los demás absorben la diferencia")
-    void agregaConCargaHorariaIndicada() {
+    @DisplayName("Al agregar un tema se puede indicar su dedicación docente y los demás absorben la diferencia")
+    void agregaConDedicacionDocenteIndicada() {
         Programa programa = macro().getProgramaVigente();
         Curso curso = programa.getCurso();
 
         Tema nueva = temaServicio.agregarTema(fausto(), programa.getIdPrograma(), null, "Tema con carga", null,
                 "Contenido", 90);
 
-        assertEquals(90, nueva.getCargaHorariaMinutos());
-        assertEquals(curso.getCargaHorariaMinutos(), cargaRepartida(curso));
+        assertEquals(90, nueva.getDedicacionDocenteMinutos());
+        assertEquals(curso.getDedicacionDocenteMinutos(), dedicacionRepartida(curso));
         // la carga pedida debe dejar al menos un minuto a cada otro tema
         int otros = temaServicio.buscarPorCurso(curso).size() - 1;
-        int maxima = curso.getCargaHorariaMinutos() - otros;
+        int maxima = curso.getDedicacionDocenteMinutos() - otros;
         assertTrue(mensaje(() -> temaServicio.agregarTema(fausto(), programa.getIdPrograma(), null, "Otro tema", null,
-                "Contenido", maxima + 1)).contains("La carga horaria no es válida"));
+                "Contenido", maxima + 1)).contains("La dedicación docente no es válida"));
         assertTrue(mensaje(() -> temaServicio.agregarTema(fausto(), programa.getIdPrograma(), null, "Otro tema", null,
-                "Contenido", 0)).contains("La carga horaria no es válida"));
+                "Contenido", 0)).contains("La dedicación docente no es válida"));
     }
 
     @Test
-    @DisplayName("Al modificar la carga horaria de un tema, los demás se reajustan y la suma no cambia")
-    void modificaLaCargaHoraria() {
+    @DisplayName("Al modificar la dedicación docente de un tema, los demás se reajustan y la suma no cambia")
+    void modificaLaDedicacionDocente() {
         Programa programa = macro().getProgramaVigente();
         Curso curso = programa.getCurso();
         Tema tema = programa.getCronogramaOrdenado().get(0).getTema();
@@ -358,38 +430,38 @@ class TemaServicioTest {
         Tema modificado = temaServicio.modificarTema(tema.getIdTema(), fausto(), tema.getTitulo(), tema.getDescripcion(),
                 tema.getContenido(), 600);
 
-        assertEquals(600, modificado.getCargaHorariaMinutos());
-        assertEquals(curso.getCargaHorariaMinutos(), cargaRepartida(curso));
+        assertEquals(600, modificado.getDedicacionDocenteMinutos());
+        assertEquals(curso.getDedicacionDocenteMinutos(), dedicacionRepartida(curso));
         // con un solo tema que se pueda ajustar, no hay de dónde sacar la diferencia
-        int maxima = curso.getCargaHorariaMinutos() - (temaServicio.buscarPorCurso(curso).size() - 1);
+        int maxima = curso.getDedicacionDocenteMinutos() - (temaServicio.buscarPorCurso(curso).size() - 1);
         assertTrue(mensaje(() -> temaServicio.modificarTema(tema.getIdTema(), fausto(), tema.getTitulo(),
-                tema.getDescripcion(), tema.getContenido(), maxima + 1)).contains("La carga horaria no es válida"));
-        assertEquals(600, tema.getCargaHorariaMinutos());
+                tema.getDescripcion(), tema.getContenido(), maxima + 1)).contains("La dedicación docente no es válida"));
+        assertEquals(600, tema.getDedicacionDocenteMinutos());
     }
 
     @Test
-    @DisplayName("Al dar de baja un tema, su carga horaria se vuelve a repartir entre los que quedan")
-    void bajaRepartePorCompletoLaCargaHoraria() {
+    @DisplayName("Al dar de baja un tema, su dedicación docente se vuelve a repartir entre los que quedan")
+    void bajaRepartePorCompletoLaDedicacionDocente() {
         Programa programa = macro().getProgramaVigente();
         Curso curso = programa.getCurso();
         Tema uno = agregar(programa, "Uno");
-        assertEquals(curso.getCargaHorariaMinutos(), cargaRepartida(curso));
+        assertEquals(curso.getDedicacionDocenteMinutos(), dedicacionRepartida(curso));
 
         temaServicio.darDeBajaTema(uno.getIdTema(), programa.getIdPrograma(), fausto());
 
         assertTrue(uno.getBaja());
-        assertEquals(curso.getCargaHorariaMinutos(), cargaRepartida(curso));
+        assertEquals(curso.getDedicacionDocenteMinutos(), dedicacionRepartida(curso));
     }
 
     @Test
-    @DisplayName("Se puede agregar un tema a un programa con inscripciones: la carga horaria no es lo que el alumno pagó")
+    @DisplayName("Se puede agregar un tema a un programa con inscripciones: la dedicación docente no es lo que el alumno pagó")
     void agregaEnProgramaConInscripcionesReajustaLaCarga() {
         Programa programa = mercado().getProgramaVigente();
         Curso curso = programa.getCurso();
 
         Tema nueva = agregar(programa, "Tema con inscripciones");
 
-        assertTrue(nueva.getCargaHorariaMinutos() > 0);
-        assertEquals(curso.getCargaHorariaMinutos(), cargaRepartida(curso));
+        assertTrue(nueva.getDedicacionDocenteMinutos() > 0);
+        assertEquals(curso.getDedicacionDocenteMinutos(), dedicacionRepartida(curso));
     }
 }

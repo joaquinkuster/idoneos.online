@@ -98,7 +98,7 @@
             lista.innerHTML = '';
             visibles = [];
             Array.prototype.forEach.call(select.options, function (opcion) {
-                if (opcion.value === '') { return; }
+                if (opcion.value === '' || opcion.hidden) { return; }
                 if (buscado && normalizar(opcion.textContent).indexOf(buscado) < 0) { return; }
                 var item = document.createElement('li');
                 item.className = 'sb-opcion' + (opcion.disabled ? ' sb-opcion-inactiva' : '')

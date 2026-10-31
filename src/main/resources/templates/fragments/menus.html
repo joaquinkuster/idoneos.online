@@ -10,6 +10,7 @@
     <div th:replace="~{fragments/sidebar :: grupo('Cursos')}"></div>
     <a th:replace="~{fragments/sidebar :: enlace('/curso/buscar', 'fa-book-open', 'Cursos', ${activo}, 'cursos')}"></a>
     <a th:replace="~{fragments/sidebar :: enlace('/categoria/buscar', 'fa-tags', 'Categorías', ${activo}, 'categorias')}"></a>
+    <a th:replace="~{fragments/sidebar :: enlace('/cohorte/buscar', 'fa-calendar-days', 'Cohortes', ${activo}, 'cohortes')}"></a>
 
     <div th:replace="~{fragments/sidebar :: grupo('Inscripciones')}"></div>
     <a th:replace="~{fragments/sidebar :: enlace('/descuento/buscar', 'fa-percent', 'Descuentos', ${activo}, 'descuentos')}"></a>

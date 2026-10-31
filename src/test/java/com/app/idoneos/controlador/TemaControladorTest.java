@@ -184,6 +184,20 @@ class TemaControladorTest {
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesServicio")
+    @DisplayName("CU-20: con el cronograma lleno el error se marca en el campo de la duración")
+    void agregarTemaConElCronogramaLleno() throws Exception {
+        Programa programa = programaDe(macro());
+        programa.getCurso().setDuracionMaximaDias(programa.getDuracionTotalDias());
+
+        mockMvc.perform(post("/tema/registrar").param("programaId", programaId(macro())).param("titulo", "Sin lugar")
+                .param("contenido", "Contenido"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value(Matchers.containsString("La duración del cronograma ya alcanzó")))
+                .andExpect(jsonPath("$.campo").value("duracion"));
+    }
+
+    @Test
+    @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesServicio")
     @DisplayName("CU-20: agregar un tema responde en JSON y el error de validación en 400")
     void agregarTema() throws Exception {
         mockMvc.perform(post("/tema/registrar").param("programaId", programaId(macro())).param("titulo", "Política monetaria")

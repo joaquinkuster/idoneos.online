@@ -46,10 +46,18 @@ public class Cohorte {
     private int idCohorte;
 
     /**
-     * Relación con Programa.
+     * Relación con Curso: el curso del que es la cohorte. El administrador puede dar de alta la cohorte antes de que el
+     * docente cargue un programa.
      */
     @ManyToOne
-    @JoinColumn(name = "idPrograma", nullable = false)
+    @JoinColumn(name = "idCurso", nullable = false)
+    private Curso curso;
+
+    /**
+     * Relación con Programa. Es opcional: una cohorte pendiente puede no tener programa hasta que el docente lo elija.
+     */
+    @ManyToOne
+    @JoinColumn(name = "idPrograma", nullable = true)
     private Programa programa;
 
     /**
@@ -142,9 +150,34 @@ public class Cohorte {
      */
     public Cohorte(Programa programa, LocalDateTime fechaInicioInscripcion, LocalDateTime fechaFinInscripcion, int accesoDias) {
         this.programa = programa;
+        this.curso = programa == null ? null : programa.getCurso();
         this.fechaInicioInscripcion = fechaInicioInscripcion;
         this.fechaFinInscripcion = fechaFinInscripcion;
         this.accesoDias = accesoDias;
+    }
+
+    /**
+     * Constructor para crear una cohorte de un curso, con o sin programa.
+     *
+     * @param curso relación con Curso.
+     * @param programa relación con Programa (puede ser {@code null}).
+     * @param fechaInicioInscripcion fecha y hora de inicio del período de inscripción.
+     * @param fechaFinInscripcion fecha y hora de fin del período de inscripción.
+     * @param accesoDias cantidad de días de acceso al contenido luego de inscribirse.
+     */
+    public Cohorte(Curso curso, Programa programa, LocalDateTime fechaInicioInscripcion, LocalDateTime fechaFinInscripcion,
+            int accesoDias) {
+        this(programa, fechaInicioInscripcion, fechaFinInscripcion, accesoDias);
+        this.curso = curso;
+    }
+
+    /**
+     * Indica si la cohorte ya tiene programa.
+     *
+     * @return {@code true} si el docente (o el administrador) ya le asignó un programa.
+     */
+    public boolean tienePrograma() {
+        return programa != null;
     }
 
     /**

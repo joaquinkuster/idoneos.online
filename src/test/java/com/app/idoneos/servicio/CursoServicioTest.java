@@ -87,7 +87,7 @@ class CursoServicioTest {
     @Test
     @DisplayName("CU-03: registra un curso con sus modalidades y su equipo docente")
     void registrarCursoConDatosValidos() {
-        Curso curso = cursoServicio.registrarCurso("Curso de Prueba", "Descripción", 1000f, 1200, 90, null,
+        Curso curso = cursoServicio.registrarCurso("Curso de Prueba", "Descripción", 1000f, 600, 1200, 90, null,
                 idCategoria("Mercado de Capitales"), idNivel("Básico"), true,
                 List.of(idModalidad(Modalidad.GRABADA), idModalidad(Modalidad.EN_VIVO)), idDocente(FAUSTO),
                 List.of(idDocente(SEBASTIAN), idDocente(MARIANO)));
@@ -101,31 +101,55 @@ class CursoServicioTest {
     }
 
     @Test
-    @DisplayName("CU-03: la carga horaria y la duración máxima son obligatorias y tienen un máximo")
-    void registrarCursoConCargaHorariaYDuracionInvalidas() {
+    @DisplayName("CU-03: la dedicación docente y la duración máxima son obligatorias y tienen un máximo")
+    void registrarCursoConDedicacionDocenteYDuracionInvalidas() {
         List<Integer> modalidades = List.of(idModalidad(Modalidad.GRABADA));
         IllegalArgumentException faltan = assertThrows(IllegalArgumentException.class,
-                () -> cursoServicio.registrarCurso("Curso Nuevo", null, 10f, null, null, null, idCategoria("Macroeconomía"),
+                () -> cursoServicio.registrarCurso("Curso Nuevo", null, 10f, 600, null, null, null, idCategoria("Macroeconomía"),
                         idNivel("Básico"), false, modalidades, idDocente(FAUSTO), null));
-        assertTrue(faltan.getMessage().contains("carga horaria"));
+        assertTrue(faltan.getMessage().contains("dedicación docente"));
         assertTrue(faltan.getMessage().contains("duración máxima"));
 
         IllegalArgumentException carga = assertThrows(IllegalArgumentException.class,
-                () -> cursoServicio.registrarCurso("Curso Nuevo", null, 10f, Curso.CARGA_HORARIA_MAXIMA_MINUTOS + 1, 90, null,
+                () -> cursoServicio.registrarCurso("Curso Nuevo", null, 10f, 600, Curso.DEDICACION_DOCENTE_MAXIMA_MINUTOS + 1, 90, null,
                         idCategoria("Macroeconomía"), idNivel("Básico"), false, modalidades, idDocente(FAUSTO), null));
-        assertTrue(carga.getMessage().contains("La carga horaria no es válida"), carga.getMessage());
+        assertTrue(carga.getMessage().contains("La dedicación docente no es válida"), carga.getMessage());
         IllegalArgumentException cero = assertThrows(IllegalArgumentException.class,
-                () -> cursoServicio.registrarCurso("Curso Nuevo", null, 10f, 0, 90, null, idCategoria("Macroeconomía"),
+                () -> cursoServicio.registrarCurso("Curso Nuevo", null, 10f, 600, 0, 90, null, idCategoria("Macroeconomía"),
                         idNivel("Básico"), false, modalidades, idDocente(FAUSTO), null));
-        assertTrue(cero.getMessage().contains("La carga horaria no es válida"), cero.getMessage());
+        assertTrue(cero.getMessage().contains("La dedicación docente no es válida"), cero.getMessage());
 
         // la duración no puede superar el máximo que el sistema admite para un cronograma (365 días por defecto)
         IllegalArgumentException duracion = assertThrows(IllegalArgumentException.class,
-                () -> cursoServicio.registrarCurso("Curso Nuevo", null, 10f, 1200, 366, null, idCategoria("Macroeconomía"),
+                () -> cursoServicio.registrarCurso("Curso Nuevo", null, 10f, 600, 1200, 366, null, idCategoria("Macroeconomía"),
                         idNivel("Básico"), false, modalidades, idDocente(FAUSTO), null));
         assertTrue(duracion.getMessage().contains("La duración máxima no es válida"), duracion.getMessage());
         assertTrue(duracion.getMessage().contains("hasta 12 meses") || duracion.getMessage().contains("365 días")
                 || duracion.getMessage().contains("hasta"), duracion.getMessage());
+    }
+
+    @Test
+    @DisplayName("CU-03: la carga horaria no puede ser mayor al tiempo de la duración máxima (24 horas por día)")
+    void registrarCursoConCargaHorariaMayorALaDuracionMaxima() {
+        List<Integer> modalidades = List.of(idModalidad(Modalidad.GRABADA));
+        // 25 horas en 1 día no entran
+        IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
+                () -> cursoServicio.registrarCurso("Curso Nuevo", null, 10f, 25 * 60, 1200, 1, null, idCategoria("Macroeconomía"),
+                        idNivel("Básico"), false, modalidades, idDocente(FAUSTO), null));
+        assertEquals("Error! La carga horaria no puede ser mayor al tiempo de la duración máxima del curso.", error.getMessage());
+
+        // 24 horas en 1 día sí; la dedicación docente (el trabajo del docente, que incluye la preparación previa) no se
+        // compara con el calendario del alumno
+        Curso curso = cursoServicio.registrarCurso("Curso Nuevo", null, 10f, 24 * 60, 50 * 60, 1, null, idCategoria("Macroeconomía"),
+                idNivel("Básico"), false, modalidades, idDocente(FAUSTO), null);
+        assertEquals(24 * 60, curso.getCargaHorariaMinutos());
+        assertEquals(50 * 60, curso.getDedicacionDocenteMinutos());
+
+        // al modificar, subir la carga horaria por encima de lo que admite la duración máxima también se rechaza
+        assertThrows(IllegalArgumentException.class,
+                () -> cursoServicio.modificarCurso(curso.getIdCurso(), curso.getNombre(), curso.getDescripcion(), curso.getPrecio(),
+                        25 * 60, 50 * 60, 1, null, idCategoria("Macroeconomía"), idNivel("Básico"), false, modalidades,
+                        idDocente(FAUSTO), null));
     }
 
     @Test
@@ -137,7 +161,7 @@ class CursoServicioTest {
 
         IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
                 () -> cursoServicio.modificarCurso(curso.getIdCurso(), curso.getNombre(), curso.getDescripcion(),
-                        curso.getPrecio(), curso.getCargaHorariaMinutos(), cronograma - 1, null,
+                        curso.getPrecio(), curso.getCargaHorariaMinutos(), curso.getDedicacionDocenteMinutos(), cronograma - 1, null,
                         curso.getCategoria().getIdCategoria(), curso.getNivel().getIdNivel(), curso.getEmiteCertificado(),
                         curso.getModalidades().stream().map(Modalidad::getIdModalidad).toList(),
                         curso.getDocenteTitular().getIdDocente(),
@@ -146,38 +170,38 @@ class CursoServicioTest {
 
         // justo en la duración del cronograma, se guarda
         Curso modificado = cursoServicio.modificarCurso(curso.getIdCurso(), curso.getNombre(), curso.getDescripcion(),
-                curso.getPrecio(), 600, cronograma, null, curso.getCategoria().getIdCategoria(),
+                curso.getPrecio(), curso.getCargaHorariaMinutos(), 600, cronograma, null, curso.getCategoria().getIdCategoria(),
                 curso.getNivel().getIdNivel(), curso.getEmiteCertificado(),
                 curso.getModalidades().stream().map(Modalidad::getIdModalidad).toList(),
                 curso.getDocenteTitular().getIdDocente(),
                 curso.getDocentesAyudantes().stream().map(Docente::getIdDocente).toList());
         assertEquals(cronograma, modificado.getDuracionMaximaDias());
-        assertEquals(600, modificado.getCargaHorariaMinutos());
-        // la nueva carga horaria se reparte entre los temas del curso
-        assertEquals(600, modificado.getCargaHorariaRepartidaMinutos());
-        assertTrue(modificado.estaCargaHorariaCompleta());
+        assertEquals(600, modificado.getDedicacionDocenteMinutos());
+        // la nueva dedicación docente se reparte entre los temas del curso
+        assertEquals(600, modificado.getDedicacionDocenteRepartidaMinutos());
+        assertTrue(modificado.estaDedicacionDocenteCompleta());
 
         // y no puede ser menor a un minuto por tema
         int temas = (int) modificado.getTemas().stream().filter(tema -> !tema.getBaja()).count();
         IllegalArgumentException poca = assertThrows(IllegalArgumentException.class,
                 () -> cursoServicio.modificarCurso(curso.getIdCurso(), curso.getNombre(), curso.getDescripcion(),
-                        curso.getPrecio(), temas - 1, cronograma, null, curso.getCategoria().getIdCategoria(),
+                        curso.getPrecio(), curso.getCargaHorariaMinutos(), temas - 1, cronograma, null, curso.getCategoria().getIdCategoria(),
                         curso.getNivel().getIdNivel(), curso.getEmiteCertificado(),
                         curso.getModalidades().stream().map(Modalidad::getIdModalidad).toList(),
                         curso.getDocenteTitular().getIdDocente(),
                         curso.getDocentesAyudantes().stream().map(Docente::getIdDocente).toList()));
-        assertTrue(poca.getMessage().contains("La carga horaria no puede ser menor"), poca.getMessage());
+        assertTrue(poca.getMessage().contains("La dedicación docente no puede ser menor"), poca.getMessage());
     }
 
     @Test
-    @DisplayName("CU-04: con inscripciones activas no se pueden modificar la carga horaria ni la duración máxima")
-    void modificarCursoConInscripcionesNoPermiteCambiarCargaNiDuracion() {
+    @DisplayName("CU-04: con inscripciones activas no se pueden modificar la dedicación docente ni la duración máxima")
+    void modificarCursoConInscripcionesNoPermiteCambiarDedicacionNiDuracion() {
         Curso curso = curso("Mercado de Capitales Argentino");
         assertTrue(cursoServicio.tieneInscripcionesActivas(curso));
 
         assertThrows(IllegalArgumentException.class,
                 () -> cursoServicio.modificarCurso(curso.getIdCurso(), curso.getNombre(), curso.getDescripcion(),
-                        curso.getPrecio(), curso.getCargaHorariaMinutos() + 60, curso.getDuracionMaximaDias(), null,
+                        curso.getPrecio(), curso.getCargaHorariaMinutos(), curso.getDedicacionDocenteMinutos() + 60, curso.getDuracionMaximaDias(), null,
                         curso.getCategoria().getIdCategoria(), curso.getNivel().getIdNivel(), curso.getEmiteCertificado(),
                         curso.getModalidades().stream().map(Modalidad::getIdModalidad).toList(),
                         curso.getDocenteTitular().getIdDocente(),
@@ -188,7 +212,7 @@ class CursoServicioTest {
     @DisplayName("CU-03: informa los campos obligatorios que faltan")
     void registrarCursoSinCamposObligatorios() {
         IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
-                () -> cursoServicio.registrarCurso("", null, null, null, null, null, null, null, false, null, null, null));
+                () -> cursoServicio.registrarCurso("", null, null, null, null, null, null, null, null, false, null, null, null));
         assertTrue(error.getMessage().contains("nombre"));
         assertTrue(error.getMessage().contains("docente titular"));
     }
@@ -197,7 +221,7 @@ class CursoServicioTest {
     @DisplayName("CU-03: rechaza un precio negativo")
     void registrarCursoConPrecioNegativo() {
         assertThrows(IllegalArgumentException.class,
-                () -> cursoServicio.registrarCurso("Curso Nuevo", null, -1f, 1200, 90, null, idCategoria("Macroeconomía"),
+                () -> cursoServicio.registrarCurso("Curso Nuevo", null, -1f, 600, 1200, 90, null, idCategoria("Macroeconomía"),
                         idNivel("Básico"), false, List.of(idModalidad(Modalidad.GRABADA)), idDocente(FAUSTO), null));
     }
 
@@ -205,7 +229,7 @@ class CursoServicioTest {
     @DisplayName("CU-03: el docente titular no puede ser también ayudante")
     void registrarCursoConTitularYAyudanteIguales() {
         IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
-                () -> cursoServicio.registrarCurso("Curso Nuevo", null, 10f, 1200, 90, null, idCategoria("Macroeconomía"),
+                () -> cursoServicio.registrarCurso("Curso Nuevo", null, 10f, 600, 1200, 90, null, idCategoria("Macroeconomía"),
                         idNivel("Básico"), false, List.of(idModalidad(Modalidad.GRABADA)), idDocente(FAUSTO),
                         List.of(idDocente(MARIANO), idDocente(FAUSTO))));
         assertTrue(error.getMessage().contains("titular"));
@@ -215,7 +239,7 @@ class CursoServicioTest {
     @DisplayName("CU-03: rechaza un precio superior al máximo permitido")
     void registrarCursoConPrecioSuperiorAlMaximo() {
         IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
-                () -> cursoServicio.registrarCurso("Curso Nuevo", null, Curso.PRECIO_MAXIMO + 1, 1200, 90, null,
+                () -> cursoServicio.registrarCurso("Curso Nuevo", null, Curso.PRECIO_MAXIMO + 1, 600, 1200, 90, null,
                         idCategoria("Macroeconomía"), idNivel("Básico"), false,
                         List.of(idModalidad(Modalidad.GRABADA)), idDocente(FAUSTO), null));
         assertTrue(error.getMessage().contains("10.000.000"));
@@ -224,7 +248,7 @@ class CursoServicioTest {
     @Test
     @DisplayName("CU-03: acepta el precio máximo permitido")
     void registrarCursoConElPrecioMaximo() {
-        Curso curso = cursoServicio.registrarCurso("Curso Caro", null, Curso.PRECIO_MAXIMO, 1200, 90, null,
+        Curso curso = cursoServicio.registrarCurso("Curso Caro", null, Curso.PRECIO_MAXIMO, 600, 1200, 90, null,
                 idCategoria("Macroeconomía"), idNivel("Básico"), false, List.of(idModalidad(Modalidad.GRABADA)),
                 idDocente(FAUSTO), null);
         assertEquals(Curso.PRECIO_MAXIMO, curso.getPrecio());
@@ -233,7 +257,7 @@ class CursoServicioTest {
     @Test
     @DisplayName("CU-03: un docente repetido entre los ayudantes se registra una sola vez")
     void registrarCursoConAyudantesRepetidos() {
-        Curso curso = cursoServicio.registrarCurso("Curso Nuevo", null, 10f, 1200, 90, null, idCategoria("Macroeconomía"),
+        Curso curso = cursoServicio.registrarCurso("Curso Nuevo", null, 10f, 600, 1200, 90, null, idCategoria("Macroeconomía"),
                 idNivel("Básico"), false, List.of(idModalidad(Modalidad.GRABADA)), idDocente(FAUSTO),
                 List.of(idDocente(MARIANO), idDocente(MARIANO)));
         assertEquals(1, curso.getDocentesAyudantes().size());
@@ -246,7 +270,7 @@ class CursoServicioTest {
         assertTrue(cursoServicio.tieneInscripcionesActivas(curso));
 
         assertThrows(IllegalArgumentException.class,
-                () -> cursoServicio.modificarCurso(curso.getIdCurso(), "Otro nombre", curso.getDescripcion(), 1f, curso.getCargaHorariaMinutos(), curso.getDuracionMaximaDias(), null,
+                () -> cursoServicio.modificarCurso(curso.getIdCurso(), "Otro nombre", curso.getDescripcion(), 1f, curso.getCargaHorariaMinutos(), curso.getDedicacionDocenteMinutos(), curso.getDuracionMaximaDias(), null,
                         curso.getCategoria().getIdCategoria(), curso.getNivel().getIdNivel(),
                         curso.getEmiteCertificado(),
                         curso.getModalidades().stream().map(Modalidad::getIdModalidad).toList(), idDocente(FAUSTO),
@@ -259,7 +283,7 @@ class CursoServicioTest {
         Curso curso = curso("Mercado de Capitales Argentino");
 
         Curso modificado = cursoServicio.modificarCurso(curso.getIdCurso(), curso.getNombre(), curso.getDescripcion(),
-                175000f, curso.getCargaHorariaMinutos(), curso.getDuracionMaximaDias(), null, curso.getCategoria().getIdCategoria(), curso.getNivel().getIdNivel(),
+                175000f, curso.getCargaHorariaMinutos(), curso.getDedicacionDocenteMinutos(), curso.getDuracionMaximaDias(), null, curso.getCategoria().getIdCategoria(), curso.getNivel().getIdNivel(),
                 curso.getEmiteCertificado(), curso.getModalidades().stream().map(Modalidad::getIdModalidad).toList(),
                 idDocente(FAUSTO), List.of(idDocente(SEBASTIAN), idDocente(MARIANO)));
 
@@ -273,7 +297,7 @@ class CursoServicioTest {
         Curso curso = curso("Mercado de Capitales Argentino");
 
         IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
-                () -> cursoServicio.modificarCurso(curso.getIdCurso(), curso.getNombre(), curso.getDescripcion(), 1f, curso.getCargaHorariaMinutos(), curso.getDuracionMaximaDias(), null, curso.getCategoria().getIdCategoria(), curso.getNivel().getIdNivel(),
+                () -> cursoServicio.modificarCurso(curso.getIdCurso(), curso.getNombre(), curso.getDescripcion(), 1f, curso.getCargaHorariaMinutos(), curso.getDedicacionDocenteMinutos(), curso.getDuracionMaximaDias(), null, curso.getCategoria().getIdCategoria(), curso.getNivel().getIdNivel(),
                         curso.getEmiteCertificado(),
                         curso.getModalidades().stream().map(Modalidad::getIdModalidad).toList(), idDocente(SEBASTIAN),
                         null));
@@ -315,7 +339,7 @@ class CursoServicioTest {
 
     private Curso modificarModalidades(Curso curso, List<Integer> idsModalidades) {
         return cursoServicio.modificarCurso(curso.getIdCurso(), curso.getNombre(), curso.getDescripcion(),
-                curso.getPrecio(), curso.getCargaHorariaMinutos(), curso.getDuracionMaximaDias(), null, curso.getCategoria().getIdCategoria(), curso.getNivel().getIdNivel(),
+                curso.getPrecio(), curso.getCargaHorariaMinutos(), curso.getDedicacionDocenteMinutos(), curso.getDuracionMaximaDias(), null, curso.getCategoria().getIdCategoria(), curso.getNivel().getIdNivel(),
                 curso.getEmiteCertificado(), idsModalidades, curso.getDocenteTitular().getIdDocente(),
                 curso.getDocentesAyudantes().stream().map(Docente::getIdDocente).toList());
     }
@@ -326,7 +350,7 @@ class CursoServicioTest {
         Curso curso = curso("Introducción a las Finanzas");
 
         Curso modificado = cursoServicio.modificarCurso(curso.getIdCurso(), "Introducción a las Finanzas II", "Nueva",
-                50000f, 900, 120, null, idCategoria("Macroeconomía"), idNivel("Avanzado"), true,
+                50000f, 300, 900, 120, null, idCategoria("Macroeconomía"), idNivel("Avanzado"), true,
                 List.of(idModalidad(Modalidad.EN_VIVO)), idDocente(MARIANO), List.of(idDocente(FAUSTO), idDocente(SEBASTIAN)));
 
         assertEquals("Introducción a las Finanzas II", modificado.getNombre());

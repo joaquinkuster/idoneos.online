@@ -2,7 +2,7 @@ package com.app.idoneos.utilidades;
 
 /**
  * Duraciones. Las de calendario se guardan siempre en días y se expresan en la unidad que mejor las describe: meses
- * (30 días), semanas (7 días) o días. Las de trabajo (carga horaria) se guardan en minutos y se expresan en horas o minutos.
+ * (30 días), semanas (7 días) o días. Las de trabajo (dedicación docente) se guardan en minutos y se expresan en horas o minutos.
  */
 public final class DuracionUtilidad {
 
@@ -14,6 +14,9 @@ public final class DuracionUtilidad {
 
     /** Minutos que tiene una hora. */
     public static final int MINUTOS_POR_HORA = 60;
+
+    /** Minutos que tiene un día. */
+    public static final int MINUTOS_POR_DIA = 24 * MINUTOS_POR_HORA;
 
     private DuracionUtilidad() {
     }
@@ -36,7 +39,7 @@ public final class DuracionUtilidad {
     }
 
     /**
-     * Escribe una carga horaria: horas si es múltiplo de 60 minutos, "1 h 30 min" si pasa de una hora y minutos en
+     * Escribe una dedicación docente: horas si es múltiplo de 60 minutos, "1 h 30 min" si pasa de una hora y minutos en
      * cualquier otro caso.
      *
      * @param minutos La duración en minutos.

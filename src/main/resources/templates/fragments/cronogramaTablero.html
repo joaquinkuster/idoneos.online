@@ -15,7 +15,7 @@
             <div class="cn" id="cronograma" th:attr="data-editable=${puedeEditar}, data-programa-id=${programa.idPrograma},
                  data-dia-actual=${enCurso and !terminado ? cronoCohorte.diaActual : 0},
                  data-duracion=${programa.duracionTotalDias},
-                 data-dias-maximos=${diasMaximos},
+                 data-dias-maximos=${diasMaximos}, data-paso=${programa.pasoCronograma}, data-dias-nuevo=${diasNuevoTema},
                  data-url-modificar=@{/cronograma/modificar}, data-url-nueva=@{/tema/buscar(cursoId=${curso.idCurso}, nuevo='')}">
                 <!-- Datos para la pantalla: los temas del curso y las que están en el cronograma, en orden -->
                 <div hidden>

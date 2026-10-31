@@ -68,17 +68,23 @@ class ReglasDeAutoevaluacionPorProgramaServicioTest {
     }
 
     @Test
-    @DisplayName("CU-12: no se registra una cohorte si algún tema del programa no tiene autoevaluación visible")
+    @DisplayName("CU-12: si algún tema del programa no tiene autoevaluación visible, la cohorte queda pendiente")
     void registrarCohorte() {
         assertDoesNotThrow(() -> registrarCohorte(macro()));
+        assertTrue(cohorteServicio.faltantesDeContenido(macro()).isEmpty());
 
         Tema tema = tipoDeCambio();
         sacarLasAutoevaluaciones(tema);
         assertTrue(macro().getTemasSinAutoevaluacion().contains(tema));
+        assertTrue(cohorteServicio.faltantesDeContenido(macro()).stream().anyMatch(f -> f.contains("«Tipo de cambio»")));
 
+        // Como el contenido quedó incompleto, la inscripción debe empezar con el plazo mínimo
         String error = assertThrows(IllegalArgumentException.class, () -> registrarCohorte(macro())).getMessage();
-        assertTrue(error.contains("al menos una autoevaluación visible"), error);
-        assertTrue(error.contains("«Tipo de cambio»"), error);
+        assertTrue(error.contains("posterior a hoy"), error);
+
+        LocalDate inicio = LocalDate.now().plusDays(cohorteServicio.plazoMinimoParaCompletarContenidoDias());
+        var pendiente = cohorteServicio.registrarCohorte(macro().getIdPrograma(), inicio, inicio.plusDays(30), null, null, 70, null);
+        assertTrue(pendiente.esPendiente());
     }
 
     @Test

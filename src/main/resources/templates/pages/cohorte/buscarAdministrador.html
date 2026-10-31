@@ -5,13 +5,14 @@
 </head>
 <body class="pn-body">
 <div class="pn-app" id="pnApp">
-    <th:block th:replace="~{fragments/menus :: gestionAcademica(${menuActivo}, ${urlBase})}"></th:block>
+    <th:block th:if="${curso != null}"><th:block th:replace="~{fragments/menus :: gestionAcademica(${menuActivo}, ${urlBase})}"></th:block></th:block>
+    <th:block th:if="${curso == null}"><th:block th:replace="~{fragments/menus :: administrador(${menuActivo})}"></th:block></th:block>
 
     <div class="pn-principal">
         <th:block th:replace="~{fragments/panel :: barra(null)}"></th:block>
 
-        <main class="pn-contenido">
-            <nav class="ac-migas" aria-label="Ruta de navegación">
+        <main class="pn-contenido" th:attr="data-abrir-modal=${abrirAlta ? 'modalNuevaCohorte' : null}">
+            <nav class="ac-migas" aria-label="Ruta de navegación" th:if="${curso != null}">
                 <a th:href="@{/inicio}">Página principal</a>
                 <i class="fa-solid fa-chevron-right"></i>
                 <a th:href="@{${urlMisCursos}}" th:text="${esAdministrador == true ? 'Cursos' : 'Mis cursos'}">Mis cursos</a>
@@ -20,11 +21,16 @@
                 <i class="fa-solid fa-chevron-right"></i>
                 <strong>Cohortes</strong>
             </nav>
+            <nav class="ac-migas" aria-label="Ruta de navegación" th:if="${curso == null}">
+                <a th:href="@{/inicio}">Página principal</a>
+                <i class="fa-solid fa-chevron-right"></i>
+                <strong>Cohortes</strong>
+            </nav>
 
             <div class="pn-encabezado">
                 <div>
                     <h1 class="pn-titulo">Cohortes</h1>
-                    <p class="pn-subtitulo" th:text="${'Períodos de inscripción y dictado de los programas de ' + curso.nombre}">Gestiona los períodos de inscripción y dictado de cada programa</p>
+                    <p class="pn-subtitulo" th:text="${curso != null ? 'Períodos de inscripción y dictado de ' + curso.nombre : 'Períodos de inscripción y dictado de todos los cursos'}">Gestiona los períodos de inscripción y dictado de cada curso</p>
                 </div>
                 <button type="button" class="pn-btn pn-btn-primario" data-bs-toggle="modal" data-bs-target="#modalNuevaCohorte">
                     <i class="fa-solid fa-plus"></i> Registrar cohorte
@@ -67,14 +73,14 @@
                         <tbody>
                             <tr th:each="coh : ${cohortes}" data-fila th:classappend="${coh.baja} ? 'pn-fila-baja'"
                                 th:data-o-recientes="${#temporals.format(coh.fechaInicioInscripcion, 'yyyyMMdd')}"
-                                th:data-o-curso="${coh.programa.curso.nombre}"
+                                th:data-o-curso="${coh.curso.nombre}"
                                 th:data-o2-curso="${#temporals.format(coh.fechaInicioInscripcion, 'yyyyMMdd')}"
                                 th:attr="data-dependencias=${(inscripcionesPorCohorte != null and inscripcionesPorCohorte.containsKey(coh.idCohorte) ? inscripcionesPorCohorte.get(coh.idCohorte).size() : 0) + (clasesPorCohorte != null and clasesPorCohorte.containsKey(coh.idCohorte) ? clasesPorCohorte.get(coh.idCohorte) : 0)}"
                                 th:data-f-cupomaximo="${coh.cupoMaximo != null ? coh.cupoMaximo : ''}">
                                 <td class="pn-col-seleccion"><input type="checkbox" data-seleccionar-fila aria-label="Seleccionar fila"
                                     th:value="${coh.idCohorte}" th:disabled="${coh.baja}"></td>
-                                <td><div class="pn-celda-principal pn-truncar" th:text="${coh.programa.curso.nombre}">Curso</div></td>
-                                <td><div class="pn-truncar" th:text="${coh.programa.nombre}">Programa</div></td>
+                                <td><div class="pn-celda-principal pn-truncar" th:text="${coh.curso.nombre}">Curso</div></td>
+                                <td><div class="pn-truncar" th:text="${coh.programa != null ? coh.programa.nombre : 'Sin programa'}">Programa</div></td>
                                 <td th:text="${#temporals.format(coh.fechaInicioInscripcion, 'dd/MM/yyyy')}">01/03/2026</td>
                                 <td th:text="${#temporals.format(coh.fechaFinInscripcion, 'dd/MM/yyyy')}">31/03/2026</td>
                                 <td th:text="${coh.fechaInicioDictado != null ? #temporals.format(coh.fechaInicioDictado, 'dd/MM/yyyy') : '—'}">01/04/2026</td>
@@ -83,13 +89,13 @@
                                 <td th:text="${coh.accesoDias}">12</td>
                                 <td>
                                     <span class="pn-insignia"
-                                          th:classappend="${coh.baja} ? 'pn-insignia-gris' : (${coh.estado == 'Abierta'} ? 'pn-insignia-verde' : (${coh.estado == 'En dictado'} ? 'pn-insignia-azul' : (${coh.estado == 'Próxima'} ? 'pn-insignia-dorada' : 'pn-insignia-gris')))"
+                                          th:classappend="${coh.baja} ? 'pn-insignia-gris' : (${coh.estado == 'Abierta'} ? 'pn-insignia-verde' : (${coh.estado == 'En dictado'} ? 'pn-insignia-azul' : (${coh.estado == 'Próxima' or coh.estado == 'Pendiente'} ? 'pn-insignia-dorada' : (${coh.estado == 'Cancelada'} ? 'pn-insignia-roja' : 'pn-insignia-gris'))))"
                                           th:text="${coh.baja} ? 'Dada de baja' : ${coh.estado}">Abierta</span>
                                 </td>
                                 <td th:text="${#temporals.format(coh.fechaCreacion, 'dd/MM/yyyy HH:mm')}">28/08/2026 10:30</td>
                                 <td>
                                     <div class="pn-acciones" th:if="${!coh.baja}">
-                                        <button type="button" class="pn-btn pn-btn-editar pn-btn-chico" data-bs-toggle="modal"
+                                        <button type="button" class="pn-btn pn-btn-editar pn-btn-chico" data-bs-toggle="modal" th:unless="${coh.esCancelada()}"
                                                 th:data-bs-target="'#modalEditarCohorte' + ${coh.idCohorte}">Modificar</button>
                                         <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico" data-bs-toggle="modal"
                                                 th:data-bs-target="'#modalBajaCohorte' + ${coh.idCohorte}">Dar de baja</button>
@@ -133,30 +139,45 @@
             </div>
             <div class="pn-modal-cuerpo">
                 <form id="formNuevaCohorte" th:action="@{/cohorte/registrar}" method="post" class="form-ajax" data-validar data-validador="cohorte" data-pasos data-resumen="Cohorte" data-modo="alta" data-resumen-nuevo="nueva"
-                      data-contexto='[{"etiqueta":"Curso","campo":"programaId","atributo":"data-curso"},{"etiqueta":"Programa","campo":"programaId","atributo":"data-programa"}]' novalidate>
+                      th:attr="data-plazo=${plazoMinimoContenidoDias}"
+                      data-contexto='[{"etiqueta":"Curso","campo":"cursoId","atributo":"data-curso"},{"etiqueta":"Programa","campo":"programaId","atributo":"data-programa"}]' novalidate>
     <div class="pn-pasos pn-pasos-nombrados">
-        <span class="pn-pasos-item"><span class="pn-pasos-punto">1</span><span class="pn-pasos-nombre">Programa</span></span><span class="pn-pasos-linea"></span>
+        <span class="pn-pasos-item"><span class="pn-pasos-punto">1</span><span class="pn-pasos-nombre">Curso y programa</span></span><span class="pn-pasos-linea"></span>
         <span class="pn-pasos-item"><span class="pn-pasos-punto">2</span><span class="pn-pasos-nombre">Fechas</span></span><span class="pn-pasos-linea"></span>
         <span class="pn-pasos-item"><span class="pn-pasos-punto">3</span><span class="pn-pasos-nombre">Cupo y acceso</span></span><span class="pn-pasos-linea"></span>
         <span class="pn-pasos-item"><span class="pn-pasos-punto">4</span><span class="pn-pasos-nombre">Resumen</span></span>
     </div>
-    <div class="pn-paso" data-grupo="Programa" data-sin-rama>
+    <div class="pn-paso" data-grupo="Curso y programa" data-sin-rama>
         <div class="pn-seccion-titulo">
-            <h4>Programa de la cohorte</h4>
-            <p>Elegí el programa del que es la cohorte</p>
+            <h4>Curso y programa de la cohorte</h4>
+            <p>El programa es opcional: si todavía no existe, el docente lo elige después</p>
         </div>
         <div class="row g-3">
 <div class="col-12 pn-campo">
-                            <label class="pn-etiqueta">Programa <span class="pn-obligatorio">*</span></label>
-                            <select name="programaId" data-buscable id="cohPrograma" class="pn-input" required>
-                                <option value="">Programa</option>
+                            <label class="pn-etiqueta">Curso <span class="pn-obligatorio">*</span></label>
+                            <select name="cursoId" id="cohCurso" class="pn-input" required th:attr="data-buscable=${curso == null ? '' : null}">
+                                <option value="">Curso</option>
+                                <option th:each="c : ${cursos}" th:if="${curso == null or curso.idCurso == c.idCurso}" th:value="${c.idCurso}"
+                                        th:text="${c.nombre}"
+                                        th:attr="data-envivo=${c.incluyeModalidad('En vivo')}, data-curso=${c.nombre}"
+                                        th:selected="${cursoSeleccionado != null and cursoSeleccionado == c.idCurso}">Curso</option>
+                            </select>
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+<div class="col-12 pn-campo">
+                            <label class="pn-etiqueta">Programa (opcional)</label>
+                            <select name="programaId" data-buscable id="cohPrograma" class="pn-input">
+                                <option value="" th:attr="data-faltantes=${#strings.listJoin(faltantesSinPrograma, '|')}">Sin programa por ahora</option>
                                 <option th:each="prog : ${programas}" th:value="${prog.idPrograma}"
                                         th:text="${prog.curso.nombre + ' - ' + prog.nombre}"
-                                        th:attr="data-envivo=${prog.curso.incluyeModalidad('En vivo')}, data-dias=${prog.duracionTotalDias}, data-curso=${prog.curso.nombre}, data-programa=${prog.nombre}"
+                                        th:attr="data-curso-id=${prog.curso.idCurso}, data-dias=${prog.duracionTotalDias}, data-programa=${prog.nombre}, data-faltantes=${#strings.listJoin(faltantesPorPrograma.get(prog.idPrograma), '|')}"
                                         th:selected="${programaSeleccionado != null and programaSeleccionado == prog.idPrograma}">Curso - Programa</option>
                             </select>
                             <div class="pn-ayuda-error"></div>
                             <div class="small text-muted mt-1" id="cohProgramaInfo"></div>
+                        </div>
+<div class="col-12" id="cohAvisoPendiente" hidden>
+                            <div class="pn-aviso pn-aviso-dorado" id="cohAvisoPendienteTexto"></div>
                         </div>
         </div>
     </div>
@@ -237,7 +258,7 @@
 </div>
 
 <!-- Modales por cohorte: modificar (CU-13) y dar de baja (CU-14) -->
-<th:block th:each="coh : ${cohortes}" th:if="${!coh.baja}">
+<th:block th:each="coh : ${cohortes}" th:if="${!coh.baja and !coh.esCancelada()}">
     <div class="modal fade pn-modal" th:id="'modalEditarCohorte' + ${coh.idCohorte}" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
@@ -248,10 +269,13 @@
                 <div class="pn-modal-cuerpo">
                     <form th:action="@{'/cohorte/modificar/' + ${coh.idCohorte}}" method="post" class="form-ajax" data-validar data-validador="cohorte" data-pasos data-resumen="Cohorte" data-modo="modificacion"
                           data-contexto='[{"etiqueta":"Curso","atributoForm":"data-ctx-curso"},{"etiqueta":"Programa","atributoForm":"data-ctx-programa"}]' novalidate
-                          th:attr="data-dias=${coh.programa.duracionTotalDias}, data-envivo=${coh.programa.curso.incluyeModalidad('En vivo')}, data-ctx-curso=${coh.programa.curso.nombre}, data-ctx-programa=${coh.programa.nombre}, data-resumen-titulo=${'(' + #temporals.format(coh.fechaInicioDictado != null ? coh.fechaInicioDictado : coh.fechaInicioInscripcion, 'dd/MM/yyyy') + ')'}"
-                          th:with="bloqueada=${coh.cantidadInscriptos > 0}, enVivo=${coh.programa.curso.incluyeModalidad('En vivo')}">
+                          th:attr="data-dias=${coh.programa != null ? coh.programa.duracionTotalDias : 0}, data-envivo=${coh.curso.incluyeModalidad('En vivo')}, data-ctx-curso=${coh.curso.nombre}, data-ctx-programa=${coh.programa != null ? coh.programa.nombre : ''}, data-pendiente=${coh.esPendiente()}, data-plazo=${plazoMinimoContenidoDias}, data-resumen-titulo=${'(' + #temporals.format(coh.fechaInicioDictado != null ? coh.fechaInicioDictado : coh.fechaInicioInscripcion, 'dd/MM/yyyy') + ')'}"
+                          th:with="bloqueada=${coh.cantidadInscriptos > 0}, enVivo=${coh.curso.incluyeModalidad('En vivo')}">
     <div class="pn-aviso pn-aviso-dorado" th:if="${bloqueada}">
                             La cohorte tiene <strong th:text="${coh.cantidadInscriptos}">1</strong> inscripción(es) activa(s) y no puede modificarse: son datos que el alumno vio y pagó al inscribirse.
+                        </div>
+    <div class="pn-aviso pn-aviso-dorado" th:if="${coh.esPendiente()}">
+                            La cohorte está <strong>pendiente</strong>: se activa cuando el docente complete el contenido del programa. La inscripción debe empezar al menos <strong th:text="${plazoMinimoContenidoDias}">7</strong> días después de hoy.
                         </div>
     <div class="pn-pasos pn-pasos-nombrados">
         <span class="pn-pasos-item"><span class="pn-pasos-punto">1</span><span class="pn-pasos-nombre">Fechas</span></span><span class="pn-pasos-linea"></span>
@@ -298,7 +322,7 @@
                                         <button type="button" class="cn-ayuda" aria-expanded="false" aria-label="Sobre los días de acceso" title="Ayuda"
                                                 th:data-ayuda-destino="'ayudaDias' + ${coh.idCohorte}"><i class="fa-solid fa-circle-info"></i></button>
                                     </div>
-                                    <input type="number" name="accesoDias" class="pn-input" min="1" th:attr="data-maximo=${accesoDiasMaximos}" th:value="${coh.accesoDias}" th:placeholder="${'Mínimo: ' + coh.programa.duracionTotalDias}" required>
+                                    <input type="number" name="accesoDias" class="pn-input" min="1" th:attr="data-maximo=${accesoDiasMaximos}" th:value="${coh.accesoDias}" th:placeholder="${coh.programa != null ? 'Mínimo: ' + coh.programa.duracionTotalDias : 'Días de acceso'}" required>
                                     <div class="pn-ayuda-error"></div>
                                 </div>
 <div class="col-md-6 pn-campo">
@@ -309,9 +333,10 @@
                         <div class="col-12 ayuda-desplegable" th:id="'ayudaDias' + ${coh.idCohorte}">
                             <div class="ayuda-desplegable-interior">
                                 <div class="cn-info">
-                                    <span>La duración total del cronograma del programa es de <strong th:text="${coh.programa.duracionTotalDias}">9</strong> dias, y los días de acceso no pueden ser menores.
-                                        <th:block th:if="${coh.programa.curso.incluyeModalidad('En vivo')}">La fecha de vencimiento de acceso se calcula a partir de la fecha de fin de dictado más los días de acceso.</th:block>
-                                        <th:block th:unless="${coh.programa.curso.incluyeModalidad('En vivo')}">La fecha de vencimiento de acceso se calcula a partir de la fecha de habilitación más los días de acceso.</th:block></span>
+                                    <span th:if="${coh.programa == null}">La cohorte todavía no tiene programa: los días de acceso no pueden ser menores a la duración del cronograma del programa que elija el docente.</span>
+                                    <span th:unless="${coh.programa == null}">La duración total del cronograma del programa es de <strong th:text="${coh.programa != null ? coh.programa.duracionTotalDias : 0}">9</strong> dias, y los días de acceso no pueden ser menores.
+                                        <th:block th:if="${coh.curso.incluyeModalidad('En vivo')}">La fecha de vencimiento de acceso se calcula a partir de la fecha de fin de dictado más los días de acceso.</th:block>
+                                        <th:block th:unless="${coh.curso.incluyeModalidad('En vivo')}">La fecha de vencimiento de acceso se calcula a partir de la fecha de habilitación más los días de acceso.</th:block></span>
                                 </div>
                             </div>
                         </div>
@@ -336,11 +361,12 @@
         </div>
     </div>
 
-    <th:block th:replace="~{fragments/modalBaja :: bloque('modalBajaCohorte' + ${coh.idCohorte}, 'cohorte', '¿Confirmas dar de baja la cohorte «' + ${coh.programa.curso.nombre + ' - ' + coh.programa.nombre} + '»?', 'Se desvinculará de los docentes que la tienen como cohorte de trabajo.', '/cohorte/darDeBaja/' + ${coh.idCohorte}, null, null)}"></th:block>
+    <th:block th:replace="~{fragments/modalBaja :: bloque('modalBajaCohorte' + ${coh.idCohorte}, 'cohorte', '¿Confirmas dar de baja la cohorte «' + ${coh.curso.nombre + (coh.programa != null ? ' - ' + coh.programa.nombre : '')} + '»?', 'Se desvinculará de los docentes que la tienen como cohorte de trabajo.', '/cohorte/darDeBaja/' + ${coh.idCohorte}, null, null)}"></th:block>
 </th:block>
 
 <th:block th:replace="~{fragments/panel :: scripts}"></th:block>
 <script th:src="@{/js/ayudaDesplegable.js}"></script>
+<script th:src="@{/js/abrirModal.js}"></script>
 <script>
     // Validaciones propias de las cohortes (reglas de CU-12 y CU-13)
     (function () {
@@ -348,17 +374,36 @@
 
         function campo(formulario, nombre) { return formulario.querySelector('[name="' + nombre + '"]'); }
 
-        // Datos del programa: del selector (alta) o de los atributos del formulario (modificación)
+        // Datos de la cohorte: de los selectores (alta) o de los atributos del formulario (modificación)
         function programa(formulario) {
-            var selector = campo(formulario, 'programaId');
-            if (selector) {
-                var opcion = selector.options[selector.selectedIndex];
+            var cursoSel = campo(formulario, 'cursoId');
+            if (cursoSel) {
+                var oc = cursoSel.options[cursoSel.selectedIndex];
+                var progSel = campo(formulario, 'programaId');
+                var op = progSel && progSel.selectedIndex >= 0 ? progSel.options[progSel.selectedIndex] : null;
                 return {
-                    enVivo: !!opcion && opcion.dataset.envivo === 'true',
-                    dias: opcion && opcion.dataset.dias ? parseInt(opcion.dataset.dias, 10) : 0
+                    enVivo: !!oc && oc.dataset.envivo === 'true',
+                    dias: op && op.value && op.dataset.dias ? parseInt(op.dataset.dias, 10) : 0,
+                    tienePrograma: !!op && op.value !== '',
+                    faltantes: op && op.dataset.faltantes ? op.dataset.faltantes.split('|') : []
                 };
             }
-            return { enVivo: formulario.dataset.envivo === 'true', dias: parseInt(formulario.dataset.dias || '0', 10) };
+            return {
+                enVivo: formulario.dataset.envivo === 'true',
+                dias: parseInt(formulario.dataset.dias || '0', 10),
+                tienePrograma: true,
+                faltantes: formulario.dataset.pendiente === 'true' ? ['pendiente'] : []
+            };
+        }
+
+        // Una cohorte queda pendiente mientras al programa le falte contenido (o no tenga programa): su inscripción necesita
+        // el plazo mínimo para que el docente lo complete
+        function fechaMinimaDeInscripcion(formulario) {
+            var d = new Date();
+            d.setDate(d.getDate() + parseInt(formulario.dataset.plazo || '0', 10));
+            var mes = String(d.getMonth() + 1).padStart(2, '0');
+            var dia = String(d.getDate()).padStart(2, '0');
+            return d.getFullYear() + '-' + mes + '-' + dia;
         }
 
         // Cada paso valida sus propios campos: 1 programa, 2 fechas, 3 cupo y acceso (en la modificación, 1 fechas y 2 cupo y acceso)
@@ -371,11 +416,17 @@
             var finDic = campo(formulario, 'fechaFinDictado');
             var dias = campo(formulario, 'accesoDias');
             var cupo = campo(formulario, 'cupoMaximo');
-            var hayPrograma = !!campo(formulario, 'programaId');
+            var hayPrograma = !!campo(formulario, 'cursoId');
             var pasoFechas = hayPrograma ? 2 : 1;
             var pasoCupo = hayPrograma ? 3 : 2;
 
             if (paso === pasoFechas) {
+                if (datos.faltantes.length && iniIns.value && iniIns.value < fechaMinimaDeInscripcion(formulario)) {
+                    var plazo = parseInt(formulario.dataset.plazo || '0', 10);
+                    marcar(iniIns, 'La fecha de inicio de inscripción debe ser al menos ' + plazo + (plazo === 1 ? ' día' : ' días')
+                        + ' posterior a hoy, porque el contenido del programa todavía no está completo.');
+                    ok = false;
+                }
                 if (iniIns.value && finIns.value && iniIns.value >= finIns.value) {
                     marcar(finIns, 'La fecha de fin debe ser posterior a la fecha de inicio.');
                     ok = false;
@@ -418,28 +469,74 @@
             return ok;
         };
 
-        // En el alta, las fechas de dictado solo se piden si el curso del programa tiene modalidad En vivo
+        // En el alta: el programa se elige entre los del curso, las fechas de dictado solo se piden si el curso es En vivo y,
+        // si a la cohorte le falta contenido, se avisa que va a quedar pendiente
+        var selectorCurso = document.getElementById('cohCurso');
         var selector = document.getElementById('cohPrograma');
-        if (selector) {
+        if (selectorCurso && selector) {
             var info = document.getElementById('cohProgramaInfo');
+            var aviso = document.getElementById('cohAvisoPendiente');
+            var avisoTexto = document.getElementById('cohAvisoPendienteTexto');
+
+            var filtrarProgramas = function () {
+                Array.prototype.forEach.call(selector.options, function (opcion) {
+                    if (!opcion.value) { return; }
+                    var ajeno = opcion.dataset.cursoId !== selectorCurso.value;
+                    opcion.hidden = ajeno;
+                    opcion.disabled = ajeno;
+                });
+                if (selector.selectedOptions.length && selector.selectedOptions[0].disabled) {
+                    selector.value = '';
+                    selector.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+            };
+
             var actualizar = function () {
                 var datos = programa(selector.form);
                 document.querySelectorAll('#formNuevaCohorte .grupo-dictado').forEach(function (g) {
                     g.classList.toggle('d-none', !datos.enVivo);
                 });
-                info.textContent = selector.value && datos.enVivo ? 'El curso incluye clases en vivo: completá las fechas de dictado.' : '';
+                info.textContent = selectorCurso.value && datos.enVivo ? 'El curso incluye clases en vivo: completá las fechas de dictado.' : '';
+
+                // Aviso de cohorte pendiente
+                var plazo = parseInt(selector.form.dataset.plazo || '0', 10);
+                aviso.hidden = !selectorCurso.value || datos.faltantes.length === 0;
+                if (!aviso.hidden) {
+                    avisoTexto.textContent = '';
+                    var titulo = document.createElement('div');
+                    titulo.textContent = datos.tienePrograma
+                        ? 'Esta cohorte se registrará como pendiente: al programa le falta:'
+                        : 'Esta cohorte se registrará como pendiente: todavía no tiene un programa.';
+                    avisoTexto.appendChild(titulo);
+                    if (datos.tienePrograma) {
+                        var lista = document.createElement('ul');
+                        lista.className = 'mb-1';
+                        datos.faltantes.forEach(function (f) {
+                            var item = document.createElement('li');
+                            item.textContent = f;
+                            lista.appendChild(item);
+                        });
+                        avisoTexto.appendChild(lista);
+                    }
+                    var cierre = document.createElement('div');
+                    cierre.textContent = (datos.tienePrograma ? '' : 'El docente debe elegir o crear uno y cargar su contenido. ')
+                        + 'Se activa sola cuando el docente complete el contenido. La inscripción debe empezar al menos '
+                        + plazo + (plazo === 1 ? ' día' : ' días') + ' después de hoy.';
+                    avisoTexto.appendChild(cierre);
+                }
+
                 var ayudaDias = document.getElementById('ayudaDiasTexto');
                 if (ayudaDias) {
                     var campoDias = selector.form.elements['accesoDias'];
                     if (campoDias) {
-                        campoDias.placeholder = selector.value && datos.dias > 0 ? 'Mínimo: ' + datos.dias : 'Días de acceso';
+                        campoDias.placeholder = datos.dias > 0 ? 'Mínimo: ' + datos.dias : 'Días de acceso';
                         // si todavía no se escribió nada (o es el mínimo del programa anterior), se propone el mínimo
-                        if (selector.value && datos.dias > 0 && (campoDias.value === '' || campoDias.dataset.sugerido === campoDias.value)) {
+                        if (datos.dias > 0 && (campoDias.value === '' || campoDias.dataset.sugerido === campoDias.value)) {
                             campoDias.value = String(datos.dias);
                             campoDias.dataset.sugerido = String(datos.dias);
                         }
                     }
-                    ayudaDias.textContent = selector.value
+                    ayudaDias.textContent = datos.tienePrograma
                         ? 'La duración total del cronograma del programa es de ' + datos.dias + ' dias, y los días de acceso no pueden ser menores. '
                             + (datos.enVivo
                                 ? 'La fecha de vencimiento de acceso se calcula a partir de la fecha de fin de dictado más los días de acceso.'
@@ -447,7 +544,9 @@
                         : 'La duración total del cronograma y la forma de calcular el vencimiento se muestran al elegir un programa.';
                 }
             };
+            selectorCurso.addEventListener('change', function () { filtrarProgramas(); actualizar(); });
             selector.addEventListener('change', actualizar);
+            filtrarProgramas();
             actualizar();
         }
     })();

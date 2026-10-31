@@ -79,6 +79,16 @@ public abstract class PanelCursoControlador {
     }
 
     /**
+     * Obtiene los días que ocupa un tema nuevo en el cronograma cuando no se indica otra duración (parámetro del sistema).
+     *
+     * @return Los días de un tema nuevo.
+     */
+    protected int diasPorTemaNuevo() {
+        return Math.max(1, parametroServicio.obtenerEntero(Parametro.CRONOGRAMA_DIAS_POR_TEMA_NUEVO,
+                Parametro.CRONOGRAMA_DIAS_POR_TEMA_NUEVO_POR_DEFECTO));
+    }
+
+    /**
      * Vuelca al modelo el máximo de días que puede sumar un cronograma del curso: la duración máxima del curso, sin
      * superar el máximo que el sistema admite (parámetro del sistema).
      *
@@ -86,6 +96,7 @@ public abstract class PanelCursoControlador {
      * @param curso  El curso del cronograma.
      */
     protected void cargarDiasMaximosDelCronograma(Model modelo, Curso curso) {
+        modelo.addAttribute("diasNuevoTema", diasPorTemaNuevo());
         modelo.addAttribute("diasMaximos", Math.min(curso.getDuracionMaximaDias(),
                 parametroServicio.obtenerEntero(Parametro.CRONOGRAMA_DIAS_MAXIMOS, Parametro.CRONOGRAMA_DIAS_MAXIMOS_POR_DEFECTO)));
     }

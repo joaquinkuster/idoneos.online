@@ -171,13 +171,104 @@ class CohorteServicioTest {
     }
 
     @Test
-    @DisplayName("CU-12: el programa debe tener el mínimo de temas con material publicado")
-    void registrarCohorteSinMinimoDeTemasConMaterial() {
+    @DisplayName("CU-12: con el contenido del programa incompleto la cohorte se registra como pendiente")
+    void registrarCohorteConContenidoIncompleto() {
         Programa programa = programaDe("Planificación Fiscal Corporativa");
         assertEquals(0, programa.getCantidadTemasConMaterialPublicado()); // su único tema con material no tiene autoevaluación
 
-        assertThrows(IllegalArgumentException.class, () -> cohorteServicio.registrarCohorte(programa.getIdPrograma(),
-                INICIO, INICIO.plusDays(30), null, null, programa.getDuracionTotalDias(), null));
+        Cohorte cohorte = cohorteServicio.registrarCohorte(programa.getIdPrograma(), INICIO, INICIO.plusDays(30), null, null,
+                programa.getDuracionTotalDias(), null);
+
+        assertTrue(cohorte.esPendiente());
+        assertEquals("Pendiente", cohorte.getEstado());
+    }
+
+    @Test
+    @DisplayName("CU-12: con el contenido del programa completo la cohorte nace activa, sin plazo mínimo")
+    void registrarCohorteConContenidoCompleto() {
+        Programa programa = programaDe("Macroeconomía de Coyuntura");
+        LocalDate manana = LocalDate.now().plusDays(1);
+
+        Cohorte cohorte = cohorteServicio.registrarCohorte(programa.getIdPrograma(), manana, manana.plusDays(30), null, null,
+                programa.getDuracionTotalDias(), null);
+
+        assertTrue(cohorte.esActiva());
+    }
+
+    @Test
+    @DisplayName("CU-12: una cohorte pendiente necesita el plazo mínimo para completar el contenido")
+    void registrarCohortePendienteConPlazoInsuficiente() {
+        Programa programa = programaDe("Planificación Fiscal Corporativa");
+        int plazo = cohorteServicio.plazoMinimoParaCompletarContenidoDias();
+        LocalDate corto = LocalDate.now().plusDays(plazo - 1);
+
+        IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
+                () -> cohorteServicio.registrarCohorte(programa.getIdPrograma(), corto, corto.plusDays(30), null, null,
+                        programa.getDuracionTotalDias(), null));
+        assertTrue(error.getMessage().startsWith("Error! La fecha de inicio de inscripción debe ser al menos"), error.getMessage());
+
+        LocalDate justo = LocalDate.now().plusDays(plazo);
+        Cohorte cohorte = cohorteServicio.registrarCohorte(programa.getIdPrograma(), justo, justo.plusDays(30), null, null,
+                programa.getDuracionTotalDias(), null);
+        assertTrue(cohorte.esPendiente());
+    }
+
+    @Test
+    @DisplayName("CU-12: una cohorte se registra sin programa y queda pendiente hasta que el docente elija uno")
+    void registrarCohorteSinPrograma() {
+        Programa programa = programaDe("Macroeconomía de Coyuntura");
+        var curso = programa.getCurso();
+
+        Cohorte cohorte = cohorteServicio.registrarCohorte(curso.getIdCurso(), null, INICIO, INICIO.plusDays(30), null, null,
+                programa.getDuracionTotalDias(), null);
+
+        assertTrue(cohorte.esPendiente());
+        assertNull(cohorte.getPrograma());
+        assertEquals(curso.getIdCurso(), cohorte.getCurso().getIdCurso());
+        assertFalse(cohorteServicio.faltantesDeContenido(null).isEmpty());
+
+        // Sin programa no hay contexto de trabajo posible
+        assertThrows(IllegalArgumentException.class, () -> cohorteServicio.cambiarContextoDeTrabajo(cohorte,
+                curso.getDocenteTitular()));
+
+        // El docente elige el programa: como su contenido está completo, la cohorte pasa a activa
+        Docente docente = curso.getDocenteTitular();
+        Cohorte asignada = cohorteServicio.asignarPrograma(cohorte.getIdCohorte(), programa.getIdPrograma(), docente);
+        assertEquals(programa.getIdPrograma(), asignada.getPrograma().getIdPrograma());
+        assertTrue(asignada.esActiva());
+    }
+
+    @Test
+    @DisplayName("CU-12: el programa de la cohorte debe ser del curso")
+    void registrarCohorteConProgramaDeOtroCurso() {
+        Programa programa = programaDe("Macroeconomía de Coyuntura");
+        Programa ajeno = programaDe("Mercado de Capitales Argentino");
+
+        IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
+                () -> cohorteServicio.registrarCohorte(programa.getCurso().getIdCurso(), ajeno.getIdPrograma(), INICIO,
+                        INICIO.plusDays(30), null, null, 84, null));
+        assertEquals("Error! El programa no pertenece al curso de la cohorte.", error.getMessage());
+    }
+
+    @Test
+    @DisplayName("CU-11: filtra las cohortes pendientes y las canceladas, distintas de las dadas de baja")
+    void buscarCohortesPendientesYCanceladas() {
+        assertTrue(!cohorteServicio.buscarConFiltros(null, null, "Pendiente", null, null, "recientes", null).isEmpty());
+        assertTrue(cohorteServicio.buscarConFiltros(null, null, "Pendiente", null, null, "recientes", null).stream()
+                .allMatch(Cohorte::esPendiente));
+        assertTrue(!cohorteServicio.buscarConFiltros(null, null, "Cancelada", null, null, "recientes", null).isEmpty());
+        assertTrue(cohorteServicio.buscarConFiltros(null, null, "Cancelada", null, null, "recientes", null).stream()
+                .allMatch(Cohorte::esCancelada));
+    }
+
+    @Test
+    @DisplayName("CU-13: una cohorte cancelada no se modifica")
+    void modificarCohorteCancelada() {
+        Cohorte cancelada = cohorteServicio.buscarConFiltros(null, null, "Cancelada", null, null, "recientes", null).get(0);
+
+        IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
+                () -> cohorteServicio.modificarCohorte(cancelada.getIdCohorte(), INICIO, INICIO.plusDays(30), null, null, 84, null));
+        assertEquals("Error! La cohorte está cancelada y no puede modificarse.", error.getMessage());
     }
 
     @Test
@@ -264,8 +355,8 @@ class CohorteServicioTest {
         assertTrue(recientes.get(0).getFechaInicioInscripcion().isAfter(recientes.get(1).getFechaInicioInscripcion()));
         assertTrue(porCurso.get(porCurso.size() - 1).esInactivo());
         // el primero es el curso que va antes en orden alfabético, sea cual sea
-        String primero = porCurso.stream().filter(c -> !c.esInactivo()).map(c -> c.getPrograma().getCurso().getNombre())
+        String primero = porCurso.stream().filter(c -> !c.esInactivo()).map(c -> c.getCurso().getNombre())
                 .min(String.CASE_INSENSITIVE_ORDER).orElseThrow();
-        assertEquals(primero, porCurso.get(0).getPrograma().getCurso().getNombre());
+        assertEquals(primero, porCurso.get(0).getCurso().getNombre());
     }
 }

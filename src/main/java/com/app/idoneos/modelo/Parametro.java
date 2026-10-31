@@ -28,6 +28,21 @@ public class Parametro {
     /** Máximo de días del cronograma que se usa cuando el parámetro no está cargado (un año). */
     public static final int CRONOGRAMA_DIAS_MAXIMOS_POR_DEFECTO = 365;
 
+    /**
+     * Clave de los días que como mínimo debe haber entre hoy y el inicio de la inscripción de una cohorte pendiente: es el
+     * tiempo que tiene el docente para completar el contenido.
+     */
+    public static final String COHORTE_PLAZO_MINIMO_CONTENIDO_DIAS = "cohorte.plazo_minimo_contenido_dias";
+
+    /** Días de plazo mínimo para completar el contenido cuando el parámetro no está cargado (una semana). */
+    public static final int COHORTE_PLAZO_MINIMO_CONTENIDO_DIAS_POR_DEFECTO = 7;
+
+    /** Clave de los días que ocupa en el cronograma un tema nuevo, mientras no se indique otra duración. */
+    public static final String CRONOGRAMA_DIAS_POR_TEMA_NUEVO = "cronograma.dias_por_tema_nuevo";
+
+    /** Días que ocupa un tema nuevo cuando el parámetro no está cargado (una semana). */
+    public static final int CRONOGRAMA_DIAS_POR_TEMA_NUEVO_POR_DEFECTO = 7;
+
     /** Clave del plazo, en minutos, para modificar una consulta o una respuesta del foro desde su registro. */
     public static final String PLAZO_EDICION_FORO = "foro.plazo_edicion_minutos";
 

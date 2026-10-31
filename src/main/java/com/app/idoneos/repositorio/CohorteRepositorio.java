@@ -30,10 +30,10 @@ public interface CohorteRepositorio extends JpaRepository<Cohorte, Integer> {
     List<Cohorte> findByProgramaAndBajaFalse(Programa programa);
 
     /**
-     * Busca las cohortes vigentes de todos los programas vigentes del curso.
+     * Busca las cohortes vigentes del curso, tengan o no programa.
      *
      * @param curso el curso
      * @return las cohortes activas del curso
      */
-    List<Cohorte> findByProgramaCursoAndProgramaBajaFalseAndBajaFalse(Curso curso);
+    List<Cohorte> findByCursoAndBajaFalse(Curso curso);
 }

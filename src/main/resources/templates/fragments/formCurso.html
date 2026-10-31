@@ -12,16 +12,17 @@
 
     <div class="pn-pasos pn-pasos-nombrados">
         <span class="pn-pasos-item"><span class="pn-pasos-punto">1</span><span class="pn-pasos-nombre">Datos básicos</span></span><span class="pn-pasos-linea"></span>
-        <span class="pn-pasos-item"><span class="pn-pasos-punto">2</span><span class="pn-pasos-nombre">Dictado</span></span><span class="pn-pasos-linea"></span>
-        <span class="pn-pasos-item"><span class="pn-pasos-punto">3</span><span class="pn-pasos-nombre">Publicación</span></span><span class="pn-pasos-linea"></span>
-        <span class="pn-pasos-item"><span class="pn-pasos-punto">4</span><span class="pn-pasos-nombre">Resumen</span></span>
+        <span class="pn-pasos-item"><span class="pn-pasos-punto">2</span><span class="pn-pasos-nombre">Tiempos</span></span><span class="pn-pasos-linea"></span>
+        <span class="pn-pasos-item"><span class="pn-pasos-punto">3</span><span class="pn-pasos-nombre">Dictado</span></span><span class="pn-pasos-linea"></span>
+        <span class="pn-pasos-item"><span class="pn-pasos-punto">4</span><span class="pn-pasos-nombre">Publicación</span></span><span class="pn-pasos-linea"></span>
+        <span class="pn-pasos-item"><span class="pn-pasos-punto">5</span><span class="pn-pasos-nombre">Resumen</span></span>
     </div>
 
     <!-- Paso 1: información básica -->
     <div class="pn-paso" data-grupo="Datos básicos">
         <div class="pn-seccion-titulo">
             <h4>Datos del curso</h4>
-            <p>Nombre, categoría, nivel, carga horaria, duración máxima y descripción</p>
+            <p>Nombre, categoría, nivel y descripción</p>
         </div>
         <div class="row g-3">
             <div class="col-12 pn-campo">
@@ -51,55 +52,6 @@
                 </select>
                 <div class="pn-ayuda-error"></div>
             </div>
-            <div class="col-md-6 pn-campo">
-                <div class="pn-etiqueta-con-ayuda">
-                    <label class="pn-etiqueta">Carga horaria <span class="pn-obligatorio">*</span></label>
-                    <button type="button" class="cn-ayuda" aria-expanded="false" aria-label="Sobre la carga horaria" title="Ayuda"
-                            data-ayuda-destino="ayudaCargaHoraria"><i class="fa-solid fa-circle-info"></i></button>
-                </div>
-                <div class="pn-duracion">
-                    <input type="number" name="cargaHoraria" class="pn-input" min="1" step="1" placeholder="Cantidad" required
-                           data-mensaje-obligatorio="Debe completar la carga horaria."
-                           th:value="${curso != null ? T(com.app.idoneos.utilidades.DuracionUtilidad).cantidadEnMinutos(curso.cargaHorariaMinutos) : ''}" th:readonly="${bloqueado}" th:classappend="${bloqueado} ? 'pn-bloqueado'">
-                    <select name="cargaHorariaUnidad" class="pn-input" aria-label="Unidad de la carga horaria" th:classappend="${bloqueado} ? 'pn-bloqueado'" th:attr="tabindex=${bloqueado} ? '-1' : null">
-                        <option value="minutos" th:selected="${curso != null and T(com.app.idoneos.utilidades.DuracionUtilidad).unidadEnMinutos(curso.cargaHorariaMinutos) == 'minutos'}">Minutos</option>
-                        <option value="horas" th:selected="${curso == null or T(com.app.idoneos.utilidades.DuracionUtilidad).unidadEnMinutos(curso.cargaHorariaMinutos) == 'horas'}">Horas</option>
-                    </select>
-                </div>
-                <div class="pn-ayuda-error"></div>
-            </div>
-            <div class="col-md-6 pn-campo">
-                <div class="pn-etiqueta-con-ayuda">
-                    <label class="pn-etiqueta">Duración máxima <span class="pn-obligatorio">*</span></label>
-                    <button type="button" class="cn-ayuda" aria-expanded="false" aria-label="Sobre la duración máxima" title="Ayuda"
-                            data-ayuda-destino="ayudaDuracionMaxima"><i class="fa-solid fa-circle-info"></i></button>
-                </div>
-                <div class="pn-duracion">
-                    <input type="number" name="duracionMaxima" class="pn-input" min="1" step="1" placeholder="Cantidad" required
-                           data-mensaje-obligatorio="Debe completar la duración máxima."
-                           th:value="${curso != null ? T(com.app.idoneos.utilidades.DuracionUtilidad).cantidadEnDias(curso.duracionMaximaDias) : ''}" th:readonly="${bloqueado}" th:classappend="${bloqueado} ? 'pn-bloqueado'">
-                    <select name="duracionMaximaUnidad" class="pn-input" aria-label="Unidad de la duración máxima" th:classappend="${bloqueado} ? 'pn-bloqueado'" th:attr="tabindex=${bloqueado} ? '-1' : null">
-                        <option value="dias" th:selected="${curso == null or T(com.app.idoneos.utilidades.DuracionUtilidad).unidadEnDias(curso.duracionMaximaDias) == 'dias'}">Días</option>
-                        <option value="semanas" th:selected="${curso != null and T(com.app.idoneos.utilidades.DuracionUtilidad).unidadEnDias(curso.duracionMaximaDias) == 'semanas'}">Semanas</option>
-                        <option value="meses" th:selected="${curso != null and T(com.app.idoneos.utilidades.DuracionUtilidad).unidadEnDias(curso.duracionMaximaDias) == 'meses'}">Meses</option>
-                    </select>
-                </div>
-                <div class="pn-ayuda-error"></div>
-            </div>
-            <div class="col-12 ayuda-desplegable" id="ayudaCargaHoraria">
-                <div class="ayuda-desplegable-interior">
-                    <div class="cn-info">
-                        <span>Tiempo total de trabajo del docente para este curso. Es lo que la empresa reconoce por el diseño y la preparación. El docente lo reparte entre los temas y la suma siempre debe coincidir con este total.</span>
-                    </div>
-                </div>
-            </div>
-            <div class="col-12 ayuda-desplegable" id="ayudaDuracionMaxima">
-                <div class="ayuda-desplegable-interior">
-                    <div class="cn-info">
-                        <span>Tiempo de calendario que el alumno tiene disponible para completar el curso. Ningún programa puede tener un cronograma más largo que este plazo.</span>
-                    </div>
-                </div>
-            </div>
             <div class="col-12 pn-campo">
                 <div class="pn-etiqueta-fila">
                     <label class="pn-etiqueta">Descripción (opcional)</label>
@@ -112,7 +64,65 @@
         </div>
     </div>
 
-    <!-- Paso 2: dictado y equipo docente -->
+    <!-- Paso 2: tiempos del curso (carga horaria, dedicación docente y duración máxima) -->
+    <div class="pn-paso" data-grupo="Tiempos">
+        <div class="pn-seccion-titulo">
+            <h4>Tiempos del curso</h4>
+            <p>Carga horaria, dedicación docente y duración máxima</p>
+        </div>
+        <div class="row g-3">
+            <div class="col-md-6 pn-campo">
+                <div class="pn-etiqueta-con-ayuda">
+                    <label class="pn-etiqueta">Carga horaria <span class="pn-obligatorio">*</span></label>
+                    <button type="button" class="cn-ayuda" aria-expanded="false" aria-label="Sobre la carga horaria" title="Ayuda"
+                            th:data-ayuda-destino="${'ayudaCargaHoraria' + (curso != null ? curso.idCurso : 'Nueva')}"><i class="fa-solid fa-circle-info"></i></button>
+                </div>
+                <th:block th:replace="~{fragments/campoTiempo :: minutos('cargaHoraria', ${curso != null ? curso.cargaHorariaMinutos : null}, ${bloqueado}, 'Debe completar la carga horaria.', ${false})}"></th:block>
+                <div class="pn-ayuda-error"></div>
+            </div>
+            <div class="col-md-6 pn-campo">
+                <div class="pn-etiqueta-con-ayuda">
+                    <label class="pn-etiqueta">Dedicación docente <span class="pn-obligatorio">*</span></label>
+                    <button type="button" class="cn-ayuda" aria-expanded="false" aria-label="Sobre la dedicación docente" title="Ayuda"
+                            th:data-ayuda-destino="${'ayudaDedicacionDocente' + (curso != null ? curso.idCurso : 'Nueva')}"><i class="fa-solid fa-circle-info"></i></button>
+                </div>
+                <th:block th:replace="~{fragments/campoTiempo :: minutos('dedicacionDocente', ${curso != null ? curso.dedicacionDocenteMinutos : null}, ${bloqueado}, 'Debe completar la dedicación docente.', ${false})}"></th:block>
+                <div class="pn-ayuda-error"></div>
+            </div>
+            <div class="col-md-6 pn-campo">
+                <div class="pn-etiqueta-con-ayuda">
+                    <label class="pn-etiqueta">Duración máxima <span class="pn-obligatorio">*</span></label>
+                    <button type="button" class="cn-ayuda" aria-expanded="false" aria-label="Sobre la duración máxima" title="Ayuda"
+                            th:data-ayuda-destino="${'ayudaDuracionMaxima' + (curso != null ? curso.idCurso : 'Nueva')}"><i class="fa-solid fa-circle-info"></i></button>
+                </div>
+                <th:block th:replace="~{fragments/campoTiempo :: dias('duracionMaxima', ${curso != null ? curso.duracionMaximaDias : null}, ${bloqueado}, 'Debe completar la duración máxima.', ${false})}"></th:block>
+                <div class="pn-ayuda-error"></div>
+            </div>
+            <div class="col-12 ayuda-desplegable" th:id="${'ayudaCargaHoraria' + (curso != null ? curso.idCurso : 'Nueva')}">
+                <div class="ayuda-desplegable-interior">
+                    <div class="cn-info">
+                        <span>La <strong>carga horaria</strong> es la cantidad de horas del curso para el alumno. Es la que se informa en el certificado. No puede ser mayor que el tiempo de la duración máxima.</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 ayuda-desplegable" th:id="${'ayudaDedicacionDocente' + (curso != null ? curso.idCurso : 'Nueva')}">
+                <div class="ayuda-desplegable-interior">
+                    <div class="cn-info">
+                        <span>La <strong>dedicación docente</strong> es el tiempo total de trabajo del docente para este curso. Es lo que la empresa reconoce por el diseño y la preparación. El docente lo reparte entre los temas y la suma siempre debe coincidir con este total.</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 ayuda-desplegable" th:id="${'ayudaDuracionMaxima' + (curso != null ? curso.idCurso : 'Nueva')}">
+                <div class="ayuda-desplegable-interior">
+                    <div class="cn-info">
+                        <span>La <strong>duración máxima</strong> es el tiempo de calendario que el alumno tiene disponible para completar el curso. Ningún programa puede tener un cronograma más largo que este plazo.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Paso 3: dictado y equipo docente -->
     <div class="pn-paso" data-grupo="Dictado">
         <div class="pn-seccion-titulo">
             <h4>Datos de dictado</h4>
@@ -158,7 +168,7 @@
         </div>
     </div>
 
-    <!-- Paso 3: precio e imagen -->
+    <!-- Paso 4: precio e imagen -->
     <div class="pn-paso" data-grupo="Publicación">
         <div class="pn-seccion-titulo">
             <h4>Datos de publicación</h4>
@@ -183,7 +193,7 @@
         </div>
     </div>
 
-    <!-- Paso 4: resumen estructural en árbol (se arma con lo cargado; en una modificación, solo con lo que cambió) -->
+    <!-- Paso 5: resumen estructural en árbol (se arma con lo cargado; en una modificación, solo con lo que cambió) -->
     <div class="pn-paso">
         <div class="pn-seccion-titulo">
             <h4>Resumen</h4>

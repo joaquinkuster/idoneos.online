@@ -38,6 +38,9 @@
 
     /** Lo que muestra un campo, como texto. */
     function valorDe(campo) {
+        // Un tiempo escrito en partes se resume con su texto ("6 h 40 min"), que mantiene tiempo.js
+        var tiempo = campo.querySelector('[data-tiempo-total]');
+        if (tiempo) { return tiempo.dataset.texto || ''; }
         var control = campo.querySelector('select, input, textarea');
         if (!control) { return ''; }
         if (control.tagName === 'SELECT') {

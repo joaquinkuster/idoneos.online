@@ -19,6 +19,7 @@ import lombok.Setter;
 @Check(name = "ck_curso_nombre", constraints = "trim(nombre) <> ''")
 @Check(name = "ck_curso_precio", constraints = "precio >= 0")
 @Check(name = "ck_curso_carga_horaria", constraints = "carga_horaria_minutos > 0")
+@Check(name = "ck_curso_dedicacion_docente", constraints = "dedicacion_docente_minutos > 0")
 @Check(name = "ck_curso_duracion_maxima", constraints = "duracion_maxima_dias > 0")
 @Getter
 @Setter
@@ -34,6 +35,11 @@ public class Curso {
      * Carga horaria máxima permitida para un curso, en minutos (1.000 horas).
      */
     public static final int CARGA_HORARIA_MAXIMA_MINUTOS = 60_000;
+
+    /**
+     * Dedicación docente máxima permitida para un curso, en minutos (1.000 horas).
+     */
+    public static final int DEDICACION_DOCENTE_MAXIMA_MINUTOS = 60_000;
 
     /**
      * Identificador único del curso.
@@ -76,11 +82,18 @@ public class Curso {
     private float precio;
 
     /**
-     * Carga horaria total del curso, en minutos: el tiempo de trabajo del docente que reconoce la empresa y que el
-     * docente reparte entre los temas. La define el administrador.
+     * Carga horaria del curso, en minutos: las horas de cursada que tiene el alumno. Es la que se informa en el
+     * certificado. La define el administrador.
      */
     @Column(name = "cargaHorariaMinutos", nullable = false)
     private int cargaHorariaMinutos;
+
+    /**
+     * Dedicación docente total del curso, en minutos: el tiempo de trabajo del docente que reconoce la empresa y que el
+     * docente reparte entre los temas. La define el administrador.
+     */
+    @Column(name = "dedicacionDocenteMinutos", nullable = false)
+    private int dedicacionDocenteMinutos;
 
     /**
      * Duración máxima del curso, en días: el tiempo de calendario que tiene el alumno para completarlo. La suma de los
@@ -156,36 +169,63 @@ public class Curso {
      * @param categoria relación con Categoria.
      * @param nombre nombre del curso.
      * @param precio precio del curso.
-     * @param cargaHorariaMinutos carga horaria total del curso, en minutos.
+     * @param cargaHorariaMinutos carga horaria del curso para el alumno, en minutos.
+     * @param dedicacionDocenteMinutos dedicación docente total del curso, en minutos.
      * @param duracionMaximaDias duración máxima del curso, en días.
      */
     public Curso(Nivel nivel, Categoria categoria, String nombre, float precio, int cargaHorariaMinutos,
-            int duracionMaximaDias) {
+            int dedicacionDocenteMinutos, int duracionMaximaDias) {
         this.nivel = nivel;
         this.categoria = categoria;
         this.nombre = nombre;
         this.precio = precio;
         this.cargaHorariaMinutos = cargaHorariaMinutos;
+        this.dedicacionDocenteMinutos = dedicacionDocenteMinutos;
         this.duracionMaximaDias = duracionMaximaDias;
     }
 
     /**
-     * Suma la carga horaria de los temas vigentes del curso.
+     * Calcula la dedicación docente que recibe un tema nuevo si no se indica otra: el primer tema lleva toda la dedicación del curso
+     * y los siguientes entran con una parte pareja, sin dejar a los demás temas por debajo de un minuto cada uno.
      *
-     * @return Los minutos repartidos entre los temas.
+     * @param dedicacionDocenteMinutos La dedicación docente del curso, en minutos.
+     * @param temasExistentes     La cantidad de temas vigentes que ya tiene el curso.
+     * @return Los minutos del tema nuevo.
      */
-    public int getCargaHorariaRepartidaMinutos() {
-        return temas.stream().filter(tema -> !tema.getBaja()).mapToInt(Tema::getCargaHorariaMinutos).sum();
+    public static int dedicacionPorDefectoDeTemaNuevo(int dedicacionDocenteMinutos, int temasExistentes) {
+        if (temasExistentes == 0) {
+            return dedicacionDocenteMinutos;
+        }
+        int maxima = Math.max(1, dedicacionDocenteMinutos - temasExistentes);
+        return Math.min(Math.max(1, dedicacionDocenteMinutos / (temasExistentes + 1)), maxima);
     }
 
     /**
-     * Indica si la carga horaria del curso está repartida por completo entre sus temas: tiene temas vigentes y la suma de
-     * sus minutos es igual a la carga horaria del curso.
+     * Obtiene la dedicación docente que recibiría un tema nuevo de este curso si no se indica otra.
+     *
+     * @return Los minutos del tema nuevo.
+     */
+    public int getDedicacionDocentePorDefectoDeTemaNuevo() {
+        return dedicacionPorDefectoDeTemaNuevo(dedicacionDocenteMinutos, (int) temas.stream().filter(tema -> !tema.getBaja()).count());
+    }
+
+    /**
+     * Suma la dedicación docente de los temas vigentes del curso.
+     *
+     * @return Los minutos repartidos entre los temas.
+     */
+    public int getDedicacionDocenteRepartidaMinutos() {
+        return temas.stream().filter(tema -> !tema.getBaja()).mapToInt(Tema::getDedicacionDocenteMinutos).sum();
+    }
+
+    /**
+     * Indica si la dedicación docente del curso está repartida por completo entre sus temas: tiene temas vigentes y la suma de
+     * sus minutos es igual a la dedicación docente del curso.
      *
      * @return {@code true} si todo lo que paga la empresa está asignado a algún tema.
      */
-    public boolean estaCargaHorariaCompleta() {
-        return temas.stream().anyMatch(tema -> !tema.getBaja()) && getCargaHorariaRepartidaMinutos() == cargaHorariaMinutos;
+    public boolean estaDedicacionDocenteCompleta() {
+        return temas.stream().anyMatch(tema -> !tema.getBaja()) && getDedicacionDocenteRepartidaMinutos() == dedicacionDocenteMinutos;
     }
 
     /**

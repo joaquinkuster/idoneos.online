@@ -64,14 +64,28 @@ public interface TemaServicio {
 
     /**
      * CU-20: Igual que {@link #agregarTema(Docente, Integer, Integer, String, String, String)}, indicando los minutos de
-     * carga horaria que se piden para el tema nuevo. Los demás temas del curso se reajustan en proporción para que la
-     * suma siga siendo la carga horaria del curso.
+     * dedicación docente que se piden para el tema nuevo. Los demás temas del curso se reajustan en proporción para que la
+     * suma siga siendo la dedicación docente del curso.
      *
-     * @param cargaHorariaMinutos los minutos del tema nuevo (opcional; si no se indica, el tema recibe una parte pareja)
+     * @param dedicacionDocenteMinutos los minutos del tema nuevo (opcional; si no se indica, el tema recibe una parte pareja)
      * @return el tema agregado
      */
     Tema agregarTema(Docente docente, Integer programaId, Integer temaExistenteId, String titulo,
-            String descripcion, String contenido, Integer cargaHorariaMinutos);
+            String descripcion, String contenido, Integer dedicacionDocenteMinutos);
+
+    /**
+     * CU-20: Igual que {@link #agregarTema(Docente, Integer, Integer, String, String, String, Integer)}, indicando también
+     * cuántos días ocupa el tema en el cronograma del programa.
+     *
+     * @param duracionDias los días que dura el tema en el cronograma (opcional; si no se indica, los del parámetro
+     *                     {@code cronograma.dias_por_tema_nuevo}, sin pasar de lo que queda hasta la duración máxima del curso)
+     * @return el tema agregado
+     * @throws IllegalArgumentException además de los casos anteriores, si la duración no es válida, supera lo que queda
+     *                                  hasta la duración máxima del curso o deja el cronograma más largo que los días de
+     *                                  acceso de una cohorte del programa
+     */
+    Tema agregarTema(Docente docente, Integer programaId, Integer temaExistenteId, String titulo,
+            String descripcion, String contenido, Integer dedicacionDocenteMinutos, Integer duracionDias);
 
     // ---------------------------------------------------------------- Modificaciones
 
@@ -92,13 +106,27 @@ public interface TemaServicio {
 
     /**
      * CU-21: Igual que {@link #modificarTema(Integer, Docente, String, String, String)}, y cambia además los minutos de
-     * carga horaria del tema. La diferencia la absorben, en proporción, los demás temas del curso.
+     * dedicación docente del tema. La diferencia la absorben, en proporción, los demás temas del curso.
      *
-     * @param cargaHorariaMinutos los minutos del tema (opcional; si no se indica, se conserva la actual)
+     * @param dedicacionDocenteMinutos los minutos del tema (opcional; si no se indica, se conserva la actual)
      * @return el tema modificado
      */
     Tema modificarTema(Integer id, Docente docente, String titulo, String descripcion, String contenido,
-            Integer cargaHorariaMinutos);
+            Integer dedicacionDocenteMinutos);
+
+    /**
+     * CU-21: Igual que {@link #modificarTema(Integer, Docente, String, String, String, Integer)}, y cambia además cuántos
+     * días ocupa el tema en el cronograma de un programa. La duración es de ese programa: el tema conserva la que tiene
+     * en los demás.
+     *
+     * @param programaId   el programa cuyo cronograma contiene el tema
+     * @param duracionDias los días que dura el tema en ese cronograma (opcional; si no se indica, se conserva la actual)
+     * @return el tema modificado
+     * @throws IllegalArgumentException además de los casos anteriores, si el tema no pertenece al cronograma del programa
+     *                                  o la duración no es válida
+     */
+    Tema modificarTema(Integer id, Integer programaId, Docente docente, String titulo, String descripcion,
+            String contenido, Integer dedicacionDocenteMinutos, Integer duracionDias);
 
     // ---------------------------------------------------------------- Bajas
 

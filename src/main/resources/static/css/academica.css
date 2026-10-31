@@ -1431,33 +1431,18 @@ a.ac-actividad-titulo:hover {
     padding: 5px 8px;
 }
 
-/* Duración en un formulario: número y unidad en la misma línea */
-.pn-duracion {
-    display: flex;
-    gap: 8px;
-}
-
-.pn-duracion input {
-    flex: 1 1 auto;
-    min-width: 0;
-}
-
-.pn-duracion select {
-    flex: 0 0 130px;
-}
-
-/* Duración de un tema en la vista por temas: número y unidad */
+/* Duración de un tema en la vista por temas: meses, semanas y días */
 .cn-duracion-campo {
     display: inline-flex;
-    gap: 6px;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    color: var(--pn-texto-suave);
 }
 
 .cn-duracion-campo input {
-    width: 72px;
-}
-
-.cn-duracion-campo select {
-    width: auto;
+    width: 52px;
+    text-align: center;
 }
 
 .cn-pestania {
