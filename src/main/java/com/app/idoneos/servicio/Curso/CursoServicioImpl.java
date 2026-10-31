@@ -860,7 +860,6 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
                 docentes.remove(idDocente);
             } else if (!participacion.esInactivo()) {
                 participacion.marcarInactivo();
-                participacion.setProgramaPorDefecto(null);
                 participacion.setCohortePorDefecto(null);
                 participacion.setUltimaModificacion(LocalDateTime.now());
                 docenteCursoRepositorio.save(participacion);

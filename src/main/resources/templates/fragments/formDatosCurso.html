@@ -1,0 +1,94 @@
+<!-- Formulario por pasos "Editar curso" del docente: los datos académicos del curso (nivel, carga horaria, descripción,
+     objetivos e imagen). Parámetro: curso (el curso que se completa). -->
+<form th:fragment="formulario(curso)" th:action="@{'/curso/completarDatos/' + ${curso.idCurso}}" method="post" enctype="multipart/form-data"
+      class="form-ajax" data-validar data-pasos data-resumen="Curso" data-modo="modificacion" novalidate>
+
+    <div class="pn-pasos pn-pasos-nombrados">
+        <span class="pn-pasos-item"><span class="pn-pasos-punto">1</span><span class="pn-pasos-nombre">Datos básicos</span></span><span class="pn-pasos-linea"></span>
+        <span class="pn-pasos-item"><span class="pn-pasos-punto">2</span><span class="pn-pasos-nombre">Resumen</span></span>
+    </div>
+
+    <div class="pn-paso" data-grupo="Datos básicos">
+        <div class="pn-seccion-titulo">
+            <h4>Datos básicos</h4>
+            <p>Los datos académicos del curso</p>
+        </div>
+        <div class="row g-3">
+            <div class="col-md-6 pn-campo">
+                <div class="pn-etiqueta-con-ayuda">
+                    <label class="pn-etiqueta">Nivel <span class="pn-obligatorio">*</span></label>
+                    <button type="button" class="cn-ayuda" aria-expanded="false" aria-label="Sobre el nivel" title="Ayuda"
+                            data-ayuda-destino="ayudaNivelCurso"><i class="fa-solid fa-circle-info"></i></button>
+                </div>
+                <select name="nivelId" class="pn-input" required data-mensaje-obligatorio="Elegí el nivel del curso.">
+                    <option value="">Nivel</option>
+                    <option th:each="n : ${niveles}" th:value="${n.idNivel}" th:text="${n.nombre}"
+                            th:selected="${curso.nivel != null and curso.nivel.idNivel == n.idNivel}">Nivel</option>
+                </select>
+                <div class="pn-ayuda-error"></div>
+            </div>
+            <div class="col-md-6 pn-campo">
+                <div class="pn-etiqueta-con-ayuda">
+                    <label class="pn-etiqueta">Carga horaria <span class="pn-obligatorio" th:if="${curso.emiteCertificado}">*</span></label>
+                    <button type="button" class="cn-ayuda" aria-expanded="false" aria-label="Sobre la carga horaria" title="Ayuda"
+                            data-ayuda-destino="ayudaCargaHorariaCurso"><i class="fa-solid fa-circle-info"></i></button>
+                </div>
+                <th:block th:replace="~{fragments/campoTiempo :: minutos('cargaHoraria', ${curso.cargaHorariaMinutos}, ${false}, ${curso.emiteCertificado ? 'Ingresá la carga horaria: va impresa en el certificado.' : null}, ${false})}"></th:block>
+                <div class="pn-ayuda-error"></div>
+            </div>
+            <div class="col-12 pn-campo">
+                <div class="pn-etiqueta-fila">
+                    <label class="pn-etiqueta">Descripción (opcional)</label>
+                    <span class="pn-contador" th:text="${curso.descripcion != null ? #strings.length(curso.descripcion) + ' / 150' : '0 / 150'}">0 / 150</span>
+                </div>
+                <textarea name="descripcion" class="pn-input" rows="3" maxlength="150" placeholder="Descripción" data-contador
+                          th:text="${curso.descripcion}"></textarea>
+                <div class="pn-ayuda-error"></div>
+            </div>
+            <div class="col-12 pn-campo">
+                <label class="pn-etiqueta">Objetivos <span class="pn-obligatorio">*</span></label>
+                <textarea name="objetivos" class="pn-input" rows="4" placeholder="Qué va a lograr el alumno al terminar" required
+                          data-mensaje-obligatorio="Ingresá los objetivos del curso." th:text="${curso.objetivos}"></textarea>
+                <div class="pn-ayuda-error"></div>
+            </div>
+            <div class="col-12 pn-campo">
+                <label class="pn-etiqueta">Imagen del curso (opcional)</label>
+                <input type="file" name="imagenArchivo" class="pn-input pn-input-archivo imagen-curso" accept="image/jpeg,image/png,image/webp">
+                <div class="pn-ayuda-error"></div>
+                <img class="pn-vista-previa mt-2" alt="Imagen del curso"
+                     th:classappend="${curso.imagen == null} ? 'd-none'"
+                     th:src="${curso.imagen != null} ? @{${curso.urlImagen}} : '#'"
+                     th:attr="data-original=${curso.imagen != null ? curso.urlImagen : ''}">
+            </div>
+            <div class="col-12 ayuda-desplegable" id="ayudaNivelCurso">
+                <div class="ayuda-desplegable-interior">
+                    <div class="cn-info">
+                        <span><strong>Básico:</strong> no pide conocimientos previos. <strong>Intermedio:</strong> pide manejar los fundamentos del tema. <strong>Avanzado:</strong> es para quien ya lo aplica en su trabajo.</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 ayuda-desplegable" id="ayudaCargaHorariaCurso">
+                <div class="ayuda-desplegable-interior">
+                    <div class="cn-info">
+                        <span>La <strong>carga horaria</strong> es el total de horas que se imprime en el certificado. No afecta la duración del curso ni la asignación de los temas.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="pn-paso">
+        <div class="pn-seccion-titulo">
+            <h4>Resumen</h4>
+            <p>Estos son los cambios que se van a guardar</p>
+        </div>
+        <div class="pn-arbol" data-resumen-arbol></div>
+    </div>
+
+    <div class="pn-modal-pie">
+        <button type="button" class="pn-btn pn-btn-contorno pn-pie-izquierda" data-paso-anterior>Anterior</button>
+        <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="pn-btn pn-btn-primario" data-paso-siguiente>Siguiente</button>
+        <button type="submit" class="pn-btn pn-btn-primario d-none" data-paso-guardar>Confirmar cambios</button>
+    </div>
+</form>

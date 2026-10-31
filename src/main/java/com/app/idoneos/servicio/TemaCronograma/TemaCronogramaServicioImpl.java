@@ -201,10 +201,6 @@ public class TemaCronogramaServicioImpl implements TemaCronogramaServicio, CrudS
                     .filter(u -> !u.esInactivo() && u.getCurso().getIdCurso() == programa.getCurso().getIdCurso())
                     .orElseThrow(() -> new IllegalArgumentException(
                             "Error! Uno de los temas no se encuentra activa en este curso."));
-            if (!tema.perteneceAlCronograma(programa) && tema.getProgramasQueLaIncluyen().isEmpty()) {
-                throw new IllegalArgumentException("Error! El tema '" + tema.getTitulo()
-                        + "' no se puede incorporar: no forma parte del cronograma de ningún programa del curso.");
-            }
             temas.put(id, tema);
         }
         if (programa.tieneCohortesEnCurso()) {

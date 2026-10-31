@@ -39,14 +39,6 @@ public interface DocenteCursoServicio {
     List<DocenteCurso> buscarPorDocente(Docente docente);
 
     /**
-     * Busca los registros vigentes de docenteCurso asociados a programa.
-     *
-     * @param programaPorDefecto el registro de Programa asociado
-     * @return una lista de DocenteCurso asociados al Programa indicado
-     */
-    List<DocenteCurso> buscarPorProgramaPorDefecto(Programa programaPorDefecto);
-
-    /**
      * Busca los registros vigentes de docenteCurso asociados a cohorte.
      *
      * @param cohortePorDefecto el registro de Cohorte asociado

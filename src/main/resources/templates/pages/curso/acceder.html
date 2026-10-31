@@ -51,20 +51,8 @@
                                 hasta 01/01/2027</span>
                         </th:block>
                     </p>
-                    <!-- Docente: programa y cohorte por defecto (se guardan en su participación en el curso) -->
+                    <!-- Docente: cohorte de trabajo (se guarda en su participación en el curso); el programa es el de esa cohorte -->
                     <div class="ac-contexto" th:if="${puedeGestionar}">
-                        <div class="ac-contexto-campo">
-                            <label class="ac-contexto-etiqueta" for="selectProgramaPorDefecto">Programa por
-                                defecto</label>
-                            <select id="selectProgramaPorDefecto" class="ac-contexto-select" data-selector-contexto
-                                data-url="/programa/establecerPorDefecto" data-parametro="programaId"
-                                th:disabled="${#lists.size(programasDelCurso) < 2}">
-                                <option th:if="${#lists.isEmpty(programasDelCurso)}" value="">Sin programas</option>
-                            <option th:each="p : ${programasDelCurso}" th:value="${p.idPrograma}"
-                                    th:text="${p.nombre + ' (' + p.estado + ')'}"
-                                    th:selected="${p.idPrograma == programa.idPrograma}">2026 (Vigente)</option>
-                            </select>
-                        </div>
                         <div class="ac-contexto-campo">
                             <label class="ac-contexto-etiqueta" for="selectCohortePorDefecto">Cohorte por defecto</label>
                             <select id="selectCohortePorDefecto" class="ac-contexto-select" data-selector-contexto

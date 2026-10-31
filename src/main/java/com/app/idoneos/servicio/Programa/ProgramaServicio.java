@@ -48,7 +48,39 @@ public interface ProgramaServicio {
     Programa registrarPrograma(Docente docente, Integer cursoId, Integer programaOrigenId, String nombre,
             String descripcion);
 
+    /**
+     * CU-16: Registra un programa con su cronograma de una vez (lo arma el asistente de programas: datos, cronograma y
+     * contenido). Si se indican temas, estos y sus días reemplazan al cronograma del programa de origen.
+     *
+     * @param docente          el docente que registra
+     * @param cursoId          el identificador del curso
+     * @param programaOrigenId el programa del que se parte (opcional)
+     * @param nombre           el nombre (opcional: si no se indica, es "Versión N")
+     * @param descripcion      qué cambia respecto de la versión anterior (opcional)
+     * @param temaIds          los temas del cronograma, en orden ({@code null} para conservar el del programa de origen)
+     * @param dias             los días de cada tema, en el mismo orden
+     * @return el programa registrado
+     * @throws IllegalArgumentException si algún dato no es válido
+     */
+    Programa registrarPrograma(Docente docente, Integer cursoId, Integer programaOrigenId, String nombre,
+            String descripcion, List<Integer> temaIds, List<String> dias);
+
     // ---------------------------------------------------------------- Modificaciones
+
+    /**
+     * CU-17: Modifica los datos y el cronograma de un programa que no tiene inscripciones activas.
+     *
+     * @param id          el identificador del programa
+     * @param docente     el docente que modifica
+     * @param nombre      el nombre
+     * @param descripcion qué cambia respecto de la versión anterior (opcional)
+     * @param temaIds     los temas del cronograma, en orden ({@code null} para no tocar el cronograma)
+     * @param dias        los días de cada tema, en el mismo orden
+     * @return el programa modificado
+     * @throws IllegalArgumentException si algún dato no es válido o el programa tiene inscripciones activas
+     */
+    Programa modificarPrograma(Integer id, Docente docente, String nombre, String descripcion, List<Integer> temaIds,
+            List<String> dias);
 
     /**
      * CU-17: Modifica los datos de un programa que no tiene inscripciones activas.
@@ -62,16 +94,6 @@ public interface ProgramaServicio {
      *                                  el docente no participa en el curso
      */
     Programa modificarPrograma(Integer id, Docente docente, String nombre, String descripcion);
-
-    /**
-     * Establece el programa por defecto del docente en el curso del programa (y deja sin definir su cohorte por
-     * defecto, que pasa a ser la más relevante del programa). Se guarda en su participación en el curso.
-     *
-     * @param docente    el docente
-     * @param programaId el identificador del programa
-     * @throws IllegalArgumentException si el programa no está activo o el docente no participa en el curso
-     */
-    void establecerPorDefecto(Docente docente, Integer programaId);
 
     // ---------------------------------------------------------------- Bajas
 

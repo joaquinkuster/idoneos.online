@@ -1,5 +1,7 @@
 package com.app.idoneos.controlador;
 
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -19,6 +21,8 @@ import com.app.idoneos.servicio.Curso.ContextoCurso;
 import com.app.idoneos.modelo.Curso;
 import com.app.idoneos.modelo.Docente;
 import com.app.idoneos.modelo.Programa;
+import com.app.idoneos.modelo.Tema;
+import com.app.idoneos.servicio.Tema.TemaServicio;
 import com.app.idoneos.modelo.Usuario;
 import com.app.idoneos.servicio.Programa.ProgramaServicio;
 import com.app.idoneos.utilidades.RespuestaFormularioUtilidad;
@@ -26,7 +30,7 @@ import com.app.idoneos.utilidades.RespuestaFormularioUtilidad;
 /**
  * Controlador del ABM de programas (MOD-F-02): CU-15 Buscar programa (GET /programa/buscar), CU-16 Registrar programa
  * (POST /programa/registrar), CU-17 Modificar programa (POST /programa/modificar/{id}) y CU-18 Dar de baja programa
- * (POST /programa/darDeBaja/{id}). También guarda el programa por defecto del docente (POST /programa/establecerPorDefecto).
+ * (POST /programa/darDeBaja/{id}).
  *
  * El docente (titular o ayudante) gestiona los programas de los cursos en los que participa; el administrador puede
  * buscar y dar de baja los de cualquier curso.
@@ -37,6 +41,9 @@ public class ProgramaControlador extends PanelCursoControlador {
 
     @Autowired
     private ProgramaServicio programaServicio;
+
+    @Autowired
+    private TemaServicio temaServicio;
 
     // ---------------------------------------------------------------- Lecturas
 
@@ -57,21 +64,40 @@ public class ProgramaControlador extends PanelCursoControlador {
     public String buscarProgramas(@RequestParam(value = "cursoId", required = false) Integer cursoId,
             @RequestParam(value = "nombre", required = false) String nombre,
             @RequestParam(value = "estado", required = false) String estado,
-            @RequestParam(value = "nuevo", required = false) String nuevo, Model modelo, Authentication auth,
+            @RequestParam(value = "nuevo", required = false) String nuevo,
+            @RequestParam(value = "editar", required = false) Integer editar, Model modelo, Authentication auth,
             RedirectAttributes redirectAttributes) {
         try {
             ContextoCurso contexto = contextoDelPanel(cursoId, (Usuario) auth.getPrincipal());
             boolean esAdministrador = contexto.esAdministrador();
             Curso curso = contexto.curso();
-            // Solo el docente tiene un programa de trabajo elegido (el administrador no)
-            Programa programaDeTrabajo = esAdministrador ? null : contexto.programa();
             List<Programa> programas = programaServicio.buscarConFiltros(curso, null, null); // listado completo: los filtros se aplican en la pantalla
 
             cargarContexto(modelo, contexto, "programas");
             modelo.addAttribute("programas", programas);
-            modelo.addAttribute("programaDeTrabajoId", programaDeTrabajo == null ? null : programaDeTrabajo.getIdPrograma());
             modelo.addAttribute("programasActivos", curso.getProgramasActivos());
-            modelo.addAttribute("abrirModal", !esAdministrador && nuevo != null ? "modalNuevoPrograma" : null);
+            // Si cada programa está completo y, por tema del curso, el contenido que tiene (para el asistente de programas)
+            Map<Integer, Boolean> completos = new HashMap<>();
+            programas.forEach(p -> completos.put(p.getIdPrograma(), disenoCursoServicio.estaCompleto(curso, p)));
+            modelo.addAttribute("completos", completos);
+            List<Tema> temasDelCurso = temaServicio.buscarPorCurso(curso);
+            modelo.addAttribute("temasDelCurso", temasDelCurso);
+            Map<Integer, Map<String, Boolean>> contenido = new LinkedHashMap<>();
+            temasDelCurso.forEach(t -> contenido.put(t.getIdTema(), disenoCursoServicio.contenidoDe(curso, t).celdas()));
+            modelo.addAttribute("contenidoPorTema", contenido);
+            modelo.addAttribute("columnasContenido", disenoCursoServicio.columnasDeContenido(curso));
+            // Lo que necesita el asistente de programas (se lee en la página como JSON)
+            List<Map<String, Object>> temasJson = new java.util.ArrayList<>();
+            temasDelCurso.forEach(t -> temasJson.add(Map.of("id", t.getIdTema(), "titulo", t.getTitulo(),
+                    "contenido", contenido.get(t.getIdTema()))));
+            Map<String, Object> datos = new LinkedHashMap<>();
+            datos.put("cursoId", curso.getIdCurso());
+            datos.put("duracionDias", curso.getDuracionDias());
+            datos.put("temas", temasJson);
+            datos.put("columnas", disenoCursoServicio.columnasDeContenido(curso));
+            modelo.addAttribute("datos", datos);
+            modelo.addAttribute("abrirModal", !esAdministrador && (nuevo != null || editar != null) ? "modalPrograma" : null);
+            modelo.addAttribute("programaAEditar", editar);
             modelo.addAttribute("nombreBusqueda", nombre);
             modelo.addAttribute("estadoSeleccionado", estado);
             modelo.addAttribute("puedeGestionar", !esAdministrador);
@@ -99,11 +125,14 @@ public class ProgramaControlador extends PanelCursoControlador {
             @RequestParam(value = "cursoId", required = false) Integer cursoId,
             @RequestParam(value = "programaOrigenId", required = false) Integer programaOrigenId,
             @RequestParam(value = "nombre", required = false) String nombre,
-            @RequestParam(value = "descripcion", required = false) String descripcion, Authentication auth) {
+            @RequestParam(value = "descripcion", required = false) String descripcion,
+            @RequestParam(value = "conCronograma", required = false) Boolean conCronograma,
+            @RequestParam(value = "ids", required = false) List<Integer> ids,
+            @RequestParam(value = "dias", required = false) List<String> dias, Authentication auth) {
         try {
             Usuario usuario = (Usuario) auth.getPrincipal();
             Programa programa = programaServicio.registrarPrograma(usuario.getDocente(), cursoId, programaOrigenId,
-                    nombre, descripcion);
+                    nombre, descripcion, cronogramaRecibido(conCronograma, ids), dias);
             return RespuestaFormularioUtilidad.respuestaExitosa("Programa '" + programa.getNombre() + "' registrado con éxito.");
         } catch (Exception e) {
             return RespuestaFormularioUtilidad.respuestaConError(e);
@@ -124,10 +153,14 @@ public class ProgramaControlador extends PanelCursoControlador {
     @PostMapping("/modificar/{id}")
     public ResponseEntity<Map<String, String>> modificarPrograma(@PathVariable("id") Integer id,
             @RequestParam(value = "nombre", required = false) String nombre,
-            @RequestParam(value = "descripcion", required = false) String descripcion, Authentication auth) {
+            @RequestParam(value = "descripcion", required = false) String descripcion,
+            @RequestParam(value = "conCronograma", required = false) Boolean conCronograma,
+            @RequestParam(value = "ids", required = false) List<Integer> ids,
+            @RequestParam(value = "dias", required = false) List<String> dias, Authentication auth) {
         try {
             Usuario usuario = (Usuario) auth.getPrincipal();
-            programaServicio.modificarPrograma(id, usuario.getDocente(), nombre, descripcion);
+            programaServicio.modificarPrograma(id, usuario.getDocente(), nombre, descripcion,
+                    cronogramaRecibido(conCronograma, ids), dias);
             return RespuestaFormularioUtilidad.respuestaExitosa("Programa modificado correctamente.");
         } catch (Exception e) {
             return RespuestaFormularioUtilidad.respuestaConError(e);
@@ -135,23 +168,14 @@ public class ProgramaControlador extends PanelCursoControlador {
     }
 
     /**
-     * Guarda el programa elegido como programa por defecto del docente en su participación en el curso. Responde en
-     * JSON (lo usa el selector de la vista del curso).
-     *
-     * @param programaId Identificador del programa.
-     * @param auth       La autenticación actual.
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
+     * Los temas del cronograma que envió el asistente: con {@code conCronograma} y sin temas, un cronograma vacío (no
+     * se parte del programa de origen); sin {@code conCronograma}, el cronograma no se toca.
      */
-    @PostMapping("/establecerPorDefecto")
-    public ResponseEntity<Map<String, String>> establecerPorDefecto(
-            @RequestParam(value = "programaId", required = false) Integer programaId, Authentication auth) {
-        try {
-            Usuario usuario = (Usuario) auth.getPrincipal();
-            programaServicio.establecerPorDefecto(usuario.getDocente(), programaId);
-            return RespuestaFormularioUtilidad.respuestaExitosa("Ahora trabajás sobre el programa seleccionado.");
-        } catch (Exception e) {
-            return RespuestaFormularioUtilidad.respuestaConError(e);
+    private static List<Integer> cronogramaRecibido(Boolean conCronograma, List<Integer> ids) {
+        if (!Boolean.TRUE.equals(conCronograma)) {
+            return ids;
         }
+        return ids == null ? List.of() : ids;
     }
 
     // ---------------------------------------------------------------- Bajas

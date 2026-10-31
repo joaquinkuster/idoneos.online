@@ -45,16 +45,12 @@ public class TemaControlador extends PanelCursoControlador {
     // ---------------------------------------------------------------- Lecturas
 
     /**
-     * CU-19: Lista los temas del cronograma del programa de trabajo de un curso. Si se indica {@code nuevo}, abre
-     * sola la ventana para agregar un tema; con {@code accion} y {@code temaId} abre la ventana de modificar o de
-     * dar de baja ese tema (son los destinos del botón "Registrar tema" y del menú de cada tema de la vista del
-     * curso).
+     * CU-19: Lista los temas de un curso, con los programas que incluye cada uno. Con {@code nuevo} abre sola la ventana
+     * para registrar temas; con {@code editar} abre esa ventana con el tema elegido para modificarlo.
      *
      * @param cursoId            Identificador del curso.
-     * @param titulo             Parte del título (opcional).
-     * @param nuevo              Presente para abrir el formulario de alta (solo docente).
-     * @param accion             "editar" o "baja": abre sola la ventana de ese tema.
-     * @param temaId           Identificador del tema de la acción (opcional).
+     * @param nuevo              Presente para abrir la ventana de registro (solo docente).
+     * @param editar             Identificador de un tema para abrir la ventana con ese tema elegido (solo docente).
      * @param modelo             El modelo de la vista.
      * @param auth               La autenticación actual.
      * @param redirectAttributes Atributos para mensajes de redirección.
@@ -62,45 +58,23 @@ public class TemaControlador extends PanelCursoControlador {
      */
     @GetMapping("/buscar")
     public String buscarTemas(@RequestParam(value = "cursoId", required = false) Integer cursoId,
-            @RequestParam(value = "titulo", required = false) String titulo,
             @RequestParam(value = "nuevo", required = false) String nuevo,
-            @RequestParam(value = "accion", required = false) String accion,
-            @RequestParam(value = "temaId", required = false) Integer temaId, Model modelo, Authentication auth,
+            @RequestParam(value = "editar", required = false) Integer editar, Model modelo, Authentication auth,
             RedirectAttributes redirectAttributes) {
         try {
             ContextoCurso contexto = contextoDelPanel(cursoId, (Usuario) auth.getPrincipal());
-            boolean esAdministrador = contexto.esAdministrador();
             Curso curso = contexto.curso();
-            Programa programa = contexto.programa();
-            if (programa == null) {
-                return avisarCursoSinProgramas(contexto, redirectAttributes);
-            }
-            List<TemaCronograma> temas = temaServicio.buscarConFiltros(programa, null); // listado completo: los filtros se aplican en la pantalla
-
-            String abrirModal = null;
-            if (!esAdministrador && nuevo != null) {
-                abrirModal = "modalNuevaTema";
-            } else if (accion != null && temaId != null && programa.getCronogramaOrdenado().stream()
-                    .anyMatch(c -> c.getTema().getIdTema() == temaId)) {
-                if ("baja".equals(accion)) {
-                    abrirModal = "modalBajaTema" + temaId;
-                } else if ("editar".equals(accion) && !esAdministrador) {
-                    abrirModal = "modalEditarTema" + temaId;
-                }
-            }
-
-            List<Tema> temasDelCurso = temaServicio.buscarPorCurso(curso).stream()
-                    .filter(u -> !u.getProgramasQueLaIncluyen().isEmpty()).toList();
+            boolean puedeGestionar = !contexto.esAdministrador();
             cargarContexto(modelo, contexto, "temas");
+            List<Tema> temas = temaServicio.buscarPorCurso(curso);
             modelo.addAttribute("temas", temas);
-            modelo.addAttribute("programasActivos", curso.getProgramasActivos());
-            modelo.addAttribute("temasDelCurso", temasDelCurso);
-            modelo.addAttribute("tituloBusqueda", titulo);
-            modelo.addAttribute("abrirModal", abrirModal);
-            // Duración precargada del tema nuevo: la del parámetro, sin pasar de lo que queda hasta la duración del curso
-            modelo.addAttribute("duracionPorDefectoDias", Math.max(1, Math.min(diasPorTemaNuevo(),
-                    curso.getDuracionDias() - programa.getDuracionTotalDias())));
-            modelo.addAttribute("puedeGestionar", !esAdministrador);
+            // Si cada tema tiene todo su contenido (según las modalidades del curso)
+            Map<Integer, Boolean> contenidoCompleto = new java.util.HashMap<>();
+            temas.forEach(t -> contenidoCompleto.put(t.getIdTema(), disenoCursoServicio.contenidoDe(curso, t).getFaltantes().isEmpty()));
+            modelo.addAttribute("contenidoCompleto", contenidoCompleto);
+            modelo.addAttribute("puedeGestionar", puedeGestionar);
+            modelo.addAttribute("abrirModal", puedeGestionar && (nuevo != null || editar != null) ? "modalTemas" : null);
+            modelo.addAttribute("temaAEditar", editar);
             modelo.addAttribute("titulo", "Temas | Idóneos Online");
             return "pages/tema/buscar";
         } catch (IllegalArgumentException e) {
@@ -109,6 +83,52 @@ public class TemaControlador extends PanelCursoControlador {
     }
 
     // ---------------------------------------------------------------- Creaciones
+
+    /**
+     * Guarda de una vez los temas nuevos y los modificados de un curso (el formulario los arma en la ventana de registro,
+     * con la lista de temas del curso y el formulario de cada tema). Responde en JSON.
+     *
+     * @param cursoId Identificador del curso.
+     * @param cambios Los cambios, en JSON: una lista de {@code {id, titulo, descripcion, contenido}} ({@code id} nulo si es
+     *                un tema nuevo).
+     * @param auth    La autenticación actual.
+     * @return Una respuesta con el mensaje de éxito (y, si el curso todavía necesita su programa, la alerta que lo propone)
+     *         o el mensaje de error.
+     */
+    @PostMapping("/guardar")
+    public ResponseEntity<Map<String, String>> guardarTemas(@RequestParam(value = "cursoId", required = false) Integer cursoId,
+            @RequestParam(value = "cambios", required = false) String cambios, Authentication auth) {
+        try {
+            Usuario usuario = (Usuario) auth.getPrincipal();
+            List<TemaServicio.CambioDeTema> lista = new java.util.ArrayList<>();
+            if (cambios != null && !cambios.isBlank()) {
+                List<Map<String, Object>> filas = new com.fasterxml.jackson.databind.ObjectMapper().readValue(cambios,
+                        new com.fasterxml.jackson.core.type.TypeReference<List<Map<String, Object>>>() { });
+                for (Map<String, Object> fila : filas) {
+                    Object id = fila.get("id");
+                    lista.add(new TemaServicio.CambioDeTema(id instanceof Number numero ? numero.intValue() : null,
+                            texto(fila.get("titulo")), texto(fila.get("descripcion")), texto(fila.get("contenido"))));
+                }
+            }
+            int cantidad = temaServicio.guardarCambios(usuario.getDocente(), cursoId, lista);
+            String mensaje = cantidad == 1 ? "Tema guardado correctamente." : cantidad + " temas guardados correctamente.";
+            boolean hayNuevos = lista.stream().anyMatch(c -> c.id() == null);
+            Programa vigente = hayNuevos ? cursoServicio.buscarActivoPorId(cursoId).getProgramaVigente() : null;
+            if (hayNuevos && (vigente == null || !vigente.estaDuracionAsignadaCompleta())) {
+                // Alerta guía: con temas registrados, el paso siguiente es repartirles la duración del curso en un programa
+                return RespuestaFormularioUtilidad.respuestaExitosaConSiguiente(mensaje, "¿Armás el programa?",
+                        "Ya tenés temas: podés asignarles la duración del curso en el programa.", "Armar el programa",
+                        "/programa/buscar?cursoId=" + cursoId + (vigente == null ? "&nuevo=" : ""));
+            }
+            return RespuestaFormularioUtilidad.respuestaExitosa(mensaje);
+        } catch (Exception e) {
+            return RespuestaFormularioUtilidad.respuestaConError(e);
+        }
+    }
+
+    private static String texto(Object valor) {
+        return valor == null ? null : valor.toString();
+    }
 
     /**
      * CU-20: Agrega un tema (nueva o ya existente en otro programa del curso) al final del cronograma de un programa.
@@ -223,7 +243,11 @@ public class TemaControlador extends PanelCursoControlador {
     public ResponseEntity<Map<String, String>> darDeBajaTema(@PathVariable("id") Integer id,
             @RequestParam(value = "programaId", required = false) Integer programaId, Authentication auth) {
         try {
-            temaServicio.darDeBajaTema(id, programaId, docenteQueGestiona(auth));
+            if (programaId == null) {
+                temaServicio.darDeBajaTemaDelCurso(id, docenteQueGestiona(auth));
+            } else {
+                temaServicio.darDeBajaTema(id, programaId, docenteQueGestiona(auth));
+            }
             return RespuestaFormularioUtilidad.respuestaExitosa("Tema dada de baja con éxito.");
         } catch (Exception e) {
             return RespuestaFormularioUtilidad.respuestaConError(e);

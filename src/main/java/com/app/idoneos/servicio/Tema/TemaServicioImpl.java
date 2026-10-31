@@ -47,6 +47,9 @@ public class TemaServicioImpl implements TemaServicio, CrudServicio<Tema> {
     private DocenteCursoRepositorio docenteCursoRepositorio;
 
     @Autowired
+    private com.app.idoneos.repositorio.CursoRepositorio cursoRepositorio;
+
+    @Autowired
     private InscripcionServicio inscripcionServicio;
 
     @Autowired
@@ -202,6 +205,80 @@ public class TemaServicioImpl implements TemaServicio, CrudServicio<Tema> {
         programa.getTemasCronograma().add(cronograma);
         tema.getTemasCronograma().add(cronograma);
         return tema;
+    }
+
+    /**
+     * Registra un tema del curso, sin incorporarlo todavía al cronograma de ningún programa.
+     */
+    @Override
+    @Transactional
+    public Tema registrarTema(Docente docente, Integer cursoId, String titulo, String descripcion, String contenido) {
+        Curso curso = cursoRepositorio.findById(cursoId == null ? -1 : cursoId).filter(c -> !c.esInactivo())
+                .orElseThrow(() -> new IllegalArgumentException("Error! El curso no se encuentra activo."));
+        obtenerParticipacion(curso, docente);
+        String tituloLimpio = validarDatos(titulo);
+        validarTituloLibre(curso, tituloLimpio, null);
+        Tema tema = new Tema(curso, tituloLimpio, contenidoLimpio(contenido));
+        tema.setDescripcion(validarDescripcion(descripcion));
+        tema = temaRepositorio.save(tema);
+        curso.getTemas().add(tema);
+        return tema;
+    }
+
+    /**
+     * Guarda de una vez los temas nuevos y los modificados de un curso.
+     */
+    @Override
+    @Transactional
+    public int guardarCambios(Docente docente, Integer cursoId, List<CambioDeTema> cambios) {
+        if (cambios == null || cambios.isEmpty()) {
+            throw new IllegalArgumentException("Error! No hay cambios para guardar.");
+        }
+        int cantidad = 0;
+        for (CambioDeTema cambio : cambios) {
+            try {
+                if (cambio.id() == null) {
+                    registrarTema(docente, cursoId, cambio.titulo(), cambio.descripcion(), cambio.contenido());
+                } else {
+                    modificarTema(cambio.id(), docente, cambio.titulo(), cambio.descripcion(), cambio.contenido());
+                }
+                cantidad++;
+            } catch (IllegalArgumentException e) {
+                // Se indica de qué tema es el error y no se guarda ninguno (la transacción se revierte)
+                String nombre = cambio.titulo() == null || cambio.titulo().isBlank() ? "(sin título)" : "«" + cambio.titulo().trim() + "»";
+                throw new IllegalArgumentException("Error! Tema " + nombre + ": " + e.getMessage().replaceFirst("^Error! ", ""));
+            }
+        }
+        return cantidad;
+    }
+
+    /**
+     * Da de baja un tema del curso: lo quita del cronograma de todos sus programas y lo deja dado de baja.
+     */
+    @Override
+    @Transactional
+    public void darDeBajaTemaDelCurso(Integer id, Docente docente) {
+        Tema tema = temaRepositorio.findById(id == null ? -1 : id).filter(t -> !t.esInactivo())
+                .orElseThrow(() -> new IllegalArgumentException("Error! El tema no se encuentra activo."));
+        obtenerParticipacion(tema.getCurso(), docente);
+        List<Programa> programas = tema.getProgramasQueLaIncluyen();
+        for (Programa programa : programas) {
+            if (programa.getCantidadInscripcionesActivas() > 0) {
+                throw new IllegalArgumentException(MensajeErrorUtilidad.bajaBloqueada("el tema", tema.getTitulo(),
+                        "el programa «" + programa.getNombre() + "» tiene "
+                                + MensajeErrorUtilidad.cantidad(programa.getCantidadInscripcionesActivas(), "inscripción activa",
+                                        "inscripciones activas")
+                                + " y su cronograma es lo que los alumnos vieron y pagaron al inscribirse", ""));
+            }
+        }
+        for (Programa programa : programas) {
+            darDeBajaTema(tema.getIdTema(), programa.getIdPrograma(), docente);
+        }
+        if (!tema.esInactivo()) {
+            tema.marcarInactivo();
+            tema.setUltimaModificacion(LocalDateTime.now());
+            temaRepositorio.save(tema);
+        }
     }
 
     // ---------------------------------------------------------------- Modificaciones
@@ -401,14 +478,6 @@ public class TemaServicioImpl implements TemaServicio, CrudServicio<Tema> {
                 temaCronogramaRepositorio.saveAndFlush(restante);
             }
             orden++;
-        }
-        for (TemaCronograma cronograma : aQuitar) {
-            Tema tema = cronograma.getTema();
-            if (tema.getProgramasQueLaIncluyen().isEmpty()) {
-                tema.marcarInactivo();
-                tema.setUltimaModificacion(ahora);
-                temaRepositorio.save(tema);
-            }
         }
     }
 

@@ -302,7 +302,7 @@ class TemaServicioTest {
     // ------------------------------------------------------------------ CU-22 Dar de baja tema
 
     @Test
-    @DisplayName("CU-22: dar de baja un tema la quita del cronograma, renumera las demás y la da de baja si no está en otro programa")
+    @DisplayName("CU-22: dar de baja un tema del programa la quita del cronograma y renumera las demás; el tema sigue siendo del curso")
     void daDeBajaYRenumera() {
         Programa programa = macro().getProgramaVigente();
         Tema uno = agregar(programa, "Uno");
@@ -312,7 +312,7 @@ class TemaServicioTest {
         temaServicio.darDeBajaTema(uno.getIdTema(), programa.getIdPrograma(), fausto());
 
         assertEquals(antes - 1, programa.getCantidadTemas());
-        assertTrue(uno.getBaja());
+        assertFalse(uno.getBaja());
         assertFalse(dos.getBaja());
         List<Integer> ordenes = ordenes(programa);
         assertEquals(java.util.stream.IntStream.rangeClosed(1, antes - 1).boxed().toList(), ordenes);
@@ -375,8 +375,65 @@ class TemaServicioTest {
 
         temaServicio.darDeBajaVarias(List.of(uno.getIdTema(), dos.getIdTema(), dos.getIdTema()), id, null);
 
-        assertTrue(uno.getBaja());
-        assertTrue(dos.getBaja());
+        assertFalse(uno.getBaja());
+        assertFalse(dos.getBaja());
+    }
+
+    // ------------------------------------------------------------------ Temas del curso
+
+    @Test
+    @DisplayName("CU-20: registrar un tema del curso no lo incorpora a ningún cronograma")
+    void registraUnTemaDelCurso() {
+        Programa programa = macro().getProgramaVigente();
+        int enElCronograma = programa.getCantidadTemas();
+
+        Tema nuevo = temaServicio.registrarTema(fausto(), macro().getIdCurso(), "  Política monetaria ", " Tasas ", null);
+
+        assertEquals("Política monetaria", nuevo.getTitulo());
+        assertEquals(enElCronograma, programa.getCantidadTemas());
+        assertTrue(nuevo.getProgramasQueLaIncluyen().isEmpty());
+        assertTrue(macro().getTemas().contains(nuevo));
+        assertTrue(mensaje(() -> temaServicio.registrarTema(fausto(), macro().getIdCurso(), "política monetaria", null, null))
+                .contains("Ya existe un tema con ese título"));
+        assertTrue(mensaje(() -> temaServicio.registrarTema(sebastian(), macro().getIdCurso(), "Otro", null, null))
+                .contains("No participás en este curso"));
+    }
+
+    @Test
+    @DisplayName("CU-20 y CU-21: guardar cambios registra los temas nuevos y modifica los existentes, todos o ninguno")
+    void guardaCambios() {
+        Tema existente = macro().getProgramaVigente().getCronogramaOrdenado().get(0).getTema();
+
+        int cantidad = temaServicio.guardarCambios(fausto(), macro().getIdCurso(), List.of(
+                new TemaServicio.CambioDeTema(null, "Tema A", null, "Contenido A"),
+                new TemaServicio.CambioDeTema(existente.getIdTema(), "Título nuevo", null, existente.getContenido())));
+
+        assertEquals(2, cantidad);
+        assertEquals("Título nuevo", existente.getTitulo());
+
+        // si uno falla (título repetido), no se guarda ninguno y el mensaje nombra el tema
+        String mensaje = mensaje(() -> temaServicio.guardarCambios(fausto(), macro().getIdCurso(), List.of(
+                new TemaServicio.CambioDeTema(null, "Tema B", null, null),
+                new TemaServicio.CambioDeTema(null, "Tema A", null, null))));
+        assertTrue(mensaje.contains("«Tema A»"));
+        assertTrue(mensaje.contains("Ya existe un tema con ese título"));
+        assertTrue(mensaje(() -> temaServicio.guardarCambios(fausto(), macro().getIdCurso(), List.of()))
+                .contains("No hay cambios para guardar"));
+    }
+
+    @Test
+    @DisplayName("CU-22: dar de baja un tema del curso lo quita de todos los programas y lo deja dado de baja")
+    void daDeBajaUnTemaDelCurso() {
+        Programa programa = macro().getProgramaVigente();
+        Tema tema = programa.getCronogramaOrdenado().get(0).getTema();
+        int antes = programa.getCantidadTemas();
+
+        temaServicio.darDeBajaTemaDelCurso(tema.getIdTema(), fausto());
+
+        assertTrue(tema.getBaja());
+        assertEquals(antes - 1, programa.getCantidadTemas());
+        assertTrue(mensaje(() -> temaServicio.darDeBajaTemaDelCurso(tema.getIdTema(), fausto()))
+                .contains("no se encuentra activo"));
     }
 
     // ------------------------------------------------------------------ Contenido opcional

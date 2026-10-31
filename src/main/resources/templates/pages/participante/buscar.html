@@ -71,7 +71,7 @@
                                     <span class="pn-insignia" th:classappend="${d.esTitular} ? 'pn-insignia-dorada' : 'pn-insignia-azul'"
                                           th:text="${d.esTitular ? 'Docente titular' : 'Docente ayudante'}">Docente titular</span>
                                 </td>
-                                <td th:text="${d.programaDeTrabajo != null ? d.programaDeTrabajo.nombre : '—'}">Programa 2026</td>
+                                <td>—</td>
                                 <td th:unless="${soloCohorte}" th:text="${d.cohorteDeTrabajo != null ? d.cohorteDeTrabajo.etiqueta : '—'}">Septiembre 2026</td>
                                 <td th:text="${#temporals.format(d.docente.usuario.fechaCreacion, 'dd/MM/yyyy HH:mm')}">28/08/2026 10:30</td>
                             </tr>

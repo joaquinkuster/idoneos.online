@@ -20,6 +20,8 @@ import com.app.idoneos.modelo.Curso;
 import com.app.idoneos.modelo.Docente;
 import com.app.idoneos.modelo.DocenteCurso;
 import com.app.idoneos.modelo.Programa;
+import com.app.idoneos.modelo.Tema;
+import com.app.idoneos.modelo.TemaCronograma;
 import com.app.idoneos.repositorio.CursoRepositorio;
 import com.app.idoneos.repositorio.DocenteRepositorio;
 import com.app.idoneos.repositorio.DocenteCursoRepositorio;
@@ -121,7 +123,7 @@ class ProgramaServicioTest {
     // ------------------------------------------------------------------ CU-16 Registrar programa
 
     @Test
-    @DisplayName("CU-16: registrar un programa lo deja vigente y como programa por defecto del docente")
+    @DisplayName("CU-16: registrar un programa lo deja vigente y es el programa de trabajo del docente")
     void registra() {
         Programa nuevo = programaServicio.registrarPrograma(fausto(), macro().getIdCurso(), null, "  Programa 2027  ",
                 " Plan nuevo ");
@@ -132,7 +134,6 @@ class ProgramaServicioTest {
         assertEquals(0, nuevo.getCantidadTemas());
         assertEquals("Vigente", nuevo.getEstado());
         DocenteCurso participacion = participacionDeFausto(macro());
-        assertEquals(nuevo.getIdPrograma(), participacion.getProgramaPorDefecto().getIdPrograma());
         assertNull(participacion.getCohortePorDefecto());
         assertEquals(nuevo.getIdPrograma(), participacion.getProgramaDeTrabajo().getIdPrograma());
     }
@@ -266,34 +267,57 @@ class ProgramaServicioTest {
         assertTrue(dos.getBaja());
     }
 
-    // ------------------------------------------------------------------ Programa por defecto
+    // ------------------------------------------------------------------ Cronograma del programa
 
     @Test
-    @DisplayName("El programa por defecto se guarda en la participación del docente y deja sin definir su cohorte")
-    void estableceElProgramaPorDefecto() {
-        Programa anterior = macro().getProgramaVigente();
-        Programa nuevo = registrar(macro(), null, "Programa 2027");
-        DocenteCurso participacion = participacionDeFausto(macro());
-        assertEquals(nuevo.getIdPrograma(), participacion.getProgramaDeTrabajo().getIdPrograma());
+    @DisplayName("CU-16: registrar un programa con su cronograma deja los temas en el orden y con los días indicados")
+    void registraConCronograma() {
+        List<Tema> temas = macro().getTemas().stream().filter(t -> !t.getBaja()).limit(2).toList();
 
-        programaServicio.establecerPorDefecto(fausto(), anterior.getIdPrograma());
+        Programa nuevo = programaServicio.registrarPrograma(fausto(), macro().getIdCurso(), null, "Con cronograma", null,
+                List.of(temas.get(1).getIdTema(), temas.get(0).getIdTema()), List.of("7", "14"));
 
-        assertEquals(anterior.getIdPrograma(), participacion.getProgramaPorDefecto().getIdPrograma());
-        assertEquals(anterior.getIdPrograma(), participacion.getProgramaDeTrabajo().getIdPrograma());
-        assertNull(participacion.getCohortePorDefecto());
+        assertEquals(2, nuevo.getCantidadTemas());
+        assertEquals(temas.get(1).getIdTema(), nuevo.getCronogramaOrdenado().get(0).getTema().getIdTema());
+        assertEquals(7, nuevo.getCronogramaOrdenado().get(0).getDuracionDias());
+        assertEquals(21, nuevo.getDuracionTotalDias());
     }
 
     @Test
-    @DisplayName("No se establece como por defecto un programa dado de baja o de un curso en el que no se participa")
-    void validaElProgramaPorDefecto() {
-        Programa dadoDeBaja = registrar(macro(), null, "Error");
-        programaServicio.darDeBajaPrograma(dadoDeBaja.getIdPrograma(), fausto());
+    @DisplayName("CU-16: un cronograma vacío no copia el del programa de origen")
+    void cronogramaVacioNoCopiaElDelOrigen() {
+        Programa origen = macro().getProgramaVigente();
+        assertTrue(origen.getCantidadTemas() > 0);
 
-        assertTrue(mensaje(() -> programaServicio.establecerPorDefecto(fausto(), dadoDeBaja.getIdPrograma()))
-                .contains("no se encuentra activo"));
-        assertTrue(mensaje(() -> programaServicio.establecerPorDefecto(docente("sebastian.bordato@idoneos.online"),
-                macro().getProgramaVigente().getIdPrograma())).contains("No participás en este curso"));
-        assertTrue(mensaje(() -> programaServicio.establecerPorDefecto(null, macro().getProgramaVigente().getIdPrograma()))
-                .contains("rol de docente"));
+        Programa nuevo = programaServicio.registrarPrograma(fausto(), macro().getIdCurso(), origen.getIdPrograma(),
+                "En blanco", null, List.of(), List.of());
+
+        assertEquals(0, nuevo.getCantidadTemas());
+    }
+
+    @Test
+    @DisplayName("CU-17: modificar un programa con cronograma cambia sus datos y su cronograma; quitar un tema no lo da de baja")
+    void modificaConCronograma() {
+        List<Tema> temas = macro().getTemas().stream().filter(t -> !t.getBaja()).limit(2).toList();
+        Programa programa = programaServicio.registrarPrograma(fausto(), macro().getIdCurso(), null, "Para modificar", null,
+                List.of(temas.get(0).getIdTema(), temas.get(1).getIdTema()), List.of("7", "7"));
+        Tema quitado = temas.get(0);
+        Tema conservado = temas.get(1);
+
+        programaServicio.modificarPrograma(programa.getIdPrograma(), fausto(), "Renombrado", "Otro plan",
+                List.of(conservado.getIdTema()), List.of("30"));
+
+        assertEquals("Renombrado", programa.getNombre());
+        assertEquals(1, programa.getCantidadTemas());
+        assertEquals(30, programa.getDuracionTotalDias());
+        assertFalse(quitado.getBaja());
+    }
+
+    @Test
+    @DisplayName("El programa de trabajo del docente es el vigente del curso mientras no tenga una cohorte de trabajo")
+    void elProgramaDeTrabajoEsElVigente() {
+        Programa nuevo = registrar(macro(), null, "Programa 2027");
+
+        assertEquals(nuevo.getIdPrograma(), participacionDeFausto(macro()).getProgramaDeTrabajo().getIdPrograma());
     }
 }

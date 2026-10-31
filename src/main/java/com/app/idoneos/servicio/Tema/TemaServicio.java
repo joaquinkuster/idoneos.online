@@ -76,6 +76,51 @@ public interface TemaServicio {
     Tema agregarTema(Docente docente, Integer programaId, Integer temaExistenteId, String titulo,
             String descripcion, String contenido, Integer duracionDias);
 
+    /**
+     * Un cambio sobre un tema del curso: el alta de uno nuevo (sin {@code id}) o la modificación de uno existente.
+     *
+     * @param id          el identificador del tema ({@code null} si es nuevo)
+     * @param titulo      el título
+     * @param descripcion la descripción (opcional)
+     * @param contenido   el contenido (opcional: se puede completar después)
+     */
+    record CambioDeTema(Integer id, String titulo, String descripcion, String contenido) {
+    }
+
+    /**
+     * Registra un tema del curso, sin incorporarlo todavía al cronograma de ningún programa.
+     *
+     * @param docente     el docente que registra (debe participar en el curso)
+     * @param cursoId     el identificador del curso
+     * @param titulo      el título
+     * @param descripcion la descripción (opcional)
+     * @param contenido   el contenido (opcional)
+     * @return el tema registrado
+     * @throws IllegalArgumentException si el curso no está activo, el docente no participa, falta el título o ya existe
+     */
+    Tema registrarTema(Docente docente, Integer cursoId, String titulo, String descripcion, String contenido);
+
+    /**
+     * Guarda de una vez los temas nuevos y los modificados de un curso: o se guardan todos o no se guarda ninguno.
+     *
+     * @param docente     el docente que guarda (debe participar en el curso)
+     * @param cursoId     el identificador del curso
+     * @param cambios     los temas nuevos (sin identificador) y los modificados (con identificador)
+     * @return la cantidad de temas registrados y modificados
+     * @throws IllegalArgumentException si algún cambio no es válido; el mensaje nombra el tema
+     */
+    int guardarCambios(Docente docente, Integer cursoId, java.util.List<CambioDeTema> cambios);
+
+    /**
+     * Da de baja un tema del curso: lo quita del cronograma de todos los programas que lo incluyen y lo deja dado de baja.
+     * No se puede si algún programa que lo incluye tiene inscripciones activas.
+     *
+     * @param id      el identificador del tema
+     * @param docente el docente que da de baja
+     * @throws IllegalArgumentException si el tema no está activo o es parte de un programa con inscripciones activas
+     */
+    void darDeBajaTemaDelCurso(Integer id, Docente docente);
+
     // ---------------------------------------------------------------- Modificaciones
 
     /**

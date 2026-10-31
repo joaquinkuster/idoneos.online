@@ -41,6 +41,9 @@ public class ProgramaServicioImpl implements ProgramaServicio, CrudServicio<Prog
     @Autowired
     private DocenteCursoRepositorio docenteCursoRepositorio;
 
+    @Autowired
+    private com.app.idoneos.servicio.TemaCronograma.TemaCronogramaServicio temaCronogramaServicio;
+
     // ---------------------------------------------------------------- Lecturas
 
     /**
@@ -121,9 +124,19 @@ public class ProgramaServicioImpl implements ProgramaServicio, CrudServicio<Prog
     @Transactional
     public Programa registrarPrograma(Docente docente, Integer cursoId, Integer programaOrigenId, String nombre,
             String descripcion) {
+        return registrarPrograma(docente, cursoId, programaOrigenId, nombre, descripcion, null, null);
+    }
+
+    /**
+     * CU-16: Registra un programa con su cronograma de una vez.
+     */
+    @Override
+    @Transactional
+    public Programa registrarPrograma(Docente docente, Integer cursoId, Integer programaOrigenId, String nombre,
+            String descripcion, List<Integer> temaIds, List<String> dias) {
         Curso curso = cursoRepositorio.findById(cursoId == null ? -1 : cursoId).filter(c -> !c.esInactivo())
                 .orElseThrow(() -> new IllegalArgumentException("Error! El curso no se encuentra activo."));
-        DocenteCurso participacion = obtenerParticipacion(curso, docente);
+        obtenerParticipacion(curso, docente);
         Programa origen = null;
         if (programaOrigenId != null) {
             origen = programaRepositorio.findById(programaOrigenId)
@@ -139,22 +152,34 @@ public class ProgramaServicioImpl implements ProgramaServicio, CrudServicio<Prog
         curso.getProgramas().add(programa);
 
         // Se parte del cronograma del programa anterior (temas, orden y días), como base editable
-        if (origen != null) {
+        if (origen != null && temaIds == null) {
             for (TemaCronograma original : origen.getCronogramaOrdenado()) {
                 TemaCronograma copia = temaCronogramaRepositorio.save(new TemaCronograma(programa,
                         original.getTema(), original.getNumeroOrden(), original.getDuracionDias()));
                 programa.getTemasCronograma().add(copia);
             }
         }
-        // Pasa a ser el vigente: el docente que lo registró sigue trabajando sobre él
-        participacion.setProgramaPorDefecto(programa);
-        participacion.setCohortePorDefecto(null);
-        participacion.setUltimaModificacion(LocalDateTime.now());
-        docenteCursoRepositorio.save(participacion);
+        if (temaIds != null) {
+            temaCronogramaServicio.modificarCronograma(docente, programa.getIdPrograma(), temaIds, dias);
+        }
         return programa;
     }
 
     // ---------------------------------------------------------------- Modificaciones
+
+    /**
+     * CU-17: Modifica los datos y el cronograma de un programa sin inscripciones activas.
+     */
+    @Override
+    @Transactional
+    public Programa modificarPrograma(Integer id, Docente docente, String nombre, String descripcion, List<Integer> temaIds,
+            List<String> dias) {
+        Programa programa = modificarPrograma(id, docente, nombre, descripcion);
+        if (temaIds != null) {
+            temaCronogramaServicio.modificarCronograma(docente, programa.getIdPrograma(), temaIds, dias);
+        }
+        return programa;
+    }
 
     /**
      * Modifica un registro existente.
@@ -183,20 +208,6 @@ public class ProgramaServicioImpl implements ProgramaServicio, CrudServicio<Prog
         programa.setDescripcion(validarDescripcion(descripcion));
         programa.setUltimaModificacion(LocalDateTime.now());
         return programaRepositorio.save(programa);
-    }
-
-    /**
-     * Establece el programa por defecto del docente en el curso del programa.
-     */
-    @Override
-    @Transactional
-    public void establecerPorDefecto(Docente docente, Integer programaId) {
-        Programa programa = buscarActivo(programaId);
-        DocenteCurso participacion = obtenerParticipacion(programa.getCurso(), docente);
-        participacion.setProgramaPorDefecto(programa);
-        participacion.setCohortePorDefecto(null);
-        participacion.setUltimaModificacion(LocalDateTime.now());
-        docenteCursoRepositorio.save(participacion);
     }
 
     // ---------------------------------------------------------------- Bajas

@@ -9,7 +9,7 @@
          nombre: name del campo; valor: total guardado (o null); bloqueado: solo lectura; mensaje: aviso de campo obligatorio;
          condicional: el campo solo es obligatorio en algunos modos del formulario (lo activa data-requerido). -->
     <div th:fragment="minutos(nombre, valor, bloqueado, mensaje, condicional)" class="pn-tiempo" data-tiempo="minutos">
-        <input type="text" class="pn-tiempo-total" th:name="${nombre}" th:value="${valor}" required tabindex="-1" aria-hidden="true"
+        <input type="text" class="pn-tiempo-total" th:name="${nombre}" th:value="${valor}" th:required="${mensaje != null}" tabindex="-1" aria-hidden="true"
                data-tiempo-total th:attr="data-mensaje-obligatorio=${mensaje}, data-requerido=${condicional ? '' : null}">
         <input type="hidden" th:name="${nombre + 'Unidad'}" value="minutos">
         <div class="pn-tiempo-fila">
@@ -26,7 +26,7 @@
     </div>
 
     <div th:fragment="dias(nombre, valor, bloqueado, mensaje, condicional)" class="pn-tiempo" data-tiempo="dias">
-        <input type="text" class="pn-tiempo-total" th:name="${nombre}" th:value="${valor}" required tabindex="-1" aria-hidden="true"
+        <input type="text" class="pn-tiempo-total" th:name="${nombre}" th:value="${valor}" th:required="${mensaje != null}" tabindex="-1" aria-hidden="true"
                data-tiempo-total th:attr="data-mensaje-obligatorio=${mensaje}, data-requerido=${condicional ? '' : null}">
         <input type="hidden" th:name="${nombre + 'Unidad'}" value="dias">
         <div class="pn-tiempo-fila">

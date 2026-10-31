@@ -40,14 +40,6 @@ public interface DocenteCursoRepositorio extends JpaRepository<DocenteCurso, Int
     List<DocenteCurso> findByDocenteAndBajaFalse(Docente docente);
 
     /**
-     * Busca los registros vigentes de docenteCurso asociados a programa.
-     *
-     * @param programaPorDefecto el registro de Programa asociado
-     * @return una lista de DocenteCurso asociados al Programa indicado
-     */
-    List<DocenteCurso> findByProgramaPorDefectoAndBajaFalse(Programa programaPorDefecto);
-
-    /**
      * Busca los registros vigentes de docenteCurso asociados a cohorte.
      *
      * @param cohortePorDefecto el registro de Cohorte asociado

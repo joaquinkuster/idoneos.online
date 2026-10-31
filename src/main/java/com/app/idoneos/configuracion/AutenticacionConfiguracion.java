@@ -121,8 +121,12 @@ public class AutenticacionConfiguracion {
                         // CU-01 y CU-11: búsqueda de cursos y cohortes (Docente y Administrador)
                         .requestMatchers(HttpMethod.GET, "/curso/buscar", "/cohorte/buscar")
                         .hasAnyRole("Docente", "Administrador")
-                        .requestMatchers(HttpMethod.POST, "/cohorte/cambiarContexto/*", "/cohorte/establecerPorDefecto/*")
+                        .requestMatchers(HttpMethod.POST, "/cohorte/cambiarContexto/*", "/cohorte/establecerPorDefecto/*",
+                                "/cohorte/asignarPrograma/*")
                         .hasRole("Docente")
+                        // Diseño de curso: el docente lo completa (datos del curso) y el administrador lo consulta
+                        .requestMatchers(HttpMethod.GET, "/diseno/buscar").hasAnyRole("Docente", "Administrador")
+                        .requestMatchers(HttpMethod.POST, "/curso/completarDatos/*").hasRole("Docente")
                         // CU-15 a CU-18: ABM de programas (el docente gestiona; el administrador busca y da de baja)
                         .requestMatchers(HttpMethod.GET, "/programa/buscar").hasAnyRole("Docente", "Administrador")
                         .requestMatchers(HttpMethod.POST, "/programa/darDeBaja/*", "/programa/darDeBajaMasiva")

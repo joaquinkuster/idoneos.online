@@ -82,62 +82,56 @@ class TemaControladorTest {
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesServicio")
-    @DisplayName("El docente ve el cronograma de su programa por defecto con todos los datos de cada tema")
+    @DisplayName("El docente ve los temas del curso con los programas que los incluyen y si tienen su contenido")
     void listadoDelDocente() throws Exception {
         Tema tema = primeraDe(macro());
 
         mockMvc.perform(get("/tema/buscar").param("cursoId", cursoId(macro())))
                 .andExpect(status().isOk())
                 .andExpect(content().string(Matchers.containsString("Listado de temas")))
-                .andExpect(content().string(Matchers.containsString("Cronograma de " + programaDe(macro()).getNombre())))
                 .andExpect(content().string(Matchers.containsString("pn-celda-principal pn-truncar\">" + tema.getTitulo() + "<")))
-                // los datos propios del tema, y cada uno se puede ocultar con "Columnas"
-                .andExpect(content().string(Matchers.containsString("data-col=\"Orden\"")))
-                .andExpect(content().string(Matchers.containsString("data-col=\"Título\"")))
-                .andExpect(content().string(Matchers.containsString("data-col=\"Descripción\"")))
+                .andExpect(content().string(Matchers.containsString("data-col=\"Tema\"")))
+                .andExpect(content().string(Matchers.containsString("data-col=\"En programas\"")))
                 .andExpect(content().string(Matchers.containsString("data-col=\"Contenido\"")))
-                .andExpect(content().string(Matchers.containsString("data-col=\"Duración\"")))
-                .andExpect(content().string(Matchers.containsString("data-col=\"Última modificación\"")))
-                .andExpect(content().string(Matchers.containsString("data-col=\"Fecha de creación\"")))
+                .andExpect(content().string(Matchers.containsString(programaDe(macro()).getNombre())))
                 .andExpect(content().string(Matchers.containsString("fa-plus\"></i> Registrar tema")))
+                .andExpect(content().string(Matchers.containsString("data-editar-tema")))
                 .andExpect(content().string(Matchers.containsString("data-filtro=")))
                 .andExpect(content().string(Matchers.containsString("data-paginador")))
-                // baja masiva sobre el programa del listado
-                .andExpect(content().string(Matchers.containsString("data-baja-masiva")))
-                .andExpect(content().string(Matchers.containsString("/tema/darDeBajaMasiva?programaId=" + programaId(macro()))))
-                .andExpect(content().string(Matchers.containsString("id=\"modalEditarTema" + tema.getIdTema() + "\"")))
-                .andExpect(content().string(Matchers.containsString("id=\"modalBajaTema" + tema.getIdTema() + "\"")));
+                .andExpect(content().string(Matchers.containsString("id=\"modalBajaTema" + tema.getIdTema() + "\"")))
+                // el listado ya no es el del cronograma de un programa
+                .andExpect(content().string(Matchers.not(Matchers.containsString("Cronograma de "))))
+                .andExpect(content().string(Matchers.not(Matchers.containsString("data-baja-masiva"))));
     }
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesServicio")
-    @DisplayName("El formulario de alta elige el programa por defecto, marcado como tal, y permite incorporar un tema existente")
+    @DisplayName("La ventana Registrar tema tiene la lista de temas del curso, el formulario y los pasos Datos básicos y Resumen")
     void formularioDeAlta() throws Exception {
+        Tema tema = primeraDe(macro());
+
         mockMvc.perform(get("/tema/buscar").param("cursoId", cursoId(macro())))
-                .andExpect(content().string(Matchers.containsString("id=\"modalNuevaTema\"")))
-                .andExpect(content().string(Matchers.containsString("name=\"programaId\"")))
-                .andExpect(content().string(Matchers.containsString("selected=\"selected\">" + programaDe(macro()).getNombre() + " (Por defecto)")))
-                .andExpect(content().string(Matchers.containsString("Un tema de otro programa del curso")))
-                .andExpect(content().string(Matchers.containsString("name=\"temaExistenteId\"")))
-                .andExpect(content().string(Matchers.containsString("data-programas=\"" + programaId(macro()) + "\"")))
-                .andExpect(content().string(Matchers.containsString("/js/tema.js")));
+                .andExpect(content().string(Matchers.containsString("id=\"modalTemas\"")))
+                .andExpect(content().string(Matchers.containsString("action=\"/tema/guardar\"")))
+                .andExpect(content().string(Matchers.containsString("name=\"cambios\"")))
+                .andExpect(content().string(Matchers.containsString("Datos básicos")))
+                .andExpect(content().string(Matchers.containsString("Resumen")))
+                .andExpect(content().string(Matchers.containsString("data-id=\"" + tema.getIdTema() + "\"")))
+                .andExpect(content().string(Matchers.containsString("/js/temas.js")));
     }
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesServicio")
-    @DisplayName("Con ?nuevo o ?accion el listado abre solo la ventana correspondiente")
+    @DisplayName("Con ?nuevo o ?editar el listado abre solo la ventana de temas")
     void abreLaVentana() throws Exception {
         Tema tema = primeraDe(macro());
         String curso = cursoId(macro());
 
         mockMvc.perform(get("/tema/buscar").param("cursoId", curso).param("nuevo", ""))
-                .andExpect(content().string(Matchers.containsString("data-abrir-modal=\"modalNuevaTema\"")));
-        mockMvc.perform(get("/tema/buscar").param("cursoId", curso).param("accion", "editar")
-                .param("temaId", String.valueOf(tema.getIdTema())))
-                .andExpect(content().string(Matchers.containsString("data-abrir-modal=\"modalEditarTema" + tema.getIdTema() + "\"")));
-        mockMvc.perform(get("/tema/buscar").param("cursoId", curso).param("accion", "baja")
-                .param("temaId", String.valueOf(tema.getIdTema())))
-                .andExpect(content().string(Matchers.containsString("data-abrir-modal=\"modalBajaTema" + tema.getIdTema() + "\"")));
+                .andExpect(content().string(Matchers.containsString("data-abrir-modal=\"modalTemas\"")));
+        mockMvc.perform(get("/tema/buscar").param("cursoId", curso).param("editar", String.valueOf(tema.getIdTema())))
+                .andExpect(content().string(Matchers.containsString("data-abrir-modal=\"modalTemas\"")))
+                .andExpect(content().string(Matchers.containsString("data-editar=\"" + tema.getIdTema() + "\"")));
         mockMvc.perform(get("/tema/buscar").param("cursoId", curso))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("data-abrir-modal"))));
     }
@@ -159,10 +153,51 @@ class TemaControladorTest {
     void listadoDelAdministrador() throws Exception {
         mockMvc.perform(get("/tema/buscar").param("cursoId", cursoId(macro())))
                 .andExpect(status().isOk())
-                .andExpect(content().string(Matchers.containsString("data-baja-masiva")))
+                .andExpect(content().string(Matchers.containsString("Listado de temas")))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("Registrar tema"))))
-                .andExpect(content().string(Matchers.not(Matchers.containsString("id=\"modalEditarTema"))))
+                .andExpect(content().string(Matchers.not(Matchers.containsString("id=\"modalTemas\""))))
+                .andExpect(content().string(Matchers.not(Matchers.containsString("data-editar-tema"))))
                 .andExpect(content().string(Matchers.containsString("id=\"modalBajaTema")));
+    }
+
+    @Test
+    @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesServicio")
+    @DisplayName("Guardar los temas registra los nuevos y modifica los existentes en un solo paso, y propone armar el programa")
+    void guardarTemas() throws Exception {
+        Tema existente = primeraDe(macro());
+        String cambios = "[{\"id\":null,\"titulo\":\"Política monetaria\",\"descripcion\":\"\",\"contenido\":\"Tasas\"},"
+                + "{\"id\":" + existente.getIdTema() + ",\"titulo\":\"Otro título\",\"descripcion\":\"\",\"contenido\":\"Otro\"}]";
+
+        mockMvc.perform(post("/tema/guardar").param("cursoId", cursoId(macro())).param("cambios", cambios))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.mensaje").value("2 temas guardados correctamente."))
+                // el programa vigente no asigna toda la duración del curso: se guía al docente
+                .andExpect(jsonPath("$.siguienteUrl").value(Matchers.containsString("/programa/buscar?cursoId=" + cursoId(macro()))));
+
+        mockMvc.perform(get("/tema/buscar").param("cursoId", cursoId(macro())))
+                .andExpect(content().string(Matchers.containsString("pn-celda-principal pn-truncar\">Política monetaria<")))
+                .andExpect(content().string(Matchers.containsString("pn-celda-principal pn-truncar\">Otro título<")));
+
+        // título repetido: el error nombra el tema y no se guarda nada
+        mockMvc.perform(post("/tema/guardar").param("cursoId", cursoId(macro()))
+                .param("cambios", "[{\"id\":null,\"titulo\":\"política monetaria\"}]"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value(Matchers.containsString("«política monetaria»")));
+        mockMvc.perform(post("/tema/guardar").param("cursoId", cursoId(macro())).param("cambios", "[]"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value(Matchers.containsString("No hay cambios para guardar")));
+    }
+
+    @Test
+    @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesServicio")
+    @DisplayName("Dar de baja un tema sin indicar programa lo da de baja en el curso")
+    void darDeBajaDelCurso() throws Exception {
+        Tema tema = primeraDe(macro());
+
+        mockMvc.perform(post("/tema/darDeBaja/" + tema.getIdTema()))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.mensaje").value("Tema dada de baja con éxito."));
+        mockMvc.perform(get("/tema/buscar").param("cursoId", cursoId(macro())))
+                .andExpect(content().string(Matchers.not(Matchers.containsString("id=\"modalBajaTema" + tema.getIdTema() + "\""))));
     }
 
     @Test

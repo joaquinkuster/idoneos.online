@@ -28,18 +28,21 @@
 <th:block th:fragment="enlacesGestionAcademica(activo, urlBase)">
     <a th:replace="~{fragments/sidebar :: enlace(${urlBase}, 'fa-house', ${curso != null ? #strings.abbreviate(curso.nombre, 22) : 'Curso'}, ${activo}, 'curso')}"></a>
 
-    <!-- Lo que el alumno no puede abrir no se le muestra (y sin botones, tampoco el título del grupo) -->
+    <!-- Lo que el alumno no puede abrir no se le muestra (y sin botones, tampoco el título del grupo). El diseño del curso
+         (datos, temas y programas) lleva un indicador: verde si está completo, naranja si falta algo -->
     <th:block th:if="${esDocente == true or esAdministrador == true}">
-        <div th:replace="~{fragments/sidebar :: grupo('Este curso')}"></div>
-        <a th:replace="~{fragments/sidebar :: enlace('/tema/buscar?cursoId=' + ${curso.idCurso}, 'fa-layer-group', 'Temas', ${activo}, 'temas')}"></a>
-        <a th:replace="~{fragments/sidebar :: enlace('/programa/buscar?cursoId=' + ${curso.idCurso}, 'fa-book-bookmark', 'Programas', ${activo}, 'programas')}"></a>
-    </th:block>
+        <div th:replace="~{fragments/sidebar :: grupo('Diseño de curso')}"></div>
+        <a th:replace="~{fragments/sidebar :: enlaceEstado('/diseno/buscar?cursoId=' + ${curso.idCurso}, 'fa-compass-drafting', 'Diseño de curso', ${activo}, 'diseno', ${estadoDiseno == null ? null : (estadoDiseno.datosCompletos ? 'ok' : 'pendiente')})}"></a>
+        <a th:replace="~{fragments/sidebar :: enlaceEstado('/tema/buscar?cursoId=' + ${curso.idCurso}, 'fa-layer-group', 'Temas', ${activo}, 'temas', ${estadoDiseno == null ? null : (estadoDiseno.temasCompletos ? 'ok' : 'pendiente')})}"></a>
+        <a th:replace="~{fragments/sidebar :: enlaceEstado('/programa/buscar?cursoId=' + ${curso.idCurso}, 'fa-book-bookmark', 'Programas', ${activo}, 'programas', ${estadoDiseno == null ? null : (estadoDiseno.programaCompleto ? 'ok' : 'pendiente')})}"></a>
 
-    <div th:replace="~{fragments/sidebar :: grupo('Este programa')}"></div>
-    <a th:replace="~{fragments/sidebar :: enlace((${esDocente == true or esAdministrador == true} ? '/cronograma/buscar?cursoId=' + ${curso.idCurso} : ${urlBase} + '?seccion=cronograma'), 'fa-calendar-check', 'Cronograma', ${activo}, 'cronograma')}"></a>
-    <!-- El ABM de cohortes es del administrador -->
-    <th:block th:if="${esAdministrador == true}">
-        <a th:replace="~{fragments/sidebar :: enlace('/cohorte/buscar?cursoId=' + ${curso.idCurso}, 'fa-calendar-days', 'Cohortes', ${activo}, 'cohortes')}"></a>
+        <div th:replace="~{fragments/sidebar :: grupo('Dictado')}"></div>
+        <a th:replace="~{fragments/sidebar :: enlace((${esAdministrador == true} ? '/cohorte/buscar?cursoId=' + ${curso.idCurso} : '/cohorte/buscar'), 'fa-calendar-days', 'Cohortes', ${activo}, 'cohortes')}"></a>
+    </th:block>
+    <!-- El alumno ve el cronograma del programa en el que está inscripto -->
+    <th:block th:unless="${esDocente == true or esAdministrador == true}">
+        <div th:replace="~{fragments/sidebar :: grupo('Este programa')}"></div>
+        <a th:replace="~{fragments/sidebar :: enlace(${urlBase} + '?seccion=cronograma', 'fa-calendar-check', 'Cronograma', ${activo}, 'cronograma')}"></a>
     </th:block>
 
     <div th:replace="~{fragments/sidebar :: grupo('Esta cohorte')}"></div>

@@ -11,6 +11,7 @@ import com.app.idoneos.modelo.Parametro;
 import com.app.idoneos.modelo.Tema;
 import com.app.idoneos.modelo.Usuario;
 import com.app.idoneos.servicio.Curso.ContextoCurso;
+import com.app.idoneos.servicio.Curso.DisenoCursoServicio;
 import com.app.idoneos.servicio.Curso.CursoServicio;
 import com.app.idoneos.servicio.Inscripcion.InscripcionServicio;
 import com.app.idoneos.servicio.Parametro.ParametroServicio;
@@ -32,6 +33,9 @@ public abstract class PanelCursoControlador {
 
     @Autowired
     protected ParametroServicio parametroServicio;
+
+    @Autowired
+    protected DisenoCursoServicio disenoCursoServicio;
 
     /**
      * Resuelve el contexto de las pantallas que se abren desde el panel con {@code cursoId}: el administrador trabaja con
@@ -76,6 +80,10 @@ public abstract class PanelCursoControlador {
         modelo.addAttribute("urlBase", contexto.urlBase());
         modelo.addAttribute("urlMisCursos", contexto.urlMisCursos());
         modelo.addAttribute("menuActivo", menuActivo);
+        // Los indicadores del menú lateral (datos del curso, temas y programa completos) son para quien gestiona el curso
+        if (contexto.esDocente() || contexto.esAdministrador()) {
+            modelo.addAttribute("estadoDiseno", disenoCursoServicio.estadoDe(contexto.curso()));
+        }
     }
 
     /**

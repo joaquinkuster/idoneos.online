@@ -87,12 +87,6 @@ public class Programa {
     private Set<TemaCronograma> temasCronograma = new HashSet<>();
 
     /**
-     * Conjunto de participacionesDocente asociados.
-     */
-    @OneToMany(mappedBy = "programaPorDefecto", cascade = CascadeType.ALL)
-    private Set<DocenteCurso> participacionesDocente = new HashSet<>();
-
-    /**
      * Constructor para crear el programa con los datos básicos.
      *
      * @param curso relación con Curso.

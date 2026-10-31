@@ -5,14 +5,12 @@
 </head>
 <body class="pn-body">
 <div class="pn-app" id="pnApp">
-    <!-- Menú lateral: el del docente (gestión académica) o, para el administrador, el del panel -->
     <th:block th:replace="~{fragments/menus :: gestionAcademica(${menuActivo}, ${urlBase})}"></th:block>
 
     <div class="pn-principal">
-        <th:block th:if="${esDocente}"><th:block th:replace="~{fragments/panel :: barra(null)}"></th:block></th:block>
-        <th:block th:unless="${esDocente}"><th:block th:replace="~{fragments/panel :: barra(null)}"></th:block></th:block>
+        <th:block th:replace="~{fragments/panel :: barra(null)}"></th:block>
 
-        <main class="pn-contenido" th:attr="data-abrir-modal=${abrirModal}">
+        <main class="pn-contenido" th:attr="data-abrir-modal=${abrirModal}, data-editar=${temaAEditar}">
             <nav class="ac-migas" aria-label="Ruta de navegación">
                 <a th:href="@{/inicio}">Página principal</a>
                 <i class="fa-solid fa-chevron-right"></i>
@@ -26,9 +24,9 @@
             <div class="pn-encabezado">
                 <div>
                     <h1 class="pn-titulo">Temas</h1>
-                    <p class="pn-subtitulo" th:text="${'Cronograma de ' + programa.nombre + ' de ' + curso.nombre}">Cronograma del programa</p>
+                    <p class="pn-subtitulo" th:text="${'Temas de ' + curso.nombre}">Temas del curso</p>
                 </div>
-                <button type="button" class="pn-btn pn-btn-primario" th:if="${puedeGestionar}" data-bs-toggle="modal" data-bs-target="#modalNuevaTema">
+                <button type="button" class="pn-btn pn-btn-primario" th:if="${puedeGestionar}" data-bs-toggle="modal" data-bs-target="#modalTemas">
                     <i class="fa-solid fa-plus"></i> Registrar tema
                 </button>
             </div>
@@ -36,60 +34,48 @@
             <section class="pn-tarjeta" data-tabla>
                 <div class="pn-lista-cabecera">
                     <h2 class="pn-lista-titulo">Listado de temas</h2>
-                    <span class="pn-seleccionados" data-seleccionados>0 de 0 seleccionados</span>
-                    <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico d-none" data-baja-masiva
-                            th:attr="data-url='/tema/darDeBajaMasiva?programaId=' + ${programa.idPrograma}" data-elementos="temas"
-                            data-termino-uno="elemento asociado" data-termino-varios="elementos asociados">Dar de baja seleccionado/s</button>
                 </div>
 
-                <!-- Filtros -->
                 <form th:action="@{/tema/buscar}" method="get" class="pn-filtros" data-filtro-front>
                     <input type="hidden" name="cursoId" th:value="${curso.idCurso}">
                     <a th:href="@{/tema/buscar(cursoId=${curso.idCurso})}" class="pn-btn pn-btn-contorno" hidden>Limpiar</a>
                 </form>
 
-                <!-- Tabla -->
                 <div class="pn-tabla-contenedor">
                     <table class="pn-tabla">
                         <thead>
                             <tr>
-                                <th class="pn-col-seleccion"><input type="checkbox" data-seleccionar-todos aria-label="Seleccionar todos"></th>
-                                <th data-col="Orden" data-campo="orden" data-filtro="numero">Orden</th>
-                                <th data-col="Título" data-campo="titulo" data-filtro="texto">Título</th>
-                                <th data-col="Descripción" data-campo="descripcion" data-filtro="texto">Descripción</th>
+                                <th data-col="Tema" data-campo="titulo" data-filtro="texto">Tema</th>
+                                <th data-col="En programas" data-campo="programas" data-filtro="texto">En programas</th>
                                 <th data-col="Contenido" data-campo="contenido" data-filtro="texto">Contenido</th>
-                                <th data-col="Duración" data-campo="duracion" data-filtro="numero">Duración</th>
-                                <th data-col="Última modificación" data-campo="ultimaModificacion" data-filtro="fecha">Última modificación</th>
-                                <th data-col="Fecha de creación" data-campo="fechaCreacion" data-filtro="fecha">Fecha de creación</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr th:each="uc : ${temas}" data-fila data-dependencias="0">
-                                <td class="pn-col-seleccion"><input type="checkbox" data-seleccionar-fila aria-label="Seleccionar fila"
-                                    th:value="${uc.tema.idTema}"></td>
-                                <td th:text="${uc.numeroOrden}">1</td>
-                                <td><span class="pn-celda-principal pn-truncar" th:text="${uc.tema.titulo}">Introducción al mercado</span></td>
-                                <td class="fo-col-consulta"><span class="pn-truncar pn-truncar-largo" th:text="${uc.tema.descripcion != null ? uc.tema.descripcion : '-'}">Descripción</span></td>
-                                <td class="fo-col-consulta"><span class="pn-truncar pn-truncar-largo" th:text="${uc.tema.resumenContenido}">Contenido del tema</span></td>
-                                <td th:text="${T(com.app.idoneos.utilidades.DuracionUtilidad).formatear(uc.duracionDias)}">1 semana</td>
-                                <td th:text="${uc.tema.ultimaModificacion != null ? #temporals.format(uc.tema.ultimaModificacion, 'dd/MM/yyyy') : '-'}">-</td>
-                                <td th:text="${#temporals.format(uc.tema.fechaCreacion, 'dd/MM/yyyy HH:mm')}">28/08/2026 10:30</td>
+                            <tr th:each="t : ${temas}" data-fila data-dependencias="0">
+                                <td>
+                                    <span class="pn-celda-principal pn-truncar" th:text="${t.titulo}">Introducción al mercado</span>
+                                    <span class="pn-truncar pn-truncar-largo d-block small text-muted" th:if="${t.descripcion != null}" th:text="${t.descripcion}">Descripción</span>
+                                </td>
+                                <td>
+                                    <span th:if="${t.programasQueLaIncluyen.isEmpty()}" class="text-muted">Ninguno</span>
+                                    <span th:each="p : ${t.programasQueLaIncluyen}" class="pn-chip pn-chip-azul me-1" th:text="${p.nombre}">Versión 1</span>
+                                </td>
+                                <td th:text="${contenidoCompleto.get(t.idTema) ? 'Sí' : 'No'}">Sí</td>
                                 <td>
                                     <div class="pn-acciones">
                                         <button type="button" class="pn-btn pn-btn-editar pn-btn-chico" th:if="${puedeGestionar}"
-                                                data-bs-toggle="modal" th:data-bs-target="'#modalEditarTema' + ${uc.tema.idTema}">Modificar</button>
+                                                data-editar-tema th:attr="data-id=${t.idTema}">Editar</button>
                                         <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico"
-                                                data-bs-toggle="modal" th:data-bs-target="'#modalBajaTema' + ${uc.tema.idTema}">Dar de baja</button>
+                                                data-bs-toggle="modal" th:data-bs-target="'#modalBajaTema' + ${t.idTema}">Dar de baja</button>
                                     </div>
                                 </td>
                             </tr>
-                            <tr th:replace="~{fragments/vacio :: fila(9, 'fa-layer-group', 'No se encontraron temas', 'Ningún tema coincide con los criterios ingresados.')}"></tr>
+                            <tr th:replace="~{fragments/vacio :: fila(4, 'fa-layer-group', 'No se encontraron temas', 'Registrá los temas del curso para armar su programa.')}"></tr>
                         </tbody>
                     </table>
                 </div>
 
-                <!-- Pie: filas por página y paginador -->
                 <div class="pn-tabla-pie">
                     <div class="pn-por-pagina">
                         <span>Filas por página:</span>
@@ -110,249 +96,105 @@
     </div>
 </div>
 
-<!-- Modal: agregar tema (CU-20). El programa por defecto del docente viene elegido -->
-<div class="modal fade pn-modal" id="modalNuevaTema" tabindex="-1" aria-hidden="true" th:if="${puedeGestionar}">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
+<!-- Modal: registrar y editar temas. A la izquierda, los temas del curso; a la derecha, el formulario del tema elegido. Los
+     cambios quedan en cola (Nuevo / Modificado) y se guardan juntos al confirmar -->
+<div class="modal fade pn-modal" id="modalTemas" tabindex="-1" aria-hidden="true" th:if="${puedeGestionar}">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content">
             <div class="pn-modal-cabecera">
                 <h3 class="pn-modal-titulo">Registrar tema</h3>
                 <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="pn-modal-cuerpo">
-                <form th:action="@{/tema/registrar}" method="post" class="form-ajax" data-validar novalidate data-tema-formulario
-                      data-pasos data-resumen="Tema" data-modo="alta" data-resumen-nuevo="nueva"
-                      data-contexto='[{"etiqueta":"Curso","atributoForm":"data-ctx-curso"},{"etiqueta":"Programa","campo":"programaId","atributo":"data-programa"}]' th:attr="data-ctx-curso=${curso.nombre}">
-    <!-- Cronograma lleno: el programa elegido ya ocupa toda la duración del curso (lo muestra y bloquea tema.js) -->
-    <div class="pn-aviso pn-aviso-rojo" data-cronograma-lleno hidden>
-        Se alcanzó la duración del curso. Para disponer de más tiempo, modificá el cronograma o comunicate con un administrador para que extienda la duración del curso.
-    </div>
+                <form th:action="@{/tema/guardar}" method="post" class="form-ajax" data-validar data-pasos data-validador="temas" data-temas-formulario novalidate
+                      th:attr="data-curso=${curso.nombre}">
+                    <input type="hidden" name="cursoId" th:value="${curso.idCurso}">
+                    <input type="hidden" name="cambios" value="[]" data-temas-cambios>
 
-    <div class="pn-pasos pn-pasos-nombrados">
-        <span class="pn-pasos-item"><span class="pn-pasos-punto">1</span><span class="pn-pasos-nombre">Programa</span></span><span class="pn-pasos-linea"></span>
-        <span class="pn-pasos-item"><span class="pn-pasos-punto">2</span><span class="pn-pasos-nombre">Tema</span></span><span class="pn-pasos-linea"></span>
-        <span class="pn-pasos-item"><span class="pn-pasos-punto">3</span><span class="pn-pasos-nombre">Tiempos</span></span><span class="pn-pasos-linea"></span>
-        <span class="pn-pasos-item"><span class="pn-pasos-punto">4</span><span class="pn-pasos-nombre">Resumen</span></span>
-    </div>
-    <div class="pn-paso" data-grupo="Programa" data-sin-rama>
-        <div class="pn-seccion-titulo">
-            <h4>Programa del tema</h4>
-            <p>Programa del que forma parte y qué se agrega</p>
-        </div>
-        <div class="row g-3">
-<div class="col-md-6 pn-campo">
-                            <label class="pn-etiqueta">Programa <span class="pn-obligatorio">*</span></label>
-                            <select name="programaId" data-buscable class="pn-input" required data-tema-programa>
-                                <option th:each="p : ${programasActivos}" th:value="${p.idPrograma}"
-                                        th:text="${p.nombre + (p.idPrograma == programa.idPrograma ? ' (Por defecto)' : '')}"
-                                        th:data-programa="${p.nombre}"
-                                        th:data-lleno="${curso.duracionDias - p.duracionTotalDias <= 0}"
-                                        th:selected="${p.idPrograma == programa.idPrograma}">Programa 2026 (Por defecto)</option>
-                            </select>
-                            <div class="pn-ayuda-error"></div>
+                    <div class="pn-pasos pn-pasos-nombrados">
+                        <span class="pn-pasos-item"><span class="pn-pasos-punto">1</span><span class="pn-pasos-nombre">Datos básicos</span></span><span class="pn-pasos-linea"></span>
+                        <span class="pn-pasos-item"><span class="pn-pasos-punto">2</span><span class="pn-pasos-nombre">Resumen</span></span>
+                    </div>
+
+                    <div class="pn-paso" data-grupo="Datos básicos">
+                        <div class="pn-seccion-titulo">
+                            <h4>Datos básicos</h4>
+                            <p>Elegí un tema para modificarlo o registrá uno nuevo; los cambios se guardan todos juntos</p>
                         </div>
-<div class="col-md-6 pn-campo">
-                            <label class="pn-etiqueta">¿Qué querés agregar?</label>
-                            <select class="pn-input" data-tema-modo>
-                                <option value="nueva">Un tema nueva</option>
-                                <option value="existente">Un tema de otro programa del curso</option>
-                            </select>
-                        </div>
-        </div>
-    </div>
-    <div class="pn-paso" data-grupo="Tema">
-        <div class="pn-seccion-titulo">
-            <h4>Datos del tema</h4>
-            <p>Tema a incorporar, o título, contenido y descripción</p>
-        </div>
-        <div class="row g-3">
-<div class="col-12 pn-campo" data-bloque="existente" hidden>
-                            <label class="pn-etiqueta">Tema a incorporar <span class="pn-obligatorio">*</span></label>
-                            <select name="temaExistenteId" data-buscable class="pn-input" data-tema-existente disabled>
-                                <option value="">Seleccionar tema</option>
-                                <option th:each="u : ${temasDelCurso}" th:value="${u.idTema}" th:text="${u.titulo}"
-                                        th:attr="data-programas=${u.idsProgramasQueLaIncluyen}">Tema</option>
-                            </select>
-                            <small class="text-muted" data-tema-sin-opciones hidden>No hay temas de otros programas que se puedan incorporar a este programa.</small>
-                            <div class="pn-ayuda-error"></div>
-                        </div>
-<div class="col-12 pn-campo" data-bloque="nueva">
-                            <div class="pn-etiqueta-fila">
-                                <label class="pn-etiqueta">Título <span class="pn-obligatorio">*</span></label>
-                                <span class="pn-contador">0 / 50</span>
+                        <div class="pn-temas-doble">
+                            <div class="pn-temas-lista">
+                                <div class="pn-temas-lista-cabecera">
+                                    <strong>Temas del curso</strong>
+                                    <button type="button" class="pn-btn pn-btn-contorno pn-btn-chico" data-tema-nuevo><i class="fa-solid fa-plus"></i> Nuevo tema</button>
+                                </div>
+                                <div class="pn-temas-items" data-temas-items>
+                                    <button type="button" class="pn-tema-item" th:each="t : ${temas}" th:attr="data-id=${t.idTema}, data-titulo=${t.titulo}, data-descripcion=${t.descripcion}, data-contenido=${t.contenido}">
+                                        <span class="pn-tema-item-titulo" th:text="${t.titulo}">Tema</span>
+                                        <span class="pn-chip pn-chip-naranja d-none" data-estado>Modificado</span>
+                                    </button>
+                                </div>
+                                <p class="small text-muted mb-0" data-temas-vacio>Todavía no hay temas: registrá el primero.</p>
                             </div>
-                            <input type="text" name="titulo" class="pn-input" maxlength="50" placeholder="Título" data-contador required
-                                   data-requerido data-mensaje-obligatorio="Debe completar el título.">
-                            <div class="pn-ayuda-error"></div>
-                        </div>
-<div class="col-12 pn-campo" data-bloque="nueva">
-                            <label class="pn-etiqueta">Contenido <span class="pn-obligatorio">*</span></label>
-                            <textarea name="contenido" class="pn-input" rows="5" placeholder="Contenido del tema" required
-                                      data-requerido data-mensaje-obligatorio="Debe completar el contenido."></textarea>
-                            <div class="pn-ayuda-error"></div>
-                        </div>
-<div class="col-12 pn-campo" data-bloque="nueva">
-                            <div class="pn-etiqueta-fila">
-                                <label class="pn-etiqueta">Descripción (opcional)</label>
-                                <span class="pn-contador">0 / 150</span>
-                            </div>
-                            <textarea name="descripcion" class="pn-input" rows="2" maxlength="150" placeholder="Descripción" data-contador></textarea>
-                            <div class="pn-ayuda-error"></div>
-                        </div>
-        </div>
-    </div>
-    <div class="pn-paso" data-grupo="Tiempos">
-        <div class="pn-seccion-titulo">
-            <h4>Tiempos del tema</h4>
-            <p>Duración en el cronograma</p>
-        </div>
-        <div class="row g-3">
-<div class="col-md-6 pn-campo">
-                            <div class="pn-etiqueta-con-ayuda">
-                                <label class="pn-etiqueta">Duración en el cronograma <span class="pn-obligatorio">*</span></label>
-                                <button type="button" class="cn-ayuda" aria-expanded="false" aria-label="Sobre la duración en el cronograma" title="Ayuda"
-                                        data-ayuda-destino="ayudaDuracionTemaNueva"><i class="fa-solid fa-circle-info"></i></button>
-                            </div>
-                            <th:block th:replace="~{fragments/campoTiempo :: dias('duracion', ${duracionPorDefectoDias}, ${false}, 'Debe completar la duración en el cronograma.', ${false})}"></th:block>
-                            <div class="pn-ayuda-error"></div>
-                        </div>
-<div class="col-12 ayuda-desplegable" id="ayudaDuracionTemaNueva">
-                            <div class="ayuda-desplegable-interior">
-                                <div class="cn-info">
-                                    <span>La <strong>duración en el cronograma</strong> es el tiempo de calendario que ocupa este tema en el programa. Entre todos los temas no puede superar la duración del curso de <strong th:text="${T(com.app.idoneos.utilidades.DuracionUtilidad).formatear(curso.duracionDias)}">12 semanas</strong>.</span>
+                            <div class="pn-temas-formulario">
+                                <div class="pn-temas-formulario-titulo" data-tema-titulo-formulario>Nuevo tema</div>
+                                <div class="row g-3">
+                                    <div class="col-12 pn-campo">
+                                        <div class="pn-etiqueta-fila">
+                                            <label class="pn-etiqueta">Título <span class="pn-obligatorio">*</span></label>
+                                            <span class="pn-contador">0 / 50</span>
+                                        </div>
+                                        <input type="text" class="pn-input" maxlength="50" placeholder="Título" data-contador data-tema-campo="titulo">
+                                        <div class="pn-ayuda-error"></div>
+                                    </div>
+                                    <div class="col-12 pn-campo">
+                                        <div class="pn-etiqueta-fila">
+                                            <label class="pn-etiqueta">Descripción (opcional)</label>
+                                            <span class="pn-contador">0 / 150</span>
+                                        </div>
+                                        <textarea class="pn-input" rows="2" maxlength="150" placeholder="Descripción" data-contador data-tema-campo="descripcion"></textarea>
+                                        <div class="pn-ayuda-error"></div>
+                                    </div>
+                                    <div class="col-12 pn-campo">
+                                        <label class="pn-etiqueta">Contenido (opcional)</label>
+                                        <textarea class="pn-input" rows="5" placeholder="Qué se ve en el tema" data-tema-campo="contenido"></textarea>
+                                        <div class="pn-ayuda-error"></div>
+                                    </div>
+                                </div>
+                                <div class="pn-temas-formulario-pie">
+                                    <button type="button" class="pn-btn pn-btn-contorno pn-btn-chico" data-tema-quitar hidden>Quitar de la lista</button>
+                                    <button type="button" class="pn-btn pn-btn-primario pn-btn-chico" data-tema-aplicar>Agregar a la lista</button>
                                 </div>
                             </div>
                         </div>
-        </div>
-    </div>
-    <div class="pn-paso">
-        <div class="pn-seccion-titulo">
-            <h4>Resumen</h4>
-            <p>Revisá los datos antes de guardar</p>
-        </div>
-        <div class="pn-arbol" data-resumen-arbol></div>
-    </div>
-    <div class="pn-modal-pie">
-        <button type="button" class="pn-btn pn-btn-contorno pn-pie-izquierda" data-paso-anterior>Anterior</button>
-        <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
-        <button type="button" class="pn-btn pn-btn-primario" data-paso-siguiente>Siguiente</button>
-        <button type="submit" class="pn-btn pn-btn-primario d-none" data-paso-guardar>Confirmar y guardar</button>
-    </div>
-</form>
+                    </div>
+
+                    <div class="pn-paso">
+                        <div class="pn-seccion-titulo">
+                            <h4>Resumen</h4>
+                            <p>Estos son los cambios que se van a guardar</p>
+                        </div>
+                        <div class="pn-arbol" data-temas-arbol></div>
+                    </div>
+
+                    <div class="pn-modal-pie">
+                        <button type="button" class="pn-btn pn-btn-contorno pn-pie-izquierda" data-paso-anterior>Anterior</button>
+                        <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="pn-btn pn-btn-primario" data-paso-siguiente>Siguiente</button>
+                        <button type="submit" class="pn-btn pn-btn-primario d-none" data-paso-guardar>Confirmar y guardar</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Modales por tema: modificar (CU-21) y dar de baja (CU-22) -->
-<th:block th:each="uc : ${temas}">
-    <div class="modal fade pn-modal" th:id="'modalEditarTema' + ${uc.tema.idTema}" tabindex="-1" aria-hidden="true"
-         th:if="${puedeGestionar}">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content">
-                <div class="pn-modal-cabecera">
-                    <h3 class="pn-modal-titulo">Editar tema</h3>
-                    <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
-                </div>
-                <div class="pn-modal-cuerpo">
-                    <form th:action="@{'/tema/modificar/' + ${uc.tema.idTema}}" method="post" class="form-ajax" data-validar novalidate
-                          data-pasos data-resumen="Tema" data-modo="modificacion"
-                          data-contexto='[{"etiqueta":"Curso","atributoForm":"data-ctx-curso"},{"etiqueta":"Programa","atributoForm":"data-ctx-programa"}]' 
-                          th:attr="data-resumen-titulo=${'(' + uc.tema.titulo + ')'}, data-ctx-curso=${curso.nombre}, data-ctx-programa=${programa.nombre}">
-    <div class="pn-pasos pn-pasos-nombrados">
-        <span class="pn-pasos-item"><span class="pn-pasos-punto">1</span><span class="pn-pasos-nombre">Datos</span></span><span class="pn-pasos-linea"></span>
-        <span class="pn-pasos-item"><span class="pn-pasos-punto">2</span><span class="pn-pasos-nombre">Tiempos</span></span><span class="pn-pasos-linea"></span>
-        <span class="pn-pasos-item"><span class="pn-pasos-punto">3</span><span class="pn-pasos-nombre">Contenido</span></span><span class="pn-pasos-linea"></span>
-        <span class="pn-pasos-item"><span class="pn-pasos-punto">4</span><span class="pn-pasos-nombre">Resumen</span></span>
-    </div>
-    <div class="pn-paso" data-grupo="Datos">
-        <div class="pn-seccion-titulo">
-            <h4>Datos del tema</h4>
-            <p>Título y descripción</p>
-        </div>
-        <div class="row g-3">
-<div class="col-12 pn-campo">
-                                <div class="pn-etiqueta-fila">
-                                    <label class="pn-etiqueta">Título <span class="pn-obligatorio">*</span></label>
-                                    <span class="pn-contador" th:text="${#strings.length(uc.tema.titulo) + ' / 50'}">0 / 50</span>
-                                </div>
-                                <input type="text" name="titulo" class="pn-input" maxlength="50" th:value="${uc.tema.titulo}" data-contador required
-                                       data-mensaje-obligatorio="Debe completar el título.">
-                                <div class="pn-ayuda-error"></div>
-                            </div>
-<div class="col-12 pn-campo">
-                                <div class="pn-etiqueta-fila">
-                                    <label class="pn-etiqueta">Descripción (opcional)</label>
-                                    <span class="pn-contador" th:text="${#strings.length(uc.tema.descripcion != null ? uc.tema.descripcion : '') + ' / 150'}">0 / 150</span>
-                                </div>
-                                <textarea name="descripcion" class="pn-input" rows="2" maxlength="150" data-contador th:text="${uc.tema.descripcion}"></textarea>
-                                <div class="pn-ayuda-error"></div>
-                            </div>
-        </div>
-    </div>
-    <div class="pn-paso" data-grupo="Tiempos">
-        <div class="pn-seccion-titulo">
-            <h4>Tiempos del tema</h4>
-            <p>Duración en el cronograma</p>
-        </div>
-        <div class="row g-3">
-<input type="hidden" name="programaId" th:value="${programa.idPrograma}">
-<div class="col-md-6 pn-campo">
-                            <div class="pn-etiqueta-con-ayuda">
-                                <label class="pn-etiqueta">Duración en el cronograma <span class="pn-obligatorio">*</span></label>
-                                <button type="button" class="cn-ayuda" aria-expanded="false" aria-label="Sobre la duración en el cronograma" title="Ayuda"
-                                        th:data-ayuda-destino="'ayudaDuracionTema' + ${uc.tema.idTema}"><i class="fa-solid fa-circle-info"></i></button>
-                            </div>
-                            <th:block th:replace="~{fragments/campoTiempo :: dias('duracion', ${uc.duracionDias}, ${false}, 'Debe completar la duración en el cronograma.', ${false})}"></th:block>
-                            <div class="pn-ayuda-error"></div>
-                        </div>
-<div class="col-12 ayuda-desplegable" th:id="'ayudaDuracionTema' + ${uc.tema.idTema}">
-                                <div class="ayuda-desplegable-interior">
-                                    <div class="cn-info">
-                                        <span>La <strong>duración en el cronograma</strong> es el tiempo de calendario que ocupa este tema en este programa; no cambia su duración en otros programas. Entre todos los temas no puede superar la duración del curso de <strong th:text="${T(com.app.idoneos.utilidades.DuracionUtilidad).formatear(curso.duracionDias)}">12 semanas</strong>.</span>
-                                    </div>
-                                </div>
-                            </div>
-        </div>
-    </div>
-    <div class="pn-paso" data-grupo="Contenido">
-        <div class="pn-seccion-titulo">
-            <h4>Contenido del tema</h4>
-            <p>Contenido que ven los alumnos</p>
-        </div>
-        <div class="row g-3">
-<div class="col-12 pn-campo">
-                                <label class="pn-etiqueta">Contenido <span class="pn-obligatorio">*</span></label>
-                                <textarea name="contenido" class="pn-input" rows="5" required
-                                          data-mensaje-obligatorio="Debe completar el contenido." th:text="${uc.tema.contenido}"></textarea>
-                                <div class="pn-ayuda-error"></div>
-                            </div>
-        </div>
-    </div>
-    <div class="pn-paso">
-        <div class="pn-seccion-titulo">
-            <h4>Resumen</h4>
-            <p>Estos son los cambios que se van a guardar</p>
-        </div>
-        <div class="pn-arbol" data-resumen-arbol></div>
-    </div>
-    <div class="pn-modal-pie">
-        <button type="button" class="pn-btn pn-btn-contorno pn-pie-izquierda" data-paso-anterior>Anterior</button>
-        <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
-        <button type="button" class="pn-btn pn-btn-primario" data-paso-siguiente>Siguiente</button>
-        <button type="submit" class="pn-btn pn-btn-primario d-none" data-paso-guardar>Confirmar cambios</button>
-    </div>
-</form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <th:block th:replace="~{fragments/modalBaja :: bloque('modalBajaTema' + ${uc.tema.idTema}, 'tema', '¿Confirmas dar de baja el tema «' + ${uc.tema.titulo} + '»?', 'Se quitará del cronograma de este programa. Si no forma parte de otro programa, quedará dada de baja.', '/tema/darDeBaja/' + ${uc.tema.idTema}, 'programaId', ${programa.idPrograma})}"></th:block>
+<!-- Bajas (CU-22): el tema se quita de todos los programas que lo incluyen -->
+<th:block th:each="t : ${temas}">
+    <th:block th:replace="~{fragments/modalBaja :: bloque('modalBajaTema' + ${t.idTema}, 'tema', '¿Confirmas dar de baja el tema «' + ${t.titulo} + '»?', 'Se quitará del cronograma de los programas que lo incluyen. No se puede si alguno tiene inscripciones activas.', '/tema/darDeBaja/' + ${t.idTema}, null, null)}"></th:block>
 </th:block>
 
 <th:block th:replace="~{fragments/panel :: scripts}"></th:block>
-<script th:src="@{/js/academica.js}"></script>
-<script th:src="@{/js/tema.js}"></script>
+<script th:src="@{/js/temas.js}"></script>
 <script th:src="@{/js/ayudaDesplegable.js}"></script>
 </body>
 </html>

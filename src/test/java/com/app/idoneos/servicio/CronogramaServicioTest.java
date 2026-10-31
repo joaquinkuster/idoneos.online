@@ -192,11 +192,11 @@ class CronogramaServicioTest {
         assertFalse(compartida.getBaja());
         assertEquals(0, nuevo.getCantidadTemas());
 
-        // se quita la segunda del programa original, donde estaba sola: queda dada de baja
+        // se quita la segunda del programa original, donde estaba sola: el tema sigue siendo del curso
         Tema sola = original.getCronogramaOrdenado().get(1).getTema();
         cronogramaServicio.modificarCronograma(fausto(), original.getIdPrograma(),
                 List.of(temas.get(0), temas.get(2)), List.of("1", "1"));
-        assertTrue(sola.getBaja());
+        assertFalse(sola.getBaja());
         assertEquals(List.of(temas.get(0), temas.get(2)), ids(original));
         assertEquals(List.of(1, 2), ordenes(original));
     }

@@ -56,7 +56,6 @@ class CursoSinProgramasControladorTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string(Matchers.containsString("Este curso todavía no tiene programas")))
                 .andExpect(content().string(Matchers.containsString("/programa/buscar?cursoId=" + curso.getIdCurso() + "&amp;nuevo=")))
-                .andExpect(content().string(Matchers.containsString("Sin programas")))
                 // sin programa no hay temas ni botón para registrarlas
                 .andExpect(content().string(Matchers.not(Matchers.containsString("Registrar tema"))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("ac-tema-cabecera"))));
@@ -71,7 +70,7 @@ class CursoSinProgramasControladorTest {
 
         mockMvc.perform(get("/curso/acceder/" + id).param("seccion", "clases")).andExpect(status().isOk());
         mockMvc.perform(get("/programa/buscar").param("cursoId", id)).andExpect(status().isOk())
-                .andExpect(content().string(Matchers.not(Matchers.containsString("data-abrir-modal=\"modalNuevoPrograma\""))));
+                .andExpect(content().string(Matchers.not(Matchers.containsString("data-abrir-modal=\"modalPrograma\""))));
         mockMvc.perform(get("/material/buscar").param("cursoId", id)).andExpect(status().isOk());
         mockMvc.perform(get("/glosario/buscar").param("cursoId", id)).andExpect(status().isOk());
         mockMvc.perform(get("/foro/buscar").param("cursoId", id)).andExpect(status().isOk());
@@ -86,8 +85,8 @@ class CursoSinProgramasControladorTest {
 
         mockMvc.perform(get("/programa/buscar").param("cursoId", id).param("nuevo", ""))
                 .andExpect(status().isOk())
-                .andExpect(content().string(Matchers.containsString("data-abrir-modal=\"modalNuevoPrograma\"")))
-                .andExpect(content().string(Matchers.containsString("/js/abrirModal.js")));
+                .andExpect(content().string(Matchers.containsString("data-abrir-modal=\"modalPrograma\"")))
+                .andExpect(content().string(Matchers.containsString("/js/programa.js")));
 
         mockMvc.perform(post("/programa/registrar").param("cursoId", id).param("nombre", "Primer programa")
                 .param("objetivos", "Objetivos").param("bibliografia", "Bibliografía"))
@@ -96,21 +95,18 @@ class CursoSinProgramasControladorTest {
         // con el primer programa, el curso se ve con sus selectores y sin el aviso
         mockMvc.perform(get("/curso/acceder/" + id)).andExpect(status().isOk())
                 .andExpect(content().string(Matchers.not(Matchers.containsString("Este curso todavía no tiene programas"))))
-                .andExpect(content().string(Matchers.containsString("Primer programa (Vigente)")))
                 .andExpect(content().string(Matchers.containsString("Registrar tema")));
     }
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesServicio")
-    @DisplayName("Temas y cronograma, sin programas, mandan al docente a registrar uno")
+    @DisplayName("Los temas se abren sin programas (son del curso); el cronograma manda al docente a registrar uno")
     void temasYCronogramaRedirigen() throws Exception {
         Curso curso = cursoSinProgramas();
         String id = String.valueOf(curso.getIdCurso());
         String destino = "/programa/buscar?cursoId=" + id + "&nuevo";
 
-        mockMvc.perform(get("/tema/buscar").param("cursoId", id)).andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl(destino))
-                .andExpect(flash().attribute("error", Matchers.containsString("todavía no tiene programas")));
+        mockMvc.perform(get("/tema/buscar").param("cursoId", id)).andExpect(status().isOk());
         mockMvc.perform(get("/cronograma/buscar").param("cursoId", id)).andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl(destino));
     }
@@ -122,7 +118,6 @@ class CursoSinProgramasControladorTest {
         Curso curso = cursoSinProgramas();
         String id = String.valueOf(curso.getIdCurso());
 
-        mockMvc.perform(get("/tema/buscar").param("cursoId", id)).andExpect(redirectedUrl("/curso/buscar"));
         mockMvc.perform(get("/cronograma/buscar").param("cursoId", id)).andExpect(redirectedUrl("/curso/buscar"));
     }
 }

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <th:block th:replace="~{fragments/head :: recursos}"></th:block>
+</head>
+<body class="pn-body">
+<div class="pn-app" id="pnApp">
+    <th:block th:replace="~{fragments/menus :: gestionAcademica(${menuActivo}, ${urlBase})}"></th:block>
+
+    <div class="pn-principal">
+        <th:block th:replace="~{fragments/panel :: barra(null)}"></th:block>
+
+        <main class="pn-contenido">
+            <nav class="ac-migas" aria-label="Ruta de navegación">
+                <a th:href="@{/inicio}">Página principal</a>
+                <i class="fa-solid fa-chevron-right"></i>
+                <a th:href="@{${urlMisCursos}}" th:text="${esAdministrador == true ? 'Cursos' : 'Mis cursos'}">Mis cursos</a>
+                <i class="fa-solid fa-chevron-right"></i>
+                <a th:href="@{${urlBase}}" th:text="${curso.nombre}">Curso</a>
+                <i class="fa-solid fa-chevron-right"></i>
+                <strong>Diseño de curso</strong>
+            </nav>
+
+            <div class="pn-encabezado">
+                <div>
+                    <h1 class="pn-titulo">Diseño de curso</h1>
+                    <p class="pn-subtitulo" th:text="${curso.nombre}">Curso</p>
+                </div>
+            </div>
+
+            <!-- Cohortes que esperan este diseño -->
+            <div class="pn-aviso pn-aviso-dorado" th:if="${estadoDiseno.cohortesPendientes > 0}">
+                <span th:text="${estadoDiseno.cohortesPendientes == 1 ? '1 cohorte espera este diseño.' : estadoDiseno.cohortesPendientes + ' cohortes esperan este diseño.'}">2 cohortes esperan este diseño.</span>
+                <span th:if="${estadoDiseno.primeraInscripcion != null}"
+                      th:text="${'La primera abre inscripción el ' + #temporals.format(estadoDiseno.primeraInscripcion, 'dd/MM/yyyy') + '.'}">La primera abre inscripción el 01/02/2027.</span>
+            </div>
+
+            <section class="pn-tarjeta pn-mapa" th:with="datosOk=${estadoDiseno.datosCompletos}, temasOk=${estadoDiseno.temasCompletos}, programa=${estadoDiseno.programaVigente}">
+
+                <!-- 1. Datos del curso -->
+                <div class="pn-mapa-paso">
+                    <span class="pn-mapa-numero" th:classappend="${datosOk} ? 'ok' : 'pendiente'" th:text="${datosOk} ? '✓' : '1'">1</span>
+                    <div class="pn-mapa-cuerpo">
+                        <div class="pn-mapa-titulo">Datos del curso</div>
+                        <div class="pn-mapa-detalle" th:text="${datosOk ? 'Nivel, objetivos y carga horaria completos' : 'Faltan: ' + #strings.listJoin(estadoDiseno.faltantesDeDatos, ', ')}">Nivel, objetivos y carga horaria completos</div>
+                    </div>
+                    <button type="button" class="pn-btn pn-btn-contorno pn-btn-chico" th:if="${puedeEditar}" data-bs-toggle="modal" data-bs-target="#modalEditarCurso">Editar curso</button>
+                </div>
+
+                <!-- 2. Temas -->
+                <div class="pn-mapa-paso">
+                    <span class="pn-mapa-numero" th:classappend="${temasOk} ? 'ok' : 'pendiente'" th:text="${temasOk} ? '✓' : '2'">2</span>
+                    <div class="pn-mapa-cuerpo">
+                        <div class="pn-mapa-titulo">Temas</div>
+                        <div class="pn-mapa-detalle" th:text="${estadoDiseno.cantidadTemas + ' de ' + estadoDiseno.minimoTemas + (estadoDiseno.minimoTemas == 1 ? ' tema como mínimo' : ' temas como mínimo')}">3 de 2 temas como mínimo</div>
+                    </div>
+                    <a class="pn-btn pn-btn-contorno pn-btn-chico" th:if="${puedeEditar}" th:href="@{/tema/buscar(cursoId=${curso.idCurso}, nuevo='')}">Registrar tema</a>
+                </div>
+
+                <!-- 3. Programa vigente -->
+                <div class="pn-mapa-paso">
+                    <span class="pn-mapa-numero" th:classappend="${programa != null and estadoDiseno.duracionAsignada} ? 'ok' : 'pendiente'"
+                          th:text="${programa != null and estadoDiseno.duracionAsignada} ? '✓' : '3'">3</span>
+                    <div class="pn-mapa-cuerpo">
+                        <div class="pn-mapa-titulo" th:text="${programa != null ? 'Programa vigente: ' + programa.nombre : 'Programa vigente'}">Programa vigente: Versión 2</div>
+                        <div class="pn-mapa-detalle" th:if="${programa == null}">Todavía no hay un programa: registralo para repartir la duración entre los temas.</div>
+                        <div class="pn-mapa-detalle" th:if="${programa != null}"
+                             th:text="${estadoDiseno.duracionAsignada ? 'La duración del curso está asignada a los temas' : 'Asignado: ' + T(com.app.idoneos.utilidades.DuracionUtilidad).formatear(programa.duracionTotalDias) + ' de ' + T(com.app.idoneos.utilidades.DuracionUtilidad).formatear(curso.duracionDias)}">Asignación</div>
+                        <div class="pn-mapa-barra" th:if="${programa != null and !programa.cronogramaOrdenado.isEmpty()}">
+                            <i th:each="uc : ${programa.cronogramaOrdenado}" th:style="${'flex: ' + uc.duracionDias}" th:title="${uc.tema.titulo}"></i>
+                        </div>
+                    </div>
+                    <a class="pn-btn pn-btn-contorno pn-btn-chico" th:if="${puedeEditar}"
+                       th:href="@{/programa/buscar(cursoId=${curso.idCurso}, nuevo=${programa == null ? '' : null})}"
+                       th:text="${programa == null ? 'Registrar programa' : 'Editar programa'}">Editar programa</a>
+                </div>
+
+                <!-- 4. Contenido -->
+                <div class="pn-mapa-paso" th:if="${programa != null}">
+                    <span class="pn-mapa-numero" th:classappend="${estadoDiseno.temasIncompletos.isEmpty()} ? 'ok' : 'pendiente'"
+                          th:text="${estadoDiseno.temasIncompletos.isEmpty()} ? '✓' : '4'">4</span>
+                    <div class="pn-mapa-cuerpo">
+                        <div class="pn-mapa-titulo">Contenido</div>
+                        <div class="pn-mapa-detalle" th:if="${estadoDiseno.temasIncompletos.isEmpty()}">Todos los temas tienen su contenido</div>
+                        <div class="pn-mapa-detalle" th:unless="${estadoDiseno.temasIncompletos.isEmpty()}"
+                             th:with="completos=${#lists.size(estadoDiseno.contenido) - #lists.size(estadoDiseno.temasIncompletos)}">
+                            <span th:text="${completos + ' de ' + #lists.size(estadoDiseno.contenido) + ' temas completos. Faltan:'}">1 de 3 temas completos. Faltan:</span>
+                            <span th:each="c, it : ${estadoDiseno.temasIncompletos}">
+                                <strong th:text="${'«' + c.tema.titulo + '»'}">Tema</strong> (<span th:text="${#strings.listJoin(c.faltantes, ', ')}">Material</span>)<span th:if="${!it.last}">; </span>
+                            </span>
+                        </div>
+                    </div>
+                    <a class="pn-btn pn-btn-contorno pn-btn-chico" th:if="${puedeEditar and !estadoDiseno.temasIncompletos.isEmpty()}"
+                       th:href="@{/material/buscar(cursoId=${curso.idCurso})}">Completar contenido</a>
+                </div>
+
+                <!-- 5. Cohortes pendientes -->
+                <div class="pn-mapa-paso" th:if="${estadoDiseno.cohortesPendientes > 0}">
+                    <span class="pn-mapa-numero pendiente">5</span>
+                    <div class="pn-mapa-cuerpo">
+                        <div class="pn-mapa-titulo">Cohortes pendientes</div>
+                        <div class="pn-mapa-detalle">Se activan cuando el diseño esté completo</div>
+                    </div>
+                </div>
+
+                <div class="pn-mapa-siguiente" th:unless="${estadoDiseno.completo}" th:if="${puedeEditar}">
+                    <span th:if="${!datosOk}">Siguiente paso: completar los datos del curso.</span>
+                    <span th:if="${datosOk and !temasOk}">Siguiente paso: registrar los temas del curso.</span>
+                    <span th:if="${datosOk and temasOk and (programa == null or !estadoDiseno.duracionAsignada)}">Siguiente paso: asignar la duración del curso a los temas del programa.</span>
+                    <span th:if="${datosOk and temasOk and programa != null and estadoDiseno.duracionAsignada and !estadoDiseno.temasIncompletos.isEmpty()}">Siguiente paso: completar el contenido de los temas.</span>
+                </div>
+                <div class="pn-mapa-siguiente completo" th:if="${estadoDiseno.completo}">El diseño del curso está completo.</div>
+            </section>
+        </main>
+
+        <th:block th:replace="~{fragments/panel :: pie(${esDocente ? 'Gestión académica' : 'Panel del administrador'})}"></th:block>
+    </div>
+</div>
+
+<!-- Modal: Editar curso (datos académicos, del docente) -->
+<div class="modal fade pn-modal" id="modalEditarCurso" tabindex="-1" aria-hidden="true" th:if="${puedeEditar}">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="pn-modal-cabecera">
+                <h3 class="pn-modal-titulo">Editar curso</h3>
+                <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="pn-modal-cuerpo">
+                <th:block th:replace="~{fragments/formDatosCurso :: formulario(${curso})}"></th:block>
+            </div>
+        </div>
+    </div>
+</div>
+
+<th:block th:replace="~{fragments/panel :: scripts}"></th:block>
+<script th:src="@{/js/ayudaDesplegable.js}"></script>
+</body>
+</html>

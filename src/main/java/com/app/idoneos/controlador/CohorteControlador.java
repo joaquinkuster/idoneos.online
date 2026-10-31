@@ -157,7 +157,8 @@ public class CohorteControlador extends PanelCursoControlador {
             }
             return "pages/cohorte/buscarAdministrador";
         }
-        modelo.addAttribute("programasDelCurso", cohortes.stream().filter(c -> c.esPendiente() && !c.tienePrograma())
+        // Las cohortes a las que el docente todavía puede asignar (o cambiar) el programa: pendientes y sin inscriptos
+        modelo.addAttribute("programasDelCurso", cohortes.stream().filter(c -> c.esPendiente() && !c.getBaja() && c.getCantidadInscriptos() == 0)
                 .collect(java.util.stream.Collectors.toMap(Cohorte::getIdCohorte,
                         c -> c.getCurso().getProgramasActivos())));
         return "pages/cohorte/buscarDocente";

@@ -41,13 +41,6 @@ public class DocenteCurso {
     private Docente docente;
 
     /**
-     * Relación con Programa. Es opcional.
-     */
-    @ManyToOne
-    @JoinColumn(name = "idProgramaPorDefecto", nullable = true)
-    private Programa programaPorDefecto;
-
-    /**
      * Relación con Cohorte. Es opcional.
      */
     @ManyToOne
@@ -142,34 +135,34 @@ public class DocenteCurso {
     }
 
     /**
-     * Obtiene el programa sobre el que trabaja el docente: el de su contexto de trabajo, si sigue vigente y es
-     * del curso, o el programa vigente del curso.
+     * Indica si la cohorte de su contexto de trabajo sigue sirviendo: no está dada de baja, es del curso y tiene programa.
+     */
+    private boolean tieneCohorteDeTrabajoVigente() {
+        return cohortePorDefecto != null && !cohortePorDefecto.getBaja() && cohortePorDefecto.tienePrograma()
+                && cohortePorDefecto.getCurso().getIdCurso() == curso.getIdCurso();
+    }
+
+    /**
+     * Obtiene el programa sobre el que trabaja el docente: el de su cohorte de trabajo o, si no tiene, el programa
+     * vigente del curso.
      *
      * @return El programa de trabajo, o {@code null} si el curso no tiene programas vigentes.
      */
     public Programa getProgramaDeTrabajo() {
-        if (programaPorDefecto != null && !programaPorDefecto.getBaja()
-                && programaPorDefecto.getCurso().getIdCurso() == curso.getIdCurso()) {
-            return programaPorDefecto;
-        }
-        return curso.getProgramaVigente();
+        return tieneCohorteDeTrabajoVigente() ? cohortePorDefecto.getPrograma() : curso.getProgramaVigente();
     }
 
     /**
-     * Obtiene la cohorte sobre la que trabaja el docente: la de su contexto de trabajo, si sigue vigente y es del
-     * programa de trabajo, o la cohorte más relevante de ese programa.
+     * Obtiene la cohorte sobre la que trabaja el docente: la de su contexto de trabajo, si sigue vigente, o la cohorte
+     * más relevante del programa vigente del curso.
      *
      * @return La cohorte de trabajo, o {@code null} si el programa no tiene cohortes vigentes.
      */
     public Cohorte getCohorteDeTrabajo() {
-        Programa programa = getProgramaDeTrabajo();
-        if (programa == null) {
-            return null;
-        }
-        if (cohortePorDefecto != null && !cohortePorDefecto.getBaja()
-                && cohortePorDefecto.getPrograma().getIdPrograma() == programa.getIdPrograma()) {
+        if (tieneCohorteDeTrabajoVigente()) {
             return cohortePorDefecto;
         }
-        return programa.getCohorteDestacada();
+        Programa programa = curso.getProgramaVigente();
+        return programa == null ? null : programa.getCohorteDestacada();
     }
 }

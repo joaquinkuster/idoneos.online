@@ -87,30 +87,32 @@ class ProgramaControladorTest {
                 .andExpect(content().string(Matchers.containsString("Programa 2026")))
                 .andExpect(content().string(Matchers.containsString("Vigente")))
                 .andExpect(content().string(Matchers.containsString("fa-plus\"></i> Registrar programa")))
-                .andExpect(content().string(Matchers.containsString("modalNuevoPrograma")))
+                .andExpect(content().string(Matchers.containsString("id=\"modalPrograma\"")))
                 .andExpect(content().string(Matchers.containsString("data-filtro=")))
                 .andExpect(content().string(Matchers.containsString("data-paginador")))
-                // columnas: última modificación (sin objetivos, que son del curso, ni conteos, bibliografía o dedicación docente)
+                // columnas: programa, estado, completo e inscriptos (sin objetivos, que son del curso, ni bibliografía o dedicación docente)
                 .andExpect(content().string(Matchers.not(Matchers.containsString("data-col=\"Objetivos\""))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("data-col=\"Bibliografía\""))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("data-col=\"Dedicación docente\""))))
-                .andExpect(content().string(Matchers.containsString("data-col=\"Última modificación\"")))
+                .andExpect(content().string(Matchers.containsString("data-col=\"Completo\"")))
+                .andExpect(content().string(Matchers.containsString("data-col=\"Inscriptos\"")))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("data-col=\"Temas\""))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("data-col=\"Con material\""))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("data-col=\"Semanas\""))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("data-col=\"Cohortes\""))))
-                .andExpect(content().string(Matchers.not(Matchers.containsString("data-col=\"Inscriptos\""))))
                 // baja masiva
                 .andExpect(content().string(Matchers.containsString("data-baja-masiva")))
                 .andExpect(content().string(Matchers.containsString("/programa/darDeBajaMasiva")))
                 .andExpect(content().string(Matchers.containsString("data-seleccionar-fila")))
                 // las acciones no se bloquean: la regla se informa al intentar la operación
-                .andExpect(content().string(Matchers.containsString("id=\"modalEditarPrograma")))
+                .andExpect(content().string(Matchers.containsString("data-programa-editar")))
                 .andExpect(content().string(Matchers.containsString("id=\"modalBajaPrograma")))
-                .andExpect(content().string(Matchers.not(Matchers.containsString("disabled title"))))
-                // el programa por defecto se marca en el listado
-                .andExpect(content().string(Matchers.containsString("(Por defecto)")))
-                .andExpect(content().string(Matchers.not(Matchers.containsString("★"))));
+                .andExpect(content().string(Matchers.not(Matchers.containsString("(Por defecto)"))))
+                .andExpect(content().string(Matchers.not(Matchers.containsString("★"))))
+                // el asistente de programas: cronograma, contenido y la guía de salida
+                .andExpect(content().string(Matchers.containsString("Temas disponibles")))
+                .andExpect(content().string(Matchers.containsString("Vista por temas")))
+                .andExpect(content().string(Matchers.containsString("/js/programa.js")));
     }
 
     @Test
@@ -123,11 +125,11 @@ class ProgramaControladorTest {
 
         mockMvc.perform(get("/programa/buscar").param("cursoId", String.valueOf(macro().getIdCurso())))
                 .andExpect(status().isOk())
-                .andExpect(content().string(Matchers.containsString("id=\"modalEditarPrograma" + nuevo.getIdPrograma() + "\"")))
+                .andExpect(content().string(Matchers.containsString("data-id=\"" + nuevo.getIdPrograma() + "\"")))
                 .andExpect(content().string(Matchers.containsString("id=\"modalBajaPrograma" + nuevo.getIdPrograma() + "\"")))
                 .andExpect(content().string(Matchers.containsString("Anterior")))
                 // el programa anterior (con una cohorte activa) conserva sus acciones
-                .andExpect(content().string(Matchers.containsString("id=\"modalEditarPrograma" + anterior + "\"")))
+                .andExpect(content().string(Matchers.containsString("data-id=\"" + anterior + "\"")))
                 .andExpect(content().string(Matchers.containsString("id=\"modalBajaPrograma" + anterior + "\"")));
     }
 
@@ -269,14 +271,13 @@ class ProgramaControladorTest {
 
     @Test
     @WithUserDetails(value = "admin@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesServicio")
-    @DisplayName("El administrador da de baja pero no registra, modifica ni establece programas por defecto")
+    @DisplayName("El administrador da de baja pero no registra ni modifica programas")
     void administrador() throws Exception {
         mockMvc.perform(post("/programa/darDeBaja/" + macro().getProgramaVigente().getIdPrograma()))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value(Matchers.containsString("No se puede dar de baja el programa")));
         mockMvc.perform(post("/programa/registrar")).andExpect(status().isForbidden());
         mockMvc.perform(post("/programa/modificar/1")).andExpect(status().isForbidden());
-        mockMvc.perform(post("/programa/establecerPorDefecto").param("programaId", "1")).andExpect(status().isForbidden());
         mockMvc.perform(post("/cohorte/establecerPorDefecto/1")).andExpect(status().isForbidden());
     }
 
@@ -284,7 +285,7 @@ class ProgramaControladorTest {
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesServicio")
-    @DisplayName("La vista del curso del docente ofrece los selectores de programa y cohorte, sin programas dados de baja")
+    @DisplayName("La vista del curso del docente ofrece el selector de cohorte, sin el de programa")
     void selectoresEnLaVistaDelCurso() throws Exception {
         registrar(macro(), "Programa 2027");
         registrar(macro(), "Descartado");
@@ -293,12 +294,9 @@ class ProgramaControladorTest {
 
         mockMvc.perform(get("/curso/acceder/" + macro().getIdCurso()))
                 .andExpect(status().isOk())
-                .andExpect(content().string(Matchers.containsString("selectProgramaPorDefecto")))
+                .andExpect(content().string(Matchers.not(Matchers.containsString("selectProgramaPorDefecto"))))
                 .andExpect(content().string(Matchers.containsString("selectCohortePorDefecto")))
                 .andExpect(content().string(Matchers.containsString("/js/contexto.js")))
-                .andExpect(content().string(Matchers.containsString("Programa 2027 (Vigente)")))
-                .andExpect(content().string(Matchers.containsString("Programa 2026 (Anterior)")))
-                .andExpect(content().string(Matchers.not(Matchers.containsString("Descartado"))))
                 // el programa vigente recién registrado no tiene cohortes
                 .andExpect(content().string(Matchers.containsString("Sin cohortes")));
         // el programa 2026 tiene una cohorte: se ve con su estado y la estrella no aparece porque no es la de trabajo
@@ -326,32 +324,6 @@ class ProgramaControladorTest {
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesServicio")
-    @DisplayName("Elegir un programa guarda el programa por defecto en la participación del docente y la vista lo usa")
-    void guardaElProgramaPorDefecto() throws Exception {
-        registrar(macro(), "Programa 2027");
-        int anterior = macro().getProgramas().stream().filter(p -> p.getNombre().equals("Programa 2026")).findFirst()
-                .orElseThrow().getIdPrograma();
-
-        mockMvc.perform(post("/programa/establecerPorDefecto").param("programaId", String.valueOf(anterior)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.mensaje").value("Ahora trabajás sobre el programa seleccionado."));
-
-        DocenteCurso participacion = participacionDeFausto(macro());
-        assertEquals(anterior, participacion.getProgramaPorDefecto().getIdPrograma());
-        assertNull(participacion.getCohortePorDefecto());
-        // la vista del curso muestra ahora ese programa como el de trabajo
-        mockMvc.perform(get("/curso/acceder/" + macro().getIdCurso()))
-                .andExpect(content().string(Matchers.containsString("selected=\"selected\">Programa 2026 (Anterior)")))
-                .andExpect(content().string(Matchers.not(Matchers.containsString("selected=\"selected\">Programa 2027"))))
-                .andExpect(content().string(Matchers.not(Matchers.containsString("★"))));
-
-        mockMvc.perform(post("/programa/establecerPorDefecto").param("programaId", "999999"))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value(Matchers.containsString("no se encuentra activo")));
-    }
-
-    @Test
-    @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesServicio")
     @DisplayName("Elegir una cohorte guarda la cohorte por defecto en la participación del docente")
     void guardaLaCohortePorDefecto() throws Exception {
         Curso curso = mercado();
@@ -364,7 +336,7 @@ class ProgramaControladorTest {
 
         DocenteCurso participacion = participacionDeFausto(curso);
         assertEquals(finalizada.getIdCohorte(), participacion.getCohortePorDefecto().getIdCohorte());
-        assertEquals(finalizada.getPrograma().getIdPrograma(), participacion.getProgramaPorDefecto().getIdPrograma());
+        assertEquals(finalizada.getPrograma().getIdPrograma(), participacion.getProgramaDeTrabajo().getIdPrograma());
         assertEquals(finalizada.getIdCohorte(), participacion.getCohorteDeTrabajo().getIdCohorte());
 
         mockMvc.perform(post("/cohorte/establecerPorDefecto/999999")).andExpect(status().isBadRequest())

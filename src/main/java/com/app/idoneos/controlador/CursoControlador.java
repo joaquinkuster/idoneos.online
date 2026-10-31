@@ -410,6 +410,46 @@ public class CursoControlador extends PanelCursoControlador {
         }
     }
 
+    /**
+     * Completa los datos académicos del curso (los que define el docente al diseñarlo): nivel, descripción, objetivos,
+     * carga horaria para el certificado e imagen. Responde en JSON.
+     *
+     * @param id                 Identificador del curso.
+     * @param nivelId            Identificador del nivel.
+     * @param descripcion        La descripción (opcional).
+     * @param objetivos          Los objetivos.
+     * @param cargaHoraria       La carga horaria para el certificado, en la unidad indicada.
+     * @param cargaHorariaUnidad La unidad de la carga horaria: "minutos" u "horas" (por defecto, horas).
+     * @param imagenArchivo      La nueva imagen de portada (opcional; si no se envía se conserva la actual).
+     * @param auth               La autenticación actual.
+     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
+     */
+    @PostMapping("/completarDatos/{id}")
+    public ResponseEntity<Map<String, String>> completarDatos(@PathVariable("id") Integer id,
+            @RequestParam(value = "nivelId", required = false) Integer nivelId,
+            @RequestParam(value = "descripcion", required = false) String descripcion,
+            @RequestParam(value = "objetivos", required = false) String objetivos,
+            @RequestParam(value = "cargaHoraria", required = false) Integer cargaHoraria,
+            @RequestParam(value = "cargaHorariaUnidad", defaultValue = "horas") String cargaHorariaUnidad,
+            @RequestParam(value = "imagenArchivo", required = false) MultipartFile imagenArchivo,
+            Authentication auth) {
+        try {
+            boolean hayImagen = imagenArchivo != null && !imagenArchivo.isEmpty();
+            if (hayImagen) {
+                ManejadorArchivosUtilidad.validarImagen(imagenArchivo);
+            }
+            Usuario usuario = (Usuario) auth.getPrincipal();
+            Curso curso = cursoServicio.completarDatosDelCurso(id, usuario.getDocente(), nivelId, descripcion, objetivos,
+                    minutos(cargaHoraria, cargaHorariaUnidad));
+            if (hayImagen) {
+                guardarImagen(curso, imagenArchivo);
+            }
+            return RespuestaFormularioUtilidad.respuestaExitosa("Datos del curso guardados correctamente.");
+        } catch (Exception e) {
+            return RespuestaFormularioUtilidad.respuestaConError(e);
+        }
+    }
+
     // ---------------------------------------------------------------- Bajas
 
     /**

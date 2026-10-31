@@ -76,7 +76,7 @@ class MenuActivoControladorTest {
         marca("/curso/acceder/" + cursoId + "?seccion=clases", "Clases en vivo");
         marca("/tema/buscar?cursoId=" + cursoId, "Temas");
         marca("/programa/buscar?cursoId=" + cursoId, "Programas");
-        marca("/cronograma/buscar?cursoId=" + cursoId, "Cronograma");
+        marca("/diseno/buscar?cursoId=" + cursoId, "Diseño de curso");
         marca("/participante/buscar?cursoId=" + cursoId, "Participantes");
         marca("/material/buscar?cursoId=" + cursoId, "Materiales");
         marca("/glosario/buscar?cursoId=" + cursoId, "Glosario");

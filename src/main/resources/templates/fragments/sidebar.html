@@ -24,6 +24,14 @@
     <i class="fa-solid" th:classappend="${icono}"></i><span th:text="${texto}">Enlace</span>
 </a>
 
+<!-- Enlace del menú con un indicador de estado a la derecha: estado 'ok' (verde, está completo) o 'pendiente' (naranja, falta
+     algo); sin estado, no lleva indicador. -->
+<a th:fragment="enlaceEstado(url, icono, texto, activo, clave, estado)" th:href="${url}" class="pn-menu-enlace"
+   th:classappend="${activo == clave} ? 'activo'" th:title="${texto}">
+    <i class="fa-solid" th:classappend="${icono}"></i><span th:text="${texto}">Enlace</span><span class="pn-menu-estado" th:if="${estado != null}"
+        th:classappend="${estado}" th:title="${estado == 'ok' ? 'Completo' : 'Falta completar'}"></span>
+</a>
+
 <!-- Título de un grupo de enlaces del menú. Es desplegable: al hacerle clic se ocultan o se muestran los enlaces que le siguen
      hasta el próximo grupo (lo arma static/js/panel.js). -->
 <div th:fragment="grupo(texto)" class="pn-menu-grupo" th:title="${texto}" role="button" tabindex="0" aria-expanded="true" data-grupo-menu>

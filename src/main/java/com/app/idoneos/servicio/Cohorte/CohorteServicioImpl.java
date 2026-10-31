@@ -337,7 +337,6 @@ public class CohorteServicioImpl implements CohorteServicio, CrudServicio<Cohort
                 .findByCursoAndBajaFalse(cohorte.getCurso()).stream()
                 .filter(p -> p.getDocente().getIdDocente() == docente.getIdDocente()).findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Error! El docente no participa en el curso de la cohorte."));
-        participacion.setProgramaPorDefecto(cohorte.getPrograma());
         participacion.setCohortePorDefecto(cohorte);
         participacion.setUltimaModificacion(LocalDateTime.now());
         docenteCursoRepositorio.save(participacion);

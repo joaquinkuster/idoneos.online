@@ -5,14 +5,12 @@
 </head>
 <body class="pn-body">
 <div class="pn-app" id="pnApp">
-    <!-- Menú lateral: el del docente (gestión académica) o, para el administrador, el del panel -->
     <th:block th:replace="~{fragments/menus :: gestionAcademica(${menuActivo}, ${urlBase})}"></th:block>
 
     <div class="pn-principal">
-        <th:block th:if="${esDocente}"><th:block th:replace="~{fragments/panel :: barra(null)}"></th:block></th:block>
-        <th:block th:unless="${esDocente}"><th:block th:replace="~{fragments/panel :: barra(null)}"></th:block></th:block>
+        <th:block th:replace="~{fragments/panel :: barra(null)}"></th:block>
 
-        <main class="pn-contenido" th:attr="data-abrir-modal=${abrirModal}">
+        <main class="pn-contenido" th:attr="data-abrir-modal=${abrirModal}, data-editar=${programaAEditar}">
             <nav class="ac-migas" aria-label="Ruta de navegación">
                 <a th:href="@{/inicio}">Página principal</a>
                 <i class="fa-solid fa-chevron-right"></i>
@@ -28,7 +26,7 @@
                     <h1 class="pn-titulo">Programas</h1>
                     <p class="pn-subtitulo" th:text="${'Versiones del plan de estudios de ' + curso.nombre}">Versiones del plan de estudios</p>
                 </div>
-                <button type="button" class="pn-btn pn-btn-primario" th:if="${puedeGestionar}" data-bs-toggle="modal" data-bs-target="#modalNuevoPrograma">
+                <button type="button" class="pn-btn pn-btn-primario" th:if="${puedeGestionar}" data-programa-nuevo>
                     <i class="fa-solid fa-plus"></i> Registrar programa
                 </button>
             </div>
@@ -42,22 +40,20 @@
                             data-termino-uno="cohorte activa" data-termino-varios="cohortes activas">Dar de baja seleccionado/s</button>
                 </div>
 
-                <!-- Filtros -->
                 <form th:action="@{/programa/buscar}" method="get" class="pn-filtros" data-filtro-front>
                     <input type="hidden" name="cursoId" th:value="${curso.idCurso}">
                     <a th:href="@{/programa/buscar(cursoId=${curso.idCurso})}" class="pn-btn pn-btn-contorno" hidden>Limpiar</a>
                 </form>
 
-                <!-- Tabla -->
                 <div class="pn-tabla-contenedor">
                     <table class="pn-tabla">
                         <thead>
                             <tr>
                                 <th class="pn-col-seleccion"><input type="checkbox" data-seleccionar-todos aria-label="Seleccionar todos"></th>
-                                <th data-col="Nombre" data-campo="nombre" data-filtro="texto">Nombre</th>
-                                <th data-col="Última modificación" data-campo="ultimaModificacion" data-filtro="fecha">Última modificación</th>
-                                <th data-col="Fecha de creación" data-campo="fechaCreacion" data-filtro="fecha">Fecha de creación</th>
+                                <th data-col="Programa" data-campo="nombre" data-filtro="texto">Programa</th>
                                 <th data-col="Estado" data-campo="estado" data-filtro="lista">Estado</th>
+                                <th data-col="Completo" data-campo="completo" data-filtro="lista">Completo</th>
+                                <th data-col="Inscriptos" data-campo="inscriptos" data-filtro="numero">Inscriptos</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
@@ -67,32 +63,31 @@
                                 <td class="pn-col-seleccion"><input type="checkbox" data-seleccionar-fila aria-label="Seleccionar fila"
                                     th:value="${p.idPrograma}" th:disabled="${p.baja}"></td>
                                 <td>
-                                    <span class="pn-celda-principal pn-truncar" th:text="${p.nombre}">2026</span>
-                                    <span class="pg-estrella" th:if="${programaDeTrabajoId != null and programaDeTrabajoId == p.idPrograma}"
-                                          title="Tu programa por defecto">(Por defecto)</span>
+                                    <span class="pn-celda-principal pn-truncar" th:text="${p.nombre}">Versión 1</span>
                                     <small class="fo-fecha pn-truncar pn-truncar-largo" th:if="${p.descripcion != null}" th:text="${p.descripcion}">Descripción</small>
                                 </td>
-                                <td th:text="${p.ultimaModificacion != null ? #temporals.format(p.ultimaModificacion, 'dd/MM/yyyy') : '-'}">—</td>
-                                <td th:text="${#temporals.format(p.fechaCreacion, 'dd/MM/yyyy HH:mm')}">28/08/2026 10:30</td>
                                 <td>
                                     <span class="pn-insignia" th:text="${p.estado}"
                                           th:classappend="${p.estado == 'Vigente'} ? 'pn-insignia-verde' : (${p.estado == 'Anterior'} ? 'pn-insignia-azul' : 'pn-insignia-gris')">Vigente</span>
                                 </td>
+                                <td th:text="${completos.get(p.idPrograma) ? 'Sí' : 'No'}">Sí</td>
+                                <td th:text="${p.cantidadInscripcionesActivas}">0</td>
                                 <td>
                                     <div class="pn-acciones">
                                         <button type="button" class="pn-btn pn-btn-editar pn-btn-chico" th:if="${puedeGestionar and !p.baja}"
-                                                data-bs-toggle="modal" th:data-bs-target="'#modalEditarPrograma' + ${p.idPrograma}">Modificar</button>
+                                                data-programa-editar th:disabled="${p.cantidadInscripcionesActivas > 0}"
+                                                th:title="${p.cantidadInscripcionesActivas > 0} ? 'Tiene inscripciones: no se puede modificar. Registrá un programa nuevo a partir de este.' : null"
+                                                th:attr="data-id=${p.idPrograma}, data-nombre=${p.nombre}, data-descripcion=${p.descripcion}, data-cronograma=${#strings.listJoin(p.cronogramaOrdenado.![tema.idTema + ':' + duracionDias], ',')}">Editar</button>
                                         <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico" th:if="${!p.baja}"
                                                 data-bs-toggle="modal" th:data-bs-target="'#modalBajaPrograma' + ${p.idPrograma}">Dar de baja</button>
                                     </div>
                                 </td>
                             </tr>
-                            <tr th:replace="~{fragments/vacio :: fila(9, 'fa-folder-open', 'No se encontraron programas', 'Ningún programa coincide con los criterios ingresados.')}"></tr>
+                            <tr th:replace="~{fragments/vacio :: fila(6, 'fa-folder-open', 'No se encontraron programas', 'Ningún programa coincide con los criterios ingresados.')}"></tr>
                         </tbody>
                     </table>
                 </div>
 
-                <!-- Pie: filas por página y paginador -->
                 <div class="pn-tabla-pie">
                     <div class="pn-por-pagina">
                         <span>Filas por página:</span>
@@ -113,160 +108,160 @@
     </div>
 </div>
 
-<!-- Modal: registrar programa (CU-16) -->
-<div class="modal fade pn-modal" id="modalNuevoPrograma" tabindex="-1" aria-hidden="true" th:if="${puedeGestionar}">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
+<!-- Asistente de programas: Datos básicos, Cronograma, Contenido y Resumen. El mismo sirve para registrar y para editar -->
+<div class="modal fade pn-modal" id="modalPrograma" tabindex="-1" aria-hidden="true" th:if="${puedeGestionar}">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content">
             <div class="pn-modal-cabecera">
-                <h3 class="pn-modal-titulo">Registrar programa</h3>
+                <h3 class="pn-modal-titulo" data-programa-titulo>Registrar programa</h3>
                 <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="pn-modal-cuerpo">
-                <form th:action="@{/programa/registrar}" method="post" class="form-ajax" data-validar data-pasos data-resumen="Programa" data-modo="alta"
-                      data-contexto='[{"etiqueta":"Curso","atributoForm":"data-ctx-curso"}]' th:attr="data-ctx-curso=${curso.nombre}" novalidate>
-    <input type="hidden" name="cursoId" th:value="${curso.idCurso}">
-    <div class="pn-pasos pn-pasos-nombrados">
-        <span class="pn-pasos-item"><span class="pn-pasos-punto">1</span><span class="pn-pasos-nombre">Datos</span></span><span class="pn-pasos-linea"></span>
-        <span class="pn-pasos-item"><span class="pn-pasos-punto">2</span><span class="pn-pasos-nombre">Contenido</span></span><span class="pn-pasos-linea"></span>
-        <span class="pn-pasos-item"><span class="pn-pasos-punto">3</span><span class="pn-pasos-nombre">Resumen</span></span>
-    </div>
-    <div class="pn-paso" data-grupo="Datos">
-        <div class="pn-seccion-titulo">
-            <h4>Datos del programa</h4>
-            <p>Programa de origen y nombre</p>
-        </div>
-        <div class="row g-3">
-<div class="col-12 pn-campo" th:if="${!#lists.isEmpty(programasActivos)}">
-                            <label class="pn-etiqueta">Partir de un programa anterior (opcional)</label>
-                            <select name="programaOrigenId" data-buscable data-resumen-vacio="No, empezar en blanco" class="pn-input">
-                                <option value="">No, empezar en blanco</option>
-                                <option th:each="o : ${programasActivos}" th:value="${o.idPrograma}"
-                                        th:text="${o.nombre + ' - se copia su cronograma (' + o.cantidadTemas + ' temas)'}">2026</option>
-                            </select>
+                <form th:action="@{/programa/registrar}" method="post" class="form-ajax" data-validar data-pasos data-validador="programa" data-programa-formulario novalidate
+                      th:attr="data-curso=${curso.nombre}, data-accion-alta=@{/programa/registrar}, data-accion-modificar=@{/programa/modificar/}">
+                    <input type="hidden" name="cursoId" th:value="${curso.idCurso}">
+                    <input type="hidden" name="conCronograma" value="true">
+
+                    <div class="pn-pasos pn-pasos-nombrados">
+                        <span class="pn-pasos-item"><span class="pn-pasos-punto">1</span><span class="pn-pasos-nombre">Datos básicos</span></span><span class="pn-pasos-linea"></span>
+                        <span class="pn-pasos-item"><span class="pn-pasos-punto">2</span><span class="pn-pasos-nombre">Cronograma</span></span><span class="pn-pasos-linea"></span>
+                        <span class="pn-pasos-item"><span class="pn-pasos-punto">3</span><span class="pn-pasos-nombre">Contenido</span></span><span class="pn-pasos-linea"></span>
+                        <span class="pn-pasos-item"><span class="pn-pasos-punto">4</span><span class="pn-pasos-nombre">Resumen</span></span>
+                    </div>
+
+                    <!-- 1. Datos básicos -->
+                    <div class="pn-paso" data-grupo="Datos básicos">
+                        <div class="pn-seccion-titulo">
+                            <h4>Datos básicos</h4>
+                            <p>El nombre de esta versión del programa y qué cambia respecto de la anterior</p>
                         </div>
-<div class="col-12 pn-campo">
-                            <div class="pn-etiqueta-fila">
-                                <label class="pn-etiqueta">Nombre <span class="pn-obligatorio">*</span></label>
-                                <span class="pn-contador">0 / 50</span>
+                        <div class="row g-3">
+                            <div class="col-12 pn-campo" data-programa-origen th:if="${!#lists.isEmpty(programasActivos)}">
+                                <label class="pn-etiqueta">Partir de un programa anterior (opcional)</label>
+                                <select name="programaOrigenId" class="pn-input" data-programa-origen-select>
+                                    <option value="">No, empezar en blanco</option>
+                                    <option th:each="o : ${programasActivos}" th:value="${o.idPrograma}"
+                                            th:text="${o.nombre + ' (' + o.cantidadTemas + (o.cantidadTemas == 1 ? ' tema)' : ' temas)')}"
+                                            th:attr="data-cronograma=${#strings.listJoin(o.cronogramaOrdenado.![tema.idTema + ':' + duracionDias], ',')}">Versión 1</option>
+                                </select>
                             </div>
-                            <input type="text" name="nombre" class="pn-input" maxlength="50" placeholder="Nombre" data-contador required
-                                   data-mensaje-obligatorio="Debe completar el nombre.">
-                            <div class="pn-ayuda-error"></div>
-                        </div>
-        </div>
-    </div>
-    <div class="pn-paso" data-grupo="Contenido">
-        <div class="pn-seccion-titulo">
-            <h4>Qué cambia</h4>
-            <p>Descripción de esta versión</p>
-        </div>
-        <div class="row g-3">
-<div class="col-12 pn-campo">
-                            <div class="pn-etiqueta-fila">
-                                <label class="pn-etiqueta">¿Qué cambia? (opcional)</label>
-                                <span class="pn-contador">0 / 150</span>
+                            <div class="col-12 pn-campo">
+                                <div class="pn-etiqueta-fila">
+                                    <label class="pn-etiqueta">Nombre <span class="pn-obligatorio">*</span></label>
+                                    <span class="pn-contador">0 / 50</span>
+                                </div>
+                                <input type="text" name="nombre" class="pn-input" maxlength="50" placeholder="Nombre" data-contador required
+                                       data-mensaje-obligatorio="Debe completar el nombre.">
+                                <div class="pn-ayuda-error"></div>
                             </div>
-                            <textarea name="descripcion" class="pn-input" rows="2" maxlength="150" placeholder="Descripción" data-contador></textarea>
-                            <div class="pn-ayuda-error"></div>
+                            <div class="col-12 pn-campo">
+                                <div class="pn-etiqueta-fila">
+                                    <label class="pn-etiqueta">¿Qué cambia? (opcional)</label>
+                                    <span class="pn-contador">0 / 150</span>
+                                </div>
+                                <textarea name="descripcion" class="pn-input" rows="2" maxlength="150" placeholder="Qué cambia respecto de la versión anterior" data-contador></textarea>
+                                <div class="pn-ayuda-error"></div>
+                            </div>
                         </div>
-        </div>
-    </div>
-    <div class="pn-paso">
-        <div class="pn-seccion-titulo">
-            <h4>Resumen</h4>
-            <p>Revisá los datos antes de guardar</p>
-        </div>
-        <div class="pn-arbol" data-resumen-arbol></div>
-    </div>
-    <div class="pn-modal-pie">
-        <button type="button" class="pn-btn pn-btn-contorno pn-pie-izquierda" data-paso-anterior>Anterior</button>
-        <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
-        <button type="button" class="pn-btn pn-btn-primario" data-paso-siguiente>Siguiente</button>
-        <button type="submit" class="pn-btn pn-btn-primario d-none" data-paso-guardar>Confirmar y guardar</button>
-    </div>
-</form>
+                    </div>
+
+                    <!-- 2. Cronograma -->
+                    <div class="pn-paso" data-grupo="Cronograma">
+                        <div class="pn-seccion-titulo">
+                            <h4>Cronograma</h4>
+                            <p>Elegí los temas y repartí entre ellos la duración del curso</p>
+                        </div>
+                        <div class="pn-prog-cron">
+                            <aside class="pn-prog-disponibles">
+                                <div class="pn-prog-disponibles-cab">
+                                    <strong>Temas disponibles</strong>
+                                    <a class="pn-btn pn-btn-contorno pn-btn-chico" data-salida th:href="@{/tema/buscar(cursoId=${curso.idCurso}, nuevo='')}"><i class="fa-solid fa-plus"></i> Nuevo tema</a>
+                                </div>
+                                <input type="search" class="pn-input" placeholder="Buscar tema" data-prog-buscar aria-label="Buscar tema">
+                                <div class="pn-prog-disponibles-lista" data-prog-disponibles></div>
+                            </aside>
+                            <div class="pn-prog-editor">
+                                <div class="pn-prog-balance" data-prog-balance>
+                                    <div class="pn-prog-balance-texto"><span data-prog-balance-texto></span><strong data-prog-balance-porcentaje></strong></div>
+                                    <div class="pn-prog-balance-barra"><i data-prog-balance-barra></i></div>
+                                </div>
+                                <div class="pn-prog-herramientas">
+                                    <div class="pn-prog-pestanias" role="tablist">
+                                        <button type="button" class="activo" data-prog-vista="calendario">Calendario</button>
+                                        <button type="button" data-prog-vista="temas">Vista por temas</button>
+                                    </div>
+                                    <label class="pn-prog-escala" data-prog-escala-contenedor>Escala
+                                        <select class="pn-input" data-prog-escala>
+                                            <option value="1">Días</option>
+                                            <option value="7" selected>Semanas</option>
+                                            <option value="30">Meses</option>
+                                        </select>
+                                    </label>
+                                </div>
+                                <div class="pn-prog-calendario" data-prog-calendario></div>
+                                <div class="pn-tabla-contenedor d-none" data-prog-tabla-contenedor>
+                                    <table class="pn-tabla">
+                                        <thead>
+                                            <tr><th>Orden</th><th>Tema</th><th>Meses</th><th>Semanas</th><th>Días</th><th>Período</th></tr>
+                                        </thead>
+                                        <tbody data-prog-tabla></tbody>
+                                    </table>
+                                </div>
+                                <p class="pn-prog-vacio" data-prog-vacio>Todavía no hay temas en el cronograma: sumá los que quieras desde “Temas disponibles”.</p>
+                                <div class="pn-ayuda-error" data-prog-error></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. Contenido -->
+                    <div class="pn-paso" data-grupo="Contenido">
+                        <div class="pn-seccion-titulo">
+                            <h4>Contenido</h4>
+                            <p>Lo que tiene cada tema del cronograma; lo que falta se registra desde acá</p>
+                        </div>
+                        <div class="pn-tabla-contenedor">
+                            <table class="pn-tabla">
+                                <thead><tr data-prog-contenido-cabecera></tr></thead>
+                                <tbody data-prog-contenido></tbody>
+                            </table>
+                        </div>
+                        <p class="pn-prog-vacio" data-prog-contenido-vacio>Sumá temas al cronograma para ver su contenido.</p>
+                    </div>
+
+                    <!-- 4. Resumen -->
+                    <div class="pn-paso">
+                        <div class="pn-seccion-titulo">
+                            <h4>Resumen</h4>
+                            <p data-programa-resumen-texto>Revisá los datos antes de guardar</p>
+                        </div>
+                        <div class="pn-arbol" data-prog-arbol></div>
+                    </div>
+
+                    <div class="pn-modal-pie">
+                        <button type="button" class="pn-btn pn-btn-contorno pn-pie-izquierda" data-paso-anterior>Anterior</button>
+                        <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="pn-btn pn-btn-primario" data-paso-siguiente>Siguiente</button>
+                        <button type="submit" class="pn-btn pn-btn-primario d-none" data-paso-guardar>Confirmar y guardar</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Modales por programa: modificar (CU-17) y dar de baja (CU-18) -->
-<th:block th:each="p : ${programas}">
-    <div class="modal fade pn-modal" th:id="'modalEditarPrograma' + ${p.idPrograma}" tabindex="-1" aria-hidden="true"
-         th:if="${puedeGestionar and !p.baja}">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content">
-                <div class="pn-modal-cabecera">
-                    <h3 class="pn-modal-titulo">Editar programa</h3>
-                    <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
-                </div>
-                <div class="pn-modal-cuerpo">
-                    <form th:action="@{'/programa/modificar/' + ${p.idPrograma}}" method="post" class="form-ajax" data-validar data-pasos data-resumen="Programa" data-modo="modificacion"
-                          data-contexto='[{"etiqueta":"Curso","atributoForm":"data-ctx-curso"}]' th:attr="data-ctx-curso=${curso.nombre},data-resumen-titulo=${'(' + p.nombre + ')'}" novalidate>
-    <div class="pn-pasos pn-pasos-nombrados">
-        <span class="pn-pasos-item"><span class="pn-pasos-punto">1</span><span class="pn-pasos-nombre">Datos</span></span><span class="pn-pasos-linea"></span>
-        <span class="pn-pasos-item"><span class="pn-pasos-punto">2</span><span class="pn-pasos-nombre">Contenido</span></span><span class="pn-pasos-linea"></span>
-        <span class="pn-pasos-item"><span class="pn-pasos-punto">3</span><span class="pn-pasos-nombre">Resumen</span></span>
-    </div>
-    <div class="pn-paso" data-grupo="Datos">
-        <div class="pn-seccion-titulo">
-            <h4>Datos del programa</h4>
-            <p>Nombre</p>
-        </div>
-        <div class="row g-3">
-<div class="col-12 pn-campo">
-                                <div class="pn-etiqueta-fila">
-                                    <label class="pn-etiqueta">Nombre <span class="pn-obligatorio">*</span></label>
-                                    <span class="pn-contador" th:text="${#strings.length(p.nombre) + ' / 50'}">0 / 50</span>
-                                </div>
-                                <input type="text" name="nombre" class="pn-input" maxlength="50" th:value="${p.nombre}" data-contador required
-                                       data-mensaje-obligatorio="Debe completar el nombre.">
-                                <div class="pn-ayuda-error"></div>
-                            </div>
-        </div>
-    </div>
-    <div class="pn-paso" data-grupo="Contenido">
-        <div class="pn-seccion-titulo">
-            <h4>Qué cambia</h4>
-            <p>Descripción de esta versión</p>
-        </div>
-        <div class="row g-3">
-<div class="col-12 pn-campo">
-                                <div class="pn-etiqueta-fila">
-                                    <label class="pn-etiqueta">¿Qué cambia? (opcional)</label>
-                                    <span class="pn-contador" th:text="${#strings.length(p.descripcion != null ? p.descripcion : '') + ' / 150'}">0 / 150</span>
-                                </div>
-                                <textarea name="descripcion" class="pn-input" rows="2" maxlength="150" data-contador th:text="${p.descripcion}"></textarea>
-                                <div class="pn-ayuda-error"></div>
-                            </div>
-        </div>
-    </div>
-    <div class="pn-paso">
-        <div class="pn-seccion-titulo">
-            <h4>Resumen</h4>
-            <p>Estos son los cambios que se van a guardar</p>
-        </div>
-        <div class="pn-arbol" data-resumen-arbol></div>
-    </div>
-    <div class="pn-modal-pie">
-        <button type="button" class="pn-btn pn-btn-contorno pn-pie-izquierda" data-paso-anterior>Anterior</button>
-        <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
-        <button type="button" class="pn-btn pn-btn-primario" data-paso-siguiente>Siguiente</button>
-        <button type="submit" class="pn-btn pn-btn-primario d-none" data-paso-guardar>Confirmar cambios</button>
-    </div>
-</form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <th:block th:if="${!p.baja}">
-        <th:block th:replace="~{fragments/modalBaja :: bloque('modalBajaPrograma' + ${p.idPrograma}, 'programa', '¿Confirmas dar de baja el programa «' + ${p.nombre} + '»?', 'Dejará de estar disponible en el curso.', '/programa/darDeBaja/' + ${p.idPrograma}, null, null)}"></th:block>
-    </th:block>
+<!-- Bajas (CU-18) -->
+<th:block th:each="p : ${programas}" th:if="${!p.baja}">
+    <th:block th:replace="~{fragments/modalBaja :: bloque('modalBajaPrograma' + ${p.idPrograma}, 'programa', '¿Confirmas dar de baja el programa «' + ${p.nombre} + '»?', 'Dejará de estar disponible en el curso.', '/programa/darDeBaja/' + ${p.idPrograma}, null, null)}"></th:block>
 </th:block>
 
 <th:block th:replace="~{fragments/panel :: scripts}"></th:block>
-<script th:src="@{/js/academica.js}"></script>
-<script th:src="@{/js/abrirModal.js}"></script>
+<script th:inline="javascript">
+    window.PROGRAMA_DATOS = /*[[${datos}]]*/ {};
+    window.PROGRAMA_URLS = {
+        material: /*[[@{/material/buscar}]]*/ '/material/buscar',
+        autoevaluacion: /*[[@{/autoevaluacion/buscar}]]*/ '/autoevaluacion/buscar'
+    };
+</script>
+<script th:src="@{/js/programa.js}"></script>
 </body>
 </html>
