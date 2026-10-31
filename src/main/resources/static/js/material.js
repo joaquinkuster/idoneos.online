@@ -78,43 +78,59 @@
     // ------------------------------------------------------------------
     // 2 y 3. Formulario de alta según el tipo (y apertura automática desde ?nuevo={tipo})
     // ------------------------------------------------------------------
+    /**
+     * Qué pide cada tipo de material (los formatos y tamaños vienen del servidor, en la opción elegida): si lleva
+     * archivo y si es obligatorio, y los demás campos que muestra con los que son obligatorios.
+     */
+    var TIPOS = {
+        PRESENTACION: { archivo: true, archivoObligatorio: true, campos: ['autor', 'paginas'], obligatorios: ['autor'], etiqueta: 'Archivo de la presentación' },
+        BIBLIOGRAFIA: { archivo: true, archivoObligatorio: false, campos: ['autor', 'isbn', 'editorial', 'paginas', 'fechaPublicacion'], obligatorios: ['autor', 'isbn'], etiqueta: 'Archivo (opcional)' },
+        GRABACION: { archivo: true, archivoObligatorio: true, campos: ['duracionMinutos'], obligatorios: [], etiqueta: 'Archivo de video' },
+        ENLACE: { archivo: false, archivoObligatorio: false, campos: ['enlace'], obligatorios: ['enlace'], etiqueta: 'Archivo' }
+    };
+    var CAMPOS = ['enlace', 'autor', 'isbn', 'editorial', 'paginas', 'fechaPublicacion', 'duracionMinutos'];
+
     /** Adapta el formulario de alta al tipo de material elegido. */
     function aplicarTipo(opcion) {
         var formulario = modalNuevo.querySelector('form');
-        var nombre = opcion.dataset.nombre;
-        var permiteEnlace = opcion.dataset.permiteEnlace === 'true';
+        var tipo = TIPOS[opcion.value] || TIPOS.PRESENTACION;
         var extensiones = opcion.dataset.extensiones;
         var tamanio = opcion.dataset.tamanioMb;
 
         formulario.querySelectorAll('.es-invalido').forEach(function (campo) { window.PanelValidacion.marcar(campo, ''); });
-        formulario.dataset.permiteEnlace = String(permiteEnlace);
-        var ayudaTipo = modalNuevo.querySelector('[data-material-ayuda]'); // ya no está en el formulario: es opcional
+        formulario.dataset.tipo = opcion.value;
+        var ayudaTipo = modalNuevo.querySelector('[data-material-ayuda]');
         if (ayudaTipo) { ayudaTipo.textContent = opcion.dataset.descripcion; }
 
+        var bloqueArchivo = modalNuevo.querySelector('[data-bloque="archivo"]');
         var archivo = formulario.elements['archivo'];
         archivo.value = '';
-        archivo.accept = extensiones.split(',').map(function (e) { return '.' + e; }).join(',');
-        archivo.dataset.extensiones = extensiones;
-        archivo.dataset.tamanioMb = tamanio;
-        archivo.required = !permiteEnlace;
-        modalNuevo.querySelector('[data-archivo-etiqueta]').textContent = nombre === 'Grabación' ? 'Archivo de video'
-            : nombre === 'Presentación' ? 'Archivo de la presentación' : 'Archivo';
-        modalNuevo.querySelector('[data-archivo-obligatorio]').hidden = permiteEnlace;
-        modalNuevo.querySelector('[data-archivo-ayuda]').textContent =
-            'Formatos: ' + extensiones.toUpperCase().split(',').join(', ') + ' · máximo ' + tamanio + ' MB';
-        var bloqueArchivo = modalNuevo.querySelector('[data-bloque="archivo"]');
-        bloqueArchivo.classList.toggle('col-md-6', permiteEnlace); // comparte la fila con el enlace externo
-        bloqueArchivo.classList.toggle('col-12', !permiteEnlace);
-        modalNuevo.querySelector('[data-bloque="enlace"]').hidden = !permiteEnlace;
-        modalNuevo.querySelector('[data-bloque="autor"]').hidden = !permiteEnlace;
-        if (!permiteEnlace) {
-            formulario.elements['enlace'].value = '';
-            formulario.elements['autor'].value = '';
+        bloqueArchivo.hidden = !tipo.archivo;
+        if (tipo.archivo) {
+            archivo.accept = extensiones.split(',').map(function (e) { return '.' + e; }).join(',');
+            archivo.dataset.extensiones = extensiones;
+            archivo.dataset.tamanioMb = tamanio;
+            archivo.required = tipo.archivoObligatorio;
+            modalNuevo.querySelector('[data-archivo-etiqueta]').textContent = tipo.etiqueta;
+            modalNuevo.querySelector('[data-archivo-obligatorio]').hidden = !tipo.archivoObligatorio;
+            modalNuevo.querySelector('[data-archivo-ayuda]').textContent =
+                'Formatos: ' + extensiones.toUpperCase().split(',').join(', ') + ' · máximo ' + tamanio + ' MB';
+        } else {
+            archivo.required = false;
         }
+        CAMPOS.forEach(function (nombre) {
+            var bloque = modalNuevo.querySelector('[data-bloque="' + nombre + '"]');
+            var campo = formulario.elements[nombre];
+            var visible = tipo.campos.indexOf(nombre) >= 0;
+            bloque.hidden = !visible;
+            campo.required = visible && tipo.obligatorios.indexOf(nombre) >= 0;
+            if (campo.required) { campo.dataset.mensajeObligatorio = 'Debe completar este dato.'; }
+            if (!visible) { campo.value = ''; }
+        });
     }
 
     if (modalNuevo) {
-        var campoTipo = modalNuevo.querySelector('select[name="tipoMaterialId"]');
+        var campoTipo = modalNuevo.querySelector('select[name="tipo"]');
         campoTipo.addEventListener('change', function () { aplicarTipo(campoTipo.selectedOptions[0]); });
         modalNuevo.addEventListener('show.bs.modal', function () { aplicarTipo(campoTipo.selectedOptions[0]); });
 
@@ -144,21 +160,9 @@
     // ------------------------------------------------------------------
     window.PanelValidadores = window.PanelValidadores || {};
     window.PanelValidadores.material = function (paso, formulario) {
-        if (paso !== 2) { return true; } // el archivo o el enlace se piden en el segundo paso
-        var archivo = formulario.elements['archivo'];
+        if (paso !== 2) { return true; } // el archivo y los datos de la obra se piden en el segundo paso
         var enlace = formulario.elements['enlace'];
-        if (formulario.dataset.permiteEnlace !== 'true') { return true; }
-        var hayArchivo = archivo.files && archivo.files.length > 0;
-        var hayEnlace = enlace.value.trim() !== '';
-        if (!hayArchivo && !hayEnlace) {
-            window.PanelValidacion.marcar(archivo, 'Debe seleccionar un archivo o ingresar un enlace externo.');
-            return false;
-        }
-        if (hayArchivo && hayEnlace) {
-            window.PanelValidacion.marcar(enlace, 'Indique un archivo o un enlace externo, no ambos.');
-            return false;
-        }
-        if (hayEnlace && !/^https?:\/\//i.test(enlace.value.trim())) {
+        if (formulario.dataset.tipo === 'ENLACE' && enlace.value.trim() !== '' && !/^https?:\/\//i.test(enlace.value.trim())) {
             window.PanelValidacion.marcar(enlace, 'El enlace no es válido. Formato válido: comienza con http:// o https://.');
             return false;
         }

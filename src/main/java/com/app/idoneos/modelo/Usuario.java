@@ -34,7 +34,7 @@ public class Usuario implements UserDetails {
      * Relación con Rol. Es opcional.
      */
     @ManyToOne
-    @JoinColumn(name = "idRolPorDefecto", nullable = true)
+    @JoinColumn(name = "idRol", nullable = true)
     private Rol rolPorDefecto;
 
     /**

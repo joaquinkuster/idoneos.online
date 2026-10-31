@@ -5,7 +5,7 @@ import java.util.Optional;
 import com.app.idoneos.modelo.ClaseEnVivo;
 import com.app.idoneos.modelo.Cohorte;
 import com.app.idoneos.modelo.EstadoClaseEnVivo;
-import com.app.idoneos.modelo.Material;
+import com.app.idoneos.modelo.Grabacion;
 import com.app.idoneos.modelo.DocenteCurso;
 import com.app.idoneos.repositorio.ClaseEnVivoRepositorio;
 import com.app.idoneos.servicio.CrudServicio;
@@ -83,12 +83,12 @@ public class ClaseEnVivoServicioImpl implements ClaseEnVivoServicio, CrudServici
     /**
      * Busca los registros vigentes de claseEnVivo asociados a material.
      *
-     * @param material el registro de Material asociado
-     * @return una lista de ClaseEnVivo asociados al Material indicado
+     * @param grabacion el registro de Grabacion asociado
+     * @return una lista de ClaseEnVivo asociados a la Grabacion indicada
      */
     @Override
-    public List<ClaseEnVivo> buscarPorMaterial(Material material) {
-        return claseEnVivoRepositorio.findByMaterialAndBajaFalse(material);
+    public List<ClaseEnVivo> buscarPorGrabacion(Grabacion grabacion) {
+        return claseEnVivoRepositorio.findByGrabacionAndBajaFalse(grabacion);
     }
 
     /**

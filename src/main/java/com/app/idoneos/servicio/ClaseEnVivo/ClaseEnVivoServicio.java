@@ -5,7 +5,7 @@ import java.util.Optional;
 import com.app.idoneos.modelo.ClaseEnVivo;
 import com.app.idoneos.modelo.Cohorte;
 import com.app.idoneos.modelo.EstadoClaseEnVivo;
-import com.app.idoneos.modelo.Material;
+import com.app.idoneos.modelo.Grabacion;
 import com.app.idoneos.modelo.DocenteCurso;
 
 /**
@@ -34,10 +34,10 @@ public interface ClaseEnVivoServicio {
     /**
      * Busca los registros vigentes de claseEnVivo asociados a material.
      *
-     * @param material el registro de Material asociado
-     * @return una lista de ClaseEnVivo asociados al Material indicado
+     * @param grabacion el registro de Grabacion asociado
+     * @return una lista de ClaseEnVivo asociados a la Grabacion indicada
      */
-    List<ClaseEnVivo> buscarPorMaterial(Material material);
+    List<ClaseEnVivo> buscarPorGrabacion(Grabacion grabacion);
 
     /**
      * Busca los registros vigentes de claseEnVivo asociados a cohorte.

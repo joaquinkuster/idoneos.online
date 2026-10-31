@@ -13,11 +13,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.app.idoneos.modelo.Material;
+import com.app.idoneos.modelo.TemaRecurso;
 import com.app.idoneos.modelo.Programa;
 import com.app.idoneos.modelo.TemaCronograma;
 import com.app.idoneos.repositorio.ProgramaRepositorio;
-import com.app.idoneos.servicio.Material.MaterialServicio;
+import com.app.idoneos.servicio.Recurso.RecursoServicio;
 import com.app.idoneos.servicio.Parametro.ParametroServicio;
 
 /**
@@ -34,7 +34,7 @@ class MinimoDeContenidoTest {
     private ProgramaRepositorio programaRepositorio;
 
     @Autowired
-    private MaterialServicio materialServicio;
+    private RecursoServicio materialServicio;
 
     @Autowired
     private ParametroServicio parametroServicio;
@@ -49,7 +49,7 @@ class MinimoDeContenidoTest {
                 .findFirst().orElseThrow();
     }
 
-    private List<Material> materialesPublicados(Programa programa) {
+    private List<TemaRecurso> materialesPublicados(Programa programa) {
         return programa.getCronogramaOrdenado().stream().map(TemaCronograma::getTema)
                 .flatMap(u -> u.getMateriales().stream()).filter(m -> !m.getBaja() && !m.getOculto()).toList();
     }
@@ -63,7 +63,7 @@ class MinimoDeContenidoTest {
 
         // Sin los materiales de un tema, ese tema deja de contar; sin sus temas, tampoco
         TemaCronograma primera = programa.getCronogramaOrdenado().get(0);
-        Set<Integer> materialesDeLaPrimera = primera.getTema().getMateriales().stream().map(Material::getIdMaterial)
+        Set<Integer> materialesDeLaPrimera = primera.getTema().getMateriales().stream().map(TemaRecurso::getIdTemaRecurso)
                 .collect(java.util.stream.Collectors.toSet());
         assertEquals(cuentan - 1, programa.cantidadTemasConMaterialPublicadoSin(materialesDeLaPrimera, Set.of()));
         assertEquals(cuentan - 1, programa.cantidadTemasConMaterialPublicadoSin(Set.of(), Set.of(primera.getTema().getIdTema())));
@@ -74,11 +74,11 @@ class MinimoDeContenidoTest {
     void noSePuedeDarDeBajaMaterialPorDebajoDelMinimo() {
         Programa programa = programa();
         int minimo = parametroServicio.obtenerEntero("programa.minimo_temas_con_material", 1);
-        List<Material> materiales = materialesPublicados(programa);
+        List<TemaRecurso> materiales = materialesPublicados(programa);
 
         // Dar de baja todos los materiales deja al programa sin temas con material
         IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
-                () -> materialServicio.darDeBajaVarios(materiales.stream().map(Material::getIdMaterial).toList(), null));
+                () -> materialServicio.darDeBajaVarios(materiales.stream().map(TemaRecurso::getIdTemaRecurso).toList(), null));
         assertTrue(error.getMessage().startsWith("Error! No se puede dar de baja el material «"), error.getMessage());
         assertTrue(error.getMessage().contains("»: es el único visible del tema «"), error.getMessage());
         assertTrue(error.getMessage().endsWith("» y su programa tiene cohortes en curso. Registrá otro material antes."),
@@ -115,7 +115,7 @@ class MinimoDeContenidoTest {
                         && c.getTema().getMateriales().stream().anyMatch(m -> !m.getBaja() && !m.getOculto()))
                 .findFirst().orElseThrow();
         List<Integer> ids = cuenta.getTema().getMateriales().stream().filter(m -> !m.getBaja() && !m.getOculto())
-                .map(Material::getIdMaterial).toList();
+                .map(TemaRecurso::getIdTemaRecurso).toList();
         assertThrows(IllegalArgumentException.class, () -> materialServicio.darDeBajaVarios(ids, null));
     }
 
@@ -131,7 +131,7 @@ class MinimoDeContenidoTest {
 
         int antes = programa.getCantidadTemasConMaterialPublicado();
         List<Integer> ids = noCuenta.getTema().getMateriales().stream().filter(m -> !m.getBaja() && !m.getOculto())
-                .map(Material::getIdMaterial).toList();
+                .map(TemaRecurso::getIdTemaRecurso).toList();
         materialServicio.darDeBajaVarios(ids, null);
         assertEquals(antes, programa.getCantidadTemasConMaterialPublicado());
     }

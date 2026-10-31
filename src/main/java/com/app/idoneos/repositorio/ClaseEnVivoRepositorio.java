@@ -5,7 +5,7 @@ import java.util.Optional;
 import com.app.idoneos.modelo.ClaseEnVivo;
 import com.app.idoneos.modelo.Cohorte;
 import com.app.idoneos.modelo.EstadoClaseEnVivo;
-import com.app.idoneos.modelo.Material;
+import com.app.idoneos.modelo.Grabacion;
 import com.app.idoneos.modelo.DocenteCurso;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -41,12 +41,12 @@ public interface ClaseEnVivoRepositorio extends JpaRepository<ClaseEnVivo, Integ
     List<ClaseEnVivo> findByEstadoClaseEnVivoAndBajaFalse(EstadoClaseEnVivo estadoClaseEnVivo);
 
     /**
-     * Busca los registros vigentes de claseEnVivo asociados a material.
+     * Busca los registros vigentes de claseEnVivo asociados a grabación.
      *
-     * @param material el registro de Material asociado
-     * @return una lista de ClaseEnVivo asociados al Material indicado
+     * @param grabacion el registro de Grabacion asociado
+     * @return una lista de ClaseEnVivo asociados a la Grabacion indicada
      */
-    List<ClaseEnVivo> findByMaterialAndBajaFalse(Material material);
+    List<ClaseEnVivo> findByGrabacionAndBajaFalse(Grabacion grabacion);
 
     /**
      * Busca los registros vigentes de claseEnVivo asociados a cohorte.

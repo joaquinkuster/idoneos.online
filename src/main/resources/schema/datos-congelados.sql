@@ -286,7 +286,7 @@ DECLARE
 BEGIN
     v_contenido := OLD.id_tema IS DISTINCT FROM NEW.id_tema
                 OR OLD.nombre IS DISTINCT FROM NEW.nombre
-                OR OLD.tiempo_limite IS DISTINCT FROM NEW.tiempo_limite
+                OR OLD.tiempo_limite_minutos IS DISTINCT FROM NEW.tiempo_limite_minutos
                 OR OLD.cantidad_preguntas IS DISTINCT FROM NEW.cantidad_preguntas
                 OR OLD.nota_minima IS DISTINCT FROM NEW.nota_minima
                 OR OLD.fecha_apertura IS DISTINCT FROM NEW.fecha_apertura

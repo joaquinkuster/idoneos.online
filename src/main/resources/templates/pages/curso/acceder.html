@@ -161,12 +161,12 @@
                                     <ul class="ac-actividades" th:if="${!#lists.isEmpty(materiales)}">
                                         <li class="ac-actividad" th:each="m : ${materiales}">
                                             <th:block
-                                                th:replace="~{fragments/iconoMaterial :: icono(${m.tipoMaterial.nombre}, '')}">
+                                                th:replace="~{fragments/iconoMaterial :: icono(${m.tipo}, '')}">
                                             </th:block>
                                             <!-- Un enlace externo lleva directo a su página (en otra pestaña); el resto abre la vista del material -->
                                             <a class="ac-actividad-titulo" th:text="${m.titulo}" rel="noopener"
-                                                th:href="${m.esEnlaceExterno()} ? ${m.rutaArchivo} : @{'/material/ver/' + ${m.idMaterial}}"
-                                                th:target="${m.esEnlaceExterno()} ? '_blank' : null">Material</a>
+                                                th:href="${m.recurso.esEnlaceExterno()} ? ${m.rutaArchivo} : @{'/material/ver/' + ${m.idTemaRecurso}}"
+                                                th:target="${m.recurso.esEnlaceExterno()} ? '_blank' : null">Material</a>
                                             <span class="pn-insignia pn-insignia-gris" th:if="${m.oculto}">Oculto</span>
                                             <div class="dropdown ac-menu-material" th:if="${puedeGestionar}">
                                                 <button type="button" class="ac-menu-boton" data-bs-toggle="dropdown"
@@ -174,10 +174,10 @@
                                                         class="fa-solid fa-ellipsis-vertical"></i></button>
                                                 <ul class="dropdown-menu dropdown-menu-end">
                                                     <li><a class="dropdown-item"
-                                                            th:href="@{/material/buscar(cursoId=${curso.idCurso}, temaId=${u.idTema}, accion='editar', materialId=${m.idMaterial})}">Modificar</a>
+                                                            th:href="@{/material/buscar(cursoId=${curso.idCurso}, temaId=${u.idTema}, accion='editar', materialId=${m.idTemaRecurso})}">Modificar</a>
                                                     </li>
                                                     <li><a class="dropdown-item text-danger"
-                                                            th:href="@{/material/buscar(cursoId=${curso.idCurso}, temaId=${u.idTema}, accion='baja', materialId=${m.idMaterial})}">Dar
+                                                            th:href="@{/material/buscar(cursoId=${curso.idCurso}, temaId=${u.idTema}, accion='baja', materialId=${m.idTemaRecurso})}">Dar
                                                             de baja</a></li>
                                                 </ul>
                                             </div>

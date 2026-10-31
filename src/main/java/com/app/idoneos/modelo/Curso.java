@@ -309,7 +309,7 @@ public class Curso {
      * @param nombreModalidad El nombre de la modalidad (por ejemplo, "Grabada").
      * @return Los materiales publicados de esa modalidad.
      */
-    public List<Material> getMaterialesPublicadosDeModalidad(String nombreModalidad) {
+    public List<TemaRecurso> getMaterialesPublicadosDeModalidad(String nombreModalidad) {
         return temas.stream().filter(tema -> !tema.getBaja()).flatMap(tema -> tema.getMateriales().stream())
                 .filter(material -> material.estaPublicado() && nombreModalidad.equals(material.getModalidadAsociada()))
                 .toList();

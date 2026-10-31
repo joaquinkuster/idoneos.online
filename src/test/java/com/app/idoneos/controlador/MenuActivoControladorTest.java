@@ -20,7 +20,7 @@ import com.app.idoneos.modelo.Inscripcion;
 import com.app.idoneos.repositorio.ConsultaForoRepositorio;
 import com.app.idoneos.repositorio.CursoRepositorio;
 import com.app.idoneos.repositorio.InscripcionRepositorio;
-import com.app.idoneos.repositorio.MaterialRepositorio;
+import com.app.idoneos.repositorio.TemaRecursoRepositorio;
 import com.app.idoneos.repositorio.TemaRepositorio;
 
 /**
@@ -40,7 +40,7 @@ class MenuActivoControladorTest {
     @Autowired
     private TemaRepositorio temaRepositorio;
     @Autowired
-    private MaterialRepositorio materialRepositorio;
+    private TemaRecursoRepositorio materialRepositorio;
     @Autowired
     private ConsultaForoRepositorio consultaForoRepositorio;
     @Autowired
@@ -86,7 +86,7 @@ class MenuActivoControladorTest {
         materialRepositorio.findAll().stream().filter(m -> m.getCurso().getIdCurso() == cursoId).findFirst()
                 .ifPresent(m -> {
                     try {
-                        marca("/material/ver/" + m.getIdMaterial(), "Materiales");
+                        marca("/material/ver/" + m.getIdTemaRecurso(), "Materiales");
                     } catch (Exception e) {
                         throw new IllegalStateException(e);
                     }

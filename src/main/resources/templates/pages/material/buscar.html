@@ -69,7 +69,7 @@
                         <tbody>
                             <tr th:each="m : ${materiales}" data-fila th:classappend="${m.baja} ? 'pn-fila-baja'" data-dependencias="0">
                                 <td class="pn-col-seleccion"><input type="checkbox" data-seleccionar-fila aria-label="Seleccionar fila"
-                                    th:value="${m.idMaterial}" th:disabled="${m.baja}"></td>
+                                    th:value="${m.idTemaRecurso}" th:disabled="${m.baja}"></td>
                                 <td>
                                     <span class="pn-celda-principal pn-truncar" th:text="${m.titulo}">Clase 3</span>
                                     <span class="pn-insignia pn-insignia-azul ms-1" th:if="${m.generadoPorIa}">IA</span>
@@ -77,8 +77,8 @@
                                 <td><span class="pn-truncar" th:text="${m.tema.titulo}">Renta fija y bonos</span></td>
                                 <td>
                                     <span class="ac-tipo-celda">
-                                        <th:block th:replace="~{fragments/iconoMaterial :: icono(${m.tipoMaterial.nombre}, 'ac-recurso-icono-chico')}"></th:block>
-                                        <span th:text="${m.tipoMaterial.nombre}">Grabación</span>
+                                        <th:block th:replace="~{fragments/iconoMaterial :: icono(${m.tipo}, 'ac-recurso-icono-chico')}"></th:block>
+                                        <span th:text="${m.tipo}">Grabación</span>
                                     </span>
                                 </td>
                                 <td><span class="pn-truncar pn-truncar-corto" th:text="${m.autor != null and !#strings.isEmpty(m.autor) ? m.autor : '—'}">Autor</span></td>
@@ -100,9 +100,9 @@
                                 <td>
                                     <div class="pn-acciones">
                                         <button type="button" class="pn-btn pn-btn-editar pn-btn-chico" th:if="${puedeGestionar and !m.baja}"
-                                                data-bs-toggle="modal" th:data-bs-target="'#modalEditarMaterial' + ${m.idMaterial}">Modificar</button>
+                                                data-bs-toggle="modal" th:data-bs-target="'#modalEditarMaterial' + ${m.idTemaRecurso}">Modificar</button>
                                         <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico" th:if="${!m.baja}"
-                                                data-bs-toggle="modal" th:data-bs-target="'#modalBajaMaterial' + ${m.idMaterial}">Dar de baja</button>
+                                                data-bs-toggle="modal" th:data-bs-target="'#modalBajaMaterial' + ${m.idTemaRecurso}">Dar de baja</button>
                                     </div>
                                 </td>
                             </tr>
@@ -134,7 +134,7 @@
 
 <!-- Modal: subir material (CU-29). Los datos que pide dependen del tipo elegido en el formulario -->
 <div class="modal fade pn-modal" id="modalNuevoMaterial" tabindex="-1" aria-hidden="true" th:if="${puedeGestionar}"
-     th:attr="data-abrir-tipo=${nuevoTipoId}, data-tema=${temaSeleccionada}">
+     th:attr="data-abrir-tipo=${nuevoTipo}, data-tema=${temaSeleccionada}">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
             <div class="pn-modal-cabecera">
@@ -159,12 +159,11 @@
         <div class="row g-3">
 <div class="col-md-6 pn-campo">
                             <label class="pn-etiqueta">Tipo de material <span class="pn-obligatorio">*</span></label>
-                            <select name="tipoMaterialId" class="pn-input" required>
-                                <option th:each="t : ${tiposDeSubida}" th:value="${t.idTipoMaterial}" th:text="${t.nombre}"
+                            <select name="tipo" class="pn-input" required>
+                                <option th:each="t : ${tiposDeSubida}" th:value="${t.name()}" th:text="${t.nombre}"
                                         th:attr="data-nombre=${t.nombre},
                                                  data-extensiones=${#strings.listJoin(t.extensionesPermitidas, ',')},
                                                  data-tamanio-mb=${t.tamanioMaximo / 1048576},
-                                                 data-permite-enlace=${t.permiteEnlaceExterno()},
                                                  data-descripcion=${t.descripcionDeSubida}">Grabación</option>
                             </select>
                             <div class="pn-ayuda-error"></div>
@@ -182,9 +181,9 @@
 <div class="col-md-8 pn-campo">
                             <div class="pn-etiqueta-fila">
                                 <label class="pn-etiqueta">Título <span class="pn-obligatorio">*</span></label>
-                                <span class="pn-contador">0 / 50</span>
+                                <span class="pn-contador">0 / 150</span>
                             </div>
-                            <input type="text" name="titulo" class="pn-input" maxlength="50" placeholder="Título" data-contador required>
+                            <input type="text" name="titulo" class="pn-input" maxlength="150" placeholder="Título" data-contador required>
                             <div class="pn-ayuda-error"></div>
                         </div>
 <div class="col-md-4 pn-campo">
@@ -194,12 +193,20 @@
                                 <option value="true">Oculto</option>
                             </select>
                         </div>
+<div class="col-12 pn-campo">
+                            <div class="pn-etiqueta-fila">
+                                <label class="pn-etiqueta">Descripción (opcional)</label>
+                                <span class="pn-contador">0 / 500</span>
+                            </div>
+                            <textarea name="descripcion" class="pn-input" rows="2" maxlength="500" placeholder="Descripción" data-contador></textarea>
+                            <div class="pn-ayuda-error"></div>
+                        </div>
         </div>
     </div>
     <div class="pn-paso" data-grupo="Contenido">
         <div class="pn-seccion-titulo">
             <h4>Contenido del material</h4>
-            <p>Archivo o enlace externo y autor</p>
+            <p data-material-ayuda>Archivo o enlace externo y datos de la obra</p>
         </div>
         <div class="row g-3">
 <div class="col-12 pn-campo" data-bloque="archivo">
@@ -208,20 +215,59 @@
                             <small class="text-muted" data-archivo-ayuda></small>
                             <div class="pn-ayuda-error"></div>
                         </div>
-<div class="col-md-6 pn-campo" data-bloque="enlace" hidden>
+<div class="col-12 pn-campo" data-bloque="enlace" hidden>
                             <div class="pn-etiqueta-fila">
-                                <label class="pn-etiqueta">... O enlace externo</label>
+                                <label class="pn-etiqueta">Enlace externo <span class="pn-obligatorio">*</span></label>
                                 <span class="pn-contador">0 / 500</span>
                             </div>
                             <input type="text" name="enlace" class="pn-input" maxlength="500" placeholder="https://" data-contador>
                             <div class="pn-ayuda-error"></div>
                         </div>
-<div class="col-12 pn-campo" data-bloque="autor" hidden>
+<div class="col-md-6 pn-campo" data-bloque="autor" hidden>
                             <div class="pn-etiqueta-fila">
-                                <label class="pn-etiqueta">Autor (opcional)</label>
-                                <span class="pn-contador">0 / 50</span>
+                                <label class="pn-etiqueta">Autor <span class="pn-obligatorio">*</span></label>
+                                <span class="pn-contador">0 / 100</span>
                             </div>
-                            <input type="text" name="autor" class="pn-input" maxlength="50" placeholder="Autor" data-contador>
+                            <input type="text" name="autor" class="pn-input" maxlength="100" placeholder="Autor" data-contador>
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+<div class="col-md-6 pn-campo" data-bloque="isbn" hidden>
+                            <div class="pn-etiqueta-fila">
+                                <label class="pn-etiqueta">ISBN <span class="pn-obligatorio">*</span></label>
+                                <span class="pn-contador">0 / 17</span>
+                            </div>
+                            <input type="text" name="isbn" class="pn-input" maxlength="17" placeholder="978-0-00-000000-0" data-contador>
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+<div class="col-md-6 pn-campo" data-bloque="editorial" hidden>
+                            <div class="pn-etiqueta-fila">
+                                <label class="pn-etiqueta">Editorial (opcional)</label>
+                                <span class="pn-contador">0 / 100</span>
+                            </div>
+                            <input type="text" name="editorial" class="pn-input" maxlength="100" placeholder="Editorial" data-contador>
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+<div class="col-md-3 pn-campo" data-bloque="paginas" hidden>
+                            <label class="pn-etiqueta">Páginas (opcional)</label>
+                            <input type="number" name="paginas" class="pn-input" min="1" step="1">
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+<div class="col-md-3 pn-campo" data-bloque="fechaPublicacion" hidden>
+                            <label class="pn-etiqueta">Fecha de publicación (opcional)</label>
+                            <input type="date" name="fechaPublicacion" class="pn-input">
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+<div class="col-md-6 pn-campo" data-bloque="duracionMinutos" hidden>
+                            <label class="pn-etiqueta">Duración en minutos (opcional)</label>
+                            <input type="number" name="duracionMinutos" class="pn-input" min="1" step="1">
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+<div class="col-12 pn-campo" data-bloque="terminos" data-resumen-omitir>
+                            <label class="pn-casilla">
+                                <input type="checkbox" name="terminos" value="true" required
+                                       data-mensaje-obligatorio="Debe aceptar los términos y condiciones.">
+                                <span>Declaro tener los derechos sobre el contenido de este material y acepto los términos y condiciones.</span>
+                            </label>
                             <div class="pn-ayuda-error"></div>
                         </div>
         </div>
@@ -248,18 +294,18 @@
 <!-- Modales por material: modificar (CU-30) y dar de baja (CU-31) -->
 <th:block th:each="m : ${materiales}">
     <!-- Modificar (solo docente, material activo) -->
-    <div class="modal fade pn-modal" th:id="'modalEditarMaterial' + ${m.idMaterial}" tabindex="-1" aria-hidden="true"
-         th:if="${puedeGestionar and !m.baja}">
+    <div class="modal fade pn-modal" th:id="'modalEditarMaterial' + ${m.idTemaRecurso}" tabindex="-1" aria-hidden="true"
+         th:if="${puedeGestionar and !m.baja}" th:with="tipo=${m.tipo}, bibliografia=${m.recurso.bibliografia}">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
                 <div class="pn-modal-cabecera">
-                    <h3 class="pn-modal-titulo" th:text="${'Editar ' + #strings.toLowerCase(m.tipoMaterial.nombre)}">Editar grabación</h3>
+                    <h3 class="pn-modal-titulo" th:text="${'Editar ' + #strings.toLowerCase(tipo)}">Editar grabación</h3>
                     <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
                 </div>
                 <div class="pn-modal-cuerpo">
-                    <form th:action="@{'/material/modificar/' + ${m.idMaterial}}" method="post" enctype="multipart/form-data"
+                    <form th:action="@{'/material/modificar/' + ${m.idTemaRecurso}}" method="post" enctype="multipart/form-data"
                           class="form-ajax" data-validar novalidate data-pasos data-resumen="Material" data-modo="modificacion"
-                          data-contexto='[{"etiqueta":"Curso","atributoForm":"data-ctx-curso"},{"etiqueta":"Tema","atributoForm":"data-ctx-tema"}]' 
+                          data-contexto='[{"etiqueta":"Curso","atributoForm":"data-ctx-curso"},{"etiqueta":"Tema","atributoForm":"data-ctx-tema"}]'
                           th:attr="data-resumen-titulo=${'(' + m.titulo + ')'}, data-ctx-curso=${curso.nombre}, data-ctx-tema=${m.tema.titulo}">
     <div class="pn-pasos pn-pasos-nombrados">
         <span class="pn-pasos-item"><span class="pn-pasos-punto">1</span><span class="pn-pasos-nombre">Datos</span></span><span class="pn-pasos-linea"></span>
@@ -269,15 +315,15 @@
     <div class="pn-paso" data-grupo="Datos">
         <div class="pn-seccion-titulo">
             <h4>Datos del material</h4>
-            <p>Título, visibilidad y autor</p>
+            <p>Título, descripción y visibilidad</p>
         </div>
-        <div class="row g-3" th:with="biblio=${m.tipoMaterial.permiteEnlaceExterno()}">
+        <div class="row g-3">
 <div class="col-md-8 pn-campo">
                                 <div class="pn-etiqueta-fila">
                                     <label class="pn-etiqueta">Título <span class="pn-obligatorio">*</span></label>
-                                    <span class="pn-contador" th:text="${#strings.length(m.titulo) + ' / 50'}">0 / 50</span>
+                                    <span class="pn-contador" th:text="${#strings.length(m.titulo) + ' / 150'}">0 / 150</span>
                                 </div>
-                                <input type="text" name="titulo" class="pn-input" maxlength="50" th:value="${m.titulo}" data-contador required>
+                                <input type="text" name="titulo" class="pn-input" maxlength="150" th:value="${m.titulo}" data-contador required>
                                 <div class="pn-ayuda-error"></div>
                             </div>
 <div class="col-md-4 pn-campo">
@@ -287,12 +333,12 @@
                                     <option value="true" th:selected="${m.oculto}">Oculto</option>
                                 </select>
                             </div>
-<div class="col-12 pn-campo" th:if="${biblio}">
+<div class="col-12 pn-campo">
                                 <div class="pn-etiqueta-fila">
-                                    <label class="pn-etiqueta">Autor (opcional)</label>
-                                    <span class="pn-contador" th:text="${#strings.length(m.autor != null ? m.autor : '') + ' / 50'}">0 / 50</span>
+                                    <label class="pn-etiqueta">Descripción (opcional)</label>
+                                    <span class="pn-contador" th:text="${#strings.length(m.recurso.descripcion != null ? m.recurso.descripcion : '') + ' / 500'}">0 / 500</span>
                                 </div>
-                                <input type="text" name="autor" class="pn-input" maxlength="50" th:value="${m.autor}" data-contador>
+                                <textarea name="descripcion" class="pn-input" rows="2" maxlength="500" data-contador th:text="${m.recurso.descripcion}"></textarea>
                                 <div class="pn-ayuda-error"></div>
                             </div>
         </div>
@@ -300,24 +346,63 @@
     <div class="pn-paso" data-grupo="Contenido">
         <div class="pn-seccion-titulo">
             <h4>Contenido del material</h4>
-            <p>Archivo o enlace externo</p>
+            <p>Archivo o enlace y datos de la obra</p>
         </div>
-        <div class="row g-3" th:with="biblio=${m.tipoMaterial.permiteEnlaceExterno()}">
-<div class="pn-campo" th:classappend="${biblio} ? 'col-md-6' : 'col-12'">
-                                <label class="pn-etiqueta">Reemplazar archivo (opcional)</label>
-                                <input type="file" name="archivo" class="pn-input pn-input-archivo"
-                                       th:attr="data-extensiones=${#strings.listJoin(m.tipoMaterial.extensionesPermitidas, ',')}, data-tamanio-mb=${m.tipoMaterial.tamanioMaximo / 1048576}">
-                                <small class="text-muted"
-                                       th:text="${(m.tieneArchivo() ? 'Hay un archivo cargado. ' : (m.esEnlaceExterno() ? 'Hay un enlace cargado. ' : 'No hay archivo cargado. ')) + 'Formatos: ' + #strings.toUpperCase(#strings.listJoin(m.tipoMaterial.extensionesPermitidas, ', ')) + '. Máximo ' + (m.tipoMaterial.tamanioMaximo / 1048576) + ' MB.'}">Formatos</small>
+        <div class="row g-3">
+<div class="col-12 pn-campo" th:if="${tipo == 'Enlace'}">
+                                <div class="pn-etiqueta-fila">
+                                    <label class="pn-etiqueta">Enlace externo <span class="pn-obligatorio">*</span></label>
+                                    <span class="pn-contador" th:text="${#strings.length(m.rutaArchivo) + ' / 500'}">0 / 500</span>
+                                </div>
+                                <input type="text" name="enlace" class="pn-input" maxlength="500" placeholder="https://" th:value="${m.rutaArchivo}" data-contador required>
                                 <div class="pn-ayuda-error"></div>
                             </div>
-<div class="col-md-6 pn-campo" th:if="${biblio}">
+<div class="col-12 pn-campo" th:if="${tipo != 'Enlace'}" th:with="tipoRecurso=${T(com.app.idoneos.modelo.TipoRecurso).deTexto(tipo)}">
+                                <label class="pn-etiqueta">Reemplazar archivo (opcional)</label>
+                                <input type="file" name="archivo" class="pn-input pn-input-archivo"
+                                       th:attr="data-extensiones=${#strings.listJoin(tipoRecurso.extensionesPermitidas, ',')}, data-tamanio-mb=${tipoRecurso.tamanioMaximo / 1048576}">
+                                <small class="text-muted"
+                                       th:text="${(m.recurso.tieneArchivo() ? 'Hay un archivo cargado. ' : 'No hay archivo cargado. ') + 'Formatos: ' + #strings.toUpperCase(#strings.listJoin(tipoRecurso.extensionesPermitidas, ', ')) + '. Máximo ' + (tipoRecurso.tamanioMaximo / 1048576) + ' MB.'}">Formatos</small>
+                                <div class="pn-ayuda-error"></div>
+                            </div>
+<div class="col-md-6 pn-campo" th:if="${tipo == 'Presentación' or tipo == 'Bibliografía'}">
                                 <div class="pn-etiqueta-fila">
-                                    <label class="pn-etiqueta">... O enlace externo</label>
-                                    <span class="pn-contador" th:text="${#strings.length(m.esEnlaceExterno() ? m.rutaArchivo : '') + ' / 500'}">0 / 500</span>
+                                    <label class="pn-etiqueta">Autor <span class="pn-obligatorio">*</span></label>
+                                    <span class="pn-contador" th:text="${#strings.length(m.autor != null ? m.autor : '') + ' / 100'}">0 / 100</span>
                                 </div>
-                                <input type="text" name="enlace" class="pn-input" maxlength="500" placeholder="https://"
-                                       th:value="${m.esEnlaceExterno() ? m.rutaArchivo : ''}" data-contador>
+                                <input type="text" name="autor" class="pn-input" maxlength="100" th:value="${m.autor}" data-contador required>
+                                <div class="pn-ayuda-error"></div>
+                            </div>
+<div class="col-md-6 pn-campo" th:if="${tipo == 'Bibliografía'}">
+                                <div class="pn-etiqueta-fila">
+                                    <label class="pn-etiqueta">ISBN <span class="pn-obligatorio">*</span></label>
+                                    <span class="pn-contador" th:text="${#strings.length(bibliografia.isbn) + ' / 17'}">0 / 17</span>
+                                </div>
+                                <input type="text" name="isbn" class="pn-input" maxlength="17" th:value="${bibliografia.isbn}" data-contador required>
+                                <div class="pn-ayuda-error"></div>
+                            </div>
+<div class="col-md-6 pn-campo" th:if="${tipo == 'Bibliografía'}">
+                                <div class="pn-etiqueta-fila">
+                                    <label class="pn-etiqueta">Editorial (opcional)</label>
+                                    <span class="pn-contador" th:text="${#strings.length(bibliografia.editorial != null ? bibliografia.editorial : '') + ' / 100'}">0 / 100</span>
+                                </div>
+                                <input type="text" name="editorial" class="pn-input" maxlength="100" th:value="${bibliografia.editorial}" data-contador>
+                                <div class="pn-ayuda-error"></div>
+                            </div>
+<div class="col-md-3 pn-campo" th:if="${tipo == 'Presentación' or tipo == 'Bibliografía'}">
+                                <label class="pn-etiqueta">Páginas (opcional)</label>
+                                <input type="number" name="paginas" class="pn-input" min="1" step="1"
+                                       th:value="${tipo == 'Bibliografía' ? bibliografia.paginas : m.recurso.materialLectura.paginas}">
+                                <div class="pn-ayuda-error"></div>
+                            </div>
+<div class="col-md-3 pn-campo" th:if="${tipo == 'Bibliografía'}">
+                                <label class="pn-etiqueta">Fecha de publicación (opcional)</label>
+                                <input type="date" name="fechaPublicacion" class="pn-input" th:value="${bibliografia.fechaPublicacion}">
+                                <div class="pn-ayuda-error"></div>
+                            </div>
+<div class="col-md-6 pn-campo" th:if="${tipo == 'Grabación'}">
+                                <label class="pn-etiqueta">Duración en minutos (opcional)</label>
+                                <input type="number" name="duracionMinutos" class="pn-input" min="1" step="1" th:value="${m.recurso.grabacion.duracionMinutos}">
                                 <div class="pn-ayuda-error"></div>
                             </div>
         </div>
@@ -343,7 +428,7 @@
 
     <!-- Dar de baja -->
     <th:block th:if="${!m.baja}">
-        <th:block th:replace="~{fragments/modalBaja :: bloque('modalBajaMaterial' + ${m.idMaterial}, 'material', '¿Confirmas dar de baja el material «' + ${m.titulo} + '»?', 'El material dejará de mostrarse a los alumnos.', '/material/darDeBaja/' + ${m.idMaterial}, null, null)}"></th:block>
+        <th:block th:replace="~{fragments/modalBaja :: bloque('modalBajaMaterial' + ${m.idTemaRecurso}, 'material', '¿Confirmas dar de baja el material «' + ${m.titulo} + '»?', 'El material dejará de mostrarse a los alumnos.', '/material/darDeBaja/' + ${m.idTemaRecurso}, null, null)}"></th:block>
     </th:block>
 </th:block>
 

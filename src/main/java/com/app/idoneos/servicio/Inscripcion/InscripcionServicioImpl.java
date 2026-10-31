@@ -248,8 +248,8 @@ public class InscripcionServicioImpl implements InscripcionServicio, CrudServici
             LocalDate vencimiento) {
         Inscripcion inscripcion = inscripcionRepositorio.findById(idInscripcion).filter(i -> !i.esInactivo())
                 .orElseThrow(() -> new IllegalArgumentException("Error! La inscripción no se encuentra activa."));
-        // Mientras la inscripción no se habilitó no tiene vencimiento: se calcula al habilitarla
-        if (vencimiento == null && inscripcion.getFechaVencimientoAcceso() != null) {
+        // El vencimiento del acceso es obligatorio (mientras no se habilita es provisorio: se recalcula al habilitarla)
+        if (vencimiento == null) {
             throw RespuestaFormularioUtilidad.campoInvalido("fechaVencimientoAcceso", "Error! La fecha de vencimiento del acceso es obligatoria.");
         }
         String observacionesLimpias = observaciones == null || observaciones.isBlank() ? null : observaciones.trim();
@@ -257,6 +257,8 @@ public class InscripcionServicioImpl implements InscripcionServicio, CrudServici
             throw RespuestaFormularioUtilidad.campoInvalido("observaciones", MensajeErrorUtilidad.demasiadoLargo("Las observaciones", LONGITUD_OBSERVACIONES, "caracteres"));
         }
         LocalDateTime ahora = LocalDateTime.now();
+        LocalDate vencimientoAnterior = inscripcion.getFechaVencimientoAcceso() == null ? null
+                : inscripcion.getFechaVencimientoAcceso().toLocalDate();
         if (vencimiento != null) {
             LocalDateTime minimo = inscripcion.getVencimientoMinimo();
             if (vencimiento.isBefore(minimo.toLocalDate())) {
@@ -278,8 +280,7 @@ public class InscripcionServicioImpl implements InscripcionServicio, CrudServici
             }
         }
         // Si no cambió el día, se conserva el momento exacto; si cambió, el acceso dura hasta el final de ese día
-        if (vencimiento != null && (inscripcion.getFechaVencimientoAcceso() == null
-                || !vencimiento.equals(inscripcion.getFechaVencimientoAcceso().toLocalDate()))) {
+        if (vencimiento != null && !vencimiento.equals(vencimientoAnterior)) {
             inscripcion.setFechaVencimientoAcceso(vencimiento.atTime(23, 59, 59));
         }
         inscripcion.setObservaciones(observacionesLimpias);

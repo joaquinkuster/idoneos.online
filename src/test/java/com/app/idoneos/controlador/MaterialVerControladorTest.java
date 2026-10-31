@@ -18,14 +18,13 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.app.idoneos.modelo.Docente;
-import com.app.idoneos.modelo.Material;
-import com.app.idoneos.modelo.TipoMaterial;
+import com.app.idoneos.modelo.TemaRecurso;
+import com.app.idoneos.modelo.TipoRecurso;
 import com.app.idoneos.modelo.Tema;
 import com.app.idoneos.repositorio.DocenteRepositorio;
-import com.app.idoneos.repositorio.MaterialRepositorio;
-import com.app.idoneos.repositorio.TipoMaterialRepositorio;
+import com.app.idoneos.repositorio.TemaRecursoRepositorio;
 import com.app.idoneos.repositorio.TemaRepositorio;
-import com.app.idoneos.servicio.Material.MaterialServicio;
+import com.app.idoneos.servicio.Recurso.RecursoServicio;
 
 /**
  * Pruebas de la vista de un material ({@code GET /material/ver/{id}}): reproductor, visor de PDF, descarga de los
@@ -44,16 +43,13 @@ class MaterialVerControladorTest {
     private MockMvc mockMvc;
 
     @Autowired
-    private MaterialServicio materialServicio;
+    private RecursoServicio materialServicio;
 
     @Autowired
-    private MaterialRepositorio materialRepositorio;
+    private TemaRecursoRepositorio materialRepositorio;
 
     @Autowired
     private TemaRepositorio temaRepositorio;
-
-    @Autowired
-    private TipoMaterialRepositorio tipoMaterialRepositorio;
 
     @Autowired
     private DocenteRepositorio docenteRepositorio;
@@ -63,25 +59,24 @@ class MaterialVerControladorTest {
                 && u.getCurso().getNombre().equals("Mercado de Capitales Argentino")).findFirst().orElseThrow();
     }
 
-    private Material subir(String tipo, String nombreArchivo, byte[] contenido, String enlace, String tema) {
+    private TemaRecurso subir(TipoRecurso tipo, String nombreArchivo, byte[] contenido, String enlace, String tema) {
         Docente fausto = docenteRepositorio.findAll().stream()
                 .filter(d -> d.getUsuario().getCorreo().equals("fausto.spotorno@idoneos.online")).findFirst().orElseThrow();
-        int idTipo = tipoMaterialRepositorio.findAll().stream().filter(t -> t.getNombre().equals(tipo)).findFirst()
-                .orElseThrow().getIdTipoMaterial();
-        return materialServicio.subirMaterial(fausto, tema(tema).getIdTema(), idTipo, "Material de prueba", false,
-                null, enlace, contenido == null ? null : new MockMultipartFile("archivo", nombreArchivo, "x", contenido));
+        return materialServicio.subirMaterial(fausto, tema(tema).getIdTema(), tipo.name(),
+                new RecursoServicio.DatosRecurso("Material de prueba", null, false, "Autor", enlace, null, null, null, null, null),
+                contenido == null ? null : new MockMultipartFile("archivo", nombreArchivo, "x", contenido), true);
     }
 
     @Test
     @WithUserDetails(value = "fausto.spotorno@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesServicio")
     @DisplayName("Una grabación se muestra en un reproductor de video")
     void grabacion() throws Exception {
-        Material material = subir(TipoMaterial.GRABACION, "clase.mp4", MP4, null, "Renta fija y bonos");
+        TemaRecurso material = subir(TipoRecurso.GRABACION, "clase.mp4", MP4, null, "Renta fija y bonos");
 
-        mockMvc.perform(get("/material/ver/" + material.getIdMaterial())).andExpect(status().isOk())
+        mockMvc.perform(get("/material/ver/" + material.getIdTemaRecurso())).andExpect(status().isOk())
                 .andExpect(view().name("pages/material/ver"))
                 .andExpect(content().string(Matchers.containsString("<video")))
-                .andExpect(content().string(Matchers.containsString("/material/archivo/" + material.getIdMaterial())))
+                .andExpect(content().string(Matchers.containsString("/material/archivo/" + material.getIdTemaRecurso())))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("Volver al curso"))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("Descargar"))))
                 .andExpect(content().string(Matchers.containsString("Contenido de los temas")));
@@ -91,9 +86,9 @@ class MaterialVerControladorTest {
     @WithUserDetails(value = "fausto.spotorno@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesServicio")
     @DisplayName("Un PDF se muestra en el visor de páginas")
     void pdf() throws Exception {
-        Material material = subir(TipoMaterial.PRESENTACION, "clase.pdf", PDF, null, "Renta fija y bonos");
+        TemaRecurso material = subir(TipoRecurso.PRESENTACION, "clase.pdf", PDF, null, "Renta fija y bonos");
 
-        mockMvc.perform(get("/material/ver/" + material.getIdMaterial())).andExpect(status().isOk())
+        mockMvc.perform(get("/material/ver/" + material.getIdTemaRecurso())).andExpect(status().isOk())
                 .andExpect(content().string(Matchers.containsString("data-visor-pdf")))
                 .andExpect(content().string(Matchers.containsString("data-visor-siguiente")))
                 // zoom: acercar, alejar y volver al 100%, sobre una zona que se desplaza
@@ -109,11 +104,11 @@ class MaterialVerControladorTest {
     @WithUserDetails(value = "fausto.spotorno@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesServicio")
     @DisplayName("El material no ofrece ninguna forma de descarga y se protege del clic derecho, la impresión y la grabación")
     void sinDescargaYConProteccion() throws Exception {
-        Material video = subir(TipoMaterial.GRABACION, "clase.mp4", MP4, null, "Renta fija y bonos");
-        Material pdf = subir(TipoMaterial.PRESENTACION, "clase.pdf", PDF, null, "Renta fija y bonos");
+        TemaRecurso video = subir(TipoRecurso.GRABACION, "clase.mp4", MP4, null, "Renta fija y bonos");
+        TemaRecurso pdf = subir(TipoRecurso.PRESENTACION, "clase.pdf", PDF, null, "Renta fija y bonos");
 
-        for (Material material : new Material[] { video, pdf }) {
-            mockMvc.perform(get("/material/ver/" + material.getIdMaterial())).andExpect(status().isOk())
+        for (TemaRecurso material : new TemaRecurso[] { video, pdf }) {
+            mockMvc.perform(get("/material/ver/" + material.getIdTemaRecurso())).andExpect(status().isOk())
                     .andExpect(content().string(Matchers.not(Matchers.containsString("Descargar"))))
                     .andExpect(content().string(Matchers.not(Matchers.containsString(" download"))))
                     .andExpect(content().string(Matchers.containsString("/js/proteccion.js")))
@@ -121,7 +116,7 @@ class MaterialVerControladorTest {
                     // la marca de agua lleva el nombre y el correo de quien mira
                     .andExpect(content().string(Matchers.containsString("data-marca=\"Fausto Spotorno · fausto.spotorno@idoneos.online\"")));
         }
-        mockMvc.perform(get("/material/ver/" + video.getIdMaterial()))
+        mockMvc.perform(get("/material/ver/" + video.getIdTemaRecurso()))
                 .andExpect(content().string(Matchers.containsString("nodownload nofullscreen")))
                 .andExpect(content().string(Matchers.containsString("disablePictureInPicture")));
     }
@@ -130,9 +125,9 @@ class MaterialVerControladorTest {
     @WithUserDetails(value = "fausto.spotorno@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesServicio")
     @DisplayName("Un enlace externo redirige directamente a su página")
     void enlaceExterno() throws Exception {
-        Material material = subir(TipoMaterial.BIBLIOGRAFIA, null, null, "https://sitio.com/libro", "Renta fija y bonos");
+        TemaRecurso material = subir(TipoRecurso.ENLACE, null, null, "https://sitio.com/libro", "Renta fija y bonos");
 
-        mockMvc.perform(get("/material/ver/" + material.getIdMaterial())).andExpect(status().is3xxRedirection())
+        mockMvc.perform(get("/material/ver/" + material.getIdTemaRecurso())).andExpect(status().is3xxRedirection())
                 .andExpect(header().string("Location", "https://sitio.com/libro"));
     }
 
@@ -140,10 +135,10 @@ class MaterialVerControladorTest {
     @WithUserDetails(value = "fausto.spotorno@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesServicio")
     @DisplayName("Un material sin archivo muestra el aviso y su descripción")
     void sinArchivo() throws Exception {
-        Material material = materialRepositorio.findAll().stream()
+        TemaRecurso material = materialRepositorio.findAll().stream()
                 .filter(m -> m.getTitulo().equals("Guía teórica de renta fija")).findFirst().orElseThrow();
 
-        mockMvc.perform(get("/material/ver/" + material.getIdMaterial())).andExpect(status().isOk())
+        mockMvc.perform(get("/material/ver/" + material.getIdTemaRecurso())).andExpect(status().isOk())
                 .andExpect(content().string(Matchers.containsString("todavía no tiene archivo")));
     }
 
@@ -151,9 +146,9 @@ class MaterialVerControladorTest {
     @WithUserDetails(value = "valentina.ruiz@correo.com", userDetailsServiceBeanName = "usuarioDetallesServicio")
     @DisplayName("El alumno con el tema habilitado ve el material, con su propio menú de gestión académica")
     void alumnoConAcceso() throws Exception {
-        Material material = subir(TipoMaterial.GRABACION, "clase.mp4", MP4, null, "Renta fija y bonos");
+        TemaRecurso material = subir(TipoRecurso.GRABACION, "clase.mp4", MP4, null, "Renta fija y bonos");
 
-        mockMvc.perform(get("/material/ver/" + material.getIdMaterial())).andExpect(status().isOk())
+        mockMvc.perform(get("/material/ver/" + material.getIdTemaRecurso())).andExpect(status().isOk())
                 .andExpect(content().string(Matchers.containsString("<video")))
                 .andExpect(content().string(Matchers.containsString("/inscripcion/acceder/")));
     }
@@ -162,18 +157,18 @@ class MaterialVerControladorTest {
     @WithUserDetails(value = "valentina.ruiz@correo.com", userDetailsServiceBeanName = "usuarioDetallesServicio")
     @DisplayName("El alumno no ve un material de un tema bloqueado")
     void alumnoSinAcceso() throws Exception {
-        Material material = subir(TipoMaterial.GRABACION, "clase.mp4", MP4, null, "Renta variable y opciones");
+        TemaRecurso material = subir(TipoRecurso.GRABACION, "clase.mp4", MP4, null, "Renta variable y opciones");
 
-        mockMvc.perform(get("/material/ver/" + material.getIdMaterial())).andExpect(status().isForbidden());
+        mockMvc.perform(get("/material/ver/" + material.getIdTemaRecurso())).andExpect(status().isForbidden());
     }
 
     @Test
     @WithUserDetails(value = "admin@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesServicio")
     @DisplayName("El administrador ve cualquier material")
     void administrador() throws Exception {
-        Material material = subir(TipoMaterial.GRABACION, "clase.mp4", MP4, null, "Renta fija y bonos");
+        TemaRecurso material = subir(TipoRecurso.GRABACION, "clase.mp4", MP4, null, "Renta fija y bonos");
 
-        mockMvc.perform(get("/material/ver/" + material.getIdMaterial())).andExpect(status().isOk())
+        mockMvc.perform(get("/material/ver/" + material.getIdTemaRecurso())).andExpect(status().isOk())
                 .andExpect(content().string(Matchers.containsString("<video")));
     }
 
@@ -187,8 +182,8 @@ class MaterialVerControladorTest {
     @Test
     @DisplayName("Sin sesión se pide iniciar sesión")
     void sinSesion() throws Exception {
-        Material material = subir(TipoMaterial.GRABACION, "clase.mp4", MP4, null, "Renta fija y bonos");
+        TemaRecurso material = subir(TipoRecurso.GRABACION, "clase.mp4", MP4, null, "Renta fija y bonos");
 
-        mockMvc.perform(get("/material/ver/" + material.getIdMaterial())).andExpect(status().is3xxRedirection());
+        mockMvc.perform(get("/material/ver/" + material.getIdTemaRecurso())).andExpect(status().is3xxRedirection());
     }
 }

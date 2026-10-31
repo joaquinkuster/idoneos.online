@@ -22,12 +22,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.app.idoneos.modelo.Material;
-import com.app.idoneos.modelo.TipoMaterial;
+import com.app.idoneos.modelo.TemaRecurso;
 import com.app.idoneos.modelo.Tema;
 import com.app.idoneos.repositorio.CursoRepositorio;
-import com.app.idoneos.repositorio.MaterialRepositorio;
-import com.app.idoneos.repositorio.TipoMaterialRepositorio;
+import com.app.idoneos.repositorio.TemaRecursoRepositorio;
 import com.app.idoneos.repositorio.TemaRepositorio;
 
 /**
@@ -52,10 +50,7 @@ class MaterialControladorTest {
     private TemaRepositorio temaRepositorio;
 
     @Autowired
-    private TipoMaterialRepositorio tipoMaterialRepositorio;
-
-    @Autowired
-    private MaterialRepositorio materialRepositorio;
+    private TemaRecursoRepositorio materialRepositorio;
 
     private int idCurso(String nombre) {
         return cursoRepositorio.findAll().stream().filter(c -> c.getNombre().equals(nombre)).findFirst().orElseThrow()
@@ -71,15 +66,10 @@ class MaterialControladorTest {
                 && u.getCurso().getNombre().equals("Mercado de Capitales Argentino")).findFirst().orElseThrow();
     }
 
-    private int idTipo(String nombre) {
-        return tipoMaterialRepositorio.findAll().stream().filter(t -> t.getNombre().equals(nombre)).findFirst()
-                .orElseThrow().getIdTipoMaterial();
-    }
-
     private MockHttpServletRequestBuilder subir(String titulo, String nombreArchivo, byte[] contenido) {
         return multipart("/material/subir").file(new MockMultipartFile("archivo", nombreArchivo, "video/mp4", contenido))
                 .param("temaId", String.valueOf(temaDeRentaFija().getIdTema()))
-                .param("tipoMaterialId", String.valueOf(idTipo(TipoMaterial.GRABACION))).param("titulo", titulo);
+                .param("tipo", "GRABACION").param("terminos", "true").param("titulo", titulo);
     }
 
     // ------------------------------------------------------------------ CU-28 Buscar material
@@ -100,7 +90,7 @@ class MaterialControladorTest {
                 .andExpect(content().string(Matchers.not(Matchers.containsString("pn-btn-ver"))))
                 // "Subir material" abre el formulario directamente, con el tipo como un campo más (sin selector)
                 .andExpect(content().string(Matchers.containsString("data-bs-target=\"#modalNuevoMaterial\"")))
-                .andExpect(content().string(Matchers.containsString("name=\"tipoMaterialId\"")))
+                .andExpect(content().string(Matchers.containsString("name=\"tipo\"")))
                 .andExpect(content().string(Matchers.containsString("Tipo de material")))
                 // los documentos son solo PDF
                 .andExpect(content().string(Matchers.containsString("data-extensiones=\"pdf\"")))
@@ -127,18 +117,18 @@ class MaterialControladorTest {
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesServicio")
     @DisplayName("CU-29: con ?nuevo={tipo} la página abre sola el formulario de ese tipo en el tema elegido")
     void abreElFormularioDelTipoElegido() throws Exception {
-        int grabacion = idTipo(TipoMaterial.GRABACION);
+        String grabacion = "GRABACION";
         int tema = temaDeRentaFija().getIdTema();
 
         mockMvc.perform(get("/material/buscar").param("cursoId", String.valueOf(idCursoPrincipal()))
-                .param("temaId", String.valueOf(tema)).param("nuevo", String.valueOf(grabacion)))
+                .param("temaId", String.valueOf(tema)).param("nuevo", grabacion))
                 .andExpect(status().isOk())
                 .andExpect(content().string(Matchers.containsString("data-abrir-tipo=\"" + grabacion + "\"")))
                 .andExpect(content().string(Matchers.containsString("data-tema=\"" + tema + "\"")));
 
         // un tipo que no se sube a mano (Resumen) se ignora
         mockMvc.perform(get("/material/buscar").param("cursoId", String.valueOf(idCursoPrincipal()))
-                .param("nuevo", String.valueOf(idTipo(TipoMaterial.RESUMEN))))
+                .param("nuevo", "RESUMEN"))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("data-abrir-tipo"))));
     }
 
@@ -215,11 +205,11 @@ class MaterialControladorTest {
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesServicio")
     @DisplayName("CU-30: el docente modifica un material")
     void modificaUnMaterial() throws Exception {
-        Material material = materialRepositorio.findAll().stream()
+        TemaRecurso material = materialRepositorio.findAll().stream()
                 .filter(m -> m.getTitulo().equals("Guía teórica de renta fija")).findFirst().orElseThrow();
 
-        mockMvc.perform(post("/material/modificar/" + material.getIdMaterial()).param("titulo", "Guía actualizada")
-                .param("oculto", "true")).andExpect(status().isOk())
+        mockMvc.perform(post("/material/modificar/" + material.getIdTemaRecurso()).param("titulo", "Guía actualizada")
+                .param("autor", "Autor nuevo").param("isbn", "978-0-00-000000-0").param("oculto", "true")).andExpect(status().isOk())
                 .andExpect(jsonPath("$.mensaje").value(Matchers.containsString("modificado")));
 
         org.junit.jupiter.api.Assertions.assertEquals("Guía actualizada", material.getTitulo());
@@ -230,21 +220,21 @@ class MaterialControladorTest {
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesServicio")
     @DisplayName("CU-31: el docente da de baja un material y una baja masiva es todo o nada")
     void daDeBaja() throws Exception {
-        Material uno = materialRepositorio.findAll().stream()
+        TemaRecurso uno = materialRepositorio.findAll().stream()
                 .filter(m -> m.getTitulo().equals("Guía teórica de renta fija")).findFirst().orElseThrow();
-        Material dos = materialRepositorio.findAll().stream()
+        TemaRecurso dos = materialRepositorio.findAll().stream()
                 .filter(m -> m.getTitulo().equals("Borrador: ejercicios de duration")).findFirst().orElseThrow();
 
-        mockMvc.perform(post("/material/darDeBaja/" + uno.getIdMaterial())).andExpect(status().isOk())
+        mockMvc.perform(post("/material/darDeBaja/" + uno.getIdTemaRecurso())).andExpect(status().isOk())
                 .andExpect(jsonPath("$.mensaje").value(Matchers.containsString("dado de baja")));
         org.junit.jupiter.api.Assertions.assertTrue(uno.esInactivo());
 
         // uno ya está de baja: la baja masiva falla y no toca al otro
-        mockMvc.perform(post("/material/darDeBajaMasiva").param("ids", String.valueOf(uno.getIdMaterial()))
-                .param("ids", String.valueOf(dos.getIdMaterial()))).andExpect(status().isBadRequest());
+        mockMvc.perform(post("/material/darDeBajaMasiva").param("ids", String.valueOf(uno.getIdTemaRecurso()))
+                .param("ids", String.valueOf(dos.getIdTemaRecurso()))).andExpect(status().isBadRequest());
         org.junit.jupiter.api.Assertions.assertFalse(dos.esInactivo());
 
-        mockMvc.perform(post("/material/darDeBajaMasiva").param("ids", String.valueOf(dos.getIdMaterial())))
+        mockMvc.perform(post("/material/darDeBajaMasiva").param("ids", String.valueOf(dos.getIdTemaRecurso())))
                 .andExpect(status().isOk());
         org.junit.jupiter.api.Assertions.assertTrue(dos.esInactivo());
     }
@@ -253,10 +243,10 @@ class MaterialControladorTest {
     @WithUserDetails(value = "admin@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesServicio")
     @DisplayName("CU-31: el administrador puede dar de baja un material de cualquier curso")
     void administradorDaDeBaja() throws Exception {
-        Material material = materialRepositorio.findAll().stream()
+        TemaRecurso material = materialRepositorio.findAll().stream()
                 .filter(m -> m.getTitulo().equals("Guía teórica de renta fija")).findFirst().orElseThrow();
 
-        mockMvc.perform(post("/material/darDeBaja/" + material.getIdMaterial())).andExpect(status().isOk());
+        mockMvc.perform(post("/material/darDeBaja/" + material.getIdTemaRecurso())).andExpect(status().isOk());
 
         org.junit.jupiter.api.Assertions.assertTrue(material.esInactivo());
     }

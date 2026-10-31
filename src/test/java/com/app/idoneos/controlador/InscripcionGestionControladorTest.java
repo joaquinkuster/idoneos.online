@@ -292,14 +292,15 @@ class InscripcionGestionControladorTest {
     void modificar() throws Exception {
         Inscripcion pendiente = inscripcion(LUCIA, "Pendiente de pago");
 
+        String vencimiento = pendiente.getFechaVencimientoAcceso().toLocalDate().toString();
         mockMvc.perform(post("/inscripcion/modificar/" + pendiente.getIdInscripcion())
-                .param("observaciones", "Pago confirmado por transferencia"))
+                .param("observaciones", "Pago confirmado por transferencia").param("vencimiento", vencimiento))
                 .andExpect(status().isOk());
         assertEquals("Pago confirmado por transferencia", pendiente.getObservaciones());
 
         // habilitarla a mano sin un pago aprobado se rechaza
-        mockMvc.perform(post("/inscripcion/modificar/" + pendiente.getIdInscripcion()).param("habilitada", "true"))
-                .andExpect(status().isBadRequest());
+        mockMvc.perform(post("/inscripcion/modificar/" + pendiente.getIdInscripcion()).param("habilitada", "true")
+                .param("vencimiento", vencimiento)).andExpect(status().isBadRequest());
         assertTrue(!pendiente.estaHabilitada());
     }
 

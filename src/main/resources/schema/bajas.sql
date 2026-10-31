@@ -136,4 +136,4 @@ CREATE TRIGGER trg_pool_baja BEFORE UPDATE OF baja ON pool
 DROP TRIGGER IF EXISTS trg_docente_curso_baja ON docente_curso ^^^
 CREATE TRIGGER trg_docente_curso_baja BEFORE UPDATE OF baja ON docente_curso
     FOR EACH ROW WHEN (OLD.baja = false AND NEW.baja = true)
-    EXECUTE FUNCTION fn_baja_sin_dependientes('id_docente_curso', 'material:id_docente_curso', 'clase_en_vivo:id_docente_curso', 'clase_clon:id_docente_curso') ^^^
+    EXECUTE FUNCTION fn_baja_sin_dependientes('id_docente_curso', 'tema_recurso:id_docente_curso', 'clase_en_vivo:id_docente_curso') ^^^

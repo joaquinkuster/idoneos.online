@@ -44,7 +44,7 @@ public class DocenteCurso {
      * Relación con Cohorte. Es opcional.
      */
     @ManyToOne
-    @JoinColumn(name = "idCohortePorDefecto", nullable = true)
+    @JoinColumn(name = "idCohorte", nullable = true)
     private Cohorte cohortePorDefecto;
 
     /**
@@ -72,22 +72,16 @@ public class DocenteCurso {
     private Boolean baja = false;
 
     /**
-     * Conjunto de materiales asociados.
+     * Conjunto de recursos que el docente incorporó a los temas del curso.
      */
     @OneToMany(mappedBy = "docenteCurso", cascade = CascadeType.ALL)
-    private Set<Material> materiales = new HashSet<>();
+    private Set<TemaRecurso> temasRecurso = new HashSet<>();
 
     /**
      * Conjunto de clasesEnVivo asociados.
      */
     @OneToMany(mappedBy = "docenteCurso", cascade = CascadeType.ALL)
     private Set<ClaseEnVivo> clasesEnVivo = new HashSet<>();
-
-    /**
-     * Conjunto de clasesClon asociados.
-     */
-    @OneToMany(mappedBy = "docenteCurso", cascade = CascadeType.ALL)
-    private Set<ClaseClon> clasesClon = new HashSet<>();
 
     /**
      * Conjunto de respuestasForo asociados.

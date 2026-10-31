@@ -248,7 +248,8 @@ class InscripcionGestionServicioTest {
         Inscripcion pendiente = inscripcion(LUCIA, Inscripcion.ACCESO_PENDIENTE_DE_PAGO);
 
         IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
-                () -> inscripcionServicio.modificarInscripcion(pendiente.getIdInscripcion(), null, true, null));
+                () -> inscripcionServicio.modificarInscripcion(pendiente.getIdInscripcion(), null, true,
+                        pendiente.getFechaVencimientoAcceso().toLocalDate()));
 
         assertTrue(error.getMessage().contains("pago aprobado"), error.getMessage());
         assertEquals(Inscripcion.ACCESO_PENDIENTE_DE_PAGO, pendiente.getEstadoAcceso());

@@ -81,16 +81,22 @@ public class Tema {
     private Boolean baja = false;
 
     /**
+     * Conjunto de clases en vivo que dictan el tema.
+     */
+    @OneToMany(mappedBy = "tema")
+    private Set<ClaseEnVivo> clasesEnVivo = new HashSet<>();
+
+    /**
      * Conjunto de progresos asociados.
      */
     @OneToMany(mappedBy = "tema", cascade = CascadeType.ALL)
     private Set<Progreso> progresos = new HashSet<>();
 
     /**
-     * Conjunto de materiales asociados.
+     * Conjunto de recursos del tema (su material).
      */
     @OneToMany(mappedBy = "tema", cascade = CascadeType.ALL)
-    private Set<Material> materiales = new HashSet<>();
+    private Set<TemaRecurso> temasRecurso = new HashSet<>();
 
     /**
      * Conjunto de terminosGlosario asociados.
@@ -166,9 +172,10 @@ public class Tema {
      *
      * @return El material publicado, en el orden en que se cargó.
      */
-    public List<Material> getMaterialesPublicados() {
-        return materiales.stream().filter(material -> !material.getBaja() && !material.getOculto())
-                .sorted(Comparator.comparingInt(Material::getIdMaterial)).toList();
+    public List<TemaRecurso> getMaterialesPublicados() {
+        return temasRecurso.stream().filter(TemaRecurso::estaPublicado)
+                .sorted(Comparator.comparingInt(TemaRecurso::getNumeroOrden).thenComparingInt(TemaRecurso::getIdTemaRecurso))
+                .toList();
     }
 
     /**
@@ -176,9 +183,19 @@ public class Tema {
      *
      * @return El material vigente, en el orden en que se cargó.
      */
-    public List<Material> getMaterialesVigentes() {
-        return materiales.stream().filter(material -> !material.getBaja())
-                .sorted(Comparator.comparingInt(Material::getIdMaterial)).toList();
+    public List<TemaRecurso> getMaterialesVigentes() {
+        return temasRecurso.stream().filter(material -> !material.getBaja() && !material.getRecurso().getBaja())
+                .sorted(Comparator.comparingInt(TemaRecurso::getNumeroOrden).thenComparingInt(TemaRecurso::getIdTemaRecurso))
+                .toList();
+    }
+
+    /**
+     * Obtiene todos los recursos del tema, también los dados de baja.
+     *
+     * @return Los recursos del tema.
+     */
+    public Set<TemaRecurso> getMateriales() {
+        return temasRecurso;
     }
 
     /**

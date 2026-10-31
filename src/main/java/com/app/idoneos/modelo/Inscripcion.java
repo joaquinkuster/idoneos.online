@@ -46,8 +46,14 @@ public class Inscripcion {
      * Fecha y hora en que vence el acceso al contenido. Se calcula al habilitarse la inscripción por primera vez, por lo
      * que es nula mientras está pendiente de pago.
      */
-    @Column(name = "fechaVencimientoAcceso", nullable = true)
+    @Column(name = "fechaVencimientoAcceso", nullable = false)
     private LocalDateTime fechaVencimientoAcceso;
+
+    /**
+     * Fecha y hora en que el alumno aceptó los términos y condiciones al inscribirse.
+     */
+    @Column(name = "fechaAceptacionTyc", nullable = false)
+    private LocalDateTime fechaAceptacionTyc = LocalDateTime.now();
 
     /**
      * Observaciones sobre la inscripción. Es opcional.
@@ -119,7 +125,9 @@ public class Inscripcion {
     public Inscripcion(Cohorte cohorte, Alumno alumno, LocalDateTime fechaVencimientoAcceso) {
         this.cohorte = cohorte;
         this.alumno = alumno;
-        this.fechaVencimientoAcceso = fechaVencimientoAcceso;
+        // Mientras no se habilita no hay acceso: el vencimiento provisorio se recalcula cuando se habilita por primera vez
+        this.fechaVencimientoAcceso = fechaVencimientoAcceso != null || cohorte == null ? fechaVencimientoAcceso
+                : cohorte.calcularVencimientoAcceso(LocalDateTime.now());
     }
 
     /**
@@ -181,8 +189,9 @@ public class Inscripcion {
      * @param ahora El momento de la habilitación.
      */
     public void habilitar(LocalDateTime ahora) {
+        boolean estabaPendiente = Boolean.FALSE.equals(habilitado);
         habilitado = true;
-        if (fechaVencimientoAcceso == null) {
+        if (fechaVencimientoAcceso == null || estabaPendiente) {
             fechaVencimientoAcceso = cohorte.calcularVencimientoAcceso(ahora);
         }
     }

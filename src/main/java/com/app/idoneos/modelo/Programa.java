@@ -319,7 +319,7 @@ public class Programa {
                 .filter(tema -> !tema.getAutoevaluacionesPublicadas().isEmpty())
                 .filter(tema -> tema.getMateriales().stream().anyMatch(m -> !m.getBaja() && !m.getOculto()))
                 .filter(tema -> tema.getMateriales().stream().noneMatch(m -> !m.getBaja() && !m.getOculto()
-                        && !materialesQuitados.contains(m.getIdMaterial())))
+                        && !materialesQuitados.contains(m.getIdTemaRecurso())))
                 .toList();
     }
 
@@ -337,7 +337,7 @@ public class Programa {
                 .map(TemaCronograma::getTema).filter(tema -> !temasQuitadas.contains(tema.getIdTema()))
                 .filter(tema -> !tema.getAutoevaluacionesPublicadas().isEmpty())
                 .filter(tema -> tema.getMateriales().stream().anyMatch(material -> !material.getBaja()
-                        && !material.getOculto() && !materialesQuitados.contains(material.getIdMaterial())))
+                        && !material.getOculto() && !materialesQuitados.contains(material.getIdTemaRecurso())))
                 .count();
     }
 

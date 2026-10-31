@@ -18,14 +18,15 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.app.idoneos.servicio.Curso.ContextoCurso;
 import com.app.idoneos.modelo.Docente;
-import com.app.idoneos.modelo.Material;
+import com.app.idoneos.modelo.TemaRecurso;
 import com.app.idoneos.modelo.Programa;
 import com.app.idoneos.modelo.Modalidad;
-import com.app.idoneos.modelo.TipoMaterial;
+import com.app.idoneos.modelo.TipoRecurso;
 import com.app.idoneos.modelo.TemaCronograma;
 import com.app.idoneos.modelo.Usuario;
-import com.app.idoneos.servicio.Material.MaterialServicioImpl;
-import com.app.idoneos.servicio.TipoMaterial.TipoMaterialServicioImpl;
+import com.app.idoneos.servicio.Recurso.RecursoServicio;
+import java.time.LocalDate;
+import org.springframework.format.annotation.DateTimeFormat;
 import com.app.idoneos.utilidades.RespuestaFormularioUtilidad;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -52,10 +53,7 @@ import jakarta.servlet.http.HttpServletRequest;
 public class MaterialControlador extends PanelCursoControlador {
 
     @Autowired
-    private MaterialServicioImpl materialServicio;
-
-    @Autowired
-    private TipoMaterialServicioImpl tipoMaterialServicio;
+    private RecursoServicio materialServicio;
 
     /** Carpeta base donde se guardan los archivos de los cursos. */
     @Autowired
@@ -86,11 +84,11 @@ public class MaterialControlador extends PanelCursoControlador {
     @GetMapping("/buscar")
     public String buscarMateriales(@RequestParam(value = "cursoId", required = false) Integer cursoId,
             @RequestParam(value = "temaId", required = false) Integer temaId,
-            @RequestParam(value = "tipoId", required = false) Integer tipoId,
+            @RequestParam(value = "tipo", required = false) String tipoBuscado,
             @RequestParam(value = "titulo", required = false) String titulo,
             @RequestParam(value = "generadoPorIa", required = false) Boolean generadoPorIa,
             @RequestParam(value = "baja", required = false) Boolean baja,
-            @RequestParam(value = "nuevo", required = false) Integer nuevo,
+            @RequestParam(value = "nuevo", required = false) String nuevo,
             @RequestParam(value = "accion", required = false) String accion,
             @RequestParam(value = "materialId", required = false) Integer materialId, Model modelo,
             Authentication auth, RedirectAttributes redirectAttributes) {
@@ -102,19 +100,18 @@ public class MaterialControlador extends PanelCursoControlador {
             Programa programa = contexto.programa();
             List<TemaCronograma> temas = programa == null ? List.of() : programa.getCronogramaOrdenado();
             // La grabación solo se ofrece si el curso tiene la modalidad Grabada
-            List<TipoMaterial> tiposDeSubida = tipoMaterialServicio.buscarSubidosManualmente().stream()
-                    .filter(tipo -> !TipoMaterial.GRABACION.equals(tipo.getNombre())
-                            || contexto.curso().incluyeModalidad(Modalidad.GRABADA))
+            List<TipoRecurso> tiposDeSubida = TipoRecurso.deSubidaManual().stream()
+                    .filter(tipo -> tipo != TipoRecurso.GRABACION || contexto.curso().incluyeModalidad(Modalidad.GRABADA))
                     .toList();
-            boolean nuevoValido = nuevo != null
-                    && tiposDeSubida.stream().anyMatch(tipo -> tipo.getIdTipoMaterial() == nuevo);
+            TipoRecurso nuevoTipo = TipoRecurso.deTexto(nuevo);
+            boolean nuevoValido = nuevoTipo != null && tiposDeSubida.contains(nuevoTipo);
 
-            List<Material> materiales = materialServicio.buscarConFiltros(cursoId, null, null, null,
+            List<TemaRecurso> materiales = materialServicio.buscarConFiltros(cursoId, null, null, null,
                     null, null, docente); // listado completo: los filtros se aplican en la pantalla
 
             String abrirModal = null;
             boolean hayAccion = accion != null && materialId != null
-                    && materiales.stream().anyMatch(m -> m.getIdMaterial() == materialId && !m.getBaja());
+                    && materiales.stream().anyMatch(m -> m.getIdTemaRecurso() == materialId && !m.getBaja());
             if (hayAccion && "baja".equals(accion)) {
                 abrirModal = "modalBajaMaterial" + materialId;
             } else if (hayAccion && "editar".equals(accion) && !esAdministrador) {
@@ -125,14 +122,14 @@ public class MaterialControlador extends PanelCursoControlador {
             modelo.addAttribute("abrirModal", abrirModal);
             modelo.addAttribute("temas", temas);
             modelo.addAttribute("materiales", materiales);
-            modelo.addAttribute("tiposMaterial", tipoMaterialServicio.obtenerTodo());
+            modelo.addAttribute("tiposMaterial", List.of(TipoRecurso.values()));
             modelo.addAttribute("tiposDeSubida", tiposDeSubida);
             modelo.addAttribute("temaSeleccionada", temaId);
-            modelo.addAttribute("tipoSeleccionado", tipoId);
+            modelo.addAttribute("tipoSeleccionado", tipoBuscado);
             modelo.addAttribute("tituloBusqueda", titulo);
             modelo.addAttribute("iaSeleccionado", generadoPorIa);
             modelo.addAttribute("bajaSeleccionada", baja);
-            modelo.addAttribute("nuevoTipoId", nuevoValido && !esAdministrador ? nuevo : null);
+            modelo.addAttribute("nuevoTipo", nuevoValido && !esAdministrador ? nuevoTipo.name() : null);
             modelo.addAttribute("puedeGestionar", !esAdministrador);
             modelo.addAttribute("titulo", "Materiales | Idóneos Online");
             return "pages/material/buscar";
@@ -154,14 +151,14 @@ public class MaterialControlador extends PanelCursoControlador {
      */
     @GetMapping("/ver/{id}")
     public String verMaterial(@PathVariable("id") Integer id, Model modelo, Authentication auth) {
-        Material material = materialServicio.buscarPorId(id)
+        TemaRecurso material = materialServicio.buscarPorId(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         Usuario usuario = (Usuario) auth.getPrincipal();
         if (!materialServicio.puedeAcceder(material, usuario)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
-        if (material.esEnlaceExterno()) {
-            return "redirect:" + material.getRutaArchivo();
+        if (material.getRecurso().esEnlaceExterno()) {
+            return "redirect:" + material.getRecurso().getRutaArchivo();
         }
 
         ContextoCurso contexto = contextoDeLaTema(material.getTema(), usuario);
@@ -170,7 +167,7 @@ public class MaterialControlador extends PanelCursoControlador {
         modelo.addAttribute("material", material);
         modelo.addAttribute("tema", material.getTema());
         modelo.addAttribute("formato", material.getFormatoDeVista());
-        modelo.addAttribute("urlArchivo", "/material/archivo/" + material.getIdMaterial());
+        modelo.addAttribute("urlArchivo", "/material/archivo/" + material.getIdTemaRecurso());
         modelo.addAttribute("titulo", material.getTitulo() + " | Idóneos Online");
         return "pages/material/ver";
     }
@@ -196,7 +193,7 @@ public class MaterialControlador extends PanelCursoControlador {
     @GetMapping("/archivo/{id}")
     public ResponseEntity<Resource> abrirArchivo(@PathVariable("id") Integer id, Authentication auth,
             HttpServletRequest pedido) {
-        Material material = materialServicio.buscarPorId(id)
+        TemaRecurso material = materialServicio.buscarPorId(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         if (!materialServicio.puedeAcceder(material, (Usuario) auth.getPrincipal())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
@@ -204,12 +201,12 @@ public class MaterialControlador extends PanelCursoControlador {
         if (!esPedidoDeLaPlataforma(pedido)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
-        Path archivo = ManejadorArchivosUtilidad.resolver(directorioCursos, material.getRutaArchivo());
+        Path archivo = ManejadorArchivosUtilidad.resolver(directorioCursos, material.getRecurso().getRutaArchivo());
         if (archivo == null || !Files.isRegularFile(archivo)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
         MediaType tipo = switch (material.getFormatoDeVista()) {
-            case "video" -> MediaType.parseMediaType("video/" + material.getExtension());
+            case "video" -> MediaType.parseMediaType("video/" + material.getRecurso().getExtension());
             case "pdf" -> MediaType.APPLICATION_PDF;
             default -> throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         };
@@ -239,16 +236,25 @@ public class MaterialControlador extends PanelCursoControlador {
     @PostMapping("/subir")
     public ResponseEntity<Map<String, String>> subirMaterial(
             @RequestParam(value = "temaId", required = false) Integer temaId,
-            @RequestParam(value = "tipoMaterialId", required = false) Integer tipoMaterialId,
+            @RequestParam(value = "tipo", required = false) String tipo,
             @RequestParam(value = "titulo", required = false) String titulo,
+            @RequestParam(value = "descripcion", required = false) String descripcion,
             @RequestParam(value = "oculto", defaultValue = "false") boolean oculto,
             @RequestParam(value = "autor", required = false) String autor,
             @RequestParam(value = "enlace", required = false) String enlace,
+            @RequestParam(value = "isbn", required = false) String isbn,
+            @RequestParam(value = "editorial", required = false) String editorial,
+            @RequestParam(value = "paginas", required = false) Integer paginas,
+            @RequestParam(value = "fechaPublicacion", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaPublicacion,
+            @RequestParam(value = "duracionMinutos", required = false) Integer duracionMinutos,
+            @RequestParam(value = "terminos", defaultValue = "false") boolean terminos,
             @RequestParam(value = "archivo", required = false) MultipartFile archivo, Authentication auth) {
         try {
             Usuario usuario = (Usuario) auth.getPrincipal();
-            Material material = materialServicio.subirMaterial(usuario.getDocente(), temaId, tipoMaterialId, titulo,
-                    oculto, autor, enlace, archivo);
+            TemaRecurso material = materialServicio.subirMaterial(usuario.getDocente(), temaId, tipo,
+                    new RecursoServicio.DatosRecurso(titulo, descripcion, oculto, autor, enlace, isbn, editorial, paginas,
+                            fechaPublicacion, duracionMinutos),
+                    archivo, terminos);
             return RespuestaFormularioUtilidad.respuestaExitosa("Material '" + material.getTitulo() + "' subido con éxito.");
         } catch (Exception e) {
             return RespuestaFormularioUtilidad.respuestaConError(e);
@@ -272,13 +278,22 @@ public class MaterialControlador extends PanelCursoControlador {
     @PostMapping("/modificar/{id}")
     public ResponseEntity<Map<String, String>> modificarMaterial(@PathVariable("id") Integer id,
             @RequestParam(value = "titulo", required = false) String titulo,
+            @RequestParam(value = "descripcion", required = false) String descripcion,
             @RequestParam(value = "oculto", defaultValue = "false") boolean oculto,
             @RequestParam(value = "autor", required = false) String autor,
             @RequestParam(value = "enlace", required = false) String enlace,
+            @RequestParam(value = "isbn", required = false) String isbn,
+            @RequestParam(value = "editorial", required = false) String editorial,
+            @RequestParam(value = "paginas", required = false) Integer paginas,
+            @RequestParam(value = "fechaPublicacion", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaPublicacion,
+            @RequestParam(value = "duracionMinutos", required = false) Integer duracionMinutos,
             @RequestParam(value = "archivo", required = false) MultipartFile archivo, Authentication auth) {
         try {
             Usuario usuario = (Usuario) auth.getPrincipal();
-            materialServicio.modificarMaterial(id, usuario.getDocente(), titulo, oculto, autor, enlace, archivo);
+            materialServicio.modificarMaterial(id, usuario.getDocente(),
+                    new RecursoServicio.DatosRecurso(titulo, descripcion, oculto, autor, enlace, isbn, editorial, paginas,
+                            fechaPublicacion, duracionMinutos),
+                    archivo);
             return RespuestaFormularioUtilidad.respuestaExitosa("Material modificado correctamente.");
         } catch (Exception e) {
             return RespuestaFormularioUtilidad.respuestaConError(e);

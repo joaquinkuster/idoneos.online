@@ -39,11 +39,18 @@ public class ClaseEnVivo {
     private EstadoClaseEnVivo estadoClaseEnVivo;
 
     /**
-     * Relación con Material. Es opcional.
+     * Relación con Tema: el tema que se dicta en la clase.
      */
     @ManyToOne
-    @JoinColumn(name = "idMaterial", nullable = true)
-    private Material material;
+    @JoinColumn(name = "idTema", nullable = false)
+    private Tema tema;
+
+    /**
+     * Relación con Grabacion: la grabación de la clase, cuando ya está disponible. Es opcional.
+     */
+    @ManyToOne
+    @JoinColumn(name = "idGrabacion", nullable = true)
+    private Grabacion grabacion;
 
     /**
      * Relación con Cohorte.
@@ -67,8 +74,14 @@ public class ClaseEnVivo {
     /**
      * Duración de la clase, en minutos.
      */
-    @Column(name = "duracion", nullable = false)
+    @Column(name = "duracionMinutos", nullable = false)
     private int duracion;
+
+    /**
+     * Fecha hasta la que se puede ver la grabación de la clase. Es opcional.
+     */
+    @Column(name = "fechaVencimientoGrabacion", nullable = true)
+    private java.time.LocalDate fechaVencimientoGrabacion;
 
     /**
      * URL del servidor RTMP para transmitir la clase. Es opcional.
@@ -116,9 +129,10 @@ public class ClaseEnVivo {
      * @param fechaHora fecha y hora en que se dicta la clase.
      * @param duracion duración de la clase, en minutos.
      */
-    public ClaseEnVivo(DocenteCurso docenteCurso, EstadoClaseEnVivo estadoClaseEnVivo, Cohorte cohorte, String titulo, LocalDateTime fechaHora, int duracion) {
+    public ClaseEnVivo(DocenteCurso docenteCurso, EstadoClaseEnVivo estadoClaseEnVivo, Tema tema, Cohorte cohorte, String titulo, LocalDateTime fechaHora, int duracion) {
         this.docenteCurso = docenteCurso;
         this.estadoClaseEnVivo = estadoClaseEnVivo;
+        this.tema = tema;
         this.cohorte = cohorte;
         this.titulo = titulo;
         this.fechaHora = fechaHora;

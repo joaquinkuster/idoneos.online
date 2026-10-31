@@ -18,13 +18,12 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.transaction.annotation.Transactional;
 
 import com.app.idoneos.modelo.Docente;
-import com.app.idoneos.modelo.Material;
-import com.app.idoneos.modelo.TipoMaterial;
+import com.app.idoneos.modelo.TemaRecurso;
+import com.app.idoneos.modelo.TipoRecurso;
 import com.app.idoneos.modelo.Tema;
 import com.app.idoneos.repositorio.DocenteRepositorio;
-import com.app.idoneos.repositorio.TipoMaterialRepositorio;
 import com.app.idoneos.repositorio.TemaRepositorio;
-import com.app.idoneos.servicio.Material.MaterialServicio;
+import com.app.idoneos.servicio.Recurso.RecursoServicio;
 
 /**
  * Pruebas de la entrega del contenido de los materiales ({@code GET /material/archivo/{id}}): solo la reciben quienes
@@ -44,13 +43,10 @@ class MaterialArchivoControladorTest {
     private MockMvc mockMvc;
 
     @Autowired
-    private MaterialServicio materialServicio;
+    private RecursoServicio materialServicio;
 
     @Autowired
     private TemaRepositorio temaRepositorio;
-
-    @Autowired
-    private TipoMaterialRepositorio tipoMaterialRepositorio;
 
     @Autowired
     private DocenteRepositorio docenteRepositorio;
@@ -66,19 +62,18 @@ class MaterialArchivoControladorTest {
                 .orElseThrow();
     }
 
-    private int idTipo(String nombre) {
-        return tipoMaterialRepositorio.findAll().stream().filter(t -> t.getNombre().equals(nombre)).findFirst()
-                .orElseThrow().getIdTipoMaterial();
+    private RecursoServicio.DatosRecurso datos(String titulo, boolean oculto, String autor, String enlace) {
+        return new RecursoServicio.DatosRecurso(titulo, null, oculto, autor, enlace, null, null, null, null, null);
     }
 
     /** Sube una grabación al tema indicado, como lo haría el docente titular del curso. */
-    private Material subir(Tema tema, boolean oculto) {
+    private TemaRecurso subir(Tema tema, boolean oculto) {
         return materialServicio.subirMaterial(docente("fausto.spotorno@idoneos.online"), tema.getIdTema(),
-                idTipo(TipoMaterial.GRABACION), "Clase de prueba", oculto, null, null,
-                new MockMultipartFile("archivo", "clase.mp4", "video/mp4", MP4));
+                "GRABACION", datos("Clase de prueba", oculto, null, null),
+                new MockMultipartFile("archivo", "clase.mp4", "video/mp4", MP4), true);
     }
 
-    private Material subirEnTemaDos(boolean oculto) {
+    private TemaRecurso subirEnTemaDos(boolean oculto) {
         return subir(tema("Mercado de Capitales Argentino", "Renta fija y bonos"), oculto);
     }
 
@@ -92,9 +87,9 @@ class MaterialArchivoControladorTest {
     @WithUserDetails(value = "fausto.spotorno@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesServicio")
     @DisplayName("El docente del curso recibe el video en el reproductor, sin nombre de archivo y sin caché")
     void docenteRecibeElContenido() throws Exception {
-        Material material = subirEnTemaDos(true);
+        TemaRecurso material = subirEnTemaDos(true);
 
-        mockMvc.perform(pedidoDeLaPagina(material.getIdMaterial())).andExpect(status().isOk())
+        mockMvc.perform(pedidoDeLaPagina(material.getIdTemaRecurso())).andExpect(status().isOk())
                 .andExpect(content().bytes(MP4)).andExpect(content().contentType("video/mp4"))
                 .andExpect(header().string("Content-Disposition", "inline"))
                 .andExpect(header().string("Cache-Control", Matchers.containsString("no-store")));
@@ -104,12 +99,12 @@ class MaterialArchivoControladorTest {
     @WithUserDetails(value = "fausto.spotorno@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesServicio")
     @DisplayName("El PDF también se entrega solo al visor de la página (pedido de tipo 'empty', como el de PDF.js)")
     void pdfParaElVisor() throws Exception {
-        Material pdf = materialServicio.subirMaterial(docente("fausto.spotorno@idoneos.online"),
+        TemaRecurso pdf = materialServicio.subirMaterial(docente("fausto.spotorno@idoneos.online"),
                 tema("Mercado de Capitales Argentino", "Renta fija y bonos").getIdTema(),
-                idTipo(TipoMaterial.PRESENTACION), "Diapositivas", false, null, null,
-                new MockMultipartFile("archivo", "clase.pdf", "application/pdf", PDF));
+                "PRESENTACION", datos("Diapositivas", false, "Autor", null),
+                new MockMultipartFile("archivo", "clase.pdf", "application/pdf", PDF), true);
 
-        mockMvc.perform(get("/material/archivo/" + pdf.getIdMaterial()).header("Sec-Fetch-Dest", "empty")
+        mockMvc.perform(get("/material/archivo/" + pdf.getIdTemaRecurso()).header("Sec-Fetch-Dest", "empty")
                 .header("Sec-Fetch-Site", "same-origin")).andExpect(status().isOk())
                 .andExpect(content().contentType("application/pdf"));
     }
@@ -118,7 +113,7 @@ class MaterialArchivoControladorTest {
     @WithUserDetails(value = "fausto.spotorno@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesServicio")
     @DisplayName("No se entrega por navegación directa, en un iframe, desde otro sitio ni sin encabezados del navegador")
     void soloParaLaPropiaPagina() throws Exception {
-        int id = subirEnTemaDos(false).getIdMaterial();
+        int id = subirEnTemaDos(false).getIdTemaRecurso();
 
         // abrir la dirección en otra pestaña, o con "guardar enlace como"
         mockMvc.perform(get("/material/archivo/" + id).header("Sec-Fetch-Dest", "document").header("Sec-Fetch-Site",
@@ -137,11 +132,11 @@ class MaterialArchivoControladorTest {
     @WithUserDetails(value = "valentina.ruiz@correo.com", userDetailsServiceBeanName = "usuarioDetallesServicio")
     @DisplayName("El alumno con el tema habilitado recibe el contenido y puede pedir un rango del video")
     void alumnoRecibeElContenidoYPideUnRango() throws Exception {
-        Material material = subirEnTemaDos(false);
+        TemaRecurso material = subirEnTemaDos(false);
 
-        mockMvc.perform(pedidoDeLaPagina(material.getIdMaterial())).andExpect(status().isOk())
+        mockMvc.perform(pedidoDeLaPagina(material.getIdTemaRecurso())).andExpect(status().isOk())
                 .andExpect(content().bytes(MP4));
-        mockMvc.perform(pedidoDeLaPagina(material.getIdMaterial()).header("Range", "bytes=0-3"))
+        mockMvc.perform(pedidoDeLaPagina(material.getIdTemaRecurso()).header("Range", "bytes=0-3"))
                 .andExpect(status().isPartialContent())
                 .andExpect(content().bytes(new byte[] { 0, 0, 0, 0x18 }))
                 .andExpect(header().string("Content-Range", "bytes 0-3/" + MP4.length));
@@ -151,69 +146,69 @@ class MaterialArchivoControladorTest {
     @WithUserDetails(value = "valentina.ruiz@correo.com", userDetailsServiceBeanName = "usuarioDetallesServicio")
     @DisplayName("El alumno no recibe el material de un tema bloqueado ni el material oculto")
     void alumnoSinAccesoABloqueadoNiOculto() throws Exception {
-        Material deTemaBloqueada = subir(tema("Mercado de Capitales Argentino", "Renta variable y opciones"), false);
-        Material oculto = subirEnTemaDos(true);
+        TemaRecurso deTemaBloqueada = subir(tema("Mercado de Capitales Argentino", "Renta variable y opciones"), false);
+        TemaRecurso oculto = subirEnTemaDos(true);
 
-        mockMvc.perform(pedidoDeLaPagina(deTemaBloqueada.getIdMaterial())).andExpect(status().isForbidden());
-        mockMvc.perform(pedidoDeLaPagina(oculto.getIdMaterial())).andExpect(status().isForbidden());
+        mockMvc.perform(pedidoDeLaPagina(deTemaBloqueada.getIdTemaRecurso())).andExpect(status().isForbidden());
+        mockMvc.perform(pedidoDeLaPagina(oculto.getIdTemaRecurso())).andExpect(status().isForbidden());
     }
 
     @Test
     @WithUserDetails(value = "martin.gomez@correo.com", userDetailsServiceBeanName = "usuarioDetallesServicio")
     @DisplayName("El alumno cuyo dictado todavía no comenzó no recibe el material")
     void alumnoConDictadoSinComenzar() throws Exception {
-        Material material = subirEnTemaDos(false);
+        TemaRecurso material = subirEnTemaDos(false);
 
-        mockMvc.perform(pedidoDeLaPagina(material.getIdMaterial())).andExpect(status().isForbidden());
+        mockMvc.perform(pedidoDeLaPagina(material.getIdTemaRecurso())).andExpect(status().isForbidden());
     }
 
     @Test
     @WithUserDetails(value = "tomas.herrera@correo.com", userDetailsServiceBeanName = "usuarioDetallesServicio")
     @DisplayName("El alumno que no está inscripto en el curso no recibe el material")
     void alumnoSinInscripcion() throws Exception {
-        Material material = subirEnTemaDos(false);
+        TemaRecurso material = subirEnTemaDos(false);
 
-        mockMvc.perform(pedidoDeLaPagina(material.getIdMaterial())).andExpect(status().isForbidden());
+        mockMvc.perform(pedidoDeLaPagina(material.getIdTemaRecurso())).andExpect(status().isForbidden());
     }
 
     @Test
     @WithUserDetails(value = "sebastian.bordato@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesServicio")
     @DisplayName("Un docente que no participa en el curso no recibe el material")
     void docenteAjenoAlCurso() throws Exception {
-        Material material = subir(tema("Macroeconomía de Coyuntura", "Inflación y precios"), false);
+        TemaRecurso material = subir(tema("Macroeconomía de Coyuntura", "Inflación y precios"), false);
 
-        mockMvc.perform(pedidoDeLaPagina(material.getIdMaterial())).andExpect(status().isForbidden());
+        mockMvc.perform(pedidoDeLaPagina(material.getIdTemaRecurso())).andExpect(status().isForbidden());
     }
 
     @Test
     @WithUserDetails(value = "admin@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesServicio")
     @DisplayName("El administrador recibe el contenido de cualquier curso")
     void administradorRecibeElContenido() throws Exception {
-        Material material = subirEnTemaDos(true);
+        TemaRecurso material = subirEnTemaDos(true);
 
-        mockMvc.perform(pedidoDeLaPagina(material.getIdMaterial())).andExpect(status().isOk());
+        mockMvc.perform(pedidoDeLaPagina(material.getIdTemaRecurso())).andExpect(status().isOk());
     }
 
     @Test
     @WithUserDetails(value = "fausto.spotorno@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesServicio")
     @DisplayName("Un enlace externo no tiene contenido propio, y un material dado de baja o inexistente responde 404")
     void enlaceBajaOInexistente() throws Exception {
-        Material enlace = materialServicio.subirMaterial(docente("fausto.spotorno@idoneos.online"),
+        TemaRecurso enlace = materialServicio.subirMaterial(docente("fausto.spotorno@idoneos.online"),
                 tema("Mercado de Capitales Argentino", "Renta fija y bonos").getIdTema(),
-                idTipo(TipoMaterial.BIBLIOGRAFIA), "Libro", false, "Autor", "https://sitio.com/libro.pdf", null);
-        Material deBaja = subirEnTemaDos(false);
-        materialServicio.darDeBajaMaterial(deBaja.getIdMaterial(), null);
+                "ENLACE", datos("Libro", false, "Autor", "https://sitio.com/libro.pdf"), null, true);
+        TemaRecurso deBaja = subirEnTemaDos(false);
+        materialServicio.darDeBajaMaterial(deBaja.getIdTemaRecurso(), null);
 
-        mockMvc.perform(pedidoDeLaPagina(enlace.getIdMaterial())).andExpect(status().isNotFound());
-        mockMvc.perform(pedidoDeLaPagina(deBaja.getIdMaterial())).andExpect(status().isNotFound());
+        mockMvc.perform(pedidoDeLaPagina(enlace.getIdTemaRecurso())).andExpect(status().isNotFound());
+        mockMvc.perform(pedidoDeLaPagina(deBaja.getIdTemaRecurso())).andExpect(status().isNotFound());
         mockMvc.perform(pedidoDeLaPagina(999999)).andExpect(status().isNotFound());
     }
 
     @Test
     @DisplayName("Sin sesión no se entrega ningún contenido: se pide iniciar sesión")
     void sinSesion() throws Exception {
-        Material material = subirEnTemaDos(false);
+        TemaRecurso material = subirEnTemaDos(false);
 
-        mockMvc.perform(pedidoDeLaPagina(material.getIdMaterial())).andExpect(status().is3xxRedirection());
+        mockMvc.perform(pedidoDeLaPagina(material.getIdTemaRecurso())).andExpect(status().is3xxRedirection());
     }
 }

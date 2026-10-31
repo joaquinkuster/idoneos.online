@@ -18,8 +18,8 @@
                         <div class="ac-selector-grupo">Recursos</div>
 
                         <label class="ac-selector-opcion" th:each="t : ${tiposDeSubida}"
-                               th:attr="data-tipo-id=${t.idTipoMaterial}, data-nombre=${t.nombre}, data-descripcion=${t.descripcionDeSubida}">
-                            <input type="radio" name="recurso" th:value="${t.idTipoMaterial}">
+                               th:attr="data-tipo-id=${t.name()}, data-nombre=${t.nombre}, data-descripcion=${t.descripcionDeSubida}">
+                            <input type="radio" name="recurso" th:value="${t.name()}">
                             <th:block th:replace="~{fragments/iconoMaterial :: icono(${t.nombre}, 'ac-recurso-icono-chico')}"></th:block>
                             <span th:text="${t.nombre}">Grabación</span>
                         </label>

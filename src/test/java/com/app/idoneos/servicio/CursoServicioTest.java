@@ -17,9 +17,10 @@ import org.springframework.transaction.annotation.Transactional;
 import com.app.idoneos.modelo.Cohorte;
 import com.app.idoneos.modelo.Curso;
 import com.app.idoneos.modelo.Docente;
-import com.app.idoneos.modelo.Material;
+import com.app.idoneos.modelo.Grabacion;
+import com.app.idoneos.modelo.Recurso;
+import com.app.idoneos.modelo.TemaRecurso;
 import com.app.idoneos.modelo.Modalidad;
-import com.app.idoneos.modelo.TipoMaterial;
 import com.app.idoneos.modelo.DocenteCurso;
 import com.app.idoneos.servicio.Categoria.CategoriaServicioImpl;
 import com.app.idoneos.servicio.Curso.CursoServicioImpl;
@@ -55,10 +56,13 @@ class CursoServicioTest {
     private DocenteServicioImpl docenteServicio;
 
     @Autowired
-    private com.app.idoneos.repositorio.MaterialRepositorio materialRepositorio;
+    private com.app.idoneos.repositorio.RecursoRepositorio recursoRepositorio;
 
     @Autowired
-    private com.app.idoneos.repositorio.TipoMaterialRepositorio tipoMaterialRepositorio;
+    private com.app.idoneos.repositorio.GrabacionRepositorio grabacionRepositorio;
+
+    @Autowired
+    private com.app.idoneos.repositorio.TemaRecursoRepositorio temaRecursoRepositorio;
 
     private Integer idDocente(String correo) {
         return docenteServicio.buscarHabilitados().stream()
@@ -336,9 +340,11 @@ class CursoServicioTest {
         Curso curso = curso("Fondos Comunes de Inversión");
         var tema = curso.getTemas().stream().filter(u -> !u.getBaja()).findFirst().orElseThrow();
         var participacion = curso.getParticipacionesDocente().stream().findFirst().orElseThrow();
-        var grabacion = tipoMaterialRepositorio.findByNombre(TipoMaterial.GRABACION).orElseThrow();
-        var material = materialRepositorio.save(new Material(participacion, grabacion, tema, "Grabación de prueba"));
-        tema.getMateriales().add(material);
+        Recurso recurso = recursoRepositorio.save(new Recurso(participacion.getDocente(), "Grabación de prueba"));
+        recurso.setGrabacion(grabacionRepositorio.save(new Grabacion(recurso, "curso/tema/grabacion.mp4")));
+        TemaRecurso material = temaRecursoRepositorio.save(new TemaRecurso(tema, recurso, participacion, 1));
+        tema.getTemasRecurso().add(material);
+        recurso.getTemasRecurso().add(material);
 
         IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
                 () -> modificarModalidades(curso, List.of(idModalidad(Modalidad.CLON_IA))));

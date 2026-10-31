@@ -99,6 +99,12 @@ public class Cohorte {
     private Integer cupoMaximo;
 
     /**
+     * Observaciones del administrador sobre la cohorte. Es opcional.
+     */
+    @Column(name = "observaciones", nullable = true, length = 500)
+    private String observaciones;
+
+    /**
      * Cantidad de días de acceso al contenido luego de inscribirse.
      */
     @Column(name = "accesoDias", nullable = false)

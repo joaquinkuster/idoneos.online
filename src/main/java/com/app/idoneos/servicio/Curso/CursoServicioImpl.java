@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Optional;
 import com.app.idoneos.modelo.Categoria;
 import com.app.idoneos.modelo.Curso;
+import com.app.idoneos.modelo.TemaRecurso;
 import com.app.idoneos.modelo.Nivel;
 import com.app.idoneos.repositorio.CursoRepositorio;
 import com.app.idoneos.servicio.CrudServicio;
@@ -760,8 +761,7 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
 
     private boolean tieneActividadVigente(DocenteCurso participacion) {
         return participacion.getClasesEnVivo().stream().anyMatch(clase -> !clase.getBaja())
-                || participacion.getClasesClon().stream().anyMatch(clase -> !clase.getBaja())
-                || participacion.getMateriales().stream().anyMatch(material -> !material.getBaja());
+                || participacion.getTemasRecurso().stream().anyMatch(material -> !material.getBaja());
     }
 
     private void validarDesvinculaciones(Curso curso, Docente titular, List<Docente> ayudantes) {
@@ -806,8 +806,8 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
             }
             boolean enVivo = curso.getParticipacionesDocente().stream()
                     .anyMatch(p -> p.getClasesEnVivo().stream().anyMatch(clase -> !clase.getBaja()));
-            boolean clon = curso.getParticipacionesDocente().stream()
-                    .anyMatch(p -> p.getClasesClon().stream().anyMatch(clase -> !clase.getBaja()));
+            boolean clon = curso.getTemas().stream().flatMap(tema -> tema.getTemasRecurso().stream())
+                    .anyMatch(material -> !material.getBaja() && material.getRecurso().getVideoClon() != null);
             if ((Modalidad.EN_VIVO.equals(nombre) && enVivo) || (Modalidad.CLON_IA.equals(nombre) && clon)) {
                 throw RespuestaFormularioUtilidad.campoInvalido("idsModalidades", "Error! No puede quitarse la modalidad '" + nombre
                         + "' porque el curso tiene clases activas de esa modalidad.");
@@ -816,8 +816,8 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
             if (materiales > 0) {
                 throw RespuestaFormularioUtilidad.campoInvalido("idsModalidades", "Error! No puede quitarse la modalidad '" + nombre
                         + "': el curso tiene " + materiales + " " + (materiales == 1
-                                ? Material.describirPorModalidad(nombre).replace("grabaciones", "grabación")
-                                : Material.describirPorModalidad(nombre))
+                                ? TemaRecurso.describirPorModalidad(nombre).replace("grabaciones", "grabación")
+                                : TemaRecurso.describirPorModalidad(nombre))
                         + " publicad" + (materiales == 1 ? "a" : "as") + ". Dé de baja u ocultá "
                         + (materiales == 1 ? "ese material" : "esos materiales") + " antes.");
             }

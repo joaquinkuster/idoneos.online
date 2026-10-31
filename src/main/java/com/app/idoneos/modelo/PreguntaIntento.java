@@ -55,12 +55,26 @@ public class PreguntaIntento {
     @Column(name = "marcada", nullable = false)
     private Boolean marcada = false;
 
+
     /**
      * En un cuestionario secuencial (sin navegación libre), indica que el alumno ya pasó por la pregunta (respondida o no) y
-     * no puede volver a ella. Con navegación libre no se usa.
+     * no puede volver a ella. Es el mismo dato que {@code marcada}: un cuestionario secuencial no permite marcar preguntas
+     * para revisarlas y uno de navegación libre no pasa por las preguntas, así que nunca se usan a la vez.
+     *
+     * @return true si el alumno ya pasó por la pregunta.
      */
-    @Column(name = "pasada", nullable = false)
-    private Boolean pasada = false;
+    public Boolean getPasada() {
+        return marcada;
+    }
+
+    /**
+     * Indica que el alumno pasó por la pregunta en un cuestionario secuencial.
+     *
+     * @param pasada true si ya pasó por ella.
+     */
+    public void setPasada(Boolean pasada) {
+        this.marcada = pasada;
+    }
 
     /**
      * Conjunto de respuestasIntento asociados.

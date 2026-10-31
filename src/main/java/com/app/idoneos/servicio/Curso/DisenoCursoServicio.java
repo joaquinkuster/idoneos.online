@@ -2,7 +2,8 @@ package com.app.idoneos.servicio.Curso;
 
 import com.app.idoneos.modelo.Cohorte;
 import com.app.idoneos.modelo.Curso;
-import com.app.idoneos.modelo.Material;
+import com.app.idoneos.modelo.EstadoGeneracion;
+import com.app.idoneos.modelo.TemaRecurso;
 import com.app.idoneos.modelo.Modalidad;
 import com.app.idoneos.modelo.Parametro;
 import com.app.idoneos.modelo.Programa;
@@ -149,9 +150,10 @@ public class DisenoCursoServicio {
      */
     public ContenidoDeTema contenidoDe(Curso curso, Tema tema) {
         Map<String, Boolean> celdas = new LinkedHashMap<>();
-        List<Material> publicados = tema.getMaterialesPublicados();
+        List<TemaRecurso> publicados = tema.getMaterialesPublicados();
         if (curso.incluyeModalidad(Modalidad.CLON_IA)) {
-            celdas.put("Video clon", publicados.stream().anyMatch(m -> Modalidad.CLON_IA.equals(m.getModalidadAsociada())));
+            celdas.put("Video clon", publicados.stream().anyMatch(m -> m.getRecurso().getVideoClon() != null
+                    && EstadoGeneracion.GENERADO.equals(m.getRecurso().getVideoClon().getEstadoGeneracion().getNombre())));
         }
         if (curso.incluyeModalidad(Modalidad.GRABADA)) {
             celdas.put("Clase grabada", publicados.stream().anyMatch(m -> Modalidad.GRABADA.equals(m.getModalidadAsociada())));

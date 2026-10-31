@@ -21,6 +21,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.app.idoneos.servicio.Curso.ContextoCurso;
 import com.app.idoneos.modelo.Cohorte;
 import com.app.idoneos.modelo.Curso;
+import com.app.idoneos.modelo.TipoRecurso;
 import com.app.idoneos.modelo.Docente;
 import com.app.idoneos.modelo.DocenteCurso;
 import com.app.idoneos.modelo.Programa;
@@ -34,7 +35,6 @@ import com.app.idoneos.servicio.Nivel.NivelServicioImpl;
 import com.app.idoneos.servicio.Curso.ResumenCursos;
 import com.app.idoneos.servicio.Programa.ProgramaServicioImpl;
 import com.app.idoneos.utilidades.RespuestaFormularioUtilidad;
-import com.app.idoneos.servicio.TipoMaterial.TipoMaterialServicioImpl;
 
 /**
  * Controlador de la gestión de cursos (MOD-F-01).
@@ -60,8 +60,6 @@ public class CursoControlador extends PanelCursoControlador {
     @Autowired
     private DocenteServicioImpl docenteServicio;
 
-    @Autowired
-    private TipoMaterialServicioImpl tipoMaterialServicio;
 
     @Autowired
     private ProgramaServicioImpl programaServicio;
@@ -248,7 +246,7 @@ public class CursoControlador extends PanelCursoControlador {
             modelo.addAttribute("programasDelCurso", curso.getProgramasActivos());
             modelo.addAttribute("cohortesDelPrograma", programa == null ? List.of() : programa.getCohortesActivas());
             if (!esAdministrador) {
-                modelo.addAttribute("tiposDeSubida", tipoMaterialServicio.buscarSubidosManualmente());
+                modelo.addAttribute("tiposDeSubida", TipoRecurso.deSubidaManual());
             }
             // La página del curso se ve como la del docente, también para el administrador (sin gestionar contenido)
             modelo.addAttribute("esDocente", true);

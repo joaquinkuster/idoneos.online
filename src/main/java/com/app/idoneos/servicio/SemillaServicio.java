@@ -30,7 +30,16 @@ import com.app.idoneos.modelo.EstadoCohorte;
 import com.app.idoneos.modelo.EstadoPago;
 import com.app.idoneos.modelo.Inscripcion;
 import com.app.idoneos.modelo.IntentoAutoevaluacion;
-import com.app.idoneos.modelo.Material;
+import com.app.idoneos.modelo.Bibliografia;
+import com.app.idoneos.modelo.CategoriaMaterialLectura;
+import com.app.idoneos.modelo.Enlace;
+import com.app.idoneos.modelo.EstadoEnvio;
+import com.app.idoneos.modelo.EstadoGeneracion;
+import com.app.idoneos.modelo.Grabacion;
+import com.app.idoneos.modelo.MaterialLectura;
+import com.app.idoneos.modelo.Recurso;
+import com.app.idoneos.modelo.TemaRecurso;
+import com.app.idoneos.modelo.TipoNotificacion;
 import com.app.idoneos.modelo.MetodoPago;
 import com.app.idoneos.modelo.Modalidad;
 import com.app.idoneos.modelo.Nivel;
@@ -46,7 +55,7 @@ import com.app.idoneos.modelo.RespuestaIntento;
 import com.app.idoneos.modelo.Progreso;
 import com.app.idoneos.modelo.Rol;
 import com.app.idoneos.modelo.RolUsuario;
-import com.app.idoneos.modelo.TipoMaterial;
+import com.app.idoneos.modelo.TipoRecurso;
 import com.app.idoneos.modelo.TerminoGlosario;
 import com.app.idoneos.modelo.Tema;
 import com.app.idoneos.modelo.TemaCronograma;
@@ -71,7 +80,16 @@ import com.app.idoneos.repositorio.EstadoCohorteRepositorio;
 import com.app.idoneos.repositorio.EstadoPagoRepositorio;
 import com.app.idoneos.repositorio.InscripcionRepositorio;
 import com.app.idoneos.repositorio.IntentoAutoevaluacionRepositorio;
-import com.app.idoneos.repositorio.MaterialRepositorio;
+import com.app.idoneos.repositorio.BibliografiaRepositorio;
+import com.app.idoneos.repositorio.CategoriaMaterialLecturaRepositorio;
+import com.app.idoneos.repositorio.EnlaceRepositorio;
+import com.app.idoneos.repositorio.EstadoEnvioRepositorio;
+import com.app.idoneos.repositorio.EstadoGeneracionRepositorio;
+import com.app.idoneos.repositorio.GrabacionRepositorio;
+import com.app.idoneos.repositorio.MaterialLecturaRepositorio;
+import com.app.idoneos.repositorio.RecursoRepositorio;
+import com.app.idoneos.repositorio.TemaRecursoRepositorio;
+import com.app.idoneos.repositorio.TipoNotificacionRepositorio;
 import com.app.idoneos.repositorio.MetodoPagoRepositorio;
 import com.app.idoneos.repositorio.ModalidadRepositorio;
 import com.app.idoneos.repositorio.NivelRepositorio;
@@ -88,7 +106,6 @@ import com.app.idoneos.repositorio.ProgramaRepositorio;
 import com.app.idoneos.repositorio.ProgresoRepositorio;
 import com.app.idoneos.repositorio.RolRepositorio;
 import com.app.idoneos.repositorio.RolUsuarioRepositorio;
-import com.app.idoneos.repositorio.TipoMaterialRepositorio;
 import com.app.idoneos.repositorio.TerminoGlosarioRepositorio;
 import com.app.idoneos.repositorio.TemaCronogramaRepositorio;
 import com.app.idoneos.repositorio.TemaRepositorio;
@@ -170,7 +187,16 @@ public class SemillaServicio {
     private ModalidadRepositorio modalidadRepositorio;
 
     @Autowired
-    private TipoMaterialRepositorio tipoMaterialRepositorio;
+    private CategoriaMaterialLecturaRepositorio categoriaMaterialLecturaRepositorio;
+
+    @Autowired
+    private EstadoGeneracionRepositorio estadoGeneracionRepositorio;
+
+    @Autowired
+    private EstadoEnvioRepositorio estadoEnvioRepositorio;
+
+    @Autowired
+    private TipoNotificacionRepositorio tipoNotificacionRepositorio;
 
     @Autowired
     private EstadoClaseEnVivoRepositorio estadoClaseEnVivoRepositorio;
@@ -197,7 +223,22 @@ public class SemillaServicio {
     private TemaCronogramaRepositorio temaCronogramaRepositorio;
 
     @Autowired
-    private MaterialRepositorio materialRepositorio;
+    private RecursoRepositorio recursoRepositorio;
+
+    @Autowired
+    private TemaRecursoRepositorio temaRecursoRepositorio;
+
+    @Autowired
+    private EnlaceRepositorio enlaceRepositorio;
+
+    @Autowired
+    private GrabacionRepositorio grabacionRepositorio;
+
+    @Autowired
+    private MaterialLecturaRepositorio materialLecturaRepositorio;
+
+    @Autowired
+    private BibliografiaRepositorio bibliografiaRepositorio;
 
     @Autowired
     private CohorteRepositorio cohorteRepositorio;
@@ -275,10 +316,20 @@ public class SemillaServicio {
         Modalidad enVivo = modalidadRepositorio.save(new Modalidad(Modalidad.EN_VIVO));
         Modalidad grabada = modalidadRepositorio.save(new Modalidad(Modalidad.GRABADA));
         Modalidad clonIa = modalidadRepositorio.save(new Modalidad(Modalidad.CLON_IA));
-        TipoMaterial presentacion = tipoMaterialRepositorio.save(new TipoMaterial("Presentación"));
-        TipoMaterial grabacion = tipoMaterialRepositorio.save(new TipoMaterial("Grabación"));
-        TipoMaterial bibliografia = tipoMaterialRepositorio.save(new TipoMaterial("Bibliografía"));
-        tipoMaterialRepositorio.save(new TipoMaterial("Resumen"));
+        categoriaMaterialLecturaRepositorio.save(new CategoriaMaterialLectura(CategoriaMaterialLectura.PRESENTACION));
+        categoriaMaterialLecturaRepositorio.save(new CategoriaMaterialLectura(CategoriaMaterialLectura.RESUMEN));
+        for (String estado : List.of(EstadoGeneracion.PENDIENTE, EstadoGeneracion.GENERANDO, EstadoGeneracion.GENERADO,
+                EstadoGeneracion.ERROR)) {
+            estadoGeneracionRepositorio.save(new EstadoGeneracion(estado));
+        }
+        for (String estado : List.of(EstadoEnvio.PENDIENTE, EstadoEnvio.ENVIADO, EstadoEnvio.ERROR)) {
+            estadoEnvioRepositorio.save(new EstadoEnvio(estado));
+        }
+        tipoNotificacionRepositorio.save(new TipoNotificacion(TipoNotificacion.COHORTE_ACTIVADA));
+        tipoNotificacionRepositorio.save(new TipoNotificacion(TipoNotificacion.COHORTE_CANCELADA));
+        TipoRecurso presentacion = TipoRecurso.PRESENTACION;
+        TipoRecurso grabacion = TipoRecurso.GRABACION;
+        TipoRecurso bibliografia = TipoRecurso.BIBLIOGRAFIA;
         EstadoClaseEnVivo claseProgramada = estadoClaseEnVivoRepositorio.save(new EstadoClaseEnVivo("Programada"));
         EstadoClaseEnVivo claseEnVivoAhora = estadoClaseEnVivoRepositorio.save(new EstadoClaseEnVivo(EstadoClaseEnVivo.EN_VIVO));
         EstadoClaseEnVivo claseFinalizada = estadoClaseEnVivoRepositorio.save(new EstadoClaseEnVivo("Finalizada"));
@@ -393,11 +444,11 @@ public class SemillaServicio {
                 ahora.minusDays(8));
         registrarPago(inscripcionValentina, pagoAprobado, pagoModo, "Tarjeta de crédito Visa", "0008", "QRV9A1C3", null,
                 ahora.minusDays(55));
-        claseEnVivoRepositorio.save(new ClaseEnVivo(titular1, claseProgramada, enDictado1,
+        claseEnVivoRepositorio.save(new ClaseEnVivo(titular1, claseProgramada, tema1, enDictado1,
                 "Clase 1: Panorama del mercado de capitales", ahora.plusDays(3), 90));
-        claseEnVivoRepositorio.save(new ClaseEnVivo(titular1, claseFinalizada, enDictado1,
+        claseEnVivoRepositorio.save(new ClaseEnVivo(titular1, claseFinalizada, tema1, enDictado1,
                 "Clase 0: Presentación del curso", ahora.minusDays(15), 60));
-        claseEnVivoRepositorio.save(new ClaseEnVivo(titular1, claseEnVivoAhora, enDictado1,
+        claseEnVivoRepositorio.save(new ClaseEnVivo(titular1, claseEnVivoAhora, tema2, enDictado1,
                 "Clase magistral: Operatoria de renta fija en BYMA", ahora.minusMinutes(20), 90));
 
         // Contenido de los temas 1 y 2 (acceso al curso del alumno en dictado, CU-27)
@@ -512,7 +563,7 @@ public class SemillaServicio {
         // Curso con costo: la inscripción queda pendiente de pago hasta que se apruebe el pago
         Inscripcion pendienteDePago = crearInscripcion(abierta4, lucia, ahora, null);
         pendienteDePago.setHabilitado(false);
-        pendienteDePago.setFechaVencimientoAcceso(null); // se calcula cuando se habilite
+        // el vencimiento provisorio del alta se recalcula cuando se habilite
         inscripcionRepositorio.save(pendienteDePago);
         // Su pago con MODO fue rechazado: puede reintentarlo (CU-52) o lo puede acreditar el administrador (CU-54)
         registrarPago(pendienteDePago, pagoRechazado, pagoModo, "Tarjeta de crédito Visa", "0008", null,
@@ -660,7 +711,7 @@ public class SemillaServicio {
      * Crea un curso sin imagen con un programa de dos temas con material y una cohorte con inscripción abierta.
      */
     private void crearCursoAbierto(String nombre, String descripcion, float precio, Categoria categoria, Nivel nivel,
-            List<Modalidad> modalidades, Docente titular, TipoMaterial tipoMaterial, String tema1, String tema2,
+            List<Modalidad> modalidades, Docente titular, TipoRecurso tipoMaterial, String tema1, String tema2,
             LocalDateTime ahora) {
         DocenteCurso participacion = crearCurso(nombre, descripcion, precio, null, categoria, nivel, true,
                 modalidades, titular, List.of());
@@ -754,7 +805,7 @@ public class SemillaServicio {
      * además un material publicado asociado al tema.
      */
     private Tema agregarTema(Programa programa, Curso curso, int numeroOrden, int semanas, String titulo,
-            String descripcion, DocenteCurso autorMaterial, TipoMaterial tipoMaterial) {
+            String descripcion, DocenteCurso autorMaterial, TipoRecurso tipoMaterial) {
         Tema tema = new Tema(curso, titulo, "Contenido del tema: " + titulo + ". " + descripcion);
         tema.setDescripcion(descripcion);
         tema = temaRepositorio.save(tema);
@@ -769,9 +820,7 @@ public class SemillaServicio {
             cursoRepositorio.save(curso);
         }
         if (autorMaterial != null) {
-            Material material = new Material(autorMaterial, tipoMaterial, tema, "Material: " + titulo);
-            material.setContenido("Material de estudio del tema " + titulo + ".");
-            materialRepositorio.save(material);
+            agregarMaterial(tema, autorMaterial, tipoMaterial, "Material: " + titulo);
         }
         return tema;
     }
@@ -841,10 +890,30 @@ public class SemillaServicio {
         return inscripcion;
     }
 
-    private Material agregarMaterial(Tema tema, DocenteCurso autor, TipoMaterial tipo, String titulo) {
-        Material material = new Material(autor, tipo, tema, titulo);
-        material.setAutor(autor.getDocente().getUsuario().getNombreCompleto());
-        return materialRepositorio.save(material);
+    /**
+     * Crea un recurso del docente con los datos propios de su tipo y lo incorpora al tema. Los archivos no existen en la
+     * carpeta de cursos: la semilla solo deja una ruta de ejemplo.
+     */
+    private TemaRecurso agregarMaterial(Tema tema, DocenteCurso autor, TipoRecurso tipo, String titulo) {
+        Recurso recurso = recursoRepositorio.save(new Recurso(autor.getDocente(), titulo));
+        String nombreAutor = autor.getDocente().getUsuario().getNombreCompleto();
+        switch (tipo) {
+            case BIBLIOGRAFIA -> {
+                Bibliografia bibliografia = bibliografiaRepositorio.save(new Bibliografia(recurso, "978-987-00-0000-0", nombreAutor));
+                recurso.setBibliografia(bibliografia);
+            }
+            case GRABACION -> recurso.setGrabacion(grabacionRepositorio.save(new Grabacion(recurso,
+                    "semilla/grabacion" + recurso.getIdRecurso() + ".mp4")));
+            case ENLACE -> recurso.setEnlace(enlaceRepositorio.save(new Enlace(recurso, "https://www.argentina.gob.ar")));
+            default -> recurso.setMaterialLectura(materialLecturaRepositorio.save(new MaterialLectura(recurso,
+                    categoriaMaterialLecturaRepositorio.findByNombre(CategoriaMaterialLectura.PRESENTACION).orElseThrow(),
+                    "semilla/presentacion" + recurso.getIdRecurso() + ".pdf", nombreAutor)));
+        }
+        int orden = tema.getTemasRecurso().size() + 1;
+        TemaRecurso material = temaRecursoRepositorio.save(new TemaRecurso(tema, recurso, autor, orden));
+        tema.getTemasRecurso().add(material);
+        recurso.getTemasRecurso().add(material);
+        return material;
     }
 
     private void agregarGlosario(Tema tema, String termino, String definicion) {

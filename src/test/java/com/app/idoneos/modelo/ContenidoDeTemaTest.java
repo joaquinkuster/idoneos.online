@@ -46,7 +46,7 @@ class ContenidoDeTemaTest {
     @DisplayName("El material oculto o dado de baja no se publica")
     void materialNoPublicado() {
         Tema primera = inscripcionDeValentina().getCohorte().getPrograma().getCronogramaOrdenado().get(0).getTema();
-        Material oculto = primera.getMateriales().iterator().next();
+        TemaRecurso oculto = primera.getMateriales().iterator().next();
         oculto.setOculto(true);
 
         assertEquals(2, primera.getMaterialesPublicados().size());

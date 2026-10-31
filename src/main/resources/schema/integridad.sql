@@ -125,8 +125,8 @@ DROP TRIGGER IF EXISTS trg_tema_cronograma_tema_activa ON tema_cronograma ^^^
 CREATE TRIGGER trg_tema_cronograma_tema_activa BEFORE INSERT OR UPDATE OF id_tema, baja ON tema_cronograma
     FOR EACH ROW WHEN (NEW.baja = false) EXECUTE FUNCTION fn_padre_activo('id_tema', 'tema', 'id_tema') ^^^
 
-DROP TRIGGER IF EXISTS trg_material_tema_activa ON material ^^^
-CREATE TRIGGER trg_material_tema_activa BEFORE INSERT OR UPDATE OF id_tema, baja ON material
+DROP TRIGGER IF EXISTS trg_tema_recurso_tema_activa ON tema_recurso ^^^
+CREATE TRIGGER trg_tema_recurso_tema_activa BEFORE INSERT OR UPDATE OF id_tema, baja ON tema_recurso
     FOR EACH ROW WHEN (NEW.baja = false) EXECUTE FUNCTION fn_padre_activo('id_tema', 'tema', 'id_tema') ^^^
 
 DROP TRIGGER IF EXISTS trg_pool_tema_activa ON pool ^^^

@@ -1,27 +1,28 @@
 package com.app.idoneos.modelo;
 
+
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * Estado del ciclo de vida de una clase con clon de inteligencia artificial.
+ * Categoría de un material de lectura (presentación, resumen...).
  */
 @Entity
-@Table(name = "EstadoClaseClon")
+@Table(name = "CategoriaMaterialLectura")
 @Getter
 @Setter
 @NoArgsConstructor
-public class EstadoClaseClon {
+public class CategoriaMaterialLectura {
 
     /**
-     * Identificador único del estado de la clase con clon.
+     * Identificador único.
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "idEstadoClaseClon")
-    private int idEstadoClaseClon;
+    @Column(name = "idCategoriaMaterialLectura")
+    private int idCategoriaMaterialLectura;
 
     /**
      * Nombre.
@@ -30,16 +31,16 @@ public class EstadoClaseClon {
     private String nombre;
 
     /**
-     * Constructor para crear el estado de la clase con clon con los datos básicos.
+     * Constructor para crear el registro con los datos básicos.
      *
      * @param nombre nombre.
      */
-    public EstadoClaseClon(String nombre) {
+    public CategoriaMaterialLectura(String nombre) {
         this.nombre = nombre;
     }
 
     /**
-     * Devuelve una representación en forma de cadena del estado de la clase con clon.
+     * Devuelve una representación en forma de cadena.
      *
      * @return La representación textual.
      */
@@ -47,4 +48,10 @@ public class EstadoClaseClon {
     public String toString() {
         return nombre;
     }
+
+    /** Diapositivas de una clase. */
+    public static final String PRESENTACION = "Presentación";
+
+    /** Resumen de un tema. */
+    public static final String RESUMEN = "Resumen";
 }
