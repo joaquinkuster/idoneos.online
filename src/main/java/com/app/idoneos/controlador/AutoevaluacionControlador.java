@@ -1,5 +1,7 @@
 package com.app.idoneos.controlador;
 
+import com.app.idoneos.utilidades.FiltroUtilidad;
+import com.app.idoneos.utilidades.PaginacionUtilidad;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -84,7 +86,7 @@ public class AutoevaluacionControlador extends PanelCursoControlador {
             @RequestParam(value = "autoevaluacionId", required = false) Integer autoevaluacionId,
             @RequestParam(value = "nuevo", required = false) String nuevo,
             @RequestParam(value = "temaId", required = false) Integer temaId, Model modelo,
-            Authentication auth, RedirectAttributes redirectAttributes) {
+            Authentication auth, RedirectAttributes redirectAttributes, jakarta.servlet.http.HttpServletRequest solicitud) {
         try {
             Usuario usuario = (Usuario) auth.getPrincipal();
             ContextoCurso contexto = contextoDelPanel(cursoId, usuario);
@@ -94,6 +96,16 @@ public class AutoevaluacionControlador extends PanelCursoControlador {
             List<TemaCronograma> temas = programa == null ? List.of() : programa.getCronogramaOrdenado();
             // Listado completo: los filtros se aplican en la pantalla
             List<Autoevaluacion> autoevaluaciones = autoevaluacionServicio.buscarConFiltros(cursoId, null, null, false, docente);
+            // El filtro, el orden por columna y la página los resuelve el servidor (motor común de listados)
+            List<Autoevaluacion> paginaFiltradas = TABLA.filtrar(autoevaluaciones, solicitud.getParameterMap());
+            TABLA.ordenar(paginaFiltradas, solicitud.getParameterMap());
+            PaginacionUtilidad.Pagina<Autoevaluacion> pagina = PaginacionUtilidad.paginar(paginaFiltradas, solicitud.getParameterMap(), TABLA.opciones(autoevaluaciones));
+            PaginacionUtilidad.aModelo(modelo, pagina);
+            if (PaginacionUtilidad.pideSoloFilas(solicitud)) {
+                modelo.addAttribute("autoevaluaciones", pagina.filas());
+                modelo.addAttribute("puedeGestionar", !esAdministrador);
+                return "pages/autoevaluacion/buscar :: filas"; // solo las filas de la página pedida
+            }
             List<Pool> pools = poolServicio.buscarConFiltros(cursoId, null, null, false, docente);
             cargarPoolsDelFormulario(modelo, pools, temas);
 
@@ -113,7 +125,7 @@ public class AutoevaluacionControlador extends PanelCursoControlador {
             cargarContexto(modelo, contexto, "autoevaluaciones");
             modelo.addAttribute("temaSeleccionada", temaId);
             modelo.addAttribute("abrirModal", abrirModal);
-            modelo.addAttribute("autoevaluaciones", autoevaluaciones);
+            modelo.addAttribute("autoevaluaciones", pagina.filas());
             modelo.addAttribute("temas", temas);
             modelo.addAttribute("pools", pools);
             modelo.addAttribute("puedeGestionar", !esAdministrador);
@@ -355,4 +367,28 @@ public class AutoevaluacionControlador extends PanelCursoControlador {
             return RespuestaFormularioUtilidad.respuestaConError(e);
         }
     }
+
+    // ---------------------------------------------------------------- Listado (motor común)
+
+    private static String dia(java.time.LocalDateTime fecha) {
+        return fecha == null ? "" : fecha.toString().replace('T', ' ');
+    }
+
+    /** Las columnas del listado: lo que se filtra y se ordena en el servidor. */
+    private static final FiltroUtilidad<Autoevaluacion> TABLA = new FiltroUtilidad<>(List.of(
+            new FiltroUtilidad.Columna<Autoevaluacion>("nombre", FiltroUtilidad.Tipo.TEXTO, Autoevaluacion::getNombre),
+            new FiltroUtilidad.Columna<Autoevaluacion>("tema", FiltroUtilidad.Tipo.LISTA, a -> a.getTema().getTitulo()),
+            new FiltroUtilidad.Columna<Autoevaluacion>("pools", FiltroUtilidad.Tipo.MULTILISTA,
+                    a -> a.getPoolsActivos().stream().map(p -> p.getNombre()).collect(java.util.stream.Collectors.joining("|"))),
+            new FiltroUtilidad.Columna<Autoevaluacion>("tiempo", FiltroUtilidad.Tipo.NUMERO,
+                    a -> a.getTiempoLimite() == null ? "" : String.valueOf(a.getTiempoLimite())),
+            new FiltroUtilidad.Columna<Autoevaluacion>("preguntas", FiltroUtilidad.Tipo.NUMERO, a -> String.valueOf(a.getCantidadPreguntas())),
+            new FiltroUtilidad.Columna<Autoevaluacion>("nota", FiltroUtilidad.Tipo.NUMERO, a -> String.valueOf(a.getNotaMinima())),
+            new FiltroUtilidad.Columna<Autoevaluacion>("intentos", FiltroUtilidad.Tipo.TEXTO,
+                    a -> a.getIntentosPermitidos() == null ? "Sin límite" : String.valueOf(a.getIntentosPermitidos())),
+            new FiltroUtilidad.Columna<Autoevaluacion>("visibilidad", FiltroUtilidad.Tipo.LISTA, a -> a.getOculto() ? "Oculta" : "Visible"),
+            new FiltroUtilidad.Columna<Autoevaluacion>("apertura", FiltroUtilidad.Tipo.FECHA, a -> dia(a.getFechaApertura())),
+            new FiltroUtilidad.Columna<Autoevaluacion>("cierre", FiltroUtilidad.Tipo.FECHA, a -> dia(a.getFechaCierre())),
+            new FiltroUtilidad.Columna<Autoevaluacion>("fechaCreacion", FiltroUtilidad.Tipo.FECHA, a -> dia(a.getFechaCreacion()))),
+            Autoevaluacion::getBaja);
 }

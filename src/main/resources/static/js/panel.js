@@ -59,6 +59,10 @@
         var cabeceras = raiz.querySelectorAll('thead th[data-filtro]');
         if (!cabeceras.length) { return; }
         var filas = raiz.querySelectorAll('tbody tr[data-fila]');
+        // Con el listado en el servidor las opciones de las listas llegan en data-opciones (de toda la lista, no solo de la página)
+        var servidor = raiz.hasAttribute('data-tabla-servidor');
+        var opcionesServidor = {};
+        try { opcionesServidor = JSON.parse(raiz.getAttribute('data-opciones') || '{}'); } catch (e) { opcionesServidor = {}; }
         var inicio = formulario.firstChild;
         var sufijo = 0;
 
@@ -93,7 +97,7 @@
             });
         }
         cabeceras.forEach(function (th) {
-            if (th.getAttribute('data-filtro') !== 'estatico') { derivar(th, th.getAttribute('data-filtro'), th.getAttribute('data-campo')); }
+            if (!servidor && th.getAttribute('data-filtro') !== 'estatico') { derivar(th, th.getAttribute('data-filtro'), th.getAttribute('data-campo')); }
         });
         function crearCampo(etiqueta, ancho) {
             var contenedor = document.createElement('div');
@@ -140,7 +144,7 @@
                 r.appendChild(par);
             } else if (tipo === 'multilista') {
                 var elegibles = [];
-                filas.forEach(function (fila) {
+                if (servidor) { elegibles = (opcionesServidor[campo] || []).slice(); } else filas.forEach(function (fila) {
                     (fila.getAttribute('data-f-' + campo.toLowerCase()) || '').split('|').forEach(function (v) {
                         if (v && elegibles.indexOf(v) < 0) { elegibles.push(v); }
                     });
@@ -157,7 +161,7 @@
                 m.appendChild(multiple);
             } else if (tipo === 'lista') {
                 var valores = [];
-                filas.forEach(function (fila) {
+                if (servidor) { valores = (opcionesServidor[campo] || []).slice(); } else filas.forEach(function (fila) {
                     (fila.getAttribute('data-f-' + campo.toLowerCase()) || '').split('|').forEach(function (v) {
                         if (v && valores.indexOf(v) < 0) { valores.push(v); }
                     });
@@ -193,13 +197,73 @@
         var botonBaja = raiz.querySelector('[data-baja-masiva]');
         var porPagina = selectPorPagina ? parseInt(selectPorPagina.value, 10) : 10;
 
+        // Listado en el servidor (data-tabla-servidor): el filtro, el orden y la página los resuelve el servidor y se piden con
+        // fetch; en la pantalla solo está la página actual. Los datos de la página llegan en el <tbody> (data-total, data-paginas...)
+        var servidor = raiz.hasAttribute('data-tabla-servidor');
+        var meta = { total: 0, paginas: 1 };
+        var ordenServidor = null;
+        var peticion = 0;
+        var temporizador = null;
+        var reaplicarColumnas = function () { };
+        function refrescar() { if (servidor) { pedir(); } else { dibujar(); } }
+        function leerMeta(cuerpoTabla) {
+            meta = { total: parseInt(cuerpoTabla.dataset.total, 10) || 0, paginas: parseInt(cuerpoTabla.dataset.paginas, 10) || 1 };
+            pagina = parseInt(cuerpoTabla.dataset.pagina, 10) || 1;
+        }
+        function pedir() {
+            var n = ++peticion;
+            var params = new URLSearchParams(window.location.search);
+            ['pagina', 'tamanio', 'ordenCampo', 'ordenDir'].forEach(function (k) { params.delete(k); });
+            (typeof campos !== 'undefined' ? campos : []).forEach(function (campo) {
+                params.delete(campo.name);
+                if (campo.multiple) {
+                    Array.prototype.forEach.call(campo.selectedOptions, function (o) { params.append(campo.name, o.value); });
+                } else if ((campo.value || '').trim() !== '') {
+                    params.set(campo.name, campo.value.trim());
+                }
+            });
+            params.set('pagina', pagina);
+            params.set('tamanio', porPagina);
+            if (ordenServidor) { params.set('ordenCampo', ordenServidor.campo); params.set('ordenDir', ordenServidor.dir); }
+            raiz.classList.add('pn-cargando');
+            var urlTabla = raiz.getAttribute('data-tabla-servidor');
+            fetch(urlTabla + (urlTabla.indexOf('?') >= 0 ? '&' : '?') + params.toString(), {
+                headers: { 'X-Tabla': 'filas', 'Accept': 'text/html' }, credentials: 'same-origin'
+            }).then(function (r) {
+                if (!r.ok) { throw new Error('No se pudo cargar el listado.'); }
+                return r.text();
+            }).then(function (html) {
+                if (n !== peticion) { return; } // llegó una respuesta más nueva
+                var plantilla = document.createElement('template');
+                plantilla.innerHTML = '<table>' + html + '</table>';
+                var nuevo = plantilla.content.querySelector('tbody');
+                var actual = raiz.querySelector('tbody');
+                if (!nuevo || !actual) { return; }
+                actual.replaceWith(nuevo);
+                vacio = raiz.querySelector('[data-vacio]');
+                todas = Array.prototype.slice.call(nuevo.querySelectorAll('tr[data-fila]'));
+                filas = todas.slice();
+                leerMeta(nuevo);
+                reaplicarColumnas();
+                dibujar();
+                // Las pantallas con comportamientos propios sobre las filas los vuelven a enganchar
+                document.dispatchEvent(new CustomEvent('tabla-actualizada', { detail: { tabla: raiz } }));
+            }).catch(function () {
+                if (window.mostrarError) { window.mostrarError('Error! No se pudo cargar el listado. Intente nuevamente.'); }
+            }).then(function () { if (n === peticion) { raiz.classList.remove('pn-cargando'); } });
+        }
+        if (servidor) {
+            var cuerpoInicial = raiz.querySelector('tbody');
+            if (cuerpoInicial) { leerMeta(cuerpoInicial); }
+        }
+
         // El valor 0 de "filas por página" significa "todo"
         function tamanio() {
-            return porPagina > 0 ? porPagina : Math.max(filas.length, 1);
+            return porPagina > 0 ? porPagina : Math.max(servidor ? meta.total : filas.length, 1);
         }
 
         function totalPaginas() {
-            return Math.max(1, Math.ceil(filas.length / tamanio()));
+            return servidor ? meta.paginas : Math.max(1, Math.ceil(filas.length / tamanio()));
         }
 
         function actualizarSeleccion() {
@@ -228,20 +292,24 @@
             var paginas = totalPaginas();
             pagina = Math.min(Math.max(pagina, 1), paginas);
             var inicio = (pagina - 1) * tamanio();
-            todas.forEach(function (fila) { if (filas.indexOf(fila) < 0) { fila.hidden = true; } });
-            filas.forEach(function (fila, i) {
-                fila.hidden = !(i >= inicio && i < inicio + tamanio());
-            });
+            // En el servidor la pantalla ya trae solo la página: no hay filas que ocultar
+            var total = servidor ? meta.total : filas.length;
+            if (!servidor) {
+                todas.forEach(function (fila) { if (filas.indexOf(fila) < 0) { fila.hidden = true; } });
+                filas.forEach(function (fila, i) {
+                    fila.hidden = !(i >= inicio && i < inicio + tamanio());
+                });
+            }
             if (vacio) {
-                vacio.hidden = filas.length > 0;
+                vacio.hidden = total > 0;
             }
             raiz.querySelectorAll('[data-total-filtradas]').forEach(function (e) {
                 // Con singular y plural el elemento lleva el texto completo ("1 curso encontrado" / "3 cursos encontrados")
-                e.textContent = e.dataset.plural ? filas.length + ' ' + (filas.length === 1 ? e.dataset.singular : e.dataset.plural) : filas.length;
+                e.textContent = e.dataset.plural ? total + ' ' + (total === 1 ? e.dataset.singular : e.dataset.plural) : total;
             });
             if (infoRango) {
-                var desde = filas.length ? inicio + 1 : 0;
-                infoRango.textContent = desde + '-' + Math.min(inicio + tamanio(), filas.length) + ' de ' + filas.length;
+                var desde = total ? inicio + 1 : 0;
+                infoRango.textContent = desde + '-' + Math.min(inicio + tamanio(), total) + ' de ' + total;
             }
             if (paginador) {
                 paginador.innerHTML = '';
@@ -265,7 +333,7 @@
             b.disabled = datos[2];
             b.title = datos[3];
             b.setAttribute('aria-label', datos[3]);
-            b.addEventListener('click', function () { pagina = datos[1]; dibujar(); });
+            b.addEventListener('click', function () { pagina = datos[1]; refrescar(); });
             return b;
         }
 
@@ -273,7 +341,7 @@
             selectPorPagina.addEventListener('change', function () {
                 porPagina = parseInt(selectPorPagina.value, 10);
                 pagina = 1;
-                dibujar();
+                refrescar();
             });
         }
 
@@ -355,6 +423,7 @@
             var ocultas = [];
             try { ocultas = JSON.parse(leer(claveColumnas) || '[]'); } catch (e) { ocultas = []; }
             var casillas = [];
+            reaplicarColumnas = function () { casillas.forEach(function (c) { aplicarColumna(c.th, c.indice, c.casilla.checked); }); };
             var aplicarColumna = function (th, indice, visible) {
                 th.style.display = visible ? '' : 'none';
                 raiz.querySelectorAll('tbody tr[data-fila]').forEach(function (fila) {
@@ -478,6 +547,13 @@
 
             function filtrar() {
                 actualizarLimpiar();
+                if (servidor) {
+                    // Al escribir se espera un instante para no pedir en cada tecla
+                    pagina = 1;
+                    clearTimeout(temporizador);
+                    temporizador = setTimeout(pedir, 250);
+                    return;
+                }
                 filas = todas.filter(cumple);
                 // Lo que queda fuera del filtro deja de estar seleccionado
                 todas.forEach(function (fila) {
@@ -525,8 +601,8 @@
                     campo.value = valor;
                 }
             });
-            // Los campos que llegan completos (por la URL) se aplican apenas carga la página
-            filtrar();
+            // Los campos que llegan completos (por la URL) se aplican apenas carga la página (el servidor ya los aplicó al dibujarla)
+            if (servidor) { actualizarLimpiar(); } else { filtrar(); }
         }
 
         // ------------------------------------------------------------------
@@ -537,7 +613,8 @@
         // ------------------------------------------------------------------
         (function () {
             var titulos = Array.prototype.filter.call(raiz.querySelectorAll('thead th[data-col]'), function (th) {
-                return !th.classList.contains('pn-th-acciones');
+                // En el servidor solo se ordena por las columnas con campo (data-campo)
+                return !th.classList.contains('pn-th-acciones') && (!servidor || th.hasAttribute('data-campo'));
             });
             if (!titulos.length || !cuerpoOrden()) { return; }
             var cuerpoTabla = cuerpoOrden();
@@ -569,6 +646,18 @@
             }
 
             function aplicarOrden() {
+                if (servidor) {
+                    ordenServidor = activo && sentido !== 0 ? { campo: activo.getAttribute('data-campo'), dir: sentido === 1 ? 'asc' : 'desc' } : null;
+                    titulos.forEach(function (th) {
+                        var marca = th === activo ? sentido : 0;
+                        th.setAttribute('aria-sort', marca === 1 ? 'ascending' : (marca === -1 ? 'descending' : 'none'));
+                        th.classList.toggle('pn-orden-asc', marca === 1);
+                        th.classList.toggle('pn-orden-desc', marca === -1);
+                    });
+                    pagina = 1;
+                    pedir();
+                    return;
+                }
                 var base = ordenOriginal.slice();
                 if (activo && sentido !== 0) {
                     var claves = new Map();
@@ -623,7 +712,17 @@
                 var inicial = th.getAttribute('data-orden-inicial');
                 if (inicial) { activo = th; sentido = inicial === 'desc' ? -1 : 1; }
             });
-            if (activo) { aplicarOrden(); }
+            if (activo && !servidor) { aplicarOrden(); }
+            if (activo && servidor) {
+                // El servidor ya trajo la página con ese orden inicial: solo se marca la columna
+                titulos.forEach(function (th) {
+                    var marca = th === activo ? sentido : 0;
+                    th.setAttribute('aria-sort', marca === 1 ? 'ascending' : (marca === -1 ? 'descending' : 'none'));
+                    th.classList.toggle('pn-orden-asc', marca === 1);
+                    th.classList.toggle('pn-orden-desc', marca === -1);
+                });
+                activo = null; sentido = 0; // el primer clic arranca el orden del usuario
+            }
         })();
 
         dibujar();

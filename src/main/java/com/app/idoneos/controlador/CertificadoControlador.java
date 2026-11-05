@@ -1,5 +1,7 @@
 package com.app.idoneos.controlador;
 
+import com.app.idoneos.utilidades.FiltroUtilidad;
+import com.app.idoneos.utilidades.PaginacionUtilidad;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -52,10 +54,19 @@ public class CertificadoControlador {
      * @return La vista de "Mis certificados".
      */
     @GetMapping("/misCertificados")
-    public String verMisCertificados(Model modelo, Authentication auth) {
+    public String verMisCertificados(Model modelo, Authentication auth, jakarta.servlet.http.HttpServletRequest solicitud) {
         Alumno alumno = ((Usuario) auth.getPrincipal()).getAlumno();
         List<Certificado> certificados = certificadoServicio.buscarVigentesDelAlumno(alumno);
-        modelo.addAttribute("certificados", certificados);
+        // El filtro, el orden por columna y la página los resuelve el servidor
+        List<Certificado> filtrados = FILTROS.filtrar(certificados, solicitud.getParameterMap());
+        FILTROS.ordenar(filtrados, solicitud.getParameterMap());
+        PaginacionUtilidad.Pagina<Certificado> pagina = PaginacionUtilidad.paginar(filtrados, solicitud.getParameterMap(),
+                FILTROS.opciones(certificados));
+        PaginacionUtilidad.aModelo(modelo, pagina);
+        modelo.addAttribute("certificados", pagina.filas());
+        if (PaginacionUtilidad.pideSoloFilas(solicitud)) {
+            return "pages/certificado/misCertificados :: filas"; // solo las filas de la página pedida
+        }
         modelo.addAttribute("cursosFiltro", certificados.stream().map(c -> c.getInscripcion().getCurso()).distinct()
                 .sorted(Comparator.comparing(Curso::getNombre, String.CASE_INSENSITIVE_ORDER)).toList());
         modelo.addAttribute("titulo", "Mis certificados | Idóneos Online");
@@ -108,4 +119,14 @@ public class CertificadoControlador {
             return RespuestaFormularioUtilidad.respuestaConError(e);
         }
     }
+
+    /** Las columnas de "Mis certificados": lo que se filtra y se ordena en el servidor. */
+    private static final FiltroUtilidad<Certificado> FILTROS = new FiltroUtilidad<>(List.of(
+            new FiltroUtilidad.Columna<Certificado>("curso", FiltroUtilidad.Tipo.LISTA, c -> c.getInscripcion().getCurso().getNombre()),
+            new FiltroUtilidad.Columna<Certificado>("programa", FiltroUtilidad.Tipo.LISTA,
+                    c -> c.getInscripcion().getCohorte().getPrograma().getNombre()),
+            new FiltroUtilidad.Columna<Certificado>("numero", FiltroUtilidad.Tipo.TEXTO, Certificado::getNumero),
+            new FiltroUtilidad.Columna<Certificado>("fechaEmision", FiltroUtilidad.Tipo.FECHA,
+                    c -> c.getFechaEmision() == null ? "" : c.getFechaEmision().toString().replace('T', ' '))),
+            c -> false);
 }

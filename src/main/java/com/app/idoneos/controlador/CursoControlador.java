@@ -1,5 +1,7 @@
 package com.app.idoneos.controlador;
 
+import com.app.idoneos.utilidades.FiltroUtilidad;
+import com.app.idoneos.utilidades.PaginacionUtilidad;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
@@ -118,7 +120,7 @@ public class CursoControlador extends PanelCursoControlador {
             @RequestParam(value = "orden", defaultValue = "nombre") String orden,
             @RequestParam(value = "accion", required = false) String accion,
             @RequestParam(value = "id", required = false) Integer id,
-            Model modelo, Authentication auth, RedirectAttributes redirectAttributes) {
+            Model modelo, Authentication auth, RedirectAttributes redirectAttributes, jakarta.servlet.http.HttpServletRequest solicitud) {
         try {
             Usuario usuario = (Usuario) auth.getPrincipal();
             boolean esAdministrador = usuario.esAdministradorActivo();
@@ -134,11 +136,22 @@ public class CursoControlador extends PanelCursoControlador {
 
             // Inscripciones y programas activos por curso, para validar la baja y la modificación
             ResumenCursos resumen = cursoServicio.resumir(cursos);
+            if (esAdministrador) {
+                // El administrador ve una página por vez: el motor común filtra, ordena y pagina en el servidor
+                List<Curso> paginaFiltradas = tablaDeCursos(resumen).filtrar(cursos, solicitud.getParameterMap());
+                tablaDeCursos(resumen).ordenar(paginaFiltradas, solicitud.getParameterMap());
+                PaginacionUtilidad.Pagina<Curso> pagina = PaginacionUtilidad.paginar(paginaFiltradas, solicitud.getParameterMap(), tablaDeCursos(resumen).opciones(cursos));
+                PaginacionUtilidad.aModelo(modelo, pagina);
+                cursos = pagina.filas();
+            }
 
             modelo.addAttribute("cursos", cursos);
             modelo.addAttribute("inscripcionesPorCurso", resumen.inscripcionesPorCurso());
             modelo.addAttribute("programasPorCurso", resumen.programasPorCurso());
             modelo.addAttribute("cursosConInscripcionAbierta", resumen.cursosConInscripcionAbierta());
+            if (esAdministrador && PaginacionUtilidad.pideSoloFilas(solicitud)) {
+                return "pages/curso/buscarAdministrador :: filas"; // solo las filas de la página pedida
+            }
             modelo.addAttribute("totalCursos", cursos.size());
             modelo.addAttribute("categorias", categoriaServicio.obtenerTodo());
             modelo.addAttribute("niveles", nivelServicio.obtenerTodo());
@@ -561,5 +574,28 @@ public class CursoControlador extends PanelCursoControlador {
                     "Error! El curso se guardó, pero no se pudo guardar la imagen. Modifique el curso para cargarla.");
         }
         cursoServicio.actualizarImagen(curso.getIdCurso(), nombre);
+    }
+
+    // ---------------------------------------------------------------- Listado del administrador (motor común)
+
+    /** Las columnas del listado del administrador: lo que se filtra y se ordena en el servidor. */
+    private static FiltroUtilidad<Curso> tablaDeCursos(ResumenCursos resumen) {
+        return new FiltroUtilidad<>(List.of(
+                new FiltroUtilidad.Columna<Curso>("nombre", FiltroUtilidad.Tipo.TEXTO, Curso::getNombre),
+                new FiltroUtilidad.Columna<Curso>("categoria", FiltroUtilidad.Tipo.LISTA, c -> c.getCategoria().getNombre()),
+                new FiltroUtilidad.Columna<Curso>("nivel", FiltroUtilidad.Tipo.LISTA, c -> c.getNivel() != null ? c.getNivel().getNombre() : ""),
+                new FiltroUtilidad.Columna<Curso>("precio", FiltroUtilidad.Tipo.NUMERO, c -> String.valueOf(c.getPrecio())),
+                new FiltroUtilidad.Columna<Curso>("cargaHoraria", FiltroUtilidad.Tipo.NUMERO,
+                        c -> c.getCargaHorariaMinutos() == null ? "" : String.valueOf(c.getCargaHorariaMinutos() / 60.0)),
+                new FiltroUtilidad.Columna<Curso>("duracion", FiltroUtilidad.Tipo.NUMERO, c -> String.valueOf(c.getDuracionDias())),
+                new FiltroUtilidad.Columna<Curso>("modalidades", FiltroUtilidad.Tipo.LISTA,
+                        c -> c.getModalidades().stream().map(m -> m.getNombre()).collect(java.util.stream.Collectors.joining("|"))),
+                new FiltroUtilidad.Columna<Curso>("docenteTitular", FiltroUtilidad.Tipo.LISTA,
+                        c -> c.getDocenteTitular() != null ? c.getDocenteTitular().getUsuario().getNombreCompleto() : ""),
+                new FiltroUtilidad.Columna<Curso>("estado", FiltroUtilidad.Tipo.LISTA,
+                        c -> c.getBaja() ? "Dado de baja" : (resumen.cursosConInscripcionAbierta().contains(c.getIdCurso()) ? "Inscripción abierta" : "Activo")),
+                new FiltroUtilidad.Columna<Curso>("fechaCreacion", FiltroUtilidad.Tipo.FECHA,
+                        c -> c.getFechaCreacion() == null ? "" : c.getFechaCreacion().toString().replace('T', ' '))),
+                Curso::getBaja);
     }
 }

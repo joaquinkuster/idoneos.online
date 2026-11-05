@@ -32,6 +32,8 @@ import com.app.idoneos.servicio.DocenteCurso.DocenteCursoServicioImpl;
 import com.app.idoneos.servicio.Programa.ProgramaServicioImpl;
 
 import com.app.idoneos.utilidades.RespuestaFormularioUtilidad;
+import com.app.idoneos.utilidades.FiltroUtilidad;
+import com.app.idoneos.utilidades.PaginacionUtilidad;
 
 /**
  * Controlador de la gestión de cohortes (MOD-F-01).
@@ -132,7 +134,7 @@ public class CohorteControlador extends PanelCursoControlador {
             @RequestParam(value = "desde", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate desde,
             @RequestParam(value = "hasta", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate hasta,
             @RequestParam(value = "orden", defaultValue = "recientes") String orden,
-            Model modelo, Authentication auth) {
+            Model modelo, Authentication auth, jakarta.servlet.http.HttpServletRequest solicitud) {
         Usuario usuario = (Usuario) auth.getPrincipal();
         boolean esAdministrador = usuario.esAdministradorActivo();
         Docente soloDeDocente = esAdministrador ? null : usuario.getDocente();
@@ -172,9 +174,19 @@ public class CohorteControlador extends PanelCursoControlador {
                     .forEach(participacion -> cohortesDeTrabajo.add(participacion.getCohortePorDefecto().getIdCohorte()));
         }
 
+        // Se ve una página por vez: el motor común filtra, ordena y pagina en el servidor
+        final List<Cohorte> todasLasCohortes = cohortes;
+        List<Cohorte> paginaFiltradas = TABLA_ADMIN.filtrar(cohortes, solicitud.getParameterMap());
+        TABLA_ADMIN.ordenar(paginaFiltradas, solicitud.getParameterMap());
+        PaginacionUtilidad.Pagina<Cohorte> pagina = PaginacionUtilidad.paginar(paginaFiltradas, solicitud.getParameterMap(), TABLA_ADMIN.opciones(cohortes));
+        PaginacionUtilidad.aModelo(modelo, pagina);
+        cohortes = pagina.filas();
         modelo.addAttribute("cohortes", cohortes);
         modelo.addAttribute("inscripcionesPorCohorte", inscripcionesPorCohorte);
         modelo.addAttribute("clasesPorCohorte", clasesPorCohorte);
+        if (esAdministrador && PaginacionUtilidad.pideSoloFilas(solicitud)) {
+            return "pages/cohorte/buscarAdministrador :: filas"; // solo las filas de la página pedida
+        }
         modelo.addAttribute("cohortesDeTrabajo", cohortesDeTrabajo);
         List<com.app.idoneos.modelo.Programa> programasOfrecidos = curso == null
                 ? programaServicio.obtenerTodo().stream().filter(p -> !p.getBaja()).toList()
@@ -217,12 +229,18 @@ public class CohorteControlador extends PanelCursoControlador {
             // El docente ve las cohortes dentro del panel de su curso, como el administrador
             cargarContexto(modelo, contextoDelPanel(cursoId, usuario), "cohortes");
         }
-        modelo.addAttribute("programasDelCurso", cohortes.stream().filter(c -> c.esPendiente() && !c.getBaja() && c.getCantidadInscriptos() == 0)
+        // Las ventanas de asignar programa son de todas las cohortes que pueden recibirlo, no solo de las de la página visible
+        modelo.addAttribute("cohortesAsignables", todasLasCohortes.stream()
+                .filter(c -> c.esPendiente() && !c.getBaja() && c.getCantidadInscriptos() == 0).toList());
+        modelo.addAttribute("programasDelCurso", todasLasCohortes.stream().filter(c -> c.esPendiente() && !c.getBaja() && c.getCantidadInscriptos() == 0)
                 .collect(java.util.stream.Collectors.toMap(Cohorte::getIdCohorte,
                         c -> c.getCurso().getProgramasActivos())));
         // Desde el diseño del curso se llega con ?asignar=<cohorte>: se abre la ventana de asignar programa de esa cohorte
         modelo.addAttribute("abrirModal", asignar != null && ((java.util.Map<?, ?>) modelo.getAttribute("programasDelCurso")).containsKey(asignar)
                 ? "modalAsignarPrograma" + asignar : null);
+        if (PaginacionUtilidad.pideSoloFilas(solicitud)) {
+            return "pages/cohorte/buscarDocente :: filas"; // solo las filas de la página pedida
+        }
         return "pages/cohorte/buscarDocente";
     }
 
@@ -419,4 +437,27 @@ public class CohorteControlador extends PanelCursoControlador {
             return RespuestaFormularioUtilidad.respuestaConError(e);
         }
     }
+
+    // ---------------------------------------------------------------- Listado del administrador (motor común)
+
+    private static String dia(java.time.LocalDateTime fecha) {
+        return fecha == null ? "" : fecha.toLocalDate().toString();
+    }
+
+    /** Las columnas del listado del administrador: lo que se filtra y se ordena en el servidor. */
+    private static final FiltroUtilidad<Cohorte> TABLA_ADMIN = new FiltroUtilidad<>(List.of(
+            new FiltroUtilidad.Columna<Cohorte>("curso", FiltroUtilidad.Tipo.LISTA, c -> c.getCurso().getNombre()),
+            new FiltroUtilidad.Columna<Cohorte>("programa", FiltroUtilidad.Tipo.LISTA,
+                    c -> c.getPrograma() != null ? c.getPrograma().getNombre() : "Sin programa"),
+            new FiltroUtilidad.Columna<Cohorte>("fechaInicioInscripcion", FiltroUtilidad.Tipo.FECHA, c -> dia(c.getFechaInicioInscripcion())),
+            new FiltroUtilidad.Columna<Cohorte>("fechaFinInscripcion", FiltroUtilidad.Tipo.FECHA, c -> dia(c.getFechaFinInscripcion())),
+            new FiltroUtilidad.Columna<Cohorte>("fechaInicioDictado", FiltroUtilidad.Tipo.FECHA, c -> dia(c.getFechaInicioDictado())),
+            new FiltroUtilidad.Columna<Cohorte>("fechaFinDictado", FiltroUtilidad.Tipo.FECHA, c -> dia(c.getFechaFinDictado())),
+            new FiltroUtilidad.Columna<Cohorte>("cupoMaximo", FiltroUtilidad.Tipo.NUMERO,
+                    c -> c.getCupoMaximo() != null ? String.valueOf(c.getCupoMaximo()) : ""),
+            new FiltroUtilidad.Columna<Cohorte>("accesoDias", FiltroUtilidad.Tipo.NUMERO, c -> String.valueOf(c.getAccesoDias())),
+            new FiltroUtilidad.Columna<Cohorte>("estado", FiltroUtilidad.Tipo.LISTA, c -> c.getBaja() ? "Dada de baja" : c.getEstado()),
+            new FiltroUtilidad.Columna<Cohorte>("fechaCreacion", FiltroUtilidad.Tipo.FECHA,
+                    c -> c.getFechaCreacion() == null ? "" : c.getFechaCreacion().toString().replace('T', ' '))),
+            Cohorte::getBaja);
 }

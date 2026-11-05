@@ -1,5 +1,7 @@
 package com.app.idoneos.controlador;
 
+import com.app.idoneos.utilidades.FiltroUtilidad;
+import com.app.idoneos.utilidades.PaginacionUtilidad;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -76,7 +78,7 @@ public class ForoControlador extends PanelCursoControlador {
     @GetMapping("/buscar")
     public String buscarForos(@RequestParam(value = "cursoId", required = false) Integer cursoId,
             @RequestParam(value = "temaId", required = false) Integer temaId, Model modelo, Authentication auth,
-            RedirectAttributes redirectAttributes) {
+            RedirectAttributes redirectAttributes, jakarta.servlet.http.HttpServletRequest solicitud) {
         try {
             ContextoCurso contexto = contextoDelPanel(cursoId, (Usuario) auth.getPrincipal());
             Programa programa = contexto.programa();
@@ -85,7 +87,15 @@ public class ForoControlador extends PanelCursoControlador {
             cargarContexto(modelo, contexto, "foros");
             modelo.addAttribute("temasDelPrograma", todas);
             modelo.addAttribute("temaSeleccionada", temaId);
-            modelo.addAttribute("temas", todas); // todos los temas: el filtro se aplica en la pantalla
+            // El filtro, el orden por columna y la página los resuelve el servidor (motor común de listados)
+            List<TemaCronograma> paginaFiltradas = TABLA_FOROS.filtrar(todas, solicitud.getParameterMap());
+            TABLA_FOROS.ordenar(paginaFiltradas, solicitud.getParameterMap());
+            PaginacionUtilidad.Pagina<TemaCronograma> pagina = PaginacionUtilidad.paginar(paginaFiltradas, solicitud.getParameterMap(), TABLA_FOROS.opciones(todas));
+            PaginacionUtilidad.aModelo(modelo, pagina);
+            modelo.addAttribute("temas", pagina.filas());
+            if (PaginacionUtilidad.pideSoloFilas(solicitud)) {
+                return "pages/foro/buscar :: filas"; // solo las filas de la página pedida
+            }
             modelo.addAttribute("titulo", "Foros | Idóneos Online");
             return "pages/foro/buscar";
         } catch (IllegalArgumentException e) {
@@ -111,14 +121,20 @@ public class ForoControlador extends PanelCursoControlador {
             @RequestParam(value = "texto", required = false) String texto,
             @RequestParam(value = "desde", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate desde,
             @RequestParam(value = "hasta", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate hasta,
-            Model modelo, Authentication auth) {
+            Model modelo, Authentication auth, jakarta.servlet.http.HttpServletRequest solicitud) {
         Tema tema = temaServicio.buscarPorId(temaId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         cargarContextoDelForo(tema, (Usuario) auth.getPrincipal(), modelo);
 
         List<ConsultaForo> encontradas = consultaServicio.buscarConFiltros(tema, texto, desde, hasta);
 
-        modelo.addAttribute("consultas", encontradas);
+        // La búsqueda por texto y fechas la resuelve el servicio; la página, el servidor
+        PaginacionUtilidad.Pagina<ConsultaForo> pagina = PaginacionUtilidad.paginar(encontradas, solicitud.getParameterMap(), java.util.Map.of());
+        PaginacionUtilidad.aModelo(modelo, pagina);
+        modelo.addAttribute("consultas", pagina.filas());
+        if (PaginacionUtilidad.pideSoloFilas(solicitud)) {
+            return "pages/foro/ver :: filas"; // solo las filas de la página pedida
+        }
         modelo.addAttribute("totalConsultas", tema.getCantidadConsultasForo());
         modelo.addAttribute("cantidadEncontradas", encontradas.size());
         modelo.addAttribute("texto", texto == null ? "" : texto.trim());
@@ -325,4 +341,18 @@ public class ForoControlador extends PanelCursoControlador {
         modelo.addAttribute("r", r);
         return "fragments/modalEditarRespuesta :: modal(r=${r})";
     }
+
+    // ---------------------------------------------------------------- Listado de foros (motor común)
+
+    /** Las columnas del listado: lo que se filtra y se ordena en el servidor. */
+    private static final FiltroUtilidad<TemaCronograma> TABLA_FOROS = new FiltroUtilidad<>(List.of(
+            new FiltroUtilidad.Columna<TemaCronograma>("nombre", FiltroUtilidad.Tipo.TEXTO, u -> "Foro " + u.getNumeroOrden()),
+            new FiltroUtilidad.Columna<TemaCronograma>("tema", FiltroUtilidad.Tipo.LISTA, u -> u.getTema().getTitulo()),
+            new FiltroUtilidad.Columna<TemaCronograma>("consultas", FiltroUtilidad.Tipo.NUMERO,
+                    u -> String.valueOf(u.getTema().getCantidadConsultasForo())),
+            new FiltroUtilidad.Columna<TemaCronograma>("sinResponder", FiltroUtilidad.Tipo.NUMERO,
+                    u -> String.valueOf(u.getTema().getCantidadConsultasSinResponder())),
+            new FiltroUtilidad.Columna<TemaCronograma>("ultimoMensaje", FiltroUtilidad.Tipo.FECHA,
+                    u -> u.getTema().getUltimaActividadForo() == null ? "" : u.getTema().getUltimaActividadForo().toString().replace('T', ' '))),
+            u -> false);
 }

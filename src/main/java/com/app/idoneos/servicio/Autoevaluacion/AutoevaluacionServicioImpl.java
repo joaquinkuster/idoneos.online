@@ -125,11 +125,9 @@ public class AutoevaluacionServicioImpl implements AutoevaluacionServicio, CrudS
     public List<Autoevaluacion> buscarConFiltros(Integer idCurso, Integer idTema, String nombre, Boolean baja,
             Docente soloDeDocente) {
         String criterio = nombre == null ? "" : nombre.trim().toLowerCase();
-        return autoevaluacionRepositorio.findAll().stream()
-                .filter(a -> idCurso == null || a.getTema().getCurso().getIdCurso() == idCurso)
-                .filter(a -> idTema == null || a.getTema().getIdTema() == idTema)
+        // El curso, el tema y la baja se filtran en la base; el texto y la participación del docente, acá
+        return autoevaluacionRepositorio.buscarPorFiltros(idCurso, idTema, baja).stream()
                 .filter(a -> criterio.isEmpty() || a.getNombre().toLowerCase().contains(criterio))
-                .filter(a -> baja == null || a.getBaja().equals(baja))
                 .filter(a -> soloDeDocente == null || participaEnElCurso(a.getTema().getCurso(), soloDeDocente))
                 .sorted(Comparator.comparing(Autoevaluacion::getBaja)
                         .thenComparingInt((Autoevaluacion a) -> a.getTema().getIdTema())

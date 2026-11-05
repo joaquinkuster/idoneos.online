@@ -1,5 +1,7 @@
 package com.app.idoneos.controlador;
 
+import com.app.idoneos.utilidades.FiltroUtilidad;
+import com.app.idoneos.utilidades.PaginacionUtilidad;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,8 +55,14 @@ public class CategoriaControlador {
     @GetMapping("/buscar")
     public String buscarCategorias(@RequestParam(value = "nombre", required = false) String nombre,
             @RequestParam(value = "baja", required = false) Boolean baja,
-            @RequestParam(value = "orden", defaultValue = "nombre") String orden, Model modelo) {
-        List<Categoria> categorias = categoriaServicio.buscarConFiltros(null, null, orden); // listado completo: los filtros se aplican en la pantalla
+            @RequestParam(value = "orden", defaultValue = "nombre") String orden, Model modelo, jakarta.servlet.http.HttpServletRequest solicitud) {
+        List<Categoria> categorias = categoriaServicio.buscarConFiltros(null, null, orden); // lista completa, ordenada: el motor filtra y pagina
+        // El filtro, el orden por columna y la página los resuelve el servidor (motor común de listados)
+        List<Categoria> paginaFiltradas = TABLA.filtrar(categorias, solicitud.getParameterMap());
+        TABLA.ordenar(paginaFiltradas, solicitud.getParameterMap());
+        PaginacionUtilidad.Pagina<Categoria> pagina = PaginacionUtilidad.paginar(paginaFiltradas, solicitud.getParameterMap(), TABLA.opciones(categorias));
+        PaginacionUtilidad.aModelo(modelo, pagina);
+        categorias = pagina.filas();
 
         // Cursos activos e inscripciones activas por categoría, para validar la modificación y la baja
         Map<Integer, List<Curso>> cursosPorCategoria = new HashMap<>();
@@ -68,6 +76,9 @@ public class CategoriaControlador {
         modelo.addAttribute("categorias", categorias);
         modelo.addAttribute("cursosPorCategoria", cursosPorCategoria);
         modelo.addAttribute("inscripcionesPorCategoria", inscripcionesPorCategoria);
+        if (PaginacionUtilidad.pideSoloFilas(solicitud)) {
+            return "pages/categoria/buscar :: filas"; // solo las filas de la página pedida
+        }
         modelo.addAttribute("nombreBusqueda", nombre);
         modelo.addAttribute("bajaSeleccionada", baja);
         modelo.addAttribute("ordenSeleccionado", orden);
@@ -173,4 +184,18 @@ public class CategoriaControlador {
         modelo.addAttribute("inscripcionesPorCategoria", Map.of(cat.getIdCategoria(), categoriaServicio.contarInscripcionesActivas(cat)));
         return "fragments/modalEditarCategoria :: modal(cat=${cat})";
     }
+
+    // ---------------------------------------------------------------- Listado (motor común)
+
+    private static String dia(java.time.LocalDateTime fecha) {
+        return fecha == null ? "" : fecha.toString().replace('T', ' ');
+    }
+
+    /** Las columnas del listado: lo que se filtra y se ordena en el servidor. */
+    private static final FiltroUtilidad<Categoria> TABLA = new FiltroUtilidad<>(List.of(
+            new FiltroUtilidad.Columna<Categoria>("nombre", FiltroUtilidad.Tipo.TEXTO, Categoria::getNombre),
+            new FiltroUtilidad.Columna<Categoria>("descripcion", FiltroUtilidad.Tipo.TEXTO, c -> c.getDescripcion()),
+            new FiltroUtilidad.Columna<Categoria>("fechaCreacion", FiltroUtilidad.Tipo.FECHA, c -> dia(c.getFechaCreacion())),
+            new FiltroUtilidad.Columna<Categoria>("estado", FiltroUtilidad.Tipo.LISTA, c -> c.getBaja() ? "Dada de baja" : "Activa")),
+            Categoria::getBaja);
 }

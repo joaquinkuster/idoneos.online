@@ -139,13 +139,13 @@ class TemaControladorTest {
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesServicio")
-    @DisplayName("El título que llega por la URL no recorta el listado: se filtra en la pantalla")
+    @DisplayName("El título que llega por la URL lo filtra el servidor")
     void filtro() throws Exception {
         Tema tema = primeraDe(mercado());
 
         mockMvc.perform(get("/tema/buscar").param("cursoId", cursoId(mercado())).param("titulo", "renta fija"))
                 .andExpect(content().string(Matchers.containsString("pn-celda-principal pn-truncar\">Renta fija y bonos<")))
-                .andExpect(content().string(Matchers.containsString("pn-celda-principal pn-truncar\">" + tema.getTitulo() + "<")));
+                .andExpect(content().string(Matchers.not(Matchers.containsString("pn-celda-principal pn-truncar\">" + tema.getTitulo() + "<"))));
     }
 
     @Test

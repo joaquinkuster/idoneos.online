@@ -33,7 +33,7 @@
                 </button>
             </div>
 
-            <section class="pn-tarjeta" data-tabla>
+            <section class="pn-tarjeta" data-tabla data-tabla-servidor="/material/buscar" th:attr="data-opciones=${tablaOpciones}">
                 <div class="pn-lista-cabecera">
                     <h2 class="pn-lista-titulo">Listado de materiales</h2>
                     <span class="pn-seleccionados" data-seleccionados>0 de 0 seleccionados</span>
@@ -65,7 +65,7 @@
                                 <th>Acciones</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody th:fragment="filas" th:attr="data-total=${tablaTotal}, data-pagina=${tablaPagina}, data-paginas=${tablaPaginas}, data-tamanio=${tablaTamanio}">
                             <tr th:each="m : ${materiales}" data-fila th:classappend="${m.baja} ? 'pn-fila-baja'" data-dependencias="0">
                                 <td class="pn-col-seleccion"><input type="checkbox" data-seleccionar-fila aria-label="Seleccionar fila"
                                     th:value="${m.idTemaRecurso}" th:disabled="${m.baja}"></td>

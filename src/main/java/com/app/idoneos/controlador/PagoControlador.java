@@ -1,5 +1,9 @@
 package com.app.idoneos.controlador;
 
+import com.app.idoneos.utilidades.FiltroUtilidad;
+import com.app.idoneos.utilidades.PaginacionUtilidad;
+import com.app.idoneos.utilidades.FiltroUtilidad;
+import com.app.idoneos.utilidades.PaginacionUtilidad;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -76,9 +80,19 @@ public class PagoControlador {
      * @return La vista de búsqueda de pagos.
      */
     @GetMapping("/buscar")
-    public String buscarPagos(@RequestParam(value = "registrarPara", required = false) Integer registrarPara, Model modelo) {
+    public String buscarPagos(@RequestParam(value = "registrarPara", required = false) Integer registrarPara, Model modelo,
+            jakarta.servlet.http.HttpServletRequest solicitud) {
         List<Pago> pagos = pagoServicio.buscarConFiltros(null, null, null, null, null, null);
-        modelo.addAttribute("pagos", pagos);
+        // El filtro, el orden por columna y la página los resuelve el servidor (motor común de listados)
+        List<Pago> paginaFiltradas = TABLA.filtrar(pagos, solicitud.getParameterMap());
+        TABLA.ordenar(paginaFiltradas, solicitud.getParameterMap());
+        PaginacionUtilidad.Pagina<Pago> pagina = PaginacionUtilidad.paginar(paginaFiltradas, solicitud.getParameterMap(), TABLA.opciones(pagos));
+        PaginacionUtilidad.aModelo(modelo, pagina);
+        modelo.addAttribute("pagos", pagina.filas());
+        if (PaginacionUtilidad.pideSoloFilas(solicitud)) {
+            return "pages/pago/buscarAdministrador :: filas"; // solo las filas de la página pedida
+        }
+        pagos = pagina.filas(); // los montos y detalles se calculan solo para las filas que se muestran
         modelo.addAttribute("cursosFiltro", pagos.stream().map(pago -> pago.getInscripcion().getCurso()).distinct()
                 .sorted(Comparator.comparing(Curso::getNombre, String.CASE_INSENSITIVE_ORDER)).toList());
         List<Inscripcion> pendientes = inscripcionServicio.buscarConFiltros(null, null, Inscripcion.ACCESO_PENDIENTE_DE_PAGO);
@@ -110,10 +124,19 @@ public class PagoControlador {
      * @return La vista de "Mis pagos".
      */
     @GetMapping("/misPagos")
-    public String verMisPagos(Model modelo, Authentication auth) {
+    public String verMisPagos(Model modelo, Authentication auth, jakarta.servlet.http.HttpServletRequest solicitud) {
         Alumno alumno = ((Usuario) auth.getPrincipal()).getAlumno();
         List<Pago> pagos = pagoServicio.buscarConFiltros(null, null, null, null, null, alumno);
-        modelo.addAttribute("pagos", pagos);
+        // El filtro, el orden por columna y la página los resuelve el servidor
+        List<Pago> filtrados = FILTROS_MIS_PAGOS.filtrar(pagos, solicitud.getParameterMap());
+        FILTROS_MIS_PAGOS.ordenar(filtrados, solicitud.getParameterMap());
+        PaginacionUtilidad.Pagina<Pago> pagina = PaginacionUtilidad.paginar(filtrados, solicitud.getParameterMap(),
+                FILTROS_MIS_PAGOS.opciones(pagos));
+        PaginacionUtilidad.aModelo(modelo, pagina);
+        modelo.addAttribute("pagos", pagina.filas());
+        if (PaginacionUtilidad.pideSoloFilas(solicitud)) {
+            return "pages/pago/misPagos :: filas"; // solo las filas de la página pedida
+        }
         modelo.addAttribute("cursosFiltro", pagos.stream().map(pago -> pago.getInscripcion().getCurso()).distinct()
                 .sorted(Comparator.comparing(Curso::getNombre, String.CASE_INSENSITIVE_ORDER)).toList());
         modelo.addAttribute("titulo", "Mis pagos | Idóneos Online");
@@ -378,4 +401,34 @@ public class PagoControlador {
         modelo.addAttribute("detalles", Map.of(p.getInscripcion().getIdInscripcion(), pagoServicio.calcularDetalle(p.getInscripcion())));
         return "fragments/modalModificarPago :: modal(p=${p})";
     }
+
+    // ---------------------------------------------------------------- Listado del administrador (motor común)
+
+    /** Las columnas del listado: lo que se filtra y se ordena en el servidor. */
+    private static final FiltroUtilidad<Pago> TABLA = new FiltroUtilidad<>(List.of(
+            new FiltroUtilidad.Columna<Pago>("alumno", FiltroUtilidad.Tipo.TEXTO,
+                    p -> p.getInscripcion().getAlumno().getUsuario().getNombreCompleto() + " "
+                            + p.getInscripcion().getAlumno().getUsuario().getDni() + " "
+                            + p.getInscripcion().getAlumno().getUsuario().getCorreo()),
+            new FiltroUtilidad.Columna<Pago>("curso", FiltroUtilidad.Tipo.LISTA, p -> p.getInscripcion().getCurso().getNombre()),
+            new FiltroUtilidad.Columna<Pago>("monto", FiltroUtilidad.Tipo.NUMERO, p -> String.valueOf(p.getMonto())),
+            new FiltroUtilidad.Columna<Pago>("medioDePago", FiltroUtilidad.Tipo.LISTA, p -> p.getMetodoPago().getNombre()),
+            new FiltroUtilidad.Columna<Pago>("estado", FiltroUtilidad.Tipo.LISTA, p -> p.getEstadoPago().getNombre()),
+            new FiltroUtilidad.Columna<Pago>("comprobante", FiltroUtilidad.Tipo.TEXTO,
+                    p -> p.getComprobanteVigente() == null ? "" : p.getComprobanteVigente().getNumero()),
+            new FiltroUtilidad.Columna<Pago>("fechaAprobacion", FiltroUtilidad.Tipo.FECHA,
+                    p -> p.getFechaAprobacion() == null ? "" : p.getFechaAprobacion().toLocalDate().toString()),
+            new FiltroUtilidad.Columna<Pago>("fechaCreacion", FiltroUtilidad.Tipo.FECHA,
+                    p -> p.getFechaCreacion() == null ? "" : p.getFechaCreacion().toString().replace('T', ' '))),
+            p -> false);
+
+    /** Las columnas de "Mis pagos": lo que se filtra y se ordena en el servidor. */
+    private static final FiltroUtilidad<Pago> FILTROS_MIS_PAGOS = new FiltroUtilidad<>(List.of(
+            new FiltroUtilidad.Columna<Pago>("curso", FiltroUtilidad.Tipo.LISTA, p -> p.getInscripcion().getCurso().getNombre()),
+            new FiltroUtilidad.Columna<Pago>("monto", FiltroUtilidad.Tipo.NUMERO, p -> String.valueOf(p.getMonto())),
+            new FiltroUtilidad.Columna<Pago>("medioDePago", FiltroUtilidad.Tipo.LISTA, p -> p.getMetodoPago().getNombre()),
+            new FiltroUtilidad.Columna<Pago>("estado", FiltroUtilidad.Tipo.LISTA, p -> p.getEstadoPago().getNombre()),
+            new FiltroUtilidad.Columna<Pago>("fechaCreacion", FiltroUtilidad.Tipo.FECHA,
+                    p -> p.getFechaCreacion() == null ? "" : p.getFechaCreacion().toString().replace('T', ' '))),
+            p -> false);
 }

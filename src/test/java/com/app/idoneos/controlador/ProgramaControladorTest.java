@@ -158,14 +158,14 @@ class ProgramaControladorTest {
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesServicio")
-    @DisplayName("Los filtros de la URL no recortan el listado: se aplican en la pantalla")
+    @DisplayName("El servidor filtra el listado por las columnas que llegan en la URL y no recorta por lo que no es columna")
     void filtros() throws Exception {
         registrar(macro(), "Programa Avanzado");
         String curso = String.valueOf(macro().getIdCurso());
 
         mockMvc.perform(get("/programa/buscar").param("cursoId", curso).param("nombre", "avanzado"))
                 .andExpect(content().string(Matchers.containsString("pn-celda-principal pn-truncar\">Programa Avanzado<")))
-                .andExpect(content().string(Matchers.containsString("pn-celda-principal pn-truncar\">Programa 2026<")));
+                .andExpect(content().string(Matchers.not(Matchers.containsString("pn-celda-principal pn-truncar\">Programa 2026<"))));
         mockMvc.perform(get("/programa/buscar").param("cursoId", curso).param("estado", "Anterior"))
                 .andExpect(content().string(Matchers.containsString("pn-celda-principal pn-truncar\">Programa 2026<")))
                 .andExpect(content().string(Matchers.containsString("pn-celda-principal pn-truncar\">Programa Avanzado<")));

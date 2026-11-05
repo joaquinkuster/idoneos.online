@@ -1,5 +1,7 @@
 package com.app.idoneos.controlador;
 
+import com.app.idoneos.utilidades.FiltroUtilidad;
+import com.app.idoneos.utilidades.PaginacionUtilidad;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,7 +61,7 @@ public class CalificacionControlador extends PanelCursoControlador {
      */
     @GetMapping("/buscar")
     public String buscarCalificaciones(@RequestParam(value = "cursoId", required = false) Integer cursoId, Model modelo,
-            Authentication auth, RedirectAttributes redirectAttributes) {
+            Authentication auth, RedirectAttributes redirectAttributes, jakarta.servlet.http.HttpServletRequest solicitud) {
         try {
             Usuario usuario = (Usuario) auth.getPrincipal();
             ContextoCurso contexto = contextoDelPanel(cursoId, usuario);
@@ -68,13 +70,28 @@ public class CalificacionControlador extends PanelCursoControlador {
                 filas.addAll(filasDe(inscripcion));
             }
 
-            cargarContexto(modelo, contexto, "calificaciones");
-            modelo.addAttribute("filas", filas);
-            modelo.addAttribute("verAlumnos", true);
-            modelo.addAttribute("urlListado", "/calificacion/buscar?cursoId=" + contexto.curso().getIdCurso());
-            modelo.addAttribute("cohorteSeleccionada", contexto.participacion() == null ? null
+            Integer cohorteSeleccionada = contexto.participacion() == null ? null
                     : contexto.participacion().getCohorteDeTrabajo() == null ? null
-                            : contexto.participacion().getCohorteDeTrabajo().getIdCohorte());
+                            : contexto.participacion().getCohorteDeTrabajo().getIdCohorte();
+            // Entra con el filtro en la cohorte de trabajo; si el navegador pide otra página o cambia el filtro, manda su propia elección
+            java.util.Map<String, String[]> parametros = new java.util.HashMap<>(solicitud.getParameterMap());
+            if (!PaginacionUtilidad.pideSoloFilas(solicitud) && !parametros.containsKey("cohorte") && cohorteSeleccionada != null) {
+                parametros.put("cohorte", new String[] { String.valueOf(cohorteSeleccionada) });
+            }
+            // El filtro, el orden por columna y la página los resuelve el servidor
+            List<FilaCalificacion> filtradas = FILTROS.filtrar(filas, parametros);
+            FILTROS.ordenar(filtradas, parametros);
+            PaginacionUtilidad.Pagina<FilaCalificacion> pagina = PaginacionUtilidad.paginar(filtradas, parametros, FILTROS.opciones(filas));
+            PaginacionUtilidad.aModelo(modelo, pagina);
+
+            cargarContexto(modelo, contexto, "calificaciones");
+            modelo.addAttribute("filas", pagina.filas());
+            modelo.addAttribute("verAlumnos", true);
+            if (PaginacionUtilidad.pideSoloFilas(solicitud)) {
+                return "pages/calificacion/listado :: filas"; // solo las filas de la página pedida
+            }
+            modelo.addAttribute("urlListado", "/calificacion/buscar?cursoId=" + contexto.curso().getIdCurso());
+            modelo.addAttribute("cohorteSeleccionada", cohorteSeleccionada);
             modelo.addAttribute("cohortes", contexto.curso().getProgramasActivos().stream()
                     .flatMap(programa -> programa.getCohortesActivas().stream()).toList());
             modelo.addAttribute("titulo", "Calificaciones | Idóneos Online");
@@ -96,7 +113,7 @@ public class CalificacionControlador extends PanelCursoControlador {
      */
     @GetMapping("/ver/{idInscripcion}")
     public String verCalificaciones(@PathVariable("idInscripcion") int idInscripcion, Model modelo, Authentication auth,
-            RedirectAttributes redirectAttributes) {
+            RedirectAttributes redirectAttributes, jakarta.servlet.http.HttpServletRequest solicitud) {
         try {
             Usuario usuario = (Usuario) auth.getPrincipal();
             Alumno alumno = usuario.getAlumno();
@@ -105,8 +122,16 @@ public class CalificacionControlador extends PanelCursoControlador {
             }
             Inscripcion inscripcion = inscripcionServicio.validarAcceso(idInscripcion, alumno);
             cargarContexto(modelo, ContextoCurso.deAlumno(inscripcion), "calificaciones");
-            modelo.addAttribute("filas", filasDe(inscripcion));
+            List<FilaCalificacion> todas = filasDe(inscripcion);
+            List<FilaCalificacion> filtradas = FILTROS.filtrar(todas, solicitud.getParameterMap());
+            FILTROS.ordenar(filtradas, solicitud.getParameterMap());
+            PaginacionUtilidad.Pagina<FilaCalificacion> pagina = PaginacionUtilidad.paginar(filtradas, solicitud.getParameterMap(), FILTROS.opciones(todas));
+            PaginacionUtilidad.aModelo(modelo, pagina);
+            modelo.addAttribute("filas", pagina.filas());
             modelo.addAttribute("verAlumnos", false);
+            if (PaginacionUtilidad.pideSoloFilas(solicitud)) {
+                return "pages/calificacion/listado :: filas"; // solo las filas de la página pedida
+            }
             modelo.addAttribute("urlListado", "/calificacion/ver/" + inscripcion.getIdInscripcion());
             modelo.addAttribute("cohortes", List.of());
             modelo.addAttribute("titulo", "Calificaciones | Idóneos Online");
@@ -130,4 +155,28 @@ public class CalificacionControlador extends PanelCursoControlador {
         }
         return filas;
     }
+
+    // ---------------------------------------------------------------- Listado (filtros y página en el servidor)
+
+    private static String resultado(FilaCalificacion f) {
+        Float nota = f.autoevaluacion().mejorNota(f.inscripcion());
+        return f.autoevaluacion().estaAprobadaPor(f.inscripcion()) ? "Aprobada"
+                : (nota != null ? "No aprobada" : (f.habilitada() ? "Sin rendir" : "Tema bloqueada"));
+    }
+
+    /** Las columnas del listado: lo que se filtra y se ordena en el servidor. */
+    private static final FiltroUtilidad<FilaCalificacion> FILTROS = new FiltroUtilidad<>(List.of(
+            new FiltroUtilidad.Columna<FilaCalificacion>("alumno", FiltroUtilidad.Tipo.TEXTO,
+                    f -> f.inscripcion().getAlumno().getUsuario().getNombreCompleto() + " "
+                            + f.inscripcion().getAlumno().getUsuario().getDni() + " " + f.inscripcion().getAlumno().getUsuario().getCorreo()),
+            new FiltroUtilidad.Columna<FilaCalificacion>("cohorte", FiltroUtilidad.Tipo.LISTA,
+                    f -> String.valueOf(f.inscripcion().getCohorte().getIdCohorte())),
+            new FiltroUtilidad.Columna<FilaCalificacion>("tema", FiltroUtilidad.Tipo.LISTA, f -> f.autoevaluacion().getTema().getTitulo()),
+            new FiltroUtilidad.Columna<FilaCalificacion>("autoevaluacion", FiltroUtilidad.Tipo.LISTA, f -> f.autoevaluacion().getNombre()),
+            new FiltroUtilidad.Columna<FilaCalificacion>("intentos", FiltroUtilidad.Tipo.NUMERO,
+                    f -> String.valueOf(f.autoevaluacion().intentosDe(f.inscripcion()).size())),
+            new FiltroUtilidad.Columna<FilaCalificacion>("mejorNota", FiltroUtilidad.Tipo.NUMERO,
+                    f -> java.util.Objects.toString(f.autoevaluacion().mejorNota(f.inscripcion()), "")),
+            new FiltroUtilidad.Columna<FilaCalificacion>("resultado", FiltroUtilidad.Tipo.LISTA, CalificacionControlador::resultado)),
+            f -> false);
 }

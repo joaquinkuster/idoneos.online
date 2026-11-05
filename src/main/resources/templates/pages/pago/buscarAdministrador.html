@@ -21,7 +21,7 @@
                 </button>
             </div>
 
-            <section class="pn-tarjeta" data-tabla>
+            <section class="pn-tarjeta" data-tabla data-tabla-servidor="/pago/buscar" th:attr="data-opciones=${tablaOpciones}">
                 <div class="pn-lista-cabecera">
                     <h2 class="pn-lista-titulo">Listado de pagos</h2>
                 </div>
@@ -47,7 +47,7 @@
                                 <th>Acciones</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody th:fragment="filas" th:attr="data-total=${tablaTotal}, data-pagina=${tablaPagina}, data-paginas=${tablaPaginas}, data-tamanio=${tablaTamanio}">
                             <tr th:each="p : ${pagos}" data-fila
                                 th:data-f-alumno="${p.inscripcion.alumno.usuario.nombreCompleto + ' ' + p.inscripcion.alumno.usuario.dni + ' ' + p.inscripcion.alumno.usuario.correo}"
                                 th:data-f-curso="${p.inscripcion.curso.nombre}"

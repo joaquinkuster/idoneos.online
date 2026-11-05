@@ -178,7 +178,11 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
                 .thenComparing("recientes".equals(orden)
                         ? Comparator.comparing(Curso::getFechaCreacion).thenComparingInt(Curso::getIdCurso).reversed()
                         : Comparator.comparing(Curso::getNombre, String.CASE_INSENSITIVE_ORDER));
-        return cursoRepositorio.findAll().stream()
+        // Un docente solo recorre los cursos en los que participa (se piden a la base), no todos los del sistema
+        List<Curso> candidatos = soloDeDocente == null ? cursoRepositorio.findAll()
+                : docenteCursoRepositorio.findByDocenteAndBajaFalse(soloDeDocente).stream()
+                        .map(participacion -> participacion.getCurso()).distinct().toList();
+        return candidatos.stream()
                 .filter(curso -> criterio.isEmpty() || curso.getNombre().toLowerCase().contains(criterio)
                         || (curso.getDescripcion() != null && curso.getDescripcion().toLowerCase().contains(criterio)))
                 .filter(curso -> idCategoria == null || curso.getCategoria().getIdCategoria() == idCategoria)

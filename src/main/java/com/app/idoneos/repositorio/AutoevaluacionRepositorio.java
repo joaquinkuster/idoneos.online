@@ -14,6 +14,20 @@ import org.springframework.stereotype.Repository;
 public interface AutoevaluacionRepositorio extends JpaRepository<Autoevaluacion, Integer> {
 
     /**
+     * Busca en la base, con su tema y su curso ya cargados, filtrando por curso, tema y baja (cada filtro es opcional).
+     * Antes se traía todo y se filtraba en memoria.
+     */
+    @org.springframework.data.jpa.repository.Query("""
+            select a from Autoevaluacion a join fetch a.tema t join fetch t.curso c
+            where (cast(:idCurso as integer) is null or c.idCurso = :idCurso)
+              and (cast(:idTema as integer) is null or t.idTema = :idTema)
+              and (cast(:baja as boolean) is null or a.baja = :baja)
+            """)
+    List<Autoevaluacion> buscarPorFiltros(@org.springframework.data.repository.query.Param("idCurso") Integer idCurso,
+            @org.springframework.data.repository.query.Param("idTema") Integer idTema,
+            @org.springframework.data.repository.query.Param("baja") Boolean baja);
+
+    /**
      * Encuentra todos los registros activos (no dados de baja).
      *
      * @return Una lista de {@link Autoevaluacion} activos.

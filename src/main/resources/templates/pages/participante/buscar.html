@@ -28,7 +28,7 @@
                 </div>
             </div>
 
-            <section class="pn-tarjeta" data-tabla>
+            <section class="pn-tarjeta" data-tabla th:attr="data-tabla-servidor=${soloCohorte ? '/participante/ver/' + inscripcion.idInscripcion : '/participante/buscar'}, data-opciones=${tablaOpciones}">
                 <div class="pn-lista-cabecera">
                     <h2 class="pn-lista-titulo">Listado de participantes</h2>
                     <span class="pn-seleccionados" data-total-filtradas data-singular="participante encontrado" data-plural="participantes encontrados"
@@ -59,8 +59,9 @@
                                 <th data-col="Fecha de creación" data-campo="fechaCreacion" data-filtro="fecha">Fecha de creación</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr th:each="d : ${docentes}" data-fila>
+                        <tbody th:fragment="filas" th:attr="data-total=${tablaTotal}, data-pagina=${tablaPagina}, data-paginas=${tablaPaginas}, data-tamanio=${tablaTamanio}">
+                            <th:block th:each="f : ${filas}">
+                            <tr th:if="${f.docente != null}" th:with="d=${f.docente}" data-fila>
                                 <td>
                                     <span class="pn-celda-principal d-inline-flex align-items-center gap-2">
                                         <th:block th:replace="~{fragments/avatar :: avatar(${d.docente.usuario}, 'av-chico')}"></th:block>
@@ -75,7 +76,7 @@
                                 <td th:unless="${soloCohorte}" th:text="${d.cohorteDeTrabajo != null ? d.cohorteDeTrabajo.etiqueta : '—'}">Septiembre 2026</td>
                                 <td th:text="${#temporals.format(d.docente.usuario.fechaCreacion, 'dd/MM/yyyy HH:mm')}">28/08/2026 10:30</td>
                             </tr>
-                            <tr th:each="a : ${alumnos}" data-fila th:with="i=${a.getInscripcionActivaEn(curso)}" th:attr="data-f-cohorte=${i.cohorte.etiqueta}">
+                            <tr th:if="${f.alumno != null}" th:with="a=${f.alumno}, i=${f.inscripcion}" data-fila>
                                 <td>
                                     <span class="pn-celda-principal d-inline-flex align-items-center gap-2">
                                         <th:block th:replace="~{fragments/avatar :: avatar(${a.usuario}, 'av-chico')}"></th:block>
@@ -87,6 +88,7 @@
                                 <td th:unless="${soloCohorte}" th:text="${i.cohorte.etiqueta}">Septiembre 2026</td>
                                 <td th:text="${#temporals.format(a.usuario.fechaCreacion, 'dd/MM/yyyy HH:mm')}">28/08/2026 10:30</td>
                             </tr>
+                            </th:block>
                             <tr th:replace="~{fragments/vacio :: fila(${soloCohorte ? 4 : 5}, 'fa-users', ${#lists.isEmpty(docentes) and #lists.isEmpty(alumnos) ? 'Todavía no hay participantes' : 'No se encontraron participantes'}, ${#lists.isEmpty(docentes) and #lists.isEmpty(alumnos) ? 'Cuando haya docentes o alumnos en el curso, vas a verlos acá.' : 'Ningún participante coincide con los criterios ingresados.'})}"></tr>
                         </tbody>
                     </table>

@@ -1,5 +1,7 @@
 package com.app.idoneos.controlador;
 
+import com.app.idoneos.utilidades.FiltroUtilidad;
+import com.app.idoneos.utilidades.PaginacionUtilidad;
 import java.util.List;
 import java.util.Map;
 
@@ -91,7 +93,7 @@ public class MaterialControlador extends PanelCursoControlador {
             @RequestParam(value = "nuevo", required = false) String nuevo,
             @RequestParam(value = "accion", required = false) String accion,
             @RequestParam(value = "materialId", required = false) Integer materialId, Model modelo,
-            Authentication auth, RedirectAttributes redirectAttributes) {
+            Authentication auth, RedirectAttributes redirectAttributes, jakarta.servlet.http.HttpServletRequest solicitud) {
         try {
             Usuario usuario = (Usuario) auth.getPrincipal();
             ContextoCurso contexto = contextoDelPanel(cursoId, usuario);
@@ -118,10 +120,19 @@ public class MaterialControlador extends PanelCursoControlador {
                 abrirModal = "modalEditarMaterial" + materialId;
             }
 
+            // El filtro, el orden por columna y la página los resuelve el servidor (motor común de listados)
+            List<TemaRecurso> paginaFiltradas = TABLA.filtrar(materiales, solicitud.getParameterMap());
+            TABLA.ordenar(paginaFiltradas, solicitud.getParameterMap());
+            PaginacionUtilidad.Pagina<TemaRecurso> pagina = PaginacionUtilidad.paginar(paginaFiltradas, solicitud.getParameterMap(), TABLA.opciones(materiales));
+            PaginacionUtilidad.aModelo(modelo, pagina);
             cargarContexto(modelo, contexto, "materiales");
             modelo.addAttribute("abrirModal", abrirModal);
             modelo.addAttribute("temas", temas);
-            modelo.addAttribute("materiales", materiales);
+            modelo.addAttribute("materiales", pagina.filas());
+            if (PaginacionUtilidad.pideSoloFilas(solicitud)) {
+                modelo.addAttribute("puedeGestionar", !esAdministrador);
+                return "pages/material/buscar :: filas"; // solo las filas de la página pedida
+            }
             modelo.addAttribute("tiposMaterial", List.of(TipoRecurso.values()));
             modelo.addAttribute("tiposDeSubida", tiposDeSubida);
             modelo.addAttribute("temaSeleccionada", temaId);
@@ -388,4 +399,20 @@ public class MaterialControlador extends PanelCursoControlador {
         modelo.addAttribute("m", m);
         return "fragments/modalEditarMaterial :: modal(m=${m})";
     }
+
+    // ---------------------------------------------------------------- Listado (motor común)
+
+    /** Las columnas del listado: lo que se filtra y se ordena en el servidor. */
+    private static final FiltroUtilidad<TemaRecurso> TABLA = new FiltroUtilidad<>(List.of(
+            new FiltroUtilidad.Columna<TemaRecurso>("titulo", FiltroUtilidad.Tipo.TEXTO, TemaRecurso::getTitulo),
+            new FiltroUtilidad.Columna<TemaRecurso>("tema", FiltroUtilidad.Tipo.LISTA, m -> m.getTema().getTitulo()),
+            new FiltroUtilidad.Columna<TemaRecurso>("tipo", FiltroUtilidad.Tipo.LISTA, TemaRecurso::getTipo),
+            new FiltroUtilidad.Columna<TemaRecurso>("autor", FiltroUtilidad.Tipo.TEXTO, TemaRecurso::getAutor),
+            new FiltroUtilidad.Columna<TemaRecurso>("visibilidad", FiltroUtilidad.Tipo.LISTA, m -> m.getOculto() ? "Oculto" : "Publicado"),
+            new FiltroUtilidad.Columna<TemaRecurso>("generadoPorIa", FiltroUtilidad.Tipo.LISTA,
+                    m -> m.getRecurso().getGeneradoPorIa() ? "Sí" : "No"),
+            new FiltroUtilidad.Columna<TemaRecurso>("fechaCreacion", FiltroUtilidad.Tipo.FECHA,
+                    m -> m.getFechaCreacion() == null ? "" : m.getFechaCreacion().toString().replace('T', ' ')),
+            new FiltroUtilidad.Columna<TemaRecurso>("estado", FiltroUtilidad.Tipo.LISTA, m -> m.getBaja() ? "Dado de baja" : "Activo")),
+            TemaRecurso::getBaja);
 }

@@ -29,7 +29,7 @@
                 </div>
             </div>
 
-            <section class="pn-tarjeta" data-tabla>
+            <section class="pn-tarjeta" data-tabla th:attr="data-tabla-servidor=${urlListado}, data-opciones=${tablaOpciones}">
                 <div class="pn-lista-cabecera">
                     <h2 class="pn-lista-titulo">Resultados por autoevaluación</h2>
                     <span class="pn-seleccionados" data-total-filtradas data-singular="resultado encontrado" data-plural="resultados encontrados"
@@ -63,7 +63,7 @@
                                 <th data-col="Resultado" data-campo="resultado" data-filtro="lista">Resultado</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody th:fragment="filas" th:attr="data-total=${tablaTotal}, data-pagina=${tablaPagina}, data-paginas=${tablaPaginas}, data-tamanio=${tablaTamanio}">
                             <tr th:each="f : ${filas}" data-fila
                                 th:with="a=${f.autoevaluacion}, i=${f.inscripcion}, nota=${f.autoevaluacion.mejorNota(f.inscripcion)}"
                                 th:data-f-tema="${a.tema.titulo}" th:data-f-autoevaluacion="${a.nombre}"

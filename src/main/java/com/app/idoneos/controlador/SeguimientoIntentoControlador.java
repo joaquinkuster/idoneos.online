@@ -1,5 +1,7 @@
 package com.app.idoneos.controlador;
 
+import com.app.idoneos.utilidades.FiltroUtilidad;
+import com.app.idoneos.utilidades.PaginacionUtilidad;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -59,7 +61,7 @@ public class SeguimientoIntentoControlador extends PanelCursoControlador {
      */
     @GetMapping("/buscar")
     public String buscarIntentos(@RequestParam(value = "cursoId", required = false) Integer cursoId, Model modelo,
-            Authentication auth, RedirectAttributes redirectAttributes) {
+            Authentication auth, RedirectAttributes redirectAttributes, jakarta.servlet.http.HttpServletRequest solicitud) {
         try {
             Usuario usuario = (Usuario) auth.getPrincipal();
             ContextoCurso contexto = contextoDelPanel(cursoId, usuario);
@@ -76,11 +78,28 @@ public class SeguimientoIntentoControlador extends PanelCursoControlador {
             }
             filas = filas.reversed();
 
-            cargarContexto(modelo, contexto, "intentos");
-            modelo.addAttribute("filas", filas);
-            modelo.addAttribute("cohorteSeleccionada", contexto.participacion() == null ? null
+            Integer cohorteSeleccionada = contexto.participacion() == null ? null
                     : contexto.participacion().getCohorteDeTrabajo() == null ? null
-                            : contexto.participacion().getCohorteDeTrabajo().getIdCohorte());
+                            : contexto.participacion().getCohorteDeTrabajo().getIdCohorte();
+            // Entra con el filtro en la cohorte de trabajo; si el navegador pide otra página o cambia el filtro, manda su propia elección
+            java.util.Map<String, String[]> parametros = new java.util.HashMap<>(solicitud.getParameterMap());
+            if (!PaginacionUtilidad.pideSoloFilas(solicitud) && !parametros.containsKey("cohorte") && cohorteSeleccionada != null) {
+                parametros.put("cohorte", new String[] { String.valueOf(cohorteSeleccionada) });
+            }
+            // El filtro, el orden por columna y la página los resuelve el servidor
+            List<FilaIntento> filtradas = FILTROS.filtrar(filas, parametros);
+            FILTROS.ordenar(filtradas, parametros);
+            PaginacionUtilidad.Pagina<FilaIntento> pagina = PaginacionUtilidad.paginar(filtradas, parametros, FILTROS.opciones(filas));
+            PaginacionUtilidad.aModelo(modelo, pagina);
+
+            cargarContexto(modelo, contexto, "intentos");
+            modelo.addAttribute("filas", pagina.filas());
+            modelo.addAttribute("puedeAprobar", !contexto.esAdministrador());
+            modelo.addAttribute("puedeDarDeBaja", contexto.esAdministrador());
+            if (PaginacionUtilidad.pideSoloFilas(solicitud)) {
+                return "pages/intento/buscar :: filas"; // solo las filas de la página pedida
+            }
+            modelo.addAttribute("cohorteSeleccionada", cohorteSeleccionada);
             modelo.addAttribute("cohortes", contexto.curso().getProgramasActivos().stream()
                     .flatMap(programa -> programa.getCohortesActivas().stream()).toList());
             modelo.addAttribute("puedeAprobar", !contexto.esAdministrador());
@@ -131,4 +150,30 @@ public class SeguimientoIntentoControlador extends PanelCursoControlador {
             return RespuestaFormularioUtilidad.respuestaConError(e);
         }
     }
+
+    // ---------------------------------------------------------------- Listado (filtros y página en el servidor)
+
+    private static String dia(java.time.LocalDateTime fecha) {
+        return fecha == null ? "" : fecha.toString().replace('T', ' ');
+    }
+
+    /** Las columnas del listado: lo que se filtra y se ordena en el servidor. */
+    private static final FiltroUtilidad<FilaIntento> FILTROS = new FiltroUtilidad<>(List.of(
+            new FiltroUtilidad.Columna<FilaIntento>("alumno", FiltroUtilidad.Tipo.TEXTO,
+                    f -> f.intento().getInscripcion().getAlumno().getUsuario().getNombreCompleto() + " "
+                            + f.intento().getInscripcion().getAlumno().getUsuario().getDni() + " "
+                            + f.intento().getInscripcion().getAlumno().getUsuario().getCorreo()),
+            new FiltroUtilidad.Columna<FilaIntento>("cohorte", FiltroUtilidad.Tipo.LISTA,
+                    f -> String.valueOf(f.intento().getInscripcion().getCohorte().getIdCohorte())),
+            new FiltroUtilidad.Columna<FilaIntento>("autoevaluacion", FiltroUtilidad.Tipo.LISTA,
+                    f -> f.intento().getAutoevaluacion().getNombre()),
+            new FiltroUtilidad.Columna<FilaIntento>("numero", FiltroUtilidad.Tipo.NUMERO, f -> String.valueOf(f.numero())),
+            new FiltroUtilidad.Columna<FilaIntento>("inicio", FiltroUtilidad.Tipo.FECHA, f -> dia(f.intento().getFechaCreacion())),
+            new FiltroUtilidad.Columna<FilaIntento>("entrega", FiltroUtilidad.Tipo.FECHA, f -> dia(f.intento().getFechaEntrega())),
+            new FiltroUtilidad.Columna<FilaIntento>("duracion", FiltroUtilidad.Tipo.NUMERO,
+                    f -> java.util.Objects.toString(f.intento().getDuracionEnMinutos(), "")),
+            new FiltroUtilidad.Columna<FilaIntento>("nota", FiltroUtilidad.Tipo.NUMERO,
+                    f -> java.util.Objects.toString(f.intento().getNota(), "")),
+            new FiltroUtilidad.Columna<FilaIntento>("resultado", FiltroUtilidad.Tipo.LISTA, f -> f.intento().getResultado())),
+            f -> false);
 }

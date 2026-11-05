@@ -1,5 +1,7 @@
 package com.app.idoneos.controlador;
 
+import com.app.idoneos.utilidades.FiltroUtilidad;
+import com.app.idoneos.utilidades.PaginacionUtilidad;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -66,12 +68,18 @@ public class ProgramaControlador extends PanelCursoControlador {
             @RequestParam(value = "estado", required = false) String estado,
             @RequestParam(value = "nuevo", required = false) String nuevo,
             @RequestParam(value = "editar", required = false) Integer editar, Model modelo, Authentication auth,
-            RedirectAttributes redirectAttributes) {
+            RedirectAttributes redirectAttributes, jakarta.servlet.http.HttpServletRequest solicitud) {
         try {
             ContextoCurso contexto = contextoDelPanel(cursoId, (Usuario) auth.getPrincipal());
             boolean esAdministrador = contexto.esAdministrador();
             Curso curso = contexto.curso();
-            List<Programa> programas = programaServicio.buscarConFiltros(curso, null, null); // listado completo: los filtros se aplican en la pantalla
+            List<Programa> programas = programaServicio.buscarConFiltros(curso, null, null); // lista completa: la usa el asistente
+            // El filtro, el orden por columna y la página los resuelve el servidor (motor común de listados)
+            List<Programa> paginaFiltradas = TABLA.filtrar(programas, solicitud.getParameterMap());
+            TABLA.ordenar(paginaFiltradas, solicitud.getParameterMap());
+            PaginacionUtilidad.Pagina<Programa> pagina = PaginacionUtilidad.paginar(paginaFiltradas, solicitud.getParameterMap(), TABLA.opciones(programas));
+            PaginacionUtilidad.aModelo(modelo, pagina);
+            modelo.addAttribute("programasPagina", pagina.filas());
 
             cargarContexto(modelo, contexto, "programas");
             modelo.addAttribute("programas", programas);
@@ -80,6 +88,11 @@ public class ProgramaControlador extends PanelCursoControlador {
             Map<Integer, Boolean> completos = new HashMap<>();
             programas.forEach(p -> completos.put(p.getIdPrograma(), disenoCursoServicio.estaCompleto(curso, p)));
             modelo.addAttribute("completos", completos);
+            if (PaginacionUtilidad.pideSoloFilas(solicitud)) {
+                cargarContexto(modelo, contexto, "programas");
+                modelo.addAttribute("puedeGestionar", !esAdministrador);
+                return "pages/programa/buscar :: filas"; // solo las filas de la página pedida
+            }
             List<Tema> temasDelCurso = temaServicio.buscarPorCurso(curso);
             modelo.addAttribute("temasDelCurso", temasDelCurso);
             Map<Integer, Map<String, Boolean>> contenido = new LinkedHashMap<>();
@@ -263,4 +276,18 @@ public class ProgramaControlador extends PanelCursoControlador {
             return RespuestaFormularioUtilidad.respuestaConError(e);
         }
     }
+
+    // ---------------------------------------------------------------- Listado (motor común)
+
+    private static String dia(java.time.LocalDateTime fecha) {
+        return fecha == null ? "" : fecha.toString().replace('T', ' ');
+    }
+
+    /** Las columnas del listado: lo que se filtra y se ordena en el servidor. */
+    private static final FiltroUtilidad<Programa> TABLA = new FiltroUtilidad<>(List.of(
+            new FiltroUtilidad.Columna<Programa>("nombre", FiltroUtilidad.Tipo.TEXTO, Programa::getNombre),
+            new FiltroUtilidad.Columna<Programa>("descripcion", FiltroUtilidad.Tipo.TEXTO, Programa::getDescripcion),
+            new FiltroUtilidad.Columna<Programa>("ultimaModificacion", FiltroUtilidad.Tipo.FECHA, p -> dia(p.getUltimaModificacion())),
+            new FiltroUtilidad.Columna<Programa>("fechaCreacion", FiltroUtilidad.Tipo.FECHA, p -> dia(p.getFechaCreacion()))),
+            Programa::getBaja);
 }

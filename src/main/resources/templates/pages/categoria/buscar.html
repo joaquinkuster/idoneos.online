@@ -21,7 +21,7 @@
                 </button>
             </div>
 
-            <section class="pn-tarjeta" data-tabla>
+            <section class="pn-tarjeta" data-tabla data-tabla-servidor="/categoria/buscar" th:attr="data-opciones=${tablaOpciones}">
                 <div class="pn-lista-cabecera">
                     <h2 class="pn-lista-titulo">Listado de categorías</h2>
                     <span class="pn-seleccionados" data-seleccionados>0 de 0 seleccionados</span>
@@ -48,7 +48,7 @@
                                 <th>Acciones</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody th:fragment="filas" th:attr="data-total=${tablaTotal}, data-pagina=${tablaPagina}, data-paginas=${tablaPaginas}, data-tamanio=${tablaTamanio}">
                             <tr th:each="cat : ${categorias}" data-fila th:classappend="${cat.baja} ? 'pn-fila-baja'" th:data-o-nombre="${cat.nombre}"
                                 th:data-o-recientes="${(cat.fechaCreacion != null ? #temporals.format(cat.fechaCreacion, 'yyyyMMdd') : '') + #numbers.formatInteger(cat.idCategoria, 8, 'NONE')}"
                                 th:attr="data-dependencias=${cursosPorCategoria != null and cursosPorCategoria.containsKey(cat.idCategoria) ? cursosPorCategoria.get(cat.idCategoria).size() : 0}">

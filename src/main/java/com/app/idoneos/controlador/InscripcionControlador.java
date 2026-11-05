@@ -1,5 +1,7 @@
 package com.app.idoneos.controlador;
 
+import com.app.idoneos.utilidades.FiltroUtilidad;
+import com.app.idoneos.utilidades.PaginacionUtilidad;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -94,10 +96,18 @@ public class InscripcionControlador extends PanelCursoControlador {
      * @return La vista de búsqueda de inscripciones.
      */
     @GetMapping("/buscar")
-    public String buscarInscripciones(Model modelo) {
+    public String buscarInscripciones(Model modelo, jakarta.servlet.http.HttpServletRequest solicitud) {
         List<Inscripcion> inscripciones = inscripcionServicio.buscarConFiltros(null, null, null);
+        // El filtro, el orden por columna y la página los resuelve el servidor (motor común de listados)
+        List<Inscripcion> paginaFiltradas = TABLA.filtrar(inscripciones, solicitud.getParameterMap());
+        TABLA.ordenar(paginaFiltradas, solicitud.getParameterMap());
+        PaginacionUtilidad.Pagina<Inscripcion> pagina = PaginacionUtilidad.paginar(paginaFiltradas, solicitud.getParameterMap(), TABLA.opciones(inscripciones));
+        PaginacionUtilidad.aModelo(modelo, pagina);
+        modelo.addAttribute("inscripciones", pagina.filas());
+        if (PaginacionUtilidad.pideSoloFilas(solicitud)) {
+            return "pages/inscripcion/buscarAdministrador :: filas"; // solo las filas de la página pedida
+        }
         // Cursos con inscripciones (filtro) y cursos con cohortes abiertas (alta manual), sin repetir
-        modelo.addAttribute("inscripciones", inscripciones);
         modelo.addAttribute("cursosFiltro", inscripciones.stream().map(Inscripcion::getCurso).distinct()
                 .sorted(Comparator.comparing(Curso::getNombre, String.CASE_INSENSITIVE_ORDER)).toList());
         modelo.addAttribute("cohortesFiltro", inscripciones.stream().map(Inscripcion::getCohorte).distinct()
@@ -313,4 +323,23 @@ public class InscripcionControlador extends PanelCursoControlador {
         modelo.addAttribute("i", i);
         return "fragments/modalCertificado :: modal(i=${i})";
     }
+
+    // ---------------------------------------------------------------- Listado del administrador (motor común)
+
+    /** Las columnas del listado: lo que se filtra y se ordena en el servidor. */
+    private static final FiltroUtilidad<Inscripcion> TABLA = new FiltroUtilidad<>(List.of(
+            new FiltroUtilidad.Columna<Inscripcion>("alumno", FiltroUtilidad.Tipo.TEXTO,
+                    i -> i.getAlumno().getUsuario().getNombreCompleto() + " " + i.getAlumno().getUsuario().getDni() + " "
+                            + i.getAlumno().getUsuario().getCorreo()),
+            new FiltroUtilidad.Columna<Inscripcion>("curso", FiltroUtilidad.Tipo.LISTA, i -> i.getCurso().getNombre()),
+            new FiltroUtilidad.Columna<Inscripcion>("cohorte", FiltroUtilidad.Tipo.LISTA,
+                    i -> i.getCohorte().getPrograma().getNombre() + " · " + i.getCohorte().getEtiqueta()),
+            new FiltroUtilidad.Columna<Inscripcion>("estado", FiltroUtilidad.Tipo.LISTA, Inscripcion::getEstadoAcceso),
+            new FiltroUtilidad.Columna<Inscripcion>("certificado", FiltroUtilidad.Tipo.TEXTO,
+                    i -> i.getCertificadoVigente() == null ? "" : i.getCertificadoVigente().getNumero()),
+            new FiltroUtilidad.Columna<Inscripcion>("fechaVencimiento", FiltroUtilidad.Tipo.FECHA,
+                    i -> i.getFechaVencimientoAcceso() == null ? "" : i.getFechaVencimientoAcceso().toLocalDate().toString()),
+            new FiltroUtilidad.Columna<Inscripcion>("fechaCreacion", FiltroUtilidad.Tipo.FECHA,
+                    i -> i.getFechaCreacion() == null ? "" : i.getFechaCreacion().toString().replace('T', ' '))),
+            Inscripcion::esInactivo);
 }

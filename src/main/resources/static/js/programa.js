@@ -265,12 +265,12 @@
     document.querySelectorAll('[data-programa-nuevo]').forEach(function (boton) {
         boton.addEventListener('click', function () { elegir(null); mostrar(); });
     });
-    document.querySelectorAll('[data-programa-editar]').forEach(function (boton) {
-        boton.addEventListener('click', function () {
-            if (boton.disabled) { return; }
-            elegir(programaPorId(parseInt(boton.dataset.id, 10)));
-            mostrar();
-        });
+    // Delegado: las filas llegan del servidor al filtrar o cambiar de página
+    document.addEventListener('click', function (e) {
+        var boton = e.target.closest('[data-programa-editar]');
+        if (!boton || boton.disabled) { return; }
+        elegir(programaPorId(parseInt(boton.dataset.id, 10)));
+        mostrar();
     });
     ventana.addEventListener('show.bs.modal', function () {
         if (formulario.pasos) { formulario.pasos.mostrar(0); }

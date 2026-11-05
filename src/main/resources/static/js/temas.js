@@ -248,11 +248,12 @@
         return temas.filter(function (tema) { return tema.id === id; })[0] || null;
     }
 
-    document.querySelectorAll('[data-editar-tema]').forEach(function (boton) {
-        boton.addEventListener('click', function () {
-            elegir(temaPorId(parseInt(boton.dataset.id, 10)));
-            mostrar();
-        });
+    // Delegado: las filas llegan del servidor al filtrar o cambiar de página
+    document.addEventListener('click', function (e) {
+        var boton = e.target.closest('[data-editar-tema]');
+        if (!boton) { return; }
+        elegir(temaPorId(parseInt(boton.dataset.id, 10)));
+        mostrar();
     });
     ventana.addEventListener('show.bs.modal', function () {
         if (formulario.pasos) { formulario.pasos.mostrar(0); }

@@ -146,13 +146,11 @@ public class RecursoServicioImpl implements RecursoServicio, CrudServicio<TemaRe
             Boolean generadoPorIa, Boolean baja, Docente soloDeDocente) {
         String criterio = titulo == null ? "" : titulo.trim().toLowerCase();
         TipoRecurso tipoBuscado = TipoRecurso.deTexto(tipo);
-        return temaRecursoRepositorio.findAll().stream()
-                .filter(m -> idCurso == null || m.getCurso().getIdCurso() == idCurso)
-                .filter(m -> idTema == null || m.getTema().getIdTema() == idTema)
+        // El curso, el tema y la baja se filtran en la base; el resto, acá
+        return temaRecursoRepositorio.buscarPorFiltros(idCurso, idTema, baja).stream()
                 .filter(m -> tipoBuscado == null || m.getRecurso().getTipo().equals(tipoBuscado.getNombre()))
                 .filter(m -> criterio.isEmpty() || m.getTitulo().toLowerCase().contains(criterio))
                 .filter(m -> generadoPorIa == null || m.getRecurso().getGeneradoPorIa() == generadoPorIa)
-                .filter(m -> baja == null || m.getBaja().equals(baja))
                 .filter(m -> soloDeDocente == null || participaEnElCurso(m.getCurso(), soloDeDocente))
                 .sorted(Comparator.comparing(TemaRecurso::getBaja)
                         .thenComparingInt((TemaRecurso m) -> m.getTema().getIdTema())

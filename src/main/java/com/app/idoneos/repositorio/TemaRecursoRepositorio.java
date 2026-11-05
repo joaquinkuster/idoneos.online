@@ -14,6 +14,20 @@ import org.springframework.stereotype.Repository;
 public interface TemaRecursoRepositorio extends JpaRepository<TemaRecurso, Integer> {
 
     /**
+     * Busca en la base, con su tema y su curso ya cargados, filtrando por curso, tema y baja (cada filtro es opcional).
+     * Antes se traía todo y se filtraba en memoria.
+     */
+    @org.springframework.data.jpa.repository.Query("""
+            select m from TemaRecurso m join fetch m.tema t join fetch t.curso c
+            where (cast(:idCurso as integer) is null or c.idCurso = :idCurso)
+              and (cast(:idTema as integer) is null or t.idTema = :idTema)
+              and (cast(:baja as boolean) is null or m.baja = :baja)
+            """)
+    List<TemaRecurso> buscarPorFiltros(@org.springframework.data.repository.query.Param("idCurso") Integer idCurso,
+            @org.springframework.data.repository.query.Param("idTema") Integer idTema,
+            @org.springframework.data.repository.query.Param("baja") Boolean baja);
+
+    /**
      * Busca los recursos activos de un tema.
      *
      * @param tema el tema

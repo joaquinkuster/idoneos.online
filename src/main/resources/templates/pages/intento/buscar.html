@@ -28,7 +28,7 @@
                 </div>
             </div>
 
-            <section class="pn-tarjeta" data-tabla>
+            <section class="pn-tarjeta" data-tabla data-tabla-servidor="/intento/buscar" th:attr="data-opciones=${tablaOpciones}">
                 <div class="pn-lista-cabecera">
                     <h2 class="pn-lista-titulo">Listado de intentos</h2>
                     <span class="pn-seleccionados" data-total-filtradas data-singular="intento encontrado" data-plural="intentos encontrados"
@@ -65,7 +65,7 @@
                                 <th>Acciones</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody th:fragment="filas" th:attr="data-total=${tablaTotal}, data-pagina=${tablaPagina}, data-paginas=${tablaPaginas}, data-tamanio=${tablaTamanio}">
                             <tr th:each="f : ${filas}" data-fila
                                 th:with="i=${f.intento}, puedeAprobarEste=${puedeAprobar and i.estaFinalizado() and !i.aprobado}"
                                 th:data-f-alumno="${i.inscripcion.alumno.usuario.nombreCompleto + ' ' + i.inscripcion.alumno.usuario.dni + ' ' + i.inscripcion.alumno.usuario.correo}"
@@ -107,6 +107,8 @@
                                             </ul>
                                         </div>
                                     </div>
+                                    <form th:if="${puedeAprobarEste}" th:id="'formAprobarIntento' + ${i.idIntentoAutoevaluacion}"
+                                          th:action="@{'/intento/aprobar/' + ${i.idIntentoAutoevaluacion}}" method="post" class="form-ajax d-none"></form>
                                 </td>
                             </tr>
                             <tr th:replace="~{fragments/vacio :: fila(10, 'fa-clipboard-check', ${#lists.isEmpty(filas) ? 'Todavía no hay intentos' : 'No se encontraron intentos'}, ${#lists.isEmpty(filas) ? 'Cuando los alumnos rindan las autoevaluaciones, vas a ver sus intentos acá.' : 'Ningún intento coincide con los criterios ingresados.'})}"></tr>
@@ -135,15 +137,7 @@
     </div>
 </div>
 
-<!-- Aprobar (CU-71, docente): se confirma con una alerta y se envía el formulario; dar de baja (CU-72, administrador): ventana -->
-<th:block th:each="f : ${filas}" th:with="i=${f.intento}">
-    <form th:if="${puedeAprobar and i.estaFinalizado() and !i.aprobado}" th:id="'formAprobarIntento' + ${i.idIntentoAutoevaluacion}"
-          th:action="@{'/intento/aprobar/' + ${i.idIntentoAutoevaluacion}}" method="post" class="form-ajax d-none"></form>
-
-    <th:block th:if="${puedeDarDeBaja}">
-    </th:block>
-</th:block>
-
+<!-- Aprobar (CU-71, docente): se confirma con una alerta y se envía el formulario que viaja con cada fila; dar de baja (CU-72, administrador): ventana -->
 <!-- Una sola ventana de baja para todo el listado: el botón de cada fila le pasa la acción, la pregunta y la nota (bajaCompartida.js) -->
 <th:block th:if="${puedeDarDeBaja}">
     <th:block th:replace="~{fragments/modalBaja :: bloque('modalBajaIntento', 'intento', '¿Confirmas dar de baja?', '', '/intento/darDeBaja/0', null, null)}"></th:block>

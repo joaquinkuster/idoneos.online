@@ -39,7 +39,7 @@
                 </button>
             </div>
 
-            <section class="pn-tarjeta fo-contenedor" data-tabla>
+            <section class="pn-tarjeta fo-contenedor" data-tabla th:attr="data-tabla-servidor=@{'/foro/ver/' + ${tema.idTema}}, data-opciones=${tablaOpciones}">
                 <!-- Buscador: por texto y rango de fechas de registro -->
                 <form th:action="@{'/foro/ver/' + ${tema.idTema}}" method="get" class="pn-filtros" data-filtro-front>
                     <div class="pn-filtros-campo pn-filtros-campo-grande">
@@ -69,7 +69,7 @@
                                 <th th:if="${esAdministrador}">Acciones</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody th:fragment="filas" th:attr="data-total=${tablaTotal}, data-pagina=${tablaPagina}, data-paginas=${tablaPaginas}, data-tamanio=${tablaTamanio}">
                             <tr th:each="c : ${consultas}" data-fila data-dependencias="0" th:data-f-texto="${c.texto}"
                                 th:data-f-desde="${#temporals.format(c.fechaCreacion, 'yyyy-MM-dd')}" th:data-f-hasta="${#temporals.format(c.fechaCreacion, 'yyyy-MM-dd')}">
                                 <td class="fo-col-consulta">

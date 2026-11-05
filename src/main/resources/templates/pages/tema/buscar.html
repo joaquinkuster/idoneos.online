@@ -31,7 +31,7 @@
                 </button>
             </div>
 
-            <section class="pn-tarjeta" data-tabla>
+            <section class="pn-tarjeta" data-tabla data-tabla-servidor="/tema/buscar" th:attr="data-opciones=${tablaOpciones}">
                 <div class="pn-lista-cabecera">
                     <h2 class="pn-lista-titulo">Listado de temas</h2>
                 </div>
@@ -53,8 +53,8 @@
                                 <th>Acciones</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr th:each="t : ${temas}" data-fila data-dependencias="0">
+                        <tbody th:fragment="filas" th:attr="data-total=${tablaTotal}, data-pagina=${tablaPagina}, data-paginas=${tablaPaginas}, data-tamanio=${tablaTamanio}">
+                            <tr th:each="t : ${temasPagina}" data-fila data-dependencias="0">
                                 <td>
                                     <span class="pn-celda-principal pn-truncar" th:text="${t.titulo}">Introducción al mercado</span>
                                 </td>

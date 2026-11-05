@@ -24,6 +24,16 @@ public interface CohorteRepositorio extends JpaRepository<Cohorte, Integer> {
     List<Cohorte> findAll();
 
     /**
+     * Las cohortes de los cursos indicados, con su curso, programa y estado ya cargados (para el docente, que solo ve las de
+     * sus cursos).
+     *
+     * @param cursos Los cursos.
+     * @return Las cohortes de esos cursos.
+     */
+    @org.springframework.data.jpa.repository.EntityGraph(attributePaths = { "curso", "programa", "estadoCohorte" })
+    List<Cohorte> findByCursoIn(java.util.Collection<Curso> cursos);
+
+    /**
      * Encuentra todos los registros activos (no dados de baja).
      *
      * @return Una lista de {@link Cohorte} activos.

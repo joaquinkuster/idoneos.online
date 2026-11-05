@@ -16,7 +16,7 @@
             <div class="wf-body py-4">
                 <div class="container-fluid px-4 px-lg-5">
 
-                    <section class="pn-tarjeta" data-tabla>
+                    <section class="pn-tarjeta" data-tabla data-tabla-servidor="/certificado/misCertificados" th:attr="data-opciones=${tablaOpciones}">
                         <div class="pn-lista-cabecera">
                             <h2 class="pn-lista-titulo">Mis certificados</h2>
                             <span class="pn-seleccionados" data-total-filtradas data-singular="certificado encontrado" data-plural="certificados encontrados"
@@ -39,7 +39,7 @@
                                         <th>Acciones</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody th:fragment="filas" th:attr="data-total=${tablaTotal}, data-pagina=${tablaPagina}, data-paginas=${tablaPaginas}, data-tamanio=${tablaTamanio}">
                                     <tr th:each="c : ${certificados}" data-fila>
                                         <td><span class="pn-celda-principal pn-truncar" th:text="${c.inscripcion.curso.nombre}">Curso</span></td>
                                         <td><span class="pn-truncar" th:text="${c.inscripcion.cohorte.programa.nombre}">Programa</span></td>

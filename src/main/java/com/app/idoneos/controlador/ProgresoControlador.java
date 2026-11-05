@@ -1,5 +1,7 @@
 package com.app.idoneos.controlador;
 
+import com.app.idoneos.utilidades.FiltroUtilidad;
+import com.app.idoneos.utilidades.PaginacionUtilidad;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,22 +48,37 @@ public class ProgresoControlador extends PanelCursoControlador {
      */
     @GetMapping("/buscar")
     public String buscarProgresos(@RequestParam(value = "cursoId", required = false) Integer cursoId, Model modelo,
-            Authentication auth, RedirectAttributes redirectAttributes) {
+            Authentication auth, RedirectAttributes redirectAttributes, jakarta.servlet.http.HttpServletRequest solicitud) {
         try {
             ContextoCurso contexto = contextoDelPanel(cursoId, (Usuario) auth.getPrincipal());
             cargarContexto(modelo, contexto, "progreso");
             List<Inscripcion> inscripciones = progresoServicio.buscarConFiltros(contexto.curso().getIdCurso(), null);
+            // El docente entra con el filtro en su cohorte de trabajo; el administrador ve todas
+            Integer cohorteSeleccionada = contexto.participacion() == null ? null
+                    : contexto.participacion().getCohorteDeTrabajo() == null ? null
+                            : contexto.participacion().getCohorteDeTrabajo().getIdCohorte();
+            // Entra con el filtro en la cohorte de trabajo; si el navegador pide otra página o cambia el filtro, manda su propia elección
+            java.util.Map<String, String[]> parametros = new java.util.HashMap<>(solicitud.getParameterMap());
+            if (!PaginacionUtilidad.pideSoloFilas(solicitud) && !parametros.containsKey("cohorte") && cohorteSeleccionada != null) {
+                parametros.put("cohorte", new String[] { String.valueOf(cohorteSeleccionada) });
+            }
+            // El filtro, el orden por columna y la página los resuelve el servidor
+            List<Inscripcion> filtradas = FILTROS.filtrar(inscripciones, parametros);
+            FILTROS.ordenar(filtradas, parametros);
+            PaginacionUtilidad.Pagina<Inscripcion> pagina = PaginacionUtilidad.paginar(filtradas, parametros, FILTROS.opciones(inscripciones));
+            PaginacionUtilidad.aModelo(modelo, pagina);
+            // El detalle por tema se calcula solo para las filas de la página
             Map<Integer, DetalleProgreso> detalles = new LinkedHashMap<>();
-            for (Inscripcion inscripcion : inscripciones) {
+            for (Inscripcion inscripcion : pagina.filas()) {
                 detalles.put(inscripcion.getIdInscripcion(),
                         progresoServicio.buscarDetalle(inscripcion.getIdInscripcion()));
             }
-            modelo.addAttribute("inscripciones", inscripciones);
+            modelo.addAttribute("inscripciones", pagina.filas());
             modelo.addAttribute("detalles", detalles);
-            // El docente entra con el filtro en su cohorte de trabajo; el administrador ve todas
-            modelo.addAttribute("cohorteSeleccionada", contexto.participacion() == null ? null
-                    : contexto.participacion().getCohorteDeTrabajo() == null ? null
-                            : contexto.participacion().getCohorteDeTrabajo().getIdCohorte());
+            if (PaginacionUtilidad.pideSoloFilas(solicitud)) {
+                return "pages/progreso/buscar :: filas"; // solo las filas de la página pedida
+            }
+            modelo.addAttribute("cohorteSeleccionada", cohorteSeleccionada);
             modelo.addAttribute("cohortes", contexto.curso().getProgramasActivos().stream()
                     .flatMap(programa -> programa.getCohortesActivas().stream()).toList());
             modelo.addAttribute("titulo", "Progreso | Idóneos Online");
@@ -70,4 +87,19 @@ public class ProgresoControlador extends PanelCursoControlador {
             return volverAMisCursos(redirectAttributes, e);
         }
     }
+
+    // ---------------------------------------------------------------- Listado (filtros y página en el servidor)
+
+    /** Las columnas del listado: lo que se filtra y se ordena en el servidor. */
+    private static final FiltroUtilidad<Inscripcion> FILTROS = new FiltroUtilidad<>(List.of(
+            new FiltroUtilidad.Columna<Inscripcion>("alumno", FiltroUtilidad.Tipo.TEXTO,
+                    i -> i.getAlumno().getUsuario().getNombreCompleto() + " " + i.getAlumno().getUsuario().getDni() + " "
+                            + i.getAlumno().getUsuario().getCorreo()),
+            new FiltroUtilidad.Columna<Inscripcion>("cohorte", FiltroUtilidad.Tipo.LISTA, i -> String.valueOf(i.getCohorte().getIdCohorte())),
+            new FiltroUtilidad.Columna<Inscripcion>("temasCompletadas", FiltroUtilidad.Tipo.NUMERO, i -> String.valueOf(i.getTemasCompletadas())),
+            new FiltroUtilidad.Columna<Inscripcion>("progreso", FiltroUtilidad.Tipo.NUMERO, i -> String.valueOf(i.getPorcentajeProgreso())),
+            new FiltroUtilidad.Columna<Inscripcion>("estado", FiltroUtilidad.Tipo.LISTA, Inscripcion::getEstado),
+            new FiltroUtilidad.Columna<Inscripcion>("fechaCreacion", FiltroUtilidad.Tipo.FECHA,
+                    i -> i.getFechaCreacion() == null ? "" : i.getFechaCreacion().toString().replace('T', ' '))),
+            i -> false);
 }

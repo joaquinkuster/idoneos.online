@@ -1,5 +1,7 @@
 package com.app.idoneos.controlador;
 
+import com.app.idoneos.utilidades.FiltroUtilidad;
+import com.app.idoneos.utilidades.PaginacionUtilidad;
 import java.util.List;
 import java.util.Map;
 
@@ -59,18 +61,28 @@ public class TemaControlador extends PanelCursoControlador {
     public String buscarTemas(@RequestParam(value = "cursoId", required = false) Integer cursoId,
             @RequestParam(value = "nuevo", required = false) String nuevo,
             @RequestParam(value = "editar", required = false) Integer editar, Model modelo, Authentication auth,
-            RedirectAttributes redirectAttributes) {
+            RedirectAttributes redirectAttributes, jakarta.servlet.http.HttpServletRequest solicitud) {
         try {
             ContextoCurso contexto = contextoDelPanel(cursoId, (Usuario) auth.getPrincipal());
             Curso curso = contexto.curso();
             boolean puedeGestionar = !contexto.esAdministrador();
             cargarContexto(modelo, contexto, "temas");
             List<Tema> temas = temaServicio.buscarPorCurso(curso);
-            modelo.addAttribute("temas", temas);
+            modelo.addAttribute("temas", temas); // lista completa: la usa el asistente
+            // El filtro, el orden por columna y la página los resuelve el servidor (motor común de listados)
+            List<Tema> paginaFiltradas = TABLA.filtrar(temas, solicitud.getParameterMap());
+            TABLA.ordenar(paginaFiltradas, solicitud.getParameterMap());
+            PaginacionUtilidad.Pagina<Tema> pagina = PaginacionUtilidad.paginar(paginaFiltradas, solicitud.getParameterMap(), TABLA.opciones(temas));
+            PaginacionUtilidad.aModelo(modelo, pagina);
+            modelo.addAttribute("temasPagina", pagina.filas());
             // Si cada tema tiene todo su contenido (según las modalidades del curso)
             Map<Integer, Boolean> contenidoCompleto = new java.util.HashMap<>();
             temas.forEach(t -> contenidoCompleto.put(t.getIdTema(), disenoCursoServicio.contenidoDe(curso, t).getFaltantes().isEmpty()));
             modelo.addAttribute("contenidoCompleto", contenidoCompleto);
+            if (PaginacionUtilidad.pideSoloFilas(solicitud)) {
+                modelo.addAttribute("puedeGestionar", puedeGestionar);
+                return "pages/tema/buscar :: filas"; // solo las filas de la página pedida
+            }
             modelo.addAttribute("puedeGestionar", puedeGestionar);
             modelo.addAttribute("abrirModal", puedeGestionar && (nuevo != null || editar != null) ? "modalTemas" : null);
             modelo.addAttribute("temaAEditar", editar);
@@ -156,4 +168,19 @@ public class TemaControlador extends PanelCursoControlador {
         Usuario usuario = (Usuario) auth.getPrincipal();
         return usuario.esAdministradorActivo() ? null : usuario.getDocente();
     }
+
+    // ---------------------------------------------------------------- Listado (motor común)
+
+    private static String dia(java.time.LocalDateTime fecha) {
+        return fecha == null ? "" : fecha.toString().replace('T', ' ');
+    }
+
+    /** Las columnas del listado: lo que se filtra y se ordena en el servidor. */
+    private static final FiltroUtilidad<Tema> TABLA = new FiltroUtilidad<>(List.of(
+            new FiltroUtilidad.Columna<Tema>("titulo", FiltroUtilidad.Tipo.TEXTO, Tema::getTitulo),
+            new FiltroUtilidad.Columna<Tema>("descripcion", FiltroUtilidad.Tipo.TEXTO, Tema::getDescripcion),
+            new FiltroUtilidad.Columna<Tema>("contenido", FiltroUtilidad.Tipo.TEXTO, Tema::getContenido),
+            new FiltroUtilidad.Columna<Tema>("ultimaModificacion", FiltroUtilidad.Tipo.FECHA, t -> dia(t.getUltimaModificacion())),
+            new FiltroUtilidad.Columna<Tema>("fechaCreacion", FiltroUtilidad.Tipo.FECHA, t -> dia(t.getFechaCreacion()))),
+            t -> false);
 }

@@ -3286,3 +3286,6 @@ select.ts-multiselect:not(.tomselected) {
     animation: pnSelectMostrar 0s linear 4s forwards;
 }
 @keyframes pnSelectMostrar { to { visibility: visible; height: auto; overflow: visible; } }
+
+/* Listado que se está pidiendo al servidor: se atenúa mientras llegan las filas */
+[data-tabla].pn-cargando tbody { opacity: .45; transition: opacity .15s; pointer-events: none; }

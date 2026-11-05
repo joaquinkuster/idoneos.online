@@ -110,11 +110,9 @@ public class PoolServicioImpl implements PoolServicio, CrudServicio<Pool> {
     public List<Pool> buscarConFiltros(Integer idCurso, Integer idTema, String nombre, Boolean baja,
             Docente soloDeDocente) {
         String criterio = nombre == null ? "" : nombre.trim().toLowerCase();
-        return poolRepositorio.findAll().stream()
-                .filter(p -> idCurso == null || p.getTema().getCurso().getIdCurso() == idCurso)
-                .filter(p -> idTema == null || p.getTema().getIdTema() == idTema)
+        // El curso, el tema y la baja se filtran en la base; el texto y la participación del docente, acá
+        return poolRepositorio.buscarPorFiltros(idCurso, idTema, baja).stream()
                 .filter(p -> criterio.isEmpty() || p.getNombre().toLowerCase().contains(criterio))
-                .filter(p -> baja == null || p.getBaja().equals(baja))
                 .filter(p -> soloDeDocente == null || participaEnElCurso(p.getTema().getCurso(), soloDeDocente))
                 .sorted(Comparator.comparing(Pool::getBaja)
                         .thenComparingInt((Pool p) -> p.getTema().getIdTema())

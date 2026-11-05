@@ -119,7 +119,11 @@ public class CohorteServicioImpl implements CohorteServicio, CrudServicio<Cohort
     public List<Cohorte> buscarConFiltros(Integer idPrograma, String texto, String estado, LocalDate desde,
             LocalDate hasta, String orden, Docente soloDeDocente) {
         String criterio = texto == null ? "" : texto.trim().toLowerCase();
-        return cohorteRepositorio.findAll().stream()
+        // Un docente solo recorre las cohortes de sus cursos (se piden a la base), no todas las del sistema
+        List<Cohorte> candidatas = soloDeDocente == null ? cohorteRepositorio.findAll()
+                : cohorteRepositorio.findByCursoIn(docenteCursoRepositorio.findByDocenteAndBajaFalse(soloDeDocente).stream()
+                        .map(participacion -> participacion.getCurso()).distinct().toList());
+        return candidatas.stream()
                 .filter(cohorte -> idPrograma == null
                         || (cohorte.getPrograma() != null && cohorte.getPrograma().getIdPrograma() == idPrograma))
                 .filter(cohorte -> criterio.isEmpty()

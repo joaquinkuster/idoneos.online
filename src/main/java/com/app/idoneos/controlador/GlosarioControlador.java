@@ -1,5 +1,7 @@
 package com.app.idoneos.controlador;
 
+import com.app.idoneos.utilidades.FiltroUtilidad;
+import com.app.idoneos.utilidades.PaginacionUtilidad;
 import java.util.List;
 import java.util.Map;
 
@@ -64,7 +66,7 @@ public class GlosarioControlador extends PanelCursoControlador {
     @GetMapping("/buscar")
     public String buscarGlosarios(@RequestParam(value = "cursoId", required = false) Integer cursoId,
             @RequestParam(value = "temaId", required = false) Integer temaId, Model modelo,
-            Authentication auth, RedirectAttributes redirectAttributes) {
+            Authentication auth, RedirectAttributes redirectAttributes, jakarta.servlet.http.HttpServletRequest solicitud) {
         try {
             ContextoCurso contexto = contextoDelPanel(cursoId, (Usuario) auth.getPrincipal());
             Programa programa = contexto.programa();
@@ -73,7 +75,15 @@ public class GlosarioControlador extends PanelCursoControlador {
             cargarContexto(modelo, contexto, "glosario");
             modelo.addAttribute("temasDelPrograma", todas);
             modelo.addAttribute("temaSeleccionada", temaId);
-            modelo.addAttribute("temas", todas); // todos los temas: el filtro se aplica en la pantalla
+            // El filtro, el orden por columna y la página los resuelve el servidor (motor común de listados)
+            List<TemaCronograma> paginaFiltradas = TABLA_GLOSARIOS.filtrar(todas, solicitud.getParameterMap());
+            TABLA_GLOSARIOS.ordenar(paginaFiltradas, solicitud.getParameterMap());
+            PaginacionUtilidad.Pagina<TemaCronograma> pagina = PaginacionUtilidad.paginar(paginaFiltradas, solicitud.getParameterMap(), TABLA_GLOSARIOS.opciones(todas));
+            PaginacionUtilidad.aModelo(modelo, pagina);
+            modelo.addAttribute("temas", pagina.filas());
+            if (PaginacionUtilidad.pideSoloFilas(solicitud)) {
+                return "pages/glosario/buscar :: filas"; // solo las filas de la página pedida
+            }
             modelo.addAttribute("titulo", "Glosarios | Idóneos Online");
             return "pages/glosario/buscar";
         } catch (IllegalArgumentException e) {
@@ -236,4 +246,16 @@ public class GlosarioControlador extends PanelCursoControlador {
         modelo.addAttribute("t", t);
         return "fragments/modalEditarTermino :: modal(t=${t})";
     }
+
+    // ---------------------------------------------------------------- Listado de glosarios (motor común)
+
+    /** Las columnas del listado: lo que se filtra y se ordena en el servidor. */
+    private static final FiltroUtilidad<TemaCronograma> TABLA_GLOSARIOS = new FiltroUtilidad<>(List.of(
+            new FiltroUtilidad.Columna<TemaCronograma>("nombre", FiltroUtilidad.Tipo.TEXTO, u -> "Glosario " + u.getNumeroOrden()),
+            new FiltroUtilidad.Columna<TemaCronograma>("tema", FiltroUtilidad.Tipo.LISTA, u -> u.getTema().getTitulo()),
+            new FiltroUtilidad.Columna<TemaCronograma>("terminos", FiltroUtilidad.Tipo.NUMERO,
+                    u -> String.valueOf(u.getTema().getTerminosGlosarioOrdenados().size())),
+            new FiltroUtilidad.Columna<TemaCronograma>("ultimaActualizacion", FiltroUtilidad.Tipo.FECHA,
+                    u -> u.getTema().getUltimaActualizacionGlosario() == null ? "" : u.getTema().getUltimaActualizacionGlosario().toString().replace('T', ' '))),
+            u -> false);
 }

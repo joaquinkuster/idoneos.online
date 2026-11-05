@@ -1,5 +1,7 @@
 package com.app.idoneos.controlador;
 
+import com.app.idoneos.utilidades.FiltroUtilidad;
+import com.app.idoneos.utilidades.PaginacionUtilidad;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -62,9 +64,17 @@ public class DescuentoControlador {
     @GetMapping("/buscar")
     public String buscarDescuentos(@RequestParam(value = "nombre", required = false) String nombre,
             @RequestParam(value = "estado", required = false) String estado,
-            @RequestParam(value = "orden", defaultValue = "nombre") String orden, Model modelo) {
+            @RequestParam(value = "orden", defaultValue = "nombre") String orden, Model modelo, jakarta.servlet.http.HttpServletRequest solicitud) {
         List<Descuento> descuentos = descuentoServicio.buscarConFiltros(null, null, orden);
-        modelo.addAttribute("descuentos", descuentos);
+        // El filtro, el orden por columna y la página los resuelve el servidor (motor común de listados)
+        List<Descuento> paginaFiltradas = TABLA.filtrar(descuentos, solicitud.getParameterMap());
+        TABLA.ordenar(paginaFiltradas, solicitud.getParameterMap());
+        PaginacionUtilidad.Pagina<Descuento> pagina = PaginacionUtilidad.paginar(paginaFiltradas, solicitud.getParameterMap(), TABLA.opciones(descuentos));
+        PaginacionUtilidad.aModelo(modelo, pagina);
+        modelo.addAttribute("descuentos", pagina.filas());
+        if (PaginacionUtilidad.pideSoloFilas(solicitud)) {
+            return "pages/descuento/buscar :: filas"; // solo las filas de la página pedida
+        }
         modelo.addAttribute("nombreBusqueda", nombre);
         modelo.addAttribute("estadoSeleccionado", estado);
         modelo.addAttribute("ordenSeleccionado", orden);
@@ -156,4 +166,23 @@ public class DescuentoControlador {
             return RespuestaFormularioUtilidad.respuestaConError(e);
         }
     }
+
+    // ---------------------------------------------------------------- Listado (motor común)
+
+    private static final java.time.format.DateTimeFormatter DIA_MES_ANIO = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+    /** Las columnas del listado: lo que se filtra y se ordena en el servidor. */
+    private static final FiltroUtilidad<Descuento> TABLA = new FiltroUtilidad<>(List.of(
+            new FiltroUtilidad.Columna<Descuento>("nombre", FiltroUtilidad.Tipo.TEXTO, Descuento::getNombre),
+            new FiltroUtilidad.Columna<Descuento>("porcentaje", FiltroUtilidad.Tipo.NUMERO, d -> String.valueOf(d.getPorcentaje())),
+            new FiltroUtilidad.Columna<Descuento>("vigencia", FiltroUtilidad.Tipo.TEXTO,
+                    d -> d.getVigenciaDesde().format(DIA_MES_ANIO) + " al " + d.getVigenciaHasta().format(DIA_MES_ANIO)),
+            new FiltroUtilidad.Columna<Descuento>("usos", FiltroUtilidad.Tipo.TEXTO, d -> d.getCantidadUsada() + " de " + d.getCantidadLimite()),
+            new FiltroUtilidad.Columna<Descuento>("condicion", FiltroUtilidad.Tipo.LISTA,
+                    d -> d.getCursosRequeridos() > 0 ? "Haber comprado " + d.getCursosRequeridos()
+                            + (d.getCursosRequeridos() == 1 ? " curso" : " cursos") : "Sin condición"),
+            new FiltroUtilidad.Columna<Descuento>("estado", FiltroUtilidad.Tipo.LISTA, Descuento::getEstado),
+            new FiltroUtilidad.Columna<Descuento>("fechaCreacion", FiltroUtilidad.Tipo.FECHA,
+                    d -> d.getFechaCreacion() == null ? "" : d.getFechaCreacion().toString().replace('T', ' '))),
+            Descuento::getBaja);
 }

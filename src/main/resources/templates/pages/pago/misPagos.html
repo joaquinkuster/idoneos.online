@@ -16,7 +16,7 @@
             <div class="wf-body py-4">
                 <div class="container-fluid px-4 px-lg-5">
 
-                    <section class="pn-tarjeta" data-tabla>
+                    <section class="pn-tarjeta" data-tabla data-tabla-servidor="/pago/misPagos" th:attr="data-opciones=${tablaOpciones}">
                         <div class="pn-lista-cabecera">
                             <h2 class="pn-lista-titulo">Historial de pagos</h2>
                             <span class="pn-seleccionados" data-total-filtradas data-singular="pago encontrado" data-plural="pagos encontrados"
@@ -40,7 +40,7 @@
                                         <th>Acciones</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody th:fragment="filas" th:attr="data-total=${tablaTotal}, data-pagina=${tablaPagina}, data-paginas=${tablaPaginas}, data-tamanio=${tablaTamanio}">
                                     <tr th:each="p : ${pagos}" data-fila th:data-f-mediodepago="${p.metodoPago.nombre}" th:data-f-monto="${p.monto}">
                                         <td>
                                             <span class="pn-celda-principal pn-truncar" th:text="${p.inscripcion.curso.nombre}">Curso</span>

@@ -1,5 +1,7 @@
 package com.app.idoneos.controlador;
 
+import com.app.idoneos.utilidades.FiltroUtilidad;
+import com.app.idoneos.utilidades.PaginacionUtilidad;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -67,7 +69,7 @@ public class PoolControlador extends PanelCursoControlador {
     public String buscarPools(@RequestParam(value = "cursoId", required = false) Integer cursoId,
             @RequestParam(value = "nuevo", required = false) String nuevo,
             @RequestParam(value = "temaId", required = false) Integer temaId, Model modelo,
-            Authentication auth, RedirectAttributes redirectAttributes) {
+            Authentication auth, RedirectAttributes redirectAttributes, jakarta.servlet.http.HttpServletRequest solicitud) {
         try {
             Usuario usuario = (Usuario) auth.getPrincipal();
             ContextoCurso contexto = contextoDelPanel(cursoId, usuario);
@@ -75,17 +77,20 @@ public class PoolControlador extends PanelCursoControlador {
             Docente docente = esAdministrador ? null : usuario.getDocente();
             // Listado completo: los filtros se aplican en la pantalla
             List<Pool> pools = poolServicio.buscarConFiltros(cursoId, null, null, false, docente);
-
-            Programa programa = contexto.programa();
-            Map<Integer, String> datosPorPool = new LinkedHashMap<>();
-            for (Pool pool : pools) {
-                datosPorPool.put(pool.getIdPool(), aJson(datosDelPool(pool)));
+            // El filtro, el orden por columna y la página los resuelve el servidor (motor común de listados)
+            List<Pool> paginaFiltradas = TABLA.filtrar(pools, solicitud.getParameterMap());
+            TABLA.ordenar(paginaFiltradas, solicitud.getParameterMap());
+            PaginacionUtilidad.Pagina<Pool> pagina = PaginacionUtilidad.paginar(paginaFiltradas, solicitud.getParameterMap(), TABLA.opciones(pools));
+            PaginacionUtilidad.aModelo(modelo, pagina);
+            modelo.addAttribute("pools", pagina.filas());
+            if (PaginacionUtilidad.pideSoloFilas(solicitud)) {
+                modelo.addAttribute("puedeGestionar", !esAdministrador);
+                return "pages/pool/buscar :: filas"; // solo las filas de la página pedida
             }
 
+            Programa programa = contexto.programa();
             cargarContexto(modelo, contexto, "pools");
-            modelo.addAttribute("pools", pools);
             modelo.addAttribute("temas", programa == null || esAdministrador ? List.of() : programa.getCronogramaOrdenado());
-            modelo.addAttribute("datosPorPool", datosPorPool);
             modelo.addAttribute("datosNuevo", aJson(Map.of("nombre", "", "preguntas", List.of())));
             modelo.addAttribute("puedeGestionar", !esAdministrador);
             // Desde «Completar contenido» se llega con ?nuevo&temaId=: se abre sola la ventana para crear el pool de ese tema
@@ -262,4 +267,17 @@ public class PoolControlador extends PanelCursoControlador {
         modelo.addAttribute("datosPorPool", Map.of(p.getIdPool(), aJson(datosDelPool(p))));
         return "fragments/modalEditarPool :: modal(p=${p})";
     }
+
+    // ---------------------------------------------------------------- Listado (motor común)
+
+    /** Las columnas del listado: lo que se filtra y se ordena en el servidor. */
+    private static final FiltroUtilidad<Pool> TABLA = new FiltroUtilidad<>(List.of(
+            new FiltroUtilidad.Columna<Pool>("nombre", FiltroUtilidad.Tipo.TEXTO, Pool::getNombre),
+            new FiltroUtilidad.Columna<Pool>("tema", FiltroUtilidad.Tipo.LISTA, p -> p.getTema().getTitulo()),
+            new FiltroUtilidad.Columna<Pool>("preguntas", FiltroUtilidad.Tipo.NUMERO, p -> String.valueOf(p.getCantidadPreguntas())),
+            new FiltroUtilidad.Columna<Pool>("autoevaluaciones", FiltroUtilidad.Tipo.NUMERO,
+                    p -> String.valueOf(p.getAutoevaluacionesActivas().size())),
+            new FiltroUtilidad.Columna<Pool>("fechaCreacion", FiltroUtilidad.Tipo.FECHA,
+                    p -> p.getFechaCreacion() == null ? "" : p.getFechaCreacion().toString().replace('T', ' '))),
+            Pool::getBaja);
 }
